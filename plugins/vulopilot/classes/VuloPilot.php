@@ -185,12 +185,27 @@ final class VuloPilot {
         // same shape as llms_txt_generator above.
         $this->container['crawler_traffic_logger'] = new Services\CrawlerTrafficLogger();
 
-        // Scanning → SEO's "XML Sitemap"/"Robots.txt" cards — both wrap
-        // WordPress core's own native sitemap/robots.txt rather than
-        // building either from scratch; self-register their own hooks,
-        // same unconditional-construction shape as the two services above.
-        $this->container['sitemap_manager']    = new Services\SitemapManager();
-        $this->container['robots_txt_manager'] = new Services\RobotsTxtManager();
+        // Scanning → Sitemap/Robots.txt cards — both wrap WordPress core's
+        // own native sitemap/robots.txt rather than building either from
+        // scratch; self-register their own hooks, same unconditional-
+        // construction shape as the two services above. HtmlSitemapRenderer
+        // is the one genuinely new (non-core-wrapping) piece — a real
+        // `[vulopilot_html_sitemap]` shortcode.
+        $this->container['sitemap_manager']       = new Services\SitemapManager();
+        $this->container['robots_txt_manager']    = new Services\RobotsTxtManager();
+        $this->container['html_sitemap_renderer'] = new Services\HtmlSitemapRenderer();
+
+        // Scanning → Webmaster Tools — real `wp_head` verification `<meta>`
+        // tag output, same unconditional-construction/settings-gate-output
+        // shape as CanonicalUrlManager/SocialMetaTagsManager below.
+        $this->container['webmaster_tools_manager'] = new Services\WebmasterToolsManager();
+
+        // Scanning → Instant Indexing (IndexNow) — real key-file serving
+        // (self-registers its own rewrite-rule/template_redirect hooks,
+        // same shape as llms_txt_generator above) and automatic submission
+        // on publish/update/trash, gated by their own settings.
+        $this->container['indexnow_key_file_server'] = new Services\IndexNowKeyFileServer();
+        $this->container['indexnow_auto_submitter']  = new Services\IndexNowAutoSubmitter();
 
         // One-Click Fix coverage pass for the SEO category (vulopilot-pro's
         // OneClickFix\ScannerFixMap) — the mechanical (non-AI) fixes for

@@ -196,6 +196,14 @@ class Settings extends \WP_REST_Controller {
             $response['file_saved'] = VuloPilot()->llms_txt_generator->write_file( $updated['llms_txt_content'] );
         }
 
+        // Instant Indexing tab's "Change key" button — same "an edited
+        // field also needs an immediate side-effect on save" precedent as
+        // llms_txt_content above, keeping /{key}.txt in sync with whatever
+        // key was just saved rather than only writing it lazily elsewhere.
+        if ( array_key_exists( 'indexnow_api_key', $tab_fields ) && ! empty( $updated['indexnow_api_key'] ) ) {
+            VuloPilot()->indexnow_key_file_server->write_key_file( $updated['indexnow_api_key'] );
+        }
+
         return rest_ensure_response( $response );
     }
 
@@ -292,6 +300,18 @@ class Settings extends \WP_REST_Controller {
         // ever being persisted until they actually edit and save it.
         if ( empty( $settings['llms_txt_content'] ) ) {
             $settings['llms_txt_content'] = VuloPilot()->llms_txt_generator->generate();
+        }
+
+        // Unlike llms_txt_content above (display-only until an admin
+        // explicitly edits/saves), `indexnow_api_key` needs a real,
+        // persisted value from the very first read — IndexNowAutoSubmitter
+        // and the key file at /{key}.txt both need a stable key to exist
+        // before an admin ever visits the Instant Indexing tab, not just
+        // whenever they happen to click "Change key" the first time.
+        if ( empty( $settings['indexnow_api_key'] ) ) {
+            $settings['indexnow_api_key'] = \VuloPilot\Services\IndexNowKeyFileServer::generate_new_key();
+            update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
+            VuloPilot()->indexnow_key_file_server->write_key_file( $settings['indexnow_api_key'] );
         }
 
         return $settings;

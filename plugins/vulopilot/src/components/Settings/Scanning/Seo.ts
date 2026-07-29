@@ -13,10 +13,11 @@ import { __ } from '@wordpress/i18n';
  *   DuplicateContentScanner, OrphanPageScanner, ThinContentScanner,
  *   SeoImagesScanner, ImagesScanner, BrokenLinksScanner, SchemaScanner +
  *   StructuredDataValidationScanner).
- * - XML Sitemap / Robots.txt: real toggles over WordPress core's own
- *   native sitemap (`/wp-sitemap.xml`, via Services\SitemapManager) and
- *   virtual robots.txt (via Services\RobotsTxtManager) — not a
- *   from-scratch generator for either.
+ * - Robots.txt: a real toggle over WordPress core's own virtual
+ *   robots.txt (via Services\RobotsTxtManager) — not a from-scratch
+ *   generator. XML Sitemap settings moved to their own dedicated
+ *   Scanning → Sitemap tab (Scanning/Sitemap.ts), matching the mockup's
+ *   own tab boundary — they're no longer here.
  * - "Add canonical URL tags" / "Add Open Graph & Twitter Card tags"
  *   (Links & schema): real, independent tag output via
  *   Services\CanonicalUrlManager/SocialMetaTagsManager — the mechanical
@@ -212,42 +213,6 @@ export default {
 					value: 'social_meta_tags_enabled',
 				},
 			],
-		},
-		{
-			key: 'seo-section-sitemap',
-			type: 'section',
-			title: __('XML Sitemap', 'vulopilot'),
-		},
-		{
-			key: 'sitemap_enabled',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __('Generate XML sitemap', 'vulopilot'),
-			desc: __(
-				'Available at yoursite.com/wp-sitemap.xml once enabled.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'sitemap_enabled', label: '', value: 'sitemap_enabled' },
-			],
-		},
-		{
-			key: 'sitemap_ping_search_engines',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __('Ping search engines on update', 'vulopilot'),
-			desc: __(
-				'Notifies Bing automatically when new content is published.',
-				'vulopilot'
-			),
-			options: [
-				{
-					key: 'sitemap_ping_search_engines',
-					label: '',
-					value: 'sitemap_ping_search_engines',
-				},
-			],
-			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
 		},
 		{
 			key: 'seo-section-robots',
