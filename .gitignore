@@ -1,0 +1,41 @@
+pnpm-lock.yaml
+
+# Node
+node_modules/
+
+# Composer
+vendor/
+composer.lock
+
+# Build outputs
+/plugins/*/assets/
+release/
+dist/
+.cache/
+.wireit/
+build/
+
+# Logs
+log/
+*.log
+
+# PHPUnit
+.phpunit.result.cache
+
+# Docker
+docker-compose.yml
+
+# CI
+.circleci/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+tmp/
+temp/

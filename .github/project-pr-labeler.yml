@@ -1,0 +1,15 @@
+'plugin: vulopilot':
+  - plugins/vulopilot/**/*
+
+'plugin: vulocart':
+  - plugins/vulocart/**/*
+
+'Documentation':
+  - docs/**/*
+
+'focus: monorepo infrastructure':
+  - .github/**/*
+  - bin/**/*
+  - tools/**/*
+  - '**/composer.json'
+  - '**/package.json'
