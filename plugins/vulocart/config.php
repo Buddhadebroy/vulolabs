@@ -8,10 +8,10 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'VULOCART_PLUGIN_TEXTDOMAIN', 'vulocart' );
-define( 'VULOCART_PLUGIN_VERSION', '1.2.0' );
+define( 'VULOCART_PLUGIN_VERSION', '1.0.0' );
 define( 'VULOCART_PLUGIN_SLUG', 'vulocart' );
 // Defined free-side (not by vulocart-pro) — same "where to buy Pro" pattern
-// as VULOPILOT_PRO_SHOP_URL in vulolabs/plugins/vulopilot/config.php:
+// as VULOPILOT_PRO_SHOP_URL in multivendorx/plugins/vulopilot/config.php:
 // the default `manage_plan_url` fallback for the "Pro not installed" case,
 // overridden by vulocart-pro's own VULOCART_MY_ACCOUNT_URL once Pro
 // registers via the `vulocart_update_pro_data` filter.

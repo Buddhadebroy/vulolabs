@@ -13,10 +13,10 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Modules class.
  *
  * The folder-scan/reflection module loader module-architecture.md
- * documents — mirrors VuloLabs\Modules and VuloPilot\Modules exactly
+ * documents — mirrors MultiVendorX\Modules and VuloPilot\Modules exactly
  * (same discovery mechanism, same activate/deactivate/is_available/
  * is_active API), so vulocart-pro and any third-party plugin extend
- * VuloCart the same way a Pro/catalogx-pro module extends vulolabs: a
+ * VuloCart the same way a Pro/catalogx-pro module extends multivendorx: a
  * folder under `modules/` containing `Module.php`, registered via the
  * `vulocart_module_sources` filter, never instantiated directly.
  *
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Modules class
  * @version     1.0.0
- * @author      VuloLabs
+ * @author      MultiVendorX
  */
 class Modules {
 

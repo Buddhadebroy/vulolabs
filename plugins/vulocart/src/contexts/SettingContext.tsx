@@ -4,7 +4,7 @@ import React, { createContext, useReducer, useContext, ReactNode } from 'react';
  * Same tiny reducer-backed context every plugin in this workspace that
  * uses zyra's InputRenderer/NavigatorComponent settings framework carries
  * its own copy of (see vulopilot/src/contexts/SettingContext.tsx and the
- * free vulolabs plugin's own copy) — it's generic, per-tab local
+ * free multivendorx plugin's own copy) — it's generic, per-tab local
  * state, not something zyra itself exports, so each consuming plugin
  * owns its own instance rather than importing a shared one that doesn't
  * exist.
