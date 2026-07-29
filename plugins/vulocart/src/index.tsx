@@ -11,7 +11,7 @@ import Brand from './assets/images/vulocart-logo.svg';
 
 /**
  * VuloCart's free plugin owns its own React mount — unlike
- * vulolabs/vulopilot's Pro plugins, which only register
+ * multivendorx/vulopilot's Pro plugins, which only register
  * `@wordpress/hooks` filters into an already-mounted Free dashboard
  * (react-frontend.md), VuloCart has no existing dashboard to extend, so
  * this mounts directly into `#vulocart-admin-root` (classes/Admin/Menu.php).
@@ -39,7 +39,7 @@ import Brand from './assets/images/vulocart-logo.svg';
  * khali_dabba/etc, see global.d.ts) to every zyra component this app
  * renders (Modules/Settings/Dashboard pages). `initializeModules()`
  * seeds zyra's own `useModules()` store with the real active-module list
- * — `force_vulocart_context_reload` mirrors the vulolabs/vulopilot
+ * — `force_vulocart_context_reload` mirrors the multivendorx/vulopilot
  * app.tsx pattern of setting this unconditionally on every load so the
  * store never goes stale.
  *
@@ -63,6 +63,8 @@ const offeringsAdminRoot = document.getElementById( 'vulocart-offerings-admin-ro
 const urlParams = new URLSearchParams( window.location.search );
 const urlAction = urlParams.get( 'action' );
 const urlId = urlParams.get( 'id' ) ? Number( urlParams.get( 'id' ) ) : null;
+const urlFilter = urlParams.get( 'filter' );
+const urlView = urlParams.get( 'view' );
 
 if ( adminRoot ) {
 	render(
@@ -86,7 +88,7 @@ if ( ordersAdminRoot ) {
 				onResultClick={ () => {} }
 			/>
 			<div className="admin-main-wrapper">
-				<Orders action={ urlAction } id={ urlId } />
+				<Orders action={ urlAction } id={ urlId } filter={ urlFilter } />
 			</div>
 		</QueryClientProvider>,
 		ordersAdminRoot
@@ -104,7 +106,7 @@ if ( offeringsAdminRoot ) {
 				onResultClick={ () => {} }
 			/>
 			<div className="admin-main-wrapper">
-				<Offerings action={ urlAction } id={ urlId } />
+				<Offerings action={ urlAction } id={ urlId } view={ urlView } />
 			</div>
 		</QueryClientProvider>,
 		offeringsAdminRoot

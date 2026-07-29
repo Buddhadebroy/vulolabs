@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Modules class
  * @version     1.0.0
- * @author      VuloLabs
+ * @author      MultiVendorX
  */
 class Modules extends \WP_REST_Controller {
 

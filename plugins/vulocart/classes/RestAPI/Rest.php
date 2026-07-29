@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Rest class
  * @version     1.0.0
- * @author      VuloLabs
+ * @author      MultiVendorX
  */
 class Rest {
 
@@ -52,9 +52,14 @@ class Rest {
      */
     public function register_routes(): void {
         $this->controllers = array(
-            'assets'   => new Controllers\Assets(),
-            'modules'  => new Controllers\Modules(),
-            'settings' => new Controllers\Settings(),
+            'offerings'      => new Controllers\Offerings(),
+            'modules'        => new Controllers\Modules(),
+            'settings'       => new Controllers\Settings(),
+            'terms'          => new Controllers\Terms(),
+            'attributes'     => new Controllers\Attributes(),
+            'reviews'        => new Controllers\Reviews(),
+            'inventory'      => new Controllers\Inventory(),
+            'offering_types' => new Controllers\OfferingTypes(),
         );
 
         $extra_controllers = apply_filters( 'vulocart_rest_controllers', array() );

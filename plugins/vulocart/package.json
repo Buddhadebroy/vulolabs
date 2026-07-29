@@ -5,7 +5,7 @@
 	"description": "AI-native, API-first commerce engine for WordPress",
 	"version": "1.0.0",
 	"license": "GPL-2.0-or-later",
-	"author": "VuloLabs",
+	"author": "MultiVendorX",
 	"main": "index.js",
 	"mainPluginFile": "vulocart.php",
 	"packageManager": "pnpm@10.34.1",
@@ -45,7 +45,7 @@
 		"version": "node ../../tools/scripts/version-replace.mjs",
 		"textdomain": "node ../../tools/scripts/update-textdomain.mjs",
 		"changelog": "composer install --quiet && composer exec -- changelogger",
-		"makepot": "pnpm exec wp i18n make-pot --domain='vulocart' --include='assets/js,classes,templates,modules,config.php,vulocart.php' . --headers='{\"Report-Msgid-Bugs-To\":\"https://vulolabs.com/contact/\"}' --file-comment=\"Copyright (c) $(date +'%Y') VuloLabs Inc. All Rights Reserved.\" languages/vulocart.pot",
+		"makepot": "pnpm exec wp i18n make-pot --domain='vulocart' --include='assets/js,classes,templates,modules,config.php,vulocart.php' . --headers='{\"Report-Msgid-Bugs-To\":\"https://multivendorx.com/contact/\"}' --file-comment=\"Copyright (c) $(date +'%Y') MultiVendorX Inc. All Rights Reserved.\" languages/vulocart.pot",
 		"makejson": "pnpm exec wp i18n make-json languages --pretty-print --no-purge"
 	},
 	"wireit": {

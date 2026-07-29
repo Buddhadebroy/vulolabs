@@ -8,7 +8,7 @@ import '../routes';
 import './app.scss';
 
 /**
- * Tab structure mirrors `VuloLabs\Admin`'s/`VuloPilot\Admin`'s real
+ * Tab structure mirrors `MultiVendorX\Admin`'s/`VuloPilot\Admin`'s real
  * pattern exactly (not react-router path routes): the tabs are real WP
  * admin sidebar submenu entries (classes/Admin/Menu.php's
  * `add_submenu_page()` calls, each pointing to `vulocart#&tab={tab}`),
