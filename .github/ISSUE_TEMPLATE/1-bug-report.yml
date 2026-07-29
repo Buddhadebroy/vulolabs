@@ -1,0 +1,102 @@
+name: 🐞 Bug Report
+description: Report a bug if something isn't working as expected in VuloLabs.
+title: "[Bug]: "
+labels: ["Bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thanks for contributing!
+
+        Please provide us with the information requested in this bug report.
+        Without these details, we won't be able to fully evaluate this issue.
+        Bug reports lacking detail, or for any other reason than to report a bug, may be closed without action.
+
+        While our goal is to address all the issues reported in this repository, GitHub should be treated as a place to report confirmed bugs only.
+
+        Make sure to look through the existing `type: bug` issues to see whether your bug has already been submitted.
+        Feel free to contribute to any existing issues.
+        Search tip: You can filter our issues using our labels.
+        Search tip: Make use of [GitHub's search syntax to refine your search](https://help.github.com/en/github/searching-for-information-on-github/searching-issues-and-pull-requests).
+
+  - type: dropdown
+    id: plugin
+    attributes:
+      label: Which plugin?
+      options:
+        - VuloPilot
+        - VuloCart
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm these before submitting the issue.
+      options:
+        - label: I have carried out troubleshooting steps and I believe I have found a bug.
+        - label: I have searched for similar bugs in both open and closed issues and cannot find a duplicate.
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: |
+        A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Attach screenshot(s) or recording(s) directly by dragging & dropping.
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. Scroll down to...
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: WordPress Environment
+      description: |
+        Paste your WordPress environment details here (WordPress/PHP version, active theme, other active plugins).
+      value: |
+        <details>
+        <summary>WordPress Environment</summary>
+
+
+
+        </details>
+
+  - type: checkboxes
+    id: isolating
+    attributes:
+      label: Isolating the problem
+      description: |
+        Please try testing your site for theme and plugin conflicts.
+        To do that, deactivate all plugins other than the affected one and switch to a default WordPress theme.
+        Then test again. If the issue is resolved, it means one of your other plugins or the theme is causing the issue.
+        Enable them one by one, testing each time, to find the culprit.
+      options:
+        - label: I have deactivated other plugins and confirmed this bug occurs with only the affected VuloLabs plugin active.
+        - label: This bug happens with a default WordPress theme active.
+        - label: I can consistently reproduce this bug using the steps above.
+    validations:
+      required: true
