@@ -71,6 +71,7 @@ class Rest {
             'post_seo'         => new Controllers\PostSeo(),
             'redirects'        => new Controllers\Redirects(),
             'not_found_logs'   => new Controllers\NotFoundLogs(),
+            'indexnow'         => new Controllers\IndexNow(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

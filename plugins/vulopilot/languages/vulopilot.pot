@@ -1,14 +1,14 @@
-# Copyright (c) 2026 MultiVendorX Inc. All Rights Reserved.
+# Copyright (c) 2026 VuloLabs Inc. All Rights Reserved.
 msgid ""
 msgstr ""
 "Project-Id-Version: VuloPilot 1.0.0\n"
-"Report-Msgid-Bugs-To: https://multivendorx.com/contact/\n"
+"Report-Msgid-Bugs-To: https://vulolabs.com/contact/\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-28T13:15:49+00:00\n"
+"POT-Creation-Date: 2026-07-29T13:07:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #. Plugin URI of the plugin
 #: vulopilot.php
-msgid "https://multivendorx.com/vulopilot/"
+msgid "https://vulolabs.com/vulopilot/"
 msgstr ""
 
 #. Description of the plugin
@@ -30,12 +30,12 @@ msgstr ""
 
 #. Author of the plugin
 #: vulopilot.php
-msgid "MultiVendorX"
+msgid "VuloLabs"
 msgstr ""
 
 #. Author URI of the plugin
 #: vulopilot.php
-msgid "https://multivendorx.com/"
+msgid "https://vulolabs.com/"
 msgstr ""
 
 #: classes/Admin.php:94
@@ -142,19 +142,19 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: classes/Admin.php:325
+#: classes/Admin.php:331
 msgid "AI Visibility"
 msgstr ""
 
-#: classes/Admin.php:326
+#: classes/Admin.php:332
 msgid "SEO & Content"
 msgstr ""
 
-#: classes/Admin.php:327
+#: classes/Admin.php:333
 msgid "Site Health"
 msgstr ""
 
-#: classes/Admin.php:328
+#: classes/Admin.php:334
 msgid "Tools"
 msgstr ""
 
@@ -842,6 +842,14 @@ msgstr ""
 msgid "No findings selected."
 msgstr ""
 
+#: classes/RestAPI/Controllers/IndexNow.php:93
+msgid "No URLs were given."
+msgstr ""
+
+#: classes/RestAPI/Controllers/IndexNow.php:100
+msgid "No IndexNow API key yet — reload the Instant Indexing tab once to generate one."
+msgstr ""
+
 #: classes/RestAPI/Controllers/NotFoundLogs.php:137
 #: classes/RestAPI/Controllers/NotFoundLogs.php:160
 msgid "Log entry not found."
@@ -909,20 +917,20 @@ msgstr ""
 msgid "Settings saved."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:229
+#: classes/RestAPI/Controllers/Settings.php:237
 #: assets/js/index.js:1
 msgid "That file doesn't look like a valid VuloPilot settings export."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:239
+#: classes/RestAPI/Controllers/Settings.php:247
 msgid "Settings imported."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:257
+#: classes/RestAPI/Controllers/Settings.php:265
 msgid "Settings reset to defaults."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:315
+#: classes/RestAPI/Controllers/Settings.php:335
 msgid "No module id given."
 msgstr ""
 
@@ -1684,6 +1692,7 @@ msgid "This product is purchasable and shown as in-stock, but its tracked quanti
 msgstr ""
 
 #: classes/Scanners/Basic/ProductMissingCategoriesScanner.php:41
+#: assets/js/index.js:1
 msgid "Product Categories"
 msgstr ""
 
@@ -1742,6 +1751,7 @@ msgid "The short description appears next to the add-to-cart button on the produ
 msgstr ""
 
 #: classes/Scanners/Basic/ProductMissingTagsScanner.php:42
+#: assets/js/index.js:1
 msgid "Product Tags"
 msgstr ""
 
@@ -1885,6 +1895,7 @@ msgid "Search engines display roughly %1$d–%2$d characters of a title before t
 msgstr ""
 
 #: classes/Scanners/Basic/SitemapScanner.php:45
+#: assets/js/index.js:1
 msgid "Sitemap"
 msgstr ""
 
@@ -2050,6 +2061,46 @@ msgstr ""
 #: classes/Sdk/ExtensionManager.php:194
 #, php-format
 msgid "Extension \"%1$s\" failed to register: %2$s"
+msgstr ""
+
+#: classes/Services/IndexNowClient.php:71
+msgid "No valid URLs for this site were given."
+msgstr ""
+
+#: classes/Services/IndexNowClient.php:136
+#: assets/js/index.js:1
+msgid "URL received."
+msgstr ""
+
+#: classes/Services/IndexNowClient.php:138
+#: assets/js/index.js:1
+msgid "URL received; key not yet validated."
+msgstr ""
+
+#: classes/Services/IndexNowClient.php:140
+#: assets/js/index.js:1
+msgid "Invalid format."
+msgstr ""
+
+#: classes/Services/IndexNowClient.php:142
+#: assets/js/index.js:1
+msgid "Key not found or doesn't match."
+msgstr ""
+
+#: classes/Services/IndexNowClient.php:144
+#: assets/js/index.js:1
+msgid "URL doesn't belong to this site."
+msgstr ""
+
+#: classes/Services/IndexNowClient.php:146
+#: assets/js/index.js:1
+msgid "Rate limited, try again later."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: classes/Services/IndexNowClient.php:150
+#, php-format
+msgid "Unexpected response (%d)."
 msgstr ""
 
 #: classes/Services/OnPageAnalyzer.php:118
@@ -2624,6 +2675,118 @@ msgid "Used by the \"Email me when GEO score drops\" notification in the Notific
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Media"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Instant Indexing"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submit URLs directly to the IndexNow API so participating search engines (Bing, Yandex, and others) crawl them within minutes instead of waiting on their next routine pass."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "URLs to submit"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One per line, up to 10,000."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submitting…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submit URLs"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not submit these URLs. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Just submitted"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "error"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Auto-submit post types"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copy"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copied!"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Changing…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Change key"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "IndexNow API key changed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not change the key. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "API key location"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Open this link to verify the key file is reachable by search engines — it should show the key."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "History"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The last 100 IndexNow API requests."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Response code help"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No submissions yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Time"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "URL"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Response"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Live file:"
 msgstr ""
 
@@ -2764,26 +2927,6 @@ msgid "Adds preview tags (title, description, image) for Facebook, LinkedIn, and
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "XML Sitemap"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Generate XML sitemap"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Available at yoursite.com/wp-sitemap.xml once enabled."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Ping search engines on update"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Notifies Bing automatically when new content is published."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Auto-generate robots.txt"
 msgstr ""
 
@@ -2813,6 +2956,254 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Track visits to missing pages so you can turn them into redirect suggestions."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "XML Sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your sitemap index can be found at"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Generate XML sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Available at yoursite.com/wp-sitemap.xml once enabled."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Ping search engines on update"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Notifies Bing automatically when new content is published."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Links per sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Max number of links on each sitemap page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Exclude posts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Post IDs to exclude from the sitemap, separated by commas. Applies across all included post types."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Exclude terms"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Term IDs to exclude, separated by commas. Applies across all included taxonomies."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Images in sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not yet implemented — WordPress core's native XML sitemap has no image entry support to hook into. These round-trip through Settings but have no effect on the sitemap output yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Images in sitemaps"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Include references to images from the post content in sitemaps — this helps search engines index the important images on your pages."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Include featured images"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Include the featured image too, even if it doesn't appear directly in the post content."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Post types & taxonomies in sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Which real post types/taxonomies are included in the XML sitemap vs. the [vulopilot_html_sitemap] shortcode below — a type can be in one, both, or neither. \"Products\"/\"Product categories\"/\"Product tags\" only take effect when WooCommerce is active."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Post types in XML sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Post types in HTML sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Taxonomies in XML sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Categories"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tags"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Taxonomies in HTML sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "HTML Sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable HTML sitemap"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A human-readable page listing every included post, page, and taxonomy term."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Use this shortcode to display the HTML sitemap anywhere on your site: [vulopilot_html_sitemap]"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Display format"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How you want to display the HTML sitemap."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "List"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Grid"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sort by"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How to sort the items in the HTML sitemap."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Published Date"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Modified Date"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Title"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Show dates"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Show published dates for each post & page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Item titles"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Show the post/term titles, or the SEO titles, in the HTML sitemap."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Post/Term Titles"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SEO Titles"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Webmaster Tools"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter verification codes for third-party webmaster tools. Each one is rendered as its own <meta> tag on every page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Google Search Console"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter your Google Search Console verification ID. Rendered as <meta name=\"google-site-verification\" content=\"...\">."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Bing Webmaster Tools"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter your Bing Webmaster Tools verification ID. Rendered as <meta name=\"msvalidate.01\" content=\"...\">."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Baidu Webmaster Tools"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter your Baidu Webmaster Tools verification ID. Rendered as <meta name=\"baidu-site-verification\" content=\"...\">."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Yandex Verification ID"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter your Yandex.Webmaster verification ID. Rendered as <meta name=\"yandex-verification\" content=\"...\">."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pinterest Verification ID"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter your Pinterest account verification ID. Rendered as <meta property=\"p:domain_verify\" content=\"...\">."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Norton Safe Web Verification ID"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter your Norton Safe Web ownership verification ID. Rendered as <meta name=\"norton-safeweb-site-verification\" content=\"...\">."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Custom Webmaster Tags"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Custom webmaster tags"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter your own custom webmaster tags. Only <meta> tags are allowed — anything else is stripped out before being added to the page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3351,7 +3742,7 @@ msgid "Health score trend, last 30 days"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Title length, meta descriptions, canonicals, duplicate titles, orphan pages, thin content, and heading structure."
+msgid "Title length, meta descriptions, canonicals, duplicate titles, orphan pages, thin content, heading structure, and (Pro) duplicate meta descriptions, multiple H1s, and focus keyword drift."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3388,6 +3779,78 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "No robots.txt findings yet — run a scan to check crawler access."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI Summary"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Whether pages have an extractable AI summary block or answer questions readers would plausibly ask."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No AI summary findings yet — run a scan to check for summary blocks and FAQ opportunities."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Evidence & Data"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Statistic-shaped claims with no citation or outbound link backing them up."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No evidence findings yet — run a scan to check for uncited claims."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Structure"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Paragraph length and heading hierarchy — how easily an AI system can extract a clean chunk of this content."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No structure findings yet — run a scan to check paragraph length and heading hierarchy."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Entities & Trust"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Author credentials, consistent naming, and baseline trust pages (About/Contact) AI systems weigh before citing a source."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No entity/trust findings yet — run a scan to check author info and naming consistency."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Crawlability"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Whether AI crawlers can find a curated index of this site’s content."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No crawlability findings yet — run a scan to check llms.txt."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Freshness"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pages that haven’t been updated recently — AI answer engines favor actively-maintained content."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No freshness findings yet — run a scan to check for stale content."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3516,14 +3979,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Generative Engine Optimization — how discoverable and citable this site is to AI answer engines."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "GEO findings"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No GEO findings yet — run a scan to check how AI answer engines can discover and cite this site."
 msgstr ""
 
 #: assets/js/index.js:1

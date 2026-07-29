@@ -21,8 +21,8 @@ defined( 'ABSPATH' ) || exit;
  * vulolabs plugin's admin screen already uses.
  *
  * Also grafts a grouped/collapsible look onto that same native
- * `#toplevel_page_vulopilot` menu itself (admin-menu/) rather than
- * a custom in-content React sidebar — see enqueue_menu_grouping_assets()'s
+ * `#toplevel_page_vulopilot` menu itself (public/js, public/styles) rather
+ * than a custom in-content React sidebar — see enqueue_menu_grouping_assets()'s
  * own docblock for why, and for the constraints that choice comes with.
  *
  * @class       Admin class
@@ -60,7 +60,7 @@ class Admin {
      * Registers the VuloPilot top-level menu and its submenu tabs.
      *
      * Each entry's optional 'group' key must match a GROUPS key —
-     * admin-menu/admin-menu-groups.js reads it (via the
+     * public/js/admin-menu-groups.js reads it (via the
      * tabToGroup map enqueue_menu_grouping_assets() localizes) to decide
      * which already-rendered `<li>` belongs under which collapsible
      * group header. Priorities are deliberately assigned so every group's
@@ -284,11 +284,17 @@ class Admin {
      * unconditionally here rather than gated to one screen the way
      * enqueue_admin_script() is.
      *
-     * The admin-menu/admin-menu-groups.js file is hand-written vanilla JS
-     * (no build step) rather than a webpack entry — it only ever touches
+     * The public/js/admin-menu-groups.js file (and its
+     * public/styles/admin-menu-groups.scss sibling) is hand-written
+     * vanilla JS/CSS rather than a webpack entry — it only ever touches
      * plain DOM (no JSX/TS, no React, no dependency on the admin bundle
      * even being loaded on the current screen), so routing it through
-     * wp-scripts/webpack would add a bundling step for zero benefit.
+     * wp-scripts/webpack would add a bundling step for zero benefit. It's
+     * still minified though (tools/scripts/minify.mjs's own `public/js`+
+     * `public/styles` asset-folder handling, terser/sass, no webpack) into
+     * assets/js/public/ and assets/styles/public/ — the paths enqueued
+     * below — so the release zip ships the same minified shape as every
+     * wp-scripts-built asset, not raw source.
      *
      * The script only ever *shows/hides* and *inserts a header before*
      * the `<li>` elements WordPress itself already rendered from
@@ -340,7 +346,7 @@ class Admin {
 
         wp_enqueue_script(
             'vulopilot-admin-menu-groups',
-            VuloPilot()->plugin_url . 'admin-menu/admin-menu-groups.js',
+            VuloPilot()->plugin_url . 'assets/js/public/vulopilot-admin-menu-groups.min.js',
             array(),
             VuloPilot()->version,
             true
@@ -348,7 +354,7 @@ class Admin {
 
         wp_enqueue_style(
             'vulopilot-admin-menu-groups',
-            VuloPilot()->plugin_url . 'admin-menu/admin-menu-groups.css',
+            VuloPilot()->plugin_url . 'assets/styles/public/vulopilot-admin-menu-groups.min.css',
             array(),
             VuloPilot()->version
         );

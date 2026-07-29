@@ -327,6 +327,7 @@ class Install {
 
         self::create_crawler_visits_table();
         self::create_redirect_tables();
+        self::create_indexnow_log_table();
     }
 
     /**
@@ -435,6 +436,43 @@ class Install {
     }
 
     /**
+     * Creates `vulopilot_indexnow_log` — its own method for the same reason
+     * as create_crawler_visits_table()/create_redirect_tables() above: this
+     * table was added after the original table set, so both a fresh install
+     * and a site upgrading in place need it (do_migration() calls this too).
+     * One row per real IndexNow API submission (manual or auto-submitted),
+     * trimmed to the last 100 by Repositories\IndexNowLogRepository after
+     * each insert (mockup's own "The last 100 IndexNow API requests" copy) —
+     * not upserted/deduped like `vulopilot_not_found_logs`, since repeat
+     * submissions of the same URL over time are each a distinct, meaningful
+     * API call worth its own row.
+     *
+     * @return void
+     */
+    private static function create_indexnow_log_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_indexnow_log = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['indexnow_log'] . "` (
+            `id`              bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `url`             varchar(255) NOT NULL,
+            `response_code`   smallint(5) unsigned DEFAULT NULL,
+            `response_status` varchar(20) NOT NULL DEFAULT 'unknown',
+            `trigger_type`    varchar(20) NOT NULL DEFAULT 'manual',
+            `created_at`      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_created` (`created_at`)
+        ) $collate;";
+
+        dbDelta( $sql_indexnow_log );
+    }
+
+    /**
      * Runs incremental, version-gated schema changes for upgrades from an
      * already-installed copy of VuloPilot. Additive only, per
      * .claude/rules/backward-compatibility.md — ADD COLUMN / ADD INDEX,
@@ -493,6 +531,12 @@ class Install {
         // "outside the version_compare gate, self-healing via CREATE TABLE
         // IF NOT EXISTS" reasoning as create_crawler_visits_table() above.
         self::create_redirect_tables();
+
+        // Instant Indexing (readme.txt's IndexNow support) needs its own new
+        // table for sites upgrading in place too — same "outside the
+        // version_compare gate, self-healing via CREATE TABLE IF NOT EXISTS"
+        // reasoning as create_crawler_visits_table() above.
+        self::create_indexnow_log_table();
 
         // The Geo module (modules/Geo/Module.php) didn't exist before this
         // version either — a site upgrading in place needs it added to

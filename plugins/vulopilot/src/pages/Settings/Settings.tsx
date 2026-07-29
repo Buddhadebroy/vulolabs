@@ -11,6 +11,7 @@ import getTemplateData from '../../services/templateService';
 import ImportExportPanel from '../../components/Settings/ImportExportPanel';
 import AiProvidersPanel from '../../components/Settings/Account/AiProvidersPanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
+import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
 /**
@@ -111,6 +112,13 @@ const Settings = () => {
 		// so they don't fit InputRenderer's per-field auto-save model either.
 		if (currentTab === 'ai-providers') {
 			return <AiProvidersPanel />;
+		}
+
+		// Instant Indexing tab's "Submit URLs"/"History" cards are real
+		// actions/logs, not persisted-field settings — same escape hatch as
+		// 'ai-providers' above (see InstantIndexing.ts's own docblock).
+		if (currentTab === 'indexnow') {
+			return <IndexNowPanel />;
 		}
 
 		// The mockup places the "live file / regenerate" row inside the

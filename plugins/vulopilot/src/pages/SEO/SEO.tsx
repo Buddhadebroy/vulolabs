@@ -44,7 +44,7 @@ const SEO_SECTIONS: {
 		key: 'titles-meta',
 		title: __('Titles & meta', 'vulopilot'),
 		description: __(
-			'Title length, meta descriptions, canonicals, duplicate titles, orphan pages, thin content, and heading structure.',
+			'Title length, meta descriptions, canonicals, duplicate titles, orphan pages, thin content, heading structure, and (Pro) duplicate meta descriptions, multiple H1s, and focus keyword drift.',
 			'vulopilot'
 		),
 		emptyMessage: __(
@@ -59,6 +59,17 @@ const SEO_SECTIONS: {
 			'orphan-pages',
 			'thin-content',
 			'heading-structure',
+			// vulopilot-pro's AdvancedSeo module — 3 of its 5 scanners were
+			// previously missing from every SEO_SECTIONS group (only
+			// sitewide-structured-data and sitemap-validation, below, were
+			// already wired), so their findings existed in
+			// vulopilot_scan_findings but were only ever visible on the
+			// Health page, not here. Grouped into this section since all 3
+			// are title/keyword-adjacent checks, matching where
+			// heading-structure and duplicate-content already live.
+			'meta-description-duplication',
+			'multiple-h1',
+			'focus-keyword-audit',
 		],
 	},
 	{
