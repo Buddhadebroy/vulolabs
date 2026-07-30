@@ -22,5 +22,29 @@ export default {
 			// setting has nothing to configure without it.
 			moduleEnabled: 'automation',
 		},
+		{
+			key: 'automation_max_retries',
+			type: 'number',
+			label: __('Max retries on failure', 'vulopilot'),
+			minNumber: 0,
+			maxNumber: 5,
+			desc: __(
+				'How many times a failed automation action is retried before it\'s left as failed. 0 disables retries.',
+				'vulopilot'
+			),
+			moduleEnabled: 'automation',
+		},
+		{
+			key: 'automation_retry_delay_minutes',
+			type: 'number',
+			label: __('Retry delay (minutes)', 'vulopilot'),
+			minNumber: 1,
+			maxNumber: 1440,
+			desc: __(
+				'How long to wait before retrying a failed automation action.',
+				'vulopilot'
+			),
+			moduleEnabled: 'automation',
+		},
 	],
 };

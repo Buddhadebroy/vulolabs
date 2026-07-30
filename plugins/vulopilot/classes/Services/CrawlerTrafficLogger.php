@@ -34,13 +34,20 @@ defined( 'ABSPATH' ) || exit;
  * literal "Google-Extended" string that would never appear in real
  * traffic and would silently show zero visits forever.
  *
- * The one Pro extension point for "AI Crawler Traffic Analytics &
- * Historical Logs" (readme.txt's Pro line) is `vulopilot_crawler_log_retention_days`
+ * One Pro extension point for "AI Crawler Traffic Analytics & Historical
+ * Logs" (readme.txt's Pro line) is `vulopilot_crawler_log_retention_days`
  * — Free's daily cleanup cron deletes rows older than this (default 30);
  * vulopilot-pro's AdvancedReports module overrides it to a longer window.
  * No separate Pro table/REST controller is needed — see this feature's
  * plan doc for why a per-event log doesn't need the snapshot-rollup shape
  * Health Score's historical trend uses.
+ *
+ * A second extension point, `vulopilot_crawler_bot_signatures`, lets Pro (or
+ * any third party) extend BOT_SIGNATURES without editing this class —
+ * AI-CRAWLER-ANALYTICS-MODULE.md's "register a source, don't modify the
+ * host" reasoning, the same posture every other *_sources filter in this
+ * codebase already uses, applied to this one fixed array that previously
+ * had no such seam.
  *
  * @class       CrawlerTrafficLogger class
  * @version     1.0.0
@@ -95,7 +102,7 @@ class CrawlerTrafficLogger {
             return;
         }
 
-        foreach ( self::BOT_SIGNATURES as $signature => $bot_name ) {
+        foreach ( self::get_bot_signatures() as $signature => $bot_name ) {
             if ( false === strpos( $user_agent, $signature ) ) {
                 continue;
             }
@@ -105,6 +112,19 @@ class CrawlerTrafficLogger {
             ( new CrawlerVisitRepository() )->log( $bot_name, $user_agent, $requested_url );
             return;
         }
+    }
+
+    /**
+     * User-Agent substring => display name, extensible via
+     * `vulopilot_crawler_bot_signatures` — the shared source of truth for
+     * every place in this codebase that needs to know which AI bots are
+     * detectable (Scanners\Basic\AiCrawlerBlockedPagesScanner, and
+     * vulopilot-pro's crawler-analytics correlation/alert code).
+     *
+     * @return array<string, string>
+     */
+    public static function get_bot_signatures(): array {
+        return apply_filters( 'vulopilot_crawler_bot_signatures', self::BOT_SIGNATURES );
     }
 
     /**

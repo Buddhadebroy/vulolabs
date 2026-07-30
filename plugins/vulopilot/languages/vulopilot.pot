@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-29T13:07:28+00:00\n"
+"POT-Creation-Date: 2026-07-30T12:49:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -63,98 +63,103 @@ msgid "Brand Visibility"
 msgstr ""
 
 #: classes/Admin.php:122
+#: assets/js/index.js:1
+msgid "Knowledge Graph"
+msgstr ""
+
+#: classes/Admin.php:127
 #: classes/Scanners/Basic/SeoScanner.php:44
 #: assets/js/index.js:1
 msgid "SEO"
 msgstr ""
 
-#: classes/Admin.php:128
+#: classes/Admin.php:133
 #: assets/js/index.js:1
 msgid "Content"
 msgstr ""
 
-#: classes/Admin.php:134
+#: classes/Admin.php:139
 #: classes/Scanners/Basic/SchemaScanner.php:40
 #: assets/js/index.js:1
 #: assets/js/post-editor.js:1
 msgid "Schema"
 msgstr ""
 
-#: classes/Admin.php:140
+#: classes/Admin.php:145
 #: assets/js/index.js:1
 msgid "Redirects & 404s"
 msgstr ""
 
-#: classes/Admin.php:146
+#: classes/Admin.php:151
 #: classes/Scanners/Basic/PerformanceScanner.php:46
 #: assets/js/index.js:1
 msgid "Performance"
 msgstr ""
 
-#: classes/Admin.php:152
+#: classes/Admin.php:157
 #: classes/Scanners/Basic/AccessibilityScanner.php:46
 #: assets/js/index.js:1
 msgid "Accessibility"
 msgstr ""
 
-#: classes/Admin.php:158
+#: classes/Admin.php:163
 #: assets/js/index.js:1
 msgid "Security"
 msgstr ""
 
-#: classes/Admin.php:164
+#: classes/Admin.php:169
 #: classes/Scanners/Basic/WooCommerceScanner.php:41
 #: assets/js/index.js:1
 msgid "WooCommerce"
 msgstr ""
 
-#: classes/Admin.php:169
+#: classes/Admin.php:174
 #: assets/js/index.js:1
 msgid "Automation"
 msgstr ""
 
-#: classes/Admin.php:179
+#: classes/Admin.php:184
 msgid "Health"
 msgstr ""
 
-#: classes/Admin.php:184
+#: classes/Admin.php:189
 #: assets/js/index.js:1
 msgid "Modules"
 msgstr ""
 
-#: classes/Admin.php:190
+#: classes/Admin.php:195
 #: assets/js/index.js:1
 msgid "AI Assistant"
 msgstr ""
 
-#: classes/Admin.php:196
+#: classes/Admin.php:201
 #: assets/js/index.js:1
 msgid "Reports"
 msgstr ""
 
-#: classes/Admin.php:202
+#: classes/Admin.php:207
 #: assets/js/index.js:1
 msgid "Activity"
 msgstr ""
 
-#: classes/Admin.php:208
+#: classes/Admin.php:213
 #: assets/js/index.js:1
 msgid "Settings"
 msgstr ""
 
-#: classes/Admin.php:331
+#: classes/Admin.php:336
 msgid "AI Visibility"
 msgstr ""
 
-#: classes/Admin.php:332
+#: classes/Admin.php:337
 msgid "SEO & Content"
 msgstr ""
 
-#: classes/Admin.php:333
+#: classes/Admin.php:338
 msgid "Site Health"
 msgstr ""
 
-#: classes/Admin.php:334
+#: classes/Admin.php:339
 msgid "Tools"
 msgstr ""
 
@@ -470,6 +475,7 @@ msgstr ""
 #: classes/AIActions/Actions/GenerateSchemaAction.php:73
 #: classes/AIActions/Actions/GenerateSocialContentAction.php:59
 #: classes/AIActions/Actions/SuggestInternalLinksAction.php:66
+#: classes/ContentIntelligence/ContentAnalyzer.php:76
 #: classes/GeoAnalysis/GeoAnalyzer.php:87
 msgid "post_id must refer to a published post or page."
 msgstr ""
@@ -670,6 +676,41 @@ msgstr ""
 msgid "No AI provider is configured."
 msgstr ""
 
+#: classes/Automation/Actions/SnoozeFindingAction.php:63
+msgid "Snooze the finding"
+msgstr ""
+
+#: classes/Automation/Actions/SnoozeFindingAction.php:74
+msgid "This recommendation is not tied to a specific object; nothing to snooze."
+msgstr ""
+
+#: classes/Automation/Actions/SnoozeFindingAction.php:87
+msgid "No matching open finding was found."
+msgstr ""
+
+#. translators: %d is the finding's own row id.
+#: classes/Automation/Actions/SnoozeFindingAction.php:99
+#, php-format
+msgid "Finding #%d snoozed."
+msgstr ""
+
+#: classes/Automation/Actions/SnoozeFindingAction.php:102
+msgid "Could not update the finding."
+msgstr ""
+
+#: classes/ContentIntelligence/ContentAnalyzer.php:196
+msgid "The AI did not return a usable Content Intelligence analysis."
+msgstr ""
+
+#: classes/ContentIntelligence/ContentAnalyzer.php:202
+msgid "The AI response is missing a valid \"topic_authority\" score."
+msgstr ""
+
+#: classes/ContentIntelligence/ContentAnalyzer.php:213
+#: classes/GeoAnalysis/GeoAnalyzer.php:441
+msgid "The AI did not return any suggestions."
+msgstr ""
+
 #. translators: 1: site name, 2: post title.
 #: classes/GeoAnalysis/GeoAnalyzer.php:161
 #, php-format
@@ -690,10 +731,6 @@ msgstr ""
 #: classes/GeoAnalysis/GeoAnalyzer.php:424
 #, php-format
 msgid "The AI response is missing a valid \"%s\" score."
-msgstr ""
-
-#: classes/GeoAnalysis/GeoAnalyzer.php:441
-msgid "The AI did not return any suggestions."
 msgstr ""
 
 #: classes/GeoAnalysis/LlmsTxtGenerator.php:172
@@ -735,6 +772,14 @@ msgstr ""
 msgid "Automation Report"
 msgstr ""
 
+#: classes/Reports/Types/BrandIntelligenceReport.php:60
+msgid "Brand Intelligence Report"
+msgstr ""
+
+#: classes/Reports/Types/ContentIntelligenceReport.php:59
+msgid "Content Intelligence Report"
+msgstr ""
+
 #: classes/Reports/Types/PerformanceReport.php:34
 msgid "Performance Report"
 msgstr ""
@@ -759,7 +804,7 @@ msgstr ""
 msgid "WooCommerce Report"
 msgstr ""
 
-#: classes/Repositories/AutomationRunRepository.php:106
+#: classes/Repositories/AutomationRunRepository.php:110
 msgid "Deleted automation"
 msgstr ""
 
@@ -818,27 +863,27 @@ msgstr ""
 msgid "No valid widgets in the submitted layout."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:106
+#: classes/RestAPI/Controllers/Findings.php:124
 msgid "Invalid severity filter."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:166
+#: classes/RestAPI/Controllers/Findings.php:184
 msgid "Invalid finding status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:172
+#: classes/RestAPI/Controllers/Findings.php:190
 msgid "Finding not found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:184
+#: classes/RestAPI/Controllers/Findings.php:202
 msgid "Could not update this finding."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:208
+#: classes/RestAPI/Controllers/Findings.php:226
 msgid "Invalid bulk finding status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:212
+#: classes/RestAPI/Controllers/Findings.php:230
 msgid "No findings selected."
 msgstr ""
 
@@ -1198,6 +1243,28 @@ msgstr ""
 msgid "This was flagged as critical and should be addressed as soon as possible."
 msgstr ""
 
+#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:62
+msgid "About Page Analysis"
+msgstr ""
+
+#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:100
+msgid "enough real content"
+msgstr ""
+
+#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:103
+msgid "a visible contact signal"
+msgstr ""
+
+#. translators: %s is a comma-separated list of what the About page is missing.
+#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:110
+#, php-format
+msgid "About page is missing %s"
+msgstr ""
+
+#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:115
+msgid "This site has an About page, but it doesn't yet give AI answer engines or readers enough real substance (word count, contact details) to establish it as a genuine trust signal."
+msgstr ""
+
 #. translators: %s is the post/page title.
 #: classes/Scanners/Basic/AccessibilityScanner.php:79
 #, php-format
@@ -1206,6 +1273,38 @@ msgstr ""
 
 #: classes/Scanners/Basic/AccessibilityScanner.php:84
 msgid "Most themes already render the title as the page's <h1>. A second <h1> in the content creates a conflicting heading hierarchy for screen readers."
+msgstr ""
+
+#: classes/Scanners/Basic/AeoSchemaScanner.php:67
+msgid "AEO Schema Coverage"
+msgstr ""
+
+#. translators: 1: schema.org type (FAQPage/HowTo), 2: post/page title.
+#: classes/Scanners/Basic/AeoSchemaScanner.php:163
+#, php-format
+msgid "Missing %1$s schema: %2$s"
+msgstr ""
+
+#. translators: %s is the schema.org type (FAQPage/HowTo).
+#: classes/Scanners/Basic/AeoSchemaScanner.php:171
+#, php-format
+msgid "This content is already shaped like %s content (matching headings/list structure) but has no matching schema.org markup, so AI answer engines can't confidently recognize it as one."
+msgstr ""
+
+#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:48
+msgid "AI Crawler Blocked Pages"
+msgstr ""
+
+#. translators: 1: bot display name, 2: post/page title.
+#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:104
+#, php-format
+msgid "%1$s is blocked from crawling: %2$s"
+msgstr ""
+
+#. translators: %s is the bot display name.
+#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:112
+#, php-format
+msgid "robots.txt disallows this page for %s specifically, so it won't be read for AI answers even though the rest of the site may be reachable."
 msgstr ""
 
 #: classes/Scanners/Basic/AriaAttributesScanner.php:46
@@ -1220,6 +1319,48 @@ msgstr ""
 
 #: classes/Scanners/Basic/AriaAttributesScanner.php:87
 msgid "A <div> or <span> with a click handler but no role attribute is invisible to screen readers as an interactive element."
+msgstr ""
+
+#: classes/Scanners/Basic/AuthorSchemaScanner.php:55
+msgid "Author Schema"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: classes/Scanners/Basic/AuthorSchemaScanner.php:88
+#, php-format
+msgid "No author schema found: %s"
+msgstr ""
+
+#: classes/Scanners/Basic/AuthorSchemaScanner.php:93
+msgid "A Person reference in this content's structured data is what AI answer engines and Knowledge Panels read to resolve who wrote it — separate from a human-visible author bio, which alone isn't machine-readable."
+msgstr ""
+
+#: classes/Scanners/Basic/BasicVulnerabilitiesScanner.php:49
+msgid "Basic Vulnerabilities"
+msgstr ""
+
+#: classes/Scanners/Basic/BasicVulnerabilitiesScanner.php:119
+msgid "WordPress version is exposed in the homepage's generator tag"
+msgstr ""
+
+#: classes/Scanners/Basic/BasicVulnerabilitiesScanner.php:122
+msgid "The homepage's HTML includes a generator meta tag naming the exact WordPress version, making it easier for automated scanners to target version-specific vulnerabilities. Remove it via the `wp_head` \"wp_generator\" callback."
+msgstr ""
+
+#: classes/Scanners/Basic/BasicVulnerabilitiesScanner.php:156
+msgid "The default readme.html file is publicly accessible"
+msgstr ""
+
+#: classes/Scanners/Basic/BasicVulnerabilitiesScanner.php:159
+msgid "This file ships with WordPress core and reveals the installed version. Delete it or block direct access to it."
+msgstr ""
+
+#: classes/Scanners/Basic/BasicVulnerabilitiesScanner.php:180
+msgid "Database table prefix is the WordPress default (\"wp_\")"
+msgstr ""
+
+#: classes/Scanners/Basic/BasicVulnerabilitiesScanner.php:183
+msgid "A non-default table prefix is a small extra hurdle against certain automated SQL-injection attempts. Changing it on an existing site requires a careful, backed-up migration — this is a hardening note, not something to change casually."
 msgstr ""
 
 #: classes/Scanners/Basic/BrokenLinksScanner.php:59
@@ -1262,6 +1403,30 @@ msgstr ""
 
 #: classes/Scanners/Basic/CanonicalUrlScanner.php:81
 msgid "A missing canonical tag can lead search engines to treat identical content reachable at multiple URLs as duplicates."
+msgstr ""
+
+#: classes/Scanners/Basic/CoreFileIntegrityScanner.php:50
+msgid "File Changes"
+msgstr ""
+
+#. translators: %s is the missing core file's path.
+#: classes/Scanners/Basic/CoreFileIntegrityScanner.php:94
+#, php-format
+msgid "Core file is missing: %s"
+msgstr ""
+
+#: classes/Scanners/Basic/CoreFileIntegrityScanner.php:99
+msgid "This file ships with WordPress core and normally exists on every install. A missing core file can break functionality or indicate tampering — reinstall core from the official source."
+msgstr ""
+
+#. translators: %s is the modified core file's path.
+#: classes/Scanners/Basic/CoreFileIntegrityScanner.php:111
+#, php-format
+msgid "Core file has been modified: %s"
+msgstr ""
+
+#: classes/Scanners/Basic/CoreFileIntegrityScanner.php:116
+msgid "This file's contents no longer match the official WordPress release for this version — either a manual edit or a sign of compromise. Compare it against a fresh core download."
 msgstr ""
 
 #: classes/Scanners/Basic/CronScanner.php:47
@@ -1437,6 +1602,7 @@ msgid "AI answer engines favor content with a short summary or key-takeaways lis
 msgstr ""
 
 #: classes/Scanners/Basic/GeoTrustSignalsScanner.php:49
+#: assets/js/index.js:1
 msgid "Trust Signals"
 msgstr ""
 
@@ -1569,6 +1735,18 @@ msgstr ""
 
 #: classes/Scanners/Basic/OpenGraphScanner.php:93
 msgid "Open Graph tags control how this site's links look when shared on Facebook, LinkedIn, and similar platforms. Without them, shared links show no preview image or description."
+msgstr ""
+
+#: classes/Scanners/Basic/OrganizationSchemaScanner.php:50
+msgid "Organization Schema"
+msgstr ""
+
+#: classes/Scanners/Basic/OrganizationSchemaScanner.php:88
+msgid "No Organization schema found on the homepage"
+msgstr ""
+
+#: classes/Scanners/Basic/OrganizationSchemaScanner.php:91
+msgid "Organization (or LocalBusiness) structured data is what AI answer engines and Google Knowledge Panels use to resolve \"who runs this site\" as a real-world entity. Its absence makes this site harder to confidently identify and cite."
 msgstr ""
 
 #: classes/Scanners/Basic/OrphanPageScanner.php:51
@@ -1815,6 +1993,21 @@ msgstr ""
 msgid "This SKU is shared by %d products, which breaks inventory tracking and any integration that relies on SKU uniqueness."
 msgstr ""
 
+#: classes/Scanners/Basic/ReadabilityScanner.php:66
+#: assets/js/index.js:1
+msgid "Readability"
+msgstr ""
+
+#. translators: 1: post/page title, 2: Flesch Reading Ease score (0-100).
+#: classes/Scanners/Basic/ReadabilityScanner.php:113
+#, php-format
+msgid "Difficult to read (score %2$d/100): %1$s"
+msgstr ""
+
+#: classes/Scanners/Basic/ReadabilityScanner.php:119
+msgid "Shorter sentences and simpler words generally read easier for both visitors and AI systems summarizing this content."
+msgstr ""
+
 #: classes/Scanners/Basic/RedirectAnalysisScanner.php:56
 msgid "Redirect Analysis"
 msgstr ""
@@ -2037,6 +2230,34 @@ msgstr ""
 msgid "Theme update available: %s"
 msgstr ""
 
+#: classes/Scanners/Basic/WcagScanner.php:70
+msgid "WCAG Scanner"
+msgstr ""
+
+#. translators: 1: number of ambiguous links, 2: the post/page title.
+#: classes/Scanners/Basic/WcagScanner.php:111
+#, php-format
+msgid "%1$d link(s) with generic, out-of-context text: %2$s"
+msgstr ""
+
+#: classes/Scanners/Basic/WcagScanner.php:117
+msgid "A link reading only \"click here\" or \"read more\" makes no sense out of context — screen reader users who navigate by a page's link list can't tell them apart. Link text should describe its own destination (WCAG 2.4.4)."
+msgstr ""
+
+#: classes/Scanners/Basic/WeakPasswordScanner.php:64
+msgid "Weak Password Detection"
+msgstr ""
+
+#. translators: %s is the WordPress username.
+#: classes/Scanners/Basic/WeakPasswordScanner.php:97
+#, php-format
+msgid "Administrator \"%s\" is using a common, easily guessed password"
+msgstr ""
+
+#: classes/Scanners/Basic/WeakPasswordScanner.php:102
+msgid "This account's password matched an entry in a small dictionary of the most commonly used passwords. Change it immediately and enable two-factor authentication if available."
+msgstr ""
+
 #: classes/Scanners/Basic/WooCommerceScanner.php:68
 msgid "No published checkout page configured"
 msgstr ""
@@ -2254,6 +2475,14 @@ msgid "All 17 SEO scanners (titles, meta descriptions, canonicals, sitemap, robo
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Entity Extraction"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Real entities read from your site — post authors, your Organization, WooCommerce products, owner-configured services/locations, and taxonomy terms in use (Knowledge Graph page). Turning this off stops the page/widget from returning real data."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Premium Modules"
 msgstr ""
 
@@ -2299,6 +2528,18 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Per-post AI scoring for AI-search-engine discoverability — entity coverage, question coverage, answer completeness, LLM readability, and AI suggestions. The deterministic GEO findings table stays free; this AI-scored card is Pro."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI Crawler Analytics"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Historical Crawl Trends, AI Visibility Correlation, AI Crawler Alerts, an AI Monitoring dashboard widget, and Crawl Reports. AI crawler detection/logs/blocked-pages/statistics themselves stay free; this adds trend history, correlation, and alerting on top."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Entity Relationships, Graph Visualization, Entity Recommendations, Entity Automation, and Knowledge Graph Health. Entity Extraction (people/organizations/products/services/locations/categories) itself stays free; this adds the relationship graph, its visualization, AI-suggested entities/relationships, an automation trigger, and a completeness health score on top."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2434,6 +2675,22 @@ msgid "How long an automation must wait after last firing before it can fire aga
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Max retries on failure"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How many times a failed automation action is retried before it's left as failed. 0 disables retries."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Retry delay (minutes)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How long to wait before retrying a failed automation action."
+msgstr ""
+
+#: assets/js/index.js:1
 #: assets/js/post-editor.js:1
 msgid "General"
 msgstr ""
@@ -2531,6 +2788,30 @@ msgid "Alerts when a post's GEO score falls by the threshold configured under Sc
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Email me when Brand score drops"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Alerts when the sitewide Brand score falls by the threshold configured under Scanning → Brand Intelligence."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Email me when Knowledge Graph Health drops"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Alerts when the Knowledge Graph Health score falls by the threshold configured under Scanning → Entity Extraction."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Email me on AI crawler alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Alerts when AI crawler visit volume drops sharply, or when a bot keeps hitting a page robots.txt disallows for it. Threshold configured under Scanning → Crawler Analytics."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Email from name"
 msgstr ""
 
@@ -2580,6 +2861,130 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Turns every category \"accessibility\" scanner on or off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check for generic, out-of-context link text"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Flags links whose entire visible text is a generic phrase like \"click here\" or \"read more\" — link text should describe its own destination (WCAG 2.4.4)."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Scheduled accessibility audits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Runs only the accessibility-category scanners on this cadence, independent of the general Scan frequency setting under General."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Off"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Brand Intelligence"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "About Page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Controls the Brand page's About Page Analysis finding — evaluated only for sites that already have an About-shaped page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minimum About page word count"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "An About page under this word count is flagged as too thin to be a genuine trust signal."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Brand score drop alert threshold (points)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used by the \"Email me when Brand score drops\" notification in the Notifications tab."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content Intelligence"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Controls the Content page's readability findings — a standard Flesch Reading Ease score (0-100, higher is easier to read)."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minimum readability score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Posts scoring below this on the Flesch Reading Ease scale are flagged. 50 is that scale's own \"Fairly Difficult\" boundary."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Crawler Analytics"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Read by vulopilot-pro's AI Crawler Alerts — sitewide AI crawler visit-volume monitoring, not per-page findings."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Crawl volume drop alert threshold (%)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used by the \"Email me on AI crawler alerts\" notification in the Notifications tab, when today's AI crawler visit volume falls this much below the trailing 7-day average."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Services"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One published page per line — a URL or a numeric page ID. Pages that don't resolve are skipped."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Service pages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "e.g. https://example.com/consulting/ or just the page ID."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Locations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One location per line, as \"Name | Address\"."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Business locations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "e.g. Downtown Store | 123 Main St, Springfield."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Knowledge Graph Health drop alert threshold (points)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used by the \"Email me when Knowledge Graph Health drops\" notification in the Notifications tab."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2663,15 +3068,27 @@ msgid "Pages not updated within this window score lower on the GEO AI score's Co
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Alerts"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "GEO score drop alert threshold (points)"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Used by the \"Email me when GEO score drops\" notification in the Notifications tab."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Competitor Visibility"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Compare your own structural GEO-readiness signals against a list of competitor pages."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Competitor URLs"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One URL per line. Fetched over a real HTTP request and compared on the same structural signals (schema, author info, heading structure) this plugin already checks on your own content — no AI involved."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2811,11 +3228,99 @@ msgid "Could not regenerate llms.txt. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Check administrators for weak passwords"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks every administrator account's password against a small dictionary of the most commonly used passwords during each scan, using the same hashing check WordPress itself uses at login."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check for basic vulnerability exposure"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks whether the WordPress version is exposed via the homepage or readme.html, and whether the database table prefix is left at its default."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check WordPress core files for changes"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Compares every WordPress core file against the official checksums published for this exact version, flagging anything modified or missing."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Check for anonymous REST API user exposure"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Makes a real, unauthenticated request to this site's own /wp/v2/users endpoint during each scan to check whether it exposes usernames. Turn off if your firewall/WAF flags this request."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Scheduled security monitoring"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Runs only the security-category scanners on this cadence, independent of the general Scan frequency setting under General."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Email me on new security alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send an email when a scan detects a new security finding at or above the minimum severity below. Already-alerted, still-open findings aren't re-sent on every scan."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Security alert email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Where security alerts are sent. Falls back to the site admin email when left blank."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minimum alert severity"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Only findings at or above this severity trigger a security alert email."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Critical only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "High and above"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Medium and above"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Low and above"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Monitor plugin/theme files for changes"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Maintains a local baseline of every plugin/theme PHP file and flags any added, modified, or removed since the last scan."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Integrity monitoring file limit"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Maximum combined number of plugin/theme PHP files checked per scan, to bound the cost of hashing on large sites."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2932,6 +3437,14 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Adds a sitemap reference to your robots.txt. Turn off if you maintain a custom robots.txt file yourself."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Flag pages blocked for specific AI crawlers"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Published pages/posts that robots.txt disallows for one named AI bot (GPTBot, ClaudeBot, etc.), separate from the sitewide check above."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3267,6 +3780,18 @@ msgid "Generative Engine Optimization"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Readability, thin/duplicate content, links"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Brand"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Trust, authority, and entity signals"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Quick fixes"
 msgstr ""
 
@@ -3416,6 +3941,22 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Every scanned finding is resolved right now."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "People"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Organizations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No entities extracted yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Publish some content, or configure services/locations under Settings → Entity Extraction."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3682,11 +4223,23 @@ msgid "Finding reopened."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Snooze"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not snooze this finding. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Fix"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Search findings…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Fix selected"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3774,11 +4327,43 @@ msgid "No sitemap findings yet — run a scan to check your XML sitemap."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Whether robots.txt is reachable and not accidentally blocking every crawler."
+msgid "Whether robots.txt is reachable, not accidentally blocking every crawler, and not blocking specific AI crawlers from specific pages."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "No robots.txt findings yet — run a scan to check crawler access."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No open findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "1 open finding"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "open findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Top Pages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Ranked by open GEO findings — fewer findings means the page is more AI-visibility ready."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Most AI-visible"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Needs attention"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No published pages yet — publish some content to see this ranking."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3854,6 +4439,18 @@ msgid "No freshness findings yet — run a scan to check for stale content."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "AEO (Answer Engine Optimization)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content already shaped like an FAQ or a how-to guide, but missing the schema.org markup that lets AI answer engines recognize it as one."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No AEO schema findings yet — run a scan to check FAQ/HowTo-shaped content for missing schema."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load this data"
 msgstr ""
 
@@ -3887,6 +4484,118 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "A per-provider cost, token, and success-rate breakdown of the history above."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Brand Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A composite score across trust signals, authority signals, and entity/schema consistency."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Trust Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Authority Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Entity Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Whether this site has the baseline pages (About/Contact) AI engines expect before treating it as citable, and whether those pages have real substance."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No trust-signal findings yet — run a scan to check."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Authority Signals"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Author expertise and freshness signals — bio text, content updates, and machine-readable Person schema."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No authority findings yet — run a scan to check."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Entity Consistency"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Whether this site's brand name is written consistently, and whether Organization schema exists to help AI engines resolve it as a real-world entity."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No entity findings yet — run a scan to check."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No published posts/pages with a real author yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing to show yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No published products yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No service pages configured yet — add some under Settings → Entity Extraction."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No business locations configured yet — add some under Settings → Entity Extraction."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No categories in use yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A composite score across readability, thin content, duplicate content, heading structure, internal linking, and orphan pages."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How easy this content is to read — a standard Flesch Reading Ease score."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No readability findings yet — run a scan to check sentence/word complexity."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content Depth"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pages with too little substance, or duplicating another page's title outright."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No thin/duplicate content findings yet — run a scan to check."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Heading hierarchy and internal links — how easily a reader (or crawler) can navigate this content."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No structure findings yet — run a scan to check headings and internal links."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4023,6 +4732,18 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not load crawler traffic"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Blocked pages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Real pages robots.txt disallows for one specific AI bot."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No AI-bot-specific blocks found — run a scan to check robots.txt against your published pages."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4246,7 +4967,15 @@ msgid "Loading…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Off-site brand mentions, citations, and share of voice."
+msgid "On-site trust/authority/entity signals, plus off-site brand mentions and share of voice."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Brand Intelligence module is turned off"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turn the Brand Intelligence module back on from Settings → Modules to resume trust/authority/entity scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4258,11 +4987,39 @@ msgid "Branded web mentions correlate with AI citation roughly 3x more strongly 
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Not connected yet"
+msgid "Off-site mention tracking: not connected yet"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Connect an Ahrefs Brand Radar account from Settings to start tracking real mentions, share of voice, and citing domains here."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load extracted entities."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Real entities extracted from your site — people, organizations, products, services, locations, and categories."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load extracted entities"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not applicable to this site"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "WooCommerce isn't active."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Entity Extraction module is turned off"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turn the Entity Extraction module back on from Settings → Modules to see your site's entities here again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4290,11 +5047,11 @@ msgid "Depth, originality, and readability across pages and posts."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Not scoring content quality yet"
+msgid "Content Intelligence module is turned off"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "A dedicated content-quality scanner category (thin content, duplicate content, heading structure) hasn't been built yet — flag if you want it scoped next."
+msgid "Turn the Content Intelligence module back on from Settings → Modules to resume readability scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page."
 msgstr ""
 
 #: assets/js/index.js:1

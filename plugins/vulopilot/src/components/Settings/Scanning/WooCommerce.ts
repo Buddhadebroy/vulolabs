@@ -13,7 +13,7 @@ export default {
 			look: 'toggle',
 			label: __('Enable WooCommerce scanning', 'vulopilot'),
 			desc: __(
-				'Turns every category "woocommerce" scanner on or off — the checkout-page check plus the 11 product-intelligence checks (missing images/categories/tags/descriptions, SKU issues, attributes, inventory health, pricing, duplicates, completeness).',
+				'Turns every category "woocommerce" scanner on or off — the Store Health checks (checkout/cart/account pages, base location, payment gateways) plus the 12 product-intelligence checks (missing images/categories/tags/descriptions, SKU issues, attributes, inventory health, pricing, duplicates, completeness, SEO).',
 				'vulopilot'
 			),
 			options: [

@@ -133,5 +133,29 @@ export default {
 				'vulopilot'
 			),
 		},
+		{
+			key: 'geo-section-competitors',
+			type: 'section',
+			title: __('Competitor Visibility', 'vulopilot'),
+			desc: __(
+				'Compare your own structural GEO-readiness signals against a list of competitor pages.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'geo_competitor_urls',
+			type: 'textarea',
+			label: __('Competitor URLs', 'vulopilot'),
+			desc: __(
+				'One URL per line. Fetched over a real HTTP request and compared on the same structural signals (schema, author info, heading structure) this plugin already checks on your own content — no AI involved.',
+				'vulopilot'
+			),
+			// Real functionality lives in vulopilot-pro's GeoInsights module
+			// (CompetitorVisibilityAnalyzer) — this field still round-trips
+			// through Settings with GeoInsights inactive, same
+			// "Free owns the setting, Pro owns what reads it" posture
+			// `geo_competitor_urls`'s own Utill.php comment documents.
+			moduleEnabled: 'geo-insights',
+		},
 	],
 };

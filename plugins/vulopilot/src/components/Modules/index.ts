@@ -59,6 +59,16 @@ export default {
 			miniModule: true,
 		},
 		{
+			id: 'entity-extraction',
+			name: __('Entity Extraction', 'vulopilot'),
+			desc: __(
+				'Real entities read from your site — post authors, your Organization, WooCommerce products, owner-configured services/locations, and taxonomy terms in use (Knowledge Graph page). Turning this off stops the page/widget from returning real data.',
+				'vulopilot'
+			),
+			category: ['free'],
+			miniModule: true,
+		},
+		{
 			type: 'separator',
 			id: 'premium',
 			label: __('Premium Modules', 'vulopilot'),
@@ -123,6 +133,28 @@ export default {
 			name: __('GEO Insights', 'vulopilot'),
 			desc: __(
 				'Per-post AI scoring for AI-search-engine discoverability — entity coverage, question coverage, answer completeness, LLM readability, and AI suggestions. The deterministic GEO findings table stays free; this AI-scored card is Pro.',
+				'vulopilot'
+			),
+			proModule: true,
+			category: ['premium'],
+			miniModule: true,
+		},
+		{
+			id: 'ai-crawler-analytics',
+			name: __('AI Crawler Analytics', 'vulopilot'),
+			desc: __(
+				'Historical Crawl Trends, AI Visibility Correlation, AI Crawler Alerts, an AI Monitoring dashboard widget, and Crawl Reports. AI crawler detection/logs/blocked-pages/statistics themselves stay free; this adds trend history, correlation, and alerting on top.',
+				'vulopilot'
+			),
+			proModule: true,
+			category: ['premium'],
+			miniModule: true,
+		},
+		{
+			id: 'knowledge-graph',
+			name: __('Knowledge Graph', 'vulopilot'),
+			desc: __(
+				'Entity Relationships, Graph Visualization, Entity Recommendations, Entity Automation, and Knowledge Graph Health. Entity Extraction (people/organizations/products/services/locations/categories) itself stays free; this adds the relationship graph, its visualization, AI-suggested entities/relationships, an automation trigger, and a completeness health score on top.',
 				'vulopilot'
 			),
 			proModule: true,

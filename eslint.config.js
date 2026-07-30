@@ -81,4 +81,22 @@ module.exports = [
 			],
 		},
 	},
+
+	/**
+	 * Jest test files and test-only mocks (tests/js/**) — same
+	 * `wp-scripts test-unit-js` / `@wordpress/jest-preset-default` setup
+	 * every plugin's own jest-unit.config.js documents.
+	 */
+	{
+		files: [
+			'**/*.test.{js,jsx,ts,tsx}',
+			'**/tests/js/**/*.{js,jsx,ts,tsx}',
+		],
+
+		languageOptions: {
+			globals: {
+				...globals.jest,
+			},
+		},
+	},
 ];

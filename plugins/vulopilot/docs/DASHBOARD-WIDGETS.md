@@ -70,7 +70,7 @@ single query" guidance, applied to the frontend's fetch pattern too):
 ```
 overall_score, open_findings, critical_findings, active_automations,
 ai_jobs_used, ai_jobs_quota,
-category_scores: { seo, performance, security, accessibility, woocommerce }
+category_scores: { seo, performance, security, accessibility, geo, woocommerce, content, brand }
 quick_fixes, pending_approvals,
 automation_status: { enabled, disabled }
 ```
@@ -95,6 +95,20 @@ data that already exists, not a placeholder.
 false — the same guard `WooCommerceScanner` already uses (`SCANNERS.md`)
 — so the WooCommerce widget can show "not active" instead of a misleading
 perfect or zero score for a category that doesn't apply to the site.
+
+`content` (Content Intelligence, [`CONTENT-INTELLIGENCE-MODULE.md`](CONTENT-INTELLIGENCE-MODULE.md))
+is the one entry **not** computed by the single-category loop the others
+above share — it spans a fixed `scanner_id` list across two categories
+(the `content` category's own `readability` scanner, plus 4 reused
+`seo`-category scanners) rather than one category string, via
+`calculate_content_score()` and
+`FindingRepository::get_severity_breakdown_for_scanner_ids()`. Same
+weighting formula, just a different scope mechanism.
+
+`brand` (Brand Intelligence, [`BRAND-INTELLIGENCE-MODULE.md`](BRAND-INTELLIGENCE-MODULE.md))
+is the same shape as `content` above — a fixed 7-scanner_id union across
+`brand`'s own 3 new scanners plus 4 reused `geo`-category ones, via
+`calculate_brand_score()`.
 
 ### `quick_fixes` is honest about what's actually wired up
 
@@ -170,6 +184,34 @@ Hidden widgets aren't unmounted with no way back — `DashboardGrid.tsx`
 renders a "Hidden widgets" chip row beneath the grid so a widget hidden by
 mistake can be restored with one click, rather than only being
 recoverable by clearing all user meta.
+
+### `ai-monitoring` — the first Pro widget registered via `vulopilot_dashboard_widgets`
+
+Every widget documented above is Free's own. `vulopilot-pro`'s
+`AiCrawlerAnalytics` module ([`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md))
+is the first Pro module to actually use the `vulopilot_dashboard_widgets`
+filter slot documented below — it appends one standalone widget,
+`ai-monitoring`, surfacing the most recent AI Crawler Alerts check
+(`CrawlerAlertMonitor`'s own `vulopilot_activity_logs` entry). Since Pro's
+own webpack bundle can't import Free's internal `DashboardWidget.tsx` chrome
+component or `WidgetProps` type across the plugin boundary, `AiMonitoringWidget.tsx`
+renders its own self-contained markup via `@zyra/components` instead — the
+same constraint every other cross-plugin filter slot in this codebase
+already works within (e.g. `BrandVisibility.tsx`'s Pro card slots render
+whatever component a filter returns, with no shared chrome assumed).
+
+### `knowledge-graph` (Free) and `knowledge-graph-health` (Pro)
+
+Free's own `knowledge-graph` widget
+([`KNOWLEDGE-GRAPH-MODULE.md`](KNOWLEDGE-GRAPH-MODULE.md)) is a plain
+`STANDALONE_WIDGETS` entry (same shape as `crawler-traffic`) — a per-type
+entity count row, reading `GET /entities`. `vulopilot-pro`'s own
+`KnowledgeGraph` module adds a second widget via
+`vulopilot_dashboard_widgets`, `knowledge-graph-health`, surfacing the
+most recent Knowledge Graph Health snapshot — same
+"Pro widget can't import Free's chrome/type across the plugin boundary,
+so it renders its own self-contained markup" constraint `ai-monitoring`'s
+own section above already documents.
 
 ## Extension strategy
 

@@ -72,6 +72,39 @@ class Rest {
             'redirects'        => new Controllers\Redirects(),
             'not_found_logs'   => new Controllers\NotFoundLogs(),
             'indexnow'         => new Controllers\IndexNow(),
+            // Deliberately NOT keyed 'geo_analysis' — vulopilot-pro's
+            // GeoInsights module adds its own controller into
+            // $extra_controllers below under that exact key (its `Rest.php`
+            // hosts the per-post AI score routes at this same 'geo-analysis'
+            // REST base), and this controllers array is keyed by array
+            // merge, so a matching key here would let Pro's own entry
+            // silently overwrite this one before routes are ever
+            // registered. Different key, same REST base string is safe —
+            // WP_REST_Server registers routes per controller instance, not
+            // per unique base.
+            'geo_top_pages'    => new Controllers\GeoAnalysis(),
+            // Deliberately NOT keyed 'content_analysis' — vulopilot-pro's
+            // own ContentIntelligence module adds its per-post AI "Topic
+            // Authority" controller into $extra_controllers below under
+            // that key (same 'content-intelligence' REST base, a
+            // `/(?P<post_id>\d+)/analyze` sub-route) — same key-collision
+            // reasoning as 'geo_top_pages' above.
+            'content_score'    => new Controllers\ContentIntelligence(),
+            // Deliberately NOT keyed 'brand_insights' — vulopilot-pro's own
+            // BrandIntelligence module adds its own history/competitor-
+            // comparison/knowledge-panel controller into $extra_controllers
+            // below under that key (same 'brand-intelligence' REST base) —
+            // same key-collision reasoning as 'geo_top_pages'/'content_score'
+            // above.
+            'brand_score'      => new Controllers\BrandIntelligence(),
+            // Deliberately NOT keyed 'knowledge_graph' — vulopilot-pro's own
+            // KnowledgeGraph module adds its own relationships/health-
+            // history/recommendations controller into $extra_controllers
+            // below under that key (a different REST base,
+            // 'knowledge-graph', so this one isn't strictly required to
+            // differ — kept different anyway for consistency with every
+            // other Free/Pro controller pairing above).
+            'entities'         => new Controllers\EntityExtraction(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

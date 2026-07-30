@@ -16,7 +16,11 @@ defined( 'ABSPATH' ) || exit;
  * time AutomationEngine ran (or attempted to run) an automation's actions.
  * `result_log` stores the JSON-encoded array of
  * VuloPilot\ValueObjects\AutomationRunResult::to_array() entries, one
- * per action executed.
+ * per action executed. `status` is one of 'running'/'completed'/'failed'
+ * (AutomationEngine\AutomationEngine::run_automation()) — get_stats_for_period()
+ * groups by whatever's actually there, but get_breakdown_by_automation_for_period()'s
+ * own SQL below hardcodes those two exact strings, so a new status value
+ * introduced without updating both places would silently undercount here.
  *
  * @class       AutomationRunRepository class
  * @version     1.0.0
@@ -87,8 +91,8 @@ class AutomationRunRepository extends AbstractRepository {
             $wpdb->prepare(
                 "SELECT r.automation_id AS automation_id, a.name AS name,
                         COUNT(*) AS runs,
-                        SUM(CASE WHEN r.status = 'success' THEN 1 ELSE 0 END) AS succeeded,
-                        SUM(CASE WHEN r.status = 'failure' THEN 1 ELSE 0 END) AS failed
+                        SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) AS succeeded,
+                        SUM(CASE WHEN r.status = 'failed' THEN 1 ELSE 0 END) AS failed
                  FROM {$this->get_table()} r
                  LEFT JOIN {$automations_table} a ON a.id = r.automation_id
                  WHERE DATE(r.created_at) BETWEEN %s AND %s

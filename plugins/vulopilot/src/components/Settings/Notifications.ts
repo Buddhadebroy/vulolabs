@@ -44,6 +44,45 @@ export default {
 			],
 		},
 		{
+			key: 'email_on_brand_score_drop',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Email me when Brand score drops', 'vulopilot'),
+			desc: __(
+				'Alerts when the sitewide Brand score falls by the threshold configured under Scanning → Brand Intelligence.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'email_on_brand_score_drop', label: '', value: 'email_on_brand_score_drop' },
+			],
+		},
+		{
+			key: 'email_on_kg_health_drop',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Email me when Knowledge Graph Health drops', 'vulopilot'),
+			desc: __(
+				'Alerts when the Knowledge Graph Health score falls by the threshold configured under Scanning → Entity Extraction.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'email_on_kg_health_drop', label: '', value: 'email_on_kg_health_drop' },
+			],
+		},
+		{
+			key: 'email_on_crawler_alerts',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Email me on AI crawler alerts', 'vulopilot'),
+			desc: __(
+				'Alerts when AI crawler visit volume drops sharply, or when a bot keeps hitting a page robots.txt disallows for it. Threshold configured under Scanning → Crawler Analytics.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'email_on_crawler_alerts', label: '', value: 'email_on_crawler_alerts' },
+			],
+		},
+		{
 			key: 'email_from_name',
 			type: 'text',
 			label: __('Email from name', 'vulopilot'),

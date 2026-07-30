@@ -15,6 +15,7 @@ import Activity from './pages/Activity/Activity';
 import Settings from './pages/Settings/Settings';
 import Modules from './components/Modules/Modules';
 import BrandVisibility from './pages/BrandVisibility/BrandVisibility';
+import KnowledgeGraph from './pages/KnowledgeGraph/KnowledgeGraph';
 import Security from './pages/Security/Security';
 import AIContent from './pages/AIContent/AIContent';
 import Content from './pages/Content/Content';
@@ -41,6 +42,10 @@ registerVuloPilotRoute({ tab: 'settings', component: Settings });
 registerVuloPilotRoute({
 	tab: 'brand-visibility',
 	component: BrandVisibility,
+});
+registerVuloPilotRoute({
+	tab: 'knowledge-graph',
+	component: KnowledgeGraph,
 });
 registerVuloPilotRoute({ tab: 'security', component: Security });
 registerVuloPilotRoute({ tab: 'ai-content', component: AIContent });

@@ -127,7 +127,77 @@ class Dashboard extends \WP_REST_Controller {
             ? $this->calculate_category_score( $findings, 'woocommerce' )
             : null;
 
+        // Content Intelligence's "Content Score" — deliberately NOT one of
+        // the single-category loop above: it spans a fixed scanner_id list
+        // across two categories (content's own readability scanner plus 4
+        // reused seo-category scanners), not one category string
+        // (CONTENT-INTELLIGENCE-MODULE.md's audit explains why those seo
+        // scanners aren't recategorized). Same weighting, different scope.
+        $scores['content'] = $this->calculate_content_score( $findings );
+
+        // Brand Intelligence's overall "Brand Score" — same
+        // cross-scanner-id-list scope as 'content' above, spanning 3 new
+        // brand-category scanners plus 4 reused geo-category ones
+        // (Controllers\BrandIntelligence's own docblock explains the
+        // grouping; BRAND-INTELLIGENCE-MODULE.md has the full audit).
+        $scores['brand'] = $this->calculate_brand_score( $findings );
+
         return $scores;
+    }
+
+    /**
+     * Same weighting as calculate_category_score()/calculate_content_score(),
+     * scoped to Brand Intelligence's own combined scanner_id list — see
+     * Controllers\BrandIntelligence::get_score() for the same 7 ids split
+     * into its own named Trust/Authority/Entity sub-scores.
+     *
+     * @param FindingRepository $findings Repository to read the breakdown from.
+     * @return int 0-100.
+     */
+    private function calculate_brand_score( FindingRepository $findings ): int {
+        $breakdown = $findings->get_severity_breakdown_for_scanner_ids(
+            array(
+                'geo-trust-signals',
+                'about-page-analysis',
+                'geo-eeat-signals',
+                'geo-author-info',
+                'author-schema',
+                'geo-entity-naming-consistency',
+                'organization-schema',
+            )
+        );
+
+        $score = 100
+            - ( $breakdown['critical'] * 15 )
+            - ( $breakdown['high'] * 8 )
+            - ( $breakdown['medium'] * 3 )
+            - ( $breakdown['low'] * 1 );
+
+        return max( 0, min( 100, $score ) );
+    }
+
+    /**
+     * Same weighting as calculate_category_score()/calculate_overall_score(),
+     * scoped to Content Intelligence's own fixed scanner_id list — see
+     * FindingRepository::get_severity_breakdown_for_scanner_ids()'s own
+     * docblock for why a scanner-id list, not a category string, is what
+     * this composite score needs.
+     *
+     * @param FindingRepository $findings Repository to read the breakdown from.
+     * @return int 0-100.
+     */
+    private function calculate_content_score( FindingRepository $findings ): int {
+        $breakdown = $findings->get_severity_breakdown_for_scanner_ids(
+            array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' )
+        );
+
+        $score = 100
+            - ( $breakdown['critical'] * 15 )
+            - ( $breakdown['high'] * 8 )
+            - ( $breakdown['medium'] * 3 )
+            - ( $breakdown['low'] * 1 );
+
+        return max( 0, min( 100, $score ) );
     }
 
     /**
