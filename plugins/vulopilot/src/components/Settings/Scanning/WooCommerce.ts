@@ -8,16 +8,16 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'enable_woocommerce_scanning',
+			key: 'flag_products_missing_schema',
 			type: 'checkbox',
 			look: 'toggle',
-			label: __('Enable WooCommerce scanning', 'vulopilot'),
+			label: __('Flag products missing schema', 'vulopilot'),
 			desc: __(
-				'Turns every category "woocommerce" scanner on or off — the Store Health checks (checkout/cart/account pages, base location, payment gateways) plus the 12 product-intelligence checks (missing images/categories/tags/descriptions, SKU issues, attributes, inventory health, pricing, duplicates, completeness, SEO).',
+				'Products without valid Product structured data.',
 				'vulopilot'
 			),
 			options: [
-				{ key: 'enable_woocommerce_scanning', label: '', value: 'enable_woocommerce_scanning' },
+				{ key: 'flag_products_missing_schema', label: '', value: 'flag_products_missing_schema' },
 			],
 		},
 	],

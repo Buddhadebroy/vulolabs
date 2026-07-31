@@ -46,5 +46,19 @@ export default {
 			),
 			moduleEnabled: 'automation',
 		},
+		{
+			key: 'require_approval_before_ai_change',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Require approval before AI changes apply', 'vulopilot'),
+			desc: __(
+				"When on, AI-generated fixes wait in Pending Approval instead of applying automatically. All AI-applied fixes — one-click or bulk — require AI Fixes.",
+				'vulopilot'
+			),
+			options: [
+				{ key: 'require_approval_before_ai_change', label: '', value: 'require_approval_before_ai_change' },
+			],
+			moduleEnabled: 'automation',
+		},
 	],
 };

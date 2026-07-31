@@ -73,6 +73,12 @@ export default {
 			moduleEnabled: 'security-monitoring',
 		},
 		{
+			key: 'security_monitoring',
+			type: 'section',
+			title: __('Security Monitoring', 'vulopilot'),
+			desc: __('', 'vulopilot'),
+		},
+		{
 			key: 'security_scan_frequency',
 			type: 'select',
 			label: __('Scheduled security monitoring', 'vulopilot'),

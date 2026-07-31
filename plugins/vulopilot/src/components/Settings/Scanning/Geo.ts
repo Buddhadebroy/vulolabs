@@ -8,107 +8,59 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'geo-section-llms-txt',
+			key: 'semantic_html',
 			type: 'section',
-			title: __('llms.txt', 'vulopilot'),
+			title: __('Structure & semantic HTML', 'vulopilot'),
 			desc: __(
-				'A Markdown index of your key pages, served at /llms.txt for AI systems to read instead of crawling your whole site.',
+				"Controls the GEO page's 'Structure' findings group.",
 				'vulopilot'
 			),
 		},
 		{
-			key: 'enable_llms_txt',
+			key: 'flag_missing_semantic',
 			type: 'checkbox',
 			look: 'toggle',
-			label: __('Generate llms.txt', 'vulopilot'),
+			label: __('Flag missing semantic HTML', 'vulopilot'),
 			desc: __(
-				"Available at your site's /llms.txt once enabled.",
+				"Pages relying on generic <div>s instead of <article>, <section>, or heading hierarchy.",
 				'vulopilot'
 			),
 			options: [
-				{ key: 'enable_llms_txt', label: '', value: 'enable_llms_txt' },
+				{ key: 'flag_missing_semantic', label: '', value: 'flag_missing_semantic' },
 			],
 		},
 		{
-			key: 'llms_auto_regen',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __('Auto-regenerate on publish', 'vulopilot'),
-			desc: __(
-				'Rebuild llms.txt whenever a page, post, or product is published or updated — requires the GEO module (Modules page) to be active.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'llms_auto_regen', label: '', value: 'llms_auto_regen' },
-			],
-			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
-		},
-		{
-			key: 'llms_include_types',
-			type: 'checkbox',
-			label: __('Included content types', 'vulopilot'),
-			desc: __(
-				'Which content types are listed in llms.txt.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'pages', label: __('Pages', 'vulopilot'), value: 'pages' },
-				{ key: 'posts', label: __('Posts', 'vulopilot'), value: 'posts' },
-				{ key: 'products', label: __('Products', 'vulopilot'), value: 'products' },
-			],
-			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
-		},
-		{
-			key: 'llms_txt_content',
-			type: 'textarea',
-			label: __('llms.txt content', 'vulopilot'),
-			desc: __(
-				'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
-				'vulopilot'
-			),
-			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
-		},
-		{
-			key: 'geo-section-ai-summary',
+			key: 'entity-section',
 			type: 'section',
-			title: __('AI summary & answer structure', 'vulopilot'),
+			title: __('Entity coverage', 'vulopilot'),
+			desc: __("Controls the GEO page's 'Entities' findings group.", 'vulopilot')
 		},
 		{
-			key: 'flag_missing_ai_summary',
+			key: 'flag_weak_entity',
 			type: 'checkbox',
 			look: 'toggle',
-			label: __('Flag pages missing an AI summary block', 'vulopilot'),
+			label: __('Flag weak entity coverage', 'vulopilot'),
 			desc: __(
-				'Pages with no clear, extractable answer near the top of the content.',
+				"Pages that don't clearly identify their primary entity (product, service, or organization).",
 				'vulopilot'
 			),
 			options: [
-				{ key: 'flag_missing_ai_summary', label: '', value: 'flag_missing_ai_summary' },
+				{ key: 'flag_weak_entity', label: '', value: 'flag_weak_entity' },
 			],
 		},
 		{
-			key: 'answer_first_words',
+			key: 'minimum_entity_mentions',
 			type: 'number',
-			label: __('Answer-first threshold (words)', 'vulopilot'),
+			label: __('Minimum entity mentions', 'vulopilot'),
 			desc: __(
-				"Flag a page if its core answer doesn't appear within this many words from the top.",
+				"Pages with fewer mentions of their primary entity than this are flagged as low-clarity.",
 				'vulopilot'
 			),
-			dependent: { key: 'flag_missing_ai_summary', value: 'flag_missing_ai_summary', set: true },
 		},
 		{
-			key: 'geo-section-evidence',
+			key: 'freshness-section',
 			type: 'section',
-			title: __('Evidence & freshness', 'vulopilot'),
-		},
-		{
-			key: 'min_data_points',
-			type: 'number',
-			label: __('Minimum data points per 500 words', 'vulopilot'),
-			desc: __(
-				"Pages with fewer stats, numbers, or cited facts than this score lower on the GEO AI score's Data Point & Evidence Density (Pro).",
-				'vulopilot'
-			),
+			title: __('Freshness', 'vulopilot'),
 		},
 		{
 			key: 'stale_content_months',
@@ -118,44 +70,6 @@ export default {
 				"Pages not updated within this window score lower on the GEO AI score's Content Freshness (Pro).",
 				'vulopilot'
 			),
-		},
-		{
-			key: 'geo-section-alerts',
-			type: 'section',
-			title: __('Alerts', 'vulopilot'),
-		},
-		{
-			key: 'geo_drop_threshold',
-			type: 'number',
-			label: __('GEO score drop alert threshold (points)', 'vulopilot'),
-			desc: __(
-				'Used by the "Email me when GEO score drops" notification in the Notifications tab.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'geo-section-competitors',
-			type: 'section',
-			title: __('Competitor Visibility', 'vulopilot'),
-			desc: __(
-				'Compare your own structural GEO-readiness signals against a list of competitor pages.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'geo_competitor_urls',
-			type: 'textarea',
-			label: __('Competitor URLs', 'vulopilot'),
-			desc: __(
-				'One URL per line. Fetched over a real HTTP request and compared on the same structural signals (schema, author info, heading structure) this plugin already checks on your own content — no AI involved.',
-				'vulopilot'
-			),
-			// Real functionality lives in vulopilot-pro's GeoInsights module
-			// (CompetitorVisibilityAnalyzer) — this field still round-trips
-			// through Settings with GeoInsights inactive, same
-			// "Free owns the setting, Pro owns what reads it" posture
-			// `geo_competitor_urls`'s own Utill.php comment documents.
-			moduleEnabled: 'geo-insights',
 		},
 	],
 };

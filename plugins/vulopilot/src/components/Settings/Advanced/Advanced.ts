@@ -21,18 +21,16 @@ export default {
 			],
 		},
 		{
-			key: 'enable_mcp_server',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __('Enable MCP server', 'vulopilot'),
+			key: 'reset_settings',
+			type: 'button',
+			name: __('Reset', 'vulopilot'),
+			label: __('Reset All Settings', 'vulopilot'),
+			position: 'left',
 			desc: __(
-				'Exposes an MCP (Model Context Protocol) endpoint so external AI clients can call VuloPilot as a set of tools. Every tool that would change content only ever proposes a change for you to review and approve on the Dashboard — nothing is applied automatically. Requires a WordPress Application Password to connect.',
+				'Restores every VuloPilot setting on this site to its default value. Findings, history, and connected AI provider keys are not affected.',
 				'vulopilot'
 			),
-			options: [
-				{ key: 'enable_mcp_server', label: '', value: 'enable_mcp_server' },
-			],
-			moduleEnabled: 'mcp-server',
+			redirect_url: '',
 		},
 	],
 };

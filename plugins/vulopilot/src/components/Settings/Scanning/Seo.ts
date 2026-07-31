@@ -250,6 +250,7 @@ export default {
 					value: 'flag_ai_crawler_blocked_pages',
 				},
 			],
+			moduleEnabled: 'ai-crawler-analytics',
 		},
 		{
 			key: 'seo-section-redirects',

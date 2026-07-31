@@ -49,5 +49,19 @@ export default {
 			],
 			moduleEnabled: 'accessibility-audits',
 		},
+		{
+			key: 'target_wcag_level',
+			type: 'select',
+			label: __('Target WCAG level', 'vulopilot'),
+			desc: __(
+				'Used to determine which accessibility checks are marked critical vs. warning.',
+				'vulopilot'
+			),
+			options: [
+				{ label: __('WCAG 2.1 A', 'vulopilot'), value: '2.1_a' },
+				{ label: __('WCAG 2.1 AA', 'vulopilot'), value: '2.1_aa' },
+				{ label: __('WCAG 2.1 AAA', 'vulopilot'), value: '2.1_aaa' },
+			],
+		},
 	],
 };
