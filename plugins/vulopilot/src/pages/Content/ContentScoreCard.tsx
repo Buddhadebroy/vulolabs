@@ -37,37 +37,36 @@ const ContentScoreCard = () => {
 	}, []);
 
 	return (
-		<CardComponent
-			title={__('Content Score', 'vulopilot')}
-			desc={__(
-				'A composite score across readability, thin content, duplicate content, heading structure, internal linking, and orphan pages.',
-				'vulopilot'
-			)}
-			isLoading={isLoading}
-		>
-			{data && (
-				<AnalyticsComponent
-					variant="dashboard"
-					data={[
-						{
-							icon: 'media-text',
-							number: `${data.score}/100`,
-							text: __('Content Score', 'vulopilot'),
-						},
-						{
-							icon: 'warning',
-							number: data.severity_breakdown.critical,
-							text: __('Critical', 'vulopilot'),
-						},
-						{
-							icon: 'warning',
-							number: data.severity_breakdown.high,
-							text: __('High', 'vulopilot'),
-						},
-					]}
-				/>
-			)}
-		</CardComponent>
+		<>
+		{data && (
+			<AnalyticsComponent
+				variant="progress"
+				data={[
+					{
+						icon: 'home',
+						number: `${data.score}/100`,
+						text: __('Content Score', 'vulopilot'),
+						colorClass: 'blue-color',
+						progress: data.score,
+					},
+					{
+						icon: 'home',
+						number: data.severity_breakdown.critical,
+						text: __('Critical', 'vulopilot'),
+						colorClass: 'yellow-color',
+						progress: data.severity_breakdown.critical,
+					},
+					{
+						icon: 'home',
+						number: data.severity_breakdown.high,
+						text: __('High', 'vulopilot'),
+						colorClass: 'green-color',
+						progress: data.severity_breakdown.high,
+					},
+				]}
+			/>
+		)}
+		</>
 	);
 };
 

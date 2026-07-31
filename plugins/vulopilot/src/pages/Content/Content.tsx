@@ -109,7 +109,7 @@ const ContentGapAnalysisCard = applyFilters(
 const Content = () => (
 	<>
 		<NavigatorHeaderComponent
-			headerIcon="media-text"
+			headerIcon="image"
 			headerTitle={__('Content', 'vulopilot')}
 			headerDescription={__(
 				'Depth, originality, and readability across pages and posts.',

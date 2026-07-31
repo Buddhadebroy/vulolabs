@@ -249,35 +249,35 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 
 	const headers: Record<string, any> = {
 		title: {
-			label: __('Finding', 'vulopilot'),
+			// label: __('Finding', 'vulopilot'),
 			isSortable: true,
 		},
 		...(category
 			? {}
 			: {
 					category: {
-						label: __('Category', 'vulopilot'),
+						// label: __('Category', 'vulopilot'),
 					},
 				}),
 		severity: {
-			label: __('Severity', 'vulopilot'),
+			// label: __('Severity', 'vulopilot'),
 			type: 'badge',
 			statusClass: (row: Finding) => `severity-${row.severity}`,
 		},
 		status: {
-			label: __('Status', 'vulopilot'),
+			// label: __('Status', 'vulopilot'),
 			type: 'badge',
 			statusClass: (row: Finding) => `status-${row.status}`,
 		},
 		created_at: {
-			label: __('Detected', 'vulopilot'),
+			// label: __('Detected', 'vulopilot'),
 			type: 'date',
 			isSortable: true,
 			defaultSort: true,
 			defaultOrder: 'desc',
 		},
 		actions: {
-			label: __('Actions', 'vulopilot'),
+			// label: __('Actions', 'vulopilot'),
 			type: 'action',
 			actions: [
 				{
@@ -357,15 +357,17 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		<>
 			<TableCard
 				headers={headers}
+				showMenu={false}
+				className= 'transparent-table'
 				rows={data}
 				ids={data.map((row) => row.id)}
 				totalRows={total}
 				categoryCounts={categoryCounts}
 				isLoading={isLoading}
 				onQueryUpdate={onQueryUpdate}
-				search={{
-					placeholder: __('Search findings…', 'vulopilot'),
-				}}
+				// search={{
+				// 	placeholder: __('Search findings…', 'vulopilot'),
+				// }}
 				bulkActions={[
 					{
 						label: __('Mark resolved', 'vulopilot'),
