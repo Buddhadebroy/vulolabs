@@ -1,15 +1,14 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Backed by `Utill::SETTINGS_DEFAULTS`'s Payments section. No payment
- * gateway module exists in this plugin yet (Order\Domain\Order has a
- * single lifecycle `status`, not a separate payment_status column) —
- * `default_payment_status` is descriptive of a future field, not a
- * currently-read one. `enable_manual_payment` is the one option that
- * matches what OrderService can actually do today: create an order with
- * no gateway involved at all (Rest::create_item() takes no payment
- * details), i.e. "manual"/offline payment is the only mode this plugin
- * supports right now.
+ * Backed by `Utill::SETTINGS_DEFAULTS`'s Payments section. Read by the
+ * Payment module's own `Payment\Application\PaymentService`:
+ * `enable_manual_payment` gates whether `manual` (pay on delivery, bank
+ * transfer, or any other offline settlement) is offered at all — the
+ * only method this plugin supports until a real gateway module exists —
+ * and `default_payment_status` is the payment status a new order actually
+ * starts at (`OrderService::create_from_cart()` resolves it from this
+ * module when active).
  */
 export default {
 	id: 'payments',

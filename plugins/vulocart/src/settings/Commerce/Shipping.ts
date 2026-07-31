@@ -2,11 +2,12 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * Backed by `Utill::SETTINGS_DEFAULTS`'s Shipping section — a
- * marketplace-wide default, distinct from OfferingEdit.tsx's per-offering
- * shipping fields (weight/dimensions/shipping class), which already exist
- * and are real. `flat_rate_shipping_cost` is not yet added to an order's
- * total — Order\Domain\Order's own docblock already documents `total`
- * === `subtotal` until a shipping/tax module exists.
+ * marketplace-wide flat rate, distinct from OfferingEdit.tsx's per-offering
+ * shipping fields (weight/dimensions/shipping class), which are a separate,
+ * real concept. Read by the Shipping module's own
+ * `Shipping\Application\ShippingService`, and added into an order's total
+ * server-side by `Order\Application\OrderService::create_from_cart()`
+ * whenever that module is active.
  */
 export default {
 	id: 'shipping',

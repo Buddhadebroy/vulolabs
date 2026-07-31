@@ -449,8 +449,8 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_activity_logs` (
 ) $collate;
 ```
 
-- Directly mirrors the real `multivendorx_activity_logs` table's shape (`` `ID` ``, `message`,
-  `tag`→`event_type`, `date`→`created_at`) with two additions the existing table doesn't need:
+- Shaped like a typical activity-log table (`` `ID` ``, `message`, `event_type`, `created_at`)
+  with two additions a simpler marketplace-style activity log wouldn't need:
   `object_type`/`object_id` (VuloPilot's log entries reference many different entity types — scans,
   rules, automations, AI jobs — where the marketplace log is scoped to one thing, a store) and
   `actor_type`/`actor_id` (VuloPilot logs system/automation-originated events, not only user
@@ -536,9 +536,9 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_ai_action_runs` (
 
 ## Settings — deliberately **not** a new table
 
-Per `.claude/rules/backward-compatibility.md`: "New settings should be added through the existing
-`MULTIVENDORX_SETTINGS`/`multivendorx_register_settings_keys` filter mechanism ... rather than a new
-bespoke `get_option()` call." VuloPilot follows the same pattern with its own registry:
+Per `.claude/rules/backward-compatibility.md`: new settings should be added through the existing
+settings-registry filter mechanism ... rather than a new
+bespoke `get_option()` call. VuloPilot follows this pattern with its own registry:
 `Utill::VULOPILOT_SETTINGS` (an array of setting keys → `wp_options` option names), extended by a
 `vulopilot_register_settings_keys` filter the same way Pro's bootstrap extends the marketplace one.
 Plain scalar/flat settings (scan frequency defaults, notification email, dashboard preferences) are

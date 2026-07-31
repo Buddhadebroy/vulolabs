@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Inventory class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Inventory extends \WP_REST_Controller {
 

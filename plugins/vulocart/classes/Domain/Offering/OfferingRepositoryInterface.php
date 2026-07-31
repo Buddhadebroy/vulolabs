@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       OfferingRepositoryInterface interface
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 interface OfferingRepositoryInterface {
 

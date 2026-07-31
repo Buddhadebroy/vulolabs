@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Rest class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Rest {
 
@@ -177,12 +177,20 @@ class Rest {
             'order_number'       => $order->order_number,
             'customer_email'     => $order->customer_email,
             'customer_name'      => $order->customer_name,
+            'customer_phone'     => $order->customer_phone,
+            'customer_user_id'   => $order->customer_user_id,
             'payment_status'     => $order->payment_status,
             'fulfillment_status' => $order->fulfillment_status,
             'refunded_amount'    => $order->refunded_amount,
             'currency'           => $order->currency,
             'subtotal'           => $order->subtotal,
+            'shipping_method'    => $order->shipping_method,
+            'shipping_cost'      => $order->shipping_cost,
+            'tax_amount'         => $order->tax_amount,
+            'payment_method'     => $order->payment_method,
             'total'              => $order->total,
+            'billing_address'    => $order->billing_address,
+            'shipping_address'   => $order->shipping_address,
             'item_count'         => array_sum( array_map( fn( $item ) => $item->quantity, $order->items ) ),
             'items'              => array_map( array( $this, 'format_order_item_for_response' ), $order->items ),
             'created_at'         => $order->created_at,
@@ -324,11 +332,82 @@ class Rest {
 
         $customer_email = $request->get_param( 'customer_email' ) ? sanitize_email( (string) $request->get_param( 'customer_email' ) ) : null;
         $customer_name  = $request->get_param( 'customer_name' ) ? sanitize_text_field( (string) $request->get_param( 'customer_name' ) ) : null;
+        $customer_phone = $request->get_param( 'customer_phone' ) ? sanitize_text_field( (string) $request->get_param( 'customer_phone' ) ) : null;
+        $user_id        = get_current_user_id();
+
+        // Checkout tab's `require_phone_number` — same "client hint,
+        // server re-check" pattern `guest_checkout_enabled` above already
+        // uses, so a direct API call can't skip a field the wizard's own
+        // Customer step marks required.
+        if ( ! empty( $settings['require_phone_number'] ) && ! $customer_phone ) {
+            return new \WP_Error(
+                'vulocart_missing_phone_number',
+                esc_html__( 'A phone number is required.', 'vulocart' ),
+                array( 'status' => 400 )
+            );
+        }
+
+        // Address module's own sanitizer, called defensively — same
+        // "checkout still works without an optional module active" rule
+        // OrderService::resolve_optional_service() follows, just resolved
+        // here since address *validation* (as opposed to shipping/tax/
+        // payment calculation) has to happen before create_from_cart()
+        // is even called, to return a 400 instead of a half-taken order.
+        $address_service  = null;
+        try {
+            $address_service = VuloCart()->address_service;
+        } catch ( \Exception $e ) {
+            $address_service = null;
+        }
+
+        $billing_address_param  = $request->get_param( 'billing_address' );
+        $shipping_address_param = $request->get_param( 'shipping_address' );
+
+        $billing_address  = null;
+        $shipping_address = null;
+
+        if ( $address_service && is_array( $billing_address_param ) && ! empty( $billing_address_param ) ) {
+            $billing_address = $address_service->sanitize( $billing_address_param );
+
+            if ( ! $address_service->validate( $billing_address ) ) {
+                return new \WP_Error( 'vulocart_invalid_billing_address', esc_html__( 'Billing address is missing required fields.', 'vulocart' ), array( 'status' => 400 ) );
+            }
+        }
+
+        if ( $address_service && is_array( $shipping_address_param ) && ! empty( $shipping_address_param ) ) {
+            $shipping_address = $address_service->sanitize( $shipping_address_param );
+
+            if ( ! $address_service->validate( $shipping_address ) ) {
+                return new \WP_Error( 'vulocart_invalid_shipping_address', esc_html__( 'Shipping address is missing required fields.', 'vulocart' ), array( 'status' => 400 ) );
+            }
+        }
+
+        $shipping_method = $request->get_param( 'shipping_method' ) ? sanitize_key( (string) $request->get_param( 'shipping_method' ) ) : null;
+        $payment_method  = $request->get_param( 'payment_method' ) ? sanitize_key( (string) $request->get_param( 'payment_method' ) ) : null;
 
         try {
-            $order = VuloCart()->order_service->create_from_cart( $cart_token, $customer_email, $customer_name );
+            $order = VuloCart()->order_service->create_from_cart(
+                $cart_token,
+                $customer_email,
+                $customer_name,
+                $customer_phone,
+                $user_id ? $user_id : null,
+                $billing_address,
+                $shipping_address,
+                $shipping_method,
+                $payment_method
+            );
         } catch ( \InvalidArgumentException $exception ) {
             return new \WP_Error( 'vulocart_empty_cart', esc_html__( 'Cart is empty or does not exist.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        if ( $user_id && $customer_phone ) {
+            try {
+                VuloCart()->customer_service->remember_phone( $user_id, $customer_phone );
+            } catch ( \Exception $e ) {
+                // Customer module not active — nothing to remember into.
+                unset( $e );
+            }
         }
 
         $response = rest_ensure_response( $this->prepare_order_for_response( $order, true ) );

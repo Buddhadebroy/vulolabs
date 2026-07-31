@@ -184,7 +184,7 @@ to the one React-side registry:
    `addFilter('vulopilot_dashboard_widgets', ...)` from Pro's own
    `src/index.tsx` — the same `@wordpress/hooks` mechanism
    [react-frontend.md](../../../../.claude/rules/react-frontend.md) already
-   documents (`multivendorx_pro_dashboard_component` etc.), applied to
+   documents, applied to
    VuloPilot's own filter naming (`vulopilot_` prefix, no `_pro` infix,
    per `.claude/rules/php-wordpress.md`'s hook-naming convention extended
    to the JS side). Its id must also be added to

@@ -2,8 +2,8 @@ export {};
 
 /**
  * VuloCart's own admin-page localizer — deliberately not `appLocalizer`
- * (a different plugin's shape, react-frontend.md documents it for the
- * multivendorx family). See classes/Admin/Menu.php's wp_localize_script()
+ * (a different plugin's shape, react-frontend.md documents it for
+ * shared-platform plugins). See classes/Admin/Menu.php's wp_localize_script()
  * call for where this comes from.
  *
  * `apiUrl` is the bare REST root and `restUrl` is the `vulocart/v1`
@@ -36,12 +36,13 @@ interface VuloCartLocalizer {
  * public — see classes/RestAPI/Controllers/Cart.php's own docblock), and
  * don't need zyra's config shape at all.
  *
- * `guestCheckoutEnabled`/`requireTermsAcceptance`/`checkoutTermsUrl`/
- * `isLoggedIn` are the Settings screen's Commerce/Checkout tab
- * (src/settings/Commerce/Checkout.ts) made real: src/blocks/checkout/
- * Checkout.tsx enforces both client-side (also enforced again server-side
- * by modules/Order/Rest.php's `create_item()` for `guestCheckoutEnabled` —
- * a client-only check isn't real enforcement against a direct API call).
+ * `guestCheckoutEnabled`/`requireTermsAcceptance`/`requirePhoneNumber`/
+ * `checkoutTermsUrl`/`isLoggedIn` are the Settings screen's Commerce/
+ * Checkout tab (src/settings/Commerce/Checkout.ts) made real: src/blocks/
+ * checkout/Checkout.tsx enforces both client-side (also enforced again
+ * server-side by modules/Order/Rest.php's `create_item()` for
+ * `guestCheckoutEnabled`/`requirePhoneNumber` — a client-only check isn't
+ * real enforcement against a direct API call).
  * `offeringsListingEnabled`/`cartCheckoutEnabled` are the General/
  * Frontend tab (src/settings/General/Frontend.ts) made real, same file.
  * `checkoutPageUrl`/`offeringsPageUrl` are auto-discovered (`Block.php`'s
@@ -53,12 +54,15 @@ interface VuloCartFrontendData {
 	restUrl: string;
 	guestCheckoutEnabled: boolean;
 	requireTermsAcceptance: boolean;
+	requirePhoneNumber: boolean;
 	checkoutTermsUrl: string;
 	isLoggedIn: boolean;
 	offeringsListingEnabled: boolean;
 	cartCheckoutEnabled: boolean;
 	checkoutPageUrl: string | null;
 	offeringsPageUrl: string | null;
+	/** `single_page`|`multi_step` — Domain\Checkout\CheckoutMode::free()'s own two values, read by Checkout.tsx to pick which mode it mounts CheckoutEngine in. */
+	checkoutMode: string;
 }
 
 declare global {

@@ -8,8 +8,7 @@ import { __ } from '@wordpress/i18n';
  * VuloPilot\Utill::log()'s identical gate/precedent exactly.
  *
  * Deliberately kept as a standalone top-level file (not folded into a
- * folder) — same as multivendorx's own `Intelligence.ts` sitting directly
- * at its Settings root — priority 4 sorts it after the three folders
+ * folder) — priority 4 sorts it after the three folders
  * (General=1/Commerce=2/Integrations=3, see each folder's own
  * FolderPriority.ts) at the top-level nav.
  */

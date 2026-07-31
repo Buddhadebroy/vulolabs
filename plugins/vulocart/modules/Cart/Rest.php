@@ -36,7 +36,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Rest class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Rest {
 

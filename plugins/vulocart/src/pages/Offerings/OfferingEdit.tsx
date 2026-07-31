@@ -1,6 +1,7 @@
 /* global vulocartLocalizer */
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
@@ -353,6 +354,8 @@ interface OfferingFormState {
 	catalogVisibility: string;
 	categories: string[];
 	tags: string[];
+	brand: string;
+	collections: string[];
 	featuredImage: MediaItem | null;
 	gallery: MediaItem[];
 	typeDetails: Record< string, string | boolean >;
@@ -384,6 +387,8 @@ const EMPTY_FORM: OfferingFormState = {
 	catalogVisibility: 'shop_and_search',
 	categories: [],
 	tags: [],
+	brand: '',
+	collections: [],
 	featuredImage: null,
 	gallery: [],
 	typeDetails: {},
@@ -405,7 +410,8 @@ interface OfferingEditProps {
  * description/pricing/attributes), an optional per-type "Type Details"
  * card, an optional combined "Inventory & Shipping" card, and "Policies &
  * Related Offerings"; right is "Publishing", a combined "Organization"
- * card (category + tags), and "Upload image". Subsections within a card
+ * card (category, tags, brand, collections — all real DB-backed taxonomy
+ * terms, see Domain\Term\Taxonomy), and "Upload image". Subsections within a card
  * use a plain `<h4>` (`.vulocart-subsection-title`) rather than a new
  * `CardComponent`, so grouping related fields doesn't cost another box.
  *
@@ -426,12 +432,28 @@ interface OfferingEditProps {
  * downloadable/digital_service/other) is derived straight from `type`
  * (TYPE_TO_DELIVERY_METHOD) rather than a separate manual picker.
  *
- * Two things are deliberately NOT built as fully real features here:
- * "Attributes & Variations" (a real offering-variant matrix needs its own
- * schema — this button is honestly inert, not faked) and "Related
- * offerings"/"Offer as an add-on" (stored as simple comma-separated id
+ * One thing is deliberately NOT built as a fully real feature here:
+ * "Related offerings"/"Offer as an add-on" (stored as simple comma-separated id
  * lists in meta, since there's no offering-picker/search component yet —
- * real storage, simplified input).
+ * real storage, simplified input). "Attributes & Variations" *is* real —
+ * `vulocart_offering_variants_section` (a narrower cousin of
+ * `vulocart_offering_edit_sections`, replacing this specific subsection's
+ * content in place rather than appending elsewhere) lets vulocart-pro's
+ * Variants module render a real matrix editor there; the inert
+ * "not supported yet" button/notice below is only what free-tier users
+ * without that module active still see.
+ *
+ * `vulocart_offering_edit_sections` — a `@wordpress/hooks` filter applied
+ * at the end of the center column, alongside this page's own cards
+ * ("Offering Details", "Policies & Related Offerings", ...) — so a Pro
+ * module's card renders as one more meta box in the same grid, not a
+ * separate block bolted on elsewhere. Same "Pro extends Free via filters"
+ * pattern `vulocart_offering_row_actions` already establishes on
+ * OfferingsList.tsx, just for the edit page instead of the list. Only
+ * fires once the offering has a real id (`isEditMode`) — there's nothing
+ * for a Pro section to attach to before the offering itself has been
+ * saved once.
+ * `vulocart-pro`'s Passport module is the first (only) registrant today.
  */
 export function OfferingEdit( { id }: OfferingEditProps ) {
 	const isEditMode = null !== id;
@@ -444,6 +466,9 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 	const [ createdAt, setCreatedAt ] = useState< string | null >( null );
 	const [ showVariantsNotice, setShowVariantsNotice ] = useState( false );
 	const [ categoryOptions, setCategoryOptions ] = useState< { key: string; value: string; label: string }[] >( [] );
+	const [ tagOptions, setTagOptions ] = useState< { key: string; value: string; label: string }[] >( [] );
+	const [ brandOptions, setBrandOptions ] = useState< { label: string; value: string }[] >( [] );
+	const [ collectionOptions, setCollectionOptions ] = useState< { key: string; value: string; label: string }[] >( [] );
 
 	const update = ( patch: Partial< OfferingFormState > ) =>
 		setFormData( ( prev ) => ( { ...prev, ...patch } ) );
@@ -454,6 +479,30 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
 			} )
 			.then( ( response ) => setCategoryOptions( formatCategoryOptions( response.data ) ) );
+
+		// Tags/Collections are flat (Domain\Term\Taxonomy's own docblock —
+		// hierarchy only applies to Category), so formatCategoryOptions()
+		// degenerates correctly here too: every term has parent_id null,
+		// so it's just a flat, unindented option list.
+		axios
+			.get< CategoryTerm[] >( getApiLink( vulocartLocalizer, 'tags' ), {
+				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+			} )
+			.then( ( response ) => setTagOptions( formatCategoryOptions( response.data ) ) );
+
+		axios
+			.get< CategoryTerm[] >( getApiLink( vulocartLocalizer, 'collections' ), {
+				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+			} )
+			.then( ( response ) => setCollectionOptions( formatCategoryOptions( response.data ) ) );
+
+		axios
+			.get< CategoryTerm[] >( getApiLink( vulocartLocalizer, 'brands' ), {
+				headers: { 'X-WP-Nonce': vulocartLocalizer.nonce },
+			} )
+			.then( ( response ) =>
+				setBrandOptions( response.data.map( ( term ) => ( { label: term.name, value: term.slug } ) ) )
+			);
 	}, [] );
 
 	useEffect( () => {
@@ -495,6 +544,8 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 					catalogVisibility: meta.catalog_visibility || 'shop_and_search',
 					categories: Array.isArray( meta.categories ) ? meta.categories : [],
 					tags: Array.isArray( meta.tags ) ? meta.tags : [],
+					brand: meta.brand || '',
+					collections: Array.isArray( meta.collections ) ? meta.collections : [],
 					featuredImage: meta.featured_image || null,
 					gallery: Array.isArray( meta.gallery ) ? meta.gallery : [],
 					typeDetails:
@@ -564,6 +615,21 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 
 	const doneCount = recommendedChecklist.filter( ( item ) => item.done ).length;
 
+	/**
+	 * `vulocart_offering_variants_section` — a narrower filter than
+	 * `vulocart_offering_edit_sections` (which only ever appends at the
+	 * end of the center column): this one replaces the "Attributes &
+	 * Variations" subsection's own inert button/notice in place, so a Pro
+	 * module like vulocart-pro's Variants can render a real matrix editor
+	 * exactly where that notice used to live rather than as a
+	 * disconnected extra card. Null (no registrant, or add-mode with no
+	 * id yet) falls back to the existing inert notice — same
+	 * "no Pro module means render nothing" default every filter in this
+	 * file already has.
+	 */
+	const variantsSection =
+		null !== id ? applyFilters( 'vulocart_offering_variants_section', null, { id, type: formData.type } ) : null;
+
 	const buildMetaPayload = () => ( {
 		short_description: formData.shortDescription || undefined,
 		full_description: formData.fullDescription || undefined,
@@ -585,6 +651,8 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 		catalog_visibility: formData.catalogVisibility,
 		categories: formData.categories,
 		tags: formData.tags,
+		brand: formData.brand || null,
+		collections: formData.collections,
 		featured_image: formData.featuredImage,
 		gallery: formData.gallery,
 		type_details: formData.typeDetails,
@@ -721,6 +789,28 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 				/>
 			</div>
 
+			{
+				/**
+				 * `vulocart_offering_add_prefill` — only in add mode
+				 * (`!isEditMode`): there's no offering id yet for
+				 * `vulocart_offering_edit_sections` to attach to (that
+				 * filter's own docblock explains why it's edit-mode-only),
+				 * but a Pro module like vulocart-pro's Offering Templates
+				 * still needs a hook to prefill `formData` before the
+				 * first save. Hands the registrant `type` (so it can only
+				 * offer templates matching the chosen offering type) and
+				 * `applyPrefill` — a direct pass-through to this
+				 * component's own `update()` — rather than a `data`/`onPick`
+				 * pair, so a template only ever changes fields it actually
+				 * has a value for.
+				 */
+				! isEditMode &&
+					applyFilters( 'vulocart_offering_add_prefill', null, {
+						type: formData.type,
+						applyPrefill: update,
+					} )
+			}
+
 			{ savedNotice && (
 				<div className="vulocart-saved-notice">{ __( 'Offering updated.', 'vulocart' ) }</div>
 			) }
@@ -814,22 +904,26 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 						</div>
 
 						<h4 className="vulocart-subsection-title">{ __( 'Attributes & Variations', 'vulocart' ) }</h4>
-						<ButtonInput
-							buttons={ [
-								{
-									icon: 'plus',
-									text: __( 'Add variants Like size or color', 'vulocart' ),
-									onClick: () => setShowVariantsNotice( true ),
-								},
-							] }
-						/>
-						{ showVariantsNotice && (
-							<p className="vulocart-field-hint vulocart-variants-notice">
-								{ __(
-									'Offering variants are not supported yet — this is planned for a future update.',
-									'vulocart'
+						{ variantsSection || (
+							<>
+								<ButtonInput
+									buttons={ [
+										{
+											icon: 'plus',
+											text: __( 'Add variants Like size or color', 'vulocart' ),
+											onClick: () => setShowVariantsNotice( true ),
+										},
+									] }
+								/>
+								{ showVariantsNotice && (
+									<p className="vulocart-field-hint vulocart-variants-notice">
+										{ __(
+											'Offering variants are not supported yet — this is planned for a future update.',
+											'vulocart'
+										) }
+									</p>
 								) }
-							</p>
+							</>
 						) }
 					</CardComponent>
 
@@ -1016,6 +1110,8 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 							</FormGroupComponent>
 						</div>
 					</CardComponent>
+
+					{ null !== id && applyFilters( 'vulocart_offering_edit_sections', null, { id, type: formData.type } ) }
 				</div>
 
 				{ /* Right column */ }
@@ -1080,20 +1176,44 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 							/>
 						) }
 
-						<h4 className="vulocart-subsection-title">{ __( 'Offering tag', 'vulocart' ) }</h4>
-						<TextInput
-							name="tags"
-							placeholder={ __( 'Type tag and press Enter…', 'vulocart' ) }
-							value={ formData.tags.join( ', ' ) }
-							onChange={ ( value ) =>
-								update( {
-									tags: String( value )
-										.split( ',' )
-										.map( ( tag ) => tag.trim() )
-										.filter( Boolean ),
-								} )
-							}
+						<h4 className="vulocart-subsection-title">{ __( 'Tags', 'vulocart' ) }</h4>
+						{ tagOptions.length === 0 ? (
+							<p className="vulocart-empty-categories-notice">
+								{ __( 'No tags yet — add some from Offerings → Tags.', 'vulocart' ) }
+							</p>
+						) : (
+							<MultiCheckboxInput
+								value={ formData.tags }
+								modules={ [] }
+								options={ tagOptions }
+								inputInnerWrapperClass="vulocart-category-checklist"
+								onChange={ ( values ) => update( { tags: values } ) }
+							/>
+						) }
+
+						<h4 className="vulocart-subsection-title">{ __( 'Brand', 'vulocart' ) }</h4>
+						<SelectInput
+							name="brand"
+							type="single-select"
+							options={ [ { label: __( 'None', 'vulocart' ), value: '' }, ...brandOptions ] }
+							value={ formData.brand }
+							onChange={ ( value ) => update( { brand: value as string } ) }
 						/>
+
+						<h4 className="vulocart-subsection-title">{ __( 'Collections', 'vulocart' ) }</h4>
+						{ collectionOptions.length === 0 ? (
+							<p className="vulocart-empty-categories-notice">
+								{ __( 'No collections yet — add some from Offerings → Collections.', 'vulocart' ) }
+							</p>
+						) : (
+							<MultiCheckboxInput
+								value={ formData.collections }
+								modules={ [] }
+								options={ collectionOptions }
+								inputInnerWrapperClass="vulocart-category-checklist"
+								onChange={ ( values ) => update( { collections: values } ) }
+							/>
+						) }
 					</CardComponent>
 
 					<CardComponent title={ __( 'Upload image', 'vulocart' ) }>

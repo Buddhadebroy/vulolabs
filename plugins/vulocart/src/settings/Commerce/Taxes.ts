@@ -1,11 +1,11 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Backed by `Utill::SETTINGS_DEFAULTS`'s Taxes section. No tax
- * calculation exists anywhere in this plugin yet — Order\Domain\Order's
- * own docblock: "`total` === `subtotal` today — no tax/shipping module
- * yet." These fields are saved and reloadable now; a future tax module
- * is what would actually read them.
+ * Backed by `Utill::SETTINGS_DEFAULTS`'s Taxes section. Read by the Taxes
+ * module's own `Taxes\Application\TaxService`, and added into an order's
+ * total server-side by `Order\Application\OrderService::create_from_cart()`
+ * whenever that module is active — a single flat rate, not per-region tax
+ * rules (vision's lightweight-first scope).
  */
 export default {
 	id: 'taxes',

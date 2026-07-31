@@ -169,8 +169,8 @@ class FrontendScripts {
                 'shop_url'       => VULOPILOT_PRO_SHOP_URL,
                 // 'version' defaults to false (Pro not installed) unless
                 // vulopilot-pro's own bootstrap overrides it — same
-                // shape/default as vulolabs's 'pro_data'/
-                // multivendorx_update_pro_data filter. Feeds the header's
+                // shape/default as vulocart's 'pro_data'/
+                // `vulocart_update_pro_data` filter. Feeds the header's
                 // "Pro: …" version tag (app.tsx).
                 'pro_data'       => apply_filters(
                     'vulopilot_update_pro_data',

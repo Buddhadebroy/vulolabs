@@ -12,7 +12,7 @@ import Popup from '../../components/Popup/Popup';
 
 /**
  * Ported from `vulopilot/src/pages/Settings/Settings.tsx`'s flat-option
- * structure (not multivendorx's per-tab-namespaced one, which doesn't
+ * structure (not a per-tab-namespaced one, which doesn't
  * apply — VuloCart has one flat `wp_options` row, Utill::SETTINGS_KEY).
  * `getTemplateData()` now comes from `../../services/templateService.ts`,
  * a `require.context` scan of `src/settings/*.ts` — the plugin's admin-UX

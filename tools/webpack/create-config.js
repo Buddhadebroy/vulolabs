@@ -199,6 +199,28 @@ function generatePostEditorEntry(rootDir) {
 		: {};
 }
 
+/**
+ * Optional storefront bundle entry — `src/storefront/index.tsx`, a
+ * plugin's own script for the PUBLIC-facing side of a page (as opposed to
+ * `src/index.tsx`, always wp-admin-only). Same guarded-by-existence
+ * posture as generatePostEditorEntry() above, so plugins with no
+ * storefront bundle of their own (every plugin except vulocart-pro,
+ * today — its Order Notes/Coupons/Gift Cards checkout-step extensions
+ * need to run on the free `vulocart` plugin's own storefront checkout
+ * page, which has no wp-admin context to inject an admin bundle's
+ * `@wordpress/hooks` filters into) are unaffected.
+ */
+function generateStorefrontEntry(rootDir) {
+	const entryFile = path.resolve(
+		rootDir,
+		'src/storefront/index.tsx'
+	);
+
+	return fs.existsSync(entryFile)
+		? { storefront: entryFile }
+		: {};
+}
+
 module.exports = function createWebpackConfig(
 	rootDir
 ) {
@@ -214,6 +236,9 @@ module.exports = function createWebpackConfig(
 	const postEditorEntry =
 		generatePostEditorEntry(rootDir);
 
+	const storefrontEntry =
+		generateStorefrontEntry(rootDir);
+
 	return {
 		...defaultConfig,
 
@@ -225,6 +250,7 @@ module.exports = function createWebpackConfig(
 
 			...dynamicEntries,
 			...moduleEntries,
+			...storefrontEntry,
 			...postEditorEntry,
 		},
 

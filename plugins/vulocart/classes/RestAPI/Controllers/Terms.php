@@ -15,20 +15,20 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Terms REST controller.
  *
- * Registers the same CRUD route shape three times — `/categories`,
- * `/brands`, `/collections` — each bound to one Domain\Term\Taxonomy
- * constant, backing the Offerings menu's "Categories"/"Brands"/
- * "Collections" admin pages (`src/pages/Terms/`). One controller class
- * rather than three near-identical ones, mirroring
+ * Registers the same CRUD route shape once per ROUTE_TAXONOMIES entry —
+ * `/categories`, `/brands`, `/collections`, `/tags` — each bound to one
+ * Domain\Term\Taxonomy constant, backing the Offerings menu's
+ * "Categories"/"Brands"/"Collections"/"Tags" admin pages (`src/pages/Terms/`).
+ * One controller class rather than four near-identical ones, mirroring
  * Domain\Term\Taxonomy's own "one shape, one table" reasoning.
  *
- * Listing/reading is public (categories/brands/collections are harmless
- * reference data, same posture as Offerings' own public GET — rest-api.md);
- * every mutation is `manage_options`-gated.
+ * Listing/reading is public (categories/brands/collections/tags are
+ * harmless reference data, same posture as Offerings' own public GET —
+ * rest-api.md); every mutation is `manage_options`-gated.
  *
  * @class       Terms class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Terms extends \WP_REST_Controller {
 
@@ -41,6 +41,7 @@ class Terms extends \WP_REST_Controller {
         'categories'  => Taxonomy::CATEGORY,
         'brands'      => Taxonomy::BRAND,
         'collections' => Taxonomy::COLLECTION,
+        'tags'        => Taxonomy::TAG,
     );
 
     /**

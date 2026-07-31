@@ -1,8 +1,7 @@
 import type { ComponentType } from 'react';
 
 /**
- * Mirrors `vulopilot/src/routeRegistry.ts` (and multivendorx's own
- * `routeRegistry.ts`) exactly: a global array + register function pages
+ * Mirrors `vulopilot/src/routeRegistry.ts` exactly: a global array + register function pages
  * push themselves onto, read back by App.tsx's `Route` component keyed
  * on `location.hash`'s `tab` param — see App.tsx's own docblock for why
  * this replaces react-router path routes for tab-switching.

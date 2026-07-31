@@ -13,12 +13,11 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Utill class.
  *
  * Central registry of custom table names and installation-tracking option
- * keys, mirroring MultiVendorX\Utill's and VuloPilot\Utill's role for their
- * own product families.
+ * keys, mirroring VuloPilot\Utill's role for its own product line.
  *
  * @class       Utill class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Utill {
 
@@ -51,7 +50,7 @@ class Utill {
 
     /**
      * Option name the active-modules list is stored under — mirrors
-     * MultiVendorX\Utill::ACTIVE_MODULES_DB_KEY's/VuloPilot\Utill's role
+     * VuloPilot\Utill::ACTIVE_MODULES_DB_KEY's role
      * for this product line's own `modules/` addon system
      * (module-architecture.md's discovery/loading mechanism, added here
      * for VuloCart via `Modules::load_active_modules()`).
@@ -63,7 +62,7 @@ class Utill {
     /**
      * Option name VuloCart's settings screen reads/writes — a single flat
      * `wp_options` row, mirroring VuloPilot\Utill::VULOPILOT_SETTINGS_KEY
-     * (not multivendorx's per-tab-namespaced `admin_settings` shape,
+     * (not a per-tab-namespaced `admin_settings` shape,
      * which doesn't apply here since VuloCart has exactly one settings
      * tab so far).
      *
@@ -88,24 +87,33 @@ class Utill {
      *
      * `enable_debug_logging` (Utill::log()), the three Email tab keys
      * (Notifications\OrderEmails), `cart_expiry_days`
-     * (Cart\Application\CartCleanupScheduler's daily cron), and
+     * (Cart\Application\CartCleanupScheduler's daily cron),
      * `guest_checkout_enabled`/`require_terms_acceptance`/
      * `checkout_terms_url`/`enable_offerings_listing`/
      * `enable_cart_checkout` (Block.php's `print_frontend_config()` →
      * src/blocks/checkout/Checkout.tsx, plus Order\Rest::create_item()'s
-     * own server-side guest-checkout re-check) are actually read by
-     * business logic today. Every other key here is a genuine, saved,
-     * reloadable setting with no consumer yet — the same "real setting,
-     * not yet consumed" gap this class already documented for
+     * own server-side guest-checkout re-check), and now the whole
+     * Payments/Shipping/Taxes section are all actually read by business
+     * logic: `Shipping\Application\ShippingService`,
+     * `Taxes\Application\TaxService`, and `Payment\Application\
+     * PaymentService` (each its own toggleable module now) read these
+     * directly, and `Order\Application\OrderService::create_from_cart()`
+     * resolves whichever of those modules is active to compute
+     * `Order::$shipping_cost`/`$tax_amount`/initial payment status —
+     * `total` is no longer always `=== subtotal` (that docblock line on
+     * `Order\Domain\Order` is stale as of the Customer/Address/Shipping/
+     * Taxes/Payment/Review/Confirmation modules). `require_phone_number`
+     * (Checkout section) is enforced directly by `Order\Rest::
+     * create_item()`, same "client hint, server re-check" pattern
+     * `guest_checkout_enabled` already uses. API/MCP/AI still have no
+     * backing module in this plugin — the same "real setting, not yet
+     * consumed" gap this class already documented for
      * `default_offering_status` (Application\OfferingService::create_offering()
      * still hardcodes `'draft'`) and VuloPilot\Utill's own
-     * `scan_frequency` (inert without its Automation module) — Payments/
-     * Shipping/Taxes/API/MCP/AI have no backing gateway/calculation/
-     * integration module in this plugin yet (Order\Domain\Order's own
-     * docblock: "`total` === `subtotal` today — no tax/
-     * shipping module yet"), so these fields exist to give the Settings
-     * UI its full, promised tab structure honestly rather than silently
-     * omitting tabs the admin-UX brief asked for.
+     * `scan_frequency` (inert without its Automation module) — so those
+     * three tabs' fields exist to give the Settings UI its full, promised
+     * tab structure honestly rather than silently omitting tabs the
+     * admin-UX brief asked for.
      *
      * Deliberately no `enable_mcp_server`/`enable_ai_recommendations` keys
      * (removed after MCP/AI were built) — both were a Settings-tab
@@ -140,6 +148,10 @@ class Utill {
         'guest_checkout_enabled'        => array( 'guest_checkout_enabled' ),
         'require_terms_acceptance'      => array(),
         'checkout_terms_url'            => '',
+        'require_phone_number'          => array(),
+        // Domain\Checkout\CheckoutMode::free() — which of the two free
+        // delivery modes Checkout.tsx mounts CheckoutEngine in.
+        'checkout_mode'                 => \VuloCart\Domain\Checkout\CheckoutMode::MULTI_STEP,
 
         // Payments.
         'enable_manual_payment'         => array( 'enable_manual_payment' ),
@@ -198,7 +210,7 @@ class Utill {
 
     /**
      * Whether VuloCart Pro is installed, active, and license-active —
-     * mirrors MultiVendorX\Utill::is_khali_dabba()'s/VuloPilot\Utill's role
+     * mirrors VuloPilot\Utill::is_khali_dabba()'s role
      * for this product line. VuloCartPro::check_pro_active() is the only
      * thing that ever hooks `kothay_dabba_vulocart` (default false when
      * Pro isn't present), same filter-based "ask Pro, don't check for it

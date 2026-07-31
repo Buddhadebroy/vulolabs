@@ -12,10 +12,9 @@ export function cn( ...inputs: ClassValue[] ): string {
 }
 
 /**
- * Client-side CSV export for a zyra `TableCard` — same shape/behavior as
- * `multivendorx/src/services/commonFunction.ts`'s `downloadCSV()` (that
- * plugin's own Commissions.tsx CSV export, a real, working reference for
- * `TableCard`'s `onSelectCsvDownloadApply`/`buttonActions` props). Ported
+ * Client-side CSV export for a zyra `TableCard` — a real, working
+ * reference implementation for `TableCard`'s
+ * `onSelectCsvDownloadApply`/`buttonActions` props. Ported
  * rather than imported since it's plugin-local, not part of `zyra`'s own
  * exports.
  */

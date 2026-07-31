@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * `NavigatorComponent`, `getAvailableSettings`/`getSettingById` from
  * `@zyra/core`) — mirrors `VuloPilot\RestAPI\Controllers\Settings`'s
  * flat-option shape (a single `wp_options` row, `Utill::SETTINGS_KEY`),
- * not multivendorx's per-tab-namespaced `admin_settings` variant, since
+ * not a per-tab-namespaced `admin_settings` variant, since
  * VuloCart has exactly one settings tab so far.
  *
  * `update_item()` **merges** the `{ setting, settingName }` subset
@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Settings class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Settings extends \WP_REST_Controller {
 

@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       WPDBOfferingRepository class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class WPDBOfferingRepository implements OfferingRepositoryInterface {
 
@@ -114,7 +114,7 @@ class WPDBOfferingRepository implements OfferingRepositoryInterface {
     /**
      * Returns a page of offerings, optionally filtered.
      *
-     * @param array{page?: int, per_page?: int, type?: string, status?: string} $args Pagination/filter args.
+     * @param array{page?: int, per_page?: int, type?: string, status?: string, search?: string, category?: string} $args Pagination/filter args.
      * @return array{data: Offering[], total: int}
      */
     public function paginate( array $args = array() ): array {
@@ -136,6 +136,27 @@ class WPDBOfferingRepository implements OfferingRepositoryInterface {
         if ( ! empty( $args['status'] ) ) {
             $where_clauses[] = 'status = %s';
             $where_values[]  = (string) $args['status'];
+        }
+
+        if ( ! empty( $args['search'] ) ) {
+            $where_clauses[] = '(title LIKE %s OR sku LIKE %s)';
+            $like            = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
+            $where_values[]  = $like;
+            $where_values[]  = $like;
+        }
+
+        // Offering<->category is a slug reference inside the `meta` JSON
+        // bag, not a join table (WPDBTermRepository::
+        // count_offerings_for_term()'s own docblock explains the
+        // tradeoff), so filtering by category is a LIKE over that JSON
+        // text rather than a real join/index. Good enough for the
+        // "filter this list" use case at admin-catalog scale; a slug
+        // that happens to be a substring of another slug (e.g.
+        // "electronics" inside "electronics-2") can over-match — a known,
+        // documented limitation, not a silent bug.
+        if ( ! empty( $args['category'] ) ) {
+            $where_clauses[] = 'meta LIKE %s';
+            $where_values[]  = '%"' . $wpdb->esc_like( (string) $args['category'] ) . '"%';
         }
 
         $where_sql = $where_clauses ? ( 'WHERE ' . implode( ' AND ', $where_clauses ) ) : '';

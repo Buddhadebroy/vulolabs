@@ -3,8 +3,7 @@ import { __ } from '@wordpress/i18n';
 import modulesConfig from '../../modules-config';
 
 /**
- * Mirrors `multivendorx/src/components/Modules/Modules.tsx` almost
- * verbatim — `ModuleGridComponent` reads active state from zyra's own
+ * Uses `ModuleGridComponent`, which reads active state from zyra's own
  * `useModules()` store (seeded by `initializeModules()` in
  * src/index.tsx) and POSTs `{ id, action }` to `apiLink` on toggle
  * (classes/RestAPI/Controllers/Modules.php).

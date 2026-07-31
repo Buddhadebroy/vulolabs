@@ -1,0 +1,62 @@
+.vulocart-checkout-notice {
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	padding: 20px;
+}
+
+.vulocart-checkout-cart-view {
+	display: flex;
+	gap: 24px;
+	flex-wrap: wrap;
+}
+
+.vulocart-checkout-offerings,
+.vulocart-checkout-cart {
+	flex: 1 1 320px;
+}
+
+.vulocart-checkout-offering-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border: 1px solid #e5e7eb;
+	border-radius: 6px;
+	padding: 10px 14px;
+	margin-bottom: 8px;
+}
+
+.vulocart-checkout-offering-price {
+	font-size: 12px;
+	color: #6b7280;
+}
+
+.vulocart-checkout-cart-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #e5e7eb;
+	padding: 8px 0;
+}
+
+.vulocart-checkout-cart-item-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.vulocart-checkout-cart-subtotal {
+	font-weight: 700;
+	margin-top: 8px;
+}
+
+.vulocart-checkout-shipping-estimate {
+	font-size: 12px;
+	color: #6b7280;
+	margin-top: 2px;
+}
+
+.vulocart-checkout-continue {
+	margin-top: 16px;
+	padding: 10px 18px;
+	font-weight: 700;
+}

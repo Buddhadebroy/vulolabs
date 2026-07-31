@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       ProductAttribute class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class ProductAttribute {
 

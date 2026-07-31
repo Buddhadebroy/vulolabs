@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       OrderRepositoryInterface interface
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 interface OrderRepositoryInterface {
 
@@ -40,6 +40,17 @@ interface OrderRepositoryInterface {
      * @return Order|null Null if no order matches both values.
      */
     public function find_by_number_and_token( string $order_number, string $access_token ): ?Order;
+
+    /**
+     * Finds the most recent order placed with a given customer email —
+     * vulocart-pro's One-Click Checkout uses this to source a returning
+     * (or repeat-guest) buyer's last-used address/payment as their
+     * one-click default.
+     *
+     * @param string $customer_email Customer email to match.
+     * @return Order|null Null if no order has ever been placed with this email.
+     */
+    public function find_latest_by_customer_email( string $customer_email ): ?Order;
 
     /**
      * Returns a page of orders, optionally filtered.

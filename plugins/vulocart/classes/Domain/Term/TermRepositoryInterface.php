@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       TermRepositoryInterface interface
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 interface TermRepositoryInterface {
 

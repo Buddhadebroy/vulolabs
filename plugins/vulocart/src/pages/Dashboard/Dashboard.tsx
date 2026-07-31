@@ -5,10 +5,10 @@ import { ContainerComponent, ColumnComponent, CardComponent } from '@zyra/compon
 import { getApiLink, getApiResponse } from '@zyra/core';
 
 /**
- * A real, modest dashboard rather than `multivendorx/src/components/
- * AdminDashboard/AdminDashboard.tsx`'s full parity — that page's actual
- * content (DashboardTab) is built entirely around marketplace data
- * (stores/commissions/orders) VuloCart has no equivalent of yet. Same
+ * A real, modest dashboard rather than an attempt at full parity with a
+ * marketplace-style admin dashboard, whose actual content (DashboardTab)
+ * is built entirely around marketplace data (stores/commissions/orders)
+ * VuloCart has no equivalent of yet. Same
  * `ContainerComponent`/`ColumnComponent` layout, `CardComponent` for
  * each stat, but showing genuinely available data instead of fabricated
  * widgets — total offering count (`GET /offerings`'s `X-WP-Total` header,

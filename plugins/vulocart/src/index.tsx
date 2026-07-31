@@ -11,7 +11,7 @@ import Brand from './assets/images/vulocart-logo.svg';
 
 /**
  * VuloCart's free plugin owns its own React mount — unlike
- * multivendorx/vulopilot's Pro plugins, which only register
+ * vulopilot's Pro plugin, which only registers
  * `@wordpress/hooks` filters into an already-mounted Free dashboard
  * (react-frontend.md), VuloCart has no existing dashboard to extend, so
  * this mounts directly into `#vulocart-admin-root` (classes/Admin/Menu.php).
@@ -39,7 +39,7 @@ import Brand from './assets/images/vulocart-logo.svg';
  * khali_dabba/etc, see global.d.ts) to every zyra component this app
  * renders (Modules/Settings/Dashboard pages). `initializeModules()`
  * seeds zyra's own `useModules()` store with the real active-module list
- * — `force_vulocart_context_reload` mirrors the multivendorx/vulopilot
+ * — `force_vulocart_context_reload` mirrors vulopilot's
  * app.tsx pattern of setting this unconditionally on every load so the
  * store never goes stale.
  *

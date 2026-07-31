@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       ServiceContainer class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class ServiceContainer {
 

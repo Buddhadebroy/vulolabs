@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Reviews class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Reviews extends \WP_REST_Controller {
 
