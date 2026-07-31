@@ -150,6 +150,105 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
+     * Per-bot visit counts per calendar day over a trailing window, zero-
+     * filled the same way get_daily_volume() already is — backs
+     * vulopilot-pro's "Historical Crawl Trends" (AI-CRAWLER-ANALYTICS-MODULE.md),
+     * which needs a per-bot breakdown get_daily_volume() itself doesn't
+     * return. Lives here (Free's own repository) rather than in Pro, same
+     * "Free owns the table + its query methods, Pro decides which ones its
+     * UI calls" posture FindingRepository::get_severity_breakdown_for_scanner_ids()
+     * already established for a method added for a later Pro consumer.
+     *
+     * @param int $days Trailing window size.
+     * @return array<string, array<int, array{date: string, total: int}>> Bot name => daily volume, oldest first.
+     */
+    public function get_daily_volume_by_bot( int $days = 30 ): array {
+        global $wpdb;
+
+        $days = max( 1, $days );
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT bot_name, DATE(created_at) AS visit_date, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL %d DAY) GROUP BY bot_name, visit_date", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $days
+            ),
+            ARRAY_A
+        );
+
+        $counts_by_bot = array();
+        foreach ( (array) $rows as $row ) {
+            $counts_by_bot[ $row['bot_name'] ][ $row['visit_date'] ] = (int) $row['total'];
+        }
+
+        $volume_by_bot = array();
+        foreach ( $counts_by_bot as $bot_name => $counts_by_date ) {
+            $volume = array();
+            for ( $offset = $days - 1; $offset >= 0; $offset-- ) {
+                $date     = gmdate( 'Y-m-d', strtotime( "-{$offset} days" ) );
+                $volume[] = array(
+                    'date'  => $date,
+                    'total' => $counts_by_date[ $date ] ?? 0,
+                );
+            }
+            $volume_by_bot[ $bot_name ] = $volume;
+        }
+
+        return $volume_by_bot;
+    }
+
+    /**
+     * Aggregate stats for a fixed date range — backs vulopilot-pro's "Crawl
+     * Reports" (Reports\Types\CrawlReport there), same "generate() only
+     * ever reads plain SQL, never calls out to anything" rule
+     * AiVisibilityReport's own docblock documents, applied to crawler-visit
+     * data instead of findings.
+     *
+     * @param string $period_start Y-m-d, inclusive.
+     * @param string $period_end   Y-m-d, inclusive.
+     * @return array{total: int, by_bot: array<string, int>, top_pages: array<int, array{requested_url: string, total: int}>}
+     */
+    public function get_stats_for_period( string $period_start, string $period_end ): array {
+        global $wpdb;
+
+        $total = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$this->get_table()} WHERE created_at >= %s AND created_at < DATE_ADD(%s, INTERVAL 1 DAY)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $period_start,
+                $period_end
+            )
+        );
+
+        $bot_rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT bot_name, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= %s AND created_at < DATE_ADD(%s, INTERVAL 1 DAY) GROUP BY bot_name", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $period_start,
+                $period_end
+            ),
+            ARRAY_A
+        );
+
+        $by_bot = array();
+        foreach ( (array) $bot_rows as $row ) {
+            $by_bot[ $row['bot_name'] ] = (int) $row['total'];
+        }
+
+        $top_pages = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT requested_url, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= %s AND created_at < DATE_ADD(%s, INTERVAL 1 DAY) GROUP BY requested_url ORDER BY total DESC LIMIT 10", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $period_start,
+                $period_end
+            ),
+            ARRAY_A
+        );
+
+        return array(
+            'total'     => $total,
+            'by_bot'    => $by_bot,
+            'top_pages' => $top_pages ?: array(),
+        );
+    }
+
+    /**
      * Deletes rows older than $days — the retention/cleanup half of
      * readme.txt's Pro "Historical Logs" line (Services\CrawlerTrafficLogger's
      * daily cron calls this with `apply_filters('vulopilot_crawler_log_retention_days', 30)`).

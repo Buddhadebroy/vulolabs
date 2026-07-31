@@ -96,6 +96,8 @@ class ReportTypeRegistry {
             Types\AiVisibilityReport::class,
             Types\PerformanceReport::class,
             Types\UpdatesReport::class,
+            Types\ContentIntelligenceReport::class,
+            Types\BrandIntelligenceReport::class,
         );
     }
 

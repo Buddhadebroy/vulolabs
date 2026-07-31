@@ -80,10 +80,11 @@ final class VuloPilot {
     public function activate() {
         add_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'], true );
         // A no-op if this site already has an active-module list (e.g. a
-        // deactivate/reactivate cycle) — only seeds 'geo'/'seo' as active
-        // for a genuinely fresh install, matching Install.php's own
+        // deactivate/reactivate cycle) — only seeds 'geo'/'seo'/
+        // 'content-intelligence'/'brand-intelligence'/'entity-extraction' as
+        // active for a genuinely fresh install, matching Install.php's own
         // migration for sites upgrading in place instead.
-        add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo', 'seo' ) );
+        add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo', 'seo', 'content-intelligence', 'brand-intelligence', 'entity-extraction' ) );
         flush_rewrite_rules();
     }
 
@@ -137,6 +138,13 @@ final class VuloPilot {
 
         $this->container['scan_persistence'] = new Services\ScanPersistenceListener();
 
+        // "Manual Actions Only" (readme.txt) — Free's own small, engine-free
+        // counterpart to vulopilot-pro's Automation module; see
+        // Automation\ManualActionRunner's own docblock for why this doesn't
+        // reuse rule_engine at all.
+        $this->container['manual_action_registry'] = new Automation\ActionRegistry();
+        $this->container['manual_action_runner']   = new Automation\ManualActionRunner( $this->container['manual_action_registry'] );
+
         // Scheduler (recurring scan cron) and the entire AutomationEngine
         // (trigger→action workflows) are Pro business logic now — "Scheduled
         // Website Scans" and "AI Automation Workflows" are both
@@ -174,6 +182,13 @@ final class VuloPilot {
         // GEO module (GEO-MODULE.md) — reuses the same ai_request_sender
         // every AIAction goes through, not a second AI-calling path.
         $this->container['geo_analyzer'] = new GeoAnalysis\GeoAnalyzer( $this->container['ai_request_sender'] );
+
+        // Content Intelligence's "Topic Authority" (CONTENT-INTELLIGENCE-MODULE.md)
+        // — same shape as geo_analyzer above: reuses the same
+        // ai_request_sender, constructed unconditionally in Free even
+        // though the REST route that actually calls analyze() (a real AI
+        // cost) lives in vulopilot-pro's own ContentIntelligence module.
+        $this->container['content_analyzer'] = new ContentIntelligence\ContentAnalyzer( $this->container['ai_request_sender'] );
 
         // llms.txt Generation & Management (readme.txt) — self-registers
         // its own rewrite-rule/template_redirect hooks; unconditional

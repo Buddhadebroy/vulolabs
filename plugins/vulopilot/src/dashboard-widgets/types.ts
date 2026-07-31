@@ -20,6 +20,8 @@ export interface DashboardSummary {
 		accessibility: number;
 		woocommerce: number | null;
 		geo: number;
+		content: number;
+		brand: number;
 	};
 	quick_fixes: number;
 	pending_approvals: number;

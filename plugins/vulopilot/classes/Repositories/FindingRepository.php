@@ -152,18 +152,68 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * Same shape as get_severity_breakdown_for_category(), scoped to an
+     * explicit scanner_id list instead of one category string — what
+     * Content Intelligence's own composite Content Score reads
+     * (CONTENT-INTELLIGENCE-MODULE.md), since it spans scanners across two
+     * categories (`content`'s own readability scanner plus a subset of
+     * `seo`'s existing thin-content/duplicate-content/heading-structure/
+     * internal-linking/orphan-pages scanners) — a single category string
+     * can't express that, and recategorizing those existing `seo`
+     * scanners into `content` would be exactly the kind of breaking
+     * redesign this pass avoids (SEO.tsx's own SEO_SECTIONS groups them
+     * as `seo` today).
+     *
+     * @param string[] $scanner_ids Scanner ids to scope to.
+     * @return array{critical: int, high: int, medium: int, low: int}
+     */
+    public function get_severity_breakdown_for_scanner_ids( array $scanner_ids ): array {
+        global $wpdb;
+
+        $counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low' ), 0 );
+
+        if ( ! $scanner_ids ) {
+            return $counts;
+        }
+
+        $placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT severity, COUNT(*) AS total FROM {$this->get_table()} WHERE scanner_id IN ({$placeholders}) AND status = 'open' GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
+                ...$scanner_ids
+            ),
+            ARRAY_A
+        );
+
+        foreach ( (array) $rows as $row ) {
+            if ( array_key_exists( $row['severity'], $counts ) ) {
+                $counts[ $row['severity'] ] = (int) $row['total'];
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
      * Aggregate counts for one date range — what every Reports\Types\*
      * report reads instead of pulling every row in the period into PHP to
      * count them (performance.md). $category narrows to one scanner
      * category (e.g. 'seo', 'security'); null means every category, used
-     * by Reports\Types\ScanSummaryReport/HealthReport.
+     * by Reports\Types\ScanSummaryReport/HealthReport. $scanner_ids
+     * additionally narrows to an explicit scanner id list (Content
+     * Intelligence's own report, which spans two categories — see
+     * get_severity_breakdown_for_scanner_ids()'s own docblock for why);
+     * combinable with $category, though no current caller needs both at
+     * once.
      *
-     * @param string      $period_start Y-m-d, inclusive.
-     * @param string      $period_end   Y-m-d, inclusive.
-     * @param string|null $category     One of the scanner category strings (SCANNERS.md), or null for all.
+     * @param string        $period_start Y-m-d, inclusive.
+     * @param string        $period_end   Y-m-d, inclusive.
+     * @param string|null   $category     One of the scanner category strings (SCANNERS.md), or null for all.
+     * @param string[]|null $scanner_ids  Scanner ids to additionally scope to, or null for every scanner in $category.
      * @return array{total: int, by_severity: array<string, int>, by_category: array<string, int>, by_status: array<string, int>}
      */
-    public function get_stats_for_period( string $period_start, string $period_end, ?string $category = null ): array {
+    public function get_stats_for_period( string $period_start, string $period_end, ?string $category = null, ?array $scanner_ids = null ): array {
         global $wpdb;
 
         $where  = 'WHERE DATE(created_at) BETWEEN %s AND %s';
@@ -172,6 +222,11 @@ class FindingRepository extends AbstractRepository {
         if ( null !== $category ) {
             $where   .= ' AND category = %s';
             $values[] = $category;
+        }
+
+        if ( null !== $scanner_ids && $scanner_ids ) {
+            $where .= ' AND scanner_id IN (' . implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) ) . ')';
+            array_push( $values, ...$scanner_ids );
         }
 
         $by_severity = array_fill_keys( array( 'critical', 'high', 'medium', 'low', 'info' ), 0 );
@@ -224,13 +279,14 @@ class FindingRepository extends AbstractRepository {
      * report's "top issues" section reads, ordered worst-first rather than
      * newest-first.
      *
-     * @param string      $period_start Y-m-d, inclusive.
-     * @param string      $period_end   Y-m-d, inclusive.
-     * @param string|null $category     One of the scanner category strings, or null for all.
-     * @param int         $limit        Max rows to return.
+     * @param string        $period_start Y-m-d, inclusive.
+     * @param string        $period_end   Y-m-d, inclusive.
+     * @param string|null   $category     One of the scanner category strings, or null for all.
+     * @param int           $limit        Max rows to return.
+     * @param string[]|null $scanner_ids  Scanner ids to additionally scope to — same reasoning as get_stats_for_period()'s own docblock.
      * @return array<int, array<string, mixed>>
      */
-    public function get_top_findings_for_period( string $period_start, string $period_end, ?string $category = null, int $limit = 10 ): array {
+    public function get_top_findings_for_period( string $period_start, string $period_end, ?string $category = null, int $limit = 10, ?array $scanner_ids = null ): array {
         global $wpdb;
 
         $where  = 'WHERE DATE(created_at) BETWEEN %s AND %s';
@@ -239,6 +295,11 @@ class FindingRepository extends AbstractRepository {
         if ( null !== $category ) {
             $where   .= ' AND category = %s';
             $values[] = $category;
+        }
+
+        if ( null !== $scanner_ids && $scanner_ids ) {
+            $where .= ' AND scanner_id IN (' . implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) ) . ')';
+            array_push( $values, ...$scanner_ids );
         }
 
         $values[] = max( 1, $limit );

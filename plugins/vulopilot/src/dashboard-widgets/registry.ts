@@ -7,6 +7,7 @@ import LatestReportsWidget from './LatestReportsWidget';
 import PendingApprovalWidget from './PendingApprovalWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import CrawlerTrafficWidget from './CrawlerTrafficWidget';
+import KnowledgeGraphWidget from './KnowledgeGraphWidget';
 import HealthPillarsWidget from './HealthPillarsWidget';
 import RecentIssuesWidget from './RecentIssuesWidget';
 import { WidgetDefinition } from './types';
@@ -90,6 +91,20 @@ const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
 		getExtra: () => __('Generative Engine Optimization', 'vulopilot'),
 	},
 	{
+		id: 'content',
+		title: __('Content', 'vulopilot'),
+		icon: 'media-text',
+		getNumber: (summary) => `${summary.category_scores.content}/100`,
+		getExtra: () => __('Readability, thin/duplicate content, links', 'vulopilot'),
+	},
+	{
+		id: 'brand',
+		title: __('Brand', 'vulopilot'),
+		icon: 'admin-users',
+		getNumber: (summary) => `${summary.category_scores.brand}/100`,
+		getExtra: () => __('Trust, authority, and entity signals', 'vulopilot'),
+	},
+	{
 		id: 'quick-fixes',
 		title: __('Quick fixes', 'vulopilot'),
 		icon: 'check',
@@ -158,6 +173,13 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		icon: 'warning',
 		size: 'medium',
 		component: RecentIssuesWidget,
+	},
+	{
+		id: 'knowledge-graph',
+		title: __('Knowledge Graph', 'vulopilot'),
+		icon: 'share-alt2',
+		size: 'medium',
+		component: KnowledgeGraphWidget,
 	},
 ];
 

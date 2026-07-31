@@ -127,7 +127,14 @@ class ScannerRegistry {
      * Performance, Accessibility Scanner, WooCommerce Optimization).
      * SecurityScanner/RestApiScanner are the one exception ("Security
      * Monitoring" is Pro-only per the readme) — they moved to
-     * vulopilot-pro's SecurityMonitoring module instead.
+     * vulopilot-pro's SecurityMonitoring module instead. Free does own its
+     * own four security-category checks (SECURITY-MODULE.md's "Free"
+     * section) — Outdated Plugins (already covered by UpdatesScanner
+     * below), Weak Password Detection, Basic Vulnerabilities, and File
+     * Changes — each gated by its own settings toggle rather than a
+     * whole-category kill switch, same granular-toggle posture
+     * RestApiScanner/XmlrpcExposureScanner/etc. already established for
+     * this category.
      *
      * @return string[] Fully-qualified class names implementing ScannerInterface.
      */
@@ -148,6 +155,12 @@ class ScannerRegistry {
             Basic\ThemesScanner::class,
             Basic\UpdatesScanner::class,
             Basic\CronScanner::class,
+            // Security (SECURITY-MODULE.md) — category 'security', joins
+            // vulopilot-pro's own 7 SecurityMonitoring scanners under the
+            // same category string.
+            Basic\WeakPasswordScanner::class,
+            Basic\BasicVulnerabilitiesScanner::class,
+            Basic\CoreFileIntegrityScanner::class,
             // GEO module (GEO-MODULE.md) — 9 deterministic checks, category 'geo'.
             Basic\GeoAuthorInfoScanner::class,
             Basic\GeoEeatSignalsScanner::class,
@@ -158,6 +171,11 @@ class ScannerRegistry {
             Basic\GeoChunkingScanner::class,
             Basic\GeoSemanticStructureScanner::class,
             Basic\GeoEntityNamingConsistencyScanner::class,
+            // AEO (Answer Engine Optimization) — AI-VISIBILITY-MODULE.md's
+            // one new deterministic check: FAQ/HowTo-shaped content missing
+            // its matching schema.org markup. Same 'geo' category, no
+            // separate category/kill switch, same as the 9 above.
+            Basic\AeoSchemaScanner::class,
             // WooCommerce Optimization (readme) — 11 additional checks
             // alongside the original WooCommerceScanner (checkout page),
             // category 'woocommerce'.
@@ -172,6 +190,12 @@ class ScannerRegistry {
             Basic\ProductPricingScanner::class,
             Basic\ProductDuplicateScanner::class,
             Basic\ProductCompletenessScanner::class,
+            // "Product SEO" (WOOCOMMERCE-INTELLIGENCE-MODULE.md) — category
+            // 'woocommerce', joins the 11 above. "Missing Images"/"Missing
+            // Attributes"/"Duplicate Products" (that pass's other three
+            // Free bullets) needed no new scanner — see that doc's own
+            // audit table for why.
+            Basic\ProductSeoScanner::class,
             // Website Health Monitoring (readme) — closes the PHP Warning
             // Detection/SSL Monitoring/Redirect Analysis/404 Detection gaps.
             Basic\SslMonitoringScanner::class,
@@ -188,6 +212,16 @@ class ScannerRegistry {
             // joins the original AccessibilityScanner (duplicate <h1>).
             Basic\FormLabelsScanner::class,
             Basic\AriaAttributesScanner::class,
+            // "WCAG Scanner" (ACCESSIBILITY-MODULE.md) — category
+            // 'accessibility', joins the four above. Phase 8's other four
+            // Free bullets (Missing Alt, Labels, Heading Hierarchy, ARIA
+            // Detection) are already fully satisfied by pre-existing
+            // scanners (ImagesScanner/category 'images',
+            // FormLabelsScanner, GeoSemanticStructureScanner/category
+            // 'geo', AriaAttributesScanner respectively) — see
+            // ACCESSIBILITY-MODULE.md's audit table for why none of those
+            // four needed new code.
+            Basic\WcagScanner::class,
         );
     }
 

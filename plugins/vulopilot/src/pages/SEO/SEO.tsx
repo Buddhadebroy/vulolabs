@@ -123,14 +123,14 @@ const SEO_SECTIONS: {
 		key: 'robots',
 		title: __('Robots.txt', 'vulopilot'),
 		description: __(
-			'Whether robots.txt is reachable and not accidentally blocking every crawler.',
+			'Whether robots.txt is reachable, not accidentally blocking every crawler, and not blocking specific AI crawlers from specific pages.',
 			'vulopilot'
 		),
 		emptyMessage: __(
 			'No robots.txt findings yet — run a scan to check crawler access.',
 			'vulopilot'
 		),
-		scannerIds: ['robots-txt'],
+		scannerIds: ['robots-txt', 'ai-crawler-blocked-pages'],
 	},
 ];
 

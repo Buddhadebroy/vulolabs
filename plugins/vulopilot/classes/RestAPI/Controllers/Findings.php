@@ -74,6 +74,24 @@ class Findings extends \WP_REST_Controller {
                 ),
             )
         );
+
+        // "Manual Actions Only" (readme.txt) — runs one registered
+        // Automation\ActionRegistry action against this specific finding,
+        // right now, via Automation\ManualActionRunner. No trigger, rule,
+        // or `vulopilot_automations` row involved — see that class's own
+        // docblock for how this differs from vulopilot-pro's Automation
+        // module.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/(?P<id>\d+)/actions/(?P<action_id>[a-z0-9-]+)',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'run_manual_action' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
     }
 
     /**
@@ -227,5 +245,25 @@ class Findings extends \WP_REST_Controller {
                 'updated' => $updated_count,
             )
         );
+    }
+
+    /**
+     * Backs FindingsTable.tsx's "Snooze" row action (and any other
+     * registered manual action) via Automation\ManualActionRunner.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function run_manual_action( $request ) {
+        $finding_id = absint( $request->get_param( 'id' ) );
+        $action_id  = sanitize_key( (string) $request->get_param( 'action_id' ) );
+
+        try {
+            $result = VuloPilot()->manual_action_runner->run( $finding_id, $action_id );
+        } catch ( \InvalidArgumentException $exception ) {
+            return new \WP_Error( 'vulopilot_manual_action_invalid', $exception->getMessage(), array( 'status' => 404 ) );
+        }
+
+        return rest_ensure_response( $result->to_array() );
     }
 }

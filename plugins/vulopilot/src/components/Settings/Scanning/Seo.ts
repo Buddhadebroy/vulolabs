@@ -15,7 +15,9 @@ import { __ } from '@wordpress/i18n';
  *   StructuredDataValidationScanner).
  * - Robots.txt: a real toggle over WordPress core's own virtual
  *   robots.txt (via Services\RobotsTxtManager) — not a from-scratch
- *   generator. XML Sitemap settings moved to their own dedicated
+ *   generator, plus `flag_ai_crawler_blocked_pages`
+ *   (Scanners\Basic\AiCrawlerBlockedPagesScanner,
+ *   AI-CRAWLER-ANALYTICS-MODULE.md). XML Sitemap settings moved to their own dedicated
  *   Scanning → Sitemap tab (Scanning/Sitemap.ts), matching the mockup's
  *   own tab boundary — they're no longer here.
  * - "Add canonical URL tags" / "Add Open Graph & Twitter Card tags"
@@ -230,6 +232,23 @@ export default {
 			),
 			options: [
 				{ key: 'robots_auto_generate', label: '', value: 'robots_auto_generate' },
+			],
+		},
+		{
+			key: 'flag_ai_crawler_blocked_pages',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Flag pages blocked for specific AI crawlers', 'vulopilot'),
+			desc: __(
+				'Published pages/posts that robots.txt disallows for one named AI bot (GPTBot, ClaudeBot, etc.), separate from the sitewide check above.',
+				'vulopilot'
+			),
+			options: [
+				{
+					key: 'flag_ai_crawler_blocked_pages',
+					label: '',
+					value: 'flag_ai_crawler_blocked_pages',
+				},
 			],
 		},
 		{

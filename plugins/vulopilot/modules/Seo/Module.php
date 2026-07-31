@@ -16,12 +16,13 @@ defined( 'ABSPATH' ) || exit;
  *
  * Unlike Geo\Module (whose own scanners always run no matter what — see
  * that class's own docblock, since GEO has no whole-category kill switch),
- * this module genuinely gates SEO scanning. All 17 SEO-related scanner
+ * this module genuinely gates SEO scanning. All 18 SEO-related scanner
  * classes — Titles (SeoScanner), Schema presence, images/alt text, broken
  * links, plus the 13 checks from SEO-MODULE.md (meta descriptions,
  * canonicals, internal linking, heading structure, thin content, duplicate
  * content, sitemap, robots.txt, OpenGraph/Twitter cards, orphan pages,
- * structured-data validity) — are registered here via
+ * structured-data validity), plus AI-CRAWLER-ANALYTICS-MODULE.md's
+ * "Blocked Pages" check — are registered here via
  * `vulopilot_scanner_sources`, not in
  * ScannerRegistry::get_default_scanner_classes(). If this module is
  * deactivated (Settings → Modules), this filter callback is never
@@ -77,6 +78,12 @@ class Module {
                 Basic\OrphanPageScanner::class,
                 Basic\SeoImagesScanner::class,
                 Basic\StructuredDataValidationScanner::class,
+                // AI Crawler Analytics (AI-CRAWLER-ANALYTICS-MODULE.md) —
+                // "Blocked Pages," the one genuinely new Free scanner that
+                // pass adds. Registered here (not ScannerRegistry's core
+                // list) since it's a real robots.txt/SEO check, same
+                // category and module home as RobotsTxtScanner above.
+                Basic\AiCrawlerBlockedPagesScanner::class,
             )
         );
     }

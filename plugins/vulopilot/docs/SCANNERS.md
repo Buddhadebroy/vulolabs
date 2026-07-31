@@ -3,12 +3,27 @@
 Companion to [`DATABASE.md`](DATABASE.md).
 Covers the contracts, the engine, the original 14 built-in scanners, and
 how a new scanner gets added — by this codebase, by a Pro module, or by a
-third-party developer. Two later passes added more scanners using this
-exact same mechanism, kept in their own docs rather than rewriting this
-table (to avoid misrepresenting the order these were actually built in):
+third-party developer. Later passes added more scanners using this exact
+same mechanism, kept in their own docs rather than rewriting this table
+(to avoid misrepresenting the order these were actually built in):
 [`SEO-MODULE.md`](SEO-MODULE.md) added 13, all category `seo`;
 [`GEO-MODULE.md`](GEO-MODULE.md) added 8 more, all category `geo` — the
-`geo` scanner gap this file originally called out below is now filled.
+`geo` scanner gap this file originally called out below is now filled;
+[`SECURITY-MODULE.md`](SECURITY-MODULE.md) added 3 more, all category
+`security` — Free's first scanners in that category (see the note on
+`SecurityScanner`/`RestApiScanner` below for why the table itself isn't
+updated to reflect this);
+[`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md) added 1 more,
+category `accessibility` (`WcagScanner`) — four of that pass's five spec
+bullets were already satisfied by pre-existing scanners spread across
+`accessibility`/`images`/`geo`, so only one genuinely new scanner was
+needed; see that doc's own audit table;
+[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)
+added 1 more Free scanner (`ProductSeoScanner`, category `woocommerce`)
+and one new Pro scanner (`InventoryIntelligenceScanner`, same category,
+tier `pro`) — three of that pass's five Free spec bullets were already
+satisfied by pre-existing `Product*` scanners; see that doc's own audit
+table.
 
 **Scanners never call an AI provider.** A scanner's job is narrow and
 deterministic: inspect real WordPress/site state and report structured
@@ -114,6 +129,33 @@ Categories are chosen to line up with the admin UI already built: the
 `woocommerce`; Health shows every category unfiltered). There was no
 `geo` scanner in this original list — [`GEO-MODULE.md`](GEO-MODULE.md)
 later filled that gap with 8 scanners.
+
+**`SecurityScanner`/`RestApiScanner` have since moved to `vulopilot-pro`.**
+Both rows above describe what was true when this table was first written;
+neither class lives under `classes/Scanners/Basic/` anymore —
+`vulopilot-pro`'s `SecurityMonitoring` module now owns both (alongside 5
+more hardening scanners added since). Free's own `security`-category
+scanners today are the 3 [`SECURITY-MODULE.md`](SECURITY-MODULE.md) added
+(`WeakPasswordScanner`/`BasicVulnerabilitiesScanner`/`CoreFileIntegrityScanner`)
+— genuinely new Free scanners, not a restoration of these two.
+
+**`AccessibilityScanner`'s row above is still accurate, but no longer the
+whole `accessibility`-category picture.** `FormLabelsScanner`/
+`AriaAttributesScanner` (added alongside a prior WooCommerce AI pass) and
+`WcagScanner` ([`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md)) all
+share the same category string. See that doc's own audit table for why
+"Missing Alt"/"Labels"/"Heading Hierarchy"/"ARIA Detection" needed no new
+scanner despite being named as Phase 8 bullets — each was already covered,
+just under a different category (`images`/`accessibility`/`geo`/`accessibility`
+respectively).
+
+**`WooCommerceScanner`'s row above is also no longer the whole story.**
+It grew from one check (checkout page) to five (cart/My Account pages,
+store base location, an enabled payment gateway) in
+[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)'s
+"Store Health" pass, and the `woocommerce` category itself gained a
+twelfth `Product*` scanner (`ProductSeoScanner`) plus its first Pro
+scanner (`InventoryIntelligenceScanner`) in that same pass.
 
 Every scanner that runs a network request (`SchemaScanner`,
 `RestApiScanner`, `BrokenLinksScanner`) or a `$wpdb` query

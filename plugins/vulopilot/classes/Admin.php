@@ -118,6 +118,11 @@ class Admin {
                     'priority' => 30,
                     'icon'     => 'dashicons-megaphone',
                 ),
+                'knowledge-graph'  => array(
+                    'name'     => __( 'Knowledge Graph', 'vulopilot' ),
+                    'priority' => 31,
+                    'icon'     => 'dashicons-share-alt2',
+                ),
                 'seo'              => array(
                     'name'     => __( 'SEO', 'vulopilot' ),
                     'priority' => 40,

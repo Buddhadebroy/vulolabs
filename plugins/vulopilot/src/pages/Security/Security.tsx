@@ -1,4 +1,6 @@
 import { __ } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
+import type { ComponentType } from 'react';
 import {
 	ColumnComponent,
 	ContainerComponent,
@@ -13,7 +15,25 @@ import FindingsTable from '../../components/FindingsTable';
  * module writes findings under this category), it just never had its own
  * top-level page before; Health's unfiltered findings list was the only
  * place they surfaced.
+ *
+ * SECURITY-MODULE.md's Pro additions register into these two slots —
+ * same "register a source, don't modify the host" pattern GEO.tsx/
+ * Reports.tsx already use, rather than replacing this whole page the way
+ * Automation.tsx's single `vulopilot_automation_panel` slot does: Security
+ * findings are useful with Free alone (the FindingsTable below already
+ * shows every 'security' finding, Free or Pro), so this page only adds
+ * extra cards on top rather than gating its base content behind Pro.
  */
+const SecurityDashboardCard = applyFilters(
+	'vulopilot_security_dashboard_card',
+	null
+) as ComponentType | null;
+
+const SecurityIncidentReportsPanel = applyFilters(
+	'vulopilot_security_incident_reports_panel',
+	null
+) as ComponentType | null;
+
 const Security = () => (
 	<>
 		<NavigatorHeaderComponent
@@ -26,6 +46,7 @@ const Security = () => (
 		/>
 		<ContainerComponent general>
 			<ColumnComponent>
+				{SecurityDashboardCard && <SecurityDashboardCard />}
 				<FindingsTable
 					title={__('Security', 'vulopilot')}
 					description={__(
@@ -34,6 +55,9 @@ const Security = () => (
 					)}
 					category="security"
 				/>
+				{SecurityIncidentReportsPanel && (
+					<SecurityIncidentReportsPanel />
+				)}
 			</ColumnComponent>
 		</ContainerComponent>
 	</>

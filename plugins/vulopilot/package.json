@@ -37,7 +37,8 @@
 		"fix:css": "stylelint \"**/*.{css,scss}\" --fix",
 		"lint:php": "composer run-script phpcs",
 		"fix:php": "composer run-script phpfix",
-		"test": "pnpm run test:php",
+		"test": "pnpm run test:php && pnpm run test:unit:js",
+		"test:unit:js": "wp-scripts test-unit-js",
 		"test:php": "./vendor/bin/phpunit -c phpunit.xml.dist",
 		"env:create": "NODE_OPTIONS='--no-network-family-autoselection' pnpm wp-env start && pnpm run env:start:database",
         "env:start": "NODE_OPTIONS='--no-network-family-autoselection' pnpm wp-env start && pnpm run env:start:database",
@@ -99,6 +100,10 @@
 		"@multivendorx/zyra": "^1.0.14"
 	},
 	"devDependencies": {
-		"wireit": "^0.14.12"
+		"wireit": "^0.14.12",
+		"@testing-library/jest-dom": "^7.0.0",
+		"@testing-library/react": "^16.3.2",
+		"@testing-library/user-event": "^14.6.1",
+		"@wordpress/jest-preset-default": "^13.0.0"
 	}
 }

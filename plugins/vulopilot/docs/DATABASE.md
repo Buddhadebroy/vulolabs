@@ -189,15 +189,27 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_rules` (
   that references it) — `idx_active` backs the "only evaluate active rules" query the engine runs on
   every tick.
 
-## 4. `vulopilot_automations` — binds a rule to actions + a trigger
+## 4. `vulopilot_automations` — binds a trigger + conditions to actions
+
+**Superseded from the original sketch below** — see
+[`AUTOMATION-ENGINE-MODULE.md`](AUTOMATION-ENGINE-MODULE.md) for the full,
+current design. `rule_id` was originally a `NOT NULL` FK to
+`vulopilot_rules` (the still-unbuilt user-authored-custom-rules table
+below); the real, shipped `Automation\AutomationEngine` instead binds an
+automation to one of the code-defined `RuleInterface` rules by string id
+(`trigger_config.rule_key`), never a row in `vulopilot_rules` — this
+column was loosened to nullable rather than removed (`Install::relax_automation_rule_id_to_nullable()`),
+since it's additive/non-destructive and no released version had ever
+populated it.
 
 ```sql
 CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_automations` (
     `id`                  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     `name`                varchar(191) NOT NULL,
-    `rule_id`             bigint(20) unsigned NOT NULL,
+    `rule_id`             bigint(20) unsigned DEFAULT NULL,
     `trigger_type`        varchar(50) NOT NULL,
     `trigger_config`      longtext DEFAULT NULL,
+    `conditions`          longtext DEFAULT NULL,
     `actions`             longtext NOT NULL,
     `status`              varchar(20) NOT NULL DEFAULT 'enabled',
     `last_triggered_at`   datetime DEFAULT NULL,
@@ -211,17 +223,28 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_automations` (
 ) $collate;
 ```
 
-- `rule_id` — typed FK to `vulopilot_rules.id`; `idx_rule` backs "which automations use this rule"
-  (needed before letting someone delete/deactivate a rule).
-- `trigger_type` (`schedule`/`on_scan_complete`/`webhook`/`finding_created`) + `trigger_config` (JSON
-  — a cron expression, a webhook secret, etc.) — what actually fires evaluation of `rule_id`.
-  `idx_trigger_type` backs the Scheduler's "which automations need a cron tick" query.
-- `actions` — JSON ordered list of `{action_id, config}`; each `action_id` is whatever's registered
-  via `vulopilot_action_sources` (free `Actions/` or a Pro module's actions). Keeping this as one
-  JSON column rather than a child table keeps ordering trivial and matches how `condition_tree`
-  above is also a single structured column, not a separate table per node.
-- `status` (`enabled`/`disabled`) mirrors `vulopilot_rules.is_active`'s reasoning — pause without
-  delete.
+- `rule_id` — unused (see above); kept nullable rather than dropped, per
+  `.claude/rules/backward-compatibility.md`'s additive-only rule.
+- `trigger_type` — one of `Automation\TriggerRegistry`'s registered trigger
+  ids (`manual`/`hourly`/`daily`/`weekly`/`monthly`/`post_published`/
+  `product_created`/`product_updated`/`order_completed`/`user_registered`/
+  a Pro-registered trigger like Knowledge Graph's `knowledge_graph_built`).
+  `trigger_config` is JSON, currently just `{rule_key: string|null}` — the
+  `RuleInterface::get_id()` this automation is bound to, or `null` to match
+  any rule's recommendations. `idx_trigger_type` backs
+  `AutomationEngine::get_enabled_automations_for_trigger()`'s query.
+- `conditions` (AUTOMATION-ENGINE-MODULE.md's "Conditions") — JSON ordered
+  list of `{type, config}`, each `type` a registered
+  `ConditionInterface::get_id()`; every one must match (ANDed) on top of
+  the bound rule, or `null`/empty to skip this layer entirely. Same
+  "one JSON column, not a child table" reasoning `actions` below already
+  uses.
+- `actions` — JSON ordered list of `{type, config}`; each `type` is
+  whatever's registered via `vulopilot_automation_action_sources` (Pro's
+  4 built-in actions) or Free's own much smaller
+  `vulopilot_manual_action_sources` (used only by `Automation\ManualActionRunner`,
+  never by a `vulopilot_automations` row — see AUTOMATION-ENGINE-MODULE.md).
+- `status` (`enabled`/`disabled`) — pause without delete.
 
 ## 5. `vulopilot_automation_runs` — execution history of automations
 
@@ -235,6 +258,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_automation_runs` (
     `actions_executed`  int(10) unsigned NOT NULL DEFAULT 0,
     `actions_failed`    int(10) unsigned NOT NULL DEFAULT 0,
     `result_log`        longtext DEFAULT NULL,
+    `retry_count`       tinyint(3) unsigned NOT NULL DEFAULT 0,
     `started_at`        datetime NOT NULL,
     `finished_at`       datetime DEFAULT NULL,
     `created_at`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -250,10 +274,21 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_automation_runs` (
   every time it fires, potentially very often) — mixing update-rarely config columns with
   write-constantly history columns on one table just makes the config rows wider and the history
   rows sparser than they need to be.
-- `trigger_ref_id` — e.g. the `vulopilot_scans.id` that caused an `on_scan_complete` automation to
-  fire; nullable because `schedule`/`manual` triggers have no such reference.
-- `result_log` — JSON, one entry per action executed (`{action_id, status, message}`) — the concrete
-  audit trail an admin reads when an automation "did something" and they need to know what.
+- `status` is one of `running`/`completed`/`failed` (`AutomationEngine::run_automation()`/`retry_run()`)
+  — not `success`/`failure`, a real mismatch a previous pass's own
+  `AutomationRunRepository::get_breakdown_by_automation_for_period()` and
+  `Reports\Types\AutomationReport` had baked in (both always read `0`
+  succeeded/failed, since neither status string they checked for was ever
+  actually written); fixed alongside AUTOMATION-ENGINE-MODULE.md's "Retries".
+- `trigger_ref_id` — e.g. the specific object id a `post_published`-style automation fired for;
+  nullable because `manual`/periodic-cron triggers have no such reference.
+- `result_log` — JSON, one entry per action executed
+  (`ValueObjects\AutomationRunResult::to_array()`: `{success, action_id, message}`) — the concrete
+  audit trail an admin reads when an automation "did something" and they need to know what
+  ("Logs", AUTOMATION-ENGINE-MODULE.md).
+- `retry_count` (AUTOMATION-ENGINE-MODULE.md's "Retries") — how many times
+  `AutomationEngine::retry_run()` has re-attempted this run's failed
+  actions, capped at the `automation_max_retries` setting.
 
 ## 6. `vulopilot_ai_jobs` — queued/in-flight AI provider requests
 
@@ -531,6 +566,112 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_ai_action_runs` (
 - `snapshot` shape is entirely action-specific (a previous meta value, previous `post_content`, or
   just a newly-created post id to trash) — this table stores whatever JSON an action's own
   `execute()` produced, never interprets it.
+
+---
+
+## 14. `vulopilot_file_baselines` — Integrity Monitoring's file hash baseline
+
+Added in the Security pass — see [`SECURITY-MODULE.md`](SECURITY-MODULE.md) for the full design.
+Same "Free owns the schema, Pro owns the population logic" split as several tables above
+(`vulopilot_ai_provider_configs`, etc.) — this table exists and is queryable even without
+`vulopilot-pro`'s `SecurityMonitoring` module active, it just stays empty.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_file_baselines` (
+    `id`           bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `path`         varchar(500) NOT NULL,
+    `path_hash`    char(32) NOT NULL,
+    `scope`        varchar(20) NOT NULL,
+    `hash`         char(64) NOT NULL,
+    `file_size`    bigint(20) unsigned NOT NULL DEFAULT 0,
+    `last_seen_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_path_hash` (`path_hash`),
+    KEY `idx_scope` (`scope`)
+) $collate;
+```
+
+- One row per plugin/theme file `IntegrityMonitoringScanner` (Pro) has seen, keyed by its own path
+  so a re-scan can upsert-by-path rather than accumulating a new row per run the way
+  `vulopilot_scan_findings` does.
+- `path_hash` (an md5 of `path`) carries the `UNIQUE` key rather than `path` itself — a `varchar(500)`
+  can't cheaply carry a unique index at typical charset/row-format limits, same reasoning
+  `vulopilot_entity_relationships`' own `dedupe_hash` column already documents (see table 
+  design principles above).
+- `hash` is a sha256, not core's own md5 — there's no official published baseline for
+  plugin/theme files the way `CoreFileIntegrityScanner` (Free) has for core files via
+  `get_core_checksums()`, so there's no reason to match core's weaker algorithm here.
+
+---
+
+## 15. `vulopilot_accessibility_snapshots` — Historical Tracking's daily rollup
+
+Added in the Accessibility pass — see [`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md) for the
+full design. Same "Free owns the schema, Pro owns the population logic" split as
+`vulopilot_file_baselines`/`vulopilot_geo_visibility_history` above — this table exists and is
+queryable even without `vulopilot-pro`'s `AccessibilityAudits` module active, it just stays empty.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_accessibility_snapshots` (
+    `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `snapshot_date`  date NOT NULL,
+    `score`          tinyint(3) unsigned NOT NULL,
+    `open_count`     int(10) unsigned NOT NULL DEFAULT 0,
+    `critical_count` int(10) unsigned NOT NULL DEFAULT 0,
+    `high_count`     int(10) unsigned NOT NULL DEFAULT 0,
+    `medium_count`   int(10) unsigned NOT NULL DEFAULT 0,
+    `low_count`      int(10) unsigned NOT NULL DEFAULT 0,
+    `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+) $collate;
+```
+
+- One row per calendar day, upserted (`uniq_snapshot_date`) — same "daily snapshot, not a per-run
+  log" shape `vulopilot_site_health_snapshots`/`vulopilot_geo_visibility_history` already use, so
+  recomputing more than once a day (e.g. two accessibility scans on the same day) still only ever
+  produces one trend point for that day.
+- `score`/`open_count`/severity counts are a deterministic rollup of `vulopilot_scan_findings`
+  (`FindingRepository::get_severity_breakdown_for_category('accessibility')`) — never an AI-sampled
+  average, so unlike `vulopilot_geo_visibility_history`'s `overall_score`, every column here is
+  always a real value, no nullable-score case to account for.
+- Written by `AccessibilityAudits\Module::maybe_refresh_snapshot()` (Pro), self-hooked on
+  `vulopilot_scan_completed`, scoped to only recompute when an `accessibility`-category scanner is
+  what just completed.
+
+---
+
+## 16. `vulopilot_store_trends_snapshots` — Store Trends' daily revenue rollup
+
+Added in the WooCommerce Intelligence pass — see
+[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)
+for the full design. Same "Free owns the schema, Pro owns the population
+logic" split as `vulopilot_accessibility_snapshots` above — this table
+exists and is queryable even without `vulopilot-pro`'s
+`WooCommerceIntelligence` module active, it just stays empty.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_store_trends_snapshots` (
+    `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `snapshot_date`    date NOT NULL,
+    `revenue`          decimal(10,2) NOT NULL DEFAULT 0.00,
+    `order_count`      int(10) unsigned NOT NULL DEFAULT 0,
+    `avg_order_value`  decimal(10,2) NOT NULL DEFAULT 0.00,
+    `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+) $collate;
+```
+
+- One row per **finished** calendar day, upserted (`uniq_snapshot_date`) — deliberately
+  yesterday's totals, not today's still-accumulating ones, unlike every other
+  `*_snapshots`/`*_history` table above (whose point-in-time gauges genuinely can snapshot "right
+  now"). See `StoreTrendsSnapshotBuilder`'s own docblock for why revenue can't work that way.
+- `revenue`/`avg_order_value` are `decimal(10,2)`, matching WooCommerce core's own `_order_total`
+  meta precision — a currency amount is never stored as a binary float in this codebase.
+- Written by `WooCommerceIntelligence\StoreTrendsSnapshotBuilder` (Pro), its own daily wp-cron tick
+  — not scan-driven, since a store's revenue isn't scanner-derived the way a finding count is.
 
 ---
 

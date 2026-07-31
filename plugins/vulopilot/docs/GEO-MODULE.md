@@ -184,11 +184,18 @@ Identical shape to every other engine in this codebase:
 ## What's not here yet
 
 - **A live post-search picker** for `GeoScoreCard` — see above.
-- **Bulk/sitewide GEO scoring** — `GeoAnalyzer::analyze()` is one post at a time;
-  no batch/queue mechanism runs it across every post automatically.
-- **GEO score history** — each `analyze()` call overwrites the previous postmeta
-  value; there's no trend-over-time view the way `vulopilot_site_health_snapshots`
-  gives the sitewide health score.
+- **True bulk/sitewide *AI-scored* GEO scoring** — `GeoAnalyzer::analyze()` is
+  still one post at a time; vulopilot-pro's `GeoInsights\VisibilitySnapshotBuilder`
+  runs it across a bounded 20-post sample on a schedule (a disclosed
+  approximation, not every post), it doesn't queue/batch across the whole site.
+- **Per-post GEO score history** — each `analyze()` call still overwrites the
+  previous postmeta value for that one post; there's no trend-over-time view
+  for an individual post's own score. (The *sitewide sample average*
+  VisibilitySnapshotBuilder produces DOES now have real history —
+  `vulopilot_geo_visibility_history`, see
+  [`AI-VISIBILITY-MODULE.md`](AI-VISIBILITY-MODULE.md)'s "Historical Trends" —
+  this bullet is specifically about a single post's own score over time,
+  which still has no equivalent.)
 - **Quota/cost guardrails specific to GEO analysis** — it goes through the same
   `RateLimitedProvider`/`UsageTrackingProvider` every AI call does, but there's no
   GEO-specific "you've analyzed N posts this month" limit.

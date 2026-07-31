@@ -125,6 +125,14 @@ on the same `run_id` (only proceeds from `pending_approval`), and `rollback()` o
 `executed` — both enforced by checking `status` before doing anything, not left to the caller to
 get right.
 
+Three callers exist today, all calling `propose()` only — never `approve()`/`reject()`/`rollback()`
+themselves, since those three stay human-only actions taken from the Dashboard:
+`OneClickFix\FindingFixRest`/`BulkFixRest` (a human clicks "Fix this" on a specific Finding),
+`Automation\Actions\RunAiActionAction` (an automation's own configured action), and
+[`MCP-SERVER-MODULE.md`](MCP-SERVER-MODULE.md)'s Content/SEO/Visibility/WooCommerce Tools (an
+external MCP client's tool call). All three exist specifically so the approval pause this section
+describes can never be skipped, regardless of what triggered the proposal.
+
 ## The built-in actions (`classes/AIActions/Actions/`)
 
 Chosen to cover every distinct kind of WordPress mutation + rollback shape, not to cover all 11
@@ -164,6 +172,27 @@ this go live unsupervised."
 
 It validates and saves valid JSON-LD to postmeta. Actually outputting that on the frontend (a
 `wp_head` hook) is a separate, still-needed piece — see "What's not here yet".
+
+## Pro actions (`modules/*/Actions/`)
+
+Per the extension strategy above: a Pro action implements `AIActionInterface`
+directly via its own `VuloPilotPro\AIActions\AbstractBasicAction`
+(`get_tier()` returns `'pro'`, a separate class from Free's — both implement
+the same `AIActionInterface`), registered via `vulopilot_ai_action_sources`
+from inside its own module. Two were added by
+[`CONTENT-INTELLIGENCE-MODULE.md`](CONTENT-INTELLIGENCE-MODULE.md)'s pass:
+
+| Action | Module | Mutation pattern | Safety check | Rollback |
+|---|---|---|---|---|
+| `ExpandContentAction` (`expand-content`) | `ContentIntelligence` | Existing-content rewrite | `MIN_GROWTH_RATIO = 1.15` — output must be ≥15% *longer* than the original (rejects a paraphrase) | Restore previous `post_content` |
+| `RewriteContentAction` (`rewrite-content`) | `ContentIntelligence` | Existing-content rewrite, user-directed via a required free-text `goal` input | `MIN_LENGTH_RATIO = 0.5` — same shrink guard `ImproveReadabilityAction` uses | Restore previous `post_content` |
+
+Both are deliberately **not** entries in `OneClickFix`'s `ScannerFixMap` —
+there's no deterministic scanner finding that means "this content wants more
+depth" or "this content wants a tone change," so both stay standalone,
+manually-invoked actions (same posture `GenerateBlogAction` already has),
+reachable from the Content page's own cards/bulk-optimize rather than
+`FindingsTable`'s per-row fix button.
 
 ## Recommendations as an input source
 

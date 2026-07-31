@@ -8,12 +8,14 @@ import {
 	NavigatorHeaderComponent,
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
+import TopPagesCard from './TopPagesCard';
 import './GEO.scss';
 
 /**
- * Section → scanner_id grouping for GEO's 11 scanners (Free's original 9,
- * GEO-MODULE.md, plus GeoInsights' 2 newer ones), mirroring the
- * SEO.tsx SEO_SECTIONS pattern: each section is its own independent
+ * Section → scanner_id grouping for GEO's 12 scanners (Free's original 9,
+ * GEO-MODULE.md, plus GeoInsights' 2 Pro ones, plus Free's own
+ * AeoSchemaScanner), mirroring the SEO.tsx SEO_SECTIONS pattern: each
+ * section is its own independent
  * FindingsTable (own fetch/pagination/search/bulk actions) scoped by
  * scannerIds rather than one flat category="geo" table. Unlike SEO's
  * mixed categories, every GEO scanner already shares category 'geo' — the
@@ -111,6 +113,19 @@ const GEO_SECTIONS: {
 		),
 		scannerIds: ['stale-content'],
 	},
+	{
+		key: 'aeo',
+		title: __('AEO (Answer Engine Optimization)', 'vulopilot'),
+		description: __(
+			'Content already shaped like an FAQ or a how-to guide, but missing the schema.org markup that lets AI answer engines recognize it as one.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No AEO schema findings yet — run a scan to check FAQ/HowTo-shaped content for missing schema.',
+			'vulopilot'
+		),
+		scannerIds: ['aeo-schema'],
+	},
 ];
 
 /**
@@ -143,6 +158,26 @@ const GeoVisibilitySummary = applyFilters(
 ) as ComponentType | null;
 
 /**
+ * Historical Trends (AI-VISIBILITY-MODULE.md) — sitewide GEO score over
+ * time, one point per day VisibilitySnapshotBuilder ran. Same "register a
+ * source, don't modify the host" slot pattern as the two above.
+ */
+const GeoVisibilityTrend = applyFilters(
+	'vulopilot_geo_visibility_trend',
+	null
+) as ComponentType | null;
+
+/**
+ * Competitor Visibility (AI-VISIBILITY-MODULE.md) — real, on-demand
+ * structural comparison against competitor URLs (Settings → GEO's
+ * `geo_competitor_urls`). Same slot pattern as the three above.
+ */
+const GeoCompetitorVisibility = applyFilters(
+	'vulopilot_geo_competitor_visibility',
+	null
+) as ComponentType | null;
+
+/**
  * GEO = Generative Engine Optimization — how discoverable/citable this
  * site is to AI answer engines (distinct from classic search-engine SEO).
  * Same header + findings-table shape every other category page (SEO,
@@ -164,7 +199,10 @@ const GEO = () => (
 		<ContainerComponent general>
 			<ColumnComponent>
 				{GeoVisibilitySummary && <GeoVisibilitySummary />}
+				{GeoVisibilityTrend && <GeoVisibilityTrend />}
+				{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
 				{GeoScoreCard && <GeoScoreCard />}
+				<TopPagesCard />
 				{GEO_SECTIONS.map((section) => (
 					<CardComponent
 						key={section.key}

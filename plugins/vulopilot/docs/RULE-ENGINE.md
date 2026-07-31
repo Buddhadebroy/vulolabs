@@ -168,11 +168,12 @@ inventing a parallel-but-different extension mechanism:
 - **Persistence** of `Recommendation`s — same status as `ScanResult`
   persistence in `SCANNERS.md`.
 - **REST endpoints** exposing recommendations to the admin UI already built.
-- **The Automation Engine.** Automations (per `ARCHITECTURE.md`) will
-  trigger off `Recommendation`s — e.g. "when a `fixable = true`,
-  `type = critical` recommendation is generated, run this action" — rather
-  than off the originally-sketched standalone condition-tree layer. Not
-  built yet.
+- ~~The Automation Engine.~~ Built — see
+  [`AUTOMATION-ENGINE-MODULE.md`](AUTOMATION-ENGINE-MODULE.md).
+  `vulopilot-pro`'s `Automation\AutomationEngine` triggers off
+  `Recommendation`s exactly as sketched here, plus a small, separately
+  registered "Conditions" layer on top (composable, but still flat and
+  ANDed — not the standalone condition-tree this doc already rejected).
 - **User-authored custom rules.** `vulopilot_rules` (the DB table in
   `DATABASE.md`, with its `condition_tree` column) is reserved for a
   *different*, later feature: letting a site owner author or override

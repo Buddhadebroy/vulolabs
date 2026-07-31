@@ -56,8 +56,8 @@ class AutomationReport extends AbstractReportType {
             $period_end,
             array(
                 'total_runs'    => $stats['total'],
-                'succeeded'     => $stats['by_status']['success'] ?? 0,
-                'failed'        => $stats['by_status']['failure'] ?? 0,
+                'succeeded'     => $stats['by_status']['completed'] ?? 0,
+                'failed'        => $stats['by_status']['failed'] ?? 0,
                 'still_running' => $stats['by_status']['running'] ?? 0,
             ),
             array(
@@ -66,11 +66,11 @@ class AutomationReport extends AbstractReportType {
             $this->build_trend(
                 array(
 					'total_runs' => $stats['total'],
-					'failed'     => $stats['by_status']['failure'] ?? 0,
+					'failed'     => $stats['by_status']['failed'] ?? 0,
                 ),
                 array(
 					'total_runs' => $previous_stats['total'],
-					'failed'     => $previous_stats['by_status']['failure'] ?? 0,
+					'failed'     => $previous_stats['by_status']['failed'] ?? 0,
                 )
             )
         );

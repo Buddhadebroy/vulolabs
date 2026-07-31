@@ -77,6 +77,19 @@ interface FixOutcome {
 const getFindingFixHandler = () =>
 	applyFilters('vulopilot_finding_fix_handler', null);
 
+/**
+ * "Bulk Fixes" (AI-VISIBILITY-MODULE.md) — same registration pattern as
+ * getFindingFixHandler() above, one level up: vulopilot-pro's OneClickFix
+ * module replaces this `null` default with a function that calls
+ * `POST /findings/bulk-fix` for a whole selected batch at once and
+ * resolves a summary outcome, rather than Free looping the single-row
+ * handler itself (a real batch REST call, not N sequential requests).
+ *
+ * @return unknown A function(ids: number[]): Promise<FixOutcome>, or null when Pro's OneClickFix isn't active.
+ */
+const getFindingBulkFixHandler = () =>
+	applyFilters('vulopilot_finding_bulk_fix_handler', null);
+
 interface FindingsTableProps {
 	title: string;
 	description?: string;
@@ -187,6 +200,39 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 	const handleReopen = (row?: Record<string, unknown>) =>
 		handleSetStatus(row, 'open', __('Finding reopened.', 'vulopilot'));
 
+	/**
+	 * "Manual Actions Only" (readme.txt) — goes through the
+	 * Automation\ActionRegistry/ManualActionRunner abstraction
+	 * (`POST /findings/{id}/actions/snooze-finding`) rather than a plain
+	 * `PATCH /findings/{id} {status: 'snoozed'}`, unlike handleResolve/
+	 * handleIgnore/handleReopen above — those predate this feature and set
+	 * status directly; this is Free's one built-in manual action.
+	 */
+	const handleSnooze = (row?: Record<string, unknown>) => {
+		if (!row) {
+			return;
+		}
+
+		sendApiResponse(
+			appLocalizer,
+			getApiLink(appLocalizer, `findings/${row.id}/actions/snooze-finding`),
+			{}
+		).then((response: { success?: boolean; message?: string } | undefined) => {
+			NoticeManager.add({
+				uniqueKey: `finding-snooze-${row.id}`,
+				type: response?.success ? 'success' : 'error',
+				position: 'float',
+				message:
+					response?.message ||
+					__('Could not snooze this finding. Please try again.', 'vulopilot'),
+			});
+
+			if (response?.success) {
+				refetch();
+			}
+		});
+	};
+
 	if (error) {
 		return (
 			<CardComponent title={title}>
@@ -255,6 +301,14 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 					icon: 'controls-repeat',
 					onClick: handleReopen,
 				},
+				{
+					label: (row?: Record<string, unknown>) =>
+						row?.status === 'snoozed'
+							? __('Snoozed', 'vulopilot')
+							: __('Snooze', 'vulopilot'),
+					icon: 'clock',
+					onClick: handleSnooze,
+				},
 				// Always visible — Free itself has no AI-action-to-scanner
 				// mapping or fix REST call (see getFindingFixHandler's own
 				// docblock above); this is only ever the entry point + gate.
@@ -318,8 +372,42 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 						value: 'resolved',
 					},
 					{ label: __('Ignore', 'vulopilot'), value: 'ignored' },
+					// Always visible, same "register a source, don't modify
+					// the host" reasoning as the per-row "Fix" action above —
+					// its onClick below only ever calls the Pro-registered
+					// handler or opens the Pro popup.
+					{ label: __('Fix selected', 'vulopilot'), value: '__fix__' },
 				]}
 				onBulkActionApply={(action: string, ids: number[]) => {
+					if ('__fix__' === action) {
+						const bulkFixHandler = getFindingBulkFixHandler();
+
+						if (typeof bulkFixHandler === 'function') {
+							Promise.resolve(
+								bulkFixHandler(ids) as
+									| Promise<FixOutcome>
+									| undefined
+							).then((outcome) => {
+								if (outcome?.message) {
+									NoticeManager.add({
+										uniqueKey: 'findings-bulk-fix',
+										type: outcome.success
+											? 'success'
+											: 'error',
+										position: 'float',
+										message: outcome.message,
+									});
+								}
+
+								refetch();
+							});
+							return;
+						}
+
+						setIsProPopupOpen(true);
+						return;
+					}
+
 					sendApiResponse(
 						appLocalizer,
 						getApiLink(appLocalizer, 'findings/bulk'),

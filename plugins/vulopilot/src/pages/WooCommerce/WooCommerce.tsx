@@ -74,6 +74,60 @@ const WooCommerceAiLockedCard = () => {
 	);
 };
 
+/**
+ * Slot for vulopilot-pro's WooCommerceIntelligence module —
+ * "Inventory Intelligence" (stockout prediction), "Store Trends"
+ * (revenue/order history), and "Revenue Insights" (current-period
+ * breakdown) per WOOCOMMERCE-INTELLIGENCE-MODULE.md, bundled behind one
+ * slot the same way WooCommerceAiPanel above is one slot for its whole
+ * feature set rather than one slot per action.
+ */
+const WooCommerceIntelligencePanel = applyFilters(
+	'vulopilot_woocommerce_intelligence_panel',
+	null
+) as ComponentType | null;
+
+/**
+ * Visible teaser for the panel above — same click-to-open pattern
+ * WooCommerceAiLockedCard already uses.
+ */
+const WooCommerceIntelligenceLockedCard = () => {
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+
+	return (
+		<>
+			<CardComponent
+				title={__('Store intelligence', 'vulopilot')}
+				desc={__(
+					'Stockout prediction, revenue trend history, and a current-period revenue breakdown for your store.',
+					'vulopilot'
+				)}
+			>
+				<ButtonInput
+					buttons={{
+						text: __('Unlock with Pro', 'vulopilot'),
+						icon: 'lock',
+						onClick: () => setIsProPopupOpen(true),
+					}}
+				/>
+			</CardComponent>
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={() => setIsProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{appLocalizer.khali_dabba ? (
+					<ShowProPopup moduleName="woo-commerce-intelligence" />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
+		</>
+	);
+};
+
 const WooCommerce = () => (
 	<>
 		<NavigatorHeaderComponent
@@ -90,6 +144,11 @@ const WooCommerce = () => (
 					<WooCommerceAiPanel />
 				) : (
 					<WooCommerceAiLockedCard />
+				)}
+				{WooCommerceIntelligencePanel ? (
+					<WooCommerceIntelligencePanel />
+				) : (
+					<WooCommerceIntelligenceLockedCard />
 				)}
 				<FindingsTable
 					title={__('WooCommerce', 'vulopilot')}

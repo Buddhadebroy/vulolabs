@@ -131,6 +131,7 @@ class Install {
             `rule_id`           bigint(20) unsigned DEFAULT NULL,
             `trigger_type`      varchar(50) NOT NULL,
             `trigger_config`    longtext DEFAULT NULL,
+            `conditions`        longtext DEFAULT NULL,
             `actions`           longtext NOT NULL,
             `status`            varchar(20) NOT NULL DEFAULT 'enabled',
             `last_triggered_at` datetime DEFAULT NULL,
@@ -152,6 +153,7 @@ class Install {
             `actions_executed` int(10) unsigned NOT NULL DEFAULT 0,
             `actions_failed`   int(10) unsigned NOT NULL DEFAULT 0,
             `result_log`       longtext DEFAULT NULL,
+            `retry_count`      tinyint(3) unsigned NOT NULL DEFAULT 0,
             `started_at`       datetime NOT NULL,
             `finished_at`      datetime DEFAULT NULL,
             `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -328,6 +330,13 @@ class Install {
         self::create_crawler_visits_table();
         self::create_redirect_tables();
         self::create_indexnow_log_table();
+        self::create_geo_visibility_history_table();
+        self::create_brand_score_history_table();
+        self::create_entity_relationships_table();
+        self::create_kg_health_history_table();
+        self::create_file_baselines_table();
+        self::create_accessibility_snapshots_table();
+        self::create_store_trends_snapshots_table();
     }
 
     /**
@@ -473,6 +482,288 @@ class Install {
     }
 
     /**
+     * Creates `vulopilot_geo_visibility_history` — same self-sufficient,
+     * "own method, fresh install AND do_migration()" shape as
+     * create_indexnow_log_table() above. One row per calendar day
+     * (`snapshot_date` UNIQUE, upserted — never one row per run), the same
+     * "daily snapshot, not a per-run log" shape `vulopilot_site_health_snapshots`
+     * already uses, so a site that rebuilds its GEO visibility snapshot more
+     * than once a day still only ever has one trend point for that day.
+     * Written by vulopilot-pro's GeoInsights\VisibilitySnapshotBuilder
+     * (Free owns the schema/Repository, Pro owns the population logic —
+     * same split `vulopilot_site_health_snapshots`/AdvancedReports already
+     * establishes) — this table exists and is queryable even without Pro
+     * active, it just stays empty.
+     *
+     * @return void
+     */
+    private static function create_geo_visibility_history_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_geo_visibility_history = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['geo_visibility_history'] . "` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `snapshot_date`  date NOT NULL,
+            `sample_size`    int(10) unsigned NOT NULL DEFAULT 0,
+            `overall_score`  tinyint(3) unsigned DEFAULT NULL,
+            `ai_scores`      longtext DEFAULT NULL,
+            `sub_scores`     longtext DEFAULT NULL,
+            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+        ) $collate;";
+
+        dbDelta( $sql_geo_visibility_history );
+    }
+
+    /**
+     * `vulopilot_brand_score_history` — same one-row-per-day upsert shape
+     * as `vulopilot_geo_visibility_history` above, but simpler: Brand Score
+     * is a deterministic composite computed live from
+     * `vulopilot_scan_findings` (Controllers\BrandIntelligence's own
+     * docblock), never an AI-sampled average that can come back empty, so
+     * there's no `sample_size`/nullable-score case to account for — every
+     * one of its 4 score columns is always a real 0-100 int.
+     *
+     * @return void
+     */
+    private static function create_brand_score_history_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_brand_score_history = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['brand_score_history'] . "` (
+            `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `snapshot_date`    date NOT NULL,
+            `brand_score`      tinyint(3) unsigned NOT NULL,
+            `trust_score`      tinyint(3) unsigned NOT NULL,
+            `authority_score`  tinyint(3) unsigned NOT NULL,
+            `entity_score`     tinyint(3) unsigned NOT NULL,
+            `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+        ) $collate;";
+
+        dbDelta( $sql_brand_score_history );
+    }
+
+    /**
+     * `vulopilot_entity_relationships` (KNOWLEDGE-GRAPH-MODULE.md) — one
+     * row per real, deterministic edge vulopilot-pro's own
+     * KnowledgeGraph\EntityRelationshipBuilder discovers between two of
+     * Free's own extracted entities (Services\EntityExtractor). Entity ids
+     * are the synthetic `{type}:{ref}` strings EntityExtractor itself
+     * builds (e.g. `person:7`), not a foreign key into any single table —
+     * no real FK constraints anywhere in this codebase's schema regardless
+     * (DATABASE.md's own stated convention). `dedupe_hash` (an md5 of
+     * from/to id + relationship_type) gets its own UNIQUE key instead of a
+     * wide composite unique index across 3 varchar columns, since building
+     * the graph is a repeatable rebuild-on-schedule operation, not a
+     * one-time insert, and re-running it must not create duplicate edges.
+     *
+     * @return void
+     */
+    private static function create_entity_relationships_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_entity_relationships = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['entity_relationship'] . "` (
+            `id`                bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `from_entity_id`    varchar(64) NOT NULL,
+            `from_entity_type`  varchar(20) NOT NULL,
+            `from_entity_name`  varchar(255) NOT NULL,
+            `to_entity_id`      varchar(64) NOT NULL,
+            `to_entity_type`    varchar(20) NOT NULL,
+            `to_entity_name`    varchar(255) NOT NULL,
+            `relationship_type` varchar(50) NOT NULL,
+            `dedupe_hash`       char(32) NOT NULL,
+            `created_at`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_dedupe_hash` (`dedupe_hash`),
+            KEY `idx_from_entity` (`from_entity_id`),
+            KEY `idx_to_entity` (`to_entity_id`)
+        ) $collate;";
+
+        dbDelta( $sql_entity_relationships );
+    }
+
+    /**
+     * `vulopilot_kg_health_history` (KNOWLEDGE-GRAPH-MODULE.md) — same
+     * one-row-per-day upsert shape as `vulopilot_brand_score_history`
+     * above; Knowledge Graph Health is likewise a deterministic composite
+     * (entity/relationship completeness ratios, vulopilot-pro's own
+     * KnowledgeGraphHealthMonitor), never an AI-sampled average, so every
+     * column is always a real value.
+     *
+     * @return void
+     */
+    private static function create_kg_health_history_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_kg_health_history = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['kg_health_history'] . "` (
+            `id`                  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `snapshot_date`       date NOT NULL,
+            `health_score`        tinyint(3) unsigned NOT NULL,
+            `total_entities`      int(10) unsigned NOT NULL DEFAULT 0,
+            `total_relationships` int(10) unsigned NOT NULL DEFAULT 0,
+            `created_at`          timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+        ) $collate;";
+
+        dbDelta( $sql_kg_health_history );
+    }
+
+    /**
+     * `vulopilot_file_baselines` (SECURITY-MODULE.md's "Integrity
+     * Monitoring") — one row per plugin/theme file vulopilot-pro's own
+     * IntegrityMonitoringScanner has seen, keyed by its own path so a
+     * re-scan can `UPSERT`-by-path rather than accumulating a new row per
+     * run the way `vulopilot_scan_findings` does. Free owns the
+     * schema/Repository, Pro owns the population/diff logic — same split
+     * `vulopilot_entity_relationships`/`vulopilot_geo_visibility_history`
+     * already establish; this table exists and is queryable even without
+     * Pro active, it just stays empty. `hash` is a sha256 (char(64)), not
+     * core's own md5 (CoreFileIntegrityScanner's own choice) — core files
+     * have an official published md5 baseline to diff against; these do
+     * not, so there's no reason to match core's weaker algorithm here.
+     * `path_hash` (an md5 of `path`) carries the UNIQUE key rather than
+     * `path` itself — same "wide varchar can't cheaply carry a unique
+     * index" reasoning `vulopilot_entity_relationships`' own `dedupe_hash`
+     * column already documents.
+     *
+     * @return void
+     */
+    private static function create_file_baselines_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_file_baselines = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['file_baseline'] . "` (
+            `id`           bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `path`         varchar(500) NOT NULL,
+            `path_hash`    char(32) NOT NULL,
+            `scope`        varchar(20) NOT NULL,
+            `hash`         char(64) NOT NULL,
+            `file_size`    bigint(20) unsigned NOT NULL DEFAULT 0,
+            `last_seen_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `created_at`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_path_hash` (`path_hash`),
+            KEY `idx_scope` (`scope`)
+        ) $collate;";
+
+        dbDelta( $sql_file_baselines );
+    }
+
+    /**
+     * `vulopilot_accessibility_snapshots` (ACCESSIBILITY-MODULE.md's
+     * "Historical Tracking") — same one-row-per-day upsert shape as
+     * `vulopilot_site_health_snapshots`/`vulopilot_geo_visibility_history`
+     * above, scoped to category 'accessibility' findings specifically
+     * rather than the whole-site score those track. Free owns the
+     * schema/Repository, vulopilot-pro's AccessibilityAudits module owns
+     * the population logic (self-hooks `vulopilot_scan_completed`, same
+     * split every other *_history/*_snapshots table in this file already
+     * establishes) — this table exists and is queryable even without Pro
+     * active, it just stays empty. Severity counts are a deterministic
+     * rollup of `vulopilot_scan_findings` (FindingRepository's own
+     * get_severity_breakdown_for_category()), never an AI-sampled average,
+     * so — like `vulopilot_brand_score_history`/`vulopilot_kg_health_history`
+     * — every column is always a real value, no nullable-score case.
+     *
+     * @return void
+     */
+    private static function create_accessibility_snapshots_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_accessibility_snapshots = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['accessibility_snapshot'] . "` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `snapshot_date`  date NOT NULL,
+            `score`          tinyint(3) unsigned NOT NULL,
+            `open_count`     int(10) unsigned NOT NULL DEFAULT 0,
+            `critical_count` int(10) unsigned NOT NULL DEFAULT 0,
+            `high_count`     int(10) unsigned NOT NULL DEFAULT 0,
+            `medium_count`   int(10) unsigned NOT NULL DEFAULT 0,
+            `low_count`      int(10) unsigned NOT NULL DEFAULT 0,
+            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+        ) $collate;";
+
+        dbDelta( $sql_accessibility_snapshots );
+    }
+
+    /**
+     * `vulopilot_store_trends_snapshots` (WOOCOMMERCE-INTELLIGENCE-MODULE.md's
+     * "Store Trends") — same one-row-per-day upsert shape as
+     * `vulopilot_accessibility_snapshots` above, scoped to real WooCommerce
+     * order data instead of scanner findings. Free owns the
+     * schema/Repository, vulopilot-pro's WooCommerceIntelligence module
+     * owns the population logic (its own daily wp-cron tick, not a scan
+     * hook — a store's revenue isn't scanner-derived the way a finding
+     * count is) — this table exists and is queryable even without Pro
+     * active, it just stays empty. `revenue`/`avg_order_value` are
+     * decimal(10,2), matching WooCommerce core's own `_order_total` meta
+     * precision, not float (binary float rounding error is never
+     * acceptable for a currency amount).
+     *
+     * @return void
+     */
+    private static function create_store_trends_snapshots_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_store_trends_snapshots = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['store_trends_snapshot'] . "` (
+            `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `snapshot_date`    date NOT NULL,
+            `revenue`          decimal(10,2) NOT NULL DEFAULT 0.00,
+            `order_count`      int(10) unsigned NOT NULL DEFAULT 0,
+            `avg_order_value`  decimal(10,2) NOT NULL DEFAULT 0.00,
+            `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+        ) $collate;";
+
+        dbDelta( $sql_store_trends_snapshots );
+    }
+
+    /**
      * Runs incremental, version-gated schema changes for upgrades from an
      * already-installed copy of VuloPilot. Additive only, per
      * .claude/rules/backward-compatibility.md — ADD COLUMN / ADD INDEX,
@@ -538,6 +829,53 @@ class Install {
         // reasoning as create_crawler_visits_table() above.
         self::create_indexnow_log_table();
 
+        // GEO Historical Trends (AI-VISIBILITY-MODULE.md) needs its own new
+        // table for sites upgrading in place too — same "outside the
+        // version_compare gate, self-healing via CREATE TABLE IF NOT EXISTS"
+        // reasoning as create_crawler_visits_table() above.
+        self::create_geo_visibility_history_table();
+
+        // Brand Authority Trends (BRAND-INTELLIGENCE-MODULE.md) needs its
+        // own new table for sites upgrading in place too — same "outside
+        // the version_compare gate, self-healing via CREATE TABLE IF NOT
+        // EXISTS" reasoning as create_crawler_visits_table() above.
+        self::create_brand_score_history_table();
+
+        // Knowledge Graph (KNOWLEDGE-GRAPH-MODULE.md) needs both its new
+        // tables for sites upgrading in place too — same "outside the
+        // version_compare gate, self-healing via CREATE TABLE IF NOT
+        // EXISTS" reasoning as create_crawler_visits_table() above.
+        self::create_entity_relationships_table();
+        self::create_kg_health_history_table();
+
+        // Security (SECURITY-MODULE.md's "Integrity Monitoring") needs its
+        // own new table for sites upgrading in place too — same "outside
+        // the version_compare gate, self-healing via CREATE TABLE IF NOT
+        // EXISTS" reasoning as create_crawler_visits_table() above.
+        self::create_file_baselines_table();
+
+        // Accessibility (ACCESSIBILITY-MODULE.md's "Historical Tracking")
+        // needs its own new table for sites upgrading in place too — same
+        // "outside the version_compare gate, self-healing via CREATE TABLE
+        // IF NOT EXISTS" reasoning as create_crawler_visits_table() above.
+        self::create_accessibility_snapshots_table();
+
+        // WooCommerce Intelligence (WOOCOMMERCE-INTELLIGENCE-MODULE.md's
+        // "Store Trends") needs its own new table for sites upgrading in
+        // place too — same "outside the version_compare gate, self-healing
+        // via CREATE TABLE IF NOT EXISTS" reasoning as
+        // create_crawler_visits_table() above.
+        self::create_store_trends_snapshots_table();
+
+        // Automation Engine — Conditions & Retries (AUTOMATION-ENGINE-MODULE.md)
+        // need two new columns on tables that already existed before this
+        // version — same "outside the version_compare gate, self-healing"
+        // reasoning as the create_*_table() calls above, just column_exists()-
+        // guarded instead of relying on dbDelta()'s own CREATE TABLE IF NOT
+        // EXISTS idempotency (see each method's own docblock).
+        self::add_automations_conditions_column();
+        self::add_automation_runs_retry_count_column();
+
         // The Geo module (modules/Geo/Module.php) didn't exist before this
         // version either — a site upgrading in place needs it added to
         // its active-module list the same way a fresh install gets it via
@@ -560,6 +898,31 @@ class Install {
         // Geo's case. Same "deliberately outside the version_compare gate,
         // self-limiting after the first run" reasoning.
         self::seed_module_active( 'seo' );
+
+        // Content Intelligence (CONTENT-INTELLIGENCE-MODULE.md) didn't
+        // exist before this version either — same "sites upgrading in
+        // place need it added the same way a fresh install gets it via
+        // VuloPilot::activate()" reasoning as 'geo'/'seo' above. No new
+        // table needed (readability findings reuse vulopilot_scan_findings,
+        // Content Score is computed live), so this is the only migration
+        // step this module needs.
+        self::seed_module_active( 'content-intelligence' );
+
+        // Brand Intelligence (BRAND-INTELLIGENCE-MODULE.md) — same
+        // reasoning as 'content-intelligence' immediately above. No new
+        // Free table needed either (Brand Score is computed live from
+        // vulopilot_scan_findings the same way; only vulopilot-pro's own
+        // Authority Trends history table is new, and that's created by
+        // Pro's own migration path, not this one).
+        self::seed_module_active( 'brand-intelligence' );
+
+        // Entity Extraction (KNOWLEDGE-GRAPH-MODULE.md) — same reasoning as
+        // 'content-intelligence'/'brand-intelligence' above. No new Free
+        // table needed — entities are read live (transient-cached) from
+        // existing users/products/terms/settings, never persisted; only
+        // vulopilot-pro's own entity-relationships/health-history tables
+        // are new, and those are created by Pro's own migration path.
+        self::seed_module_active( 'entity-extraction' );
     }
 
     /**
@@ -602,5 +965,74 @@ class Install {
         $table = $wpdb->prefix . Utill::TABLES['automation'];
 
         $wpdb->query( "ALTER TABLE `{$table}` MODIFY `rule_id` bigint(20) unsigned DEFAULT NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+    }
+
+    /**
+     * AUTOMATION-ENGINE-MODULE.md's "Conditions" — an extra, composable
+     * filter (Contracts\Automation\ConditionInterface, vulopilot-pro's
+     * ConditionRegistry) an automation can layer on top of its bound rule.
+     * Deliberately outside do_migration()'s version_compare gate and
+     * guarded by column_exists() rather than a raw unconditional ALTER
+     * (unlike relax_automation_rule_id_to_nullable() above, ADD COLUMN
+     * isn't naturally idempotent the way MODIFY is — a second run without
+     * this guard would fatal with "Duplicate column name") — same
+     * self-healing-for-already-migrated-sites reasoning as
+     * create_entity_relationships_table() etc., just for an ALTER instead
+     * of a CREATE TABLE IF NOT EXISTS.
+     *
+     * @return void
+     */
+    private static function add_automations_conditions_column() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . Utill::TABLES['automation'];
+
+        if ( self::column_exists( $table, 'conditions' ) ) {
+            return;
+        }
+
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `conditions` longtext DEFAULT NULL AFTER `trigger_config`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+    }
+
+    /**
+     * AUTOMATION-ENGINE-MODULE.md's "Retries" — how many times
+     * vulopilot-pro's RetryScheduler has re-run this run's failed actions,
+     * capped at the `automation_max_retries` setting. Same
+     * outside-the-version-gate, column_exists()-guarded shape as
+     * add_automations_conditions_column() above.
+     *
+     * @return void
+     */
+    private static function add_automation_runs_retry_count_column() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . Utill::TABLES['automation_run'];
+
+        if ( self::column_exists( $table, 'retry_count' ) ) {
+            return;
+        }
+
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `retry_count` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `result_log`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+    }
+
+    /**
+     * Shared by both column-adding migrations above — dbDelta() has no
+     * "ADD COLUMN IF NOT EXISTS" equivalent for a plain ALTER, unlike its
+     * own CREATE TABLE IF NOT EXISTS handling every create_*_table() method
+     * here relies on.
+     *
+     * @param string $table  Fully-prefixed table name.
+     * @param string $column Column name to check for.
+     * @return bool
+     */
+    private static function column_exists( string $table, string $column ): bool {
+        global $wpdb;
+
+        return (bool) $wpdb->get_var(
+            $wpdb->prepare(
+                'SHOW COLUMNS FROM `' . $table . '` LIKE %s', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- $table is our own prefixed constant, not request input.
+                $column
+            )
+        );
     }
 }
