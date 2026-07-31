@@ -21,6 +21,44 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
+			key: 'crawler-traffic',
+			type: 'section',
+			title: __('Crawler Traffic', 'vulopilot'),
+			desc: __('', 'vulopilot'),
+		},
+		{
+			key: 'log_ai_crawler_visits',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Log AI crawler visits', 'vulopilot'),
+			desc: __(
+				'No human visitor data is collected — only known AI bot user agents (GPTBot, ClaudeBot, PerplexityBot, and others).',
+				'vulopilot'
+			),
+			options: [
+				{
+					key: 'log_ai_crawler_visits',
+					label: '',
+					value: 'log_ai_crawler_visits',
+				},
+			],
+		},
+		{
+			key: 'log_retention',
+			type: 'select',
+			label: __('Log retention', 'vulopilot'),
+			desc: __(
+				'Free keeps the last 7 days. Longer retention needs the AI Crawler Intelligence Pro tier',
+				'vulopilot'
+			),
+			options: [
+				{ label: __('7 days', 'vulopilot'), value: '7' },
+				{ label: __('30 days', 'vulopilot'), value: '30' },
+				{ label: __('90 days', 'vulopilot'), value: '90' },
+				{ label: __('1 year', 'vulopilot'), value: '1' },
+			],
+		},
+		{
 			key: 'crawler-analytics-section-alerts',
 			type: 'section',
 			title: __('Alerts', 'vulopilot'),

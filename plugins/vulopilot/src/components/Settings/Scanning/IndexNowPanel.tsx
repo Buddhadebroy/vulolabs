@@ -62,6 +62,8 @@ const POST_TYPE_OPTIONS = [
 	{ value: 'page', label: __('Pages', 'vulopilot') },
 	{ value: 'attachment', label: __('Media', 'vulopilot') },
 	{ value: 'product', label: __('Products', 'vulopilot') },
+	{ value: 'knowledgebase', label: __('Knowledgebase', 'vulopilot') },
+	{ value: 'mega_menu', label: __('Mega Menu', 'vulopilot') },
 ];
 
 const RESPONSE_CODE_HELP: { code: string; type: string; desc: string }[] = [
