@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Install class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Install {
 

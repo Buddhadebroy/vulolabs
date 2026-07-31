@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       CartItem class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class CartItem {
 

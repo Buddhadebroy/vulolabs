@@ -1,9 +1,10 @@
 /* global vulocartLocalizer */
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
 import axios from 'axios';
 import { getApiLink } from '@zyra/core';
-import { ContainerComponent, ColumnComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
+import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { SelectInput, ButtonInput, TextInput } from '@zyra/inputs';
 import './orders-page.scss';
 
@@ -40,17 +41,40 @@ interface OrderItem {
 	subtotal: number;
 }
 
+/**
+ * Address\Application\AddressService::FIELDS (modules/Address/Application/
+ * AddressService.php) — the same open-shape bag snapshotted onto an order,
+ * not a reusable address-book entry.
+ */
+interface AddressBag {
+	full_name: string;
+	phone: string;
+	address_1: string;
+	address_2: string;
+	city: string;
+	state: string;
+	postcode: string;
+	country: string;
+}
+
 interface OrderDetail {
 	id: number;
 	order_number: string;
 	customer_email: string | null;
 	customer_name: string | null;
+	customer_phone: string | null;
 	payment_status: string;
 	fulfillment_status: string;
 	refunded_amount: number | null;
 	currency: string | null;
 	subtotal: number;
+	shipping_method: string | null;
+	shipping_cost: number;
+	tax_amount: number;
+	payment_method: string | null;
 	total: number;
+	billing_address: AddressBag | null;
+	shipping_address: AddressBag | null;
 	item_count: number;
 	items: OrderItem[];
 	created_at: string;
@@ -58,6 +82,28 @@ interface OrderDetail {
 
 interface OrderEditProps {
 	id: number;
+}
+
+/**
+ * Renders a snapshotted billing/shipping AddressBag as plain read-only
+ * text — an order's address is historical (Order::$billing_address's own
+ * docblock), never edited from this screen.
+ */
+function AddressDisplay( { address }: { address: AddressBag } ) {
+	return (
+		<div className="vulocart-order-address">
+			<p>{ address.full_name }</p>
+			<p>
+				{ address.address_1 }
+				{ address.address_2 ? `, ${ address.address_2 }` : '' }
+			</p>
+			<p>
+				{ address.city }, { address.state } { address.postcode }
+			</p>
+			<p>{ address.country }</p>
+			{ address.phone && <p>{ address.phone }</p> }
+		</div>
+	);
 }
 
 /**
@@ -79,6 +125,15 @@ interface OrderEditProps {
  * Saving stays on the page and shows an inline "Order updated." notice,
  * mirroring WooCommerce's own "Update" behavior (it never redirects you
  * away from the order you're looking at).
+ *
+ * Card-based layout (its own page wrapper rather than the generic
+ * `ContainerComponent`/`ColumnComponent` shell — same opt-out
+ * OfferingEdit.tsx makes for the same reason: a custom multi-card layout,
+ * not a plain form). Billing/shipping address, shipping method+cost, tax,
+ * and payment method (Customer/Address/Shipping/Taxes/Payment modules) are
+ * real order fields now and rendered when present — still no shipment
+ * tracking, order notes, or commission fields, since none of those exist
+ * in the Order domain.
  */
 export function OrderEdit( { id }: OrderEditProps ) {
 	const [ order, setOrder ] = useState< OrderDetail | null >( null );
@@ -152,85 +207,180 @@ export function OrderEdit( { id }: OrderEditProps ) {
 
 	if ( notFound ) {
 		return (
-			<ContainerComponent general>
-				<ColumnComponent>
-					<a className="vulocart-back-link" href="admin.php?page=vulocart-orders">
-						{ __( '← Back to Orders', 'vulocart' ) }
-					</a>
-					<p>{ __( 'No order exists with this id.', 'vulocart' ) }</p>
-				</ColumnComponent>
-			</ContainerComponent>
+			<div className="vulocart-order-edit-page">
+				<a className="vulocart-back-link" href="admin.php?page=vulocart-orders">
+					{ __( '← Back to Orders', 'vulocart' ) }
+				</a>
+				<p>{ __( 'No order exists with this id.', 'vulocart' ) }</p>
+			</div>
 		);
 	}
 
 	if ( ! order ) {
 		return (
-			<ContainerComponent general>
-				<ColumnComponent>
-					<p>{ __( 'Loading…', 'vulocart' ) }</p>
-				</ColumnComponent>
-			</ContainerComponent>
+			<div className="vulocart-order-edit-page">
+				<p>{ __( 'Loading…', 'vulocart' ) }</p>
+			</div>
 		);
 	}
 
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				<a className="vulocart-back-link" href="admin.php?page=vulocart-orders">
-					{ __( '← Back to Orders', 'vulocart' ) }
-				</a>
+		<div className="vulocart-order-edit-page">
+			<div className="vulocart-order-edit-topbar">
+				<div>
+					<a className="vulocart-back-link" href="admin.php?page=vulocart-orders">
+						{ __( '← Back to Orders', 'vulocart' ) }
+					</a>
+					<div className="vulocart-order-edit-heading">
+						<h1 className="vulocart-edit-page-title">
+							{ __( 'Order', 'vulocart' ) } #{ order.order_number }
+						</h1>
+						<span className={ `vulocart-status-pill vulocart-status-pill--${ order.fulfillment_status }` }>
+							{ order.fulfillment_status }
+						</span>
+					</div>
+					<p className="vulocart-order-edit-placed">
+						{ __( 'Placed:', 'vulocart' ) } { order.created_at }
+					</p>
+				</div>
 
-				<h1 className="vulocart-edit-page-title">
-					{ __( 'Order', 'vulocart' ) } { order.order_number }
-				</h1>
+				<ButtonInput
+					buttons={ [
+						{
+							icon: 'save',
+							text: isSaving ? __( 'Saving…', 'vulocart' ) : __( 'Update', 'vulocart' ),
+							onClick: handleSave,
+							disabled: isSaving,
+						},
+					] }
+				/>
+			</div>
 
-				{ savedNotice && (
-					<div className="vulocart-saved-notice">{ __( 'Order updated.', 'vulocart' ) }</div>
-				) }
+			{ savedNotice && (
+				<div className="vulocart-saved-notice">{ __( 'Order updated.', 'vulocart' ) }</div>
+			) }
 
-				<div className="vulocart-order-edit-layout">
-					<div className="vulocart-order-edit-main">
-						<h2>{ __( 'Customer', 'vulocart' ) }</h2>
-						<p>
-							{ order.customer_name || __( 'Guest', 'vulocart' ) }
-							{ order.customer_email ? ` — ${ order.customer_email }` : '' }
-						</p>
-						<p className="vulocart-order-edit-placed">
-							{ __( 'Placed:', 'vulocart' ) } { order.created_at }
-						</p>
+			<div className="vulocart-order-edit-grid">
+				<div className="vulocart-order-edit-col vulocart-order-edit-col--main">
+					<CardComponent
+						title={ __( 'Items', 'vulocart' ) }
+						desc={ sprintf(
+							/* translators: %d: number of items on the order. */
+							__( '%d item(s) on this order.', 'vulocart' ),
+							order.item_count
+						) }
+					>
+						{ order.items.length === 0 ? (
+							<p>{ __( 'No line items.', 'vulocart' ) }</p>
+						) : (
+							<table className="vulocart-order-items-table">
+								<thead>
+									<tr>
+										<th>{ __( 'Item', 'vulocart' ) }</th>
+										<th>{ __( 'Cost', 'vulocart' ) }</th>
+										<th>{ __( 'Qty', 'vulocart' ) }</th>
+										<th>{ __( 'Total', 'vulocart' ) }</th>
+									</tr>
+								</thead>
+								<tbody>
+									{ order.items.map( ( item ) => (
+										<tr key={ item.id }>
+											<td className="vulocart-order-item-cell">
+												<span className="vulocart-order-item-avatar" aria-hidden="true">
+													{ item.title.charAt( 0 ).toUpperCase() }
+												</span>
+												<span>{ item.title }</span>
+											</td>
+											<td>
+												{ item.unit_price } { item.currency }
+											</td>
+											<td>x{ item.quantity }</td>
+											<td>
+												{ item.subtotal } { item.currency }
+											</td>
+										</tr>
+									) ) }
+								</tbody>
+							</table>
+						) }
 
-						<h2>{ __( 'Items', 'vulocart' ) } ({ order.item_count })</h2>
-						<div className="vulocart-order-detail-items">
-							{ order.items.length === 0 && <p>{ __( 'No line items.', 'vulocart' ) }</p> }
-							{ order.items.map( ( item ) => (
-								<div key={ item.id } className="vulocart-order-detail-item">
+						<div className="vulocart-order-summary-rows">
+							<div className="vulocart-order-summary-row">
+								<span>{ __( 'Subtotal', 'vulocart' ) }</span>
+								<span>
+									{ order.subtotal } { order.currency }
+								</span>
+							</div>
+							{ order.shipping_method && (
+								<div className="vulocart-order-summary-row">
 									<span>
-										{ item.title } x{ item.quantity }
+										{ __( 'Shipping', 'vulocart' ) } ({ order.shipping_method })
 									</span>
 									<span>
-										{ item.subtotal } { item.currency }
+										{ order.shipping_cost } { order.currency }
 									</span>
 								</div>
-							) ) }
-							<div className="vulocart-order-detail-total">
-								<strong>{ __( 'Total', 'vulocart' ) }</strong>
-								<strong>
-									{ order.total } { order.currency }
-								</strong>
-							</div>
+							) }
+							{ order.tax_amount > 0 && (
+								<div className="vulocart-order-summary-row">
+									<span>{ __( 'Tax', 'vulocart' ) }</span>
+									<span>
+										{ order.tax_amount } { order.currency }
+									</span>
+								</div>
+							) }
 							{ order.refunded_amount !== null && (
-								<div className="vulocart-order-detail-total">
+								<div className="vulocart-order-summary-row">
 									<span>{ __( 'Refunded', 'vulocart' ) }</span>
 									<span>
 										{ order.refunded_amount } { order.currency }
 									</span>
 								</div>
 							) }
+							<div className="vulocart-order-summary-row vulocart-order-summary-row--total">
+								<strong>{ __( 'Total', 'vulocart' ) }</strong>
+								<strong>
+									{ order.total } { order.currency }
+								</strong>
+							</div>
 						</div>
-					</div>
+					</CardComponent>
+				</div>
 
-					<div className="vulocart-order-edit-side">
-						<h2>{ __( 'Fulfillment', 'vulocart' ) }</h2>
+				<div className="vulocart-order-edit-col vulocart-order-edit-col--side">
+					<CardComponent title={ __( 'Customer details', 'vulocart' ) }>
+						<p className="vulocart-order-customer-name">
+							{ order.customer_name || __( 'Guest Customer', 'vulocart' ) }
+						</p>
+						{ order.customer_email ? (
+							<p className="vulocart-order-customer-email">{ order.customer_email }</p>
+						) : (
+							<p className="vulocart-field-hint">{ __( 'No email on file.', 'vulocart' ) }</p>
+						) }
+						{ order.customer_phone && (
+							<p className="vulocart-order-customer-email">{ order.customer_phone }</p>
+						) }
+					</CardComponent>
+
+					{ order.billing_address && (
+						<CardComponent title={ __( 'Billing address', 'vulocart' ) }>
+							<AddressDisplay address={ order.billing_address } />
+						</CardComponent>
+					) }
+
+					{ order.shipping_address && (
+						<CardComponent title={ __( 'Shipping address', 'vulocart' ) }>
+							<AddressDisplay address={ order.shipping_address } />
+						</CardComponent>
+					) }
+
+					{ order.payment_method && (
+						<CardComponent title={ __( 'Payment', 'vulocart' ) }>
+							<p className="vulocart-order-customer-name">{ order.payment_method }</p>
+						</CardComponent>
+					) }
+
+					<CardComponent title={ __( 'Status', 'vulocart' ) }>
 						<FormGroupWrapperComponent>
 							<FormGroupComponent label={ __( 'Fulfillment status', 'vulocart' ) } htmlFor="vulocart-order-fulfillment-status">
 								<SelectInput
@@ -241,10 +391,6 @@ export function OrderEdit( { id }: OrderEditProps ) {
 									onChange={ ( value ) => setFulfillmentStatus( value as string ) }
 								/>
 							</FormGroupComponent>
-						</FormGroupWrapperComponent>
-
-						<h2>{ __( 'Payment', 'vulocart' ) }</h2>
-						<FormGroupWrapperComponent>
 							<FormGroupComponent label={ __( 'Payment status', 'vulocart' ) } htmlFor="vulocart-order-payment-status">
 								<SelectInput
 									name="payment_status"
@@ -255,59 +401,49 @@ export function OrderEdit( { id }: OrderEditProps ) {
 								/>
 							</FormGroupComponent>
 						</FormGroupWrapperComponent>
+					</CardComponent>
 
-						<ButtonInput
-							buttons={ [
-								{
-									icon: 'save',
-									text: isSaving ? __( 'Saving…', 'vulocart' ) : __( 'Update', 'vulocart' ),
-									onClick: handleSave,
-									disabled: isSaving,
-								},
-							] }
-						/>
-
-						{ 'refunded' !== order.payment_status && (
-							<>
-								<h2>{ __( 'Refund', 'vulocart' ) }</h2>
-								{ ! showRefundForm ? (
+					{ 'refunded' !== order.payment_status && (
+						<CardComponent title={ __( 'Refund', 'vulocart' ) }>
+							{ ! showRefundForm ? (
+								<ButtonInput
+									buttons={ [
+										{
+											icon: 'refund',
+											text: __( 'Issue refund', 'vulocart' ),
+											onClick: () => setShowRefundForm( true ),
+										},
+									] }
+								/>
+							) : (
+								<FormGroupWrapperComponent>
+									<FormGroupComponent label={ __( 'Refund amount', 'vulocart' ) } htmlFor="vulocart-order-refund-amount">
+										<TextInput
+											name="refund_amount"
+											type="number"
+											value={ refundAmount }
+											onChange={ ( value ) => setRefundAmount( value as string ) }
+										/>
+									</FormGroupComponent>
 									<ButtonInput
 										buttons={ [
 											{
 												icon: 'refund',
-												text: __( 'Issue refund', 'vulocart' ),
-												onClick: () => setShowRefundForm( true ),
+												text: isRefunding ? __( 'Refunding…', 'vulocart' ) : __( 'Confirm refund', 'vulocart' ),
+												onClick: handleRefund,
+												disabled: isRefunding,
 											},
 										] }
 									/>
-								) : (
-									<FormGroupWrapperComponent>
-										<FormGroupComponent label={ __( 'Refund amount', 'vulocart' ) } htmlFor="vulocart-order-refund-amount">
-											<TextInput
-												name="refund_amount"
-												type="number"
-												value={ refundAmount }
-												onChange={ ( value ) => setRefundAmount( value as string ) }
-											/>
-										</FormGroupComponent>
-										<ButtonInput
-											buttons={ [
-												{
-													icon: 'refund',
-													text: isRefunding ? __( 'Refunding…', 'vulocart' ) : __( 'Confirm refund', 'vulocart' ),
-													onClick: handleRefund,
-													disabled: isRefunding,
-												},
-											] }
-										/>
-									</FormGroupWrapperComponent>
-								) }
-							</>
-						) }
-					</div>
+								</FormGroupWrapperComponent>
+							) }
+						</CardComponent>
+					) }
+
+					{ applyFilters( 'vulocart_order_edit_sections', null, { id: order.id } ) }
 				</div>
-			</ColumnComponent>
-		</ContainerComponent>
+			</div>
+		</div>
 	);
 }
 

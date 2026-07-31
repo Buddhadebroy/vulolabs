@@ -114,7 +114,8 @@ final class VuloPilot {
     /**
      * Initializes VuloPilot classes and fires 'vulopilot_loaded', the hook
      * VuloPilot Pro (and any third-party extension) gates its own boot on —
-     * the equivalent of multivendorx_loaded for this product line.
+     * the same boot-order-gate pattern a shared-platform architecture would
+     * use, just scoped to this product line.
      *
      * @return void
      */

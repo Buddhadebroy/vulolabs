@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Creates VuloCart's custom database tables on first install and runs
  * version-gated incremental migrations on upgrade, following the same
- * dbDelta()-based pattern as MultiVendorX\Install/VuloPilot\Install.
+ * dbDelta()-based pattern as VuloPilot\Install.
  *
  * Owns `vulocart_offerings` (Offering is the plugin's always-on core entity)
  * plus the catalog-taxonomy tables the Offerings menu's Categories/
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Install class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Install {
 
@@ -78,6 +78,7 @@ class Install {
 
         self::create_offering_table();
         self::create_catalog_taxonomy_tables();
+        self::create_checkout_sessions_table();
     }
 
     /**
@@ -205,21 +206,58 @@ class Install {
     }
 
     /**
+     * Creates `vulocart_checkout_sessions` — the Checkout Engine's own
+     * session-tracking table (Domain\Checkout\CheckoutSession's own
+     * docblock). `UNIQUE KEY idx_cart_token` since a session is always
+     * one-per-cart (Application\CheckoutService::start_session()'s own
+     * find-or-create semantics rely on that).
+     *
+     * @return void
+     */
+    private static function create_checkout_sessions_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_checkout_sessions = "CREATE TABLE `{$wpdb->prefix}vulocart_checkout_sessions` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `cart_token`     varchar(191) NOT NULL,
+            `status`         varchar(20) NOT NULL DEFAULT 'active',
+            `mode`           varchar(20) NOT NULL DEFAULT 'multi_step',
+            `current_step`   varchar(50) DEFAULT NULL,
+            `customer_email` varchar(200) DEFAULT NULL,
+            `meta`           longtext DEFAULT NULL,
+            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `idx_cart_token` (`cart_token`),
+            KEY `idx_status_updated` (`status`, `updated_at`)
+        ) $collate;";
+
+        dbDelta( $sql_checkout_sessions );
+    }
+
+    /**
      * Runs incremental, version-gated schema changes for upgrades from an
      * already-installed copy of VuloCart. Additive only, per
      * .claude/rules/backward-compatibility.md — ADD COLUMN / ADD INDEX /
      * a whole new CREATE TABLE, never DROP.
      *
-     * No steps yet — VuloCart hasn't shipped publicly, so there's no real
-     * installed base at an earlier schema version to migrate from; every
-     * table this plugin needs is already created directly, in its current
-     * shape, by create_database_tables(). This method exists as the
-     * landing spot for the first real post-launch migration, matching
-     * MultiVendorX\Install/VuloPilot\Install's own pattern.
+     * First real step: 1.1.0 adds `vulocart_checkout_sessions` for the
+     * Checkout Engine — dbDelta() is safe to call unconditionally for a
+     * brand-new table (creates it if missing, no-ops if a later request
+     * finds it already there), so this isn't further version-gated
+     * beyond the `do_migration()` vs. `create_database_tables()` branch
+     * `run_migration()` already picks between.
      *
      * @param string $previous_version The version option value before this run.
      * @return void
      */
     public function do_migration( $previous_version ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+        self::create_checkout_sessions_table();
     }
 }

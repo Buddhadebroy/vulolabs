@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Offering class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Offering {
 

@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Registers VuloCart's top-level admin page and its tabs, and mounts the
  * React admin console there. Tab structure mirrors
- * `MultiVendorX\Admin`/`VuloPilot\Admin` exactly: real `add_submenu_page()`
+ * `VuloPilot\Admin` exactly: real `add_submenu_page()`
  * sidebar entries, each pointing to `vulocart#&tab={tab}` with a
  * `'__return_null'` callback — the hash fragment never reaches the
  * server, so every one of these entries actually loads the same
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * (src/routeRegistry.ts/routes.ts, App.tsx) is what makes the tab differ,
  * reading `tab` from `location.hash` the same way
  * `vulopilot/src/app.tsx`'s own `Route` component does. Unlike the
- * multivendorx-pro/vulopilot-pro relationship (Pro extends Free's
+ * vulopilot/vulopilot-pro relationship (Pro extends Free's
  * already-mounted dashboard via `@wordpress/hooks` filters,
  * react-frontend.md), VuloCart has no separate Free/Pro dashboard split
  * yet, so this plugin owns its own single mount point directly.
@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Menu class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Menu {
 
@@ -84,9 +84,8 @@ class Menu {
 
         // add_menu_page() always auto-generates a first submenu item that
         // reuses the parent slug/title ("VuloCart"), duplicating the
-        // explicit "Dashboard" tab above. multivendorx/vulopilot both strip
+        // explicit "Dashboard" tab above. vulopilot strips
         // this the same way rather than avoiding it (Admin.php's own
-        // `remove_submenu_page( 'multivendorx', 'multivendorx' )` /
         // `remove_submenu_page( 'vulopilot', 'vulopilot' )`).
         remove_submenu_page( 'vulocart', 'vulocart' );
     }
@@ -98,7 +97,8 @@ class Menu {
      * deserving its own first-class space rather than being one more tab
      * next to Dashboard/Modules/Settings — the same treatment WooCommerce
      * gives "WooCommerce" (settings) vs. "Products"/"Orders" as separate
-     * top-level menus, and MultiVendorX gives its own marketplace admin.
+     * top-level menus, and a marketplace platform gives its own marketplace
+     * admin.
      *
      * "All Orders"/"Draft Orders"/"Refunds"/"Add New" are real submenus now
      * — Order\Domain\FulfillmentStatus::DRAFT and Order\Domain\
@@ -174,7 +174,7 @@ class Menu {
      * `...&action=new`, and `...&action=edit&id=123` are all one
      * registered admin page differentiated by query args the client reads,
      * rather than three separate `add_menu_page()`-registered screens).
-     * Categories/Collections/Brands/Attributes/Offering Types/Inventory/
+     * Categories/Collections/Brands/Tags/Attributes/Offering Types/Inventory/
      * Reviews use the same one-slug-many-query-strings technique via
      * `&view=`, now that each has a real backing REST controller
      * (classes/RestAPI/Controllers/Terms.php/Attributes.php/Reviews.php/
@@ -221,6 +221,7 @@ class Menu {
             'categories'     => __( 'Categories', 'vulocart' ),
             'collections'    => __( 'Collections', 'vulocart' ),
             'brands'         => __( 'Brands', 'vulocart' ),
+            'tags'           => __( 'Tags', 'vulocart' ),
             'attributes'     => __( 'Attributes', 'vulocart' ),
             'offering-types' => __( 'Offering Types', 'vulocart' ),
             'inventory'      => __( 'Inventory', 'vulocart' ),

@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       CartService class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class CartService {
 
@@ -121,12 +121,32 @@ class CartService {
             $existing->quantity += $quantity;
             $this->repository->update_item( $existing );
         } else {
+            $base_price = null === $offering->price ? 0.0 : $offering->price;
+
+            /**
+             * `vulocart_offering_effective_price` — the one place a line
+             * item's unit price gets decided before it's snapshotted onto
+             * the cart (this same value then rides with the item through
+             * checkout/order creation unchanged — this Domain\Cart\CartItem's
+             * own docblock's "snapshotted through the same pattern"
+             * reasoning). vulocart-pro's Pricing Rules module hooks this to
+             * apply a percentage/fixed discount without CartService knowing
+             * Pro exists — same "Pro extends Free via filters" pattern
+             * `vulocart_offering_edit_sections` already establishes on the
+             * admin side, just a plain WordPress filter here since this
+             * runs in PHP, not React.
+             *
+             * @param float    $base_price Offering::$price (or 0.0 if unset).
+             * @param Offering $offering   The offering being added to cart.
+             */
+            $unit_price = (float) apply_filters( 'vulocart_offering_effective_price', $base_price, $offering );
+
             $item = new CartItem(
                 null,
                 $cart->id,
                 $offering_id,
                 $quantity,
-                null === $offering->price ? 0.0 : $offering->price,
+                $unit_price,
                 $offering->currency ? $offering->currency : $cart->currency
             );
 

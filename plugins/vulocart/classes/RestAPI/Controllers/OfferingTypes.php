@@ -28,7 +28,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       OfferingTypes class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class OfferingTypes extends \WP_REST_Controller {
 

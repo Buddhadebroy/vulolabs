@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       ReviewService class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class ReviewService {
 

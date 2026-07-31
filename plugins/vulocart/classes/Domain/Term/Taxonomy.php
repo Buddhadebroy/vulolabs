@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Taxonomy class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Taxonomy {
 
@@ -53,6 +53,20 @@ class Taxonomy {
     const COLLECTION = 'collection';
 
     /**
+     * A free-form label an offering can carry (e.g. "clearance",
+     * "eco-friendly") — flat, not hierarchical. Promoted from a freetext
+     * `meta.tags` string array to a real taxonomy so tags get the same
+     * management screen/autocomplete Category/Brand/Collection already
+     * have; existing offerings' freetext tag strings simply become
+     * dangling slug references until re-saved from a real tag — same
+     * tolerance TermService::delete_term()'s own docblock already
+     * documents for a deleted category/brand/collection.
+     *
+     * @var string
+     */
+    const TAG = 'tag';
+
+    /**
      * Every known taxonomy.
      *
      * @return string[]
@@ -62,6 +76,7 @@ class Taxonomy {
             self::CATEGORY,
             self::BRAND,
             self::COLLECTION,
+            self::TAG,
         );
     }
 }

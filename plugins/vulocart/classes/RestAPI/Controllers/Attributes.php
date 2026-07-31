@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Attributes class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Attributes extends \WP_REST_Controller {
 

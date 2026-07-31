@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       ReviewStatus class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class ReviewStatus {
 

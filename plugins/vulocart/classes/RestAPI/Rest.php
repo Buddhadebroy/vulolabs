@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Rest class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Rest {
 
@@ -60,6 +60,7 @@ class Rest {
             'reviews'        => new Controllers\Reviews(),
             'inventory'      => new Controllers\Inventory(),
             'offering_types' => new Controllers\OfferingTypes(),
+            'checkout'       => new Controllers\Checkout(),
         );
 
         $extra_controllers = apply_filters( 'vulocart_rest_controllers', array() );

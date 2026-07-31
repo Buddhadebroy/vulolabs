@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Term class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Term {
 

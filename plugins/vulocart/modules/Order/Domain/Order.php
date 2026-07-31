@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Order class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Order {
 
@@ -118,8 +118,15 @@ class Order {
     public $subtotal;
 
     /**
-     * `total` === `subtotal` today — no tax/shipping module yet, same
-     * honest gap Application\CartService::get_totals() already documents.
+     * `subtotal` + `$shipping_cost` + `$tax_amount` — the two latter
+     * fields are 0.0 whenever the Shipping/Taxes modules aren't active
+     * (Application\OrderService::create_from_cart()'s own graceful-
+     * absence handling), so `total === subtotal` is still what a
+     * cart-only/no-checkout-modules install sees, just no longer
+     * guaranteed. Cart\Application\CartService::get_totals() still
+     * documents the identical gap for a cart's own totals, which never
+     * gained shipping/tax (that's checkout-time-only, once an Order
+     * exists).
      *
      * @var float
      */
@@ -154,6 +161,83 @@ class Order {
     public $updated_at;
 
     /**
+     * Buyer's phone number, captured by the Customer module's checkout
+     * step — optional, same "real field, only populated once the owning
+     * module is active/used" status every field below shares.
+     *
+     * @var string|null
+     */
+    public $customer_phone;
+
+    /**
+     * The WP user id who placed this order, when logged in — null for a
+     * guest order. Resolved directly from `get_current_user_id()` at
+     * order-creation time (Order\Rest::create_item()), not through the
+     * Customer module, since attributing an order to a WP account is core
+     * Order behavior, not something Customer's own (optional, toggleable)
+     * module should gate.
+     *
+     * @var int|null
+     */
+    public $customer_user_id;
+
+    /**
+     * Snapshotted billing address, from the Address module's checkout
+     * step — same open-bag shape as $meta (full_name, phone, address_1,
+     * address_2, city, state, postcode, country), not a reusable address
+     * book entry (vision's lightweight-first scope: an order is a
+     * historical record, not a live reference to an editable address).
+     *
+     * @var array<string, mixed>|null
+     */
+    public $billing_address;
+
+    /**
+     * Snapshotted shipping address — same shape as $billing_address, null
+     * when the buyer chose "same as billing" (Checkout.tsx resolves that
+     * client-side before submitting, so this column is never a proxy
+     * value that silently drifts from billing).
+     *
+     * @var array<string, mixed>|null
+     */
+    public $shipping_address;
+
+    /**
+     * Chosen shipping method id, from the Shipping module's
+     * `GET /shipping/methods` list (e.g. 'flat_rate', 'free').
+     *
+     * @var string|null
+     */
+    public $shipping_method;
+
+    /**
+     * Shipping cost, computed server-side by the Shipping module at
+     * order-creation time — never trusted from the client.
+     *
+     * @var float
+     */
+    public $shipping_cost;
+
+    /**
+     * Tax amount, computed server-side by the Taxes module at
+     * order-creation time — never trusted from the client. `total` is no
+     * longer always `=== subtotal` now that this and $shipping_cost exist
+     * (OrderService::create_from_cart() is where they're added in).
+     *
+     * @var float
+     */
+    public $tax_amount;
+
+    /**
+     * Chosen payment method id, from the Payment module's
+     * `GET /payment/methods` list (e.g. 'manual' — the only method this
+     * plugin supports until a gateway module exists).
+     *
+     * @var string|null
+     */
+    public $payment_method;
+
+    /**
      * Order constructor.
      *
      * @param int|null             $id             Null for an order not yet persisted.
@@ -166,12 +250,20 @@ class Order {
      * @param string               $fulfillment_status One of FulfillmentStatus's constants.
      * @param string|null          $currency           ISO 4217 currency code.
      * @param float                $subtotal           Sum of every line item's (unit_price * quantity).
-     * @param float                $total              `total` === `subtotal` today.
+     * @param float                $total              `subtotal` + `$shipping_cost` + `$tax_amount`.
      * @param float|null           $refunded_amount    Amount refunded so far, null if none.
      * @param OrderItem[]          $items              Line items belonging to this order.
      * @param array<string, mixed> $meta               Extensible, order-specific attributes.
      * @param string|null          $created_at         MySQL datetime string, once persisted.
      * @param string|null          $updated_at         MySQL datetime string, once persisted.
+     * @param string|null          $customer_phone     Buyer's phone number.
+     * @param int|null             $customer_user_id   The WP user id who placed this order, null for a guest order.
+     * @param array<string, mixed>|null $billing_address  Snapshotted billing address.
+     * @param array<string, mixed>|null $shipping_address Snapshotted shipping address, null if same as billing.
+     * @param string|null          $shipping_method    Chosen shipping method id.
+     * @param float                $shipping_cost      Shipping cost, computed server-side.
+     * @param float                $tax_amount         Tax amount, computed server-side.
+     * @param string|null          $payment_method     Chosen payment method id.
      */
     public function __construct(
         $id,
@@ -189,7 +281,15 @@ class Order {
         $items = array(),
         $meta = array(),
         $created_at = null,
-        $updated_at = null
+        $updated_at = null,
+        $customer_phone = null,
+        $customer_user_id = null,
+        $billing_address = null,
+        $shipping_address = null,
+        $shipping_method = null,
+        $shipping_cost = 0.0,
+        $tax_amount = 0.0,
+        $payment_method = null
     ) {
         $this->id                 = $id;
         $this->order_number       = $order_number;
@@ -207,5 +307,13 @@ class Order {
         $this->meta               = $meta;
         $this->created_at         = $created_at;
         $this->updated_at         = $updated_at;
+        $this->customer_phone     = $customer_phone;
+        $this->customer_user_id   = $customer_user_id;
+        $this->billing_address    = $billing_address;
+        $this->shipping_address   = $shipping_address;
+        $this->shipping_method    = $shipping_method;
+        $this->shipping_cost      = $shipping_cost;
+        $this->tax_amount         = $tax_amount;
+        $this->payment_method     = $payment_method;
     }
 }

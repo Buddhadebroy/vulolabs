@@ -2,15 +2,14 @@ import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Same `require.context`-based settings-tab discovery
- * `vulopilot/src/services/templateService.ts` (and the free multivendorx
- * plugin's own templateService.ts) uses — react-frontend.md's
+ * `vulopilot/src/services/templateService.ts` uses — react-frontend.md's
  * "declarative settings-config pattern". Settings.tsx used to import a
  * single hardcoded `{ name, type, content }` entry directly (there was
  * exactly one tab file, General.ts) — now that there are 12 tab files
  * under `../settings`, that one-off allowance no longer applies, so this
  * scans the folder instead, same as every sibling plugin with more than
  * one settings tab already does. `vulocart_settings_context` is this
- * plugin's own filter name (not multivendorx's/vulopilot's), so a future
+ * plugin's own filter name (not vulopilot's), so a future
  * vulocart-pro settings tab (e.g. Passport-specific fields) registers
  * into a filter actually scoped to this plugin family.
  */

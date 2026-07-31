@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       PaymentStatus class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class PaymentStatus {
 

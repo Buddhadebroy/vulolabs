@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       WPDBOrderRepository class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class WPDBOrderRepository implements OrderRepositoryInterface {
 
@@ -81,7 +81,15 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
             $items,
             $row['meta'] ? (array) json_decode( $row['meta'], true ) : array(),
             $row['created_at'],
-            $row['updated_at']
+            $row['updated_at'],
+            isset( $row['customer_phone'] ) ? $row['customer_phone'] : null,
+            ! empty( $row['customer_user_id'] ) ? (int) $row['customer_user_id'] : null,
+            ! empty( $row['billing_address'] ) ? (array) json_decode( $row['billing_address'], true ) : null,
+            ! empty( $row['shipping_address'] ) ? (array) json_decode( $row['shipping_address'], true ) : null,
+            isset( $row['shipping_method'] ) ? $row['shipping_method'] : null,
+            isset( $row['shipping_cost'] ) ? (float) $row['shipping_cost'] : 0.0,
+            isset( $row['tax_amount'] ) ? (float) $row['tax_amount'] : 0.0,
+            isset( $row['payment_method'] ) ? $row['payment_method'] : null
         );
     }
 
@@ -146,6 +154,23 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
         $this->cache[ $id ] = $row ? $this->hydrate_order( $row, $this->load_items( $id ) ) : null;
 
         return $this->cache[ $id ];
+    }
+
+    /**
+     * Finds the most recent order placed with a given customer email.
+     *
+     * @param string $customer_email Customer email to match.
+     * @return Order|null Null if no order has ever been placed with this email.
+     */
+    public function find_latest_by_customer_email( string $customer_email ): ?Order {
+        global $wpdb;
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare( "SELECT * FROM {$this->get_orders_table()} WHERE customer_email = %s ORDER BY id DESC LIMIT 1", $customer_email ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            ARRAY_A
+        );
+
+        return $row ? $this->hydrate_order( $row, $this->load_items( (int) $row['id'] ) ) : null;
     }
 
     /**
@@ -300,12 +325,20 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
                 'cart_token'         => $order->cart_token,
                 'customer_email'     => $order->customer_email,
                 'customer_name'      => $order->customer_name,
+                'customer_phone'     => $order->customer_phone,
+                'customer_user_id'   => $order->customer_user_id,
                 'status'             => $order->fulfillment_status,
                 'payment_status'     => $order->payment_status,
                 'fulfillment_status' => $order->fulfillment_status,
                 'currency'           => $order->currency,
                 'subtotal'           => $order->subtotal,
+                'shipping_method'    => $order->shipping_method,
+                'shipping_cost'      => $order->shipping_cost,
+                'tax_amount'         => $order->tax_amount,
+                'payment_method'     => $order->payment_method,
                 'total'              => $order->total,
+                'billing_address'    => null === $order->billing_address ? null : wp_json_encode( $order->billing_address ),
+                'shipping_address'   => null === $order->shipping_address ? null : wp_json_encode( $order->shipping_address ),
                 'meta'               => wp_json_encode( $order->meta ),
             )
         );

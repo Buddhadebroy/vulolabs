@@ -13,15 +13,15 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Class.
  *
  * Plugin bootstrap singleton — same plain-array-container + magic
- * __get/__set shape as MultiVendorX\MultiVendorX and VuloPilot\VuloPilot.
- * VuloCart is not WooCommerce-bound (a deliberate break from the
- * multivendorx family — see the vision's "own tables, don't rely on
- * WooCommerce's data model" principle), so it boots on 'plugins_loaded'
+ * __get/__set shape as VuloPilot\VuloPilot.
+ * VuloCart is not WooCommerce-bound (a deliberate design choice — see
+ * the vision's "own tables, don't rely on WooCommerce's data model"
+ * principle), so it boots on 'plugins_loaded'
  * directly, the same as VuloPilot\VuloPilot.
  *
  * @class       VuloCart class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 final class VuloCart {
 
@@ -109,8 +109,8 @@ final class VuloCart {
     /**
      * Initializes VuloCart classes and fires 'vulocart_loaded', the hook
      * VuloCart Pro (and any third-party extension) gates its own boot on —
-     * the equivalent of multivendorx_loaded/vulopilot_loaded for this
-     * product line.
+     * the same per-product boot-order-gate pattern as vulopilot_loaded, just
+     * scoped to this product line.
      *
      * @return void
      */
@@ -148,6 +148,12 @@ final class VuloCart {
                 return new Infrastructure\Database\WPDBReviewRepository();
             }
         );
+        $this->container['service_container']->singleton(
+            Domain\Checkout\CheckoutSessionRepositoryInterface::class,
+            function () {
+                return new Infrastructure\Database\WPDBCheckoutSessionRepository();
+            }
+        );
 
         $this->container['event_dispatcher'] = new Events\EventDispatcher();
 
@@ -173,6 +179,17 @@ final class VuloCart {
             $this->container['event_dispatcher']
         );
 
+        // The Checkout Engine's own orchestration core (Application\
+        // CheckoutService's own docblock) — core infrastructure like
+        // Offering/Term/Attribute/Review above, not a toggleable module:
+        // every checkout delivery mode (the free block, vulocart-pro's
+        // Popup/Embedded/Hosted modes) needs session tracking to exist
+        // regardless of which step modules happen to be active.
+        $this->container['checkout_service'] = new Application\CheckoutService(
+            $this->container['service_container']->make( Domain\Checkout\CheckoutSessionRepositoryInterface::class ),
+            $this->container['event_dispatcher']
+        );
+
         // Module loader (module-architecture.md) — loaded before the REST
         // dispatcher so a module's own constructor (e.g. registering a
         // route via `vulocart_rest_controllers`, or reacting to
@@ -193,10 +210,34 @@ final class VuloCart {
         // toggleable concepts), so cart/checkout keeps working out of the
         // box. The one-time flag means turning either off afterward is
         // fully respected — this never re-seeds them back on.
+        // Same one-time pre-activation as above, for the Customer/Address/
+        // Shipping/Taxes/Payment/Review/Confirmation checkout modules —
+        // a *second*, independent seed flag (not folded into
+        // 'vulocart_cart_order_modules_seeded') since that flag is already
+        // `true` on every existing install by the time these modules were
+        // added; reusing it would silently skip seeding them on any site
+        // that already had cart/order active. `$modules_activated_now`
+        // guards load_active_modules() below from running a second time in
+        // the same request — activate_modules() already calls it
+        // internally, and calling it twice would reconstruct (not just
+        // re-fetch) every already-active module.
+        $modules_activated_now = false;
+
         if ( ! get_option( 'vulocart_cart_order_modules_seeded' ) ) {
             $this->container['modules']->activate_modules( array( 'cart', 'order' ) );
             update_option( 'vulocart_cart_order_modules_seeded', true );
-        } else {
+            $modules_activated_now = true;
+        }
+
+        if ( ! get_option( 'vulocart_checkout_modules_seeded' ) ) {
+            $this->container['modules']->activate_modules(
+                array( 'customer', 'address', 'shipping', 'taxes', 'payment', 'review', 'confirmation' )
+            );
+            update_option( 'vulocart_checkout_modules_seeded', true );
+            $modules_activated_now = true;
+        }
+
+        if ( ! $modules_activated_now ) {
             $this->container['modules']->load_active_modules();
         }
 

@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       WPDBAttributeRepository class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class WPDBAttributeRepository implements AttributeRepositoryInterface {
 

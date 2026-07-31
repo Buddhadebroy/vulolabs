@@ -34,7 +34,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       OrderService class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class OrderService {
 
@@ -110,6 +110,18 @@ class OrderService {
     }
 
     /**
+     * Finds the most recent order placed with a given customer email —
+     * see OrderRepositoryInterface::find_latest_by_customer_email()'s own
+     * docblock for what this backs.
+     *
+     * @param string $customer_email Customer email to match.
+     * @return Order|null Null if no order has ever been placed with this email.
+     */
+    public function find_latest_order_for_email( $customer_email ) {
+        return $this->repository->find_latest_by_customer_email( $customer_email );
+    }
+
+    /**
      * Returns a page of orders, optionally filtered.
      *
      * @param array{page?: int, per_page?: int, payment_status?: string, fulfillment_status?: string, search?: string, date_from?: string, date_to?: string} $args Pagination/filter args, already sanitized by the caller.
@@ -130,17 +142,57 @@ class OrderService {
     }
 
     /**
-     * Converts a cart into a placed order: snapshots every line item
-     * (title, price, currency), persists the order, clears the source
-     * cart, and broadcasts `order_created`.
+     * Resolves an optional sibling module's own service off the main
+     * plugin container, without hard-failing when that module isn't
+     * active — `VuloCart()->$key`'s magic `__get()` throws for an unknown
+     * container key (VuloCart.php's own docblock), so this is how
+     * OrderService reaches for Shipping/Taxes/Payment the same
+     * "gracefully absent" way every other toggleable-module dependency in
+     * this codebase already works, without taking a hard constructor
+     * dependency on three more optional modules the way it does on Cart.
      *
-     * @param string      $cart_token     Opaque client-held cart identity.
-     * @param string|null $customer_email Buyer's email, if given.
-     * @param string|null $customer_name  Buyer's display name, if given.
+     * @param string $key Container key, e.g. 'shipping_service'.
+     * @return mixed|null Null if no module registered that service.
+     */
+    private function resolve_optional_service( string $key ) {
+        try {
+            return VuloCart()->$key; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- magic __get(), not a real property.
+        } catch ( \Exception $e ) {
+            return null;
+        }
+    }
+
+    /**
+     * Converts a cart into a placed order: snapshots every line item
+     * (title, price, currency), computes shipping/tax via the Shipping/
+     * Taxes modules when active (0.0 either way when they're not —
+     * checkout still works with just Cart+Order, same graceful-absence
+     * rule every other optional module in this plugin follows), persists
+     * the order, clears the source cart, and broadcasts `order_created`.
+     *
+     * @param string                     $cart_token       Opaque client-held cart identity.
+     * @param string|null                $customer_email   Buyer's email, if given.
+     * @param string|null                $customer_name    Buyer's display name, if given.
+     * @param string|null                $customer_phone   Buyer's phone number, if given.
+     * @param int|null                   $customer_user_id The WP user id placing this order, if logged in.
+     * @param array<string, mixed>|null  $billing_address  Sanitized billing address, if given.
+     * @param array<string, mixed>|null  $shipping_address Sanitized shipping address, if given (null = same as billing).
+     * @param string|null                $shipping_method  Chosen shipping method id.
+     * @param string|null                $payment_method   Chosen payment method id.
      * @return Order
      * @throws \InvalidArgumentException If the cart doesn't exist or has no items.
      */
-    public function create_from_cart( $cart_token, $customer_email = null, $customer_name = null ) {
+    public function create_from_cart(
+        $cart_token,
+        $customer_email = null,
+        $customer_name = null,
+        $customer_phone = null,
+        $customer_user_id = null,
+        $billing_address = null,
+        $shipping_address = null,
+        $shipping_method = null,
+        $payment_method = null
+    ) {
         $cart = $this->cart_service->find_cart( $cart_token );
 
         if ( ! $cart || empty( $cart->items ) ) {
@@ -149,6 +201,33 @@ class OrderService {
 
         $totals = $this->cart_service->get_totals( $cart );
 
+        $shipping_service = $this->resolve_optional_service( 'shipping_service' );
+        $shipping_cost     = ( $shipping_service && $shipping_method ) ? $shipping_service->calculate_cost( $shipping_method ) : 0.0;
+
+        $tax_service = $this->resolve_optional_service( 'tax_service' );
+        $tax_amount  = $tax_service ? $tax_service->calculate( $totals['subtotal'] ) : 0.0;
+
+        $payment_service        = $this->resolve_optional_service( 'payment_service' );
+        $initial_payment_status = $payment_service ? $payment_service->get_initial_payment_status() : PaymentStatus::PENDING;
+
+        $total = round( $totals['subtotal'] + $shipping_cost + $tax_amount, 2 );
+
+        // Same `vulocart_order_total` filter, same $context shape, as
+        // Review\Application\OrderReviewService::build_summary()'s own
+        // preview computation — that method's own docblock explains why
+        // this is filter-resolved from the checkout session rather than a
+        // new parameter here.
+        $total = (float) apply_filters(
+            'vulocart_order_total',
+            $total,
+            array(
+                'cart_token'    => $cart_token,
+                'subtotal'      => $totals['subtotal'],
+                'shipping_cost' => $shipping_cost,
+                'tax_amount'    => $tax_amount,
+            )
+        );
+
         $order = new Order(
             null,
             null,
@@ -156,11 +235,24 @@ class OrderService {
             $cart_token,
             $customer_email,
             $customer_name,
-            PaymentStatus::PENDING,
+            $initial_payment_status,
             FulfillmentStatus::PENDING,
             $cart->currency,
             $totals['subtotal'],
-            $totals['total']
+            $total,
+            null,
+            array(),
+            array(),
+            null,
+            null,
+            $customer_phone,
+            $customer_user_id,
+            $billing_address,
+            $shipping_address,
+            $shipping_method,
+            $shipping_cost,
+            $tax_amount,
+            $payment_method
         );
 
         $order = $this->repository->insert( $order );

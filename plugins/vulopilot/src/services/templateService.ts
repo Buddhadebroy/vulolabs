@@ -7,7 +7,7 @@ import { applyFilters } from '@wordpress/hooks';
  * (`settings`), since VuloPilot only has one settings screen today, vs.
  * vulolabs's several (settings/tools/storeStatus/dashboardSettings).
  * `vulopilot_settings_context` is this plugin's own filter name (not
- * vulolabs's `multivendorx_settings_context`) so a future
+ * vulocart's) so a future
  * vulopilot-pro settings tab registers into a filter that's actually
  * scoped to this plugin family, following the same
  * discovery-by-filter extension pattern every other engine in this

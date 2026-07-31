@@ -12,9 +12,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Block class.
  *
- * Discovers and registers every Gutenberg block VuloCart ships, mirroring
- * `MultiVendorX\Block`'s own discovery mechanism: `tools/webpack/
- * create-config.js` builds each `src/blocks/{name}/` folder into
+ * Discovers and registers every Gutenberg block VuloCart ships:
+ * `tools/webpack/create-config.js` builds each `src/blocks/{name}/` folder into
  * `assets/js/block/{name}/` (block.json copied alongside the built JS via
  * `CopyWebpackPlugin` — coding-standards.md's build section), and this
  * class `glob()`s that *built* directory at runtime rather than hardcoding
@@ -28,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Block class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Block {
 
@@ -46,6 +45,7 @@ class Block {
         add_action( 'init', array( $this, 'register_blocks' ) );
         add_action( 'wp_head', array( $this, 'print_frontend_config' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_shared_vendors_chunk' ), 20 );
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_storefront_bootstrap' ), 21 );
         add_action( 'save_post', array( $this, 'clear_block_page_url_cache' ) );
     }
 
@@ -77,7 +77,14 @@ class Block {
             // enforcement against a direct API call).
             'guestCheckoutEnabled'    => ! empty( $settings['guest_checkout_enabled'] ),
             'requireTermsAcceptance'  => ! empty( $settings['require_terms_acceptance'] ),
+            'requirePhoneNumber'      => ! empty( $settings['require_phone_number'] ),
             'checkoutTermsUrl'        => (string) $settings['checkout_terms_url'],
+            // Domain\Checkout\CheckoutMode::free() — read by
+            // src/blocks/checkout-engine/CheckoutEngine.tsx to decide
+            // single-page vs. multi-step layout; the engine itself has no
+            // idea this setting (or WordPress) exists, only Checkout.tsx
+            // reads it and passes `mode` down as a prop.
+            'checkoutMode'            => (string) $settings['checkout_mode'],
             'isLoggedIn'              => is_user_logged_in(),
             // Frontend tab (src/settings/General/Frontend.ts) — whether the
             // checkout block shows its catalog-browsing section at all, and
@@ -93,6 +100,23 @@ class Block {
         );
 
         echo '<script id="vulocart-frontend-data">window.vulocartFrontendData = ' . wp_json_encode( $config ) . ';</script>' . "\n"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- a ~2-property inline config object, not a real script asset; every other frontend block's view.js depends on this existing before it runs (see docblock).
+
+        /**
+         * Fires unconditionally on every `wp_head`, same "cheap and
+         * harmless" posture this whole method already has — lets
+         * vulocart-pro enqueue its own storefront bundle (e.g. Order
+         * Notes/Coupons/Gift Cards' checkout-step extensions,
+         * `window.vulocartCheckoutEngine`'s own registrants —
+         * `src/blocks/checkout-engine/registry.ts`'s own docblock on why
+         * a *storefront* Pro bundle, distinct from the wp-admin one
+         * `VuloCartPro::enqueue_admin_script()` already handles, is
+         * needed at all) without this class knowing vulocart-pro exists.
+         * A registrant is expected to call `has_block('vulocart/checkout')`
+         * itself before actually enqueueing anything, same as this method
+         * would if it needed to conditionally skip pages with no
+         * checkout block.
+         */
+        do_action( 'vulocart_frontend_config_printed' );
     }
 
     /**
@@ -242,5 +266,45 @@ class Block {
                 wp_scripts()->registered[ $handle ]->deps[] = 'vulocart-block-vendors';
             }
         }
+    }
+
+    /**
+     * Enqueues `src/storefront/index.tsx`'s built output
+     * (`assets/js/storefront.js`) — see that file's own docblock for why
+     * this exists as an independent entry from the `vulocart/checkout`
+     * block's own view script, and why that independence matters for
+     * vulocart-pro's Popup/Embedded delivery modes specifically. Gated on
+     * `enable_cart_checkout` (the same "is checkout even usable at all"
+     * setting `print_frontend_config()`'s own `cartCheckoutEnabled` flag
+     * already reads) rather than `has_block()` — unlike a block's own
+     * view script, this has nothing to do with which blocks are on THIS
+     * page, so a page-content check would be the wrong gate entirely.
+     *
+     * @return void
+     */
+    public function enqueue_storefront_bootstrap(): void {
+        $settings = wp_parse_args( get_option( Utill::SETTINGS_KEY, array() ), Utill::SETTINGS_DEFAULTS );
+
+        if ( empty( $settings['enable_cart_checkout'] ) ) {
+            return;
+        }
+
+        $asset_file = VuloCart()->plugin_path . 'assets/js/storefront.asset.php';
+
+        if ( ! file_exists( $asset_file ) ) {
+            return;
+        }
+
+        $asset = require $asset_file;
+
+        $dependencies = array_unique( array_merge( $asset['dependencies'], array( 'vulocart-block-vendors' ) ) );
+
+        wp_enqueue_script(
+            'vulocart-storefront-bootstrap',
+            VuloCart()->plugin_url . 'assets/js/storefront.js',
+            $dependencies,
+            $asset['version'],
+            true
+        );
     }
 }

@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Install class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Install {
 
@@ -41,9 +41,16 @@ class Install {
      * \`wp_x\`` reads as table name `IF` and silently does nothing to the
      * real table.
      *
+     * 1.1.0 (Customer/Address/Shipping/Taxes/Payment modules): adds
+     * `customer_phone`, `customer_user_id`, `billing_address`,
+     * `shipping_address`, `shipping_method`, `shipping_cost`,
+     * `tax_amount`, `payment_method` to `vulocart_orders` — additive only,
+     * `dbDelta()` adds the missing columns to the existing table rather
+     * than recreating it.
+     *
      * @var string
      */
-    const TABLE_SCHEMA_VERSION = '1.0.0';
+    const TABLE_SCHEMA_VERSION = '1.1.0';
 
     /**
      * Install constructor.
@@ -89,13 +96,21 @@ class Install {
             `cart_token`         varchar(64) DEFAULT NULL,
             `customer_email`     varchar(200) DEFAULT NULL,
             `customer_name`      varchar(200) DEFAULT NULL,
+            `customer_phone`     varchar(30) DEFAULT NULL,
+            `customer_user_id`   bigint(20) unsigned DEFAULT NULL,
             `status`             varchar(20) NOT NULL DEFAULT 'pending',
             `payment_status`     varchar(20) NOT NULL DEFAULT 'pending',
             `fulfillment_status` varchar(20) NOT NULL DEFAULT 'pending',
             `refunded_amount`    decimal(19,4) DEFAULT NULL,
             `currency`           varchar(10) DEFAULT NULL,
             `subtotal`           decimal(19,4) NOT NULL DEFAULT 0.0000,
+            `shipping_method`    varchar(50) DEFAULT NULL,
+            `shipping_cost`      decimal(19,4) NOT NULL DEFAULT 0.0000,
+            `tax_amount`         decimal(19,4) NOT NULL DEFAULT 0.0000,
+            `payment_method`     varchar(50) DEFAULT NULL,
             `total`              decimal(19,4) NOT NULL DEFAULT 0.0000,
+            `billing_address`    longtext DEFAULT NULL,
+            `shipping_address`   longtext DEFAULT NULL,
             `meta`               longtext DEFAULT NULL,
             `created_at`         timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `updated_at`         timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -104,7 +119,8 @@ class Install {
             KEY `idx_status` (`status`),
             KEY `idx_payment_status` (`payment_status`),
             KEY `idx_fulfillment_status` (`fulfillment_status`),
-            KEY `idx_customer_email` (`customer_email`)
+            KEY `idx_customer_email` (`customer_email`),
+            KEY `idx_customer_user_id` (`customer_user_id`)
         ) $collate;";
 
         dbDelta( $sql_orders );

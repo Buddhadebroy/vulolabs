@@ -182,7 +182,7 @@ codebase":
    `add_filter( 'vulopilot_scanner_sources', ... )` and appends its own
    class name to the list — the exact same filter Free's own scanners are
    discovered through, gated on license the same way `VuloLabsPro`
-   gates `multivendorx_module_sources` (`plugin-families.md`).
+   gates `vulopilot_module_sources` (`plugin-families.md`).
 3. **A third-party scanner**, from any other plugin or a site's
    `functions.php`: implement `ScannerInterface`, hook the same
    `vulopilot_scanner_sources` filter, append the class name. No different

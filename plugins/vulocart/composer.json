@@ -1,13 +1,13 @@
 {
-    "name": "multivendorx/vulocart",
+    "name": "vulolabs/vulocart",
     "description": "VuloCart — AI-native, API-first commerce engine",
     "type": "wordpress-plugin",
-    "homepage": "https://multivendorx.com/vulocart/",
+    "homepage": "https://vulolabs.com/vulocart/",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
-            "name": "MultiVendorX",
-            "email": "contact@multivendorx.com"
+            "name": "VuloLabs",
+            "email": "contact@vulolabs.com"
         }
     ],
     "minimum-stability": "dev",

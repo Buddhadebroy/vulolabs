@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class       Offerings class
  * @version     1.0.0
- * @author      MultiVendorX
+ * @author      VuloLabs
  */
 class Offerings extends \WP_REST_Controller {
 
@@ -136,8 +136,207 @@ class Offerings extends \WP_REST_Controller {
                     'callback'            => array( $this, 'update_item' ),
                     'permission_callback' => array( $this, 'create_item_permissions_check' ),
                 ),
+                array(
+                    'methods'             => \WP_REST_Server::DELETABLE,
+                    'callback'            => array( $this, 'delete_item' ),
+                    'permission_callback' => array( $this, 'create_item_permissions_check' ),
+                ),
             )
         );
+
+        // Bulk endpoints — the Offerings list screen's bulk-actions bar
+        // (src/pages/Offerings/OfferingsList.tsx). Registered as their own
+        // routes rather than teaching update_item()/delete_item() to accept
+        // an array of ids, matching Order\Rest.php's own
+        // `orders/bulk-payment-status`/`orders/bulk-fulfillment-status`
+        // precedent (one route per bulk operation, same permission gate as
+        // the single-item mutation it bulk-applies).
+        register_rest_route(
+            VuloCart()->rest_namespace,
+            '/' . $this->rest_base . '/bulk-status',
+            array(
+                'methods'             => \WP_REST_Server::EDITABLE,
+                'callback'            => array( $this, 'bulk_update_status' ),
+                'permission_callback' => array( $this, 'create_item_permissions_check' ),
+            )
+        );
+
+        register_rest_route(
+            VuloCart()->rest_namespace,
+            '/' . $this->rest_base . '/bulk-price',
+            array(
+                'methods'             => \WP_REST_Server::EDITABLE,
+                'callback'            => array( $this, 'bulk_update_price' ),
+                'permission_callback' => array( $this, 'create_item_permissions_check' ),
+            )
+        );
+
+        register_rest_route(
+            VuloCart()->rest_namespace,
+            '/' . $this->rest_base . '/bulk-stock',
+            array(
+                'methods'             => \WP_REST_Server::EDITABLE,
+                'callback'            => array( $this, 'bulk_update_stock' ),
+                'permission_callback' => array( $this, 'create_item_permissions_check' ),
+            )
+        );
+
+        register_rest_route(
+            VuloCart()->rest_namespace,
+            '/' . $this->rest_base . '/bulk-delete',
+            array(
+                'methods'             => \WP_REST_Server::DELETABLE,
+                'callback'            => array( $this, 'bulk_delete' ),
+                'permission_callback' => array( $this, 'create_item_permissions_check' ),
+            )
+        );
+    }
+
+    /**
+     * Reads and validates the `ids` param every bulk endpoint takes.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return int[]|\WP_Error
+     */
+    private function get_bulk_ids( $request ) {
+        $ids = $request->get_param( 'ids' );
+
+        if ( ! is_array( $ids ) || empty( $ids ) ) {
+            return new \WP_Error(
+                'vulocart_missing_offering_ids',
+                esc_html__( 'At least one offering id is required.', 'vulocart' ),
+                array( 'status' => 400 )
+            );
+        }
+
+        return array_values( array_filter( array_map( 'absint', $ids ) ) );
+    }
+
+    /**
+     * Bulk-updates status (e.g. publish/draft/archive several offerings at
+     * once from the list screen's bulk-actions dropdown).
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function bulk_update_status( $request ) {
+        $ids = $this->get_bulk_ids( $request );
+
+        if ( is_wp_error( $ids ) ) {
+            return $ids;
+        }
+
+        $status = sanitize_key( (string) $request->get_param( 'status' ) );
+
+        if ( '' === $status ) {
+            return new \WP_Error( 'vulocart_missing_status', esc_html__( 'A status is required.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        $updated = VuloCart()->offering_service->bulk_update_status( $ids, $status );
+
+        return rest_ensure_response( array( 'updated' => $updated ) );
+    }
+
+    /**
+     * Bulk-sets price and/or sale price across several offerings —
+     * "Bulk Price Update". At least one of `price`/`sale_price` must be
+     * present; either can be sent alone.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function bulk_update_price( $request ) {
+        $ids = $this->get_bulk_ids( $request );
+
+        if ( is_wp_error( $ids ) ) {
+            return $ids;
+        }
+
+        if ( null === $request->get_param( 'price' ) && null === $request->get_param( 'sale_price' ) ) {
+            return new \WP_Error( 'vulocart_missing_price', esc_html__( 'A price or sale price is required.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        $price      = null !== $request->get_param( 'price' ) ? (float) $request->get_param( 'price' ) : null;
+        $sale_price = null !== $request->get_param( 'sale_price' ) ? (float) $request->get_param( 'sale_price' ) : null;
+
+        $updated = VuloCart()->offering_service->bulk_update_price( $ids, $price, $sale_price );
+
+        return rest_ensure_response( array( 'updated' => $updated ) );
+    }
+
+    /**
+     * Bulk-sets stock status and/or stock quantity across several
+     * offerings — "Bulk Inventory Update". Same fields Inventory.php's own
+     * single-item `PATCH /inventory/{id}` already writes into
+     * `meta.stock_status`/`meta.stock_quantity`, applied to many offerings
+     * at once here instead.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function bulk_update_stock( $request ) {
+        $ids = $this->get_bulk_ids( $request );
+
+        if ( is_wp_error( $ids ) ) {
+            return $ids;
+        }
+
+        if ( null === $request->get_param( 'stock_status' ) && null === $request->get_param( 'stock_quantity' ) ) {
+            return new \WP_Error( 'vulocart_missing_stock_fields', esc_html__( 'A stock status or quantity is required.', 'vulocart' ), array( 'status' => 400 ) );
+        }
+
+        $stock_status = null;
+
+        if ( null !== $request->get_param( 'stock_status' ) ) {
+            $candidate = sanitize_key( (string) $request->get_param( 'stock_status' ) );
+
+            if ( ! in_array( $candidate, array( 'in_stock', 'out_of_stock', 'backorder' ), true ) ) {
+                return new \WP_Error( 'vulocart_invalid_stock_status', esc_html__( 'Invalid stock status.', 'vulocart' ), array( 'status' => 400 ) );
+            }
+
+            $stock_status = $candidate;
+        }
+
+        $stock_quantity = null !== $request->get_param( 'stock_quantity' ) ? max( 0, absint( $request->get_param( 'stock_quantity' ) ) ) : null;
+
+        $updated = VuloCart()->offering_service->bulk_update_stock( $ids, $stock_status, $stock_quantity );
+
+        return rest_ensure_response( array( 'updated' => $updated ) );
+    }
+
+    /**
+     * Bulk-deletes offerings.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function bulk_delete( $request ) {
+        $ids = $this->get_bulk_ids( $request );
+
+        if ( is_wp_error( $ids ) ) {
+            return $ids;
+        }
+
+        $deleted = VuloCart()->offering_service->bulk_delete( $ids );
+
+        return rest_ensure_response( array( 'deleted' => $deleted ) );
+    }
+
+    /**
+     * Deletes a single offering — the Offerings list screen's per-row
+     * delete action.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function delete_item( $request ) {
+        $deleted = VuloCart()->offering_service->delete_offering( absint( $request->get_param( 'id' ) ) );
+
+        if ( ! $deleted ) {
+            return new \WP_Error( 'vulocart_offering_not_found', esc_html__( 'No offering exists with this id.', 'vulocart' ), array( 'status' => 404 ) );
+        }
+
+        return rest_ensure_response( array( 'deleted' => true ) );
     }
 
     /**
@@ -205,6 +404,8 @@ class Offerings extends \WP_REST_Controller {
         $per_page = absint( $per_page_param ? $per_page_param : 20 );
         $type     = sanitize_key( (string) $request->get_param( 'type' ) );
         $status   = sanitize_key( (string) $request->get_param( 'status' ) );
+        $search   = sanitize_text_field( (string) $request->get_param( 'search' ) );
+        $category = sanitize_key( (string) $request->get_param( 'category' ) );
 
         // Anyone without manage_options is a public storefront request
         // (see get_items_permissions_check()'s docblock) — force
@@ -221,6 +422,8 @@ class Offerings extends \WP_REST_Controller {
                 'per_page' => $per_page,
                 'type'     => $type,
                 'status'   => $status,
+                'search'   => $search,
+                'category' => $category,
             )
         );
 
@@ -406,13 +609,14 @@ class Offerings extends \WP_REST_Controller {
      * WooCommerce/Shopify-style edit screen — short/full description,
      * sale price, stock management, delivery method, package dimensions,
      * policies, simple related/add-on offering lists (comma-separated ids,
-     * no picker UI yet), featured/catalog-visibility flags, a small
-     * hand-maintained category list (categories.tsx has no real taxonomy
-     * behind it yet — see OfferingEdit.tsx's docblock), tags, and
-     * featured image/gallery (real `wp.media()` attachment id + url
-     * pairs, via zyra's `FileInput`). Unknown keys are silently dropped —
-     * this is deliberately whitelist-based, not "sanitize whatever keys
-     * show up.".
+     * no picker UI yet), featured/catalog-visibility flags, category/tag/
+     * brand/collection references (real DB-backed Domain\Term\Term slugs —
+     * classes/RestAPI/Controllers/Terms.php — stored by slug in this meta
+     * bag rather than a join table, same tradeoff WPDBTermRepository::
+     * count_offerings_for_term()'s own docblock explains), and featured
+     * image/gallery (real `wp.media()` attachment id + url pairs, via
+     * zyra's `FileInput`). Unknown keys are silently dropped — this is
+     * deliberately whitelist-based, not "sanitize whatever keys show up.".
      *
      * @param array<string, mixed> $meta Raw meta payload from the request.
      * @param string               $type The offering's type — determines which TYPE_DETAIL_FIELDS entry (if any) governs `meta.type_details`.
@@ -473,8 +677,12 @@ class Offerings extends \WP_REST_Controller {
             $sanitized['categories'] = array_values( array_map( 'sanitize_key', $meta['categories'] ) );
         }
 
+        // Domain\Term\Taxonomy::TAG — same slug-in-meta reference as
+        // categories/brand/collections just below (Taxonomy::TAG's own
+        // docblock explains the freetext-to-taxonomy promotion and its
+        // backward-compat tradeoff).
         if ( isset( $meta['tags'] ) && is_array( $meta['tags'] ) ) {
-            $sanitized['tags'] = array_values( array_map( 'sanitize_text_field', $meta['tags'] ) );
+            $sanitized['tags'] = array_values( array_map( 'sanitize_key', $meta['tags'] ) );
         }
 
         // Brand/Collections — Domain\Term\Taxonomy::BRAND/COLLECTION,
