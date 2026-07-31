@@ -1,12 +1,17 @@
 import { __ } from '@wordpress/i18n';
 
 export default {
-	id: 'security',
-	priority: 1,
-	headerTitle: __('Security', 'vulopilot'),
+	id: 'site-health',
+	priority: 3,
+	headerTitle: __('Site Health', 'vulopilot'),
 	headerIcon: 'shield',
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'security-section',
+			type: 'section',
+			title: __('Security', 'vulopilot'),
+		},
 		{
 			key: 'enable_weak_password_scanner',
 			type: 'checkbox',
@@ -161,5 +166,71 @@ export default {
 			),
 			moduleEnabled: 'security-monitoring',
 		},
+		{
+			key: 'accessibility-section',
+			type: 'section',
+			title: __('Accessibility', 'vulopilot'),
+		},
+		{
+			key: 'enable_wcag_scanner',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Check for generic, out-of-context link text', 'vulopilot'),
+			desc: __(
+				'Flags links whose entire visible text is a generic phrase like "click here" or "read more" — link text should describe its own destination (WCAG 2.4.4).',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'enable_wcag_scanner', label: '', value: 'enable_wcag_scanner' },
+			],
+		},
+		{
+			key: 'accessibility_audit_frequency',
+			type: 'select',
+			label: __('Scheduled accessibility audits', 'vulopilot'),
+			desc: __(
+				'Runs only the accessibility-category scanners on this cadence, independent of the general Scan frequency setting under General.',
+				'vulopilot'
+			),
+			options: [
+				{ label: __('Off', 'vulopilot'), value: 'disabled' },
+				{ label: __('Hourly', 'vulopilot'), value: 'hourly' },
+				{ label: __('Daily', 'vulopilot'), value: 'daily' },
+				{ label: __('Weekly', 'vulopilot'), value: 'weekly' },
+			],
+			moduleEnabled: 'accessibility-audits',
+		},
+		{
+			key: 'target_wcag_level',
+			type: 'select',
+			label: __('Target WCAG level', 'vulopilot'),
+			desc: __(
+				'Used to determine which accessibility checks are marked critical vs. warning.',
+				'vulopilot'
+			),
+			options: [
+				{ label: __('WCAG 2.1 A', 'vulopilot'), value: '2.1_a' },
+				{ label: __('WCAG 2.1 AA', 'vulopilot'), value: '2.1_aa' },
+				{ label: __('WCAG 2.1 AAA', 'vulopilot'), value: '2.1_aaa' },
+			],
+		},
+		{
+			key: 'performance-section',
+			type: 'section',
+			title: __('Performance', 'vulopilot'),
+		},
+		{
+            key: 'mobile_core_web_vitals',
+            type: 'checkbox',
+            look: 'toggle',
+            label: __('Include mobile Core Web Vitals', 'vulopilot'),
+            desc: __(
+                'Run Core Web Vitals checks against mobile as well as desktop.',
+                'vulopilot'
+            ),
+            options: [
+                { key: 'mobile_core_web_vitals', label: '', value: 'mobile_core_web_vitals' },
+            ],
+        },
 	],
 };
