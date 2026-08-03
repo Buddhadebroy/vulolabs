@@ -11,6 +11,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput, ToggleInput, TextAreaInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
+import { formatWpDate } from '../../../services/formatWpDate';
 
 interface HistoryRow {
 	id: number;
@@ -354,7 +355,7 @@ const IndexNowPanel = () => {
 						<tbody>
 							{history.map((row) => (
 								<tr key={row.id}>
-									<td>{row.created_at}</td>
+									<td>{formatWpDate(row.created_at)}</td>
 									<td>{row.url}</td>
 									<td>
 										{row.response_code ?? __('error', 'vulopilot')}{' '}

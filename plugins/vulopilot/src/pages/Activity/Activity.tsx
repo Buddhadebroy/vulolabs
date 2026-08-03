@@ -1,3 +1,4 @@
+/* global appLocalizer */
 import { __ } from '@wordpress/i18n';
 import {
 	CardComponent,
@@ -69,6 +70,7 @@ const Activity = () => {
 							search={{
 								placeholder: __('Search activity…', 'vulopilot'),
 							}}
+							format={appLocalizer.date_format_js}
 							headers={{
 								event_type: {
 									label: __('Event', 'vulopilot'),

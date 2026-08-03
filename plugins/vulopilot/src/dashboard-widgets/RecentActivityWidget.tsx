@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
+import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 
 interface ActivityLogRow {
@@ -62,7 +63,7 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 					items={data.map((row) => ({
 						id: String(row.id),
 						title: row.message,
-						desc: row.created_at
+						desc: formatWpDate(row.created_at)
 					}))}
 				/>
 			)}

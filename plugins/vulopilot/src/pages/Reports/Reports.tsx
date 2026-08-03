@@ -215,6 +215,7 @@ const Reports = () => {
 						onClick: handleGenerateReport,
 					},
 				]}
+				format={appLocalizer.date_format_js}
 				headers={{
 					report_type: {
 						label: __('Type', 'vulopilot'),

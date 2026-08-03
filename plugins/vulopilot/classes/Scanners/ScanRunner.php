@@ -99,6 +99,24 @@ class ScanRunner {
     }
 
     /**
+     * Runs every registered scanner except those in the given categories
+     * — see ScannerRegistry::get_all_scanners_except()'s own docblock for
+     * why a caller would want this instead of run_all().
+     *
+     * @param string[] $excluded_categories Category strings to leave out.
+     * @return array<string, ScanResult> Keyed by scanner id.
+     */
+    public function run_all_except( array $excluded_categories ): array {
+        $results = array();
+
+        foreach ( array_keys( $this->registry->get_all_scanners_except( $excluded_categories ) ) as $scanner_id ) {
+            $results[ $scanner_id ] = $this->run( $scanner_id );
+        }
+
+        return $results;
+    }
+
+    /**
      * Runs every scanner registered under a given category.
      *
      * @param string $category e.g. 'seo', 'security'.
@@ -107,7 +125,7 @@ class ScanRunner {
     public function run_category( string $category ): array {
         $results = array();
 
-        foreach ( $this->registry->get_scanners_by_category( $category ) as $scanner_id => $scanner ) {
+        foreach ( array_keys( $this->registry->get_scanners_by_category( $category ) ) as $scanner_id ) {
             $results[ $scanner_id ] = $this->run( $scanner_id );
         }
 

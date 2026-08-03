@@ -57,6 +57,14 @@ class GeoSemanticStructureScanner extends AbstractBasicScanner {
      * @inheritDoc
      */
     public function scan(): array {
+        $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        // GEO has no whole-category kill switch (see GeoSummaryBlockScanner's
+        // own docblock) — this is this one scanner's own on/off switch.
+        if ( empty( $settings['flag_missing_semantic'] ) ) {
+            return array();
+        }
+
         $findings = array();
         $posts    = get_posts(
             array(

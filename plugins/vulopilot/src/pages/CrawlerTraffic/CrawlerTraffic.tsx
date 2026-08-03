@@ -182,6 +182,7 @@ const CrawlerTraffic = () => {
 										'vulopilot'
 									),
 								}}
+								format={appLocalizer.date_format_js}
 								headers={{
 									bot_name: {
 										label: __('Bot', 'vulopilot'),

@@ -34,9 +34,9 @@ export default {
 			key: 'email_on_geo_score_drop',
 			type: 'checkbox',
 			look: 'toggle',
-			label: __('Email me when GEO score drops', 'vulopilot'),
+			label: __('Email me when GEO/AEO score drops', 'vulopilot'),
 			desc: __(
-				'Alerts when a post\'s GEO score falls by the threshold configured under Scanning → GEO.',
+				'Alerts when a post\'s GEO or AEO score falls by the threshold configured under Scanning → AEO.',
 				'vulopilot'
 			),
 			options: [
@@ -100,6 +100,19 @@ export default {
 				'The address VuloPilot\'s own emails are sent from. Leave blank to use your site\'s default mail sender.',
 				'vulopilot'
 			),
+		},
+		{
+			key: 'send_test_email',
+			type: 'button',
+			name: __('Send test email', 'vulopilot'),
+			label: __('Test your email settings', 'vulopilot'),
+			desc: __(
+				'Sends a real email to the notification address above, using the from name/address configured above — confirms VuloPilot can actually deliver its notification emails on this site.',
+				'vulopilot'
+			),
+			apilink: 'settings/test-email',
+			method: 'POST',
+			position: 'left',
 		},
 	],
 };
