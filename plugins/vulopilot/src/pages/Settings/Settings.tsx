@@ -128,10 +128,10 @@ const Settings = () => {
 		// InputRenderer twice (same setting/updateSetting/id/submitUrl)
 		// reuses the existing renderer rather than introducing a new one.
 		const llmsTxtSectionEnd = settingModal?.modal.findIndex(
-			(field: { key: string }) => field.key === 'geo-section-ai-summary'
+			(field: { key: string }) => field.key === 'aeo-section-ai-summary'
 		);
 		const isGeoTabSplit =
-			currentTab === 'geo' &&
+			currentTab === 'ai-visibility' &&
 			typeof llmsTxtSectionEnd === 'number' &&
 			llmsTxtSectionEnd > -1;
 
