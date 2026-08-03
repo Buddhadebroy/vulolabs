@@ -17,10 +17,11 @@ interface DashboardGridProps {
 
 /**
  * Each widget's `size` maps onto ColumnComponent's real 12-column
- * `card-wrapper`/`data-cols` grid (ContainerComponent.scss) instead of
- * this file hand-rolling a parallel 4-column CSS Grid. Base 4-column
- * layout: small = 1 of 4 (grid=3), medium = 2 of 4 (grid=6), large = the
- * full row (grid=12).
+ * `card-wrapper`/`data-cols` grid (ContainerComponent.scss) — the same
+ * grid primitive WelcomeSection.tsx's own `grid={8}`/`grid={4}` columns
+ * already use — instead of this file hand-rolling a parallel 4-column
+ * CSS Grid. Base 4-column layout: small = 1 of 4 (grid=3), medium = 2 of
+ * 4 (grid=6), large = the full row (grid=12).
  */
 const GRID_SPAN: Record<WidgetDefinition['size'], number> = {
 	small: 3,
@@ -120,7 +121,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 					return (
 						<ColumnComponent
 							key={widget.id}
-							grid={GRID_SPAN[widget.size]}
+							grid={widget.grid}
 							className="dashboard-widget-cell"
 						>
 							<Widget
@@ -153,7 +154,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 		return (
 			<ColumnComponent
 				key={widget.id}
-				grid={GRID_SPAN[widget.size]}
+				grid={widget.grid}
 				className="dashboard-widget-cell"
 			>
 				<Widget

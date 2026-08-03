@@ -24,6 +24,7 @@ import { WidgetDefinition } from './types';
  * alongside, same as the mockup this dashboard is modeled on never
  * showing a score two different ways.
  */
+
 const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
 	{
 		id: 'ai-usage',
@@ -37,98 +38,106 @@ const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
 		id: 'content',
 		title: __('Content', 'vulopilot'),
 		icon: 'text-fields',
-		getNumber: (summary) => `${summary.category_scores.content}/100`,
-		getExtra: () => __('Readability, thin/duplicate content, links', 'vulopilot'),
+		getNumber: (summary) =>
+			`${summary.category_scores.content}/100`,
+		getExtra: () =>
+			__('Readability, thin/duplicate content, links', 'vulopilot'),
 	},
 	{
 		id: 'brand',
 		title: __('Brand', 'vulopilot'),
 		icon: 'person',
-		getNumber: (summary) => `${summary.category_scores.brand}/100`,
-		getExtra: () => __('Trust, authority, and entity signals', 'vulopilot'),
+		getNumber: (summary) =>
+			`${summary.category_scores.brand}/100`,
+		getExtra: () =>
+			__('Trust, authority, and entity signals', 'vulopilot'),
 	},
 ];
 
-/** The widgets with their own fetch and/or non-stat layout. */
+
+/**
+ * Widgets with custom layouts
+ */
 const STANDALONE_WIDGETS: WidgetDefinition[] = [
 	{
 		id: 'health-pillars',
 		title: __('Health by pillar', 'vulopilot'),
 		icon: 'home',
-		size: 'large',
+		grid: 12,
 		component: HealthPillarsWidget,
+	},
+	{
+		id: 'needs-attention',
+		title: __('Needs your attention', 'vulopilot'),
+		icon: 'error',
+		grid: 12,
+		component: NeedsAttentionWidget,
+	},
+	{
+		id: 'brand-breakdown',
+		title: __('Brand Visibility breakdown', 'vulopilot'),
+		icon: 'person',
+		grid: 8,
+		component: BrandBreakdownWidget,
 	},
 	{
 		id: 'recent-activity',
 		title: __('Recent activity', 'vulopilot'),
 		icon: 'clock',
-		size: 'medium',
+		grid: 8,
 		component: RecentActivityWidget,
 	},
 	{
 		id: 'health-timeline',
 		title: __('Health timeline', 'vulopilot'),
 		icon: 'analytics',
-		size: 'large',
+		grid: 12,
 		component: HealthTimelineWidget,
 	},
 	{
 		id: 'latest-reports',
 		title: __('Latest reports', 'vulopilot'),
 		icon: 'report',
-		size: 'medium',
+		grid: 8,
 		component: LatestReportsWidget,
-	},
-	{
-		id: 'needs-attention',
-		title: __('Needs your attention', 'vulopilot'),
-		icon: 'error',
-		size: 'large',
-		component: NeedsAttentionWidget,
 	},
 	{
 		id: 'automation-status',
 		title: __('Automation status', 'vulopilot'),
 		icon: 'automation',
-		size: 'medium',
+		grid: 8,
 		component: AutomationStatusWidget,
 	},
 	{
 		id: 'crawler-traffic',
 		title: __('AI crawler traffic', 'vulopilot'),
 		icon: 'global-community',
-		size: 'medium',
+		grid: 8,
 		component: CrawlerTrafficWidget,
 	},
 	{
 		id: 'knowledge-graph',
 		title: __('Knowledge Graph', 'vulopilot'),
 		icon: 'centralized-connections',
-		size: 'medium',
+		grid: 8,
 		component: KnowledgeGraphWidget,
-	},
-	{
-		id: 'brand-breakdown',
-		title: __('Brand Visibility breakdown', 'vulopilot'),
-		icon: 'person',
-		size: 'medium',
-		component: BrandBreakdownWidget,
 	},
 	{
 		id: 'issue-distribution',
 		title: __('Issue distribution', 'vulopilot'),
 		icon: 'error',
-		size: 'medium',
+		grid: 8,
 		component: IssueDistributionWidget,
 	},
 ];
+
 
 const STAT_WIDGETS: WidgetDefinition[] = STAT_WIDGET_CONFIGS.map(
 	(config) => ({
 		id: config.id,
 		title: config.title,
 		icon: config.icon,
-		size: 'small' as const,
+		grid: 3,
 		component: createStatWidgetComponent(config),
 	})
 );
@@ -143,11 +152,15 @@ const STAT_WIDGETS: WidgetDefinition[] = STAT_WIDGET_CONFIGS.map(
  * modify the registry" pattern used by every PHP-side registry in this
  * plugin (ScannerRegistry, RuleRegistry, ProviderRegistry, ActionRegistry).
  */
+
 export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] = applyFilters(
 	'vulopilot_dashboard_widgets',
 	// health-pillars leads (it's the "everything, at a glance" hero) —
 	// this only affects the default layout a never-customized install
 	// seeds; anyone who has already saved a layout keeps their own order
 	// (DashboardLayout.php persists that separately from this array).
-	[...STANDALONE_WIDGETS, ...STAT_WIDGETS]
-) as WidgetDefinition[];
+		[
+			...STANDALONE_WIDGETS,
+			...STAT_WIDGETS,
+		]
+	) as WidgetDefinition[];
