@@ -10,9 +10,9 @@ import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
 /* eslint-disable no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters, same as StatWidget.tsx's StatWidgetConfig */
-/** Where each pillar's tile navigates — same `?page=vulopilot#&tab=X` hash
- * link WelcomeSection.tsx's "View All" modules button already uses, not a
- * new navigation mechanism. Security has no dedicated page of its own
+/** Where each pillar's tile navigates — the same `?page=vulopilot#&tab=X`
+ * hash-link navigation used elsewhere in this plugin, not a new
+ * mechanism. Security has no dedicated page of its own
  * (its score lives in category_scores, but its findings only ever show up
  * in Health's unfiltered list), so it routes to Health rather than a
  * dead tab. */

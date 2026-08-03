@@ -1,16 +1,16 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { ButtonInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	NavigatorHeaderComponent,
 	NoticeManager,
 } from '@zyra/components';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
-import WelcomeSection from './WelcomeSection';
+import GettingStartedCard from './GettingStartedCard';
 import { DashboardSummary } from '../../dashboard-widgets/types';
 import './Dashboard.scss';
 
@@ -42,17 +42,11 @@ const EMPTY_SUMMARY: DashboardSummary = {
 };
 
 /**
- * The Welcome section (`WelcomeSection.tsx`) already carries this page's
- * title/description, so the widget grid's own header is deliberately
- * buttons-only — no second "Dashboard" title repeating what the welcome
- * banner already said. It reuses zyra's real `.title-section` class
- * (the same bordered/padded bar `NavigatorHeaderComponent` itself
- * renders into, see zyra's `NavigatorComponent.tsx`) rather than a
- * bespoke wrapper, so it still gets the same chrome every other page's
- * header has — `NavigatorHeaderComponent` itself can't be reused here
- * because it early-returns `null` whenever both `headerTitle` and
- * `headerDescription` are empty, which would silently drop the buttons
- * too.
+ * "Website Health" — the same title/subtitle/action-buttons header shape
+ * every other page in this plugin uses via NavigatorHeaderComponent,
+ * matching the Dashboard mockup's own Header component instead of the
+ * buttons-only bar this used to be (back when WelcomeSection carried the
+ * page's title/description instead).
  */
 const Dashboard = () => {
 	const [summary, setSummary] = useState<DashboardSummary>(EMPTY_SUMMARY);
@@ -127,27 +121,31 @@ const Dashboard = () => {
 	};
 
 	const pageHeader = (
-		<div className="title-section dashboard-header-actions">
-			<ButtonInput
-				buttons={[
-					{
-						text: isCustomizing
-							? __('Done customizing', 'vulopilot')
-							: __('Customize dashboard', 'vulopilot'),
-						icon: isCustomizing ? 'yes' : 'edit',
-						color: 'border-purple',
-						onClick: () => setIsCustomizing(!isCustomizing),
-					},
-					{
-						text: isScanning
-							? __('Scanning…', 'vulopilot')
-							: __('Run scan', 'vulopilot'),
-						icon: 'search',
-						onClick: handleRunScan,
-					},
-				]}
-			/>
-		</div>
+		<NavigatorHeaderComponent
+			headerTitle={__('Website Health', 'vulopilot')}
+			headerDescription={__(
+				"Your site's overall health, at a glance.",
+				'vulopilot'
+			)}
+			buttons={[
+				{
+					label: isCustomizing
+						? __('Done customizing', 'vulopilot')
+						: __('Customize dashboard', 'vulopilot'),
+					icon: isCustomizing ? 'yes' : 'edit',
+					color: 'border-purple',
+					onClick: () => setIsCustomizing(!isCustomizing),
+				},
+				{
+					label: isScanning
+						? __('Scanning…', 'vulopilot')
+						: __('Run scan', 'vulopilot'),
+					icon: 'search',
+					color: 'purple-bg',
+					onClick: handleRunScan,
+				},
+			]}
+		/>
 	);
 
 	if (error) {
@@ -174,11 +172,10 @@ const Dashboard = () => {
 
 	return (
 		<>
-			<WelcomeSection />
-
 			{pageHeader}
 			<ContainerComponent general>
 				<ColumnComponent>
+					<GettingStartedCard />
 					<DashboardGrid
 						summary={summary}
 						isLoading={isLoading}
