@@ -95,7 +95,7 @@ const StatWidget: React.FC<StatWidgetProps> = ({
 				/>
 			) : (
 				<AnalyticsComponent
-					variant="dashboard"
+					variant="progress"
 					cols={1}
 					isLoading={isLoading}
 					data={[
@@ -104,6 +104,8 @@ const StatWidget: React.FC<StatWidgetProps> = ({
 							number: config.getNumber(summary),
 							text: config.title,
 							extra: config.getExtra?.(summary),
+							progress: config.getNumber(summary),
+							colorClass: 'red-color'
 						},
 					]}
 				/>

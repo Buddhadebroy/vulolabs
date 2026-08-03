@@ -41,10 +41,11 @@ const IssueDistributionWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Issue distribution', 'vulopilot')}
-			icon="error"
+			icon="error green-color"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
+			borderColor="green"
 		>
 			{!isLoading && data.length === 0 ? (
 				<ModuleGuardComponent

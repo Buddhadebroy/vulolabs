@@ -58,11 +58,11 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 				/>
 			) : (
 				<ListComponent
+					className="mini-card"
 					items={data.map((row) => ({
 						id: String(row.id),
 						title: row.message,
-						value: row.created_at,
-						className: `severity-${row.severity}`,
+						desc: row.created_at
 					}))}
 				/>
 			)}

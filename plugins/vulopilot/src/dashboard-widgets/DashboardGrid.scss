@@ -2,16 +2,16 @@
 // `data-cols` grid (ContainerComponent.scss) — `.dashboard-widget-cell` is
 // only a marker class for react-sortablejs's drag-state styling below, not
 // a layout driver.
-.dashboard-widget-cell {
-	// react-sortablejs's placeholder element while dragging.
-	&.sortable-ghost {
-		opacity: 0.4;
-	}
+// .dashboard-widget-cell {
+// 	// react-sortablejs's placeholder element while dragging.
+// 	&.sortable-ghost {
+// 		opacity: 0.4;
+// 	}
 
-	&.sortable-chosen .dashboard-widget {
-		box-shadow: 0 0.125rem 0.75rem rgb(0 0 0 / 15%);
-	}
-}
+// 	&.sortable-chosen .dashboard-widget {
+// 		box-shadow: 0 0.125rem 0.75rem rgb(0 0 0 / 15%);
+// 	}
+// }
 
 .dashboard-widget {
 	height: 100%;
@@ -22,19 +22,19 @@
 		gap: 0.5rem;
 	}
 
-	.dashboard-widget-controls {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.75rem;
+	// .dashboard-widget-controls {
+	// 	display: inline-flex;
+	// 	align-items: center;
+	// 	gap: 0.75rem;
 
-		.widget-drag-handle {
-			cursor: grab;
-		}
+	// 	.widget-drag-handle {
+	// 		cursor: grab;
+	// 	}
 
-		[role='button'] {
-			cursor: pointer;
-		}
-	}
+	// 	[role='button'] {
+	// 		cursor: pointer;
+	// 	}
+	// }
 }
 
 .dashboard-trend-chart {

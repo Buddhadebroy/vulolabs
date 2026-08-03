@@ -12,7 +12,6 @@ import {
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import GettingStartedCard from './GettingStartedCard';
 import { DashboardSummary } from '../../dashboard-widgets/types';
-import './Dashboard.scss';
 
 /**
  * Zero-filled shape so DashboardGrid always has a real DashboardSummary
@@ -123,6 +122,7 @@ const Dashboard = () => {
 	const pageHeader = (
 		<NavigatorHeaderComponent
 			headerTitle={__('Website Health', 'vulopilot')}
+			headerIcon='module'
 			headerDescription={__(
 				"Your site's overall health, at a glance.",
 				'vulopilot'
@@ -132,8 +132,8 @@ const Dashboard = () => {
 					label: isCustomizing
 						? __('Done customizing', 'vulopilot')
 						: __('Customize dashboard', 'vulopilot'),
-					icon: isCustomizing ? 'yes' : 'edit',
-					color: 'border-purple',
+					icon: isCustomizing ? 'form-checkboxes' : 'edit',
+					color: isCustomizing ? 'border-green' : 'border-purple',
 					onClick: () => setIsCustomizing(!isCustomizing),
 				},
 				{
@@ -171,14 +171,14 @@ const Dashboard = () => {
 	return (
 		<>
 			{pageHeader}
-			<ColumnComponent>
-				{/* <GettingStartedCard /> */}
+			<ContainerComponent general>
+				<GettingStartedCard />
 				<DashboardGrid
 					summary={summary}
 					isLoading={isLoading}
 					isCustomizing={isCustomizing}
 				/>
-			</ColumnComponent>
+			</ContainerComponent>
 		</>
 	);
 };

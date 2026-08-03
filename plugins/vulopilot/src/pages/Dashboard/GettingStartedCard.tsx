@@ -23,10 +23,9 @@ const GettingStartedCard: React.FC = () => {
 
 	return (
 		<CardComponent
-			className="dashboard-getting-started"
 			title={__('Welcome to VuloPilot — finish setup', 'vulopilot')}
-			titleIcon="ai"
-			borderColor="var(--color-primary)"
+			titleIcon="ai purple-color"
+			borderColor="purple"
 			toggle
 			action={
 				<i
@@ -49,7 +48,7 @@ const GettingStartedCard: React.FC = () => {
 					{
 						text: __('Explore docs', 'vulopilot'),
 						icon: 'document',
-						color: 'white',
+						color: 'purple',
 						onClick: () =>
 							window.open(
 								'https://vulolabs.com/docs/knowledgebase/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
@@ -60,7 +59,7 @@ const GettingStartedCard: React.FC = () => {
 					{
 						text: __('Book a consultation', 'vulopilot'),
 						icon: 'live-chat',
-						color: 'white',
+						color: 'purple',
 						onClick: () =>
 							window.open(
 								'https://vulolabs.com/custom-development/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
@@ -71,7 +70,7 @@ const GettingStartedCard: React.FC = () => {
 					{
 						text: __('Join Discord', 'vulopilot'),
 						icon: 'global-community',
-						color: 'white',
+						color: 'purple',
 						onClick: () =>
 							window.open(
 								'https://discord.com/channels/1376811097134469191/1376811102020829258',
@@ -82,7 +81,7 @@ const GettingStartedCard: React.FC = () => {
 					{
 						text: __('Extend: CatalogX, Notifima', 'vulopilot'),
 						icon: 'cart',
-						color: 'white',
+						color: 'purple',
 						onClick: () => {
 							window.location.href =
 								'?page=vulopilot#&tab=modules';
