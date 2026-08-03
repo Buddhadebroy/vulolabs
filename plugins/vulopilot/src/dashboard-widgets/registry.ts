@@ -13,6 +13,18 @@ import BrandBreakdownWidget from './BrandBreakdownWidget';
 import IssueDistributionWidget from './IssueDistributionWidget';
 import { WidgetDefinition } from './types';
 
+/**
+ * The three "one number" stat widgets left that aren't already covered by
+ * another widget — see StatWidget.tsx for why these share one component.
+ * Overall health, SEO, Performance, Security, WooCommerce, Accessibility,
+ * and GEO used to live here too, but they duplicated the exact same
+ * category_scores numbers HealthPillarsWidget's ScoreRing/pillar tiles
+ * already show; Quick fixes' plain count duplicated
+ * NeedsAttentionWidget's real "Quick fixes" tab. Removed rather than kept
+ * alongside, same as the mockup this dashboard is modeled on never
+ * showing a score two different ways.
+ */
+
 const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
 	{
 		id: 'ai-usage',
@@ -130,10 +142,23 @@ const STAT_WIDGETS: WidgetDefinition[] = STAT_WIDGET_CONFIGS.map(
 	})
 );
 
+/**
+ * Every widget the Dashboard can render, in the same order the widget
+ * list was requested in. Passed through `vulopilot_dashboard_widgets`
+ * (@wordpress/hooks — the same filter mechanism react-frontend.md
+ * documents vulolabs using elsewhere) so a
+ * Pro module or third-party plugin can append its own WidgetDefinition
+ * without touching this file — the same "register a source, don't
+ * modify the registry" pattern used by every PHP-side registry in this
+ * plugin (ScannerRegistry, RuleRegistry, ProviderRegistry, ActionRegistry).
+ */
 
-export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] =
-	applyFilters(
-		'vulopilot_dashboard_widgets',
+export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] = applyFilters(
+	'vulopilot_dashboard_widgets',
+	// health-pillars leads (it's the "everything, at a glance" hero) —
+	// this only affects the default layout a never-customized install
+	// seeds; anyone who has already saved a layout keeps their own order
+	// (DashboardLayout.php persists that separately from this array).
 		[
 			...STANDALONE_WIDGETS,
 			...STAT_WIDGETS,
