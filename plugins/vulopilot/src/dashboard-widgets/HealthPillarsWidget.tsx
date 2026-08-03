@@ -1,8 +1,13 @@
 import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import {
+	AnalyticsComponent,
+	ColumnComponent,
+	ContainerComponent,
+	ScoreRingComponent,
+} from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
-import './HealthPillarsWidget.scss';
 
 /* eslint-disable no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters, same as StatWidget.tsx's StatWidgetConfig */
 /** Where each pillar's tile navigates — same `?page=vulopilot#&tab=X` hash
@@ -66,13 +71,12 @@ const PILLAR_TILES: {
  * "At a glance" hero for the Dashboard — every pillar's score in one row,
  * each tile a real link to that pillar's own page. HealthScoreSummary.tsx
  * already shows the same category_scores as plain (non-clickable)
- * AnalyticsComponent tiles on the Health page; this widget reuses the
- * same tile look (see HealthPillarsWidget.scss, modeled on zyra's
- * AnalyticsComponent.scss) but as real `<button>` elements so each score
- * is also a launcher, which is what the Dashboard — unlike Health — is
- * for. Registered as a normal widget (not a fixed section) so it's
- * subject to the same show/hide/reorder customization every other widget
- * already has.
+ * AnalyticsComponent `progress`-variant tiles on the Health page; this
+ * widget reuses the exact same tile, just with each item's `link` set, so
+ * the score is also a launcher — which is what the Dashboard, unlike
+ * Health, is for. Registered as a normal widget (not a fixed section) so
+ * it's subject to the same show/hide/reorder customization every other
+ * widget already has.
  */
 const HealthPillarsWidget: React.FC<WidgetProps> = ({
 	summary,
@@ -80,9 +84,21 @@ const HealthPillarsWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
-	const navigateTo = (tab: string) => {
-		window.location.href = `?page=vulopilot#&tab=${tab}`;
-	};
+	const tiles = PILLAR_TILES.map((pillar) => {
+		const score = pillar.getScore(summary);
+
+		if (score === null) {
+			return null;
+		}
+
+		return {
+			icon: pillar.icon,
+			number: `${score}/100`,
+			text: pillar.label,
+			progress: score,
+			link: `?page=vulopilot#&tab=${pillar.tab}`,
+		};
+	}).filter((tile): tile is NonNullable<typeof tile> => tile !== null);
 
 	return (
 		<DashboardWidget
@@ -92,33 +108,40 @@ const HealthPillarsWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
-			<div className="dashboard-pillar-grid">
-				{PILLAR_TILES.map((pillar) => {
-					const score = pillar.getScore(summary);
-
-					if (score === null) {
-						return null;
-					}
-
-					return (
-						<button
-							key={pillar.id}
-							type="button"
-							className="dashboard-pillar-tile"
-							onClick={() => navigateTo(pillar.tab)}
-						>
-							<i className={`adminfont-${pillar.icon}`} />
-							<span className="dashboard-pillar-tile-label">
-								{pillar.label}
-							</span>
-							<span className="dashboard-pillar-tile-score">
-								{score}
-								<small>/100</small>
-							</span>
-						</button>
-					);
-				})}
-			</div>
+			<ContainerComponent general>
+				<ColumnComponent grid={3}>
+					<ScoreRingComponent
+						score={summary.overall_score}
+						isLoading={isLoading}
+					/>
+					{!isLoading && (
+						<>
+							<div className="desc">
+								{sprintf(
+									/* translators: %d is the number of open findings. */
+									__('%d open findings', 'vulopilot'),
+									summary.open_findings
+								)}
+							</div>
+							<div className="desc">
+								{sprintf(
+									/* translators: %d is the number of critical findings. */
+									__('%d critical', 'vulopilot'),
+									summary.critical_findings
+								)}
+							</div>
+						</>
+					)}
+				</ColumnComponent>
+				<ColumnComponent grid={9}>
+					<AnalyticsComponent
+						variant="progress"
+						cols={tiles.length}
+						isLoading={isLoading}
+						data={tiles}
+					/>
+				</ColumnComponent>
+			</ContainerComponent>
 		</DashboardWidget>
 	);
 };

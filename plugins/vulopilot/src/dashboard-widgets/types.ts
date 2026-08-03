@@ -10,6 +10,12 @@ export interface DashboardSummary {
 	overall_score: number;
 	open_findings: number;
 	critical_findings: number;
+	findings_by_severity: {
+		critical: number;
+		high: number;
+		medium: number;
+		low: number;
+	};
 	active_automations: number;
 	ai_jobs_used: number;
 	ai_jobs_quota: number;

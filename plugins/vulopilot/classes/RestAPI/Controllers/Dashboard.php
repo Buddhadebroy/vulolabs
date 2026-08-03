@@ -74,25 +74,26 @@ class Dashboard extends \WP_REST_Controller {
 
         return rest_ensure_response(
             array(
-                'overall_score'      => $this->calculate_overall_score( $findings ),
-                'open_findings'      => $this->count_open_findings( $findings ),
-                'critical_findings'  => $findings->count_by_severity( Severity::CRITICAL ),
-                'active_automations' => $automations->count_enabled(),
+                'overall_score'        => $this->calculate_overall_score( $findings ),
+                'open_findings'        => $this->count_open_findings( $findings ),
+                'critical_findings'    => $findings->count_by_severity( Severity::CRITICAL ),
+                'findings_by_severity' => $this->build_findings_by_severity( $findings ),
+                'active_automations'   => $automations->count_enabled(),
                 // AI provider usage isn't tracked yet — no AIProviders usage-metering
                 // subsystem writes here (see AI-ARCHITECTURE.md's "What's not here
                 // yet": quota enforcement). Reporting 0/0 honestly rather than
                 // fabricating a number.
-                'ai_jobs_used'       => 0,
-                'ai_jobs_quota'      => 0,
-                'category_scores'    => $this->build_category_scores( $findings ),
-                'quick_fixes'        => $this->count_quick_fixes( $findings ),
-                'pending_approvals'  => (int) $action_runs->find_all(
+                'ai_jobs_used'         => 0,
+                'ai_jobs_quota'        => 0,
+                'category_scores'      => $this->build_category_scores( $findings ),
+                'quick_fixes'          => $this->count_quick_fixes( $findings ),
+                'pending_approvals'    => (int) $action_runs->find_all(
                     array(
 						'status'   => 'pending_approval',
 						'per_page' => 1,
 					)
                 )['total'],
-                'automation_status'  => $automations->get_status_counts(),
+                'automation_status'    => $automations->get_status_counts(),
             )
         );
     }
@@ -252,6 +253,26 @@ class Dashboard extends \WP_REST_Controller {
         }
 
         return $total;
+    }
+
+    /**
+     * Open finding count per severity — backs the Dashboard's issue
+     * distribution chart. `info` is excluded: it's a real severity value
+     * the `vulopilot_scan_findings` column accepts, but nothing in
+     * calculate_overall_score()'s own weighting treats it as an issue
+     * (no point deduction), so surfacing it here would misrepresent it as
+     * something needing attention.
+     *
+     * @param FindingRepository $findings Repository to count from.
+     * @return array{critical: int, high: int, medium: int, low: int}
+     */
+    private function build_findings_by_severity( FindingRepository $findings ): array {
+        return array(
+            'critical' => $findings->count_by_severity( Severity::CRITICAL ),
+            'high'     => $findings->count_by_severity( Severity::HIGH ),
+            'medium'   => $findings->count_by_severity( Severity::MEDIUM ),
+            'low'      => $findings->count_by_severity( Severity::LOW ),
+        );
     }
 
     /**
