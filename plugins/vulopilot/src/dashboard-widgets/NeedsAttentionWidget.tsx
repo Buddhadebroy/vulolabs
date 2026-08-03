@@ -143,7 +143,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 										},
 										tags: (
 											<span
-												className={`admin-badge badge-severity-${finding.severity}`}
+												className={`admin-badge badge-${finding.severity}`}
 											>
 												{finding.severity}
 											</span>
@@ -179,7 +179,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 										},
 										tags: (
 											<span
-												className={`admin-badge badge-severity-${finding.severity}`}
+												className={`admin-badge badge-${finding.severity}`}
 											>
 												{finding.severity}
 											</span>

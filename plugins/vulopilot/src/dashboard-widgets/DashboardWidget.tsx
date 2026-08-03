@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, TooltipComponent } from '@zyra/components';
 
 interface DashboardWidgetProps {
 	title: string;
@@ -46,27 +46,24 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 	onHide,
 	isCustomizing,
 	children,
+	borderColor
 }) => {
 	return (
 		<CardComponent
 			className="dashboard-widget"
-			title={
-				<span className="dashboard-widget-title">
-					<i className={`adminfont-${icon}`} />
-					{title}
-				</span>
-			}
+			titleIcon= {icon}
+			title={title}
 			isLoading={isLoading}
+			borderColor={borderColor}
 			action={
 				isCustomizing ? (
-					<div className="dashboard-widget-controls">
-						<i
-							className="adminfont-move widget-drag-handle"
-							title={__('Drag to reorder', 'vulopilot')}
-						/>
+					<>
+					 <TooltipComponent text={__('Drag to reorder', 'catalogx-pro')}>
+						<i className="adminfont-move widget-drag-handle" />
+					</TooltipComponent>
+					<TooltipComponent text={__('Hide widget', 'catalogx-pro')}>
 						<i
 							className="adminfont-close"
-							title={__('Hide widget', 'vulopilot')}
 							role="button"
 							tabIndex={0}
 							onClick={onHide}
@@ -77,7 +74,8 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 								}
 							}}
 						/>
-					</div>
+					</TooltipComponent>
+					</>
 				) : undefined
 			}
 		>

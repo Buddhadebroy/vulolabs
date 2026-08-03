@@ -78,10 +78,15 @@ const KnowledgeGraphWidget: React.FC<WidgetProps> = ({
 				/>
 			) : (
 				<ListComponent
+					className='mini-card report'
 					items={counts.map((row) => ({
 						id: row.label,
-						title: row.label,
-						value: String(row.total),
+						desc: row.label,
+						tags: (
+						<>
+							<div className='small desc'>{String(row.total)}</div>
+						</>
+					)
 					}))}
 				/>
 			)}

@@ -59,10 +59,11 @@ const BrandBreakdownWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Brand Visibility breakdown', 'vulopilot')}
-			icon="person"
+			icon="person pink-color"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
+			borderColor="pink"
 		>
 			{!isLoading && !score ? (
 				<ModuleGuardComponent
@@ -81,7 +82,7 @@ const BrandBreakdownWidget: React.FC<WidgetProps> = ({
 					labelKey="label"
 					layout="vertical"
 					height={200}
-					color="primary"
+					color="pink"
 					isLoading={isLoading}
 				/>
 			)}

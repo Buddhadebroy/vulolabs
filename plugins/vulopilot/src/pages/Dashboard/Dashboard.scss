@@ -1,7 +1,0 @@
-// CardComponent's own background is always white — this is the one
-// visual difference the mockup's "Welcome to VuloPilot" banner needs
-// (a light purple tint) that the component itself has no prop for; the
-// purple border comes from CardComponent's real `borderColor` prop.
-.dashboard-getting-started {
-	background: var(--background-primary);
-}
