@@ -422,23 +422,14 @@ class Utill {
      * @var string[]
      */
     const DASHBOARD_WIDGET_IDS = array(
-        'overall-health',
-        'seo',
-        'performance',
-        'security',
-        'woocommerce',
-        'accessibility',
         'ai-usage',
-        'geo',
         'recent-activity',
-        'quick-fixes',
         'health-timeline',
         'latest-reports',
-        'pending-approval',
+        'needs-attention',
         'automation-status',
         'crawler-traffic',
         'health-pillars',
-        'recent-issues',
         'content',
         'brand',
         // Registered by vulopilot-pro's AiCrawlerAnalytics module via
@@ -451,6 +442,8 @@ class Utill {
         // Registered by vulopilot-pro's McpServer module via
         // `vulopilot_dashboard_widgets` (MCP-SERVER-MODULE.md).
         'mcp-server-status',
+        'brand-breakdown',
+        'issue-distribution',
     );
 
     /**

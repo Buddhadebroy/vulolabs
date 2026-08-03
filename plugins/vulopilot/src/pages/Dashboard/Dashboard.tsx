@@ -24,6 +24,7 @@ const EMPTY_SUMMARY: DashboardSummary = {
 	overall_score: 0,
 	open_findings: 0,
 	critical_findings: 0,
+	findings_by_severity: { critical: 0, high: 0, medium: 0, low: 0 },
 	active_automations: 0,
 	ai_jobs_used: 0,
 	ai_jobs_quota: 0,

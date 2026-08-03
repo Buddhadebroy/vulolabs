@@ -1,15 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ModuleGuardComponent } from '@zyra/components';
-import {
-	Area,
-	AreaChart,
-	CartesianGrid,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
-} from 'recharts';
+import { ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { WidgetProps } from './types';
@@ -65,22 +56,14 @@ const HealthTimelineWidget: React.FC<WidgetProps> = ({
 					)}
 				/>
 			) : (
-				<div className="dashboard-trend-chart">
-					<ResponsiveContainer width="100%" height="100%">
-						<AreaChart data={snapshots}>
-							<CartesianGrid strokeDasharray="3 3" />
-							<XAxis dataKey="snapshot_date" />
-							<YAxis domain={[0, 100]} />
-							<Tooltip />
-							<Area
-								type="monotone"
-								dataKey="overall_score"
-								stroke="#4B227A"
-								fill="#00EED0"
-							/>
-						</AreaChart>
-					</ResponsiveContainer>
-				</div>
+				<ChartComponent
+					type="area"
+					data={snapshots}
+					dataKey="overall_score"
+					xKey="snapshot_date"
+					height={300}
+					yDomain={[0, 100]}
+				/>
 			)}
 		</DashboardWidget>
 	);

@@ -1,80 +1,30 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { createStatWidgetComponent, StatWidgetConfig } from './StatWidget';
 import HealthTimelineWidget from './HealthTimelineWidget';
 import RecentActivityWidget from './RecentActivityWidget';
 import LatestReportsWidget from './LatestReportsWidget';
-import PendingApprovalWidget from './PendingApprovalWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import CrawlerTrafficWidget from './CrawlerTrafficWidget';
 import KnowledgeGraphWidget from './KnowledgeGraphWidget';
 import HealthPillarsWidget from './HealthPillarsWidget';
-import RecentIssuesWidget from './RecentIssuesWidget';
+import NeedsAttentionWidget from './NeedsAttentionWidget';
+import BrandBreakdownWidget from './BrandBreakdownWidget';
+import IssueDistributionWidget from './IssueDistributionWidget';
 import { WidgetDefinition } from './types';
 
 /**
- * The seven "one number" widgets, each a StatWidgetConfig — see
- * StatWidget.tsx for why these share one component instead of seven.
+ * The three "one number" stat widgets left that aren't already covered by
+ * another widget — see StatWidget.tsx for why these share one component.
+ * Overall health, SEO, Performance, Security, WooCommerce, Accessibility,
+ * and GEO used to live here too, but they duplicated the exact same
+ * category_scores numbers HealthPillarsWidget's ScoreRing/pillar tiles
+ * already show; Quick fixes' plain count duplicated
+ * NeedsAttentionWidget's real "Quick fixes" tab. Removed rather than kept
+ * alongside, same as the mockup this dashboard is modeled on never
+ * showing a score two different ways.
  */
 const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
-	{
-		id: 'overall-health',
-		title: __('Overall health', 'vulopilot'),
-		icon: 'home',
-		getNumber: (summary) => `${summary.overall_score}/100`,
-		getExtra: (summary) =>
-			sprintf(
-				/* translators: %d is the number of open findings. */
-				__('%d open findings', 'vulopilot'),
-				summary.open_findings
-			),
-	},
-	{
-		id: 'seo',
-		title: __('SEO', 'vulopilot'),
-		icon: 'search',
-		getNumber: (summary) => `${summary.category_scores.seo}/100`,
-	},
-	{
-		id: 'performance',
-		title: __('Performance', 'vulopilot'),
-		icon: 'bar-chart',
-		getNumber: (summary) => `${summary.category_scores.performance}/100`,
-	},
-	{
-		id: 'security',
-		title: __('Security', 'vulopilot'),
-		icon: 'security',
-		getNumber: (summary) => `${summary.category_scores.security}/100`,
-		getExtra: (summary) =>
-			sprintf(
-				/* translators: %d is the number of critical findings. */
-				__('%d critical', 'vulopilot'),
-				summary.critical_findings
-			),
-	},
-	{
-		id: 'woocommerce',
-		title: __('WooCommerce', 'vulopilot'),
-		icon: 'woocommerce',
-		getNumber: (summary) => `${summary.category_scores.woocommerce}/100`,
-		getUnavailableState: (summary) =>
-			summary.category_scores.woocommerce === null
-				? {
-						title: __('WooCommerce not active', 'vulopilot'),
-						desc: __(
-							'Install and activate WooCommerce to see marketplace health here.',
-							'vulopilot'
-						),
-					}
-				: null,
-	},
-	{
-		id: 'accessibility',
-		title: __('Accessibility', 'vulopilot'),
-		icon: 'eye',
-		getNumber: (summary) => `${summary.category_scores.accessibility}/100`,
-	},
 	{
 		id: 'ai-usage',
 		title: __('AI usage', 'vulopilot'),
@@ -82,13 +32,6 @@ const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
 		getNumber: (summary) =>
 			`${summary.ai_jobs_used}/${summary.ai_jobs_quota}`,
 		getExtra: () => __('This month', 'vulopilot'),
-	},
-	{
-		id: 'geo',
-		title: __('GEO', 'vulopilot'),
-		icon: 'global-community',
-		getNumber: (summary) => `${summary.category_scores.geo}/100`,
-		getExtra: () => __('Generative Engine Optimization', 'vulopilot'),
 	},
 	{
 		id: 'content',
@@ -103,16 +46,6 @@ const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
 		icon: 'person',
 		getNumber: (summary) => `${summary.category_scores.brand}/100`,
 		getExtra: () => __('Trust, authority, and entity signals', 'vulopilot'),
-	},
-	{
-		id: 'quick-fixes',
-		title: __('Quick fixes', 'vulopilot'),
-		icon: 'check',
-		getNumber: (summary) => summary.quick_fixes,
-		getExtra: (summary) =>
-			summary.quick_fixes > 0
-				? __('Fixable with one AI action', 'vulopilot')
-				: __('Nothing to fix right now', 'vulopilot'),
 	},
 ];
 
@@ -147,11 +80,11 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		component: LatestReportsWidget,
 	},
 	{
-		id: 'pending-approval',
-		title: __('Pending approval', 'vulopilot'),
-		icon: 'approval',
-		size: 'medium',
-		component: PendingApprovalWidget,
+		id: 'needs-attention',
+		title: __('Needs your attention', 'vulopilot'),
+		icon: 'error',
+		size: 'large',
+		component: NeedsAttentionWidget,
 	},
 	{
 		id: 'automation-status',
@@ -168,18 +101,25 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		component: CrawlerTrafficWidget,
 	},
 	{
-		id: 'recent-issues',
-		title: __('Recent open issues', 'vulopilot'),
-		icon: 'error',
-		size: 'medium',
-		component: RecentIssuesWidget,
-	},
-	{
 		id: 'knowledge-graph',
 		title: __('Knowledge Graph', 'vulopilot'),
 		icon: 'centralized-connections',
 		size: 'medium',
 		component: KnowledgeGraphWidget,
+	},
+	{
+		id: 'brand-breakdown',
+		title: __('Brand Visibility breakdown', 'vulopilot'),
+		icon: 'person',
+		size: 'medium',
+		component: BrandBreakdownWidget,
+	},
+	{
+		id: 'issue-distribution',
+		title: __('Issue distribution', 'vulopilot'),
+		icon: 'error',
+		size: 'medium',
+		component: IssueDistributionWidget,
 	},
 ];
 
