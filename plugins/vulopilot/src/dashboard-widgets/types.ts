@@ -57,7 +57,7 @@ export interface WidgetDefinition {
 	id: string;
 	title: string;
 	icon: string;
-	size: 'small' | 'medium' | 'large';
+	grid: number;
 	component: React.ComponentType<WidgetProps>;
 }
 

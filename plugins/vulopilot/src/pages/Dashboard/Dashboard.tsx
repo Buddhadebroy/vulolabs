@@ -152,20 +152,18 @@ const Dashboard = () => {
 		return (
 			<>
 				{pageHeader}
-				<ContainerComponent general>
-					<ColumnComponent>
-						<ModuleGuardComponent
-							icon="error"
-							title={__(
-								'Could not load the dashboard',
-								'vulopilot'
-							)}
-							desc={error}
-							buttonText={__('Retry', 'vulopilot')}
-							onButtonClick={loadDashboard}
-						/>
-					</ColumnComponent>
-				</ContainerComponent>
+				<ColumnComponent>
+					<ModuleGuardComponent
+						icon="error"
+						title={__(
+							'Could not load the dashboard',
+							'vulopilot'
+						)}
+						desc={error}
+						buttonText={__('Retry', 'vulopilot')}
+						onButtonClick={loadDashboard}
+					/>
+				</ColumnComponent>
 			</>
 		);
 	}
@@ -173,16 +171,14 @@ const Dashboard = () => {
 	return (
 		<>
 			{pageHeader}
-			<ContainerComponent general>
-				<ColumnComponent>
-					<GettingStartedCard />
-					<DashboardGrid
-						summary={summary}
-						isLoading={isLoading}
-						isCustomizing={isCustomizing}
-					/>
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent>
+				{/* <GettingStartedCard /> */}
+				<DashboardGrid
+					summary={summary}
+					isLoading={isLoading}
+					isCustomizing={isCustomizing}
+				/>
+			</ColumnComponent>
 		</>
 	);
 };

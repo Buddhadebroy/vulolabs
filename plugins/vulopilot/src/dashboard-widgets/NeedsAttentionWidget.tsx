@@ -165,6 +165,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 								/>
 							) : (
 								<ListComponent
+									className= "mini-card report"
 									items={openIssues.data.map((finding) => ({
 										id: String(finding.id),
 										title: finding.title,

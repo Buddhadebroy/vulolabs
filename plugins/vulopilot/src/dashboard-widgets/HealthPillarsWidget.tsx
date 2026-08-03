@@ -4,6 +4,7 @@ import {
 	AnalyticsComponent,
 	ColumnComponent,
 	ContainerComponent,
+	CardComponent,
 	ScoreRingComponent,
 } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
@@ -80,11 +81,9 @@ const PILLAR_TILES: {
  */
 const HealthPillarsWidget: React.FC<WidgetProps> = ({
 	summary,
-	isLoading,
-	onHide,
-	isCustomizing,
+	isLoading
 }) => {
-	const tiles = PILLAR_TILES.map((pillar) => {
+	const tiles = PILLAR_TILES.map((pillar,index) => {
 		const score = pillar.getScore(summary);
 
 		if (score === null) {
@@ -97,52 +96,44 @@ const HealthPillarsWidget: React.FC<WidgetProps> = ({
 			text: pillar.label,
 			progress: score,
 			link: `?page=vulopilot#&tab=${pillar.tab}`,
+			colorClass: `admin-color${index + 1}`,
 		};
 	}).filter((tile): tile is NonNullable<typeof tile> => tile !== null);
 
 	return (
-		<DashboardWidget
-			title={__('Health by pillar', 'vulopilot')}
-			icon="home"
-			isLoading={isLoading}
-			onHide={onHide}
-			isCustomizing={isCustomizing}
-		>
-			<ContainerComponent general>
-				<ColumnComponent grid={3}>
+		<>	
+			<CardComponent>
+				<ColumnComponent row>
 					<ScoreRingComponent
 						score={summary.overall_score}
 						isLoading={isLoading}
 					/>
 					{!isLoading && (
-						<>
+						<div>
+							<div className="title">{__('Good', 'vulopilot')}</div>
 							<div className="desc">
 								{sprintf(
-									/* translators: %d is the number of open findings. */
-									__('%d open findings', 'vulopilot'),
-									summary.open_findings
+									__('%1$d open findings across %2$d pillars.', 'vulopilot'),
+									summary.open_findings,
+									PILLAR_TILES.length
 								)}
 							</div>
-							<div className="desc">
-								{sprintf(
-									/* translators: %d is the number of critical findings. */
-									__('%d critical', 'vulopilot'),
-									summary.critical_findings
-								)}
+							<div className="buttons-wrapper">
+								<div className="admin-badge green"><i className='adminfont-analytics'/>{__('+5 this week', 'vulopilot')}</div>
+								<div className="admin-badge red"><i className='adminfont-analytics'/>{__('2 new issues', 'vulopilot')}</div>
+								<div className="admin-badge yellow"><i className='adminfont-analytics'/>{__('12 fixed', 'vulopilot')}</div>
 							</div>
-						</>
+						</div>
 					)}
 				</ColumnComponent>
-				<ColumnComponent grid={9}>
-					<AnalyticsComponent
-						variant="progress"
-						cols={tiles.length}
-						isLoading={isLoading}
-						data={tiles}
-					/>
-				</ColumnComponent>
-			</ContainerComponent>
-		</DashboardWidget>
+				<AnalyticsComponent
+					variant="progress"
+					cols={5}
+					isLoading={isLoading}
+					data={tiles}
+				/>
+			</CardComponent>
+		</>
 	);
 };
 
