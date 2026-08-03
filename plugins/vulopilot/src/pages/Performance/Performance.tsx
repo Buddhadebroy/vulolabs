@@ -9,7 +9,7 @@ import FindingsTable from '../../components/FindingsTable';
 const Performance = () => (
 	<>
 		<NavigatorHeaderComponent
-			headerIcon="performance"
+			headerIcon="bar-chart"
 			headerTitle={__('Performance', 'vulopilot')}
 			headerDescription={__(
 				'Caching, heavy plugins, large images, and slow-page findings.',

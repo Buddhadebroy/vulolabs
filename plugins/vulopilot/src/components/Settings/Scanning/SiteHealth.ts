@@ -4,7 +4,7 @@ export default {
 	id: 'site-health',
 	priority: 3,
 	headerTitle: __('Site Health', 'vulopilot'),
-	headerIcon: 'shield',
+	headerIcon: 'security',
 	submitUrl: 'settings',
 	modal: [
 		{

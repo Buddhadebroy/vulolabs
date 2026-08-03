@@ -163,7 +163,7 @@ const KnowledgeGraph = () => {
 	return (
 		<>
 			<NavigatorHeaderComponent
-				headerIcon="share-alt2"
+				headerIcon="centralized-connections"
 				headerTitle={__('Knowledge Graph', 'vulopilot')}
 				headerDescription={__(
 					'Real entities extracted from your site — people, organizations, products, services, locations, and categories.',
@@ -175,7 +175,7 @@ const KnowledgeGraph = () => {
 					{!isEntityExtractionModuleActive() ? (
 						<CardComponent title={__('Entity Extraction', 'vulopilot')}>
 							<ModuleGuardComponent
-								icon="warning"
+								icon="error"
 								title={__(
 									'Entity Extraction module is turned off',
 									'vulopilot'
@@ -189,7 +189,7 @@ const KnowledgeGraph = () => {
 					) : error ? (
 						<CardComponent title={__('Knowledge Graph', 'vulopilot')}>
 							<ModuleGuardComponent
-								icon="warning"
+								icon="error"
 								title={__(
 									'Could not load extracted entities',
 									'vulopilot'
@@ -225,7 +225,7 @@ const KnowledgeGraph = () => {
 											)}
 										/>
 									) : rows.length === 0 ? (
-										<p>{section.emptyMessage}</p>
+										<div className="desc">{section.emptyMessage}</div>
 									) : (
 										<ul className="dashboard-widget-list">
 											{rows.map((entity) => (

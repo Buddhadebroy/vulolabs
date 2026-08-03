@@ -4,7 +4,7 @@ export default {
 	id: 'general',
 	priority: 1,
 	headerTitle: __('General', 'vulopilot'),
-	headerIcon: 'admin-settings',
+	headerIcon: 'setting',
 	submitUrl: 'settings',
 	modal: [
 		{

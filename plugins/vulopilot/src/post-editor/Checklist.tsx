@@ -52,8 +52,8 @@ export default function Checklist( { title, results, postId, isPro, shopUrl, onF
 
 	return (
 		<div className="vulopilot-seo-checklist">
-			<h3 className="vulopilot-seo-checklist__title">{ title }</h3>
-			{ error && <p className="vulopilot-seo-checklist__error">{ error }</p> }
+			<div className="title vulopilot-seo-checklist__title">{ title }</div>
+			{ error && <div className="desc vulopilot-seo-checklist__error">{ error }</div> }
 			<ul className="vulopilot-seo-checklist__list">
 				{ results.map( ( result ) => (
 					<li

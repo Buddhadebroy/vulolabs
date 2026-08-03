@@ -4,7 +4,7 @@ export default {
 	id: 'ai-visibility',
 	priority: 1,
 	headerTitle: __('AI Visibility', 'vulopilot'),
-	headerIcon: 'globe',
+	headerIcon: 'global-community',
 	submitUrl: 'settings',
 	modal: [
 		{

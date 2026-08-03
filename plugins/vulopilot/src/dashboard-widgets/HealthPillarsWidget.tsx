@@ -43,7 +43,7 @@ const PILLAR_TILES: {
 		id: 'geo',
 		tab: 'geo',
 		label: __('GEO', 'vulopilot'),
-		icon: 'globe',
+		icon: 'global-community',
 		getScore: (summary) => summary.category_scores.geo,
 	},
 	{

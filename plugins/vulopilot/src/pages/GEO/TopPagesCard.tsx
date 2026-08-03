@@ -72,23 +72,23 @@ const TopPagesCard = () => {
 			{data && data.top.length > 0 ? (
 				<>
 					<ColumnComponent>
-						<h4>{__('Most AI-visible', 'vulopilot')}</h4>
+						<div className="title">{__('Most AI-visible', 'vulopilot')}</div>
 						{renderList(data.top)}
 					</ColumnComponent>
 					{data.bottom.length > 0 && (
 						<ColumnComponent>
-							<h4>{__('Needs attention', 'vulopilot')}</h4>
+							<div className="title">{__('Needs attention', 'vulopilot')}</div>
 							{renderList(data.bottom)}
 						</ColumnComponent>
 					)}
 				</>
 			) : (
-				<p>
+				<div className="desc">
 					{__(
 						'No published pages yet — publish some content to see this ranking.',
 						'vulopilot'
 					)}
-				</p>
+				</div>
 			)}
 		</CardComponent>
 	);

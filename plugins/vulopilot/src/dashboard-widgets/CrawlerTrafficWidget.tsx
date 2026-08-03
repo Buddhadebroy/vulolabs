@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
@@ -57,14 +57,14 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('AI crawler traffic', 'vulopilot')}
-			icon="globe"
+			icon="global-community"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
 			{!isLoading && topBots.length === 0 ? (
 				<ModuleGuardComponent
-					icon="globe"
+					icon="global-community"
 					title={__('No AI crawler visits yet', 'vulopilot')}
 					desc={__(
 						'GPTBot, ClaudeBot, PerplexityBot and other AI crawlers will show up here once they visit your site.',
@@ -73,28 +73,20 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 				/>
 			) : (
 				<>
-					<div className="dashboard-widget-list-message">
+					<div className="desc">
 						{sprintf(
 							/* translators: %d is the number of AI crawler visits. */
 							__('%d visits, last 30 days', 'vulopilot'),
 							totalVisits
 						)}
 					</div>
-					<ul className="dashboard-widget-list">
-						{topBots.map((bot) => (
-							<li
-								key={bot.bot_name}
-								className="dashboard-widget-list-row"
-							>
-								<span className="dashboard-widget-list-message">
-									{bot.bot_name}
-								</span>
-								<span className="dashboard-widget-list-meta">
-									{bot.last_seen_at}
-								</span>
-							</li>
-						))}
-					</ul>
+					<ListComponent
+						items={topBots.map((bot) => ({
+							id: bot.bot_name,
+							title: bot.bot_name,
+							value: bot.last_seen_at,
+						}))}
+					/>
 				</>
 			)}
 		</DashboardWidget>

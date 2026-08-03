@@ -55,22 +55,22 @@ const BrandScoreCard = () => {
 					cols={4}
 					data={[
 						{
-							icon: 'admin-users',
+							icon: 'person',
 							number: `${data.brand_score}/100`,
 							text: __('Brand Score', 'vulopilot'),
 						},
 						{
-							icon: 'shield',
+							icon: 'security',
 							number: `${data.trust_score}/100`,
 							text: __('Trust Score', 'vulopilot'),
 						},
 						{
-							icon: 'star-filled',
+							icon: 'star',
 							number: `${data.authority_score}/100`,
 							text: __('Authority Score', 'vulopilot'),
 						},
 						{
-							icon: 'networking',
+							icon: 'global-community',
 							number: `${data.entity_score}/100`,
 							text: __('Entity Score', 'vulopilot'),
 						},

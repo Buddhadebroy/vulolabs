@@ -9,7 +9,7 @@ import { CardComponent, ModuleGuardComponent, NavigatorComponent } from '@zyra/c
 import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import ImportExportPanel from '../../components/Settings/ImportExportPanel';
-import AiProvidersPanel from '../../components/Settings/Account/AiProvidersPanel';
+import AiProvidersPanel from '../../components/Settings/AiProvidersPanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -179,7 +179,7 @@ const Settings = () => {
 		return (
 			<CardComponent title={__('Settings', 'vulopilot')}>
 				<ModuleGuardComponent
-					icon="warning"
+					icon="error"
 					title={__('Could not load settings', 'vulopilot')}
 					desc={error}
 					buttonText={__('Retry', 'vulopilot')}

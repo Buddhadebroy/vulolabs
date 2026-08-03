@@ -99,7 +99,7 @@ const HealthScoreSummary = () => {
 			text: __('Accessibility', 'vulopilot'),
 		},
 		{
-			icon: 'globe',
+			icon: 'global-community',
 			number: `${summary.category_scores.geo}/100`,
 			text: __('GEO', 'vulopilot'),
 		},
@@ -127,12 +127,12 @@ const HealthScoreSummary = () => {
 							text: __('Overall health', 'vulopilot'),
 						},
 						{
-							icon: 'warning',
+							icon: 'error',
 							number: summary.open_findings,
 							text: __('Open findings', 'vulopilot'),
 						},
 						{
-							icon: 'flag',
+							icon: 'announcement',
 							number: summary.critical_findings,
 							text: __('Critical findings', 'vulopilot'),
 						},

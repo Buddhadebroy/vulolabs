@@ -341,7 +341,7 @@ const IndexNowPanel = () => {
 				)}
 
 				{history.length === 0 ? (
-					<p>{__('No submissions yet.', 'vulopilot')}</p>
+					<div className="desc">{__('No submissions yet.', 'vulopilot')}</div>
 				) : (
 					<table className="vulopilot-indexnow-history">
 						<thead>

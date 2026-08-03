@@ -16,7 +16,7 @@ export default {
 	// Sorts after Content Intelligence (2.4), before GEO (3).
 	priority: 4,
 	headerTitle: __('Brand Intelligence', 'vulopilot'),
-	headerIcon: 'admin-users',
+	headerIcon: 'person',
 	submitUrl: 'settings',
 	modal: [
 		{

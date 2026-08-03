@@ -2,11 +2,18 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { NoticeManager, PopupComponent } from '@zyra/components';
+import {
+	CardComponent,
+	ColumnComponent,
+	ContainerComponent,
+	ModuleGuardComponent,
+	NavigatorHeaderComponent,
+	NoticeManager,
+	PopupComponent,
+} from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
-import TablePage from '../../components/TablePage/TablePage';
 
 interface RedirectRow extends TableRow {
 	id: number;
@@ -213,28 +220,47 @@ const Redirects = () => {
 		});
 	};
 
+	const headerAction = (
+		<ButtonInput
+			buttons={{
+				text: __('Add redirect', 'vulopilot'),
+				icon: 'plus',
+				onClick: openAddForm,
+			}}
+		/>
+	);
+
 	return (
-		<TablePage
-			headerIcon="admin-links"
-			headerTitle={__('Redirects & 404s', 'vulopilot')}
-			headerDescription={__(
-				'Manage 301/302 redirects and see which missing URLs visitors are actually hitting.',
-				'vulopilot'
-			)}
-			headerAction={
-				<ButtonInput
-					buttons={{
-						text: __('Add redirect', 'vulopilot'),
-						icon: 'plus',
-						onClick: openAddForm,
-					}}
-				/>
-			}
-			error={redirects.error}
-			onRetry={redirects.refetch}
-			errorTitle={__('Could not load redirects', 'vulopilot')}
-		>
-			<TableCard
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="link"
+				headerTitle={__('Redirects & 404s', 'vulopilot')}
+				headerDescription={__(
+					'Manage 301/302 redirects and see which missing URLs visitors are actually hitting.',
+					'vulopilot'
+				)}
+			/>
+			<ContainerComponent general>
+				<ColumnComponent>
+					{redirects.error ? (
+						<CardComponent
+							title={__('Redirects & 404s', 'vulopilot')}
+							action={headerAction}
+						>
+							<ModuleGuardComponent
+								icon="error"
+								title={__(
+									'Could not load redirects',
+									'vulopilot'
+								)}
+								desc={redirects.error}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={redirects.refetch}
+							/>
+						</CardComponent>
+					) : (
+						<>
+							<TableCard
 				buttonActions={[
 					{
 						label: __('Add redirect', 'vulopilot'),
@@ -279,14 +305,14 @@ const Redirects = () => {
 									row?.is_active
 										? __('Deactivate', 'vulopilot')
 										: __('Activate', 'vulopilot'),
-								icon: 'controls-repeat',
+								icon: 'toggle',
 								onClick: (row?: Record<string, unknown>) =>
 									row &&
 									handleToggleActive(row as RedirectRow),
 							},
 							{
 								label: __('Delete', 'vulopilot'),
-								icon: 'trash',
+								icon: 'delete',
 								onClick: (row?: Record<string, unknown>) =>
 									row &&
 									handleDeleteRedirect(row as RedirectRow),
@@ -334,14 +360,14 @@ const Redirects = () => {
 									convertingLogId === row?.id
 										? __('Confirm →', 'vulopilot')
 										: __('Create redirect', 'vulopilot'),
-								icon: 'admin-links',
+								icon: 'link',
 								onClick: (row?: Record<string, unknown>) =>
 									row &&
 									handleConvertLog(row as NotFoundLogRow),
 							},
 							{
 								label: __('Dismiss', 'vulopilot'),
-								icon: 'no',
+								icon: 'cross',
 								onClick: (row?: Record<string, unknown>) =>
 									row && handleDismissLog(row as NotFoundLogRow),
 							},
@@ -432,7 +458,11 @@ const Redirects = () => {
 					/>
 				</div>
 			</PopupComponent>
-		</TablePage>
+						</>
+					)}
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
 	);
 };
 

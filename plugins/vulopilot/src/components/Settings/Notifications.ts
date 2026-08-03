@@ -4,7 +4,7 @@ export default {
 	id: 'notifications',
 	priority: 2,
 	headerTitle: __('Notifications', 'vulopilot'),
-	headerIcon: 'email',
+	headerIcon: 'mail',
 	submitUrl: 'settings',
 	modal: [
 		{

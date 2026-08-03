@@ -107,12 +107,12 @@ const ImportExportPanel = () => {
 
 	return (
 		<CardComponent title={__('Import / Export', 'vulopilot')}>
-			<p>
+			<div className="desc">
 				{__(
 					'Download every VuloPilot setting as a JSON file, restore settings from a previously exported file, or reset everything back to defaults.',
 					'vulopilot'
 				)}
-			</p>
+			</div>
 
 			<ButtonInput
 				buttons={{
@@ -126,7 +126,7 @@ const ImportExportPanel = () => {
 			<ButtonInput
 				buttons={{
 					text: __('Import settings', 'vulopilot'),
-					icon: 'upload',
+					icon: 'cloud-upload',
 					onClick: handleImportClick,
 					disabled: isBusy,
 				}}
@@ -142,7 +142,7 @@ const ImportExportPanel = () => {
 			<ButtonInput
 				buttons={{
 					text: __('Reset to defaults', 'vulopilot'),
-					icon: 'image-rotate',
+					icon: 'refresh',
 					onClick: handleReset,
 					disabled: isBusy,
 				}}
