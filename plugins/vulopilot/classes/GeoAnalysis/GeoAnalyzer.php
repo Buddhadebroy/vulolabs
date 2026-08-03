@@ -87,11 +87,25 @@ class GeoAnalyzer {
             throw new \InvalidArgumentException( __( 'post_id must refer to a published post or page.', 'vulopilot' ) );
         }
 
+        $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
         $deterministic_score       = $this->calculate_deterministic_score( $post_id );
         $sub_scores                = $this->calculate_sub_scores( $post_id, $post );
-        $messages                  = $this->build_prompt( $post, $deterministic_score );
+        $messages                  = $this->build_prompt( $post, $deterministic_score, $settings );
         $response                  = $this->request_sender->send( $messages );
         $ai_scores_and_suggestions = $this->parse_response( $response );
+
+        // Scanning → GEO's "Flag weak entity coverage" — entity_coverage
+        // needs AI judgment (GEO-MODULE.md's "Splitting 12 checks into two
+        // honest categories"), so unlike a deterministic scanner's flag_*
+        // kill switch this can't skip the AI call itself; instead it drops
+        // the dimension from the result when disabled, same as a disabled
+        // scanner reporting no finding. GeoScore's consumers (GeoScoreCard,
+        // VisibilitySnapshotBuilder) already treat every ai_scores key as
+        // optional for exactly this kind of missing-key case.
+        if ( empty( $settings['flag_weak_entity'] ) ) {
+            unset( $ai_scores_and_suggestions['ai_scores']['entity_coverage'] );
+        }
 
         $overall_score = $this->calculate_overall_score( $deterministic_score, $ai_scores_and_suggestions['ai_scores'], $sub_scores );
 
@@ -115,7 +129,7 @@ class GeoAnalyzer {
     /**
      * Compares this analysis's overall_score against the previously stored
      * one (if any) and emails Settings → Notifications' recipient when it
-     * fell by at least Scanning → GEO's `geo_drop_threshold` — gated behind
+     * fell by at least Scanning → GEO's `aeo_drop_threshold` — gated behind
      * `email_on_geo_score_drop` (default off). Runs before the new score
      * overwrites the old one in postmeta, since it needs to read the prior
      * value first; only ever fires on an actual re-analysis of a post that
@@ -139,7 +153,7 @@ class GeoAnalyzer {
             return;
         }
 
-        $threshold = absint( $settings['geo_drop_threshold'] ?? 5 );
+        $threshold = absint( $settings['aeo_drop_threshold'] ?? 5 );
         $drop      = (int) $previous['overall_score'] - $overall_score;
 
         if ( $drop < $threshold ) {
@@ -361,11 +375,26 @@ class GeoAnalyzer {
     }
 
     /**
-     * @param \WP_Post $post                Post being analyzed.
-     * @param int|null $deterministic_score Already-known deterministic score, if any — given to the AI as context.
+     * @param \WP_Post             $post                Post being analyzed.
+     * @param int|null             $deterministic_score Already-known deterministic score, if any — given to the AI as context.
+     * @param array<string, mixed> $settings            Stored plugin settings — only `flag_weak_entity`/`minimum_entity_mentions` are read here.
      * @return array<int, array{role: string, content: string}>
      */
-    private function build_prompt( \WP_Post $post, ?int $deterministic_score ): array {
+    private function build_prompt( \WP_Post $post, ?int $deterministic_score, array $settings ): array {
+        // Scanning → GEO's "Minimum entity mentions" — entity_coverage is
+        // still an AI judgment call (see analyze()'s own comment on
+        // `flag_weak_entity`), but this gives the AI a concrete, user-
+        // configurable anchor point instead of an unparameterized "judge
+        // this holistically," the same "factor this in" context
+        // $deterministic_score already gets below.
+        $entity_guidance = '';
+        if ( ! empty( $settings['flag_weak_entity'] ) ) {
+            $entity_guidance = sprintf(
+                "\n\n(Score \"entity_coverage\" low if this content mentions its primary subject/entity — the main product, service, or organization it's about — fewer than %d times.)",
+                max( 1, absint( $settings['minimum_entity_mentions'] ?? 2 ) )
+            );
+        }
+
         return array(
             array(
                 'role'    => 'system',
@@ -387,12 +416,13 @@ class GeoAnalyzer {
             array(
                 'role'    => 'user',
                 'content' => sprintf(
-                    "Title: %s\n\nContent:\n%s%s",
+                    "Title: %s\n\nContent:\n%s%s%s",
                     $post->post_title,
                     wp_trim_words( wp_strip_all_tags( $post->post_content ), 500 ),
                     null !== $deterministic_score
                         ? sprintf( "\n\n(This content already scores %d/100 on separate structural checks — factor that in.)", $deterministic_score )
-                        : ''
+                        : '',
+                    $entity_guidance
                 ),
             ),
         );

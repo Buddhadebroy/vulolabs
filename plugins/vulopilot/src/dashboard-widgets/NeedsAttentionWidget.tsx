@@ -10,6 +10,7 @@ import {
 } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
+import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 
 interface FindingRow {
@@ -207,7 +208,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 									items={pendingApproval.data.map((row) => ({
 										id: String(row.id),
 										title: row.action_id,
-										value: row.created_at,
+										value: formatWpDate(row.created_at),
 										onApprove: () =>
 											handleDecision(row, 'approve'),
 										onReject: () =>

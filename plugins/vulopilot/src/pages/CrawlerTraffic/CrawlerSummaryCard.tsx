@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, CardComponent } from '@zyra/components';
+import { formatWpDate } from '../../services/formatWpDate';
 import {
 	Area,
 	AreaChart,
@@ -74,7 +75,7 @@ const CrawlerSummaryCard = () => {
 						cols={4}
 						data={summary.bot_last_seen.map((entry) => ({
 							icon: 'global-community',
-							number: entry.last_seen_at,
+							number: formatWpDate(entry.last_seen_at),
 							text: entry.bot_name,
 						}))}
 					/>

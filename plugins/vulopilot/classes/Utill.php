@@ -87,7 +87,7 @@ class Utill {
         'notify_on_critical_findings'           => array(),
         // Read by GeoAnalysis\GeoAnalyzer::analyze() — compares the fresh
         // overall_score against the previously-stored one and emails when
-        // it falls by at least Scanning → GEO's `geo_drop_threshold`.
+        // it falls by at least Scanning → GEO's `aeo_drop_threshold`.
         'email_on_geo_score_drop'               => array(),
         // Read by vulopilot-pro's BrandIntelligence\BrandMonitor — same
         // shape as 'email_on_geo_score_drop' above, scoped to Brand Score
@@ -334,6 +334,22 @@ class Utill {
         // Read by GeoAnalysis\LlmsTxtGenerator::generate() to decide which
         // sections to build at all.
         'llms_include_types'                    => array( 'pages', 'posts' ),
+        // Read by Scanners\Basic\GeoSemanticStructureScanner — its own
+        // on/off switch, same granular-toggle posture as
+        // 'flag_missing_ai_summary' below.
+        'flag_missing_semantic'                 => array( 'flag_missing_semantic' ),
+        // Read by GeoAnalysis\GeoAnalyzer — gates whether the AI-judged
+        // "entity_coverage" dimension is scored at all for a post (Entity
+        // Coverage needs AI judgment per GEO-MODULE.md's "Splitting 12
+        // checks into two honest categories," so this can't be a
+        // deterministic scanner's kill switch the way
+        // 'flag_missing_semantic' above is).
+        'flag_weak_entity'                      => array( 'flag_weak_entity' ),
+        // Read by GeoAnalysis\GeoAnalyzer — passed to the AI as the
+        // minimum number of times a page should mention its primary
+        // entity before "entity_coverage" scores well. Only used while
+        // 'flag_weak_entity' above is enabled.
+        'minimum_entity_mentions'               => 2,
         // Read by Scanners\Basic\GeoSummaryBlockScanner — GEO scanning has
         // no whole-category kill switch (unlike SEO/Accessibility/
         // WooCommerce above), so this is that scanner's only on/off switch.
@@ -349,10 +365,16 @@ class Utill {
         // Read by GeoAnalysis\GeoAnalyzer::calculate_content_freshness() —
         // the "flag as stale" boundary its tiering scales against.
         'stale_content_months'                  => 12,
-        // Read by GeoAnalysis\GeoAnalyzer::analyze() — the minimum-points
-        // drop in overall_score, since the last analysis, that triggers
-        // Notifications' `email_on_geo_score_drop`.
-        'geo_drop_threshold'                    => 5,
+        // Read by GeoAnalysis\GeoAnalyzer::analyze() and
+        // vulopilot-pro's GeoInsights\VisibilityMonitor — the
+        // minimum-points drop in overall_score, since the last analysis,
+        // that triggers Notifications' `email_on_geo_score_drop`. Same
+        // key Settings → Scanning → GEO's "GEO/AEO score drop alert
+        // threshold" field saves to (Scanning/AiVisibility.ts) — AEO has
+        // no separate category from GEO's own (ScannerRegistry's
+        // `AeoSchemaScanner` shares the 'geo' category), so one shared
+        // threshold field covers both.
+        'aeo_drop_threshold'                    => 5,
         // Read by vulopilot-pro's GeoInsights\CompetitorVisibilityAnalyzer —
         // newline-separated competitor URLs to fetch and compare structural
         // GEO-readiness signals against (schema/author/heading structure),

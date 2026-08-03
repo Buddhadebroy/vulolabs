@@ -145,6 +145,7 @@ const AIAssistant = () => {
 				search={{
 					placeholder: __('Search AI history…', 'vulopilot'),
 				}}
+				format={appLocalizer.date_format_js}
 				headers={{
 					provider: {
 						label: __('Provider', 'vulopilot'),
