@@ -142,8 +142,8 @@ const HealthScoreSummary = () => {
 
 			<CardComponent title={__('Score by pillar', 'vulopilot')}>
 				<AnalyticsComponent
-					variant="dashboard"
-					cols={4}
+					variant="progress"
+					cols={5}
 					data={categoryTiles}
 				/>
 			</CardComponent>

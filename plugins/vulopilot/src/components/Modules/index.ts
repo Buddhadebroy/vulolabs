@@ -1,165 +1,292 @@
 import { __ } from '@wordpress/i18n';
 
-/**
- * The Modules page's metadata catalog — same shape as the free
- * vulolabs plugin's own `components/Modules/index.ts`
- * (`{ category, tab, modules: [...] }`, a `type: 'separator'` entry per
- * section, each real module `{ id, name, desc, proModule?, category }`).
- *
- * These 6 ids match the kebab-case ids VuloPilot's Modules.php loader
- * derives from vulopilot-pro's actual `modules/{Folder}/Module.php` folder
- * names (camel_to_kebab()) — Automation, SecurityMonitoring, WooCommerceAi,
- * AdvancedReports, OneClickFix, GeoInsights. The plugin's readme.txt is the
- * source of truth for this split: Free covers Website Health Monitoring,
- * SEO/GEO/Accessibility/WooCommerce scanning and detection, and BYOK AI
- * content generation; these 6 Pro modules cover "AI Automation Workflows",
- * "Scheduled Website Scans", "Security Monitoring", "WooCommerce AI"/"AI
- * Product Optimization", "Historical Reports", "One-Click AI Fixes", and
- * "GEO AI Scoring" respectively. `proModule: true` still shows the upsell
- * framing for a site without vulopilot-pro installed; `useModules()`'s
- * zustand store (ModuleGridComponent) already handles showing these as
- * active/available instead once Pro registers them via
- * `vulopilot_module_sources` — no separate "is this real" flag needed here.
- *
- * `miniModule: true` on every real entry (not the separator) is required
- * for `ModuleGridComponent`'s `variant="mini-module"` — used by the
- * Dashboard's compact Modules card (`pages/Dashboard/WelcomeSection.tsx`)
- * — to render anything at all: that variant filters `modulesArray.modules`
- * down to only `miniModule`-flagged entries, and this plugin's own
- * standalone Modules page (`Modules.tsx`) doesn't pass `variant`, so it
- * was never exercised until the Dashboard card needed it.
- */
 export default {
 	category: true,
 	tab: 'modules',
 	modules: [
+		// AI Visibility Section
+		{ type: 'separator', id: 'ai-visibility', label: __('AI Visibility', 'vulopilot') },
 		{
-			type: 'separator',
-			id: 'free',
-			label: __('Free Modules', 'vulopilot'),
-		},
+            id: 'geo-ai-understanding',
+            name: __('GEO — AI Understanding', 'vulopilot'),
+            desc: __('Scans structure, entities, and machine-readability so AI models can understand your pages.', 'vulopilot'),
+            proModule: true,
+            category: 'ai-visibility',
+            freeFeatures: [
+                __('Structure & machine-readability audit', 'vulopilot'),
+                __('Entity & purpose-clarity checks', 'vulopilot'),
+                __('Live GEO score (0–100)', 'vulopilot'),
+                __('Manual re-scan on demand', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Historical GEO trend charts', 'vulopilot'),
+                __('Scheduled automated scans', 'vulopilot'),
+                __('AI-powered bulk fixes', 'vulopilot'),
+                __('Competitor GEO benchmarking', 'vulopilot')
+            ]
+        },
+        {
+            id: 'aeo-answer-engine',
+            name: __('AEO — Answer Engine Optimization', 'vulopilot'),
+            desc: __('Detects FAQs, direct-answer structure, and question coverage — then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
+            proModule: true,
+            category: 'ai-visibility',
+            freeFeatures: [
+                __('FAQ & direct-answer detection', 'vulopilot'),
+                __('Question-coverage scanning', 'vulopilot'),
+                __('Answer-position checks (first 200 words)', 'vulopilot'),
+                __('Retrieval-chunk thinness checks', 'vulopilot')
+            ],
+            proFeatures: [
+                __('llms.txt generation', 'vulopilot'),
+                __('Citation-probability scoring', 'vulopilot'),
+                __('AI-ready snippet builder', 'vulopilot'),
+                __('Multi-engine answer testing (ChatGPT, Perplexity, Gemini, Copilot)', 'vulopilot')
+            ]
+        },
+        {
+            id: 'knowledge-graph',
+            name: __('Knowledge Graph', 'vulopilot'),
+            desc: __('Reads real people, organizations, products, services, and categories from your site and turns them into structured entities.', 'vulopilot'),
+            proModule: true,
+            category: 'ai-visibility',
+            miniModule: true,
+            freeFeatures: [
+                __('Entity extraction: people, orgs, products, services', 'vulopilot'),
+                __('Location & category detection', 'vulopilot'),
+                __('Source-verified entity list (never fabricated)', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Entity relationship mapping', 'vulopilot'),
+                __('AI-powered graph enrichment', 'vulopilot'),
+                __('Schema.org graph export', 'vulopilot')
+            ]
+        },
+        {
+            id: 'ai-crawler-intelligence',
+            name: __('AI Crawler Intelligence', 'vulopilot'),
+            desc: __('Tracks which AI bots — GPTBot, ClaudeBot, PerplexityBot, and others — are visiting your site, and what they\'re reading.', 'vulopilot'),
+            proModule: true,
+            category: 'ai-visibility',
+            miniModule: true,
+            freeFeatures: [
+                __('7-day crawler visit log', 'vulopilot'),
+                __('Top pages crawled by AI bots', 'vulopilot'),
+                __('Per-bot visit counts', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Historical trends & anomaly alerts', 'vulopilot'),
+                __('Extended log retention (12 months)', 'vulopilot'),
+                __('Crawl-budget insights', 'vulopilot')
+            ]
+        },
+
+		// Brand Visibility Section
+		{ type: 'separator', id: 'brand-visibility', label: __('Brand Visibility', 'vulopilot') },
 		{
-			id: 'geo',
-			name: __('GEO', 'vulopilot'),
-			desc: __(
-				'Auto-regenerates llms.txt on publish/update (Settings → GEO). The GEO scanners and findings table themselves are core and run regardless of this module — this only covers that one automation.',
-				'vulopilot'
-			),
-			category: ['free'],
-			miniModule: true,
-		},
+            id: 'brand-visibility-module',
+            name: __('Brand Visibility', 'vulopilot'),
+            desc: __('Organization & author schema, About-page completeness, and off-site mentions across the web.', 'vulopilot'),
+            proModule: true,
+            category: 'brand-visibility',
+            miniModule: true,
+            freeFeatures: [
+                __('Organization & author schema checks', 'vulopilot'),
+                __('About-page completeness', 'vulopilot'),
+                __('NAP / contact consistency', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Off-site mention monitoring', 'vulopilot'),
+                __('Share-of-voice vs. competitors', 'vulopilot'),
+                __('Competitor comparison via connected Ahrefs account', 'vulopilot')
+            ]
+        },
+
+		// SEO & Content Section
+		{ type: 'separator', id: 'seo-content', label: __('SEO & Content', 'vulopilot') },
 		{
-			id: 'seo',
-			name: __('SEO', 'vulopilot'),
-			desc: __(
-				'All 17 SEO scanners (titles, meta descriptions, canonicals, sitemap, robots.txt, images/alt text, schema, and more) that feed the SEO page. Unlike GEO, turning this off actually stops new SEO findings from being produced — existing findings already on the SEO page stay as they are.',
-				'vulopilot'
-			),
-			category: ['free'],
-			miniModule: true,
-		},
+            id: 'seo-intelligence',
+            name: __('SEO Intelligence', 'vulopilot'),
+            desc: __('Titles, meta, canonical, schema, internal links, sitemap, and robots.txt checks.', 'vulopilot'),
+            proModule: true,
+            category: 'seo-content',
+            miniModule: true,
+            freeFeatures: [
+                __('Title & meta description checks', 'vulopilot'),
+                __('Canonical & schema validation', 'vulopilot'),
+                __('Internal link & sitemap audit', 'vulopilot'),
+                __('robots.txt checks', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Keyword rank tracking', 'vulopilot'),
+                __('Keyword cannibalization detection', 'vulopilot'),
+                __('Google Search Console integration', 'vulopilot')
+            ]
+        },
+        {
+            id: 'content-intelligence',
+            name: __('Content Intelligence', 'vulopilot'),
+            desc: __('Readability, thin/duplicate content, and freshness flags — plus AI-assisted rewriting.', 'vulopilot'),
+            proModule: true,
+            category: 'seo-content',
+            miniModule: true,
+            freeFeatures: [
+                __('Readability scoring', 'vulopilot'),
+                __('Thin & duplicate content detection', 'vulopilot'),
+                __('Content freshness flags', 'vulopilot')
+            ],
+            proFeatures: [
+                __('AI rewrite & expansion', 'vulopilot'),
+                __('Topic clustering', 'vulopilot'),
+                __('Content gap analysis vs. competitors', 'vulopilot')
+            ]
+        },
+        {
+            id: 'redirect-manager',
+            name: __('Redirect Manager & 404 Log', 'vulopilot'),
+            desc: __('301 redirects and 404 tracking, with automatic redirects on slug change.', 'vulopilot'),
+            proModule: false,
+            category: 'seo-content',
+            miniModule: true,
+            freeFeatures: [
+                __('Unlimited 301 redirects', 'vulopilot'),
+                __('404 log with hit counts', 'vulopilot'),
+                __('Automatic redirect on slug change', 'vulopilot')
+            ]
+        },
+
+		// Site Health Section
+		{ type: 'separator', id: 'site-health', label: __('Site Health', 'vulopilot') },
 		{
-			id: 'entity-extraction',
-			name: __('Entity Extraction', 'vulopilot'),
-			desc: __(
-				'Real entities read from your site — post authors, your Organization, WooCommerce products, owner-configured services/locations, and taxonomy terms in use (Knowledge Graph page). Turning this off stops the page/widget from returning real data.',
-				'vulopilot'
-			),
-			category: ['free'],
-			miniModule: true,
-		},
+            id: 'performance-monitoring',
+            name: __('Performance Monitoring', 'vulopilot'),
+            desc: __('Core Web Vitals, database health, and autoload size checks.', 'vulopilot'),
+            proModule: true,
+            category: 'site-health',
+            miniModule: true,
+            freeFeatures: [
+                __('Core Web Vitals snapshot', 'vulopilot'),
+                __('Database health checks', 'vulopilot'),
+                __('Autoload size checks', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Historical performance trends', 'vulopilot'),
+                __('Scheduled audits', 'vulopilot'),
+                __('AI-generated optimization suggestions', 'vulopilot')
+            ]
+        },
+        {
+            id: 'accessibility-scanner',
+            name: __('Accessibility Scanner', 'vulopilot'),
+            desc: __('WCAG checks — alt text, headings, ARIA, and form labels.', 'vulopilot'),
+            proModule: true,
+            category: 'site-health',
+            miniModule: true,
+            freeFeatures: [
+                __('Alt text & heading structure checks', 'vulopilot'),
+                __('ARIA attribute checks', 'vulopilot'),
+                __('Form label checks', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Bulk accessibility fixes', 'vulopilot'),
+                __('Scheduled audits', 'vulopilot'),
+                __('Historical compliance reports', 'vulopilot')
+            ]
+        },
+        {
+            id: 'security-monitoring',
+            name: __('Security Monitoring', 'vulopilot'),
+            desc: __('Weak passwords, basic vulnerabilities, core file integrity, and update checks.', 'vulopilot'),
+            proModule: true,
+            category: 'site-health',
+            miniModule: true,
+            freeFeatures: [
+                __('Weak password detection', 'vulopilot'),
+                __('Core file integrity checks', 'vulopilot'),
+                __('Plugin/theme update checks', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Scheduled security scans', 'vulopilot'),
+                __('Live CVE vulnerability feed', 'vulopilot'),
+                __('Plugin/theme integrity monitoring', 'vulopilot'),
+                __('Alerts & incident reports', 'vulopilot')
+            ]
+        },
+
+		// WooCommerce Section
+		{ type: 'separator', id: 'woocommerce', label: __('WooCommerce', 'vulopilot') },
 		{
-			type: 'separator',
-			id: 'premium',
-			label: __('Premium Modules', 'vulopilot'),
-		},
+            id: 'woocommerce-intelligence',
+            name: __('WooCommerce Intelligence', 'vulopilot'),
+            desc: __('Store health, product SEO, images, attributes, and inventory checks.', 'vulopilot'),
+            proModule: true,
+            category: 'woocommerce',
+            miniModule: true,
+            freeFeatures: [
+                __('Store health checks', 'vulopilot'),
+                __('Product SEO & image/attribute checks', 'vulopilot'),
+                __('Inventory checks', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Inventory forecasting', 'vulopilot'),
+                __('Revenue insights', 'vulopilot'),
+                __('Store trend analysis', 'vulopilot'),
+                __('AI-generated product content', 'vulopilot')
+            ]
+        },
+
+		// Automation & AI Section
+		{ type: 'separator', id: 'automation-ai', label: __('Automation & AI', 'vulopilot') },
 		{
-			id: 'automation',
-			name: __('Automation', 'vulopilot'),
-			desc: __(
-				'AI Automation Workflows and Scheduled Website Scans — the trigger→action engine (11 triggers, 4 actions) plus recurring wp-cron scanning. Free only runs on-demand, manually-triggered scans without this module.',
-				'vulopilot'
-			),
-			proModule: true,
-			category: ['premium'],
-			miniModule: true,
-		},
+            id: 'one-click-fix',
+            name: __('AI Fixes', 'vulopilot'),
+            desc: __('Explainable AI recommendations for any finding across every module.', 'vulopilot'),
+            proModule: true,
+            category: 'automation-ai',
+            miniModule: true,
+            freeFeatures: [
+                __('Manual AI suggestions (bring your own API key)', 'vulopilot'),
+                __('Explainable, side-by-side fix previews', 'vulopilot')
+            ],
+            proFeatures: [
+                __('One-click AI fixes', 'vulopilot'),
+                __('Bulk AI fixes across any module', 'vulopilot'),
+                __('Auto-apply with approval queue', 'vulopilot')
+            ]
+        },
+        {
+            id: 'automation-engine',
+            name: __('Automation Engine', 'vulopilot'),
+            desc: __('Triggers, conditions, schedules, and workflows that react to scan findings automatically.', 'vulopilot'),
+            proModule: true,
+            category: 'automation-ai',
+            miniModule: true,
+            freeFeatures: [],
+            proFeatures: [
+                __('Custom triggers & conditions', 'vulopilot'),
+                __('Scheduled workflows', 'vulopilot'),
+                __('Auto-react to scan findings', 'vulopilot')
+            ]
+        },
+
+		// Reports Section
+		{ type: 'separator', id: 'reports', label: __('Reports', 'vulopilot') },
 		{
-			id: 'security-monitoring',
-			name: __('Security Monitoring', 'vulopilot'),
-			desc: __(
-				'Checks for an admin account named "admin" and anonymous REST API user-enumeration exposure.',
-				'vulopilot'
-			),
-			proModule: true,
-			category: ['premium'],
-			miniModule: true,
-		},
-		{
-			id: 'woo-commerce-ai',
-			name: __('WooCommerce AI', 'vulopilot'),
-			desc: __(
-				'AI Product Optimization and Bulk AI Optimization — rewrites product titles, generates descriptions/FAQ/schema, and suggests cross-sell/upsell/bundles. Product detection scanning itself stays free; this closes the fix loop with AI.',
-				'vulopilot'
-			),
-			proModule: true,
-			category: ['premium'],
-			miniModule: true,
-		},
-		{
-			id: 'advanced-reports',
-			name: __('Advanced Reports', 'vulopilot'),
-			desc: __(
-				'Historical Reports — recurring, emailed report schedules, a custom report builder that merges multiple report types, and historical site-health trend data.',
-				'vulopilot'
-			),
-			proModule: true,
-			category: ['premium'],
-			miniModule: true,
-		},
-		{
-			id: 'one-click-fix',
-			name: __('One-Click AI Fixes', 'vulopilot'),
-			desc: __(
-				'Adds a "Fix this" action to findings that have a matching AI action (missing alt text, thin content, missing meta description, and more) — proposes the fix with one click; approving it still goes through the same Dashboard review every AI action requires.',
-				'vulopilot'
-			),
-			proModule: true,
-			category: ['premium'],
-			miniModule: true,
-		},
-		{
-			id: 'geo-insights',
-			name: __('GEO Insights', 'vulopilot'),
-			desc: __(
-				'Per-post AI scoring for AI-search-engine discoverability — entity coverage, question coverage, answer completeness, LLM readability, and AI suggestions. The deterministic GEO findings table stays free; this AI-scored card is Pro.',
-				'vulopilot'
-			),
-			proModule: true,
-			category: ['premium'],
-			miniModule: true,
-		},
-		{
-			id: 'ai-crawler-analytics',
-			name: __('AI Crawler Analytics', 'vulopilot'),
-			desc: __(
-				'Historical Crawl Trends, AI Visibility Correlation, AI Crawler Alerts, an AI Monitoring dashboard widget, and Crawl Reports. AI crawler detection/logs/blocked-pages/statistics themselves stay free; this adds trend history, correlation, and alerting on top.',
-				'vulopilot'
-			),
-			proModule: true,
-			category: ['premium'],
-			miniModule: true,
-		},
-		{
-			id: 'knowledge-graph',
-			name: __('Knowledge Graph', 'vulopilot'),
-			desc: __(
-				'Entity Relationships, Graph Visualization, Entity Recommendations, Entity Automation, and Knowledge Graph Health. Entity Extraction (people/organizations/products/services/locations/categories) itself stays free; this adds the relationship graph, its visualization, AI-suggested entities/relationships, an automation trigger, and a completeness health score on top.',
-				'vulopilot'
-			),
-			proModule: true,
-			category: ['premium'],
-			miniModule: true,
-		},
+            id: 'reports-module',
+            name: __('Reports', 'vulopilot'),
+            desc: __('Health, SEO, Security, and Accessibility reports for your site.', 'vulopilot'),
+            proModule: true,
+            category: 'reports',
+            miniModule: true,
+            freeFeatures: [
+                __('Health, SEO, Security & Accessibility reports', 'vulopilot'),
+                __('On-demand PDF export', 'vulopilot')
+            ],
+            proFeatures: [
+                __('Scheduled report delivery', 'vulopilot'),
+                __('CSV export', 'vulopilot'),
+                __('White-label, client-ready branding', 'vulopilot')
+            ]
+        }
 	],
 };

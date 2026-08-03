@@ -9,7 +9,6 @@ import {
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
 import TopPagesCard from './TopPagesCard';
-import './GEO.scss';
 
 /**
  * Section → scanner_id grouping for GEO's 12 scanners (Free's original 9,
