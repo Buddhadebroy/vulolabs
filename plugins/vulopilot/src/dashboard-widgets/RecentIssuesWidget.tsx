@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
@@ -83,34 +83,24 @@ const RecentIssuesWidget: React.FC<WidgetProps> = ({
 					)}
 				/>
 			) : (
-				<ul className="dashboard-widget-list">
-					{findings.map((finding) => (
-						<li
-							key={finding.id}
-							className="dashboard-widget-list-row"
-						>
-							<button
-								type="button"
-								className="dashboard-widget-list-link"
-								onClick={() => {
-									const tab =
-										CATEGORY_TABS[finding.category] ??
-										'health';
-									window.location.href = `?page=vulopilot#&tab=${tab}`;
-								}}
+				<ListComponent
+					items={findings.map((finding) => ({
+						id: String(finding.id),
+						title: finding.title,
+						action: () => {
+							const tab =
+								CATEGORY_TABS[finding.category] ?? 'health';
+							window.location.href = `?page=vulopilot#&tab=${tab}`;
+						},
+						tags: (
+							<span
+								className={`admin-badge badge-severity-${finding.severity}`}
 							>
-								<span className="dashboard-widget-list-message">
-									{finding.title}
-								</span>
-								<span
-									className={`admin-badge badge-severity-${finding.severity}`}
-								>
-									{finding.severity}
-								</span>
-							</button>
-						</li>
-					))}
-				</ul>
+								{finding.severity}
+							</span>
+						),
+					}))}
+				/>
 			)}
 		</DashboardWidget>
 	);

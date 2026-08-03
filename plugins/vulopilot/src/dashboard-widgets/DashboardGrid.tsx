@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import { DEFAULT_DASHBOARD_WIDGETS } from './registry';
-import { DashboardSummary, WidgetLayoutEntry } from './types';
+import { DashboardSummary, WidgetLayoutEntry, WidgetDefinition } from './types';
 import './DashboardGrid.scss';
 
 interface DashboardGridProps {
@@ -13,6 +14,20 @@ interface DashboardGridProps {
 	/** Gates drag/hide affordances — see Dashboard.tsx's own state comment. */
 	isCustomizing: boolean;
 }
+
+/**
+ * Each widget's `size` maps onto ColumnComponent's real 12-column
+ * `card-wrapper`/`data-cols` grid (ContainerComponent.scss) — the same
+ * grid primitive WelcomeSection.tsx's own `grid={8}`/`grid={4}` columns
+ * already use — instead of this file hand-rolling a parallel 4-column
+ * CSS Grid. Base 4-column layout: small = 1 of 4 (grid=3), medium = 2 of
+ * 4 (grid=6), large = the full row (grid=12).
+ */
+const GRID_SPAN: Record<WidgetDefinition['size'], number> = {
+	small: 3,
+	medium: 6,
+	large: 12,
+};
 
 /** What ReactSortable actually needs on every list item — see react-sortablejs's own usage in PanelEditor.tsx (Zyra's builders package) for this exact `list`/`setList` shape. */
 interface SortableEntry extends WidgetLayoutEntry {
@@ -100,13 +115,14 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 
 	if (isLoading || isLayoutLoading) {
 		return (
-			<div className="dashboard-widget-grid">
+			<ContainerComponent general>
 				{DEFAULT_DASHBOARD_WIDGETS.slice(0, 4).map((widget) => {
 					const Widget = widget.component;
 					return (
-						<div
+						<ColumnComponent
 							key={widget.id}
-							className={`dashboard-widget-cell size-${widget.size}`}
+							grid={GRID_SPAN[widget.size]}
+							className="dashboard-widget-cell"
 						>
 							<Widget
 								summary={summary}
@@ -114,10 +130,10 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 								onHide={() => {}}
 								isCustomizing={false}
 							/>
-						</div>
+						</ColumnComponent>
 					);
 				})}
-			</div>
+			</ContainerComponent>
 		);
 	}
 
@@ -136,9 +152,10 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 		}
 		const Widget = widget.component;
 		return (
-			<div
+			<ColumnComponent
 				key={widget.id}
-				className={`dashboard-widget-cell size-${widget.size}`}
+				grid={GRID_SPAN[widget.size]}
+				className="dashboard-widget-cell"
 			>
 				<Widget
 					summary={summary}
@@ -146,26 +163,34 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 					onHide={() => handleHide(widget.id)}
 					isCustomizing={isCustomizing}
 				/>
-			</div>
+			</ColumnComponent>
 		);
 	};
 
 	return (
 		<>
 			{isCustomizing ? (
+				// ReactSortable needs to own the actual sortable DOM node
+				// itself (it takes a ref to it), so it can't render
+				// ContainerComponent as a child the way the read-only
+				// branch below does — `className` is set to the exact
+				// same `container-wrapper general-wrapper` markup
+				// ContainerComponent's own `general` variant renders
+				// (ContainerComponent.tsx), so the grid looks and behaves
+				// identically either way.
 				<ReactSortable
 					list={visible}
 					setList={handleReorder}
 					handle=".widget-drag-handle"
 					animation={150}
-					className="dashboard-widget-grid"
+					className="container-wrapper general-wrapper"
 				>
 					{visible.map(renderWidgetCell)}
 				</ReactSortable>
 			) : (
-				<div className="dashboard-widget-grid">
+				<ContainerComponent general>
 					{visible.map(renderWidgetCell)}
-				</div>
+				</ContainerComponent>
 			)}
 
 			{isCustomizing && hidden.length > 0 && (

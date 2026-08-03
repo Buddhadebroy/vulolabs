@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { WidgetProps } from './types';
@@ -52,23 +52,18 @@ const LatestReportsWidget: React.FC<WidgetProps> = ({
 					)}
 				/>
 			) : (
-				<ul className="dashboard-widget-list">
-					{data.map((row) => (
-						<li
-							key={row.id}
-							className={`dashboard-widget-list-row status-${row.status}`}
-						>
-							<span className="dashboard-widget-list-message">
-								{row.report_type}
-							</span>
-							<span
-								className={`admin-badge status-${row.status}`}
-							>
+				<ListComponent
+					items={data.map((row) => ({
+						id: String(row.id),
+						title: row.report_type,
+						className: `status-${row.status}`,
+						tags: (
+							<span className={`admin-badge status-${row.status}`}>
 								{row.status}
 							</span>
-						</li>
-					))}
-				</ul>
+						),
+					}))}
+				/>
 			)}
 		</DashboardWidget>
 	);

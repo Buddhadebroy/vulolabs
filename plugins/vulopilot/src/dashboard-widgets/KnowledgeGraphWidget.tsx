@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 import type { EntitiesResponse } from '../pages/KnowledgeGraph/KnowledgeGraph';
@@ -77,18 +77,13 @@ const KnowledgeGraphWidget: React.FC<WidgetProps> = ({
 					)}
 				/>
 			) : (
-				<ul className="dashboard-widget-list">
-					{counts.map((row) => (
-						<li key={row.label} className="dashboard-widget-list-row">
-							<span className="dashboard-widget-list-message">
-								{row.label}
-							</span>
-							<span className="dashboard-widget-list-meta">
-								{row.total}
-							</span>
-						</li>
-					))}
-				</ul>
+				<ListComponent
+					items={counts.map((row) => ({
+						id: row.label,
+						title: row.label,
+						value: String(row.total),
+					}))}
+				/>
 			)}
 		</DashboardWidget>
 	);

@@ -2,8 +2,11 @@
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { ModuleGuardComponent, NoticeManager } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import {
+	ListComponent,
+	ModuleGuardComponent,
+	NoticeManager,
+} from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { WidgetProps } from './types';
@@ -34,6 +37,10 @@ const PendingApprovalWidget: React.FC<WidgetProps> = ({
 	const [busyId, setBusyId] = useState<number | null>(null);
 
 	const handleDecision = (row: ActionRunRow, decision: 'approve' | 'reject') => {
+		if (busyId === row.id) {
+			return;
+		}
+
 		setBusyId(row.id);
 
 		sendApiResponse(
@@ -92,38 +99,16 @@ const PendingApprovalWidget: React.FC<WidgetProps> = ({
 					)}
 				/>
 			) : (
-				<ul className="dashboard-widget-list">
-					{data.map((row) => (
-						<li key={row.id} className="dashboard-widget-list-row">
-							<span className="dashboard-widget-list-message">
-								{row.action_id}
-							</span>
-							<span className="dashboard-widget-list-meta">
-								{row.created_at}
-							</span>
-							<span className="dashboard-widget-list-actions">
-								<ButtonInput
-									buttons={{
-										text: __('Approve', 'vulopilot'),
-										icon: 'check',
-										onClick: () =>
-											handleDecision(row, 'approve'),
-										disabled: busyId === row.id,
-									}}
-								/>
-								<ButtonInput
-									buttons={{
-										text: __('Reject', 'vulopilot'),
-										icon: 'cross',
-										onClick: () =>
-											handleDecision(row, 'reject'),
-										disabled: busyId === row.id,
-									}}
-								/>
-							</span>
-						</li>
-					))}
-				</ul>
+				<ListComponent
+					className="notification"
+					items={data.map((row) => ({
+						id: String(row.id),
+						title: row.action_id,
+						value: row.created_at,
+						onApprove: () => handleDecision(row, 'approve'),
+						onReject: () => handleDecision(row, 'reject'),
+					}))}
+				/>
 			)}
 		</DashboardWidget>
 	);

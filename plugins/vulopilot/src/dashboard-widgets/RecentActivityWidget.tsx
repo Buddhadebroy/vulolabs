@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { WidgetProps } from './types';
@@ -57,21 +57,14 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 					)}
 				/>
 			) : (
-				<ul className="dashboard-widget-list">
-					{data.map((row) => (
-						<li
-							key={row.id}
-							className={`dashboard-widget-list-row severity-${row.severity}`}
-						>
-							<span className="dashboard-widget-list-message">
-								{row.message}
-							</span>
-							<span className="dashboard-widget-list-meta">
-								{row.created_at}
-							</span>
-						</li>
-					))}
-				</ul>
+				<ListComponent
+					items={data.map((row) => ({
+						id: String(row.id),
+						title: row.message,
+						value: row.created_at,
+						className: `severity-${row.severity}`,
+					}))}
+				/>
 			)}
 		</DashboardWidget>
 	);
