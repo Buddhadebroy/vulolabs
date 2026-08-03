@@ -30,7 +30,7 @@ const AccessibilityHistoryPanel = applyFilters(
 const Accessibility = () => (
 	<>
 		<NavigatorHeaderComponent
-			headerIcon="universal-access-alt"
+			headerIcon="support"
 			headerTitle={__('Accessibility', 'vulopilot')}
 			headerDescription={__(
 				'Heading structure, ARIA attributes, and form label findings.',

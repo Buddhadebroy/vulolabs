@@ -22,7 +22,7 @@ export default {
 	// Sorts between Webmaster Tools (2.2) and Geo (3).
 	priority: 2.3,
 	headerTitle: __('Instant Indexing', 'vulopilot'),
-	headerIcon: 'admin-site-alt3',
+	headerIcon: 'web-page-website',
 	submitUrl: 'settings',
 	modal: [
 		{ key: 'indexnow_api_key', type: 'text', label: '' },

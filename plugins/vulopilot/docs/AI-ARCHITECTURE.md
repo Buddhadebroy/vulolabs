@@ -100,6 +100,18 @@ existing decorator stack exactly the way `RetryingProvider`/`RateLimitedProvider
 Free's adapters and BYOK fully functional and real on their own, with Pro adding a mode, not adding
 business logic Free is missing.
 
+### Settings UI
+
+`RestAPI\Controllers\AiProviders` (`GET/POST /ai-providers`, `POST /ai-providers/{id}`,
+`POST /ai-providers/{id}/delete`) is what actually writes to `vulopilot_ai_provider_configs` from
+the dashboard. It never returns a stored row's `credentials` value — only a `has_credential`
+boolean — the same decrypt-only-in-`ProviderRegistry::build_provider()` boundary described above.
+Backs `src/components/Settings/Account/AiProvidersPanel.tsx`, wired into the Settings page as its
+own `ai-providers` tab (`src/pages/Settings/Settings.tsx`'s `currentTab === 'ai-providers'`
+escape hatch, same shape as the `import-export` tab) — hand-built rather than
+`InputRenderer`-driven since provider configs live in their own table, not the flat settings
+option every other tab auto-saves into.
+
 ## The decorator stack (`classes/AIProviders/Decorators/`)
 
 ```
@@ -172,10 +184,6 @@ Identical shape to `SCANNERS.md`/`RULE-ENGINE.md`, again on purpose:
   vision-based, as an honest answer to that gap, not a stand-in claiming to be vision-based.
 - **Built-in Credits.** BYOK is fully real and functional; the Pro-tier hosted/metered mode is
   designed (see above) but not built.
-- **A settings UI for configuring providers.** Nothing yet writes to
-  `vulopilot_ai_provider_configs` from the dashboard — `AiProviderConfigRepository` exists and
-  works, but there's no REST controller or Settings-page section wired to it yet (the existing
-  Settings page only covers `scan_frequency`/`notification_email`).
 - **Quota enforcement** against `vulopilot_ai_provider_configs.quota_limit`/`quota_used` — the
   columns exist in `DATABASE.md`'s schema; nothing reads or increments them yet. `RateLimitedProvider`
   enforces a *rate* (requests per minute), not a *budget* (total spend/tokens per period) — a

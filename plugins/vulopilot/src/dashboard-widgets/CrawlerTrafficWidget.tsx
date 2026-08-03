@@ -57,14 +57,14 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('AI crawler traffic', 'vulopilot')}
-			icon="globe"
+			icon="global-community"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
 			{!isLoading && topBots.length === 0 ? (
 				<ModuleGuardComponent
-					icon="globe"
+					icon="global-community"
 					title={__('No AI crawler visits yet', 'vulopilot')}
 					desc={__(
 						'GPTBot, ClaudeBot, PerplexityBot and other AI crawlers will show up here once they visit your site.',

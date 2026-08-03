@@ -35,7 +35,7 @@ const proPopupContent = {
 			),
 		},
 		{
-			icon: 'security-monitoring',
+			icon: 'security',
 			text: __('Security Monitoring', 'vulopilot'),
 			des: __(
 				'Checks for an admin account named "admin" and anonymous REST API user-enumeration exposure.',
@@ -43,7 +43,7 @@ const proPopupContent = {
 			),
 		},
 		{
-			icon: 'woo-commerce-ai',
+			icon: 'woocommerce',
 			text: __('WooCommerce AI', 'vulopilot'),
 			des: __(
 				'AI Product Optimization and Bulk AI Optimization — rewrites product titles, generates descriptions/FAQ/schema, and suggests cross-sell/upsell/bundles.',
@@ -51,7 +51,7 @@ const proPopupContent = {
 			),
 		},
 		{
-			icon: 'advanced-reports',
+			icon: 'report',
 			text: __('Advanced Reports', 'vulopilot'),
 			des: __(
 				'Recurring, emailed report schedules, a custom report builder, and historical site-health trend data.',
@@ -59,7 +59,7 @@ const proPopupContent = {
 			),
 		},
 		{
-			icon: 'one-click-fix',
+			icon: 'tools',
 			text: __('One-Click AI Fixes', 'vulopilot'),
 			des: __(
 				'Adds a "Fix this" action to findings that have a matching AI action — propose and approve a fix without leaving the Dashboard.',
@@ -67,7 +67,7 @@ const proPopupContent = {
 			),
 		},
 		{
-			icon: 'globe',
+			icon: 'global-community',
 			text: __('GEO Insights', 'vulopilot'),
 			des: __(
 				'Per-post AI scoring for AI-search-engine discoverability — entity coverage, question coverage, answer completeness, and AI suggestions.',

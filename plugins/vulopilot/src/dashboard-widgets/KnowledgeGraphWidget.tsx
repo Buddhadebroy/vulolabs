@@ -62,14 +62,14 @@ const KnowledgeGraphWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Knowledge Graph', 'vulopilot')}
-			icon="share-alt2"
+			icon="centralized-connections"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
 			{!isLoading && totalEntities === 0 ? (
 				<ModuleGuardComponent
-					icon="share-alt2"
+					icon="centralized-connections"
 					title={__('No entities extracted yet', 'vulopilot')}
 					desc={__(
 						'Publish some content, or configure services/locations under Settings → Entity Extraction.',

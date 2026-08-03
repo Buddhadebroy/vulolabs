@@ -117,7 +117,7 @@ const KnowledgePanelCard = applyFilters(
 const BrandVisibility = () => (
 	<>
 		<NavigatorHeaderComponent
-			headerIcon="admin-users"
+			headerIcon="person"
 			headerTitle={__('Brand Visibility', 'vulopilot')}
 			headerDescription={__(
 				'On-site trust/authority/entity signals, plus off-site brand mentions and share of voice.',
@@ -129,7 +129,7 @@ const BrandVisibility = () => (
 				{!isBrandModuleActive() ? (
 					<CardComponent title={__('Brand', 'vulopilot')}>
 						<ModuleGuardComponent
-							icon="warning"
+							icon="error"
 							title={__(
 								'Brand Intelligence module is turned off',
 								'vulopilot'
@@ -170,12 +170,12 @@ const BrandVisibility = () => (
 						'vulopilot'
 					)}
 				>
-					<p>
+					<div className="desc">
 						{__(
 							'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
 							'vulopilot'
 						)}
-					</p>
+					</div>
 				</CardComponent>
 				<ModuleGuardComponent
 					icon="lock"

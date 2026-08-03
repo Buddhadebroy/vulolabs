@@ -3,12 +3,19 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { NoticeManager, PopupComponent } from '@zyra/components';
+import {
+	CardComponent,
+	ColumnComponent,
+	ContainerComponent,
+	ModuleGuardComponent,
+	NavigatorHeaderComponent,
+	NoticeManager,
+	PopupComponent,
+} from '@zyra/components';
 import { ButtonInput, SelectInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import type { ComponentType } from 'react';
 import { useApiList } from '../../services/useApiList';
-import TablePage from '../../components/TablePage/TablePage';
 import ShowProPopup from '../../components/Popup/Popup';
 
 interface ReportTypeOption {
@@ -167,7 +174,7 @@ const Reports = () => {
 			<ButtonInput
 				buttons={{
 					text: __('Generate report', 'vulopilot'),
-					icon: 'media-document',
+					icon: 'document',
 					onClick: handleGenerateReport,
 				}}
 			/>
@@ -175,19 +182,33 @@ const Reports = () => {
 	);
 
 	return (
-		<TablePage
-			headerIcon="report"
-			headerTitle={__('Reports', 'vulopilot')}
-			headerDescription={__(
-				'Generate and download scan summary, SEO, WooCommerce, security, and other compliance reports.',
-				'vulopilot'
-			)}
-			headerAction={pageHeaderAction}
-			error={error}
-			onRetry={refetch}
-			errorTitle={__('Could not load reports', 'vulopilot')}
-		>
-			<TableCard
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="report"
+				headerTitle={__('Reports', 'vulopilot')}
+				headerDescription={__(
+					'Generate and download scan summary, SEO, WooCommerce, security, and other compliance reports.',
+					'vulopilot'
+				)}
+			/>
+			<ContainerComponent general>
+				<ColumnComponent>
+					{error ? (
+						<CardComponent
+							title={__('Reports', 'vulopilot')}
+							action={pageHeaderAction}
+						>
+							<ModuleGuardComponent
+								icon="error"
+								title={__('Could not load reports', 'vulopilot')}
+								desc={error}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetch}
+							/>
+						</CardComponent>
+					) : (
+						<>
+							<TableCard
 				buttonActions={[
 					{
 						label: __('Generate report', 'vulopilot'),
@@ -252,12 +273,16 @@ const Reports = () => {
 					// Pro is active — this specific module just isn't
 					// toggled on yet, so point at Modules rather than
 					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="advanced-reports" />
+					<ShowProPopup moduleName="reports-module" />
 				) : (
 					<ShowProPopup />
 				)}
 			</PopupComponent>
-		</TablePage>
+						</>
+					)}
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
 	);
 };
 

@@ -3,11 +3,17 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
-import { CardComponent, PopupComponent } from '@zyra/components';
+import {
+	CardComponent,
+	ColumnComponent,
+	ContainerComponent,
+	ModuleGuardComponent,
+	NavigatorHeaderComponent,
+	PopupComponent,
+} from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
-import TablePage from '../../components/TablePage/TablePage';
 import ShowProPopup from '../../components/Popup/Popup';
 
 interface AiHistoryRow extends TableRow {
@@ -72,7 +78,7 @@ const AiAnalyticsLockedCard = () => {
 					// Pro is active — this specific module just isn't
 					// toggled on yet, so point at Modules rather than
 					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="advanced-reports" />
+					<ShowProPopup moduleName="reports-module" />
 				) : (
 					<ShowProPopup />
 				)}
@@ -109,18 +115,33 @@ const AIAssistant = () => {
 	);
 
 	return (
-		<TablePage
-			headerIcon="ai"
-			headerTitle={__('AI Assistant', 'vulopilot')}
-			headerDescription={__(
-				'A history of every AI provider call VuloPilot has made on your behalf.',
-				'vulopilot'
-			)}
-			error={error}
-			onRetry={refetch}
-			errorTitle={__('Could not load AI history', 'vulopilot')}
-		>
-			<TableCard
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="ai"
+				headerTitle={__('AI Assistant', 'vulopilot')}
+				headerDescription={__(
+					'A history of every AI provider call VuloPilot has made on your behalf.',
+					'vulopilot'
+				)}
+			/>
+			<ContainerComponent general>
+				<ColumnComponent>
+					{error ? (
+						<CardComponent title={__('AI Assistant', 'vulopilot')}>
+							<ModuleGuardComponent
+								icon="error"
+								title={__(
+									'Could not load AI history',
+									'vulopilot'
+								)}
+								desc={error}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetch}
+							/>
+						</CardComponent>
+					) : (
+						<>
+							<TableCard
 				search={{
 					placeholder: __('Search AI history…', 'vulopilot'),
 				}}
@@ -178,8 +199,16 @@ const AIAssistant = () => {
 					},
 				]}
 			/>
-			{AiAnalyticsPanel ? <AiAnalyticsPanel /> : <AiAnalyticsLockedCard />}
-		</TablePage>
+							{AiAnalyticsPanel ? (
+								<AiAnalyticsPanel />
+							) : (
+								<AiAnalyticsLockedCard />
+							)}
+						</>
+					)}
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
 	);
 };
 

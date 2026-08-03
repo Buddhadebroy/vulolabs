@@ -68,7 +68,7 @@ const RecentIssuesWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Recent open issues', 'vulopilot')}
-			icon="warning"
+			icon="error"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}

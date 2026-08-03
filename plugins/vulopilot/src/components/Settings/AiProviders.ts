@@ -13,9 +13,9 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'ai-providers',
-	priority: 1,
+	priority: 7,
 	headerTitle: __('AI Providers', 'vulopilot'),
-	headerIcon: 'admin-generic',
+	headerIcon: 'ai',
 	submitUrl: 'settings',
 	modal: [],
 };

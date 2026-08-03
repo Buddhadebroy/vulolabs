@@ -105,7 +105,7 @@ const PendingApprovalWidget: React.FC<WidgetProps> = ({
 								<ButtonInput
 									buttons={{
 										text: __('Approve', 'vulopilot'),
-										icon: 'yes',
+										icon: 'check',
 										onClick: () =>
 											handleDecision(row, 'approve'),
 										disabled: busyId === row.id,
@@ -114,7 +114,7 @@ const PendingApprovalWidget: React.FC<WidgetProps> = ({
 								<ButtonInput
 									buttons={{
 										text: __('Reject', 'vulopilot'),
-										icon: 'no',
+										icon: 'cross',
 										onClick: () =>
 											handleDecision(row, 'reject'),
 										disabled: busyId === row.id,

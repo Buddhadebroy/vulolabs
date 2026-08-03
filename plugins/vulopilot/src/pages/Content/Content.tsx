@@ -121,7 +121,7 @@ const Content = () => (
 				{!isContentModuleActive() ? (
 					<CardComponent title={__('Content', 'vulopilot')}>
 						<ModuleGuardComponent
-							icon="warning"
+							icon="error"
 							title={__(
 								'Content Intelligence module is turned off',
 								'vulopilot'

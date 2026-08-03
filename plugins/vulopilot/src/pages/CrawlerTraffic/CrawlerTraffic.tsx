@@ -2,10 +2,15 @@
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
-import { CardComponent } from '@zyra/components';
+import {
+	CardComponent,
+	ColumnComponent,
+	ContainerComponent,
+	ModuleGuardComponent,
+	NavigatorHeaderComponent,
+} from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
-import TablePage from '../../components/TablePage/TablePage';
 import FindingsTable from '../../components/FindingsTable';
 import CrawlerSummaryCard from './CrawlerSummaryCard';
 
@@ -52,8 +57,8 @@ interface CrawlerVisitRow extends TableRow {
 }
 
 /**
- * AI Crawler Traffic Monitoring (readme.txt) — same TablePage + useApiList
- * + TableCard shape Activity.tsx already uses for a paginated log table,
+ * AI Crawler Traffic Monitoring (readme.txt) — same NavigatorHeaderComponent
+ * + useApiList + TableCard shape Activity.tsx already uses for a paginated log table,
  * plus CrawlerSummaryCard above it for the aggregate section (last-seen
  * per bot, most-crawled pages, crawl volume trend), a Blocked Pages
  * FindingsTable, and vulopilot-pro's AiCrawlerAnalytics module's own 3 Pro
@@ -115,75 +120,99 @@ const CrawlerTraffic = () => {
 	);
 
 	return (
-		<TablePage
-			headerIcon="globe"
-			headerTitle={__('Crawler Traffic', 'vulopilot')}
-			headerDescription={__(
-				'Which AI answer engines are reading your site, and what they request — no IP addresses or personal data, ever.',
-				'vulopilot'
-			)}
-			error={error}
-			onRetry={refetch}
-			errorTitle={__('Could not load crawler traffic', 'vulopilot')}
-		>
-			<CrawlerSummaryCard />
-
-			{CrawlerAlertsCard && <CrawlerAlertsCard />}
-			{HistoricalCrawlTrendsCard && <HistoricalCrawlTrendsCard />}
-			{CrawlerVisibilityCorrelationCard && (
-				<CrawlerVisibilityCorrelationCard />
-			)}
-
-			{isSeoModuleActive() && (
-				<CardComponent
-					title={__('Blocked pages', 'vulopilot')}
-					desc={__(
-						'Real pages robots.txt disallows for one specific AI bot.',
-						'vulopilot'
-					)}
-				>
-					<FindingsTable
-						title={__('Blocked pages', 'vulopilot')}
-						description={__(
-							'No AI-bot-specific blocks found — run a scan to check robots.txt against your published pages.',
-							'vulopilot'
-						)}
-						scannerIds={['ai-crawler-blocked-pages']}
-					/>
-				</CardComponent>
-			)}
-
-			<TableCard
-				search={{
-					placeholder: __('Search requested URLs…', 'vulopilot'),
-				}}
-				headers={{
-					bot_name: {
-						label: __('Bot', 'vulopilot'),
-					},
-					requested_url: {
-						label: __('Requested URL', 'vulopilot'),
-					},
-					created_at: {
-						label: __('When', 'vulopilot'),
-						type: 'date',
-						isSortable: true,
-						defaultSort: true,
-						defaultOrder: 'desc',
-					},
-				}}
-				rows={data}
-				ids={data.map((row) => row.id)}
-				totalRows={total}
-				categoryCounts={categoryCounts}
-				isLoading={isLoading}
-				onQueryUpdate={onQueryUpdate}
-				emptyMessage={__(
-					'No AI crawler visits detected yet.',
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="global-community"
+				headerTitle={__('Crawler Traffic', 'vulopilot')}
+				headerDescription={__(
+					'Which AI answer engines are reading your site, and what they request — no IP addresses or personal data, ever.',
 					'vulopilot'
 				)}
 			/>
-		</TablePage>
+			<ContainerComponent general>
+				<ColumnComponent>
+					{error ? (
+						<CardComponent title={__('Crawler Traffic', 'vulopilot')}>
+							<ModuleGuardComponent
+								icon="error"
+								title={__(
+									'Could not load crawler traffic',
+									'vulopilot'
+								)}
+								desc={error}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetch}
+							/>
+						</CardComponent>
+					) : (
+						<>
+							<CrawlerSummaryCard />
+
+							{CrawlerAlertsCard && <CrawlerAlertsCard />}
+							{HistoricalCrawlTrendsCard && (
+								<HistoricalCrawlTrendsCard />
+							)}
+							{CrawlerVisibilityCorrelationCard && (
+								<CrawlerVisibilityCorrelationCard />
+							)}
+
+							{isSeoModuleActive() && (
+								<CardComponent
+									title={__('Blocked pages', 'vulopilot')}
+									desc={__(
+										'Real pages robots.txt disallows for one specific AI bot.',
+										'vulopilot'
+									)}
+								>
+									<FindingsTable
+										title={__('Blocked pages', 'vulopilot')}
+										description={__(
+											'No AI-bot-specific blocks found — run a scan to check robots.txt against your published pages.',
+											'vulopilot'
+										)}
+										scannerIds={['ai-crawler-blocked-pages']}
+									/>
+								</CardComponent>
+							)}
+
+							<TableCard
+								search={{
+									placeholder: __(
+										'Search requested URLs…',
+										'vulopilot'
+									),
+								}}
+								headers={{
+									bot_name: {
+										label: __('Bot', 'vulopilot'),
+									},
+									requested_url: {
+										label: __('Requested URL', 'vulopilot'),
+									},
+									created_at: {
+										label: __('When', 'vulopilot'),
+										type: 'date',
+										isSortable: true,
+										defaultSort: true,
+										defaultOrder: 'desc',
+									},
+								}}
+								rows={data}
+								ids={data.map((row) => row.id)}
+								totalRows={total}
+								categoryCounts={categoryCounts}
+								isLoading={isLoading}
+								onQueryUpdate={onQueryUpdate}
+								emptyMessage={__(
+									'No AI crawler visits detected yet.',
+									'vulopilot'
+								)}
+							/>
+						</>
+					)}
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
 	);
 };
 

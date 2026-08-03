@@ -73,7 +73,7 @@ const CrawlerSummaryCard = () => {
 						variant="dashboard"
 						cols={4}
 						data={summary.bot_last_seen.map((entry) => ({
-							icon: 'globe',
+							icon: 'global-community',
 							number: entry.last_seen_at,
 							text: entry.bot_name,
 						}))}

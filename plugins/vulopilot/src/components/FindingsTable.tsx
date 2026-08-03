@@ -237,7 +237,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		return (
 			<CardComponent title={title}>
 				<ModuleGuardComponent
-					icon="warning"
+					icon="error"
 					title={__('Could not load findings', 'vulopilot')}
 					desc={error}
 					buttonText={__('Retry', 'vulopilot')}
@@ -285,7 +285,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 						row?.status === 'open'
 							? __('Mark resolved', 'vulopilot')
 							: __('Resolved', 'vulopilot'),
-					icon: 'yes',
+					icon: 'check',
 					onClick: handleResolve,
 				},
 				{
@@ -293,12 +293,12 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 						row?.status === 'ignored'
 							? __('Ignored', 'vulopilot')
 							: __('Ignore', 'vulopilot'),
-					icon: 'hidden',
+					icon: 'eye-blocked',
 					onClick: handleIgnore,
 				},
 				{
 					label: __('Reopen', 'vulopilot'),
-					icon: 'controls-repeat',
+					icon: 'toggle',
 					onClick: handleReopen,
 				},
 				{
@@ -314,7 +314,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 				// docblock above); this is only ever the entry point + gate.
 				{
 					label: __('Fix', 'vulopilot'),
-					icon: 'admin-tools',
+					icon: 'tools',
 					onClick: (row?: Record<string, unknown>) => {
 						const findingFixHandler = getFindingFixHandler();
 

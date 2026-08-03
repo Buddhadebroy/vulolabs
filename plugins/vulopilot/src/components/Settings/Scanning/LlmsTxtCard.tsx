@@ -83,7 +83,7 @@ const LlmsTxtCard = () => {
 
 	return (
 		<>
-			<p className="llms-txt-live-link">
+			<div className="desc llms-txt-live-link">
 				{__('Live file:', 'vulopilot')}{' '}
 				<a
 					href={`${appLocalizer.site_url}/llms.txt`}
@@ -92,13 +92,13 @@ const LlmsTxtCard = () => {
 				>
 					{`${appLocalizer.site_url}/llms.txt`}
 				</a>
-			</p>
+			</div>
 			<ButtonInput
 				buttons={{
 					text: isRegenerating
 						? __('Regenerating…', 'vulopilot')
 						: __('Regenerate', 'vulopilot'),
-					icon: 'update',
+					icon: 'refresh',
 					onClick: handleRegenerate,
 					disabled: isRegenerating,
 				}}

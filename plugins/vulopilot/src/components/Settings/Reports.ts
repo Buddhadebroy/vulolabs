@@ -4,7 +4,7 @@ export default {
 	id: 'reports',
 	priority: 5,
 	headerTitle: __('Reports', 'vulopilot'),
-	headerIcon: 'media-document',
+	headerIcon: 'document',
 	submitUrl: 'settings',
 	modal: [
 		{

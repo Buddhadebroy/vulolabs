@@ -162,7 +162,7 @@ const SEO = () => (
 				{!isSeoModuleActive() ? (
 					<CardComponent title={__('SEO', 'vulopilot')}>
 						<ModuleGuardComponent
-							icon="warning"
+							icon="error"
 							title={__('SEO module is turned off', 'vulopilot')}
 							desc={__(
 								'Turn the SEO module back on from Settings → Modules to resume SEO scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category.',

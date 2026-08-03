@@ -188,7 +188,7 @@ const GeoCompetitorVisibility = applyFilters(
 const GEO = () => (
 	<>
 		<NavigatorHeaderComponent
-			headerIcon="globe"
+			headerIcon="global-community"
 			headerTitle={__('GEO', 'vulopilot')}
 			headerDescription={__(
 				'Generative Engine Optimization — how discoverable and citable this site is to AI answer engines.',

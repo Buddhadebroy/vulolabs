@@ -89,9 +89,9 @@ export default function SocialTab() {
 						</Button>
 					) }
 				</div>
-				<p className="vulopilot-seo-social-image__help">
+				<div className="desc vulopilot-seo-social-image__help">
 					{ __( 'Leave empty to use the featured image.', 'vulopilot' ) }
-				</p>
+				</div>
 			</div>
 		</div>
 	);

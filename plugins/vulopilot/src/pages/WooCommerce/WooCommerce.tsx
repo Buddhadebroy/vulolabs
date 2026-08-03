@@ -65,7 +65,7 @@ const WooCommerceAiLockedCard = () => {
 					// Pro is active — this specific module just isn't
 					// toggled on yet, so point at Modules rather than
 					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="woo-commerce-ai" />
+					<ShowProPopup moduleName="woocommerce-intelligence" />
 				) : (
 					<ShowProPopup />
 				)}
@@ -119,7 +119,7 @@ const WooCommerceIntelligenceLockedCard = () => {
 				position="lightbox"
 			>
 				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="woo-commerce-intelligence" />
+					<ShowProPopup moduleName="woocommerce-intelligence" />
 				) : (
 					<ShowProPopup />
 				)}

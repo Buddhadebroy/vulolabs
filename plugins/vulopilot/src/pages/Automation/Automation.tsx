@@ -3,10 +3,16 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
-import { PopupComponent } from '@zyra/components';
+import {
+	CardComponent,
+	ColumnComponent,
+	ContainerComponent,
+	ModuleGuardComponent,
+	NavigatorHeaderComponent,
+	PopupComponent,
+} from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
-import TablePage from '../../components/TablePage/TablePage';
 import ShowProPopup from '../../components/Popup/Popup';
 
 interface AutomationRow extends TableRow {
@@ -53,18 +59,31 @@ const Automation = () => {
 	const openProPopup = () => setIsProPopupOpen(true);
 
 	return (
-		<TablePage
-			headerIcon="automation"
-			headerTitle={__('Automation', 'vulopilot')}
-			headerDescription={__(
-				'React to scan findings automatically — send emails, resolve findings, or run an AI action.',
-				'vulopilot'
-			)}
-			error={error}
-			onRetry={refetch}
-			errorTitle={__('Could not load automations', 'vulopilot')}
-		>
-			{AutomationPanel ? (
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="automation"
+				headerTitle={__('Automation', 'vulopilot')}
+				headerDescription={__(
+					'React to scan findings automatically — send emails, resolve findings, or run an AI action.',
+					'vulopilot'
+				)}
+			/>
+			<ContainerComponent general>
+				<ColumnComponent>
+					{error ? (
+						<CardComponent title={__('Automation', 'vulopilot')}>
+							<ModuleGuardComponent
+								icon="error"
+								title={__(
+									'Could not load automations',
+									'vulopilot'
+								)}
+								desc={error}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetch}
+							/>
+						</CardComponent>
+					) : AutomationPanel ? (
 				<AutomationPanel />
 			) : (
 				<>
@@ -121,12 +140,12 @@ const Automation = () => {
 											row?.status === 'enabled'
 												? __('Disable', 'vulopilot')
 												: __('Enable', 'vulopilot'),
-										icon: 'controls-repeat',
+										icon: 'toggle',
 										onClick: openProPopup,
 									},
 									{
 										label: __('Run now', 'vulopilot'),
-										icon: 'controls-play',
+										icon: 'next',
 										onClick: openProPopup,
 									},
 								],
@@ -155,14 +174,16 @@ const Automation = () => {
 							// isn't toggled on yet, so point at Modules
 							// rather than pitching an upgrade the user
 							// already has.
-							<ShowProPopup moduleName="automation" />
+							<ShowProPopup moduleName="automation-engine" />
 						) : (
 							<ShowProPopup />
 						)}
 					</PopupComponent>
 				</>
-			)}
-		</TablePage>
+					)}
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
 	);
 };
 

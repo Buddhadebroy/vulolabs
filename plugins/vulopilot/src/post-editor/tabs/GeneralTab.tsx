@@ -112,7 +112,7 @@ export default function GeneralTab() {
 			/>
 
 			{ analyzing && 0 === results.length ? (
-				<p>{ __( 'Analyzing…', 'vulopilot' ) }</p>
+				<div className="desc">{ __( 'Analyzing…', 'vulopilot' ) }</div>
 			) : (
 				( [ 'basic', 'additional', 'title_readability' ] as const ).map( ( group ) => (
 					<Checklist
