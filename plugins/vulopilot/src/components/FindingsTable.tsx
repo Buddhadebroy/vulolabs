@@ -357,6 +357,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		<>
 			<TableCard
 				headers={headers}
+				format={appLocalizer.date_format_js}
 				showMenu={false}
 				className= 'transparent-table'
 				rows={data}

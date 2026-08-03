@@ -250,4 +250,21 @@ class ScannerRegistry {
             static fn( ScannerInterface $scanner ) => $scanner->get_category() === $category
         );
     }
+
+    /**
+     * Every registered scanner except those in the given categories —
+     * lets a caller that already covers some categories on their own
+     * (e.g. Automation\Scheduler's global tick deferring to
+     * SecurityScanScheduler/AccessibilityAuditScheduler's own independent
+     * cadence, see that class's own docblock) skip re-running them.
+     *
+     * @param string[] $excluded_categories Category strings to leave out.
+     * @return array<string, ScannerInterface>
+     */
+    public function get_all_scanners_except( array $excluded_categories ): array {
+        return array_filter(
+            $this->scanners,
+            static fn( ScannerInterface $scanner ) => ! in_array( $scanner->get_category(), $excluded_categories, true )
+        );
+    }
 }

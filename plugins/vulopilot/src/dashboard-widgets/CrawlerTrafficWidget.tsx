@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
+import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 
 interface BotLastSeen {
@@ -84,7 +85,7 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 						items={topBots.map((bot) => ({
 							id: bot.bot_name,
 							title: bot.bot_name,
-							value: bot.last_seen_at,
+							value: formatWpDate(bot.last_seen_at),
 						}))}
 					/>
 				</>

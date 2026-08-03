@@ -112,6 +112,22 @@ class Settings extends \WP_REST_Controller {
             )
         );
 
+        // "Send test email" button (Settings → Notifications) — same
+        // `type: 'button'` + `apilink` shape zyra's ButtonInputFieldComponent
+        // already POSTs through for reset_settings above, just its own
+        // dedicated route rather than overloading /reset.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/test-email',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'send_test_email' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
         // Enable/disable a module — mirrors the free vulolabs plugin's
         // own Settings controller (module-architecture.md), same GET/POST
         // shape zyra's ModuleGridComponent already expects.
@@ -263,6 +279,62 @@ class Settings extends \WP_REST_Controller {
             array(
                 'success' => true,
                 'message' => __( 'Settings reset to defaults.', 'vulopilot' ),
+            )
+        );
+    }
+
+    /**
+     * "Send test email" (Settings → Notifications) — sends one real email
+     * through the exact same recipient/From-header logic every other
+     * notification email in this codebase already uses (Services\ScanPersistenceListener,
+     * GeoAnalysis\GeoAnalyzer, and their vulopilot-pro counterparts), so a
+     * successful test genuinely confirms those settings work rather than
+     * exercising a separate code path.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function send_test_email( $request ) {
+        $settings  = $this->get_stored_settings();
+        $recipient = $settings['notification_email'] ?: get_option( 'admin_email' );
+
+        if ( ! is_email( $recipient ) ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'The notification email address isn\'t valid.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $headers = array();
+
+        if ( ! empty( $settings['email_from_address'] ) && is_email( $settings['email_from_address'] ) ) {
+            $from_name = $settings['email_from_name'] ?: get_bloginfo( 'name' );
+            $headers[] = sprintf( 'From: %s <%s>', $from_name, $settings['email_from_address'] );
+        }
+
+        $sent = wp_mail(
+            $recipient,
+            sprintf(
+                /* translators: %s is the site name. */
+                __( '[%s] VuloPilot test email', 'vulopilot' ),
+                get_bloginfo( 'name' )
+            ),
+            __( "This is a test email from VuloPilot's Notifications settings. If you received this, your notification email is configured correctly.", 'vulopilot' ),
+            $headers
+        );
+
+        return rest_ensure_response(
+            array(
+                'success' => $sent,
+                'message' => $sent
+                    ? sprintf(
+                        /* translators: %s is the recipient email address. */
+                        __( 'Test email sent to %s.', 'vulopilot' ),
+                        $recipient
+                    )
+                    : __( 'wp_mail() returned false — check your site\'s mail configuration.', 'vulopilot' ),
             )
         );
     }

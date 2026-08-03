@@ -159,6 +159,13 @@ class FrontendScripts {
                 'plugin_slug'    => VuloPilot()->plugin_slug,
                 'text_domain'    => VULOPILOT_PLUGIN_TEXTDOMAIN,
                 'date_format'    => get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+                // Settings → General → Date Format, translated into zyra's
+                // own token syntax (YYYY/MM/DD/…) — TableCard's `date`
+                // column type and any other date display in the React app
+                // pass this through as the `format` it renders with, so
+                // dates show the way this site is actually configured
+                // rather than zyra's hardcoded "YYYY-MM-DD" default.
+                'date_format_js' => self::convert_date_format_to_js( get_option( 'date_format' ) ),
                 // Feeds zyra's configureZyra()/ZyraVariable.khali_dabba (a
                 // proSetting field's Pro-tag/lock in InputRenderer) and
                 // vulopilot-pro's src/index.tsx (which module JS entries
@@ -181,5 +188,61 @@ class FrontendScripts {
                 ),
             )
         );
+    }
+
+    /**
+     * Translates a PHP `date()` format string (Settings → General → Date
+     * Format only ever produces one of a handful of single-character
+     * tokens — Y/y/F/M/m/n/j/d, plus whatever literal punctuation sits
+     * between them) into the token syntax zyra's own TableCard `date`
+     * column type understands (YYYY/YY/MMMM/MMM/MM/DD/D). zyra has no
+     * unpadded-numeric-month or 12-hour/am-pm tokens, so `n`/`h`/`g` fall
+     * back to their nearest zyra equivalent and `a`/`A` are dropped rather
+     * than leaking the literal letter into the rendered date — a
+     * non-issue in practice since `date_format` (unlike `time_format`)
+     * never contains time tokens on a default WordPress install.
+     *
+     * @param string $php_format A PHP `date()` format string, e.g. get_option( 'date_format' ).
+     * @return string The same format expressed in zyra's token syntax.
+     */
+    private static function convert_date_format_to_js( string $php_format ): string {
+        $token_map = array(
+            'Y' => 'YYYY',
+            'y' => 'YY',
+            'F' => 'MMMM',
+            'M' => 'MMM',
+            'm' => 'MM',
+            'n' => 'MM',
+            'd' => 'DD',
+            'j' => 'D',
+            'H' => 'HH',
+            'G' => 'HH',
+            'h' => 'HH',
+            'g' => 'HH',
+            'i' => 'mm',
+            's' => 'ss',
+        );
+
+        $js_format = '';
+        $length    = strlen( $php_format );
+
+        for ( $i = 0; $i < $length; $i++ ) {
+            $char = $php_format[ $i ];
+
+            // A backslash escapes the next character as a literal in
+            // PHP's date() syntax (e.g. custom formats like 'jS \o\f F').
+            if ( '\\' === $char && $i + 1 < $length ) {
+                $js_format .= $php_format[ ++$i ];
+                continue;
+            }
+
+            if ( 'a' === $char || 'A' === $char ) {
+                continue;
+            }
+
+            $js_format .= $token_map[ $char ] ?? $char;
+        }
+
+        return trim( $js_format );
     }
 }

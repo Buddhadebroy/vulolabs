@@ -102,6 +102,7 @@ const Automation = () => {
 								'vulopilot'
 							),
 						}}
+						format={appLocalizer.date_format_js}
 						buttonActions={[
 							{
 								label: __('Create automation', 'vulopilot'),

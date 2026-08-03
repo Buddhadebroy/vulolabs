@@ -19,6 +19,8 @@ declare global {
 		plugin_slug: string;
 		text_domain: string;
 		date_format: string;
+		/** Settings → General → Date Format, translated into zyra's own token syntax (YYYY/MM/DD/…) — pass this as TableCard's `format` prop, or through services/formatWpDate.ts for a raw date string outside a table. */
+		date_format_js: string;
 		/** Whether VuloPilot Pro is installed, active, and license-active — feeds zyra's configureZyra()/ZyraVariable.khali_dabba. */
 		khali_dabba: boolean;
 		/** Kebab-case ids of every currently-active module (Free's own + any active vulopilot-pro modules) — feeds zyra's `moduleEnabled` settings-field gate and vulopilot-pro/src/index.tsx's per-module JS loading. */

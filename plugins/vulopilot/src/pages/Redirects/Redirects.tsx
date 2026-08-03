@@ -336,6 +336,7 @@ const Redirects = () => {
 				search={{
 					placeholder: __('Search missing URLs…', 'vulopilot'),
 				}}
+				format={appLocalizer.date_format_js}
 				headers={{
 					requested_path: {
 						label: __('Requested URL', 'vulopilot'),
