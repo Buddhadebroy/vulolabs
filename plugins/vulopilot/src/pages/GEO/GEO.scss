@@ -1,0 +1,6 @@
+// Brief flash when OpenIssuesGlimpse.tsx scrolls to a GEO_SECTIONS card —
+// removed again after 1.2s (see scrollToSection()'s own setTimeout).
+.vulopilot-glimpse-highlight {
+	transition: background-color 0.6s ease;
+	background-color: rgba(91, 61, 245, 0.08);
+}

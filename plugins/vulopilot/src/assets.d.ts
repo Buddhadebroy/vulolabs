@@ -6,3 +6,4 @@
 // TypeScript), so this split isn't stylistic, it's load-bearing.
 declare module '*.png';
 declare module '*.svg';
+declare module '*.scss';

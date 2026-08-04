@@ -9,6 +9,8 @@ import {
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
 import TopPagesCard from './TopPagesCard';
+import OpenIssuesGlimpse from './OpenIssuesGlimpse';
+import './GEO.scss';
 
 /**
  * Section → scanner_id grouping for GEO's 12 scanners (Free's original 9,
@@ -201,10 +203,12 @@ const GEO = () => (
 				{GeoVisibilityTrend && <GeoVisibilityTrend />}
 				{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
 				{GeoScoreCard && <GeoScoreCard />}
+				<OpenIssuesGlimpse />
 				<TopPagesCard />
 				{GEO_SECTIONS.map((section) => (
 					<CardComponent
 						key={section.key}
+						id={`geo-section-${section.key}`}
 						title={section.title}
 						desc={section.description}
 					>

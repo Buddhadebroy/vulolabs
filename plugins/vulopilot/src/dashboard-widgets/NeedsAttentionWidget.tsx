@@ -11,6 +11,7 @@ import {
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
+import { getSeverityClass } from '../services/getSeverityClass';
 import { WidgetProps } from './types';
 
 interface FindingRow {
@@ -134,6 +135,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 								/>
 							) : (
 								<ListComponent
+									className="mini-card report"
 									items={quickFixes.data.map((finding) => ({
 										id: String(finding.id),
 										title: finding.title,

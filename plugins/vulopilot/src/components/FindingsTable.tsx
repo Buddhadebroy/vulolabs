@@ -366,9 +366,9 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 				categoryCounts={categoryCounts}
 				isLoading={isLoading}
 				onQueryUpdate={onQueryUpdate}
-				// search={{
-				// 	placeholder: __('Search findings…', 'vulopilot'),
-				// }}
+				search={{
+					placeholder: __('Search findings…', 'vulopilot'),
+				}}
 				bulkActions={[
 					{
 						label: __('Mark resolved', 'vulopilot'),
