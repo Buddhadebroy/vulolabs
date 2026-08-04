@@ -170,6 +170,22 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		{ key: 'status', options: statusOptions }
 	);
 
+	/**
+	 * Whether the user currently has a search term typed in — tracked so
+	 * the `search` box below can hide itself when there's nothing to
+	 * search (`total === 0`), without also hiding it out from under
+	 * someone whose own search just happens to match nothing: `total`
+	 * reflects the *current* (possibly search-filtered) result count, not
+	 * "has this table ever had any rows," so gating on `total === 0` alone
+	 * would make the box vanish mid-search with no way left to clear it.
+	 */
+	const [hasSearchTerm, setHasSearchTerm] = useState(false);
+
+	const handleQueryUpdate: typeof onQueryUpdate = (query) => {
+		setHasSearchTerm(Boolean(query.searchValue));
+		onQueryUpdate(query);
+	};
+
 	const handleSetStatus = (
 		row: Record<string, unknown> | undefined,
 		status: 'resolved' | 'ignored' | 'open',
@@ -463,10 +479,12 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 				totalRows={total}
 				categoryCounts={categoryCounts}
 				isLoading={isLoading}
-				onQueryUpdate={onQueryUpdate}
-				search={{
-					placeholder: __('Search findings…', 'vulopilot'),
-				}}
+				onQueryUpdate={handleQueryUpdate}
+				search={
+					total > 0 || hasSearchTerm
+						? { placeholder: __('Search findings…', 'vulopilot') }
+						: undefined
+				}
 				bulkActions={[
 					{
 						label: __('Mark resolved', 'vulopilot'),

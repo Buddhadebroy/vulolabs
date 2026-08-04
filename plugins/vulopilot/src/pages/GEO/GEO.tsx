@@ -32,13 +32,14 @@ const SCANNER_TO_SECTION: Record<string, string> = {
 	'geo-trust-signals': 'entities',
 	'llms-txt-missing': 'crawlability',
 	'stale-content': 'freshness',
-	'aeo-schema': 'aeo',
 };
 
 /**
- * Section → scanner_id grouping for GEO's 12 scanners (Free's original 9,
- * GEO-MODULE.md, plus GeoInsights' 2 Pro ones, plus Free's own
- * AeoSchemaScanner), mirroring the SEO.tsx SEO_SECTIONS pattern: each
+ * Section → scanner_id grouping for GEO's 11 scanners (Free's original 9,
+ * GEO-MODULE.md, plus GeoInsights' 2 Pro ones — AeoSchemaScanner's
+ * `aeo-schema` finding lives on AEO.tsx's own "Answer Structure" section
+ * instead, not duplicated here; AEO is its own lens over the data, not a
+ * GEO subsection), mirroring the SEO.tsx SEO_SECTIONS pattern: each
  * section is its own independent
  * FindingsTable (own fetch/pagination/search/bulk actions) scoped by
  * scannerIds rather than one flat category="geo" table. Unlike SEO's
@@ -50,6 +51,7 @@ const SCANNER_TO_SECTION: Record<string, string> = {
 const GEO_SECTIONS: {
 	key: string;
 	title: string;
+	titleIcon: string;
 	description: string;
 	emptyMessage: string;
 	scannerIds: string[];
@@ -67,6 +69,7 @@ const GEO_SECTIONS: {
 	{
 		key: 'summary',
 		title: __('AI Summary', 'vulopilot'),
+		titleIcon: 'ai',
 		description: __(
 			'Whether pages have an extractable AI summary block or answer questions readers would plausibly ask.',
 			'vulopilot'
@@ -80,6 +83,7 @@ const GEO_SECTIONS: {
 	{
 		key: 'evidence',
 		title: __('Evidence & Data', 'vulopilot'),
+		titleIcon: 'report',
 		description: __(
 			'Statistic-shaped claims with no citation or outbound link backing them up.',
 			'vulopilot'
@@ -93,6 +97,7 @@ const GEO_SECTIONS: {
 	{
 		key: 'structure',
 		title: __('Structure', 'vulopilot'),
+		titleIcon: 'blocks',
 		description: __(
 			'Paragraph length and heading hierarchy — how easily an AI system can extract a clean chunk of this content.',
 			'vulopilot'
@@ -106,6 +111,7 @@ const GEO_SECTIONS: {
 	{
 		key: 'entities',
 		title: __('Entities & Trust', 'vulopilot'),
+		titleIcon: 'person',
 		description: __(
 			'Author credentials, consistent naming, and baseline trust pages (About/Contact) AI systems weigh before citing a source.',
 			'vulopilot'
@@ -124,6 +130,7 @@ const GEO_SECTIONS: {
 	{
 		key: 'crawlability',
 		title: __('Crawlability', 'vulopilot'),
+		titleIcon: 'search-discovery',
 		description: __(
 			'Whether AI crawlers can find a curated index of this site’s content.',
 			'vulopilot'
@@ -138,6 +145,7 @@ const GEO_SECTIONS: {
 	{
 		key: 'freshness',
 		title: __('Freshness', 'vulopilot'),
+		titleIcon: 'clock',
 		description: __(
 			'Pages that haven’t been updated recently — AI answer engines favor actively-maintained content.',
 			'vulopilot'
@@ -148,19 +156,6 @@ const GEO_SECTIONS: {
 		),
 		scannerIds: ['stale-content'],
 		proModule: 'geo-insights',
-	},
-	{
-		key: 'aeo',
-		title: __('AEO (Answer Engine Optimization)', 'vulopilot'),
-		description: __(
-			'Content already shaped like an FAQ or a how-to guide, but missing the schema.org markup that lets AI answer engines recognize it as one.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No AEO schema findings yet — run a scan to check FAQ/HowTo-shaped content for missing schema.',
-			'vulopilot'
-		),
-		scannerIds: ['aeo-schema'],
 	},
 ];
 
@@ -244,6 +239,7 @@ const GEO = () => {
 				) : (
 					<CardComponent
 						title={__('AI Visibility Score', 'vulopilot')}
+						titleIcon="global-community"
 						desc={__(
 							'Sitewide GEO score, historical trend, and competitor comparison.',
 							'vulopilot'
@@ -254,6 +250,7 @@ const GEO = () => {
 				)}
 				<OpenIssuesGlimpse
 					category="geo"
+					titleIcon="notification"
 					sectionMap={SCANNER_TO_SECTION}
 					fallbackSection="entities"
 					anchorPrefix="geo-section-"
@@ -268,6 +265,7 @@ const GEO = () => {
 							key={section.key}
 							id={`geo-section-${section.key}`}
 							title={section.title}
+							titleIcon={section.titleIcon}
 							desc={section.description}
 						>
 							{section.proModule && !isGeoInsightsActive() ? (

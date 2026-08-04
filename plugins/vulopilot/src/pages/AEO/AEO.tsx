@@ -11,6 +11,7 @@ import FindingsTable from '../../components/FindingsTable';
 import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
 import ProLockedCard from '../../components/ProLockedCard';
 import { useRunScan } from '../../services/useRunScan';
+import { useSectionStatus } from '../../services/useSectionStatus';
 
 /**
  * Which AEO_SECTIONS card (below) each scanner's findings live under — same
@@ -39,6 +40,7 @@ const SCANNER_TO_SECTION: Record<string, string> = {
 const AEO_SECTIONS: {
 	key: string;
 	title: string;
+	titleIcon: string;
 	description: string;
 	emptyMessage: string;
 	scannerIds: string[];
@@ -47,6 +49,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'answers',
 		title: __('Direct Answers', 'vulopilot'),
+		titleIcon: 'answer',
 		description: __(
 			'Whether pages have an extractable, up-front answer an AI system can lift directly, rather than one buried in the middle of the content.',
 			'vulopilot'
@@ -60,6 +63,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'coverage',
 		title: __('Question Coverage', 'vulopilot'),
+		titleIcon: 'question',
 		description: __(
 			'Commonly-asked questions a page plausibly answers, but with no FAQ or Q&A block making that answer easy to extract.',
 			'vulopilot'
@@ -73,6 +77,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'structure',
 		title: __('Answer Structure', 'vulopilot'),
+		titleIcon: 'blocks',
 		description: __(
 			'Content already shaped like an FAQ or a how-to guide, but missing the schema.org markup that lets AI answer engines recognize it as one.',
 			'vulopilot'
@@ -86,6 +91,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'citation',
 		title: __('Citation Readiness', 'vulopilot'),
+		titleIcon: 'report',
 		description: __(
 			'Statistic-shaped claims with no citation or outbound link backing them up — the evidence an AI system needs before it will cite a source.',
 			'vulopilot'
@@ -99,6 +105,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'crawlability',
 		title: __('llms.txt & Crawlability', 'vulopilot'),
+		titleIcon: 'search-discovery',
 		description: __(
 			'Whether AI crawlers can find a curated index of this site’s content.',
 			'vulopilot'
@@ -121,6 +128,48 @@ const isGeoInsightsActive = () =>
 	appLocalizer.active_modules?.includes('geo-insights') ?? false;
 
 /**
+ * One AEO_SECTIONS card — its own component (not inlined in the `.map()`
+ * below) because it calls useSectionStatus(), and every section here always
+ * has a real, non-empty scannerIds list, so that hook call is always safe
+ * (same scannerIds for a given mounted instance's whole lifetime). `toggle`
+ * is zyra CardComponent's own built-in collapse affordance (a chevron in
+ * the card header that shows/hides the body) — reused here instead of a
+ * custom switch, so every section's toggle is positioned identically for
+ * free.
+ */
+const AeoSectionCard = ({
+	section,
+}: {
+	section: (typeof AEO_SECTIONS)[number];
+}) => {
+	const { badge } = useSectionStatus('geo', section.scannerIds);
+	const isLocked = Boolean(section.proModule) && !isGeoInsightsActive();
+
+	return (
+		<CardComponent
+			id={`aeo-section-${section.key}`}
+			title={section.title}
+			titleIcon={section.titleIcon}
+			desc={section.description}
+			badges={badge ? [badge] : []}
+			toggle
+			defaultExpanded
+		>
+			{isLocked ? (
+				<ProLockedCard moduleName={section.proModule as string} />
+			) : (
+				<FindingsTable
+					title={section.title}
+					description={section.emptyMessage}
+					scannerIds={section.scannerIds}
+					layout="compact"
+				/>
+			)}
+		</CardComponent>
+	);
+};
+
+/**
  * AEO = Answer Engine Optimization — whether AI systems can extract,
  * structure, and cite a direct answer from this site's pages (distinct from
  * GEO's broader "can an AI understand this page at all" scope, and from
@@ -128,14 +177,22 @@ const isGeoInsightsActive = () =>
  * other category page (GEO, SEO, Performance, Accessibility, WooCommerce,
  * Security) already uses.
  *
- * Two pieces of the design this page is modeled on have no real backend
- * anywhere in this codebase today (neither Free nor Pro) — a per-signal
- * "Answerability" score breakdown, and live citation testing against named
- * AI answer engines (ChatGPT, Perplexity, etc). Rather than fabricate
- * numbers for either (this plugin's own Knowledge Graph page's standing
- * rule: "Real data only — nothing here is generated or guessed"), both
- * render an honest not-built-yet notice, same posture AIContent.tsx
- * already takes for its own not-yet-scored signals.
+ * Three cards on this page have no real backend anywhere in this codebase
+ * today (neither Free nor Pro) — a per-signal "Answerability" score
+ * breakdown, live citation testing against named AI answer engines
+ * (ChatGPT, Perplexity, etc, "Answer engine coverage"), and per-engine
+ * re-test tracking ("Engine Testing", its own card rather than folded into
+ * Answer engine coverage — both are real, separate concepts: one is
+ * whether an engine currently cites this site at all, the other is
+ * whether a specific fixed finding got re-verified against an engine).
+ * Rather than fabricate numbers for any of them (this plugin's own
+ * Knowledge Graph page's standing rule: "Real data only — nothing here is
+ * generated or guessed"), all three render an honest not-built-yet notice
+ * with a "Not tracked yet" badge, same posture AIContent.tsx already takes
+ * for its own not-yet-scored signals. "Simulated Citation Checks" on
+ * Answer engine coverage previews what that card's data source will be
+ * once built (a deterministic structural check, not a live AI call) —
+ * it's not claiming the check already runs.
  */
 const AEO = () => {
 	const { runScanButton } = useRunScan();
@@ -153,7 +210,15 @@ const AEO = () => {
 			/>
 		<ContainerComponent general>
 			<ColumnComponent>
-				<CardComponent title={__('Answerability signals', 'vulopilot')}>
+				<CardComponent
+					title={__('Answerability signals', 'vulopilot')}
+					titleIcon="analytics"
+					badges={[
+						{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+					]}
+					toggle
+					defaultExpanded
+				>
 					<ModuleGuardComponent
 						icon="info"
 						title={__('Not scoring answerability signals yet', 'vulopilot')}
@@ -165,6 +230,7 @@ const AEO = () => {
 				</CardComponent>
 				<OpenIssuesGlimpse
 					category="geo"
+					titleIcon="notification"
 					scannerIds={AEO_SECTIONS.flatMap((section) => section.scannerIds)}
 					sectionMap={SCANNER_TO_SECTION}
 					fallbackSection="answers"
@@ -174,10 +240,19 @@ const AEO = () => {
 				/>
 				<CardComponent
 					title={__('Answer engine coverage', 'vulopilot')}
+					titleIcon="global-community"
 					desc={__(
 						'Whether AI answer engines currently cite this site when asked questions its content answers.',
 						'vulopilot'
 					)}
+					badges={[
+						{
+							text: __('Simulated Citation Checks', 'vulopilot'),
+							color: 'purple',
+						},
+					]}
+					toggle
+					defaultExpanded
 				>
 					<ModuleGuardComponent
 						icon="info"
@@ -188,24 +263,31 @@ const AEO = () => {
 						)}
 					/>
 				</CardComponent>
-				{AEO_SECTIONS.map((section) => (
-					<CardComponent
-						key={section.key}
-						id={`aeo-section-${section.key}`}
-						title={section.title}
-						desc={section.description}
-					>
-						{section.proModule && !isGeoInsightsActive() ? (
-							<ProLockedCard moduleName={section.proModule} />
-						) : (
-							<FindingsTable
-								title={section.title}
-								description={section.emptyMessage}
-								scannerIds={section.scannerIds}
-								layout="compact"
-							/>
+				<CardComponent
+					id="aeo-section-engine-testing"
+					title={__('Engine Testing', 'vulopilot')}
+					titleIcon="intelligence"
+					desc={__(
+						'Re-verifies a previously-flagged finding against an AI answer engine once you’ve fixed it, instead of waiting for the next full scan.',
+						'vulopilot'
+					)}
+					badges={[
+						{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+					]}
+					toggle
+					defaultExpanded
+				>
+					<ModuleGuardComponent
+						icon="info"
+						title={__('Not available yet', 'vulopilot')}
+						desc={__(
+							'Per-engine re-test tracking isn’t built yet — flag if you want it scoped next.',
+							'vulopilot'
 						)}
-					</CardComponent>
+					/>
+				</CardComponent>
+				{AEO_SECTIONS.map((section) => (
+					<AeoSectionCard key={section.key} section={section} />
 				))}
 			</ColumnComponent>
 		</ContainerComponent>

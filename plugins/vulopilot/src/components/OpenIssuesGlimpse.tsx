@@ -40,6 +40,8 @@ interface OpenIssuesGlimpseProps {
 	anchorPrefix: string;
 	emptyTitle: string;
 	emptyDesc: string;
+	/** adminfont-* icon name shown next to the card title. Omit for no icon. */
+	titleIcon?: string;
 }
 
 /**
@@ -62,6 +64,7 @@ const OpenIssuesGlimpse = ({
 	anchorPrefix,
 	emptyTitle,
 	emptyDesc,
+	titleIcon,
 }: OpenIssuesGlimpseProps) => {
 	const { data, total, isLoading } = useApiList<FindingRow>('findings', {
 		category,
@@ -87,7 +90,11 @@ const OpenIssuesGlimpse = ({
 
 	return (
 		<ColumnComponent grid={6} fullHeight>
-			<CardComponent title={__('Open issues', 'vulopilot')} isLoading={isLoading}>
+			<CardComponent
+				title={__('Open issues', 'vulopilot')}
+				titleIcon={titleIcon}
+				isLoading={isLoading}
+			>
 				{!isLoading && data.length === 0 ? (
 					<ModuleGuardComponent icon="check" title={emptyTitle} desc={emptyDesc} />
 				) : (

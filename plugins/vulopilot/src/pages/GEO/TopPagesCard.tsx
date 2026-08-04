@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, ColumnComponent, ListComponent } from '@zyra/components';
 
@@ -43,30 +43,40 @@ const TopPagesCard = () => {
 			.finally(() => setIsLoading(false));
 	}, []);
 
-	const renderList = (rows: TopPageRow[]) => (
-		<>
-			<ul className="geo-top-pages__list">
-				<div className="title">{__('Most AI-visible', 'vulopilot')}</div>
-				{rows.map((row) => (
-					<li key={row.post_id}>
-						<a href={row.edit_link}>{row.title}</a>
-						<span className="geo-top-pages__count">
+	const renderList = (rows: TopPageRow[], title: string) => (
+		<div className="geo-top-pages__list">
+			<div className="title">{title}</div>
+			<ListComponent
+				className="mini-card report"
+				items={rows.map((row) => ({
+					id: String(row.post_id),
+					title: row.title,
+					action: () => {
+						window.location.href = row.edit_link;
+					},
+					tags: (
+						<span className="admin-badge">
 							{row.open_findings === 0
 								? __('No open findings', 'vulopilot')
 								: row.open_findings === 1
 									? __('1 open finding', 'vulopilot')
-									: `${row.open_findings} ${__('open findings', 'vulopilot')}`}
+									: sprintf(
+											/* translators: %d is the number of open findings. */
+											__('%d open findings', 'vulopilot'),
+											row.open_findings
+										)}
 						</span>
-					</li>
-				))}
-			</ul>
-		</>
+					),
+				}))}
+			/>
+		</div>
 	);
 
 	return (
 		<ColumnComponent grid={6} fullHeight>
 		<CardComponent
 			title={__('Top Pages', 'vulopilot')}
+			titleIcon="bar-chart"
 			desc={__(
 				'Ranked by open GEO findings — fewer findings means the page is more AI-visibility ready.',
 				'vulopilot'
@@ -75,8 +85,9 @@ const TopPagesCard = () => {
 		>
 			{data && data.top.length > 0 ? (
 				<ColumnComponent row>
-					{renderList(data.top)}
-					{data.bottom.length > 0 && renderList(data.bottom)}
+					{renderList(data.top, __('Most AI-visible', 'vulopilot'))}
+					{data.bottom.length > 0 &&
+						renderList(data.bottom, __('Needs attention', 'vulopilot'))}
 				</ColumnComponent>
 			) : (
 				<div className="desc">
