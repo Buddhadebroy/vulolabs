@@ -1,12 +1,15 @@
 # VuloPilot — Automation Engine
 
 Companion to [`DATABASE.md`](DATABASE.md), [`RULE-ENGINE.md`](RULE-ENGINE.md),
-and [`SCANNERS.md`](SCANNERS.md). Unlike every other module doc in this
-folder, this one covers a subsystem that was **already substantially
-built** before this pass (11 triggers, 4 actions, cooldown, run history,
-a bare-bones Workflow Builder UI, all in `vulopilot-pro`'s own `Automation`
-module) — the audit below establishes exactly what existed, what this pass
-closed, and what's still genuinely new.
+and [`SCANNERS.md`](SCANNERS.md), and to `vulopilot-pro`'s own
+[`AUTOMATION-ENGINE-MODULE.md`](../../../../plugins/vulopilot-pro/docs/AUTOMATION-ENGINE-MODULE.md)
+(the Pro-side file — every file in `modules/Automation/`, in full detail;
+read this one first). Unlike every other module doc in this folder, this
+one covers a subsystem that was **already substantially built** before this
+pass (12 triggers, 4 actions, cooldown, run history, a bare-bones Workflow
+Builder UI, all in `vulopilot-pro`'s own `Automation` module) — the audit
+below establishes exactly what existed, what this pass closed, and what's
+still genuinely new.
 
 ## Audit: what already existed
 
@@ -25,7 +28,7 @@ onto this existing engine as follows:
 
 | Spec item | Status before this pass |
 |---|---|
-| Triggers | Already fully built (11 triggers) — untouched. |
+| Triggers | Already fully built (12 triggers — `TriggerRegistry`'s own docblock notes this count grew by one after this audit was first written) — untouched by this pass. |
 | Actions | Already fully built (4 actions) — untouched. |
 | Schedules | Already fully built (`Scheduler`, hourly/daily/weekly/monthly cron) — untouched. |
 | Email | Already fully built (`Actions\SendEmailAction`) — untouched. |

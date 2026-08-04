@@ -200,6 +200,35 @@ registered via `vulopilot_report_type_sources` the same way
 `AiCrawlerAnalytics\CrawlReport`/`AdvancedReports\HealthReport` already
 are.
 
+## Tests
+
+`test-entity-extractor.php` (Free) — real unit tests over
+`EntityExtractor`'s own deterministic `extract_*()`/`get_homepage_publisher()`
+methods (invoked via Reflection, same posture
+`test-about-page-analysis-scanner.php` already documents), stubbing only
+the plain WordPress functions each one touches. `extract_products()`'s
+"WooCommerce active" branch isn't covered (would need a real/mocked
+`WC_Product` graph this test suite has no precedent for); its "WooCommerce
+inactive" branch is covered for free since the `WooCommerce` class
+genuinely doesn't exist in this Brain\Monkey-only bootstrap.
+
+`test-entity-relationship-builder.php`,
+`test-knowledge-graph-health-snapshot-builder.php`,
+`test-entity-recommendation-analyzer.php`, and
+`test-knowledge-graph-report.php` (Pro) — same Brain\Monkey-based fast-
+unit-test posture every prior module's own Tests section documents. Run
+with `vendor/bin/phpunit` from either plugin directory.
+
+React tests (`wp-scripts test-unit-js`) cover
+`src/pages/KnowledgeGraph/__tests__/KnowledgeGraph.test.tsx` (the 6
+entity-group listing, including the `products: null` "not applicable"
+state) and `KnowledgeGraph.pro-filters.test.tsx` (Pro filter-slot
+rendering), plus `src/dashboard-widgets/__tests__/KnowledgeGraphWidget.test.tsx`
+(Free), and `EntityRecommendationsCard.test.tsx`/
+`KnowledgeGraphHealthCard.test.tsx`/`KnowledgeGraphHealthWidget.test.tsx`/
+`KnowledgeGraphVisualizationCard.test.tsx` (Pro). Run with
+`pnpm test:unit:js` from either plugin directory.
+
 ## What's not here yet
 
 - **A shared PHP/TS source of truth for relationship-type display

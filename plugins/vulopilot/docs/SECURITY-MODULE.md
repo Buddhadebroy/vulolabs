@@ -27,13 +27,17 @@ incident-reporting concept.
 ## Free — four new scanners, all category `security`
 
 All four live in `classes/Scanners/Basic/`, registered in
-`ScannerRegistry::get_default_scanner_classes()` alongside the 7
+`ScannerRegistry::get_default_scanner_classes()` alongside 6 of the 7
 pre-existing Pro `SecurityMonitoring` scanners under the same `security`
-category string. Each has its own settings toggle (`Settings → Scanning →
-Security`) rather than a whole-category kill switch — same granular,
-per-scanner-toggle posture the 4 pre-existing Pro toggles in this category
-already established (`enable_rest_api_scanner` etc.), deliberately *not*
-a new `enable_security_scanning` category switch, since this category has
+category string — `RestApiScanner`'s own category is `rest-api`, not
+`security` (it's the one exception; see `SecurityMonitoring\Module`'s own
+docblock), so it doesn't actually share this category string the other 6
+(admin-username, file editor, debug mode, xmlrpc exposure, security
+headers, exposed files) do. Each has its own settings toggle (`Settings →
+Scanning → Security`) rather than a whole-category kill switch — same
+granular, per-scanner-toggle posture the 4 pre-existing Pro toggles in this
+category already established (`enable_rest_api_scanner` etc.), deliberately
+*not* a new `enable_security_scanning` category switch, since this category has
 never used one.
 
 - **`UpdatesScanner`** (existing, untouched) — "Outdated Plugins."
