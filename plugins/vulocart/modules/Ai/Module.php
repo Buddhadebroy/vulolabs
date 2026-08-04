@@ -7,29 +7,41 @@
 
 namespace VuloCart\Ai;
 
+use VuloCart\AI\AiClient;
+use VuloCart\AI\AiProviderConfigUtil;
+use VuloCart\AI\AiUsageLogUtil;
+use VuloCart\AI\ProviderRegistry;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
  * VuloCart AI Module.
  *
  * Same toggleable-addon shape as VuloCart\Cart\Module/VuloCart\Order\Module
- * (module-architecture.md), but deliberately minimal — there is no AI
- * provider client/recommendation engine to wire yet, so `init_classes()`
- * has nothing to construct. This module's entire real effect today is:
+ * (module-architecture.md). The real AI provider engine
+ * (classes/AI/ — adapters, encrypted BYOK storage, ProviderRegistry,
+ * AiClient) has now landed, exactly where this module's own original
+ * docblock said it would: "its Frontend/Rest/`src/` pieces slot into this
+ * same Module.php". This module's real effect:
  *
- * 1. Making "AI" a real, toggleable entry on the Modules page
- *    (src/modules-config.ts), instead of a settings-only concept.
- * 2. Gating `src/settings/Ai.ts`'s `ai_provider` field
- *    (`moduleEnabled: 'ai'`) — that field is locked (with an
- *    "Activate AI" popup, zyra's InputRenderer) until this module is
- *    active, which is the replacement for the "Enable AI recommendations"
- *    Settings toggle that used to live there and duplicated this exact
- *    on/off state.
+ * 1. Making "AI" a real, toggleable entry on the Modules page — activating
+ *    it is what makes `AiClient` resolvable at all (same
+ *    `VuloCart()->ai_client` magic-property pattern
+ *    `Shipping\Module`/`Taxes\Module` already use for their own services),
+ *    so `Order\Application\OrderService::resolve_optional_service()`'s
+ *    "gracefully absent" pattern is exactly how a Pro AI feature module
+ *    should reach for it too.
+ * 2. Registering `/ai/providers`/`/ai/usage` (Rest.php) — BYOK key
+ *    management and the usage log.
+ * 3. Owning `vulocart_ai_provider_configs`/`vulocart_ai_usage_log`
+ *    (Install.php).
  *
- * When a real AI provider integration is built, its Frontend/Rest/`src/`
- * pieces slot into this same Module.php, same as Cart's own Install/
- * Application/Infrastructure/Rest layers were added incrementally on top
- * of this identical container shape.
+ * The engine deliberately lives in this FREE module rather than
+ * `vulocart-pro` — same "the engine is free infrastructure, Pro modules
+ * are what's built on it" split vulopilot's own AI-ARCHITECTURE.md
+ * documents for `classes/AIProviders/` there. `vulocart-pro`'s own
+ * CatalogAi/CheckoutAi/SupportAi/VectorSearch modules are the Pro-gated
+ * features built on top of this.
  *
  * @class       Module class
  * @version     1.0.0
@@ -38,9 +50,7 @@ defined( 'ABSPATH' ) || exit;
 class Module {
 
     /**
-     * Container for this module's own class instances — empty today,
-     * kept for shape-parity with every other module's Module.php so
-     * adding real classes later doesn't require restructuring this file.
+     * Container for this module's own class instances.
      *
      * @var array
      */
@@ -50,15 +60,60 @@ class Module {
      * Module constructor.
      */
     public function __construct() {
+        new Install();
+
         $this->init_classes();
     }
 
     /**
-     * Nothing to construct yet — see class docblock.
+     * @return void
+     */
+    public function init_classes() {
+        $this->container['registry']   = new ProviderRegistry();
+        $this->container['configs']    = new AiProviderConfigUtil();
+        $this->container['usage_log']  = new AiUsageLogUtil();
+        $this->container['client']     = new AiClient( $this->container['registry'], $this->container['usage_log'] );
+        $this->container['rest']       = new Rest( $this->container['registry'], $this->container['configs'], $this->container['usage_log'] );
+
+        // Same `VuloCart()->shipping_service = ...` pattern Shipping\Module
+        // uses — makes the client reachable from any Pro module without a
+        // hard dependency, via the same graceful
+        // `try { VuloCart()->ai_client } catch (\Exception $e) { null }`
+        // shape OrderService::resolve_optional_service() already
+        // documents for Shipping/Taxes/Payment.
+        VuloCart()->ai_client           = $this->container['client'];
+        VuloCart()->ai_provider_registry = $this->container['registry'];
+
+        add_action( 'admin_menu', array( $this, 'register_menu' ) );
+    }
+
+    /**
+     * Registers the "Settings" submenu under the top-level AI menu
+     * (Menu.php::add_ai_menu()) — the BYOK provider configuration screen.
+     * Every other submenu under `vulocart-ai` (Catalog/Checkout/Support/
+     * Search) is registered by vulocart-pro's own AI feature modules,
+     * same "Free owns top-level chrome, Pro fills it in" split
+     * `ShippingEngine\Module::register_menu()`'s own docblock documents.
      *
      * @return void
      */
-    public function init_classes() {}
+    public function register_menu() {
+        add_submenu_page(
+            'vulocart-ai',
+            __( 'AI Settings', 'vulocart' ),
+            __( 'Settings', 'vulocart' ),
+            'manage_options',
+            'vulocart-ai&view=settings',
+            array( $this, 'render_page' )
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function render_page() {
+        echo '<div id="vulocart-ai-admin-root"></div>';
+    }
 
     /**
      * Magic getter for this module's own container.

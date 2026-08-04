@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
 import type { JSX } from 'react';
 import { __ } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
 import { useLocation, Link } from 'react-router-dom';
 import { getApiLink, getApiResponse, getAvailableSettings, getSettingById } from '@zyra/core';
 import { InputRenderer } from '@zyra/inputs';
@@ -56,7 +57,26 @@ const Settings = () => {
 		// the number of hooks React sees differ between renders).
 		const { setting, settingName, setSetting, updateSetting } = useSetting();
 
-		const settingModal = currentTab ? getSettingById( settingsArray, currentTab ) : null;
+		const rawSettingModal = currentTab ? getSettingById( settingsArray, currentTab ) : null;
+
+		// Lets a Pro module (a payment gateway registering its own
+		// credential fields onto the Payments tab, for instance) append
+		// fields to an existing tab without this plugin knowing that
+		// module exists — same "compose-many, filter-context-routed"
+		// shape `vulocart_offering_edit_sections` already establishes.
+		// Applied here (at render time), not inside the tab's own static
+		// `src/settings/*.ts` file — those are collected via a
+		// `require.context` that runs eagerly on script load, before a
+		// separately-enqueued Pro bundle has necessarily executed its own
+		// `addFilter()` call; by the time this component renders, every
+		// admin script has already run.
+		const settingModal = rawSettingModal
+			? {
+					...rawSettingModal,
+					modal: applyFilters( 'vulocart_settings_fields', rawSettingModal.modal, { settingId: currentTab } ),
+			  }
+			: null;
+
 		const fieldKeys: string[] = ( settingModal?.modal ?? [] ).map(
 			( field: { key: string } ) => field.key
 		);

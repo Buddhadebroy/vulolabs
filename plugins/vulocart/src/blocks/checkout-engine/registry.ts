@@ -71,6 +71,42 @@ export type OrderPlacedHandler = (
 ) => void | Promise< void >;
 
 /**
+ * A gateway's own storefront widget (`vulocart-pro`'s Stripe/PayPal/
+ * Razorpay modules) — registered per payment-method id, resolved by
+ * `PaymentStep.tsx` once the shopper has picked that method. Renders
+ * whatever that gateway's own JS SDK needs (a card element, a PayPal
+ * button) in place of the generic radio-only flow the three offline
+ * gateways still use, and is responsible for calling `POST /payment/
+ * intent` itself, then `update({ paymentIntentId })` once the gateway
+ * has confirmed client-side — `ReviewStep`'s own "Place Order" button
+ * stays disabled until that field is set for any method with a
+ * registered renderer (isPaymentMethodReady()).
+ */
+export type PaymentMethodRenderer = ( context: CheckoutStepContext ) => ReactNode;
+
+const paymentMethodRenderers = new Map< string, PaymentMethodRenderer >();
+
+export function registerPaymentMethodRenderer( methodId: string, renderer: PaymentMethodRenderer ): void {
+	paymentMethodRenderers.set( methodId, renderer );
+}
+
+export function getPaymentMethodRenderer( methodId: string ): PaymentMethodRenderer | undefined {
+	return paymentMethodRenderers.get( methodId );
+}
+
+/**
+ * Whether checkout can proceed past payment for the currently-selected
+ * method — true for every offline method (no renderer registered, no
+ * intent to wait on) and for an online gateway only once its own
+ * renderer has confirmed a `paymentIntentId`.
+ */
+export function isPaymentMethodReady( methodId: string, data: CheckoutRunData ): boolean {
+	const renderer = getPaymentMethodRenderer( methodId );
+
+	return ! renderer || Boolean( data.paymentIntentId );
+}
+
+/**
  * The client-side half of the Checkout Engine's pluggability —
  * server-side discovery (`GET /checkout/steps`,
  * RestAPI\Controllers\Checkout.php) tells the engine WHICH step ids exist
@@ -133,6 +169,7 @@ declare global {
 			registerCheckoutStep: typeof registerCheckoutStep;
 			registerCheckoutStepExtension: typeof registerCheckoutStepExtension;
 			registerOrderPlacedHandler: typeof registerOrderPlacedHandler;
+			registerPaymentMethodRenderer: typeof registerPaymentMethodRenderer;
 			/** Set by mount.tsx, not this file — registry.ts alone doesn't import CheckoutEngine.tsx (that'd be a circular import: mount.tsx -> CheckoutEngine.tsx -> registry.ts). Undefined until whatever entry pulls mount.tsx in has run (Checkout.tsx's own import does, always). */
 			mount?: ( container: HTMLElement, options: Record< string, unknown > ) => void;
 			unmount?: ( container: HTMLElement ) => void;
@@ -144,4 +181,5 @@ window.vulocartCheckoutEngine = {
 	registerCheckoutStep,
 	registerCheckoutStepExtension,
 	registerOrderPlacedHandler,
+	registerPaymentMethodRenderer,
 };

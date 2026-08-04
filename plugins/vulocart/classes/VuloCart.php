@@ -243,6 +243,7 @@ final class VuloCart {
 
         $this->container['admin']        = new Admin\Menu();
         $this->container['rest']         = new RestAPI\Rest();
+        $this->container['cors']         = new RestAPI\Cors();
         $this->container['block']        = new Block();
         $this->container['order_emails'] = new Notifications\OrderEmails();
 

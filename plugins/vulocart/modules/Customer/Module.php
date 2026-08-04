@@ -12,18 +12,15 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Customer Module.
  *
- * Same toggleable-addon pattern as VuloCart\Cart\Module. No hard
- * cross-module dependency to defer — CustomerService only ever reads
- * `wp_get_current_user()`/usermeta, so (unlike Order\Module) this module
- * wires everything synchronously in its own constructor.
- *
- * Lightweight by design: no `vulocart_customers` table, no Install.php.
- * A Customer here is a per-order snapshot (Order's own `customer_email`/
- * `customer_name`/`customer_phone`/`customer_user_id` columns), optionally
- * linked to a real WP user id when logged in — not a separate persistent
- * account/profile entity. This module's whole job is resolving *that*
- * snapshot's starting values (prefill for a logged-in buyer) and
- * sanitizing whatever the checkout wizard's Customer step posts.
+ * Now owns a real persistent Customer entity (`Install.php`,
+ * `Domain\Customer`'s own docblock) — every order dispatches
+ * `vulocart_order_created`, this module listens and finds-or-creates the
+ * customer, advancing their running totals
+ * (`Application\CustomerService::record_order()`). Still no hard
+ * cross-module dependency to defer on: this listener is optional (a
+ * plain `add_action`, silently a no-op if Order somehow never fires it),
+ * so this module still wires everything synchronously in its own
+ * constructor, same as before.
  *
  * @class       Module class
  * @version     1.0.0
@@ -52,20 +49,37 @@ class Module {
      * @return void
      */
     public function init_classes() {
-        $this->container['service'] = new Application\CustomerService();
+        $this->container['install']   = new Install();
+        $this->container['customers'] = new Infrastructure\WPDBCustomerRepository();
+        $this->container['addresses'] = new Infrastructure\WPDBAddressRepository();
+        $this->container['notes']     = new Infrastructure\WPDBNoteRepository();
+        $this->container['service']   = new Application\CustomerService(
+            $this->container['customers'],
+            $this->container['addresses'],
+            $this->container['notes']
+        );
 
         VuloCart()->customer_service = $this->container['service'];
 
         $this->container['rest'] = new Rest();
 
         add_filter( 'vulocart_checkout_steps', array( $this, 'register_checkout_step' ) );
+        add_action( 'vulocart_order_created', array( $this, 'maybe_record_order' ) );
+    }
+
+    /**
+     * `vulocart_order_created`'s own listener.
+     *
+     * @param array{order: object} $payload Order\Domain\Order under the 'order' key.
+     * @return void
+     */
+    public function maybe_record_order( $payload ) {
+        $this->container['service']->record_order( $payload['order'] );
     }
 
     /**
      * Registers this module's own step into the Checkout Engine's step
-     * registry (RestAPI\Controllers\Checkout::get_steps() — see that
-     * method's own docblock for why this is the pluggability mechanism
-     * itself, not a hardcoded client-side list).
+     * registry.
      *
      * @param array<int, array<string, mixed>> $steps Already-registered step descriptors.
      * @return array<int, array<string, mixed>>
