@@ -6,6 +6,7 @@ import SEO from './pages/SEO/SEO';
 import Performance from './pages/Performance/Performance';
 import Accessibility from './pages/Accessibility/Accessibility';
 import GEO from './pages/GEO/GEO';
+import AEO from './pages/AEO/AEO';
 import CrawlerTraffic from './pages/CrawlerTraffic/CrawlerTraffic';
 import WooCommerce from './pages/WooCommerce/WooCommerce';
 import Automation from './pages/Automation/Automation';
@@ -28,6 +29,7 @@ registerVuloPilotRoute({ tab: 'seo', component: SEO });
 registerVuloPilotRoute({ tab: 'performance', component: Performance });
 registerVuloPilotRoute({ tab: 'accessibility', component: Accessibility });
 registerVuloPilotRoute({ tab: 'geo', component: GEO });
+registerVuloPilotRoute({ tab: 'aeo', component: AEO });
 registerVuloPilotRoute({
 	tab: 'crawler-traffic',
 	component: CrawlerTraffic,

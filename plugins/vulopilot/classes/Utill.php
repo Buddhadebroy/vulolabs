@@ -404,6 +404,11 @@ class Utill {
         'brand_drop_threshold'                  => 5,
         // AI Crawler Traffic Monitoring.
         'enable_crawler_tracking'               => array( 'enable_crawler_tracking' ),
+        // Read by Services\CrawlerTrafficLogger::run_cleanup() as the base
+        // value passed through the `vulopilot_crawler_log_retention_days`
+        // filter (30, matching this class's own prior hardcoded default) —
+        // vulopilot-pro's AdvancedReports module extends it further.
+        'log_retention'                         => '30',
         // Scanning > Crawler Analytics. Read by vulopilot-pro's
         // AiCrawlerAnalytics\CrawlerAlertMonitor — the minimum percentage
         // drop in daily AI crawler visit volume (vs. the trailing 7-day

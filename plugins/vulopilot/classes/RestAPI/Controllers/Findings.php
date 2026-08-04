@@ -138,6 +138,7 @@ class Findings extends \WP_REST_Controller {
             )
         );
         $result['status_counts'] = $repository->get_status_counts( '' !== $category ? $category : null, $scanner_ids );
+        $result['data']          = array_map( array( $this, 'add_page_field' ), $result['data'] );
 
         return rest_ensure_response(
             // Lets a Pro module (vulopilot-pro's OneClickFix) annotate each
@@ -147,6 +148,46 @@ class Findings extends \WP_REST_Controller {
             // vulopilot_reports_advanced_panel/vulopilot_pro_dashboard_component.
             apply_filters( 'vulopilot_finding_list_response', $result )
         );
+    }
+
+    /**
+     * Resolves each row's raw `object_type`/`object_ref` DB columns into a
+     * human-readable `page` field the client can display directly (GEO.tsx's
+     * compact FindingsTable layout — "$page · Detected $date", the same
+     * meta line the dashboard mockup's own FindingRow shows) rather than a
+     * bare post ID or the `home_url('/')` placeholder ref sitewide scanners
+     * write (see GeoAnalysis\GeoAnalyzer::calculate_deterministic_score()'s
+     * own docblock on that placeholder).
+     *
+     * @param array<string, mixed> $row One row from FindingRepository::find_all()'s `data`.
+     * @return array<string, mixed> Same row, with a `page` key added.
+     */
+    private function add_page_field( array $row ): array {
+        $object_type = $row['object_type'] ?? null;
+        $object_ref  = $row['object_ref'] ?? null;
+
+        if ( 'post' === $object_type && is_numeric( $object_ref ) ) {
+            $permalink = get_permalink( (int) $object_ref );
+            $row['page'] = $permalink ? wp_make_link_relative( $permalink ) : __( 'Site-wide', 'vulopilot' );
+
+            return $row;
+        }
+
+        if ( is_string( $object_ref ) && untrailingslashit( $object_ref ) === untrailingslashit( home_url( '/' ) ) ) {
+            $row['page'] = __( 'Site-wide', 'vulopilot' );
+
+            return $row;
+        }
+
+        if ( is_string( $object_ref ) && filter_var( $object_ref, FILTER_VALIDATE_URL ) ) {
+            $row['page'] = wp_make_link_relative( $object_ref );
+
+            return $row;
+        }
+
+        $row['page'] = __( 'Site-wide', 'vulopilot' );
+
+        return $row;
     }
 
     /**

@@ -101,15 +101,21 @@ class Admin {
                     'group'    => 'ai-visibility',
                     'icon'     => 'dashicons-star-filled',
                 ),
+                'aeo'              => array(
+                    'name'     => __( 'AEO', 'vulopilot' ),
+                    'priority' => 21,
+                    'group'    => 'ai-visibility',
+                    'icon'     => 'dashicons-format-status',
+                ),
                 'ai-content'       => array(
                     'name'     => __( 'AI Content', 'vulopilot' ),
-                    'priority' => 21,
+                    'priority' => 22,
                     'group'    => 'ai-visibility',
                     'icon'     => 'dashicons-edit',
                 ),
                 'crawler-traffic'  => array(
                     'name'     => __( 'Crawler Traffic', 'vulopilot' ),
-                    'priority' => 22,
+                    'priority' => 23,
                     'group'    => 'ai-visibility',
                     'icon'     => 'dashicons-networking',
                 ),

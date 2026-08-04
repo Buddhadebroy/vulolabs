@@ -1,0 +1,7 @@
+// Brief flash when a glimpse row's action scrolls to the matching section
+// card below — removed again after 1.2s (see scrollToSection()'s own
+// setTimeout in OpenIssuesGlimpse.tsx).
+.vulopilot-glimpse-highlight {
+	transition: background-color 0.6s ease;
+	background-color: rgba(91, 61, 245, 0.08);
+}
