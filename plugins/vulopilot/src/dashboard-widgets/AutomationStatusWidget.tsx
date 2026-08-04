@@ -39,14 +39,13 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
-			<div className="dashboard-widget-summary-line">
-				{sprintf(
-					/* translators: 1: number of enabled automations, 2: number of disabled automations. */
-					__('%1$d enabled · %2$d disabled', 'vulopilot'),
-					summary.automation_status.enabled,
-					summary.automation_status.disabled
-				)}
-			</div>
+			
+			<span className="admin-badge green">
+				{sprintf('%d enabled', summary.automation_status.enabled)}
+			</span>
+			<span className="admin-badge red">
+				{sprintf('%d disabled', summary.automation_status.disabled)}
+			</span>
 
 			{error ? (
 				<ModuleGuardComponent
