@@ -46,7 +46,8 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 	onHide,
 	isCustomizing,
 	children,
-	borderColor
+	borderColor,
+	desc
 }) => {
 	return (
 		<CardComponent
@@ -55,6 +56,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 			title={title}
 			isLoading={isLoading}
 			borderColor={borderColor}
+			desc={desc}
 			action={
 				isCustomizing ? (
 					<>

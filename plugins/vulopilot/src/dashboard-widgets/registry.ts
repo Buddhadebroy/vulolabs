@@ -67,27 +67,6 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		component: HealthPillarsWidget,
 	},
 	{
-		id: 'needs-attention',
-		title: __('Needs your attention', 'vulopilot'),
-		icon: 'error',
-		grid: 6,
-		component: NeedsAttentionWidget,
-	},
-	{
-		id: 'brand-breakdown',
-		title: __('Brand Visibility breakdown', 'vulopilot'),
-		icon: 'person',
-		grid: 6,
-		component: BrandBreakdownWidget,
-	},
-	{
-		id: 'issue-distribution',
-		title: __('Issue distribution', 'vulopilot'),
-		icon: 'error',
-		grid: 6,
-		component: IssueDistributionWidget,
-	},
-	{
 		id: 'recent-activity',
 		title: __('Recent activity', 'vulopilot'),
 		icon: 'clock',
@@ -100,6 +79,13 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		icon: 'analytics',
 		grid: 6,
 		component: HealthTimelineWidget,
+	},
+	{
+		id: 'needs-attention',
+		title: __('Needs your attention', 'vulopilot'),
+		icon: 'error',
+		grid: 6,
+		component: NeedsAttentionWidget,
 	},
 	{
 		id: 'latest-reports',
@@ -128,6 +114,21 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		icon: 'centralized-connections',
 		grid: 6,
 		component: KnowledgeGraphWidget,
+	},
+	{
+		id: 'brand-breakdown',
+		title: __('Brand Visibility breakdown', 'vulopilot'),
+		
+		icon: 'person',
+		grid: 6,
+		component: BrandBreakdownWidget,
+	},
+	{
+		id: 'issue-distribution',
+		title: __('Issue distribution', 'vulopilot'),
+		icon: 'error',
+		grid: 6,
+		component: IssueDistributionWidget,
 	},
 ];
 

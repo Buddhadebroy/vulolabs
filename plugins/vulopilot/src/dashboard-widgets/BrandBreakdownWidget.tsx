@@ -59,6 +59,7 @@ const BrandBreakdownWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Brand Visibility breakdown', 'vulopilot')}
+			desc={__('Off-site mentions & share of voice — predicts AI citations better than backlinks.', 'vulopilot')}
 			icon="person pink-color"
 			isLoading={isLoading}
 			onHide={onHide}

@@ -46,6 +46,7 @@ const IssueDistributionWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 			borderColor="green"
+			desc={__('How well AI assistants can find, understand, and cite your site.', 'vulopilot')}
 		>
 			{!isLoading && data.length === 0 ? (
 				<ModuleGuardComponent
@@ -60,7 +61,7 @@ const IssueDistributionWidget: React.FC<WidgetProps> = ({
 				<ChartComponent
 					type="pie"
 					data={data}
-					height={140}
+					height={250}
 					isLoading={isLoading}
 				/>
 			)}
