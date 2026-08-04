@@ -13,7 +13,6 @@ import {
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
-import { getSeverityClass } from '../services/getSeverityClass';
 import ShowProPopup from './Popup/Popup';
 
 export interface Finding extends TableRow {
@@ -385,11 +384,8 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 					badges={[
 						{
 							text: row.severity,
-							className: getSeverityClass(row.severity),
-						},
-						...(row.status !== 'open'
-							? [{ text: row.status, className: 'blue' }]
-							: []),
+							className: `badge-${row.severity}`,
+						}
 					]}
 					descriptions={[
 						{

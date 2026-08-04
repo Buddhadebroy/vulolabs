@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ColumnComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent, ListComponent } from '@zyra/components';
 
 interface TopPageRow {
 	post_id: number;
@@ -44,23 +44,27 @@ const TopPagesCard = () => {
 	}, []);
 
 	const renderList = (rows: TopPageRow[]) => (
-		<ul className="geo-top-pages__list">
-			{rows.map((row) => (
-				<li key={row.post_id}>
-					<a href={row.edit_link}>{row.title}</a>
-					<span className="geo-top-pages__count">
-						{row.open_findings === 0
-							? __('No open findings', 'vulopilot')
-							: row.open_findings === 1
-								? __('1 open finding', 'vulopilot')
-								: `${row.open_findings} ${__('open findings', 'vulopilot')}`}
-					</span>
-				</li>
-			))}
-		</ul>
+		<>
+			<ul className="geo-top-pages__list">
+				<div className="title">{__('Most AI-visible', 'vulopilot')}</div>
+				{rows.map((row) => (
+					<li key={row.post_id}>
+						<a href={row.edit_link}>{row.title}</a>
+						<span className="geo-top-pages__count">
+							{row.open_findings === 0
+								? __('No open findings', 'vulopilot')
+								: row.open_findings === 1
+									? __('1 open finding', 'vulopilot')
+									: `${row.open_findings} ${__('open findings', 'vulopilot')}`}
+						</span>
+					</li>
+				))}
+			</ul>
+		</>
 	);
 
 	return (
+		<ColumnComponent grid={6} fullHeight>
 		<CardComponent
 			title={__('Top Pages', 'vulopilot')}
 			desc={__(
@@ -70,18 +74,10 @@ const TopPagesCard = () => {
 			isLoading={isLoading}
 		>
 			{data && data.top.length > 0 ? (
-				<>
-					<ColumnComponent>
-						<div className="title">{__('Most AI-visible', 'vulopilot')}</div>
-						{renderList(data.top)}
-					</ColumnComponent>
-					{data.bottom.length > 0 && (
-						<ColumnComponent>
-							<div className="title">{__('Needs attention', 'vulopilot')}</div>
-							{renderList(data.bottom)}
-						</ColumnComponent>
-					)}
-				</>
+				<ColumnComponent row>
+					{renderList(data.top)}
+					{data.bottom.length > 0 && renderList(data.bottom)}
+				</ColumnComponent>
 			) : (
 				<div className="desc">
 					{__(
@@ -91,6 +87,7 @@ const TopPagesCard = () => {
 				</div>
 			)}
 		</CardComponent>
+		</ColumnComponent>
 	);
 };
 

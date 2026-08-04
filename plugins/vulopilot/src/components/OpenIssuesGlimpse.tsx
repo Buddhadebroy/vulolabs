@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ListComponent, ModuleGuardComponent, ColumnComponent } from '@zyra/components';
 import { useApiList } from '../services/useApiList';
-import { getSeverityClass, FindingSeverity } from '../services/getSeverityClass';
+import { FindingSeverity } from '../services/getSeverityClass';
 import './OpenIssuesGlimpse.scss';
 
 interface FindingRow {
@@ -80,37 +80,40 @@ const OpenIssuesGlimpse = ({
 	};
 
 	return (
-		<CardComponent title={__('Open issues', 'vulopilot')} isLoading={isLoading}>
-			{!isLoading && data.length === 0 ? (
-				<ModuleGuardComponent icon="check" title={emptyTitle} desc={emptyDesc} />
-			) : (
-				<>
-					{!isLoading && (
-						<div className="desc">
-							{sprintf(
-								/* translators: %d is the number of open findings. */
-								__('%d open', 'vulopilot'),
-								total
-							)}
-						</div>
-					)}
-					<ListComponent
-						items={data.map((finding) => ({
-							id: String(finding.id),
-							title: finding.title,
-							action: () => scrollToSection(finding.scanner_id),
-							tags: (
-								<span
-									className={`admin-badge ${getSeverityClass(finding.severity)}`}
-								>
-									{finding.severity}
-								</span>
-							),
-						}))}
-					/>
-				</>
-			)}
-		</CardComponent>
+		<ColumnComponent grid={6} fullHeight>
+			<CardComponent title={__('Open issues', 'vulopilot')} isLoading={isLoading}>
+				{!isLoading && data.length === 0 ? (
+					<ModuleGuardComponent icon="check" title={emptyTitle} desc={emptyDesc} />
+				) : (
+					<>
+						{!isLoading && (
+							<div className="admin-badge green">
+								{sprintf(
+									/* translators: %d is the number of open findings. */
+									__('%d open', 'vulopilot'),
+									total
+								)}
+							</div>
+						)}
+						<ListComponent
+							className="mini-card report"
+							items={data.map((finding) => ({
+								id: String(finding.id),
+								title: finding.title,
+								action: () => scrollToSection(finding.scanner_id),
+								tags: (
+									<span
+										className={`admin-badge badge-${finding.severity}`}
+									>
+										{finding.severity}
+									</span>
+								),
+							}))}
+						/>
+					</>
+				)}
+			</CardComponent>
+		</ColumnComponent>
 	);
 };
 
