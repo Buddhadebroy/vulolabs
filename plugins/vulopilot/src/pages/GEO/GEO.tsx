@@ -283,7 +283,7 @@ const GEO = () => {
 						</CardComponent>
 					</ColumnComponent>
 				))}
-			
+			</ColumnComponent>
 		</ContainerComponent>
 	</>
 	);
