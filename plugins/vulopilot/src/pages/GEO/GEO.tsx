@@ -1,3 +1,4 @@
+/* global appLocalizer */
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
@@ -9,8 +10,30 @@ import {
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
 import TopPagesCard from './TopPagesCard';
-import OpenIssuesGlimpse from './OpenIssuesGlimpse';
-import './GEO.scss';
+import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
+import ProLockedCard from '../../components/ProLockedCard';
+
+/**
+ * Which GEO_SECTIONS card (below) each scanner's findings live under — a
+ * glimpse row only has a scanner_id, not a section key, so
+ * OpenIssuesGlimpse needs this lookup supplied explicitly. Falls back to
+ * 'entities' for a scanner id this map hasn't been extended for yet, rather
+ * than silently not scrolling anywhere.
+ */
+const SCANNER_TO_SECTION: Record<string, string> = {
+	'geo-summary-block': 'summary',
+	'geo-faq-opportunity': 'summary',
+	'geo-citation-opportunities': 'evidence',
+	'geo-chunking': 'structure',
+	'geo-semantic-structure': 'structure',
+	'geo-author-info': 'entities',
+	'geo-eeat-signals': 'entities',
+	'geo-entity-naming-consistency': 'entities',
+	'geo-trust-signals': 'entities',
+	'llms-txt-missing': 'crawlability',
+	'stale-content': 'freshness',
+	'aeo-schema': 'aeo',
+};
 
 /**
  * Section → scanner_id grouping for GEO's 12 scanners (Free's original 9,
@@ -30,6 +53,16 @@ const GEO_SECTIONS: {
 	description: string;
 	emptyMessage: string;
 	scannerIds: string[];
+	/**
+	 * Set when every scanner in `scannerIds` is only ever registered by a
+	 * Pro module (vulopilot-pro's GeoInsights adds `llms-txt-missing` and
+	 * `stale-content` — Free's own ScannerRegistry has no equivalent), so
+	 * this section can never produce findings without it. Checked against
+	 * `appLocalizer.active_modules` to show a locked-card upsell instead of
+	 * a findings table that would otherwise sit permanently, misleadingly
+	 * empty ("run a scan") on any install without that module active.
+	 */
+	proModule?: string;
 }[] = [
 	{
 		key: 'summary',
@@ -100,6 +133,7 @@ const GEO_SECTIONS: {
 			'vulopilot'
 		),
 		scannerIds: ['llms-txt-missing'],
+		proModule: 'geo-insights',
 	},
 	{
 		key: 'freshness',
@@ -113,6 +147,7 @@ const GEO_SECTIONS: {
 			'vulopilot'
 		),
 		scannerIds: ['stale-content'],
+		proModule: 'geo-insights',
 	},
 	{
 		key: 'aeo',
@@ -128,6 +163,15 @@ const GEO_SECTIONS: {
 		scannerIds: ['aeo-schema'],
 	},
 ];
+
+/**
+ * Same `active_modules` gate CrawlerTraffic.tsx's isSeoModuleActive() /
+ * BrandVisibility.tsx / KnowledgeGraph.tsx already use for their own
+ * Pro-module-gated cards — 'geo-insights' is GeoInsights' folder name
+ * kebab-cased (Modules.php::camel_to_kebab()).
+ */
+const isGeoInsightsActive = () =>
+	appLocalizer.active_modules?.includes('geo-insights') ?? false;
 
 /**
  * Both slots below are Pro's vulopilot-pro/modules/GeoInsights — same
@@ -203,7 +247,14 @@ const GEO = () => (
 				{GeoVisibilityTrend && <GeoVisibilityTrend />}
 				{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
 				{GeoScoreCard && <GeoScoreCard />}
-				<OpenIssuesGlimpse />
+				<OpenIssuesGlimpse
+					category="geo"
+					sectionMap={SCANNER_TO_SECTION}
+					fallbackSection="entities"
+					anchorPrefix="geo-section-"
+					emptyTitle={__("You're all caught up", 'vulopilot')}
+					emptyDesc={__('No open GEO findings right now.', 'vulopilot')}
+				/>
 				<TopPagesCard />
 				{GEO_SECTIONS.map((section) => (
 					<CardComponent
@@ -212,11 +263,16 @@ const GEO = () => (
 						title={section.title}
 						desc={section.description}
 					>
-						<FindingsTable
-							title={section.title}
-							description={section.emptyMessage}
-							scannerIds={section.scannerIds}
-						/>
+						{section.proModule && !isGeoInsightsActive() ? (
+							<ProLockedCard moduleName={section.proModule} />
+						) : (
+							<FindingsTable
+								title={section.title}
+								description={section.emptyMessage}
+								scannerIds={section.scannerIds}
+								layout="compact"
+							/>
+						)}
 					</CardComponent>
 				))}
 			</ColumnComponent>
