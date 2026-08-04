@@ -9,6 +9,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import FindingsTable from '../../components/FindingsTable';
+import { useRunScan } from '../../services/useRunScan';
 
 /**
  * Section → scanner_id grouping, mirroring the 6 cards Settings → Scanning →
@@ -147,7 +148,10 @@ const SEO_SECTIONS: {
 const isSeoModuleActive = () =>
 	appLocalizer.active_modules?.includes('seo') ?? false;
 
-const SEO = () => (
+const SEO = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
 	<>
 		<NavigatorHeaderComponent
 			headerIcon="search"
@@ -156,6 +160,7 @@ const SEO = () => (
 				'Titles, meta descriptions, and indexability findings, grouped the same way as Settings → Scanning → SEO.',
 				'vulopilot'
 			)}
+			buttons={[runScanButton]}
 		/>
 		<ContainerComponent general>
 			<ColumnComponent>
@@ -230,6 +235,7 @@ const SEO = () => (
 			</ColumnComponent>
 		</ContainerComponent>
 	</>
-);
+	);
+};
 
 export default SEO;

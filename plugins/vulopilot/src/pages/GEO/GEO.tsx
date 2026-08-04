@@ -1,7 +1,5 @@
 /* global appLocalizer */
 import { __ } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import type { ComponentType } from 'react';
 import {
 	CardComponent,
 	ColumnComponent,
@@ -12,6 +10,8 @@ import FindingsTable from '../../components/FindingsTable';
 import TopPagesCard from './TopPagesCard';
 import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
 import ProLockedCard from '../../components/ProLockedCard';
+import { useRunScan } from '../../services/useRunScan';
+import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
  * Which GEO_SECTIONS card (below) each scanner's findings live under — a
@@ -174,55 +174,6 @@ const isGeoInsightsActive = () =>
 	appLocalizer.active_modules?.includes('geo-insights') ?? false;
 
 /**
- * Both slots below are Pro's vulopilot-pro/modules/GeoInsights — same
- * "register a source, don't modify the host" pattern already used for
- * Reports'/Automation's own panel slots (see those pages' own docblocks).
- * Neither slot has a Pro-upsell fallback: unlike Automation/Reports, these
- * are bonus widgets above the always-real findings table below, not a
- * blocked action, so Free with no Pro (or GeoInsights not enabled) simply
- * renders the findings table on its own, same as before either slot existed.
- *
- * GeoScoreCard is GEO-MODULE.md's per-post "Generate GEO Score" card. This
- * call was previously removed from this page (nothing rendered the slot),
- * leaving the card fully built in Pro but shown nowhere — restored here.
- */
-const GeoScoreCard = applyFilters(
-	'vulopilot_geo_score_card',
-	null
-) as ComponentType | null;
-
-/**
- * Sitewide AI-visibility summary — GeoInsights\VisibilitySnapshotBuilder's
- * cached, sample-based average of GeoAnalyzer's 8 AI-judged dimensions
- * across this site's most recently updated pages (GeoAnalyzer itself only
- * ever scores one post at a time — see that class's own docblock).
- */
-const GeoVisibilitySummary = applyFilters(
-	'vulopilot_geo_visibility_summary',
-	null
-) as ComponentType | null;
-
-/**
- * Historical Trends (AI-VISIBILITY-MODULE.md) — sitewide GEO score over
- * time, one point per day VisibilitySnapshotBuilder ran. Same "register a
- * source, don't modify the host" slot pattern as the two above.
- */
-const GeoVisibilityTrend = applyFilters(
-	'vulopilot_geo_visibility_trend',
-	null
-) as ComponentType | null;
-
-/**
- * Competitor Visibility (AI-VISIBILITY-MODULE.md) — real, on-demand
- * structural comparison against competitor URLs (Settings → GEO's
- * `geo_competitor_urls`). Same slot pattern as the three above.
- */
-const GeoCompetitorVisibility = applyFilters(
-	'vulopilot_geo_competitor_visibility',
-	null
-) as ComponentType | null;
-
-/**
  * GEO = Generative Engine Optimization — how discoverable/citable this
  * site is to AI answer engines (distinct from classic search-engine SEO).
  * Same header + findings-table shape every other category page (SEO,
@@ -231,7 +182,46 @@ const GeoCompetitorVisibility = applyFilters(
  * llms.txt's toggle/preview/live-link live under Settings → GEO
  * (Scanning/Geo.ts + LlmsTxtCard.tsx), not on this page.
  */
-const GEO = () => (
+const GEO = () => {
+	const { runScanButton } = useRunScan();
+
+	/**
+	 * All 4 slots below are Pro's vulopilot-pro/modules/GeoInsights — same
+	 * "register a source, don't modify the host" pattern already used for
+	 * Reports'/Automation's own panel slots (see those pages' own
+	 * docblocks). Read via useFilterSlot(), not a plain module-scope
+	 * `applyFilters()` call — see that hook's own docblock for why: Pro's
+	 * addFilter() calls always run strictly after this page's own code on
+	 * a fresh load, so a one-time read here would permanently miss them.
+	 *
+	 * Rendered together, gated on isGeoInsightsActive(): when the module is
+	 * active each registered slot renders itself; when it isn't, a single
+	 * "AI Visibility Score" ProLockedCard takes their place below, same
+	 * locked-card treatment GEO_SECTIONS' own Crawlability/Freshness
+	 * entries already use, rather than the 4 slots simply rendering
+	 * nothing.
+	 *
+	 * GeoScoreCard is GEO-MODULE.md's per-post "Generate GEO Score" card.
+	 *
+	 * Sitewide AI-visibility summary (GeoVisibilitySummary) —
+	 * GeoInsights\VisibilitySnapshotBuilder's cached, sample-based average
+	 * of GeoAnalyzer's 8 AI-judged dimensions across this site's most
+	 * recently updated pages.
+	 *
+	 * Historical Trends (GeoVisibilityTrend, AI-VISIBILITY-MODULE.md) —
+	 * sitewide GEO score over time, one point per day
+	 * VisibilitySnapshotBuilder ran.
+	 *
+	 * Competitor Visibility (GeoCompetitorVisibility,
+	 * AI-VISIBILITY-MODULE.md) — real, on-demand structural comparison
+	 * against competitor URLs (Settings → GEO's `geo_competitor_urls`).
+	 */
+	const GeoVisibilitySummary = useFilterSlot('vulopilot_geo_visibility_summary');
+	const GeoVisibilityTrend = useFilterSlot('vulopilot_geo_visibility_trend');
+	const GeoCompetitorVisibility = useFilterSlot('vulopilot_geo_competitor_visibility');
+	const GeoScoreCard = useFilterSlot('vulopilot_geo_score_card');
+
+	return (
 	<>
 		<NavigatorHeaderComponent
 			headerIcon="global-community"
@@ -240,12 +230,28 @@ const GEO = () => (
 				'Generative Engine Optimization — how discoverable and citable this site is to AI answer engines.',
 				'vulopilot'
 			)}
+			buttons={[runScanButton]}
 		/>
 		<ContainerComponent general>
-				{GeoVisibilitySummary && <GeoVisibilitySummary />}
-				{GeoVisibilityTrend && <GeoVisibilityTrend />}
-				{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
-				{GeoScoreCard && <GeoScoreCard />}
+			<ColumnComponent>
+				{isGeoInsightsActive() ? (
+					<>
+						{GeoVisibilitySummary && <GeoVisibilitySummary />}
+						{GeoVisibilityTrend && <GeoVisibilityTrend />}
+						{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
+						{GeoScoreCard && <GeoScoreCard />}
+					</>
+				) : (
+					<CardComponent
+						title={__('AI Visibility Score', 'vulopilot')}
+						desc={__(
+							'Sitewide GEO score, historical trend, and competitor comparison.',
+							'vulopilot'
+						)}
+					>
+						<ProLockedCard moduleName="geo-insights" />
+					</CardComponent>
+				)}
 				<OpenIssuesGlimpse
 					category="geo"
 					sectionMap={SCANNER_TO_SECTION}
@@ -280,6 +286,7 @@ const GEO = () => (
 			
 		</ContainerComponent>
 	</>
-);
+	);
+};
 
 export default GEO;

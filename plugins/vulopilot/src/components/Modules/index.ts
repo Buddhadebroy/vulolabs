@@ -7,7 +7,20 @@ export default {
 		// AI Visibility Section
 		{ type: 'separator', id: 'ai-visibility', label: __('AI Visibility', 'vulopilot') },
 		{
-            id: 'geo-ai-understanding',
+            /**
+             * Must be the real backend module id — GeoInsights' folder name
+             * kebab-cased (Modules.php::camel_to_kebab(), same 'geo-insights'
+             * GEO.tsx's isGeoInsightsActive()/ProLockedCard and Popup.tsx's
+             * "Enable Now" deep-link already use. This card previously used
+             * a made-up 'geo-ai-understanding' id that matched no real
+             * module: toggling it "on" here called set_modules() with that
+             * id, which Modules::load_active_modules() then silently
+             * dropped every request since it never resolved to an actual
+             * module folder — so the toggle looked like it took, but never
+             * actually activated GeoInsights, and every page gating on
+             * 'geo-insights' kept showing its Pro-locked state forever.
+             */
+            id: 'geo-insights',
             name: __('GEO — AI Understanding', 'vulopilot'),
             desc: __('Scans structure, entities, and machine-readability so AI models can understand your pages.', 'vulopilot'),
             proModule: true,
@@ -26,7 +39,26 @@ export default {
             ]
         },
         {
-            id: 'aeo-answer-engine',
+            /**
+             * Same real backend id as the GEO card above, not a typo —
+             * AEO's own Pro features (llms.txt generation, the
+             * LlmsTxtMissingScanner/StaleContentScanner pair) are also
+             * registered by GeoInsights\Module, there's no separate "AEO"
+             * Pro module folder. AEO.tsx's own isGeoInsightsActive() already
+             * gates on 'geo-insights' for this exact reason — this card
+             * previously used a made-up 'aeo-answer-engine' id that matched
+             * nothing, same broken-toggle bug the GEO card had.
+             *
+             * Known, accepted side effect: zyra's ModuleGridComponent keys
+             * its card list by `module.id` (not array index), so having
+             * two cards intentionally share 'geo-insights' triggers a
+             * harmless React "duplicate key" dev-console warning. zyra is
+             * an external package (not vendored here — see this repo's own
+             * CLAUDE.md), so that's not something to patch from this side;
+             * toggling either card still correctly activates/deactivates
+             * the one real module both represent.
+             */
+            id: 'geo-insights',
             name: __('AEO — Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage — then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
             proModule: true,

@@ -7,6 +7,7 @@ import {
 	NavigatorHeaderComponent,
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
+import { useRunScan } from '../../services/useRunScan';
 
 /**
  * Same shape as SEO/Performance/Accessibility/WooCommerce — `category`
@@ -34,33 +35,38 @@ const SecurityIncidentReportsPanel = applyFilters(
 	null
 ) as ComponentType | null;
 
-const Security = () => (
-	<>
-		<NavigatorHeaderComponent
-			headerIcon="security"
-			headerTitle={__('Security', 'vulopilot')}
-			headerDescription={__(
-				'Site hardening and exposure checks.',
-				'vulopilot'
-			)}
-		/>
-		<ContainerComponent general>
-			<ColumnComponent>
-				{SecurityDashboardCard && <SecurityDashboardCard />}
-				<FindingsTable
-					title={__('Security', 'vulopilot')}
-					description={__(
-						'No security findings yet — run a scan to check for hardening and exposure issues.',
-						'vulopilot'
-					)}
-					category="security"
-				/>
-				{SecurityIncidentReportsPanel && (
-					<SecurityIncidentReportsPanel />
+const Security = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="security"
+				headerTitle={__('Security', 'vulopilot')}
+				headerDescription={__(
+					'Site hardening and exposure checks.',
+					'vulopilot'
 				)}
-			</ColumnComponent>
-		</ContainerComponent>
-	</>
-);
+				buttons={[runScanButton]}
+			/>
+			<ContainerComponent general>
+				<ColumnComponent>
+					{SecurityDashboardCard && <SecurityDashboardCard />}
+					<FindingsTable
+						title={__('Security', 'vulopilot')}
+						description={__(
+							'No security findings yet — run a scan to check for hardening and exposure issues.',
+							'vulopilot'
+						)}
+						category="security"
+					/>
+					{SecurityIncidentReportsPanel && (
+						<SecurityIncidentReportsPanel />
+					)}
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
+	);
+};
 
 export default Security;

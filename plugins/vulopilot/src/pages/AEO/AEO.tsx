@@ -10,6 +10,7 @@ import {
 import FindingsTable from '../../components/FindingsTable';
 import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
 import ProLockedCard from '../../components/ProLockedCard';
+import { useRunScan } from '../../services/useRunScan';
 
 /**
  * Which AEO_SECTIONS card (below) each scanner's findings live under — same
@@ -136,16 +137,20 @@ const isGeoInsightsActive = () =>
  * render an honest not-built-yet notice, same posture AIContent.tsx
  * already takes for its own not-yet-scored signals.
  */
-const AEO = () => (
-	<>
-		<NavigatorHeaderComponent
-			headerIcon="answer"
-			headerTitle={__('AEO', 'vulopilot')}
-			headerDescription={__(
-				'Answer Engine Optimization — whether AI systems can extract, structure, and cite a direct answer from your pages.',
-				'vulopilot'
-			)}
-		/>
+const AEO = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="answer"
+				headerTitle={__('AEO', 'vulopilot')}
+				headerDescription={__(
+					'Answer Engine Optimization — whether AI systems can extract, structure, and cite a direct answer from your pages.',
+					'vulopilot'
+				)}
+				buttons={[runScanButton]}
+			/>
 		<ContainerComponent general>
 			<ColumnComponent>
 				<CardComponent title={__('Answerability signals', 'vulopilot')}>
@@ -205,6 +210,7 @@ const AEO = () => (
 			</ColumnComponent>
 		</ContainerComponent>
 	</>
-);
+	);
+};
 
 export default AEO;

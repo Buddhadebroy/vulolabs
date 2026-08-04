@@ -7,6 +7,7 @@ import {
 	NavigatorHeaderComponent,
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
+import { useRunScan } from '../../services/useRunScan';
 
 /**
  * ACCESSIBILITY-MODULE.md's Pro additions register into these two slots —
@@ -27,31 +28,36 @@ const AccessibilityHistoryPanel = applyFilters(
 	null
 ) as ComponentType | null;
 
-const Accessibility = () => (
-	<>
-		<NavigatorHeaderComponent
-			headerIcon="support"
-			headerTitle={__('Accessibility', 'vulopilot')}
-			headerDescription={__(
-				'Heading structure, ARIA attributes, and form label findings.',
-				'vulopilot'
-			)}
-		/>
-		<ContainerComponent general>
-			<ColumnComponent>
-				{AccessibilityDashboardCard && <AccessibilityDashboardCard />}
-				<FindingsTable
-					title={__('Accessibility', 'vulopilot')}
-					description={__(
-						'No accessibility findings yet — run a scan to check heading structure, ARIA attributes, and form labels.',
-						'vulopilot'
-					)}
-					category="accessibility"
-				/>
-				{AccessibilityHistoryPanel && <AccessibilityHistoryPanel />}
-			</ColumnComponent>
-		</ContainerComponent>
-	</>
-);
+const Accessibility = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="support"
+				headerTitle={__('Accessibility', 'vulopilot')}
+				headerDescription={__(
+					'Heading structure, ARIA attributes, and form label findings.',
+					'vulopilot'
+				)}
+				buttons={[runScanButton]}
+			/>
+			<ContainerComponent general>
+				<ColumnComponent>
+					{AccessibilityDashboardCard && <AccessibilityDashboardCard />}
+					<FindingsTable
+						title={__('Accessibility', 'vulopilot')}
+						description={__(
+							'No accessibility findings yet — run a scan to check heading structure, ARIA attributes, and form labels.',
+							'vulopilot'
+						)}
+						category="accessibility"
+					/>
+					{AccessibilityHistoryPanel && <AccessibilityHistoryPanel />}
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
+	);
+};
 
 export default Accessibility;

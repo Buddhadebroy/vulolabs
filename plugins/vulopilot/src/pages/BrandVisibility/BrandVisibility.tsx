@@ -11,6 +11,7 @@ import {
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
 import BrandScoreCard from './BrandScoreCard';
+import { useRunScan } from '../../services/useRunScan';
 
 /**
  * Section → scanner_id grouping for Brand Intelligence's 7 scanners
@@ -114,7 +115,10 @@ const KnowledgePanelCard = applyFilters(
  * "how visible/trusted is this brand" — the on-site half just doesn't need
  * a third-party connection to be real today.
  */
-const BrandVisibility = () => (
+const BrandVisibility = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
 	<>
 		<NavigatorHeaderComponent
 			headerIcon="person"
@@ -123,6 +127,7 @@ const BrandVisibility = () => (
 				'On-site trust/authority/entity signals, plus off-site brand mentions and share of voice.',
 				'vulopilot'
 			)}
+			buttons={[runScanButton]}
 		/>
 		<ContainerComponent general>
 			<ColumnComponent>
@@ -188,6 +193,7 @@ const BrandVisibility = () => (
 			</ColumnComponent>
 		</ContainerComponent>
 	</>
-);
+	);
+};
 
 export default BrandVisibility;

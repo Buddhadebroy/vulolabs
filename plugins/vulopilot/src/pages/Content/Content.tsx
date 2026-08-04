@@ -11,6 +11,7 @@ import {
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
 import ContentScoreCard from './ContentScoreCard';
+import { useRunScan } from '../../services/useRunScan';
 
 /**
  * Section → scanner_id grouping for Content Intelligence's 6 scanners —
@@ -106,7 +107,10 @@ const ContentGapAnalysisCard = applyFilters(
  * (SEO, GEO, Performance, Accessibility, WooCommerce, Security) already
  * uses, plus the two optional Pro widgets above the table.
  */
-const Content = () => (
+const Content = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
 	<>
 		<NavigatorHeaderComponent
 			headerIcon="image"
@@ -115,6 +119,7 @@ const Content = () => (
 				'Depth, originality, and readability across pages and posts.',
 				'vulopilot'
 			)}
+			buttons={[runScanButton]}
 		/>
 		<ContainerComponent general>
 			<ColumnComponent>
@@ -155,6 +160,7 @@ const Content = () => (
 			</ColumnComponent>
 		</ContainerComponent>
 	</>
-);
+	);
+};
 
 export default Content;
