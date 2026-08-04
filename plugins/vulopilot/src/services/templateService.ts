@@ -15,6 +15,7 @@ import { applyFilters } from '@wordpress/hooks';
  */
 const contexts: Record<string, any> = {
 	settings: require.context('../components/Settings', true, /\.ts$/),
+	tools: require.context('../components/StatusAndTools', true, /\.ts$/),
 };
 
 type SettingNode = {
@@ -113,7 +114,7 @@ const importAll = (
 	return sortStructure(folderStructure);
 };
 
-const getTemplateData = (type: 'settings'): SettingNode[] => {
+const getTemplateData = (type: 'settings' | 'tools'): SettingNode[] => {
 	let ctx = contexts[type];
 
 	if (!ctx) {

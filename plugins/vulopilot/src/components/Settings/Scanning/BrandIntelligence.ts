@@ -20,6 +20,24 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
+			key: 'tracked_competitors',
+			type: 'expandable-panel',
+			label: __('Tracked competitors', 'multivendorx'),
+			settingDescription: __(
+				'Used to calculate Share of Voice on the Brand Visibility page.',
+				'multivendorx'
+			),
+			addNewBtn: true,
+			addNewTemplate: {
+				label: 'New competitors',
+				editableFields: {
+					title: true,
+					description: false,
+				},
+				disableBtn: false,
+			}
+		},
+		{
 			key: 'brand-section-about-page',
 			type: 'section',
 			title: __('About Page', 'vulopilot'),

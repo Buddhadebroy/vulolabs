@@ -194,31 +194,32 @@ class Admin {
                 'modules'          => array(
                     'name'     => __( 'Modules', 'vulopilot' ),
                     'priority' => 80,
-                    'group'    => 'tools',
                     'icon'     => 'dashicons-admin-plugins',
                 ),
                 'ai-assistant'     => array(
                     'name'     => __( 'AI Assistant', 'vulopilot' ),
                     'priority' => 81,
-                    'group'    => 'tools',
                     'icon'     => 'dashicons-format-chat',
                 ),
                 'reports'          => array(
                     'name'     => __( 'Reports', 'vulopilot' ),
                     'priority' => 82,
-                    'group'    => 'tools',
                     'icon'     => 'dashicons-chart-bar',
                 ),
                 'activity'         => array(
                     'name'     => __( 'Activity', 'vulopilot' ),
                     'priority' => 83,
-                    'group'    => 'tools',
                     'icon'     => 'dashicons-clock',
                 ),
                 'settings'         => array(
                     'name'     => __( 'Settings', 'vulopilot' ),
-                    'priority' => 100,
+                    'priority' => 90,
                     'icon'     => 'dashicons-admin-generic',
+                ),
+                'status-tools'        => array(
+                    'name'     => __( 'Status & Tools', 'vulopilot' ),
+                    'subtab'   => 'system-status',
+                    'priority' => 100,
                 ),
             )
         );

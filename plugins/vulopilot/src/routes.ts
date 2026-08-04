@@ -14,6 +14,7 @@ import Reports from './pages/Reports/Reports';
 import AIAssistant from './pages/AIAssistant/AIAssistant';
 import Activity from './pages/Activity/Activity';
 import Settings from './pages/Settings/Settings';
+import StatusAndTools from './pages/StatusAndTools/StatusAndTools';
 import Modules from './components/Modules/Modules';
 import BrandVisibility from './pages/BrandVisibility/BrandVisibility';
 import KnowledgeGraph from './pages/KnowledgeGraph/KnowledgeGraph';
@@ -41,6 +42,7 @@ registerVuloPilotRoute({ tab: 'ai-assistant', component: AIAssistant });
 registerVuloPilotRoute({ tab: 'activity', component: Activity });
 registerVuloPilotRoute({ tab: 'modules', component: Modules });
 registerVuloPilotRoute({ tab: 'settings', component: Settings });
+registerVuloPilotRoute({ tab: 'status-tools', component: StatusAndTools });
 registerVuloPilotRoute({
 	tab: 'brand-visibility',
 	component: BrandVisibility,
