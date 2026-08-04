@@ -36,8 +36,9 @@ defined( 'ABSPATH' ) || exit;
  *
  * One Pro extension point for "AI Crawler Traffic Analytics & Historical
  * Logs" (readme.txt's Pro line) is `vulopilot_crawler_log_retention_days`
- * — Free's daily cleanup cron deletes rows older than this (default 30);
- * vulopilot-pro's AdvancedReports module overrides it to a longer window.
+ * — Free's daily cleanup cron deletes rows older than Settings → AI
+ * Visibility's own "Log retention" value (default 30); vulopilot-pro's
+ * AdvancedReports module overrides it further via this same filter.
  * No separate Pro table/REST controller is needed — see this feature's
  * plan doc for why a per-event log doesn't need the snapshot-rollup shape
  * Health Score's historical trend uses.
@@ -149,7 +150,9 @@ class CrawlerTrafficLogger {
      * @return void
      */
     public function run_cleanup(): void {
-        $retention_days = (int) apply_filters( 'vulopilot_crawler_log_retention_days', 30 );
+        $settings       = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+        $saved_days     = (int) ( $settings['log_retention'] ?? 30 );
+        $retention_days = (int) apply_filters( 'vulopilot_crawler_log_retention_days', $saved_days ?: 30 );
 
         if ( $retention_days <= 0 ) {
             return;

@@ -1,16 +1,19 @@
 /* global appLocalizer */
 import React, { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
+	InformationItemComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
 } from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../services/useApiList';
+import { formatWpDate } from '../services/formatWpDate';
+import { getSeverityClass } from '../services/getSeverityClass';
 import ShowProPopup from './Popup/Popup';
 
 export interface Finding extends TableRow {
@@ -20,6 +23,14 @@ export interface Finding extends TableRow {
 	category: string;
 	status: 'open' | 'resolved' | 'ignored' | 'snoozed';
 	created_at: string;
+	/**
+	 * Resolved page path (e.g. '/pricing') for a per-post finding, or
+	 * 'Site-wide' for a sitewide check — added server-side by
+	 * Controllers/Findings.php's `add_page_field()` from the row's raw
+	 * `object_type`/`object_ref` columns. Only used by `layout="compact"`'s
+	 * name-column description line.
+	 */
+	page?: string;
 	/**
 	 * Which AI action can fix this finding, e.g. 'generate-alt' — null/
 	 * undefined when this finding's scanner has no mapped fix, or when
@@ -104,6 +115,14 @@ interface FindingsTableProps {
 	 * in `category` (every other page's single-table usage).
 	 */
 	scannerIds?: string[];
+	/**
+	 * 'compact' renders each row as a single InformationItemComponent
+	 * (title + "$page · Detected $date" description line, same shape as
+	 * zyra's own TableCard "Transparent" story) with inline admin-badge
+	 * row actions, instead of the default multi-column table — GEO.tsx's
+	 * per-section tables opt into this; every other page keeps the default.
+	 */
+	layout?: 'default' | 'compact';
 }
 
 /**
@@ -119,6 +138,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 	description,
 	category,
 	scannerIds,
+	layout = 'default',
 }) => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
@@ -233,6 +253,35 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		});
 	};
 
+	/**
+	 * "Fix" — always visible (register a source, don't modify the host —
+	 * see getFindingFixHandler's own docblock above); shared by both the
+	 * default table's row action and compact layout's inline badge.
+	 */
+	const handleFix = (row?: Record<string, unknown>) => {
+		const findingFixHandler = getFindingFixHandler();
+
+		if (typeof findingFixHandler === 'function') {
+			Promise.resolve(
+				findingFixHandler(row) as Promise<FixOutcome> | undefined
+			).then((outcome) => {
+				if (outcome?.message) {
+					NoticeManager.add({
+						uniqueKey: `finding-fix-${row?.id}`,
+						type: outcome.success ? 'success' : 'error',
+						position: 'float',
+						message: outcome.message,
+					});
+				}
+
+				refetch();
+			});
+			return;
+		}
+
+		setIsProPopupOpen(true);
+	};
+
 	if (error) {
 		return (
 			<CardComponent title={title}>
@@ -247,7 +296,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		);
 	}
 
-	const headers: Record<string, any> = {
+	const defaultHeaders: Record<string, any> = {
 		title: {
 			// label: __('Finding', 'vulopilot'),
 			isSortable: true,
@@ -315,43 +364,96 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 				{
 					label: __('Fix', 'vulopilot'),
 					icon: 'tools',
-					onClick: (row?: Record<string, unknown>) => {
-						const findingFixHandler = getFindingFixHandler();
-
-						if (typeof findingFixHandler === 'function') {
-							// Pro's handler applies the fix directly and
-							// resolves what happened (see its own docblock
-							// for why it can't show its own notice) — Free
-							// shows it here, then refetches so the row's
-							// status reflects the fix immediately rather
-							// than needing a manual page refresh.
-							Promise.resolve(
-								findingFixHandler(row) as
-									| Promise<FixOutcome>
-									| undefined
-							).then((outcome) => {
-								if (outcome?.message) {
-									NoticeManager.add({
-										uniqueKey: `finding-fix-${row?.id}`,
-										type: outcome.success
-											? 'success'
-											: 'error',
-										position: 'float',
-										message: outcome.message,
-									});
-								}
-
-								refetch();
-							});
-							return;
-						}
-
-						setIsProPopupOpen(true);
-					},
+					onClick: handleFix,
 				},
 			] as any[],
 		},
 	};
+
+	/**
+	 * "Transparent" TableCard story shape (zyra Storybook, `table-tablecard
+	 * --transparent`) — one InformationItemComponent per row (title, then a
+	 * "$page · Detected $date" description line) with inline admin-badge row
+	 * actions on the right, instead of separate category/severity/status/
+	 * date columns. GEO.tsx's per-section tables use this.
+	 */
+	const compactHeaders: Record<string, any> = {
+		title: {
+			render: (row: Finding) => (
+				<InformationItemComponent
+					title={row.title}
+					badges={[
+						{
+							text: row.severity,
+							className: getSeverityClass(row.severity),
+						},
+						...(row.status !== 'open'
+							? [{ text: row.status, className: 'blue' }]
+							: []),
+					]}
+					descriptions={[
+						{
+							value: sprintf(
+								/* translators: 1: page path or "Site-wide", 2: formatted date */
+								__('%1$s · Detected %2$s', 'vulopilot'),
+								row.page || __('Site-wide', 'vulopilot'),
+								formatWpDate(row.created_at)
+							),
+						},
+					]}
+				/>
+			),
+		},
+		action: {
+			render: (row: Finding) => {
+				const asRecord = row as unknown as Record<string, unknown>;
+
+				return (
+					<div className="buttons-wrapper">
+						{row.status === 'open' ? (
+							<>
+								<span
+									className="admin-badge purple"
+									role="button"
+									tabIndex={0}
+									onClick={() => handleFix(asRecord)}
+								>
+									{__('Fix', 'vulopilot')}
+								</span>
+								<span
+									className="admin-badge green"
+									role="button"
+									tabIndex={0}
+									onClick={() => handleResolve(asRecord)}
+								>
+									{__('Resolve', 'vulopilot')}
+								</span>
+								<span
+									className="admin-badge red"
+									role="button"
+									tabIndex={0}
+									onClick={() => handleIgnore(asRecord)}
+								>
+									{__('Ignore', 'vulopilot')}
+								</span>
+							</>
+						) : (
+							<span
+								className="admin-badge blue"
+								role="button"
+								tabIndex={0}
+								onClick={() => handleReopen(asRecord)}
+							>
+								{__('Reopen', 'vulopilot')}
+							</span>
+						)}
+					</div>
+				);
+			},
+		},
+	};
+
+	const headers = layout === 'compact' ? compactHeaders : defaultHeaders;
 
 	return (
 		<>

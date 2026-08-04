@@ -13,6 +13,16 @@ export default {
 			title: __('GEO', 'vulopilot'),
 		},
 		{
+			key: 'geo_competitor_urls',
+			type: 'textarea',
+			label: __('Competitor URLs', 'vulopilot'),
+			desc: __(
+				'One competitor URL per line. Powers the GEO page\'s Competitor Visibility comparison (VuloPilot Pro).',
+				'vulopilot'
+			),
+			moduleEnabled: 'geo',
+		},
+		{
 			key: 'semantic_html',
 			type: 'section',
 			title: __('Structure & semantic HTML', 'vulopilot'),
@@ -38,7 +48,10 @@ export default {
 			key: 'entity-section',
 			type: 'section',
 			title: __('Entity coverage', 'vulopilot'),
-			desc: __("Controls the GEO page's 'Entities' findings group.", 'vulopilot')
+			desc: __(
+				"Feeds VuloPilot Pro's per-post GEO AI Score — doesn't affect the GEO page's free 'Entities & Trust' findings list below, which checks author info and naming consistency instead.",
+				'vulopilot'
+			),
 		},
 		{
 			key: 'flag_weak_entity',
@@ -269,7 +282,7 @@ export default {
 			desc: __('', 'vulopilot'),
 		},
 		{
-			key: 'log_ai_crawler_visits',
+			key: 'enable_crawler_tracking',
 			type: 'checkbox',
 			look: 'toggle',
 			label: __('Log AI crawler visits', 'vulopilot'),
@@ -279,9 +292,9 @@ export default {
 			),
 			options: [
 				{
-					key: 'log_ai_crawler_visits',
+					key: 'enable_crawler_tracking',
 					label: '',
-					value: 'log_ai_crawler_visits',
+					value: 'enable_crawler_tracking',
 				},
 			],
 		},
@@ -290,14 +303,14 @@ export default {
 			type: 'select',
 			label: __('Log retention', 'vulopilot'),
 			desc: __(
-				'Free keeps the last 7 days. Longer retention needs the AI Crawler Intelligence Pro tier',
+				'How long AI crawler visit logs are kept before automatic cleanup. VuloPilot Pro extends this further (Historical Logs).',
 				'vulopilot'
 			),
 			options: [
 				{ label: __('7 days', 'vulopilot'), value: '7' },
 				{ label: __('30 days', 'vulopilot'), value: '30' },
 				{ label: __('90 days', 'vulopilot'), value: '90' },
-				{ label: __('1 year', 'vulopilot'), value: '1' },
+				{ label: __('1 year', 'vulopilot'), value: '365' },
 			],
 		},
 		{
