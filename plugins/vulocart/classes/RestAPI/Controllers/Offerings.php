@@ -629,7 +629,14 @@ class Offerings extends \WP_REST_Controller {
 
         $sanitized = array();
 
-        $text_fields = array( 'weight', 'length', 'width', 'height', 'shipping_class', 'related_offerings', 'addon_offerings' );
+        // `seo_title` alongside `weight`/`length`/etc. — a plain scalar
+        // field, same "already allowlisted, just unused until now"
+        // reasoning `weight`'s own docblock documents. Authored by
+        // vulocart-pro's CatalogAi module (`generate_seo()`), but the
+        // allowlist itself has to live here regardless of which module
+        // ends up writing to it — the same reason `weight` isn't
+        // allowlisted only when ShippingEngine happens to be active.
+        $text_fields = array( 'weight', 'length', 'width', 'height', 'shipping_class', 'related_offerings', 'addon_offerings', 'seo_title' );
 
         foreach ( $text_fields as $key ) {
             if ( isset( $meta[ $key ] ) ) {
@@ -637,7 +644,7 @@ class Offerings extends \WP_REST_Controller {
             }
         }
 
-        $textarea_fields = array( 'short_description', 'full_description', 'shipping_policy', 'refund_policy', 'cancellation_policy' );
+        $textarea_fields = array( 'short_description', 'full_description', 'shipping_policy', 'refund_policy', 'cancellation_policy', 'seo_description' );
 
         foreach ( $textarea_fields as $key ) {
             if ( isset( $meta[ $key ] ) ) {
@@ -708,6 +715,74 @@ class Offerings extends \WP_REST_Controller {
 
         if ( isset( $meta['type_details'] ) && is_array( $meta['type_details'] ) ) {
             $sanitized['type_details'] = $this->sanitize_type_details( $type, $meta['type_details'] );
+        }
+
+        // Catalog AI's own generated fields (vulocart-pro's CatalogAi
+        // module) — allowlisted here for the same reason `seo_title`/
+        // `seo_description` are above: a value CatalogAi wrote via
+        // `OfferingService::update_offering()` directly must still
+        // survive a later, unrelated save through this REST controller's
+        // own wholesale-meta-replace PATCH, or it's silently wiped the
+        // next time a merchant edits anything else about this offering.
+        if ( isset( $meta['specifications'] ) && is_array( $meta['specifications'] ) ) {
+            $sanitized['specifications'] = array_values(
+                array_map(
+                    static function ( $row ) {
+                        return array(
+                            'key'   => isset( $row['key'] ) ? sanitize_text_field( (string) $row['key'] ) : '',
+                            'value' => isset( $row['value'] ) ? sanitize_text_field( (string) $row['value'] ) : '',
+                        );
+                    },
+                    $meta['specifications']
+                )
+            );
+        }
+
+        if ( isset( $meta['faqs'] ) && is_array( $meta['faqs'] ) ) {
+            $sanitized['faqs'] = array_values(
+                array_map(
+                    static function ( $row ) {
+                        return array(
+                            'question' => isset( $row['question'] ) ? sanitize_text_field( (string) $row['question'] ) : '',
+                            'answer'   => isset( $row['answer'] ) ? sanitize_textarea_field( (string) $row['answer'] ) : '',
+                        );
+                    },
+                    $meta['faqs']
+                )
+            );
+        }
+
+        if ( isset( $meta['translations'] ) && is_array( $meta['translations'] ) ) {
+            $sanitized['translations'] = array();
+
+            foreach ( $meta['translations'] as $locale => $translation ) {
+                if ( ! is_array( $translation ) ) {
+                    continue;
+                }
+
+                $sanitized['translations'][ sanitize_key( (string) $locale ) ] = array(
+                    'title'             => isset( $translation['title'] ) ? sanitize_text_field( (string) $translation['title'] ) : '',
+                    'short_description' => isset( $translation['short_description'] ) ? sanitize_textarea_field( (string) $translation['short_description'] ) : '',
+                    'full_description'  => isset( $translation['full_description'] ) ? sanitize_textarea_field( (string) $translation['full_description'] ) : '',
+                );
+            }
+        }
+
+        if ( isset( $meta['pricing_suggestion'] ) && is_array( $meta['pricing_suggestion'] ) ) {
+            $sanitized['pricing_suggestion'] = array(
+                'suggested_price' => isset( $meta['pricing_suggestion']['suggested_price'] ) ? (float) $meta['pricing_suggestion']['suggested_price'] : null,
+                'reasoning'       => isset( $meta['pricing_suggestion']['reasoning'] ) ? sanitize_textarea_field( (string) $meta['pricing_suggestion']['reasoning'] ) : '',
+                'generated_at'    => isset( $meta['pricing_suggestion']['generated_at'] ) ? sanitize_text_field( (string) $meta['pricing_suggestion']['generated_at'] ) : '',
+            );
+        }
+
+        if ( isset( $meta['inventory_prediction'] ) && is_array( $meta['inventory_prediction'] ) ) {
+            $sanitized['inventory_prediction'] = array(
+                'days_until_stockout' => isset( $meta['inventory_prediction']['days_until_stockout'] ) ? (int) $meta['inventory_prediction']['days_until_stockout'] : null,
+                'reorder_point'       => isset( $meta['inventory_prediction']['reorder_point'] ) ? (int) $meta['inventory_prediction']['reorder_point'] : null,
+                'reasoning'           => isset( $meta['inventory_prediction']['reasoning'] ) ? sanitize_textarea_field( (string) $meta['inventory_prediction']['reasoning'] ) : '',
+                'generated_at'        => isset( $meta['inventory_prediction']['generated_at'] ) ? sanitize_text_field( (string) $meta['inventory_prediction']['generated_at'] ) : '',
+            );
         }
 
         return $sanitized;

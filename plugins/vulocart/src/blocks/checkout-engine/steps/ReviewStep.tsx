@@ -1,7 +1,7 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { client } from '../../shared/cart';
-import { registerCheckoutStep, getCheckoutStepExtensions } from '../registry';
+import { registerCheckoutStep, getCheckoutStepExtensions, isPaymentMethodReady } from '../registry';
 import type { CheckoutStepContext } from '../registry';
 import type { AddressFields } from './AddressStep';
 import { EMPTY_ADDRESS } from './AddressStep';
@@ -121,7 +121,12 @@ function ReviewStepView( props: Props ) {
 						{ __( 'Back', 'vulocart' ) }
 					</button>
 				) }
-				<button type="button" className="is-primary" disabled={ ! summary } onClick={ onPlaceOrder }>
+				<button
+					type="button"
+					className="is-primary"
+					disabled={ ! summary || ! isPaymentMethodReady( ( data.selectedPaymentMethod as string ) || '', data ) }
+					onClick={ onPlaceOrder }
+				>
 					{ __( 'Place Order', 'vulocart' ) }
 				</button>
 			</div>

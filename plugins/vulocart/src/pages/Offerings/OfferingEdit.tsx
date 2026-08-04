@@ -6,6 +6,7 @@ import axios from 'axios';
 import { getApiLink } from '@zyra/core';
 import { CardComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { TextInput, TextAreaInput, SelectInput, ButtonInput, MultiCheckboxInput, FileInput } from '@zyra/inputs';
+import { EmbedCodeSection } from './EmbedCodeSection';
 import './offerings-page.scss';
 
 /**
@@ -1110,6 +1111,8 @@ export function OfferingEdit( { id }: OfferingEditProps ) {
 							</FormGroupComponent>
 						</div>
 					</CardComponent>
+
+					{ null !== id && <EmbedCodeSection offeringId={ id } /> }
 
 					{ null !== id && applyFilters( 'vulocart_offering_edit_sections', null, { id, type: formData.type } ) }
 				</div>

@@ -163,6 +163,40 @@ class OrderService {
     }
 
     /**
+     * Builds `ShippingService::calculate_cost()`'s own optional
+     * `$context` — same cart-weight-summed-from-Offering-meta shape
+     * `Shipping\Rest::build_context()` computes for the pre-order
+     * `GET /shipping/methods` call, just resolved from the cart/address
+     * this method already has in hand rather than a fresh REST request.
+     *
+     * @param object                     $cart             Cart\Domain\Cart.
+     * @param array<string, mixed>|null  $shipping_address Sanitized shipping address, if given.
+     * @param float                      $cart_subtotal    Cart's own subtotal, already computed by the caller.
+     * @return array{shipping_address?: array<string, mixed>, cart_weight?: float, cart_subtotal?: float}
+     */
+    private function build_shipping_context( $cart, $shipping_address, float $cart_subtotal ): array {
+        $context = array( 'cart_subtotal' => $cart_subtotal );
+
+        if ( $shipping_address ) {
+            $context['shipping_address'] = $shipping_address;
+        }
+
+        $weight = 0.0;
+
+        foreach ( $cart->items as $cart_item ) {
+            $offering = $this->offering_service->get_offering( $cart_item->offering_id );
+
+            if ( $offering && ! empty( $offering->meta['weight'] ) ) {
+                $weight += (float) $offering->meta['weight'] * (int) $cart_item->quantity;
+            }
+        }
+
+        $context['cart_weight'] = $weight;
+
+        return $context;
+    }
+
+    /**
      * Converts a cart into a placed order: snapshots every line item
      * (title, price, currency), computes shipping/tax via the Shipping/
      * Taxes modules when active (0.0 either way when they're not —
@@ -179,6 +213,7 @@ class OrderService {
      * @param array<string, mixed>|null  $shipping_address Sanitized shipping address, if given (null = same as billing).
      * @param string|null                $shipping_method  Chosen shipping method id.
      * @param string|null                $payment_method   Chosen payment method id.
+     * @param string|null                $payment_intent_id A payment intent id from `POST /payment/intent`, when the chosen gateway needed one (Payment\Application\PaymentService's own docblock explains the two charge paths).
      * @return Order
      * @throws \InvalidArgumentException If the cart doesn't exist or has no items.
      */
@@ -191,7 +226,8 @@ class OrderService {
         $billing_address = null,
         $shipping_address = null,
         $shipping_method = null,
-        $payment_method = null
+        $payment_method = null,
+        $payment_intent_id = null
     ) {
         $cart = $this->cart_service->find_cart( $cart_token );
 
@@ -202,7 +238,9 @@ class OrderService {
         $totals = $this->cart_service->get_totals( $cart );
 
         $shipping_service = $this->resolve_optional_service( 'shipping_service' );
-        $shipping_cost     = ( $shipping_service && $shipping_method ) ? $shipping_service->calculate_cost( $shipping_method ) : 0.0;
+        $shipping_cost    = ( $shipping_service && $shipping_method )
+            ? $shipping_service->calculate_cost( $shipping_method, $this->build_shipping_context( $cart, $shipping_address, $totals['subtotal'] ) )
+            : 0.0;
 
         $tax_service = $this->resolve_optional_service( 'tax_service' );
         $tax_amount  = $tax_service ? $tax_service->calculate( $totals['subtotal'] ) : 0.0;
@@ -277,7 +315,93 @@ class OrderService {
 
         $order = $this->repository->find( $order->id );
 
+        // Real gateway charge, now that the order (and its own id/total)
+        // actually exists — see Payment\Application\PaymentService's own
+        // docblock for the inline-vs-intent-first split this branches on.
+        // Left at $initial_payment_status (the Payments tab's own
+        // fallback default) when the Payment module isn't active at all,
+        // exactly this method's pre-Payment-Framework behavior.
+        if ( $payment_service && ( $payment_intent_id || $payment_method ) ) {
+            $result = $payment_intent_id
+                ? $payment_service->finalize_intent_for_order( $order->id, (string) $payment_intent_id )
+                : $payment_service->authorize_for_order( (string) $payment_method, $order->id, $order->total, (string) $order->currency, array(
+                    'customer_email' => $customer_email,
+                    'customer_name'  => $customer_name,
+                ) );
+
+            if ( $result ) {
+                $order->payment_status         = $result->to_order_payment_status();
+                $order->gateway_transaction_id = $result->gateway_transaction_id;
+                $order->authorized_amount      = $result->authorized_amount;
+                $order->captured_amount        = $result->captured_amount;
+                $order                         = $this->repository->update( $order );
+            }
+        }
+
         $this->events->dispatch( 'order_created', array( 'order' => $order ) );
+
+        return $order;
+    }
+
+    /**
+     * Persists an Order object whose payment-related fields
+     * (`payment_status`/`gateway_transaction_id`/`authorized_amount`/
+     * `captured_amount`) a caller has already mutated directly (an
+     * admin-triggered capture/cancel, `Payment\Rest`'s own
+     * `capture_order_payment()`/`cancel_order_payment()`) — and
+     * broadcasts `order_payment_status_changed`. Kept generic (accepts
+     * an already-mutated Order rather than a status string) since a
+     * gateway capture can change `authorized_amount`/`captured_amount`
+     * without necessarily changing `payment_status` itself (a partial
+     * capture stays 'pending' until the full amount is settled).
+     *
+     * @param Order $order An order with already-mutated payment fields.
+     * @return Order The same order, freshly re-read from storage.
+     */
+    public function apply_payment_result( Order $order ) {
+        $order = $this->repository->update( $order );
+
+        $this->events->dispatch( 'order_payment_status_changed', array( 'order' => $order ) );
+
+        return $order;
+    }
+
+    /**
+     * Issues a refund, going through the order's own linked payment
+     * gateway first (when one exists) before recording the resulting
+     * amount — the gateway-aware entrypoint `Order\Rest::refund_item()`
+     * calls; refund_order() itself stays the plain "just record these
+     * numbers" primitive for orders with no gateway to call (pre-Payment-
+     * Framework orders, or a merchant recording an out-of-band
+     * adjustment).
+     *
+     * @param int   $id     Order id.
+     * @param float $amount Amount to refund.
+     * @return Order|null Null if no order with this id exists.
+     */
+    public function refund_order_via_gateway( $id, $amount ) {
+        $order = $this->repository->find( $id );
+
+        if ( ! $order ) {
+            return null;
+        }
+
+        $payment_service = $this->resolve_optional_service( 'payment_service' );
+
+        if ( $payment_service && $order->payment_method ) {
+            $result = $payment_service->refund_for_order( $order->payment_method, $order->gateway_transaction_id, $order->id, (float) $amount, (string) $order->currency );
+
+            if ( $result && $result->success ) {
+                $order->captured_amount = max( 0.0, $order->captured_amount - (float) $amount );
+            }
+        }
+
+        $order->payment_status  = PaymentStatus::REFUNDED;
+        $order->refunded_amount = ( $order->refunded_amount ? $order->refunded_amount : 0.0 ) + (float) $amount;
+        $order                  = $this->repository->update( $order );
+
+        $this->events->dispatch( 'order_payment_status_changed', array( 'order' => $order ) );
+        $this->events->dispatch( 'order_refunded', array( 'order' => $order ) );
 
         return $order;
     }
@@ -294,10 +418,11 @@ class OrderService {
      * @param array{offering_id: int, quantity: int}[] $items          Offerings and quantities to snapshot onto the order.
      * @param string|null                              $customer_email Buyer's email, if given.
      * @param string|null                              $customer_name  Buyer's display name, if given.
+     * @param string|null                              $payment_method Chosen payment method id, if this order is already paid (a recurring-billing engine's own renewal order, for instance) — left null for a genuine draft with nothing charged yet.
      * @return Order
      * @throws \InvalidArgumentException If $items is empty or references no valid offering.
      */
-    public function create_manual_order( array $items, $customer_email = null, $customer_name = null ) {
+    public function create_manual_order( array $items, $customer_email = null, $customer_name = null, $payment_method = null ) {
         if ( empty( $items ) ) {
             throw new \InvalidArgumentException( 'At least one item is required.' );
         }
@@ -343,7 +468,20 @@ class OrderService {
             FulfillmentStatus::DRAFT,
             $currency,
             $subtotal,
-            $subtotal
+            $subtotal,
+            null,
+            array(),
+            array(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            0.0,
+            0.0,
+            $payment_method
         );
 
         $order = $this->repository->insert( $order );

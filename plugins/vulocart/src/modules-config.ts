@@ -110,7 +110,7 @@ export default {
 			id: 'passport',
 			name: __( 'Passport', 'vulocart' ),
 			desc: __(
-				'Give every Offering a Digital Passport — serial number, manufacturer, warranty, and other provenance details.',
+				'Serialized Digital Product Passports — authenticity verification, warranty, service/owner history, certificates, firmware, and a public passport page with QR/NFC sharing and PDF export.',
 				'vulocart'
 			),
 			proModule: true,
@@ -210,6 +210,108 @@ export default {
 			name: __( 'Hosted Checkout', 'vulocart' ),
 			desc: __(
 				'A dedicated /checkout/hosted/{cart_token}/ URL a shopper can be redirected to — not a WordPress page, no theme involved.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'one-click-checkout',
+			name: __( 'One-Click Checkout', 'vulocart' ),
+			desc: __(
+				'Lets a returning buyer place an order instantly, reusing the address/shipping/payment from their last order under the same email.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'address-autocomplete',
+			name: __( 'Address Autocomplete', 'vulocart' ),
+			desc: __(
+				'Suggests full addresses as a shopper types at checkout, via a pluggable lookup provider (none configured out of the box).',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'embedded-checkout',
+			name: __( 'Embedded Checkout', 'vulocart' ),
+			desc: __(
+				'Renders checkout inline into any "data-vulocart-embedded-checkout" container on any page — same-site only, see module docs for cross-domain embedding.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'drawer-checkout',
+			name: __( 'Drawer Checkout', 'vulocart' ),
+			desc: __(
+				'Opens checkout in a slide-in side panel from any "data-vulocart-drawer-checkout-trigger" element, via the VuloCart SDK.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'checkout-links',
+			name: __( 'Checkout Links & QR Codes', 'vulocart' ),
+			desc: __(
+				'Shareable payment/checkout links for a fixed set of offerings — a dedicated /pay/ URL, embeddable, or shown as a QR code.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'stripe',
+			name: __( 'Stripe', 'vulocart' ),
+			desc: __(
+				'Accept credit/debit cards via Stripe — Payment Intents, saved cards for recurring billing, and partial capture/refund.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'paypal',
+			name: __( 'PayPal', 'vulocart' ),
+			desc: __( 'Accept payments via PayPal Checkout.', 'vulocart' ),
+			proModule: true,
+		},
+		{
+			id: 'razorpay',
+			name: __( 'Razorpay', 'vulocart' ),
+			desc: __( 'Accept payments via Razorpay Checkout.', 'vulocart' ),
+			proModule: true,
+		},
+		{
+			id: 'subscriptions',
+			name: __( 'Subscriptions', 'vulocart' ),
+			desc: __(
+				'Recurring billing on top of a recurring-capable payment gateway — automatic renewal charges, dunning retries, and customer self-service.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'customer-growth',
+			name: __( 'Customer Growth', 'vulocart' ),
+			desc: __(
+				'Wishlist, saved carts, manual groups, dynamic segments, a unified loyalty points/credits/wallet ledger (spendable at checkout), communication history, and a merged customer timeline.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'inventory',
+			name: __( 'Inventory Engine', 'vulocart' ),
+			desc: __(
+				'Warehouses/locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full inventory history ledger, and demand forecasting — stock decrements automatically on paid orders and stays synced with each offering\'s own stock field.',
+				'vulocart'
+			),
+			proModule: true,
+		},
+		{
+			id: 'shipping-engine',
+			name: __( 'Shipping Engine', 'vulocart' ),
+			desc: __(
+				'Zone/weight-based rates on top of the free flat-rate fallback, packaging presets, multi-shipment fulfillment with tracking, a pluggable carrier/label framework, returns (RMA) with automatic refunds, and local pickup.',
 				'vulocart'
 			),
 			proModule: true,

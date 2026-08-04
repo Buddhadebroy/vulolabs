@@ -63,7 +63,8 @@
 				"src/**/*.{js,jsx,ts,tsx,scss}",
 				"modules/**/*.{js,jsx,ts,tsx,scss}",
 				"webpack.config.js",
-				"tsconfig.json"
+				"tsconfig.json",
+				"../../packages/js/vulocart-sdk/dist/vulocart-sdk.js"
 			],
 			"output": [
 				"assets/**"
@@ -90,6 +91,7 @@
 	},
 	"dependencies": {
 		"@multivendorx/zyra": "^1.0.14",
+		"@vulocart/sdk": "workspace:*",
 		"@wordpress/element": "wp-6.6",
 		"@wordpress/hooks": "^4.46.0",
 		"@wordpress/i18n": "wp-6.6",

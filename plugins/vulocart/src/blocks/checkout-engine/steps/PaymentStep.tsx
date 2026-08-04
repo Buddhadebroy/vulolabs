@@ -1,30 +1,26 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { client } from '../../shared/cart';
-import { registerCheckoutStep } from '../registry';
+import { registerCheckoutStep, getPaymentMethodRenderer, isPaymentMethodReady } from '../registry';
+import type { CheckoutStepContext } from '../registry';
 
 interface PaymentMethod {
 	id: string;
 	label: string;
+	supports_recurring: boolean;
 }
 
 registerCheckoutStep( {
 	id: 'payment',
-	render( { data, update, mode, goNext, goBack, isFirstStep } ) {
-		return <PaymentStepView data={ data } update={ update } mode={ mode } goNext={ goNext } goBack={ goBack } isFirstStep={ isFirstStep } />;
+	render( context ) {
+		return <PaymentStepView { ...context } />;
 	},
 } );
 
-interface Props {
-	data: Record< string, unknown >;
-	update: ( patch: Record< string, unknown > ) => void;
-	mode: 'single_page' | 'multi_step';
-	goNext: () => void;
-	goBack: () => void;
-	isFirstStep: boolean;
-}
+type Props = CheckoutStepContext;
 
-function PaymentStepView( { data, update, mode, goNext, goBack, isFirstStep }: Props ) {
+function PaymentStepView( props: Props ) {
+	const { data, update, mode, goNext, goBack, isFirstStep } = props;
 	const [ methods, setMethods ] = useState< PaymentMethod[] >( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
 
@@ -44,6 +40,20 @@ function PaymentStepView( { data, update, mode, goNext, goBack, isFirstStep }: P
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount only.
 	}, [] );
 
+	// A gateway with its own storefront widget (vulocart-pro's Stripe/
+	// PayPal/Razorpay) registers a renderer keyed by its method id — once
+	// picked, that widget takes over confirming payment, in place of this
+	// step's own generic "Continue" button. Switching away from that
+	// method clears any half-confirmed intent from a previous selection.
+	const selectedRenderer = selected ? getPaymentMethodRenderer( selected ) : undefined;
+	const ready = selected ? isPaymentMethodReady( selected, data ) : false;
+
+	const onSelect = ( methodId: string ) => {
+		if ( methodId !== selected ) {
+			update( { selectedPaymentMethod: methodId, paymentIntentId: undefined } );
+		}
+	};
+
 	return (
 		<div className="vulocart-checkout-step vulocart-checkout-step-payment">
 			{ isLoading && <p>{ __( 'Loading payment methods…', 'vulocart' ) }</p> }
@@ -56,11 +66,17 @@ function PaymentStepView( { data, update, mode, goNext, goBack, isFirstStep }: P
 						type="radio"
 						name="payment_method"
 						checked={ selected === method.id }
-						onChange={ () => update( { selectedPaymentMethod: method.id } ) }
+						onChange={ () => onSelect( method.id ) }
 					/>
 					{ method.label }
 				</label>
 			) ) }
+
+			{ selectedRenderer && (
+				<div className="vulocart-checkout-payment-widget">
+					{ selectedRenderer( props ) }
+				</div>
+			) }
 
 			{ 'multi_step' === mode && (
 				<div className="vulocart-checkout-step-actions">
@@ -69,9 +85,16 @@ function PaymentStepView( { data, update, mode, goNext, goBack, isFirstStep }: P
 							{ __( 'Back', 'vulocart' ) }
 						</button>
 					) }
-					<button type="button" className="is-primary" disabled={ methods.length > 0 && ! selected } onClick={ goNext }>
-						{ __( 'Continue', 'vulocart' ) }
-					</button>
+					{ ! selectedRenderer && (
+						<button type="button" className="is-primary" disabled={ methods.length > 0 && ! selected } onClick={ goNext }>
+							{ __( 'Continue', 'vulocart' ) }
+						</button>
+					) }
+					{ selectedRenderer && ready && (
+						<button type="button" className="is-primary" onClick={ goNext }>
+							{ __( 'Continue', 'vulocart' ) }
+						</button>
+					) }
 				</div>
 			) }
 		</div>

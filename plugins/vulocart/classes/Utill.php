@@ -156,6 +156,10 @@ class Utill {
         // Payments.
         'enable_manual_payment'         => array( 'enable_manual_payment' ),
         'default_payment_status'        => 'pending',
+        'enable_bank_transfer'          => array(),
+        'bank_transfer_instructions'    => '',
+        'enable_cash_on_delivery'       => array(),
+        'payment_capture_mode'          => 'immediate',
 
         // Shipping.
         'enable_shipping'               => array( 'enable_shipping' ),

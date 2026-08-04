@@ -89,7 +89,10 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
             isset( $row['shipping_method'] ) ? $row['shipping_method'] : null,
             isset( $row['shipping_cost'] ) ? (float) $row['shipping_cost'] : 0.0,
             isset( $row['tax_amount'] ) ? (float) $row['tax_amount'] : 0.0,
-            isset( $row['payment_method'] ) ? $row['payment_method'] : null
+            isset( $row['payment_method'] ) ? $row['payment_method'] : null,
+            isset( $row['gateway_transaction_id'] ) ? $row['gateway_transaction_id'] : null,
+            isset( $row['authorized_amount'] ) ? (float) $row['authorized_amount'] : 0.0,
+            isset( $row['captured_amount'] ) ? (float) $row['captured_amount'] : 0.0
         );
     }
 
@@ -336,6 +339,9 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
                 'shipping_cost'      => $order->shipping_cost,
                 'tax_amount'         => $order->tax_amount,
                 'payment_method'     => $order->payment_method,
+                'gateway_transaction_id' => $order->gateway_transaction_id,
+                'authorized_amount'  => $order->authorized_amount,
+                'captured_amount'    => $order->captured_amount,
                 'total'              => $order->total,
                 'billing_address'    => null === $order->billing_address ? null : wp_json_encode( $order->billing_address ),
                 'shipping_address'   => null === $order->shipping_address ? null : wp_json_encode( $order->shipping_address ),
@@ -367,6 +373,9 @@ class WPDBOrderRepository implements OrderRepositoryInterface {
                 'payment_status'     => $order->payment_status,
                 'fulfillment_status' => $order->fulfillment_status,
                 'refunded_amount'    => $order->refunded_amount,
+                'gateway_transaction_id' => $order->gateway_transaction_id,
+                'authorized_amount'  => $order->authorized_amount,
+                'captured_amount'    => $order->captured_amount,
                 'meta'               => wp_json_encode( $order->meta ),
             ),
             array( 'id' => $order->id )
