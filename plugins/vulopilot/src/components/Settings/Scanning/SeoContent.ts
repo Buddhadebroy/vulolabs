@@ -322,7 +322,7 @@ export default {
 			type: 'section',
 			title: __('Readability', 'vulopilot'),
 			desc: __(
-				'Controls the Content page\'s readability findings — a standard Flesch Reading Ease score (0-100, higher is easier to read).',
+				'Controls the Content and AI Content pages\' readability findings — a standard Flesch Reading Ease score (0-100, higher is easier to read).',
 				'vulopilot'
 			),
 		},

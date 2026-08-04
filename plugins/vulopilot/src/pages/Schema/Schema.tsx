@@ -5,6 +5,7 @@ import {
 	ModuleGuardComponent,
 	NavigatorHeaderComponent,
 } from '@zyra/components';
+import { useRunScan } from '../../services/useRunScan';
 
 /**
  * No 'schema' scanner category exists yet as its own dimension — SEO's
@@ -13,32 +14,37 @@ import {
  * this points there instead of duplicating the same checks under a
  * second, currently-empty category.
  */
-const Schema = () => (
-	<>
-		<NavigatorHeaderComponent
-			headerIcon="check"
-			headerTitle={__('Schema', 'vulopilot')}
-			headerDescription={__(
-				'Structured data coverage across your content types.',
-				'vulopilot'
-			)}
-		/>
-		<ContainerComponent general>
-			<ColumnComponent>
-				<ModuleGuardComponent
-					icon="check"
-					title={__(
-						'Schema checks currently live under SEO',
-						'vulopilot'
-					)}
-					desc={__(
-						"There's no separate schema scanner category yet — open the SEO page to see structured-data findings today, or flag if a dedicated Schema category should be scoped next.",
-						'vulopilot'
-					)}
-				/>
-			</ColumnComponent>
-		</ContainerComponent>
-	</>
-);
+const Schema = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="check"
+				headerTitle={__('Schema', 'vulopilot')}
+				headerDescription={__(
+					'Structured data coverage across your content types.',
+					'vulopilot'
+				)}
+				buttons={[runScanButton]}
+			/>
+			<ContainerComponent general>
+				<ColumnComponent>
+					<ModuleGuardComponent
+						icon="check"
+						title={__(
+							'Schema checks currently live under SEO',
+							'vulopilot'
+						)}
+						desc={__(
+							"There's no separate schema scanner category yet — open the SEO page to see structured-data findings today, or flag if a dedicated Schema category should be scoped next.",
+							'vulopilot'
+						)}
+					/>
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
+	);
+};
 
 export default Schema;

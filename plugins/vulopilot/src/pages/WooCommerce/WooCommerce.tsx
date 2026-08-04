@@ -12,6 +12,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import FindingsTable from '../../components/FindingsTable';
+import { useRunScan } from '../../services/useRunScan';
 import ShowProPopup from '../../components/Popup/Popup';
 
 /**
@@ -128,7 +129,10 @@ const WooCommerceIntelligenceLockedCard = () => {
 	);
 };
 
-const WooCommerce = () => (
+const WooCommerce = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
 	<>
 		<NavigatorHeaderComponent
 			headerIcon="woocommerce"
@@ -137,6 +141,7 @@ const WooCommerce = () => (
 				'Store settings, product data, and checkout health findings.',
 				'vulopilot'
 			)}
+			buttons={[runScanButton]}
 		/>
 		<ContainerComponent general>
 			<ColumnComponent>
@@ -161,6 +166,7 @@ const WooCommerce = () => (
 			</ColumnComponent>
 		</ContainerComponent>
 	</>
-);
+	);
+};
 
 export default WooCommerce;

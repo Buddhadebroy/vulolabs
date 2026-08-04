@@ -6,6 +6,7 @@ import {
 } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
 import HealthScoreSummary from './HealthScoreSummary';
+import { useRunScan } from '../../services/useRunScan';
 
 /**
  * Every finding across every scanner category — the SEO/GEO/WooCommerce
@@ -24,29 +25,34 @@ import HealthScoreSummary from './HealthScoreSummary';
  * Dashboard surfaced that data, this page (the one the sidebar actually
  * calls "Health") had none of it.
  */
-const Health = () => (
-	<>
-		<NavigatorHeaderComponent
-			headerIcon="home"
-			headerTitle={__('Site health', 'vulopilot')}
-			headerDescription={__(
-				'Every open finding across every scanner category.',
-				'vulopilot'
-			)}
-		/>
-		<ContainerComponent general>
-			<ColumnComponent>
-				<HealthScoreSummary />
-				<FindingsTable
-					title={__('Site health', 'vulopilot')}
-					description={__(
-						'No open findings — your site is looking healthy.',
-						'vulopilot'
-					)}
-				/>
-			</ColumnComponent>
-		</ContainerComponent>
-	</>
-);
+const Health = () => {
+	const { runScanButton } = useRunScan();
+
+	return (
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="home"
+				headerTitle={__('Site health', 'vulopilot')}
+				headerDescription={__(
+					'Every open finding across every scanner category.',
+					'vulopilot'
+				)}
+				buttons={[runScanButton]}
+			/>
+			<ContainerComponent general>
+				<ColumnComponent>
+					<HealthScoreSummary />
+					<FindingsTable
+						title={__('Site health', 'vulopilot')}
+						description={__(
+							'No open findings — your site is looking healthy.',
+							'vulopilot'
+						)}
+					/>
+				</ColumnComponent>
+			</ContainerComponent>
+		</>
+	);
+};
 
 export default Health;

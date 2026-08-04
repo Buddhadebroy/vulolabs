@@ -12,8 +12,14 @@ interface FindingRow {
 }
 
 interface OpenIssuesGlimpseProps {
-	/** Finding category to fetch, e.g. 'geo'. */
-	category: string;
+	/**
+	 * Finding category to fetch, e.g. 'geo'. Omit when the calling page's
+	 * scanners don't all share one category (AI Content's `thin-content` is
+	 * category 'seo' while `readability` is category 'content' — filtering
+	 * by category here would AND against `scannerIds` server-side and wrongly
+	 * exclude the 'seo'-category ones), and rely on `scannerIds` alone.
+	 */
+	category?: string;
 	/**
 	 * Further restricts the glimpse to a specific set of scanner ids within
 	 * `category` — same comma-joined shape FindingsTable's own `scannerIds`
