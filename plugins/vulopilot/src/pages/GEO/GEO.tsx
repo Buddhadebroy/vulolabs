@@ -242,7 +242,6 @@ const GEO = () => (
 			)}
 		/>
 		<ContainerComponent general>
-			<ColumnComponent>
 				{GeoVisibilitySummary && <GeoVisibilitySummary />}
 				{GeoVisibilityTrend && <GeoVisibilityTrend />}
 				{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
@@ -255,27 +254,30 @@ const GEO = () => (
 					emptyTitle={__("You're all caught up", 'vulopilot')}
 					emptyDesc={__('No open GEO findings right now.', 'vulopilot')}
 				/>
+
 				<TopPagesCard />
 				{GEO_SECTIONS.map((section) => (
-					<CardComponent
-						key={section.key}
-						id={`geo-section-${section.key}`}
-						title={section.title}
-						desc={section.description}
-					>
-						{section.proModule && !isGeoInsightsActive() ? (
-							<ProLockedCard moduleName={section.proModule} />
-						) : (
-							<FindingsTable
-								title={section.title}
-								description={section.emptyMessage}
-								scannerIds={section.scannerIds}
-								layout="compact"
-							/>
-						)}
-					</CardComponent>
+					<ColumnComponent grid={6} fullHeight>
+						<CardComponent
+							key={section.key}
+							id={`geo-section-${section.key}`}
+							title={section.title}
+							desc={section.description}
+						>
+							{section.proModule && !isGeoInsightsActive() ? (
+								<ProLockedCard moduleName={section.proModule} />
+							) : (
+								<FindingsTable
+									title={section.title}
+									description={section.emptyMessage}
+									scannerIds={section.scannerIds}
+									layout="compact"
+								/>
+							)}
+						</CardComponent>
+					</ColumnComponent>
 				))}
-			</ColumnComponent>
+			
 		</ContainerComponent>
 	</>
 );
