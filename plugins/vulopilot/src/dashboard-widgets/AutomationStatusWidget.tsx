@@ -39,13 +39,14 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
-			
-			<span className="admin-badge green">
-				{sprintf('%d enabled', summary.automation_status.enabled)}
-			</span>
-			<span className="admin-badge red">
-				{sprintf('%d disabled', summary.automation_status.disabled)}
-			</span>
+			<div className='buttons-wrapper'>
+				<span className="admin-badge green">
+					{sprintf('%d enabled', summary.automation_status.enabled)}
+				</span>
+				<span className="admin-badge red">
+					{sprintf('%d disabled', summary.automation_status.disabled)}
+				</span>
+			</div>
 
 			{error ? (
 				<ModuleGuardComponent
