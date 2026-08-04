@@ -1,8 +1,12 @@
 # VuloPilot — AI Crawler Analytics module
 
 Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md),
-[`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md), and
-[`AI-VISIBILITY-MODULE.md`](AI-VISIBILITY-MODULE.md). Unlike Content
+[`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md),
+[`AI-VISIBILITY-MODULE.md`](AI-VISIBILITY-MODULE.md), and to `vulopilot-pro`'s
+own
+[`AI-CRAWLER-ANALYTICS-MODULE.md`](../../../../plugins/vulopilot-pro/docs/AI-CRAWLER-ANALYTICS-MODULE.md)
+(the Pro-side file — every file in `modules/AiCrawlerAnalytics/`, in full
+detail). Unlike Content
 Intelligence/Brand Intelligence (both genuinely new modules built from
 scratch), most of this phase's Free scope — AI Crawler Detection, Crawl
 Logs, Top Crawled Pages, Crawl Statistics — **already shipped** under
@@ -102,11 +106,22 @@ round-trips through Settings regardless of which tier reads it" posture
 `geo_competitor_urls`/`geo_drop_threshold`/`brand_drop_threshold` already
 take.
 
-**`Modules/index.ts`** — new `ai-crawler-analytics` catalog entry so the
-Pro module has a real name/description on the Modules admin page, matching
-every other Pro-only module folder (`geo-insights`, `one-click-fix`, etc.)
-that has no same-named Free counterpart and is therefore off by default
-until a site owner turns it on there.
+**`Modules/index.ts`** — a catalog entry (`src/components/Modules/index.ts`)
+gives this Pro module a real name/description on the Modules admin page,
+matching every other Pro-only module folder that has no same-named Free
+counterpart. **Its `id` is currently `ai-crawler-intelligence`, not
+`ai-crawler-analytics`** — the real backend module id every actual consumer
+uses (`SeoContent.ts`'s `moduleEnabled: 'ai-crawler-analytics'` check,
+`modules/AiCrawlerAnalytics/src/index.tsx`'s own
+`'vulopilot-pro/ai-crawler-analytics'` filter namespace, and
+`camel_to_kebab('AiCrawlerAnalytics')` — the folder-name-derived id
+`Modules.php` actually resolves). This is the same class of mismatch this
+same file's own comments describe having previously broken the GEO and AEO
+cards (`geo-ai-understanding`/`aeo-answer-engine`, both fixed to
+`geo-insights`): toggling "AI Crawler Intelligence" from the Modules page
+calls `set_modules()` with an id that resolves to no real module folder, so
+it doesn't actually activate `AiCrawlerAnalytics`. Confirmed by reading the
+current `index.ts` — not fixed here, since this pass is docs-only.
 
 ### Pro (`modules/AiCrawlerAnalytics/`)
 
@@ -195,8 +210,9 @@ uses), plus Jest tests for all 4 new React components.
 
 - **A shared PHP/TS source of truth for the AI-bot list** — `BOT_SIGNATURES`
   (PHP, detection) and `CrawlerTraffic.tsx`'s filter-pill options (TS,
-  display, only 4 of the 9 bots) still have to be updated by hand in two
-  places; `vulopilot_crawler_bot_signatures` only solves the PHP side.
+  display — now hand-mirrored for all 9 bots, per that component's own
+  docblock) still have to be updated by hand in two places;
+  `vulopilot_crawler_bot_signatures` only solves the PHP side.
 - **Response-code-aware "blocked"** — both `AiCrawlerBlockedPagesScanner`
   and `CrawlerAlertMonitor` treat "blocked" as "robots.txt disallows it,"
   not "the bot actually received a 403/redirect at request time" —

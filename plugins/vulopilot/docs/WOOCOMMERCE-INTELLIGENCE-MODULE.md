@@ -149,6 +149,26 @@ Free's own generic `GET /findings` endpoint directly (scoped via
 `scanner_id=inventory-intelligence`) rather than a dedicated PHP
 endpoint — no new REST surface was needed for it.
 
+## Tests
+
+`test-product-seo-scanner.php` and `test-woocommerce-scanner.php` (Free —
+the latter covers all five checks the extended scanner now bundles, not
+just the original checkout-page one) in Free; `test-inventory-intelligence-scanner.php`,
+`test-store-trends-snapshot-builder.php`, and `test-low-stock-trigger.php`
+in Pro — same Brain\Monkey-based fast-unit-test posture every prior
+module's own Tests section documents. `RevenueInsightsRest` has no
+dedicated PHP test yet. Run with `vendor/bin/phpunit` from either plugin
+directory.
+
+React tests (`wp-scripts test-unit-js`) cover
+`src/pages/WooCommerce/__tests__/WooCommerce.pro-filters.test.tsx` (Free —
+confirms the `vulopilot_woocommerce_ai_panel`/
+`vulopilot_woocommerce_intelligence_panel` slots fall back to their own
+locked teaser cards independently of each other when unregistered), plus
+`InventoryIntelligenceCard.test.tsx`/`RevenueInsightsCard.test.tsx`/
+`StoreTrendsChart.test.tsx` (Pro). Run with `pnpm test:unit:js` from
+either plugin directory.
+
 ## What's not here yet
 
 - **A configurable Store Trends cadence.** Always a daily rollup — see

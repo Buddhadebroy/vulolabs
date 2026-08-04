@@ -76,6 +76,32 @@ Three sections grouped by their own `scanner_id` list (Readability; Content
 Depth = thin+duplicate; Structure = heading+internal-linking+orphan), the
 Content Score card, and two Pro filter slots (below).
 
+**AI Content page** (`src/pages/AIContent/AIContent.tsx`, `routes.ts`'s
+`ai-content` tab, grouped under `Admin.php`'s `ai-visibility` menu group
+alongside GEO/AEO/Crawler Traffic rather than under Content Intelligence's
+own menu entry) — a separate, newer page that reads the *same* two scanners
+this module owns (`readability`, `thin-content`, plus the `seo`-category
+`heading-structure`) through a different lens: "the content-quality signals
+AI assistants weigh" (Depth & Completeness, Trust & Credibility, Multimedia
+& Visual Aids, Scannable Formatting, Terminology & Tone) rather than this
+page's own Readability/Content Depth/Structure grouping — the same
+"a finding legitimately shows up grouped differently across pages"
+cross-page overlap `GEO.tsx`/`AEO.tsx` already established for their own
+shared scanners (see this page's own `SCANNER_TO_SECTION` docblock). Only
+2 of its 5 sections (Depth & Completeness, Scannable Formatting) have a real
+scanner behind them today; Trust & Credibility, Multimedia & Visual Aids,
+and Terminology & Tone render an honest "not built yet" notice
+(`scannerIds: []`, a `notBuiltDesc` string) rather than a findings table
+that would sit permanently and misleadingly empty — none of those three
+have a scanner anywhere in this codebase, Free or Pro, since checking any
+of them needs real judgment, not pattern-matching, and this codebase's
+established posture is that an AI-judged check is always a Pro-gated
+engine (`ContentAnalyzer`'s own `topic_authority` dimension is the closest
+existing thing), never a Free `ScannerInterface` implementer. Also renders
+`TopicAuthorityCard` via the same `vulopilot_content_topic_authority_card`
+slot Content.tsx uses, and is gated on the same `content-intelligence`
+active-module check.
+
 ### Pro
 
 **Topic Authority** — `ContentAnalyzer`

@@ -5,9 +5,15 @@ All tables below live in the **Free** plugin's schema (`Utill::TABLES`, created 
 plugin for every existing product line, and VuloPilot Pro has no independent database of its own.
 A Pro-only feature (e.g. `ComplianceReports`) still writes into a table defined here; it just
 leaves that table empty/unused until the module is licensed and active. This avoids splitting
-migration ownership across two plugins, which nothing in this repo does today.
+migration ownership across two plugins, which nothing in this repo does today. (Confirmed against
+`plugins/vulopilot-pro/`: zero `CREATE TABLE` statements anywhere in its real code — the scope
+claim above still holds.)
 
-## Design principles (matched against the real schema in `vulolabs/plugins/vulolabs/classes/Install.php`)
+`Utill::TABLES` has grown to **24 entries** since this doc was first written — the original 13-table
+`1.0.0` baseline (tables 1–13 below) plus 11 tables added one-at-a-time in later passes (tables
+14–24 below), each still created/owned entirely by Free's `Install.php`.
+
+## Design principles (matched against the real schema in `vulolabs/plugins/vulopilot/classes/Install.php`)
 
 - **`bigint(20) unsigned` primary keys, `AUTO_INCREMENT`, lower-case `id`** — the existing schema is
   inconsistent between `` `ID` `` and `` `id` `` across tables (legacy vs. newer ones, e.g.
@@ -29,7 +35,10 @@ migration ownership across two plugins, which nothing in this repo does today.
   the same everywhere a specific target type exists (`vulopilot_automations.rule_id`,
   `vulopilot_automation_runs.automation_id`). The generic pair is used strictly for the handful of
   tables whose whole purpose is to reference heterogeneous, unpredictable targets (a finding might
-  be about a plugin slug, a file path, or a URL — no single typed column works there).
+  be about a plugin slug, a file path, or a URL — no single typed column works there). None of the
+  11 tables added since (14–24 below) use this pair either — `vulopilot_entity_relationships` comes
+  closest to a polymorphic shape but still uses typed `from_entity_id`/`to_entity_id` string columns
+  scoped to its own synthetic id format, not the generic `object_type`/`object_id` pair.
 - **`longtext` for JSON payloads**, matching the existing `commission_note`/similar `longtext`
   columns — no existing table uses MySQL's native `JSON` column type, so this doesn't introduce a
   new column type the rest of the schema doesn't use. Encode/decode via `wp_json_encode()`/
@@ -39,11 +48,11 @@ migration ownership across two plugins, which nothing in this repo does today.
 - **No table is deleted or repurposed by a later migration** — additive only, per
   `.claude/rules/backward-compatibility.md`.
 
-## Table registry (`Utill::TABLES` addition, free plugin)
+## Table registry (`Utill::TABLES`, free plugin)
 
 ```php
 const TABLES = array(
-    'scan'                  => 'vulopilot_scans',
+    'scan'                   => 'vulopilot_scans',
     'scan_finding'           => 'vulopilot_scan_findings',
     'rule'                   => 'vulopilot_rules',
     'automation'             => 'vulopilot_automations',
@@ -56,11 +65,25 @@ const TABLES = array(
     'activity_log'           => 'vulopilot_activity_logs',
     'site_health_snapshot'   => 'vulopilot_site_health_snapshots',
     'ai_action_run'          => 'vulopilot_ai_action_runs',
+    'crawler_visit'          => 'vulopilot_crawler_visits',
+    'redirect'               => 'vulopilot_redirects',
+    'not_found_log'          => 'vulopilot_not_found_logs',
+    'indexnow_log'           => 'vulopilot_indexnow_log',
+    'geo_visibility_history' => 'vulopilot_geo_visibility_history',
+    'brand_score_history'    => 'vulopilot_brand_score_history',
+    'entity_relationship'    => 'vulopilot_entity_relationships',
+    'kg_health_history'      => 'vulopilot_kg_health_history',
+    'file_baseline'          => 'vulopilot_file_baselines',
+    'accessibility_snapshot' => 'vulopilot_accessibility_snapshots',
+    'store_trends_snapshot'  => 'vulopilot_store_trends_snapshots',
 );
 ```
 
 `ai_action_run` was added in the AI Actions pass — see [`AI-ACTIONS.md`](AI-ACTIONS.md) for its
-full design (table #13, documented after table 12 below rather than renumbering everything).
+full design (table #13, documented after table 12 below rather than renumbering everything). The
+11 entries after it (`crawler_visit` through `store_trends_snapshot`) were each added in a later,
+separate pass — tables 14–24 below, in the same order `Install.php`'s own
+`create_database_tables()`/`do_migration()` create them.
 
 ## Entity relationships
 
@@ -76,6 +99,17 @@ erDiagram
     vulopilot_scheduled_jobs ||--o{ vulopilot_scans : "kicks off"
     vulopilot_scan_findings ||--o{ vulopilot_site_health_snapshots : "rolled up into"
 ```
+
+This diagram was never meant to be exhaustive — it already omits `vulopilot_activity_logs` and
+`vulopilot_ai_action_runs` from the original 13. The 11 tables added since (14–24 below) are left
+off for the same reason: each is either a standalone log with no FK-shaped column to another
+custom table (`vulopilot_crawler_visits`, `vulopilot_redirects`, `vulopilot_not_found_logs`,
+`vulopilot_indexnow_log`), a daily rollup computed live from `vulopilot_scan_findings` the same way
+`vulopilot_site_health_snapshots` already is (`vulopilot_geo_visibility_history`,
+`vulopilot_brand_score_history`, `vulopilot_kg_health_history`, `vulopilot_accessibility_snapshots`),
+a rollup of real WooCommerce order data rather than findings (`vulopilot_store_trends_snapshots`),
+or a self-contained edge list keyed to synthetic entity ids that aren't rows in any other custom
+table (`vulopilot_entity_relationships`, `vulopilot_file_baselines`).
 
 ---
 
@@ -495,6 +529,10 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_activity_logs` (
   a second color-mapping table (`.claude/rules/accessibility.md`'s "color is never the only signal"
   guidance applies equally here — pair with the text label, which `event_type`/`message` already
   provide).
+- Also where `Sdk\ExtensionManager` writes `extension.incompatible`/`extension.registration_failed`
+  events (`EXTENSION-SDK.md`) — not only scanner/automation events; `event_type` is a free-form
+  string, not an enum, precisely so new subsystems can log into this one table without a schema
+  change.
 
 ## 12. `vulopilot_site_health_snapshots` — daily aggregate rollup
 
@@ -526,6 +564,11 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_site_health_snapshots` (
   a live aggregation.
 - `UNIQUE KEY uniq_snapshot_date` — enforces one rollup per day; the scheduled job that writes this
   does an upsert (`ON DUPLICATE KEY UPDATE`) so re-running it the same day is idempotent.
+- **Still only partially populated**: `security_score`/`performance_score`/`seo_score`/`uptime_score`
+  exist as columns, but nothing in this codebase writes them today — `overall_score` is the only one
+  `ScanPersistenceListener::refresh_todays_snapshot()` actually upserts. `DASHBOARD-WIDGETS.md`'s
+  Dashboard category scores are computed live from `vulopilot_scan_findings` instead of reading these
+  columns for exactly that reason (a `NULL` here would be indistinguishable from "not implemented").
 
 ## 13. `vulopilot_ai_action_runs` — AI Action propose/approve/execute/rollback history
 
@@ -566,10 +609,258 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_ai_action_runs` (
 - `snapshot` shape is entirely action-specific (a previous meta value, previous `post_content`, or
   just a newly-created post id to trash) — this table stores whatever JSON an action's own
   `execute()` produced, never interprets it.
+- Read by `Controllers/AiActionRuns.php`'s `GET /ai-action-runs` (Dashboard's "Needs your attention"
+  widget's Pending Approval tab, `DASHBOARD-WIDGETS.md`) and written to by that same controller's
+  `POST /ai-action-runs/{id}/approve|reject|rollback` routes — the full propose → approve/reject →
+  execute → rollback REST surface this table was designed for is now real, not just designed.
 
 ---
 
-## 14. `vulopilot_file_baselines` — Integrity Monitoring's file hash baseline
+## 14. `vulopilot_crawler_visits` — AI Crawler Traffic Monitoring's raw visit log
+
+Added for readme.txt's "AI Crawler Traffic Monitoring" feature — see
+[`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md). Its own method
+(`Install::create_crawler_visits_table()`), called from both a fresh install and `do_migration()`,
+since it was added after the original 13-table baseline and sites upgrading in place need it too.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_crawler_visits` (
+    `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `bot_name`       varchar(50) NOT NULL,
+    `user_agent`     varchar(255) NOT NULL,
+    `requested_url`  varchar(255) NOT NULL,
+    `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_bot` (`bot_name`),
+    KEY `idx_created` (`created_at`)
+) $collate;
+```
+
+- **No IP address or user column, ever** — readme.txt's own FAQ promises AI Crawler Traffic
+  Monitoring "does not track human visitors, IP addresses, or personal data," enforced by the
+  schema itself, not just application code.
+- One row per real crawler hit, matched against `Services\CrawlerTrafficLogger::get_bot_signatures()`
+  — a User-Agent-substring map extensible via the `vulopilot_crawler_bot_signatures` filter
+  (`EXTENSION-SDK.md`), so a Pro module or third party can teach this table about a new AI bot
+  without editing `CrawlerTrafficLogger` itself.
+- Retention is a filter, not a fixed value: `Services\CrawlerTrafficLogger`'s daily cleanup cron
+  deletes rows older than `apply_filters('vulopilot_crawler_log_retention_days', 30)` — Free's own
+  default is the site's "Log retention" setting (30 by default), and vulopilot-pro's own historical
+  logs feature extends the same filter rather than adding a second retention mechanism.
+
+## 15. `vulopilot_redirects` — the Redirects manager's rules
+
+Added for the SEO module's "Redirects & 404s" feature alongside `vulopilot_not_found_logs` below,
+in the same `Install::create_redirect_tables()` method (both created together, for the same
+"added after the original baseline, self-healing on upgrade" reason as `vulopilot_crawler_visits`
+above).
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_redirects` (
+    `id`            bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `source_path`   varchar(255) NOT NULL,
+    `target_url`    varchar(255) NOT NULL,
+    `redirect_type` smallint(3) unsigned NOT NULL DEFAULT 301,
+    `hit_count`     int(10) unsigned NOT NULL DEFAULT 0,
+    `is_active`     tinyint(1) NOT NULL DEFAULT 1,
+    `created_by`    bigint(20) unsigned DEFAULT NULL,
+    `created_at`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_source_path` (`source_path`),
+    KEY `idx_active` (`is_active`)
+) $collate;
+```
+
+- `source_path` is `UNIQUE` — `Services\RedirectManager` looks a request path up by exact match, and
+  only one active target makes sense per source path; a second row for the same path would be
+  ambiguous, not a legitimate A/B case this feature is for.
+- `redirect_type` defaults to `301` (permanent) but is a plain `smallint`, not an enum, so `302`/`307`
+  etc. are valid without a schema change.
+- `hit_count` — incremented on every match, the number the Redirects screen's own "N hits" column
+  reads; `is_active` lets a redirect be paused without deleting the rule (and its accumulated
+  `hit_count`).
+
+## 16. `vulopilot_not_found_logs` — 404 tracking
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_not_found_logs` (
+    `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `requested_path` varchar(255) NOT NULL,
+    `referrer`       varchar(255) DEFAULT NULL,
+    `hit_count`      int(10) unsigned NOT NULL DEFAULT 1,
+    `last_seen_at`   datetime NOT NULL,
+    `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_requested_path` (`requested_path`),
+    KEY `idx_last_seen` (`last_seen_at`)
+) $collate;
+```
+
+- `requested_path` is `UNIQUE` — `Services\NotFoundLogger` upserts (increment `hit_count`, bump
+  `last_seen_at`) rather than inserting one row per visit, so repeat 404s to the same missing URL
+  don't grow this table unboundedly the way a per-visit log would. This is the opposite shape from
+  `vulopilot_crawler_visits` above (one row per hit) — deliberately: a crawler's individual visits
+  are each meaningful for traffic analysis, but a 404 log only needs to answer "which missing URLs
+  keep getting hit," not "when, every single time."
+- A row here is the natural source for turning a real 404 into a `vulopilot_redirects` row — the
+  Redirects screen's "create from 404" affordance reads from this table.
+
+## 17. `vulopilot_indexnow_log` — Instant Indexing submission history
+
+Added for readme.txt's IndexNow support, its own method (`Install::create_indexnow_log_table()`),
+same "self-healing on upgrade" shape as the tables above.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_indexnow_log` (
+    `id`              bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `url`             varchar(255) NOT NULL,
+    `response_code`   smallint(5) unsigned DEFAULT NULL,
+    `response_status` varchar(20) NOT NULL DEFAULT 'unknown',
+    `trigger_type`    varchar(20) NOT NULL DEFAULT 'manual',
+    `created_at`      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_created` (`created_at`)
+) $collate;
+```
+
+- One row per real IndexNow API submission (manual or auto-submitted on publish) — **not**
+  upserted/deduped like `vulopilot_not_found_logs`: repeat submissions of the same URL over time are
+  each a distinct, meaningful API call worth its own row, unlike a repeat 404 hit.
+- Trimmed to the last 100 rows by `Repositories\IndexNowLogRepository` after each insert, matching a
+  "last 100 API requests" UI, rather than an unbounded log with a separate retention cron the way
+  `vulopilot_crawler_visits`/`vulopilot_not_found_logs` are pruned.
+- `response_code`/`response_status` — the raw HTTP response VuloLabs's IndexNow submission got back,
+  so a failed submission (`response_status` other than the success value) is visibly distinguishable
+  from one that hasn't run yet.
+
+## 18. `vulopilot_geo_visibility_history` — GEO Score's daily sitewide rollup
+
+Added for [`AI-VISIBILITY-MODULE.md`](AI-VISIBILITY-MODULE.md)'s "Historical Trends" — also
+referenced from [`GEO-MODULE.md`](GEO-MODULE.md)'s own "What's not here yet" section, which
+distinguishes this sitewide-sample trend from a single post's own GEO score (which still has no
+history table). Same one-row-per-day upsert shape `vulopilot_site_health_snapshots` already uses.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_geo_visibility_history` (
+    `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `snapshot_date`  date NOT NULL,
+    `sample_size`    int(10) unsigned NOT NULL DEFAULT 0,
+    `overall_score`  tinyint(3) unsigned DEFAULT NULL,
+    `ai_scores`      longtext DEFAULT NULL,
+    `sub_scores`     longtext DEFAULT NULL,
+    `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+) $collate;
+```
+
+- Written by `vulopilot-pro`'s `GeoInsights\VisibilitySnapshotBuilder` — Free owns the
+  schema/Repository, Pro owns the population logic, the same split `vulopilot_site_health_snapshots`/
+  `AdvancedReports` already establishes elsewhere; this table exists and is queryable even without
+  Pro active, it just stays empty.
+- `overall_score` is nullable (unlike `vulopilot_site_health_snapshots.overall_score`, which is
+  `NOT NULL`) — `GeoAnalysis\GeoAnalyzer::analyze()`'s own design (`GEO-MODULE.md`) treats "no GEO
+  scan history yet" as genuinely different from "a perfect score," and this table's schema preserves
+  that distinction for the sitewide rollup too.
+- `sample_size` — `VisibilitySnapshotBuilder` runs over a bounded 20-post sample, not the whole site
+  (`GEO-MODULE.md`'s disclosed approximation); this column records how many posts actually fed a
+  given day's snapshot, so the trend chart can be honest about its own sample size.
+- `ai_scores`/`sub_scores` — JSON, the per-dimension breakdowns behind the single `overall_score`
+  number, same "longtext for JSON, no native JSON column" convention as every other table here.
+
+## 19. `vulopilot_brand_score_history` — Brand Score's daily rollup
+
+Added for [`BRAND-INTELLIGENCE-MODULE.md`](BRAND-INTELLIGENCE-MODULE.md). Same one-row-per-day
+upsert shape as `vulopilot_geo_visibility_history` above, but simpler: Brand Score is a
+deterministic composite computed live from `vulopilot_scan_findings`
+(`Controllers\BrandIntelligence`'s own docblock), never an AI-sampled average that can come back
+empty, so there's no `sample_size`/nullable-score case to account for — every one of its 4 score
+columns is always a real `0`–`100` int.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_brand_score_history` (
+    `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `snapshot_date`    date NOT NULL,
+    `brand_score`      tinyint(3) unsigned NOT NULL,
+    `trust_score`      tinyint(3) unsigned NOT NULL,
+    `authority_score`  tinyint(3) unsigned NOT NULL,
+    `entity_score`     tinyint(3) unsigned NOT NULL,
+    `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+) $collate;
+```
+
+- `brand_score`/`trust_score`/`authority_score`/`entity_score` mirror `Controllers\BrandIntelligence`'s
+  `GET /brand-intelligence/score` response shape exactly (`DASHBOARD-WIDGETS.md`'s Brand Visibility
+  breakdown widget reads the live version of these same four numbers) — this table is that same
+  score, snapshotted once a day for the trend chart.
+- Free owns the schema/Repository, `vulopilot-pro` owns the population logic — same split as every
+  other `*_history`/`*_snapshots` table added since the original 13.
+
+## 20. `vulopilot_entity_relationships` — Knowledge Graph's edge list
+
+Added for [`KNOWLEDGE-GRAPH-MODULE.md`](KNOWLEDGE-GRAPH-MODULE.md). One row per real, deterministic
+edge `vulopilot-pro`'s own `KnowledgeGraph\EntityRelationshipBuilder` discovers between two of
+Free's own extracted entities (`Services\EntityExtractor`).
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_entity_relationships` (
+    `id`                bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `from_entity_id`    varchar(64) NOT NULL,
+    `from_entity_type`  varchar(20) NOT NULL,
+    `from_entity_name`  varchar(255) NOT NULL,
+    `to_entity_id`      varchar(64) NOT NULL,
+    `to_entity_type`    varchar(20) NOT NULL,
+    `to_entity_name`    varchar(255) NOT NULL,
+    `relationship_type` varchar(50) NOT NULL,
+    `dedupe_hash`       char(32) NOT NULL,
+    `created_at`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_dedupe_hash` (`dedupe_hash`),
+    KEY `idx_from_entity` (`from_entity_id`),
+    KEY `idx_to_entity` (`to_entity_id`)
+) $collate;
+```
+
+- Entity ids are the synthetic `{type}:{ref}` strings `EntityExtractor` itself builds (e.g.
+  `person:7`), not a foreign key into any single table — no real FK constraints anywhere in this
+  codebase's schema regardless (design principles above), and entities themselves are read live/
+  transient-cached, never persisted in a table of their own (`Install.php`'s own migration comment:
+  "entities are read live ... from existing users/products/terms/settings, never persisted").
+- `dedupe_hash` (an md5 of from/to id + `relationship_type`) gets its own `UNIQUE` key instead of a
+  wide composite unique index across 3 varchar columns, since building the graph is a repeatable
+  rebuild-on-schedule operation, not a one-time insert, and re-running it must not create duplicate
+  edges — the `Knowledge Graph` dashboard widget (`DASHBOARD-WIDGETS.md`) reads live entity counts
+  through a separate `GET /entities` endpoint, not this table directly.
+
+## 21. `vulopilot_kg_health_history` — Knowledge Graph Health's daily rollup
+
+Added alongside `vulopilot_entity_relationships` for
+[`KNOWLEDGE-GRAPH-MODULE.md`](KNOWLEDGE-GRAPH-MODULE.md). Same one-row-per-day upsert shape as
+`vulopilot_brand_score_history` above; Knowledge Graph Health is likewise a deterministic composite
+(entity/relationship completeness ratios, `vulopilot-pro`'s own `KnowledgeGraphHealthMonitor`),
+never an AI-sampled average, so every column is always a real value.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_kg_health_history` (
+    `id`                  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `snapshot_date`       date NOT NULL,
+    `health_score`        tinyint(3) unsigned NOT NULL,
+    `total_entities`      int(10) unsigned NOT NULL DEFAULT 0,
+    `total_relationships` int(10) unsigned NOT NULL DEFAULT 0,
+    `created_at`          timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+) $collate;
+```
+
+- Backs the Dashboard's `knowledge-graph-health` widget (`DASHBOARD-WIDGETS.md`) — the Pro widget
+  registered via `vulopilot_dashboard_widgets` that surfaces the most recent snapshot from this
+  table, distinct from Free's own `knowledge-graph` widget, which reads live entity counts instead.
+
+## 22. `vulopilot_file_baselines` — Integrity Monitoring's file hash baseline
 
 Added in the Security pass — see [`SECURITY-MODULE.md`](SECURITY-MODULE.md) for the full design.
 Same "Free owns the schema, Pro owns the population logic" split as several tables above
@@ -603,9 +894,7 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_file_baselines` (
   plugin/theme files the way `CoreFileIntegrityScanner` (Free) has for core files via
   `get_core_checksums()`, so there's no reason to match core's weaker algorithm here.
 
----
-
-## 15. `vulopilot_accessibility_snapshots` — Historical Tracking's daily rollup
+## 23. `vulopilot_accessibility_snapshots` — Historical Tracking's daily rollup
 
 Added in the Accessibility pass — see [`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md) for the
 full design. Same "Free owns the schema, Pro owns the population logic" split as
@@ -637,12 +926,10 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_accessibility_snapshots` (
   average, so unlike `vulopilot_geo_visibility_history`'s `overall_score`, every column here is
   always a real value, no nullable-score case to account for.
 - Written by `AccessibilityAudits\Module::maybe_refresh_snapshot()` (Pro), self-hooked on
-  `vulopilot_scan_completed`, scoped to only recompute when an `accessibility`-category scanner is
-  what just completed.
+  `vulopilot_scan_completed` (`EXTENSION-SDK.md`'s action-hook list), scoped to only recompute when
+  an `accessibility`-category scanner is what just completed.
 
----
-
-## 16. `vulopilot_store_trends_snapshots` — Store Trends' daily revenue rollup
+## 24. `vulopilot_store_trends_snapshots` — Store Trends' daily revenue rollup
 
 Added in the WooCommerce Intelligence pass — see
 [`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](WOOCOMMERCE-INTELLIGENCE-MODULE.md)
@@ -689,68 +976,70 @@ queried/joined/paginated the way the entities above do, and they don't. Anything
 per-provider config → `vulopilot_ai_provider_configs`, per-automation config → `vulopilot_automations.trigger_config`/`actions`,
 per-scheduled-job config → `vulopilot_scheduled_jobs.config`.
 
+The Dashboard's per-user widget layout (`DASHBOARD-WIDGETS.md`) is the same story one level further:
+not even a `wp_options` row, since it's per-user rather than site-wide — `Utill::DASHBOARD_LAYOUT_META_KEY`
+(`vulopilot_dashboard_widget_layout`) is plain WordPress user meta, the same category of storage
+core's own `meta-box-order_{screen}` already uses for a personal UI arrangement.
+
 ## Migration strategy
 
-Same versioned pattern as the existing `Install.php` — `do_migration()` gated on
-`version_compare(get_option('vulopilot_version'), $target, '<')`, each table created with
-`CREATE TABLE IF NOT EXISTS` + `dbDelta()`, one version bump per schema change, never a `DROP`:
+Same versioned pattern as the existing `Install.php` — `run_migration()` checks
+`get_option('vulopilot_version', false)`: a fresh install (`false`) runs `create_database_tables()`
+in full; an existing install runs `do_migration($previous_version)`. Every table uses
+`CREATE TABLE IF NOT EXISTS` + `dbDelta()`, and no migration ever `DROP`s a table or column.
 
-```php
-public function do_migration() {
-    $previous_version = get_option( 'vulopilot_version', '' );
+**The real `do_migration()` is mostly *not* version-gated.** Only one step actually checks
+`version_compare($previous_version, '1.1.0', '<')` — `relax_automation_rule_id_to_nullable()`
+(a one-time, genuinely one-shot `ALTER TABLE ... MODIFY`, safe to run exactly once because no
+released version had ever populated the column being loosened). Everything else `do_migration()`
+does — creating all 11 of tables 14–24 above, adding the `conditions`/`retry_count` columns to
+`vulopilot_automations`/`vulopilot_automation_runs`, seeding `geo`/`seo`/`content-intelligence`/
+`brand-intelligence`/`entity-extraction` into the active-module list, and flushing rewrite rules for
+`/llms.txt` — runs **unconditionally on every migration check**, deliberately outside any
+`version_compare()` gate. `Install.php`'s own comments explain why: `VULOPILOT_PLUGIN_VERSION` had
+already been bumped to `1.1.0` *before* several of these features existed, so a site that had
+already recorded `plugin_db_version = 1.1.0` from an earlier build would never satisfy
+`< 1.1.0` again, and a version-gated block would silently never run for it. Each of these steps is
+instead made idempotent on its own terms so it's safe to run every time:
 
-    if ( version_compare( $previous_version, '1.0.0', '<' ) ) {
-        global $wpdb;
-        $collate = $wpdb->get_charset_collate();
+- The 11 `create_*_table()` calls rely on `dbDelta()`'s own `CREATE TABLE IF NOT EXISTS` handling —
+  the same self-healing shape a fresh install already uses.
+- The two new columns (`add_automations_conditions_column()`/`add_automation_runs_retry_count_column()`)
+  are guarded by a `column_exists()` helper first, since `dbDelta()` has no "ADD COLUMN IF NOT
+  EXISTS" equivalent for a plain `ALTER TABLE`.
+- `seed_module_active()` checks `in_array()` against the stored active-module list before appending,
+  so it only ever adds a module id once.
 
-        if ( ! function_exists( 'dbDelta' ) ) {
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        }
+**Seed migration (`1.0.0`)** creates all thirteen original tables in one pass
+(`create_database_tables()`'s first `dbDelta()` block), run on activation (`Install::__construct()`
+→ `run_migration()`, same trigger as the existing `Install.php`) and on first version bump for
+upgrading sites. `create_database_tables()` then goes on to call all 11 of the
+`create_*_table()` methods for tables 14–24 too — so a genuinely fresh install gets all 24 tables in
+one pass; only a site *already* running an older VuloPilot version relies on `do_migration()`'s
+unconditional, self-healing calls to backfill them.
 
-        // All thirteen CREATE TABLE statements above, each through dbDelta().
-        dbDelta( $sql_scans );
-        dbDelta( $sql_scan_findings );
-        dbDelta( $sql_rules );
-        dbDelta( $sql_automations );
-        dbDelta( $sql_automation_runs );
-        dbDelta( $sql_ai_jobs );
-        dbDelta( $sql_ai_history );
-        dbDelta( $sql_ai_provider_configs );
-        dbDelta( $sql_reports );
-        dbDelta( $sql_scheduled_jobs );
-        dbDelta( $sql_activity_logs );
-        dbDelta( $sql_site_health_snapshots );
-        dbDelta( $sql_ai_action_runs );
-    }
-
-    // Future schema changes get their own version-gated block here — ADD COLUMN /
-    // ADD INDEX only, per backward-compatibility.md. Never DROP a column an older
-    // running copy of the plugin (mid-upgrade, multisite) might still read.
-}
-```
-
-- **`vulopilot_ai_action_runs` (table 13) was added directly to this same `1.0.0` baseline**, not a
+- **`vulopilot_ai_action_runs` (table 13) was added directly to the same `1.0.0` baseline**, not a
   version-gated `1.1.0` block, matching `AI-ACTIONS.md`'s reasoning: there is no real deployed
   `1.0.0` install of this still-in-development plugin to preserve compatibility with yet, so a
-  fake version bump would misrepresent the schema's actual history rather than reflect it. Once
-  this plugin genuinely ships, *that* baseline becomes the one later changes version-gate against.
-- **Seed migration (`1.0.0`)** creates all thirteen tables in one pass, run on activation
-  (`Install::__construct()` → `run_migration()` on `init`, same trigger as the existing `Install.php`)
-  and on first version bump for upgrading sites.
-- **Every later schema change is its own version-gated block**, additive only: a new column gets
-  `ALTER TABLE ... ADD COLUMN`, a new query pattern gets `ALTER TABLE ... ADD INDEX` — following the
-  exact precedent already in the real `Install.php` (the `5.0.6` block does an in-place `MODIFY`,
-  never a drop).
-- **Retention is an application-layer job, not a schema concern.** `vulopilot_ai_jobs` (queue churn)
-  and `vulopilot_scan_findings`/`vulopilot_activity_logs` (potentially high volume) are candidates
-  for a scheduled pruning job — register it the same way as any other recurring job, as a row in
-  `vulopilot_scheduled_jobs` with `job_type = 'retention_cleanup'`, executed by the Scheduler like
-  everything else. `vulopilot_ai_history` and `vulopilot_site_health_snapshots` are audit/trend data
-  and should NOT be pruned by the same policy — they're small (one row per AI call, one row per day)
-  and are the data a billing or trend feature depends on.
+  fake version bump would misrepresent the schema's actual history rather than reflect it.
+- **Retention is an application-layer job, not a schema concern.** `vulopilot_ai_jobs` (queue churn),
+  `vulopilot_scan_findings`/`vulopilot_activity_logs` (potentially high volume), and
+  `vulopilot_crawler_visits`/`vulopilot_not_found_logs` (per-visit/per-404 logs) are candidates for a
+  scheduled pruning job — `vulopilot_crawler_visits` already has one
+  (`vulopilot_crawler_log_retention_days`, table 14 above); the rest would register the same way,
+  as a row in `vulopilot_scheduled_jobs` with `job_type = 'retention_cleanup'`. `vulopilot_ai_history`
+  and every `*_snapshots`/`*_history` table (12, 18, 19, 21, 23, 24) are audit/trend data and should
+  NOT be pruned by the same policy — they're small (one row per AI call, or one row per day) and are
+  the data a billing or trend feature depends on. `vulopilot_indexnow_log` is the one exception that
+  self-trims in application code (`IndexNowLogRepository`, capped at 100 rows) rather than via a
+  scheduled job at all.
 - **No FK constraints to worry about during migration** — per the design principles above, there are
   none, so table creation order doesn't matter for referential integrity the way it would with real
   `FOREIGN KEY` constraints. It still matters for readability (a table is listed after the table it
-  conceptually belongs to), which is why the list above is ordered `scans → findings → rules →
-  automations → runs → ai_jobs → ai_history → provider_configs → reports → scheduled_jobs →
-  activity_logs → snapshots`.
+  conceptually belongs to, and after whatever table it was added alongside), which is why the list
+  above is ordered `scans → findings → rules → automations → runs → ai_jobs → ai_history →
+  provider_configs → reports → scheduled_jobs → activity_logs → snapshots → action_runs →
+  crawler_visits → redirects → not_found_logs → indexnow_log → geo_visibility_history →
+  brand_score_history → entity_relationships → kg_health_history → file_baselines →
+  accessibility_snapshots → store_trends_snapshots` — the same order `Install.php` itself creates
+  them in.
