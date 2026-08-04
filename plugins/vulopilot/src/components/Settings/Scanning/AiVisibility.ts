@@ -36,10 +36,7 @@ export default {
 			type: 'checkbox',
 			look: 'toggle',
 			label: __('Flag missing semantic HTML', 'vulopilot'),
-			desc: __(
-				"Pages relying on generic <div>s instead of <article>, <section>, or heading hierarchy.",
-				'vulopilot'
-			),
+			desc: __( "", 'vulopilot' ),
 			options: [
 				{ key: 'flag_missing_semantic', label: '', value: 'flag_missing_semantic' },
 			],
@@ -132,7 +129,7 @@ export default {
         },
         {
             key: 'llms_include_types',
-            type: 'checkbox',
+            type: 'choice-toggle',
             label: __('Included content types', 'vulopilot'),
             desc: __(
                 'Which content types are listed in llms.txt.',

@@ -1,0 +1,22 @@
+import { __ } from '@wordpress/i18n';
+
+export default {
+	id: 'log',
+	priority: 2,
+	headerTitle: __('Log', 'vulopilot'),
+	headerDescription: __(
+		'Site errors and events are logged for easy troubleshooting.',
+		'vulopilot'
+	),
+	headerIcon: 'document',
+	submitUrl: 'settings',
+	modal: [
+		{
+			key: 'vulopilot_log',
+			type: 'log',
+			classes: 'log-section full-width',
+			apiLink: 'logs',
+			fileName: 'error.txt',
+		},
+	],
+};

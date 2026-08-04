@@ -1,0 +1,25 @@
+/* global appLocalizer */
+import { __ } from '@wordpress/i18n';
+
+export default {
+	id: 'system-status',
+	priority: 1,
+	headerTitle: __('System Status', 'vulopilot'),
+	headerDescription: __(
+		'Website technical details are displayed to ensure optimal performance and compatibility.',
+		'vulopilot'
+	),
+	headerIcon: 'cogs-on-wheels',
+	submitUrl: 'settings',
+	modal: [
+		{
+			key: 'system_information',
+			type: 'system-info',
+			classes: 'system-info-section',
+			apiLink: 'status',
+			appLocalizer,
+			copyButtonLabel: 'Copy All',
+			copiedLabel: 'Copied!',
+		},
+	],
+};

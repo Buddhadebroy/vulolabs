@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-04T10:06:21+00:00\n"
+"POT-Creation-Date: 2026-08-04T10:50:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -3377,10 +3377,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Flag missing semantic HTML"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages relying on generic <div>s instead of <article>, <section>, or heading hierarchy."
 msgstr ""
 
 #: assets/js/index.js:1

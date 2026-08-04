@@ -460,7 +460,7 @@ export default {
 		},
 		{
 			key: 'sitemap_xml_post_types',
-			type: 'checkbox',
+			type: 'choice-toggle',
 			label: __('Post types in XML sitemap', 'vulopilot'),
 			options: [
 				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
@@ -471,7 +471,7 @@ export default {
 		},
 		{
 			key: 'sitemap_html_post_types',
-			type: 'checkbox',
+			type: 'choice-toggle',
 			label: __('Post types in HTML sitemap', 'vulopilot'),
 			options: [
 				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
@@ -482,7 +482,7 @@ export default {
 		},
 		{
 			key: 'sitemap_xml_taxonomies',
-			type: 'checkbox',
+			type: 'choice-toggle',
 			label: __('Taxonomies in XML sitemap', 'vulopilot'),
 			options: [
 				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },
@@ -493,7 +493,7 @@ export default {
 		},
 		{
 			key: 'sitemap_html_taxonomies',
-			type: 'checkbox',
+			type: 'choice-toggle',
 			label: __('Taxonomies in HTML sitemap', 'vulopilot'),
 			options: [
 				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },

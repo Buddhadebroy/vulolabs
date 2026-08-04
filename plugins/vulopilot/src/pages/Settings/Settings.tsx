@@ -8,7 +8,6 @@ import { InputRenderer } from '@zyra/inputs';
 import { CardComponent, ModuleGuardComponent, NavigatorComponent } from '@zyra/components';
 import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
-import ImportExportPanel from '../../components/Settings/ImportExportPanel';
 import AiProvidersPanel from '../../components/Settings/AiProvidersPanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
@@ -100,10 +99,6 @@ const Settings = () => {
 
 		if (!currentTab) {
 			return null;
-		}
-
-		if (currentTab === 'import-export') {
-			return <ImportExportPanel />;
 		}
 
 		// Same "special component" escape hatch as 'import-export' above —
