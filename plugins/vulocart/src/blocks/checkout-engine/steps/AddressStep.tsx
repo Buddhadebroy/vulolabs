@@ -1,7 +1,8 @@
 /* global vulocartFrontendData */
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { registerCheckoutStep } from '../registry';
+import { registerCheckoutStep, getCheckoutStepExtensions } from '../registry';
+import type { CheckoutStepContext } from '../registry';
 
 export interface AddressFields {
 	full_name: string;
@@ -88,21 +89,15 @@ export function renderAddressFields( value: AddressFields, onChange: ( next: Add
  */
 registerCheckoutStep( {
 	id: 'address',
-	render( { data, update, mode, goNext, goBack, isFirstStep } ) {
-		return <AddressStepView data={ data } update={ update } mode={ mode } goNext={ goNext } goBack={ goBack } isFirstStep={ isFirstStep } />;
+	render( context ) {
+		return <AddressStepView { ...context } />;
 	},
 } );
 
-interface Props {
-	data: Record< string, unknown >;
-	update: ( patch: Record< string, unknown > ) => void;
-	mode: 'single_page' | 'multi_step';
-	goNext: () => void;
-	goBack: () => void;
-	isFirstStep: boolean;
-}
+type Props = CheckoutStepContext;
 
-function AddressStepView( { data, update, mode, goNext, goBack, isFirstStep }: Props ) {
+function AddressStepView( props: Props ) {
+	const { data, update, mode, goNext, goBack, isFirstStep } = props;
 	const [ error, setError ] = useState< string | null >( null );
 
 	const billing = ( data.billingAddress as AddressFields ) || EMPTY_ADDRESS;
@@ -139,6 +134,12 @@ function AddressStepView( { data, update, mode, goNext, goBack, isFirstStep }: P
 	return (
 		<div className="vulocart-checkout-step vulocart-checkout-step-address">
 			<h4>{ __( 'Billing address', 'vulocart' ) }</h4>
+			{ /* Address Autocomplete (vulocart-pro) injects a lookup field here — registerCheckoutStepExtension()'s own docblock in registry.ts. */ }
+			{ getCheckoutStepExtensions( 'address' ).map( ( extension, index ) => (
+				<div key={ index } className="vulocart-checkout-step-extension">
+					{ extension( props ) }
+				</div>
+			) ) }
 			{ renderAddressFields( billing, ( next ) => update( { billingAddress: next } ) ) }
 
 			<label className="vulocart-checkout-checkbox-row">

@@ -230,12 +230,45 @@ class Order {
 
     /**
      * Chosen payment method id, from the Payment module's
-     * `GET /payment/methods` list (e.g. 'manual' — the only method this
-     * plugin supports until a gateway module exists).
+     * `GET /payment/methods` list — one of the ids a registered
+     * `Payment\Domain\PaymentGatewayInterface` gateway exposes via
+     * `get_id()` ('manual', 'bank-transfer', 'cash-on-delivery', or a Pro
+     * gateway like 'stripe'/'paypal'/'razorpay').
      *
      * @var string|null
      */
     public $payment_method;
+
+    /**
+     * The gateway's own reference for this order's payment (Stripe
+     * PaymentIntent id, PayPal order id, Razorpay order id, etc.) — null
+     * for gateways that never call out to an external API (manual/bank
+     * transfer/COD), and null until `Payment\Application\PaymentService`
+     * has actually authorized/finalized a payment against this order.
+     *
+     * @var string|null
+     */
+    public $gateway_transaction_id;
+
+    /**
+     * Amount the gateway has authorized (held, not yet settled) —
+     * distinct from `$total` (what's owed) and `$refunded_amount`/
+     * `$captured_amount` (what's actually moved). Stays 0.0 for gateways
+     * that authorize and capture in the same step.
+     *
+     * @var float
+     */
+    public $authorized_amount;
+
+    /**
+     * Amount actually captured/settled so far — a running total, same
+     * "can be less than the authorized/total amount" partial-capture
+     * shape `$refunded_amount`'s own docblock already documents for
+     * partial refunds.
+     *
+     * @var float
+     */
+    public $captured_amount;
 
     /**
      * Order constructor.
@@ -264,6 +297,9 @@ class Order {
      * @param float                $shipping_cost      Shipping cost, computed server-side.
      * @param float                $tax_amount         Tax amount, computed server-side.
      * @param string|null          $payment_method     Chosen payment method id.
+     * @param string|null          $gateway_transaction_id The gateway's own reference for this order's payment.
+     * @param float                $authorized_amount  Amount the gateway has authorized (held, not yet settled).
+     * @param float                $captured_amount    Amount actually captured/settled so far.
      */
     public function __construct(
         $id,
@@ -289,7 +325,10 @@ class Order {
         $shipping_method = null,
         $shipping_cost = 0.0,
         $tax_amount = 0.0,
-        $payment_method = null
+        $payment_method = null,
+        $gateway_transaction_id = null,
+        $authorized_amount = 0.0,
+        $captured_amount = 0.0
     ) {
         $this->id                 = $id;
         $this->order_number       = $order_number;
@@ -315,5 +354,8 @@ class Order {
         $this->shipping_cost      = $shipping_cost;
         $this->tax_amount         = $tax_amount;
         $this->payment_method     = $payment_method;
+        $this->gateway_transaction_id = $gateway_transaction_id;
+        $this->authorized_amount      = $authorized_amount;
+        $this->captured_amount        = $captured_amount;
     }
 }

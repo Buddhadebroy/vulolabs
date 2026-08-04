@@ -61,6 +61,7 @@ class Rest {
             'inventory'      => new Controllers\Inventory(),
             'offering_types' => new Controllers\OfferingTypes(),
             'checkout'       => new Controllers\Checkout(),
+            'sdk'            => new Controllers\Sdk(),
         );
 
         $extra_controllers = apply_filters( 'vulocart_rest_controllers', array() );

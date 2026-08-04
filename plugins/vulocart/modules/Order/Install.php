@@ -48,9 +48,13 @@ class Install {
      * `dbDelta()` adds the missing columns to the existing table rather
      * than recreating it.
      *
+     * 1.2.0 (Payment Framework, Phase 5): adds `gateway_transaction_id`,
+     * `authorized_amount`, `captured_amount` to `vulocart_orders` —
+     * additive only, same reasoning as 1.1.0.
+     *
      * @var string
      */
-    const TABLE_SCHEMA_VERSION = '1.1.0';
+    const TABLE_SCHEMA_VERSION = '1.2.0';
 
     /**
      * Install constructor.
@@ -108,6 +112,9 @@ class Install {
             `shipping_cost`      decimal(19,4) NOT NULL DEFAULT 0.0000,
             `tax_amount`         decimal(19,4) NOT NULL DEFAULT 0.0000,
             `payment_method`     varchar(50) DEFAULT NULL,
+            `gateway_transaction_id` varchar(191) DEFAULT NULL,
+            `authorized_amount`  decimal(19,4) NOT NULL DEFAULT 0.0000,
+            `captured_amount`    decimal(19,4) NOT NULL DEFAULT 0.0000,
             `total`              decimal(19,4) NOT NULL DEFAULT 0.0000,
             `billing_address`    longtext DEFAULT NULL,
             `shipping_address`   longtext DEFAULT NULL,
@@ -120,7 +127,8 @@ class Install {
             KEY `idx_payment_status` (`payment_status`),
             KEY `idx_fulfillment_status` (`fulfillment_status`),
             KEY `idx_customer_email` (`customer_email`),
-            KEY `idx_customer_user_id` (`customer_user_id`)
+            KEY `idx_customer_user_id` (`customer_user_id`),
+            KEY `idx_gateway_transaction_id` (`gateway_transaction_id`)
         ) $collate;";
 
         dbDelta( $sql_orders );

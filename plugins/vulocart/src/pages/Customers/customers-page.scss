@@ -1,0 +1,133 @@
+.vulocart-customer-detail {
+	max-width: 1100px;
+}
+
+.vulocart-customer-back {
+	display: inline-block;
+	margin-bottom: 8px;
+	font-size: 13px;
+}
+
+.vulocart-customer-detail-grid {
+	display: grid;
+	grid-template-columns: 1fr 320px;
+	gap: 20px;
+	align-items: start;
+}
+
+.vulocart-customer-field-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	margin-bottom: 12px;
+
+	label {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		font-size: 12px;
+		font-weight: 600;
+		color: #374151;
+	}
+
+	input {
+		font-weight: normal;
+	}
+}
+
+.vulocart-customer-address-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 10px 0;
+	border-bottom: 1px solid #f3f4f6;
+
+	p {
+		margin: 2px 0;
+		font-size: 13px;
+		color: #4b5563;
+	}
+}
+
+.vulocart-customer-badge {
+	display: inline-block;
+	margin-left: 6px;
+	font-size: 10px;
+	background: #f3f4f6;
+	border-radius: 999px;
+	padding: 1px 8px;
+	color: #6b7280;
+}
+
+.vulocart-customer-address-form {
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid #e5e7eb;
+
+	.vulocart-customer-field-grid {
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+}
+
+.vulocart-customer-orders-table {
+	width: 100%;
+	border-collapse: collapse;
+
+	th, td {
+		text-align: left;
+		padding: 8px 10px;
+		border-bottom: 1px solid #e5e7eb;
+		font-size: 13px;
+	}
+}
+
+.vulocart-customer-stat {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	padding: 6px 0;
+	border-bottom: 1px solid #f3f4f6;
+}
+
+.vulocart-customer-stat-value {
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.vulocart-customer-stat-label {
+	font-size: 12px;
+	color: #6b7280;
+}
+
+.vulocart-customer-last-order {
+	margin-top: 10px;
+	font-size: 12px;
+	color: #6b7280;
+}
+
+.vulocart-customer-notes {
+	list-style: none;
+	margin: 12px 0 0;
+	padding: 0;
+
+	li {
+		padding: 8px 0;
+		border-top: 1px solid #f3f4f6;
+		font-size: 13px;
+
+		p {
+			margin: 0 0 4px;
+		}
+
+		span {
+			color: #9ca3af;
+			font-size: 11px;
+			margin-right: 8px;
+		}
+
+		a {
+			font-size: 11px;
+			color: #dc2626;
+		}
+	}
+}

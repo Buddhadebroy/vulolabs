@@ -12,15 +12,16 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Payment Module.
  *
- * Same toggleable-addon pattern as VuloCart\Cart\Module. No own table, no
- * cross-module dependency — reads the Payments tab's own settings
- * (`enable_manual_payment`/`default_payment_status`, `src/settings/
- * Commerce/Payments.ts`) and turns them into a real, selectable payment
- * method: `manual` (pay on delivery / bank transfer / any offline
- * settlement), the only mode this plugin supports until a real gateway
- * module exists — same "extensible interface, one implementation today"
- * shape `get_available_methods()`'s id-based list already leaves room
- * for.
+ * Now the Payment Framework's own home, not just a settings-reader: owns
+ * `vulocart_payment_transactions` (Install.php), registers this plugin's
+ * own three offline `PaymentGatewayInterface` implementations
+ * (Gateways/) onto the `vulocart_payment_gateways` filter
+ * `Application\GatewayRegistry` collects from, and wires
+ * `Application\PaymentService` up with that registry plus its own
+ * transaction ledger. `vulocart-pro`'s Stripe/PayPal/Razorpay modules
+ * hook the same filter with zero dependency on this class beyond the
+ * filter name — same "module contributes to a filter this plugin's core
+ * collects" shape `vulocart_checkout_steps` already establishes.
  *
  * @class       Module class
  * @version     1.0.0
@@ -49,13 +50,31 @@ class Module {
      * @return void
      */
     public function init_classes() {
-        $this->container['service'] = new Application\PaymentService();
+        $this->container['install'] = new Install();
+        $this->container['ledger']  = new Infrastructure\WPDBTransactionLedger();
+        $this->container['registry'] = new Application\GatewayRegistry();
+        $this->container['service']  = new Application\PaymentService( $this->container['registry'], $this->container['ledger'] );
 
         VuloCart()->payment_service = $this->container['service'];
 
         $this->container['rest'] = new Rest();
 
         add_filter( 'vulocart_checkout_steps', array( $this, 'register_checkout_step' ) );
+        add_filter( 'vulocart_payment_gateways', array( $this, 'register_offline_gateways' ) );
+    }
+
+    /**
+     * Registers this plugin's own three offline gateways.
+     *
+     * @param array<int, Domain\PaymentGatewayInterface> $gateways Already-registered gateways.
+     * @return array<int, Domain\PaymentGatewayInterface>
+     */
+    public function register_offline_gateways( $gateways ) {
+        $gateways[] = new Gateways\ManualGateway();
+        $gateways[] = new Gateways\BankTransferGateway();
+        $gateways[] = new Gateways\CashOnDeliveryGateway();
+
+        return $gateways;
     }
 
     /**

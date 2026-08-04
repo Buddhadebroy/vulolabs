@@ -188,6 +188,9 @@ class Rest {
             'shipping_cost'      => $order->shipping_cost,
             'tax_amount'         => $order->tax_amount,
             'payment_method'     => $order->payment_method,
+            'gateway_transaction_id' => $order->gateway_transaction_id,
+            'authorized_amount'  => $order->authorized_amount,
+            'captured_amount'    => $order->captured_amount,
             'total'              => $order->total,
             'billing_address'    => $order->billing_address,
             'shipping_address'   => $order->shipping_address,
@@ -382,8 +385,9 @@ class Rest {
             }
         }
 
-        $shipping_method = $request->get_param( 'shipping_method' ) ? sanitize_key( (string) $request->get_param( 'shipping_method' ) ) : null;
-        $payment_method  = $request->get_param( 'payment_method' ) ? sanitize_key( (string) $request->get_param( 'payment_method' ) ) : null;
+        $shipping_method   = $request->get_param( 'shipping_method' ) ? sanitize_key( (string) $request->get_param( 'shipping_method' ) ) : null;
+        $payment_method    = $request->get_param( 'payment_method' ) ? sanitize_key( (string) $request->get_param( 'payment_method' ) ) : null;
+        $payment_intent_id = $request->get_param( 'payment_intent_id' ) ? sanitize_text_field( (string) $request->get_param( 'payment_intent_id' ) ) : null;
 
         try {
             $order = VuloCart()->order_service->create_from_cart(
@@ -395,7 +399,8 @@ class Rest {
                 $billing_address,
                 $shipping_address,
                 $shipping_method,
-                $payment_method
+                $payment_method,
+                $payment_intent_id
             );
         } catch ( \InvalidArgumentException $exception ) {
             return new \WP_Error( 'vulocart_empty_cart', esc_html__( 'Cart is empty or does not exist.', 'vulocart' ), array( 'status' => 400 ) );
@@ -513,7 +518,7 @@ class Rest {
             return new \WP_Error( 'vulocart_invalid_refund_amount', esc_html__( 'A positive refund amount is required.', 'vulocart' ), array( 'status' => 400 ) );
         }
 
-        $order = VuloCart()->order_service->refund_order( absint( $request->get_param( 'id' ) ), (float) $amount );
+        $order = VuloCart()->order_service->refund_order_via_gateway( absint( $request->get_param( 'id' ) ), (float) $amount );
 
         if ( ! $order ) {
             return new \WP_Error( 'vulocart_order_not_found', esc_html__( 'Order not found.', 'vulocart' ), array( 'status' => 404 ) );

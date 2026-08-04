@@ -110,6 +110,7 @@ export function CheckoutEngine( { cartToken, cart, mode, onBackToCart }: Checkou
 					shipping_address: shipping,
 					shipping_method: data.selectedShippingMethod,
 					payment_method: data.selectedPaymentMethod,
+					payment_intent_id: data.paymentIntentId || undefined,
 				},
 				{ headers: { 'X-Cart-Token': cartToken } }
 			)
