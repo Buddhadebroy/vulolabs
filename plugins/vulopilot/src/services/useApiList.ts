@@ -108,7 +108,14 @@ export const useApiList = <T = Record<string, unknown>>(
 	const mergedParams: Record<string, string | number | undefined> = {
 		...params,
 		page: tableQuery.paged,
-		per_page: tableQuery.per_page,
+		// A caller-supplied static per_page (every non-TableCard compact
+		// widget list — RecentActivityWidget, NeedsAttentionWidget, etc.)
+		// wins over tableQuery's own per_page, which only ever moves off
+		// its initial default(10) once a real TableCard's pagination UI
+		// calls onQueryUpdate — something none of those static callers do.
+		// Previously tableQuery.per_page always won unconditionally, so
+		// every "show N compact rows" caller silently got 10 instead.
+		per_page: params.per_page ?? tableQuery.per_page,
 		search: tableQuery.searchValue,
 		orderby: tableQuery.orderby,
 		order: tableQuery.order,

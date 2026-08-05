@@ -1,8 +1,12 @@
 # VuloPilot — AI Visibility module
 
 Companion to [`GEO-MODULE.md`](GEO-MODULE.md), [`SEO-MODULE.md`](SEO-MODULE.md),
-[`SCANNERS.md`](SCANNERS.md), [`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md), and
-[`AI-ACTIONS.md`](AI-ACTIONS.md). "AI Visibility" isn't a new, separate system —
+[`SCANNERS.md`](SCANNERS.md), [`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md),
+[`AI-ACTIONS.md`](AI-ACTIONS.md), and to `vulopilot-pro`'s own
+[`GEO-INSIGHTS-MODULE.md`](../../../../plugins/vulopilot-pro/docs/GEO-INSIGHTS-MODULE.md)
+and
+[`ONE-CLICK-FIX-MODULE.md`](../../../../plugins/vulopilot-pro/docs/ONE-CLICK-FIX-MODULE.md).
+"AI Visibility" isn't a new, separate system —
 it's the existing GEO/AEO feature set (`GeoAnalysis\GeoAnalyzer`, the 10 free
 GEO/AEO scanners, GEO-MODULE.md's per-post scoring, and vulopilot-pro's
 GeoInsights/OneClickFix modules), extended to close the specific gaps a full

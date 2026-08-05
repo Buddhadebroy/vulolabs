@@ -1,7 +1,9 @@
 # VuloPilot — Accessibility
 
-Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md), and
-[`SECURITY-MODULE.md`](SECURITY-MODULE.md). Same "audit what already exists
+Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md),
+[`SECURITY-MODULE.md`](SECURITY-MODULE.md), and to `vulopilot-pro`'s own
+[`ACCESSIBILITY-AUDITS-MODULE.md`](../../../../plugins/vulopilot-pro/docs/ACCESSIBILITY-AUDITS-MODULE.md).
+Same "audit what already exists
 first" shape as that file: Free already had scanners covering most of
 Phase 8's five bullets, spread across three different scanner categories
 (`accessibility`, `images`, `geo`) rather than missing entirely — so this

@@ -1,7 +1,11 @@
 # VuloPilot — WooCommerce Intelligence
 
-Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md), and
-[`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md). Same "audit what
+Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md),
+[`ACCESSIBILITY-MODULE.md`](ACCESSIBILITY-MODULE.md), and to `vulopilot-pro`'s own
+[`WOOCOMMERCE-INTELLIGENCE-MODULE.md`](../../../../plugins/vulopilot-pro/docs/WOOCOMMERCE-INTELLIGENCE-MODULE.md)
+and
+[`WOOCOMMERCE-AI-MODULE.md`](../../../../plugins/vulopilot-pro/docs/WOOCOMMERCE-AI-MODULE.md).
+Same "audit what
 already exists first" shape as that file: Free already had a
 `WooCommerceScanner` (one check, checkout page) plus 11 `Product*`
 scanners (WooCommerce Optimization) before this pass, and `vulopilot-pro`'s

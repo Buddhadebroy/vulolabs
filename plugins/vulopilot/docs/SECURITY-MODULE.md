@@ -1,7 +1,10 @@
 # VuloPilot — Security
 
-Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md), and
-[`AUTOMATION-ENGINE-MODULE.md`](AUTOMATION-ENGINE-MODULE.md). Same
+Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md),
+[`AUTOMATION-ENGINE-MODULE.md`](AUTOMATION-ENGINE-MODULE.md), and to
+`vulopilot-pro`'s own
+[`SECURITY-MONITORING-MODULE.md`](../../../../plugins/vulopilot-pro/docs/SECURITY-MONITORING-MODULE.md).
+Same
 "audit what already exists first" shape as that file: `vulopilot-pro`'s
 `SecurityMonitoring` module already shipped 7 scanners (admin-username,
 anonymous REST user-enumeration, file editor, debug mode, xmlrpc exposure,

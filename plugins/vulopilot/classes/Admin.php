@@ -87,139 +87,80 @@ class Admin {
             56
         );
 
+        // Flat top-level IA — each entry reuses an existing tab slug/route
+        // (src/routes.ts) so no new pages were needed, just new labels,
+        // icons and a new order. Every slug this array does *not* mention
+        // (GEO's siblings, Accessibility, Health, etc.) keeps its working
+        // React route and stays reachable via a direct
+        // `admin.php?page=vulopilot#&tab=<slug>` link — see
+        // self::legacy_submenus() for that metadata, kept for a future
+        // pass rather than deleted.
         $submenus = apply_filters(
             'vulopilot_submenus',
             array(
-                'dashboard'        => array(
+                'dashboard'    => array(
                     'name'     => __( 'Dashboard', 'vulopilot' ),
                     'priority' => 10,
                     'icon'     => 'dashicons-dashboard',
                 ),
-                'geo'              => array(
-                    'name'     => __( 'GEO', 'vulopilot' ),
+                'ai-assistant' => array(
+                    'name'     => __( 'AI Copilot', 'vulopilot' ),
                     'priority' => 20,
-                    'group'    => 'ai-visibility',
-                    'icon'     => 'dashicons-star-filled',
+                    'icon'     => 'dashicons-lightbulb',
                 ),
-                'aeo'              => array(
-                    'name'     => __( 'AEO', 'vulopilot' ),
-                    'priority' => 21,
-                    'group'    => 'ai-visibility',
-                    'icon'     => 'dashicons-format-status',
-                ),
-                'ai-content'       => array(
-                    'name'     => __( 'AI Content', 'vulopilot' ),
-                    'priority' => 22,
-                    'group'    => 'ai-visibility',
-                    'icon'     => 'dashicons-edit',
-                ),
-                'crawler-traffic'  => array(
-                    'name'     => __( 'Crawler Traffic', 'vulopilot' ),
-                    'priority' => 23,
-                    'group'    => 'ai-visibility',
-                    'icon'     => 'dashicons-networking',
-                ),
-                'brand-visibility' => array(
-                    'name'     => __( 'Brand Visibility', 'vulopilot' ),
+                'geo'          => array(
+                    'name'     => __( 'Grow My Traffic', 'vulopilot' ),
                     'priority' => 30,
-                    'icon'     => 'dashicons-megaphone',
+                    'icon'     => 'dashicons-chart-line',
                 ),
-                'knowledge-graph'  => array(
-                    'name'     => __( 'Knowledge Graph', 'vulopilot' ),
-                    'priority' => 31,
-                    'icon'     => 'dashicons-share-alt2',
-                ),
-                'seo'              => array(
-                    'name'     => __( 'SEO', 'vulopilot' ),
+                'content'      => array(
+                    'name'     => __( 'Create Content', 'vulopilot' ),
                     'priority' => 40,
-                    'group'    => 'seo-content',
-                    'icon'     => 'dashicons-search',
-                ),
-                'content'          => array(
-                    'name'     => __( 'Content', 'vulopilot' ),
-                    'priority' => 41,
-                    'group'    => 'seo-content',
                     'icon'     => 'dashicons-media-text',
                 ),
-                'schema'           => array(
-                    'name'     => __( 'Schema', 'vulopilot' ),
-                    'priority' => 42,
-                    'group'    => 'seo-content',
-                    'icon'     => 'dashicons-editor-code',
-                ),
-                'redirects'        => array(
-                    'name'     => __( 'Redirects & 404s', 'vulopilot' ),
-                    'priority' => 43,
-                    'group'    => 'seo-content',
-                    'icon'     => 'dashicons-randomize',
-                ),
-                'performance'      => array(
-                    'name'     => __( 'Performance', 'vulopilot' ),
+                'performance'  => array(
+                    'name'     => __( 'Improve Speed', 'vulopilot' ),
                     'priority' => 50,
-                    'group'    => 'site-health',
                     'icon'     => 'dashicons-performance',
                 ),
-                'accessibility'    => array(
-                    'name'     => __( 'Accessibility', 'vulopilot' ),
-                    'priority' => 51,
-                    'group'    => 'site-health',
-                    'icon'     => 'dashicons-universal-access',
-                ),
-                'security'         => array(
-                    'name'     => __( 'Security', 'vulopilot' ),
-                    'priority' => 52,
-                    'group'    => 'site-health',
+                'security'     => array(
+                    'name'     => __( 'Protect My Site', 'vulopilot' ),
+                    'priority' => 60,
                     'icon'     => 'dashicons-shield',
                 ),
-                'woocommerce'      => array(
-                    'name'     => __( 'WooCommerce', 'vulopilot' ),
-                    'priority' => 60,
+                'woocommerce'  => array(
+                    'name'     => __( 'Sell More', 'vulopilot' ),
+                    'priority' => 70,
                     'icon'     => 'dashicons-cart',
                 ),
-                'automation'       => array(
-                    'name'     => __( 'Automation', 'vulopilot' ),
-                    'priority' => 70,
+                'automation'   => array(
+                    'name'     => __( 'Automate Work', 'vulopilot' ),
+                    'priority' => 80,
                     'icon'     => 'dashicons-update',
                 ),
-                // 'health' has no row in the grouped menu's own IA, but
-                // it's a real, working page (score-by-category summary +
-                // the unfiltered findings list) — not part of any group,
-                // not something to delete from the product. Kept
-                // reachable, ungrouped, between Automation and Tools.
-                'health'           => array(
-                    'name'     => __( 'Health', 'vulopilot' ),
-                    'priority' => 75,
-                    'icon'     => 'dashicons-heart',
-                ),
-                'modules'          => array(
-                    'name'     => __( 'Modules', 'vulopilot' ),
-                    'priority' => 80,
-                    'icon'     => 'dashicons-admin-plugins',
-                ),
-                'ai-assistant'     => array(
-                    'name'     => __( 'AI Assistant', 'vulopilot' ),
-                    'priority' => 81,
-                    'icon'     => 'dashicons-format-chat',
-                ),
-                'reports'          => array(
+                // 'divider' draws a thin rule before this item in the
+                // native submenu (admin-menu-groups.js's addDividers()) —
+                // marks the split between the day-to-day work items above
+                // and the account-level pages below, same as the design.
+                'reports'      => array(
                     'name'     => __( 'Reports', 'vulopilot' ),
-                    'priority' => 82,
-                    'icon'     => 'dashicons-chart-bar',
-                ),
-                'activity'         => array(
-                    'name'     => __( 'Activity', 'vulopilot' ),
-                    'priority' => 83,
-                    'icon'     => 'dashicons-clock',
-                ),
-                'settings'         => array(
-                    'name'     => __( 'Settings', 'vulopilot' ),
                     'priority' => 90,
+                    'icon'     => 'dashicons-chart-bar',
+                    'divider'  => true,
+                ),
+                'settings'     => array(
+                    'name'     => __( 'Settings', 'vulopilot' ),
+                    'priority' => 100,
                     'icon'     => 'dashicons-admin-generic',
                 ),
-                'status-tools'        => array(
-                    'name'     => __( 'Status & Tools', 'vulopilot' ),
-                    'subtab'   => 'system-status',
-                    'priority' => 100,
+                // Always last — appended after the redesigned menu rather
+                // than sorted in by priority number alone, so a filter
+                // adding a higher-priority item later can't accidentally
+                // push Modules out of the last slot.
+                'modules'      => array(
+                    'name'     => __( 'Modules', 'vulopilot' ),
+                    'priority' => PHP_INT_MAX,
+                    'icon'     => 'dashicons-admin-plugins',
                 ),
             )
         );
@@ -254,6 +195,85 @@ class Admin {
         // time — add_menus() itself runs on 'admin_menu', always earlier
         // than 'admin_enqueue_scripts' in WordPress's own load order.
         $this->registered_submenus = $submenus;
+    }
+
+    /**
+     * Metadata for tabs that used to be their own submenu row before the
+     * flat top-level redesign in add_menus() — intentionally unused by
+     * any hook. Each slug's React route (src/routes.ts) is still
+     * registered and fully working, reachable directly via
+     * `admin.php?page=vulopilot#&tab=<slug>`; only its row in the native
+     * WP submenu was removed. Kept here, not deleted, so a future pass
+     * (e.g. re-surfacing these as grouped children under the new
+     * top-level item they were folded into — see each entry's comment)
+     * can reuse this metadata instead of reconstructing it.
+     *
+     * @return array
+     */
+    private function legacy_submenus() {
+        return array(
+            // Folded into 'geo' ("Grow My Traffic").
+            'aeo'              => array(
+                'name'  => __( 'AEO', 'vulopilot' ),
+                'group' => 'ai-visibility',
+                'icon'  => 'dashicons-format-status',
+            ),
+            'ai-content'       => array(
+                'name'  => __( 'AI Content', 'vulopilot' ),
+                'group' => 'ai-visibility',
+                'icon'  => 'dashicons-edit',
+            ),
+            'crawler-traffic'  => array(
+                'name'  => __( 'Crawler Traffic', 'vulopilot' ),
+                'group' => 'ai-visibility',
+                'icon'  => 'dashicons-networking',
+            ),
+            'brand-visibility' => array(
+                'name' => __( 'Brand Visibility', 'vulopilot' ),
+                'icon' => 'dashicons-megaphone',
+            ),
+            'knowledge-graph'  => array(
+                'name' => __( 'Knowledge Graph', 'vulopilot' ),
+                'icon' => 'dashicons-share-alt2',
+            ),
+            'seo'              => array(
+                'name'  => __( 'SEO', 'vulopilot' ),
+                'group' => 'seo-content',
+                'icon'  => 'dashicons-search',
+            ),
+            // Folded into 'content' ("Create Content").
+            'schema'           => array(
+                'name'  => __( 'Schema', 'vulopilot' ),
+                'group' => 'seo-content',
+                'icon'  => 'dashicons-editor-code',
+            ),
+            'redirects'        => array(
+                'name'  => __( 'Redirects & 404s', 'vulopilot' ),
+                'group' => 'seo-content',
+                'icon'  => 'dashicons-randomize',
+            ),
+            // Folded into 'performance' ("Improve Speed").
+            'accessibility'    => array(
+                'name'  => __( 'Accessibility', 'vulopilot' ),
+                'group' => 'site-health',
+                'icon'  => 'dashicons-universal-access',
+            ),
+            // Not part of any new top-level item's cluster — a real,
+            // working page (score-by-category summary + the unfiltered
+            // findings list), simply left off the redesigned nav.
+            'health'           => array(
+                'name' => __( 'Health', 'vulopilot' ),
+                'icon' => 'dashicons-heart',
+            ),
+            'activity'         => array(
+                'name' => __( 'Activity', 'vulopilot' ),
+                'icon' => 'dashicons-clock',
+            ),
+            'status-tools'     => array(
+                'name'   => __( 'Status & Tools', 'vulopilot' ),
+                'subtab' => 'system-status',
+            ),
+        );
     }
 
     /**
@@ -323,8 +343,9 @@ class Admin {
             return;
         }
 
-        $tab_to_group = array();
-        $tab_to_icon  = array();
+        $tab_to_group   = array();
+        $tab_to_icon    = array();
+        $divider_before = array();
 
         foreach ( $this->registered_submenus as $slug => $submenu ) {
             if ( ! empty( $submenu['group'] ) ) {
@@ -333,6 +354,10 @@ class Admin {
 
             if ( ! empty( $submenu['icon'] ) ) {
                 $tab_to_icon[ $slug ] = $submenu['icon'];
+            }
+
+            if ( ! empty( $submenu['divider'] ) ) {
+                $divider_before[] = $slug;
             }
         }
 
@@ -375,9 +400,10 @@ class Admin {
             'vulopilot-admin-menu-groups',
             'vulopilotMenuGroups',
             array(
-                'groups'     => $groups,
-                'tabToGroup' => $tab_to_group,
-                'tabToIcon'  => $tab_to_icon,
+                'groups'        => $groups,
+                'tabToGroup'    => $tab_to_group,
+                'tabToIcon'     => $tab_to_icon,
+                'dividerBefore' => $divider_before,
             )
         );
     }

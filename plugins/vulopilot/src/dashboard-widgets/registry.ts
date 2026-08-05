@@ -1,6 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { createStatWidgetComponent, StatWidgetConfig } from './StatWidget';
+import {
+	createCategoryScoreWidgetComponent,
+	CategoryScoreWidgetConfig,
+} from './CategoryScoreWidget';
 import HealthTimelineWidget from './HealthTimelineWidget';
 import RecentActivityWidget from './RecentActivityWidget';
 import LatestReportsWidget from './LatestReportsWidget';
@@ -11,7 +15,132 @@ import HealthPillarsWidget from './HealthPillarsWidget';
 import NeedsAttentionWidget from './NeedsAttentionWidget';
 import BrandBreakdownWidget from './BrandBreakdownWidget';
 import IssueDistributionWidget from './IssueDistributionWidget';
+import OverallScoreWidget from './OverallScoreWidget';
+import RunAuditWidget from './RunAuditWidget';
+import AISuggestionsWidget from './AISuggestionsWidget';
+import TodaysTasksWidget from './TodaysTasksWidget';
+import RecentChangesWidget from './RecentChangesWidget';
 import { WidgetDefinition } from './types';
+
+const average = (nums: number[]): number =>
+	Math.round(nums.reduce((sum, n) => sum + n, 0) / nums.length);
+
+/**
+ * The mockup's 4 score-ring mini cards — same average-of-category-scores
+ * grouping OverallScoreWidget's donut uses for its legend, just one ring
+ * per bucket instead of one combined donut. No getExtra/trend: see
+ * CategoryScoreWidget.tsx's own docblock for why.
+ */
+const CATEGORY_SCORE_WIDGET_CONFIGS: CategoryScoreWidgetConfig[] = [
+	{
+		id: 'visibility-score',
+		title: __('Visibility Score', 'vulopilot'),
+		icon: 'globe',
+		color: 'primary',
+		getScore: (summary) =>
+			average([
+				summary.category_scores.seo,
+				summary.category_scores.geo,
+				summary.category_scores.content,
+				summary.category_scores.brand,
+			]),
+		getDesc: () => __('SEO, GEO, content & brand', 'vulopilot'),
+	},
+	{
+		id: 'health-score',
+		title: __('Health Score', 'vulopilot'),
+		icon: 'shield',
+		color: 'good',
+		getScore: (summary) =>
+			average([
+				summary.category_scores.security,
+				summary.category_scores.accessibility,
+			]),
+		getDesc: () => __('Security & accessibility', 'vulopilot'),
+	},
+	{
+		id: 'commerce-score',
+		title: __('Commerce Score', 'vulopilot'),
+		icon: 'cart',
+		color: 'warn',
+		getScore: (summary) => summary.category_scores.woocommerce,
+		getUnavailableState: (summary) =>
+			summary.category_scores.woocommerce === null
+				? {
+						title: __('WooCommerce not active', 'vulopilot'),
+						desc: __(
+							'Install and activate WooCommerce to see a Commerce score.',
+							'vulopilot'
+						),
+					}
+				: null,
+		getDesc: () => __('WooCommerce store health', 'vulopilot'),
+	},
+	{
+		id: 'performance-score',
+		title: __('Performance Score', 'vulopilot'),
+		icon: 'performance',
+		color: 'secondary',
+		getScore: (summary) => summary.category_scores.performance,
+		getDesc: () => __('Core Web Vitals', 'vulopilot'),
+	},
+];
+
+const CATEGORY_SCORE_WIDGETS: WidgetDefinition[] =
+	CATEGORY_SCORE_WIDGET_CONFIGS.map((config) => ({
+		id: config.id,
+		title: config.title,
+		icon: config.icon,
+		grid: 3,
+		component: createCategoryScoreWidgetComponent(config),
+	}));
+
+/**
+ * The Dashboard mockup's own top section, in its exact order — Overall
+ * Site Score, Run Complete Audit, the 4 score-ring cards, AI Suggestions,
+ * Today's Tasks, Recent Changes. Prepended ahead of every other widget
+ * below (STANDALONE_WIDGETS/STAT_WIDGETS) so the default, never-customized
+ * layout matches the mockup top-to-bottom; every existing widget keeps
+ * its id, its order relative to the others, and its own behavior.
+ */
+const MOCKUP_WIDGETS: WidgetDefinition[] = [
+	{
+		id: 'overall-score',
+		title: __('Overall Site Score', 'vulopilot'),
+		icon: 'analytics',
+		grid: 8,
+		component: OverallScoreWidget,
+	},
+	{
+		id: 'run-audit',
+		title: __('Run Complete Audit', 'vulopilot'),
+		icon: 'search',
+		grid: 4,
+		component: RunAuditWidget,
+	},
+	...CATEGORY_SCORE_WIDGETS,
+	{
+		id: 'ai-suggestions',
+		title: __('AI Suggestions', 'vulopilot'),
+		icon: 'ai',
+		grid: 7,
+		component: AISuggestionsWidget,
+	},
+	{
+		id: 'todays-tasks',
+		title: __("Today's Tasks", 'vulopilot'),
+		icon: 'clock',
+		grid: 5,
+		component: TodaysTasksWidget,
+	},
+	{
+		id: 'recent-changes',
+		title: __('Recent Changes', 'vulopilot'),
+		icon: 'update',
+		grid: 12,
+		component: RecentChangesWidget,
+	},
+];
 
 /**
  * The three "one number" stat widgets left that aren't already covered by
@@ -156,11 +285,14 @@ const STAT_WIDGETS: WidgetDefinition[] = STAT_WIDGET_CONFIGS.map(
 
 export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] = applyFilters(
 	'vulopilot_dashboard_widgets',
-	// health-pillars leads (it's the "everything, at a glance" hero) —
+	// mockup-widgets leads (Overall Site Score through Recent Changes, the
+	// mockup's own top-to-bottom order), then health-pillars (the
+	// "everything, at a glance" hero among the pre-existing widgets) —
 	// this only affects the default layout a never-customized install
 	// seeds; anyone who has already saved a layout keeps their own order
 	// (DashboardLayout.php persists that separately from this array).
 		[
+			...MOCKUP_WIDGETS,
 			...STANDALONE_WIDGETS,
 			...STAT_WIDGETS,
 		]
