@@ -118,7 +118,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 4,
 		component: RunAuditWidget,
 	},
-	...CATEGORY_SCORE_WIDGETS,
+	// ...CATEGORY_SCORE_WIDGETS,
 	{
 		id: 'ai-suggestions',
 		title: __('AI Suggestions', 'vulopilot'),

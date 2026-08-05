@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent, ButtonInput } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { getSeverityClass } from '../services/getSeverityClass';
@@ -44,7 +44,7 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 
 	return (
 		<DashboardWidget
-			title={__('AI Suggestions', 'vulopilot')}
+			title={__('AI Suggestionddds', 'vulopilot')}
 			icon="ai"
 			isLoading={isLoading}
 			onHide={onHide}
@@ -80,6 +80,7 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 
 						return {
 							id: String(finding.id),
+							icon: 'ai',
 							title: finding.title,
 							action: goToFix,
 							tags: (
@@ -89,17 +90,19 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 									>
 										{finding.severity}
 									</span>
-									<button
-										type="button"
-										className="ai-suggestion-fix-btn"
-										onClick={(e) => {
-											e.stopPropagation();
-											goToFix();
-										}}
-									>
-										<i className="adminfont-ai" />
-										{__('Fix with AI', 'vulopilot')}
-									</button>
+									<ButtonInput
+										position="left"
+										buttons={[
+											{
+												icon: 'ai',
+												text: __('Fix with AI', 'vulopilot'),
+												onClick: (e) => {
+													e.stopPropagation();
+													goToFix();
+												},
+											},
+										]}
+									/>
 								</>
 							),
 						};

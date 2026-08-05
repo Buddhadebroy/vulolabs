@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ChartComponent } from '@zyra/components';
+import { ChartComponent, AnalyticsComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
@@ -47,13 +47,44 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	const commerce = cs.woocommerce ?? 0;
 	const performance = cs.performance;
 
+	 const overviewData = [
+        {
+            id: 'total_tax',
+            label: __('Visibility Score', 'vulopilot'),
+            count: visibility,
+            icon: 'tax-compliance',
+			colorClass: 'red-yellow'
+        },
+        {
+            id: 'order_tax',
+            label: __('Health Score', 'vulopilot'),
+            count: health,
+            icon: 'order',
+			colorClass: 'red-blue'
+        },
+        {
+            id: 'shipping_tax',
+            label: __('Commerce Score', 'vulopilot'),
+            count: commerce,
+            icon: 'shipping',
+			colorClass: 'red-green'
+        },
+		{
+            id: 'shipping_tax',
+            label: __('Performance Score', 'vulopilot'),
+            count: performance,
+            icon: 'shipping',
+			colorClass: 'red-color'
+        },
+    ];
+
 	return (
 		<DashboardWidget
-			title={__('Overall Site Score', 'vulopilot')}
-			icon="analytics"
-			isLoading={isLoading}
-			onHide={onHide}
-			isCustomizing={isCustomizing}
+			// title={__('Overall Site Score', 'vulopilot')}
+			// icon="analytics"
+			// isLoading={isLoading}
+			// onHide={onHide}
+			// isCustomizing={isCustomizing}
 		>
 			<ChartComponent
 				type="pie"
@@ -95,6 +126,18 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 					},
 				]}
 			/>
+
+			<AnalyticsComponent
+            cols={4}
+            variant="progress"
+            data={overviewData.map((item, idx) => ({
+                icon: item.icon,
+                iconClass: `admin-color${idx + 2}`,
+                number: item.count,
+                text: __(item.label, 'vulopilot'),
+				colorClass: `admin-color${idx + 2}`,
+            }))}
+        />
 		</DashboardWidget>
 	);
 };
