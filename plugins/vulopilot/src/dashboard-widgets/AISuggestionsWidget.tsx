@@ -43,7 +43,7 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 
 	return (
 		<DashboardWidget
-			title={__('AI Suggestionddds', 'vulopilot')}
+			title={__('AI Suggestions', 'vulopilot')}
 			icon="ai"
 			isLoading={isLoading}
 			onHide={onHide}

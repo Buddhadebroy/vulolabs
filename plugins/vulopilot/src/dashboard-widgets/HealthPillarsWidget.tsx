@@ -7,7 +7,6 @@ import {
 	CardComponent,
 	ScoreRingComponent,
 } from '@zyra/components';
-import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
 /* eslint-disable no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters, same as StatWidget.tsx's StatWidgetConfig */
