@@ -1,0 +1,55 @@
+import React from 'react';
+import { __ } from '@wordpress/i18n';
+import { TooltipComponent } from '@zyra/components';
+import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
+import './GrowMyTraffic.scss';
+
+interface AiOpportunitiesCardProps {
+	onNavigateTab: (tab: 'geo' | 'aeo') => void;
+}
+
+/**
+ * "AI Opportunities" — the mockup's checklist of fixable issues. Reuses
+ * OpenIssuesGlimpse's real `/findings` data (same category 'geo' data the
+ * GEO/AEO tabs already glimpse) rather than a second parallel fetch.
+ * Clicking a row switches to the GEO tab (`onItemClick`) instead of the
+ * component's own default same-page scroll-and-highlight, since Overview
+ * has no `geo-section-*` anchors of its own for the GEO tab's sections —
+ * those only exist once that tab is actually mounted.
+ *
+ * "Fix Everything with AI" has no real backend anywhere in this codebase
+ * (no bulk-fix/action-trigger endpoint exists — confirmed while building
+ * AI Copilot's own honestly-disabled send button/workflow-run button), so
+ * it's rendered visibly but inert with a tooltip, same pattern.
+ */
+const AiOpportunitiesCard: React.FC<AiOpportunitiesCardProps> = ({
+	onNavigateTab,
+}) => (
+	<OpenIssuesGlimpse
+		category="geo"
+		titleIcon="ai"
+		title={__('AI Opportunities', 'vulopilot')}
+		onItemClick={() => onNavigateTab('geo')}
+		emptyTitle={__("You're all caught up", 'vulopilot')}
+		emptyDesc={__('No open GEO/AEO findings right now.', 'vulopilot')}
+		footer={
+			<TooltipComponent
+				text={__(
+					"Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up. Fix findings individually from the GEO/AEO tabs.",
+					'vulopilot'
+				)}
+			>
+				<span
+					role="button"
+					aria-disabled="true"
+					className="ai-opportunities-fix-all disabled"
+				>
+					<i className="adminfont-ai" />
+					{__('Fix Everything with AI', 'vulopilot')}
+				</span>
+			</TooltipComponent>
+		}
+	/>
+);
+
+export default AiOpportunitiesCard;

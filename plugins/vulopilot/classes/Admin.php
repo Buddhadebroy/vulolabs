@@ -218,11 +218,6 @@ class Admin {
                 'group' => 'ai-visibility',
                 'icon'  => 'dashicons-format-status',
             ),
-            'ai-content'       => array(
-                'name'  => __( 'AI Content', 'vulopilot' ),
-                'group' => 'ai-visibility',
-                'icon'  => 'dashicons-edit',
-            ),
             'crawler-traffic'  => array(
                 'name'  => __( 'Crawler Traffic', 'vulopilot' ),
                 'group' => 'ai-visibility',
@@ -242,17 +237,22 @@ class Admin {
                 'icon'  => 'dashicons-search',
             ),
             // Folded into 'content' ("Create Content").
+            'ai-content'       => array(
+                'name'  => __( 'AI Content', 'vulopilot' ),
+                'group' => 'seo-content',
+                'icon'  => 'dashicons-edit',
+            ),
             'schema'           => array(
                 'name'  => __( 'Schema', 'vulopilot' ),
                 'group' => 'seo-content',
                 'icon'  => 'dashicons-editor-code',
             ),
+            // Folded into 'performance' ("Improve Speed").
             'redirects'        => array(
                 'name'  => __( 'Redirects & 404s', 'vulopilot' ),
-                'group' => 'seo-content',
+                'group' => 'site-health',
                 'icon'  => 'dashicons-randomize',
             ),
-            // Folded into 'performance' ("Improve Speed").
             'accessibility'    => array(
                 'name'  => __( 'Accessibility', 'vulopilot' ),
                 'group' => 'site-health',

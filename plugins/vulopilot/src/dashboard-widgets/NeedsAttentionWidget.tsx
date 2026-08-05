@@ -141,7 +141,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 										title: finding.title,
 										action: () => {
 											window.location.href =
-												'?page=vulopilot#&tab=seo';
+												'?page=vulopilot#&tab=geo&subtab=seo';
 										},
 										tags: (
 											<span
