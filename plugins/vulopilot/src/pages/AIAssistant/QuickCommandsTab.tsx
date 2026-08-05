@@ -19,24 +19,22 @@ interface QuickCommandsTabProps {
  * would do.
  */
 const QuickCommandsTab: React.FC<QuickCommandsTabProps> = ({ onSelect }) => (
-	<ContainerComponent general>
-		<ColumnComponent>
-			<CardComponent
-				title={__('Quick Commands', 'vulopilot')}
-				titleIcon="ai"
-			>
-				<ListComponent
-					className="chip-grid"
-					items={SUGGESTED_PROMPTS.map((prompt) => ({
-						id: prompt.id,
-						icon: prompt.icon,
-						title: prompt.title,
-						action: () => onSelect(prompt.title),
-					}))}
-				/>
-			</CardComponent>
-		</ColumnComponent>
-	</ContainerComponent>
+	<ColumnComponent>
+		<CardComponent
+			title={__('Quick Commands', 'vulopilot')}
+			titleIcon="ai"
+		>
+			<ListComponent
+				className="chip-grid"
+				items={SUGGESTED_PROMPTS.map((prompt) => ({
+					id: prompt.id,
+					icon: prompt.icon,
+					title: prompt.title,
+					action: () => onSelect(prompt.title),
+				}))}
+			/>
+		</CardComponent>
+	</ColumnComponent>
 );
 
 export default QuickCommandsTab;

@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import { ListComponent, ModuleGuardComponent, ButtonInput } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
-import { getSeverityClass } from '../services/getSeverityClass';
 import { WidgetProps } from './types';
 
 interface FindingRow {
@@ -80,21 +79,22 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 
 						return {
 							id: String(finding.id),
-							icon: 'ai',
+							icon: 'ai purple',
 							title: finding.title,
 							action: goToFix,
 							tags: (
 								<>
 									<span
-										className={`admin-badge ${getSeverityClass(finding.severity)}`}
+										className={`admin-badge badge-${finding.severity}`}
 									>
-										{finding.severity}
+										SEO Impact: {finding.severity}
 									</span>
 									<ButtonInput
 										position="left"
 										buttons={[
 											{
 												icon: 'ai',
+												color: 'border-purple',
 												text: __('Fix with AI', 'vulopilot'),
 												onClick: (e) => {
 													e.stopPropagation();

@@ -63,7 +63,7 @@ const TodaysTasksWidget: React.FC<WidgetProps> = ({
 					items={data.map((row) => ({
 						id: String(row.id),
 						title: row.message,
-						icon: '',
+						icon: 'plus yellow',
 						tags: (
 							<span className="desc">
 								{formatWpDate(row.created_at)}

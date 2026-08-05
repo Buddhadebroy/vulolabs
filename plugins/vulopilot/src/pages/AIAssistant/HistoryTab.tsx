@@ -113,7 +113,6 @@ const HistoryTab = () => {
 	);
 
 	return (
-		<ContainerComponent general>
 			<ColumnComponent>
 				{error ? (
 					<CardComponent title={__('AI history', 'vulopilot')}>
@@ -200,7 +199,6 @@ const HistoryTab = () => {
 					</>
 				)}
 			</ColumnComponent>
-		</ContainerComponent>
 	);
 };
 

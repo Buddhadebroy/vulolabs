@@ -1,7 +1,7 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import './AICopilot.scss';
-import { InformationItemComponent, ModuleGuardComponent } from '@zyra/components';
+import { InformationItemComponent, ModuleGuardComponent, ListComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 
 interface FindingRow {
@@ -105,49 +105,32 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 
 	return (
 		<>
-			{data.map((finding) => {
-				const goToFix = () => {
-					const tab =
-						CATEGORY_TABS[finding.category ?? ''] ?? 'health';
-					window.location.href = `?page=vulopilot#&tab=${tab}`;
-				};
+			<ListComponent
+	className="mini-card report"
+	items={data.map((finding) => {
+		const goToFix = () => {
+			const tab =
+				CATEGORY_TABS[finding.category ?? ''] ?? 'health';
 
-				return (
-					<InformationItemComponent
-						key={finding.id}
-						title={finding.title}
-						onClick={goToFix}
-						avatar={{
-							iconClass:
-								CATEGORY_ICONS[finding.category ?? ''] ?? 'ai',
-							color:
-								CATEGORY_COLORS[finding.category ?? ''] ??
-								'#2563eb',
-						}}
-						descriptions={[
-							{
-								value:
-									finding.description ||
-									sprintf(
-										/* translators: %s: finding severity (e.g. "high") */
-										__('%s severity', 'vulopilot'),
-										finding.severity
-									),
-							},
-						]}
-						rightContent={
-							<button
-								type="button"
-								className="ai-copilot-row-arrow"
-								aria-label={__('Go to fix', 'vulopilot')}
-								onClick={goToFix}
-							>
-								<i className="adminfont-arrow-right" />
-							</button>
-						}
-					/>
-				);
-			})}
+			window.location.href = `?page=vulopilot#&tab=${tab}`;
+		};
+
+		return {
+			id: String(finding.id),
+			title: finding.title,
+			icon:
+				CATEGORY_ICONS[finding.category ?? ''] ?? 'ai',
+			desc:
+				finding.description ||
+				sprintf(
+					/* translators: %s: finding severity (e.g. "high") */
+					__('%s severity', 'vulopilot'),
+					finding.severity
+				),
+			action: goToFix,
+		};
+	})}
+/>
 		</>
 	);
 };
