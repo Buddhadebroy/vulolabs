@@ -449,6 +449,17 @@ class Utill {
      * @var string[]
      */
     const DASHBOARD_WIDGET_IDS = array(
+        // The Dashboard mockup's own top section (registry.ts's
+        // MOCKUP_WIDGETS), in its order.
+        'overall-score',
+        'run-audit',
+        'visibility-score',
+        'health-score',
+        'commerce-score',
+        'performance-score',
+        'ai-suggestions',
+        'todays-tasks',
+        'recent-changes',
         'ai-usage',
         'recent-activity',
         'health-timeline',

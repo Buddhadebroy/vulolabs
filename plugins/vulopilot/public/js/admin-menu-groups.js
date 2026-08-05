@@ -12,7 +12,7 @@
  *
  * window.vulopilotMenuGroups is localized by that same PHP method:
  * { groups: [ { id, label, icon } ], tabToGroup: { [tabId]: groupId },
- * tabToIcon: { [tabId]: dashiconClass } }.
+ * tabToIcon: { [tabId]: dashiconClass }, dividerBefore: [ tabId ] }.
  */
 ( function () {
 	'use strict';
@@ -164,6 +164,36 @@
 	}
 
 	/**
+	 * Draws a thin rule before each `<li>` listed in dividerBefore — e.g.
+	 * separates "Reports"/"Settings"/"Modules" from the work items above
+	 * them. Runs once at init: dividerBefore is a static, config-driven
+	 * list (unlike group expansion, nothing about it changes on
+	 * hashchange), so there's no equivalent of syncActiveGroup() needed
+	 * here.
+	 */
+	function addDividers() {
+		var config = window.vulopilotMenuGroups;
+		var submenu = document.querySelector(
+			'#toplevel_page_vulopilot > ul.wp-submenu'
+		);
+
+		if ( ! config || ! config.dividerBefore || ! submenu ) {
+			return;
+		}
+
+		config.dividerBefore.forEach( function ( tab ) {
+			var anchors = submenu.querySelectorAll( 'li > a' );
+
+			for ( var i = 0; i < anchors.length; i++ ) {
+				if ( getTabFromHref( anchors[ i ].getAttribute( 'href' ) ) === tab ) {
+					anchors[ i ].parentNode.classList.add( 'vulopilot-menu-divider-before' );
+					break;
+				}
+			}
+		} );
+	}
+
+	/**
 	 * Re-expands whichever group contains the newly-active tab — the
 	 * hash itself (not the 'current' class app.tsx's own effect sets,
 	 * which lags behind React mounting) is the source of truth here, so
@@ -186,6 +216,7 @@
 	function init() {
 		buildGroups();
 		addItemIcons();
+		addDividers();
 		syncActiveGroup();
 		window.addEventListener( 'hashchange', syncActiveGroup );
 	}

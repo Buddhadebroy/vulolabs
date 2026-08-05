@@ -51,3 +51,17 @@
 #adminmenu .wp-submenu .vulopilot-menu-group-child.vulopilot-menu-group-collapsed {
 	display: none;
 }
+
+/*
+ * A translucent rule rather than a scheme-color-matched one: admin color
+ * schemes (Fresh, Light, Coffee, Midnight, …) each set their own submenu
+ * background, and this file otherwise avoids hardcoding colors for that
+ * exact reason (see the top-of-file comment). rgba(240,246,252,.15) reads
+ * as a subtle light line on the dark submenu background every scheme
+ * actually uses, without fighting any of them.
+ */
+#adminmenu .wp-submenu .vulopilot-menu-divider-before {
+	margin-top: 8px;
+	border-top: 1px solid rgba(240, 246, 252, 0.15);
+	padding-top: 8px;
+}

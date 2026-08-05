@@ -1,13 +1,12 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
 	NavigatorHeaderComponent,
-	NoticeManager,
 } from '@zyra/components';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import GettingStartedCard from './GettingStartedCard';
@@ -51,7 +50,6 @@ const Dashboard = () => {
 	const [summary, setSummary] = useState<DashboardSummary>(EMPTY_SUMMARY);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [isScanning, setIsScanning] = useState(false);
 	// Local UI state only, never persisted — every fresh page load starts
 	// read-only, so a user can't accidentally drag/hide a widget just by
 	// having left customization mode on last time (DashboardGrid.tsx's
@@ -85,40 +83,6 @@ const Dashboard = () => {
 
 	useEffect(loadDashboard, []);
 
-	const handleRunScan = () => {
-		setIsScanning(true);
-
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'scans'), {
-			scanner_id: 'all',
-			trigger_type: 'manual',
-		})
-			.then((response) => {
-				if (response) {
-					NoticeManager.add({
-						uniqueKey: 'vulopilot-scan-started',
-						type: 'success',
-						position: 'float',
-						message: __(
-							'Scan started — results will appear here shortly.',
-							'vulopilot'
-						),
-					});
-					loadDashboard();
-				} else {
-					NoticeManager.add({
-						uniqueKey: 'vulopilot-scan-failed',
-						type: 'error',
-						position: 'float',
-						message: __(
-							'Could not start a scan. Please try again.',
-							'vulopilot'
-						),
-					});
-				}
-			})
-			.finally(() => setIsScanning(false));
-	};
-
 	const pageHeader = (
 		<NavigatorHeaderComponent
 			headerTitle={__('Website Health', 'vulopilot')}
@@ -135,14 +99,6 @@ const Dashboard = () => {
 					icon: isCustomizing ? 'form-checkboxes' : 'edit',
 					color: isCustomizing ? 'border-green' : 'border-purple',
 					onClick: () => setIsCustomizing(!isCustomizing),
-				},
-				{
-					label: isScanning
-						? __('Scanning…', 'vulopilot')
-						: __('Run scan', 'vulopilot'),
-					icon: 'search',
-					color: 'purple-bg',
-					onClick: handleRunScan,
 				},
 			]}
 		/>
