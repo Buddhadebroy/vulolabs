@@ -7,7 +7,6 @@ import SuggestedActionsList from './SuggestedActionsList';
  * preview — same live `/findings` data, just untruncated.
  */
 const SuggestedActionsTab = () => (
-	<ContainerComponent general>
 		<ColumnComponent>
 			<CardComponent
 				title={__('Suggested Actions', 'vulopilot')}
@@ -16,7 +15,6 @@ const SuggestedActionsTab = () => (
 				<SuggestedActionsList />
 			</CardComponent>
 		</ColumnComponent>
-	</ContainerComponent>
 );
 
 export default SuggestedActionsTab;

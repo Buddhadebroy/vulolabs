@@ -4,6 +4,7 @@ import {
 	NavigatorHeaderComponent,
 	PopupComponent,
 	TabsComponent,
+	ContainerComponent
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import HistoryTab from './HistoryTab';
@@ -85,48 +86,51 @@ const AIAssistant = () => {
 					)}
 				</p>
 			</PopupComponent>
-			<TabsComponent
-				className="ai-copilot-tabs"
-				activeIndex={TAB_IDS.indexOf(activeTab)}
-				onTabChange={(index) => setActiveTab(TAB_IDS[index])}
-				tabs={[
-					{
-						label: __('Chat', 'vulopilot'),
-						content: (
-							<ChatTab
-								onNavigateTab={goToTab}
-								message={chatMessage}
-								onMessageChange={setChatMessage}
-								autoApply={autoApply}
-								onAutoApplyChange={setAutoApply}
-							/>
-						),
-					},
-					{
-						label: __('History', 'vulopilot'),
-						content: <HistoryTab />,
-					},
-					{
-						label: __('Suggested Actions', 'vulopilot'),
-						content: <SuggestedActionsTab />,
-					},
-					{
-						label: __('Quick Commands', 'vulopilot'),
-						content: (
-							<QuickCommandsTab
-								onSelect={(prompt) => {
-									setChatMessage(prompt);
-									goToTab('chat');
-								}}
-							/>
-						),
-					},
-					{
-						label: __('AI Workflows', 'vulopilot'),
-						content: <AiWorkflowsTab />,
-					},
-				]}
-			/>
+			<ContainerComponent general>
+				<>
+				<TabsComponent
+						activeIndex={TAB_IDS.indexOf(activeTab)}
+						onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+						tabs={[
+						{
+							label: __('Chat', 'vulopilot'),
+							content: (
+								<ChatTab
+									onNavigateTab={goToTab}
+									message={chatMessage}
+									onMessageChange={setChatMessage}
+									autoApply={autoApply}
+									onAutoApplyChange={setAutoApply}
+								/>
+							),
+						},
+						{
+							label: __('History', 'vulopilot'),
+							content: <HistoryTab />,
+						},
+						{
+							label: __('Suggested Actions', 'vulopilot'),
+							content: <SuggestedActionsTab />,
+						},
+						{
+							label: __('Quick Commands', 'vulopilot'),
+							content: (
+								<QuickCommandsTab
+									onSelect={(prompt) => {
+										setChatMessage(prompt);
+										goToTab('chat');
+									}}
+								/>
+							),
+						},
+						{
+							label: __('AI Workflows', 'vulopilot'),
+							content: <AiWorkflowsTab />,
+						},
+					]}
+				/>
+				</>
+				</ContainerComponent>
 		</>
 	);
 };

@@ -1,9 +1,8 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent, ButtonInput } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
-import { getSeverityClass } from '../services/getSeverityClass';
 import { WidgetProps } from './types';
 
 interface FindingRow {
@@ -80,26 +79,30 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 
 						return {
 							id: String(finding.id),
+							icon: 'ai purple',
 							title: finding.title,
 							action: goToFix,
 							tags: (
 								<>
 									<span
-										className={`admin-badge ${getSeverityClass(finding.severity)}`}
+										className={`admin-badge badge-${finding.severity}`}
 									>
-										{finding.severity}
+										SEO Impact: {finding.severity}
 									</span>
-									<button
-										type="button"
-										className="ai-suggestion-fix-btn"
-										onClick={(e) => {
-											e.stopPropagation();
-											goToFix();
-										}}
-									>
-										<i className="adminfont-ai" />
-										{__('Fix with AI', 'vulopilot')}
-									</button>
+									<ButtonInput
+										position="left"
+										buttons={[
+											{
+												icon: 'ai',
+												color: 'border-purple',
+												text: __('Fix with AI', 'vulopilot'),
+												onClick: (e) => {
+													e.stopPropagation();
+													goToFix();
+												},
+											},
+										]}
+									/>
 								</>
 							),
 						};

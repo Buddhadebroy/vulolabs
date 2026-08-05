@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ChartComponent } from '@zyra/components';
+import { ChartComponent, AnalyticsComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
@@ -47,54 +47,106 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	const commerce = cs.woocommerce ?? 0;
 	const performance = cs.performance;
 
+	const overviewData = [
+		{
+			id: 'total_tax',
+			label: __('Visibility Score', 'vulopilot'),
+			count: visibility,
+			progress: visibility,
+			icon: 'tax-compliance',
+			colorClass: 'red-yellow'
+		},
+		{
+			id: 'order_tax',
+			label: __('Health Score', 'vulopilot'),
+			count: health,
+			progress: health,
+			icon: 'order',
+			colorClass: 'red-blue'
+		},
+		{
+			id: 'shipping_tax',
+			label: __('Commerce Score', 'vulopilot'),
+			count: commerce,
+			progress: commerce,
+			icon: 'shipping',
+			colorClass: 'red-green'
+		},
+		{
+			id: 'shipping_tax',
+			label: __('Performance Score', 'vulopilot'),
+			count: performance,
+			progress: 50,
+			icon: 'shipping',
+			colorClass: 'red-color'
+		},
+	];
+
 	return (
 		<DashboardWidget
-			title={__('Overall Site Score', 'vulopilot')}
-			icon="analytics"
-			isLoading={isLoading}
-			onHide={onHide}
-			isCustomizing={isCustomizing}
+		// title={__('Overall Site Score', 'vulopilot')}
+		// icon="analytics"
+		// isLoading={isLoading}
+		// onHide={onHide}
+		// isCustomizing={isCustomizing}
 		>
-			<ChartComponent
-				type="pie"
-				isLoading={isLoading}
-				legendLabels
-				legendPosition="side"
-				height={180}
-				centerLabel={
-					<>
-						<span className="score-ring-number">
-							{summary.overall_score}
-						</span>
-						<span className="score-ring-label">/100</span>
-						<span className="score-ring-label">
-							{getRating(summary.overall_score)}
-						</span>
-					</>
-				}
-				data={[
-					{
-						label: __('Visibility', 'vulopilot'),
-						value: visibility,
-						color: '#2563eb',
-					},
-					{
-						label: __('Health', 'vulopilot'),
-						value: health,
-						color: '#16a34a',
-					},
-					{
-						label: __('Commerce', 'vulopilot'),
-						value: commerce,
-						color: '#f97316',
-					},
-					{
-						label: __('Performance', 'vulopilot'),
-						value: performance,
-						color: '#7c3aed',
-					},
-				]}
-			/>
+			<ContainerComponent>
+				<ColumnComponent grid={3}>
+					<ChartComponent
+						type="pie"
+						isLoading={isLoading}
+						legendLabels
+						legendPosition="side"
+						height={180}
+						centerLabel={
+							<>
+								<span className="score-ring-number">
+									{summary.overall_score}
+								</span>
+								<span className="score-ring-label">/100</span>
+								<span className="score-ring-label">
+									{getRating(summary.overall_score)}
+								</span>
+							</>
+						}
+						data={[
+							{
+								label: __('Visibility', 'vulopilot'),
+								value: visibility,
+								color: '#2563eb',
+							},
+							{
+								label: __('Health', 'vulopilot'),
+								value: health,
+								color: '#16a34a',
+							},
+							{
+								label: __('Commerce', 'vulopilot'),
+								value: commerce,
+								color: '#f97316',
+							},
+							{
+								label: __('Performance', 'vulopilot'),
+								value: performance,
+								color: '#7c3aed',
+							},
+						]}
+					/>
+				</ColumnComponent>
+				<ColumnComponent grid={7}>
+					<AnalyticsComponent
+						cols={2}
+						variant="progress"
+						data={overviewData.map((item, idx) => ({
+							icon: item.icon,
+							number: `${item.count}%`,
+							text: __(item.label, 'vulopilot'),
+							colorClass: `admin-color${idx + 2}`,
+							progress: item.progress
+						}))}
+					/>
+				</ColumnComponent>
+			</ContainerComponent>
 		</DashboardWidget>
 	);
 };
