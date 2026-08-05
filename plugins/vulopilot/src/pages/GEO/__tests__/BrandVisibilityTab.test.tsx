@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import BrandVisibility from '../BrandVisibility';
+import BrandVisibility from '../BrandVisibilityTab';
 
 jest.mock( '../../../components/FindingsTable', () => ( {
 	__esModule: true,

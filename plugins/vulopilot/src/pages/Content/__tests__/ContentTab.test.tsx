@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import Content from '../Content';
+import Content from '../ContentTab';
 
 jest.mock( '../../../components/FindingsTable', () => ( {
 	__esModule: true,

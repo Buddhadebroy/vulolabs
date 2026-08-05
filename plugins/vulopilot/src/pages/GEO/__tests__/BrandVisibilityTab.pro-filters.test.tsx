@@ -36,7 +36,7 @@ addFilter(
 	() => () => <div data-testid="knowledge-panel-stub" />
 );
 
-const BrandVisibility = require( '../BrandVisibility' ).default;
+const BrandVisibility = require( '../BrandVisibilityTab' ).default;
 
 describe( 'BrandVisibility page — Pro filter slots registered', () => {
 	it( 'renders all 3 Pro cards registered via the vulopilot_brand_* filters', () => {

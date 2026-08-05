@@ -27,7 +27,7 @@ addFilter(
 	() => () => <div data-testid="kg-health-stub" />
 );
 
-const KnowledgeGraph = require( '../KnowledgeGraph' ).default;
+const KnowledgeGraph = require( '../KnowledgeGraphTab' ).default;
 
 describe( 'KnowledgeGraph page — Pro filter slots registered', () => {
 	it( 'renders all 3 Pro cards registered via the vulopilot_knowledge_graph_* filters', async () => {

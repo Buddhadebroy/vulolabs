@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { getApiResponse } from '@zyra/core';
-import KnowledgeGraph from '../KnowledgeGraph';
+import KnowledgeGraph from '../KnowledgeGraphTab';
 
 describe( 'KnowledgeGraph page', () => {
 	beforeEach( () => {

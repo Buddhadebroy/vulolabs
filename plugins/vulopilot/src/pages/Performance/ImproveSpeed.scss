@@ -1,0 +1,70 @@
+.core-web-vitals-row {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.5rem;
+	margin-top: 1rem;
+
+	.core-web-vitals-tile {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.625rem;
+		border: var(--border-light-small, 0.0625rem solid #e5e7eb);
+		border-radius: 0.5rem;
+	}
+
+	.core-web-vitals-label {
+		font-weight: 600;
+		font-size: 0.8125rem;
+	}
+}
+
+.performance-metrics-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.875rem;
+
+	@media screen and (width <=64rem) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+.performance-metric-tile {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+
+	.performance-metric-icon {
+		font-size: 1.5rem;
+		color: var(--color-primary);
+	}
+
+	.performance-metric-title {
+		font-weight: 600;
+		font-size: 0.9rem;
+	}
+}
+
+.speed-boost-fix-all,
+.ai-speed-optimize {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	border-radius: 0.5rem;
+	background: var(--color-primary);
+	color: var(--color-white);
+	font-weight: 600;
+	padding: 0.625rem 1rem;
+	margin-top: 0.75rem;
+	cursor: pointer;
+
+	&.disabled {
+		background: var(--border-color);
+		color: var(--sub-text-color);
+		cursor: not-allowed;
+	}
+}

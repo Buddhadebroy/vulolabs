@@ -1,22 +1,15 @@
 /* global appLocalizer */
 import { __ } from '@wordpress/i18n';
-import {
-	CardComponent,
-	ColumnComponent,
-	ContainerComponent,
-	ModuleGuardComponent,
-	NavigatorHeaderComponent,
-} from '@zyra/components';
+import { CardComponent, ColumnComponent, ContainerComponent, ModuleGuardComponent } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
 import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
 import ProLockedCard from '../../components/ProLockedCard';
-import { useRunScan } from '../../services/useRunScan';
 import { useSectionStatus } from '../../services/useSectionStatus';
 
 /**
  * Which AEO_SECTIONS card (below) each scanner's findings live under — same
  * "a glimpse row only has a scanner_id, not a section key" reasoning
- * GEO.tsx's own SCANNER_TO_SECTION documents.
+ * GeoTab.tsx's own SCANNER_TO_SECTION documents.
  */
 const SCANNER_TO_SECTION: Record<string, string> = {
 	'geo-summary-block': 'answers',
@@ -28,11 +21,11 @@ const SCANNER_TO_SECTION: Record<string, string> = {
 
 /**
  * Section → scanner_id grouping for AEO's 5 real scanners — the subset of
- * GEO's own 12 GEO-category scanners (see GEO.tsx's own docblock) that
+ * GEO's own 12 GEO-category scanners (see GeoTab.tsx's own docblock) that
  * specifically concern getting a direct answer extracted and cited, rather
  * than GEO's broader "can an AI understand this page" scope. Same
  * "category 'geo' shared by every scanner, split here is presentational"
- * reasoning GEO.tsx's own GEO_SECTIONS documents — a finding can
+ * reasoning GeoTab.tsx's own GEO_SECTIONS documents — a finding can
  * legitimately show up grouped under both GEO's own "AI Summary"/"AEO"
  * sections and here, since AEO is its own complete lens over the same
  * finding data, not a disjoint subset.
@@ -120,7 +113,7 @@ const AEO_SECTIONS: {
 ];
 
 /**
- * Same `active_modules` gate GEO.tsx's own isGeoInsightsActive() uses —
+ * Same `active_modules` gate GeoTab.tsx's own isGeoInsightsActive() uses —
  * 'geo-insights' is GeoInsights' folder name kebab-cased
  * (Modules.php::camel_to_kebab()).
  */
@@ -173,11 +166,13 @@ const AeoSectionCard = ({
  * AEO = Answer Engine Optimization — whether AI systems can extract,
  * structure, and cite a direct answer from this site's pages (distinct from
  * GEO's broader "can an AI understand this page at all" scope, and from
- * classic search-engine SEO). Same header + findings-table shape every
- * other category page (GEO, SEO, Performance, Accessibility, WooCommerce,
- * Security) already uses.
+ * classic search-engine SEO). Same findings-table shape every other
+ * category page (GEO, SEO, Performance, Accessibility, WooCommerce,
+ * Security) already uses. Header moved up to the parent GEO.tsx tab shell
+ * — this is one of its three tabs now (Overview/GEO/AEO), not its own
+ * standalone page.
  *
- * Three cards on this page have no real backend anywhere in this codebase
+ * Three cards on this tab have no real backend anywhere in this codebase
  * today (neither Free nor Pro) — a per-signal "Answerability" score
  * breakdown, live citation testing against named AI answer engines
  * (ChatGPT, Perplexity, etc, "Answer engine coverage"), and per-engine
@@ -194,20 +189,8 @@ const AeoSectionCard = ({
  * once built (a deterministic structural check, not a live AI call) —
  * it's not claiming the check already runs.
  */
-const AEO = () => {
-	const { runScanButton } = useRunScan();
-
+const AeoTab = () => {
 	return (
-		<>
-			<NavigatorHeaderComponent
-				headerIcon="answer"
-				headerTitle={__('AEO', 'vulopilot')}
-				headerDescription={__(
-					'Answer Engine Optimization — whether AI systems can extract, structure, and cite a direct answer from your pages.',
-					'vulopilot'
-				)}
-				buttons={[runScanButton]}
-			/>
 		<ContainerComponent general>
 			<ColumnComponent>
 				<CardComponent
@@ -223,7 +206,7 @@ const AEO = () => {
 						icon="info"
 						title={__('Not scoring answerability signals yet', 'vulopilot')}
 						desc={__(
-							'A dedicated per-signal AEO score breakdown hasn’t been built yet. The overall GEO score on the GEO page already includes several AEO-related dimensions (answer-first structure, question coverage, citation readiness) for VuloPilot Pro users.',
+							'A dedicated per-signal AEO score breakdown hasn’t been built yet. The overall GEO score on the GEO tab already includes several AEO-related dimensions (answer-first structure, question coverage, citation readiness) for VuloPilot Pro users.',
 							'vulopilot'
 						)}
 					/>
@@ -291,8 +274,7 @@ const AEO = () => {
 				))}
 			</ColumnComponent>
 		</ContainerComponent>
-	</>
 	);
 };
 
-export default AEO;
+export default AeoTab;

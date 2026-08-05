@@ -1,7 +1,8 @@
+import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ListComponent, ModuleGuardComponent, ColumnComponent } from '@zyra/components';
 import { useApiList } from '../services/useApiList';
-import { FindingSeverity } from '../services/getSeverityClass';
+import { FindingSeverity, getSeverityClass } from '../services/getSeverityClass';
 import './OpenIssuesGlimpse.scss';
 
 interface FindingRow {
@@ -33,15 +34,29 @@ interface OpenIssuesGlimpseProps {
 	 * findings live under — a glimpse row only has a scanner_id, not a
 	 * section key, so the calling page supplies this lookup. Falls back to
 	 * `fallbackSection` for a scanner id this map hasn't been extended for.
+	 * Only meaningful for the default same-page scroll-and-highlight
+	 * behavior — omit all three (`sectionMap`/`fallbackSection`/
+	 * `anchorPrefix`) when passing `onItemClick` instead.
 	 */
-	sectionMap: Record<string, string>;
-	fallbackSection: string;
+	sectionMap?: Record<string, string>;
+	fallbackSection?: string;
 	/** DOM id prefix each section card carries, e.g. 'geo-section-' → `#geo-section-{key}`. */
-	anchorPrefix: string;
+	anchorPrefix?: string;
+	/**
+	 * Overrides the default same-page scroll-and-highlight entirely — e.g.
+	 * the Overview tab's own glimpse card needs to switch to a different
+	 * tab first (its section anchors don't exist in Overview's own DOM),
+	 * which this component has no way to know how to do itself.
+	 */
+	onItemClick?: (scannerId: string) => void;
 	emptyTitle: string;
 	emptyDesc: string;
 	/** adminfont-* icon name shown next to the card title. Omit for no icon. */
 	titleIcon?: string;
+	/** Overrides the default "Open issues" card title. */
+	title?: string;
+	/** Rendered below the list, e.g. a "Fix Everything with AI" action. */
+	footer?: React.ReactNode;
 }
 
 /**
@@ -62,9 +77,12 @@ const OpenIssuesGlimpse = ({
 	sectionMap,
 	fallbackSection,
 	anchorPrefix,
+	onItemClick,
 	emptyTitle,
 	emptyDesc,
 	titleIcon,
+	title,
+	footer,
 }: OpenIssuesGlimpseProps) => {
 	const { data, total, isLoading } = useApiList<FindingRow>('findings', {
 		category,
@@ -76,6 +94,10 @@ const OpenIssuesGlimpse = ({
 	});
 
 	const scrollToSection = (scannerId: string) => {
+		if (!sectionMap || !fallbackSection || !anchorPrefix) {
+			return;
+		}
+
 		const sectionKey = sectionMap[scannerId] ?? fallbackSection;
 		const el = document.getElementById(`${anchorPrefix}${sectionKey}`);
 
@@ -88,10 +110,12 @@ const OpenIssuesGlimpse = ({
 		setTimeout(() => el.classList.remove('vulopilot-glimpse-highlight'), 1200);
 	};
 
+	const handleItemClick = onItemClick ?? scrollToSection;
+
 	return (
 		<ColumnComponent grid={6} fullHeight>
 			<CardComponent
-				title={__('Open issues', 'vulopilot')}
+				title={title ?? __('Open issues', 'vulopilot')}
 				titleIcon={titleIcon}
 				isLoading={isLoading}
 			>
@@ -113,16 +137,17 @@ const OpenIssuesGlimpse = ({
 							items={data.map((finding) => ({
 								id: String(finding.id),
 								title: finding.title,
-								action: () => scrollToSection(finding.scanner_id),
+								action: () => handleItemClick(finding.scanner_id),
 								tags: (
 									<span
-										className={`admin-badge badge-${finding.severity}`}
+										className={`admin-badge ${getSeverityClass(finding.severity)}`}
 									>
 										{finding.severity}
 									</span>
 								),
 							}))}
 						/>
+						{footer}
 					</>
 				)}
 			</CardComponent>

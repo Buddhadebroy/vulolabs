@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import CrawlerTraffic from '../CrawlerTraffic';
+import CrawlerTraffic from '../CrawlerTrafficTab';
 
 jest.mock( '../../../services/useApiList', () => ( {
 	useApiList: () => ( {

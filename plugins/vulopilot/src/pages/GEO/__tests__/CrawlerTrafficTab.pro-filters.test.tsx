@@ -48,7 +48,7 @@ addFilter(
 	() => () => <div data-testid="crawler-alerts-stub" />
 );
 
-const CrawlerTraffic = require( '../CrawlerTraffic' ).default;
+const CrawlerTraffic = require( '../CrawlerTrafficTab' ).default;
 
 describe( 'CrawlerTraffic page — Pro filter slots registered', () => {
 	it( 'renders all 3 Pro cards registered via the vulopilot_crawler_* filters', () => {

@@ -33,7 +33,7 @@ addFilter(
 	() => () => <div data-testid="content-gap-stub" />
 );
 
-const Content = require( '../Content' ).default;
+const Content = require( '../ContentTab' ).default;
 
 describe( 'Content page — Pro filter slots registered', () => {
 	it( 'renders both Pro cards registered via the vulopilot_content_* filters', () => {

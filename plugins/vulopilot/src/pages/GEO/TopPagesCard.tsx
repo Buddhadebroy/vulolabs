@@ -75,6 +75,7 @@ const TopPagesCard = () => {
 	return (
 		<ColumnComponent grid={6} fullHeight>
 		<CardComponent
+			id="geo-top-pages"
 			title={__('Top Pages', 'vulopilot')}
 			titleIcon="bar-chart"
 			desc={__(
