@@ -1,8 +1,10 @@
 # VuloPilot — GEO module
 
 Companion to [`SEO-MODULE.md`](SEO-MODULE.md), [`SCANNERS.md`](SCANNERS.md),
-[`RULE-ENGINE.md`](RULE-ENGINE.md), [`AI-ACTIONS.md`](AI-ACTIONS.md), and
-[`AI-VISIBILITY-MODULE.md`](AI-VISIBILITY-MODULE.md). Covers the 12 originally
+[`RULE-ENGINE.md`](RULE-ENGINE.md), [`AI-ACTIONS.md`](AI-ACTIONS.md),
+[`AI-VISIBILITY-MODULE.md`](AI-VISIBILITY-MODULE.md), and to `vulopilot-pro`'s own
+[`GEO-INSIGHTS-MODULE.md`](../../../../plugins/vulopilot-pro/docs/GEO-INSIGHTS-MODULE.md).
+Covers the 12 originally
 requested GEO checks, why 8 became real scanners and 4 became an AI-powered
 analysis instead, the 9th deterministic scanner added since, the
 `GeoAnalysis\GeoAnalyzer` (the "Generate GEO Score"/"Generate AI suggestions"

@@ -1,8 +1,11 @@
 # VuloPilot — Knowledge Graph module
 
 Companion to [`DATABASE.md`](DATABASE.md), [`SCANNERS.md`](SCANNERS.md),
-[`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md), and
-[`BRAND-INTELLIGENCE-MODULE.md`](BRAND-INTELLIGENCE-MODULE.md). Unlike
+[`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md),
+[`BRAND-INTELLIGENCE-MODULE.md`](BRAND-INTELLIGENCE-MODULE.md), and to
+`vulopilot-pro`'s own
+[`KNOWLEDGE-GRAPH-MODULE.md`](../../../../plugins/vulopilot-pro/docs/KNOWLEDGE-GRAPH-MODULE.md).
+Unlike
 every prior phase, Knowledge Graph is a genuinely new conceptual area —
 there was no existing entity-extraction, entity-relationship, or graph
 data structure anywhere in this codebase to build on. This doc covers the

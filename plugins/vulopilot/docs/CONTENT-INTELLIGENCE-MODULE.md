@@ -1,8 +1,10 @@
 # VuloPilot — Content Intelligence module
 
 Companion to [`SEO-MODULE.md`](SEO-MODULE.md), [`GEO-MODULE.md`](GEO-MODULE.md),
-[`SCANNERS.md`](SCANNERS.md), [`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md), and
-[`AI-ACTIONS.md`](AI-ACTIONS.md). Content Intelligence is a new module (new
+[`SCANNERS.md`](SCANNERS.md), [`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md),
+[`AI-ACTIONS.md`](AI-ACTIONS.md), and to `vulopilot-pro`'s own
+[`CONTENT-INTELLIGENCE-MODULE.md`](../../../../plugins/vulopilot-pro/docs/CONTENT-INTELLIGENCE-MODULE.md).
+Content Intelligence is a new module (new
 category `content`, alongside `seo`/`geo`/`performance`/etc.) built to the
 same shape GEO-MODULE.md/AI-VISIBILITY-MODULE.md already establish: Free owns
 one new deterministic scanner plus a composite score/report spanning several

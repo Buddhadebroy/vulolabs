@@ -1,8 +1,10 @@
 # VuloPilot — Brand Intelligence module
 
 Companion to [`GEO-MODULE.md`](GEO-MODULE.md), [`CONTENT-INTELLIGENCE-MODULE.md`](CONTENT-INTELLIGENCE-MODULE.md),
-[`SCANNERS.md`](SCANNERS.md), [`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md), and
-[`AI-ACTIONS.md`](AI-ACTIONS.md). Brand Intelligence is a new module (new
+[`SCANNERS.md`](SCANNERS.md), [`DASHBOARD-WIDGETS.md`](DASHBOARD-WIDGETS.md),
+[`AI-ACTIONS.md`](AI-ACTIONS.md), and to `vulopilot-pro`'s own
+[`BRAND-INTELLIGENCE-MODULE.md`](../../../../plugins/vulopilot-pro/docs/BRAND-INTELLIGENCE-MODULE.md).
+Brand Intelligence is a new module (new
 category `brand`, alongside `seo`/`geo`/`content`/etc.) built to the same
 shape those two already establish: Free owns 3 new deterministic scanners
 plus a composite score/report spanning several existing GEO scanners it

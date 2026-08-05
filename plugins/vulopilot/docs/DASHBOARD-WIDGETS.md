@@ -61,7 +61,7 @@ against.
 **Stat widgets** (`StatWidget.tsx`) — today just **three** "one number + one label" widgets
 (AI Usage, Content, Brand), each a plain `StatWidgetConfig` object (`registry.ts`), not three
 separate component files — the same declarative-config-over-hand-built-JSX
-approach [react-frontend.md](../../../../.claude/rules/react-frontend.md)
+approach `.claude/rules/react-frontend.md`
 documents for Settings screens, applied here. `createStatWidgetComponent()`
 binds one config into a component matching `WidgetProps`, so the grid
 never has to know a widget is config-driven. Overall Health, SEO, Performance, Security,
@@ -333,7 +333,7 @@ to the one React-side registry:
 2. **A Pro or third-party widget**: register via
    `addFilter('vulopilot_dashboard_widgets', ...)` from Pro's own
    `src/index.tsx` — the same `@wordpress/hooks` mechanism
-   [react-frontend.md](../../../../.claude/rules/react-frontend.md) already
+   `.claude/rules/react-frontend.md` already
    documents, applied to
    VuloPilot's own filter naming (`vulopilot_` prefix, no `_pro` infix,
    per `.claude/rules/php-wordpress.md`'s hook-naming convention extended

@@ -1,8 +1,11 @@
 # VuloPilot — SEO module
 
 Companion to [`SCANNERS.md`](SCANNERS.md), [`RULE-ENGINE.md`](RULE-ENGINE.md),
-[`AI-ACTIONS.md`](AI-ACTIONS.md), and
-[`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md). Covers the 15
+[`AI-ACTIONS.md`](AI-ACTIONS.md),
+[`AI-CRAWLER-ANALYTICS-MODULE.md`](AI-CRAWLER-ANALYTICS-MODULE.md), and to
+`vulopilot-pro`'s own
+[`ADVANCED-SEO-MODULE.md`](../../../../plugins/vulopilot-pro/docs/ADVANCED-SEO-MODULE.md).
+Covers the 15
 SEO checks (13 new scanners plus the 2 that already existed), the 3 new SEO rules
 (plus one existing rule corrected in this pass), the AI-suggestion/one-click-fix
 pairing (now closed for both `MissingMetaDescriptionRule` and the pre-existing
