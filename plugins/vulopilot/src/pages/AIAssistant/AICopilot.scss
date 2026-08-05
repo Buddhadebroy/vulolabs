@@ -20,4 +20,21 @@
 		width: 1rem;
 		height: 1rem;
 	}
+
+	&.disabled {
+		background: var(--border-color);
+		color: var(--sub-text-color);
+		cursor: not-allowed;
+	}
+}
+
+.ai-copilot-row-arrow {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	background: none;
+	color: var(--sub-text-color);
+	cursor: pointer;
+	padding: 0;
 }

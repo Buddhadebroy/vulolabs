@@ -7,16 +7,12 @@ import {
 	ChatMessageComponent,
 	ColumnComponent,
 	ContainerComponent,
-	InformationItemComponent,
 	ListComponent,
-	TrendStatComponent,
+	ModuleGuardComponent,
 } from '@zyra/components';
-import {
-	AI_WORKFLOWS,
-	LIVE_INSIGHTS,
-	SUGGESTED_ACTIONS,
-	SUGGESTED_PROMPTS,
-} from './copilotData';
+import { SUGGESTED_PROMPTS } from './copilotData';
+import SuggestedActionsList from './SuggestedActionsList';
+import AiWorkflowsList from './AiWorkflowsList';
 
 interface ChatTabProps {
 	onNavigateTab: (tab: string) => void;
@@ -28,11 +24,13 @@ interface ChatTabProps {
 
 /**
  * The mockup's default "Chat" view — a welcome message, the "Try asking
- * me…" prompt grid, and the composer bar in the main column; Suggested
- * Actions/AI Workflows previews in the sidebar; Live Site Insights across
- * the bottom. All placeholder content (see copilotData.ts's own docblock)
- * — there's no conversational AI endpoint to wire the composer to yet, so
- * sending just clears the field rather than faking a reply.
+ * me…" prompt grid, and the composer bar in the main column; real
+ * Suggested Actions (`/findings`)/AI Workflows (`/automations`) previews
+ * in the sidebar. There's no conversational AI endpoint yet (see
+ * AiHistory.php/ActionRunner.php — the AI Providers engine exists but
+ * nothing routes a free-text message to it), so sending is disabled with
+ * an honest explanation rather than faking a reply; the prompt grid still
+ * really prefills the composer, since that part needs no backend.
  *
  * `message`/`autoApply` are owned by AIAssistant.tsx rather than locally,
  * so the Quick Commands tab can prefill a real message into this tab
@@ -90,6 +88,10 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							attachLabel={__('Attach', 'vulopilot')}
 							onAddContext={() => {}}
 							addContextLabel={__('Add context', 'vulopilot')}
+							sendDisabledReason={__(
+								"AI chat replies aren't available yet — this is a preview of the composer, not a connected assistant.",
+								'vulopilot'
+							)}
 							autoApply={{
 								checked: autoApply,
 								onChange: onAutoApplyChange,
@@ -119,20 +121,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							</a>
 						}
 					>
-						{SUGGESTED_ACTIONS.map((action) => (
-							<InformationItemComponent
-								key={action.id}
-								title={action.title}
-								avatar={{
-									iconClass: action.icon,
-									color: action.color,
-								}}
-								descriptions={[{ value: action.desc }]}
-								rightContent={
-									<i className="adminfont-arrow-right" />
-								}
-							/>
-						))}
+						<SuggestedActionsList limit={4} />
 					</CardComponent>
 
 					<CardComponent
@@ -151,26 +140,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							</a>
 						}
 					>
-						{AI_WORKFLOWS.map((workflow) => (
-							<InformationItemComponent
-								key={workflow.id}
-								title={workflow.title}
-								avatar={{
-									iconClass: workflow.icon,
-									color: workflow.color,
-								}}
-								descriptions={[{ value: workflow.desc }]}
-								rightContent={
-									<button
-										type="button"
-										className="ai-workflow-run-btn"
-										aria-label={__('Run now', 'vulopilot')}
-									>
-										<span className="dashicons dashicons-controls-play" />
-									</button>
-								}
-							/>
-						))}
+						<AiWorkflowsList limit={4} />
 					</CardComponent>
 				</ColumnComponent>
 			</ContainerComponent>
@@ -181,7 +151,17 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						title={__('Live Site Insights', 'vulopilot')}
 						titleIcon="analytics"
 					>
-						<TrendStatComponent cols={4} items={LIVE_INSIGHTS} />
+						<ModuleGuardComponent
+							icon="analytics"
+							title={__(
+								'Live insights aren’t connected yet',
+								'vulopilot'
+							)}
+							desc={__(
+								'Traffic, Core Web Vitals, security, and store metrics will appear here once those data sources are connected.',
+								'vulopilot'
+							)}
+						/>
 					</CardComponent>
 				</ColumnComponent>
 			</ContainerComponent>
