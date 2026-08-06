@@ -29,6 +29,28 @@ export interface DashboardSummary {
 		content: number;
 		brand: number;
 	};
+	/**
+	 * Same 8 keys as `category_scores`, reconstructed as of 7 days ago
+	 * (Dashboard controller's build_category_scores_as_of()) — no
+	 * per-category score snapshot history exists, so this is computed
+	 * fresh from findings' real `created_at`/`resolved_at` timestamps
+	 * rather than read from a trend table. Diff against `category_scores`
+	 * for a real week-over-week delta per score-card.
+	 */
+	category_scores_7d_ago: {
+		seo: number;
+		performance: number;
+		security: number;
+		accessibility: number;
+		woocommerce: number | null;
+		geo: number;
+		content: number;
+		brand: number;
+	};
+	/** Real findings first detected in the last 7 days — Dashboard's "N new issues" hero badge. */
+	new_findings_this_week: number;
+	/** Real findings resolved in the last 7 days — Dashboard's "N fixed" hero badge. */
+	fixed_findings_this_week: number;
 	quick_fixes: number;
 	pending_approvals: number;
 	automation_status: {

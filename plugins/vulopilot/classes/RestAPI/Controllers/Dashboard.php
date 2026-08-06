@@ -86,6 +86,13 @@ class Dashboard extends \WP_REST_Controller {
                 'ai_jobs_used'         => 0,
                 'ai_jobs_quota'        => 0,
                 'category_scores'      => $this->build_category_scores( $findings ),
+                'category_scores_7d_ago' => $this->build_category_scores_as_of( $findings, gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
+                // Dashboard's "Good / N open findings" hero badges — real
+                // counts from findings' own created_at/resolved_at, same
+                // 7-day window category_scores_7d_ago already reconstructs
+                // against.
+                'new_findings_this_week'   => $findings->count_created_since( gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
+                'fixed_findings_this_week' => $findings->count_resolved_since( gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
                 'quick_fixes'          => $this->count_quick_fixes( $findings ),
                 'pending_approvals'    => (int) $action_runs->find_all(
                     array(
@@ -144,6 +151,79 @@ class Dashboard extends \WP_REST_Controller {
         $scores['brand'] = $this->calculate_brand_score( $findings );
 
         return $scores;
+    }
+
+    /**
+     * Same 8 keys/same weighting as build_category_scores(), but each
+     * score is reconstructed as of a past moment via
+     * get_severity_breakdown_for_category_as_of() instead of counting
+     * today's open findings — what the Dashboard's score-card trend
+     * arrows diff against (this call's result vs. build_category_scores()'s),
+     * since no per-category score snapshot history exists to read a real
+     * delta from directly.
+     *
+     * @param FindingRepository $findings Repository to read category breakdowns from.
+     * @param string            $as_of    MySQL datetime (UTC) to reconstruct every category's open set as of.
+     * @return array<string, int|null> Category id => 0-100 score, or null where the category doesn't apply to this site (WooCommerce inactive).
+     */
+    private function build_category_scores_as_of( FindingRepository $findings, string $as_of ): array {
+        $categories = array( 'seo', 'performance', 'security', 'accessibility', 'geo' );
+        $scores     = array();
+
+        foreach ( $categories as $category ) {
+            $breakdown        = $findings->get_severity_breakdown_for_category_as_of( $category, $as_of );
+            $scores[ $category ] = $this->score_from_breakdown( $breakdown );
+        }
+
+        $scores['woocommerce'] = class_exists( 'WooCommerce' )
+            ? $this->score_from_breakdown( $findings->get_severity_breakdown_for_category_as_of( 'woocommerce', $as_of ) )
+            : null;
+
+        $scores['content'] = $this->score_from_breakdown(
+            $findings->get_severity_breakdown_for_scanner_ids_as_of(
+                array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' ),
+                $as_of
+            )
+        );
+
+        $scores['brand'] = $this->score_from_breakdown(
+            $findings->get_severity_breakdown_for_scanner_ids_as_of(
+                array(
+                    'geo-trust-signals',
+                    'about-page-analysis',
+                    'geo-eeat-signals',
+                    'geo-author-info',
+                    'author-schema',
+                    'geo-entity-naming-consistency',
+                    'organization-schema',
+                ),
+                $as_of
+            )
+        );
+
+        return $scores;
+    }
+
+    /**
+     * The one weighting formula calculate_overall_score()/
+     * calculate_category_score()/calculate_content_score()/
+     * calculate_brand_score() each already apply to a current-open-findings
+     * breakdown, factored out so build_category_scores_as_of() can apply
+     * the identical formula to a reconstructed-as-of-a-past-date breakdown
+     * instead — the trend is only meaningful if both ends use the same
+     * scoring math.
+     *
+     * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity counts to score.
+     * @return int 0-100.
+     */
+    private function score_from_breakdown( array $breakdown ): int {
+        $score = 100
+            - ( $breakdown['critical'] * 15 )
+            - ( $breakdown['high'] * 8 )
+            - ( $breakdown['medium'] * 3 )
+            - ( $breakdown['low'] * 1 );
+
+        return max( 0, min( 100, $score ) );
     }
 
     /**

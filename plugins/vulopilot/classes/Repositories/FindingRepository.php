@@ -119,6 +119,47 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * Findings first detected on or after $since — the Dashboard's "N new
+     * issues this week" badge reads this, counting every finding created
+     * in the window regardless of its current status (a finding opened
+     * and then immediately resolved this week is still a real "new issue"
+     * that appeared this week).
+     *
+     * @param string $since MySQL datetime (UTC), inclusive.
+     * @return int
+     */
+    public function count_created_since( string $since ): int {
+        global $wpdb;
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$this->get_table()} WHERE created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $since
+            )
+        );
+    }
+
+    /**
+     * Findings resolved on or after $since — the Dashboard's "N fixed"
+     * badge reads this. `resolved_at` is only ever set when a finding's
+     * status transitions to 'resolved' (Controllers\Findings::update_item()),
+     * so this naturally excludes ignored/snoozed findings.
+     *
+     * @param string $since MySQL datetime (UTC), inclusive.
+     * @return int
+     */
+    public function count_resolved_since( string $since ): int {
+        global $wpdb;
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$this->get_table()} WHERE resolved_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $since
+            )
+        );
+    }
+
+    /**
      * Open-finding counts by severity within a single category, in one
      * grouped query rather than four count_by_severity()-style calls —
      * this is what Dashboard controller's per-category widget score
@@ -182,6 +223,94 @@ class FindingRepository extends AbstractRepository {
             $wpdb->prepare(
                 "SELECT severity, COUNT(*) AS total FROM {$this->get_table()} WHERE scanner_id IN ({$placeholders}) AND status = 'open' GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
                 ...$scanner_ids
+            ),
+            ARRAY_A
+        );
+
+        foreach ( (array) $rows as $row ) {
+            if ( array_key_exists( $row['severity'], $counts ) ) {
+                $counts[ $row['severity'] ] = (int) $row['total'];
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Same shape as get_severity_breakdown_for_category(), but reconstructed
+     * as of a past moment instead of counting today's `status = 'open'`
+     * rows — what a category score trend needs, since no daily per-category
+     * score snapshot exists (only `vulopilot_site_health_snapshots.overall_score`
+     * is ever written; see SiteHealthSnapshotRepository in vulopilot-pro).
+     * A finding counts as "open as of $as_of" when it already existed
+     * (`created_at <= $as_of`) and hadn't resolved yet by then
+     * (`resolved_at` null or after `$as_of`) — both real, already-persisted
+     * timestamps, so this is an exact reconstruction, not an estimate.
+     * Currently ignored/snoozed findings are excluded from both ends (same
+     * exclusion get_severity_breakdown_for_category()'s `status = 'open'`
+     * filter already applies today) since ignored/snoozed transitions don't
+     * carry their own timestamp to reconstruct from.
+     *
+     * @param string $category One of the scanner category strings (SCANNERS.md).
+     * @param string $as_of    MySQL datetime (UTC) to reconstruct the open set as of.
+     * @return array{critical: int, high: int, medium: int, low: int}
+     */
+    public function get_severity_breakdown_for_category_as_of( string $category, string $as_of ): array {
+        global $wpdb;
+
+        $counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low' ), 0 );
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT severity, COUNT(*) AS total FROM {$this->get_table()}
+                WHERE category = %s AND status != 'ignored' AND status != 'snoozed'
+                AND created_at <= %s AND ( resolved_at IS NULL OR resolved_at > %s )
+                GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $category,
+                $as_of,
+                $as_of
+            ),
+            ARRAY_A
+        );
+
+        foreach ( (array) $rows as $row ) {
+            if ( array_key_exists( $row['severity'], $counts ) ) {
+                $counts[ $row['severity'] ] = (int) $row['total'];
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Same "as of a past moment" reconstruction as
+     * get_severity_breakdown_for_category_as_of(), scoped to an explicit
+     * scanner_id list instead — what Content/Brand's composite scores'
+     * trend needs, same reasoning as get_severity_breakdown_for_scanner_ids()
+     * own docblock for why those two scores can't use a category string.
+     *
+     * @param string[] $scanner_ids Scanner ids to scope to.
+     * @param string   $as_of       MySQL datetime (UTC) to reconstruct the open set as of.
+     * @return array{critical: int, high: int, medium: int, low: int}
+     */
+    public function get_severity_breakdown_for_scanner_ids_as_of( array $scanner_ids, string $as_of ): array {
+        global $wpdb;
+
+        $counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low' ), 0 );
+
+        if ( ! $scanner_ids ) {
+            return $counts;
+        }
+
+        $placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT severity, COUNT(*) AS total FROM {$this->get_table()}
+                WHERE scanner_id IN ({$placeholders}) AND status != 'ignored' AND status != 'snoozed'
+                AND created_at <= %s AND ( resolved_at IS NULL OR resolved_at > %s )
+                GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
+                ...array_merge( $scanner_ids, array( $as_of, $as_of ) )
             ),
             ARRAY_A
         );

@@ -1,8 +1,13 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import './AICopilot.scss';
-import { InformationItemComponent, ModuleGuardComponent, ListComponent } from '@zyra/components';
-import { TableCard, TableRow } from '@zyra/table';
+import {
+	InformationItemComponent,
+	ListComponent,
+	ModuleGuardComponent,
+	TooltipComponent,
+} from '@zyra/components';
+import { TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 
 interface FindingRow extends TableRow {
@@ -44,16 +49,19 @@ const CATEGORY_ICONS: Record<string, string> = {
 	brand: 'star',
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-	seo: '#2563eb',
-	performance: '#7c3aed',
-	accessibility: '#0d9488',
-	woocommerce: '#f97316',
-	geo: '#16a34a',
-	security: '#dc2626',
-	content: '#4f46e5',
-	brand: '#db2777',
+/** Most-to-least severe, for the full tab's "ranked by severity" sort. */
+const SEVERITY_RANK: Record<string, number> = {
+	critical: 0,
+	high: 1,
+	medium: 2,
+	low: 3,
+	info: 4,
 };
+
+const FIX_DISABLED_REASON = __(
+	"One-click AI fixes aren't available yet — click a suggestion to review and fix it on its own page.",
+	'vulopilot'
+);
 
 interface SuggestedActionsListProps {
 	/** Row cap — omit for the full "Suggested Actions" tab. */
@@ -70,13 +78,13 @@ interface SuggestedActionsListProps {
 const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 	limit,
 }) => {
-	const { data, total, isLoading, error, refetch, onQueryUpdate } =
-		useApiList<FindingRow>('findings', {
+	const { data, isLoading, error, refetch } = useApiList<FindingRow>(
+		'findings',
+		{
 			status: 'open',
 			per_page: limit ?? 20,
-			orderby: 'id',
-			order: 'desc',
-		});
+		}
+	);
 
 	if (error) {
 		return (
@@ -119,11 +127,11 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 
 		return (
 			<ListComponent
-				className="mini-card report"
+				className="mini-card report suggested-actions-list"
 				items={data.map((finding) => {
+					const category = finding.category ?? '';
 					const goToFix = () => {
-						const tab =
-							CATEGORY_TABS[finding.category ?? ''] ?? 'health';
+						const tab = CATEGORY_TABS[category] ?? 'health';
 
 						window.location.href = `?page=vulopilot#&tab=${tab}`;
 					};
@@ -131,7 +139,8 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 					return {
 						id: String(finding.id),
 						title: finding.title,
-						icon: CATEGORY_ICONS[finding.category ?? ''] ?? 'ai',
+						icon: CATEGORY_ICONS[category] ?? 'ai',
+						className: `category-${category || 'default'}`,
 						desc:
 							finding.description ||
 							sprintf(
@@ -139,6 +148,9 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 								__('%s severity', 'vulopilot'),
 								finding.severity
 							),
+						tags: (
+							<i className="adminfont-arrow-right ai-copilot-row-arrow" />
+						),
 						action: goToFix,
 					};
 				})}
@@ -147,64 +159,94 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 	}
 
 	// The full "Suggested Actions" tab (SuggestedActionsTab.tsx, no limit
-	// passed) — a real Page Name/Issue/Severity/Description table, same
-	// TableCard call shape src/components/FindingsTable.tsx already uses
-	// for this same `findings` data.
-	const rows = data.map((finding) => ({
-		...finding,
-		page: finding.page || __('Site-wide', 'vulopilot'),
-		description:
-			finding.description ||
-			sprintf(
-				/* translators: %s: finding severity (e.g. "high") */
-				__(
-					'Flagged as a %s-severity issue during the last scan — open this item to review and fix it.',
+	// passed) — the mockup's icon-box + title/desc + severity badge +
+	// "Fix with AI" row, sorted most-severe-first. No pagination chrome
+	// (the mockup has none); the `per_page` cap above is the same 20-row
+	// default this branch already used before this rebuild.
+	if (isLoading) {
+		return (
+			<>
+				{Array.from({ length: 5 }).map((_, index) => (
+					<InformationItemComponent key={index} title="" isLoading />
+				))}
+			</>
+		);
+	}
+
+	if (data.length === 0) {
+		return (
+			<ModuleGuardComponent
+				icon="check"
+				title={__('Nothing to suggest right now', 'vulopilot')}
+				desc={__(
+					'AI suggestions appear here once a scan finds something worth fixing.',
 					'vulopilot'
-				),
-				finding.severity
-			),
-	}));
+				)}
+			/>
+		);
+	}
+
+	// Findings' list endpoint doesn't support server-side severity
+	// ordering (only the Dashboard's own top-findings query does, via a
+	// dedicated repository method) — sorting this already-fetched page of
+	// real data client-side is enough to honestly back "ranked by
+	// severity" without adding a new backend sort param.
+	const sortedData = [...data].sort(
+		(a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]
+	);
 
 	return (
-		<TableCard
-			headers={{
-				page: { label: __('Page Name', 'vulopilot') },
-				title: { label: __('Issue', 'vulopilot') },
-				severity: {
-					label: __('Severity', 'vulopilot'),
-					type: 'badge',
-					statusClass: (row: FindingRow) => `severity-${row.severity}`,
-				},
-				description: { label: __('Description', 'vulopilot') },
-				actions: {
-					type: 'action',
-					actions: [
-						{
-							label: __('Review', 'vulopilot'),
-							icon: 'arrow-right',
-							onClick: (row?: Record<string, unknown>) => {
-								const tab =
-									CATEGORY_TABS[
-										(row?.category as string) ?? ''
-									] ?? 'health';
+		<div className="suggested-actions-full-list">
+			{sortedData.map((finding) => {
+				const category = finding.category ?? '';
+				const goToFix = () => {
+					const tab = CATEGORY_TABS[category] ?? 'health';
 
-								window.location.href = `?page=vulopilot#&tab=${tab}`;
+					window.location.href = `?page=vulopilot#&tab=${tab}`;
+				};
+
+				return (
+					<InformationItemComponent
+						key={finding.id}
+						title={finding.title}
+						onClick={goToFix}
+						avatar={{ iconClass: CATEGORY_ICONS[category] ?? 'ai' }}
+						descriptions={[
+							{
+								value:
+									finding.description ||
+									sprintf(
+										/* translators: %s: finding severity (e.g. "high") */
+										__(
+											'Flagged as a %s-severity issue during the last scan.',
+											'vulopilot'
+										),
+										finding.severity
+									),
 							},
-						},
-					],
-				},
-			}}
-			rows={rows}
-			ids={data.map((finding) => finding.id)}
-			totalRows={total}
-			isLoading={isLoading}
-			onQueryUpdate={onQueryUpdate}
-			showMenu={false}
-			emptyMessage={__(
-				'AI suggestions appear here once a scan finds something worth fixing.',
-				'vulopilot'
-			)}
-		/>
+						]}
+						rightContent={
+							<div className="suggested-action-controls">
+								<span
+									className={`suggested-action-severity severity-${finding.severity}`}
+								>
+									{finding.severity}
+								</span>
+								<TooltipComponent text={FIX_DISABLED_REASON}>
+									<span
+										role="button"
+										aria-disabled="true"
+										className="suggested-action-fix-btn disabled"
+									>
+										{__('Fix with AI', 'vulopilot')}
+									</span>
+								</TooltipComponent>
+							</div>
+						}
+					/>
+				);
+			})}
+		</div>
 	);
 };
 

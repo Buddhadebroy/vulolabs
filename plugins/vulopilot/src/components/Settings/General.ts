@@ -4,15 +4,17 @@ export default {
 	id: 'general',
 	priority: 1,
 	headerTitle: __('General', 'vulopilot'),
+	headerDescription: __('Basic scanning behavior for your site.', 'vulopilot'),
 	headerIcon: 'setting',
 	submitUrl: 'settings',
 	modal: [
 		{
 			key: 'scan_frequency',
 			type: 'select',
-			label: __('Scan frequency', 'vulopilot'),
-			desc: __(
-				'How often VuloPilot runs its scheduled scans.',
+			classes: 'space-between',
+			label: __('Scan Frequency', 'vulopilot'),
+			settingDescription: __(
+				'How often VuloPilot re-audits your site.',
 				'vulopilot'
 			),
 			options: [
