@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ChartComponent, ModuleGuardComponent } from '@zyra/components';
+import { ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
@@ -11,11 +11,19 @@ const SEVERITY_COLORS: Record<string, string> = {
 	low: '#5baab3',
 };
 
+const SEVERITY_LABELS: Record<string, string> = {
+	critical: __('Critical', 'vulopilot'),
+	high: __('High', 'vulopilot'),
+	medium: __('Medium', 'vulopilot'),
+	low: __('Low', 'vulopilot'),
+};
+
 /**
  * Real open-finding counts by severity (Dashboard.php's
- * build_findings_by_severity()) as a donut chart — the same numbers
+ * build_findings_by_severity()) as a table — the same numbers
  * NeedsAttentionWidget/FindingsTable's severity badges already surface,
- * just aggregated instead of per-row.
+ * just aggregated instead of per-row. Was a donut chart; converted to a
+ * table on request, same real data either way.
  */
 const IssueDistributionWidget: React.FC<WidgetProps> = ({
 	summary,
@@ -46,7 +54,7 @@ const IssueDistributionWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 			borderColor="green"
-			desc={__('How well AI assistants can find, understand, and cite your site.', 'vulopilot')}
+			desc={__('Open findings grouped by severity.', 'vulopilot')}
 		>
 			{!isLoading && data.length === 0 ? (
 				<ModuleGuardComponent
@@ -58,12 +66,53 @@ const IssueDistributionWidget: React.FC<WidgetProps> = ({
 					)}
 				/>
 			) : (
-				<ChartComponent
-					type="pie"
-					data={data}
-					height={250}
-					isLoading={isLoading}
-				/>
+				<table className="issue-distribution-table">
+					<thead>
+						<tr>
+							<th>{__('Severity', 'vulopilot')}</th>
+							<th>{__('Count', 'vulopilot')}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{isLoading
+							? entries.map(([severity]) => (
+									<tr key={severity}>
+										<td>
+											<span
+												className="issue-distribution-dot"
+												style={{
+													background:
+														SEVERITY_COLORS[
+															severity
+														],
+												}}
+											/>
+											{SEVERITY_LABELS[severity]}
+										</td>
+										<td>—</td>
+									</tr>
+								))
+							: data.map((item) => (
+									<tr key={item.label}>
+										<td>
+											<span
+												className="issue-distribution-dot"
+												style={{
+													background: item.color,
+												}}
+											/>
+											{SEVERITY_LABELS[item.label]}
+										</td>
+										<td
+											className="issue-distribution-count"
+											style={{ color: item.color }}
+										>
+											{item.value}
+										</td>
+									</tr>
+								))}
+					</tbody>
+				</table>
 			)}
 		</DashboardWidget>
 	);

@@ -124,12 +124,6 @@ const VisibilityScoreCard = () => {
 					]}
 				/>
 			)}
-			<p className="visibility-score-aeo-note">
-				{__(
-					'Answer Engine (AEO) scoring isn’t built yet — not counted above.',
-					'vulopilot'
-				)}
-			</p>
 		</CardComponent>
 	);
 };

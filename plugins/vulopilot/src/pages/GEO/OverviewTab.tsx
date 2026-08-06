@@ -47,67 +47,63 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 
 	return (
 		<>
-			<ContainerComponent general>
-				<ColumnComponent grid={8}>
-					<CardComponent
-						title={__('How would you like to grow today?', 'vulopilot')}
-						titleIcon="bar-chart"
-					>
-						<ChatInputComponent
-							value={message}
-							onChange={setMessage}
-							onSend={() => setMessage('')}
-							placeholder={__('Ask VuloPilot anything…', 'vulopilot')}
-							sendDisabledReason={__(
-								"AI chat replies aren't available yet — this is a preview of the composer, not a connected assistant.",
-								'vulopilot'
-							)}
-						/>
-						<ListComponent
-							className="chip-grid"
-							items={SUGGESTED_PROMPTS.map((prompt) => ({
-								id: prompt.id,
-								icon: prompt.icon,
-								title: prompt.title,
-								action: () =>
-									prompt.id === 'audit'
-										? runScan()
-										: setMessage(prompt.title),
-							}))}
-						/>
-						<p className="chat-monitoring-note">
-							<i className="adminfont-ai" />
-							{__(
-								'AI is continuously monitoring your visibility.',
-								'vulopilot'
-							)}
-						</p>
-					</CardComponent>
+			<ColumnComponent grid={8}>
+				<CardComponent
+					title={__('How would you like to grow today?', 'vulopilot')}
+					titleIcon="bar-chart"
+				>
+					<ChatInputComponent
+						value={message}
+						onChange={setMessage}
+						onSend={() => setMessage('')}
+						placeholder={__('Ask VuloPilot anything…', 'vulopilot')}
+						sendDisabledReason={__(
+							"AI chat replies aren't available yet — this is a preview of the composer, not a connected assistant.",
+							'vulopilot'
+						)}
+					/>
+					<ListComponent
+						className="chip-grid"
+						items={SUGGESTED_PROMPTS.map((prompt) => ({
+							id: prompt.id,
+							icon: prompt.icon,
+							title: prompt.title,
+							action: () =>
+								prompt.id === 'audit'
+									? runScan()
+									: setMessage(prompt.title),
+						}))}
+					/>
+					<p className="chat-monitoring-note">
+						<i className="adminfont-ai" />
+						{__(
+							'AI is continuously monitoring your visibility.',
+							'vulopilot'
+						)}
+					</p>
+				</CardComponent>
 
-					<ContainerComponent>
-						<ColumnComponent grid={6}>
-							<VisibilityScoreCard />
-						</ColumnComponent>
-						<AiOpportunitiesCard onNavigateTab={onNavigateTab} />
-					</ContainerComponent>
-				</ColumnComponent>
+				<ContainerComponent>
+					<ColumnComponent grid={6}>
+						<VisibilityScoreCard />
+					</ColumnComponent>
+					<AiOpportunitiesCard onNavigateTab={onNavigateTab} />
+				</ContainerComponent>
+			</ColumnComponent>
 
-				<ColumnComponent grid={4}>
-					<AiRecommendationsSidebar />
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent grid={4}>
+				<AiRecommendationsSidebar />
+			</ColumnComponent>
 
-			<ContainerComponent general>
-				<ColumnComponent grid={4}>
-					<DiscoverCard onNavigateTab={onNavigateTab} />
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<AuthorityCard />
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<TechnicalVisibilityCard />
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent grid={4}>
+				<DiscoverCard onNavigateTab={onNavigateTab} />
+			</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<AuthorityCard />
+			</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<TechnicalVisibilityCard />
+			</ColumnComponent>
 
 			{/*
 			 * Competitor Radar and Visibility Trend both render a real

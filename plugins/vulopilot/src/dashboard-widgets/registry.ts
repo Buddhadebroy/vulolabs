@@ -7,7 +7,6 @@ import LatestReportsWidget from './LatestReportsWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import CrawlerTrafficWidget from './CrawlerTrafficWidget';
 import KnowledgeGraphWidget from './KnowledgeGraphWidget';
-import HealthPillarsWidget from './HealthPillarsWidget';
 import NeedsAttentionWidget from './NeedsAttentionWidget';
 import BrandBreakdownWidget from './BrandBreakdownWidget';
 import IssueDistributionWidget from './IssueDistributionWidget';
@@ -110,13 +109,6 @@ const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
  * Widgets with custom layouts
  */
 const STANDALONE_WIDGETS: WidgetDefinition[] = [
-	{
-		id: 'health-pillars',
-		title: __('Health by pillar', 'vulopilot'),
-		icon: 'home',
-		grid: 12,
-		component: HealthPillarsWidget,
-	},
 	{
 		id: 'recent-activity',
 		title: __('Recent activity', 'vulopilot'),

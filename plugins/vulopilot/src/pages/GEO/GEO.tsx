@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation } from 'react-router-dom';
-import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
+import { NavigatorHeaderComponent, TabsComponent, ContainerComponent } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
 import GeoTab from './GeoTab';
@@ -79,45 +79,47 @@ const GEO = () => {
 				)}
 				buttons={[runScanButton]}
 			/>
-			<TabsComponent
-				className="grow-my-traffic-tabs"
-				activeIndex={TAB_IDS.indexOf(activeTab)}
-				onTabChange={(index) => setActiveTab(TAB_IDS[index])}
-				tabs={[
-					{
-						label: __('Overview', 'vulopilot'),
-						content: <OverviewTab onNavigateTab={goToTab} />,
-					},
-					{
-						label: __('GEO', 'vulopilot'),
-						content: <GeoTab />,
-					},
-					{
-						label: __('AEO', 'vulopilot'),
-						content: <AeoTab />,
-					},
-					{
-						label: __('Crawler Traffic', 'vulopilot'),
-						content: <CrawlerTrafficTab />,
-					},
-					{
-						label: __('Brand Visibility', 'vulopilot'),
-						content: <BrandVisibilityTab />,
-					},
-					{
-						label: __('Knowledge Graph', 'vulopilot'),
-						content: <KnowledgeGraphTab />,
-					},
-					{
-						label: __('SEO', 'vulopilot'),
-						content: <SeoTab />,
-					},
-					{
-						label: __('Schema', 'vulopilot'),
-						content: <SchemaTab />,
-					},
-				]}
-			/>
+			<ContainerComponent general>
+				<TabsComponent
+					className="grow-my-traffic-tabs"
+					activeIndex={TAB_IDS.indexOf(activeTab)}
+					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+					tabs={[
+						{
+							label: __('Overview', 'vulopilot'),
+							content: <OverviewTab onNavigateTab={goToTab} />,
+						},
+						{
+							label: __('GEO', 'vulopilot'),
+							content: <GeoTab />,
+						},
+						{
+							label: __('AEO', 'vulopilot'),
+							content: <AeoTab />,
+						},
+						{
+							label: __('Crawler Traffic', 'vulopilot'),
+							content: <CrawlerTrafficTab />,
+						},
+						{
+							label: __('Brand Visibility', 'vulopilot'),
+							content: <BrandVisibilityTab />,
+						},
+						{
+							label: __('Knowledge Graph', 'vulopilot'),
+							content: <KnowledgeGraphTab />,
+						},
+						{
+							label: __('SEO', 'vulopilot'),
+							content: <SeoTab />,
+						},
+						{
+							label: __('Schema', 'vulopilot'),
+							content: <SchemaTab />,
+						},
+					]}
+				/>
+			</ContainerComponent>
 		</>
 	);
 };
