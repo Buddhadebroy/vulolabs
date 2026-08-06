@@ -2,14 +2,21 @@ import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import './AICopilot.scss';
 import { InformationItemComponent, ModuleGuardComponent, ListComponent } from '@zyra/components';
+import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 
-interface FindingRow {
+interface FindingRow extends TableRow {
 	id: number;
 	title: string;
 	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
 	category?: string;
 	description?: string;
+	/**
+	 * Resolved page path (e.g. '/pricing') or 'Site-wide' — added
+	 * server-side by Controllers/Findings.php's add_page_field(), same
+	 * field FindingsTable.tsx's own Finding type already models.
+	 */
+	page?: string;
 }
 
 /** Same category → tab mapping AISuggestionsWidget.tsx's own Dashboard
@@ -63,10 +70,13 @@ interface SuggestedActionsListProps {
 const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 	limit,
 }) => {
-	const { data, isLoading, error, refetch } = useApiList<FindingRow>(
-		'findings',
-		{ status: 'open', per_page: limit ?? 20, orderby: 'id', order: 'desc' }
-	);
+	const { data, total, isLoading, error, refetch, onQueryUpdate } =
+		useApiList<FindingRow>('findings', {
+			status: 'open',
+			per_page: limit ?? 20,
+			orderby: 'id',
+			order: 'desc',
+		});
 
 	if (error) {
 		return (
@@ -80,58 +90,121 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 		);
 	}
 
-	if (isLoading) {
-		return (
-			<>
-				{Array.from({ length: limit ?? 4 }).map((_, index) => (
-					<InformationItemComponent key={index} title="" isLoading />
-				))}
-			</>
-		);
-	}
+	// ChatTab.tsx's sidebar preview (limit passed, narrow column) keeps
+	// today's compact icon+title+desc list — a full table would be
+	// cramped there and wasn't part of this ask.
+	if (limit) {
+		if (isLoading) {
+			return (
+				<>
+					{Array.from({ length: limit }).map((_, index) => (
+						<InformationItemComponent key={index} title="" isLoading />
+					))}
+				</>
+			);
+		}
 
-	if (data.length === 0) {
+		if (data.length === 0) {
+			return (
+				<ModuleGuardComponent
+					icon="check"
+					title={__('Nothing to suggest right now', 'vulopilot')}
+					desc={__(
+						'AI suggestions appear here once a scan finds something worth fixing.',
+						'vulopilot'
+					)}
+				/>
+			);
+		}
+
 		return (
-			<ModuleGuardComponent
-				icon="check"
-				title={__('Nothing to suggest right now', 'vulopilot')}
-				desc={__(
-					'AI suggestions appear here once a scan finds something worth fixing.',
-					'vulopilot'
-				)}
+			<ListComponent
+				className="mini-card report"
+				items={data.map((finding) => {
+					const goToFix = () => {
+						const tab =
+							CATEGORY_TABS[finding.category ?? ''] ?? 'health';
+
+						window.location.href = `?page=vulopilot#&tab=${tab}`;
+					};
+
+					return {
+						id: String(finding.id),
+						title: finding.title,
+						icon: CATEGORY_ICONS[finding.category ?? ''] ?? 'ai',
+						desc:
+							finding.description ||
+							sprintf(
+								/* translators: %s: finding severity (e.g. "high") */
+								__('%s severity', 'vulopilot'),
+								finding.severity
+							),
+						action: goToFix,
+					};
+				})}
 			/>
 		);
 	}
 
-	return (
-		<>
-			<ListComponent
-	className="mini-card report"
-	items={data.map((finding) => {
-		const goToFix = () => {
-			const tab =
-				CATEGORY_TABS[finding.category ?? ''] ?? 'health';
-
-			window.location.href = `?page=vulopilot#&tab=${tab}`;
-		};
-
-		return {
-			id: String(finding.id),
-			title: finding.title,
-			icon:
-				CATEGORY_ICONS[finding.category ?? ''] ?? 'ai',
-			desc:
-				finding.description ||
-				sprintf(
-					/* translators: %s: finding severity (e.g. "high") */
-					__('%s severity', 'vulopilot'),
-					finding.severity
+	// The full "Suggested Actions" tab (SuggestedActionsTab.tsx, no limit
+	// passed) — a real Page Name/Issue/Severity/Description table, same
+	// TableCard call shape src/components/FindingsTable.tsx already uses
+	// for this same `findings` data.
+	const rows = data.map((finding) => ({
+		...finding,
+		page: finding.page || __('Site-wide', 'vulopilot'),
+		description:
+			finding.description ||
+			sprintf(
+				/* translators: %s: finding severity (e.g. "high") */
+				__(
+					'Flagged as a %s-severity issue during the last scan — open this item to review and fix it.',
+					'vulopilot'
 				),
-			action: goToFix,
-		};
-	})}
-/>
-		</>
+				finding.severity
+			),
+	}));
+
+	return (
+		<TableCard
+			headers={{
+				page: { label: __('Page Name', 'vulopilot') },
+				title: { label: __('Issue', 'vulopilot') },
+				severity: {
+					label: __('Severity', 'vulopilot'),
+					type: 'badge',
+					statusClass: (row: FindingRow) => `severity-${row.severity}`,
+				},
+				description: { label: __('Description', 'vulopilot') },
+				actions: {
+					type: 'action',
+					actions: [
+						{
+							label: __('Review', 'vulopilot'),
+							icon: 'arrow-right',
+							onClick: (row?: Record<string, unknown>) => {
+								const tab =
+									CATEGORY_TABS[
+										(row?.category as string) ?? ''
+									] ?? 'health';
+
+								window.location.href = `?page=vulopilot#&tab=${tab}`;
+							},
+						},
+					],
+				},
+			}}
+			rows={rows}
+			ids={data.map((finding) => finding.id)}
+			totalRows={total}
+			isLoading={isLoading}
+			onQueryUpdate={onQueryUpdate}
+			showMenu={false}
+			emptyMessage={__(
+				'AI suggestions appear here once a scan finds something worth fixing.',
+				'vulopilot'
+			)}
+		/>
 	);
 };
 

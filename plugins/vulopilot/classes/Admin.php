@@ -253,6 +253,7 @@ class Admin {
                 'group' => 'site-health',
                 'icon'  => 'dashicons-randomize',
             ),
+            // Folded into 'security' ("Protect My Site").
             'accessibility'    => array(
                 'name'  => __( 'Accessibility', 'vulopilot' ),
                 'group' => 'site-health',
@@ -265,6 +266,7 @@ class Admin {
                 'name' => __( 'Health', 'vulopilot' ),
                 'icon' => 'dashicons-heart',
             ),
+            // Folded into 'reports' ("Reports").
             'activity'         => array(
                 'name' => __( 'Activity', 'vulopilot' ),
                 'icon' => 'dashicons-clock',

@@ -1,0 +1,135 @@
+.automate-composer-title {
+	margin: 0 0 0.75rem;
+	font-size: 1.0625rem;
+}
+
+.automate-composer-prompts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.automate-composer-prompt {
+	border: 0.0625rem solid var(--border-color);
+	border-radius: 0.5rem;
+	background: var(--background-white);
+	padding: 0.5rem 0.75rem;
+	font-size: 0.8125rem;
+	cursor: pointer;
+}
+
+.automate-composer-note {
+	margin: 0.75rem 0 0;
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+}
+
+.ai-foreman-desc {
+	color: var(--sub-text-color);
+	margin: 0 0 0.75rem;
+}
+
+.ai-foreman-build {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	border-radius: 0.5rem;
+	background: var(--color-primary);
+	color: var(--color-white);
+	font-weight: 600;
+	padding: 0.625rem 1rem;
+	margin-bottom: 0.5rem;
+	cursor: pointer;
+
+	&.disabled {
+		background: var(--border-color);
+		color: var(--sub-text-color);
+		cursor: not-allowed;
+	}
+}
+
+.upcoming-jobs-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+
+	li {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+}
+
+.upcoming-jobs-name {
+	font-size: 0.8125rem;
+}
+
+.active-workflow-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.active-workflow-trigger {
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+	margin: 0 0 0.75rem;
+}
+
+.active-workflow-steps {
+	list-style: none;
+	margin: 0 0 0.75rem;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	i {
+		color: var(--color-success, #16a34a);
+	}
+}
+
+.active-workflow-last-run {
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+	margin: 0;
+}
+
+.automation-status-gauge-label {
+	text-align: center;
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+	margin: 0.5rem 0 0;
+}
+
+.automation-status-actions {
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1rem;
+	flex-wrap: wrap;
+}
+
+.automation-link-desc {
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+	margin: 0 0 0.75rem;
+}
+
+.automation-link-action {
+	font-size: 0.8125rem;
+	font-weight: 600;
+}

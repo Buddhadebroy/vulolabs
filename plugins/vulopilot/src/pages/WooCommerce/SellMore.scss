@@ -1,0 +1,50 @@
+.woocommerce-metrics-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	gap: 0.875rem;
+}
+
+.woocommerce-metric-tile {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+
+	.woocommerce-metric-icon {
+		font-size: 1.5rem;
+		color: var(--color-primary);
+	}
+
+	.woocommerce-metric-title {
+		font-weight: 600;
+		font-size: 0.9rem;
+	}
+}
+
+.sell-more-ai-insight,
+.sell-more-pro-tip {
+	.desc {
+		margin: 0;
+	}
+}
+
+.ai-sales-optimize {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	border-radius: 0.5rem;
+	background: var(--color-primary);
+	color: var(--color-white);
+	font-weight: 600;
+	padding: 0.625rem 1rem;
+	margin-top: 0.75rem;
+	cursor: pointer;
+
+	&.disabled {
+		background: var(--border-color);
+		color: var(--sub-text-color);
+		cursor: not-allowed;
+	}
+}

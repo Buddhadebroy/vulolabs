@@ -25,11 +25,11 @@ addFilter(
 	() => () => <div data-testid="accessibility-history-stub" />
 );
 
-const Accessibility = require( '../Accessibility' ).default;
+const AccessibilityTab = require( '../AccessibilityTab' ).default;
 
-describe( 'Accessibility page — Pro filter slots registered', () => {
+describe( 'AccessibilityTab — Pro filter slots registered', () => {
 	it( 'renders both Pro cards registered via the vulopilot_accessibility_* filters, around the base FindingsTable', () => {
-		render( <Accessibility /> );
+		render( <AccessibilityTab /> );
 
 		expect( screen.getByTestId( 'accessibility-dashboard-stub' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'findings-table' ) ).toBeInTheDocument();

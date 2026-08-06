@@ -1,70 +1,84 @@
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import type { ComponentType } from 'react';
-import {
-	ColumnComponent,
-	ContainerComponent,
-	NavigatorHeaderComponent,
-} from '@zyra/components';
-import FindingsTable from '../../components/FindingsTable';
+import { useLocation } from 'react-router-dom';
+import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
+import OverviewTab from './OverviewTab';
+import SecurityTab from './SecurityTab';
+import PerformanceTab from '../Performance/PerformanceTab';
+import AccessibilityTab from './AccessibilityTab';
+
+const TAB_IDS = ['overview', 'security', 'performance', 'accessibility'] as const;
 
 /**
- * Same shape as SEO/Performance/Accessibility/WooCommerce — `category`
- * scanner findings already exist for 'security' (Dashboard.php's
- * category_scores includes it, and vulopilot-pro's SecurityMonitoring
- * module writes findings under this category), it just never had its own
- * top-level page before; Health's unfiltered findings list was the only
- * place they surfaced.
- *
- * SECURITY-MODULE.md's Pro additions register into these two slots —
- * same "register a source, don't modify the host" pattern GEO.tsx/
- * Reports.tsx already use, rather than replacing this whole page the way
- * Automation.tsx's single `vulopilot_automation_panel` slot does: Security
- * findings are useful with Free alone (the FindingsTable below already
- * shows every 'security' finding, Free or Pro), so this page only adds
- * extra cards on top rather than gating its base content behind Pro.
+ * "Protect My Site" (WP menu slug `security`) — a tab shell over four
+ * views: the mockup's new Overview (OverviewTab.tsx), today's real
+ * category-'security' findings scanner (SecurityTab.tsx, kept rather than
+ * replaced — same "keep the real page, add the new mockup alongside it"
+ * move `GEO.tsx`/`Content.tsx`/`Performance.tsx` made for their own
+ * Overview splits), "Performance" (the same real `PerformanceTab`
+ * component "Improve Speed" already built, imported directly here rather
+ * than duplicated — it's the same category-'performance' findings data
+ * either way), and "Accessibility" (AccessibilityTab.tsx), moved here from
+ * its own standalone page. Same shape as those tab shells: a constant
+ * header above `TabsComponent`, with the same `subtab` deep-link
+ * convention (`?page=vulopilot#&tab=security&subtab=<inner-tab>`).
  */
-const SecurityDashboardCard = applyFilters(
-	'vulopilot_security_dashboard_card',
-	null
-) as ComponentType | null;
-
-const SecurityIncidentReportsPanel = applyFilters(
-	'vulopilot_security_incident_reports_panel',
-	null
-) as ComponentType | null;
-
 const Security = () => {
+	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
+		'subtab'
+	);
+	const initialTab = (
+		subtab && (TAB_IDS as readonly string[]).includes(subtab)
+			? subtab
+			: 'overview'
+	) as (typeof TAB_IDS)[number];
+
+	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
+		initialTab
+	);
 	const { runScanButton } = useRunScan();
+
+	const goToSecurityTab = () => setActiveTab('security');
 
 	return (
 		<>
 			<NavigatorHeaderComponent
 				headerIcon="security"
-				headerTitle={__('Security', 'vulopilot')}
+				headerTitle={__('Protect My Site', 'vulopilot')}
 				headerDescription={__(
-					'Site hardening and exposure checks.',
+					'AI continuously protects your website from threats and vulnerabilities.',
 					'vulopilot'
 				)}
 				buttons={[runScanButton]}
 			/>
-			<ContainerComponent general>
-				<ColumnComponent>
-					{SecurityDashboardCard && <SecurityDashboardCard />}
-					<FindingsTable
-						title={__('Security', 'vulopilot')}
-						description={__(
-							'No security findings yet — run a scan to check for hardening and exposure issues.',
-							'vulopilot'
-						)}
-						category="security"
-					/>
-					{SecurityIncidentReportsPanel && (
-						<SecurityIncidentReportsPanel />
-					)}
-				</ColumnComponent>
-			</ContainerComponent>
+			<TabsComponent
+				className="protect-my-site-tabs"
+				activeIndex={TAB_IDS.indexOf(activeTab)}
+				onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+				tabs={[
+					{
+						label: __('Overview', 'vulopilot'),
+						content: (
+							<OverviewTab
+								onNavigateToSecurityTab={goToSecurityTab}
+							/>
+						),
+					},
+					{
+						label: __('Security', 'vulopilot'),
+						content: <SecurityTab />,
+					},
+					{
+						label: __('Performance', 'vulopilot'),
+						content: <PerformanceTab />,
+					},
+					{
+						label: __('Accessibility', 'vulopilot'),
+						content: <AccessibilityTab />,
+					},
+				]}
+			/>
 		</>
 	);
 };

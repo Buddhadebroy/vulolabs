@@ -1,5 +1,5 @@
-import React from 'react';
-import { __ } from '@wordpress/i18n';
+import React, { useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { ChartComponent, AnalyticsComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
@@ -47,9 +47,9 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	const commerce = cs.woocommerce ?? 0;
 	const performance = cs.performance;
 
-	const overviewData = [
+	const scoreItems = [
 		{
-			id: 'total_tax',
+			key: 'visibility',
 			label: __('Visibility Score', 'vulopilot'),
 			count: visibility,
 			progress: visibility,
@@ -57,7 +57,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			colorClass: 'red-yellow'
 		},
 		{
-			id: 'order_tax',
+			key: 'health',
 			label: __('Health Score', 'vulopilot'),
 			count: health,
 			progress: health,
@@ -65,7 +65,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			colorClass: 'red-blue'
 		},
 		{
-			id: 'shipping_tax',
+			key: 'commerce',
 			label: __('Commerce Score', 'vulopilot'),
 			count: commerce,
 			progress: commerce,
@@ -73,7 +73,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			colorClass: 'red-green'
 		},
 		{
-			id: 'shipping_tax',
+			key: 'performance',
 			label: __('Performance Score', 'vulopilot'),
 			count: performance,
 			progress: 50,
@@ -81,6 +81,44 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			colorClass: 'red-color'
 		},
 	];
+
+	/**
+	 * Reorder is local/session-only (no persistence endpoint) — the
+	 * dashboard's own whole-widget reorder (DashboardGrid.tsx's
+	 * ReactSortable + POST /dashboard-layout) operates one level up, on
+	 * whole widgets, not on items inside one, and adding a dedicated
+	 * endpoint for this 4-item breakdown wasn't asked for.
+	 */
+	const [order, setOrder] = useState<number[]>([0, 1, 2, 3]);
+	const orderedItems = order.map((index) => scoreItems[index]);
+
+	const moveUp = (position: number) => {
+		if (position === 0) {
+			return;
+		}
+		setOrder((prev) => {
+			const next = [...prev];
+			[next[position - 1], next[position]] = [
+				next[position],
+				next[position - 1],
+			];
+			return next;
+		});
+	};
+
+	const moveDown = (position: number) => {
+		if (position === orderedItems.length - 1) {
+			return;
+		}
+		setOrder((prev) => {
+			const next = [...prev];
+			[next[position], next[position + 1]] = [
+				next[position + 1],
+				next[position],
+			];
+			return next;
+		});
+	};
 
 	return (
 		<DashboardWidget
@@ -137,14 +175,49 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 					<AnalyticsComponent
 						cols={2}
 						variant="progress"
-						data={overviewData.map((item, idx) => ({
+						data={orderedItems.map((item, idx) => ({
 							icon: item.icon,
 							number: `${item.count}%`,
-							text: __(item.label, 'vulopilot'),
+							text: item.label,
 							colorClass: `admin-color${idx + 2}`,
 							progress: item.progress
 						}))}
 					/>
+					<ul className="score-reorder-controls">
+						{orderedItems.map((item, position) => (
+							<li key={item.key}>
+								<span className="score-reorder-label">
+									{item.label}
+								</span>
+								<button
+									type="button"
+									className="score-reorder-btn"
+									aria-label={sprintf(
+										/* translators: %s: score item label, e.g. "Visibility Score" */
+										__('Move %s up', 'vulopilot'),
+										item.label
+									)}
+									disabled={position === 0}
+									onClick={() => moveUp(position)}
+								>
+									<i className="adminfont-arrow-up" />
+								</button>
+								<button
+									type="button"
+									className="score-reorder-btn"
+									aria-label={sprintf(
+										/* translators: %s: score item label, e.g. "Visibility Score" */
+										__('Move %s down', 'vulopilot'),
+										item.label
+									)}
+									disabled={position === orderedItems.length - 1}
+									onClick={() => moveDown(position)}
+								>
+									<i className="adminfont-arrow-down" />
+								</button>
+							</li>
+						))}
+					</ul>
 				</ColumnComponent>
 			</ContainerComponent>
 		</DashboardWidget>
