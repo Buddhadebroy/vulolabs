@@ -1,0 +1,86 @@
+.security-metrics-grid {
+	display: grid;
+	// 4, not 5 or more — the main content column here is only
+	// ColumnComponent grid={8} (66% of page width), not full width; Improve
+	// Speed's own MetricsGrid found 5 columns clipped tile text in this same
+	// column width and had to be reduced to 4.
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.875rem;
+
+	@media screen and (width <=64rem) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+.security-metric-tile {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+
+	.security-metric-icon {
+		font-size: 1.5rem;
+		color: var(--color-primary);
+	}
+
+	.security-metric-title {
+		font-weight: 600;
+		font-size: 0.9rem;
+	}
+}
+
+.vulnerability-hero-actions {
+	display: flex;
+	gap: 0.625rem;
+	margin-top: 0.75rem;
+}
+
+.security-fix-all {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	border-radius: 0.5rem;
+	background: var(--color-primary);
+	color: var(--color-white);
+	font-weight: 600;
+	padding: 0.625rem 1rem;
+	margin-top: 0.75rem;
+	cursor: pointer;
+
+	&.disabled {
+		background: var(--border-color);
+		color: var(--sub-text-color);
+		cursor: not-allowed;
+	}
+}
+
+.security-status-headline {
+	font-weight: 600;
+	text-align: center;
+	margin-top: 0.5rem;
+}
+
+.security-recent-activity-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+
+	li {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+	}
+
+	.security-recent-activity-message {
+		font-size: 0.875rem;
+	}
+
+	.security-recent-activity-time {
+		font-size: 0.75rem;
+		color: var(--sub-text-color);
+	}
+}

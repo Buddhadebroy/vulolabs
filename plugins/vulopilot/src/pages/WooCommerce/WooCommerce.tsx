@@ -1,171 +1,74 @@
-/* global appLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import type { ComponentType } from 'react';
-import {
-	CardComponent,
-	ColumnComponent,
-	ContainerComponent,
-	NavigatorHeaderComponent,
-	PopupComponent,
-} from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
-import FindingsTable from '../../components/FindingsTable';
+import { useLocation } from 'react-router-dom';
+import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
-import ShowProPopup from '../../components/Popup/Popup';
+import OverviewTab from './OverviewTab';
+import WooCommerceTab from './WooCommerceTab';
+
+const TAB_IDS = ['overview', 'woocommerce'] as const;
 
 /**
- * Slot for vulopilot-pro's WooCommerceAi module — "AI Blog Generation" and
- * "Bulk AI Optimization" (readme.txt) are Pro business logic, so their
- * management UI is injected here rather than built into Free's own
- * bundle. Shows a locked placeholder (below, `WooCommerceAiLockedCard`)
- * that opens the Pro popup on click when Pro/WooCommerceAi isn't active,
- * rather than rendering nothing — same click-to-open pattern
- * AIAssistant.tsx's AiAnalyticsLockedCard/Automation.tsx already use,
- * consistent across every Pro-gated panel slot in this plugin.
+ * "Sell More" (WP menu slug `woocommerce`) — a tab shell over two views:
+ * the mockup's new Overview (OverviewTab.tsx) and today's real
+ * category-'woocommerce' findings scanner + Pro panels (WooCommerceTab.tsx,
+ * kept rather than replaced — same "keep the real page, add the new
+ * mockup alongside it" move `GEO.tsx`/`Content.tsx`/`Performance.tsx`/
+ * `Security.tsx` made for their own Overview splits). Only two tabs here
+ * (not three or four like those pages) — there's no second old
+ * standalone page to fold in this time, since "WooCommerce" was never a
+ * separate page from "Sell More", just this same route gaining tabs.
+ * Same `subtab` deep-link convention as every other tab shell
+ * (`?page=vulopilot#&tab=woocommerce&subtab=<inner-tab>`).
  */
-const WooCommerceAiPanel = applyFilters(
-	'vulopilot_woocommerce_ai_panel',
-	null
-) as ComponentType | null;
-
-/**
- * Visible teaser for the bulk-optimize panel above — shown instead of it
- * when `WooCommerceAiPanel` isn't registered, so the feature is
- * discoverable rather than simply absent.
- */
-const WooCommerceAiLockedCard = () => {
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-
-	return (
-		<>
-			<CardComponent
-				title={__('Bulk AI optimization', 'vulopilot')}
-				desc={__(
-					'Rewrite titles, generate descriptions/FAQ/schema, and suggest cross-sell/upsell/bundles across a batch of products at once.',
-					'vulopilot'
-				)}
-			>
-				<ButtonInput
-					buttons={{
-						text: __('Unlock with Pro', 'vulopilot'),
-						icon: 'lock',
-						onClick: () => setIsProPopupOpen(true),
-					}}
-				/>
-			</CardComponent>
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{appLocalizer.khali_dabba ? (
-					// Pro is active — this specific module just isn't
-					// toggled on yet, so point at Modules rather than
-					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="woocommerce-intelligence" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-		</>
-	);
-};
-
-/**
- * Slot for vulopilot-pro's WooCommerceIntelligence module —
- * "Inventory Intelligence" (stockout prediction), "Store Trends"
- * (revenue/order history), and "Revenue Insights" (current-period
- * breakdown) per WOOCOMMERCE-INTELLIGENCE-MODULE.md, bundled behind one
- * slot the same way WooCommerceAiPanel above is one slot for its whole
- * feature set rather than one slot per action.
- */
-const WooCommerceIntelligencePanel = applyFilters(
-	'vulopilot_woocommerce_intelligence_panel',
-	null
-) as ComponentType | null;
-
-/**
- * Visible teaser for the panel above — same click-to-open pattern
- * WooCommerceAiLockedCard already uses.
- */
-const WooCommerceIntelligenceLockedCard = () => {
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-
-	return (
-		<>
-			<CardComponent
-				title={__('Store intelligence', 'vulopilot')}
-				desc={__(
-					'Stockout prediction, revenue trend history, and a current-period revenue breakdown for your store.',
-					'vulopilot'
-				)}
-			>
-				<ButtonInput
-					buttons={{
-						text: __('Unlock with Pro', 'vulopilot'),
-						icon: 'lock',
-						onClick: () => setIsProPopupOpen(true),
-					}}
-				/>
-			</CardComponent>
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="woocommerce-intelligence" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-		</>
-	);
-};
-
 const WooCommerce = () => {
+	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
+		'subtab'
+	);
+	const initialTab = (
+		subtab && (TAB_IDS as readonly string[]).includes(subtab)
+			? subtab
+			: 'overview'
+	) as (typeof TAB_IDS)[number];
+
+	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
+		initialTab
+	);
 	const { runScanButton } = useRunScan();
 
+	const goToWooCommerceTab = () => setActiveTab('woocommerce');
+
 	return (
-	<>
-		<NavigatorHeaderComponent
-			headerIcon="woocommerce"
-			headerTitle={__('WooCommerce', 'vulopilot')}
-			headerDescription={__(
-				'Store settings, product data, and checkout health findings.',
-				'vulopilot'
-			)}
-			buttons={[runScanButton]}
-		/>
-		<ContainerComponent general>
-			<ColumnComponent>
-				{WooCommerceAiPanel ? (
-					<WooCommerceAiPanel />
-				) : (
-					<WooCommerceAiLockedCard />
+		<>
+			<NavigatorHeaderComponent
+				headerIcon="cart"
+				headerTitle={__('Sell More', 'vulopilot')}
+				headerDescription={__(
+					'AI-powered WooCommerce intelligence to help you increase sales and grow revenue.',
+					'vulopilot'
 				)}
-				{WooCommerceIntelligencePanel ? (
-					<WooCommerceIntelligencePanel />
-				) : (
-					<WooCommerceIntelligenceLockedCard />
-				)}
-				<FindingsTable
-					title={__('WooCommerce', 'vulopilot')}
-					description={__(
-						'No WooCommerce findings yet — run a scan to check store settings, product data, and checkout health.',
-						'vulopilot'
-					)}
-					category="woocommerce"
-				/>
-			</ColumnComponent>
-		</ContainerComponent>
-	</>
+				buttons={[runScanButton]}
+			/>
+			<TabsComponent
+				className="sell-more-tabs"
+				activeIndex={TAB_IDS.indexOf(activeTab)}
+				onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+				tabs={[
+					{
+						label: __('Overview', 'vulopilot'),
+						content: (
+							<OverviewTab
+								onNavigateToWooCommerceTab={goToWooCommerceTab}
+							/>
+						),
+					},
+					{
+						label: __('WooCommerce', 'vulopilot'),
+						content: <WooCommerceTab />,
+					},
+				]}
+			/>
+		</>
 	);
 };
 

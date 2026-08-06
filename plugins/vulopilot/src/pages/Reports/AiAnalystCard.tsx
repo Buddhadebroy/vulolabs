@@ -1,0 +1,57 @@
+import React from 'react';
+import { __ } from '@wordpress/i18n';
+import { CardComponent, TooltipComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
+
+const SUGGESTED_ACTIONS_URL =
+	'?page=vulopilot#&tab=ai-assistant&subtab=suggested-actions';
+
+/**
+ * The mockup's "AI Analyst" claims specific predicted future numbers ("23
+ * new opportunities... increase traffic by 14%... improve revenue by
+ * approximately $3,200") — no prediction/forecasting model exists anywhere
+ * in this codebase, same fabricated-claim treatment as `AiForemanCard.tsx`/
+ * `AiSalesAssistantCard.tsx` this session. "Let AI Execute Recommendations"
+ * is honestly disabled (no bulk-execute mechanism exists); "Review
+ * Recommendations" is a real link to the AI Assistant's Suggested Actions
+ * tab, the closest real "recommendations" surface in the app.
+ */
+const AiAnalystCard = () => (
+	<CardComponent
+		className="ai-analyst-card"
+		titleIcon="ai"
+		title={__('AI Analyst', 'vulopilot')}
+	>
+		<p className="ai-analyst-desc">
+			{__(
+				'I keep an eye on your scans and reports. Open findings across your site are real opportunities to improve — review them and decide what to fix.',
+				'vulopilot'
+			)}
+		</p>
+		<TooltipComponent
+			text={__(
+				"Bulk-executing recommendations isn't available yet — review and apply fixes individually from the AI Assistant tab.",
+				'vulopilot'
+			)}
+		>
+			<span
+				role="button"
+				aria-disabled="true"
+				className="ai-analyst-execute disabled"
+			>
+				<i className="adminfont-ai" />
+				{__('Let AI Execute Recommendations', 'vulopilot')}
+			</span>
+		</TooltipComponent>
+		<ButtonInput
+			buttons={{
+				text: __('Review Recommendations', 'vulopilot'),
+				onClick: () => {
+					window.location.href = SUGGESTED_ACTIONS_URL;
+				},
+			}}
+		/>
+	</CardComponent>
+);
+
+export default AiAnalystCard;

@@ -25,11 +25,11 @@ addFilter(
 	() => () => <div data-testid="security-incidents-stub" />
 );
 
-const Security = require( '../Security' ).default;
+const SecurityTab = require( '../SecurityTab' ).default;
 
-describe( 'Security page — Pro filter slots registered', () => {
+describe( 'SecurityTab — Pro filter slots registered', () => {
 	it( 'renders both Pro cards registered via the vulopilot_security_* filters, around the base FindingsTable', () => {
-		render( <Security /> );
+		render( <SecurityTab /> );
 
 		expect( screen.getByTestId( 'security-dashboard-stub' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'findings-table' ) ).toBeInTheDocument();

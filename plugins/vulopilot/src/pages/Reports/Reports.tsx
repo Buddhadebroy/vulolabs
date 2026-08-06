@@ -1,185 +1,37 @@
-/* global appLocalizer */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import {
-	CardComponent,
-	ColumnComponent,
-	ContainerComponent,
-	ModuleGuardComponent,
-	NavigatorHeaderComponent,
-	NoticeManager,
-	PopupComponent,
-} from '@zyra/components';
-import { ButtonInput, SelectInput } from '@zyra/inputs';
-import { TableCard, TableRow } from '@zyra/table';
-import type { ComponentType } from 'react';
-import { useApiList } from '../../services/useApiList';
-import ShowProPopup from '../../components/Popup/Popup';
+import { useLocation } from 'react-router-dom';
+import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
+import OverviewTab from './OverviewTab';
+import ReportTab from './ReportTab';
+import ActivityTab from './ActivityTab';
 
-interface ReportTypeOption {
-	id: string;
-	label: string;
-}
-
-interface ReportRow extends TableRow {
-	id: number;
-	report_type: string;
-	format: string;
-	status: 'generating' | 'ready' | 'failed';
-	period_start: string | null;
-	period_end: string | null;
-	created_at: string;
-	has_file: boolean;
-}
+const TAB_IDS = ['overview', 'report', 'activity'] as const;
 
 /**
- * Slot for vulopilot-pro's AdvancedReports module — recurring/scheduled
- * reports and the custom report builder are Pro business logic (backed by
- * REST routes `report-schedules` and `reports?report_type=custom`, both
- * only registered when that module is active), so their management UI is
- * injected here rather than built into Free's own bundle. Returns null
- * (renders nothing) when Pro/AdvancedReports isn't active — the same
- * "register a source, don't modify the host" pattern already used for
- * dashboard widgets (`vulopilot_dashboard_widgets`) and settings tabs
- * (`vulopilot_settings_context`).
+ * "Reports" — a tab shell over three views: the mockup's new Overview
+ * (OverviewTab.tsx), today's real report-generation/list page
+ * (ReportTab.tsx, kept rather than replaced — same "keep the real page,
+ * add the new mockup alongside it" move every prior Overview split this
+ * session made), and the previously-separate Activity page
+ * (ActivityTab.tsx, folded in — its own native WP submenu row was already
+ * removed in favor of exactly this kind of re-surfacing, per
+ * classes/Admin.php's legacy_submenus() docblock). Same `subtab` deep-link
+ * convention as every other tab shell
+ * (`?page=vulopilot#&tab=reports&subtab=<inner-tab>`).
  */
-const AdvancedReportsPanel = applyFilters(
-	'vulopilot_reports_advanced_panel',
-	null
-) as ComponentType | null;
-
 const Reports = () => {
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-	const [reportTypes, setReportTypes] = useState<ReportTypeOption[]>([]);
-	const [selectedReportType, setSelectedReportType] =
-		useState<string>('scan_summary');
-
-	// GET /reports/types is fully dynamic (VuloPilot()->report_type_registry->get_all()),
-	// so this picks up AiVisibilityReport/PerformanceReport/UpdatesReport
-	// (and any Pro-registered type like 'health') automatically — no
-	// hardcoded list to keep in sync here.
-	useEffect(() => {
-		getApiResponse<ReportTypeOption[]>(
-			getApiLink(appLocalizer, 'reports/types'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		).then((response) => {
-			if (response && response.length > 0) {
-				setReportTypes(response);
-			}
-		});
-	}, []);
-
-	const statusOptions = [
-		{ label: __('Generating', 'vulopilot'), value: 'generating' },
-		{ label: __('Ready', 'vulopilot'), value: 'ready' },
-		{ label: __('Failed', 'vulopilot'), value: 'failed' },
-	];
-
-	const {
-		data,
-		total,
-		categoryCounts,
-		isLoading,
-		error,
-		refetch,
-		onQueryUpdate,
-	} = useApiList<ReportRow>(
-		'reports',
-		{},
-		{ key: 'status', options: statusOptions }
+	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
+		'subtab'
 	);
+	const initialTab = (
+		subtab && (TAB_IDS as readonly string[]).includes(subtab)
+			? subtab
+			: 'overview'
+	) as (typeof TAB_IDS)[number];
 
-	const handleGenerateReport = () => {
-		// 'csv' rather than 'pdf' — pdf is a Pro-only exporter (registered
-		// via vulopilot_report_exporter_sources by vulopilot-pro's
-		// AdvancedReports module), so a format Free always has registered
-		// is what this always-available button should generate.
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'reports'), {
-			report_type: selectedReportType,
-			format: 'csv',
-		}).then((response) => {
-			if (response) {
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-report-queued',
-					type: 'success',
-					position: 'float',
-					message: __('Report generation started.', 'vulopilot'),
-				});
-				refetch();
-			} else {
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-report-failed',
-					type: 'error',
-					position: 'float',
-					message: __(
-						'Could not start report generation. Please try again.',
-						'vulopilot'
-					),
-				});
-			}
-		});
-	};
-
-	const handleDownload = (row?: Record<string, unknown>) => {
-		if (!row || row.status !== 'ready' || !row.has_file) {
-			return;
-		}
-
-		// pdf is a Pro-only exporter (registered via
-		// vulopilot_report_exporter_sources by vulopilot-pro's
-		// AdvancedReports module) — a pdf-format row can still exist from
-		// when that module was active, so the row/action itself stays
-		// visible; clicking it opens the Pro popup instead of downloading
-		// once the module is no longer active.
-		if (
-			row.format === 'pdf' &&
-			!appLocalizer.active_modules.includes('advanced-reports')
-		) {
-			setIsProPopupOpen(true);
-			return;
-		}
-
-		// A real browser navigation (window.open), not an XHR — the nonce
-		// has to travel as a query param rather than the X-WP-Nonce header
-		// this plugin's other REST calls use. getApiLink() already
-		// contains its own `?rest_route=…` on plain-permalink sites, so
-		// `&` (not a second `?`) is required once that's the case — same
-		// fix as useApiList.ts's.
-		const baseUrl = getApiLink(appLocalizer, `reports/${row.id}/download`);
-		const separator = baseUrl.includes('?') ? '&' : '?';
-		window.open(
-			`${baseUrl}${separator}_wpnonce=${appLocalizer.nonce}`,
-			'_blank'
-		);
-	};
-
-	const pageHeaderAction = (
-		<>
-			{reportTypes.length > 0 && (
-				<SelectInput
-					name="report_type"
-					value={selectedReportType}
-					options={reportTypes.map((type) => ({
-						label: type.label,
-						value: type.id,
-					}))}
-					onChange={(newValue) =>
-						setSelectedReportType(newValue as string)
-					}
-					size="12rem"
-				/>
-			)}
-			<ButtonInput
-				buttons={{
-					text: __('Generate report', 'vulopilot'),
-					icon: 'document',
-					onClick: handleGenerateReport,
-				}}
-			/>
-		</>
-	);
+	const [activeTab, setActiveTab] =
+		useState<(typeof TAB_IDS)[number]>(initialTab);
 
 	return (
 		<>
@@ -187,102 +39,29 @@ const Reports = () => {
 				headerIcon="report"
 				headerTitle={__('Reports', 'vulopilot')}
 				headerDescription={__(
-					'Generate and download scan summary, SEO, WooCommerce, security, and other compliance reports.',
+					"AI-powered insights about your website's performance and growth.",
 					'vulopilot'
 				)}
 			/>
-			<ContainerComponent general>
-				<ColumnComponent>
-					{error ? (
-						<CardComponent
-							title={__('Reports', 'vulopilot')}
-							action={pageHeaderAction}
-						>
-							<ModuleGuardComponent
-								icon="error"
-								title={__('Could not load reports', 'vulopilot')}
-								desc={error}
-								buttonText={__('Retry', 'vulopilot')}
-								onButtonClick={refetch}
-							/>
-						</CardComponent>
-					) : (
-						<>
-							<TableCard
-				buttonActions={[
+			<TabsComponent
+				className="reports-tabs"
+				activeIndex={TAB_IDS.indexOf(activeTab)}
+				onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+				tabs={[
 					{
-						label: __('Generate report', 'vulopilot'),
-						onClick: handleGenerateReport,
+						label: __('Overview', 'vulopilot'),
+						content: <OverviewTab />,
+					},
+					{
+						label: __('Report', 'vulopilot'),
+						content: <ReportTab />,
+					},
+					{
+						label: __('Activity', 'vulopilot'),
+						content: <ActivityTab />,
 					},
 				]}
-				format={appLocalizer.date_format_js}
-				headers={{
-					report_type: {
-						label: __('Type', 'vulopilot'),
-					},
-					format: {
-						label: __('Format', 'vulopilot'),
-					},
-					status: {
-						label: __('Status', 'vulopilot'),
-						type: 'badge',
-						statusClass: (row: ReportRow) =>
-							`status-${row.status}`,
-					},
-					created_at: {
-						label: __('Generated', 'vulopilot'),
-						type: 'date',
-						isSortable: true,
-						defaultSort: true,
-						defaultOrder: 'desc',
-					},
-					actions: {
-						label: __('Actions', 'vulopilot'),
-						type: 'action',
-						actions: [
-							{
-								label: (row?: Record<string, unknown>) =>
-									row?.status === 'ready'
-										? __('Download', 'vulopilot')
-										: __('Not ready yet', 'vulopilot'),
-								icon: 'download',
-								onClick: handleDownload,
-							},
-						],
-					},
-				}}
-				rows={data}
-				ids={data.map((row) => row.id)}
-				totalRows={total}
-				categoryCounts={categoryCounts}
-				isLoading={isLoading}
-				onQueryUpdate={onQueryUpdate}
-				emptyMessage={__(
-					'No reports yet — generate your first compliance report.',
-					'vulopilot'
-				)}
 			/>
-			{AdvancedReportsPanel && <AdvancedReportsPanel />}
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{appLocalizer.khali_dabba ? (
-					// Pro is active — this specific module just isn't
-					// toggled on yet, so point at Modules rather than
-					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="reports-module" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-						</>
-					)}
-				</ColumnComponent>
-			</ContainerComponent>
 		</>
 	);
 };

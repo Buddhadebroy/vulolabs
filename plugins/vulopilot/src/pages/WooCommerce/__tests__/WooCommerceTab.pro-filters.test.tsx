@@ -22,11 +22,11 @@ addFilter(
 	() => () => <div data-testid="woocommerce-intelligence-stub" />
 );
 
-const WooCommerce = require( '../WooCommerce' ).default;
+const WooCommerceTab = require( '../WooCommerceTab' ).default;
 
-describe( 'WooCommerce page — Pro filter slots', () => {
+describe( 'WooCommerceTab — Pro filter slots', () => {
 	it( 'renders the registered WooCommerceIntelligence panel and the unregistered WooCommerceAi slot\'s locked teaser, around the base FindingsTable', () => {
-		render( <WooCommerce /> );
+		render( <WooCommerceTab /> );
 
 		expect(
 			screen.getByTestId( 'woocommerce-intelligence-stub' )
