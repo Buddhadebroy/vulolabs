@@ -194,6 +194,7 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 					],
 				},
 			}}
+			className="transparent-table"
 			rows={rows}
 			ids={data.map((finding) => finding.id)}
 			totalRows={total}

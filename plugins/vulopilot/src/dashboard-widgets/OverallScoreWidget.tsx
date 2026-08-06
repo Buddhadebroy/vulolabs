@@ -172,8 +172,21 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 					/>
 				</ColumnComponent>
 				<ColumnComponent grid={7}>
-					<AnalyticsComponent
-						cols={2}
+					<div class>
+					<div className="title">{__('Good', 'vulopilot')}</div>
+					<div className="desc">
+						{__('291 open findings across 79 pillars.', 'vulopilot')}
+					</div>
+					<div className="buttons-wrapper">
+						<div className="admin-badge green"><i className='adminfont-analytics'/>{__('+5 this week', 'vulopilot')}</div>
+						<div className="admin-badge red"><i className='adminfont-analytics'/>{__('2 new issues', 'vulopilot')}</div>
+						<div className="admin-badge yellow"><i className='adminfont-analytics'/>{__('12 fixed', 'vulopilot')}</div>
+					</div>
+				</div>
+				</ColumnComponent>
+			</ContainerComponent>
+			<AnalyticsComponent
+						cols={4}
 						variant="progress"
 						data={orderedItems.map((item, idx) => ({
 							icon: item.icon,
@@ -218,8 +231,6 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 							</li>
 						))}
 					</ul>
-				</ColumnComponent>
-			</ContainerComponent>
 		</DashboardWidget>
 	);
 };
