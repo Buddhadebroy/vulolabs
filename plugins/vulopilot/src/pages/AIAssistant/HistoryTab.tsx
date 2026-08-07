@@ -77,7 +77,7 @@ const AiAnalyticsLockedCard = () => {
 					// Pro is active — this specific module just isn't
 					// toggled on yet, so point at Modules rather than
 					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="reports-module" />
+					<ShowProPopup moduleName="advanced-reports" />
 				) : (
 					<ShowProPopup />
 				)}

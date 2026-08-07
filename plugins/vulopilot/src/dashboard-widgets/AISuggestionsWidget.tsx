@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { ListComponent, ModuleGuardComponent, ButtonInput } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
+import { getCategoryTabLink } from '../services/getCategoryTabLink';
 import { WidgetProps } from './types';
 
 interface FindingRow {
@@ -11,18 +12,6 @@ interface FindingRow {
 	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
 	category?: string;
 }
-
-/** Same category → tab mapping NeedsAttentionWidget's own findings rows
- * navigate to — a finding's actual fix lives on its category's page, not
- * behind a one-click AI trigger that doesn't exist yet. */
-const CATEGORY_TABS: Record<string, string> = {
-	seo: 'seo',
-	performance: 'performance',
-	accessibility: 'accessibility',
-	woocommerce: 'woocommerce',
-	geo: 'geo',
-	security: 'health',
-};
 
 /**
  * "AI Suggestions" — the mockup's severity-ranked findings list with a
@@ -71,10 +60,9 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 					className="mini-card report"
 					items={data.map((finding) => {
 						const goToFix = () => {
-							const tab =
-								CATEGORY_TABS[finding.category ?? ''] ??
-								'health';
-							window.location.href = `?page=vulopilot#&tab=${tab}`;
+							window.location.href = getCategoryTabLink(
+								finding.category
+							);
 						};
 
 						return {

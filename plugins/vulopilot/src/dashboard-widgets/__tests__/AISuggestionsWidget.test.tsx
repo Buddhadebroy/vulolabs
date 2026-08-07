@@ -71,6 +71,35 @@ describe( 'AISuggestionsWidget', () => {
 			screen.getByRole( 'button', { name: /fix with ai/i } )
 		);
 
-		expect( window.location.href ).toBe( '?page=vulopilot#&tab=seo' );
+		// Regression: this used to send 'seo'-category findings to
+		// '?tab=seo', a route that doesn't exist (routes.ts has no 'seo'
+		// tab — SeoTab.tsx only exists as a subtab of GEO). The real
+		// route for 'seo' findings is GEO's own SEO subtab.
+		expect( window.location.href ).toBe(
+			'?page=vulopilot#&tab=geo&subtab=seo'
+		);
+	} );
+
+	it( 'sends an \'accessibility\'-category finding to Security\'s Accessibility subtab, not the nonexistent \'?tab=accessibility\'', async () => {
+		( getApiResponse as jest.Mock ).mockResolvedValue( [
+			{ id: 2, title: 'Form input missing a label', severity: 'medium', category: 'accessibility' },
+		] );
+
+		render(
+			<AISuggestionsWidget
+				summary={ {} as never }
+				isLoading={ false }
+				onHide={ jest.fn() }
+				isCustomizing={ false }
+			/>
+		);
+
+		await userEvent.click(
+			await screen.findByRole( 'button', { name: /fix with ai/i } )
+		);
+
+		expect( window.location.href ).toBe(
+			'?page=vulopilot#&tab=security&subtab=accessibility'
+		);
 	} );
 } );

@@ -58,7 +58,7 @@ export default {
              * toggling either card still correctly activates/deactivates
              * the one real module both represent.
              */
-            id: 'geo-insights',
+            id: 'aeo-insights',
             name: __('AEO — Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage — then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
             proModule: true,
@@ -304,7 +304,21 @@ export default {
 		// Reports Section
 		{ type: 'separator', id: 'reports', label: __('Reports', 'vulopilot') },
 		{
-            id: 'reports-module',
+            /**
+             * Must be the real backend module id — AdvancedReports' folder
+             * name kebab-cased, same 'advanced-reports' HealthTimelineWidget.tsx
+             * gates on and Popup.tsx's "Enable Now" deep-link already
+             * points at. This card previously used a made-up
+             * 'reports-module' id (same broken-toggle bug the geo-insights
+             * card above already documents and was fixed for): toggling it
+             * "on" here called set_modules() with an id matching no real
+             * module folder, which Modules::load_active_modules() then
+             * silently dropped every request — so the toggle looked like
+             * it took, but AdvancedReports never actually activated, and
+             * Health Timeline's "Unlock with Pro" stayed locked forever no
+             * matter what the user clicked.
+             */
+            id: 'advanced-reports',
             name: __('Reports', 'vulopilot'),
             desc: __('Health, SEO, Security, and Accessibility reports for your site.', 'vulopilot'),
             proModule: true,

@@ -9,6 +9,7 @@ import {
 } from '@zyra/components';
 import { TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
+import { getCategoryTabLink } from '../../services/getCategoryTabLink';
 
 interface FindingRow extends TableRow {
 	id: number;
@@ -23,20 +24,6 @@ interface FindingRow extends TableRow {
 	 */
 	page?: string;
 }
-
-/** Same category → tab mapping AISuggestionsWidget.tsx's own Dashboard
- * widget already uses — a finding's actual fix lives on its category's
- * page, not behind a one-click AI trigger (confirmed not to exist yet). */
-const CATEGORY_TABS: Record<string, string> = {
-	seo: 'seo',
-	performance: 'performance',
-	accessibility: 'accessibility',
-	woocommerce: 'woocommerce',
-	geo: 'geo',
-	security: 'health',
-	content: 'content',
-	brand: 'brand-visibility',
-};
 
 const CATEGORY_ICONS: Record<string, string> = {
 	seo: 'search-discovery',
@@ -131,9 +118,7 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 				items={data.map((finding) => {
 					const category = finding.category ?? '';
 					const goToFix = () => {
-						const tab = CATEGORY_TABS[category] ?? 'health';
-
-						window.location.href = `?page=vulopilot#&tab=${tab}`;
+						window.location.href = getCategoryTabLink(category);
 					};
 
 					return {
@@ -200,9 +185,7 @@ const SuggestedActionsList: React.FC<SuggestedActionsListProps> = ({
 			{sortedData.map((finding) => {
 				const category = finding.category ?? '';
 				const goToFix = () => {
-					const tab = CATEGORY_TABS[category] ?? 'health';
-
-					window.location.href = `?page=vulopilot#&tab=${tab}`;
+					window.location.href = getCategoryTabLink(category);
 				};
 
 				return (
