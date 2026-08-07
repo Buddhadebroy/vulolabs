@@ -9,6 +9,13 @@ interface DashboardWidgetProps {
 	onHide: () => void;
 	isCustomizing: boolean;
 	children: React.ReactNode;
+	/**
+	 * An optional always-visible header link (e.g. "Show details" linking
+	 * to another page) — same `CardComponent` `action` slot the drag/hide
+	 * controls use, so it only renders outside customization mode (the
+	 * drag handle needs that space instead while reordering).
+	 */
+	headerAction?: React.ReactNode;
 }
 
 /**
@@ -47,7 +54,8 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 	isCustomizing,
 	children,
 	borderColor,
-	desc
+	desc,
+	headerAction,
 }) => {
 	return (
 		<CardComponent
@@ -78,7 +86,9 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 						/>
 					</TooltipComponent>
 					</>
-				) : undefined
+				) : (
+					headerAction ?? undefined
+				)
 			}
 		>
 			{children}

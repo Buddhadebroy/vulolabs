@@ -39,6 +39,12 @@ const TodaysTasksWidget: React.FC<WidgetProps> = ({
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
+			headerAction={
+				<a href="?page=vulopilot#&tab=reports&subtab=activity">
+					{__('Show details', 'vulopilot')}{' '}
+					<i className="adminfont-arrow-right" />
+				</a>
+			}
 		>
 			{error ? (
 				<ModuleGuardComponent

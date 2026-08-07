@@ -155,6 +155,16 @@
 	font-weight: 700;
 }
 
+// Divider below the "Needs work" hero block, now that it sits on its own
+// full-width row above the donut + score-cards row (rather than beside the
+// donut) — separates the header from the row below it. Reuses the same red
+// already used by the hero's own "N new issues" badge (zyra's
+// $color-palette "red" token, common.scss), not a new arbitrary color.
+.overall-score-summary--divider {
+	padding-bottom: 1rem;
+	border-bottom: 0.125rem solid #dc2626;
+}
+
 .category-score-widget {
 	display: flex;
 	flex-direction: column;
@@ -256,7 +266,7 @@ $score-card-colors: (
 
 .score-trend-row {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(3, 1fr);
 	gap: 0.75rem;
 	margin-top: 1rem;
 

@@ -461,7 +461,6 @@ class Utill {
         'todays-tasks',
         'recent-changes',
         'ai-usage',
-        'recent-activity',
         'health-timeline',
         'latest-reports',
         'needs-attention',
