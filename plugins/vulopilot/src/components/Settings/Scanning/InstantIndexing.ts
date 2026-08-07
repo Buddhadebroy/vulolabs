@@ -22,6 +22,10 @@ export default {
 	// Sorts between Webmaster Tools (2.2) and Geo (3).
 	priority: 2.3,
 	headerTitle: __('Instant Indexing', 'vulopilot'),
+	headerDescription: __(
+		'Submit new and updated URLs to search engines the moment they\'re published.',
+		'vulopilot'
+	),
 	headerIcon: 'web-page-website',
 	submitUrl: 'settings',
 	modal: [

@@ -1,6 +1,7 @@
 /* global appLocalizer */
 import React, { useEffect, useRef, useState, JSX } from 'react';
 import { __ } from '@wordpress/i18n';
+import './Settings.scss';
 import { useLocation, Link } from 'react-router-dom';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { getAvailableSettings, getSettingById } from '@zyra/core';

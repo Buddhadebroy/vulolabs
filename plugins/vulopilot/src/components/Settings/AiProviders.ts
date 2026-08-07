@@ -15,6 +15,10 @@ export default {
 	id: 'ai-providers',
 	priority: 7,
 	headerTitle: __('AI Providers', 'vulopilot'),
+	headerDescription: __(
+		'Connect the AI providers VuloPilot uses to generate fixes and content.',
+		'vulopilot'
+	),
 	headerIcon: 'ai',
 	submitUrl: 'settings',
 	modal: [],

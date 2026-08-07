@@ -4,6 +4,10 @@ export default {
 	id: 'woocommerce',
 	priority: 5,
 	headerTitle: __('WooCommerce', 'vulopilot'),
+	headerDescription: __(
+		'Scanning behavior for WooCommerce product data.',
+		'vulopilot'
+	),
 	headerIcon: 'cart',
 	submitUrl: 'settings',
 	modal: [
@@ -11,8 +15,9 @@ export default {
 			key: 'flag_products_missing_schema',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between',
 			label: __('Flag products missing schema', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Products without valid Product structured data.',
 				'vulopilot'
 			),

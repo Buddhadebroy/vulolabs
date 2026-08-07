@@ -16,6 +16,10 @@ export default {
 	// Sorts after Content Intelligence (2.4), before GEO (3).
 	priority: 4,
 	headerTitle: __('Brand Intelligence', 'vulopilot'),
+	headerDescription: __(
+		'Brand visibility tracking and trust-signal checks.',
+		'vulopilot'
+	),
 	headerIcon: 'person',
 	submitUrl: 'settings',
 	modal: [
@@ -49,8 +53,9 @@ export default {
 		{
 			key: 'brand_about_page_min_words',
 			type: 'number',
+			classes: 'space-between',
 			label: __('Minimum About page word count', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'An About page under this word count is flagged as too thin to be a genuine trust signal.',
 				'vulopilot'
 			),
@@ -63,8 +68,9 @@ export default {
 		{
 			key: 'brand_drop_threshold',
 			type: 'number',
+			classes: 'space-between',
 			label: __('Brand score drop alert threshold (points)', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Used by the "Email me when Brand score drops" notification in the Notifications tab.',
 				'vulopilot'
 			),

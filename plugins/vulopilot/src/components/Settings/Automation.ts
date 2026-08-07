@@ -4,16 +4,21 @@ export default {
 	id: 'automation',
 	priority: 4,
 	headerTitle: __('Automation', 'vulopilot'),
+	headerDescription: __(
+		'Cooldowns, retries, and approval rules for automated fixes.',
+		'vulopilot'
+	),
 	headerIcon: 'automation',
 	submitUrl: 'settings',
 	modal: [
 		{
 			key: 'automation_cooldown_minutes',
 			type: 'number',
+			classes: 'space-between',
 			label: __('Automation cooldown (minutes)', 'vulopilot'),
 			minNumber: 1,
 			maxNumber: 1440,
-			desc: __(
+			settingDescription: __(
 				'How long an automation must wait after last firing before it can fire again — guards against the same automation re-triggering on every scan or every save of the same object.',
 				'vulopilot'
 			),
@@ -25,10 +30,11 @@ export default {
 		{
 			key: 'automation_max_retries',
 			type: 'number',
+			classes: 'space-between border-top',
 			label: __('Max retries on failure', 'vulopilot'),
 			minNumber: 0,
 			maxNumber: 5,
-			desc: __(
+			settingDescription: __(
 				'How many times a failed automation action is retried before it\'s left as failed. 0 disables retries.',
 				'vulopilot'
 			),
@@ -37,10 +43,11 @@ export default {
 		{
 			key: 'automation_retry_delay_minutes',
 			type: 'number',
+			classes: 'space-between border-top',
 			label: __('Retry delay (minutes)', 'vulopilot'),
 			minNumber: 1,
 			maxNumber: 1440,
-			desc: __(
+			settingDescription: __(
 				'How long to wait before retrying a failed automation action.',
 				'vulopilot'
 			),
@@ -50,8 +57,9 @@ export default {
 			key: 'require_approval_before_ai_change',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between border-top',
 			label: __('Require approval before AI changes apply', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				"When on, AI-generated fixes wait in Pending Approval instead of applying automatically. All AI-applied fixes — one-click or bulk — require AI Fixes.",
 				'vulopilot'
 			),
