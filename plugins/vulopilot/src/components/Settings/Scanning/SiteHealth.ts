@@ -4,6 +4,10 @@ export default {
 	id: 'site-health',
 	priority: 3,
 	headerTitle: __('Site Health', 'vulopilot'),
+	headerDescription: __(
+		'Security, accessibility, and performance scanning behavior.',
+		'vulopilot'
+	),
 	headerIcon: 'security',
 	submitUrl: 'settings',
 	modal: [
@@ -16,8 +20,9 @@ export default {
 			key: 'enable_weak_password_scanner',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between',
 			label: __('Check administrators for weak passwords', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Checks every administrator account\'s password against a small dictionary of the most commonly used passwords during each scan, using the same hashing check WordPress itself uses at login.',
 				'vulopilot'
 			),
@@ -29,8 +34,9 @@ export default {
 			key: 'enable_basic_vulnerabilities_scanner',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between border-top',
 			label: __('Check for basic vulnerability exposure', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Checks whether the WordPress version is exposed via the homepage or readme.html, and whether the database table prefix is left at its default.',
 				'vulopilot'
 			),
@@ -42,8 +48,9 @@ export default {
 			key: 'enable_core_file_integrity_scanner',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between border-top',
 			label: __('Check WordPress core files for changes', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Compares every WordPress core file against the official checksums published for this exact version, flagging anything modified or missing.',
 				'vulopilot'
 			),
@@ -55,8 +62,9 @@ export default {
 			key: 'enable_rest_api_scanner',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between border-top',
 			label: __('Check for anonymous REST API user exposure', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Makes a real, unauthenticated request to this site\'s own /wp/v2/users endpoint during each scan to check whether it exposes usernames. Turn off if your firewall/WAF flags this request.',
 				'vulopilot'
 			),
@@ -86,8 +94,9 @@ export default {
 		{
 			key: 'security_scan_frequency',
 			type: 'select',
+			classes: 'space-between',
 			label: __('Scheduled security monitoring', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Runs only the security-category scanners on this cadence, independent of the general Scan frequency setting under General.',
 				'vulopilot'
 			),
@@ -103,8 +112,9 @@ export default {
 			key: 'security_alerts_enabled',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between border-top',
 			label: __('Email me on new security alerts', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Send an email when a scan detects a new security finding at or above the minimum severity below. Already-alerted, still-open findings aren\'t re-sent on every scan.',
 				'vulopilot'
 			),
@@ -116,9 +126,10 @@ export default {
 		{
 			key: 'security_alert_email',
 			type: 'email',
+			classes: 'space-between border-top',
 			label: __('Security alert email', 'vulopilot'),
 			placeholder: __('noreply@yourstore.com', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Where security alerts are sent. Falls back to the site admin email when left blank.',
 				'vulopilot'
 			),
@@ -127,8 +138,9 @@ export default {
 		{
 			key: 'security_alert_min_severity',
 			type: 'select',
+			classes: 'space-between border-top',
 			label: __('Minimum alert severity', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Only findings at or above this severity trigger a security alert email.',
 				'vulopilot'
 			),
@@ -144,8 +156,9 @@ export default {
 			key: 'enable_integrity_monitoring',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between border-top',
 			label: __('Monitor plugin/theme files for changes', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Maintains a local baseline of every plugin/theme PHP file and flags any added, modified, or removed since the last scan.',
 				'vulopilot'
 			),
@@ -157,10 +170,11 @@ export default {
 		{
 			key: 'integrity_monitoring_max_files',
 			type: 'number',
+			classes: 'space-between border-top',
 			label: __('Integrity monitoring file limit', 'vulopilot'),
 			minNumber: 100,
 			maxNumber: 20000,
-			desc: __(
+			settingDescription: __(
 				'Maximum combined number of plugin/theme PHP files checked per scan, to bound the cost of hashing on large sites.',
 				'vulopilot'
 			),
@@ -175,8 +189,9 @@ export default {
 			key: 'enable_wcag_scanner',
 			type: 'checkbox',
 			look: 'toggle',
+			classes: 'space-between',
 			label: __('Check for generic, out-of-context link text', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Flags links whose entire visible text is a generic phrase like "click here" or "read more" — link text should describe its own destination (WCAG 2.4.4).',
 				'vulopilot'
 			),
@@ -187,8 +202,9 @@ export default {
 		{
 			key: 'accessibility_audit_frequency',
 			type: 'select',
+			classes: 'space-between border-top',
 			label: __('Scheduled accessibility audits', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Runs only the accessibility-category scanners on this cadence, independent of the general Scan frequency setting under General.',
 				'vulopilot'
 			),
@@ -203,8 +219,9 @@ export default {
 		{
 			key: 'target_wcag_level',
 			type: 'select',
+			classes: 'space-between border-top',
 			label: __('Target WCAG level', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Used to determine which accessibility checks are marked critical vs. warning.',
 				'vulopilot'
 			),
@@ -223,8 +240,9 @@ export default {
             key: 'mobile_core_web_vitals',
             type: 'checkbox',
             look: 'toggle',
+            classes: 'space-between',
             label: __('Include mobile Core Web Vitals', 'vulopilot'),
-            desc: __(
+            settingDescription: __(
                 'Run Core Web Vitals checks against mobile as well as desktop.',
                 'vulopilot'
             ),

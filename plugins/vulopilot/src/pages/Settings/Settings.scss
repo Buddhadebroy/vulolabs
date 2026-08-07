@@ -1,0 +1,28 @@
+// The "space-between" field layout (General tab's Scan Frequency —
+// General.ts's `classes: 'space-between'`) shrinks the label/input columns
+// to fit-content so the select doesn't stretch full width. That leaves the
+// shared `.admin-pro-tag.module` badge (FormGroupWrapperComponent.scss,
+// `position: absolute; right: 1rem; top: 0.813rem`) floating wherever that
+// fixed offset lands — no longer reliably next to the input it used to sit
+// above when the row was full width. Re-flowing it as a normal flex item
+// right after the label, and pushing the input to the far right via its
+// own auto margin instead of the shared rule's space-between, keeps the
+// badge visually beside "Scan Frequency" regardless of row width. Scoped
+// to `.admin-settings` (this page's own NavigatorComponent className) so
+// no other `.space-between` field elsewhere in the app is affected.
+.admin-settings .form-group.space-between {
+	justify-content: flex-start;
+	align-items: center;
+
+	.admin-pro-tag.module {
+		position: static;
+		transform: none;
+		order: 0;
+		margin-left: 0.5rem;
+	}
+
+	.settings-input-content {
+		order: 1;
+		margin-left: auto;
+	}
+}

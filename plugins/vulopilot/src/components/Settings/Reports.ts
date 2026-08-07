@@ -4,14 +4,19 @@ export default {
 	id: 'reports',
 	priority: 5,
 	headerTitle: __('Reports', 'vulopilot'),
+	headerDescription: __(
+		'Defaults used when generating a report.',
+		'vulopilot'
+	),
 	headerIcon: 'document',
 	submitUrl: 'settings',
 	modal: [
 		{
 			key: 'default_report_format',
 			type: 'select',
+			classes: 'space-between',
 			label: __('Default export format', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Used when generating a report without explicitly choosing a format.',
 				'vulopilot'
 			),
@@ -24,10 +29,11 @@ export default {
 		{
 			key: 'default_report_period_days',
 			type: 'number',
+			classes: 'space-between border-top',
 			label: __('Default report period (days)', 'vulopilot'),
 			minNumber: 1,
 			maxNumber: 365,
-			desc: __(
+			settingDescription: __(
 				'Used when generating a report without explicitly choosing a date range.',
 				'vulopilot'
 			),
