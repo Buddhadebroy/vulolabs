@@ -92,6 +92,22 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			icon: 'shipping',
 			colorClass: 'red-color'
 		},
+		{
+			key: 'content',
+			label: __('Content Score', 'vulopilot'),
+			count: cs.content,
+			progress: cs.content,
+			icon: 'text-fields',
+			colorClass: 'red-yellow'
+		},
+		{
+			key: 'brand',
+			label: __('Brand Score', 'vulopilot'),
+			count: cs.brand,
+			progress: cs.brand,
+			icon: 'person',
+			colorClass: 'red-blue'
+		},
 	];
 
 	// Real week-over-week deltas per bucket, diffed against
@@ -126,6 +142,16 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			key: 'performance',
 			label: __('Performance', 'vulopilot'),
 			delta: performance - performance7d,
+		},
+		{
+			key: 'content',
+			label: __('Content', 'vulopilot'),
+			delta: cs.content - cs7.content,
+		},
+		{
+			key: 'brand',
+			label: __('Brand', 'vulopilot'),
+			delta: cs.brand - cs7.brand,
 		},
 	];
 
@@ -179,9 +205,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 							},
 						]}
 					/>
-				</ColumnComponent>
-				<ColumnComponent grid={12}>
-					<div className="overall-score-summary">
+					<div className="overall-score-summary overall-score-summary--divider">
 						<div className="title">
 							{getRating(summary.overall_score)}
 						</div>
@@ -241,7 +265,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 						)}
 					</div>
 				</ColumnComponent>
-				<ColumnComponent grid={12}>
+				<ColumnComponent grid={9}>
 					<AnalyticsComponent
 						cols={2}
 						variant="progress"
@@ -253,6 +277,8 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 							progress: item.progress
 						}))}
 					/>
+				</ColumnComponent>
+				<ColumnComponent grid={12}>
 					<div className="score-trend-row">
 						{trendItems.map((item) => (
 							<div className="score-trend-item" key={item.key}>

@@ -2,7 +2,6 @@ import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { createStatWidgetComponent, StatWidgetConfig } from './StatWidget';
 import HealthTimelineWidget from './HealthTimelineWidget';
-import RecentActivityWidget from './RecentActivityWidget';
 import LatestReportsWidget from './LatestReportsWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import CrawlerTrafficWidget from './CrawlerTrafficWidget';
@@ -64,58 +63,28 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 ];
 
 /**
- * The three "one number" stat widgets left that aren't already covered by
- * another widget — see StatWidget.tsx for why these share one component.
- * Overall health, SEO, Performance, Security, WooCommerce, Accessibility,
- * and GEO used to live here too, but they duplicated the exact same
- * category_scores numbers HealthPillarsWidget's ScoreRing/pillar tiles
- * already show; Quick fixes' plain count duplicated
- * NeedsAttentionWidget's real "Quick fixes" tab. Removed rather than kept
- * alongside, same as the mockup this dashboard is modeled on never
- * showing a score two different ways.
+ * No config-driven "one number" stat widgets left on the Dashboard — see
+ * StatWidget.tsx for why these ever shared one component. Overall health,
+ * SEO, Performance, Security, WooCommerce, Accessibility, and GEO used to
+ * live here too, but they duplicated the exact same category_scores
+ * numbers HealthPillarsWidget's ScoreRing/pillar tiles already show;
+ * Quick fixes' plain count duplicated NeedsAttentionWidget's real "Quick
+ * fixes" tab. Removed rather than kept alongside, same as the mockup this
+ * dashboard is modeled on never showing a score two different ways.
+ * Content/Brand moved the same way — they're now score cards inside
+ * OverallScoreWidget's own card grid. AI usage moved off the Dashboard
+ * entirely — it's now AiUsageCard on the AI Copilot page
+ * (pages/AIAssistant/AiUsageCard.tsx), reading the same real
+ * `ai_jobs_used`/`ai_jobs_quota` fields directly from `GET /dashboard`.
  */
 
-const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [
-	{
-		id: 'ai-usage',
-		title: __('AI usage', 'vulopilot'),
-		icon: 'ai',
-		getNumber: (summary) =>
-			`${summary.ai_jobs_used}/${summary.ai_jobs_quota}`,
-		getExtra: () => __('This month', 'vulopilot'),
-	},
-	{
-		id: 'content',
-		title: __('Content', 'vulopilot'),
-		icon: 'text-fields',
-		getNumber: (summary) =>
-			`${summary.category_scores.content}/100`,
-		getExtra: () =>
-			__('Readability, thin/duplicate content, links', 'vulopilot'),
-	},
-	{
-		id: 'brand',
-		title: __('Brand', 'vulopilot'),
-		icon: 'person',
-		getNumber: (summary) =>
-			`${summary.category_scores.brand}/100`,
-		getExtra: () =>
-			__('Trust, authority, and entity signals', 'vulopilot'),
-	},
-];
+const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [];
 
 
 /**
  * Widgets with custom layouts
  */
 const STANDALONE_WIDGETS: WidgetDefinition[] = [
-	{
-		id: 'recent-activity',
-		title: __('Recent activity', 'vulopilot'),
-		icon: 'clock',
-		grid: 6,
-		component: RecentActivityWidget,
-	},
 	{
 		id: 'health-timeline',
 		title: __('Health timeline', 'vulopilot'),

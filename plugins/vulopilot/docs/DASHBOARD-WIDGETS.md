@@ -285,8 +285,8 @@ shares. `Utill::DASHBOARD_WIDGET_IDS` is the canonical id whitelist both
 `DashboardLayout.php` and `registry.ts` agree on by convention (the same
 id-matching convention `AI-ACTIONS.md` already uses between Rule ids and
 Action ids) — `update_item()` silently drops any id not on this list, so a
-client can never persist a widget id it invented. The whitelist has **16 entries** today: the 13
-Free widget ids (`ai-usage`, `recent-activity`, `health-timeline`, `latest-reports`,
+client can never persist a widget id it invented. The whitelist has **15 entries** today: the 12
+Free widget ids (`ai-usage`, `health-timeline`, `latest-reports`,
 `needs-attention`, `automation-status`, `crawler-traffic`, `health-pillars`, `content`, `brand`,
 `knowledge-graph`, `brand-breakdown`, `issue-distribution`) plus the 3 Pro-registered ones
 (`ai-monitoring`, `knowledge-graph-health`, `mcp-server-status`).
