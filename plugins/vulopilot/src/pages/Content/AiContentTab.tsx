@@ -124,6 +124,32 @@ const AI_CONTENT_SECTIONS: {
 			'vulopilot'
 		),
 	},
+	{
+		key: 'readability',
+		title: __('Readability', 'vulopilot'),
+		description: __(
+			'How easy this content is to read — a standard Flesch Reading Ease score.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No readability findings yet — run a scan to check sentence/word complexity.',
+			'vulopilot'
+		),
+		scannerIds: ['readability'],
+	},
+	{
+		key: 'structure',
+		title: __('Structure', 'vulopilot'),
+		description: __(
+			'Heading hierarchy and internal links — how easily a reader (or crawler) can navigate this content.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No structure findings yet — run a scan to check headings and internal links.',
+			'vulopilot'
+		),
+		scannerIds: ['heading-structure', 'internal-linking', 'orphan-pages'],
+	},
 ];
 
 /**
@@ -176,7 +202,7 @@ const AiContentTab = () => {
 					</CardComponent>
 				) : (
 					<>
-						<ContentScoreCard />
+						{/* <ContentScoreCard /> */}
 						{TopicAuthorityCard && <TopicAuthorityCard />}
 						<OpenIssuesGlimpse
 							scannerIds={AI_CONTENT_SECTIONS.flatMap(

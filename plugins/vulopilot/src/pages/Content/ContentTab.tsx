@@ -31,19 +31,6 @@ const CONTENT_SECTIONS: {
 	scannerIds: string[];
 }[] = [
 	{
-		key: 'readability',
-		title: __('Readability', 'vulopilot'),
-		description: __(
-			'How easy this content is to read — a standard Flesch Reading Ease score.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No readability findings yet — run a scan to check sentence/word complexity.',
-			'vulopilot'
-		),
-		scannerIds: ['readability'],
-	},
-	{
 		key: 'depth',
 		title: __('Content Depth', 'vulopilot'),
 		description: __(

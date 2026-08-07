@@ -106,11 +106,11 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		component: CrawlerTrafficWidget,
 	},
 	{
-		id: 'knowledge-graph',
-		title: __('Knowledge Graph', 'vulopilot'),
-		icon: 'centralized-connections',
+		id: 'health-timeline',
+		title: __('Health timeline', 'vulopilot'),
+		icon: 'analytics',
 		grid: 6,
-		component: KnowledgeGraphWidget,
+		component: HealthTimelineWidget,
 	},
 	// Health timeline / Latest reports / Brand Visibility breakdown are a
 	// deliberate one-row group: each is grid:4 (12/3), and kept adjacent
@@ -119,18 +119,11 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 	// A user can still drag them apart via Customize dashboard — this
 	// only controls the never-customized/"Restore default" order.
 	{
-		id: 'health-timeline',
-		title: __('Health timeline', 'vulopilot'),
-		icon: 'analytics',
+		id: 'knowledge-graph',
+		title: __('Knowledge Graph', 'vulopilot'),
+		icon: 'centralized-connections',
 		grid: 4,
-		component: HealthTimelineWidget,
-	},
-	{
-		id: 'latest-reports',
-		title: __('Latest reports', 'vulopilot'),
-		icon: 'report',
-		grid: 4,
-		component: LatestReportsWidget,
+		component: KnowledgeGraphWidget,
 	},
 	{
 		id: 'brand-breakdown',
@@ -138,6 +131,13 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		icon: 'person',
 		grid: 4,
 		component: BrandBreakdownWidget,
+	},
+	{
+		id: 'latest-reports',
+		title: __('Latest reports', 'vulopilot'),
+		icon: 'report',
+		grid: 4,
+		component: LatestReportsWidget,
 	},
 ];
 
