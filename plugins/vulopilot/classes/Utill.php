@@ -453,22 +453,14 @@ class Utill {
         // MOCKUP_WIDGETS), in its order.
         'overall-score',
         'run-audit',
-        'visibility-score',
-        'health-score',
-        'commerce-score',
-        'performance-score',
         'ai-suggestions',
         'todays-tasks',
         'recent-changes',
-        'ai-usage',
         'health-timeline',
         'latest-reports',
         'needs-attention',
         'automation-status',
         'crawler-traffic',
-        'health-pillars',
-        'content',
-        'brand',
         // Registered by vulopilot-pro's AiCrawlerAnalytics module via
         // `vulopilot_dashboard_widgets` (AI-CRAWLER-ANALYTICS-MODULE.md).
         'ai-monitoring',
@@ -480,7 +472,6 @@ class Utill {
         // `vulopilot_dashboard_widgets` (MCP-SERVER-MODULE.md).
         'mcp-server-status',
         'brand-breakdown',
-        'issue-distribution',
     );
 
     /**

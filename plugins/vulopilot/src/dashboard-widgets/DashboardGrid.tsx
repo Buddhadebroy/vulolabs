@@ -59,8 +59,26 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
 		)
 			.then((response) => {
-				if (response) {
+				// DashboardLayout.php's get_items() always reconciles
+				// against every registered widget id and returns a
+				// non-empty array on success — an empty/null response
+				// here only ever means the request itself failed
+				// (network error, or a non-admin hitting its
+				// manage_options gate), never "this user has zero
+				// widgets". Falling back to the same default order a
+				// never-customized install starts with keeps the
+				// dashboard usable instead of silently rendering
+				// nothing; any drag/hide the user makes still tries to
+				// persist normally afterwards.
+				if (response && response.length > 0) {
 					setLayout(response);
+				} else {
+					setLayout(
+						DEFAULT_DASHBOARD_WIDGETS.map((widget) => ({
+							id: widget.id,
+							enabled: true,
+						}))
+					);
 				}
 			})
 			.finally(() => setIsLayoutLoading(false));

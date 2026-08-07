@@ -1,7 +1,9 @@
+/* global appLocalizer */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
+import ProLockedCard from '../components/ProLockedCard';
 import { useApiList } from '../services/useApiList';
 import { WidgetProps } from './types';
 
@@ -33,11 +35,18 @@ const HealthTimelineWidget: React.FC<WidgetProps> = ({
 	 * `/site-health-snapshots` only exists at all once vulopilot-pro's
 	 * AdvancedReports module registers it (via the vulopilot_rest_controllers
 	 * filter) — on a Free-only install this request 404s every time, which
-	 * is the expected, permanent state, not a transient failure a "Retry"
-	 * button could ever fix. So this widget deliberately treats "failed to
-	 * load" and "loaded zero rows" as the same friendly empty state rather
-	 * than surfacing an error+retry card for something retrying can't fix.
+	 * is the expected, permanent state, not a transient failure. Checking
+	 * `active_modules` directly (rather than treating "zero rows" and
+	 * "404'd" as the same friendly empty state, as this widget used to)
+	 * distinguishes the two honestly: a Free user sees the real "unlock
+	 * with Pro" pitch (same ProLockedCard/ShowProPopup pattern every other
+	 * Pro-gated panel in this plugin uses) instead of "run a scan" copy
+	 * that can never resolve on Free, since scans never populate this
+	 * endpoint there.
 	 */
+	const isModuleActive =
+		appLocalizer.active_modules.includes('advanced-reports');
+
 	return (
 		<DashboardWidget
 			title={__('Health timeline', 'vulopilot')}
@@ -46,7 +55,9 @@ const HealthTimelineWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
-			{snapshots.length === 0 ? (
+			{!isModuleActive ? (
+				<ProLockedCard moduleName="advanced-reports" />
+			) : snapshots.length === 0 ? (
 				<ModuleGuardComponent
 					icon="analytics"
 					title={__('No trend data yet', 'vulopilot')}

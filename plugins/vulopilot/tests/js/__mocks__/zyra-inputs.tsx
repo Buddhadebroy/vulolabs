@@ -1,6 +1,8 @@
 /**
  * Test double for '@zyra/inputs' — see zyra-core.js's own docblock for why.
  */
+import type { MouseEvent } from 'react';
+
 export const TextInput = ( {
 	type,
 	value,
@@ -18,17 +20,33 @@ export const TextInput = ( {
 	/>
 );
 
+interface ButtonConfig {
+	text: string;
+	icon?: string;
+	/* eslint-disable-next-line no-unused-vars -- named param on a type-only call signature, same reasoning as this file's TextInput onChange above. */
+	onClick: ( event?: MouseEvent< HTMLButtonElement > ) => void;
+	disabled?: boolean;
+}
+
+/** Real ButtonInput takes either one config or an array (RunAuditWidget/AISuggestionsWidget pass an array for multiple buttons in one slot). */
 export const ButtonInput = ( {
 	buttons,
 }: {
-	buttons: {
-		text: string;
-		icon?: string;
-		onClick: () => void;
-		disabled?: boolean;
-	};
-} ) => (
-	<button onClick={ buttons.onClick } disabled={ buttons.disabled }>
-		{ buttons.text }
-	</button>
-);
+	buttons: ButtonConfig | ButtonConfig[];
+	position?: string;
+} ) => {
+	const list = Array.isArray( buttons ) ? buttons : [ buttons ];
+	return (
+		<>
+			{ list.map( ( btn, index ) => (
+				<button
+					key={ index }
+					onClick={ btn.onClick }
+					disabled={ btn.disabled }
+				>
+					{ btn.text }
+				</button>
+			) ) }
+		</>
+	);
+};

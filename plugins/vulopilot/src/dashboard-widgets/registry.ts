@@ -8,7 +8,6 @@ import CrawlerTrafficWidget from './CrawlerTrafficWidget';
 import KnowledgeGraphWidget from './KnowledgeGraphWidget';
 import NeedsAttentionWidget from './NeedsAttentionWidget';
 import BrandBreakdownWidget from './BrandBreakdownWidget';
-import IssueDistributionWidget from './IssueDistributionWidget';
 import OverallScoreWidget from './OverallScoreWidget';
 import RunAuditWidget from './RunAuditWidget';
 import AISuggestionsWidget from './AISuggestionsWidget';
@@ -86,25 +85,11 @@ const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [];
  */
 const STANDALONE_WIDGETS: WidgetDefinition[] = [
 	{
-		id: 'health-timeline',
-		title: __('Health timeline', 'vulopilot'),
-		icon: 'analytics',
-		grid: 6,
-		component: HealthTimelineWidget,
-	},
-	{
 		id: 'needs-attention',
 		title: __('Needs your attention', 'vulopilot'),
 		icon: 'error',
-		grid: 6,
+		grid: 12,
 		component: NeedsAttentionWidget,
-	},
-	{
-		id: 'latest-reports',
-		title: __('Latest reports', 'vulopilot'),
-		icon: 'report',
-		grid: 6,
-		component: LatestReportsWidget,
 	},
 	{
 		id: 'automation-status',
@@ -132,15 +117,22 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		title: __('Brand Visibility breakdown', 'vulopilot'),
 		
 		icon: 'person',
-		grid: 6,
+		grid: 4,
 		component: BrandBreakdownWidget,
 	},
 	{
-		id: 'issue-distribution',
-		title: __('Issue distribution', 'vulopilot'),
-		icon: 'error',
-		grid: 6,
-		component: IssueDistributionWidget,
+		id: 'health-timeline',
+		title: __('Health timeline', 'vulopilot'),
+		icon: 'analytics',
+		grid: 4,
+		component: HealthTimelineWidget,
+	},
+	{
+		id: 'latest-reports',
+		title: __('Latest reports', 'vulopilot'),
+		icon: 'report',
+		grid: 4,
+		component: LatestReportsWidget,
 	},
 ];
 
