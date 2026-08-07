@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -13,6 +13,14 @@ interface DashboardGridProps {
 	isLoading: boolean;
 	/** Gates drag/hide affordances — see Dashboard.tsx's own state comment. */
 	isCustomizing: boolean;
+	/**
+	 * Incremented by Dashboard.tsx's "Restore default" header button.
+	 * A signal counter rather than a boolean so every click re-triggers
+	 * the reset effect below even if the value would otherwise be
+	 * unchanged (e.g. two clicks in a row with no other re-render
+	 * between them).
+	 */
+	restoreDefaultSignal?: number;
 }
 
 /** What ReactSortable actually needs on every list item — see react-sortablejs's own usage in PanelEditor.tsx (Zyra's builders package) for this exact `list`/`setList` shape. */
@@ -49,6 +57,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 	summary,
 	isLoading,
 	isCustomizing,
+	restoreDefaultSignal,
 }) => {
 	const [layout, setLayout] = useState<WidgetLayoutEntry[]>([]);
 	const [isLayoutLoading, setIsLayoutLoading] = useState(true);
@@ -92,6 +101,26 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 			{ widgets: nextLayout }
 		);
 	};
+
+	// `restoreDefaultSignal` starts at 0 and only ever increments from a
+	// real button click (Dashboard.tsx), so skipping the very first run
+	// (mount) is enough to avoid resetting the layout the user just
+	// fetched before they've clicked anything.
+	const isFirstRestoreRender = useRef(true);
+	useEffect(() => {
+		if (isFirstRestoreRender.current) {
+			isFirstRestoreRender.current = false;
+			return;
+		}
+
+		persistLayout(
+			DEFAULT_DASHBOARD_WIDGETS.map((widget) => ({
+				id: widget.id,
+				enabled: true,
+			}))
+		);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [restoreDefaultSignal]);
 
 	const handleHide = (id: string) => {
 		persistLayout(

@@ -12,6 +12,7 @@ import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
 import { getSeverityClass } from '../services/getSeverityClass';
+import { getCategoryTabLink } from '../services/getCategoryTabLink';
 import { WidgetProps } from './types';
 
 interface FindingRow {
@@ -26,18 +27,6 @@ interface ActionRunRow {
 	action_id: string;
 	created_at: string;
 }
-
-/** Security has no dedicated page of its own (see HealthPillarsWidget's
- * same note) — its findings only ever show up in Health's unfiltered
- * list, so that's where a security finding's row navigates. */
-const CATEGORY_TABS: Record<string, string> = {
-	seo: 'seo',
-	performance: 'performance',
-	accessibility: 'accessibility',
-	woocommerce: 'woocommerce',
-	geo: 'geo',
-	security: 'health',
-};
 
 /**
  * "Needs your attention" — the three real, honest data sources that used
@@ -173,11 +162,8 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 										id: String(finding.id),
 										title: finding.title,
 										action: () => {
-											const tab =
-												CATEGORY_TABS[
-													finding.category ?? ''
-												] ?? 'health';
-											window.location.href = `?page=vulopilot#&tab=${tab}`;
+											window.location.href =
+												getCategoryTabLink(finding.category);
 										},
 										tags: (
 											<span

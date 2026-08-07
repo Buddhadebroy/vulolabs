@@ -108,7 +108,7 @@ const AEO_SECTIONS: {
 			'vulopilot'
 		),
 		scannerIds: ['llms-txt-missing'],
-		proModule: 'geo-insights',
+		proModule: 'aeo-insights',
 	},
 ];
 

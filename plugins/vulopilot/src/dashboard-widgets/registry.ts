@@ -112,14 +112,12 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		grid: 6,
 		component: KnowledgeGraphWidget,
 	},
-	{
-		id: 'brand-breakdown',
-		title: __('Brand Visibility breakdown', 'vulopilot'),
-		
-		icon: 'person',
-		grid: 4,
-		component: BrandBreakdownWidget,
-	},
+	// Health timeline / Latest reports / Brand Visibility breakdown are a
+	// deliberate one-row group: each is grid:4 (12/3), and kept adjacent
+	// here so they always share a row in the default layout rather than
+	// relying on some other widget's grid happening to sum to 12 first.
+	// A user can still drag them apart via Customize dashboard — this
+	// only controls the never-customized/"Restore default" order.
 	{
 		id: 'health-timeline',
 		title: __('Health timeline', 'vulopilot'),
@@ -133,6 +131,13 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		icon: 'report',
 		grid: 4,
 		component: LatestReportsWidget,
+	},
+	{
+		id: 'brand-breakdown',
+		title: __('Brand Visibility breakdown', 'vulopilot'),
+		icon: 'person',
+		grid: 4,
+		component: BrandBreakdownWidget,
 	},
 ];
 

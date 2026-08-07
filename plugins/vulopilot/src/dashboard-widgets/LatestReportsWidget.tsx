@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
+import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 
 interface ReportRow {
@@ -56,6 +57,7 @@ const LatestReportsWidget: React.FC<WidgetProps> = ({
 					items={data.map((row) => ({
 						id: String(row.id),
 						title: row.report_type,
+						value: formatWpDate(row.created_at),
 						className: `status-${row.status}`,
 						tags: (
 							<span className={`admin-badge status-${row.status}`}>
