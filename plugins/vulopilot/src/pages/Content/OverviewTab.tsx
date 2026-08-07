@@ -4,6 +4,7 @@ import ContentToolsGrid from './ContentToolsGrid';
 import QuickStartCard from './QuickStartCard';
 import ContentStatsCard from './ContentStatsCard';
 import RecentContentCard from './RecentContentCard';
+import ContentScoreCard from './ContentScoreCard';
 import AiContentAssistantSidebar from './AiContentAssistantSidebar';
 import './CreateContent.scss';
 
@@ -22,6 +23,7 @@ const OverviewTab: React.FC = () => {
 					<ContentToolsGrid />
 				</ColumnComponent>
 				<ColumnComponent grid={4}>
+					<ContentScoreCard />
 					<QuickStartCard />
 					<ContentStatsCard />
 				</ColumnComponent>

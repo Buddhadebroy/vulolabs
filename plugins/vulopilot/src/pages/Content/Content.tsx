@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import { useLocation } from 'react-router-dom';
 import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
 import OverviewTab from './OverviewTab';
-import ContentTab from './ContentTab';
 import AiContentTab from './AiContentTab';
 
 const TAB_IDS = ['overview', 'content', 'ai-content'] as const;
@@ -62,10 +61,6 @@ const Content = () => {
 					{
 						label: __('Overview', 'vulopilot'),
 						content: <OverviewTab />,
-					},
-					{
-						label: __('Content', 'vulopilot'),
-						content: <ContentTab />,
 					},
 					{
 						label: __('AI Content', 'vulopilot'),

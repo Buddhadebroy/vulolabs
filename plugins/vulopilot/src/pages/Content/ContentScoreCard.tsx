@@ -1,8 +1,10 @@
 /* global appLocalizer */
+
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
+
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, AnalyticsComponent } from '@zyra/components';
+import { CardComponent, ChartComponent } from '@zyra/components';
 
 interface ContentScoreResponse {
 	score: number;
@@ -15,9 +17,12 @@ interface ContentScoreResponse {
 }
 
 /**
- * Content page's "Content Score" card — `GET /content-intelligence/score`
- * (Controllers\ContentIntelligence, Free — deterministic, no AI call).
- * Same fetch-on-mount, read-only shape TopPagesCard.tsx already uses.
+ * Content page's "Content Score" card.
+ *
+ * GET /content-intelligence/score
+ *
+ * Uses ChartComponent instead of AnalyticsComponent and follows
+ * the same card/chart pattern as SecurityStatusCard.
  */
 const ContentScoreCard = () => {
 	const [data, setData] = useState<ContentScoreResponse | null>(null);
@@ -26,7 +31,11 @@ const ContentScoreCard = () => {
 	useEffect(() => {
 		getApiResponse<ContentScoreResponse>(
 			getApiLink(appLocalizer, 'content-intelligence/score'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			{
+				headers: {
+					'X-WP-Nonce': appLocalizer.nonce,
+				},
+			}
 		)
 			.then((response) => {
 				if (response) {
@@ -37,36 +46,74 @@ const ContentScoreCard = () => {
 	}, []);
 
 	return (
-		<>
-		{data && (
-			<AnalyticsComponent
-				variant="progress"
-				data={[
-					{
-						icon: 'home',
-						number: `${data.score}/100`,
-						text: __('Content Score', 'vulopilot'),
-						colorClass: 'blue-color',
-						progress: data.score,
-					},
-					{
-						icon: 'home',
-						number: data.severity_breakdown.critical,
-						text: __('Critical', 'vulopilot'),
-						colorClass: 'yellow-color',
-						progress: data.severity_breakdown.critical,
-					},
-					{
-						icon: 'home',
-						number: data.severity_breakdown.high,
-						text: __('High', 'vulopilot'),
-						colorClass: 'green-color',
-						progress: data.severity_breakdown.high,
-					},
-				]}
-			/>
-		)}
-		</>
+		<CardComponent
+			title={__('Content Score', 'vulopilot')}
+			titleIcon="content"
+			isLoading={isLoading}
+		>
+			{data && (
+				<>
+					<ChartComponent
+						type="pie"
+						height={160}
+						centerLabel={
+							<span>
+								{data.score}
+								<small>/100</small>
+							</span>
+						}
+						data={[
+							{
+								label: __('Score', 'vulopilot'),
+								value: data.score,
+								color: '#2563eb',
+							},
+							{
+								label: __('Remaining', 'vulopilot'),
+								value: Math.max(0, 100 - data.score),
+								color: '#e5e7eb',
+							},
+						]}
+					/>
+
+					<div>
+						<div>
+							<strong>
+								{__('Severity Breakdown', 'vulopilot')}
+							</strong>
+						</div>
+
+						<div>
+							<span>
+								{__('Critical', 'vulopilot')}
+							</span>
+							<span>{data.severity_breakdown.critical}</span>
+						</div>
+
+						<div>
+							<span>
+								{__('High', 'vulopilot')}
+							</span>
+							<span>{data.severity_breakdown.high}</span>
+						</div>
+
+						<div>
+							<span>
+								{__('Medium', 'vulopilot')}
+							</span>
+							<span>{data.severity_breakdown.medium}</span>
+						</div>
+
+						<div>
+							<span>
+								{__('Low', 'vulopilot')}
+							</span>
+							<span>{data.severity_breakdown.low}</span>
+						</div>
+					</div>
+				</>
+			)}
+		</CardComponent>
 	);
 };
 
