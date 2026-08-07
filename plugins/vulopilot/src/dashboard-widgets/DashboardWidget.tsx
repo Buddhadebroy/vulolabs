@@ -9,6 +9,10 @@ interface DashboardWidgetProps {
 	onHide: () => void;
 	isCustomizing: boolean;
 	children: React.ReactNode;
+	/** Passed straight through to CardComponent — e.g. BrandBreakdownWidget's pink accent. */
+	borderColor?: string;
+	/** Passed straight through to CardComponent — a short subtitle under the title. */
+	desc?: React.ReactNode;
 	/**
 	 * An optional always-visible header link (e.g. "Show details" linking
 	 * to another page) — same `CardComponent` `action` slot the drag/hide

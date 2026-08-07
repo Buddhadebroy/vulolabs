@@ -157,11 +157,11 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 
 	return (
 		<DashboardWidget
-		// title={__('Overall Site Score', 'vulopilot')}
-		// icon="analytics"
-		// isLoading={isLoading}
-		// onHide={onHide}
-		// isCustomizing={isCustomizing}
+			title={__('Overall Site Score', 'vulopilot')}
+			icon="analytics"
+			isLoading={isLoading}
+			onHide={onHide}
+			isCustomizing={isCustomizing}
 		>
 			<ContainerComponent>
 				<ColumnComponent grid={3}>

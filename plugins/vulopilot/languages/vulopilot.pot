@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-07T06:06:05+00:00\n"
+"POT-Creation-Date: 2026-08-07T10:52:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -4391,27 +4391,102 @@ msgid "Website technical details are displayed to ensure optimal performance and
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "AI Automation Workflows and Scheduled Website Scans — trigger→action rules plus recurring wp-cron scanning, not just on-demand scans."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks for an admin account named \"admin\" and anonymous REST API user-enumeration exposure."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "WooCommerce AI"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI Product Optimization and Bulk AI Optimization — rewrites product titles, generates descriptions/FAQ/schema, and suggests cross-sell/upsell/bundles."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Advanced Reports"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recurring, emailed report schedules, a custom report builder, and historical site-health trend data."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One-Click AI Fixes"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Adds a \"Fix this\" action to findings that have a matching AI action — propose and approve a fix without leaving the Dashboard."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "GEO Insights"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Per-post AI scoring for AI-search-engine discoverability — entity coverage, question coverage, answer completeness, and AI suggestions."
+msgstr ""
+
+#. translators: %s: Plugin name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Plugin Required: %s"
+msgstr ""
+
+#: assets/js/index.js:1
+#, js-format
+msgid "This feature requires the \"%s\" plugin to be active."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Activate Plugin"
+msgstr ""
+
+#. translators: %s: Module name.
+#: assets/js/index.js:1
+#, js-format
+msgid "Activate %s"
+msgstr ""
+
+#. translators: %s: Module name.
+#: assets/js/index.js:1
+#, js-format
+msgid "This feature is currently unavailable. To activate it, please enable the %s module."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable Now"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Unlock the full VuloPilot toolkit"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automated fixes, scheduled scans, security monitoring, and WooCommerce AI — on top of everything Free already does."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What Pro adds"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Unlock with Pro"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Something went wrong while loading this data."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "All"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Critical"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "High"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Medium"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Low"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4451,11 +4526,27 @@ msgid "Performance Score"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Content Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Brand Score"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Visibility"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Commerce"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Brand"
 msgstr ""
 
 #. translators: %d: number of open findings
@@ -4544,6 +4635,10 @@ msgid "Today's Tasks"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Show details"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load tasks"
 msgstr ""
 
@@ -4577,58 +4672,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Undo isn't available yet for this change."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI usage"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "This month"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Content"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Readability, thin/duplicate content, links"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Brand"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Trust, authority, and entity signals"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Recent activity"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not load recent activity"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Nothing has happened yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Actions across VuloPilot will show up here."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Health timeline"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No trend data yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Run your first scan to start building a health score history."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4681,22 +4724,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "AI actions that need your approval before they run will appear here."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Latest reports"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not load reports"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No reports yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Generate your first compliance report from the Reports page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4782,19 +4809,31 @@ msgid "Try refreshing the dashboard."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Issue distribution"
+msgid "Health timeline"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Open findings grouped by severity."
+msgid "No trend data yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Severity"
+msgid "Run your first scan to start building a health score history."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Count"
+msgid "Latest reports"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load reports"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No reports yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Generate your first compliance report from the Reports page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4819,93 +4858,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Extend: CatalogX, Notifima"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI Automation Workflows and Scheduled Website Scans — trigger→action rules plus recurring wp-cron scanning, not just on-demand scans."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Checks for an admin account named \"admin\" and anonymous REST API user-enumeration exposure."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "WooCommerce AI"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI Product Optimization and Bulk AI Optimization — rewrites product titles, generates descriptions/FAQ/schema, and suggests cross-sell/upsell/bundles."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Advanced Reports"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Recurring, emailed report schedules, a custom report builder, and historical site-health trend data."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "One-Click AI Fixes"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Adds a \"Fix this\" action to findings that have a matching AI action — propose and approve a fix without leaving the Dashboard."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "GEO Insights"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Per-post AI scoring for AI-search-engine discoverability — entity coverage, question coverage, answer completeness, and AI suggestions."
-msgstr ""
-
-#. translators: %s: Plugin name.
-#: assets/js/index.js:1
-#, js-format
-msgid "Plugin Required: %s"
-msgstr ""
-
-#: assets/js/index.js:1
-#, js-format
-msgid "This feature requires the \"%s\" plugin to be active."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Activate Plugin"
-msgstr ""
-
-#. translators: %s: Module name.
-#: assets/js/index.js:1
-#, js-format
-msgid "Activate %s"
-msgstr ""
-
-#. translators: %s: Module name.
-#: assets/js/index.js:1
-#, js-format
-msgid "This feature is currently unavailable. To activate it, please enable the %s module."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Enable Now"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Unlock the full VuloPilot toolkit"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Automated fixes, scheduled scans, security monitoring, and WooCommerce AI — on top of everything Free already does."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Upgrade to Pro"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "What Pro adds"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4996,6 +4948,26 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "No findings here yet — nothing to report."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Severity"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Critical"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "High"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Medium"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Low"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5483,10 +5455,6 @@ msgid "Optimize"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Unlock with Pro"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Competitor Radar"
 msgstr ""
 
@@ -5854,10 +5822,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "No AI crawler visits detected yet."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Brand Score"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7016,6 +6980,14 @@ msgstr ""
 msgid "Quick Commands"
 msgstr ""
 
+#: assets/js/index.js:1
+msgid "AI usage"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This month"
+msgstr ""
+
 #. translators: %d is the number of open security findings.
 #: assets/js/index.js:1
 #, js-format
@@ -7422,10 +7394,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Ask Anything…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Content Score"
 msgstr ""
 
 #: assets/js/index.js:1
