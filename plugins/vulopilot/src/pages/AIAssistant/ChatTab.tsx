@@ -13,6 +13,7 @@ import {
 import { SUGGESTED_PROMPTS } from './copilotData';
 import SuggestedActionsList from './SuggestedActionsList';
 import AiWorkflowsList from './AiWorkflowsList';
+import AiUsageCard from './AiUsageCard';
 
 interface ChatTabProps {
 	onNavigateTab: (tab: string) => void;
@@ -144,7 +145,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				</CardComponent>
 			</ColumnComponent>
 
-			<ColumnComponent grid={12}>
+			<ColumnComponent grid={8}>
 				<CardComponent
 					title={__('Live Site Insights', 'vulopilot')}
 					titleIcon="analytics"
@@ -161,6 +162,9 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						)}
 					/>
 				</CardComponent>
+			</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<AiUsageCard />
 			</ColumnComponent>
 		</>
 	);

@@ -5,14 +5,12 @@ import {
 	PopupComponent,
 	TabsComponent,
 	ContainerComponent,
-	ColumnComponent
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import HistoryTab from './HistoryTab';
 import SuggestedActionsTab from './SuggestedActionsTab';
 import QuickCommandsTab from './QuickCommandsTab';
 import AiWorkflowsTab from './AiWorkflowsTab';
-import AiUsageCard from './AiUsageCard';
 
 const TAB_IDS = [
 	'chat',
@@ -133,11 +131,6 @@ const AIAssistant = () => {
 				/>
 				</>
 				</ContainerComponent>
-			<ContainerComponent general>
-				<ColumnComponent grid={4}>
-					<AiUsageCard />
-				</ColumnComponent>
-			</ContainerComponent>
 		</>
 	);
 };
