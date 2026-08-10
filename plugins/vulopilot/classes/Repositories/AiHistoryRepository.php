@@ -89,6 +89,21 @@ class AiHistoryRepository extends AbstractRepository {
     }
 
     /**
+     * Distinct providers actually present in the table, with call counts —
+     * backs the AI Assistant History table's "Provider" filter dropdown
+     * with real values (e.g. 'groq') instead of a fixed guess, the same
+     * `count_by_column()` pattern get_status_counts() above already uses.
+     * Unlike that method, this has no fixed zero-filled shape — the set of
+     * providers is whatever's actually been called, not a known-in-advance
+     * enum.
+     *
+     * @return array<string, int> provider => call count.
+     */
+    public function get_provider_counts(): array {
+        return $this->count_by_column( 'provider' );
+    }
+
+    /**
      * Call counts and cost broken down per provider for one date range —
      * what the report's "by provider" section table reads.
      *

@@ -12,7 +12,7 @@
 import type { ReactNode } from 'react';
 
 export interface TableRow {
-	id: number;
+	id?: number | string;
 	[ key: string ]: unknown;
 }
 
@@ -25,9 +25,19 @@ interface ActionConfig {
 
 interface HeaderConfig {
 	type?: string;
+	statusClass?: string | ( ( row: TableRow ) => string );
 	actions?: ActionConfig[];
+	/* eslint-disable-next-line no-unused-vars -- same reasoning as above. */
+	render?: ( row: TableRow ) => ReactNode;
 }
 
+/**
+ * `render` (used by IssuesList.tsx's Issues table for every
+ * custom column) and `type: 'status'` (its own "Priority" column) both
+ * need real support here, not just `type: 'action'` — this mock used to
+ * only render action-button headers, which silently dropped every other
+ * column's content in any test asserting on row text.
+ */
 export const TableCard = ( {
 	headers,
 	rows,
@@ -35,7 +45,7 @@ export const TableCard = ( {
 }: {
 	headers?: Record< string, HeaderConfig >;
 	rows: TableRow[];
-	ids?: number[];
+	ids?: ( number | string )[];
 	totalRows?: number;
 	categoryCounts?: unknown;
 	isLoading?: boolean;
@@ -52,27 +62,58 @@ export const TableCard = ( {
 		) : (
 			<>
 				{ `${ rows.length } rows` }
-				{ rows.map( ( row ) => (
-					<div key={ row.id }>
-						{ Object.values( headers || {} ).flatMap(
-							( header, headerIndex ) =>
-								'action' === header.type
-									? ( header.actions || [] ).map(
-											( action, actionIndex ) => (
-												<button
-													key={ `${ headerIndex }-${ actionIndex }` }
-													onClick={ () =>
-														action.onClick( row )
-													}
-												>
-													{ 'function' ===
-													typeof action.label
-														? action.label( row )
-														: action.label }
-												</button>
-											)
-									  )
-									: []
+				{ rows.map( ( row, rowIndex ) => (
+					<div key={ row.id ?? rowIndex }>
+						{ Object.entries( headers || {} ).map(
+							( [ key, header ] ) => {
+								if ( header.render ) {
+									return (
+										<div key={ key }>
+											{ header.render( row ) }
+										</div>
+									);
+								}
+
+								if ( 'action' === header.type ) {
+									return ( header.actions || [] ).map(
+										( action, actionIndex ) => (
+											<button
+												key={ `${ key }-${ actionIndex }` }
+												onClick={ () =>
+													action.onClick( row )
+												}
+											>
+												{ 'function' ===
+												typeof action.label
+													? action.label( row )
+													: action.label }
+											</button>
+										)
+									);
+								}
+
+								if ( 'status' === header.type ) {
+									const statusClass =
+										'function' === typeof header.statusClass
+											? header.statusClass( row )
+											: header.statusClass;
+
+									return (
+										<span
+											key={ key }
+											className={ `admin-badge badge-${ String( statusClass ).toLowerCase() }` }
+										>
+											{ String( row[ key ] ?? '' ) }
+										</span>
+									);
+								}
+
+								return (
+									<span key={ key }>
+										{ String( row[ key ] ?? '' ) }
+									</span>
+								);
+							}
 						) }
 					</div>
 				) ) }

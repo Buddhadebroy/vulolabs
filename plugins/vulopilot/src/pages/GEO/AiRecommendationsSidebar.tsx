@@ -24,7 +24,7 @@ interface AiHistoryRow {
  * instead. "Let AI Optimize My Site" has no real bulk-fix backend (same
  * reasoning as AiOpportunitiesCard's "Fix Everything with AI"), so it's
  * honestly disabled with a tooltip. "Review Changes First" is a real
- * navigation to AI Copilot's Suggested Actions tab — the actual
+ * navigation to AI Copilot's Issues tab — the actual
  * findings-backed list already built there. "Recent AI Wins" reuses the
  * real `GET /ai-history` endpoint (same one AI Copilot's History tab
  * uses) filtered to successful runs — a real, if sparse, entry when

@@ -36,6 +36,22 @@ class Findings extends \WP_REST_Controller {
     protected $rest_base = 'findings';
 
     /**
+     * GET /findings/groups' own `priority` param (one of the Issues table's
+     * High/Medium/Low stat tiles) mapped to FindingRepository::get_finding_groups()'s
+     * severity->rank scale — same 3-tier collapse get_priority_counts()
+     * already applies for those tiles' own counts (critical folds into
+     * "high", info folds into "low"), kept here rather than in the
+     * repository since it's a request-param translation, not persistence.
+     *
+     * @var array<string, int[]>
+     */
+    private const PRIORITY_SEVERITY_RANKS = array(
+        'high'   => array( 0, 1 ),
+        'medium' => array( 2 ),
+        'low'    => array( 3, 4 ),
+    );
+
+    /**
      * @inheritDoc
      */
     public function register_routes() {
@@ -71,6 +87,43 @@ class Findings extends \WP_REST_Controller {
                     'methods'             => \WP_REST_Server::EDITABLE,
                     'callback'            => array( $this, 'bulk_update_items' ),
                     'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
+        // AI Copilot's "Needs your attention" card (NeedsAttentionCard.tsx)
+        // — a dedicated summary shape (priority-bucketed counts + top
+        // issue-type groups) rather than overloading this controller's own
+        // GET /findings row-list contract, which FindingsTable/every
+        // category page already depends on unchanged.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/attention-summary',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_attention_summary' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                ),
+            )
+        );
+
+        // AI Copilot's Issues table (IssuesList.tsx) — every
+        // open finding grouped by issue type (scanner_id), paginated,
+        // instead of GET /findings' own one-row-per-individual-finding
+        // shape. Its own route, not a `group_by` param on GET /findings
+        // itself, since the response shape is fundamentally different
+        // (grouped counts + a representative sample, not a row list) and
+        // every existing GET /findings consumer (FindingsTable.tsx et al.)
+        // depends on the row-list shape unchanged.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/groups',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_finding_groups' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
                 ),
             )
         );
@@ -118,7 +171,7 @@ class Findings extends \WP_REST_Controller {
         $severity    = sanitize_key( (string) $request->get_param( 'severity' ) );
         $status      = sanitize_key( (string) $request->get_param( 'status' ) );
         $search      = sanitize_text_field( (string) $request->get_param( 'search' ) );
-        $scanner_ids = $this->parse_scanner_ids( $request->get_param( 'scanner_id' ) );
+        $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
 
         if ( '' !== $severity && ! Severity::is_valid( $severity ) ) {
             return new \WP_Error( 'vulopilot_invalid_severity', __( 'Invalid severity filter.', 'vulopilot' ), array( 'status' => 400 ) );
@@ -151,6 +204,103 @@ class Findings extends \WP_REST_Controller {
     }
 
     /**
+     * GET /findings/attention-summary — real open-findings counts bucketed
+     * into 3 priority tiers, plus the top 3 issue types (grouped by
+     * scanner_id, most severe first), each annotated with its scanner's
+     * human `get_label()` so the client never has to hardcode a
+     * scanner_id → label map. See FindingRepository::get_priority_counts()/
+     * get_top_finding_groups() for how each half is computed.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function get_attention_summary( $request ) {
+        $repository      = new FindingRepository();
+        $priority_counts = $repository->get_priority_counts();
+        $groups          = $repository->get_top_finding_groups( 3 );
+
+        $groups = array_map(
+            static function ( array $group ): array {
+                $scanner        = VuloPilot()->scanner_registry->get_scanner( $group['scanner_id'] );
+                $group['label'] = $scanner ? $scanner->get_label() : $group['scanner_id'];
+
+                return $group;
+            },
+            $groups
+        );
+
+        return rest_ensure_response(
+            array(
+                'total'           => array_sum( $priority_counts ),
+                'priority_counts' => $priority_counts,
+                'groups'          => $groups,
+            )
+        );
+    }
+
+    /**
+     * GET /findings/groups — AI Copilot's Issues table (IssuesList.tsx):
+     * every open finding grouped by issue type, paginated and optionally
+     * scoped to one category and/or one priority tier, each group
+     * annotated with its scanner's real `get_label()` and one real
+     * representative finding (`sample`) so the client's row/detail-panel
+     * copy is never fabricated — see FindingRepository::get_finding_groups()
+     * for how the grouping itself is computed.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function get_finding_groups( $request ) {
+        $repository = new FindingRepository();
+        $categories = $this->parse_comma_separated_list( $request->get_param( 'category' ) );
+        $priority   = sanitize_key( (string) $request->get_param( 'priority' ) );
+
+        $page     = absint( $request->get_param( 'page' ) );
+        $per_page = absint( $request->get_param( 'per_page' ) );
+
+        $result = $repository->get_finding_groups(
+            array(
+                'status'         => 'open',
+                'category'       => $categories ?? '',
+                'priority_ranks' => self::PRIORITY_SEVERITY_RANKS[ $priority ] ?? array(),
+                'page'           => $page > 0 ? $page : 1,
+                'per_page'       => $per_page > 0 ? $per_page : 20,
+            )
+        );
+
+        $result['data'] = array_map(
+            function ( array $group ) use ( $repository ): array {
+                $scanner        = VuloPilot()->scanner_registry->get_scanner( $group['scanner_id'] );
+                $group['label'] = $scanner ? $scanner->get_label() : $group['scanner_id'];
+
+                $sample = $repository->find_all(
+                    array(
+                        'scanner_id' => $group['scanner_id'],
+                        'status'     => 'open',
+                        'per_page'   => 1,
+                        'orderby'    => 'id',
+                        'order'      => 'desc',
+                    )
+                );
+
+                $group['sample'] = $sample['data'][0] ?? null;
+
+                if ( $group['sample'] ) {
+                    $group['sample'] = $this->add_page_field( $group['sample'] );
+                }
+
+                return $group;
+            },
+            $result['data']
+        );
+
+        $result['priority_counts'] = $repository->get_priority_counts();
+        $result['category_counts'] = $repository->get_category_group_counts();
+
+        return rest_ensure_response( $result );
+    }
+
+    /**
      * Resolves each row's raw `object_type`/`object_ref` DB columns into a
      * human-readable `page` field the client can display directly (GEO.tsx's
      * compact FindingsTable layout — "$page · Detected $date", the same
@@ -167,7 +317,7 @@ class Findings extends \WP_REST_Controller {
         $object_ref  = $row['object_ref'] ?? null;
 
         if ( 'post' === $object_type && is_numeric( $object_ref ) ) {
-            $permalink = get_permalink( (int) $object_ref );
+            $permalink   = get_permalink( (int) $object_ref );
             $row['page'] = $permalink ? wp_make_link_relative( $permalink ) : __( 'Site-wide', 'vulopilot' );
 
             return $row;
@@ -196,13 +346,16 @@ class Findings extends \WP_REST_Controller {
      * section groups together, since FindingRepository::find_all()'s
      * filterable_columns only exact-matches a single scalar per column
      * value unless given an array (AbstractRepository::build_column_where_clause()).
-     * A single scanner id (no comma) still round-trips correctly as a
-     * one-element array.
+     * A single value (no comma) still round-trips correctly as a
+     * one-element array. Also backs `get_finding_groups()`'s own `category`
+     * param — the Issues table's "SEO & Visibility" tab, for example, folds
+     * 4 real category values into one tab (see IssuesFilterTabs in the
+     * frontend's issuesTypes.ts) — same shape, same reasoning.
      *
-     * @param mixed $raw_param Raw `scanner_id` request param.
-     * @return string[]|null Sanitized scanner ids, or null when the param was empty/absent.
+     * @param mixed $raw_param Raw comma-separated request param.
+     * @return string[]|null Sanitized values, or null when the param was empty/absent.
      */
-    private function parse_scanner_ids( $raw_param ): ?array {
+    private function parse_comma_separated_list( $raw_param ): ?array {
         if ( empty( $raw_param ) ) {
             return null;
         }

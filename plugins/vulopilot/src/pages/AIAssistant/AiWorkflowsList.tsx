@@ -35,6 +35,10 @@ const RUN_DISABLED_REASON = __(
  * honest-disabled-affordance pattern the Dashboard's Recent Changes
  * widget already uses for its own "Undo" control.
  */
+const goToAutomation = () => {
+	window.location.href = '?page=vulopilot#&tab=automation';
+};
+
 const AiWorkflowsList: React.FC<AiWorkflowsListProps> = ({ limit }) => {
 	const { data, isLoading, error, refetch } = useApiList<AutomationRow>(
 		'automations',
@@ -72,6 +76,8 @@ const AiWorkflowsList: React.FC<AiWorkflowsListProps> = ({ limit }) => {
 					'Create one from the Automation page to react to scan findings automatically.',
 					'vulopilot'
 				)}
+				buttonText={__('Go to Automation', 'vulopilot')}
+				onButtonClick={goToAutomation}
 			/>
 		);
 	}
@@ -82,6 +88,7 @@ const AiWorkflowsList: React.FC<AiWorkflowsListProps> = ({ limit }) => {
 				<InformationItemComponent
 					key={workflow.id}
 					title={workflow.name}
+					onClick={goToAutomation}
 					avatar={{
 						iconClass: 'automation',
 						color:
@@ -103,6 +110,9 @@ const AiWorkflowsList: React.FC<AiWorkflowsListProps> = ({ limit }) => {
 								role="button"
 								aria-disabled="true"
 								className="ai-workflow-run-btn disabled"
+								onClick={(e: React.MouseEvent) =>
+									e.stopPropagation()
+								}
 							>
 								<span className="dashicons dashicons-controls-play" />
 							</span>

@@ -95,22 +95,22 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		id: 'automation-status',
 		title: __('Automation status', 'vulopilot'),
 		icon: 'automation',
-		grid: 3,
+		grid: 4,
 		component: AutomationStatusWidget,
 	},
 	{
 		id: 'crawler-traffic',
 		title: __('AI crawler traffic', 'vulopilot'),
 		icon: 'global-community',
-		grid: 3,
+		grid: 4,
 		component: CrawlerTrafficWidget,
 	},
 	{
-		id: 'health-timeline',
-		title: __('Health timeline', 'vulopilot'),
-		icon: 'analytics',
-		grid: 6,
-		component: HealthTimelineWidget,
+		id: 'knowledge-graph',
+		title: __('Knowledge Graph', 'vulopilot'),
+		icon: 'centralized-connections',
+		grid: 4,
+		component: KnowledgeGraphWidget,
 	},
 	// Health timeline / Latest reports / Brand Visibility breakdown are a
 	// deliberate one-row group: each is grid:4 (12/3), and kept adjacent
@@ -119,11 +119,11 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 	// A user can still drag them apart via Customize dashboard — this
 	// only controls the never-customized/"Restore default" order.
 	{
-		id: 'knowledge-graph',
-		title: __('Knowledge Graph', 'vulopilot'),
-		icon: 'centralized-connections',
+		id: 'health-timeline',
+		title: __('Health timeline', 'vulopilot'),
+		icon: 'analytics',
 		grid: 4,
-		component: KnowledgeGraphWidget,
+		component: HealthTimelineWidget,
 	},
 	{
 		id: 'brand-breakdown',

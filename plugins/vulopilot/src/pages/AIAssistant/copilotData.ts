@@ -2,8 +2,8 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * "Try asking me…" starter prompts — static UI copy, not fetched data, so
- * this stays a plain constant unlike Suggested Actions/AI Workflows (see
- * SuggestedActionsList.tsx/AiWorkflowsList.tsx, which read real `/findings`
+ * this stays a plain constant unlike Issues/AI Workflows (see
+ * IssuesList.tsx/AiWorkflowsList.tsx, which read real `/findings`
  * and `/automations` data instead of placeholder rows).
  */
 

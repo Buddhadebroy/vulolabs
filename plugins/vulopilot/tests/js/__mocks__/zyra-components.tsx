@@ -169,27 +169,91 @@ interface ListItem {
 
 export const ListComponent = ( { items }: { items: ListItem[] } ) => (
 	<ul>
-		{ items.map( ( item, index ) => (
-			<li key={ item.id ?? index }>
-				{ item.action ? (
-					<button onClick={ item.action }>
-						{ item.title ?? item.desc }
-					</button>
-				) : (
-					<span>{ item.title ?? item.desc }</span>
-				) }
-				{ item.value && <span>{ item.value }</span> }
-				{ item.tags }
-				{ item.onApprove && (
-					<button onClick={ item.onApprove }>Approve</button>
-				) }
-				{ item.onReject && (
-					<button onClick={ item.onReject }>Reject</button>
-				) }
-			</li>
-		) ) }
+		{ items.map( ( item, index ) => {
+			// Real "mini-card"/"report" rows show title and desc as two
+			// separate lines when both are given (AICopilot.scss's own
+			// `.details .item-title`/`.details .desc` target them
+			// independently) — `item.title ?? item.desc` alone only covers
+			// the "one or the other" rows (e.g. KnowledgeGraphWidget's
+			// desc-only items), not both together (e.g. NeedsAttentionCard's
+			// title+desc rows).
+			const label = ( item.title || item.desc ) && (
+				<>
+					{ item.title && <span>{ item.title }</span> }
+					{ item.desc && <span>{ item.desc }</span> }
+				</>
+			);
+
+			return (
+				<li key={ item.id ?? index }>
+					{ item.action ? (
+						<button onClick={ item.action }>{ label }</button>
+					) : (
+						<span>{ label }</span>
+					) }
+					{ item.value && <span>{ item.value }</span> }
+					{ item.tags }
+					{ item.onApprove && (
+						<button onClick={ item.onApprove }>Approve</button>
+					) }
+					{ item.onReject && (
+						<button onClick={ item.onReject }>Reject</button>
+					) }
+				</li>
+			);
+		} ) }
 	</ul>
 );
+
+interface InformationItemDescription {
+	value: ReactNode;
+}
+
+interface InformationItemBadge {
+	text: string;
+	className?: string;
+}
+
+/** Real usages: FindingsTable.tsx (compact layout), IssuesList.tsx, AiWorkflowsList.tsx, NeedsAttentionCard.tsx. */
+export const InformationItemComponent = ( {
+	title,
+	isLoading,
+	onClick,
+	descriptions,
+	badges,
+	rightContent,
+}: {
+	title?: ReactNode;
+	isLoading?: boolean;
+	onClick?: () => void;
+	avatar?: { iconClass?: string; color?: string };
+	descriptions?: InformationItemDescription[];
+	badges?: InformationItemBadge[];
+	rightContent?: ReactNode;
+} ) => {
+	if ( isLoading ) {
+		return <div className="info-item-wrapper" aria-busy="true" />;
+	}
+
+	const content = (
+		<>
+			<span>{ title }</span>
+			{ badges?.map( ( badge, index ) => (
+				<span key={ index }>{ badge.text }</span>
+			) ) }
+			{ descriptions?.map( ( description, index ) => (
+				<span key={ index }>{ description.value }</span>
+			) ) }
+			{ rightContent }
+		</>
+	);
+
+	return onClick ? (
+		<button onClick={ onClick }>{ content }</button>
+	) : (
+		<div>{ content }</div>
+	);
+};
 
 interface ActivityAction {
 	label: string;
@@ -279,4 +343,44 @@ export const TrendIndicatorComponent = ( {
 		{ value }
 		{ suffix }
 	</span>
+);
+
+interface TrendStatItem {
+	icon: string;
+	label: string;
+	value: string | number;
+	badge?: { text: string; color: string };
+}
+
+/**
+ * `trend-stat-list`/`trend-stat-tile` mirror the real compiled component's
+ * own classNames (no other distinguishing id/data attribute exists on a
+ * real tile) — IssuesSummaryCards.tsx delegates its priority-tile clicks by
+ * walking up to the nearest `.trend-stat-tile` and reading its position
+ * among siblings, so a mock without these classes would silently no-op
+ * every click in a test.
+ */
+export const TrendStatComponent = ( {
+	items,
+	isLoading,
+}: {
+	items: TrendStatItem[];
+	cols?: number;
+	isLoading?: boolean;
+} ) => (
+	<div className="trend-stat-list">
+		{ items.map( ( item, index ) => (
+			<div className="trend-stat-tile" key={ index }>
+				<span>{ item.label }</span>
+				{ isLoading ? (
+					<span>Loading…</span>
+				) : (
+					<>
+						<span>{ item.value }</span>
+						{ item.badge && <span>{ item.badge.text }</span> }
+					</>
+				) }
+			</div>
+		) ) }
+	</div>
 );

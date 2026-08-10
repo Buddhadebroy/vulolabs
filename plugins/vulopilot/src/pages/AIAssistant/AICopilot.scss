@@ -88,6 +88,18 @@
 		font-size: 0.813rem;
 	}
 
+	// zyra's ListComponent renders `item.value` with no font-size of its
+	// own (unlike `item-title`/`desc` above) — it's meant for this same
+	// "price-list" variant's big price figures, so left unstyled it
+	// inherits the ambient (much larger) admin font size. RecentConversationsCard.tsx
+	// uses `value` for a timestamp caption, not a price, so it needs the
+	// same small/muted treatment as `.desc` here.
+	.details .value {
+		color: var(--sub-text-color, #6b7280);
+		font-size: 0.813rem;
+		font-weight: 400;
+	}
+
 	$categories: (
 		'seo': #2563eb,
 		'performance': #7c3aed,
@@ -107,59 +119,165 @@
 	}
 }
 
-// Full "Suggested Actions" tab (mockup: uniform purple icon box + title/
-// desc + severity badge + "Fix with AI" button per row, "Fix all with AI"
-// in the card header). Severity colors match IssueDistributionWidget.tsx's
-// own SEVERITY_COLORS (Dashboard's issue-distribution donut) so this page
-// doesn't invent a second severity palette; "info" (not used by that
-// widget) gets a neutral grey to match.
-.suggested-actions-full-list {
-	.info-item-wrapper:not(:last-child) .info-item {
-		border-bottom: 1px solid var(--border-color);
-	}
+// "Issues" (SuggestedActionsTab.tsx/SuggestedActionsList.tsx) — the mockup's
+// plain page header above the stat cards/tabs/table.
+.issues-page-title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0 0 0.25rem;
+}
 
-	.info-item {
-		padding: 0.875rem 0;
+.issues-page-desc {
+	color: var(--sub-text-color, #6b7280);
+	margin: 0 0 1rem;
+}
+
+// The 4 stat tiles (IssuesSummaryCards.tsx, built on zyra's own
+// TrendStatComponent). That component only exposes a `color` prop for its
+// (unused here — no historical trend data exists) sparkline, not the tile's
+// own icon/value, so the mockup's red/orange/blue icon tint per tile needs
+// this targeted nth-child styling — real severity colors, same values
+// FindingRepository::get_priority_counts() buckets already use everywhere
+// else in this file (`.attention-priority-pills` below).
+.issues-summary-cards {
+	margin-bottom: 1rem;
+
+	// Each tile is a real priority filter (IssuesSummaryCards.tsx delegates
+	// the click, matching a tile back to a priority by its position), so it
+	// needs to read as a control, not a static stat — cursor + hover state,
+	// plus a highlighted border on whichever priority is currently active.
+	.trend-stat-tile {
 		cursor: pointer;
-	}
+		border: 1px solid transparent;
+		transition: border-color 0.15s ease, background-color 0.15s ease;
 
-	.details-wrapper {
-		.avatar i {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 2.375rem;
-			height: 2.375rem;
-			font-size: 1.125rem;
-		}
-
-		.details .name {
-			overflow-wrap: anywhere;
-		}
-
-		.details .des {
-			color: var(--sub-text-color, #6b7280);
+		&:hover {
+			background: var(--theme-background-color, #f9fafb);
 		}
 	}
 
-	.right-content {
-		display: flex;
+	.trend-stat-tile:nth-child(2) .trend-stat-label i {
+		color: #dc2626;
+	}
+
+	.trend-stat-tile:nth-child(3) .trend-stat-label i {
+		color: #b45309;
+	}
+
+	.trend-stat-tile:nth-child(4) .trend-stat-label i {
+		color: #5baab3;
+	}
+
+	&.active-priority-all .trend-stat-tile:nth-child(1),
+	&.active-priority-high .trend-stat-tile:nth-child(2),
+	&.active-priority-medium .trend-stat-tile:nth-child(3),
+	&.active-priority-low .trend-stat-tile:nth-child(4) {
+		border-color: var(--color-primary);
+		background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
 	}
 }
 
-.suggested-action-controls {
+// Category tab bar — same local pattern as Content's own
+// .recent-content-tabs/.recent-content-tab (CreateContent.scss), scoped
+// here since it's this page's own concern.
+.issues-category-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+
+	.issues-category-tab {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		font-size: 0.85rem;
+		font-weight: 500;
+		color: #667085;
+		padding: 0.375rem 0.75rem;
+		border-radius: 999px;
+		cursor: pointer;
+
+		&:hover {
+			color: var(--color-primary);
+		}
+
+		&.active {
+			color: var(--color-primary);
+			background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
+		}
+	}
+
+	.issues-category-tab-count {
+		font-size: 0.75rem;
+		color: inherit;
+		opacity: 0.7;
+	}
+}
+
+// The Issues table's own "Issue" column cell (SuggestedActionsList.tsx) —
+// icon + title/desc, clickable to select this group's detail panel. Same
+// icon-square treatment as .suggested-actions-list.item-list.report's own
+// .item-icon above, reused here since TableCard's custom `render` cells
+// don't get that shared layout for free.
+.issues-table-issue-cell {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
+	cursor: pointer;
+	padding: 0.25rem 0;
+
+	.issues-table-issue-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 2.375rem;
+		height: 2.375rem;
+		border-radius: 0.5rem;
+		font-size: 1.125rem;
+		background: var(--theme-background-color, #f3f4f6);
+		color: var(--theme-color, #6b7280);
+	}
+
+	.issues-table-issue-text {
+		min-width: 0;
+	}
+
+	.issues-table-issue-title {
+		font-weight: 600;
+	}
+
+	.issues-table-issue-desc {
+		color: var(--sub-text-color, #6b7280);
+		font-size: 0.813rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+
+	&.selected .issues-table-issue-title {
+		color: var(--color-primary);
+	}
 }
 
-.suggested-action-severity {
-	padding: 0.25rem 0.625rem;
-	border-radius: 0.313rem;
-	font-size: 0.75rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	white-space: nowrap;
+// severity badge on the Issues table's own "Priority" column — same 5
+// hex values .attention-priority-pills below already uses, so a group's
+// badge here always agrees with its own priority-pill color elsewhere.
+.issues-table {
+	.badge-critical,
+	.badge-high,
+	.badge-medium,
+	.badge-low,
+	.badge-info {
+		padding: 0.25rem 0.625rem;
+		border-radius: 0.313rem;
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
 
 	$severities: (
 		'critical': #dc2626,
@@ -170,36 +288,329 @@
 	);
 
 	@each $name, $color in $severities {
-		&.severity-#{$name} {
+		.badge-#{$name} {
 			color: #{$color};
 			background: color-mix(in srgb, #{$color} 14%, transparent);
 		}
 	}
 }
 
-.suggested-action-fix-btn {
-	display: inline-flex;
-	align-items: center;
-	white-space: nowrap;
-	padding: 0.5rem 0.875rem;
-	border: 1px solid var(--border-color);
-	border-radius: 0.375rem;
-	font-size: 0.813rem;
-	font-weight: 500;
-	cursor: not-allowed;
-	color: var(--sub-text-color);
-	background: var(--background-white, #fff);
+// The detail side panel (IssueDetailPanel.tsx).
+.issue-detail-panel {
+	.issue-detail-title {
+		font-size: 1.125rem;
+		margin: 0.5rem 0;
+	}
+
+	.issue-detail-section {
+		margin-top: 1rem;
+
+		h4 {
+			font-size: 0.75rem;
+			text-transform: uppercase;
+			letter-spacing: 0.03em;
+			color: var(--sub-text-color, #6b7280);
+			margin: 0 0 0.375rem;
+		}
+
+		p {
+			margin: 0 0 0.25rem;
+		}
+	}
+
+	.issue-detail-example-title {
+		font-weight: 600;
+	}
+
+	.issue-detail-example-desc {
+		color: var(--sub-text-color, #6b7280);
+	}
+
+	.issue-detail-where {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+
+		code {
+			background: var(--theme-background-color, #f3f4f6);
+			padding: 0.25rem 0.5rem;
+			border-radius: 0.313rem;
+			font-size: 0.813rem;
+			overflow-wrap: anywhere;
+		}
+	}
+
+	.issue-detail-copy-btn {
+		cursor: pointer;
+		color: var(--sub-text-color, #6b7280);
+
+		&:hover {
+			color: var(--color-primary);
+		}
+	}
+
+	.issue-detail-actions {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin-top: 1.5rem;
+
+		.admin-btn {
+			width: 100%;
+			justify-content: center;
+		}
+	}
 }
 
-.suggested-actions-fix-all {
-	display: inline-flex;
-	align-items: center;
+// The panel's own close (x) button — CardComponent's `action` slot, same
+// cursor/hover treatment as .issue-detail-copy-btn above rather than
+// leaving it bare (zyra ships no CSS of its own for `.adminfont-close`).
+.issue-detail-panel .adminfont-close {
+	cursor: pointer;
+	color: var(--sub-text-color, #6b7280);
+
+	&:hover {
+		color: var(--color-primary);
+	}
+}
+
+// "Needs your attention" card (NeedsAttentionCard.tsx, replaces the old
+// Suggested Actions sidebar preview) — mockup: a big total + "things need
+// attention" label, 3 priority-count pills, then the same
+// .suggested-actions-list row layout above, reused as-is for real
+// per-issue-type counts instead of individual findings.
+.attention-summary-header {
+	display: flex;
+	align-items: baseline;
 	gap: 0.5rem;
-	padding: 0.625rem 1rem;
-	border-radius: 0.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.attention-summary-count {
+	font-size: 1.75rem;
+	font-weight: 700;
+	// Same red as .issues-table's own 'critical' badge tier below —
+	// this card's own "most urgent" color, not a new one.
+	color: #dc2626;
+}
+
+.attention-summary-label {
+	color: var(--sub-text-color, #6b7280);
 	font-size: 0.875rem;
-	font-weight: 600;
-	background: var(--border-color);
-	color: var(--sub-text-color);
-	cursor: not-allowed;
+}
+
+.attention-priority-pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+
+	// Same 3 hex values .issues-table's own severity badges use (this
+	// file), collapsed to the same high/medium/low bucketing
+	// FindingRepository::get_priority_counts() applies server-side — a
+	// pill's color always agrees with the severity badges on the Issues
+	// table.
+	$priorities: (
+		'high': #dc2626,
+		'medium': #b45309,
+		'low': #5baab3,
+	);
+
+	@each $name, $color in $priorities {
+		.attention-priority-#{$name} {
+			color: #{$color};
+			background: color-mix(in srgb, #{$color} 14%, transparent);
+		}
+	}
+}
+
+.attention-view-all-btn {
+	margin-top: 0.75rem;
+
+	.admin-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+// History tab (HistoryTab.tsx) — a real, day-grouped activity timeline.
+// Reuses .issues-category-tab(s) for the filter pills (same pill look the
+// Issues tab already established) rather than a second near-identical set
+// of pill styles.
+.history-page-header {
+	margin-bottom: 1rem;
+}
+
+.history-page-title {
+	font-size: 1.375rem;
+	margin: 0 0 0.375rem;
+}
+
+.history-page-desc {
+	color: var(--sub-text-color, #6b7280);
+	margin: 0 0 1rem;
+}
+
+.history-filter-tabs {
+	margin-bottom: 1rem;
+}
+
+.history-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+
+	.history-search-input {
+		flex: 1 1 12rem;
+		min-width: 10rem;
+		padding: 0.5rem 0.75rem;
+		border: 1px solid var(--border-color, #e5e7eb);
+		border-radius: 0.375rem;
+		font-size: 0.875rem;
+	}
+
+	.history-date-range-select {
+		padding: 0.5rem 0.75rem;
+		border: 1px solid var(--border-color, #e5e7eb);
+		border-radius: 0.375rem;
+		font-size: 0.875rem;
+		background: var(--theme-background-color, #fff);
+	}
+}
+
+.history-timeline {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.history-day-heading {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--sub-text-color, #6b7280);
+	margin-bottom: 0.5rem;
+}
+
+// Same icon-square treatment .issues-table-issue-cell already established
+// for its own row icon, reused here for consistency between the two
+// timeline-shaped views this page has.
+.history-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	border: 1px solid transparent;
+
+	&:hover {
+		background: var(--theme-background-color, #f9fafb);
+	}
+
+	&.selected {
+		border-color: var(--color-primary);
+		background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
+	}
+
+	+ .history-row {
+		margin-top: 0.25rem;
+	}
+
+	.history-row-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 2.375rem;
+		height: 2.375rem;
+		border-radius: 0.5rem;
+		font-size: 1.125rem;
+		background: var(--theme-background-color, #f3f4f6);
+		color: var(--theme-color, #6b7280);
+	}
+
+	.history-row-text {
+		min-width: 0;
+		flex: 1;
+	}
+
+	.history-row-title {
+		font-weight: 600;
+	}
+
+	.history-row-desc {
+		color: var(--sub-text-color, #6b7280);
+		font-size: 0.813rem;
+		margin: 0.125rem 0 0.375rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+
+	.history-row-arrow {
+		flex-shrink: 0;
+		cursor: pointer;
+		color: var(--sub-text-color, #6b7280);
+		margin-top: 0.5rem;
+
+		&:hover {
+			color: var(--color-primary);
+		}
+	}
+}
+
+.history-load-more {
+	display: flex;
+	justify-content: center;
+	margin-top: 0.5rem;
+}
+
+// The detail panel's real per-severity findings breakdown (HistoryDetailPanel.tsx)
+// — same 5 severity badge colors .issues-table's own badges use (that
+// map is scoped inside .issues-table's own selector, so it doesn't reach
+// here — duplicated rather than shared, same as .attention-priority-pills'
+// own separate color map above).
+.history-severity-breakdown {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.admin-badge {
+		padding: 0.25rem 0.625rem;
+		border-radius: 0.313rem;
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	$severities: (
+		'critical': #dc2626,
+		'high': #d88c5c,
+		'medium': #b45309,
+		'low': #5baab3,
+		'info': #6b7280,
+	);
+
+	@each $name, $color in $severities {
+		.badge-#{$name} {
+			color: #{$color};
+			background: color-mix(in srgb, #{$color} 14%, transparent);
+		}
+	}
 }

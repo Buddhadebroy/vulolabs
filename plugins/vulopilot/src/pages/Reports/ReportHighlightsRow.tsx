@@ -15,8 +15,8 @@ interface DashboardStats {
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
-const SUGGESTED_ACTIONS_URL =
-	'?page=vulopilot#&tab=ai-assistant&subtab=suggested-actions';
+const ISSUES_TAB_URL =
+	'?page=vulopilot#&tab=ai-assistant&subtab=issues';
 
 /**
  * The mockup's "AI Highlights" row has 4 tiles — "Biggest Win" and "AI
@@ -48,7 +48,7 @@ const ReportHighlightsRow = () => {
 		: null;
 
 	const goToRecommendations = () => {
-		window.location.href = SUGGESTED_ACTIONS_URL;
+		window.location.href = ISSUES_TAB_URL;
 	};
 
 	return (

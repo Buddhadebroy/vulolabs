@@ -69,7 +69,8 @@ class AiHistory extends \WP_REST_Controller {
                 'order'    => sanitize_key( (string) $request->get_param( 'order' ) ),
             )
         );
-        $result['status_counts'] = $repository->get_status_counts();
+        $result['status_counts']   = $repository->get_status_counts();
+        $result['provider_counts'] = $repository->get_provider_counts();
 
         return rest_ensure_response( $result );
     }
