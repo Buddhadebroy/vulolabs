@@ -14,7 +14,7 @@ export default {
 		{
 			key: 'default_report_format',
 			type: 'select',
-			classes: 'space-between',
+			size: 8,
 			label: __('Default export format', 'vulopilot'),
 			settingDescription: __(
 				'Used when generating a report without explicitly choosing a format.',
@@ -29,7 +29,7 @@ export default {
 		{
 			key: 'default_report_period_days',
 			type: 'number',
-			classes: 'space-between border-top',
+			size: 8,
 			label: __('Default report period (days)', 'vulopilot'),
 			minNumber: 1,
 			maxNumber: 365,

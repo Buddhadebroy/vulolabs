@@ -8,6 +8,7 @@ import {
 	FormGroupWrapperComponent,
 	NoticeManager,
 	ClipboardComponent,
+	SectionComponent
 } from '@zyra/components';
 import { ButtonInput, ToggleInput, TextAreaInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
@@ -30,33 +31,6 @@ interface SubmitResult {
 	message: string;
 }
 
-/**
- * Same reproduced InputRenderer row markup AiProvidersPanel.tsx's own
- * SettingsFieldRow already uses, for the same reason: this panel is a
- * hand-built escape hatch (Settings.tsx special-cases `currentTab ===
- * 'indexnow'`), but should still look like every other tab on this page.
- */
-const SettingsFieldRow = ({
-	label,
-	description,
-	children,
-}: {
-	label: string;
-	description?: string;
-	children: ReactNode;
-}) => (
-	<div className="form-group row">
-		<label className="settings-form-label">
-			<div className="title">{label}</div>
-			{description && (
-				<div className="settings-metabox-description">
-					{description}
-				</div>
-			)}
-		</label>
-		<div className="settings-input-content">{children}</div>
-	</div>
-);
 
 const POST_TYPE_OPTIONS = [
 	{ value: 'post', label: __('Posts', 'vulopilot') },
@@ -207,58 +181,51 @@ const IndexNowPanel = () => {
 
 	return (
 		<>
-			<CardComponent
-				title={__('Instant Indexing', 'vulopilot')}
-				desc={__(
-					'Submit URLs directly to the IndexNow API so participating search engines (Bing, Yandex, and others) crawl them within minutes instead of waiting on their next routine pass.',
-					'vulopilot'
+			<FormGroupWrapperComponent>
+				<FormGroupComponent
+					label={__('URLs to submit', 'vulopilot')}
+					description={__('One per line, up to 10,000.', 'vulopilot')}
+				>
+					<TextAreaInput
+						name="indexnow_urls"
+						value={urlsText}
+						rowNumber={4}
+						placeholder="https://yoursite.com/hello-world"
+						usePlainText
+						onChange={(newValue) => setUrlsText(newValue as string)}
+					/>
+				</FormGroupComponent>
+				<FormGroupComponent label="">
+					<ButtonInput
+						buttons={{
+							text: isSubmitting
+								? __('Submitting…', 'vulopilot')
+								: __('Submit URLs', 'vulopilot'),
+							onClick: handleSubmitUrls,
+							disabled: isSubmitting,
+						}}
+					/>
+				</FormGroupComponent>
+				{submitResults.length > 0 && (
+					<FormGroupComponent label={__('Just submitted', 'vulopilot')}>
+						<div>
+							{submitResults.map((result, index) => (
+								<div key={index}>
+									<code>{result.url}</code>
+									{' — '}
+									{result.status_code ?? __('error', 'vulopilot')}{' '}
+									{result.message}
+								</div>
+							))}
+						</div>
+					</FormGroupComponent>
 				)}
-			>
-				<FormGroupWrapperComponent>
-					<SettingsFieldRow
-						label={__('URLs to submit', 'vulopilot')}
-						description={__('One per line, up to 10,000.', 'vulopilot')}
-					>
-						<TextAreaInput
-							name="indexnow_urls"
-							value={urlsText}
-							rowNumber={4}
-							placeholder="https://yoursite.com/hello-world"
-							usePlainText
-							onChange={(newValue) => setUrlsText(newValue as string)}
-						/>
-					</SettingsFieldRow>
-					<SettingsFieldRow label="">
-						<ButtonInput
-							buttons={{
-								text: isSubmitting
-									? __('Submitting…', 'vulopilot')
-									: __('Submit URLs', 'vulopilot'),
-								onClick: handleSubmitUrls,
-								disabled: isSubmitting,
-							}}
-						/>
-					</SettingsFieldRow>
-					{submitResults.length > 0 && (
-						<SettingsFieldRow label={__('Just submitted', 'vulopilot')}>
-							<div>
-								{submitResults.map((result, index) => (
-									<div key={index}>
-										<code>{result.url}</code>
-										{' — '}
-										{result.status_code ?? __('error', 'vulopilot')}{' '}
-										{result.message}
-									</div>
-								))}
-							</div>
-						</SettingsFieldRow>
-					)}
-				</FormGroupWrapperComponent>
-			</CardComponent>
 
-			<CardComponent title={__('Settings', 'vulopilot')}>
-				<FormGroupWrapperComponent>
-					<SettingsFieldRow
+				 <SectionComponent
+                    title={__('Settings', 'vulopilot')}
+                />
+
+				<FormGroupComponent
 						label={__('Auto-submit post types', 'vulopilot')}
 						description={__(
 							'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
@@ -272,8 +239,8 @@ const IndexNowPanel = () => {
 							modules={[]}
 							onChange={handlePostTypesChange}
 						/>
-					</SettingsFieldRow>
-					<SettingsFieldRow
+					</FormGroupComponent>
+					<FormGroupComponent
 						label={__('API key', 'vulopilot')}
 						description={__(
 							"The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties.",
@@ -297,9 +264,9 @@ const IndexNowPanel = () => {
 								disabled: isChangingKey,
 							}}
 						/>
-					</SettingsFieldRow>
+					</FormGroupComponent>
 					{apiKey && (
-						<SettingsFieldRow
+						<FormGroupComponent
 							label={__('API key location', 'vulopilot')}
 							description={__(
 								'Open this link to verify the key file is reachable by search engines — it should show the key.',
@@ -313,10 +280,15 @@ const IndexNowPanel = () => {
 							>
 								{`${appLocalizer.site_url}/${apiKey}.txt`}
 							</a>
-						</SettingsFieldRow>
+						</FormGroupComponent>
 					)}
-				</FormGroupWrapperComponent>
-			</CardComponent>
+
+					<SectionComponent
+						title={__('History', 'vulopilot')}
+						desc={__('The last 100 IndexNow API requests.', 'vulopilot')}
+					/>
+			</FormGroupWrapperComponent>
+
 
 			<CardComponent
 				title={__('History', 'vulopilot')}

@@ -191,89 +191,87 @@ const AeoSectionCard = ({
  */
 const AeoTab = () => {
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				<CardComponent
-					title={__('Answerability signals', 'vulopilot')}
-					titleIcon="analytics"
-					badges={[
-						{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-					]}
-					toggle
-					defaultExpanded
-				>
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Not scoring answerability signals yet', 'vulopilot')}
-						desc={__(
-							'A dedicated per-signal AEO score breakdown hasn’t been built yet. The overall GEO score on the GEO tab already includes several AEO-related dimensions (answer-first structure, question coverage, citation readiness) for VuloPilot Pro users.',
-							'vulopilot'
-						)}
-					/>
-				</CardComponent>
-				<OpenIssuesGlimpse
-					category="geo"
-					titleIcon="notification"
-					scannerIds={AEO_SECTIONS.flatMap((section) => section.scannerIds)}
-					sectionMap={SCANNER_TO_SECTION}
-					fallbackSection="answers"
-					anchorPrefix="aeo-section-"
-					emptyTitle={__("You're all caught up", 'vulopilot')}
-					emptyDesc={__('No open AEO findings right now.', 'vulopilot')}
+		<ColumnComponent>
+			<CardComponent
+				title={__('Answerability signals', 'vulopilot')}
+				titleIcon="analytics"
+				badges={[
+					{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+				]}
+				toggle
+				defaultExpanded
+			>
+				<ModuleGuardComponent
+					icon="info"
+					title={__('Not scoring answerability signals yet', 'vulopilot')}
+					desc={__(
+						'A dedicated per-signal AEO score breakdown hasn’t been built yet. The overall GEO score on the GEO tab already includes several AEO-related dimensions (answer-first structure, question coverage, citation readiness) for VuloPilot Pro users.',
+						'vulopilot'
+					)}
 				/>
-				<CardComponent
-					title={__('Answer engine coverage', 'vulopilot')}
-					titleIcon="global-community"
+			</CardComponent>
+			<OpenIssuesGlimpse
+				category="geo"
+				titleIcon="notification"
+				scannerIds={AEO_SECTIONS.flatMap((section) => section.scannerIds)}
+				sectionMap={SCANNER_TO_SECTION}
+				fallbackSection="answers"
+				anchorPrefix="aeo-section-"
+				emptyTitle={__("You're all caught up", 'vulopilot')}
+				emptyDesc={__('No open AEO findings right now.', 'vulopilot')}
+			/>
+			<CardComponent
+				title={__('Answer engine coverage', 'vulopilot')}
+				titleIcon="global-community"
+				desc={__(
+					'Whether AI answer engines currently cite this site when asked questions its content answers.',
+					'vulopilot'
+				)}
+				badges={[
+					{
+						text: __('Simulated Citation Checks', 'vulopilot'),
+						color: 'purple',
+					},
+				]}
+				toggle
+				defaultExpanded
+			>
+				<ModuleGuardComponent
+					icon="info"
+					title={__('Not available yet', 'vulopilot')}
 					desc={__(
-						'Whether AI answer engines currently cite this site when asked questions its content answers.',
+						'Live citation testing against ChatGPT, Perplexity, and other AI answer engines isn’t built yet — flag if you want it scoped next.',
 						'vulopilot'
 					)}
-					badges={[
-						{
-							text: __('Simulated Citation Checks', 'vulopilot'),
-							color: 'purple',
-						},
-					]}
-					toggle
-					defaultExpanded
-				>
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Not available yet', 'vulopilot')}
-						desc={__(
-							'Live citation testing against ChatGPT, Perplexity, and other AI answer engines isn’t built yet — flag if you want it scoped next.',
-							'vulopilot'
-						)}
-					/>
-				</CardComponent>
-				<CardComponent
-					id="aeo-section-engine-testing"
-					title={__('Engine Testing', 'vulopilot')}
-					titleIcon="intelligence"
+				/>
+			</CardComponent>
+			<CardComponent
+				id="aeo-section-engine-testing"
+				title={__('Engine Testing', 'vulopilot')}
+				titleIcon="intelligence"
+				desc={__(
+					'Re-verifies a previously-flagged finding against an AI answer engine once you’ve fixed it, instead of waiting for the next full scan.',
+					'vulopilot'
+				)}
+				badges={[
+					{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+				]}
+				toggle
+				defaultExpanded
+			>
+				<ModuleGuardComponent
+					icon="info"
+					title={__('Not available yet', 'vulopilot')}
 					desc={__(
-						'Re-verifies a previously-flagged finding against an AI answer engine once you’ve fixed it, instead of waiting for the next full scan.',
+						'Per-engine re-test tracking isn’t built yet — flag if you want it scoped next.',
 						'vulopilot'
 					)}
-					badges={[
-						{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-					]}
-					toggle
-					defaultExpanded
-				>
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Not available yet', 'vulopilot')}
-						desc={__(
-							'Per-engine re-test tracking isn’t built yet — flag if you want it scoped next.',
-							'vulopilot'
-						)}
-					/>
-				</CardComponent>
-				{AEO_SECTIONS.map((section) => (
-					<AeoSectionCard key={section.key} section={section} />
-				))}
-			</ColumnComponent>
-		</ContainerComponent>
+				/>
+			</CardComponent>
+			{AEO_SECTIONS.map((section) => (
+				<AeoSectionCard key={section.key} section={section} />
+			))}
+		</ColumnComponent>
 	);
 };
 

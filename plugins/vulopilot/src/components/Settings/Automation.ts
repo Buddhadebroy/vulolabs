@@ -14,7 +14,7 @@ export default {
 		{
 			key: 'automation_cooldown_minutes',
 			type: 'number',
-			classes: 'space-between',
+			size: 8,
 			label: __('Automation cooldown (minutes)', 'vulopilot'),
 			minNumber: 1,
 			maxNumber: 1440,
@@ -30,7 +30,7 @@ export default {
 		{
 			key: 'automation_max_retries',
 			type: 'number',
-			classes: 'space-between border-top',
+			size: 8,
 			label: __('Max retries on failure', 'vulopilot'),
 			minNumber: 0,
 			maxNumber: 5,
@@ -43,7 +43,7 @@ export default {
 		{
 			key: 'automation_retry_delay_minutes',
 			type: 'number',
-			classes: 'space-between border-top',
+			size: 8,
 			label: __('Retry delay (minutes)', 'vulopilot'),
 			minNumber: 1,
 			maxNumber: 1440,
@@ -57,7 +57,7 @@ export default {
 			key: 'require_approval_before_ai_change',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Require approval before AI changes apply', 'vulopilot'),
 			settingDescription: __(
 				"When on, AI-generated fixes wait in Pending Approval instead of applying automatically. All AI-applied fixes — one-click or bulk — require AI Fixes.",

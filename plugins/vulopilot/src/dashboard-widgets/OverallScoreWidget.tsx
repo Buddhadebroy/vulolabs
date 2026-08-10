@@ -1,12 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import {
-	ChartComponent,
-	AnalyticsComponent,
-	ColumnComponent,
-	ContainerComponent,
-	TrendIndicatorComponent,
-} from '@zyra/components';
+import { ChartComponent, AnalyticsComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
@@ -53,12 +47,6 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	const commerce = cs.woocommerce ?? 0;
 	const performance = cs.performance;
 
-	// Real net change in open findings this week (fixed minus new) — what
-	// the hero's "+N this week" badge shows, replacing what used to be a
-	// hardcoded "+5 this week" string.
-	const netChange =
-		summary.fixed_findings_this_week - summary.new_findings_this_week;
-
 	const scoreItems = [
 		{
 			key: 'visibility',
@@ -92,76 +80,53 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			icon: 'shipping',
 			colorClass: 'red-color'
 		},
-		{
-			key: 'content',
-			label: __('Content Score', 'vulopilot'),
-			count: cs.content,
-			progress: cs.content,
-			icon: 'text-fields',
-			colorClass: 'red-yellow'
-		},
-		{
-			key: 'brand',
-			label: __('Brand Score', 'vulopilot'),
-			count: cs.brand,
-			progress: cs.brand,
-			icon: 'person',
-			colorClass: 'red-blue'
-		},
 	];
 
-	// Real week-over-week deltas per bucket, diffed against
-	// category_scores_7d_ago (Dashboard controller's
-	// build_category_scores_as_of() — a genuine reconstruction from
-	// findings' own created_at/resolved_at timestamps, not a fabricated
-	// number). Same 4-way grouping as the donut/scoreItems above, just
-	// applied to last week's snapshot too.
-	const cs7 = summary.category_scores_7d_ago;
-	const visibility7d = average([cs7.seo, cs7.geo, cs7.content, cs7.brand]);
-	const health7d = average([cs7.security, cs7.accessibility]);
-	const commerce7d = cs7.woocommerce ?? 0;
-	const performance7d = cs7.performance;
+	/**
+	 * Reorder is local/session-only (no persistence endpoint) — the
+	 * dashboard's own whole-widget reorder (DashboardGrid.tsx's
+	 * ReactSortable + POST /dashboard-layout) operates one level up, on
+	 * whole widgets, not on items inside one, and adding a dedicated
+	 * endpoint for this 4-item breakdown wasn't asked for.
+	 */
+	const [order, setOrder] = useState<number[]>([0, 1, 2, 3]);
+	const orderedItems = order.map((index) => scoreItems[index]);
 
-	const trendItems = [
-		{
-			key: 'visibility',
-			label: __('Visibility', 'vulopilot'),
-			delta: visibility - visibility7d,
-		},
-		{
-			key: 'health',
-			label: __('Health', 'vulopilot'),
-			delta: health - health7d,
-		},
-		{
-			key: 'commerce',
-			label: __('Commerce', 'vulopilot'),
-			delta: commerce - commerce7d,
-		},
-		{
-			key: 'performance',
-			label: __('Performance', 'vulopilot'),
-			delta: performance - performance7d,
-		},
-		{
-			key: 'content',
-			label: __('Content', 'vulopilot'),
-			delta: cs.content - cs7.content,
-		},
-		{
-			key: 'brand',
-			label: __('Brand', 'vulopilot'),
-			delta: cs.brand - cs7.brand,
-		},
-	];
+	const moveUp = (position: number) => {
+		if (position === 0) {
+			return;
+		}
+		setOrder((prev) => {
+			const next = [...prev];
+			[next[position - 1], next[position]] = [
+				next[position],
+				next[position - 1],
+			];
+			return next;
+		});
+	};
+
+	const moveDown = (position: number) => {
+		if (position === orderedItems.length - 1) {
+			return;
+		}
+		setOrder((prev) => {
+			const next = [...prev];
+			[next[position], next[position + 1]] = [
+				next[position + 1],
+				next[position],
+			];
+			return next;
+		});
+	};
 
 	return (
 		<DashboardWidget
-			title={__('Overall Site Score', 'vulopilot')}
-			icon="analytics"
-			isLoading={isLoading}
-			onHide={onHide}
-			isCustomizing={isCustomizing}
+		// title={__('Overall Site Score', 'vulopilot')}
+		// icon="analytics"
+		// isLoading={isLoading}
+		// onHide={onHide}
+		// isCustomizing={isCustomizing}
 		>
 			<ContainerComponent>
 				<ColumnComponent grid={3}>
@@ -205,71 +170,25 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 							},
 						]}
 					/>
-					<div className="overall-score-summary overall-score-summary--divider">
-						<div className="title">
-							{getRating(summary.overall_score)}
-						</div>
-						<div className="desc">
-							{sprintf(
-								/* translators: %d: number of open findings */
-								__(
-									'%d open findings across your site.',
-									'vulopilot'
-								),
-								summary.open_findings
-							)}
-						</div>
-						{(netChange !== 0 ||
-							summary.new_findings_this_week > 0 ||
-							summary.fixed_findings_this_week > 0) && (
-							<div className="buttons-wrapper">
-								{netChange !== 0 && (
-									<div
-										className={`admin-badge ${
-											netChange > 0 ? 'green' : 'red'
-										}`}
-									>
-										<i
-											className={`adminfont-arrow-${
-												netChange > 0 ? 'up' : 'down'
-											}`}
-										/>
-										{sprintf(
-											/* translators: %+d: signed net change in open findings this week */
-											__('%+d this week', 'vulopilot'),
-											netChange
-										)}
-									</div>
-								)}
-								{summary.new_findings_this_week > 0 && (
-									<div className="admin-badge red">
-										<i className="adminfont-error" />
-										{sprintf(
-											/* translators: %d: number of findings first detected this week */
-											__('%d new issues', 'vulopilot'),
-											summary.new_findings_this_week
-										)}
-									</div>
-								)}
-								{summary.fixed_findings_this_week > 0 && (
-									<div className="admin-badge yellow">
-										<i className="adminfont-check" />
-										{sprintf(
-											/* translators: %d: number of findings resolved this week */
-											__('%d fixed', 'vulopilot'),
-											summary.fixed_findings_this_week
-										)}
-									</div>
-								)}
-							</div>
-						)}
-					</div>
 				</ColumnComponent>
-				<ColumnComponent grid={9}>
-					<AnalyticsComponent
-						cols={2}
+				<ColumnComponent grid={7}>
+					<div className='title-wrapper'>
+					<div className="title">{__('Good', 'vulopilot')}</div>
+					<div className="desc">
+						{__('291 open findings across 79 pillars.', 'vulopilot')}
+					</div>
+					<div className="buttons-wrapper">
+						<div className="admin-badge green"><i className='adminfont-analytics'/>{__('+5 this week', 'vulopilot')}</div>
+						<div className="admin-badge red"><i className='adminfont-analytics'/>{__('2 new issues', 'vulopilot')}</div>
+						<div className="admin-badge yellow"><i className='adminfont-analytics'/>{__('12 fixed', 'vulopilot')}</div>
+					</div>
+				</div>
+				</ColumnComponent>
+			</ContainerComponent>
+			<AnalyticsComponent
+						cols={4}
 						variant="progress"
-						data={scoreItems.map((item, idx) => ({
+						data={orderedItems.map((item, idx) => ({
 							icon: item.icon,
 							number: `${item.count}%`,
 							text: item.label,
@@ -277,27 +196,41 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 							progress: item.progress
 						}))}
 					/>
-				</ColumnComponent>
-				<ColumnComponent grid={12}>
-					<div className="score-trend-row">
-						{trendItems.map((item) => (
-							<div className="score-trend-item" key={item.key}>
-								<TrendIndicatorComponent
-									value={item.delta}
-									decimals={0}
-									suffix=""
-								/>
-								<div className="score-trend-label">
+					<ul className="score-reorder-controls">
+						{orderedItems.map((item, position) => (
+							<li key={item.key}>
+								<span className="score-reorder-label">
 									{item.label}
-								</div>
-								<div className="score-trend-sub">
-									{__('vs last 7 days', 'vulopilot')}
-								</div>
-							</div>
+								</span>
+								<button
+									type="button"
+									className="score-reorder-btn"
+									aria-label={sprintf(
+										/* translators: %s: score item label, e.g. "Visibility Score" */
+										__('Move %s up', 'vulopilot'),
+										item.label
+									)}
+									disabled={position === 0}
+									onClick={() => moveUp(position)}
+								>
+									<i className="adminfont-arrow-up" />
+								</button>
+								<button
+									type="button"
+									className="score-reorder-btn"
+									aria-label={sprintf(
+										/* translators: %s: score item label, e.g. "Visibility Score" */
+										__('Move %s down', 'vulopilot'),
+										item.label
+									)}
+									disabled={position === orderedItems.length - 1}
+									onClick={() => moveDown(position)}
+								>
+									<i className="adminfont-arrow-down" />
+								</button>
+							</li>
 						))}
-					</div>
-				</ColumnComponent>
-			</ContainerComponent>
+					</ul>
 		</DashboardWidget>
 	);
 };

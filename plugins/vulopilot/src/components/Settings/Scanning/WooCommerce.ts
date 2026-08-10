@@ -15,7 +15,7 @@ export default {
 			key: 'flag_products_missing_schema',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Flag products missing schema', 'vulopilot'),
 			settingDescription: __(
 				'Products without valid Product structured data.',

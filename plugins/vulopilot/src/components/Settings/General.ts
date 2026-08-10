@@ -11,7 +11,7 @@ export default {
 		{
 			key: 'scan_frequency',
 			type: 'select',
-			classes: 'space-between',
+			size: 20,
 			label: __('Scan Frequency', 'vulopilot'),
 			settingDescription: __(
 				'How often VuloPilot re-audits your site.',

@@ -53,7 +53,7 @@ export default {
 		{
 			key: 'brand_about_page_min_words',
 			type: 'number',
-			classes: 'space-between',
+			size: 10,
 			label: __('Minimum About page word count', 'vulopilot'),
 			settingDescription: __(
 				'An About page under this word count is flagged as too thin to be a genuine trust signal.',
@@ -68,7 +68,7 @@ export default {
 		{
 			key: 'brand_drop_threshold',
 			type: 'number',
-			classes: 'space-between',
+			size: 10,
 			label: __('Brand score drop alert threshold (points)', 'vulopilot'),
 			settingDescription: __(
 				'Used by the "Email me when Brand score drops" notification in the Notifications tab.',
