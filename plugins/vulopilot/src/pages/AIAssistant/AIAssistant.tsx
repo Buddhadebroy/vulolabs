@@ -8,15 +8,14 @@ import {
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import HistoryTab from './HistoryTab';
-import SuggestedActionsTab from './SuggestedActionsTab';
-import QuickCommandsTab from './QuickCommandsTab';
+import IssuesTab from './IssuesTab';
 import AiWorkflowsTab from './AiWorkflowsTab';
+import { IssuesFilter } from './NeedsAttentionCard';
 
 const TAB_IDS = [
 	'chat',
 	'history',
-	'suggested-actions',
-	'quick-commands',
+	'issues',
 	'ai-workflows',
 ] as const;
 
@@ -24,14 +23,12 @@ const TAB_IDS = [
  * "AI Copilot" — the Chat tab is the new conversational UI (ChatTab.tsx);
  * History is the page's original body (the real `vulopilot_ai_history`
  * audit-log table + Pro analytics panel), unchanged, just relocated under
- * its own tab instead of being the whole page. Suggested Actions/Quick
- * Commands/AI Workflows are full-width versions of Chat's own sidebar/
- * prompt-grid previews.
+ * its own tab instead of being the whole page. Issues/AI Workflows are
+ * full-width versions of Chat's own sidebar previews.
  *
- * `activeTab`/`chatMessage`/`autoApply` live here (not inside ChatTab)
- * so the sidebar's "View all" links and Quick Commands' prompt selection
- * can both jump tabs and hand real state to the Chat tab, not just switch
- * the visible pane.
+ * `activeTab`/`chatMessage`/`autoApply` live here (not inside ChatTab) so
+ * the sidebar's "View all" links can both jump tabs and hand real state
+ * to the Chat tab, not just switch the visible pane.
  */
 const AIAssistant = () => {
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
@@ -40,10 +37,22 @@ const AIAssistant = () => {
 	const [chatMessage, setChatMessage] = useState('');
 	const [autoApply, setAutoApply] = useState(true);
 	const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
+	// What NeedsAttentionCard's own group rows navigate here with — lets
+	// the Issues tab filter to the exact same scanner_id the summary card
+	// counted, instead of showing its own unrelated top-20 list. Reset
+	// whenever a navigation arrives without one (e.g. the tab label itself,
+	// or "View all issues"), so a stale filter never lingers silently.
+	const [issuesFilter, setIssuesFilter] = useState<IssuesFilter | null>(
+		null
+	);
 
-	const goToTab = (tab: string) => {
+	const goToTab = (tab: string, filter?: IssuesFilter) => {
 		if ((TAB_IDS as readonly string[]).includes(tab)) {
 			setActiveTab(tab as (typeof TAB_IDS)[number]);
+
+			if ('issues' === tab) {
+				setIssuesFilter(filter ?? null);
+			}
 		}
 	};
 
@@ -109,17 +118,13 @@ const AIAssistant = () => {
 							content: <HistoryTab />,
 						},
 						{
-							label: __('Suggested Actions', 'vulopilot'),
-							content: <SuggestedActionsTab />,
-						},
-						{
-							label: __('Quick Commands', 'vulopilot'),
+							label: __('Issues', 'vulopilot'),
 							content: (
-								<QuickCommandsTab
-									onSelect={(prompt) => {
-										setChatMessage(prompt);
-										goToTab('chat');
-									}}
+								<IssuesTab
+									filter={issuesFilter}
+									onClearFilter={() =>
+										setIssuesFilter(null)
+									}
 								/>
 							),
 						},

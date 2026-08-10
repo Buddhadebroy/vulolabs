@@ -6,7 +6,7 @@
  * (routes.ts has no 'seo' or 'accessibility' route; those findings live
  * under GEO → SEO and Security → Accessibility respectively). The three
  * places that used to build this link (AISuggestionsWidget,
- * NeedsAttentionWidget, SuggestedActionsList) each hand-rolled their own
+ * NeedsAttentionWidget, IssuesList) each hand-rolled their own
  * `category: 'seo'` copy of this mapping, so all three sent users to
  * `?tab=seo`/`?tab=accessibility` — routes that don't exist.
  */

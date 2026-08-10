@@ -152,8 +152,19 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 								icon: 'eye',
 								text: __('Enable Now', 'vulopilot'),
 								onClick: () => {
+									// Same admin page, just a different
+									// hash tab — '_self' matches
+									// LiveThreatMonitorCard.tsx's own
+									// same-page navigation. Omitting the
+									// target opens a new background tab
+									// instead (real browser behavior,
+									// despite MDN's prose default of
+									// '_self'), which silently left the
+									// user looking at the still-locked
+									// widget with no visible feedback.
 									window.open(
-										`${appLocalizer.admin_url}#&tab=modules&module=${props.moduleName}`
+										`${appLocalizer.admin_url}#&tab=modules&module=${props.moduleName}`,
+										'_self'
 									);
 								},
 							},

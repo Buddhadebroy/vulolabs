@@ -64,6 +64,7 @@ class Rest {
             'ai_providers'     => new Controllers\AiProviders(),
             'ai_action_runs'   => new Controllers\AiActionRuns(),
             'activity_logs'    => new Controllers\ActivityLogs(),
+            'history'          => new Controllers\History(),
             'automations'      => new Controllers\Automations(),
             'settings'         => new Controllers\Settings(),
             'llms_txt'         => new Controllers\LlmsTxt(),

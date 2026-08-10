@@ -9,14 +9,18 @@ import {
 	ContainerComponent,
 	ListComponent,
 	ModuleGuardComponent,
+	NoticeManager,
 } from '@zyra/components';
 import { SUGGESTED_PROMPTS } from './copilotData';
-import SuggestedActionsList from './SuggestedActionsList';
+import NeedsAttentionCard, {
+	IssuesFilter,
+} from './NeedsAttentionCard';
+import RecentConversationsCard from './RecentConversationsCard';
 import AiWorkflowsList from './AiWorkflowsList';
 import AiUsageCard from './AiUsageCard';
 
 interface ChatTabProps {
-	onNavigateTab: (tab: string) => void;
+	onNavigateTab: (tab: string, filter?: IssuesFilter) => void;
 	message: string;
 	onMessageChange: (message: string) => void;
 	autoApply: boolean;
@@ -25,17 +29,20 @@ interface ChatTabProps {
 
 /**
  * The mockup's default "Chat" view — a welcome message, the "Try asking
- * me…" prompt grid, and the composer bar in the main column; real
- * Suggested Actions (`/findings`)/AI Workflows (`/automations`) previews
- * in the sidebar. There's no conversational AI endpoint yet (see
- * AiHistory.php/ActionRunner.php — the AI Providers engine exists but
- * nothing routes a free-text message to it), so sending is disabled with
- * an honest explanation rather than faking a reply; the prompt grid still
- * really prefills the composer, since that part needs no backend.
+ * me…" prompt grid, and the composer bar in the main column; a real
+ * "Needs your attention" findings summary (`/findings/attention-summary`,
+ * NeedsAttentionCard.tsx) + AI Workflows (`/automations`) preview in the
+ * sidebar. "Recent conversations" stays static placeholder content
+ * (RecentConversationsCard.tsx) since there's no conversational AI
+ * endpoint yet (see AiHistory.php/ActionRunner.php — the AI Providers
+ * engine exists but nothing routes a free-text message to it, so sending
+ * is disabled with an honest explanation rather than faking a reply); the
+ * prompt grid still really prefills the composer, since that part needs
+ * no backend.
  *
  * `message`/`autoApply` are owned by AIAssistant.tsx rather than locally,
- * so the Quick Commands tab can prefill a real message into this tab
- * instead of just switching to it.
+ * so the sidebar's "View all" links and this tab's own prompt grid can
+ * both hand real state to the composer, not just switch the visible pane.
  */
 const ChatTab: React.FC<ChatTabProps> = ({
 	onNavigateTab,
@@ -46,7 +53,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 }) => {
 	return (
 		<>
-			<ColumnComponent grid={8} fullHeight>
+			<ColumnComponent grid={8}>
 				<CardComponent>
 					<ChatMessageComponent sender="ai" avatarIcon="ai">
 						<strong>
@@ -75,9 +82,29 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							'Ask VuloPilot anything about your website…',
 							'vulopilot'
 						)}
-						onAttach={() => {}}
+						onAttach={() =>
+							NoticeManager.add({
+								uniqueKey: 'vulopilot-chat-attach',
+								type: 'error',
+								position: 'float',
+								message: __(
+									"Attaching files isn't available yet — there's no connected assistant to send them to.",
+									'vulopilot'
+								),
+							})
+						}
 						attachLabel={__('Attach', 'vulopilot')}
-						onAddContext={() => {}}
+						onAddContext={() =>
+							NoticeManager.add({
+								uniqueKey: 'vulopilot-chat-add-context',
+								type: 'error',
+								position: 'float',
+								message: __(
+									"Adding context isn't available yet — there's no connected assistant to send it to.",
+									'vulopilot'
+								),
+							})
+						}
 						addContextLabel={__('Add context', 'vulopilot')}
 						sendDisabledReason={__(
 							"AI chat replies aren't available yet — this is a preview of the composer, not a connected assistant.",
@@ -94,7 +121,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 					/>
 
 					<ListComponent
-						className="badge-list"
+						className="chip-grid"
 						items={SUGGESTED_PROMPTS.map((prompt) => ({
 							id: prompt.id,
 							icon: prompt.icon,
@@ -106,25 +133,11 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
-				<CardComponent
-					title={__('Suggested Actions', 'vulopilot')}
-					titleIcon="ai"
-					action={
-						<a
-							href="#"
-							onClick={(e) => {
-								e.preventDefault();
-								onNavigateTab('suggested-actions');
-							}}
-						>
-							{__('View all', 'vulopilot')}{' '}
-							<i className="adminfont-arrow-right" />
-						</a>
-					}
-				>
-					<SuggestedActionsList limit={4} />
-				</CardComponent>
+				<NeedsAttentionCard onNavigateTab={onNavigateTab} />
 
+			</ColumnComponent>	
+					
+			<ColumnComponent grid={8}>
 				<CardComponent
 					title={__('AI Workflows', 'vulopilot')}
 					titleIcon="ai"
@@ -143,9 +156,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				>
 					<AiWorkflowsList limit={4} />
 				</CardComponent>
-			</ColumnComponent>
-
-			<ColumnComponent grid={8}>
 				<CardComponent
 					title={__('Live Site Insights', 'vulopilot')}
 					titleIcon="analytics"
@@ -163,9 +173,13 @@ const ChatTab: React.FC<ChatTabProps> = ({
 					/>
 				</CardComponent>
 			</ColumnComponent>
-			<ColumnComponent grid={4}>
-				<AiUsageCard />
+		<ColumnComponent grid={4}>
+				<RecentConversationsCard onNavigateTab={onNavigateTab} />
+
 			</ColumnComponent>
+			{/* <ColumnComponent grid={4}>
+				<AiUsageCard />
+			</ColumnComponent> */}
 		</>
 	);
 };

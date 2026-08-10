@@ -81,6 +81,264 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * Open findings bucketed into the 3-tier "priority" AI Copilot's
+     * "Needs your attention" card shows (mockup: High/Medium/Low pills),
+     * collapsed from the real 5-level severity scale rather than a 1:1
+     * mapping — critical folds into "high" (nothing is more urgent),
+     * info folds into "low" (nothing is less), so no open finding is
+     * silently dropped from the total.
+     *
+     * @return array{high: int, medium: int, low: int}
+     */
+    public function get_priority_counts(): array {
+        $raw = array_merge(
+            array(
+                'critical' => 0,
+                'high'     => 0,
+                'medium'   => 0,
+                'low'      => 0,
+                'info'     => 0,
+            ),
+            $this->count_by_column( 'severity', array( 'status' => 'open' ) )
+        );
+
+        return array(
+            'high'   => $raw['critical'] + $raw['high'],
+            'medium' => $raw['medium'],
+            'low'    => $raw['low'] + $raw['info'],
+        );
+    }
+
+    /**
+     * Groups every currently open finding by its scanner_id and returns
+     * the top $limit groups, most-severe-first (ties broken by count) —
+     * "Needs your attention"'s list rows read as real per-issue-type
+     * counts (e.g. "8 findings: Meta Descriptions") instead of one row
+     * per individual per-object finding the way FindingsTable/
+     * IssuesList already show elsewhere.
+     *
+     * Each group's severity/category/object_type come from a sample of
+     * open findings (the most recent 100 — find_all()'s own per_page
+     * ceiling), not every row: a scanner_id absent from that sample even
+     * though count_by_column() knows it has open findings is skipped
+     * rather than guessing its severity from nothing, so this can
+     * under-report on a site with 100+ distinct open-finding scanner
+     * types on the same page — a genuinely rare shape (SCANNERS.md's
+     * full catalog is ~65 scanners total, all categories combined).
+     *
+     * @param int $limit Max groups to return.
+     * @return array<int, array{scanner_id: string, count: int, severity: string, category: string, object_type: ?string}>
+     */
+    public function get_top_finding_groups( int $limit = 3 ): array {
+        $counts_by_scanner = $this->count_by_column( 'scanner_id', array( 'status' => 'open' ) );
+
+        if ( empty( $counts_by_scanner ) ) {
+            return array();
+        }
+
+        $sample = $this->find_all(
+            array(
+                'status'   => 'open',
+                'per_page' => 100,
+                'orderby'  => 'id',
+                'order'    => 'desc',
+            )
+        );
+
+        $severity_rank = array(
+            'critical' => 0,
+            'high'     => 1,
+            'medium'   => 2,
+            'low'      => 3,
+            'info'     => 4,
+        );
+
+        // Worst (most urgent) severity seen per scanner_id in the sample —
+        // some scanners (e.g. ProductCompletenessScanner) assign different
+        // severities to different findings, so the first row seen isn't
+        // reliably representative; the worst one is.
+        $representatives = array();
+
+        foreach ( $sample['data'] as $row ) {
+            $scanner_id = (string) ( $row['scanner_id'] ?? '' );
+
+            if ( '' === $scanner_id ) {
+                continue;
+            }
+
+            $existing      = $representatives[ $scanner_id ] ?? null;
+            $existing_rank = null !== $existing ? ( $severity_rank[ $existing['severity'] ] ?? 5 ) : 6;
+            $row_rank      = $severity_rank[ $row['severity'] ] ?? 5;
+
+            if ( null === $existing || $row_rank < $existing_rank ) {
+                $representatives[ $scanner_id ] = $row;
+            }
+        }
+
+        $groups = array();
+
+        foreach ( $counts_by_scanner as $scanner_id => $count ) {
+            $representative = $representatives[ $scanner_id ] ?? null;
+
+            if ( null === $representative ) {
+                continue;
+            }
+
+            $groups[] = array(
+                'scanner_id'  => $scanner_id,
+                'count'       => $count,
+                'severity'    => $representative['severity'],
+                'category'    => $representative['category'],
+                'object_type' => $representative['object_type'],
+            );
+        }
+
+        usort(
+            $groups,
+            static function ( $a, $b ) use ( $severity_rank ) {
+                $rank_a = $severity_rank[ $a['severity'] ] ?? 5;
+                $rank_b = $severity_rank[ $b['severity'] ] ?? 5;
+
+                if ( $rank_a !== $rank_b ) {
+                    return $rank_a <=> $rank_b;
+                }
+
+                return $b['count'] <=> $a['count'];
+            }
+        );
+
+        return array_slice( $groups, 0, $limit );
+    }
+
+    /**
+     * Open **group** counts per category — i.e. how many distinct
+     * (scanner_id, category) rows get_finding_groups() would return for
+     * each category, not how many raw findings exist in it. The Issues
+     * table renders one row per group, and its `total`/pagination footer
+     * are group counts too (get_finding_groups()'s own $total_groups), so
+     * the category tab bar must count the same unit its own badge promises
+     * — otherwise a tab reading "88" (88 raw findings, e.g. many pages
+     * missing the same alt text) can click through to a handful of grouped
+     * rows with no pagination, looking broken even though nothing's wrong.
+     *
+     * @return array<string, int> category => open group count.
+     */
+    public function get_category_group_counts(): array {
+        global $wpdb;
+        $table = $this->get_table();
+
+        $rows = $wpdb->get_results( "SELECT category, COUNT(*) AS total FROM ( SELECT scanner_id, category FROM {$table} WHERE status = 'open' GROUP BY scanner_id, category ) grouped GROUP BY category", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- $table is code-controlled, no user input in this query.
+
+        $counts = array();
+
+        foreach ( (array) $rows as $row ) {
+            $counts[ $row['category'] ] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Same grouping as get_top_finding_groups() — every open finding
+     * bucketed by scanner_id, worst-severity-first — but paginated and
+     * optionally scoped to one category, instead of a fixed top-3 preview.
+     * Backs the AI Copilot Issues table (Controllers/Findings.php's
+     * `GET /findings/groups`), which needs every group across every page,
+     * not just the 3 most urgent.
+     *
+     * Expressed as one grouped query (MIN() over a severity->rank CASE
+     * picks each group's worst severity) rather than get_top_finding_groups()'s
+     * own "sample the 100 most recent rows client-side" approach — that
+     * approach is fine for a 3-row preview but would under-report on a
+     * paginated full list, since a scanner_id's open findings could easily
+     * fall entirely outside the most recent 100 rows once pagination goes
+     * past the first page.
+     *
+     * @param array{status?: string, category?: string|string[], priority_ranks?: int[], page?: int, per_page?: int} $args Grouping/pagination args — `category` accepts several real category values at once (IN-matched), same reasoning as get_status_counts()'s own `$scanner_ids` param: the Issues table's "SEO & Visibility" tab, for example, folds 4 real category values ('seo'/'images'/'schema'/'links') into one tab. `priority_ranks` filters to groups whose own worst-severity rank (this method's own severity->rank scale, 0=critical..4=info) is one of the given ranks — how the Issues table's High/Medium/Low stat tiles filter the table to match the same priority bucket Controllers/Findings.php maps their click to (same 3-tier collapse get_priority_counts() already uses for the tiles' own counts).
+     * @return array{data: array<int, array{scanner_id: string, category: string, count: int, severity: string, object_type: ?string}>, total: int}
+     */
+    public function get_finding_groups( array $args = array() ): array {
+        global $wpdb;
+        $table = $this->get_table();
+
+        $status         = ! empty( $args['status'] ) ? (string) $args['status'] : 'open';
+        $category       = $args['category'] ?? '';
+        $priority_ranks = ! empty( $args['priority_ranks'] ) ? array_map( 'intval', $args['priority_ranks'] ) : array();
+        $page           = max( 1, (int) ( $args['page'] ?? 1 ) );
+        $per_page       = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
+        $offset         = ( $page - 1 ) * $per_page;
+
+        $where  = 'WHERE status = %s';
+        $values = array( $status );
+
+        if ( is_array( $category ) && $category ) {
+            $placeholders = implode( ', ', array_fill( 0, count( $category ), '%s' ) );
+            $where       .= " AND category IN ({$placeholders})";
+            array_push( $values, ...$category );
+        } elseif ( is_string( $category ) && '' !== $category ) {
+            $where   .= ' AND category = %s';
+            $values[] = $category;
+        }
+
+        // Grouped once, filtered by the group's own worst-severity rank in
+        // an outer WHERE against this subquery rather than filtering raw
+        // rows by severity before grouping — a scanner_id's `count` must
+        // stay every open finding in that group regardless of which
+        // priority tile is active, since the mockup's own "22 pages
+        // affected" reads as the group's real total, not a subset matching
+        // whichever severities happen to satisfy the current filter.
+        $group_sql = "SELECT scanner_id, category, COUNT(*) AS count, MAX(object_type) AS object_type, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM {$table} {$where} GROUP BY scanner_id, category"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's %s count matches $values' size at runtime; this string is only ever passed through $wpdb->prepare() by its two callers below, never queried directly.
+
+        $having = '';
+
+        if ( $priority_ranks ) {
+            $rank_placeholders = implode( ', ', array_fill( 0, count( $priority_ranks ), '%d' ) );
+            $having            = " WHERE severity_rank IN ({$rank_placeholders})";
+        }
+
+        $total_groups = (int) $wpdb->get_var(
+            $wpdb->prepare( "SELECT COUNT(*) FROM ( {$group_sql} ) grouped{$having}", ...array_merge( $values, $priority_ranks ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's/$having's placeholder count matches $values'/$priority_ranks' combined size at runtime.
+        );
+
+        if ( 0 === $total_groups ) {
+            return array(
+                'data'  => array(),
+                'total' => 0,
+            );
+        }
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare( "SELECT * FROM ( {$group_sql} ) grouped{$having} ORDER BY severity_rank ASC, count DESC LIMIT %d OFFSET %d", ...array_merge( $values, $priority_ranks, array( $per_page, $offset ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- same runtime-sized-array case as above, plus the trailing LIMIT/OFFSET pair.
+            ARRAY_A
+        );
+
+        $severity_by_rank = array(
+            0 => 'critical',
+            1 => 'high',
+            2 => 'medium',
+            3 => 'low',
+            4 => 'info',
+            5 => 'info',
+        );
+
+        return array(
+            'data'  => array_map(
+                static function ( array $row ) use ( $severity_by_rank ): array {
+                    return array(
+                        'scanner_id'  => (string) $row['scanner_id'],
+                        'category'    => (string) $row['category'],
+                        'count'       => (int) $row['count'],
+                        'severity'    => $severity_by_rank[ (int) $row['severity_rank'] ] ?? 'info',
+                        'object_type' => '' !== (string) $row['object_type'] ? (string) $row['object_type'] : null,
+                    );
+                },
+                null !== $rows ? $rows : array()
+            ),
+            'total' => $total_groups,
+        );
+    }
+
+    /**
      * Counts findings by severity across every scan — what the dashboard's
      * summary cards and site-health scoring read, without pulling every
      * row into PHP to count them (performance.md).

@@ -456,8 +456,6 @@ class Utill {
         'ai-suggestions',
         'todays-tasks',
         'recent-changes',
-        'health-timeline',
-        'latest-reports',
         'needs-attention',
         'automation-status',
         'crawler-traffic',
@@ -471,6 +469,13 @@ class Utill {
         // Registered by vulopilot-pro's McpServer module via
         // `vulopilot_dashboard_widgets` (MCP-SERVER-MODULE.md).
         'mcp-server-status',
+        // Health timeline / Latest reports / Brand Visibility breakdown
+        // are a deliberate one-row group in registry.ts (each grid:4) —
+        // kept adjacent here too, since this array (not registry.ts's
+        // order) is what a never-customized user's layout actually
+        // reconciles against (DashboardLayout.php::get_reconciled_layout()).
+        'health-timeline',
+        'latest-reports',
         'brand-breakdown',
     );
 
