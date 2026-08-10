@@ -1,21 +1,13 @@
 /* global appLocalizer */
 import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import {
-	getApiLink,
-	getApiResponse,
-	sendApiResponse,
-} from '@zyra/core';
+import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	FormGroupWrapperComponent,
 	FormGroupComponent,
 	NoticeManager,
 } from '@zyra/components';
-import {
-	ButtonInput,
-	ExpandablePanelInput,
-	SelectInput,
-} from '@zyra/inputs';
+import { ExpandablePanelInput } from '@zyra/inputs';
 
 interface ConfiguredProvider {
 	id: number;
@@ -43,9 +35,9 @@ interface AiProvidersResponse {
  * ImportExportPanel.tsx: AI provider configs live in their own
  * `vulopilot_ai_provider_configs` table (AI-ARCHITECTURE.md), not the flat
  * settings option row every other Settings tab auto-saves into, so they
- * don't fit the per-field `InputRenderer` model at all. The add flow uses
- * Zyra's select-driven `ExpandablePanelInput`, while configured providers
- * retain their direct REST-backed controls below.
+ * don't fit the per-field `InputRenderer` model at all. Zyra's select-driven
+ * `ExpandablePanelInput` owns both the connection form and the read-only
+ * connected state, so providers do not move into separate settings rows.
  *
  * This is AI-ARCHITECTURE.md's "What's not here yet" gap being closed:
  * "nothing yet writes to vulopilot_ai_provider_configs from the dashboard
@@ -161,10 +153,7 @@ const AiProvidersPanel = () => {
 			template: {
 				icon: 'ai',
 				label: adapter.label,
-				desc: __(
-					'Configure this provider with your own credentials.',
-					'vulopilot'
-				),
+				desc: `<span class="admin-badge blue">${__('Not connected', 'vulopilot')}</span><span class="vulopilot-provider-summary">${__('Configure this provider with your own credentials.', 'vulopilot')}</span>`,
 				formFields: [
 					{
 						key: 'label',
@@ -191,10 +180,12 @@ const AiProvidersPanel = () => {
 									key: 'default_model',
 									type: 'select',
 									label: __('Default model', 'vulopilot'),
-									options: adapter.available_models.map((model) => ({
-										label: model,
-										value: model,
-									})),
+									options: adapter.available_models.map(
+										(model) => ({
+											label: model,
+											value: model,
+										})
+									),
 								},
 							]
 						: []),
@@ -211,38 +202,7 @@ const AiProvidersPanel = () => {
 		};
 	});
 
-	const handleModelChange = (row: ConfiguredProvider, model: string) => {
-		setConfigured(
-			configured.map((x) =>
-				x.id === row.id ? { ...x, default_model: model } : x
-			)
-		);
-
-		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `ai-providers/${row.id}`),
-			{ default_model: model }
-		).then((response) => {
-			if (!response) {
-				load();
-			}
-		});
-	};
-
-	const handleToggleActive = (row: ConfiguredProvider) => {
-		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `ai-providers/${row.id}`),
-			{ is_active: !row.is_active }
-		).then((response) => {
-			if (response) {
-				load();
-			}
-		});
-	};
-
 	const handleDelete = (row: ConfiguredProvider) => {
-
 		if (
 			!window.confirm(
 				__(
@@ -274,86 +234,102 @@ const AiProvidersPanel = () => {
 		});
 	};
 
+	const configuredMethods = configured.map((row) => {
+		const providerLabel =
+			row.label || adapters[row.provider]?.label || row.provider;
+
+		return {
+			id: row.provider,
+			icon: 'ai',
+			label: providerLabel,
+			desc: `<span class="vulopilot-provider-summary is-connected">${__('Configured with your own credentials.', 'vulopilot')}</span>`,
+			isCustom: true,
+			hideDeleteBtn: true,
+			wrapperClass: 'vulopilot-ai-provider-configuration',
+			formFields: [
+				{
+					key: 'provider_details',
+					type: 'notice',
+					label: '',
+					noticeType: 'info',
+					message: row.default_model
+						? sprintf(
+								__(
+									'Provider: %1$s — Default model: %2$s',
+									'vulopilot'
+								),
+								providerLabel,
+								row.default_model
+							)
+						: sprintf(
+								__('Provider: %s', 'vulopilot'),
+								providerLabel
+							),
+				},
+				{
+					key: 'disconnect',
+					type: 'button',
+					label: '',
+					text: __('Disconnect', 'vulopilot'),
+					icon: 'disconnect',
+					onClick: () => handleDelete(row),
+				},
+			],
+		};
+	});
+
+	const panelValues = {
+		...newProviderValues,
+		...Object.fromEntries(
+			configured.map((row) => [
+				row.provider,
+				{
+					enable: true,
+					title:
+						row.label ||
+						adapters[row.provider]?.label ||
+						row.provider,
+				},
+			])
+		),
+	};
+
 	return (
-		<>
+		<div className="vulopilot-ai-providers-panel">
 			<FormGroupWrapperComponent>
-				{configured.map((row) => {
-					const adapter = adapters[row.provider];
-
-					return (
-						<div key={row.id} className="vulopilot-ai-provider-row">
-							<div className="vulopilot-ai-provider-row__identity">
-								<span
-									className={
-										row.is_active
-											? 'vulopilot-ai-provider-row__status vulopilot-ai-provider-row__status--active'
-											: 'vulopilot-ai-provider-row__status vulopilot-ai-provider-row__status--inactive'
-									}
-								/>
-								<div>
-									<div className="vulopilot-ai-provider-row__label">
-										{row.label || adapter?.label || row.provider}
-									</div>
-									<div className="settings-metabox-description">
-										{row.is_active
-											? __('Active — tried automatically if an earlier provider fails', 'vulopilot')
-											: __('Inactive — skipped by the fallback chain', 'vulopilot')}
-									</div>
-								</div>
-							</div>
-
-							{adapter && adapter.available_models.length > 0 && (
-								<SelectInput
-									name={`ai_provider_model_${row.id}`}
-									value={row.default_model ?? ''}
-									placeholder={__('Default model', 'vulopilot')}
-									options={adapter.available_models.map((model) => ({
-										label: model,
-										value: model,
-									}))}
-									onChange={(newValue) =>
-										handleModelChange(row, newValue as string)
-									}
-									size="12rem"
-								/>
-							)}
-
-							<div className="vulopilot-ai-provider-row__actions">
-								<ButtonInput
-									buttons={{
-										text: row.is_active
-											? __('Deactivate', 'vulopilot')
-											: __('Activate', 'vulopilot'),
-										onClick: () => handleToggleActive(row),
-									}}
-								/>
-								<ButtonInput
-									buttons={{
-										text: __('Remove', 'vulopilot'),
-										icon: 'delete',
-										onClick: () => handleDelete(row),
-									}}
-								/>
-							</div>
+				<FormGroupComponent
+					row
+					label={__('Add a new AI provider', 'vulopilot')}
+				>
+					{isLoading ? (
+						<div className="desc">
+							{__('Loading…', 'vulopilot')}
 						</div>
-					);
-				})}
-				<FormGroupComponent row label={__('Add a new AI provider', 'vulopilot')}>
-					{newProviderOptions.length > 0 ? (
+					) : configured.length > 0 ||
+					  newProviderOptions.length > 0 ? (
 						<ExpandablePanelInput
-							key={newProviderPanelKey}
+							key={`${newProviderPanelKey}-${configured.map(({ id }) => id).join('-')}`}
 							name="ai-providers"
-							methods={[]}
-							value={newProviderValues}
+							methods={configuredMethods}
+							value={panelValues}
 							onChange={handleNewProviderChange}
 							canAccess
-							addNewBtn
+							addNewBtn={newProviderOptions.length > 0}
+							addNewTemplate={{
+								editableFields: {
+									title: false,
+									description: false,
+								},
+							}}
 							addNewOptions={newProviderOptions}
 						/>
 					) : (
 						configured.length === 0 && (
 							<div className="desc">
-								{__('No AI providers configured yet.', 'vulopilot')}
+								{__(
+									'No AI providers configured yet.',
+									'vulopilot'
+								)}
 							</div>
 						)
 					)}
@@ -371,7 +347,7 @@ const AiProvidersPanel = () => {
 					)}
 				</div>
 			)}
-		</>
+		</div>
 	);
 };
 
