@@ -14,7 +14,7 @@ export default {
 		{
 			key: 'notification_email',
 			type: 'email',
-			classes: 'space-between',
+			size: 30,
 			label: __('Notification email', 'vulopilot'),
 			placeholder: __('noreply@yourstore.com', 'vulopilot'),
 			settingDescription: __(
@@ -25,8 +25,7 @@ export default {
 		{
 			key: 'notify_on_critical_findings',
 			type: 'checkbox',
-			look: 'toggle',
-			classes: 'space-between border-top',
+			look: 'toggle',			
 			label: __('Email me on critical findings', 'vulopilot'),
 			settingDescription: __(
 				'Send an email whenever a scan raises a new critical-severity finding.',
@@ -39,8 +38,7 @@ export default {
 		{
 			key: 'email_on_geo_score_drop',
 			type: 'checkbox',
-			look: 'toggle',
-			classes: 'space-between border-top',
+			look: 'toggle',			
 			label: __('Email me when GEO/AEO score drops', 'vulopilot'),
 			settingDescription: __(
 				'Alerts when a post\'s GEO or AEO score falls by the threshold configured under Scanning → AEO.',
@@ -53,8 +51,7 @@ export default {
 		{
 			key: 'email_on_brand_score_drop',
 			type: 'checkbox',
-			look: 'toggle',
-			classes: 'space-between border-top',
+			look: 'toggle',			
 			label: __('Email me when Brand score drops', 'vulopilot'),
 			settingDescription: __(
 				'Alerts when the sitewide Brand score falls by the threshold configured under Scanning → Brand Intelligence.',
@@ -67,8 +64,7 @@ export default {
 		{
 			key: 'email_on_kg_health_drop',
 			type: 'checkbox',
-			look: 'toggle',
-			classes: 'space-between border-top',
+			look: 'toggle',			
 			label: __('Email me when Knowledge Graph Health drops', 'vulopilot'),
 			settingDescription: __(
 				'Alerts when the Knowledge Graph Health score falls by the threshold configured under Scanning → Entity Extraction.',
@@ -81,8 +77,7 @@ export default {
 		{
 			key: 'email_on_crawler_alerts',
 			type: 'checkbox',
-			look: 'toggle',
-			classes: 'space-between border-top',
+			look: 'toggle',			
 			label: __('Email me on AI crawler alerts', 'vulopilot'),
 			settingDescription: __(
 				'Alerts when AI crawler visit volume drops sharply, or when a bot keeps hitting a page robots.txt disallows for it. Threshold configured under Scanning → Crawler Analytics.',
@@ -95,7 +90,7 @@ export default {
 		{
 			key: 'email_from_name',
 			type: 'text',
-			classes: 'space-between border-top',
+			size: 30,			
 			label: __('Email from name', 'vulopilot'),
 			settingDescription: __(
 				'The name VuloPilot\'s own emails (notifications, automation actions, scheduled reports) are sent from. Defaults to your site name.',
@@ -104,9 +99,9 @@ export default {
 		},
 		{
 			key: 'email_from_address',
-			type: 'email',
-			classes: 'space-between border-top',
+			type: 'email',			
 			label: __('Email from address', 'vulopilot'),
+			size: 30,
 			placeholder: __('noreply@yourstore.com', 'vulopilot'),
 			settingDescription: __(
 				'The address VuloPilot\'s own emails are sent from. Leave blank to use your site\'s default mail sender.',
@@ -115,8 +110,7 @@ export default {
 		},
 		{
 			key: 'send_test_email',
-			type: 'button',
-			classes: 'space-between border-top',
+			type: 'button',			
 			name: __('Send test email', 'vulopilot'),
 			label: __('Test your email settings', 'vulopilot'),
 			settingDescription: __(

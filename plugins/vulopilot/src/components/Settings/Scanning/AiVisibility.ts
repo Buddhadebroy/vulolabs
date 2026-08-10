@@ -12,11 +12,6 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'geo-section',
-			type: 'section',
-			title: __('GEO', 'vulopilot'),
-		},
-		{
 			key: 'geo_competitor_urls',
 			type: 'textarea',
 			label: __('Competitor URLs', 'vulopilot'),
@@ -30,7 +25,7 @@ export default {
 			key: 'semantic_html',
 			type: 'section',
 			title: __('Structure & semantic HTML', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				"Controls the GEO page's 'Structure' findings group.",
 				'vulopilot'
 			),
@@ -39,7 +34,7 @@ export default {
 			key: 'flag_missing_semantic',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Flag missing semantic HTML', 'vulopilot'),
 			settingDescription: __( "", 'vulopilot' ),
 			options: [
@@ -50,7 +45,7 @@ export default {
 			key: 'entity-section',
 			type: 'section',
 			title: __('Entity coverage', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				"Feeds VuloPilot Pro's per-post GEO AI Score — doesn't affect the GEO page's free 'Entities & Trust' findings list below, which checks author info and naming consistency instead.",
 				'vulopilot'
 			),
@@ -59,7 +54,7 @@ export default {
 			key: 'flag_weak_entity',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Flag weak entity coverage', 'vulopilot'),
 			settingDescription: __(
 				"Pages that don't clearly identify their primary entity (product, service, or organization).",
@@ -72,7 +67,7 @@ export default {
 		{
 			key: 'minimum_entity_mentions',
 			type: 'number',
-			classes: 'space-between border-top',
+			size: 5,
 			label: __('Minimum entity mentions', 'vulopilot'),
 			settingDescription: __(
 				"Pages with fewer mentions of their primary entity than this are flagged as low-clarity.",
@@ -87,7 +82,7 @@ export default {
 		{
 			key: 'stale_content_months',
 			type: 'number',
-			classes: 'space-between',
+			size: 5,
 			label: __('Flag content older than (months)', 'vulopilot'),
 			settingDescription: __(
 				"Pages not updated within this window score lower on the GEO AI score's Content Freshness (Pro).",
@@ -95,15 +90,10 @@ export default {
 			),
 		},
 		{
-			key: 'aeo-section',
-			type: 'section',
-			title: __('AEO', 'vulopilot'),
-		},
-		{
             key: 'aeo-section-llms-txt',
             type: 'section',
             title: __('llms.txt', 'vulopilot'),
-            desc: __(
+            settingDescription: __(
                 'A Markdown index of your key pages, served at /llms.txt for AI systems to read instead of crawling your whole site.',
                 'vulopilot'
             ),
@@ -112,7 +102,7 @@ export default {
             key: 'enable_llms_txt',
             type: 'checkbox',
             look: 'toggle',
-            classes: 'space-between',
+            
             label: __('Generate llms.txt', 'vulopilot'),
             settingDescription: __(
                 "Available at your site's /llms.txt once enabled.",
@@ -126,7 +116,7 @@ export default {
             key: 'llms_auto_regen',
             type: 'checkbox',
             look: 'toggle',
-            classes: 'space-between border-top',
+            
             label: __('Auto-regenerate on publish', 'vulopilot'),
             settingDescription: __(
                 'Rebuild llms.txt whenever a page, post, or product is published or updated — requires the GEO module (Modules page) to be active.',
@@ -140,7 +130,7 @@ export default {
         {
             key: 'llms_include_types',
             type: 'choice-toggle',
-            classes: 'space-between border-top',
+            
             label: __('Included content types', 'vulopilot'),
             settingDescription: __(
                 'Which content types are listed in llms.txt.',
@@ -156,7 +146,7 @@ export default {
         {
             key: 'llms_txt_content',
             type: 'textarea',
-            classes: 'border-top',
+            
             label: __('llms.txt content', 'vulopilot'),
             settingDescription: __(
                 'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
@@ -173,7 +163,7 @@ export default {
             key: 'flag_missing_ai_summary',
             type: 'checkbox',
             look: 'toggle',
-            classes: 'space-between',
+            
             label: __('Flag pages missing an AI summary block', 'vulopilot'),
             settingDescription: __(
                 'Pages with no clear, extractable answer near the top of the content.',
@@ -186,7 +176,7 @@ export default {
         {
             key: 'answer_first_words',
             type: 'number',
-            classes: 'space-between border-top',
+            size: 5,
             label: __('Answer-first threshold (words)', 'vulopilot'),
             settingDescription: __(
                 "Flag a page if its core answer doesn't appear within this many words from the top.",
@@ -202,7 +192,7 @@ export default {
         {
             key: 'min_data_points',
             type: 'number',
-            classes: 'space-between',
+            size: 5,
             label: __('Minimum data points per 500 words', 'vulopilot'),
             settingDescription: __(
                 "Pages with fewer stats, numbers, or cited facts than this score lower on the GEO AI score's Data Point & Evidence Density (Pro).",
@@ -216,25 +206,20 @@ export default {
         },
         {
             key: 'aeo_drop_threshold',
-            type: 'number',
-            classes: 'space-between',
+            type: 'number',            
             label: __('GEO/AEO score drop alert threshold (points)', 'vulopilot'),
             settingDescription: __(
                 'Used by the "Email me when GEO score drops" notification in the Notifications tab.',
                 'vulopilot'
             ),
+			size: 5,
             moduleEnabled: 'geo',
         },
-		{
-			key: 'entity-extraction-section',
-			type: 'section',
-			title: __('Entity Extraction', 'vulopilot'),
-		},
 		{
 			key: 'entity-section-services',
 			type: 'section',
 			title: __('Services', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'One published page per line — a URL or a numeric page ID. Pages that don\'t resolve are skipped.',
 				'vulopilot'
 			),
@@ -252,7 +237,7 @@ export default {
 			key: 'entity-section-locations',
 			type: 'section',
 			title: __('Locations', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'One location per line, as "Name | Address".',
 				'vulopilot'
 			),
@@ -274,7 +259,7 @@ export default {
 		{
 			key: 'kg_health_drop_threshold',
 			type: 'number',
-			classes: 'space-between',
+			size: 5,
 			label: __(
 				'Knowledge Graph Health drop alert threshold (points)',
 				'vulopilot'
@@ -285,21 +270,15 @@ export default {
 			),
 		},
 		{
-			key: 'crawler-traffic-section',
-			type: 'section',
-			title: __('Crawler Traffic', 'vulopilot'),
-		},
-		{
 			key: 'crawler-traffic',
 			type: 'section',
 			title: __('Crawler Traffic', 'vulopilot'),
-			desc: __('', 'vulopilot'),
+			settingDescription: __('', 'vulopilot'),
 		},
 		{
 			key: 'enable_crawler_tracking',
 			type: 'checkbox',
-			look: 'toggle',
-			classes: 'space-between',
+			look: 'toggle',			
 			label: __('Log AI crawler visits', 'vulopilot'),
 			settingDescription: __(
 				'No human visitor data is collected — only known AI bot user agents (GPTBot, ClaudeBot, PerplexityBot, and others).',
@@ -315,9 +294,9 @@ export default {
 		},
 		{
 			key: 'log_retention',
-			type: 'select',
-			classes: 'space-between border-top',
+			type: 'select',			
 			label: __('Log retention', 'vulopilot'),
+			size: 7,
 			settingDescription: __(
 				'How long AI crawler visit logs are kept before automatic cleanup. VuloPilot Pro extends this further (Historical Logs).',
 				'vulopilot'
@@ -333,15 +312,15 @@ export default {
 			key: 'crawler-analytics-section-alerts',
 			type: 'section',
 			title: __('Alerts', 'vulopilot'),
-			desc: __(
+			settingDescription: __(
 				'Read by vulopilot-pro\'s AI Crawler Alerts — sitewide AI crawler visit-volume monitoring, not per-page findings.',
 				'vulopilot'
 			),
 		},
 		{
 			key: 'crawler_volume_drop_threshold_percent',
-			type: 'number',
-			classes: 'space-between',
+			type: 'number',		
+			size: 5,	
 			label: __(
 				'Crawl volume drop alert threshold (%)',
 				'vulopilot'

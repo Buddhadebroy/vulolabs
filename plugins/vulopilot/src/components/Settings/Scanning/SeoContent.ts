@@ -39,32 +39,19 @@ export default {
 	id: 'seo-content',
 	priority: 2,
 	headerTitle: __('SEO & Content', 'vulopilot'),
+	settingTitle: __('Titles & meta', 'vulopilot'),
 	headerDescription: __(
-		'Scanning behavior for SEO, sitemaps, and webmaster tools.',
+		'Controls what shows up in the SEO page\'s "Titles & Meta" and "Content Structure" findings.',
 		'vulopilot'
 	),
 	headerIcon: 'search',
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'seo-section',
-			type: 'section',
-			title: __('SEO', 'vulopilot'),
-		},
-		{
-			key: 'seo-section-titles-meta',
-			type: 'section',
-			title: __('Titles & meta', 'vulopilot'),
-			desc: __(
-				'Controls what shows up in the SEO page\'s "Titles & Meta" and "Content Structure" findings.',
-				'vulopilot'
-			),
-		},
-		{
 			key: 'flag_missing_meta_description',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Flag missing meta descriptions', 'vulopilot'),
 			settingDescription: __('Pages and posts with no meta description set.', 'vulopilot'),
 			options: [
@@ -79,7 +66,7 @@ export default {
 			key: 'flag_duplicate_titles',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Flag duplicate title tags', 'vulopilot'),
 			settingDescription: __(
 				'Two or more published pages sharing the exact same title.',
@@ -93,7 +80,7 @@ export default {
 			key: 'flag_orphan_pages',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Flag orphan pages', 'vulopilot'),
 			settingDescription: __('Pages with no internal links pointing to them.', 'vulopilot'),
 			options: [
@@ -103,7 +90,7 @@ export default {
 		{
 			key: 'thin_content_word_threshold',
 			type: 'number',
-			classes: 'space-between border-top',
+			size: 15,
 			label: __('Thin content threshold (words)', 'vulopilot'),
 			settingDescription: __(
 				'Pages below this word count are flagged as thin content.',
@@ -123,7 +110,7 @@ export default {
 			key: 'flag_missing_featured_image',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Flag missing featured images', 'vulopilot'),
 			settingDescription: __(
 				'Published pages, posts, or products with no featured image set.',
@@ -141,7 +128,7 @@ export default {
 			key: 'flag_missing_alt_text',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Flag missing alt text', 'vulopilot'),
 			settingDescription: __('Content images with no alt attribute.', 'vulopilot'),
 			options: [
@@ -161,7 +148,7 @@ export default {
 			key: 'flag_broken_links',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Flag broken internal links', 'vulopilot'),
 			settingDescription: __(
 				'Internal links pointing to a 404 or removed page.',
@@ -174,7 +161,7 @@ export default {
 		{
 			key: 'broken_link_check_frequency',
 			type: 'select',
-			classes: 'space-between border-top',
+			size: 8,
 			label: __('Broken link check frequency', 'vulopilot'),
 			settingDescription: __(
 				'How often this specific check re-runs, independent of the overall scan frequency in the General tab.',
@@ -190,7 +177,7 @@ export default {
 			key: 'flag_missing_schema',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Flag missing structured data', 'vulopilot'),
 			settingDescription: __(
 				'Content types (FAQ, Review, HowTo, etc.) without valid schema markup.',
@@ -204,7 +191,7 @@ export default {
 			key: 'canonical_url_enabled',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Add canonical URL tags', 'vulopilot'),
 			settingDescription: __(
 				'WordPress already adds these by default — only turn this on if the "Canonical URLs" finding shows them missing (usually a theme or caching plugin stripping them).',
@@ -222,7 +209,7 @@ export default {
 			key: 'social_meta_tags_enabled',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Add Open Graph & Twitter Card tags', 'vulopilot'),
 			settingDescription: __(
 				'Adds preview tags (title, description, image) for Facebook, LinkedIn, and X/Twitter. Turn on only if the "Open Graph"/"Twitter Cards" findings show them missing.',
@@ -245,7 +232,7 @@ export default {
 			key: 'robots_auto_generate',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Auto-generate robots.txt', 'vulopilot'),
 			settingDescription: __(
 				'Adds a sitemap reference to your robots.txt. Turn off if you maintain a custom robots.txt file yourself.',
@@ -259,7 +246,7 @@ export default {
 			key: 'flag_ai_crawler_blocked_pages',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Flag pages blocked for specific AI crawlers', 'vulopilot'),
 			settingDescription: __(
 				'Published pages/posts that robots.txt disallows for one named AI bot (GPTBot, ClaudeBot, etc.), separate from the sitewide check above.',
@@ -283,7 +270,7 @@ export default {
 			key: 'enable_redirect_manager',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Enable redirect manager', 'vulopilot'),
 			settingDescription: __(
 				'Create and manage 301 redirects from the Redirects page.',
@@ -301,7 +288,7 @@ export default {
 			key: 'auto_redirect_on_slug_change',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Auto-create redirect on slug change', 'vulopilot'),
 			settingDescription: __(
 				'When a published page or post URL changes, redirect the old URL automatically.',
@@ -324,7 +311,7 @@ export default {
 			key: 'log_404s',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Log 404s', 'vulopilot'),
 			settingDescription: __(
 				'Track visits to missing pages so you can turn them into redirect suggestions.',
@@ -332,11 +319,11 @@ export default {
 			),
 			options: [{ key: 'log_404s', label: '', value: 'log_404s' }],
 		},
-		{
-			key: 'content-section',
-			type: 'section',
-			title: __('Content Intelligence', 'vulopilot'),
-		},
+		// {
+		// 	key: 'content-section',
+		// 	type: 'section',
+		// 	title: __('Content Intelligence', 'vulopilot'),
+		// },
 		{
 			key: 'content-section-readability',
 			type: 'section',
@@ -349,18 +336,18 @@ export default {
 		{
 			key: 'content_readability_min_score',
 			type: 'number',
-			classes: 'space-between',
+			size: 7,
 			label: __('Minimum readability score', 'vulopilot'),
 			settingDescription: __(
 				'Posts scoring below this on the Flesch Reading Ease scale are flagged. 50 is that scale\'s own "Fairly Difficult" boundary.',
 				'vulopilot'
 			),
 		},
-		{
-			key: 'sitemap-section',
-			type: 'section',
-			title: __('Sitemap', 'vulopilot'),
-		},
+		// {
+		// 	key: 'sitemap-section',
+		// 	type: 'section',
+		// 	title: __('Sitemap', 'vulopilot'),
+		// },
 		{
 			key: 'sitemap-section-xml',
 			type: 'section',
@@ -376,7 +363,7 @@ export default {
 			key: 'sitemap_enabled',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Generate XML sitemap', 'vulopilot'),
 			settingDescription: __(
 				'Available at yoursite.com/wp-sitemap.xml once enabled.',
@@ -390,7 +377,7 @@ export default {
 			key: 'sitemap_ping_search_engines',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Ping search engines on update', 'vulopilot'),
 			settingDescription: __(
 				'Notifies Bing automatically when new content is published.',
@@ -408,7 +395,7 @@ export default {
 		{
 			key: 'sitemap_links_per_page',
 			type: 'number',
-			classes: 'space-between border-top',
+			size: 10,
 			label: __('Links per sitemap', 'vulopilot'),
 			settingDescription: __('Max number of links on each sitemap page.', 'vulopilot'),
 			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
@@ -416,7 +403,7 @@ export default {
 		{
 			key: 'sitemap_exclude_posts',
 			type: 'text',
-			classes: 'space-between border-top',
+			size: 10,
 			label: __('Exclude posts', 'vulopilot'),
 			settingDescription: __(
 				'Post IDs to exclude from the sitemap, separated by commas. Applies across all included post types.',
@@ -427,7 +414,7 @@ export default {
 		{
 			key: 'sitemap_exclude_terms',
 			type: 'text',
-			classes: 'space-between border-top',
+			size: 10,
 			label: __('Exclude terms', 'vulopilot'),
 			settingDescription: __(
 				'Term IDs to exclude, separated by commas. Applies across all included taxonomies.',
@@ -448,7 +435,7 @@ export default {
 			key: 'sitemap_include_images',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Images in sitemaps', 'vulopilot'),
 			settingDescription: __(
 				"Include references to images from the post content in sitemaps — this helps search engines index the important images on your pages.",
@@ -462,7 +449,7 @@ export default {
 			key: 'sitemap_include_featured_images',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Include featured images', 'vulopilot'),
 			settingDescription: __(
 				"Include the featured image too, even if it doesn't appear directly in the post content.",
@@ -489,7 +476,7 @@ export default {
 		{
 			key: 'sitemap_xml_post_types',
 			type: 'choice-toggle',
-			classes: 'space-between',
+			
 			label: __('Post types in XML sitemap', 'vulopilot'),
 			options: [
 				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
@@ -501,7 +488,7 @@ export default {
 		{
 			key: 'sitemap_html_post_types',
 			type: 'choice-toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Post types in HTML sitemap', 'vulopilot'),
 			options: [
 				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
@@ -513,7 +500,7 @@ export default {
 		{
 			key: 'sitemap_xml_taxonomies',
 			type: 'choice-toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Taxonomies in XML sitemap', 'vulopilot'),
 			options: [
 				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },
@@ -525,7 +512,7 @@ export default {
 		{
 			key: 'sitemap_html_taxonomies',
 			type: 'choice-toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Taxonomies in HTML sitemap', 'vulopilot'),
 			options: [
 				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },
@@ -543,7 +530,7 @@ export default {
 			key: 'html_sitemap_enabled',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Enable HTML sitemap', 'vulopilot'),
 			settingDescription: __(
 				'A human-readable page listing every included post, page, and taxonomy term.',
@@ -556,7 +543,7 @@ export default {
 		{
 			key: 'html-sitemap-shortcode-notice',
 			type: 'notice',
-			classes: 'border-top',
+			
 			noticeType: 'info',
 			message: __(
 				'Use this shortcode to display the HTML sitemap anywhere on your site: [vulopilot_html_sitemap]',
@@ -567,7 +554,7 @@ export default {
 		{
 			key: 'html_sitemap_display_format',
 			type: 'select',
-			classes: 'space-between border-top',
+			size: 10,
 			label: __('Display format', 'vulopilot'),
 			settingDescription: __('How you want to display the HTML sitemap.', 'vulopilot'),
 			options: [
@@ -579,7 +566,7 @@ export default {
 		{
 			key: 'html_sitemap_sort_by',
 			type: 'select',
-			classes: 'space-between border-top',
+			size: 15,
 			label: __('Sort by', 'vulopilot'),
 			settingDescription: __('How to sort the items in the HTML sitemap.', 'vulopilot'),
 			options: [
@@ -593,7 +580,7 @@ export default {
 			key: 'html_sitemap_show_dates',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Show dates', 'vulopilot'),
 			settingDescription: __('Show published dates for each post & page.', 'vulopilot'),
 			options: [
@@ -604,7 +591,7 @@ export default {
 		{
 			key: 'html_sitemap_item_titles',
 			type: 'select',
-			classes: 'space-between border-top',
+			size: 15,
 			label: __('Item titles', 'vulopilot'),
 			settingDescription: __(
 				'Show the post/term titles, or the SEO titles, in the HTML sitemap.',
@@ -615,11 +602,6 @@ export default {
 				{ label: __('SEO Titles', 'vulopilot'), value: 'seo_title' },
 			],
 			dependent: { key: 'html_sitemap_enabled', value: 'html_sitemap_enabled', set: true },
-		},
-		{
-			key: 'webmaster-section',
-			type: 'section',
-			title: __('Webmaster Tools', 'vulopilot'),
 		},
 		{
 			key: 'webmaster-section-verification',
@@ -633,7 +615,7 @@ export default {
 		{
 			key: 'webmaster_google_verification',
 			type: 'text',
-			classes: 'space-between',
+			size: 25,
 			label: __('Google Search Console', 'vulopilot'),
 			settingDescription: __(
 				'Enter your Google Search Console verification ID. Rendered as <meta name="google-site-verification" content="...">.',
@@ -643,7 +625,7 @@ export default {
 		{
 			key: 'webmaster_bing_verification',
 			type: 'text',
-			classes: 'space-between border-top',
+			size: 25,
 			label: __('Bing Webmaster Tools', 'vulopilot'),
 			settingDescription: __(
 				'Enter your Bing Webmaster Tools verification ID. Rendered as <meta name="msvalidate.01" content="...">.',
@@ -653,7 +635,7 @@ export default {
 		{
 			key: 'webmaster_baidu_verification',
 			type: 'text',
-			classes: 'space-between border-top',
+			size: 25,
 			label: __('Baidu Webmaster Tools', 'vulopilot'),
 			settingDescription: __(
 				'Enter your Baidu Webmaster Tools verification ID. Rendered as <meta name="baidu-site-verification" content="...">.',
@@ -663,7 +645,7 @@ export default {
 		{
 			key: 'webmaster_yandex_verification',
 			type: 'text',
-			classes: 'space-between border-top',
+			size: 25,			
 			label: __('Yandex Verification ID', 'vulopilot'),
 			settingDescription: __(
 				'Enter your Yandex.Webmaster verification ID. Rendered as <meta name="yandex-verification" content="...">.',
@@ -673,7 +655,7 @@ export default {
 		{
 			key: 'webmaster_pinterest_verification',
 			type: 'text',
-			classes: 'space-between border-top',
+			size: 25,
 			label: __('Pinterest Verification ID', 'vulopilot'),
 			settingDescription: __(
 				'Enter your Pinterest account verification ID. Rendered as <meta property="p:domain_verify" content="...">.',
@@ -683,7 +665,7 @@ export default {
 		{
 			key: 'webmaster_norton_verification',
 			type: 'text',
-			classes: 'space-between border-top',
+			size: 25,
 			label: __('Norton Safe Web Verification ID', 'vulopilot'),
 			settingDescription: __(
 				'Enter your Norton Safe Web ownership verification ID. Rendered as <meta name="norton-safeweb-site-verification" content="...">.',

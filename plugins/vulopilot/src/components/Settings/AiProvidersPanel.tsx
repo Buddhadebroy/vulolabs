@@ -1,6 +1,5 @@
 /* global appLocalizer */
-import { useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	getApiLink,
@@ -8,11 +7,15 @@ import {
 	sendApiResponse,
 } from '@zyra/core';
 import {
-	CardComponent,
 	FormGroupWrapperComponent,
+	FormGroupComponent,
 	NoticeManager,
 } from '@zyra/components';
-import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
+import {
+	ButtonInput,
+	ExpandablePanelInput,
+	SelectInput,
+} from '@zyra/inputs';
 
 interface ConfiguredProvider {
 	id: number;
@@ -36,46 +39,13 @@ interface AiProvidersResponse {
 }
 
 /**
- * Same `.form-group.row` / `.settings-form-label` / `.settings-input-content`
- * markup zyra's own InputRenderer puts around every real settings field
- * (confirmed from its compiled output — there's no exported "FieldRow"
- * component to import instead, InputRenderer builds this JSX inline).
- * Reproduced here rather than falling back to bare, unlabeled inputs so
- * this hand-built panel visually matches every InputRenderer-driven tab
- * on this same page, not just functionally coexist with them.
- */
-const SettingsFieldRow = ({
-	label,
-	description,
-	children,
-}: {
-	label: string;
-	description?: string;
-	children: ReactNode;
-}) => (
-	<div className="form-group row">
-		<label className="settings-form-label">
-			<div className="title">{label}</div>
-			{description && (
-				<div className="settings-metabox-description">
-					{description}
-				</div>
-			)}
-		</label>
-		<div className="settings-input-content">{children}</div>
-	</div>
-);
-
-/**
  * Hand-built rather than InputRenderer-driven, same escape hatch as
  * ImportExportPanel.tsx: AI provider configs live in their own
  * `vulopilot_ai_provider_configs` table (AI-ARCHITECTURE.md), not the flat
  * settings option row every other Settings tab auto-saves into, so they
- * don't fit the per-field `InputRenderer` model at all. Still wrapped in
- * the same `CardComponent` + `FormGroupWrapperComponent` shell
- * ImportExportPanel already uses for the same reason, and every field
- * below reuses InputRenderer's own row markup (see SettingsFieldRow) so
- * it doesn't look like a different app bolted onto this page.
+ * don't fit the per-field `InputRenderer` model at all. The add flow uses
+ * Zyra's select-driven `ExpandablePanelInput`, while configured providers
+ * retain their direct REST-backed controls below.
  *
  * This is AI-ARCHITECTURE.md's "What's not here yet" gap being closed:
  * "nothing yet writes to vulopilot_ai_provider_configs from the dashboard
@@ -96,11 +66,12 @@ const AiProvidersPanel = () => {
 	const [adapters, setAdapters] = useState<Record<string, AdapterMeta>>({});
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
-
-	const [selectedProvider, setSelectedProvider] = useState('');
-	const [label, setLabel] = useState('');
-	const [credential, setCredential] = useState('');
-	const [defaultModel, setDefaultModel] = useState('');
+	const [newProviderValues, setNewProviderValues] = useState<
+		Record<string, Record<string, unknown>>
+	>({});
+	const [newProviderPanelKey, setNewProviderPanelKey] = useState(0);
+	const newProviderValuesRef = useRef(newProviderValues);
+	const isSavingRef = useRef(false);
 
 	const load = () => {
 		setIsLoading(true);
@@ -126,27 +97,26 @@ const AiProvidersPanel = () => {
 		(id) => !configured.some((row) => row.provider === id)
 	);
 
-	const selectedAdapter = selectedProvider
-		? adapters[selectedProvider]
-		: undefined;
-
 	const activeCount = configured.filter((row) => row.is_active).length;
 
-	const handleAdd = () => {
-		if (!selectedProvider) {
+	const handleAdd = (provider: string) => {
+		if (isSavingRef.current) {
 			return;
 		}
 
+		const values = newProviderValuesRef.current[provider] ?? {};
+
+		isSavingRef.current = true;
 		setIsSaving(true);
 
 		sendApiResponse(
 			appLocalizer,
 			getApiLink(appLocalizer, 'ai-providers'),
 			{
-				provider: selectedProvider,
-				label,
-				credential,
-				default_model: defaultModel,
+				provider,
+				label: values.label ?? '',
+				credential: values.credential ?? '',
+				default_model: values.default_model ?? '',
 			}
 		)
 			.then((response) => {
@@ -163,15 +133,83 @@ const AiProvidersPanel = () => {
 				});
 
 				if (response) {
-					setSelectedProvider('');
-					setLabel('');
-					setCredential('');
-					setDefaultModel('');
+					newProviderValuesRef.current = {};
+					setNewProviderValues({});
+					setNewProviderPanelKey((key) => key + 1);
 					load();
 				}
 			})
-			.finally(() => setIsSaving(false));
+			.finally(() => {
+				isSavingRef.current = false;
+				setIsSaving(false);
+			});
 	};
+
+	const handleNewProviderChange = (
+		values: Record<string, Record<string, unknown>>
+	) => {
+		newProviderValuesRef.current = values;
+		setNewProviderValues(values);
+	};
+
+	const newProviderOptions = unconfiguredProviderIds.map((id) => {
+		const adapter = adapters[id];
+
+		return {
+			value: id,
+			label: adapter.label,
+			template: {
+				icon: 'ai',
+				label: adapter.label,
+				desc: __(
+					'Configure this provider with your own credentials.',
+					'vulopilot'
+				),
+				formFields: [
+					{
+						key: 'label',
+						type: 'text',
+						label: __('Label', 'vulopilot'),
+						placeholder: adapter.label,
+					},
+					{
+						key: 'credential',
+						type: adapter.requires_credential ? 'password' : 'text',
+						label: adapter.requires_credential
+							? __('API key', 'vulopilot')
+							: __('Base URL', 'vulopilot'),
+						desc: adapter.requires_credential
+							? undefined
+							: __(
+									'Defaults to http://localhost:11434 if left blank.',
+									'vulopilot'
+								),
+					},
+					...(adapter.available_models.length > 0
+						? [
+								{
+									key: 'default_model',
+									type: 'select',
+									label: __('Default model', 'vulopilot'),
+									options: adapter.available_models.map((model) => ({
+										label: model,
+										value: model,
+									})),
+								},
+							]
+						: []),
+					{
+						key: 'connect',
+						type: 'button',
+						label: '',
+						text: __('Connect provider', 'vulopilot'),
+						disabled: isSaving,
+						onClick: () => handleAdd(id),
+					},
+				],
+			},
+		};
+	});
 
 	const handleModelChange = (row: ConfiguredProvider, model: string) => {
 		setConfigured(
@@ -238,206 +276,101 @@ const AiProvidersPanel = () => {
 
 	return (
 		<>
-			<CardComponent
-				title={__('How AI runs on this site', 'vulopilot')}
-				desc={__(
-					'Connect at least one provider with your own API key to get AI-written suggestions — alt text, meta titles, FAQ blocks, and every other AI action VuloPilot offers. Every fix still waits for your review and approval on the Dashboard before anything is applied.',
-					'vulopilot'
-				)}
-			>
-				{activeCount > 1 && (
-					<div className="desc settings-metabox-description">
-						{sprintf(
-							/* translators: %d is how many AI providers are currently active. */
-							__(
-								'%d providers are active — if the first one fails or is rate-limited, VuloPilot automatically retries with the next.',
-								'vulopilot'
-							),
-							activeCount
-						)}
-					</div>
-				)}
-			</CardComponent>
+			<FormGroupWrapperComponent>
+				{configured.map((row) => {
+					const adapter = adapters[row.provider];
 
-			<CardComponent
-				title={__('Providers', 'vulopilot')}
-				isLoading={isLoading}
-			>
-				<FormGroupWrapperComponent>
-					{configured.map((row) => {
-						const adapter = adapters[row.provider];
-
-						return (
-							<div key={row.id} className="vulopilot-ai-provider-row">
-								<div className="vulopilot-ai-provider-row__identity">
-									<span
-										className={
-											row.is_active
-												? 'vulopilot-ai-provider-row__status vulopilot-ai-provider-row__status--active'
-												: 'vulopilot-ai-provider-row__status vulopilot-ai-provider-row__status--inactive'
-										}
-									/>
-									<div>
-										<div className="vulopilot-ai-provider-row__label">
-											{row.label || adapter?.label || row.provider}
-										</div>
-										<div className="settings-metabox-description">
-											{row.is_active
-												? __('Active — tried automatically if an earlier provider fails', 'vulopilot')
-												: __('Inactive — skipped by the fallback chain', 'vulopilot')}
-										</div>
+					return (
+						<div key={row.id} className="vulopilot-ai-provider-row">
+							<div className="vulopilot-ai-provider-row__identity">
+								<span
+									className={
+										row.is_active
+											? 'vulopilot-ai-provider-row__status vulopilot-ai-provider-row__status--active'
+											: 'vulopilot-ai-provider-row__status vulopilot-ai-provider-row__status--inactive'
+									}
+								/>
+								<div>
+									<div className="vulopilot-ai-provider-row__label">
+										{row.label || adapter?.label || row.provider}
+									</div>
+									<div className="settings-metabox-description">
+										{row.is_active
+											? __('Active — tried automatically if an earlier provider fails', 'vulopilot')
+											: __('Inactive — skipped by the fallback chain', 'vulopilot')}
 									</div>
 								</div>
-
-								{adapter && adapter.available_models.length > 0 && (
-									<SelectInput
-										name={`ai_provider_model_${row.id}`}
-										value={row.default_model ?? ''}
-										placeholder={__('Default model', 'vulopilot')}
-										options={adapter.available_models.map((model) => ({
-											label: model,
-											value: model,
-										}))}
-										onChange={(newValue) =>
-											handleModelChange(row, newValue as string)
-										}
-										size="12rem"
-									/>
-								)}
-
-								<div className="vulopilot-ai-provider-row__actions">
-									<ButtonInput
-										buttons={{
-											text: row.is_active
-												? __('Deactivate', 'vulopilot')
-												: __('Activate', 'vulopilot'),
-											onClick: () => handleToggleActive(row),
-										}}
-									/>
-									<ButtonInput
-										buttons={{
-											text: __('Remove', 'vulopilot'),
-											icon: 'delete',
-											onClick: () => handleDelete(row),
-										}}
-									/>
-								</div>
 							</div>
-						);
-					})}
 
-					{unconfiguredProviderIds.length > 0 ? (
-						<>
-							<SettingsFieldRow
-								label={__('Add a provider', 'vulopilot')}
-								description={__(
-									'Bring your own API key from any supported provider.',
-									'vulopilot'
-								)}
-							>
+							{adapter && adapter.available_models.length > 0 && (
 								<SelectInput
-									name="ai_provider"
-									value={selectedProvider}
-									placeholder={__('Choose a provider…', 'vulopilot')}
-									options={unconfiguredProviderIds.map((id) => ({
-										label: adapters[id].label,
-										value: id,
+									name={`ai_provider_model_${row.id}`}
+									value={row.default_model ?? ''}
+									placeholder={__('Default model', 'vulopilot')}
+									options={adapter.available_models.map((model) => ({
+										label: model,
+										value: model,
 									}))}
 									onChange={(newValue) =>
-										setSelectedProvider(newValue as string)
+										handleModelChange(row, newValue as string)
 									}
 									size="12rem"
 								/>
-							</SettingsFieldRow>
-
-							{selectedProvider && (
-								<>
-									<SettingsFieldRow label={__('Label', 'vulopilot')}>
-										<TextInput
-											name="ai_provider_label"
-											placeholder={selectedAdapter?.label}
-											value={label}
-											onChange={(newValue) =>
-												setLabel(newValue as string)
-											}
-										/>
-									</SettingsFieldRow>
-									<SettingsFieldRow
-										label={
-											selectedAdapter?.requires_credential
-												? __('API key', 'vulopilot')
-												: __('Base URL', 'vulopilot')
-										}
-										description={
-											selectedAdapter?.requires_credential
-												? undefined
-												: __(
-														'Defaults to http://localhost:11434 if left blank.',
-														'vulopilot'
-													)
-										}
-									>
-										<TextInput
-											name="ai_provider_credential"
-											type={
-												selectedAdapter?.requires_credential
-													? 'password'
-													: 'text'
-											}
-											value={credential}
-											onChange={(newValue) =>
-												setCredential(newValue as string)
-											}
-										/>
-									</SettingsFieldRow>
-									{selectedAdapter &&
-										selectedAdapter.available_models.length > 0 && (
-											<SettingsFieldRow
-												label={__('Default model', 'vulopilot')}
-											>
-												<SelectInput
-													name="ai_provider_default_model"
-													value={defaultModel}
-													placeholder={__(
-														'Optional',
-														'vulopilot'
-													)}
-													options={selectedAdapter.available_models.map(
-														(model) => ({
-															label: model,
-															value: model,
-														})
-													)}
-													onChange={(newValue) =>
-														setDefaultModel(newValue as string)
-													}
-													size="12rem"
-												/>
-											</SettingsFieldRow>
-										)}
-									<SettingsFieldRow label="">
-										<ButtonInput
-											buttons={{
-												text: __('Connect provider', 'vulopilot'),
-												onClick: handleAdd,
-												disabled: isSaving,
-											}}
-										/>
-									</SettingsFieldRow>
-								</>
 							)}
-						</>
+
+							<div className="vulopilot-ai-provider-row__actions">
+								<ButtonInput
+									buttons={{
+										text: row.is_active
+											? __('Deactivate', 'vulopilot')
+											: __('Activate', 'vulopilot'),
+										onClick: () => handleToggleActive(row),
+									}}
+								/>
+								<ButtonInput
+									buttons={{
+										text: __('Remove', 'vulopilot'),
+										icon: 'delete',
+										onClick: () => handleDelete(row),
+									}}
+								/>
+							</div>
+						</div>
+					);
+				})}
+				<FormGroupComponent row label={__('Add a new AI provider', 'vulopilot')}>
+					{newProviderOptions.length > 0 ? (
+						<ExpandablePanelInput
+							key={newProviderPanelKey}
+							name="ai-providers"
+							methods={[]}
+							value={newProviderValues}
+							onChange={handleNewProviderChange}
+							canAccess
+							addNewBtn
+							addNewOptions={newProviderOptions}
+						/>
 					) : (
 						configured.length === 0 && (
-							<SettingsFieldRow label="">
-								<div className="desc">
-									{__('No AI providers configured yet.', 'vulopilot')}
-								</div>
-							</SettingsFieldRow>
+							<div className="desc">
+								{__('No AI providers configured yet.', 'vulopilot')}
+							</div>
 						)
 					)}
-				</FormGroupWrapperComponent>
-			</CardComponent>
+				</FormGroupComponent>
+			</FormGroupWrapperComponent>
+			{activeCount > 1 && (
+				<div className="desc settings-metabox-description">
+					{sprintf(
+						/* translators: %d is how many AI providers are currently active. */
+						__(
+							'%d providers are active — if the first one fails or is rate-limited, VuloPilot automatically retries with the next.',
+							'vulopilot'
+						),
+						activeCount
+					)}
+				</div>
+			)}
 		</>
 	);
 };

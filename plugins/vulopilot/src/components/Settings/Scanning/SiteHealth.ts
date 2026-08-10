@@ -4,6 +4,7 @@ export default {
 	id: 'site-health',
 	priority: 3,
 	headerTitle: __('Site Health', 'vulopilot'),
+	settingTitle:__('Security', 'vulopilot'),
 	headerDescription: __(
 		'Security, accessibility, and performance scanning behavior.',
 		'vulopilot'
@@ -12,15 +13,10 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'security-section',
-			type: 'section',
-			title: __('Security', 'vulopilot'),
-		},
-		{
 			key: 'enable_weak_password_scanner',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Check administrators for weak passwords', 'vulopilot'),
 			settingDescription: __(
 				'Checks every administrator account\'s password against a small dictionary of the most commonly used passwords during each scan, using the same hashing check WordPress itself uses at login.',
@@ -34,7 +30,7 @@ export default {
 			key: 'enable_basic_vulnerabilities_scanner',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Check for basic vulnerability exposure', 'vulopilot'),
 			settingDescription: __(
 				'Checks whether the WordPress version is exposed via the homepage or readme.html, and whether the database table prefix is left at its default.',
@@ -48,7 +44,7 @@ export default {
 			key: 'enable_core_file_integrity_scanner',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Check WordPress core files for changes', 'vulopilot'),
 			settingDescription: __(
 				'Compares every WordPress core file against the official checksums published for this exact version, flagging anything modified or missing.',
@@ -62,7 +58,7 @@ export default {
 			key: 'enable_rest_api_scanner',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Check for anonymous REST API user exposure', 'vulopilot'),
 			settingDescription: __(
 				'Makes a real, unauthenticated request to this site\'s own /wp/v2/users endpoint during each scan to check whether it exposes usernames. Turn off if your firewall/WAF flags this request.',
@@ -94,7 +90,7 @@ export default {
 		{
 			key: 'security_scan_frequency',
 			type: 'select',
-			classes: 'space-between',
+			size: 8,
 			label: __('Scheduled security monitoring', 'vulopilot'),
 			settingDescription: __(
 				'Runs only the security-category scanners on this cadence, independent of the general Scan frequency setting under General.',
@@ -112,7 +108,7 @@ export default {
 			key: 'security_alerts_enabled',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Email me on new security alerts', 'vulopilot'),
 			settingDescription: __(
 				'Send an email when a scan detects a new security finding at or above the minimum severity below. Already-alerted, still-open findings aren\'t re-sent on every scan.',
@@ -126,7 +122,7 @@ export default {
 		{
 			key: 'security_alert_email',
 			type: 'email',
-			classes: 'space-between border-top',
+			size: 20,
 			label: __('Security alert email', 'vulopilot'),
 			placeholder: __('noreply@yourstore.com', 'vulopilot'),
 			settingDescription: __(
@@ -138,7 +134,7 @@ export default {
 		{
 			key: 'security_alert_min_severity',
 			type: 'select',
-			classes: 'space-between border-top',
+			size: 10,
 			label: __('Minimum alert severity', 'vulopilot'),
 			settingDescription: __(
 				'Only findings at or above this severity trigger a security alert email.',
@@ -156,7 +152,7 @@ export default {
 			key: 'enable_integrity_monitoring',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between border-top',
+			
 			label: __('Monitor plugin/theme files for changes', 'vulopilot'),
 			settingDescription: __(
 				'Maintains a local baseline of every plugin/theme PHP file and flags any added, modified, or removed since the last scan.',
@@ -170,7 +166,7 @@ export default {
 		{
 			key: 'integrity_monitoring_max_files',
 			type: 'number',
-			classes: 'space-between border-top',
+			size: 10,
 			label: __('Integrity monitoring file limit', 'vulopilot'),
 			minNumber: 100,
 			maxNumber: 20000,
@@ -189,7 +185,7 @@ export default {
 			key: 'enable_wcag_scanner',
 			type: 'checkbox',
 			look: 'toggle',
-			classes: 'space-between',
+			
 			label: __('Check for generic, out-of-context link text', 'vulopilot'),
 			settingDescription: __(
 				'Flags links whose entire visible text is a generic phrase like "click here" or "read more" — link text should describe its own destination (WCAG 2.4.4).',
@@ -202,7 +198,7 @@ export default {
 		{
 			key: 'accessibility_audit_frequency',
 			type: 'select',
-			classes: 'space-between border-top',
+			size: 7,
 			label: __('Scheduled accessibility audits', 'vulopilot'),
 			settingDescription: __(
 				'Runs only the accessibility-category scanners on this cadence, independent of the general Scan frequency setting under General.',
@@ -219,7 +215,7 @@ export default {
 		{
 			key: 'target_wcag_level',
 			type: 'select',
-			classes: 'space-between border-top',
+			size: 7,
 			label: __('Target WCAG level', 'vulopilot'),
 			settingDescription: __(
 				'Used to determine which accessibility checks are marked critical vs. warning.',
@@ -240,7 +236,7 @@ export default {
             key: 'mobile_core_web_vitals',
             type: 'checkbox',
             look: 'toggle',
-            classes: 'space-between',
+            
             label: __('Include mobile Core Web Vitals', 'vulopilot'),
             settingDescription: __(
                 'Run Core Web Vitals checks against mobile as well as desktop.',

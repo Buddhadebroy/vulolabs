@@ -211,61 +211,59 @@ const GeoTab = () => {
 	const GeoScoreCard = useFilterSlot('vulopilot_geo_score_card');
 
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				{isGeoInsightsActive() ? (
-					<>
-						{GeoVisibilitySummary && <GeoVisibilitySummary />}
-						{GeoVisibilityTrend && <GeoVisibilityTrend />}
-						{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
-						{GeoScoreCard && <GeoScoreCard />}
-					</>
-				) : (
-					<CardComponent
-						title={__('AI Visibility Score', 'vulopilot')}
-						titleIcon="global-community"
-						desc={__(
-							'Sitewide GEO score, historical trend, and competitor comparison.',
-							'vulopilot'
-						)}
-					>
-						<ProLockedCard moduleName="geo-insights" />
-					</CardComponent>
-				)}
-				<OpenIssuesGlimpse
-					category="geo"
-					titleIcon="notification"
-					sectionMap={SCANNER_TO_SECTION}
-					fallbackSection="entities"
-					anchorPrefix="geo-section-"
-					emptyTitle={__("You're all caught up", 'vulopilot')}
-					emptyDesc={__('No open GEO findings right now.', 'vulopilot')}
-				/>
+		<ColumnComponent>
+			{isGeoInsightsActive() ? (
+				<>
+					{GeoVisibilitySummary && <GeoVisibilitySummary />}
+					{GeoVisibilityTrend && <GeoVisibilityTrend />}
+					{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
+					{GeoScoreCard && <GeoScoreCard />}
+				</>
+			) : (
+				<CardComponent
+					title={__('AI Visibility Score', 'vulopilot')}
+					titleIcon="global-community"
+					desc={__(
+						'Sitewide GEO score, historical trend, and competitor comparison.',
+						'vulopilot'
+					)}
+				>
+					<ProLockedCard moduleName="geo-insights" />
+				</CardComponent>
+			)}
+			<OpenIssuesGlimpse
+				category="geo"
+				titleIcon="notification"
+				sectionMap={SCANNER_TO_SECTION}
+				fallbackSection="entities"
+				anchorPrefix="geo-section-"
+				emptyTitle={__("You're all caught up", 'vulopilot')}
+				emptyDesc={__('No open GEO findings right now.', 'vulopilot')}
+			/>
 
-				<TopPagesCard />
-				{GEO_SECTIONS.map((section) => (
-					<ColumnComponent key={section.key} grid={6} fullHeight>
-						<CardComponent
-							id={`geo-section-${section.key}`}
-							title={section.title}
-							titleIcon={section.titleIcon}
-							desc={section.description}
-						>
-							{section.proModule && !isGeoInsightsActive() ? (
-								<ProLockedCard moduleName={section.proModule} />
-							) : (
-								<FindingsTable
-									title={section.title}
-									description={section.emptyMessage}
-									scannerIds={section.scannerIds}
-									layout="compact"
-								/>
-							)}
-						</CardComponent>
-					</ColumnComponent>
-				))}
-			</ColumnComponent>
-		</ContainerComponent>
+			<TopPagesCard />
+			{GEO_SECTIONS.map((section) => (
+				<ColumnComponent key={section.key} grid={6} fullHeight>
+					<CardComponent
+						id={`geo-section-${section.key}`}
+						title={section.title}
+						titleIcon={section.titleIcon}
+						desc={section.description}
+					>
+						{section.proModule && !isGeoInsightsActive() ? (
+							<ProLockedCard moduleName={section.proModule} />
+						) : (
+							<FindingsTable
+								title={section.title}
+								description={section.emptyMessage}
+								scannerIds={section.scannerIds}
+								layout="compact"
+							/>
+						)}
+					</CardComponent>
+				</ColumnComponent>
+			))}
+		</ColumnComponent>
 	);
 };
 
