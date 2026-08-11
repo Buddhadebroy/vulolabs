@@ -114,10 +114,6 @@ const AIAssistant = () => {
 							),
 						},
 						{
-							label: __('History', 'vulopilot'),
-							content: <HistoryTab />,
-						},
-						{
 							label: __('Issues', 'vulopilot'),
 							content: (
 								<IssuesTab
@@ -131,6 +127,10 @@ const AIAssistant = () => {
 						{
 							label: __('AI Workflows', 'vulopilot'),
 							content: <AiWorkflowsTab />,
+						},
+						{
+							label: __('History', 'vulopilot'),
+							content: <HistoryTab />,
 						},
 					]}
 				/>

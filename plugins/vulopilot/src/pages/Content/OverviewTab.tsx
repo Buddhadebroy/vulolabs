@@ -1,7 +1,6 @@
 import React from 'react';
 import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import ContentToolsGrid from './ContentToolsGrid';
-import QuickStartCard from './QuickStartCard';
 import ContentStatsCard from './ContentStatsCard';
 import RecentContentCard from './RecentContentCard';
 import ContentScoreCard from './ContentScoreCard';
@@ -22,11 +21,12 @@ const OverviewTab: React.FC = () => {
 		<>
 			<ContainerComponent general>
 				<ColumnComponent grid={8}>
+					<AiContentAssistantSidebar />
 					<ContentToolsGrid />
 				</ColumnComponent>
 				<ColumnComponent grid={4}>
 					<ContentScoreCard />
-					<QuickStartCard />
+					<ContentStatsCard />
 				</ColumnComponent>
 			</ContainerComponent>
 
@@ -34,9 +34,7 @@ const OverviewTab: React.FC = () => {
 				<ColumnComponent grid={8}>
 					<RecentContentCard />
 				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<AiContentAssistantSidebar />
-				</ColumnComponent>
+			
 			</ContainerComponent>
 
 			{/*
@@ -50,7 +48,7 @@ const OverviewTab: React.FC = () => {
 			 */}
 			<ContainerComponent general>
 				<ColumnComponent grid={6}>
-					<ContentStatsCard />
+					
 				</ColumnComponent>
 				<ContentOpenIssuesCard />
 			</ContainerComponent>
