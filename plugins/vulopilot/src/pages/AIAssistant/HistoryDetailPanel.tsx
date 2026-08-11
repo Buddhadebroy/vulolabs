@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent, NoticeManager } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
 import { HistoryRow, rowTitle } from './historyTypes';
@@ -108,7 +108,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 				/>
 			}
 		>
-			<h2 className="issue-detail-title">{rowTitle(row)}</h2>
+			<div className="title">{rowTitle(row)}</div>
 			<p className="small desc">
 				{sprintf(
 					/* translators: %s: formatted date this event happened */
@@ -116,56 +116,55 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 					formatWpDate(row.created_at)
 				)}
 			</p>
-
+			
+			<FormGroupWrapperComponent>
 			{row.scan && (
 				<>
-					<div className="issue-detail-section">
-						<h4>{__('Status', 'vulopilot')}</h4>
-						<p>
-							{'completed' === row.scan.status
-								? __('Completed', 'vulopilot')
-								: row.scan.status}
-							{' · '}
+				<FormGroupComponent row label={__('Status', 'vulopilot')}>
+					<span className='buttons-wrapper'>
+						<span className='admin-badge green'>
+						{'completed' === row.scan.status
+							? __('Completed', 'vulopilot')
+							: row.scan.status}
+						</span>
+						<span className='admin-badge yellow'>
 							{__('Manually triggered', 'vulopilot')}
-						</p>
-					</div>
-
-					<div className="issue-detail-section">
-						<h4>{__('Findings', 'vulopilot')}</h4>
-						{row.scan.total > 0 ? (
-							<ul className="history-severity-breakdown">
-								{Object.entries(row.scan.by_severity).map(
-									([severity, count]) => (
-										<li key={severity}>
-											<span
-												className={`admin-badge badge-${severity}`}
-											>
-												{SEVERITY_LABEL[severity] ??
-													severity}
-											</span>
-											{Number(count)}
-										</li>
-									)
-								)}
-							</ul>
-						) : (
-							<p>{__('No issues found.', 'vulopilot')}</p>
-						)}
-					</div>
-
-					{row.scan.total > 0 && (
-						<div className="issue-detail-actions">
-							<ButtonInput
-								buttons={{
-									text: __('View findings', 'vulopilot'),
-									icon: 'search',
-									onClick: () => {
-										window.location.href = `${appLocalizer.admin_url}#&tab=ai-assistant&subtab=issues&scanner_id=${encodeURIComponent(row.scan?.scanner_id ?? '')}`;
-									},
-								}}
-							/>
-						</div>
+						</span>
+					</span>
+				</FormGroupComponent>
+				<FormGroupComponent row label={__('Findings', 'vulopilot')}>
+					{row.scan.total > 0 ? (
+						<ul className="history-severity-breakdown">
+							{Object.entries(row.scan.by_severity).map(
+								([severity, count]) => (
+									<li key={severity}>
+										<span
+											className={`admin-badge badge-${severity}`}
+										>
+											{SEVERITY_LABEL[severity] ??
+												severity}
+										</span>
+										{Number(count)}
+									</li>
+								)
+							)}
+						</ul>
+					) : (
+						<>{__('No issues found.', 'vulopilot')}</>
 					)}
+				</FormGroupComponent>
+				{row.scan.total > 0 && (
+					<ButtonInput
+						position='full-width'
+						buttons={{
+							text: __('View findings', 'vulopilot'),
+							icon: 'search',
+							onClick: () => {
+								window.location.href = `${appLocalizer.admin_url}#&tab=ai-assistant&subtab=issues&scanner_id=${encodeURIComponent(row.scan?.scanner_id ?? '')}`;
+							},
+						}}
+					/>
+				)}
 				</>
 			)}
 
@@ -211,9 +210,9 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 					)}
 				</>
 			)}
-
-			<div className="issue-detail-actions">
+		</FormGroupWrapperComponent>
 				<ButtonInput
+					position='full-width'
 					buttons={{
 						text: __('Delete from history', 'vulopilot'),
 						icon: 'delete',
@@ -222,7 +221,6 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 						disabled: isDeleting,
 					}}
 				/>
-			</div>
 		</CardComponent>
 	);
 };

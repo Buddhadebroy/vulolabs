@@ -7,11 +7,11 @@ import AiWorkflowsList from './AiWorkflowsList';
  * same live `/automations` data, just untruncated.
  */
 const AiWorkflowsTab = () => (
-	<ColumnComponent>
+	<ContainerComponent>
 		<CardComponent title={__('AI Workflows', 'vulopilot')} titleIcon="ai">
 			<AiWorkflowsList />
 		</CardComponent>
-	</ColumnComponent>
+	</ContainerComponent>
 );
 
 export default AiWorkflowsTab;

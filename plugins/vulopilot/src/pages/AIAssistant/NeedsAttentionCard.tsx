@@ -7,6 +7,7 @@ import {
 	InformationItemComponent,
 	ListComponent,
 	ModuleGuardComponent,
+	AnalyticsComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import './AICopilot.scss';
@@ -160,6 +161,37 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 			category: group.category,
 		});
 
+	// Prepare priority data for AnalyticsComponent
+	const priorityData = summary ? [
+		{
+			colorClass: 'admin-bg-color2',
+			number: summary.priority_counts.high,
+			text: sprintf(
+				/* translators: %d: count of high-priority open findings */
+				__('%d High priority', 'vulopilot'),
+				summary.priority_counts.high
+			),
+		},
+		{
+			colorClass: 'admin-bg-color3',
+			number: summary.priority_counts.medium,
+			text: sprintf(
+				/* translators: %d: count of medium-priority open findings */
+				__('%d Medium priority', 'vulopilot'),
+				summary.priority_counts.medium
+			),
+		},
+		{
+			colorClass: 'admin-bg-color4',
+			number: summary.priority_counts.low,
+			text: sprintf(
+				/* translators: %d: count of low-priority open findings */
+				__('%d Low priority', 'vulopilot'),
+				summary.priority_counts.low
+			),
+		},
+	] : [];
+
 	return (
 		<CardComponent title={__('Needs your attention', 'vulopilot')} titleIcon="error">
 			{error ? (
@@ -196,32 +228,16 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 						</span>
 					</div>
 
-					<div className="attention-priority-pills">
-						<span className="admin-badge attention-priority-high">
-							{sprintf(
-								/* translators: %d: count of high-priority open findings */
-								__('%d High priority', 'vulopilot'),
-								summary.priority_counts.high
-							)}
-						</span>
-						<span className="admin-badge attention-priority-medium">
-							{sprintf(
-								/* translators: %d: count of medium-priority open findings */
-								__('%d Medium priority', 'vulopilot'),
-								summary.priority_counts.medium
-							)}
-						</span>
-						<span className="admin-badge attention-priority-low">
-							{sprintf(
-								/* translators: %d: count of low-priority open findings */
-								__('%d Low priority', 'vulopilot'),
-								summary.priority_counts.low
-							)}
-						</span>
-					</div>
+					{/* Priority Pills using AnalyticsComponent */}
+					<AnalyticsComponent
+						data={priorityData}
+						variant="background-color"
+						cols={3}
+						isLoading={false}
+					/>
 
 					<ListComponent
-						className="mini-card report suggested-actions-list"
+						className="mini-card report "
 						items={summary.groups.map((group) => {
 							const display =
 								CATEGORY_DISPLAY[group.category] ?? null;
@@ -251,16 +267,16 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 						})}
 					/>
 
-					<div className="attention-view-all-btn">
-						<ButtonInput
-							buttons={{
-								text: __('View all issues', 'vulopilot'),
-								icon: 'arrow-right',
-								color: 'secondary',
-								onClick: goToAllIssues,
-							}}
-						/>
-					</div>
+					<ButtonInput
+						buttons={{
+							text: __('View all issues', 'vulopilot'),
+							icon: 'arrow-right',
+							iconPosition: 'right',
+							color: 'border-purple',
+							position: 'full-width',
+							onClick: goToAllIssues,
+						}}
+					/>
 				</>
 			)}
 		</CardComponent>

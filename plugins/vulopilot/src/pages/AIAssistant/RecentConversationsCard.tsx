@@ -1,6 +1,6 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ListComponent, ModuleGuardComponent, ButtonInput} from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 
 interface AiHistoryRow {
@@ -93,16 +93,17 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 			title={__('Recent conversations', 'vulopilot')}
 			titleIcon="live-chat"
 			action={
-				<a
-					href="#"
-					onClick={(e) => {
-						e.preventDefault();
-						onNavigateTab('history');
+				<ButtonInput
+					buttons={{
+						text: __('View all history', 'vulopilot'),
+						rightIcon: 'arrow-right',
+						color: 'border-purple', 
+						onClick: (e) => {
+							e.preventDefault();
+							onNavigateTab('history');
+						},
 					}}
-				>
-					{__('View all history', 'vulopilot')}{' '}
-					<i className="adminfont-arrow-right" />
-				</a>
+				/>
 			}
 		>
 			{error ? (
@@ -124,13 +125,13 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 				/>
 			) : (
 				<ListComponent
-					className="mini-card report suggested-actions-list"
+					className="mini-card report"
 					isLoading={isLoading}
 					items={data.map((row) => ({
 						id: row.id,
 						icon: 'live-chat',
 						title: rowTitle(row),
-						value: timeAgo(row.created_at),
+						tags: (<> <div className='small desc'>{timeAgo(row.created_at)}</div></>),
 					}))}
 				/>
 			)}
