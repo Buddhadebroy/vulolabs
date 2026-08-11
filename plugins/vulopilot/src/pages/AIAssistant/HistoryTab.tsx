@@ -11,7 +11,7 @@ import {
 	PopupComponent,
 	ContainerComponent
 } from '@zyra/components';
-import { ButtonInput, TextInput, SelectInput } from '@zyra/inputs'; // Import your custom components
+import { ButtonInput, TextInput, SelectInput } from '@zyra/inputs'; 
 import ShowProPopup from '../../components/Popup/Popup';
 import HistoryDetailPanel from './HistoryDetailPanel';
 import {
@@ -342,7 +342,6 @@ const HistoryTab = () => {
 						))}
 					</div>
 
-					{/* Using TextInput for search */}
 					<TextInput
 						type="text"
 						name="history-search"
@@ -354,7 +353,6 @@ const HistoryTab = () => {
 						wrapperClass="history-search-wrapper"
 					/>
 
-					{/* Using SelectInput for date range */}
 					<SelectInput
 						type="single-select"
 						options={dateRangeSelectOptions}

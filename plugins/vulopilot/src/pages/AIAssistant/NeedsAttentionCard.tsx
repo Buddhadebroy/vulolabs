@@ -227,8 +227,6 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 							{__('things need attention', 'vulopilot')}
 						</span>
 					</div>
-
-					{/* Priority Pills using AnalyticsComponent */}
 					<AnalyticsComponent
 						data={priorityData}
 						variant="background-color"
