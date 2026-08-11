@@ -87,6 +87,12 @@ describe( 'HistoryTab', () => {
 			screen.getByText( 'Today', { selector: '.history-day-heading' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Applied' ) ).toBeInTheDocument();
+		// The scan row's real finding count on the right, and a real
+		// time-of-day per row — matching the mockup's own row layout.
+		expect( screen.getByText( '1 issue found' ) ).toBeInTheDocument();
+		expect(
+			document.querySelectorAll( '.history-row-time' )
+		).toHaveLength( 2 );
 	} );
 
 	it( 'clicking the "Changes" filter re-fetches scoped to that type', async () => {

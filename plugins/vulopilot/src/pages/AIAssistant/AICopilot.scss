@@ -553,6 +553,31 @@
 		-webkit-box-orient: vertical;
 	}
 
+	.history-row-time {
+		flex-shrink: 0;
+		width: 4.5rem;
+		font-size: 0.75rem;
+		color: var(--sub-text-color, #6b7280);
+		padding-top: 0.25rem;
+	}
+
+	.history-row-meta {
+		flex-shrink: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.25rem;
+		text-align: right;
+		padding-top: 0.125rem;
+
+		.history-row-meta-value {
+			font-size: 0.75rem;
+			font-weight: 600;
+			color: var(--theme-color, #374151);
+			white-space: nowrap;
+		}
+	}
+
 	.history-row-arrow {
 		flex-shrink: 0;
 		cursor: pointer;
@@ -561,6 +586,35 @@
 
 		&:hover {
 			color: var(--color-primary);
+		}
+	}
+
+	// Real colors for this row's own tag/status-pill classNames (rowTag()/
+	// rowStatusBadge() in historyTypes.ts) — `.admin-badge`'s color
+	// variants (blue/green/yellow/red/grey) have no CSS anywhere else in
+	// this codebase (confirmed: IssuesList.tsx/IssueDetailPanel.tsx's own
+	// `admin-badge blue` category tags render uncolored today too), so
+	// this scopes real color to History's own badges specifically rather
+	// than leaving them the same silently-uncolored way.
+	$tag-colors: (
+		'blue': #2563eb,
+		'green': #16a34a,
+		'yellow': #b45309,
+		'red': #dc2626,
+		'grey': #6b7280,
+	);
+
+	.admin-badge {
+		padding: 0.188rem 0.5rem;
+		border-radius: 0.313rem;
+		font-size: 0.688rem;
+		font-weight: 600;
+	}
+
+	@each $name, $color in $tag-colors {
+		.admin-badge.#{$name} {
+			color: #{$color};
+			background: color-mix(in srgb, #{$color} 14%, transparent);
 		}
 	}
 }

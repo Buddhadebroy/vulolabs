@@ -111,6 +111,16 @@ class ActionRegistry {
             // see ScannerFixMap's own docblock for the rest).
             Actions\AddSubheadingsAction::class,
             Actions\DifferentiateDuplicateTitleAction::class,
+            // Create Content's own tool grid (ContentToolsGrid.tsx) — the
+            // 5 tiles with no existing 1:1 action class (AI Writer,
+            // Landing Pages, Content Optimizer, Content Refresh, Media
+            // Library AI); the grid's other 6 tiles reuse actions already
+            // registered above.
+            Actions\WritePostContentAction::class,
+            Actions\GenerateLandingPageAction::class,
+            Actions\OptimizeContentAction::class,
+            Actions\RefreshContentAction::class,
+            Actions\OptimizeMediaAction::class,
         );
     }
 

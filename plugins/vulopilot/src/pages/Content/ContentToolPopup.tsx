@@ -1,0 +1,578 @@
+/* global appLocalizer */
+import React, { useEffect, useState } from 'react';
+import { __ } from '@wordpress/i18n';
+import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { NoticeManager, PopupComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
+import { ContentTool, ToolField } from './ContentToolsGrid';
+
+interface WpRestPost {
+	id: number;
+	title: { rendered: string };
+}
+
+interface WpRestMedia {
+	id: number;
+	title: { rendered: string };
+	source_url: string;
+}
+
+interface WcRestProduct {
+	id: number;
+	name: string;
+	short_description: string;
+	description: string;
+}
+
+interface DuplicateFinding {
+	id: number;
+	title: string;
+	object_ref: string;
+}
+
+interface ProposeResponse {
+	success?: boolean;
+	run_id?: number;
+	preview?: {
+		title: string;
+		before: string | null;
+		after: string;
+		format: string;
+	};
+}
+
+type Step = 'input' | 'loading' | 'preview' | 'error';
+
+interface PickerOption {
+	value: string;
+	label: string;
+}
+
+interface ContentToolPopupProps {
+	tool: ContentTool | null;
+	onClose: () => void;
+}
+
+/**
+ * The real propose → preview → approve/reject flow for one Create Content
+ * tool tile — collects the one real input its action needs (an existing
+ * post, an image, a topic — see ContentToolsGrid.tsx's own `fields`),
+ * calls the real `POST /ai-action-runs` (AIActions\ActionRunner::propose()),
+ * shows the real AI-generated preview, then really approves/rejects it via
+ * the existing `/ai-action-runs/{id}/approve|reject` routes (the same ones
+ * NeedsAttentionWidget.tsx's own Pending Approval widget already uses).
+ *
+ * Uses a raw `fetch()` for the propose() call specifically rather than
+ * zyra's `sendApiResponse()` — that helper always resolves to `null` on
+ * any failure (confirmed by reading its own implementation), discarding
+ * the real WP_Error body — but this is the one call in the whole flow
+ * where the real per-field validation message ("Please provide a topic of
+ * at least 5 characters") or a real provider error ("Invalid API Key") is
+ * exactly what the user needs to see, not a generic failure notice.
+ *
+ * "Product Descriptions" gets one extra, tool-specific convenience: a real
+ * WooCommerce product picker (`GET /wc/v3/products`, same graceful-404
+ * handling every other WooCommerce probe in this codebase already uses —
+ * see RecentContentCard.tsx's own docblock) that prefills the real
+ * product_name/key_features fields from an existing product rather than
+ * requiring them typed from scratch. It only prefills — the actual
+ * generation still runs from whatever's in those two (still-editable)
+ * fields, matching GenerateProductDescriptionAction's real input contract
+ * exactly (it has no `product_id` concept of its own).
+ */
+const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
+	tool,
+	onClose,
+}) => {
+	const [step, setStep] = useState<Step>('input');
+	const [fieldValues, setFieldValues] = useState<Record<string, string>>(
+		{}
+	);
+	const [postOptions, setPostOptions] = useState<PickerOption[]>([]);
+	const [mediaOptions, setMediaOptions] = useState<PickerOption[]>([]);
+	const [duplicateFindings, setDuplicateFindings] = useState<
+		DuplicateFinding[]
+	>([]);
+	const [products, setProducts] = useState<WcRestProduct[]>([]);
+	const [selectedProductId, setSelectedProductId] = useState('');
+	const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+	const [errorMessage, setErrorMessage] = useState('');
+	const [runId, setRunId] = useState<number | null>(null);
+	const [preview, setPreview] = useState<ProposeResponse['preview'] | null>(
+		null
+	);
+	const [isBusy, setIsBusy] = useState(false);
+
+	const hasProductPicker = 'generate-product-description' === tool?.actionId;
+
+	useEffect(() => {
+		if (!tool) {
+			return;
+		}
+
+		setStep('input');
+		setFieldValues({});
+		setSelectedProductId('');
+		setErrorMessage('');
+		setRunId(null);
+		setPreview(null);
+
+		const needs = (type: ToolField['type']) =>
+			tool.fields.some((field) => field.type === type);
+
+		if (needs('post-picker')) {
+			setIsLoadingOptions(true);
+			Promise.all([
+				getApiResponse<WpRestPost[]>(
+					getApiLink(
+						appLocalizer,
+						'posts?per_page=20&orderby=date&order=desc&_fields=id,title',
+						'wp/v2'
+					),
+					{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				),
+				getApiResponse<WpRestPost[]>(
+					getApiLink(
+						appLocalizer,
+						'pages?per_page=20&orderby=date&order=desc&_fields=id,title',
+						'wp/v2'
+					),
+					{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+				),
+			])
+				.then(([posts, pages]) => {
+					const options = [...(posts || []), ...(pages || [])].map(
+						(post) => ({
+							value: String(post.id),
+							label: post.title.rendered || `#${post.id}`,
+						})
+					);
+					setPostOptions(options);
+				})
+				.finally(() => setIsLoadingOptions(false));
+		}
+
+		if (needs('media-picker')) {
+			setIsLoadingOptions(true);
+			getApiResponse<WpRestMedia[]>(
+				getApiLink(
+					appLocalizer,
+					'media?per_page=20&media_type=image&orderby=date&order=desc&_fields=id,title,source_url',
+					'wp/v2'
+				),
+				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			)
+				.then((media) => {
+					setMediaOptions(
+						(media || []).map((item) => ({
+							value: String(item.id),
+							label:
+								item.title.rendered ||
+								item.source_url.split('/').pop() ||
+								`#${item.id}`,
+						}))
+					);
+				})
+				.finally(() => setIsLoadingOptions(false));
+		}
+
+		if (needs('duplicate-finding-picker')) {
+			setIsLoadingOptions(true);
+			getApiResponse<{ data?: DuplicateFinding[] }>(
+				getApiLink(
+					appLocalizer,
+					'findings?scanner_id=duplicate-content&status=open&per_page=20'
+				),
+				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			)
+				.then((response) => {
+					setDuplicateFindings(response?.data ?? []);
+				})
+				.finally(() => setIsLoadingOptions(false));
+		}
+
+		if ('generate-product-description' === tool.actionId) {
+			// No active-plugin check — same "just try the real endpoint,
+			// degrade gracefully" pattern RecentContentCard.tsx's own
+			// wc/v3 probe already uses; getApiResponse resolves to null
+			// on a 404 (WooCommerce not installed/active) and the picker
+			// simply stays empty rather than erroring.
+			getApiResponse<WcRestProduct[]>(
+				getApiLink(
+					appLocalizer,
+					'products?per_page=20&orderby=date&order=desc&_fields=id,name,short_description,description',
+					'wc/v3'
+				),
+				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			).then((response) => {
+				setProducts(response || []);
+			});
+		}
+	}, [tool]);
+
+	if (!tool) {
+		return null;
+	}
+
+	const isReadyToSubmit = tool.fields.every((field) => {
+		if ('textarea' === field.type && 'brief' !== field.key) {
+			return true; // Optional textareas (e.g. key_features).
+		}
+
+		return Boolean(fieldValues[field.key]);
+	});
+
+	const handlePickProduct = (productId: string) => {
+		setSelectedProductId(productId);
+
+		const product = products.find((p) => String(p.id) === productId);
+
+		if (!product) {
+			return;
+		}
+
+		const rawFeatures = product.short_description || product.description;
+
+		setFieldValues((current) => ({
+			...current,
+			product_name: product.name,
+			key_features: rawFeatures
+				? rawFeatures.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+				: current.key_features,
+		}));
+	};
+
+	const handleSubmit = () => {
+		setStep('loading');
+		setErrorMessage('');
+
+		const input: Record<string, unknown> = {};
+
+		tool.fields.forEach((field) => {
+			if ('duplicate-finding-picker' === field.type) {
+				const finding = duplicateFindings.find(
+					(f) => String(f.id) === fieldValues[field.key]
+				);
+				input[field.key] = finding
+					? finding.object_ref.split(',').map(Number)
+					: [];
+				return;
+			}
+
+			input[field.key] = fieldValues[field.key] ?? '';
+		});
+
+		fetch(getApiLink(appLocalizer, 'ai-action-runs'), {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce': appLocalizer.nonce,
+			},
+			body: JSON.stringify({ action_id: tool.actionId, input }),
+		})
+			.then(async (response) => {
+				const body = await response.json();
+
+				if (!response.ok) {
+					throw new Error(
+						body?.message ||
+							__(
+								'Something went wrong. Please try again.',
+								'vulopilot'
+							)
+					);
+				}
+
+				return body as ProposeResponse;
+			})
+			.then((body) => {
+				setRunId(body.run_id ?? null);
+				setPreview(body.preview ?? null);
+				setStep('preview');
+			})
+			.catch((error: Error) => {
+				setErrorMessage(error.message);
+				setStep('error');
+			});
+	};
+
+	const handleApprove = () => {
+		if (!runId) {
+			return;
+		}
+
+		setIsBusy(true);
+		sendApiResponse<{ success?: boolean }>(
+			appLocalizer,
+			getApiLink(appLocalizer, `ai-action-runs/${runId}/approve`),
+			{}
+		)
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: `content-tool-approve-${runId}`,
+					type: response?.success ? 'success' : 'error',
+					position: 'float',
+					message: response?.success
+						? __('Applied — the change is now live.', 'vulopilot')
+						: __(
+								'Could not apply this change. Please try again.',
+								'vulopilot'
+							),
+				});
+
+				if (response?.success) {
+					onClose();
+				}
+			})
+			.finally(() => setIsBusy(false));
+	};
+
+	const handleReject = () => {
+		if (!runId) {
+			return;
+		}
+
+		setIsBusy(true);
+		sendApiResponse<{ success?: boolean }>(
+			appLocalizer,
+			getApiLink(appLocalizer, `ai-action-runs/${runId}/reject`),
+			{}
+		)
+			.then(() => {
+				NoticeManager.add({
+					uniqueKey: `content-tool-reject-${runId}`,
+					type: 'info',
+					position: 'float',
+					message: __('Discarded — nothing was changed.', 'vulopilot'),
+				});
+				onClose();
+			})
+			.finally(() => setIsBusy(false));
+	};
+
+	const renderField = (field: ToolField) => {
+		const value = fieldValues[field.key] ?? '';
+		const setValue = (next: string) =>
+			setFieldValues((current) => ({ ...current, [field.key]: next }));
+
+		if ('text' === field.type) {
+			return (
+				<input
+					id={field.key}
+					type="text"
+					className="content-tool-field-input"
+					value={value}
+					onChange={(event) => setValue(event.target.value)}
+				/>
+			);
+		}
+
+		if ('textarea' === field.type) {
+			return (
+				<textarea
+					id={field.key}
+					className="content-tool-field-input"
+					rows={3}
+					value={value}
+					onChange={(event) => setValue(event.target.value)}
+				/>
+			);
+		}
+
+		const options =
+			'post-picker' === field.type
+				? postOptions
+				: 'media-picker' === field.type
+					? mediaOptions
+					: duplicateFindings.map((finding) => ({
+							value: String(finding.id),
+							label: finding.title,
+						}));
+
+		return (
+			<select
+				id={field.key}
+				className="content-tool-field-input"
+				value={value}
+				onChange={(event) => setValue(event.target.value)}
+				disabled={isLoadingOptions}
+			>
+				<option value="">
+					{isLoadingOptions
+						? __('Loading…', 'vulopilot')
+						: __('Select…', 'vulopilot')}
+				</option>
+				{options.map((option) => (
+					<option key={option.value} value={option.value}>
+						{option.label}
+					</option>
+				))}
+			</select>
+		);
+	};
+
+	return (
+		<PopupComponent
+			open={Boolean(tool)}
+			onClose={onClose}
+			width={31.25}
+			height="auto"
+			position="lightbox"
+		>
+			<div className="content-tool-popup">
+				<div className="content-tool-popup-header">
+					<span
+						className={`content-tool-popup-icon icon-${tool.color}`}
+					>
+						<i className={`adminfont-${tool.icon}`} />
+					</span>
+					<div>
+						<h2>{tool.title}</h2>
+						<p className="desc">{tool.desc}</p>
+					</div>
+				</div>
+
+				<div className="content-tool-popup-body">
+					{'input' === step && (
+						<>
+							{hasProductPicker && (
+								<div className="content-tool-field content-tool-product-picker">
+									<label htmlFor="_product_picker">
+										{__(
+											'Or pick an existing product (optional)',
+											'vulopilot'
+										)}
+									</label>
+									<select
+										id="_product_picker"
+										className="content-tool-field-input"
+										value={selectedProductId}
+										onChange={(event) =>
+											handlePickProduct(
+												event.target.value
+											)
+										}
+									>
+										<option value="">
+											{products.length > 0
+												? __(
+														'Select a product…',
+														'vulopilot'
+													)
+												: __(
+														'No products found',
+														'vulopilot'
+													)}
+										</option>
+										{products.map((product) => (
+											<option
+												key={product.id}
+												value={product.id}
+											>
+												{product.name}
+											</option>
+										))}
+									</select>
+								</div>
+							)}
+
+							{tool.fields.map((field) => (
+								<div
+									className="content-tool-field"
+									key={field.key}
+								>
+									<label htmlFor={field.key}>
+										{field.label}
+									</label>
+									{renderField(field)}
+								</div>
+							))}
+						</>
+					)}
+
+					{'loading' === step && (
+						<div className="content-tool-loading">
+							<i className="adminfont-refresh content-tool-spinner" />
+							<p>{__('Generating with AI…', 'vulopilot')}</p>
+						</div>
+					)}
+
+					{'error' === step && (
+						<p className="content-tool-error">
+							<i className="adminfont-error" />
+							{errorMessage}
+						</p>
+					)}
+
+					{'preview' === step && preview && (
+						<div className="content-tool-preview">
+							<h4>{preview.title}</h4>
+							{null !== preview.before && (
+								<>
+									<p className="content-tool-preview-label">
+										{__('Before', 'vulopilot')}
+									</p>
+									<p className="content-tool-preview-before">
+										{preview.before}
+									</p>
+								</>
+							)}
+							<p className="content-tool-preview-label">
+								{__('After', 'vulopilot')}
+							</p>
+							<p className="content-tool-preview-after">
+								{preview.after}
+							</p>
+						</div>
+					)}
+				</div>
+
+				<div className="content-tool-popup-footer">
+					{'input' === step && (
+						<ButtonInput
+							buttons={{
+								text: __('Generate', 'vulopilot'),
+								icon: 'ai',
+								onClick: handleSubmit,
+								disabled: !isReadyToSubmit,
+							}}
+						/>
+					)}
+
+					{'error' === step && (
+						<ButtonInput
+							buttons={{
+								text: __('Try again', 'vulopilot'),
+								color: 'secondary',
+								onClick: () => setStep('input'),
+							}}
+						/>
+					)}
+
+					{'preview' === step && preview && (
+						<>
+							<ButtonInput
+								buttons={{
+									text: __('Reject', 'vulopilot'),
+									color: 'secondary',
+									onClick: handleReject,
+									disabled: isBusy,
+								}}
+							/>
+							<ButtonInput
+								buttons={{
+									text: __('Approve & apply', 'vulopilot'),
+									icon: 'check',
+									onClick: handleApprove,
+									disabled: isBusy,
+								}}
+							/>
+						</>
+					)}
+				</div>
+			</div>
+		</PopupComponent>
+	);
+};
+
+export default ContentToolPopup;

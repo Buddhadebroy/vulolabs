@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent } from '@zyra/components';
-import { CONTENT_TOOLS, notifyNotConnected } from './ContentToolsGrid';
+import { CONTENT_TOOLS, ContentTool } from './ContentToolsGrid';
+import ContentToolPopup from './ContentToolPopup';
 
 /**
  * "Quick Start" — 4 shortcuts straight to specific tiles already in
- * `ContentToolsGrid.tsx` (same tool ids, same honest "not connected yet"
- * click handler) rather than a separate, duplicated tool list.
+ * `ContentToolsGrid.tsx` (same tool ids, same real ContentToolPopup flow)
+ * rather than a separate, duplicated tool list.
  */
 const QUICK_START_IDS = [
 	'blog-generator',
@@ -29,6 +31,8 @@ const QUICK_START_LABELS: Record<string, string> = {
 };
 
 const QuickStartCard = () => {
+	const [activeTool, setActiveTool] = useState<ContentTool | null>(null);
+
 	const quickStartTools = QUICK_START_IDS.map(
 		(id) => CONTENT_TOOLS.find((tool) => tool.id === id)!
 	);
@@ -44,8 +48,12 @@ const QuickStartCard = () => {
 					title: QUICK_START_LABELS[tool.id],
 					desc: QUICK_START_SUBTITLES[tool.id],
 					tags: <i className="adminfont-arrow-right" />,
-					action: () => notifyNotConnected(tool),
+					action: () => setActiveTool(tool),
 				}))}
+			/>
+			<ContentToolPopup
+				tool={activeTool}
+				onClose={() => setActiveTool(null)}
 			/>
 		</CardComponent>
 	);

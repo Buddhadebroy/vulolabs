@@ -1,38 +1,19 @@
-import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useLocation } from 'react-router-dom';
-import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
+import { NavigatorHeaderComponent } from '@zyra/components';
 import OverviewTab from './OverviewTab';
-import AiContentTab from './AiContentTab';
-
-const TAB_IDS = ['overview', 'content', 'ai-content'] as const;
 
 /**
- * "Create Content" (WP menu slug `content`) — a tab shell over three
- * views: the mockup's new Overview (OverviewTab.tsx), today's real
- * Content Intelligence scanner (ContentTab.tsx, kept rather than dropped
- * — same "keep the real page, add the new mockup alongside it" move
- * `GEO.tsx` made for its own Overview/GEO/AEO split), and "AI Content"
- * (AiContentTab.tsx), moved here from "Grow My Traffic" — see that
- * file's own docblock for what it covers. Same shape as `GEO.tsx`'s tab
- * shell: a constant header above `TabsComponent`, with the same `subtab`
- * deep-link convention `StatusAndTools.tsx`/`GEO.tsx` already established
- * (`?page=vulopilot#&tab=content&subtab=<inner-tab>`).
+ * "Create Content" (WP menu slug `content`) — used to be a tab shell over
+ * Overview (OverviewTab.tsx) and "AI Content" (AiContentTab.tsx, moved
+ * here from "Grow My Traffic"). AI Content's one real section — the
+ * "Open Issues" glimpse — has since moved onto Overview itself
+ * (ContentOpenIssuesCard.tsx) and the tab was removed; with only one view
+ * left, this collapsed from a `TabsComponent` shell down to a plain
+ * header + single body, same as any other single-view admin page in this
+ * codebase — a tab bar with exactly one, permanently-active tab isn't
+ * real navigation.
  */
 const Content = () => {
-	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
-		'subtab'
-	);
-	const initialTab = (
-		subtab && (TAB_IDS as readonly string[]).includes(subtab)
-			? subtab
-			: 'overview'
-	) as (typeof TAB_IDS)[number];
-
-	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
-		initialTab
-	);
-
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -53,21 +34,7 @@ const Content = () => {
 					},
 				]}
 			/>
-			<TabsComponent
-				className="create-content-tabs"
-				activeIndex={TAB_IDS.indexOf(activeTab)}
-				onTabChange={(index) => setActiveTab(TAB_IDS[index])}
-				tabs={[
-					{
-						label: __('Overview', 'vulopilot'),
-						content: <OverviewTab />,
-					},
-					{
-						label: __('AI Content', 'vulopilot'),
-						content: <AiContentTab />,
-					},
-				]}
-			/>
+			<OverviewTab />
 		</>
 	);
 };
