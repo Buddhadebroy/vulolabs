@@ -149,37 +149,44 @@ class FrontendScripts {
             $handle,
             'appLocalizer',
             array(
-                'apiUrl'         => untrailingslashit( get_rest_url() ),
-                'restUrl'        => VuloPilot()->rest_namespace,
-                'nonce'          => wp_create_nonce( 'wp_rest' ),
-                'plugin_url'     => VuloPilot()->plugin_url,
-                'admin_url'      => admin_url( 'admin.php?page=vulopilot' ),
-                'site_url'       => site_url(),
-                'version'        => VuloPilot()->version,
-                'plugin_slug'    => VuloPilot()->plugin_slug,
-                'text_domain'    => VULOPILOT_PLUGIN_TEXTDOMAIN,
-                'date_format'    => get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+                'apiUrl'                    => untrailingslashit( get_rest_url() ),
+                'restUrl'                   => VuloPilot()->rest_namespace,
+                'nonce'                     => wp_create_nonce( 'wp_rest' ),
+                'plugin_url'                => VuloPilot()->plugin_url,
+                'admin_url'                 => admin_url( 'admin.php?page=vulopilot' ),
+                'site_url'                  => site_url(),
+                // The real logged-in user's own display name — e.g. the
+                // AI Content Assistant's greeting (AiContentAssistantSidebar.tsx)
+                // reads this to say "Hi {name}!" instead of a generic
+                // "Hi!". `localize_scripts()` only ever runs in an
+                // authenticated admin context, so wp_get_current_user()
+                // is never the logged-out 0-id user here.
+                'current_user_display_name' => wp_get_current_user()->display_name,
+                'version'                   => VuloPilot()->version,
+                'plugin_slug'               => VuloPilot()->plugin_slug,
+                'text_domain'               => VULOPILOT_PLUGIN_TEXTDOMAIN,
+                'date_format'               => get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
                 // Settings → General → Date Format, translated into zyra's
                 // own token syntax (YYYY/MM/DD/…) — TableCard's `date`
                 // column type and any other date display in the React app
                 // pass this through as the `format` it renders with, so
                 // dates show the way this site is actually configured
                 // rather than zyra's hardcoded "YYYY-MM-DD" default.
-                'date_format_js' => self::convert_date_format_to_js( get_option( 'date_format' ) ),
+                'date_format_js'            => self::convert_date_format_to_js( get_option( 'date_format' ) ),
                 // Feeds zyra's configureZyra()/ZyraVariable.khali_dabba (a
                 // proSetting field's Pro-tag/lock in InputRenderer) and
                 // vulopilot-pro's src/index.tsx (which module JS entries
                 // actually load) — both were reading these two keys off
                 // appLocalizer already, but nothing populated them yet.
-                'khali_dabba'    => VuloPilot()->util->is_khali_dabba(),
-                'active_modules' => VuloPilot()->modules->get_active_modules(),
-                'shop_url'       => VULOPILOT_PRO_SHOP_URL,
+                'khali_dabba'               => VuloPilot()->util->is_khali_dabba(),
+                'active_modules'            => VuloPilot()->modules->get_active_modules(),
+                'shop_url'                  => VULOPILOT_PRO_SHOP_URL,
                 // 'version' defaults to false (Pro not installed) unless
                 // vulopilot-pro's own bootstrap overrides it — same
                 // shape/default as vulocart's 'pro_data'/
                 // `vulocart_update_pro_data` filter. Feeds the header's
                 // "Pro: …" version tag (app.tsx).
-                'pro_data'       => apply_filters(
+                'pro_data'                  => apply_filters(
                     'vulopilot_update_pro_data',
                     array(
                         'version'         => false,

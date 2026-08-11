@@ -4,14 +4,17 @@ import OverviewTab from './OverviewTab';
 
 /**
  * "Create Content" (WP menu slug `content`) — used to be a tab shell over
- * Overview (OverviewTab.tsx) and "AI Content" (AiContentTab.tsx, moved
- * here from "Grow My Traffic"). AI Content's one real section — the
- * "Open Issues" glimpse — has since moved onto Overview itself
- * (ContentOpenIssuesCard.tsx) and the tab was removed; with only one view
- * left, this collapsed from a `TabsComponent` shell down to a plain
- * header + single body, same as any other single-view admin page in this
- * codebase — a tab bar with exactly one, permanently-active tab isn't
- * real navigation.
+ * Overview (OverviewTab.tsx), "AI Content" (AiContentTab.tsx, moved here
+ * from "Grow My Traffic"), and later a standalone "Content Quality
+ * Issues" card (ContentOpenIssuesCard.tsx) once AI Content was removed.
+ * That card's own real data — each post's open content-quality findings,
+ * with real Fix with AI/Resolve/Ignore/Review actions — is now shown
+ * directly inside RecentContentCard.tsx's own rows instead of a separate
+ * card pointing elsewhere, so there's only ever been one real view left:
+ * this collapsed from a `TabsComponent` shell down to a plain header +
+ * single body, same as any other single-view admin page in this codebase
+ * — a tab bar with exactly one, permanently-active tab isn't real
+ * navigation.
  */
 const Content = () => {
 	return (
