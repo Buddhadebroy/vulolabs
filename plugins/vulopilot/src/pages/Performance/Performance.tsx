@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation } from 'react-router-dom';
-import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
+import {
+	ContainerComponent,
+	NavigatorHeaderComponent,
+	TabsComponent,
+} from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
 import SlowPagesTab from './SlowPagesTab';
@@ -58,21 +62,23 @@ const Performance = () => {
 					{ ...runScanButton, label: __('Run Speed Test', 'vulopilot') },
 				]}
 			/>
-			<TabsComponent
-				className="improve-speed-tabs"
-				activeIndex={TAB_IDS.indexOf(activeTab)}
-				onTabChange={(index) => setActiveTab(TAB_IDS[index])}
-				tabs={[
-					{
-						label: __('Overview', 'vulopilot'),
-						content: <OverviewTab onNavigateToSlowPages={goToSlowPages} />,
-					},
-					{
-						label: __('Slow Pages', 'vulopilot'),
-						content: <SlowPagesTab />,
-					},
-				]}
-			/>
+			<ContainerComponent general>
+				<TabsComponent
+					className="improve-speed-tabs"
+					activeIndex={TAB_IDS.indexOf(activeTab)}
+					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+					tabs={[
+						{
+							label: __('Overview', 'vulopilot'),
+							content: <OverviewTab onNavigateToSlowPages={goToSlowPages} />,
+						},
+						{
+							label: __('Slow Pages', 'vulopilot'),
+							content: <SlowPagesTab />,
+						},
+					]}
+				/>
+			</ContainerComponent>
 		</>
 	);
 };
