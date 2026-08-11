@@ -281,7 +281,7 @@ const SlowPagesTab = () => {
 	}
 
 	return (
-		<ContainerComponent general>
+		<>
 			<ColumnComponent grid={8}>
 				<p className="page-speed-intro">
 					{__(
@@ -550,7 +550,7 @@ const SlowPagesTab = () => {
 					</div>
 				)}
 			</PopupComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 

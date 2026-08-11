@@ -55,7 +55,6 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 
 	return (
 		<>
-			<ContainerComponent general>
 				<ColumnComponent grid={8}>
 					<PerformanceScoreCard onViewDetails={onNavigateToSlowPages} />
 
@@ -77,7 +76,6 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 					<PerformanceTipsCard />
 					<AiSpeedAssistantCard />
 				</ColumnComponent>
-			</ContainerComponent>
 
 			<div id="performance-section-findings">
 				<PerformanceTab />
