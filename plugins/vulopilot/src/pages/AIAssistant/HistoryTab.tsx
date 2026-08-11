@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -18,8 +18,10 @@ import {
 	groupByDay,
 	HistoryFilter,
 	HistoryRow,
-	rowBadge,
 	rowIcon,
+	rowStatusBadge,
+	rowTag,
+	rowTime,
 	rowTitle,
 } from './historyTypes';
 import './AICopilot.scss';
@@ -413,7 +415,20 @@ const HistoryTab = () => {
 									{group.label}
 								</div>
 								{group.rows.map((row) => {
-									const badge = rowBadge(row);
+									const tag = rowTag(row);
+									const statusBadge = rowStatusBadge(row);
+									// Real, short-enough before/after —
+									// mirrors the mockup's own behavior
+									// (its "meta description" row drops
+									// the inline before/after in favor of
+									// just the status pill once the real
+									// value is too long to show inline).
+									const showBeforeAfter =
+										row.change &&
+										null !== row.change.after &&
+										row.change.after.length <= 40 &&
+										(null === row.change.before ||
+											row.change.before.length <= 40);
 
 									return (
 										<div
@@ -425,6 +440,9 @@ const HistoryTab = () => {
 												setSelectedRow(row)
 											}
 										>
+											<span className="history-row-time">
+												{rowTime(row.created_at)}
+											</span>
 											<i
 												className={`history-row-icon adminfont-${rowIcon(row)}`}
 											/>
@@ -436,10 +454,50 @@ const HistoryTab = () => {
 													{row.message}
 												</div>
 												<span
-													className={`admin-badge ${badge.className}`}
+													className={`admin-badge ${tag.className}`}
 												>
-													{badge.text}
+													{tag.text}
 												</span>
+											</div>
+											<div className="history-row-meta">
+												{row.scan && (
+													<span className="history-row-meta-value">
+														{sprintf(
+															/* translators: %d: real number of findings this scan found */
+															_n(
+																'%d issue found',
+																'%d issues found',
+																row.scan.total,
+																'vulopilot'
+															),
+															row.scan.total
+														)}
+													</span>
+												)}
+												{showBeforeAfter && (
+													<span className="history-row-meta-value">
+														{sprintf(
+															/* translators: 1: real previous value (or "new content"), 2: real new value */
+															__(
+																'Before: %1$s · After: %2$s',
+																'vulopilot'
+															),
+															row.change?.before ||
+																__(
+																	'(new content)',
+																	'vulopilot'
+																),
+															row.change?.after
+														)}
+													</span>
+												)}
+												{statusBadge && (
+													<span
+														className={`admin-badge ${statusBadge.className}`}
+													>
+														{statusBadge.text}
+													</span>
+												)}
 											</div>
 											<i
 												className="adminfont-arrow-right history-row-arrow"

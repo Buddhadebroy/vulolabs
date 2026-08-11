@@ -1,3 +1,45 @@
+// Named colors shared by RecentContentCard.tsx's row icons and
+// ContentToolPopup.tsx's own icon (icon-purple/green/blue/orange/red/
+// indigo/teal/pink) — matches ContentToolsGrid.tsx's own CONTENT_TOOLS
+// `color` field. Declared here, above every `@each` that references it,
+// since plain Sass variables have no hoisting.
+$content-tool-colors: (
+	'purple': #7c3aed,
+	'green': #16a34a,
+	'blue': #2563eb,
+	'orange': #d97706,
+	'red': #dc2626,
+	'indigo': #4f46e5,
+	'teal': #0d9488,
+	'pink': #db2777,
+);
+
+// "Content Quality Issues" (ContentOpenIssuesCard.tsx) — same disabled
+// "Fix All Issues with AI" footer button styling GrowMyTraffic.scss's own
+// `.ai-opportunities-fix-all`/ProtectMySite.scss's own `.security-fix-all`
+// already use (duplicated here rather than shared, matching how every
+// other per-page copy of this rule already does).
+.content-issues-fix-all {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	border-radius: 0.5rem;
+	background: var(--color-primary);
+	color: var(--color-white);
+	font-weight: 600;
+	padding: 0.625rem 1rem;
+	margin-top: 0.75rem;
+	cursor: pointer;
+
+	&.disabled {
+		background: var(--border-color);
+		color: var(--sub-text-color);
+		cursor: not-allowed;
+	}
+}
+
 .recent-content-tabs {
 	display: flex;
 	gap: 0.5rem;
@@ -19,5 +61,512 @@
 			color: var(--color-primary);
 			background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
 		}
+	}
+}
+
+// "Content Score" (ContentScoreCard.tsx) — real GET /content-intelligence/score
+// data: a pie-ring score plus a real severity breakdown. Reuses the same
+// `.admin-badge badge-{severity}` pill vocabulary
+// AICopilot.scss's `.history-severity-breakdown` already established for
+// this codebase's other severity lists — duplicated here rather than
+// shared, matching how that block's own comment says every usage scopes
+// its own color map rather than importing one.
+.content-score-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+
+	// ChartComponent's own `.zyra-chart-pie-legend` always renders the
+	// pie's raw per-slice values regardless of the `legendLabels` prop
+	// (that prop only toggles its dot + text label, not the bare number —
+	// confirmed by reading zyra's own compiled component) — redundant
+	// here since `.content-score-value` already shows the real score.
+	// `!important` matches the same override AICopilot.scss's own
+	// `.zyra-chart-pie--side .zyra-chart-pie-legend` rule already needs
+	// against zyra's runtime-injected base style.
+	.zyra-chart-pie-legend {
+		display: none !important;
+	}
+
+	.content-score-value {
+		font-size: 1.75rem;
+		font-weight: 700;
+		color: var(--theme-color, #111827);
+		line-height: 1;
+
+		small {
+			font-size: 0.875rem;
+			font-weight: 500;
+			color: var(--sub-text-color, #6b7280);
+		}
+	}
+
+	// `.admin-badge`'s own base pill shape comes from zyra at runtime, but
+	// its color modifiers don't — every other `.admin-badge green/red/
+	// yellow` usage in this codebase (e.g. AICopilot.scss's own
+	// `.history-row .admin-badge.green/.red/...`) scopes and re-declares
+	// its own color map rather than relying on one existing globally
+	// (there isn't one), so this does the same rather than silently
+	// rendering an untinted pill.
+	.content-score-rating {
+		margin-top: 0.75rem;
+		padding: 0.25rem 0.75rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+
+		&.green {
+			color: #16a34a;
+			background: color-mix(in srgb, #16a34a 14%, transparent);
+		}
+
+		&.yellow {
+			color: #b45309;
+			background: color-mix(in srgb, #b45309 14%, transparent);
+		}
+
+		&.red {
+			color: #dc2626;
+			background: color-mix(in srgb, #dc2626 14%, transparent);
+		}
+	}
+
+	.content-score-breakdown {
+		width: 100%;
+		margin-top: 1.25rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--border-color, #eef0f2);
+		text-align: left;
+
+		.content-score-breakdown-header {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			margin-bottom: 0.75rem;
+
+			strong {
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.04em;
+				color: var(--sub-text-color, #6b7280);
+			}
+
+			.content-score-breakdown-total {
+				font-size: 0.75rem;
+				color: var(--sub-text-color, #9ca3af);
+			}
+		}
+
+		ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		li {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.content-score-severity-count {
+			font-weight: 700;
+			font-variant-numeric: tabular-nums;
+			color: var(--theme-color, #111827);
+		}
+
+		.admin-badge {
+			padding: 0.25rem 0.625rem;
+			border-radius: 0.313rem;
+			font-size: 0.75rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			white-space: nowrap;
+		}
+
+		$content-score-severities: (
+			'critical': #dc2626,
+			'high': #d88c5c,
+			'medium': #b45309,
+			'low': #5baab3,
+		);
+
+		@each $name, $color in $content-score-severities {
+			.badge-#{$name} {
+				color: #{$color};
+				background: color-mix(in srgb, #{$color} 14%, transparent);
+			}
+		}
+	}
+}
+
+// "Recent Content" (RecentContentCard.tsx) — real posts/pages/products,
+// categorized into Blog Post/Landing Page/Product Description/Other.
+.recent-content-card {
+	.recent-content-header {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-bottom: 1rem;
+
+		h2 {
+			margin: 0;
+			font-size: 1.125rem;
+			flex-shrink: 0;
+		}
+
+		.recent-content-tabs {
+			margin-bottom: 0;
+			flex: 1;
+		}
+
+		.recent-content-view-all {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.25rem;
+			flex-shrink: 0;
+			font-size: 0.85rem;
+			font-weight: 600;
+			color: var(--color-primary);
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+}
+
+.recent-content-rows {
+	display: flex;
+	flex-direction: column;
+}
+
+.recent-content-row {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 0.875rem 0;
+	border-bottom: 1px solid var(--border-color, #eef0f2);
+
+	&:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	&:first-child {
+		padding-top: 0;
+	}
+}
+
+.recent-content-row-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.625rem;
+	font-size: 1.125rem;
+
+	@each $name, $color in $content-tool-colors {
+		&.icon-#{$name} {
+			color: #{$color};
+			background: color-mix(in srgb, #{$color} 14%, transparent);
+		}
+	}
+
+	&.icon-grey {
+		color: var(--sub-text-color, #6b7280);
+		background: var(--theme-background-color, #f3f4f6);
+	}
+}
+
+.recent-content-row-text {
+	min-width: 0;
+	flex: 1;
+
+	.recent-content-row-title {
+		display: block;
+		font-weight: 600;
+		color: var(--theme-color, #111827);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+
+		&:hover {
+			color: var(--color-primary);
+		}
+	}
+
+	.recent-content-row-meta {
+		font-size: 0.813rem;
+		color: var(--sub-text-color, #6b7280);
+		margin-top: 0.125rem;
+	}
+}
+
+.recent-content-row-time {
+	flex-shrink: 0;
+	font-size: 0.813rem;
+	color: var(--sub-text-color, #9ca3af);
+	width: 4rem;
+	text-align: right;
+}
+
+.recent-content-row-menu {
+	position: relative;
+	flex-shrink: 0;
+
+	> .adminfont-more-vertical {
+		cursor: pointer;
+		color: var(--sub-text-color, #6b7280);
+		padding: 0.25rem;
+		border-radius: 0.25rem;
+
+		&:hover {
+			color: var(--theme-color, #111827);
+			background: var(--theme-background-color, #f3f4f6);
+		}
+	}
+
+	.recent-content-row-menu-dropdown {
+		position: absolute;
+		top: 100%;
+		right: 0;
+		z-index: 10;
+		display: flex;
+		flex-direction: column;
+		min-width: 8rem;
+		margin-top: 0.25rem;
+		padding: 0.375rem;
+		background: var(--theme-background-color, #fff);
+		border: 1px solid var(--border-color, #e5e7eb);
+		border-radius: 0.5rem;
+		box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12);
+
+		a,
+		span {
+			padding: 0.5rem 0.625rem;
+			font-size: 0.85rem;
+			border-radius: 0.375rem;
+			cursor: pointer;
+			color: var(--theme-color, #111827);
+
+			&:hover {
+				background: var(--theme-background-color, #f3f4f6);
+			}
+		}
+
+		.recent-content-row-menu-delete {
+			color: #dc2626;
+		}
+	}
+}
+
+// The real propose → preview → approve/reject flow (ContentToolPopup.tsx)
+// every Content Tools/Quick Start tile opens — reuses $content-tool-colors
+// (declared at the top of this file) for its own icon, since
+// `.icon-{color}` on the grid tiles themselves has no CSS anywhere in
+// this codebase today (a separate, pre-existing gap — not this popup's
+// to silently fix).
+.content-tool-popup {
+	// PopupComponent's own body has no padding of its own (zyra ships no
+	// CSS at all), so this owns its full layout — header, scrollable
+	// body, sticky footer — rather than one flat stack of elements.
+	display: flex;
+	flex-direction: column;
+	max-height: 80vh;
+}
+
+.content-tool-popup-header {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.875rem;
+	padding: 1.5rem 1.5rem 1.25rem;
+	border-bottom: 1px solid var(--border-color, #eef0f2);
+
+	h2 {
+		margin: 0 0 0.25rem;
+		font-size: 1.125rem;
+	}
+
+	.desc {
+		margin: 0;
+		color: var(--sub-text-color, #6b7280);
+		font-size: 0.85rem;
+	}
+}
+
+.content-tool-popup-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 0.75rem;
+	font-size: 1.25rem;
+
+	@each $name, $color in $content-tool-colors {
+		&.icon-#{$name} {
+			color: #{$color};
+			background: color-mix(in srgb, #{$color} 14%, transparent);
+		}
+	}
+}
+
+.content-tool-popup-body {
+	padding: 1.5rem;
+	overflow-y: auto;
+}
+
+.content-tool-popup-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.625rem;
+	padding: 1.125rem 1.5rem;
+	border-top: 1px solid var(--border-color, #eef0f2);
+
+	.admin-btn {
+		justify-content: center;
+	}
+}
+
+.content-tool-field {
+	margin-bottom: 1.25rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	label {
+		display: block;
+		font-size: 0.813rem;
+		font-weight: 600;
+		margin-bottom: 0.5rem;
+	}
+
+	.content-tool-field-input {
+		width: 100%;
+		padding: 0.625rem 0.75rem;
+		border: 1px solid var(--border-color, #dcdfe4);
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		font-family: inherit;
+		background: var(--theme-background-color, #fff);
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+		&:focus {
+			outline: none;
+			border-color: var(--color-primary);
+			box-shadow: 0 0 0 3px var(--color-primary-background, rgba(124, 58, 237, 0.12));
+		}
+
+		&:disabled {
+			background: var(--theme-background-color, #f9fafb);
+			color: var(--sub-text-color, #9ca3af);
+		}
+	}
+
+	textarea.content-tool-field-input {
+		resize: vertical;
+		min-height: 4.5rem;
+	}
+}
+
+// The real WooCommerce product picker (Product Descriptions only) — set
+// visually apart (tinted background) since it's a convenience that
+// prefills the two real fields below it, not itself a submitted value.
+.content-tool-product-picker {
+	padding: 0.875rem;
+	border-radius: 0.625rem;
+	background: var(--color-primary-background, rgba(124, 58, 237, 0.06));
+	margin-bottom: 1.5rem;
+
+	label {
+		color: var(--color-primary);
+	}
+
+	.content-tool-field-input {
+		background: var(--theme-background-color, #fff);
+	}
+}
+
+.content-tool-loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 2rem 0;
+	color: var(--sub-text-color, #6b7280);
+
+	.content-tool-spinner {
+		font-size: 1.5rem;
+		color: var(--color-primary);
+		animation: content-tool-spin 1s linear infinite;
+	}
+}
+
+@keyframes content-tool-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.content-tool-error {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	color: #dc2626;
+	background: color-mix(in srgb, #dc2626 8%, transparent);
+	border: 1px solid color-mix(in srgb, #dc2626 20%, transparent);
+	padding: 0.75rem 0.875rem;
+	border-radius: 0.5rem;
+	font-size: 0.85rem;
+	margin: 0;
+}
+
+.content-tool-preview {
+	h4 {
+		margin: 0 0 0.75rem;
+		font-size: 1rem;
+	}
+
+	.content-tool-preview-label {
+		font-size: 0.688rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--sub-text-color, #6b7280);
+		margin: 0.875rem 0 0.375rem;
+
+		&:first-of-type {
+			margin-top: 0;
+		}
+	}
+
+	.content-tool-preview-before,
+	.content-tool-preview-after {
+		margin: 0;
+		padding: 0.625rem 0.75rem;
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		line-height: 1.5;
+	}
+
+	.content-tool-preview-before {
+		color: var(--sub-text-color, #6b7280);
+		background: color-mix(in srgb, #dc2626 6%, transparent);
+		text-decoration: line-through;
+	}
+
+	.content-tool-preview-after {
+		font-weight: 500;
+		background: color-mix(in srgb, #16a34a 8%, transparent);
 	}
 }

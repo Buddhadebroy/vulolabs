@@ -8,6 +8,7 @@
 namespace VuloPilot\Services;
 
 use VuloPilot\AIActions\Actions\GenerateSchemaAction;
+use VuloPilot\AIActions\Actions\GenerateLandingPageAction;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -111,6 +112,15 @@ class PostSeoMetaFields {
                 )
             );
         }
+
+        // GenerateLandingPageAction's own meta key — 'page'-only (it
+        // always creates a `page`, never a `post`), unlike the loop
+        // above's fields which apply to both.
+        register_post_meta(
+            'page',
+            GenerateLandingPageAction::META_KEY,
+            $this->boolean_field_args()
+        );
     }
 
     /**

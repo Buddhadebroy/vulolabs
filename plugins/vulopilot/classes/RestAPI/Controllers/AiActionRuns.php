@@ -8,18 +8,26 @@
 namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Repositories\ActionRunRepository;
+use VuloPilot\Exceptions\AIProviderException;
+use VuloPilot\Exceptions\InvalidActionInputException;
+use VuloPilot\Exceptions\InvalidActionOutputException;
+use VuloPilot\Exceptions\UnsafePromptException;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * GET /ai-action-runs backs the Dashboard's "Pending Approval" widget.
- * POST /ai-action-runs/{id}/approve|reject|rollback complete the write
- * side — AIActions\ActionRunner::approve()/reject()/rollback() have been
- * fully implemented since AI-ACTIONS.md's own pass, but this controller
- * used to only expose get_items(), leaving the entire Preview → Approval
- * → Execution → Rollback lifecycle with no way to actually approve or
- * reject anything from the UI. Each has real side effects (a site
- * mutation, for approve/rollback), so each is its own POST route with its
+ * POST /ai-action-runs (create_item) starts the lifecycle — Create
+ * Content's own tool cards (ContentToolsGrid.tsx/QuickStartCard.tsx) call
+ * this via ContentToolRunner.tsx. POST /ai-action-runs/{id}/approve|reject|rollback
+ * complete the write side — AIActions\ActionRunner::propose()/approve()/
+ * reject()/rollback() have all been fully implemented since AI-ACTIONS.md's
+ * own pass, but this controller used to only expose get_items() plus the
+ * approve/reject/rollback trio, leaving propose() — the only way a new run
+ * ever gets created in the first place — with no route at all, so every
+ * "AI action" trigger in the UI was permanently unreachable. Each has real
+ * side effects (a site mutation, for approve/rollback, or a real AI
+ * provider call + cost, for create), so each is its own route with its
  * own permission check, not folded into a generic PATCH.
  *
  * @class       AiActionRuns controller
@@ -45,6 +53,18 @@ class AiActionRuns extends \WP_REST_Controller {
                     'methods'             => \WP_REST_Server::READABLE,
                     'callback'            => array( $this, 'get_items' ),
                     'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                ),
+            )
+        );
+
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base,
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'create_item' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
                 ),
             )
         );
@@ -98,6 +118,45 @@ class AiActionRuns extends \WP_REST_Controller {
      */
     public function update_item_permissions_check( $request ) {
         return current_user_can( 'manage_options' );
+    }
+
+    /**
+     * Stages 1-4 of the AI action lifecycle: proposes a new run for a
+     * registered action — validates the real input, sends a real prompt
+     * through the configured AI provider, and persists a `pending_approval`
+     * row with a real preview. Nothing about the site's content changes
+     * yet (see ActionRunner::propose()'s own docblock) — this only ever
+     * creates something a human still has to approve via
+     * POST /ai-action-runs/{id}/approve.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function create_item( $request ) {
+        $action_id = sanitize_key( (string) $request->get_param( 'action_id' ) );
+        $input     = (array) $request->get_param( 'input' );
+
+        if ( '' === $action_id ) {
+            return new \WP_Error( 'vulopilot_ai_action_missing_id', __( 'action_id is required.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        try {
+            $result = VuloPilot()->ai_action_runner->propose( $action_id, $input );
+        } catch ( \InvalidArgumentException $exception ) {
+            return new \WP_Error( 'vulopilot_ai_action_invalid', $exception->getMessage(), array( 'status' => 400 ) );
+        } catch ( InvalidActionInputException $exception ) {
+            return new \WP_Error( 'vulopilot_ai_action_invalid_input', $exception->getMessage(), array( 'status' => 400 ) );
+        } catch ( InvalidActionOutputException $exception ) {
+            return new \WP_Error( 'vulopilot_ai_action_invalid_output', $exception->getMessage(), array( 'status' => 502 ) );
+        } catch ( UnsafePromptException $exception ) {
+            return new \WP_Error( 'vulopilot_ai_action_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
+        } catch ( AIProviderException $exception ) {
+            return new \WP_Error( 'vulopilot_ai_provider_error', $exception->getMessage(), array( 'status' => 502 ) );
+        } catch ( \RuntimeException $exception ) {
+            return new \WP_Error( 'vulopilot_ai_action_runtime_error', $exception->getMessage(), array( 'status' => 500 ) );
+        }
+
+        return rest_ensure_response( array_merge( array( 'success' => true ), $result ) );
     }
 
     /**

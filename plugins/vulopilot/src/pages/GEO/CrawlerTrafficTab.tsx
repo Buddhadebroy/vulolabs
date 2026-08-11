@@ -64,7 +64,7 @@ interface CrawlerVisitRow extends TableRow {
  * AiCrawlerAnalytics module's own 3 Pro card slots
  * (AI-CRAWLER-ANALYTICS-MODULE.md). Body extracted verbatim from the
  * former standalone CrawlerTraffic.tsx page (same "extract body, drop the
- * header" move GeoTab.tsx/AeoTab.tsx/AiContentTab.tsx already made) — its
+ * header" move GeoTab.tsx/AeoTab.tsx already made) — its
  * own NavigatorHeaderComponent now lives once on GEO.tsx's shared
  * tab-shell header. The bot-name filter pills come from
  * CrawlerTrafficLogger::BOT_SIGNATURES' display names, kept in sync

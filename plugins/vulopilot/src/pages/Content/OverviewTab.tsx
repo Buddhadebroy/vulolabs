@@ -5,15 +5,17 @@ import QuickStartCard from './QuickStartCard';
 import ContentStatsCard from './ContentStatsCard';
 import RecentContentCard from './RecentContentCard';
 import ContentScoreCard from './ContentScoreCard';
+import ContentOpenIssuesCard from './ContentOpenIssuesCard';
 import AiContentAssistantSidebar from './AiContentAssistantSidebar';
 import './CreateContent.scss';
 
 /**
  * "Create Content"'s new default tab — see this folder's sibling files
  * for the per-section real-data mapping (ContentToolsGrid, QuickStartCard,
- * ContentStatsCard, RecentContentCard, AiContentAssistantSidebar — each
- * documents its own data source and, where the mockup shows something
- * with no real backend, its honest fallback).
+ * ContentStatsCard, RecentContentCard, ContentOpenIssuesCard,
+ * AiContentAssistantSidebar — each documents its own data source and,
+ * where the mockup shows something with no real backend, its honest
+ * fallback).
  */
 const OverviewTab: React.FC = () => {
 	return (
@@ -25,7 +27,6 @@ const OverviewTab: React.FC = () => {
 				<ColumnComponent grid={4}>
 					<ContentScoreCard />
 					<QuickStartCard />
-					<ContentStatsCard />
 				</ColumnComponent>
 			</ContainerComponent>
 
@@ -36,6 +37,22 @@ const OverviewTab: React.FC = () => {
 				<ColumnComponent grid={4}>
 					<AiContentAssistantSidebar />
 				</ColumnComponent>
+			</ContainerComponent>
+
+			{/*
+			 * ContentOpenIssuesCard owns its own `ColumnComponent grid={6}`
+			 * internally (OpenIssuesGlimpse's own shape) — paired here with
+			 * ContentStatsCard in an explicit grid={6} column to fill the
+			 * row, same "glimpse card + adjacent stats card share a 12-wide
+			 * row" pattern GEO's OverviewTab (VisibilityScoreCard +
+			 * AiOpportunitiesCard) and Security's OverviewTab
+			 * (SecurityOverviewCard + VulnerabilitiesFoundCard) already use.
+			 */}
+			<ContainerComponent general>
+				<ColumnComponent grid={6}>
+					<ContentStatsCard />
+				</ColumnComponent>
+				<ContentOpenIssuesCard />
 			</ContainerComponent>
 		</>
 	);

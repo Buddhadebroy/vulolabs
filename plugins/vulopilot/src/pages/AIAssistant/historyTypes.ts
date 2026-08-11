@@ -76,7 +76,19 @@ export const rowIcon = (row: HistoryRow): string =>
 		? 'search'
 		: (CHANGE_ICON_BY_EVENT[row.event_type] ?? 'update');
 
-const CHANGE_BADGE_BY_EVENT: Record<string, string> = {
+/**
+ * The mockup's bottom-left pale category tag ("Conversation"/"Scan"/
+ * "Change"/"Automation") — always shown, one per row, real category only
+ * (never "Scan Result"/"Automation" for a row that's actually a plain
+ * scan/change, since those extra mockup categories aren't real event
+ * types this table has — see Controllers/History.php's own docblock).
+ */
+export const rowTag = (row: HistoryRow): { text: string; className: string } =>
+	'scan' === row.category
+		? { text: __('Scan', 'vulopilot'), className: 'blue' }
+		: { text: __('Change', 'vulopilot'), className: 'green' };
+
+const CHANGE_STATUS_BADGE_BY_EVENT: Record<string, string> = {
 	'ai_action.proposed': __('Proposed', 'vulopilot'),
 	'ai_action.executed': __('Applied', 'vulopilot'),
 	'ai_action.failed': __('Failed', 'vulopilot'),
@@ -85,17 +97,23 @@ const CHANGE_BADGE_BY_EVENT: Record<string, string> = {
 };
 
 /**
- * The badge reflects what happened AT this specific timeline event (its
- * own `event_type`), not the joined run's current status — a "proposed"
- * entry for a run that was later executed still honestly reads
- * "Proposed" here, since that's what this row is a record of.
+ * The mockup's top-right status pill ("Applied") — change rows only, no
+ * scan-row equivalent (a scan's own real outcome is its issue count,
+ * shown via rowMeta() instead, matching the mockup's own "24 issues
+ * found" placement there rather than a redundant pill). Reflects what
+ * happened AT this specific timeline event (its own `event_type`), not
+ * the joined run's current status — a "proposed" entry for a run that
+ * was later executed still honestly reads "Proposed" here, since that's
+ * what this row is a record of.
  */
-export const rowBadge = (row: HistoryRow): { text: string; className: string } => {
-	if ('scan' === row.category) {
-		return { text: __('Scan', 'vulopilot'), className: 'blue' };
+export const rowStatusBadge = (
+	row: HistoryRow
+): { text: string; className: string } | null => {
+	if ('change' !== row.category) {
+		return null;
 	}
 
-	const text = CHANGE_BADGE_BY_EVENT[row.event_type] ?? row.event_type;
+	const text = CHANGE_STATUS_BADGE_BY_EVENT[row.event_type] ?? row.event_type;
 	const classByEvent: Record<string, string> = {
 		'ai_action.proposed': 'yellow',
 		'ai_action.executed': 'green',
@@ -106,6 +124,17 @@ export const rowBadge = (row: HistoryRow): { text: string; className: string } =
 
 	return { text, className: classByEvent[row.event_type] ?? 'grey' };
 };
+
+/**
+ * Real time-of-day, matching the mockup's own "10:24 AM" per-row display
+ * — the day heading already carries the date, so the row itself only
+ * needs the time.
+ */
+export const rowTime = (createdAt: string): string =>
+	new Date(createdAt).toLocaleTimeString(undefined, {
+		hour: 'numeric',
+		minute: '2-digit',
+	});
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

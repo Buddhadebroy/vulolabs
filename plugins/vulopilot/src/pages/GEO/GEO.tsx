@@ -33,8 +33,10 @@ const TAB_IDS = [
  * Brand Visibility/Knowledge Graph/SEO/Schema had no documented fold
  * destination there, so they land here too rather than as a second,
  * differently-scoped tab shell. "AI Content" was originally folded in
- * here too, but has since moved to "Create Content"
- * (`src/pages/Content/AiContentTab.tsx`) — see that page's own docblock.
+ * here too, then moved to "Create Content"
+ * (`src/pages/Content/AiContentTab.tsx`); that tab has since been removed
+ * — its one real section (the "Open Issues" glimpse) now lives on Create
+ * Content's own Overview tab (`src/pages/Content/ContentOpenIssuesCard.tsx`).
  * Same shape as AI Copilot's own tab shell
  * (`src/pages/AIAssistant/AIAssistant.tsx`): a constant header above
  * `TabsComponent`, with `activeTab` owned here so Overview's own "AI
