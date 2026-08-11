@@ -337,6 +337,10 @@ class Install {
         self::create_file_baselines_table();
         self::create_accessibility_snapshots_table();
         self::create_store_trends_snapshots_table();
+        self::create_performance_score_snapshots_table();
+        self::create_performance_requests_table();
+        self::create_core_web_vitals_table();
+        self::create_page_speed_table();
     }
 
     /**
@@ -397,6 +401,163 @@ class Install {
 
         dbDelta( $sql_redirects );
         dbDelta( $sql_not_found_logs );
+    }
+
+    /**
+     * Creates `vulopilot_performance_score_snapshots` — "Improve Speed"
+     * Overview's Speed History card. Own dedicated table rather than a
+     * reuse of `vulopilot_site_health_snapshots` (that table's other
+     * columns are Pro's AdvancedReports module data — see
+     * Services\PerformanceScoreSnapshotRecorder's own docblock for why
+     * sharing one mutable daily row is the wrong move here). Same
+     * "own method, self-sufficient, callable from both a fresh install and
+     * do_migration()" shape as create_redirect_tables() above.
+     *
+     * @return void
+     */
+    private static function create_performance_score_snapshots_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['performance_score_snapshot'] . "` (
+            `id`                bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `snapshot_date`     date NOT NULL,
+            `performance_score` tinyint(3) unsigned NOT NULL DEFAULT 0,
+            `created_at`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+        ) $collate;";
+
+        dbDelta( $sql );
+    }
+
+    /**
+     * Creates `vulopilot_performance_requests` — "Improve Speed"
+     * Overview's Real-time Monitoring card. Deliberately no visitor-
+     * identifying column at all (see Services\PerformanceRequestLogger's
+     * own docblock) — just a response time sample per real front-end
+     * request. Same "own method, self-sufficient, callable from both a
+     * fresh install and do_migration()" shape as create_redirect_tables()
+     * above.
+     *
+     * @return void
+     */
+    private static function create_performance_requests_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['performance_request'] . "` (
+            `id`                bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `response_time_ms`  smallint(5) unsigned NOT NULL,
+            `created_at`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_created` (`created_at`)
+        ) $collate;";
+
+        dbDelta( $sql );
+    }
+
+    /**
+     * Creates `vulopilot_core_web_vitals` — "Improve Speed" Overview's real
+     * Core Web Vitals RUM (Services\CoreWebVitalsBeacon's public front-end
+     * beacon writes here). One row per real pageview that reported at
+     * least one metric; a metric the browser couldn't measure (e.g. no
+     * interaction yet for INP) is NULL, never a fabricated zero. `cls`
+     * stored ×1000 as a smallint (`cls_thousandths`), matching this
+     * codebase's own preference for integer ms/thousandths columns over
+     * float columns. Same "own method, self-sufficient, callable from both
+     * a fresh install and do_migration()" shape as create_redirect_tables()
+     * above.
+     *
+     * @return void
+     */
+    private static function create_core_web_vitals_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['core_web_vital'] . "` (
+            `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `lcp_ms`           smallint(5) unsigned DEFAULT NULL,
+            `cls_thousandths`  smallint(5) unsigned DEFAULT NULL,
+            `inp_ms`           smallint(5) unsigned DEFAULT NULL,
+            `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_created` (`created_at`)
+        ) $collate;";
+
+        dbDelta( $sql );
+    }
+
+    /**
+     * Creates `vulopilot_page_speed` — "Improve Speed" › Slow Pages'
+     * per-page speed table (Services\PageSpeedScanner writes here, one row
+     * per real page it has checked, replaced on every rescan). `url`/
+     * `title`/`page_type` describe a real WP page, post, or WooCommerce
+     * page/product/category (never a fabricated entry). `load_time_ms` is
+     * a real measured `wp_remote_get()` response time, same idiom as
+     * SlowPageScanner's own homepage timing. `score` is derived from
+     * `load_time_ms` via a documented formula (see PageSpeedScanner) — not
+     * a Lighthouse score. `status` ('slow'/'needs_improvement'/'good') is
+     * the same score banded into the real thresholds Slow Pages' own "What's
+     * considered slow?" legend states, stored as its own column purely so
+     * PageSpeedRepository can filter/count by it the same way every other
+     * AbstractRepository-backed list does for its own status-count pill bar.
+     * `mobile_score`/`desktop_score` stay NULL unless a
+     * real Google PageSpeed Insights API key is configured and that page
+     * has actually been checked against it, matching Part A's own
+     * PSI-key-gated fallback posture — never a fabricated device split.
+     * `main_issue` is either a real Google Lighthouse opportunity-audit
+     * title (from a real PSI response) or a plain load-time-based label;
+     * NULL when neither is available, never invented text. Same
+     * "own method, self-sufficient, callable from both a fresh install and
+     * do_migration()" shape as create_core_web_vitals_table() above.
+     *
+     * @return void
+     */
+    private static function create_page_speed_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['page_speed'] . "` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `url`            varchar(500) NOT NULL,
+            `title`          varchar(255) NOT NULL DEFAULT '',
+            `page_type`      varchar(40) NOT NULL DEFAULT 'page',
+            `load_time_ms`   int(10) unsigned DEFAULT NULL,
+            `score`          tinyint(3) unsigned DEFAULT NULL,
+            `status`         varchar(20) DEFAULT NULL,
+            `mobile_score`   tinyint(3) unsigned DEFAULT NULL,
+            `desktop_score`  tinyint(3) unsigned DEFAULT NULL,
+            `main_issue`     varchar(255) DEFAULT NULL,
+            `scanned_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_url` (`url`(191)),
+            KEY `idx_page_type` (`page_type`),
+            KEY `idx_score` (`score`),
+            KEY `idx_status` (`status`)
+        ) $collate;";
+
+        dbDelta( $sql );
     }
 
     /**
@@ -866,6 +1027,25 @@ class Install {
         // via CREATE TABLE IF NOT EXISTS" reasoning as
         // create_crawler_visits_table() above.
         self::create_store_trends_snapshots_table();
+
+        // "Improve Speed" Overview (Speed History + Real-time Monitoring)
+        // needs both its new tables for sites upgrading in place too — same
+        // "outside the version_compare gate, self-healing via CREATE TABLE
+        // IF NOT EXISTS" reasoning as create_crawler_visits_table() above.
+        self::create_performance_score_snapshots_table();
+        self::create_performance_requests_table();
+
+        // "Improve Speed" Overview's real Core Web Vitals RUM needs its own
+        // new table for sites upgrading in place too — same "outside the
+        // version_compare gate, self-healing via CREATE TABLE IF NOT
+        // EXISTS" reasoning as create_crawler_visits_table() above.
+        self::create_core_web_vitals_table();
+
+        // "Improve Speed" › Slow Pages needs its own new table for sites
+        // upgrading in place too — same "outside the version_compare gate,
+        // self-healing via CREATE TABLE IF NOT EXISTS" reasoning as
+        // create_crawler_visits_table() above.
+        self::create_page_speed_table();
 
         // Automation Engine — Conditions & Retries (AUTOMATION-ENGINE-MODULE.md)
         // need two new columns on tables that already existed before this

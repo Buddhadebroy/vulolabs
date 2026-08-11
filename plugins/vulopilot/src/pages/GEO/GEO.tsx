@@ -11,6 +11,7 @@ import BrandVisibilityTab from './BrandVisibilityTab';
 import KnowledgeGraphTab from './KnowledgeGraphTab';
 import SeoTab from './SeoTab';
 import SchemaTab from './SchemaTab';
+import RedirectsTab from './RedirectsTab';
 
 const TAB_IDS = [
 	'overview',
@@ -21,6 +22,7 @@ const TAB_IDS = [
 	'knowledge-graph',
 	'seo',
 	'schema',
+	'redirects',
 ] as const;
 
 /**
@@ -121,6 +123,10 @@ const GEO = () => {
 						{
 							label: __('Schema', 'vulopilot'),
 							content: <SchemaTab />,
+						},
+						{
+							label: __('Redirects & 404s', 'vulopilot'),
+							content: <RedirectsTab />,
 						},
 					]}
 				/>

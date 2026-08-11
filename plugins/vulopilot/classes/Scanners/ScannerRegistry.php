@@ -208,6 +208,14 @@ class ScannerRegistry {
             Basic\LargeImagesScanner::class,
             Basic\HeavyPluginsScanner::class,
             Basic\CacheDetectionScanner::class,
+            // "Improve Speed" Overview's MetricsGrid tiles — CSS/JavaScript
+            // Optimization, Fonts, Lazy Loading, CDN, Database Cleanup.
+            Basic\CssOptimizationScanner::class,
+            Basic\JavaScriptOptimizationScanner::class,
+            Basic\FontsScanner::class,
+            Basic\LazyLoadingScanner::class,
+            Basic\CdnScanner::class,
+            Basic\DatabaseCleanupScanner::class,
             // Accessibility Scanner (readme) — category 'accessibility',
             // joins the original AccessibilityScanner (duplicate <h1>).
             Basic\FormLabelsScanner::class,

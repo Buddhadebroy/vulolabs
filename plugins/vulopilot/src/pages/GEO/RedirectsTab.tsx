@@ -33,7 +33,7 @@ interface NotFoundLogRow extends TableRow {
 }
 
 /**
- * "Redirects & 404s" tab of "Improve Speed" — readme.txt's "Redirects &
+ * "Redirects & 404s" tab of "Grow My Traffic" — readme.txt's "Redirects &
  * 404s", a real 301/302 redirect manager plus a 404 visit log, closing
  * the gap the SEO tab's own "Not available yet" placeholder card used to
  * point at (its own Settings → Scanning → SEO toggles previously
@@ -48,10 +48,9 @@ interface NotFoundLogRow extends TableRow {
  * hold many rows at once, unlike the small, fixed set of AI provider
  * adapters that panel manages.
  *
- * Body extracted verbatim from the former standalone Redirects.tsx page
- * (same "extract body, drop the header" move every other folded-in tab
- * this session already made) — its own NavigatorHeaderComponent now
- * lives once on Performance.tsx's shared tab-shell header.
+ * Moved here from "Improve Speed" (Performance.tsx), which held it only
+ * briefly — its own NavigatorHeaderComponent now lives once on GEO.tsx's
+ * shared tab-shell header.
  */
 const RedirectsTab = () => {
 	const [isFormOpen, setIsFormOpen] = useState(false);

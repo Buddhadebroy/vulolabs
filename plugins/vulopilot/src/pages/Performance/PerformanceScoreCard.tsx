@@ -1,100 +1,314 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ChartComponent } from '@zyra/components';
+import { CardComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
 import './ImproveSpeed.scss';
 
 interface DashboardSummary {
 	category_scores: { performance: number };
+	psi_speed_scores: {
+		mobile: number | null;
+		desktop: number | null;
+		checked_at: string | null;
+	};
 }
 
-const getRating = (score: number): string => {
+interface CoreWebVitalsSummary {
+	lcp_ms: number | null;
+	cls: number | null;
+	inp_ms: number | null;
+	sample_count: number;
+}
+
+interface PerformanceScoreCardProps {
+	/** Scrolls to the "Top Issues" FindingsTable further down this Overview tab. */
+	onViewDetails: () => void;
+}
+
+/** Below this many real RUM samples, a p75 isn't trustworthy enough to show. */
+const MIN_SAMPLES = 10;
+
+interface Rating {
+	label: string;
+	className: 'good' | 'needs-improvement' | 'poor';
+}
+
+/** Lighthouse's own real, documented 0-100 performance-score bands. */
+const getScoreRating = (score: number): Rating => {
 	if (score >= 90) {
-		return __('Excellent', 'vulopilot');
-	}
-	if (score >= 70) {
-		return __('Good', 'vulopilot');
+		return { label: __('Good', 'vulopilot'), className: 'good' };
 	}
 	if (score >= 50) {
-		return __('Fair', 'vulopilot');
+		return { label: __('Needs Improvement', 'vulopilot'), className: 'needs-improvement' };
 	}
-	return __('Needs work', 'vulopilot');
+	return { label: __('Poor', 'vulopilot'), className: 'poor' };
 };
 
-const CORE_WEB_VITALS = ['LCP', 'INP', 'CLS', 'FCP'];
+/** Google's real, public Core Web Vitals thresholds — LCP/INP in ms, CLS unitless. */
+const CWV_THRESHOLDS: Record<'lcp' | 'inp' | 'cls', { good: number; needsImprovement: number }> = {
+	lcp: { good: 2500, needsImprovement: 4000 },
+	inp: { good: 200, needsImprovement: 500 },
+	cls: { good: 0.1, needsImprovement: 0.25 },
+};
+
+const getVitalRating = (
+	value: number,
+	thresholds: { good: number; needsImprovement: number }
+): Rating => {
+	if (value <= thresholds.good) {
+		return { label: __('Good', 'vulopilot'), className: 'good' };
+	}
+	if (value <= thresholds.needsImprovement) {
+		return { label: __('Needs Improvement', 'vulopilot'), className: 'needs-improvement' };
+	}
+	return { label: __('Poor', 'vulopilot'), className: 'poor' };
+};
+
+interface VitalRowProps {
+	label: string;
+	displayValue: string;
+	value: number;
+	thresholds: { good: number; needsImprovement: number };
+	goodCaption: string;
+}
+
+const VitalRow = ({ label, displayValue, value, thresholds, goodCaption }: VitalRowProps) => {
+	const rating = getVitalRating(value, thresholds);
+	// Fill width scaled against 1.3x the "needs improvement" ceiling, capped
+	// at 100% — a real proportional read of where this value sits, not a
+	// literal percentile-of-all-sites (no such dataset exists here).
+	const fillPercent = Math.min(100, (value / (thresholds.needsImprovement * 1.3)) * 100);
+
+	return (
+		<div className="core-web-vital-row">
+			<div className="core-web-vital-row-label">{label}</div>
+			<div className={`core-web-vital-row-value ${rating.className}`}>{displayValue}</div>
+			<div className={`core-web-vital-row-rating ${rating.className}`}>
+				<span className="core-web-vital-row-dot" />
+				{rating.label}
+			</div>
+			<div className="core-web-vital-bar">
+				<div className={`core-web-vital-bar-fill ${rating.className}`} style={{ width: `${fillPercent}%` }} />
+			</div>
+			<div className="core-web-vital-row-caption">{goodCaption}</div>
+		</div>
+	);
+};
 
 /**
- * "Performance Score" — a single real number, `category_scores.performance`
- * from `GET /dashboard` (same endpoint `VisibilityScoreCard.tsx` already
- * uses), rendered as a 2-slice pie (score/remainder) since — unlike
- * Visibility Score's SEO/GEO/Brand breakdown — there's no natural
- * sub-category split for this one score to show as separate legend
- * slices. Core Web Vitals (LCP/INP/CLS/FCP) have no measurement anywhere
- * in this codebase (no CrUX/lab-data integration exists) — rendered
- * honestly as "Not tracked yet" rather than fabricated milliseconds.
+ * "Performance Score" — now two real cards:
+ *
+ * "Overall Speed Score" reads `psi_speed_scores` from `GET /dashboard`
+ * (`classes/RestAPI/Controllers/Dashboard.php`, populated by
+ * `Services\PageSpeedInsightsFetcher` only when a real `psi_api_key` is
+ * configured in Settings → Scanning → Performance). With a key configured,
+ * shows real Mobile/Desktop scores from Google PageSpeed Insights, rated
+ * against Lighthouse's own real Good/Needs Improvement/Poor bands, plus a
+ * real one-line comparison only when the two scores actually differ by
+ * ≥10 points. Without a key, falls back to the single real unified
+ * `category_scores.performance` number (no fabricated device split).
+ *
+ * "Core Web Vitals" reads `GET /core-web-vitals`
+ * (`classes/RestAPI/Controllers/CoreWebVitals.php`), a real p75 of LCP/INP/
+ * CLS collected from actual visitors by `public/js/performance-vitals-
+ * beacon.js` (Services\CoreWebVitalsBeacon) — genuine client-side RUM, no
+ * external API. FCP is deliberately dropped: INP replaced FID as Google's
+ * third official Core Web Vital in March 2024, so LCP/INP/CLS is the
+ * current real set. Below `MIN_SAMPLES` real samples, shows an honest
+ * "still collecting" state instead of a p75 computed from too few points.
  */
-const PerformanceScoreCard = () => {
-	const [score, setScore] = useState<number | null>(null);
+const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
+	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
+	const [vitals, setVitals] = useState<CoreWebVitalsSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		getApiResponse<DashboardSummary>(
-			getApiLink(appLocalizer, 'dashboard'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		)
-			.then((response) => {
-				if (response) {
-					setScore(response.category_scores.performance);
+		Promise.all([
+			getApiResponse<DashboardSummary>(getApiLink(appLocalizer, 'dashboard'), {
+				headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			}),
+			getApiResponse<CoreWebVitalsSummary>(getApiLink(appLocalizer, 'core-web-vitals'), {
+				headers: { 'X-WP-Nonce': appLocalizer.nonce },
+			}),
+		])
+			.then(([dashboardResponse, vitalsResponse]) => {
+				if (dashboardResponse) {
+					setDashboard(dashboardResponse);
+				}
+				if (vitalsResponse) {
+					setVitals(vitalsResponse);
 				}
 			})
 			.finally(() => setIsLoading(false));
 	}, []);
 
+	const psi = dashboard?.psi_speed_scores ?? null;
+	const hasPsi = null !== psi && null !== psi.mobile && null !== psi.desktop;
+
+	const comparisonMessage = (): string | null => {
+		if (!hasPsi || null === psi?.mobile || null === psi?.desktop) {
+			return null;
+		}
+
+		const gap = psi.desktop - psi.mobile;
+
+		if (gap >= 10) {
+			return sprintf(
+				/* translators: %d is how many points lower the mobile score is than desktop. */
+				__(
+					'Your mobile site is %d points slower than desktop. Focus on improving mobile performance for a better experience.',
+					'vulopilot'
+				),
+				gap
+			);
+		}
+
+		if (gap <= -10) {
+			return sprintf(
+				/* translators: %d is how many points lower the desktop score is than mobile. */
+				__('Your desktop site is %d points slower than mobile.', 'vulopilot'),
+				Math.abs(gap)
+			);
+		}
+
+		return __('Mobile and desktop performance are similar.', 'vulopilot');
+	};
+
 	return (
-		<CardComponent
-			title={__('Performance Score', 'vulopilot')}
-			titleIcon="analytics"
-			isLoading={isLoading}
-		>
-			{score !== null && (
-				<ChartComponent
-					type="pie"
-					height={180}
-					centerLabel={
+		<ContainerComponent>
+			<ColumnComponent grid={6}>
+				<CardComponent title={__('Overall Speed Score', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
+					{!isLoading && dashboard && (
 						<>
-							<span className="score-ring-number">{score}</span>
-							<span className="score-ring-label">/100</span>
-							<span className="score-ring-label">
-								{getRating(score)}
-							</span>
+							<div className="speed-score-tiles">
+								{hasPsi && psi ? (
+									<>
+										<div className="speed-score-tile">
+											<div className="speed-score-tile-icon">
+												<i className="adminfont-form-phone" />
+											</div>
+											<div className="speed-score-tile-label">{__('Mobile', 'vulopilot')}</div>
+											<div className={`speed-score-tile-value ${getScoreRating(psi.mobile as number).className}`}>
+												{psi.mobile}
+												<span className="speed-score-tile-max">/100</span>
+											</div>
+											<span className={`speed-score-tile-rating ${getScoreRating(psi.mobile as number).className}`}>
+												<span className="speed-score-tile-dot" />
+												{getScoreRating(psi.mobile as number).label}
+											</span>
+										</div>
+										<div className="speed-score-tile">
+											<div className="speed-score-tile-icon">
+												<i className="adminfont-desktop-pc-valuation" />
+											</div>
+											<div className="speed-score-tile-label">{__('Desktop', 'vulopilot')}</div>
+											<div className={`speed-score-tile-value ${getScoreRating(psi.desktop as number).className}`}>
+												{psi.desktop}
+												<span className="speed-score-tile-max">/100</span>
+											</div>
+											<span className={`speed-score-tile-rating ${getScoreRating(psi.desktop as number).className}`}>
+												<span className="speed-score-tile-dot" />
+												{getScoreRating(psi.desktop as number).label}
+											</span>
+										</div>
+									</>
+								) : (
+									<div className="speed-score-tile speed-score-tile-single">
+										<div className="speed-score-tile-label">{__('Overall', 'vulopilot')}</div>
+										<div
+											className={`speed-score-tile-value ${getScoreRating(dashboard.category_scores.performance).className}`}
+										>
+											{dashboard.category_scores.performance}
+											<span className="speed-score-tile-max">/100</span>
+										</div>
+										<span
+											className={`speed-score-tile-rating ${getScoreRating(dashboard.category_scores.performance).className}`}
+										>
+											<span className="speed-score-tile-dot" />
+											{getScoreRating(dashboard.category_scores.performance).label}
+										</span>
+									</div>
+								)}
+							</div>
+
+							<p className="desc">
+								{hasPsi
+									? comparisonMessage()
+									: __(
+											'Connect Google PageSpeed Insights in Settings → Scanning → Performance for a real Mobile/Desktop breakdown.',
+											'vulopilot'
+										)}
+							</p>
+
+							<button type="button" className="speed-score-view-slow-pages" onClick={onViewDetails}>
+								{__('View Slow Pages', 'vulopilot')}
+							</button>
 						</>
-					}
-					data={[
-						{
-							label: __('Score', 'vulopilot'),
-							value: score,
-							color: score >= 70 ? '#16a34a' : '#d97706',
-						},
-						{
-							label: __('Remaining', 'vulopilot'),
-							value: 100 - score,
-							color: '#e5e7eb',
-						},
-					]}
-				/>
-			)}
-			<div className="core-web-vitals-row">
-				{CORE_WEB_VITALS.map((metric) => (
-					<div className="core-web-vitals-tile" key={metric}>
-						<span className="core-web-vitals-label">{metric}</span>
-						<span className="admin-badge indigo">
-							{__('Not tracked yet', 'vulopilot')}
-						</span>
-					</div>
-				))}
-			</div>
-		</CardComponent>
+					)}
+				</CardComponent>
+			</ColumnComponent>
+
+			<ColumnComponent grid={6}>
+				<CardComponent title={__('Core Web Vitals', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
+					{!isLoading && vitals && (
+						<>
+							{vitals.sample_count < MIN_SAMPLES ? (
+								<p className="desc">
+									{sprintf(
+										/* translators: 1: real samples collected so far, 2: how many are needed. */
+										__(
+											'Still collecting real visitor data — %1$d of %2$d samples so far.',
+											'vulopilot'
+										),
+										vitals.sample_count,
+										MIN_SAMPLES
+									)}
+								</p>
+							) : (
+								<>
+									{null !== vitals.lcp_ms && (
+										<VitalRow
+											label={__('Largest Contentful Paint (LCP)', 'vulopilot')}
+											displayValue={`${(vitals.lcp_ms / 1000).toFixed(1)}s`}
+											value={vitals.lcp_ms}
+											thresholds={CWV_THRESHOLDS.lcp}
+											goodCaption={__('Good: ≤ 2.5s', 'vulopilot')}
+										/>
+									)}
+									{null !== vitals.inp_ms && (
+										<VitalRow
+											label={__('Interaction to Next Paint (INP)', 'vulopilot')}
+											displayValue={`${vitals.inp_ms}ms`}
+											value={vitals.inp_ms}
+											thresholds={CWV_THRESHOLDS.inp}
+											goodCaption={__('Good: ≤ 200ms', 'vulopilot')}
+										/>
+									)}
+									{null !== vitals.cls && (
+										<VitalRow
+											label={__('Cumulative Layout Shift (CLS)', 'vulopilot')}
+											displayValue={vitals.cls.toFixed(2)}
+											value={vitals.cls}
+											thresholds={CWV_THRESHOLDS.cls}
+											goodCaption={__('Good: ≤ 0.1', 'vulopilot')}
+										/>
+									)}
+								</>
+							)}
+							<a
+								href="https://web.dev/articles/vitals"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="speed-score-about-link"
+							>
+								{__('About Core Web Vitals', 'vulopilot')} ↗
+							</a>
+						</>
+					)}
+				</CardComponent>
+			</ColumnComponent>
+		</ContainerComponent>
 	);
 };
 

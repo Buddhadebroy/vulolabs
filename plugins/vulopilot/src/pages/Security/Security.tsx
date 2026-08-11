@@ -4,25 +4,24 @@ import { useLocation } from 'react-router-dom';
 import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
-import SecurityTab from './SecurityTab';
-import PerformanceTab from '../Performance/PerformanceTab';
 import AccessibilityTab from './AccessibilityTab';
 
-const TAB_IDS = ['overview', 'security', 'performance', 'accessibility'] as const;
+const TAB_IDS = ['overview', 'accessibility'] as const;
 
 /**
- * "Protect My Site" (WP menu slug `security`) — a tab shell over four
+ * "Protect My Site" (WP menu slug `security`) — a tab shell over three
  * views: the mockup's new Overview (OverviewTab.tsx), today's real
  * category-'security' findings scanner (SecurityTab.tsx, kept rather than
  * replaced — same "keep the real page, add the new mockup alongside it"
  * move `GEO.tsx`/`Content.tsx`/`Performance.tsx` made for their own
- * Overview splits), "Performance" (the same real `PerformanceTab`
- * component "Improve Speed" already built, imported directly here rather
- * than duplicated — it's the same category-'performance' findings data
- * either way), and "Accessibility" (AccessibilityTab.tsx), moved here from
- * its own standalone page. Same shape as those tab shells: a constant
- * header above `TabsComponent`, with the same `subtab` deep-link
- * convention (`?page=vulopilot#&tab=security&subtab=<inner-tab>`).
+ * Overview splits), and "Accessibility" (AccessibilityTab.tsx), moved here
+ * from its own standalone page. The former "Performance" tab (the same
+ * `PerformanceTab` component "Improve Speed" built) is gone — that same
+ * category-'performance' findings data already lives on "Improve Speed"'s
+ * own Overview tab, so showing it a second time here was redundant. Same
+ * shape as those tab shells: a constant header above `TabsComponent`, with
+ * the same `subtab` deep-link convention
+ * (`?page=vulopilot#&tab=security&subtab=<inner-tab>`).
  */
 const Security = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -64,14 +63,6 @@ const Security = () => {
 								onNavigateToSecurityTab={goToSecurityTab}
 							/>
 						),
-					},
-					{
-						label: __('Security', 'vulopilot'),
-						content: <SecurityTab />,
-					},
-					{
-						label: __('Performance', 'vulopilot'),
-						content: <PerformanceTab />,
 					},
 					{
 						label: __('Accessibility', 'vulopilot'),

@@ -1,31 +1,38 @@
 import { __ } from '@wordpress/i18n';
-import { ColumnComponent, ContainerComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
 import FindingsTable from '../../components/FindingsTable';
 
 /**
- * "Performance" tab of "Improve Speed" — body extracted verbatim from the
- * former standalone Performance.tsx page (same "extract body, drop the
- * header" move every other folded-in tab this session already made) —
- * its own NavigatorHeaderComponent now lives once on Performance.tsx's
- * shared tab-shell header. Kept alongside the new Overview tab (rather
- * than replaced by it) since Overview's own "Top Issues" card is only a
- * 5-row glimpse of this exact same category's findings, not a
- * replacement for the full searchable/paginated table here — same
- * "condensed glimpse + full page coexist" reasoning `GeoTab.tsx` already
- * established for its own Overview/GEO split.
+ * The full, searchable/paginated category-'performance' FindingsTable —
+ * "Improve Speed"'s own OverviewTab.tsx (wrapped in
+ * `#performance-section-findings`) is this component's only remaining call
+ * site — Security.tsx's own former "Performance" tab, which used to import
+ * this same component, is gone (redundant with this one). Titled "Top
+ * Issues" rather than "Performance" since it replaced the standalone
+ * condensed "Top Issues" glimpse card (TopIssuesCard.tsx, an
+ * OpenIssuesGlimpse instance) that used to sit above it on the same page —
+ * this full table is now the one and only "Top Issues" view.
+ *
+ * FindingsTable's own `title` prop only renders in its error state (its
+ * normal-state `TableCard` never shows one) — wrapped in a CardComponent
+ * here for a real visible heading, same "wrap FindingsTable in its own
+ * CardComponent title" pattern SeoTab.tsx's own per-section usage already
+ * established.
  */
 const PerformanceTab = () => {
 	return (
 		<ContainerComponent general>
 			<ColumnComponent>
-				<FindingsTable
-					title={__('Performance', 'vulopilot')}
-					description={__(
-						'No performance findings yet — run a scan to check caching, heavy plugins, large images, and slow pages.',
-						'vulopilot'
-					)}
-					category="performance"
-				/>
+				<CardComponent title={__('Top Issues', 'vulopilot')}>
+					<FindingsTable
+						title={__('Top Issues', 'vulopilot')}
+						description={__(
+							'No performance findings yet — run a scan to check caching, heavy plugins, large images, and slow pages.',
+							'vulopilot'
+						)}
+						category="performance"
+					/>
+				</CardComponent>
 			</ColumnComponent>
 		</ContainerComponent>
 	);

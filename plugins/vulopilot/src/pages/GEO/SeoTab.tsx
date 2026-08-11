@@ -1,7 +1,6 @@
 /* global appLocalizer */
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ColumnComponent, ContainerComponent, ModuleGuardComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import FindingsTable from '../../components/FindingsTable';
 
 /**
@@ -177,46 +176,6 @@ const SeoTab = () => {
 								/>
 							</CardComponent>
 						))}
-						{/* The redirect manager/404 log themselves (Settings →
-						    Scanning → SEO's three toggles) now have a real,
-						    dedicated page — this card is a pointer to it
-						    plus a home for RedirectAnalysisScanner's own
-						    findings (category 'redirects', a homepage
-						    redirect-chain health check that predates this
-						    page and had nowhere in the UI to appear until
-						    now — see that scanner's own docblock). */}
-						<CardComponent
-							title={__('Redirects & 404s', 'vulopilot')}
-							desc={__(
-								'301 redirects and 404 traffic logging.',
-								'vulopilot'
-							)}
-							action={
-								<ButtonInput
-									buttons={{
-										text: __(
-											'Manage redirects →',
-											'vulopilot'
-										),
-										onClick: () => {
-											window.open(
-												`${appLocalizer.admin_url}#&tab=performance&subtab=redirects`,
-												'_self'
-											);
-										},
-									}}
-								/>
-							}
-						>
-							<FindingsTable
-								title={__('Redirect health', 'vulopilot')}
-								description={__(
-									'No redirect-chain issues found — run a scan to check the homepage for long or looping redirects.',
-									'vulopilot'
-								)}
-								scannerIds={['redirect-analysis']}
-							/>
-						</CardComponent>
 					</>
 				)}
 			</ColumnComponent>
