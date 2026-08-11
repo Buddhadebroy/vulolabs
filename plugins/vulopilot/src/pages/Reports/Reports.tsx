@@ -5,8 +5,9 @@ import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
 import OverviewTab from './OverviewTab';
 import ReportTab from './ReportTab';
 import ActivityTab from './ActivityTab';
+import SecurityTab from './SecurityTab';
 
-const TAB_IDS = ['overview', 'report', 'activity'] as const;
+const TAB_IDS = ['overview', 'report', 'activity', 'security'] as const;
 
 /**
  * "Reports" — a tab shell over three views: the mockup's new Overview
@@ -59,6 +60,10 @@ const Reports = () => {
 					{
 						label: __('Activity', 'vulopilot'),
 						content: <ActivityTab />,
+					},
+					{
+						label: __('Security', 'vulopilot'),
+						content: <SecurityTab />,
 					},
 				]}
 			/>

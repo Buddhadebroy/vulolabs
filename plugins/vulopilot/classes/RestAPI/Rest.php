@@ -55,24 +55,30 @@ class Rest {
      */
     public function register_routes(): void {
         $this->controllers = array(
-            'dashboard'        => new Controllers\Dashboard(),
-            'dashboard_layout' => new Controllers\DashboardLayout(),
-            'scans'            => new Controllers\Scans(),
-            'findings'         => new Controllers\Findings(),
-            'reports'          => new Controllers\Reports(),
-            'ai_history'       => new Controllers\AiHistory(),
-            'ai_providers'     => new Controllers\AiProviders(),
-            'ai_action_runs'   => new Controllers\AiActionRuns(),
-            'activity_logs'    => new Controllers\ActivityLogs(),
-            'history'          => new Controllers\History(),
-            'automations'      => new Controllers\Automations(),
-            'settings'         => new Controllers\Settings(),
-            'llms_txt'         => new Controllers\LlmsTxt(),
-            'crawler_traffic'  => new Controllers\CrawlerTraffic(),
-            'post_seo'         => new Controllers\PostSeo(),
-            'redirects'        => new Controllers\Redirects(),
-            'not_found_logs'   => new Controllers\NotFoundLogs(),
-            'indexnow'         => new Controllers\IndexNow(),
+            'dashboard'                   => new Controllers\Dashboard(),
+            'dashboard_layout'            => new Controllers\DashboardLayout(),
+            'scans'                       => new Controllers\Scans(),
+            'findings'                    => new Controllers\Findings(),
+            'reports'                     => new Controllers\Reports(),
+            'ai_history'                  => new Controllers\AiHistory(),
+            'ai_providers'                => new Controllers\AiProviders(),
+            'ai_action_runs'              => new Controllers\AiActionRuns(),
+            'activity_logs'               => new Controllers\ActivityLogs(),
+            'history'                     => new Controllers\History(),
+            'automations'                 => new Controllers\Automations(),
+            'settings'                    => new Controllers\Settings(),
+            'llms_txt'                    => new Controllers\LlmsTxt(),
+            'crawler_traffic'             => new Controllers\CrawlerTraffic(),
+            'post_seo'                    => new Controllers\PostSeo(),
+            'redirects'                   => new Controllers\Redirects(),
+            'not_found_logs'              => new Controllers\NotFoundLogs(),
+            'indexnow'                    => new Controllers\IndexNow(),
+            'performance_actions'         => new Controllers\PerformanceActions(),
+            'performance_score_snapshots' => new Controllers\PerformanceScoreSnapshots(),
+            'performance_realtime'        => new Controllers\PerformanceRealtime(),
+            'core_web_vitals'             => new Controllers\CoreWebVitals(),
+            'core_web_vitals_beacon'      => new Controllers\CoreWebVitalsBeaconRest(),
+            'page_speed'                  => new Controllers\PageSpeed(),
             // Deliberately NOT keyed 'geo_analysis' — vulopilot-pro's
             // GeoInsights module adds its own controller into
             // $extra_controllers below under that exact key (its `Rest.php`
@@ -83,21 +89,21 @@ class Rest {
             // registered. Different key, same REST base string is safe —
             // WP_REST_Server registers routes per controller instance, not
             // per unique base.
-            'geo_top_pages'    => new Controllers\GeoAnalysis(),
+            'geo_top_pages'               => new Controllers\GeoAnalysis(),
             // Deliberately NOT keyed 'content_analysis' — vulopilot-pro's
             // own ContentIntelligence module adds its per-post AI "Topic
             // Authority" controller into $extra_controllers below under
             // that key (same 'content-intelligence' REST base, a
             // `/(?P<post_id>\d+)/analyze` sub-route) — same key-collision
             // reasoning as 'geo_top_pages' above.
-            'content_score'    => new Controllers\ContentIntelligence(),
+            'content_score'               => new Controllers\ContentIntelligence(),
             // Deliberately NOT keyed 'brand_insights' — vulopilot-pro's own
             // BrandIntelligence module adds its own history/competitor-
             // comparison/knowledge-panel controller into $extra_controllers
             // below under that key (same 'brand-intelligence' REST base) —
             // same key-collision reasoning as 'geo_top_pages'/'content_score'
             // above.
-            'brand_score'      => new Controllers\BrandIntelligence(),
+            'brand_score'                 => new Controllers\BrandIntelligence(),
             // Deliberately NOT keyed 'knowledge_graph' — vulopilot-pro's own
             // KnowledgeGraph module adds its own relationships/health-
             // history/recommendations controller into $extra_controllers
@@ -105,7 +111,7 @@ class Rest {
             // 'knowledge-graph', so this one isn't strictly required to
             // differ — kept different anyway for consistency with every
             // other Free/Pro controller pairing above).
-            'entities'         => new Controllers\EntityExtraction(),
+            'entities'                    => new Controllers\EntityExtraction(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

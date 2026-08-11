@@ -4,21 +4,29 @@ import { useLocation } from 'react-router-dom';
 import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
-import PerformanceTab from './PerformanceTab';
-import RedirectsTab from './RedirectsTab';
+import SlowPagesTab from './SlowPagesTab';
 
-const TAB_IDS = ['overview', 'performance', 'redirects'] as const;
+const TAB_IDS = ['overview', 'slow-pages'] as const;
 
 /**
- * "Improve Speed" (WP menu slug `performance`) — a tab shell over three
- * views: the mockup's new Overview (OverviewTab.tsx), today's real
- * category-'performance' findings scanner (PerformanceTab.tsx, kept
- * rather than replaced — same "keep the real page, add the new mockup
- * alongside it" move `GEO.tsx`/`Content.tsx` made for their own Overview
- * splits), and "Redirects & 404s" (RedirectsTab.tsx), moved here from
- * its own standalone page. Same shape as those two tab shells: a
- * constant header above `TabsComponent`, with the same `subtab`
- * deep-link convention (`?page=vulopilot#&tab=performance&subtab=<inner-tab>`).
+ * "Improve Speed" (WP menu slug `performance`) — Overview (OverviewTab.tsx)
+ * plus a real "Slow Pages" tab (SlowPagesTab.tsx), a real per-page speed
+ * report (Repositories\PageSpeedRepository, populated in the background by
+ * Services\PageSpeedScanner). Its former sibling tabs are otherwise gone:
+ * the standalone "Performance" tab (PerformanceTab.tsx, now deleted) had
+ * its full category-'performance' FindingsTable moved down into Overview
+ * itself (`#performance-section-findings`) rather than kept on its own
+ * tab; "Redirects & 404s" moved to "Grow My Traffic"
+ * (`src/pages/GEO/RedirectsTab.tsx`).
+ *
+ * `activeTab` is owned here (not left as TabsComponent's uncontrolled
+ * default) so PerformanceScoreCard's "View Slow Pages" button can jump
+ * straight to the Slow Pages tab — same `activeIndex`/`onTabChange` +
+ * `subtab` deep-link shape GEO.tsx/Security.tsx already use. Passing a
+ * fixed `activeIndex={0}` with no `onTabChange` (this component's own
+ * prior shape, harmless while Overview was the only tab) silently makes
+ * TabsComponent a controlled-but-never-updated component once a second
+ * tab exists — clicking "Slow Pages" would never switch to it.
  */
 const Performance = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -35,7 +43,7 @@ const Performance = () => {
 	);
 	const { runScanButton } = useRunScan();
 
-	const goToPerformanceTab = () => setActiveTab('performance');
+	const goToSlowPages = () => setActiveTab('slow-pages');
 
 	return (
 		<>
@@ -57,19 +65,11 @@ const Performance = () => {
 				tabs={[
 					{
 						label: __('Overview', 'vulopilot'),
-						content: (
-							<OverviewTab
-								onNavigateToPerformanceTab={goToPerformanceTab}
-							/>
-						),
+						content: <OverviewTab onNavigateToSlowPages={goToSlowPages} />,
 					},
 					{
-						label: __('Performance', 'vulopilot'),
-						content: <PerformanceTab />,
-					},
-					{
-						label: __('Redirects & 404s', 'vulopilot'),
-						content: <RedirectsTab />,
+						label: __('Slow Pages', 'vulopilot'),
+						content: <SlowPagesTab />,
 					},
 				]}
 			/>

@@ -27,30 +27,34 @@ class Utill {
      * @var array
      */
     const TABLES = array(
-        'scan'                   => 'vulopilot_scans',
-        'scan_finding'           => 'vulopilot_scan_findings',
-        'rule'                   => 'vulopilot_rules',
-        'automation'             => 'vulopilot_automations',
-        'automation_run'         => 'vulopilot_automation_runs',
-        'ai_job'                 => 'vulopilot_ai_jobs',
-        'ai_history'             => 'vulopilot_ai_history',
-        'ai_provider_config'     => 'vulopilot_ai_provider_configs',
-        'report'                 => 'vulopilot_reports',
-        'scheduled_job'          => 'vulopilot_scheduled_jobs',
-        'activity_log'           => 'vulopilot_activity_logs',
-        'site_health_snapshot'   => 'vulopilot_site_health_snapshots',
-        'ai_action_run'          => 'vulopilot_ai_action_runs',
-        'crawler_visit'          => 'vulopilot_crawler_visits',
-        'redirect'               => 'vulopilot_redirects',
-        'not_found_log'          => 'vulopilot_not_found_logs',
-        'indexnow_log'           => 'vulopilot_indexnow_log',
-        'geo_visibility_history' => 'vulopilot_geo_visibility_history',
-        'brand_score_history'    => 'vulopilot_brand_score_history',
-        'entity_relationship'    => 'vulopilot_entity_relationships',
-        'kg_health_history'      => 'vulopilot_kg_health_history',
-        'file_baseline'          => 'vulopilot_file_baselines',
-        'accessibility_snapshot' => 'vulopilot_accessibility_snapshots',
-        'store_trends_snapshot'  => 'vulopilot_store_trends_snapshots',
+        'scan'                       => 'vulopilot_scans',
+        'scan_finding'               => 'vulopilot_scan_findings',
+        'rule'                       => 'vulopilot_rules',
+        'automation'                 => 'vulopilot_automations',
+        'automation_run'             => 'vulopilot_automation_runs',
+        'ai_job'                     => 'vulopilot_ai_jobs',
+        'ai_history'                 => 'vulopilot_ai_history',
+        'ai_provider_config'         => 'vulopilot_ai_provider_configs',
+        'report'                     => 'vulopilot_reports',
+        'scheduled_job'              => 'vulopilot_scheduled_jobs',
+        'activity_log'               => 'vulopilot_activity_logs',
+        'site_health_snapshot'       => 'vulopilot_site_health_snapshots',
+        'ai_action_run'              => 'vulopilot_ai_action_runs',
+        'crawler_visit'              => 'vulopilot_crawler_visits',
+        'redirect'                   => 'vulopilot_redirects',
+        'not_found_log'              => 'vulopilot_not_found_logs',
+        'indexnow_log'               => 'vulopilot_indexnow_log',
+        'geo_visibility_history'     => 'vulopilot_geo_visibility_history',
+        'brand_score_history'        => 'vulopilot_brand_score_history',
+        'entity_relationship'        => 'vulopilot_entity_relationships',
+        'kg_health_history'          => 'vulopilot_kg_health_history',
+        'file_baseline'              => 'vulopilot_file_baselines',
+        'accessibility_snapshot'     => 'vulopilot_accessibility_snapshots',
+        'store_trends_snapshot'      => 'vulopilot_store_trends_snapshots',
+        'performance_score_snapshot' => 'vulopilot_performance_score_snapshots',
+        'performance_request'        => 'vulopilot_performance_requests',
+        'core_web_vital'             => 'vulopilot_core_web_vitals',
+        'page_speed'                 => 'vulopilot_page_speed',
     );
 
     /**
@@ -288,6 +292,13 @@ class Utill {
         // llms_txt_content's own comment gives) rather than defaulted here —
         // an empty string means it hasn't been generated yet.
         'indexnow_api_key'                      => '',
+        // "Improve Speed" Overview's PerformanceScoreCard.tsx — a real,
+        // user-supplied Google PageSpeed Insights API key (free tier
+        // available). Read by Services\PageSpeedInsightsFetcher; empty
+        // means no key configured, so the card falls back to the single
+        // real unified category_scores.performance number instead of a
+        // fabricated Mobile/Desktop split.
+        'psi_api_key'                           => '',
         // Read by Services\RobotsTxtManager — appends a `Sitemap:` line to
         // WordPress core's own virtual robots.txt via the `robots_txt`
         // filter; see that class's own docblock for why this isn't a

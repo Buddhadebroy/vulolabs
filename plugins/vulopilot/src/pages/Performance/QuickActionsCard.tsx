@@ -1,10 +1,19 @@
+/* global appLocalizer */
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import { getApiLink, sendApiResponse } from '@zyra/core';
 import { CardComponent, ListComponent, NoticeManager } from '@zyra/components';
+import './ImproveSpeed.scss';
 
 interface QuickAction {
 	id: string;
 	icon: string;
 	label: string;
+}
+
+interface ActionResult {
+	success: boolean;
+	message: string;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
@@ -17,26 +26,44 @@ const QUICK_ACTIONS: QuickAction[] = [
 ];
 
 /**
- * "Quick Actions" — none of these 6 operations have a real backend
- * anywhere in this codebase (confirmed: no Clear Cache/Minify/Optimize
- * Images/DB Cleanup/Lazy Load/Preload endpoint or WP action exists, and
- * Pro's OneClickFix module's own fix maps don't cover any of the 5
- * `performance`-category scanners either). Same honest "not connected
- * yet" click pattern Create Content's `ContentToolsGrid.tsx`/
- * `QuickStartCard.tsx` already established, written as its own local
- * copy here rather than a shared cross-page helper.
+ * "Quick Actions" — each of the 6 buttons is a real
+ * `POST /performance-actions/{id}` call (`classes/RestAPI/Controllers/
+ * PerformanceActions.php`): cache flush, DB cleanup, and the two toggles
+ * always genuinely happen; image optimization regenerates real
+ * thumbnails; minify is the one action that honestly reports "nothing to
+ * do" when no minification-capable plugin is active, rather than
+ * pretending to have minified anything. The result toast always shows the
+ * backend's own real, specific message.
  */
 const QuickActionsCard = () => {
-	const notifyNotConnected = (action: QuickAction) => {
-		NoticeManager.add({
-			uniqueKey: `speed-quick-action-${action.id}`,
-			type: 'info',
-			position: 'float',
-			message: __(
-				"Not connected yet — this action isn't wired up in this build.",
-				'vulopilot'
-			),
-		});
+	const [runningActionId, setRunningActionId] = useState<string | null>(null);
+
+	const runAction = (action: QuickAction) => {
+		if (runningActionId) {
+			return;
+		}
+
+		setRunningActionId(action.id);
+
+		sendApiResponse<ActionResult>(
+			appLocalizer,
+			getApiLink(appLocalizer, `performance-actions/${action.id}`),
+			{}
+		)
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: `speed-quick-action-${action.id}`,
+					type: response && response.success ? 'success' : 'info',
+					position: 'float',
+					message: response
+						? response.message
+						: __(
+								'Could not run this action — please try again.',
+								'vulopilot'
+							),
+				});
+			})
+			.finally(() => setRunningActionId(null));
 	};
 
 	return (
@@ -48,8 +75,13 @@ const QuickActionsCard = () => {
 					id: action.id,
 					icon: action.icon,
 					title: action.label,
-					tags: <i className="adminfont-arrow-right" />,
-					action: () => notifyNotConnected(action),
+					tags:
+						runningActionId === action.id ? (
+							<i className="adminfont-refresh performance-quick-action-spinner" />
+						) : (
+							<i className="adminfont-arrow-right" />
+						),
+					action: () => runAction(action),
 				}))}
 			/>
 		</CardComponent>
