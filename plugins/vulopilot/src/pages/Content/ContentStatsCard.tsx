@@ -1,50 +1,195 @@
+/* global appLocalizer */
+import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, TrendStatComponent } from '@zyra/components';
+import { getApiLink, getApiResponse } from '@zyra/core';
+import { CardComponent } from '@zyra/components';
+
+type StatsPeriod = 'this_month' | 'last_month' | 'last_7_days' | 'last_30_days';
+
+interface StatMetric {
+	current: number;
+	previous: number;
+	change_percent: number | null;
+}
+
+interface StatsResponse {
+	content_created: StatMetric;
+	words_generated: StatMetric;
+}
+
+const PERIOD_OPTIONS: { value: StatsPeriod; label: string }[] = [
+	{ value: 'this_month', label: __('This Month', 'vulopilot') },
+	{ value: 'last_month', label: __('Last Month', 'vulopilot') },
+	{ value: 'last_7_days', label: __('Last 7 Days', 'vulopilot') },
+	{ value: 'last_30_days', label: __('Last 30 Days', 'vulopilot') },
+];
+
+const toYmd = (date: Date): string => date.toISOString().slice(0, 10);
+
+/** Real `date_from`/`date_to` (Y-m-d) for the selected period — same client-side computation style HistoryTab.tsx's own `resolveDateFrom()` already uses, extended to also resolve a real end boundary ("Last Month" isn't "today", unlike that page's own presets). */
+const resolvePeriod = (period: StatsPeriod): { dateFrom: string; dateTo: string } => {
+	const now = new Date();
+
+	if ('this_month' === period) {
+		return {
+			dateFrom: toYmd(new Date(now.getFullYear(), now.getMonth(), 1)),
+			dateTo: toYmd(now),
+		};
+	}
+
+	if ('last_month' === period) {
+		const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+		const lastMonthStart = new Date(
+			lastMonthEnd.getFullYear(),
+			lastMonthEnd.getMonth(),
+			1
+		);
+		return { dateFrom: toYmd(lastMonthStart), dateTo: toYmd(lastMonthEnd) };
+	}
+
+	const days = 'last_7_days' === period ? 6 : 29;
+	const from = new Date(now);
+	from.setDate(from.getDate() - days);
+
+	return { dateFrom: toYmd(from), dateTo: toYmd(now) };
+};
+
+/** "128.6K" past 1,000, plain otherwise — same abbreviated style the mockup's own "Words Generated" tile uses. */
+const formatAbbreviated = (count: number): string =>
+	count >= 1000
+		? `${(count / 1000).toFixed(1)}K`
+		: count.toLocaleString();
 
 /**
- * The mockup's "Content Stats" row (Content Created/Words Generated/SEO
- * Score Improved/Time Saved, each with a fabricated "↑N%" delta) has no
- * real backend anywhere: no word-count/time-saved/SEO-score-delta
- * tracking exists, and `GET /ai-history` has no per-category filter
- * (confirmed: only `provider`/`status` are filterable — no `action_id`),
- * so even "Content Created" can't be reliably scoped to
- * content-generation actions specifically. Same honest-omission posture
- * as the Dashboard's own dropped "vs last 7 days" deltas and AEO's own
- * "Not tracked yet" badges (`color: 'indigo'`, same convention reused
- * here) — same 4-tile layout, no invented numbers.
+ * "Content Stats" — real Content Created/Words Generated counts (real
+ * `GET /content-intelligence/stats`, backed by ActionRunRepository's own
+ * real `vulopilot_ai_action_runs` rows for `generate-blog`/
+ * `generate-landing-page`/`generate-product-description`, the same 3
+ * actions ContentOpenIssuesCard's own docblock precedent already scoped
+ * a real feature to) for the selected real period, with a real
+ * vs-previous-period percent change — no change badge shown when the
+ * previous period had 0 (nothing honest to compare against, rather than
+ * a fabricated "+100%").
+ *
+ * "SEO Score Improved" and "Time Saved" stay honest "Not tracked yet"
+ * tiles: no historical Content/SEO score snapshot exists anywhere in
+ * this codebase to compute a real delta from (`Dashboard::
+ * calculate_content_score()` is a live, unstored calculation — see
+ * `classes/RestAPI/Controllers/Dashboard.php`'s own method), and no
+ * "time saved by AI content generation" estimate exists anywhere either
+ * (the only `estimated_time_minutes` concept in this codebase is
+ * RuleEngine\Rules's unrelated "time to manually fix a finding"). Same
+ * honest-omission posture this card's own previous version already took,
+ * just alongside the 2 tiles that genuinely are trackable now instead of
+ * all 4 staying placeholders.
  */
 const ContentStatsCard = () => {
+	const [period, setPeriod] = useState<StatsPeriod>('this_month');
+	const [stats, setStats] = useState<StatsResponse | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		const { dateFrom, dateTo } = resolvePeriod(period);
+
+		setIsLoading(true);
+		getApiResponse<StatsResponse>(
+			getApiLink(
+				appLocalizer,
+				`content-intelligence/stats?date_from=${dateFrom}&date_to=${dateTo}`
+			),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		)
+			.then((response) => {
+				if (response) {
+					setStats(response);
+				}
+			})
+			.finally(() => setIsLoading(false));
+	}, [period]);
+
+	const renderChange = (changePercent: number | null) => {
+		if (null === changePercent) {
+			return null;
+		}
+
+		const isPositive = changePercent >= 0;
+
+		return (
+			<span
+				className={`content-stats-tile-change ${isPositive ? 'up' : 'down'}`}
+			>
+				<i
+					className={`adminfont-arrow-${isPositive ? 'up' : 'down'}`}
+				/>
+				{Math.abs(changePercent)}%
+			</span>
+		);
+	};
+
 	return (
-		<CardComponent title={__('Content Stats', 'vulopilot')}>
-			<TrendStatComponent
-				cols={2}
-				items={[
-					{
-						icon: 'edit',
-						label: __('Content Created', 'vulopilot'),
-						value: '—',
-						badge: { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-					},
-					{
-						icon: 'document',
-						label: __('Words Generated', 'vulopilot'),
-						value: '—',
-						badge: { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-					},
-					{
-						icon: 'bar-chart',
-						label: __('SEO Score Improved', 'vulopilot'),
-						value: '—',
-						badge: { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-					},
-					{
-						icon: 'clock',
-						label: __('Time Saved', 'vulopilot'),
-						value: '—',
-						badge: { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-					},
-				]}
-			/>
+		<CardComponent
+			className="content-stats-card"
+			title={__('Content Stats', 'vulopilot')}
+			isLoading={isLoading}
+			action={
+				<select
+					className="content-stats-period-select"
+					aria-label={__('Stats period', 'vulopilot')}
+					value={period}
+					onChange={(event) =>
+						setPeriod(event.target.value as StatsPeriod)
+					}
+				>
+					{PERIOD_OPTIONS.map((option) => (
+						<option key={option.value} value={option.value}>
+							{option.label}
+						</option>
+					))}
+				</select>
+			}
+		>
+			{stats && (
+				<div className="content-stats-grid">
+					<div className="content-stats-tile">
+						<div className="content-stats-tile-label">
+							{__('Content Created', 'vulopilot')}
+						</div>
+						<div className="content-stats-tile-value">
+							{stats.content_created.current.toLocaleString()}
+						</div>
+						{renderChange(stats.content_created.change_percent)}
+					</div>
+					<div className="content-stats-tile">
+						<div className="content-stats-tile-label">
+							{__('Words Generated', 'vulopilot')}
+						</div>
+						<div className="content-stats-tile-value">
+							{formatAbbreviated(
+								stats.words_generated.current
+							)}
+						</div>
+						{renderChange(stats.words_generated.change_percent)}
+					</div>
+					<div className="content-stats-tile is-untracked">
+						<div className="content-stats-tile-label">
+							{__('SEO Score Improved', 'vulopilot')}
+						</div>
+						<div className="content-stats-tile-value">—</div>
+						<span className="content-stats-tile-untracked">
+							{__('Not tracked yet', 'vulopilot')}
+						</span>
+					</div>
+					<div className="content-stats-tile is-untracked">
+						<div className="content-stats-tile-label">
+							{__('Time Saved', 'vulopilot')}
+						</div>
+						<div className="content-stats-tile-value">—</div>
+						<span className="content-stats-tile-untracked">
+							{__('Not tracked yet', 'vulopilot')}
+						</span>
+					</div>
+				</div>
+			)}
 		</CardComponent>
 	);
 };

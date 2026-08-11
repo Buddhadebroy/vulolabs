@@ -35,8 +35,11 @@ const TAB_IDS = [
  * differently-scoped tab shell. "AI Content" was originally folded in
  * here too, then moved to "Create Content"
  * (`src/pages/Content/AiContentTab.tsx`); that tab has since been removed
- * — its one real section (the "Open Issues" glimpse) now lives on Create
- * Content's own Overview tab (`src/pages/Content/ContentOpenIssuesCard.tsx`).
+ * — its one real section (the "Open Issues" glimpse) briefly lived on
+ * Create Content's own Overview tab as its own card
+ * (ContentOpenIssuesCard.tsx), then merged directly into that page's
+ * `src/pages/Content/RecentContentCard.tsx`, which now shows each post's
+ * own real open findings inline instead of a separate glimpse card.
  * Same shape as AI Copilot's own tab shell
  * (`src/pages/AIAssistant/AIAssistant.tsx`): a constant header above
  * `TabsComponent`, with `activeTab` owned here so Overview's own "AI

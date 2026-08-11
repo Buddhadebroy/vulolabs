@@ -15,6 +15,8 @@ declare global {
 		plugin_url: string;
 		admin_url: string;
 		site_url: string;
+		/** The real logged-in WP user's own display name (`wp_get_current_user()->display_name`) — e.g. AiContentAssistantSidebar.tsx's own "Hi {name}!" greeting. */
+		current_user_display_name: string;
 		version: string;
 		plugin_slug: string;
 		text_domain: string;

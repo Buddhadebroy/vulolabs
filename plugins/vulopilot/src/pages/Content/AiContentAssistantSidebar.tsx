@@ -1,5 +1,6 @@
+/* global appLocalizer */
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
 	ChatInputComponent,
@@ -33,9 +34,13 @@ const AiContentAssistantSidebar = () => {
 			titleIcon="ai"
 		>
 			<ChatMessageComponent>
-				{__(
-					'Hi! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
-					'vulopilot'
+				{sprintf(
+					/* translators: %s: the real logged-in WP user's own display name */
+					__(
+						'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
+						'vulopilot'
+					),
+					appLocalizer.current_user_display_name
 				)}
 			</ChatMessageComponent>
 			<ListComponent
