@@ -1,5 +1,8 @@
-import { __ } from '@wordpress/i18n';
+/* global appLocalizer */
+import { useEffect, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import './ImproveSpeed.scss';
 
@@ -74,32 +77,105 @@ const METRIC_TILES: MetricTile[] = [
 ];
 
 const NOT_TRACKED_BADGE = { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' };
+const OPEN_FALLBACK_BADGE = { text: __('No open findings', 'vulopilot'), color: 'green' };
+
+interface RealtimeStats {
+	samples_last_hour: number;
+}
+
+interface CoreWebVitalsSummary {
+	sample_count: number;
+}
+
+const MIN_CWV_SAMPLES = 10;
 
 /**
- * The mockup's 10-tile metrics grid. Only **Caching** and **Images** map
- * to real scanners in category 'performance'
- * (`classes/Scanners/Basic/CacheDetectionScanner.php` id `cache-detection`,
- * `LargeImagesScanner.php` id `large-images`) — reuses the exact real
- * "No open findings"/"N Open" badge `useSectionStatus()` already
- * produces for `TechnicalVisibilityCard.tsx` (Grow My Traffic). The other
- * 8 tiles — including "Performance Monitor," which the mockup itself
- * labels "Active" — have no real detection anywhere in this codebase
- * (confirmed: no CSS/JS/font/DB/lazy-load/CDN/real-time-monitoring
- * scanner or telemetry exists), so they render the same honest "Not
- * tracked yet" badge AEO's own not-built-yet sections already use.
+ * The mockup's 10-tile metrics grid. 8 of 10 tiles now map to a real
+ * category-'performance' scanner via `useSectionStatus()` (the same real
+ * "No open findings"/"N Open" badge `TechnicalVisibilityCard.tsx` already
+ * produces): Caching (`cache-detection`), Images (`large-images`), CSS
+ * Optimization (`css-optimization`), JavaScript (`javascript-optimization`),
+ * Fonts (`fonts`), Lazy Loading (`lazy-loading`), CDN (`cdn`), Database
+ * Cleanup (`database-cleanup`) — see each scanner's own file in
+ * `classes/Scanners/Basic/`. "Performance Monitor" is real too, but isn't
+ * scanner-backed — it reads `GET /performance-realtime` (populated by
+ * `Services\PerformanceRequestLogger`) and shows "Active" once any request
+ * has been logged in the last hour. "Core Web Vitals" is real too — it
+ * reads the same `GET /core-web-vitals` real-visitor RUM summary
+ * PerformanceScoreCard's own Core Web Vitals card reads, showing "Tracking"
+ * once past that card's own `MIN_SAMPLES` floor, or a real "Collecting
+ * data (N/10)" count below it — never a static "Not tracked yet" now that
+ * a real collection pipeline exists (Services\CoreWebVitalsBeacon).
  */
 const MetricsGrid = () => {
 	const caching = useSectionStatus('performance', ['cache-detection']);
 	const images = useSectionStatus('performance', ['large-images']);
+	const cssOptimization = useSectionStatus('performance', ['css-optimization']);
+	const javascript = useSectionStatus('performance', ['javascript-optimization']);
+	const fonts = useSectionStatus('performance', ['fonts']);
+	const lazyLoading = useSectionStatus('performance', ['lazy-loading']);
+	const cdn = useSectionStatus('performance', ['cdn']);
+	const databaseCleanup = useSectionStatus('performance', ['database-cleanup']);
+
+	const [realtimeStats, setRealtimeStats] = useState<RealtimeStats | null>(null);
+	const [vitalsSummary, setVitalsSummary] = useState<CoreWebVitalsSummary | null>(null);
+
+	useEffect(() => {
+		getApiResponse<RealtimeStats>(
+			getApiLink(appLocalizer, 'performance-realtime'),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		).then((response) => {
+			if (response) {
+				setRealtimeStats(response);
+			}
+		});
+
+		getApiResponse<CoreWebVitalsSummary>(
+			getApiLink(appLocalizer, 'core-web-vitals'),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		).then((response) => {
+			if (response) {
+				setVitalsSummary(response);
+			}
+		});
+	}, []);
+
+	const SECTION_STATUS_BY_TILE: Record<string, ReturnType<typeof useSectionStatus>> = {
+		caching,
+		images,
+		'css-optimization': cssOptimization,
+		javascript,
+		fonts,
+		'lazy-loading': lazyLoading,
+		cdn,
+		'database-cleanup': databaseCleanup,
+	};
 
 	const badgeFor = (id: string) => {
-		if (id === 'caching') {
-			return caching.badge ?? { text: __('No open findings', 'vulopilot'), color: 'green' };
+		if (id === 'core-web-vitals') {
+			if (!vitalsSummary) {
+				return NOT_TRACKED_BADGE;
+			}
+
+			return vitalsSummary.sample_count >= MIN_CWV_SAMPLES
+				? { text: __('Tracking', 'vulopilot'), color: 'green' }
+				: {
+						text: sprintf(
+							/* translators: %d is how many real visitor samples have been collected so far. */
+							__('Collecting data (%d)', 'vulopilot'),
+							vitalsSummary.sample_count
+						),
+						color: 'indigo',
+					};
 		}
-		if (id === 'images') {
-			return images.badge ?? { text: __('No open findings', 'vulopilot'), color: 'green' };
+
+		if (id === 'performance-monitor') {
+			return realtimeStats && realtimeStats.samples_last_hour > 0
+				? { text: __('Active', 'vulopilot'), color: 'green' }
+				: { text: __('Not collecting data yet', 'vulopilot'), color: 'indigo' };
 		}
-		return NOT_TRACKED_BADGE;
+
+		return SECTION_STATUS_BY_TILE[id]?.badge ?? OPEN_FALLBACK_BADGE;
 	};
 
 	return (

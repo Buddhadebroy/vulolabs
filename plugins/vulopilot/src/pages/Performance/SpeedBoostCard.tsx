@@ -9,7 +9,8 @@ interface FindingRow {
 }
 
 interface SpeedBoostCardProps {
-	onNavigateToPerformanceTab: () => void;
+	/** Scrolls to the full FindingsTable further down this same Overview tab. */
+	onViewDetails: () => void;
 }
 
 /**
@@ -18,11 +19,12 @@ interface SpeedBoostCardProps {
  * already uses, just reading `total` instead of rendering the rows).
  * Drops the mockup's "Estimated improvement +18 points" line — no
  * scoring-impact-per-fix model exists anywhere in this codebase. "Fix
- * All Issues with AI" is the same honestly-disabled control as
- * TopIssuesCard's own footer button; "View Details" is a real navigation
- * to the Performance tab.
+ * All Issues with AI" is honestly disabled the same way every other
+ * per-page "Fix All"/"Let AI Optimize" control on this page is; "View
+ * Details" scrolls to the "Top Issues" FindingsTable (PerformanceTab.tsx)
+ * further down this Overview tab.
  */
-const SpeedBoostCard = ({ onNavigateToPerformanceTab }: SpeedBoostCardProps) => {
+const SpeedBoostCard = ({ onViewDetails }: SpeedBoostCardProps) => {
 	const { total, isLoading } = useApiList<FindingRow>('findings', {
 		category: 'performance',
 		status: 'open',
@@ -54,7 +56,7 @@ const SpeedBoostCard = ({ onNavigateToPerformanceTab }: SpeedBoostCardProps) => 
 			)}
 			<TooltipComponent
 				text={__(
-					"Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up. Fix findings individually from the Performance tab.",
+					"Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up. Fix findings individually below.",
 					'vulopilot'
 				)}
 			>
@@ -70,7 +72,7 @@ const SpeedBoostCard = ({ onNavigateToPerformanceTab }: SpeedBoostCardProps) => 
 			<ButtonInput
 				buttons={{
 					text: __('View Details', 'vulopilot'),
-					onClick: onNavigateToPerformanceTab,
+					onClick: onViewDetails,
 				}}
 			/>
 		</CardComponent>

@@ -74,33 +74,34 @@ class Dashboard extends \WP_REST_Controller {
 
         return rest_ensure_response(
             array(
-                'overall_score'        => $this->calculate_overall_score( $findings ),
-                'open_findings'        => $this->count_open_findings( $findings ),
-                'critical_findings'    => $findings->count_by_severity( Severity::CRITICAL ),
-                'findings_by_severity' => $this->build_findings_by_severity( $findings ),
-                'active_automations'   => $automations->count_enabled(),
+                'overall_score'            => $this->calculate_overall_score( $findings ),
+                'open_findings'            => $this->count_open_findings( $findings ),
+                'critical_findings'        => $findings->count_by_severity( Severity::CRITICAL ),
+                'findings_by_severity'     => $this->build_findings_by_severity( $findings ),
+                'active_automations'       => $automations->count_enabled(),
                 // AI provider usage isn't tracked yet — no AIProviders usage-metering
                 // subsystem writes here (see AI-ARCHITECTURE.md's "What's not here
                 // yet": quota enforcement). Reporting 0/0 honestly rather than
                 // fabricating a number.
-                'ai_jobs_used'         => 0,
-                'ai_jobs_quota'        => 0,
-                'category_scores'      => $this->build_category_scores( $findings ),
-                'category_scores_7d_ago' => $this->build_category_scores_as_of( $findings, gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
+                'ai_jobs_used'             => 0,
+                'ai_jobs_quota'            => 0,
+                'category_scores'          => $this->build_category_scores( $findings ),
+                'psi_speed_scores'         => $this->build_psi_speed_scores(),
+                'category_scores_7d_ago'   => $this->build_category_scores_as_of( $findings, gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
                 // Dashboard's "Good / N open findings" hero badges — real
                 // counts from findings' own created_at/resolved_at, same
                 // 7-day window category_scores_7d_ago already reconstructs
                 // against.
                 'new_findings_this_week'   => $findings->count_created_since( gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
                 'fixed_findings_this_week' => $findings->count_resolved_since( gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
-                'quick_fixes'          => $this->count_quick_fixes( $findings ),
-                'pending_approvals'    => (int) $action_runs->find_all(
+                'quick_fixes'              => $this->count_quick_fixes( $findings ),
+                'pending_approvals'        => (int) $action_runs->find_all(
                     array(
 						'status'   => 'pending_approval',
 						'per_page' => 1,
 					)
                 )['total'],
-                'automation_status'    => $automations->get_status_counts(),
+                'automation_status'        => $automations->get_status_counts(),
             )
         );
     }
@@ -171,7 +172,7 @@ class Dashboard extends \WP_REST_Controller {
         $scores     = array();
 
         foreach ( $categories as $category ) {
-            $breakdown        = $findings->get_severity_breakdown_for_category_as_of( $category, $as_of );
+            $breakdown           = $findings->get_severity_breakdown_for_category_as_of( $category, $as_of );
             $scores[ $category ] = $this->score_from_breakdown( $breakdown );
         }
 
@@ -298,6 +299,28 @@ class Dashboard extends \WP_REST_Controller {
             - ( $breakdown['low'] * 1 );
 
         return max( 0, min( 100, $score ) );
+    }
+
+    /**
+     * Real Google PageSpeed Insights Mobile/Desktop scores, if a
+     * `psi_api_key` is configured (Services\PageSpeedInsightsFetcher's own
+     * cron/one-off fetch writes these three options; this method never
+     * makes the slow external HTTP call itself). Both scores null means
+     * PerformanceScoreCard.tsx falls back to the single real unified
+     * `category_scores.performance` number instead of a fabricated split.
+     *
+     * @return array{mobile: int|null, desktop: int|null, checked_at: string|null}
+     */
+    private function build_psi_speed_scores(): array {
+        $mobile     = get_option( 'vulopilot_psi_mobile_score', null );
+        $desktop    = get_option( 'vulopilot_psi_desktop_score', null );
+        $checked_at = get_option( 'vulopilot_psi_checked_at', null );
+
+        return array(
+            'mobile'     => null !== $mobile ? (int) $mobile : null,
+            'desktop'    => null !== $desktop ? (int) $desktop : null,
+            'checked_at' => '' !== $checked_at ? $checked_at : null,
+        );
     }
 
     /**

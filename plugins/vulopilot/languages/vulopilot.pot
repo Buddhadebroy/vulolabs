@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-07T11:58:34+00:00\n"
+"POT-Creation-Date: 2026-08-11T12:37:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -119,7 +119,6 @@ msgid "SEO"
 msgstr ""
 
 #: classes/Admin.php:241
-#: assets/js/index.js:1
 msgid "AI Content"
 msgstr ""
 
@@ -194,10 +193,13 @@ msgstr ""
 #: classes/AIActions/Actions/GenerateSummaryBlockAction.php:60
 #: classes/AIActions/Actions/ImproveReadabilityAction.php:64
 #: classes/AIActions/Actions/NormalizeEntityNamingAction.php:62
+#: classes/AIActions/Actions/OptimizeContentAction.php:57
+#: classes/AIActions/Actions/RefreshContentAction.php:54
 #: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:68
 #: classes/AIActions/Actions/SplitLongParagraphsAction.php:63
 #: classes/AIActions/Actions/WriteMetaDescriptionAction.php:64
 #: classes/AIActions/Actions/WriteMetaTitleAction.php:66
+#: classes/AIActions/Actions/WritePostContentAction.php:57
 msgid "post_id must refer to an existing post or page."
 msgstr ""
 
@@ -310,10 +312,12 @@ msgid "Generate ALT text"
 msgstr ""
 
 #: classes/AIActions/Actions/GenerateAltAction.php:56
+#: classes/AIActions/Actions/OptimizeMediaAction.php:57
 msgid "attachment_id must refer to an existing media attachment."
 msgstr ""
 
 #: classes/AIActions/Actions/GenerateAltAction.php:60
+#: classes/AIActions/Actions/OptimizeMediaAction.php:61
 msgid "This attachment is not an image."
 msgstr ""
 
@@ -322,6 +326,7 @@ msgid "The AI returned empty alt text."
 msgstr ""
 
 #: classes/AIActions/Actions/GenerateAltAction.php:109
+#: classes/AIActions/Actions/OptimizeMediaAction.php:127
 msgid "The AI returned alt text that is too long."
 msgstr ""
 
@@ -332,6 +337,7 @@ msgid "Set alt text for %s"
 msgstr ""
 
 #: classes/AIActions/Actions/GenerateAltAction.php:141
+#: classes/AIActions/Actions/OptimizeMediaAction.php:167
 msgid "Could not update the attachment."
 msgstr ""
 
@@ -371,6 +377,7 @@ msgstr ""
 
 #: classes/AIActions/Actions/GenerateBlogAction.php:105
 #: classes/AIActions/Actions/GenerateComparisonPageAction.php:136
+#: classes/AIActions/Actions/GenerateLandingPageAction.php:113
 #: classes/AIActions/Actions/GenerateProductDescriptionAction.php:118
 msgid "The AI response did not match the expected TITLE/BODY format."
 msgstr ""
@@ -459,6 +466,24 @@ msgstr ""
 
 #: classes/AIActions/Actions/GenerateFaqAction.php:193
 msgid "Frequently Asked Questions"
+msgstr ""
+
+#: classes/AIActions/Actions/GenerateLandingPageAction.php:59
+msgid "Generate landing page"
+msgstr ""
+
+#: classes/AIActions/Actions/GenerateLandingPageAction.php:69
+msgid "Please describe what the landing page is for (at least 5 characters)."
+msgstr ""
+
+#: classes/AIActions/Actions/GenerateLandingPageAction.php:118
+msgid "The AI returned a landing page body that is too short to be useful."
+msgstr ""
+
+#. translators: %s is the generated page title.
+#: classes/AIActions/Actions/GenerateLandingPageAction.php:129
+#, php-format
+msgid "Create a new draft landing page: %s"
 msgstr ""
 
 #: classes/AIActions/Actions/GenerateProductDescriptionAction.php:53
@@ -571,6 +596,54 @@ msgstr ""
 msgid "Normalize brand name spelling throughout this content"
 msgstr ""
 
+#: classes/AIActions/Actions/OptimizeContentAction.php:46
+msgid "Optimize content"
+msgstr ""
+
+#: classes/AIActions/Actions/OptimizeContentAction.php:61
+msgid "This post needs at least some existing content to optimize."
+msgstr ""
+
+#: classes/AIActions/Actions/OptimizeContentAction.php:105
+#: classes/AIActions/Actions/RefreshContentAction.php:104
+#: classes/AIActions/Actions/WritePostContentAction.php:109
+msgid "The AI returned content that is too short to be useful."
+msgstr ""
+
+#. translators: %s is the post/page title being optimized.
+#: classes/AIActions/Actions/OptimizeContentAction.php:116
+#, php-format
+msgid "Optimize content for: %s"
+msgstr ""
+
+#: classes/AIActions/Actions/OptimizeMediaAction.php:47
+msgid "Optimize media"
+msgstr ""
+
+#: classes/AIActions/Actions/OptimizeMediaAction.php:122
+msgid "The AI response did not include usable alt text."
+msgstr ""
+
+#. translators: %s is the image filename.
+#: classes/AIActions/Actions/OptimizeMediaAction.php:138
+#, php-format
+msgid "Optimize alt text, title, and caption for %s"
+msgstr ""
+
+#: classes/AIActions/Actions/RefreshContentAction.php:43
+msgid "Refresh content"
+msgstr ""
+
+#: classes/AIActions/Actions/RefreshContentAction.php:58
+msgid "This post needs at least some existing content to refresh."
+msgstr ""
+
+#. translators: %s is the post/page title being refreshed.
+#: classes/AIActions/Actions/RefreshContentAction.php:115
+#, php-format
+msgid "Refresh content for: %s"
+msgstr ""
+
 #: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:57
 msgid "Soften unsourced claims"
 msgstr ""
@@ -641,6 +714,20 @@ msgstr ""
 
 #: classes/AIActions/Actions/WriteMetaTitleAction.php:129
 msgid "Rewrite page title"
+msgstr ""
+
+#: classes/AIActions/Actions/WritePostContentAction.php:46
+msgid "Write content"
+msgstr ""
+
+#: classes/AIActions/Actions/WritePostContentAction.php:63
+msgid "Please describe what to write about (at least 5 characters)."
+msgstr ""
+
+#. translators: %s is the post/page title being written for.
+#: classes/AIActions/Actions/WritePostContentAction.php:120
+#, php-format
+msgid "Write content for: %s"
 msgstr ""
 
 #. translators: 1: provider id, 2: requests-per-minute limit.
@@ -819,6 +906,10 @@ msgstr ""
 msgid "Deleted automation"
 msgstr ""
 
+#: classes/RestAPI/Controllers/AiActionRuns.php:140
+msgid "action_id is required."
+msgstr ""
+
 #: classes/RestAPI/Controllers/AiProviders.php:154
 msgid "Unknown AI provider."
 msgstr ""
@@ -866,6 +957,14 @@ msgstr ""
 msgid "Manually running an automation isn't supported yet — automations currently only fire from their own configured trigger."
 msgstr ""
 
+#: classes/RestAPI/Controllers/CoreWebVitalsBeaconRest.php:83
+msgid "Too many requests."
+msgstr ""
+
+#: classes/RestAPI/Controllers/CoreWebVitalsBeaconRest.php:91
+msgid "No usable metrics in this request."
+msgstr ""
+
 #: classes/RestAPI/Controllers/DashboardLayout.php:90
 msgid "A widget layout array is required."
 msgstr ""
@@ -874,35 +973,41 @@ msgstr ""
 msgid "No valid widgets in the submitted layout."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:124
+#: classes/RestAPI/Controllers/Findings.php:177
 msgid "Invalid severity filter."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:171
-#: classes/RestAPI/Controllers/Findings.php:177
-#: classes/RestAPI/Controllers/Findings.php:188
+#: classes/RestAPI/Controllers/Findings.php:321
+#: classes/RestAPI/Controllers/Findings.php:327
+#: classes/RestAPI/Controllers/Findings.php:338
+#: classes/RestAPI/Controllers/History.php:310
+#: classes/RestAPI/Controllers/History.php:313
 #: assets/js/index.js:1
 msgid "Site-wide"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:225
+#: classes/RestAPI/Controllers/Findings.php:378
 msgid "Invalid finding status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:231
+#: classes/RestAPI/Controllers/Findings.php:384
 msgid "Finding not found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:243
+#: classes/RestAPI/Controllers/Findings.php:396
 msgid "Could not update this finding."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:267
+#: classes/RestAPI/Controllers/Findings.php:420
 msgid "Invalid bulk finding status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:271
+#: classes/RestAPI/Controllers/Findings.php:424
 msgid "No findings selected."
+msgstr ""
+
+#: classes/RestAPI/Controllers/History.php:169
+msgid "Could not delete this history entry."
 msgstr ""
 
 #: classes/RestAPI/Controllers/IndexNow.php:93
@@ -928,6 +1033,62 @@ msgstr ""
 
 #: classes/RestAPI/Controllers/NotFoundLogs.php:176
 msgid "A redirect for this path already exists — manage it from the Redirects table above."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:116
+msgid "Unknown quick action."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:136
+msgid "WordPress object cache flushed."
+msgstr ""
+
+#. translators: %s is a comma-separated list of cache plugin names that were also flushed.
+#: classes/RestAPI/Controllers/PerformanceActions.php:139
+#, php-format
+msgid "WordPress object cache flushed, plus: %s."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:168
+msgid "No minification plugin detected — install Autoptimize, WP Rocket, or a similar plugin to enable this action."
+msgstr ""
+
+#. translators: %s is a comma-separated list of plugin names that regenerated minified assets.
+#: classes/RestAPI/Controllers/PerformanceActions.php:176
+#, php-format
+msgid "Regenerated minified assets via: %s."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:238
+msgid "No oversized images found to optimize."
+msgstr ""
+
+#. translators: 1: number of images optimized, 2: formatted byte size saved, e.g. "1.4 MB".
+#: classes/RestAPI/Controllers/PerformanceActions.php:241
+#, php-format
+msgid "Optimized %1$d image(s), saved %2$s."
+msgstr ""
+
+#. translators: 1: number of expired transients deleted, 2: number of old post revisions deleted.
+#: classes/RestAPI/Controllers/PerformanceActions.php:300
+#, php-format
+msgid "Deleted %1$d expired transients and %2$d old post revisions."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:322
+msgid "Lazy loading was already force-enabled."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:323
+msgid "Lazy loading is now force-enabled site-wide."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:341
+msgid "Critical resource preloading was already enabled."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:342
+msgid "Critical resource preloading is now enabled — the site logo and main stylesheet will be preloaded."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Redirects.php:162
@@ -1446,6 +1607,19 @@ msgstr ""
 msgid "A missing canonical tag can lead search engines to treat identical content reachable at multiple URLs as duplicates."
 msgstr ""
 
+#: classes/Scanners/Basic/CdnScanner.php:55
+#: assets/js/index.js:1
+msgid "CDN"
+msgstr ""
+
+#: classes/Scanners/Basic/CdnScanner.php:75
+msgid "No CDN detected for static assets"
+msgstr ""
+
+#: classes/Scanners/Basic/CdnScanner.php:78
+msgid "Every asset on the homepage is served directly from this server. A CDN serves images, CSS, and JavaScript from servers closer to each visitor, reducing load times worldwide."
+msgstr ""
+
 #: classes/Scanners/Basic/CoreFileIntegrityScanner.php:50
 #: assets/js/index.js:1
 msgid "File Changes"
@@ -1487,6 +1661,38 @@ msgstr ""
 msgid "This event was due %s ago and has not run — WP-Cron may not be firing."
 msgstr ""
 
+#: classes/Scanners/Basic/CssOptimizationScanner.php:40
+#: assets/js/index.js:1
+msgid "CSS Optimization"
+msgstr ""
+
+#. translators: %d is the number of un-minified stylesheets found.
+#: classes/Scanners/Basic/CssOptimizationScanner.php:74
+#, php-format
+msgid "%d un-minified stylesheet found"
+msgid_plural "%d un-minified stylesheets found"
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/Scanners/Basic/CssOptimizationScanner.php:84
+msgid "These stylesheets aren't minified and no minification plugin is active. Minifying CSS reduces file size and speeds up page rendering."
+msgstr ""
+
+#: classes/Scanners/Basic/DatabaseCleanupScanner.php:54
+#: assets/js/index.js:1
+msgid "Database Cleanup"
+msgstr ""
+
+#. translators: 1: number of expired transients, 2: number of excess post revisions.
+#: classes/Scanners/Basic/DatabaseCleanupScanner.php:80
+#, php-format
+msgid "%1$d expired transients and %2$d excess post revisions"
+msgstr ""
+
+#: classes/Scanners/Basic/DatabaseCleanupScanner.php:86
+msgid "Expired transients and old post revisions accumulate in the database over time, slowing down queries. Use the \"Database Cleanup\" quick action to remove them."
+msgstr ""
+
 #: classes/Scanners/Basic/DatabaseScanner.php:44
 msgid "Database"
 msgstr ""
@@ -1514,6 +1720,19 @@ msgstr ""
 
 #: classes/Scanners/Basic/DuplicateContentScanner.php:113
 msgid "Multiple published posts share this exact title, which can split search ranking signal between them or confuse which one search engines show."
+msgstr ""
+
+#: classes/Scanners/Basic/FontsScanner.php:45
+#: assets/js/index.js:1
+msgid "Fonts"
+msgstr ""
+
+#: classes/Scanners/Basic/FontsScanner.php:77
+msgid "Externally-hosted web fonts detected"
+msgstr ""
+
+#: classes/Scanners/Basic/FontsScanner.php:80
+msgid "The homepage loads fonts from Google Fonts' own servers. Self-hosting web fonts (or adding font-display: swap) avoids an extra third-party connection and can prevent invisible-text flashes while fonts load."
 msgstr ""
 
 #: classes/Scanners/Basic/FormLabelsScanner.php:44
@@ -1724,6 +1943,23 @@ msgstr ""
 msgid "Linking to other pages on this site helps search engines discover and rank content, and helps readers find related pages."
 msgstr ""
 
+#: classes/Scanners/Basic/JavaScriptOptimizationScanner.php:40
+#: assets/js/index.js:1
+msgid "JavaScript"
+msgstr ""
+
+#. translators: %d is the number of un-minified scripts found.
+#: classes/Scanners/Basic/JavaScriptOptimizationScanner.php:74
+#, php-format
+msgid "%d un-minified script found"
+msgid_plural "%d un-minified scripts found"
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/Scanners/Basic/JavaScriptOptimizationScanner.php:84
+msgid "These scripts aren't minified and no minification plugin is active. Minifying JavaScript reduces file size and speeds up page rendering."
+msgstr ""
+
 #: classes/Scanners/Basic/LargeImagesScanner.php:48
 msgid "Large Images"
 msgstr ""
@@ -1736,6 +1972,19 @@ msgstr ""
 
 #: classes/Scanners/Basic/LargeImagesScanner.php:97
 msgid "Large images slow down page loads, especially on mobile connections — consider compressing or resizing."
+msgstr ""
+
+#: classes/Scanners/Basic/LazyLoadingScanner.php:38
+#: assets/js/index.js:1
+msgid "Lazy Loading"
+msgstr ""
+
+#: classes/Scanners/Basic/LazyLoadingScanner.php:58
+msgid "Native lazy-loading is disabled"
+msgstr ""
+
+#: classes/Scanners/Basic/LazyLoadingScanner.php:61
+msgid "A theme or plugin has disabled WordPress's built-in lazy-loading for images, so all images now load immediately instead of only as visitors scroll to them."
 msgstr ""
 
 #: classes/Scanners/Basic/MetaDescriptionScanner.php:46
@@ -2168,6 +2417,7 @@ msgid "Neither /wp-sitemap.xml nor /sitemap.xml returned a successful response. 
 msgstr ""
 
 #: classes/Scanners/Basic/SlowPageScanner.php:46
+#: assets/js/index.js:1
 msgid "Slow Pages"
 msgstr ""
 
@@ -2552,6 +2802,29 @@ msgstr ""
 
 #: classes/Services/OnPageAnalyzer.php:331
 msgid "Consider adding a number to the title (e.g. a year or a count) — these tend to attract more clicks."
+msgstr ""
+
+#: classes/Services/PageSpeedScanner.php:158
+msgid "Slow server response"
+msgstr ""
+
+#: classes/Services/PageSpeedScanner.php:333
+#: assets/js/index.js:1
+msgid "Homepage"
+msgstr ""
+
+#: classes/Services/PageSpeedScanner.php:377
+msgid "Shop"
+msgstr ""
+
+#: classes/Services/PageSpeedScanner.php:383
+#: assets/js/index.js:1
+msgid "Cart"
+msgstr ""
+
+#: classes/Services/PageSpeedScanner.php:389
+#: assets/js/index.js:1
+msgid "Checkout"
 msgstr ""
 
 #. translators: 1: scanner id, 2: number of findings.
@@ -3039,70 +3312,11 @@ msgid "Connect the AI providers VuloPilot uses to generate fixes and content."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "How AI runs on this site"
+msgid "Not connected"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Connect at least one provider with your own API key to get AI-written suggestions — alt text, meta titles, FAQ blocks, and every other AI action VuloPilot offers. Every fix still waits for your review and approval on the Dashboard before anything is applied."
-msgstr ""
-
-#. translators: %d is how many AI providers are currently active.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d providers are active — if the first one fails or is rate-limited, VuloPilot automatically retries with the next."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Providers"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Active — tried automatically if an earlier provider fails"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Inactive — skipped by the fallback chain"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Default model"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Deactivate"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Activate"
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/post-editor.js:1
-msgid "Remove"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Remove this AI provider? Anything relying on it for AI fixes/generation will fall back to another configured provider, if any."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI provider removed."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not remove this provider."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Add a provider"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Bring your own API key from any supported provider."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Choose a provider…"
+msgid "Configure this provider with your own credentials."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3122,7 +3336,7 @@ msgid "Defaults to http://localhost:11434 if left blank."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Optional"
+msgid "Default model"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3138,7 +3352,51 @@ msgid "Could not connect this provider — check the key and try again."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Configured with your own credentials."
+msgstr ""
+
+#: assets/js/index.js:1
+#, js-format
+msgid "Provider: %1$s — Default model: %2$s"
+msgstr ""
+
+#: assets/js/index.js:1
+#, js-format
+msgid "Provider: %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnect"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Remove this AI provider? Anything relying on it for AI fixes/generation will fall back to another configured provider, if any."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI provider removed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not remove this provider."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add a new AI provider"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Loading…"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "No AI providers configured yet."
+msgstr ""
+
+#. translators: %d is how many AI providers are currently active.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d providers are active — if the first one fails or is rate-limited, VuloPilot automatically retries with the next."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -3339,10 +3597,6 @@ msgid "GEO, AEO, entity extraction, and AI crawler tracking behavior."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "GEO"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Competitor URLs"
 msgstr ""
 
@@ -3483,10 +3737,6 @@ msgid "Used by the \"Email me when GEO score drops\" notification in the Notific
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Entity Extraction"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Services"
 msgstr ""
 
@@ -3615,14 +3865,6 @@ msgid "Mega Menu"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Instant Indexing"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Submit URLs directly to the IndexNow API so participating search engines (Bing, Yandex, and others) crawl them within minutes instead of waiting on their next routine pass."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "URLs to submit"
 msgstr ""
 
@@ -3723,6 +3965,10 @@ msgid "Response"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Instant Indexing"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Submit new and updated URLs to search engines the moment they're published."
 msgstr ""
 
@@ -3751,7 +3997,15 @@ msgid "Could not regenerate llms.txt. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Scanning behavior for SEO, sitemaps, and webmaster tools."
+msgid "Connect Google PageSpeed Insights for a real Mobile/Desktop speed score."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Google PageSpeed Insights API key"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Optional. When set, \"Improve Speed\" shows a real Mobile/Desktop speed score from Google PageSpeed Insights instead of one unified score. Get a free key from Google Cloud Console (PageSpeed Insights API)."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4163,11 +4417,11 @@ msgid "Enter your own custom webmaster tags. Only <meta> tags are allowed — an
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Security, accessibility, and performance scanning behavior."
+msgid "Security"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Security"
+msgid "Security, accessibility, and performance scanning behavior."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4789,22 +5043,6 @@ msgid "Run your first scan to start building a health score history."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Latest reports"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not load reports"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No reports yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Generate your first compliance report from the Reports page."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Brand Visibility breakdown"
 msgstr ""
 
@@ -4834,6 +5072,22 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Try refreshing the dashboard."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Latest reports"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load reports"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No reports yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Generate your first compliance report from the Reports page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4975,6 +5229,10 @@ msgid "Info"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "GEO"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Website health score"
 msgstr ""
 
@@ -5003,15 +5261,85 @@ msgid "Run scan"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Score"
+msgid "Needs Improvement"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Remaining"
+msgid "Poor"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Not tracked yet"
+msgid "Overall Speed Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Mobile"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Desktop"
+msgstr ""
+
+#. translators: %d is how many points lower the mobile score is than desktop.
+#: assets/js/index.js:1
+#, js-format
+msgid "Your mobile site is %d points slower than desktop. Focus on improving mobile performance for a better experience."
+msgstr ""
+
+#. translators: %d is how many points lower the desktop score is than mobile.
+#: assets/js/index.js:1
+#, js-format
+msgid "Your desktop site is %d points slower than mobile."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Mobile and desktop performance are similar."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect Google PageSpeed Insights in Settings → Scanning → Performance for a real Mobile/Desktop breakdown."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View Slow Pages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Core Web Vitals"
+msgstr ""
+
+#. translators: 1: real samples collected so far, 2: how many are needed.
+#: assets/js/index.js:1
+#, js-format
+msgid "Still collecting real visitor data — %1$d of %2$d samples so far."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Largest Contentful Paint (LCP)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good: ≤ 2.5s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Interaction to Next Paint (INP)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good: ≤ 200ms"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cumulative Layout Shift (CLS)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good: ≤ 0.1"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "About Core Web Vitals"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5029,7 +5357,7 @@ msgid "You're all caught up — no open optimization opportunities right now."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up. Fix findings individually from the Performance tab."
+msgid "Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up. Fix findings individually below."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5057,10 +5385,6 @@ msgid "%1$d Open · %2$d %3$s Severity"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Core Web Vitals"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "LCP, INP, CLS, and FCP — see the Performance Score card above."
 msgstr ""
 
@@ -5073,15 +5397,7 @@ msgid "Page caching effectiveness."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "CSS Optimization"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Unused or render-blocking CSS."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "JavaScript"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5093,15 +5409,7 @@ msgid "Oversized or unoptimized images."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Fonts"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Web font loading performance."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Database Cleanup"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5109,15 +5417,7 @@ msgid "Post revisions, transients, and other bloat."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Lazy Loading"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Deferred loading for below-the-fold content."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "CDN"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5132,22 +5432,26 @@ msgstr ""
 msgid "Ongoing real-time performance tracking."
 msgstr ""
 
-#. translators: %d is the number of open findings.
+#: assets/js/index.js:1
+msgid "Not tracked yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tracking"
+msgstr ""
+
+#. translators: %d is how many real visitor samples have been collected so far.
 #: assets/js/index.js:1
 #, js-format
-msgid "%d open"
+msgid "Collecting data (%d)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Top Issues"
+msgid "Active"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "You're all caught up"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No open performance findings right now."
+msgid "Not collecting data yet"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5155,11 +5459,7 @@ msgid "Speed History"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Speed history isn’t tracked yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "A dedicated performance score history isn’t built yet — flag if you want it scoped next."
+msgid "Speed history builds up after your first scan — run a scan, or check back after today."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5187,7 +5487,7 @@ msgid "Quick Actions"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Not connected yet — this action isn't wired up in this build."
+msgid "Could not run this action — please try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5195,15 +5495,23 @@ msgid "Real-time Monitoring"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Real-time monitoring isn’t built yet"
+msgid "Server Response Time"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Page load time, server response time, and bandwidth tracking aren’t built yet — flag if you want them scoped next."
+msgid "A raw count of real page views in the last 5 minutes — not a unique-visitor count, which this plugin deliberately doesn't track (no IP logging, no tracking cookies)."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Performance Tips"
+msgid "Page Views (Last 5 Min)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Page Load Time"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Bandwidth Usage"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5231,6 +5539,70 @@ msgid "Remove unnecessary characters."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "No caching plugin detected — a caching layer significantly reduces load time."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Compress your large images"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Use the \"Optimize Images\" quick action, or convert to WebP."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minify your CSS"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Un-minified stylesheets found — use the \"Minify CSS & JS\" quick action."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minify your JavaScript"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Un-minified scripts found — use the \"Minify CSS & JS\" quick action."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Self-host your web fonts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Externally-hosted Google Fonts add an extra connection and can block rendering."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Re-enable lazy loading"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Native lazy-loading is disabled — use the \"Enable Lazy Loading\" quick action."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Serve assets from a CDN"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No CDN detected — a CDN serves assets from servers closer to each visitor."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clean up your database"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Expired transients and old revisions found — use the \"Database Cleanup\" quick action."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Performance Tips"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "AI Speed Assistant"
 msgstr ""
 
@@ -5247,35 +5619,115 @@ msgid "Let AI Optimize Speed"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Top Issues"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "No performance findings yet — run a scan to check caching, heavy plugins, large images, and slow pages."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Active"
+msgid "Page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Inactive"
+msgid "Post"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Add redirect"
+msgid "Shop Page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not load redirects"
+msgid "Cart Page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Search redirects…"
+msgid "Checkout Page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "From"
+msgid "Product Page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "To"
+msgid "Category Page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not scored yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load Slow Pages."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All Page Types"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Slow"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load Slow Pages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "These pages are loading slowly and need your attention."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Total Pages Scanned"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Good Pages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Average Mobile Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Average Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search pages…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Export"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Scan started — checking your pages in the background. Results will appear here as each page finishes."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not start the scan. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Starting…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Scan Again"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No pages found"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No pages scanned yet — click \"Scan Again\" to check your real pages' load times."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No pages match this filter."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5283,99 +5735,84 @@ msgid "Type"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Hits"
+msgid "Mobile Score"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Status"
+msgid "Desktop Score"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Actions"
+msgid "Score"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Edit"
+msgid "Load Time"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete"
+msgid "Main Issue"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete this redirect? This cannot be undone."
+msgid "Action"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Redirect deleted."
+#, js-format
+msgid "%s s"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No redirects yet — add one, or convert an entry from the 404 log below."
+msgid "Why these pages matter"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Search missing URLs…"
+msgid "Slower pages can frustrate visitors and affect your search rankings."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Requested URL"
+msgid "Poor user experience"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Last seen"
+msgid "Visitors may leave your site."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Confirm →"
+msgid "Lower conversions"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Create redirect"
+msgid "Slow pages reduce sales and signups."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Redirect created from this log entry."
+msgid "Search ranking impact"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not create a redirect — a redirect for this path may already exist."
+msgid "Speed is a ranking factor for Google."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Dismiss"
+msgid "What's considered slow?"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No 404s logged yet — turn on \"Log 404s\" in Settings → Scanning → SEO to start tracking missing-page visits."
+msgid "Scores are real per-page Google PageSpeed Insights results."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Redirect this URL to…"
+msgid "Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key in Settings → Scanning → Performance for real Mobile/Desktop scores instead."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Edit redirect"
+msgid "None detected"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "/old-page/"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "https://example.com/new-page/"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Save"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Redirect saved."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not save this redirect — check the path and URL and try again."
+msgid "Last Scanned"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5390,8 +5827,18 @@ msgstr ""
 msgid "Brand Presence"
 msgstr ""
 
+#. translators: %d is the number of open findings.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d open"
+msgstr ""
+
 #: assets/js/index.js:1
 msgid "AI Opportunities"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "You're all caught up"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5749,6 +6196,10 @@ msgid "Per-engine re-test tracking isn’t built yet — flag if you want it sco
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Last seen"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Crawl volume, last 30 days"
 msgstr ""
 
@@ -5814,6 +6265,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Bot"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Requested URL"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5925,6 +6380,10 @@ msgid "WooCommerce isn't active."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Entity Extraction"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Entity Extraction module is turned off"
 msgstr ""
 
@@ -5973,22 +6432,6 @@ msgid "No robots.txt findings yet — run a scan to check crawler access."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "301 redirects and 404 traffic logging."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Manage redirects →"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Redirect health"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No redirect-chain issues found — run a scan to check the homepage for long or looping redirects."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "SEO module is turned off"
 msgstr ""
 
@@ -6002,6 +6445,126 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "There's no separate schema scanner category yet — open the SEO tab to see structured-data findings today, or flag if a dedicated Schema category should be scoped next."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Inactive"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add redirect"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load redirects"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search redirects…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "From"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "To"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Hits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Status"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Actions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Edit"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Deactivate"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Activate"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete this redirect? This cannot be undone."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Redirect deleted."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No redirects yet — add one, or convert an entry from the 404 log below."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search missing URLs…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Confirm →"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create redirect"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Redirect created from this log entry."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not create a redirect — a redirect for this path may already exist."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Dismiss"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No 404s logged yet — turn on \"Log 404s\" in Settings → Scanning → SEO to start tracking missing-page visits."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Redirect this URL to…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Edit redirect"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "/old-page/"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "https://example.com/new-page/"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Save"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Redirect saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not save this redirect — check the path and URL and try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6059,15 +6622,7 @@ msgid "Organize categories to improve navigation."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Optimize checkout experience to reduce drop-offs."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Cart"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6801,6 +7356,10 @@ msgid "Nothing has happened yet — actions across VuloPilot will show up here."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "No security findings yet — run a scan to check for hardening and exposure issues."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Improve my homepage"
 msgstr ""
 
@@ -6833,23 +7392,105 @@ msgid "Find security issues"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "One-click AI fixes aren't available yet — click a suggestion to review and fix it on its own page."
+msgid "High Impact"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not load suggested actions"
+msgid "Medium Impact"
 msgstr ""
 
-#. translators: %s: finding severity (e.g. "high")
+#: assets/js/index.js:1
+msgid "Low Impact"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load what needs your attention."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "things need attention"
+msgstr ""
+
+#. translators: %d: count of high-priority open findings
 #: assets/js/index.js:1
 #, js-format
-msgid "%s severity"
+msgid "%d High priority"
 msgstr ""
 
-#. translators: %s: finding severity (e.g. "high")
+#. translators: %d: count of medium-priority open findings
 #: assets/js/index.js:1
 #, js-format
-msgid "Flagged as a %s-severity issue during the last scan."
+msgid "%d Medium priority"
+msgstr ""
+
+#. translators: %d: count of low-priority open findings
+#: assets/js/index.js:1
+#, js-format
+msgid "%d Low priority"
+msgstr ""
+
+#. translators: 1: real open-finding count, 2: scanner label, e.g. "Meta Descriptions"
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$d findings: %2$s"
+msgstr ""
+
+#. translators: 1: category display label, 2: impact label
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$s • %2$s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View all issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing needs attention right now"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Open findings will appear here once a scan finds something worth fixing."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "just now"
+msgstr ""
+
+#. translators: %s: AI provider name, e.g. "groq"
+#: assets/js/index.js:1
+#, js-format
+msgid "%s request failed"
+msgstr ""
+
+#. translators: %s: AI provider or model name, e.g. "groq"
+#: assets/js/index.js:1
+#, js-format
+msgid "AI response via %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recent conversations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View all history"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load recent conversations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No AI activity yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "VuloPilot will log every AI-assisted action here."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6862,6 +7503,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "No workflows yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Go to Automation"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6881,7 +7526,15 @@ msgid "Ask VuloPilot anything about your website…"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Attaching files isn't available yet — there's no connected assistant to send them to."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Attach"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Adding context isn't available yet — there's no connected assistant to send it to."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6890,10 +7543,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Auto-applies (with approval)"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Suggested Actions"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6913,6 +7562,128 @@ msgid "Traffic, Core Web Vitals, security, and store metrics will appear here on
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Conversations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Scans"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Changes"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Proposed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Applied"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Rejected"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Rolled back"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Selected item"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Close"
+msgstr ""
+
+#. translators: %s: formatted date this event happened
+#: assets/js/index.js:1
+#, js-format
+msgid "%s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Completed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manually triggered"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No issues found."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Before"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "(new content)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "After"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Where"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Error"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Delete from history"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Removed from history."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not delete this history entry. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Select an item"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Choose an entry from the timeline to see more detail here."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All time"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Today"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Last 7 days"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Last 30 days"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "AI cost & provider breakdown"
 msgstr ""
 
@@ -6921,71 +7692,171 @@ msgid "A per-provider cost, token, and success-rate breakdown of the history abo
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Success"
+msgid "Something went wrong while loading history."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Failure"
+msgid "Yesterday"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI history"
+msgid "Everything VuloPilot has scanned, changed, or applied. Use filters to find exactly what you need."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not load AI history"
+msgid "Search history…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Search AI history…"
+msgid "Date range"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Provider"
+msgid "Could not load history"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Model"
+msgid "Scan"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Prompt tokens"
+msgid "Change"
+msgstr ""
+
+#. translators: %d: real number of findings this scan found
+#: assets/js/index.js:1
+#, js-format
+msgid "%d issue found"
+msgid_plural "%d issues found"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: real previous value (or "new content"), 2: real new value
+#: assets/js/index.js:1
+#, js-format
+msgid "Before: %1$s · After: %2$s"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Completion tokens"
+msgid "Load more"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No AI activity yet — VuloPilot will log every AI-assisted action here."
+msgid "No conversations yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Default"
+msgid "No automation history yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Fixing every open finding automatically isn't available yet — review and fix items individually below."
+msgid "Nothing here yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Everything VuloPilot has found across your site, ranked by severity."
+msgid "AI chat isn't connected yet — once it is, your conversations will show up here."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Fix all with AI"
+msgid "No automation has run yet — automated workflows will show up here once they do."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Quick Commands"
+msgid "Scans and AI changes will show up here as VuloPilot works."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI usage"
+msgid "All Issues"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "This month"
+msgid "Critical Priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "High Priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Medium Priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Low Priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Issue details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Select an issue"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Choose a row from the table to see more detail here."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not update these findings. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Affected"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Example finding"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Copied."
+msgstr ""
+
+#. translators: %s: formatted date this finding was detected
+#: assets/js/index.js:1
+#, js-format
+msgid "Detected %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Resolve all"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All findings in this group marked resolved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Ignore all"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All findings in this group ignored."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Something went wrong while loading issues."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Issue"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Category"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "VuloPilot found these issues across your site. Fix what matters most to improve performance, visibility, and user experience."
 msgstr ""
 
 #. translators: %d is the number of open security findings.
@@ -7095,6 +7966,10 @@ msgid "Security Overview"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Remaining"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Security Trend"
 msgstr ""
 
@@ -7149,10 +8024,6 @@ msgid "View full logs"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "just now"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Recent Activity"
 msgstr ""
 
@@ -7169,11 +8040,55 @@ msgid "Security-related activity will appear here as it happens."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No security findings yet — run a scan to check for hardening and exposure issues."
+msgid "No accessibility findings yet — run a scan to check heading structure, ARIA attributes, and form labels."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No accessibility findings yet — run a scan to check heading structure, ARIA attributes, and form labels."
+msgid "Select…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Or pick an existing product (optional)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Select a product…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No products found"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Generating with AI…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Try again"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Reject"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Discarded — nothing was changed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Approve & apply"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Applied — the change is now live."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not apply this change. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7185,11 +8100,23 @@ msgid "Write engaging content with AI in seconds."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Post or page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What should it write about?"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Blog Generator"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Generate SEO-optimized blog posts instantly."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Topic"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7201,7 +8128,19 @@ msgid "Create high-converting landing pages."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "What is this landing page for?"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Write persuasive product descriptions that sell."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Product name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Key features (optional)"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7221,6 +8160,10 @@ msgid "Create structured data schema markup."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Post or page (must be published)"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Image Alt Text"
 msgstr ""
 
@@ -7229,11 +8172,15 @@ msgid "Generate SEO-friendly alt text for images."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Image"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Meta Generator"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Create meta titles and descriptions that rank."
+msgid "Create meta titles that rank."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7257,15 +8204,15 @@ msgid "Find and fix duplicate content issues."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Duplicate title group"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Media Library AI"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Organize, tag and optimize your media library."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Not connected yet — AI action triggering isn't wired up in this build."
+msgid "Optimize alt text, titles, and captions for an image."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7273,43 +8220,27 @@ msgid "Content Tools"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Start from scratch"
+msgid "This Month"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Improve conversions"
+msgid "Last Month"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "High-converting pages"
+msgid "Last 7 Days"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Answer customer questions"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Write a Blog Post"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Generate Product Description"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Create Landing Page"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Generate FAQs"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Quick Start"
+msgid "Last 30 Days"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Content Stats"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Stats period"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7329,15 +8260,19 @@ msgid "Time Saved"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Post"
+msgid "Blog Post"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Page"
+msgid "Landing Page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Product"
+msgid "Product Description"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All resources"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7345,11 +8280,83 @@ msgid "Blog Posts"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Other"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All issues"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Recent Content"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "View All"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search by title or source page…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Filter by issue severity"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Filter by content type"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Show ignored"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Export CSV"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Words"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Open Issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Issue Details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Deleting…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Move this to trash? You can restore it from Trash afterward."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Moved to trash."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not delete this item. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "(no title)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "1 word"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "words"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7360,8 +8367,34 @@ msgstr ""
 msgid "Draft"
 msgstr ""
 
+#. translators: %d: number of real open content-quality findings for this post
+#: assets/js/index.js:1
+#, js-format
+msgid "%d issue"
+msgid_plural "%d issues"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Fixing…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No content matches these filters."
+msgstr ""
+
 #: assets/js/index.js:1
 msgid "No content found yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Severity Breakdown"
+msgstr ""
+
+#. translators: %d: number of open content findings
+#: assets/js/index.js:1
+#, js-format
+msgid "%d total"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7388,116 +8421,14 @@ msgstr ""
 msgid "AI Content Assistant"
 msgstr ""
 
+#. translators: %s: the real logged-in WP user's own display name
 #: assets/js/index.js:1
-msgid "Hi! I can help you create amazing content. Try one of these prompt ideas or ask your own."
+#, js-format
+msgid "Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Ask Anything…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "How easy this content is to read — a standard Flesch Reading Ease score."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No readability findings yet — run a scan to check sentence/word complexity."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Content Depth"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages with too little substance, or duplicating another page's title outright."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No thin/duplicate content findings yet — run a scan to check."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Heading hierarchy and internal links — how easily a reader (or crawler) can navigate this content."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No structure findings yet — run a scan to check headings and internal links."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Content Intelligence module is turned off"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Turn the Content Intelligence module back on from Settings → Modules to resume readability scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Depth & Completeness"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages with too little substance for a reader to walk away informed, or that leave an obvious follow-up question unanswered."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No depth findings yet — run a scan to check for thin content."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Trust & Credibility"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Expert quotes, customer proof points, and other credibility signals AI assistants weigh before summarizing or citing a page."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Detecting expert quotes, third-party validation, and customer proof points isn’t built yet — flag if you want it scoped next."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Multimedia & Visual Aids"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Diagrams, screenshots, and other visual aids that make a step-by-step explanation easier to follow."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Detecting missing diagrams or screenshots in step-by-step content isn’t built yet — flag if you want it scoped next."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Scannable Formatting"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Reading complexity and heading structure — how easily a reader (or an AI system) can scan and extract this content."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No formatting findings yet — run a scan to check readability and heading structure."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Terminology & Tone"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Consistent terminology and a steady tone throughout a page — jargon-heavy or inconsistent phrasing confuses both readers and AI summarizers."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Detecting jargon-heavy phrasing, inconsistent terminology, or tone shifts isn’t built yet — flag if you want it scoped next."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No open AI Content findings right now."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Turn the Content Intelligence module back on from Settings → Modules to resume scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7610,10 +8541,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not load settings"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Loading…"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7750,6 +8677,10 @@ msgstr ""
 
 #: assets/js/post-editor.js:1
 msgid "Choose Image"
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Remove"
 msgstr ""
 
 #: assets/js/post-editor.js:1
