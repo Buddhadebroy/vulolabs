@@ -26,6 +26,7 @@ import {
 	rowTitle,
 } from './historyTypes';
 import './AICopilot.scss';
+import '../../components/common.scss';
 
 interface HistoryResponse {
 	data: HistoryRow[];
@@ -445,69 +446,72 @@ const HistoryTab = () => {
 											<span className="history-row-time">
 												{rowTime(row.created_at)}
 											</span>
-											<i
-												className={`history-row-icon adminfont-${rowIcon(row)}`}
-											/>
-											<div className="history-row-text">
-												<div className="history-row-title">
-													{rowTitle(row)}
-												</div>
-												<div className="history-row-desc">
-													{row.message}
-												</div>
-												<span
-													className={`admin-badge ${tag.className}`}
-												>
-													{tag.text}
-												</span>
-											</div>
-											<div className="history-row-meta">
-												{row.scan && (
-													<span className="history-row-meta-value">
-														{sprintf(
-															_n(
-																'%d issue found',
-																'%d issues found',
-																row.scan.total,
-																'vulopilot'
-															),
-															row.scan.total
-														)}
+
+											<div className='history-details'>
+												<i
+													className={`history-row-icon adminfont-${rowIcon(row)}`}
+												/>
+												<div className="history-row-text">
+													<div className="history-row-title">
+														{rowTitle(row)}
+													</div>
+													<div className="history-row-desc">
+														{row.message}
+													</div>
+													<span
+														className={`admin-badge ${tag.className}`}
+													>
+														{tag.text}
 													</span>
-												)}
-												{showBeforeAfter && (
-													<span className="history-row-meta-value">
-														{sprintf(
-															__(
-																'Before: %1$s · After: %2$s',
-																'vulopilot'
-															),
-															row.change?.before ||
-																__(
-																	'(new content)',
+												</div>
+												<div className="history-row-meta">
+													{row.scan && (
+														<span className="history-row-meta-value">
+															{sprintf(
+																_n(
+																	'%d issue found',
+																	'%d issues found',
+																	row.scan.total,
 																	'vulopilot'
 																),
-															row.change?.after
-														)}
-													</span>
-												)}
-												{statusBadge && (
-													<span
-														className={`admin-badge ${statusBadge.className}`}
-													>
-														{statusBadge.text}
-													</span>
-												)}
+																row.scan.total
+															)}
+														</span>
+													)}
+													{showBeforeAfter && (
+														<span className="history-row-meta-value">
+															{sprintf(
+																__(
+																	'Before: %1$s · After: %2$s',
+																	'vulopilot'
+																),
+																row.change?.before ||
+																	__(
+																		'(new content)',
+																		'vulopilot'
+																	),
+																row.change?.after
+															)}
+														</span>
+													)}
+													{statusBadge && (
+														<span
+															className={`admin-badge ${statusBadge.className}`}
+														>
+															{statusBadge.text}
+														</span>
+													)}
+												</div>
+												<i
+													className="adminfont-arrow-right history-row-arrow"
+													role="button"
+													tabIndex={0}
+													onClick={(event) => {
+														event.stopPropagation();
+														setSelectedRow(row);
+													}}
+												/>
 											</div>
-											<i
-												className="adminfont-arrow-right history-row-arrow"
-												role="button"
-												tabIndex={0}
-												onClick={(event) => {
-													event.stopPropagation();
-													setSelectedRow(row);
-												}}
-											/>
 										</div>
 									);
 								})}
