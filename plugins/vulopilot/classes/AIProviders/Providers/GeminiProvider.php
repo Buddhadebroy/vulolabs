@@ -71,7 +71,14 @@ class GeminiProvider implements AIProviderInterface {
      * @inheritDoc
      */
     public function get_available_models(): array {
-        return array( 'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash' );
+        // Google's own "-latest" aliases (always pointing at whatever
+        // model version Google currently recommends) rather than pinned
+        // version strings like "gemini-2.5-flash" — pinned versions are
+        // liable to be retired for new API keys/projects over time (Google
+        // returns a 404 "no longer available to new users" for a retired
+        // pinned version even while it's still listed by the API's own
+        // ListModels endpoint), which an alias avoids.
+        return array( 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-pro-latest' );
     }
 
     /**

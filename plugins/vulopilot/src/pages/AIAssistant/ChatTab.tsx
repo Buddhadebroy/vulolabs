@@ -18,6 +18,7 @@ import NeedsAttentionCard, {
 import RecentConversationsCard from './RecentConversationsCard';
 import AiWorkflowsList from './AiWorkflowsList';
 import AiUsageCard from './AiUsageCard';
+import { useCopilotChat } from '../../services/useCopilotChat';
 
 interface ChatTabProps {
 	onNavigateTab: (tab: string, filter?: IssuesFilter) => void;
@@ -32,13 +33,15 @@ interface ChatTabProps {
  * me…" prompt grid, and the composer bar in the main column; a real
  * "Needs your attention" findings summary (`/findings/attention-summary`,
  * NeedsAttentionCard.tsx) + AI Workflows (`/automations`) preview in the
- * sidebar. "Recent conversations" stays static placeholder content
- * (RecentConversationsCard.tsx) since there's no conversational AI
- * endpoint yet (see AiHistory.php/ActionRunner.php — the AI Providers
- * engine exists but nothing routes a free-text message to it, so sending
- * is disabled with an honest explanation rather than faking a reply); the
- * prompt grid still really prefills the composer, since that part needs
- * no backend.
+ * sidebar. Sending now really talks to `POST /copilot/chat`
+ * (classes/RestAPI/Controllers/Copilot.php, shared via useCopilotChat.ts)
+ * — a real reply grounded in this site's own open findings/automation
+ * counts, not a canned response. "Recent conversations" stays static
+ * placeholder content (RecentConversationsCard.tsx) since there's still no
+ * persisted conversation entity to list past sessions from — each page
+ * load starts a fresh, real conversation. Attaching files/adding context
+ * stay honestly disabled — no upload/embedding pipeline exists for either.
+ * The prompt grid still prefills the composer.
  *
  * `message`/`autoApply` are owned by AIAssistant.tsx rather than locally,
  * so the sidebar's "View all" links and this tab's own prompt grid can
@@ -51,6 +54,15 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	autoApply,
 	onAutoApplyChange,
 }) => {
+	const { turns, isSending, send } = useCopilotChat(
+		'vulopilot-copilot-chat-error'
+	);
+
+	const handleSend = () => {
+		send(message);
+		onMessageChange('');
+	};
+
 	return (
 		<>
 			<ColumnComponent grid={8}>
@@ -70,6 +82,22 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						</div>
 					</ChatMessageComponent>
 
+					{turns.map((turn, index) => (
+						<ChatMessageComponent
+							key={index}
+							sender={'user' === turn.role ? 'user' : 'ai'}
+						>
+							{turn.content}
+						</ChatMessageComponent>
+					))}
+
+					{isSending && (
+						<ChatMessageComponent sender="ai" avatarIcon="ai">
+							<i className="adminfont-refresh chat-thinking-spinner" />{' '}
+							{__('Thinking…', 'vulopilot')}
+						</ChatMessageComponent>
+					)}
+
 					<p className="chat-prompts-label">
 						{__('Try asking me…', 'vulopilot')}
 					</p>
@@ -77,7 +105,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
 					<ChatInputComponent
 						value={message}
 						onChange={onMessageChange}
-						onSend={() => onMessageChange('')}
+						onSend={handleSend}
+						disabled={isSending}
 						placeholder={__(
 							'Ask VuloPilot anything about your website…',
 							'vulopilot'
@@ -106,10 +135,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							})
 						}
 						addContextLabel={__('Add context', 'vulopilot')}
-						sendDisabledReason={__(
-							"AI chat replies aren't available yet — this is a preview of the composer, not a connected assistant.",
-							'vulopilot'
-						)}
 						autoApply={{
 							checked: autoApply,
 							onChange: onAutoApplyChange,

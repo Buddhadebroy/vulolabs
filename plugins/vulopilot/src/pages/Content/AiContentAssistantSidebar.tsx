@@ -1,12 +1,41 @@
 /* global appLocalizer */
 import { useState } from 'react';
+import axios from 'axios';
 import { __, sprintf } from '@wordpress/i18n';
+import { getApiLink } from '@zyra/core';
 import {
 	CardComponent,
 	ChatInputComponent,
 	ChatMessageComponent,
 	ListComponent,
+	NoticeManager,
 } from '@zyra/components';
+
+interface ChatTurn {
+	role: 'user' | 'assistant';
+	content: string;
+}
+
+interface ChatResponse {
+	content: string;
+	provider: string;
+	model: string;
+}
+
+/**
+ * The shape WP_REST_Server::error_to_response() gives a WP_Error — what
+ * actually arrives in `error.response.data` when ContentAssistant.php
+ * returns one (e.g. "No AI provider is configured…", a safety-validator
+ * rejection). Same reasoning as vulopilot-pro's OneClickFix module: raw
+ * axios rather than @zyra/core's sendApiResponse() here on purpose, since
+ * sendApiResponse() swallows the response body on any error and would
+ * always show the same generic message no matter what actually went
+ * wrong.
+ */
+interface WpRestErrorBody {
+	code?: string;
+	message?: string;
+}
 
 const PROMPT_CHIPS = [
 	{ id: 'blog-ai-ecommerce', icon: 'document', title: __('Write a blog about AI in eCommerce', 'vulopilot') },
@@ -17,16 +46,67 @@ const PROMPT_CHIPS = [
 ];
 
 /**
- * "AI Content Assistant" sidebar — same honest chat pattern used twice
- * already this session (AI Copilot's ChatTab.tsx, Grow My Traffic's
- * OverviewTab composer): no chat backend exists anywhere in this
- * codebase, so the composer's send button is real-looking but
- * `sendDisabledReason`-disabled rather than silently doing nothing.
- * Prompt chips prefill the input only, same harmless pattern as those
- * two pages' own prompt chips.
+ * "AI Content Assistant" — a real chat, `POST /content-assistant/chat`
+ * (classes/RestAPI/Controllers/ContentAssistant.php), which sends the
+ * conversation through the same real AI-provider chain
+ * (AIProviders\Support\SafeRequestSender) AI Actions/GEO scoring already
+ * use. Whichever provider is configured under Settings → AI Providers
+ * answers for real; when none is configured, the controller's own honest
+ * error ("No AI provider is configured. Add one in Settings → AI
+ * Providers.") is shown via NoticeManager rather than silently doing
+ * nothing. The running conversation (`turns`) is kept client-side and
+ * sent back as `history` on every call — there's no conversation entity
+ * in this codebase to persist it against; every real call is still
+ * recorded to `vulopilot_ai_history` server-side regardless (Reports'
+ * own AI Usage report already reads that table). Prompt chips prefill
+ * the composer only, same harmless pattern as AI Copilot's ChatTab.tsx.
  */
 const AiContentAssistantSidebar = () => {
 	const [message, setMessage] = useState('');
+	const [turns, setTurns] = useState<ChatTurn[]>([]);
+	const [isSending, setIsSending] = useState(false);
+
+	const handleSend = () => {
+		const trimmed = message.trim();
+
+		if ('' === trimmed || isSending) {
+			return;
+		}
+
+		const history = turns;
+
+		setTurns([...history, { role: 'user', content: trimmed }]);
+		setMessage('');
+		setIsSending(true);
+
+		axios
+			.post<ChatResponse>(
+				getApiLink(appLocalizer, 'content-assistant/chat'),
+				{ message: trimmed, history },
+				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+			)
+			.then((response) => {
+				setTurns((current) => [
+					...current,
+					{ role: 'assistant', content: response.data.content },
+				]);
+			})
+			.catch((error) => {
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-content-assistant-error',
+					type: 'error',
+					position: 'float',
+					message:
+						(error?.response?.data as WpRestErrorBody | undefined)
+							?.message ??
+						__(
+							'Could not reach the AI Content Assistant. Please try again.',
+							'vulopilot'
+						),
+				});
+			})
+			.finally(() => setIsSending(false));
+	};
 
 	return (
 		<CardComponent
@@ -43,6 +123,23 @@ const AiContentAssistantSidebar = () => {
 					appLocalizer.current_user_display_name
 				)}
 			</ChatMessageComponent>
+
+			{turns.map((turn, index) => (
+				<ChatMessageComponent
+					key={index}
+					sender={'user' === turn.role ? 'user' : 'ai'}
+				>
+					{turn.content}
+				</ChatMessageComponent>
+			))}
+
+			{isSending && (
+				<ChatMessageComponent sender="ai">
+					<i className="adminfont-refresh content-assistant-spinner" />{' '}
+					{__('Thinking…', 'vulopilot')}
+				</ChatMessageComponent>
+			)}
+
 			<ListComponent
 				className="chip-grid"
 				items={PROMPT_CHIPS.map((prompt) => ({
@@ -55,12 +152,9 @@ const AiContentAssistantSidebar = () => {
 			<ChatInputComponent
 				value={message}
 				onChange={setMessage}
-				onSend={() => setMessage('')}
+				onSend={handleSend}
+				disabled={isSending}
 				placeholder={__('Ask Anything…', 'vulopilot')}
-				sendDisabledReason={__(
-					"AI chat replies aren't available yet — this is a preview of the composer, not a connected assistant.",
-					'vulopilot'
-				)}
 			/>
 		</CardComponent>
 	);

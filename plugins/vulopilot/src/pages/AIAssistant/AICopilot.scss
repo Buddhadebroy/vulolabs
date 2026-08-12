@@ -668,3 +668,16 @@
 		}
 	}
 }
+
+// ChatTab.tsx's "Thinking…" bubble, shown while a real POST /copilot/chat
+// request is in flight.
+.chat-thinking-spinner {
+	display: inline-block;
+	animation: chat-thinking-spin 1s linear infinite;
+}
+
+@keyframes chat-thinking-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}

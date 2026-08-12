@@ -79,6 +79,8 @@ class Rest {
             'core_web_vitals'             => new Controllers\CoreWebVitals(),
             'core_web_vitals_beacon'      => new Controllers\CoreWebVitalsBeaconRest(),
             'page_speed'                  => new Controllers\PageSpeed(),
+            'content_assistant'           => new Controllers\ContentAssistant(),
+            'copilot'                     => new Controllers\Copilot(),
             // Deliberately NOT keyed 'geo_analysis' — vulopilot-pro's
             // GeoInsights module adds its own controller into
             // $extra_controllers below under that exact key (its `Rest.php`

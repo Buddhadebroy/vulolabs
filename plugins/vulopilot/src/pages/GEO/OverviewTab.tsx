@@ -4,11 +4,13 @@ import './GrowMyTraffic.scss';
 import {
 	CardComponent,
 	ChatInputComponent,
+	ChatMessageComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ListComponent,
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
+import { useCopilotChat } from '../../services/useCopilotChat';
 import VisibilityScoreCard from './VisibilityScoreCard';
 import AiOpportunitiesCard from './AiOpportunitiesCard';
 import DiscoverCard from './DiscoverCard';
@@ -44,6 +46,14 @@ const SUGGESTED_PROMPTS = [
 const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 	const [message, setMessage] = useState('');
 	const { runScan } = useRunScan();
+	const { turns, isSending, send } = useCopilotChat(
+		'vulopilot-geo-copilot-chat-error'
+	);
+
+	const handleSend = () => {
+		send(message);
+		setMessage('');
+	};
 
 	return (
 		<>
@@ -55,13 +65,27 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 					<ChatInputComponent
 						value={message}
 						onChange={setMessage}
-						onSend={() => setMessage('')}
+						onSend={handleSend}
+						disabled={isSending}
 						placeholder={__('Ask VuloPilot anything…', 'vulopilot')}
-						sendDisabledReason={__(
-							"AI chat replies aren't available yet — this is a preview of the composer, not a connected assistant.",
-							'vulopilot'
-						)}
 					/>
+
+					{turns.map((turn, index) => (
+						<ChatMessageComponent
+							key={index}
+							sender={'user' === turn.role ? 'user' : 'ai'}
+						>
+							{turn.content}
+						</ChatMessageComponent>
+					))}
+
+					{isSending && (
+						<ChatMessageComponent sender="ai">
+							<i className="adminfont-refresh chat-thinking-spinner" />{' '}
+							{__('Thinking…', 'vulopilot')}
+						</ChatMessageComponent>
+					)}
+
 					<ListComponent
 						className="chip-grid"
 						items={SUGGESTED_PROMPTS.map((prompt) => ({

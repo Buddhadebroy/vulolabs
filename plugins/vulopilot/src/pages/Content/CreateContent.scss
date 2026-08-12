@@ -850,6 +850,14 @@ $recent-content-severities: (
 	}
 }
 
+// "AI Content Assistant" (AiContentAssistantSidebar.tsx) — the "Thinking…"
+// bubble shown while a real POST /content-assistant/chat request is in
+// flight, same rotation keyframe as content-tool-spin above.
+.content-assistant-spinner {
+	display: inline-block;
+	animation: content-tool-spin 1s linear infinite;
+}
+
 .content-tool-error {
 	display: flex;
 	align-items: flex-start;
