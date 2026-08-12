@@ -69,7 +69,7 @@ const QuickActionsCard = () => {
 	return (
 		<CardComponent title={__('Quick Actions', 'vulopilot')}>
 			<ListComponent
-				className="mini-card list"
+				className="mini-card listool-grid"
 				border
 				items={QUICK_ACTIONS.map((action) => ({
 					id: action.id,

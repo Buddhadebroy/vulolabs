@@ -737,7 +737,7 @@ const RecentContentCard = () => {
 			</div>
 
 			<TableCard
-				className="recent-content-table"
+				className="transparent recent-content-table"
 				showMenu={false}
 				headers={{
 					title: {

@@ -76,10 +76,12 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 					<PerformanceTipsCard />
 					<AiSpeedAssistantCard />
 				</ColumnComponent>
-
-			<div id="performance-section-findings">
-				<PerformanceTab />
-			</div>
+			<ColumnComponent>
+				<div id="performance-section-findings">
+					<PerformanceTab />
+					
+				</div>
+			</ColumnComponent>
 		</>
 	);
 };
