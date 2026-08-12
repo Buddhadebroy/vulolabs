@@ -10,7 +10,8 @@ import {
 	NoticeManager,
 	PopupComponent,
 	FormGroupWrapperComponent,
-	FormGroupComponent
+	FormGroupComponent,
+	ClipboardComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -347,36 +348,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					)}
 
 					{group.sample && (
-						<FormGroupComponent   row label={__('Where', 'vulopilot')}>
-						
-							<div className="issue-detail-where">
-								<code>
-									{group.sample.page ||
-										__('Site-wide', 'vulopilot')}
-								</code>
-								<span
-									role="button"
-									className="issue-detail-copy-btn"
-									onClick={() => {
-										navigator.clipboard
-											.writeText(group.sample?.page || '')
-											.then(() => {
-												NoticeManager.add({
-													uniqueKey:
-														'issue-detail-copy',
-													type: 'success',
-													position: 'float',
-													message: __(
-														'Copied.',
-														'vulopilot'
-													),
-												});
-											});
-									}}
-								>
-									<i className="adminfont-coding" />
-								</span>
-							</div>
+						<FormGroupComponent  row label={__('Where', 'vulopilot')}>
+							<ClipboardComponent
+								text={group.sample.page || __('Site-wide', 'vulopilot')}
+								variant="code"
+								copyButtonLabel={__('Copy', 'vulopilot')}
+								copiedLabel={__('Copied!', 'vulopilot')}
+							/>
 							<div className="small desc">
 								{sprintf(
 									/* translators: %s: formatted date this finding was detected */
@@ -399,7 +377,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						},
 						{
 							text: __('Resolve all', 'vulopilot'),
-							color: 'secondary',
+							color: 'border-purple',
 							onClick: () =>
 								handleBulkStatus(
 									'resolved',
@@ -412,7 +390,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						},
 						{
 							text: __('Ignore all', 'vulopilot'),
-							color: 'secondary',
+							color: 'border-purple',
 							onClick: () =>
 								handleBulkStatus(
 									'ignored',
