@@ -11,7 +11,7 @@ import {
 	ListComponent,
 	NoticeManager
 } from '@zyra/components';
-import { FileInput } from '@zyra/inputs';
+import { FileInput, ButtonInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
@@ -487,16 +487,17 @@ const ChatTab: React.FC<ChatTabProps> = ({
 					title={__('AI Workflows', 'vulopilot')}
 					titleIcon="ai"
 					action={
-						<a
-							href="#"
-							onClick={(e) => {
-								e.preventDefault();
-								onNavigateTab('ai-workflows');
+						<ButtonInput
+							buttons={{
+								text: __('View all history', 'vulopilot'),
+								rightIcon: 'arrow-right',
+								color: 'text-purple', 
+								onClick: (e) => {
+									e.preventDefault();
+									onNavigateTab('ai-workflows');
+								},
 							}}
-						>
-							{__('View all', 'vulopilot')}{' '}
-							<i className="adminfont-arrow-right" />
-						</a>
+						/>
 					}
 				>
 					<AiWorkflowsList limit={4} />

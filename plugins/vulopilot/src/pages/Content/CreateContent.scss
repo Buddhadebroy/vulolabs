@@ -269,437 +269,50 @@ $content-tool-colors: (
 }
 
 .recent-content-search {
-	position: relative;
 	flex: 1 1 14rem;
-
-	.adminfont-search {
-		position: absolute;
-		top: 50%;
-		left: 0.625rem;
-		transform: translateY(-50%);
-		color: var(--sub-text-color, #9ca3af);
-		font-size: 0.875rem;
-		pointer-events: none;
-	}
-
-	input {
-		width: 100%;
-		padding: 0.5rem 0.75rem 0.5rem 2rem;
-		border: 1px solid var(--border-color, #e5e7eb);
-		border-radius: 0.375rem;
-		font-size: 0.85rem;
-		background: var(--theme-background-color, #fff);
-	}
 }
 
-.recent-content-filter-select {
-	flex-shrink: 0;
-	padding: 0.5rem 0.75rem;
-	border: 1px solid var(--border-color, #e5e7eb);
-	border-radius: 0.375rem;
-	font-size: 0.85rem;
-	background: var(--theme-background-color, #fff);
-	color: var(--theme-color, #111827);
-}
+// .recent-content-table .admin-pagination {
+// 	display: none;
+// }
 
-// "Show ignored" — a plain checkbox visually restyled as an on/off switch
-// (no reusable toggle-switch component exists anywhere in this codebase —
-// confirmed via grep — so this is a minimal, self-contained one rather
-// than a new zyra dependency for a single control).
-.recent-content-toggle {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	flex-shrink: 0;
-	font-size: 0.813rem;
-	font-weight: 500;
-	color: var(--sub-text-color, #6b7280);
-	cursor: pointer;
-	white-space: nowrap;
-
-	input {
-		position: absolute;
-		opacity: 0;
-		width: 0;
-		height: 0;
-	}
-
-	.recent-content-toggle-track {
-		position: relative;
-		flex-shrink: 0;
-		width: 2rem;
-		height: 1.125rem;
-		border-radius: 999px;
-		background: var(--border-color, #d1d5db);
-		transition: background-color 0.15s ease;
-
-		&::before {
-			content: '';
-			position: absolute;
-			top: 0.125rem;
-			left: 0.125rem;
-			width: 0.875rem;
-			height: 0.875rem;
-			border-radius: 50%;
-			background: #fff;
-			transition: transform 0.15s ease;
-		}
-	}
-
-	input:checked + .recent-content-toggle-track {
-		background: var(--color-primary);
-
-		&::before {
-			transform: translateX(0.875rem);
-		}
-	}
-}
-
-.recent-content-rows {
-	display: flex;
-	flex-direction: column;
-}
-
-.recent-content-row {
-	display: flex;
-	align-items: center;
-	// wrap (not nowrap) so `.recent-content-row-issues` below — the only
-	// child with a 100% flex-basis — can force itself onto its own line
-	// under the existing single-line icon/title/badges/time/actions row,
-	// which keeps its original single-line layout untouched whenever a
-	// row has no real open findings to show.
-	flex-wrap: wrap;
-	gap: 0.875rem;
-	padding: 0.875rem 0;
-	border-bottom: 1px solid var(--border-color, #eef0f2);
-
-	&:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-
-	&:first-child {
-		padding-top: 0;
-	}
-
-	// The Published/Draft status badge's own color modifiers — `.admin-badge`'s
-	// base pill shape comes from zyra at runtime, but (confirmed via the
-	// actual compiled CSS output) no `.admin-badge.green/.grey` color rule
-	// reachable from here has ever existed, so this pill has always
-	// rendered untinted; added now alongside the new "Ignored" badge
-	// below, which needs the exact same `.grey` treatment.
-	> .admin-badge.green {
-		color: #16a34a;
-		background: color-mix(in srgb, #16a34a 14%, transparent);
-	}
-
-	> .admin-badge.grey {
-		color: #6b7280;
-		background: color-mix(in srgb, #6b7280 14%, transparent);
-	}
-
-	// A row with real findings expands on click anywhere except its own
-	// title/action controls (see RecentContentCard.tsx's own
-	// `handleRowClick`) — no chevron/arrow icon, so the only affordance
-	// is the pointer cursor plus a faint hover tint on the row itself.
-	&.is-expandable {
-		cursor: pointer;
-
-		&:hover {
-			background: var(--theme-background-color, #f9fafb);
-		}
-	}
-}
-
-.recent-content-row-icon {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.5rem;
-	height: 2.5rem;
-	border-radius: 0.625rem;
-	font-size: 1.125rem;
-
-	@each $name, $color in $content-tool-colors {
-		&.icon-#{$name} {
-			color: #{$color};
-			background: color-mix(in srgb, #{$color} 14%, transparent);
-		}
-	}
-
-	&.icon-grey {
-		color: var(--sub-text-color, #6b7280);
-		background: var(--theme-background-color, #f3f4f6);
-	}
-}
-
-.recent-content-row-text {
-	min-width: 0;
-	flex: 1;
-
-	.recent-content-row-title {
-		display: block;
-		font-weight: 600;
-		color: var(--theme-color, #111827);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-
-		&:hover {
-			color: var(--color-primary);
-		}
-	}
-
-	.recent-content-row-meta {
-		font-size: 0.813rem;
-		color: var(--sub-text-color, #6b7280);
-		margin-top: 0.125rem;
-	}
-}
-
-.recent-content-row-time {
-	flex-shrink: 0;
-	font-size: 0.813rem;
-	color: var(--sub-text-color, #9ca3af);
-	width: 4rem;
-	text-align: right;
-}
-
-// Real per-severity colors — same map CreateContent.scss's own
-// `.content-score-breakdown` and AICopilot.scss's own
-// `.history-severity-breakdown` already use (duplicated here rather than
-// shared, matching how every other usage in this codebase scopes its own
-// copy instead of importing one).
-$recent-content-severities: (
-	'critical': #dc2626,
-	'high': #d88c5c,
-	'medium': #b45309,
-	'low': #5baab3,
-	'info': #6b7280,
-);
-
-// The row's own at-a-glance "N issues" badge, next to the Published/Draft
-// status badge — colored by the worst severity among that row's real
-// open findings.
-.recent-content-row-issue-count {
-	flex-shrink: 0;
-
-	@each $name, $color in $recent-content-severities {
-		&.badge-#{$name} {
-			color: #{$color};
-			background: color-mix(in srgb, #{$color} 14%, transparent);
-		}
-	}
-}
-
-// The row's own real open content-quality findings — forced onto its own
-// full-width line below the existing icon/title/badges/time/actions row
-// (see `.recent-content-row`'s own `flex-wrap: wrap` comment), only ever
-// rendered when that row actually has open findings, so a row with none
-// looks exactly like it always has.
-.recent-content-row-issues {
-	flex: 1 0 100%;
-	order: 10;
-	margin-top: 0.75rem;
-	padding-top: 0.75rem;
-	border-top: 1px dashed var(--border-color, #eef0f2);
-	display: flex;
-	flex-direction: column;
-	gap: 0.625rem;
-}
-
-.recent-content-row-issue {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 0.625rem;
-
-	.admin-badge {
-		flex-shrink: 0;
-		padding: 0.188rem 0.5rem;
-		border-radius: 0.313rem;
-		font-size: 0.688rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		white-space: nowrap;
-
-		@each $name, $color in $recent-content-severities {
-			&.badge-#{$name} {
-				color: #{$color};
-				background: color-mix(in srgb, #{$color} 14%, transparent);
-			}
-		}
-
-		// A real "ignored" finding (shown only while "Show ignored" is
-		// on) — grey rather than severity-colored, since it's no longer
-		// something that needs attention.
-		&.grey {
-			color: #6b7280;
-			background: color-mix(in srgb, #6b7280 14%, transparent);
-		}
-	}
-
-	&.is-ignored {
-		opacity: 0.7;
-	}
-
-	.recent-content-row-issue-title {
-		flex: 1;
-		min-width: 12rem;
-		font-size: 0.85rem;
-		color: var(--theme-color, #111827);
-	}
-}
-
-.recent-content-row-issue-actions {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-
-	.recent-content-row-issue-view,
-	.recent-content-row-issue-resolve,
-	.recent-content-row-issue-ignore {
-		font-size: 0.75rem;
-		font-weight: 600;
-		color: var(--sub-text-color, #6b7280);
-		cursor: pointer;
-		padding: 0.375rem 0.5rem;
-		border-radius: 0.313rem;
-
-		&:hover {
-			color: var(--theme-color, #111827);
-			background: var(--theme-background-color, #f3f4f6);
-		}
-	}
-
-	.recent-content-row-issue-resolve:hover {
-		color: #16a34a;
-		background: color-mix(in srgb, #16a34a 10%, transparent);
-	}
-
-	.recent-content-row-issue-ignore:hover {
-		color: #dc2626;
-		background: color-mix(in srgb, #dc2626 10%, transparent);
-	}
-
-	// "Fix with AI" — the one action this whole feature exists to make
-	// prominent: a solid, unmistakably different treatment (filled purple
-	// — the same AI accent color ContentToolsGrid/QuickStartCard's own
-	// `icon-purple` and every "Fix ... with AI" button elsewhere in this
-	// codebase already uses) from the plain-text Review/Resolve/Ignore
-	// actions beside it, so a real fix is always the visually loudest
-	// thing in the row.
-	.recent-content-row-issue-fix {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.375rem;
-		border: none;
-		border-radius: 0.375rem;
-		background: #7c3aed;
-		color: #fff;
-		font-size: 0.75rem;
-		font-weight: 700;
-		padding: 0.5rem 0.75rem;
-		cursor: pointer;
-		transition: background-color 0.15s ease;
-
-		&:hover:not(:disabled) {
-			background: color-mix(in srgb, #7c3aed 85%, black);
-		}
-
-		&:disabled {
-			opacity: 0.6;
-			cursor: not-allowed;
-		}
-	}
-}
-
-// Inline Edit/View/Delete icon buttons — shown instead of
-// `.recent-content-row-menu`'s kebab whenever a row has 2 actions or
-// fewer (a draft row: Edit + Delete, no View), since hiding just 2
-// things behind a menu adds a click for no real benefit; a published
-// row's 3rd action (View) is what pushes it back to the kebab.
-.recent-content-row-actions {
-	display: flex;
-	align-items: center;
-	gap: 0.125rem;
-	flex-shrink: 0;
-
-	a,
-	span {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		color: var(--sub-text-color, #6b7280);
-		padding: 0.375rem;
-		border-radius: 0.25rem;
-		font-size: 1rem;
-
-		&:hover {
-			color: var(--theme-color, #111827);
-			background: var(--theme-background-color, #f3f4f6);
-		}
-
-		&.danger:hover {
-			color: #dc2626;
-			background: color-mix(in srgb, #dc2626 10%, transparent);
-		}
-	}
-}
-
-.recent-content-row-menu {
+.recent-content-table-issues {
 	position: relative;
-	flex-shrink: 0;
 
-	> .adminfont-more-vertical {
+	> button {
+		border: 0;
 		cursor: pointer;
-		color: var(--sub-text-color, #6b7280);
-		padding: 0.25rem;
-		border-radius: 0.25rem;
-
-		&:hover {
-			color: var(--theme-color, #111827);
-			background: var(--theme-background-color, #f3f4f6);
-		}
-	}
-
-	.recent-content-row-menu-dropdown {
-		position: absolute;
-		top: 100%;
-		right: 0;
-		z-index: 10;
-		display: flex;
-		flex-direction: column;
-		min-width: 8rem;
-		margin-top: 0.25rem;
-		padding: 0.375rem;
-		background: var(--theme-background-color, #fff);
-		border: 1px solid var(--border-color, #e5e7eb);
-		border-radius: 0.5rem;
-		box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12);
-
-		a,
-		span {
-			padding: 0.5rem 0.625rem;
-			font-size: 0.85rem;
-			border-radius: 0.375rem;
-			cursor: pointer;
-			color: var(--theme-color, #111827);
-
-			&:hover {
-				background: var(--theme-background-color, #f3f4f6);
-			}
-		}
-
-		.recent-content-row-menu-delete {
-			color: #dc2626;
-		}
 	}
 }
 
+.recent-content-table-findings {
+	position: absolute;
+	top: calc(100% + 0.375rem);
+	right: 0;
+	z-index: 10;
+	width: 28rem;
+	padding: 0.75rem;
+	background: var(--theme-background-color, #fff);
+	border: 1px solid var(--border-color, #e5e7eb);
+	border-radius: 0.5rem;
+	box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 12%);
+
+	> div {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.5rem 0;
+
+		+ div {
+			border-top: 1px solid var(--border-color, #eef0f2);
+		}
+
+		> span {
+			font-size: 0.813rem;
+		}
+	}
+}
 // The real propose → preview → approve/reject flow (ContentToolPopup.tsx)
 // every Content Tools/Quick Start tile opens — reuses $content-tool-colors
 // (declared at the top of this file) for its own icon, since

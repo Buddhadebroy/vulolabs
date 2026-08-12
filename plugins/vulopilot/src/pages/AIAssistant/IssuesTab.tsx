@@ -17,15 +17,6 @@ interface IssuesTabProps {
  */
 const IssuesTab = ({ filter }: IssuesTabProps) => (
 	<ContainerComponent>
-		<ColumnComponent>
-			{/* <h2 className="issues-page-title">{__('Issues', 'vulopilot')}</h2>
-			<p className="issues-page-desc">
-				{__(
-					'VuloPilot found these issues across your site. Fix what matters most to improve performance, visibility, and user experience.',
-					'vulopilot'
-				)}
-			</p> */}
-		</ColumnComponent>
 		<IssuesList
 			initialScannerId={filter?.scannerId}
 			initialCategory={filter?.category}

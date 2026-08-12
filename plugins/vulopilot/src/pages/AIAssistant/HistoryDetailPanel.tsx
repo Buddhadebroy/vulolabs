@@ -216,7 +216,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 					buttons={{
 						text: __('Delete from history', 'vulopilot'),
 						icon: 'delete',
-						color: 'red',
+						color: 'border-red',
 						onClick: handleDelete,
 						disabled: isDeleting,
 					}}

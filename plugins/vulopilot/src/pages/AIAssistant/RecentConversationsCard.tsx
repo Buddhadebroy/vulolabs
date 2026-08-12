@@ -97,7 +97,7 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 					buttons={{
 						text: __('View all history', 'vulopilot'),
 						rightIcon: 'arrow-right',
-						color: 'border-purple', 
+						color: 'text-purple', 
 						onClick: (e) => {
 							e.preventDefault();
 							onNavigateTab('history');
