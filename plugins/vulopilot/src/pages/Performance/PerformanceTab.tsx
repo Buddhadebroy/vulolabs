@@ -21,20 +21,16 @@ import FindingsTable from '../../components/FindingsTable';
  */
 const PerformanceTab = () => {
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				<CardComponent title={__('Top Issues', 'vulopilot')}>
-					<FindingsTable
-						title={__('Top Issues', 'vulopilot')}
-						description={__(
-							'No performance findings yet — run a scan to check caching, heavy plugins, large images, and slow pages.',
-							'vulopilot'
-						)}
-						category="performance"
-					/>
-				</CardComponent>
-			</ColumnComponent>
-		</ContainerComponent>
+			<CardComponent title={__('Top Issues', 'vulopilot')}>
+				<FindingsTable
+					title={__('Top Issues', 'vulopilot')}
+					description={__(
+						'No performance findings yet — run a scan to check caching, heavy plugins, large images, and slow pages.',
+						'vulopilot'
+					)}
+					category="performance"
+				/>
+			</CardComponent>
 	);
 };
 

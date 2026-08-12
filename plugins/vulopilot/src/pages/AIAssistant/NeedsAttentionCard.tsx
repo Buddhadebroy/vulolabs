@@ -63,17 +63,17 @@ const CATEGORY_DISPLAY: Record<string, { label: string; className: string }> = {
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
-	seo: 'search-discovery',
-	images: 'search-discovery',
-	schema: 'search-discovery',
-	links: 'search-discovery',
-	accessibility: 'security',
-	woocommerce: 'woocommerce',
-	security: 'security',
-	performance: 'bar-chart',
-	geo: 'geo-location',
-	content: 'document',
-	brand: 'star',
+	seo: 'search-discovery yellow',
+	images: 'search-discovery blue',
+	schema: 'search-discovery pink',
+	links: 'search-discovery red',
+	accessibility: 'security green',
+	woocommerce: 'woocommerce indigo',
+	security: 'security purple',
+	performance: 'bar-chart teal',
+	geo: 'geo-location red',
+	content: 'document yellow',
+	brand: 'star green',
 };
 
 /**
@@ -258,7 +258,7 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 										__('Medium Impact', 'vulopilot')
 								),
 								tags: (
-									<i className="adminfont-arrow-right ai-copilot-row-arrow" />
+									<i className="adminfont-pagination-right-arrow ai-copilot-row-arrow" />
 								),
 								action: () => goToGroup(group),
 							};
@@ -266,11 +266,12 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 					/>
 
 					<ButtonInput
+						position="full-width"
 						buttons={{
 							text: __('View all issues', 'vulopilot'),
 							icon: 'arrow-right',
 							iconPosition: 'right',
-							color: 'border-purple',
+							// color: 'bpurple',
 							position: 'full-width',
 							onClick: goToAllIssues,
 						}}

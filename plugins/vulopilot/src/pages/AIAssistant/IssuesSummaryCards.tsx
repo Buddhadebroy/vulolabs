@@ -34,33 +34,28 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 
 	const data = [
 		{
-			icon: 'ai',
-			iconClass: `admin-color2`,
+			colorClass: 'admin-bg-color2',
 			number: total,
 			text: __('All Issues', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
-			icon: 'error',
-			iconClass: `admin-color2`,
-			colorClass: activePriority === 'high' ? 'primary-color' : '',
-			
+			// colorClass: activePriority === 'high' ? 'primary-color' : '',	
+			colorClass: 'admin-bg-color3',		
 			number: priorityCounts.high,
 			text: __('High', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
-			icon: 'refresh',
-			iconClass: activePriority === 'medium' ? 'active' : '',
-			colorClass: activePriority === 'medium' ? 'primary-color' : '',
+			// colorClass: activePriority === 'medium' ? 'primary-color' : '',
+			colorClass: 'admin-bg-color4',
 			number: priorityCounts.medium,
 			text: __('Medium', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
-			icon: 'info',
-			iconClass: activePriority === 'low' ? 'active' : '',
-			colorClass: activePriority === 'low' ? 'primary-color' : '',
+			// colorClass: activePriority === 'low' ? 'primary-color' : '',
+			colorClass: 'admin-bg-color5',
 			number: priorityCounts.low,
 			text: __('Low', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
@@ -71,7 +66,7 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 		<div className={`issues-summary-cards active-priority-${activePriority}`}>
 			<AnalyticsComponent
 				data={data}
-				variant="default"
+				variant="background-color"
 				cols={4}
 				isLoading={isLoading}
 			/>

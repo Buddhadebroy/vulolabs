@@ -188,7 +188,22 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			/>
 		);
 	}
-
+	const tableCategoryCounts = [
+    {
+        value: 'all',
+        label: __('All', 'vulopilot'),
+        count: total,
+    },
+    ...CATEGORY_TABS.map((tab) => ({
+        value: tab.id,
+        label: tab.label,
+        count: tab.categories.reduce(
+            (sum, category) =>
+                sum + (categoryCounts[category] ?? 0),
+            0
+        ),
+    })),
+];
 	return (
 		<>
 			<ColumnComponent grid={8}>
@@ -199,37 +214,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 					activePriority={activePriority}
 					onSelectPriority={handlePriorityChange}
 				/>
-
-				<div className="issues-category-tabs">
-					<span
-						className={`issues-category-tab ${'all' === activeTabId ? 'active' : ''}`}
-						onClick={() => handleTabChange('all')}
-					>
-						{__('All', 'vulopilot')}
-					</span>
-					{CATEGORY_TABS.map((tab) => {
-						const count = tab.categories.reduce(
-							(sum, category) =>
-								sum + (categoryCounts[category] ?? 0),
-							0
-						);
-
-						return (
-							<span
-								key={tab.id}
-								className={`issues-category-tab ${tab.id === activeTabId ? 'active' : ''}`}
-								onClick={() => handleTabChange(tab.id)}
-							>
-								{tab.label}
-								{count > 0 && (
-									<span className="issues-category-tab-count">
-										{count}
-									</span>
-								)}
-							</span>
-						);
-					})}
-				</div>
 
 				{!isLoading && data.length === 0 ? (
 					<ModuleGuardComponent
@@ -244,35 +228,12 @@ const IssuesList: React.FC<IssuesListProps> = ({
 					<TableCard
 						className="issues-table"
 						showMenu={false}
+						categoryCounts={tableCategoryCounts}
+    					activeCategory={activeTabId}
 						headers={{
-							// issue: {
-							// 	label: __('Issue', 'vulopilot'),
-							// 	render: (row: FindingGroup) => (
-							// 		<div
-							// 			className={`issues-table-issue-cell ${selectedGroup?.scanner_id === row.scanner_id ? 'selected' : ''}`}
-							// 			role="button"
-							// 			tabIndex={0}
-							// 			onClick={() => setSelectedGroup(row)}
-							// 		>
-							// 			<i
-							// 				className={`issues-table-issue-icon adminfont-${CATEGORY_ICONS[row.category] ?? 'ai'}`}
-							// 			/>
-							// 			<div className="issues-table-issue-text">
-							// 				<div className="issues-table-issue-title">
-							// 					{row.label}
-							// 				</div>
-							// 				{row.sample?.description && (
-							// 					<div className="issues-table-issue-desc">
-							// 						{row.sample.description}
-							// 					</div>
-							// 				)}
-							// 			</div>
-							// 		</div>
-							// 	),
-							// },
 							issue: {
 								label: __('Issue', 'vulopilot'),
-								width:'55%',
+								width:'45%',
 								render: (row: FindingGroup) => (
 									<InformationItemComponent
 										title={row.label}
@@ -294,14 +255,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 								),
 							},
 							severity: {
-								label: __('Priority', 'vulopilot'),
-								// zyra's TableCard has no `type: 'badge'`
-								// case (only 'status'/'date'/'currency' —
-								// confirmed by reading its own renderCell()),
-								// so 'status' is the real type that
-								// produces an `admin-badge badge-{class}`
-								// wrapper this file's own `.issues-table`
-								// CSS below targets.
+								label: __('Priority', 'vulopilot'),	
 								type: 'status',
 								statusClass: (row: FindingGroup) =>
 									row.severity,

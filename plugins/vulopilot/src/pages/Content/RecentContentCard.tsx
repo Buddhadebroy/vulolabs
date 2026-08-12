@@ -3,8 +3,19 @@ import React, { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { CardComponent, NoticeManager, PopupComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import {
+	CardComponent,
+	InformationItemComponent,
+	NoticeManager,
+	PopupComponent,
+} from '@zyra/components';
+import {
+	ButtonInput,
+	MultiCheckboxInput,
+	SelectInput,
+	TextInput,
+} from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import ShowProPopup from '../../components/Popup/Popup';
 
 /**
@@ -33,16 +44,6 @@ type Tab = 'all' | ContentCategory;
 type FindingSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 type SeverityFilter = 'all' | FindingSeverity;
 type FindingStatus = 'open' | 'resolved' | 'ignored' | 'snoozed';
-
-interface RowAction {
-	key: string;
-	label: string;
-	icon: string;
-	href?: string;
-	external?: boolean;
-	onClick?: () => void;
-	danger?: boolean;
-}
 
 /**
  * One raw row from `GET /findings` — a superset of FindingsTable.tsx's own
@@ -122,21 +123,6 @@ const CATEGORY_ICONS: Record<ContentCategory, string> = {
 	other: 'document',
 };
 
-const CATEGORY_ICON_COLORS: Record<ContentCategory, string> = {
-	'blog-post': 'blue',
-	'landing-page': 'green',
-	product: 'orange',
-	other: 'grey',
-};
-
-const SEVERITY_LABEL: Record<FindingSeverity, string> = {
-	critical: __('Critical', 'vulopilot'),
-	high: __('High', 'vulopilot'),
-	medium: __('Medium', 'vulopilot'),
-	low: __('Low', 'vulopilot'),
-	info: __('Info', 'vulopilot'),
-};
-
 const SEVERITY_RANK: Record<FindingSeverity, number> = {
 	critical: 0,
 	high: 1,
@@ -159,6 +145,13 @@ const SEVERITY_OPTIONS: { id: SeverityFilter; label: string }[] = [
 	{ id: 'high', label: __('High', 'vulopilot') },
 	{ id: 'medium', label: __('Medium', 'vulopilot') },
 	{ id: 'low', label: __('Low', 'vulopilot') },
+];
+
+const SHOW_IGNORED_OPTION = [
+	{
+		key: 'show-ignored',
+		value: 'show-ignored',
+	},
 ];
 
 /**
@@ -280,30 +273,9 @@ const RecentContentCard = () => {
 	const [showIgnored, setShowIgnored] = useState(false);
 	const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
 	const [isLoading, setIsLoading] = useState(true);
-	const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 	const [deletingId, setDeletingId] = useState<number | null>(null);
 	const [fixingFindingId, setFixingFindingId] = useState<number | null>(null);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-
-	useEffect(() => {
-		if (null === openMenuId) {
-			return;
-		}
-
-		const closeMenu = (event: MouseEvent) => {
-			if (
-				!(event.target as HTMLElement).closest(
-					'.recent-content-row-menu'
-				)
-			) {
-				setOpenMenuId(null);
-			}
-		};
-
-		document.addEventListener('click', closeMenu);
-
-		return () => document.removeEventListener('click', closeMenu);
-	}, [openMenuId]);
 
 	useEffect(() => {
 		const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
@@ -584,8 +556,6 @@ const RecentContentCard = () => {
 	};
 
 	const handleDelete = (row: ContentRow) => {
-		setOpenMenuId(null);
-
 		// Same native window.confirm() pattern RedirectsTab.tsx/
 		// AiProvidersPanel.tsx already use for one-off destructive
 		// confirmations, rather than building a bespoke confirm dialog
@@ -693,75 +663,69 @@ const RecentContentCard = () => {
 	};
 
 	return (
-		<CardComponent className="recent-content-card" isLoading={isLoading}>
-			<div className="recent-content-header">
-				<h2>{__('Recent Content', 'vulopilot')}</h2>
-				<a
-					className="recent-content-view-all"
-					href={`${appLocalizer.site_url}/wp-admin/edit.php`}
-				>
-					{__('View All', 'vulopilot')}
-					<i className="adminfont-arrow-right" />
-				</a>
-			</div>
+		<CardComponent
+			className="recent-content-card"
+			title={__('Recent Content', 'vulopilot')}
+			action={
+					<ButtonInput
+					buttons={{
+						text: __('View All', 'vulopilot'),
+						rightIcon: 'arrow-right',
+						color: 'text-purple',
+						onClick: (e) => {
+							e.preventDefault();
+							window.location.href = `${appLocalizer.site_url}/wp-admin/edit.php`;
+						},
+					}}
+				/>
+				}
+			isLoading={isLoading}>
 
 			<div className="recent-content-toolbar">
-				<div className="recent-content-search">
-					<i className="adminfont-search" />
-					<input
-						type="search"
-						value={search}
-						onChange={(event) => setSearch(event.target.value)}
-						placeholder={__(
-							'Search by title or source page…',
-							'vulopilot'
-						)}
-					/>
-				</div>
-				{/* A plain native <select>, not zyra's SelectInput — same
-				reasoning HistoryTab.tsx's own date-range dropdown already
-				gives: that component is a react-select wrapper built for
-				searchable/multi/creatable pickers, the wrong tool for a
-				handful of fixed options. */}
-				<select
-					className="recent-content-filter-select"
-					aria-label={__('Filter by issue severity', 'vulopilot')}
+				<TextInput
+					type="search"
+					name="recent-content-search"
+					value={search}
+					onChange={(value) => setSearch(value as string)}
+					placeholder={__(
+						'Search by title or source page…',
+						'vulopilot'
+					)}
+					wrapperClass="recent-content-search"
+				/>
+				<SelectInput
+					name="recent-content-severity-filter"
+					type="single-select"
 					value={severityFilter}
-					onChange={(event) =>
-						setSeverityFilter(event.target.value as SeverityFilter)
+					onChange={(value) =>
+						setSeverityFilter(value as SeverityFilter)
 					}
-				>
-					{SEVERITY_OPTIONS.map((option) => (
-						<option key={option.id} value={option.id}>
-							{option.label}
-						</option>
-					))}
-				</select>
-				<select
-					className="recent-content-filter-select"
-					aria-label={__('Filter by content type', 'vulopilot')}
+					options={SEVERITY_OPTIONS.map((option) => ({
+						label: option.label,
+						value: option.id,
+					}))}
+					isClearable={false}
+				/>
+				<SelectInput
+					name="recent-content-resource-filter"
+					type="single-select"
 					value={resourceFilter}
-					onChange={(event) =>
-						setResourceFilter(event.target.value as Tab)
+					onChange={(value) => setResourceFilter(value as Tab)}
+					options={RESOURCE_OPTIONS.map((option) => ({
+						label: option.label,
+						value: option.id,
+					}))}
+					isClearable={false}
+				/>
+				<MultiCheckboxInput
+					look="toggle"
+					modules={[]}
+					options={SHOW_IGNORED_OPTION}
+					value={showIgnored ? ['show-ignored'] : []}
+					onChange={(value) =>
+						setShowIgnored(value.includes('show-ignored'))
 					}
-				>
-					{RESOURCE_OPTIONS.map((option) => (
-						<option key={option.id} value={option.id}>
-							{option.label}
-						</option>
-					))}
-				</select>
-				<label className="recent-content-toggle">
-					<input
-						type="checkbox"
-						checked={showIgnored}
-						onChange={(event) =>
-							setShowIgnored(event.target.checked)
-						}
-					/>
-					<span className="recent-content-toggle-track" />
-					{__('Show ignored', 'vulopilot')}
-				</label>
+				/>
 				<ButtonInput
 					buttons={{
 						text: __('Export CSV', 'vulopilot'),
@@ -772,394 +736,179 @@ const RecentContentCard = () => {
 				/>
 			</div>
 
-			{!isLoading && visibleRows.length === 0 ? (
-				<div className="desc">
-					{search || 'all' !== severityFilter || 'all' !== resourceFilter
-						? __(
-								'No content matches these filters.',
-								'vulopilot'
-							)
-						: __('No content found yet.', 'vulopilot')}
-				</div>
-			) : (
-				<div className="recent-content-rows">
-					{visibleRows.slice(0, 8).map((row) => {
-						// Edit/Delete always apply; View only exists for a
-						// published item (a draft has no real permalink to
-						// view). 2 actions or fewer render as inline icon
-						// buttons — no menu needed to hide just 2 things;
-						// once View is real too (3 actions), they collapse
-						// behind the kebab instead.
-						const actions: RowAction[] = [
-							{
-								key: 'edit',
-								label: __('Edit', 'vulopilot'),
-								icon: 'edit',
-								href: row.editLink,
-							},
-							...(row.viewLink
-								? [
-										{
-											key: 'view',
-											label: __('View', 'vulopilot'),
-											icon: 'eye',
-											href: row.viewLink,
-											external: true,
-										} as RowAction,
-									]
-								: []),
-							{
-								key: 'delete',
-								label:
-									deletingId === row.id
-										? __('Deleting…', 'vulopilot')
-										: __('Delete', 'vulopilot'),
-								icon: 'delete',
-								onClick: () => handleDelete(row),
-								danger: true,
-							},
-						];
+			<TableCard
+				className="transparent recent-content-table"
+				showMenu={false}
+				headers={{
+					title: {
+						label: __('Content', 'vulopilot'),
+						width: '40%',
+						render: (row: ContentRow) => (
+							<InformationItemComponent
+								title={
+									row.title || __('(no title)', 'vulopilot')
+								}
+								titleLink={row.editLink}
+								avatar={{
+									iconClass: CATEGORY_ICONS[row.category],
+								}}
+								descriptions={[
+									{ value: formatWordCount(row.wordCount) },
+								]}
+							/>
+						),
+					},
+					category: {
+						label: __('Type', 'vulopilot'),
+						render: (row: ContentRow) =>
+							CATEGORY_LABELS[row.category],
+					},
+					status: {
+							label: __('Status', 'vulopilot'),
+							type: 'status' , statusClass: (row: ContentRow) => `${row.status}`,
+						},
+					issues: {
+						label: __('Issues', 'vulopilot'),
+						render: (row: ContentRow) => {
+							const findings = visibleFindingsFor(row);
+							const openFindings = row.findings.filter(
+								(finding) => 'open' === finding.status
+							);
 
-						const openFindingsCount = row.findings.filter(
-							(finding) => 'open' === finding.status
-						).length;
-						const findingsToShow = visibleFindingsFor(row);
-						const isExpanded = expandedIds.has(row.id);
-						const isExpandable = row.findings.length > 0;
-
-						// Clicking the row expands it — except the title
-						// (a real link to the edit screen) and any real
-						// action control (a link, button, or role="button"
-						// element: kebab, inline Edit/View/Delete, Fix/
-						// Resolve/Ignore/Review), which each handle their
-						// own click and must not also toggle the row.
-						const handleRowClick = (
-							event: React.MouseEvent<HTMLDivElement>
-						) => {
-							if (!isExpandable) {
-								return;
+							if (0 === findings.length) {
+								return __('None', 'vulopilot');
 							}
 
-							if (
-								(event.target as HTMLElement).closest(
-									'a, button, [role="button"], input, select, label'
-								)
-							) {
-								return;
-							}
-
-							toggleExpanded(row.id);
-						};
-
-						return (
-							<div
-								className={`recent-content-row ${isExpandable ? 'is-expandable' : ''}`}
-								key={row.id}
-								onClick={handleRowClick}
-							>
-								<i
-									className={`recent-content-row-icon adminfont-${CATEGORY_ICONS[row.category]} icon-${CATEGORY_ICON_COLORS[row.category]}`}
-								/>
-								<div className="recent-content-row-text">
-									<a
-										className="recent-content-row-title"
-										href={row.editLink}
-									>
-										{row.title ||
-											__('(no title)', 'vulopilot')}
-									</a>
-									<div className="recent-content-row-meta">
-										{CATEGORY_LABELS[row.category]}
-										{' • '}
-										{formatWordCount(row.wordCount)}
-									</div>
-								</div>
-								<span
-									className={`admin-badge ${
-										'publish' === row.status
-											? 'green'
-											: 'grey'
-									}`}
-								>
-									{'publish' === row.status
-										? __('Published', 'vulopilot')
-										: __('Draft', 'vulopilot')}
-								</span>
-								{openFindingsCount > 0 && (
-									<span
-										className={`admin-badge badge-${worstSeverity(row.findings.filter((finding) => 'open' === finding.status))} recent-content-row-issue-count`}
+							return (
+								<div className="recent-content-table-issues">
+									<button
+										type="button"
+										className={`admin-badge badge-${worstSeverity(openFindings)}`}
+										onClick={() => toggleExpanded(row.id)}
 									>
 										{sprintf(
-											/* translators: %d: number of real open content-quality findings for this post */
 											_n(
 												'%d issue',
 												'%d issues',
-												openFindingsCount,
+												findings.length,
 												'vulopilot'
 											),
-											openFindingsCount
+											findings.length
 										)}
-									</span>
-								)}
-								<span className="recent-content-row-time">
-									{timeAgo(row.date)}
-								</span>
-								{actions.length <= 2 ? (
-									<div className="recent-content-row-actions">
-										{actions.map((action) =>
-											action.href ? (
-												<a
-													key={action.key}
-													href={action.href}
-													title={action.label}
-													aria-label={action.label}
-													target={
-														action.external
-															? '_blank'
-															: undefined
-													}
-													rel={
-														action.external
-															? 'noreferrer'
-															: undefined
-													}
-													className={
-														action.danger
-															? 'danger'
-															: ''
-													}
-												>
-													<i
-														className={`adminfont-${action.icon}`}
-													/>
-												</a>
-											) : (
-												<span
-													key={action.key}
-													role="button"
-													tabIndex={0}
-													title={action.label}
-													aria-label={action.label}
-													onClick={action.onClick}
-													className={
-														action.danger
-															? 'danger'
-															: ''
-													}
-												>
-													<i
-														className={`adminfont-${action.icon}`}
-													/>
-												</span>
-											)
-										)}
-									</div>
-								) : (
-									<div className="recent-content-row-menu">
-										<i
-											className="adminfont-more-vertical"
-											role="button"
-											tabIndex={0}
-											onClick={() =>
-												setOpenMenuId(
-													openMenuId === row.id
-														? null
-														: row.id
-												)
-											}
-										/>
-										{openMenuId === row.id && (
-											<div className="recent-content-row-menu-dropdown">
-												{actions.map((action) =>
-													action.href ? (
-														<a
-															key={action.key}
-															href={action.href}
-															target={
-																action.external
-																	? '_blank'
-																	: undefined
-															}
-															rel={
-																action.external
-																	? 'noreferrer'
-																	: undefined
-															}
-														>
-															{action.label}
-														</a>
-													) : (
-														<span
-															key={action.key}
-															role="button"
-															tabIndex={0}
-															className={
-																action.danger
-																	? 'recent-content-row-menu-delete'
-																	: ''
-															}
-															onClick={
-																action.onClick
-															}
-														>
-															{action.label}
-														</span>
-													)
-												)}
-											</div>
-										)}
-									</div>
-								)}
-
-								{isExpanded && findingsToShow.length > 0 && (
-									<div className="recent-content-row-issues">
-										{findingsToShow.map((finding) => {
-											const isIgnored =
-												'ignored' === finding.status;
-
-											return (
-												<div
-													className={`recent-content-row-issue ${isIgnored ? 'is-ignored' : ''}`}
-													key={finding.id}
-												>
-													<span
-														className={
-															isIgnored
-																? 'admin-badge grey'
-																: `admin-badge badge-${finding.severity}`
-														}
-													>
-														{isIgnored
-															? __(
-																	'Ignored',
-																	'vulopilot'
-																)
-															: SEVERITY_LABEL[
-																	finding
-																		.severity
-																]}
-													</span>
-													<span className="recent-content-row-issue-title">
+									</button>
+									{expandedIds.has(row.id) && (
+										<div className="recent-content-table-findings">
+											{findings.map((finding) => (
+												<div key={finding.id}>
+													<span>
 														{stripRedundantPostTitle(
 															finding.title,
 															row.title
 														)}
 													</span>
-													<div className="recent-content-row-issue-actions">
-														<a
-															className="recent-content-row-issue-view"
-															href={row.editLink}
-														>
-															{__(
-																'Review',
-																'vulopilot'
-															)}
-														</a>
-														{isIgnored ? (
-															<span
-																className="recent-content-row-issue-resolve"
-																role="button"
-																tabIndex={0}
-																onClick={() =>
+													<ButtonInput
+														buttons={[
+															{
+																text: __('Review', 'vulopilot'),
+																onClick: () =>
+																	(window.location.href = row.editLink),
+															},
+															{
+																text:
+																	'ignored' === finding.status
+																		? __('Reopen', 'vulopilot')
+																		: __('Resolve', 'vulopilot'),
+																onClick: () =>
 																	handleFindingStatus(
 																		row,
 																		finding,
-																		'open',
-																		__(
-																			'Finding reopened.',
-																			'vulopilot'
-																		)
-																	)
-																}
-															>
-																{__(
-																	'Reopen',
-																	'vulopilot'
-																)}
-															</span>
-														) : (
-															<>
-																<span
-																	className="recent-content-row-issue-resolve"
-																	role="button"
-																	tabIndex={0}
-																	onClick={() =>
-																		handleFindingStatus(
-																			row,
-																			finding,
-																			'resolved',
-																			__(
-																				'Finding marked as resolved.',
-																				'vulopilot'
-																			)
-																		)
-																	}
-																>
-																	{__(
-																		'Resolve',
-																		'vulopilot'
-																	)}
-																</span>
-																<span
-																	className="recent-content-row-issue-ignore"
-																	role="button"
-																	tabIndex={0}
-																	onClick={() =>
-																		handleFindingStatus(
-																			row,
-																			finding,
-																			'ignored',
-																			__(
-																				'Finding ignored.',
-																				'vulopilot'
-																			)
-																		)
-																	}
-																>
-																	{__(
-																		'Ignore',
-																		'vulopilot'
-																	)}
-																</span>
-																<button
-																	type="button"
-																	className="recent-content-row-issue-fix"
-																	disabled={
-																		fixingFindingId ===
-																		finding.id
-																	}
-																	onClick={() =>
-																		handleFixFinding(
-																			row,
-																			finding
-																		)
-																	}
-																>
-																	<i className="adminfont-ai" />
-																	{fixingFindingId ===
-																	finding.id
-																		? __(
-																				'Fixing…',
-																				'vulopilot'
-																			)
-																		: __(
-																				'Fix with AI',
-																				'vulopilot'
-																			)}
-																</button>
-															</>
-														)}
-													</div>
+																		'ignored' === finding.status
+																			? 'open'
+																			: 'resolved',
+																		'ignored' === finding.status
+																			? __('Finding reopened.', 'vulopilot')
+																			: __('Finding marked as resolved.', 'vulopilot')
+																	),
+															},
+															...('ignored' !== finding.status
+																? [
+																	{
+																		text: __('Ignore', 'vulopilot'),
+																		onClick: () =>
+																			handleFindingStatus(
+																				row,
+																				finding,
+																				'ignored',
+																				__('Finding ignored.', 'vulopilot')
+																			),
+																	},
+																	{
+																		text:
+																			fixingFindingId === finding.id
+																				? __('Fixing…', 'vulopilot')
+																				: __('Fix with AI', 'vulopilot'),
+																		icon: 'ai',
+																		disabled: fixingFindingId === finding.id,
+																		onClick: () => handleFixFinding(row, finding),
+																	},
+																]
+																: []),
+														]}
+													/>
 												</div>
-											);
-										})}
-									</div>
-								)}
-							</div>
-						);
-					})}
-				</div>
-			)}
+											))}
+										</div>
+									)}
+								</div>
+							);
+						},
+					},
+					date: {
+						label: __('Updated', 'vulopilot'),
+						render: (row: ContentRow) => timeAgo(row.date),
+					},
+					action: {
+						label: __('Actions', 'vulopilot'),
+						type: 'action',
+						actions: [
+							{
+								label: __('Edit', 'vulopilot'),
+								icon: 'edit',
+								onClick: (row: ContentRow) =>
+									(window.location.href = row.editLink),
+							},
+							{
+								label: __('View', 'vulopilot'),
+								icon: 'eye',
+								onClick: (row: ContentRow) => {
+									if (row.viewLink) {
+										window.open(row.viewLink, '_blank', 'noreferrer');
+									}
+								},
+							},
+							{
+								label: (row: ContentRow) =>
+									deletingId === row.id
+										? __('Deleting…', 'vulopilot')
+										: __('Delete', 'vulopilot'),
+								icon: 'delete',
+								onClick: handleDelete,
+							},
+						],
+					},
+				}}
+				rows={visibleRows.slice(0, 8)}
+				ids={visibleRows.slice(0, 8).map((row) => row.id)}
+				totalRows={Math.min(visibleRows.length, 8)}
+				isLoading={isLoading}
+				emptyMessage={
+					search ||
+					'all' !== severityFilter ||
+					'all' !== resourceFilter
+						? __('No content matches these filters.', 'vulopilot')
+						: __('No content found yet.', 'vulopilot')
+				}
+			/>
 
 			<PopupComponent
 				open={isProPopupOpen}

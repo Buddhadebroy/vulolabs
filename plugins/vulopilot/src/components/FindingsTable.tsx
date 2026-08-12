@@ -313,35 +313,35 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 
 	const defaultHeaders: Record<string, any> = {
 		title: {
-			// label: __('Finding', 'vulopilot'),
+			label: __('Finding', 'vulopilot'),
 			isSortable: true,
 		},
 		...(category
 			? {}
 			: {
 					category: {
-						// label: __('Category', 'vulopilot'),
+						label: __('Category', 'vulopilot'),
 					},
 				}),
 		severity: {
-			// label: __('Severity', 'vulopilot'),
-			type: 'badge',
-			statusClass: (row: Finding) => `severity-${row.severity}`,
+			label: __('Severity', 'vulopilot'),
+			type: 'status',
+			statusClass: (row) =>row.severity,
 		},
 		status: {
-			// label: __('Status', 'vulopilot'),
-			type: 'badge',
-			statusClass: (row: Finding) => `status-${row.status}`,
+			label: __('Status', 'vulopilot'),
+			type: 'status',
+			statusClass: (row) =>row.status,
 		},
 		created_at: {
-			// label: __('Detected', 'vulopilot'),
+			label: __('Detected', 'vulopilot'),
 			type: 'date',
 			isSortable: true,
 			defaultSort: true,
 			defaultOrder: 'desc',
 		},
 		actions: {
-			// label: __('Actions', 'vulopilot'),
+			label: __('Actions', 'vulopilot'),
 			type: 'action',
 			actions: [
 				{
@@ -394,6 +394,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 	 */
 	const compactHeaders: Record<string, any> = {
 		title: {
+			label: __('issue', 'vulopilot'),
 			render: (row: Finding) => (
 				<InformationItemComponent
 					title={row.title}
@@ -417,6 +418,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 			),
 		},
 		action: {
+			label: __('Action', 'vulopilot'),
 			render: (row: Finding) => {
 				const asRecord = row as unknown as Record<string, unknown>;
 
@@ -473,7 +475,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 				headers={headers}
 				format={appLocalizer.date_format_js}
 				showMenu={false}
-				className= 'transparent-table'
+				// className= 'transparent-table'
 				rows={data}
 				ids={data.map((row) => row.id)}
 				totalRows={total}
