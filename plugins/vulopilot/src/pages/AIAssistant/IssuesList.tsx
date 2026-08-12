@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
+import { ColumnComponent, ModuleGuardComponent, InformationItemComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import './AICopilot.scss';
 import IssuesSummaryCards, { Priority } from './IssuesSummaryCards';
@@ -245,29 +245,43 @@ const IssuesList: React.FC<IssuesListProps> = ({
 						className="issues-table"
 						showMenu={false}
 						headers={{
+							// issue: {
+							// 	label: __('Issue', 'vulopilot'),
+							// 	render: (row: FindingGroup) => (
+							// 		<div
+							// 			className={`issues-table-issue-cell ${selectedGroup?.scanner_id === row.scanner_id ? 'selected' : ''}`}
+							// 			role="button"
+							// 			tabIndex={0}
+							// 			onClick={() => setSelectedGroup(row)}
+							// 		>
+							// 			<i
+							// 				className={`issues-table-issue-icon adminfont-${CATEGORY_ICONS[row.category] ?? 'ai'}`}
+							// 			/>
+							// 			<div className="issues-table-issue-text">
+							// 				<div className="issues-table-issue-title">
+							// 					{row.label}
+							// 				</div>
+							// 				{row.sample?.description && (
+							// 					<div className="issues-table-issue-desc">
+							// 						{row.sample.description}
+							// 					</div>
+							// 				)}
+							// 			</div>
+							// 		</div>
+							// 	),
+							// },
 							issue: {
 								label: __('Issue', 'vulopilot'),
+								width:'55%',
 								render: (row: FindingGroup) => (
-									<div
-										className={`issues-table-issue-cell ${selectedGroup?.scanner_id === row.scanner_id ? 'selected' : ''}`}
-										role="button"
-										tabIndex={0}
-										onClick={() => setSelectedGroup(row)}
-									>
-										<i
-											className={`issues-table-issue-icon adminfont-${CATEGORY_ICONS[row.category] ?? 'ai'}`}
-										/>
-										<div className="issues-table-issue-text">
-											<div className="issues-table-issue-title">
-												{row.label}
-											</div>
-											{row.sample?.description && (
-												<div className="issues-table-issue-desc">
-													{row.sample.description}
-												</div>
-											)}
-										</div>
-									</div>
+									<InformationItemComponent
+										title={row.label}
+										descriptions={[
+											{
+												value: row.sample?.description || '',
+											},
+										]}
+									/>
 								),
 							},
 							category: {
@@ -300,16 +314,16 @@ const IssuesList: React.FC<IssuesListProps> = ({
 										row.object_type
 									),
 							},
-							expand: {
-								label: '',
-								render: (row: FindingGroup) => (
-									<i
-										role="button"
-										tabIndex={0}
-										className="adminfont-arrow-right ai-copilot-row-arrow"
-										onClick={() => setSelectedGroup(row)}
-									/>
-								),
+							action: {
+								type: 'action',
+								label: 'Action',
+								actions: [
+									{
+										label: 'View',
+										icon: 'eye',
+										onClick: (row: FindingGroup) => setSelectedGroup(row),
+									},
+								],
 							},
 						}}
 						rows={data}

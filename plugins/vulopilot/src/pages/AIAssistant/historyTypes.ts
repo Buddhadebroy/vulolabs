@@ -64,16 +64,16 @@ export const rowTitle = (row: HistoryRow): string => {
 };
 
 const CHANGE_ICON_BY_EVENT: Record<string, string> = {
-	'ai_action.proposed': 'clock',
-	'ai_action.executed': 'check',
-	'ai_action.failed': 'error',
-	'ai_action.rejected': 'close',
-	'ai_action.rolled_back': 'undo',
+	'ai_action.proposed': 'clock yellow',
+	'ai_action.executed': 'check purple',
+	'ai_action.failed': 'error red',
+	'ai_action.rejected': 'close red',
+	'ai_action.rolled_back': 'undo pink',
 };
 
 export const rowIcon = (row: HistoryRow): string =>
 	'scan' === row.category
-		? 'search'
+		? 'search blue'
 		: (CHANGE_ICON_BY_EVENT[row.event_type] ?? 'update');
 
 /**

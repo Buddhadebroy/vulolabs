@@ -9,8 +9,9 @@ import {
 	ColumnComponent,
 	ModuleGuardComponent,
 	PopupComponent,
+	ContainerComponent
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import { ButtonInput, TextInput, SelectInput } from '@zyra/inputs'; 
 import ShowProPopup from '../../components/Popup/Popup';
 import HistoryDetailPanel from './HistoryDetailPanel';
 import {
@@ -25,6 +26,7 @@ import {
 	rowTitle,
 } from './historyTypes';
 import './AICopilot.scss';
+import '../../components/common.scss';
 
 interface HistoryResponse {
 	data: HistoryRow[];
@@ -34,7 +36,7 @@ interface HistoryResponse {
 
 type DateRangePreset = 'all' | 'today' | '7d' | '30d';
 
-const DATE_RANGE_OPTIONS: { value: DateRangePreset; label: string }[] = [
+const DATE_RANGE_OPTIONS = [
 	{ value: 'all', label: __('All time', 'vulopilot') },
 	{ value: 'today', label: __('Today', 'vulopilot') },
 	{ value: '7d', label: __('Last 7 days', 'vulopilot') },
@@ -142,7 +144,6 @@ const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
  */
 const HistoryTab = () => {
 	const [activeFilter, setActiveFilter] = useState<HistoryFilter>('all');
-	const [rawSearch, setRawSearch] = useState('');
 	const [search, setSearch] = useState('');
 	const [dateRange, setDateRange] = useState<DateRangePreset>('all');
 
@@ -156,12 +157,15 @@ const HistoryTab = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [selectedRow, setSelectedRow] = useState<HistoryRow | null>(null);
 
-	// Debounced so typing doesn't fire one request per keystroke.
+	// Debounced search using useEffect
 	useEffect(() => {
-		const timeout = window.setTimeout(() => setSearch(rawSearch), 400);
+		const timeout = window.setTimeout(() => {
+			// The search value is already in state, we just need to trigger fetch
+			fetchPage(1, false);
+		}, 400);
 
 		return () => window.clearTimeout(timeout);
-	}, [rawSearch]);
+	}, [search]); // Search changes trigger this
 
 	const fetchPage = (targetPage: number, append: boolean) => {
 		(append ? setIsLoadingMore : setIsLoading)(true);
@@ -232,7 +236,20 @@ const HistoryTab = () => {
 		setPage(1);
 		fetchPage(1, false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [activeFilter, search, dateRange]);
+	}, [activeFilter, dateRange]);
+
+	// Separate effect for search to handle debouncing
+	useEffect(() => {
+		const timeout = window.setTimeout(() => {
+			if (search !== undefined) {
+				setPage(1);
+				fetchPage(1, false);
+			}
+		}, 400);
+
+		return () => window.clearTimeout(timeout);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [search]);
 
 	const handleLoadMore = () => {
 		const nextPage = page + 1;
@@ -282,80 +299,79 @@ const HistoryTab = () => {
 
 	const dayGroups = groupByDay(rows);
 
+	// Format options for SelectInput
+	const dateRangeSelectOptions = DATE_RANGE_OPTIONS.map(opt => ({
+		value: opt.value,
+		label: opt.label
+	}));
+
+	// Handle search change from TextInput
+	const handleSearchChange = (value: string | number | FileList) => {
+		// Ensure we're working with a string
+		const searchValue = typeof value === 'string' ? value : String(value);
+		setSearch(searchValue);
+	};
+
+	// Handle date range change from SelectInput
+	const handleDateRangeChange = (value: string | string[]) => {
+		// Ensure we're working with a single string value
+		const newRange = Array.isArray(value) ? value[0] : value;
+		if (newRange && DATE_RANGE_OPTIONS.some(opt => opt.value === newRange)) {
+			setDateRange(newRange as DateRangePreset);
+		}
+	};
+
 	return (
-		<>
+		<ContainerComponent>
 			<ColumnComponent grid={8}>
-				<div className="history-page-header">
-					<h2 className="history-page-title">
-						{__('History', 'vulopilot')}
-					</h2>
-					<p className="history-page-desc">
-						{__(
-							'Everything VuloPilot has scanned, changed, or applied. Use filters to find exactly what you need.',
-							'vulopilot'
-						)}
-					</p>
-				</div>
-
-				<div className="issues-category-tabs history-filter-tabs">
-					{FILTER_TABS.map((tab) => (
-						<span
-							key={tab.id}
-							className={`issues-category-tab ${tab.id === activeFilter ? 'active' : ''}`}
-							onClick={() => setActiveFilter(tab.id)}
-						>
-							{tab.label}
-							{typeCounts[tab.id] > 0 && (
-								<span className="issues-category-tab-count">
-									{typeCounts[tab.id]}
-								</span>
-							)}
-						</span>
-					))}
-				</div>
-
-				<div className="history-toolbar">
-					<input
-						type="search"
-						className="history-search-input"
-						placeholder={__('Search history…', 'vulopilot')}
-						value={rawSearch}
-						onChange={(event) =>
-							setRawSearch(event.target.value)
-						}
-					/>
-					{/* A plain native <select>, not zyra's SelectInput —
-					that component is a react-select wrapper built for
-					searchable/multi/creatable pickers (isMulti,
-					isClearable, formatCreateLabel), which is the wrong
-					tool for 4 fixed date-range options. */}
-					<select
-						className="history-date-range-select"
-						aria-label={__('Date range', 'vulopilot')}
-						value={dateRange}
-						onChange={(event) =>
-							setDateRange(
-								event.target.value as DateRangePreset
-							)
-						}
-					>
-						{DATE_RANGE_OPTIONS.map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
+			<CardComponent title={__('History', 'vulopilot')} desc={__('Everything VuloPilot has scanned, changed, or applied. Use filters to find exactly what you need.', 'vulopilot')}>
+				<div className='filter-wrapper'>
+					<div className="category-filter">
+						{FILTER_TABS.map((tab) => (
+							<span
+								key={tab.id}
+								className={`category-item  ${tab.id === activeFilter ? 'active' : ''}`}
+								onClick={() => setActiveFilter(tab.id)}
+							>
+								{tab.label}
+								{typeCounts[tab.id] > 0 && (
+									<span className="issues-category-tab-count">
+										{typeCounts[tab.id]}
+									</span>
+								)}
+							</span>
 						))}
-					</select>
+					</div>
+
+					<TextInput
+						type="text"
+						name="history-search"
+						placeholder={__('Search history…', 'vulopilot')}
+						value={search}
+						size={20}
+						onChange={handleSearchChange}
+						inputClass="history-search-input"
+						wrapperClass="history-search-wrapper"
+					/>
+
+					<SelectInput
+						type="single-select"
+						options={dateRangeSelectOptions}
+						value={dateRange}
+						onChange={handleDateRangeChange}
+						placeholder={__('Select date range', 'vulopilot')}
+						isClearable={false}
+					/>
+
 					<ButtonInput
 						buttons={{
 							text: __('Export', 'vulopilot'),
 							icon: 'download',
-							color: 'secondary',
 							onClick: handleExport,
 							disabled: 0 === rows.length,
 						}}
 					/>
 				</div>
-
 				{error ? (
 					<ModuleGuardComponent
 						icon="error"
@@ -402,27 +418,14 @@ const HistoryTab = () => {
 						{dayGroups.map((group) => (
 							<div
 								className="history-day-group"
-								// Real data is always ordered `created_at
-								// DESC`, so same-day rows are always
-								// contiguous and `group.label` alone would
-								// never collide — keyed on the group's own
-								// first row id anyway, since that's true
-								// regardless of ordering, not just true
-								// today.
 								key={group.rows[0]?.id ?? group.label}
 							>
-								<div className="history-day-heading">
+								<div className="title">
 									{group.label}
 								</div>
 								{group.rows.map((row) => {
 									const tag = rowTag(row);
 									const statusBadge = rowStatusBadge(row);
-									// Real, short-enough before/after —
-									// mirrors the mockup's own behavior
-									// (its "meta description" row drops
-									// the inline before/after in favor of
-									// just the status pill once the real
-									// value is too long to show inline).
 									const showBeforeAfter =
 										row.change &&
 										null !== row.change.after &&
@@ -443,71 +446,72 @@ const HistoryTab = () => {
 											<span className="history-row-time">
 												{rowTime(row.created_at)}
 											</span>
-											<i
-												className={`history-row-icon adminfont-${rowIcon(row)}`}
-											/>
-											<div className="history-row-text">
-												<div className="history-row-title">
-													{rowTitle(row)}
-												</div>
-												<div className="history-row-desc">
-													{row.message}
-												</div>
-												<span
-													className={`admin-badge ${tag.className}`}
-												>
-													{tag.text}
-												</span>
-											</div>
-											<div className="history-row-meta">
-												{row.scan && (
-													<span className="history-row-meta-value">
-														{sprintf(
-															/* translators: %d: real number of findings this scan found */
-															_n(
-																'%d issue found',
-																'%d issues found',
-																row.scan.total,
-																'vulopilot'
-															),
-															row.scan.total
-														)}
+
+											<div className='history-details'>
+												<i
+													className={`history-row-icon adminfont-${rowIcon(row)}`}
+												/>
+												<div className="history-row-text">
+													<div className="history-row-title">
+														{rowTitle(row)}
+													</div>
+													<div className="history-row-desc">
+														{row.message}
+													</div>
+													<span
+														className={`admin-badge ${tag.className}`}
+													>
+														{tag.text}
 													</span>
-												)}
-												{showBeforeAfter && (
-													<span className="history-row-meta-value">
-														{sprintf(
-															/* translators: 1: real previous value (or "new content"), 2: real new value */
-															__(
-																'Before: %1$s · After: %2$s',
-																'vulopilot'
-															),
-															row.change?.before ||
-																__(
-																	'(new content)',
+												</div>
+												<div className="history-row-meta">
+													{row.scan && (
+														<span className="history-row-meta-value">
+															{sprintf(
+																_n(
+																	'%d issue found',
+																	'%d issues found',
+																	row.scan.total,
 																	'vulopilot'
 																),
-															row.change?.after
-														)}
-													</span>
-												)}
-												{statusBadge && (
-													<span
-														className={`admin-badge ${statusBadge.className}`}
-													>
-														{statusBadge.text}
-													</span>
-												)}
+																row.scan.total
+															)}
+														</span>
+													)}
+													{showBeforeAfter && (
+														<span className="history-row-meta-value">
+															{sprintf(
+																__(
+																	'Before: %1$s · After: %2$s',
+																	'vulopilot'
+																),
+																row.change?.before ||
+																	__(
+																		'(new content)',
+																		'vulopilot'
+																	),
+																row.change?.after
+															)}
+														</span>
+													)}
+													{statusBadge && (
+														<span
+															className={`admin-badge ${statusBadge.className}`}
+														>
+															{statusBadge.text}
+														</span>
+													)}
+												</div>
+												<i
+													className="adminfont-arrow-right history-row-arrow"
+													role="button"
+													tabIndex={0}
+													onClick={(event) => {
+														event.stopPropagation();
+														setSelectedRow(row);
+													}}
+												/>
 											</div>
-											<i
-												className="adminfont-arrow-right history-row-arrow"
-												role="button"
-												tabIndex={0}
-												onClick={(event) => {
-													event.stopPropagation();
-													setSelectedRow(row);
-												}}
-											/>
 										</div>
 									);
 								})}
@@ -515,27 +519,26 @@ const HistoryTab = () => {
 						))}
 
 						{rows.length < total && (
-							<div className="history-load-more">
-								<ButtonInput
-									buttons={{
-										text: isLoadingMore
-											? __('Loading…', 'vulopilot')
-											: __('Load more', 'vulopilot'),
-										color: 'secondary',
-										onClick: handleLoadMore,
-										disabled: isLoadingMore,
-									}}
-								/>
-							</div>
+							<ButtonInput
+								position="center"
+								buttons={{
+									text: isLoadingMore
+										? __('Loading…', 'vulopilot')
+										: __('Load more', 'vulopilot'),
+									color: 'purple-bg',
+									onClick: handleLoadMore,
+									disabled: isLoadingMore,
+								}}
+							/>
 						)}
 					</div>
 				)}
-
-				{AiAnalyticsPanel ? (
-					<AiAnalyticsPanel />
-				) : (
-					<AiAnalyticsLockedCard />
-				)}
+			</CardComponent>
+			{AiAnalyticsPanel ? (
+				<AiAnalyticsPanel />
+			) : (
+				<AiAnalyticsLockedCard />
+			)}
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
@@ -545,7 +548,7 @@ const HistoryTab = () => {
 					onDeleted={handleDelete}
 				/>
 			</ColumnComponent>
-		</>
+		</ContainerComponent>
 	);
 };
 

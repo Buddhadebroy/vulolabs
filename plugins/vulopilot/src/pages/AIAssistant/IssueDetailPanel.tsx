@@ -8,6 +8,8 @@ import {
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
+	FormGroupWrapperComponent,
+	FormGroupComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -190,80 +192,79 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					/>
 				}
 			>
-				<h2 className="issue-detail-title">{group.label}</h2>
-				<span className="admin-badge blue">
-					{CATEGORY_LABELS[group.category] ?? group.category}
-				</span>
-
-				<div className="issue-detail-section">
-					<h4>{__('Affected', 'vulopilot')}</h4>
-					<p>{formatAffected(group.count, group.object_type)}</p>
-				</div>
-
-				{group.sample && (
-					<div className="issue-detail-section">
-						<h4>{__('Example finding', 'vulopilot')}</h4>
-						<p className="issue-detail-example-title">
-							{group.sample.title}
-						</p>
-						<p className="issue-detail-example-desc">
-							{group.sample.description}
-						</p>
-					</div>
-				)}
-
-				{group.sample && (
-					<div className="issue-detail-section">
-						<h4>{__('Where', 'vulopilot')}</h4>
-						<div className="issue-detail-where">
-							<code>
-								{group.sample.page ||
-									__('Site-wide', 'vulopilot')}
-							</code>
-							<span
-								role="button"
-								className="issue-detail-copy-btn"
-								onClick={() => {
-									navigator.clipboard
-										.writeText(group.sample?.page || '')
-										.then(() => {
-											NoticeManager.add({
-												uniqueKey:
-													'issue-detail-copy',
-												type: 'success',
-												position: 'float',
-												message: __(
-													'Copied.',
-													'vulopilot'
-												),
-											});
-										});
-								}}
-							>
-								<i className="adminfont-coding" />
+				<div className="title">{group.label}</div>
+				<FormGroupWrapperComponent>
+					<FormGroupComponent   row label={__('Category', 'vulopilot')}>
+						<span className="admin-badge blue">
+							{CATEGORY_LABELS[group.category] ?? group.category}
+						</span>
+					</FormGroupComponent>
+					<FormGroupComponent   row label={__('Affected', 'vulopilot')}>
+						{formatAffected(group.count, group.object_type)}
+					</FormGroupComponent>
+					{group.sample && (
+						<FormGroupComponent   row label={__('Example finding', 'vulopilot')}>
+							<span className="desc">
+								{group.sample.title}
 							</span>
-						</div>
-						<p className="small desc">
-							{sprintf(
-								/* translators: %s: formatted date this finding was detected */
-								__('Detected %s', 'vulopilot'),
-								formatWpDate(group.sample.created_at)
-							)}
-						</p>
-					</div>
-				)}
+							<span className="desc">
+								{group.sample.description}
+							</span>
+						</FormGroupComponent>
+					)}
 
-				<div className="issue-detail-actions">
-					<ButtonInput
-						buttons={{
+					{group.sample && (
+						<FormGroupComponent   row label={__('Where', 'vulopilot')}>
+						
+							<div className="issue-detail-where">
+								<code>
+									{group.sample.page ||
+										__('Site-wide', 'vulopilot')}
+								</code>
+								<span
+									role="button"
+									className="issue-detail-copy-btn"
+									onClick={() => {
+										navigator.clipboard
+											.writeText(group.sample?.page || '')
+											.then(() => {
+												NoticeManager.add({
+													uniqueKey:
+														'issue-detail-copy',
+													type: 'success',
+													position: 'float',
+													message: __(
+														'Copied.',
+														'vulopilot'
+													),
+												});
+											});
+									}}
+								>
+									<i className="adminfont-coding" />
+								</span>
+							</div>
+							<div className="small desc">
+								{sprintf(
+									/* translators: %s: formatted date this finding was detected */
+									__('Detected %s', 'vulopilot'),
+									formatWpDate(group.sample.created_at)
+								)}
+							</div>
+						</FormGroupComponent>
+					)}
+				</FormGroupWrapperComponent>
+
+				<ButtonInput
+					position="full-width"
+					buttons={[
+						{
 							text: __('Fix with AI', 'vulopilot'),
 							icon: 'ai',
 							onClick: handleFix,
 							disabled: isBusy,
-						}}
-					/>
-					<ButtonInput
-						buttons={{
+						},
+						{
 							text: __('Resolve all', 'vulopilot'),
 							color: 'secondary',
 							onClick: () =>
@@ -275,10 +276,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									)
 								),
 							disabled: isBusy,
-						}}
-					/>
-					<ButtonInput
-						buttons={{
+						},
+						{
 							text: __('Ignore all', 'vulopilot'),
 							color: 'secondary',
 							onClick: () =>
@@ -290,9 +289,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									)
 								),
 							disabled: isBusy,
-						}}
-					/>
-				</div>
+						},
+					]}
+				/>
 			</CardComponent>
 			<PopupComponent
 				open={isProPopupOpen}

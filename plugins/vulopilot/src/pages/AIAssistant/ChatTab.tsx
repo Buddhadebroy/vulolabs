@@ -9,7 +9,7 @@ import {
 	ContainerComponent,
 	ListComponent,
 	ModuleGuardComponent,
-	NoticeManager,
+	NoticeManager
 } from '@zyra/components';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
@@ -64,7 +64,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	};
 
 	return (
-		<>
+		<ContainerComponent>
 			<ColumnComponent grid={8}>
 				<CardComponent>
 					<ChatMessageComponent sender="ai" avatarIcon="ai">
@@ -159,7 +159,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 
 			<ColumnComponent grid={4}>
 				<NeedsAttentionCard onNavigateTab={onNavigateTab} />
-
 			</ColumnComponent>	
 					
 			<ColumnComponent grid={8}>
@@ -198,14 +197,10 @@ const ChatTab: React.FC<ChatTabProps> = ({
 					/>
 				</CardComponent>
 			</ColumnComponent>
-		<ColumnComponent grid={4}>
+			<ColumnComponent grid={4}>
 				<RecentConversationsCard onNavigateTab={onNavigateTab} />
-
 			</ColumnComponent>
-			{/* <ColumnComponent grid={4}>
-				<AiUsageCard />
-			</ColumnComponent> */}
-		</>
+		</ContainerComponent>
 	);
 };
 

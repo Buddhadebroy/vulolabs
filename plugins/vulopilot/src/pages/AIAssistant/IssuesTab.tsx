@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { ColumnComponent } from '@zyra/components';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import IssuesList from './IssuesList';
 import { IssuesFilter } from './NeedsAttentionCard';
 
@@ -16,21 +16,21 @@ interface IssuesTabProps {
  * exact group, instead of landing on an unrelated default.
  */
 const IssuesTab = ({ filter }: IssuesTabProps) => (
-	<>
+	<ContainerComponent>
 		<ColumnComponent>
-			<h2 className="issues-page-title">{__('Issues', 'vulopilot')}</h2>
+			{/* <h2 className="issues-page-title">{__('Issues', 'vulopilot')}</h2>
 			<p className="issues-page-desc">
 				{__(
 					'VuloPilot found these issues across your site. Fix what matters most to improve performance, visibility, and user experience.',
 					'vulopilot'
 				)}
-			</p>
+			</p> */}
 		</ColumnComponent>
 		<IssuesList
 			initialScannerId={filter?.scannerId}
 			initialCategory={filter?.category}
 		/>
-	</>
+	</ContainerComponent>
 );
 
 export default IssuesTab;

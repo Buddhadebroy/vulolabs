@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
-	NavigatorHeaderComponent,
 	PopupComponent,
-	TabsComponent,
+	NavigatorComponent,
 	ContainerComponent,
 } from '@zyra/components';
 import ChatTab from './ChatTab';
@@ -11,6 +10,7 @@ import HistoryTab from './HistoryTab';
 import IssuesTab from './IssuesTab';
 import AiWorkflowsTab from './AiWorkflowsTab';
 import { IssuesFilter } from './NeedsAttentionCard';
+import { Link } from 'react-router-dom';
 
 const TAB_IDS = [
 	'chat',
@@ -19,17 +19,6 @@ const TAB_IDS = [
 	'ai-workflows',
 ] as const;
 
-/**
- * "AI Copilot" — the Chat tab is the new conversational UI (ChatTab.tsx);
- * History is the page's original body (the real `vulopilot_ai_history`
- * audit-log table + Pro analytics panel), unchanged, just relocated under
- * its own tab instead of being the whole page. Issues/AI Workflows are
- * full-width versions of Chat's own sidebar previews.
- *
- * `activeTab`/`chatMessage`/`autoApply` live here (not inside ChatTab) so
- * the sidebar's "View all" links can both jump tabs and hand real state
- * to the Chat tab, not just switch the visible pane.
- */
 const AIAssistant = () => {
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		'chat'
@@ -37,11 +26,6 @@ const AIAssistant = () => {
 	const [chatMessage, setChatMessage] = useState('');
 	const [autoApply, setAutoApply] = useState(true);
 	const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
-	// What NeedsAttentionCard's own group rows navigate here with — lets
-	// the Issues tab filter to the exact same scanner_id the summary card
-	// counted, instead of showing its own unrelated top-20 list. Reset
-	// whenever a navigation arrives without one (e.g. the tab label itself,
-	// or "View all issues"), so a stale filter never lingers silently.
 	const [issuesFilter, setIssuesFilter] = useState<IssuesFilter | null>(
 		null
 	);
@@ -56,24 +40,72 @@ const AIAssistant = () => {
 		}
 	};
 
+	const settingContent = TAB_IDS.map((tabId) => ({
+		type: 'file' as const,
+		content: {
+			id: tabId,
+			headerTitle: (() => {
+				switch (tabId) {
+					case 'chat':
+						return __('Chat', 'vulopilot');
+					case 'history':
+						return __('History', 'vulopilot');
+					case 'issues':
+						return __('Issues', 'vulopilot');
+					case 'ai-workflows':
+						return __('AI Workflows', 'vulopilot');
+					default:
+						return tabId;
+				}
+			})(),
+			headerIcon: (() => {
+				switch (tabId) {
+					case 'chat':
+						return 'ai';
+					case 'history':
+						return 'history';
+					case 'issues':
+						return 'error';
+					case 'ai-workflows':
+						return 'workflow';
+					default:
+						return 'settings';
+				}
+			})(),
+			hideSettingHeader: true,
+		},
+	}));
+
+	const getForm = (tabId: string) => {
+		switch (tabId) {
+			case 'chat':
+				return (
+					<ChatTab
+						onNavigateTab={goToTab}
+						message={chatMessage}
+						onMessageChange={setChatMessage}
+						autoApply={autoApply}
+						onAutoApplyChange={setAutoApply}
+					/>
+				);
+			case 'history':
+				return <HistoryTab />;
+			case 'issues':
+				return (
+					<IssuesTab
+						filter={issuesFilter}
+						onClearFilter={() => setIssuesFilter(null)}
+					/>
+				);
+			case 'ai-workflows':
+				return <AiWorkflowsTab />;
+			default:
+				return <div></div>;
+		}
+	};
+
 	return (
 		<>
-			<NavigatorHeaderComponent
-				headerIcon="ai"
-				headerTitle={__('AI Copilot', 'vulopilot')}
-				headerDescription={__(
-					'Your always-on AI assistant for WordPress. Ask anything, get intelligent answers and take action.',
-					'vulopilot'
-				)}
-				badges={[{ text: `● ${__('Online', 'vulopilot')}`, color: 'green' }]}
-				buttons={[
-					{
-						label: __('How it works', 'vulopilot'),
-						icon: 'help',
-						onClick: () => setIsHowItWorksOpen(true),
-					},
-				]}
-			/>
 			<PopupComponent
 				open={isHowItWorksOpen}
 				onClose={() => setIsHowItWorksOpen(false)}
@@ -95,47 +127,37 @@ const AIAssistant = () => {
 					)}
 				</p>
 			</PopupComponent>
-			<ContainerComponent general>
-				<>
-				<TabsComponent
-						activeIndex={TAB_IDS.indexOf(activeTab)}
-						onTabChange={(index) => setActiveTab(TAB_IDS[index])}
-						tabs={[
-						{
-							label: __('Chat', 'vulopilot'),
-							content: (
-								<ChatTab
-									onNavigateTab={goToTab}
-									message={chatMessage}
-									onMessageChange={setChatMessage}
-									autoApply={autoApply}
-									onAutoApplyChange={setAutoApply}
-								/>
-							),
-						},
-						{
-							label: __('Issues', 'vulopilot'),
-							content: (
-								<IssuesTab
-									filter={issuesFilter}
-									onClearFilter={() =>
-										setIssuesFilter(null)
-									}
-								/>
-							),
-						},
-						{
-							label: __('AI Workflows', 'vulopilot'),
-							content: <AiWorkflowsTab />,
-						},
-						{
-							label: __('History', 'vulopilot'),
-							content: <HistoryTab />,
-						},
-					]}
-				/>
-				</>
-				</ContainerComponent>
+			<NavigatorComponent
+				settingContent={settingContent}
+				currentSetting={activeTab}
+				getForm={getForm}
+				prepareUrl={(subTab: string) => 
+					`?page=vulopilot#&tab=ai-assistant&subtab=${subTab}`
+				}
+				Link={Link}
+				variant="compact"
+				menuIcon={true}
+				headerIcon="ai"
+				headerTitle={__('AI Copilot', 'vulopilot')}
+				headerDescription={__(
+					'Your always-on AI assistant for WordPress. Ask anything, get intelligent answers and take action.',
+					'vulopilot'
+				)}
+				showPremiumLink={false}
+				badges={[
+					{ 
+						text: `● ${__('Online', 'vulopilot')}`, 
+						color: 'green' 
+					}
+				]}
+				buttons={[
+					{
+						label: __('How it works', 'vulopilot'),
+						icon: 'help',
+						onClick: () => setIsHowItWorksOpen(true),
+					},
+				]}
+			/>
 		</>
 	);
 };
