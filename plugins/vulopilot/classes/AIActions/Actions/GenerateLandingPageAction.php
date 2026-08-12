@@ -69,13 +69,27 @@ class GenerateLandingPageAction extends AbstractBasicAction {
             throw new InvalidActionInputException( __( 'Please describe what the landing page is for (at least 5 characters).', 'vulopilot' ) );
         }
 
-        return array( 'topic' => $topic );
+        // Optional — a bare topic is still a complete, valid input, same
+        // as ContentToolsGrid.tsx's own "Landing Pages" tile, which never
+        // supplies it.
+        $tone = mb_substr( sanitize_text_field( (string) ( $input['tone'] ?? '' ) ), 0, 60 );
+
+        return array(
+            'topic' => $topic,
+            'tone'  => $tone,
+        );
     }
 
     /**
      * @inheritDoc
      */
     public function build_prompt( array $input ): array {
+        $user_message = sprintf( 'Write a landing page for: %s', $input['topic'] );
+
+        if ( '' !== ( $input['tone'] ?? '' ) ) {
+            $user_message .= sprintf( "\n\nTone: %s.", $input['tone'] );
+        }
+
         return array(
             array(
                 'role'    => 'system',
@@ -84,7 +98,7 @@ class GenerateLandingPageAction extends AbstractBasicAction {
             ),
             array(
                 'role'    => 'user',
-                'content' => sprintf( 'Write a landing page for: %s', $input['topic'] ),
+                'content' => $user_message,
             ),
         );
     }

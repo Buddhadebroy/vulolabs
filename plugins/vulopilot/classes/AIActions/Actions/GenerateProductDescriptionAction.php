@@ -59,6 +59,7 @@ class GenerateProductDescriptionAction extends AbstractBasicAction {
     public function validate_input( array $input ): array {
         $product_name = sanitize_text_field( (string) ( $input['product_name'] ?? '' ) );
         $key_features = sanitize_textarea_field( (string) ( $input['key_features'] ?? '' ) );
+        $tone         = mb_substr( sanitize_text_field( (string) ( $input['tone'] ?? '' ) ), 0, 60 );
 
         if ( mb_strlen( $product_name ) < 3 ) {
             throw new InvalidActionInputException( __( 'Please provide a product name of at least 3 characters.', 'vulopilot' ) );
@@ -67,6 +68,7 @@ class GenerateProductDescriptionAction extends AbstractBasicAction {
         return array(
             'product_name' => $product_name,
             'key_features' => $key_features,
+            'tone'         => $tone,
         );
     }
 
@@ -78,6 +80,10 @@ class GenerateProductDescriptionAction extends AbstractBasicAction {
 
         if ( '' !== $input['key_features'] ) {
             $user_message .= sprintf( "\n\nKey features:\n%s", $input['key_features'] );
+        }
+
+        if ( '' !== ( $input['tone'] ?? '' ) ) {
+            $user_message .= sprintf( "\n\nTone: %s.", $input['tone'] );
         }
 
         return array(

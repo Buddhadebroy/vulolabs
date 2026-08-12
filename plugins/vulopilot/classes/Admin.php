@@ -300,6 +300,12 @@ class Admin {
             return;
         }
 
+        // Needed so zyra's FileInput component (AI Copilot's "Attach"
+        // button, ChatTab.tsx) can open WordPress's real media library
+        // picker/uploader (wp.media()) instead of silently falling back to
+        // a local-only blob preview that the server could never read back.
+        wp_enqueue_media();
+
         wp_enqueue_script( 'wp-element' );
 
         FrontendScripts::admin_load_scripts();

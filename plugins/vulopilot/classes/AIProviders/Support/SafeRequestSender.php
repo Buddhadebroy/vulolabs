@@ -49,12 +49,13 @@ class SafeRequestSender {
 
     /**
      * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
+     * @param array{mime_type: string, data: string}|null      $image    Optional inline image for the current turn — only meaningful when the provider that ends up handling this request supports vision (ProviderRegistry::supports_vision()); callers should check that first, since a provider that doesn't will simply never look at this.
      * @return AIResponse
      *
      * @throws \VuloPilot\Exceptions\UnsafePromptException If the prompt fails safety validation.
      * @throws \RuntimeException If no AI provider is configured.
      */
-    public function send( array $messages ): AIResponse {
+    public function send( array $messages, ?array $image = null ): AIResponse {
         $this->safety_validator->validate_prompt( $messages );
 
         $provider = $this->provider_registry->build_fallback_chain();
@@ -64,7 +65,7 @@ class SafeRequestSender {
         }
 
         $model    = $this->provider_registry->get_default_model( $provider->get_id() ) ?? ( $provider->get_available_models()[0] ?? '' );
-        $response = $provider->send( new AIRequest( $model, $messages ) );
+        $response = $provider->send( new AIRequest( $model, $messages, null, null, $image ) );
 
         return $this->safety_validator->sanitize_response( $response );
     }

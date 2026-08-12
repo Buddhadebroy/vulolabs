@@ -1,4 +1,5 @@
-import React from 'react';
+/* global appLocalizer */
+import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import './AICopilot.scss';
 import {
@@ -8,9 +9,10 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	ListComponent,
-	ModuleGuardComponent,
 	NoticeManager
 } from '@zyra/components';
+import { FileInput } from '@zyra/inputs';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
 	IssuesFilter,
@@ -18,7 +20,56 @@ import NeedsAttentionCard, {
 import RecentConversationsCard from './RecentConversationsCard';
 import AiWorkflowsList from './AiWorkflowsList';
 import AiUsageCard from './AiUsageCard';
-import { useCopilotChat } from '../../services/useCopilotChat';
+import LiveSiteInsightsCard from './LiveSiteInsightsCard';
+import {
+	useCopilotChat,
+	CopilotContextRef,
+	CopilotAttachment,
+} from '../../services/useCopilotChat';
+import { ChatMarkdown } from '../../components/ChatMarkdown';
+
+/** Mirrors Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
+const MAX_ATTACHMENTS = 3;
+const MAX_CONTEXT_REFS = 5;
+
+/**
+ * The types Copilot.php actually does something real with: text/csv files
+ * are read as text (ATTACHMENT_TEXT_MIME_TYPES), images are sent as a real
+ * inline image when the active provider supports vision
+ * (ATTACHMENT_IMAGE_MIME_TYPES/supports_vision() — Gemini today). Only
+ * restricts the drag-and-drop/native-picker validation path — the
+ * "Upload File" button's wp.media() library picker ignores `accept`
+ * entirely and can select anything already in the Media Library, which
+ * Copilot.php still resolves honestly either way.
+ */
+const ATTACHMENT_ACCEPT =
+	'.txt,.csv,text/plain,text/csv,.jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp';
+
+interface FindingGroupOption {
+	scanner_id: string;
+	category: string;
+	severity: string;
+	count: number;
+	label: string;
+}
+
+interface AttentionSummaryResponse {
+	groups: FindingGroupOption[];
+}
+
+interface AutomationOption {
+	id: number;
+	name: string;
+	status: string;
+	trigger_type: string;
+}
+
+interface AutomationsResponse {
+	data: AutomationOption[];
+}
+
+const contextRefKey = ( ref: CopilotContextRef ): string =>
+	'finding_group' === ref.type ? `finding_group:${ ref.scannerId }` : `automation:${ ref.id }`;
 
 interface ChatTabProps {
 	onNavigateTab: (tab: string, filter?: IssuesFilter) => void;
@@ -39,9 +90,19 @@ interface ChatTabProps {
  * counts, not a canned response. "Recent conversations" stays static
  * placeholder content (RecentConversationsCard.tsx) since there's still no
  * persisted conversation entity to list past sessions from — each page
- * load starts a fresh, real conversation. Attaching files/adding context
- * stay honestly disabled — no upload/embedding pipeline exists for either.
- * The prompt grid still prefills the composer.
+ * load starts a fresh, real conversation. The prompt grid still prefills
+ * the composer.
+ *
+ * "Attach" and "Add context" are real: Attach opens zyra's FileInput,
+ * which — on this admin screen, now that Admin.php calls
+ * wp_enqueue_media() — hands back a real WP Media Library attachment
+ * {id, url} via wp.media(), never a client-only blob preview. Add context
+ * opens a picker over the same real data NeedsAttentionCard.tsx/
+ * AiWorkflowsList.tsx already show (open finding groups, active
+ * automations). Both are sent as `context_refs`/`attachments` on the next
+ * `POST /copilot/chat` and re-resolved against real, current data
+ * server-side (Copilot.php's build_extra_context()) — this component only
+ * carries an id/ref, never the resolved content itself.
  *
  * `message`/`autoApply` are owned by AIAssistant.tsx rather than locally,
  * so the sidebar's "View all" links and this tab's own prompt grid can
@@ -58,10 +119,116 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		'vulopilot-copilot-chat-error'
 	);
 
+	const [attachments, setAttachments] = useState<CopilotAttachment[]>([]);
+	const [contextRefs, setContextRefs] = useState<CopilotContextRef[]>([]);
+	const [isAttachPanelOpen, setIsAttachPanelOpen] = useState(false);
+	const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
+	const [isLoadingContextOptions, setIsLoadingContextOptions] =
+		useState(false);
+	const [findingGroupOptions, setFindingGroupOptions] = useState<
+		FindingGroupOption[] | null
+	>(null);
+	const [automationOptions, setAutomationOptions] = useState<
+		AutomationOption[] | null
+	>(null);
+
 	const handleSend = () => {
-		send(message);
+		send(message, contextRefs, attachments);
 		onMessageChange('');
+		setAttachments([]);
+		setContextRefs([]);
 	};
+
+	const toggleAttachPanel = () => {
+		setIsContextPanelOpen(false);
+		setIsAttachPanelOpen((open) => !open);
+	};
+
+	const toggleContextPanel = () => {
+		setIsAttachPanelOpen(false);
+		setIsContextPanelOpen((open) => {
+			const opening = !open;
+
+			if (opening && null === findingGroupOptions && null === automationOptions) {
+				setIsLoadingContextOptions(true);
+
+				Promise.all([
+					getApiResponse<AttentionSummaryResponse>(
+						getApiLink(appLocalizer, 'findings/attention-summary'),
+						{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+					),
+					getApiResponse<AutomationsResponse>(
+						getApiLink(
+							appLocalizer,
+							'automations?status=enabled&per_page=10'
+						),
+						{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+					),
+				])
+					.then(([attentionResponse, automationsResponse]) => {
+						setFindingGroupOptions(attentionResponse?.groups ?? []);
+						setAutomationOptions(automationsResponse?.data ?? []);
+					})
+					.finally(() => setIsLoadingContextOptions(false));
+			}
+
+			return opening;
+		});
+	};
+
+	const handleFileInputChange = (
+		value:
+			| { id?: number; url: string }
+			| { id?: number; url: string }[]
+			| ''
+	) => {
+		const raw = Array.isArray(value) ? value : value ? [value] : [];
+		const valid = raw.filter(
+			(file): file is { id: number; url: string } =>
+				'number' === typeof file.id
+		);
+
+		if (valid.length < raw.length) {
+			NoticeManager.add({
+				uniqueKey: 'vulopilot-chat-attach-local-only',
+				type: 'error',
+				position: 'float',
+				message: __(
+					"That file wasn't uploaded — use the Upload File button so it's saved to the Media Library and readable by the AI.",
+					'vulopilot'
+				),
+			});
+		}
+
+		setAttachments(
+			valid.slice(0, MAX_ATTACHMENTS).map((file) => ({
+				id: file.id,
+				url: file.url,
+				name: file.url.split('#').pop()?.split('/').pop() || file.url,
+			}))
+		);
+	};
+
+	const toggleContextRef = (ref: CopilotContextRef) => {
+		const key = contextRefKey(ref);
+
+		setContextRefs((current) => {
+			if (current.some((existing) => contextRefKey(existing) === key)) {
+				return current.filter(
+					(existing) => contextRefKey(existing) !== key
+				);
+			}
+
+			if (current.length >= MAX_CONTEXT_REFS) {
+				return current;
+			}
+
+			return [...current, ref];
+		});
+	};
+
+	const removeAttachment = (id: number) =>
+		setAttachments((current) => current.filter((file) => file.id !== id));
 
 	return (
 		<ContainerComponent>
@@ -87,7 +254,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							key={index}
 							sender={'user' === turn.role ? 'user' : 'ai'}
 						>
-							{turn.content}
+							<ChatMarkdown text={turn.content} />
 						</ChatMessageComponent>
 					))}
 
@@ -102,6 +269,180 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						{__('Try asking me…', 'vulopilot')}
 					</p>
 
+					{(attachments.length > 0 || contextRefs.length > 0) && (
+						<div className="chat-composer-chips">
+							{attachments.map((attachment) => (
+								<span
+									className="chat-composer-chip"
+									key={`attachment-${attachment.id}`}
+								>
+									<i className="adminfont-attachment" />
+									{attachment.name}
+									<i
+										className="adminfont-close"
+										onClick={() =>
+											removeAttachment(attachment.id)
+										}
+									/>
+								</span>
+							))}
+							{contextRefs.map((ref) => (
+								<span
+									className="chat-composer-chip"
+									key={contextRefKey(ref)}
+								>
+									<i className="adminfont-plus-circle" />
+									{'finding_group' === ref.type
+										? ref.label
+										: ref.name}
+									<i
+										className="adminfont-close"
+										onClick={() => toggleContextRef(ref)}
+									/>
+								</span>
+							))}
+						</div>
+					)}
+
+					{isAttachPanelOpen && (
+						<div className="chat-composer-panel">
+							<p className="chat-composer-panel-label">
+								{__(
+									'Attach a .txt/.csv file to read, or a .jpg/.png/.gif/.webp image for the AI to actually see — uploaded to your Media Library first.',
+									'vulopilot'
+								)}
+							</p>
+							<FileInput
+								multiple
+								accept={ATTACHMENT_ACCEPT}
+								openUploader={__('Upload File', 'vulopilot')}
+								wrapperClass="chat-composer-fileinput"
+								imageSrc={attachments.map((attachment) => ({
+									id: attachment.id,
+									url: attachment.url,
+								}))}
+								onChange={handleFileInputChange}
+							/>
+						</div>
+					)}
+
+					{isContextPanelOpen && (
+						<div className="chat-composer-panel">
+							<p className="chat-composer-panel-label">
+								{__(
+									'Pick real open issues or automations to ground this message with.',
+									'vulopilot'
+								)}
+							</p>
+							{isLoadingContextOptions ? (
+								<p>{__('Loading…', 'vulopilot')}</p>
+							) : (
+								<>
+									{(findingGroupOptions ?? []).map(
+										(group) => {
+											const ref: CopilotContextRef = {
+												type: 'finding_group',
+												scannerId: group.scanner_id,
+												label: group.label,
+												category: group.category,
+												count: group.count,
+												severity: group.severity,
+											};
+											const selected = contextRefs.some(
+												(existing) =>
+													contextRefKey(existing) ===
+													contextRefKey(ref)
+											);
+
+											return (
+												<div
+													key={contextRefKey(ref)}
+													className={`chat-context-option${
+														selected
+															? ' selected'
+															: ''
+													}`}
+													onClick={() =>
+														toggleContextRef(ref)
+													}
+												>
+													<i
+														className={
+															selected
+																? 'adminfont-check'
+																: 'adminfont-error'
+														}
+													/>
+													<span>
+														{group.label} —{' '}
+														{group.count}{' '}
+														{__(
+															'open',
+															'vulopilot'
+														)}{' '}
+														({group.severity})
+													</span>
+												</div>
+											);
+										}
+									)}
+									{(automationOptions ?? []).map(
+										(automation) => {
+											const ref: CopilotContextRef = {
+												type: 'automation',
+												id: automation.id,
+												name: automation.name,
+											};
+											const selected = contextRefs.some(
+												(existing) =>
+													contextRefKey(existing) ===
+													contextRefKey(ref)
+											);
+
+											return (
+												<div
+													key={contextRefKey(ref)}
+													className={`chat-context-option${
+														selected
+															? ' selected'
+															: ''
+													}`}
+													onClick={() =>
+														toggleContextRef(ref)
+													}
+												>
+													<i
+														className={
+															selected
+																? 'adminfont-check'
+																: 'adminfont-update'
+														}
+													/>
+													<span>
+														{automation.name} (
+														{automation.status})
+													</span>
+												</div>
+											);
+										}
+									)}
+									{0 ===
+										(findingGroupOptions ?? []).length &&
+										0 ===
+											(automationOptions ?? [])
+												.length && (
+											<p>
+												{__(
+													'Nothing to add context from yet.',
+													'vulopilot'
+												)}
+											</p>
+										)}
+								</>
+							)}
+						</div>
+					)}
+
 					<ChatInputComponent
 						value={message}
 						onChange={onMessageChange}
@@ -111,29 +452,9 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							'Ask VuloPilot anything about your website…',
 							'vulopilot'
 						)}
-						onAttach={() =>
-							NoticeManager.add({
-								uniqueKey: 'vulopilot-chat-attach',
-								type: 'error',
-								position: 'float',
-								message: __(
-									"Attaching files isn't available yet — there's no connected assistant to send them to.",
-									'vulopilot'
-								),
-							})
-						}
+						onAttach={toggleAttachPanel}
 						attachLabel={__('Attach', 'vulopilot')}
-						onAddContext={() =>
-							NoticeManager.add({
-								uniqueKey: 'vulopilot-chat-add-context',
-								type: 'error',
-								position: 'float',
-								message: __(
-									"Adding context isn't available yet — there's no connected assistant to send it to.",
-									'vulopilot'
-								),
-							})
-						}
+						onAddContext={toggleContextPanel}
 						addContextLabel={__('Add context', 'vulopilot')}
 						autoApply={{
 							checked: autoApply,
@@ -180,22 +501,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				>
 					<AiWorkflowsList limit={4} />
 				</CardComponent>
-				<CardComponent
-					title={__('Live Site Insights', 'vulopilot')}
-					titleIcon="analytics"
-				>
-					<ModuleGuardComponent
-						icon="analytics"
-						title={__(
-							'Live insights aren’t connected yet',
-							'vulopilot'
-						)}
-						desc={__(
-							'Traffic, Core Web Vitals, security, and store metrics will appear here once those data sources are connected.',
-							'vulopilot'
-						)}
-					/>
-				</CardComponent>
+				<LiveSiteInsightsCard />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
 				<RecentConversationsCard onNavigateTab={onNavigateTab} />

@@ -1,10 +1,11 @@
 /* global appLocalizer */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
+	ListComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -14,12 +15,55 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
 import { formatWpDate } from '../../services/formatWpDate';
-import { CATEGORY_LABELS, formatAffected, FindingGroup } from './issuesTypes';
+import {
+	CATEGORY_ICONS,
+	CATEGORY_LABELS,
+	formatAffected,
+	FindingGroup,
+} from './issuesTypes';
 
 interface FixOutcome {
 	success: boolean;
 	message: string;
 }
+
+interface FindingRow {
+	id: number;
+	title: string;
+	object_type: string | null;
+	object_ref: string | null;
+	created_at: string;
+	page?: string;
+}
+
+/**
+ * How many individual findings to actually list under "Affected accounts"/
+ * "Affected pages"/etc. — the group's own real `count` (shown right above
+ * this list) is always the true total; this only bounds how many rows the
+ * panel renders so a group with hundreds of open findings doesn't dump an
+ * unbounded list into a fixed-width side panel. A "+N more" line covers
+ * the remainder.
+ */
+const MAX_AFFECTED_ITEMS_SHOWN = 20;
+
+/**
+ * Section label per real `object_type` — same noun set formatAffected()
+ * already uses for the bare count line, just as a section heading instead
+ * of "N {noun}". Falls back to "Affected items" for any object_type this
+ * map doesn't know about, same fallback formatAffected() uses.
+ */
+const AFFECTED_ITEMS_LABEL: Record<string, string> = {
+	user: __('Affected accounts', 'vulopilot'),
+	post: __('Affected pages', 'vulopilot'),
+	attachment: __('Affected images', 'vulopilot'),
+	product: __('Affected products', 'vulopilot'),
+	url: __('Affected endpoints', 'vulopilot'),
+	plugin: __('Affected plugins', 'vulopilot'),
+	theme: __('Affected themes', 'vulopilot'),
+	table: __('Affected tables', 'vulopilot'),
+	file: __('Affected files', 'vulopilot'),
+	site: __('Affected checks', 'vulopilot'),
+};
 
 /**
  * Same registration FindingsTable.tsx's own bulk "Fix selected" reads —
@@ -62,6 +106,47 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 }) => {
 	const [isBusy, setIsBusy] = useState(false);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const [affectedItems, setAffectedItems] = useState<FindingRow[] | null>(
+		null
+	);
+	const [isLoadingAffected, setIsLoadingAffected] = useState(false);
+
+	/**
+	 * The group response only ever carries a `count` + one sample — this
+	 * fetches the real, current individual findings in the group (the same
+	 * `GET /findings` row list fetchGroupIds() below also reads, just kept
+	 * as full rows here instead of only `.id`) so "Affected" can show which
+	 * specific accounts/pages/etc. were actually detected, not just a bare
+	 * number. Capped to MAX_AFFECTED_ITEMS_SHOWN for display — the group's
+	 * own real `count` (shown above this list) stays the true total either
+	 * way, and bulk actions below still act on every open finding via their
+	 * own uncapped fetchGroupIds() call.
+	 */
+	useEffect(() => {
+		if (!group) {
+			setAffectedItems(null);
+			return;
+		}
+
+		setIsLoadingAffected(true);
+		setAffectedItems(null);
+
+		getApiResponse<{ data?: FindingRow[] } | FindingRow[]>(
+			getApiLink(
+				appLocalizer,
+				`findings?scanner_id=${encodeURIComponent(group.scanner_id)}&status=open&per_page=${MAX_AFFECTED_ITEMS_SHOWN}&orderby=id&order=desc`
+			),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		)
+			.then((response) => {
+				const list = Array.isArray(response)
+					? response
+					: (response?.data ?? []);
+
+				setAffectedItems(list);
+			})
+			.finally(() => setIsLoadingAffected(false));
+	}, [group?.scanner_id]);
 
 	if (!group) {
 		return (
@@ -201,6 +286,54 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					</FormGroupComponent>
 					<FormGroupComponent   row label={__('Affected', 'vulopilot')}>
 						{formatAffected(group.count, group.object_type)}
+					</FormGroupComponent>
+					<FormGroupComponent
+						row
+						label={
+							AFFECTED_ITEMS_LABEL[group.object_type ?? ''] ??
+							__('Affected items', 'vulopilot')
+						}
+					>
+						<ListComponent
+							className="issue-detail-affected-list"
+							border
+							loading={isLoadingAffected}
+							items={(affectedItems ?? []).map((row) => ({
+								id: row.id,
+								icon: CATEGORY_ICONS[group.category] ?? 'ai',
+								title: row.title,
+								desc: sprintf(
+									/* translators: 1: affected page/location, 2: formatted detection date */
+									__('%1$s • Detected %2$s', 'vulopilot'),
+									row.page || __('Site-wide', 'vulopilot'),
+									formatWpDate(row.created_at)
+								),
+							}))}
+						/>
+						{!isLoadingAffected &&
+							affectedItems &&
+							0 === affectedItems.length && (
+								<span className="desc">
+									{__(
+										'No individual findings could be loaded for this group right now.',
+										'vulopilot'
+									)}
+								</span>
+							)}
+						{!isLoadingAffected &&
+							affectedItems &&
+							group.count > affectedItems.length && (
+								<span className="small desc">
+									{sprintf(
+										/* translators: %d: how many further open findings exist beyond the list shown above */
+										__(
+											'+%d more not shown here — use Resolve all/Ignore all below, or open the Issues table to see every one.',
+											'vulopilot'
+										),
+										group.count - affectedItems.length
+									)}
+								</span>
+							)}
 					</FormGroupComponent>
 					{group.sample && (
 						<FormGroupComponent   row label={__('Example finding', 'vulopilot')}>

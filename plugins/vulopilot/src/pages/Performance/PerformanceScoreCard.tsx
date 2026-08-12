@@ -2,7 +2,12 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
+import {
+	CardComponent,
+	ContainerComponent,
+	ColumnComponent,
+	ModuleGuardComponent,
+} from '@zyra/components';
 import './ImproveSpeed.scss';
 
 interface DashboardSummary {
@@ -122,8 +127,28 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
 	const [vitals, setVitals] = useState<CoreWebVitalsSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [hasError, setHasError] = useState(false);
+
+	/**
+	 * Real objects only — `getApiResponse` (zyra) hands back whatever axios
+	 * parsed `response.data` into, and axios silently falls back to a raw
+	 * string rather than throwing when the body isn't valid JSON (e.g. a
+	 * stray PHP notice/warning printed ahead of the real JSON on some
+	 * hosts/PHP configs, only ever seen on a fresh install this dev
+	 * environment's already-populated options never triggered). A truthy
+	 * non-object response used to pass the old `dashboardResponse &&` check
+	 * unchanged, then crash further down reading `.category_scores.performance`
+	 * off a string — this validates the actual shape before it's ever
+	 * stored, so a malformed response becomes an honest error state instead
+	 * of a render-time crash with no error boundary.
+	 */
+	const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+		null !== value && 'object' === typeof value && !Array.isArray(value);
 
 	useEffect(() => {
+		setIsLoading(true);
+		setHasError(false);
+
 		Promise.all([
 			getApiResponse<DashboardSummary>(getApiLink(appLocalizer, 'dashboard'), {
 				headers: { 'X-WP-Nonce': appLocalizer.nonce },
@@ -133,21 +158,35 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 			}),
 		])
 			.then(([dashboardResponse, vitalsResponse]) => {
-				if (dashboardResponse) {
-					setDashboard(dashboardResponse);
+				const dashboardValid =
+					isPlainObject(dashboardResponse) &&
+					isPlainObject(dashboardResponse.category_scores);
+				const vitalsValid = isPlainObject(vitalsResponse);
+
+				if (!dashboardValid || !vitalsValid) {
+					setHasError(true);
+					return;
 				}
-				if (vitalsResponse) {
-					setVitals(vitalsResponse);
-				}
+
+				setDashboard(dashboardResponse);
+				setVitals(vitalsResponse);
 			})
+			.catch(() => setHasError(true))
 			.finally(() => setIsLoading(false));
 	}, []);
 
 	const psi = dashboard?.psi_speed_scores ?? null;
-	const hasPsi = null !== psi && null !== psi.mobile && null !== psi.desktop;
+	const hasPsi =
+		null !== psi &&
+		'number' === typeof psi.mobile &&
+		'number' === typeof psi.desktop;
 
 	const comparisonMessage = (): string | null => {
-		if (!hasPsi || null === psi?.mobile || null === psi?.desktop) {
+		if (
+			!hasPsi ||
+			'number' !== typeof psi?.mobile ||
+			'number' !== typeof psi?.desktop
+		) {
 			return null;
 		}
 
@@ -179,7 +218,14 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 		<ContainerComponent>
 			<ColumnComponent grid={6}>
 				<CardComponent title={__('Overall Speed Score', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
-					{!isLoading && dashboard && (
+					{!isLoading && hasError && (
+						<ModuleGuardComponent
+							icon="error"
+							title={__('Could not load your speed score', 'vulopilot')}
+							desc={__('Please refresh the page to try again.', 'vulopilot')}
+						/>
+					)}
+					{!isLoading && !hasError && dashboard && (
 						<>
 							<div className="speed-score-tiles">
 								{hasPsi && psi ? (
@@ -251,7 +297,14 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 
 			<ColumnComponent grid={6}>
 				<CardComponent title={__('Core Web Vitals', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
-					{!isLoading && vitals && (
+					{!isLoading && hasError && (
+						<ModuleGuardComponent
+							icon="error"
+							title={__('Could not load Core Web Vitals', 'vulopilot')}
+							desc={__('Please refresh the page to try again.', 'vulopilot')}
+						/>
+					)}
+					{!isLoading && !hasError && vitals && (
 						<>
 							{vitals.sample_count < MIN_SAMPLES ? (
 								<p className="desc">
@@ -267,7 +320,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 								</p>
 							) : (
 								<>
-									{null !== vitals.lcp_ms && (
+									{'number' === typeof vitals.lcp_ms && (
 										<VitalRow
 											label={__('Largest Contentful Paint (LCP)', 'vulopilot')}
 											displayValue={`${(vitals.lcp_ms / 1000).toFixed(1)}s`}
@@ -276,7 +329,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 											goodCaption={__('Good: ≤ 2.5s', 'vulopilot')}
 										/>
 									)}
-									{null !== vitals.inp_ms && (
+									{'number' === typeof vitals.inp_ms && (
 										<VitalRow
 											label={__('Interaction to Next Paint (INP)', 'vulopilot')}
 											displayValue={`${vitals.inp_ms}ms`}
@@ -285,7 +338,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 											goodCaption={__('Good: ≤ 200ms', 'vulopilot')}
 										/>
 									)}
-									{null !== vitals.cls && (
+									{'number' === typeof vitals.cls && (
 										<VitalRow
 											label={__('Cumulative Layout Shift (CLS)', 'vulopilot')}
 											displayValue={vitals.cls.toFixed(2)}

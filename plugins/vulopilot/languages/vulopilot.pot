@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-11T12:37:38+00:00\n"
+"POT-Creation-Date: 2026-08-12T12:01:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -113,6 +113,7 @@ msgid "Knowledge Graph"
 msgstr ""
 
 #: classes/Admin.php:235
+#: classes/RestAPI/Controllers/Copilot.php:393
 #: classes/Scanners/Basic/SeoScanner.php:44
 #: assets/js/index.js:1
 msgid "SEO"
@@ -135,6 +136,7 @@ msgid "Redirects & 404s"
 msgstr ""
 
 #: classes/Admin.php:258
+#: classes/RestAPI/Controllers/Copilot.php:396
 #: classes/Scanners/Basic/AccessibilityScanner.php:46
 #: assets/js/index.js:1
 msgid "Accessibility"
@@ -154,22 +156,22 @@ msgstr ""
 msgid "Status & Tools"
 msgstr ""
 
-#: classes/Admin.php:370
+#: classes/Admin.php:376
 #: assets/js/index.js:1
 msgid "AI Visibility"
 msgstr ""
 
-#: classes/Admin.php:371
+#: classes/Admin.php:377
 #: assets/js/index.js:1
 msgid "SEO & Content"
 msgstr ""
 
-#: classes/Admin.php:372
+#: classes/Admin.php:378
 #: assets/js/index.js:1
 msgid "Site Health"
 msgstr ""
 
-#: classes/Admin.php:373
+#: classes/Admin.php:379
 msgid "Tools"
 msgstr ""
 
@@ -367,27 +369,27 @@ msgstr ""
 msgid "Could not save the author bio."
 msgstr ""
 
-#: classes/AIActions/Actions/GenerateBlogAction.php:51
+#: classes/AIActions/Actions/GenerateBlogAction.php:57
 msgid "Generate blog post"
 msgstr ""
 
-#: classes/AIActions/Actions/GenerateBlogAction.php:61
+#: classes/AIActions/Actions/GenerateBlogAction.php:67
 msgid "Please provide a topic of at least 5 characters."
 msgstr ""
 
-#: classes/AIActions/Actions/GenerateBlogAction.php:105
+#: classes/AIActions/Actions/GenerateBlogAction.php:134
 #: classes/AIActions/Actions/GenerateComparisonPageAction.php:136
-#: classes/AIActions/Actions/GenerateLandingPageAction.php:113
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:118
+#: classes/AIActions/Actions/GenerateLandingPageAction.php:127
+#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:124
 msgid "The AI response did not match the expected TITLE/BODY format."
 msgstr ""
 
-#: classes/AIActions/Actions/GenerateBlogAction.php:110
+#: classes/AIActions/Actions/GenerateBlogAction.php:139
 msgid "The AI returned a post body that is too short to be useful."
 msgstr ""
 
 #. translators: %s is the generated post title.
-#: classes/AIActions/Actions/GenerateBlogAction.php:121
+#: classes/AIActions/Actions/GenerateBlogAction.php:150
 #, php-format
 msgid "Create a new draft post: %s"
 msgstr ""
@@ -476,12 +478,12 @@ msgstr ""
 msgid "Please describe what the landing page is for (at least 5 characters)."
 msgstr ""
 
-#: classes/AIActions/Actions/GenerateLandingPageAction.php:118
+#: classes/AIActions/Actions/GenerateLandingPageAction.php:132
 msgid "The AI returned a landing page body that is too short to be useful."
 msgstr ""
 
 #. translators: %s is the generated page title.
-#: classes/AIActions/Actions/GenerateLandingPageAction.php:129
+#: classes/AIActions/Actions/GenerateLandingPageAction.php:143
 #, php-format
 msgid "Create a new draft landing page: %s"
 msgstr ""
@@ -490,16 +492,16 @@ msgstr ""
 msgid "Generate product description"
 msgstr ""
 
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:64
+#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:65
 msgid "Please provide a product name of at least 3 characters."
 msgstr ""
 
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:123
+#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:129
 msgid "The AI returned a description that is too short to be useful."
 msgstr ""
 
 #. translators: %s is the generated product title.
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:134
+#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:140
 #, php-format
 msgid "Create a new draft product: %s"
 msgstr ""
@@ -955,6 +957,133 @@ msgstr ""
 
 #: classes/RestAPI/Controllers/Automations.php:160
 msgid "Manually running an automation isn't supported yet — automations currently only fire from their own configured trigger."
+msgstr ""
+
+#: classes/RestAPI/Controllers/ContentAssistant.php:142
+#: classes/RestAPI/Controllers/Copilot.php:133
+msgid "Message cannot be empty."
+msgstr ""
+
+#. translators: %s is the exception's own real message, e.g. "No AI provider is configured."
+#: classes/RestAPI/Controllers/ContentAssistant.php:158
+#: classes/RestAPI/Controllers/ContentAssistant.php:345
+#: classes/RestAPI/Controllers/Copilot.php:156
+#, php-format
+msgid "%s Add one in Settings → AI Providers."
+msgstr ""
+
+#. translators: %s is the site's own real name (get_bloginfo('name')).
+#: classes/RestAPI/Controllers/ContentAssistant.php:203
+#, php-format
+msgid ""
+"You are the intake assistant for the \"Create Content\" chat inside the WordPress plugin VuloPilot, on the site \"%s\". Your job this turn is to move the conversation toward either (a) creating one of 3 specific kinds of real WordPress content, or (b) simply answering the user when that's what they actually want.\n"
+"\n"
+"The 3 kinds of WordPress content you can create. For each, collect the fields in the order listed — a field being listed after the first one does NOT mean it's skippable; ask about each one, one at a time, unless the user already stated it somewhere in the conversation:\n"
+"1. \"generate-blog\" — a blog post or article. Collect, in order: topic (what it's about), word_count (target word count), tone (e.g. Professional/Friendly/Informative/Casual).\n"
+"2. \"generate-landing-page\" — a landing page. Collect, in order: topic (what the page is promoting/for), tone.\n"
+"3. \"generate-product-description\" — a product description. Collect, in order: product_name, key_features (a short list of what makes it worth buying), tone.\n"
+"\n"
+"Rules:\n"
+"- Ask for exactly ONE missing field at a time, as a short natural question, following the collection order above. Never ask about a field already given anywhere earlier in this conversation — check the whole conversation, not just the latest message, before asking. Never ask more than 3 questions total for one request.\n"
+"- If the user changed their mind about something, use their latest answer, not an earlier one.\n"
+"- Only skip a field if the user's messages already gave it, or if they explicitly say they don't have a preference for it. Do not stop early just because the first, most-obvious field (e.g. the topic) is known — still ask about the remaining ones in order.\n"
+"- A field can be given implicitly inside natural phrasing, not just as an explicit \"field: value\" statement — e.g. \"a casual blog post about X\" already gives both topic and tone (casual); \"a 500-word post\" or \"500 words\" gives word_count. Recognize these the same as an explicit answer, and don't ask about them again.\n"
+"- If the request doesn't match any of the 3 kinds (e.g. an email, a social caption, general advice, or editing something that already exists, which you have no way to identify from chat), have a short exchange to understand what's actually needed (purpose, audience, tone — whatever is relevant), then write the content yourself as a normal reply. Never claim it was created or saved — there is no WordPress content type for it.\n"
+"- If the user is just asking a question rather than requesting new content, answer it directly and helpfully. Use plain text or Markdown, never HTML.\n"
+"\n"
+"Worked example for \"generate-blog\" (the same collect-one-at-a-time pattern applies to the other 2 kinds and their own field lists above):\n"
+"User: \"Write a blog\" → {\"status\":\"question\",\"message\":\"Sure! What should the blog be about?\"}\n"
+"User: \"AI in eCommerce\" → {\"status\":\"question\",\"message\":\"Great — how many words would you like?\"}\n"
+"User: \"1500 words\" → {\"status\":\"question\",\"message\":\"What tone would you prefer? For example: Professional, Friendly, Informative, or Casual.\"}\n"
+"User: \"Professional\" → {\"status\":\"ready_action\",\"action_id\":\"generate-blog\",\"input\":{\"topic\":\"AI in eCommerce\",\"word_count\":1500,\"tone\":\"Professional\"}}\n"
+"\n"
+"But if a message already gives multiple fields at once (e.g. \"Write a 1000-word blog about SEO\" gives topic and word_count together, or a fully-specified first message gives everything), only ask about whatever is still actually missing from that list — or proceed straight to ready_action if nothing is missing.\n"
+"\n"
+"Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of these shapes:\n"
+"{\"status\":\"question\",\"message\":\"<the single next question, phrased naturally>\"}\n"
+"{\"status\":\"ready_action\",\"action_id\":\"generate-blog\"|\"generate-landing-page\"|\"generate-product-description\",\"input\":{...only the fields listed above for that action_id...}}\n"
+"{\"status\":\"respond\",\"message\":\"<a direct answer, or fully-written content for a kind with no matching action above>\"}"
+msgstr ""
+
+#: classes/RestAPI/Controllers/ContentAssistant.php:279
+msgid "Sorry, I didn't quite catch that — could you rephrase?"
+msgstr ""
+
+#: classes/RestAPI/Controllers/ContentAssistant.php:299
+msgid "I couldn't quite tell what to create — could you tell me a bit more about what you'd like?"
+msgstr ""
+
+#: classes/RestAPI/Controllers/ContentAssistant.php:307
+msgid "Could you tell me a bit more about what you need?"
+msgstr ""
+
+#: classes/RestAPI/Controllers/ContentAssistant.php:363
+msgid "The content was generated but could not be saved."
+msgstr ""
+
+#. translators: %s is a content type, e.g. "blog post".
+#: classes/RestAPI/Controllers/ContentAssistant.php:375
+#, php-format
+msgid "Your %s has been created successfully:"
+msgstr ""
+
+#. translators: 1: site name, 2: real live site snapshot text.
+#: classes/RestAPI/Controllers/Copilot.php:189
+#, php-format
+msgid "You are VuloPilot, an AI website copilot embedded in the WordPress plugin VuloPilot, helping the owner of the site \"%1$s\". You help with SEO, performance, security, accessibility, GEO/AI-search visibility, WooCommerce store health, and automations. Answer using the real site snapshot below when relevant, and point the user to the specific tab (Issues, Performance, Security, GEO, WooCommerce, Automation) where they can review or fix something. You cannot execute changes on the site yourself during this conversation — say so plainly if asked to perform an action, rather than claiming to have done it. Reply in plain text or Markdown, never HTML.%2$s"
+msgstr ""
+
+#. translators: 1: scanner label, 2: category, 3: open finding count, 4: severity
+#: classes/RestAPI/Controllers/Copilot.php:280
+#, php-format
+msgid "- Finding group \"%1$s\" (%2$s): %3$d open, severity %4$s."
+msgstr ""
+
+#. translators: 1: automation name, 2: status (enabled/disabled), 3: trigger type
+#: classes/RestAPI/Controllers/Copilot.php:296
+#, php-format
+msgid "- Automation \"%1$s\": %2$s, trigger %3$s."
+msgstr ""
+
+#. translators: 1: original filename, 2: mime type
+#: classes/RestAPI/Controllers/Copilot.php:341
+#, php-format
+msgid "- Attached file \"%1$s\" (%2$s) — its content can't be read as text, only the filename is available."
+msgstr ""
+
+#. translators: 1: original filename, 2: mime type
+#: classes/RestAPI/Controllers/Copilot.php:355
+#, php-format
+msgid "- Attached file \"%1$s\" (%2$s) — could not be read."
+msgstr ""
+
+#. translators: 1: original filename, 2: mime type, 3: the file's own text content, 4: truncation note or empty string
+#: classes/RestAPI/Controllers/Copilot.php:367
+#, php-format
+msgid ""
+"- Attached file \"%1$s\" (%2$s):\n"
+"%3$s%4$s"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Copilot.php:394
+#: classes/Scanners/Basic/PerformanceScanner.php:46
+#: assets/js/index.js:1
+msgid "Performance"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Copilot.php:395
+#: assets/js/index.js:1
+msgid "Security"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Copilot.php:397
+msgid "GEO/AI-search"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Copilot.php:401
+#: classes/Scanners/Basic/WooCommerceScanner.php:48
+#: assets/js/index.js:1
+msgid "WooCommerce"
 msgstr ""
 
 #: classes/RestAPI/Controllers/CoreWebVitalsBeaconRest.php:83
@@ -2055,11 +2184,6 @@ msgstr ""
 msgid "Among the recently modified content sampled by this scan, nothing links to this page. Pages with no inbound internal links are harder for search engines to discover."
 msgstr ""
 
-#: classes/Scanners/Basic/PerformanceScanner.php:46
-#: assets/js/index.js:1
-msgid "Performance"
-msgstr ""
-
 #. translators: %s is a formatted byte size, e.g. "1.4 MB".
 #: classes/Scanners/Basic/PerformanceScanner.php:73
 #, php-format
@@ -2573,11 +2697,6 @@ msgstr ""
 
 #: classes/Scanners/Basic/WeakPasswordScanner.php:102
 msgid "This account's password matched an entry in a small dictionary of the most commonly used passwords. Change it immediately and enable two-factor authentication if available."
-msgstr ""
-
-#: classes/Scanners/Basic/WooCommerceScanner.php:48
-#: assets/js/index.js:1
-msgid "WooCommerce"
 msgstr ""
 
 #: classes/Scanners/Basic/WooCommerceScanner.php:69
@@ -4417,10 +4536,6 @@ msgid "Enter your own custom webmaster tags. Only <meta> tags are allowed — an
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Security"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Security, accessibility, and performance scanning behavior."
 msgstr ""
 
@@ -5816,6 +5931,10 @@ msgid "Last Scanned"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Could not reach VuloPilot. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "AI Search (GEO)"
 msgstr ""
 
@@ -5978,7 +6097,7 @@ msgid "Ask VuloPilot anything…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI chat replies aren't available yet — this is a preview of the composer, not a connected assistant."
+msgid "Thinking…"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7407,14 +7526,6 @@ msgstr ""
 msgid "Could not load what needs your attention."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Could not load issues"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "things need attention"
-msgstr ""
-
 #. translators: %d: count of high-priority open findings
 #: assets/js/index.js:1
 #, js-format
@@ -7431,6 +7542,14 @@ msgstr ""
 #: assets/js/index.js:1
 #, js-format
 msgid "%d Low priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "things need attention"
 msgstr ""
 
 #. translators: 1: real open-finding count, 2: scanner label, e.g. "Meta Descriptions"
@@ -7522,19 +7641,35 @@ msgid "Try asking me…"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Attach a .txt or .csv file — uploaded to your Media Library so the AI can read it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Upload File"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "That file wasn't uploaded — use the Upload File button so it's saved to the Media Library and readable by the AI."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pick real open issues or automations to ground this message with."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "open"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing to add context from yet."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Ask VuloPilot anything about your website…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Attaching files isn't available yet — there's no connected assistant to send them to."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Attach"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Adding context isn't available yet — there's no connected assistant to send it to."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7708,7 +7843,7 @@ msgid "Search history…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Date range"
+msgid "Select date range"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7723,7 +7858,6 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#. translators: %d: real number of findings this scan found
 #: assets/js/index.js:1
 #, js-format
 msgid "%d issue found"
@@ -7731,7 +7865,6 @@ msgid_plural "%d issues found"
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: 1: real previous value (or "new content"), 2: real new value
 #: assets/js/index.js:1
 #, js-format
 msgid "Before: %1$s · After: %2$s"
@@ -7802,6 +7935,10 @@ msgid "Could not update these findings. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Category"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Affected"
 msgstr ""
 
@@ -7844,19 +7981,7 @@ msgid "Issue"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Category"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Priority"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Issues"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "VuloPilot found these issues across your site. Fix what matters most to improve performance, visibility, and user experience."
 msgstr ""
 
 #. translators: %d is the number of open security findings.
@@ -8428,6 +8553,10 @@ msgid "Hi %s! I can help you create amazing content. Try one of these prompt ide
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Could not reach the AI Content Assistant. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Ask Anything…"
 msgstr ""
 
@@ -8504,15 +8633,11 @@ msgid "Report"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Your always-on AI assistant for WordPress. Ask anything, get intelligent answers and take action."
+msgid "Chat"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Online"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "How it works"
+msgid "Issues"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8528,7 +8653,15 @@ msgid "When \"Auto-applies\" is on, safe fixes are applied automatically and log
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Chat"
+msgid "Your always-on AI assistant for WordPress. Ask anything, get intelligent answers and take action."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Online"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "How it works"
 msgstr ""
 
 #: assets/js/index.js:1

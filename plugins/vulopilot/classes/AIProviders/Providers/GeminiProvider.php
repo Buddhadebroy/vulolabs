@@ -183,6 +183,26 @@ class GeminiProvider implements AIProviderInterface {
             );
         }
 
+        // A real inline image for the current turn (Copilot.php's "Attach"
+        // — see AIRequest::get_image()'s own docblock for why only this
+        // adapter reads it) goes as a second `parts` entry alongside the
+        // last message's own text, matching Gemini's real documented
+        // multimodal request shape (inline_data alongside text parts in the
+        // same `contents[].parts` array). The loop above always ends with
+        // the current turn's own message last (Copilot.php/
+        // ContentAssistant.php both append the new user message last), so
+        // the final $contents entry is where the image belongs.
+        $image = $request->get_image();
+
+        if ( null !== $image && $contents ) {
+            $contents[ count( $contents ) - 1 ]['parts'][] = array(
+                'inline_data' => array(
+                    'mime_type' => $image['mime_type'],
+                    'data'      => $image['data'],
+                ),
+            );
+        }
+
         $body = array( 'contents' => $contents );
 
         if ( null !== $system ) {

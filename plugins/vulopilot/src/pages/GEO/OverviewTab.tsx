@@ -11,6 +11,7 @@ import {
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import { useCopilotChat } from '../../services/useCopilotChat';
+import { ChatMarkdown } from '../../components/ChatMarkdown';
 import VisibilityScoreCard from './VisibilityScoreCard';
 import AiOpportunitiesCard from './AiOpportunitiesCard';
 import DiscoverCard from './DiscoverCard';
@@ -75,7 +76,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 							key={index}
 							sender={'user' === turn.role ? 'user' : 'ai'}
 						>
-							{turn.content}
+							<ChatMarkdown text={turn.content} />
 						</ChatMessageComponent>
 					))}
 

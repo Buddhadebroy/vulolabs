@@ -858,6 +858,21 @@ $recent-content-severities: (
 	animation: content-tool-spin 1s linear infinite;
 }
 
+// AiContentAssistantSidebar.tsx's real "View/Edit …" link, shown when a
+// chat message actually created and saved a new post (generate-blog/
+// generate-landing-page/generate-product-description).
+.content-assistant-created-link {
+	margin-top: 0.5rem;
+}
+
+.content-assistant-created-link-anchor {
+	display: inline-flex;
+	align-items: center;
+	font-weight: 600;
+	color: var(--color-primary);
+	text-decoration: underline;
+}
+
 .content-tool-error {
 	display: flex;
 	align-items: flex-start;
