@@ -10,6 +10,34 @@ export interface CopilotChatTurn {
 	content: string;
 }
 
+/**
+ * A user-picked "Add context" item — always re-resolved against real,
+ * current data server-side (Copilot.php's build_context_refs_block());
+ * the extra fields here (label/category/count/severity, name) are for
+ * rendering the chip client-side only, never trusted as-is by the server.
+ */
+export type CopilotContextRef =
+	| {
+			type: 'finding_group';
+			scannerId: string;
+			label: string;
+			category: string;
+			count: number;
+			severity: string;
+	  }
+	| {
+			type: 'automation';
+			id: number;
+			name: string;
+	  };
+
+/** A user-picked "Attach" file — a real WP Media Library attachment (zyra FileInput's wp.media() picker always returns a real id, never a client-only blob). */
+export interface CopilotAttachment {
+	id: number;
+	url: string;
+	name: string;
+}
+
 interface CopilotChatResponse {
 	content: string;
 	provider: string;
@@ -45,7 +73,11 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	const [ turns, setTurns ] = useState< CopilotChatTurn[] >( [] );
 	const [ isSending, setIsSending ] = useState( false );
 
-	const send = ( message: string ) => {
+	const send = (
+		message: string,
+		contextRefs: CopilotContextRef[] = [],
+		attachments: CopilotAttachment[] = []
+	) => {
 		const trimmed = message.trim();
 
 		if ( '' === trimmed || isSending ) {
@@ -60,7 +92,18 @@ export const useCopilotChat = ( noticeKey: string ) => {
 		axios
 			.post< CopilotChatResponse >(
 				getApiLink( appLocalizer, 'copilot/chat' ),
-				{ message: trimmed, history },
+				{
+					message: trimmed,
+					history,
+					context_refs: contextRefs.map( ( ref ) =>
+						'finding_group' === ref.type
+							? { type: ref.type, scanner_id: ref.scannerId }
+							: { type: ref.type, id: ref.id }
+					),
+					attachments: attachments.map( ( attachment ) => ( {
+						id: attachment.id,
+					} ) ),
+				},
 				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
 			)
 			.then( ( response ) => {

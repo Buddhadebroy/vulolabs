@@ -211,6 +211,49 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * Same worst-severity grouping get_finding_groups() computes, scoped to
+     * exactly one scanner_id — what AI Copilot chat's "Add context" picker
+     * (Controllers\Copilot.php) resolves a user-picked `finding_group`
+     * context ref against, so the AI is always grounded with this group's
+     * real, current count/severity rather than whatever stale numbers the
+     * client had cached when the user picked it.
+     *
+     * @param string $scanner_id Scanner id to look up.
+     * @return array{scanner_id: string, category: string, count: int, severity: string}|null Null if this scanner has no open findings right now.
+     */
+    public function get_group_by_scanner_id( string $scanner_id ): ?array {
+        global $wpdb;
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT category, COUNT(*) AS count, MIN( CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 WHEN 'info' THEN 4 ELSE 5 END ) AS severity_rank FROM {$this->get_table()} WHERE status = 'open' AND scanner_id = %s GROUP BY category", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $scanner_id
+            ),
+            ARRAY_A
+        );
+
+        if ( ! $row ) {
+            return null;
+        }
+
+        $severity_by_rank = array(
+            0 => 'critical',
+            1 => 'high',
+            2 => 'medium',
+            3 => 'low',
+            4 => 'info',
+            5 => 'info',
+        );
+
+        return array(
+            'scanner_id' => $scanner_id,
+            'category'   => (string) $row['category'],
+            'count'      => (int) $row['count'],
+            'severity'   => $severity_by_rank[ (int) $row['severity_rank'] ] ?? 'info',
+        );
+    }
+
+    /**
      * Open **group** counts per category — i.e. how many distinct
      * (scanner_id, category) rows get_finding_groups() would return for
      * each category, not how many raw findings exist in it. The Issues

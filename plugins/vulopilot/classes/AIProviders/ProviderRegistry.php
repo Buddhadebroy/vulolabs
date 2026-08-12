@@ -189,4 +189,26 @@ class ProviderRegistry {
 
         return '' !== $model ? $model : null;
     }
+
+    /**
+     * Whether this provider's adapter actually emits a real inline image
+     * part when AIRequest::get_image() is set (GeminiProvider::build_body()
+     * today — the only adapter in this codebase built to send one; every
+     * other adapter's build_body()/AIRequest usage stays text-only and
+     * would silently never look at get_image() at all). Callers building a
+     * request with a real image attachment (Copilot.php) must check this
+     * against whichever provider will actually answer — build_fallback_chain()
+     * ->get_id() proxies to the first active provider in the chain — before
+     * attaching one, since a fallback chain can silently land on a
+     * different, non-vision provider first if more than one is configured.
+     * Sending an image to a provider that ignores it would make that
+     * provider guess/hallucinate a description instead of honestly saying
+     * it can't see the attachment, which is worse than not attaching it.
+     *
+     * @param string $provider_id e.g. 'gemini'.
+     * @return bool
+     */
+    public function supports_vision( string $provider_id ): bool {
+        return 'gemini' === $provider_id;
+    }
 }

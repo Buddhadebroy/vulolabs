@@ -14,9 +14,9 @@ import { Link } from 'react-router-dom';
 
 const TAB_IDS = [
 	'chat',
-	'history',
 	'issues',
 	'ai-workflows',
+	'history',
 ] as const;
 
 const AIAssistant = () => {
@@ -88,8 +88,6 @@ const AIAssistant = () => {
 						onAutoApplyChange={setAutoApply}
 					/>
 				);
-			case 'history':
-				return <HistoryTab />;
 			case 'issues':
 				return (
 					<IssuesTab
@@ -99,6 +97,8 @@ const AIAssistant = () => {
 				);
 			case 'ai-workflows':
 				return <AiWorkflowsTab />;
+			case 'history':
+				return <HistoryTab />;
 			default:
 				return <div></div>;
 		}

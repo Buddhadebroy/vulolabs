@@ -113,6 +113,7 @@ const ContentScoreCard = () => {
 						}
 						data={[
 							{
+								
 								label: __('Score', 'vulopilot'),
 								value: data.score,
 								color: rating.color,

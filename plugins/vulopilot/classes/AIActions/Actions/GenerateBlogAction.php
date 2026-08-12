@@ -31,6 +31,12 @@ defined( 'ABSPATH' ) || exit;
  * created post rather than force-deleting it, so WordPress's own
  * trash/restore safety net still applies on top of ours.
  *
+ * `word_count`/`tone` are optional — added for AI Content Assistant's
+ * conversational intake (ContentAssistant.php's orchestrator prompt asks
+ * for these when they'd meaningfully change the result), but a bare
+ * `topic` is still a fully valid input, same as ContentToolsGrid.tsx's
+ * own "Blog Generator" tile, which never supplies either.
+ *
  * @class       GenerateBlogAction class
  * @version     1.0.0
  * @author      VuloLabs
@@ -61,13 +67,36 @@ class GenerateBlogAction extends AbstractBasicAction {
             throw new InvalidActionInputException( __( 'Please provide a topic of at least 5 characters.', 'vulopilot' ) );
         }
 
-        return array( 'topic' => $topic );
+        // Both optional — a bare topic is still a complete, valid input,
+        // same as before either field existed. word_count is clamped to a
+        // sane blog-length range rather than trusted verbatim (this is
+        // AI-Content-Assistant-supplied input, not just a human-typed
+        // form field); tone is free text capped to a short label's length.
+        $word_count = absint( $input['word_count'] ?? 0 );
+        $word_count = $word_count > 0 ? max( 100, min( 5000, $word_count ) ) : 0;
+        $tone       = mb_substr( sanitize_text_field( (string) ( $input['tone'] ?? '' ) ), 0, 60 );
+
+        return array(
+            'topic'      => $topic,
+            'word_count' => $word_count,
+            'tone'       => $tone,
+        );
     }
 
     /**
      * @inheritDoc
      */
     public function build_prompt( array $input ): array {
+        $user_message = sprintf( 'Write a blog post about: %s', $input['topic'] );
+
+        if ( ! empty( $input['word_count'] ) ) {
+            $user_message .= sprintf( "\n\nTarget length: approximately %d words.", $input['word_count'] );
+        }
+
+        if ( '' !== ( $input['tone'] ?? '' ) ) {
+            $user_message .= sprintf( "\n\nTone: %s.", $input['tone'] );
+        }
+
         return array(
             array(
                 'role'    => 'system',
@@ -76,7 +105,7 @@ class GenerateBlogAction extends AbstractBasicAction {
             ),
             array(
                 'role'    => 'user',
-                'content' => sprintf( 'Write a blog post about: %s', $input['topic'] ),
+                'content' => $user_message,
             ),
         );
     }

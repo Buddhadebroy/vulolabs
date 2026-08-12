@@ -10,16 +10,24 @@ import {
 	ListComponent,
 	NoticeManager,
 } from '@zyra/components';
+import { ChatMarkdown } from '../../components/ChatMarkdown';
+
+interface ChatLink {
+	url: string;
+	label: string;
+}
 
 interface ChatTurn {
 	role: 'user' | 'assistant';
 	content: string;
+	link?: ChatLink | null;
 }
 
 interface ChatResponse {
 	content: string;
-	provider: string;
-	model: string;
+	link: ChatLink | null;
+	provider: string | null;
+	model: string | null;
 }
 
 /**
@@ -60,6 +68,15 @@ const PROMPT_CHIPS = [
  * recorded to `vulopilot_ai_history` server-side regardless (Reports'
  * own AI Usage report already reads that table). Prompt chips prefill
  * the composer only, same harmless pattern as AI Copilot's ChatTab.tsx.
+ *
+ * A "write a blog"/"create a landing page"/"create a product description"
+ * style message doesn't come back as raw generated text: the controller
+ * runs the real AIAction (generate-blog/generate-landing-page/
+ * generate-product-description — the same ones ContentToolsGrid.tsx's own
+ * tiles run), actually creates and saves the WordPress draft, and this
+ * response's `link` carries the real edit URL, rendered below as a real
+ * clickable `<a>` — never markdown-in-text, since ChatMessageComponent
+ * renders `content` as plain text.
  */
 const AiContentAssistantSidebar = () => {
 	const [message, setMessage] = useState('');
@@ -88,7 +105,11 @@ const AiContentAssistantSidebar = () => {
 			.then((response) => {
 				setTurns((current) => [
 					...current,
-					{ role: 'assistant', content: response.data.content },
+					{
+						role: 'assistant',
+						content: response.data.content,
+						link: response.data.link,
+					},
 				]);
 			})
 			.catch((error) => {
@@ -129,7 +150,19 @@ const AiContentAssistantSidebar = () => {
 					key={index}
 					sender={'user' === turn.role ? 'user' : 'ai'}
 				>
-					{turn.content}
+					<ChatMarkdown text={turn.content} />
+					{turn.link && (
+						<div className="content-assistant-created-link">
+							<a
+								className="content-assistant-created-link-anchor"
+								href={turn.link.url}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{turn.link.label}
+							</a>
+						</div>
+					)}
 				</ChatMessageComponent>
 			))}
 
