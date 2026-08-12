@@ -63,7 +63,7 @@ class SafeRequestSender {
             throw new \RuntimeException( __( 'No AI provider is configured.', 'vulopilot' ) );
         }
 
-        $model    = $provider->get_available_models()[0] ?? '';
+        $model    = $this->provider_registry->get_default_model( $provider->get_id() ) ?? ( $provider->get_available_models()[0] ?? '' );
         $response = $provider->send( new AIRequest( $model, $messages ) );
 
         return $this->safety_validator->sanitize_response( $response );

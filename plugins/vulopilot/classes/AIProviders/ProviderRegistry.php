@@ -167,4 +167,26 @@ class ProviderRegistry {
 
         return $providers ? new Decorators\ProviderFallbackChain( $providers ) : null;
     }
+
+    /**
+     * The site owner's own configured default model for one provider, if
+     * they set one — Settings → AI Providers' model dropdown writes this
+     * to `vulopilot_ai_provider_configs.default_model`. Callers building a
+     * request (SafeRequestSender) should prefer this over blindly picking
+     * a provider's get_available_models()[0]: an adapter's static model
+     * catalog is a list of models the API *supports*, not a guarantee
+     * every one of them is available to every API key (e.g. a free-tier
+     * Gemini key rejecting "gemini-2.5-pro" — GeminiProvider's own
+     * catalog[0] — with "no longer available to new users," while
+     * "gemini-2.5-flash," this site's actual configured default, works).
+     *
+     * @param string $provider_id e.g. 'gemini'.
+     * @return string|null Null if unconfigured or no default was ever chosen.
+     */
+    public function get_default_model( string $provider_id ): ?string {
+        $config = $this->configs->find_by_provider( $provider_id );
+        $model  = (string) ( $config['default_model'] ?? '' );
+
+        return '' !== $model ? $model : null;
+    }
 }
