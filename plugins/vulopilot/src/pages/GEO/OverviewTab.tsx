@@ -12,6 +12,7 @@ import {
 import { useRunScan } from '../../services/useRunScan';
 import { useCopilotChat } from '../../services/useCopilotChat';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
+import AiCopilotGuard from '../../components/AiCopilotGuard';
 import VisibilityScoreCard from './VisibilityScoreCard';
 import AiOpportunitiesCard from './AiOpportunitiesCard';
 import DiscoverCard from './DiscoverCard';
@@ -68,49 +69,51 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 					title={__('How would you like to grow today?', 'vulopilot')}
 					titleIcon="bar-chart"
 				>
-					<ChatInputComponent
-						value={message}
-						onChange={setMessage}
-						onSend={handleSend}
-						disabled={isSending}
-						placeholder={__('Ask VuloPilot anything…', 'vulopilot')}
-					/>
+					<AiCopilotGuard>
+						<ChatInputComponent
+							value={message}
+							onChange={setMessage}
+							onSend={handleSend}
+							disabled={isSending}
+							placeholder={__('Ask VuloPilot anything…', 'vulopilot')}
+						/>
 
-					{turns.map((turn, index) => (
-						<ChatMessageComponent
-							key={index}
-							sender={'user' === turn.role ? 'user' : 'ai'}
-						>
-							<ChatMarkdown text={turn.content} />
-						</ChatMessageComponent>
-					))}
+						{turns.map((turn, index) => (
+							<ChatMessageComponent
+								key={index}
+								sender={'user' === turn.role ? 'user' : 'ai'}
+							>
+								<ChatMarkdown text={turn.content} />
+							</ChatMessageComponent>
+						))}
 
-					{isSending && (
-						<ChatMessageComponent sender="ai">
-							<i className="adminfont-refresh chat-thinking-spinner" />{' '}
-							{__('Thinking…', 'vulopilot')}
-						</ChatMessageComponent>
-					)}
-
-					<ListComponent
-						className="chip-grid"
-						items={SUGGESTED_PROMPTS.map((prompt) => ({
-							id: prompt.id,
-							icon: prompt.icon,
-							title: prompt.title,
-							action: () =>
-								prompt.id === 'audit'
-									? runScan()
-									: setMessage(prompt.title),
-						}))}
-					/>
-					<p className="chat-monitoring-note">
-						<i className="adminfont-ai" />
-						{__(
-							'AI is continuously monitoring your visibility.',
-							'vulopilot'
+						{isSending && (
+							<ChatMessageComponent sender="ai">
+								<i className="adminfont-refresh chat-thinking-spinner" />{' '}
+								{__('Thinking…', 'vulopilot')}
+							</ChatMessageComponent>
 						)}
-					</p>
+
+						<ListComponent
+							className="chip-grid"
+							items={SUGGESTED_PROMPTS.map((prompt) => ({
+								id: prompt.id,
+								icon: prompt.icon,
+								title: prompt.title,
+								action: () =>
+									prompt.id === 'audit'
+										? runScan()
+										: setMessage(prompt.title),
+							}))}
+						/>
+						<p className="chat-monitoring-note">
+							<i className="adminfont-ai" />
+							{__(
+								'AI is continuously monitoring your visibility.',
+								'vulopilot'
+							)}
+						</p>
+					</AiCopilotGuard>
 				</CardComponent>
 
 				<ContainerComponent>

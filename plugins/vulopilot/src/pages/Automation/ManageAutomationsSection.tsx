@@ -169,8 +169,14 @@ const ManageAutomationsSection = () => {
 								// Pro is active — this specific module just
 								// isn't toggled on yet, so point at Modules
 								// rather than pitching an upgrade the user
-								// already has.
-								<ShowProPopup moduleName="automation-engine" />
+								// already has. Real backend id is 'automation'
+								// (Automation's folder name kebab-cased, no
+								// 'Engine' suffix) — this previously pointed
+								// at 'automation-engine', an id no real module
+								// resolves to, same broken-toggle-deep-link
+								// bug fixed for the other <ShowProPopup>
+								// call sites this session.
+								<ShowProPopup moduleName="automation" />
 							) : (
 								<ShowProPopup />
 							)}

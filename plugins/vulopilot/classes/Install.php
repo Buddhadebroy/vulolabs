@@ -1103,6 +1103,17 @@ class Install {
         // vulopilot-pro's own entity-relationships/health-history tables
         // are new, and those are created by Pro's own migration path.
         self::seed_module_active( 'entity-extraction' );
+
+        // AI Copilot (modules/AiCopilot/Module.php) didn't exist before this
+        // version either — same "sites upgrading in place need it added the
+        // same way a fresh install gets it via VuloPilot::activate()"
+        // reasoning as 'geo'/'seo' above. This one matters more than most:
+        // Copilot.php's /copilot/chat permission check now requires this id
+        // to be active, so skipping this seed would silently take AI Chat
+        // away from every existing site the moment this version's code
+        // runs. No new table needed (chat has never persisted anything of
+        // its own), so this is the only migration step this module needs.
+        self::seed_module_active( 'ai-copilot' );
     }
 
     /**

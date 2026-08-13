@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
+import AiCopilotGuard from '../../components/AiCopilotGuard';
 
 interface FindingRow {
 	id: number;
@@ -19,7 +20,9 @@ interface AiInsightBannerProps {
  * GEO's own `AiOpportunitiesCard.tsx` precedent, which uses the same
  * finding-count framing with no dollar amount). Real open-finding total
  * for category 'woocommerce' instead. "View AI Opportunities" is a real
- * navigation to the WooCommerce tab.
+ * navigation to the WooCommerce tab. Gated on the real AI Copilot module
+ * (AiCopilotGuard) — previously this whole card ran unconditionally
+ * regardless of module state.
  */
 const AiInsightBanner = ({
 	onNavigateToWooCommerceTab,
@@ -37,30 +40,32 @@ const AiInsightBanner = ({
 			title={__('AI Insight', 'vulopilot')}
 			isLoading={isLoading}
 		>
-			{!isLoading && (
-				<p className="desc">
-					{total > 0
-						? sprintf(
-								/* translators: %d is the number of open woocommerce findings. */
-								__(
-									'AI found %d opportunities to increase sales and improve conversions.',
+			<AiCopilotGuard>
+				{!isLoading && (
+					<p className="desc">
+						{total > 0
+							? sprintf(
+									/* translators: %d is the number of open woocommerce findings. */
+									__(
+										'AI found %d opportunities to increase sales and improve conversions.',
+										'vulopilot'
+									),
+									total
+								)
+							: __(
+									"You're all caught up — no open store opportunities right now.",
 									'vulopilot'
-								),
-								total
-							)
-						: __(
-								"You're all caught up — no open store opportunities right now.",
-								'vulopilot'
-							)}
-				</p>
-			)}
-			<ButtonInput
-				buttons={{
-					text: __('View AI Opportunities', 'vulopilot'),
-					icon: 'ai',
-					onClick: onNavigateToWooCommerceTab,
-				}}
-			/>
+								)}
+					</p>
+				)}
+				<ButtonInput
+					buttons={{
+						text: __('View AI Opportunities', 'vulopilot'),
+						icon: 'ai',
+						onClick: onNavigateToWooCommerceTab,
+					}}
+				/>
+			</AiCopilotGuard>
 		</CardComponent>
 	);
 };
