@@ -1,32 +1,9 @@
-.woocommerce-metrics-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-	gap: 0.875rem;
-}
-
-.woocommerce-metric-tile {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 0.5rem;
-
-	.woocommerce-metric-icon {
-		font-size: 1.5rem;
-		color: var(--color-primary);
-	}
-
-	.woocommerce-metric-title {
-		font-weight: 600;
-		font-size: 0.9rem;
-	}
-}
-
-.sell-more-ai-insight,
-.sell-more-pro-tip {
-	.desc {
-		margin: 0;
-	}
-}
+// .woocommerce-metrics-grid/.woocommerce-metric-tile (WooCommerceMetricsGrid.tsx)
+// and .sell-more-ai-insight/.sell-more-pro-tip (AiInsightBanner.tsx/
+// ProTipBanner.tsx) were removed here — those components only ever
+// rendered on the Overview tab (OverviewTab.tsx), which no longer exists
+// (Sell More now goes straight to the real WooCommerce tab, see
+// WooCommerce.tsx).
 
 .ai-sales-optimize {
 	display: inline-flex;
@@ -107,61 +84,11 @@
 	margin-top: 1rem;
 }
 
-.store-readiness-list {
-	list-style: none;
-	margin: 0 0 0.75rem;
-	padding: 0;
-
-	li {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border-color, #eef0f2);
-
-		&:last-child {
-			border-bottom: none;
-		}
-	}
-}
-
-.store-readiness-row-label {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-
-	.adminfont-check {
-		color: #16a34a;
-	}
-
-	.adminfont-error {
-		color: #dc2626;
-	}
-}
-
-.store-readiness-row-status {
-	font-size: 0.8rem;
-	font-weight: 600;
-
-	&.is-ready {
-		color: #16a34a;
-	}
-
-	&.is-not-ready {
-		color: #dc2626;
-	}
-}
-
-.store-readiness-view-all {
-	display: inline-block;
-	margin-top: 0.5rem;
-	font-weight: 600;
-	color: var(--color-primary);
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
+// "Store Readiness" used to be its own list-styled card here
+// (StoreReadinessCard.tsx, since removed) — it's now the first card
+// inside .woocommerce-category-grid instead, reusing that grid's own
+// .woocommerce-category-row/.value-good/.value-warning styling below
+// rather than needing its own separate rule set.
 
 .woocommerce-category-grid {
 	display: grid;
@@ -225,6 +152,95 @@
 	}
 }
 
+.woocommerce-sales-funnel-stages {
+	display: flex;
+	align-items: flex-start;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	padding: 0.5rem 0 0.25rem;
+}
+
+.woocommerce-sales-funnel-stage {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.375rem;
+	min-width: 6rem;
+	text-align: center;
+}
+
+.woocommerce-sales-funnel-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
+	font-size: 1.25rem;
+
+	&.is-good {
+		background: color-mix(in srgb, #16a34a 14%, transparent);
+		color: #16a34a;
+	}
+
+	&.is-warning {
+		background: color-mix(in srgb, #dc2626 12%, transparent);
+		color: #dc2626;
+	}
+
+	&.is-unknown {
+		background: var(--border-color, #eef0f2);
+		color: var(--sub-text-color, #6b7280);
+	}
+}
+
+.woocommerce-sales-funnel-label {
+	font-weight: 700;
+	font-size: 0.9rem;
+}
+
+.woocommerce-sales-funnel-status {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.8rem;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-warning {
+		color: #dc2626;
+	}
+
+	&.is-unknown {
+		color: var(--sub-text-color, #6b7280);
+	}
+}
+
+.woocommerce-sales-funnel-arrow {
+	align-self: center;
+	margin-top: 1.375rem;
+	color: var(--sub-text-color, #6b7280);
+	opacity: 0.6;
+}
+
+.woocommerce-sales-funnel-concern {
+	margin-top: 1rem;
+	padding: 1rem 1.25rem;
+	border-radius: 0.75rem;
+	background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+	border: 1px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
+
+	.desc {
+		margin: 0.25rem 0 0;
+	}
+}
+
+.woocommerce-sales-funnel-concern-title {
+	font-weight: 700;
+}
+
 .woocommerce-top-issues {
 	margin: 1rem 0;
 	padding: 1.25rem;
@@ -234,10 +250,7 @@
 }
 
 .woocommerce-top-issues-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 0.75rem;
+	margin-bottom: 0.875rem;
 }
 
 .woocommerce-top-issues-title {
@@ -245,6 +258,9 @@
 }
 
 .woocommerce-top-issues-view-all {
+	display: block;
+	text-align: center;
+	margin-top: 0.5rem;
 	color: var(--color-primary);
 	font-weight: 600;
 	cursor: pointer;
@@ -255,7 +271,136 @@
 	}
 }
 
+.woocommerce-top-issues-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+}
+
 .woocommerce-top-issue-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.875rem 1rem;
+	border: 1px solid var(--border-color, #eef0f2);
+	border-radius: 0.625rem;
+}
+
+.woocommerce-top-issue-rank {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.625rem;
+	height: 1.625rem;
+	border-radius: 50%;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--color-white, #fff);
+
+	&.red {
+		background: #dc2626;
+	}
+
+	&.orange {
+		background: #ea580c;
+	}
+
+	&.green {
+		background: #16a34a;
+	}
+}
+
+.woocommerce-top-issue-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+	color: var(--color-primary);
+	font-size: 1rem;
+}
+
+.woocommerce-top-issue-body {
+	flex: 1;
+	min-width: 0;
+
+	.woocommerce-top-issue-title {
+		font-weight: 600;
+	}
+
+	.woocommerce-top-issue-impact {
+		font-size: 0.75rem;
+		color: var(--sub-text-color, #6b7280);
+		margin-top: 0.125rem;
+	}
+}
+
+.woocommerce-top-issue-actions {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.5rem;
+}
+
+// `.admin-badge`'s own base pill shape comes from zyra at runtime, but its
+// color modifiers don't (same gap CreateContent.scss's own comment
+// documents for `.badge-{severity}`) — every red/orange/green/blue/purple/
+// indigo `admin-badge` in this WooCommerce tab tree (WooCommerceCategoryGrid,
+// StoreHealthBanner, TopIssuesToWorkOn) was rendering untinted before this,
+// so this scopes and declares the color vocabulary once here rather than
+// per file.
+.woocommerce-category-grid,
+.woocommerce-top-issues,
+.store-health-banner,
+.woocommerce-sales-funnel,
+.products-to-look-at {
+	.admin-badge {
+		&.red {
+			color: #dc2626;
+			background: color-mix(in srgb, #dc2626 14%, transparent);
+		}
+
+		&.orange {
+			color: #b45309;
+			background: color-mix(in srgb, #b45309 14%, transparent);
+		}
+
+		&.green {
+			color: #16a34a;
+			background: color-mix(in srgb, #16a34a 14%, transparent);
+		}
+
+		&.blue {
+			color: #2563eb;
+			background: color-mix(in srgb, #2563eb 14%, transparent);
+		}
+
+		&.purple {
+			color: #7c3aed;
+			background: color-mix(in srgb, #7c3aed 14%, transparent);
+		}
+
+		&.indigo {
+			color: #4f46e5;
+			background: color-mix(in srgb, #4f46e5 14%, transparent);
+		}
+	}
+}
+
+// "VuloPilot noticed" row list (StoreIntelligenceSummaryCard.tsx's
+// active-data state) — replaces the plain `<ul>` this used to be; icon +
+// title/desc pairs each in their own row with a per-row action link,
+// divided by a thin top border, matching this card's own mockup.
+.store-intelligence-noticed-list {
+	margin-top: 0.5rem;
+}
+
+.store-intelligence-noticed-row {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -267,22 +412,119 @@
 	}
 }
 
-.woocommerce-top-issue-body {
-	flex: 1;
+.store-intelligence-noticed-icon {
+	flex-shrink: 0;
+	font-size: 1.125rem;
 
-	.woocommerce-top-issue-title {
-		font-weight: 600;
+	&.orange {
+		color: #ea580c;
+	}
+
+	&.green {
+		color: #16a34a;
+	}
+
+	&.red {
+		color: #dc2626;
+	}
+
+	&.blue {
+		color: #2563eb;
 	}
 }
 
-.store-intelligence-bullets {
-	margin: 0.5rem 0 1rem;
-	padding-left: 1.125rem;
+.store-intelligence-noticed-body {
+	flex: 1;
+	min-width: 0;
 
-	li {
-		font-size: 0.85rem;
-		margin-bottom: 0.375rem;
+	.store-intelligence-noticed-title {
+		font-weight: 600;
+		font-size: 0.875rem;
 	}
+
+	.desc {
+		margin: 0;
+	}
+}
+
+.store-intelligence-noticed-link {
+	flex-shrink: 0;
+	color: var(--color-primary);
+	font-weight: 600;
+	font-size: 0.85rem;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+// "Products to look at" (ProductsToLookAtCard.tsx) — one real example
+// product per risk category, each with its own icon chip tone
+// (light/grey/dark, matching this card's own mockup) plus a colored
+// status pill (`.admin-badge`, color vocabulary declared above) and a
+// per-row "View product →" deep link.
+.products-to-look-at-list {
+	margin-top: 0.5rem;
+}
+
+.products-to-look-at-row {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 0.875rem 0;
+	border-top: 1px solid var(--border-color, #eef0f2);
+
+	&:first-child {
+		border-top: none;
+	}
+}
+
+.products-to-look-at-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.5rem;
+	font-size: 1.125rem;
+
+	&.light {
+		background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+		color: var(--color-primary);
+	}
+
+	&.grey {
+		background: var(--border-color, #eef0f2);
+		color: var(--sub-text-color, #6b7280);
+	}
+
+	&.dark {
+		background: #111827;
+		color: var(--color-white, #fff);
+	}
+}
+
+.products-to-look-at-body {
+	flex: 1;
+	min-width: 0;
+}
+
+.products-to-look-at-title-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.products-to-look-at-title {
+	font-weight: 600;
+}
+
+.products-to-look-at-subtitle {
+	font-size: 0.8rem;
+	color: var(--sub-text-color, #6b7280);
+	margin-top: 0.125rem;
 }
 
 .woocommerce-issues-table {

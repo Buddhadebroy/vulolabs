@@ -12,11 +12,14 @@ import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import { useWooCommerceFindingGroups } from './useWooCommerceFindingGroups';
 import StoreHealthBanner from './StoreHealthBanner';
-import StoreReadinessCard from './StoreReadinessCard';
+import StoreOverviewCards from './StoreOverviewCards';
 import WooCommerceCategoryGrid from './WooCommerceCategoryGrid';
+import SalesFunnelCard from './SalesFunnelCard';
 import TopIssuesToWorkOn from './TopIssuesToWorkOn';
 import AiSalesOptimizerCard from './AiSalesOptimizerCard';
+import AiSalesAssistantCard from './AiSalesAssistantCard';
 import StoreIntelligenceSummaryCard from './StoreIntelligenceSummaryCard';
+import ProductsToLookAtCard from './ProductsToLookAtCard';
 import WooCommerceIssuesTable, {
 	WooCommerceIssueTab,
 } from './WooCommerceIssuesTable';
@@ -25,7 +28,13 @@ import './SellMore.scss';
 /**
  * Visible teaser for the bulk-optimize panel above — shown instead of it
  * when `WooCommerceAiPanel` isn't registered, so the feature is
- * discoverable rather than simply absent.
+ * discoverable rather than simply absent. Now only actually reachable by
+ * genuinely unlicensed sites: `VuloPilotPro::seed_woocommerce_modules_active()`
+ * auto-activates the real 'woo-commerce-ai' module for any licensed site
+ * (it has no toggle card on the Modules page — see
+ * src/components/Modules/index.ts's own docblock — so before that fix, no
+ * admin, licensed or not, had any way to turn it on and this teaser showed
+ * unconditionally).
  */
 const WooCommerceAiLockedCard = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
@@ -74,7 +83,10 @@ const WooCommerceAiLockedCard = () => {
 
 /**
  * Visible teaser for the panel above — same click-to-open pattern
- * WooCommerceAiLockedCard already uses.
+ * WooCommerceAiLockedCard already uses, and the same fix applies: real
+ * for genuinely unlicensed sites only, since
+ * `VuloPilotPro::seed_woocommerce_modules_active()` now auto-activates
+ * 'woo-commerce-intelligence' for any licensed site.
  */
 const WooCommerceIntelligenceLockedCard = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
@@ -130,13 +142,33 @@ const scrollToId = (id: string) => {
 
 /**
  * "WooCommerce" tab of "Sell More" — a real store-health overview
- * (StoreHealthBanner/StoreReadinessCard/WooCommerceCategoryGrid/
- * TopIssuesToWorkOn/AiSalesOptimizerCard/StoreIntelligenceSummaryCard/
- * WooCommerceIssuesTable, all real data — see each file's own docblock)
- * on top of the original page's two Pro panel slots and issues table,
- * kept unchanged below. `groups` (`GET /findings/groups?category=woocommerce`)
- * is fetched once here and threaded down to every section that needs it,
- * rather than each one re-fetching the same real data independently.
+ * (WooCommerceCategoryGrid/StoreOverviewCards/StoreHealthBanner/
+ * SalesFunnelCard/TopIssuesToWorkOn/AiSalesOptimizerCard/
+ * StoreIntelligenceSummaryCard/WooCommerceIssuesTable, all real data —
+ * see each file's own docblock) on top of the original page's two Pro
+ * panel slots and issues table, kept unchanged below. StoreHealthBanner +
+ * WooCommerceCategoryGrid (grid 8) and StoreOverviewCards/"At a Glance"
+ * (grid 4) sit side by side in their own nested ContainerComponent, same
+ * "one real component reused on two tabs" pattern OverviewTab.tsx already
+ * uses for StoreOverviewCards — "View Full Report →" is repurposed here
+ * to scroll to this tab's own issues table (goToIssuesTab) rather than
+ * navigate to itself, since this already is the WooCommerce tab.
+ * SalesFunnelCard ("Where are sales getting stuck?") sits below that row,
+ * full width, directly above TopIssuesToWorkOn ("What should I work on
+ * first?"). "Store Readiness" (shop/cart/checkout/my-account page + HTTPS
+ * status) used to be its own standalone card here; it's now the first
+ * card inside WooCommerceCategoryGrid instead, matching that grid's card
+ * style rather than sitting as a separate-looking section (its
+ * `id="store-readiness"` scroll anchor moved there too — see
+ * StoreHealthBanner's onViewSummary below). `groups` (`GET /findings/
+ * groups?category=woocommerce`) is fetched once here and threaded down to
+ * every section that needs it, rather than each one re-fetching the same
+ * real data independently. ProductsToLookAtCard (real example products per
+ * risk category) and AiSalesAssistantCard (moved here from OverviewTab.tsx
+ * so its "Let AI Optimize My Store"/"Review Suggestions First" actions
+ * point at destinations that actually live on this tab) sit right before
+ * the real "Bulk AI optimization" panel (`#woocommerce-bulk-ai`) they both
+ * lead into.
  */
 const WooCommerceTab = () => {
 	const [activeIssueTab, setActiveIssueTab] =
@@ -166,16 +198,28 @@ const WooCommerceTab = () => {
 	return (
 		<ContainerComponent general>
 			<ColumnComponent>
-				<StoreHealthBanner
-					onReviewIssues={() => goToIssuesTab('important')}
-					onViewSummary={() => scrollToId('store-readiness')}
-				/>
+				<ContainerComponent>
+					<ColumnComponent grid={8}>
+						<StoreHealthBanner
+							onReviewIssues={() => goToIssuesTab('important')}
+							onViewSummary={() => scrollToId('store-readiness')}
+						/>
+						<WooCommerceCategoryGrid
+							groups={groups}
+							isLoadingGroups={isLoadingGroups}
+							onReviewTab={goToIssuesTab}
+						/>
+					</ColumnComponent>
+					<ColumnComponent grid={4}>
+						<StoreOverviewCards
+							onNavigateToWooCommerceTab={() => goToIssuesTab('important')}
+						/>
+					</ColumnComponent>
+				</ContainerComponent>
 
-				<StoreReadinessCard />
-
-				<WooCommerceCategoryGrid
+				<SalesFunnelCard
 					groups={groups}
-					isLoadingGroups={isLoadingGroups}
+					isLoading={isLoadingGroups}
 					onReviewTab={goToIssuesTab}
 				/>
 
@@ -196,9 +240,18 @@ const WooCommerceTab = () => {
 							onExploreInsights={() =>
 								scrollToId('store-intelligence-panel')
 							}
+							onReviewTab={goToIssuesTab}
+							onFindOpportunities={() => scrollToId('woocommerce-bulk-ai')}
 						/>
 					</ColumnComponent>
 				</ContainerComponent>
+
+				<ProductsToLookAtCard />
+
+				<AiSalesAssistantCard
+					onOptimizeStore={() => scrollToId('woocommerce-bulk-ai')}
+					onReviewIssues={() => goToIssuesTab('important')}
+				/>
 
 				<WooCommerceIssuesTable
 					groups={groups}

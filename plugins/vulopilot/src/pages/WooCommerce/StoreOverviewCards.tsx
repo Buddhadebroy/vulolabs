@@ -83,20 +83,24 @@ const useFailedOrdersCount = (): number | null => {
 };
 
 /**
- * "Store Overview" — real Revenue/Orders/Average Order Value/Failed
- * Purchases, each backed by a real period-over-period comparison (7/30/90
- * days, user-selectable) computed client-side from one existing endpoint,
- * `GET store-trends-history?days=N` (`StoreTrendsRest.php`,
- * vulopilot_store_trends_snapshots) — its rows already carry `revenue`,
- * `order_count`, AND `avg_order_value` per finished calendar day, nothing
- * fabricated. Failed Purchases is a real WooCommerce core order-status
- * count (`useFailedOrdersCount()` above), not derived from the snapshot
- * table. Conversion Rate and Net Profit render an honest "Not tracked
- * yet" tile — no site-visit tracking or cost/expense data exists anywhere
- * in this codebase to compute either. Drops the mockup's "Data synced
- * from VuloCart" badge (vulopilot/vulocart share no namespace — see this
- * repo's own CLAUDE.md) — "View Full Report" instead does a real
- * navigation to the WooCommerce tab.
+ * "At a Glance" (titled "Store Overview" originally) — real Revenue/
+ * Orders/Average Order Value/Failed Purchases, each backed by a real
+ * period-over-period comparison (7/30/90 days, user-selectable) computed
+ * client-side from one existing endpoint, `GET store-trends-history?days=N`
+ * (`StoreTrendsRest.php`, vulopilot_store_trends_snapshots) — its rows
+ * already carry `revenue`, `order_count`, AND `avg_order_value` per
+ * finished calendar day, nothing fabricated. Failed Purchases is a real
+ * WooCommerce core order-status count (`useFailedOrdersCount()` above),
+ * not derived from the snapshot table. Conversion Rate and Net Profit
+ * render an honest "Not tracked yet" tile — no site-visit tracking or
+ * cost/expense data exists anywhere in this codebase to compute either.
+ * Drops the mockup's "Data synced from VuloCart" badge (vulopilot/vulocart
+ * share no namespace — see this repo's own CLAUDE.md). Rendered as a
+ * grid-4 sidebar beside WooCommerceCategoryGrid on the WooCommerce tab
+ * (its only consumer now that the separate Overview tab is gone — see
+ * WooCommerce.tsx) — "View Full Report" stays caller-supplied
+ * (`onNavigateToWooCommerceTab`) rather than hardcoded, same shape it
+ * already had when it was reused across two tabs.
  */
 interface StoreOverviewCardsProps {
 	onNavigateToWooCommerceTab: () => void;
@@ -187,7 +191,7 @@ const StoreOverviewCards = ({
 
 	return (
 		<CardComponent
-			title={__('Store Overview', 'vulopilot')}
+			title={__('At a Glance', 'vulopilot')}
 			titleIcon="cart"
 			isLoading={isLoading}
 			action={

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent } from '@zyra/components';
 import { useStoreReadiness } from '../../services/useStoreReadiness';
 import { useSectionStatus } from '../../services/useSectionStatus';
@@ -13,6 +14,91 @@ import {
 } from './WooCommerceTab.constants';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+
+/** Same `$`+`toLocaleString()` formatting `StoreOverviewCards.tsx`'s own `formatCurrency()` already established for real revenue figures. */
+const formatCurrency = (value: number): string =>
+	`$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+
+/**
+ * Real total from any `wc/v3` list endpoint's own `X-WP-Total` header —
+ * generalized version of this file's own `useOutOfStockCount()`, same
+ * technique `WooCommerceMetricsGrid.tsx`'s own `useWcTotalCount()` already
+ * established for exactly this "Categories"/"Customer Insights" use case
+ * (ported here rather than imported, same "duplicate small per-file
+ * hooks" convention this whole page tree already uses).
+ */
+const useWcTotalCount = (endpoint: string): number | null => {
+	const [total, setTotal] = useState<number | null>(null);
+
+	useEffect(() => {
+		let cancelled = false;
+
+		axios
+			.get(`${appLocalizer.apiUrl}/wc/v3/${endpoint}`, {
+				...nonceHeaders,
+				params: { per_page: 1 },
+			})
+			.then((response) => {
+				if (!cancelled) {
+					const header = response.headers?.['x-wp-total'];
+					setTotal(header ? parseInt(header, 10) : null);
+				}
+			})
+			.catch(() => {
+				if (!cancelled) {
+					setTotal(null);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [endpoint]);
+
+	return total;
+};
+
+interface RevenueInsights {
+	today_revenue: number;
+	week_revenue: number;
+	month_revenue: number;
+}
+
+/**
+ * Real revenue snapshot — `GET /revenue-insights` (Pro's
+ * WooCommerceIntelligence module, RevenueInsightsRest.php), same
+ * inline-fetch + graceful-404-to-null shape `TopSellingProductsCard.tsx`
+ * already established for this exact endpoint (Pro-only REST route, no
+ * filter-slot wrapper — `getApiResponse` already 404s to `null` when Pro/
+ * the module is inactive, same honest "no data yet" degrade every other
+ * `wc/v3`/Pro call in this file already gets).
+ */
+const useRevenueInsights = (): { data: RevenueInsights | null; isLoading: boolean } => {
+	const [data, setData] = useState<RevenueInsights | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		getApiResponse<RevenueInsights>(
+			getApiLink(appLocalizer, 'revenue-insights'),
+			nonceHeaders
+		)
+			.then((response) =>
+				setData('number' === typeof response?.month_revenue ? response : null)
+			)
+			.finally(() => setIsLoading(false));
+	}, []);
+
+	return { data, isLoading };
+};
+
+/**
+ * Same "Not tracked yet" honest badge `WooCommerceMetricsGrid.tsx`'s own
+ * `NOT_TRACKED_BADGE` already established for Cart/Product Schema/
+ * Conversion/Recommendations/Funnels/Abandoned Cart — none of those have
+ * any real backing anywhere in vulopilot/vulopilot-pro (confirmed via
+ * full-codebase search, same audit that file's own docblock documents).
+ */
+const NOT_TRACKED_BADGE = { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' };
 
 /**
  * Real out-of-stock product count — `wc/v3/products?stock_status=outofstock`'s
@@ -53,6 +139,90 @@ const useOutOfStockCount = (): number | null => {
 	return count;
 };
 
+/** Real coupons "expiring soon" cutoff — matches this file's own 7-day window convention. */
+const COUPON_EXPIRING_SOON_DAYS = 7;
+
+/** Bounds the client-side expiry scan below — real, but capped, same documented-cap convention `SalesInsightsRest.php`'s own ORDERS_BATCH_SIZE/PRODUCTS_BATCH_SIZE already use. */
+const COUPON_SCAN_BATCH_SIZE = 100;
+
+interface CouponRow {
+	date_expires: string | null;
+}
+
+/**
+ * Real published-coupon count (`wc/v3/coupons?status=publish`'s own
+ * `X-WP-Total` header, uncapped and exact — same technique
+ * `useOutOfStockCount()` above already uses) plus a real "expiring soon"
+ * count. The coupons REST API has no `date_expires` filter param to ask
+ * WooCommerce to do that filtering server-side, so this fetches up to
+ * `COUPON_SCAN_BATCH_SIZE` published coupons and counts client-side how
+ * many have a real `date_expires` within the next
+ * `COUPON_EXPIRING_SOON_DAYS` days — exact for any store with fewer
+ * coupons than the batch size (every real store this feature is aimed at),
+ * capped rather than wrong for stores with more.
+ */
+const useCouponStats = (): { active: number | null; expiringSoon: number | null } => {
+	const [active, setActive] = useState<number | null>(null);
+	const [expiringSoon, setExpiringSoon] = useState<number | null>(null);
+
+	useEffect(() => {
+		let cancelled = false;
+
+		axios
+			.get(`${appLocalizer.apiUrl}/wc/v3/coupons`, {
+				...nonceHeaders,
+				params: { status: 'publish', per_page: 1 },
+			})
+			.then((response) => {
+				if (!cancelled) {
+					const header = response.headers?.['x-wp-total'];
+					setActive(header ? parseInt(header, 10) : null);
+				}
+			})
+			.catch(() => {
+				if (!cancelled) {
+					setActive(null);
+				}
+			});
+
+		axios
+			.get<CouponRow[]>(`${appLocalizer.apiUrl}/wc/v3/coupons`, {
+				...nonceHeaders,
+				params: { status: 'publish', per_page: COUPON_SCAN_BATCH_SIZE },
+			})
+			.then((response) => {
+				if (cancelled) {
+					return;
+				}
+
+				const cutoff = Date.now() + COUPON_EXPIRING_SOON_DAYS * 24 * 60 * 60 * 1000;
+
+				setExpiringSoon(
+					response.data.filter((coupon) => {
+						if (!coupon.date_expires) {
+							return false;
+						}
+
+						const expiresAt = new Date(coupon.date_expires).getTime();
+
+						return expiresAt >= Date.now() && expiresAt <= cutoff;
+					}).length
+				);
+			})
+			.catch(() => {
+				if (!cancelled) {
+					setExpiringSoon(null);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	return { active, expiringSoon };
+};
+
 interface WooCommerceCategoryGridProps {
 	groups: FindingGroup[];
 	isLoadingGroups: boolean;
@@ -60,17 +230,43 @@ interface WooCommerceCategoryGridProps {
 }
 
 /**
- * The 6 category cards — every number here is real, reconciling exactly
- * to the same `/findings/groups`/`/store-readiness` data
- * WooCommerceIssuesTable.tsx's own tab counts read (see
- * WooCommerceTab.constants.ts's bucket map). `groups` is fetched once by
- * WooCommerceTab.tsx (`useWooCommerceFindingGroups()`) and threaded down
- * here and to TopIssuesToWorkOn.tsx/WooCommerceIssuesTable.tsx, rather
- * than each component re-fetching the same real data independently.
- * "Store Automation" and "Compatibility" have no dedicated issues-table
- * tab (no mockup tab for them either) — Automation links straight to the
- * real Automate Work page; Compatibility's real findings still show up
- * under the table's "Store" tab alongside general store-setup issues.
+ * All 18 category cards — the original 8 (Store Readiness, Checkout &
+ * Payments, Products, Inventory, Orders, Coupons, Store Automation,
+ * Compatibility) plus the full 15-tile mockup's remaining 10, ported into
+ * this grid's own card style (icon/title/badge/rows-or-desc/link) instead
+ * of that mockup's differently-styled tile grid
+ * (`WooCommerceMetricsGrid.tsx`, still used on Overview — this file no
+ * longer needs to duplicate it). Real: Categories (`wc/v3/products/categories`
+ * total), Product SEO (real open-finding count, scanner `product-seo` —
+ * already folded into the aggregate "Products" count too, same accepted
+ * "same real number surfaced in two thematically-different cards" pattern
+ * "Failed payments" already uses across Checkout & Payments/Orders below),
+ * Customer Insights (`wc/v3/customers` total, labeled a plain total, not
+ * "Active", since no recency data backs that word), Revenue Reports (real,
+ * Pro-gated — `GET /revenue-insights`, same graceful-404-to-null degrade
+ * `TopSellingProductsCard.tsx` already uses for this endpoint). Honest,
+ * unclickable "Not tracked yet": Cart, Product Schema, Conversion,
+ * Recommendations, Funnels, Abandoned Cart — zero real backing anywhere in
+ * vulopilot/vulopilot-pro (confirmed via full-codebase search, same audit
+ * `WooCommerceMetricsGrid.tsx`'s own docblock already documents).
+ *
+ * Every number here reconciles exactly to the same `/findings/groups`/
+ * `/store-readiness` data WooCommerceIssuesTable.tsx's own tab counts read
+ * (see WooCommerceTab.constants.ts's bucket map). `groups` is fetched once
+ * by WooCommerceTab.tsx (`useWooCommerceFindingGroups()`) and threaded
+ * down here and to TopIssuesToWorkOn.tsx/WooCommerceIssuesTable.tsx,
+ * rather than each component re-fetching the same real data independently.
+ * "Store Readiness" reuses the same `readiness` data this grid already
+ * fetches for "Checkout & Payments"/"Store Automation" — it used to be a
+ * separate, differently-styled list-card (StoreReadinessCard.tsx, now
+ * removed) above this grid; folded in here as its first card instead.
+ * Every real card follows the same "only show a badge when something
+ * needs attention" rule (no persistent "good" badge for zero-issue
+ * states). "Store Automation" and "Compatibility" have no dedicated
+ * issues-table tab (no mockup tab for them either) — Automation links
+ * straight to the real Automate Work page; Compatibility's real
+ * findings still show up under the table's "Store" tab alongside general
+ * store-setup issues.
  */
 const WooCommerceCategoryGrid = ({
 	groups,
@@ -81,6 +277,11 @@ const WooCommerceCategoryGrid = ({
 		useStoreReadiness();
 	const outOfStock = useOutOfStockCount();
 	const runningLow = useSectionStatus('woocommerce', ['inventory-intelligence']);
+	const coupons = useCouponStats();
+	const categoriesTotal = useWcTotalCount('products/categories');
+	const customersTotal = useWcTotalCount('customers');
+	const productSeo = useSectionStatus('woocommerce', ['product-seo']);
+	const { data: revenue, isLoading: isLoadingRevenue } = useRevenueInsights();
 
 	const isLoading = isLoadingGroups || isLoadingReadiness;
 
@@ -98,8 +299,116 @@ const WooCommerceCategoryGrid = ({
 		(group) => 'woocommerce-checkout' === group.scanner_id && group.count > 0
 	);
 
+	/**
+	 * The 6 mockup cards with zero real backing anywhere in vulopilot/
+	 * vulopilot-pro (Cart tracking, Product Schema, Conversion, AI
+	 * Recommendations, Funnels, Abandoned Cart — same audit
+	 * `WooCommerceMetricsGrid.tsx`'s own docblock documents), rendered as
+	 * one honest, unclickable "Not tracked yet" tile each rather than a
+	 * fake number or a link to nowhere real.
+	 */
+	const NOT_TRACKED_TILES: { id: string; icon: string; title: string; desc: string }[] = [
+		{
+			id: 'cart',
+			icon: 'cart',
+			title: __('Cart', 'vulopilot'),
+			desc: __('AI insights to increase add-to-cart and AOV.', 'vulopilot'),
+		},
+		{
+			id: 'product-schema',
+			icon: 'editor-code',
+			title: __('Product Schema', 'vulopilot'),
+			desc: __('Enhance rich results & search visibility.', 'vulopilot'),
+		},
+		{
+			id: 'conversion',
+			icon: 'analytics',
+			title: __('Conversion', 'vulopilot'),
+			desc: __('Improve conversion rate with AI recommendations.', 'vulopilot'),
+		},
+		{
+			id: 'recommendations',
+			icon: 'thumb-up',
+			title: __('Recommendations', 'vulopilot'),
+			desc: __('AI-powered product recommendations.', 'vulopilot'),
+		},
+		{
+			id: 'funnels',
+			icon: 'filter',
+			title: __('Funnels', 'vulopilot'),
+			desc: __('Build high-converting sales funnels.', 'vulopilot'),
+		},
+		{
+			id: 'abandoned-cart',
+			icon: 'cart',
+			title: __('Abandoned Cart', 'vulopilot'),
+			desc: __('Recover lost sales from abandoned carts.', 'vulopilot'),
+		},
+	];
+
+	const readinessRows: { key: 'shop' | 'cart' | 'checkout' | 'my_account'; label: string }[] = [
+		{ key: 'shop', label: __('Shop page', 'vulopilot') },
+		{ key: 'cart', label: __('Cart page', 'vulopilot') },
+		{ key: 'checkout', label: __('Checkout page', 'vulopilot') },
+		{ key: 'my_account', label: __('My Account page', 'vulopilot') },
+	];
+	const readinessNeedsAttention =
+		!!readiness &&
+		(!Object.values(readiness.readiness).every(Boolean) ||
+			!readiness.secure_checkout);
+
 	return (
 		<div className="woocommerce-category-grid">
+			<CardComponent
+				id="store-readiness"
+				className="woocommerce-category-card"
+				isLoading={isLoading}
+			>
+				<i className="woocommerce-category-icon adminfont-shield" />
+				<div className="woocommerce-category-title">
+					{__('Store Readiness', 'vulopilot')}
+				</div>
+				{readinessNeedsAttention && (
+					<span className="admin-badge red">
+						{__('Needs attention', 'vulopilot')}
+					</span>
+				)}
+				<div className="woocommerce-category-rows">
+					{readinessRows.map((row) => {
+						const ready = readiness?.readiness[row.key];
+
+						return (
+							<div className="woocommerce-category-row" key={row.key}>
+								<span>{row.label}</span>
+								<span className={ready ? 'value-good' : 'value-warning'}>
+									{ready
+										? __('Ready', 'vulopilot')
+										: __('Not ready', 'vulopilot')}
+								</span>
+							</div>
+						);
+					})}
+					<div className="woocommerce-category-row">
+						<span>{__('Secure checkout (HTTPS)', 'vulopilot')}</span>
+						<span
+							className={
+								readiness?.secure_checkout ? 'value-good' : 'value-warning'
+							}
+						>
+							{readiness?.secure_checkout
+								? __('Secured', 'vulopilot')
+								: __('Not secured', 'vulopilot')}
+						</span>
+					</div>
+				</div>
+				<a
+					className="woocommerce-category-link"
+					href={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=page`}
+				>
+					{__('View all store pages →', 'vulopilot')}
+				</a>
+			</CardComponent>
+
 			<CardComponent
 				className="woocommerce-category-card"
 				isLoading={isLoading}
@@ -276,6 +585,186 @@ const WooCommerceCategoryGrid = ({
 					{__('View orders →', 'vulopilot')}
 				</a>
 			</CardComponent>
+
+			<CardComponent
+				className="woocommerce-category-card"
+				isLoading={isLoading}
+			>
+				<i className="woocommerce-category-icon adminfont-price" />
+				<div className="woocommerce-category-title">
+					{__('Coupons', 'vulopilot')}
+				</div>
+				{null !== coupons.expiringSoon && coupons.expiringSoon > 0 && (
+					<span className="admin-badge red">
+						{sprintf(
+							/* translators: %d is the number of coupons expiring within a week. */
+							__('%d expiring soon', 'vulopilot'),
+							coupons.expiringSoon
+						)}
+					</span>
+				)}
+				<div className="woocommerce-category-rows">
+					<div className="woocommerce-category-row">
+						<span>{__('Active', 'vulopilot')}</span>
+						<span>
+							{null !== coupons.active ? coupons.active : '—'}
+						</span>
+					</div>
+					<div className="woocommerce-category-row">
+						<span>{__('Expiring soon', 'vulopilot')}</span>
+						<span
+							className={
+								coupons.expiringSoon && coupons.expiringSoon > 0
+									? 'value-warning'
+									: ''
+							}
+						>
+							{null !== coupons.expiringSoon ? coupons.expiringSoon : '—'}
+						</span>
+					</div>
+				</div>
+				<a
+					className="woocommerce-category-link"
+					href={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=shop_coupon`}
+				>
+					{__('Manage coupons →', 'vulopilot')}
+				</a>
+			</CardComponent>
+
+			<CardComponent
+				className="woocommerce-category-card"
+				isLoading={isLoading}
+			>
+				<i className="woocommerce-category-icon adminfont-category" />
+				<div className="woocommerce-category-title">
+					{__('Categories', 'vulopilot')}
+				</div>
+				<div className="woocommerce-category-rows">
+					<div className="woocommerce-category-row">
+						<span>{__('Categories', 'vulopilot')}</span>
+						<span>
+							{null !== categoriesTotal ? categoriesTotal : '—'}
+						</span>
+					</div>
+				</div>
+				<a
+					className="woocommerce-category-link"
+					href={`${appLocalizer.site_url}/wp-admin/edit-tags.php?taxonomy=product_cat&post_type=product`}
+				>
+					{__('Manage categories →', 'vulopilot')}
+				</a>
+			</CardComponent>
+
+			<CardComponent
+				className="woocommerce-category-card"
+				isLoading={isLoading}
+			>
+				<i className="woocommerce-category-icon adminfont-search" />
+				<div className="woocommerce-category-title">
+					{__('Product SEO', 'vulopilot')}
+				</div>
+				{productSeo.badge && (
+					<span className={`admin-badge ${productSeo.badge.color}`}>
+						{productSeo.badge.text}
+					</span>
+				)}
+				<div className="desc">
+					{__('Improve product visibility on search engines.', 'vulopilot')}
+				</div>
+				<a
+					className="woocommerce-category-link"
+					role="button"
+					tabIndex={0}
+					onClick={() => onReviewTab('products')}
+				>
+					{__('Review product SEO →', 'vulopilot')}
+				</a>
+			</CardComponent>
+
+			<CardComponent
+				className="woocommerce-category-card"
+				isLoading={isLoading}
+			>
+				<i className="woocommerce-category-icon adminfont-person" />
+				<div className="woocommerce-category-title">
+					{__('Customer Insights', 'vulopilot')}
+				</div>
+				<div className="woocommerce-category-rows">
+					<div className="woocommerce-category-row">
+						<span>{__('Customers total', 'vulopilot')}</span>
+						<span>
+							{null !== customersTotal ? customersTotal : '—'}
+						</span>
+					</div>
+				</div>
+				<a
+					className="woocommerce-category-link"
+					href={`${appLocalizer.site_url}/wp-admin/users.php?role=customer`}
+				>
+					{__('View customers →', 'vulopilot')}
+				</a>
+			</CardComponent>
+
+			<CardComponent
+				className="woocommerce-category-card"
+				isLoading={isLoading || isLoadingRevenue}
+			>
+				<i className="woocommerce-category-icon adminfont-bar-chart" />
+				<div className="woocommerce-category-title">
+					{__('Revenue Reports', 'vulopilot')}
+				</div>
+				{!revenue && (
+					<span className="admin-badge purple">
+						{__('PRO', 'vulopilot')}
+					</span>
+				)}
+				{revenue ? (
+					<div className="woocommerce-category-rows">
+						<div className="woocommerce-category-row">
+							<span>{__('Today', 'vulopilot')}</span>
+							<span>{formatCurrency(revenue.today_revenue)}</span>
+						</div>
+						<div className="woocommerce-category-row">
+							<span>{__('This week', 'vulopilot')}</span>
+							<span>{formatCurrency(revenue.week_revenue)}</span>
+						</div>
+						<div className="woocommerce-category-row">
+							<span>{__('This month', 'vulopilot')}</span>
+							<span>{formatCurrency(revenue.month_revenue)}</span>
+						</div>
+					</div>
+				) : (
+					<div className="desc">
+						{__(
+							'Enable the WooCommerce Intelligence module for detailed revenue reports.',
+							'vulopilot'
+						)}
+					</div>
+				)}
+				<a
+					className="woocommerce-category-link"
+					href={`${appLocalizer.admin_url}#&tab=modules`}
+				>
+					{revenue
+						? __('View full report →', 'vulopilot')
+						: __('Enable module →', 'vulopilot')}
+				</a>
+			</CardComponent>
+
+			{NOT_TRACKED_TILES.map((tile) => (
+				<CardComponent
+					key={tile.id}
+					className="woocommerce-category-card"
+					isLoading={isLoading}
+				>
+					<i className={`woocommerce-category-icon adminfont-${tile.icon}`} />
+					<div className="woocommerce-category-title">{tile.title}</div>
+					<span className={`admin-badge ${NOT_TRACKED_BADGE.color}`}>
+						{NOT_TRACKED_BADGE.text}
+					</span>
+					<div className="desc">{tile.desc}</div>
+				</CardComponent>
+			))}
 
 			<CardComponent
 				className="woocommerce-category-card"
