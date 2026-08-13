@@ -7,6 +7,7 @@ import FindingsTable from '../../components/FindingsTable';
 import type { FindingsSection } from './SectionedFindingsTab';
 import SecurityMockupHeader from './SecurityMockupHeader';
 import IssuesNeedAttentionCard from './IssuesNeedAttentionCard';
+import VulnerabilitiesFoundCard from './VulnerabilitiesFoundCard';
 import LiveThreatMonitorCard from './LiveThreatMonitorCard';
 import RecentActivityCard from './RecentActivityCard';
 import SecurityTrendCard from './SecurityTrendCard';
@@ -124,6 +125,28 @@ const SECTIONS: FindingsSection[] = [
 	},
 ];
 
+/** DOM id prefix every section below already carries (`protect-my-site-section-{key}`). */
+const SECTION_ANCHOR_PREFIX = 'protect-my-site-section-';
+
+/**
+ * scanner id → the specific section (above) it belongs to, for
+ * VulnerabilitiesFoundCard's own row-click scroll-and-highlight — built
+ * from the same 4 specific SECTIONS entries (excluding the last,
+ * catch-all "Security Findings" section, so a scanner id resolves to its
+ * own specific section rather than always the combined one).
+ */
+const SECURITY_SECTION_MAP: Record<string, string> = SECTIONS.filter(
+	(section) => section.key !== 'security-findings'
+).reduce(
+	(map, section) => {
+		section.scannerIds.forEach((scannerId) => {
+			map[scannerId] = section.key;
+		});
+		return map;
+	},
+	{} as Record<string, string>
+);
+
 /**
  * "Security" tab of "Protect My Site" — the mockup's own single-page
  * design (hero + status, "What VuloPilot is checking", one combined
@@ -136,10 +159,14 @@ const SECTIONS: FindingsSection[] = [
  * component reused as-is — nothing new is fabricated to chase the
  * reference image's specific numbers:
  *
- * - Hero/status/tile-grid: SecurityMockupHeader (also used by
- *   OverviewTab.tsx).
+ * - Hero/status/tile-grid: SecurityMockupHeader.
  * - "Issues that need your attention": IssuesNeedAttentionCard, built to
  *   match the reference image's own row anatomy exactly.
+ * - "Vulnerabilities Found": VulnerabilitiesFoundCard — was the (now
+ *   removed) Overview tab's own card, moved here rather than deleted, per
+ *   direct instruction. Scoped to SECURITY_FINDINGS_SCANNER_IDS and wired
+ *   to SECURITY_SECTION_MAP so a row click scrolls straight to that
+ *   finding's own section below, same page.
  * - Footer row: LiveThreatMonitorCard ("Protection Status" in the
  *   reference image), RecentActivityCard ("Recent Security Activity"),
  *   SecurityTrendCard ("Security Trend", honestly untracked).
@@ -169,6 +196,14 @@ const ClassicSecurityTab = () => (
 						?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 				}
 			/>
+			<ContainerComponent>
+				<VulnerabilitiesFoundCard
+					scannerIds={SECURITY_FINDINGS_SCANNER_IDS}
+					sectionMap={SECURITY_SECTION_MAP}
+					anchorPrefix={SECTION_ANCHOR_PREFIX}
+					fallbackSection="security-findings"
+				/>
+			</ContainerComponent>
 			<ContainerComponent>
 				<ColumnComponent grid={4}>
 					<LiveThreatMonitorCard />

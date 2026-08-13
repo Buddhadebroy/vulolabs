@@ -24,7 +24,7 @@ interface AccessibilityHeroCardProps {
 
 /**
  * `category_scores.accessibility` (GET /dashboard, same endpoint
- * SecurityStatusCard.tsx/SecurityOverviewCard.tsx already use) is real,
+ * SecurityStatusCard.tsx already uses) is real,
  * but `Dashboard::calculate_category_score()` scores category
  * `accessibility` alone — 5 of this page's 7 real scanners (everything
  * but ImagesScanner's `images` category and ReadabilityScanner's

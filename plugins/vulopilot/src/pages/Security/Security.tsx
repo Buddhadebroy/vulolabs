@@ -7,7 +7,6 @@ import {
 	TabsComponent,
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
-import OverviewTab from './OverviewTab';
 import ClassicSecurityTab from './ClassicSecurityTab';
 import PerformanceTab from './PerformanceTab';
 import SiteHealthTab from './SiteHealthTab';
@@ -15,7 +14,6 @@ import FilesPluginsTab from './FilesPluginsTab';
 import AccessibilityTab from './AccessibilityTab';
 
 const TAB_IDS = [
-	'overview',
 	'security',
 	'performance',
 	'site-health',
@@ -25,18 +23,25 @@ const TAB_IDS = [
 
 /**
  * "Protect My Site" (WP menu slug `security`) — PROTECT-MY-SITE.md's IA:
- * Overview (the mockup's dashboard-style summary, OverviewTab.tsx) plus 5
- * detail tabs:
+ * 5 detail tabs, "Security" first (default tab):
  *
  * - Security (ClassicSecurityTab.tsx) — the mockup's own single-page
  *   design (hero/status/tile-grid, "Issues that need your attention", a
- *   3-panel footer row, then the 5 detail sections — Login & Accounts,
- *   Website Exposure, Browser Protection, SSL & Secure Connection,
- *   Security Findings — appended last). Was briefly split into two tabs
- *   ("Security" + "Old Security", the latter a sectioned-IA redesign of
- *   the same content) — "Old Security" was removed and its 5 sections
- *   folded back into this one tab per direct instruction, so there's
- *   only ever one "Security" tab again.
+ *   "Vulnerabilities Found" glimpse, a 3-panel footer row, then the 5
+ *   detail sections — Login & Accounts, Website Exposure, Browser
+ *   Protection, SSL & Secure Connection, Security Findings — appended
+ *   last). Was briefly split into two tabs ("Security" + "Old Security",
+ *   the latter a sectioned-IA redesign of the same content) — "Old
+ *   Security" was removed and its 5 sections folded back into this one
+ *   tab per direct instruction, so there's only ever one "Security" tab
+ *   again. There was also briefly a separate "Overview" tab
+ *   (OverviewTab.tsx, this page's own default tab) — removed per direct
+ *   instruction; its own "Vulnerabilities Found" card
+ *   (VulnerabilitiesFoundCard.tsx) moved onto this tab instead rather than
+ *   being deleted, and its now-redundant "Security Overview" gauge
+ *   (SecurityOverviewCard.tsx — the same `category_scores.security` gauge
+ *   SecurityStatusCard.tsx, still on this tab via SecurityMockupHeader,
+ *   already shows) was deleted along with the tab itself.
  * - Performance (PerformanceTab.tsx) — WordPress/server-side efficiency:
  *   page caching, browser caching, persistent object cache, PHP
  *   acceleration (OPcache). Reads `GET /efficiency-checks`
@@ -60,15 +65,13 @@ const TAB_IDS = [
  *   (KeyboardAccessibilityScanner — positive tabindex — the one new
  *   accessibility scanner this pass adds).
  *
- * Overview's "Review Issues First" button and clicking a "Vulnerabilities
- * Found" row both jump straight to this page's own "Security" tab
- * (`goToSecurityTab` below) — an in-page tab switch; Reports' own flat
- * "Security" tab (Reports/SecurityTab.tsx) is unaffected and still exists
- * as a separate, simpler category="security" view. Same `subtab`
- * deep-link convention every tab shell here uses
+ * Reports' own flat "Security" tab (Reports/SecurityTab.tsx) is unaffected
+ * and still exists as a separate, simpler category="security" view. Same
+ * `subtab` deep-link convention every tab shell here uses
  * (`?page=vulopilot#&tab=security&subtab=<inner-tab>`) — `getCategoryTabLink.ts`'s
  * own `security: 'security&subtab=security'` mapping still resolves
- * correctly since this tab's id stays `security`.
+ * correctly since this tab's id stays `security`, which is also this
+ * page's own default tab now that "Overview" is gone.
  */
 const Security = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -77,7 +80,7 @@ const Security = () => {
 	const initialTab = (
 		subtab && (TAB_IDS as readonly string[]).includes(subtab)
 			? subtab
-			: 'overview'
+			: 'security'
 	) as (typeof TAB_IDS)[number];
 
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
@@ -89,8 +92,6 @@ const Security = () => {
 	const { runScanButton } = useRunScan({
 		categories: ['security', 'accessibility', 'wordpress', 'server', 'updates'],
 	});
-
-	const goToSecurityTab = () => setActiveTab('security');
 
 	return (
 		<>
@@ -109,14 +110,6 @@ const Security = () => {
 					activeIndex={TAB_IDS.indexOf(activeTab)}
 					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
 					tabs={[
-						{
-							label: __('Overview', 'vulopilot'),
-							content: (
-								<OverviewTab
-									onNavigateToSecurityTab={goToSecurityTab}
-								/>
-							),
-						},
 						{
 							label: __('Security', 'vulopilot'),
 							content: <ClassicSecurityTab />,

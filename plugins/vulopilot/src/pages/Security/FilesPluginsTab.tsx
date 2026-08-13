@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import SectionedFindingsTab, { FindingsSection } from './SectionedFindingsTab';
+import FindingsHeroCard from './FindingsHeroCard';
 
 /**
  * "Files & Plugins" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) —
@@ -11,6 +12,10 @@ import SectionedFindingsTab, { FindingsSection } from './SectionedFindingsTab';
  * own "File Integrity" respectively — same finding, two organizational
  * views, not two separate checks (PROTECT-MY-SITE.md's IA lists both
  * explicitly rather than only picking one home for each).
+ *
+ * Starts with FindingsHeroCard — same "hero summary + chart before the
+ * detail sections" shape the Security/Performance tabs already use,
+ * which this tab (and Site Health) previously didn't have at all.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -80,6 +85,27 @@ const SECTIONS: FindingsSection[] = [
 	},
 ];
 
-const FilesPluginsTab = () => <SectionedFindingsTab sections={SECTIONS} />;
+const ALL_SCANNER_IDS = Array.from(
+	new Set(SECTIONS.flatMap((section) => section.scannerIds))
+);
+
+const scrollToFirstSection = () =>
+	document
+		.getElementById(`protect-my-site-section-${SECTIONS[0].key}`)
+		?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+const FilesPluginsTab = () => (
+	<SectionedFindingsTab
+		sections={SECTIONS}
+		header={
+			<FindingsHeroCard
+				icon="module"
+				label={__('Files & Plugins', 'vulopilot')}
+				scannerIds={ALL_SCANNER_IDS}
+				onReviewFirst={scrollToFirstSection}
+			/>
+		}
+	/>
+);
 
 export default FilesPluginsTab;

@@ -1018,3 +1018,92 @@
 	color: var(--sub-text-color);
 	font-size: 0.8125rem;
 }
+
+// FindingsHeroCard.tsx — shared by SiteHealthTab.tsx/FilesPluginsTab.tsx,
+// same "icon + headline" top row .vulnerability-hero-top/-icon already
+// establish, plus a real severity-breakdown donut
+// (.findings-hero-chart-row) neither tab had before.
+.findings-hero-top {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.875rem;
+}
+
+.findings-hero-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
+
+	i {
+		font-size: 1.375rem;
+	}
+
+	&.is-good {
+		background: #eafaf0;
+
+		i {
+			color: #16a34a;
+		}
+	}
+
+	&.is-attention {
+		background: var(--background-primary, #ece2f9);
+
+		i {
+			color: var(--color-primary);
+		}
+	}
+}
+
+.findings-hero-title {
+	font-weight: 700;
+	font-size: 1.0625rem;
+}
+
+.findings-hero-subtitle {
+	margin-top: 0.125rem;
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+}
+
+.findings-hero-chart-row {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+	flex-wrap: wrap;
+	margin-top: 1.25rem;
+}
+
+.findings-hero-chart {
+	flex-shrink: 0;
+	width: 10rem;
+
+	// Same "hide zyra's own injected legend row" fix
+	// AccessibilityHeroCard.tsx/.efficiency-overview-chart's own comments
+	// document — this row uses its own dot+label+count legend
+	// (.efficiency-overview-legend, reused as-is) instead.
+	.zyra-chart-pie-legend {
+		display: none !important;
+	}
+}
+
+.findings-hero-chart-number {
+	display: block;
+	font-weight: 700;
+	font-size: 1.375rem;
+	line-height: 1.2;
+}
+
+.findings-hero-chart-label {
+	display: block;
+	font-size: 0.75rem;
+	color: var(--sub-text-color);
+}
+
+.findings-hero-actions {
+	margin-top: 1rem;
+}
