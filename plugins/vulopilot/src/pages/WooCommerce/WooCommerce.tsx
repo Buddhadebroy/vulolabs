@@ -34,7 +34,9 @@ const WooCommerce = () => {
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
 	);
-	const { runScanButton } = useRunScan();
+	// Scoped to this page's own 'woocommerce' category — same "local tab"
+	// scoping every other category page's header "Run scan" button uses.
+	const { runScanButton } = useRunScan({ categories: ['woocommerce'] });
 
 	const goToWooCommerceTab = () => setActiveTab('woocommerce');
 

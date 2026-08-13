@@ -230,6 +230,19 @@ class ScannerRegistry {
             // ACCESSIBILITY-MODULE.md's audit table for why none of those
             // four needed new code.
             Basic\WcagScanner::class,
+            // "Keyboard & Assistive Technology" (PROTECT-MY-SITE.md) —
+            // category 'accessibility', joins the five above. Positive
+            // tabindex is the one keyboard/focus-order issue a static
+            // content scan can actually detect — see this scanner's own
+            // docblock for why a fuller keyboard-trap/focus-visible audit
+            // isn't attempted.
+            Basic\KeyboardAccessibilityScanner::class,
+            // "Site Health"'s WordPress/Server sections (PROTECT-MY-SITE.md)
+            // — two new categories ('wordpress', 'server'), both thin
+            // wrappers around WordPress core's own WP_Site_Health tests
+            // rather than new checks — see each scanner's own docblock.
+            Basic\WordPressHealthScanner::class,
+            Basic\ServerHealthScanner::class,
         );
     }
 
