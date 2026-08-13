@@ -65,7 +65,11 @@ interface WpRestErrorBody {
  * disabled "AI chat replies aren't available yet" composer. Deliberately
  * stateless server-side: the running conversation (`turns`) is kept here,
  * client-side, and sent back as `history` on every call — every real call
- * is still recorded to `vulopilot_ai_history` server-side regardless.
+ * is still recorded to `vulopilot_ai_history` server-side regardless,
+ * including a genuine `response_excerpt` of what the AI actually replied
+ * (UsageTrackingProvider::record_success()), which is what lets
+ * RecentConversationsCard.tsx show real recent activity even though this
+ * hook's own `turns` state (the full back-and-forth) is lost on refresh.
  *
  * @param noticeKey Unique NoticeManager key for this composer's error banner, so two composers on the same page (if that ever happens) don't clobber each other's notice.
  */

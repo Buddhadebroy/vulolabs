@@ -4,7 +4,6 @@ import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import {
 	ACCESSIBILITY_CHECKS,
-	sectionAnchorId,
 	type AccessibilityCheck,
 } from './accessibilityChecks';
 
@@ -15,9 +14,10 @@ interface AccessibilityFinding {
 
 interface CheckTileProps {
 	check: AccessibilityCheck;
+	onReview: (checkKey: string) => void;
 }
 
-const CheckTile = ({ check }: CheckTileProps) => {
+const CheckTile = ({ check, onReview }: CheckTileProps) => {
 	const { data, total, isLoading } = useApiList<AccessibilityFinding>(
 		'findings',
 		{
@@ -74,27 +74,29 @@ const CheckTile = ({ check }: CheckTileProps) => {
 					text: __('Review', 'vulopilot'),
 					rightIcon: 'pagination-right-arrow',
 					color: 'border-purple',
-					onClick: () =>
-						document
-							.getElementById(sectionAnchorId(check.key))
-							?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+					onClick: () => onReview(check.key),
 				}}
 			/>
 		</CardComponent>
 	);
 };
 
+interface AccessibilityChecksGridProps {
+	/** Switches the merged issues table (SectionedIssuesTable.tsx, further down this tab) to this check's own tab and scrolls to it. */
+	onReview: (checkKey: string) => void;
+}
+
 /**
  * The mockup's "Accessibility Checks" 5-tile grid — one real
  * scanner_id-scoped open-findings count + distinct-pages-affected count
  * per tile (ACCESSIBILITY_CHECKS.tsx's own shared definitions), each
- * "Review" scrolling straight to that check's own detailed FindingsTable
- * section at the bottom of this tab.
+ * "Review" switching the merged issues table further down this tab to
+ * that check's own tab.
  */
-const AccessibilityChecksGrid = () => (
+const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => (
 	<div className="accessibility-checks-grid">
 		{ACCESSIBILITY_CHECKS.map((check) => (
-			<CheckTile key={check.key} check={check} />
+			<CheckTile key={check.key} check={check} onReview={onReview} />
 		))}
 	</div>
 );

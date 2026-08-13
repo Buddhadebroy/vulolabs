@@ -5,7 +5,6 @@ import { useApiList } from '../../services/useApiList';
 import {
 	ACCESSIBILITY_SCANNER_IDS,
 	checkForScannerId,
-	sectionAnchorId,
 } from './accessibilityChecks';
 
 interface AccessibilityFinding {
@@ -38,6 +37,8 @@ const PRIORITY_LABEL: Record<AccessibilityFinding['severity'], string> = {
 interface AccessibilityPriorityListProps {
 	id?: string;
 	onViewAll: () => void;
+	/** Switches the merged issues table below to the check this row belongs to, then scrolls to it — same purpose the row's own inline scroll-to-section used to serve, back when each check was its own separate card rather than a tab of one shared table. */
+	onReviewCheck: (checkKey: string) => void;
 }
 
 /**
@@ -45,13 +46,15 @@ interface AccessibilityPriorityListProps {
  * accessibility findings (client-side ranked, see SEVERITY_RANK's own
  * docblock), each row showing its real title, page, and description,
  * tagged with the check bucket it belongs to (ACCESSIBILITY_CHECKS'
- * shared icon/color) and a 3-tier priority pill. "Review" scrolls to
- * that finding's own detailed section rather than the finding itself —
- * there's no single-finding detail view on this page.
+ * shared icon/color) and a 3-tier priority pill. "Review" switches the
+ * merged issues table below to that finding's own check/tab
+ * (`onReviewCheck`) rather than the finding itself — there's no
+ * single-finding detail view on this page.
  */
 const AccessibilityPriorityList = ({
 	id,
 	onViewAll,
+	onReviewCheck,
 }: AccessibilityPriorityListProps) => {
 	const { data, total, isLoading } = useApiList<AccessibilityFinding>(
 		'findings',
@@ -141,16 +144,9 @@ const AccessibilityPriorityList = ({
 										rightIcon: 'pagination-right-arrow',
 										color: 'border-purple',
 										onClick: () =>
-											document
-												.getElementById(
-													sectionAnchorId(
-														check?.key || 'page-structure'
-													)
-												)
-												?.scrollIntoView({
-													behavior: 'smooth',
-													block: 'start',
-												}),
+											onReviewCheck(
+												check?.key || 'page-structure'
+											),
 									}}
 								/>
 							</div>

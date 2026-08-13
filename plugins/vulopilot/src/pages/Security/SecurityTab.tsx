@@ -1,16 +1,15 @@
 /* global appLocalizer */
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
-import { CardComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
-import FindingsTable from '../../components/FindingsTable';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import type { FindingsSection } from './SectionedFindingsTab';
+import SectionedIssuesTable, {
+	SectionedIssuesTab,
+} from './SectionedIssuesTable';
 import SecurityMockupHeader from './SecurityMockupHeader';
-import IssuesNeedAttentionCard from './IssuesNeedAttentionCard';
-import VulnerabilitiesFoundCard from './VulnerabilitiesFoundCard';
-import LiveThreatMonitorCard from './LiveThreatMonitorCard';
-import RecentActivityCard from './RecentActivityCard';
-import SecurityTrendCard from './SecurityTrendCard';
+import PluginOverlapCard from './PluginOverlapCard';
 
 /**
  * SECURITY-MODULE.md's "Incident Reports" panel — was "Old Security"'s
@@ -22,15 +21,11 @@ const SecurityIncidentReportsPanel = applyFilters(
 	null
 ) as ComponentType | null;
 
-/** Anchor id the hero card's "Review Issues First" button scrolls to. */
-const ISSUES_SECTION_ID = 'classic-security-issues';
-
 /**
  * Every scanner id "Security Findings" below rolls up (rather than
  * `category="security"` alone, so it doesn't silently drop
  * RestApiScanner's findings — its own category is `rest-api`, not
- * `security`, see that scanner's own docblock). Also what
- * IssuesNeedAttentionCard's own condensed top-5 list scopes to, above.
+ * `security`, see that scanner's own docblock).
  */
 const SECURITY_FINDINGS_SCANNER_IDS = [
 	'weak-passwords',
@@ -50,9 +45,15 @@ const SECURITY_FINDINGS_SCANNER_IDS = [
 ];
 
 /**
- * The 5 detail sections formerly on "Old Security" (SecurityDetailTab.tsx)
+ * The 4 detail sections formerly on "Old Security" (SecurityDetailTab.tsx)
  * — moved here, appended last on this tab, per direct instruction. Same
- * scanner_id groupings that tab always used.
+ * scanner_id groupings that tab always used. The 5th, catch-all "Security
+ * Findings" section (every one of these scanner ids, combined, plus file
+ * integrity and known plugin/theme vulnerabilities) no longer needs its
+ * own entry here — SectionedIssuesTable.tsx's own "All" tab already covers
+ * exactly the same scope (SECURITY_FINDINGS_SCANNER_IDS), so a separate,
+ * identically-scoped section would just be a second "All" under a
+ * different label.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -72,7 +73,7 @@ const SECTIONS: FindingsSection[] = [
 		key: 'website-exposure',
 		title: __('Website Exposure', 'vulopilot'),
 		description: __(
-			'Anonymous REST API user enumeration, xmlrpc.php, exposed backup/editor files, debug mode, and the theme/plugin file editor.',
+			'Anonymous REST API user enumeration, xmlrpc.php, exposed backup/editor files, debug mode, the theme/plugin file editor, and publicly exposed version info.',
 			'vulopilot'
 		),
 		emptyMessage: __(
@@ -85,6 +86,7 @@ const SECTIONS: FindingsSection[] = [
 			'exposed-files',
 			'debug-mode',
 			'file-editor',
+			'basic-vulnerabilities',
 		],
 	},
 	{
@@ -110,129 +112,70 @@ const SECTIONS: FindingsSection[] = [
 		),
 		scannerIds: ['ssl-monitoring'],
 	},
-	{
-		key: 'security-findings',
-		title: __('Security Findings', 'vulopilot'),
-		description: __(
-			'Every check above, combined, plus file integrity and known plugin/theme vulnerabilities.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No security findings yet — run a scan to check for hardening and exposure issues.',
-			'vulopilot'
-		),
-		scannerIds: SECURITY_FINDINGS_SCANNER_IDS,
-	},
 ];
 
-/** DOM id prefix every section below already carries (`protect-my-site-section-{key}`). */
-const SECTION_ANCHOR_PREFIX = 'protect-my-site-section-';
-
-/**
- * scanner id → the specific section (above) it belongs to, for
- * VulnerabilitiesFoundCard's own row-click scroll-and-highlight — built
- * from the same 4 specific SECTIONS entries (excluding the last,
- * catch-all "Security Findings" section, so a scanner id resolves to its
- * own specific section rather than always the combined one).
- */
-const SECURITY_SECTION_MAP: Record<string, string> = SECTIONS.filter(
-	(section) => section.key !== 'security-findings'
-).reduce(
-	(map, section) => {
-		section.scannerIds.forEach((scannerId) => {
-			map[scannerId] = section.key;
-		});
-		return map;
-	},
-	{} as Record<string, string>
-);
+/** DOM anchor id the merged table below carries — what "Review Issues" scrolls to. */
+const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
 
 /**
  * "Security" tab of "Protect My Site" — the mockup's own single-page
- * design (hero + status, "What VuloPilot is checking", one combined
- * issues list, a 3-panel footer row, then the 5 detail sections appended
- * last). This page briefly also had a second, "Old Security" tab (a
- * sectioned-IA redesign of the same underlying findings) — it's been
- * removed and its 5 sections + the Pro incident-reports panel folded
- * back into this one tab per direct instruction, so this is once again
- * the sole "Security" tab. Every piece here is a real, already-built
- * component reused as-is — nothing new is fabricated to chase the
- * reference image's specific numbers:
+ * design (hero + status, then one real, unified findings table). This
+ * page briefly also had a second, "Old Security" tab (a sectioned-IA
+ * redesign of the same underlying findings) — it's been removed and its
+ * sections + the Pro incident-reports panel folded back into this one tab
+ * per direct instruction, so this is once again the sole "Security" tab.
+ * Every piece here is a real, already-built component reused as-is —
+ * nothing new is fabricated to chase the reference image's specific
+ * numbers:
  *
- * - Hero/status/tile-grid: SecurityMockupHeader.
- * - "Issues that need your attention": IssuesNeedAttentionCard, built to
- *   match the reference image's own row anatomy exactly.
- * - "Vulnerabilities Found": VulnerabilitiesFoundCard — was the (now
- *   removed) Overview tab's own card, moved here rather than deleted, per
- *   direct instruction. Scoped to SECURITY_FINDINGS_SCANNER_IDS and wired
- *   to SECURITY_SECTION_MAP so a row click scrolls straight to that
- *   finding's own section below, same page.
- * - Footer row: LiveThreatMonitorCard ("Protection Status" in the
- *   reference image), RecentActivityCard ("Recent Security Activity"),
- *   SecurityTrendCard ("Security Trend", honestly untracked).
- * - Detail sections: same `layout="compact"` FindingsTable rows every
- *   other section on this page already uses, each its own scanner_id-
- *   scoped table — not wrapped in SectionedFindingsTab.tsx itself since
- *   that component owns its own top-level `ContainerComponent general`,
- *   which would double the page's own top margin nested inside this
- *   tab's already-existing one.
+ * - Hero/status/tile-grid: SecurityMockupHeader. LiveThreatMonitorCard
+ *   ("Protection Status" in the reference image), RecentActivityCard
+ *   ("Recent Security Activity"), and SecurityTrendCard ("Security
+ *   Trend", honestly untracked) now live inside that same component,
+ *   stacked one after another directly below "Security Status" in its
+ *   own narrow sidebar column — per direct instruction, not a separate
+ *   full-width 3-column row on this tab. Its own "Review Issues First"
+ *   button now scrolls straight to the issues table below (`ISSUES_TABLE_ID`)
+ *   — previously scrolled to "Issues that need your attention"
+ *   (IssuesNeedAttentionCard), removed per direct instruction.
+ * - Issues table: one real SectionedIssuesTable (All/Important/Login &
+ *   Accounts/Website Exposure/Browser Protection/SSL & Secure Connection),
+ *   replacing what used to be 5 separate `layout="compact"` FindingsTable
+ *   cards stacked here — same merge pattern WooCommerce's own "All
+ *   WooCommerce Issues" already established, per direct instruction to
+ *   apply it here too.
+ * - Closes with PluginOverlapCard filtered to `category="security"` —
+ *   promotes the same real cross-sell FilesPluginsTab.tsx introduced
+ *   (Wordfence/Sucuri/Solid Security/AIOS active → VuloPilot's own
+ *   Security Watchtower) into the tab a user reading about security is
+ *   already on, not only the generic Files & Plugins list.
  */
-const ClassicSecurityTab = () => (
-	<ContainerComponent general>
-		<ColumnComponent>
-			<SecurityMockupHeader scrollTargetId={ISSUES_SECTION_ID} />
-			<IssuesNeedAttentionCard
-				id={ISSUES_SECTION_ID}
-				scannerIds={SECURITY_FINDINGS_SCANNER_IDS}
-				// The "Security Findings" section appended below already
-				// lists every one of these same scanner ids' findings in
-				// full, with search/filters/pagination — the real "view
-				// everything" destination for this card's condensed top-5.
-				onViewAll={() =>
-					document
-						.getElementById(
-							'protect-my-site-section-security-findings'
-						)
-						?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-				}
-			/>
-			<ContainerComponent>
-				<VulnerabilitiesFoundCard
-					scannerIds={SECURITY_FINDINGS_SCANNER_IDS}
-					sectionMap={SECURITY_SECTION_MAP}
-					anchorPrefix={SECTION_ANCHOR_PREFIX}
-					fallbackSection="security-findings"
-				/>
-			</ContainerComponent>
-			<ContainerComponent>
-				<ColumnComponent grid={4}>
-					<LiveThreatMonitorCard />
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<RecentActivityCard />
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<SecurityTrendCard />
-				</ColumnComponent>
-			</ContainerComponent>
-			{SECTIONS.map((section) => (
-				<CardComponent
-					key={section.key}
-					id={`protect-my-site-section-${section.key}`}
-					title={section.title}
-					desc={section.description}
-				>
-					<FindingsTable
-						title={section.title}
-						description={section.emptyMessage}
-						scannerIds={section.scannerIds}
-						layout="compact"
-					/>
-				</CardComponent>
-			))}
-			{SecurityIncidentReportsPanel && <SecurityIncidentReportsPanel />}
-		</ColumnComponent>
-	</ContainerComponent>
-);
+const SecurityTab = () => {
+	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
 
-export default ClassicSecurityTab;
+	return (
+		<ContainerComponent>
+			<ColumnComponent>
+				<SecurityMockupHeader scrollTargetId={ISSUES_TABLE_ID} />
+				<SectionedIssuesTable
+					id={ISSUES_TABLE_ID}
+					title={__('All Security Issues', 'vulopilot')}
+					sections={SECTIONS}
+					// The 4 named sections below don't cover every real
+					// scanner id in SECURITY_FINDINGS_SCANNER_IDS (e.g.
+					// core-file-integrity has no dedicated section) —
+					// without this, "All" would silently undercount, same
+					// catch-all scope the removed "Security Findings"
+					// section used to guarantee.
+					allScannerIds={SECURITY_FINDINGS_SCANNER_IDS}
+					activeTab={activeTab}
+					onTabChange={setActiveTab}
+				/>
+				<PluginOverlapCard category="security" />
+				{SecurityIncidentReportsPanel && <SecurityIncidentReportsPanel />}
+			</ColumnComponent>
+		</ContainerComponent>
+	);
+};
+
+export default SecurityTab;

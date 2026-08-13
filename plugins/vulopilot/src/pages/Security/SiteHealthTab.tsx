@@ -1,6 +1,12 @@
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import SectionedFindingsTab, { FindingsSection } from './SectionedFindingsTab';
+import SectionedFindingsTab, {
+	FindingsSection,
+	SECTIONED_FINDINGS_TABLE_ID,
+} from './SectionedFindingsTab';
+import { SectionedIssuesTab } from './SectionedIssuesTable';
 import FindingsHeroCard from './FindingsHeroCard';
+import SiteHealthStatusCard from './SiteHealthStatusCard';
 
 /**
  * "Site Health" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) — 5
@@ -14,7 +20,9 @@ import FindingsHeroCard from './FindingsHeroCard';
  *
  * Starts with FindingsHeroCard — same "hero summary + chart before the
  * detail sections" shape the Security/Performance tabs already use,
- * which this tab (and Files & Plugins) previously didn't have at all.
+ * which this tab (and Files & Plugins) previously didn't have at all —
+ * followed by SiteHealthStatusCard, a real per-section status row
+ * matching the depth of Security's own supporting cards.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -85,23 +93,39 @@ const ALL_SCANNER_IDS = Array.from(
 	new Set(SECTIONS.flatMap((section) => section.scannerIds))
 );
 
-const scrollToFirstSection = () =>
-	document
-		.getElementById(`protect-my-site-section-${SECTIONS[0].key}`)
-		?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+const SiteHealthTab = () => {
+	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
 
-const SiteHealthTab = () => (
-	<SectionedFindingsTab
-		sections={SECTIONS}
-		header={
-			<FindingsHeroCard
-				icon="active"
-				label={__('Site Health', 'vulopilot')}
-				scannerIds={ALL_SCANNER_IDS}
-				onReviewFirst={scrollToFirstSection}
-			/>
-		}
-	/>
-);
+	const goToIssuesTable = (tab: SectionedIssuesTab) => {
+		setActiveTab(tab);
+		setTimeout(
+			() =>
+				document
+					.getElementById(SECTIONED_FINDINGS_TABLE_ID)
+					?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+			50
+		);
+	};
+
+	return (
+		<SectionedFindingsTab
+			title={__('All Site Health Issues', 'vulopilot')}
+			sections={SECTIONS}
+			activeTab={activeTab}
+			onTabChange={setActiveTab}
+			header={
+				<>
+					<FindingsHeroCard
+						icon="active"
+						label={__('Site Health', 'vulopilot')}
+						scannerIds={ALL_SCANNER_IDS}
+						onReviewFirst={() => goToIssuesTable('important')}
+					/>
+					<SiteHealthStatusCard />
+				</>
+			}
+		/>
+	);
+};
 
 export default SiteHealthTab;

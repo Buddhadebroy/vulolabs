@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 export interface AccessibilityCheck {
-	/** Anchor-id suffix (`protect-my-site-section-a11y-${key}`) and React key. */
+	/** React key, and the tab key SectionedIssuesTable.tsx uses for this check's own tab. */
 	key: string;
 	title: string;
 	description: string;
@@ -23,9 +23,10 @@ export interface AccessibilityCheck {
  * counts), AccessibilityChecksGrid.tsx (the tiles themselves),
  * AccessibilityPriorityList.tsx ("What should I fix first" — looks up
  * which check a given finding's scanner_id belongs to, for that row's
- * icon/color), and AccessibilityTab.tsx (the detailed FindingsTable
- * sections at the bottom of the page) — one definition, not four
- * driftable copies.
+ * icon/color), and AccessibilityTab.tsx (passed straight through as
+ * SectionedIssuesTable.tsx's own `sections` prop, for the merged issues
+ * table at the bottom of the page) — one definition, not four driftable
+ * copies.
  */
 export const ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	{
@@ -109,7 +110,3 @@ export const checkForScannerId = (
 	scannerId: string
 ): AccessibilityCheck | undefined =>
 	ACCESSIBILITY_CHECKS.find((check) => check.scannerIds.includes(scannerId));
-
-/** DOM id each tile's own detailed FindingsTable section carries. */
-export const sectionAnchorId = (key: string): string =>
-	`protect-my-site-section-a11y-${key}`;

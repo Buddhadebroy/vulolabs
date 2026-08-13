@@ -26,7 +26,7 @@ const TAB_IDS = [
  * & Plugins. There was also briefly a flat "Security" tab here
  * (Reports/SecurityTab.tsx, `category="security"` FindingsTable) —
  * removed per direct instruction; Protect My Site's own Security tab
- * (ClassicSecurityTab.tsx) is the real, complete home for security
+ * (SecurityTab.tsx) is the real, complete home for security
  * findings now (it scopes to a full 14-scanner-id list rather than the
  * narrower `category="security"` this deleted tab used, so nothing here
  * was lost — the deleted tab actually undercounted relative to it).

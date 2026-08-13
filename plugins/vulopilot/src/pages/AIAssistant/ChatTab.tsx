@@ -88,11 +88,17 @@ interface ChatTabProps {
  * sidebar. Sending now really talks to `POST /copilot/chat`
  * (classes/RestAPI/Controllers/Copilot.php, shared via useCopilotChat.ts)
  * — a real reply grounded in this site's own open findings/automation
- * counts, not a canned response. "Recent conversations" stays static
- * placeholder content (RecentConversationsCard.tsx) since there's still no
- * persisted conversation entity to list past sessions from — each page
- * load starts a fresh, real conversation. The prompt grid still prefills
- * the composer.
+ * counts, not a canned response. `turns` itself is kept client-side only
+ * (useCopilotChat.ts's own docblock) — there's still no persisted
+ * conversation entity to reload past *sessions* from, so a page refresh
+ * starts a fresh conversation. "Recent conversations"
+ * (RecentConversationsCard.tsx) is a real, adjacent feed of *what the AI
+ * actually said*, not a session list: every real call (chat included) now
+ * writes a genuine `response_excerpt` to `vulopilot_ai_history`
+ * (UsageTrackingProvider::record_success(), fixed after that column
+ * existed in the schema but was never populated), so this card surfaces
+ * real recent AI activity even though full past chat threads aren't
+ * reloadable. The prompt grid still prefills the composer.
  *
  * "Attach" and "Add context" are real: Attach opens zyra's FileInput,
  * which — on this admin screen, now that Admin.php calls

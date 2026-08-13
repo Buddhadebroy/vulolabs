@@ -15,6 +15,7 @@ interface AccessibilityFinding {
 
 interface DashboardSummary {
 	category_scores: { accessibility: number };
+	category_scores_7d_ago: { accessibility: number };
 }
 
 interface AccessibilityHeroCardProps {
@@ -65,6 +66,7 @@ const AccessibilityHeroCard = ({
 	onViewAll,
 }: AccessibilityHeroCardProps) => {
 	const [score, setScore] = useState<number | null>(null);
+	const [previousScore, setPreviousScore] = useState<number | null>(null);
 
 	useEffect(() => {
 		getApiResponse<DashboardSummary>(
@@ -73,9 +75,20 @@ const AccessibilityHeroCard = ({
 		).then((response) => {
 			if (response) {
 				setScore(response.category_scores.accessibility);
+				setPreviousScore(response.category_scores_7d_ago.accessibility);
 			}
 		});
 	}, []);
+
+	// Real week-over-week delta — `category_scores_7d_ago` is already part
+	// of the same `GET /dashboard` response this card already fetches
+	// (Dashboard.php's own snapshot-based 7-days-ago score), just not
+	// previously surfaced here. `null` when the delta is genuinely zero or
+	// either score hasn't loaded yet, so no "+0" noise shows.
+	const scoreDelta =
+		null !== score && null !== previousScore && score !== previousScore
+			? score - previousScore
+			: null;
 
 	const { data, total, isLoading } = useApiList<AccessibilityFinding>(
 		'findings',
@@ -129,6 +142,20 @@ const AccessibilityHeroCard = ({
 					</div>
 					<p className="accessibility-hero-title">
 						{getRating(score as number)}
+						{null !== scoreDelta && (
+							<span
+								className={`accessibility-hero-delta ${
+									scoreDelta > 0 ? 'is-up' : 'is-down'
+								}`}
+							>
+								{sprintf(
+									/* translators: 1: "↑" or "↓", 2: how many points the accessibility score changed by since last week. */
+									__('%1$s %2$d pts vs last week', 'vulopilot'),
+									scoreDelta > 0 ? '↑' : '↓',
+									Math.abs(scoreDelta)
+								)}
+							</span>
+						)}
 					</p>
 					<p className="accessibility-hero-desc">
 						{total > 0
