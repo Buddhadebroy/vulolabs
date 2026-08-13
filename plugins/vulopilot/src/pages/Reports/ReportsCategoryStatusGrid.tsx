@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
+import { getCategoryTabLink } from '../../services/getCategoryTabLink';
 import type { CategoryTile } from './reportsOverview';
 
 interface ReportsCategoryStatusGridProps {
@@ -28,6 +29,11 @@ const statusClass = (status: string): string => {
  * everywhere else). Same category set CategoryScoresGrid.tsx (this tab's
  * previous version) covered, now with a real status word and a real delta
  * arrow per tile instead of just a bare score.
+ *
+ * Each tile is a real link to that category's own detail page
+ * (`getCategoryTabLink.ts`, same mapping ReportsHeroCard.tsx's highlight
+ * rows use) — was previously a plain non-interactive CardComponent with
+ * nowhere to go.
  */
 const ReportsCategoryStatusGrid = ({
 	categories,
@@ -48,31 +54,35 @@ const ReportsCategoryStatusGrid = ({
 						/>
 					))
 				: categories.map((category) => (
-						<CardComponent
+						<a
 							key={category.key}
-							className="reports-category-tile"
+							className="reports-category-tile-link"
+							href={getCategoryTabLink(category.key)}
 						>
-							<i className={`adminfont-${category.icon}`} />
-							<p className="reports-category-tile-title">
-								{category.label}
-							</p>
-							<p className="reports-category-tile-sublabel">
-								{category.sublabel}
-							</p>
-							<p
-								className={`reports-category-tile-status ${statusClass(category.status)}`}
-							>
-								{category.status}
-							</p>
-							{category.delta !== null && category.delta !== 0 && (
-								<p
-									className={`reports-category-tile-delta ${category.delta > 0 ? 'is-good' : 'is-attention'}`}
-								>
-									{category.delta > 0 ? '↑' : '↓'}{' '}
-									{Math.abs(category.delta)}
+							<CardComponent className="reports-category-tile">
+								<i className={`adminfont-${category.icon}`} />
+								<p className="reports-category-tile-title">
+									{category.label}
 								</p>
-							)}
-						</CardComponent>
+								<p className="reports-category-tile-sublabel">
+									{category.sublabel}
+								</p>
+								<p
+									className={`reports-category-tile-status ${statusClass(category.status)}`}
+								>
+									{category.status}
+								</p>
+								{category.delta !== null &&
+									category.delta !== 0 && (
+										<p
+											className={`reports-category-tile-delta ${category.delta > 0 ? 'is-good' : 'is-attention'}`}
+										>
+											{category.delta > 0 ? '↑' : '↓'}{' '}
+											{Math.abs(category.delta)}
+										</p>
+									)}
+							</CardComponent>
+						</a>
 					))}
 		</div>
 	</div>

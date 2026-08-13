@@ -1,5 +1,6 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
+import { getCategoryTabLink } from '../../services/getCategoryTabLink';
 import type { ReportsSummary, Highlight } from './reportsOverview';
 
 interface ReportsHeroCardProps {
@@ -126,9 +127,10 @@ const ReportsHeroCard = ({
 					</div>
 					<div className="reports-hero-highlights">
 						{highlights.map((highlight) => (
-							<div
+							<a
 								className="reports-hero-highlight-row"
 								key={highlight.key}
+								href={getCategoryTabLink(highlight.key)}
 							>
 								<i
 									className={`adminfont-${
@@ -136,13 +138,13 @@ const ReportsHeroCard = ({
 											? 'arrow-up'
 											: highlight.direction === 'down'
 												? 'arrow-down'
-												: 'arrow-'
+												: 'minus'
 									} reports-hero-highlight-icon is-${highlight.direction}`}
 								/>
 								<span className="reports-hero-highlight-label">
 									{highlight.label}
 								</span>
-							</div>
+							</a>
 						))}
 					</div>
 				</>
