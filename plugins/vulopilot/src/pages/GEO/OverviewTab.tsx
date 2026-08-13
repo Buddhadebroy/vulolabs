@@ -46,7 +46,12 @@ const SUGGESTED_PROMPTS = [
  */
 const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 	const [message, setMessage] = useState('');
-	const { runScan } = useRunScan();
+	// Same local category scope GEO.tsx's own header "Run scan" button
+	// uses — the copilot's "Run an audit" chip shouldn't scan the whole
+	// site when it's offered from this page specifically.
+	const { runScan } = useRunScan({
+		categories: ['geo', 'seo', 'images', 'schema', 'links'],
+	});
 	const { turns, isSending, send } = useCopilotChat(
 		'vulopilot-geo-copilot-chat-error'
 	);

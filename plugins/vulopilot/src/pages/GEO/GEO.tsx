@@ -67,7 +67,13 @@ const GEO = () => {
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
 	);
-	const { runScanButton } = useRunScan();
+	// Scoped to this page's own categories — GeoTab/AeoTab are 'geo',
+	// SeoTab's 17 scanners span 'seo'/'images'/'schema'/'links' (see its
+	// own docblock) — same "local tab" scoping every other category page's
+	// header "Run scan" button uses.
+	const { runScanButton } = useRunScan({
+		categories: ['geo', 'seo', 'images', 'schema', 'links'],
+	});
 
 	const goToTab = (tab: string) => {
 		if ((TAB_IDS as readonly string[]).includes(tab)) {

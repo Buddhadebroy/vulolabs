@@ -31,11 +31,16 @@ const SecurityIncidentReportsPanel = applyFilters(
 ) as ComponentType | null;
 
 /**
- * "Security" tab of "Protect My Site" — body extracted verbatim from the
- * former standalone Security.tsx page (same "extract body, drop the
- * header" move every other tab on this page already made) — its own
- * NavigatorHeaderComponent now lives once on Security.tsx's shared
- * tab-shell header.
+ * "Security" tab of "Reports" — deliberately lives here rather than on
+ * "Protect My Site": that page's own tabs are Overview (the mockup's
+ * dashboard-style summary) and Accessibility only, since a raw
+ * findings-review screen belongs with Reports' other findings-oriented
+ * tabs (Report, Activity), not duplicated onto Protect My Site as well.
+ * "Protect My Site"'s Overview still links out here ("Review Issues
+ * First"/clicking a vulnerability row) via a real cross-page
+ * `#&tab=reports&subtab=security` navigation rather than an in-page tab
+ * switch — same `admin_url`+`subtab` pattern
+ * HistoryDetailPanel.tsx's "View findings" link already uses.
  */
 const SecurityTab = () => {
 	return (

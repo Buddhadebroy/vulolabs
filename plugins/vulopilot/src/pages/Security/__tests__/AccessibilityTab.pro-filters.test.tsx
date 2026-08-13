@@ -28,11 +28,15 @@ addFilter(
 const AccessibilityTab = require( '../AccessibilityTab' ).default;
 
 describe( 'AccessibilityTab — Pro filter slots registered', () => {
-	it( 'renders both Pro cards registered via the vulopilot_accessibility_* filters, around the base FindingsTable', () => {
+	it( 'renders both Pro cards registered via the vulopilot_accessibility_* filters, around the 6 section FindingsTables', () => {
 		render( <AccessibilityTab /> );
 
 		expect( screen.getByTestId( 'accessibility-dashboard-stub' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'findings-table' ) ).toBeInTheDocument();
+		// One independent FindingsTable per PROTECT-MY-SITE.md section
+		// (Images/Page Structure/Forms/Links & Buttons/Readability/
+		// Keyboard & Assistive Technology) — see AccessibilityTab.tsx's
+		// own docblock.
+		expect( screen.getAllByTestId( 'findings-table' ) ).toHaveLength( 6 );
 		expect( screen.getByTestId( 'accessibility-history-stub' ) ).toBeInTheDocument();
 	} );
 } );
