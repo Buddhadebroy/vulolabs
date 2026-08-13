@@ -32,15 +32,14 @@ const SecurityIncidentReportsPanel = applyFilters(
 
 /**
  * "Security" tab of "Reports" — deliberately lives here rather than on
- * "Protect My Site": that page's own tabs are Overview (the mockup's
- * dashboard-style summary) and Accessibility only, since a raw
- * findings-review screen belongs with Reports' other findings-oriented
- * tabs (Report, Activity), not duplicated onto Protect My Site as well.
- * "Protect My Site"'s Overview still links out here ("Review Issues
- * First"/clicking a vulnerability row) via a real cross-page
- * `#&tab=reports&subtab=security` navigation rather than an in-page tab
- * switch — same `admin_url`+`subtab` pattern
- * HistoryDetailPanel.tsx's "View findings" link already uses.
+ * "Protect My Site": that page now has 5 tabs of its own (Security,
+ * Performance, Site Health, Files & Plugins, Accessibility — see
+ * Security.tsx), and its default "Security" tab already folds in a full
+ * "Issues that need your attention" section with its own in-page "Review
+ * Issues First" scroll target (IssuesNeedAttentionCard.tsx), so this tab
+ * isn't that page's only findings view — it's Reports' own simpler,
+ * unfiltered category="security" list, grouped with Reports' other
+ * findings-oriented tabs (Report, Activity) instead.
  */
 const SecurityTab = () => {
 	return (

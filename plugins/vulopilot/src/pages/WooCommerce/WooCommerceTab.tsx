@@ -1,4 +1,3 @@
-/* global appLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
@@ -14,7 +13,6 @@ import { useWooCommerceFindingGroups } from './useWooCommerceFindingGroups';
 import StoreHealthBanner from './StoreHealthBanner';
 import StoreOverviewCards from './StoreOverviewCards';
 import WooCommerceCategoryGrid from './WooCommerceCategoryGrid';
-import SalesFunnelCard from './SalesFunnelCard';
 import TopIssuesToWorkOn from './TopIssuesToWorkOn';
 import AiSalesOptimizerCard from './AiSalesOptimizerCard';
 import AiSalesAssistantCard from './AiSalesAssistantCard';
@@ -34,7 +32,11 @@ import './SellMore.scss';
  * (it has no toggle card on the Modules page — see
  * src/components/Modules/index.ts's own docblock — so before that fix, no
  * admin, licensed or not, had any way to turn it on and this teaser showed
- * unconditionally).
+ * unconditionally). The popup below always renders the generic upgrade
+ * pitch (no `moduleName`) even when `khali_dabba` is true — 'woo-commerce-ai'
+ * has no Modules-page card to deep-link to (Popup.tsx's own catalog
+ * deliberately dropped it, same "exactly 13 modules" decision), so passing
+ * that moduleName would point "Enable Now" at a tab with nothing to click.
  */
 const WooCommerceAiLockedCard = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
@@ -63,19 +65,7 @@ const WooCommerceAiLockedCard = () => {
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
-					// Pro is active — this specific module just isn't
-					// toggled on yet, so point at Modules rather than
-					// pitching an upgrade the user already has. Real
-					// backend id (WooCommerceAi's folder kebab-cased —
-					// see src/components/Modules/index.ts's own
-					// 'woo-commerce-ai' entry) — this previously pointed
-					// at 'woocommerce-intelligence', both the wrong module
-					// AND an id no real module resolves to.
-					<ShowProPopup moduleName="woo-commerce-ai" />
-				) : (
-					<ShowProPopup />
-				)}
+				<ShowProPopup />
 			</PopupComponent>
 		</>
 	);
@@ -86,7 +76,9 @@ const WooCommerceAiLockedCard = () => {
  * WooCommerceAiLockedCard already uses, and the same fix applies: real
  * for genuinely unlicensed sites only, since
  * `VuloPilotPro::seed_woocommerce_modules_active()` now auto-activates
- * 'woo-commerce-intelligence' for any licensed site.
+ * 'woo-commerce-intelligence' for any licensed site. Same generic-popup
+ * fix as WooCommerceAiLockedCard above — 'woo-commerce-intelligence' has
+ * no Modules-page card either.
  */
 const WooCommerceIntelligenceLockedCard = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
@@ -115,13 +107,7 @@ const WooCommerceIntelligenceLockedCard = () => {
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
-					// Real backend id (see the ShowProPopup usage above for
-					// why this can't be 'woocommerce-intelligence').
-					<ShowProPopup moduleName="woo-commerce-intelligence" />
-				) : (
-					<ShowProPopup />
-				)}
+				<ShowProPopup />
 			</PopupComponent>
 		</>
 	);
@@ -143,19 +129,18 @@ const scrollToId = (id: string) => {
 /**
  * "WooCommerce" tab of "Sell More" — a real store-health overview
  * (WooCommerceCategoryGrid/StoreOverviewCards/StoreHealthBanner/
- * SalesFunnelCard/TopIssuesToWorkOn/AiSalesOptimizerCard/
- * StoreIntelligenceSummaryCard/WooCommerceIssuesTable, all real data —
- * see each file's own docblock) on top of the original page's two Pro
- * panel slots and issues table, kept unchanged below. StoreHealthBanner +
- * WooCommerceCategoryGrid (grid 8) and StoreOverviewCards/"At a Glance"
- * (grid 4) sit side by side in their own nested ContainerComponent, same
- * "one real component reused on two tabs" pattern OverviewTab.tsx already
- * uses for StoreOverviewCards — "View Full Report →" is repurposed here
- * to scroll to this tab's own issues table (goToIssuesTab) rather than
- * navigate to itself, since this already is the WooCommerce tab.
- * SalesFunnelCard ("Where are sales getting stuck?") sits below that row,
- * full width, directly above TopIssuesToWorkOn ("What should I work on
- * first?"). "Store Readiness" (shop/cart/checkout/my-account page + HTTPS
+ * TopIssuesToWorkOn/AiSalesOptimizerCard/StoreIntelligenceSummaryCard/
+ * WooCommerceIssuesTable, all real data — see each file's own docblock)
+ * on top of the original page's two Pro panel slots and issues table,
+ * kept unchanged below. StoreHealthBanner + WooCommerceCategoryGrid
+ * (grid 8) and StoreOverviewCards/"At a Glance" (grid 4) sit side by side
+ * in their own nested ContainerComponent, same "one real component reused
+ * on two tabs" pattern OverviewTab.tsx already uses for StoreOverviewCards
+ * — "View Full Report →" is repurposed here to scroll to this tab's own
+ * issues table (goToIssuesTab) rather than navigate to itself, since this
+ * already is the WooCommerce tab. TopIssuesToWorkOn ("What should I work
+ * on first?") sits directly below that row. "Store Readiness"
+ * (shop/cart/checkout/my-account page + HTTPS
  * status) used to be its own standalone card here; it's now the first
  * card inside WooCommerceCategoryGrid instead, matching that grid's card
  * style rather than sitting as a separate-looking section (its
@@ -216,12 +201,6 @@ const WooCommerceTab = () => {
 						/>
 					</ColumnComponent>
 				</ContainerComponent>
-
-				<SalesFunnelCard
-					groups={groups}
-					isLoading={isLoadingGroups}
-					onReviewTab={goToIssuesTab}
-				/>
 
 				<TopIssuesToWorkOn
 					groups={groups}

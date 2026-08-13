@@ -71,7 +71,7 @@ const Dashboard = () => {
 	// gates whether those controls are reachable at all).
 	const [isCustomizing, setIsCustomizing] = useState(false);
 	// See DashboardGrid.tsx's own comment on why this is a counter, not a
-	// boolean — every "Restore default" click has to re-trigger the reset
+	// boolean — every "Reset to default" click has to re-trigger the reset
 	// effect there even if a previous click already left it at the same
 	// value.
 	const [restoreDefaultSignal, setRestoreDefaultSignal] = useState(0);
@@ -110,23 +110,34 @@ const Dashboard = () => {
 				"Your site's overall health, at a glance.",
 				'vulopilot'
 			)}
-			buttons={[
-				{
-					label: __('Restore default', 'vulopilot'),
-					icon: 'refresh',
-					color: 'secondary',
-					onClick: () =>
-						setRestoreDefaultSignal((signal) => signal + 1),
-				},
-				{
-					label: isCustomizing
-						? __('Done customizing', 'vulopilot')
-						: __('Customize dashboard', 'vulopilot'),
-					icon: isCustomizing ? 'form-checkboxes' : 'edit',
-					color: isCustomizing ? 'border-green' : 'border-purple',
-					onClick: () => setIsCustomizing(!isCustomizing),
-				},
-			]}
+			buttons={
+				isCustomizing
+					? [
+							{
+								label: __('Reset to default', 'vulopilot'),
+								icon: 'refresh',
+								color: 'secondary',
+								onClick: () =>
+									setRestoreDefaultSignal(
+										(signal) => signal + 1
+									),
+							},
+							{
+								label: __('Save changes', 'vulopilot'),
+								icon: 'form-checkboxes',
+								color: 'border-green',
+								onClick: () => setIsCustomizing(false),
+							},
+					  ]
+					: [
+							{
+								label: __('Customize dashboard', 'vulopilot'),
+								icon: 'edit',
+								color: 'border-purple',
+								onClick: () => setIsCustomizing(true),
+							},
+					  ]
+			}
 		/>
 	);
 

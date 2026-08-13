@@ -82,26 +82,31 @@ const HealthScoreSummary = () => {
 			icon: 'search',
 			number: `${summary.category_scores.seo}/100`,
 			text: __('SEO', 'vulopilot'),
+			progress: summary.category_scores.seo,
 		},
 		{
 			icon: 'bar-chart',
 			number: `${summary.category_scores.performance}/100`,
 			text: __('Performance', 'vulopilot'),
+			progress: summary.category_scores.performance,
 		},
 		{
 			icon: 'security',
 			number: `${summary.category_scores.security}/100`,
 			text: __('Security', 'vulopilot'),
+			progress: summary.category_scores.security,
 		},
 		{
 			icon: 'eye',
 			number: `${summary.category_scores.accessibility}/100`,
 			text: __('Accessibility', 'vulopilot'),
+			progress: summary.category_scores.accessibility,
 		},
 		{
 			icon: 'global-community',
 			number: `${summary.category_scores.geo}/100`,
 			text: __('GEO', 'vulopilot'),
+			progress: summary.category_scores.geo,
 		},
 		...(summary.category_scores.woocommerce !== null
 			? [
@@ -109,6 +114,7 @@ const HealthScoreSummary = () => {
 						icon: 'woocommerce',
 						number: `${summary.category_scores.woocommerce}/100`,
 						text: __('WooCommerce', 'vulopilot'),
+						progress: summary.category_scores.woocommerce,
 					},
 				]
 			: []),

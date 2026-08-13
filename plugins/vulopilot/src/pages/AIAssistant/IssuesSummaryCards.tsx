@@ -4,14 +4,19 @@ import { ColumnComponent, AnalyticsComponent } from '@zyra/components';
 
 export type Priority = 'all' | 'high' | 'medium' | 'low';
 
-const PRIORITY_ORDER: Priority[] = ['all', 'high', 'medium', 'low'];
-
 interface IssuesSummaryCardsProps {
 	total: number;
 	priorityCounts: { high: number; medium: number; low: number };
 	isLoading: boolean;
 	activePriority: Priority;
 	onSelectPriority: (priority: Priority) => void;
+}
+
+interface SummaryTile {
+	priority: Priority;
+	colorClass: string;
+	number: number;
+	text: string;
 }
 
 const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
@@ -21,40 +26,41 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 	activePriority,
 	onSelectPriority,
 }) => {
-	const handleClick = (item: any) => {
-		// Find the priority based on the item's text/label
-		const index = PRIORITY_ORDER.findIndex(
-			priority => priority === item.text?.toString().toLowerCase()
-		);
-		
-		if (index !== -1) {
-			onSelectPriority(PRIORITY_ORDER[index]);
-		}
+	// Reads the real `priority` field carried on each tile rather than
+	// reverse-parsing it from the tile's own translated display text
+	// (`item.text`) — that used to compare `"All Issues".toLowerCase()`
+	// against `PRIORITY_ORDER`'s `'all'`, which never matches (extra
+	// word), so clicking the "All Issues" tile silently did nothing; the
+	// same text-matching approach would also break for High/Medium/Low
+	// the moment their labels are translated to any other language.
+	const handleClick = (item: SummaryTile) => {
+		onSelectPriority(item.priority);
 	};
 
-	const data = [
+	const data: (SummaryTile & { onClick?: (item: SummaryTile) => void })[] = [
 		{
+			priority: 'all',
 			colorClass: 'admin-bg-color2',
 			number: total,
 			text: __('All Issues', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
-			// colorClass: activePriority === 'high' ? 'primary-color' : '',	
-			colorClass: 'admin-bg-color3',		
+			priority: 'high',
+			colorClass: 'admin-bg-color3',
 			number: priorityCounts.high,
 			text: __('High', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
-			// colorClass: activePriority === 'medium' ? 'primary-color' : '',
+			priority: 'medium',
 			colorClass: 'admin-bg-color4',
 			number: priorityCounts.medium,
 			text: __('Medium', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
-			// colorClass: activePriority === 'low' ? 'primary-color' : '',
+			priority: 'low',
 			colorClass: 'admin-bg-color5',
 			number: priorityCounts.low,
 			text: __('Low', 'vulopilot'),
