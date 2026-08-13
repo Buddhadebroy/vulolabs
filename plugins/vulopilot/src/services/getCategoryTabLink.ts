@@ -19,6 +19,12 @@ const CATEGORY_TAB_LINKS: Record<string, string> = {
 	links: 'geo&subtab=seo',
 	// GEO tab, "GEO" subtab.
 	geo: 'geo&subtab=geo',
+	// Reports Overview's "AI Visibility" category tile (ReportsCategoryStatusGrid.tsx)
+	// is `ai_visibility_now`/`ai_visibility_then`, an average of the same
+	// 'geo' category score and BRAND_SCANNER_IDS this GEO tab's own "GEO"
+	// subtab covers (Controllers\ReportsOverview::build_categories()) — not
+	// a real top-level 'ai_visibility' category any finding actually has.
+	ai_visibility: 'geo&subtab=geo',
 	brand: 'geo&subtab=brand-visibility',
 	// Security tab, "Accessibility" subtab (AccessibilityTab.tsx lives
 	// under pages/Security, not its own top-level route).

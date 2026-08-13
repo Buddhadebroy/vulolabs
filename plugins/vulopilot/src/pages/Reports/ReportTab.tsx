@@ -162,22 +162,28 @@ const ReportTab = () => {
 		);
 	};
 
+	// Was previously only reachable inside the `error` branch's CardComponent
+	// below — the table's own "Generate report" toolbar button always fired
+	// with whatever `selectedReportType` happened to default to
+	// ('scan_summary'), with no visible control to ever change it, so this
+	// selector is now also rendered above the table on the normal (non-error)
+	// path via reportTypeSelector.
+	const reportTypeSelector = reportTypes.length > 0 && (
+		<SelectInput
+			name="report_type"
+			value={selectedReportType}
+			options={reportTypes.map((type) => ({
+				label: type.label,
+				value: type.id,
+			}))}
+			onChange={(newValue) => setSelectedReportType(newValue as string)}
+			size="12rem"
+		/>
+	);
+
 	const pageHeaderAction = (
 		<>
-			{reportTypes.length > 0 && (
-				<SelectInput
-					name="report_type"
-					value={selectedReportType}
-					options={reportTypes.map((type) => ({
-						label: type.label,
-						value: type.id,
-					}))}
-					onChange={(newValue) =>
-						setSelectedReportType(newValue as string)
-					}
-					size="12rem"
-				/>
-			)}
+			{reportTypeSelector}
 			<ButtonInput
 				buttons={{
 					text: __('Generate report', 'vulopilot'),
@@ -207,6 +213,14 @@ const ReportTab = () => {
 						</CardComponent>
 					) : (
 						<>
+							{reportTypeSelector && (
+								<div className="reports-generate-toolbar">
+									<span className="reports-generate-toolbar-label">
+										{__('Report type', 'vulopilot')}
+									</span>
+									{reportTypeSelector}
+								</div>
+							)}
 							<TableCard
 								buttonActions={[
 									{
