@@ -135,7 +135,7 @@ const AIAssistant = () => {
 					`?page=vulopilot#&tab=ai-assistant&subtab=${subTab}`
 				}
 				Link={Link}
-				variant="compact"
+				variant="tab"
 				menuIcon={true}
 				headerIcon="ai"
 				headerTitle={__('AI Copilot', 'vulopilot')}

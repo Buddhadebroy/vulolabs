@@ -357,6 +357,7 @@ const HistoryTab = () => {
 					<SelectInput
 						type="single-select"
 						options={dateRangeSelectOptions}
+						size={15}
 						value={dateRange}
 						onChange={handleDateRangeChange}
 						placeholder={__('Select date range', 'vulopilot')}

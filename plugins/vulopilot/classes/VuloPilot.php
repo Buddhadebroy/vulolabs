@@ -81,10 +81,10 @@ final class VuloPilot {
         add_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'], true );
         // A no-op if this site already has an active-module list (e.g. a
         // deactivate/reactivate cycle) — only seeds 'geo'/'seo'/
-        // 'content-intelligence'/'brand-intelligence'/'entity-extraction' as
-        // active for a genuinely fresh install, matching Install.php's own
-        // migration for sites upgrading in place instead.
-        add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo', 'seo', 'content-intelligence', 'brand-intelligence', 'entity-extraction' ) );
+        // 'content-intelligence'/'brand-intelligence'/'entity-extraction'/
+        // 'ai-copilot' as active for a genuinely fresh install, matching
+        // Install.php's own migration for sites upgrading in place instead.
+        add_option( Utill::ACTIVE_MODULES_DB_KEY, array( 'geo', 'seo', 'content-intelligence', 'brand-intelligence', 'entity-extraction', 'ai-copilot' ) );
         flush_rewrite_rules();
     }
 

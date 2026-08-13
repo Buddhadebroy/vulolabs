@@ -11,6 +11,7 @@ import {
 	NoticeManager,
 } from '@zyra/components';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
+import AiCopilotGuard from '../../components/AiCopilotGuard';
 
 interface ChatLink {
 	url: string;
@@ -134,61 +135,63 @@ const AiContentAssistantSidebar = () => {
 			title={__('AI Content Assistant', 'vulopilot')}
 			titleIcon="ai"
 		>
-			<ChatMessageComponent>
-				{sprintf(
-					/* translators: %s: the real logged-in WP user's own display name */
-					__(
-						'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
-						'vulopilot'
-					),
-					appLocalizer.current_user_display_name
-				)}
-			</ChatMessageComponent>
-
-			{turns.map((turn, index) => (
-				<ChatMessageComponent
-					key={index}
-					sender={'user' === turn.role ? 'user' : 'ai'}
-				>
-					<ChatMarkdown text={turn.content} />
-					{turn.link && (
-						<div className="content-assistant-created-link">
-							<a
-								className="content-assistant-created-link-anchor"
-								href={turn.link.url}
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{turn.link.label}
-							</a>
-						</div>
+			<AiCopilotGuard>
+				<ChatMessageComponent>
+					{sprintf(
+						/* translators: %s: the real logged-in WP user's own display name */
+						__(
+							'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
+							'vulopilot'
+						),
+						appLocalizer.current_user_display_name
 					)}
 				</ChatMessageComponent>
-			))}
 
-			{isSending && (
-				<ChatMessageComponent sender="ai">
-					<i className="adminfont-refresh content-assistant-spinner" />{' '}
-					{__('Thinking…', 'vulopilot')}
-				</ChatMessageComponent>
-			)}
+				{turns.map((turn, index) => (
+					<ChatMessageComponent
+						key={index}
+						sender={'user' === turn.role ? 'user' : 'ai'}
+					>
+						<ChatMarkdown text={turn.content} />
+						{turn.link && (
+							<div className="content-assistant-created-link">
+								<a
+									className="content-assistant-created-link-anchor"
+									href={turn.link.url}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{turn.link.label}
+								</a>
+							</div>
+						)}
+					</ChatMessageComponent>
+				))}
 
-			<ListComponent
-				className="chip-grid"
-				items={PROMPT_CHIPS.map((prompt) => ({
-					id: prompt.id,
-					icon: prompt.icon,
-					title: prompt.title,
-					action: () => setMessage(prompt.title),
-				}))}
-			/>
-			<ChatInputComponent
-				value={message}
-				onChange={setMessage}
-				onSend={handleSend}
-				disabled={isSending}
-				placeholder={__('Ask Anything…', 'vulopilot')}
-			/>
+				{isSending && (
+					<ChatMessageComponent sender="ai">
+						<i className="adminfont-refresh content-assistant-spinner" />{' '}
+						{__('Thinking…', 'vulopilot')}
+					</ChatMessageComponent>
+				)}
+
+				<ListComponent
+					className="chip-grid"
+					items={PROMPT_CHIPS.map((prompt) => ({
+						id: prompt.id,
+						icon: prompt.icon,
+						title: prompt.title,
+						action: () => setMessage(prompt.title),
+					}))}
+				/>
+				<ChatInputComponent
+					value={message}
+					onChange={setMessage}
+					onSend={handleSend}
+					disabled={isSending}
+					placeholder={__('Ask Anything…', 'vulopilot')}
+				/>
+			</AiCopilotGuard>
 		</CardComponent>
 	);
 };

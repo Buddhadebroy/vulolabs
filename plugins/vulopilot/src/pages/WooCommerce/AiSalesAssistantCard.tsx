@@ -1,54 +1,93 @@
-import { __ } from '@wordpress/i18n';
-import { CardComponent, ChatMessageComponent, TooltipComponent } from '@zyra/components';
+import { __, sprintf, _n } from '@wordpress/i18n';
+import { CardComponent, ChatMessageComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import AiCopilotGuard from '../../components/AiCopilotGuard';
+import { useApiList } from '../../services/useApiList';
+
+interface FindingRow {
+	id: number;
+}
 
 interface AiSalesAssistantCardProps {
-	onNavigateToWooCommerceTab: () => void;
+	onOptimizeStore: () => void;
+	onReviewIssues: () => void;
 }
 
 /**
- * "AI Sales Assistant" — the mockup's own copy claims 4 specific
- * insights (18% conversion increase, $2,420 cart recovery, 15 product
- * pages, 42 products missing schema) — none of which have any real
- * backing (see this folder's plan: no conversion tracking, no abandoned-
- * cart data, no product-schema scanner exist anywhere). Softened to an
- * honest message, same treatment `AiSpeedAssistantCard.tsx` gave its own
- * fabricated claim. "Let AI Optimize My Store" is honestly disabled with
- * a tooltip; "Review Suggestions First" is a real navigation to the
- * WooCommerce tab.
+ * "AI Sales Assistant" — moved here from the Overview tab (OverviewTab.tsx)
+ * so its two actions point at destinations that actually live on this same
+ * tab. The mockup's own copy claimed 4 specific insights (18% conversion
+ * increase, $2,420 cart recovery, 15 product pages, 42 products missing
+ * schema) with no real backing anywhere in this codebase — replaced with a
+ * real, dynamic open-finding count for category 'woocommerce' (same
+ * `useApiList('findings', ...)` real-count pattern AiInsightBanner.tsx/
+ * StoreHealthBanner.tsx already use). "Let AI Optimize My Store" used to
+ * be permanently disabled ("bulk auto-optimize isn't connected yet") — it
+ * wasn't, then: WooCommerceAi's own `BulkOptimizePanel.tsx`
+ * (`#woocommerce-bulk-ai`, real product search + 9 AI actions + real
+ * `POST /woocommerce-ai/bulk-optimize`) already existed. Now a real,
+ * functional scroll-to-panel action, same `onOptimizeStore` destination
+ * AiSalesOptimizerCard.tsx's "Find Sales Opportunities →" and
+ * StoreIntelligenceSummaryCard.tsx's "Create cross-sell →" already use —
+ * that panel's own honest locked/unlicensed state (WooCommerceAiLockedCard)
+ * still applies for sites where it isn't reachable. "Review Suggestions
+ * First" now scrolls to this tab's own Issues table rather than
+ * navigating to itself. Gated on the real AI Copilot module
+ * (AiCopilotGuard).
  */
 const AiSalesAssistantCard = ({
-	onNavigateToWooCommerceTab,
+	onOptimizeStore,
+	onReviewIssues,
 }: AiSalesAssistantCardProps) => {
+	const { total, isLoading } = useApiList<FindingRow>('findings', {
+		category: 'woocommerce',
+		status: 'open',
+		per_page: 1,
+	});
+
 	return (
-		<CardComponent title={__('AI Sales Assistant', 'vulopilot')} titleIcon="ai">
-			<ChatMessageComponent sender="ai" avatarIcon="ai">
-				{__(
-					"I can help you find and understand your store's open findings — bulk auto-optimize isn't connected yet.",
-					'vulopilot'
+		<CardComponent
+			title={__('AI Sales Assistant', 'vulopilot')}
+			titleIcon="ai"
+			isLoading={isLoading}
+		>
+			<AiCopilotGuard>
+				{!isLoading && (
+					<ChatMessageComponent sender="ai" avatarIcon="ai">
+						{total > 0
+							? sprintf(
+									/* translators: %d is the number of open WooCommerce findings. */
+									_n(
+										"I found %d open finding in your store. I can help you understand it, or optimize a batch with AI.",
+										"I found %d open findings in your store. I can help you understand them, or optimize a batch with AI.",
+										total,
+										'vulopilot'
+									),
+									total
+								)
+							: __(
+									"You're all caught up — no open findings need your attention right now. I can still help you optimize a batch of products with AI.",
+									'vulopilot'
+								)}
+					</ChatMessageComponent>
 				)}
-			</ChatMessageComponent>
-			<TooltipComponent
-				text={__(
-					"Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up. Fix findings individually from the WooCommerce tab.",
-					'vulopilot'
-				)}
-			>
 				<span
 					role="button"
-					aria-disabled="true"
-					className="ai-sales-optimize disabled"
+					tabIndex={0}
+					className="ai-sales-optimize"
+					onClick={onOptimizeStore}
 				>
 					<i className="adminfont-ai" />
 					{__('Let AI Optimize My Store', 'vulopilot')}
 				</span>
-			</TooltipComponent>
-			<ButtonInput
-				buttons={{
-					text: __('Review Suggestions First', 'vulopilot'),
-					onClick: onNavigateToWooCommerceTab,
-				}}
-			/>
+				<ButtonInput
+					buttons={{
+						text: __('Review Suggestions First', 'vulopilot'),
+						color: 'secondary',
+						onClick: onReviewIssues,
+					}}
+				/>
+			</AiCopilotGuard>
 		</CardComponent>
 	);
 };

@@ -118,13 +118,28 @@ class ContentAssistant extends \WP_REST_Controller {
     }
 
     /**
-     * Same manage_options gate every other VuloPilot REST route uses.
+     * Same manage_options gate every other VuloPilot REST route uses, plus
+     * the real AI Copilot module check every AI surface now shares (see
+     * modules/AiCopilot/Module.php's own docblock) — this is the
+     * server-side half; the client-side half is useAiCopilotEnabled().
      *
      * @param \WP_REST_Request $request Full request object.
-     * @return bool
+     * @return bool|\WP_Error
      */
     public function create_item_permissions_check( $request ) {
-        return current_user_can( 'manage_options' );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return false;
+        }
+
+        if ( ! VuloPilot()->modules->is_active( 'ai-copilot' ) ) {
+            return new \WP_Error(
+                'vulopilot_ai_copilot_inactive',
+                __( 'Enable the AI Copilot module to use the AI Content Assistant.', 'vulopilot' ),
+                array( 'status' => 403 )
+            );
+        }
+
+        return true;
     }
 
     /**

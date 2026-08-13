@@ -5,6 +5,7 @@ import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { getCategoryTabLink } from '../services/getCategoryTabLink';
 import { WidgetProps } from './types';
+import AiCopilotGuard from '../components/AiCopilotGuard';
 
 interface FindingRow {
 	id: number;
@@ -38,65 +39,67 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
-			{error ? (
-				<ModuleGuardComponent
-					icon="error"
-					title={__('Could not load suggestions', 'vulopilot')}
-					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
-				/>
-			) : data.length === 0 ? (
-				<ModuleGuardComponent
-					icon="check"
-					title={__('Nothing to suggest right now', 'vulopilot')}
-					desc={__(
-						'AI suggestions appear here once a scan finds something worth fixing.',
-						'vulopilot'
-					)}
-				/>
-			) : (
-				<ListComponent
-					className="mini-card report"
-					items={data.map((finding) => {
-						const goToFix = () => {
-							window.location.href = getCategoryTabLink(
-								finding.category
-							);
-						};
+			<AiCopilotGuard>
+				{error ? (
+					<ModuleGuardComponent
+						icon="error"
+						title={__('Could not load suggestions', 'vulopilot')}
+						desc={error}
+						buttonText={__('Retry', 'vulopilot')}
+						onButtonClick={refetch}
+					/>
+				) : data.length === 0 ? (
+					<ModuleGuardComponent
+						icon="check"
+						title={__('Nothing to suggest right now', 'vulopilot')}
+						desc={__(
+							'AI suggestions appear here once a scan finds something worth fixing.',
+							'vulopilot'
+						)}
+					/>
+				) : (
+					<ListComponent
+						className="mini-card report"
+						items={data.map((finding) => {
+							const goToFix = () => {
+								window.location.href = getCategoryTabLink(
+									finding.category
+								);
+							};
 
-						return {
-							id: String(finding.id),
-							icon: 'ai purple',
-							title: finding.title,
-							action: goToFix,
-							tags: (
-								<>
-									<span
-										className={`admin-badge badge-${finding.severity}`}
-									>
-										SEO Impact: {finding.severity}
-									</span>
-									<ButtonInput
-										position="left"
-										buttons={[
-											{
-												icon: 'ai',
-												color: 'border-purple',
-												text: __('Fix with AI', 'vulopilot'),
-												onClick: (e) => {
-													e.stopPropagation();
-													goToFix();
+							return {
+								id: String(finding.id),
+								icon: 'ai purple',
+								title: finding.title,
+								action: goToFix,
+								tags: (
+									<>
+										<span
+											className={`admin-badge badge-${finding.severity}`}
+										>
+											SEO Impact: {finding.severity}
+										</span>
+										<ButtonInput
+											position="left"
+											buttons={[
+												{
+													icon: 'ai',
+													color: 'border-purple',
+													text: __('Fix with AI', 'vulopilot'),
+													onClick: (e) => {
+														e.stopPropagation();
+														goToFix();
+													},
 												},
-											},
-										]}
-									/>
-								</>
-							),
-						};
-					})}
-				/>
-			)}
+											]}
+										/>
+									</>
+								),
+							};
+						})}
+					/>
+				)}
+			</AiCopilotGuard>
 		</DashboardWidget>
 	);
 };

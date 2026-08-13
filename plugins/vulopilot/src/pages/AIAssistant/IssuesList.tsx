@@ -226,8 +226,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
 					/>
 				) : (
 					<TableCard
-						className="issues-table"
 						showMenu={false}
+						hideHeader={true}
 						categoryCounts={tableCategoryCounts}
     					activeCategory={activeTabId}
 						headers={{

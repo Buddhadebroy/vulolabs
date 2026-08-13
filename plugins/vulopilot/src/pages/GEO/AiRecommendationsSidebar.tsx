@@ -8,6 +8,7 @@ import {
 } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
+import AiCopilotGuard from '../../components/AiCopilotGuard';
 import './GrowMyTraffic.scss';
 
 interface AiHistoryRow {
@@ -39,7 +40,7 @@ const AiRecommendationsSidebar = () => {
 	});
 
 	return (
-		<>
+		<AiCopilotGuard>
 			<CardComponent>
 				<ChatMessageComponent sender="ai" avatarIcon="ai">
 					{__(
@@ -105,7 +106,7 @@ const AiRecommendationsSidebar = () => {
 					/>
 				)}
 			</CardComponent>
-		</>
+		</AiCopilotGuard>
 	);
 };
 

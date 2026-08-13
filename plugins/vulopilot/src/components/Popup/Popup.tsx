@@ -17,60 +17,102 @@ const formatModuleName = (name: string): string => {
 };
 
 /**
- * The 6 real vulopilot-pro modules — same ids/copy as
- * ../Modules/index.ts's catalog (Automation, SecurityMonitoring,
- * WooCommerceAi, AdvancedReports, OneClickFix, GeoInsights per the
- * plugin's own readme.txt) — kept in sync with that file rather than
- * invented separately, since this is the same feature list, just rendered
- * as an upgrade pitch instead of a toggle grid.
+ * The Pro tier of exactly the 13 modules on the Modules page
+ * (../Modules/index.ts's catalog — the user's own mockup's 13 cards, no
+ * more), same names/copy, kept in sync with that file rather than invented
+ * separately. GEO Radar and AEO Autopilot share one entry here too (both
+ * real 'geo-insights'). WooCommerce AI/Intelligence, Advanced Reports, and
+ * MCP Server were previously listed here but no longer have a card on the
+ * Modules page at all — dropped so this pitch doesn't advertise modules
+ * this page can't actually point the user at.
  */
 const proPopupContent = {
 	messages: [
 		{
-			icon: 'automation',
-			text: __('Automation', 'vulopilot'),
+			icon: 'global-community',
+			text: __('GEO Radar / AEO Autopilot', 'vulopilot'),
 			des: __(
-				'AI Automation Workflows and Scheduled Website Scans — trigger→action rules plus recurring wp-cron scanning, not just on-demand scans.',
+				'Historical GEO trend charts, scheduled automated scans, AI-powered bulk fixes, llms.txt generation, and multi-engine answer testing.',
 				'vulopilot'
 			),
 		},
 		{
-			icon: 'security',
-			text: __('Security Monitoring', 'vulopilot'),
+			icon: 'attachment',
+			text: __('Knowledge Graph', 'vulopilot'),
 			des: __(
-				'Checks for an admin account named "admin" and anonymous REST API user-enumeration exposure.',
+				'Entity relationship mapping, AI-powered graph enrichment, and Schema.org graph export.',
 				'vulopilot'
 			),
 		},
 		{
-			icon: 'woocommerce',
-			text: __('WooCommerce AI', 'vulopilot'),
+			icon: 'ai',
+			text: __('Bot Watch', 'vulopilot'),
 			des: __(
-				'AI Product Optimization and Bulk AI Optimization — rewrites product titles, generates descriptions/FAQ/schema, and suggests cross-sell/upsell/bundles.',
+				'Historical AI-crawler trends, anomaly alerts, and 12-month log retention.',
+				'vulopilot'
+			),
+		},
+		{
+			icon: 'megaphone',
+			text: __('Brand Radar', 'vulopilot'),
+			des: __(
+				'Off-site mention monitoring, share-of-voice tracking, and competitor comparison via a connected Ahrefs account.',
+				'vulopilot'
+			),
+		},
+		{
+			icon: 'seo',
+			text: __('SEO Copilot', 'vulopilot'),
+			des: __(
+				'Keyword rank tracking, keyword cannibalization detection, and Google Search Console integration.',
+				'vulopilot'
+			),
+		},
+		{
+			icon: 'document',
+			text: __('Content Copilot', 'vulopilot'),
+			des: __(
+				'AI rewrite & expansion, topic clustering, and content gap analysis vs. competitors.',
 				'vulopilot'
 			),
 		},
 		{
 			icon: 'report',
-			text: __('Advanced Reports', 'vulopilot'),
+			text: __('Speed Radar', 'vulopilot'),
 			des: __(
-				'Recurring, emailed report schedules, a custom report builder, and historical site-health trend data.',
+				'Historical performance trends, scheduled audits, and AI-generated optimization suggestions.',
+				'vulopilot'
+			),
+		},
+		{
+			icon: 'accessibility',
+			text: __('Accessibility Guard', 'vulopilot'),
+			des: __(
+				'Bulk accessibility fixes, scheduled audits, and historical WCAG compliance reports.',
+				'vulopilot'
+			),
+		},
+		{
+			icon: 'security',
+			text: __('Security Watchtower', 'vulopilot'),
+			des: __(
+				'Scheduled security scans, a live CVE vulnerability feed, plugin/theme integrity monitoring, and alerts & incident reports.',
 				'vulopilot'
 			),
 		},
 		{
 			icon: 'tools',
-			text: __('One-Click AI Fixes', 'vulopilot'),
+			text: __('AI Copilot', 'vulopilot'),
 			des: __(
-				'Adds a "Fix this" action to findings that have a matching AI action — propose and approve a fix without leaving the Dashboard.',
+				'One-click AI fixes, bulk AI fixes across any module, and auto-apply with an approval queue.',
 				'vulopilot'
 			),
 		},
 		{
-			icon: 'global-community',
-			text: __('GEO Insights', 'vulopilot'),
+			icon: 'automation',
+			text: __('Workflow Autopilot', 'vulopilot'),
 			des: __(
-				'Per-post AI scoring for AI-search-engine discoverability — entity coverage, question coverage, answer completeness, and AI suggestions.',
+				'Custom triggers & conditions, scheduled workflows, and auto-react to scan findings.',
 				'vulopilot'
 			),
 		},

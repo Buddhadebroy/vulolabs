@@ -145,10 +145,11 @@ const ContentStatsCard = () => {
 		>
 			{stats && (
 				<AnalyticsComponent
-					variant="small"
+					variant="background-color"
 					cols={2}
 					data={[
 						{
+							colorClass: 'admin-bg-color2',
 							icon: 'document',
 							number: (
 								<>
@@ -162,6 +163,7 @@ const ContentStatsCard = () => {
 						},
 						{
 							icon: 'edit',
+							colorClass: 'admin-bg-color3',
 							number: (
 								<>
 									{formatAbbreviated(
@@ -176,27 +178,27 @@ const ContentStatsCard = () => {
 						},
 						{
 							icon: 'bar-chart',
-							colorClass: 'is-untracked',
-							number: '—',
+							colorClass: 'admin-bg-color4',
+							number: '0',
 							text: (
 								<>
 									{__('SEO Score Improved', 'vulopilot')}
-									<span className="content-stats-tile-untracked">
+									{/* <span className="content-stats-tile-untracked">
 										{__('Not tracked yet', 'vulopilot')}
-									</span>
+									</span> */}
 								</>
 							),
 						},
 						{
 							icon: 'clock',
-							colorClass: 'is-untracked',
-							number: '—',
+							colorClass: 'admin-bg-color5',
+							number: '0',
 							text: (
 								<>
 									{__('Time Saved', 'vulopilot')}
-									<span className="content-stats-tile-untracked">
+									{/* <span className="content-stats-tile-untracked">
 										{__('Not tracked yet', 'vulopilot')}
-									</span>
+									</span> */}
 								</>
 							),
 						},
