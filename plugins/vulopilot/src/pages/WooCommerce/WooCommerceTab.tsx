@@ -1,8 +1,6 @@
 /* global appLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import type { ComponentType } from 'react';
 import {
 	CardComponent,
 	ColumnComponent,
@@ -12,21 +10,7 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import FindingsTable from '../../components/FindingsTable';
 import ShowProPopup from '../../components/Popup/Popup';
-
-/**
- * Slot for vulopilot-pro's WooCommerceAi module — "AI Blog Generation" and
- * "Bulk AI Optimization" (readme.txt) are Pro business logic, so their
- * management UI is injected here rather than built into Free's own
- * bundle. Shows a locked placeholder (below, `WooCommerceAiLockedCard`)
- * that opens the Pro popup on click when Pro/WooCommerceAi isn't active,
- * rather than rendering nothing — same click-to-open pattern
- * AIAssistant.tsx's AiAnalyticsLockedCard/Automation.tsx already use,
- * consistent across every Pro-gated panel slot in this plugin.
- */
-const WooCommerceAiPanel = applyFilters(
-	'vulopilot_woocommerce_ai_panel',
-	null
-) as ComponentType | null;
+import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
  * Visible teaser for the bulk-optimize panel above — shown instead of it
@@ -63,8 +47,13 @@ const WooCommerceAiLockedCard = () => {
 				{appLocalizer.khali_dabba ? (
 					// Pro is active — this specific module just isn't
 					// toggled on yet, so point at Modules rather than
-					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="woocommerce-intelligence" />
+					// pitching an upgrade the user already has. Real
+					// backend id (WooCommerceAi's folder kebab-cased —
+					// see src/components/Modules/index.ts's own
+					// 'woo-commerce-ai' entry) — this previously pointed
+					// at 'woocommerce-intelligence', both the wrong module
+					// AND an id no real module resolves to.
+					<ShowProPopup moduleName="woo-commerce-ai" />
 				) : (
 					<ShowProPopup />
 				)}
@@ -72,19 +61,6 @@ const WooCommerceAiLockedCard = () => {
 		</>
 	);
 };
-
-/**
- * Slot for vulopilot-pro's WooCommerceIntelligence module —
- * "Inventory Intelligence" (stockout prediction), "Store Trends"
- * (revenue/order history), and "Revenue Insights" (current-period
- * breakdown) per WOOCOMMERCE-INTELLIGENCE-MODULE.md, bundled behind one
- * slot the same way WooCommerceAiPanel above is one slot for its whole
- * feature set rather than one slot per action.
- */
-const WooCommerceIntelligencePanel = applyFilters(
-	'vulopilot_woocommerce_intelligence_panel',
-	null
-) as ComponentType | null;
 
 /**
  * Visible teaser for the panel above — same click-to-open pattern
@@ -118,7 +94,9 @@ const WooCommerceIntelligenceLockedCard = () => {
 				position="lightbox"
 			>
 				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="woocommerce-intelligence" />
+					// Real backend id (see the ShowProPopup usage above for
+					// why this can't be 'woocommerce-intelligence').
+					<ShowProPopup moduleName="woo-commerce-intelligence" />
 				) : (
 					<ShowProPopup />
 				)}
@@ -135,6 +113,21 @@ const WooCommerceIntelligenceLockedCard = () => {
  * tab-shell header.
  */
 const WooCommerceTab = () => {
+	/**
+	 * Both Pro panel slots — read via useFilterSlot(), not a plain
+	 * module-scope applyFilters() call (that hook's own docblock explains
+	 * why: Pro's addFilter() calls always run strictly after this page's
+	 * own code on a fresh load, so a one-time read here would permanently
+	 * miss them — confirmed live: both slots stayed stuck on their locked
+	 * teaser even with WooCommerceAi/WooCommerceIntelligence genuinely
+	 * active, exactly as that hook's docblock describes for GeoTab.tsx's
+	 * own slots).
+	 */
+	const WooCommerceAiPanel = useFilterSlot('vulopilot_woocommerce_ai_panel');
+	const WooCommerceIntelligencePanel = useFilterSlot(
+		'vulopilot_woocommerce_intelligence_panel'
+	);
+
 	return (
 		<ContainerComponent general>
 			<ColumnComponent>
