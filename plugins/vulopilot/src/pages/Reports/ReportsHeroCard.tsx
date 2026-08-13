@@ -1,45 +1,154 @@
-import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import type { ReportsSummary, Highlight } from './reportsOverview';
 
 interface ReportsHeroCardProps {
-	onScrollToGenerate: () => void;
+	summary: ReportsSummary | null;
+	highlights: Highlight[];
+	isLoading: boolean;
 }
 
+const formatDelta = (pct: number | null): string => {
+	if (pct === null) {
+		return '';
+	}
+	return `${pct > 0 ? '+' : ''}${pct}%`;
+};
+
 /**
- * The mockup's "Here's what changed this week" hero is an AI-written
- * narrative with specific numbers (18% traffic, 12% visibility, 42 issues
- * fixed, 2.3% conversion, 3 blog posts, 186 images, 7 security threats) —
- * confirmed there's no narrative/prose-generation capability for reports
- * anywhere in this codebase (report generation only ever produces
- * structured summary/section/trend data, never prose). Replaced with a
- * real, honest description of what report generation actually does (13
- * real report types, real CSV/JSON/PDF export), with a real "Generate
- * Report" action that scrolls to the Report tab's real generate control —
- * same real-scroll move `AiForemanCard.tsx` used on Automate Work.
+ * The mockup's "Your website is improving 🎉" hero — real
+ * fixed/new/still-open counts and their real period-over-period percent
+ * change (`GET /reports-overview`, Controllers\ReportsOverview.php's own
+ * docblock explains how each is computed from real created_at/resolved_at
+ * timestamps, no stored snapshot needed). The headline/description and
+ * each highlight row's direction word are derived honestly from those
+ * same real deltas — no narrative/prose-generation capability exists
+ * anywhere in this codebase to write the mockup's own free-form sentence
+ * ("Search visibility and website health improved..."), so this composes
+ * one from the real per-category direction instead (same reasoning the
+ * previous version of this card already documented for dropping
+ * fabricated prose).
  */
-const ReportsHeroCard = ({ onScrollToGenerate }: ReportsHeroCardProps) => (
-	<CardComponent className="reports-hero-card">
-		<h2 className="reports-hero-title">
-			{__('Generate a real report on your website', 'vulopilot')}
-		</h2>
-		<p className="reports-hero-desc">
-			{__(
-				'Choose from scan summary, SEO, WooCommerce, security, accessibility, automation, AI usage, and more — export as CSV, JSON, or (with Pro) PDF.',
-				'vulopilot'
+const ReportsHeroCard = ({
+	summary,
+	highlights,
+	isLoading,
+}: ReportsHeroCardProps) => {
+	const improving = highlights.filter((h) => h.direction === 'up').length;
+	const worsening = highlights.filter((h) => h.direction === 'down').length;
+	const isImproving = improving >= worsening;
+
+	const worseningLabels = highlights
+		.filter((h) => h.direction === 'down')
+		.map((h) => h.label.replace(/ (needs attention|down|remained stable)$/i, ''));
+
+	return (
+		<CardComponent isLoading={isLoading} className="reports-hero-card">
+			{!isLoading && summary && (
+				<>
+					<div
+						className={`reports-hero-icon ${isImproving ? 'is-good' : 'is-attention'}`}
+					>
+						<i className={`adminfont-${isImproving ? 'active' : 'error'}`} />
+					</div>
+					<h2 className="reports-hero-title">
+						{isImproving
+							? __('Your website is improving', 'vulopilot')
+							: __('Your website needs attention', 'vulopilot')}
+					</h2>
+					<p className="reports-hero-subtitle">
+						{sprintf(
+							/* translators: %d is the number of issues fixed. */
+							_n(
+								'%d issue fixed since your last report.',
+								'%d issues fixed since your last report.',
+								summary.fixed,
+								'vulopilot'
+							),
+							summary.fixed
+						)}
+					</p>
+					<p className="reports-hero-desc">
+						{worseningLabels.length > 0
+							? sprintf(
+									/* translators: %s is a comma-separated list of areas that got worse, e.g. "Security, Search visibility". */
+									__(
+										'%s still need attention this period.',
+										'vulopilot'
+									),
+									worseningLabels.join(', ')
+								)
+							: __(
+									'Every tracked area held steady or improved this period.',
+									'vulopilot'
+								)}
+					</p>
+					<div className="reports-hero-stats">
+						<div className="reports-hero-stat is-good">
+							<span className="reports-hero-stat-value">
+								{summary.fixed}
+							</span>
+							<span className="reports-hero-stat-label">
+								{__('Fixed', 'vulopilot')}
+							</span>
+							{summary.fixed_delta_pct !== null && (
+								<span className="reports-hero-stat-delta">
+									{formatDelta(summary.fixed_delta_pct)}
+								</span>
+							)}
+						</div>
+						<div className="reports-hero-stat is-attention">
+							<span className="reports-hero-stat-value">
+								{summary.new}
+							</span>
+							<span className="reports-hero-stat-label">
+								{__('New', 'vulopilot')}
+							</span>
+							{summary.new_delta_pct !== null && (
+								<span className="reports-hero-stat-delta">
+									{formatDelta(summary.new_delta_pct)}
+								</span>
+							)}
+						</div>
+						<div className="reports-hero-stat is-neutral">
+							<span className="reports-hero-stat-value">
+								{summary.still_open}
+							</span>
+							<span className="reports-hero-stat-label">
+								{__('Still need attention', 'vulopilot')}
+							</span>
+							{summary.still_open_delta_pct !== null && (
+								<span className="reports-hero-stat-delta">
+									{formatDelta(summary.still_open_delta_pct)}
+								</span>
+							)}
+						</div>
+					</div>
+					<div className="reports-hero-highlights">
+						{highlights.map((highlight) => (
+							<div
+								className="reports-hero-highlight-row"
+								key={highlight.key}
+							>
+								<i
+									className={`adminfont-${
+										highlight.direction === 'up'
+											? 'arrow-up'
+											: highlight.direction === 'down'
+												? 'arrow-down'
+												: 'arrow-'
+									} reports-hero-highlight-icon is-${highlight.direction}`}
+								/>
+								<span className="reports-hero-highlight-label">
+									{highlight.label}
+								</span>
+							</div>
+						))}
+					</div>
+				</>
 			)}
-		</p>
-		<div className="reports-hero-actions">
-			<ButtonInput
-				buttons={{
-					text: __('Generate Report', 'vulopilot'),
-					icon: 'document',
-					onClick: onScrollToGenerate,
-				}}
-			/>
-		</div>
-	</CardComponent>
-);
+		</CardComponent>
+	);
+};
 
 export default ReportsHeroCard;

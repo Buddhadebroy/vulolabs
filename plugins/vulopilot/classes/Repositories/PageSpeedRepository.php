@@ -100,10 +100,14 @@ class PageSpeedRepository extends AbstractRepository {
     }
 
     /**
-     * Real counts by score band, plus a real average mobile score across
-     * whichever rows have one.
+     * Real counts by score band, plus real average desktop/mobile scores
+     * across whichever rows have one — `avg_score` (the table's own
+     * `score` column, desktop/lab) added for
+     * Controllers\ReportsOverview's own "device experience" bars, which
+     * need both sides of the same real comparison `avg_mobile_score`
+     * alone can't provide.
      *
-     * @return array{total: int, slow: int, needs_improvement: int, good: int, avg_mobile_score: int|null, last_scanned_at: string|null}
+     * @return array{total: int, slow: int, needs_improvement: int, good: int, avg_score: int|null, avg_mobile_score: int|null, last_scanned_at: string|null}
      */
     public function get_summary(): array {
         global $wpdb;
@@ -116,6 +120,7 @@ class PageSpeedRepository extends AbstractRepository {
         $needs = 0;
         $good  = 0;
 
+        $scores        = array();
         $mobile_scores = array();
 
         foreach ( $rows as $row ) {
@@ -129,6 +134,8 @@ class PageSpeedRepository extends AbstractRepository {
                 } else {
                     ++$slow;
                 }
+
+                $scores[] = $score;
             }
 
             if ( null !== $row['mobile_score'] ) {
@@ -143,6 +150,7 @@ class PageSpeedRepository extends AbstractRepository {
             'slow'              => $slow,
             'needs_improvement' => $needs,
             'good'              => $good,
+            'avg_score'         => $scores ? (int) round( array_sum( $scores ) / count( $scores ) ) : null,
             'avg_mobile_score'  => $mobile_scores ? (int) round( array_sum( $mobile_scores ) / count( $mobile_scores ) ) : null,
             'last_scanned_at'   => $last_scanned_at ? $last_scanned_at : null,
         );

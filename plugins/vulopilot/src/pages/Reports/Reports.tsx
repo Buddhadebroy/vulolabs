@@ -2,23 +2,43 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation } from 'react-router-dom';
 import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
+import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
 import ReportTab from './ReportTab';
+import ScheduledReportsTab from './ScheduledReportsTab';
 import ActivityTab from './ActivityTab';
-import SecurityTab from './SecurityTab';
 
-const TAB_IDS = ['overview', 'report', 'activity', 'security'] as const;
+const TAB_IDS = [
+	'overview',
+	'report',
+	'scheduled-reports',
+	'activity',
+] as const;
 
 /**
- * "Reports" — a tab shell over three views: the mockup's new Overview
- * (OverviewTab.tsx), today's real report-generation/list page
- * (ReportTab.tsx, kept rather than replaced — same "keep the real page,
- * add the new mockup alongside it" move every prior Overview split this
- * session made), and the previously-separate Activity page
- * (ActivityTab.tsx, folded in — its own native WP submenu row was already
- * removed in favor of exactly this kind of re-surfacing, per
- * classes/Admin.php's legacy_submenus() docblock). Same `subtab` deep-link
- * convention as every other tab shell
+ * "Reports" — a tab shell. The reference mockup shows 3 tabs (Overview/
+ * Report Builder/Scheduled Reports); this keeps those 3 in that order plus
+ * Activity (ActivityTab.tsx, folded in from its own now-removed native WP
+ * submenu row, per classes/Admin.php's legacy_submenus() docblock),
+ * appended after, same "match the mockup's own visible tabs, don't delete
+ * real functionality the mockup doesn't happen to show" move Protect My
+ * Site's own Performance-tab addition already made for Site Health/Files
+ * & Plugins. There was also briefly a flat "Security" tab here
+ * (Reports/SecurityTab.tsx, `category="security"` FindingsTable) —
+ * removed per direct instruction; Protect My Site's own Security tab
+ * (ClassicSecurityTab.tsx) is the real, complete home for security
+ * findings now (it scopes to a full 14-scanner-id list rather than the
+ * narrower `category="security"` this deleted tab used, so nothing here
+ * was lost — the deleted tab actually undercounted relative to it).
+ *
+ * - Overview (OverviewTab.tsx) — the redesigned mockup's own dashboard.
+ * - "Report" is relabeled "Report Builder" here (same component,
+ *   ReportTab.tsx — today's real report-generation/list page).
+ * - Scheduled Reports (ScheduledReportsTab.tsx, new) — real weekly/
+ *   monthly schedule status (ReportSchedulesSummary.tsx) plus the same
+ *   Pro schedule-management panel ReportTab.tsx already surfaces.
+ *
+ * Same `subtab` deep-link convention as every other tab shell
  * (`?page=vulopilot#&tab=reports&subtab=<inner-tab>`).
  */
 const Reports = () => {
@@ -33,6 +53,10 @@ const Reports = () => {
 
 	const [activeTab, setActiveTab] =
 		useState<(typeof TAB_IDS)[number]>(initialTab);
+	// Whole-site scan, same reasoning Dashboard's Run Audit widget/
+	// Health.tsx's own header button already use (this page reports on
+	// every category, not one).
+	const { runScanButton } = useRunScan();
 
 	return (
 		<>
@@ -43,6 +67,7 @@ const Reports = () => {
 					"AI-powered insights about your website's performance and growth.",
 					'vulopilot'
 				)}
+				buttons={[runScanButton]}
 			/>
 			<TabsComponent
 				className="reports-tabs"
@@ -54,16 +79,16 @@ const Reports = () => {
 						content: <OverviewTab />,
 					},
 					{
-						label: __('Report', 'vulopilot'),
+						label: __('Report Builder', 'vulopilot'),
 						content: <ReportTab />,
+					},
+					{
+						label: __('Scheduled Reports', 'vulopilot'),
+						content: <ScheduledReportsTab />,
 					},
 					{
 						label: __('Activity', 'vulopilot'),
 						content: <ActivityTab />,
-					},
-					{
-						label: __('Security', 'vulopilot'),
-						content: <SecurityTab />,
 					},
 				]}
 			/>

@@ -65,9 +65,11 @@ const TAB_IDS = [
  *   (KeyboardAccessibilityScanner — positive tabindex — the one new
  *   accessibility scanner this pass adds).
  *
- * Reports' own flat "Security" tab (Reports/SecurityTab.tsx) is unaffected
- * and still exists as a separate, simpler category="security" view. Same
- * `subtab` deep-link convention every tab shell here uses
+ * Reports used to have its own flat "Security" tab (Reports/SecurityTab.tsx,
+ * a plain `category="security"` FindingsTable) — removed per direct
+ * instruction, so this tab (ClassicSecurityTab.tsx) is now the sole real
+ * home for security findings in the whole plugin. Same `subtab` deep-link
+ * convention every tab shell here uses
  * (`?page=vulopilot#&tab=security&subtab=<inner-tab>`) — `getCategoryTabLink.ts`'s
  * own `security: 'security&subtab=security'` mapping still resolves
  * correctly since this tab's id stays `security`, which is also this

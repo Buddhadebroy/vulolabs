@@ -461,6 +461,42 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * Findings resolved within a bounded window, optionally scoped to one
+     * category and/or scanner_id list — same "fixed" concept
+     * count_resolved_since() already reads for the Dashboard's own badge,
+     * but with an upper bound and the same category/scanner_ids scoping
+     * get_stats_for_period()/get_top_findings_for_period() already
+     * support, for Controllers\ReportsOverview's own period-over-period
+     * "Fixed" count.
+     *
+     * @param string        $period_start MySQL datetime (UTC), inclusive.
+     * @param string        $period_end   MySQL datetime (UTC), inclusive.
+     * @param string|null   $category     One of the scanner category strings, or null for all.
+     * @param string[]|null $scanner_ids  Scanner ids to additionally scope to, or null for every scanner in $category.
+     * @return int
+     */
+    public function count_resolved_between( string $period_start, string $period_end, ?string $category = null, ?array $scanner_ids = null ): int {
+        global $wpdb;
+
+        $where  = 'WHERE resolved_at BETWEEN %s AND %s';
+        $values = array( $period_start, $period_end );
+
+        if ( null !== $category ) {
+            $where   .= ' AND category = %s';
+            $values[] = $category;
+        }
+
+        if ( null !== $scanner_ids && $scanner_ids ) {
+            $where .= ' AND scanner_id IN (' . implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) ) . ')';
+            array_push( $values, ...$scanner_ids );
+        }
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare( "SELECT COUNT(*) FROM {$this->get_table()} {$where}", ...$values ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's %s count matches $values' size at runtime.
+        );
+    }
+
+    /**
      * Open-finding counts by severity within a single category, in one
      * grouped query rather than four count_by_severity()-style calls —
      * this is what Dashboard controller's per-category widget score
@@ -705,6 +741,32 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * The highest-severity currently-open findings, worst-first — what
+     * Controllers\ReportsOverview's own "Your next priorities" list reads.
+     * Unlike get_top_findings_for_period() (scoped to a created_at window,
+     * any status), this is unbounded by date and scoped to `status = 'open'`
+     * only — the point is "what's still outstanding right now", not "what
+     * appeared recently".
+     *
+     * @param int $limit Max rows to return.
+     * @return array<int, array<string, mixed>>
+     */
+    public function get_top_open_findings( int $limit = 10 ): array {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT id, title, description, severity, category, created_at FROM {$this->get_table()} WHERE status = 'open' ORDER BY FIELD(severity, 'critical', 'high', 'medium', 'low', 'info') ASC, created_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                max( 1, $limit )
+            ),
+            ARRAY_A
+        );
+
+        return $rows ?: array();
+    }
+
+    /**
      * The highest-severity findings opened in one date range — what a
      * report's "top issues" section reads, ordered worst-first rather than
      * newest-first.
@@ -736,7 +798,7 @@ class FindingRepository extends AbstractRepository {
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT title, severity, category, status, created_at FROM {$this->get_table()} {$where} ORDER BY FIELD(severity, 'critical', 'high', 'medium', 'low', 'info') ASC, created_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's %s count matches $values' size at runtime.
+                "SELECT id, title, severity, category, status, created_at FROM {$this->get_table()} {$where} ORDER BY FIELD(severity, 'critical', 'high', 'medium', 'low', 'info') ASC, created_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's %s count matches $values' size at runtime.
                 ...$values
             ),
             ARRAY_A
