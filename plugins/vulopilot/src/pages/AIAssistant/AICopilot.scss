@@ -66,15 +66,23 @@
 // this targeted nth-child styling — real severity colors, same values
 // FindingRepository::get_priority_counts() buckets already use everywhere
 // else in this file (`.attention-priority-pills` below).
+// IssuesSummaryCards.tsx renders these via zyra's `AnalyticsComponent`
+// (real classes confirmed against its own compiled source:
+// `.analytics-item`/`.analytics-icon`/`.details`), not `TrendStatComponent`
+// (`.trend-stat-tile`/`.trend-stat-label`) — every selector below targeted
+// the wrong component's classes and silently matched nothing (confirmed:
+// `.trend-stat-tile` doesn't exist anywhere in this card's real DOM), so
+// none of this cursor/hover/icon-tint/active-highlight styling ever
+// applied despite every tile already being a real, working priority
+// filter (IssuesSummaryCards.tsx's own `handleClick` — fixed alongside
+// this, see that file's docblock for the matching click-handling bug).
 .issues-summary-cards {
 	margin-bottom: 1rem;
 
-	// Each tile is a real priority filter (IssuesSummaryCards.tsx delegates
-	// the click, matching a tile back to a priority by its position), so it
-	// needs to read as a control, not a static stat — cursor + hover state,
-	// plus a highlighted border on whichever priority is currently active.
-	.trend-stat-tile {
-		cursor: pointer;
+	// `AnalyticsComponent` already renders a real `<button>` (not a div)
+	// whenever `item.onClick` is set, and adds its own "clickable" class —
+	// this just adds the hover/transition polish a plain button lacks.
+	.analytics-item.clickable {
 		border: 1px solid transparent;
 		transition: border-color 0.15s ease, background-color 0.15s ease;
 
@@ -83,22 +91,22 @@
 		}
 	}
 
-	.trend-stat-tile:nth-child(2) .trend-stat-label i {
+	.analytics-item:nth-child(2) .analytics-icon i {
 		color: #dc2626;
 	}
 
-	.trend-stat-tile:nth-child(3) .trend-stat-label i {
+	.analytics-item:nth-child(3) .analytics-icon i {
 		color: #b45309;
 	}
 
-	.trend-stat-tile:nth-child(4) .trend-stat-label i {
+	.analytics-item:nth-child(4) .analytics-icon i {
 		color: #5baab3;
 	}
 
-	&.active-priority-all .trend-stat-tile:nth-child(1),
-	&.active-priority-high .trend-stat-tile:nth-child(2),
-	&.active-priority-medium .trend-stat-tile:nth-child(3),
-	&.active-priority-low .trend-stat-tile:nth-child(4) {
+	&.active-priority-all .analytics-item:nth-child(1),
+	&.active-priority-high .analytics-item:nth-child(2),
+	&.active-priority-medium .analytics-item:nth-child(3),
+	&.active-priority-low .analytics-item:nth-child(4) {
 		border-color: var(--color-primary);
 		background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
 	}

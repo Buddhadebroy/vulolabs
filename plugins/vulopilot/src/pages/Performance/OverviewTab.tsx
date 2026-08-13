@@ -74,7 +74,7 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 					<QuickActionsCard />
 					<RealTimeMonitoringCard />
 					<PerformanceTipsCard />
-					<AiSpeedAssistantCard />
+					<AiSpeedAssistantCard onReviewIssues={scrollToFindings} />
 				</ColumnComponent>
 			<ColumnComponent>
 				<div id="performance-section-findings">

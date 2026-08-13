@@ -38,6 +38,11 @@ const AiUsageCard = () => {
 			.finally(() => setIsLoading(false));
 	}, []);
 
+	const progress =
+		summary.ai_jobs_quota > 0
+			? Math.round((summary.ai_jobs_used / summary.ai_jobs_quota) * 100)
+			: 0;
+
 	return (
 		<CardComponent
 			className="dashboard-widget"
@@ -55,7 +60,7 @@ const AiUsageCard = () => {
 						number: `${summary.ai_jobs_used}/${summary.ai_jobs_quota}`,
 						text: __('AI usage', 'vulopilot'),
 						extra: __('This month', 'vulopilot'),
-						progress: `${summary.ai_jobs_used}/${summary.ai_jobs_quota}`,
+						progress,
 						colorClass: 'red-color',
 					},
 				]}

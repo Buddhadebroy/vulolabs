@@ -1,36 +1,47 @@
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import { useLocation } from 'react-router-dom';
 import {
-	ColumnComponent,
 	ContainerComponent,
 	NavigatorHeaderComponent,
+	TabsComponent,
 } from '@zyra/components';
-import AutomationComposerCard from './AutomationComposerCard';
-import AiForemanCard from './AiForemanCard';
-import UpcomingJobsCard from './UpcomingJobsCard';
-import ActiveWorkflowCard from './ActiveWorkflowCard';
-import AutomationStatusCard from './AutomationStatusCard';
-import AutomationLinksRow from './AutomationLinksRow';
-import AiAgentsPlaceholderCard from './AiAgentsPlaceholderCard';
-import AutomationActivityCard from './AutomationActivityCard';
+import AutomationOverviewTab from './AutomationOverviewTab';
 import ManageAutomationsSection from './ManageAutomationsSection';
 import './AutomateWork.scss';
 
-const scrollToManageAutomations = () => {
-	document
-		.getElementById('automation-manage')
-		?.scrollIntoView({ behavior: 'smooth' });
-};
+const TAB_IDS = ['overview', 'automations'] as const;
 
 /**
- * "Automate Work" — rebuilt to match the mockup as a single page (no tab
- * split was requested and the mockup itself shows no tab bar, unlike the
- * last several rebuilds this session). See this folder's sibling files for
- * the per-section real-data mapping; each documents its own data source
- * and, where the mockup shows something with no real backend, its honest
- * fallback. ManageAutomationsSection.tsx is today's whole previous page
- * body, unchanged, just moved into its own section further down.
+ * "Automate Work" — a tab shell over two views, same
+ * subtab-deep-link/TabsComponent pattern this codebase's other
+ * multi-tab pages already use (GEO.tsx/Content.tsx/Performance.tsx/
+ * Security.tsx). "Overview" (AutomationOverviewTab.tsx) is the new
+ * dashboard-style view merging the latest mockup with this page's real
+ * cards; "Automations" is today's real list/create/enable/run management
+ * UI (ManageAutomationsSection.tsx, unchanged, just given its own tab
+ * instead of sitting at the bottom of one long page). Restores the
+ * two-tab shape this page briefly moved away from for its previous
+ * single-page rebuild — the new mockup itself shows an "Overview"/
+ * "Automations" tab bar, so this isn't a new pattern, it's this page
+ * catching back up to it.
  */
 const Automation = () => {
+	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
+		'subtab'
+	);
+	const initialTab = (
+		subtab && (TAB_IDS as readonly string[]).includes(subtab)
+			? subtab
+			: 'overview'
+	) as (typeof TAB_IDS)[number];
+
+	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
+		initialTab
+	);
+
+	const goToAutomationsTab = () => setActiveTab('automations');
+
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -42,25 +53,25 @@ const Automation = () => {
 				)}
 			/>
 			<ContainerComponent general>
-				<ColumnComponent grid={8}>
-					<AutomationComposerCard />
-					<ActiveWorkflowCard />
-					<AutomationStatusCard
-						onScrollToCreate={scrollToManageAutomations}
-						onScrollToManage={scrollToManageAutomations}
-					/>
-					<AutomationLinksRow
-						onScrollToCreate={scrollToManageAutomations}
-					/>
-					<AiAgentsPlaceholderCard />
-					<AutomationActivityCard />
-					<ManageAutomationsSection />
-				</ColumnComponent>
-
-				<ColumnComponent grid={4}>
-					<AiForemanCard onScrollToCreate={scrollToManageAutomations} />
-					<UpcomingJobsCard />
-				</ColumnComponent>
+				<TabsComponent
+					className="automate-work-tabs"
+					activeIndex={TAB_IDS.indexOf(activeTab)}
+					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+					tabs={[
+						{
+							label: __('Overview', 'vulopilot'),
+							content: (
+								<AutomationOverviewTab
+									onManageAutomations={goToAutomationsTab}
+								/>
+							),
+						},
+						{
+							label: __('Automations', 'vulopilot'),
+							content: <ManageAutomationsSection />,
+						},
+					]}
+				/>
 			</ContainerComponent>
 		</>
 	);

@@ -38,7 +38,7 @@ const AiSalesOptimizerCard = ({
 						icon="lock"
 						title={__('Unlock AI Sales Optimizer', 'vulopilot')}
 						desc={__(
-							'Enable the WooCommerce AI module to find real cross-sell, upsell, and bundle opportunities across your catalog.',
+							'Enable the WooCommerce Intelligence module to find real cross-sell, upsell, and bundle opportunities across your catalog.',
 							'vulopilot'
 						)}
 						buttonText={__('Learn more', 'vulopilot')}

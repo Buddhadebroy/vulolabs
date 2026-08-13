@@ -32,13 +32,11 @@ const AutomationPanel = applyFilters(
 ) as ComponentType | null;
 
 /**
- * Today's whole Automation.tsx page body, extracted verbatim (functionality
- * completely unchanged) and given a heading so it reads as a section of the
- * new "Automate Work" page rather than the entire page — same "extract
- * body, drop header" move every prior page rebuild this session made for
- * its own old-page-as-a-section content. Given an `id` so
- * AiForemanCard.tsx/AutomationStatusCard.tsx's "real scroll to the create
- * form" actions have somewhere real to land.
+ * The real automation list/create/enable/run management UI — today's
+ * whole "Automations" tab (Automation.tsx). Every other card's
+ * "Manage"/"Create"/"View all" action switches to this tab
+ * (`onManageAutomations`) rather than scrolling to it, since it's a full
+ * tab of its own now, not a section further down a single long page.
  */
 const ManageAutomationsSection = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);

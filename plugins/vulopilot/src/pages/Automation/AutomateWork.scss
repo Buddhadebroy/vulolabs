@@ -51,63 +51,11 @@
 	}
 }
 
-.upcoming-jobs-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.625rem;
-
-	li {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
-	}
-}
-
-.upcoming-jobs-name {
-	font-size: 0.8125rem;
-}
-
-.active-workflow-header {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	margin-bottom: 0.5rem;
-}
-
-.active-workflow-trigger {
-	color: var(--sub-text-color);
-	font-size: 0.8125rem;
-	margin: 0 0 0.75rem;
-}
-
-.active-workflow-steps {
-	list-style: none;
-	margin: 0 0 0.75rem;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-
-	li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	i {
-		color: var(--color-success, #16a34a);
-	}
-}
-
-.active-workflow-last-run {
-	color: var(--sub-text-color);
-	font-size: 0.8125rem;
-	margin: 0;
-}
+// .upcoming-jobs-list/.upcoming-jobs-name (UpcomingJobsCard.tsx) and
+// .active-workflow-* (ActiveWorkflowCard.tsx) were removed here — both
+// components were replaced by AutomationOverviewGrid.tsx, which shows
+// the same real per-automation cadence/last-run data as cards in a grid
+// instead of two separate, overlapping single-purpose lists.
 
 .automation-status-gauge-label {
 	text-align: center;
@@ -132,4 +80,345 @@
 .automation-link-action {
 	font-size: 0.8125rem;
 	font-weight: 600;
+}
+
+// AutomationHeroRow.tsx — "Your website is being watched" + "Sit back
+// and relax."
+.automation-watch-card {
+	.automation-watch-header {
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+}
+
+.automation-watch-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 0.75rem;
+	font-size: 1.375rem;
+
+	&.is-good {
+		background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+		color: var(--color-primary);
+	}
+
+	&.is-idle {
+		background: var(--border-color, #eef0f2);
+		color: var(--sub-text-color, #6b7280);
+	}
+}
+
+.automation-watch-title-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.automation-watch-check {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.25rem;
+	height: 1.25rem;
+	border-radius: 50%;
+	background: #16a34a;
+	color: var(--color-white, #fff);
+	font-size: 0.7rem;
+}
+
+.automation-watch-sub {
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+	margin: 0.25rem 0 0;
+}
+
+.automation-watch-stats {
+	display: flex;
+	gap: 2rem;
+	margin-top: 1.25rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--border-color, #eef0f2);
+}
+
+.automation-watch-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+
+	strong {
+		font-size: 1.25rem;
+	}
+
+	span {
+		font-size: 0.8125rem;
+		font-weight: 600;
+	}
+
+	small {
+		color: var(--sub-text-color);
+		font-size: 0.75rem;
+	}
+}
+
+.automation-relax-card {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+
+	p {
+		color: var(--sub-text-color);
+		font-size: 0.8125rem;
+		margin: 0 0 0.5rem;
+	}
+}
+
+.automation-relax-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 50%;
+	background: color-mix(in srgb, #16a34a 14%, transparent);
+	color: #16a34a;
+	font-size: 1.25rem;
+	margin-bottom: 0.25rem;
+}
+
+// AutomationOverviewGrid.tsx — "What VuloPilot is doing for you"
+.automation-overview-grid-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+}
+
+.automation-overview-grid-title {
+	margin: 0;
+	font-size: 1rem;
+}
+
+.automation-overview-grid-view-all {
+	color: var(--color-primary);
+	font-weight: 600;
+	font-size: 0.8125rem;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.automation-overview-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 1rem;
+}
+
+.automation-overview-card {
+	border: 1px solid var(--border-color, #eef0f2);
+	border-radius: 0.75rem;
+	padding: 1rem;
+}
+
+.automation-overview-card-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+
+	strong {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+.automation-overview-card-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+	color: var(--color-primary);
+	font-size: 0.9rem;
+}
+
+.automation-overview-card-desc {
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+	margin: 0 0 0.625rem;
+}
+
+.automation-overview-card-row {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+	margin-bottom: 0.75rem;
+}
+
+.automation-overview-card-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding-top: 0.625rem;
+	border-top: 1px solid var(--border-color, #eef0f2);
+}
+
+.automation-overview-card-last-check {
+	font-size: 0.75rem;
+	color: var(--sub-text-color);
+}
+
+.automation-overview-card-manage {
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--color-primary);
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+// AutomationAttentionCard.tsx — "Needs your attention"
+.automation-attention-header h3 {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0 0 0.75rem;
+	font-size: 1rem;
+}
+
+.automation-attention-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.375rem;
+	height: 1.375rem;
+	padding: 0 0.375rem;
+	border-radius: 50%;
+	background: #dc2626;
+	color: var(--color-white, #fff);
+	font-size: 0.75rem;
+	font-weight: 700;
+}
+
+.automation-attention-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.automation-attention-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-top: 1px solid var(--border-color, #eef0f2);
+
+	&:first-child {
+		border-top: none;
+	}
+
+	> i {
+		color: #dc2626;
+		font-size: 1.125rem;
+	}
+}
+
+.automation-attention-body {
+	flex: 1;
+	min-width: 0;
+
+	p {
+		margin: 0.125rem 0 0;
+	}
+}
+
+.automation-attention-view-all {
+	display: block;
+	margin-top: 0.75rem;
+	color: var(--color-primary);
+	font-weight: 600;
+	font-size: 0.8125rem;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+// AutomationPeriodStatsCard.tsx
+.automation-period-stats-compare {
+	color: var(--sub-text-color);
+	font-size: 0.75rem;
+	margin: 0.5rem 0 0;
+}
+
+// AutomationExploreBanner.tsx
+.automation-explore-banner {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.automation-explore-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+	color: var(--color-primary);
+	font-size: 1.25rem;
+}
+
+.automation-explore-body {
+	flex: 1;
+	min-width: 0;
+
+	p {
+		color: var(--sub-text-color);
+		font-size: 0.8125rem;
+		margin: 0.125rem 0 0;
+	}
+}
+
+// `.admin-badge`'s own base pill shape comes from zyra at runtime, but its
+// color modifiers don't (same gap this session already fixed for
+// SellMore.scss) — every green/indigo/blue `admin-badge` on this page
+// (AutomationOverviewGrid's Active/Inactive pill, AutomationActivityCard's
+// pre-existing "AI" tag) was rendering untinted before this.
+.automation-overview-grid,
+.automation-activity-card {
+	.admin-badge {
+		&.green {
+			color: #16a34a;
+			background: color-mix(in srgb, #16a34a 14%, transparent);
+		}
+
+		&.indigo {
+			color: #4f46e5;
+			background: color-mix(in srgb, #4f46e5 14%, transparent);
+		}
+
+		&.blue {
+			color: #2563eb;
+			background: color-mix(in srgb, #2563eb 14%, transparent);
+		}
+	}
 }
