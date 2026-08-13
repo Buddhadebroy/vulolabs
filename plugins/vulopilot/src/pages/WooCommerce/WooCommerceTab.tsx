@@ -20,6 +20,7 @@ import StoreIntelligenceSummaryCard from './StoreIntelligenceSummaryCard';
 import WooCommerceIssuesTable, {
 	WooCommerceIssueTab,
 } from './WooCommerceIssuesTable';
+import './SellMore.scss';
 
 /**
  * Visible teaser for the bulk-optimize panel above — shown instead of it

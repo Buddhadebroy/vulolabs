@@ -48,3 +48,286 @@
 		cursor: not-allowed;
 	}
 }
+
+// "Sell More" WooCommerce tab's real health-overview section
+// (WooCommerceTab.tsx) — banner, readiness checklist, category grid,
+// "what to work on first", and the issues table's own tab bar.
+.store-health-banner {
+	display: flex;
+	gap: 1rem;
+	padding: 1.5rem;
+	border-radius: 0.75rem;
+	background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+	border: 1px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
+	margin-bottom: 1rem;
+
+	&.is-healthy {
+		background: color-mix(in srgb, #16a34a 6%, transparent);
+		border-color: color-mix(in srgb, #16a34a 16%, transparent);
+	}
+}
+
+.store-health-banner-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 0.75rem;
+	background: var(--color-primary);
+	color: var(--color-white);
+	font-size: 1.375rem;
+}
+
+.store-health-banner-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+}
+
+.store-health-banner-count {
+	color: #dc2626;
+	font-weight: 600;
+	margin-top: 0.25rem;
+}
+
+.store-health-banner.is-healthy .store-health-banner-count {
+	color: #16a34a;
+}
+
+.store-health-banner-desc {
+	color: var(--sub-text-color, #6b7280);
+	margin-top: 0.375rem;
+	font-size: 0.875rem;
+}
+
+.store-health-banner-actions {
+	display: flex;
+	gap: 0.625rem;
+	margin-top: 1rem;
+}
+
+.store-readiness-list {
+	list-style: none;
+	margin: 0 0 0.75rem;
+	padding: 0;
+
+	li {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem 0;
+		border-bottom: 1px solid var(--border-color, #eef0f2);
+
+		&:last-child {
+			border-bottom: none;
+		}
+	}
+}
+
+.store-readiness-row-label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	.adminfont-check {
+		color: #16a34a;
+	}
+
+	.adminfont-error {
+		color: #dc2626;
+	}
+}
+
+.store-readiness-row-status {
+	font-size: 0.8rem;
+	font-weight: 600;
+
+	&.is-ready {
+		color: #16a34a;
+	}
+
+	&.is-not-ready {
+		color: #dc2626;
+	}
+}
+
+.store-readiness-view-all {
+	display: inline-block;
+	margin-top: 0.5rem;
+	font-weight: 600;
+	color: var(--color-primary);
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.woocommerce-category-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 1rem;
+	margin: 1rem 0;
+}
+
+.woocommerce-category-card {
+	.woocommerce-category-icon {
+		font-size: 1.25rem;
+		color: var(--color-primary);
+	}
+
+	.woocommerce-category-title {
+		font-weight: 700;
+		margin-top: 0.5rem;
+	}
+}
+
+.woocommerce-category-rows {
+	margin-top: 0.625rem;
+}
+
+.woocommerce-category-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 0.85rem;
+	padding: 0.25rem 0;
+
+	.value-warning {
+		color: #b45309;
+		font-weight: 600;
+	}
+
+	.value-good {
+		color: #16a34a;
+		font-weight: 600;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+}
+
+.woocommerce-category-highlight {
+	color: #dc2626;
+	font-weight: 700;
+	margin-top: 0.5rem;
+}
+
+.woocommerce-category-link {
+	display: inline-block;
+	margin-top: 0.75rem;
+	font-weight: 600;
+	color: var(--color-primary);
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.woocommerce-top-issues {
+	margin: 1rem 0;
+	padding: 1.25rem;
+	border: 1px solid var(--border-color, #eef0f2);
+	border-radius: 0.75rem;
+	background: var(--theme-background-white, #fff);
+}
+
+.woocommerce-top-issues-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+}
+
+.woocommerce-top-issues-title {
+	font-weight: 700;
+}
+
+.woocommerce-top-issues-view-all {
+	color: var(--color-primary);
+	font-weight: 600;
+	cursor: pointer;
+	font-size: 0.85rem;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.woocommerce-top-issue-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-top: 1px solid var(--border-color, #eef0f2);
+
+	&:first-child {
+		border-top: none;
+	}
+}
+
+.woocommerce-top-issue-body {
+	flex: 1;
+
+	.woocommerce-top-issue-title {
+		font-weight: 600;
+	}
+}
+
+.store-intelligence-bullets {
+	margin: 0.5rem 0 1rem;
+	padding-left: 1.125rem;
+
+	li {
+		font-size: 0.85rem;
+		margin-bottom: 0.375rem;
+	}
+}
+
+.woocommerce-issues-table {
+	margin-top: 1.5rem;
+}
+
+.woocommerce-issues-table-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+}
+
+.woocommerce-issues-table-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.woocommerce-issues-tabs {
+	display: flex;
+	gap: 1.25rem;
+	border-bottom: 1px solid var(--border-color, #eef0f2);
+	margin-bottom: 1rem;
+}
+
+.woocommerce-issues-tab {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding-bottom: 0.625rem;
+	color: var(--sub-text-color, #6b7280);
+	font-weight: 600;
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+
+	&.active {
+		color: var(--color-primary);
+		border-bottom-color: var(--color-primary);
+	}
+}
+
+.woocommerce-issues-tab-count {
+	font-size: 0.75rem;
+	opacity: 0.75;
+}
