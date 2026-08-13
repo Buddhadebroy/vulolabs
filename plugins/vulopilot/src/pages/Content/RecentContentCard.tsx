@@ -781,21 +781,22 @@ const RecentContentCard = () => {
 
 							return (
 								<div className="recent-content-table-issues">
-									<button
-										type="button"
-										className={`admin-badge badge-${worstSeverity(openFindings)}`}
-										onClick={() => toggleExpanded(row.id)}
-									>
-										{sprintf(
-											_n(
-												'%d issue',
-												'%d issues',
-												findings.length,
-												'vulopilot'
+									<ButtonInput
+										buttons={{
+											text: sprintf(
+												_n(
+													'%d issue',
+													'%d issues',
+													findings.length,
+													'vulopilot'
+												),
+												findings.length
 											),
-											findings.length
-										)}
-									</button>
+											color: `badge-${worstSeverity(openFindings)}`,
+											onClick: () =>
+												toggleExpanded(row.id),
+										}}
+									/>
 									{expandedIds.has(row.id) && (
 										<div className="recent-content-table-findings">
 											{findings.map((finding) => (
