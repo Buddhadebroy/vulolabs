@@ -13,7 +13,33 @@ import {
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
+import { getSeverityColor } from '../services/getSeverityClass';
 import ShowProPopup from './Popup/Popup';
+
+/** Categories whose conventional written form isn't plain title-case. */
+const CATEGORY_ACRONYMS: Record<string, string> = {
+	ssl: 'SSL',
+	seo: 'SEO',
+	geo: 'GEO',
+	aeo: 'AEO',
+	wordpress: 'WordPress',
+};
+
+/**
+ * `Finding.category` is the raw scanner category string ('security',
+ * 'wordpress', 'ssl', …) — this turns it into the same kind of short
+ * label the mockup's per-row category tag shows ('WordPress', 'SSL'); no
+ * category string in this codebase is more than one hyphenated word.
+ */
+const humanizeCategory = (category: string): string =>
+	category
+		.split('-')
+		.map(
+			(word) =>
+				CATEGORY_ACRONYMS[word] ||
+				word.charAt(0).toUpperCase() + word.slice(1)
+		)
+		.join(' ');
 
 export interface Finding extends TableRow {
 	id: number;
@@ -22,6 +48,15 @@ export interface Finding extends TableRow {
 	category: string;
 	status: 'open' | 'resolved' | 'ignored' | 'snoozed';
 	created_at: string;
+	/**
+	 * The scanner's own longer explanation of the finding (Finding::
+	 * get_description() server-side) — already returned by GET /findings
+	 * (FindingRepository's `SELECT *`), just not previously surfaced in the
+	 * UI. `layout="compact"` shows this as the row's description line when
+	 * present, falling back to the `page`/`created_at` line below when a
+	 * finding has none.
+	 */
+	description?: string;
 	/**
 	 * Resolved page path (e.g. '/pricing') for a per-post finding, or
 	 * 'Site-wide' for a sitewide check — added server-side by
@@ -387,10 +422,16 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 
 	/**
 	 * "Transparent" TableCard story shape (zyra Storybook, `table-tablecard
-	 * --transparent`) — one InformationItemComponent per row (title, then a
-	 * "$page · Detected $date" description line) with inline admin-badge row
-	 * actions on the right, instead of separate category/severity/status/
-	 * date columns. GEO.tsx's per-section tables use this.
+	 * --transparent`) — one InformationItemComponent per row (icon, title,
+	 * a category + severity badge, then a description line) with inline
+	 * admin-badge row actions on the right, instead of separate category/
+	 * severity/status/date columns. Originally GEO.tsx's per-section
+	 * tables only; "Protect My Site"'s SectionedFindingsTab (Security/Site
+	 * Health/Files & Plugins/Accessibility) now uses this same layout too,
+	 * matching the "Issues that need your attention" list-row design the
+	 * Overview tab's own OpenIssuesGlimpse already established, rather
+	 * than a spreadsheet-style grid — same underlying `/findings` data and
+	 * row actions either way, just presented as a list.
 	 */
 	const compactHeaders: Record<string, any> = {
 		title: {
@@ -398,20 +439,50 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 			render: (row: Finding) => (
 				<InformationItemComponent
 					title={row.title}
+					avatar={{
+						iconClass:
+							row.severity === 'low' || row.severity === 'info'
+								? 'info'
+								: 'error',
+						color: getSeverityColor(row.severity),
+					}}
 					badges={[
 						{
+							// Plain, uncolored — zyra's `admin-badge` base
+							// style alone (no color modifier class exists
+							// for a neutral tag), same idea as the section
+							// card's own already-plain title, just repeated
+							// per row for the mockup's category tag.
+							text: humanizeCategory(row.category),
+							className: '',
+						},
+						{
+							// `badge-{severity}` is a real zyra-defined
+							// modifier (badge-critical/high/medium/low/info
+							// — confirmed in its shipped styles), the same
+							// one TableCard's own Severity column already
+							// renders via `statusClass` in the default
+							// layout — kept identical here for a compact
+							// row's severity badge to color the same way.
 							text: row.severity,
 							className: `badge-${row.severity}`,
-						}
+						},
 					]}
 					descriptions={[
 						{
-							value: sprintf(
-								/* translators: 1: page path or "Site-wide", 2: formatted date */
-								__('%1$s · Detected %2$s', 'vulopilot'),
-								row.page || __('Site-wide', 'vulopilot'),
-								formatWpDate(row.created_at)
-							),
+							// The scanner's own explanation when it set one
+							// (every scanner does, in practice — see
+							// Finding::get_description()'s own docblock);
+							// falls back to the old page/date line for any
+							// row that genuinely has none.
+							value:
+								row.description ||
+								sprintf(
+									/* translators: 1: page path or "Site-wide", 2: formatted date */
+									__('%1$s · Detected %2$s', 'vulopilot'),
+									row.page || __('Site-wide', 'vulopilot'),
+									formatWpDate(row.created_at)
+								),
 						},
 					]}
 				/>

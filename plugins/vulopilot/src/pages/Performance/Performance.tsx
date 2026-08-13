@@ -45,7 +45,9 @@ const Performance = () => {
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
 	);
-	const { runScanButton } = useRunScan();
+	// Scoped to this page's own 'performance' category — same "local tab"
+	// scoping every other category page's header "Run scan" button uses.
+	const { runScanButton } = useRunScan({ categories: ['performance'] });
 
 	const goToSlowPages = () => setActiveTab('slow-pages');
 

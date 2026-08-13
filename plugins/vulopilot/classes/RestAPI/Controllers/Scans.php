@@ -84,14 +84,35 @@ class Scans extends \WP_REST_Controller {
 
     /**
      * @inheritDoc
+     *
+     * `category` (comma-separated, e.g. `security,accessibility`) scopes
+     * the run to just those categories via ScanRunner::run_category() —
+     * a category page's own header "Run scan" button passes its own
+     * category set here instead of always running every registered
+     * scanner, same `parse_comma_separated_list` shape
+     * Findings::get_items()'s own `category`/`scanner_id` params already
+     * use. Takes precedence over `scanner_id` when both are present;
+     * omitting `category` keeps every existing caller (Dashboard's Run
+     * Audit widget, Health.tsx's own "Run scan") working exactly as
+     * before.
      */
     public function create_item( $request ) {
-        $scanner_id = sanitize_key( (string) $request->get_param( 'scanner_id' ) );
+        $categories = $this->parse_comma_separated_list( $request->get_param( 'category' ) );
 
-        if ( '' === $scanner_id || 'all' === $scanner_id ) {
-            $results = VuloPilot()->scan_runner->run_all();
+        if ( $categories ) {
+            $results = array();
+
+            foreach ( $categories as $category ) {
+                $results += VuloPilot()->scan_runner->run_category( $category );
+            }
         } else {
-            $results = array( $scanner_id => VuloPilot()->scan_runner->run( $scanner_id ) );
+            $scanner_id = sanitize_key( (string) $request->get_param( 'scanner_id' ) );
+
+            if ( '' === $scanner_id || 'all' === $scanner_id ) {
+                $results = VuloPilot()->scan_runner->run_all();
+            } else {
+                $results = array( $scanner_id => VuloPilot()->scan_runner->run( $scanner_id ) );
+            }
         }
 
         $failed = array_filter(
@@ -113,5 +134,22 @@ class Scans extends \WP_REST_Controller {
                 'scanner_ids' => array_keys( $results ),
             )
         );
+    }
+
+    /**
+     * Same shape as Findings::parse_comma_separated_list() — a single
+     * value (no comma) still round-trips correctly as a one-element array.
+     *
+     * @param mixed $raw_param Raw comma-separated request param.
+     * @return string[]|null Sanitized values, or null when the param was empty/absent.
+     */
+    private function parse_comma_separated_list( $raw_param ): ?array {
+        if ( empty( $raw_param ) ) {
+            return null;
+        }
+
+        $values = array_filter( array_map( 'sanitize_key', explode( ',', (string) $raw_param ) ) );
+
+        return $values ? array_values( $values ) : null;
     }
 }

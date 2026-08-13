@@ -4,28 +4,46 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 
+interface UseRunScanOptions {
+	/**
+	 * Category ids (e.g. `['security', 'accessibility']`) to scope the
+	 * scan to, via `POST /scans`' `category` param —
+	 * `Controllers\Scans::create_item()` runs `ScanRunner::run_category()`
+	 * per category rather than every registered scanner. A category
+	 * page's own header "Run scan" button passes its own local category
+	 * set here so clicking it only re-runs what that page actually shows,
+	 * same reasoning the read-only `/findings` list endpoint's own
+	 * comma-joined `category`/`scanner_id` params already established.
+	 * Omit to run every registered scanner (`scanner_id: 'all'`) — the
+	 * original, page-agnostic behavior, still what Dashboard's Run Audit
+	 * widget and Health.tsx's own "Run scan" want (both are whole-site
+	 * overviews, not scoped to one category).
+	 */
+	categories?: string[];
+	/**
+	 * Called after a successful scan completes — pages pass their own
+	 * refetch (e.g. FindingsTable's `refetch`, or a page-level reload) so
+	 * results show up without a manual page refresh.
+	 */
+	onSuccess?: () => void;
+}
+
 /**
- * "Run scan" — same `POST /scans` call (`scanner_id: 'all'`,
- * `trigger_type: 'manual'`) Dashboard.tsx's own handleRunScan already uses,
- * extracted so every category page's own NavigatorHeaderComponent can get
- * the same button without duplicating the fetch/notice/loading-state wiring.
- * Always runs every registered scanner — Controllers\Scans::create_item()
- * only accepts a single scanner id or 'all', not a comma-joined subset like
- * the read-only `/findings` list endpoint does, so a category page can't
- * scope this to just its own scanners today.
- *
- * @param onSuccess Called after a successful scan completes — pages pass
- *   their own refetch (e.g. FindingsTable's `refetch`, or a page-level
- *   reload) so results show up without a manual page refresh.
+ * "Run scan" — same `POST /scans` call Dashboard's Run Audit widget
+ * already uses, extracted so every category page's own
+ * NavigatorHeaderComponent can get the same button without duplicating
+ * the fetch/notice/loading-state wiring.
  */
-export const useRunScan = (onSuccess?: () => void) => {
+export const useRunScan = ({ categories, onSuccess }: UseRunScanOptions = {}) => {
 	const [isScanning, setIsScanning] = useState(false);
 
 	const runScan = () => {
 		setIsScanning(true);
 
 		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'scans'), {
-			scanner_id: 'all',
+			...(categories?.length
+				? { category: categories.join(',') }
+				: { scanner_id: 'all' }),
 			trigger_type: 'manual',
 		})
 			.then((response) => {
