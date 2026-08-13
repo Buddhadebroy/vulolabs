@@ -7,7 +7,7 @@ import {
 	TabsComponent,
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
-import ClassicSecurityTab from './ClassicSecurityTab';
+import SecurityTab from './SecurityTab';
 import PerformanceTab from './PerformanceTab';
 import SiteHealthTab from './SiteHealthTab';
 import FilesPluginsTab from './FilesPluginsTab';
@@ -25,23 +25,25 @@ const TAB_IDS = [
  * "Protect My Site" (WP menu slug `security`) — PROTECT-MY-SITE.md's IA:
  * 5 detail tabs, "Security" first (default tab):
  *
- * - Security (ClassicSecurityTab.tsx) — the mockup's own single-page
+ * - Security (SecurityTab.tsx) — the mockup's own single-page
  *   design (hero/status/tile-grid, "Issues that need your attention", a
- *   "Vulnerabilities Found" glimpse, a 3-panel footer row, then the 5
- *   detail sections — Login & Accounts, Website Exposure, Browser
- *   Protection, SSL & Secure Connection, Security Findings — appended
- *   last). Was briefly split into two tabs ("Security" + "Old Security",
- *   the latter a sectioned-IA redesign of the same content) — "Old
- *   Security" was removed and its 5 sections folded back into this one
+ *   3-panel footer row, then one real, unified issues table
+ *   (SectionedIssuesTable.tsx — All/Important/Login & Accounts/Website
+ *   Exposure/Browser Protection/SSL & Secure Connection tabs), same merge
+ *   pattern WooCommerce's own "All WooCommerce Issues" already
+ *   established. Was briefly split into two tabs ("Security" + "Old
+ *   Security", the latter a sectioned-IA redesign of the same content) —
+ *   "Old Security" was removed and its sections folded back into this one
  *   tab per direct instruction, so there's only ever one "Security" tab
  *   again. There was also briefly a separate "Overview" tab
  *   (OverviewTab.tsx, this page's own default tab) — removed per direct
- *   instruction; its own "Vulnerabilities Found" card
- *   (VulnerabilitiesFoundCard.tsx) moved onto this tab instead rather than
- *   being deleted, and its now-redundant "Security Overview" gauge
+ *   instruction; its "Vulnerabilities Found" card moved onto this tab
+ *   instead of being deleted, then later removed outright per direct
+ *   instruction once the merged issues table below it covered the same
+ *   ground. Its now-redundant "Security Overview" gauge
  *   (SecurityOverviewCard.tsx — the same `category_scores.security` gauge
  *   SecurityStatusCard.tsx, still on this tab via SecurityMockupHeader,
- *   already shows) was deleted along with the tab itself.
+ *   already shows) was deleted along with the Overview tab itself.
  * - Performance (PerformanceTab.tsx) — WordPress/server-side efficiency:
  *   page caching, browser caching, persistent object cache, PHP
  *   acceleration (OPcache). Reads `GET /efficiency-checks`
@@ -65,10 +67,11 @@ const TAB_IDS = [
  *   (KeyboardAccessibilityScanner — positive tabindex — the one new
  *   accessibility scanner this pass adds).
  *
- * Reports used to have its own flat "Security" tab (Reports/SecurityTab.tsx,
- * a plain `category="security"` FindingsTable) — removed per direct
- * instruction, so this tab (ClassicSecurityTab.tsx) is now the sole real
- * home for security findings in the whole plugin. Same `subtab` deep-link
+ * Reports used to have its own flat "Security" tab (a different,
+ * now-deleted Reports/SecurityTab.tsx — a plain `category="security"`
+ * FindingsTable) — removed per direct instruction, so this tab
+ * (SecurityTab.tsx, this folder) is now the sole real home for security
+ * findings in the whole plugin. Same `subtab` deep-link
  * convention every tab shell here uses
  * (`?page=vulopilot#&tab=security&subtab=<inner-tab>`) — `getCategoryTabLink.ts`'s
  * own `security: 'security&subtab=security'` mapping still resolves
@@ -114,7 +117,7 @@ const Security = () => {
 					tabs={[
 						{
 							label: __('Security', 'vulopilot'),
-							content: <ClassicSecurityTab />,
+							content: <SecurityTab />,
 						},
 						{
 							label: __('Performance', 'vulopilot'),

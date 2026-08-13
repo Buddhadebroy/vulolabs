@@ -1,8 +1,6 @@
 /* global appLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import type { ComponentType } from 'react';
 import {
 	CardComponent,
 	ModuleGuardComponent,
@@ -10,6 +8,7 @@ import {
 } from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
+import { useFilterSlot } from '../../services/useFilterSlot';
 import ShowProPopup from '../../components/Popup/Popup';
 
 interface AutomationRow extends TableRow {
@@ -21,25 +20,31 @@ interface AutomationRow extends TableRow {
 }
 
 /**
- * The real management panel (list, enable/disable, create, run) lives in
- * vulopilot-pro/modules/Automation's own React entry, registered into this
- * slot — same "register a source, don't modify the host" pattern already
- * used for Reports' `vulopilot_reports_advanced_panel`.
- */
-const AutomationPanel = applyFilters(
-	'vulopilot_automation_panel',
-	null
-) as ComponentType | null;
-
-/**
  * The real automation list/create/enable/run management UI — today's
  * whole "Automations" tab (Automation.tsx). Every other card's
  * "Manage"/"Create"/"View all" action switches to this tab
  * (`onManageAutomations`) rather than scrolling to it, since it's a full
  * tab of its own now, not a section further down a single long page.
+ *
+ * The real panel (list, enable/disable, create, run) lives in
+ * vulopilot-pro/modules/Automation's own React entry
+ * (modules/Automation/src/index.tsx), registered into the
+ * `vulopilot_automation_panel` slot — same "register a source, don't
+ * modify the host" pattern already used for Reports'
+ * `vulopilot_reports_advanced_panel`. Read via `useFilterSlot()`, not a
+ * one-time module-scope `applyFilters()` call: Pro's own `addFilter()`
+ * call always runs strictly after this component's first render on a
+ * fresh page load (FrontendScriptsPro.php's own docblock — Pro's script
+ * depends on Free's, but "depends on" only orders the <script> tags, not
+ * when each one finishes executing), so a one-time read here permanently
+ * missed it — "Create automation" opened the "Unlock with Pro" popup and
+ * did nothing even with the real 'automation' module genuinely active,
+ * same bug already fixed this session for WooCommerceTab.tsx's two panel
+ * slots.
  */
 const ManageAutomationsSection = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const AutomationPanel = useFilterSlot('vulopilot_automation_panel');
 
 	const statusOptions = [
 		{ label: __('Enabled', 'vulopilot'), value: 'enabled' },

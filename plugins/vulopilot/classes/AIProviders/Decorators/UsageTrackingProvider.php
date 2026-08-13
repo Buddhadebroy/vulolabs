@@ -53,6 +53,13 @@ class UsageTrackingProvider implements AIProviderInterface {
         'ollama'     => array( 0.0, 0.0 ),
     );
 
+    /**
+     * `response_excerpt` is an audit trail, not a cache (DATABASE.md's own
+     * "not the full response" note on this column) — bounds how much of a
+     * real AI reply gets persisted per call.
+     */
+    private const RESPONSE_EXCERPT_MAX_LENGTH = 300;
+
     private AIProviderInterface $inner;
     private AiHistoryRepository $history;
 
@@ -135,9 +142,32 @@ class UsageTrackingProvider implements AIProviderInterface {
                 'completion_tokens' => $response->get_completion_tokens(),
                 'cost_estimate'     => $this->estimate_cost( $response ),
                 'status'            => 'success',
+                'response_excerpt'  => $this->build_excerpt( $response->get_content() ),
                 'requested_by'      => get_current_user_id(),
             )
         );
+    }
+
+    /**
+     * Truncates a real AI response down to an audit-trail-sized excerpt —
+     * this column was always in the schema (Install.php) but nothing ever
+     * wrote to it, which left every consumer that reads it (AI Copilot's
+     * "Recent conversations" card, AiHistoryRepository's own searchable
+     * "response_excerpt" column) with a permanently empty value to fall
+     * back from. `mb_substr` since real AI replies routinely contain
+     * multi-byte characters.
+     *
+     * @param string $content Full response text.
+     * @return string
+     */
+    private function build_excerpt( string $content ): string {
+        $trimmed = trim( $content );
+
+        if ( mb_strlen( $trimmed ) <= self::RESPONSE_EXCERPT_MAX_LENGTH ) {
+            return $trimmed;
+        }
+
+        return mb_substr( $trimmed, 0, self::RESPONSE_EXCERPT_MAX_LENGTH ) . '…';
     }
 
     /**

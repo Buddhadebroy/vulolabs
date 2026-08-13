@@ -156,125 +156,6 @@
 	}
 }
 
-// IssuesNeedAttentionCard.tsx's row — icon, title, real description, then
-// one meta line (section tag + severity tag + the "Review" menu button)
-// all left-aligned under the title, matching the mockup's own row
-// anatomy rather than FindingsTable's two-column table layout.
-.attention-issues-list {
-	display: flex;
-	flex-direction: column;
-}
-
-.attention-issue-row {
-	display: flex;
-	gap: 0.75rem;
-	padding: 0.875rem 0;
-	border-bottom: 1px solid var(--border-color);
-
-	&:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-
-	&:first-child {
-		padding-top: 0;
-	}
-}
-
-.attention-issue-icon {
-	flex-shrink: 0;
-	font-size: 1.125rem;
-	line-height: 1.4;
-}
-
-.attention-issue-body {
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
-	min-width: 0;
-}
-
-.attention-issue-title {
-	font-weight: 600;
-	font-size: 0.9rem;
-}
-
-.attention-issue-desc {
-	font-size: 0.8125rem;
-	color: var(--sub-text-color);
-}
-
-.attention-issue-meta {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	margin-top: 0.25rem;
-}
-
-.attention-issue-review {
-	position: relative;
-}
-
-.attention-issue-review-button {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
-	border: 1px solid var(--color-primary);
-	border-radius: 0.375rem;
-	background: var(--background-white);
-	color: var(--color-primary);
-	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 0.25rem 0.625rem;
-	cursor: pointer;
-
-	i {
-		font-size: 0.75rem;
-	}
-}
-
-.attention-issues-footer {
-	text-align: center;
-	margin-top: 1rem;
-	padding-top: 1rem;
-	border-top: 1px solid var(--border-color);
-
-	// .security-fix-all is already `inline-flex` (VulnerabilityHeroCard's
-	// own "Fix All Issues with AI" button); centered here via the
-	// text-align above rather than redefining its own layout.
-	.desc {
-		margin-top: 0.5rem;
-	}
-}
-
-.attention-issue-menu {
-	position: absolute;
-	z-index: 10;
-	top: calc(100% + 0.25rem);
-	right: 0;
-	min-width: 9rem;
-	background: var(--background-white);
-	border: 1px solid var(--border-color);
-	border-radius: 0.375rem;
-	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-
-	button {
-		background: none;
-		border: none;
-		text-align: left;
-		padding: 0.5rem 0.75rem;
-		font-size: 0.8125rem;
-		cursor: pointer;
-
-		&:hover {
-			background: var(--background-color);
-		}
-	}
-}
-
 // AccessibilityHeroCard.tsx — one stacked column: a small donut pinned
 // to the top-left, then the headline, description, stat row, and
 // buttons below it in normal block flow — unlike VulnerabilityHeroCard/
@@ -306,6 +187,28 @@
 	margin-top: 0.75rem;
 	font-weight: 700;
 	font-size: 1.0625rem;
+}
+
+// Real week-over-week score delta (AccessibilityHeroCard.tsx's own
+// `category_scores_7d_ago` reuse) — green for an improved score, red for
+// a decline, same semantic-color-separate-from-accent convention this
+// codebase's other trend indicators already follow.
+.accessibility-hero-delta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	margin-left: 0.5rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	vertical-align: middle;
+
+	&.is-up {
+		color: #16a34a;
+	}
+
+	&.is-down {
+		color: #dc2626;
+	}
 }
 
 .accessibility-hero-desc {
@@ -406,9 +309,8 @@
 
 // AccessibilityPriorityList.tsx's "What should I fix first?" rows — a
 // single horizontal line (priority pill, check icon, title/page, real
-// explanation, Review button) rather than the stacked title+badges+
-// action shape IssuesNeedAttentionCard.tsx's own Security-page rows use,
-// matching this specific reference mockup's own row anatomy.
+// explanation, Review button), matching this specific reference mockup's
+// own row anatomy.
 .accessibility-priority-list {
 	display: flex;
 	flex-direction: column;
@@ -985,6 +887,23 @@
 	font-weight: 700;
 }
 
+// PerformanceTab.tsx's own real cross-linked speed-score trend
+// (SpeedHistoryCard.tsx, reused from pages/Performance/) — the label just
+// makes clear it's a related-but-distinct page's own real metric, not
+// this tab's own efficiency-check data.
+.efficiency-related-speed {
+	margin-top: 1rem;
+}
+
+.efficiency-related-speed-label {
+	margin: 0 0 0.5rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--sub-text-color, #6b7280);
+}
+
 // EfficiencySpeedInsightsBanner.tsx — closing cross-link to the separate
 // "Improve My Speed" page.
 .efficiency-speed-banner {
@@ -1106,4 +1025,215 @@
 
 .findings-hero-actions {
 	margin-top: 1rem;
+}
+
+// One real, unified findings table with a category tab bar on top —
+// SectionedIssuesTable.tsx, replacing the "N separate per-section
+// FindingsTable cards" shape this page (and Site Health/Files & Plugins/
+// Accessibility, via the same component) used to stack. Identical shape/
+// values to WooCommerce's own "All WooCommerce Issues"
+// (WooCommerceIssuesTable.tsx, plugins/vulopilot/src/pages/WooCommerce/
+// SellMore.scss) — same merge pattern, ported here rather than sharing one
+// stylesheet across two unrelated page trees.
+.sectioned-issues-table {
+	margin-top: 1.5rem;
+}
+
+.sectioned-issues-table-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+}
+
+.sectioned-issues-table-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	// `.admin-badge`'s own base pill shape comes from zyra at runtime, but
+	// its color modifiers don't (same gap this whole codebase's other
+	// per-page `.admin-badge` scoping comments already document) — only
+	// `.purple` is needed here, for this title's own count badge.
+	.admin-badge.purple {
+		color: #7c3aed;
+		background: color-mix(in srgb, #7c3aed 14%, transparent);
+	}
+}
+
+.sectioned-issues-tabs {
+	display: flex;
+	gap: 1.25rem;
+	border-bottom: 1px solid var(--border-color, #eef0f2);
+	margin-bottom: 1rem;
+	flex-wrap: wrap;
+}
+
+.sectioned-issues-tab {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding-bottom: 0.625rem;
+	color: var(--sub-text-color, #6b7280);
+	font-weight: 600;
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+
+	&.active {
+		color: var(--color-primary);
+		border-bottom-color: var(--color-primary);
+	}
+}
+
+.sectioned-issues-tab-count {
+	font-size: 0.75rem;
+	opacity: 0.75;
+}
+
+// The table's own "Category" column badge (`.admin-badge.blue`) and
+// "Priority" column badge (`.admin-badge.badge-{severity}`, TableCard's
+// own `type: 'status'` rendering convention — same as `.badge-open` above)
+// — same 5-value severity palette getSeverityColor.ts's own docblock
+// documents as canonical across the app, so a group's priority here reads
+// the same color as everywhere else that shows one.
+.sectioned-issues-table {
+	.admin-badge.blue {
+		color: #2563eb;
+		background: color-mix(in srgb, #2563eb 14%, transparent);
+	}
+
+	$severities: (
+		'critical': #dc2626,
+		'high': #d88c5c,
+		'medium': #b45309,
+		'low': #5baab3,
+		'info': #6b7280,
+	);
+
+	@each $name, $color in $severities {
+		.admin-badge.badge-#{$name} {
+			color: #{$color};
+			background: color-mix(in srgb, #{$color} 14%, transparent);
+		}
+	}
+}
+
+// The 4 priority stat tiles (IssuesSummaryCards.tsx, reused as-is from AI
+// Copilot's own Issues tab) — same real classes confirmed against zyra's
+// compiled AnalyticsComponent source (AICopilot.scss's own docblock), same
+// severity palette as the table's own Priority badges above.
+.issues-summary-cards {
+	margin-bottom: 1rem;
+
+	.analytics-item.clickable {
+		border: 1px solid transparent;
+		transition: border-color 0.15s ease, background-color 0.15s ease;
+
+		&:hover {
+			background: var(--theme-background-color, #f9fafb);
+		}
+	}
+
+	.analytics-item:nth-child(2) .analytics-icon i {
+		color: #dc2626;
+	}
+
+	.analytics-item:nth-child(3) .analytics-icon i {
+		color: #b45309;
+	}
+
+	.analytics-item:nth-child(4) .analytics-icon i {
+		color: #5baab3;
+	}
+
+	&.active-priority-all .analytics-item:nth-child(1),
+	&.active-priority-high .analytics-item:nth-child(2),
+	&.active-priority-medium .analytics-item:nth-child(3),
+	&.active-priority-low .analytics-item:nth-child(4) {
+		border-color: var(--color-primary);
+		background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
+	}
+}
+
+// The side detail panel (IssueDetailPanel.tsx, reused as-is from AI
+// Copilot's own Issues tab).
+.issue-detail-panel {
+	.issue-detail-title {
+		font-size: 1.125rem;
+		margin: 0.5rem 0;
+	}
+
+	.issue-detail-section {
+		margin-top: 1rem;
+
+		h4 {
+			font-size: 0.75rem;
+			text-transform: uppercase;
+			letter-spacing: 0.03em;
+			color: var(--sub-text-color, #6b7280);
+			margin: 0 0 0.375rem;
+		}
+
+		p {
+			margin: 0 0 0.25rem;
+		}
+	}
+
+	.issue-detail-example-title {
+		font-weight: 600;
+	}
+
+	.issue-detail-example-desc {
+		color: var(--sub-text-color, #6b7280);
+	}
+
+	.issue-detail-where {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+
+		code {
+			background: var(--theme-background-color, #f3f4f6);
+			padding: 0.25rem 0.5rem;
+			border-radius: 0.313rem;
+			font-size: 0.813rem;
+			overflow-wrap: anywhere;
+		}
+	}
+
+	.issue-detail-copy-btn {
+		cursor: pointer;
+		color: var(--sub-text-color, #6b7280);
+
+		&:hover {
+			color: var(--color-primary);
+		}
+	}
+}
+
+.issue-detail-panel .adminfont-close {
+	cursor: pointer;
+	color: var(--sub-text-color, #6b7280);
+
+	&:hover {
+		color: var(--color-primary);
+	}
+}
+
+// PluginOverlapCard.tsx's own per-row "View in VuloPilot →" link — same
+// inline-text-link treatment WooCommerceCategoryGrid.tsx's own
+// `.woocommerce-category-link` already establishes, redeclared locally
+// here rather than cross-referencing that unrelated page's class.
+.plugin-overlap-link {
+	display: inline-block;
+	font-weight: 600;
+	color: var(--color-primary);
+	cursor: pointer;
+	white-space: nowrap;
+
+	&:hover {
+		text-decoration: underline;
+	}
 }

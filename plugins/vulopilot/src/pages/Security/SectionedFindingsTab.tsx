@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
-import { CardComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
-import FindingsTable from '../../components/FindingsTable';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
+import SectionedIssuesTable, {
+	SectionedIssuesTab,
+} from './SectionedIssuesTable';
 
 export interface FindingsSection {
 	key: string;
@@ -10,61 +12,53 @@ export interface FindingsSection {
 	scannerIds: string[];
 }
 
+/** DOM anchor id the merged table below carries — what a `header`'s own "Review Issues"-style button scrolls to. */
+export const SECTIONED_FINDINGS_TABLE_ID = 'protect-my-site-sectioned-issues-table';
+
 interface SectionedFindingsTabProps {
+	title: string;
 	sections: FindingsSection[];
-	/** Rendered above every section — e.g. a Pro-registered dashboard card. */
+	activeTab: SectionedIssuesTab;
+	onTabChange: (tab: SectionedIssuesTab) => void;
+	/** Rendered above the table — e.g. a hero card or a Pro-registered dashboard card. */
 	header?: ReactNode;
-	/** Rendered below every section — e.g. a Pro-registered panel. */
+	/** Rendered below the table — e.g. a Pro-registered panel. */
 	footer?: ReactNode;
 }
 
 /**
- * Shared "N sections, each its own independent scanner_id-scoped
- * FindingsTable" shell — the exact pattern GEO/SeoTab.tsx already
- * established (own fetch, own status pills, own pagination per section,
- * rather than one combined table). "Protect My Site"'s Security/Site
- * Health/Files & Plugins/Accessibility tabs all share this one component
- * rather than each re-implementing the same map-over-sections JSX 4
- * times — genuine repetition across 4 real call sites, unlike the
- * "don't prematurely abstract" calls this codebase makes elsewhere for
- * things that only look similar once.
+ * Shared "one real, unified findings table with a category tab bar" shell
+ * — SectionedIssuesTable.tsx (same merge pattern WooCommerce's own "All
+ * WooCommerce Issues" already established), replacing what used to be N
+ * separate independent scanner_id-scoped FindingsTable cards stacked one
+ * per section. "Protect My Site"'s Site Health/Files & Plugins tabs both
+ * share this one component (SecurityTab.tsx/AccessibilityTab.tsx
+ * use SectionedIssuesTable directly instead, since each already has its
+ * own extra above-the-table content this shell doesn't need to know
+ * about) rather than each re-implementing the same tab-state wiring twice.
  *
- * `layout="compact"` — each row a title/description/category+severity-
- * badge list item (same shape GEO's own per-section tables and the
- * Overview tab's "Issues that need your attention" glimpse both already
- * use), rather than the default spreadsheet-style grid. Same underlying
- * `/findings` fetch, filters, search, bulk actions, and row actions
- * either way — this only changes how each row renders.
+ * `activeTab`/`onTabChange` are threaded straight through from the caller
+ * (not owned here) so a `header` hero card's own "Review Issues" button
+ * can jump straight to a specific tab of the table below it.
  */
 const SectionedFindingsTab = ({
+	title,
 	sections,
+	activeTab,
+	onTabChange,
 	header,
 	footer,
 }: SectionedFindingsTabProps) => (
-	<ContainerComponent general>
+	<ContainerComponent>
 		<ColumnComponent>
 			{header}
-			{sections.map((section) => (
-				<CardComponent
-					key={section.key}
-					// Lets a `header` (e.g. a hero card's "Review Issues
-					// First" button) scroll straight to one specific
-					// section instead of just the top of the tab —
-					// same anchor-id/scrollIntoView idea OpenIssuesGlimpse's
-					// own `anchorPrefix` already uses, just page-scoped here
-					// rather than per-component-instance.
-					id={`protect-my-site-section-${section.key}`}
-					title={section.title}
-					desc={section.description}
-				>
-					<FindingsTable
-						title={section.title}
-						description={section.emptyMessage}
-						scannerIds={section.scannerIds}
-						layout="compact"
-					/>
-				</CardComponent>
-			))}
+			<SectionedIssuesTable
+				id={SECTIONED_FINDINGS_TABLE_ID}
+				title={title}
+				sections={sections}
+				activeTab={activeTab}
+				onTabChange={onTabChange}
+			/>
 			{footer}
 		</ColumnComponent>
 	</ContainerComponent>

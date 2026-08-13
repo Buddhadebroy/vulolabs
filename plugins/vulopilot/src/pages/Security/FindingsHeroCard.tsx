@@ -22,7 +22,7 @@ interface FindingsHeroCardProps {
 
 /**
  * Shared hero card for SiteHealthTab.tsx/FilesPluginsTab.tsx — same "start
- * with a summary card + a real chart" shape ClassicSecurityTab.tsx's
+ * with a summary card + a real chart" shape SecurityTab.tsx's
  * SecurityMockupHeader and PerformanceTab.tsx's EfficiencyHeroCard/
  * EfficiencyOverviewChart already establish for their own tabs, which
  * these two tabs previously went straight past into their section list

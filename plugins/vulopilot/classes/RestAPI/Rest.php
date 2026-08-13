@@ -83,6 +83,7 @@ class Rest {
             'copilot'                     => new Controllers\Copilot(),
             'store_readiness'             => new Controllers\StoreReadiness(),
             'efficiency_checks'           => new Controllers\EfficiencyChecks(),
+            'plugin_overlap'              => new Controllers\PluginOverlap(),
             'reports_overview'            => new Controllers\ReportsOverview(),
             // Deliberately NOT keyed 'geo_analysis' — vulopilot-pro's
             // GeoInsights module adds its own controller into

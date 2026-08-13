@@ -40,12 +40,16 @@ const timeAgo = (dateString: string): string => {
 };
 
 /**
- * `vulopilot_ai_history` rows have no free-text prompt (there's no
- * conversational AI endpoint yet — see ChatTab.tsx's own docblock), so
- * there's no literal "conversation" to title a row with.
- * `response_excerpt` is the closest real substitute when a call actually
- * returned one; otherwise fall back to describing what happened, honestly,
- * from the columns that do exist.
+ * `vulopilot_ai_history` rows have no stored user prompt (only the AI's
+ * own reply is ever persisted — DATABASE.md's own "audit trail, not a
+ * cache" reasoning for `response_excerpt`), so there's no literal
+ * "conversation" to title a row with. `response_excerpt` (a real,
+ * truncated snippet of what the AI actually said, populated by
+ * UsageTrackingProvider::record_success() for every real call, chat
+ * included) is the closest real substitute when a call actually returned
+ * one; otherwise fall back to describing what happened, honestly, from the
+ * columns that do exist (e.g. a failed call, which never has a response to
+ * excerpt).
  */
 const rowTitle = (row: AiHistoryRow): string => {
 	if (row.response_excerpt) {
@@ -76,8 +80,12 @@ interface RecentConversationsCardProps {
 /**
  * AI Copilot's "Recent conversations" card — the 5 most recent rows of
  * `vulopilot_ai_history` (GET /ai-history, the same real endpoint
- * HistoryTab.tsx's own table reads), not static placeholder copy. "View
- * all history" reuses the same History tab every other sidebar card's
+ * HistoryTab.tsx's own table reads), not static placeholder copy —
+ * including real Chat tab turns now that UsageTrackingProvider actually
+ * writes `response_excerpt` (previously a real schema column no code path
+ * ever populated, so every row here silently fell back to a generic
+ * "AI response via X" line no matter what was actually said). "View all
+ * history" reuses the same History tab every other sidebar card's
  * "View all" link already points at.
  */
 const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
