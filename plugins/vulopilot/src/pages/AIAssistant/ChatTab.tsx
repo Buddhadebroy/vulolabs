@@ -27,6 +27,7 @@ import {
 	CopilotAttachment,
 } from '../../services/useCopilotChat';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
+import AiCopilotGuard from '../../components/AiCopilotGuard';
 
 /** Mirrors Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
@@ -234,6 +235,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		<ContainerComponent>
 			<ColumnComponent grid={8}>
 				<CardComponent>
+					<AiCopilotGuard>
 					<ChatMessageComponent sender="ai" avatarIcon="ai">
 						<strong>
 							{__(
@@ -475,6 +477,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							action: () => onMessageChange(prompt.title),
 						}))}
 					/>
+				</AiCopilotGuard>
 				</CardComponent>
 			</ColumnComponent>
 

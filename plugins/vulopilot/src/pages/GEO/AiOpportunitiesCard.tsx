@@ -2,6 +2,7 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { TooltipComponent } from '@zyra/components';
 import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
+import AiCopilotGuard from '../../components/AiCopilotGuard';
 import './GrowMyTraffic.scss';
 
 interface AiOpportunitiesCardProps {
@@ -20,7 +21,10 @@ interface AiOpportunitiesCardProps {
  * "Fix Everything with AI" has no real backend anywhere in this codebase
  * (no bulk-fix/action-trigger endpoint exists — confirmed while building
  * AI Copilot's own honestly-disabled send button/workflow-run button), so
- * it's rendered visibly but inert with a tooltip, same pattern.
+ * it's rendered visibly but inert with a tooltip, same pattern. The
+ * findings glimpse itself is real, non-AI functionality and stays visible
+ * regardless of module state — only the AI-branded footer action is
+ * gated on the real AI Copilot module (AiCopilotGuard).
  */
 const AiOpportunitiesCard: React.FC<AiOpportunitiesCardProps> = ({
 	onNavigateTab,
@@ -33,21 +37,29 @@ const AiOpportunitiesCard: React.FC<AiOpportunitiesCardProps> = ({
 		emptyTitle={__("You're all caught up", 'vulopilot')}
 		emptyDesc={__('No open GEO/AEO findings right now.', 'vulopilot')}
 		footer={
-			<TooltipComponent
-				text={__(
-					"Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up. Fix findings individually from the GEO/AEO tabs.",
+			<AiCopilotGuard
+				title={__('AI Copilot is turned off', 'vulopilot')}
+				desc={__(
+					'Turn the AI Copilot module back on from Settings → Modules to use AI-powered opportunities.',
 					'vulopilot'
 				)}
 			>
-				<span
-					role="button"
-					aria-disabled="true"
-					className="ai-opportunities-fix-all disabled"
+				<TooltipComponent
+					text={__(
+						"Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up. Fix findings individually from the GEO/AEO tabs.",
+						'vulopilot'
+					)}
 				>
-					<i className="adminfont-ai" />
-					{__('Fix Everything with AI', 'vulopilot')}
-				</span>
-			</TooltipComponent>
+					<span
+						role="button"
+						aria-disabled="true"
+						className="ai-opportunities-fix-all disabled"
+					>
+						<i className="adminfont-ai" />
+						{__('Fix Everything with AI', 'vulopilot')}
+					</span>
+				</TooltipComponent>
+			</AiCopilotGuard>
 		}
 	/>
 );

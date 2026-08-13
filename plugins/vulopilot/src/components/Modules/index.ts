@@ -1,5 +1,25 @@
 import { __ } from '@wordpress/i18n';
 
+/**
+ * Exactly the 13 modules from the user's own mockup (ModulesPanel.jsx),
+ * same names/descriptions/free-pro copy verbatim — WooCommerce
+ * (woo-commerce-ai/woo-commerce-intelligence), Reports (advanced-reports),
+ * MCP Server, and the standalone "One-Click AI Fixes" Pro card that
+ * previously existed here are all deliberately dropped to match the
+ * mockup's own 13-card, 5-category list exactly, per explicit request.
+ *
+ * Every `id` is still a real backend module id wherever one exists (see
+ * Modules.php::camel_to_kebab()) — the mockup's own ids (`geo`, `aeo`,
+ * `ai-crawler`, `brand-visibility`, `seo-intelligence`, `accessibility-
+ * scanner`, `ai-fixes`, `automation-engine`) don't match any real module,
+ * so they're swapped for the real ones the same way every other card in
+ * this file was already fixed this session. Two exceptions, called out on
+ * their own cards below: 'redirect-manager' and 'performance-monitoring'
+ * don't correspond to any real `modules/` folder (they're core, always-on
+ * `Services/*.php` classes) — toggling those two is inert, same as before
+ * this session touched this file, kept only because the mockup includes
+ * them by name.
+ */
 export default {
 	category: true,
 	tab: 'modules',
@@ -9,19 +29,13 @@ export default {
 		{
             /**
              * Must be the real backend module id — GeoInsights' folder name
-             * kebab-cased (Modules.php::camel_to_kebab(), same 'geo-insights'
-             * GEO.tsx's isGeoInsightsActive()/ProLockedCard and Popup.tsx's
-             * "Enable Now" deep-link already use. This card previously used
-             * a made-up 'geo-ai-understanding' id that matched no real
-             * module: toggling it "on" here called set_modules() with that
-             * id, which Modules::load_active_modules() then silently
-             * dropped every request since it never resolved to an actual
-             * module folder — so the toggle looked like it took, but never
-             * actually activated GeoInsights, and every page gating on
-             * 'geo-insights' kept showing its Pro-locked state forever.
+             * kebab-cased. The free Geo module (id 'geo', auto-active on
+             * install) has no separate card — same "always-on background
+             * behavior" treatment every other free/Pro split module pair
+             * gets in this file when the two don't share an id.
              */
             id: 'geo-insights',
-            name: __('GEO — AI Understanding', 'vulopilot'),
+            name: __('GEO Radar — AI Understanding', 'vulopilot'),
             desc: __('Scans structure, entities, and machine-readability so AI models can understand your pages.', 'vulopilot'),
             proModule: true,
             category: 'ai-visibility',
@@ -40,26 +54,18 @@ export default {
         },
         {
             /**
-             * Same real backend id as the GEO card above, not a typo —
-             * AEO's own Pro features (llms.txt generation, the
-             * LlmsTxtMissingScanner/StaleContentScanner pair) are also
-             * registered by GeoInsights\Module, there's no separate "AEO"
-             * Pro module folder. AEO.tsx's own isGeoInsightsActive() already
-             * gates on 'geo-insights' for this exact reason — this card
-             * previously used a made-up 'aeo-answer-engine' id that matched
-             * nothing, same broken-toggle bug the GEO card had.
-             *
-             * Known, accepted side effect: zyra's ModuleGridComponent keys
-             * its card list by `module.id` (not array index), so having
-             * two cards intentionally share 'geo-insights' triggers a
-             * harmless React "duplicate key" dev-console warning. zyra is
-             * an external package (not vendored here — see this repo's own
-             * CLAUDE.md), so that's not something to patch from this side;
-             * toggling either card still correctly activates/deactivates
-             * the one real module both represent.
+             * Same real backend id as the GEO card above, not a typo — AEO's
+             * own Pro features (llms.txt generation, etc.) are also
+             * registered by GeoInsights\Module; there's no separate "AEO"
+             * Pro module folder. Known, accepted side effect: zyra's
+             * ModuleGridComponent keys its card list by `module.id`, so two
+             * cards intentionally sharing 'geo-insights' triggers a
+             * harmless React "duplicate key" dev-console warning — toggling
+             * either card still correctly activates/deactivates the one
+             * real module both represent.
              */
-            id: 'aeo-insights',
-            name: __('AEO — Answer Engine Optimization', 'vulopilot'),
+            id: 'geo-insights',
+            name: __('AEO Autopilot — Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage — then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
             proModule: true,
             category: 'ai-visibility',
@@ -78,7 +84,7 @@ export default {
         },
         {
             id: 'knowledge-graph',
-            name: __('Knowledge Graph', 'vulopilot'),
+            name: __('Knowledge Graph — Entity Intelligence', 'vulopilot'),
             desc: __('Reads real people, organizations, products, services, and categories from your site and turns them into structured entities.', 'vulopilot'),
             proModule: true,
             category: 'ai-visibility',
@@ -95,8 +101,13 @@ export default {
             ]
         },
         {
-            id: 'ai-crawler-intelligence',
-            name: __('AI Crawler Intelligence', 'vulopilot'),
+            /**
+             * Must be the real backend module id — AiCrawlerAnalytics'
+             * folder name kebab-cased. The mockup's own id ('ai-crawler')
+             * matches no real module.
+             */
+            id: 'ai-crawler-analytics',
+            name: __('Bot Watch — AI Crawler Intelligence', 'vulopilot'),
             desc: __('Tracks which AI bots — GPTBot, ClaudeBot, PerplexityBot, and others — are visiting your site, and what they\'re reading.', 'vulopilot'),
             proModule: true,
             category: 'ai-visibility',
@@ -116,8 +127,16 @@ export default {
 		// Brand Visibility Section
 		{ type: 'separator', id: 'brand-visibility', label: __('Brand Visibility', 'vulopilot') },
 		{
-            id: 'brand-visibility-module',
-            name: __('Brand Visibility', 'vulopilot'),
+            /**
+             * Must be the real backend module id — the free and Pro
+             * BrandIntelligence modules intentionally share this exact id
+             * (Modules::get_all_modules()'s own collision handling lets two
+             * sources register the same id and co-activate together from
+             * one toggle). The mockup's own id ('brand-visibility') matches
+             * no real module.
+             */
+            id: 'brand-intelligence',
+            name: __('Brand Radar — Off-Site Visibility', 'vulopilot'),
             desc: __('Organization & author schema, About-page completeness, and off-site mentions across the web.', 'vulopilot'),
             proModule: true,
             category: 'brand-visibility',
@@ -137,8 +156,15 @@ export default {
 		// SEO & Content Section
 		{ type: 'separator', id: 'seo-content', label: __('SEO & Content', 'vulopilot') },
 		{
-            id: 'seo-intelligence',
-            name: __('SEO Intelligence', 'vulopilot'),
+            /**
+             * Must be the real backend module id — AdvancedSeo's folder
+             * name kebab-cased. The free Seo module (id 'seo', auto-active
+             * on install) has no dedicated card — same always-on-background
+             * treatment as Geo above. The mockup's own id ('seo-intelligence')
+             * matches no real module.
+             */
+            id: 'advanced-seo',
+            name: __('SEO Copilot — Technical SEO', 'vulopilot'),
             desc: __('Titles, meta, canonical, schema, internal links, sitemap, and robots.txt checks.', 'vulopilot'),
             proModule: true,
             category: 'seo-content',
@@ -157,7 +183,7 @@ export default {
         },
         {
             id: 'content-intelligence',
-            name: __('Content Intelligence', 'vulopilot'),
+            name: __('Content Copilot — Readability & Freshness', 'vulopilot'),
             desc: __('Readability, thin/duplicate content, and freshness flags — plus AI-assisted rewriting.', 'vulopilot'),
             proModule: true,
             category: 'seo-content',
@@ -174,8 +200,17 @@ export default {
             ]
         },
         {
+            /**
+             * No real `modules/` folder backs this id — Services\RedirectManager.php
+             * is a core, always-on class, not part of the module system, so
+             * this toggle is inert (unchanged from how this card behaved
+             * before this session touched this file). Kept only because the
+             * mockup includes it by name; a real fix would mean either
+             * wrapping RedirectManager in a real Module.php (its own,
+             * separate change) or dropping this card entirely.
+             */
             id: 'redirect-manager',
-            name: __('Redirect Manager & 404 Log', 'vulopilot'),
+            name: __('Redirect Autopilot — 301s & 404 Log', 'vulopilot'),
             desc: __('301 redirects and 404 tracking, with automatic redirects on slug change.', 'vulopilot'),
             proModule: false,
             category: 'seo-content',
@@ -190,8 +225,13 @@ export default {
 		// Site Health Section
 		{ type: 'separator', id: 'site-health', label: __('Site Health', 'vulopilot') },
 		{
+            /**
+             * No real `modules/` folder backs this id either — same
+             * inert-toggle caveat as 'redirect-manager' above (core
+             * Performance services, not a module).
+             */
             id: 'performance-monitoring',
-            name: __('Performance Monitoring', 'vulopilot'),
+            name: __('Speed Radar — Core Web Vitals', 'vulopilot'),
             desc: __('Core Web Vitals, database health, and autoload size checks.', 'vulopilot'),
             proModule: true,
             category: 'site-health',
@@ -208,8 +248,13 @@ export default {
             ]
         },
         {
-            id: 'accessibility-scanner',
-            name: __('Accessibility Scanner', 'vulopilot'),
+            /**
+             * Must be the real backend module id — AccessibilityAudits'
+             * folder name kebab-cased. The mockup's own id
+             * ('accessibility-scanner') matches no real module.
+             */
+            id: 'accessibility-audits',
+            name: __('Accessibility Guard — WCAG Compliance', 'vulopilot'),
             desc: __('WCAG checks — alt text, headings, ARIA, and form labels.', 'vulopilot'),
             proModule: true,
             category: 'site-health',
@@ -227,7 +272,7 @@ export default {
         },
         {
             id: 'security-monitoring',
-            name: __('Security Monitoring', 'vulopilot'),
+            name: __('Security Watchtower — Site Protection', 'vulopilot'),
             desc: __('Weak passwords, basic vulnerabilities, core file integrity, and update checks.', 'vulopilot'),
             proModule: true,
             category: 'site-health',
@@ -245,74 +290,28 @@ export default {
             ]
         },
 
-		// WooCommerce Section
-		{ type: 'separator', id: 'woocommerce', label: __('WooCommerce', 'vulopilot') },
-		{
-            /**
-             * Must be the real backend module id — WooCommerceIntelligence's
-             * folder name kebab-cased (Modules.php::camel_to_kebab() splits
-             * on every capital letter, so "WooCommerce" itself becomes
-             * "woo-commerce", not "woocommerce"), same 'woo-commerce-
-             * intelligence' WooCommerceTab.tsx's own WooCommerceIntelligence-
-             * LockedCard now points at. Same broken-toggle bug the
-             * 'geo-insights'/'aeo-insights'/'advanced-reports' cards above
-             * already document and were fixed for: this card previously
-             * used 'woocommerce-intelligence' (no real module resolves to
-             * that id), so toggling it "on" here silently never activated
-             * the module — Store Trends/Revenue Insights on Sell More's
-             * Overview tab and "Store intelligence" on its WooCommerce tab
-             * stayed permanently Pro-locked no matter what the user clicked.
-             */
-            id: 'woo-commerce-intelligence',
-            name: __('WooCommerce Intelligence', 'vulopilot'),
-            desc: __('Store health, product SEO, images, attributes, and inventory checks.', 'vulopilot'),
-            proModule: true,
-            category: 'woocommerce',
-            miniModule: true,
-            freeFeatures: [
-                __('Store health checks', 'vulopilot'),
-                __('Product SEO & image/attribute checks', 'vulopilot'),
-                __('Inventory checks', 'vulopilot')
-            ],
-            proFeatures: [
-                __('Inventory forecasting', 'vulopilot'),
-                __('Revenue insights', 'vulopilot'),
-                __('Store trend analysis', 'vulopilot')
-            ]
-        },
-        {
-            /**
-             * Real backend id for the separate WooCommerceAi module folder
-             * (kebab-cased 'woo-commerce-ai', same reasoning as
-             * 'woo-commerce-intelligence' above) — previously had no
-             * catalog entry at all, so "Bulk AI optimization" on Sell
-             * More's WooCommerce tab had no way to be discovered/toggled
-             * from this page; a user could only ever see its locked teaser,
-             * never actually enable it.
-             */
-            id: 'woo-commerce-ai',
-            name: __('WooCommerce AI', 'vulopilot'),
-            desc: __('AI-generated product content and bulk optimization across your catalog.', 'vulopilot'),
-            proModule: true,
-            category: 'woocommerce',
-            miniModule: true,
-            freeFeatures: [],
-            proFeatures: [
-                __('AI product title & description rewriting', 'vulopilot'),
-                __('Product schema & FAQ generation', 'vulopilot'),
-                __('Cross-sell, upsell & bundle suggestions', 'vulopilot'),
-                __('Bulk AI optimization across a batch of products', 'vulopilot'),
-                __('AI blog post generator', 'vulopilot')
-            ]
-        },
-
 		// Automation & AI Section
 		{ type: 'separator', id: 'automation-ai', label: __('Automation & AI', 'vulopilot') },
 		{
-            id: 'one-click-fix',
-            name: __('AI Fixes', 'vulopilot'),
+            /**
+             * Real, genuinely free module id (modules/AiCopilot/Module.php)
+             * — the master gate every AI surface in the plugin checks
+             * (Copilot.php's chat endpoint, ContentAssistant.php, every
+             * AI-branded card — see useAiCopilotEnabled()). `proModule:
+             * false` since it has to be free-toggleable (it gates AI Chat,
+             * itself a free bring-your-own-key feature). The mockup shows
+             * one combined "AI Copilot" card with both a free and a Pro
+             * feature list, so — unlike this file's earlier draft this
+             * session, which split this into two cards to keep the real
+             * Pro 'one-click-fix' module independently reachable — the Pro
+             * tier's copy is folded back in here as informational text
+             * only; toggling this card does not itself activate
+             * 'one-click-fix' (that module has no card of its own now).
+             */
+            id: 'ai-copilot',
+            name: __('AI Copilot', 'vulopilot'),
             desc: __('Explainable AI recommendations for any finding across every module.', 'vulopilot'),
-            proModule: true,
+            proModule: false,
             category: 'automation-ai',
             miniModule: true,
             freeFeatures: [
@@ -326,8 +325,13 @@ export default {
             ]
         },
         {
-            id: 'automation-engine',
-            name: __('Automation Engine', 'vulopilot'),
+            /**
+             * Must be the real backend module id — Automation's folder name
+             * kebab-cased (no 'Engine' suffix in the real folder name). The
+             * mockup's own id ('automation-engine') matches no real module.
+             */
+            id: 'automation',
+            name: __('Workflow Autopilot — Automation Engine', 'vulopilot'),
             desc: __('Triggers, conditions, schedules, and workflows that react to scan findings automatically.', 'vulopilot'),
             proModule: true,
             category: 'automation-ai',
@@ -337,40 +341,6 @@ export default {
                 __('Custom triggers & conditions', 'vulopilot'),
                 __('Scheduled workflows', 'vulopilot'),
                 __('Auto-react to scan findings', 'vulopilot')
-            ]
-        },
-
-		// Reports Section
-		{ type: 'separator', id: 'reports', label: __('Reports', 'vulopilot') },
-		{
-            /**
-             * Must be the real backend module id — AdvancedReports' folder
-             * name kebab-cased, same 'advanced-reports' HealthTimelineWidget.tsx
-             * gates on and Popup.tsx's "Enable Now" deep-link already
-             * points at. This card previously used a made-up
-             * 'reports-module' id (same broken-toggle bug the geo-insights
-             * card above already documents and was fixed for): toggling it
-             * "on" here called set_modules() with an id matching no real
-             * module folder, which Modules::load_active_modules() then
-             * silently dropped every request — so the toggle looked like
-             * it took, but AdvancedReports never actually activated, and
-             * Health Timeline's "Unlock with Pro" stayed locked forever no
-             * matter what the user clicked.
-             */
-            id: 'advanced-reports',
-            name: __('Reports', 'vulopilot'),
-            desc: __('Health, SEO, Security, and Accessibility reports for your site.', 'vulopilot'),
-            proModule: true,
-            category: 'reports',
-            miniModule: true,
-            freeFeatures: [
-                __('Health, SEO, Security & Accessibility reports', 'vulopilot'),
-                __('On-demand PDF export', 'vulopilot')
-            ],
-            proFeatures: [
-                __('Scheduled report delivery', 'vulopilot'),
-                __('CSV export', 'vulopilot'),
-                __('White-label, client-ready branding', 'vulopilot')
             ]
         }
 	],
