@@ -81,6 +81,7 @@ class Rest {
             'page_speed'                  => new Controllers\PageSpeed(),
             'content_assistant'           => new Controllers\ContentAssistant(),
             'copilot'                     => new Controllers\Copilot(),
+            'store_readiness'             => new Controllers\StoreReadiness(),
             // Deliberately NOT keyed 'geo_analysis' — vulopilot-pro's
             // GeoInsights module adds its own controller into
             // $extra_controllers below under that exact key (its `Rest.php`

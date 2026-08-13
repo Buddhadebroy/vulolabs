@@ -196,6 +196,15 @@ class ScannerRegistry {
             // Free bullets) needed no new scanner — see that doc's own
             // audit table for why.
             Basic\ProductSeoScanner::class,
+            // "Sell More" health overview — checkout/payment-gateway,
+            // order-health, and theme-template-compatibility checks, same
+            // category 'woocommerce' (gated by the same
+            // enable_woocommerce_scanning toggle as every scanner above).
+            Basic\WooCommerceCheckoutScanner::class,
+            Basic\WooCommerceFailedOrdersScanner::class,
+            Basic\WooCommerceStalePendingOrdersScanner::class,
+            Basic\WooCommerceStaleOnHoldOrdersScanner::class,
+            Basic\WooCommerceCompatibilityScanner::class,
             // Website Health Monitoring (readme) — closes the PHP Warning
             // Detection/SSL Monitoring/Redirect Analysis/404 Detection gaps.
             Basic\SslMonitoringScanner::class,

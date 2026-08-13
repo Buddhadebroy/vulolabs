@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation } from 'react-router-dom';
-import { NavigatorHeaderComponent, TabsComponent } from '@zyra/components';
+import {
+	ContainerComponent,
+	NavigatorHeaderComponent,
+	TabsComponent,
+} from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
 import WooCommerceTab from './WooCommerceTab';
@@ -49,25 +53,27 @@ const WooCommerce = () => {
 				)}
 				buttons={[runScanButton]}
 			/>
-			<TabsComponent
-				className="sell-more-tabs"
-				activeIndex={TAB_IDS.indexOf(activeTab)}
-				onTabChange={(index) => setActiveTab(TAB_IDS[index])}
-				tabs={[
-					{
-						label: __('Overview', 'vulopilot'),
-						content: (
-							<OverviewTab
-								onNavigateToWooCommerceTab={goToWooCommerceTab}
-							/>
-						),
-					},
-					{
-						label: __('WooCommerce', 'vulopilot'),
-						content: <WooCommerceTab />,
-					},
-				]}
-			/>
+			<ContainerComponent general>
+				<TabsComponent
+					className="sell-more-tabs"
+					activeIndex={TAB_IDS.indexOf(activeTab)}
+					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+					tabs={[
+						{
+							label: __('Overview', 'vulopilot'),
+							content: (
+								<OverviewTab
+									onNavigateToWooCommerceTab={goToWooCommerceTab}
+								/>
+							),
+						},
+						{
+							label: __('WooCommerce', 'vulopilot'),
+							content: <WooCommerceTab />,
+						},
+					]}
+				/>
+			</ContainerComponent>
 		</>
 	);
 };
