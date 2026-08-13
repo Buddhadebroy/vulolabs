@@ -19,9 +19,10 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
  * Shared `GET /store-readiness` fetch (StoreReadiness.php) — used by
- * StoreReadinessCard.tsx and WooCommerceCategoryGrid.tsx, which both need
- * the same real live snapshot; lifted into one hook rather than two
- * independent fetches on the same page load.
+ * WooCommerceCategoryGrid.tsx, which needs this same real live snapshot
+ * for its "Store Readiness"/"Checkout & Payments"/"Store Automation"
+ * cards all at once; lifted into one hook rather than three independent
+ * fetches on the same page load.
  */
 export const useStoreReadiness = (): {
 	data: StoreReadiness | null;
