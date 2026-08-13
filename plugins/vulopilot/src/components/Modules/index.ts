@@ -248,7 +248,22 @@ export default {
 		// WooCommerce Section
 		{ type: 'separator', id: 'woocommerce', label: __('WooCommerce', 'vulopilot') },
 		{
-            id: 'woocommerce-intelligence',
+            /**
+             * Must be the real backend module id — WooCommerceIntelligence's
+             * folder name kebab-cased (Modules.php::camel_to_kebab() splits
+             * on every capital letter, so "WooCommerce" itself becomes
+             * "woo-commerce", not "woocommerce"), same 'woo-commerce-
+             * intelligence' WooCommerceTab.tsx's own WooCommerceIntelligence-
+             * LockedCard now points at. Same broken-toggle bug the
+             * 'geo-insights'/'aeo-insights'/'advanced-reports' cards above
+             * already document and were fixed for: this card previously
+             * used 'woocommerce-intelligence' (no real module resolves to
+             * that id), so toggling it "on" here silently never activated
+             * the module — Store Trends/Revenue Insights on Sell More's
+             * Overview tab and "Store intelligence" on its WooCommerce tab
+             * stayed permanently Pro-locked no matter what the user clicked.
+             */
+            id: 'woo-commerce-intelligence',
             name: __('WooCommerce Intelligence', 'vulopilot'),
             desc: __('Store health, product SEO, images, attributes, and inventory checks.', 'vulopilot'),
             proModule: true,
@@ -262,8 +277,32 @@ export default {
             proFeatures: [
                 __('Inventory forecasting', 'vulopilot'),
                 __('Revenue insights', 'vulopilot'),
-                __('Store trend analysis', 'vulopilot'),
-                __('AI-generated product content', 'vulopilot')
+                __('Store trend analysis', 'vulopilot')
+            ]
+        },
+        {
+            /**
+             * Real backend id for the separate WooCommerceAi module folder
+             * (kebab-cased 'woo-commerce-ai', same reasoning as
+             * 'woo-commerce-intelligence' above) — previously had no
+             * catalog entry at all, so "Bulk AI optimization" on Sell
+             * More's WooCommerce tab had no way to be discovered/toggled
+             * from this page; a user could only ever see its locked teaser,
+             * never actually enable it.
+             */
+            id: 'woo-commerce-ai',
+            name: __('WooCommerce AI', 'vulopilot'),
+            desc: __('AI-generated product content and bulk optimization across your catalog.', 'vulopilot'),
+            proModule: true,
+            category: 'woocommerce',
+            miniModule: true,
+            freeFeatures: [],
+            proFeatures: [
+                __('AI product title & description rewriting', 'vulopilot'),
+                __('Product schema & FAQ generation', 'vulopilot'),
+                __('Cross-sell, upsell & bundle suggestions', 'vulopilot'),
+                __('Bulk AI optimization across a batch of products', 'vulopilot'),
+                __('AI blog post generator', 'vulopilot')
             ]
         },
 
