@@ -97,7 +97,7 @@ const ContentScoreCard = () => {
 	return (
 		<CardComponent
 			title={__('Content Score', 'vulopilot')}
-			titleIcon="content"
+			titleIcon="security"
 			isLoading={isLoading}
 		>
 			{data && rating && breakdown && (
@@ -148,7 +148,7 @@ const ContentScoreCard = () => {
 
 						<ul>
 							<li>
-								<span className="admin-badge badge-critical">
+								<span className="admin-dot-badge red">
 									{__('Critical', 'vulopilot')}
 								</span>
 								<span className="content-score-severity-count">
@@ -156,7 +156,7 @@ const ContentScoreCard = () => {
 								</span>
 							</li>
 							<li>
-								<span className="admin-badge badge-high">
+								<span className="admin-dot-badge yellow">
 									{__('High', 'vulopilot')}
 								</span>
 								<span className="content-score-severity-count">
@@ -164,7 +164,7 @@ const ContentScoreCard = () => {
 								</span>
 							</li>
 							<li>
-								<span className="admin-badge badge-medium">
+								<span className="admin-dot-badge orange">
 									{__('Medium', 'vulopilot')}
 								</span>
 								<span className="content-score-severity-count">
@@ -172,7 +172,7 @@ const ContentScoreCard = () => {
 								</span>
 							</li>
 							<li>
-								<span className="admin-badge badge-low">
+								<span className="admin-dot-badge blue">
 									{__('Low', 'vulopilot')}
 								</span>
 								<span className="content-score-severity-count">
