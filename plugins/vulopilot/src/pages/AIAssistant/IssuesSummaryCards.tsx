@@ -66,7 +66,7 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 		<div className={`issues-summary-cards active-priority-${activePriority}`}>
 			<AnalyticsComponent
 				data={data}
-				variant="background-color"
+				variant="small-card"
 				cols={4}
 				isLoading={isLoading}
 			/>
