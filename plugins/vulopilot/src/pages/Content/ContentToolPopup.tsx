@@ -3,7 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { NoticeManager, PopupComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import {
+	ButtonInput,
+	SelectInput,
+	TextAreaInput,
+	TextInput,
+} from '@zyra/inputs';
 import { ContentTool, ToolField } from './ContentToolsGrid';
 
 interface WpRestPost {
@@ -357,24 +362,27 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 
 		if ('text' === field.type) {
 			return (
-				<input
+				<TextInput
 					id={field.key}
 					type="text"
-					className="content-tool-field-input"
+					name={field.key}
+					inputClass="content-tool-field-input"
 					value={value}
-					onChange={(event) => setValue(event.target.value)}
+					onChange={(newValue) => setValue(newValue as string)}
 				/>
 			);
 		}
 
 		if ('textarea' === field.type) {
 			return (
-				<textarea
+				<TextAreaInput
 					id={field.key}
-					className="content-tool-field-input"
-					rows={3}
+					name={field.key}
+					inputClass="content-tool-field-input"
+					rowNumber={3}
+					usePlainText
 					value={value}
-					onChange={(event) => setValue(event.target.value)}
+					onChange={(newValue) => setValue(newValue)}
 				/>
 			);
 		}
@@ -390,24 +398,20 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						}));
 
 		return (
-			<select
-				id={field.key}
-				className="content-tool-field-input"
+			<SelectInput
+				type="single-select"
+				name={field.key}
 				value={value}
-				onChange={(event) => setValue(event.target.value)}
-				disabled={isLoadingOptions}
-			>
-				<option value="">
-					{isLoadingOptions
+				onChange={(newValue) => setValue(newValue as string)}
+				placeholder={
+					isLoadingOptions
 						? __('Loading…', 'vulopilot')
-						: __('Select…', 'vulopilot')}
-				</option>
-				{options.map((option) => (
-					<option key={option.value} value={option.value}>
-						{option.label}
-					</option>
-				))}
-			</select>
+						: __('Select…', 'vulopilot')
+				}
+				options={options}
+				isClearable={false}
+				disabled={isLoadingOptions}
+			/>
 		);
 	};
 
@@ -427,8 +431,10 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						<i className={`adminfont-${tool.icon}`} />
 					</span>
 					<div>
-						<h2>{tool.title}</h2>
-						<p className="desc">{tool.desc}</p>
+						<div className="content-tool-popup-title">
+							{tool.title}
+						</div>
+						<div className="desc">{tool.desc}</div>
 					</div>
 				</div>
 
@@ -443,18 +449,15 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 											'vulopilot'
 										)}
 									</label>
-									<select
-										id="_product_picker"
-										className="content-tool-field-input"
+									<SelectInput
+										type="single-select"
+										name="_product_picker"
 										value={selectedProductId}
-										onChange={(event) =>
-											handlePickProduct(
-												event.target.value
-											)
+										onChange={(value) =>
+											handlePickProduct(value as string)
 										}
-									>
-										<option value="">
-											{products.length > 0
+										placeholder={
+											products.length > 0
 												? __(
 														'Select a product…',
 														'vulopilot'
@@ -462,17 +465,14 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 												: __(
 														'No products found',
 														'vulopilot'
-													)}
-										</option>
-										{products.map((product) => (
-											<option
-												key={product.id}
-												value={product.id}
-											>
-												{product.name}
-											</option>
-										))}
-									</select>
+													)
+										}
+										options={products.map((product) => ({
+											value: String(product.id),
+											label: product.name,
+										}))}
+										isClearable={false}
+									/>
 								</div>
 							)}
 
@@ -493,36 +493,40 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 					{'loading' === step && (
 						<div className="content-tool-loading">
 							<i className="adminfont-refresh content-tool-spinner" />
-							<p>{__('Generating with AI…', 'vulopilot')}</p>
+							<div className="desc">
+								{__('Generating with AI…', 'vulopilot')}
+							</div>
 						</div>
 					)}
 
 					{'error' === step && (
-						<p className="content-tool-error">
+						<div className="content-tool-error">
 							<i className="adminfont-error" />
 							{errorMessage}
-						</p>
+						</div>
 					)}
 
 					{'preview' === step && preview && (
 						<div className="content-tool-preview">
-							<h4>{preview.title}</h4>
+							<div className="content-tool-preview-title">
+								{preview.title}
+							</div>
 							{null !== preview.before && (
 								<>
-									<p className="content-tool-preview-label">
+									<div className="content-tool-preview-label">
 										{__('Before', 'vulopilot')}
-									</p>
-									<p className="content-tool-preview-before">
+									</div>
+									<div className="content-tool-preview-before">
 										{preview.before}
-									</p>
+									</div>
 								</>
 							)}
-							<p className="content-tool-preview-label">
+							<div className="content-tool-preview-label">
 								{__('After', 'vulopilot')}
-							</p>
-							<p className="content-tool-preview-after">
+							</div>
+							<div className="content-tool-preview-after">
 								{preview.after}
-							</p>
+							</div>
 						</div>
 					)}
 				</div>

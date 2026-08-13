@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent } from '@zyra/components';
+import { SelectInput } from '@zyra/inputs';
 
 type StatsPeriod = 'this_month' | 'last_month' | 'last_7_days' | 'last_30_days';
 
@@ -132,63 +133,75 @@ const ContentStatsCard = () => {
 			title={__('Content Stats', 'vulopilot')}
 			isLoading={isLoading}
 			action={
-				<select
-					className="content-stats-period-select"
-					aria-label={__('Stats period', 'vulopilot')}
+				<SelectInput
+					type="single-select"
+					name="content-stats-period"
 					value={period}
-					onChange={(event) =>
-						setPeriod(event.target.value as StatsPeriod)
-					}
-				>
-					{PERIOD_OPTIONS.map((option) => (
-						<option key={option.value} value={option.value}>
-							{option.label}
-						</option>
-					))}
-				</select>
+					onChange={(value) => setPeriod(value as StatsPeriod)}
+					options={PERIOD_OPTIONS}
+					isClearable={false}
+				/>
 			}
 		>
 			{stats && (
-				<div className="content-stats-grid">
-					<div className="content-stats-tile">
-						<div className="content-stats-tile-label">
-							{__('Content Created', 'vulopilot')}
-						</div>
-						<div className="content-stats-tile-value">
-							{stats.content_created.current.toLocaleString()}
-						</div>
-						{renderChange(stats.content_created.change_percent)}
-					</div>
-					<div className="content-stats-tile">
-						<div className="content-stats-tile-label">
-							{__('Words Generated', 'vulopilot')}
-						</div>
-						<div className="content-stats-tile-value">
-							{formatAbbreviated(
-								stats.words_generated.current
-							)}
-						</div>
-						{renderChange(stats.words_generated.change_percent)}
-					</div>
-					<div className="content-stats-tile is-untracked">
-						<div className="content-stats-tile-label">
-							{__('SEO Score Improved', 'vulopilot')}
-						</div>
-						<div className="content-stats-tile-value">—</div>
-						<span className="content-stats-tile-untracked">
-							{__('Not tracked yet', 'vulopilot')}
-						</span>
-					</div>
-					<div className="content-stats-tile is-untracked">
-						<div className="content-stats-tile-label">
-							{__('Time Saved', 'vulopilot')}
-						</div>
-						<div className="content-stats-tile-value">—</div>
-						<span className="content-stats-tile-untracked">
-							{__('Not tracked yet', 'vulopilot')}
-						</span>
-					</div>
-				</div>
+				<AnalyticsComponent
+					variant="small"
+					cols={2}
+					data={[
+						{
+							icon: 'document',
+							number: (
+								<>
+									{stats.content_created.current.toLocaleString()}
+									{renderChange(
+										stats.content_created.change_percent
+									)}
+								</>
+							),
+							text: __('Content Created', 'vulopilot'),
+						},
+						{
+							icon: 'edit',
+							number: (
+								<>
+									{formatAbbreviated(
+										stats.words_generated.current
+									)}
+									{renderChange(
+										stats.words_generated.change_percent
+									)}
+								</>
+							),
+							text: __('Words Generated', 'vulopilot'),
+						},
+						{
+							icon: 'bar-chart',
+							colorClass: 'is-untracked',
+							number: '—',
+							text: (
+								<>
+									{__('SEO Score Improved', 'vulopilot')}
+									<span className="content-stats-tile-untracked">
+										{__('Not tracked yet', 'vulopilot')}
+									</span>
+								</>
+							),
+						},
+						{
+							icon: 'clock',
+							colorClass: 'is-untracked',
+							number: '—',
+							text: (
+								<>
+									{__('Time Saved', 'vulopilot')}
+									<span className="content-stats-tile-untracked">
+										{__('Not tracked yet', 'vulopilot')}
+									</span>
+								</>
+							),
+						},
+					]}
+				/>
 			)}
 		</CardComponent>
 	);
