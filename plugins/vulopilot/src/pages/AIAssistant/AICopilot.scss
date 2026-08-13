@@ -145,35 +145,35 @@
 // severity badge on the Issues table's own "Priority" column — same 5
 // hex values .attention-priority-pills below already uses, so a group's
 // badge here always agrees with its own priority-pill color elsewhere.
-.issues-table {
-	.badge-critical,
-	.badge-high,
-	.badge-medium,
-	.badge-low,
-	.badge-info {
-		padding: 0.25rem 0.625rem;
-		border-radius: 0.313rem;
-		font-size: 0.75rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		white-space: nowrap;
-	}
+// .issues-table {
+// 	.badge-critical,
+// 	.badge-high,
+// 	.badge-medium,
+// 	.badge-low,
+// 	.badge-info {
+// 		padding: 0.25rem 0.625rem;
+// 		border-radius: 0.313rem;
+// 		font-size: 0.75rem;
+// 		font-weight: 700;
+// 		text-transform: uppercase;
+// 		white-space: nowrap;
+// 	}
 
-	$severities: (
-		'critical': #dc2626,
-		'high': #d88c5c,
-		'medium': #b45309,
-		'low': #5baab3,
-		'info': #6b7280,
-	);
+// 	$severities: (
+// 		'critical': #dc2626,
+// 		'high': #d88c5c,
+// 		'medium': #b45309,
+// 		'low': #5baab3,
+// 		'info': #6b7280,
+// 	);
 
-	@each $name, $color in $severities {
-		.badge-#{$name} {
-			color: #{$color};
-			background: color-mix(in srgb, #{$color} 14%, transparent);
-		}
-	}
-}
+// 	@each $name, $color in $severities {
+// 		.badge-#{$name} {
+// 			color: #{$color};
+// 			background: color-mix(in srgb, #{$color} 14%, transparent);
+// 		}
+// 	}
+// }
 
 // The detail side panel (IssueDetailPanel.tsx).
 .issue-detail-panel {

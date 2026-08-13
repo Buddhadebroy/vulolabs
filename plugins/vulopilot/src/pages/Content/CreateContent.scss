@@ -135,7 +135,6 @@ $content-tool-colors: (
 			strong {
 				font-size: 0.75rem;
 				font-weight: 700;
-				text-transform: uppercase;
 				letter-spacing: 0.04em;
 				color: var(--sub-text-color, #6b7280);
 			}
@@ -240,42 +239,6 @@ $content-tool-colors: (
 	flex: 1 1 14rem;
 }
 
-// .recent-content-table .admin-pagination {
-// 	display: none;
-// }
-
-// Same badge-vocabulary approach as .content-score-breakdown's own
-// severity map just above — rendered here via zyra's ButtonInput
-// (`color` set to `badge-{severity}`) so the expand/collapse control is a
-// real Zyra button, still colored to match its own worst-severity finding.
-.recent-content-table-issues {
-	position: relative;
-
-	.admin-btn {
-		padding: 0.25rem 0.625rem;
-		border-radius: 0.313rem;
-		font-size: 0.75rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		white-space: nowrap;
-		border: 0;
-	}
-
-	$severities: (
-		'critical': #dc2626,
-		'high': #d88c5c,
-		'medium': #b45309,
-		'low': #5baab3,
-		'info': #6b7280,
-	);
-
-	@each $name, $color in $severities {
-		.btn-badge-#{$name} {
-			color: #{$color};
-			background: color-mix(in srgb, #{$color} 14%, transparent);
-		}
-	}
-}
 
 .recent-content-table-findings {
 	position: absolute;

@@ -21,7 +21,7 @@ import FindingsTable from '../../components/FindingsTable';
  */
 const PerformanceTab = () => {
 	return (
-			<CardComponent title={__('Top Issues', 'vulopilot')}>
+			<CardComponent title={__('Top Issues', 'vulopilot')} titleIcon="analytics">
 				<FindingsTable
 					title={__('Top Issues', 'vulopilot')}
 					description={__(

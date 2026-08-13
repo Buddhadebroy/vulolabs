@@ -544,9 +544,10 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		<>
 			<TableCard
 				headers={headers}
+				hideHeader={true}
 				format={appLocalizer.date_format_js}
 				showMenu={false}
-				// className= 'transparent-table'
+				className= 'transparent-table'
 				rows={data}
 				ids={data.map((row) => row.id)}
 				totalRows={total}
