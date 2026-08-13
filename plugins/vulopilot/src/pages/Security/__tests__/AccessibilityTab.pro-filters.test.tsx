@@ -32,10 +32,11 @@ describe( 'AccessibilityTab — Pro filter slots registered', () => {
 		render( <AccessibilityTab /> );
 
 		expect( screen.getByTestId( 'accessibility-dashboard-stub' ) ).toBeInTheDocument();
-		// One independent FindingsTable per PROTECT-MY-SITE.md section
-		// (Images/Page Structure/Forms/Links & Buttons/Readability/
-		// Keyboard & Assistive Technology) — see AccessibilityTab.tsx's
-		// own docblock.
+		// One independent FindingsTable per ACCESSIBILITY_CHECKS.ts bucket
+		// (Page Structure/Images & Media/Links & Forms/Keyboard Use/
+		// Visual Readability) plus one combined "All Accessibility
+		// Findings" section every bucket rolls up into — see
+		// AccessibilityTab.tsx's own docblock.
 		expect( screen.getAllByTestId( 'findings-table' ) ).toHaveLength( 6 );
 		expect( screen.getByTestId( 'accessibility-history-stub' ) ).toBeInTheDocument();
 	} );

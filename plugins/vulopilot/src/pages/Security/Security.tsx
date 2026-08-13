@@ -8,7 +8,8 @@ import {
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
-import SecurityDetailTab from './SecurityDetailTab';
+import ClassicSecurityTab from './ClassicSecurityTab';
+import PerformanceTab from './PerformanceTab';
 import SiteHealthTab from './SiteHealthTab';
 import FilesPluginsTab from './FilesPluginsTab';
 import AccessibilityTab from './AccessibilityTab';
@@ -16,6 +17,7 @@ import AccessibilityTab from './AccessibilityTab';
 const TAB_IDS = [
 	'overview',
 	'security',
+	'performance',
 	'site-health',
 	'files-plugins',
 	'accessibility',
@@ -23,13 +25,28 @@ const TAB_IDS = [
 
 /**
  * "Protect My Site" (WP menu slug `security`) — PROTECT-MY-SITE.md's IA:
- * Overview (the mockup's dashboard-style summary, OverviewTab.tsx) plus 4
- * detail tabs, each a set of independent scanner_id-scoped FindingsTable
- * sections (SectionedFindingsTab.tsx, same pattern GEO/SeoTab.tsx already
- * established for a mixed-category findings page):
+ * Overview (the mockup's dashboard-style summary, OverviewTab.tsx) plus 5
+ * detail tabs:
  *
- * - Security (SecurityDetailTab.tsx) — Login & Accounts, Website Exposure,
- *   Browser Protection, SSL & Secure Connection, Security Findings.
+ * - Security (ClassicSecurityTab.tsx) — the mockup's own single-page
+ *   design (hero/status/tile-grid, "Issues that need your attention", a
+ *   3-panel footer row, then the 5 detail sections — Login & Accounts,
+ *   Website Exposure, Browser Protection, SSL & Secure Connection,
+ *   Security Findings — appended last). Was briefly split into two tabs
+ *   ("Security" + "Old Security", the latter a sectioned-IA redesign of
+ *   the same content) — "Old Security" was removed and its 5 sections
+ *   folded back into this one tab per direct instruction, so there's
+ *   only ever one "Security" tab again.
+ * - Performance (PerformanceTab.tsx) — WordPress/server-side efficiency:
+ *   page caching, browser caching, persistent object cache, PHP
+ *   acceleration (OPcache). Reads `GET /efficiency-checks`
+ *   (Controllers\EfficiencyChecks.php), computed live on every load
+ *   rather than stored findings — that controller's own docblock explains
+ *   why. Distinct from the separate top-level "Improve My Speed" page
+ *   (`routes.ts`'s `tab: 'performance'`, `pages/Performance/`) — that one
+ *   covers front-end loading speed/Core Web Vitals, this tab covers
+ *   WordPress's own configuration efficiency; PerformanceTab.tsx's own
+ *   closing banner links to the other one.
  * - Site Health (SiteHealthTab.tsx) — WordPress, Updates, Background
  *   Tasks, Database, Server. "WordPress"/"Server" wrap WordPress core's
  *   own WP_Site_Health tests (WordPressHealthScanner/ServerHealthScanner)
@@ -45,11 +62,13 @@ const TAB_IDS = [
  *
  * Overview's "Review Issues First" button and clicking a "Vulnerabilities
  * Found" row both jump straight to this page's own "Security" tab
- * (`goToSecurityTab` below) — back to an in-page tab switch now that a
- * real Security tab lives here again; Reports' own flat "Security" tab
- * (Reports/SecurityTab.tsx) is unaffected and still exists as a separate,
- * simpler category="security" view. Same `subtab` deep-link convention
- * every tab shell here uses (`?page=vulopilot#&tab=security&subtab=<inner-tab>`).
+ * (`goToSecurityTab` below) — an in-page tab switch; Reports' own flat
+ * "Security" tab (Reports/SecurityTab.tsx) is unaffected and still exists
+ * as a separate, simpler category="security" view. Same `subtab`
+ * deep-link convention every tab shell here uses
+ * (`?page=vulopilot#&tab=security&subtab=<inner-tab>`) — `getCategoryTabLink.ts`'s
+ * own `security: 'security&subtab=security'` mapping still resolves
+ * correctly since this tab's id stays `security`.
  */
 const Security = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -100,7 +119,11 @@ const Security = () => {
 						},
 						{
 							label: __('Security', 'vulopilot'),
-							content: <SecurityDetailTab />,
+							content: <ClassicSecurityTab />,
+						},
+						{
+							label: __('Performance', 'vulopilot'),
+							content: <PerformanceTab />,
 						},
 						{
 							label: __('Site Health', 'vulopilot'),

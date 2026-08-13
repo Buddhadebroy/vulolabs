@@ -30,8 +30,10 @@ const CATEGORY_ACRONYMS: Record<string, string> = {
  * 'wordpress', 'ssl', …) — this turns it into the same kind of short
  * label the mockup's per-row category tag shows ('WordPress', 'SSL'); no
  * category string in this codebase is more than one hyphenated word.
+ * Exported so IssuesNeedAttentionCard.tsx's own per-row category tag can
+ * reuse the identical humanization instead of a second copy.
  */
-const humanizeCategory = (category: string): string =>
+export const humanizeCategory = (category: string): string =>
 	category
 		.split('-')
 		.map(
