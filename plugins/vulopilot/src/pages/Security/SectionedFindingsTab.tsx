@@ -47,6 +47,13 @@ const SectionedFindingsTab = ({
 			{sections.map((section) => (
 				<CardComponent
 					key={section.key}
+					// Lets a `header` (e.g. SecurityDetailTab's hero card
+					// "Review Issues First" button) scroll straight to one
+					// specific section instead of just the top of the tab —
+					// same anchor-id/scrollIntoView idea OpenIssuesGlimpse's
+					// own `anchorPrefix` already uses, just page-scoped here
+					// rather than per-component-instance.
+					id={`protect-my-site-section-${section.key}`}
 					title={section.title}
 					desc={section.description}
 				>

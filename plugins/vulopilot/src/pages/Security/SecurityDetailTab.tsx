@@ -1,7 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import SectionedFindingsTab, { FindingsSection } from './SectionedFindingsTab';
+import VulnerabilityHeroCard from './VulnerabilityHeroCard';
+import SecurityStatusCard from './SecurityStatusCard';
+import SecurityMetricsGrid from './SecurityMetricsGrid';
 
 /**
  * "Security" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) — 5
@@ -109,9 +113,51 @@ const SecurityIncidentReportsPanel = applyFilters(
 	null
 ) as ComponentType | null;
 
+/**
+ * Scrolls straight to the "Security Findings" section below (the combined
+ * list every other section here rolls up into) rather than a no-op — this
+ * tab's own hero card can't switch to "the Security tab" since it's already
+ * on it, unlike the identical hero card Overview shows, whose
+ * `onNavigateToSecurityTab` switches tabs instead. Same anchor id
+ * SectionedFindingsTab.tsx gives every section.
+ */
+const scrollToSecurityFindings = () => {
+	document
+		.getElementById('protect-my-site-section-security-findings')
+		?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+/**
+ * The mockup's hero summary — "I found N security issues" (Pro's real
+ * severity breakdown when licensed, Free's honest open-count fallback
+ * otherwise; see VulnerabilityHeroCard's own docblock) alongside the
+ * "Security Status" score gauge, then the "What VuloPilot is checking"
+ * tile grid — the exact same 3 components Overview's own tab already
+ * shows, just without OverviewTab's other Overview-only cards
+ * (VulnerabilitiesFoundCard/SecurityOverviewCard/SecurityTrendCard/
+ * LiveThreatMonitorCard/RecentActivityCard) since this tab's own sections
+ * below already are the full findings list those summarize.
+ */
+const SecurityTabHeader = () => (
+	<>
+		<ContainerComponent>
+			<ColumnComponent grid={8}>
+				<VulnerabilityHeroCard
+					onNavigateToSecurityTab={scrollToSecurityFindings}
+				/>
+			</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<SecurityStatusCard />
+			</ColumnComponent>
+		</ContainerComponent>
+		<SecurityMetricsGrid />
+	</>
+);
+
 const SecurityDetailTab = () => (
 	<SectionedFindingsTab
 		sections={SECTIONS}
+		header={<SecurityTabHeader />}
 		footer={
 			SecurityIncidentReportsPanel && <SecurityIncidentReportsPanel />
 		}
