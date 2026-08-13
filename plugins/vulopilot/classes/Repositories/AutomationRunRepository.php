@@ -101,6 +101,28 @@ class AutomationRunRepository extends AbstractRepository {
     }
 
     /**
+     * Real count of automation runs that failed to complete since a given
+     * timestamp — backs "Sell More"'s "Store Automation" category card
+     * (StoreReadiness.php) and its own "N automatic tasks failed" number.
+     * Same single-status-count shape as get_stats_for_period()'s own
+     * `by_status['failed']`, just windowed by a timestamp instead of a
+     * Y-m-d date range (the caller wants "recently," not a report period).
+     *
+     * @param string $since_mysql_datetime 'Y-m-d H:i:s', inclusive.
+     * @return int
+     */
+    public function get_failed_count_since( string $since_mysql_datetime ): int {
+        global $wpdb;
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$this->get_table()} WHERE status = 'failed' AND created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $since_mysql_datetime
+            )
+        );
+    }
+
+    /**
      * Per-automation run counts for one date range, joined against
      * `vulopilot_automations` for the display name — what the report's
      * "automations" section table reads, one query instead of an N+1 name

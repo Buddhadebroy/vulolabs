@@ -8,9 +8,18 @@ import {
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import FindingsTable from '../../components/FindingsTable';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
+import { useWooCommerceFindingGroups } from './useWooCommerceFindingGroups';
+import StoreHealthBanner from './StoreHealthBanner';
+import StoreReadinessCard from './StoreReadinessCard';
+import WooCommerceCategoryGrid from './WooCommerceCategoryGrid';
+import TopIssuesToWorkOn from './TopIssuesToWorkOn';
+import AiSalesOptimizerCard from './AiSalesOptimizerCard';
+import StoreIntelligenceSummaryCard from './StoreIntelligenceSummaryCard';
+import WooCommerceIssuesTable, {
+	WooCommerceIssueTab,
+} from './WooCommerceIssuesTable';
 
 /**
  * Visible teaser for the bulk-optimize panel above — shown instead of it
@@ -105,14 +114,34 @@ const WooCommerceIntelligenceLockedCard = () => {
 	);
 };
 
+/** Smooth-scrolls to an id, same OpenIssuesGlimpse-style highlight flash OverviewTab.tsx's own scrollToFindings() already uses on Improve Speed. */
+const scrollToId = (id: string) => {
+	const el = document.getElementById(id);
+
+	if (!el) {
+		return;
+	}
+
+	el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	el.classList.add('vulopilot-glimpse-highlight');
+	setTimeout(() => el.classList.remove('vulopilot-glimpse-highlight'), 1200);
+};
+
 /**
- * "WooCommerce" tab of "Sell More" — body extracted verbatim from the
- * former standalone WooCommerce.tsx page (same "extract body, drop the
- * header" move every other tab on this page already made) — its own
- * NavigatorHeaderComponent now lives once on WooCommerce.tsx's shared
- * tab-shell header.
+ * "WooCommerce" tab of "Sell More" — a real store-health overview
+ * (StoreHealthBanner/StoreReadinessCard/WooCommerceCategoryGrid/
+ * TopIssuesToWorkOn/AiSalesOptimizerCard/StoreIntelligenceSummaryCard/
+ * WooCommerceIssuesTable, all real data — see each file's own docblock)
+ * on top of the original page's two Pro panel slots and issues table,
+ * kept unchanged below. `groups` (`GET /findings/groups?category=woocommerce`)
+ * is fetched once here and threaded down to every section that needs it,
+ * rather than each one re-fetching the same real data independently.
  */
 const WooCommerceTab = () => {
+	const [activeIssueTab, setActiveIssueTab] =
+		useState<WooCommerceIssueTab>('all');
+	const { groups, isLoading: isLoadingGroups } = useWooCommerceFindingGroups();
+
 	/**
 	 * Both Pro panel slots — read via useFilterSlot(), not a plain
 	 * module-scope applyFilters() call (that hook's own docblock explains
@@ -128,27 +157,68 @@ const WooCommerceTab = () => {
 		'vulopilot_woocommerce_intelligence_panel'
 	);
 
+	const goToIssuesTab = (tab: WooCommerceIssueTab) => {
+		setActiveIssueTab(tab);
+		setTimeout(() => scrollToId('woocommerce-issues-table'), 50);
+	};
+
 	return (
 		<ContainerComponent general>
 			<ColumnComponent>
-				{WooCommerceAiPanel ? (
-					<WooCommerceAiPanel />
-				) : (
-					<WooCommerceAiLockedCard />
-				)}
-				{WooCommerceIntelligencePanel ? (
-					<WooCommerceIntelligencePanel />
-				) : (
-					<WooCommerceIntelligenceLockedCard />
-				)}
-				<FindingsTable
-					title={__('WooCommerce', 'vulopilot')}
-					description={__(
-						'No WooCommerce findings yet — run a scan to check store settings, product data, and checkout health.',
-						'vulopilot'
-					)}
-					category="woocommerce"
+				<StoreHealthBanner
+					onReviewIssues={() => goToIssuesTab('important')}
+					onViewSummary={() => scrollToId('store-readiness')}
 				/>
+
+				<StoreReadinessCard />
+
+				<WooCommerceCategoryGrid
+					groups={groups}
+					isLoadingGroups={isLoadingGroups}
+					onReviewTab={goToIssuesTab}
+				/>
+
+				<TopIssuesToWorkOn
+					groups={groups}
+					isLoading={isLoadingGroups}
+					onViewAll={() => goToIssuesTab('important')}
+				/>
+
+				<ContainerComponent>
+					<ColumnComponent grid={6}>
+						<AiSalesOptimizerCard
+							onFindOpportunities={() => scrollToId('woocommerce-bulk-ai')}
+						/>
+					</ColumnComponent>
+					<ColumnComponent grid={6}>
+						<StoreIntelligenceSummaryCard
+							onExploreInsights={() =>
+								scrollToId('store-intelligence-panel')
+							}
+						/>
+					</ColumnComponent>
+				</ContainerComponent>
+
+				<WooCommerceIssuesTable
+					groups={groups}
+					activeTab={activeIssueTab}
+					onTabChange={setActiveIssueTab}
+				/>
+
+				<div id="woocommerce-bulk-ai">
+					{WooCommerceAiPanel ? (
+						<WooCommerceAiPanel />
+					) : (
+						<WooCommerceAiLockedCard />
+					)}
+				</div>
+				<div id="store-intelligence-panel">
+					{WooCommerceIntelligencePanel ? (
+						<WooCommerceIntelligencePanel />
+					) : (
+						<WooCommerceIntelligenceLockedCard />
+					)}
+				</div>
 			</ColumnComponent>
 		</ContainerComponent>
 	);
