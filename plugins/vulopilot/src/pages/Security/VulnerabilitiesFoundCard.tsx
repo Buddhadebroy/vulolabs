@@ -3,34 +3,49 @@ import { TooltipComponent } from '@zyra/components';
 import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
 
 interface VulnerabilitiesFoundCardProps {
-	onNavigateToSecurityTab: () => void;
+	/** Same combined list ClassicSecurityTab.tsx's own IssuesNeedAttentionCard/"Security Findings" section already use. */
+	scannerIds: string[];
+	/** scanner id → this tab's own section key (`protect-my-site-section-{key}`), for the same-page scroll-and-highlight a row click does. */
+	sectionMap: Record<string, string>;
+	/** DOM id prefix every section on this tab already carries. */
+	anchorPrefix: string;
+	/** Section key to fall back to for a scanner id `sectionMap` doesn't cover — the catch-all "Security Findings" section, which lists every one of these scanner ids' findings anyway. */
+	fallbackSection: string;
 }
 
 /**
  * "Vulnerabilities Found" — the mockup's condensed issues list. Reuses
- * OpenIssuesGlimpse's real `/findings` data (category 'security', the
- * same data the Security tab's own full FindingsTable shows) rather than
- * a second parallel fetch. Drops the mockup's "Location" column — the
- * glimpse doesn't carry a location field, same class of simplification
- * "Improve Speed" made dropping "Potential Improvement". Clicking a row
- * switches to the Security tab (`onItemClick`) instead of the component's
- * own default same-page scroll-and-highlight, since Overview has no
- * `security-section-*` anchors of its own.
+ * OpenIssuesGlimpse's real `/findings` data. Was Overview tab's own card
+ * (now removed); moved here onto the Security tab itself, where it now
+ * scopes to `scannerIds` rather than `category="security"` alone — several
+ * of this list's real scanners have a raw `category` column that isn't
+ * literally `security` (RestApiScanner is `rest-api`, SslMonitoringScanner
+ * is `ssl`, etc. — see IssuesNeedAttentionCard.tsx's own docblock for the
+ * same distinction), so `category="security"` alone would have silently
+ * dropped them from this count. Clicking a row scrolls to that finding's
+ * own section further down this same tab (OpenIssuesGlimpse's default
+ * same-page behavior) instead of switching tabs, since it's already on the
+ * Security tab now.
  */
 const VulnerabilitiesFoundCard = ({
-	onNavigateToSecurityTab,
+	scannerIds,
+	sectionMap,
+	anchorPrefix,
+	fallbackSection,
 }: VulnerabilitiesFoundCardProps) => (
 	<OpenIssuesGlimpse
-		category="security"
+		scannerIds={scannerIds}
 		title={__('Vulnerabilities Found', 'vulopilot')}
 		titleIcon="error"
-		onItemClick={onNavigateToSecurityTab}
+		sectionMap={sectionMap}
+		anchorPrefix={anchorPrefix}
+		fallbackSection={fallbackSection}
 		emptyTitle={__("You're all caught up", 'vulopilot')}
 		emptyDesc={__('No open vulnerabilities right now.', 'vulopilot')}
 		footer={
 			<TooltipComponent
 				text={__(
-					"Bulk auto-fix isn't available yet — no security scanner is mapped to an automated fix action. Fix findings individually from the Security tab.",
+					"Bulk auto-fix isn't available yet — no security scanner is mapped to an automated fix action. Fix findings individually from the sections below.",
 					'vulopilot'
 				)}
 			>

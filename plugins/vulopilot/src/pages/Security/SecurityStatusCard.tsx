@@ -15,9 +15,9 @@ interface FindingRow {
 
 /**
  * Sidebar "Security Status" gauge — same real
- * `category_scores.security` value `SecurityOverviewCard.tsx` shows in
- * the main column (the mockup repeats the same number in two panels), and
- * the same open-finding total `VulnerabilityHeroCard`'s Free fallback
+ * `category_scores.security` value used elsewhere on this tab (the mockup
+ * repeats the same number in two panels), and the same open-finding total
+ * `VulnerabilityHeroCard`'s Free fallback
  * already fetches, used here to derive "Your site is protected"/"N open
  * issue(s) need attention" honestly rather than a fabricated status.
  */

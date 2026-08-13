@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import SectionedFindingsTab, { FindingsSection } from './SectionedFindingsTab';
+import FindingsHeroCard from './FindingsHeroCard';
 
 /**
  * "Site Health" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) — 5
@@ -10,6 +11,10 @@ import SectionedFindingsTab, { FindingsSection } from './SectionedFindingsTab';
  * "genuinely new backend work, not a UI-only reshuffle" case
  * "Background Tasks"/"Updates"/"Database" aren't — those three already
  * existed as CronScanner/UpdatesScanner/DatabaseScanner before this pass.
+ *
+ * Starts with FindingsHeroCard — same "hero summary + chart before the
+ * detail sections" shape the Security/Performance tabs already use,
+ * which this tab (and Files & Plugins) previously didn't have at all.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -76,6 +81,27 @@ const SECTIONS: FindingsSection[] = [
 	},
 ];
 
-const SiteHealthTab = () => <SectionedFindingsTab sections={SECTIONS} />;
+const ALL_SCANNER_IDS = Array.from(
+	new Set(SECTIONS.flatMap((section) => section.scannerIds))
+);
+
+const scrollToFirstSection = () =>
+	document
+		.getElementById(`protect-my-site-section-${SECTIONS[0].key}`)
+		?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+const SiteHealthTab = () => (
+	<SectionedFindingsTab
+		sections={SECTIONS}
+		header={
+			<FindingsHeroCard
+				icon="active"
+				label={__('Site Health', 'vulopilot')}
+				scannerIds={ALL_SCANNER_IDS}
+				onReviewFirst={scrollToFirstSection}
+			/>
+		}
+	/>
+);
 
 export default SiteHealthTab;
