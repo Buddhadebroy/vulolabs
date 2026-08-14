@@ -237,7 +237,7 @@ const WooCommerceTab = () => {
 					onTabChange={setActiveIssueTab}
 				/>
 			</ColumnComponent>
-			<ColumnComponent>
+			<ColumnComponent grid={6}>
 				<div id="woocommerce-bulk-ai">
 					{WooCommerceAiPanel ? (
 						<WooCommerceAiPanel />
@@ -246,7 +246,7 @@ const WooCommerceTab = () => {
 					)}
 				</div>
 			</ColumnComponent>
-			<ColumnComponent>
+			<ColumnComponent grid={6}>
 				<div id="store-intelligence-panel">
 					{WooCommerceIntelligencePanel ? (
 						<WooCommerceIntelligencePanel />

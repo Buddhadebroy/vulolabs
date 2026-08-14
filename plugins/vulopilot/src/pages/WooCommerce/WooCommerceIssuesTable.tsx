@@ -1,8 +1,8 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import FindingsTable from '../../components/FindingsTable';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { sumGroupCounts } from './useWooCommerceFindingGroups';
-import { SectionComponent} from '@zyra/components';
+import { SectionComponent, TabsComponent } from '@zyra/components';
 import {
 	PRODUCT_SCANNER_IDS,
 	CHECKOUT_SCANNER_IDS,
@@ -76,36 +76,30 @@ const WooCommerceIssuesTable = ({
 		checkout: CHECKOUT_SCANNER_IDS,
 		store: STORE_SCANNER_IDS,
 	};
+	const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
+	const findingsTable = (tab: WooCommerceIssueTab) => (
+		<FindingsTable
+			title={__('WooCommerce', 'vulopilot')}
+			description={__(
+				'No WooCommerce findings yet — run a scan to check store settings, product data, and checkout health.',
+				'vulopilot'
+			)}
+			category="woocommerce"
+			scannerIds={scannerIdsForTab[tab]}
+		/>
+	);
 
 	return (
 		<div id="woocommerce-issues-table" className="woocommerce-issues-table">
-
 			<SectionComponent title={__('All WooCommerce Issues', 'vulopilot')} />
-
-			<div className="woocommerce-issues-tabs">
-				{tabs.map((tab) => (
-					<span
-						key={tab.id}
-						className={`woocommerce-issues-tab ${activeTab === tab.id ? 'active' : ''}`}
-						role="button"
-						tabIndex={0}
-						onClick={() => onTabChange(tab.id)}
-					>
-						{tab.label}
-						<span className="woocommerce-issues-tab-count">
-							{tab.count}
-						</span>
-					</span>
-				))}
-			</div>
-			<FindingsTable
-				title={__('WooCommerce', 'vulopilot')}
-				description={__(
-					'No WooCommerce findings yet — run a scan to check store settings, product data, and checkout health.',
-					'vulopilot'
-				)}
-				category="woocommerce"
-				scannerIds={scannerIdsForTab[activeTab]}
+			<TabsComponent
+				className="woocommerce-issues-tabs"
+				activeIndex={Math.max(activeIndex, 0)}
+				onTabChange={(index) => onTabChange(tabs[index].id)}
+				tabs={tabs.map((tab) => ({
+					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
+					content: findingsTable(tab.id),
+				}))}
 			/>
 		</div>
 	);
