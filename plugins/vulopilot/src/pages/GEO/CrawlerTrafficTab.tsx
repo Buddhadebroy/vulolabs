@@ -12,6 +12,8 @@ import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import FindingsTable from '../../components/FindingsTable';
 import CrawlerSummaryCard from './CrawlerSummaryCard';
+import CrawlerAnalyticsSection from './CrawlerAnalyticsSection';
+import { useCrawlerAnalytics } from './useCrawlerAnalytics';
 
 /**
  * vulopilot-pro's AiCrawlerAnalytics module's own cards — "Historical Crawl
@@ -39,11 +41,11 @@ const CrawlerAlertsCard = applyFilters(
 /**
  * "Blocked Pages" (AI-CRAWLER-ANALYTICS-MODULE.md) is registered by
  * modules/Seo/Module.php, same as every other robots.txt-adjacent check —
- * its findings only exist while the SEO module is active, same gate
- * SEO.tsx's own isSeoModuleActive() already checks for the identical
- * reason. This tab isn't otherwise module-gated (crawler tracking itself
- * is core/unconditional), so only this one card is conditional, not the
- * whole tab.
+ * its findings only exist while the SEO module is active, same gate SEO.tsx's
+ * own isSeoModuleActive() already checks for the identical reason. This tab
+ * isn't otherwise module-gated (crawler tracking itself is
+ * core/unconditional), so only this one card is conditional, not the whole
+ * tab.
  */
 const isSeoModuleActive = () =>
 	appLocalizer.active_modules?.includes('seo') ?? false;
@@ -56,21 +58,17 @@ interface CrawlerVisitRow extends TableRow {
 }
 
 /**
- * "Crawler Traffic" tab of "Grow My Traffic" — AI Crawler Traffic
- * Monitoring (readme.txt), same useApiList + TableCard shape Activity.tsx
- * already uses for a paginated log table, plus CrawlerSummaryCard above it
- * for the aggregate section (last-seen per bot, most-crawled pages, crawl
- * volume trend), a Blocked Pages FindingsTable, and vulopilot-pro's
- * AiCrawlerAnalytics module's own 3 Pro card slots
- * (AI-CRAWLER-ANALYTICS-MODULE.md). Body extracted verbatim from the
- * former standalone CrawlerTraffic.tsx page (same "extract body, drop the
- * header" move GeoTab.tsx/AeoTab.tsx already made) — its
- * own NavigatorHeaderComponent now lives once on GEO.tsx's shared
- * tab-shell header. The bot-name filter pills come from
- * CrawlerTrafficLogger::BOT_SIGNATURES' display names, kept in sync
- * manually the same way Activity.tsx's actor_type options are a manual
- * mirror of ActivityLogRepository's own known values (no REST round-trip
- * just to fetch a fixed, small option list).
+ * "Crawler Traffic" tab of "Grow My Traffic" — restyled to match the
+ * reference mockup's own information architecture: a real health/stat row,
+ * a real trend chart + "by AI lab" breakdown, real Top Crawlers/Most
+ * Crawled Pages tables (all from CrawlerAnalyticsSection.tsx, backed by
+ * `crawler-traffic/analytics`), the pre-existing real "Last seen" tiles
+ * (CrawlerSummaryCard.tsx, trimmed to just that — see its own docblock),
+ * vulopilot-pro's 3 Pro card slots, a real Blocked Pages FindingsTable, a
+ * real Crawl Health Checklist (inside CrawlerAnalyticsSection.tsx), and the
+ * pre-existing paginated raw visit log (useApiList + TableCard, same shape
+ * ActivityLogs.php already uses) — nothing here is fabricated, and nothing
+ * that was already real got dropped, only reorganized/restyled.
  */
 const CrawlerTrafficTab = () => {
 	const botNameOptions = [
@@ -122,6 +120,7 @@ const CrawlerTrafficTab = () => {
 		{},
 		{ key: 'bot_name', options: botNameOptions }
 	);
+	const { analytics, isLoading: isLoadingAnalytics } = useCrawlerAnalytics(30);
 
 	return (
 		<ContainerComponent general>
@@ -141,6 +140,11 @@ const CrawlerTrafficTab = () => {
 					</CardComponent>
 				) : (
 					<>
+						<CrawlerAnalyticsSection
+							analytics={analytics}
+							isLoading={isLoadingAnalytics}
+						/>
+
 						<CrawlerSummaryCard />
 
 						{CrawlerAlertsCard && <CrawlerAlertsCard />}

@@ -243,9 +243,30 @@ class GeoAnalyzer {
                 'object_ref' => home_url( '/' ),
                 'per_page'   => 1,
             )
-        )['total'] ? 1 : 0;
+        )['total'];
 
-        $failures = min( self::TOTAL_DETERMINISTIC_CHECKS, $per_post_failures + $sitewide_trust_signal_failure );
+        return self::score_from_failures( $per_post_failures, $sitewide_trust_signal_failure );
+    }
+
+    /**
+     * The deterministic-score formula itself, extracted so
+     * Controllers\GeoAnalysis::get_pages() can compute the same real,
+     * non-AI score for every published page in bulk (one grouped
+     * `FindingRepository::count_by_column()` query for every post's own
+     * open-finding count, one shared lookup for the sitewide Trust Signals
+     * failure) instead of calculate_deterministic_score()'s own two
+     * queries *per post* — the same score, computed the cheap way for a
+     * whole-site listing rather than a single post's own card.
+     *
+     * @param int  $per_post_failures             Open findings against this specific post (uncapped — capped below).
+     * @param bool $sitewide_trust_signal_failure  Whether the sitewide Trust Signals check is currently open.
+     * @return int 0-100.
+     */
+    public static function score_from_failures( int $per_post_failures, bool $sitewide_trust_signal_failure ): int {
+        $failures = min(
+            self::TOTAL_DETERMINISTIC_CHECKS,
+            $per_post_failures + ( $sitewide_trust_signal_failure ? 1 : 0 )
+        );
 
         return (int) round( ( self::TOTAL_DETERMINISTIC_CHECKS - $failures ) / self::TOTAL_DETERMINISTIC_CHECKS * 100 );
     }

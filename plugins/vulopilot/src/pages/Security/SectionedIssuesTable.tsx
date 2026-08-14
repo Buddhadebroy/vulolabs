@@ -13,6 +13,7 @@ import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { CATEGORY_LABELS, formatAffected } from '../AIAssistant/issuesTypes';
 import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
 import IssueDetailPanel from '../AIAssistant/IssueDetailPanel';
+import ProLockedCard from '../../components/ProLockedCard';
 import type { FindingsSection } from './SectionedFindingsTab';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
@@ -188,6 +189,9 @@ const SectionedIssuesTable = ({
 	});
 
 	const activeSection = sections.find((section) => section.key === activeTab);
+	const isActiveSectionLocked = Boolean(
+		activeSection?.locked && activeSection?.proModule
+	);
 	const activeScannerIds = scannerIdsForTab[activeTab] ?? allScannerIds;
 	const tabGroups = groups.filter((group) =>
 		activeScannerIds.includes(group.scanner_id)
@@ -263,97 +267,105 @@ const SectionedIssuesTable = ({
 
 			<ContainerComponent>
 				<ColumnComponent grid={8}>
-					<IssuesSummaryCards
-						total={activeTabTotal}
-						priorityCounts={priorityCounts}
-						isLoading={isLoading}
-						activePriority={activePriority}
-						onSelectPriority={handlePriorityChange}
-					/>
-
-					{!isLoading && 0 === sortedGroups.length ? (
-						<ModuleGuardComponent
-							icon="check"
-							title={__('Nothing here right now', 'vulopilot')}
-							desc={
-								activeSection?.emptyMessage ||
-								__(
-									'No findings here yet — nothing to report.',
-									'vulopilot'
-								)
-							}
+					{isActiveSectionLocked ? (
+						<ProLockedCard
+							moduleName={activeSection!.proModule as string}
 						/>
 					) : (
-						<TableCard
-							showMenu={false}
-							hideHeader={true}
-							className="transparent-table"
-							headers={{
-								issue: {
-									label: __('Issue', 'vulopilot'),
-									width: '45%',
-									render: (row: FindingGroup) => (
-										<InformationItemComponent
-											title={row.label}
-											descriptions={[
-												{
-													value: row.sample?.description || '',
-												},
-											]}
-										/>
-									),
-								},
-								category: {
-									label: __('Category', 'vulopilot'),
-									render: (row: FindingGroup) => (
-										<span className="admin-badge blue">
-											{CATEGORY_LABELS[row.category] ??
-												row.category}
-										</span>
-									),
-								},
-								severity: {
-									label: __('Priority', 'vulopilot'),
-									type: 'status',
-									statusClass: (row: FindingGroup) =>
-										row.severity,
-								},
-								affected: {
-									label: __('Affected', 'vulopilot'),
-									render: (row: FindingGroup) =>
-										formatAffected(
-											row.count,
-											row.object_type
-										),
-								},
-								action: {
-									type: 'action',
-									label: __('Action', 'vulopilot'),
-									actions: [
-										{
-											label: __('View', 'vulopilot'),
-											icon: 'eye',
-											onClick: (row: FindingGroup) =>
-												setSelectedGroup(row),
+						<>
+							<IssuesSummaryCards
+								total={activeTabTotal}
+								priorityCounts={priorityCounts}
+								isLoading={isLoading}
+								activePriority={activePriority}
+								onSelectPriority={handlePriorityChange}
+							/>
+
+							{!isLoading && 0 === sortedGroups.length ? (
+								<ModuleGuardComponent
+									icon="check"
+									title={__('Nothing here right now', 'vulopilot')}
+									desc={
+										activeSection?.emptyMessage ||
+										__(
+											'No findings here yet — nothing to report.',
+											'vulopilot'
+										)
+									}
+								/>
+							) : (
+								<TableCard
+									showMenu={false}
+									hideHeader={true}
+									className="transparent-table"
+									headers={{
+										issue: {
+											label: __('Issue', 'vulopilot'),
+											width: '45%',
+											render: (row: FindingGroup) => (
+												<InformationItemComponent
+													title={row.label}
+													descriptions={[
+														{
+															value: row.sample?.description || '',
+														},
+													]}
+												/>
+											),
 										},
-									],
-								},
-							}}
-							rows={pageRows}
-							ids={pageRows.map((row) => row.scanner_id)}
-							totalRows={sortedGroups.length}
-							isLoading={isLoading}
-							onQueryUpdate={(query: {
-								paged?: number | string;
-							}) => setPaged(Number(query.paged) || 1)}
-							emptyMessage={
-								activeSection?.emptyMessage ||
-								__(
-									'No findings here yet — nothing to report.',
-									'vulopilot'
-								)
-							}
-						/>
+										category: {
+											label: __('Category', 'vulopilot'),
+											render: (row: FindingGroup) => (
+												<span className="admin-badge blue">
+													{CATEGORY_LABELS[row.category] ??
+														row.category}
+												</span>
+											),
+										},
+										severity: {
+											label: __('Priority', 'vulopilot'),
+											type: 'status',
+											statusClass: (row: FindingGroup) =>
+												row.severity,
+										},
+										affected: {
+											label: __('Affected', 'vulopilot'),
+											render: (row: FindingGroup) =>
+												formatAffected(
+													row.count,
+													row.object_type
+												),
+										},
+										action: {
+											type: 'action',
+											label: __('Action', 'vulopilot'),
+											actions: [
+												{
+													label: __('View', 'vulopilot'),
+													icon: 'eye',
+													onClick: (row: FindingGroup) =>
+														setSelectedGroup(row),
+												},
+											],
+										},
+									}}
+									rows={pageRows}
+									ids={pageRows.map((row) => row.scanner_id)}
+									totalRows={sortedGroups.length}
+									isLoading={isLoading}
+									onQueryUpdate={(query: {
+										paged?: number | string;
+									}) => setPaged(Number(query.paged) || 1)}
+									emptyMessage={
+										activeSection?.emptyMessage ||
+										__(
+											'No findings here yet — nothing to report.',
+											'vulopilot'
+										)
+									}
+								/>
+							)}
+						</>
 					)}
 				</ColumnComponent>
 

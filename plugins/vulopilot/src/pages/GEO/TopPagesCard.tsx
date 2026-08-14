@@ -17,8 +17,13 @@ interface TopPagesResponse {
 	bottom: TopPageRow[];
 }
 
+interface TopPagesCardProps {
+	/** Scrolls to the real "Page-by-page analysis" table further down the tab (GeoPageAnalysisTable.tsx) — real "view everything" destination, not a dead link. */
+	onViewAll?: () => void;
+}
+
 /**
- * GEO page's "Top Pages" card — `GET /geo-analysis/top-pages`
+ * "Your Best & Worst Pages" (GEO tab) — `GET /geo-analysis/top-pages`
  * (Controllers\GeoAnalysis, Free — a deterministic ranking over
  * already-persisted `vulopilot_scan_findings` rows, no AI call). Ranks by
  * open `geo`-category finding count per post rather than
@@ -26,7 +31,7 @@ interface TopPagesResponse {
  * exists for posts someone has explicitly analyzed — see that
  * controller's own docblock.
  */
-const TopPagesCard = () => {
+const TopPagesCard = ({ onViewAll }: TopPagesCardProps) => {
 	const [data, setData] = useState<TopPagesResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -43,9 +48,11 @@ const TopPagesCard = () => {
 			.finally(() => setIsLoading(false));
 	}, []);
 
-	const renderList = (rows: TopPageRow[], title: string) => (
+	const renderList = (rows: TopPageRow[], title: string, icon: string) => (
 		<div className="geo-top-pages__list">
-			<div className="title">{title}</div>
+			<div className="title">
+				<i className={`adminfont-${icon}`} /> {title}
+			</div>
 			<ListComponent
 				className="mini-card report"
 				items={rows.map((row) => ({
@@ -57,12 +64,12 @@ const TopPagesCard = () => {
 					tags: (
 						<span className="admin-badge">
 							{row.open_findings === 0
-								? __('No open findings', 'vulopilot')
+								? __('No issues', 'vulopilot')
 								: row.open_findings === 1
-									? __('1 open finding', 'vulopilot')
+									? __('1 issue', 'vulopilot')
 									: sprintf(
-											/* translators: %d is the number of open findings. */
-											__('%d open findings', 'vulopilot'),
+											/* translators: %d is the number of open GEO issues. */
+											__('%d issues', 'vulopilot'),
 											row.open_findings
 										)}
 						</span>
@@ -76,19 +83,38 @@ const TopPagesCard = () => {
 		<ColumnComponent grid={6} fullHeight>
 		<CardComponent
 			id="geo-top-pages"
-			title={__('Top Pages', 'vulopilot')}
+			title={__('Your Best & Worst Pages', 'vulopilot')}
 			titleIcon="bar-chart"
 			desc={__(
-				'Ranked by open GEO findings — fewer findings means the page is more AI-visibility ready.',
+				'Which pages AI already likes, and which need the most work.',
 				'vulopilot'
 			)}
 			isLoading={isLoading}
+			action={
+				onViewAll && (
+					<button
+						type="button"
+						className="geo-card-view-all"
+						onClick={onViewAll}
+					>
+						{__('View all', 'vulopilot')} ›
+					</button>
+				)
+			}
 		>
 			{data && data.top.length > 0 ? (
 				<ColumnComponent row>
-					{renderList(data.top, __('Most AI-visible', 'vulopilot'))}
+					{renderList(
+						data.top,
+						__('AI likes these pages already', 'vulopilot'),
+						'check'
+					)}
 					{data.bottom.length > 0 &&
-						renderList(data.bottom, __('Needs attention', 'vulopilot'))}
+						renderList(
+							data.bottom,
+							__('Needs attention', 'vulopilot'),
+							'error'
+						)}
 				</ColumnComponent>
 			) : (
 				<div className="desc">

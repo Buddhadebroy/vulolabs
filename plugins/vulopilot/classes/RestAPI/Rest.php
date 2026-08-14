@@ -118,6 +118,8 @@ class Rest {
             // differ — kept different anyway for consistency with every
             // other Free/Pro controller pairing above).
             'entities'                    => new Controllers\EntityExtraction(),
+            'seo_score'                   => new Controllers\Seo(),
+            'schema_coverage'             => new Controllers\Schema(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

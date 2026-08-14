@@ -10,6 +10,20 @@ export interface FindingsSection {
 	description: string;
 	emptyMessage: string;
 	scannerIds: string[];
+	/**
+	 * Set (by the caller, using whatever its own real gating check is —
+	 * this generic shell doesn't know about specific module slugs) when
+	 * this section's findings only exist while a specific Pro module is
+	 * active. Real GEO/AEO precedent: the module that actually gates the
+	 * data isn't always the same string as `proModule` below — see
+	 * AeoTab.tsx's own crawlability section, gated on GeoInsights being
+	 * active but deep-linking its popup to a differently-named 'aeo-insights'
+	 * module for more relevant messaging — so `locked` is resolved
+	 * externally, not inferred from `proModule` here.
+	 */
+	locked?: boolean;
+	/** Pro module slug passed to ProLockedCard's popup when `locked` is true — see that component's own docblock. */
+	proModule?: string;
 }
 
 /** DOM anchor id the merged table below carries — what a `header`'s own "Review Issues"-style button scrolls to. */

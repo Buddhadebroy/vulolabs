@@ -1,4 +1,5 @@
 /* global appLocalizer */
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
@@ -8,24 +9,22 @@ import {
 	ContainerComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
-import FindingsTable from '../../components/FindingsTable';
 import BrandScoreCard from './BrandScoreCard';
+import SectionedFindingsTab from '../Security/SectionedFindingsTab';
+import type { FindingsSection } from '../Security/SectionedFindingsTab';
+import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 
 /**
  * Section → scanner_id grouping for Brand Intelligence's 7 scanners
  * (BRAND-INTELLIGENCE-MODULE.md) — this module's own 3 new `brand`-category
  * scanners, plus 4 existing `geo`-category scanners it reports on rather
- * than duplicates. Same cross-category `scannerIds`-prop mechanism
- * Content.tsx's own CONTENT_SECTIONS already documents — no `category`
- * prop passed below.
+ * than duplicates. Fed into SectionedFindingsTab (same shell GeoTab.tsx/
+ * AeoTab.tsx/SeoTab.tsx use) per direct instruction, replacing what used to
+ * be 3 separate FindingsTable cards. Same cross-category `scannerIds`-prop
+ * mechanism Content.tsx's own CONTENT_SECTIONS already documents — no
+ * `category` prop passed, same as before.
  */
-const BRAND_SECTIONS: {
-	key: string;
-	title: string;
-	description: string;
-	emptyMessage: string;
-	scannerIds: string[];
-}[] = [
+const BRAND_SECTIONS: FindingsSection[] = [
 	{
 		key: 'trust',
 		title: __('Trust Signals', 'vulopilot'),
@@ -108,18 +107,24 @@ const KnowledgePanelCard = applyFilters(
  * "Brand Visibility" tab of "Grow My Traffic" — on-site Brand/Trust/
  * Authority/Entity scoring (BRAND-INTELLIGENCE-MODULE.md, real and always
  * available) alongside the pre-existing off-site brand-mention/
- * share-of-voice section below (still honestly "Not connected yet" — that
- * gap is unchanged by this move, see that card's own docblock). Body
- * extracted verbatim from the former standalone BrandVisibility.tsx page
- * (same "extract body, drop the header" move every other tab on this page
- * already made) — its own NavigatorHeaderComponent now lives once on
- * GEO.tsx's shared tab-shell header.
+ * share-of-voice card (still honestly "Not connected yet" — that gap is
+ * unchanged by this move, see its own docblock below). Header content
+ * (BrandScoreCard + Pro slots) sits above one real, unified findings table
+ * (SectionedFindingsTab.tsx, same shell GeoTab.tsx/AeoTab.tsx/SeoTab.tsx
+ * use) per direct instruction, replacing what used to be 3 separate
+ * FindingsTable cards; the "Why this matters more than backlinks"/off-site
+ * tracking card — previously its own side-by-side sidebar column next to
+ * the section list — now sits below the table as `footer` content instead,
+ * since a single-column table no longer has a natural second column to
+ * pair it with.
  */
 const BrandVisibilityTab = () => {
-	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				{!isBrandModuleActive() ? (
+	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
+
+	if (!isBrandModuleActive()) {
+		return (
+			<ContainerComponent general>
+				<ColumnComponent>
 					<CardComponent title={__('Brand', 'vulopilot')}>
 						<ModuleGuardComponent
 							icon="error"
@@ -133,53 +138,62 @@ const BrandVisibilityTab = () => {
 							)}
 						/>
 					</CardComponent>
-				) : (
-					<>
-						<BrandScoreCard />
-						{AuthorityTrendsCard && <AuthorityTrendsCard />}
-						{CompetitorComparisonCard && <CompetitorComparisonCard />}
-						{KnowledgePanelCard && <KnowledgePanelCard />}
-						{BRAND_SECTIONS.map((section) => (
-							<CardComponent
-								key={section.key}
-								title={section.title}
-								desc={section.description}
-							>
-								<FindingsTable
-									title={section.title}
-									description={section.emptyMessage}
-									scannerIds={section.scannerIds}
-								/>
-							</CardComponent>
-						))}
-					</>
-				)}
-			</ColumnComponent>
-			<ColumnComponent>
-				<CardComponent
-					className="brand-visibility-why-card"
-					title={__(
-						'Why this matters more than backlinks',
-						'vulopilot'
-					)}
-				>
-					<div className="desc">
-						{__(
-							'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
+				</ColumnComponent>
+			</ContainerComponent>
+		);
+	}
+
+	return (
+		<SectionedFindingsTab
+			title={__('All Brand Visibility Issues', 'vulopilot')}
+			sections={BRAND_SECTIONS}
+			activeTab={activeTab}
+			onTabChange={setActiveTab}
+			header={
+				<>
+					<div className="geo-info-banner">
+						<i className="adminfont-info" />
+						<span>
+							<strong>{__('In plain English:', 'vulopilot')}</strong>{' '}
+							{__(
+								'This checks whether AI systems describe your business accurately, and treat it as trustworthy, when it comes up in an answer.',
+								'vulopilot'
+							)}
+						</span>
+					</div>
+					<BrandScoreCard />
+					{AuthorityTrendsCard && <AuthorityTrendsCard />}
+					{CompetitorComparisonCard && <CompetitorComparisonCard />}
+					{KnowledgePanelCard && <KnowledgePanelCard />}
+				</>
+			}
+			footer={
+				<>
+					<CardComponent
+						className="brand-visibility-why-card"
+						title={__(
+							'Why this matters more than backlinks',
 							'vulopilot'
 						)}
-					</div>
-				</CardComponent>
-				<ModuleGuardComponent
-					icon="lock"
-					title={__('Off-site mention tracking: not connected yet', 'vulopilot')}
-					desc={__(
-						'Connect an Ahrefs Brand Radar account from Settings to start tracking real mentions, share of voice, and citing domains here.',
-						'vulopilot'
-					)}
-				/>
-			</ColumnComponent>
-		</ContainerComponent>
+					>
+						<div className="desc">
+							{__(
+								'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
+								'vulopilot'
+							)}
+						</div>
+					</CardComponent>
+					<ModuleGuardComponent
+						icon="lock"
+						title={__('Off-site mention tracking: not connected yet', 'vulopilot')}
+						desc={__(
+							'Connect an Ahrefs Brand Radar account from Settings to start tracking real mentions, share of voice, and citing domains here.',
+							'vulopilot'
+						)}
+					/>
+				</>
+			}
+		/>
 	);
 };
 
