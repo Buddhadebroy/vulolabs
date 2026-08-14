@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import EfficiencyHeroCard from './EfficiencyHeroCard';
 import EfficiencySectionsList from './EfficiencySectionsList';
 import EfficiencyThingsToReview from './EfficiencyThingsToReview';
@@ -44,10 +45,10 @@ const scrollTo = (id: string) => () =>
  * (real `GET /performance-score-snapshots?days=30`, already fully built
  * for the other page, including its own honest "no trend data yet" empty
  * state) — reused directly here, not duplicated, and clearly labeled as a
- * related-but-distinct signal rather than this tab's own metric, sitting
- * right before EfficiencySpeedInsightsBanner's own cross-link so that
- * banner's "View Speed Overview" CTA follows a real data preview instead
- * of just prose.
+ * related-but-distinct signal rather than this tab's own metric. It sits
+ * left-middle-right (grid={4}/grid={4}/grid={4}) alongside EfficiencyHeroCard
+ * and EfficiencyOverviewChart, per direct instruction, rather than each
+ * stacked full-width in its old top-to-bottom order.
  *
  * Closes with PluginOverlapCard filtered to `category="caching"` —
  * promotes the same real cross-sell FilesPluginsTab.tsx introduced (e.g.
@@ -61,37 +62,25 @@ const PerformanceTab = () => {
 
 	return (
 		<>
-			<div className="efficiency-page-header">
-				<p className="efficiency-page-breadcrumb">
-					{__('Protect My Site', 'vulopilot')}
-					{' > '}
-					<span>{__('Performance', 'vulopilot')}</span>
-				</p>
-				<div className="efficiency-page-header-row">
-					<div>
-						<h2 className="efficiency-page-title">
-							{__('Performance', 'vulopilot')}
-						</h2>
-						<p className="efficiency-page-subtitle">
-							{__('Is WordPress set up to run efficiently?', 'vulopilot')}
-						</p>
-					</div>
-					<ButtonInput
-						buttons={{
-							text: __('Run Efficiency Test', 'vulopilot'),
-							icon: 'refresh-bold',
-							color: 'border-purple',
-							onClick: refetch,
-						}}
+			<ContainerComponent>
+				<ColumnComponent grid={4}>
+					<EfficiencyHeroCard
+						summary={data?.summary ?? null}
+						isLoading={isLoading}
+						onReviewImprovements={scrollTo(THINGS_TO_REVIEW_ID)}
 					/>
-				</div>
-			</div>
-
-			<EfficiencyHeroCard
-				summary={data?.summary ?? null}
-				isLoading={isLoading}
-				onReviewImprovements={scrollTo(THINGS_TO_REVIEW_ID)}
-			/>
+				</ColumnComponent>
+				<ColumnComponent grid={4}>
+						<SpeedHistoryCard />
+				</ColumnComponent>
+				<ColumnComponent grid={4}>
+					<EfficiencyOverviewChart
+						summary={data?.summary ?? null}
+						isLoading={isLoading}
+						onViewAll={scrollTo(SECTIONS_TOP_ID)}
+					/>
+				</ColumnComponent>
+			</ContainerComponent>
 
 			<div id={SECTIONS_TOP_ID}>
 				<EfficiencySectionsList
@@ -106,19 +95,6 @@ const PerformanceTab = () => {
 				isLoading={isLoading}
 				onViewAll={scrollTo(SECTIONS_TOP_ID)}
 			/>
-
-			<EfficiencyOverviewChart
-				summary={data?.summary ?? null}
-				isLoading={isLoading}
-				onViewAll={scrollTo(SECTIONS_TOP_ID)}
-			/>
-
-			<div className="efficiency-related-speed">
-				<p className="efficiency-related-speed-label">
-					{__('Related: Front-end Speed', 'vulopilot')}
-				</p>
-				<SpeedHistoryCard />
-			</div>
 
 			<EfficiencySpeedInsightsBanner />
 

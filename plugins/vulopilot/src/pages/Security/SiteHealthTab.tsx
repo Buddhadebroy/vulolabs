@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import SectionedFindingsTab, {
 	FindingsSection,
 	SECTIONED_FINDINGS_TABLE_ID,
@@ -21,8 +22,10 @@ import SiteHealthStatusCard from './SiteHealthStatusCard';
  * Starts with FindingsHeroCard — same "hero summary + chart before the
  * detail sections" shape the Security/Performance tabs already use,
  * which this tab (and Files & Plugins) previously didn't have at all —
- * followed by SiteHealthStatusCard, a real per-section status row
- * matching the depth of Security's own supporting cards.
+ * side by side (grid={6}/grid={6}, same row pattern WooCommerceTab.tsx's
+ * own AiSalesOptimizerCard/StoreIntelligenceSummaryCard pairing already
+ * uses) with SiteHealthStatusCard, a real per-section status row matching
+ * the depth of Security's own supporting cards.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -114,15 +117,19 @@ const SiteHealthTab = () => {
 			activeTab={activeTab}
 			onTabChange={setActiveTab}
 			header={
-				<>
-					<FindingsHeroCard
-						icon="active"
-						label={__('Site Health', 'vulopilot')}
-						scannerIds={ALL_SCANNER_IDS}
-						onReviewFirst={() => goToIssuesTable('important')}
-					/>
-					<SiteHealthStatusCard />
-				</>
+				<ContainerComponent>
+					<ColumnComponent grid={6}>
+						<SiteHealthStatusCard />
+					</ColumnComponent>
+					<ColumnComponent grid={6}>
+						<FindingsHeroCard
+							icon="active"
+							label={__('Site Health', 'vulopilot')}
+							scannerIds={ALL_SCANNER_IDS}
+							onReviewFirst={() => goToIssuesTable('important')}
+						/>
+					</ColumnComponent>
+				</ContainerComponent>
 			}
 		/>
 	);
