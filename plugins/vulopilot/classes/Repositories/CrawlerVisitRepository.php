@@ -249,6 +249,86 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
+     * Current-vs-previous-period comparison — backs the Crawler Traffic
+     * tab's own restyled "at a glance" stat row (total requests, unique
+     * crawlers, blocked-pages count lives in the finding table instead —
+     * see CrawlerTraffic.php's own `get_analytics()`), "Top Crawlers"
+     * table, and "Most-Crawled Pages" table, each with a real %-change
+     * figure against the immediately preceding period of equal length —
+     * same real-comparison shape `get_stats_for_period()` already provides
+     * for one period, computed twice here (current window, then the window
+     * immediately before it) so every number on screen is a real count, not
+     * a guess.
+     *
+     * @param int $days Trailing window size (also the length of the "previous" comparison window).
+     * @return array{
+     *     current_total: int,
+     *     previous_total: int,
+     *     current_unique_bots: int,
+     *     previous_unique_bots: int,
+     *     top_crawlers: array<int, array{bot_name: string, total: int, previous_total: int}>,
+     *     most_crawled_pages: array<int, array{requested_url: string, total: int, previous_total: int}>,
+     * }
+     */
+    public function get_period_comparison( int $days = 30 ): array {
+        global $wpdb;
+
+        $days = max( 1, $days );
+
+        $current_start  = gmdate( 'Y-m-d', strtotime( '-' . ( $days - 1 ) . ' days' ) );
+        $previous_start = gmdate( 'Y-m-d', strtotime( '-' . ( 2 * $days - 1 ) . ' days' ) );
+        $previous_end   = gmdate( 'Y-m-d', strtotime( '-' . $days . ' days' ) );
+
+        $current  = $this->get_stats_for_period( $current_start, gmdate( 'Y-m-d' ) );
+        $previous = $this->get_stats_for_period( $previous_start, $previous_end );
+
+        $bot_names = array_unique( array_merge( array_keys( $current['by_bot'] ), array_keys( $previous['by_bot'] ) ) );
+        $top_crawlers = array();
+        foreach ( $bot_names as $bot_name ) {
+            $top_crawlers[] = array(
+                'bot_name'       => $bot_name,
+                'total'          => $current['by_bot'][ $bot_name ] ?? 0,
+                'previous_total' => $previous['by_bot'][ $bot_name ] ?? 0,
+            );
+        }
+        usort( $top_crawlers, static fn( $a, $b ) => $b['total'] <=> $a['total'] );
+
+        $page_urls = array_column( $current['top_pages'], 'requested_url' );
+        $previous_page_counts = array();
+        if ( $page_urls ) {
+            $placeholders          = implode( ',', array_fill( 0, count( $page_urls ), '%s' ) );
+            $previous_page_rows    = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT requested_url, COUNT(*) AS total FROM {$this->get_table()} WHERE created_at >= %s AND created_at < DATE_ADD(%s, INTERVAL 1 DAY) AND requested_url IN ({$placeholders}) GROUP BY requested_url", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+                    array_merge( array( $previous_start, $previous_end ), $page_urls )
+                ),
+                ARRAY_A
+            );
+            foreach ( (array) $previous_page_rows as $row ) {
+                $previous_page_counts[ $row['requested_url'] ] = (int) $row['total'];
+            }
+        }
+
+        $most_crawled_pages = array_map(
+            static fn( $page ) => array(
+                'requested_url'  => $page['requested_url'],
+                'total'          => (int) $page['total'],
+                'previous_total' => $previous_page_counts[ $page['requested_url'] ] ?? 0,
+            ),
+            $current['top_pages']
+        );
+
+        return array(
+            'current_total'        => $current['total'],
+            'previous_total'       => $previous['total'],
+            'current_unique_bots'  => count( $current['by_bot'] ),
+            'previous_unique_bots' => count( $previous['by_bot'] ),
+            'top_crawlers'         => $top_crawlers,
+            'most_crawled_pages'   => $most_crawled_pages,
+        );
+    }
+
+    /**
      * Deletes rows older than $days — the retention/cleanup half of
      * readme.txt's Pro "Historical Logs" line (Services\CrawlerTrafficLogger's
      * daily cron calls this with `apply_filters('vulopilot_crawler_log_retention_days', 30)`).

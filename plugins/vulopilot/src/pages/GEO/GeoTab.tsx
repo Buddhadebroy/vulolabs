@@ -1,82 +1,77 @@
 /* global appLocalizer */
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
-import FindingsTable from '../../components/FindingsTable';
+import { CardComponent, ContainerComponent } from '@zyra/components';
 import TopPagesCard from './TopPagesCard';
-import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
-import ProLockedCard from '../../components/ProLockedCard';
 import { useFilterSlot } from '../../services/useFilterSlot';
+import SectionedFindingsTab from '../Security/SectionedFindingsTab';
+import type { FindingsSection } from '../Security/SectionedFindingsTab';
+import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
+import ProLockedCard from '../../components/ProLockedCard';
+import { useGeoFindingGroups, sumGroupCounts } from './useGeoFindingGroups';
+import { useGeoVisibilitySnapshot } from './useGeoVisibilitySnapshot';
+import GeoVisibilityOverviewRow from './GeoVisibilityOverviewRow';
+import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
+import GeoTrendCompactCard from './GeoTrendCompactCard';
+import GeoByTopicGrid from './GeoByTopicGrid';
+import GeoPageAnalysisTable from './GeoPageAnalysisTable';
 
 /**
- * Which GEO_SECTIONS card (below) each scanner's findings live under — a
- * glimpse row only has a scanner_id, not a section key, so
- * OpenIssuesGlimpse needs this lookup supplied explicitly. Falls back to
- * 'entities' for a scanner id this map hasn't been extended for yet, rather
- * than silently not scrolling anywhere.
+ * Which GEO_SECTIONS/GEO_TOPICS card each scanner's findings live under.
+ * "AI Summary" and "FAQ-style Questions" are now their own separate
+ * topics (previously one combined "summary" section) to match the
+ * reference mockup's own 5-tile "By Topic" grid exactly (direct
+ * instruction) — "Crawlability"/"Freshness" (the 2 scanners that only
+ * exist while GeoInsights Pro is active) fold into a catch-all "Other
+ * Signals" topic alongside the always-free entity/trust scanners, rather
+ * than keeping their own dedicated, explicitly-locked section as the
+ * previous 6-section grouping did. That's a deliberate trade for matching
+ * the mockup's exact 5 topics: "Other Signals" is never marked `locked`
+ * (it has real, always-free scanner ids in it too), so it no longer shows
+ * an explicit "Unlock with Pro" card the way the old dedicated
+ * Crawlability/Freshness sections did — those 2 scanners' findings simply
+ * won't exist yet (contributing nothing to the real count) on a site
+ * without GeoInsights active, same as any other not-yet-scanned signal.
  */
-const SCANNER_TO_SECTION: Record<string, string> = {
-	'geo-summary-block': 'summary',
-	'geo-faq-opportunity': 'summary',
-	'geo-citation-opportunities': 'evidence',
-	'geo-chunking': 'structure',
-	'geo-semantic-structure': 'structure',
-	'geo-author-info': 'entities',
-	'geo-eeat-signals': 'entities',
-	'geo-entity-naming-consistency': 'entities',
-	'geo-trust-signals': 'entities',
-	'llms-txt-missing': 'crawlability',
-	'stale-content': 'freshness',
-};
-
-/**
- * Section → scanner_id grouping for GEO's 11 scanners (Free's original 9,
- * GEO-MODULE.md, plus GeoInsights' 2 Pro ones — AeoSchemaScanner's
- * `aeo-schema` finding lives on AeoTab.tsx's own "Answer Structure" section
- * instead, not duplicated here; AEO is its own lens over the data, not a
- * GEO subsection), mirroring the SEO.tsx SEO_SECTIONS pattern: each
- * section is its own independent
- * FindingsTable (own fetch/pagination/search/bulk actions) scoped by
- * scannerIds rather than one flat category="geo" table. Unlike SEO's
- * mixed categories, every GEO scanner already shares category 'geo' — the
- * split here is purely presentational, grouping by what a finding affects
- * (an AI summary block vs. heading structure vs. entity naming) rather
- * than a real backend distinction.
- */
-const GEO_SECTIONS: {
+const GEO_TOPICS: {
 	key: string;
 	title: string;
 	titleIcon: string;
 	description: string;
 	emptyMessage: string;
 	scannerIds: string[];
-	/**
-	 * Set when every scanner in `scannerIds` is only ever registered by a
-	 * Pro module (vulopilot-pro's GeoInsights adds `llms-txt-missing` and
-	 * `stale-content` — Free's own ScannerRegistry has no equivalent), so
-	 * this section can never produce findings without it. Checked against
-	 * `appLocalizer.active_modules` to show a locked-card upsell instead of
-	 * a findings table that would otherwise sit permanently, misleadingly
-	 * empty ("run a scan") on any install without that module active.
-	 */
-	proModule?: string;
 }[] = [
 	{
-		key: 'summary',
+		key: 'ai-summary',
 		title: __('AI Summary', 'vulopilot'),
 		titleIcon: 'ai',
 		description: __(
-			'Whether pages have an extractable AI summary block or answer questions readers would plausibly ask.',
+			'Whether pages have an extractable AI summary block an AI system can lift directly.',
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No AI summary findings yet — run a scan to check for summary blocks and FAQ opportunities.',
+			'No AI summary findings yet — run a scan to check for summary blocks.',
 			'vulopilot'
 		),
-		scannerIds: ['geo-summary-block', 'geo-faq-opportunity'],
+		scannerIds: ['geo-summary-block'],
 	},
 	{
-		key: 'evidence',
-		title: __('Evidence & Data', 'vulopilot'),
+		key: 'faq-questions',
+		title: __('FAQ-style Questions', 'vulopilot'),
+		titleIcon: 'question',
+		description: __(
+			'Commonly-asked questions a page plausibly answers, but with no FAQ or Q&A block making that answer easy to extract.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No question-coverage findings yet — run a scan to check for FAQ opportunities.',
+			'vulopilot'
+		),
+		scannerIds: ['geo-faq-opportunity'],
+	},
+	{
+		key: 'evidence-citations',
+		title: __('Evidence & Citations', 'vulopilot'),
 		titleIcon: 'report',
 		description: __(
 			'Statistic-shaped claims with no citation or outbound link backing them up.',
@@ -89,8 +84,8 @@ const GEO_SECTIONS: {
 		scannerIds: ['geo-citation-opportunities'],
 	},
 	{
-		key: 'structure',
-		title: __('Structure', 'vulopilot'),
+		key: 'ai-readable-structure',
+		title: __('AI-Readable Structure', 'vulopilot'),
 		titleIcon: 'blocks',
 		description: __(
 			'Paragraph length and heading hierarchy — how easily an AI system can extract a clean chunk of this content.',
@@ -103,15 +98,15 @@ const GEO_SECTIONS: {
 		scannerIds: ['geo-chunking', 'geo-semantic-structure'],
 	},
 	{
-		key: 'entities',
-		title: __('Entities & Trust', 'vulopilot'),
+		key: 'other-signals',
+		title: __('Other Signals', 'vulopilot'),
 		titleIcon: 'person',
 		description: __(
-			'Author credentials, consistent naming, and baseline trust pages (About/Contact) AI systems weigh before citing a source.',
+			'Author credentials, naming consistency, trust pages, llms.txt, and content freshness.',
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No entity/trust findings yet — run a scan to check author info and naming consistency.',
+			'No other findings yet — run a scan to check author info, naming consistency, and freshness.',
 			'vulopilot'
 		),
 		scannerIds: [
@@ -119,37 +114,9 @@ const GEO_SECTIONS: {
 			'geo-eeat-signals',
 			'geo-entity-naming-consistency',
 			'geo-trust-signals',
+			'llms-txt-missing',
+			'stale-content',
 		],
-	},
-	{
-		key: 'crawlability',
-		title: __('Crawlability', 'vulopilot'),
-		titleIcon: 'search-discovery',
-		description: __(
-			'Whether AI crawlers can find a curated index of this site’s content.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No crawlability findings yet — run a scan to check llms.txt.',
-			'vulopilot'
-		),
-		scannerIds: ['llms-txt-missing'],
-		proModule: 'geo-insights',
-	},
-	{
-		key: 'freshness',
-		title: __('Freshness', 'vulopilot'),
-		titleIcon: 'clock',
-		description: __(
-			'Pages that haven’t been updated recently — AI answer engines favor actively-maintained content.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No freshness findings yet — run a scan to check for stale content.',
-			'vulopilot'
-		),
-		scannerIds: ['stale-content'],
-		proModule: 'geo-insights',
 	},
 ];
 
@@ -165,105 +132,159 @@ const isGeoInsightsActive = () =>
 /**
  * GEO = Generative Engine Optimization — how discoverable/citable this
  * site is to AI answer engines (distinct from classic search-engine SEO).
- * Same findings-table shape every other category page (SEO, Performance,
- * Accessibility, WooCommerce, Security) already uses, plus the two
- * optional Pro widgets above the table (see their own docblocks). Header
- * moved up to the parent GEO.tsx tab shell — this is one of its three
- * tabs now (Overview/GEO/AEO), not its own standalone page. llms.txt's
- * toggle/preview/live-link live under Settings → GEO (Scanning/Geo.ts +
- * LlmsTxtCard.tsx), not on this tab.
+ * Rebuilt to match the reference mockup's own information architecture,
+ * top to bottom, reusing real data already fetched elsewhere on this tab
+ * rather than duplicating it (direct instruction):
+ *
+ * 1. Two real info banners (static, honest explanatory copy).
+ * 2. "Overall AI Visibility" + "The 4 things AI checks for"
+ *    (GeoVisibilityOverviewRow.tsx, Pro-gated) — real
+ *    `useGeoVisibilitySnapshot()` data, `totalOpenFindings` passed in from
+ *    the same `groups` fetch "Fix These First"/"By Topic" already use.
+ * 3. "Fix These First" (GeoFixTheseFirstCard.tsx) + "Your Best & Worst
+ *    Pages" (TopPagesCard.tsx, restyled) side by side.
+ * 4. "Are You Getting Easier to Find?" (GeoTrendCompactCard.tsx, Pro-gated)
+ *    + "How You Compare to Similar Sites" (Pro's own
+ *    CompetitorVisibilityCard, given this site's own real score as
+ *    `yourScore`) side by side.
+ * 5. "A Closer Look, By Topic" (GeoByTopicGrid.tsx) — 5 tiles over the
+ *    same `groups`/`GEO_TOPICS` the unified table below uses, so both
+ *    always agree.
+ * 6. "Page-by-page analysis" (GeoPageAnalysisTable.tsx) — every page, a
+ *    real deterministic visibility % (GeoAnalyzer::score_from_failures()),
+ *    Export CSV.
+ * 7. "All GEO Issues" — the same real, unified findings table
+ *    (SectionedFindingsTab.tsx) already built for this tab, kept as-is and
+ *    relocated to the bottom rather than duplicated with a second table.
  */
 const GeoTab = () => {
+	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
+	const { groups, isLoading: isLoadingGroups } = useGeoFindingGroups();
+	const { snapshot, history, isLoading: isLoadingSnapshot } =
+		useGeoVisibilitySnapshot();
+
 	/**
-	 * All 4 slots below are Pro's vulopilot-pro/modules/GeoInsights — same
-	 * "register a source, don't modify the host" pattern already used for
-	 * Reports'/Automation's own panel slots (see those pages' own
-	 * docblocks). Read via useFilterSlot(), not a plain module-scope
-	 * `applyFilters()` call — see that hook's own docblock for why: Pro's
-	 * addFilter() calls always run strictly after this page's own code on
-	 * a fresh load, so a one-time read here would permanently miss them.
-	 *
-	 * Rendered together, gated on isGeoInsightsActive(): when the module is
-	 * active each registered slot renders itself; when it isn't, a single
-	 * "AI Visibility Score" ProLockedCard takes their place below, same
-	 * locked-card treatment GEO_SECTIONS' own Crawlability/Freshness
-	 * entries already use, rather than the 4 slots simply rendering
-	 * nothing.
-	 *
-	 * GeoScoreCard is GEO-MODULE.md's per-post "Generate GEO Score" card.
-	 *
-	 * Sitewide AI-visibility summary (GeoVisibilitySummary) —
-	 * GeoInsights\VisibilitySnapshotBuilder's cached, sample-based average
-	 * of GeoAnalyzer's 8 AI-judged dimensions across this site's most
-	 * recently updated pages.
-	 *
-	 * Historical Trends (GeoVisibilityTrend, AI-VISIBILITY-MODULE.md) —
-	 * sitewide GEO score over time, one point per day
-	 * VisibilitySnapshotBuilder ran.
-	 *
-	 * Competitor Visibility (GeoCompetitorVisibility,
-	 * AI-VISIBILITY-MODULE.md) — real, on-demand structural comparison
-	 * against competitor URLs (Settings → GEO's `geo_competitor_urls`).
+	 * Competitor Visibility is vulopilot-pro's own GeoInsights slot —
+	 * `useFilterSlot()` returns the component itself, so `yourScore` can be
+	 * passed straight through as a normal prop (see that component's own
+	 * docblock for why).
 	 */
-	const GeoVisibilitySummary = useFilterSlot('vulopilot_geo_visibility_summary');
-	const GeoVisibilityTrend = useFilterSlot('vulopilot_geo_visibility_trend');
-	const GeoCompetitorVisibility = useFilterSlot('vulopilot_geo_competitor_visibility');
-	const GeoScoreCard = useFilterSlot('vulopilot_geo_score_card');
+	const GeoCompetitorVisibility = useFilterSlot<
+		(props: { yourScore?: number | null }) => JSX.Element
+	>('vulopilot_geo_competitor_visibility');
+
+	const geoTopicSections: FindingsSection[] = GEO_TOPICS.map((topic) => ({
+		key: topic.key,
+		title: topic.title,
+		description: topic.description,
+		emptyMessage: topic.emptyMessage,
+		scannerIds: topic.scannerIds,
+	}));
+
+	const allGeoScannerIds = GEO_TOPICS.flatMap((topic) => topic.scannerIds);
+	const totalOpenFindings = sumGroupCounts(groups, allGeoScannerIds);
+
+	const withScore = history.filter((row) => null !== row.overall_score);
+	const yourScore = withScore.length
+		? withScore[withScore.length - 1].overall_score
+		: null;
+
+	const scrollToId = (id: string) => {
+		const el = document.getElementById(id);
+		if (!el) {
+			return;
+		}
+		el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		el.classList.add('vulopilot-glimpse-highlight');
+		setTimeout(() => el.classList.remove('vulopilot-glimpse-highlight'), 1200);
+	};
+
+	const goToIssuesTable = (tab: SectionedIssuesTab = 'all') => {
+		setActiveTab(tab);
+		setTimeout(() => scrollToId('geo-all-issues-table'), 50);
+	};
 
 	return (
-		<ColumnComponent>
-			{isGeoInsightsActive() ? (
-				<>
-					{GeoVisibilitySummary && <GeoVisibilitySummary />}
-					{GeoVisibilityTrend && <GeoVisibilityTrend />}
-					{GeoCompetitorVisibility && <GeoCompetitorVisibility />}
-					{GeoScoreCard && <GeoScoreCard />}
-				</>
-			) : (
-				<CardComponent
-					title={__('AI Visibility Score', 'vulopilot')}
-					titleIcon="global-community"
-					desc={__(
-						'Sitewide GEO score, historical trend, and competitor comparison.',
+		<>
+			<div className="geo-info-banner">
+				<i className="adminfont-info" />
+				<span>
+					<strong>{__('In plain English:', 'vulopilot')}</strong>{' '}
+					{__(
+						'When someone asks ChatGPT, Gemini, or Google’s AI a question your site could answer, you’ll be more likely to get found and recommended.',
 						'vulopilot'
 					)}
-				>
-					<ProLockedCard moduleName="geo-insights" />
-				</CardComponent>
-			)}
-			<OpenIssuesGlimpse
-				category="geo"
-				titleIcon="notification"
-				sectionMap={SCANNER_TO_SECTION}
-				fallbackSection="entities"
-				anchorPrefix="geo-section-"
-				emptyTitle={__("You're all caught up", 'vulopilot')}
-				emptyDesc={__('No open GEO findings right now.', 'vulopilot')}
+				</span>
+			</div>
+
+			<GeoVisibilityOverviewRow
+				snapshot={snapshot}
+				history={history}
+				isLoading={isLoadingSnapshot}
+				totalOpenFindings={totalOpenFindings}
 			/>
 
-			<TopPagesCard />
-			{GEO_SECTIONS.map((section) => (
-				<ColumnComponent key={section.key} grid={6} fullHeight>
-					<CardComponent
-						id={`geo-section-${section.key}`}
-						title={section.title}
-						titleIcon={section.titleIcon}
-						desc={section.description}
-					>
-						{section.proModule && !isGeoInsightsActive() ? (
-							<ProLockedCard moduleName={section.proModule} />
-						) : (
-							<FindingsTable
-								title={section.title}
-								description={section.emptyMessage}
-								scannerIds={section.scannerIds}
-								layout="compact"
-							/>
-						)}
+			<ContainerComponent>
+				<GeoFixTheseFirstCard
+					groups={groups}
+					isLoading={isLoadingGroups}
+					total={totalOpenFindings}
+					onViewAll={() => goToIssuesTable('all')}
+					onSelectScanner={(scannerId) => {
+						const topic = GEO_TOPICS.find((t) =>
+							t.scannerIds.includes(scannerId)
+						);
+						goToIssuesTable(topic?.key ?? 'all');
+					}}
+				/>
+				<TopPagesCard onViewAll={() => scrollToId('geo-page-analysis')} />
+			</ContainerComponent>
+
+			<ContainerComponent>
+				<GeoTrendCompactCard
+					history={history}
+					isLoading={isLoadingSnapshot}
+					isGeoInsightsActive={isGeoInsightsActive()}
+				/>
+				{isGeoInsightsActive() && GeoCompetitorVisibility ? (
+					<GeoCompetitorVisibility yourScore={yourScore} />
+				) : (
+					<CardComponent title={__('How You Compare to Similar Sites', 'vulopilot')}>
+						<ProLockedCard moduleName="geo-insights" />
 					</CardComponent>
-				</ColumnComponent>
-			))}
-		</ColumnComponent>
+				)}
+			</ContainerComponent>
+
+			<div className="geo-info-banner">
+				<i className="adminfont-info" />
+				<span>
+					{__(
+						'This page shows how easy it is for AI tools to find, understand, and recommend your website. Fixing the issues above helps you show up when people ask AI a question you could answer.',
+						'vulopilot'
+					)}
+				</span>
+			</div>
+
+			<GeoByTopicGrid
+				topics={GEO_TOPICS}
+				groups={groups}
+				isLoading={isLoadingGroups}
+				onViewTopic={(key) => goToIssuesTable(key)}
+			/>
+
+			<div id="geo-page-analysis">
+				<GeoPageAnalysisTable />
+			</div>
+
+			<div id="geo-all-issues-table">
+				<SectionedFindingsTab
+					title={__('All GEO Issues', 'vulopilot')}
+					sections={geoTopicSections}
+					activeTab={activeTab}
+					onTabChange={setActiveTab}
+				/>
+			</div>
+		</>
 	);
 };
 

@@ -8,6 +8,7 @@
 namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Repositories\CrawlerVisitRepository;
+use VuloPilot\Repositories\FindingRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -57,6 +58,24 @@ class CrawlerTraffic extends \WP_REST_Controller {
                 ),
             )
         );
+
+        // GET-only, real current-vs-previous-period comparison — backs the
+        // restyled Crawler Traffic tab's stat row + Top Crawlers/Most
+        // Crawled Pages tables (CrawlerVisitRepository::get_period_comparison()'s
+        // own docblock). Composed here rather than in the repository
+        // because it needs FindingRepository's own real blocked-pages count
+        // too — a repository shouldn't reach into a sibling table.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/analytics',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_analytics' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                ),
+            )
+        );
     }
 
     /**
@@ -85,6 +104,58 @@ class CrawlerTraffic extends \WP_REST_Controller {
         $result['bot_name_counts'] = $repository->get_bot_counts();
 
         return rest_ensure_response( $result );
+    }
+
+    /**
+     * `GET /crawler-traffic/analytics` — real current-vs-previous-period
+     * comparison (CrawlerVisitRepository::get_period_comparison()) plus a
+     * real "by AI lab" breakdown and the real open blocked-pages count.
+     * There's deliberately no "search engines vs AI engines" split here the
+     * way the reference mockup's own "Crawler Types" donut shows — this
+     * plugin's own BOT_SIGNATURES list (CrawlerTrafficLogger's own
+     * docblock) only ever detects AI/answer-engine crawlers, never classic
+     * search engines, so every real row would land in one bucket and the
+     * other two would always read zero. Grouped by AI lab instead (the
+     * vendor name each bot's own display string already carries in
+     * parentheses, e.g. "GPTBot (OpenAI)" → "OpenAI") — a real, meaningful
+     * split of the traffic this plugin actually tracks.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response
+     */
+    public function get_analytics( $request ) {
+        $days       = absint( $request->get_param( 'days' ) ) ?: 30;
+        $repository = new CrawlerVisitRepository();
+        $comparison = $repository->get_period_comparison( $days );
+
+        $by_vendor = array();
+        foreach ( $comparison['top_crawlers'] as $crawler ) {
+            $vendor = $crawler['bot_name'];
+            if ( preg_match( '/\(([^)]+)\)\s*$/', $crawler['bot_name'], $matches ) ) {
+                $vendor = $matches[1];
+            }
+            $by_vendor[ $vendor ] = ( $by_vendor[ $vendor ] ?? 0 ) + $crawler['total'];
+        }
+        arsort( $by_vendor );
+
+        $blocked_pages_total = ( new FindingRepository() )->find_all(
+            array(
+                'scanner_id' => 'ai-crawler-blocked-pages',
+                'status'     => 'open',
+                'per_page'   => 1,
+            )
+        )['total'];
+
+        return rest_ensure_response(
+            array_merge(
+                $comparison,
+                array(
+                    'by_vendor'            => $by_vendor,
+                    'blocked_pages_total'  => (int) $blocked_pages_total,
+                    'daily_volume'         => $repository->get_daily_volume( $days ),
+                )
+            )
+        );
     }
 
     /**

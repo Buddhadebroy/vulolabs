@@ -8,6 +8,7 @@
 namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Repositories\FindingRepository;
+use VuloPilot\GeoAnalysis\GeoAnalyzer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -50,6 +51,19 @@ class GeoAnalysis extends \WP_REST_Controller {
     private const MAX_ZERO_FINDING_FILL = 20;
 
     /**
+     * Safety bound on `get_pages()`'s own underlying `WP_Query` — its
+     * sort key (`open_findings`/`visibility_score`) is computed, not a
+     * native post column, so it can't be an SQL `ORDER BY`; every matching
+     * post has to be pulled into memory, scored, then sorted/paginated in
+     * PHP. Same "reasonable bound, not truly unlimited" posture this
+     * controller's own MAX_ZERO_FINDING_FILL and
+     * VisibilitySnapshotBuilder::SAMPLE_SIZE already take elsewhere in
+     * this codebase, sized generously for a single site's own published
+     * content rather than a multisite-scale catalog.
+     */
+    private const MAX_PAGES_QUERY = 1000;
+
+    /**
      * @inheritDoc
      */
     public function register_routes() {
@@ -60,6 +74,18 @@ class GeoAnalysis extends \WP_REST_Controller {
                 array(
                     'methods'             => \WP_REST_Server::READABLE,
                     'callback'            => array( $this, 'get_top_pages' ),
+                    'permission_callback' => array( $this, 'get_top_pages_permissions_check' ),
+                ),
+            )
+        );
+
+        register_rest_route(
+            \VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/pages',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_pages' ),
                     'permission_callback' => array( $this, 'get_top_pages_permissions_check' ),
                 ),
             )
@@ -111,6 +137,130 @@ class GeoAnalysis extends \WP_REST_Controller {
             array(
 				'top'    => array_slice( $ranked, 0, $limit ),
 				'bottom' => array_slice( array_reverse( $ranked ), 0, $limit ),
+			)
+        );
+    }
+
+    /**
+     * `GET /geo-analysis/pages` — every published page/post with its real
+     * open-GEO-finding count and a real, deterministic (non-AI) visibility
+     * percentage, for the GEO tab's own "Page-by-page analysis" table
+     * (Export CSV + sortable, unlike get_top_pages()'s own bounded top/
+     * bottom-N lists). The visibility score is the exact same formula
+     * GeoAnalyzer::calculate_deterministic_score() computes for one post's
+     * own card (GeoAnalyzer::score_from_failures() — see that method's own
+     * docblock for why this endpoint calls the extracted, bulk-friendly
+     * version instead of that private per-post one) — real structural
+     * checks already persisted as scan findings, not an AI-generated
+     * number and not gated behind the opt-in "Generate GEO score" action,
+     * so every page gets a real percentage instead of only the handful
+     * someone has explicitly analyzed.
+     *
+     * `open_findings`/`sitewide_trust_signal_failure` both come from one
+     * shared `count_by_column('object_ref', …)` call — the same grouped
+     * query get_top_pages() already uses, reused here instead of querying
+     * per post (`calculate_deterministic_score()`'s own two-queries-per-post
+     * shape would mean N+1 queries across a whole site's pages).
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response
+     */
+    public function get_pages( $request ) {
+        $page     = max( 1, absint( $request->get_param( 'page' ) ) ?: 1 );
+        $per_page = min( 100, max( 1, absint( $request->get_param( 'per_page' ) ) ?: 10 ) );
+        $search   = sanitize_text_field( (string) $request->get_param( 'search' ) );
+        $orderby  = sanitize_key( (string) $request->get_param( 'orderby' ) ) ?: 'open_findings';
+        $order    = 'asc' === strtolower( (string) $request->get_param( 'order' ) ) ? 'asc' : 'desc';
+
+        $findings             = new FindingRepository();
+        $has_any_geo_history  = 0 < (int) $findings->find_all(
+            array(
+                'category' => 'geo',
+                'per_page' => 1,
+            )
+        )['total'];
+
+        $counts_by_object_ref          = $findings->count_by_column(
+            'object_ref',
+            array(
+                'category' => 'geo',
+                'status'   => 'open',
+            )
+        );
+        $sitewide_trust_signal_failure = 0 < (int) ( $counts_by_object_ref[ home_url( '/' ) ] ?? 0 );
+
+        $query_args = array(
+            'post_type'      => array( 'post', 'page' ),
+            'post_status'    => 'publish',
+            'posts_per_page' => self::MAX_PAGES_QUERY,
+            'fields'         => 'ids',
+        );
+
+        if ( '' !== $search ) {
+            $query_args['s'] = $search;
+        }
+
+        $post_ids = get_posts( $query_args );
+
+        $rows = array();
+
+        foreach ( $post_ids as $post_id ) {
+            $post = get_post( $post_id );
+
+            if ( ! $post ) {
+                continue;
+            }
+
+            $open_findings = (int) ( $counts_by_object_ref[ (string) $post_id ] ?? 0 );
+
+            $rows[] = array(
+                'post_id'         => $post_id,
+                'title'           => get_the_title( $post ),
+                'edit_link'       => get_edit_post_link( $post_id, 'raw' ),
+                'permalink'       => get_permalink( $post ),
+                'open_findings'   => $open_findings,
+                'visibility_score' => $has_any_geo_history
+                    ? GeoAnalyzer::score_from_failures( $open_findings, $sitewide_trust_signal_failure )
+                    : null,
+            );
+        }
+
+        $sort_key = in_array( $orderby, array( 'open_findings', 'visibility_score', 'title' ), true )
+            ? $orderby
+            : 'open_findings';
+
+        usort(
+            $rows,
+            static function ( $a, $b ) use ( $sort_key, $order ) {
+                $a_value = $a[ $sort_key ];
+                $b_value = $b[ $sort_key ];
+
+                // Nulls (no GEO history) always sort last regardless of direction —
+                // "unscored" isn't meaningfully higher or lower than a real number.
+                if ( null === $a_value && null === $b_value ) {
+                    return 0;
+				}
+                if ( null === $a_value ) {
+                    return 1;
+				}
+                if ( null === $b_value ) {
+                    return -1;
+				}
+
+                $comparison = is_string( $a_value ) ? strcasecmp( $a_value, $b_value ) : $a_value <=> $b_value;
+
+                return 'asc' === $order ? $comparison : -$comparison;
+            }
+        );
+
+        $total  = count( $rows );
+        $offset = ( $page - 1 ) * $per_page;
+        $paged  = array_slice( $rows, $offset, $per_page );
+
+        return rest_ensure_response(
+            array(
+				'data'  => $paged,
+				'total' => $total,
 			)
         );
     }

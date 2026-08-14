@@ -75,7 +75,7 @@ class StructuredDataValidationScanner extends AbstractBasicScanner {
         }
 
         $body   = wp_remote_retrieve_body( $response );
-        $blocks = $this->extract_json_ld_blocks( $body );
+        $blocks = self::extract_json_ld_blocks( $body );
 
         foreach ( $blocks as $index => $block ) {
             json_decode( $block );
@@ -103,10 +103,17 @@ class StructuredDataValidationScanner extends AbstractBasicScanner {
     }
 
     /**
+     * Public + static so Services\SchemaCoverageAnalyzer (the restyled
+     * Schema tab's own real per-page JSON-LD sampler) can reuse the exact
+     * same extraction regex rather than a second, potentially-drifting
+     * copy of it — this scanner's own homepage-only check and that
+     * analyzer's own multi-page sample both need to answer the identical
+     * "what JSON-LD blocks are actually on this page" question.
+     *
      * @param string $html Page HTML.
      * @return string[] Contents of each application/ld+json script block found.
      */
-    private function extract_json_ld_blocks( string $html ): array {
+    public static function extract_json_ld_blocks( string $html ): array {
         if ( ! preg_match_all( '#<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#is', $html, $matches ) ) {
             return array();
         }
