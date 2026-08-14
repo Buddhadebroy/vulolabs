@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import FindingsTable from '../../components/FindingsTable';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { sumGroupCounts } from './useWooCommerceFindingGroups';
+import { SectionComponent} from '@zyra/components';
 import {
 	PRODUCT_SCANNER_IDS,
 	CHECKOUT_SCANNER_IDS,
@@ -78,12 +79,9 @@ const WooCommerceIssuesTable = ({
 
 	return (
 		<div id="woocommerce-issues-table" className="woocommerce-issues-table">
-			<div className="woocommerce-issues-table-header">
-				<div className="woocommerce-issues-table-title">
-					{__('All WooCommerce Issues', 'vulopilot')}
-					<span className="admin-badge purple">{tabs[0].count}</span>
-				</div>
-			</div>
+
+			<SectionComponent title={__('All WooCommerce Issues', 'vulopilot')} />
+
 			<div className="woocommerce-issues-tabs">
 				{tabs.map((tab) => (
 					<span

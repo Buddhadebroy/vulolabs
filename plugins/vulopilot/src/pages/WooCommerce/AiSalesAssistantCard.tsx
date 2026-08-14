@@ -1,5 +1,5 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { CardComponent, ChatMessageComponent } from '@zyra/components';
+import { CardComponent, ChatMessageComponent, ColumnComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
 import { useApiList } from '../../services/useApiList';
@@ -46,49 +46,51 @@ const AiSalesAssistantCard = ({
 	});
 
 	return (
-		<CardComponent
-			title={__('AI Sales Assistant', 'vulopilot')}
-			titleIcon="ai"
-			isLoading={isLoading}
-		>
-			<AiCopilotGuard>
-				{!isLoading && (
-					<ChatMessageComponent sender="ai" avatarIcon="ai">
-						{total > 0
-							? sprintf(
-									/* translators: %d is the number of open WooCommerce findings. */
-									_n(
-										"I found %d open finding in your store. I can help you understand it, or optimize a batch with AI.",
-										"I found %d open findings in your store. I can help you understand them, or optimize a batch with AI.",
-										total,
+		<ColumnComponent fullHeight grid={6}>
+			<CardComponent
+				title={__('AI Sales Assistant', 'vulopilot')}
+				titleIcon="ai"
+				isLoading={isLoading}
+			>
+				<AiCopilotGuard>
+					{!isLoading && (
+						<ChatMessageComponent sender="ai" avatarIcon="ai">
+							{total > 0
+								? sprintf(
+										/* translators: %d is the number of open WooCommerce findings. */
+										_n(
+											"I found %d open finding in your store. I can help you understand it, or optimize a batch with AI.",
+											"I found %d open findings in your store. I can help you understand them, or optimize a batch with AI.",
+											total,
+											'vulopilot'
+										),
+										total
+									)
+								: __(
+										"You're all caught up — no open findings need your attention right now. I can still help you optimize a batch of products with AI.",
 										'vulopilot'
-									),
-									total
-								)
-							: __(
-									"You're all caught up — no open findings need your attention right now. I can still help you optimize a batch of products with AI.",
-									'vulopilot'
-								)}
-					</ChatMessageComponent>
-				)}
-				<span
-					role="button"
-					tabIndex={0}
-					className="ai-sales-optimize"
-					onClick={onOptimizeStore}
-				>
-					<i className="adminfont-ai" />
-					{__('Let AI Optimize My Store', 'vulopilot')}
-				</span>
-				<ButtonInput
-					buttons={{
-						text: __('Review Suggestions First', 'vulopilot'),
-						color: 'secondary',
-						onClick: onReviewIssues,
-					}}
-				/>
-			</AiCopilotGuard>
-		</CardComponent>
+									)}
+						</ChatMessageComponent>
+					)}
+					<span
+						role="button"
+						tabIndex={0}
+						className="ai-sales-optimize"
+						onClick={onOptimizeStore}
+					>
+						<i className="adminfont-ai" />
+						{__('Let AI Optimize My Store', 'vulopilot')}
+					</span>
+					<ButtonInput
+						buttons={{
+							text: __('Review Suggestions First', 'vulopilot'),
+							color: 'secondary',
+							onClick: onReviewIssues,
+						}}
+					/>
+				</AiCopilotGuard>
+			</CardComponent>
+		</ColumnComponent>
 	);
 };
 
