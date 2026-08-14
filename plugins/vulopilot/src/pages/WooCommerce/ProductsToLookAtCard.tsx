@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent } from '@zyra/components';
 import { useSalesInsights } from '../../services/useSalesInsights';
 
 interface NamedProduct {
@@ -170,48 +170,50 @@ const ProductsToLookAtCard = () => {
 	}
 
 	return (
-		<CardComponent
-			className="products-to-look-at"
-			title={__('Products to look at', 'vulopilot')}
-			action={
-				<a
-					className="woocommerce-category-link"
-					href={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`}
-				>
-					{__('View all products →', 'vulopilot')}
-				</a>
-			}
-		>
-			<div className="products-to-look-at-list">
-				{rows.map((row) => (
-					<div className="products-to-look-at-row" key={row.id}>
-						<span className={`products-to-look-at-icon ${row.iconTone}`}>
-							<i className="adminfont-cart" />
-						</span>
-						<div className="products-to-look-at-body">
-							<div className="products-to-look-at-title-row">
-								<span className="products-to-look-at-title">
-									{row.product.name}
-								</span>
-								<span className={`admin-badge ${row.badge.color}`}>
-									{row.badge.text}
-								</span>
+		<ColumnComponent grid={6}>
+			<CardComponent
+				className="products-to-look-at"
+				title={__('Products to look at', 'vulopilot')}
+				action={
+					<a
+						className="woocommerce-category-link"
+						href={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`}
+					>
+						{__('View all products →', 'vulopilot')}
+					</a>
+				}
+			>
+				<div className="products-to-look-at-list">
+					{rows.map((row) => (
+						<div className="products-to-look-at-row" key={row.id}>
+							<span className={`products-to-look-at-icon ${row.iconTone}`}>
+								<i className="adminfont-cart" />
+							</span>
+							<div className="products-to-look-at-body">
+								<div className="products-to-look-at-title-row">
+									<span className="products-to-look-at-title">
+										{row.product.name}
+									</span>
+									<span className={`admin-badge ${row.badge.color}`}>
+										{row.badge.text}
+									</span>
+								</div>
+								<div className="products-to-look-at-subtitle">
+									{row.subtitle}
+								</div>
+								<div className="desc">{row.desc}</div>
 							</div>
-							<div className="products-to-look-at-subtitle">
-								{row.subtitle}
-							</div>
-							<div className="desc">{row.desc}</div>
+							<a
+								className="woocommerce-category-link"
+								href={`${appLocalizer.site_url}/wp-admin/post.php?post=${row.product.id}&action=edit`}
+							>
+								{__('View product →', 'vulopilot')}
+							</a>
 						</div>
-						<a
-							className="woocommerce-category-link"
-							href={`${appLocalizer.site_url}/wp-admin/post.php?post=${row.product.id}&action=edit`}
-						>
-							{__('View product →', 'vulopilot')}
-						</a>
-					</div>
-				))}
-			</div>
-		</CardComponent>
+					))}
+				</div>
+			</CardComponent>
+		</ColumnComponent>
 	);
 };
 

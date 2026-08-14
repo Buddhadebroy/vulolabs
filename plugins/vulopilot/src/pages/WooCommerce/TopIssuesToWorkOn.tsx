@@ -1,6 +1,7 @@
 /* global appLocalizer */
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
+import { CardComponent } from '@zyra/components';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import {
 	PRODUCT_SCANNER_IDS,
@@ -122,12 +123,9 @@ const TopIssuesToWorkOn = ({
 	}
 
 	return (
-		<div className="woocommerce-top-issues">
-			<div className="woocommerce-top-issues-header">
-				<div className="woocommerce-top-issues-title">
-					{__('What should I work on first?', 'vulopilot')}
-				</div>
-			</div>
+		<CardComponent
+			title={__('What should I work on first?', 'vulopilot-pro')}
+		>
 			<div className="woocommerce-top-issues-list">
 				{topFive.map((group, index) => {
 					const bucket = getBucketMeta(group.scanner_id);
@@ -182,15 +180,13 @@ const TopIssuesToWorkOn = ({
 					);
 				})}
 			</div>
-			<span
-				className="woocommerce-top-issues-view-all"
-				role="button"
-				tabIndex={0}
-				onClick={onViewAll}
-			>
-				{__('View all important issues →', 'vulopilot')}
-			</span>
-		</div>
+			<ButtonInput
+				buttons={{
+					text: __('View all important issues →', 'vulopilot'),
+					onClick: onViewAll,
+				}}
+			/>
+		</CardComponent>
 	);
 };
 

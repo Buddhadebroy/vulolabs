@@ -352,7 +352,40 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 	const defaultHeaders: Record<string, any> = {
 		title: {
 			label: __('Finding', 'vulopilot'),
-			isSortable: true,
+			render: (row: Finding) => (
+				<InformationItemComponent
+					title={row.title}
+					avatar={{
+						iconClass:
+							row.severity === 'low' || row.severity === 'info'
+								? 'info blue'
+								: 'error red',
+					}}
+					badges={[
+						{
+							text: row.status,
+							className: `badge-${row.status}`,
+						},
+						{
+							text: row.severity,
+							className: `badge-${row.severity}`,
+						},
+						
+					]}
+					descriptions={[
+						{
+							value:
+								row.description ||
+								sprintf(
+									/* translators: 1: page path or "Site-wide", 2: formatted date */
+									__('%1$s · Detected %2$s', 'vulopilot'),
+									row.page || __('Site-wide', 'vulopilot'),
+									formatWpDate(row.created_at)
+								),
+						},
+					]}
+				/>
+			),
 		},
 		...(category
 			? {}
@@ -361,16 +394,6 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 						label: __('Category', 'vulopilot'),
 					},
 				}),
-		severity: {
-			label: __('Severity', 'vulopilot'),
-			type: 'status',
-			statusClass: (row) =>row.severity,
-		},
-		status: {
-			label: __('Status', 'vulopilot'),
-			type: 'status',
-			statusClass: (row) =>row.status,
-		},
 		created_at: {
 			label: __('Detected', 'vulopilot'),
 			type: 'date',
