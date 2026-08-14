@@ -1,10 +1,16 @@
+/* global appLocalizer */
 import { __ } from '@wordpress/i18n';
 import {
+	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
+	ModuleGuardComponent,
 	NavigatorHeaderComponent,
+	PopupComponent,
 } from '@zyra/components';
-import FindingsTable from '../../components/FindingsTable';
+import { TableCard } from '@zyra/table';
+import ShowProPopup from '../../components/Popup/Popup';
+import { useFindingsTable } from '../../services/useFindingsTable';
 import HealthScoreSummary from './HealthScoreSummary';
 import { useRunScan } from '../../services/useRunScan';
 
@@ -14,7 +20,7 @@ import { useRunScan } from '../../services/useRunScan';
  *
  * Wrapped in the same NavigatorHeaderComponent + ContainerComponent +
  * ColumnComponent shape every real vulolabs admin tab page uses
- * (e.g. components/Commissions/Commissions.tsx) — a bare `<FindingsTable>`
+ * (e.g. components/Commissions/Commissions.tsx) — a bare `<TableCard>`
  * with no container renders with none of the page padding/title-bar
  * styling those two components provide, which is what made this page
  * (and every other page below it) look broken rather than an actual
@@ -27,12 +33,20 @@ import { useRunScan } from '../../services/useRunScan';
  */
 const Health = () => {
 	const { runScanButton } = useRunScan();
+	const title = __('Site health', 'vulopilot');
+	const { tableCardProps, error, refetch, isProPopupOpen, closeProPopup } =
+		useFindingsTable({
+			description: __(
+				'No open findings — your site is looking healthy.',
+				'vulopilot'
+			),
+		});
 
 	return (
 		<>
 			<NavigatorHeaderComponent
 				headerIcon="home"
-				headerTitle={__('Site health', 'vulopilot')}
+				headerTitle={title}
 				headerDescription={__(
 					'Every open finding across every scanner category.',
 					'vulopilot'
@@ -42,15 +56,37 @@ const Health = () => {
 			<ContainerComponent general>
 				<ColumnComponent>
 					<HealthScoreSummary />
-					<FindingsTable
-						title={__('Site health', 'vulopilot')}
-						description={__(
-							'No open findings — your site is looking healthy.',
-							'vulopilot'
-						)}
-					/>
+					{error ? (
+						<CardComponent title={title}>
+							<ModuleGuardComponent
+								icon="error"
+								title={__(
+									'Could not load findings',
+									'vulopilot'
+								)}
+								desc={error}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetch}
+							/>
+						</CardComponent>
+					) : (
+						<TableCard {...tableCardProps} />
+					)}
 				</ColumnComponent>
 			</ContainerComponent>
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={closeProPopup}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{appLocalizer.khali_dabba ? (
+					<ShowProPopup moduleName="one-click-fix" />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
 		</>
 	);
 };

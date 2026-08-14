@@ -451,19 +451,19 @@ const GoogleServicesPanel = () => {
 							</p>
 						) : (
 							<div className="gsc-site-picker">
-								<p className="desc">
+								<div className="desc">
 									{__('Choose which verified property to use:', 'vulopilot')}
-								</p>
+								</div>
 								{null === gscSites && (
-									<p className="desc">{__('Loading…', 'vulopilot')}</p>
+									<div className="desc">{__('Loading…', 'vulopilot')}</div>
 								)}
 								{gscSites && gscSites.length === 0 && (
-									<p className="desc">
+									<div className="desc">
 										{__(
 											'No verified Search Console properties found on this Google account.',
 											'vulopilot'
 										)}
-									</p>
+									</div>
 								)}
 								{gscSites?.map((site) => (
 									<button
@@ -540,12 +540,12 @@ const GoogleServicesPanel = () => {
 									toggleSetting('ga_install_tracking_code', installTrackingCode)
 								}
 							/>
-							<p className="desc">
+							<div className="desc">
 								{__(
 									'Outputs a real gtag.js snippet on the frontend for the selected property. Only takes effect once a Data Stream is selected above.',
 									'vulopilot'
 								)}
-							</p>
+							</div>
 						</div>
 
 						{installTrackingCode && (
@@ -578,15 +578,15 @@ const GoogleServicesPanel = () => {
 						) : (
 							<>
 								{null === adsenseAccounts && (
-									<p className="desc">{__('Loading…', 'vulopilot')}</p>
+									<div className="desc">{__('Loading…', 'vulopilot')}</div>
 								)}
 								{adsenseAccounts && adsenseAccounts.length === 0 && (
-									<p className="desc">
+									<div className="desc">
 										{__(
 											'No AdSense account found on this Google account — that’s fine, AdSense is optional.',
 											'vulopilot'
 										)}
-									</p>
+									</div>
 								)}
 								{adsenseAccounts?.map((account) => (
 									<button

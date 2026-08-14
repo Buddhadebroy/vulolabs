@@ -1,10 +1,5 @@
 import { render, screen } from '@testing-library/react';
 
-jest.mock( '../../../components/FindingsTable', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="findings-table" />,
-} ) );
-
 jest.mock( '../ContentScoreCard', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="content-score-card" />,

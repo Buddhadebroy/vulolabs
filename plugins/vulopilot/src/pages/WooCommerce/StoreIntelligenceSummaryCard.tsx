@@ -1,5 +1,5 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ListComponent, ModuleGuardComponent } from '@zyra/components';
 import { useSalesInsights } from '../../services/useSalesInsights';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import type { WooCommerceIssueTab } from './WooCommerceIssuesTable';
@@ -171,31 +171,26 @@ const StoreIntelligenceSummaryCard = ({
 							)}
 						</div>
 					) : (
-						<div className="store-intelligence-noticed-list">
-							{rows.map((row) => (
-								<div className="store-intelligence-noticed-row" key={row.id}>
+						<ListComponent
+							className="mini-card report"
+							items={rows.map((row) => ({
+								id: row.id,
+								icon: row.icon,
+								className: `is-${row.color}`,
+								title: row.title,
+								desc: row.desc,
+								tags: (
 									<span
-										className={`store-intelligence-noticed-icon ${row.color}`}
-									>
-										<i className={`adminfont-${row.icon}`} />
-									</span>
-									<div className="store-intelligence-noticed-body">
-										<div className="store-intelligence-noticed-title">
-											{row.title}
-										</div>
-										<div className="desc">{row.desc}</div>
-									</div>
-									<span
-										className="store-intelligence-noticed-link"
+										className="read-more"
 										role="button"
 										tabIndex={0}
 										onClick={row.onClick}
 									>
 										{row.linkText}
 									</span>
-								</div>
-							))}
-						</div>
+								),
+							}))}
+						/>
 					)}
 				</>
 			)}

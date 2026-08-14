@@ -71,13 +71,13 @@ const GeoFixTheseFirstCard = ({
 			}
 		>
 			{!isLoading && 0 === topRows.length ? (
-				<p className="desc">
+				<div className="desc">
 					{emptyMessage ||
 						__(
 							'No open GEO findings right now — nothing to fix.',
 							'vulopilot'
 						)}
-				</p>
+				</div>
 			) : (
 				<ListComponent
 					className="mini-card report geo-fix-first-list"

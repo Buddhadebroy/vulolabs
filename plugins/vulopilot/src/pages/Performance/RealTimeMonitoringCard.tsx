@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, TooltipComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent, TooltipComponent } from '@zyra/components';
 import './ImproveSpeed.scss';
 
 interface RealtimeStats {
@@ -47,51 +47,58 @@ const RealTimeMonitoringCard = () => {
 	return (
 		<CardComponent id="performance-realtime-monitoring-card" title={__('Real-time Monitoring', 'vulopilot')} isLoading={isLoading}>
 			{stats && (
-				<div className="realtime-monitoring-grid">
-					<div className="realtime-monitoring-tile">
-						<div className="realtime-monitoring-tile-label">
-							{__('Server Response Time', 'vulopilot')}
-						</div>
-						<div className="realtime-monitoring-tile-value">
-							{null !== stats.avg_response_time_ms
-								? `${stats.avg_response_time_ms} ms`
-								: '—'}
-						</div>
-					</div>
-					<div className="realtime-monitoring-tile">
-						<TooltipComponent
-							text={__(
-								'A raw count of real page views in the last 5 minutes — not a unique-visitor count, which this plugin deliberately doesn\'t track (no IP logging, no tracking cookies).',
-								'vulopilot'
-							)}
-						>
-							<div className="realtime-monitoring-tile-label">
-								{__('Page Views (Last 5 Min)', 'vulopilot')}
-							</div>
-						</TooltipComponent>
-						<div className="realtime-monitoring-tile-value">
-							{stats.page_views_last_5_min}
-						</div>
-					</div>
-					<div className="realtime-monitoring-tile is-untracked">
-						<div className="realtime-monitoring-tile-label">
-							{__('Page Load Time', 'vulopilot')}
-						</div>
-						<div className="realtime-monitoring-tile-value">—</div>
-						<span className="realtime-monitoring-tile-untracked">
-							{__('Not tracked yet', 'vulopilot')}
-						</span>
-					</div>
-					<div className="realtime-monitoring-tile is-untracked">
-						<div className="realtime-monitoring-tile-label">
-							{__('Bandwidth Usage', 'vulopilot')}
-						</div>
-						<div className="realtime-monitoring-tile-value">—</div>
-						<span className="realtime-monitoring-tile-untracked">
-							{__('Not tracked yet', 'vulopilot')}
-						</span>
-					</div>
-				</div>
+				<AnalyticsComponent
+					cols={2}
+					variant="background-color"
+					data={[
+						{
+							number:
+								null !== stats.avg_response_time_ms
+									? `${stats.avg_response_time_ms} ms`
+									: '—',
+							colorClass: 'admin-bg-color2',
+							text: __('Server Response Time', 'vulopilot')
+						},
+						{
+							number: stats.page_views_last_5_min,
+							colorClass: 'admin-bg-color3',
+							text: (
+								<TooltipComponent
+									text={__(
+										'A raw count of real page views in the last 5 minutes — not a unique-visitor count, which this plugin deliberately doesn\'t track (no IP logging, no tracking cookies).',
+										'vulopilot'
+									)}
+								>
+									{__('Page Views (Last 5 Min)', 'vulopilot')}
+								</TooltipComponent>
+							),
+						},
+						{
+							number: '—',
+							colorClass: 'admin-bg-color4',
+							text: (
+								<>
+									{__('Page Load Time', 'vulopilot')}
+									<span className="realtime-monitoring-tile-untracked">
+										{__('Not tracked yet', 'vulopilot')}
+									</span>
+								</>
+							),
+						},
+						{
+							number: '—',
+							colorClass: 'admin-bg-color6',
+							text: (
+								<>
+									{__('Bandwidth Usage', 'vulopilot')}
+									<span className="realtime-monitoring-tile-untracked">
+										{__('Not tracked yet', 'vulopilot')}
+									</span>
+								</>
+							),
+						},
+					]}
+				/>
 			)}
 		</CardComponent>
 	);

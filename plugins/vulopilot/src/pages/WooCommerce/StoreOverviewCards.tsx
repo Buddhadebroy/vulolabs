@@ -155,7 +155,7 @@ const StoreOverviewCards = ({
 			label: __('Orders', 'vulopilot'),
 			value: ordersCurrent.toLocaleString(),
 			badge: pctBadge(ordersCurrent, ordersPrevious),
-			color: 'secondary',
+			color: 'border-purple',
 			chartData: current.map((row) => ({ value: Number(row.order_count) })),
 		},
 		{
@@ -206,7 +206,9 @@ const StoreOverviewCards = ({
 					/>
 					<ButtonInput
 						buttons={{
-							text: __('View Full Report →', 'vulopilot'),
+							icon: 'arrow-right',
+							color: 'text-purple',
+							text: __('View Full Report', 'vulopilot'),
 							onClick: onNavigateToWooCommerceTab,
 						}}
 					/>

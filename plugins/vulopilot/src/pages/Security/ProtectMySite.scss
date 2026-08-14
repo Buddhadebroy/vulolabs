@@ -9,7 +9,7 @@
 	// the mockup itself shows and comfortably fits this column's width at
 	// any reasonable viewport without that overflow, so there's no
 	// narrower-viewport case left needing its own breakpoint either.
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 0.875rem;
 }
 
@@ -1078,34 +1078,12 @@
 	}
 }
 
-.sectioned-issues-tabs {
-	display: flex;
-	gap: 1.25rem;
-	border-bottom: 1px solid var(--border-color, #eef0f2);
-	margin-bottom: 1rem;
-	flex-wrap: wrap;
-}
-
-.sectioned-issues-tab {
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-	padding-bottom: 0.625rem;
-	color: var(--sub-text-color, #6b7280);
-	font-weight: 600;
-	cursor: pointer;
-	border-bottom: 2px solid transparent;
-
-	&.active {
-		color: var(--color-primary);
-		border-bottom-color: var(--color-primary);
-	}
-}
-
-.sectioned-issues-tab-count {
-	font-size: 0.75rem;
-	opacity: 0.75;
-}
+// `.sectioned-issues-tabs`'s own tab-bar/underline/active-state CSS used to
+// live here — removed now that the tab bar is a real Zyra
+// `<TabsComponent>` (SectionedIssuesTable.tsx), which already ships this
+// exact underline-on-active-tab look itself (NavigatorComponent.scss's own
+// `.tabs-item .tab.active-tab` rule, global, not scoped to any one
+// component) — nothing left for this page to declare.
 
 // The table's own "Category" column badge (`.admin-badge.blue`) and
 // "Priority" column badge (`.admin-badge.badge-{severity}`, TableCard's

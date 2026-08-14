@@ -116,7 +116,7 @@ const Dashboard = () => {
 							{
 								label: __('Reset to default', 'vulopilot'),
 								icon: 'refresh',
-								color: 'secondary',
+								color: 'border-purple',
 								onClick: () =>
 									setRestoreDefaultSignal(
 										(signal) => signal + 1

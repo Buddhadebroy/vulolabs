@@ -174,7 +174,7 @@ $vulopilot-rating-very-poor: #991b1b;
 
 .performance-metrics-grid {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(3, 1fr);
 	gap: 0.875rem;
 
 	@media screen and (width <=64rem) {
@@ -209,37 +209,12 @@ $vulopilot-rating-very-poor: #991b1b;
 	}
 }
 
-.realtime-monitoring-grid {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.75rem;
-}
-
-.realtime-monitoring-tile {
-	padding: 0.875rem;
-	border: var(--border-light-small, 0.0625rem solid #e5e7eb);
-	border-radius: 0.625rem;
-
-	&.is-untracked {
-		.realtime-monitoring-tile-value {
-			color: var(--sub-text-color, #9ca3af);
-		}
-	}
-}
-
-.realtime-monitoring-tile-label {
-	font-size: 0.8rem;
-	color: var(--sub-text-color, #6b7280);
-	margin-bottom: 0.375rem;
-}
-
-.realtime-monitoring-tile-value {
-	font-size: 1.375rem;
-	font-weight: 700;
-	color: var(--theme-color, #111827);
-	line-height: 1.2;
-}
-
+// The grid/tile/label/value box model used to be declared here — removed
+// now that the 4 stats render through a real Zyra `<AnalyticsComponent
+// cols={2}>` (RealTimeMonitoringCard.tsx), which already provides its own
+// tile grid, number, and label styling. Only the one thing
+// AnalyticsComponent has no built-in equivalent for — the small "Not
+// tracked yet" note on the 2 still-unbacked stats — stays declared here.
 .realtime-monitoring-tile-untracked {
 	display: inline-block;
 	margin-top: 0.375rem;
@@ -288,161 +263,19 @@ $vulopilot-rating-very-poor: #991b1b;
 	margin: 0 0 1rem;
 }
 
-.page-speed-summary-tiles {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 0.875rem;
-	margin-bottom: 1rem;
+// The 4-tile summary grid's own box/icon/value/label/sublabel rules used to
+// live here — removed now that it's a real Zyra `<TrendStatComponent
+// cols={4}>` (SlowPagesTab.tsx), which already provides its own tile grid,
+// icon, value, label, and badge styling; the real per-tile severity colors
+// (good/needs-improvement/poor/very-poor) now come through as real
+// `admin-badge` color modifiers (`Item.badge.color`) instead of this file's
+// own `$vulopilot-rating-*` hex values.
 
-	@media screen and (width <=64rem) {
-		grid-template-columns: repeat(2, 1fr);
-	}
-}
-
-.page-speed-summary-tile {
-	text-align: center;
-}
-
-.page-speed-summary-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
-	border-radius: 0.5rem;
-	background: var(--theme-background-color, #f3f4f6);
-	color: var(--color-primary);
-	font-size: 1.125rem;
-	margin-bottom: 0.5rem;
-
-	// Real severity coloring per tile (Total is neutral/brand; Slow/Good are
-	// fixed; the 4th tile's color is the real average score's own rating,
-	// via ratingFor() — same rating vocabulary this file's own
-	// `.page-speed-score-pill` already uses, not a fabricated new palette.
-	&.is-primary {
-		background: color-mix(in srgb, var(--color-primary) 14%, transparent);
-		color: var(--color-primary);
-	}
-
-	&.is-poor {
-		background: color-mix(in srgb, $vulopilot-rating-poor 14%, transparent);
-		color: $vulopilot-rating-poor;
-	}
-
-	&.is-good {
-		background: color-mix(in srgb, $vulopilot-rating-good 14%, transparent);
-		color: $vulopilot-rating-good;
-	}
-
-	&.is-needs-improvement {
-		background: color-mix(in srgb, $vulopilot-rating-needs-improvement 14%, transparent);
-		color: $vulopilot-rating-needs-improvement;
-	}
-
-	&.is-unknown {
-		background: var(--theme-background-color, #f3f4f6);
-		color: var(--sub-text-color, #6b7280);
-	}
-
-	&.is-very-poor {
-		background: color-mix(in srgb, $vulopilot-rating-very-poor 14%, transparent);
-		color: $vulopilot-rating-very-poor;
-	}
-}
-
-.page-speed-summary-value {
-	font-size: 1.75rem;
-	font-weight: 700;
-	line-height: 1.2;
-
-	&.poor {
-		color: $vulopilot-rating-poor;
-	}
-
-	&.good {
-		color: $vulopilot-rating-good;
-	}
-
-	&.needs-improvement {
-		color: $vulopilot-rating-needs-improvement;
-	}
-
-	&.very-poor {
-		color: $vulopilot-rating-very-poor;
-	}
-}
-
-.page-speed-summary-sublabel {
-	font-size: 0.75rem;
-	font-weight: 600;
-	margin-top: 0.125rem;
-
-	&.poor {
-		color: $vulopilot-rating-poor;
-	}
-
-	&.good {
-		color: $vulopilot-rating-good;
-	}
-
-	&.needs-improvement {
-		color: $vulopilot-rating-needs-improvement;
-	}
-
-	&.very-poor {
-		color: $vulopilot-rating-very-poor;
-	}
-
-	&.unknown {
-		color: var(--sub-text-color, #6b7280);
-	}
-}
-
-.page-speed-trend-tile {
-	.zyra-chart {
-		margin-top: 0.375rem;
-	}
-}
-
-.page-speed-summary-label {
-	font-size: 0.8rem;
-	color: var(--sub-text-color, #6b7280);
-	margin-top: 0.25rem;
-}
-
-.page-speed-info-banner {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
-	padding: 0.75rem 1rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, var(--color-primary) 8%, transparent);
-	margin-bottom: 1rem;
-	font-size: 0.8125rem;
-
-	> i {
-		color: var(--color-primary);
-		font-size: 1rem;
-		flex-shrink: 0;
-	}
-
-	> p {
-		margin: 0;
-		flex: 1;
-		color: var(--theme-color, #111827);
-	}
-}
-
-.page-speed-info-banner-link {
-	color: var(--color-primary);
-	font-weight: 600;
-	white-space: nowrap;
-	text-decoration: none;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
+// `.page-speed-info-banner`/`.page-speed-info-banner-link`'s own icon/text/
+// link banner CSS used to live here — removed now that this is a real Zyra
+// `<NoticeComponent type="info" displayPosition="inline-notice">`
+// (SlowPagesTab.tsx), which supplies its own icon/message/action-link
+// styling.
 
 .page-speed-last-scanned {
 	font-size: 0.8125rem;
@@ -495,82 +328,21 @@ $vulopilot-rating-very-poor: #991b1b;
 	gap: 0.5rem;
 }
 
-.page-speed-export-button,
-.page-speed-scan-button {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.375rem;
-	padding: 0.5rem 0.875rem;
-	border-radius: 0.5rem;
-	border: var(--border-light-small, 0.0625rem solid #e5e7eb);
-	background: var(--color-white, #fff);
-	color: var(--theme-color, #111827);
-	font-weight: 600;
-	font-size: 0.8125rem;
-	cursor: pointer;
-	transition: border-color 0.15s ease, background-color 0.15s ease;
+// `.page-speed-export-button`/`.page-speed-scan-button`'s own outline-button
+// CSS used to live here — removed now that both actions render through a
+// real Zyra `<ButtonInput>` (SlowPagesTab.tsx), which supplies its own
+// button chrome/hover/disabled states.
 
-	&:hover:not(:disabled) {
-		border-color: var(--color-primary);
-		background: color-mix(in srgb, var(--color-primary) 6%, transparent);
-	}
-
-	.is-spinning {
-		animation: vulopilot-performance-spin 1s linear infinite;
-	}
-
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-}
-
-.page-speed-table-wrap {
-	overflow-x: auto;
-}
-
-.page-speed-table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.875rem;
-
-	th,
-	td {
-		text-align: left;
-		padding: 0.625rem 0.75rem;
-		border-bottom: var(--border-light-small, 0.0625rem solid #e5e7eb);
-		white-space: nowrap;
-	}
-
-	th {
-		color: var(--sub-text-color, #6b7280);
-		font-weight: 600;
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.02em;
-	}
-
-	td.page-speed-main-issue {
-		white-space: normal;
-		max-width: 16rem;
-		color: var(--sub-text-color, #6b7280);
-	}
-
-	th[title] {
-		cursor: help;
-	}
-
-	tbody tr {
-		transition: background-color 0.15s ease;
-
-		&:hover {
-			background: var(--theme-background-color, #f9fafb);
-		}
-
-		&:last-child td {
-			border-bottom: none;
-		}
-	}
+// `.page-speed-table-wrap`/`.page-speed-table`'s own raw <table> CSS used to
+// live here — removed now that this is a real Zyra `<TableCard>`
+// (SlowPagesTab.tsx), which supplies its own table chrome/row-hover/borders.
+// `.page-speed-main-issue` (still a real `cellClassName` on that TableCard's
+// "Main Issue" column) is the one cell style kept, now standalone rather
+// than nested under the removed `.page-speed-table`.
+.page-speed-main-issue {
+	white-space: normal;
+	max-width: 16rem;
+	color: var(--sub-text-color, #6b7280);
 }
 
 .page-speed-page-link {
@@ -661,52 +433,17 @@ $vulopilot-rating-very-poor: #991b1b;
 	color: var(--sub-text-color, #6b7280);
 }
 
-.page-speed-view-details {
-	padding: 0.375rem 0.75rem;
-	border-radius: 0.5rem;
-	border: var(--border-light-small, 0.0625rem solid #e5e7eb);
-	background: var(--color-white, #fff);
-	color: var(--color-primary);
-	font-weight: 600;
-	font-size: 0.8125rem;
-	cursor: pointer;
-	transition: border-color 0.15s ease, background-color 0.15s ease;
-
-	&:hover {
-		border-color: var(--color-primary);
-		background: color-mix(in srgb, var(--color-primary) 6%, transparent);
-	}
-}
-
 .page-speed-sidebar-desc {
 	color: var(--sub-text-color, #6b7280);
 	font-size: 0.8125rem;
 	margin: 0 0 0.75rem;
 }
 
-.page-speed-sidebar-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-
-	li {
-		display: flex;
-		flex-direction: column;
-		gap: 0.125rem;
-	}
-
-	strong {
-		font-size: 0.8125rem;
-	}
-
-	span {
-		font-size: 0.75rem;
-		color: var(--sub-text-color, #6b7280);
-	}
-}
+// `.page-speed-sidebar-list`'s own <ul>/<li>/strong/span CSS used to live
+// here — removed now that both sidebar lists are a real Zyra
+// `<ListComponent className="mini-card report">` (SlowPagesTab.tsx), same
+// title+desc row shape already used elsewhere on this page's own
+// WooCommerce-tab siblings.
 
 .page-speed-legend {
 	list-style: none;
@@ -751,30 +488,13 @@ $vulopilot-rating-very-poor: #991b1b;
 	color: var(--sub-text-color, #9ca3af);
 }
 
-.page-speed-disclaimer {
-	font-size: 0.75rem;
-	color: var(--sub-text-color, #6b7280);
-	margin: 0;
-}
+// `.page-speed-disclaimer`'s own plain-text CSS used to live here — removed
+// now that this is a real Zyra `<NoticeComponent type="info"
+// displayPosition="inline-notice">` (SlowPagesTab.tsx), which supplies its
+// own icon/message box styling.
 
-.page-speed-detail {
-	display: flex;
-	flex-direction: column;
-	gap: 0.625rem;
-
-	> a {
-		color: var(--color-primary);
-		word-break: break-all;
-	}
-}
-
-.page-speed-detail-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	font-size: 0.8125rem;
-
-	> span:first-child {
-		color: var(--sub-text-color, #6b7280);
-	}
-}
+// `.page-speed-detail`/`.page-speed-detail-row`'s own label/value row CSS
+// used to live here — removed now that the details popup is a real Zyra
+// `<FormGroupWrapperComponent>` of `<FormGroupComponent row>`s
+// (SlowPagesTab.tsx), which already provides this exact label-left/
+// value-right row layout.

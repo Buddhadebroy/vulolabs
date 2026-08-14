@@ -369,13 +369,13 @@ const AeoTab = () => {
 						isLoading={isLoadingGroups || isLoadingPages}
 					>
 						<div className="crawler-stat-value">{questionsAnswered}</div>
-						<p className="desc">
+						<div className="desc">
 							{sprintf(
 								/* translators: %d is the total number of real published pages/posts on this site. */
 								__('out of %d published pages', 'vulopilot'),
 								totalPages
 							)}
-						</p>
+						</div>
 					</CardComponent>
 				</ColumnComponent>
 				<ColumnComponent grid={3}>
@@ -390,9 +390,9 @@ const AeoTab = () => {
 						<div className="crawler-stat-value">
 							{sprintf('%d/%d', pagesReady, totalPages)}
 						</div>
-						<p className="desc">
+						<div className="desc">
 							{__('Ready to be quoted by an AI answer engine.', 'vulopilot')}
-						</p>
+						</div>
 					</CardComponent>
 				</ColumnComponent>
 				<ColumnComponent grid={3}>
@@ -405,12 +405,12 @@ const AeoTab = () => {
 						isLoading={isLoadingGroups}
 					>
 						<div className="crawler-stat-value">{totalOpenFindings}</div>
-						<p className="desc">
+						<div className="desc">
 							{__(
 								'Fixing these raises how often AI answer engines can quote this site directly.',
 								'vulopilot'
 							)}
-						</p>
+						</div>
 					</CardComponent>
 				</ColumnComponent>
 			</ContainerComponent>

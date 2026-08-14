@@ -63,17 +63,17 @@ const PerformanceTab = () => {
 	return (
 		<>
 			<ContainerComponent>
-				<ColumnComponent grid={4}>
+				<ColumnComponent fullHeight grid={4}>
 					<EfficiencyHeroCard
 						summary={data?.summary ?? null}
 						isLoading={isLoading}
 						onReviewImprovements={scrollTo(THINGS_TO_REVIEW_ID)}
 					/>
 				</ColumnComponent>
-				<ColumnComponent grid={4}>
+				<ColumnComponent fullHeight grid={4}>
 						<SpeedHistoryCard />
 				</ColumnComponent>
-				<ColumnComponent grid={4}>
+				<ColumnComponent fullHeight grid={4}>
 					<EfficiencyOverviewChart
 						summary={data?.summary ?? null}
 						isLoading={isLoading}

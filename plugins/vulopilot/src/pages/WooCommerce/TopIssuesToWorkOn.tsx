@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, ListComponent } from '@zyra/components';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import {
 	PRODUCT_SCANNER_IDS,
@@ -33,13 +33,19 @@ const IMPACT_COLOR: Record<FindingGroup['severity'], string> = {
 	info: 'blue',
 };
 
-/** Same red/orange/green rank progression the merged mockup design used, driven by real severity rather than fixed position. */
+/**
+ * Same red/orange/green rank progression the merged mockup design used,
+ * driven by real severity rather than fixed position — raw hex rather
+ * than an `admin-badge`-style color name, matching ListComponent's own
+ * `Item.numberColor` contract (any CSS color, same "raw color string"
+ * pattern InformationItemComponent's `avatar.color` prop already uses).
+ */
 const RANK_COLOR: Record<FindingGroup['severity'], string> = {
-	critical: 'red',
-	high: 'red',
-	medium: 'orange',
-	low: 'green',
-	info: 'green',
+	critical: '#dc2626',
+	high: '#dc2626',
+	medium: '#ea580c',
+	low: '#16a34a',
+	info: '#16a34a',
 };
 
 /**
@@ -96,14 +102,17 @@ interface TopIssuesToWorkOnProps {
  * Design merges three mockup variants of this same card (numbered-rank
  * list, a differently-styled "Sales at Risk" list, and a
  * "Potential effect" list) into this one real component rather than
- * shipping three near-duplicate sections: each row's rank circle
- * (colored by real severity), icon chip, and "Could help" line
- * (`getBucketMeta()`, driven by the same real scanner_id → bucket
- * mapping WooCommerceIssuesTable.tsx already uses) replace those three
- * mockups' own icon/badge/impact-line variants. The mockups' extra
- * top-of-card "N opportunities" count pill was dropped as a duplicate of
- * the "Important" tab's own count (WooCommerceIssuesTable.tsx) rather
- * than shown a second time here.
+ * shipping three near-duplicate sections: each row's rank circle (Zyra
+ * `ListComponent`'s own `number`/`numberColor` — colored by real
+ * severity), icon chip, and "Could help" line (`getBucketMeta()`, driven
+ * by the same real scanner_id → bucket mapping WooCommerceIssuesTable.tsx
+ * already uses) replace those three mockups' own icon/badge/impact-line
+ * variants — rendered through `ListComponent`'s own row structure rather
+ * than bespoke row markup, same "mini-card report" shape
+ * NeedsAttentionWidget.tsx's own issue lists already use. The mockups'
+ * extra top-of-card "N opportunities" count pill was dropped as a
+ * duplicate of the "Important" tab's own count (WooCommerceIssuesTable.tsx)
+ * rather than shown a second time here.
  */
 const TopIssuesToWorkOn = ({
 	groups,
@@ -125,42 +134,41 @@ const TopIssuesToWorkOn = ({
 	return (
 		<CardComponent
 			title={__('What should I work on first?', 'vulopilot-pro')}
+			titleIcon="star"
+			// Scopes SellMore.scss's shared `.admin-badge` red/orange/green/
+			// blue color vocabulary (declared once for this whole
+			// WooCommerce tab tree) onto this card's own impact badges —
+			// unchanged from before this was a real `<ListComponent>` row.
+			className="woocommerce-top-issues"
 		>
-			<div className="woocommerce-top-issues-list">
-				{topFive.map((group, index) => {
+			<ListComponent
+				className="mini-card report"
+				items={topFive.map((group, index) => {
 					const bucket = getBucketMeta(group.scanner_id);
 
-					return (
-						<div className="woocommerce-top-issue-row" key={group.scanner_id}>
-							<span
-								className={`woocommerce-top-issue-rank ${RANK_COLOR[group.severity]}`}
-							>
-								{index + 1}
-							</span>
-							<span className="woocommerce-top-issue-icon">
-								<i className={`adminfont-${bucket.icon}`} />
-							</span>
-							<div className="woocommerce-top-issue-body">
-								<div className="woocommerce-top-issue-title">
-									{group.label}
-								</div>
-								<div className="desc">
-									{sprintf(
-										/* translators: %d is the number of open findings in this group. */
-										_n(
-											'%d open finding.',
-											'%d open findings.',
-											group.count,
-											'vulopilot'
-										),
-										group.count
-									)}
-								</div>
-								<div className="woocommerce-top-issue-impact">
-									{bucket.impact}
-								</div>
-							</div>
-							<div className="woocommerce-top-issue-actions">
+					return {
+						id: group.scanner_id,
+						number: index + 1,
+						numberColor: RANK_COLOR[group.severity],
+						icon: bucket.icon,
+						title: group.label,
+						desc: sprintf(
+							/* translators: 1: pluralized open-finding count line, 2: this bucket's "Could help" impact line */
+							__('%1$s %2$s', 'vulopilot'),
+							sprintf(
+								/* translators: %d is the number of open findings in this group. */
+								_n(
+									'%d open finding.',
+									'%d open findings.',
+									group.count,
+									'vulopilot'
+								),
+								group.count
+							),
+							bucket.impact
+						),
+						tags: (
+							<>
 								<span
 									className={`admin-badge ${IMPACT_COLOR[group.severity]}`}
 								>
@@ -169,17 +177,17 @@ const TopIssuesToWorkOn = ({
 								<ButtonInput
 									buttons={{
 										text: __('Review →', 'vulopilot'),
-										color: 'secondary',
+										color: 'border-purple',
 										onClick: () => {
 											window.location.href = `${appLocalizer.admin_url}#&tab=ai-assistant&subtab=issues&scanner_id=${encodeURIComponent(group.scanner_id)}`;
 										},
 									}}
 								/>
-							</div>
-						</div>
-					);
+							</>
+						),
+					};
 				})}
-			</div>
+			/>
 			<ButtonInput
 				buttons={{
 					text: __('View all important issues →', 'vulopilot'),

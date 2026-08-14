@@ -1,9 +1,24 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getApiResponse, sendApiResponse } from '@zyra/core';
-import FindingsTable from '../FindingsTable';
+import { TableCard } from '@zyra/table';
+import { useFindingsTable } from '../useFindingsTable';
 
-describe( 'FindingsTable — Snooze (Manual Actions Only)', () => {
+/**
+ * Minimal real-page shape — every real caller (Health.tsx, GEO's
+ * CrawlerTrafficTab.tsx, WooCommerce's WooCommerceIssuesTable.tsx) calls
+ * `useFindingsTable()` and renders `<TableCard {...tableCardProps} />`
+ * itself; this mirrors that composition rather than testing the hook in
+ * isolation, since its whole contract is "what you get when you spread
+ * its result onto a real TableCard."
+ */
+const FindingsTableHost = () => {
+	const { tableCardProps } = useFindingsTable( {} );
+
+	return <TableCard { ...tableCardProps } />;
+};
+
+describe( 'useFindingsTable — Snooze (Manual Actions Only)', () => {
 	beforeEach( () => {
 		( getApiResponse as jest.Mock ).mockReset();
 		( sendApiResponse as jest.Mock ).mockReset();
@@ -29,7 +44,7 @@ describe( 'FindingsTable — Snooze (Manual Actions Only)', () => {
 			message: 'Finding #42 snoozed.',
 		} );
 
-		render( <FindingsTable title="Findings" /> );
+		render( <FindingsTableHost title="Findings" /> );
 
 		await userEvent.click(
 			await screen.findByRole( 'button', { name: 'Snooze' } )
@@ -48,7 +63,7 @@ describe( 'FindingsTable — Snooze (Manual Actions Only)', () => {
 			message: 'Finding #42 snoozed.',
 		} );
 
-		render( <FindingsTable title="Findings" /> );
+		render( <FindingsTableHost title="Findings" /> );
 
 		await userEvent.click(
 			await screen.findByRole( 'button', { name: 'Snooze' } )

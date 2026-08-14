@@ -155,7 +155,7 @@ const AutomationHeroRow = ({ onManageAutomations }: AutomationHeroRowProps) => {
 					<ButtonInput
 						buttons={{
 							text: __('Manage Automations', 'vulopilot'),
-							color: 'secondary',
+							color: 'border-purple',
 							onClick: onManageAutomations,
 						}}
 					/>

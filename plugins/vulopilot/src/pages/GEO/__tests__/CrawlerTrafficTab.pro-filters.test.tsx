@@ -17,9 +17,14 @@ jest.mock( '../CrawlerSummaryCard', () => ( {
 	default: () => <div data-testid="crawler-summary-card" />,
 } ) );
 
-jest.mock( '../../../components/FindingsTable', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="findings-table" />,
+jest.mock( '../../../services/useFindingsTable', () => ( {
+	useFindingsTable: () => ( {
+		tableCardProps: { rows: [], emptyMessage: '' },
+		error: null,
+		refetch: jest.fn(),
+		isProPopupOpen: false,
+		closeProPopup: jest.fn(),
+	} ),
 } ) );
 
 /**

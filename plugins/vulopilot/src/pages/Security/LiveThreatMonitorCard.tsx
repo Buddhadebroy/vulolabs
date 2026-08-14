@@ -78,7 +78,6 @@ const LiveThreatMonitorCard = () => {
 		>
 			<ListComponent
 				className="mini-card list"
-				border
 				items={rows.map((row) => ({
 					id: row.id,
 					title: row.label,

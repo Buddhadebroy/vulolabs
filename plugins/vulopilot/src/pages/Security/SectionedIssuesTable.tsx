@@ -1,12 +1,14 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	ColumnComponent,
 	ContainerComponent,
 	InformationItemComponent,
 	ModuleGuardComponent,
+	TabsComponent,
+	SectionComponent
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
@@ -240,143 +242,138 @@ const SectionedIssuesTable = ({
 		setSelectedGroup(null);
 	};
 
+	// Shared across every tab — TabsComponent only ever renders
+	// `tabs[activeIndex].content`, and this same reactive tree (already
+	// keyed off `activeTab`/`activeScannerIds` state, not off which tab
+	// object it's attached to) is what every tab showed even before this
+	// was a real TabsComponent, so it's simply handed to all of them here.
+	const sectionContent = (
+		<ContainerComponent>
+			<ColumnComponent grid={8}>
+				{isActiveSectionLocked ? (
+					<ProLockedCard
+						moduleName={activeSection!.proModule as string}
+					/>
+				) : (
+					<>
+						<IssuesSummaryCards
+							total={activeTabTotal}
+							priorityCounts={priorityCounts}
+							isLoading={isLoading}
+							activePriority={activePriority}
+							onSelectPriority={handlePriorityChange}
+						/>
+
+						{!isLoading && 0 === sortedGroups.length ? (
+							<ModuleGuardComponent
+								icon="check"
+								title={__('Nothing here right now', 'vulopilot')}
+								desc={
+									activeSection?.emptyMessage ||
+									__(
+										'No findings here yet — nothing to report.',
+										'vulopilot'
+									)
+								}
+							/>
+						) : (
+							<TableCard
+								showMenu={false}
+								hideHeader={true}
+								className="transparent-table"
+								headers={{
+									issue: {
+										label: __('Issue', 'vulopilot'),
+										width: '65%',
+										render: (row: FindingGroup) => (
+											<InformationItemComponent
+												title={row.label}
+												badges={[
+													{
+														text:
+															CATEGORY_LABELS[row.category] ??
+															row.category,
+														className: 'blue',
+													},
+													{
+														text: row.severity,
+														className: `badge-${row.severity}`,
+													},
+												]}
+												descriptions={[
+													{
+														value: row.sample?.description || '',
+													},
+												]}
+											/>
+										),
+									},
+									affected: {
+										label: __('Affected', 'vulopilot'),
+										render: (row: FindingGroup) =>
+											formatAffected(
+												row.count,
+												row.object_type
+											),
+									},
+									action: {
+										type: 'action',
+										label: __('Action', 'vulopilot'),
+										actions: [
+											{
+												label: __('View', 'vulopilot'),
+												icon: 'eye',
+												onClick: (row: FindingGroup) =>
+													setSelectedGroup(row),
+											},
+										],
+									},
+								}}
+								rows={pageRows}
+								ids={pageRows.map((row) => row.scanner_id)}
+								totalRows={sortedGroups.length}
+								isLoading={isLoading}
+								onQueryUpdate={(query: {
+									paged?: number | string;
+								}) => setPaged(Number(query.paged) || 1)}
+								emptyMessage={
+									activeSection?.emptyMessage ||
+									__(
+										'No findings here yet — nothing to report.',
+										'vulopilot'
+									)
+								}
+							/>
+						)}
+					</>
+				)}
+			</ColumnComponent>
+
+			<ColumnComponent grid={4}>
+				<IssueDetailPanel
+					group={selectedGroup}
+					onActionComplete={handleActionComplete}
+					onClose={() => setSelectedGroup(null)}
+				/>
+			</ColumnComponent>
+		</ContainerComponent>
+	);
+
 	return (
 		<div id={id} className="sectioned-issues-table">
-			<div className="sectioned-issues-table-header">
-				<div className="sectioned-issues-table-title">
-					{title}
-					<span className="admin-badge purple">{tabs[0].count}</span>
-				</div>
-			</div>
-			<div className="sectioned-issues-tabs">
-				{tabs.map((tab) => (
-					<span
-						key={tab.id}
-						className={`sectioned-issues-tab ${activeTab === tab.id ? 'active' : ''}`}
-						role="button"
-						tabIndex={0}
-						onClick={() => onTabChange(tab.id)}
-					>
-						{tab.label}
-						<span className="sectioned-issues-tab-count">
-							{tab.count}
-						</span>
-					</span>
-				))}
-			</div>
+			<SectionComponent title={title} />
 
-			<ContainerComponent>
-				<ColumnComponent grid={8}>
-					{isActiveSectionLocked ? (
-						<ProLockedCard
-							moduleName={activeSection!.proModule as string}
-						/>
-					) : (
-						<>
-							<IssuesSummaryCards
-								total={activeTabTotal}
-								priorityCounts={priorityCounts}
-								isLoading={isLoading}
-								activePriority={activePriority}
-								onSelectPriority={handlePriorityChange}
-							/>
-
-							{!isLoading && 0 === sortedGroups.length ? (
-								<ModuleGuardComponent
-									icon="check"
-									title={__('Nothing here right now', 'vulopilot')}
-									desc={
-										activeSection?.emptyMessage ||
-										__(
-											'No findings here yet — nothing to report.',
-											'vulopilot'
-										)
-									}
-								/>
-							) : (
-								<TableCard
-									showMenu={false}
-									hideHeader={true}
-									className="transparent-table"
-									headers={{
-										issue: {
-											label: __('Issue', 'vulopilot'),
-											width: '45%',
-											render: (row: FindingGroup) => (
-												<InformationItemComponent
-													title={row.label}
-													descriptions={[
-														{
-															value: row.sample?.description || '',
-														},
-													]}
-												/>
-											),
-										},
-										category: {
-											label: __('Category', 'vulopilot'),
-											render: (row: FindingGroup) => (
-												<span className="admin-badge blue">
-													{CATEGORY_LABELS[row.category] ??
-														row.category}
-												</span>
-											),
-										},
-										severity: {
-											label: __('Priority', 'vulopilot'),
-											type: 'status',
-											statusClass: (row: FindingGroup) =>
-												row.severity,
-										},
-										affected: {
-											label: __('Affected', 'vulopilot'),
-											render: (row: FindingGroup) =>
-												formatAffected(
-													row.count,
-													row.object_type
-												),
-										},
-										action: {
-											type: 'action',
-											label: __('Action', 'vulopilot'),
-											actions: [
-												{
-													label: __('View', 'vulopilot'),
-													icon: 'eye',
-													onClick: (row: FindingGroup) =>
-														setSelectedGroup(row),
-												},
-											],
-										},
-									}}
-									rows={pageRows}
-									ids={pageRows.map((row) => row.scanner_id)}
-									totalRows={sortedGroups.length}
-									isLoading={isLoading}
-									onQueryUpdate={(query: {
-										paged?: number | string;
-									}) => setPaged(Number(query.paged) || 1)}
-									emptyMessage={
-										activeSection?.emptyMessage ||
-										__(
-											'No findings here yet — nothing to report.',
-											'vulopilot'
-										)
-									}
-								/>
-							)}
-						</>
-					)}
-				</ColumnComponent>
-
-				<ColumnComponent grid={4}>
-					<IssueDetailPanel
-						group={selectedGroup}
-						onActionComplete={handleActionComplete}
-						onClose={() => setSelectedGroup(null)}
-					/>
-				</ColumnComponent>
-			</ContainerComponent>
+			<TabsComponent
+				activeIndex={Math.max(
+					tabs.findIndex((tab) => tab.id === activeTab),
+					0
+				)}
+				onTabChange={(index) => onTabChange(tabs[index].id)}
+				tabs={tabs.map((tab) => ({
+					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
+					content: sectionContent,
+				}))}
+			/>
 		</div>
 	);
 };

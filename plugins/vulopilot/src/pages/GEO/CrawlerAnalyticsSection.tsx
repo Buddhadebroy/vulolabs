@@ -170,12 +170,12 @@ const CrawlerAnalyticsSection = ({
 				<ColumnComponent grid={3}>
 					<CardComponent title={__('Overall Crawl Health', 'vulopilot')}>
 						{checklist.length === 0 ? (
-							<p className="desc">
+							<div className="desc">
 								{__(
 									'Turn on the SEO module to see robots.txt/sitemap crawl-health checks here.',
 									'vulopilot'
 								)}
-							</p>
+							</div>
 						) : (
 							<div
 								className={`crawler-health-status ${allGood ? 'is-good' : 'is-warning'}`}
@@ -236,9 +236,9 @@ const CrawlerAnalyticsSection = ({
 						)}
 					>
 						{0 === vendorEntries.length ? (
-							<p className="desc">
+							<div className="desc">
 								{__('No AI crawler visits detected yet.', 'vulopilot')}
-							</p>
+							</div>
 						) : (
 							<>
 								<div className="crawler-vendor-chart">
@@ -288,9 +288,9 @@ const CrawlerAnalyticsSection = ({
 						desc={__('Bots that crawled your site the most.', 'vulopilot')}
 					>
 						{0 === analytics.top_crawlers.length ? (
-							<p className="desc">
+							<div className="desc">
 								{__('No AI crawler visits detected yet.', 'vulopilot')}
-							</p>
+							</div>
 						) : (
 							<table className="crawler-table">
 								<thead>
@@ -324,9 +324,9 @@ const CrawlerAnalyticsSection = ({
 						desc={__('Pages that crawlers visited most often.', 'vulopilot')}
 					>
 						{0 === analytics.most_crawled_pages.length ? (
-							<p className="desc">
+							<div className="desc">
 								{__('No AI crawler visits detected yet.', 'vulopilot')}
-							</p>
+							</div>
 						) : (
 							<table className="crawler-table">
 								<thead>

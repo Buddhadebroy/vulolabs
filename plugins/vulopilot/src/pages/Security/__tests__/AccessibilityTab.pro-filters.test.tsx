@@ -1,10 +1,5 @@
 import { render, screen } from '@testing-library/react';
 
-jest.mock( '../../../components/FindingsTable', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="findings-table" />,
-} ) );
-
 /**
  * Accessibility.tsx resolves `vulopilot_accessibility_dashboard_card`/
  * `vulopilot_accessibility_history_panel` via applyFilters() once, at

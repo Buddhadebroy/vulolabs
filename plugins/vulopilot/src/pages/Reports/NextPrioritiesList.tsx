@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
-import { humanizeCategory } from '../../components/FindingsTable';
+import { humanizeCategory } from '../../services/useFindingsTable';
 import { getCategoryTabLink } from '../../services/getCategoryTabLink';
 import type { NextPriority } from './reportsOverview';
 
