@@ -197,6 +197,16 @@ $vulopilot-rating-very-poor: #991b1b;
 		font-weight: 600;
 		font-size: 0.9rem;
 	}
+
+	.performance-metric-view {
+		width: 100%;
+		margin-top: 0.25rem;
+
+		.admin-btn {
+			width: 100%;
+			justify-content: center;
+		}
+	}
 }
 
 .realtime-monitoring-grid {
