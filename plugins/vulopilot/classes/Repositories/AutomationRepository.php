@@ -21,7 +21,7 @@ class AutomationRepository extends AbstractRepository {
     /**
      * @var string[]
      */
-    protected array $filterable_columns = array( 'status' );
+    protected array $filterable_columns = array( 'status', 'category' );
 
     /**
      * @var string[]

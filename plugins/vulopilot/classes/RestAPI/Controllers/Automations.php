@@ -8,6 +8,7 @@
 namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Repositories\AutomationRepository;
+use VuloPilot\Repositories\AutomationRunRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -111,6 +112,7 @@ class Automations extends \WP_REST_Controller {
             )
         );
         $result['status_counts'] = $repository->get_status_counts();
+        $result['data']          = self::with_last_run( $result['data'] );
 
         return rest_ensure_response( $result );
     }
@@ -159,6 +161,48 @@ class Automations extends \WP_REST_Controller {
             'vulopilot_automation_not_implemented',
             __( 'Manually running an automation isn\'t supported yet — automations currently only fire from their own configured trigger.', 'vulopilot' ),
             array( 'status' => 501 )
+        );
+    }
+
+    /**
+     * Enriches each automation row with its own real most-recent run
+     * (`last_run_status`/`last_run_actions_executed`/`last_run_actions_failed`/
+     * `last_run_finished_at`) — what the "Automations" tab's table reads
+     * for its "Last run" column's real outcome subtext (e.g. "3 actions
+     * taken" / "No changes needed" / "Run failed"), one batch query via
+     * AutomationRunRepository::get_latest_by_automation_ids() rather than
+     * N+1 (performance.md). `null` fields mean this automation has never
+     * run yet — the frontend renders that as "Never run" rather than a
+     * fabricated outcome. Same small helper, independently duplicated in
+     * vulopilot-pro's own AutomationsRest.php (that controller doesn't
+     * extend this one — it's a separate registry override for when the
+     * Automation module is active — same "duplicate small per-file logic"
+     * convention automationLabels.ts's own docblock already establishes).
+     *
+     * @param array<int, array<string, mixed>> $rows Real automation rows, each with a real 'id'.
+     * @return array<int, array<string, mixed>>
+     */
+    private static function with_last_run( array $rows ): array {
+        $ids = array_map(
+            static fn( array $row ): int => (int) ( $row['id'] ?? 0 ),
+            $rows
+        );
+
+        $latest_by_id = ( new AutomationRunRepository() )->get_latest_by_automation_ids( $ids );
+
+        return array_map(
+            static function ( array $row ) use ( $latest_by_id ): array {
+                $latest = $latest_by_id[ (int) ( $row['id'] ?? 0 ) ] ?? null;
+
+                $row['last_run_status']           = $latest['status'] ?? null;
+                $row['last_run_actions_executed']  = $latest['actions_executed'] ?? null;
+                $row['last_run_actions_failed']    = $latest['actions_failed'] ?? null;
+                $row['last_run_changes_made']      = $latest['changes_made'] ?? null;
+                $row['last_run_finished_at']       = $latest['finished_at'] ?? null;
+
+                return $row;
+            },
+            $rows
         );
     }
 }

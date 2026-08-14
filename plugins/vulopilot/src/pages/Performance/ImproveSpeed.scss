@@ -1,6 +1,9 @@
 $vulopilot-rating-good: #16a34a;
 $vulopilot-rating-needs-improvement: #d97706;
 $vulopilot-rating-poor: #dc2626;
+// "Very Slow" — a real sub-band within "Poor" (score < PageSpeedRepository::SCORE_VERY_SLOW),
+// a darker red so it reads as more severe than plain "Poor" at a glance.
+$vulopilot-rating-very-poor: #991b1b;
 
 @mixin vulopilot-rating-colors {
 	&.good {
@@ -301,6 +304,40 @@ $vulopilot-rating-poor: #dc2626;
 	color: var(--color-primary);
 	font-size: 1.125rem;
 	margin-bottom: 0.5rem;
+
+	// Real severity coloring per tile (Total is neutral/brand; Slow/Good are
+	// fixed; the 4th tile's color is the real average score's own rating,
+	// via ratingFor() — same rating vocabulary this file's own
+	// `.page-speed-score-pill` already uses, not a fabricated new palette.
+	&.is-primary {
+		background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+		color: var(--color-primary);
+	}
+
+	&.is-poor {
+		background: color-mix(in srgb, $vulopilot-rating-poor 14%, transparent);
+		color: $vulopilot-rating-poor;
+	}
+
+	&.is-good {
+		background: color-mix(in srgb, $vulopilot-rating-good 14%, transparent);
+		color: $vulopilot-rating-good;
+	}
+
+	&.is-needs-improvement {
+		background: color-mix(in srgb, $vulopilot-rating-needs-improvement 14%, transparent);
+		color: $vulopilot-rating-needs-improvement;
+	}
+
+	&.is-unknown {
+		background: var(--theme-background-color, #f3f4f6);
+		color: var(--sub-text-color, #6b7280);
+	}
+
+	&.is-very-poor {
+		background: color-mix(in srgb, $vulopilot-rating-very-poor 14%, transparent);
+		color: $vulopilot-rating-very-poor;
+	}
 }
 
 .page-speed-summary-value {
@@ -315,12 +352,93 @@ $vulopilot-rating-poor: #dc2626;
 	&.good {
 		color: $vulopilot-rating-good;
 	}
+
+	&.needs-improvement {
+		color: $vulopilot-rating-needs-improvement;
+	}
+
+	&.very-poor {
+		color: $vulopilot-rating-very-poor;
+	}
+}
+
+.page-speed-summary-sublabel {
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-top: 0.125rem;
+
+	&.poor {
+		color: $vulopilot-rating-poor;
+	}
+
+	&.good {
+		color: $vulopilot-rating-good;
+	}
+
+	&.needs-improvement {
+		color: $vulopilot-rating-needs-improvement;
+	}
+
+	&.very-poor {
+		color: $vulopilot-rating-very-poor;
+	}
+
+	&.unknown {
+		color: var(--sub-text-color, #6b7280);
+	}
+}
+
+.page-speed-trend-tile {
+	.zyra-chart {
+		margin-top: 0.375rem;
+	}
 }
 
 .page-speed-summary-label {
 	font-size: 0.8rem;
 	color: var(--sub-text-color, #6b7280);
 	margin-top: 0.25rem;
+}
+
+.page-speed-info-banner {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	padding: 0.75rem 1rem;
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+	margin-bottom: 1rem;
+	font-size: 0.8125rem;
+
+	> i {
+		color: var(--color-primary);
+		font-size: 1rem;
+		flex-shrink: 0;
+	}
+
+	> p {
+		margin: 0;
+		flex: 1;
+		color: var(--theme-color, #111827);
+	}
+}
+
+.page-speed-info-banner-link {
+	color: var(--color-primary);
+	font-weight: 600;
+	white-space: nowrap;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.page-speed-last-scanned {
+	font-size: 0.8125rem;
+	color: var(--sub-text-color, #6b7280);
+	white-space: nowrap;
+	margin-right: 0.25rem;
 }
 
 .page-speed-toolbar {
@@ -347,6 +465,11 @@ $vulopilot-rating-poor: #dc2626;
 	font-weight: 600;
 	font-size: 0.8125rem;
 	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+	&:hover:not(.is-active) {
+		border-color: var(--color-primary);
+	}
 
 	&.is-active {
 		background: var(--color-primary);
@@ -375,6 +498,12 @@ $vulopilot-rating-poor: #dc2626;
 	font-weight: 600;
 	font-size: 0.8125rem;
 	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+
+	&:hover:not(:disabled) {
+		border-color: var(--color-primary);
+		background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+	}
 
 	.is-spinning {
 		animation: vulopilot-performance-spin 1s linear infinite;
@@ -415,6 +544,22 @@ $vulopilot-rating-poor: #dc2626;
 		white-space: normal;
 		max-width: 16rem;
 		color: var(--sub-text-color, #6b7280);
+	}
+
+	th[title] {
+		cursor: help;
+	}
+
+	tbody tr {
+		transition: background-color 0.15s ease;
+
+		&:hover {
+			background: var(--theme-background-color, #f9fafb);
+		}
+
+		&:last-child td {
+			border-bottom: none;
+		}
 	}
 }
 
@@ -460,6 +605,52 @@ $vulopilot-rating-poor: #dc2626;
 	}
 }
 
+// CoreWebVitalsDots — real Chrome UX Report field-data ratings
+// (FAST/AVERAGE/SLOW, SlowPagesTab.tsx's own CWV_DOT_CLASS), one dot per
+// LCP/INP/CLS metric; gray "unknown" when CrUX has no real field data for
+// that URL+metric.
+.page-speed-cwv-dots {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+}
+
+.page-speed-cwv-item {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	cursor: help;
+}
+
+.page-speed-cwv-dot {
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	flex-shrink: 0;
+
+	&.good {
+		background: $vulopilot-rating-good;
+	}
+
+	&.needs-improvement {
+		background: $vulopilot-rating-needs-improvement;
+	}
+
+	&.poor {
+		background: $vulopilot-rating-poor;
+	}
+
+	&.unknown {
+		background: var(--border-color, #d1d5db);
+	}
+}
+
+.page-speed-cwv-label {
+	font-size: 0.6875rem;
+	font-weight: 600;
+	color: var(--sub-text-color, #6b7280);
+}
+
 .page-speed-view-details {
 	padding: 0.375rem 0.75rem;
 	border-radius: 0.5rem;
@@ -469,6 +660,12 @@ $vulopilot-rating-poor: #dc2626;
 	font-weight: 600;
 	font-size: 0.8125rem;
 	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+
+	&:hover {
+		border-color: var(--color-primary);
+		background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+	}
 }
 
 .page-speed-sidebar-desc {
@@ -533,6 +730,10 @@ $vulopilot-rating-poor: #dc2626;
 	&.good {
 		background: $vulopilot-rating-good;
 	}
+
+	&.very-poor {
+		background: $vulopilot-rating-very-poor;
+	}
 }
 
 .page-speed-legend-range {
@@ -565,5 +766,82 @@ $vulopilot-rating-poor: #dc2626;
 
 	> span:first-child {
 		color: var(--sub-text-color, #6b7280);
+	}
+}
+
+// PerformanceOpportunitiesTab.tsx — real, deduplicated main_issue values
+// (PageSpeedRepository::get_top_issues()), ranked by real affected-page
+// count, each expandable to the real pages it affects.
+.page-speed-opportunities-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+}
+
+.page-speed-opportunity {
+	border: var(--border-light-small, 0.0625rem solid #e5e7eb);
+	border-radius: 0.5rem;
+	overflow: hidden;
+}
+
+.page-speed-opportunity-header {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	width: 100%;
+	padding: 0.75rem 1rem;
+	background: var(--color-white, #fff);
+	border: none;
+	cursor: pointer;
+	text-align: left;
+	font-size: 0.875rem;
+
+	&:hover {
+		background: var(--theme-background-color, #f9fafb);
+	}
+}
+
+.page-speed-opportunity-icon {
+	color: $vulopilot-rating-poor;
+	flex-shrink: 0;
+}
+
+.page-speed-opportunity-title {
+	flex: 1;
+	font-weight: 600;
+	color: var(--theme-color, #111827);
+}
+
+.page-speed-opportunity-count {
+	background: color-mix(in srgb, $vulopilot-rating-poor 12%, transparent);
+	color: $vulopilot-rating-poor;
+	white-space: nowrap;
+}
+
+.page-speed-opportunity-chevron {
+	color: var(--sub-text-color, #6b7280);
+	flex-shrink: 0;
+}
+
+.page-speed-opportunity-pages {
+	list-style: none;
+	margin: 0;
+	padding: 0.5rem 1rem 0.75rem 2.75rem;
+	background: var(--theme-background-color, #f9fafb);
+	border-top: var(--border-light-small, 0.0625rem solid #e5e7eb);
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+
+	a {
+		font-size: 0.8125rem;
+		color: var(--color-primary);
+
+		&:hover {
+			text-decoration: underline;
+		}
 	}
 }

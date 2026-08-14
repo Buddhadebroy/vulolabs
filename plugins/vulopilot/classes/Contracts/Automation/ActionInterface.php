@@ -42,4 +42,21 @@ interface ActionInterface {
      * @return AutomationRunResult
      */
     public function execute( Recommendation $recommendation, array $config ): AutomationRunResult;
+
+    /**
+     * Whether a *successful* execute() call actually changes something on
+     * the site (a database row this codebase owns being updated, a real
+     * fix applied) versus merely notifying someone about a recommendation
+     * — what `vulopilot_automation_runs.changes_made` counts, distinct
+     * from `actions_executed` (every action that ran without erroring,
+     * change-making or not). True answers must be literal: an action that
+     * only *proposes* a change and waits for separate human approval
+     * (RunAiActionAction::execute() creates a `pending_approval` row and
+     * stops there — see that class's own docblock) hasn't changed
+     * anything yet, so it answers false here even though it's a
+     * "does something real" action, not a notification.
+     *
+     * @return bool
+     */
+    public function changes_site_state(): bool;
 }

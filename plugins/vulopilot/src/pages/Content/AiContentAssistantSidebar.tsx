@@ -46,12 +46,71 @@ interface WpRestErrorBody {
 	message?: string;
 }
 
-const PROMPT_CHIPS = [
-	{ id: 'blog-ai-ecommerce', icon: 'document', title: __('Write a blog about AI in eCommerce', 'vulopilot') },
-	{ id: 'product-description-earbuds', icon: 'cart', title: __('Create a product description for wireless earbuds', 'vulopilot') },
-	{ id: 'faq-return-policy', icon: 'question', title: __('Generate FAQs for return policy', 'vulopilot') },
-	{ id: 'meta-title-landing-page', icon: 'price', title: __('Create meta title for a landing page', 'vulopilot') },
-	{ id: 'cta-saas-product', icon: 'edit', title: __('Write a call-to-action for a SaaS product', 'vulopilot') },
+interface PromptChip {
+	id: string;
+	icon: string;
+	/** The short label shown on the chip itself. */
+	title: string;
+	/** The clarifying question asked (as a local, non-AI chat turn) once this chip is picked. */
+	ask: string;
+	/** Combines the user's next reply into the real instruction actually sent to the AI. */
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	build: (answer: string) => string;
+}
+
+const PROMPT_CHIPS: PromptChip[] = [
+	{
+		id: 'blog',
+		icon: 'document',
+		title: __('Write a blog', 'vulopilot'),
+		ask: __('What should the blog be about?', 'vulopilot'),
+		build: (answer) =>
+			sprintf(__('Write a blog about %s', 'vulopilot'), answer),
+	},
+	{
+		id: 'product-description',
+		icon: 'cart',
+		title: __('Create a product description', 'vulopilot'),
+		ask: __(
+			'Which product is this for? Include the product name and a few key details.',
+			'vulopilot'
+		),
+		build: (answer) =>
+			sprintf(
+				__('Create a product description for %s', 'vulopilot'),
+				answer
+			),
+	},
+	{
+		id: 'faqs',
+		icon: 'question',
+		title: __('Generate FAQs', 'vulopilot'),
+		ask: __('What topic or policy should these FAQs cover?', 'vulopilot'),
+		build: (answer) =>
+			sprintf(__('Generate FAQs for %s', 'vulopilot'), answer),
+	},
+	{
+		id: 'meta-title',
+		icon: 'price',
+		title: __('Create meta title', 'vulopilot'),
+		ask: __('Which page is this meta title for?', 'vulopilot'),
+		build: (answer) =>
+			sprintf(__('Create meta title for %s', 'vulopilot'), answer),
+	},
+	{
+		id: 'cta',
+		icon: 'edit',
+		title: __('Write a call-to-action', 'vulopilot'),
+		ask: __(
+			'What product or service is this call-to-action for?',
+			'vulopilot'
+		),
+		build: (answer) =>
+			sprintf(
+				__('Write a call-to-action for %s', 'vulopilot'),
+				answer
+			),
+	},
 ];
 
 /**
@@ -83,24 +142,17 @@ const AiContentAssistantSidebar = () => {
 	const [message, setMessage] = useState('');
 	const [turns, setTurns] = useState<ChatTurn[]>([]);
 	const [isSending, setIsSending] = useState(false);
+	// Set the moment a chip is picked; cleared once the user's next message
+	// has been folded into that chip's own build() and sent for real.
+	const [pendingChip, setPendingChip] = useState<PromptChip | null>(null);
 
-	const handleSend = () => {
-		const trimmed = message.trim();
-
-		if ('' === trimmed || isSending) {
-			return;
-		}
-
-		const history = turns;
-
-		setTurns([...history, { role: 'user', content: trimmed }]);
-		setMessage('');
+	const sendToAi = (realMessage: string, displayedTurns: ChatTurn[]) => {
 		setIsSending(true);
 
 		axios
 			.post<ChatResponse>(
 				getApiLink(appLocalizer, 'content-assistant/chat'),
-				{ message: trimmed, history },
+				{ message: realMessage, history: displayedTurns },
 				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
 			)
 			.then((response) => {
@@ -128,6 +180,44 @@ const AiContentAssistantSidebar = () => {
 				});
 			})
 			.finally(() => setIsSending(false));
+	};
+
+	/**
+	 * Picking a chip doesn't send anything to the AI yet — it asks the real
+	 * follow-up question first (a local, scripted chat turn, not an AI
+	 * response) and waits for the user's next message to answer it. That
+	 * reply gets folded into the chip's own build() into one real, useful
+	 * instruction (e.g. "Write a blog about eco-friendly packaging") —
+	 * what's actually shown as the user's turn and sent to the AI, not the
+	 * bare reply on its own.
+	 */
+	const handleChipClick = (chip: PromptChip) => {
+		if (isSending) {
+			return;
+		}
+
+		setPendingChip(chip);
+		setMessage('');
+		setTurns((current) => [
+			...current,
+			{ role: 'assistant', content: chip.ask },
+		]);
+	};
+
+	const handleSend = () => {
+		const trimmed = message.trim();
+
+		if ('' === trimmed || isSending) {
+			return;
+		}
+
+		const history = turns;
+		const realMessage = pendingChip ? pendingChip.build(trimmed) : trimmed;
+
+		setTurns([...history, { role: 'user', content: realMessage }]);
+		setMessage('');
+		setPendingChip(null);
+		sendToAi(realMessage, history);
 	};
 
 	return (
@@ -175,21 +265,25 @@ const AiContentAssistantSidebar = () => {
 					</ChatMessageComponent>
 				)}
 
+				<ChatInputComponent
+					value={message}
+					onChange={setMessage}
+					onSend={handleSend}
+					disabled={isSending}
+					placeholder={
+						pendingChip
+							? __('Type your answer…', 'vulopilot')
+							: __('Ask Anything…', 'vulopilot')
+					}
+				/>
 				<ListComponent
 					className="chip-grid"
 					items={PROMPT_CHIPS.map((prompt) => ({
 						id: prompt.id,
 						icon: prompt.icon,
 						title: prompt.title,
-						action: () => setMessage(prompt.title),
+						action: () => handleChipClick(prompt),
 					}))}
-				/>
-				<ChatInputComponent
-					value={message}
-					onChange={setMessage}
-					onSend={handleSend}
-					disabled={isSending}
-					placeholder={__('Ask Anything…', 'vulopilot')}
 				/>
 			</AiCopilotGuard>
 		</CardComponent>

@@ -129,6 +129,7 @@ class Install {
             `id`                bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `name`              varchar(191) NOT NULL,
             `rule_id`           bigint(20) unsigned DEFAULT NULL,
+            `category`          varchar(30) NOT NULL DEFAULT 'monitoring',
             `trigger_type`      varchar(50) NOT NULL,
             `trigger_config`    longtext DEFAULT NULL,
             `conditions`        longtext DEFAULT NULL,
@@ -141,7 +142,8 @@ class Install {
             PRIMARY KEY (`id`),
             KEY `idx_rule` (`rule_id`),
             KEY `idx_status` (`status`),
-            KEY `idx_trigger_type` (`trigger_type`)
+            KEY `idx_trigger_type` (`trigger_type`),
+            KEY `idx_category` (`category`)
         ) $collate;";
 
         $sql_automation_runs = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['automation_run'] . "` (
@@ -152,6 +154,7 @@ class Install {
             `status`           varchar(20) NOT NULL DEFAULT 'running',
             `actions_executed` int(10) unsigned NOT NULL DEFAULT 0,
             `actions_failed`   int(10) unsigned NOT NULL DEFAULT 0,
+            `changes_made`     int(10) unsigned NOT NULL DEFAULT 0,
             `result_log`       longtext DEFAULT NULL,
             `retry_count`      tinyint(3) unsigned NOT NULL DEFAULT 0,
             `started_at`       datetime NOT NULL,
@@ -523,8 +526,18 @@ class Install {
      * PSI-key-gated fallback posture — never a fabricated device split.
      * `main_issue` is either a real Google Lighthouse opportunity-audit
      * title (from a real PSI response) or a plain load-time-based label;
-     * NULL when neither is available, never invented text. Same
-     * "own method, self-sufficient, callable from both a fresh install and
+     * NULL when neither is available, never invented text.
+     * `page_size_bytes`/`requests_count` are the real `total-byte-weight`/
+     * `network-requests` Lighthouse audits from that same real PSI
+     * response; `lcp_ms`/`inp_ms`/`cls_thousandths` + their `_rating`
+     * ('FAST'/'AVERAGE'/'SLOW') are real Chrome UX Report field data from
+     * PSI's own `loadingExperience` block — Google's real measured
+     * visitor experience for that URL, not Lighthouse's simulated lab
+     * run, and NULL whenever CrUX has no real field data for a
+     * low-traffic page (a real "not enough data" case, not fabricated).
+     * All eight stay NULL without a PSI key, same PSI-key-gated fallback
+     * posture as `mobile_score`/`desktop_score`. Same "own method,
+     * self-sufficient, callable from both a fresh install and
      * do_migration()" shape as create_core_web_vitals_table() above.
      *
      * @return void
@@ -539,17 +552,25 @@ class Install {
         $collate = $wpdb->get_charset_collate();
 
         $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['page_speed'] . "` (
-            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `url`            varchar(500) NOT NULL,
-            `title`          varchar(255) NOT NULL DEFAULT '',
-            `page_type`      varchar(40) NOT NULL DEFAULT 'page',
-            `load_time_ms`   int(10) unsigned DEFAULT NULL,
-            `score`          tinyint(3) unsigned DEFAULT NULL,
-            `status`         varchar(20) DEFAULT NULL,
-            `mobile_score`   tinyint(3) unsigned DEFAULT NULL,
-            `desktop_score`  tinyint(3) unsigned DEFAULT NULL,
-            `main_issue`     varchar(255) DEFAULT NULL,
-            `scanned_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `url`              varchar(500) NOT NULL,
+            `title`            varchar(255) NOT NULL DEFAULT '',
+            `page_type`        varchar(40) NOT NULL DEFAULT 'page',
+            `load_time_ms`     int(10) unsigned DEFAULT NULL,
+            `score`            tinyint(3) unsigned DEFAULT NULL,
+            `status`           varchar(20) DEFAULT NULL,
+            `mobile_score`     tinyint(3) unsigned DEFAULT NULL,
+            `desktop_score`    tinyint(3) unsigned DEFAULT NULL,
+            `main_issue`       varchar(255) DEFAULT NULL,
+            `page_size_bytes`  int(10) unsigned DEFAULT NULL,
+            `requests_count`   smallint(5) unsigned DEFAULT NULL,
+            `lcp_ms`           int(10) unsigned DEFAULT NULL,
+            `lcp_rating`       varchar(20) DEFAULT NULL,
+            `inp_ms`           int(10) unsigned DEFAULT NULL,
+            `inp_rating`       varchar(20) DEFAULT NULL,
+            `cls_thousandths`  smallint(5) unsigned DEFAULT NULL,
+            `cls_rating`       varchar(20) DEFAULT NULL,
+            `scanned_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             KEY `idx_url` (`url`(191)),
             KEY `idx_page_type` (`page_type`),
@@ -1056,6 +1077,18 @@ class Install {
         self::add_automations_conditions_column();
         self::add_automation_runs_retry_count_column();
 
+        // "Automations" tab redesign (AUTOMATION-ENGINE-MODULE.md) needs
+        // two more columns on these same already-existing tables — same
+        // outside-the-version-gate, self-healing reasoning as the pair
+        // immediately above.
+        self::add_automations_category_column();
+        self::add_automation_runs_changes_made_column();
+
+        // "Slow Pages" redesign needs 8 more columns on an already-existing
+        // table — same outside-the-version-gate, self-healing reasoning as
+        // the pair immediately above.
+        self::add_page_speed_psi_detail_columns();
+
         // The Geo module (modules/Geo/Module.php) didn't exist before this
         // version either — a site upgrading in place needs it added to
         // its active-module list the same way a fresh install gets it via
@@ -1204,6 +1237,89 @@ class Install {
         }
 
         $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `retry_count` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `result_log`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+    }
+
+    /**
+     * "Automations" tab (AUTOMATION-ENGINE-MODULE.md) — a real, user-chosen
+     * grouping (`monitoring`/`security`/`content`/`commerce`/`reporting`/
+     * `custom`, validated against the same fixed set
+     * AutomationsRest::CATEGORY_OPTIONS enforces) for the table's own type
+     * badge — distinct from `trigger_type` (schedule vs. event
+     * mechanics) and from a Finding's `category` (what a *scanner* found,
+     * not what an *automation* is for). Same outside-the-version-gate,
+     * column_exists()-guarded shape as add_automations_conditions_column()
+     * above. Defaults every pre-existing row to 'monitoring' (the DEFAULT
+     * clause itself, applied retroactively by the ALTER) since every
+     * automation this codebase could create before this column existed was
+     * a scan-and-react workflow — a real, honest default, not a guess.
+     *
+     * @return void
+     */
+    private static function add_automations_category_column() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . Utill::TABLES['automation'];
+
+        if ( self::column_exists( $table, 'category' ) ) {
+            return;
+        }
+
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `category` varchar(30) NOT NULL DEFAULT 'monitoring' AFTER `rule_id`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+        $wpdb->query( "ALTER TABLE `{$table}` ADD KEY `idx_category` (`category`)" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+    }
+
+    /**
+     * "Automations" tab's "Actions this month" stat tile — how many of a
+     * run's already-counted `actions_executed` were actions that actually
+     * changed something on the site (Contracts\Automation\ActionInterface::changes_site_state()),
+     * as opposed to a notification-only action (send-email/
+     * create-notification) that ran successfully but changed nothing.
+     * `actions_executed` alone can't answer "did VuloPilot change my site
+     * this month, or just notify me" — this column can. Same
+     * outside-the-version-gate, column_exists()-guarded shape as
+     * add_automation_runs_retry_count_column() above.
+     *
+     * @return void
+     */
+    private static function add_automation_runs_changes_made_column() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . Utill::TABLES['automation_run'];
+
+        if ( self::column_exists( $table, 'changes_made' ) ) {
+            return;
+        }
+
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `changes_made` int(10) unsigned NOT NULL DEFAULT 0 AFTER `actions_failed`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+    }
+
+    /**
+     * "Slow Pages" redesign — real PSI-sourced page weight/request-count/
+     * Core Web Vitals field-data columns on a table that already existed
+     * before this version. Same outside-the-version-gate, column_exists()-
+     * guarded shape as the pair above; see create_page_speed_table()'s own
+     * docblock for what each column really holds and why every one of them
+     * stays NULL without a configured PSI key.
+     *
+     * @return void
+     */
+    private static function add_page_speed_psi_detail_columns() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . Utill::TABLES['page_speed'];
+
+        if ( self::column_exists( $table, 'page_size_bytes' ) ) {
+            return;
+        }
+
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `page_size_bytes` int(10) unsigned DEFAULT NULL AFTER `main_issue`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `requests_count` smallint(5) unsigned DEFAULT NULL AFTER `page_size_bytes`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `lcp_ms` int(10) unsigned DEFAULT NULL AFTER `requests_count`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `lcp_rating` varchar(20) DEFAULT NULL AFTER `lcp_ms`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `inp_ms` int(10) unsigned DEFAULT NULL AFTER `lcp_rating`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `inp_rating` varchar(20) DEFAULT NULL AFTER `inp_ms`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `cls_thousandths` smallint(5) unsigned DEFAULT NULL AFTER `inp_rating`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `cls_rating` varchar(20) DEFAULT NULL AFTER `cls_thousandths`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
     }
 
     /**
