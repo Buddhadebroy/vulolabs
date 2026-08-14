@@ -99,11 +99,12 @@ const EfficiencySectionsList = ({
 	return (
 		<>
 			{sections.map((section) => (
-				<CardComponent key={section.key} className="efficiency-section-card">
-					<div className="efficiency-section-eyebrow">
-						<i className={`adminfont-${SECTION_ICONS[section.key] || 'document'}`} />
-						{section.label}
-					</div>
+				<CardComponent
+					key={section.key}
+					title={section.label}
+					titleIcon={SECTION_ICONS[section.key] || 'document'}
+					className="efficiency-section-card"
+				>
 					<p className="efficiency-section-question">{section.question}</p>
 					<div className="efficiency-check-list">
 						{section.checks.map((check, index) => (

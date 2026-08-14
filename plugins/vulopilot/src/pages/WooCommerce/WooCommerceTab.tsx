@@ -45,6 +45,7 @@ const WooCommerceAiLockedCard = () => {
 		<>
 			<CardComponent
 				title={__('Bulk AI optimization', 'vulopilot')}
+				titleIcon="ai"
 				desc={__(
 					'Rewrite titles, generate descriptions/FAQ/schema, and suggest cross-sell/upsell/bundles across a batch of products at once.',
 					'vulopilot'
@@ -87,6 +88,7 @@ const WooCommerceIntelligenceLockedCard = () => {
 		<>
 			<CardComponent
 				title={__('Store intelligence', 'vulopilot')}
+				titleIcon="ai"
 				desc={__(
 					'Stockout prediction, revenue trend history, and a current-period revenue breakdown for your store.',
 					'vulopilot'
@@ -212,7 +214,7 @@ const WooCommerceTab = () => {
 					onFindOpportunities={() => scrollToId('woocommerce-bulk-ai')}
 				/>
 			</ColumnComponent>
-			<ColumnComponent grid={6}>
+			<ColumnComponent fullHeight grid={6}>
 				<StoreIntelligenceSummaryCard
 					onExploreInsights={() =>
 						scrollToId('store-intelligence-panel')
@@ -246,15 +248,21 @@ const WooCommerceTab = () => {
 					)}
 				</div>
 			</ColumnComponent>
-			<ColumnComponent grid={6}>
-				<div id="store-intelligence-panel">
-					{WooCommerceIntelligencePanel ? (
-						<WooCommerceIntelligencePanel />
-					) : (
+			{WooCommerceIntelligencePanel ? (
+				// Real panel — WooCommerceIntelligencePanel.tsx (Pro) owns its
+				// own 3 `<ColumnComponent grid={6}>` cells (one per card:
+				// RevenueInsightsCard/StoreTrendsChart/InventoryIntelligenceCard),
+				// so it renders unwrapped here — a Column wrapping a Column
+				// would size against the inner Column's own already-halved
+				// width instead of this ContainerComponent's real width.
+				<WooCommerceIntelligencePanel />
+			) : (
+				<ColumnComponent grid={6}>
+					<div id="store-intelligence-panel">
 						<WooCommerceIntelligenceLockedCard />
-					)}
-				</div>
-			</ColumnComponent>
+					</div>
+				</ColumnComponent>
+			)}
 		</>
 	);
 };

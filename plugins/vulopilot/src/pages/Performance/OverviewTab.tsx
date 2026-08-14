@@ -89,10 +89,10 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 					/>
 
 					<ContainerComponent>
-						<ColumnComponent grid={6}>
+						<ColumnComponent fullHeight grid={6}>
 							<SpeedBoostCard onViewDetails={scrollToFindings} />
 						</ColumnComponent>
-						<ColumnComponent grid={6}>
+						<ColumnComponent fullHeight grid={6}>
 							<SpeedHistoryCard />
 						</ColumnComponent>
 					</ContainerComponent>

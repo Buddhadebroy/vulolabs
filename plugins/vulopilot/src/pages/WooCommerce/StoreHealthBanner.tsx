@@ -80,7 +80,7 @@ const StoreHealthBanner = ({
 					<ButtonInput
 						buttons={{
 							text: __('View Store Summary', 'vulopilot'),
-							color: 'secondary',
+							color: 'border-purple',
 							onClick: onViewSummary,
 						}}
 					/>

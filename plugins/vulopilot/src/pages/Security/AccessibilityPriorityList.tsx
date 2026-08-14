@@ -94,12 +94,12 @@ const AccessibilityPriorityList = ({
 			}
 		>
 			{!isLoading && topFindings.length === 0 && (
-				<p className="desc">
+				<div className="desc">
 					{__(
 						"You're all caught up — no open accessibility issues right now.",
 						'vulopilot'
 					)}
-				</p>
+				</div>
 			)}
 			{!isLoading && topFindings.length > 0 && (
 				<div className="accessibility-priority-list">

@@ -38,7 +38,7 @@ const SpeedBoostCard = ({ onViewDetails }: SpeedBoostCardProps) => {
 			isLoading={isLoading}
 		>
 			{!isLoading && (
-				<p className="desc">
+				<div className="desc">
 					{total > 0
 						? sprintf(
 								/* translators: %d is the number of open performance findings. */
@@ -52,7 +52,7 @@ const SpeedBoostCard = ({ onViewDetails }: SpeedBoostCardProps) => {
 								"You're all caught up — no open optimization opportunities right now.",
 								'vulopilot'
 							)}
-				</p>
+				</div>
 			)}
 			<TooltipComponent
 				text={__(

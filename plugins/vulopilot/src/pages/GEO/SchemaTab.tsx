@@ -165,12 +165,12 @@ const SchemaTab = () => {
 							</p>
 
 							{0 === snapshot.coverage.length ? (
-								<p className="desc">
+								<div className="desc">
 									{__(
 										'No structured data (JSON-LD) was found on any sampled page.',
 										'vulopilot'
 									)}
-								</p>
+								</div>
 							) : (
 								<table className="crawler-table schema-coverage-table">
 									<thead>

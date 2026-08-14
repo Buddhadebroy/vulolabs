@@ -1,9 +1,10 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ColumnComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent, ListComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { useSalesInsights } from '../../services/useSalesInsights';
 
 interface NamedProduct {
@@ -170,48 +171,54 @@ const ProductsToLookAtCard = () => {
 	}
 
 	return (
-		<ColumnComponent grid={6}>
+		<ColumnComponent fullHeight grid={6}>
 			<CardComponent
 				className="products-to-look-at"
 				title={__('Products to look at', 'vulopilot')}
+				titleIcon="cart"
 				action={
-					<a
-						className="woocommerce-category-link"
-						href={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`}
-					>
-						{__('View all products →', 'vulopilot')}
-					</a>
+					<ButtonInput
+						buttons={{
+							text: __('View all products →', 'vulopilot'),
+							color: 'border-purple',
+							onClick: () => {
+								window.location.href = `${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`;
+							},
+						}}
+					/>
 				}
 			>
-				<div className="products-to-look-at-list">
-					{rows.map((row) => (
-						<div className="products-to-look-at-row" key={row.id}>
-							<span className={`products-to-look-at-icon ${row.iconTone}`}>
-								<i className="adminfont-cart" />
-							</span>
-							<div className="products-to-look-at-body">
-								<div className="products-to-look-at-title-row">
-									<span className="products-to-look-at-title">
-										{row.product.name}
-									</span>
-									<span className={`admin-badge ${row.badge.color}`}>
-										{row.badge.text}
-									</span>
-								</div>
-								<div className="products-to-look-at-subtitle">
-									{row.subtitle}
-								</div>
-								<div className="desc">{row.desc}</div>
-							</div>
-							<a
-								className="woocommerce-category-link"
-								href={`${appLocalizer.site_url}/wp-admin/post.php?post=${row.product.id}&action=edit`}
-							>
-								{__('View product →', 'vulopilot')}
-							</a>
-						</div>
-					))}
-				</div>
+				<ListComponent
+					className="mini-card report"
+					items={rows.map((row) => ({
+						id: row.id,
+						icon: 'cart',
+						className: `is-${row.iconTone}`,
+						title: row.product.name,
+						desc: sprintf(
+							/* translators: 1: row subtitle (e.g. "Selling · Running low"), 2: longer reason this product needs attention */
+							__('%1$s · %2$s', 'vulopilot'),
+							row.subtitle,
+							row.desc
+						),
+						tags: (
+							<>
+								<span className={`admin-badge ${row.badge.color}`}>
+									{row.badge.text}
+								</span>
+								<ButtonInput
+									buttons={{
+										text: __('View product →', 'vulopilot'),
+										color: 'border-purple',
+										onClick: () => {
+											window.location.href = `${appLocalizer.site_url}/wp-admin/post.php?post=${row.product.id}&action=edit`;
+										},
+									}}
+								/>
+							</>
+						),
+					}))}
+				/>
 			</CardComponent>
 		</ColumnComponent>
 	);

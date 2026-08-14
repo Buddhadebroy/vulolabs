@@ -72,21 +72,20 @@ const AiSalesAssistantCard = ({
 									)}
 						</ChatMessageComponent>
 					)}
-					<span
-						role="button"
-						tabIndex={0}
-						className="ai-sales-optimize"
-						onClick={onOptimizeStore}
-					>
-						<i className="adminfont-ai" />
-						{__('Let AI Optimize My Store', 'vulopilot')}
-					</span>
 					<ButtonInput
-						buttons={{
-							text: __('Review Suggestions First', 'vulopilot'),
-							color: 'secondary',
-							onClick: onReviewIssues,
-						}}
+						position="full-width"
+						buttons={[
+							{
+								text: __('Let AI Optimize My Store', 'vulopilot'),
+								icon: 'ai',
+								onClick: onOptimizeStore,
+							},
+							{
+								text: __('Review Suggestions First', 'vulopilot'),
+								color: 'border-purple',
+								onClick: onReviewIssues,
+							},
+						]}
 					/>
 				</AiCopilotGuard>
 			</CardComponent>

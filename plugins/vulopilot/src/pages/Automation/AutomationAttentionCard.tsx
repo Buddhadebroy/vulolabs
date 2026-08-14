@@ -119,13 +119,13 @@ const AutomationAttentionCard = ({ onViewAll }: AutomationAttentionCardProps) =>
 									row.automation_name
 								)}
 							</strong>
-							<p className="desc">
+							<div className="desc">
 								{sprintf(
 									/* translators: %s is a formatted date. */
 									__('Last attempt: %s', 'vulopilot'),
 									formatWpDate(row.started_at)
 								)}
-							</p>
+							</div>
 						</div>
 						<ButtonInput
 							buttons={{

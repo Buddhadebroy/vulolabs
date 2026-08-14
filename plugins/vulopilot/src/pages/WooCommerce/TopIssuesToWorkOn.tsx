@@ -134,6 +134,7 @@ const TopIssuesToWorkOn = ({
 	return (
 		<CardComponent
 			title={__('What should I work on first?', 'vulopilot-pro')}
+			titleIcon="star"
 			// Scopes SellMore.scss's shared `.admin-badge` red/orange/green/
 			// blue color vocabulary (declared once for this whole
 			// WooCommerce tab tree) onto this card's own impact badges —
@@ -176,7 +177,7 @@ const TopIssuesToWorkOn = ({
 								<ButtonInput
 									buttons={{
 										text: __('Review →', 'vulopilot'),
-										color: 'secondary',
+										color: 'border-purple',
 										onClick: () => {
 											window.location.href = `${appLocalizer.admin_url}#&tab=ai-assistant&subtab=issues&scanner_id=${encodeURIComponent(group.scanner_id)}`;
 										},

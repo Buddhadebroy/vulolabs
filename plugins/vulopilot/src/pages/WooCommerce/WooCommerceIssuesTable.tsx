@@ -55,7 +55,7 @@ const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps)
 	return (
 		<>
 			{error ? (
-				<CardComponent title={__('WooCommerce', 'vulopilot')}>
+				<CardComponent title={__('WooCommerce', 'vulopilot')} titleIcon="error">
 					<ModuleGuardComponent
 						icon="error"
 						title={__('Could not load findings', 'vulopilot')}
@@ -149,7 +149,6 @@ const WooCommerceIssuesTable = ({
 		<div id="woocommerce-issues-table" className="woocommerce-issues-table">
 			<SectionComponent title={__('All WooCommerce Issues', 'vulopilot')} />
 			<TabsComponent
-				className="woocommerce-issues-tabs"
 				activeIndex={Math.max(activeIndex, 0)}
 				onTabChange={(index) => onTabChange(tabs[index].id)}
 				tabs={tabs.map((tab) => ({

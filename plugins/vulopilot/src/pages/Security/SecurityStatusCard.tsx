@@ -82,7 +82,7 @@ const SecurityStatusCard = () => {
 							? __('Your site needs attention', 'vulopilot')
 							: __('Your site is protected', 'vulopilot')}
 					</p>
-					<p className="desc">
+					<div className="desc">
 						{openFindings > 0
 							? sprintf(
 									/* translators: %d is the number of open security findings. */
@@ -93,7 +93,7 @@ const SecurityStatusCard = () => {
 									openFindings
 								)
 							: __('No active threats.', 'vulopilot')}
-					</p>
+					</div>
 				</>
 			)}
 		</CardComponent>

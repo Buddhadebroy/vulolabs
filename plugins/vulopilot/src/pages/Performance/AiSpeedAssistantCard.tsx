@@ -82,7 +82,7 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 				<ButtonInput
 					buttons={{
 						text: __('Review Speed Issues →', 'vulopilot'),
-						color: 'secondary',
+						color: 'border-purple',
 						onClick: onReviewIssues,
 					}}
 				/>

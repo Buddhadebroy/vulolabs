@@ -216,7 +216,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={6}>
+			<ColumnComponent row>
 				<CardComponent title={__('Overall Speed Score', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
@@ -278,14 +278,14 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 								)}
 							</div>
 
-							<p className="desc">
+							<div className="desc">
 								{hasPsi
 									? comparisonMessage()
 									: __(
 											'Connect Google PageSpeed Insights in Settings → Scanning → Performance for a real Mobile/Desktop breakdown.',
 											'vulopilot'
 										)}
-							</p>
+							</div>
 
 							<button type="button" className="speed-score-view-slow-pages" onClick={onViewDetails}>
 								{__('View Slow Pages', 'vulopilot')}
@@ -293,9 +293,6 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 						</>
 					)}
 				</CardComponent>
-			</ColumnComponent>
-
-			<ColumnComponent grid={6}>
 				<CardComponent id="performance-core-web-vitals-card" title={__('Core Web Vitals', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
@@ -307,7 +304,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 					{!isLoading && !hasError && vitals && (
 						<>
 							{vitals.sample_count < MIN_SAMPLES ? (
-								<p className="desc">
+								<div className="desc">
 									{sprintf(
 										/* translators: 1: real samples collected so far, 2: how many are needed. */
 										__(
@@ -317,7 +314,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 										vitals.sample_count,
 										MIN_SAMPLES
 									)}
-								</p>
+								</div>
 							) : (
 								<>
 									{'number' === typeof vitals.lcp_ms && (

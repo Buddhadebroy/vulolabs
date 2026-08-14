@@ -260,7 +260,7 @@ const EntityHighlightCard = ({
 			badges={[{ text: String(rows.length), color: rows.length > 0 ? 'green' : 'grey' }]}
 		>
 			{0 === rows.length ? (
-				<p className="desc">{emptyMessage}</p>
+				<div className="desc">{emptyMessage}</div>
 			) : (
 				<>
 					<ul className="kg-entity-list">
@@ -515,12 +515,12 @@ const KnowledgeGraphTab = () => {
 					title={__('Why does this matter?', 'vulopilot')}
 					titleIcon="info"
 				>
-					<p className="desc">
+					<div className="desc">
 						{__(
 							'Search engines and AI systems need to understand who you are, what you offer, and what the important things on your website are. Clear, accurate information helps your content show up in more relevant searches and AI answers.',
 							'vulopilot'
 						)}
-					</p>
+					</div>
 				</CardComponent>
 
 				{entities &&

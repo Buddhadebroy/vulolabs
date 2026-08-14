@@ -4,14 +4,20 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
-	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
+	FormGroupComponent,
+	FormGroupWrapperComponent,
+	ListComponent,
 	ModuleGuardComponent,
+	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
+	TooltipComponent,
+	TrendStatComponent,
 } from '@zyra/components';
-import { SelectInput, TextInput } from '@zyra/inputs';
+import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
 import './ImproveSpeed.scss';
 
@@ -151,6 +157,15 @@ const CWV_DOT_CLASS: Record<string, string> = {
 	SLOW: 'poor',
 };
 
+/** `ratingFor()`'s own className → the closest `admin-badge` color name — TrendStatComponent's own `Item.badge.color` contract (a real admin-badge modifier), not a raw hex, unlike the fixed `$vulopilot-rating-*` hex values the old summary tiles painted directly. No badge color exists for "very poor" specifically, so it shares 'red' with "poor". */
+const RATING_BADGE_COLOR: Record<string, string> = {
+	good: 'green',
+	'needs-improvement': 'orange',
+	poor: 'red',
+	'very-poor': 'red',
+	unknown: '',
+};
+
 const CWV_METRICS = [
 	{ key: 'lcp', label: 'LCP', ratingKey: 'lcp_rating' as const },
 	{ key: 'inp', label: 'INP', ratingKey: 'inp_rating' as const },
@@ -229,6 +244,13 @@ const SlowPagesTab = () => {
 	const [trendDays, setTrendDays] = useState('30');
 	const [trend, setTrend] = useState<ScoreSnapshot[]>([]);
 	const [isTrendLoading, setIsTrendLoading] = useState(true);
+	// This table's own rows are all fetched once (per_page=200) and
+	// filtered/searched entirely client-side (see this file's own docblock)
+	// — TableCard itself never slices `rows` server-side, it just displays
+	// whatever page-worth it's handed and hands page changes back via
+	// `onQueryUpdate`, so this table now does that same slicing locally.
+	const [paged, setPaged] = useState(1);
+	const [perPage, setPerPage] = useState(10);
 
 	const load = () => {
 		setIsLoading(true);
@@ -370,6 +392,14 @@ const SlowPagesTab = () => {
 		});
 	}, [rows, statusFilter, pageTypeFilter, searchTerm]);
 
+	// A stale page 3 left over from a previous filter could otherwise show
+	// an empty page once a new filter/search narrows the real result set.
+	useEffect(() => {
+		setPaged(1);
+	}, [statusFilter, pageTypeFilter, searchTerm]);
+
+	const pageRows = filteredRows.slice((paged - 1) * perPage, paged * perPage);
+
 	const statusCounts = response?.status_counts ?? {};
 	const summary = response?.summary ?? null;
 	const topIssues = response?.top_issues ?? [];
@@ -453,87 +483,84 @@ const SlowPagesTab = () => {
 	return (
 		<>
 			<ColumnComponent grid={8}>
-				<p className="page-speed-intro">
+				{/* <p className="page-speed-intro">
 					{__(
 						'These pages are loading slowly and need your attention.',
 						'vulopilot'
 					)}
-				</p>
+				</p> */}
 
-				<div className="page-speed-summary-tiles">
-					<CardComponent className="page-speed-summary-tile" isLoading={isLoading}>
-						<i className="page-speed-summary-icon is-poor adminfont-error" />
-						<div className="page-speed-summary-value poor">{summary?.slow ?? 0}</div>
-						<div className="page-speed-summary-label">{__( 'Slow Pages', 'vulopilot' )}</div>
-						<div className="page-speed-summary-sublabel poor">{__( 'Needs Improvement', 'vulopilot' )}</div>
-					</CardComponent>
-					<CardComponent className="page-speed-summary-tile" isLoading={isLoading}>
-						<i className="page-speed-summary-icon is-very-poor adminfont-error" />
-						<div className="page-speed-summary-value very-poor">{summary?.very_slow ?? 0}</div>
-						<div className="page-speed-summary-label">{__( 'Very Slow Pages', 'vulopilot' )}</div>
-						<div className="page-speed-summary-sublabel very-poor">{__( 'Poor', 'vulopilot' )}</div>
-					</CardComponent>
-					<CardComponent className="page-speed-summary-tile" isLoading={isLoading}>
-						<i className="page-speed-summary-icon is-primary adminfont-form-phone" />
-						<div className="page-speed-summary-value">
-							{avgLoadTimeMs !== null
-								? sprintf( __( '%s s', 'vulopilot' ), (avgLoadTimeMs / 1000).toFixed(1) )
-								: '—'}
-						</div>
-						<div className="page-speed-summary-label">{__( 'Average Load Time', 'vulopilot' )}</div>
-						<div className={`page-speed-summary-sublabel ${avgScoreRating.className}`}>
-							{null !== avgScore
-								? sprintf(
-										/* translators: %s is a rating word like "Good"/"Poor". */
-										__( '%s score', 'vulopilot' ),
-										avgScoreRating.label
-									)
-								: __( 'Not scored yet', 'vulopilot' )}
-						</div>
-					</CardComponent>
-					<CardComponent className="page-speed-summary-tile page-speed-trend-tile" isLoading={isLoading || isTrendLoading}>
-						<i className={`page-speed-summary-icon ${isTrendImproving ? 'is-good' : 'is-poor'} adminfont-check`} />
-						<div className={`page-speed-summary-value ${isTrendImproving ? 'good' : 'poor'}`}>
-							{null !== trendDelta
-								? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__( 'pts', 'vulopilot' )}`
-								: '—'}
-						</div>
-						<div className="page-speed-summary-label">
-							{null !== trendDelta
-								? __( 'Performance Trend', 'vulopilot' )
-								: __( 'Not enough trend data yet', 'vulopilot' )}
-						</div>
-						{trend.length >= 2 && (
-							<ChartComponent
-								type="area"
-								sparkline
-								height={40}
-								data={trend}
-								dataKey="performance_score"
-								xKey="snapshot_date"
-								color={isTrendImproving ? '#16a34a' : '#dc2626'}
-							/>
-						)}
-					</CardComponent>
-				</div>
+				<TrendStatComponent
+					cols={4}
+					isLoading={isLoading || isTrendLoading}
+					items={[
+						{
+							icon: 'error',
+							label: __( 'Slow Pages', 'vulopilot' ),
+							value: summary?.slow ?? 0,
+							badge: {
+								text: __( 'Needs Improvement', 'vulopilot' ),
+								color: 'orange',
+							},
+						},
+						{
+							icon: 'error',
+							label: __( 'Very Slow Pages', 'vulopilot' ),
+							value: summary?.very_slow ?? 0,
+							badge: { text: __( 'Poor', 'vulopilot' ), color: 'red' },
+						},
+						{
+							icon: 'form-phone',
+							label: __( 'Average Load Time', 'vulopilot' ),
+							value:
+								avgLoadTimeMs !== null
+									? sprintf( __( '%s s', 'vulopilot' ), (avgLoadTimeMs / 1000).toFixed(1) )
+									: '—',
+							badge: {
+								text:
+									null !== avgScore
+										? sprintf(
+												/* translators: %s is a rating word like "Good"/"Poor". */
+												__( '%s score', 'vulopilot' ),
+												avgScoreRating.label
+											)
+										: __( 'Not scored yet', 'vulopilot' ),
+								color: RATING_BADGE_COLOR[avgScoreRating.className],
+							},
+						},
+						{
+							icon: 'check',
+							label:
+								null !== trendDelta
+									? __( 'Performance Trend', 'vulopilot' )
+									: __( 'Not enough trend data yet', 'vulopilot' ),
+							value:
+								null !== trendDelta
+									? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__( 'pts', 'vulopilot' )}`
+									: '—',
+							color: isTrendImproving ? '#16a34a' : '#dc2626',
+							chartData: trend.length >= 2 ? trend : undefined,
+							chartDataKey: 'performance_score',
+						},
+					]}
+				/>
 
-				<div className="page-speed-info-banner">
-					<i className="adminfont-info" />
-					<p>
-						{__(
-							'Slow pages can hurt user experience and search rankings. Focus on the pages with the lowest scores first for the biggest impact.',
-							'vulopilot'
-						)}
-					</p>
-					<a
-						href="https://web.dev/articles/vitals"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="page-speed-info-banner-link"
-					>
-						{__( 'Learn more', 'vulopilot' )} ↗
-					</a>
-				</div>
+				<NoticeComponent
+					type="info"
+					displayPosition="inline-notice"
+					message={__(
+						'Slow pages can hurt user experience and search rankings. Focus on the pages with the lowest scores first for the biggest impact.',
+						'vulopilot'
+					)}
+					actionLabel={`${__( 'Learn more', 'vulopilot' )} ↗`}
+					onAction={() =>
+						window.open(
+							'https://web.dev/articles/vitals',
+							'_blank',
+							'noopener,noreferrer'
+						)
+					}
+				/>
 
 				<div className="page-speed-toolbar">
 					<div className="page-speed-filter-pills">
@@ -578,23 +605,27 @@ const SlowPagesTab = () => {
 							value={searchTerm}
 							onChange={(value) => setSearchTerm(value as string)}
 						/>
-						<button type="button" className="page-speed-export-button" onClick={handleExport}>
-							<i className="adminfont-export" />
-							{__( 'Export', 'vulopilot' )}
-						</button>
-						<button
-							type="button"
-							className="page-speed-scan-button"
-							onClick={handleScan}
-							disabled={isScanning}
-						>
-							<i className={`adminfont-refresh ${isScanning ? 'is-spinning' : ''}`} />
-							{isScanning ? __( 'Starting…', 'vulopilot' ) : __( 'Scan Again', 'vulopilot' )}
-						</button>
+						<ButtonInput
+							buttons={[
+								{
+									text: __( 'Export', 'vulopilot' ),
+									icon: 'export',
+									color: 'border-purple',
+									onClick: handleExport,
+								},
+								{
+									text: isScanning
+										? __( 'Starting…', 'vulopilot' )
+										: __( 'Scan Again', 'vulopilot' ),
+									icon: 'refresh',
+									onClick: handleScan,
+									disabled: isScanning,
+								},
+							]}
+						/>
 					</div>
 				</div>
 
-				<CardComponent isLoading={isLoading}>
 					{0 === filteredRows.length ? (
 						<ModuleGuardComponent
 							icon="document"
@@ -612,85 +643,107 @@ const SlowPagesTab = () => {
 							}
 						/>
 					) : (
-						<div className="page-speed-table-wrap">
-							<table className="page-speed-table">
-								<thead>
-									<tr>
-										<th>{__( 'Page', 'vulopilot' )}</th>
-										<th>{__( 'Type', 'vulopilot' )}</th>
-										{hasDeviceScores ? (
-											<>
-												<th>{__( 'Mobile Score', 'vulopilot' )}</th>
-												<th>{__( 'Desktop Score', 'vulopilot' )}</th>
-											</>
-										) : (
-											<th>{__( 'Score', 'vulopilot' )}</th>
-										)}
-										<th>{__( 'Load Time', 'vulopilot' )}</th>
-										{hasPsiDetail && (
-											<>
-												<th title={__( 'Total real page weight (Lighthouse total-byte-weight audit)', 'vulopilot' )}>
-													{__( 'Page Size', 'vulopilot' )}
-												</th>
-												<th title={__( 'Real network requests observed (Lighthouse network-requests audit)', 'vulopilot' )}>
-													{__( 'Requests', 'vulopilot' )}
-												</th>
-												<th title={__( 'Real Chrome UX Report field data: Largest Contentful Paint / Interaction to Next Paint / Cumulative Layout Shift', 'vulopilot' )}>
-													{__( 'Core Web Vitals', 'vulopilot' )}
-												</th>
-											</>
-										)}
-										<th>{__( 'Main Issue', 'vulopilot' )}</th>
-										<th>{__( 'Action', 'vulopilot' )}</th>
-									</tr>
-								</thead>
-								<tbody>
-									{filteredRows.map((row) => (
-										<tr key={row.id}>
-											<td>
-												<a href={row.url} target="_blank" rel="noopener noreferrer" className="page-speed-page-link">
-													<i className={`adminfont-${PAGE_TYPE_ICONS[row.page_type] ?? 'document'}`} />
-													{row.title}
-												</a>
-											</td>
-											<td>{PAGE_TYPE_LABELS[row.page_type] ?? row.page_type}</td>
-											{hasDeviceScores ? (
-												<>
-													<td><ScorePill score={row.mobile_score} /></td>
-													<td><ScorePill score={row.desktop_score} /></td>
-												</>
-											) : (
-												<td><ScorePill score={row.score} /></td>
-											)}
-											<td>
-												{null !== row.load_time_ms
-													? sprintf( __( '%s s', 'vulopilot' ), (row.load_time_ms / 1000).toFixed(1) )
-													: '—'}
-											</td>
-											{hasPsiDetail && (
-												<>
-													<td>{formatBytes(row.page_size_bytes)}</td>
-													<td>{null !== row.requests_count ? row.requests_count : '—'}</td>
-													<td><CoreWebVitalsDots row={row} /></td>
-												</>
-											)}
-											<td className="page-speed-main-issue">{row.main_issue ?? '—'}</td>
-											<td>
-												<button
-													type="button"
-													className="page-speed-view-details"
-													onClick={() => setDetailRow(row)}
-												>
-													{__( 'View Details', 'vulopilot' )}
-												</button>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
+						<TableCard
+							showMenu={false}
+							headers={{
+								title: {
+									label: __( 'Page', 'vulopilot' ),
+									render: (row: PageSpeedRow) => (
+										<a href={row.url} target="_blank" rel="noopener noreferrer" className="page-speed-page-link">
+											<i className={`adminfont-${PAGE_TYPE_ICONS[row.page_type] ?? 'document'}`} />
+											{row.title}
+										</a>
+									),
+								},
+								page_type: {
+									label: __( 'Type', 'vulopilot' ),
+									render: (row: PageSpeedRow) => PAGE_TYPE_LABELS[row.page_type] ?? row.page_type,
+								},
+								...(hasDeviceScores
+									? {
+											mobile_score: {
+												label: __( 'Mobile Score', 'vulopilot' ),
+												render: (row: PageSpeedRow) => <ScorePill score={row.mobile_score} />,
+											},
+											desktop_score: {
+												label: __( 'Desktop Score', 'vulopilot' ),
+												render: (row: PageSpeedRow) => <ScorePill score={row.desktop_score} />,
+											},
+										}
+									: {
+											score: {
+												label: __( 'Score', 'vulopilot' ),
+												render: (row: PageSpeedRow) => <ScorePill score={row.score} />,
+											},
+										}),
+								load_time_ms: {
+									label: __( 'Load Time', 'vulopilot' ),
+									render: (row: PageSpeedRow) =>
+										null !== row.load_time_ms
+											? sprintf( __( '%s s', 'vulopilot' ), (row.load_time_ms / 1000).toFixed(1) )
+											: '—',
+								},
+								...(hasPsiDetail
+									? {
+											page_size_bytes: {
+												label: (
+													<TooltipComponent
+														text={__( 'Total real page weight (Lighthouse total-byte-weight audit)', 'vulopilot' )}
+													>
+														{__( 'Page Size', 'vulopilot' )}
+													</TooltipComponent>
+												),
+												render: (row: PageSpeedRow) => formatBytes(row.page_size_bytes),
+											},
+											requests_count: {
+												label: (
+													<TooltipComponent
+														text={__( 'Real network requests observed (Lighthouse network-requests audit)', 'vulopilot' )}
+													>
+														{__( 'Requests', 'vulopilot' )}
+													</TooltipComponent>
+												),
+												render: (row: PageSpeedRow) =>
+													null !== row.requests_count ? row.requests_count : '—',
+											},
+											core_web_vitals: {
+												label: (
+													<TooltipComponent
+														text={__( 'Real Chrome UX Report field data: Largest Contentful Paint / Interaction to Next Paint / Cumulative Layout Shift', 'vulopilot' )}
+													>
+														{__( 'Core Web Vitals', 'vulopilot' )}
+													</TooltipComponent>
+												),
+												render: (row: PageSpeedRow) => <CoreWebVitalsDots row={row} />,
+											},
+										}
+									: {}),
+								main_issue: {
+									label: __( 'Main Issue', 'vulopilot' ),
+									cellClassName: 'page-speed-main-issue',
+									render: (row: PageSpeedRow) => row.main_issue ?? '—',
+								},
+								action: {
+									type: 'action',
+									label: __( 'Action', 'vulopilot' ),
+									actions: [
+										{
+											label: __( 'View Details', 'vulopilot' ),
+											icon: 'eye',
+											onClick: (row: PageSpeedRow) => setDetailRow(row),
+										},
+									],
+								},
+							}}
+							rows={pageRows}
+							ids={pageRows.map((row) => row.id)}
+							totalRows={filteredRows.length}
+							onQueryUpdate={(query: { paged?: number | string; per_page?: number | string }) => {
+								setPaged(Number(query.paged) || 1);
+								setPerPage(Number(query.per_page) || 10);
+							}}
+						/>
 					)}
-				</CardComponent>
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
@@ -705,25 +758,23 @@ const SlowPagesTab = () => {
 							)}
 						/>
 					) : (
-						<ul className="page-speed-sidebar-list">
-							{topIssues.slice(0, 5).map((item) => (
-								<li key={item.issue}>
-									<strong>{item.issue}</strong>
-									<span>
-										{sprintf(
-											/* translators: %d is the number of real pages this real issue affects. */
-											_n(
-												'%d page affected',
-												'%d pages affected',
-												item.affected_pages,
-												'vulopilot'
-											),
-											item.affected_pages
-										)}
-									</span>
-								</li>
-							))}
-						</ul>
+						<ListComponent
+							className="mini-card report"
+							items={topIssues.slice(0, 5).map((item) => ({
+								id: item.issue,
+								title: item.issue,
+								desc: sprintf(
+									/* translators: %d is the number of real pages this real issue affects. */
+									_n(
+										'%d page affected',
+										'%d pages affected',
+										item.affected_pages,
+										'vulopilot'
+									),
+									item.affected_pages
+								),
+							}))}
+						/>
 					)}
 				</CardComponent>
 
@@ -734,20 +785,26 @@ const SlowPagesTab = () => {
 							'vulopilot'
 						)}
 					</p>
-					<ul className="page-speed-sidebar-list">
-						<li>
-							<strong>{__( 'Poor user experience', 'vulopilot' )}</strong>
-							<span>{__( 'Visitors may leave your site.', 'vulopilot' )}</span>
-						</li>
-						<li>
-							<strong>{__( 'Lower conversions', 'vulopilot' )}</strong>
-							<span>{__( 'Slow pages reduce sales and signups.', 'vulopilot' )}</span>
-						</li>
-						<li>
-							<strong>{__( 'Search ranking impact', 'vulopilot' )}</strong>
-							<span>{__( 'Speed is a ranking factor for Google.', 'vulopilot' )}</span>
-						</li>
-					</ul>
+					<ListComponent
+						className="mini-card report"
+						items={[
+							{
+								id: 'poor-ux',
+								title: __( 'Poor user experience', 'vulopilot' ),
+								desc: __( 'Visitors may leave your site.', 'vulopilot' ),
+							},
+							{
+								id: 'lower-conversions',
+								title: __( 'Lower conversions', 'vulopilot' ),
+								desc: __( 'Slow pages reduce sales and signups.', 'vulopilot' ),
+							},
+							{
+								id: 'search-ranking',
+								title: __( 'Search ranking impact', 'vulopilot' ),
+								desc: __( 'Speed is a ranking factor for Google.', 'vulopilot' ),
+							},
+						]}
+					/>
 				</CardComponent>
 
 				<CardComponent title={__( "What's considered slow?", 'vulopilot' )}>
@@ -771,9 +828,11 @@ const SlowPagesTab = () => {
 					</ul>
 				</CardComponent>
 
-				<CardComponent>
-					<p className="page-speed-disclaimer">
-						{hasDeviceScores
+				<NoticeComponent
+					type="info"
+					displayPosition="inline-notice"
+					message={
+						hasDeviceScores
 							? __(
 									'Scores are real per-page Google PageSpeed Insights results. Page size, requests, and Core Web Vitals are real Lighthouse/Chrome UX Report data from that same response.',
 									'vulopilot'
@@ -781,9 +840,9 @@ const SlowPagesTab = () => {
 							: __(
 									'Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key in Settings → Scanning → Performance for real Mobile/Desktop scores, page size, requests, and Core Web Vitals instead.',
 									'vulopilot'
-								)}
-					</p>
-				</CardComponent>
+								)
+					}
+				/>
 			</ColumnComponent>
 
 			<PopupComponent
@@ -795,64 +854,54 @@ const SlowPagesTab = () => {
 				header={{ title: detailRow?.title ?? '' }}
 			>
 				{detailRow && (
-					<div className="page-speed-detail">
-						<a href={detailRow.url} target="_blank" rel="noopener noreferrer">
-							{detailRow.url}
-						</a>
-						<div className="page-speed-detail-row">
-							<span>{__( 'Type', 'vulopilot' )}</span>
-							<span>{PAGE_TYPE_LABELS[detailRow.page_type] ?? detailRow.page_type}</span>
-						</div>
-						<div className="page-speed-detail-row">
-							<span>{__( 'Load Time', 'vulopilot' )}</span>
-							<span>
-								{null !== detailRow.load_time_ms
-									? sprintf( __( '%s s', 'vulopilot' ), (detailRow.load_time_ms / 1000).toFixed(2) )
-									: '—'}
-							</span>
-						</div>
+					<FormGroupWrapperComponent>
+						<FormGroupComponent row label={__( 'URL', 'vulopilot' )}>
+							<a href={detailRow.url} target="_blank" rel="noopener noreferrer">
+								{detailRow.url}
+							</a>
+						</FormGroupComponent>
+						<FormGroupComponent row label={__( 'Type', 'vulopilot' )}>
+							{PAGE_TYPE_LABELS[detailRow.page_type] ?? detailRow.page_type}
+						</FormGroupComponent>
+						<FormGroupComponent row label={__( 'Load Time', 'vulopilot' )}>
+							{null !== detailRow.load_time_ms
+								? sprintf( __( '%s s', 'vulopilot' ), (detailRow.load_time_ms / 1000).toFixed(2) )
+								: '—'}
+						</FormGroupComponent>
 						{hasDeviceScores ? (
 							<>
-								<div className="page-speed-detail-row">
-									<span>{__( 'Mobile Score', 'vulopilot' )}</span>
-									<span><ScorePill score={detailRow.mobile_score} /></span>
-								</div>
-								<div className="page-speed-detail-row">
-									<span>{__( 'Desktop Score', 'vulopilot' )}</span>
-									<span><ScorePill score={detailRow.desktop_score} /></span>
-								</div>
+								<FormGroupComponent row label={__( 'Mobile Score', 'vulopilot' )}>
+									<ScorePill score={detailRow.mobile_score} />
+								</FormGroupComponent>
+								<FormGroupComponent row label={__( 'Desktop Score', 'vulopilot' )}>
+									<ScorePill score={detailRow.desktop_score} />
+								</FormGroupComponent>
 							</>
 						) : (
-							<div className="page-speed-detail-row">
-								<span>{__( 'Score', 'vulopilot' )}</span>
-								<span><ScorePill score={detailRow.score} /></span>
-							</div>
+							<FormGroupComponent row label={__( 'Score', 'vulopilot' )}>
+								<ScorePill score={detailRow.score} />
+							</FormGroupComponent>
 						)}
 						{hasPsiDetail && (
 							<>
-								<div className="page-speed-detail-row">
-									<span>{__( 'Page Size', 'vulopilot' )}</span>
-									<span>{formatBytes(detailRow.page_size_bytes)}</span>
-								</div>
-								<div className="page-speed-detail-row">
-									<span>{__( 'Requests', 'vulopilot' )}</span>
-									<span>{null !== detailRow.requests_count ? detailRow.requests_count : '—'}</span>
-								</div>
-								<div className="page-speed-detail-row">
-									<span>{__( 'Core Web Vitals', 'vulopilot' )}</span>
-									<span><CoreWebVitalsDots row={detailRow} /></span>
-								</div>
+								<FormGroupComponent row label={__( 'Page Size', 'vulopilot' )}>
+									{formatBytes(detailRow.page_size_bytes)}
+								</FormGroupComponent>
+								<FormGroupComponent row label={__( 'Requests', 'vulopilot' )}>
+									{null !== detailRow.requests_count ? detailRow.requests_count : '—'}
+								</FormGroupComponent>
+								<FormGroupComponent row label={__( 'Core Web Vitals', 'vulopilot' )}>
+									<CoreWebVitalsDots row={detailRow} />
+								</FormGroupComponent>
 							</>
 						)}
-						<div className="page-speed-detail-row">
-							<span>{__( 'Main Issue', 'vulopilot' )}</span>
-							<span>{detailRow.main_issue ?? __( 'None detected', 'vulopilot' )}</span>
-						</div>
-						<div className="page-speed-detail-row">
-							<span>{__( 'Last Scanned', 'vulopilot' )}</span>
-							<span>{formatWpDate(detailRow.scanned_at)}</span>
-						</div>
-					</div>
+						<FormGroupComponent row label={__( 'Main Issue', 'vulopilot' )}>
+							{detailRow.main_issue ?? __( 'None detected', 'vulopilot' )}
+						</FormGroupComponent>
+						<FormGroupComponent row label={__( 'Last Scanned', 'vulopilot' )}>
+							{formatWpDate(detailRow.scanned_at)}
+						</FormGroupComponent>
+					</FormGroupWrapperComponent>
 				)}
 			</PopupComponent>
 		</>

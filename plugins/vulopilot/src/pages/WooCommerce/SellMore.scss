@@ -197,138 +197,67 @@
 }
 
 // "VuloPilot noticed" row list (StoreIntelligenceSummaryCard.tsx's
-// active-data state) — replaces the plain `<ul>` this used to be; icon +
-// title/desc pairs each in their own row with a per-row action link,
-// divided by a thin top border, matching this card's own mockup.
-.store-intelligence-noticed-list {
-	margin-top: 0.5rem;
-}
-
-.store-intelligence-noticed-row {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 0.75rem 0;
-	border-top: 1px solid var(--border-color, #eef0f2);
-
-	&:first-child {
-		border-top: none;
-	}
-}
-
-.store-intelligence-noticed-icon {
-	flex-shrink: 0;
-	font-size: 1.125rem;
-
-	&.orange {
+// active-data state) — a real Zyra `<ListComponent className="mini-card
+// report">` (row layout/divider/`.read-more` action link all come from
+// zyra itself; same "mini-card report" shape TopIssuesToWorkOn.tsx's own
+// issue list and NeedsAttentionWidget.tsx's own Quick fixes/Open issues
+// lists already use). The one thing left to declare locally is each row's
+// own icon tint — `Item.className: 'is-{color}'` below, since ListComponent
+// has no built-in per-row icon color of its own.
+.store-intelligence-summary-card .item-list {
+	.item.is-orange .item-icon {
 		color: #ea580c;
 	}
 
-	&.green {
+	.item.is-green .item-icon {
 		color: #16a34a;
 	}
 
-	&.red {
+	.item.is-red .item-icon {
 		color: #dc2626;
 	}
 
-	&.blue {
+	.item.is-blue .item-icon {
 		color: #2563eb;
 	}
 }
 
-.store-intelligence-noticed-body {
-	flex: 1;
-	min-width: 0;
-
-	.store-intelligence-noticed-title {
-		font-weight: 600;
-		font-size: 0.875rem;
-	}
-
-	.desc {
-		margin: 0;
-	}
-}
-
-.store-intelligence-noticed-link {
-	flex-shrink: 0;
-	color: var(--color-primary);
-	font-weight: 600;
-	font-size: 0.85rem;
-	cursor: pointer;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
 // "Products to look at" (ProductsToLookAtCard.tsx) — one real example
-// product per risk category, each with its own icon chip tone
-// (light/grey/dark, matching this card's own mockup) plus a colored
-// status pill (`.admin-badge`, color vocabulary declared above) and a
-// per-row "View product →" deep link.
-.products-to-look-at-list {
-	margin-top: 0.5rem;
-}
-
-.products-to-look-at-row {
-	display: flex;
-	align-items: center;
-	gap: 0.875rem;
-	padding: 0.875rem 0;
-	border-top: 1px solid var(--border-color, #eef0f2);
-
-	&:first-child {
-		border-top: none;
+// product per risk category, now a real Zyra `<ListComponent
+// className="mini-card report">` (same shape the "VuloPilot noticed" list
+// above uses) rather than bespoke row markup; a colored status pill
+// (`.admin-badge`, color vocabulary declared above) and a per-row "View
+// product →" `<ButtonInput>` sit in each row's own `tags`. Only each row's
+// icon chip tone (light/grey/dark, matching this card's own mockup) is
+// still declared locally — same `Item.className: 'is-{tone}'` convention
+// the "VuloPilot noticed" list above uses for its own per-row icon color,
+// just with a background chip here instead of a plain tinted glyph.
+.products-to-look-at .item-list {
+	.item.is-light .item-icon,
+	.item.is-grey .item-icon,
+	.item.is-dark .item-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 0.5rem;
 	}
-}
 
-.products-to-look-at-icon {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.5rem;
-	height: 2.5rem;
-	border-radius: 0.5rem;
-	font-size: 1.125rem;
-
-	&.light {
+	.item.is-light .item-icon {
 		background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 		color: var(--color-primary);
 	}
 
-	&.grey {
+	.item.is-grey .item-icon {
 		background: var(--border-color, #eef0f2);
 		color: var(--sub-text-color, #6b7280);
 	}
 
-	&.dark {
+	.item.is-dark .item-icon {
 		background: #111827;
 		color: var(--color-white, #fff);
 	}
-}
-
-.products-to-look-at-body {
-	flex: 1;
-	min-width: 0;
-}
-
-.products-to-look-at-title-row {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-.products-to-look-at-title {
-	font-weight: 600;
-}
-
-.products-to-look-at-subtitle {
-	font-size: 0.8rem;
-	color: var(--sub-text-color, #6b7280);
-	margin-top: 0.125rem;
 }
 
 .woocommerce-issues-table {
