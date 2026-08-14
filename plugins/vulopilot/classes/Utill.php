@@ -272,6 +272,22 @@ class Utill {
         // CanonicalUrlManager/SocialMetaTagsManager. Empty string = that
         // provider's tag isn't output at all.
         'webmaster_google_verification'         => '',
+        // Scanning > Google Services (GoogleServicesPanel.tsx). Read by
+        // Services\GoogleAnalyticsTracker — real `gtag.js` output on
+        // `wp_head`, gated on `ga_install_tracking_code` and a connected
+        // GA4 property (GoogleServicesConnection's own `ga4_measurement_id`,
+        // stored separately — see that class's own docblock for why).
+        // Same `array('key')`-means-on/`array()`-means-off toggle-checkbox
+        // convention `flag_missing_meta_description` etc. already use
+        // above (zyra's own ToggleInput only renders as a real toggle
+        // switch in single-select mode when driven this way — a plain
+        // boolean would render as a radio button instead), even though
+        // this tab is a hand-built escape-hatch panel, not InputRenderer-
+        // driven.
+        'ga_install_tracking_code'              => array(),
+        'ga_anonymize_ip'                       => array(),
+        'ga_self_hosted_js'                     => array(),
+        'ga_exclude_logged_in_users'             => array(),
         'webmaster_bing_verification'           => '',
         'webmaster_baidu_verification'          => '',
         'webmaster_yandex_verification'         => '',

@@ -45,29 +45,57 @@ const VisibilityCell = ({ row }: { row: PageAnalysisRow }) => {
 	);
 };
 
+interface GeoPageAnalysisTableProps {
+	/** Comma-joined scanner ids to scope by, instead of the default `category=geo` — AeoTab.tsx passes its own 5 real AEO scanner ids so this table (and its % column) reflects answer-readiness checks, not GEO's full set. */
+	scannerIds?: string[];
+	/** Defaults to "Page-by-page analysis" (GEO tab) — AeoTab.tsx passes "Page-by-page answer readiness" instead, reusing this same real table rather than a second copy of it. */
+	title?: string;
+	/** Defaults to "AI Visibility" (GEO tab's own column label). */
+	scoreColumnLabel?: string;
+	/** Defaults to 'geo-page-analysis.csv'. */
+	exportFilename?: string;
+	/** Defaults to 'geo-page-analysis'. */
+	id?: string;
+}
+
 /**
  * "Page-by-page analysis" — every published page/post
  * (`GET /geo-analysis/pages`, Controllers\GeoAnalysis::get_pages()), with
- * its real open-GEO-finding count and a real, deterministic (non-AI)
+ * its real open-finding count and a real, deterministic (non-AI)
  * visibility percentage — the exact same formula
  * (GeoAnalyzer::score_from_failures()) GeoAnalyzer's own per-post
  * "Generate GEO score" card computes, just derived from already-persisted
  * scan findings instead of an AI call, so every page gets a real number
  * instead of only the handful someone has explicitly analyzed. `—` (not a
- * fabricated percentage) for a site with no GEO scan history at all yet
+ * fabricated percentage) for a site with no scan history at all yet
  * — see that endpoint's own docblock. Sortable/searchable/paginated same
  * as every other TableCard-backed list in this plugin; Export CSV mirrors
  * SlowPagesTab.tsx's own `handleExport()` shape.
+ *
+ * Genericized (optional `scannerIds`/labels) so AeoTab.tsx's own
+ * "Page-by-page answer readiness" can reuse this exact table + endpoint
+ * scoped to its own 5 real AEO scanner ids instead of GEO's `category=geo`
+ * default — same real `GeoAnalysis::get_pages()`'s own `scanner_ids` param,
+ * see that controller's own docblock.
  */
-const GeoPageAnalysisTable = () => {
+const GeoPageAnalysisTable = ({
+	scannerIds,
+	title,
+	scoreColumnLabel,
+	exportFilename,
+	id,
+}: GeoPageAnalysisTableProps) => {
 	const { data, total, isLoading, error, refetch, onQueryUpdate } =
 		useApiList<PageAnalysisRow>('geo-analysis/pages', {
 			orderby: 'open_findings',
 			order: 'desc',
+			...(scannerIds ? { scanner_ids: scannerIds.join(',') } : {}),
 		});
 
+	const scoreLabel = scoreColumnLabel || __('AI Visibility', 'vulopilot');
+
 	const handleExport = () => {
-		const headerRow = ['Page', 'URL', 'Open Issues', 'AI Visibility (%)'];
+		const headerRow = ['Page', 'URL', 'Open Issues', `${scoreLabel} (%)`];
 		const lines = [headerRow.map(csvEscape).join(',')];
 
 		data.forEach((row) => {
@@ -84,14 +112,15 @@ const GeoPageAnalysisTable = () => {
 		const url = URL.createObjectURL(blob);
 		const anchor = document.createElement('a');
 		anchor.href = url;
-		anchor.download = 'geo-page-analysis.csv';
+		anchor.download = exportFilename || 'geo-page-analysis.csv';
 		anchor.click();
 		URL.revokeObjectURL(url);
 	};
 
 	return (
 		<CardComponent
-			title={__('Page-by-page analysis', 'vulopilot')}
+			id={id || 'geo-page-analysis'}
+			title={title || __('Page-by-page analysis', 'vulopilot')}
 			titleIcon="report"
 			desc={__('Click a row to see full details.', 'vulopilot')}
 			action={
@@ -131,7 +160,7 @@ const GeoPageAnalysisTable = () => {
 							defaultOrder: 'desc',
 						},
 						visibility_score: {
-							label: __('AI Visibility', 'vulopilot'),
+							label: scoreLabel,
 							isSortable: true,
 							render: (row: PageAnalysisRow) => (
 								<VisibilityCell row={row} />

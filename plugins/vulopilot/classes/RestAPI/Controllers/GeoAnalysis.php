@@ -109,12 +109,18 @@ class GeoAnalysis extends \WP_REST_Controller {
     public function get_top_pages( $request ) {
         $requested_limit = absint( $request->get_param( 'limit' ) );
         $limit           = min( 20, max( 1, $requested_limit ? $requested_limit : 5 ) );
+        $scanner_ids     = $this->parse_scanner_ids( $request );
         $counts          = ( new FindingRepository() )->count_by_column(
             'object_ref',
-            array(
-				'category' => 'geo',
-				'status'   => 'open',
-			)
+            $scanner_ids
+                ? array(
+					'scanner_id' => $scanner_ids,
+					'status'     => 'open',
+				)
+                : array(
+					'category' => 'geo',
+					'status'   => 'open',
+				)
         );
 
         $ranked = array();
@@ -166,28 +172,23 @@ class GeoAnalysis extends \WP_REST_Controller {
      * @return \WP_REST_Response
      */
     public function get_pages( $request ) {
-        $page     = max( 1, absint( $request->get_param( 'page' ) ) ?: 1 );
-        $per_page = min( 100, max( 1, absint( $request->get_param( 'per_page' ) ) ?: 10 ) );
-        $search   = sanitize_text_field( (string) $request->get_param( 'search' ) );
-        $orderby  = sanitize_key( (string) $request->get_param( 'orderby' ) ) ?: 'open_findings';
-        $order    = 'asc' === strtolower( (string) $request->get_param( 'order' ) ) ? 'asc' : 'desc';
+        $page        = max( 1, absint( $request->get_param( 'page' ) ) ?: 1 );
+        $per_page    = min( self::MAX_PAGES_QUERY, max( 1, absint( $request->get_param( 'per_page' ) ) ?: 10 ) );
+        $search      = sanitize_text_field( (string) $request->get_param( 'search' ) );
+        $orderby     = sanitize_key( (string) $request->get_param( 'orderby' ) ) ?: 'open_findings';
+        $order       = 'asc' === strtolower( (string) $request->get_param( 'order' ) ) ? 'asc' : 'desc';
+        $scanner_ids = $this->parse_scanner_ids( $request );
 
-        $findings             = new FindingRepository();
-        $has_any_geo_history  = 0 < (int) $findings->find_all(
-            array(
-                'category' => 'geo',
-                'per_page' => 1,
-            )
-        )['total'];
+        $findings            = new FindingRepository();
+        $history_scope       = $scanner_ids ? array( 'scanner_id' => $scanner_ids ) : array( 'category' => 'geo' );
+        $has_any_geo_history = 0 < (int) $findings->find_all( $history_scope + array( 'per_page' => 1 ) )['total'];
 
         $counts_by_object_ref          = $findings->count_by_column(
             'object_ref',
-            array(
-                'category' => 'geo',
-                'status'   => 'open',
-            )
+            $history_scope + array( 'status' => 'open' )
         );
         $sitewide_trust_signal_failure = 0 < (int) ( $counts_by_object_ref[ home_url( '/' ) ] ?? 0 );
+        $total_checks                   = $scanner_ids ? count( $scanner_ids ) : null;
 
         $query_args = array(
             'post_type'      => array( 'post', 'page' ),
@@ -220,7 +221,7 @@ class GeoAnalysis extends \WP_REST_Controller {
                 'permalink'       => get_permalink( $post ),
                 'open_findings'   => $open_findings,
                 'visibility_score' => $has_any_geo_history
-                    ? GeoAnalyzer::score_from_failures( $open_findings, $sitewide_trust_signal_failure )
+                    ? GeoAnalyzer::score_from_failures( $open_findings, $sitewide_trust_signal_failure, $total_checks )
                     : null,
             );
         }
@@ -263,6 +264,31 @@ class GeoAnalysis extends \WP_REST_Controller {
 				'total' => $total,
 			)
         );
+    }
+
+    /**
+     * Optional `scanner_ids` request param (comma-separated) — when present,
+     * both `get_top_pages()` and `get_pages()` rank/score by open findings
+     * against that specific caller-supplied set of scanner ids instead of
+     * the default `category = geo`. AeoTab.tsx's own "Top pages by answer
+     * readiness"/"Page-by-page answer readiness" pass its own 5 real AEO
+     * scanner ids this way, reusing this same real endpoint + deterministic
+     * scoring formula (GeoAnalyzer::score_from_failures(), also given the
+     * matching real denominator — see that method's own docblock) rather
+     * than standing up a parallel "AeoAnalysis" controller that would just
+     * re-run the identical query shape against a different WHERE clause.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return string[] Sanitized scanner ids, empty if the param was absent/empty.
+     */
+    private function parse_scanner_ids( \WP_REST_Request $request ): array {
+        $raw = (string) $request->get_param( 'scanner_ids' );
+
+        if ( '' === $raw ) {
+            return array();
+        }
+
+        return array_values( array_filter( array_map( 'sanitize_key', explode( ',', $raw ) ) ) );
     }
 
     /**
