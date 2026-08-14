@@ -181,79 +181,77 @@ const WooCommerceTab = () => {
 	};
 
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				<ContainerComponent>
-					<ColumnComponent grid={8}>
-						<StoreHealthBanner
-							onReviewIssues={() => goToIssuesTab('important')}
-							onViewSummary={() => scrollToId('store-readiness')}
-						/>
-						<WooCommerceCategoryGrid
-							groups={groups}
-							isLoadingGroups={isLoadingGroups}
-							onReviewTab={goToIssuesTab}
-						/>
-					</ColumnComponent>
-					<ColumnComponent grid={4}>
-						<StoreOverviewCards
-							onNavigateToWooCommerceTab={() => goToIssuesTab('important')}
-						/>
-					</ColumnComponent>
-				</ContainerComponent>
+		<ColumnComponent>
+			<ContainerComponent>
+				<ColumnComponent grid={8}>
+					<StoreHealthBanner
+						onReviewIssues={() => goToIssuesTab('important')}
+						onViewSummary={() => scrollToId('store-readiness')}
+					/>
+					<WooCommerceCategoryGrid
+						groups={groups}
+						isLoadingGroups={isLoadingGroups}
+						onReviewTab={goToIssuesTab}
+					/>
+				</ColumnComponent>
+				<ColumnComponent grid={4}>
+					<StoreOverviewCards
+						onNavigateToWooCommerceTab={() => goToIssuesTab('important')}
+					/>
+				</ColumnComponent>
+			</ContainerComponent>
 
-				<TopIssuesToWorkOn
-					groups={groups}
-					isLoading={isLoadingGroups}
-					onViewAll={() => goToIssuesTab('important')}
-				/>
+			<TopIssuesToWorkOn
+				groups={groups}
+				isLoading={isLoadingGroups}
+				onViewAll={() => goToIssuesTab('important')}
+			/>
 
-				<ContainerComponent>
-					<ColumnComponent grid={6}>
-						<AiSalesOptimizerCard
-							onFindOpportunities={() => scrollToId('woocommerce-bulk-ai')}
-						/>
-					</ColumnComponent>
-					<ColumnComponent grid={6}>
-						<StoreIntelligenceSummaryCard
-							onExploreInsights={() =>
-								scrollToId('store-intelligence-panel')
-							}
-							onReviewTab={goToIssuesTab}
-							onFindOpportunities={() => scrollToId('woocommerce-bulk-ai')}
-						/>
-					</ColumnComponent>
-				</ContainerComponent>
+			<ContainerComponent>
+				<ColumnComponent grid={6}>
+					<AiSalesOptimizerCard
+						onFindOpportunities={() => scrollToId('woocommerce-bulk-ai')}
+					/>
+				</ColumnComponent>
+				<ColumnComponent grid={6}>
+					<StoreIntelligenceSummaryCard
+						onExploreInsights={() =>
+							scrollToId('store-intelligence-panel')
+						}
+						onReviewTab={goToIssuesTab}
+						onFindOpportunities={() => scrollToId('woocommerce-bulk-ai')}
+					/>
+				</ColumnComponent>
+			</ContainerComponent>
 
-				<ProductsToLookAtCard />
+			<ProductsToLookAtCard />
 
-				<AiSalesAssistantCard
-					onOptimizeStore={() => scrollToId('woocommerce-bulk-ai')}
-					onReviewIssues={() => goToIssuesTab('important')}
-				/>
+			<AiSalesAssistantCard
+				onOptimizeStore={() => scrollToId('woocommerce-bulk-ai')}
+				onReviewIssues={() => goToIssuesTab('important')}
+			/>
 
-				<WooCommerceIssuesTable
-					groups={groups}
-					activeTab={activeIssueTab}
-					onTabChange={setActiveIssueTab}
-				/>
+			<WooCommerceIssuesTable
+				groups={groups}
+				activeTab={activeIssueTab}
+				onTabChange={setActiveIssueTab}
+			/>
 
-				<div id="woocommerce-bulk-ai">
-					{WooCommerceAiPanel ? (
-						<WooCommerceAiPanel />
-					) : (
-						<WooCommerceAiLockedCard />
-					)}
-				</div>
-				<div id="store-intelligence-panel">
-					{WooCommerceIntelligencePanel ? (
-						<WooCommerceIntelligencePanel />
-					) : (
-						<WooCommerceIntelligenceLockedCard />
-					)}
-				</div>
-			</ColumnComponent>
-		</ContainerComponent>
+			<div id="woocommerce-bulk-ai">
+				{WooCommerceAiPanel ? (
+					<WooCommerceAiPanel />
+				) : (
+					<WooCommerceAiLockedCard />
+				)}
+			</div>
+			<div id="store-intelligence-panel">
+				{WooCommerceIntelligencePanel ? (
+					<WooCommerceIntelligencePanel />
+				) : (
+					<WooCommerceIntelligenceLockedCard />
+				)}
+			</div>
+		</ColumnComponent>
 	);
 };
 

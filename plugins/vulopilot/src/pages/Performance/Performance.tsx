@@ -9,18 +9,22 @@ import {
 import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
 import SlowPagesTab from './SlowPagesTab';
+import PerformanceOpportunitiesTab from './PerformanceOpportunitiesTab';
 
-const TAB_IDS = ['overview', 'slow-pages'] as const;
+const TAB_IDS = ['overview', 'slow-pages', 'performance-opportunities'] as const;
 
 /**
- * "Improve Speed" (WP menu slug `performance`) — Overview (OverviewTab.tsx)
- * plus a real "Slow Pages" tab (SlowPagesTab.tsx), a real per-page speed
- * report (Repositories\PageSpeedRepository, populated in the background by
- * Services\PageSpeedScanner). Its former sibling tabs are otherwise gone:
- * the standalone "Performance" tab (PerformanceTab.tsx, now deleted) had
- * its full category-'performance' FindingsTable moved down into Overview
- * itself (`#performance-section-findings`) rather than kept on its own
- * tab; "Redirects & 404s" moved to "Grow My Traffic"
+ * "Improve Speed" (WP menu slug `performance`) — Overview (OverviewTab.tsx),
+ * a real "Slow Pages" tab (SlowPagesTab.tsx, a real per-page speed report —
+ * Repositories\PageSpeedRepository, populated in the background by
+ * Services\PageSpeedScanner), and "Performance Opportunities"
+ * (PerformanceOpportunitiesTab.tsx — the same real
+ * PageSpeedRepository::get_top_issues() data Slow Pages' own sidebar
+ * shows, as its own focused, expandable tab). Its former sibling tabs are
+ * otherwise gone: the standalone "Performance" tab (PerformanceTab.tsx,
+ * now deleted) had its full category-'performance' FindingsTable moved
+ * down into Overview itself (`#performance-section-findings`) rather than
+ * kept on its own tab; "Redirects & 404s" moved to "Grow My Traffic"
  * (`src/pages/GEO/RedirectsTab.tsx`).
  *
  * `activeTab` is owned here (not left as TabsComponent's uncontrolled
@@ -77,6 +81,10 @@ const Performance = () => {
 						{
 							label: __('Slow Pages', 'vulopilot'),
 							content: <SlowPagesTab />,
+						},
+						{
+							label: __('Performance Opportunities', 'vulopilot'),
+							content: <PerformanceOpportunitiesTab />,
 						},
 					]}
 				/>

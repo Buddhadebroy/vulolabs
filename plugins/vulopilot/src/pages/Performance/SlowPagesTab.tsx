@@ -1,9 +1,10 @@
 /* global appLocalizer */
 import { useEffect, useMemo, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
+	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
@@ -11,6 +12,7 @@ import {
 	PopupComponent,
 } from '@zyra/components';
 import { SelectInput, TextInput } from '@zyra/inputs';
+import { formatWpDate } from '../../services/formatWpDate';
 import './ImproveSpeed.scss';
 
 interface PageSpeedRow {
@@ -24,24 +26,52 @@ interface PageSpeedRow {
 	mobile_score: number | null;
 	desktop_score: number | null;
 	main_issue: string | null;
+	page_size_bytes: number | null;
+	requests_count: number | null;
+	lcp_ms: number | null;
+	lcp_rating: string | null;
+	inp_ms: number | null;
+	inp_rating: string | null;
+	cls_thousandths: number | null;
+	cls_rating: string | null;
 	scanned_at: string;
 }
 
 interface PageSpeedSummary {
 	total: number;
 	slow: number;
+	very_slow: number;
 	needs_improvement: number;
 	good: number;
+	avg_score: number | null;
 	avg_mobile_score: number | null;
+	avg_load_time_ms: number | null;
 	last_scanned_at: string | null;
+}
+
+interface PageSpeedIssue {
+	issue: string;
+	affected_pages: number;
 }
 
 interface PageSpeedResponse {
 	summary: PageSpeedSummary;
 	status_counts: Record<string, number>;
+	top_issues: PageSpeedIssue[];
 	data: PageSpeedRow[];
 	total: number;
 }
+
+interface ScoreSnapshot {
+	snapshot_date: string;
+	performance_score: number;
+}
+
+const TREND_DAY_OPTIONS = [
+	{ label: __( 'Last 7 days', 'vulopilot' ), value: '7' },
+	{ label: __( 'Last 30 days', 'vulopilot' ), value: '30' },
+	{ label: __( 'Last 90 days', 'vulopilot' ), value: '90' },
+];
 
 const PAGE_TYPE_ICONS: Record<string, string> = {
 	homepage: 'home',
@@ -91,6 +121,72 @@ const ScorePill = ( { score }: { score: number | null } ) => {
 	);
 };
 
+/** Real byte count → a human string, same MB/KB thresholds browser devtools use. */
+const formatBytes = ( bytes: number | null ): string => {
+	if ( null === bytes ) {
+		return '—';
+	}
+
+	if ( bytes >= 1024 * 1024 ) {
+		return `${ ( bytes / ( 1024 * 1024 ) ).toFixed( 1 ) } MB`;
+	}
+
+	if ( bytes >= 1024 ) {
+		return `${ ( bytes / 1024 ).toFixed( 0 ) } KB`;
+	}
+
+	return `${ bytes } B`;
+};
+
+/**
+ * Google's own real CrUX field-data category ('FAST'/'AVERAGE'/'SLOW') for
+ * one Core Web Vital, passed through verbatim from PageSpeedScanner — this
+ * just maps that real verdict onto this file's own good/needs-improvement/
+ * poor dot palette, `unknown` (gray) when CrUX had no real field data for
+ * this URL+metric (a real "not enough traffic" case, not fabricated).
+ */
+const CWV_DOT_CLASS: Record<string, string> = {
+	FAST: 'good',
+	AVERAGE: 'needs-improvement',
+	SLOW: 'poor',
+};
+
+const CWV_METRICS = [
+	{ key: 'lcp', label: 'LCP', ratingKey: 'lcp_rating' as const },
+	{ key: 'inp', label: 'INP', ratingKey: 'inp_rating' as const },
+	{ key: 'cls', label: 'CLS', ratingKey: 'cls_rating' as const },
+];
+
+/**
+ * Real Google CrUX field-data dots — one per metric, gray/"unknown" when
+ * that metric has no real field data for this page (common for low-traffic
+ * pages; CrUX only reports once enough real visits exist). Never a
+ * fabricated color.
+ */
+const CoreWebVitalsDots = ( { row }: { row: PageSpeedRow } ) => (
+	<div className="page-speed-cwv-dots">
+		{ CWV_METRICS.map( ( metric ) => {
+			const rating = row[ metric.ratingKey ];
+			const dotClass = rating ? ( CWV_DOT_CLASS[ rating ] ?? 'unknown' ) : 'unknown';
+
+			return (
+				<span
+					key={ metric.key }
+					className="page-speed-cwv-item"
+					title={
+						rating
+							? `${ metric.label }: ${ rating }`
+							: `${ metric.label }: ${ __( 'No field data yet', 'vulopilot' ) }`
+					}
+				>
+					<span className={ `page-speed-cwv-dot ${ dotClass }` } />
+					<span className="page-speed-cwv-label">{ metric.label }</span>
+				</span>
+			);
+		} ) }
+	</div>
+);
+
 const csvEscape = ( value: string ): string => `"${ value.replace( /"/g, '""' ) }"`;
 
 /**
@@ -100,14 +196,26 @@ const csvEscape = ( value: string ): string => `"${ value.replace( /"/g, '""' ) 
  * (this plugin's own page counts are bounded — see PageSpeedScanner's own
  * MAX_PER_TYPE — so client-side filter/search/sort is simpler than wiring
  * up TableCard, whose fixed header `type`s (text/currency/date/badge/
- * action/id/content/status) can't render this mockup's colored score pill
- * + mini threshold bar per cell).
+ * action/id/content/status) can't render this page's colored score pill +
+ * Core Web Vitals dots per cell).
  *
- * Mobile/Desktop columns only appear once at least one real row has a
- * `mobile_score` — i.e. once a `psi_api_key` is configured and the
- * background scan has reached that row — otherwise a single real "Score"
- * column is shown, same PSI-key-gated fallback PerformanceScoreCard.tsx's
- * own Overall Speed Score card already uses; never a fabricated split.
+ * Mobile/Desktop score columns, Page Size/Requests, and the Core Web
+ * Vitals dots all only appear once at least one real row has that data —
+ * i.e. once a `psi_api_key` is configured (Settings → Scanning →
+ * Performance) and the background scan has reached that row — otherwise a
+ * single real "Score" column is shown and the PSI-only columns are
+ * dropped entirely, same PSI-key-gated fallback PerformanceScoreCard.tsx's
+ * own Overall Speed Score card already uses; never a fabricated split or
+ * placeholder numbers.
+ *
+ * The "Performance Trend" tile + sparkline reuses the real, already-dated
+ * `GET /performance-score-snapshots` history (SpeedHistoryCard.tsx's own
+ * data source, one row per real day) rather than inventing a per-page
+ * load-time trend — this table itself has none (`replace_for_url()` keeps
+ * only each page's latest scan, never a history). That snapshot is a
+ * sitewide 0-100 performance score, not a Slow-Pages-specific or literal
+ * seconds figure, so the tile is honestly labeled "pts" and "Performance
+ * trend", not a fabricated "-1.4s" claim.
  */
 const SlowPagesTab = () => {
 	const [response, setResponse] = useState<PageSpeedResponse | null>(null);
@@ -118,6 +226,9 @@ const SlowPagesTab = () => {
 	const [pageTypeFilter, setPageTypeFilter] = useState('');
 	const [searchTerm, setSearchTerm] = useState('');
 	const [detailRow, setDetailRow] = useState<PageSpeedRow | null>(null);
+	const [trendDays, setTrendDays] = useState('30');
+	const [trend, setTrend] = useState<ScoreSnapshot[]>([]);
+	const [isTrendLoading, setIsTrendLoading] = useState(true);
 
 	const load = () => {
 		setIsLoading(true);
@@ -145,6 +256,35 @@ const SlowPagesTab = () => {
 	useEffect(() => {
 		load();
 	}, []);
+
+	useEffect(() => {
+		let cancelled = false;
+		setIsTrendLoading(true);
+
+		getApiResponse<ScoreSnapshot[]>(
+			`${getApiLink(appLocalizer, 'performance-score-snapshots')}?days=${trendDays}`,
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		)
+			.then((data) => {
+				if (!cancelled) {
+					setTrend(
+						(data ?? []).map((row) => ({
+							snapshot_date: row.snapshot_date,
+							performance_score: Number(row.performance_score),
+						}))
+					);
+				}
+			})
+			.finally(() => {
+				if (!cancelled) {
+					setIsTrendLoading(false);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [trendDays]);
 
 	const handleScan = () => {
 		setIsScanning(true);
@@ -175,6 +315,27 @@ const SlowPagesTab = () => {
 
 	const rows = response?.data ?? [];
 	const hasDeviceScores = rows.some((row) => null !== row.mobile_score);
+	const hasPsiDetail = rows.some((row) => null !== row.page_size_bytes);
+	// Real average — `avg_mobile_score` only when a PSI key is configured
+	// (per-device split available), `avg_score` otherwise (PageSpeedRepository::get_summary()
+	// always computes both from the same real rows; this tile just needs to
+	// read the one that matches what the rest of this page is showing).
+	// Was previously hardcoded to `avg_mobile_score` alone, so this tile
+	// showed "—" even with real, non-empty scanned scores whenever no PSI
+	// key was configured — the common case.
+	const avgScore = response?.summary
+		? (hasDeviceScores
+				? response.summary.avg_mobile_score
+				: response.summary.avg_score)
+		: null;
+	const avgScoreRating = ratingFor(avgScore);
+	const avgLoadTimeMs = response?.summary?.avg_load_time_ms ?? null;
+
+	const trendDelta =
+		trend.length >= 2
+			? trend[trend.length - 1].performance_score - trend[0].performance_score
+			: null;
+	const isTrendImproving = null !== trendDelta && trendDelta >= 0;
 
 	const pageTypeOptions = useMemo(() => {
 		const present = Array.from(new Set(rows.map((row) => row.page_type)));
@@ -211,6 +372,7 @@ const SlowPagesTab = () => {
 
 	const statusCounts = response?.status_counts ?? {};
 	const summary = response?.summary ?? null;
+	const topIssues = response?.top_issues ?? [];
 
 	const filterPills: { value: string; label: string; count: number }[] = [
 		{ value: 'all', label: __( 'All', 'vulopilot' ), count: summary?.total ?? 0 },
@@ -224,31 +386,39 @@ const SlowPagesTab = () => {
 	];
 
 	const handleExport = () => {
-		const headerRow = hasDeviceScores
-			? ['Page', 'URL', 'Type', 'Mobile Score', 'Desktop Score', 'Load Time (ms)', 'Main Issue']
-			: ['Page', 'URL', 'Type', 'Score', 'Load Time (ms)', 'Main Issue'];
+		const headerRow = [
+			'Page',
+			'URL',
+			'Type',
+			...(hasDeviceScores ? ['Mobile Score', 'Desktop Score'] : ['Score']),
+			'Load Time (ms)',
+			...(hasPsiDetail ? ['Page Size (bytes)', 'Requests', 'LCP (ms)', 'LCP Rating', 'INP (ms)', 'INP Rating', 'CLS (thousandths)', 'CLS Rating'] : []),
+			'Main Issue',
+		];
 
 		const lines = [headerRow.map(csvEscape).join(',')];
 
 		filteredRows.forEach((row) => {
-			const cells = hasDeviceScores
-				? [
-						row.title,
-						row.url,
-						PAGE_TYPE_LABELS[row.page_type] ?? row.page_type,
-						row.mobile_score ?? '',
-						row.desktop_score ?? '',
-						row.load_time_ms ?? '',
-						row.main_issue ?? '',
-					]
-				: [
-						row.title,
-						row.url,
-						PAGE_TYPE_LABELS[row.page_type] ?? row.page_type,
-						row.score ?? '',
-						row.load_time_ms ?? '',
-						row.main_issue ?? '',
-					];
+			const cells = [
+				row.title,
+				row.url,
+				PAGE_TYPE_LABELS[row.page_type] ?? row.page_type,
+				...(hasDeviceScores ? [row.mobile_score ?? '', row.desktop_score ?? ''] : [row.score ?? '']),
+				row.load_time_ms ?? '',
+				...(hasPsiDetail
+					? [
+							row.page_size_bytes ?? '',
+							row.requests_count ?? '',
+							row.lcp_ms ?? '',
+							row.lcp_rating ?? '',
+							row.inp_ms ?? '',
+							row.inp_rating ?? '',
+							row.cls_thousandths ?? '',
+							row.cls_rating ?? '',
+						]
+					: []),
+				row.main_issue ?? '',
+			];
 
 			lines.push(cells.map((cell) => csvEscape(String(cell))).join(','));
 		});
@@ -292,31 +462,77 @@ const SlowPagesTab = () => {
 
 				<div className="page-speed-summary-tiles">
 					<CardComponent className="page-speed-summary-tile" isLoading={isLoading}>
-						<i className="page-speed-summary-icon adminfont-document" />
-						<div className="page-speed-summary-value">{summary?.total ?? 0}</div>
-						<div className="page-speed-summary-label">{__( 'Total Pages Scanned', 'vulopilot' )}</div>
-					</CardComponent>
-					<CardComponent className="page-speed-summary-tile" isLoading={isLoading}>
-						<i className="page-speed-summary-icon adminfont-error" />
+						<i className="page-speed-summary-icon is-poor adminfont-error" />
 						<div className="page-speed-summary-value poor">{summary?.slow ?? 0}</div>
 						<div className="page-speed-summary-label">{__( 'Slow Pages', 'vulopilot' )}</div>
+						<div className="page-speed-summary-sublabel poor">{__( 'Needs Improvement', 'vulopilot' )}</div>
 					</CardComponent>
 					<CardComponent className="page-speed-summary-tile" isLoading={isLoading}>
-						<i className="page-speed-summary-icon adminfont-check" />
-						<div className="page-speed-summary-value good">{summary?.good ?? 0}</div>
-						<div className="page-speed-summary-label">{__( 'Good Pages', 'vulopilot' )}</div>
+						<i className="page-speed-summary-icon is-very-poor adminfont-error" />
+						<div className="page-speed-summary-value very-poor">{summary?.very_slow ?? 0}</div>
+						<div className="page-speed-summary-label">{__( 'Very Slow Pages', 'vulopilot' )}</div>
+						<div className="page-speed-summary-sublabel very-poor">{__( 'Poor', 'vulopilot' )}</div>
 					</CardComponent>
 					<CardComponent className="page-speed-summary-tile" isLoading={isLoading}>
-						<i className="page-speed-summary-icon adminfont-form-phone" />
+						<i className="page-speed-summary-icon is-primary adminfont-form-phone" />
 						<div className="page-speed-summary-value">
-							{null !== summary?.avg_mobile_score ? summary?.avg_mobile_score : '—'}
+							{avgLoadTimeMs !== null
+								? sprintf( __( '%s s', 'vulopilot' ), (avgLoadTimeMs / 1000).toFixed(1) )
+								: '—'}
+						</div>
+						<div className="page-speed-summary-label">{__( 'Average Load Time', 'vulopilot' )}</div>
+						<div className={`page-speed-summary-sublabel ${avgScoreRating.className}`}>
+							{null !== avgScore
+								? sprintf(
+										/* translators: %s is a rating word like "Good"/"Poor". */
+										__( '%s score', 'vulopilot' ),
+										avgScoreRating.label
+									)
+								: __( 'Not scored yet', 'vulopilot' )}
+						</div>
+					</CardComponent>
+					<CardComponent className="page-speed-summary-tile page-speed-trend-tile" isLoading={isLoading || isTrendLoading}>
+						<i className={`page-speed-summary-icon ${isTrendImproving ? 'is-good' : 'is-poor'} adminfont-check`} />
+						<div className={`page-speed-summary-value ${isTrendImproving ? 'good' : 'poor'}`}>
+							{null !== trendDelta
+								? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__( 'pts', 'vulopilot' )}`
+								: '—'}
 						</div>
 						<div className="page-speed-summary-label">
-							{hasDeviceScores
-								? __( 'Average Mobile Score', 'vulopilot' )
-								: __( 'Average Score', 'vulopilot' )}
+							{null !== trendDelta
+								? __( 'Performance Trend', 'vulopilot' )
+								: __( 'Not enough trend data yet', 'vulopilot' )}
 						</div>
+						{trend.length >= 2 && (
+							<ChartComponent
+								type="area"
+								sparkline
+								height={40}
+								data={trend}
+								dataKey="performance_score"
+								xKey="snapshot_date"
+								color={isTrendImproving ? '#16a34a' : '#dc2626'}
+							/>
+						)}
 					</CardComponent>
+				</div>
+
+				<div className="page-speed-info-banner">
+					<i className="adminfont-info" />
+					<p>
+						{__(
+							'Slow pages can hurt user experience and search rankings. Focus on the pages with the lowest scores first for the biggest impact.',
+							'vulopilot'
+						)}
+					</p>
+					<a
+						href="https://web.dev/articles/vitals"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="page-speed-info-banner-link"
+					>
+						{__( 'Learn more', 'vulopilot' )} ↗
+					</a>
 				</div>
 
 				<div className="page-speed-toolbar">
@@ -333,6 +549,22 @@ const SlowPagesTab = () => {
 						))}
 					</div>
 					<div className="page-speed-toolbar-actions">
+						{summary?.last_scanned_at && (
+							<span className="page-speed-last-scanned">
+								{sprintf(
+									/* translators: %s is a formatted date/time. */
+									__( 'Last scan: %s', 'vulopilot' ),
+									formatWpDate(summary.last_scanned_at)
+								)}
+							</span>
+						)}
+						<SelectInput
+							name="page_speed_trend_days"
+							value={trendDays}
+							options={TREND_DAY_OPTIONS}
+							onChange={(value) => setTrendDays(value as string)}
+							size="9rem"
+						/>
 						<SelectInput
 							name="page_type_filter"
 							value={pageTypeFilter}
@@ -395,6 +627,19 @@ const SlowPagesTab = () => {
 											<th>{__( 'Score', 'vulopilot' )}</th>
 										)}
 										<th>{__( 'Load Time', 'vulopilot' )}</th>
+										{hasPsiDetail && (
+											<>
+												<th title={__( 'Total real page weight (Lighthouse total-byte-weight audit)', 'vulopilot' )}>
+													{__( 'Page Size', 'vulopilot' )}
+												</th>
+												<th title={__( 'Real network requests observed (Lighthouse network-requests audit)', 'vulopilot' )}>
+													{__( 'Requests', 'vulopilot' )}
+												</th>
+												<th title={__( 'Real Chrome UX Report field data: Largest Contentful Paint / Interaction to Next Paint / Cumulative Layout Shift', 'vulopilot' )}>
+													{__( 'Core Web Vitals', 'vulopilot' )}
+												</th>
+											</>
+										)}
 										<th>{__( 'Main Issue', 'vulopilot' )}</th>
 										<th>{__( 'Action', 'vulopilot' )}</th>
 									</tr>
@@ -422,6 +667,13 @@ const SlowPagesTab = () => {
 													? sprintf( __( '%s s', 'vulopilot' ), (row.load_time_ms / 1000).toFixed(1) )
 													: '—'}
 											</td>
+											{hasPsiDetail && (
+												<>
+													<td>{formatBytes(row.page_size_bytes)}</td>
+													<td>{null !== row.requests_count ? row.requests_count : '—'}</td>
+													<td><CoreWebVitalsDots row={row} /></td>
+												</>
+											)}
 											<td className="page-speed-main-issue">{row.main_issue ?? '—'}</td>
 											<td>
 												<button
@@ -442,6 +694,39 @@ const SlowPagesTab = () => {
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
+				<CardComponent title={__( 'Why these pages are slow?', 'vulopilot' )} titleIcon="info">
+					{0 === topIssues.length ? (
+						<ModuleGuardComponent
+							icon="check"
+							title={__( 'No issues detected', 'vulopilot' )}
+							desc={__(
+								'Run a scan to check your real pages for common slowdown causes.',
+								'vulopilot'
+							)}
+						/>
+					) : (
+						<ul className="page-speed-sidebar-list">
+							{topIssues.slice(0, 5).map((item) => (
+								<li key={item.issue}>
+									<strong>{item.issue}</strong>
+									<span>
+										{sprintf(
+											/* translators: %d is the number of real pages this real issue affects. */
+											_n(
+												'%d page affected',
+												'%d pages affected',
+												item.affected_pages,
+												'vulopilot'
+											),
+											item.affected_pages
+										)}
+									</span>
+								</li>
+							))}
+						</ul>
+					)}
+				</CardComponent>
+
 				<CardComponent title={__( 'Why these pages matter', 'vulopilot' )} titleIcon="info">
 					<p className="page-speed-sidebar-desc">
 						{__(
@@ -468,8 +753,12 @@ const SlowPagesTab = () => {
 				<CardComponent title={__( "What's considered slow?", 'vulopilot' )}>
 					<ul className="page-speed-legend">
 						<li>
+							<span className="page-speed-legend-dot very-poor" />
+							{__( 'Very Slow', 'vulopilot' )} <span className="page-speed-legend-range">0 – 24</span>
+						</li>
+						<li>
 							<span className="page-speed-legend-dot poor" />
-							{__( 'Poor', 'vulopilot' )} <span className="page-speed-legend-range">0 – 49</span>
+							{__( 'Slow', 'vulopilot' )} <span className="page-speed-legend-range">25 – 49</span>
 						</li>
 						<li>
 							<span className="page-speed-legend-dot needs-improvement" />
@@ -486,11 +775,11 @@ const SlowPagesTab = () => {
 					<p className="page-speed-disclaimer">
 						{hasDeviceScores
 							? __(
-									'Scores are real per-page Google PageSpeed Insights results.',
+									'Scores are real per-page Google PageSpeed Insights results. Page size, requests, and Core Web Vitals are real Lighthouse/Chrome UX Report data from that same response.',
 									'vulopilot'
 								)
 							: __(
-									'Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key in Settings → Scanning → Performance for real Mobile/Desktop scores instead.',
+									'Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key in Settings → Scanning → Performance for real Mobile/Desktop scores, page size, requests, and Core Web Vitals instead.',
 									'vulopilot'
 								)}
 					</p>
@@ -539,13 +828,29 @@ const SlowPagesTab = () => {
 								<span><ScorePill score={detailRow.score} /></span>
 							</div>
 						)}
+						{hasPsiDetail && (
+							<>
+								<div className="page-speed-detail-row">
+									<span>{__( 'Page Size', 'vulopilot' )}</span>
+									<span>{formatBytes(detailRow.page_size_bytes)}</span>
+								</div>
+								<div className="page-speed-detail-row">
+									<span>{__( 'Requests', 'vulopilot' )}</span>
+									<span>{null !== detailRow.requests_count ? detailRow.requests_count : '—'}</span>
+								</div>
+								<div className="page-speed-detail-row">
+									<span>{__( 'Core Web Vitals', 'vulopilot' )}</span>
+									<span><CoreWebVitalsDots row={detailRow} /></span>
+								</div>
+							</>
+						)}
 						<div className="page-speed-detail-row">
 							<span>{__( 'Main Issue', 'vulopilot' )}</span>
 							<span>{detailRow.main_issue ?? __( 'None detected', 'vulopilot' )}</span>
 						</div>
 						<div className="page-speed-detail-row">
 							<span>{__( 'Last Scanned', 'vulopilot' )}</span>
-							<span>{detailRow.scanned_at}</span>
+							<span>{formatWpDate(detailRow.scanned_at)}</span>
 						</div>
 					</div>
 				)}

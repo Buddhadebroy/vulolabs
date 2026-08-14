@@ -161,6 +161,25 @@ class PageSpeedScanner {
         $mobile_score  = null;
         $desktop_score = null;
 
+        // Field-data (real Chrome UX Report percentiles/ratings) and the
+        // real Lighthouse page-weight/request-count audits — both come
+        // from mobile's own PSI response when it has one, since the
+        // mockup's own "Mobile ▾" toggle treats mobile as the default real
+        // device to show; desktop's response is only consulted for
+        // whichever of these mobile's response didn't have (a low-traffic
+        // page can genuinely lack real CrUX field data for one device but
+        // not the other).
+        $psi_detail = array(
+            'page_size_bytes' => null,
+            'requests_count'  => null,
+            'lcp_ms'          => null,
+            'lcp_rating'      => null,
+            'inp_ms'          => null,
+            'inp_rating'      => null,
+            'cls_thousandths' => null,
+            'cls_rating'      => null,
+        );
+
         if ( '' !== $psi_key ) {
             $mobile  = $this->fetch_psi( $psi_key, $page['url'], 'mobile' );
             $desktop = $this->fetch_psi( $psi_key, $page['url'], 'desktop' );
@@ -173,20 +192,27 @@ class PageSpeedScanner {
             if ( null !== $psi_issue ) {
                 $main_issue = $psi_issue;
             }
+
+            foreach ( $psi_detail as $key => $default_value ) {
+                $psi_detail[ $key ] = $mobile[ $key ] ?? ( $desktop[ $key ] ?? null );
+            }
         }
 
         $repository->replace_for_url(
-            array(
-                'url'           => $page['url'],
-                'title'         => $page['title'],
-                'page_type'     => $page['page_type'],
-                'load_time_ms'  => $elapsed_ms,
-                'score'         => $score,
-                'status'        => $this->status_from_score( $score ),
-                'mobile_score'  => $mobile_score,
-                'desktop_score' => $desktop_score,
-                'main_issue'    => $main_issue,
-                'scanned_at'    => current_time( 'mysql' ),
+            array_merge(
+                array(
+                    'url'           => $page['url'],
+                    'title'         => $page['title'],
+                    'page_type'     => $page['page_type'],
+                    'load_time_ms'  => $elapsed_ms,
+                    'score'         => $score,
+                    'status'        => $this->status_from_score( $score ),
+                    'mobile_score'  => $mobile_score,
+                    'desktop_score' => $desktop_score,
+                    'main_issue'    => $main_issue,
+                    'scanned_at'    => current_time( 'mysql' ),
+                ),
+                $psi_detail
             )
         );
     }
@@ -227,11 +253,17 @@ class PageSpeedScanner {
 
     /**
      * Calls the real PageSpeed Insights API for one page/strategy.
+     * `loadingExperience` (real CrUX field data) comes back automatically
+     * whenever Google has it for this URL+strategy — no extra `category`
+     * param needed to request it, unlike `lighthouseResult` which is
+     * scoped to whichever `category` values are passed (just `performance`
+     * here; accessibility/best-practices/seo audits aren't used by this
+     * scanner, so they're not requested).
      *
      * @param string $api_key  Real PSI API key.
      * @param string $url      Real page URL to check.
      * @param string $strategy 'mobile' or 'desktop'.
-     * @return array{score: int|null, top_opportunity: string|null}|null Null if the request failed.
+     * @return array{score: int|null, top_opportunity: string|null, page_size_bytes: int|null, requests_count: int|null, lcp_ms: int|null, lcp_rating: string|null, inp_ms: int|null, inp_rating: string|null, cls_thousandths: int|null, cls_rating: string|null}|null Null if the request failed.
      */
     private function fetch_psi( string $api_key, string $url, string $strategy ): ?array {
         $request_url = add_query_arg(
@@ -253,12 +285,83 @@ class PageSpeedScanner {
         $body        = json_decode( wp_remote_retrieve_body( $response ), true );
         $raw_score   = $body['lighthouseResult']['categories']['performance']['score'] ?? null;
         $audits      = $body['lighthouseResult']['audits'] ?? array();
-        $opportunity = $this->top_opportunity_title( is_array( $audits ) ? $audits : array() );
+        $audits      = is_array( $audits ) ? $audits : array();
+        $opportunity = $this->top_opportunity_title( $audits );
+        $field_data  = is_array( $body['loadingExperience'] ?? null ) ? $body['loadingExperience'] : array();
 
         return array(
             'score'           => is_numeric( $raw_score ) ? (int) round( ( (float) $raw_score ) * 100 ) : null,
             'top_opportunity' => $opportunity,
+            'page_size_bytes' => $this->audit_numeric_value( $audits, 'total-byte-weight' ),
+            'requests_count'  => $this->count_network_requests( $audits ),
+            'lcp_ms'          => $this->crux_percentile( $field_data, 'LARGEST_CONTENTFUL_PAINT_MS' ),
+            'lcp_rating'      => $this->crux_category( $field_data, 'LARGEST_CONTENTFUL_PAINT_MS' ),
+            'inp_ms'          => $this->crux_percentile( $field_data, 'INTERACTION_TO_NEXT_PAINT' ),
+            'inp_rating'      => $this->crux_category( $field_data, 'INTERACTION_TO_NEXT_PAINT' ),
+            'cls_thousandths' => $this->crux_percentile( $field_data, 'CUMULATIVE_LAYOUT_SHIFT_SCORE' ),
+            'cls_rating'      => $this->crux_category( $field_data, 'CUMULATIVE_LAYOUT_SHIFT_SCORE' ),
         );
+    }
+
+    /**
+     * A real Lighthouse audit's own `numericValue` (e.g. `total-byte-weight`,
+     * in bytes) — null when that audit isn't present in this response.
+     *
+     * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
+     * @param string               $audit_id Audit id, e.g. 'total-byte-weight'.
+     * @return int|null
+     */
+    private function audit_numeric_value( array $audits, string $audit_id ): ?int {
+        $value = $audits[ $audit_id ]['numericValue'] ?? null;
+
+        return is_numeric( $value ) ? (int) round( (float) $value ) : null;
+    }
+
+    /**
+     * Real request count from the `network-requests` Lighthouse audit's
+     * own `details.items` array — one real entry per network request
+     * Lighthouse observed, not an estimate.
+     *
+     * @param array<string, mixed> $audits Real `lighthouseResult.audits` from a PSI response.
+     * @return int|null
+     */
+    private function count_network_requests( array $audits ): ?int {
+        $items = $audits['network-requests']['details']['items'] ?? null;
+
+        return is_array( $items ) ? count( $items ) : null;
+    }
+
+    /**
+     * A real CrUX field-data metric's own percentile value (ms for LCP/INP,
+     * thousandths-of-a-unit for CLS per Google's own convention — a raw
+     * CLS of 0.10 reports as percentile 10) — Google's own real measured
+     * visitor experience for this URL, null when CrUX has no real field
+     * data for it (a real "not enough traffic" case, not fabricated).
+     *
+     * @param array<string, mixed> $field_data Real `loadingExperience` block from a PSI response.
+     * @param string                $metric_key e.g. 'LARGEST_CONTENTFUL_PAINT_MS'.
+     * @return int|null
+     */
+    private function crux_percentile( array $field_data, string $metric_key ): ?int {
+        $value = $field_data['metrics'][ $metric_key ]['percentile'] ?? null;
+
+        return is_numeric( $value ) ? (int) round( (float) $value ) : null;
+    }
+
+    /**
+     * That same real metric's own Google-assigned rating —
+     * 'FAST'/'AVERAGE'/'SLOW', passed through verbatim rather than
+     * re-derived from the percentile via this codebase's own thresholds,
+     * since Google's own CrUX category boundaries differ per metric.
+     *
+     * @param array<string, mixed> $field_data Real `loadingExperience` block from a PSI response.
+     * @param string                $metric_key e.g. 'LARGEST_CONTENTFUL_PAINT_MS'.
+     * @return string|null
+     */
+    private function crux_category( array $field_data, string $metric_key ): ?string {
+        $category = $field_data['metrics'][ $metric_key ]['category'] ?? null;
+
+        return is_string( $category ) && '' !== $category ? $category : null;
     }
 
     /**

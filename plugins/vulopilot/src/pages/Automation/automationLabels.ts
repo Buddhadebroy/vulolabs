@@ -32,3 +32,60 @@ export const ACTION_TYPE_LABELS: Record<string, string> = {
 	'run-ai-action': __('Run AI action', 'vulopilot'),
 	'create-notification': __('Create notification', 'vulopilot'),
 };
+
+/**
+ * The "Automations" tab's real type badge — a real `category` column on
+ * `vulopilot_automations` (Install.php's own
+ * add_automations_category_column() docblock), not a fabricated grouping.
+ * Mirrors vulopilot-pro's `AutomationsRest::CATEGORY_OPTIONS` 1:1, same
+ * "small matching copy, Free can't import Pro's src/ tree" convention this
+ * file's own top docblock already establishes for triggers/actions.
+ */
+export const CATEGORY_OPTIONS = [
+	'monitoring',
+	'security',
+	'content',
+	'commerce',
+	'reporting',
+	'custom',
+] as const;
+
+export const CATEGORY_LABELS: Record<string, string> = {
+	monitoring: __('Monitoring', 'vulopilot'),
+	security: __('Security', 'vulopilot'),
+	content: __('Content', 'vulopilot'),
+	commerce: __('Commerce', 'vulopilot'),
+	reporting: __('Reporting', 'vulopilot'),
+	custom: __('Custom', 'vulopilot'),
+};
+
+interface ActionConfigEntry {
+	type: string;
+}
+
+/**
+ * The "Automations" tab's real "What it does" column — parses an
+ * automation row's own `actions` JSON (real configured actions, not
+ * invented copy) into a plain sentence via ACTION_TYPE_LABELS above. Same
+ * parse-and-join logic AutomationOverviewGrid.tsx's own inline version
+ * already established for its card grid — pulled out here so the
+ * "Automations" tab's table can use the identical real logic instead of a
+ * third copy.
+ *
+ * @param actionsJson An automation row's raw `actions` column (JSON-encoded array).
+ * @return A real description, or a real "nothing configured" fallback — never fabricated.
+ */
+export const describeAutomationActions = (actionsJson: string): string => {
+	try {
+		const parsed = JSON.parse(actionsJson) as ActionConfigEntry[];
+		const labels = parsed.map(
+			(action) => ACTION_TYPE_LABELS[action.type] ?? action.type
+		);
+
+		return labels.length > 0
+			? labels.join(', ')
+			: __('No actions configured yet.', 'vulopilot');
+	} catch {
+		return __('No actions configured yet.', 'vulopilot');
+	}
+};

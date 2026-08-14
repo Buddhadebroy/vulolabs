@@ -6,18 +6,150 @@ import {
 	ModuleGuardComponent,
 	PopupComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { useFilterSlot } from '../../services/useFilterSlot';
+import { formatWpDate } from '../../services/formatWpDate';
 import ShowProPopup from '../../components/Popup/Popup';
+import AutomationStatsRow from './AutomationStatsRow';
+import {
+	CATEGORY_LABELS,
+	TRIGGER_TYPE_LABELS,
+	describeAutomationActions,
+} from './automationLabels';
 
 interface AutomationRow extends TableRow {
 	id: number;
 	name: string;
+	category: string;
 	trigger_type: string;
+	actions: string;
 	status: 'enabled' | 'disabled';
 	last_triggered_at: string | null;
+	last_run_status: 'running' | 'completed' | 'failed' | null;
+	last_run_actions_executed: number | null;
+	last_run_actions_failed: number | null;
+	last_run_changes_made: number | null;
+	last_run_finished_at: string | null;
 }
+
+/**
+ * The "AUTOMATION" column — real icon (fixed per this codebase's own
+ * `adminfont-automation` glyph, same one Automation.tsx's own header uses;
+ * no per-category icon set exists to honestly pick from instead) + real
+ * name + a real category badge (`row.category`, CATEGORY_LABELS —
+ * Install.php's own add_automations_category_column() docblock explains
+ * why this is a real column, not a fabricated grouping).
+ */
+const renderNameCell = (row: AutomationRow) => (
+	<div className="automations-name-cell">
+		<span className="automations-name-icon">
+			<i className="adminfont-automation" />
+		</span>
+		<span className="automations-name-text">
+			<strong>{row.name}</strong>
+			<span className={`admin-badge category-${row.category}`}>
+				{CATEGORY_LABELS[row.category] ?? row.category}
+			</span>
+		</span>
+	</div>
+);
+
+const renderWhatItDoesCell = (row: AutomationRow) => (
+	<span className="automations-what-it-does">
+		{describeAutomationActions(row.actions)}
+	</span>
+);
+
+const renderRunsCell = (row: AutomationRow) => (
+	<span>{TRIGGER_TYPE_LABELS[row.trigger_type] ?? row.trigger_type}</span>
+);
+
+/**
+ * The "LAST RUN" column — real date (`last_run_finished_at`, falling back
+ * to the real `last_triggered_at` a run always stamps even before this
+ * pass's own `last_run_*` enrichment existed) plus a real colored outcome:
+ * never run yet (neutral), failed (red), completed with real changes made
+ * (green, real count), or completed with nothing to change (neutral) —
+ * never the mockup's own invented "3 opportunities found" copy, always
+ * this automation's own real last AutomationRunRepository row
+ * (Controllers\Automations::with_last_run()).
+ */
+const renderLastRunCell = (row: AutomationRow) => {
+	const date = row.last_run_finished_at ?? row.last_triggered_at;
+
+	let outcome: { text: string; tone: 'is-good' | 'is-attention' | 'is-neutral' };
+
+	if (!row.last_run_status) {
+		outcome = { text: __('Never run', 'vulopilot'), tone: 'is-neutral' };
+	} else if ('failed' === row.last_run_status) {
+		outcome = { text: __('Run failed', 'vulopilot'), tone: 'is-attention' };
+	} else if ((row.last_run_changes_made ?? 0) > 0) {
+		outcome = {
+			text:
+				1 === row.last_run_changes_made
+					? __('1 change made', 'vulopilot')
+					: `${row.last_run_changes_made} ${__('changes made', 'vulopilot')}`,
+			tone: 'is-good',
+		};
+	} else {
+		outcome = { text: __('No changes needed', 'vulopilot'), tone: 'is-neutral' };
+	}
+
+	return (
+		<div className="automations-last-run">
+			<span className="automations-last-run-date">
+				{date ? formatWpDate(date) : __('—', 'vulopilot')}
+			</span>
+			<span className={`automations-last-run-outcome ${outcome.tone}`}>
+				{outcome.text}
+			</span>
+		</div>
+	);
+};
+
+interface StatusToggleProps {
+	row: AutomationRow;
+	onToggle: (row: AutomationRow) => void;
+	onRunNow: (row: AutomationRow) => void;
+	runDisabled?: boolean;
+}
+
+/**
+ * A real toggle switch (not the mockup's own untouched screenshot chrome —
+ * a real `<input type="checkbox">` styled as one, `.automations-status-toggle`
+ * in AutomateWork.scss) plus a compact "Run now" icon button alongside it —
+ * this tab's only other real per-row action, kept rather than dropped just
+ * because the mockup's own cropped screenshot doesn't show a second
+ * control here.
+ */
+const StatusToggleCell = ({
+	row,
+	onToggle,
+	onRunNow,
+	runDisabled,
+}: StatusToggleProps) => (
+	<div className="automations-status-actions">
+		<label className="automations-status-toggle">
+			<input
+				type="checkbox"
+				checked={'enabled' === row.status}
+				onChange={() => onToggle(row)}
+			/>
+			<span className="automations-status-toggle-track" />
+		</label>
+		<button
+			type="button"
+			className="automations-run-now"
+			title={__('Run now', 'vulopilot')}
+			disabled={runDisabled}
+			onClick={() => onRunNow(row)}
+		>
+			<i className="adminfont-next" />
+		</button>
+	</div>
+);
 
 /**
  * The real automation list/create/enable/run management UI — today's
@@ -25,6 +157,11 @@ interface AutomationRow extends TableRow {
  * "Manage"/"Create"/"View all" action switches to this tab
  * (`onManageAutomations`) rather than scrolling to it, since it's a full
  * tab of its own now, not a section further down a single long page.
+ *
+ * Redesigned to match the mockup: a real 4-tile stat row
+ * (AutomationStatsRow.tsx) above an "All automations" table whose columns
+ * (Automation/What it does/Runs/Last run/Status) are all real data — see
+ * each `render*Cell()` helper above for its own honest-substitution notes.
  *
  * The real panel (list, enable/disable, create, run) lives in
  * vulopilot-pro/modules/Automation's own React entry
@@ -40,7 +177,8 @@ interface AutomationRow extends TableRow {
  * missed it — "Create automation" opened the "Unlock with Pro" popup and
  * did nothing even with the real 'automation' module genuinely active,
  * same bug already fixed this session for WooCommerceTab.tsx's two panel
- * slots.
+ * slots. AutomationPanel.tsx (Pro) duplicates this same table styling —
+ * it can't import this file's src/ tree, only the shared zyra package.
  */
 const ManageAutomationsSection = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
@@ -69,9 +207,21 @@ const ManageAutomationsSection = () => {
 
 	return (
 		<div id="automation-manage">
+			<AutomationStatsRow />
 			<CardComponent
-				title={__('Manage Automations', 'vulopilot')}
+				title={__('All automations', 'vulopilot')}
 				titleIcon="automation"
+				action={
+					AutomationPanel ? undefined : (
+						<ButtonInput
+							buttons={{
+								text: __('Create automation', 'vulopilot'),
+								icon: 'plus',
+								onClick: openProPopup,
+							}}
+						/>
+					)
+				}
 			>
 				{error ? (
 					<ModuleGuardComponent
@@ -101,53 +251,33 @@ const ManageAutomationsSection = () => {
 								),
 							}}
 							format={appLocalizer.date_format_js}
-							buttonActions={[
-								{
-									label: __('Create automation', 'vulopilot'),
-									onClick: openProPopup,
-								},
-							]}
 							headers={{
 								name: {
 									label: __('Automation', 'vulopilot'),
 									isSortable: true,
+									render: renderNameCell,
+								},
+								what_it_does: {
+									label: __('What it does', 'vulopilot'),
+									render: renderWhatItDoesCell,
 								},
 								trigger_type: {
-									label: __('Trigger', 'vulopilot'),
+									label: __('Runs', 'vulopilot'),
+									render: renderRunsCell,
+								},
+								last_run: {
+									label: __('Last run', 'vulopilot'),
+									render: renderLastRunCell,
 								},
 								status: {
 									label: __('Status', 'vulopilot'),
-									type: 'badge',
-									statusClass: (row: AutomationRow) =>
-										`status-${row.status}`,
-								},
-								last_triggered_at: {
-									label: __('Last run', 'vulopilot'),
-									type: 'date',
-									isSortable: true,
-									defaultSort: true,
-									defaultOrder: 'desc',
-								},
-								actions: {
-									label: __('Actions', 'vulopilot'),
-									type: 'action',
-									actions: [
-										{
-											label: (
-												row?: Record<string, unknown>
-											) =>
-												row?.status === 'enabled'
-													? __('Disable', 'vulopilot')
-													: __('Enable', 'vulopilot'),
-											icon: 'toggle',
-											onClick: openProPopup,
-										},
-										{
-											label: __('Run now', 'vulopilot'),
-											icon: 'next',
-											onClick: openProPopup,
-										},
-									],
+									render: (row: AutomationRow) => (
+										<StatusToggleCell
+											row={row}
+											onToggle={openProPopup}
+											onRunNow={openProPopup}
+										/>
+									),
 								},
 							}}
 							rows={data}

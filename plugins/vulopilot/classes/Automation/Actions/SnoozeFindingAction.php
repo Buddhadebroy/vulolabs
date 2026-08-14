@@ -66,6 +66,15 @@ class SnoozeFindingAction implements ActionInterface {
     /**
      * @inheritDoc
      */
+    public function changes_site_state(): bool {
+        // A real UPDATE to the finding's own status column when it succeeds
+        // — same as ResolveFindingAction's own answer, for the same reason.
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function execute( Recommendation $recommendation, array $config ): AutomationRunResult {
         $object_type = $recommendation->get_object_type();
         $object_ref  = $recommendation->get_object_ref();

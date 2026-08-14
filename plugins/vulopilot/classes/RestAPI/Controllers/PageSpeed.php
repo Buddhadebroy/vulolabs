@@ -13,10 +13,13 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * `GET /page-speed` lists real per-page speed results plus a real summary
- * for "Improve Speed" › Slow Pages; `POST /page-speed` (re)starts a real
- * background scan via VuloPilot()->page_speed_scanner (already wired in
- * VuloPilot::init_classes()) — same "GET lists, POST triggers, persistence
- * happens elsewhere" shape Scans.php already uses.
+ * and `top_issues` (PageSpeedRepository::get_top_issues() — the real,
+ * deduplicated `main_issue` values grouped by how many pages they affect,
+ * backing the "Performance Opportunities" tab and "Why these pages are
+ * slow?" sidebar) for "Improve Speed" › Slow Pages; `POST /page-speed`
+ * (re)starts a real background scan via VuloPilot()->page_speed_scanner
+ * (already wired in VuloPilot::init_classes()) — same "GET lists, POST
+ * triggers, persistence happens elsewhere" shape Scans.php already uses.
  *
  * @class       PageSpeed controller
  * @version     1.0.0
@@ -108,6 +111,7 @@ class PageSpeed extends \WP_REST_Controller {
             array(
                 'summary'       => $repository->get_summary(),
                 'status_counts' => $repository->count_by_column( 'status', $filters ),
+                'top_issues'    => $repository->get_top_issues(),
                 'data'          => $result['data'],
                 'total'         => $result['total'],
             )
