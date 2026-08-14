@@ -1,7 +1,4 @@
-import {
-	ColumnComponent,
-	ContainerComponent,
-} from '@zyra/components';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import AutomationHeroRow from './AutomationHeroRow';
 import AutomationOverviewGrid from './AutomationOverviewGrid';
 import AutomationAttentionCard from './AutomationAttentionCard';
@@ -40,42 +37,40 @@ const AutomationOverviewTab = ({
 	onManageAutomations,
 }: AutomationOverviewTabProps) => {
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				<AutomationHeroRow onManageAutomations={onManageAutomations} />
+		<ColumnComponent>
+			<AutomationHeroRow onManageAutomations={onManageAutomations} />
 
-				<ContainerComponent>
-					<ColumnComponent grid={8}>
-						<AutomationOverviewGrid
-							onManageAutomations={onManageAutomations}
-						/>
-					</ColumnComponent>
-					<ColumnComponent grid={4}>
-						<AutomationAttentionCard onViewAll={onManageAutomations} />
-					</ColumnComponent>
-				</ContainerComponent>
+			<ContainerComponent>
+				<ColumnComponent grid={8}>
+					<AutomationOverviewGrid
+						onManageAutomations={onManageAutomations}
+					/>
+				</ColumnComponent>
+				<ColumnComponent grid={4}>
+					<AutomationAttentionCard onViewAll={onManageAutomations} />
+				</ColumnComponent>
+			</ContainerComponent>
 
-				<AutomationPeriodStatsCard
-					onScrollToCreate={onManageAutomations}
-					onScrollToManage={onManageAutomations}
-				/>
+			<AutomationPeriodStatsCard
+				onScrollToCreate={onManageAutomations}
+				onScrollToManage={onManageAutomations}
+			/>
 
-				<AutomationComposerCard />
+			<AutomationComposerCard />
 
-				<ContainerComponent>
-					<ColumnComponent grid={8}>
-						<AutomationActivityCard />
-					</ColumnComponent>
-					<ColumnComponent grid={4}>
-						<AiForemanCard onScrollToCreate={onManageAutomations} />
-					</ColumnComponent>
-				</ContainerComponent>
+			<ContainerComponent>
+				<ColumnComponent grid={8}>
+					<AutomationActivityCard />
+				</ColumnComponent>
+				<ColumnComponent grid={4}>
+					<AiForemanCard onScrollToCreate={onManageAutomations} />
+				</ColumnComponent>
+			</ContainerComponent>
 
-				<AutomationLinksRow onScrollToCreate={onManageAutomations} />
+			<AutomationLinksRow onScrollToCreate={onManageAutomations} />
 
-				<AutomationExploreBanner onExplore={onManageAutomations} />
-			</ColumnComponent>
-		</ContainerComponent>
+			<AutomationExploreBanner onExplore={onManageAutomations} />
+		</ColumnComponent>
 	);
 };
 

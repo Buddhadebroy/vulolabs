@@ -696,7 +696,15 @@
 	margin-top: 1rem;
 }
 
-// ScheduledReportsTab.tsx.
+// ReportTab.tsx's merged "Scheduled Reports" section (formerly its own
+// standalone tab/file, ScheduledReportsTab.tsx — merged in per direct
+// instruction).
+.reports-schedules-section {
+	margin-top: 2rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--border-color);
+}
+
 .reports-schedules-tab-title {
 	margin: 0 0 0.25rem;
 	font-size: 1.125rem;
