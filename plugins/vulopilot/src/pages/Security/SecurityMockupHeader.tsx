@@ -1,4 +1,5 @@
 import { ColumnComponent, ContainerComponent } from '@zyra/components';
+import type { SectionedIssuesTab } from './SectionedIssuesTable';
 import VulnerabilityHeroCard from './VulnerabilityHeroCard';
 import SecurityStatusCard from './SecurityStatusCard';
 import SecurityMetricsGrid from './SecurityMetricsGrid';
@@ -15,6 +16,9 @@ interface SecurityMockupHeaderProps {
 	 * target, same as it briefly did while "Old Security" also existed.
 	 */
 	scrollTargetId: string;
+	/** Forwarded to SecurityMetricsGrid.tsx's own scanner-backed tiles' "View" buttons — switches the merged issues table below to that tile's own section. */
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
 /**
@@ -38,7 +42,10 @@ interface SecurityMockupHeaderProps {
  * full-width 3-column row) rather than living in SecurityTab.tsx
  * as a standalone row.
  */
-const SecurityMockupHeader = ({ scrollTargetId }: SecurityMockupHeaderProps) => {
+const SecurityMockupHeader = ({
+	scrollTargetId,
+	onViewSection,
+}: SecurityMockupHeaderProps) => {
 	const scrollToTarget = () => {
 		document
 			.getElementById(scrollTargetId)
@@ -49,7 +56,7 @@ const SecurityMockupHeader = ({ scrollTargetId }: SecurityMockupHeaderProps) => 
 		<ContainerComponent>
 			<ColumnComponent grid={8}>
 				<VulnerabilityHeroCard onNavigateToSecurityTab={scrollToTarget} />
-				<SecurityMetricsGrid />
+				<SecurityMetricsGrid onViewSection={onViewSection} />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
 				<SecurityStatusCard />

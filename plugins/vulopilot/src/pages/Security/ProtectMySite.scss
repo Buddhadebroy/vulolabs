@@ -28,6 +28,21 @@
 		font-weight: 600;
 		font-size: 0.9rem;
 	}
+
+	.security-metric-last-scan {
+		font-size: 0.75rem;
+		color: var(--sub-text-color, #6b7280);
+	}
+
+	.security-metric-view {
+		width: 100%;
+		margin-top: 0.25rem;
+
+		.admin-btn {
+			width: 100%;
+			justify-content: center;
+		}
+	}
 }
 
 // VulnerabilityHeroCard.tsx's Free fallback — matches the mockup's own

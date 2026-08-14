@@ -1,5 +1,6 @@
-import React from 'react';
+import { useState } from 'react';
 import { ColumnComponent, ContainerComponent } from '@zyra/components';
+import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import PerformanceScoreCard from './PerformanceScoreCard';
 import SpeedBoostCard from './SpeedBoostCard';
 import MetricsGrid from './MetricsGrid';
@@ -36,14 +37,24 @@ import './ImproveSpeed.scss';
  * (`onNavigateToSlowPages`, owned by Performance.tsx) — a real per-page
  * report now exists there, so scrolling to the Top Issues findings table
  * would undersell what that button promises.
+ *
+ * `activeIssuesTab` (the Top Issues table's own section tab) is owned here,
+ * not by PerformanceTab.tsx itself, so MetricsGrid.tsx's own per-tile
+ * "View" buttons can jump straight to a specific section — same
+ * "controlled activeTab passed down to a shared table" shape
+ * AccessibilityTab.tsx already uses for AccessibilityChecksGrid's "Review"
+ * buttons.
  */
 interface OverviewTabProps {
 	onNavigateToSlowPages: () => void;
 }
 
 const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
-	const scrollToFindings = () => {
-		const el = document.getElementById('performance-section-findings');
+	const [activeIssuesTab, setActiveIssuesTab] =
+		useState<SectionedIssuesTab>('all');
+
+	const scrollTo = (id: string) => {
+		const el = document.getElementById(id);
 
 		if (!el) {
 			return;
@@ -54,12 +65,28 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 		setTimeout(() => el.classList.remove('vulopilot-glimpse-highlight'), 1200);
 	};
 
+	const scrollToFindings = () => scrollTo('performance-section-findings');
+
+	/** MetricsGrid's own scanner-backed tiles — switches the Top Issues table to that tile's section, then scrolls to it. */
+	const goToIssuesSection = (sectionKey: string) => {
+		setActiveIssuesTab(sectionKey);
+		setTimeout(scrollToFindings, 50);
+	};
+
 	return (
 		<>
 				<ColumnComponent grid={8}>
 					<PerformanceScoreCard onViewDetails={onNavigateToSlowPages} />
 
-					<MetricsGrid />
+					<MetricsGrid
+						onViewSection={goToIssuesSection}
+						onViewCoreWebVitals={() =>
+							scrollTo('performance-core-web-vitals-card')
+						}
+						onViewPerformanceMonitor={() =>
+							scrollTo('performance-realtime-monitoring-card')
+						}
+					/>
 
 					<ContainerComponent>
 						<ColumnComponent grid={6}>
@@ -79,8 +106,10 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 				</ColumnComponent>
 			<ColumnComponent>
 				<div id="performance-section-findings">
-					<PerformanceTab />
-					
+					<PerformanceTab
+						activeTab={activeIssuesTab}
+						onTabChange={setActiveIssuesTab}
+					/>
 				</div>
 			</ColumnComponent>
 		</>

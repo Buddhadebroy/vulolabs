@@ -10,6 +10,7 @@ import SectionedIssuesTable, {
 } from './SectionedIssuesTable';
 import SecurityMockupHeader from './SecurityMockupHeader';
 import PluginOverlapCard from './PluginOverlapCard';
+import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 
 /**
  * SECURITY-MODULE.md's "Incident Reports" panel — was "Old Security"'s
@@ -20,29 +21,6 @@ const SecurityIncidentReportsPanel = applyFilters(
 	'vulopilot_security_incident_reports_panel',
 	null
 ) as ComponentType | null;
-
-/**
- * Every scanner id "Security Findings" below rolls up (rather than
- * `category="security"` alone, so it doesn't silently drop
- * RestApiScanner's findings — its own category is `rest-api`, not
- * `security`, see that scanner's own docblock).
- */
-const SECURITY_FINDINGS_SCANNER_IDS = [
-	'weak-passwords',
-	'rest-api',
-	'xmlrpc-exposure',
-	'exposed-files',
-	'debug-mode',
-	'file-editor',
-	'security-headers',
-	'security',
-	'ssl-monitoring',
-	'core-file-integrity',
-	'integrity-monitoring',
-	'basic-vulnerabilities',
-	'advanced-vulnerabilities',
-	'theme-vulnerabilities',
-];
 
 /**
  * The 4 detail sections formerly on "Old Security" (SecurityDetailTab.tsx)
@@ -153,10 +131,25 @@ const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
 const SecurityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
 
+	/** SecurityMetricsGrid's own scanner-backed tiles ("Security Scan"/"SSL") — switches the merged issues table below to that tile's own section and scrolls to it, same "controlled activeTab passed down" shape MetricsGrid.tsx's own View buttons use on Improve Speed. */
+	const goToIssuesTab = (tab: SectionedIssuesTab) => {
+		setActiveTab(tab);
+		setTimeout(
+			() =>
+				document
+					.getElementById(ISSUES_TABLE_ID)
+					?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+			50
+		);
+	};
+
 	return (
 		<ContainerComponent>
 			<ColumnComponent>
-				<SecurityMockupHeader scrollTargetId={ISSUES_TABLE_ID} />
+				<SecurityMockupHeader
+					scrollTargetId={ISSUES_TABLE_ID}
+					onViewSection={goToIssuesTab}
+				/>
 				<SectionedIssuesTable
 					id={ISSUES_TABLE_ID}
 					title={__('All Security Issues', 'vulopilot')}

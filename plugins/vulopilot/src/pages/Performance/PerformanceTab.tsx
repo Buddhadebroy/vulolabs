@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 import SectionedIssuesTable, {
@@ -17,8 +16,12 @@ const ISSUES_TABLE_ID = 'performance-top-issues-table';
  * use (SectionedIssuesTable.tsx) — same real `GET /findings/groups` data,
  * summary priority cards, and side detail panel, replacing the plain
  * spreadsheet-style FindingsTable this tab used to render alone.
+ *
+ * Section `key`s are also read by MetricsGrid.tsx's own
+ * `SECTION_KEY_BY_TILE_ID` map, kept in sync by hand — each scanner-backed
+ * metric tile's "View" button jumps straight to its matching section here.
  */
-const SECTIONS: FindingsSection[] = [
+export const SECTIONS: FindingsSection[] = [
 	{
 		key: 'server-response',
 		title: __('Server & Response Time', 'vulopilot'),
@@ -96,6 +99,19 @@ const SECTIONS: FindingsSection[] = [
 	},
 ];
 
+interface PerformanceTabProps {
+	/**
+	 * Owned by OverviewTab.tsx (not internal state) so MetricsGrid.tsx's
+	 * own per-tile "View" buttons can jump this table straight to a
+	 * specific section — same "controlled activeTab passed down" shape
+	 * AccessibilityTab.tsx already uses for its own AccessibilityChecksGrid
+	 * "Review" buttons.
+	 */
+	activeTab: SectionedIssuesTab;
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	onTabChange: (tab: SectionedIssuesTab) => void;
+}
+
 /**
  * "Top Issues" — Improve Speed's own OverviewTab.tsx (wrapped in
  * `#performance-section-findings`) is this component's only call site.
@@ -111,9 +127,7 @@ const SECTIONS: FindingsSection[] = [
  * own efficiency/speed-monitoring checks), matching the same per-tab
  * cross-sell promotion Security/Accessibility already carry.
  */
-const PerformanceTab = () => {
-	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
-
+const PerformanceTab = ({ activeTab, onTabChange }: PerformanceTabProps) => {
 	return (
 		<>
 			<SectionedIssuesTable
@@ -121,7 +135,7 @@ const PerformanceTab = () => {
 				title={__('Top Issues', 'vulopilot')}
 				sections={SECTIONS}
 				activeTab={activeTab}
-				onTabChange={setActiveTab}
+				onTabChange={onTabChange}
 			/>
 			<PluginOverlapCard category="caching" />
 		</>

@@ -296,7 +296,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 			</ColumnComponent>
 
 			<ColumnComponent grid={6}>
-				<CardComponent title={__('Core Web Vitals', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
+				<CardComponent id="performance-core-web-vitals-card" title={__('Core Web Vitals', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
 							icon="error"

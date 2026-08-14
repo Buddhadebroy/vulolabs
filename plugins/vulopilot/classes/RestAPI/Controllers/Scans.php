@@ -67,16 +67,29 @@ class Scans extends \WP_REST_Controller {
 
     /**
      * @inheritDoc
+     *
+     * `scanner_id` (comma-separated, e.g. `ssl-monitoring` or
+     * `core-file-integrity,integrity-monitoring`) plus `orderby`/`order` —
+     * same `parse_comma_separated_list()` shape `create_item()` already uses
+     * for `category` below, added so a tile that only cares about one
+     * scanner group's own most recent run (e.g. "last scan time" on a
+     * summary card) can ask for `?scanner_id=...&status=completed&
+     * per_page=1&orderby=finished_at&order=desc` instead of paging through
+     * every scan run to find it client-side.
      */
     public function get_items( $request ) {
-        $repository = new ScanRepository();
+        $repository  = new ScanRepository();
+        $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
 
         return rest_ensure_response(
             $repository->find_all(
                 array(
-                    'page'     => absint( $request->get_param( 'page' ) ) ?: 1,
-                    'per_page' => absint( $request->get_param( 'per_page' ) ) ?: 20,
-                    'status'   => sanitize_key( (string) $request->get_param( 'status' ) ),
+                    'page'       => absint( $request->get_param( 'page' ) ) ?: 1,
+                    'per_page'   => absint( $request->get_param( 'per_page' ) ) ?: 20,
+                    'status'     => sanitize_key( (string) $request->get_param( 'status' ) ),
+                    'scanner_id' => $scanner_ids ?? '',
+                    'orderby'    => sanitize_key( (string) $request->get_param( 'orderby' ) ),
+                    'order'      => sanitize_key( (string) $request->get_param( 'order' ) ),
                 )
             )
         );
