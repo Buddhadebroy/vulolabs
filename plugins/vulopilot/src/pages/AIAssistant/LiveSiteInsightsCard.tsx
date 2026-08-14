@@ -107,9 +107,9 @@ const LiveSiteInsightsCard: React.FC = () => {
 		(sum, day) => sum + day.total,
 		0
 	);
-	const distinctBots = crawler?.bot_last_seen.length ?? 0;
+	const distinctBots = crawler?.bot_last_seen?.length ?? 0;
 	const showStoreMetrics =
-		null !== (dashboard?.category_scores.woocommerce ?? null);
+		null !== (dashboard?.category_scores?.woocommerce ?? null);
 
 	return (
 		<CardComponent
@@ -126,7 +126,7 @@ const LiveSiteInsightsCard: React.FC = () => {
 						: sprintf(
 								/* translators: %d: real 0-100 security score computed from open security findings */
 								__('%d/100', 'vulopilot'),
-								dashboard?.category_scores.security ?? 0
+								dashboard?.category_scores?.security ?? 0
 							)
 				}
 				descriptions={[

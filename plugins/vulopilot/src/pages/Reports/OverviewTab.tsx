@@ -74,7 +74,7 @@ const OverviewTab = () => {
 					isLoading={isLoading}
 				/>
 				<AiVisibilityPanel
-					checks={data?.ai_visibility_summary.checks ?? []}
+					checks={data?.ai_visibility_summary?.checks ?? []}
 					isLoading={isLoading}
 				/>
 				<SpeedPerformancePanel
