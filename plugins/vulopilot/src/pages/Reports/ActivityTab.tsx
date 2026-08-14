@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
@@ -47,66 +46,64 @@ const ActivityTab = () => {
 	);
 
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				{error ? (
-					<CardComponent title={__('Activity', 'vulopilot')}>
-						<ModuleGuardComponent
-							icon="error"
-							title={__(
-								'Could not load the activity log',
-								'vulopilot'
-							)}
-							desc={error}
-							buttonText={__('Retry', 'vulopilot')}
-							onButtonClick={refetch}
-						/>
-					</CardComponent>
-				) : (
-					<TableCard
-						search={{
-							placeholder: __('Search activity…', 'vulopilot'),
-						}}
-						format={appLocalizer.date_format_js}
-						headers={{
-							event_type: {
-								label: __('Event', 'vulopilot'),
-								isSortable: true,
-							},
-							message: {
-								label: __('Details', 'vulopilot'),
-							},
-							actor_type: {
-								label: __('Actor', 'vulopilot'),
-							},
-							severity: {
-								label: __('Severity', 'vulopilot'),
-								type: 'badge',
-								statusClass: (row: ActivityLogRow) =>
-									`severity-${row.severity}`,
-							},
-							created_at: {
-								label: __('When', 'vulopilot'),
-								type: 'date',
-								isSortable: true,
-								defaultSort: true,
-								defaultOrder: 'desc',
-							},
-						}}
-						rows={data}
-						ids={data.map((row) => row.id)}
-						totalRows={total}
-						categoryCounts={categoryCounts}
-						isLoading={isLoading}
-						onQueryUpdate={onQueryUpdate}
-						emptyMessage={__(
-							'Nothing has happened yet — actions across VuloPilot will show up here.',
+		<ColumnComponent>
+			{error ? (
+				<CardComponent title={__('Activity', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="error"
+						title={__(
+							'Could not load the activity log',
 							'vulopilot'
 						)}
+						desc={error}
+						buttonText={__('Retry', 'vulopilot')}
+						onButtonClick={refetch}
 					/>
-				)}
-			</ColumnComponent>
-		</ContainerComponent>
+				</CardComponent>
+			) : (
+				<TableCard
+					search={{
+						placeholder: __('Search activity…', 'vulopilot'),
+					}}
+					format={appLocalizer.date_format_js}
+					headers={{
+						event_type: {
+							label: __('Event', 'vulopilot'),
+							isSortable: true,
+						},
+						message: {
+							label: __('Details', 'vulopilot'),
+						},
+						actor_type: {
+							label: __('Actor', 'vulopilot'),
+						},
+						severity: {
+							label: __('Severity', 'vulopilot'),
+							type: 'badge',
+							statusClass: (row: ActivityLogRow) =>
+								`severity-${row.severity}`,
+						},
+						created_at: {
+							label: __('When', 'vulopilot'),
+							type: 'date',
+							isSortable: true,
+							defaultSort: true,
+							defaultOrder: 'desc',
+						},
+					}}
+					rows={data}
+					ids={data.map((row) => row.id)}
+					totalRows={total}
+					categoryCounts={categoryCounts}
+					isLoading={isLoading}
+					onQueryUpdate={onQueryUpdate}
+					emptyMessage={__(
+						'Nothing has happened yet — actions across VuloPilot will show up here.',
+						'vulopilot'
+					)}
+				/>
+			)}
+		</ColumnComponent>
 	);
 };
 

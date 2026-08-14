@@ -6,7 +6,6 @@ import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -16,6 +15,7 @@ import { TableCard, TableRow } from '@zyra/table';
 import type { ComponentType } from 'react';
 import { useApiList } from '../../services/useApiList';
 import ShowProPopup from '../../components/Popup/Popup';
+import ReportSchedulesSummary from './ReportSchedulesSummary';
 
 interface ReportTypeOption {
 	id: string;
@@ -56,6 +56,18 @@ const AdvancedReportsPanel = applyFilters(
  * generate control" actions have somewhere real to land — same "extract
  * body, drop header" move every prior page rebuild this session made for
  * its own old-page-as-a-tab content.
+ *
+ * Also the real home for scheduled reports now — "Scheduled Reports" was
+ * merged into this tab per direct instruction (its former standalone
+ * file, ScheduledReportsTab.tsx, is gone). ReportSchedulesSummary.tsx
+ * (real weekly/monthly `last_run_at`/`next_run_at`/`is_enabled` status)
+ * plus `AdvancedReportsPanel` render below the report-generation section
+ * as their own "Scheduled Reports" block. `AdvancedReportsPanel` itself
+ * (Pro's schedule create/edit/delete UI, `vulopilot_reports_advanced_panel`)
+ * is only rendered once now, here — before the merge, both this tab and
+ * the standalone Scheduled Reports tab independently rendered the exact
+ * same component, so it actually appeared twice across the page; merging
+ * the tabs also fixed that real duplicate render, not just moved it.
  */
 const ReportTab = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
@@ -196,118 +208,128 @@ const ReportTab = () => {
 
 	return (
 		<div id="reports-generate">
-			<ContainerComponent general>
-				<ColumnComponent>
-					{error ? (
-						<CardComponent
-							title={__('Reports', 'vulopilot')}
-							action={pageHeaderAction}
-						>
-							<ModuleGuardComponent
-								icon="error"
-								title={__('Could not load reports', 'vulopilot')}
-								desc={error}
-								buttonText={__('Retry', 'vulopilot')}
-								onButtonClick={refetch}
-							/>
-						</CardComponent>
-					) : (
-						<>
-							{reportTypeSelector && (
-								<div className="reports-generate-toolbar">
-									<span className="reports-generate-toolbar-label">
-										{__('Report type', 'vulopilot')}
-									</span>
-									{reportTypeSelector}
-								</div>
+			<ColumnComponent>
+				{error ? (
+					<CardComponent
+						title={__('Reports', 'vulopilot')}
+						action={pageHeaderAction}
+					>
+						<ModuleGuardComponent
+							icon="error"
+							title={__('Could not load reports', 'vulopilot')}
+							desc={error}
+							buttonText={__('Retry', 'vulopilot')}
+							onButtonClick={refetch}
+						/>
+					</CardComponent>
+				) : (
+					<>
+						{reportTypeSelector && (
+							<div className="reports-generate-toolbar">
+								<span className="reports-generate-toolbar-label">
+									{__('Report type', 'vulopilot')}
+								</span>
+								{reportTypeSelector}
+							</div>
+						)}
+						<TableCard
+							buttonActions={[
+								{
+									label: __('Generate report', 'vulopilot'),
+									onClick: handleGenerateReport,
+								},
+							]}
+							format={appLocalizer.date_format_js}
+							headers={{
+								report_type: {
+									label: __('Type', 'vulopilot'),
+								},
+								format: {
+									label: __('Format', 'vulopilot'),
+								},
+								status: {
+									label: __('Status', 'vulopilot'),
+									type: 'badge',
+									statusClass: (row: ReportRow) =>
+										`status-${row.status}`,
+								},
+								created_at: {
+									label: __('Generated', 'vulopilot'),
+									type: 'date',
+									isSortable: true,
+									defaultSort: true,
+									defaultOrder: 'desc',
+								},
+								actions: {
+									label: __('Actions', 'vulopilot'),
+									type: 'action',
+									actions: [
+										{
+											label: (
+												row?: Record<
+													string,
+													unknown
+												>
+											) =>
+												row?.status === 'ready'
+													? __(
+															'Download',
+															'vulopilot'
+														)
+													: __(
+															'Not ready yet',
+															'vulopilot'
+														),
+											icon: 'download',
+											onClick: handleDownload,
+										},
+									],
+								},
+							}}
+							rows={data}
+							ids={data.map((row) => row.id)}
+							totalRows={total}
+							categoryCounts={categoryCounts}
+							isLoading={isLoading}
+							onQueryUpdate={onQueryUpdate}
+							emptyMessage={__(
+								'No reports yet — generate your first compliance report.',
+								'vulopilot'
 							)}
-							<TableCard
-								buttonActions={[
-									{
-										label: __('Generate report', 'vulopilot'),
-										onClick: handleGenerateReport,
-									},
-								]}
-								format={appLocalizer.date_format_js}
-								headers={{
-									report_type: {
-										label: __('Type', 'vulopilot'),
-									},
-									format: {
-										label: __('Format', 'vulopilot'),
-									},
-									status: {
-										label: __('Status', 'vulopilot'),
-										type: 'badge',
-										statusClass: (row: ReportRow) =>
-											`status-${row.status}`,
-									},
-									created_at: {
-										label: __('Generated', 'vulopilot'),
-										type: 'date',
-										isSortable: true,
-										defaultSort: true,
-										defaultOrder: 'desc',
-									},
-									actions: {
-										label: __('Actions', 'vulopilot'),
-										type: 'action',
-										actions: [
-											{
-												label: (
-													row?: Record<
-														string,
-														unknown
-													>
-												) =>
-													row?.status === 'ready'
-														? __(
-																'Download',
-																'vulopilot'
-															)
-														: __(
-																'Not ready yet',
-																'vulopilot'
-															),
-												icon: 'download',
-												onClick: handleDownload,
-											},
-										],
-									},
-								}}
-								rows={data}
-								ids={data.map((row) => row.id)}
-								totalRows={total}
-								categoryCounts={categoryCounts}
-								isLoading={isLoading}
-								onQueryUpdate={onQueryUpdate}
-								emptyMessage={__(
-									'No reports yet — generate your first compliance report.',
+						/>
+						<div className="reports-schedules-section">
+							<h2 className="reports-schedules-tab-title">
+								{__('Scheduled Reports', 'vulopilot')}
+							</h2>
+							<p className="reports-schedules-tab-desc">
+								{__(
+									'Automatic weekly and monthly reports, sent on their own schedule.',
 									'vulopilot'
 								)}
-							/>
+							</p>
+							<ReportSchedulesSummary />
 							{AdvancedReportsPanel && <AdvancedReportsPanel />}
-							<PopupComponent
-								open={isProPopupOpen}
-								onClose={() => setIsProPopupOpen(false)}
-								width={31.25}
-								height="auto"
-								position="lightbox"
-							>
-								{appLocalizer.khali_dabba ? (
-									// Pro is active — this specific module
-									// just isn't toggled on yet, so point at
-									// Modules rather than pitching an
-									// upgrade the user already has.
-									<ShowProPopup moduleName="advanced-reports" />
-								) : (
-									<ShowProPopup />
-								)}
-							</PopupComponent>
-						</>
-					)}
-				</ColumnComponent>
-			</ContainerComponent>
+						</div>
+						<PopupComponent
+							open={isProPopupOpen}
+							onClose={() => setIsProPopupOpen(false)}
+							width={31.25}
+							height="auto"
+							position="lightbox"
+						>
+							{appLocalizer.khali_dabba ? (
+								// Pro is active — this specific module
+								// just isn't toggled on yet, so point at
+								// Modules rather than pitching an
+								// upgrade the user already has.
+								<ShowProPopup moduleName="advanced-reports" />
+							) : (
+								<ShowProPopup />
+							)}
+						</PopupComponent>
+					</>
+				)}
+			</ColumnComponent>
 		</div>
 	);
 };

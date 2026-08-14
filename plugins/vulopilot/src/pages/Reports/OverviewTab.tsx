@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ColumnComponent, ContainerComponent } from '@zyra/components';
+import { ColumnComponent } from '@zyra/components';
 import ReportsOverviewHeader from './ReportsOverviewHeader';
 import ReportsHeroCard from './ReportsHeroCard';
 import ReportsCategoryStatusGrid from './ReportsCategoryStatusGrid';
@@ -53,69 +53,67 @@ const OverviewTab = () => {
 	const { data, isLoading } = useReportsOverview(days);
 
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				<ReportsOverviewHeader
-					days={days}
-					onDaysChange={setDays}
-					period={data?.period ?? null}
-				/>
-				<ReportsHeroCard
-					summary={data?.summary ?? null}
-					highlights={data?.highlights ?? []}
+		<ColumnComponent>
+			<ReportsOverviewHeader
+				days={days}
+				onDaysChange={setDays}
+				period={data?.period ?? null}
+			/>
+			<ReportsHeroCard
+				summary={data?.summary ?? null}
+				highlights={data?.highlights ?? []}
+				isLoading={isLoading}
+			/>
+			<ReportsCategoryStatusGrid
+				categories={data?.categories ?? []}
+				isLoading={isLoading}
+			/>
+			<div className="reports-panel-row">
+				<SearchPerformancePanel
+					panel={data?.seo_summary ?? null}
 					isLoading={isLoading}
 				/>
-				<ReportsCategoryStatusGrid
-					categories={data?.categories ?? []}
+				<AiVisibilityPanel
+					checks={data?.ai_visibility_summary.checks ?? []}
 					isLoading={isLoading}
 				/>
-				<div className="reports-panel-row">
-					<SearchPerformancePanel
-						panel={data?.seo_summary ?? null}
-						isLoading={isLoading}
-					/>
-					<AiVisibilityPanel
-						checks={data?.ai_visibility_summary.checks ?? []}
-						isLoading={isLoading}
-					/>
-					<SpeedPerformancePanel
-						speed={data?.speed_summary ?? null}
-						isLoading={isLoading}
-					/>
-				</div>
-				<div className="reports-panel-row">
-					<SecurityPerformancePanel
-						panel={data?.security_summary ?? null}
-						isLoading={isLoading}
-					/>
-					<ContentProgressPanel
-						content={data?.content_summary ?? null}
-						isLoading={isLoading}
-					/>
-					<StorePerformancePanel
-						store={data?.store_summary ?? null}
-						isLoading={isLoading}
-					/>
-				</div>
-				<WhatHappenedThisMonth />
-				<NextPrioritiesList
-					priorities={data?.next_priorities ?? []}
+				<SpeedPerformancePanel
+					speed={data?.speed_summary ?? null}
 					isLoading={isLoading}
 				/>
-				<ScheduleReportBanner />
+			</div>
+			<div className="reports-panel-row">
+				<SecurityPerformancePanel
+					panel={data?.security_summary ?? null}
+					isLoading={isLoading}
+				/>
+				<ContentProgressPanel
+					content={data?.content_summary ?? null}
+					isLoading={isLoading}
+				/>
+				<StorePerformancePanel
+					store={data?.store_summary ?? null}
+					isLoading={isLoading}
+				/>
+			</div>
+			<WhatHappenedThisMonth />
+			<NextPrioritiesList
+				priorities={data?.next_priorities ?? []}
+				isLoading={isLoading}
+			/>
+			<ScheduleReportBanner />
 
-				<WebsiteProgressChart />
-				<ReportTypeCards />
-				<div className="reports-legacy-row">
-					<ColumnComponent grid={6}>
-						<RecentAchievementsCard />
-					</ColumnComponent>
-					<ColumnComponent grid={6}>
-						<AiAnalystCard />
-					</ColumnComponent>
-				</div>
-			</ColumnComponent>
-		</ContainerComponent>
+			<WebsiteProgressChart />
+			<ReportTypeCards />
+			<div className="reports-legacy-row">
+				<ColumnComponent grid={6}>
+					<RecentAchievementsCard />
+				</ColumnComponent>
+				<ColumnComponent grid={6}>
+					<AiAnalystCard />
+				</ColumnComponent>
+			</div>
+		</ColumnComponent>
 	);
 };
 
