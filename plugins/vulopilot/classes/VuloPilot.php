@@ -216,6 +216,17 @@ final class VuloPilot {
         // shape as CanonicalUrlManager/SocialMetaTagsManager below.
         $this->container['webmaster_tools_manager'] = new Services\WebmasterToolsManager();
 
+        // Scanning → Google Services (Search Console/Analytics/AdSense) —
+        // real Google OAuth 2.0 redirect handler (self-registers its own
+        // `admin_post_*` hook; must be unconditional, not REST-lazy — see
+        // that class's own docblock) and real `gtag.js` output once a GA4
+        // property is connected. GoogleServicesConnection/GoogleAnalyticsClient/
+        // GoogleAdSenseClient are all stateless and instantiated fresh
+        // wherever needed (Controllers\GoogleServices), same as every
+        // other Services\* class that doesn't need its own hooks.
+        $this->container['gsc_oauth_callback_handler'] = new Services\GoogleSearchConsoleOAuthCallbackHandler();
+        $this->container['google_analytics_tracker']   = new Services\GoogleAnalyticsTracker();
+
         // Scanning → Instant Indexing (IndexNow) — real key-file serving
         // (self-registers its own rewrite-rule/template_redirect hooks,
         // same shape as llms_txt_generator above) and automatic submission

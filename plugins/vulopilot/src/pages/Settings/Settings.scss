@@ -26,3 +26,130 @@
 		margin-left: auto;
 	}
 }
+
+// GoogleServicesPanel.tsx.
+.gsc-connected-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.gsc-selected-site {
+	font-weight: 600;
+	margin: 0 0 1rem;
+}
+
+.gsc-site-picker {
+	margin-bottom: 1rem;
+}
+
+.gsc-site-option {
+	display: block;
+	width: 100%;
+	text-align: left;
+	background: none;
+	border: 1px solid var(--border-color);
+	border-radius: 0.375rem;
+	padding: 0.5rem 0.75rem;
+	margin-bottom: 0.5rem;
+	cursor: pointer;
+
+	&:hover {
+		border-color: var(--color-primary);
+	}
+}
+
+.gsc-connect-hero {
+	text-align: center;
+	padding: 1.5rem 0;
+
+	.button,
+	button {
+		margin: 0 auto 1.5rem;
+	}
+}
+
+.gsc-benefits-title {
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+}
+
+.gsc-benefits-list {
+	list-style: none;
+	margin: 0 0 1.25rem;
+	padding: 0;
+	text-align: left;
+	max-width: 28rem;
+	margin-left: auto;
+	margin-right: auto;
+
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+		font-size: 0.8125rem;
+		color: var(--sub-text-color);
+	}
+
+	i {
+		color: #16a34a;
+		margin-top: 0.125rem;
+	}
+}
+
+.gsc-inline-action {
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--color-primary);
+	font-weight: 600;
+	font-size: 0.8125rem;
+	cursor: pointer;
+
+	&.is-destructive {
+		color: #dc2626;
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+}
+
+.gsc-test-results {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.gsc-select-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.gsc-measurement-id {
+	margin-bottom: 1rem;
+}
+
+.gsc-toggle-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 0.5rem;
+
+	.desc {
+		margin: 0;
+	}
+}
+
+.gsc-sub-toggles {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-left: 1.5rem;
+}

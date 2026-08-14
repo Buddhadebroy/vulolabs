@@ -258,17 +258,20 @@ class GeoAnalyzer {
      * queries *per post* — the same score, computed the cheap way for a
      * whole-site listing rather than a single post's own card.
      *
-     * @param int  $per_post_failures             Open findings against this specific post (uncapped — capped below).
-     * @param bool $sitewide_trust_signal_failure  Whether the sitewide Trust Signals check is currently open.
+     * @param int      $per_post_failures             Open findings against this specific post (uncapped — capped below).
+     * @param bool     $sitewide_trust_signal_failure  Whether the sitewide Trust Signals check is currently open.
+     * @param int|null $total_checks                   Denominator — defaults to GEO's own 9-check total. Controllers\GeoAnalysis::get_pages()/get_top_pages() pass a smaller real count when scoped to a caller-supplied `scanner_ids` subset (e.g. AeoTab.tsx's 5 real AEO scanners), so a page's "% ready" reflects failures against the checks that subset actually runs, not GEO's full 9.
      * @return int 0-100.
      */
-    public static function score_from_failures( int $per_post_failures, bool $sitewide_trust_signal_failure ): int {
+    public static function score_from_failures( int $per_post_failures, bool $sitewide_trust_signal_failure, ?int $total_checks = null ): int {
+        $total_checks = $total_checks && $total_checks > 0 ? $total_checks : self::TOTAL_DETERMINISTIC_CHECKS;
+
         $failures = min(
-            self::TOTAL_DETERMINISTIC_CHECKS,
+            $total_checks,
             $per_post_failures + ( $sitewide_trust_signal_failure ? 1 : 0 )
         );
 
-        return (int) round( ( self::TOTAL_DETERMINISTIC_CHECKS - $failures ) / self::TOTAL_DETERMINISTIC_CHECKS * 100 );
+        return (int) round( ( $total_checks - $failures ) / $total_checks * 100 );
     }
 
     /**

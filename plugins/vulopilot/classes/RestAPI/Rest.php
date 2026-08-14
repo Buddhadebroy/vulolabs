@@ -120,6 +120,7 @@ class Rest {
             'entities'                    => new Controllers\EntityExtraction(),
             'seo_score'                   => new Controllers\Seo(),
             'schema_coverage'             => new Controllers\Schema(),
+            'google_services'             => new Controllers\GoogleServices(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

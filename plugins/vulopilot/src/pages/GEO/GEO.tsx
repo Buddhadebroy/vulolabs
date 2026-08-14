@@ -10,6 +10,7 @@ import CrawlerTrafficTab from './CrawlerTrafficTab';
 import BrandVisibilityTab from './BrandVisibilityTab';
 import KnowledgeGraphTab from './KnowledgeGraphTab';
 import SeoTab from './SeoTab';
+import KeywordsTab from './KeywordsTab';
 import SchemaTab from './SchemaTab';
 import RedirectsTab from './RedirectsTab';
 
@@ -21,15 +22,21 @@ const TAB_IDS = [
 	'brand-visibility',
 	'knowledge-graph',
 	'seo',
+	'keywords',
 	'schema',
 	'redirects',
 ] as const;
 
 /**
- * "Grow My Traffic" (WP menu slug `geo`) — a tab shell over eight views:
+ * "Grow My Traffic" (WP menu slug `geo`) — a tab shell over nine views:
  * the mockup's new Overview (OverviewTab.tsx), and GEO/AEO/Crawler
- * Traffic/Brand Visibility/Knowledge Graph/SEO/Schema, folded in as tabs
- * instead of their own now-deleted standalone pages. AEO/Crawler Traffic
+ * Traffic/Brand Visibility/Knowledge Graph/SEO/Keywords/Schema, folded in
+ * as tabs instead of their own now-deleted standalone pages. Keywords
+ * (KeywordsTab.tsx) was originally a `ModuleGuardComponent` tucked into
+ * the SEO tab's own footer; split into its own tab per direct instruction
+ * — see that file's own docblock for why it's still an honest
+ * "not connected yet" state rather than fabricated rank data.
+ * AEO/Crawler Traffic
  * were already grouped under `Admin.php`'s `legacy_submenus()` "Folded
  * into 'geo' ('Grow My Traffic')" comment (`group: 'ai-visibility'`);
  * Brand Visibility/Knowledge Graph/SEO/Schema had no documented fold
@@ -125,6 +132,10 @@ const GEO = () => {
 						{
 							label: __('SEO', 'vulopilot'),
 							content: <SeoTab />,
+						},
+						{
+							label: __('Keywords', 'vulopilot'),
+							content: <KeywordsTab />,
 						},
 						{
 							label: __('Schema', 'vulopilot'),

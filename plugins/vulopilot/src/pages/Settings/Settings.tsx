@@ -12,6 +12,7 @@ import getTemplateData from '../../services/templateService';
 import AiProvidersPanel from '../../components/Settings/AiProvidersPanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
+import GoogleServicesPanel from '../../components/Settings/Scanning/GoogleServicesPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
 /**
@@ -115,6 +116,14 @@ const Settings = () => {
 		// 'ai-providers' above (see InstantIndexing.ts's own docblock).
 		if (currentTab === 'indexnow') {
 			return <IndexNowPanel />;
+		}
+
+		// Google Services tab's real OAuth connect/disconnect flow — same
+		// escape hatch as 'indexnow' above (see GoogleServices.ts's own
+		// docblock for why this doesn't fit InputRenderer's per-field
+		// auto-save model either).
+		if (currentTab === 'google-services') {
+			return <GoogleServicesPanel />;
 		}
 
 		// The mockup places the "live file / regenerate" row inside the

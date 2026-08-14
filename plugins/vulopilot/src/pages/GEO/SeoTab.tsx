@@ -182,13 +182,12 @@ const isSeoModuleActive = () =>
  * formula BrandIntelligence's own Brand Score already uses, scoped to
  * these same 17 real scanner ids), 5 real category cards with their own
  * real per-category score, then the same real, unified findings table
- * (SectionedFindingsTab.tsx) already built for this tab. There's
- * deliberately no "Ranking keywords" table the way the reference mockup
- * has one — this plugin has no real keyword-rank-tracking data source
- * anywhere (Free or Pro; SEO Copilot's own Pro pitch in Popup.tsx already
- * lists "Keyword rank tracking... Google Search Console integration" as a
- * still-unbuilt Pro feature) — an honest "not connected yet" card sits
- * where that table would go instead of fabricated positions/volumes.
+ * (SectionedFindingsTab.tsx) already built for this tab. The reference
+ * mockup's own "Ranking keywords" table now has its own dedicated
+ * "Keywords" tab (KeywordsTab.tsx, split out per direct instruction)
+ * rather than sitting here as a footer strip — see that file's own
+ * docblock for why it's still an honest "not connected yet" state, not
+ * fabricated positions/volumes.
  */
 const SeoTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
@@ -312,16 +311,6 @@ const SeoTab = () => {
 						</ColumnComponent>
 					</ContainerComponent>
 				</>
-			}
-			footer={
-				<ModuleGuardComponent
-					icon="lock"
-					title={__('Ranking keywords: not connected yet', 'vulopilot')}
-					desc={__(
-						'VuloPilot doesn’t track real keyword positions or search volume yet — that needs a connected Google Search Console (or similar rank-tracking) account. Flag if you want this scoped next.',
-						'vulopilot'
-					)}
-				/>
 			}
 		/>
 	);
