@@ -84,7 +84,7 @@ describe( 'HistoryTab', () => {
 		// "Today" also legitimately appears as a <option> in the date-range
 		// select — scoped to the day heading specifically.
 		expect(
-			screen.getByText( 'Today', { selector: '.history-day-heading' } )
+			screen.getByText( 'Today', { selector: '.history-day' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Applied' ) ).toBeInTheDocument();
 		// The scan row's real finding count on the right, and a real
@@ -105,7 +105,7 @@ describe( 'HistoryTab', () => {
 
 		( getApiResponse as jest.Mock ).mockClear();
 		await userEvent.click(
-			screen.getByText( 'Changes', { selector: '.issues-category-tab' } )
+			screen.getByText( 'Changes', { selector: '.category-item' } )
 		);
 
 		await waitFor( () =>
@@ -129,7 +129,7 @@ describe( 'HistoryTab', () => {
 		( getApiResponse as jest.Mock ).mockClear();
 		await userEvent.click(
 			screen.getByText( 'Conversations', {
-				selector: '.issues-category-tab',
+				selector: '.category-item',
 			} )
 		);
 

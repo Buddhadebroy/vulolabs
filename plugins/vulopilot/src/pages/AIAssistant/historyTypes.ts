@@ -1,6 +1,14 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 export type HistoryFilter = 'all' | 'conversation' | 'scan' | 'change' | 'automation';
+
+export interface ConversationDetail {
+	id: number;
+	provider: string;
+	model: string | null;
+	status: 'success' | 'failure';
+	excerpt: string | null;
+}
 
 export interface ScanDetail {
 	id: number;
@@ -28,12 +36,13 @@ export interface ChangeDetail {
 export interface HistoryRow {
 	id: number | string;
 	event_type: string;
-	category: 'scan' | 'change';
+	category: 'scan' | 'change' | 'conversation';
 	message: string;
 	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
 	created_at: string;
 	scan: ScanDetail | null;
 	change: ChangeDetail | null;
+	conversation?: ConversationDetail | null;
 }
 
 export const FILTER_TABS: { id: HistoryFilter; label: string }[] = [
@@ -45,11 +54,112 @@ export const FILTER_TABS: { id: HistoryFilter; label: string }[] = [
 ];
 
 /**
- * Every real row title comes straight from its real scan/change label —
- * never invented copy. `scan` rows always carry a real ScanDetail (their
- * REST enrichment only ever fails silently to `null` if the source scan
- * row was deleted after the fact — genuinely rare, and there's no honest
- * title to show for a vanished source row either way).
+ * `ContentCreationOrchestrator::CONTENT_CREATION_ACTIONS`'s own noun
+ * values (`classes/AIActions/ContentCreationOrchestrator.php`) — kept in
+ * sync by hand, the same way that PHP class's own docblock already keeps
+ * its `action_id` whitelist in sync with each chat controller's system
+ * prompt. Only used to build a "Created a {noun}" label below; never sent
+ * to the server.
+ */
+const CONTENT_CREATION_NOUNS: Record<string, string> = {
+	'generate-blog': __('blog post', 'vulopilot'),
+	'generate-landing-page': __('landing page', 'vulopilot'),
+	'generate-product-description': __('product description', 'vulopilot'),
+};
+
+/**
+ * A parsed orchestrator decision — the exact 3-shape JSON contract both
+ * Copilot.php and ContentAssistant.php's system prompts require
+ * (`{"status":"question"|"ready_action"|"respond", ...}`,
+ * ContentCreationOrchestrator::parse_response()'s own PHP-side contract).
+ */
+interface OrchestratorDecision {
+	status: 'question' | 'ready_action' | 'respond';
+	message?: string;
+	action_id?: string;
+}
+
+/**
+ * Turns a real `vulopilot_ai_history.response_excerpt` into what a human
+ * should actually read — never the raw text verbatim, since a real chat
+ * turn's own "reply" is the orchestrator's strict JSON decision, not
+ * natural language (e.g. `{"status":"ready_action","action_id":
+ * "generate-blog",...}` for a turn that created a blog post). Falls back
+ * to the excerpt as-is for anything that isn't that JSON shape (a plain
+ * AI reply already IS natural language) — never invents wording for real
+ * content, only unwraps a structure that was never meant to be read
+ * verbatim.
+ */
+export const humanizeConversationExcerpt = (
+	excerpt: string | null,
+	status: 'success' | 'failure'
+): string => {
+	if ('failure' === status) {
+		return __('Something went wrong.', 'vulopilot');
+	}
+
+	if (!excerpt) {
+		return __('(no reply)', 'vulopilot');
+	}
+
+	const trimmed = excerpt.trim();
+
+	if (!trimmed.startsWith('{')) {
+		return trimmed;
+	}
+
+	try {
+		const decision = JSON.parse(trimmed) as OrchestratorDecision;
+
+		if ('ready_action' === decision.status && decision.action_id) {
+			const noun =
+				CONTENT_CREATION_NOUNS[decision.action_id] ??
+				__('piece of content', 'vulopilot');
+
+			return sprintf(
+				/* translators: %s: content type, e.g. "blog post" */
+				__('Created a %s', 'vulopilot'),
+				noun
+			);
+		}
+
+		if (decision.message) {
+			return decision.message;
+		}
+	} catch {
+		// Either not actually the orchestrator's JSON shape, or — very
+		// commonly for a real "respond" reply with substantial content —
+		// genuinely valid JSON that UsageTrackingProvider::build_excerpt()
+		// truncated to its own 300-char audit-trail cap, cutting off the
+		// closing `"}` and leaving unparseable JSON. That truncation only
+		// ever lands inside the "message" field's own text (the only long
+		// string value this shape ever has), so recover that field with a
+		// regex instead of showing broken JSON syntax — real text, just
+		// pulled out without a full parse.
+		const messageMatch = trimmed.match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)/);
+
+		if (messageMatch) {
+			const recovered = messageMatch[1]
+				.replace(/\\n/g, ' ')
+				.replace(/\\"/g, '"')
+				.trim();
+
+			// build_excerpt() (UsageTrackingProvider.php) already appends its
+			// own '…' when it truncates — don't double it up.
+			return recovered.endsWith('…') ? recovered : recovered + '…';
+		}
+	}
+
+	return trimmed;
+};
+
+/**
+ * Every real row title comes straight from its real scan/change/
+ * conversation label — never invented copy. `scan` rows always carry a
+ * real ScanDetail (their REST enrichment only ever fails silently to
+ * `null` if the source scan row was deleted after the fact — genuinely
+ * rare, and there's no honest title to show for a vanished source row
+ * either way).
  */
 export const rowTitle = (row: HistoryRow): string => {
 	if (row.scan) {
@@ -58,6 +168,13 @@ export const rowTitle = (row: HistoryRow): string => {
 
 	if (row.change) {
 		return row.change.label;
+	}
+
+	if (row.conversation) {
+		return humanizeConversationExcerpt(
+			row.conversation.excerpt,
+			row.conversation.status
+		);
 	}
 
 	return row.message;
@@ -71,10 +188,17 @@ const CHANGE_ICON_BY_EVENT: Record<string, string> = {
 	'ai_action.rolled_back': 'undo pink',
 };
 
-export const rowIcon = (row: HistoryRow): string =>
-	'scan' === row.category
-		? 'search blue'
-		: (CHANGE_ICON_BY_EVENT[row.event_type] ?? 'update');
+export const rowIcon = (row: HistoryRow): string => {
+	if ('scan' === row.category) {
+		return 'search blue';
+	}
+
+	if ('conversation' === row.category) {
+		return 'live-chat purple';
+	}
+
+	return CHANGE_ICON_BY_EVENT[row.event_type] ?? 'update';
+};
 
 /**
  * The mockup's bottom-left pale category tag ("Conversation"/"Scan"/
@@ -83,10 +207,17 @@ export const rowIcon = (row: HistoryRow): string =>
  * scan/change, since those extra mockup categories aren't real event
  * types this table has — see Controllers/History.php's own docblock).
  */
-export const rowTag = (row: HistoryRow): { text: string; className: string } =>
-	'scan' === row.category
-		? { text: __('Scan', 'vulopilot'), className: 'blue' }
-		: { text: __('Change', 'vulopilot'), className: 'green' };
+export const rowTag = (row: HistoryRow): { text: string; className: string } => {
+	if ('scan' === row.category) {
+		return { text: __('Scan', 'vulopilot'), className: 'blue' };
+	}
+
+	if ('conversation' === row.category) {
+		return { text: __('Conversation', 'vulopilot'), className: 'purple' };
+	}
+
+	return { text: __('Change', 'vulopilot'), className: 'green' };
+};
 
 const CHANGE_STATUS_BADGE_BY_EVENT: Record<string, string> = {
 	'ai_action.proposed': __('Proposed', 'vulopilot'),

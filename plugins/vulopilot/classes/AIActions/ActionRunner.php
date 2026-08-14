@@ -81,7 +81,7 @@ class ActionRunner {
 
         $input    = $action->validate_input( $raw_input );
         $messages = $action->build_prompt( $input );
-        $response = $this->request_sender->send( $messages );
+        $response = $this->request_sender->send( $messages, null, 'ai_action' );
 
         $output = $action->parse_response( $response );
         $action->validate_output( $output, $input );

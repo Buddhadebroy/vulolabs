@@ -12,7 +12,7 @@ import {
 	NoticeManager
 } from '@zyra/components';
 import { FileInput, ButtonInput } from '@zyra/inputs';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
 	IssuesFilter,
@@ -73,7 +73,8 @@ const contextRefKey = ( ref: CopilotContextRef ): string =>
 	'finding_group' === ref.type ? `finding_group:${ ref.scannerId }` : `automation:${ ref.id }`;
 
 interface ChatTabProps {
-	onNavigateTab: (tab: string, filter?: IssuesFilter) => void;
+	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	onNavigateTab: (tab: string, filter?: IssuesFilter, selectId?: number) => void;
 	message: string;
 	onMessageChange: (message: string) => void;
 	autoApply: boolean;
@@ -88,17 +89,25 @@ interface ChatTabProps {
  * sidebar. Sending now really talks to `POST /copilot/chat`
  * (classes/RestAPI/Controllers/Copilot.php, shared via useCopilotChat.ts)
  * — a real reply grounded in this site's own open findings/automation
- * counts, not a canned response. `turns` itself is kept client-side only
+ * counts, not a canned response. A request like "write a blog about X"
+ * really creates and saves a WordPress draft (Copilot.php's own
+ * ContentCreationOrchestrator hand-off, the same real capability "Create
+ * Content"'s own AI Content Assistant sidebar already had) — that turn's
+ * `link` is rendered below as a real clickable edit link, right next to a
+ * real inline "Undo" (`handleUndo()`, same `POST /ai-action-runs/{id}/rollback`
+ * HistoryDetailPanel.tsx's own Undo button already calls) so reverting
+ * what was just created doesn't require leaving this tab. Every other kind
+ * of request stays advice-only. `turns` itself is kept client-side only
  * (useCopilotChat.ts's own docblock) — there's still no persisted
  * conversation entity to reload past *sessions* from, so a page refresh
  * starts a fresh conversation. "Recent conversations"
- * (RecentConversationsCard.tsx) is a real, adjacent feed of *what the AI
- * actually said*, not a session list: every real call (chat included) now
- * writes a genuine `response_excerpt` to `vulopilot_ai_history`
- * (UsageTrackingProvider::record_success(), fixed after that column
- * existed in the schema but was never populated), so this card surfaces
- * real recent AI activity even though full past chat threads aren't
- * reloadable. The prompt grid still prefills the composer.
+ * (RecentConversationsCard.tsx) is a real, adjacent feed of real chat
+ * turns only (`GET /history?type=conversation`, `surface`-scoped —
+ * historyTypes.ts's own `humanizeConversationExcerpt()` turns each turn's
+ * stored orchestrator-JSON reply into human-readable text), not a session
+ * list — full past chat *threads* still aren't reloadable, only this
+ * activity feed of what was said. The prompt grid still prefills the
+ * composer.
  *
  * "Attach" and "Add context" are real: Attach opens zyra's FileInput,
  * which — on this admin screen, now that Admin.php calls
@@ -122,9 +131,10 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	autoApply,
 	onAutoApplyChange,
 }) => {
-	const { turns, isSending, send } = useCopilotChat(
+	const { turns, isSending, send, markTurnUndone } = useCopilotChat(
 		'vulopilot-copilot-chat-error'
 	);
+	const [undoingRunId, setUndoingRunId] = useState<number | null>(null);
 
 	const [attachments, setAttachments] = useState<CopilotAttachment[]>([]);
 	const [contextRefs, setContextRefs] = useState<CopilotContextRef[]>([]);
@@ -144,6 +154,40 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		onMessageChange('');
 		setAttachments([]);
 		setContextRefs([]);
+	};
+
+	/**
+	 * Undoes a turn's own content-creation run — the same real
+	 * `POST /ai-action-runs/{id}/rollback` (AIActions\ActionRunner::rollback())
+	 * HistoryDetailPanel.tsx's own Undo button already calls, just reachable
+	 * right here next to what it undoes instead of only from History.
+	 */
+	const handleUndo = (runId: number) => {
+		setUndoingRunId(runId);
+
+		sendApiResponse<{ success?: boolean }>(
+			appLocalizer,
+			getApiLink(appLocalizer, `ai-action-runs/${runId}/rollback`),
+			{}
+		)
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: `copilot-chat-rollback-${runId}`,
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? __('Change undone.', 'vulopilot')
+						: __(
+								'Could not undo this change. Please try again.',
+								'vulopilot'
+							),
+				});
+
+				if (response) {
+					markTurnUndone(runId);
+				}
+			})
+			.finally(() => setUndoingRunId(null));
 	};
 
 	const toggleAttachPanel = () => {
@@ -263,6 +307,55 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							sender={'user' === turn.role ? 'user' : 'ai'}
 						>
 							<ChatMarkdown text={turn.content} />
+							{turn.link && (
+								<div className="copilot-created-link">
+									<a
+										className="copilot-created-link-anchor"
+										href={turn.link.url}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{turn.link.label}
+									</a>
+									{turn.runId && (
+										<span
+											className={`copilot-created-undo${turn.undone || undoingRunId === turn.runId ? ' disabled' : ''}`}
+											role="button"
+											tabIndex={0}
+											onClick={() => {
+												if (
+													turn.runId &&
+													!turn.undone &&
+													undoingRunId !== turn.runId
+												) {
+													handleUndo(turn.runId);
+												}
+											}}
+											onKeyDown={(e) => {
+												if (
+													('Enter' === e.key ||
+														' ' === e.key) &&
+													turn.runId &&
+													!turn.undone &&
+													undoingRunId !== turn.runId
+												) {
+													e.preventDefault();
+													handleUndo(turn.runId);
+												}
+											}}
+										>
+											{turn.undone
+												? __('Undone', 'vulopilot')
+												: undoingRunId === turn.runId
+													? __(
+															'Undoing…',
+															'vulopilot'
+														)
+													: __('Undo', 'vulopilot')}
+										</span>
+									)}
+								</div>
+							)}
 						</ChatMessageComponent>
 					))}
 
@@ -451,6 +544,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						</div>
 					)}
 
+					{/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element; zyra's ChatInputComponent textarea never stops keydown from bubbling, so this stops it reaching any page-level listener regardless of what that listener turns out to be. */}
+					<div onKeyDownCapture={(e) => e.stopPropagation()}>
 					<ChatInputComponent
 						value={message}
 						onChange={onMessageChange}
@@ -473,6 +568,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							),
 						}}
 					/>
+					</div>
 
 					<ListComponent
 						className="chip-grid"
@@ -514,7 +610,12 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				<LiveSiteInsightsCard />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
-				<RecentConversationsCard onNavigateTab={onNavigateTab} />
+				<RecentConversationsCard
+				onNavigateTab={onNavigateTab}
+				onSelectConversation={(id) =>
+					onNavigateTab('history', undefined, id)
+				}
+			/>
 			</ColumnComponent>
 		</ContainerComponent>
 	);

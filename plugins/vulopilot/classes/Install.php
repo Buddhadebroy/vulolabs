@@ -194,6 +194,7 @@ class Install {
             `model`             varchar(100) DEFAULT NULL,
             `object_type`       varchar(50) DEFAULT NULL,
             `object_id`         bigint(20) unsigned DEFAULT NULL,
+            `surface`           varchar(30) DEFAULT NULL,
             `prompt_tokens`     int(10) unsigned DEFAULT NULL,
             `completion_tokens` int(10) unsigned DEFAULT NULL,
             `cost_estimate`     decimal(10,4) DEFAULT NULL,
@@ -204,7 +205,8 @@ class Install {
             PRIMARY KEY (`id`),
             KEY `idx_provider` (`provider`),
             KEY `idx_created` (`created_at`),
-            KEY `idx_object` (`object_type`, `object_id`)
+            KEY `idx_object` (`object_type`, `object_id`),
+            KEY `idx_surface` (`surface`)
         ) $collate;";
 
         $sql_ai_provider_configs = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['ai_provider_config'] . "` (
@@ -1077,6 +1079,14 @@ class Install {
         self::add_automations_conditions_column();
         self::add_automation_runs_retry_count_column();
 
+        // AI Copilot's History tab needs to tell a real chat turn
+        // (Controllers\Copilot.php/ContentAssistant.php) apart from every
+        // other feature that also shares vulopilot_ai_history via the same
+        // UsageTrackingProvider decorator (GEO scoring, schema generation,
+        // content intelligence, …) — same "outside the version_compare
+        // gate, self-healing" reasoning as the two calls above.
+        self::add_ai_history_surface_column();
+
         // "Automations" tab redesign (AUTOMATION-ENGINE-MODULE.md) needs
         // two more columns on these same already-existing tables — same
         // outside-the-version-gate, self-healing reasoning as the pair
@@ -1237,6 +1247,34 @@ class Install {
         }
 
         $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `retry_count` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `result_log`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+    }
+
+    /**
+     * AI Copilot History's "Conversations" filter — every real AI call
+     * (chat, GEO scoring, schema generation, content intelligence, …)
+     * writes to `vulopilot_ai_history` through the same shared
+     * `UsageTrackingProvider` decorator, so nothing previously
+     * distinguished a real chat turn from any other feature's call.
+     * `AIRequest::get_surface()`/`SafeRequestSender::send()`'s new
+     * `$surface` param populate this column going forward
+     * (`Controllers\Copilot.php`/`ContentAssistant.php` pass
+     * `'copilot_chat'`/`'content_assistant_chat'`; other callers pass
+     * their own real feature label). Same outside-the-version-gate,
+     * `column_exists()`-guarded shape as
+     * `add_automations_conditions_column()` above.
+     *
+     * @return void
+     */
+    private static function add_ai_history_surface_column() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . Utill::TABLES['ai_history'];
+
+        if ( self::column_exists( $table, 'surface' ) ) {
+            return;
+        }
+
+        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `surface` varchar(30) DEFAULT NULL AFTER `object_id`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
     }
 
     /**

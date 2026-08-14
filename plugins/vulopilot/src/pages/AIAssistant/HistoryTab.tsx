@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
@@ -130,6 +130,13 @@ const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
 	automation: 0,
 };
 
+interface HistoryTabProps {
+	/** Seeds the initial filter pill — e.g. RecentConversationsCard.tsx's own click-through lands here on "conversation" instead of "all". Only read once, at mount. */
+	initialFilter?: HistoryFilter;
+	/** A specific `vulopilot_ai_history`/`vulopilot_activity_logs` row id to auto-select once loaded — the other half of the same click-through. Only consumed once, on the first successful fetch after mount, so it doesn't fight later pagination/refetches. */
+	initialSelectId?: number | null;
+}
+
 /**
  * AI Copilot's History tab — a real, day-grouped activity timeline built
  * from `GET /history` (Controllers/History.php), which scopes
@@ -137,13 +144,19 @@ const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
  * each row back to its source table for real detail (a scan's real
  * per-severity finding counts, an AI action's real before/after text —
  * see that controller's own docblock for why `message` alone isn't
- * enough). "Conversations"/"Automations" are real filter pills with an
- * honest empty state today: chat has no backend yet, and no automation
+ * enough), plus a third real source for "Conversations"
+ * (`vulopilot_ai_history`, tagged by real `surface`). "Automations" is
+ * the one filter pill still an honest empty state — no automation
  * execution engine exists in this codebase (Automations.php's own
  * `run_item()` is a hard 501) — see historyTypes.ts.
  */
-const HistoryTab = () => {
-	const [activeFilter, setActiveFilter] = useState<HistoryFilter>('all');
+const HistoryTab = ({
+	initialFilter,
+	initialSelectId,
+}: HistoryTabProps = {}) => {
+	const [activeFilter, setActiveFilter] = useState<HistoryFilter>(
+		initialFilter ?? 'all'
+	);
 	const [search, setSearch] = useState('');
 	const [dateRange, setDateRange] = useState<DateRangePreset>('all');
 
@@ -156,6 +169,7 @@ const HistoryTab = () => {
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [selectedRow, setSelectedRow] = useState<HistoryRow | null>(null);
+	const pendingSelectId = useRef<number | null>(initialSelectId ?? null);
 
 	// Debounced search using useEffect
 	useEffect(() => {
@@ -223,7 +237,14 @@ const HistoryTab = () => {
 				});
 
 				if (!append) {
-					setSelectedRow(nextRows[0] ?? null);
+					const wantedId = pendingSelectId.current;
+					pendingSelectId.current = null;
+
+					const wantedRow = wantedId
+						? nextRows.find((row) => row.id === wantedId)
+						: undefined;
+
+					setSelectedRow(wantedRow ?? nextRows[0] ?? null);
 				}
 			})
 			.finally(() => {
@@ -547,6 +568,7 @@ const HistoryTab = () => {
 					row={selectedRow}
 					onClose={() => setSelectedRow(null)}
 					onDeleted={handleDelete}
+					onRolledBack={() => fetchPage(1, false)}
 				/>
 			</ColumnComponent>
 		</ContainerComponent>

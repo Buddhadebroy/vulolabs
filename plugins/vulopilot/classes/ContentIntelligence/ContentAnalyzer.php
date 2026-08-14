@@ -78,7 +78,7 @@ class ContentAnalyzer {
 
         $deterministic_score = $this->calculate_deterministic_score( $post_id );
         $messages            = $this->build_prompt( $post, $deterministic_score );
-        $response            = $this->request_sender->send( $messages );
+        $response            = $this->request_sender->send( $messages, null, 'content_intelligence' );
         $parsed              = $this->parse_response( $response );
 
         $overall_score = $this->calculate_overall_score( $deterministic_score, $parsed['topic_authority'] );

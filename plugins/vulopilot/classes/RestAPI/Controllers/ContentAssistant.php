@@ -7,11 +7,8 @@
 
 namespace VuloPilot\RestAPI\Controllers;
 
-use VuloPilot\Exceptions\AIProviderException;
-use VuloPilot\Exceptions\InvalidActionInputException;
-use VuloPilot\Exceptions\InvalidActionOutputException;
+use VuloPilot\AIActions\ContentCreationOrchestrator;
 use VuloPilot\Exceptions\UnsafePromptException;
-use VuloPilot\ValueObjects\AIResponse;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -71,32 +68,21 @@ class ContentAssistant extends \WP_REST_Controller {
     private const MAX_HISTORY_MESSAGES = 20;
 
     /**
-     * The only 3 AIActions a free-text chat message alone can legitimately
-     * trigger — the ones that create a brand-new post from scratch
-     * (`GenerateBlogAction`/`GenerateLandingPageAction`/
-     * `GenerateProductDescriptionAction`), never one that mutates an
-     * *existing* post/attachment this chat has no picker for. Also
-     * described (fields and all) in build_orchestrator_messages()' own
-     * system prompt — keep the two in sync by hand, the same way
-     * GeoAnalysis\GeoAnalyzer's prompt and its own parse_response() stay
-     * in sync. `action_id` here is the whitelist itself: an `action_id`
-     * the AI returns that isn't a key of this array is never trusted,
-     * regardless of what the model claims.
+     * The shared "parse the orchestrator's decision, then really create the
+     * content" logic — see ContentCreationOrchestrator's own docblock for
+     * why this is no longer implemented in this controller directly
+     * (Controllers\Copilot.php's own AI Copilot Chat tab now reuses it too).
+     *
+     * @var ContentCreationOrchestrator
      */
-    private const CONTENT_CREATION_ACTIONS = array(
-        'generate-blog'                => array(
-            'noun'       => 'blog post',
-            'link_label' => 'View/Edit Blog',
-        ),
-        'generate-landing-page'        => array(
-            'noun'       => 'landing page',
-            'link_label' => 'View/Edit Landing Page',
-        ),
-        'generate-product-description' => array(
-            'noun'       => 'product description',
-            'link_label' => 'View/Edit Product Description',
-        ),
-    );
+    private ContentCreationOrchestrator $orchestrator;
+
+    /**
+     * ContentAssistant constructor.
+     */
+    public function __construct() {
+        $this->orchestrator = new ContentCreationOrchestrator();
+    }
 
     /**
      * Registers POST /content-assistant/chat.
@@ -162,7 +148,7 @@ class ContentAssistant extends \WP_REST_Controller {
         $messages = $this->build_orchestrator_messages( $message, (array) $request->get_param( 'history' ) );
 
         try {
-            $response = VuloPilot()->ai_request_sender->send( $messages );
+            $response = VuloPilot()->ai_request_sender->send( $messages, null, 'content_assistant_chat' );
         } catch ( UnsafePromptException $exception ) {
             return new \WP_Error( 'vulopilot_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
         } catch ( \RuntimeException $exception ) {
@@ -179,16 +165,25 @@ class ContentAssistant extends \WP_REST_Controller {
             return new \WP_Error( 'vulopilot_ai_request_failed', $exception->getMessage(), array( 'status' => 502 ) );
         }
 
-        $decision = $this->parse_orchestrator_response( $response );
+        $decision = $this->orchestrator->parse_response( $response );
 
         if ( 'ready_action' === $decision['status'] ) {
-            return $this->create_content_and_respond( $decision );
+            $result = $this->orchestrator->create_content_and_respond( $decision );
+
+            if ( $result instanceof \WP_Error ) {
+                return $result;
+            }
+
+            return rest_ensure_response(
+                array_merge( $result, array( 'provider' => null, 'model' => null ) )
+            );
         }
 
         return rest_ensure_response(
             array(
                 'content'  => $decision['message'],
                 'link'     => null,
+                'run_id'   => null,
                 'provider' => $response->get_provider(),
                 'model'    => $response->get_model(),
             )
@@ -266,137 +261,5 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of
         );
 
         return $messages;
-    }
-
-    /**
-     * Parses the orchestrator's JSON reply into a decision this
-     * controller can safely act on. `action_id` is checked against
-     * CONTENT_CREATION_ACTIONS's own whitelist rather than trusted
-     * verbatim — the AI is never allowed to pick an action outside the 3
-     * safe, no-existing-post-required ones this endpoint is scoped to.
-     * Anything unparseable (not JSON, missing status, an unrecognized
-     * action_id) degrades to a plain "respond" using whatever text the
-     * model actually returned, rather than failing the whole turn — the
-     * same "don't lose a usable reply over a formatting slip" posture
-     * GeoAnalyzer's own parse_response() takes.
-     *
-     * @param AIResponse $response Raw orchestrator response.
-     * @return array{status: string, message: string}|array{status: 'ready_action', action_id: string, input: array<string, mixed>}
-     */
-    private function parse_orchestrator_response( AIResponse $response ): array {
-        $raw     = trim( $response->get_content() );
-        $content = preg_replace( '/^```(?:json)?\s*|\s*```$/', '', $raw );
-        $decoded = json_decode( trim( (string) $content ), true );
-
-        if ( ! is_array( $decoded ) || empty( $decoded['status'] ) ) {
-            return array(
-                'status'  => 'respond',
-                'message' => '' !== $raw ? $raw : __( "Sorry, I didn't quite catch that — could you rephrase?", 'vulopilot' ),
-            );
-        }
-
-        if ( 'ready_action' === $decoded['status'] ) {
-            $action_id = sanitize_key( (string) ( $decoded['action_id'] ?? '' ) );
-
-            if ( isset( self::CONTENT_CREATION_ACTIONS[ $action_id ] ) ) {
-                return array(
-                    'status'    => 'ready_action',
-                    'action_id' => $action_id,
-                    'input'     => is_array( $decoded['input'] ?? null ) ? $decoded['input'] : array(),
-                );
-            }
-
-            // An action_id outside the whitelist (hallucinated, or one of
-            // the existing-post-only actions) is never executed — ask for
-            // more detail instead of guessing what was meant.
-            return array(
-                'status'  => 'respond',
-                'message' => __( "I couldn't quite tell what to create — could you tell me a bit more about what you'd like?", 'vulopilot' ),
-            );
-        }
-
-        $message = trim( (string) ( $decoded['message'] ?? '' ) );
-
-        return array(
-            'status'  => 'question' === $decoded['status'] ? 'question' : 'respond',
-            'message' => '' !== $message ? $message : __( 'Could you tell me a bit more about what you need?', 'vulopilot' ),
-        );
-    }
-
-    /**
-     * Runs a whitelisted CONTENT_CREATION_ACTIONS entry through the real
-     * AIAction lifecycle end to end — propose() (AI call, exactly like
-     * ContentToolsGrid.tsx's own tiles trigger) immediately followed by
-     * approve() (same auto-approve reasoning as this class's own
-     * docblock) — and turns the result into this chat's response shape:
-     * a short success line plus a real, clickable edit link, never the
-     * raw generated body text. $decision['input'] is AI-supplied, so it
-     * is not trusted directly — the target action's own validate_input()
-     * (already sanitizing/validating every field) is what actually
-     * decides whether it's usable, the same safety net a human-submitted
-     * ContentToolsGrid.tsx form goes through.
-     *
-     * @param array{action_id: string, input: array<string, mixed>} $decision parse_orchestrator_response()'s "ready_action" return value.
-     * @return \WP_REST_Response|\WP_Error
-     */
-    private function create_content_and_respond( array $decision ) {
-        try {
-            $proposal = VuloPilot()->ai_action_runner->propose( $decision['action_id'], $decision['input'] );
-        } catch ( \InvalidArgumentException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_invalid', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( InvalidActionInputException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_invalid_input', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( InvalidActionOutputException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_invalid_output', $exception->getMessage(), array( 'status' => 502 ) );
-        } catch ( UnsafePromptException $exception ) {
-            return new \WP_Error( 'vulopilot_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
-        } catch ( AIProviderException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_provider_error', $exception->getMessage(), array( 'status' => 502 ) );
-        } catch ( \RuntimeException $exception ) {
-            return new \WP_Error(
-                'vulopilot_no_provider',
-                sprintf(
-                    /* translators: %s is the exception's own real message, e.g. "No AI provider is configured." */
-                    __( '%s Add one in Settings → AI Providers.', 'vulopilot' ),
-                    $exception->getMessage()
-                ),
-                array( 'status' => 400 )
-            );
-        }
-
-        try {
-            $result = VuloPilot()->ai_action_runner->approve( $proposal['run_id'] );
-        } catch ( \RuntimeException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_not_pending', $exception->getMessage(), array( 'status' => 409 ) );
-        } catch ( \InvalidArgumentException $exception ) {
-            return new \WP_Error( 'vulopilot_ai_action_invalid', $exception->getMessage(), array( 'status' => 400 ) );
-        }
-
-        if ( empty( $result['success'] ) ) {
-            return new \WP_Error(
-                'vulopilot_ai_action_execution_failed',
-                $result['message'] ?? __( 'The content was generated but could not be saved.', 'vulopilot' ),
-                array( 'status' => 502 )
-            );
-        }
-
-        $meta      = self::CONTENT_CREATION_ACTIONS[ $decision['action_id'] ];
-        $edit_link = get_edit_post_link( (int) $result['object_ref'], 'raw' );
-
-        return rest_ensure_response(
-            array(
-                'content'  => sprintf(
-                    /* translators: %s is a content type, e.g. "blog post". */
-                    __( 'Your %s has been created successfully:', 'vulopilot' ),
-                    $meta['noun']
-                ),
-                'link'     => $edit_link ? array(
-                    'url'   => $edit_link,
-                    'label' => $meta['link_label'],
-                ) : null,
-                'provider' => null,
-                'model'    => null,
-            )
-        );
     }
 }

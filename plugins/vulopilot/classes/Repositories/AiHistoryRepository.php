@@ -19,9 +19,23 @@ defined( 'ABSPATH' ) || exit;
 class AiHistoryRepository extends AbstractRepository {
 
     /**
+     * The only 2 `surface` values that represent a real chat turn a human
+     * had with VuloPilot (Controllers\Copilot.php/ContentAssistant.php) —
+     * every other real caller of `ai_request_sender`/`request_sender`
+     * (AIActions\ActionRunner, GeoAnalysis\GeoAnalyzer,
+     * ContentIntelligence\ContentAnalyzer) tags its own rows with its own
+     * real feature label instead, so this is the whitelist
+     * get_conversations() scopes to — kept in sync with AIRequest's own
+     * `$surface` values by hand, the same way ContentCreationOrchestrator's
+     * CONTENT_CREATION_ACTIONS is kept in sync with each chat controller's
+     * own system prompt.
+     */
+    private const CHAT_SURFACES = array( 'copilot_chat', 'content_assistant_chat' );
+
+    /**
      * @var string[]
      */
-    protected array $filterable_columns = array( 'provider', 'status' );
+    protected array $filterable_columns = array( 'provider', 'status', 'surface' );
 
     /**
      * @var string[]
@@ -85,6 +99,84 @@ class AiHistoryRepository extends AbstractRepository {
             'prompt_tokens'     => (int) ( $row['prompt_tokens'] ?? 0 ),
             'completion_tokens' => (int) ( $row['completion_tokens'] ?? 0 ),
             'total_cost'        => (float) ( $row['total_cost'] ?? 0 ),
+        );
+    }
+
+    /**
+     * Paginated, searchable, date-ranged real chat turns — scoped to
+     * CHAT_SURFACES so AI Copilot History's "Conversations" filter
+     * (Controllers\History.php) shows real chat, not every other feature
+     * that shares this same table. Same shape/pagination contract as
+     * ActivityLogRepository::get_timeline() (its own docblock explains why
+     * a dedicated method beats routing through find_all(): an explicit
+     * allow-list alongside a separate free-text `search` needs both at
+     * once, which find_all()'s generic filterable-column path can't do).
+     *
+     * @param array{search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int} $args
+     * @return array{data: array<int, array<string, mixed>>, total: int}
+     */
+    public function get_conversations( array $args ): array {
+        global $wpdb;
+        $table = $this->get_table();
+
+        $page     = max( 1, (int) ( $args['page'] ?? 1 ) );
+        $per_page = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
+        $offset   = ( $page - 1 ) * $per_page;
+
+        $placeholders = implode( ', ', array_fill( 0, count( self::CHAT_SURFACES ), '%s' ) );
+        $where        = "WHERE surface IN ({$placeholders})";
+        $values       = self::CHAT_SURFACES;
+
+        if ( ! empty( $args['search'] ) ) {
+            $where   .= ' AND response_excerpt LIKE %s';
+            $values[] = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
+        }
+
+        if ( ! empty( $args['date_from'] ) ) {
+            $where   .= ' AND DATE(created_at) >= %s';
+            $values[] = (string) $args['date_from'];
+        }
+
+        if ( ! empty( $args['date_to'] ) ) {
+            $where   .= ' AND DATE(created_at) <= %s';
+            $values[] = (string) $args['date_to'];
+        }
+
+        $total = (int) $wpdb->get_var(
+            $wpdb->prepare( "SELECT COUNT(*) FROM {$table} {$where}", ...$values ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's %s count matches $values' size at runtime.
+        );
+
+        if ( 0 === $total ) {
+            return array(
+                'data'  => array(),
+                'total' => 0,
+            );
+        }
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare( "SELECT * FROM {$table} {$where} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", ...array_merge( $values, array( $per_page, $offset ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- same runtime-sized-array case as above.
+            ARRAY_A
+        );
+
+        return array(
+            'data'  => null !== $rows ? $rows : array(),
+            'total' => $total,
+        );
+    }
+
+    /**
+     * Real conversation count for History's "Conversations" filter pill —
+     * same CHAT_SURFACES scope as get_conversations() above.
+     *
+     * @return int
+     */
+    public function get_conversation_count(): int {
+        global $wpdb;
+
+        $placeholders = implode( ', ', array_fill( 0, count( self::CHAT_SURFACES ), '%s' ) );
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare( "SELECT COUNT(*) FROM {$this->get_table()} WHERE surface IN ({$placeholders})", ...self::CHAT_SURFACES ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholder count matches CHAT_SURFACES' size, a fixed private const.
         );
     }
 

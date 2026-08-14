@@ -25,8 +25,9 @@ import './ImproveSpeed.scss';
  * pairs with SpeedHistoryCard instead, the same 50/50 row shape
  * TopIssuesCard/SpeedHistoryCard used before TopIssuesCard was removed.
  *
- * The full, searchable/paginated category-'performance' FindingsTable
- * (PerformanceTab.tsx, titled "Top Issues") lives here too, below the
+ * The full, unified category-'performance' issues table (PerformanceTab.tsx,
+ * titled "Top Issues" — same sectioned-table shape "Protect My Site"'s
+ * Security/Files & Plugins/Accessibility tabs use) lives here too, below the
  * condensed cards, wrapped in `#performance-section-findings` —
  * SpeedBoostCard's own "View Details" button scrolls to and highlights
  * that id (same same-page scroll-and-highlight pattern OpenIssuesGlimpse's

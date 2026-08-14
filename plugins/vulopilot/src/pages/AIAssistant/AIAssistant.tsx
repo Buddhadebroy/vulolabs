@@ -29,13 +29,23 @@ const AIAssistant = () => {
 	const [issuesFilter, setIssuesFilter] = useState<IssuesFilter | null>(
 		null
 	);
+	// Set only when navigation came from RecentConversationsCard.tsx's own
+	// click-through — a plain top-nav click to History passes no selectId
+	// and HistoryTab.tsx falls back to its normal "all, first row" default.
+	const [historySelectId, setHistorySelectId] = useState<number | null>(
+		null
+	);
 
-	const goToTab = (tab: string, filter?: IssuesFilter) => {
+	const goToTab = (tab: string, filter?: IssuesFilter, selectId?: number) => {
 		if ((TAB_IDS as readonly string[]).includes(tab)) {
 			setActiveTab(tab as (typeof TAB_IDS)[number]);
 
 			if ('issues' === tab) {
 				setIssuesFilter(filter ?? null);
+			}
+
+			if ('history' === tab) {
+				setHistorySelectId(selectId ?? null);
 			}
 		}
 	};
@@ -98,7 +108,14 @@ const AIAssistant = () => {
 			case 'ai-workflows':
 				return <AiWorkflowsTab />;
 			case 'history':
-				return <HistoryTab />;
+				return (
+					<HistoryTab
+						initialFilter={
+							historySelectId ? 'conversation' : undefined
+						}
+						initialSelectId={historySelectId}
+					/>
+				);
 			default:
 				return <div></div>;
 		}
@@ -122,7 +139,7 @@ const AIAssistant = () => {
 				</p>
 				<p>
 					{__(
-						'When "Auto-applies" is on, safe fixes are applied automatically and logged to History. Turn it off to review and approve every change yourself.',
+						'Ask for a blog post, landing page, or product description and VuloPilot writes it and saves it as a real draft for you, logged to History with a real Undo. Everything else — SEO, performance, security, and other fixes — is advice only for now: VuloPilot will point you to exactly where to review and apply it yourself.',
 						'vulopilot'
 					)}
 				</p>

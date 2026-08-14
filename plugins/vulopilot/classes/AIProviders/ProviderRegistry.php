@@ -118,7 +118,24 @@ class ProviderRegistry {
 
     /**
      * Builds one provider id's fully decorated adapter, or null if it
-     * isn't registered, isn't configured, or is configured but disabled.
+     * isn't registered, isn't configured, is configured but disabled, or
+     * its stored credential can no longer be decrypted (CredentialEncryption
+     * derives its key from `wp_salt('auth')` — see that class's own
+     * docblock — so a site that rotates its auth salts/keys after a
+     * credential was saved, e.g. wp-config.php regenerated or a database
+     * copied to a fresh environment, leaves `decrypt()` returning null
+     * forever after). Previously `?? ''` swallowed exactly that case and
+     * built a real adapter with a blank credential anyway — every request
+     * would then reach the provider's own API and fail with that
+     * provider's generic "unauthenticated caller" error, identical on
+     * every single call regardless of what was asked, which is
+     * indistinguishable from a hang/canned-reply bug from the chat UI's
+     * side. Treating an undecryptable credential as "not configured"
+     * instead lets build_fallback_chain() correctly skip it (or, if it was
+     * the only provider, Copilot.php's existing catch already returns the
+     * honest, actionable "No AI provider is configured. Add one in
+     * Settings → AI Providers." — re-saving the key there re-encrypts it
+     * under the current salt).
      *
      * @param string $provider_id e.g. 'openai'.
      * @return AIProviderInterface|null
@@ -134,9 +151,14 @@ class ProviderRegistry {
             return null;
         }
 
-        $class      = $this->adapter_classes[ $provider_id ];
-        $credential = CredentialEncryption::decrypt( (string) $config['credentials'] ) ?? '';
-        $adapter    = new $class( $credential );
+        $credential = CredentialEncryption::decrypt( (string) $config['credentials'] );
+
+        if ( null === $credential ) {
+            return null;
+        }
+
+        $class   = $this->adapter_classes[ $provider_id ];
+        $adapter = new $class( $credential );
 
         return new Decorators\UsageTrackingProvider(
             new Decorators\RetryingProvider(
