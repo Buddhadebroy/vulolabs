@@ -61,8 +61,8 @@ const VisibilityScoreCard = () => {
 		])
 			.then(([dashboard, brand]) => {
 				setScores({
-					seo: dashboard?.category_scores.seo ?? 0,
-					geo: dashboard?.category_scores.geo ?? 0,
+					seo: dashboard?.category_scores?.seo ?? 0,
+					geo: dashboard?.category_scores?.geo ?? 0,
 					brand: brand?.brand_score ?? null,
 				});
 			})

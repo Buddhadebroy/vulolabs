@@ -52,7 +52,7 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 	}, []);
 
 	const totalVisits =
-		summary?.daily_volume.reduce((sum, day) => sum + day.total, 0) ?? 0;
+		summary?.daily_volume?.reduce((sum, day) => sum + day.total, 0) ?? 0;
 	const topBots = (summary?.bot_last_seen ?? []).slice(0, 3);
 
 	return (
