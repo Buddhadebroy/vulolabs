@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import SectionedFindingsTab, {
 	FindingsSection,
 	SECTIONED_FINDINGS_TABLE_ID,
@@ -150,15 +151,19 @@ const FilesPluginsTab = () => {
 			activeTab={activeTab}
 			onTabChange={setActiveTab}
 			header={
-				<>
-					<FindingsHeroCard
-						icon="module"
-						label={__('Files & Plugins', 'vulopilot')}
-						scannerIds={ALL_SCANNER_IDS}
-						onReviewFirst={() => goToIssuesTable('important')}
-					/>
-					<FilesPluginsStatusCard />
-				</>
+				<ContainerComponent>
+					<ColumnComponent grid={6}>
+						<FilesPluginsStatusCard />
+					</ColumnComponent>
+					<ColumnComponent grid={6}>
+						<FindingsHeroCard
+							icon="module"
+							label={__('Files & Plugins', 'vulopilot')}
+							scannerIds={ALL_SCANNER_IDS}
+							onReviewFirst={() => goToIssuesTable('important')}
+						/>
+					</ColumnComponent>
+				</ContainerComponent>
 			}
 			footer={<PluginOverlapCard />}
 		/>

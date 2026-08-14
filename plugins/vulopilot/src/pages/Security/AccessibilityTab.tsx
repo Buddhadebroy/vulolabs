@@ -126,8 +126,9 @@ const AccessibilityHistoryLockedCard = () => {
 /**
  * "Accessibility" tab of "Protect My Site" — rebuilt to match the
  * reference mockup: hero card (real score + real open-issue/high-
- * priority/pages-affected counts), the "Accessibility Checks" 5-tile
- * grid, "What should I fix first?" (the 3 highest-risk open findings), a
+ * priority/pages-affected counts) side by side (grid={8}/grid={4}, per
+ * direct instruction) with the "Accessibility Checks" 5-tile grid, then
+ * "What should I fix first?" (the 3 highest-risk open findings), a
  * Pro dashboard-stats slot, the "Some accessibility checks need a person"
  * manual-testing panel, a WCAG scope notice, then one real, unified
  * issues table (SectionedIssuesTable.tsx, same merge pattern WooCommerce's
@@ -181,11 +182,17 @@ const AccessibilityTab = () => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent>
-				<AccessibilityHeroCard
-					onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
-					onViewAll={() => goToIssuesTable('all')}
-				/>
-				<AccessibilityChecksGrid onReview={goToIssuesTable} />
+				<ContainerComponent>
+					<ColumnComponent grid={8}>
+						<AccessibilityChecksGrid onReview={goToIssuesTable} />
+					</ColumnComponent>
+					<ColumnComponent grid={4}>
+						<AccessibilityHeroCard
+							onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
+							onViewAll={() => goToIssuesTable('all')}
+						/>
+					</ColumnComponent>
+				</ContainerComponent>
 				{AccessibilityDashboardCard ? (
 					<AccessibilityDashboardCard />
 				) : (
