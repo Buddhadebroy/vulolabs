@@ -2,12 +2,14 @@
  * Test double for '@zyra/table' — see zyra-core.js's own docblock for why.
  * Minimal markup, just enough structure for RTL's accessible queries to
  * find what these tests actually assert on (row count, empty message, and
- * — since FindingsTable.test.tsx tests the real component directly rather
- * than mocking it wholesale like every page test does — each row's own
- * action buttons) — pages that render a raw TableCard directly
- * (CrawlerTraffic.tsx), rather than only through FindingsTable.tsx (which
- * every *page* test still mocks wholesale), need this stub so importing
- * them doesn't pull in the real, ESM-bundled @multivendorx/zyra package.
+ * — since useFindingsTable.test.tsx exercises the real hook + a real
+ * `<TableCard />` directly rather than mocking the whole findings table
+ * wholesale like every page test does — each row's own action buttons) —
+ * pages that render a raw TableCard directly (CrawlerTrafficTab.tsx,
+ * WooCommerceIssuesTable.tsx, Health.tsx, all via useFindingsTable.tsx),
+ * rather than through a table component of their own (which every *page*
+ * test still mocks wholesale), need this stub so importing them doesn't
+ * pull in the real, ESM-bundled @multivendorx/zyra package.
  */
 import type { ReactNode } from 'react';
 

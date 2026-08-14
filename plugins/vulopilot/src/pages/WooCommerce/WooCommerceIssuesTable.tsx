@@ -1,8 +1,17 @@
+/* global appLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
-import FindingsTable from '../../components/FindingsTable';
+import {
+	CardComponent,
+	ModuleGuardComponent,
+	PopupComponent,
+	SectionComponent,
+	TabsComponent,
+} from '@zyra/components';
+import { TableCard } from '@zyra/table';
+import { useFindingsTable } from '../../services/useFindingsTable';
+import ShowProPopup from '../../components/Popup/Popup';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { sumGroupCounts } from './useWooCommerceFindingGroups';
-import { SectionComponent, TabsComponent } from '@zyra/components';
 import {
 	PRODUCT_SCANNER_IDS,
 	CHECKOUT_SCANNER_IDS,
@@ -17,6 +26,64 @@ export type WooCommerceIssueTab =
 	| 'checkout'
 	| 'store';
 
+interface WooCommerceFindingsTableProps {
+	scannerIds?: string[];
+}
+
+/**
+ * One tab panel's real findings table — a thin shell around
+ * `useFindingsTable` + Zyra's own `<TableCard />`, kept as its own
+ * component (rather than inlined straight into the `tabs` array below) so
+ * each tab's table only mounts — and only fetches — when TabsComponent
+ * actually renders it as the current tab's content (`tabs[activeIndex]`,
+ * TabsComponent.tsx's own `currentTab`), same lazy per-tab-switch fetch
+ * behavior a dedicated `<FindingsTable>` instance per tab used to give for
+ * free before that component was removed in favor of every real table
+ * being a real `<TableCard />`.
+ */
+const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps) => {
+	const { tableCardProps, error, refetch, isProPopupOpen, closeProPopup } =
+		useFindingsTable({
+			category: 'woocommerce',
+			scannerIds,
+			description: __(
+				'No WooCommerce findings yet — run a scan to check store settings, product data, and checkout health.',
+				'vulopilot'
+			),
+		});
+
+	return (
+		<>
+			{error ? (
+				<CardComponent title={__('WooCommerce', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="error"
+						title={__('Could not load findings', 'vulopilot')}
+						desc={error}
+						buttonText={__('Retry', 'vulopilot')}
+						onButtonClick={refetch}
+					/>
+				</CardComponent>
+			) : (
+				<TableCard {...tableCardProps} />
+			)}
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={closeProPopup}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{appLocalizer.khali_dabba ? (
+					<ShowProPopup moduleName="one-click-fix" />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
+		</>
+	);
+};
+
 interface WooCommerceIssuesTableProps {
 	groups: FindingGroup[];
 	activeTab: WooCommerceIssueTab;
@@ -24,13 +91,13 @@ interface WooCommerceIssuesTableProps {
 }
 
 /**
- * "All WooCommerce Issues" — a real category-tab bar on top of the
- * existing, unmodified `FindingsTable` (its own `scannerIds` prop already
- * supports exactly this scoping — GEO.tsx's per-section tables already
- * use it the same way). Tab counts are real `/findings/groups` sums per
- * WooCommerceTab.constants.ts's scanner_id buckets — "Important" is the
- * one dynamic bucket, built from whichever groups are currently
- * critical/high severity rather than a fixed scanner_id list.
+ * "All WooCommerce Issues" — a real category-tab bar on top of a real
+ * `<TableCard>` (via `useFindingsTable`'s own `scannerIds` scoping —
+ * GEO.tsx's per-section tables already scope the same hook the same way).
+ * Tab counts are real `/findings/groups` sums per WooCommerceTab.constants.ts's
+ * scanner_id buckets — "Important" is the one dynamic bucket, built from
+ * whichever groups are currently critical/high severity rather than a
+ * fixed scanner_id list.
  */
 const WooCommerceIssuesTable = ({
 	groups,
@@ -77,17 +144,6 @@ const WooCommerceIssuesTable = ({
 		store: STORE_SCANNER_IDS,
 	};
 	const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
-	const findingsTable = (tab: WooCommerceIssueTab) => (
-		<FindingsTable
-			title={__('WooCommerce', 'vulopilot')}
-			description={__(
-				'No WooCommerce findings yet — run a scan to check store settings, product data, and checkout health.',
-				'vulopilot'
-			)}
-			category="woocommerce"
-			scannerIds={scannerIdsForTab[tab]}
-		/>
-	);
 
 	return (
 		<div id="woocommerce-issues-table" className="woocommerce-issues-table">
@@ -98,7 +154,11 @@ const WooCommerceIssuesTable = ({
 				onTabChange={(index) => onTabChange(tabs[index].id)}
 				tabs={tabs.map((tab) => ({
 					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
-					content: findingsTable(tab.id),
+					content: (
+						<WooCommerceFindingsTable
+							scannerIds={scannerIdsForTab[tab.id]}
+						/>
+					),
 				}))}
 			/>
 		</div>

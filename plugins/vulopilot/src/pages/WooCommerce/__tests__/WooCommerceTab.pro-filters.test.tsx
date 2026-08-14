@@ -1,8 +1,13 @@
 import { render, screen } from '@testing-library/react';
 
-jest.mock( '../../../components/FindingsTable', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="findings-table" />,
+jest.mock( '../../../services/useFindingsTable', () => ( {
+	useFindingsTable: () => ( {
+		tableCardProps: { rows: [], emptyMessage: '' },
+		error: null,
+		refetch: jest.fn(),
+		isProPopupOpen: false,
+		closeProPopup: jest.fn(),
+	} ),
 } ) );
 
 /**
@@ -25,13 +30,13 @@ addFilter(
 const WooCommerceTab = require( '../WooCommerceTab' ).default;
 
 describe( 'WooCommerceTab — Pro filter slots', () => {
-	it( 'renders the registered WooCommerceIntelligence panel and the unregistered WooCommerceAi slot\'s locked teaser, around the base FindingsTable', () => {
+	it( 'renders the registered WooCommerceIntelligence panel and the unregistered WooCommerceAi slot\'s locked teaser, around the base issues table', () => {
 		render( <WooCommerceTab /> );
 
 		expect(
 			screen.getByTestId( 'woocommerce-intelligence-stub' )
 		).toBeInTheDocument();
-		expect( screen.getByTestId( 'findings-table' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'table-card' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( 'Bulk AI optimization' )
 		).toBeInTheDocument();

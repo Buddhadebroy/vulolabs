@@ -1,20 +1,13 @@
 /* global appLocalizer */
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import {
-	CardComponent,
-	InformationItemComponent,
-	ModuleGuardComponent,
-	NoticeManager,
-	PopupComponent,
-} from '@zyra/components';
-import { TableCard, TableRow } from '@zyra/table';
-import { useApiList } from '../services/useApiList';
-import { formatWpDate } from '../services/formatWpDate';
-import { getSeverityColor } from '../services/getSeverityClass';
-import ShowProPopup from './Popup/Popup';
+import { InformationItemComponent, NoticeManager } from '@zyra/components';
+import type { TableCardProps, TableRow } from '@zyra/table';
+import { useApiList } from './useApiList';
+import { formatWpDate } from './formatWpDate';
+import { getSeverityColor } from './getSeverityClass';
 
 /** Categories whose conventional written form isn't plain title-case. */
 const CATEGORY_ACRONYMS: Record<string, string> = {
@@ -73,8 +66,7 @@ export interface Finding extends TableRow {
 	 * undefined when this finding's scanner has no mapped fix, or when
 	 * vulopilot-pro's OneClickFix module isn't active (in which case this
 	 * field is never added to the response at all). Read by the fix
-	 * handler vulopilot-pro's OneClickFix module registers (see the
-	 * `getFindingFixHandler` docblock below) — Free never inspects it itself.
+	 * handler getFindingFixHandler() below reads — see its own docblock.
 	 * See VuloPilotPro\OneClickFix\ScannerFixMap.
 	 */
 	fix_action_id?: string | null;
@@ -138,16 +130,14 @@ const getFindingFixHandler = () =>
 const getFindingBulkFixHandler = () =>
 	applyFilters('vulopilot_finding_bulk_fix_handler', null);
 
-interface FindingsTableProps {
-	title: string;
-	description?: string;
+export interface UseFindingsTableProps {
 	/** Restricts the list to one finding category (e.g. 'seo', 'geo', 'woocommerce'). Omit to show every category (Health). */
 	category?: string;
 	/**
 	 * Further restricts the list to a specific set of scanner ids within
 	 * `category` — what SEO.tsx's per-section tables (e.g. "Titles & meta"
 	 * vs. "Images") use to split one category's findings into several
-	 * independent tables without duplicating this component's fetch/filter/
+	 * independent tables without duplicating this hook's fetch/filter/
 	 * bulk-action/fix-action wiring per section. Omit to show every scanner
 	 * in `category` (every other page's single-table usage).
 	 */
@@ -160,23 +150,50 @@ interface FindingsTableProps {
 	 * per-section tables opt into this; every other page keeps the default.
 	 */
 	layout?: 'default' | 'compact';
+	/** Empty-state message — shown by TableCard's own `emptyMessage` when there's nothing to list. */
+	description?: string;
+}
+
+export interface UseFindingsTableResult {
+	/**
+	 * Spread straight onto Zyra's `<TableCard />` — every prop this hook
+	 * derives from `/findings` plus the row actions/bulk actions/filters.
+	 * Omits `title`: `hideHeader: true` below means TableCard never
+	 * renders its own header/title bar, and the original FindingsTable
+	 * component never actually passed one through either — each caller's
+	 * own surrounding CardComponent/NavigatorHeaderComponent already
+	 * supplies the visible title.
+	 */
+	tableCardProps: Omit<TableCardProps, 'title'>;
+	/** Real fetch error (`useApiList`'s own) — render an error state (e.g. ModuleGuardComponent) instead of `<TableCard />` when set, same as FindingsTable.tsx used to. */
+	error: string | null;
+	/** Retry the fetch — wire to the error state's own retry action. */
+	refetch: () => void;
+	/** Whether the "OneClickFix isn't active" Pro popup should be open — render `<PopupComponent open={isProPopupOpen} onClose={closeProPopup}>` alongside `<TableCard />`. */
+	isProPopupOpen: boolean;
+	closeProPopup: () => void;
 }
 
 /**
- * Shared findings list — the Health, SEO, GEO, and WooCommerce pages are
- * all "vulopilot_scan_findings filtered to a category" (DATABASE.md), so
- * this one component serves all four rather than duplicating the same
- * table/filter/state wiring four times. SEO.tsx additionally scopes several
- * instances of this same component to one `scannerIds` group each, for its
- * per-section tables.
+ * Shared findings-list logic — the Health, SEO, GEO, and WooCommerce pages
+ * are all "vulopilot_scan_findings filtered to a category" (DATABASE.md),
+ * so this one hook serves all of them rather than duplicating the same
+ * table/filter/state wiring per page. Each caller renders the real
+ * `<TableCard />` (and a `<PopupComponent>` for `isProPopupOpen`) itself —
+ * this hook owns no JSX beyond each row's own `render()` cell content,
+ * matching TableCard's own `headers[key].render` contract. Replaces the
+ * former `FindingsTable` component (removed) — callers used to render
+ * `<FindingsTable {...props} />` and get TableCard for free internally;
+ * now they call this hook and render `<TableCard {...tableCardProps} />`
+ * themselves, so `<TableCard />` is the one real table implementation
+ * everywhere, not a component wrapping it a second time.
  */
-const FindingsTable: React.FC<FindingsTableProps> = ({
-	title,
-	description,
+export const useFindingsTable = ({
 	category,
 	scannerIds,
 	layout = 'default',
-}) => {
+	description,
+}: UseFindingsTableProps): UseFindingsTableResult => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
 	/** Every finding status, in display order — reused for both the status-count pill bar and (previously) the status dropdown filter it now replaces. */
@@ -335,20 +352,6 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		setIsProPopupOpen(true);
 	};
 
-	if (error) {
-		return (
-			<CardComponent title={title}>
-				<ModuleGuardComponent
-					icon="error"
-					title={__('Could not load findings', 'vulopilot')}
-					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
-				/>
-			</CardComponent>
-		);
-	}
-
 	const defaultHeaders: Record<string, any> = {
 		title: {
 			label: __('Finding', 'vulopilot'),
@@ -370,7 +373,6 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 							text: row.severity,
 							className: `badge-${row.severity}`,
 						},
-						
 					]}
 					descriptions={[
 						{
@@ -564,136 +566,114 @@ const FindingsTable: React.FC<FindingsTableProps> = ({
 		},
 	};
 
-	const headers = layout === 'compact' ? compactHeaders : defaultHeaders;
+	const tableCardProps: Omit<TableCardProps, 'title'> = {
+		headers: layout === 'compact' ? compactHeaders : defaultHeaders,
+		hideHeader: true,
+		format: appLocalizer.date_format_js,
+		showMenu: false,
+		className: 'transparent-table',
+		rows: data,
+		ids: data.map((row) => row.id),
+		totalRows: total,
+		categoryCounts,
+		isLoading,
+		onQueryUpdate: handleQueryUpdate,
+		search:
+			total > 0 || hasSearchTerm
+				? { placeholder: __('Search findings…', 'vulopilot') }
+				: undefined,
+		bulkActions: [
+			{
+				label: __('Mark resolved', 'vulopilot'),
+				value: 'resolved',
+			},
+			{ label: __('Ignore', 'vulopilot'), value: 'ignored' },
+			// Always visible, same "register a source, don't modify
+			// the host" reasoning as the per-row "Fix" action above —
+			// its onClick below only ever calls the Pro-registered
+			// handler or opens the Pro popup.
+			{ label: __('Fix selected', 'vulopilot'), value: '__fix__' },
+		],
+		onBulkActionApply: (action: string, ids: number[]) => {
+			if ('__fix__' === action) {
+				const bulkFixHandler = getFindingBulkFixHandler();
 
-	return (
-		<>
-			<TableCard
-				headers={headers}
-				hideHeader={true}
-				format={appLocalizer.date_format_js}
-				showMenu={false}
-				className= 'transparent-table'
-				rows={data}
-				ids={data.map((row) => row.id)}
-				totalRows={total}
-				categoryCounts={categoryCounts}
-				isLoading={isLoading}
-				onQueryUpdate={handleQueryUpdate}
-				search={
-					total > 0 || hasSearchTerm
-						? { placeholder: __('Search findings…', 'vulopilot') }
-						: undefined
-				}
-				bulkActions={[
-					{
-						label: __('Mark resolved', 'vulopilot'),
-						value: 'resolved',
-					},
-					{ label: __('Ignore', 'vulopilot'), value: 'ignored' },
-					// Always visible, same "register a source, don't modify
-					// the host" reasoning as the per-row "Fix" action above —
-					// its onClick below only ever calls the Pro-registered
-					// handler or opens the Pro popup.
-					{ label: __('Fix selected', 'vulopilot'), value: '__fix__' },
-				]}
-				onBulkActionApply={(action: string, ids: number[]) => {
-					if ('__fix__' === action) {
-						const bulkFixHandler = getFindingBulkFixHandler();
-
-						if (typeof bulkFixHandler === 'function') {
-							Promise.resolve(
-								bulkFixHandler(ids) as
-									| Promise<FixOutcome>
-									| undefined
-							).then((outcome) => {
-								if (outcome?.message) {
-									NoticeManager.add({
-										uniqueKey: 'findings-bulk-fix',
-										type: outcome.success
-											? 'success'
-											: 'error',
-										position: 'float',
-										message: outcome.message,
-									});
-								}
-
-								refetch();
+				if (typeof bulkFixHandler === 'function') {
+					Promise.resolve(
+						bulkFixHandler(ids) as Promise<FixOutcome> | undefined
+					).then((outcome) => {
+						if (outcome?.message) {
+							NoticeManager.add({
+								uniqueKey: 'findings-bulk-fix',
+								type: outcome.success ? 'success' : 'error',
+								position: 'float',
+								message: outcome.message,
 							});
-							return;
 						}
 
-						setIsProPopupOpen(true);
-						return;
-					}
-
-					sendApiResponse(
-						appLocalizer,
-						getApiLink(appLocalizer, 'findings/bulk'),
-						{ ids, status: action }
-					).then((response: unknown) => {
-						if (response) {
-							NoticeManager.add({
-								uniqueKey: 'findings-bulk-update',
-								type: 'success',
-								position: 'float',
-								message: __(
-									'Selected findings updated.',
-									'vulopilot'
-								),
-							});
-							refetch();
-						} else {
-							NoticeManager.add({
-								uniqueKey: 'findings-bulk-update-failed',
-								type: 'error',
-								position: 'float',
-								message: __(
-									'Could not update the selected findings. Please try again.',
-									'vulopilot'
-								),
-							});
-						}
+						refetch();
 					});
-				}}
-				emptyMessage={
-					description ||
-					__('No findings here yet — nothing to report.', 'vulopilot')
+					return;
 				}
-				filters={[
-					{
-						key: 'severity',
-						label: __('Severity', 'vulopilot'),
-						type: 'select',
-						size: 10,
-						options: [
-							{ label: __('Critical', 'vulopilot'), value: 'critical' },
-							{ label: __('High', 'vulopilot'), value: 'high' },
-							{ label: __('Medium', 'vulopilot'), value: 'medium' },
-							{ label: __('Low', 'vulopilot'), value: 'low' },
-							{ label: __('Info', 'vulopilot'), value: 'info' },
-						],
-					},
-				]}
-			/>
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{appLocalizer.khali_dabba ? (
-					// Pro is active — OneClickFix specifically isn't
-					// enabled, so point at Modules rather than pitching
-					// an upgrade the user already has.
-					<ShowProPopup moduleName="one-click-fix" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-		</>
-	);
-};
 
-export default FindingsTable;
+				setIsProPopupOpen(true);
+				return;
+			}
+
+			sendApiResponse(
+				appLocalizer,
+				getApiLink(appLocalizer, 'findings/bulk'),
+				{ ids, status: action }
+			).then((response: unknown) => {
+				if (response) {
+					NoticeManager.add({
+						uniqueKey: 'findings-bulk-update',
+						type: 'success',
+						position: 'float',
+						message: __(
+							'Selected findings updated.',
+							'vulopilot'
+						),
+					});
+					refetch();
+				} else {
+					NoticeManager.add({
+						uniqueKey: 'findings-bulk-update-failed',
+						type: 'error',
+						position: 'float',
+						message: __(
+							'Could not update the selected findings. Please try again.',
+							'vulopilot'
+						),
+					});
+				}
+			});
+		},
+		emptyMessage:
+			description ||
+			__('No findings here yet — nothing to report.', 'vulopilot'),
+		filters: [
+			{
+				key: 'severity',
+				label: __('Severity', 'vulopilot'),
+				type: 'select',
+				size: 10,
+				options: [
+					{ label: __('Critical', 'vulopilot'), value: 'critical' },
+					{ label: __('High', 'vulopilot'), value: 'high' },
+					{ label: __('Medium', 'vulopilot'), value: 'medium' },
+					{ label: __('Low', 'vulopilot'), value: 'low' },
+					{ label: __('Info', 'vulopilot'), value: 'info' },
+				],
+			},
+		],
+	};
+
+	return {
+		tableCardProps,
+		error,
+		refetch,
+		isProPopupOpen,
+		closeProPopup: () => setIsProPopupOpen(false),
+	};
+};

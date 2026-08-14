@@ -1,15 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import BrandVisibility from '../BrandVisibilityTab';
 
-jest.mock( '../../../components/FindingsTable', () => ( {
-	__esModule: true,
-	default: ( { title, scannerIds }: { title: string; scannerIds: string[] } ) => (
-		<div data-testid="findings-table">
-			{ title }: { scannerIds.join( ',' ) }
-		</div>
-	),
-} ) );
-
 jest.mock( '../BrandScoreCard', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="brand-score-card" />,

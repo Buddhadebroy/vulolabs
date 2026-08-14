@@ -18,25 +18,35 @@ jest.mock( '../CrawlerSummaryCard', () => ( {
 	default: () => <div data-testid="crawler-summary-card" />,
 } ) );
 
-jest.mock( '../../../components/FindingsTable', () => ( {
-	__esModule: true,
-	default: ( { title, scannerIds }: { title: string; scannerIds: string[] } ) => (
-		<div data-testid="findings-table">
-			{ title }: { scannerIds.join( ',' ) }
-		</div>
-	),
+jest.mock( '../../../services/useFindingsTable', () => ( {
+	useFindingsTable: ( { scannerIds }: { scannerIds?: string[] } ) => ( {
+		// Stands in for a real `<TableCard>`'s props — the signal below
+		// (an otherwise-nonsense emptyMessage) exists only so this test can
+		// see which real `scannerIds` reached the hook, same thing
+		// `findings-table`'s own stub used to prove by rendering its props
+		// as text before `<FindingsTable>` was replaced with a real
+		// `<TableCard>` fed by this hook.
+		tableCardProps: {
+			rows: [],
+			emptyMessage: `blocked-pages:${ ( scannerIds || [] ).join( ',' ) }`,
+		},
+		error: null,
+		refetch: jest.fn(),
+		isProPopupOpen: false,
+		closeProPopup: jest.fn(),
+	} ),
 } ) );
 
 describe( 'CrawlerTraffic page', () => {
-	it( 'shows the Blocked pages FindingsTable when the SEO module is active', () => {
+	it( 'shows the Blocked pages table when the SEO module is active', () => {
 		global.appLocalizer.active_modules = [ 'seo' ];
 
 		render( <CrawlerTraffic /> );
 
 		expect( screen.getByTestId( 'crawler-summary-card' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'findings-table' ) ).toHaveTextContent(
-			'ai-crawler-blocked-pages'
-		);
+		expect(
+			screen.getByText( 'blocked-pages:ai-crawler-blocked-pages' )
+		).toBeInTheDocument();
 	} );
 
 	it( 'hides the Blocked pages card when the SEO module is inactive', () => {
@@ -44,7 +54,9 @@ describe( 'CrawlerTraffic page', () => {
 
 		render( <CrawlerTraffic /> );
 
-		expect( screen.queryByTestId( 'findings-table' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'blocked-pages:ai-crawler-blocked-pages' )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'does not render a Pro card slot when nothing has registered one (this file registers no filters)', () => {

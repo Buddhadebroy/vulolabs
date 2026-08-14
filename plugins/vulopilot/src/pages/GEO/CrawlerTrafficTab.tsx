@@ -7,10 +7,12 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	PopupComponent,
 } from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
-import FindingsTable from '../../components/FindingsTable';
+import { useFindingsTable } from '../../services/useFindingsTable';
+import ShowProPopup from '../../components/Popup/Popup';
 import CrawlerSummaryCard from './CrawlerSummaryCard';
 import CrawlerAnalyticsSection from './CrawlerAnalyticsSection';
 import { useCrawlerAnalytics } from './useCrawlerAnalytics';
@@ -121,97 +123,131 @@ const CrawlerTrafficTab = () => {
 		{ key: 'bot_name', options: botNameOptions }
 	);
 	const { analytics, isLoading: isLoadingAnalytics } = useCrawlerAnalytics(30);
+	const {
+		tableCardProps: blockedPagesProps,
+		error: blockedPagesError,
+		refetch: refetchBlockedPages,
+		isProPopupOpen,
+		closeProPopup,
+	} = useFindingsTable({
+		description: __(
+			'No AI-bot-specific blocks found — run a scan to check robots.txt against your published pages.',
+			'vulopilot'
+		),
+		scannerIds: ['ai-crawler-blocked-pages'],
+	});
 
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				{error ? (
-					<CardComponent title={__('Crawler Traffic', 'vulopilot')}>
-						<ModuleGuardComponent
-							icon="error"
-							title={__(
-								'Could not load crawler traffic',
-								'vulopilot'
-							)}
-							desc={error}
-							buttonText={__('Retry', 'vulopilot')}
-							onButtonClick={refetch}
-						/>
-					</CardComponent>
-				) : (
-					<>
-						<CrawlerAnalyticsSection
-							analytics={analytics}
-							isLoading={isLoadingAnalytics}
-						/>
-
-						<CrawlerSummaryCard />
-
-						{CrawlerAlertsCard && <CrawlerAlertsCard />}
-						{HistoricalCrawlTrendsCard && (
-							<HistoricalCrawlTrendsCard />
-						)}
-						{CrawlerVisibilityCorrelationCard && (
-							<CrawlerVisibilityCorrelationCard />
-						)}
-
-						{isSeoModuleActive() && (
-							<CardComponent
-								title={__('Blocked pages', 'vulopilot')}
-								desc={__(
-									'Real pages robots.txt disallows for one specific AI bot.',
+		<>
+			<ContainerComponent general>
+				<ColumnComponent>
+					{error ? (
+						<CardComponent title={__('Crawler Traffic', 'vulopilot')}>
+							<ModuleGuardComponent
+								icon="error"
+								title={__(
+									'Could not load crawler traffic',
 									'vulopilot'
 								)}
-							>
-								<FindingsTable
+								desc={error}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetch}
+							/>
+						</CardComponent>
+					) : (
+						<>
+							<CrawlerAnalyticsSection
+								analytics={analytics}
+								isLoading={isLoadingAnalytics}
+							/>
+
+							<CrawlerSummaryCard />
+
+							{CrawlerAlertsCard && <CrawlerAlertsCard />}
+							{HistoricalCrawlTrendsCard && (
+								<HistoricalCrawlTrendsCard />
+							)}
+							{CrawlerVisibilityCorrelationCard && (
+								<CrawlerVisibilityCorrelationCard />
+							)}
+
+							{isSeoModuleActive() && (
+								<CardComponent
 									title={__('Blocked pages', 'vulopilot')}
-									description={__(
-										'No AI-bot-specific blocks found — run a scan to check robots.txt against your published pages.',
+									desc={__(
+										'Real pages robots.txt disallows for one specific AI bot.',
 										'vulopilot'
 									)}
-									scannerIds={['ai-crawler-blocked-pages']}
-								/>
-							</CardComponent>
-						)}
-
-						<TableCard
-							search={{
-								placeholder: __(
-									'Search requested URLs…',
-									'vulopilot'
-								),
-							}}
-							format={appLocalizer.date_format_js}
-							headers={{
-								bot_name: {
-									label: __('Bot', 'vulopilot'),
-								},
-								requested_url: {
-									label: __('Requested URL', 'vulopilot'),
-								},
-								created_at: {
-									label: __('When', 'vulopilot'),
-									type: 'date',
-									isSortable: true,
-									defaultSort: true,
-									defaultOrder: 'desc',
-								},
-							}}
-							rows={data}
-							ids={data.map((row) => row.id)}
-							totalRows={total}
-							categoryCounts={categoryCounts}
-							isLoading={isLoading}
-							onQueryUpdate={onQueryUpdate}
-							emptyMessage={__(
-								'No AI crawler visits detected yet.',
-								'vulopilot'
+								>
+									{blockedPagesError ? (
+										<ModuleGuardComponent
+											icon="error"
+											title={__(
+												'Could not load findings',
+												'vulopilot'
+											)}
+											desc={blockedPagesError}
+											buttonText={__('Retry', 'vulopilot')}
+											onButtonClick={refetchBlockedPages}
+										/>
+									) : (
+										<TableCard {...blockedPagesProps} />
+									)}
+								</CardComponent>
 							)}
-						/>
-					</>
+
+							<TableCard
+								search={{
+									placeholder: __(
+										'Search requested URLs…',
+										'vulopilot'
+									),
+								}}
+								format={appLocalizer.date_format_js}
+								headers={{
+									bot_name: {
+										label: __('Bot', 'vulopilot'),
+									},
+									requested_url: {
+										label: __('Requested URL', 'vulopilot'),
+									},
+									created_at: {
+										label: __('When', 'vulopilot'),
+										type: 'date',
+										isSortable: true,
+										defaultSort: true,
+										defaultOrder: 'desc',
+									},
+								}}
+								rows={data}
+								ids={data.map((row) => row.id)}
+								totalRows={total}
+								categoryCounts={categoryCounts}
+								isLoading={isLoading}
+								onQueryUpdate={onQueryUpdate}
+								emptyMessage={__(
+									'No AI crawler visits detected yet.',
+									'vulopilot'
+								)}
+							/>
+						</>
+					)}
+				</ColumnComponent>
+			</ContainerComponent>
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={closeProPopup}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{appLocalizer.khali_dabba ? (
+					<ShowProPopup moduleName="one-click-fix" />
+				) : (
+					<ShowProPopup />
 				)}
-			</ColumnComponent>
-		</ContainerComponent>
+			</PopupComponent>
+		</>
 	);
 };
 
