@@ -180,14 +180,12 @@ const TopIssuesToWorkOn = ({
 					);
 				})}
 			</div>
-			<span
-				className="woocommerce-top-issues-view-all"
-				role="button"
-				tabIndex={0}
-				onClick={onViewAll}
-			>
-				{__('View all important issues →', 'vulopilot')}
-			</span>
+			<ButtonInput
+				buttons={{
+					text: __('View all important issues →', 'vulopilot'),
+					onClick: onViewAll,
+				}}
+			/>
 		</CardComponent>
 	);
 };
