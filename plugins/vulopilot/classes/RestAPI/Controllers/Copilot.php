@@ -7,6 +7,7 @@
 
 namespace VuloPilot\RestAPI\Controllers;
 
+use VuloPilot\AIActions\ContentCreationOrchestrator;
 use VuloPilot\Exceptions\UnsafePromptException;
 use VuloPilot\ValueObjects\Severity;
 use VuloPilot\Repositories\FindingRepository;
@@ -29,14 +30,21 @@ defined( 'ABSPATH' ) || exit;
  * call is automatically recorded to `vulopilot_ai_history` by
  * ProviderRegistry's own UsageTrackingProvider decorator.
  *
- * Unlike ContentAssistant (a narrow writing helper), this system prompt is
- * grounded with a real, live snapshot of the site's own findings/automation
- * counts (build_site_context()) so answers like "why is my traffic
- * dropping?" reason from this site's actual open issues rather than
- * generic advice — and is told explicitly that it cannot execute changes
- * itself, since no AI action-trigger engine exists yet (the same honest
- * limitation AiSalesAssistantCard.tsx/AiSpeedAssistantCard.tsx/
- * AiAnalystCard.tsx already document for bulk auto-fix).
+ * Unlike ContentAssistant (a narrow writing helper with no site context),
+ * this system prompt is grounded with a real, live snapshot of the site's
+ * own findings/automation counts (build_site_context()) so answers like
+ * "why is my traffic dropping?" reason from this site's actual open issues
+ * rather than generic advice. It also now shares ContentAssistant's own
+ * real content-creation capability (ContentCreationOrchestrator) — a
+ * message like "write a blog about X" really creates a WordPress draft via
+ * the same AIActions\ActionRunner propose()→approve() lifecycle
+ * (auto-approved, since the conversation itself IS the approval), not just
+ * advice about writing one. Every *other* kind of change (an SEO fix, a
+ * security setting, anything mutating something that already exists) is
+ * still advice-only — build_messages()'s own prompt says so plainly rather
+ * than claiming to have done it, the same honest limitation
+ * AiSalesAssistantCard.tsx/AiSpeedAssistantCard.tsx/AiAnalystCard.tsx
+ * already document for bulk auto-fix elsewhere in this codebase.
  *
  * @class       Copilot controller
  * @version     1.0.0
@@ -50,6 +58,21 @@ class Copilot extends \WP_REST_Controller {
      * @var string
      */
     protected $rest_base = 'copilot';
+
+    /**
+     * Shared with ContentAssistant.php — see ContentCreationOrchestrator's
+     * own docblock for why this logic lives outside both controllers.
+     *
+     * @var ContentCreationOrchestrator
+     */
+    private ContentCreationOrchestrator $orchestrator;
+
+    /**
+     * Copilot constructor.
+     */
+    public function __construct() {
+        $this->orchestrator = new ContentCreationOrchestrator();
+    }
 
     /**
      * How many prior turns of client-supplied history to include — bounds
@@ -148,7 +171,9 @@ class Copilot extends \WP_REST_Controller {
 
     /**
      * Sends one real chat turn through the configured AI provider chain,
-     * grounded with a live site snapshot.
+     * grounded with a live site snapshot, and acts on its decision — either
+     * a real content-creation draft (ContentCreationOrchestrator) or a
+     * plain grounded reply.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -197,7 +222,7 @@ class Copilot extends \WP_REST_Controller {
         $messages = $this->build_messages( $message_with_context, (array) $request->get_param( 'history' ) );
 
         try {
-            $response = VuloPilot()->ai_request_sender->send( $messages, $image );
+            $response = VuloPilot()->ai_request_sender->send( $messages, $image, 'copilot_chat' );
         } catch ( UnsafePromptException $exception ) {
             return new \WP_Error( 'vulopilot_unsafe_prompt', $exception->getMessage(), array( 'status' => 400 ) );
         } catch ( \RuntimeException $exception ) {
@@ -214,9 +239,31 @@ class Copilot extends \WP_REST_Controller {
             return new \WP_Error( 'vulopilot_ai_request_failed', $exception->getMessage(), array( 'status' => 502 ) );
         }
 
+        $decision = $this->orchestrator->parse_response( $response );
+
+        if ( 'ready_action' === $decision['status'] ) {
+            $result = $this->orchestrator->create_content_and_respond( $decision );
+
+            if ( $result instanceof \WP_Error ) {
+                return $result;
+            }
+
+            // provider/model null here, same as ContentAssistant.php's own
+            // equivalent response: the AI call that actually generated the
+            // saved content happened *inside* the AIAction's own execute()
+            // (a separate ai_request_sender call), not this orchestrator
+            // decision call — attributing $response's own provider/model to
+            // the saved content would be misleading.
+            return rest_ensure_response(
+                array_merge( $result, array( 'provider' => null, 'model' => null ) )
+            );
+        }
+
         return rest_ensure_response(
             array(
-                'content'  => $response->get_content(),
+                'content'  => $decision['message'],
+                'link'     => null,
+                'run_id'   => null,
                 'provider' => $response->get_provider(),
                 'model'    => $response->get_model(),
             )
@@ -225,8 +272,15 @@ class Copilot extends \WP_REST_Controller {
 
     /**
      * Builds a real chat-style prompt: a system message describing the
-     * copilot's role plus a live site snapshot, the client's own recent
-     * turns, then the new user message.
+     * copilot's role, its one real execution capability (content creation,
+     * via ContentCreationOrchestrator — kept in sync with that class's own
+     * CONTENT_CREATION_ACTIONS by hand, the same way ContentAssistant.php's
+     * own prompt already had to be), and a live site snapshot, then the
+     * client's own recent turns, then the new user message. Instructed to
+     * respond with strict JSON only — the same 3-shape contract
+     * ContentAssistant.php's own orchestrator prompt uses, extended here
+     * with a "respond" case that also covers ordinary grounded Q&A (using
+     * the site snapshot), not just "content I can't save."
      *
      * @param string            $message     The new user message.
      * @param array<int, mixed> $raw_history Client-supplied {role, content} turns, oldest first.
@@ -239,7 +293,31 @@ class Copilot extends \WP_REST_Controller {
             'content' => sprintf(
                 /* translators: 1: site name, 2: real live site snapshot text. */
                 __(
-                    'You are VuloPilot, an AI website copilot embedded in the WordPress plugin VuloPilot, helping the owner of the site "%1$s". You help with SEO, performance, security, accessibility, GEO/AI-search visibility, WooCommerce store health, and automations. Answer using the real site snapshot below when relevant, and point the user to the specific tab (Issues, Performance, Security, GEO, WooCommerce, Automation) where they can review or fix something. You cannot execute changes on the site yourself during this conversation — say so plainly if asked to perform an action, rather than claiming to have done it. Reply in plain text or Markdown, never HTML.%2$s',
+                    'You are VuloPilot, an AI website copilot embedded in the WordPress plugin VuloPilot, helping the owner of the site "%1$s". You help with SEO, performance, security, accessibility, GEO/AI-search visibility, WooCommerce store health, and automations.
+
+You can directly create 3 specific kinds of real WordPress content — everything else you help with is advice only, since no AI action-trigger engine exists for anything beyond these 3. For each, collect the fields in order — a field listed after the first one does NOT mean it\'s skippable; ask about each one, one at a time, unless the user already stated it somewhere in the conversation:
+1. "generate-blog" — a blog post or article. Collect, in order: topic (what it\'s about), word_count (target word count), tone (e.g. Professional/Friendly/Informative/Casual).
+2. "generate-landing-page" — a landing page. Collect, in order: topic (what the page is promoting/for), tone.
+3. "generate-product-description" — a product description. Collect, in order: product_name, key_features (a short list of what makes it worth buying), tone.
+
+Rules for content creation:
+- Ask for exactly ONE missing field at a time, as a short natural question, following the collection order above. Never ask about a field already given anywhere earlier in this conversation. Never ask more than 3 questions total for one request.
+- If the user changed their mind about something, use their latest answer, not an earlier one.
+- A field can be given implicitly inside natural phrasing, not just as an explicit "field: value" statement — e.g. "a casual blog post about X" already gives both topic and tone; "500 words" gives word_count. Recognize these the same as an explicit answer, and don\'t ask about them again.
+- If a message already gives multiple fields at once, or a fully-specified first message gives everything needed, only ask about whatever is still actually missing — or proceed straight to ready_action if nothing is missing.
+
+Worked example for "generate-blog" (the same collect-one-at-a-time pattern applies to the other 2 kinds):
+User: "Write a blog" → {"status":"question","message":"Sure! What should the blog be about?"}
+User: "AI in eCommerce" → {"status":"question","message":"Great — how many words would you like?"}
+User: "1500 words" → {"status":"question","message":"What tone would you prefer? For example: Professional, Friendly, Informative, or Casual."}
+User: "Professional" → {"status":"ready_action","action_id":"generate-blog","input":{"topic":"AI in eCommerce","word_count":1500,"tone":"Professional"}}
+
+For anything that is NOT one of those 3 content kinds — a general question, SEO/performance/security/accessibility/GEO/WooCommerce/automation advice, editing something that already exists, or any other kind of written content — answer using the real site snapshot below when relevant, and point the user to the specific tab (Issues, Performance, Security, GEO, WooCommerce, Automation) where they can review or fix something themselves. You cannot execute any change on the site yourself beyond the 3 content-creation kinds above — say so plainly if asked to perform some other action, rather than claiming to have done it. Reply in plain text or Markdown, never HTML.
+
+Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of these shapes:
+{"status":"question","message":"<the single next question, phrased naturally>"}
+{"status":"ready_action","action_id":"generate-blog"|"generate-landing-page"|"generate-product-description","input":{...only the fields listed above for that action_id...}}
+{"status":"respond","message":"<a direct answer, or other written content the user still has to copy/paste themselves>"}%2$s',
                     'vulopilot'
                 ),
                 get_bloginfo( 'name' ),

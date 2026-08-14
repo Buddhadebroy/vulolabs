@@ -92,7 +92,7 @@ class GeoAnalyzer {
         $deterministic_score       = $this->calculate_deterministic_score( $post_id );
         $sub_scores                = $this->calculate_sub_scores( $post_id, $post );
         $messages                  = $this->build_prompt( $post, $deterministic_score, $settings );
-        $response                  = $this->request_sender->send( $messages );
+        $response                  = $this->request_sender->send( $messages, null, 'geo_analysis' );
         $ai_scores_and_suggestions = $this->parse_response( $response );
 
         // Scanning → GEO's "Flag weak entity coverage" — entity_coverage

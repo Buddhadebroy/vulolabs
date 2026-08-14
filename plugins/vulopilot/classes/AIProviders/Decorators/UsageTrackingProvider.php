@@ -107,10 +107,10 @@ class UsageTrackingProvider implements AIProviderInterface {
     public function send( AIRequest $request ): AIResponse {
         try {
             $response = $this->inner->send( $request );
-            $this->record_success( $response );
+            $this->record_success( $response, $request->get_surface() );
             return $response;
         } catch ( \Throwable $exception ) {
-            $this->record_failure();
+            $this->record_failure( $request->get_surface() );
             throw $exception;
         }
     }
@@ -121,23 +121,25 @@ class UsageTrackingProvider implements AIProviderInterface {
     public function send_streaming( AIRequest $request, callable $on_chunk ): AIResponse {
         try {
             $response = $this->inner->send_streaming( $request, $on_chunk );
-            $this->record_success( $response );
+            $this->record_success( $response, $request->get_surface() );
             return $response;
         } catch ( \Throwable $exception ) {
-            $this->record_failure();
+            $this->record_failure( $request->get_surface() );
             throw $exception;
         }
     }
 
     /**
-     * @param AIResponse $response Completed response.
+     * @param AIResponse  $response Completed response.
+     * @param string|null $surface  Real feature label from the originating AIRequest — see AIRequest::get_surface()'s own docblock.
      * @return void
      */
-    private function record_success( AIResponse $response ): void {
+    private function record_success( AIResponse $response, ?string $surface ): void {
         $this->history->insert(
             array(
                 'provider'          => $response->get_provider(),
                 'model'             => $response->get_model(),
+                'surface'           => $surface,
                 'prompt_tokens'     => $response->get_prompt_tokens(),
                 'completion_tokens' => $response->get_completion_tokens(),
                 'cost_estimate'     => $this->estimate_cost( $response ),
@@ -171,12 +173,14 @@ class UsageTrackingProvider implements AIProviderInterface {
     }
 
     /**
+     * @param string|null $surface Real feature label from the originating AIRequest — see AIRequest::get_surface()'s own docblock.
      * @return void
      */
-    private function record_failure(): void {
+    private function record_failure( ?string $surface ): void {
         $this->history->insert(
             array(
                 'provider'          => $this->inner->get_id(),
+                'surface'           => $surface,
                 'prompt_tokens'     => 0,
                 'completion_tokens' => 0,
                 'cost_estimate'     => 0,

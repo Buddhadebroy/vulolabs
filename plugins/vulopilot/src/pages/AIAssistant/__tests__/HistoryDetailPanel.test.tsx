@@ -46,6 +46,36 @@ const CHANGE_ROW: HistoryRow = {
 	},
 };
 
+const EXECUTED_CHANGE_ROW: HistoryRow = {
+	...CHANGE_ROW,
+	id: 866,
+	change: { ...CHANGE_ROW.change!, id: 8, status: 'executed' },
+};
+
+const PENDING_CHANGE_ROW: HistoryRow = {
+	...CHANGE_ROW,
+	id: 867,
+	change: { ...CHANGE_ROW.change!, id: 9, status: 'pending_approval' },
+};
+
+const CONVERSATION_ROW: HistoryRow = {
+	id: 67,
+	event_type: 'ai_history.success',
+	category: 'conversation',
+	message: '{"status":"respond","message":"You have 268 open findings."}',
+	severity: 'info',
+	created_at: '2026-08-14 07:31:30',
+	scan: null,
+	change: null,
+	conversation: {
+		id: 67,
+		provider: 'gemini',
+		model: 'gemini-flash-lite-latest',
+		status: 'success',
+		excerpt: '{"status":"respond","message":"You have 268 open findings."}',
+	},
+};
+
 describe( 'HistoryDetailPanel', () => {
 	beforeEach( () => {
 		( sendApiResponse as jest.Mock ).mockReset();
@@ -57,6 +87,7 @@ describe( 'HistoryDetailPanel', () => {
 				row={ null }
 				onClose={ jest.fn() }
 				onDeleted={ jest.fn() }
+				onRolledBack={ jest.fn() }
 			/>
 		);
 
@@ -69,6 +100,7 @@ describe( 'HistoryDetailPanel', () => {
 				row={ SCAN_ROW }
 				onClose={ jest.fn() }
 				onDeleted={ jest.fn() }
+				onRolledBack={ jest.fn() }
 			/>
 		);
 
@@ -83,6 +115,7 @@ describe( 'HistoryDetailPanel', () => {
 				row={ CHANGE_ROW }
 				onClose={ jest.fn() }
 				onDeleted={ jest.fn() }
+				onRolledBack={ jest.fn() }
 			/>
 		);
 
@@ -98,6 +131,28 @@ describe( 'HistoryDetailPanel', () => {
 		expect( screen.getByText( '/sample-page/' ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows a conversation row\'s real provider and humanized reply, never the raw JSON', () => {
+		render(
+			<HistoryDetailPanel
+				row={ CONVERSATION_ROW }
+				onClose={ jest.fn() }
+				onDeleted={ jest.fn() }
+				onRolledBack={ jest.fn() }
+			/>
+		);
+
+		expect(
+			screen.getByText( 'gemini (gemini-flash-lite-latest)' )
+		).toBeInTheDocument();
+		// Shown twice, honestly: once as the panel's own title (rowTitle()),
+		// once in the "Reply" detail section — both real uses of the same
+		// humanized text, not a duplicate-rendering bug.
+		expect(
+			screen.getAllByText( 'You have 268 open findings.' )
+		).toHaveLength( 2 );
+		expect( screen.queryByText( /"status":"respond"/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'clicking the close button calls onClose', async () => {
 		const onClose = jest.fn();
 		render(
@@ -105,6 +160,7 @@ describe( 'HistoryDetailPanel', () => {
 				row={ SCAN_ROW }
 				onClose={ onClose }
 				onDeleted={ jest.fn() }
+				onRolledBack={ jest.fn() }
 			/>
 		);
 
@@ -122,6 +178,7 @@ describe( 'HistoryDetailPanel', () => {
 				row={ SCAN_ROW }
 				onClose={ jest.fn() }
 				onDeleted={ onDeleted }
+				onRolledBack={ jest.fn() }
 			/>
 		);
 
@@ -151,6 +208,7 @@ describe( 'HistoryDetailPanel', () => {
 				row={ SCAN_ROW }
 				onClose={ jest.fn() }
 				onDeleted={ onDeleted }
+				onRolledBack={ jest.fn() }
 			/>
 		);
 
@@ -164,5 +222,45 @@ describe( 'HistoryDetailPanel', () => {
 			)
 		);
 		expect( onDeleted ).not.toHaveBeenCalled();
+	} );
+
+	it( '"Undo this change" only shows for an executed run, and calls the real rollback endpoint', async () => {
+		( sendApiResponse as jest.Mock ).mockResolvedValue( { success: true } );
+		const onRolledBack = jest.fn();
+
+		render(
+			<HistoryDetailPanel
+				row={ EXECUTED_CHANGE_ROW }
+				onClose={ jest.fn() }
+				onDeleted={ jest.fn() }
+				onRolledBack={ onRolledBack }
+			/>
+		);
+
+		await userEvent.click( screen.getByText( 'Undo this change' ) );
+
+		await waitFor( () =>
+			expect( sendApiResponse ).toHaveBeenCalledWith(
+				expect.anything(),
+				expect.stringContaining( 'ai-action-runs/8/rollback' ),
+				{}
+			)
+		);
+		expect( onRolledBack ).toHaveBeenCalled();
+	} );
+
+	it( 'does not show "Undo this change" for a non-executed run', () => {
+		render(
+			<HistoryDetailPanel
+				row={ PENDING_CHANGE_ROW }
+				onClose={ jest.fn() }
+				onDeleted={ jest.fn() }
+				onRolledBack={ jest.fn() }
+			/>
+		);
+
+		expect(
+			screen.queryByText( 'Undo this change' )
+		).not.toBeInTheDocument();
 	} );
 } );

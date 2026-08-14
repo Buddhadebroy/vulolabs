@@ -81,6 +81,28 @@ export const ModuleGuardComponent = ( {
 	</div>
 );
 
+/** Real usage: HistoryDetailPanel.tsx wraps its per-category detail sections in this. */
+export const FormGroupWrapperComponent = ( {
+	children,
+}: {
+	children?: ReactNode;
+} ) => <div>{ children }</div>;
+
+/** Real usage: HistoryDetailPanel.tsx's own scan-row "Status"/"Findings" rows. */
+export const FormGroupComponent = ( {
+	label,
+	children,
+}: {
+	row?: boolean;
+	label?: ReactNode;
+	children?: ReactNode;
+} ) => (
+	<div>
+		{ label && <span>{ label }</span> }
+		{ children }
+	</div>
+);
+
 export const AnalyticsComponent = ( {
 	data,
 }: {

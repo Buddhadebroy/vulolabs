@@ -1,16 +1,8 @@
 import React from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent, ModuleGuardComponent, ButtonInput} from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
-
-interface AiHistoryRow {
-	id: number;
-	provider: string;
-	model: string | null;
-	status: 'success' | 'failure';
-	response_excerpt: string | null;
-	created_at: string;
-}
+import { HistoryRow, humanizeConversationExcerpt } from './historyTypes';
 
 /**
  * Relative "2h ago"/"3d ago" formatting — same local pattern already used
@@ -39,61 +31,39 @@ const timeAgo = (dateString: string): string => {
 	return `${days}d ago`;
 };
 
-/**
- * `vulopilot_ai_history` rows have no stored user prompt (only the AI's
- * own reply is ever persisted — DATABASE.md's own "audit trail, not a
- * cache" reasoning for `response_excerpt`), so there's no literal
- * "conversation" to title a row with. `response_excerpt` (a real,
- * truncated snippet of what the AI actually said, populated by
- * UsageTrackingProvider::record_success() for every real call, chat
- * included) is the closest real substitute when a call actually returned
- * one; otherwise fall back to describing what happened, honestly, from the
- * columns that do exist (e.g. a failed call, which never has a response to
- * excerpt).
- */
-const rowTitle = (row: AiHistoryRow): string => {
-	if (row.response_excerpt) {
-		return row.response_excerpt.length > 60
-			? `${row.response_excerpt.slice(0, 60)}…`
-			: row.response_excerpt;
-	}
-
-	if (row.status === 'failure') {
-		return sprintf(
-			/* translators: %s: AI provider name, e.g. "groq" */
-			__('%s request failed', 'vulopilot'),
-			row.provider
-		);
-	}
-
-	return sprintf(
-		/* translators: %s: AI provider or model name, e.g. "groq" */
-		__('AI response via %s', 'vulopilot'),
-		row.model || row.provider
-	);
-};
-
 interface RecentConversationsCardProps {
 	onNavigateTab: (tab: string) => void;
+	/** Called with a row's real id when clicked — the caller navigates to History with the "Conversations" filter active and this same row selected (AIAssistant.tsx's own goToTab, extended for this). */
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	onSelectConversation: (id: number) => void;
 }
 
 /**
  * AI Copilot's "Recent conversations" card — the 5 most recent rows of
- * `vulopilot_ai_history` (GET /ai-history, the same real endpoint
- * HistoryTab.tsx's own table reads), not static placeholder copy —
- * including real Chat tab turns now that UsageTrackingProvider actually
- * writes `response_excerpt` (previously a real schema column no code path
- * ever populated, so every row here silently fell back to a generic
- * "AI response via X" line no matter what was actually said). "View all
- * history" reuses the same History tab every other sidebar card's
- * "View all" link already points at.
+ * `GET /history?type=conversation` (Controllers/History.php,
+ * AiHistoryRepository::get_conversations()) — the exact same real,
+ * `surface`-scoped chat-turns-only source HistoryTab.tsx's own
+ * "Conversations" filter now reads, rather than the previously-used
+ * unfiltered `GET /ai-history` (which mixed in every other AI-assisted
+ * feature's calls — GEO scoring, schema generation, content intelligence
+ * — none of which are a "conversation"). Sharing the exact same source and
+ * row ids is also what makes clicking a row here able to genuinely select
+ * that same row over on History, not just navigate to the right tab.
+ *
+ * Titles use humanizeConversationExcerpt() (historyTypes.ts) — a real
+ * chat turn's own stored reply is the orchestrator's strict JSON decision,
+ * not natural language, so this unwraps it into the same human-readable
+ * text History's own timeline row already shows, instead of raw JSON.
+ * "View all history" reuses the same History tab every other sidebar
+ * card's "View all" link already points at.
  */
 const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 	onNavigateTab,
+	onSelectConversation,
 }) => {
-	const { data, isLoading, error, refetch } = useApiList<AiHistoryRow>(
-		'ai-history',
-		{ per_page: 5, orderby: 'created_at', order: 'desc' }
+	const { data, isLoading, error, refetch } = useApiList<HistoryRow>(
+		'history',
+		{ type: 'conversation', per_page: 5, orderby: 'created_at', order: 'desc' }
 	);
 
 	return (
@@ -105,7 +75,7 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 					buttons={{
 						text: __('View all history', 'vulopilot'),
 						rightIcon: 'arrow-right',
-						color: 'text-purple', 
+						color: 'text-purple',
 						onClick: (e) => {
 							e.preventDefault();
 							onNavigateTab('history');
@@ -138,8 +108,15 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 					items={data.map((row) => ({
 						id: row.id,
 						icon: 'live-chat',
-						title: rowTitle(row),
+						title: row.conversation
+							? humanizeConversationExcerpt(
+									row.conversation.excerpt,
+									row.conversation.status
+								)
+							: row.message,
 						tags: (<> <div className='small desc'>{timeAgo(row.created_at)}</div></>),
+						action: () =>
+							onSelectConversation(Number(row.id)),
 					}))}
 				/>
 			)}

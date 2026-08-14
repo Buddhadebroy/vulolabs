@@ -5,9 +5,20 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 
+/** A real, clickable edit link for content the AI just created and saved — see CopilotChatResponse's own docblock. */
+export interface CopilotChatLink {
+	url: string;
+	label: string;
+}
+
 export interface CopilotChatTurn {
 	role: 'user' | 'assistant';
 	content: string;
+	link?: CopilotChatLink | null;
+	/** The real `vulopilot_ai_action_runs.id` this turn's content creation executed as — set only alongside `link`, lets ChatTab.tsx offer a real inline "Undo" right next to what it undoes (`POST /ai-action-runs/{id}/rollback`, the same endpoint HistoryDetailPanel.tsx's own Undo button already calls). */
+	runId?: number | null;
+	/** Set client-side once this turn's own run has been successfully rolled back, so the inline Undo button can honestly show "Undone" instead of staying clickable for an already-reverted run. */
+	undone?: boolean;
 }
 
 /**
@@ -40,6 +51,10 @@ export interface CopilotAttachment {
 
 interface CopilotChatResponse {
 	content: string;
+	/** Set when this turn really created a WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off) — a real, clickable edit link, never present for an ordinary advisory reply. */
+	link: CopilotChatLink | null;
+	/** The real action run id behind that same draft — see CopilotChatTurn's own `runId` docblock. */
+	run_id: number | null;
 	provider: string;
 	model: string;
 }
@@ -70,6 +85,14 @@ interface WpRestErrorBody {
  * (UsageTrackingProvider::record_success()), which is what lets
  * RecentConversationsCard.tsx show real recent activity even though this
  * hook's own `turns` state (the full back-and-forth) is lost on refresh.
+ *
+ * A message like "write a blog about X" now really creates and saves a
+ * WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off,
+ * shared with the separate "Create Content" page) — that reply's `link`
+ * carries the real edit URL, which ChatTab.tsx renders as a real clickable
+ * link, same as AiContentAssistantSidebar.tsx already does for its own
+ * identical `link` field. Every other kind of request is still advice-only,
+ * per build_messages()'s own system prompt.
  *
  * @param noticeKey Unique NoticeManager key for this composer's error banner, so two composers on the same page (if that ever happens) don't clobber each other's notice.
  */
@@ -113,7 +136,12 @@ export const useCopilotChat = ( noticeKey: string ) => {
 			.then( ( response ) => {
 				setTurns( ( current ) => [
 					...current,
-					{ role: 'assistant', content: response.data.content },
+					{
+						role: 'assistant',
+						content: response.data.content,
+						link: response.data.link,
+						runId: response.data.run_id,
+					},
 				] );
 			} )
 			.catch( ( error ) => {
@@ -133,5 +161,20 @@ export const useCopilotChat = ( noticeKey: string ) => {
 			.finally( () => setIsSending( false ) );
 	};
 
-	return { turns, isSending, send };
+	/**
+	 * Marks one turn's own run as rolled back — called by ChatTab.tsx after
+	 * a real, successful `POST /ai-action-runs/{id}/rollback` (same pattern
+	 * HistoryDetailPanel.tsx's own Undo button already uses). Matched by
+	 * `runId` rather than array index, since `turns` can grow between when
+	 * a turn renders its Undo button and when that click resolves.
+	 */
+	const markTurnUndone = ( runId: number ) => {
+		setTurns( ( current ) =>
+			current.map( ( turn ) =>
+				turn.runId === runId ? { ...turn, undone: true } : turn
+			)
+		);
+	};
+
+	return { turns, isSending, send, markTurnUndone };
 };

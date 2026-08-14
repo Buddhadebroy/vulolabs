@@ -50,24 +50,41 @@ final class AIRequest {
     private ?array $image;
 
     /**
+     * Which real feature/endpoint triggered this call — e.g. 'copilot_chat',
+     * 'content_assistant_chat', 'ai_action', 'geo_analysis',
+     * 'content_intelligence'. Purely an audit-trail tag: read only by
+     * UsageTrackingProvider, written to `vulopilot_ai_history.surface`, so
+     * AI Copilot History's "Conversations" filter (and any future
+     * per-feature usage breakdown) can tell a real chat turn apart from
+     * every other feature that shares the same AIProviderInterface chain.
+     * Null for any caller that doesn't pass one — no behavior change.
+     *
+     * @var string|null
+     */
+    private ?string $surface;
+
+    /**
      * @param string                                      $model       Model id to use.
      * @param array                                       $messages    array<int, array{role: string, content: string}>.
      * @param float|null                                  $temperature Optional; providers apply their own default when null.
      * @param int|null                                    $max_tokens  Optional; providers apply their own default when null.
      * @param array{mime_type: string, data: string}|null $image   Optional inline image for the current turn.
+     * @param string|null                                 $surface Optional real feature label — see get_surface()'s own docblock.
      */
     public function __construct(
         string $model,
         array $messages,
         ?float $temperature = null,
         ?int $max_tokens = null,
-        ?array $image = null
+        ?array $image = null,
+        ?string $surface = null
     ) {
         $this->model       = $model;
         $this->messages    = $messages;
         $this->temperature = $temperature;
         $this->max_tokens  = $max_tokens;
         $this->image       = $image;
+        $this->surface     = $surface;
     }
 
     /**
@@ -103,5 +120,12 @@ final class AIRequest {
      */
     public function get_image(): ?array {
         return $this->image;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function get_surface(): ?string {
+        return $this->surface;
     }
 }

@@ -5,7 +5,11 @@ import { getApiLink, sendApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
-import { HistoryRow, rowTitle } from './historyTypes';
+import {
+	HistoryRow,
+	rowTitle,
+	humanizeConversationExcerpt,
+} from './historyTypes';
 
 const SEVERITY_LABEL: Record<string, string> = {
 	critical: __('Critical', 'vulopilot'),
@@ -28,22 +32,40 @@ interface HistoryDetailPanelProps {
 	onClose: () => void;
 	/* eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters, same as StatWidget.tsx's StatWidgetConfig. */
 	onDeleted: (row: HistoryRow) => void;
+	/** Called after a real, successful rollback so the caller can reload the timeline — a rollback also writes its own new 'ai_action.rolled_back' history row server-side (ActionRunner::rollback()'s own log() call), so a local-only status patch here would still miss that new row. */
+	onRolledBack: () => void;
 }
 
 /**
  * The History timeline's right-side detail panel — real per-type detail
- * only, no fabricated "what you asked"/"related actions" copy (there's no
- * real conversation concept to back that with yet, see historyTypes.ts and
- * Controllers/History.php's own docblocks): a scan row shows its real
+ * only, no fabricated "related actions" copy: a scan row shows its real
  * per-severity finding breakdown from `vulopilot_scans.summary`; a change
- * row shows its real before/after text from `vulopilot_ai_action_runs.preview`.
+ * row shows its real before/after text from `vulopilot_ai_action_runs.preview`;
+ * a conversation row shows its real provider/model plus the same
+ * humanized reply text (humanizeConversationExcerpt()) the timeline row's
+ * own title already uses, just untruncated.
+ *
+ * "Undo this change" calls the already-real, already-working
+ * `POST /ai-action-runs/{id}/rollback` (AIActions\ActionRunner::rollback(),
+ * ActionRunRegistry's own snapshot/rollback() pair on every registered
+ * action) — that backend has existed since AI-ACTIONS.md's own pass, but
+ * no UI anywhere called it, so every executed AI change was permanently
+ * un-revertable from the UI even though the server could already do it.
+ * Only ever shown for a `row.change.status === 'executed'` run — the one
+ * status ActionRunner::rollback() itself will actually accept (a
+ * 'pending_approval'/'rejected'/'failed'/already-'rolled_back' run
+ * correctly has no Undo control here, same "don't offer what can't
+ * succeed" posture the disabled Undo stubs elsewhere in this codebase
+ * already use, just made real here instead of staying disabled).
  */
 const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 	row,
 	onClose,
 	onDeleted,
+	onRolledBack,
 }) => {
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [isRollingBack, setIsRollingBack] = useState(false);
 
 	if (!row) {
 		return (
@@ -86,6 +108,38 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 				}
 			})
 			.finally(() => setIsDeleting(false));
+	};
+
+	const handleRollback = () => {
+		if (!row.change) {
+			return;
+		}
+
+		setIsRollingBack(true);
+
+		sendApiResponse<{ success?: boolean }>(
+			appLocalizer,
+			getApiLink(appLocalizer, `ai-action-runs/${row.change.id}/rollback`),
+			{}
+		)
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: `history-rollback-${row.change?.id}`,
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? __('Change undone.', 'vulopilot')
+						: __(
+								'Could not undo this change. Please try again.',
+								'vulopilot'
+							),
+				});
+
+				if (response) {
+					onRolledBack();
+				}
+			})
+			.finally(() => setIsRollingBack(false));
 	};
 
 	return (
@@ -208,6 +262,40 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							<p>{row.change.error_message}</p>
 						</div>
 					)}
+
+					{'executed' === row.change.status && (
+						<ButtonInput
+							position='full-width'
+							buttons={{
+								text: isRollingBack
+									? __('Undoing…', 'vulopilot')
+									: __('Undo this change', 'vulopilot'),
+								icon: 'undo',
+								color: 'border-purple',
+								onClick: handleRollback,
+								disabled: isRollingBack,
+							}}
+						/>
+					)}
+				</>
+			)}
+
+			{row.conversation && (
+				<>
+					<FormGroupComponent row label={__('Provider', 'vulopilot')}>
+						{row.conversation.model
+							? `${row.conversation.provider} (${row.conversation.model})`
+							: row.conversation.provider}
+					</FormGroupComponent>
+					<div className="issue-detail-section">
+						<h4>{__('Reply', 'vulopilot')}</h4>
+						<p className="issue-detail-example-desc">
+							{humanizeConversationExcerpt(
+								row.conversation.excerpt,
+								row.conversation.status
+							)}
+						</p>
+					</div>
 				</>
 			)}
 		</FormGroupWrapperComponent>

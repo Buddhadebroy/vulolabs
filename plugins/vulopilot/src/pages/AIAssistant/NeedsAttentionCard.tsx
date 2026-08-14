@@ -166,29 +166,17 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 		{
 			colorClass: 'admin-bg-color2',
 			number: summary.priority_counts.high,
-			text: sprintf(
-				/* translators: %d: count of high-priority open findings */
-				__('%d High priority', 'vulopilot'),
-				summary.priority_counts.high
-			),
+			text: __('High priority', 'vulopilot'),
 		},
 		{
 			colorClass: 'admin-bg-color3',
 			number: summary.priority_counts.medium,
-			text: sprintf(
-				/* translators: %d: count of medium-priority open findings */
-				__('%d Medium priority', 'vulopilot'),
-				summary.priority_counts.medium
-			),
+			text: __('Medium priority', 'vulopilot'),
 		},
 		{
 			colorClass: 'admin-bg-color4',
 			number: summary.priority_counts.low,
-			text: sprintf(
-				/* translators: %d: count of low-priority open findings */
-				__('%d Low priority', 'vulopilot'),
-				summary.priority_counts.low
-			),
+			text: __('Low priority', 'vulopilot'),
 		},
 	] : [];
 

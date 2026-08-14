@@ -456,3 +456,42 @@
 		flex-shrink: 0;
 	}
 }
+
+// ChatTab.tsx's real "View/Edit …" link, shown when a chat message actually
+// created and saved a new post (generate-blog/generate-landing-page/
+// generate-product-description) — same rules as CreateContent.scss's own
+// .content-assistant-created-link*, duplicated locally rather than
+// cross-imported from that page's stylesheet.
+.copilot-created-link {
+	margin-top: 0.5rem;
+}
+
+.copilot-created-link-anchor {
+	display: inline-flex;
+	align-items: center;
+	font-weight: 600;
+	color: var(--color-primary);
+	text-decoration: underline;
+}
+
+// The real inline "Undo" next to the link above — same rollback endpoint
+// HistoryDetailPanel.tsx's own Undo button calls, just reachable right
+// next to what it undoes.
+.copilot-created-undo {
+	display: inline-flex;
+	align-items: center;
+	margin-left: 0.75rem;
+	font-weight: 600;
+	color: #dc2626;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+
+	&.disabled {
+		color: #6b7280;
+		cursor: default;
+		pointer-events: none;
+	}
+}

@@ -10,6 +10,7 @@ namespace VuloPilot\RestAPI\Controllers;
 use VuloPilot\Repositories\ActivityLogRepository;
 use VuloPilot\Repositories\ScanRepository;
 use VuloPilot\Repositories\ActionRunRepository;
+use VuloPilot\Repositories\AiHistoryRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,22 +18,28 @@ defined( 'ABSPATH' ) || exit;
  * GET /history backs the AI Copilot page's History tab (HistoryTab.tsx) —
  * a real, day-groupable activity timeline, distinct from the existing
  * `GET /activity-logs` (ActivityLogs.php, backs Reports > Activity's own
- * flat, unfiltered table): this endpoint scopes to only the two event
- * types AI Copilot's own History is about (`scan.completed`/`ai_action.*`
- * — never the Pro-only GEO/Brand/KG snapshot events `vulopilot_activity_logs`
- * also carries), and enriches each row with real detail joined back to its
- * source table (`vulopilot_scans`/`vulopilot_ai_action_runs`) — a scan
- * run's real per-severity finding counts, or an AI action's real
+ * flat, unfiltered table): this endpoint scopes to only the event types AI
+ * Copilot's own History is about (`scan.completed`/`ai_action.*` from
+ * `vulopilot_activity_logs` — never the Pro-only GEO/Brand/KG snapshot
+ * events that table also carries), and enriches each row with real detail
+ * joined back to its source table (`vulopilot_scans`/`vulopilot_ai_action_runs`)
+ * — a scan run's real per-severity finding counts, or an AI action's real
  * `preview.before`/`preview.after` — since `activity_logs.message` alone
  * is only ever a generic one-line summary, never the full detail the
  * mockup's row/detail-panel needs.
  *
- * "Conversations" and "Automations" are real category filters the client
- * always sends (matching the mockup's own filter pills), but neither has
- * any real backing here: chat isn't wired to any backend yet (no stored
- * prompt/session anywhere), and `vulopilot_automation_runs` has no writer
- * in this codebase at all (Automations.php's own `run_item()` is a hard
- * 501) — both types honestly return zero rows rather than fabricating any.
+ * "Conversations" is a real category too, backed by a THIRD source table
+ * (`vulopilot_ai_history`, via AiHistoryRepository::get_conversations()) —
+ * every real chat turn (Controllers\Copilot.php/ContentAssistant.php)
+ * writes there, tagged with a real `surface` column so this can tell a
+ * genuine chat turn apart from every other feature that shares the same
+ * AIProviderInterface call chain (GEO scoring, schema generation, content
+ * intelligence — see AiHistoryRepository::CHAT_SURFACES's own docblock).
+ *
+ * "Automations" stays a real category filter the client always sends but
+ * has no backing: `vulopilot_automation_runs` has no writer in this
+ * codebase at all (Automations.php's own `run_item()` is a hard 501) — it
+ * honestly returns zero rows rather than fabricating any.
  *
  * @class       History controller
  * @version     1.0.0
@@ -117,29 +124,53 @@ class History extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function get_items( $request ) {
-        $repository = new ActivityLogRepository();
-        $category   = sanitize_key( (string) $request->get_param( 'type' ) );
+        $repository   = new ActivityLogRepository();
+        $history_repo = new AiHistoryRepository();
+        $category     = sanitize_key( (string) $request->get_param( 'type' ) );
+        $page         = absint( $request->get_param( 'page' ) );
+        $per_page     = absint( $request->get_param( 'per_page' ) );
 
-        // 'conversation'/'automation' are real filter pills the client
-        // always sends, but neither has any real backing (see class
-        // docblock) — short-circuit to an honest empty page rather than
-        // querying for an event_type allow-list that can never match.
-        if ( in_array( $category, array( 'conversation', 'automation' ), true ) ) {
+        // 'automation' is a real filter pill the client always sends, but
+        // has no backing (see class docblock) — short-circuit to an
+        // honest empty page rather than querying for an event_type
+        // allow-list that can never match.
+        if ( 'automation' === $category ) {
             return rest_ensure_response(
                 array(
                     'data'        => array(),
                     'total'       => 0,
-                    'type_counts' => $this->get_type_counts( $repository ),
+                    'type_counts' => $this->get_type_counts( $repository, $history_repo ),
                 )
             );
+        }
+
+        // 'conversation' is a real filter pill too now, but a distinct
+        // source table (`vulopilot_ai_history`, not `vulopilot_activity_logs`)
+        // — deliberately NOT merged into the 'all'/scan/change timeline
+        // below (that would need a real cross-source merge-sort across two
+        // differently-shaped paginated queries); it only ever appears when
+        // this exact category is requested, same as the client's own
+        // filter pills already scope each request to one category.
+        if ( 'conversation' === $category ) {
+            $result = $history_repo->get_conversations(
+                array(
+                    'search'    => sanitize_text_field( (string) $request->get_param( 'search' ) ),
+                    'date_from' => sanitize_text_field( (string) $request->get_param( 'date_from' ) ),
+                    'date_to'   => sanitize_text_field( (string) $request->get_param( 'date_to' ) ),
+                    'page'      => $page > 0 ? $page : 1,
+                    'per_page'  => $per_page > 0 ? $per_page : 20,
+                )
+            );
+
+            $result['data']        = array_map( array( $this, 'enrich_conversation_row' ), $result['data'] );
+            $result['type_counts'] = $this->get_type_counts( $repository, $history_repo );
+
+            return rest_ensure_response( $result );
         }
 
         $event_types = isset( self::EVENT_TYPES_BY_CATEGORY[ $category ] )
             ? self::EVENT_TYPES_BY_CATEGORY[ $category ]
             : array_merge( ...array_values( self::EVENT_TYPES_BY_CATEGORY ) );
-
-        $page     = absint( $request->get_param( 'page' ) );
-        $per_page = absint( $request->get_param( 'per_page' ) );
 
         $result = $repository->get_timeline(
             array(
@@ -153,7 +184,7 @@ class History extends \WP_REST_Controller {
         );
 
         $result['data']        = array_map( array( $this, 'enrich_row' ), $result['data'] );
-        $result['type_counts'] = $this->get_type_counts( $repository );
+        $result['type_counts'] = $this->get_type_counts( $repository, $history_repo );
 
         return rest_ensure_response( $result );
     }
@@ -174,21 +205,23 @@ class History extends \WP_REST_Controller {
 
     /**
      * Bucket-sums count_by_column('event_type')'s raw per-event-type counts
-     * into the 2 real category counts the filter pills show, zero-filling
-     * 'conversation'/'automation' rather than omitting them — both are
-     * real pills the client always renders, just always at 0 today (see
-     * class docblock).
+     * into the 2 activity_logs-backed category counts, adds a real
+     * conversation count from the separate ai_history source
+     * (AiHistoryRepository::get_conversation_count()), and zero-fills
+     * 'automation' — a real pill the client always renders, just always at
+     * 0 today (see class docblock).
      *
-     * @param ActivityLogRepository $repository Repository to count from.
+     * @param ActivityLogRepository $repository   Repository to count scan/change from.
+     * @param AiHistoryRepository   $history_repo Repository to count conversations from.
      * @return array{scan: int, change: int, conversation: int, automation: int}
      */
-    private function get_type_counts( ActivityLogRepository $repository ): array {
+    private function get_type_counts( ActivityLogRepository $repository, AiHistoryRepository $history_repo ): array {
         $raw = $repository->count_by_column( 'event_type' );
 
         $counts = array(
             'scan'         => 0,
             'change'       => 0,
-            'conversation' => 0,
+            'conversation' => $history_repo->get_conversation_count(),
             'automation'   => 0,
         );
 
@@ -199,6 +232,40 @@ class History extends \WP_REST_Controller {
         }
 
         return $counts;
+    }
+
+    /**
+     * Adds a real `conversation` sub-object to one `vulopilot_ai_history`
+     * row — everything the row already has (provider/model/status/full
+     * excerpt); the frontend's own humanizeConversationExcerpt()
+     * (historyTypes.ts) turns the raw excerpt into a human-readable title,
+     * not this controller (same "PHP passes the real data through,
+     * TypeScript owns display formatting" split every other row category
+     * here already follows — see enrich_row()'s own `message` field, which
+     * is likewise the raw activity_logs.message with no server-side
+     * rewriting).
+     *
+     * @param array<string, mixed> $row One vulopilot_ai_history row.
+     * @return array<string, mixed>
+     */
+    private function enrich_conversation_row( array $row ): array {
+        return array(
+            'id'           => (int) $row['id'],
+            'event_type'   => 'success' === $row['status'] ? 'ai_history.success' : 'ai_history.failure',
+            'category'     => 'conversation',
+            'message'      => (string) ( $row['response_excerpt'] ?? '' ),
+            'severity'     => 'success' === $row['status'] ? 'info' : 'high',
+            'created_at'   => $row['created_at'],
+            'scan'         => null,
+            'change'       => null,
+            'conversation' => array(
+                'id'       => (int) $row['id'],
+                'provider' => $row['provider'],
+                'model'    => $row['model'],
+                'status'   => $row['status'],
+                'excerpt'  => $row['response_excerpt'],
+            ),
+        );
     }
 
     /**
