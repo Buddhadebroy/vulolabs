@@ -8,6 +8,7 @@ import {
 	ContainerComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import SectionedFindingsTab from '../Security/SectionedFindingsTab';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
@@ -281,8 +282,8 @@ const AeoTab = () => {
 			return;
 		}
 		el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		el.classList.add('vulopilot-glimpse-highlight');
-		setTimeout(() => el.classList.remove('vulopilot-glimpse-highlight'), 1200);
+		el.classList.add('module-list-item', 'highlight');
+		setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
 	};
 
 	const goToIssuesTable = (tab: SectionedIssuesTab = 'all') => {
@@ -509,40 +510,54 @@ const AeoTab = () => {
 							</div>
 						</a>
 					</AiCopilotGuard>
-					<button
-						type="button"
-						className="aeo-help-tile"
-						onClick={() => goToIssuesTable('all')}
-					>
-						<i className="adminfont-yes-alt" />
-						<div>
-							<p className="aeo-help-tile-title">
-								{__('Fix Automatically', 'vulopilot')}
-							</p>
-							<p className="aeo-help-tile-desc">
-								{__(
-									'Jump to the issues table below to fix findings one by one or in bulk.',
-									'vulopilot'
-								)}
-							</p>
-						</div>
-					</button>
-					<button
-						type="button"
-						className="aeo-help-tile"
-						onClick={() => scrollToId('aeo-top-banner')}
-					>
-						<i className="adminfont-info" />
-						<div>
-							<p className="aeo-help-tile-title">{__('Learn More', 'vulopilot')}</p>
-							<p className="aeo-help-tile-desc">
-								{__(
-									'Understand how AEO helps AI answer engines find and quote your content.',
-									'vulopilot'
-								)}
-							</p>
-						</div>
-					</button>
+					<ButtonInput
+						position="full-width"
+						buttons={{
+							text: __('Fix Automatically', 'vulopilot'),
+							className: 'aeo-help-tile',
+							onClick: () => goToIssuesTable('all'),
+							children: (
+								<>
+									<i className="adminfont-yes-alt" />
+									<div>
+										<p className="aeo-help-tile-title">
+											{__('Fix Automatically', 'vulopilot')}
+										</p>
+										<p className="aeo-help-tile-desc">
+											{__(
+												'Jump to the issues table below to fix findings one by one or in bulk.',
+												'vulopilot'
+											)}
+										</p>
+									</div>
+								</>
+							),
+						}}
+					/>
+					<ButtonInput
+						position="full-width"
+						buttons={{
+							text: __('Learn More', 'vulopilot'),
+							className: 'aeo-help-tile',
+							onClick: () => scrollToId('aeo-top-banner'),
+							children: (
+								<>
+									<i className="adminfont-info" />
+									<div>
+										<p className="aeo-help-tile-title">
+											{__('Learn More', 'vulopilot')}
+										</p>
+										<p className="aeo-help-tile-desc">
+											{__(
+												'Understand how AEO helps AI answer engines find and quote your content.',
+												'vulopilot'
+											)}
+										</p>
+									</div>
+								</>
+							),
+						}}
+					/>
 				</div>
 			</div>
 

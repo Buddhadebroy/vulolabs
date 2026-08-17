@@ -6,6 +6,7 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	TrendIndicatorComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
@@ -224,42 +225,37 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 							summary.fixed_findings_this_week > 0) && (
 							<div className="buttons-wrapper">
 								{netChange !== 0 && (
-									<div
-										className={`admin-badge ${
-											netChange > 0 ? 'green' : 'red'
-										}`}
-									>
-										<i
-											className={`adminfont-arrow-${
-												netChange > 0 ? 'up' : 'down'
-											}`}
-										/>
-										{sprintf(
+									<BadgeComponent
+										color={netChange > 0 ? 'green' : 'red'}
+										icon={`arrow-${netChange > 0 ? 'up' : 'down'}`}
+										text={sprintf(
 											/* translators: %+d: signed net change in open findings this week */
 											__('%+d this week', 'vulopilot'),
 											netChange
 										)}
-									</div>
+									/>
 								)}
 								{summary.new_findings_this_week > 0 && (
-									<div className="admin-badge red">
-										<i className="adminfont-error" />
-										{sprintf(
+									<BadgeComponent
+										color="red"
+										icon="error"
+										text={sprintf(
 											/* translators: %d: number of findings first detected this week */
 											__('%d new issues', 'vulopilot'),
 											summary.new_findings_this_week
 										)}
-									</div>
+									/>
 								)}
 								{summary.fixed_findings_this_week > 0 && (
-									<div className="admin-badge yellow">
-										<i className="adminfont-check" />
-										{sprintf(
+									<BadgeComponent
+										color="yellow"
+										icon="check"
+										text={sprintf(
 											/* translators: %d: number of findings resolved this week */
 											__('%d fixed', 'vulopilot'),
 											summary.fixed_findings_this_week
 										)}
-									</div>
+									/>
 								)}
 							</div>
 						)}

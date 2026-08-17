@@ -5,8 +5,9 @@ import {
 	CardComponent,
 	ModuleGuardComponent,
 	PopupComponent,
+	BadgeComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import { ButtonInput, MultiCheckboxInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { useFilterSlot } from '../../services/useFilterSlot';
@@ -49,9 +50,10 @@ const renderNameCell = (row: AutomationRow) => (
 		</span>
 		<span className="automations-name-text">
 			<strong>{row.name}</strong>
-			<span className={`admin-badge category-${row.category}`}>
-				{CATEGORY_LABELS[row.category] ?? row.category}
-			</span>
+			<BadgeComponent
+				color={`category-${row.category}`}
+				text={CATEGORY_LABELS[row.category] ?? row.category}
+			/>
 		</span>
 	</div>
 );
@@ -118,10 +120,11 @@ interface StatusToggleProps {
 
 /**
  * A real toggle switch (not the mockup's own untouched screenshot chrome —
- * a real `<input type="checkbox">` styled as one, `.automations-status-toggle`
- * in AutomateWork.scss) plus a compact "Run now" icon button alongside it —
- * this tab's only other real per-row action, kept rather than dropped just
- * because the mockup's own cropped screenshot doesn't show a second
+ * zyra's `MultiCheckboxInput` with `look="toggle"`, a single-option list
+ * standing in for one row's own boolean status rather than a raw
+ * `<input type="checkbox">`) plus a compact "Run now" icon button alongside
+ * it — this tab's only other real per-row action, kept rather than dropped
+ * just because the mockup's own cropped screenshot doesn't show a second
  * control here.
  */
 const StatusToggleCell = ({
@@ -131,14 +134,13 @@ const StatusToggleCell = ({
 	runDisabled,
 }: StatusToggleProps) => (
 	<div className="automations-status-actions">
-		<label className="automations-status-toggle">
-			<input
-				type="checkbox"
-				checked={'enabled' === row.status}
-				onChange={() => onToggle(row)}
-			/>
-			<span className="automations-status-toggle-track" />
-		</label>
+		<MultiCheckboxInput
+			look="toggle"
+			options={[{ value: 'enabled', label: '' }]}
+			value={'enabled' === row.status ? ['enabled'] : []}
+			onChange={() => onToggle(row)}
+			modules={[]}
+		/>
 		<button
 			type="button"
 			className="automations-run-now"

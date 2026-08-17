@@ -1,6 +1,6 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { WidgetProps } from './types';
@@ -40,12 +40,14 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 			isCustomizing={isCustomizing}
 		>
 			<div className='buttons-wrapper'>
-				<span className="admin-badge green">
-					{sprintf('%d enabled', summary.automation_status.enabled)}
-				</span>
-				<span className="admin-badge red">
-					{sprintf('%d disabled', summary.automation_status.disabled)}
-				</span>
+				<BadgeComponent
+					color="green"
+					text={sprintf('%d enabled', summary.automation_status.enabled)}
+				/>
+				<BadgeComponent
+					color="red"
+					text={sprintf('%d disabled', summary.automation_status.disabled)}
+				/>
 			</div>
 
 			{error ? (
@@ -72,9 +74,10 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 						title: row.name,
 						className: `status-${row.status}`,
 						tags: (
-							<span className={`admin-badge status-${row.status}`}>
-								{row.status}
-							</span>
+							<BadgeComponent
+								color={`status-${row.status}`}
+								text={row.status}
+							/>
 						),
 					}))}
 				/>

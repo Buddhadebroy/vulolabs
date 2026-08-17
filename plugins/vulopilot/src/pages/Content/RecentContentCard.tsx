@@ -8,6 +8,7 @@ import {
 	InformationItemComponent,
 	NoticeManager,
 	PopupComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import {
 	ButtonInput,
@@ -271,7 +272,6 @@ const RecentContentCard = () => {
 	const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
 	const [search, setSearch] = useState('');
 	const [showIgnored, setShowIgnored] = useState(false);
-	const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
 	const [isLoading, setIsLoading] = useState(true);
 	const [deletingId, setDeletingId] = useState<number | null>(null);
 	const [fixingFindingId, setFixingFindingId] = useState<number | null>(null);
@@ -431,20 +431,6 @@ const RecentContentCard = () => {
 		return true;
 	});
 
-	const toggleExpanded = (rowId: number) => {
-		setExpandedIds((current) => {
-			const next = new Set(current);
-
-			if (next.has(rowId)) {
-				next.delete(rowId);
-			} else {
-				next.add(rowId);
-			}
-
-			return next;
-		});
-	};
-
 	/** Removes one finding from its row's own local `findings` list, once it's genuinely fixed/resolved server-side (an ignored→reopened finding is updated in place instead, see handleReopen). */
 	const removeFindingLocally = (rowId: number, findingId: number) => {
 		setRows((current) =>
@@ -555,6 +541,71 @@ const RecentContentCard = () => {
 		});
 	};
 
+	/**
+	 * A row's own expanded `<tr>` content (TableCard's real `expandable`
+	 * row, not an in-cell dropdown) — every visible finding with its own
+	 * Review/Resolve-or-Reopen/Ignore/Fix actions, same handlers the row's
+	 * own findings list already used before this moved out of the
+	 * "Issues" column's own cell.
+	 */
+	const renderFindingsDetail = (row: ContentRow, findings: RawFinding[]) => (
+		<div className="recent-content-table-findings">
+			{findings.map((finding) => (
+				<div key={finding.id}>
+					<span>
+						{stripRedundantPostTitle(finding.title, row.title)}
+					</span>
+					<ButtonInput
+						buttons={[
+							{
+								text: __('Review', 'vulopilot'),
+								onClick: () => (window.location.href = row.editLink),
+							},
+							{
+								text:
+									'ignored' === finding.status
+										? __('Reopen', 'vulopilot')
+										: __('Resolve', 'vulopilot'),
+								onClick: () =>
+									handleFindingStatus(
+										row,
+										finding,
+										'ignored' === finding.status ? 'open' : 'resolved',
+										'ignored' === finding.status
+											? __('Finding reopened.', 'vulopilot')
+											: __('Finding marked as resolved.', 'vulopilot')
+									),
+							},
+							...('ignored' !== finding.status
+								? [
+										{
+											text: __('Ignore', 'vulopilot'),
+											onClick: () =>
+												handleFindingStatus(
+													row,
+													finding,
+													'ignored',
+													__('Finding ignored.', 'vulopilot')
+												),
+										},
+										{
+											text:
+												fixingFindingId === finding.id
+													? __('Fixing…', 'vulopilot')
+													: __('Fix with AI', 'vulopilot'),
+											icon: 'ai',
+											disabled: fixingFindingId === finding.id,
+											onClick: () => handleFixFinding(row, finding),
+										},
+									]
+								: []),
+						]}
+					/>
+				</div>
+			))}
+		</div>
+	);
+
 	const handleDelete = (row: ContentRow) => {
 		// Same native window.confirm() pattern RedirectsTab.tsx/
 		// AiProvidersPanel.tsx already use for one-off destructive
@@ -662,6 +713,22 @@ const RecentContentCard = () => {
 		URL.revokeObjectURL(url);
 	};
 
+	// The visible page of rows, each carrying its own real expanded-row
+	// content (TableCard's `expandable` reads `row.expandedContent`
+	// directly) — `undefined` for a row with nothing to expand, same as
+	// the "Issues" column's own `findings.length` check above.
+	const tableRows = visibleRows.slice(0, 8).map((row) => {
+		const findings = visibleFindingsFor(row);
+
+		return {
+			...row,
+			expandedContent:
+				findings.length > 0
+					? renderFindingsDetail(row, findings)
+					: undefined,
+		};
+	});
+
 	return (
 		<CardComponent
 			className="recent-content-card"
@@ -739,6 +806,7 @@ const RecentContentCard = () => {
 			<TableCard
 				className="transparent-table"
 				showMenu={false}
+				expandable
 				headers={{
 					title: {
 						label: __('Content', 'vulopilot'),
@@ -779,88 +847,23 @@ const RecentContentCard = () => {
 								return __('None', 'vulopilot');
 							}
 
+							// Click-to-expand now lives on the row's own real
+							// expand `<tr>` arrow (TableCard's `expandable`,
+							// wired via `row.expandedContent` below) — this is
+							// just a static count/severity indicator.
 							return (
-								<div className="recent-content-table-issues">
-									<ButtonInput
-										buttons={{
-											text: sprintf(
-												_n(
-													'%d issue',
-													'%d issues',
-													findings.length,
-													'vulopilot'
-												),
-												findings.length
-											),
-											color: `badge-${worstSeverity(openFindings)}`,
-											onClick: () =>
-												toggleExpanded(row.id),
-										}}
-									/>
-									{expandedIds.has(row.id) && (
-										<div className="recent-content-table-findings">
-											{findings.map((finding) => (
-												<div key={finding.id}>
-													<span>
-														{stripRedundantPostTitle(
-															finding.title,
-															row.title
-														)}
-													</span>
-													<ButtonInput
-														buttons={[
-															{
-																text: __('Review', 'vulopilot'),
-																onClick: () =>
-																	(window.location.href = row.editLink),
-															},
-															{
-																text:
-																	'ignored' === finding.status
-																		? __('Reopen', 'vulopilot')
-																		: __('Resolve', 'vulopilot'),
-																onClick: () =>
-																	handleFindingStatus(
-																		row,
-																		finding,
-																		'ignored' === finding.status
-																			? 'open'
-																			: 'resolved',
-																		'ignored' === finding.status
-																			? __('Finding reopened.', 'vulopilot')
-																			: __('Finding marked as resolved.', 'vulopilot')
-																	),
-															},
-															...('ignored' !== finding.status
-																? [
-																	{
-																		text: __('Ignore', 'vulopilot'),
-																		onClick: () =>
-																			handleFindingStatus(
-																				row,
-																				finding,
-																				'ignored',
-																				__('Finding ignored.', 'vulopilot')
-																			),
-																	},
-																	{
-																		text:
-																			fixingFindingId === finding.id
-																				? __('Fixing…', 'vulopilot')
-																				: __('Fix with AI', 'vulopilot'),
-																		icon: 'ai',
-																		disabled: fixingFindingId === finding.id,
-																		onClick: () => handleFixFinding(row, finding),
-																	},
-																]
-																: []),
-														]}
-													/>
-												</div>
-											))}
-										</div>
+								<BadgeComponent
+									color={`badge-${worstSeverity(openFindings)}`}
+									text={sprintf(
+										_n(
+											'%d issue',
+											'%d issues',
+											findings.length,
+											'vulopilot'
+										),
+										findings.length
 									)}
-								</div>
+								/>
 							);
 						},
 					},
@@ -898,8 +901,8 @@ const RecentContentCard = () => {
 						],
 					},
 				}}
-				rows={visibleRows.slice(0, 8)}
-				ids={visibleRows.slice(0, 8).map((row) => row.id)}
+				rows={tableRows}
+				ids={tableRows.map((row) => row.id)}
 				totalRows={Math.min(visibleRows.length, 8)}
 				isLoading={isLoading}
 				emptyMessage={

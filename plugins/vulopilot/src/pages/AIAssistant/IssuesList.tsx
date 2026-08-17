@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ColumnComponent, ModuleGuardComponent, InformationItemComponent } from '@zyra/components';
+import { ColumnComponent, ModuleGuardComponent, InformationItemComponent, BadgeComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import './AICopilot.scss';
 import IssuesSummaryCards, { Priority } from './IssuesSummaryCards';
@@ -248,10 +248,11 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							category: {
 								label: __('Category', 'vulopilot'),
 								render: (row: FindingGroup) => (
-									<span className="admin-badge blue">
-										{CATEGORY_LABELS[row.category] ??
+									<BadgeComponent
+										color="blue"
+										text={CATEGORY_LABELS[row.category] ??
 											row.category}
-									</span>
+									/>
 								),
 							},
 							severity: {

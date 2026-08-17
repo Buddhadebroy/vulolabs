@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ChartComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, ContainerComponent, ColumnComponent, BadgeComponent } from '@zyra/components';
 import ProLockedCard from '../../components/ProLockedCard';
 import type {
 	VisibilitySnapshot,
@@ -231,11 +231,11 @@ const GeoVisibilityOverviewRow = ({
 								className={`geo-four-checks-tile ${ratingClass(bucket.score)}`}
 							>
 								<p className="geo-four-checks-title">{bucket.label}</p>
-								<span
-									className={`admin-badge geo-four-checks-badge ${ratingClass(bucket.score)}`}
-								>
-									{getRating(bucket.score)}
-								</span>
+								<BadgeComponent
+									className="geo-four-checks-badge"
+									color={ratingClass(bucket.score)}
+									text={getRating(bucket.score)}
+								/>
 							</div>
 						))}
 					</div>

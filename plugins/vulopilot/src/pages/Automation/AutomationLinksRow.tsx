@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent, ContainerComponent, BadgeComponent } from '@zyra/components';
 import { TRIGGER_TYPE_LABELS } from './automationLabels';
 
 const SETTINGS_TAB_URL = '?page=vulopilot#&tab=settings';
@@ -56,9 +56,7 @@ const AutomationLinksRow = ({ onScrollToCreate }: AutomationLinksRowProps) => (
 				title={__('Notifications', 'vulopilot')}
 			>
 				<p className="automation-link-desc">
-					<span className="admin-badge green">
-						{__('Email', 'vulopilot')}
-					</span>{' '}
+					<BadgeComponent color="green" text={__('Email', 'vulopilot')} />{' '}
 					{__(
 						'Slack, Teams, Discord — coming soon.',
 						'vulopilot'

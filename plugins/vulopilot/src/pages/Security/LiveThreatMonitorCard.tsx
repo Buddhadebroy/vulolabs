@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ListComponent } from '@zyra/components';
+import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useSectionStatus } from '../../services/useSectionStatus';
 
@@ -82,9 +82,7 @@ const LiveThreatMonitorCard = () => {
 					id: row.id,
 					title: row.label,
 					tags: (
-						<span className={`admin-badge ${row.badge.color}`}>
-							{row.badge.text}
-						</span>
+						<BadgeComponent color={row.badge.color} text={row.badge.text} />
 					),
 				}))}
 			/>

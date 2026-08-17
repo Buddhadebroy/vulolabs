@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import { humanizeCategory } from '../../services/useFindingsTable';
 import { getCategoryTabLink } from '../../services/getCategoryTabLink';
 import type { NextPriority } from './reportsOverview';
@@ -56,11 +56,10 @@ const NextPrioritiesList = ({
 								{humanizeCategory(priority.category)}
 							</span>
 						</div>
-						<span
-							className={`admin-badge badge-${priority.severity}`}
-						>
-							{SEVERITY_LABEL[priority.severity] || priority.severity}
-						</span>
+						<BadgeComponent
+							color={`badge-${priority.severity}`}
+							text={SEVERITY_LABEL[priority.severity] || priority.severity}
+						/>
 						<a
 							className="reports-priority-review"
 							href={getCategoryTabLink(priority.category)}

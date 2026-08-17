@@ -1,5 +1,6 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, BadgeComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { sumGroupCounts } from './useGeoFindingGroups';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
@@ -58,11 +59,10 @@ const GeoByTopicGrid = ({
 					>
 						<div className="geo-by-topic-tile-header">
 							<i className={`adminfont-${topic.titleIcon}`} />
-							<span
-								className={`admin-badge ${count > 0 ? 'red' : 'green'}`}
-							>
-								{count}
-							</span>
+							<BadgeComponent
+								color={count > 0 ? 'red' : 'green'}
+								text={String(count)}
+							/>
 						</div>
 						<p className="geo-by-topic-tile-title">{topic.title}</p>
 						<p className="geo-by-topic-tile-sublabel">
@@ -77,13 +77,14 @@ const GeoByTopicGrid = ({
 								count
 							)}
 						</p>
-						<button
-							type="button"
-							className="geo-by-topic-tile-link"
-							onClick={() => onViewTopic(topic.key)}
-						>
-							{__('View issues', 'vulopilot')} ›
-						</button>
+						<ButtonInput
+							position="left"
+							buttons={{
+								text: `${__('View issues', 'vulopilot')} ›`,
+								color: 'text-purple',
+								onClick: () => onViewTopic(topic.key),
+							}}
+						/>
 					</CardComponent>
 				);
 			})}

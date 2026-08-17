@@ -6,6 +6,7 @@ import {
 	ActivityListComponent,
 	CardComponent,
 	ModuleGuardComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import { formatWpDate } from '../../services/formatWpDate';
 import { ACTION_TYPE_LABELS } from './automationLabels';
@@ -141,7 +142,7 @@ const AutomationActivityCard = () => {
 						id: row.id,
 						icon: row.success ? 'check' : 'close',
 						title: row.title,
-						badge: <span className="admin-badge blue">AI</span>,
+						badge: <BadgeComponent color="blue" text="AI" />,
 						desc: row.desc,
 						timestamp: row.timestamp,
 						action: {

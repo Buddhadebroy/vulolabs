@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ListComponent, ModuleGuardComponent, ButtonInput } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent, ButtonInput, BadgeComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { getCategoryTabLink } from '../services/getCategoryTabLink';
@@ -74,11 +74,10 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 								action: goToFix,
 								tags: (
 									<>
-										<span
-											className={`admin-badge badge-${finding.severity}`}
-										>
-											SEO Impact: {finding.severity}
-										</span>
+										<BadgeComponent
+											color={`badge-${finding.severity}`}
+											text={`SEO Impact: ${finding.severity}`}
+										/>
 										<ButtonInput
 											position="left"
 											buttons={[

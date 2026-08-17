@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ListComponent } from '@zyra/components';
+import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useSectionStatus } from '../../services/useSectionStatus';
 
@@ -42,9 +42,10 @@ const TechnicalVisibilityCard = () => {
 					id: row.label,
 					title: row.label,
 					tags: row.status.badge && (
-						<span className={`admin-badge ${row.status.badge.color}`}>
-							{row.status.badge.text}
-						</span>
+						<BadgeComponent
+							color={row.status.badge.color}
+							text={row.status.badge.text}
+						/>
 					),
 				}))}
 			/>

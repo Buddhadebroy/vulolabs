@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { __ } from '@wordpress/i18n';
-import { ButtonInput } from '@zyra/inputs';
+import { NoticeComponent } from '@zyra/components';
 
 /**
  * The mockup's closing "Looking for page speed insights?" banner — a real
@@ -17,29 +17,19 @@ import { ButtonInput } from '@zyra/inputs';
  * Speed.").
  */
 const EfficiencySpeedInsightsBanner = () => (
-	<div className="efficiency-speed-banner">
-		<i className="adminfont-analytics" />
-		<div className="efficiency-speed-banner-body">
-			<p className="efficiency-speed-banner-title">
-				{__('Looking for page speed insights?', 'vulopilot')}
-			</p>
-			<p className="efficiency-speed-banner-desc">
-				{__(
-					'This page checks whether WordPress is configured efficiently. See loading speed, Core Web Vitals and individual slow pages in Improve My Speed.',
-					'vulopilot'
-				)}
-			</p>
-		</div>
-		<ButtonInput
-			buttons={{
-				text: __('View Speed Overview', 'vulopilot'),
-				rightIcon: 'pagination-right-arrow',
-				color: 'purple-bg',
-				onClick: () =>
-					window.open(`${appLocalizer.admin_url}#&tab=performance`, '_self'),
-			}}
-		/>
-	</div>
+	<NoticeComponent
+		type="info"
+		displayPosition="inline-notice"
+		title={__('Looking for page speed insights?', 'vulopilot')}
+		message={__(
+			'This page checks whether WordPress is configured efficiently. See loading speed, Core Web Vitals and individual slow pages in Improve My Speed.',
+			'vulopilot'
+		)}
+		actionLabel={`${__('View Speed Overview', 'vulopilot')} →`}
+		onAction={() =>
+			window.open(`${appLocalizer.admin_url}#&tab=performance`, '_self')
+		}
+	/>
 );
 
 export default EfficiencySpeedInsightsBanner;

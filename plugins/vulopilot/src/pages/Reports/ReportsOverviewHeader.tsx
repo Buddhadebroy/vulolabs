@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, TooltipComponent } from '@zyra/components';
+import { CardComponent, TooltipComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { useState } from 'react';
@@ -77,22 +77,18 @@ const ReportsOverviewHeader = ({
 					: __('Loading…', 'vulopilot')}
 				<div className="reports-overview-day-toggle">
 					{DAY_OPTIONS.map((option) => (
-						<button
+						<BadgeComponent
 							key={option}
-							type="button"
-							className={
-								option === days
-									? 'admin-badge purple'
-									: 'admin-badge'
-							}
+							color={option === days ? 'purple' : ''}
+							role="button"
+							tabIndex={0}
 							onClick={() => onDaysChange(option)}
-						>
-							{sprintf(
+							text={sprintf(
 								/* translators: %d is the number of days. */
 								__('%d Days', 'vulopilot'),
 								option
 							)}
-						</button>
+						/>
 					))}
 				</div>
 			</div>

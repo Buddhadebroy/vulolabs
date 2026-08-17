@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { ColumnComponent } from '@zyra/components';
+import { ColumnComponent, BadgeComponent } from '@zyra/components';
 import { DEFAULT_DASHBOARD_WIDGETS } from './registry';
 import { DashboardSummary, WidgetLayoutEntry, WidgetDefinition } from './types';
 import './DashboardGrid.scss';
@@ -235,15 +235,15 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 							return null;
 						}
 						return (
-							<button
+							<BadgeComponent
 								key={widget.id}
-								type="button"
-								className="admin-badge dashboard-hidden-widget-chip"
+								className="dashboard-hidden-widget-chip"
+								icon="plus"
+								text={widget.title}
+								role="button"
+								tabIndex={0}
 								onClick={() => handleRestore(widget.id)}
-							>
-								<i className="adminfont-plus" />
-								{widget.title}
-							</button>
+							/>
 						);
 					})}
 				</div>

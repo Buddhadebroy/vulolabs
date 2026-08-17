@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ChartComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, BadgeComponent } from '@zyra/components';
 
 interface ContentScoreResponse {
 	score: number;
@@ -126,11 +126,11 @@ const ContentScoreCard = () => {
 						]}
 					/>
 
-					<span
-						className={`admin-badge ${rating.badgeClass} content-score-rating`}
-					>
-						{rating.label}
-					</span>
+					<BadgeComponent
+						className="content-score-rating"
+						color={rating.badgeClass}
+						text={rating.label}
+					/>
 
 					<div className="content-score-breakdown">
 						<div className="content-score-breakdown-header">
@@ -148,33 +148,41 @@ const ContentScoreCard = () => {
 
 						<ul>
 							<li>
-								<span className="admin-dot-badge red">
-									{__('Critical', 'vulopilot')}
-								</span>
+								<BadgeComponent
+									variant="dot"
+									color="red"
+									text={__('Critical', 'vulopilot')}
+								/>
 								<span className="content-score-severity-count">
 									{breakdown.critical}
 								</span>
 							</li>
 							<li>
-								<span className="admin-dot-badge yellow">
-									{__('High', 'vulopilot')}
-								</span>
+								<BadgeComponent
+									variant="dot"
+									color="yellow"
+									text={__('High', 'vulopilot')}
+								/>
 								<span className="content-score-severity-count">
 									{breakdown.high}
 								</span>
 							</li>
 							<li>
-								<span className="admin-dot-badge orange">
-									{__('Medium', 'vulopilot')}
-								</span>
+								<BadgeComponent
+									variant="dot"
+									color="orange"
+									text={__('Medium', 'vulopilot')}
+								/>
 								<span className="content-score-severity-count">
 									{breakdown.medium}
 								</span>
 							</li>
 							<li>
-								<span className="admin-dot-badge blue">
-									{__('Low', 'vulopilot')}
-								</span>
+								<BadgeComponent
+									variant="dot"
+									color="blue"
+									text={__('Low', 'vulopilot')}
+								/>
 								<span className="content-score-severity-count">
 									{breakdown.low}
 								</span>

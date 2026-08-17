@@ -11,7 +11,8 @@ import {
 	PopupComponent,
 	FormGroupWrapperComponent,
 	FormGroupComponent,
-	ClipboardComponent
+	ClipboardComponent,
+	BadgeComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -281,9 +282,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				<div className="title">{group.label}</div>
 				<FormGroupWrapperComponent>
 					<FormGroupComponent   row label={__('Category', 'vulopilot')}>
-						<span className="admin-badge blue">
-							{CATEGORY_LABELS[group.category] ?? group.category}
-						</span>
+						<BadgeComponent
+							color="blue"
+							text={CATEGORY_LABELS[group.category] ?? group.category}
+						/>
 					</FormGroupComponent>
 					<FormGroupComponent   row label={__('Affected', 'vulopilot')}>
 						{formatAffected(group.count, group.object_type)}

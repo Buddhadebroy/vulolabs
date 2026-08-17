@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ColumnComponent, ListComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useSalesInsights } from '../../services/useSalesInsights';
 
@@ -203,9 +203,7 @@ const ProductsToLookAtCard = () => {
 						),
 						tags: (
 							<>
-								<span className={`admin-badge ${row.badge.color}`}>
-									{row.badge.text}
-								</span>
+								<BadgeComponent color={row.badge.color} text={row.badge.text} />
 								<ButtonInput
 									buttons={{
 										text: __('View product →', 'vulopilot'),

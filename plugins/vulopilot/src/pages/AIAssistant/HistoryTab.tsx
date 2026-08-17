@@ -9,7 +9,8 @@ import {
 	ColumnComponent,
 	ModuleGuardComponent,
 	PopupComponent,
-	ContainerComponent
+	ContainerComponent,
+	BadgeComponent
 } from '@zyra/components';
 import { ButtonInput, TextInput, SelectInput } from '@zyra/inputs'; 
 import ShowProPopup from '../../components/Popup/Popup';
@@ -476,11 +477,10 @@ const HistoryTab = ({
 												<div className="history-row-text">
 													<div className="history-row-title title">
 														{rowTitle(row)}
-														<span
-															className={`admin-badge ${tag.className}`}
-														>
-															{tag.text}
-														</span>
+														<BadgeComponent
+															color={tag.className}
+															text={tag.text}
+														/>
 													</div>
 													<div className="desc">
 														{row.message}
@@ -517,11 +517,10 @@ const HistoryTab = ({
 														</span>
 													)}
 													{statusBadge && (
-														<span
-															className={`admin-badge ${statusBadge.className}`}
-														>
-															{statusBadge.text}
-														</span>
+														<BadgeComponent
+															color={statusBadge.className}
+															text={statusBadge.text}
+														/>
 													)}
 												</div>
 												<i

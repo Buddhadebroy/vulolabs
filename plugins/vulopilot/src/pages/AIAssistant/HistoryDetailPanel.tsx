@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
 import {
@@ -176,14 +176,18 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 				<>
 				<FormGroupComponent row label={__('Status', 'vulopilot')}>
 					<span className='buttons-wrapper'>
-						<span className='admin-badge green'>
-						{'completed' === row.scan.status
-							? __('Completed', 'vulopilot')
-							: row.scan.status}
-						</span>
-						<span className='admin-badge yellow'>
-							{__('Manually triggered', 'vulopilot')}
-						</span>
+						<BadgeComponent
+							color="green"
+							text={
+								'completed' === row.scan.status
+									? __('Completed', 'vulopilot')
+									: row.scan.status
+							}
+						/>
+						<BadgeComponent
+							color="yellow"
+							text={__('Manually triggered', 'vulopilot')}
+						/>
 					</span>
 				</FormGroupComponent>
 				<FormGroupComponent row label={__('Findings', 'vulopilot')}>
@@ -192,12 +196,11 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							{Object.entries(row.scan.by_severity).map(
 								([severity, count]) => (
 									<li key={severity}>
-										<span
-											className={`admin-badge badge-${severity}`}
-										>
-											{SEVERITY_LABEL[severity] ??
+										<BadgeComponent
+											color={`badge-${severity}`}
+											text={SEVERITY_LABEL[severity] ??
 												severity}
-										</span>
+										/>
 										{Number(count)}
 									</li>
 								)

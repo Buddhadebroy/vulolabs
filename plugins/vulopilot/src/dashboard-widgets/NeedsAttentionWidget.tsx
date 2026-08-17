@@ -7,6 +7,7 @@ import {
 	ModuleGuardComponent,
 	NoticeManager,
 	TabsComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
@@ -133,11 +134,10 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 												'?page=vulopilot#&tab=geo&subtab=seo';
 										},
 										tags: (
-											<span
-												className={`admin-badge badge-${finding.severity}`}
-											>
-												{finding.severity}
-											</span>
+											<BadgeComponent
+												color={`badge-${finding.severity}`}
+												text={finding.severity}
+											/>
 										),
 									}))}
 								/>
@@ -166,11 +166,10 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 												getCategoryTabLink(finding.category);
 										},
 										tags: (
-											<span
-												className={`admin-badge badge-${finding.severity}`}
-											>
-												{finding.severity}
-											</span>
+											<BadgeComponent
+												color={`badge-${finding.severity}`}
+												text={finding.severity}
+											/>
 										),
 									}))}
 								/>

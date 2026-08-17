@@ -7,6 +7,7 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import SectionedFindingsTab from '../Security/SectionedFindingsTab';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
@@ -298,11 +299,11 @@ const SeoTab = () => {
 													<p className="geo-four-checks-title">
 														{card.title}
 													</p>
-													<span
-														className={`admin-badge geo-four-checks-badge ${ratingClass(categoryScore)}`}
-													>
-														{categoryScore}/100
-													</span>
+													<BadgeComponent
+														className="geo-four-checks-badge"
+														color={ratingClass(categoryScore)}
+														text={`${categoryScore}/100`}
+													/>
 												</div>
 											);
 										})}

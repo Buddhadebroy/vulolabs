@@ -10,6 +10,7 @@ import {
 	ContainerComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 
 export interface Entity {
 	id: string;
@@ -144,8 +145,8 @@ const scrollToId = (id: string) => {
 		return;
 	}
 	el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-	el.classList.add('vulopilot-glimpse-highlight');
-	setTimeout(() => el.classList.remove('vulopilot-glimpse-highlight'), 1200);
+	el.classList.add('module-list-item', 'highlight');
+	setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
 };
 
 /**
@@ -277,26 +278,28 @@ const EntityHighlightCard = ({
 						))}
 					</ul>
 					{remaining > 0 && (
-						<button
-							type="button"
-							className="kg-entity-toggle"
-							onClick={() => setExpanded(true)}
-						>
-							{sprintf(
-								/* translators: %d is how many more real entities of this type exist beyond the first few shown. */
-								__('+ %d more', 'vulopilot'),
-								remaining
-							)}
-						</button>
+						<ButtonInput
+							position="left"
+							buttons={{
+								text: sprintf(
+									/* translators: %d is how many more real entities of this type exist beyond the first few shown. */
+									__('+ %d more', 'vulopilot'),
+									remaining
+								),
+								color: 'text-purple',
+								onClick: () => setExpanded(true),
+							}}
+						/>
 					)}
 					{expanded && rows.length > HIGHLIGHT_MAX_ROWS && (
-						<button
-							type="button"
-							className="kg-entity-toggle"
-							onClick={() => setExpanded(false)}
-						>
-							{__('Show less', 'vulopilot')}
-						</button>
+						<ButtonInput
+							position="left"
+							buttons={{
+								text: __('Show less', 'vulopilot'),
+								color: 'text-purple',
+								onClick: () => setExpanded(false),
+							}}
+						/>
 					)}
 				</>
 			)}
@@ -498,13 +501,13 @@ const KnowledgeGraphTab = () => {
 											{check.desc}
 										</div>
 									</div>
-									<button
-										type="button"
-										className="geo-card-view-all"
-										onClick={() => scrollToId(check.targetId)}
-									>
-										{__('Review', 'vulopilot')} ›
-									</button>
+									<ButtonInput
+										buttons={{
+											text: `${__('Review', 'vulopilot')} ›`,
+											color: 'text-purple',
+											onClick: () => scrollToId(check.targetId),
+										}}
+									/>
 								</div>
 							))}
 						</div>

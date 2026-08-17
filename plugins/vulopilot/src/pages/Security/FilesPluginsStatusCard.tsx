@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ListComponent } from '@zyra/components';
+import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { useSectionStatus } from '../../services/useSectionStatus';
 
 /**
@@ -62,9 +62,10 @@ const FilesPluginsStatusCard = () => {
 					id: row.id,
 					title: row.label,
 					tags: row.status.badge ? (
-						<span className={`admin-badge ${row.status.badge.color}`}>
-							{row.status.badge.text}
-						</span>
+						<BadgeComponent
+							color={row.status.badge.color}
+							text={row.status.badge.text}
+						/>
 					) : null,
 				}))}
 			/>

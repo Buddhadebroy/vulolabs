@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { InformationItemComponent, NoticeManager } from '@zyra/components';
+import { InformationItemComponent, NoticeManager, BadgeComponent } from '@zyra/components';
 import type { TableCardProps, TableRow } from '@zyra/table';
 import { useApiList } from './useApiList';
 import { formatWpDate } from './formatWpDate';
@@ -525,40 +525,36 @@ export const useFindingsTable = ({
 					<div className="buttons-wrapper">
 						{row.status === 'open' ? (
 							<>
-								<span
-									className="admin-badge purple"
+								<BadgeComponent
+									color="purple"
 									role="button"
 									tabIndex={0}
 									onClick={() => handleFix(asRecord)}
-								>
-									{__('Fix', 'vulopilot')}
-								</span>
-								<span
-									className="admin-badge green"
+									text={__('Fix', 'vulopilot')}
+								/>
+								<BadgeComponent
+									color="green"
 									role="button"
 									tabIndex={0}
 									onClick={() => handleResolve(asRecord)}
-								>
-									{__('Resolve', 'vulopilot')}
-								</span>
-								<span
-									className="admin-badge red"
+									text={__('Resolve', 'vulopilot')}
+								/>
+								<BadgeComponent
+									color="red"
 									role="button"
 									tabIndex={0}
 									onClick={() => handleIgnore(asRecord)}
-								>
-									{__('Ignore', 'vulopilot')}
-								</span>
+									text={__('Ignore', 'vulopilot')}
+								/>
 							</>
 						) : (
-							<span
-								className="admin-badge blue"
+							<BadgeComponent
+								color="blue"
 								role="button"
 								tabIndex={0}
 								onClick={() => handleReopen(asRecord)}
-							>
-								{__('Reopen', 'vulopilot')}
-							</span>
+								text={__('Reopen', 'vulopilot')}
+							/>
 						)}
 					</div>
 				);

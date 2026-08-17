@@ -195,8 +195,8 @@ const GeoTab = () => {
 			return;
 		}
 		el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		el.classList.add('vulopilot-glimpse-highlight');
-		setTimeout(() => el.classList.remove('vulopilot-glimpse-highlight'), 1200);
+		el.classList.add('module-list-item', 'highlight');
+		setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
 	};
 
 	const goToIssuesTable = (tab: SectionedIssuesTab = 'all') => {
