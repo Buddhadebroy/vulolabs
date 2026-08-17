@@ -60,16 +60,18 @@ const SpeedBoostCard = ({ onViewDetails }: SpeedBoostCardProps) => {
 					'vulopilot'
 				)}
 			>
-				<span
-					role="button"
-					aria-disabled="true"
-					className="speed-boost-fix-all disabled"
-				>
-					<i className="adminfont-ai" />
-					{__('Fix All Issues with AI', 'vulopilot')}
-				</span>
+				<ButtonInput
+					position= 'full-width'
+					buttons={{
+						text: __('Fix All Issues with AI', 'vulopilot'),
+						icon: 'ai',
+						disabled: true,
+						onClick: () => {},
+					}}
+				/>
 			</TooltipComponent>
 			<ButtonInput
+				position= 'full-width'
 				buttons={{
 					text: __('View Details', 'vulopilot'),
 					onClick: onViewDetails,

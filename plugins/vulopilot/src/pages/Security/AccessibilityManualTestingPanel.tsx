@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, ListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 
 interface ManualCheck {
@@ -61,21 +61,15 @@ const AccessibilityManualTestingPanel = () => (
 			},
 		]}
 	>
-		<ul className="accessibility-manual-checks">
-			{MANUAL_CHECKS.map((check) => (
-				<li key={check.key}>
-					<i className={`adminfont-${check.icon}`} />
-					<div>
-						<div className="accessibility-manual-check-title">
-							{check.title}
-						</div>
-						<div className="accessibility-manual-check-desc">
-							{check.description}
-						</div>
-					</div>
-				</li>
-			))}
-		</ul>
+		<ListComponent
+			className="accessibility-manual-checks"
+			items={MANUAL_CHECKS.map((check) => ({
+				id: check.key,
+				icon: check.icon,
+				title: check.title,
+				desc: check.description,
+			}))}
+		/>
 		<div className="accessibility-manual-actions">
 			<ButtonInput
 				buttons={{
@@ -93,7 +87,7 @@ const AccessibilityManualTestingPanel = () => (
 				href="https://www.w3.org/WAI/fundamentals/accessibility-intro/"
 				target="_blank"
 				rel="noopener noreferrer"
-				className="accessibility-manual-learn-more"
+				className="admin-btn btn-text-"
 			>
 				{__('Learn more about accessibility', 'vulopilot')}
 			</a>

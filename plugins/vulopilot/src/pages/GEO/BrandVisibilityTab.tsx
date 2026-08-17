@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
 import {
@@ -8,6 +8,7 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	NoticeComponent,
 } from '@zyra/components';
 import BrandScoreCard from './BrandScoreCard';
 import SectionedFindingsTab from '../Security/SectionedFindingsTab';
@@ -151,16 +152,18 @@ const BrandVisibilityTab = () => {
 			onTabChange={setActiveTab}
 			header={
 				<>
-					<div className="geo-info-banner">
-						<i className="adminfont-info" />
-						<span>
-							<strong>{__('In plain English:', 'vulopilot')}</strong>{' '}
-							{__(
+					<NoticeComponent
+						type="banner"
+						displayPosition="inline"
+						message={sprintf(
+							'<strong>%1$s</strong> %2$s',
+							__('In plain English:', 'vulopilot'),
+							__(
 								'This checks whether AI systems describe your business accurately, and treat it as trustworthy, when it comes up in an answer.',
 								'vulopilot'
-							)}
-						</span>
-					</div>
+							)
+						)}
+					/>
 					<BrandScoreCard />
 					{AuthorityTrendsCard && <AuthorityTrendsCard />}
 					{CompetitorComparisonCard && <CompetitorComparisonCard />}

@@ -152,10 +152,10 @@ const FilesPluginsTab = () => {
 			onTabChange={setActiveTab}
 			header={
 				<ContainerComponent>
-					<ColumnComponent grid={6}>
+					<ColumnComponent fullHeight grid={6}>
 						<FilesPluginsStatusCard />
 					</ColumnComponent>
-					<ColumnComponent grid={6}>
+					<ColumnComponent fullHeight grid={6}>
 						<FindingsHeroCard
 							icon="module"
 							label={__('Files & Plugins', 'vulopilot')}

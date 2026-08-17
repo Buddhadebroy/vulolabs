@@ -1,6 +1,7 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ColumnComponent, ContainerComponent, BadgeComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { TRIGGER_TYPE_LABELS } from './automationLabels';
 
 const SETTINGS_TAB_URL = '?page=vulopilot#&tab=settings';
@@ -36,17 +37,14 @@ const AutomationLinksRow = ({ onScrollToCreate }: AutomationLinksRowProps) => (
 						)
 						.join(', ')}
 				</p>
-				<a
-					href="#automation-manage"
-					className="automation-link-action"
-					onClick={(event) => {
-						event.preventDefault();
-						onScrollToCreate();
+				<ButtonInput
+					buttons={{
+						text: __('Manage Triggers', 'vulopilot'),
+						rightIcon: 'arrow-right',
+						color: 'text-purple',
+						onClick: onScrollToCreate,
 					}}
-				>
-					{__('Manage Triggers', 'vulopilot')}{' '}
-					<i className="adminfont-arrow-right" />
-				</a>
+				/>
 			</CardComponent>
 		</ColumnComponent>
 		<ColumnComponent grid={6}>
@@ -62,13 +60,14 @@ const AutomationLinksRow = ({ onScrollToCreate }: AutomationLinksRowProps) => (
 						'vulopilot'
 					)}
 				</p>
-				<a
-					href={SETTINGS_TAB_URL}
-					className="automation-link-action"
-				>
-					{__('Manage Channels', 'vulopilot')}{' '}
-					<i className="adminfont-arrow-right" />
-				</a>
+				<ButtonInput
+					buttons={{
+						text: __('Manage Channels', 'vulopilot'),
+						rightIcon: 'arrow-right',
+						color: 'text-purple',
+						onClick: () => window.open(SETTINGS_TAB_URL, '_self'),
+					}}
+				/>
 			</CardComponent>
 		</ColumnComponent>
 	</ContainerComponent>

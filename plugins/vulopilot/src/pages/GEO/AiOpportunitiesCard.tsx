@@ -1,6 +1,7 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { TooltipComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
 import './GrowMyTraffic.scss';
@@ -50,14 +51,14 @@ const AiOpportunitiesCard: React.FC<AiOpportunitiesCardProps> = ({
 						'vulopilot'
 					)}
 				>
-					<span
-						role="button"
-						aria-disabled="true"
-						className="ai-opportunities-fix-all disabled"
-					>
-						<i className="adminfont-ai" />
-						{__('Fix Everything with AI', 'vulopilot')}
-					</span>
+					<ButtonInput
+						buttons={{
+							text: __('Fix Everything with AI', 'vulopilot'),
+							icon: 'ai',
+							disabled: true,
+							onClick: () => {},
+						}}
+					/>
 				</TooltipComponent>
 			</AiCopilotGuard>
 		}

@@ -23,11 +23,12 @@ import AiUsageCard from './AiUsageCard';
 import LiveSiteInsightsCard from './LiveSiteInsightsCard';
 import {
 	useCopilotChat,
+	CopilotChatTurn,
 	CopilotContextRef,
 	CopilotAttachment,
 } from '../../services/useCopilotChat';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
-import AiCopilotGuard from '../../components/AiCopilotGuard';
+import ChatComposerCard from '../../components/ChatComposerCard';
 
 /** Mirrors Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
@@ -284,24 +285,27 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={8}>
-				<CardComponent>
-					<AiCopilotGuard>
-					<ChatMessageComponent sender="ai" avatarIcon="ai">
-						<strong>
-							{__(
-								"Hi! I'm VuloPilot, your AI website copilot. 👋",
-								'vulopilot'
-							)}
-						</strong>
-						<div>
-							{__(
-								'I monitor your site 24×7, find opportunities and help you improve it — automatically or with your approval.',
-								'vulopilot'
-							)}
-						</div>
-					</ChatMessageComponent>
-
-					{turns.map((turn, index) => (
+				<ChatComposerCard<CopilotChatTurn>
+					guarded
+					sendingAvatarIcon="ai"
+					welcome={
+						<>
+							<strong>
+								{__(
+									"Hi! I'm VuloPilot, your AI website copilot. 👋",
+									'vulopilot'
+								)}
+							</strong>
+							<div>
+								{__(
+									'I monitor your site 24×7, find opportunities and help you improve it — automatically or with your approval.',
+									'vulopilot'
+								)}
+							</div>
+						</>
+					}
+					turns={turns}
+					renderTurn={(turn, index) => (
 						<ChatMessageComponent
 							key={index}
 							sender={'user' === turn.role ? 'user' : 'ai'}
@@ -357,230 +361,228 @@ const ChatTab: React.FC<ChatTabProps> = ({
 								</div>
 							)}
 						</ChatMessageComponent>
-					))}
-
-					{isSending && (
-						<ChatMessageComponent sender="ai" avatarIcon="ai">
-							<i className="adminfont-refresh chat-thinking-spinner" />{' '}
-							{__('Thinking…', 'vulopilot')}
-						</ChatMessageComponent>
 					)}
+					isSending={isSending}
+					beforeComposer={
+						<>
+							<p className="chat-prompts-label">
+								{__('Try asking me…', 'vulopilot')}
+							</p>
 
-					<p className="chat-prompts-label">
-						{__('Try asking me…', 'vulopilot')}
-					</p>
+							{(attachments.length > 0 || contextRefs.length > 0) && (
+								<div className="chat-composer-chips">
+									{attachments.map((attachment) => (
+										<span
+											className="chat-composer-chip"
+											key={`attachment-${attachment.id}`}
+										>
+											<i className="adminfont-attachment" />
+											{attachment.name}
+											<i
+												className="adminfont-close"
+												onClick={() =>
+													removeAttachment(attachment.id)
+												}
+											/>
+										</span>
+									))}
+									{contextRefs.map((ref) => (
+										<span
+											className="chat-composer-chip"
+											key={contextRefKey(ref)}
+										>
+											<i className="adminfont-plus-circle" />
+											{'finding_group' === ref.type
+												? ref.label
+												: ref.name}
+											<i
+												className="adminfont-close"
+												onClick={() => toggleContextRef(ref)}
+											/>
+										</span>
+									))}
+								</div>
+							)}
 
-					{(attachments.length > 0 || contextRefs.length > 0) && (
-						<div className="chat-composer-chips">
-							{attachments.map((attachment) => (
-								<span
-									className="chat-composer-chip"
-									key={`attachment-${attachment.id}`}
-								>
-									<i className="adminfont-attachment" />
-									{attachment.name}
-									<i
-										className="adminfont-close"
-										onClick={() =>
-											removeAttachment(attachment.id)
-										}
+							{isAttachPanelOpen && (
+								<div className="chat-composer-panel">
+									<p className="chat-composer-panel-label">
+										{__(
+											'Attach a .txt/.csv file to read, or a .jpg/.png/.gif/.webp image for the AI to actually see — uploaded to your Media Library first.',
+											'vulopilot'
+										)}
+									</p>
+									<FileInput
+										multiple
+										accept={ATTACHMENT_ACCEPT}
+										openUploader={__('Upload File', 'vulopilot')}
+										wrapperClass="chat-composer-fileinput"
+										imageSrc={attachments.map((attachment) => ({
+											id: attachment.id,
+											url: attachment.url,
+										}))}
+										onChange={handleFileInputChange}
 									/>
-								</span>
-							))}
-							{contextRefs.map((ref) => (
-								<span
-									className="chat-composer-chip"
-									key={contextRefKey(ref)}
-								>
-									<i className="adminfont-plus-circle" />
-									{'finding_group' === ref.type
-										? ref.label
-										: ref.name}
-									<i
-										className="adminfont-close"
-										onClick={() => toggleContextRef(ref)}
-									/>
-								</span>
-							))}
-						</div>
-					)}
+								</div>
+							)}
 
-					{isAttachPanelOpen && (
-						<div className="chat-composer-panel">
-							<p className="chat-composer-panel-label">
-								{__(
-									'Attach a .txt/.csv file to read, or a .jpg/.png/.gif/.webp image for the AI to actually see — uploaded to your Media Library first.',
+							{isContextPanelOpen && (
+								<div className="chat-composer-panel">
+									<p className="chat-composer-panel-label">
+										{__(
+											'Pick real open issues or automations to ground this message with.',
+											'vulopilot'
+										)}
+									</p>
+									{isLoadingContextOptions ? (
+										<p>{__('Loading…', 'vulopilot')}</p>
+									) : (
+										<>
+											{(findingGroupOptions ?? []).map(
+												(group) => {
+													const ref: CopilotContextRef = {
+														type: 'finding_group',
+														scannerId: group.scanner_id,
+														label: group.label,
+														category: group.category,
+														count: group.count,
+														severity: group.severity,
+													};
+													const selected = contextRefs.some(
+														(existing) =>
+															contextRefKey(existing) ===
+															contextRefKey(ref)
+													);
+
+													return (
+														<div
+															key={contextRefKey(ref)}
+															className={`chat-context-option${
+																selected
+																	? ' selected'
+																	: ''
+															}`}
+															onClick={() =>
+																toggleContextRef(ref)
+															}
+														>
+															<i
+																className={
+																	selected
+																		? 'adminfont-check'
+																		: 'adminfont-error'
+																}
+															/>
+															<span>
+																{group.label} —{' '}
+																{group.count}{' '}
+																{__(
+																	'open',
+																	'vulopilot'
+																)}{' '}
+																({group.severity})
+															</span>
+														</div>
+													);
+												}
+											)}
+											{(automationOptions ?? []).map(
+												(automation) => {
+													const ref: CopilotContextRef = {
+														type: 'automation',
+														id: automation.id,
+														name: automation.name,
+													};
+													const selected = contextRefs.some(
+														(existing) =>
+															contextRefKey(existing) ===
+															contextRefKey(ref)
+													);
+
+													return (
+														<div
+															key={contextRefKey(ref)}
+															className={`chat-context-option${
+																selected
+																	? ' selected'
+																	: ''
+															}`}
+															onClick={() =>
+																toggleContextRef(ref)
+															}
+														>
+															<i
+																className={
+																	selected
+																		? 'adminfont-check'
+																		: 'adminfont-update'
+																}
+															/>
+															<span>
+																{automation.name} (
+																{automation.status})
+															</span>
+														</div>
+													);
+												}
+											)}
+											{0 ===
+												(findingGroupOptions ?? []).length &&
+												0 ===
+													(automationOptions ?? [])
+														.length && (
+													<p>
+														{__(
+															'Nothing to add context from yet.',
+															'vulopilot'
+														)}
+													</p>
+												)}
+										</>
+									)}
+								</div>
+							)}
+						</>
+					}
+					composer={
+						// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element; zyra's ChatInputComponent textarea never stops keydown from bubbling, so this stops it reaching any page-level listener regardless of what that listener turns out to be.
+						<div onKeyDownCapture={(e) => e.stopPropagation()}>
+							<ChatInputComponent
+								value={message}
+								onChange={onMessageChange}
+								onSend={handleSend}
+								disabled={isSending}
+								placeholder={__(
+									'Ask VuloPilot anything about your website…',
 									'vulopilot'
 								)}
-							</p>
-							<FileInput
-								multiple
-								accept={ATTACHMENT_ACCEPT}
-								openUploader={__('Upload File', 'vulopilot')}
-								wrapperClass="chat-composer-fileinput"
-								imageSrc={attachments.map((attachment) => ({
-									id: attachment.id,
-									url: attachment.url,
-								}))}
-								onChange={handleFileInputChange}
+								onAttach={toggleAttachPanel}
+								attachLabel={__('Attach', 'vulopilot')}
+								onAddContext={toggleContextPanel}
+								addContextLabel={__('Add context', 'vulopilot')}
+								autoApply={{
+									checked: autoApply,
+									onChange: onAutoApplyChange,
+									label: __(
+										'Auto-applies (with approval)',
+										'vulopilot'
+									),
+								}}
 							/>
 						</div>
-					)}
-
-					{isContextPanelOpen && (
-						<div className="chat-composer-panel">
-							<p className="chat-composer-panel-label">
-								{__(
-									'Pick real open issues or automations to ground this message with.',
-									'vulopilot'
-								)}
-							</p>
-							{isLoadingContextOptions ? (
-								<p>{__('Loading…', 'vulopilot')}</p>
-							) : (
-								<>
-									{(findingGroupOptions ?? []).map(
-										(group) => {
-											const ref: CopilotContextRef = {
-												type: 'finding_group',
-												scannerId: group.scanner_id,
-												label: group.label,
-												category: group.category,
-												count: group.count,
-												severity: group.severity,
-											};
-											const selected = contextRefs.some(
-												(existing) =>
-													contextRefKey(existing) ===
-													contextRefKey(ref)
-											);
-
-											return (
-												<div
-													key={contextRefKey(ref)}
-													className={`chat-context-option${
-														selected
-															? ' selected'
-															: ''
-													}`}
-													onClick={() =>
-														toggleContextRef(ref)
-													}
-												>
-													<i
-														className={
-															selected
-																? 'adminfont-check'
-																: 'adminfont-error'
-														}
-													/>
-													<span>
-														{group.label} —{' '}
-														{group.count}{' '}
-														{__(
-															'open',
-															'vulopilot'
-														)}{' '}
-														({group.severity})
-													</span>
-												</div>
-											);
-										}
-									)}
-									{(automationOptions ?? []).map(
-										(automation) => {
-											const ref: CopilotContextRef = {
-												type: 'automation',
-												id: automation.id,
-												name: automation.name,
-											};
-											const selected = contextRefs.some(
-												(existing) =>
-													contextRefKey(existing) ===
-													contextRefKey(ref)
-											);
-
-											return (
-												<div
-													key={contextRefKey(ref)}
-													className={`chat-context-option${
-														selected
-															? ' selected'
-															: ''
-													}`}
-													onClick={() =>
-														toggleContextRef(ref)
-													}
-												>
-													<i
-														className={
-															selected
-																? 'adminfont-check'
-																: 'adminfont-update'
-														}
-													/>
-													<span>
-														{automation.name} (
-														{automation.status})
-													</span>
-												</div>
-											);
-										}
-									)}
-									{0 ===
-										(findingGroupOptions ?? []).length &&
-										0 ===
-											(automationOptions ?? [])
-												.length && (
-											<p>
-												{__(
-													'Nothing to add context from yet.',
-													'vulopilot'
-												)}
-											</p>
-										)}
-								</>
-							)}
-						</div>
-					)}
-
-					{/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element; zyra's ChatInputComponent textarea never stops keydown from bubbling, so this stops it reaching any page-level listener regardless of what that listener turns out to be. */}
-					<div onKeyDownCapture={(e) => e.stopPropagation()}>
-					<ChatInputComponent
-						value={message}
-						onChange={onMessageChange}
-						onSend={handleSend}
-						disabled={isSending}
-						placeholder={__(
-							'Ask VuloPilot anything about your website…',
-							'vulopilot'
-						)}
-						onAttach={toggleAttachPanel}
-						attachLabel={__('Attach', 'vulopilot')}
-						onAddContext={toggleContextPanel}
-						addContextLabel={__('Add context', 'vulopilot')}
-						autoApply={{
-							checked: autoApply,
-							onChange: onAutoApplyChange,
-							label: __(
-								'Auto-applies (with approval)',
-								'vulopilot'
-							),
-						}}
-					/>
-					</div>
-
-					<ListComponent
-						className="chip-grid"
-						items={SUGGESTED_PROMPTS.map((prompt) => ({
-							id: prompt.id,
-							icon: prompt.icon,
-							title: prompt.title,
-							action: () => onMessageChange(prompt.title),
-						}))}
-					/>
-				</AiCopilotGuard>
-				</CardComponent>
+					}
+					prompts={
+						<ListComponent
+							className="chip-grid"
+							items={SUGGESTED_PROMPTS.map((prompt) => ({
+								id: prompt.id,
+								icon: prompt.icon,
+								title: prompt.title,
+								action: () => onMessageChange(prompt.title),
+							}))}
+						/>
+					}
+				/>
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>

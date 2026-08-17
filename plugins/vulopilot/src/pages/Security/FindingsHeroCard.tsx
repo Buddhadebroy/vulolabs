@@ -57,44 +57,35 @@ const FindingsHeroCard = ({
 	).length;
 
 	return (
-		<CardComponent isLoading={isLoading} className="findings-hero">
+		<CardComponent isLoading={isLoading}
+			titleIcon={icon}
+			title={total > 0
+				? sprintf(
+					/* translators: 1: number of open findings, 2: section label, e.g. "Site Health". */
+					__('I found %1$d %2$s issue(s).', 'vulopilot'),
+					total,
+					label
+				)
+				: sprintf(
+					/* translators: %s is the section label, e.g. "Site Health". */
+					__(
+						"You're all caught up — no open %s issues.",
+						'vulopilot'
+					),
+					label
+				)}
+			desc={high > 0 && (
+				<>
+					{sprintf(
+						/* translators: %d is the number of high-priority findings. */
+						__('%d should be reviewed first.', 'vulopilot'),
+						high
+					)}
+				</>
+			)}
+			className="findings-hero">
 			{!isLoading && (
 				<>
-					<div className="findings-hero-top">
-						<div
-							className={`findings-hero-icon ${total > 0 ? 'is-attention' : 'is-good'}`}
-						>
-							<i className={`adminfont-${icon}`} />
-						</div>
-						<div className="findings-hero-headline">
-							<p className="findings-hero-title">
-								{total > 0
-									? sprintf(
-											/* translators: 1: number of open findings, 2: section label, e.g. "Site Health". */
-											__('I found %1$d %2$s issue(s).', 'vulopilot'),
-											total,
-											label
-										)
-									: sprintf(
-											/* translators: %s is the section label, e.g. "Site Health". */
-											__(
-												"You're all caught up — no open %s issues.",
-												'vulopilot'
-											),
-											label
-										)}
-							</p>
-							{high > 0 && (
-								<p className="findings-hero-subtitle">
-									{sprintf(
-										/* translators: %d is the number of high-priority findings. */
-										__('%d should be reviewed first.', 'vulopilot'),
-										high
-									)}
-								</p>
-							)}
-						</div>
-					</div>
 					{total > 0 && (
 						<div className="findings-hero-chart-row">
 							<div className="findings-hero-chart">
@@ -159,16 +150,15 @@ const FindingsHeroCard = ({
 						</div>
 					)}
 					{total > 0 && (
-						<div className="findings-hero-actions">
-							<ButtonInput
-								buttons={{
-									text: __('Review Issues', 'vulopilot'),
-									rightIcon: 'pagination-right-arrow',
-									color: 'purple-bg',
-									onClick: onReviewFirst,
-								}}
-							/>
-						</div>
+						<ButtonInput
+							positive="full-width"
+							buttons={{
+								text: __('Review Issues', 'vulopilot'),
+								rightIcon: 'pagination-right-arrow',
+								color: 'purple-bg',
+								onClick: onReviewFirst,
+							}}
+						/>
 					)}
 				</>
 			)}

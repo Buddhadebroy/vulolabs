@@ -81,38 +81,27 @@
 	font-size: 0.8125rem;
 }
 
+// The 4 High/Medium/Low/Total tiles are now a real Zyra
+// `<AnalyticsComponent>` (VulnerabilityHeroCard.tsx) — its own
+// `.analytics-container`/`.analytics-item`/`.number`/`.text` classes supply
+// the tile chrome; `colorClass` (`is-high`/`is-medium`/`is-low`/`is-total`)
+// lands on each `.analytics-item`, so only the per-severity number tint
+// needs to be declared locally here, same convention AutomateWork.scss's
+// own `.automation-overview-grid .admin-badge` color-modifier block uses.
 .vulnerability-hero-stats {
-	display: flex;
-	gap: 1.75rem;
 	margin-top: 1rem;
-}
 
-.vulnerability-hero-stat {
-	display: flex;
-	flex-direction: column;
-}
+	.analytics-item.is-high .number {
+		color: #dc2626;
+	}
 
-.vulnerability-hero-stat-value {
-	font-weight: 700;
-	font-size: 1.25rem;
-	line-height: 1.3;
-}
+	.analytics-item.is-medium .number {
+		color: #d97706;
+	}
 
-.vulnerability-hero-stat-label {
-	font-size: 0.75rem;
-	color: var(--sub-text-color);
-}
-
-.vulnerability-hero-stat.is-high .vulnerability-hero-stat-value {
-	color: #dc2626;
-}
-
-.vulnerability-hero-stat.is-medium .vulnerability-hero-stat-value {
-	color: #d97706;
-}
-
-.vulnerability-hero-stat.is-low .vulnerability-hero-stat-value {
-	color: #2563eb;
+	.analytics-item.is-low .number {
+		color: #2563eb;
+	}
 }
 
 .vulnerability-hero-actions {
@@ -233,35 +222,20 @@
 	max-width: 40rem;
 }
 
+// Same real Zyra `<AnalyticsComponent>` conversion as `.vulnerability-hero-stats`
+// above — see that block's own comment for why only the per-stat number
+// tint is declared locally here.
 .accessibility-hero-stats {
-	display: flex;
-	gap: 1.75rem;
 	margin-top: 1rem;
-}
 
-.accessibility-hero-stat {
-	display: flex;
-	flex-direction: column;
-}
+	.analytics-item.is-total .number,
+	.analytics-item.is-high .number {
+		color: #f97316;
+	}
 
-.accessibility-hero-stat-value {
-	font-weight: 700;
-	font-size: 1.25rem;
-	line-height: 1.3;
-}
-
-.accessibility-hero-stat-label {
-	font-size: 0.75rem;
-	color: var(--sub-text-color);
-}
-
-.accessibility-hero-stat.is-total .accessibility-hero-stat-value,
-.accessibility-hero-stat.is-high .accessibility-hero-stat-value {
-	color: #f97316;
-}
-
-.accessibility-hero-stat.is-pages .accessibility-hero-stat-value {
-	color: #2563eb;
+	.analytics-item.is-pages .number {
+		color: #2563eb;
+	}
 }
 
 .accessibility-hero-actions {
@@ -277,7 +251,7 @@
 // text comfortable).
 .accessibility-checks-grid {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 0.875rem;
 }
 
@@ -402,33 +376,31 @@
 }
 
 // AccessibilityManualTestingPanel.tsx.
+// AccessibilityManualTestingPanel.tsx's 3 checks are now a real Zyra
+// `<ListComponent>` — its own `.item-list`/`.item`/`.item-icon`/
+// `.item-title`/`.desc` classes replace the old hand-rolled `<ul>`/`<li>`
+// ones (`li`/`.accessibility-manual-check-title`/`.accessibility-manual-check-desc`).
 .accessibility-manual-checks {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
 	gap: 0.875rem;
 
-	li {
-		display: flex;
+	.item {
 		align-items: flex-start;
 		gap: 0.75rem;
-
-		i {
-			flex-shrink: 0;
-			font-size: 1.125rem;
-			color: var(--color-primary);
-			margin-top: 0.125rem;
-		}
 	}
 
-	.accessibility-manual-check-title {
+	.item-icon {
+		flex-shrink: 0;
+		font-size: 1.125rem;
+		color: var(--color-primary);
+		margin-top: 0.125rem;
+	}
+
+	.item-title {
 		font-weight: 600;
 		font-size: 0.875rem;
 	}
 
-	.accessibility-manual-check-desc {
+	.desc {
 		color: var(--sub-text-color);
 		font-size: 0.8125rem;
 	}

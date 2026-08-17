@@ -1,5 +1,6 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { CardComponent, ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { useSalesInsights } from '../../services/useSalesInsights';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import type { WooCommerceIssueTab } from './WooCommerceIssuesTable';
@@ -180,14 +181,13 @@ const StoreIntelligenceSummaryCard = ({
 								title: row.title,
 								desc: row.desc,
 								tags: (
-									<span
-										className="read-more"
-										role="button"
-										tabIndex={0}
-										onClick={row.onClick}
-									>
-										{row.linkText}
-									</span>
+									<ButtonInput
+										buttons={{
+											text: row.linkText,
+											color: 'text-purple',
+											onClick: row.onClick,
+										}}
+									/>
 								),
 							}))}
 						/>

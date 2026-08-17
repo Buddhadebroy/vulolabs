@@ -6,6 +6,7 @@ import {
 	ModuleGuardComponent,
 	TooltipComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
@@ -54,14 +55,14 @@ const AiRecommendationsSidebar = () => {
 						'vulopilot'
 					)}
 				>
-					<span
-						role="button"
-						aria-disabled="true"
-						className="ai-recommendations-optimize disabled"
-					>
-						<i className="adminfont-ai" />
-						{__('Let AI Optimize My Site', 'vulopilot')}
-					</span>
+					<ButtonInput
+						buttons={{
+							text: __('Let AI Optimize My Site', 'vulopilot'),
+							icon: 'ai',
+							disabled: true,
+							onClick: () => {},
+						}}
+					/>
 				</TooltipComponent>
 				<a
 					className="ai-recommendations-review"

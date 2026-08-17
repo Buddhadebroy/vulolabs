@@ -70,21 +70,20 @@ const StoreHealthBanner = ({
 						'vulopilot'
 					)}
 				</div>
-				<div className="store-health-banner-actions">
-					<ButtonInput
-						buttons={{
+				<ButtonInput
+					position="full-width"
+					buttons={[
+						{
 							text: __('Review Important Issues →', 'vulopilot'),
 							onClick: onReviewIssues,
-						}}
-					/>
-					<ButtonInput
-						buttons={{
+						},
+						{
 							text: __('View Store Summary', 'vulopilot'),
 							color: 'border-purple',
 							onClick: onViewSummary,
-						}}
-					/>
-				</div>
+						},
+					]}
+				/>
 			</div>
 		</div>
 	);

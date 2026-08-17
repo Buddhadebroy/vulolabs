@@ -247,7 +247,7 @@ const MetricsGrid = ({
 				return (
 					<CardComponent key={tile.id} className="performance-metric-tile">
 						<i className={`performance-metric-icon adminfont-${tile.icon}`} />
-						<div className="performance-metric-title">{tile.title}</div>
+						<div className="title">{tile.title}</div>
 						<BadgeComponent color={badge.color} text={badge.text} />
 						<div className="desc">{tile.desc}</div>
 						<ButtonInput

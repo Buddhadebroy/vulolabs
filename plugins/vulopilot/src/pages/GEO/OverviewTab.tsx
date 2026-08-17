@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import './GrowMyTraffic.scss';
 import {
-	CardComponent,
 	ChatInputComponent,
 	ChatMessageComponent,
 	ColumnComponent,
@@ -10,9 +9,9 @@ import {
 	ListComponent,
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
-import { useCopilotChat } from '../../services/useCopilotChat';
+import { useCopilotChat, CopilotChatTurn } from '../../services/useCopilotChat';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
-import AiCopilotGuard from '../../components/AiCopilotGuard';
+import ChatComposerCard from '../../components/ChatComposerCard';
 import VisibilityScoreCard from './VisibilityScoreCard';
 import AiOpportunitiesCard from './AiOpportunitiesCard';
 import DiscoverCard from './DiscoverCard';
@@ -65,11 +64,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 	return (
 		<>
 			<ColumnComponent grid={8}>
-				<CardComponent
-					title={__('How would you like to grow today?', 'vulopilot')}
-					titleIcon="bar-chart"
-				>
-					<AiCopilotGuard>
+				<ChatComposerCard<CopilotChatTurn>
+					cardTitle={__('How would you like to grow today?', 'vulopilot')}
+					cardTitleIcon="bar-chart"
+					guarded
+					composerPosition="before-turns"
+					composer={
 						<ChatInputComponent
 							value={message}
 							onChange={setMessage}
@@ -77,23 +77,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 							disabled={isSending}
 							placeholder={__('Ask VuloPilot anything…', 'vulopilot')}
 						/>
-
-						{turns.map((turn, index) => (
-							<ChatMessageComponent
-								key={index}
-								sender={'user' === turn.role ? 'user' : 'ai'}
-							>
-								<ChatMarkdown text={turn.content} />
-							</ChatMessageComponent>
-						))}
-
-						{isSending && (
-							<ChatMessageComponent sender="ai">
-								<i className="adminfont-refresh chat-thinking-spinner" />{' '}
-								{__('Thinking…', 'vulopilot')}
-							</ChatMessageComponent>
-						)}
-
+					}
+					turns={turns}
+					renderTurn={(turn, index) => (
+						<ChatMessageComponent
+							key={index}
+							sender={'user' === turn.role ? 'user' : 'ai'}
+						>
+							<ChatMarkdown text={turn.content} />
+						</ChatMessageComponent>
+					)}
+					isSending={isSending}
+					prompts={
 						<ListComponent
 							className="chip-grid"
 							items={SUGGESTED_PROMPTS.map((prompt) => ({
@@ -106,6 +101,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 										: setMessage(prompt.title),
 							}))}
 						/>
+					}
+					note={
 						<p className="chat-monitoring-note">
 							<i className="adminfont-ai" />
 							{__(
@@ -113,8 +110,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 								'vulopilot'
 							)}
 						</p>
-					</AiCopilotGuard>
-				</CardComponent>
+					}
+				/>
 
 				<ContainerComponent>
 					<ColumnComponent grid={6}>

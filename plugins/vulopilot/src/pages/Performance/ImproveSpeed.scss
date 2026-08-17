@@ -97,13 +97,6 @@ $vulopilot-rating-very-poor: #991b1b;
 	cursor: pointer;
 }
 
-.speed-score-about-link {
-	display: inline-block;
-	margin-top: 0.75rem;
-	font-weight: 600;
-	color: var(--color-primary);
-}
-
 .core-web-vital-row {
 	margin-bottom: 1rem;
 
@@ -293,8 +286,13 @@ $vulopilot-rating-very-poor: #991b1b;
 	margin-bottom: 1rem;
 }
 
+// Holds both the status pills and the trend-days/page-type SelectInputs —
+// the two selects used to sit in the now-removed .page-speed-toolbar-actions
+// wrapper alongside the search box/export/scan buttons; they're grouped
+// here with the pills instead, as this toolbar's one filter group.
 .page-speed-filter-pills {
 	display: flex;
+	align-items: center;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 }
@@ -321,11 +319,12 @@ $vulopilot-rating-very-poor: #991b1b;
 	}
 }
 
-.page-speed-toolbar-actions {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 0.5rem;
+// TextInput's own wrapperClass hook (default `.setting-form-input
+// .input-wrapper` from TextInput.tsx itself) — same flex-basis convention
+// RecentContentCard.tsx's own `.recent-content-search` already uses for a
+// search box sharing a toolbar row with other controls.
+.table-search {
+	flex: 1 1 14rem;
 }
 
 // `.page-speed-export-button`/`.page-speed-scan-button`'s own outline-button

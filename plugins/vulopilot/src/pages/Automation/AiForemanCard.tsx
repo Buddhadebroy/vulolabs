@@ -40,14 +40,14 @@ const AiForemanCard = ({ onScrollToCreate }: AiForemanCardProps) => (
 					'vulopilot'
 				)}
 			>
-				<span
-					role="button"
-					aria-disabled="true"
-					className="ai-foreman-build disabled"
-				>
-					<i className="adminfont-ai" />
-					{__('Let AI Build My Automations', 'vulopilot')}
-				</span>
+				<ButtonInput
+					buttons={{
+						text: __('Let AI Build My Automations', 'vulopilot'),
+						icon: 'ai',
+						disabled: true,
+						onClick: () => {},
+					}}
+				/>
 			</TooltipComponent>
 			<ButtonInput
 				buttons={{

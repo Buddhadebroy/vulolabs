@@ -1,11 +1,12 @@
 /* global appLocalizer */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	NoticeComponent,
 	BadgeComponent,
 } from '@zyra/components';
 import { useSeoScore } from './useSeoScore';
@@ -110,16 +111,18 @@ const SeoTab = () => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent>
-				<div className="geo-info-banner">
-					<i className="adminfont-info" />
-					<span>
-						<strong>{__('In plain English:', 'vulopilot')}</strong>{' '}
-						{__(
+				<NoticeComponent
+					type="banner"
+					displayPosition="inline"
+					message={sprintf(
+						'<strong>%1$s</strong> %2$s',
+						__('In plain English:', 'vulopilot'),
+						__(
 							'This checks whether your pages are set up correctly for classic Google search — titles, descriptions, images, links, and your sitemap.',
 							'vulopilot'
-						)}
-					</span>
-				</div>
+						)
+					)}
+				/>
 
 				<ContainerComponent>
 						<ColumnComponent grid={4}>

@@ -198,10 +198,12 @@
 
 // "VuloPilot noticed" row list (StoreIntelligenceSummaryCard.tsx's
 // active-data state) — a real Zyra `<ListComponent className="mini-card
-// report">` (row layout/divider/`.read-more` action link all come from
-// zyra itself; same "mini-card report" shape TopIssuesToWorkOn.tsx's own
-// issue list and NeedsAttentionWidget.tsx's own Quick fixes/Open issues
-// lists already use). The one thing left to declare locally is each row's
+// report">` (row layout/divider all come from zyra itself; same
+// "mini-card report" shape TopIssuesToWorkOn.tsx's own issue list and
+// NeedsAttentionWidget.tsx's own Quick fixes/Open issues lists already
+// use). Each row's trailing action is a `ButtonInput` (`color:
+// 'text-purple'`) in the `tags` slot, not zyra's own `.read-more` span
+// style anymore. The one thing left to declare locally is each row's
 // own icon tint — `Item.className: 'is-{color}'` below, since ListComponent
 // has no built-in per-row icon color of its own.
 .store-intelligence-summary-card .item-list {
