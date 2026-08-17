@@ -18,7 +18,20 @@ const SCHEMA_TYPES = [ 'Article', 'Product', 'FAQPage', 'Recipe', 'Event', 'JobP
  * Services\SchemaJsonLdRenderer outputs whatever ends up in that key on
  * the frontend — manual edits here "just work" with no output-layer change.
  */
-export default function SchemaTab() {
+interface SchemaTabProps {
+	/**
+	 * "All SEO Issues" table's "Fix with AI" deep link — unused here.
+	 * schema/structured-data/sitewide-structured-data scanner ids resolve
+	 * to `{tab: 'schema'}` with no sub-target (seoIssueEditorTarget.ts):
+	 * landing on this tab at all (via PostSeoPanel's `initialTabName`) is
+	 * the whole highlight, since there's only the one generate button +
+	 * textarea here, nothing to distinguish between.
+	 */
+	// eslint-disable-next-line no-unused-vars
+	highlightTarget?: string;
+}
+
+export default function SchemaTab( _props: SchemaTabProps ) {
 	const { postId, meta, setMeta } = usePostData();
 	const { metaKeys, isPro, shopUrl } = window.vulopilotPostSeo;
 

@@ -93,6 +93,34 @@
 	}
 }
 
+/**
+ * "All SEO Issues" table's "Fix with AI" deep link — scroll target lands
+ * here (Checklist.tsx's `<li>` rows, AdvancedTab.tsx/SocialTab.tsx's field
+ * wrappers), same "draw the eye to it, then let it fade" idiom zyra's own
+ * ModuleGridComponent.tsx already established elsewhere in this codebase.
+ * `border-radius` on the checklist `<li>` case relies on the item also
+ * getting `display: flex` from `.vulopilot-seo-checklist__item` above, so
+ * the outline hugs the row rather than the full-width block default.
+ */
+@keyframes vulopilot-seo-highlight-pulse {
+	0%,
+	100% {
+		background-color: transparent;
+	}
+
+	20%,
+	60% {
+		background-color: rgba(124, 58, 237, 0.12);
+	}
+}
+
+.vulopilot-seo-highlight-pulse {
+	animation: vulopilot-seo-highlight-pulse 1.3s ease-in-out 2;
+	outline: 2px solid #7c3aed;
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+
 .vulopilot-seo-social-image {
 	margin-bottom: 16px;
 

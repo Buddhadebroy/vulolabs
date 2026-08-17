@@ -1,6 +1,12 @@
 import { __ } from '@wordpress/i18n';
 import { TextControl, ToggleControl } from '@wordpress/components';
 import { usePostData } from '../usePostData';
+import { useFieldHighlight } from '../useFieldHighlight';
+
+interface AdvancedTabProps {
+	/** "All SEO Issues" table's "Fix with AI" deep link — currently only ever resolves to 'canonical_url' on this tab (see seoIssueEditorTarget.ts). */
+	highlightTarget?: string;
+}
 
 /**
  * The metabox's Advanced tab — a per-post canonical URL override
@@ -9,7 +15,7 @@ import { usePostData } from '../usePostData';
  * regardless of the sitewide "Add canonical URL tags" setting) and
  * noindex/nofollow (Services\PostRobotsMetaManager's `wp_robots` filter).
  */
-export default function AdvancedTab() {
+export default function AdvancedTab( { highlightTarget }: AdvancedTabProps ) {
 	const { slug, meta, setMeta } = usePostData();
 	const { metaKeys } = window.vulopilotPostSeo;
 
@@ -17,15 +23,22 @@ export default function AdvancedTab() {
 	const noindex = Boolean( meta[ metaKeys.robots_noindex ] );
 	const nofollow = Boolean( meta[ metaKeys.robots_nofollow ] );
 
+	const isCanonicalHighlighted = useFieldHighlight( highlightTarget, 'canonical_url' );
+
 	return (
 		<div className="vulopilot-seo-tab vulopilot-seo-tab--advanced">
-			<TextControl
-				label={ __( 'Canonical URL', 'vulopilot' ) }
-				help={ __( 'Leave empty to use this page\'s own permalink (the default WordPress already uses).', 'vulopilot' ) }
-				placeholder={ window.location.origin + '/' + slug }
-				value={ canonicalUrl }
-				onChange={ ( value ) => setMeta( { [ metaKeys.canonical_url ]: value } ) }
-			/>
+			<div
+				id="vulopilot-seo-field-canonical_url"
+				className={ isCanonicalHighlighted ? 'vulopilot-seo-highlight-pulse' : undefined }
+			>
+				<TextControl
+					label={ __( 'Canonical URL', 'vulopilot' ) }
+					help={ __( 'Leave empty to use this page\'s own permalink (the default WordPress already uses).', 'vulopilot' ) }
+					placeholder={ window.location.origin + '/' + slug }
+					value={ canonicalUrl }
+					onChange={ ( value ) => setMeta( { [ metaKeys.canonical_url ]: value } ) }
+				/>
+			</div>
 
 			<ToggleControl
 				label={ __( 'No Index', 'vulopilot' ) }

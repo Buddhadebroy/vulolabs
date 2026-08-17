@@ -585,6 +585,123 @@
 	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
 }
 
+// SeoIssuesByPageTable.tsx — the page-wise "All SEO Issues" table.
+// `.sectioned-issues-tabs`/`.sectioned-issues-tab*` (filter pill bar) are
+// reused as-is from ProtectMySite.scss, already bundled site-wide into
+// this one SPA's own styles/index.css, so no new pill CSS is declared
+// here — only what's genuinely new to this table.
+.seo-issues-by-page-card {
+	.sectioned-issues-tabs {
+		margin-bottom: 1rem;
+	}
+
+	// zyra's own Table.tsx already styles `.admin-row.variation-row`
+	// (transparent background, thin divider) for its native `expandable`
+	// row mechanism — this only adds the muted, slightly denser look that
+	// distinguishes a single finding from a page row.
+	.admin-row.variation-row {
+		background: var(--theme-background-color, #fafafa) !important;
+		font-size: 0.8125rem;
+	}
+
+	// Per direct instruction: no visible chevron — the whole row (title,
+	// status, issue count, date) is the click target instead
+	// (`toggleRowExpansion` in SeoIssuesByPageTable.tsx fires a real click
+	// on this same, now-hidden `<i>` so zyra's own internal expand state
+	// still toggles normally).
+	.header-col.expand,
+	.admin-column.expand {
+		display: none;
+	}
+}
+
+.seo-issues-row-expand-trigger {
+	cursor: pointer;
+}
+
+// Sub-row rendered inline (via zyra TableCard's `expandable`/`variation`
+// mechanism) for a single finding beneath its page's row — a real table
+// row, not a popover.
+.seo-issues-finding-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--sub-text-color);
+}
+
+.seo-issues-finding-arrow {
+	color: var(--border-color, #c7c7c7);
+	font-weight: 600;
+}
+
+.seo-issues-finding-scanner {
+	display: inline-block;
+	font-size: 0.75rem;
+	color: var(--sub-text-color);
+	background: var(--theme-background-color, #f3f4f6);
+	border-radius: 0.25rem;
+	padding: 0.125rem 0.5rem;
+}
+
+// RowActionsMenu — a small local stand-in for zyra's own `type: 'action'`
+// kebab menu, used because that mechanism silently renders nothing for
+// this table's inline finding sub-rows (zyra Table.tsx's variation-row
+// path has no special case for it). Plain inline icon buttons work
+// identically for page rows and finding rows.
+.seo-issues-row-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+.seo-issues-row-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	background: none;
+	border: none;
+	border-radius: 0.25rem;
+	color: var(--sub-text-color);
+	cursor: pointer;
+
+	&:hover {
+		background: var(--theme-background-color, #f3effc);
+		color: var(--color-primary);
+	}
+}
+
+.seo-issues-sitewide-block {
+	margin-bottom: 1.25rem;
+	padding: 0.875rem 1rem;
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	background: var(--theme-background-color, #fff);
+}
+
+.seo-issues-sitewide-title {
+	font-weight: 600;
+	font-size: 0.875rem;
+	margin-bottom: 0.25rem;
+}
+
+.seo-issues-sitewide-list {
+	list-style: none;
+	margin: 0.625rem 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.8125rem;
+	}
+}
+
 // CrawlerAnalyticsSection.tsx.
 .crawler-stat-value {
 	font-size: 1.5rem;

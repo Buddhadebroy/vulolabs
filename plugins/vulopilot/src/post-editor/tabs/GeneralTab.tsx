@@ -12,6 +12,11 @@ const GROUP_LABELS: Record< AnalysisResult[ 'group' ], string > = {
 	title_readability: __( 'Title Readability', 'vulopilot' ),
 };
 
+interface GeneralTabProps {
+	/** "All SEO Issues" table's "Fix with AI" deep link — an OnPageAnalyzer check id (e.g. 'description_length') to scroll to and highlight once the checklist below has (re-)computed it. */
+	highlightTarget?: string;
+}
+
 /**
  * The metabox's General tab — focus keyword, SEO title (native
  * `post_title`), meta description (native `post_excerpt`), a live snippet
@@ -21,7 +26,7 @@ const GROUP_LABELS: Record< AnalysisResult[ 'group' ], string > = {
  * (this class's own PHP counterpart's docblock explains why that's a
  * POST-with-body rather than reading the stored post).
  */
-export default function GeneralTab() {
+export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
 	const { postId, title, excerpt, slug, content, meta, setTitle, setExcerpt, setMeta } = usePostData();
 	const focusKeyword = ( meta[ window.vulopilotPostSeo.metaKeys.focus_keyword ] as string ) || '';
 
@@ -123,6 +128,7 @@ export default function GeneralTab() {
 						isPro={ window.vulopilotPostSeo.isPro }
 						shopUrl={ window.vulopilotPostSeo.shopUrl }
 						onFixed={ handleFixed }
+						highlightId={ highlightTarget }
 					/>
 				) )
 			) }

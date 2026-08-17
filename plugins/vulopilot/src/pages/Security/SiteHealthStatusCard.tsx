@@ -4,10 +4,9 @@ import { useSectionStatus } from '../../services/useSectionStatus';
 
 /**
  * "Site Health Status" — same real per-section status-badge list shape
- * LiveThreatMonitorCard.tsx already established for Security, but every
- * row here is genuinely real (this tab has no scanner areas with zero
- * backing the way Live Threat Monitor's malware/firewall/login/spam rows
- * do, so there's no "Not tracked yet" row to show).
+ * used elsewhere on this page. Every row here is genuinely real (this tab
+ * has no scanner areas with zero backing), so there's no "Not tracked
+ * yet" row to show.
  *
  * `server-health`/`php-warnings` are scoped with an *empty* category
  * (`useSectionStatus('', […])`) rather than `'server'` — the two scanners

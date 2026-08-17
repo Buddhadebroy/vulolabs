@@ -161,6 +161,17 @@ class ScannerRegistry {
             Basic\WeakPasswordScanner::class,
             Basic\BasicVulnerabilitiesScanner::class,
             Basic\CoreFileIntegrityScanner::class,
+            // Protect My Site's Malware/Login Protection/Firewall/Backups
+            // tiles — real, always-on core features (Services\*Guard/
+            // BackupManager), each with its own lightweight companion
+            // Scanner here so it slots into the same real findings/scans/
+            // SecurityMetricsGrid machinery every other tile above already
+            // uses. Same category 'security', same granular per-scanner
+            // toggle posture.
+            Basic\MalwareScanner::class,
+            Basic\LoginProtectionScanner::class,
+            Basic\FirewallScanner::class,
+            Basic\BackupHealthScanner::class,
             // GEO module (GEO-MODULE.md) — 9 deterministic checks, category 'geo'.
             Basic\GeoAuthorInfoScanner::class,
             Basic\GeoEeatSignalsScanner::class,
