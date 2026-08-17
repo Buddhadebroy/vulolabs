@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ColumnComponent, ContainerComponent } from '@zyra/components';
+import { scrollToId } from '@zyra/core';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import PerformanceScoreCard from './PerformanceScoreCard';
 import SpeedBoostCard from './SpeedBoostCard';
@@ -53,19 +54,7 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 	const [activeIssuesTab, setActiveIssuesTab] =
 		useState<SectionedIssuesTab>('all');
 
-	const scrollTo = (id: string) => {
-		const el = document.getElementById(id);
-
-		if (!el) {
-			return;
-		}
-
-		el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		el.classList.add('module-list-item', 'highlight');
-		setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
-	};
-
-	const scrollToFindings = () => scrollTo('performance-section-findings');
+	const scrollToFindings = () => scrollToId('performance-section-findings');
 
 	/** MetricsGrid's own scanner-backed tiles — switches the Top Issues table to that tile's section, then scrolls to it. */
 	const goToIssuesSection = (sectionKey: string) => {
@@ -81,10 +70,10 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 					<MetricsGrid
 						onViewSection={goToIssuesSection}
 						onViewCoreWebVitals={() =>
-							scrollTo('performance-core-web-vitals-card')
+							scrollToId('performance-core-web-vitals-card')
 						}
 						onViewPerformanceMonitor={() =>
-							scrollTo('performance-realtime-monitoring-card')
+							scrollToId('performance-realtime-monitoring-card')
 						}
 					/>
 

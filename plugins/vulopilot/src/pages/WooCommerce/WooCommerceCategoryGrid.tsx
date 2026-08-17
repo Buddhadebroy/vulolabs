@@ -805,7 +805,7 @@ const WooCommerceCategoryGrid = ({
 							__('%d templates outdated', 'vulopilot'),
 							compatibilityCount
 						)}
-					</span>
+					/>
 				)}
 				<div className="desc">
 					{__(

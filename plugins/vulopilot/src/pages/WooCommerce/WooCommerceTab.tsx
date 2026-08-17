@@ -7,6 +7,7 @@ import {
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { scrollToId } from '@zyra/core';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import { useWooCommerceFindingGroups } from './useWooCommerceFindingGroups';
@@ -113,20 +114,6 @@ const WooCommerceIntelligenceLockedCard = () => {
 			</PopupComponent>
 		</>
 	);
-};
-
-/** Smooth-scrolls to an id, same OpenIssuesGlimpse-style highlight flash OverviewTab.tsx's own scrollToFindings() already uses on Improve Speed. */
-const scrollToId = (id: string) => {
-	const el = document.getElementById(id);
-
-	if (!el) {
-		return;
-	}
-
-	el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-	el.classList.add('module-list-item', 'highlight');
-	setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
 };
 
 /**
