@@ -524,12 +524,15 @@
 }
 
 // SeoIssuesByPageTable.tsx — the page-wise "All SEO Issues" table.
-// `.sectioned-issues-tabs`/`.sectioned-issues-tab*` (filter pill bar) are
-// reused as-is from ProtectMySite.scss, already bundled site-wide into
-// this one SPA's own styles/index.css, so no new pill CSS is declared
-// here — only what's genuinely new to this table.
+// Filter pills use zyra's real `<TabsComponent>` (`.seo-issues-filter-tabs`)
+// — the same component `SectionedIssuesTable.tsx` migrated to, which ships
+// its own tab-bar/underline/active-state styling via NavigatorComponent.scss
+// (global, not scoped to any one page) — no new pill CSS needed here. The
+// old hand-rolled `.sectioned-issues-tabs`/`.sectioned-issues-tab*` markup
+// this table used before was left unstyled after that CSS was deliberately
+// removed from ProtectMySite.scss for the same reason.
 .seo-issues-by-page-card {
-	.sectioned-issues-tabs {
+	.seo-issues-filter-tabs {
 		margin-bottom: 1rem;
 	}
 
@@ -549,7 +552,7 @@
 	// still toggles normally).
 	.header-col.expand,
 	.admin-column.expand {
-		display: none;
+		display: none !important;
 	}
 }
 
@@ -581,35 +584,6 @@
 	padding: 0.125rem 0.5rem;
 }
 
-// RowActionsMenu — a small local stand-in for zyra's own `type: 'action'`
-// kebab menu, used because that mechanism silently renders nothing for
-// this table's inline finding sub-rows (zyra Table.tsx's variation-row
-// path has no special case for it). Plain inline icon buttons work
-// identically for page rows and finding rows.
-.seo-issues-row-actions {
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-}
-
-.seo-issues-row-action {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
-	background: none;
-	border: none;
-	border-radius: 0.25rem;
-	color: var(--sub-text-color);
-	cursor: pointer;
-
-	&:hover {
-		background: var(--theme-background-color, #f3effc);
-		color: var(--color-primary);
-	}
-}
-
 .seo-issues-sitewide-block {
 	margin-bottom: 1.25rem;
 	padding: 0.875rem 1rem;
@@ -638,6 +612,10 @@
 		gap: 0.5rem;
 		font-size: 0.8125rem;
 	}
+}
+
+.seo-issues-sitewide-text {
+	flex: 1;
 }
 
 // CrawlerAnalyticsSection.tsx.
