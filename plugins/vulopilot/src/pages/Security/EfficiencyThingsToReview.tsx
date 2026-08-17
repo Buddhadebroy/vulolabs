@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import type { EfficiencyCheck, EfficiencySummary } from './efficiencyChecks';
 import { THINGS_TO_REVIEW_ID } from './efficiencyChecks';
 
@@ -67,17 +68,17 @@ const EfficiencyThingsToReview = ({
 					))}
 				</div>
 				{summary && (
-					<button
-						type="button"
-						className="efficiency-review-view-all"
-						onClick={onViewAll}
-					>
-						{sprintf(
-							/* translators: %d is the total number of efficiency checks. */
-							__('View all efficiency checks (%d) →', 'vulopilot'),
-							summary.total
-						)}
-					</button>
+					<ButtonInput
+						wrapperClass="efficiency-review-view-all"
+						buttons={{
+							text: sprintf(
+								/* translators: %d is the total number of efficiency checks. */
+								__('View all efficiency checks (%d) →', 'vulopilot'),
+								summary.total
+							),
+							onClick: onViewAll,
+						}}
+					/>
 				)}
 			</>
 		)}

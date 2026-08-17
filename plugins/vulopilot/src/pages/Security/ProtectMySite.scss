@@ -921,37 +921,11 @@
 
 // EfficiencySpeedInsightsBanner.tsx — closing cross-link to the separate
 // "Improve My Speed" page.
-.efficiency-speed-banner {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	margin-top: 1rem;
-	padding: 1rem 1.25rem;
-	border-radius: 0.75rem;
-	background: var(--background-primary, #ece2f9);
-
-	> i {
-		flex-shrink: 0;
-		font-size: 1.5rem;
-		color: var(--color-primary);
-	}
-}
-
-.efficiency-speed-banner-body {
-	flex-grow: 1;
-}
-
-.efficiency-speed-banner-title {
-	margin: 0;
-	font-weight: 700;
-	font-size: 0.9375rem;
-}
-
-.efficiency-speed-banner-desc {
-	margin: 0.125rem 0 0;
-	color: var(--sub-text-color);
-	font-size: 0.8125rem;
-}
+// `.efficiency-speed-banner`/`-body`/`-title`/`-desc`'s own icon/text/button
+// banner CSS used to live here — removed now that this is a real Zyra
+// `<NoticeComponent type="info" displayPosition="inline-notice">`
+// (EfficiencySpeedInsightsBanner.tsx), which supplies its own icon/title/
+// message/action-link box styling.
 
 // FindingsHeroCard.tsx — shared by SiteHealthTab.tsx/FilesPluginsTab.tsx,
 // same "icon + headline" top row .vulnerability-hero-top/-icon already

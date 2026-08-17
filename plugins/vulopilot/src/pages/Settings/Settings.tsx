@@ -126,6 +126,21 @@ const Settings = () => {
 			return <GoogleServicesPanel />;
 		}
 
+		// Generic version of the three escape hatches above, for tabs this
+		// plugin doesn't know about at build time — e.g. vulopilot-pro's
+		// Licensing tab, registered into settingsArray via the
+		// `vulopilot_settings_context` filter (templateService.ts) rather
+		// than a file under this plugin's own components/Settings/. Free
+		// can't hardcode a `currentTab === 'licensing'` case without
+		// importing something Pro-specific, so instead any tab config may
+		// carry its own `PanelComponent` and have it rendered here in
+		// place of InputRenderer — the same role as the three cases above,
+		// just resolved from the config object itself instead of the tab id.
+		if (settingModal?.PanelComponent) {
+			const PanelComponent = settingModal.PanelComponent;
+			return <PanelComponent />;
+		}
+
 		// The mockup places the "live file / regenerate" row inside the
 		// llms.txt field group, before the AI summary/evidence/alerts
 		// sections below it — not after the whole tab. Splitting the one

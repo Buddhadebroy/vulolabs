@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ChartComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import type { EfficiencySummary } from './efficiencyChecks';
 
 interface EfficiencyOverviewChartProps {
@@ -91,17 +92,17 @@ const EfficiencyOverviewChart = ({
 							</li>
 						</ul>
 					</div>
-					<button
-						type="button"
-						className="efficiency-overview-view-all"
-						onClick={onViewAll}
-					>
-						{sprintf(
-							/* translators: %d is the total number of efficiency checks. */
-							__('View all checks (%d) →', 'vulopilot'),
-							total
-						)}
-					</button>
+					<ButtonInput
+						wrapperClass="efficiency-overview-view-all"
+						buttons={{
+							text: sprintf(
+								/* translators: %d is the total number of efficiency checks. */
+								__('View all checks (%d) →', 'vulopilot'),
+								total
+							),
+							onClick: onViewAll,
+						}}
+					/>
 				</>
 			)}
 		</CardComponent>
