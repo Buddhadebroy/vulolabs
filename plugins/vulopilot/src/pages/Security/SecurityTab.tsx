@@ -38,14 +38,14 @@ const SECTIONS: FindingsSection[] = [
 		key: 'login-accounts',
 		title: __('Login & Accounts', 'vulopilot'),
 		description: __(
-			'Weak or easily-guessed admin credentials.',
+			'Weak or easily-guessed admin credentials, plus real IPs blocked by Login Protection\'s brute-force lockout.',
 			'vulopilot'
 		),
 		emptyMessage: __(
 			'No login/account findings yet — run a scan to check for weak credentials.',
 			'vulopilot'
 		),
-		scannerIds: ['weak-passwords'],
+		scannerIds: ['weak-passwords', 'login-protection'],
 	},
 	{
 		key: 'website-exposure',
@@ -90,6 +90,19 @@ const SECTIONS: FindingsSection[] = [
 		),
 		scannerIds: ['ssl-monitoring'],
 	},
+	{
+		key: 'malware-intrusion',
+		title: __('Malware & Intrusion', 'vulopilot'),
+		description: __(
+			'Real malware/webshell file detections, plus real requests the Firewall logged or blocked.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No malware or firewall findings yet — run a scan to check for infected files and recent request activity.',
+			'vulopilot'
+		),
+		scannerIds: ['malware', 'firewall'],
+	},
 ];
 
 /** DOM anchor id the merged table below carries — what "Review Issues" scrolls to. */
@@ -106,10 +119,9 @@ const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
  * nothing new is fabricated to chase the reference image's specific
  * numbers:
  *
- * - Hero/status/tile-grid: SecurityMockupHeader. LiveThreatMonitorCard
- *   ("Protection Status" in the reference image), RecentActivityCard
- *   ("Recent Security Activity"), and SecurityTrendCard ("Security
- *   Trend", honestly untracked) now live inside that same component,
+ * - Hero/status/tile-grid: SecurityMockupHeader. RecentActivityCard
+ *   ("Recent Security Activity") and SecurityTrendCard ("Security
+ *   Trend", honestly untracked) live inside that same component,
  *   stacked one after another directly below "Security Status" in its
  *   own narrow sidebar column — per direct instruction, not a separate
  *   full-width 3-column row on this tab. Its own "Review Issues First"

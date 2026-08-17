@@ -346,6 +346,9 @@ class Install {
         self::create_performance_requests_table();
         self::create_core_web_vitals_table();
         self::create_page_speed_table();
+        self::create_login_attempts_table();
+        self::create_firewall_blocks_table();
+        self::create_backups_table();
     }
 
     /**
@@ -578,6 +581,113 @@ class Install {
             KEY `idx_page_type` (`page_type`),
             KEY `idx_score` (`score`),
             KEY `idx_status` (`status`)
+        ) $collate;";
+
+        dbDelta( $sql );
+    }
+
+    /**
+     * Creates `vulopilot_login_attempts` — Protect My Site's "Login
+     * Protection" tile (Services\LoginProtectionGuard). One row per real
+     * login attempt (success or failure), `ip_address`+`attempted_at`
+     * indexed together since the guard's only query is "how many failures
+     * has this IP had in the last N minutes." No plaintext password/
+     * username-guessing data is ever stored here — only which login *name*
+     * was tried, same as WordPress core's own login-failure logging
+     * convention.
+     *
+     * @return void
+     */
+    private static function create_login_attempts_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['login_attempt'] . "` (
+            `id`                  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `ip_address`          varchar(45) NOT NULL,
+            `username_attempted`  varchar(60) NOT NULL DEFAULT '',
+            `success`             tinyint(1) unsigned NOT NULL DEFAULT 0,
+            `attempted_at`        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_ip_time` (`ip_address`, `attempted_at`)
+        ) $collate;";
+
+        dbDelta( $sql );
+    }
+
+    /**
+     * Creates `vulopilot_firewall_blocks` — Protect My Site's "Firewall"
+     * tile (Services\FirewallGuard). One row per request that matched a
+     * known attack-pattern rule; `action` records whether it was actually
+     * blocked (`enable_firewall_blocking` on) or only logged (the default),
+     * so the same table honestly represents both modes without a schema
+     * change when a site owner later turns blocking on.
+     *
+     * @return void
+     */
+    private static function create_firewall_blocks_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['firewall_block'] . "` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `ip_address`     varchar(45) NOT NULL,
+            `request_uri`    text NOT NULL,
+            `rule_matched`   varchar(100) NOT NULL,
+            `action`         varchar(10) NOT NULL DEFAULT 'logged',
+            `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_ip` (`ip_address`),
+            KEY `idx_created` (`created_at`)
+        ) $collate;";
+
+        dbDelta( $sql );
+    }
+
+    /**
+     * Creates `vulopilot_backups` — Protect My Site's "Backups"/"Recovery"
+     * tiles (Services\BackupManager/BackupScheduler). One row per backup
+     * run (manual, scheduled, or the automatic pre-restore safety snapshot
+     * a real Restore always takes first); `file_path` stores only the
+     * archive's basename, never a full or web-reachable path, same
+     * DATABASE.md convention Reports.php's own `vulopilot_reports.file_path`
+     * already established — the real path is always re-derived server-side
+     * from `wp_upload_dir()`, never trusted from the client.
+     *
+     * @return void
+     */
+    private static function create_backups_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['backup'] . "` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `status`         varchar(20) NOT NULL DEFAULT 'queued',
+            `trigger_type`   varchar(20) NOT NULL DEFAULT 'manual',
+            `file_path`      varchar(255) DEFAULT NULL,
+            `file_size`      bigint(20) unsigned DEFAULT NULL,
+            `started_at`     datetime DEFAULT NULL,
+            `finished_at`    datetime DEFAULT NULL,
+            `error_message`  text DEFAULT NULL,
+            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_status` (`status`),
+            KEY `idx_created` (`created_at`)
         ) $collate;";
 
         dbDelta( $sql );
@@ -1157,6 +1267,15 @@ class Install {
         // runs. No new table needed (chat has never persisted anything of
         // its own), so this is the only migration step this module needs.
         self::seed_module_active( 'ai-copilot' );
+
+        // Protect My Site's Malware/Firewall/Login Protection/Backups/
+        // Recovery tiles need all three new tables for sites upgrading in
+        // place too — same "outside the version_compare gate, self-healing
+        // via CREATE TABLE IF NOT EXISTS" reasoning as
+        // create_crawler_visits_table() above.
+        self::create_login_attempts_table();
+        self::create_firewall_blocks_table();
+        self::create_backups_table();
     }
 
     /**

@@ -2,9 +2,15 @@ import { __ } from '@wordpress/i18n';
 import { TextControl, TextareaControl, Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { usePostData } from '../usePostData';
+import { useFieldHighlight } from '../useFieldHighlight';
 
 // window.wp.media() has no shipped type definitions.
 type MediaFrame = any;
+
+interface SocialTabProps {
+	/** "All SEO Issues" table's "Fix with AI" deep link — both 'open-graph' and 'twitter-card' scanner ids resolve to 'social_title' here (see seoIssueEditorTarget.ts), since this tab's 3 fields aren't split per-network. */
+	highlightTarget?: string;
+}
 
 /**
  * The metabox's Social tab — per-post Open Graph/Twitter Card overrides.
@@ -19,7 +25,7 @@ type MediaFrame = any;
  * loaded on every post-edit screen) rather than pulling in
  * `@wordpress/media-utils` for a single "pick an image" button.
  */
-export default function SocialTab() {
+export default function SocialTab( { highlightTarget }: SocialTabProps ) {
 	const { meta, setMeta } = usePostData();
 	const { metaKeys } = window.vulopilotPostSeo;
 
@@ -28,6 +34,8 @@ export default function SocialTab() {
 	const socialImageId = Number( meta[ metaKeys.social_image_id ] ) || 0;
 
 	const [ previewUrl, setPreviewUrl ] = useState< string >( '' );
+
+	const isSocialTitleHighlighted = useFieldHighlight( highlightTarget, 'social_title' );
 
 	const openMediaPicker = () => {
 		/* eslint-disable-next-line no-unused-vars */
@@ -59,12 +67,17 @@ export default function SocialTab() {
 
 	return (
 		<div className="vulopilot-seo-tab vulopilot-seo-tab--social">
-			<TextControl
-				label={ __( 'Social Title', 'vulopilot' ) }
-				help={ __( 'Leave empty to use the SEO title.', 'vulopilot' ) }
-				value={ socialTitle }
-				onChange={ ( value ) => setMeta( { [ metaKeys.social_title ]: value } ) }
-			/>
+			<div
+				id="vulopilot-seo-field-social_title"
+				className={ isSocialTitleHighlighted ? 'vulopilot-seo-highlight-pulse' : undefined }
+			>
+				<TextControl
+					label={ __( 'Social Title', 'vulopilot' ) }
+					help={ __( 'Leave empty to use the SEO title.', 'vulopilot' ) }
+					value={ socialTitle }
+					onChange={ ( value ) => setMeta( { [ metaKeys.social_title ]: value } ) }
+				/>
+			</div>
 
 			<TextareaControl
 				label={ __( 'Social Description', 'vulopilot' ) }

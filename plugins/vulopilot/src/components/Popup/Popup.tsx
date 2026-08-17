@@ -195,9 +195,9 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 								text: __('Enable Now', 'vulopilot'),
 								onClick: () => {
 									// Same admin page, just a different
-									// hash tab — '_self' matches
-									// LiveThreatMonitorCard.tsx's own
-									// same-page navigation. Omitting the
+									// hash tab — '_self' matches this
+									// plugin's own same-page navigation
+									// convention. Omitting the
 									// target opens a new background tab
 									// instead (real browser behavior,
 									// despite MDN's prose default of

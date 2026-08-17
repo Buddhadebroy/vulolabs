@@ -3,7 +3,6 @@ import type { SectionedIssuesTab } from './SectionedIssuesTable';
 import VulnerabilityHeroCard from './VulnerabilityHeroCard';
 import SecurityStatusCard from './SecurityStatusCard';
 import SecurityMetricsGrid from './SecurityMetricsGrid';
-import LiveThreatMonitorCard from './LiveThreatMonitorCard';
 import RecentActivityCard from './RecentActivityCard';
 import SecurityTrendCard from './SecurityTrendCard';
 
@@ -36,7 +35,7 @@ interface SecurityMockupHeaderProps {
  * sized for that narrower column; getting this nesting wrong once made
  * an earlier pass render 4 tiles per row here instead of the mockup's 2).
  *
- * LiveThreatMonitorCard/RecentActivityCard/SecurityTrendCard stack
+ * RecentActivityCard/SecurityTrendCard stack
  * directly below SecurityStatusCard in this same grid={4} sidebar column
  * (per direct instruction — one after another, narrow, not a separate
  * full-width 3-column row) rather than living in SecurityTab.tsx
@@ -60,7 +59,6 @@ const SecurityMockupHeader = ({
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
 				<SecurityStatusCard />
-				<LiveThreatMonitorCard />
 				<RecentActivityCard />
 				<SecurityTrendCard />
 			</ColumnComponent>

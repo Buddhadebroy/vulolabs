@@ -10,8 +10,7 @@ describe( 'ShowProPopup', () => {
 	 * clicking it silently opened a second tab while the user stayed on
 	 * the still-locked widget with no visible feedback, looking exactly
 	 * like the button did nothing. `'_self'` is what every other
-	 * same-page hash-tab navigation in this plugin already uses (e.g.
-	 * LiveThreatMonitorCard.tsx's "View full logs").
+	 * same-page hash-tab navigation in this plugin already uses.
 	 */
 	it( '"Enable Now" navigates the current tab, not a new one', async () => {
 		const openSpy = jest.spyOn( window, 'open' ).mockImplementation( () => null );

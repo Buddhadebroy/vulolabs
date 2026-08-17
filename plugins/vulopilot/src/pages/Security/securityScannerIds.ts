@@ -27,4 +27,13 @@ export const SECURITY_FINDINGS_SCANNER_IDS = [
 	'basic-vulnerabilities',
 	'advanced-vulnerabilities',
 	'theme-vulnerabilities',
+	// Malware/Firewall/Login Protection/Backups tiles (SecurityMetricsGrid.tsx)
+	// — real, always-on core features (Services\MalwareScanner et al.), not
+	// a Modules-page module. Included here so "All Security Issues" doesn't
+	// silently undercount them, same reasoning already documented above for
+	// rest-api.
+	'malware',
+	'firewall',
+	'login-protection',
+	'backup-health',
 ];
