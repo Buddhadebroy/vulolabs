@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, BadgeComponent } from '@zyra/components';
+import { BadgeComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { useStoreReadiness } from '../../services/useStoreReadiness';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { sumGroupCounts } from './useWooCommerceFindingGroups';
@@ -12,6 +13,7 @@ import {
 	PRODUCT_SCANNER_IDS,
 	INVENTORY_SCANNER_IDS,
 } from './WooCommerceTab.constants';
+import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
@@ -358,19 +360,32 @@ const WooCommerceCategoryGrid = ({
 			!readiness.secure_checkout);
 
 	return (
-		<div className="woocommerce-category-grid">
-			<CardComponent
+		<MetricTileGrid variant="woocommerce">
+			<MetricTile
 				id="store-readiness"
-				className="woocommerce-category-card"
+				variant="woocommerce"
+				icon="shield"
+				title={__('Store Readiness', 'vulopilot')}
 				isLoading={isLoading}
+				badge={
+					readinessNeedsAttention
+						? { color: 'red', text: __('Needs attention', 'vulopilot') }
+						: undefined
+				}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('View all store pages →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () =>
+								window.open(
+									`${appLocalizer.site_url}/wp-admin/edit.php?post_type=page`,
+									'_self'
+								),
+						}}
+					/>
+				}
 			>
-				<i className="woocommerce-category-icon adminfont-shield" />
-				<div className="woocommerce-category-title">
-					{__('Store Readiness', 'vulopilot')}
-				</div>
-				{readinessNeedsAttention && (
-					<BadgeComponent color="red" text={__('Needs attention', 'vulopilot')} />
-				)}
 				<div className="woocommerce-category-rows">
 					{readinessRows.map((row) => {
 						const ready = readiness?.readiness[row.key];
@@ -399,25 +414,28 @@ const WooCommerceCategoryGrid = ({
 						</span>
 					</div>
 				</div>
-				<a
-					className="woocommerce-category-link"
-					href={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=page`}
-				>
-					{__('View all store pages →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="cash"
+				title={__('Checkout & Payments', 'vulopilot')}
 				isLoading={isLoading}
+				badge={
+					failedOrdersCount > 0
+						? { color: 'red', text: __('Needs attention', 'vulopilot') }
+						: undefined
+				}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('Review checkout →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () => onReviewTab('checkout'),
+						}}
+					/>
+				}
 			>
-				<i className="woocommerce-category-icon adminfont-cash" />
-				<div className="woocommerce-category-title">
-					{__('Checkout & Payments', 'vulopilot')}
-				</div>
-				{failedOrdersCount > 0 && (
-					<BadgeComponent color="red" text={__('Needs attention', 'vulopilot')} />
-				)}
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
 						<span>{__('Payment methods', 'vulopilot')}</span>
@@ -449,61 +467,63 @@ const WooCommerceCategoryGrid = ({
 						</span>
 					</div>
 				</div>
-				<a
-					className="woocommerce-category-link"
-					role="button"
-					tabIndex={0}
-					onClick={() => onReviewTab('checkout')}
-				>
-					{__('Review checkout →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="cart"
+				title={__('Products', 'vulopilot')}
 				isLoading={isLoading}
-			>
-				<i className="woocommerce-category-icon adminfont-cart" />
-				<div className="woocommerce-category-title">
-					{__('Products', 'vulopilot')}
-				</div>
-				{productsCount > 0 && (
-					<BadgeComponent
-						color="red"
-						text={sprintf(
-							/* translators: %d is the number of products needing attention. */
-							__('%d need attention', 'vulopilot'),
-							productsCount
-						)}
+				badge={
+					productsCount > 0
+						? {
+								color: 'red',
+								text: sprintf(
+									/* translators: %d is the number of products needing attention. */
+									__('%d need attention', 'vulopilot'),
+									productsCount
+								),
+							}
+						: undefined
+				}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('Review products →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () => onReviewTab('products'),
+						}}
 					/>
-				)}
+				}
+			>
 				<div className="desc">
 					{__(
 						'Missing prices, out-of-stock listings, missing images, and incomplete product info.',
 						'vulopilot'
 					)}
 				</div>
-				<a
-					className="woocommerce-category-link"
-					role="button"
-					tabIndex={0}
-					onClick={() => onReviewTab('products')}
-				>
-					{__('Review products →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="database"
+				title={__('Inventory', 'vulopilot')}
 				isLoading={isLoading}
+				badge={
+					inventoryFindingsCount > 0 || (null !== outOfStock && outOfStock > 0)
+						? { color: 'red', text: __('Needs attention', 'vulopilot') }
+						: undefined
+				}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('Review inventory →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () => onReviewTab('products'),
+						}}
+					/>
+				}
 			>
-				<i className="woocommerce-category-icon adminfont-database" />
-				<div className="woocommerce-category-title">
-					{__('Inventory', 'vulopilot')}
-				</div>
-				{(inventoryFindingsCount > 0 || null !== outOfStock && outOfStock > 0) && (
-					<BadgeComponent color="red" text={__('Needs attention', 'vulopilot')} />
-				)}
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
 						<span>{__('Out of stock', 'vulopilot')}</span>
@@ -530,34 +550,39 @@ const WooCommerceCategoryGrid = ({
 						</div>
 					)}
 				</div>
-				<a
-					className="woocommerce-category-link"
-					role="button"
-					tabIndex={0}
-					onClick={() => onReviewTab('products')}
-				>
-					{__('Review inventory →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="order"
+				title={__('Orders', 'vulopilot')}
 				isLoading={isLoading}
-			>
-				<i className="woocommerce-category-icon adminfont-order" />
-				<div className="woocommerce-category-title">
-					{__('Orders', 'vulopilot')}
-				</div>
-				{failedOrdersCount + onHoldCount + pendingTooLongCount > 0 && (
-					<BadgeComponent
-						color="orange"
-						text={sprintf(
-							/* translators: %d is the number of orders needing attention. */
-							__('%d need attention', 'vulopilot'),
-							failedOrdersCount + onHoldCount + pendingTooLongCount
-						)}
+				badge={
+					failedOrdersCount + onHoldCount + pendingTooLongCount > 0
+						? {
+								color: 'orange',
+								text: sprintf(
+									/* translators: %d is the number of orders needing attention. */
+									__('%d need attention', 'vulopilot'),
+									failedOrdersCount + onHoldCount + pendingTooLongCount
+								),
+							}
+						: undefined
+				}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('View orders →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () =>
+								window.open(
+									`${appLocalizer.site_url}/wp-admin/edit.php?post_type=shop_order`,
+									'_self'
+								),
+						}}
 					/>
-				)}
+				}
+			>
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
 						<span>{__('Failed payments', 'vulopilot')}</span>
@@ -572,32 +597,39 @@ const WooCommerceCategoryGrid = ({
 						<span className="value-warning">{pendingTooLongCount}</span>
 					</div>
 				</div>
-				<a
-					className="woocommerce-category-link"
-					href={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=shop_order`}
-				>
-					{__('View orders →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="price"
+				title={__('Coupons', 'vulopilot')}
 				isLoading={isLoading}
-			>
-				<i className="woocommerce-category-icon adminfont-price" />
-				<div className="woocommerce-category-title">
-					{__('Coupons', 'vulopilot')}
-				</div>
-				{null !== coupons.expiringSoon && coupons.expiringSoon > 0 && (
-					<BadgeComponent
-						color="red"
-						text={sprintf(
-							/* translators: %d is the number of coupons expiring within a week. */
-							__('%d expiring soon', 'vulopilot'),
-							coupons.expiringSoon
-						)}
+				badge={
+					null !== coupons.expiringSoon && coupons.expiringSoon > 0
+						? {
+								color: 'red',
+								text: sprintf(
+									/* translators: %d is the number of coupons expiring within a week. */
+									__('%d expiring soon', 'vulopilot'),
+									coupons.expiringSoon
+								),
+							}
+						: undefined
+				}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('Manage coupons →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () =>
+								window.open(
+									`${appLocalizer.site_url}/wp-admin/edit.php?post_type=shop_coupon`,
+									'_self'
+								),
+						}}
 					/>
-				)}
+				}
+			>
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
 						<span>{__('Active', 'vulopilot')}</span>
@@ -618,22 +650,27 @@ const WooCommerceCategoryGrid = ({
 						</span>
 					</div>
 				</div>
-				<a
-					className="woocommerce-category-link"
-					href={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=shop_coupon`}
-				>
-					{__('Manage coupons →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="category"
+				title={__('Categories', 'vulopilot')}
 				isLoading={isLoading}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('Manage categories →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () =>
+								window.open(
+									`${appLocalizer.site_url}/wp-admin/edit-tags.php?taxonomy=product_cat&post_type=product`,
+									'_self'
+								),
+						}}
+					/>
+				}
 			>
-				<i className="woocommerce-category-icon adminfont-category" />
-				<div className="woocommerce-category-title">
-					{__('Categories', 'vulopilot')}
-				</div>
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
 						<span>{__('Categories', 'vulopilot')}</span>
@@ -642,46 +679,48 @@ const WooCommerceCategoryGrid = ({
 						</span>
 					</div>
 				</div>
-				<a
-					className="woocommerce-category-link"
-					href={`${appLocalizer.site_url}/wp-admin/edit-tags.php?taxonomy=product_cat&post_type=product`}
-				>
-					{__('Manage categories →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="search"
+				title={__('Product SEO', 'vulopilot')}
 				isLoading={isLoading}
+				badge={productSeo.badge ?? undefined}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('Review product SEO →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () => onReviewTab('products'),
+						}}
+					/>
+				}
 			>
-				<i className="woocommerce-category-icon adminfont-search" />
-				<div className="woocommerce-category-title">
-					{__('Product SEO', 'vulopilot')}
-				</div>
-				{productSeo.badge && (
-					<BadgeComponent color={productSeo.badge.color} text={productSeo.badge.text} />
-				)}
 				<div className="desc">
 					{__('Improve product visibility on search engines.', 'vulopilot')}
 				</div>
-				<a
-					className="woocommerce-category-link"
-					role="button"
-					tabIndex={0}
-					onClick={() => onReviewTab('products')}
-				>
-					{__('Review product SEO →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="person"
+				title={__('Customer Insights', 'vulopilot')}
 				isLoading={isLoading}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('View customers →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () =>
+								window.open(
+									`${appLocalizer.site_url}/wp-admin/users.php?role=customer`,
+									'_self'
+								),
+						}}
+					/>
+				}
 			>
-				<i className="woocommerce-category-icon adminfont-person" />
-				<div className="woocommerce-category-title">
-					{__('Customer Insights', 'vulopilot')}
-				</div>
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
 						<span>{__('Customers total', 'vulopilot')}</span>
@@ -690,25 +729,30 @@ const WooCommerceCategoryGrid = ({
 						</span>
 					</div>
 				</div>
-				<a
-					className="woocommerce-category-link"
-					href={`${appLocalizer.site_url}/wp-admin/users.php?role=customer`}
-				>
-					{__('View customers →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="bar-chart"
+				title={__('Revenue Reports', 'vulopilot')}
 				isLoading={isLoading || isLoadingRevenue}
+				badge={!revenue ? { color: 'purple', text: __('Pro', 'vulopilot') } : undefined}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: revenue
+								? __('View full report →', 'vulopilot')
+								: __('Enable module →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () =>
+								window.open(
+									`${appLocalizer.admin_url}#&tab=modules`,
+									'_self'
+								),
+						}}
+					/>
+				}
 			>
-				<i className="woocommerce-category-icon adminfont-bar-chart" />
-				<div className="woocommerce-category-title">
-					{__('Revenue Reports', 'vulopilot')}
-				</div>
-				{!revenue && (
-					<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
-				)}
 				{revenue ? (
 					<div className="woocommerce-category-rows">
 						<div className="woocommerce-category-row">
@@ -732,40 +776,45 @@ const WooCommerceCategoryGrid = ({
 						)}
 					</div>
 				)}
-				<a
-					className="woocommerce-category-link"
-					href={`${appLocalizer.admin_url}#&tab=modules`}
-				>
-					{revenue
-						? __('View full report →', 'vulopilot')
-						: __('Enable module →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
 			{NOT_TRACKED_TILES.map((tile) => (
-				<CardComponent
+				<MetricTile
 					key={tile.id}
-					className="woocommerce-category-card"
+					variant="woocommerce"
+					icon={tile.icon}
+					title={tile.title}
 					isLoading={isLoading}
+					badge={NOT_TRACKED_BADGE}
 				>
-					<i className={`woocommerce-category-icon adminfont-${tile.icon}`} />
-					<div className="woocommerce-category-title">{tile.title}</div>
-					<BadgeComponent color={NOT_TRACKED_BADGE.color} text={NOT_TRACKED_BADGE.text} />
 					<div className="desc">{tile.desc}</div>
-				</CardComponent>
+				</MetricTile>
 			))}
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="automation"
+				title={__('Store Automation', 'vulopilot')}
 				isLoading={isLoading}
+				badge={
+					(readiness?.automation_failed_count ?? 0) > 0
+						? { color: 'red', text: __('Needs attention', 'vulopilot') }
+						: undefined
+				}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('Review tasks →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () =>
+								window.open(
+									`${appLocalizer.admin_url}#&tab=automation`,
+									'_self'
+								),
+						}}
+					/>
+				}
 			>
-				<i className="woocommerce-category-icon adminfont-automation" />
-				<div className="woocommerce-category-title">
-					{__('Store Automation', 'vulopilot')}
-				</div>
-				{(readiness?.automation_failed_count ?? 0) > 0 && (
-					<BadgeComponent color="red" text={__('Needs attention', 'vulopilot')} />
-				)}
 				{(readiness?.automation_failed_count ?? 0) > 0 && (
 					<div className="woocommerce-category-highlight">
 						{sprintf(
@@ -781,48 +830,43 @@ const WooCommerceCategoryGrid = ({
 						'vulopilot'
 					)}
 				</div>
-				<a
-					className="woocommerce-category-link"
-					href={`${appLocalizer.admin_url}#&tab=automation`}
-				>
-					{__('Review tasks →', 'vulopilot')}
-				</a>
-			</CardComponent>
+			</MetricTile>
 
-			<CardComponent
-				className="woocommerce-category-card"
+			<MetricTile
+				variant="woocommerce"
+				icon="editor-code"
+				title={__('Compatibility', 'vulopilot')}
 				isLoading={isLoading}
-			>
-				<i className="woocommerce-category-icon adminfont-editor-code" />
-				<div className="woocommerce-category-title">
-					{__('Compatibility', 'vulopilot')}
-				</div>
-				{compatibilityCount > 0 && (
-					<BadgeComponent
-						color="red"
-						text={sprintf(
-							/* translators: %d is the number of outdated theme templates. */
-							__('%d templates outdated', 'vulopilot'),
-							compatibilityCount
-						)}
+				badge={
+					compatibilityCount > 0
+						? {
+								color: 'red',
+								text: sprintf(
+									/* translators: %d is the number of outdated theme templates. */
+									__('%d templates outdated', 'vulopilot'),
+									compatibilityCount
+								),
+							}
+						: undefined
+				}
+				footer={
+					<ButtonInput
+						buttons={{
+							text: __('Review templates →', 'vulopilot'),
+							color: 'text-purple',
+							onClick: () => onReviewTab('store'),
+						}}
 					/>
-				)}
+				}
+			>
 				<div className="desc">
 					{__(
 						'Your theme\'s WooCommerce template overrides may be missing fixes from newer versions.',
 						'vulopilot'
 					)}
 				</div>
-				<a
-					className="woocommerce-category-link"
-					role="button"
-					tabIndex={0}
-					onClick={() => onReviewTab('store')}
-				>
-					{__('Review templates →', 'vulopilot')}
-				</a>
-			</CardComponent>
-		</div>
+			</MetricTile>
+		</MetricTileGrid>
 	);
 };
 

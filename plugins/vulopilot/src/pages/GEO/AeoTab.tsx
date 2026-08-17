@@ -495,9 +495,9 @@ const AeoTab = () => {
 						<a href="?page=vulopilot#&tab=ai-assistant" className="aeo-help-tile">
 							<i className="adminfont-ai" />
 							<div>
-								<p className="aeo-help-tile-title">
+								<div className="aeo-help-tile-title">
 									{__('Ask AI Copilot', 'vulopilot')}
-								</p>
+								</div>
 								<p className="aeo-help-tile-desc">
 									{__(
 										'Get real suggestions for improving your answer readiness.',
@@ -517,9 +517,9 @@ const AeoTab = () => {
 								<>
 									<i className="adminfont-yes-alt" />
 									<div>
-										<p className="aeo-help-tile-title">
+										<div className="aeo-help-tile-title">
 											{__('Fix Automatically', 'vulopilot')}
-										</p>
+										</div>
 										<p className="aeo-help-tile-desc">
 											{__(
 												'Jump to the issues table below to fix findings one by one or in bulk.',
@@ -541,9 +541,9 @@ const AeoTab = () => {
 								<>
 									<i className="adminfont-info" />
 									<div>
-										<p className="aeo-help-tile-title">
+										<div className="aeo-help-tile-title">
 											{__('Learn More', 'vulopilot')}
-										</p>
+										</div>
 										<p className="aeo-help-tile-desc">
 											{__(
 												'Understand how AEO helps AI answer engines find and quote your content.',

@@ -1,48 +1,10 @@
-.security-metrics-grid {
-	display: grid;
-	// 2, not 4 — the main content column here is only ColumnComponent
-	// grid={8} (66% of page width), not full width; a plain `1fr` track has
-	// an implicit min-width of the content's own min-content size (a CSS
-	// grid default, not a bug in the tiles themselves), so 4 tracks in this
-	// narrower column don't shrink to fit — they overflow the column and
-	// visually collide with the sidebar card next to it. 2 columns is what
-	// the mockup itself shows and comfortably fits this column's width at
-	// any reasonable viewport without that overflow, so there's no
-	// narrower-viewport case left needing its own breakpoint either.
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 0.875rem;
-}
-
-.security-metric-tile {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 0.5rem;
-
-	.security-metric-icon {
-		font-size: 1.5rem;
-		color: var(--color-primary);
-	}
-
-	.security-metric-title {
-		font-weight: 600;
-		font-size: 0.9rem;
-	}
-
-	.security-metric-last-scan {
-		font-size: 0.75rem;
-		color: var(--sub-text-color, #6b7280);
-	}
-
-	.security-metric-view {
-		width: 100%;
-		margin-top: 0.25rem;
-
-		.admin-btn {
-			width: 100%;
-			justify-content: center;
-		}
-	}
+// `.security-metrics-grid`/`.security-metric-tile`'s own icon/title/
+// badge/footer-button shell now comes from the shared
+// `<MetricTile variant="security">` (MetricTile.scss) — only this
+// tile's own divergent "last scan" line is still declared locally.
+.security-metric-last-scan {
+	font-size: 0.75rem;
+	color: var(--sub-text-color, #6b7280);
 }
 
 // VulnerabilityHeroCard.tsx's Free fallback — matches the mockup's own
@@ -244,56 +206,26 @@
 	margin-top: 0.875rem;
 }
 
-// AccessibilityChecksGrid.tsx — 5 tiles, same 2-column reasoning
-// .security-metrics-grid's own docblock documents (this column is only
-// ColumnComponent grid={8}/full — this tab uses the full-width shell,
-// but 2 columns is still what the mockup itself shows and keeps tile
-// text comfortable).
-.accessibility-checks-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 0.875rem;
+// AccessibilityChecksGrid.tsx — `.accessibility-checks-grid`/
+// `.accessibility-check-tile`'s own icon/title/footer-button shell now
+// comes from the shared `<MetricTile variant="accessibility">`
+// (MetricTile.scss); only this tile's own divergent body content (the
+// open-issues count and "pages affected" line — neither has an
+// equivalent on any of the other 3 MetricTile call sites) is still
+// declared locally.
+.accessibility-check-count {
+	font-weight: 700;
+	font-size: 0.9375rem;
 }
 
-.accessibility-check-tile {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 0.375rem;
+.accessibility-check-desc {
+	color: var(--sub-text-color);
+	font-size: 0.8125rem;
+}
 
-	.accessibility-check-icon {
-		font-size: 1.5rem;
-	}
-
-	.accessibility-check-title {
-		font-weight: 600;
-		font-size: 0.9rem;
-	}
-
-	.accessibility-check-count {
-		font-weight: 700;
-		font-size: 0.9375rem;
-	}
-
-	.accessibility-check-desc {
-		color: var(--sub-text-color);
-		font-size: 0.8125rem;
-	}
-
-	.accessibility-check-pages {
-		color: var(--sub-text-color);
-		font-size: 0.75rem;
-	}
-
-	.accessibility-check-review {
-		width: 100%;
-		margin-top: 0.5rem;
-
-		.admin-btn {
-			width: 100%;
-			justify-content: center;
-		}
-	}
+.accessibility-check-pages {
+	color: var(--sub-text-color);
+	font-size: 0.75rem;
 }
 
 // AccessibilityPriorityList.tsx's "What should I fix first?" rows — a
@@ -418,32 +350,10 @@
 	}
 }
 
-// AccessibilityWcagNotice.tsx — a light informational banner, closing the
-// tab.
-.accessibility-wcag-notice {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.625rem;
-	padding: 0.875rem 1rem;
-	border-radius: 0.5rem;
-	background: #eafaf0;
-
-	i {
-		flex-shrink: 0;
-		color: #16a34a;
-		margin-top: 0.125rem;
-	}
-
-	p {
-		margin: 0;
-		font-size: 0.8125rem;
-	}
-
-	a {
-		font-weight: 600;
-		color: var(--color-primary);
-	}
-}
+// AccessibilityWcagNotice.tsx now renders through zyra's own
+// NoticeComponent (`type="banner"` + `displayPosition="inline"`,
+// NoticeComponent.scss's own `.type-banner`/`.display-inline` rules) — no
+// local styling needed here anymore.
 
 // PerformanceTab.tsx and its children (EfficiencyHeroCard/
 // EfficiencySectionsList/EfficiencyThingsToReview/EfficiencyOverviewChart/

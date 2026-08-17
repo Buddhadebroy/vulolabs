@@ -87,6 +87,7 @@ const AccessibilityPriorityList = ({
 								__('View all %d findings', 'vulopilot'),
 								total
 							),
+							color:"text-purple",
 							onClick: onViewAll,
 						}}
 					/>

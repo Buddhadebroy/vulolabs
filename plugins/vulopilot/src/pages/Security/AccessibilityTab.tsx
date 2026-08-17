@@ -181,28 +181,33 @@ const AccessibilityTab = () => {
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent>
-				<ContainerComponent>
-					<ColumnComponent grid={8}>
-						<AccessibilityChecksGrid onReview={goToIssuesTable} />
-					</ColumnComponent>
-					<ColumnComponent grid={4}>
-						<AccessibilityHeroCard
-							onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
-							onViewAll={() => goToIssuesTable('all')}
-						/>
-					</ColumnComponent>
-				</ContainerComponent>
+				<ColumnComponent grid={8}>
+					<AccessibilityChecksGrid onReview={goToIssuesTable} />
+				</ColumnComponent>
+				<ColumnComponent grid={4}>
+					<AccessibilityHeroCard
+						onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
+						onViewAll={() => goToIssuesTable('all')}
+					/>
+				</ColumnComponent>
+
+
+
+				<ColumnComponent>
 				{AccessibilityDashboardCard ? (
 					<AccessibilityDashboardCard />
 				) : (
 					<AccessibilityDashboardLockedCard />
 				)}
+				</ColumnComponent>
+
+				<ColumnComponent>
 				<AccessibilityPriorityList
 					id={PRIORITY_LIST_ID}
 					onViewAll={() => goToIssuesTable('all')}
 					onReviewCheck={goToIssuesTable}
 				/>
+				</ColumnComponent>
 				<AccessibilityManualTestingPanel />
 				<AccessibilityWcagNotice />
 				<SectionedIssuesTable
@@ -218,7 +223,6 @@ const AccessibilityTab = () => {
 					<AccessibilityHistoryLockedCard />
 				)}
 				<PluginOverlapCard category="accessibility" />
-			</ColumnComponent>
 		</ContainerComponent>
 	);
 };

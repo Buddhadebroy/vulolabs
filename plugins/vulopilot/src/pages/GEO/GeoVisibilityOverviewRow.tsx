@@ -230,7 +230,7 @@ const GeoVisibilityOverviewRow = ({
 								key={bucket.key}
 								className={`geo-four-checks-tile ${ratingClass(bucket.score)}`}
 							>
-								<p className="geo-four-checks-title">{bucket.label}</p>
+								<div className="geo-four-checks-title">{bucket.label}</div>
 								<BadgeComponent
 									className="geo-four-checks-badge"
 									color={ratingClass(bucket.score)}

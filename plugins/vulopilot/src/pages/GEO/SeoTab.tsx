@@ -188,9 +188,9 @@ const SeoTab = () => {
 													key={card.key}
 													className={`geo-four-checks-tile ${ratingClass(categoryScore)}`}
 												>
-													<p className="geo-four-checks-title">
+													<div className="geo-four-checks-title">
 														{card.title}
-													</p>
+													</div>
 													<BadgeComponent
 														className="geo-four-checks-badge"
 														color={ratingClass(categoryScore)}

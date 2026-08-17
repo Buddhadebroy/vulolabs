@@ -1,11 +1,11 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import {
 	ACCESSIBILITY_CHECKS,
 	type AccessibilityCheck,
 } from './accessibilityChecks';
+import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 
 interface AccessibilityFinding {
 	id: number;
@@ -32,15 +32,23 @@ const CheckTile = ({ check, onReview }: CheckTileProps) => {
 	).size;
 
 	return (
-		<CardComponent
-			className="accessibility-check-tile"
+		<MetricTile
+			variant="accessibility"
+			icon={check.icon}
+			iconColor={check.color}
+			title={check.title}
 			isLoading={isLoading}
+			footer={
+				<ButtonInput
+					buttons={{
+						text: __('Review', 'vulopilot'),
+						rightIcon: 'pagination-right-arrow',
+						color: 'border-purple',
+						onClick: () => onReview(check.key),
+					}}
+				/>
+			}
 		>
-			<i
-				className={`adminfont-${check.icon} accessibility-check-icon`}
-				style={{ color: check.color }}
-			/>
-			<div className="accessibility-check-title">{check.title}</div>
 			{!isLoading && (
 				<span
 					className="accessibility-check-count"
@@ -68,16 +76,7 @@ const CheckTile = ({ check, onReview }: CheckTileProps) => {
 					)}
 				</div>
 			)}
-			<ButtonInput
-				wrapperClass="accessibility-check-review"
-				buttons={{
-					text: __('Review', 'vulopilot'),
-					rightIcon: 'pagination-right-arrow',
-					color: 'border-purple',
-					onClick: () => onReview(check.key),
-				}}
-			/>
-		</CardComponent>
+		</MetricTile>
 	);
 };
 
@@ -94,11 +93,11 @@ interface AccessibilityChecksGridProps {
  * that check's own tab.
  */
 const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => (
-	<div className="accessibility-checks-grid">
+	<MetricTileGrid variant="accessibility">
 		{ACCESSIBILITY_CHECKS.map((check) => (
 			<CheckTile key={check.key} check={check} onReview={onReview} />
 		))}
-	</div>
+	</MetricTileGrid>
 );
 
 export default AccessibilityChecksGrid;

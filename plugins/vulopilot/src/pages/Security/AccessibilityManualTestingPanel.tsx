@@ -57,12 +57,12 @@ const AccessibilityManualTestingPanel = () => (
 		badges={[
 			{
 				text: __('Manual testing recommended', 'vulopilot'),
-				className: 'indigo',
+				color: 'blue',
 			},
 		]}
 	>
 		<ListComponent
-			className="accessibility-manual-checks"
+			className="mini-card report accessibility-manual-checks"
 			items={MANUAL_CHECKS.map((check) => ({
 				id: check.key,
 				icon: check.icon,
@@ -87,7 +87,7 @@ const AccessibilityManualTestingPanel = () => (
 				href="https://www.w3.org/WAI/fundamentals/accessibility-intro/"
 				target="_blank"
 				rel="noopener noreferrer"
-				className="admin-btn btn-text-"
+				className="admin-btn btn-text-purple"
 			>
 				{__('Learn more about accessibility', 'vulopilot')}
 			</a>

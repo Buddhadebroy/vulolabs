@@ -1,10 +1,10 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { useSectionStatus } from '../../services/useSectionStatus';
+import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 import './ImproveSpeed.scss';
 
 interface MetricTile {
@@ -241,28 +241,32 @@ const MetricsGrid = ({
 	};
 
 	return (
-		<div className="performance-metrics-grid">
+		<MetricTileGrid variant="performance">
 			{METRIC_TILES.map((tile) => {
 				const badge = badgeFor(tile.id);
 				return (
-					<CardComponent key={tile.id} className="performance-metric-tile">
-						<i className={`performance-metric-icon adminfont-${tile.icon}`} />
-						<div className="title">{tile.title}</div>
-						<BadgeComponent color={badge.color} text={badge.text} />
+					<MetricTile
+						key={tile.id}
+						variant="performance"
+						icon={tile.icon}
+						title={tile.title}
+						badge={badge}
+						footer={
+							<ButtonInput
+								buttons={{
+									text: __('View', 'vulopilot'),
+									rightIcon: 'pagination-right-arrow',
+									color: 'border-purple',
+									onClick: () => handleView(tile.id),
+								}}
+							/>
+						}
+					>
 						<div className="desc">{tile.desc}</div>
-						<ButtonInput
-							wrapperClass="performance-metric-view"
-							buttons={{
-								text: __('View', 'vulopilot'),
-								rightIcon: 'pagination-right-arrow',
-								color: 'border-purple',
-								onClick: () => handleView(tile.id),
-							}}
-						/>
-					</CardComponent>
+					</MetricTile>
 				);
 			})}
-		</div>
+		</MetricTileGrid>
 	);
 };
 

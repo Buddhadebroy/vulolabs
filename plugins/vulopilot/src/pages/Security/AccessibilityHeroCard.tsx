@@ -116,7 +116,7 @@ const AccessibilityHeroCard = ({
 		<CardComponent isLoading={!isReady} className="accessibility-hero">
 			{isReady && (
 				<>
-					<div className="accessibility-hero-score">
+					{/* <div className="accessibility-hero-score"> */}
 						<ChartComponent
 							type="pie"
 							height={90}
@@ -139,8 +139,8 @@ const AccessibilityHeroCard = ({
 								},
 							]}
 						/>
-					</div>
-					<p className="accessibility-hero-title">
+					{/* </div> */}
+					<div className="title">
 						{getRating(score as number)}
 						{null !== scoreDelta && (
 							<span
@@ -156,8 +156,8 @@ const AccessibilityHeroCard = ({
 								)}
 							</span>
 						)}
-					</p>
-					<p className="accessibility-hero-desc">
+					</div>
+					<div className="desc">
 						{total > 0
 							? sprintf(
 									/* translators: 1: number of open accessibility findings, 2: number of distinct pages affected. */
@@ -172,16 +172,16 @@ const AccessibilityHeroCard = ({
 									"You're all caught up — no open accessibility issues right now.",
 									'vulopilot'
 								)}
-					</p>
+					</div>
 					{total > 0 && (
-						<div className="accessibility-hero-stats">
+						<>
 							<AnalyticsComponent
-								variant="dashboard"
+								variant="card"
 								data={[
 									{
 										number: total,
 										text: __('Issues found', 'vulopilot'),
-										colorClass: 'is-total',
+										colorClass: 'is-total red',
 									},
 									{
 										number: highCount,
@@ -189,16 +189,16 @@ const AccessibilityHeroCard = ({
 											'Should review first',
 											'vulopilot'
 										),
-										colorClass: 'is-high',
+										colorClass: 'is-high green',
 									},
 									{
 										number: pagesAffected,
 										text: __('Pages affected', 'vulopilot'),
-										colorClass: 'is-pages',
+										colorClass: 'is-pages blue',
 									},
 								]}
 							/>
-						</div>
+						</>
 					)}
 						<ButtonInput
 							position="full-width"

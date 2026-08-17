@@ -1,4 +1,5 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { NoticeComponent } from '@zyra/components';
 
 /**
  * The mockup's closing WCAG banner — rewritten from its own literal
@@ -13,24 +14,28 @@ import { __ } from '@wordpress/i18n';
  * experiences need to be checked manually"). Links to the real WCAG 2.2
  * spec for readers who want the full standard this page's checks
  * reference a slice of.
+ *
+ * `type="banner"` + `displayPosition="inline"` — same shared NoticeComponent
+ * conversion GEO's own "In plain English:" banners already went through
+ * (see GeoTab.tsx/SeoTab.tsx/etc.). `message` carries the trailing
+ * "Learn more" link as real embedded HTML (NoticeComponent renders a
+ * plain-string `message` via `dangerouslySetInnerHTML`), same technique
+ * those banners' `<strong>` prefixes already rely on.
  */
 const AccessibilityWcagNotice = () => (
-	<div className="accessibility-wcag-notice">
-		<i className="adminfont-check" />
-		<p>
-			{__(
+	<NoticeComponent
+		type="notice"
+		displayPosition="inline"
+		message={sprintf(
+			'%1$s <a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a>',
+			__(
 				'These automated checks reference specific WCAG 2.2 success criteria (e.g. Focus Order, Link Purpose) — they cover common technical issues, not full WCAG 2.2 AA conformance. Automated tools alone can’t judge everything; see "Some accessibility checks need a person" above.',
 				'vulopilot'
-			)}{' '}
-			<a
-				href="https://www.w3.org/TR/WCAG22/"
-				target="_blank"
-				rel="noopener noreferrer"
-			>
-				{__('Learn more', 'vulopilot')}
-			</a>
-		</p>
-	</div>
+			),
+			'https://www.w3.org/TR/WCAG22/',
+			__('Learn more', 'vulopilot')
+		)}
+	/>
 );
 
 export default AccessibilityWcagNotice;

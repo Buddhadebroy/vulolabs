@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { useLastScanTime } from '../../services/useLastScanTime';
@@ -10,6 +9,7 @@ import { formatWpDate } from '../../services/formatWpDate';
 import { ACCESSIBILITY_SCANNER_IDS } from './accessibilityChecks';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 import type { SectionedIssuesTab } from './SectionedIssuesTable';
+import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 import './ProtectMySite.scss';
 
 /**
@@ -380,17 +380,32 @@ const SecurityMetricsGrid = ({
 	};
 
 	return (
-		<div className="security-metrics-grid">
+		<MetricTileGrid variant="security">
 			{METRIC_TILES.map((tile) => {
 				const badge = badgeFor(tile.id);
 				const lastScanAt = lastScanByTileId[tile.id] ?? null;
 				const isTracked = Boolean(VIEW_TARGET_BY_TILE_ID[tile.id]);
 
 				return (
-					<CardComponent key={tile.id} className="security-metric-tile">
-						<i className={`security-metric-icon adminfont-${tile.icon}`} />
-						<div className="security-metric-title">{tile.title}</div>
-						<BadgeComponent color={badge.color} text={badge.text} />
+					<MetricTile
+						key={tile.id}
+						variant="security"
+						icon={tile.icon}
+						title={tile.title}
+						badge={badge}
+						footer={
+							isTracked && (
+								<ButtonInput
+									buttons={{
+										text: __('View', 'vulopilot'),
+										rightIcon: 'pagination-right-arrow',
+										color: 'border-purple',
+										onClick: () => handleView(tile.id),
+									}}
+								/>
+							)
+						}
+					>
 						<div className="desc">{tile.desc}</div>
 						{isTracked && (
 							<div className="security-metric-last-scan">
@@ -399,21 +414,10 @@ const SecurityMetricsGrid = ({
 									: __('Never scanned yet', 'vulopilot')}
 							</div>
 						)}
-						{isTracked && (
-							<ButtonInput
-								wrapperClass="security-metric-view"
-								buttons={{
-									text: __('View', 'vulopilot'),
-									rightIcon: 'pagination-right-arrow',
-									color: 'border-purple',
-									onClick: () => handleView(tile.id),
-								}}
-							/>
-						)}
-					</CardComponent>
+					</MetricTile>
 				);
 			})}
-		</div>
+		</MetricTileGrid>
 	);
 };
 

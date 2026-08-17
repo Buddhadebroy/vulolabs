@@ -64,7 +64,7 @@ const GeoByTopicGrid = ({
 								text={String(count)}
 							/>
 						</div>
-						<p className="geo-by-topic-tile-title">{topic.title}</p>
+						<div className="geo-by-topic-tile-title">{topic.title}</div>
 						<p className="geo-by-topic-tile-sublabel">
 							{sprintf(
 								/* translators: %d is the number of real open GEO findings under this topic. */

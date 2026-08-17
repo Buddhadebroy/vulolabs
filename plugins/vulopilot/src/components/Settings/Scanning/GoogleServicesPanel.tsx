@@ -360,9 +360,9 @@ const GoogleServicesPanel = () => {
 									disabled: isConnecting,
 								}}
 							/>
-							<p className="gsc-benefits-title">
+							<div className="gsc-benefits-title">
 								{__('Benefits of connecting your Google account', 'vulopilot')}
-							</p>
+							</div>
 							<ul className="gsc-benefits-list">
 								{BENEFITS.map((benefit) => (
 									<li key={benefit}>
