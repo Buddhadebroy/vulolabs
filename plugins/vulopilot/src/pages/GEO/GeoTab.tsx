@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ContainerComponent } from '@zyra/components';
+import { scrollToId } from '@zyra/core';
 import TopPagesCard from './TopPagesCard';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import SectionedFindingsTab from '../Security/SectionedFindingsTab';
@@ -188,16 +189,6 @@ const GeoTab = () => {
 	const yourScore = withScore.length
 		? withScore[withScore.length - 1].overall_score
 		: null;
-
-	const scrollToId = (id: string) => {
-		const el = document.getElementById(id);
-		if (!el) {
-			return;
-		}
-		el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		el.classList.add('module-list-item', 'highlight');
-		setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
-	};
 
 	const goToIssuesTable = (tab: SectionedIssuesTab = 'all') => {
 		setActiveTab(tab);

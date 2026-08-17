@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
@@ -138,16 +138,6 @@ const KnowledgeGraphHealthCard = applyFilters(
 	'vulopilot_knowledge_graph_health_card',
 	null
 ) as ComponentType | null;
-
-const scrollToId = (id: string) => {
-	const el = document.getElementById(id);
-	if (!el) {
-		return;
-	}
-	el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-	el.classList.add('module-list-item', 'highlight');
-	setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
-};
 
 /**
  * Real, computed "What should you check?" findings — no fabricated numbers,

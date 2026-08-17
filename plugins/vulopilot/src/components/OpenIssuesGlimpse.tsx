@@ -1,6 +1,7 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ListComponent, ModuleGuardComponent, ColumnComponent, BadgeComponent } from '@zyra/components';
+import { scrollToId } from '@zyra/core';
 import { useApiList } from '../services/useApiList';
 import { FindingSeverity, getSeverityClass } from '../services/getSeverityClass';
 
@@ -98,15 +99,7 @@ const OpenIssuesGlimpse = ({
 		}
 
 		const sectionKey = sectionMap[scannerId] ?? fallbackSection;
-		const el = document.getElementById(`${anchorPrefix}${sectionKey}`);
-
-		if (!el) {
-			return;
-		}
-
-		el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		el.classList.add('module-list-item', 'highlight');
-		setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
+		scrollToId(`${anchorPrefix}${sectionKey}`);
 	};
 
 	const handleItemClick = onItemClick ?? scrollToSection;
