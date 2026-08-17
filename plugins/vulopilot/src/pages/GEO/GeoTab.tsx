@@ -198,7 +198,7 @@ const GeoTab = () => {
 	return (
 		<>
 			<NoticeComponent
-				type="banner"
+				// type="banner"
 				displayPosition="inline"
 				message={sprintf(
 					'<strong>%1$s</strong> %2$s',
@@ -249,7 +249,7 @@ const GeoTab = () => {
 			</ContainerComponent>
 
 			<NoticeComponent
-				type="banner"
+				// type="banner"
 				displayPosition="inline"
 				message={__(
 					'This page shows how easy it is for AI tools to find, understand, and recommend your website. Fixing the issues above helps you show up when people ask AI a question you could answer.',

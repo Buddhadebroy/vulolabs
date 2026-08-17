@@ -23,7 +23,7 @@ const SCHEDULED_REPORTS_URL =
  */
 const ScheduleReportBanner = () => (
 	<NoticeComponent
-		type="banner"
+		// type="banner"
 		displayPosition="inline"
 		title={__('Keep everyone updated automatically', 'vulopilot')}
 		message={__(

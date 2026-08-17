@@ -153,7 +153,7 @@ const BrandVisibilityTab = () => {
 			header={
 				<>
 					<NoticeComponent
-						type="banner"
+						// type="banner"
 						displayPosition="inline"
 						message={sprintf(
 							'<strong>%1$s</strong> %2$s',

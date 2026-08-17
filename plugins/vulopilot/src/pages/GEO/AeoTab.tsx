@@ -297,7 +297,7 @@ const AeoTab = () => {
 			{/* id kept on this wrapper, not NoticeComponent itself (no id prop) — real scrollToId('aeo-top-banner') target, see the "Learn More" tile's onClick below. */}
 			<div id="aeo-top-banner">
 				<NoticeComponent
-					type="banner"
+					// type="banner"
 					displayPosition="inline"
 					message={sprintf(
 						'<strong>%1$s</strong> %2$s',
@@ -559,7 +559,7 @@ const AeoTab = () => {
 			</div>
 
 			<NoticeComponent
-				type="banner"
+				// type="banner"
 				displayPosition="inline"
 				message={__(
 					'AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results.',
