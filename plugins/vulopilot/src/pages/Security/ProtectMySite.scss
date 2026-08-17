@@ -1071,21 +1071,8 @@
 	}
 }
 
-// PluginOverlapCard.tsx's own per-row "View in VuloPilot →" link — same
-// inline-text-link treatment WooCommerceCategoryGrid.tsx's own
-// `.woocommerce-category-link` already establishes, redeclared locally
-// here rather than cross-referencing that unrelated page's class.
-.plugin-overlap-link {
-	display: inline-block;
-	font-weight: 600;
-	color: var(--color-primary);
-	cursor: pointer;
-	white-space: nowrap;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
+// PluginOverlapCard.tsx's own per-row "View in VuloPilot →" link is now
+// a real `<ButtonInput color="text-purple">` — no local CSS needed.
 
 // BackupsTab.tsx's own real backups list — plain HTML table, same
 // established pattern SlowPagesTab.tsx's own `.page-speed-table` already

@@ -1,6 +1,7 @@
 /* global appLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ListComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 
 interface PluginOverlapMatch {
@@ -85,19 +86,17 @@ const PluginOverlapCard = ({ category }: PluginOverlapCardProps) => {
 							match.vulopilot_feature
 						),
 						tags: (
-							<span
-								className="plugin-overlap-link"
-								role="button"
-								tabIndex={0}
-								onClick={() =>
-									window.open(
-										`${appLocalizer.admin_url}${hash}`,
-										'_self'
-									)
-								}
-							>
-								{__('View in VuloPilot →', 'vulopilot')}
-							</span>
+							<ButtonInput
+								buttons={{
+									text: __('View in VuloPilot →', 'vulopilot'),
+									color: 'text-purple',
+									onClick: () =>
+										window.open(
+											`${appLocalizer.admin_url}${hash}`,
+											'_self'
+										),
+								}}
+							/>
 						),
 					};
 				})}

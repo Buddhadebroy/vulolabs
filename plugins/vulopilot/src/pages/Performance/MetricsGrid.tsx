@@ -7,14 +7,14 @@ import { useSectionStatus } from '../../services/useSectionStatus';
 import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 import './ImproveSpeed.scss';
 
-interface MetricTile {
+interface MetricTileData {
 	id: string;
 	icon: string;
 	title: string;
 	desc: string;
 }
 
-const METRIC_TILES: MetricTile[] = [
+const METRIC_TILES: MetricTileData[] = [
 	{
 		id: 'core-web-vitals',
 		icon: 'analytics',

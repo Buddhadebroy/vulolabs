@@ -233,7 +233,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 						headers={{
 							issue: {
 								label: __('Issue', 'vulopilot'),
-								width:'45%',
+								width:'65%',
 								render: (row: FindingGroup) => (
 									<InformationItemComponent
 										title={row.label}
@@ -242,24 +242,18 @@ const IssuesList: React.FC<IssuesListProps> = ({
 												value: row.sample?.description || '',
 											},
 										]}
+										badges={[
+											{
+												text: CATEGORY_LABELS[row.category] ?? row.category,
+												className: `badge-${row.category}`,
+											},
+											{
+												text: row.severity,
+												className: `badge-${row.severity}`,
+											},
+										]}
 									/>
 								),
-							},
-							category: {
-								label: __('Category', 'vulopilot'),
-								render: (row: FindingGroup) => (
-									<BadgeComponent
-										color="blue"
-										text={CATEGORY_LABELS[row.category] ??
-											row.category}
-									/>
-								),
-							},
-							severity: {
-								label: __('Priority', 'vulopilot'),	
-								type: 'status',
-								statusClass: (row: FindingGroup) =>
-									row.severity,
 							},
 							affected: {
 								label: __('Affected', 'vulopilot'),

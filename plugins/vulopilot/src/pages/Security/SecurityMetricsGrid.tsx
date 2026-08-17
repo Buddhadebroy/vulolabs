@@ -88,14 +88,14 @@ const formatLastScan = (isoDate: string): string =>
 		})
 	);
 
-interface MetricTile {
+interface MetricTileData {
 	id: string;
 	icon: string;
 	title: string;
 	desc: string;
 }
 
-const METRIC_TILES: MetricTile[] = [
+const METRIC_TILES: MetricTileData[] = [
 	{
 		id: 'security-scan',
 		icon: 'security',

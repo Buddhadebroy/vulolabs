@@ -298,12 +298,11 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						}
 					>
 						<ListComponent
-							className="issue-detail-affected-list"
-							border
+							className="mini-card report"
 							loading={isLoadingAffected}
 							items={(affectedItems ?? []).map((row) => ({
 								id: row.id,
-								icon: CATEGORY_ICONS[group.category] ?? 'ai',
+								// icon: CATEGORY_ICONS[group.category] ?? 'ai',
 								title: row.title,
 								desc: sprintf(
 									/* translators: 1: affected page/location, 2: formatted detection date */
