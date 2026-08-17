@@ -50,7 +50,7 @@ const Performance = () => {
 	);
 	// Scoped to this page's own 'performance' category — same "local tab"
 	// scoping every other category page's header "Run scan" button uses.
-	const { runScanButton } = useRunScan({ categories: ['performance'] });
+	const { isScanning, runScanButton } = useRunScan({ categories: ['performance'] });
 
 	const goToSlowPages = () => setActiveTab('slow-pages');
 
@@ -64,7 +64,12 @@ const Performance = () => {
 					'vulopilot'
 				)}
 				buttons={[
-					{ ...runScanButton, label: __('Run Speed Test', 'vulopilot') },
+					{
+						...runScanButton,
+						label: isScanning
+							? __('Scanning…', 'vulopilot')
+							: __('Run Speed Test', 'vulopilot'),
+					},
 				]}
 			/>
 			<ContainerComponent general>

@@ -21,15 +21,16 @@ const QUICK_ACTIONS: QuickAction[] = [
 	{ id: 'minify-css-js', icon: 'coding', label: __('Minify CSS & JS', 'vulopilot') },
 	{ id: 'optimize-images', icon: 'image', label: __('Optimize Images', 'vulopilot') },
 	{ id: 'database-cleanup', icon: 'database', label: __('Database Cleanup', 'vulopilot') },
+	{ id: 'image-cleanup', icon: 'delete', label: __('Image Cleanup', 'vulopilot') },
 	{ id: 'lazy-loading', icon: 'eye', label: __('Enable Lazy Loading', 'vulopilot') },
 	{ id: 'preload-resources', icon: 'cloud-upload', label: __('Preload Critical Resources', 'vulopilot') },
 ];
 
 /**
- * "Quick Actions" — each of the 6 buttons is a real
+ * "Quick Actions" — each of the 7 buttons is a real
  * `POST /performance-actions/{id}` call (`classes/RestAPI/Controllers/
- * PerformanceActions.php`): cache flush, DB cleanup, and the two toggles
- * always genuinely happen; image optimization regenerates real
+ * PerformanceActions.php`): cache flush, DB cleanup, image cleanup, and the
+ * two toggles always genuinely happen; image optimization regenerates real
  * thumbnails; minify is the one action that honestly reports "nothing to
  * do" when no minification-capable plugin is active, rather than
  * pretending to have minified anything. The result toast always shows the
