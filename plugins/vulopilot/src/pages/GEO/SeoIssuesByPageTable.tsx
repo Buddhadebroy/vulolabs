@@ -1,18 +1,23 @@
 /* global appLocalizer */
 import React from 'react';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { applyFilters } from '@wordpress/hooks';
+import { getApiLink, getApiResponse, sendApiResponse, useOutsideClick } from '@zyra/core';
 import {
 	CardComponent,
 	InformationItemComponent,
 	ModuleGuardComponent,
 	NoticeManager,
+	PopupComponent,
+	TabsComponent,
+	TooltipComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { SEO_SECTIONS } from './seoSections';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
+import ShowProPopup from '../../components/Popup/Popup';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
@@ -189,7 +194,35 @@ const bucketFindingsByPage = (
 		});
 	});
 
-	return { byPostId, siteWide };
+	return { byPostId, siteWide: dedupeSiteWideFindings(siteWide) };
+};
+
+/**
+ * Repeated scans create a new "open" Finding row instead of superseding the
+ * prior one for the same scanner_id+object_ref (a real, pre-existing gap in
+ * the scan/rescan pipeline, confirmed via direct DB query — e.g. the same
+ * "No canonical URL tag found" row existing 7+ times with different `id`s).
+ * Site-wide findings are the most visibly affected (only ~6 real distinct
+ * site-wide checks exist, so duplicates repeat densely in a short list) —
+ * deduped here per direct instruction, keeping the most recent (highest
+ * `id`) copy of each distinct `scanner_id`+`title` pair so a real status
+ * change action (Resolve/Ignore/Fix) targets the current row, not a stale
+ * one. Per-page findings aren't deduped here — out of scope for this
+ * instruction, and the underlying data-quality issue is unchanged.
+ */
+const dedupeSiteWideFindings = (findings: RawFinding[]): RawFinding[] => {
+	const byKey = new Map<string, RawFinding>();
+
+	findings.forEach((finding) => {
+		const key = `${finding.scanner_id}:${finding.title}`;
+		const existing = byKey.get(key);
+
+		if (!existing || finding.id > existing.id) {
+			byKey.set(key, finding);
+		}
+	});
+
+	return Array.from(byKey.values());
 };
 
 /** Fetches only the specific posts/pages that actually have an open finding (via WP core's own `include` param), rather than every post/page on the site — this table's scope is bounded by real issue count, not total site content. */
@@ -237,23 +270,31 @@ const STATUS_ICON: Record<FindingSeverity, string> = {
 	info: 'i',
 };
 
+/** What a registered fix handler resolves to — same shape RecentContentCard.tsx's own FixOutcome uses. */
+interface FixOutcome {
+	success: boolean;
+	message: string;
+}
+
+/**
+ * Real, immediate AI-apply "Fix" handler — the SAME `vulopilot_finding_fix_handler`
+ * filter RecentContentCard.tsx/FindingsTable.tsx already read (registered by
+ * vulopilot-pro's OneClickFix module when active, `null` otherwise). Used
+ * here ONLY for the "Site-wide issues" block below: sitemap/robots.txt
+ * findings aren't tied to any one page, so the navigate-to-editor-and-
+ * highlight "Fix with AI" used for per-page rows/findings elsewhere in this
+ * file has no page to navigate to — this is the same one-click-apply
+ * mechanism used everywhere else in the app instead. Read fresh on every
+ * click rather than cached, same reasoning as those call sites.
+ */
+const getFindingFixHandler = () => applyFilters('vulopilot_finding_fix_handler', null);
+
 interface RowAction {
 	label: string;
 	icon: string;
 	onClick: () => void;
 }
 
-/**
- * zyra `Table.tsx`'s own variation-row rendering path only checks
- * `header.render` — unlike the parent-row path, it has no special case for
- * `header.type === 'action'`, and `TableRowActions` (the component that
- * special case would use) isn't exported from `@zyra/table`'s public API
- * to reuse here. Using `type: 'action'` on the shared `action` header would
- * silently render nothing for finding sub-rows (confirmed live — verified
- * via a real click test). A small local action-icon row, driven by
- * `render` (checked on both paths), sidesteps that gap for both row kinds
- * with one implementation.
- */
 /**
  * zyra `Table.tsx`'s own expand/collapse state (`expandedRows`) is fully
  * internal — the only way to toggle it from outside is a real click on the
@@ -272,21 +313,73 @@ const toggleRowExpansion = (event: React.MouseEvent<HTMLElement>) => {
 	expandIcon?.click();
 };
 
-const RowActionsMenu = ({ actions }: { actions: RowAction[] }) => (
-	<div className="seo-issues-row-actions">
-		{actions.map((action) => (
-			<button
-				key={action.label}
-				type="button"
-				className="seo-issues-row-action"
-				title={action.label}
-				onClick={action.onClick}
-			>
-				<i className={`adminfont-${action.icon}`} />
-			</button>
-		))}
-	</div>
-);
+/**
+ * Same kebab-dropdown Action-column look "Content → Recent Content" uses
+ * (`RecentContentCard.tsx`, via zyra `TableCard`'s own `type: 'action'` +
+ * `TableRowActions`) — reimplemented locally, matching that component's
+ * real markup/classes 1:1 (`table-action`/`inline-actions`/`action-icons`/
+ * `action-dropdown`/`tooltip-name`, already globally styled by zyra's own
+ * CSS, same as Recent Content's), rather than reused directly: zyra
+ * `Table.tsx`'s variation-row rendering path only checks `header.render`,
+ * not `header.type === 'action'` (that special case, and `TableRowActions`
+ * itself, only exist on the parent-row path and aren't exported from
+ * `@zyra/table`'s public API) — using `type: 'action'` here would silently
+ * render nothing for this table's finding sub-rows (confirmed live). Driven
+ * by `render` instead (checked on both paths), so both row kinds get the
+ * same real Recent-Content-style menu.
+ */
+const RowActionsMenu = ({ actions }: { actions: RowAction[] }) => {
+	const [open, setOpen] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
+
+	useOutsideClick(containerRef, () => {
+		if (open) {
+			setOpen(false);
+		}
+	});
+
+	const showInline = actions.length <= 2;
+
+	return (
+		<div className="table-action" ref={containerRef}>
+			{showInline ? (
+				<div className="inline-actions">
+					{actions.map((action) => (
+						<TooltipComponent key={action.label} text={action.label}>
+							<i
+								onClick={action.onClick}
+								className={`adminfont-${action.icon}`}
+							/>
+						</TooltipComponent>
+					))}
+				</div>
+			) : (
+				<div className="action-icons">
+					<i
+						className="adminfont-more-vertical"
+						onClick={() => setOpen((current) => !current)}
+					/>
+					<div className={`action-dropdown ${open ? 'show' : 'hover'}`}>
+						<ul>
+							{actions.map((action) => (
+								<li
+									key={action.label}
+									onClick={() => {
+										action.onClick();
+										setOpen(false);
+									}}
+								>
+									<i className={`adminfont-${action.icon}`} />
+									<span className="tooltip-name">{action.label}</span>
+								</li>
+							))}
+						</ul>
+					</div>
+				</div>
+			)}
+		</div>
+	);
+};
 
 /**
  * "All SEO Issues" — page-wise, real `GET /findings` (paginated past the
@@ -322,6 +415,8 @@ const SeoIssuesByPageTable = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
 	const [reloadToken, setReloadToken] = useState(0);
+	const [fixingFindingId, setFixingFindingId] = useState<number | null>(null);
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -455,6 +550,72 @@ const SeoIssuesByPageTable = () => {
 		window.location.href = buildFixWithAiLink(row.editLink, primary.scanner_id);
 	};
 
+	/** Purely client-side, same as RecentContentCard.tsx's own `removeFindingLocally` — but filters the flat `siteWideFindings` list by finding id directly, since site-wide findings aren't nested under a page row here. */
+	const removeSiteWideFindingLocally = (findingId: number) => {
+		setSiteWideFindings((current) =>
+			current.filter((finding) => finding.id !== findingId)
+		);
+	};
+
+	const handleFixSiteWideFinding = (finding: RawFinding) => {
+		const findingFixHandler = getFindingFixHandler();
+
+		if ('function' !== typeof findingFixHandler) {
+			setIsProPopupOpen(true);
+			return;
+		}
+
+		setFixingFindingId(finding.id);
+
+		Promise.resolve(findingFixHandler(finding) as Promise<FixOutcome> | undefined)
+			.then((outcome) => {
+				if (outcome?.message) {
+					NoticeManager.add({
+						uniqueKey: `seo-sitewide-fix-${finding.id}`,
+						type: outcome.success ? 'success' : 'error',
+						position: 'float',
+						message: outcome.message,
+					});
+				}
+
+				if (outcome?.success) {
+					removeSiteWideFindingLocally(finding.id);
+				}
+			})
+			.finally(() => setFixingFindingId(null));
+	};
+
+	/** Resolve/Ignore — the same real `POST /findings/{id} {status}` RecentContentCard.tsx's own `handleFindingStatus` calls (Findings.php::update_item() has no `object_type` restriction, so this works unmodified for site-wide findings). Every finding in this list is fetched with `status=open`, so there's no "Reopen" case to handle here — Resolve/Ignore are both one-way, removing the row locally on success. */
+	const handleSiteWideFindingStatus = (
+		finding: RawFinding,
+		status: 'resolved' | 'ignored',
+		successMessage: string
+	) => {
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `findings/${finding.id}`), {
+			status,
+		}).then((response: unknown) => {
+			if (response) {
+				NoticeManager.add({
+					uniqueKey: `seo-sitewide-${status}-${finding.id}`,
+					type: 'success',
+					position: 'float',
+					message: successMessage,
+				});
+				removeSiteWideFindingLocally(finding.id);
+			} else {
+				NoticeManager.add({
+					uniqueKey: `seo-sitewide-${status}-failed-${finding.id}`,
+					type: 'error',
+					position: 'float',
+					message: __(
+						'Could not update this finding. Please try again.',
+						'vulopilot'
+					),
+				});
+			}
+		});
+	};
+
 	if (hasError) {
 		return (
 			<CardComponent title={__('All SEO Issues', 'vulopilot')}>
@@ -483,20 +644,17 @@ const SeoIssuesByPageTable = () => {
 			title={__('All SEO Issues', 'vulopilot')}
 			isLoading={isLoading}
 		>
-			<div className="sectioned-issues-tabs">
-				{filterPills.map((pill) => (
-					<span
-						key={pill.id}
-						className={`sectioned-issues-tab ${activeFilter === pill.id ? 'active' : ''}`}
-						role="button"
-						tabIndex={0}
-						onClick={() => setActiveFilter(pill.id)}
-					>
-						{pill.label}
-						<span className="sectioned-issues-tab-count">{pill.count}</span>
-					</span>
-				))}
-			</div>
+			<TabsComponent
+				className="seo-issues-filter-tabs"
+				activeIndex={Math.max(
+					filterPills.findIndex((pill) => pill.id === activeFilter),
+					0
+				)}
+				onTabChange={(index: number) => setActiveFilter(filterPills[index].id)}
+				tabs={filterPills.map((pill) => ({
+					label: sprintf('%1$s (%2$d)', pill.label, pill.count),
+				}))}
+			/>
 
 			{visibleSiteWide.length > 0 && (
 				<div className="seo-issues-sitewide-block">
@@ -517,7 +675,41 @@ const SeoIssuesByPageTable = () => {
 								>
 									{STATUS_ICON[finding.severity]}
 								</span>
-								<span>{finding.title}</span>
+								<span className="seo-issues-sitewide-text">
+									{finding.title}
+								</span>
+								<RowActionsMenu
+									actions={[
+										{
+											label: __('Resolve', 'vulopilot'),
+											icon: 'check',
+											onClick: () =>
+												handleSiteWideFindingStatus(
+													finding,
+													'resolved',
+													__('Finding marked as resolved.', 'vulopilot')
+												),
+										},
+										{
+											label:
+												fixingFindingId === finding.id
+													? __('Fixing…', 'vulopilot')
+													: __('Fix with AI', 'vulopilot'),
+											icon: 'ai',
+											onClick: () => handleFixSiteWideFinding(finding),
+										},
+										{
+											label: __('Ignore', 'vulopilot'),
+											icon: 'eye-blocked',
+											onClick: () =>
+												handleSiteWideFindingStatus(
+													finding,
+													'ignored',
+													__('Finding ignored.', 'vulopilot')
+												),
+										},
+									]}
+								/>
 							</li>
 						))}
 					</ul>
@@ -678,6 +870,20 @@ const SeoIssuesByPageTable = () => {
 					emptyMessage={__('No pages match this filter.', 'vulopilot')}
 				/>
 			)}
+
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={() => setIsProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{appLocalizer.khali_dabba ? (
+					<ShowProPopup moduleName="one-click-fix" />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
 		</CardComponent>
 	);
 };
