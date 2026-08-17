@@ -12,6 +12,7 @@ import PerformanceTab from './PerformanceTab';
 import SiteHealthTab from './SiteHealthTab';
 import FilesPluginsTab from './FilesPluginsTab';
 import AccessibilityTab from './AccessibilityTab';
+import BackupsTab from './BackupsTab';
 
 const TAB_IDS = [
 	'security',
@@ -19,11 +20,12 @@ const TAB_IDS = [
 	'site-health',
 	'files-plugins',
 	'accessibility',
+	'backups',
 ] as const;
 
 /**
  * "Protect My Site" (WP menu slug `security`) — PROTECT-MY-SITE.md's IA:
- * 5 detail tabs, "Security" first (default tab):
+ * 6 detail tabs, "Security" first (default tab):
  *
  * - Security (SecurityTab.tsx) — the mockup's own single-page
  *   design (hero/status/tile-grid, "Issues that need your attention", a
@@ -66,6 +68,11 @@ const TAB_IDS = [
  *   Links & Buttons, Readability, Keyboard & Assistive Technology
  *   (KeyboardAccessibilityScanner — positive tabindex — the one new
  *   accessibility scanner this pass adds).
+ * - Backups (BackupsTab.tsx) — real database + file archives
+ *   (Services\BackupManager/BackupScheduler), manual or scheduled, with
+ *   real download/delete/restore. Also where Recovery's real, destructive
+ *   restore lives (typed-confirmation-gated, backed by an automatic
+ *   pre-restore safety snapshot).
  *
  * Reports used to have its own flat "Security" tab (a different,
  * now-deleted Reports/SecurityTab.tsx — a plain `category="security"`
@@ -134,6 +141,10 @@ const Security = () => {
 						{
 							label: __('Accessibility', 'vulopilot'),
 							content: <AccessibilityTab />,
+						},
+						{
+							label: __('Backups', 'vulopilot'),
+							content: <BackupsTab />,
 						},
 					]}
 				/>

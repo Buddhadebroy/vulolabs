@@ -64,7 +64,7 @@ export default {
              * either card still correctly activates/deactivates the one
              * real module both represent.
              */
-            id: 'geo-insights',
+            id: 'aeo-insights',
             name: __('AEO Autopilot — Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage — then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
             proModule: true,

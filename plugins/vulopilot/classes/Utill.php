@@ -55,6 +55,14 @@ class Utill {
         'performance_request'        => 'vulopilot_performance_requests',
         'core_web_vital'             => 'vulopilot_core_web_vitals',
         'page_speed'                 => 'vulopilot_page_speed',
+        // Protect My Site's Malware/Firewall/Login Protection/Backups/
+        // Recovery tiles — real, always-on core features, not a Modules-page
+        // module. Malware has no table of its own (its Finding rows are the
+        // whole persisted record, same as every other scanner); these three
+        // back the always-on guards/manager that actually enforce/archive.
+        'login_attempt'              => 'vulopilot_login_attempts',
+        'firewall_block'             => 'vulopilot_firewall_blocks',
+        'backup'                     => 'vulopilot_backups',
     );
 
     /**
@@ -168,6 +176,30 @@ class Utill {
         'enable_weak_password_scanner'          => array( 'enable_weak_password_scanner' ),
         'enable_basic_vulnerabilities_scanner'  => array( 'enable_basic_vulnerabilities_scanner' ),
         'enable_core_file_integrity_scanner'    => array( 'enable_core_file_integrity_scanner' ),
+        // Protect My Site's Malware/Firewall/Login Protection/Backups tiles —
+        // same granular-toggle shape as the three scanners above, each
+        // unconditionally free/core (no moduleEnabled gate anywhere these are
+        // read). Read by Scanners\Basic\MalwareScanner.
+        'enable_malware_scanner'                => array( 'enable_malware_scanner' ),
+        // Read by Services\LoginProtectionGuard — real brute-force lockout
+        // enforced via the `authenticate` filter, not just detection.
+        'enable_login_protection'               => array( 'enable_login_protection' ),
+        'login_max_attempts'                    => 5,
+        'login_lockout_minutes'                 => 15,
+        // Read by Services\FirewallGuard — `enable_firewall` always logs
+        // matched requests (safe, never blocks anyone); `enable_firewall_blocking`
+        // is the separate, explicit opt-in that turns real 403 blocking on.
+        // Defaults kept split and blocking OFF by default so a false-positive
+        // rule can't lock out a legitimate request the moment this ships.
+        'enable_firewall'                       => array( 'enable_firewall' ),
+        'enable_firewall_blocking'               => array(),
+        // Read by Services\BackupManager/BackupScheduler — real DB+file
+        // archives. Off by default: this touches disk space and shouldn't
+        // silently start writing archives the moment this version's code
+        // runs on an existing site.
+        'enable_automatic_backups'              => array(),
+        'backup_frequency'                      => 'disabled',
+        'backup_retention_count'                => 5,
         // Scanner-category kill switches — each gates every scanner
         // registered under that category string (SCANNERS.md), not just
         // one check, since that's what these settings-page groupings

@@ -55,6 +55,86 @@ export default {
 			],
 		},
 		{
+			key: 'enable_malware_scanner',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Check for malware and infected files', 'vulopilot'),
+			settingDescription: __(
+				'Flags any PHP file found inside the uploads directory (which should never contain one), plus known backdoor/webshell code patterns in your active theme\'s own files.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'enable_malware_scanner', label: '', value: 'enable_malware_scanner' },
+			],
+		},
+		{
+			key: 'enable_login_protection',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Block repeated failed login attempts', 'vulopilot'),
+			settingDescription: __(
+				'Real brute-force protection — an IP that fails to log in too many times within the window below is blocked from trying again until it passes.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'enable_login_protection', label: '', value: 'enable_login_protection' },
+			],
+		},
+		{
+			key: 'login_max_attempts',
+			type: 'number',
+			size: 10,
+			label: __('Failed attempts before lockout', 'vulopilot'),
+			minNumber: 1,
+			maxNumber: 20,
+			settingDescription: __(
+				'How many failed login attempts from the same IP are allowed before it\'s blocked.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'login_lockout_minutes',
+			type: 'number',
+			size: 10,
+			label: __('Lockout window (minutes)', 'vulopilot'),
+			minNumber: 1,
+			maxNumber: 1440,
+			settingDescription: __(
+				'How long a blocked IP has to wait — and how far back failed attempts are counted from.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'enable_firewall',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Log requests matching known attack patterns', 'vulopilot'),
+			settingDescription: __(
+				'Checks every request\'s URL against known SQL-injection, path-traversal, and direct-PHP-execution patterns and logs any match — always safe, never blocks anyone on its own.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'enable_firewall', label: '', value: 'enable_firewall' },
+			],
+		},
+		{
+			key: 'enable_firewall_blocking',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Enable active blocking', 'vulopilot'),
+			settingDescription: __(
+				'Turns the logging above into real blocking — a matched request gets a 403 and is stopped immediately instead of only being recorded. Off by default: review the log for a while first to make sure nothing legitimate is being flagged.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'enable_firewall_blocking', label: '', value: 'enable_firewall_blocking' },
+			],
+		},
+		{
 			key: 'enable_rest_api_scanner',
 			type: 'checkbox',
 			look: 'toggle',

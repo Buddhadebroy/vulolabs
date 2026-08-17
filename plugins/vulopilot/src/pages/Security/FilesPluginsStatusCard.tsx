@@ -4,8 +4,7 @@ import { useSectionStatus } from '../../services/useSectionStatus';
 
 /**
  * "File & Plugin Status" — same real per-section status-badge list shape
- * LiveThreatMonitorCard.tsx already established for Security, and
- * SiteHealthStatusCard.tsx now established for Site Health. Every row
+ * SiteHealthStatusCard.tsx established for Site Health. Every row
  * here shares one real `category` per section (`security`/`updates`), so
  * no empty-category workaround is needed the way SiteHealthStatusCard's
  * own "Server" row needs one — confirmed via each scanner's own real

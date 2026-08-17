@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Spinner } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { fixWithAi, AnalysisResult } from './api';
 
 interface ChecklistProps {
@@ -11,6 +11,8 @@ interface ChecklistProps {
 	shopUrl: string;
 	// eslint-disable-next-line no-unused-vars
 	onFixed: ( _actionId: string, _response: Awaited< ReturnType< typeof fixWithAi > > ) => void;
+	/** "All SEO Issues" table's "Fix with AI" deep link — an AnalysisResult['id'] to scroll to and pulse-highlight once it appears in `results`. Every Checklist instance on the General tab gets this same prop; only the one whose `results` actually contains a matching id does anything with it. */
+	highlightId?: string;
 }
 
 const STATUS_ICON: Record< AnalysisResult[ 'status' ], string > = {
@@ -28,9 +30,41 @@ const STATUS_ICON: Record< AnalysisResult[ 'status' ], string > = {
  * instead, same posture the SEO tab's FindingsTable "Fix" row action
  * already takes for Free installs).
  */
-export default function Checklist( { title, results, postId, isPro, shopUrl, onFixed }: ChecklistProps ) {
+export default function Checklist( { title, results, postId, isPro, shopUrl, onFixed, highlightId }: ChecklistProps ) {
 	const [ fixingId, setFixingId ] = useState< string | null >( null );
 	const [ error, setError ] = useState< string | null >( null );
+	const [ pulsingId, setPulsingId ] = useState< string | null >( null );
+	const hasScrolledRef = useRef( false );
+
+	/**
+	 * Scrolls to and pulse-highlights the deep-linked row exactly once, the
+	 * first time it actually appears in `results` (the checklist starts
+	 * empty and fills in after the debounced live analysis call —
+	 * see GeneralTab.tsx — so this can't just run on mount). Mirrors
+	 * zyra's own ModuleGridComponent.tsx "URL target → scrollIntoView →
+	 * timed highlight class" idiom; not imported directly since this
+	 * bundle only loads `wp-*` script deps, no zyra CSS
+	 * (PostEditorAssets.php).
+	 */
+	useEffect( () => {
+		if ( ! highlightId || hasScrolledRef.current ) {
+			return;
+		}
+
+		const match = results.find( ( result ) => result.id === highlightId );
+
+		if ( ! match ) {
+			return;
+		}
+
+		hasScrolledRef.current = true;
+		const element = document.getElementById( `vulopilot-seo-check-${ highlightId }` );
+		element?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+		setPulsingId( highlightId );
+
+		const timeout = setTimeout( () => setPulsingId( null ), 4000 );
+		return () => clearTimeout( timeout );
+	}, [ highlightId, results ] );
 
 	if ( 0 === results.length ) {
 		return null;
@@ -58,7 +92,8 @@ export default function Checklist( { title, results, postId, isPro, shopUrl, onF
 				{ results.map( ( result ) => (
 					<li
 						key={ result.id }
-						className={ `vulopilot-seo-checklist__item vulopilot-seo-checklist__item--${ result.status }` }
+						id={ `vulopilot-seo-check-${ result.id }` }
+						className={ `vulopilot-seo-checklist__item vulopilot-seo-checklist__item--${ result.status }${ pulsingId === result.id ? ' vulopilot-seo-highlight-pulse' : '' }` }
 					>
 						<span className="vulopilot-seo-checklist__icon">{ STATUS_ICON[ result.status ] }</span>
 						<span className="vulopilot-seo-checklist__message">{ result.message }</span>

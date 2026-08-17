@@ -296,6 +296,20 @@ final class VuloPilot {
         // as every Services\* class above.
         $this->container['page_speed_scanner'] = new Services\PageSpeedScanner();
 
+        // Protect My Site's Malware/Firewall/Login Protection/Backups/
+        // Recovery tiles — real, always-on core features (not a Modules-page
+        // module: no `modules/` folder, no `Module.php` file, nothing added
+        // to `vulopilot_module_sources`). Same unconditional-construction,
+        // self-registers-its-own-hooks shape as every Services\* class
+        // above. Each has its own companion Scanner (registered in
+        // ScannerRegistry::get_default_scanner_classes()) so its real data
+        // shows up in the exact same findings/scans/SecurityMetricsGrid
+        // machinery every other Security tile already uses.
+        $this->container['login_protection_guard'] = new Services\LoginProtectionGuard();
+        $this->container['firewall_guard']          = new Services\FirewallGuard();
+        $this->container['backup_manager']          = new Services\BackupManager();
+        $this->container['backup_scheduler']        = new Services\BackupScheduler();
+
         // Extension SDK (ARCHITECTURE.md's Prompt 15) — vulopilot-pro and
         // any third-party plugin register here (`vulopilot_extension_sources`),
         // one tick before ScannerRegistry/RuleRegistry/etc. (all `init`
