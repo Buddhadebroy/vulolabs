@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, BadgeComponent } from '@zyra/components';
 import { useStoreReadiness } from '../../services/useStoreReadiness';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { sumGroupCounts } from './useWooCommerceFindingGroups';
@@ -369,9 +369,7 @@ const WooCommerceCategoryGrid = ({
 					{__('Store Readiness', 'vulopilot')}
 				</div>
 				{readinessNeedsAttention && (
-					<span className="admin-badge red">
-						{__('Needs attention', 'vulopilot')}
-					</span>
+					<BadgeComponent color="red" text={__('Needs attention', 'vulopilot')} />
 				)}
 				<div className="woocommerce-category-rows">
 					{readinessRows.map((row) => {
@@ -418,9 +416,7 @@ const WooCommerceCategoryGrid = ({
 					{__('Checkout & Payments', 'vulopilot')}
 				</div>
 				{failedOrdersCount > 0 && (
-					<span className="admin-badge red">
-						{__('Needs attention', 'vulopilot')}
-					</span>
+					<BadgeComponent color="red" text={__('Needs attention', 'vulopilot')} />
 				)}
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
@@ -472,13 +468,14 @@ const WooCommerceCategoryGrid = ({
 					{__('Products', 'vulopilot')}
 				</div>
 				{productsCount > 0 && (
-					<span className="admin-badge red">
-						{sprintf(
+					<BadgeComponent
+						color="red"
+						text={sprintf(
 							/* translators: %d is the number of products needing attention. */
 							__('%d need attention', 'vulopilot'),
 							productsCount
 						)}
-					</span>
+					/>
 				)}
 				<div className="desc">
 					{__(
@@ -505,9 +502,7 @@ const WooCommerceCategoryGrid = ({
 					{__('Inventory', 'vulopilot')}
 				</div>
 				{(inventoryFindingsCount > 0 || null !== outOfStock && outOfStock > 0) && (
-					<span className="admin-badge red">
-						{__('Needs attention', 'vulopilot')}
-					</span>
+					<BadgeComponent color="red" text={__('Needs attention', 'vulopilot')} />
 				)}
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
@@ -524,9 +519,7 @@ const WooCommerceCategoryGrid = ({
 					</div>
 					{runningLow.badge && (
 						<div className="woocommerce-category-row">
-							<span className="admin-badge purple">
-								{__('PRO', 'vulopilot')}
-							</span>
+							<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
 							<span>
 								{sprintf(
 									/* translators: %d is the number of products projected to run out of stock soon. */
@@ -556,13 +549,14 @@ const WooCommerceCategoryGrid = ({
 					{__('Orders', 'vulopilot')}
 				</div>
 				{failedOrdersCount + onHoldCount + pendingTooLongCount > 0 && (
-					<span className="admin-badge orange">
-						{sprintf(
+					<BadgeComponent
+						color="orange"
+						text={sprintf(
 							/* translators: %d is the number of orders needing attention. */
 							__('%d need attention', 'vulopilot'),
 							failedOrdersCount + onHoldCount + pendingTooLongCount
 						)}
-					</span>
+					/>
 				)}
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
@@ -595,13 +589,14 @@ const WooCommerceCategoryGrid = ({
 					{__('Coupons', 'vulopilot')}
 				</div>
 				{null !== coupons.expiringSoon && coupons.expiringSoon > 0 && (
-					<span className="admin-badge red">
-						{sprintf(
+					<BadgeComponent
+						color="red"
+						text={sprintf(
 							/* translators: %d is the number of coupons expiring within a week. */
 							__('%d expiring soon', 'vulopilot'),
 							coupons.expiringSoon
 						)}
-					</span>
+					/>
 				)}
 				<div className="woocommerce-category-rows">
 					<div className="woocommerce-category-row">
@@ -664,9 +659,7 @@ const WooCommerceCategoryGrid = ({
 					{__('Product SEO', 'vulopilot')}
 				</div>
 				{productSeo.badge && (
-					<span className={`admin-badge ${productSeo.badge.color}`}>
-						{productSeo.badge.text}
-					</span>
+					<BadgeComponent color={productSeo.badge.color} text={productSeo.badge.text} />
 				)}
 				<div className="desc">
 					{__('Improve product visibility on search engines.', 'vulopilot')}
@@ -714,9 +707,7 @@ const WooCommerceCategoryGrid = ({
 					{__('Revenue Reports', 'vulopilot')}
 				</div>
 				{!revenue && (
-					<span className="admin-badge purple">
-						{__('PRO', 'vulopilot')}
-					</span>
+					<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
 				)}
 				{revenue ? (
 					<div className="woocommerce-category-rows">
@@ -759,9 +750,7 @@ const WooCommerceCategoryGrid = ({
 				>
 					<i className={`woocommerce-category-icon adminfont-${tile.icon}`} />
 					<div className="woocommerce-category-title">{tile.title}</div>
-					<span className={`admin-badge ${NOT_TRACKED_BADGE.color}`}>
-						{NOT_TRACKED_BADGE.text}
-					</span>
+					<BadgeComponent color={NOT_TRACKED_BADGE.color} text={NOT_TRACKED_BADGE.text} />
 					<div className="desc">{tile.desc}</div>
 				</CardComponent>
 			))}
@@ -775,9 +764,7 @@ const WooCommerceCategoryGrid = ({
 					{__('Store Automation', 'vulopilot')}
 				</div>
 				{(readiness?.automation_failed_count ?? 0) > 0 && (
-					<span className="admin-badge red">
-						{__('Needs attention', 'vulopilot')}
-					</span>
+					<BadgeComponent color="red" text={__('Needs attention', 'vulopilot')} />
 				)}
 				{(readiness?.automation_failed_count ?? 0) > 0 && (
 					<div className="woocommerce-category-highlight">
@@ -811,8 +798,9 @@ const WooCommerceCategoryGrid = ({
 					{__('Compatibility', 'vulopilot')}
 				</div>
 				{compatibilityCount > 0 && (
-					<span className="admin-badge red">
-						{sprintf(
+					<BadgeComponent
+						color="red"
+						text={sprintf(
 							/* translators: %d is the number of outdated theme templates. */
 							__('%d templates outdated', 'vulopilot'),
 							compatibilityCount

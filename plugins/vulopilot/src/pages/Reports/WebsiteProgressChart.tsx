@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 
 interface HealthSnapshot {
@@ -41,18 +41,14 @@ const WebsiteProgressChart = () => {
 			action={
 				<div className="website-progress-day-toggle">
 					{DAY_OPTIONS.map((option) => (
-						<button
+						<BadgeComponent
 							key={option}
-							type="button"
-							className={
-								option === days
-									? 'admin-badge purple'
-									: 'admin-badge'
-							}
+							color={option === days ? 'purple' : ''}
+							role="button"
+							tabIndex={0}
 							onClick={() => setDays(option)}
-						>
-							{option} {__('Days', 'vulopilot')}
-						</button>
+							text={`${option} ${__('Days', 'vulopilot')}`}
+						/>
 					))}
 				</div>
 			}

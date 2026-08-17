@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import type { AiVisibilityCheck, CategoryPanel, SpeedSummary } from './reportsOverview';
 
 interface SearchPerformancePanelProps {
@@ -51,9 +51,10 @@ export const SearchPerformancePanel = ({
 						<ul className="reports-panel-list">
 							{panel.top_open.map((item) => (
 								<li key={item.id}>
-									<span className={`admin-badge badge-${item.severity}`}>
-										{item.severity}
-									</span>
+									<BadgeComponent
+										color={`badge-${item.severity}`}
+										text={item.severity}
+									/>
 									{item.title}
 								</li>
 							))}

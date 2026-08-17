@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
@@ -60,9 +60,10 @@ const LatestReportsWidget: React.FC<WidgetProps> = ({
 						value: formatWpDate(row.created_at),
 						className: `status-${row.status}`,
 						tags: (
-							<span className={`admin-badge status-${row.status}`}>
-								{row.status}
-							</span>
+							<BadgeComponent
+								color={`status-${row.status}`}
+								text={row.status}
+							/>
 						),
 					}))}
 				/>

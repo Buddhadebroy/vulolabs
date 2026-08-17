@@ -53,7 +53,9 @@ const OverviewTab = () => {
 	const { data, isLoading } = useReportsOverview(days);
 
 	return (
-		<ColumnComponent>
+		<>
+			<AiAnalystCard />
+
 			<ReportsOverviewHeader
 				days={days}
 				onDaysChange={setDays}
@@ -110,10 +112,9 @@ const OverviewTab = () => {
 					<RecentAchievementsCard />
 				</ColumnComponent>
 				<ColumnComponent grid={6}>
-					<AiAnalystCard />
 				</ColumnComponent>
 			</div>
-		</ColumnComponent>
+		</>
 	);
 };
 

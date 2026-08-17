@@ -79,18 +79,6 @@
 	}
 }
 
-// Shared "View all ›" text-button action used by GeoFixTheseFirstCard.tsx
-// and TopPagesCard.tsx's own restyled header.
-.geo-card-view-all {
-	background: none;
-	border: none;
-	padding: 0;
-	color: var(--color-primary);
-	font-weight: 600;
-	font-size: 0.8125rem;
-	cursor: pointer;
-}
-
 // GeoVisibilityOverviewRow.tsx's "Overall AI Visibility" card.
 .geo-overall-visibility {
 	display: flex;
@@ -202,16 +190,6 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	max-width: 32rem;
-}
-
-.geo-fix-first-view-pages {
-	background: none;
-	border: 1px solid var(--border-color);
-	border-radius: 0.375rem;
-	padding: 0.1875rem 0.5rem;
-	font-size: 0.75rem;
-	color: var(--sub-text-color);
-	cursor: pointer;
 }
 
 .geo-fix-first-copilot-banner {
@@ -390,32 +368,6 @@
 	font-size: 0.75rem;
 }
 
-.geo-by-topic-tile-link {
-	align-self: flex-start;
-	background: none;
-	border: none;
-	padding: 0;
-	margin-top: 0.25rem;
-	color: var(--color-primary);
-	font-weight: 600;
-	font-size: 0.75rem;
-	cursor: pointer;
-}
-
-// GeoPageAnalysisTable.tsx.
-.geo-page-analysis-export {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.375rem;
-	background: none;
-	border: 1px solid var(--border-color);
-	border-radius: 0.375rem;
-	padding: 0.375rem 0.75rem;
-	font-size: 0.8125rem;
-	font-weight: 500;
-	cursor: pointer;
-}
-
 .geo-page-visibility-bar {
 	display: flex;
 	align-items: center;
@@ -517,20 +469,6 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
-
-.kg-entity-toggle {
-	background: none;
-	border: none;
-	padding: 0;
-	margin-top: 0.5rem;
-	color: var(--sub-text-color);
-	font-size: 0.75rem;
-	cursor: pointer;
-
-	&:hover {
-		color: var(--color-primary);
-	}
 }
 
 // KnowledgeGraphTab.tsx's "What should you check?" panel.

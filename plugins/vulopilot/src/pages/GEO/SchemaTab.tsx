@@ -4,6 +4,7 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -196,13 +197,14 @@ const SchemaTab = () => {
 												</td>
 												<td>{row.problems}</td>
 												<td>
-													<span
-														className={`admin-badge ${row.problems === 0 ? 'green' : 'yellow'}`}
-													>
-														{row.problems === 0
-															? __('Good', 'vulopilot')
-															: __('Check', 'vulopilot')}
-													</span>
+													<BadgeComponent
+														color={row.problems === 0 ? 'green' : 'yellow'}
+														text={
+															row.problems === 0
+																? __('Good', 'vulopilot')
+																: __('Check', 'vulopilot')
+														}
+													/>
 												</td>
 											</tr>
 										))}
@@ -249,9 +251,7 @@ const SchemaTab = () => {
 								<div>
 									<div className="kg-check-title">{tool.title}</div>
 									<div className="kg-check-desc">{tool.desc}</div>
-									<span className="admin-badge">
-										{__('Not built yet', 'vulopilot')}
-									</span>
+									<BadgeComponent text={__('Not built yet', 'vulopilot')} />
 								</div>
 							</div>
 						))}

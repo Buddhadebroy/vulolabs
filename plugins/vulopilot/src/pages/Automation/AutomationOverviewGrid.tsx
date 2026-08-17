@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import {
@@ -158,13 +158,14 @@ const AutomationOverviewGrid = ({
 									/>
 								</span>
 								<strong>{automation.name}</strong>
-								<span
-									className={`admin-badge ${'enabled' === automation.status ? 'green' : 'indigo'}`}
-								>
-									{'enabled' === automation.status
-										? __('Active', 'vulopilot')
-										: __('Inactive', 'vulopilot')}
-								</span>
+								<BadgeComponent
+									color={'enabled' === automation.status ? 'green' : 'indigo'}
+									text={
+										'enabled' === automation.status
+											? __('Active', 'vulopilot')
+											: __('Inactive', 'vulopilot')
+									}
+								/>
 							</div>
 							<p className="automation-overview-card-desc">
 								{actionLabels.length > 0

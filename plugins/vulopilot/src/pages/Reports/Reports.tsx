@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import {
-	ContainerComponent,
+	NavigatorComponent,
 	NavigatorHeaderComponent,
-	TabsComponent,
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
@@ -12,6 +11,15 @@ import ReportTab from './ReportTab';
 import ActivityTab from './ActivityTab';
 
 const TAB_IDS = ['overview', 'report', 'activity'] as const;
+
+const TAB_META: Record<
+	(typeof TAB_IDS)[number],
+	{ headerTitle: string; headerIcon: string }
+> = {
+	overview: { headerTitle: __('Overview', 'vulopilot'), headerIcon: 'bar-chart' },
+	report: { headerTitle: __('Report Builder', 'vulopilot'), headerIcon: 'report' },
+	activity: { headerTitle: __('Activity', 'vulopilot'), headerIcon: 'clock' },
+};
 
 /**
  * "Reports" — a tab shell. The reference mockup originally showed 3 tabs
@@ -39,13 +47,22 @@ const TAB_IDS = ['overview', 'report', 'activity'] as const;
  *   scheduled reports).
  *
  * Same `subtab` deep-link convention as every other tab shell
- * (`?page=vulopilot#&tab=reports&subtab=<inner-tab>`). `TabsComponent`
- * is wrapped in its own `ContainerComponent general` here — every other
- * multi-tab page shell (Automation.tsx/Performance.tsx/Security.tsx)
- * already wraps its own `TabsComponent` this way; this page previously
- * didn't, so the tab bar rendered flush against the page edge instead of
- * sharing the same left padding as the tab content below it, reading as
- * "left aligned" relative to it.
+ * (`?page=vulopilot#&tab=reports&subtab=<inner-tab>`). Tab bar/body are
+ * `NavigatorComponent` (`variant="tab"`) rather than a bare `TabsComponent`
+ * — same real settings-navigator component AIAssistant.tsx's own tab shell
+ * already uses, reused here instead of hand-rolling a second `TAB_IDS`-
+ * driven tab bar. `headerTitle`/`headerDescription` are deliberately left
+ * unset on it — this page's own `NavigatorHeaderComponent` above already
+ * renders the page header, and passing them here would render a second,
+ * duplicate one (`NavigatorHeaderComponent` only renders when at least one
+ * of the two is set). `NavigatorComponent` also wraps its own tab body in
+ * `ContainerComponent general` internally, so — unlike the old
+ * `TabsComponent`, which needed one wrapped around it here to match the
+ * left padding every other tab shell's own `ContainerComponent` already
+ * gave it — there's no separate wrapper needed around it now. Each tab's
+ * `hideSettingHeader: true` suppresses `NavigatorComponent`'s own per-tab
+ * title/description section, since `OverviewTab`/`ReportTab`/`ActivityTab`
+ * already render their own.
  */
 const Reports = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -57,12 +74,40 @@ const Reports = () => {
 			: 'overview'
 	) as (typeof TAB_IDS)[number];
 
-	const [activeTab, setActiveTab] =
-		useState<(typeof TAB_IDS)[number]>(initialTab);
+	// No setter needed — unlike AIAssistant.tsx's own `activeTab`, nothing
+	// here ever triggers a cross-tab jump from inside a tab's own content,
+	// so this only ever seeds NavigatorComponent's `currentSetting` with
+	// the URL's initial `subtab`; NavigatorComponent tracks the active tab
+	// itself from there (its own `activeSetting` state, updated by its
+	// tab-bar Link clicks / prepareUrl's pushState).
+	const [activeTab] = useState<(typeof TAB_IDS)[number]>(initialTab);
 	// Whole-site scan, same reasoning Dashboard's Run Audit widget/
 	// Health.tsx's own header button already use (this page reports on
 	// every category, not one).
 	const { runScanButton } = useRunScan();
+
+	const settingContent = TAB_IDS.map((tabId) => ({
+		type: 'file' as const,
+		content: {
+			id: tabId,
+			headerTitle: TAB_META[tabId].headerTitle,
+			headerIcon: TAB_META[tabId].headerIcon,
+			hideSettingHeader: true,
+		},
+	}));
+
+	const getForm = (tabId: string) => {
+		switch (tabId) {
+			case 'overview':
+				return <OverviewTab />;
+			case 'report':
+				return <ReportTab />;
+			case 'activity':
+				return <ActivityTab />;
+			default:
+				return <div></div>;
+		}
+	};
 
 	return (
 		<>
@@ -75,27 +120,17 @@ const Reports = () => {
 				)}
 				buttons={[runScanButton]}
 			/>
-			<ContainerComponent general>
-				<TabsComponent
-					className="reports-tabs"
-					activeIndex={TAB_IDS.indexOf(activeTab)}
-					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
-					tabs={[
-						{
-							label: __('Overview', 'vulopilot'),
-							content: <OverviewTab />,
-						},
-						{
-							label: __('Report Builder', 'vulopilot'),
-							content: <ReportTab />,
-						},
-						{
-							label: __('Activity', 'vulopilot'),
-							content: <ActivityTab />,
-						},
-					]}
-				/>
-			</ContainerComponent>
+			<NavigatorComponent
+				className="reports-tabs"
+				settingContent={settingContent}
+				currentSetting={activeTab}
+				getForm={getForm}
+				prepareUrl={(subTab: string) =>
+					`?page=vulopilot#&tab=reports&subtab=${subTab}`
+				}
+				Link={Link}
+				variant="tab"
+			/>
 		</>
 	);
 };

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { useLastScanTime } from '../../services/useLastScanTime';
@@ -324,9 +324,7 @@ const SecurityMetricsGrid = ({
 					<CardComponent key={tile.id} className="security-metric-tile">
 						<i className={`security-metric-icon adminfont-${tile.icon}`} />
 						<div className="security-metric-title">{tile.title}</div>
-						<span className={`admin-badge ${badge.color}`}>
-							{badge.text}
-						</span>
+						<BadgeComponent color={badge.color} text={badge.text} />
 						<div className="desc">{tile.desc}</div>
 						{isTracked && (
 							<div className="security-metric-last-scan">

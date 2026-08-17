@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ActivityListComponent, ModuleGuardComponent } from '@zyra/components';
+import { ActivityListComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
@@ -75,7 +75,7 @@ const RecentChangesWidget: React.FC<WidgetProps> = ({
 						id: String(row.id),
 						icon: EVENT_ICONS[row.event_type] ?? 'update',
 						title: row.message,
-						badge: <span className="admin-badge blue">AI</span>,
+						badge: <BadgeComponent color="blue" text="AI" />,
 						timestamp: formatWpDate(row.created_at),
 						action: {
 							label: __('Undo', 'vulopilot'),

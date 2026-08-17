@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 
@@ -58,11 +58,10 @@ const WhatHappenedThisMonth = () => {
 							<span className="reports-timeline-message">
 								{row.message}
 							</span>
-							<span
-								className={`admin-badge badge-${row.severity}`}
-							>
-								{row.severity}
-							</span>
+							<BadgeComponent
+								color={`badge-${row.severity}`}
+								text={row.severity}
+							/>
 						</li>
 					))}
 				</ul>

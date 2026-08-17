@@ -7,6 +7,7 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import { formatWpDate } from '../../services/formatWpDate';
 
@@ -102,9 +103,7 @@ const KeywordsTab = () => {
 					{!isLoading && status && status.connected && (
 						<>
 							<div className="keywords-connected-row">
-								<span className="admin-badge green">
-									{__('Connected', 'vulopilot')}
-								</span>
+								<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
 								{status.search_console_site && (
 									<span className="desc">
 										<i className="adminfont-search" /> {status.search_console_site}

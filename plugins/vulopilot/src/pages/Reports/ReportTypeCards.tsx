@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 
 interface ReportRow {
 	id: number;
@@ -129,21 +129,20 @@ const ReportTypeCards = () => {
 										: '—'}
 									{trend?.change_percent !== null &&
 										trend?.change_percent !== undefined && (
-											<span
-												className={
+											<BadgeComponent
+												color={
 													trend.change_percent <= 0
-														? 'admin-badge green'
-														: 'admin-badge red'
+														? 'green'
+														: 'red'
 												}
-											>
-												{trend.change_percent > 0
-													? '↑'
-													: '↓'}{' '}
-												{Math.abs(
+												text={`${
+													trend.change_percent > 0
+														? '↑'
+														: '↓'
+												} ${Math.abs(
 													trend.change_percent
-												)}
-												%
-											</span>
+												)}%`}
+											/>
 										)}
 								</p>
 								<p className="report-type-card-desc">

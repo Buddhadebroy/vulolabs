@@ -1,6 +1,7 @@
 /* global appLocalizer */
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 
@@ -124,14 +125,14 @@ const GeoPageAnalysisTable = ({
 			titleIcon="report"
 			desc={__('Click a row to see full details.', 'vulopilot')}
 			action={
-				<button
-					type="button"
-					className="geo-page-analysis-export"
-					onClick={handleExport}
-				>
-					<i className="adminfont-download" />
-					{__('Export CSV', 'vulopilot')}
-				</button>
+				<ButtonInput
+					buttons={{
+						text: __('Export CSV', 'vulopilot'),
+						leftIcon: 'download',
+						color: 'border-purple',
+						onClick: handleExport,
+					}}
+				/>
 			}
 		>
 			{error ? (

@@ -37,19 +37,17 @@ const AutomationOverviewTab = ({
 	onManageAutomations,
 }: AutomationOverviewTabProps) => {
 	return (
-		<ColumnComponent>
+		<>
 			<AutomationHeroRow onManageAutomations={onManageAutomations} />
 
-			<ContainerComponent>
-				<ColumnComponent grid={8}>
-					<AutomationOverviewGrid
-						onManageAutomations={onManageAutomations}
-					/>
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<AutomationAttentionCard onViewAll={onManageAutomations} />
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent grid={8}>
+				<AutomationOverviewGrid
+					onManageAutomations={onManageAutomations}
+				/>
+			</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<AutomationAttentionCard onViewAll={onManageAutomations} />
+			</ColumnComponent>
 
 			<AutomationPeriodStatsCard
 				onScrollToCreate={onManageAutomations}
@@ -58,19 +56,17 @@ const AutomationOverviewTab = ({
 
 			<AutomationComposerCard />
 
-			<ContainerComponent>
-				<ColumnComponent grid={8}>
-					<AutomationActivityCard />
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<AiForemanCard onScrollToCreate={onManageAutomations} />
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent grid={8}>
+				<AutomationActivityCard />
+			</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<AiForemanCard onScrollToCreate={onManageAutomations} />
+			</ColumnComponent>
 
 			<AutomationLinksRow onScrollToCreate={onManageAutomations} />
 
 			<AutomationExploreBanner onExplore={onManageAutomations} />
-		</ColumnComponent>
+		</>
 	);
 };
 

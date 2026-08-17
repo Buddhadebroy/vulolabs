@@ -147,17 +147,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 			 * 3 simple stat cards above, they get their own full-width rows
 			 * rather than being crammed into a 4-up grid.
 			 */}
-			<ContainerComponent general>
-				<ColumnComponent grid={12}>
-					<CompetitorRadarCard />
-				</ColumnComponent>
-			</ContainerComponent>
-
-			<ContainerComponent general>
-				<ColumnComponent grid={12}>
-					<VisibilityTrendCard />
-				</ColumnComponent>
-			</ContainerComponent>
+				<CompetitorRadarCard />
+				<VisibilityTrendCard />
 		</>
 	);
 };

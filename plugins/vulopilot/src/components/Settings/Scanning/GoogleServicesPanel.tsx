@@ -6,6 +6,7 @@ import {
 	CardComponent,
 	ModuleGuardComponent,
 	NoticeManager,
+	BadgeComponent,
 } from '@zyra/components';
 import { ButtonInput, SelectInput, ToggleInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
@@ -386,9 +387,7 @@ const GoogleServicesPanel = () => {
 				<>
 					<CardComponent title={__('Connection', 'vulopilot')} titleIcon="admin-links">
 						<div className="gsc-connected-row">
-							<span className="admin-badge green">
-								{__('Connected', 'vulopilot')}
-							</span>
+							<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
 							{status.connected_at && (
 								<span className="desc">
 									{__('Since', 'vulopilot')} {formatWpDate(status.connected_at)}
@@ -431,14 +430,15 @@ const GoogleServicesPanel = () => {
 										['adsense', __('AdSense', 'vulopilot')],
 									] as const
 								).map(([key, label]) => (
-									<span
+									<BadgeComponent
 										key={key}
-										className={`admin-badge ${testResults[key] ? 'green' : 'yellow'}`}
-									>
-										{label}: {testResults[key]
-											? __('OK', 'vulopilot')
-											: __('Failed', 'vulopilot')}
-									</span>
+										color={testResults[key] ? 'green' : 'yellow'}
+										text={`${label}: ${
+											testResults[key]
+												? __('OK', 'vulopilot')
+												: __('Failed', 'vulopilot')
+										}`}
+									/>
 								))}
 							</div>
 						)}

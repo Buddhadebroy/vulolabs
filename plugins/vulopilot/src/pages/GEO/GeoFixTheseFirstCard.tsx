@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
 import { formatAffected } from '../AIAssistant/issuesTypes';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
@@ -61,13 +62,13 @@ const GeoFixTheseFirstCard = ({
 			isLoading={isLoading}
 			badges={[{ text: String(total), color: 'red' }]}
 			action={
-				<button
-					type="button"
-					className="geo-card-view-all"
-					onClick={onViewAll}
-				>
-					{__('View all', 'vulopilot')} ›
-				</button>
+				<ButtonInput
+					buttons={{
+						text: `${__('View all', 'vulopilot')} ›`,
+						color: 'text-purple',
+						onClick: onViewAll,
+					}}
+				/>
 			}
 		>
 			{!isLoading && 0 === topRows.length ? (
@@ -87,13 +88,13 @@ const GeoFixTheseFirstCard = ({
 						desc: group.sample?.description || '',
 						action: () => onSelectScanner(group.scanner_id),
 						tags: (
-							<button
-								type="button"
-								className="geo-fix-first-view-pages"
-								onClick={() => onSelectScanner(group.scanner_id)}
-							>
-								{formatAffected(group.count, group.object_type)}
-							</button>
+							<ButtonInput
+								buttons={{
+									text: formatAffected(group.count, group.object_type),
+									color: 'border-light',
+									onClick: () => onSelectScanner(group.scanner_id),
+								}}
+							/>
 						),
 					}))}
 				/>

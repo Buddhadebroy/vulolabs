@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
-import { CardComponent, ListComponent } from '@zyra/components';
+import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import {
 	PRODUCT_SCANNER_IDS,
@@ -169,15 +169,14 @@ const TopIssuesToWorkOn = ({
 						),
 						tags: (
 							<>
-								<span
-									className={`admin-badge ${IMPACT_COLOR[group.severity]}`}
-								>
-									{IMPACT_LABEL[group.severity]}
-								</span>
+								<BadgeComponent
+									color={IMPACT_COLOR[group.severity]}
+									text={IMPACT_LABEL[group.severity]}
+								/>
 								<ButtonInput
 									buttons={{
-										text: __('Review →', 'vulopilot'),
-										color: 'border-purple',
+										text: __('Review', 'vulopilot'),
+										color: 'text-purple',
 										onClick: () => {
 											window.location.href = `${appLocalizer.admin_url}#&tab=ai-assistant&subtab=issues&scanner_id=${encodeURIComponent(group.scanner_id)}`;
 										},

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ColumnComponent, ContainerComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent, ContainerComponent, BadgeComponent } from '@zyra/components';
 
 interface BrandScoreResponse {
 	brand_score: number;
@@ -124,11 +124,11 @@ const BrandScoreCard = () => {
 							{data && (
 								<>
 									<div className="crawler-stat-value">{score}/100</div>
-									<span
-										className={`admin-badge geo-four-checks-badge ${ratingClass(score)}`}
-									>
-										{getRating(score)}
-									</span>
+									<BadgeComponent
+										className="geo-four-checks-badge"
+										color={ratingClass(score)}
+										text={getRating(score)}
+									/>
 								</>
 							)}
 						</CardComponent>

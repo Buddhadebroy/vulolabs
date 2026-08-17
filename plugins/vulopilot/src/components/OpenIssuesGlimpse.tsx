@@ -1,9 +1,8 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ListComponent, ModuleGuardComponent, ColumnComponent } from '@zyra/components';
+import { CardComponent, ListComponent, ModuleGuardComponent, ColumnComponent, BadgeComponent } from '@zyra/components';
 import { useApiList } from '../services/useApiList';
 import { FindingSeverity, getSeverityClass } from '../services/getSeverityClass';
-import './OpenIssuesGlimpse.scss';
 
 interface FindingRow {
 	id: number;
@@ -106,8 +105,8 @@ const OpenIssuesGlimpse = ({
 		}
 
 		el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		el.classList.add('vulopilot-glimpse-highlight');
-		setTimeout(() => el.classList.remove('vulopilot-glimpse-highlight'), 1200);
+		el.classList.add('module-list-item', 'highlight');
+		setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
 	};
 
 	const handleItemClick = onItemClick ?? scrollToSection;
@@ -124,13 +123,14 @@ const OpenIssuesGlimpse = ({
 				) : (
 					<>
 						{!isLoading && (
-							<div className="admin-badge green">
-								{sprintf(
+							<BadgeComponent
+								color="green"
+								text={sprintf(
 									/* translators: %d is the number of open findings. */
 									__('%d open', 'vulopilot'),
 									total
 								)}
-							</div>
+							/>
 						)}
 						<ListComponent
 							className="mini-card report"
@@ -139,11 +139,10 @@ const OpenIssuesGlimpse = ({
 								title: finding.title,
 								action: () => handleItemClick(finding.scanner_id),
 								tags: (
-									<span
-										className={`admin-badge ${getSeverityClass(finding.severity)}`}
-									>
-										{finding.severity}
-									</span>
+									<BadgeComponent
+										color={getSeverityClass(finding.severity)}
+										text={finding.severity}
+									/>
 								),
 							}))}
 						/>

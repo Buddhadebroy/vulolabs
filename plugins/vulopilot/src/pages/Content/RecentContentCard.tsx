@@ -8,6 +8,7 @@ import {
 	InformationItemComponent,
 	NoticeManager,
 	PopupComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import {
 	ButtonInput,
@@ -851,10 +852,9 @@ const RecentContentCard = () => {
 							// wired via `row.expandedContent` below) — this is
 							// just a static count/severity indicator.
 							return (
-								<span
-									className={`admin-badge badge-${worstSeverity(openFindings)}`}
-								>
-									{sprintf(
+								<BadgeComponent
+									color={`badge-${worstSeverity(openFindings)}`}
+									text={sprintf(
 										_n(
 											'%d issue',
 											'%d issues',
@@ -863,7 +863,7 @@ const RecentContentCard = () => {
 										),
 										findings.length
 									)}
-								</span>
+								/>
 							);
 						},
 					},

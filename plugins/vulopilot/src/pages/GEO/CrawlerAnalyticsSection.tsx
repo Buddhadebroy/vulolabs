@@ -7,6 +7,7 @@ import {
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
+	BadgeComponent,
 } from '@zyra/components';
 import {
 	Area,
@@ -373,21 +374,22 @@ const CrawlerAnalyticsSection = ({
 									}`}
 								/>
 								<span className="crawler-checklist-label">{item.label}</span>
-								<span
-									className={`admin-badge ${
+								<BadgeComponent
+									color={
 										null === item.isGood
 											? ''
 											: item.isGood
 												? 'green'
 												: 'yellow'
-									}`}
-								>
-									{null === item.isGood
-										? __('Checking…', 'vulopilot')
-										: item.isGood
-											? __('Good', 'vulopilot')
-											: __('Warning', 'vulopilot')}
-								</span>
+									}
+									text={
+										null === item.isGood
+											? __('Checking…', 'vulopilot')
+											: item.isGood
+												? __('Good', 'vulopilot')
+												: __('Warning', 'vulopilot')
+									}
+								/>
 							</div>
 						))}
 					</div>

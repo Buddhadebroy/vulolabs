@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import { formatWpDate } from '../../services/formatWpDate';
 
 interface ScheduleRow {
@@ -86,17 +86,14 @@ const ReportSchedulesSummary = () => {
 							/>
 						) : (
 							<>
-								<span
-									className={
+								<BadgeComponent
+									color={latest.is_enabled ? 'green' : ''}
+									text={
 										latest.is_enabled
-											? 'admin-badge green'
-											: 'admin-badge'
+											? __('Enabled', 'vulopilot')
+											: __('Disabled', 'vulopilot')
 									}
-								>
-									{latest.is_enabled
-										? __('Enabled', 'vulopilot')
-										: __('Disabled', 'vulopilot')}
-								</span>
+								/>
 								<p className="report-schedule-detail">
 									{latest.last_run_at
 										? sprintf(

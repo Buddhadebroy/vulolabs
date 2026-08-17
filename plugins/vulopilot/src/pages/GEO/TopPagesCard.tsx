@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ColumnComponent, ListComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent, ListComponent, BadgeComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 
 interface TopPageRow {
 	post_id: number;
@@ -89,17 +90,19 @@ const TopPagesCard = ({
 						window.location.href = row.edit_link;
 					},
 					tags: (
-						<span className="admin-badge">
-							{row.open_findings === 0
-								? __('No issues', 'vulopilot')
-								: row.open_findings === 1
-									? __('1 issue', 'vulopilot')
-									: sprintf(
-											/* translators: %d is the number of open GEO issues. */
-											__('%d issues', 'vulopilot'),
-											row.open_findings
-										)}
-						</span>
+						<BadgeComponent
+							text={
+								row.open_findings === 0
+									? __('No issues', 'vulopilot')
+									: row.open_findings === 1
+										? __('1 issue', 'vulopilot')
+										: sprintf(
+												/* translators: %d is the number of open GEO issues. */
+												__('%d issues', 'vulopilot'),
+												row.open_findings
+											)
+							}
+						/>
 					),
 				}))}
 			/>
@@ -122,13 +125,13 @@ const TopPagesCard = ({
 			isLoading={isLoading}
 			action={
 				onViewAll && (
-					<button
-						type="button"
-						className="geo-card-view-all"
-						onClick={onViewAll}
-					>
-						{__('View all', 'vulopilot')} ›
-					</button>
+					<ButtonInput
+						buttons={{
+							text: `${__('View all', 'vulopilot')} ›`,
+							color: 'text-purple',
+							onClick: onViewAll,
+						}}
+					/>
 				)
 			}
 		>

@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { useSectionStatus } from '../../services/useSectionStatus';
@@ -248,7 +248,7 @@ const MetricsGrid = ({
 					<CardComponent key={tile.id} className="performance-metric-tile">
 						<i className={`performance-metric-icon adminfont-${tile.icon}`} />
 						<div className="performance-metric-title">{tile.title}</div>
-						<span className={`admin-badge ${badge.color}`}>{badge.text}</span>
+						<BadgeComponent color={badge.color} text={badge.text} />
 						<div className="desc">{tile.desc}</div>
 						<ButtonInput
 							wrapperClass="performance-metric-view"

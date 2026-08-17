@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ActivityListComponent, CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { ActivityListComponent, CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 
@@ -56,7 +56,7 @@ const RecentAchievementsCard = () => {
 						id: String(row.id),
 						icon: 'check',
 						title: row.message,
-						badge: <span className="admin-badge blue">AI</span>,
+						badge: <BadgeComponent color="blue" text="AI" />,
 						timestamp: formatWpDate(row.created_at),
 						action: {
 							label: __('Undo', 'vulopilot'),
