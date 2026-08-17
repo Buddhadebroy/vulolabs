@@ -9,6 +9,7 @@ import {
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { scrollToId } from '@zyra/core';
 import SectionedFindingsTab from '../Security/SectionedFindingsTab';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
@@ -275,16 +276,6 @@ const AeoTab = () => {
 	// own docblock for why this is a second real request rather than a
 	// shared one.
 	const pagesReady = aeoPages.filter((page) => 0 === page.open_findings).length;
-
-	const scrollToId = (id: string) => {
-		const el = document.getElementById(id);
-		if (!el) {
-			return;
-		}
-		el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		el.classList.add('module-list-item', 'highlight');
-		setTimeout(() => el.classList.remove('module-list-item', 'highlight'), 1200);
-	};
 
 	const goToIssuesTable = (tab: SectionedIssuesTab = 'all') => {
 		setActiveTab(tab);

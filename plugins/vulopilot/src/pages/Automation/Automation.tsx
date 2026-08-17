@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import {
-	ContainerComponent,
+	NavigatorComponent,
 	NavigatorHeaderComponent,
-	TabsComponent,
 } from '@zyra/components';
 import AutomationOverviewTab from './AutomationOverviewTab';
 import ManageAutomationsSection from './ManageAutomationsSection';
@@ -12,11 +11,19 @@ import './AutomateWork.scss';
 
 const TAB_IDS = ['overview', 'automations'] as const;
 
+const TAB_META: Record<
+	(typeof TAB_IDS)[number],
+	{ headerTitle: string; headerIcon: string }
+> = {
+	overview: { headerTitle: __('Overview', 'vulopilot'), headerIcon: 'bar-chart' },
+	automations: { headerTitle: __('Automations', 'vulopilot'), headerIcon: 'automation' },
+};
+
 /**
- * "Automate Work" — a tab shell over two views, same
- * subtab-deep-link/TabsComponent pattern this codebase's other
- * multi-tab pages already use (GEO.tsx/Content.tsx/Performance.tsx/
- * Security.tsx). "Overview" (AutomationOverviewTab.tsx) is the new
+ * "Automate Work" — a tab shell over two views. Tab bar/body are
+ * `NavigatorComponent` (`variant="tab"`) rather than a bare `TabsComponent`
+ * — same real settings-navigator AIAssistant.tsx's/Reports.tsx's own tab
+ * shells already use. "Overview" (AutomationOverviewTab.tsx) is the new
  * dashboard-style view merging the latest mockup with this page's real
  * cards; "Automations" is today's real list/create/enable/run management
  * UI (ManageAutomationsSection.tsx, unchanged, just given its own tab
@@ -25,6 +32,17 @@ const TAB_IDS = ['overview', 'automations'] as const;
  * single-page rebuild — the new mockup itself shows an "Overview"/
  * "Automations" tab bar, so this isn't a new pattern, it's this page
  * catching back up to it.
+ *
+ * `headerTitle`/`headerDescription` are deliberately left unset on
+ * `NavigatorComponent` — this page's own `NavigatorHeaderComponent` above
+ * already renders the page header, and passing them here would render a
+ * second, duplicate one. Each tab's `hideSettingHeader: true` suppresses
+ * `NavigatorComponent`'s own per-tab title/description section, since
+ * `AutomationOverviewTab`/`ManageAutomationsSection` already render their
+ * own. `activeTab`'s setter is still needed (unlike Reports.tsx's own
+ * conversion) — `AutomationOverviewTab`'s "Manage automations" action
+ * jumps to the Automations tab programmatically via `goToAutomationsTab`,
+ * same cross-tab-trigger case AIAssistant.tsx's own `goToTab` handles.
  */
 const Automation = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -42,6 +60,31 @@ const Automation = () => {
 
 	const goToAutomationsTab = () => setActiveTab('automations');
 
+	const settingContent = TAB_IDS.map((tabId) => ({
+		type: 'file' as const,
+		content: {
+			id: tabId,
+			headerTitle: TAB_META[tabId].headerTitle,
+			headerIcon: TAB_META[tabId].headerIcon,
+			hideSettingHeader: true,
+		},
+	}));
+
+	const getForm = (tabId: string) => {
+		switch (tabId) {
+			case 'overview':
+				return (
+					<AutomationOverviewTab
+						onManageAutomations={goToAutomationsTab}
+					/>
+				);
+			case 'automations':
+				return <ManageAutomationsSection />;
+			default:
+				return <div></div>;
+		}
+	};
+
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -52,27 +95,17 @@ const Automation = () => {
 					'vulopilot'
 				)}
 			/>
-			<ContainerComponent general>
-				<TabsComponent
-					className="automate-work-tabs"
-					activeIndex={TAB_IDS.indexOf(activeTab)}
-					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
-					tabs={[
-						{
-							label: __('Overview', 'vulopilot'),
-							content: (
-								<AutomationOverviewTab
-									onManageAutomations={goToAutomationsTab}
-								/>
-							),
-						},
-						{
-							label: __('Automations', 'vulopilot'),
-							content: <ManageAutomationsSection />,
-						},
-					]}
-				/>
-			</ContainerComponent>
+			<NavigatorComponent
+				className="automate-work-tabs"
+				settingContent={settingContent}
+				currentSetting={activeTab}
+				getForm={getForm}
+				prepareUrl={(subTab: string) =>
+					`?page=vulopilot#&tab=automation&subtab=${subTab}`
+				}
+				Link={Link}
+				variant="tab"
+			/>
 		</>
 	);
 };
