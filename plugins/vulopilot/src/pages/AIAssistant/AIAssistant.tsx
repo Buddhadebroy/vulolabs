@@ -1,5 +1,7 @@
-import { useState } from 'react';
+/* global appLocalizer */
+import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	PopupComponent,
 	NavigatorComponent,
@@ -9,6 +11,10 @@ import ChatTab from './ChatTab';
 import HistoryTab from './HistoryTab';
 import { IssuesFilter } from './NeedsAttentionCard';
 import { Link } from 'react-router-dom';
+
+interface ConfiguredProviderRow {
+	is_active: boolean;
+}
 
 const TAB_IDS = [
 	'chat',
@@ -37,6 +43,27 @@ const AIAssistant = () => {
 	const [historySelectId, setHistorySelectId] = useState<number | null>(
 		null
 	);
+	// Real, not decorative — "Online" only means something once at least
+	// one AI provider is actually connected and active (same `is_active`
+	// flag ProviderRegistry::build_fallback_chain() itself checks before
+	// trying a provider — AiProvidersPanel.tsx's own GET /ai-providers).
+	// Starts `null` (unknown) rather than defaulting to either state, so
+	// there's a moment before the fetch resolves where no badge is shown
+	// instead of briefly claiming a status that hasn't been confirmed yet.
+	const [hasActiveAiProvider, setHasActiveAiProvider] = useState<
+		boolean | null
+	>(null);
+
+	useEffect(() => {
+		getApiResponse<{ configured?: ConfiguredProviderRow[] }>(
+			getApiLink(appLocalizer, 'ai-providers'),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		).then((response) => {
+			setHasActiveAiProvider(
+				(response?.configured ?? []).some((row) => row.is_active)
+			);
+		});
+	}, []);
 
 	const goToTab = (tab: string, filter?: IssuesFilter, selectId?: number) => {
 		if ((TAB_IDS as readonly string[]).includes(tab)) {
@@ -154,12 +181,21 @@ const AIAssistant = () => {
 					'vulopilot'
 				)}
 				showPremiumLink={false}
-				badges={[
-					{ 
-						text: `● ${__('Online', 'vulopilot')}`, 
-						color: 'green' 
-					}
-				]}
+				badges={
+					null === hasActiveAiProvider
+						? []
+						: [
+								hasActiveAiProvider
+									? {
+											text: `● ${__('Online', 'vulopilot')}`,
+											color: 'green',
+										}
+									: {
+											text: `● ${__('Offline', 'vulopilot')}`,
+											color: 'red',
+										},
+							]
+				}
 				buttons={[
 					{
 						label: __('How it works', 'vulopilot'),

@@ -376,7 +376,7 @@ const HistoryTab = ({
 								{tab.label}
 								{typeCounts[tab.id] > 0 && (
 									<span className="issues-category-tab-count">
-										{typeCounts[tab.id]}
+										{` (${typeCounts[tab.id]})`}
 									</span>
 								)}
 							</span>
