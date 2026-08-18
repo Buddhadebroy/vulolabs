@@ -2,6 +2,7 @@
 import React from 'react';
 import { ButtonInput } from '@zyra/inputs';
 import { __, sprintf } from '@wordpress/i18n';
+import MODULES_CATALOG, { isModuleCatalogEntry } from '../Modules';
 import '../Popup/Popup.scss';
 
 interface PopupProps {
@@ -17,106 +18,84 @@ const formatModuleName = (name: string): string => {
 };
 
 /**
- * The Pro tier of exactly the 13 modules on the Modules page
- * (../Modules/index.ts's catalog — the user's own mockup's 13 cards, no
- * more), same names/copy, kept in sync with that file rather than invented
- * separately. GEO Radar and AEO Autopilot share one entry here too (both
- * real 'geo-insights'). WooCommerce AI/Intelligence, Advanced Reports, and
- * MCP Server were previously listed here but no longer have a card on the
- * Modules page at all — dropped so this pitch doesn't advertise modules
- * this page can't actually point the user at.
+ * Every real module id from ../Modules/index.ts's own catalog, keyed for a
+ * cheap lookup below — 'geo-insights' resolves to whichever of its two
+ * cards (GEO Radar/AEO Autopilot, both real 'geo-insights') comes first in
+ * that file, since both represent the same underlying module and this
+ * popup has no way to know which specific feature the caller meant.
+ */
+const MODULE_CATALOG_BY_ID = new Map(
+	MODULES_CATALOG.modules
+		.filter(isModuleCatalogEntry)
+		.map((module) => [module.id, module])
+);
+
+/**
+ * Resolves a real module id to the SAME name Settings → Modules shows for
+ * it — used to render `Activate {name}` below. Falls back to a plain
+ * Title-Cased-from-kebab guess only for the handful of real, backend
+ * modules that have no card on that page at all ('advanced-reports',
+ * 'one-click-fix' — see Modules/index.ts's own docblock for why), since
+ * there's no human-authored name anywhere in this catalog to look up for
+ * those. Fixes a real mismatch this popup used to always have: every
+ * moduleName call site with a real card (`automation`, `accessibility-
+ * audits`, `geo-insights`, …) previously showed this same guessed name
+ * ("Activate Automation") instead of that module's own real, branded name
+ * ("Activate Workflow Autopilot — Automation Engine") — two different
+ * names for the same module, depending on which part of the app you saw
+ * it locked from.
+ */
+const resolveModuleDisplayName = (moduleId: string): string =>
+	MODULE_CATALOG_BY_ID.get(moduleId)?.name ?? formatModuleName(moduleId);
+
+/**
+ * Real icons for the 2 real backend modules with no catalog entry at all
+ * (see Modules/index.ts's own ModuleCatalogEntry.icon docblock) — kept
+ * local here rather than added to that catalog, which would misleadingly
+ * imply these two have a real card to point `moduleName`'s "Enable Now"
+ * link at.
+ */
+const CARDLESS_MODULE_ICONS: Record<string, string> = {
+	'advanced-reports': 'report',
+	'one-click-fix': 'tools',
+};
+
+/**
+ * Resolves a real module id to a real `adminfont-*` glyph — every id in
+ * Modules/index.ts's own catalog uses that entry's `icon` field; the 2
+ * cardless ids above use CARDLESS_MODULE_ICONS; anything else (there
+ * shouldn't be one) falls back to the id itself, same as before this
+ * lookup existed. Fixes a real regression this popup would otherwise have:
+ * `module.id` values (`geo-insights`, `accessibility-audits`, …) aren't
+ * real icon glyph names in zyra's fonts.scss — confirmed only 1 of the 15
+ * real module ids used across this file (`automation`) happens to also be
+ * a defined `adminfont-automation` glyph, so deriving icons straight from
+ * id would silently render a blank icon for the other 14.
+ */
+const resolveModuleIcon = (moduleId: string): string =>
+	MODULE_CATALOG_BY_ID.get(moduleId)?.icon ??
+	CARDLESS_MODULE_ICONS[moduleId] ??
+	moduleId;
+
+/**
+ * The generic "what Pro adds" pitch's feature list — derived straight from
+ * ../Modules/index.ts's own catalog (the real Settings → Modules page data,
+ * already kept in sync with the backend's real module ids/proFeatures)
+ * rather than a second, separately hand-maintained copy of the same
+ * information. That second copy is what used to live here: an 11-entry
+ * array of module names/blurbs, manually kept in sync "by hand" per its own
+ * former docblock — the exact kind of duplicated, hardcoded module list
+ * this repo's module-architecture.md and this refactor both ask to avoid.
  */
 const proPopupContent = {
-	messages: [
-		{
-			icon: 'global-community',
-			text: __('GEO Radar / AEO Autopilot', 'vulopilot'),
-			des: __(
-				'Historical GEO trend charts, scheduled automated scans, AI-powered bulk fixes, llms.txt generation, and multi-engine answer testing.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'attachment',
-			text: __('Knowledge Graph', 'vulopilot'),
-			des: __(
-				'Entity relationship mapping, AI-powered graph enrichment, and Schema.org graph export.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'ai',
-			text: __('Bot Watch', 'vulopilot'),
-			des: __(
-				'Historical AI-crawler trends, anomaly alerts, and 12-month log retention.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'megaphone',
-			text: __('Brand Radar', 'vulopilot'),
-			des: __(
-				'Off-site mention monitoring, share-of-voice tracking, and competitor comparison via a connected Ahrefs account.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'seo',
-			text: __('SEO Copilot', 'vulopilot'),
-			des: __(
-				'Keyword rank tracking, keyword cannibalization detection, and Google Search Console integration.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'document',
-			text: __('Content Copilot', 'vulopilot'),
-			des: __(
-				'AI rewrite & expansion, topic clustering, and content gap analysis vs. competitors.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'report',
-			text: __('Speed Radar', 'vulopilot'),
-			des: __(
-				'Historical performance trends, scheduled audits, and AI-generated optimization suggestions.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'accessibility',
-			text: __('Accessibility Guard', 'vulopilot'),
-			des: __(
-				'Bulk accessibility fixes, scheduled audits, and historical WCAG compliance reports.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'security',
-			text: __('Security Watchtower', 'vulopilot'),
-			des: __(
-				'Scheduled security scans, a live CVE vulnerability feed, plugin/theme integrity monitoring, and alerts & incident reports.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'tools',
-			text: __('AI Copilot', 'vulopilot'),
-			des: __(
-				'One-click AI fixes, bulk AI fixes across any module, and auto-apply with an approval queue.',
-				'vulopilot'
-			),
-		},
-		{
-			icon: 'automation',
-			text: __('Workflow Autopilot', 'vulopilot'),
-			des: __(
-				'Custom triggers & conditions, scheduled workflows, and auto-react to scan findings.',
-				'vulopilot'
-			),
-		},
-	],
+	messages: MODULES_CATALOG.modules
+		.filter(isModuleCatalogEntry)
+		.filter((module) => module.proModule)
+		.map((module) => ({
+			icon: resolveModuleIcon(module.id),
+			text: module.name,
+			des: (module.proFeatures ?? []).join(', '),
+		})),
 };
 
 const ShowProPopup: React.FC<PopupProps> = (props) => {
@@ -164,17 +143,20 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 	}
 
 	if (props.moduleName) {
+		const displayName = resolveModuleDisplayName(props.moduleName);
+		const displayIcon = resolveModuleIcon(props.moduleName);
+
 		return (
 			<div className="popup-wrapper">
 				<div className="popup-header">
-					<i className={`adminfont-${props.moduleName}`} />
+					<i className={`adminfont-${displayIcon}`} />
 				</div>
 				<div className="popup-body">
 					<div className="module-name">
 						{sprintf(
 							/* translators: %s: Module name. */
 							__('Activate %s', 'vulopilot'),
-							formatModuleName(props.moduleName)
+							displayName
 						)}
 					</div>
 					<div className="module-desc">
@@ -184,7 +166,7 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 								'This feature is currently unavailable. To activate it, please enable the %s module.',
 								'vulopilot'
 							),
-							formatModuleName(props.moduleName)
+							displayName
 						)}
 					</div>
 					<ButtonInput
