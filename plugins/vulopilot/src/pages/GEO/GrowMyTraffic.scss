@@ -832,6 +832,31 @@
 	}
 }
 
+// RedirectsTab.tsx's own outer ContainerComponent. GEO.tsx's tab shell
+// nests every tab's content one `<ContainerComponent general>` (display:
+// flex, flex-direction: row — ContainerComponent.scss) deep inside its
+// own, and neither ContainerComponent nor its `.container-wrapper` class
+// ever sets a width on itself, so as a flex item this tab's whole page
+// shrinks-to-fit its own content's intrinsic width instead of filling the
+// row. Tabs whose content happens to be wide (BrokenLinksTab.tsx's stat
+// tiles, long finding titles/URLs) mask this by accident; this tab's two
+// narrow-column tables (a handful of short cells each) don't, and were
+// rendering at roughly half the available page width with a large empty
+// gutter on the right — confirmed via a real rendered screenshot, not a
+// guess. `width: 100%` on the item itself (not a descendant) is what
+// CardComponent.scss already does for exactly this reason — its own root
+// element sets it directly, which is why BrokenLinksTab.tsx's
+// CardComponent-wrapped sections reliably reach full width regardless of
+// their content. Same fix, applied to this tab's own outer wrapper
+// instead of introducing a CardComponent wrapper around each TableCard
+// (TableCard's own `.admin-table-wrapper` already renders as its own
+// full card — white background, padding — so nesting it inside another
+// CardComponent would double up that padding/border instead of just
+// fixing the width).
+.vulopilot-redirects-page {
+	width: 100%;
+}
+
 // BrokenLinksTab.tsx.
 .broken-link-redirect-form {
 	display: flex;

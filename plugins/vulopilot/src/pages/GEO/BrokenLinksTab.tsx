@@ -127,6 +127,18 @@ const deriveSourcePath = (url: string): string | null => {
 };
 
 /**
+ * True when a finding's broken URL points at a different site entirely —
+ * i.e. deriveSourcePath() above returns null for it. Used to disable the
+ * "Create redirect" row action up front for these rows (dynamic
+ * label/icon/onClick, see the `actions` array below) instead of only
+ * rejecting the click after the fact, since RedirectManager.php can
+ * never intercept a request that never reaches this site in the first
+ * place.
+ */
+const isExternalFinding = (finding: BrokenLinkFinding): boolean =>
+	!deriveSourcePath(getBrokenUrl(finding));
+
+/**
  * Real, client-side CSV built straight from whatever rows are actually
  * loaded/selected in the table — no server endpoint exists for this, and
  * none is needed: every field here already came back from `GET /findings`.
@@ -308,6 +320,18 @@ const formatCheckedAt = (unixSeconds: number | null): string =>
  * so unlike a regex-pattern-style reference UI this field is a real path,
  * not a pattern the backend would never actually evaluate as one.
  *
+ * For a finding whose broken URL is on a different site entirely
+ * (isExternalFinding, above), this same action's label swaps to an
+ * explanation and its onClick becomes a no-op instead of opening the
+ * popup — RedirectManager.php can only ever intercept a request that
+ * actually reaches this site, so a redirect "from" someone else's domain
+ * would never fire. TableRowActions.tsx (zyra) always renders an action's
+ * `label` as that action's own hover tooltip (inline icons) or the text
+ * next to it (the "more" dropdown, once there are more than 2 actions,
+ * which is always true here) — there's no separate disabled/tooltip prop
+ * to hook into upstream, so swapping label+icon+onClick together based on
+ * the row is what actually surfaces the explanation without a zyra change.
+ *
  * Not built: the reference mockup's page-grouped table (one row per
  * source page, aggregating "1 page issue + 3 broken" style counts). This
  * tab keeps the existing flat one-row-per-finding table instead — a
@@ -459,10 +483,31 @@ const BrokenLinksTab = () => {
 			...(tableCardProps.headers as Record<string, any>).actions,
 			actions: [
 				{
-					label: __('Create redirect', 'vulopilot'),
-					icon: 'link',
-					onClick: (row?: Record<string, unknown>) =>
-						row && openRedirectPopup(row as BrokenLinkFinding),
+					// Both the label (also this action's hover/dropdown
+					// tooltip text — TableRowActions.tsx renders it as
+					// that regardless of which of the two row-action
+					// layouts is in play) and the icon flip for an
+					// external row, so hovering the disabled action
+					// explains why instead of only rejecting the click
+					// after the fact.
+					label: (row?: Record<string, unknown>) =>
+						row && isExternalFinding(row as BrokenLinkFinding)
+							? __(
+									"External links can't be redirected from this site",
+									'vulopilot'
+								)
+							: __('Create redirect', 'vulopilot'),
+					icon: (row?: Record<string, unknown>) =>
+						row && isExternalFinding(row as BrokenLinkFinding)
+							? 'lock'
+							: 'link',
+					onClick: (row?: Record<string, unknown>) => {
+						if (!row || isExternalFinding(row as BrokenLinkFinding)) {
+							return;
+						}
+
+						openRedirectPopup(row as BrokenLinkFinding);
+					},
 				},
 				...existingActions,
 			],
