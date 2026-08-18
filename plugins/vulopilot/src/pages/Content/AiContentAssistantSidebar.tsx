@@ -4,14 +4,13 @@ import axios from 'axios';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
 import {
-	CardComponent,
 	ChatInputComponent,
 	ChatMessageComponent,
 	ListComponent,
 	NoticeManager,
 } from '@zyra/components';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
-import AiCopilotGuard from '../../components/AiCopilotGuard';
+import ChatComposerCard from '../../components/ChatComposerCard';
 
 interface ChatLink {
 	url: string;
@@ -221,50 +220,42 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	return (
-		<CardComponent
-			title={__('AI Content Assistant', 'vulopilot')}
-			titleIcon="ai"
-		>
-			<AiCopilotGuard>
-				<ChatMessageComponent>
-					{sprintf(
-						/* translators: %s: the real logged-in WP user's own display name */
-						__(
-							'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
-							'vulopilot'
-						),
-						appLocalizer.current_user_display_name
+		<ChatComposerCard<ChatTurn>
+			cardTitle={__('AI Content Assistant', 'vulopilot')}
+			cardTitleIcon="ai"
+			guarded
+			welcome={sprintf(
+				/* translators: %s: the real logged-in WP user's own display name */
+				__(
+					'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
+					'vulopilot'
+				),
+				appLocalizer.current_user_display_name
+			)}
+			turns={turns}
+			renderTurn={(turn, index) => (
+				<ChatMessageComponent
+					key={index}
+					sender={'user' === turn.role ? 'user' : 'ai'}
+				>
+					<ChatMarkdown text={turn.content} />
+					{turn.link && (
+						<div className="content-assistant-created-link">
+							<a
+								className="content-assistant-created-link-anchor"
+								href={turn.link.url}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{turn.link.label}
+							</a>
+						</div>
 					)}
 				</ChatMessageComponent>
-
-				{turns.map((turn, index) => (
-					<ChatMessageComponent
-						key={index}
-						sender={'user' === turn.role ? 'user' : 'ai'}
-					>
-						<ChatMarkdown text={turn.content} />
-						{turn.link && (
-							<div className="content-assistant-created-link">
-								<a
-									className="content-assistant-created-link-anchor"
-									href={turn.link.url}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{turn.link.label}
-								</a>
-							</div>
-						)}
-					</ChatMessageComponent>
-				))}
-
-				{isSending && (
-					<ChatMessageComponent sender="ai">
-						<i className="adminfont-refresh content-assistant-spinner" />{' '}
-						{__('Thinking…', 'vulopilot')}
-					</ChatMessageComponent>
-				)}
-
+			)}
+			isSending={isSending}
+			sendingSpinnerClassName="content-assistant-spinner"
+			composer={
 				<ChatInputComponent
 					value={message}
 					onChange={setMessage}
@@ -276,6 +267,8 @@ const AiContentAssistantSidebar = () => {
 							: __('Ask Anything…', 'vulopilot')
 					}
 				/>
+			}
+			prompts={
 				<ListComponent
 					className="chip-grid"
 					items={PROMPT_CHIPS.map((prompt) => ({
@@ -285,8 +278,8 @@ const AiContentAssistantSidebar = () => {
 						action: () => handleChipClick(prompt),
 					}))}
 				/>
-			</AiCopilotGuard>
-		</CardComponent>
+			}
+		/>
 	);
 };
 

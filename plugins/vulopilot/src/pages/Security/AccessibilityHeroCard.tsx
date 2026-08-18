@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ChartComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent, ChartComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { ACCESSIBILITY_SCANNER_IDS } from './accessibilityChecks';
@@ -116,7 +116,7 @@ const AccessibilityHeroCard = ({
 		<CardComponent isLoading={!isReady} className="accessibility-hero">
 			{isReady && (
 				<>
-					<div className="accessibility-hero-score">
+					{/* <div className="accessibility-hero-score"> */}
 						<ChartComponent
 							type="pie"
 							height={90}
@@ -139,8 +139,8 @@ const AccessibilityHeroCard = ({
 								},
 							]}
 						/>
-					</div>
-					<p className="accessibility-hero-title">
+					{/* </div> */}
+					<div className="title">
 						{getRating(score as number)}
 						{null !== scoreDelta && (
 							<span
@@ -156,8 +156,8 @@ const AccessibilityHeroCard = ({
 								)}
 							</span>
 						)}
-					</p>
-					<p className="accessibility-hero-desc">
+					</div>
+					<div className="desc">
 						{total > 0
 							? sprintf(
 									/* translators: 1: number of open accessibility findings, 2: number of distinct pages affected. */
@@ -172,59 +172,59 @@ const AccessibilityHeroCard = ({
 									"You're all caught up — no open accessibility issues right now.",
 									'vulopilot'
 								)}
-					</p>
-					{total > 0 && (
-						<div className="accessibility-hero-stats">
-							<div className="accessibility-hero-stat is-total">
-								<span className="accessibility-hero-stat-value">
-									{total}
-								</span>
-								<span className="accessibility-hero-stat-label">
-									{__('Issues found', 'vulopilot')}
-								</span>
-							</div>
-							<div className="accessibility-hero-stat is-high">
-								<span className="accessibility-hero-stat-value">
-									{highCount}
-								</span>
-								<span className="accessibility-hero-stat-label">
-									{__('Should review first', 'vulopilot')}
-								</span>
-							</div>
-							<div className="accessibility-hero-stat is-pages">
-								<span className="accessibility-hero-stat-value">
-									{pagesAffected}
-								</span>
-								<span className="accessibility-hero-stat-label">
-									{__('Pages affected', 'vulopilot')}
-								</span>
-							</div>
-						</div>
-					)}
-					<div className="accessibility-hero-actions">
-						<ButtonInput
-							buttons={{
-								text: __('Review Important Issues', 'vulopilot'),
-								rightIcon: 'pagination-right-arrow',
-								color: 'purple-bg',
-								onClick: onReviewIssues,
-							}}
-						/>
-						{total > 0 && (
-							<ButtonInput
-								buttons={{
-									text: sprintf(
-										/* translators: %d is the number of open findings. */
-										__('View All %d Findings', 'vulopilot'),
-										total
-									),
-									rightIcon: 'pagination-right-arrow',
-									color: 'border-purple',
-									onClick: onViewAll,
-								}}
-							/>
-						)}
 					</div>
+					{total > 0 && (
+						<>
+							<AnalyticsComponent
+								variant="card"
+								data={[
+									{
+										number: total,
+										text: __('Issues found', 'vulopilot'),
+										colorClass: 'is-total red',
+									},
+									{
+										number: highCount,
+										text: __(
+											'Should review first',
+											'vulopilot'
+										),
+										colorClass: 'is-high green',
+									},
+									{
+										number: pagesAffected,
+										text: __('Pages affected', 'vulopilot'),
+										colorClass: 'is-pages blue',
+									},
+								]}
+							/>
+						</>
+					)}
+						<ButtonInput
+							position="full-width"
+							buttons={[
+								{
+									text: __('Review Important Issues', 'vulopilot'),
+									rightIcon: 'pagination-right-arrow',
+									color: 'purple-bg',
+									onClick: onReviewIssues,
+								},
+								...(total > 0
+									? [
+											{
+												text: sprintf(
+													/* translators: %d is the number of open findings. */
+													__('View All %d Findings', 'vulopilot'),
+													total
+												),
+												rightIcon: 'pagination-right-arrow',
+												color: 'border-purple',
+												onClick: onViewAll,
+											},
+										]
+									: []),
+							]}
+						/>
 				</>
 			)}
 		</CardComponent>

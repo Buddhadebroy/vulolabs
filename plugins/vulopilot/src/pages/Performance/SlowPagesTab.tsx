@@ -574,17 +574,6 @@ const SlowPagesTab = () => {
 								{pill.label} ({pill.count})
 							</button>
 						))}
-					</div>
-					<div className="page-speed-toolbar-actions">
-						{summary?.last_scanned_at && (
-							<span className="page-speed-last-scanned">
-								{sprintf(
-									/* translators: %s is a formatted date/time. */
-									__( 'Last scan: %s', 'vulopilot' ),
-									formatWpDate(summary.last_scanned_at)
-								)}
-							</span>
-						)}
 						<SelectInput
 							name="page_speed_trend_days"
 							value={trendDays}
@@ -599,31 +588,41 @@ const SlowPagesTab = () => {
 							onChange={(value) => setPageTypeFilter(value as string)}
 							size="12rem"
 						/>
-						<TextInput
-							name="page_speed_search"
-							placeholder={__( 'Search pages…', 'vulopilot' )}
-							value={searchTerm}
-							onChange={(value) => setSearchTerm(value as string)}
-						/>
-						<ButtonInput
-							buttons={[
-								{
-									text: __( 'Export', 'vulopilot' ),
-									icon: 'export',
-									color: 'border-purple',
-									onClick: handleExport,
-								},
-								{
-									text: isScanning
-										? __( 'Starting…', 'vulopilot' )
-										: __( 'Scan Again', 'vulopilot' ),
-									icon: 'refresh',
-									onClick: handleScan,
-									disabled: isScanning,
-								},
-							]}
-						/>
 					</div>
+					{summary?.last_scanned_at && (
+						<span className="page-speed-last-scanned">
+							{sprintf(
+								/* translators: %s is a formatted date/time. */
+								__( 'Last scan: %s', 'vulopilot' ),
+								formatWpDate(summary.last_scanned_at)
+							)}
+						</span>
+					)}
+					<TextInput
+						name="page_speed_search"
+						placeholder={__( 'Search pages…', 'vulopilot' )}
+						value={searchTerm}
+						onChange={(value) => setSearchTerm(value as string)}
+						wrapperClass="table-search"
+					/>
+					<ButtonInput
+						buttons={[
+							{
+								text: __( 'Export', 'vulopilot' ),
+								icon: 'export',
+								color: 'border-purple',
+								onClick: handleExport,
+							},
+							{
+								text: isScanning
+									? __( 'Starting…', 'vulopilot' )
+									: __( 'Scan Again', 'vulopilot' ),
+								icon: 'refresh',
+								onClick: handleScan,
+								disabled: isScanning,
+							},
+						]}
+					/>
 				</div>
 
 					{0 === filteredRows.length ? (

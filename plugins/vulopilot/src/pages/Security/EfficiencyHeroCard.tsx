@@ -38,7 +38,7 @@ const EfficiencyHeroCard = ({
 					<div className={`efficiency-hero-icon ${allGood ? 'is-good' : 'is-attention'}`}>
 						<i className="adminfont-analytics" />
 					</div>
-					<p className="efficiency-hero-title">
+					<div className="efficiency-hero-title">
 						{allGood
 							? __('Everything is running efficiently.', 'vulopilot')
 							: sprintf(
@@ -51,7 +51,7 @@ const EfficiencyHeroCard = ({
 									),
 									needAttention
 								)}
-					</p>
+					</div>
 					<p className="efficiency-hero-desc">
 						{allGood
 							? __(

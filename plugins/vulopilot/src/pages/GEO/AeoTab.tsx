@@ -7,6 +7,7 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	NoticeComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { scrollToId } from '@zyra/core';
@@ -293,15 +294,20 @@ const AeoTab = () => {
 
 	return (
 		<>
-			<div id="aeo-top-banner" className="geo-info-banner">
-				<i className="adminfont-info" />
-				<span>
-					<strong>{__('In plain English:', 'vulopilot')}</strong>{' '}
-					{__(
-						'When someone asks ChatGPT, Perplexity, or Google’s AI a question your page could answer, this checks whether your content is written so AI can actually quote it directly.',
-						'vulopilot'
+			{/* id kept on this wrapper, not NoticeComponent itself (no id prop) — real scrollToId('aeo-top-banner') target, see the "Learn More" tile's onClick below. */}
+			<div id="aeo-top-banner">
+				<NoticeComponent
+					// type="banner"
+					displayPosition="inline"
+					message={sprintf(
+						'<strong>%1$s</strong> %2$s',
+						__('In plain English:', 'vulopilot'),
+						__(
+							'When someone asks ChatGPT, Perplexity, or Google’s AI a question your page could answer, this checks whether your content is written so AI can actually quote it directly.',
+							'vulopilot'
+						)
 					)}
-				</span>
+				/>
 			</div>
 
 			<ContainerComponent>
@@ -489,9 +495,9 @@ const AeoTab = () => {
 						<a href="?page=vulopilot#&tab=ai-assistant" className="aeo-help-tile">
 							<i className="adminfont-ai" />
 							<div>
-								<p className="aeo-help-tile-title">
+								<div className="aeo-help-tile-title">
 									{__('Ask AI Copilot', 'vulopilot')}
-								</p>
+								</div>
 								<p className="aeo-help-tile-desc">
 									{__(
 										'Get real suggestions for improving your answer readiness.',
@@ -511,9 +517,9 @@ const AeoTab = () => {
 								<>
 									<i className="adminfont-yes-alt" />
 									<div>
-										<p className="aeo-help-tile-title">
+										<div className="aeo-help-tile-title">
 											{__('Fix Automatically', 'vulopilot')}
-										</p>
+										</div>
 										<p className="aeo-help-tile-desc">
 											{__(
 												'Jump to the issues table below to fix findings one by one or in bulk.',
@@ -535,9 +541,9 @@ const AeoTab = () => {
 								<>
 									<i className="adminfont-info" />
 									<div>
-										<p className="aeo-help-tile-title">
+										<div className="aeo-help-tile-title">
 											{__('Learn More', 'vulopilot')}
-										</p>
+										</div>
 										<p className="aeo-help-tile-desc">
 											{__(
 												'Understand how AEO helps AI answer engines find and quote your content.',
@@ -552,15 +558,14 @@ const AeoTab = () => {
 				</div>
 			</div>
 
-			<div className="geo-info-banner">
-				<i className="adminfont-info" />
-				<span>
-					{__(
-						'AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results.',
-						'vulopilot'
-					)}
-				</span>
-			</div>
+			<NoticeComponent
+				// type="banner"
+				displayPosition="inline"
+				message={__(
+					'AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results.',
+					'vulopilot'
+				)}
+			/>
 
 			<div id="aeo-page-analysis">
 				<GeoPageAnalysisTable

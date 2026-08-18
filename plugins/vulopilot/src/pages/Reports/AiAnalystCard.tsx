@@ -38,14 +38,14 @@ const AiAnalystCard = () => (
 					'vulopilot'
 				)}
 			>
-				<span
-					role="button"
-					aria-disabled="true"
-					className="ai-analyst-execute disabled"
-				>
-					<i className="adminfont-ai" />
-					{__('Let AI Execute Recommendations', 'vulopilot')}
-				</span>
+				<ButtonInput
+					buttons={{
+						text: __('Let AI Execute Recommendations', 'vulopilot'),
+						icon: 'ai',
+						disabled: true,
+						onClick: () => {},
+					}}
+				/>
 			</TooltipComponent>
 			<ButtonInput
 				buttons={{

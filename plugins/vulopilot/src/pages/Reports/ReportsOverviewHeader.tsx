@@ -121,14 +121,14 @@ const ReportsOverviewHeader = ({
 							'vulopilot'
 						)}
 					>
-						<span
-							role="button"
-							aria-disabled="true"
-							className="reports-download-pdf-disabled"
-						>
-							<i className="adminfont-download" />
-							{__('Download PDF', 'vulopilot')}
-						</span>
+						<ButtonInput
+							buttons={{
+								text: __('Download PDF', 'vulopilot'),
+								icon: 'download',
+								disabled: true,
+								onClick: () => {},
+							}}
+						/>
 					</TooltipComponent>
 				)}
 			</div>

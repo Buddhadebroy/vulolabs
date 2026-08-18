@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ChatInputComponent } from '@zyra/components';
+import { ChatInputComponent, ListComponent } from '@zyra/components';
+import ChatComposerCard from '../../components/ChatComposerCard';
 
 const AUTOMATE_PROMPTS = [
 	{ id: 'nightly', title: __('Optimize my website every night', 'vulopilot') },
@@ -26,42 +27,47 @@ const AutomationComposerCard = () => {
 	const [message, setMessage] = useState('');
 
 	return (
-		<CardComponent className="automate-composer-card">
-			<h2 className="automate-composer-title">
-				{__('What would you like me to automate?', 'vulopilot')}
-			</h2>
-			<ChatInputComponent
-				value={message}
-				onChange={setMessage}
-				onSend={() => setMessage('')}
-				placeholder={__(
-					'Ask VuloPilot to automate anything…',
-					'vulopilot'
-				)}
-				sendDisabledReason={__(
-					"Automating from a free-text request isn't available yet — build an automation with the form below instead.",
-					'vulopilot'
-				)}
-			/>
-			<div className="automate-composer-prompts">
-				{AUTOMATE_PROMPTS.map((prompt) => (
-					<button
-						key={prompt.id}
-						type="button"
-						className="automate-composer-prompt"
-						onClick={() => setMessage(prompt.title)}
-					>
-						{prompt.title}
-					</button>
-				))}
-			</div>
-			<p className="automate-composer-note">
-				{__(
-					"Automations run in the background on their own schedule — even while you're offline.",
-					'vulopilot'
-				)}
-			</p>
-		</CardComponent>
+		<ChatComposerCard
+			cardClassName="automate-composer-card"
+			header={
+				<h2 className="automate-composer-title">
+					{__('What would you like me to automate?', 'vulopilot')}
+				</h2>
+			}
+			composer={
+				<ChatInputComponent
+					value={message}
+					onChange={setMessage}
+					onSend={() => setMessage('')}
+					placeholder={__(
+						'Ask VuloPilot to automate anything…',
+						'vulopilot'
+					)}
+					sendDisabledReason={__(
+						"Automating from a free-text request isn't available yet — build an automation with the form below instead.",
+						'vulopilot'
+					)}
+				/>
+			}
+			prompts={
+				<ListComponent
+					className="chip-grid"
+					items={AUTOMATE_PROMPTS.map((prompt) => ({
+						id: prompt.id,
+						title: prompt.title,
+						action: () => setMessage(prompt.title),
+					}))}
+				/>
+			}
+			note={
+				<p className="automate-composer-note">
+					{__(
+						"Automations run in the background on their own schedule — even while you're offline.",
+						'vulopilot'
+					)}
+				</p>
+			}
+		/>
 	);
 };
 

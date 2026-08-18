@@ -6,6 +6,7 @@ import {
 	ModuleGuardComponent,
 	TooltipComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 
 interface AutomationRow {
@@ -106,16 +107,16 @@ const AiWorkflowsList: React.FC<AiWorkflowsListProps> = ({ limit }) => {
 					]}
 					rightContent={
 						<TooltipComponent text={RUN_DISABLED_REASON}>
-							<span
-								role="button"
-								aria-disabled="true"
-								className="ai-workflow-run-btn disabled"
-								onClick={(e: React.MouseEvent) =>
-									e.stopPropagation()
-								}
-							>
-								<span className="dashicons dashicons-controls-play" />
-							</span>
+							<ButtonInput
+								buttons={{
+									text: '',
+									disabled: true,
+									onClick: (e) => e.stopPropagation(),
+									children: (
+										<span className="dashicons dashicons-controls-play" />
+									),
+								}}
+							/>
 						</TooltipComponent>
 					}
 				/>

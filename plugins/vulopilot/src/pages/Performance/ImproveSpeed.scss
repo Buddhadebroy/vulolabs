@@ -97,13 +97,6 @@ $vulopilot-rating-very-poor: #991b1b;
 	cursor: pointer;
 }
 
-.speed-score-about-link {
-	display: inline-block;
-	margin-top: 0.75rem;
-	font-weight: 600;
-	color: var(--color-primary);
-}
-
 .core-web-vital-row {
 	margin-bottom: 1rem;
 
@@ -172,42 +165,10 @@ $vulopilot-rating-very-poor: #991b1b;
 	color: var(--sub-text-color, #9ca3af);
 }
 
-.performance-metrics-grid {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 0.875rem;
-
-	@media screen and (width <=64rem) {
-		grid-template-columns: repeat(2, 1fr);
-	}
-}
-
-.performance-metric-tile {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 0.5rem;
-
-	.performance-metric-icon {
-		font-size: 1.5rem;
-		color: var(--color-primary);
-	}
-
-	.performance-metric-title {
-		font-weight: 600;
-		font-size: 0.9rem;
-	}
-
-	.performance-metric-view {
-		width: 100%;
-		margin-top: 0.25rem;
-
-		.admin-btn {
-			width: 100%;
-			justify-content: center;
-		}
-	}
-}
+// `.performance-metrics-grid`/`.performance-metric-tile`'s own icon/
+// title/badge/footer-button shell now comes from the shared
+// `<MetricTile variant="performance">` (MetricTile.scss) — nothing
+// page-specific was left to declare here.
 
 // The grid/tile/label/value box model used to be declared here — removed
 // now that the 4 stats render through a real Zyra `<AnalyticsComponent
@@ -293,8 +254,13 @@ $vulopilot-rating-very-poor: #991b1b;
 	margin-bottom: 1rem;
 }
 
+// Holds both the status pills and the trend-days/page-type SelectInputs —
+// the two selects used to sit in the now-removed .page-speed-toolbar-actions
+// wrapper alongside the search box/export/scan buttons; they're grouped
+// here with the pills instead, as this toolbar's one filter group.
 .page-speed-filter-pills {
 	display: flex;
+	align-items: center;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 }
@@ -321,11 +287,12 @@ $vulopilot-rating-very-poor: #991b1b;
 	}
 }
 
-.page-speed-toolbar-actions {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 0.5rem;
+// TextInput's own wrapperClass hook (default `.setting-form-input
+// .input-wrapper` from TextInput.tsx itself) — same flex-basis convention
+// RecentContentCard.tsx's own `.recent-content-search` already uses for a
+// search box sharing a toolbar row with other controls.
+.table-search {
+	flex: 1 1 14rem;
 }
 
 // `.page-speed-export-button`/`.page-speed-scan-button`'s own outline-button

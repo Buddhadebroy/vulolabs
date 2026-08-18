@@ -8,6 +8,7 @@ import {
 	ColumnComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import './ImproveSpeed.scss';
 
 interface DashboardSummary {
@@ -287,9 +288,13 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 										)}
 							</div>
 
-							<button type="button" className="speed-score-view-slow-pages" onClick={onViewDetails}>
-								{__('View Slow Pages', 'vulopilot')}
-							</button>
+							<ButtonInput
+								position="full-width"
+								buttons={{
+									text: __('View Slow Pages', 'vulopilot'),
+									onClick: onViewDetails,
+								}}
+							/>
 						</>
 					)}
 				</CardComponent>
@@ -346,14 +351,18 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 									)}
 								</>
 							)}
-							<a
-								href="https://web.dev/articles/vitals"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="speed-score-about-link"
-							>
-								{__('About Core Web Vitals', 'vulopilot')} ↗
-							</a>
+							<ButtonInput
+								buttons={{
+									text: `${__('About Core Web Vitals', 'vulopilot')} ↗`,
+									color: 'border-purple',
+									onClick: () =>
+										window.open(
+											'https://web.dev/articles/vitals',
+											'_blank',
+											'noopener,noreferrer'
+										),
+								}}
+							/>
 						</>
 					)}
 				</CardComponent>

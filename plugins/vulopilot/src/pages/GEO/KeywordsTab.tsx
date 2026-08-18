@@ -1,12 +1,13 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
+	NoticeComponent,
 	BadgeComponent,
 } from '@zyra/components';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -61,16 +62,18 @@ const KeywordsTab = () => {
 	return (
 		<ContainerComponent general>
 			<ColumnComponent>
-				<div className="geo-info-banner">
-					<i className="adminfont-info" />
-					<span>
-						<strong>{__('In plain English:', 'vulopilot')}</strong>{' '}
-						{__(
+				<NoticeComponent
+					// type="banner"
+					displayPosition="inline"
+					message={sprintf(
+						'<strong>%1$s</strong> %2$s',
+						__('In plain English:', 'vulopilot'),
+						__(
 							'This is where you’d see which real Google search queries your pages already rank for, and where — once a rank-tracking data source is connected.',
 							'vulopilot'
-						)}
-					</span>
-				</div>
+						)
+					)}
+				/>
 
 				<CardComponent
 					title={__('Ranking Keywords', 'vulopilot')}

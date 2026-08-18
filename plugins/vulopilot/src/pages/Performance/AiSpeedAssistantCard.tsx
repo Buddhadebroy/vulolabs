@@ -70,16 +70,18 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 						'vulopilot'
 					)}
 				>
-					<span
-						role="button"
-						aria-disabled="true"
-						className="ai-speed-optimize disabled"
-					>
-						<i className="adminfont-ai" />
-						{__('Let AI Optimize Speed', 'vulopilot')}
-					</span>
+					<ButtonInput
+						position="full-width"
+						buttons={{
+							text: __('Let AI Optimize Speed', 'vulopilot'),
+							icon: 'ai',
+							disabled: true,
+							onClick: () => {},
+						}}
+					/>
 				</TooltipComponent>
 				<ButtonInput
+					position="full-width"
 					buttons={{
 						text: __('Review Speed Issues →', 'vulopilot'),
 						color: 'border-purple',

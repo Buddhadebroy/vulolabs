@@ -5,6 +5,7 @@ import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	ModuleGuardComponent,
+	NoticeComponent,
 	NoticeManager,
 	BadgeComponent,
 } from '@zyra/components';
@@ -359,9 +360,9 @@ const GoogleServicesPanel = () => {
 									disabled: isConnecting,
 								}}
 							/>
-							<p className="gsc-benefits-title">
+							<div className="gsc-benefits-title">
 								{__('Benefits of connecting your Google account', 'vulopilot')}
-							</p>
+							</div>
 							<ul className="gsc-benefits-list">
 								{BENEFITS.map((benefit) => (
 									<li key={benefit}>
@@ -369,15 +370,14 @@ const GoogleServicesPanel = () => {
 									</li>
 								))}
 							</ul>
-							<div className="geo-info-banner">
-								<i className="adminfont-info" />
-								<span>
-									{__(
-										'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site. Tokens are encrypted at rest the same way every other API key in VuloPilot is.',
-										'vulopilot'
-									)}
-								</span>
-							</div>
+							<NoticeComponent
+								// type="banner"
+								displayPosition="inline"
+								message={__(
+									'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site. Tokens are encrypted at rest the same way every other API key in VuloPilot is.',
+									'vulopilot'
+								)}
+							/>
 						</div>
 					)}
 				</CardComponent>
@@ -602,27 +602,25 @@ const GoogleServicesPanel = () => {
 						)}
 					</CardComponent>
 
-					<div className="geo-info-banner">
-						<i className="adminfont-info" />
-						<span>
-							{__(
-								'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site.',
-								'vulopilot'
-							)}
-						</span>
-					</div>
+					<NoticeComponent
+						// type="banner"
+						displayPosition="inline"
+						message={__(
+							'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site.',
+							'vulopilot'
+						)}
+					/>
 				</>
 			)}
 
-			<div className="geo-info-banner">
-				<i className="adminfont-info" />
-				<span>
-					{__(
-						'Connecting and selecting a property only proves this site can read your real Google data. Storing/reporting on that data over time — the Analytics Database, Frontend Stats Bar, Email Reports, and pulling real ranking keywords onto the Keywords tab — is the next step, not built yet. Flag if you want any of it scoped next.',
-						'vulopilot'
-					)}
-				</span>
-			</div>
+			<NoticeComponent
+				// type="banner"
+				displayPosition="inline"
+				message={__(
+					'Connecting and selecting a property only proves this site can read your real Google data. Storing/reporting on that data over time — the Analytics Database, Frontend Stats Bar, Email Reports, and pulling real ranking keywords onto the Keywords tab — is the next step, not built yet. Flag if you want any of it scoped next.',
+					'vulopilot'
+				)}
+			/>
 		</>
 	);
 };

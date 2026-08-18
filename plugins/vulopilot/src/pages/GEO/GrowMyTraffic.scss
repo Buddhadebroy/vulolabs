@@ -61,23 +61,13 @@
 	white-space: nowrap;
 }
 
-// GeoTab.tsx's own two static explanatory banners.
-.geo-info-banner {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.625rem;
-	background: #eafaf0;
-	border-radius: 0.5rem;
-	padding: 0.75rem 1rem;
-	margin-bottom: 1rem;
-	font-size: 0.8125rem;
-	color: #166534;
-
-	i {
-		margin-top: 0.125rem;
-		color: #16a34a;
-	}
-}
+// GeoTab.tsx's own two static explanatory banners, plus every other
+// "In plain English:"/AEO/AI-account-data disclosure banner across GEO
+// (SeoTab.tsx, AeoTab.tsx, KeywordsTab.tsx, BrandVisibilityTab.tsx,
+// GoogleServicesPanel.tsx) — all now render through zyra's own
+// NoticeComponent (`type="banner"` + `displayPosition="inline"`,
+// NoticeComponent.scss's own `.type-banner`/`.display-inline` rules), so no
+// local styling is needed here anymore.
 
 // GeoVisibilityOverviewRow.tsx's "Overall AI Visibility" card.
 .geo-overall-visibility {

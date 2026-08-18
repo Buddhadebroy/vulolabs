@@ -3,22 +3,6 @@
 	font-size: 1.0625rem;
 }
 
-.automate-composer-prompts {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-	margin-top: 0.75rem;
-}
-
-.automate-composer-prompt {
-	border: 0.0625rem solid var(--border-color);
-	border-radius: 0.5rem;
-	background: var(--background-white);
-	padding: 0.5rem 0.75rem;
-	font-size: 0.8125rem;
-	cursor: pointer;
-}
-
 .automate-composer-note {
 	margin: 0.75rem 0 0;
 	color: var(--sub-text-color);
@@ -75,11 +59,6 @@
 	color: var(--sub-text-color);
 	font-size: 0.8125rem;
 	margin: 0 0 0.75rem;
-}
-
-.automation-link-action {
-	font-size: 0.8125rem;
-	font-weight: 600;
 }
 
 // AutomationHeroRow.tsx — "Your website is being watched" + "Sit back

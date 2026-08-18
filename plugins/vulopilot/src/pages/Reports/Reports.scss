@@ -654,38 +654,10 @@
 	color: var(--color-primary);
 }
 
-// ScheduleReportBanner.tsx.
-.reports-schedule-banner {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	margin-top: 1rem;
-	padding: 1rem 1.25rem;
-	border-radius: 0.75rem;
-	background: var(--background-primary, #ece2f9);
-
-	> i {
-		flex-shrink: 0;
-		font-size: 1.5rem;
-		color: var(--color-primary);
-	}
-}
-
-.reports-schedule-banner-body {
-	flex-grow: 1;
-}
-
-.reports-schedule-banner-title {
-	margin: 0;
-	font-weight: 700;
-	font-size: 0.9375rem;
-}
-
-.reports-schedule-banner-desc {
-	margin: 0.125rem 0 0;
-	color: var(--sub-text-color);
-	font-size: 0.8125rem;
-}
+// ScheduleReportBanner.tsx now renders through zyra's own NoticeComponent
+// (`type="banner"` + `displayPosition="inline"`, NoticeComponent.scss's own
+// `.type-banner`/`.display-inline` rules) — no local styling needed here
+// anymore.
 
 // OverviewTab.tsx's own kept-but-not-in-the-mockup legacy section (see
 // that file's own docblock).

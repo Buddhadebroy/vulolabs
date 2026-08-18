@@ -244,9 +244,9 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 									__('(new content)', 'vulopilot')}
 							</p>
 							<h4>{__('After', 'vulopilot')}</h4>
-							<p className="issue-detail-example-title">
+							<div className="issue-detail-example-title">
 								{row.change.after}
-							</p>
+							</div>
 						</div>
 					)}
 

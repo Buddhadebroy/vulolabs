@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
-import { CardComponent, ContainerComponent } from '@zyra/components';
+import { __, sprintf } from '@wordpress/i18n';
+import { CardComponent, ContainerComponent, NoticeComponent } from '@zyra/components';
 import { scrollToId } from '@zyra/core';
 import TopPagesCard from './TopPagesCard';
 import { useFilterSlot } from '../../services/useFilterSlot';
@@ -197,16 +197,18 @@ const GeoTab = () => {
 
 	return (
 		<>
-			<div className="geo-info-banner">
-				<i className="adminfont-info" />
-				<span>
-					<strong>{__('In plain English:', 'vulopilot')}</strong>{' '}
-					{__(
+			<NoticeComponent
+				// type="banner"
+				displayPosition="inline"
+				message={sprintf(
+					'<strong>%1$s</strong> %2$s',
+					__('In plain English:', 'vulopilot'),
+					__(
 						'When someone asks ChatGPT, Gemini, or Google’s AI a question your site could answer, you’ll be more likely to get found and recommended.',
 						'vulopilot'
-					)}
-				</span>
-			</div>
+					)
+				)}
+			/>
 
 			<GeoVisibilityOverviewRow
 				snapshot={snapshot}
@@ -246,15 +248,14 @@ const GeoTab = () => {
 				)}
 			</ContainerComponent>
 
-			<div className="geo-info-banner">
-				<i className="adminfont-info" />
-				<span>
-					{__(
-						'This page shows how easy it is for AI tools to find, understand, and recommend your website. Fixing the issues above helps you show up when people ask AI a question you could answer.',
-						'vulopilot'
-					)}
-				</span>
-			</div>
+			<NoticeComponent
+				// type="banner"
+				displayPosition="inline"
+				message={__(
+					'This page shows how easy it is for AI tools to find, understand, and recommend your website. Fixing the issues above helps you show up when people ask AI a question you could answer.',
+					'vulopilot'
+				)}
+			/>
 
 			<GeoByTopicGrid
 				topics={GEO_TOPICS}

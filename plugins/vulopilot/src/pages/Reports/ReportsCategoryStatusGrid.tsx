@@ -61,9 +61,9 @@ const ReportsCategoryStatusGrid = ({
 						>
 							<CardComponent className="reports-category-tile">
 								<i className={`adminfont-${category.icon}`} />
-								<p className="reports-category-tile-title">
+								<div className="reports-category-tile-title">
 									{category.label}
-								</p>
+								</div>
 								<p className="reports-category-tile-sublabel">
 									{category.sublabel}
 								</p>
