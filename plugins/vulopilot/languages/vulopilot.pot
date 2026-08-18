@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-17T12:50:27+00:00\n"
+"POT-Creation-Date: 2026-08-18T12:51:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -116,7 +116,7 @@ msgstr ""
 #: classes/Admin.php:235
 #: classes/RestAPI/Controllers/Copilot.php:591
 #: classes/RestAPI/Controllers/ReportsOverview.php:253
-#: classes/Scanners/Basic/SeoScanner.php:44
+#: classes/Scanners/Basic/SeoScanner.php:47
 #: assets/js/index.js:1
 msgid "SEO"
 msgstr ""
@@ -133,14 +133,13 @@ msgid "Schema"
 msgstr ""
 
 #: classes/Admin.php:252
-#: assets/js/index.js:1
 msgid "Redirects & 404s"
 msgstr ""
 
 #: classes/Admin.php:258
 #: classes/RestAPI/Controllers/Copilot.php:594
 #: classes/RestAPI/Controllers/ReportsOverview.php:284
-#: classes/Scanners/Basic/AccessibilityScanner.php:46
+#: classes/Scanners/Basic/AccessibilityScanner.php:49
 #: assets/js/index.js:1
 msgid "Accessibility"
 msgstr ""
@@ -179,11 +178,11 @@ msgstr ""
 msgid "Tools"
 msgstr ""
 
-#: classes/AIActions/ActionRunner.php:182
+#: classes/AIActions/ActionRunner.php:197
 msgid "This action run cannot be rolled back."
 msgstr ""
 
-#: classes/AIActions/ActionRunner.php:226
+#: classes/AIActions/ActionRunner.php:241
 msgid "This action run is not awaiting approval."
 msgstr ""
 
@@ -1341,8 +1340,9 @@ msgstr ""
 #: classes/RestAPI/Controllers/Findings.php:321
 #: classes/RestAPI/Controllers/Findings.php:327
 #: classes/RestAPI/Controllers/Findings.php:338
-#: classes/RestAPI/Controllers/History.php:377
-#: classes/RestAPI/Controllers/History.php:380
+#: classes/RestAPI/Controllers/History.php:509
+#: classes/RestAPI/Controllers/History.php:601
+#: classes/RestAPI/Controllers/History.php:604
 #: assets/js/index.js:1
 msgid "Site-wide"
 msgstr ""
@@ -1367,48 +1367,54 @@ msgstr ""
 msgid "No findings selected."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:207
+#: classes/RestAPI/Controllers/GoogleServices.php:215
 msgid "Google Connect isn’t configured for this build yet."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:280
+#: classes/RestAPI/Controllers/GoogleServices.php:288
 msgid "No site selected."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:291
+#: classes/RestAPI/Controllers/GoogleServices.php:299
 msgid "That property isn’t in your Search Console account."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:320
+#: classes/RestAPI/Controllers/GoogleServices.php:328
 msgid "No property given."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:348
+#: classes/RestAPI/Controllers/GoogleServices.php:356
 msgid "Account, property, and data stream are all required."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:361
+#: classes/RestAPI/Controllers/GoogleServices.php:369
 msgid "That Analytics account isn’t available."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:367
+#: classes/RestAPI/Controllers/GoogleServices.php:375
 msgid "That Analytics property isn’t available."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:379
+#: classes/RestAPI/Controllers/GoogleServices.php:387
 msgid "That data stream isn’t available."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:417
+#: classes/RestAPI/Controllers/GoogleServices.php:425
 msgid "No AdSense account selected."
 msgstr ""
 
-#: classes/RestAPI/Controllers/GoogleServices.php:429
+#: classes/RestAPI/Controllers/GoogleServices.php:437
 msgid "That AdSense account isn’t available."
 msgstr ""
 
-#: classes/RestAPI/Controllers/History.php:200
+#: classes/RestAPI/Controllers/History.php:207
 msgid "Could not delete this history entry."
+msgstr ""
+
+#: classes/RestAPI/Controllers/History.php:437
+#: classes/RestAPI/Controllers/History.php:497
+#: assets/js/index.js:1
+msgid "(no title)"
 msgstr ""
 
 #: classes/RestAPI/Controllers/IndexNow.php:93
@@ -2003,72 +2009,72 @@ msgid "This site has an About page, but it doesn't yet give AI answer engines or
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/AccessibilityScanner.php:79
+#: classes/Scanners/Basic/AccessibilityScanner.php:84
 #, php-format
 msgid "Content contains its own <h1>: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/AccessibilityScanner.php:84
+#: classes/Scanners/Basic/AccessibilityScanner.php:89
 msgid "Most themes already render the title as the page's <h1>. A second <h1> in the content creates a conflicting heading hierarchy for screen readers."
 msgstr ""
 
-#: classes/Scanners/Basic/AeoSchemaScanner.php:67
+#: classes/Scanners/Basic/AeoSchemaScanner.php:70
 msgid "AEO Schema Coverage"
 msgstr ""
 
 #. translators: 1: schema.org type (FAQPage/HowTo), 2: post/page title.
-#: classes/Scanners/Basic/AeoSchemaScanner.php:163
+#: classes/Scanners/Basic/AeoSchemaScanner.php:168
 #, php-format
 msgid "Missing %1$s schema: %2$s"
 msgstr ""
 
 #. translators: %s is the schema.org type (FAQPage/HowTo).
-#: classes/Scanners/Basic/AeoSchemaScanner.php:171
+#: classes/Scanners/Basic/AeoSchemaScanner.php:176
 #, php-format
 msgid "This content is already shaped like %s content (matching headings/list structure) but has no matching schema.org markup, so AI answer engines can't confidently recognize it as one."
 msgstr ""
 
-#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:48
+#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:51
 msgid "AI Crawler Blocked Pages"
 msgstr ""
 
 #. translators: 1: bot display name, 2: post/page title.
-#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:104
+#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:111
 #, php-format
 msgid "%1$s is blocked from crawling: %2$s"
 msgstr ""
 
 #. translators: %s is the bot display name.
-#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:112
+#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:119
 #, php-format
 msgid "robots.txt disallows this page for %s specifically, so it won't be read for AI answers even though the rest of the site may be reachable."
 msgstr ""
 
-#: classes/Scanners/Basic/AriaAttributesScanner.php:46
+#: classes/Scanners/Basic/AriaAttributesScanner.php:49
 msgid "ARIA Attributes"
 msgstr ""
 
 #. translators: 1: number of elements missing a role attribute, 2: the post/page title.
-#: classes/Scanners/Basic/AriaAttributesScanner.php:81
+#: classes/Scanners/Basic/AriaAttributesScanner.php:86
 #, php-format
 msgid "%1$d interactive element(s) missing a role attribute: %2$s"
 msgstr ""
 
-#: classes/Scanners/Basic/AriaAttributesScanner.php:87
+#: classes/Scanners/Basic/AriaAttributesScanner.php:92
 msgid "A <div> or <span> with a click handler but no role attribute is invisible to screen readers as an interactive element."
 msgstr ""
 
-#: classes/Scanners/Basic/AuthorSchemaScanner.php:55
+#: classes/Scanners/Basic/AuthorSchemaScanner.php:58
 msgid "Author Schema"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/AuthorSchemaScanner.php:88
+#: classes/Scanners/Basic/AuthorSchemaScanner.php:93
 #, php-format
 msgid "No author schema found: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/AuthorSchemaScanner.php:93
+#: classes/Scanners/Basic/AuthorSchemaScanner.php:98
 msgid "A Person reference in this content's structured data is what AI answer engines and Knowledge Panels read to resolve who wrote it — separate from a human-visible author bio, which alone isn't machine-readable."
 msgstr ""
 
@@ -2136,20 +2142,32 @@ msgstr ""
 msgid "A non-default table prefix is a small extra hurdle against certain automated SQL-injection attempts. Changing it on an existing site requires a careful, backed-up migration — this is a hardening note, not something to change casually."
 msgstr ""
 
-#: classes/Scanners/Basic/BrokenLinksScanner.php:59
+#: classes/Scanners/Basic/BrokenImagesScanner.php:67
+msgid "Broken Images"
+msgstr ""
+
+#. translators: %s is the broken image URL.
+#: classes/Scanners/Basic/BrokenImagesScanner.php:106
+#, php-format
+msgid "Broken image: %s"
+msgstr ""
+
+#. translators: %s is an HTTP status or error description.
+#: classes/Scanners/Basic/BrokenImagesScanner.php:113
+#: classes/Scanners/Basic/BrokenLinksScanner.php:125
+#, php-format
+msgid "Request failed with: %s"
+msgstr ""
+
+#: classes/Scanners/Basic/BrokenLinksScanner.php:79
+#: assets/js/index.js:1
 msgid "Broken Links"
 msgstr ""
 
 #. translators: %s is the broken URL.
-#: classes/Scanners/Basic/BrokenLinksScanner.php:96
+#: classes/Scanners/Basic/BrokenLinksScanner.php:118
 #, php-format
 msgid "Broken link: %s"
-msgstr ""
-
-#. translators: %s is an HTTP status or error description.
-#: classes/Scanners/Basic/BrokenLinksScanner.php:103
-#, php-format
-msgid "Request failed with: %s"
 msgstr ""
 
 #: classes/Scanners/Basic/CacheDetectionScanner.php:54
@@ -2164,17 +2182,17 @@ msgstr ""
 msgid "No known caching plugin is active and the homepage response has no caching headers. A caching layer significantly reduces load time and server load."
 msgstr ""
 
-#: classes/Scanners/Basic/CanonicalUrlScanner.php:50
+#: classes/Scanners/Basic/CanonicalUrlScanner.php:53
 msgid "Canonical URLs"
 msgstr ""
 
 #. translators: %s is the URL missing a canonical tag.
-#: classes/Scanners/Basic/CanonicalUrlScanner.php:76
+#: classes/Scanners/Basic/CanonicalUrlScanner.php:79
 #, php-format
 msgid "No canonical URL tag found: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/CanonicalUrlScanner.php:81
+#: classes/Scanners/Basic/CanonicalUrlScanner.php:84
 msgid "A missing canonical tag can lead search engines to treat identical content reachable at multiple URLs as duplicates."
 msgstr ""
 
@@ -2332,131 +2350,131 @@ msgstr ""
 msgid "The homepage loads fonts from Google Fonts' own servers. Self-hosting web fonts (or adding font-display: swap) avoids an extra third-party connection and can prevent invisible-text flashes while fonts load."
 msgstr ""
 
-#: classes/Scanners/Basic/FormLabelsScanner.php:44
+#: classes/Scanners/Basic/FormLabelsScanner.php:47
 msgid "Form Labels"
 msgstr ""
 
 #. translators: 1: number of unlabeled form fields, 2: the post/page title.
-#: classes/Scanners/Basic/FormLabelsScanner.php:79
+#: classes/Scanners/Basic/FormLabelsScanner.php:84
 #, php-format
 msgid "%1$d unlabeled form field(s): %2$s"
 msgstr ""
 
-#: classes/Scanners/Basic/FormLabelsScanner.php:85
+#: classes/Scanners/Basic/FormLabelsScanner.php:90
 msgid "Every <input>/<textarea>/<select> needs an associated <label>, aria-label, or aria-labelledby so screen reader users know what it is for."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:43
+#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:46
 msgid "Author Information"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:78
+#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:83
 #, php-format
 msgid "No author bio available: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:83
+#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:88
 msgid "AI answer engines weigh visible author expertise when deciding whether to cite a source. A missing author bio gives them nothing to evaluate."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoChunkingScanner.php:47
+#: classes/Scanners/Basic/GeoChunkingScanner.php:50
 msgid "Chunking"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoChunkingScanner.php:82
+#: classes/Scanners/Basic/GeoChunkingScanner.php:87
 #, php-format
 msgid "Contains an overly long paragraph: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/GeoChunkingScanner.php:87
+#: classes/Scanners/Basic/GeoChunkingScanner.php:92
 msgid "AI answer engines retrieve and quote content in small chunks. A very long paragraph is harder to cleanly extract than the same information split into shorter ones."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:54
+#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:57
 msgid "Citation Opportunities"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:94
+#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:99
 #, php-format
 msgid "Statistic mentioned with no source link: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:99
+#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:104
 msgid "This content mentions a statistic or study but links to no external source. AI answer engines favor content that backs up factual claims with citations."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:45
+#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:48
 msgid "EEAT Signals"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:81
+#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:86
 #, php-format
 msgid "No EEAT signals found: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:86
+#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:91
 msgid "This content has no author bio and has never been updated since it was first published — two of the clearest signals AI engines use to judge expertise and trustworthiness are both missing."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:50
+#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:53
 msgid "Entity Naming Consistency"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:91
+#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:96
 #, php-format
 msgid "Brand name written inconsistently: %s"
 msgstr ""
 
 #. translators: %s is a comma-separated list of the different spellings found.
-#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:98
+#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:103
 #, php-format
 msgid "This content refers to the site as multiple different spellings/casings (%s). AI answer engines resolve entities more reliably when a brand name is written the exact same way throughout."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:45
+#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:48
 msgid "FAQ Opportunities"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:84
+#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:89
 #, php-format
 msgid "No FAQ-style questions found: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:89
+#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:94
 msgid "AI answer engines frequently lift direct question/answer pairs into their responses. Content with no question-phrased headings is less likely to be cited this way."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:46
+#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:49
 msgid "Semantic Structure"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:87
+#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:92
 #, php-format
 msgid "Heading levels skip a level: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:92
+#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:97
 msgid "A heading jumps more than one level deeper than the previous one (e.g. an H2 followed directly by an H4). This breaks the document outline AI systems and screen readers rely on to understand structure."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:58
+#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:61
 msgid "Summary Blocks"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:105
+#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:110
 #, php-format
 msgid "No upfront summary found: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:110
+#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:115
 msgid "AI answer engines favor content with a short summary or key-takeaways list near the top, rather than requiring the full article to be read first."
 msgstr ""
 
@@ -2483,17 +2501,17 @@ msgstr ""
 msgid "AI answer engines and readers both use \"who is behind this site\" pages as a baseline trust signal before treating content as citable."
 msgstr ""
 
-#: classes/Scanners/Basic/HeadingStructureScanner.php:44
+#: classes/Scanners/Basic/HeadingStructureScanner.php:47
 msgid "Heading Structure"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/HeadingStructureScanner.php:83
+#: classes/Scanners/Basic/HeadingStructureScanner.php:88
 #, php-format
 msgid "No subheadings found in long content: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/HeadingStructureScanner.php:88
+#: classes/Scanners/Basic/HeadingStructureScanner.php:93
 msgid "Breaking long content into sections with subheadings makes it easier for readers to scan and for search engines to understand its structure."
 msgstr ""
 
@@ -2541,17 +2559,17 @@ msgstr ""
 msgid "Alt text helps search engines and screen reader users understand what an image shows."
 msgstr ""
 
-#: classes/Scanners/Basic/InternalLinkingScanner.php:43
+#: classes/Scanners/Basic/InternalLinkingScanner.php:46
 msgid "Internal Linking"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/InternalLinkingScanner.php:77
+#: classes/Scanners/Basic/InternalLinkingScanner.php:82
 #, php-format
 msgid "No internal links found in content: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/InternalLinkingScanner.php:82
+#: classes/Scanners/Basic/InternalLinkingScanner.php:87
 msgid "Linking to other pages on this site helps search engines discover and rank content, and helps readers find related pages."
 msgstr ""
 
@@ -2572,17 +2590,17 @@ msgstr[1] ""
 msgid "These scripts aren't minified and no minification plugin is active. Minifying JavaScript reduces file size and speeds up page rendering."
 msgstr ""
 
-#: classes/Scanners/Basic/KeyboardAccessibilityScanner.php:56
+#: classes/Scanners/Basic/KeyboardAccessibilityScanner.php:59
 msgid "Keyboard Accessibility"
 msgstr ""
 
 #. translators: 1: number of elements with a positive tabindex, 2: the post/page title.
-#: classes/Scanners/Basic/KeyboardAccessibilityScanner.php:91
+#: classes/Scanners/Basic/KeyboardAccessibilityScanner.php:96
 #, php-format
 msgid "%1$d element(s) with a positive tabindex: %2$s"
 msgstr ""
 
-#: classes/Scanners/Basic/KeyboardAccessibilityScanner.php:97
+#: classes/Scanners/Basic/KeyboardAccessibilityScanner.php:102
 msgid "A tabindex of 1 or higher pulls an element out of the page's natural keyboard tab order and inserts it at a fixed position — this almost always produces a confusing, unpredictable focus jump rather than the intended fix. Use tabindex=\"0\" (join the natural order) or remove it entirely (WCAG 2.4.3)."
 msgstr ""
 
@@ -2656,31 +2674,31 @@ msgstr ""
 msgid "This file contains a pattern commonly used by malware/webshells (\"%s\"). Review it immediately — if you did not add this code yourself, your site may be compromised."
 msgstr ""
 
-#: classes/Scanners/Basic/MetaDescriptionScanner.php:46
+#: classes/Scanners/Basic/MetaDescriptionScanner.php:49
 msgid "Meta Descriptions"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/MetaDescriptionScanner.php:85
+#: classes/Scanners/Basic/MetaDescriptionScanner.php:90
 #, php-format
 msgid "No meta description set: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/MetaDescriptionScanner.php:90
+#: classes/Scanners/Basic/MetaDescriptionScanner.php:95
 msgid "This post has no excerpt set. Most themes and SEO plugins fall back to the excerpt for the search-result description when no dedicated description is configured."
 msgstr ""
 
-#: classes/Scanners/Basic/NotFoundScanner.php:42
+#: classes/Scanners/Basic/NotFoundScanner.php:45
 msgid "404 Detection"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/NotFoundScanner.php:89
+#: classes/Scanners/Basic/NotFoundScanner.php:94
 #, php-format
 msgid "Published content returns a 404: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/NotFoundScanner.php:94
+#: classes/Scanners/Basic/NotFoundScanner.php:99
 msgid "This page is published but its own URL does not resolve — often caused by a permalink structure or rewrite rule change."
 msgstr ""
 
@@ -2710,17 +2728,17 @@ msgstr ""
 msgid "Organization (or LocalBusiness) structured data is what AI answer engines and Google Knowledge Panels use to resolve \"who runs this site\" as a real-world entity. Its absence makes this site harder to confidently identify and cite."
 msgstr ""
 
-#: classes/Scanners/Basic/OrphanPageScanner.php:51
+#: classes/Scanners/Basic/OrphanPageScanner.php:54
 msgid "Orphan Pages"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/OrphanPageScanner.php:96
+#: classes/Scanners/Basic/OrphanPageScanner.php:101
 #, php-format
 msgid "No internal links point to this page: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/OrphanPageScanner.php:101
+#: classes/Scanners/Basic/OrphanPageScanner.php:106
 msgid "Among the recently modified content sampled by this scan, nothing links to this page. Pages with no inbound internal links are harder for search engines to discover."
 msgstr ""
 
@@ -2948,7 +2966,7 @@ msgstr ""
 
 #. translators: 1: minimum recommended title length, 2: maximum recommended title length.
 #: classes/Scanners/Basic/ProductSeoScanner.php:103
-#: classes/Scanners/Basic/SeoScanner.php:92
+#: classes/Scanners/Basic/SeoScanner.php:97
 #, php-format
 msgid "Search engines display roughly %1$d–%2$d characters of a title before truncating."
 msgstr ""
@@ -2979,18 +2997,18 @@ msgstr ""
 msgid "This SKU is shared by %d products, which breaks inventory tracking and any integration that relies on SKU uniqueness."
 msgstr ""
 
-#: classes/Scanners/Basic/ReadabilityScanner.php:66
+#: classes/Scanners/Basic/ReadabilityScanner.php:69
 #: assets/js/index.js:1
 msgid "Readability"
 msgstr ""
 
 #. translators: 1: post/page title, 2: Flesch Reading Ease score (0-100).
-#: classes/Scanners/Basic/ReadabilityScanner.php:113
+#: classes/Scanners/Basic/ReadabilityScanner.php:118
 #, php-format
 msgid "Difficult to read (score %2$d/100): %1$s"
 msgstr ""
 
-#: classes/Scanners/Basic/ReadabilityScanner.php:119
+#: classes/Scanners/Basic/ReadabilityScanner.php:124
 msgid "Shorter sentences and simpler words generally read easier for both visitors and AI systems summarizing this content."
 msgstr ""
 
@@ -3041,28 +3059,28 @@ msgstr ""
 msgid "Structured data helps search engines understand and display rich results for this site. Neither the active theme nor any active plugin appears to be outputting any."
 msgstr ""
 
-#: classes/Scanners/Basic/SeoImagesScanner.php:44
+#: classes/Scanners/Basic/SeoImagesScanner.php:47
 msgid "Featured Images"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/SeoImagesScanner.php:84
+#: classes/Scanners/Basic/SeoImagesScanner.php:89
 #, php-format
 msgid "No featured image set: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/SeoImagesScanner.php:89
+#: classes/Scanners/Basic/SeoImagesScanner.php:94
 msgid "A featured image is used as the preview image when this page is shared on social media or shown in some search result formats."
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/SeoScanner.php:80
+#: classes/Scanners/Basic/SeoScanner.php:85
 #, php-format
 msgid "Title is too short for search results: %s"
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/Scanners/Basic/SeoScanner.php:85
+#: classes/Scanners/Basic/SeoScanner.php:90
 #, php-format
 msgid "Title may be truncated in search results: %s"
 msgstr ""
@@ -3166,18 +3184,18 @@ msgstr ""
 msgid "Inactive themes still occupy disk space and can carry known vulnerabilities. Remove themes you no longer use."
 msgstr ""
 
-#: classes/Scanners/Basic/ThinContentScanner.php:50
+#: classes/Scanners/Basic/ThinContentScanner.php:53
 msgid "Thin Content"
 msgstr ""
 
 #. translators: 1: post/page title, 2: word count.
-#: classes/Scanners/Basic/ThinContentScanner.php:88
+#: classes/Scanners/Basic/ThinContentScanner.php:93
 #, php-format
 msgid "Thin content (%2$d words): %1$s"
 msgstr ""
 
 #. translators: %d is the recommended minimum word count.
-#: classes/Scanners/Basic/ThinContentScanner.php:96
+#: classes/Scanners/Basic/ThinContentScanner.php:101
 #, php-format
 msgid "Search engines generally rank substantive content higher. Consider expanding this to at least %d words."
 msgstr ""
@@ -3221,17 +3239,17 @@ msgstr ""
 msgid "Theme update available: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/WcagScanner.php:70
+#: classes/Scanners/Basic/WcagScanner.php:73
 msgid "WCAG Scanner"
 msgstr ""
 
 #. translators: 1: number of ambiguous links, 2: the post/page title.
-#: classes/Scanners/Basic/WcagScanner.php:111
+#: classes/Scanners/Basic/WcagScanner.php:116
 #, php-format
 msgid "%1$d link(s) with generic, out-of-context text: %2$s"
 msgstr ""
 
-#: classes/Scanners/Basic/WcagScanner.php:117
+#: classes/Scanners/Basic/WcagScanner.php:122
 msgid "A link reading only \"click here\" or \"read more\" makes no sense out of context — screen reader users who navigate by a page's link list can't tell them apart. Link text should describe its own destination (WCAG 2.4.4)."
 msgstr ""
 
@@ -3437,7 +3455,7 @@ msgstr ""
 #: classes/Services/GoogleAdSenseClient.php:55
 #: classes/Services/GoogleAnalyticsClient.php:65
 #: classes/Services/GoogleAnalyticsClient.php:115
-#: classes/Services/GoogleServicesConnection.php:347
+#: classes/Services/GoogleServicesConnection.php:416
 msgid "Not connected to Google."
 msgstr ""
 
@@ -3453,19 +3471,19 @@ msgstr ""
 msgid "Could not fetch this property’s data streams."
 msgstr ""
 
-#: classes/Services/GoogleSearchConsoleOAuthCallbackHandler.php:56
+#: classes/Services/GoogleSearchConsoleOAuthCallbackHandler.php:61
 msgid "You do not have permission to do this."
 msgstr ""
 
-#: classes/Services/GoogleServicesConnection.php:204
+#: classes/Services/GoogleServicesConnection.php:273
 msgid "No Google OAuth Client ID/Secret saved yet."
 msgstr ""
 
-#: classes/Services/GoogleServicesConnection.php:230
+#: classes/Services/GoogleServicesConnection.php:299
 msgid "Google did not return an access token."
 msgstr ""
 
-#: classes/Services/GoogleServicesConnection.php:363
+#: classes/Services/GoogleServicesConnection.php:432
 msgid "Could not fetch your Search Console properties."
 msgstr ""
 
@@ -3665,13 +3683,13 @@ msgid "Checkout"
 msgstr ""
 
 #. translators: 1: scanner id, 2: number of findings.
-#: classes/Services/ScanPersistenceListener.php:106
+#: classes/Services/ScanPersistenceListener.php:107
 #, php-format
 msgid "Scan \"%1$s\" completed with %2$d finding(s)."
 msgstr ""
 
 #. translators: 1: site name, 2: number of critical findings.
-#: classes/Services/ScanPersistenceListener.php:171
+#: classes/Services/ScanPersistenceListener.php:172
 #, php-format
 msgid "[%1$s] VuloPilot found %2$d critical issue(s)"
 msgstr ""
@@ -4193,6 +4211,38 @@ msgid "Cooldowns, retries, and approval rules for automated fixes."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Automation modes"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Choose how VuloPilot should handle issues."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Monitor"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Find issues and notify you."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Suggest"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Find issues and suggest fixes for your review."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Auto-fix (Pro)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automatically fix issues with your approval rules."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Automation cooldown (minutes)"
 msgstr ""
 
@@ -4698,18 +4748,6 @@ msgid "Read your real AdSense account, if this site has one."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Connected to Google."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not connect to Google. Please check your Client ID/Secret and try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not start the Google connection. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Connect Google Services"
 msgstr ""
 
@@ -5078,6 +5116,18 @@ msgid "How often this specific check re-runs, independent of the overall scan fr
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Flag broken images"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Image tags pointing to a source URL that returns a broken (non-2xx/3xx) response."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Broken image check frequency"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Flag missing structured data"
 msgstr ""
 
@@ -5115,6 +5165,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Published pages/posts that robots.txt disallows for one named AI bot (GPTBot, ClaudeBot, etc.), separate from the sitewide check above."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Redirects"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5671,86 +5725,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Website technical details are displayed to ensure optimal performance and compatibility."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "GEO Radar / AEO Autopilot"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Historical GEO trend charts, scheduled automated scans, AI-powered bulk fixes, llms.txt generation, and multi-engine answer testing."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Entity relationship mapping, AI-powered graph enrichment, and Schema.org graph export."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Bot Watch"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Historical AI-crawler trends, anomaly alerts, and 12-month log retention."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Brand Radar"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Off-site mention monitoring, share-of-voice tracking, and competitor comparison via a connected Ahrefs account."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "SEO Copilot"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Keyword rank tracking, keyword cannibalization detection, and Google Search Console integration."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Content Copilot"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI rewrite & expansion, topic clustering, and content gap analysis vs. competitors."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Speed Radar"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Historical performance trends, scheduled audits, and AI-generated optimization suggestions."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Accessibility Guard"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Bulk accessibility fixes, scheduled audits, and historical WCAG compliance reports."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Security Watchtower"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Scheduled security scans, a live CVE vulnerability feed, plugin/theme integrity monitoring, and alerts & incident reports."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "One-click AI fixes, bulk AI fixes across any module, and auto-apply with an approval queue."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Workflow Autopilot"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Custom triggers & conditions, scheduled workflows, and auto-react to scan findings."
 msgstr ""
 
 #. translators: %s: Plugin name.
@@ -6804,6 +6778,10 @@ msgid "Close"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Priority"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Affected"
 msgstr ""
 
@@ -7226,6 +7204,10 @@ msgid "Could not reach VuloPilot. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Thinking…"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "AI Search (GEO)"
 msgstr ""
 
@@ -7297,10 +7279,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Improve"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Redirects"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7393,10 +7371,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Ask VuloPilot anything…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Thinking…"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8332,10 +8306,6 @@ msgid "Could not load SEO issues"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "(no title)"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "SEO Issues"
 msgstr ""
 
@@ -8420,27 +8390,23 @@ msgid "Turn the SEO module back on from Settings → Modules to resume SEO scann
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Verify this site with Google Search Console in a single click."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "See your real, already-verified Search Console property without leaving this tab."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The real first step toward pulling actual ranking keyword data onto this page."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "This is where you’d see which real Google search queries your pages already rank for, and where — once a rank-tracking data source is connected."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Ranking Keywords"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Not connected yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "VuloPilot doesn’t track real keyword positions, impressions, clicks, or search volume yet — that needs a connected Google Search Console (or similar rank-tracking) account. Flag if you want this scoped next."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Go to Settings"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "You can already verify this site with Google Search Console under Settings → Scanning → SEO — that confirms domain ownership, but doesn’t pull keyword ranking data back into VuloPilot on its own."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8452,7 +8418,7 @@ msgid "The connection itself is real and working — VuloPilot just doesn’t fe
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Manage connection"
+msgid "Manage full connection"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8581,6 +8547,154 @@ msgid "A per-page JSON-LD inspector (pick any page, see exactly what structured 
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Never run yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No broken links or images found yet. Make sure \"Flag broken links\"/\"Flag broken images\" are turned on under Settings → Scanning → SEO, then run a scan."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "External links can't be redirected from this site"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create redirect"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This broken URL points to a different site — a redirect can only be created for a path on this site."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "These are real links and images on your published pages that pointed somewhere broken the last time this site checked them."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Need attention"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Broken links"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Broken images"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Couldn’t verify"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing needs attention right now."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Last scan"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Real coverage from each scanner’s most recent genuine run — a separate real number from \"Need attention\" above, not a percentage blended from the two (they cover different time windows)."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Links checked"
+msgstr ""
+
+#. translators: 1: healthy count, 2: total checked
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$d / %2$d healthy"
+msgstr ""
+
+#. translators: 1: pages scanned, 2: formatted date/"Never run yet"
+#: assets/js/index.js:1
+#, js-format
+msgid "Across %1$d pages · %2$s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Images checked"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Broken Link Monitoring"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked. Use the \"Run scan\" button above to check again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Show ignored"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Source page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Broken URL"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Image"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Link"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing to export."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Turn the SEO module back on from Settings → Modules to resume broken-link/image scanning and see findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Redirect this broken URL to a working destination."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "From (path)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Auto-generated from the broken URL. Edit or fine-tune it afterward from the Redirects tab if you need something more specific."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "To"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "301 (Permanent)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "302 (Temporary)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cancel"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Creating…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Redirect created."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not create this redirect — a redirect for this path may already exist."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Add redirect"
 msgstr ""
 
@@ -8597,11 +8711,19 @@ msgid "From"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "To"
+msgid "Hits"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Hits"
+msgid "Created at"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Last accessed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Never"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8633,11 +8755,19 @@ msgid "Search missing URLs…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Confirm →"
+msgid "Dismiss"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Create redirect"
+msgid "No 404s logged yet — turn on \"Log 404s\" in Settings → Scanning → SEO to start tracking missing-page visits."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "https://example.com/new-page/"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Save"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8649,31 +8779,11 @@ msgid "Could not create a redirect — a redirect for this path may already exis
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Dismiss"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No 404s logged yet — turn on \"Log 404s\" in Settings → Scanning → SEO to start tracking missing-page visits."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Redirect this URL to…"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Edit redirect"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "/old-page/"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "https://example.com/new-page/"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Save"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8825,6 +8935,10 @@ msgid "Store Readiness"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "View all store pages →"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Ready"
 msgstr ""
 
@@ -8845,7 +8959,7 @@ msgid "Not secured"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "View all store pages →"
+msgid "Review checkout →"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8878,10 +8992,6 @@ msgstr ""
 msgid "Protected"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Review checkout →"
-msgstr ""
-
 #. translators: %d is the number of products needing attention.
 #. translators: %d is the number of orders needing attention.
 #: assets/js/index.js:1
@@ -8890,15 +9000,19 @@ msgid "%d need attention"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Missing prices, out-of-stock listings, missing images, and incomplete product info."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Review products →"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Missing prices, out-of-stock listings, missing images, and incomplete product info."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Inventory"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Review inventory →"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8920,7 +9034,7 @@ msgid "%d may run out soon"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Review inventory →"
+msgid "View orders →"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8929,10 +9043,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Pending too long"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "View orders →"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8946,11 +9056,11 @@ msgid "%d expiring soon"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Expiring soon"
+msgid "Manage coupons →"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Manage coupons →"
+msgid "Expiring soon"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8958,11 +9068,11 @@ msgid "Manage categories →"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Improve product visibility on search engines."
+msgid "Review product SEO →"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Review product SEO →"
+msgid "Improve product visibility on search engines."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8970,15 +9080,27 @@ msgid "Customer Insights"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Customers total"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "View customers →"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Customers total"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Revenue Reports"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pro"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View full report →"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable module →"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8998,15 +9120,11 @@ msgid "Enable the WooCommerce Intelligence module for detailed revenue reports."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "View full report →"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Enable module →"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Store Automation"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Review tasks →"
 msgstr ""
 
 #. translators: %d is the number of failed automation runs.
@@ -9019,10 +9137,6 @@ msgstr ""
 msgid "Automation rules for orders, emails, and store events that failed to run in the last 30 days."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Review tasks →"
-msgstr ""
-
 #. translators: %d is the number of outdated theme templates.
 #: assets/js/index.js:1
 #, js-format
@@ -9030,11 +9144,11 @@ msgid "%d templates outdated"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Your theme's WooCommerce template overrides may be missing fixes from newer versions."
+msgid "Review templates →"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Review templates →"
+msgid "Your theme's WooCommerce template overrides may be missing fixes from newer versions."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9456,10 +9570,6 @@ msgid "Last check: %s"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Never run yet"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Manage →"
 msgstr ""
 
@@ -9702,6 +9812,54 @@ msgid "No changes made yet"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Website health scan"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check for issues and get alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Security monitoring"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep your site safe"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SEO optimization"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Improve rankings and visibility"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "WooCommerce monitor"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keep your store running smoothly"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content optimizer"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Improve content automatically"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create from scratch"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Build a custom automation"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Run failed"
 msgstr ""
 
@@ -9875,10 +10033,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Pages good"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Need attention"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10352,83 +10506,15 @@ msgid "VuloPilot will log every AI-assisted action here."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Running a workflow on demand isn't available yet — there's no trigger→action execution engine wired up."
+msgid "Something went wrong while loading issues."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not load workflows"
+msgid "Create new automation"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No workflows yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Go to Automation"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Live Site Insights"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not load live insights"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Security score"
-msgstr ""
-
-#. translators: %d: real 0-100 security score computed from open security findings
-#: assets/js/index.js:1
-#, js-format
-msgid "%d/100"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "From your open security findings"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI crawler traffic (30 days)"
-msgstr ""
-
-#. translators: %d: number of distinct AI crawler bots that have visited
-#: assets/js/index.js:1
-#, js-format
-msgid "Across %d bot(s)"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No AI crawlers have visited yet"
-msgstr ""
-
-#. translators: %d: real p75 Largest Contentful Paint, in milliseconds, from actual visitors
-#: assets/js/index.js:1
-#, js-format
-msgid "%dms LCP (p75)"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Collecting data"
-msgstr ""
-
-#. translators: %d: real number of visitor samples this p75 was computed from
-#: assets/js/index.js:1
-#, js-format
-msgid "From %d real visits"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Visit your live site to start collecting real data"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Store metrics"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Orders, revenue, and conversion data aren't connected in this version."
+msgid "Start with a template or build your own."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10500,11 +10586,7 @@ msgid "Auto-applies (with approval)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI Workflows"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Selected item"
+msgid "Issues"
 msgstr ""
 
 #. translators: %s: formatted date this event happened
@@ -10530,7 +10612,25 @@ msgid "No issues found."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Pages & posts"
+msgstr ""
+
+#. translators: %d: number of pages/posts scanned
+#: assets/js/index.js:1
+#, js-format
+msgid "Pages & posts scanned (%d)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clean"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "View findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid " — Auto-approved by automation"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10554,11 +10654,19 @@ msgid "Undo this change"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "You asked"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Provider"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Reply"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Related actions (from this conversation)"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10571,6 +10679,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not delete this history entry. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Selected item"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10663,14 +10775,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Scans and AI changes will show up here as VuloPilot works."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Something went wrong while loading issues."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Priority"
 msgstr ""
 
 #. translators: %d is the number of open security findings.
@@ -11031,6 +11135,70 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "View Speed Overview"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Live Site Insights"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load live insights"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Security score"
+msgstr ""
+
+#. translators: %d: real 0-100 security score computed from open security findings
+#: assets/js/index.js:1
+#, js-format
+msgid "%d/100"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "From your open security findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI crawler traffic (30 days)"
+msgstr ""
+
+#. translators: %d: number of distinct AI crawler bots that have visited
+#: assets/js/index.js:1
+#, js-format
+msgid "Across %d bot(s)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No AI crawlers have visited yet"
+msgstr ""
+
+#. translators: %d: real p75 Largest Contentful Paint, in milliseconds, from actual visitors
+#: assets/js/index.js:1
+#, js-format
+msgid "%dms LCP (p75)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Collecting data"
+msgstr ""
+
+#. translators: %d: real number of visitor samples this p75 was computed from
+#: assets/js/index.js:1
+#, js-format
+msgid "From %d real visits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Visit your live site to start collecting real data"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Store metrics"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Orders, revenue, and conversion data aren't connected in this version."
 msgstr ""
 
 #. translators: 1: number of open findings, 2: section label, e.g. "Site Health".
@@ -11398,10 +11566,6 @@ msgid "Type %s to confirm."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Cancel"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Restoring…"
 msgstr ""
 
@@ -11542,10 +11706,6 @@ msgid "Generate SEO-friendly alt text for images."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Image"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Meta Generator"
 msgstr ""
 
@@ -11667,10 +11827,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "words"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Issues"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11920,6 +12076,18 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Modules & Settings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connected to Google."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not connect to Google. Please check your Client ID/Secret and try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not start the Google connection. Please try again."
 msgstr ""
 
 #: assets/js/post-editor.js:1
