@@ -20,7 +20,6 @@ import RecentConversationsCard from './RecentConversationsCard';
 import AiUsageCard from './AiUsageCard';
 import IssuesList from './IssuesList';
 import AutomationTemplatesCard from '../Automation/AutomationTemplatesCard';
-import AutomationModesCard from '../Automation/AutomationModesCard';
 import { AutomationTemplate } from '../Automation/automationTemplates';
 import {
 	useCopilotChat,
@@ -331,7 +330,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	 * seeded, not a bare redirect to a blank Automations tab.
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
-		window.location.href = `${appLocalizer.admin_url}#&tab=automation&subtab=automations&automation_template=${template.id}`;
+		window.location.href = `${appLocalizer.admin_url}#&tab=automation&subtab=automations`;
 	};
 
 	return (
@@ -662,18 +661,17 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			<ColumnComponent grid={4}>
 				<NeedsAttentionCard onNavigateTab={onNavigateTab} />
 			</ColumnComponent>	
-					
+
 			<ColumnComponent grid={8}>
-				<AutomationTemplatesCard onSelectTemplate={handleSelectAutomationTemplate} />
-				<AutomationModesCard />
-			</ColumnComponent>
-			<ColumnComponent grid={4}>
 				<RecentConversationsCard
 				onNavigateTab={onNavigateTab}
 				onSelectConversation={(id) =>
 					onNavigateTab('history', undefined, id)
 				}
 			/>
+			</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<AutomationTemplatesCard onSelectTemplate={handleSelectAutomationTemplate} />
 			</ColumnComponent>
 
 			<ColumnComponent grid={12}>
