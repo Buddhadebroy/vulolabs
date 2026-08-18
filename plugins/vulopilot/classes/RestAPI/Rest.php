@@ -72,6 +72,7 @@ class Rest {
             'post_seo'                    => new Controllers\PostSeo(),
             'redirects'                   => new Controllers\Redirects(),
             'not_found_logs'              => new Controllers\NotFoundLogs(),
+            'broken_links_stats'          => new Controllers\BrokenLinksStats(),
             'indexnow'                    => new Controllers\IndexNow(),
             'performance_actions'         => new Controllers\PerformanceActions(),
             'performance_score_snapshots' => new Controllers\PerformanceScoreSnapshots(),

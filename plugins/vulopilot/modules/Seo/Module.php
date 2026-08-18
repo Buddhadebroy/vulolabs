@@ -16,9 +16,9 @@ defined( 'ABSPATH' ) || exit;
  *
  * Unlike Geo\Module (whose own scanners always run no matter what — see
  * that class's own docblock, since GEO has no whole-category kill switch),
- * this module genuinely gates SEO scanning. All 18 SEO-related scanner
+ * this module genuinely gates SEO scanning. All 19 SEO-related scanner
  * classes — Titles (SeoScanner), Schema presence, images/alt text, broken
- * links, plus the 13 checks from SEO-MODULE.md (meta descriptions,
+ * links, broken images, plus the 13 checks from SEO-MODULE.md (meta descriptions,
  * canonicals, internal linking, heading structure, thin content, duplicate
  * content, sitemap, robots.txt, OpenGraph/Twitter cards, orphan pages,
  * structured-data validity), plus AI-CRAWLER-ANALYTICS-MODULE.md's
@@ -65,6 +65,7 @@ class Module {
                 Basic\SchemaScanner::class,
                 Basic\ImagesScanner::class,
                 Basic\BrokenLinksScanner::class,
+                Basic\BrokenImagesScanner::class,
                 Basic\MetaDescriptionScanner::class,
                 Basic\CanonicalUrlScanner::class,
                 Basic\InternalLinkingScanner::class,

@@ -65,9 +65,12 @@ class RedirectRepository extends AbstractRepository {
     }
 
     /**
-     * Bumps a redirect's own hit counter — called by Services\RedirectManager
-     * every time it actually redirects a real visitor through this row, so
-     * the Redirects page can show which rules are actually being hit.
+     * Bumps a redirect's own hit counter and records the moment — called by
+     * Services\RedirectManager every time it actually redirects a real
+     * visitor through this row, so the Redirects page can show both which
+     * rules are actually being hit and when one was last used.
+     * `current_time( 'mysql' )` matches NotFoundLogRepository::log_or_increment()'s
+     * own `last_seen_at` write, this table's equivalent field.
      *
      * @param int $id Redirect row id.
      * @return void
@@ -75,7 +78,13 @@ class RedirectRepository extends AbstractRepository {
     public function increment_hit_count( int $id ): void {
         global $wpdb;
 
-        $wpdb->query( $wpdb->prepare( "UPDATE {$this->get_table()} SET hit_count = hit_count + 1 WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "UPDATE {$this->get_table()} SET hit_count = hit_count + 1, last_accessed_at = %s WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                current_time( 'mysql' ),
+                $id
+            )
+        );
     }
 
     /**

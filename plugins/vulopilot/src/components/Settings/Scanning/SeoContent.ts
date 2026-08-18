@@ -174,6 +174,35 @@ export default {
 			dependent: { key: 'flag_broken_links', value: 'flag_broken_links', set: true },
 		},
 		{
+			key: 'flag_broken_images',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Flag broken images', 'vulopilot'),
+			settingDescription: __(
+				'Image tags pointing to a source URL that returns a broken (non-2xx/3xx) response.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'flag_broken_images', label: '', value: 'flag_broken_images' },
+			],
+		},
+		{
+			key: 'broken_image_check_frequency',
+			type: 'select',
+			size: 8,
+			label: __('Broken image check frequency', 'vulopilot'),
+			settingDescription: __(
+				'How often this specific check re-runs, independent of the overall scan frequency in the General tab.',
+				'vulopilot'
+			),
+			options: [
+				{ label: __('Daily', 'vulopilot'), value: 'daily' },
+				{ label: __('Weekly', 'vulopilot'), value: 'weekly' },
+			],
+			dependent: { key: 'flag_broken_images', value: 'flag_broken_images', set: true },
+		},
+		{
 			key: 'flag_missing_schema',
 			type: 'checkbox',
 			look: 'toggle',
@@ -264,7 +293,7 @@ export default {
 		{
 			key: 'seo-section-redirects',
 			type: 'section',
-			title: __('Redirects & 404s', 'vulopilot'),
+			title: __('Redirects', 'vulopilot'),
 		},
 		{
 			key: 'enable_redirect_manager',

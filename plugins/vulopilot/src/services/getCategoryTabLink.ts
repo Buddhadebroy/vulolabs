@@ -16,7 +16,13 @@ const CATEGORY_TAB_LINKS: Record<string, string> = {
 	seo: 'geo&subtab=seo',
 	images: 'geo&subtab=seo',
 	schema: 'geo&subtab=seo',
-	links: 'geo&subtab=seo',
+	// GEO tab, "Broken Links" subtab (BrokenLinksTab.tsx) — Scanners\Basic\
+	// BrokenLinksScanner is the ONLY real scanner with category 'links'
+	// (confirmed: no other scanner returns this category), so this can
+	// point straight at its own dedicated tab rather than the general SEO
+	// tab's "Links & schema" section, which still separately shows the
+	// same findings too (SeoIssuesSection.tsx wasn't changed).
+	links: 'geo&subtab=broken-links',
 	// GEO tab, "GEO" subtab.
 	geo: 'geo&subtab=geo',
 	// Reports Overview's "AI Visibility" category tile (ReportsCategoryStatusGrid.tsx)
