@@ -33,6 +33,24 @@ export class VuloCartSdkError extends Error {
 }
 
 /**
+ * Strips trailing `/` characters from `url`. A plain index scan rather
+ * than a `/\/+$/` regex — that pattern's own repeated `+` quantifier
+ * flagged as a polynomial-ReDoS risk (CodeQL js/polynomial-redos) since
+ * `storeUrl` is caller-supplied input; a manual scan has no backtracking
+ * to exploit and is O(n) regardless of how many trailing slashes it's
+ * given.
+ */
+function stripTrailingSlashes( url: string ): string {
+	let end = url.length;
+
+	while ( end > 0 && '/' === url.charAt( end - 1 ) ) {
+		end -= 1;
+	}
+
+	return url.slice( 0, end );
+}
+
+/**
  * Sets the store this SDK instance talks to. Called once by `init()`.
  * Trailing slashes stripped so every call site can safely concatenate
  * `${storeUrl}/wp-json/...` without a double slash.
@@ -40,7 +58,7 @@ export class VuloCartSdkError extends Error {
  * @param storeUrl Origin of the WordPress site running VuloCart (e.g. `https://mystore.com`).
  */
 export function setStoreUrl( storeUrl: string ): void {
-	state.storeUrl = storeUrl.replace( /\/+$/, '' );
+	state.storeUrl = stripTrailingSlashes( storeUrl );
 	state.config = null;
 	state.configPromise = null;
 }
