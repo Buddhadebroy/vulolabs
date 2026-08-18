@@ -4,7 +4,10 @@ import { CardComponent, ColumnComponent, ContainerComponent, BadgeComponent } fr
 import { ButtonInput } from '@zyra/inputs';
 import { TRIGGER_TYPE_LABELS } from './automationLabels';
 
-const SETTINGS_TAB_URL = '?page=vulopilot#&tab=settings';
+// Settings.tsx's own real 'notifications' tab id (Notifications.ts) — the
+// bare '#&tab=settings' link previously here landed on Settings' default
+// first tab (General) instead of where email/channel config actually lives.
+const SETTINGS_TAB_URL = '?page=vulopilot#&tab=settings&subtab=notifications';
 
 interface AutomationLinksRowProps {
 	onScrollToCreate: () => void;

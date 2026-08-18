@@ -167,11 +167,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 	const refetch = () => setReloadToken((n) => n + 1);
 
-	const handleTabChange = (tabId: string) => {
-		setActiveTabId(tabId);
-		setPaged(1);
-	};
-
 	const handlePriorityChange = (priority: Priority) => {
 		setActivePriority(priority);
 		setPaged(1);
@@ -282,9 +277,27 @@ const IssuesList: React.FC<IssuesListProps> = ({
 						onQueryUpdate={(query: {
 							paged?: number | string;
 							per_page?: number | string;
+							categoryFilter?: string;
 						}) => {
 							setPaged(Number(query.paged) || 1);
 							setPerPage(Number(query.per_page) || 10);
+
+							// TableCard renders/highlights the category tab
+							// bar itself and reports a click here as part of
+							// this same query object (its own
+							// `handleCategoryChange` → `onQueryUpdate`) —
+							// there's no separate callback for it. Without
+							// this, a tab visually highlighted on click
+							// never actually reached `activeTabId` (the
+							// state the real `GET /findings/groups?category=`
+							// fetch above is keyed on), so every tab kept
+							// showing the same unfiltered "All" rows.
+							if (
+								query.categoryFilter &&
+								query.categoryFilter !== activeTabId
+							) {
+								setActiveTabId(query.categoryFilter);
+							}
 						}}
 						emptyMessage={__(
 							'AI suggestions appear here once a scan finds something worth fixing.',

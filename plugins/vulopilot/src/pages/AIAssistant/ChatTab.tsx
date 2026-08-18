@@ -330,7 +330,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	 * seeded, not a bare redirect to a blank Automations tab.
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
-		window.location.href = `${appLocalizer.admin_url}#&tab=automation&subtab=automations`;
+		window.location.href = `${appLocalizer.admin_url}#&tab=automation&subtab=automations&automation_template=${template.id}`;
 	};
 
 	return (

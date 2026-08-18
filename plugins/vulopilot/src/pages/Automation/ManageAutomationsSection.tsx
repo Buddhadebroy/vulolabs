@@ -29,6 +29,7 @@ import {
  */
 interface AutomationPanelComponentProps {
 	openSignal?: number;
+	initialName?: string;
 	initialCategory?: string;
 	initialTriggerType?: string;
 	initialActionTypes?: string[];
@@ -308,6 +309,14 @@ const ManageAutomationsSection = ({
 				) : AutomationPanel ? (
 					<AutomationPanel
 						openSignal={templateOpenSignal}
+						// "Create from scratch" has a null category (its whole
+						// point is an unseeded blank form) — only a real
+						// template's own label makes a sensible default name.
+						initialName={
+							pendingTemplate?.category
+								? pendingTemplate.label
+								: undefined
+						}
 						initialCategory={pendingTemplate?.category ?? undefined}
 						initialTriggerType={pendingTemplate?.triggerType ?? undefined}
 						initialActionTypes={pendingTemplate?.actionTypes ?? undefined}

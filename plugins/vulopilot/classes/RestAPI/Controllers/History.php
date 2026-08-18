@@ -216,11 +216,15 @@ class History extends \WP_REST_Controller {
      * conversation count from the separate ai_history source
      * (AiHistoryRepository::get_conversation_count()), and zero-fills
      * 'automation' — a real pill the client always renders, just always at
-     * 0 today (see class docblock).
+     * 0 today (see class docblock). 'all' is the real sum of the four —
+     * HistoryTab.tsx's own "All" filter pill reads this same object
+     * (typeCounts.all), and without this key it silently fell back to its
+     * client-side zero-default, so "All" never showed a count badge next
+     * to it the way every other pill already did.
      *
      * @param ActivityLogRepository $repository   Repository to count scan/change from.
      * @param AiHistoryRepository   $history_repo Repository to count conversations from.
-     * @return array{scan: int, change: int, conversation: int, automation: int}
+     * @return array{all: int, scan: int, change: int, conversation: int, automation: int}
      */
     private function get_type_counts( ActivityLogRepository $repository, AiHistoryRepository $history_repo ): array {
         $raw = $repository->count_by_column( 'event_type' );
@@ -237,6 +241,8 @@ class History extends \WP_REST_Controller {
                 $counts[ $category ] += $raw[ $event_type ] ?? 0;
             }
         }
+
+        $counts = array( 'all' => array_sum( $counts ) ) + $counts;
 
         return $counts;
     }

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useLocation, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
 	NavigatorComponent,
 	NavigatorHeaderComponent,
@@ -44,18 +44,49 @@ const TAB_META: Record<
  * jumps to the Automations tab programmatically via `goToAutomationsTab`,
  * same cross-tab-trigger case AIAssistant.tsx's own `goToTab` handles.
  */
-const Automation = () => {
-	const hashParams = new URLSearchParams(useLocation().hash.substring(1));
-	const subtab = hashParams.get('subtab');
-	const initialTab = (
+const readTabFromHash = (hash: string): (typeof TAB_IDS)[number] => {
+	const subtab = new URLSearchParams(hash.substring(1)).get('subtab');
+
+	return (
 		subtab && (TAB_IDS as readonly string[]).includes(subtab)
 			? subtab
 			: 'overview'
 	) as (typeof TAB_IDS)[number];
+};
 
-	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
-		initialTab
+const Automation = () => {
+	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(() =>
+		readTabFromHash(window.location.hash)
 	);
+
+	// react-router-dom's `useLocation()` (tried first here) never actually
+	// changes on a hash-only URL update in this app — confirmed live: a
+	// `history.pushState`/real browser Back that only changes `subtab`
+	// updates `window.location.hash` correctly but never re-renders this
+	// component via `useLocation()`, so `activeTab` was permanently stuck
+	// on whatever tab was showing at mount. Listening to the native
+	// `popstate` event directly (Back/Forward) and reading
+	// `window.location.hash` straight from the browser sidesteps
+	// react-router's own location tracking for this hash-only case. A
+	// plain tab-bar click already updates `activeTab` synchronously itself
+	// (NavigatorComponent's own handler) and calls `history.pushState`,
+	// which doesn't fire `popstate` — so this listener never fights that
+	// click, it only ever has real work to do on Back/Forward.
+	useEffect(() => {
+		const syncFromHash = () => setActiveTab(readTabFromHash(window.location.hash));
+
+		// 'popstate' covers Back/Forward; 'hashchange' covers a same-page
+		// anchor (or any other `location.hash =`/`href =` assignment) to a
+		// different `subtab` while already mounted here — neither of those
+		// fires the other event.
+		window.addEventListener('popstate', syncFromHash);
+		window.addEventListener('hashchange', syncFromHash);
+
+		return () => {
+			window.removeEventListener('popstate', syncFromHash);
+			window.removeEventListener('hashchange', syncFromHash);
+		};
+	}, []);
 
 	// AI Copilot's Chat tab (ChatTab.tsx's own AutomationTemplatesCard
 	// preview) deep-links here as `&automation_template=<id>` — same
@@ -64,10 +95,31 @@ const Automation = () => {
 	// it once (on mount); ManageAutomationsSection.tsx reads it from here
 	// via a prop rather than re-parsing the URL itself.
 	const [initialAutomationTemplateId] = useState<string | null>(() =>
-		hashParams.get('automation_template')
+		new URLSearchParams(window.location.hash.substring(1)).get(
+			'automation_template'
+		)
 	);
 
-	const goToAutomationsTab = () => setActiveTab('automations');
+	// Same `subtab=` URL shape NavigatorComponent's own `prepareUrl` below
+	// builds — shared so a programmatic switch (goToAutomationsTab) pushes
+	// the exact same URL a real tab-bar click would, not just React state.
+	const prepareUrl = (subTab: string) =>
+		`?page=vulopilot#&tab=automation&subtab=${subTab}`;
+
+	// Every "Manage Automations"/"Create New Automation"/"View All
+	// Automations"/etc. action throughout AutomationOverviewTab.tsx's own
+	// cards routes through this one function. NavigatorComponent's own
+	// tab-bar click keeps the URL in sync via `history.pushState` (its own
+	// docblock) — this needs to do the same explicitly, since it changes
+	// `activeTab` from *outside* that click handler; without it the address
+	// bar was left showing `subtab=overview` while the Automations tab was
+	// actually visible, so refreshing the page (or sharing the URL) landed
+	// back on Overview, and there was no real history entry for Back to
+	// return to either.
+	const goToAutomationsTab = () => {
+		setActiveTab('automations');
+		window.history.pushState(null, '', prepareUrl('automations'));
+	};
 
 	const settingContent = TAB_IDS.map((tabId) => ({
 		type: 'file' as const,
@@ -113,9 +165,7 @@ const Automation = () => {
 				settingContent={settingContent}
 				currentSetting={activeTab}
 				getForm={getForm}
-				prepareUrl={(subTab: string) =>
-					`?page=vulopilot#&tab=automation&subtab=${subTab}`
-				}
+				prepareUrl={prepareUrl}
 				Link={Link}
 				variant="tab"
 			/>

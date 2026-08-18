@@ -252,6 +252,29 @@
 			color: var(--color-primary);
 		}
 	}
+
+	// "Affected accounts/pages/etc." rows — zyra's own `.mini-card .item
+	// .details` (ListComponent.scss) stacks the title and desc as separate
+	// flex-column blocks, forcing "Site-wide • Detected …" onto its own
+	// line below the title even when there'd be room beside it. `display:
+	// inline` (not a flex row — the title here is a full sentence that
+	// still needs to wrap normally) lets the two flow together like text,
+	// only breaking onto the next line when they don't both fit. Scoped
+	// under .issue-detail-panel specifically — `.mini-card.report` itself
+	// is reused by many unrelated cards elsewhere in this app.
+	.mini-card.report .item .details {
+		display: block;
+
+		.item-title {
+			display: inline;
+		}
+
+		.desc {
+			display: inline;
+			margin-left: 0.375rem;
+			color: var(--sub-text-color, #6b7280);
+		}
+	}
 }
 
 // The panel's own close (x) button — CardComponent's `action` slot, same
