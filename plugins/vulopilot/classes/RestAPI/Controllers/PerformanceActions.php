@@ -8,6 +8,7 @@
 namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Scanners\Basic\DatabaseCleanupScanner;
+use VuloPilot\Scanners\Basic\ImageCleanupScanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -106,6 +107,8 @@ class PerformanceActions extends \WP_REST_Controller {
                 return rest_ensure_response( $this->run_optimize_images() );
             case 'database-cleanup':
                 return rest_ensure_response( $this->run_database_cleanup() );
+            case 'image-cleanup':
+                return rest_ensure_response( $this->run_image_cleanup() );
             case 'lazy-loading':
                 return rest_ensure_response( $this->run_enable_lazy_loading() );
             case 'preload-resources':
@@ -301,6 +304,62 @@ class PerformanceActions extends \WP_REST_Controller {
                 $deleted_transients,
                 $deleted_revisions
             ),
+        );
+    }
+
+    /**
+     * Deletes the real unattached, unused image attachments
+     * ImageCleanupScanner counts — same protected-id exclusions (featured
+     * images, site icon, custom logo) and same 30-day age gate, since this
+     * re-uses that scanner's own `get_orphaned_image_ids()` rather than
+     * re-implementing the query. Bounded by MAX_IMAGES_PER_RUN per click,
+     * same safety cap `run_optimize_images()` uses, so a media library with
+     * hundreds of orphaned images doesn't time out a single request.
+     *
+     * @return array{success: bool, message: string}
+     */
+    private function run_image_cleanup(): array {
+        $orphaned_ids = ImageCleanupScanner::get_orphaned_image_ids();
+
+        if ( empty( $orphaned_ids ) ) {
+            return array(
+                'success' => true,
+                'message' => __( 'No unused images found to clean up.', 'vulopilot' ),
+            );
+        }
+
+        $to_delete   = array_slice( $orphaned_ids, 0, self::MAX_IMAGES_PER_RUN );
+        $deleted     = 0;
+        $bytes_freed = 0;
+
+        foreach ( $to_delete as $attachment_id ) {
+            $file = get_attached_file( $attachment_id );
+            $size = ( $file && file_exists( $file ) ) ? filesize( $file ) : 0;
+
+            if ( wp_delete_attachment( $attachment_id, true ) ) {
+                ++$deleted;
+                $bytes_freed += $size;
+            }
+        }
+
+        $remaining = count( $orphaned_ids ) - $deleted;
+
+        return array(
+            'success' => true,
+            'message' => $remaining > 0
+                ? sprintf(
+                    /* translators: 1: number of images deleted, 2: formatted bytes freed, 3: number of remaining unused images not yet processed. */
+                    __( 'Deleted %1$d unused image(s), freed %2$s. %3$d more found — run again to continue.', 'vulopilot' ),
+                    $deleted,
+                    size_format( $bytes_freed ),
+                    $remaining
+                )
+                : sprintf(
+                    /* translators: 1: number of images deleted, 2: formatted bytes freed. */
+                    __( 'Deleted %1$d unused image(s), freed %2$s.', 'vulopilot' ),
+                    $deleted,
+                    size_format( $bytes_freed )
+                ),
         );
     }
 

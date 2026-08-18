@@ -38,6 +38,10 @@ export const useRunScan = ({ categories, onSuccess }: UseRunScanOptions = {}) =>
 	const [isScanning, setIsScanning] = useState(false);
 
 	const runScan = () => {
+		if (isScanning) {
+			return;
+		}
+
 		setIsScanning(true);
 
 		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'scans'), {

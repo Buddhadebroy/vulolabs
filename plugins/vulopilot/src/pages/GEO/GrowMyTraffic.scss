@@ -167,6 +167,22 @@
 	}
 }
 
+// SeoTab.tsx's own "SEO checks at a glance" tiles — clicking one scrolls
+// to and filters SeoIssuesSection.tsx's two tables down to that category's
+// real scanner ids.
+.geo-four-checks-tile-clickable {
+	cursor: pointer;
+
+	&:hover {
+		border-color: var(--color-primary);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 2px;
+	}
+}
+
 // GeoFixTheseFirstCard.tsx. zyra's own ListComponent positions its
 // `.tags` badge absolutely, sized for the single-line title it's normally
 // paired with (OpenIssuesGlimpse.tsx's own usage never passes `desc`) —
@@ -513,16 +529,30 @@
 	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
 }
 
-// SeoIssuesByPageTable.tsx — the page-wise "All SEO Issues" table.
-// `.sectioned-issues-tabs`/`.sectioned-issues-tab*` (filter pill bar) are
-// reused as-is from ProtectMySite.scss, already bundled site-wide into
-// this one SPA's own styles/index.css, so no new pill CSS is declared
-// here — only what's genuinely new to this table.
-.seo-issues-by-page-card {
-	.sectioned-issues-tabs {
+// SeoIssuesSection.tsx — wraps the shared filter bar and the two real
+// tables it renders side by side ("Site-wide Issues" +
+// SeoIssuesByPageTable.tsx's page/post-wise table). Filter pills use
+// zyra's real `<TabsComponent>` (`.seo-issues-filter-tabs`) — the same
+// component `SectionedIssuesTable.tsx` migrated to, which ships its own
+// tab-bar/underline/active-state styling via NavigatorComponent.scss
+// (global, not scoped to any one page) — no new pill CSS needed here. The
+// old hand-rolled `.sectioned-issues-tabs`/`.sectioned-issues-tab*` markup
+// this section used before was left unstyled after that CSS was
+// deliberately removed from ProtectMySite.scss for the same reason.
+.seo-issues-section {
+	.seo-issues-filter-tabs {
 		margin-bottom: 1rem;
 	}
 
+	// Real spacing between the two split CardComponents (`.card-content`'s
+	// own bottom margin doesn't apply here — these are direct siblings in
+	// this wrapper `<div>`, not children of a ColumnComponent).
+	.seo-sitewide-issues-card {
+		margin-bottom: 1.5rem;
+	}
+}
+
+.seo-issues-by-page-card {
 	// zyra's own Table.tsx already styles `.admin-row.variation-row`
 	// (transparent background, thin divider) for its native `expandable`
 	// row mechanism — this only adds the muted, slightly denser look that
@@ -539,7 +569,7 @@
 	// still toggles normally).
 	.header-col.expand,
 	.admin-column.expand {
-		display: none;
+		display: none !important;
 	}
 }
 
@@ -569,65 +599,6 @@
 	background: var(--theme-background-color, #f3f4f6);
 	border-radius: 0.25rem;
 	padding: 0.125rem 0.5rem;
-}
-
-// RowActionsMenu — a small local stand-in for zyra's own `type: 'action'`
-// kebab menu, used because that mechanism silently renders nothing for
-// this table's inline finding sub-rows (zyra Table.tsx's variation-row
-// path has no special case for it). Plain inline icon buttons work
-// identically for page rows and finding rows.
-.seo-issues-row-actions {
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-}
-
-.seo-issues-row-action {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
-	background: none;
-	border: none;
-	border-radius: 0.25rem;
-	color: var(--sub-text-color);
-	cursor: pointer;
-
-	&:hover {
-		background: var(--theme-background-color, #f3effc);
-		color: var(--color-primary);
-	}
-}
-
-.seo-issues-sitewide-block {
-	margin-bottom: 1.25rem;
-	padding: 0.875rem 1rem;
-	border: 1px solid var(--border-color);
-	border-radius: 0.5rem;
-	background: var(--theme-background-color, #fff);
-}
-
-.seo-issues-sitewide-title {
-	font-weight: 600;
-	font-size: 0.875rem;
-	margin-bottom: 0.25rem;
-}
-
-.seo-issues-sitewide-list {
-	list-style: none;
-	margin: 0.625rem 0 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-
-	li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.8125rem;
-	}
 }
 
 // CrawlerAnalyticsSection.tsx.

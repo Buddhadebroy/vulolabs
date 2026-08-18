@@ -236,6 +236,7 @@ class ScannerRegistry {
             Basic\LazyLoadingScanner::class,
             Basic\CdnScanner::class,
             Basic\DatabaseCleanupScanner::class,
+            Basic\ImageCleanupScanner::class,
             // Accessibility Scanner (readme) — category 'accessibility',
             // joins the original AccessibilityScanner (duplicate <h1>).
             Basic\FormLabelsScanner::class,
