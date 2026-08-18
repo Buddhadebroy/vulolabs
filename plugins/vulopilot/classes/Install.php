@@ -12,10 +12,20 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloPilot Install class.
  *
- * Creates VuloPilot's custom database tables on first install and runs
- * version-gated incremental migrations on upgrade, following the same
- * dbDelta()-based pattern as VuloLabs\Install. Schema design and the
- * rationale for every table/index below is documented in
+ * Creates every VuloPilot custom table, dbDelta()-based like
+ * VuloLabs\Install. VuloPilot resets its baseline to 1.0.0 here — this
+ * plugin has never actually shipped to a real site under any earlier
+ * version, so there is no live "upgrade from an older release" case to
+ * support. The incremental, version-gated do_migration() this class used
+ * to carry (real ADD COLUMN/CREATE TABLE steps layered on top of an
+ * already-installed 1.0.0/1.1.0 site) has been removed for that reason —
+ * every table and column it used to add on top now ships directly in
+ * create_database_tables() below instead, and every module it used to
+ * seed active on top now ships directly in VuloPilot::activate()'s own
+ * add_option() call. A future schema change on top of a real 1.0.0
+ * release will need its own do_migration()-shaped mechanism again; this
+ * is a reset, not a permanent removal of the concept. Schema design and
+ * the rationale for every table/index below is documented in
  * vulolabs/plugins/vulopilot/DATABASE.md.
  *
  * @class       Install class
@@ -39,27 +49,25 @@ class Install {
     }
 
     /**
-     * Runs the database migration process.
+     * Runs the database install process. No more branching on a stored
+     * previous version — see this class's own docblock for why: every
+     * table create_database_tables() creates is guarded by dbDelta()'s
+     * own `CREATE TABLE IF NOT EXISTS`, so calling it unconditionally is
+     * exactly as safe on a site that already has every table as it is on
+     * a genuinely fresh one, and simpler than tracking a version to
+     * decide which path to take.
      *
      * @return void
      */
     public function run_migration() {
-        $previous_version = get_option( Utill::VULOPILOT_OTHER_SETTINGS['plugin_db_version'], false );
-
-        if ( ! $previous_version ) {
-            $this->create_database_tables();
-        } else {
-            $this->do_migration( $previous_version );
-        }
+        $this->create_database_tables();
 
         update_option( Utill::VULOPILOT_OTHER_SETTINGS['plugin_db_version'], VULOPILOT_PLUGIN_VERSION );
         do_action( 'vulopilot_after_installed' );
     }
 
     /**
-     * Creates every VuloPilot custom table for a fresh install (schema
-     * version 1.0.0). Additive-only from here on — later schema changes
-     * belong in do_migration(), never here.
+     * Creates every VuloPilot custom table (schema version 1.0.0).
      *
      * @return void
      */
@@ -352,12 +360,8 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_redirects` and `vulopilot_not_found_logs` — same
-     * "own method, self-sufficient, callable from both a fresh install and
-     * do_migration()" shape as create_crawler_visits_table() below, for the
-     * same reason: these were added after this class's original table set,
-     * so sites upgrading in place need them created too, not just fresh
-     * installs.
+     * Creates `vulopilot_redirects` and `vulopilot_not_found_logs` — own
+     * method, same shape as create_crawler_visits_table() below.
      *
      * `vulopilot_redirects.source_path` is UNIQUE — Services\RedirectManager
      * looks a request path up by exact match, and only one active target
@@ -417,9 +421,8 @@ class Install {
      * reuse of `vulopilot_site_health_snapshots` (that table's other
      * columns are Pro's AdvancedReports module data — see
      * Services\PerformanceScoreSnapshotRecorder's own docblock for why
-     * sharing one mutable daily row is the wrong move here). Same
-     * "own method, self-sufficient, callable from both a fresh install and
-     * do_migration()" shape as create_redirect_tables() above.
+     * sharing one mutable daily row is the wrong move here). Own method,
+     * same shape as create_redirect_tables() above.
      *
      * @return void
      */
@@ -449,9 +452,7 @@ class Install {
      * Overview's Real-time Monitoring card. Deliberately no visitor-
      * identifying column at all (see Services\PerformanceRequestLogger's
      * own docblock) — just a response time sample per real front-end
-     * request. Same "own method, self-sufficient, callable from both a
-     * fresh install and do_migration()" shape as create_redirect_tables()
-     * above.
+     * request. Own method, same shape as create_redirect_tables() above.
      *
      * @return void
      */
@@ -483,8 +484,7 @@ class Install {
      * interaction yet for INP) is NULL, never a fabricated zero. `cls`
      * stored ×1000 as a smallint (`cls_thousandths`), matching this
      * codebase's own preference for integer ms/thousandths columns over
-     * float columns. Same "own method, self-sufficient, callable from both
-     * a fresh install and do_migration()" shape as create_redirect_tables()
+     * float columns. Own method, same shape as create_redirect_tables()
      * above.
      *
      * @return void
@@ -541,9 +541,8 @@ class Install {
      * run, and NULL whenever CrUX has no real field data for a
      * low-traffic page (a real "not enough data" case, not fabricated).
      * All eight stay NULL without a PSI key, same PSI-key-gated fallback
-     * posture as `mobile_score`/`desktop_score`. Same "own method,
-     * self-sufficient, callable from both a fresh install and
-     * do_migration()" shape as create_core_web_vitals_table() above.
+     * posture as `mobile_score`/`desktop_score`. Own method, same shape as
+     * create_core_web_vitals_table() above.
      *
      * @return void
      */
@@ -694,30 +693,18 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_crawler_visits` — its own method (not inlined into
-     * create_database_tables() like the tables above) because, unlike
-     * those, this one also needs to run for sites *upgrading* in place
-     * (do_migration() calls this too) — added after those fresh-install-only
-     * table definitions were already written, per this class's own
-     * "additive only, ADD new things in do_migration(), never touch
-     * create_database_tables() for an upgrade" convention. No IP address or
-     * user column, ever — readme.txt's own FAQ promises AI Crawler Traffic
-     * Monitoring "does not track human visitors, IP addresses, or personal
-     * data," enforced by the schema itself, not just application code.
+     * Creates `vulopilot_crawler_visits` — its own method, same shape as
+     * every other create_*_table() method below create_database_tables().
+     * No IP address or user column, ever — readme.txt's own FAQ promises
+     * AI Crawler Traffic Monitoring "does not track human visitors, IP
+     * addresses, or personal data," enforced by the schema itself, not
+     * just application code.
      *
      * @return void
      */
     private static function create_crawler_visits_table() {
         global $wpdb;
 
-        // create_database_tables() already guarantees dbDelta() is loaded
-        // before its own calls, but do_migration() calls this method
-        // directly without going through that guard — confirmed fatal
-        // ("Call to undefined function dbDelta()") the moment the
-        // migration path actually ran on a real site, since
-        // wp-admin/includes/upgrade.php is never autoloaded outside
-        // wp-admin. Self-sufficient here so this method is safe to call
-        // from either context.
         if ( ! function_exists( 'dbDelta' ) ) {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         }
@@ -739,11 +726,9 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_indexnow_log` — its own method for the same reason
-     * as create_crawler_visits_table()/create_redirect_tables() above: this
-     * table was added after the original table set, so both a fresh install
-     * and a site upgrading in place need it (do_migration() calls this too).
-     * One row per real IndexNow API submission (manual or auto-submitted),
+     * Creates `vulopilot_indexnow_log` — its own method, same shape as
+     * create_crawler_visits_table()/create_redirect_tables() above. One
+     * row per real IndexNow API submission (manual or auto-submitted),
      * trimmed to the last 100 by Repositories\IndexNowLogRepository after
      * each insert (mockup's own "The last 100 IndexNow API requests" copy) —
      * not upserted/deduped like `vulopilot_not_found_logs`, since repeat
@@ -776,9 +761,8 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_geo_visibility_history` — same self-sufficient,
-     * "own method, fresh install AND do_migration()" shape as
-     * create_indexnow_log_table() above. One row per calendar day
+     * Creates `vulopilot_geo_visibility_history` — own method, same shape
+     * as create_indexnow_log_table() above. One row per calendar day
      * (`snapshot_date` UNIQUE, upserted — never one row per run), the same
      * "daily snapshot, not a per-run log" shape `vulopilot_site_health_snapshots`
      * already uses, so a site that rebuilds its GEO visibility snapshot more
@@ -1055,448 +1039,5 @@ class Install {
         ) $collate;";
 
         dbDelta( $sql_store_trends_snapshots );
-    }
-
-    /**
-     * Runs incremental, version-gated schema changes for upgrades from an
-     * already-installed copy of VuloPilot. Additive only, per
-     * .claude/rules/backward-compatibility.md — ADD COLUMN / ADD INDEX,
-     * never DROP.
-     *
-     * @param string $previous_version The version option value before this run.
-     * @return void
-     */
-    public function do_migration( $previous_version ) {
-        if ( version_compare( $previous_version, '1.1.0', '<' ) ) {
-            $this->relax_automation_rule_id_to_nullable();
-        }
-
-        // llms.txt Generation & Management (readme.txt) added its own
-        // rewrite rule this version — sites upgrading in place need a
-        // flush to pick up '/llms.txt' without waiting for a deactivate/
-        // reactivate cycle (VuloPilot::activate() already flushes, but
-        // that only runs on a fresh activation). Deliberately OUTSIDE the
-        // version_compare gate above, same reasoning as
-        // create_crawler_visits_table() below: VULOPILOT_PLUGIN_VERSION
-        // was already '1.1.0' before this rewrite rule existed, so a site
-        // that had already recorded plugin_db_version=1.1.0 would never
-        // satisfy `< 1.1.0` again and would silently never get this flush.
-        //
-        // Deferred to a late 'init' priority rather than called directly
-        // here — confirmed via a real wp-env site that calling it
-        // synchronously still 404s on /llms.txt, because both places
-        // do_migration() ever runs from (init_plugin()'s plugins_loaded
-        // path, and init_classes()'s own 'init' priority 0 path) execute
-        // *before* GeoAnalysis\LlmsTxtGenerator's own 'init' (default
-        // priority 10) callback has added the rewrite rule this flush is
-        // supposed to pick up — flushing before the rule exists just
-        // bakes in a rule set without it. Priority 20 guarantees this
-        // runs after that priority-10 registration within the same 'init'
-        // pass, however do_migration() itself got triggered.
-        add_action( 'init', 'flush_rewrite_rules', 20 );
-
-        // AI Crawler Traffic Monitoring (readme.txt) needs its own new
-        // table for sites upgrading in place too — create_database_tables()
-        // only ever runs for a brand-new install. Deliberately OUTSIDE the
-        // version_compare gate above (unlike the two migrations inside it):
-        // VULOPILOT_PLUGIN_VERSION was already '1.1.0' before this table's
-        // migration code existed, so a site that had already recorded
-        // plugin_db_version=1.1.0 (from activating an earlier build still
-        // under this same version number) would never satisfy `< 1.1.0`
-        // again and would silently never get this table — confirmed via a
-        // real wp-env site hitting "Table ... doesn't exist" on every
-        // /crawler-traffic request. dbDelta()'s CREATE TABLE IF NOT EXISTS
-        // makes this safe to run unconditionally on every upgrade check,
-        // the same self-healing shape create_database_tables() already
-        // uses for a fresh install.
-        self::create_crawler_visits_table();
-
-        // Redirects & 404 logging (readme.txt's "Redirects & 404s") needs
-        // its own two new tables for sites upgrading in place too — same
-        // "outside the version_compare gate, self-healing via CREATE TABLE
-        // IF NOT EXISTS" reasoning as create_crawler_visits_table() above.
-        self::create_redirect_tables();
-
-        // Instant Indexing (readme.txt's IndexNow support) needs its own new
-        // table for sites upgrading in place too — same "outside the
-        // version_compare gate, self-healing via CREATE TABLE IF NOT EXISTS"
-        // reasoning as create_crawler_visits_table() above.
-        self::create_indexnow_log_table();
-
-        // GEO Historical Trends (AI-VISIBILITY-MODULE.md) needs its own new
-        // table for sites upgrading in place too — same "outside the
-        // version_compare gate, self-healing via CREATE TABLE IF NOT EXISTS"
-        // reasoning as create_crawler_visits_table() above.
-        self::create_geo_visibility_history_table();
-
-        // Brand Authority Trends (BRAND-INTELLIGENCE-MODULE.md) needs its
-        // own new table for sites upgrading in place too — same "outside
-        // the version_compare gate, self-healing via CREATE TABLE IF NOT
-        // EXISTS" reasoning as create_crawler_visits_table() above.
-        self::create_brand_score_history_table();
-
-        // Knowledge Graph (KNOWLEDGE-GRAPH-MODULE.md) needs both its new
-        // tables for sites upgrading in place too — same "outside the
-        // version_compare gate, self-healing via CREATE TABLE IF NOT
-        // EXISTS" reasoning as create_crawler_visits_table() above.
-        self::create_entity_relationships_table();
-        self::create_kg_health_history_table();
-
-        // Security (SECURITY-MODULE.md's "Integrity Monitoring") needs its
-        // own new table for sites upgrading in place too — same "outside
-        // the version_compare gate, self-healing via CREATE TABLE IF NOT
-        // EXISTS" reasoning as create_crawler_visits_table() above.
-        self::create_file_baselines_table();
-
-        // Accessibility (ACCESSIBILITY-MODULE.md's "Historical Tracking")
-        // needs its own new table for sites upgrading in place too — same
-        // "outside the version_compare gate, self-healing via CREATE TABLE
-        // IF NOT EXISTS" reasoning as create_crawler_visits_table() above.
-        self::create_accessibility_snapshots_table();
-
-        // WooCommerce Intelligence (WOOCOMMERCE-INTELLIGENCE-MODULE.md's
-        // "Store Trends") needs its own new table for sites upgrading in
-        // place too — same "outside the version_compare gate, self-healing
-        // via CREATE TABLE IF NOT EXISTS" reasoning as
-        // create_crawler_visits_table() above.
-        self::create_store_trends_snapshots_table();
-
-        // "Improve Speed" Overview (Speed History + Real-time Monitoring)
-        // needs both its new tables for sites upgrading in place too — same
-        // "outside the version_compare gate, self-healing via CREATE TABLE
-        // IF NOT EXISTS" reasoning as create_crawler_visits_table() above.
-        self::create_performance_score_snapshots_table();
-        self::create_performance_requests_table();
-
-        // "Improve Speed" Overview's real Core Web Vitals RUM needs its own
-        // new table for sites upgrading in place too — same "outside the
-        // version_compare gate, self-healing via CREATE TABLE IF NOT
-        // EXISTS" reasoning as create_crawler_visits_table() above.
-        self::create_core_web_vitals_table();
-
-        // "Improve Speed" › Slow Pages needs its own new table for sites
-        // upgrading in place too — same "outside the version_compare gate,
-        // self-healing via CREATE TABLE IF NOT EXISTS" reasoning as
-        // create_crawler_visits_table() above.
-        self::create_page_speed_table();
-
-        // Automation Engine — Conditions & Retries (AUTOMATION-ENGINE-MODULE.md)
-        // need two new columns on tables that already existed before this
-        // version — same "outside the version_compare gate, self-healing"
-        // reasoning as the create_*_table() calls above, just column_exists()-
-        // guarded instead of relying on dbDelta()'s own CREATE TABLE IF NOT
-        // EXISTS idempotency (see each method's own docblock).
-        self::add_automations_conditions_column();
-        self::add_automation_runs_retry_count_column();
-
-        // AI Copilot's History tab needs to tell a real chat turn
-        // (Controllers\Copilot.php/ContentAssistant.php) apart from every
-        // other feature that also shares vulopilot_ai_history via the same
-        // UsageTrackingProvider decorator (GEO scoring, schema generation,
-        // content intelligence, …) — same "outside the version_compare
-        // gate, self-healing" reasoning as the two calls above.
-        self::add_ai_history_surface_column();
-
-        // "Automations" tab redesign (AUTOMATION-ENGINE-MODULE.md) needs
-        // two more columns on these same already-existing tables — same
-        // outside-the-version-gate, self-healing reasoning as the pair
-        // immediately above.
-        self::add_automations_category_column();
-        self::add_automation_runs_changes_made_column();
-
-        // "Slow Pages" redesign needs 8 more columns on an already-existing
-        // table — same outside-the-version-gate, self-healing reasoning as
-        // the pair immediately above.
-        self::add_page_speed_psi_detail_columns();
-
-        // The Geo module (modules/Geo/Module.php) didn't exist before this
-        // version either — a site upgrading in place needs it added to
-        // its active-module list the same way a fresh install gets it via
-        // VuloPilot::activate()'s add_option(), or its "Auto-regenerate on
-        // publish" setting would silently do nothing (the module governs
-        // that hook; GEO scanning itself and the llms.txt route are core
-        // and unaffected either way). Deliberately OUTSIDE the
-        // version_compare gate, same reasoning as the two migrations
-        // above; self-limiting after the first run since it only adds
-        // 'geo' when it isn't already present.
-        self::seed_module_active( 'geo' );
-
-        // The Seo module (modules/Seo/Module.php) is a stricter case than
-        // Geo above: it's what now registers all 17 SEO scanner classes via
-        // `vulopilot_scanner_sources` (they were removed from
-        // ScannerRegistry::get_default_scanner_classes()'s hardcoded list).
-        // A site upgrading in place that doesn't get 'seo' added here would
-        // silently stop producing any new SEO findings the moment this
-        // version's code runs — not just lose a convenience automation like
-        // Geo's case. Same "deliberately outside the version_compare gate,
-        // self-limiting after the first run" reasoning.
-        self::seed_module_active( 'seo' );
-
-        // Content Intelligence (CONTENT-INTELLIGENCE-MODULE.md) didn't
-        // exist before this version either — same "sites upgrading in
-        // place need it added the same way a fresh install gets it via
-        // VuloPilot::activate()" reasoning as 'geo'/'seo' above. No new
-        // table needed (readability findings reuse vulopilot_scan_findings,
-        // Content Score is computed live), so this is the only migration
-        // step this module needs.
-        self::seed_module_active( 'content-intelligence' );
-
-        // Brand Intelligence (BRAND-INTELLIGENCE-MODULE.md) — same
-        // reasoning as 'content-intelligence' immediately above. No new
-        // Free table needed either (Brand Score is computed live from
-        // vulopilot_scan_findings the same way; only vulopilot-pro's own
-        // Authority Trends history table is new, and that's created by
-        // Pro's own migration path, not this one).
-        self::seed_module_active( 'brand-intelligence' );
-
-        // Entity Extraction (KNOWLEDGE-GRAPH-MODULE.md) — same reasoning as
-        // 'content-intelligence'/'brand-intelligence' above. No new Free
-        // table needed — entities are read live (transient-cached) from
-        // existing users/products/terms/settings, never persisted; only
-        // vulopilot-pro's own entity-relationships/health-history tables
-        // are new, and those are created by Pro's own migration path.
-        self::seed_module_active( 'entity-extraction' );
-
-        // AI Copilot (modules/AiCopilot/Module.php) didn't exist before this
-        // version either — same "sites upgrading in place need it added the
-        // same way a fresh install gets it via VuloPilot::activate()"
-        // reasoning as 'geo'/'seo' above. This one matters more than most:
-        // Copilot.php's /copilot/chat permission check now requires this id
-        // to be active, so skipping this seed would silently take AI Chat
-        // away from every existing site the moment this version's code
-        // runs. No new table needed (chat has never persisted anything of
-        // its own), so this is the only migration step this module needs.
-        self::seed_module_active( 'ai-copilot' );
-
-        // Protect My Site's Malware/Firewall/Login Protection/Backups/
-        // Recovery tiles need all three new tables for sites upgrading in
-        // place too — same "outside the version_compare gate, self-healing
-        // via CREATE TABLE IF NOT EXISTS" reasoning as
-        // create_crawler_visits_table() above.
-        self::create_login_attempts_table();
-        self::create_firewall_blocks_table();
-        self::create_backups_table();
-    }
-
-    /**
-     * Adds one module id to the stored active-module list if it isn't
-     * already present — shared by every "this module didn't exist before
-     * version X, sites upgrading in place need it added the same way a
-     * fresh install gets it via VuloPilot::activate()" migration step.
-     *
-     * @param string $module_id Module id to seed active, e.g. 'geo'/'seo'.
-     * @return void
-     */
-    private static function seed_module_active( string $module_id ): void {
-        $active_modules = get_option( Utill::ACTIVE_MODULES_DB_KEY, array() );
-
-        if ( in_array( $module_id, $active_modules, true ) ) {
-            return;
-        }
-
-        $active_modules[] = $module_id;
-        update_option( Utill::ACTIVE_MODULES_DB_KEY, $active_modules );
-    }
-
-    /**
-     * 1.1.0 (AutomationEngine, ARCHITECTURE.md's Prompt 12): `rule_id` was
-     * originally `NOT NULL`, a foreign key to the *separate*,
-     * still-unbuilt user-authored-custom-rules table (`vulopilot_rules`,
-     * see RULE-ENGINE.md's "What's not here yet") — but AutomationEngine
-     * binds an automation to one of the 19 code-defined RuleInterface
-     * rules by string id (`trigger_config.rule_key`), not a row in that
-     * table. Loosening `NOT NULL` to nullable is additive/non-destructive:
-     * this column has never actually been populated by any released
-     * version (Automations couldn't be created via REST until this
-     * version), so there is no existing data this could conflict with.
-     *
-     * @return void
-     */
-    private function relax_automation_rule_id_to_nullable() {
-        global $wpdb;
-
-        $table = $wpdb->prefix . Utill::TABLES['automation'];
-
-        $wpdb->query( "ALTER TABLE `{$table}` MODIFY `rule_id` bigint(20) unsigned DEFAULT NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-    }
-
-    /**
-     * AUTOMATION-ENGINE-MODULE.md's "Conditions" — an extra, composable
-     * filter (Contracts\Automation\ConditionInterface, vulopilot-pro's
-     * ConditionRegistry) an automation can layer on top of its bound rule.
-     * Deliberately outside do_migration()'s version_compare gate and
-     * guarded by column_exists() rather than a raw unconditional ALTER
-     * (unlike relax_automation_rule_id_to_nullable() above, ADD COLUMN
-     * isn't naturally idempotent the way MODIFY is — a second run without
-     * this guard would fatal with "Duplicate column name") — same
-     * self-healing-for-already-migrated-sites reasoning as
-     * create_entity_relationships_table() etc., just for an ALTER instead
-     * of a CREATE TABLE IF NOT EXISTS.
-     *
-     * @return void
-     */
-    private static function add_automations_conditions_column() {
-        global $wpdb;
-
-        $table = $wpdb->prefix . Utill::TABLES['automation'];
-
-        if ( self::column_exists( $table, 'conditions' ) ) {
-            return;
-        }
-
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `conditions` longtext DEFAULT NULL AFTER `trigger_config`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-    }
-
-    /**
-     * AUTOMATION-ENGINE-MODULE.md's "Retries" — how many times
-     * vulopilot-pro's RetryScheduler has re-run this run's failed actions,
-     * capped at the `automation_max_retries` setting. Same
-     * outside-the-version-gate, column_exists()-guarded shape as
-     * add_automations_conditions_column() above.
-     *
-     * @return void
-     */
-    private static function add_automation_runs_retry_count_column() {
-        global $wpdb;
-
-        $table = $wpdb->prefix . Utill::TABLES['automation_run'];
-
-        if ( self::column_exists( $table, 'retry_count' ) ) {
-            return;
-        }
-
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `retry_count` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `result_log`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-    }
-
-    /**
-     * AI Copilot History's "Conversations" filter — every real AI call
-     * (chat, GEO scoring, schema generation, content intelligence, …)
-     * writes to `vulopilot_ai_history` through the same shared
-     * `UsageTrackingProvider` decorator, so nothing previously
-     * distinguished a real chat turn from any other feature's call.
-     * `AIRequest::get_surface()`/`SafeRequestSender::send()`'s new
-     * `$surface` param populate this column going forward
-     * (`Controllers\Copilot.php`/`ContentAssistant.php` pass
-     * `'copilot_chat'`/`'content_assistant_chat'`; other callers pass
-     * their own real feature label). Same outside-the-version-gate,
-     * `column_exists()`-guarded shape as
-     * `add_automations_conditions_column()` above.
-     *
-     * @return void
-     */
-    private static function add_ai_history_surface_column() {
-        global $wpdb;
-
-        $table = $wpdb->prefix . Utill::TABLES['ai_history'];
-
-        if ( self::column_exists( $table, 'surface' ) ) {
-            return;
-        }
-
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `surface` varchar(30) DEFAULT NULL AFTER `object_id`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-    }
-
-    /**
-     * "Automations" tab (AUTOMATION-ENGINE-MODULE.md) — a real, user-chosen
-     * grouping (`monitoring`/`security`/`content`/`commerce`/`reporting`/
-     * `custom`, validated against the same fixed set
-     * AutomationsRest::CATEGORY_OPTIONS enforces) for the table's own type
-     * badge — distinct from `trigger_type` (schedule vs. event
-     * mechanics) and from a Finding's `category` (what a *scanner* found,
-     * not what an *automation* is for). Same outside-the-version-gate,
-     * column_exists()-guarded shape as add_automations_conditions_column()
-     * above. Defaults every pre-existing row to 'monitoring' (the DEFAULT
-     * clause itself, applied retroactively by the ALTER) since every
-     * automation this codebase could create before this column existed was
-     * a scan-and-react workflow — a real, honest default, not a guess.
-     *
-     * @return void
-     */
-    private static function add_automations_category_column() {
-        global $wpdb;
-
-        $table = $wpdb->prefix . Utill::TABLES['automation'];
-
-        if ( self::column_exists( $table, 'category' ) ) {
-            return;
-        }
-
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `category` varchar(30) NOT NULL DEFAULT 'monitoring' AFTER `rule_id`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-        $wpdb->query( "ALTER TABLE `{$table}` ADD KEY `idx_category` (`category`)" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-    }
-
-    /**
-     * "Automations" tab's "Actions this month" stat tile — how many of a
-     * run's already-counted `actions_executed` were actions that actually
-     * changed something on the site (Contracts\Automation\ActionInterface::changes_site_state()),
-     * as opposed to a notification-only action (send-email/
-     * create-notification) that ran successfully but changed nothing.
-     * `actions_executed` alone can't answer "did VuloPilot change my site
-     * this month, or just notify me" — this column can. Same
-     * outside-the-version-gate, column_exists()-guarded shape as
-     * add_automation_runs_retry_count_column() above.
-     *
-     * @return void
-     */
-    private static function add_automation_runs_changes_made_column() {
-        global $wpdb;
-
-        $table = $wpdb->prefix . Utill::TABLES['automation_run'];
-
-        if ( self::column_exists( $table, 'changes_made' ) ) {
-            return;
-        }
-
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `changes_made` int(10) unsigned NOT NULL DEFAULT 0 AFTER `actions_failed`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-    }
-
-    /**
-     * "Slow Pages" redesign — real PSI-sourced page weight/request-count/
-     * Core Web Vitals field-data columns on a table that already existed
-     * before this version. Same outside-the-version-gate, column_exists()-
-     * guarded shape as the pair above; see create_page_speed_table()'s own
-     * docblock for what each column really holds and why every one of them
-     * stays NULL without a configured PSI key.
-     *
-     * @return void
-     */
-    private static function add_page_speed_psi_detail_columns() {
-        global $wpdb;
-
-        $table = $wpdb->prefix . Utill::TABLES['page_speed'];
-
-        if ( self::column_exists( $table, 'page_size_bytes' ) ) {
-            return;
-        }
-
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `page_size_bytes` int(10) unsigned DEFAULT NULL AFTER `main_issue`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `requests_count` smallint(5) unsigned DEFAULT NULL AFTER `page_size_bytes`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `lcp_ms` int(10) unsigned DEFAULT NULL AFTER `requests_count`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `lcp_rating` varchar(20) DEFAULT NULL AFTER `lcp_ms`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `inp_ms` int(10) unsigned DEFAULT NULL AFTER `lcp_rating`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `inp_rating` varchar(20) DEFAULT NULL AFTER `inp_ms`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `cls_thousandths` smallint(5) unsigned DEFAULT NULL AFTER `inp_rating`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-        $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `cls_rating` varchar(20) DEFAULT NULL AFTER `cls_thousandths`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-    }
-
-    /**
-     * Shared by both column-adding migrations above — dbDelta() has no
-     * "ADD COLUMN IF NOT EXISTS" equivalent for a plain ALTER, unlike its
-     * own CREATE TABLE IF NOT EXISTS handling every create_*_table() method
-     * here relies on.
-     *
-     * @param string $table  Fully-prefixed table name.
-     * @param string $column Column name to check for.
-     * @return bool
-     */
-    private static function column_exists( string $table, string $column ): bool {
-        global $wpdb;
-
-        return (bool) $wpdb->get_var(
-            $wpdb->prepare(
-                'SHOW COLUMNS FROM `' . $table . '` LIKE %s', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- $table is our own prefixed constant, not request input.
-                $column
-            )
-        );
     }
 }

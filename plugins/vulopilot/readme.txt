@@ -5,7 +5,7 @@ Tags: seo, website optimization, site health, performance, woocommerce
 Requires at least: 6.5
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.1.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -480,16 +480,6 @@ By default, VuloPilot provides recommendations and requires your approval before
 
 == Changelog ==
 
-= 1.1.0 =
-
-* Added: AI Visibility score (Purpose Clarity, Answerability, Entity Coverage, Retrieval Score, Citation Readiness, Conversation Readiness, Knowledge Graph Coverage, LLM Readiness)
-* Added: AI Content Health signals (Semantic Completeness, Answer-First Structure, Data Point Density, Content Freshness, Entity Naming Consistency)
-* Added: Brand Visibility & Share of Voice tracking via Ahrefs Brand Radar integration
-* Added: AI Crawler Traffic monitoring (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, Bytespider)
-* Added: llms.txt generation and management
-* Added: Health score trend timeline on the main dashboard
-* Improved: Dashboard restructured around Website Health as a hero score with pillar drill-downs
-
 = 1.0.0 =
 
 * Initial release
@@ -502,12 +492,15 @@ By default, VuloPilot provides recommendations and requires your approval before
 * Website Reports
 * Activity Timeline
 * AI Provider Integrations
+* AI Visibility score (Purpose Clarity, Answerability, Entity Coverage, Retrieval Score, Citation Readiness, Conversation Readiness, Knowledge Graph Coverage, LLM Readiness)
+* AI Content Health signals (Semantic Completeness, Answer-First Structure, Data Point Density, Content Freshness, Entity Naming Consistency)
+* Brand Visibility & Share of Voice tracking via Ahrefs Brand Radar integration
+* AI Crawler Traffic monitoring (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, Bytespider)
+* llms.txt generation and management
+* Health score trend timeline on the main dashboard
+* Dashboard built around Website Health as a hero score with pillar drill-downs
 
 == Upgrade Notice ==
-
-= 1.1.0 =
-
-Adds AI Visibility (AEO/GEO) scoring, Brand Visibility & Share of Voice tracking, and AI Crawler Traffic monitoring — see how visible your site is to AI assistants, not just search engines.
 
 = 1.0.0 =
 
