@@ -83,38 +83,3 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
 
 export const getAutomationTemplateById = (id: string): AutomationTemplate | null =>
 	AUTOMATION_TEMPLATES.find((template) => template.id === id) ?? null;
-
-export type AutomationMode = 'monitor' | 'suggest' | 'auto_fix';
-
-export interface AutomationModeOption {
-	id: AutomationMode;
-	icon: string;
-	label: string;
-	description: string;
-	/** Confirmed with the user: both Monitor and Auto-fix are Pro-only; only Suggest is free. */
-	isPro: boolean;
-}
-
-export const AUTOMATION_MODE_OPTIONS: AutomationModeOption[] = [
-	{
-		id: 'monitor',
-		icon: 'eye',
-		label: __('Monitor', 'vulopilot'),
-		description: __('Find issues and notify you.', 'vulopilot'),
-		isPro: true,
-	},
-	{
-		id: 'suggest',
-		icon: 'check',
-		label: __('Suggest', 'vulopilot'),
-		description: __('Find issues and suggest fixes for your review.', 'vulopilot'),
-		isPro: false,
-	},
-	{
-		id: 'auto_fix',
-		icon: 'ai',
-		label: __('Auto-fix (Pro)', 'vulopilot'),
-		description: __('Automatically fix issues with your approval rules.', 'vulopilot'),
-		isPro: true,
-	},
-];

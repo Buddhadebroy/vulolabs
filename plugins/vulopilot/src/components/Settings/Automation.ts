@@ -12,6 +12,57 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
+			key: 'automation_mode',
+			type: 'choice-toggle',
+			custom: true,
+			defaultValue: 'suggest',
+			label: __('Automation modes', 'vulopilot'),
+			settingDescription: __(
+				'Choose how VuloPilot should handle issues.',
+				'vulopilot'
+			),
+			// The Automation module (vulopilot-pro) is what actually reads
+			// this — RunAiActionAction::execute() — same reasoning as every
+			// other field on this tab.
+			moduleEnabled: 'automation',
+			options: [
+				{
+					key: 'monitor',
+					value: 'monitor',
+					label: __('Monitor', 'vulopilot'),
+					desc: __('Find issues and notify you.', 'vulopilot'),
+					icon: 'eye',
+					width: '100%',
+					// Confirmed with the user: Monitor is Pro-gated even
+					// though the mockup only marked Auto-fix "(Pro)".
+					proSetting: true,
+				},
+				{
+					key: 'suggest',
+					value: 'suggest',
+					label: __('Suggest', 'vulopilot'),
+					desc: __(
+						'Find issues and suggest fixes for your review.',
+						'vulopilot'
+					),
+					icon: 'check',
+					width: '100%',
+				},
+				{
+					key: 'auto_fix',
+					value: 'auto_fix',
+					label: __('Auto-fix (Pro)', 'vulopilot'),
+					desc: __(
+						'Automatically fix issues with your approval rules.',
+						'vulopilot'
+					),
+					icon: 'ai',
+					width: '100%',
+					proSetting: true,
+				},
+			],
+		},
+		{
 			key: 'automation_cooldown_minutes',
 			type: 'number',
 			size: 8,

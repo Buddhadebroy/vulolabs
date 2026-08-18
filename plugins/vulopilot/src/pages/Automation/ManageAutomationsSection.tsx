@@ -14,8 +14,6 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 import { formatWpDate } from '../../services/formatWpDate';
 import ShowProPopup from '../../components/Popup/Popup';
 import AutomationStatsRow from './AutomationStatsRow';
-import AutomationTemplatesCard from './AutomationTemplatesCard';
-import AutomationModesCard from './AutomationModesCard';
 import { AutomationTemplate, getAutomationTemplateById } from './automationTemplates';
 import {
 	CATEGORY_LABELS,
@@ -283,8 +281,6 @@ const ManageAutomationsSection = ({
 
 	return (
 		<div id="automation-manage">
-			<AutomationTemplatesCard onSelectTemplate={handleSelectTemplate} />
-			<AutomationModesCard />
 			<AutomationStatsRow />
 			<CardComponent
 				title={__('All automations', 'vulopilot')}
