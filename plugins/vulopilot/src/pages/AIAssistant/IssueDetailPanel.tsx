@@ -17,6 +17,7 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
 import { formatWpDate } from '../../services/formatWpDate';
+import { getSeverityClass } from '../../services/getSeverityClass';
 import {
 	CATEGORY_ICONS,
 	CATEGORY_LABELS,
@@ -261,7 +262,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		<>
 			<CardComponent
 				className="issue-detail-panel"
-				title={SEVERITY_LABEL[group.severity]}
+				title={group.label}
 				titleIcon="error"
 				action={
 					<i
@@ -279,8 +280,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					/>
 				}
 			>
-				<div className="title">{group.label}</div>
 				<FormGroupWrapperComponent>
+					<FormGroupComponent   row label={__('Priority', 'vulopilot')}>
+						<BadgeComponent
+							color={getSeverityClass(group.severity)}
+							text={SEVERITY_LABEL[group.severity]}
+						/>
+					</FormGroupComponent>
 					<FormGroupComponent   row label={__('Category', 'vulopilot')}>
 						<BadgeComponent
 							color="blue"
@@ -290,8 +296,12 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					<FormGroupComponent   row label={__('Affected', 'vulopilot')}>
 						{formatAffected(group.count, group.object_type)}
 					</FormGroupComponent>
+					{/* No `row` here unlike the fields above — this holds a
+					whole list, not one short value, so squeezing it into
+					the same narrow side-by-side layout as Priority/
+					Category/Affected forced every row to wrap badly. The
+					label sits above the list instead, full width. */}
 					<FormGroupComponent
-						row
 						label={
 							AFFECTED_ITEMS_LABEL[group.object_type ?? ''] ??
 							__('Affected items', 'vulopilot')
