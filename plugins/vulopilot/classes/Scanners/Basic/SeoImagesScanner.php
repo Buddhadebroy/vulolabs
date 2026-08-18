@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -26,7 +27,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class SeoImagesScanner extends AbstractBasicScanner {
+class SeoImagesScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE = 50;
 
@@ -74,6 +77,8 @@ class SeoImagesScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post_id ) {
+            $this->mark_post_scanned( $post_id );
+
             if ( has_post_thumbnail( $post_id ) ) {
                 continue;
             }

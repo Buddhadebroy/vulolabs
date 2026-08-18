@@ -46,24 +46,35 @@ final class ScanResult {
     private ?string $error_message;
 
     /**
-     * @param string      $scanner_id    Scanner that produced this result.
-     * @param string      $status        One of STATUS_COMPLETED/STATUS_FAILED.
-     * @param Finding[]   $findings      Findings produced by the scan.
-     * @param float       $duration_ms   How long the scan took.
-     * @param string|null $error_message Set when $status is STATUS_FAILED.
+     * @var int[] Post/page IDs the scanner considered, whether or not each
+     *            one produced a Finding — empty for a scanner that doesn't
+     *            implement Contracts\Scanner\TracksScannedObjectsInterface
+     *            (e.g. a site-wide, non-per-post check).
+     */
+    private array $scanned_post_ids;
+
+    /**
+     * @param string      $scanner_id       Scanner that produced this result.
+     * @param string      $status           One of STATUS_COMPLETED/STATUS_FAILED.
+     * @param Finding[]   $findings         Findings produced by the scan.
+     * @param float       $duration_ms      How long the scan took.
+     * @param string|null $error_message    Set when $status is STATUS_FAILED.
+     * @param int[]       $scanned_post_ids Post/page IDs considered, findings or not.
      */
     public function __construct(
         string $scanner_id,
         string $status,
         array $findings,
         float $duration_ms,
-        ?string $error_message = null
+        ?string $error_message = null,
+        array $scanned_post_ids = array()
     ) {
-        $this->scanner_id    = $scanner_id;
-        $this->status        = $status;
-        $this->findings      = $findings;
-        $this->duration_ms   = $duration_ms;
-        $this->error_message = $error_message;
+        $this->scanner_id       = $scanner_id;
+        $this->status           = $status;
+        $this->findings         = $findings;
+        $this->duration_ms      = $duration_ms;
+        $this->error_message    = $error_message;
+        $this->scanned_post_ids = $scanned_post_ids;
     }
 
     /**
@@ -99,6 +110,13 @@ final class ScanResult {
      */
     public function get_findings(): array {
         return $this->findings;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function get_scanned_post_ids(): array {
+        return $this->scanned_post_ids;
     }
 
     /**

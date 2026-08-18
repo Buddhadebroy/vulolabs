@@ -2,12 +2,37 @@ import { __, sprintf } from '@wordpress/i18n';
 
 export type HistoryFilter = 'all' | 'conversation' | 'scan' | 'change' | 'automation';
 
+export interface RelatedAction {
+	id: number;
+	label: string;
+	created_at: string;
+}
+
 export interface ConversationDetail {
 	id: number;
 	provider: string;
 	model: string | null;
 	status: 'success' | 'failure';
 	excerpt: string | null;
+	/** The real, human-typed question this reply answers — null for any row logged before this column existed (UsageTrackingProvider.php's own build_prompt_excerpt()), never fabricated. */
+	prompt_excerpt: string | null;
+	/** Real `ai_action.*` history rows this exact turn caused, if any — see Controllers/History.php's own build_related_actions() for why this can be real and tightly matched rather than a fuzzy guess. Empty for the overwhelming majority of turns (a plain question causes no action). */
+	related_actions: RelatedAction[];
+}
+
+export interface AffectedPage {
+	id: number;
+	title: string;
+	link: string | null;
+	edit_link: string | null;
+	count: number;
+}
+
+export interface ScannedPage {
+	id: number;
+	title: string;
+	link: string | null;
+	edit_link: string;
 }
 
 export interface ScanDetail {
@@ -19,6 +44,10 @@ export interface ScanDetail {
 	duration_ms: number | null;
 	by_severity: Record<string, number>;
 	total: number;
+	/** Real pages/posts this scan found an issue on, most-findings-first, plus a trailing `id: 0`/"Site-wide" entry when any findings aren't page-scoped — see Controllers/History.php's own build_affected_pages(). */
+	affected_pages: AffectedPage[];
+	/** Real pages/posts this scan considered and found clean — only ever populated when `total === 0` (a scan that DID find issues already has them in affected_pages above), and only for scans persisted after `vulopilot_scans.scanned_objects` existed — see Controllers/History.php's own build_scanned_pages(). */
+	scanned_pages: ScannedPage[];
 }
 
 export interface ChangeDetail {
@@ -31,6 +60,8 @@ export interface ChangeDetail {
 	format: 'text' | 'html' | 'json';
 	error_message: string | null;
 	page: string | null;
+	/** 'auto' when Automate Work's Auto-fix mode approved this run itself (ActionRunner::approve()'s own $method param) — real rows from before this column existed fall back to 'manual'. */
+	approval_method: 'manual' | 'auto';
 }
 
 export interface HistoryRow {

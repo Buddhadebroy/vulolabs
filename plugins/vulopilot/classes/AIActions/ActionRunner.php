@@ -110,12 +110,23 @@ class ActionRunner {
     /**
      * Stage 6: applies a previously proposed, still-pending action.
      *
-     * @param int $run_id A propose()-returned run_id.
+     * @param int    $run_id A propose()-returned run_id.
+     * @param string $method 'manual' (a human clicked Approve, the only way
+     *                       this was ever called before Automate Work's
+     *                       Auto-fix mode) or 'auto' (vulopilot-pro's
+     *                       RunAiActionAction calling this immediately after
+     *                       propose(), with no human involved at all —
+     *                       `approved_by` is left null rather than
+     *                       attributing it to whichever user id happens to
+     *                       own the request context, and `approval_method`
+     *                       is persisted so History can honestly say "auto-
+     *                       approved by automation" instead of implying a
+     *                       person clicked Approve).
      * @return array<string, mixed> ActionExecutionResult::to_array().
      *
      * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
      */
-    public function approve( int $run_id ): array {
+    public function approve( int $run_id, string $method = 'manual' ): array {
         $run = $this->get_pending_run_or_fail( $run_id );
 
         $action = $this->get_action_or_fail( $run['action_id'] );
@@ -127,14 +138,15 @@ class ActionRunner {
         $this->runs->update(
             $run_id,
             array(
-                'status'        => $result->is_success() ? 'executed' : 'failed',
-                'object_type'   => $result->get_object_type(),
-                'object_ref'    => $result->get_object_ref(),
-                'snapshot'      => wp_json_encode( $result->get_snapshot() ),
-                'error_message' => $result->get_message(),
-                'approved_by'   => get_current_user_id(),
-                'approved_at'   => current_time( 'mysql', true ),
-                'executed_at'   => $result->is_success() ? current_time( 'mysql', true ) : null,
+                'status'          => $result->is_success() ? 'executed' : 'failed',
+                'object_type'     => $result->get_object_type(),
+                'object_ref'      => $result->get_object_ref(),
+                'snapshot'        => wp_json_encode( $result->get_snapshot() ),
+                'error_message'   => $result->get_message(),
+                'approved_by'     => 'auto' === $method ? null : get_current_user_id(),
+                'approval_method' => $method,
+                'approved_at'     => current_time( 'mysql', true ),
+                'executed_at'     => $result->is_success() ? current_time( 'mysql', true ) : null,
             )
         );
 
@@ -143,7 +155,10 @@ class ActionRunner {
             $result->is_success() ? 'ai_action.executed' : 'ai_action.failed',
             $result->is_success() ? Severity::INFO : Severity::HIGH,
             $result->is_success()
-                ? sprintf( '%s executed.', $action->get_label() )
+                ? sprintf(
+                    'auto' === $method ? '%s auto-approved and executed by automation.' : '%s executed.',
+                    $action->get_label()
+                )
                 : sprintf( '%s failed: %s', $action->get_label(), $result->get_message() )
         );
 

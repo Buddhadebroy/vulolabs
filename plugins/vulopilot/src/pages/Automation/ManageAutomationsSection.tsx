@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { useState } from 'react';
+import { ComponentType, useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	CardComponent,
@@ -14,11 +14,27 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 import { formatWpDate } from '../../services/formatWpDate';
 import ShowProPopup from '../../components/Popup/Popup';
 import AutomationStatsRow from './AutomationStatsRow';
+import AutomationTemplatesCard from './AutomationTemplatesCard';
+import AutomationModesCard from './AutomationModesCard';
+import { AutomationTemplate, getAutomationTemplateById } from './automationTemplates';
 import {
 	CATEGORY_LABELS,
 	TRIGGER_TYPE_LABELS,
 	describeAutomationActions,
 } from './automationLabels';
+
+/**
+ * Mirrors `AutomationPanel.tsx`'s own (Pro) `AutomationPanelProps` — Free
+ * can't import Pro's src/ tree (that file's own docblock), same "small
+ * matching copy" convention `automationLabels.ts` already uses for
+ * CATEGORY_OPTIONS/TRIGGER_TYPE_OPTIONS/ACTION_TYPE_OPTIONS.
+ */
+interface AutomationPanelComponentProps {
+	openSignal?: number;
+	initialCategory?: string;
+	initialTriggerType?: string;
+	initialActionTypes?: string[];
+}
 
 interface AutomationRow extends TableRow {
 	id: number;
@@ -182,9 +198,23 @@ const StatusToggleCell = ({
  * slots. AutomationPanel.tsx (Pro) duplicates this same table styling —
  * it can't import this file's src/ tree, only the shared zyra package.
  */
-const ManageAutomationsSection = () => {
+interface ManageAutomationsSectionProps {
+	/** Automation.tsx's own `automation_template=<id>` URL param — set only when arriving from AI Copilot's Chat tab preview (AutomationTemplatesCard's onSelectTemplate there navigates cross-page with this param). Null for a plain top-nav visit. */
+	initialTemplateId?: string | null;
+}
+
+const ManageAutomationsSection = ({
+	initialTemplateId,
+}: ManageAutomationsSectionProps = {}) => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-	const AutomationPanel = useFilterSlot('vulopilot_automation_panel');
+	const [templateOpenSignal, setTemplateOpenSignal] = useState(0);
+	const [pendingTemplate, setPendingTemplate] = useState<AutomationTemplate | null>(
+		null
+	);
+	const AutomationPanel = useFilterSlot<ComponentType<AutomationPanelComponentProps>>(
+		'vulopilot_automation_panel'
+	);
+	const firedInitialTemplateRef = useRef(false);
 
 	const statusOptions = [
 		{ label: __('Enabled', 'vulopilot'), value: 'enabled' },
@@ -207,8 +237,54 @@ const ManageAutomationsSection = () => {
 
 	const openProPopup = () => setIsProPopupOpen(true);
 
+	/**
+	 * Templates' own real home — if `AutomationPanel` (Pro) is present,
+	 * open its real create form pre-seeded with this template's
+	 * category/trigger/actions; otherwise (Free / module inactive) fall
+	 * back to the exact same upsell every other create action in this file
+	 * already uses.
+	 */
+	const handleSelectTemplate = (template: AutomationTemplate) => {
+		if (!AutomationPanel) {
+			openProPopup();
+			return;
+		}
+
+		setPendingTemplate(template);
+		setTemplateOpenSignal((n) => n + 1);
+	};
+
+	// `AutomationPanel` (Pro) can resolve asynchronously after this
+	// component's first render (useFilterSlot's own docblock — a real
+	// script-load-order race, not a hypothetical one), so this can't just
+	// fire once on mount; it re-checks whenever `AutomationPanel` itself
+	// changes, but `firedInitialTemplateRef` guarantees the deep-linked
+	// template only ever auto-opens the form once, not every time the slot
+	// re-resolves.
+	useEffect(() => {
+		if (
+			firedInitialTemplateRef.current ||
+			!initialTemplateId ||
+			!AutomationPanel
+		) {
+			return;
+		}
+
+		const template = getAutomationTemplateById(initialTemplateId);
+
+		if (!template) {
+			return;
+		}
+
+		firedInitialTemplateRef.current = true;
+		handleSelectTemplate(template);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- handleSelectTemplate is redefined every render (closes over openProPopup/state setters); the ref guard already makes this safely re-runnable, keying on it would just cause redundant re-checks.
+	}, [AutomationPanel, initialTemplateId]);
+
 	return (
 		<div id="automation-manage">
+			<AutomationTemplatesCard onSelectTemplate={handleSelectTemplate} />
+			<AutomationModesCard />
 			<AutomationStatsRow />
 			<CardComponent
 				title={__('All automations', 'vulopilot')}
@@ -234,7 +310,12 @@ const ManageAutomationsSection = () => {
 						onButtonClick={refetch}
 					/>
 				) : AutomationPanel ? (
-					<AutomationPanel />
+					<AutomationPanel
+						openSignal={templateOpenSignal}
+						initialCategory={pendingTemplate?.category ?? undefined}
+						initialTriggerType={pendingTemplate?.triggerType ?? undefined}
+						initialActionTypes={pendingTemplate?.actionTypes ?? undefined}
+					/>
 				) : (
 					<>
 						{/*

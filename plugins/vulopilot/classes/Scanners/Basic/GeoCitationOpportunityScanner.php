@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -26,7 +27,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class GeoCitationOpportunityScanner extends AbstractBasicScanner {
+class GeoCitationOpportunityScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE = 50;
 
@@ -78,6 +81,8 @@ class GeoCitationOpportunityScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $plain_text = wp_strip_all_tags( $post->post_content );
 
             if ( ! preg_match( self::CLAIM_PATTERN, $plain_text ) ) {

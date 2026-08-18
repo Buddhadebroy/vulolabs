@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -25,7 +26,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AccessibilityScanner extends AbstractBasicScanner {
+class AccessibilityScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     /**
      * How many of the most recently published posts/pages to check per run.
@@ -69,6 +72,8 @@ class AccessibilityScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             if ( ! preg_match( '/<h1[\s>]/i', $post->post_content ) ) {
                 continue;
             }

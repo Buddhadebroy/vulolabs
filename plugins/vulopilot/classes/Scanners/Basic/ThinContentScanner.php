@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -24,7 +25,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class ThinContentScanner extends AbstractBasicScanner {
+class ThinContentScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE = 50;
 
@@ -76,6 +79,8 @@ class ThinContentScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $word_count = str_word_count( wp_strip_all_tags( $post->post_content ) );
 
             if ( $word_count >= $min_words ) {

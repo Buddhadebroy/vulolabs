@@ -7,6 +7,7 @@
 
 namespace VuloPilot\Scanners\Basic;
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\Services\CrawlerTrafficLogger;
 use VuloPilot\Services\RobotsTxtBotAccess;
 use VuloPilot\Utill;
@@ -30,7 +31,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AiCrawlerBlockedPagesScanner extends AbstractBasicScanner {
+class AiCrawlerBlockedPagesScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE = 50;
 
@@ -78,6 +81,10 @@ class AiCrawlerBlockedPagesScanner extends AbstractBasicScanner {
                 'order'          => 'DESC',
             )
         );
+
+        foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+        }
 
         foreach ( $bot_signatures as $bot_token => $bot_name ) {
             $disallowed_paths = $robots->get_disallowed_paths_for_bot( $bot_token );

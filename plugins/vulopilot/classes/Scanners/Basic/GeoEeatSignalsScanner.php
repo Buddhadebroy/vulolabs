@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -27,7 +28,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class GeoEeatSignalsScanner extends AbstractBasicScanner {
+class GeoEeatSignalsScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE = 50;
 
@@ -68,6 +71,8 @@ class GeoEeatSignalsScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $has_bio          = '' !== trim( (string) get_the_author_meta( 'description', $post->post_author ) );
             $has_been_updated = strtotime( $post->post_modified ) > strtotime( $post->post_date );
 

@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -33,7 +34,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class OrphanPageScanner extends AbstractBasicScanner {
+class OrphanPageScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE = 50;
 
@@ -84,6 +87,8 @@ class OrphanPageScanner extends AbstractBasicScanner {
         }
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $permalink = get_permalink( $post );
 
             if ( $this->has_inbound_link( $post, $posts, $permalink ) ) {

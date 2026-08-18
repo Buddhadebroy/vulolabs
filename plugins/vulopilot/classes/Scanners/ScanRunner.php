@@ -7,6 +7,7 @@
 
 namespace VuloPilot\Scanners;
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\ScanResult;
 
 defined( 'ABSPATH' ) || exit;
@@ -66,7 +67,9 @@ class ScanRunner {
                 $scanner_id,
                 ScanResult::STATUS_COMPLETED,
                 $findings,
-                ( microtime( true ) - $started_at ) * 1000
+                ( microtime( true ) - $started_at ) * 1000,
+                null,
+                $scanner instanceof TracksScannedObjectsInterface ? $scanner->get_scanned_post_ids() : array()
             );
         } catch ( \Throwable $exception ) {
             $result = new ScanResult(

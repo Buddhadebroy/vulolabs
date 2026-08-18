@@ -7,15 +7,11 @@ import {
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import HistoryTab from './HistoryTab';
-import IssuesTab from './IssuesTab';
-import AiWorkflowsTab from './AiWorkflowsTab';
 import { IssuesFilter } from './NeedsAttentionCard';
 import { Link } from 'react-router-dom';
 
 const TAB_IDS = [
 	'chat',
-	'issues',
-	'ai-workflows',
 	'history',
 ] as const;
 
@@ -29,6 +25,12 @@ const AIAssistant = () => {
 	const [issuesFilter, setIssuesFilter] = useState<IssuesFilter | null>(
 		null
 	);
+	// Bumped on every "go to the Issues section" navigation, even when
+	// `issuesFilter` resolves to the same value as before (e.g. clicking
+	// "View all issues" when it was already null) — ChatTab.tsx's own
+	// scroll-into-view effect keys off this instead of `issuesFilter` so a
+	// same-value React state bailout doesn't silently swallow the scroll.
+	const [issuesNavToken, setIssuesNavToken] = useState(0);
 	// Set only when navigation came from RecentConversationsCard.tsx's own
 	// click-through — a plain top-nav click to History passes no selectId
 	// and HistoryTab.tsx falls back to its normal "all, first row" default.
@@ -39,14 +41,20 @@ const AIAssistant = () => {
 	const goToTab = (tab: string, filter?: IssuesFilter, selectId?: number) => {
 		if ((TAB_IDS as readonly string[]).includes(tab)) {
 			setActiveTab(tab as (typeof TAB_IDS)[number]);
+		}
 
-			if ('issues' === tab) {
-				setIssuesFilter(filter ?? null);
-			}
+		// The Issues table now lives inline on the Chat tab (appended below
+		// the composer) rather than as its own nav tab — NeedsAttentionCard's
+		// "View all issues"/group-row clicks still pass through here as
+		// `onNavigateTab('chat', filter)`, so this still needs to update the
+		// filter that table reads, same as it did for the old 'issues' tab.
+		if ('chat' === tab) {
+			setIssuesFilter(filter ?? null);
+			setIssuesNavToken((n) => n + 1);
+		}
 
-			if ('history' === tab) {
-				setHistorySelectId(selectId ?? null);
-			}
+		if ('history' === tab) {
+			setHistorySelectId(selectId ?? null);
 		}
 	};
 
@@ -60,10 +68,6 @@ const AIAssistant = () => {
 						return __('Chat', 'vulopilot');
 					case 'history':
 						return __('History', 'vulopilot');
-					case 'issues':
-						return __('Issues', 'vulopilot');
-					case 'ai-workflows':
-						return __('AI Workflows', 'vulopilot');
 					default:
 						return tabId;
 				}
@@ -74,10 +78,6 @@ const AIAssistant = () => {
 						return 'ai';
 					case 'history':
 						return 'history';
-					case 'issues':
-						return 'error';
-					case 'ai-workflows':
-						return 'workflow';
 					default:
 						return 'settings';
 				}
@@ -96,17 +96,10 @@ const AIAssistant = () => {
 						onMessageChange={setChatMessage}
 						autoApply={autoApply}
 						onAutoApplyChange={setAutoApply}
+						issuesFilter={issuesFilter}
+						issuesNavToken={issuesNavToken}
 					/>
 				);
-			case 'issues':
-				return (
-					<IssuesTab
-						filter={issuesFilter}
-						onClearFilter={() => setIssuesFilter(null)}
-					/>
-				);
-			case 'ai-workflows':
-				return <AiWorkflowsTab />;
 			case 'history':
 				return (
 					<HistoryTab

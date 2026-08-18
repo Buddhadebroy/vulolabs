@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -25,7 +26,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class InternalLinkingScanner extends AbstractBasicScanner {
+class InternalLinkingScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE = 50;
 
@@ -67,6 +70,8 @@ class InternalLinkingScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             if ( $this->has_internal_link( $post->post_content, $home_host ) ) {
                 continue;
             }

@@ -7,6 +7,7 @@
 
 namespace VuloPilot\Scanners\Basic;
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -23,7 +24,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class NotFoundScanner extends AbstractBasicScanner {
+class NotFoundScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE              = 30;
     private const REQUEST_TIMEOUT_SECONDS = 5;
@@ -65,6 +68,8 @@ class NotFoundScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $permalink = get_permalink( $post );
             $response  = wp_remote_head(
                 $permalink,

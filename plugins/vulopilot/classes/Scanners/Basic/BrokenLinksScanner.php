@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -32,7 +33,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class BrokenLinksScanner extends AbstractBasicScanner {
+class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const POSTS_BATCH_SIZE        = 20;
     private const MAX_LINKS_PER_RUN       = 40;
@@ -132,6 +135,8 @@ class BrokenLinksScanner extends AbstractBasicScanner {
         $links = array();
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             if ( count( $links ) >= self::MAX_LINKS_PER_RUN ) {
                 break;
             }

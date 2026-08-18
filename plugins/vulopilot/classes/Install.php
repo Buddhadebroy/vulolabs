@@ -80,19 +80,26 @@ class Install {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         }
 
-        $sql_scans = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['scan'] . "` (
-            `id`            bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `scanner_id`    varchar(100) NOT NULL,
-            `scanner_tier`  varchar(20) NOT NULL DEFAULT 'free',
-            `status`        varchar(20) NOT NULL DEFAULT 'queued',
-            `trigger_type`  varchar(20) NOT NULL DEFAULT 'manual',
-            `triggered_by`  bigint(20) unsigned DEFAULT NULL,
-            `started_at`    datetime DEFAULT NULL,
-            `finished_at`   datetime DEFAULT NULL,
-            `duration_ms`   int(10) unsigned DEFAULT NULL,
-            `summary`       longtext DEFAULT NULL,
-            `error_message` text DEFAULT NULL,
-            `created_at`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        // No "IF NOT EXISTS" here (unlike the table below) — dbDelta()
+        // misparses the table name off of "IF" when that clause is present
+        // on an already-existing table, silently skipping the ALTER path
+        // that would otherwise add `scanned_objects` for existing installs.
+        // Same bug, same fix as ai_history's own CREATE (Install.php's own
+        // history there).
+        $sql_scans = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['scan'] . "` (
+            `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `scanner_id`       varchar(100) NOT NULL,
+            `scanner_tier`     varchar(20) NOT NULL DEFAULT 'free',
+            `status`           varchar(20) NOT NULL DEFAULT 'queued',
+            `trigger_type`     varchar(20) NOT NULL DEFAULT 'manual',
+            `triggered_by`     bigint(20) unsigned DEFAULT NULL,
+            `started_at`       datetime DEFAULT NULL,
+            `finished_at`      datetime DEFAULT NULL,
+            `duration_ms`      int(10) unsigned DEFAULT NULL,
+            `summary`          longtext DEFAULT NULL,
+            `scanned_objects`  longtext DEFAULT NULL,
+            `error_message`    text DEFAULT NULL,
+            `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             KEY `idx_scanner` (`scanner_id`),
             KEY `idx_status` (`status`),
@@ -195,7 +202,22 @@ class Install {
             KEY `idx_object` (`object_type`, `object_id`)
         ) $collate;";
 
-        $sql_ai_history = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['ai_history'] . "` (
+        // No "IF NOT EXISTS" here (unlike every other CREATE TABLE in this
+        // file) — dbDelta() itself already only ever issues a CREATE for a
+        // table that doesn't exist yet, and its own column-diff/ALTER path
+        // for a table that DOES already exist misparses the table name
+        // when "IF NOT EXISTS" is present, silently failing to detect (and
+        // add) new columns like `prompt_excerpt` below on any site that
+        // already has this table — confirmed via a direct dbDelta() call:
+        // with "IF NOT EXISTS" it reports "Created table IF" (parsed "IF"
+        // as the table name) and adds nothing; without it, it correctly
+        // reports "Added column ...prompt_excerpt". This is a real,
+        // wider-reaching dbDelta limitation (WordPress core's own docs warn
+        // against combining dbDelta with "IF NOT EXISTS") that likely
+        // affects every other table below too — out of scope to fix
+        // wholesale here, but this table needed it for this change to
+        // actually apply on an upgrade, not just a fresh install.
+        $sql_ai_history = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['ai_history'] . "` (
             `id`                bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `job_id`            bigint(20) unsigned DEFAULT NULL,
             `provider`          varchar(50) NOT NULL,
@@ -207,6 +229,7 @@ class Install {
             `completion_tokens` int(10) unsigned DEFAULT NULL,
             `cost_estimate`     decimal(10,4) DEFAULT NULL,
             `status`            varchar(20) NOT NULL,
+            `prompt_excerpt`    text DEFAULT NULL,
             `response_excerpt`  text DEFAULT NULL,
             `requested_by`      bigint(20) unsigned DEFAULT NULL,
             `created_at`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -303,23 +326,28 @@ class Install {
             UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
         ) $collate;";
 
-        $sql_ai_action_runs = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['ai_action_run'] . "` (
-            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `action_id`      varchar(100) NOT NULL,
-            `status`         varchar(20) NOT NULL DEFAULT 'pending_approval',
-            `object_type`    varchar(50) DEFAULT NULL,
-            `object_ref`     varchar(255) DEFAULT NULL,
-            `input`          longtext DEFAULT NULL,
-            `output`         longtext DEFAULT NULL,
-            `preview`        longtext DEFAULT NULL,
-            `snapshot`       longtext DEFAULT NULL,
-            `error_message`  text DEFAULT NULL,
-            `requested_by`   bigint(20) unsigned DEFAULT NULL,
-            `approved_by`    bigint(20) unsigned DEFAULT NULL,
-            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `approved_at`    datetime DEFAULT NULL,
-            `executed_at`    datetime DEFAULT NULL,
-            `rolled_back_at` datetime DEFAULT NULL,
+        // No "IF NOT EXISTS" here — same dbDelta()/"IF NOT EXISTS" ALTER-path
+        // bug documented above ai_history's own CREATE — needed so
+        // `approval_method` actually gets added on an upgrade, not just a
+        // fresh install.
+        $sql_ai_action_runs = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['ai_action_run'] . "` (
+            `id`              bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `action_id`       varchar(100) NOT NULL,
+            `status`          varchar(20) NOT NULL DEFAULT 'pending_approval',
+            `object_type`     varchar(50) DEFAULT NULL,
+            `object_ref`      varchar(255) DEFAULT NULL,
+            `input`           longtext DEFAULT NULL,
+            `output`          longtext DEFAULT NULL,
+            `preview`         longtext DEFAULT NULL,
+            `snapshot`        longtext DEFAULT NULL,
+            `error_message`   text DEFAULT NULL,
+            `requested_by`    bigint(20) unsigned DEFAULT NULL,
+            `approved_by`     bigint(20) unsigned DEFAULT NULL,
+            `approval_method` varchar(20) NOT NULL DEFAULT 'manual',
+            `created_at`      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `approved_at`     datetime DEFAULT NULL,
+            `executed_at`     datetime DEFAULT NULL,
+            `rolled_back_at`  datetime DEFAULT NULL,
             PRIMARY KEY (`id`),
             KEY `idx_action` (`action_id`),
             KEY `idx_status` (`status`),

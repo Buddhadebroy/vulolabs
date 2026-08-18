@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-17T11:29:19+00:00\n"
+"POT-Creation-Date: 2026-08-17T12:50:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -1436,59 +1436,75 @@ msgstr ""
 msgid "A redirect for this path already exists — manage it from the Redirects table above."
 msgstr ""
 
-#: classes/RestAPI/Controllers/PerformanceActions.php:116
+#: classes/RestAPI/Controllers/PerformanceActions.php:119
 msgid "Unknown quick action."
 msgstr ""
 
-#: classes/RestAPI/Controllers/PerformanceActions.php:136
+#: classes/RestAPI/Controllers/PerformanceActions.php:139
 msgid "WordPress object cache flushed."
 msgstr ""
 
 #. translators: %s is a comma-separated list of cache plugin names that were also flushed.
-#: classes/RestAPI/Controllers/PerformanceActions.php:139
+#: classes/RestAPI/Controllers/PerformanceActions.php:142
 #, php-format
 msgid "WordPress object cache flushed, plus: %s."
 msgstr ""
 
-#: classes/RestAPI/Controllers/PerformanceActions.php:168
+#: classes/RestAPI/Controllers/PerformanceActions.php:171
 msgid "No minification plugin detected — install Autoptimize, WP Rocket, or a similar plugin to enable this action."
 msgstr ""
 
 #. translators: %s is a comma-separated list of plugin names that regenerated minified assets.
-#: classes/RestAPI/Controllers/PerformanceActions.php:176
+#: classes/RestAPI/Controllers/PerformanceActions.php:179
 #, php-format
 msgid "Regenerated minified assets via: %s."
 msgstr ""
 
-#: classes/RestAPI/Controllers/PerformanceActions.php:238
+#: classes/RestAPI/Controllers/PerformanceActions.php:241
 msgid "No oversized images found to optimize."
 msgstr ""
 
 #. translators: 1: number of images optimized, 2: formatted byte size saved, e.g. "1.4 MB".
-#: classes/RestAPI/Controllers/PerformanceActions.php:241
+#: classes/RestAPI/Controllers/PerformanceActions.php:244
 #, php-format
 msgid "Optimized %1$d image(s), saved %2$s."
 msgstr ""
 
 #. translators: 1: number of expired transients deleted, 2: number of old post revisions deleted.
-#: classes/RestAPI/Controllers/PerformanceActions.php:300
+#: classes/RestAPI/Controllers/PerformanceActions.php:303
 #, php-format
 msgid "Deleted %1$d expired transients and %2$d old post revisions."
 msgstr ""
 
-#: classes/RestAPI/Controllers/PerformanceActions.php:322
+#: classes/RestAPI/Controllers/PerformanceActions.php:327
+msgid "No unused images found to clean up."
+msgstr ""
+
+#. translators: 1: number of images deleted, 2: formatted bytes freed, 3: number of remaining unused images not yet processed.
+#: classes/RestAPI/Controllers/PerformanceActions.php:352
+#, php-format
+msgid "Deleted %1$d unused image(s), freed %2$s. %3$d more found — run again to continue."
+msgstr ""
+
+#. translators: 1: number of images deleted, 2: formatted bytes freed.
+#: classes/RestAPI/Controllers/PerformanceActions.php:359
+#, php-format
+msgid "Deleted %1$d unused image(s), freed %2$s."
+msgstr ""
+
+#: classes/RestAPI/Controllers/PerformanceActions.php:381
 msgid "Lazy loading was already force-enabled."
 msgstr ""
 
-#: classes/RestAPI/Controllers/PerformanceActions.php:323
+#: classes/RestAPI/Controllers/PerformanceActions.php:382
 msgid "Lazy loading is now force-enabled site-wide."
 msgstr ""
 
-#: classes/RestAPI/Controllers/PerformanceActions.php:341
+#: classes/RestAPI/Controllers/PerformanceActions.php:400
 msgid "Critical resource preloading was already enabled."
 msgstr ""
 
-#: classes/RestAPI/Controllers/PerformanceActions.php:342
+#: classes/RestAPI/Controllers/PerformanceActions.php:401
 msgid "Critical resource preloading is now enabled — the site logo and main stylesheet will be preloaded."
 msgstr ""
 
@@ -2495,6 +2511,21 @@ msgstr ""
 msgid "A large number of active plugins increases the odds of conflicts and can slow down every admin and frontend request."
 msgstr ""
 
+#: classes/Scanners/Basic/ImageCleanupScanner.php:55
+#: assets/js/index.js:1
+msgid "Image Cleanup"
+msgstr ""
+
+#. translators: 1: number of unused images, 2: formatted total file size, e.g. "3.2 MB".
+#: classes/Scanners/Basic/ImageCleanupScanner.php:82
+#, php-format
+msgid "%1$d unused images found (%2$s)"
+msgstr ""
+
+#: classes/Scanners/Basic/ImageCleanupScanner.php:88
+msgid "These images are not attached to any post or page, are not used as a featured image, site icon, or logo, and were uploaded more than 30 days ago. Use the \"Image Cleanup\" quick action to remove them and reclaim disk space."
+msgstr ""
+
 #: classes/Scanners/Basic/ImagesScanner.php:44
 #: assets/js/index.js:1
 msgid "Images"
@@ -2599,28 +2630,28 @@ msgstr ""
 msgid "Real login attempts logged by Login Protection in the last %d days. If this wasn't you, no action is needed — the attempts were already blocked."
 msgstr ""
 
-#: classes/Scanners/Basic/MalwareScanner.php:80
+#: classes/Scanners/Basic/MalwareScanner.php:93
 msgid "Malware & Infection Detection"
 msgstr ""
 
 #. translators: %s is the relative file path.
-#: classes/Scanners/Basic/MalwareScanner.php:114
+#: classes/Scanners/Basic/MalwareScanner.php:127
 #, php-format
 msgid "PHP file found inside the uploads directory: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/MalwareScanner.php:119
+#: classes/Scanners/Basic/MalwareScanner.php:132
 msgid "The uploads directory should only ever contain media files. A PHP file here is one of the most reliable signs of a compromised site — review it immediately and remove it if you did not put it there yourself."
 msgstr ""
 
 #. translators: %s is the relative file path.
-#: classes/Scanners/Basic/MalwareScanner.php:134
+#: classes/Scanners/Basic/MalwareScanner.php:147
 #, php-format
 msgid "Suspicious code pattern found in theme file: %s"
 msgstr ""
 
 #. translators: %s is the matched backdoor/webshell signature.
-#: classes/Scanners/Basic/MalwareScanner.php:141
+#: classes/Scanners/Basic/MalwareScanner.php:154
 #, php-format
 msgid "This file contains a pattern commonly used by malware/webshells (\"%s\"). Review it immediately — if you did not add this code yourself, your site may be compromised."
 msgstr ""
@@ -8269,19 +8300,15 @@ msgid "No robots.txt findings yet — run a scan to check crawler access."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "All SEO Issues"
+msgid "Site-wide Issues"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not load SEO issues"
+msgid "Could not load site-wide issues"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Something went wrong fetching this data. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Site-wide issues"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8290,6 +8317,18 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Fixing…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No site-wide issues match this filter."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pages & Posts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load SEO issues"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8325,11 +8364,15 @@ msgid "Edit"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No open SEO issues on any page right now — nice work."
+msgid "No pages or posts match this filter."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No pages currently have this specific issue."
+msgid "No open SEO issues on any page or post right now — nice work."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No pages or posts currently have this specific issue."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8357,7 +8400,7 @@ msgid "SEO checks at a glance"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Each category below has its own real score based on open findings."
+msgid "Each category below has its own real score based on open findings — click one to jump to its issues."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9714,6 +9757,14 @@ msgstr ""
 msgid "No automations yet — create one to react to scan findings automatically."
 msgstr ""
 
+#: assets/js/index.js:1
+msgid "Overview"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automations"
+msgstr ""
+
 #. translators: 1: start date, 2: end date.
 #: assets/js/index.js:1
 #, js-format
@@ -10123,10 +10174,6 @@ msgid "Nothing has happened yet — actions across VuloPilot will show up here."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Overview"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Report Builder"
 msgstr ""
 
@@ -10232,10 +10279,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Changes"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Automations"
 msgstr ""
 
 #: assets/js/index.js:1

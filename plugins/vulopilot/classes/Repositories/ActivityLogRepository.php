@@ -128,6 +128,48 @@ class ActivityLogRepository extends AbstractRepository {
     }
 
     /**
+     * Real rows created within a short window starting at `$after` — used
+     * only by History's "Related actions" (Controllers/History.php), to
+     * find an `ai_action.*` row a content-creation conversation turn
+     * caused. Safe as a tight window rather than a same-day heuristic
+     * because the causing turn and the resulting action are always written
+     * in the same PHP request (Controllers\Copilot.php/ContentAssistant.php
+     * call the content-creation orchestrator synchronously right after the
+     * AI call that this row's own `ai_history` row logs) — the caller still
+     * cross-checks the real requesting user via the joined
+     * `vulopilot_ai_action_runs.requested_by` before treating a candidate
+     * as related, since this table's own `actor_id` isn't populated by
+     * ActionRunner::log() today.
+     *
+     * @param string[] $event_types    e.g. History::EVENT_TYPES_BY_CATEGORY['change'].
+     * @param string   $after          Y-m-d H:i:s, inclusive.
+     * @param int      $window_seconds How far past `$after` to look.
+     * @return array<int, array<string, mixed>>
+     */
+    public function find_actions_in_window( array $event_types, string $after, int $window_seconds ): array {
+        global $wpdb;
+        $table = $this->get_table();
+
+        if ( ! $event_types ) {
+            return array();
+        }
+
+        $before = gmdate( 'Y-m-d H:i:s', strtotime( $after ) + $window_seconds );
+
+        $placeholders = implode( ', ', array_fill( 0, count( $event_types ), '%s' ) );
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$table} WHERE event_type IN ({$placeholders}) AND created_at BETWEEN %s AND %s ORDER BY created_at ASC LIMIT 10", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholder count matches $event_types' size at runtime.
+                ...array_merge( $event_types, array( $after, $before ) )
+            ),
+            ARRAY_A
+        );
+
+        return null !== $rows ? $rows : array();
+    }
+
+    /**
      * Records one activity log entry. A thin, descriptively-named wrapper
      * around insert() so call sites (ScanPersistenceListener and, later,
      * the Rule/Automation engines) read as "log this event" rather than a

@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import React, { useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
@@ -8,6 +8,7 @@ import { formatWpDate } from '../../services/formatWpDate';
 import {
 	HistoryRow,
 	rowTitle,
+	rowTime,
 	humanizeConversationExcerpt,
 } from './historyTypes';
 
@@ -34,6 +35,8 @@ interface HistoryDetailPanelProps {
 	onDeleted: (row: HistoryRow) => void;
 	/** Called after a real, successful rollback so the caller can reload the timeline — a rollback also writes its own new 'ai_action.rolled_back' history row server-side (ActionRunner::rollback()'s own log() call), so a local-only status patch here would still miss that new row. */
 	onRolledBack: () => void;
+	/* eslint-disable-next-line no-unused-vars -- named param on a type-only call signature, same as onDeleted above. */
+	onSelectRelatedAction: (id: number) => void;
 }
 
 /**
@@ -63,6 +66,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 	onClose,
 	onDeleted,
 	onRolledBack,
+	onSelectRelatedAction,
 }) => {
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isRollingBack, setIsRollingBack] = useState(false);
@@ -145,7 +149,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 	return (
 		<CardComponent
 			className="issue-detail-panel history-detail-panel"
-			title={__('Selected item', 'vulopilot')}
+			title={rowTitle(row)}
 			action={
 				<i
 					className="adminfont-close"
@@ -162,7 +166,6 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 				/>
 			}
 		>
-			<div className="title">{rowTitle(row)}</div>
 			<p className="small desc">
 				{sprintf(
 					/* translators: %s: formatted date this event happened */
@@ -210,6 +213,70 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 						<>{__('No issues found.', 'vulopilot')}</>
 					)}
 				</FormGroupComponent>
+				{row.scan.affected_pages.length > 0 && (
+					<div className="issue-detail-section">
+						<h4>{__('Pages & posts', 'vulopilot')}</h4>
+						<ul className="history-affected-pages">
+							{row.scan.affected_pages.map((page) => (
+								<li key={page.id}>
+									{page.edit_link ? (
+										<a
+											href={page.edit_link}
+											target="_blank"
+											rel="noreferrer"
+										>
+											{page.title}
+										</a>
+									) : (
+										<span>{page.title}</span>
+									)}
+									<span className="history-affected-page-count">
+										{sprintf(
+											_n(
+												'%d issue',
+												'%d issues',
+												page.count,
+												'vulopilot'
+											),
+											page.count
+										)}
+									</span>
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+				{0 === row.scan.total &&
+					row.scan.scanned_pages.length > 0 && (
+						<div className="issue-detail-section">
+							<h4>
+								{sprintf(
+									/* translators: %d: number of pages/posts scanned */
+									__(
+										'Pages & posts scanned (%d)',
+										'vulopilot'
+									),
+									row.scan.scanned_pages.length
+								)}
+							</h4>
+							<ul className="history-affected-pages history-scanned-pages">
+								{row.scan.scanned_pages.map((page) => (
+									<li key={page.id}>
+										<a
+											href={page.edit_link}
+											target="_blank"
+											rel="noreferrer"
+										>
+											{page.title}
+										</a>
+										<span className="history-affected-page-count history-scanned-page-clean">
+											{__('Clean', 'vulopilot')}
+										</span>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
 				{row.scan.total > 0 && (
 					<ButtonInput
 						position='full-width'
@@ -232,6 +299,14 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 						<p>
 							{CHANGE_STATUS_LABEL[row.change.status] ??
 								row.change.status}
+							{'auto' === row.change.approval_method && (
+								<span className="history-auto-approved-note">
+									{__(
+										' — Auto-approved by automation',
+										'vulopilot'
+									)}
+								</span>
+							)}
 						</p>
 					</div>
 
@@ -285,6 +360,14 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 
 			{row.conversation && (
 				<>
+					{row.conversation.prompt_excerpt && (
+						<div className="issue-detail-section">
+							<h4>{__('You asked', 'vulopilot')}</h4>
+							<p className="issue-detail-example-desc">
+								{row.conversation.prompt_excerpt}
+							</p>
+						</div>
+					)}
 					<FormGroupComponent row label={__('Provider', 'vulopilot')}>
 						{row.conversation.model
 							? `${row.conversation.provider} (${row.conversation.model})`
@@ -299,6 +382,51 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							)}
 						</p>
 					</div>
+					{row.conversation.related_actions.length > 0 && (
+						<div className="issue-detail-section">
+							<h4>
+								{__(
+									'Related actions (from this conversation)',
+									'vulopilot'
+								)}
+							</h4>
+							<ul className="history-related-actions">
+								{row.conversation.related_actions.map(
+									(action) => (
+										<li key={action.id}>
+											<span
+												className="history-related-action-link"
+												role="button"
+												tabIndex={0}
+												onClick={() =>
+													onSelectRelatedAction(
+														action.id
+													)
+												}
+												onKeyDown={(event) => {
+													if (
+														'Enter' ===
+															event.key ||
+														' ' === event.key
+													) {
+														event.preventDefault();
+														onSelectRelatedAction(
+															action.id
+														);
+													}
+												}}
+											>
+												{action.label}
+											</span>
+											<span className="history-related-action-time">
+												{rowTime(action.created_at)}
+											</span>
+										</li>
+									)
+								)}
+							</ul>
+						</div>
+					)}
 				</>
 			)}
 		</FormGroupWrapperComponent>

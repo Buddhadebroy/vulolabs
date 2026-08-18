@@ -40,7 +40,7 @@ class AiHistoryRepository extends AbstractRepository {
     /**
      * @var string[]
      */
-    protected array $searchable_columns = array( 'model', 'response_excerpt' );
+    protected array $searchable_columns = array( 'model', 'prompt_excerpt', 'response_excerpt' );
 
     /**
      * @inheritDoc
@@ -128,8 +128,10 @@ class AiHistoryRepository extends AbstractRepository {
         $values       = self::CHAT_SURFACES;
 
         if ( ! empty( $args['search'] ) ) {
-            $where   .= ' AND response_excerpt LIKE %s';
-            $values[] = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
+            $where   .= ' AND (prompt_excerpt LIKE %s OR response_excerpt LIKE %s)';
+            $like     = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
+            $values[] = $like;
+            $values[] = $like;
         }
 
         if ( ! empty( $args['date_from'] ) ) {
