@@ -12,30 +12,37 @@ import KnowledgeGraphTab from './KnowledgeGraphTab';
 import SeoTab from './SeoTab';
 import KeywordsTab from './KeywordsTab';
 import SchemaTab from './SchemaTab';
+import BrokenLinksTab from './BrokenLinksTab';
 import RedirectsTab from './RedirectsTab';
 
 const TAB_IDS = [
 	'overview',
+	'brand-visibility',
+	'seo',
 	'geo',
 	'aeo',
-	'crawler-traffic',
-	'brand-visibility',
-	'knowledge-graph',
-	'seo',
 	'keywords',
+	'crawler-traffic',
+	'knowledge-graph',
 	'schema',
+	'broken-links',
 	'redirects',
 ] as const;
 
 /**
- * "Grow My Traffic" (WP menu slug `geo`) — a tab shell over nine views:
- * the mockup's new Overview (OverviewTab.tsx), and GEO/AEO/Crawler
- * Traffic/Brand Visibility/Knowledge Graph/SEO/Keywords/Schema, folded in
- * as tabs instead of their own now-deleted standalone pages. Keywords
- * (KeywordsTab.tsx) was originally a `ModuleGuardComponent` tucked into
- * the SEO tab's own footer; split into its own tab per direct instruction
- * — see that file's own docblock for why it's still an honest
- * "not connected yet" state rather than fabricated rank data.
+ * "Grow My Traffic" (WP menu slug `geo`) — a tab shell over Overview
+ * (OverviewTab.tsx), and GEO/AEO/Crawler Traffic/Brand Visibility/
+ * Knowledge Graph/SEO/Keywords/Schema/Broken Links/Redirects,
+ * folded in as tabs instead of their own now-deleted standalone pages.
+ * Keywords (KeywordsTab.tsx) was originally a `ModuleGuardComponent`
+ * tucked into the SEO tab's own footer; split into its own tab per direct
+ * instruction — see that file's own docblock for why it's still an
+ * honest "not connected yet" state rather than fabricated rank data.
+ * Broken Links (BrokenLinksTab.tsx), added after Schema per direct
+ * instruction, is real `scanner_id: 'broken-links'` findings pulled out
+ * of the SEO tab's own "Links & schema" section into their own tab, same
+ * `useFindingsTable` hook every other findings-backed tab here uses —
+ * see that file's own docblock.
  * AEO/Crawler Traffic
  * were already grouped under `Admin.php`'s `legacy_submenus()` "Folded
  * into 'geo' ('Grow My Traffic')" comment (`group: 'ai-visibility'`);
@@ -110,6 +117,14 @@ const GEO = () => {
 							content: <OverviewTab onNavigateTab={goToTab} />,
 						},
 						{
+							label: __('Brand Visibility', 'vulopilot'),
+							content: <BrandVisibilityTab />,
+						},
+						{
+							label: __('SEO', 'vulopilot'),
+							content: <SeoTab />,
+						},
+						{
 							label: __('GEO', 'vulopilot'),
 							content: <GeoTab />,
 						},
@@ -118,31 +133,27 @@ const GEO = () => {
 							content: <AeoTab />,
 						},
 						{
-							label: __('Crawler Traffic', 'vulopilot'),
-							content: <CrawlerTrafficTab />,
+							label: __('Keywords', 'vulopilot'),
+							content: <KeywordsTab />,
 						},
 						{
-							label: __('Brand Visibility', 'vulopilot'),
-							content: <BrandVisibilityTab />,
+							label: __('Crawler Traffic', 'vulopilot'),
+							content: <CrawlerTrafficTab />,
 						},
 						{
 							label: __('Knowledge Graph', 'vulopilot'),
 							content: <KnowledgeGraphTab />,
 						},
 						{
-							label: __('SEO', 'vulopilot'),
-							content: <SeoTab />,
-						},
-						{
-							label: __('Keywords', 'vulopilot'),
-							content: <KeywordsTab />,
-						},
-						{
 							label: __('Schema', 'vulopilot'),
 							content: <SchemaTab />,
 						},
 						{
-							label: __('Redirects & 404s', 'vulopilot'),
+							label: __('Broken Links', 'vulopilot'),
+							content: <BrokenLinksTab />,
+						},
+						{
+							label: __('Redirects', 'vulopilot'),
 							content: <RedirectsTab />,
 						},
 					]}

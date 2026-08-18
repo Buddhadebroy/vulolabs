@@ -29,6 +29,13 @@ defined( 'ABSPATH' ) || exit;
  * accepted false-positive source for this first-pass check, not
  * something this pass tries to fully eliminate.
  *
+ * Every Finding carries a real `meta.reason` ('broken' vs 'unverified' —
+ * see check_link()'s own docblock) and every genuine run persists real
+ * per-run coverage stats to STATS_OPTION — both added so
+ * BrokenLinksTab.tsx's own "Broken links"/"Couldn't verify"/"Coverage"/
+ * "Link health" tiles could be built from real numbers instead of either
+ * fabricating them or leaving them out, per direct instruction.
+ *
  * @class       BrokenLinksScanner class
  * @version     1.0.0
  * @author      VuloLabs
@@ -47,6 +54,16 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
      * cadence being scheduled externally.
      */
     private const LAST_RUN_OPTION = 'vulopilot_broken_links_last_checked';
+
+    /**
+     * Real per-run coverage stats (pages scanned/links checked/healthy
+     * count this run) — Controllers\BrokenLinksStats reads this directly
+     * for BrokenLinksTab.tsx's own real "Coverage"/"Link health" tiles.
+     * Nothing here is derived/estimated: every field is a plain count of
+     * what this exact run actually did, overwritten (not accumulated)
+     * each time `scan()` genuinely executes a check.
+     */
+    public const STATS_OPTION = 'vulopilot_broken_links_last_run_stats';
 
     /**
      * @inheritDoc
@@ -83,13 +100,15 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
             return array();
         }
 
-        $findings = array();
-        $links    = $this->extract_links_from_recent_content();
+        $findings      = array();
+        $links         = $this->extract_links_from_recent_content();
+        $healthy_count = 0;
 
         foreach ( $links as $url => $post_id ) {
-            $status = $this->check_link( $url );
+            $result = $this->check_link( $url );
 
-            if ( null === $status ) {
+            if ( null === $result ) {
+                ++$healthy_count;
                 continue;
             }
 
@@ -104,13 +123,34 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
                 sprintf(
                     /* translators: %s is an HTTP status or error description. */
                     __( 'Request failed with: %s', 'vulopilot' ),
-                    $status
+                    $result['detail']
                 ),
                 'post',
                 (string) $post_id,
-                array( 'url' => $url )
+                array(
+                    'url'    => $url,
+                    // 'unverified' — a network/timeout/DNS failure
+                    // (is_wp_error()); could genuinely be a fine link on a
+                    // slow/unreachable-from-this-server host, not
+                    // necessarily broken. 'broken' — a real HTTP response
+                    // that just wasn't 2xx/3xx. BrokenLinksTab.tsx's own
+                    // "Broken links" vs "Couldn't verify" tiles are this
+                    // field, not a guess.
+                    'reason' => $result['reason'],
+                )
             );
         }
+
+        update_option(
+            self::STATS_OPTION,
+            array(
+                'pages_scanned' => count( $this->scanned_post_ids ),
+                'links_checked' => count( $links ),
+                'healthy_count' => $healthy_count,
+                'checked_at'    => time(),
+            ),
+            false
+        );
 
         return $findings;
     }
@@ -191,9 +231,9 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
 
     /**
      * @param string $url URL to check.
-     * @return string|null A description of the failure, or null if the link looks fine.
+     * @return array{reason: string, detail: string}|null 'reason' is 'unverified' (network/timeout/DNS failure — is_wp_error()) or 'broken' (a real non-2xx/3xx HTTP response); null if the link looks fine.
      */
-    private function check_link( string $url ): ?string {
+    private function check_link( string $url ): ?array {
         $response = wp_remote_head(
             $url,
             array(
@@ -204,7 +244,10 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
         );
 
         if ( is_wp_error( $response ) ) {
-            return $response->get_error_message();
+            return array(
+                'reason' => 'unverified',
+                'detail' => $response->get_error_message(),
+            );
         }
 
         $status_code = wp_remote_retrieve_response_code( $response );
@@ -213,6 +256,9 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
             return null;
         }
 
-        return sprintf( 'HTTP %d', $status_code );
+        return array(
+            'reason' => 'broken',
+            'detail' => sprintf( 'HTTP %d', $status_code ),
+        );
     }
 }

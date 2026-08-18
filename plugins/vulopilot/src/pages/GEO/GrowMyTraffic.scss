@@ -831,3 +831,21 @@
 		margin-right: 0.25rem;
 	}
 }
+
+// BrokenLinksTab.tsx.
+.broken-link-redirect-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.broken-link-redirect-note {
+	margin-top: -0.5rem;
+}
+
+.broken-link-redirect-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.625rem;
+	margin-top: 0.5rem;
+}

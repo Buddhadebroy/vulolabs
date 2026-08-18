@@ -244,6 +244,15 @@ class Utill {
         // whether this specific scanner's own check actually re-runs that
         // time or skips (based on when it last genuinely ran).
         'broken_link_check_frequency'           => 'daily',
+        // Read by Scanners\Basic\BrokenImagesScanner — same real
+        // gate/frequency shape as flag_broken_links/
+        // broken_link_check_frequency directly above, for `<img src>`
+        // instead of `<a href>`. Added so BrokenLinksTab.tsx's own
+        // "Broken images" tile (Grow My Traffic → Broken Links) reflects
+        // a real, second scanner instead of a number this codebase never
+        // actually computed.
+        'flag_broken_images'                    => array( 'flag_broken_images' ),
+        'broken_image_check_frequency'          => 'daily',
         // Covers both SchemaScanner (presence) and
         // StructuredDataValidationScanner (validity) — the mockup this
         // was built from has one "Flag missing structured data" toggle

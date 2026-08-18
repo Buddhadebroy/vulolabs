@@ -401,6 +401,34 @@ class Install {
      * 404s to the same missing URL don't grow this table unboundedly the
      * way a per-visit log would.
      *
+     * `vulopilot_redirects.last_accessed_at` is deliberately its own
+     * column, not a reuse of `updated_at` — `updated_at` bumps on ANY row
+     * change (editing the target URL, toggling active/inactive from
+     * RedirectsTab.tsx), which would make "Last accessed" lie about a row
+     * a visitor never actually hit. Only
+     * RedirectRepository::increment_hit_count() — called from
+     * Services\RedirectManager::maybe_apply_redirect(), the one place a
+     * real visitor request actually matched this row — ever writes it, so
+     * it stays null until a real hit happens instead of defaulting to the
+     * row's creation time.
+     *
+     * $sql_redirects deliberately does NOT use `CREATE TABLE IF NOT
+     * EXISTS` (every other statement in this class still does, unchanged
+     * here) — dbDelta() finds the table name via `preg_match( '|CREATE
+     * TABLE ([^ ]*)|', ... )`, so with "IF NOT EXISTS" present it captures
+     * the literal word "IF" as the table name instead. On a fresh install
+     * that's harmless (dbDelta just runs the CREATE verbatim, and MySQL's
+     * own IF NOT EXISTS makes it a no-op if something with that name
+     * already raced it into existence), but on any site that already has
+     * this table, dbDelta's real job — diffing the live column set against
+     * this SQL and emitting `ALTER TABLE ADD COLUMN` for whatever's
+     * missing — never runs, because it's diffing against nonexistent
+     * table "IF" instead of the real one. `last_accessed_at` above would
+     * silently never reach an already-installed site's table without this
+     * fix. Confirmed live: with "IF NOT EXISTS" still in place, dbDelta()
+     * reported `array( 'IF' => 'Created table IF' )` on this exact SQL
+     * against a database that already had the real table.
+     *
      * @return void
      */
     private static function create_redirect_tables() {
@@ -412,7 +440,7 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        $sql_redirects = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['redirect'] . "` (
+        $sql_redirects = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['redirect'] . "` (
             `id`            bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `source_path`   varchar(255) NOT NULL,
             `target_url`    varchar(255) NOT NULL,
@@ -422,6 +450,7 @@ class Install {
             `created_by`    bigint(20) unsigned DEFAULT NULL,
             `created_at`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `updated_at`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            `last_accessed_at` datetime DEFAULT NULL,
             PRIMARY KEY (`id`),
             UNIQUE KEY `uniq_source_path` (`source_path`),
             KEY `idx_active` (`is_active`)
