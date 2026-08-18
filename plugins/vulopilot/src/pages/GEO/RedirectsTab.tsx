@@ -253,7 +253,7 @@ const RedirectsTab = () => {
 	);
 
 	return (
-		<ContainerComponent general>
+		<ContainerComponent general className="vulopilot-redirects-page">
 			<ColumnComponent>
 				{redirects.error ? (
 					<CardComponent
