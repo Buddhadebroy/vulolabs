@@ -28,12 +28,19 @@ interface CrawlerSummary {
 }
 
 /**
- * AI Copilot Chat's "Live Site Insights" card — previously always showed a
- * static "not connected yet" state regardless of what real data actually
- * existed. Two of the four metrics that empty state promised are, in
- * fact, already real and wired elsewhere in this plugin: real-visitor
- * Core Web Vitals (`GET /core-web-vitals`, the same data
- * Performance/PerformanceScoreCard.tsx shows) and AI crawler traffic
+ * "Live Site Insights" card — moved here from AI Copilot Chat's
+ * ChatTab.tsx (pages/AIAssistant/) per direct instruction, onto Protect
+ * My Site's own Performance tab (PerformanceTab.tsx, this folder), where
+ * a live snapshot of security/crawler/vitals signals fits its actual
+ * subject better than the AI chat surface it used to sit under. No
+ * behavior changed in the move — same 3 real endpoints below, same
+ * component, same props (none).
+ *
+ * Previously always showed a static "not connected yet" state regardless
+ * of what real data actually existed. Two of the four metrics that empty
+ * state promised are, in fact, already real and wired elsewhere in this
+ * plugin: real-visitor Core Web Vitals (`GET /core-web-vitals`, the same
+ * data Performance/PerformanceScoreCard.tsx shows) and AI crawler traffic
  * (`GET /crawler-traffic/summary`, the same data CrawlerTraffic.tsx
  * shows) — this card just never called either endpoint. Security reuses
  * the real, already-computed `category_scores.security` from `GET

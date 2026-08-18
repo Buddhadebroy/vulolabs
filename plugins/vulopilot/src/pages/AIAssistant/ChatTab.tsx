@@ -20,7 +20,6 @@ import NeedsAttentionCard, {
 import RecentConversationsCard from './RecentConversationsCard';
 import AiWorkflowsList from './AiWorkflowsList';
 import AiUsageCard from './AiUsageCard';
-import LiveSiteInsightsCard from './LiveSiteInsightsCard';
 import {
 	useCopilotChat,
 	CopilotChatTurn,
@@ -609,7 +608,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				>
 					<AiWorkflowsList limit={4} />
 				</CardComponent>
-				<LiveSiteInsightsCard />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
 				<RecentConversationsCard
