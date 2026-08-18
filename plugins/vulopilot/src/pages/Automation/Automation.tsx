@@ -45,9 +45,8 @@ const TAB_META: Record<
  * same cross-tab-trigger case AIAssistant.tsx's own `goToTab` handles.
  */
 const Automation = () => {
-	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
-		'subtab'
-	);
+	const hashParams = new URLSearchParams(useLocation().hash.substring(1));
+	const subtab = hashParams.get('subtab');
 	const initialTab = (
 		subtab && (TAB_IDS as readonly string[]).includes(subtab)
 			? subtab
@@ -56,6 +55,16 @@ const Automation = () => {
 
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
+	);
+
+	// AI Copilot's Chat tab (ChatTab.tsx's own AutomationTemplatesCard
+	// preview) deep-links here as `&automation_template=<id>` — same
+	// `subtab=` URL-param routing convention this file already reads
+	// above, extended one param further. `useState` initializer only reads
+	// it once (on mount); ManageAutomationsSection.tsx reads it from here
+	// via a prop rather than re-parsing the URL itself.
+	const [initialAutomationTemplateId] = useState<string | null>(() =>
+		hashParams.get('automation_template')
 	);
 
 	const goToAutomationsTab = () => setActiveTab('automations');
@@ -79,7 +88,11 @@ const Automation = () => {
 					/>
 				);
 			case 'automations':
-				return <ManageAutomationsSection />;
+				return (
+					<ManageAutomationsSection
+						initialTemplateId={initialAutomationTemplateId}
+					/>
+				);
 			default:
 				return <div></div>;
 		}

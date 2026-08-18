@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -31,7 +32,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class CanonicalUrlScanner extends AbstractBasicScanner {
+class CanonicalUrlScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const POSTS_BATCH_SIZE        = 9;
     private const REQUEST_TIMEOUT_SECONDS = 8;
@@ -104,6 +107,8 @@ class CanonicalUrlScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post_id ) {
+            $this->mark_post_scanned( $post_id );
+
             $urls[] = get_permalink( $post_id );
         }
 

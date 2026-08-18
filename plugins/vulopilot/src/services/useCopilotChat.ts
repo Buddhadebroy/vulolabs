@@ -19,6 +19,8 @@ export interface CopilotChatTurn {
 	runId?: number | null;
 	/** Set client-side once this turn's own run has been successfully rolled back, so the inline Undo button can honestly show "Undone" instead of staying clickable for an already-reverted run. */
 	undone?: boolean;
+	/** The real files this turn was sent with — user turns only, set from the composer's own `attachments` state at send time so ChatTab.tsx can still show what was attached after the composer clears it. */
+	attachments?: CopilotAttachment[];
 }
 
 /**
@@ -113,7 +115,14 @@ export const useCopilotChat = ( noticeKey: string ) => {
 
 		const history = turns;
 
-		setTurns( [ ...history, { role: 'user', content: trimmed } ] );
+		setTurns( [
+			...history,
+			{
+				role: 'user',
+				content: trimmed,
+				attachments: attachments.length > 0 ? attachments : undefined,
+			},
+		] );
 		setIsSending( true );
 
 		axios

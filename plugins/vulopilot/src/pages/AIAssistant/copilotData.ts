@@ -2,9 +2,8 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * "Try asking me…" starter prompts — static UI copy, not fetched data, so
- * this stays a plain constant unlike Issues/AI Workflows (see
- * IssuesList.tsx/AiWorkflowsList.tsx, which read real `/findings`
- * and `/automations` data instead of placeholder rows).
+ * this stays a plain constant unlike the Issues table (see IssuesList.tsx,
+ * which reads real `/findings` data instead of placeholder rows).
  */
 
 export interface SuggestedPrompt {

@@ -1,9 +1,8 @@
 /* global appLocalizer */
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import './AICopilot.scss';
 import {
-	CardComponent,
 	ChatInputComponent,
 	ChatMessageComponent,
 	ColumnComponent,
@@ -18,9 +17,12 @@ import NeedsAttentionCard, {
 	IssuesFilter,
 } from './NeedsAttentionCard';
 import RecentConversationsCard from './RecentConversationsCard';
-import AiWorkflowsList from './AiWorkflowsList';
 import AiUsageCard from './AiUsageCard';
 import LiveSiteInsightsCard from './LiveSiteInsightsCard';
+import IssuesList from './IssuesList';
+import AutomationTemplatesCard from '../Automation/AutomationTemplatesCard';
+import AutomationModesCard from '../Automation/AutomationModesCard';
+import { AutomationTemplate } from '../Automation/automationTemplates';
 import {
 	useCopilotChat,
 	CopilotChatTurn,
@@ -46,6 +48,9 @@ const MAX_CONTEXT_REFS = 5;
  */
 const ATTACHMENT_ACCEPT =
 	'.txt,.csv,text/plain,text/csv,.jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp';
+
+/** Matches the image extensions inside ATTACHMENT_ACCEPT — used to decide whether a sent turn's attachment renders as an inline thumbnail or a plain file chip. */
+const IMAGE_EXTENSION_RE = /\.(jpe?g|png|gif|webp)$/i;
 
 interface FindingGroupOption {
 	scanner_id: string;
@@ -80,6 +85,10 @@ interface ChatTabProps {
 	onMessageChange: (message: string) => void;
 	autoApply: boolean;
 	onAutoApplyChange: (autoApply: boolean) => void;
+	/** Set by NeedsAttentionCard's "View all issues"/group-row clicks (via onNavigateTab('chat', filter) — AIAssistant.tsx's own goToTab()), now that the Issues table (former standalone "Issues" tab) is appended inline below rather than a separate nav tab. */
+	issuesFilter: IssuesFilter | null;
+	/** Bumped on every such navigation, even when `issuesFilter` resolves to the same value as before — see AIAssistant.tsx's own docblock on issuesNavToken. */
+	issuesNavToken: number;
 }
 
 /**
@@ -114,8 +123,8 @@ interface ChatTabProps {
  * which — on this admin screen, now that Admin.php calls
  * wp_enqueue_media() — hands back a real WP Media Library attachment
  * {id, url} via wp.media(), never a client-only blob preview. Add context
- * opens a picker over the same real data NeedsAttentionCard.tsx/
- * AiWorkflowsList.tsx already show (open finding groups, active
+ * opens a picker over the same real data NeedsAttentionCard.tsx (open
+ * finding groups) and this tab's own automation entry points show (active
  * automations). Both are sent as `context_refs`/`attachments` on the next
  * `POST /copilot/chat` and re-resolved against real, current data
  * server-side (Copilot.php's build_extra_context()) — this component only
@@ -131,7 +140,31 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	onMessageChange,
 	autoApply,
 	onAutoApplyChange,
+	issuesFilter,
+	issuesNavToken,
 }) => {
+	const issuesSectionRef = useRef<HTMLDivElement>(null);
+	const didMountRef = useRef(false);
+
+	// Scrolls the appended Issues table into view whenever NeedsAttentionCard
+	// sends a new filter (or a bare "View all issues" click) — this used to
+	// be a real tab switch, which naturally landed the user on the table;
+	// now that it's inline further down the same tab, without this the
+	// click would silently do nothing visible if the table is off-screen.
+	// Skipped on first mount so loading the Chat tab itself never auto-scrolls.
+	useEffect(() => {
+		if (!didMountRef.current) {
+			didMountRef.current = true;
+			return;
+		}
+
+		issuesSectionRef.current?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'start',
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the token specifically so a same-value issuesFilter update (e.g. "View all issues" when it was already null) still re-triggers the scroll; see AIAssistant.tsx's own docblock on issuesNavToken.
+	}, [issuesNavToken]);
+
 	const { turns, isSending, send, markTurnUndone } = useCopilotChat(
 		'vulopilot-copilot-chat-error'
 	);
@@ -155,6 +188,11 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		onMessageChange('');
 		setAttachments([]);
 		setContextRefs([]);
+		// Close the Attach/Add context panels on send — otherwise they stay
+		// open and revert to their own empty "Drag and drop"/list state,
+		// which reads as if nothing was actually sent.
+		setIsAttachPanelOpen(false);
+		setIsContextPanelOpen(false);
 	};
 
 	/**
@@ -282,6 +320,21 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	const removeAttachment = (id: number) =>
 		setAttachments((current) => current.filter((file) => file.id !== id));
 
+	/**
+	 * AutomationTemplatesCard's real home is Automate Work's Automations
+	 * tab (ManageAutomationsSection.tsx) — this preview on Chat navigates
+	 * there rather than trying to open a create form that lives in a
+	 * different top-level page's own React tree, carrying the picked
+	 * template through the same `subtab=` URL-param routing convention
+	 * every other cross-page deep link in this codebase already uses
+	 * (getCategoryTabLink.ts). Automation.tsx reads `automation_template`
+	 * on mount and forwards it down so the real create form opens already
+	 * seeded, not a bare redirect to a blank Automations tab.
+	 */
+	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
+		window.location.href = `${appLocalizer.admin_url}#&tab=automation&subtab=automations&automation_template=${template.id}`;
+	};
+
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={8}>
@@ -310,6 +363,28 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							key={index}
 							sender={'user' === turn.role ? 'user' : 'ai'}
 						>
+							{turn.attachments && turn.attachments.length > 0 && (
+								<div className="chat-message-attachments">
+									{turn.attachments.map((attachment) =>
+										IMAGE_EXTENSION_RE.test(attachment.name) ? (
+											<img
+												key={`sent-attachment-${attachment.id}`}
+												className="chat-message-attachment-thumb"
+												src={attachment.url}
+												alt={attachment.name}
+											/>
+										) : (
+											<span
+												key={`sent-attachment-${attachment.id}`}
+												className="chat-message-attachment-chip"
+											>
+												<i className="adminfont-attachment" />
+												{attachment.name}
+											</span>
+										)
+									)}
+								</div>
+							)}
 							<ChatMarkdown text={turn.content} />
 							{turn.link && (
 								<div className="copilot-created-link">
@@ -545,8 +620,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						</>
 					}
 					composer={
-						// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element; zyra's ChatInputComponent textarea never stops keydown from bubbling, so this stops it reaching any page-level listener regardless of what that listener turns out to be.
-						<div onKeyDownCapture={(e) => e.stopPropagation()}>
+						// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element. Bubble-phase (not capture) on purpose: capture fires top-down *before* the event reaches ChatInputComponent's own textarea, so stopping it there would swallow the textarea's own Enter-to-send handler before it ever runs. Bubble-phase stopPropagation() lets the textarea's own listener fire first, then blocks it from reaching any page-level listener above this point.
+						<div onKeyDown={(e) => e.stopPropagation()}>
 							<ChatInputComponent
 								value={message}
 								onChange={onMessageChange}
@@ -590,25 +665,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			</ColumnComponent>	
 					
 			<ColumnComponent grid={8}>
-				<CardComponent
-					title={__('AI Workflows', 'vulopilot')}
-					titleIcon="ai"
-					action={
-						<ButtonInput
-							buttons={{
-								text: __('View all history', 'vulopilot'),
-								rightIcon: 'arrow-right',
-								color: 'text-purple', 
-								onClick: (e) => {
-									e.preventDefault();
-									onNavigateTab('ai-workflows');
-								},
-							}}
-						/>
-					}
-				>
-					<AiWorkflowsList limit={4} />
-				</CardComponent>
+				<AutomationTemplatesCard onSelectTemplate={handleSelectAutomationTemplate} />
+				<AutomationModesCard />
 				<LiveSiteInsightsCard />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
@@ -619,6 +677,18 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				}
 			/>
 			</ColumnComponent>
+
+			<ColumnComponent grid={12}>
+				<div className="ai-copilot-inline-section-heading" ref={issuesSectionRef}>
+					<i className="adminfont-error" />
+					<h2>{__('Issues', 'vulopilot')}</h2>
+				</div>
+			</ColumnComponent>
+			<IssuesList
+				key={issuesFilter?.scannerId ?? 'all'}
+				initialScannerId={issuesFilter?.scannerId}
+				initialCategory={issuesFilter?.category}
+			/>
 		</ContainerComponent>
 	);
 };

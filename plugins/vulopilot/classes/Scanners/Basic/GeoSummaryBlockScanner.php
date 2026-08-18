@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -27,7 +28,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class GeoSummaryBlockScanner extends AbstractBasicScanner {
+class GeoSummaryBlockScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE              = 50;
     private const MIN_WORD_COUNT_TO_CHECK = 300;
@@ -93,6 +96,8 @@ class GeoSummaryBlockScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $word_count = str_word_count( wp_strip_all_tags( $post->post_content ) );
 
             if ( $word_count < self::MIN_WORD_COUNT_TO_CHECK || $this->has_early_summary( $post->post_content, $window_chars ) ) {

@@ -11,6 +11,7 @@ use VuloPilot\Repositories\ActivityLogRepository;
 use VuloPilot\Repositories\ScanRepository;
 use VuloPilot\Repositories\ActionRunRepository;
 use VuloPilot\Repositories\AiHistoryRepository;
+use VuloPilot\Repositories\FindingRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -69,6 +70,12 @@ class History extends \WP_REST_Controller {
             'ai_action.rolled_back',
         ),
     );
+
+    /**
+     * See ActivityLogRepository::find_actions_in_window()'s own docblock
+     * for why this can be tight rather than a same-day heuristic.
+     */
+    private const RELATED_ACTION_WINDOW_SECONDS = 30;
 
     /**
      * @inheritDoc
@@ -259,13 +266,65 @@ class History extends \WP_REST_Controller {
             'scan'         => null,
             'change'       => null,
             'conversation' => array(
-                'id'       => (int) $row['id'],
-                'provider' => $row['provider'],
-                'model'    => $row['model'],
-                'status'   => $row['status'],
-                'excerpt'  => $row['response_excerpt'],
+                'id'               => (int) $row['id'],
+                'provider'         => $row['provider'],
+                'model'            => $row['model'],
+                'status'           => $row['status'],
+                'excerpt'          => $row['response_excerpt'],
+                'prompt_excerpt'   => $row['prompt_excerpt'] ?? null,
+                'related_actions'  => $this->build_related_actions( $row ),
             ),
         );
+    }
+
+    /**
+     * Real `ai_action.*` rows this conversation turn caused, if any — see
+     * ActivityLogRepository::find_actions_in_window()'s own docblock for
+     * why a tight window plus a same-user cross-check is safe here rather
+     * than a fabricated guess. Genuinely empty for the overwhelming
+     * majority of turns (a plain question/answer causes no action at all),
+     * which the client renders as no "Related actions" section rather than
+     * an empty placeholder.
+     *
+     * @param array<string, mixed> $row One vulopilot_ai_history row.
+     * @return array<int, array{id: int, label: string, created_at: string}>
+     */
+    private function build_related_actions( array $row ): array {
+        $requested_by = isset( $row['requested_by'] ) ? (int) $row['requested_by'] : 0;
+
+        if ( $requested_by <= 0 ) {
+            return array();
+        }
+
+        $candidates = ( new ActivityLogRepository() )->find_actions_in_window(
+            self::EVENT_TYPES_BY_CATEGORY['change'],
+            (string) $row['created_at'],
+            self::RELATED_ACTION_WINDOW_SECONDS
+        );
+
+        $related = array();
+
+        foreach ( $candidates as $candidate ) {
+            if ( empty( $candidate['object_id'] ) ) {
+                continue;
+            }
+
+            $run = ( new ActionRunRepository() )->find( (int) $candidate['object_id'] );
+
+            if ( ! $run || $requested_by !== (int) ( $run['requested_by'] ?? 0 ) ) {
+                continue;
+            }
+
+            $action = VuloPilot()->ai_action_registry->get_action( $run['action_id'] );
+
+            $related[] = array(
+                'id'         => (int) $candidate['id'],
+                'label'      => $action ? $action->get_label() : $run['action_id'],
+                'created_at' => $candidate['created_at'],
+            );
+        }
+
+        return $related;
     }
 
     /**
@@ -310,17 +369,171 @@ class History extends \WP_REST_Controller {
         $scanner = VuloPilot()->scanner_registry->get_scanner( $scan['scanner_id'] );
         $summary = json_decode( (string) $scan['summary'], true );
         $summary = is_array( $summary ) ? $summary : array();
+        $total   = $summary['total'] ?? 0;
 
         return array(
-            'id'           => (int) $scan['id'],
-            'scanner_id'   => $scan['scanner_id'],
-            'label'        => $scanner ? $scanner->get_label() : $scan['scanner_id'],
-            'status'       => $scan['status'],
-            'trigger_type' => $scan['trigger_type'],
-            'duration_ms'  => null !== $scan['duration_ms'] ? (int) $scan['duration_ms'] : null,
-            'by_severity'  => $summary['by_severity'] ?? array(),
-            'total'        => $summary['total'] ?? 0,
+            'id'             => (int) $scan['id'],
+            'scanner_id'     => $scan['scanner_id'],
+            'label'          => $scanner ? $scanner->get_label() : $scan['scanner_id'],
+            'status'         => $scan['status'],
+            'trigger_type'   => $scan['trigger_type'],
+            'duration_ms'    => null !== $scan['duration_ms'] ? (int) $scan['duration_ms'] : null,
+            'by_severity'    => $summary['by_severity'] ?? array(),
+            'total'          => $total,
+            'affected_pages' => $this->build_affected_pages( $scan_id ),
+            // Only ever populated for a clean (0-finding) scan — when a
+            // scan DID find something, affected_pages above already shows
+            // every page it touched. Real data only: a scan persisted
+            // before `scanned_objects` existed (ScanPersistenceListener.php)
+            // has nothing here, same null-for-old-rows precedent as
+            // ConversationDetail's own prompt_excerpt.
+            'scanned_pages'  => 0 === $total ? $this->build_scanned_pages( $scan ) : array(),
         );
+    }
+
+    /**
+     * Real pages/posts a scan considered but found nothing wrong with —
+     * only meaningful (and only ever called) for a 0-finding scan, since a
+     * scan that did find issues already has those pages listed, with their
+     * real counts, in build_affected_pages() above. Reads the scanner's own
+     * `get_scanned_post_ids()` record (ScanResult::get_scanned_post_ids(),
+     * written to `vulopilot_scans.scanned_objects` at persistence time) —
+     * a real per-post record kept independently of any Finding, since a
+     * clean post never produces one. Genuinely empty for a scanner that
+     * isn't per-post (Contracts\Scanner\TracksScannedObjectsInterface not
+     * implemented) or for any scan row persisted before this column
+     * existed — never inferred from the current live post list, which
+     * could easily disagree with what a past scan actually considered.
+     *
+     * @param array<string, mixed> $scan One vulopilot_scans row.
+     * @return array<int, array{id: int, title: string, link: string|null, edit_link: string}>
+     */
+    private function build_scanned_pages( array $scan ): array {
+        $post_ids = json_decode( (string) ( $scan['scanned_objects'] ?? '' ), true );
+
+        if ( ! is_array( $post_ids ) || ! $post_ids ) {
+            return array();
+        }
+
+        $pages = array();
+
+        foreach ( array_unique( array_map( 'absint', $post_ids ) ) as $post_id ) {
+            $post = get_post( $post_id );
+
+            if ( ! $post ) {
+                continue;
+            }
+
+            $permalink = get_permalink( $post );
+
+            $pages[] = array(
+                'id'        => $post_id,
+                'title'     => get_the_title( $post ) ?: __( '(no title)', 'vulopilot' ),
+                'link'      => $permalink ? wp_make_link_relative( $permalink ) : null,
+                'edit_link' => admin_url( "post.php?post={$post_id}&action=edit" ),
+            );
+        }
+
+        usort( $pages, static fn( array $a, array $b ): int => strcasecmp( $a['title'], $b['title'] ) );
+
+        return $pages;
+    }
+
+    /**
+     * Real pages/posts this scan run found an issue on, one entry per
+     * distinct post with its own real finding count — plus one trailing
+     * "Site-wide" entry if any of this scan's findings aren't tied to a
+     * specific page (a URL-level finding like a broken sitemap, or a
+     * scanner that reports on the whole site). Reads every finding's own
+     * `object_type`/`object_ref` via the exact `scan_id` FK
+     * (FindingRepository::get_object_refs_for_scan()) — same
+     * `object_ref` shapes (numeric post id, or a comma-joined list for
+     * DuplicateContentScanner) History.php's own resolve_page_link() and
+     * Findings.php's add_page_field() already handle, but resolved here to
+     * a real post TITLE too (not just a permalink string), since this list
+     * is meant to be read at a glance, not clicked one at a time.
+     *
+     * @param int $scan_id vulopilot_scans.id.
+     * @return array<int, array{id: int, title: string, link: string|null, edit_link: string|null, count: int}>
+     */
+    private function build_affected_pages( int $scan_id ): array {
+        $refs = ( new FindingRepository() )->get_object_refs_for_scan( $scan_id );
+
+        $counts_by_post_id = array();
+        $site_wide_count   = 0;
+
+        foreach ( $refs as $ref ) {
+            $post_ids = $this->extract_post_ids( $ref['object_type'] ?? null, $ref['object_ref'] ?? null );
+
+            if ( ! $post_ids ) {
+                ++$site_wide_count;
+                continue;
+            }
+
+            foreach ( $post_ids as $post_id ) {
+                $counts_by_post_id[ $post_id ] = ( $counts_by_post_id[ $post_id ] ?? 0 ) + 1;
+            }
+        }
+
+        $pages = array();
+
+        foreach ( $counts_by_post_id as $post_id => $count ) {
+            $post = get_post( $post_id );
+
+            if ( ! $post ) {
+                continue;
+            }
+
+            $permalink = get_permalink( $post );
+
+            $pages[] = array(
+                'id'        => $post_id,
+                'title'     => get_the_title( $post ) ?: __( '(no title)', 'vulopilot' ),
+                'link'      => $permalink ? wp_make_link_relative( $permalink ) : null,
+                'edit_link' => admin_url( "post.php?post={$post_id}&action=edit" ),
+                'count'     => $count,
+            );
+        }
+
+        usort( $pages, static fn( array $a, array $b ): int => $b['count'] <=> $a['count'] );
+
+        if ( $site_wide_count > 0 ) {
+            $pages[] = array(
+                'id'        => 0,
+                'title'     => __( 'Site-wide', 'vulopilot' ),
+                'link'      => null,
+                'edit_link' => null,
+                'count'     => $site_wide_count,
+            );
+        }
+
+        return $pages;
+    }
+
+    /**
+     * Real numeric post ids one finding's `object_type`/`object_ref` points
+     * at — empty for anything not page/post-scoped (a URL/site-wide
+     * finding). `object_ref` is usually a single post id, but
+     * DuplicateContentScanner writes a comma-joined list (one duplicate-
+     * title finding spans multiple posts) — same split
+     * seoIssuesShared.tsx's own bucketFindingsByPage() already does for the
+     * SEO tables, applied here too so a scan's affected-pages list doesn't
+     * undercount those.
+     *
+     * @param string|null $object_type e.g. 'post'.
+     * @param string|null $object_ref  A post id, or a comma-joined list of post ids.
+     * @return array<int, int>
+     */
+    private function extract_post_ids( ?string $object_type, ?string $object_ref ): array {
+        if ( 'post' !== $object_type || null === $object_ref || '' === $object_ref ) {
+            return array();
+        }
+
+        $ids = array_filter(
+            array_map( 'absint', explode( ',', $object_ref ) )
+        );
+
+        return array_values( array_unique( $ids ) );
     }
 
     /**
@@ -343,15 +556,20 @@ class History extends \WP_REST_Controller {
         $preview = is_array( $preview ) ? $preview : array();
 
         return array(
-            'id'            => (int) $run['id'],
-            'action_id'     => $run['action_id'],
-            'label'         => $action ? $action->get_label() : $run['action_id'],
-            'status'        => $run['status'],
-            'before'        => $preview['before'] ?? null,
-            'after'         => $preview['after'] ?? null,
-            'format'        => $preview['format'] ?? 'text',
-            'error_message' => $run['error_message'],
-            'page'          => $this->resolve_page_link( $run['object_type'] ?? null, $run['object_ref'] ?? null ),
+            'id'              => (int) $run['id'],
+            'action_id'       => $run['action_id'],
+            'label'           => $action ? $action->get_label() : $run['action_id'],
+            'status'          => $run['status'],
+            'before'          => $preview['before'] ?? null,
+            'after'           => $preview['after'] ?? null,
+            'format'          => $preview['format'] ?? 'text',
+            'error_message'   => $run['error_message'],
+            'page'            => $this->resolve_page_link( $run['object_type'] ?? null, $run['object_ref'] ?? null ),
+            // 'auto' when Automate Work's Auto-fix mode approved this run
+            // itself (ActionRunner::approve()'s own $method param) — real
+            // rows created before this column existed fall back to
+            // 'manual', the only method that existed then.
+            'approval_method' => $run['approval_method'] ?? 'manual',
         );
     }
 

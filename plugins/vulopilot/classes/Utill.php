@@ -122,6 +122,17 @@ class Utill {
         // setting existed.
         'automation_max_retries'                => 0,
         'automation_retry_delay_minutes'        => 5,
+        // Automate Work's "Automation modes" card — same "setting lives
+        // here, only meaningfully acted on by vulopilot-pro" split as
+        // automation_max_retries above. Read by vulopilot-pro's
+        // RunAiActionAction: 'monitor' skips proposing an AI fix entirely
+        // (notify-only), 'suggest' is today's existing propose-then-wait-
+        // for-a-human behavior (default — 'monitor'/'auto_fix' both
+        // require Pro, so defaulting to either would be a dead default on
+        // most installs), 'auto_fix' additionally auto-approves a proposed
+        // fix when its estimated_impact is at/below auto_fix_max_impact.
+        'automation_mode'                       => 'suggest',
+        'auto_fix_max_impact'                   => 'low',
         // SECURITY-MODULE.md's "Scheduled Security Monitoring"/"Alerts"/
         // "Integrity Monitoring" — same "setting lives here, only
         // meaningfully acted on by vulopilot-pro's SecurityMonitoring

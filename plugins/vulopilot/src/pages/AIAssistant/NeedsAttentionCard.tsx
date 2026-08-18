@@ -143,7 +143,12 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 
 	useEffect(load, []);
 
-	const goToAllIssues = () => onNavigateTab('issues');
+	// The Issues table is inline on the Chat tab now (appended below the
+	// composer), not a separate 'issues' nav tab — this card is only ever
+	// rendered on the Chat tab itself (ChatTab.tsx), so 'chat' just updates
+	// AIAssistant.tsx's own issuesFilter state and its scroll-into-view
+	// effect, rather than actually switching tabs.
+	const goToAllIssues = () => onNavigateTab('chat');
 
 	/**
 	 * Regression: every group row here used to navigate to the same
@@ -155,7 +160,7 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 	 * to exactly the findings this row is counting.
 	 */
 	const goToGroup = (group: FindingGroup) =>
-		onNavigateTab('issues', {
+		onNavigateTab('chat', {
 			scannerId: group.scanner_id,
 			label: group.label,
 			category: group.category,

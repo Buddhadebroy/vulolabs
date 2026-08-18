@@ -7,6 +7,7 @@
 
 namespace VuloPilot\Scanners\Basic;
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -38,7 +39,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AeoSchemaScanner extends AbstractBasicScanner {
+class AeoSchemaScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE = 50;
 
@@ -90,6 +93,8 @@ class AeoSchemaScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $schema_types = $this->get_declared_schema_types( $post->ID );
 
             if ( $this->looks_faq_shaped( $post->post_content ) && ! in_array( 'FAQPage', $schema_types, true ) ) {

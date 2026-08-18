@@ -7,6 +7,7 @@
 
 namespace VuloPilot\Scanners\Basic;
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -25,7 +26,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AriaAttributesScanner extends AbstractBasicScanner {
+class AriaAttributesScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     /**
      * How many of the most recently published posts/pages to check per run.
@@ -69,6 +72,8 @@ class AriaAttributesScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $count = $this->count_missing_roles( $post->post_content );
 
             if ( 0 === $count ) {

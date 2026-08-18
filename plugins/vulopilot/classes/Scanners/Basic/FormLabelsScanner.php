@@ -7,6 +7,7 @@
 
 namespace VuloPilot\Scanners\Basic;
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -23,7 +24,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class FormLabelsScanner extends AbstractBasicScanner {
+class FormLabelsScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     /**
      * How many of the most recently published posts/pages to check per run.
@@ -67,6 +70,8 @@ class FormLabelsScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $unlabeled_count = $this->count_unlabeled_fields( $post->post_content );
 
             if ( 0 === $unlabeled_count ) {

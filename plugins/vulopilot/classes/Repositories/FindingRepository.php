@@ -741,6 +741,33 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * Every object_type/object_ref pair from one scan run — used only to
+     * build History's "Pages & posts" list (Controllers/History.php's own
+     * build_affected_pages()), which needs every finding a scan produced to
+     * count accurately per page, not find_all()'s own 100-row page cap. A
+     * real, exact, indexed FK lookup (`idx_scan` on
+     * vulopilot_scan_findings.scan_id, set once at insert time by
+     * Services\ScanPersistenceListener::handle_scan_completed() in the same
+     * request that creates the scan row itself) — not an approximation.
+     *
+     * @param int $scan_id vulopilot_scans.id.
+     * @return array<int, array{object_type: string|null, object_ref: string|null}>
+     */
+    public function get_object_refs_for_scan( int $scan_id ): array {
+        global $wpdb;
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT object_type, object_ref FROM {$this->get_table()} WHERE scan_id = %d LIMIT 2000", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $scan_id
+            ),
+            ARRAY_A
+        );
+
+        return null !== $rows ? $rows : array();
+    }
+
+    /**
      * The highest-severity currently-open findings, worst-first — what
      * Controllers\ReportsOverview's own "Your next priorities" list reads.
      * Unlike get_top_findings_for_period() (scoped to a created_at window,

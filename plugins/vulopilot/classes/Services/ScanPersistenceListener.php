@@ -73,13 +73,14 @@ class ScanPersistenceListener {
     public function handle_scan_completed( ScanResult $scan_result ): void {
         $scan_id = $this->scans->insert(
             array(
-                'scanner_id'    => $scan_result->get_scanner_id(),
-                'status'        => $scan_result->get_status(),
-                'duration_ms'   => (int) $scan_result->get_duration_ms(),
-                'summary'       => wp_json_encode( $scan_result->get_summary() ),
-                'error_message' => $scan_result->get_error_message(),
-                'started_at'    => current_time( 'mysql', true ),
-                'finished_at'   => current_time( 'mysql', true ),
+                'scanner_id'      => $scan_result->get_scanner_id(),
+                'status'          => $scan_result->get_status(),
+                'duration_ms'     => (int) $scan_result->get_duration_ms(),
+                'summary'         => wp_json_encode( $scan_result->get_summary() ),
+                'scanned_objects' => wp_json_encode( $scan_result->get_scanned_post_ids() ),
+                'error_message'   => $scan_result->get_error_message(),
+                'started_at'      => current_time( 'mysql', true ),
+                'finished_at'     => current_time( 'mysql', true ),
             )
         );
 

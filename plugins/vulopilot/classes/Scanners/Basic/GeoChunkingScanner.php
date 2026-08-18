@@ -8,6 +8,7 @@
 namespace VuloPilot\Scanners\Basic;
 
 
+use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -28,7 +29,9 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class GeoChunkingScanner extends AbstractBasicScanner {
+class GeoChunkingScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+
+    use ScannedPostsTrait;
 
     private const BATCH_SIZE               = 50;
     private const MAX_PARAGRAPH_WORD_COUNT = 150;
@@ -70,6 +73,8 @@ class GeoChunkingScanner extends AbstractBasicScanner {
         );
 
         foreach ( $posts as $post ) {
+            $this->mark_post_scanned( $post->ID );
+
             $longest_paragraph_words = $this->longest_paragraph_word_count( $post->post_content );
 
             if ( $longest_paragraph_words <= self::MAX_PARAGRAPH_WORD_COUNT ) {

@@ -279,6 +279,24 @@ const HistoryTab = ({
 		fetchPage(nextPage, true);
 	};
 
+	/**
+	 * "Related actions (from this conversation)" (HistoryDetailPanel.tsx)
+	 * jumps to a real 'change' row elsewhere in this same timeline — same
+	 * "seed a pending select id, then let the next fetch consume it"
+	 * mechanism `initialSelectId` already uses for RecentConversationsCard's
+	 * own click-through, just triggered post-mount instead of at mount.
+	 * Deliberately only touches `activeFilter` (not `search`/`dateRange`,
+	 * which have their own separate fetch-triggering effects) — changing
+	 * more than one of these together risks two fetches racing to consume
+	 * `pendingSelectId`, with the second (finding it already null) falling
+	 * back to auto-selecting `nextRows[0]` and silently overriding the
+	 * correct selection.
+	 */
+	const handleSelectRelatedAction = (id: number) => {
+		pendingSelectId.current = id;
+		setActiveFilter('change');
+	};
+
 	const handleDelete = (row: HistoryRow) => {
 		setRows((current) => current.filter((r) => r.id !== row.id));
 		setTotal((current) => Math.max(0, current - 1));
@@ -346,7 +364,7 @@ const HistoryTab = ({
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={8}>
-			<CardComponent title={__('History', 'vulopilot')} desc={__('Everything VuloPilot has scanned, changed, or applied. Use filters to find exactly what you need.', 'vulopilot')}>
+			<CardComponent titleIcon="history" title={__('History', 'vulopilot')} desc={__('Everything VuloPilot has scanned, changed, or applied. Use filters to find exactly what you need.', 'vulopilot')}>
 				<div className='filter-wrapper'>
 					<div className="category-filter">
 						{FILTER_TABS.map((tab) => (
@@ -568,6 +586,7 @@ const HistoryTab = ({
 					onClose={() => setSelectedRow(null)}
 					onDeleted={handleDelete}
 					onRolledBack={() => fetchPage(1, false)}
+					onSelectRelatedAction={handleSelectRelatedAction}
 				/>
 			</ColumnComponent>
 		</ContainerComponent>
