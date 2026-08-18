@@ -55,7 +55,9 @@ const TAB_IDS = [
  *   (`routes.ts`'s `tab: 'performance'`, `pages/Performance/`) — that one
  *   covers front-end loading speed/Core Web Vitals, this tab covers
  *   WordPress's own configuration efficiency; PerformanceTab.tsx's own
- *   closing banner links to the other one.
+ *   closing banner links to the other one. Also now home to
+ *   LiveSiteInsightsCard.tsx (moved here from AI Copilot's ChatTab.tsx —
+ *   see that card's own docblock for why).
  * - Site Health (SiteHealthTab.tsx) — WordPress, Updates, Background
  *   Tasks, Database, Server. "WordPress"/"Server" wrap WordPress core's
  *   own WP_Site_Health tests (WordPressHealthScanner/ServerHealthScanner)

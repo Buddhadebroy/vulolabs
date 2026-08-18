@@ -43,8 +43,13 @@ class GoogleSearchConsoleOAuthCallbackHandler {
      * Verifies the real `state` nonce, exchanges the real `code` for
      * tokens (GoogleServicesConnection::exchange_code_for_tokens(), an
      * actual `POST` to Google's token endpoint), then redirects back to
-     * the Keywords tab's own Settings destination with a real
-     * success/error query flag — never renders its own page, same
+     * whichever real SPA tab actually started the connection — Settings'
+     * own Google Services panel, or Grow My Traffic's Keywords tab
+     * (GoogleServicesConnection::get_return_to_from_state(), read from
+     * `state` regardless of whether the nonce inside it still checks out,
+     * so even an error redirect lands back where the site owner was
+     * rather than always defaulting to Settings) — with a real
+     * success/error query flag. Never renders its own page, same
      * "redirect back into the SPA" shape every other admin-post-style
      * handler in this codebase (IndexNowKeyFileServer excluded — that one
      * serves a file, not a redirect) would use if one existed yet.
@@ -56,8 +61,12 @@ class GoogleSearchConsoleOAuthCallbackHandler {
             wp_die( esc_html__( 'You do not have permission to do this.', 'vulopilot' ) );
         }
 
-        $redirect_base = admin_url( 'admin.php?page=vulopilot#&tab=settings&subtab=google-services' );
-        $connection     = new GoogleServicesConnection();
+        $connection = new GoogleServicesConnection();
+
+        $state         = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the nonce inside `state` (verified explicitly below via verify_state()) IS this flow's real CSRF guard; `return_to` is read from this same value regardless of nonce validity, but is itself just an allow-listed plain string (see get_return_to_from_state()'s own docblock), not something that needs the nonce check.
+        $redirect_base = 'keywords' === $connection->get_return_to_from_state( $state )
+            ? admin_url( 'admin.php?page=vulopilot#&tab=geo&subtab=keywords' )
+            : admin_url( 'admin.php?page=vulopilot#&tab=settings&subtab=google-services' );
 
         $error = isset( $_GET['error'] ) ? sanitize_text_field( wp_unslash( $_GET['error'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is Google's own redirect back to us, not a form submission; the `state` param (verified below) is this flow's real CSRF guard.
 
@@ -66,8 +75,7 @@ class GoogleSearchConsoleOAuthCallbackHandler {
             exit;
         }
 
-        $state = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified explicitly below via verify_state(), which IS this flow's nonce check.
-        $code  = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- same as above; this whole request only carries a `code` because it came from a `state`-nonced authorize URL we generated ourselves.
+        $code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this whole request only carries a `code` because it came from a `state`-nonced authorize URL we generated ourselves; verified below via verify_state().
 
         if ( '' === $code || ! $connection->verify_state( $state ) ) {
             wp_safe_redirect( $redirect_base . '&gsc_status=error' );

@@ -54,11 +54,19 @@ define( 'VULOPILOT_PRO_SHOP_URL', 'https://vulopilot.com/pricing/?utm_source=wpa
  *    without either manually allowlisting each one or the broker
  *    redirect described above. Documented, not silently papered over.
  *
- * Empty placeholders so the plugin doesn't behave as if configured
- * before VuloLabs fills in a real Client ID/Secret —
- * GoogleServicesConnection::has_client_credentials() reports false, and
- * the Settings panel shows an honest "not available yet" state, until
- * these are real values.
+ * Real values below — a real Google Cloud OAuth Client, created via the
+ * one-time Console setup this feature's own docs walk through (Web
+ * application type, `webmasters.readonly`/`analytics.readonly`/
+ * `adsense.readonly` scopes, redirect URI =
+ * GoogleServicesConnection::get_redirect_uri()'s exact output for this
+ * site). GoogleServicesConnection::has_client_credentials() now reports
+ * true, so "Connect Google Services" (Settings → Scanning → Google
+ * Services, and Grow My Traffic → Keywords) is live: clicking it is a
+ * real handoff to accounts.google.com, no client ID/secret ever shown to
+ * a site owner. While this Client's OAuth consent screen is still in
+ * Google's "Testing" publishing status, only accounts added as test
+ * users on that consent screen can actually complete the handshake —
+ * that's Google's own restriction, not something this code enforces.
  */
 if ( ! defined( 'VULOPILOT_GOOGLE_CLIENT_ID' ) ) {
 	define( 'VULOPILOT_GOOGLE_CLIENT_ID', '' );

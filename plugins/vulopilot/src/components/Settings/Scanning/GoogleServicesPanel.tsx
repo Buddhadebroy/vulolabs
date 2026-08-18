@@ -6,26 +6,15 @@ import {
 	CardComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
-	NoticeManager,
 	BadgeComponent,
 } from '@zyra/components';
 import { ButtonInput, SelectInput, ToggleInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
-
-interface GoogleStatus {
-	connected: boolean;
-	has_client_credentials: boolean;
-	search_console_site: string;
-	ga4_account_id: string;
-	ga4_account_name: string;
-	ga4_property_id: string;
-	ga4_property_name: string;
-	ga4_measurement_id: string;
-	adsense_account_id: string;
-	adsense_account_name: string;
-	connected_at: string;
-}
+import {
+	useGoogleServicesConnection,
+	GoogleServicesStatus,
+} from '../../../services/useGoogleServicesConnection';
 
 interface GscSite {
 	site_url: string;
@@ -71,12 +60,12 @@ const BENEFITS = [
 
 /**
  * "Google Services" settings tab (Scanning → Google Services,
- * `?page=vulopilot#&tab=settings&subtab=google-services` — KeywordsTab.tsx's
- * own "Go to Settings" button lands here directly). Real Google OAuth 2.0
- * connect/disconnect flow covering Search Console + Analytics (GA4) +
- * AdSense through one connection, backed by Controllers\GoogleServices →
- * GoogleServicesConnection/GoogleAnalyticsClient/GoogleAdSenseClient —
- * same "hand-built escape-hatch panel, not InputRenderer" shape
+ * `?page=vulopilot#&tab=settings&subtab=google-services`). Real Google
+ * OAuth 2.0 connect/disconnect flow covering Search Console + Analytics
+ * (GA4) + AdSense through one connection, backed by
+ * Controllers\GoogleServices → GoogleServicesConnection/
+ * GoogleAnalyticsClient/GoogleAdSenseClient — same "hand-built
+ * escape-hatch panel, not InputRenderer" shape
  * IndexNowPanel.tsx/LlmsTxtCard.tsx already establish for a tab whose
  * real actions don't fit the per-field auto-save model.
  *
@@ -84,24 +73,35 @@ const BENEFITS = [
  * Google Cloud OAuth Client (VULOPILOT_GOOGLE_CLIENT_ID/SECRET, see
  * config.php's own docblock) — a site owner never sees or enters a
  * Client ID/Secret, matching the reference RankMath flow's own single
- * "Connect Google Services" button. Clicking it is a real
- * `window.location.href` handoff to Google's own multi-scope consent
- * screen; Google's redirect back through `admin-post.php`
- * (GoogleServicesConnection::get_redirect_uri()) lands back here with a
- * `gsc_status` flag this component reads once on mount. If VuloLabs
- * hasn't configured a real shared Client ID/Secret for this build yet
- * (`status.has_client_credentials` false — always true for this dev
- * environment's placeholder-empty config.php constants), the button is
- * replaced with an honest "not available yet" state rather than a button
- * that would silently fail.
+ * "Connect Google Services" button. If VuloLabs hasn't configured a real
+ * shared Client ID/Secret for this build yet (`status.has_client_credentials`
+ * false — always true for this dev environment's placeholder-empty
+ * config.php constants), the button is replaced with an honest "not
+ * available yet" state rather than a button that would silently fail.
+ *
+ * The real status/connect/disconnect/`gsc_status`-redirect-flag handling
+ * itself now lives in `useGoogleServicesConnection('settings')`
+ * (services/useGoogleServicesConnection.ts) — extracted out so
+ * KeywordsTab.tsx's own inline connect flow
+ * (`useGoogleServicesConnection('keywords')`) can reuse the exact same
+ * real OAuth handshake instead of a second, hand-duplicated copy. This
+ * panel still owns everything the hook doesn't: the GA4/AdSense pickers,
+ * GA tracking-code toggles, and Test Connections — none of which belong
+ * on Keywords' narrower, Search-Console-only inline flow.
  */
 const GoogleServicesPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
-	const [status, setStatus] = useState<GoogleStatus | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const [isConnecting, setIsConnecting] = useState(false);
-	const [isDisconnecting, setIsDisconnecting] = useState(false);
+	const {
+		status,
+		setStatus,
+		isLoading,
+		isConnecting,
+		isDisconnecting,
+		connect: handleConnect,
+		disconnect: handleDisconnect,
+	} = useGoogleServicesConnection('settings');
+
 	const [isTesting, setIsTesting] = useState(false);
 	const [testResults, setTestResults] = useState<TestResults | null>(null);
 
@@ -125,51 +125,6 @@ const GoogleServicesPanel = () => {
 			setting: { [key]: newValue },
 		});
 	};
-
-	const loadStatus = () =>
-		getApiResponse<GoogleStatus>(
-			getApiLink(appLocalizer, 'google-services/status'),
-			nonceHeaders
-		).then((response) => {
-			if (response) {
-				setStatus(response);
-			}
-			return response;
-		});
-
-	useEffect(() => {
-		setIsLoading(true);
-		loadStatus().finally(() => setIsLoading(false));
-
-		// Google's own OAuth redirect lands back on this exact URL
-		// (admin-post.php's handler builds it — see that class's own
-		// docblock) carrying `gsc_status=connected|error` as a real
-		// signal, not a fabricated success message.
-		const params = new URLSearchParams(
-			window.location.hash.split('?')[1] || window.location.hash.substring(1)
-		);
-		const gscStatus = params.get('gsc_status');
-
-		if (gscStatus === 'connected') {
-			NoticeManager.add({
-				uniqueKey: 'vulopilot-gsc-connected',
-				type: 'success',
-				position: 'float',
-				message: __('Connected to Google.', 'vulopilot'),
-			});
-		} else if (gscStatus === 'error') {
-			NoticeManager.add({
-				uniqueKey: 'vulopilot-gsc-connect-failed',
-				type: 'error',
-				position: 'float',
-				message: __(
-					'Could not connect to Google. Please check your Client ID/Secret and try again.',
-					'vulopilot'
-				),
-			});
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 
 	// Once connected, real per-service pickers load their own real data.
 	useEffect(() => {
@@ -222,54 +177,21 @@ const GoogleServicesPanel = () => {
 		).then((response) => setGa4Streams(response ?? []));
 	}, [selectedPropertyId]);
 
-	const handleConnect = () => {
-		setIsConnecting(true);
-
-		getApiResponse<{ url: string }>(
-			getApiLink(appLocalizer, 'google-services/authorize-url'),
-			nonceHeaders
-		)
-			.then((response) => {
-				if (response?.url) {
-					window.location.href = response.url;
-					return;
-				}
-
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-gsc-authorize-url-failed',
-					type: 'error',
-					position: 'float',
-					message: __(
-						'Could not start the Google connection. Please try again.',
-						'vulopilot'
-					),
-				});
-				setIsConnecting(false);
-			})
-			.catch(() => setIsConnecting(false));
-	};
-
-	const handleDisconnect = () => {
-		setIsDisconnecting(true);
-
-		sendApiResponse<GoogleStatus>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'google-services/disconnect'),
-			{}
-		)
-			.then((response) => {
-				if (response) {
-					setStatus(response);
-					setGscSites(null);
-					setGa4Accounts(null);
-					setGa4Streams(null);
-					setAdsenseAccounts(null);
-					setSelectedAccountId('');
-					setSelectedPropertyId('');
-					setTestResults(null);
-				}
-			})
-			.finally(() => setIsDisconnecting(false));
+	// Wraps the shared hook's real disconnect call — this panel's own
+	// picker state (gscSites/ga4Accounts/ga4Streams/adsenseAccounts/
+	// selected*/testResults) has no equivalent in KeywordsTab.tsx's
+	// slimmer use of the same hook, so it's reset here rather than inside
+	// useGoogleServicesConnection() itself.
+	const disconnectAndResetPickers = () => {
+		handleDisconnect().then(() => {
+			setGscSites(null);
+			setGa4Accounts(null);
+			setGa4Streams(null);
+			setAdsenseAccounts(null);
+			setSelectedAccountId('');
+			setSelectedPropertyId('');
+			setTestResults(null);
+		});
 	};
 
 	const handleTestConnections = () => {
@@ -284,7 +206,7 @@ const GoogleServicesPanel = () => {
 	};
 
 	const handleSelectSite = (siteUrl: string) => {
-		sendApiResponse<GoogleStatus>(
+		sendApiResponse<GoogleServicesStatus>(
 			appLocalizer,
 			getApiLink(appLocalizer, 'google-services/select-search-console-site'),
 			{ site_url: siteUrl }
@@ -296,7 +218,7 @@ const GoogleServicesPanel = () => {
 	};
 
 	const handleSelectAdsense = (accountId: string) => {
-		sendApiResponse<GoogleStatus>(
+		sendApiResponse<GoogleServicesStatus>(
 			appLocalizer,
 			getApiLink(appLocalizer, 'google-services/select-adsense-account'),
 			{ account_id: accountId }
@@ -312,7 +234,7 @@ const GoogleServicesPanel = () => {
 			return;
 		}
 
-		sendApiResponse<GoogleStatus>(
+		sendApiResponse<GoogleServicesStatus>(
 			appLocalizer,
 			getApiLink(appLocalizer, 'google-services/select-analytics-property'),
 			{
@@ -412,7 +334,7 @@ const GoogleServicesPanel = () => {
 							<button
 								type="button"
 								className="gsc-inline-action is-destructive"
-								onClick={handleDisconnect}
+								onClick={disconnectAndResetPickers}
 								disabled={isDisconnecting}
 							>
 								{isDisconnecting
