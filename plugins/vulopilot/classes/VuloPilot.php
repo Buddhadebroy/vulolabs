@@ -321,11 +321,6 @@ final class VuloPilot {
             add_action( 'cli_init', array( Cli\VuloPilotCommand::class, 'register' ) );
         }
 
-        $previous_version = get_option( Utill::VULOPILOT_OTHER_SETTINGS['plugin_db_version'], '' );
-        if ( version_compare( $previous_version, $this->container['version'], '<' ) ) {
-            new Install();
-        }
-
         do_action( 'vulopilot_loaded' );
     }
 

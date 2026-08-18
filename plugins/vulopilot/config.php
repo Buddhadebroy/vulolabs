@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'VULOPILOT_PLUGIN_TEXTDOMAIN', 'vulopilot' );
-define( 'VULOPILOT_PLUGIN_VERSION', '1.1.0' );
+define( 'VULOPILOT_PLUGIN_VERSION', '1.0.0' );
 define( 'VULOPILOT_PLUGIN_SLUG', 'vulopilot' );
 // Defined free-side (not by vulopilot-pro) — same "where to buy Pro"
 // pattern as MULTIVENDORX_PRO_SHOP_URL in vulolabs/plugins/vulolabs/
