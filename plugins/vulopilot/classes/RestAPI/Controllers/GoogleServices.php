@@ -198,10 +198,18 @@ class GoogleServices extends \WP_REST_Controller {
     }
 
     /**
+     * `return_to` is validated again inside
+     * GoogleServicesConnection::get_authorization_url() itself (an
+     * unrecognized value there silently falls back to 'settings') — this
+     * `sanitize_text_field()` is just normal REST param hygiene, not the
+     * real allow-list check.
+     *
+     * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
      */
-    public function get_authorize_url() {
-        $url = ( new GoogleServicesConnection() )->get_authorization_url();
+    public function get_authorize_url( $request ) {
+        $return_to = sanitize_text_field( (string) $request->get_param( 'return_to' ) );
+        $url       = ( new GoogleServicesConnection() )->get_authorization_url( $return_to ?: 'settings' );
 
         if ( ! $url ) {
             return new \WP_Error( 'vulopilot_gsc_no_credentials', __( 'Google Connect isn’t configured for this build yet.', 'vulopilot' ), array( 'status' => 400 ) );

@@ -74,6 +74,18 @@ class GoogleServicesConnection {
     private const EXPIRY_SAFETY_MARGIN = 60;
 
     /**
+     * Every real SPA destination Google's own redirect
+     * (GoogleSearchConsoleOAuthCallbackHandler::handle_callback()) is
+     * allowed to land back on — 'settings' (Settings → Scanning → Google
+     * Services, GoogleServicesPanel.tsx's own original, only-ever
+     * destination) or 'keywords' (Grow My Traffic → Keywords,
+     * KeywordsTab.tsx's own inline connect flow). Kept as a real
+     * allow-list rather than trusting whatever string a caller passes
+     * straight through into a redirect URL.
+     */
+    private const RETURN_TARGETS = array( 'settings', 'keywords' );
+
+    /**
      * @return array<string, mixed>
      */
     private function get_connection(): array {
@@ -150,18 +162,27 @@ class GoogleServicesConnection {
      * Real Google OAuth 2.0 authorization URL — `access_type=offline` +
      * `prompt=consent` so Google actually issues a refresh_token (it
      * otherwise only does this on a user's very first consent, silently
-     * omitting it on repeat authorizations), `state` is a real WP nonce
-     * verified in `verify_state()` on the way back, guarding the
-     * callback against CSRF the same way every other WordPress
-     * admin-post handler's own `check_admin_referer()` would.
+     * omitting it on repeat authorizations), `state` carries both a real
+     * WP nonce (verified in `verify_state()` on the way back, guarding
+     * the callback against CSRF the same way every other WordPress
+     * admin-post handler's own `check_admin_referer()` would) and
+     * `$return_to`, so the callback can send the browser back to
+     * whichever real SPA tab actually started the connection instead of
+     * always landing on Settings — Google itself never inspects `state`,
+     * it just echoes whatever opaque value we send back on redirect.
      *
+     * @param string $return_to One of self::RETURN_TARGETS; anything else silently falls back to 'settings'.
      * @return string|null Null if no client credentials are saved yet.
      */
-    public function get_authorization_url(): ?string {
+    public function get_authorization_url( string $return_to = 'settings' ): ?string {
         $client_id = $this->get_client_id();
 
         if ( ! $client_id ) {
             return null;
+        }
+
+        if ( ! in_array( $return_to, self::RETURN_TARGETS, true ) ) {
+            $return_to = 'settings';
         }
 
         $params = array(
@@ -171,10 +192,41 @@ class GoogleServicesConnection {
             'scope'         => implode( ' ', self::SCOPES ),
             'access_type'   => 'offline',
             'prompt'        => 'consent',
-            'state'         => wp_create_nonce( 'vulopilot_gsc_oauth' ),
+            'state'         => self::encode_state( $return_to ),
         );
 
         return self::AUTHORIZE_URL . '?' . http_build_query( $params );
+    }
+
+    /**
+     * @param string $return_to Already validated against self::RETURN_TARGETS by the caller.
+     * @return string Base64'd JSON — a real WP nonce plus the plain, allow-listed return target.
+     */
+    private static function encode_state( string $return_to ): string {
+        return base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- URL-safe transport encoding for an opaque `state` value, not obfuscation; every field inside is either a real WP nonce (verified below) or an allow-listed plain string.
+            (string) wp_json_encode(
+                array(
+                    'nonce'     => wp_create_nonce( 'vulopilot_gsc_oauth' ),
+                    'return_to' => $return_to,
+                )
+            )
+        );
+    }
+
+    /**
+     * @param string $state The `state` query param Google's redirect carried back.
+     * @return array{nonce: string, return_to: string}
+     */
+    private static function decode_state( string $state ): array {
+        $decoded = json_decode( (string) base64_decode( $state, true ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- decoding this class's own encode_state(), not obfuscation.
+
+        $nonce     = is_array( $decoded ) && is_string( $decoded['nonce'] ?? null ) ? $decoded['nonce'] : '';
+        $return_to = is_array( $decoded ) && is_string( $decoded['return_to'] ?? null ) ? $decoded['return_to'] : '';
+
+        return array(
+            'nonce'     => $nonce,
+            'return_to' => in_array( $return_to, self::RETURN_TARGETS, true ) ? $return_to : 'settings',
+        );
     }
 
     /**
@@ -182,7 +234,24 @@ class GoogleServicesConnection {
      * @return bool
      */
     public function verify_state( string $state ): bool {
-        return false !== wp_verify_nonce( $state, 'vulopilot_gsc_oauth' );
+        return false !== wp_verify_nonce( self::decode_state( $state )['nonce'], 'vulopilot_gsc_oauth' );
+    }
+
+    /**
+     * Read independently of `verify_state()` — deliberately NOT gated on
+     * nonce validity, so even a failed/expired handshake still redirects
+     * the browser back to whichever real tab the site owner started from
+     * rather than always falling back to Settings on error. Safe to trust
+     * without the nonce check: `decode_state()` itself only ever returns
+     * an allow-listed value (self::RETURN_TARGETS), so there's no
+     * open-redirect or injection surface here — worst case is landing on
+     * the wrong (but still real, internal) SPA tab.
+     *
+     * @param string $state The `state` query param Google's redirect carried back.
+     * @return string One of self::RETURN_TARGETS.
+     */
+    public function get_return_to_from_state( string $state ): string {
+        return self::decode_state( $state )['return_to'];
     }
 
     /**

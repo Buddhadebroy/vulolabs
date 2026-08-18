@@ -18,7 +18,6 @@ import NeedsAttentionCard, {
 } from './NeedsAttentionCard';
 import RecentConversationsCard from './RecentConversationsCard';
 import AiUsageCard from './AiUsageCard';
-import LiveSiteInsightsCard from './LiveSiteInsightsCard';
 import IssuesList from './IssuesList';
 import AutomationTemplatesCard from '../Automation/AutomationTemplatesCard';
 import AutomationModesCard from '../Automation/AutomationModesCard';
@@ -667,7 +666,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			<ColumnComponent grid={8}>
 				<AutomationTemplatesCard onSelectTemplate={handleSelectAutomationTemplate} />
 				<AutomationModesCard />
-				<LiveSiteInsightsCard />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
 				<RecentConversationsCard

@@ -1,5 +1,44 @@
 import { __ } from '@wordpress/i18n';
 
+/** One real, toggleable module card — see this file's own docblock below for the id/category conventions every entry follows. */
+export interface ModuleCatalogEntry {
+	id: string;
+	name: string;
+	desc: string;
+	proModule: boolean;
+	category: string;
+	miniModule?: boolean;
+	freeFeatures?: string[];
+	proFeatures?: string[];
+	/**
+	 * A real `adminfont-*` glyph (zyra's `packages/theme/src/fonts.scss`)
+	 * for this module — NOT read by zyra's own ModuleGridComponent (its
+	 * real card icon is hardcoded to `adminfont-${module.id}`, confirmed
+	 * via its shipped source; none of these ids happen to be real glyph
+	 * names, so every card on the actual Settings → Modules page renders
+	 * with a blank icon today — a real, live bug, but in zyra itself, out
+	 * of reach from this repo without a zyra-side fix). This field exists
+	 * so at least Popup.tsx's own locked-feature popup (../Popup/Popup.tsx,
+	 * which reads this catalog directly rather than going through
+	 * ModuleGridComponent) can show a real icon instead of the same blank
+	 * one.
+	 */
+	icon?: string;
+}
+
+/** A category-pill-bar heading, not a real module — `type: 'separator'` is how ModuleGridComponent (zyra) tells the two apart in one flat array. */
+export interface ModuleCatalogSeparator {
+	type: 'separator';
+	id: string;
+	label: string;
+}
+
+export type ModuleCatalogItem = ModuleCatalogEntry | ModuleCatalogSeparator;
+
+export const isModuleCatalogEntry = (
+	item: ModuleCatalogItem
+): item is ModuleCatalogEntry => !('type' in item);
+
 /**
  * Exactly the 13 modules from the user's own mockup (ModulesPanel.jsx),
  * same names/descriptions/free-pro copy verbatim — WooCommerce
@@ -20,7 +59,7 @@ import { __ } from '@wordpress/i18n';
  * this session touched this file, kept only because the mockup includes
  * them by name.
  */
-export default {
+const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogItem[] } = {
 	category: true,
 	tab: 'modules',
 	modules: [
@@ -35,6 +74,7 @@ export default {
              * gets in this file when the two don't share an id.
              */
             id: 'geo-insights',
+            icon: 'global-community',
             name: __('GEO Radar — AI Understanding', 'vulopilot'),
             desc: __('Scans structure, entities, and machine-readability so AI models can understand your pages.', 'vulopilot'),
             proModule: true,
@@ -54,17 +94,26 @@ export default {
         },
         {
             /**
-             * Same real backend id as the GEO card above, not a typo — AEO's
-             * own Pro features (llms.txt generation, etc.) are also
-             * registered by GeoInsights\Module; there's no separate "AEO"
-             * Pro module folder. Known, accepted side effect: zyra's
+             * Same real backend id as the GEO card above — AEO's own Pro
+             * features (llms.txt generation, etc.) are also registered by
+             * GeoInsights\Module; there's no separate "AEO" Pro module
+             * folder. This card's own `id` used to be the non-existent
+             * 'aeo-insights' (no `AeoInsights` folder anywhere, and every
+             * other real `moduleName="geo-insights"` call site in the app —
+             * including AeoTab.tsx itself — already used the correct id) —
+             * a real, confirmed bug: toggling this card sent an id
+             * Modules::load_active_modules() would never resolve to any
+             * real module, so the "activation" silently reverted on the
+             * very next page load with no error shown. Fixed to the real
+             * id. Known, accepted side effect of the fix: zyra's
              * ModuleGridComponent keys its card list by `module.id`, so two
-             * cards intentionally sharing 'geo-insights' triggers a
+             * cards intentionally sharing 'geo-insights' now triggers a
              * harmless React "duplicate key" dev-console warning — toggling
              * either card still correctly activates/deactivates the one
              * real module both represent.
              */
-            id: 'aeo-insights',
+            id: 'geo-insights',
+            icon: 'answer',
             name: __('AEO Autopilot — Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage — then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
             proModule: true,
@@ -84,6 +133,7 @@ export default {
         },
         {
             id: 'knowledge-graph',
+            icon: 'intelligence',
             name: __('Knowledge Graph — Entity Intelligence', 'vulopilot'),
             desc: __('Reads real people, organizations, products, services, and categories from your site and turns them into structured entities.', 'vulopilot'),
             proModule: true,
@@ -107,6 +157,7 @@ export default {
              * matches no real module.
              */
             id: 'ai-crawler-analytics',
+            icon: 'analytics',
             name: __('Bot Watch — AI Crawler Intelligence', 'vulopilot'),
             desc: __('Tracks which AI bots — GPTBot, ClaudeBot, PerplexityBot, and others — are visiting your site, and what they\'re reading.', 'vulopilot'),
             proModule: true,
@@ -136,6 +187,7 @@ export default {
              * no real module.
              */
             id: 'brand-intelligence',
+            icon: 'announcement',
             name: __('Brand Radar — Off-Site Visibility', 'vulopilot'),
             desc: __('Organization & author schema, About-page completeness, and off-site mentions across the web.', 'vulopilot'),
             proModule: true,
@@ -164,6 +216,7 @@ export default {
              * matches no real module.
              */
             id: 'advanced-seo',
+            icon: 'search',
             name: __('SEO Copilot — Technical SEO', 'vulopilot'),
             desc: __('Titles, meta, canonical, schema, internal links, sitemap, and robots.txt checks.', 'vulopilot'),
             proModule: true,
@@ -183,6 +236,7 @@ export default {
         },
         {
             id: 'content-intelligence',
+            icon: 'document',
             name: __('Content Copilot — Readability & Freshness', 'vulopilot'),
             desc: __('Readability, thin/duplicate content, and freshness flags — plus AI-assisted rewriting.', 'vulopilot'),
             proModule: true,
@@ -210,6 +264,7 @@ export default {
              * separate change) or dropping this card entirely.
              */
             id: 'redirect-manager',
+            icon: 'link',
             name: __('Redirect Autopilot — 301s & 404 Log', 'vulopilot'),
             desc: __('301 redirects and 404 tracking, with automatic redirects on slug change.', 'vulopilot'),
             proModule: false,
@@ -231,6 +286,7 @@ export default {
              * Performance services, not a module).
              */
             id: 'performance-monitoring',
+            icon: 'bar-chart',
             name: __('Speed Radar — Core Web Vitals', 'vulopilot'),
             desc: __('Core Web Vitals, database health, and autoload size checks.', 'vulopilot'),
             proModule: true,
@@ -254,6 +310,7 @@ export default {
              * ('accessibility-scanner') matches no real module.
              */
             id: 'accessibility-audits',
+            icon: 'eye',
             name: __('Accessibility Guard — WCAG Compliance', 'vulopilot'),
             desc: __('WCAG checks — alt text, headings, ARIA, and form labels.', 'vulopilot'),
             proModule: true,
@@ -272,6 +329,7 @@ export default {
         },
         {
             id: 'security-monitoring',
+            icon: 'security',
             name: __('Security Watchtower — Site Protection', 'vulopilot'),
             desc: __('Weak passwords, basic vulnerabilities, core file integrity, and update checks.', 'vulopilot'),
             proModule: true,
@@ -309,6 +367,7 @@ export default {
              * 'one-click-fix' (that module has no card of its own now).
              */
             id: 'ai-copilot',
+            icon: 'ai',
             name: __('AI Copilot', 'vulopilot'),
             desc: __('Explainable AI recommendations for any finding across every module.', 'vulopilot'),
             proModule: false,
@@ -331,6 +390,7 @@ export default {
              * mockup's own id ('automation-engine') matches no real module.
              */
             id: 'automation',
+            icon: 'automation',
             name: __('Workflow Autopilot — Automation Engine', 'vulopilot'),
             desc: __('Triggers, conditions, schedules, and workflows that react to scan findings automatically.', 'vulopilot'),
             proModule: true,
@@ -345,3 +405,5 @@ export default {
         }
 	],
 };
+
+export default MODULES_CATALOG;

@@ -8,6 +8,7 @@ import EfficiencyOverviewChart from './EfficiencyOverviewChart';
 import EfficiencySpeedInsightsBanner from './EfficiencySpeedInsightsBanner';
 import SpeedHistoryCard from '../Performance/SpeedHistoryCard';
 import PluginOverlapCard from './PluginOverlapCard';
+import LiveSiteInsightsCard from './LiveSiteInsightsCard';
 import { useEfficiencyChecks, THINGS_TO_REVIEW_ID } from './efficiencyChecks';
 import './ProtectMySite.scss';
 
@@ -56,6 +57,14 @@ const scrollTo = (id: string) => () =>
  * these efficiency checks + Improve My Speed's own monitoring already
  * cover the same ground) into the tab a user reading about performance
  * is already on.
+ *
+ * LiveSiteInsightsCard (moved here from AI Copilot's ChatTab.tsx, its
+ * original home — see that card's own docblock for what each of its 3-4
+ * rows actually reads) sits between the review list and the closing
+ * banner: it's a snapshot of the same live signals (security score, AI
+ * crawler traffic, Core Web Vitals) a "how's my site doing right now"
+ * reader on this tab would want, not something specific to the AI chat
+ * experience it used to live under.
  */
 const PerformanceTab = () => {
 	const { data, isLoading, refetch } = useEfficiencyChecks();
@@ -95,6 +104,8 @@ const PerformanceTab = () => {
 				isLoading={isLoading}
 				onViewAll={scrollTo(SECTIONS_TOP_ID)}
 			/>
+
+			<LiveSiteInsightsCard />
 
 			<EfficiencySpeedInsightsBanner />
 
