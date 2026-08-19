@@ -40,6 +40,20 @@ class Schema extends \WP_REST_Controller {
     protected $rest_base = 'schema';
 
     /**
+     * Real post_type => human label map for the Inspector's own page-picker
+     * dropdown option text, e.g. "T-Shirt with Logo (Product)" — same 3
+     * real post types SchemaCoverageAnalyzer::analyze() already samples
+     * from.
+     *
+     * @var array<string, string>
+     */
+    private const TYPE_LABELS = array(
+        'post'    => 'Post',
+        'page'    => 'Page',
+        'product' => 'Product',
+    );
+
+    /**
      * @var SchemaCoverageAnalyzer
      */
     private SchemaCoverageAnalyzer $analyzer;
@@ -86,6 +100,18 @@ class Schema extends \WP_REST_Controller {
                 array(
                     'methods'             => \WP_REST_Server::CREATABLE,
                     'callback'            => array( $this, 'inspect_page' ),
+                    'permission_callback' => array( $this, 'permissions_check' ),
+                ),
+            )
+        );
+
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/inspectable-pages',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'list_inspectable_pages' ),
                     'permission_callback' => array( $this, 'permissions_check' ),
                 ),
             )
@@ -146,5 +172,46 @@ class Schema extends \WP_REST_Controller {
         }
 
         return rest_ensure_response( $result );
+    }
+
+    /**
+     * Real posts/pages/products the Inspector's own page-picker dropdown
+     * offers (InspectorSection.tsx) — same post_type scope
+     * SchemaCoverageAnalyzer::analyze() already samples from, most-recently-
+     * modified first, capped to a real usable dropdown length. No outbound
+     * HTTP here (unlike inspect_page() itself) — just this site's own
+     * already-stored post data, so this is safe to call on every mount
+     * rather than gated behind an explicit action.
+     *
+     * @return \WP_REST_Response
+     */
+    public function list_inspectable_pages() {
+        $post_ids = get_posts(
+            array(
+                'post_type'      => array( 'post', 'page', 'product' ),
+                'post_status'    => 'publish',
+                'posts_per_page' => 30,
+                'orderby'        => 'modified',
+                'order'          => 'DESC',
+                'fields'         => 'ids',
+            )
+        );
+
+        $pages = array_map(
+            static function ( int $post_id ): array {
+                $post_type = (string) get_post_type( $post_id );
+
+                return array(
+                    'id'         => $post_id,
+                    'title'      => get_the_title( $post_id ) ?: __( '(no title)', 'vulopilot' ),
+                    'type'       => $post_type,
+                    'type_label' => self::TYPE_LABELS[ $post_type ] ?? ucfirst( $post_type ),
+                    'url'        => get_permalink( $post_id ),
+                );
+            },
+            $post_ids
+        );
+
+        return rest_ensure_response( $pages );
     }
 }

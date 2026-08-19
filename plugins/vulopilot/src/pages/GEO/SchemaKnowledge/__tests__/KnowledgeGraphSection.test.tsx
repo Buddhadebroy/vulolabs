@@ -50,12 +50,17 @@ describe( 'KnowledgeGraph section', () => {
 
 		render( <KnowledgeGraph /> );
 
-		expect( await screen.findByText( 'People (1)' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Jane Doe' ) ).toBeInTheDocument();
-		expect(
-			screen.getByText( 'Organizations (1)' )
-		).toBeInTheDocument();
-		expect( screen.getByText( 'Products (0)' ) ).toBeInTheDocument();
+		// People/Organizations/Services now share the same EntityHighlightCard
+		// design as Products/Categories/Business Locations — real count shown
+		// as its own badge, not concatenated into the title text.
+		expect( await screen.findByText( 'Jane Doe' ) ).toBeInTheDocument();
+		// "People"/"Organizations" each appear once as their EntityHighlightCard
+		// title.
+		expect( screen.getByText( 'People' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Organizations' ) ).toBeInTheDocument();
+		// Products also appears as the "Your website at a glance" card's own
+		// real stat label, hence getAllByText rather than getByText.
+		expect( screen.getAllByText( 'Products' ).length ).toBeGreaterThan( 0 );
 		expect(
 			screen.getByText( /not applicable to this site/i )
 		).toBeInTheDocument();
@@ -90,7 +95,7 @@ describe( 'KnowledgeGraph section', () => {
 
 		render( <KnowledgeGraph /> );
 
-		await screen.findByText( 'People (0)' );
+		await screen.findByText( 'People' );
 
 		expect(
 			screen.queryByTestId( 'kg-visualization-stub' )

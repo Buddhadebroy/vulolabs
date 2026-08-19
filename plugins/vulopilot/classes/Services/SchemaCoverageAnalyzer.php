@@ -33,9 +33,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class SchemaCoverageAnalyzer {
 
-    private const CACHE_KEY = 'vulopilot_schema_coverage_snapshot';
-    private const CACHE_TTL = 6 * HOUR_IN_SECONDS;
-    private const SAMPLE_SIZE = 15;
+    private const CACHE_KEY               = 'vulopilot_schema_coverage_snapshot';
+    private const CACHE_TTL               = 6 * HOUR_IN_SECONDS;
+    private const SAMPLE_SIZE             = 15;
     private const REQUEST_TIMEOUT_SECONDS = 8;
 
     /**
@@ -50,18 +50,18 @@ class SchemaCoverageAnalyzer {
      * @var array<string, string>
      */
     private const TYPE_MEANINGS = array(
-        'Organization'   => 'Your business identity',
-        'WebSite'        => 'Your website identity',
-        'WebPage'        => 'A regular page',
-        'BreadcrumbList' => 'Page navigation',
-        'Article'        => 'Blog/article content',
-        'BlogPosting'    => 'Blog/article content',
-        'Product'        => 'A product you sell',
-        'Person'         => 'A content author',
-        'FAQPage'        => 'Frequently-asked-questions content',
-        'HowTo'          => 'Step-by-step instructions',
-        'LocalBusiness'  => 'Physical business details',
-        'Review'         => 'A customer review',
+        'Organization'    => 'Your business identity',
+        'WebSite'         => 'Your website identity',
+        'WebPage'         => 'A regular page',
+        'BreadcrumbList'  => 'Page navigation',
+        'Article'         => 'Blog/article content',
+        'BlogPosting'     => 'Blog/article content',
+        'Product'         => 'A product you sell',
+        'Person'          => 'A content author',
+        'FAQPage'         => 'Frequently-asked-questions content',
+        'HowTo'           => 'Step-by-step instructions',
+        'LocalBusiness'   => 'Physical business details',
+        'Review'          => 'A customer review',
         'AggregateRating' => 'A rolled-up rating',
     );
 
@@ -69,7 +69,7 @@ class SchemaCoverageAnalyzer {
      * Runs a fresh real sample and stores it — the only path that performs
      * real outbound HTTP requests (see this class's own docblock).
      *
-     * @return array{generated_at: string, sample_size: int, coverage: array<int, array{type: string, meaning: string, found_on: int, problems: int, pages: array<int, array{id: int, title: string, url: string, edit_url: string|null}>}>, pages_checked: int}
+     * @return array{generated_at: string, sample_size: int, coverage: array<int, array{type: string, meaning: string, found_on: int, problems: int, pages: array<int, array{id: int, title: string, url: string, edit_url: string|null}>}>, pages_checked: int, pages_with_valid_schema: int, pages_needing_attention: int}
      */
     public function analyze(): array {
         $post_ids = get_posts(
@@ -89,8 +89,16 @@ class SchemaCoverageAnalyzer {
         // instead of the generic "go check the SEO tab" redirect it used
         // to be: a site owner can now see, per @type, precisely which
         // real page(s) actually carry it.
-        $type_pages = array();
+        $type_pages    = array();
         $pages_checked = 0;
+        // A checked page "has valid schema" when at least one real
+        // `application/ld+json` block with a real `@type` was actually
+        // found on it — the "Schema Status" summary card's own
+        // `pages_with_valid_schema`/`pages_needing_attention` tiles
+        // (StructuredDataSection.tsx), a real per-PAGE pass/fail count,
+        // distinct from `coverage`'s own per-TYPE `found_on`/`problems`
+        // figures below.
+        $pages_with_schema = 0;
 
         foreach ( $post_ids as $post_id ) {
             $permalink = get_permalink( $post_id );
@@ -104,6 +112,11 @@ class SchemaCoverageAnalyzer {
             }
 
             ++$pages_checked;
+
+            if ( ! empty( $types ) ) {
+                ++$pages_with_schema;
+            }
+
             $page_entry = array(
                 'id'       => $post_id,
                 'title'    => get_the_title( $post_id ) ?: $permalink,
@@ -120,9 +133,19 @@ class SchemaCoverageAnalyzer {
         // The homepage's own sitewide Organization/WebSite schema (site
         // identity, not per-post content) — checked separately from the
         // per-post sample above, same "homepage is its own real signal"
-        // reasoning SchemaScanner already applies.
+        // reasoning SchemaScanner already applies. Counted into
+        // `pages_checked`/`pages_with_schema` too now (it wasn't before):
+        // the homepage genuinely is a real page this method just fetched
+        // and inspected, so excluding it from "pages checked" undercounted
+        // the very real work this method already does.
         $homepage_types = $this->extract_types_from_url( home_url( '/' ) );
         if ( null !== $homepage_types ) {
+            ++$pages_checked;
+
+            if ( ! empty( $homepage_types ) ) {
+                ++$pages_with_schema;
+            }
+
             $homepage_entry = array(
                 'id'       => 0,
                 'title'    => __( 'Homepage', 'vulopilot' ),
@@ -136,7 +159,7 @@ class SchemaCoverageAnalyzer {
             }
         }
 
-        $findings = new FindingRepository();
+        $findings            = new FindingRepository();
         $problem_scanner_ids = array( 'schema', 'structured-data', 'sitewide-structured-data', 'organization-schema', 'author-schema' );
         $open_problems_total = array_sum( $findings->get_severity_breakdown_for_scanner_ids( $problem_scanner_ids ) );
 
@@ -163,10 +186,12 @@ class SchemaCoverageAnalyzer {
         }
 
         $snapshot = array(
-            'generated_at'  => current_time( 'mysql', true ),
-            'sample_size'   => self::SAMPLE_SIZE,
-            'pages_checked' => $pages_checked,
-            'coverage'      => $coverage,
+            'generated_at'            => current_time( 'mysql', true ),
+            'sample_size'             => self::SAMPLE_SIZE,
+            'pages_checked'           => $pages_checked,
+            'pages_with_valid_schema' => $pages_with_schema,
+            'pages_needing_attention' => $pages_checked - $pages_with_schema,
+            'coverage'                => $coverage,
         );
 
         set_transient( self::CACHE_KEY, $snapshot, self::CACHE_TTL );
@@ -214,7 +239,7 @@ class SchemaCoverageAnalyzer {
             // real shapes rather than assuming one. array_keys() === range()
             // is the min-PHP-8.0-compatible list check (array_is_list() is
             // 8.1+, this codebase's own composer.json floor is 8.0).
-            $is_list = array_keys( $decoded ) === range( 0, count( $decoded ) - 1 );
+            $is_list    = array_keys( $decoded ) === range( 0, count( $decoded ) - 1 );
             $candidates = isset( $decoded['@graph'] ) && is_array( $decoded['@graph'] )
                 ? $decoded['@graph']
                 : ( $is_list ? $decoded : array( $decoded ) );
