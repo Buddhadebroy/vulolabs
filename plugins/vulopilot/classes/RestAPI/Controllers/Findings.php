@@ -294,13 +294,23 @@ class Findings extends \WP_REST_Controller {
      * copy is never fabricated — see FindingRepository::get_finding_groups()
      * for how the grouping itself is computed.
      *
+     * Also backs the "Schema & Knowledge" tab's own grouped Issues section
+     * (IssuesSection.tsx) via this same route's `scanner_id` param (comma-
+     * separated, same `parse_comma_separated_list()` GET /findings' own
+     * `scanner_id` already uses) — when given, `priority_counts` is scoped
+     * to exactly that scanner_id set too
+     * (get_priority_counts_for_scanner_ids()) rather than the sitewide
+     * figure every category-tab caller wants, since a scanner_id-scoped
+     * caller has no category tabs of its own to fall back on for context.
+     *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response
      */
     public function get_finding_groups( $request ) {
-        $repository = new FindingRepository();
-        $categories = $this->parse_comma_separated_list( $request->get_param( 'category' ) );
-        $priority   = sanitize_key( (string) $request->get_param( 'priority' ) );
+        $repository  = new FindingRepository();
+        $categories  = $this->parse_comma_separated_list( $request->get_param( 'category' ) );
+        $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
+        $priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
 
         $page     = absint( $request->get_param( 'page' ) );
         $per_page = absint( $request->get_param( 'per_page' ) );
@@ -309,6 +319,7 @@ class Findings extends \WP_REST_Controller {
             array(
                 'status'         => 'open',
                 'category'       => $categories ?? '',
+                'scanner_ids'    => $scanner_ids ?? array(),
                 'priority_ranks' => self::PRIORITY_SEVERITY_RANKS[ $priority ] ?? array(),
                 'page'           => $page > 0 ? $page : 1,
                 'per_page'       => $per_page > 0 ? $per_page : 20,
@@ -341,7 +352,9 @@ class Findings extends \WP_REST_Controller {
             $result['data']
         );
 
-        $result['priority_counts'] = $repository->get_priority_counts();
+        $result['priority_counts'] = $scanner_ids
+            ? $repository->get_priority_counts_for_scanner_ids( $scanner_ids )
+            : $repository->get_priority_counts();
         $result['category_counts'] = $repository->get_category_group_counts();
 
         return rest_ensure_response( $result );
