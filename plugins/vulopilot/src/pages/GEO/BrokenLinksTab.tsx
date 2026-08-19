@@ -67,20 +67,31 @@ const EMPTY_SUMMARY: BrokenFindingsSummary = {
 };
 
 /**
- * `wp_vulopilot_not_found_logs` rows with `is_system = 1` —
- * Services\NotFoundLogger's own real 404 visit log, narrowed to a request
- * under a theme/plugin/core-file path or a static asset extension
- * (Services\NotFoundLogger::is_system_path()) rather than a missing
- * CONTENT page. Moved here (from a popup on RedirectsTab.tsx) per direct
- * instruction — its own real table, not a mock, sourced from the same
- * `GET /not-found-logs?is_system=1` endpoint either way.
+ * `wp_vulopilot_not_found_logs` rows — Services\NotFoundLogger's own real
+ * 404 visit log, both missing content pages and theme/plugin/core-file/
+ * asset requests (Services\NotFoundLogger::is_system_path()) in one merged,
+ * filterable table below "Broken Link Monitoring", per direct instruction
+ * — a 404 visit is "something's broken on this site" the same way a
+ * broken link/image finding is, so it lives on this tab rather than next
+ * to the plain redirect manager on RedirectsTab.tsx.
  */
 interface NotFoundLogRow extends TableRow {
 	id: number;
 	requested_path: string;
+	referrer: string | null;
 	hit_count: number;
 	last_seen_at: string;
+	// AbstractRepository's `SELECT *` comes back through $wpdb (and then
+	// wp_json_encode) as a numeric STRING, not a real number/boolean — a
+	// row's own `"0"` here is truthy in JS, so every read of this field
+	// below goes through isSystemLog() rather than a bare `row.is_system`
+	// check.
+	is_system: 0 | 1 | '0' | '1';
 }
+
+/** See NotFoundLogRow.is_system's own comment — `"0"` from the REST API is a truthy string, so this is the only safe way to read it. */
+const isSystemLog = (row: Pick<NotFoundLogRow, 'is_system'>): boolean =>
+	1 === Number(row.is_system);
 
 /**
  * Same real "seo module gates its own scanners" check SeoTab.tsx and
@@ -223,11 +234,20 @@ const statusKeyRank = (key: string): number => {
 	}
 };
 
-const worstStatusKey = (keys: string[]): string =>
-	keys.reduce(
-		(worst, key) => (statusKeyRank(key) < statusKeyRank(worst) ? key : worst),
-		keys[0]
-	);
+/** Every distinct status a page-group's own findings actually carry, first-occurrence order (findings arrive newest-first — see groupFindingsByPage's own docblock — so this reads left-to-right as "most-recently-detected status first," not severity-ranked) — a group with a mix of e.g. DNS and 503 findings shows both badges instead of silently collapsing to just one. */
+const distinctStatusKeys = (keys: string[]): string[] => {
+	const seen = new Set<string>();
+	const distinct: string[] = [];
+
+	keys.forEach((key) => {
+		if (!seen.has(key)) {
+			seen.add(key);
+			distinct.push(key);
+		}
+	});
+
+	return distinct;
+};
 
 /** Palette color name (BadgeComponent's own `color` prop — common.scss's `$color-palette`) — a confirmed HTTP error or DNS failure reads as more severe (red) than an unverified/timed-out check this scanner just couldn't confirm either way (yellow), same distinction the "Broken" vs "Couldn't verify" stat tiles above already draw. */
 const statusKeyColor = (key: string): string =>
@@ -385,6 +405,45 @@ const isFindingRow = (
 	row: BrokenLinkRow
 ): row is BrokenLinkFinding & { isFinding: true } => true === row.isFinding;
 
+/**
+ * Collapses duplicate findings for the exact same broken URL on the exact
+ * same page/scanner/status down to just the newest one — a scan re-run
+ * that finds a link is STILL broken re-adds a fresh open finding for it
+ * each time rather than updating the existing one for any row already
+ * persisted before ScanPersistenceListener's own dedup-on-rescan fix
+ * (Services/ScanPersistenceListener.php), so this is what actually makes
+ * an already-duplicated row disappear from the table for a site that had
+ * this happen before that fix shipped, without needing a one-off DB
+ * cleanup. Scoped to (scanner_id, object_ref, url, status) rather than
+ * just (scanner_id, object_ref, url) — an old *resolved* finding and a
+ * newly-detected *open* one for the same URL are two genuinely different,
+ * both-worth-showing rows, not a duplicate. Relies on `findings` already
+ * being newest-first (`orderby=id&order=desc`, same ordering
+ * groupFindingsByPage() below depends on) — the first occurrence of a key
+ * is already the most recent one, so this only needs one pass.
+ */
+const dedupeBrokenFindings = (
+	findings: BrokenLinkFinding[]
+): BrokenLinkFinding[] => {
+	const seen = new Set<string>();
+
+	return findings.filter((finding) => {
+		const key = [
+			finding.scanner_id,
+			finding.object_ref,
+			getBrokenUrl(finding),
+			finding.status,
+		].join('::');
+
+		if (seen.has(key)) {
+			return false;
+		}
+
+		seen.add(key);
+		return true;
+	});
+};
+
 /** Splits a flat finding list into one row per real `page` path (Controllers/Findings.php's own `add_page_field()` — always populated for these two scanners, both `object_type: 'post'`). Map insertion order is what decides display order here — `findings` is already fetched newest-first (`orderby=id&order=desc`), so a page's group naturally sorts by when its most recent finding was detected, with no second sort pass needed. */
 const groupFindingsByPage = (findings: BrokenLinkFinding[]): PageGroupRow[] => {
 	const byPage = new Map<string, BrokenLinkFinding[]>();
@@ -530,19 +589,33 @@ const BrokenLinksTab = () => {
 	const [redirectType, setRedirectType] = useState('301');
 	const [isSavingRedirect, setIsSavingRedirect] = useState(false);
 
-	// Real fetch (GET /not-found-logs?is_system=1) — its own table below,
-	// same real data RedirectsTab.tsx's "System 404s" popup used to show.
-	const systemLogs = useApiList<NotFoundLogRow>('not-found-logs', {
-		orderby: 'last_seen_at',
-		is_system: '1',
-	});
+	const [convertingLog, setConvertingLog] = useState<NotFoundLogRow | null>(
+		null
+	);
+	const [convertTargetUrl, setConvertTargetUrl] = useState('');
+	const [isConverting, setIsConverting] = useState(false);
+
+	// "All/Content/System" status pill bar — same `${key}_counts` contract
+	// Redirects.php's own `is_active_counts` already established
+	// (NotFoundLogs.php's `is_system_counts`).
+	const notFoundLogs = useApiList<NotFoundLogRow>(
+		'not-found-logs',
+		{ orderby: 'last_seen_at' },
+		{
+			key: 'is_system',
+			options: [
+				{ label: __('Content', 'vulopilot'), value: '0' },
+				{ label: __('System', 'vulopilot'), value: '1' },
+			],
+		}
+	);
 
 	const loadFindings = () => {
 		setIsLoadingFindings(true);
 
 		fetchAllBrokenFindings()
 			.then((findings) => {
-				setAllFindings(findings);
+				setAllFindings(dedupeBrokenFindings(findings));
 				setFindingsError(null);
 			})
 			.catch(() =>
@@ -792,16 +865,72 @@ const BrokenLinksTab = () => {
 		downloadBrokenLinksCsv(visibleFindings);
 	};
 
-	const handleDismissSystemLog = (row: NotFoundLogRow) => {
+	const handleDismissLog = (row: NotFoundLogRow) => {
 		sendApiResponse(
 			appLocalizer,
 			getApiLink(appLocalizer, `not-found-logs/${row.id}/delete`),
 			{}
 		).then((response) => {
 			if (response) {
-				systemLogs.refetch();
+				notFoundLogs.refetch();
 			}
 		});
+	};
+
+	const openConvertPopup = (row: NotFoundLogRow) => {
+		if (isSystemLog(row)) {
+			// Belt-and-braces — the row action itself is already disabled
+			// (no onClick reaches here) for a system row, see the "Type"-
+			// gated actions column below.
+			return;
+		}
+
+		setConvertingLog(row);
+		setConvertTargetUrl('');
+	};
+
+	const closeConvertPopup = () => {
+		setConvertingLog(null);
+		setConvertTargetUrl('');
+	};
+
+	const handleConvertLog = () => {
+		if (!convertingLog || '' === convertTargetUrl.trim()) {
+			return;
+		}
+
+		setIsConverting(true);
+
+		sendApiResponse(
+			appLocalizer,
+			getApiLink(
+				appLocalizer,
+				`not-found-logs/${convertingLog.id}/convert`
+			),
+			{ target_url: convertTargetUrl }
+		)
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-log-convert',
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? __(
+								'Redirect created from this log entry.',
+								'vulopilot'
+							)
+						: __(
+								'Could not create a redirect — a redirect for this path may already exist.',
+								'vulopilot'
+							),
+				});
+
+				if (response) {
+					closeConvertPopup();
+					notFoundLogs.refetch();
+				}
+			})
+			.finally(() => setIsConverting(false));
 	};
 
 	const buildFindingActions = (finding: BrokenLinkFinding): RowAction[] => [
@@ -908,23 +1037,29 @@ const BrokenLinksTab = () => {
 		status: {
 			label: __('Status', 'vulopilot'),
 			render: (row: BrokenLinkRow) => {
-				const key = isFindingRow(row)
-					? deriveStatusKey(row)
-					: worstStatusKey(
-							(row as PageGroupRow).findings.map(deriveStatusKey)
-						);
-				const badge = (
-					<BadgeComponent color={statusKeyColor(key)} text={statusKeyLabel(key)} />
+				if (isFindingRow(row)) {
+					const key = deriveStatusKey(row);
+					return (
+						<BadgeComponent color={statusKeyColor(key)} text={statusKeyLabel(key)} />
+					);
+				}
+
+				const keys = distinctStatusKeys(
+					(row as PageGroupRow).findings.map(deriveStatusKey)
 				);
 
-				return isFindingRow(row) ? (
-					badge
-				) : (
+				return (
 					<span
-						className="broken-link-row-expand-trigger"
+						className="broken-link-row-expand-trigger broken-link-status-badges"
 						onClick={toggleRowExpansion}
 					>
-						{badge}
+						{keys.map((key) => (
+							<BadgeComponent
+								key={key}
+								color={statusKeyColor(key)}
+								text={statusKeyLabel(key)}
+							/>
+						))}
 					</span>
 				);
 			},
@@ -1257,30 +1392,43 @@ const BrokenLinksTab = () => {
 							</CardComponent>
 
 							<CardComponent
-								title={__('System 404s', 'vulopilot')}
+								title={__('404 Log', 'vulopilot')}
 								titleIcon="error"
 								desc={__(
-									'Real 404s under a theme/plugin/core file path or a static asset extension — a stale cached bundle, a removed theme asset, a browser probing a well-known path. Kept separate from the broken links above since nobody redirects a broken theme file, but not silently dropped either.',
+									'Every real 404 this site has seen, both missing content pages and theme/plugin/core-file/asset requests (a stale cached bundle, a removed theme asset, a browser probing a well-known path) — told apart by the "Type" column and filterable by the pills above the table. Only a content-page 404 can be turned into a redirect; nobody redirects a broken theme file.',
 									'vulopilot'
 								)}
 							>
-								{systemLogs.error ? (
+								{notFoundLogs.error ? (
 									<ModuleGuardComponent
 										icon="error"
-										title={__('Could not load system 404s', 'vulopilot')}
-										desc={systemLogs.error}
+										title={__('Could not load the 404 log', 'vulopilot')}
+										desc={notFoundLogs.error}
 										buttonText={__('Retry', 'vulopilot')}
-										onButtonClick={systemLogs.refetch}
+										onButtonClick={notFoundLogs.refetch}
 									/>
 								) : (
 									<TableCard
 										search={{
-											placeholder: __('Search system 404s…', 'vulopilot'),
+											placeholder: __('Search missing URLs…', 'vulopilot'),
 										}}
 										format={appLocalizer.date_format_js}
 										headers={{
 											requested_path: {
 												label: __('Requested URL', 'vulopilot'),
+											},
+											is_system: {
+												label: __('Type', 'vulopilot'),
+												render: (row: NotFoundLogRow) => (
+													<BadgeComponent
+														color={isSystemLog(row) ? 'yellow' : 'blue'}
+														text={
+															isSystemLog(row)
+																? __('System', 'vulopilot')
+																: __('Content', 'vulopilot')
+														}
+													/>
+												),
 											},
 											hit_count: {
 												label: __('Hits', 'vulopilot'),
@@ -1298,24 +1446,39 @@ const BrokenLinksTab = () => {
 												type: 'action',
 												actions: [
 													{
+														label: (row?: Record<string, unknown>) =>
+															row && isSystemLog(row as NotFoundLogRow)
+																? __(
+																		"System file — no redirect needed",
+																		'vulopilot'
+																	)
+																: __('Create redirect', 'vulopilot'),
+														icon: (row?: Record<string, unknown>) =>
+															row && isSystemLog(row as NotFoundLogRow)
+																? 'lock'
+																: 'link',
+														onClick: (row?: Record<string, unknown>) =>
+															row &&
+															!isSystemLog(row as NotFoundLogRow) &&
+															openConvertPopup(row as NotFoundLogRow),
+													},
+													{
 														label: __('Dismiss', 'vulopilot'),
 														icon: 'cross',
 														onClick: (row?: Record<string, unknown>) =>
-															row &&
-															handleDismissSystemLog(
-																row as NotFoundLogRow
-															),
+															row && handleDismissLog(row as NotFoundLogRow),
 													},
 												] as any[],
 											},
 										}}
-										rows={systemLogs.data}
-										ids={systemLogs.data.map((row) => row.id)}
-										totalRows={systemLogs.total}
-										isLoading={systemLogs.isLoading}
-										onQueryUpdate={systemLogs.onQueryUpdate}
+										rows={notFoundLogs.data}
+										ids={notFoundLogs.data.map((row) => row.id)}
+										totalRows={notFoundLogs.total}
+										categoryCounts={notFoundLogs.categoryCounts}
+										isLoading={notFoundLogs.isLoading}
+										onQueryUpdate={notFoundLogs.onQueryUpdate}
 										emptyMessage={__(
-											'No system 404s logged.',
+											'No 404s logged yet — turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
 											'vulopilot'
 										)}
 									/>
@@ -1324,6 +1487,45 @@ const BrokenLinksTab = () => {
 						</>
 				)}
 			</ColumnComponent>
+
+			<PopupComponent
+				open={!!convertingLog}
+				onClose={closeConvertPopup}
+				width={28}
+				height="auto"
+				position="lightbox"
+				header={{
+					title: __('Create redirect', 'vulopilot'),
+				}}
+			>
+				<div className="vulopilot-redirect-form">
+					<TextInput
+						name="convert_source_path"
+						value={convertingLog?.requested_path ?? ''}
+						disabled
+						onChange={() => {}}
+					/>
+					<TextInput
+						name="convert_target_url"
+						placeholder={__(
+							'https://example.com/new-page/',
+							'vulopilot'
+						)}
+						value={convertTargetUrl}
+						onChange={(newValue) =>
+							setConvertTargetUrl(newValue as string)
+						}
+					/>
+					<ButtonInput
+						buttons={{
+							text: __('Save', 'vulopilot'),
+							onClick: handleConvertLog,
+							disabled:
+								isConverting || '' === convertTargetUrl.trim(),
+						}}
+					/>
+				</div>
+			</PopupComponent>
 
 			<PopupComponent
 				open={!!redirectFinding}

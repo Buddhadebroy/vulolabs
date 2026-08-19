@@ -222,6 +222,12 @@ class ScannerRegistry {
             Basic\RedirectAnalysisScanner::class,
             Basic\NotFoundScanner::class,
             Basic\PhpWarningScanner::class,
+            // Website reachability (category 'availability') — closes the
+            // one gap none of the checks above cover: whether the
+            // homepage itself actually responds at all. Curated into
+            // vulopilot-pro's "Website Health — Daily Scan" default
+            // automation (Automation\WebsiteHealthScanScheduler).
+            Basic\SiteAvailabilityScanner::class,
             // Website Performance (readme) — category 'performance', joins
             // the original PerformanceScanner (autoload bloat).
             Basic\SlowPageScanner::class,

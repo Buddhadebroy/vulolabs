@@ -7,6 +7,7 @@
 
 namespace VuloPilot\Scanners\Basic;
 
+use VuloPilot\Contracts\Scanner\SupportsForceRunInterface;
 use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
@@ -31,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
  * @version     1.0.0
  * @author      VuloLabs
  */
-class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface {
+class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedObjectsInterface, SupportsForceRunInterface {
 
     use ScannedPostsTrait;
 
@@ -45,6 +46,12 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
      * self-rate-limits instead of the cadence being scheduled externally.
      */
     private const LAST_RUN_OPTION = 'vulopilot_broken_images_last_checked';
+
+    /**
+     * Set via set_force_run() (SupportsForceRunInterface) — see
+     * BrokenLinksScanner::$force_run's own comment.
+     */
+    private bool $force_run = false;
 
     /**
      * Real per-run coverage stats — same shape/purpose as
@@ -77,6 +84,13 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
     /**
      * @inheritDoc
      */
+    public function set_force_run( bool $force ): void {
+        $this->force_run = $force;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
@@ -84,7 +98,7 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
             return array();
         }
 
-        if ( ! $this->due_to_run( (string) ( $settings['broken_image_check_frequency'] ?? 'daily' ) ) ) {
+        if ( ! $this->due_to_run( (string) ( $settings['broken_image_check_frequency'] ?? 'daily' ), $this->force_run ) ) {
             return array();
         }
 
@@ -191,16 +205,17 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
 
     /**
      * Same real rate-limit shape as BrokenLinksScanner::due_to_run() —
-     * see that method's own docblock.
+     * see that method's own docblock, including what `$force` does.
      *
      * @param string $frequency 'daily' or 'weekly'.
+     * @param bool   $force     True to bypass the interval check (a manual "Run scan").
      * @return bool True if this run should actually check images.
      */
-    private function due_to_run( string $frequency ): bool {
+    private function due_to_run( string $frequency, bool $force = false ): bool {
         $interval_seconds = 'weekly' === $frequency ? WEEK_IN_SECONDS : DAY_IN_SECONDS;
         $last_ran         = (int) get_option( self::LAST_RUN_OPTION, 0 );
 
-        if ( ( time() - $last_ran ) < $interval_seconds ) {
+        if ( ! $force && ( time() - $last_ran ) < $interval_seconds ) {
             return false;
         }
 

@@ -108,23 +108,37 @@ class Scans extends \WP_REST_Controller {
      * omitting `category` keeps every existing caller (Dashboard's Run
      * Audit widget, Health.tsx's own "Run scan") working exactly as
      * before.
+     *
+     * Every call into this endpoint is treated as a real, user-initiated
+     * "Run scan" click (`$force = true` passed to the runner) unless the
+     * caller explicitly marks itself `trigger_type=scheduled` — this repo
+     * has no cron path in Free that calls this REST route at all today
+     * (see ScanRunner's own docblock), so the default matches every
+     * existing caller (useRunScan.ts always sends `trigger_type: 'manual'`)
+     * without a param even being required. Without this, a scanner that
+     * self-rate-limits independently of the shared scan cadence
+     * (BrokenLinksScanner/BrokenImagesScanner's own `due_to_run()`) would
+     * silently no-op on a manual click that happened to land inside its
+     * own configured "daily"/"weekly" window — exactly the "scan starts
+     * but doesn't detect anything new" bug this fixes.
      */
     public function create_item( $request ) {
+        $force      = 'scheduled' !== sanitize_key( (string) $request->get_param( 'trigger_type' ) );
         $categories = $this->parse_comma_separated_list( $request->get_param( 'category' ) );
 
         if ( $categories ) {
             $results = array();
 
             foreach ( $categories as $category ) {
-                $results += VuloPilot()->scan_runner->run_category( $category );
+                $results += VuloPilot()->scan_runner->run_category( $category, $force );
             }
         } else {
             $scanner_id = sanitize_key( (string) $request->get_param( 'scanner_id' ) );
 
             if ( '' === $scanner_id || 'all' === $scanner_id ) {
-                $results = VuloPilot()->scan_runner->run_all();
+                $results = VuloPilot()->scan_runner->run_all( $force );
             } else {
-                $results = array( $scanner_id => VuloPilot()->scan_runner->run( $scanner_id ) );
+                $results = array( $scanner_id => VuloPilot()->scan_runner->run( $scanner_id, $force ) );
             }
         }
 

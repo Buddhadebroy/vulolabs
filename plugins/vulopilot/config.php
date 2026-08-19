@@ -99,3 +99,26 @@ if ( ! defined( 'VULOPILOT_GOOGLE_CLIENT_SECRET' ) ) {
 if ( ! defined( 'VULOPILOT_GOOGLE_BROKER_URL' ) ) {
 	define( 'VULOPILOT_GOOGLE_BROKER_URL', '' );
 }
+
+/**
+ * This site's registered VuloCloud `LicenseApplication` id — reused (not a
+ * new registration concept) as the broker's own resolution key: VuloCloud's
+ * `/plugin/google/*` endpoints have no session/auth of their own, so they
+ * resolve `applicationId` -> Organization -> that Organization's own Google
+ * Cloud OAuth Client (`OrganizationGoogleSettings`) the exact same way
+ * `/plugin/license/validate` already resolves it to an Organization's
+ * License data. See `vulocloud`'s `GOOGLE_CONNECT_INTEGRATION.md` for the
+ * server-side contract. Same non-secret, admin-UI-visible identifier
+ * VULOPILOT_PRO_APPLICATION_ID already is on the Licensing side — not
+ * secret, but still wp-config.php-only for now since there's no
+ * settings-panel field for it yet (GoogleServicesConnection::has_broker()
+ * requires this to be non-empty in addition to VULOPILOT_GOOGLE_BROKER_URL).
+ *
+ * Empty by default — GoogleServicesConnection::has_broker() honestly
+ * reports false without it, and "Connect Google Services" falls back to
+ * the embedded shared-Client flow above, exactly as it worked before this
+ * constant existed.
+ */
+if ( ! defined( 'VULOPILOT_GOOGLE_APPLICATION_ID' ) ) {
+	define( 'VULOPILOT_GOOGLE_APPLICATION_ID', '' );
+}

@@ -606,6 +606,18 @@
 	cursor: pointer;
 }
 
+// A page-group row can carry several distinct finding statuses (e.g. one
+// child link times out on DNS, another comes back HTTP 503) — rendered as
+// one badge per distinct status (BrokenLinksTab.tsx's own distinctStatusKeys)
+// rather than collapsing to a single "worst" one, so this just keeps them
+// from crowding into each other inside the Status column.
+.broken-link-status-badges {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+}
+
 // Sub-row rendered inline (via zyra TableCard's `expandable`/`variation`
 // mechanism) for a single finding beneath its page's row — a real table
 // row, not a popover.
