@@ -44,6 +44,46 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * The already-open finding a fresh re-detection of the exact same
+     * problem should refresh instead of duplicating — added specifically
+     * for BrokenLinksScanner/BrokenImagesScanner: a link that's still
+     * broken on the next run (daily cron, or a manual "Run scan") re-adds
+     * the same `scanner_id`/`object_type`/`object_ref`/`title` every time
+     * (ScanPersistenceListener's own insert loop had no existence check
+     * at all), and BrokenLinksTab.tsx's page-grouped table then shows two
+     * identical child rows for the one still-broken URL. Matches on
+     * `title` rather than digging into the JSON `meta` column — both
+     * scanners bake the URL into their own finding title
+     * (`sprintf('Broken link: %s', $url)`), so it's already the natural
+     * per-URL key without a JSON comparison in SQL. Scoped to `status =
+     * 'open'` only — a finding a site owner already resolved/ignored
+     * should get a brand-new row if the same URL breaks again later, not
+     * silently flip a closed one back open.
+     *
+     * @param string $scanner_id  e.g. 'broken-links'/'broken-images'.
+     * @param string $object_type Finding::get_object_type() — 'post' for both broken-link scanners.
+     * @param string $object_ref  Finding::get_object_ref() — the post id, as a string.
+     * @param string $title       Finding::get_title() — already bakes the checked URL in for both broken-link scanners.
+     * @return array<string, mixed>|null
+     */
+    public function find_open_duplicate( string $scanner_id, string $object_type, string $object_ref, string $title ): ?array {
+        global $wpdb;
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->get_table()} WHERE status = 'open' AND scanner_id = %s AND object_type = %s AND object_ref = %s AND title = %s ORDER BY id DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $scanner_id,
+                $object_type,
+                $object_ref,
+                $title
+            ),
+            ARRAY_A
+        );
+
+        return $row ?: null;
+    }
+
+    /**
      * Open/resolved/ignored/snoozed counts, zero-filled and optionally
      * scoped to one category and/or one section's scanner_id list — backs
      * the Health/SEO/GEO/WooCommerce findings tables' status-count pill
