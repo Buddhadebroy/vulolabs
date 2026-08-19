@@ -577,6 +577,35 @@
 	cursor: pointer;
 }
 
+// BrokenLinksTab.tsx's own page-grouped table. Unlike
+// .seo-issues-by-page-card above, the chevron here stays visible
+// (matches the reference mockup's own caret) — .broken-link-row-expand-trigger
+// below just gives the Status badge/"N broken" count two extra, larger
+// click targets that fire a real click on that same chevron
+// (toggleRowExpansion, BrokenLinksTab.tsx), since a single small icon
+// was easy to miss ("I can't see the findings inside each page" — the
+// rows WERE expandable, just not obviously so).
+.broken-link-monitoring-table {
+	.admin-row.variation-row {
+		background: var(--theme-background-color, #fafafa) !important;
+		font-size: 0.8125rem;
+	}
+
+	// zyra's own Table.tsx renders this chevron with no size/spacing of
+	// its own (no rule for it anywhere in that package's Table.scss) — a
+	// few extra px and a pointer cursor make it an obvious, easy-to-hit
+	// click target instead of a barely-visible glyph.
+	.admin-column.expand i {
+		font-size: 1.125rem;
+		cursor: pointer;
+		padding: 0.25rem;
+	}
+}
+
+.broken-link-row-expand-trigger {
+	cursor: pointer;
+}
+
 // Sub-row rendered inline (via zyra TableCard's `expandable`/`variation`
 // mechanism) for a single finding beneath its page's row — a real table
 // row, not a popover.
@@ -830,31 +859,6 @@
 	i {
 		margin-right: 0.25rem;
 	}
-}
-
-// RedirectsTab.tsx's own outer ContainerComponent. GEO.tsx's tab shell
-// nests every tab's content one `<ContainerComponent general>` (display:
-// flex, flex-direction: row — ContainerComponent.scss) deep inside its
-// own, and neither ContainerComponent nor its `.container-wrapper` class
-// ever sets a width on itself, so as a flex item this tab's whole page
-// shrinks-to-fit its own content's intrinsic width instead of filling the
-// row. Tabs whose content happens to be wide (BrokenLinksTab.tsx's stat
-// tiles, long finding titles/URLs) mask this by accident; this tab's two
-// narrow-column tables (a handful of short cells each) don't, and were
-// rendering at roughly half the available page width with a large empty
-// gutter on the right — confirmed via a real rendered screenshot, not a
-// guess. `width: 100%` on the item itself (not a descendant) is what
-// CardComponent.scss already does for exactly this reason — its own root
-// element sets it directly, which is why BrokenLinksTab.tsx's
-// CardComponent-wrapped sections reliably reach full width regardless of
-// their content. Same fix, applied to this tab's own outer wrapper
-// instead of introducing a CardComponent wrapper around each TableCard
-// (TableCard's own `.admin-table-wrapper` already renders as its own
-// full card — white background, padding — so nesting it inside another
-// CardComponent would double up that padding/border instead of just
-// fixing the width).
-.vulopilot-redirects-page {
-	width: 100%;
 }
 
 // BrokenLinksTab.tsx.

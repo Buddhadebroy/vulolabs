@@ -5,7 +5,6 @@ import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
 	BadgeComponent,
@@ -105,145 +104,143 @@ const KeywordsTab = () => {
 	};
 
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
-				<NoticeComponent
-					// type="banner"
-					displayPosition="inline"
-					message={sprintf(
-						'<strong>%1$s</strong> %2$s',
-						__('In plain English:', 'vulopilot'),
-						__(
-							'This is where you’d see which real Google search queries your pages already rank for, and where — once a rank-tracking data source is connected.',
-							'vulopilot'
-						)
-					)}
-				/>
+		<ColumnComponent>
+			<NoticeComponent
+				// type="banner"
+				displayPosition="inline"
+				message={sprintf(
+					'<strong>%1$s</strong> %2$s',
+					__('In plain English:', 'vulopilot'),
+					__(
+						'This is where you’d see which real Google search queries your pages already rank for, and where — once a rank-tracking data source is connected.',
+						'vulopilot'
+					)
+				)}
+			/>
 
-				<CardComponent
-					title={__('Ranking Keywords', 'vulopilot')}
-					titleIcon="search"
-					isLoading={isLoading}
-				>
-					{!isLoading && status && !status.connected && (
-						<>
-							{!status.has_client_credentials ? (
-								<ModuleGuardComponent
-									icon="info"
-									title={__('Google Connect isn’t available yet', 'vulopilot')}
-									desc={__(
-										'This build doesn’t have a Google Cloud OAuth Client configured yet — that’s a one-time setup VuloLabs does, not something you configure. Flag if you’re seeing this on a real release.',
+			<CardComponent
+				title={__('Ranking Keywords', 'vulopilot')}
+				titleIcon="search"
+				isLoading={isLoading}
+			>
+				{!isLoading && status && !status.connected && (
+					<>
+						{!status.has_client_credentials ? (
+							<ModuleGuardComponent
+								icon="info"
+								title={__('Google Connect isn’t available yet', 'vulopilot')}
+								desc={__(
+									'This build doesn’t have a Google Cloud OAuth Client configured yet — that’s a one-time setup VuloLabs does, not something you configure. Flag if you’re seeing this on a real release.',
+									'vulopilot'
+								)}
+							/>
+						) : (
+							<div className="gsc-connect-hero">
+								<ButtonInput
+									buttons={{
+										text: isConnecting
+											? __('Redirecting…', 'vulopilot')
+											: __('Connect Google Services', 'vulopilot'),
+										icon: 'admin-links',
+										onClick: connect,
+										disabled: isConnecting,
+									}}
+								/>
+								<div className="gsc-benefits-title">
+									{__('Benefits of connecting your Google account', 'vulopilot')}
+								</div>
+								<ul className="gsc-benefits-list">
+									{BENEFITS.map((benefit) => (
+										<li key={benefit}>
+											<i className="adminfont-check" /> {benefit}
+										</li>
+									))}
+								</ul>
+								<NoticeComponent
+									// type="banner"
+									displayPosition="inline"
+									message={__(
+										'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site. Tokens are encrypted at rest the same way every other API key in VuloPilot is.',
 										'vulopilot'
 									)}
 								/>
-							) : (
-								<div className="gsc-connect-hero">
-									<ButtonInput
-										buttons={{
-											text: isConnecting
-												? __('Redirecting…', 'vulopilot')
-												: __('Connect Google Services', 'vulopilot'),
-											icon: 'admin-links',
-											onClick: connect,
-											disabled: isConnecting,
-										}}
-									/>
-									<div className="gsc-benefits-title">
-										{__('Benefits of connecting your Google account', 'vulopilot')}
-									</div>
-									<ul className="gsc-benefits-list">
-										{BENEFITS.map((benefit) => (
-											<li key={benefit}>
-												<i className="adminfont-check" /> {benefit}
-											</li>
-										))}
-									</ul>
-									<NoticeComponent
-										// type="banner"
-										displayPosition="inline"
-										message={__(
-											'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site. Tokens are encrypted at rest the same way every other API key in VuloPilot is.',
-											'vulopilot'
-										)}
-									/>
-								</div>
-							)}
-						</>
-					)}
-
-					{!isLoading && status && status.connected && !status.search_console_site && (
-						<div className="gsc-site-picker">
-							<div className="desc">
-								{__('Choose which verified property to use:', 'vulopilot')}
 							</div>
-							{null === gscSites && (
-								<div className="desc">{__('Loading…', 'vulopilot')}</div>
-							)}
-							{gscSites && gscSites.length === 0 && (
-								<div className="desc">
-									{__(
-										'No verified Search Console properties found on this Google account.',
-										'vulopilot'
-									)}
-								</div>
-							)}
-							{gscSites?.map((site) => (
-								<button
-									key={site.site_url}
-									type="button"
-									className="gsc-site-option"
-									onClick={() => handleSelectSite(site.site_url)}
-								>
-									{site.site_url}
-								</button>
-							))}
+						)}
+					</>
+				)}
+
+				{!isLoading && status && status.connected && !status.search_console_site && (
+					<div className="gsc-site-picker">
+						<div className="desc">
+							{__('Choose which verified property to use:', 'vulopilot')}
 						</div>
-					)}
-
-					{!isLoading && status && status.connected && status.search_console_site && (
-						<>
-							<div className="keywords-connected-row">
-								<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
-								<span className="desc">
-									<i className="adminfont-search" /> {status.search_console_site}
-								</span>
-								{status.connected_at && (
-									<span className="desc">
-										{__('Since', 'vulopilot')}{' '}
-										{formatWpDate(status.connected_at)}
-									</span>
-								)}
-								<button
-									type="button"
-									className="gsc-inline-action is-destructive"
-									onClick={handleDisconnect}
-									disabled={isDisconnecting}
-								>
-									{isDisconnecting
-										? __('Disconnecting…', 'vulopilot')
-										: __('Disconnect', 'vulopilot')}
-								</button>
-							</div>
-							<ModuleGuardComponent
-								icon="info"
-								title={__('Ranking keywords: not pulled in yet', 'vulopilot')}
-								desc={__(
-									'The connection itself is real and working — VuloPilot just doesn’t fetch and display real keyword positions/impressions/clicks from it yet. Flag if you want this scoped next.',
+						{null === gscSites && (
+							<div className="desc">{__('Loading…', 'vulopilot')}</div>
+						)}
+						{gscSites && gscSites.length === 0 && (
+							<div className="desc">
+								{__(
+									'No verified Search Console properties found on this Google account.',
 									'vulopilot'
 								)}
-								buttonText={__('Manage full connection', 'vulopilot')}
-								onButtonClick={() => {
-									window.open(
-										'?page=vulopilot#&tab=settings&subtab=google-services',
-										'_self'
-									);
-								}}
-							/>
-						</>
-					)}
-				</CardComponent>
-			</ColumnComponent>
-		</ContainerComponent>
+							</div>
+						)}
+						{gscSites?.map((site) => (
+							<button
+								key={site.site_url}
+								type="button"
+								className="gsc-site-option"
+								onClick={() => handleSelectSite(site.site_url)}
+							>
+								{site.site_url}
+							</button>
+						))}
+					</div>
+				)}
+
+				{!isLoading && status && status.connected && status.search_console_site && (
+					<>
+						<div className="keywords-connected-row">
+							<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
+							<span className="desc">
+								<i className="adminfont-search" /> {status.search_console_site}
+							</span>
+							{status.connected_at && (
+								<span className="desc">
+									{__('Since', 'vulopilot')}{' '}
+									{formatWpDate(status.connected_at)}
+								</span>
+							)}
+							<button
+								type="button"
+								className="gsc-inline-action is-destructive"
+								onClick={handleDisconnect}
+								disabled={isDisconnecting}
+							>
+								{isDisconnecting
+									? __('Disconnecting…', 'vulopilot')
+									: __('Disconnect', 'vulopilot')}
+							</button>
+						</div>
+						<ModuleGuardComponent
+							icon="info"
+							title={__('Ranking keywords: not pulled in yet', 'vulopilot')}
+							desc={__(
+								'The connection itself is real and working — VuloPilot just doesn’t fetch and display real keyword positions/impressions/clicks from it yet. Flag if you want this scoped next.',
+								'vulopilot'
+							)}
+							buttonText={__('Manage full connection', 'vulopilot')}
+							onButtonClick={() => {
+								window.open(
+									'?page=vulopilot#&tab=settings&subtab=google-services',
+									'_self'
+								);
+							}}
+						/>
+					</>
+				)}
+			</CardComponent>
+		</ColumnComponent>
 	);
 };
 

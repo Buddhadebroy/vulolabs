@@ -412,22 +412,33 @@ class Install {
      * it stays null until a real hit happens instead of defaulting to the
      * row's creation time.
      *
-     * $sql_redirects deliberately does NOT use `CREATE TABLE IF NOT
-     * EXISTS` (every other statement in this class still does, unchanged
-     * here) — dbDelta() finds the table name via `preg_match( '|CREATE
-     * TABLE ([^ ]*)|', ... )`, so with "IF NOT EXISTS" present it captures
-     * the literal word "IF" as the table name instead. On a fresh install
-     * that's harmless (dbDelta just runs the CREATE verbatim, and MySQL's
-     * own IF NOT EXISTS makes it a no-op if something with that name
-     * already raced it into existence), but on any site that already has
-     * this table, dbDelta's real job — diffing the live column set against
-     * this SQL and emitting `ALTER TABLE ADD COLUMN` for whatever's
-     * missing — never runs, because it's diffing against nonexistent
-     * table "IF" instead of the real one. `last_accessed_at` above would
-     * silently never reach an already-installed site's table without this
-     * fix. Confirmed live: with "IF NOT EXISTS" still in place, dbDelta()
-     * reported `array( 'IF' => 'Created table IF' )` on this exact SQL
-     * against a database that already had the real table.
+     * `vulopilot_not_found_logs.is_system` (Services\NotFoundLogger's own
+     * `is_noise_path()`) distinguishes a real missing CONTENT page from a
+     * request under `/wp-content/themes/`, `/wp-content/plugins/`,
+     * `/wp-includes/`, `/wp-admin/`, or a static asset extension — a stale
+     * theme/plugin asset URL, or a browser/tooling auto-probe. These used
+     * to be dropped outright (never logged at all); now they're logged
+     * with `is_system = 1` instead, so RedirectsTab.tsx's own "System
+     * 404s" link can show them separately rather than either cluttering
+     * the main missing-page list or losing them entirely.
+     *
+     * $sql_redirects and $sql_not_found_logs both deliberately do NOT use
+     * `CREATE TABLE IF NOT EXISTS` (every other statement in this class
+     * still does, unchanged) — dbDelta() finds the table name via
+     * `preg_match( '|CREATE TABLE ([^ ]*)|', ... )`, so with "IF NOT
+     * EXISTS" present it captures the literal word "IF" as the table name
+     * instead. On a fresh install that's harmless (dbDelta just runs the
+     * CREATE verbatim, and MySQL's own IF NOT EXISTS makes it a no-op if
+     * something with that name already raced it into existence), but on
+     * any site that already has the table, dbDelta's real job — diffing
+     * the live column set against this SQL and emitting `ALTER TABLE ADD
+     * COLUMN` for whatever's missing — never runs, because it's diffing
+     * against nonexistent table "IF" instead of the real one.
+     * `last_accessed_at`/`is_system` above would silently never reach an
+     * already-installed site's tables without this fix. Confirmed live:
+     * with "IF NOT EXISTS" still in place, dbDelta() reported
+     * `array( 'IF' => 'Created table IF' )` on this exact SQL against a
+     * database that already had the real table.
      *
      * @return void
      */
@@ -456,16 +467,22 @@ class Install {
             KEY `idx_active` (`is_active`)
         ) $collate;";
 
-        $sql_not_found_logs = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['not_found_log'] . "` (
+        // No "IF NOT EXISTS" here either — see $sql_redirects's own comment
+        // above for why: dbDelta() would misparse the table name off of
+        // "IF" and silently skip adding `is_system` for a site that
+        // already has this table.
+        $sql_not_found_logs = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['not_found_log'] . "` (
             `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `requested_path` varchar(255) NOT NULL,
             `referrer`       varchar(255) DEFAULT NULL,
             `hit_count`      int(10) unsigned NOT NULL DEFAULT 1,
             `last_seen_at`   datetime NOT NULL,
             `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `is_system`      tinyint(1) NOT NULL DEFAULT 0,
             PRIMARY KEY (`id`),
             UNIQUE KEY `uniq_requested_path` (`requested_path`),
-            KEY `idx_last_seen` (`last_seen_at`)
+            KEY `idx_last_seen` (`last_seen_at`),
+            KEY `idx_is_system` (`is_system`)
         ) $collate;";
 
         dbDelta( $sql_redirects );

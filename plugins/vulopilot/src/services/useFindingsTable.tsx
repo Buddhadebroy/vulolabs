@@ -113,8 +113,16 @@ interface FixOutcome {
  * yet at the moment this module first evaluates — caching the result here
  * would permanently capture `null` and always show the popup, active
  * module or not. By click time both scripts have long finished running.
+ *
+ * Exported (this was module-private until BrokenLinksTab.tsx's own
+ * page-grouped table needed the exact same Pro-gated "Fix" behavior on its
+ * expanded finding sub-rows without pulling in this whole hook — that
+ * table builds its own grouped `rows`/`headers` rather than rendering
+ * `tableCardProps` directly, so it can't just read the bound handler off
+ * `tableCardProps.headers.actions.actions` the way every flat
+ * findings-table caller does).
  */
-const getFindingFixHandler = () =>
+export const getFindingFixHandler = () =>
 	applyFilters('vulopilot_finding_fix_handler', null);
 
 /**

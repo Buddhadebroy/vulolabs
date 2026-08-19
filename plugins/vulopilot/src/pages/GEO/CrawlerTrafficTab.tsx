@@ -5,7 +5,6 @@ import type { ComponentType } from 'react';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 	PopupComponent,
 } from '@zyra/components';
@@ -139,8 +138,7 @@ const CrawlerTrafficTab = () => {
 
 	return (
 		<>
-			<ContainerComponent general>
-				<ColumnComponent>
+			<ColumnComponent>
 					{error ? (
 						<CardComponent title={__('Crawler Traffic', 'vulopilot')}>
 							<ModuleGuardComponent
@@ -232,8 +230,7 @@ const CrawlerTrafficTab = () => {
 							/>
 						</>
 					)}
-				</ColumnComponent>
-			</ContainerComponent>
+			</ColumnComponent>
 			<PopupComponent
 				open={isProPopupOpen}
 				onClose={closeProPopup}

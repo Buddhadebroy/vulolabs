@@ -2,7 +2,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 	BadgeComponent,
 } from '@zyra/components';
@@ -79,8 +78,7 @@ const SchemaTab = () => {
 		: 0;
 
 	return (
-		<ContainerComponent general>
-			<ColumnComponent>
+		<ColumnComponent>
 				<CardComponent
 					title={__('Schema Coverage', 'vulopilot')}
 					titleIcon="attachment"
@@ -257,8 +255,7 @@ const SchemaTab = () => {
 						))}
 					</div>
 				</CardComponent>
-			</ColumnComponent>
-		</ContainerComponent>
+		</ColumnComponent>
 	);
 };
 

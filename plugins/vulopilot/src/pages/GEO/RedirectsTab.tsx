@@ -5,7 +5,6 @@ import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -55,6 +54,15 @@ interface NotFoundLogRow extends TableRow {
  * Moved here from "Improve Speed" (Performance.tsx), which held it only
  * briefly — its own NavigatorHeaderComponent now lives once on GEO.tsx's
  * shared tab-shell header.
+ *
+ * Both tables fetch with `is_system=0` — a theme/plugin/core-file/asset
+ * 404 (Services\NotFoundLogger::is_system_path()) is still logged (a real
+ * 404), just not shown here; per direct instruction its own real table now
+ * lives on BrokenLinksTab.tsx instead ("System 404s", below "Broken Link
+ * Monitoring"), not a popup on this page.
+ *
+ * Each table has its own real CardComponent heading (title) now too, per
+ * direct instruction — previously only the shared error state had one.
  */
 const RedirectsTab = () => {
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -81,8 +89,14 @@ const RedirectsTab = () => {
 		{ key: 'is_active', options: activeOptions }
 	);
 
+	// `is_system=0` — real missing content pages only; a theme/plugin/
+	// core-file/asset 404 (Services\NotFoundLogger::is_system_path()) is
+	// still a real 404, just not something anyone would want to "create a
+	// redirect" for here — its own real table now lives on
+	// BrokenLinksTab.tsx's "System 404s" instead (is_system=1).
 	const notFoundLogs = useApiList<NotFoundLogRow>('not-found-logs', {
 		orderby: 'last_seen_at',
+		is_system: '0',
 	});
 
 	const resetForm = () => {
@@ -253,9 +267,8 @@ const RedirectsTab = () => {
 	);
 
 	return (
-		<ContainerComponent general className="vulopilot-redirects-page">
-			<ColumnComponent>
-				{redirects.error ? (
+		<ColumnComponent>
+			{redirects.error ? (
 					<CardComponent
 						title={__('Redirects', 'vulopilot')}
 						action={headerAction}
@@ -273,140 +286,150 @@ const RedirectsTab = () => {
 					</CardComponent>
 				) : (
 					<>
-						<TableCard
-							buttonActions={[
-								{
-									label: __('Add redirect', 'vulopilot'),
-									onClick: openAddForm,
-								},
-							]}
-							search={{
-								placeholder: __('Search redirects…', 'vulopilot'),
-							}}
-							format={appLocalizer.date_format_js}
-							headers={{
-								source_path: {
-									label: __('From', 'vulopilot'),
-								},
-								target_url: {
-									label: __('To', 'vulopilot'),
-								},
-								redirect_type: {
-									label: __('Type', 'vulopilot'),
-								},
-								hit_count: {
-									label: __('Hits', 'vulopilot'),
-									isSortable: true,
-								},
-								created_at: {
-									label: __('Created at', 'vulopilot'),
-									type: 'date',
-									isSortable: true,
-								},
-								last_accessed_at: {
-									label: __('Last accessed', 'vulopilot'),
-									type: 'date',
-									isSortable: true,
-									emptyText: __('Never', 'vulopilot'),
-								},
-								is_active: {
-									label: __('Status', 'vulopilot'),
-									type: 'badge',
-									statusClass: (row: RedirectRow) =>
-										row.is_active ? 'status-active' : 'status-inactive',
-								},
-								actions: {
-									label: __('Actions', 'vulopilot'),
-									type: 'action',
-									actions: [
-										{
-											label: __('Edit', 'vulopilot'),
-											icon: 'edit',
-											onClick: (row?: Record<string, unknown>) =>
-												row && openEditForm(row as RedirectRow),
-										},
-										{
-											label: (row?: Record<string, unknown>) =>
-												row?.is_active
-													? __('Deactivate', 'vulopilot')
-													: __('Activate', 'vulopilot'),
-											icon: 'toggle',
-											onClick: (row?: Record<string, unknown>) =>
-												row &&
-												handleToggleActive(row as RedirectRow),
-										},
-										{
-											label: __('Delete', 'vulopilot'),
-											icon: 'delete',
-											onClick: (row?: Record<string, unknown>) =>
-												row &&
-												handleDeleteRedirect(row as RedirectRow),
-										},
-									] as any[],
-								},
-							}}
-							rows={redirects.data}
-							ids={redirects.data.map((row) => row.id)}
-							totalRows={redirects.total}
-							categoryCounts={redirects.categoryCounts}
-							isLoading={redirects.isLoading}
-							onQueryUpdate={redirects.onQueryUpdate}
-							emptyMessage={__(
-								'No redirects yet — add one, or convert an entry from the 404 log below.',
-								'vulopilot'
-							)}
-						/>
+						<CardComponent
+							title={__('Redirects', 'vulopilot')}
+							titleIcon="link"
+						>
+							<TableCard
+								buttonActions={[
+									{
+										label: __('Add redirect', 'vulopilot'),
+										onClick: openAddForm,
+									},
+								]}
+								search={{
+									placeholder: __('Search redirects…', 'vulopilot'),
+								}}
+								format={appLocalizer.date_format_js}
+								headers={{
+									source_path: {
+										label: __('From', 'vulopilot'),
+									},
+									target_url: {
+										label: __('To', 'vulopilot'),
+									},
+									redirect_type: {
+										label: __('Type', 'vulopilot'),
+									},
+									hit_count: {
+										label: __('Hits', 'vulopilot'),
+										isSortable: true,
+									},
+									created_at: {
+										label: __('Created at', 'vulopilot'),
+										type: 'date',
+										isSortable: true,
+									},
+									last_accessed_at: {
+										label: __('Last accessed', 'vulopilot'),
+										type: 'date',
+										isSortable: true,
+										emptyText: __('Never', 'vulopilot'),
+									},
+									is_active: {
+										label: __('Status', 'vulopilot'),
+										type: 'badge',
+										statusClass: (row: RedirectRow) =>
+											row.is_active ? 'status-active' : 'status-inactive',
+									},
+									actions: {
+										label: __('Actions', 'vulopilot'),
+										type: 'action',
+										actions: [
+											{
+												label: __('Edit', 'vulopilot'),
+												icon: 'edit',
+												onClick: (row?: Record<string, unknown>) =>
+													row && openEditForm(row as RedirectRow),
+											},
+											{
+												label: (row?: Record<string, unknown>) =>
+													row?.is_active
+														? __('Deactivate', 'vulopilot')
+														: __('Activate', 'vulopilot'),
+												icon: 'toggle',
+												onClick: (row?: Record<string, unknown>) =>
+													row &&
+													handleToggleActive(row as RedirectRow),
+											},
+											{
+												label: __('Delete', 'vulopilot'),
+												icon: 'delete',
+												onClick: (row?: Record<string, unknown>) =>
+													row &&
+													handleDeleteRedirect(row as RedirectRow),
+											},
+										] as any[],
+									},
+								}}
+								rows={redirects.data}
+								ids={redirects.data.map((row) => row.id)}
+								totalRows={redirects.total}
+								categoryCounts={redirects.categoryCounts}
+								isLoading={redirects.isLoading}
+								onQueryUpdate={redirects.onQueryUpdate}
+								emptyMessage={__(
+									'No redirects yet — add one, or convert an entry from the 404 log below.',
+									'vulopilot'
+								)}
+							/>
+						</CardComponent>
 
-						<TableCard
-							search={{
-								placeholder: __('Search missing URLs…', 'vulopilot'),
-							}}
-							format={appLocalizer.date_format_js}
-							headers={{
-								requested_path: {
-									label: __('Requested URL', 'vulopilot'),
-								},
-								hit_count: {
-									label: __('Hits', 'vulopilot'),
-									isSortable: true,
-								},
-								last_seen_at: {
-									label: __('Last seen', 'vulopilot'),
-									type: 'date',
-									isSortable: true,
-									defaultSort: true,
-									defaultOrder: 'desc',
-								},
-								actions: {
-									label: __('Actions', 'vulopilot'),
-									type: 'action',
-									actions: [
-										{
-											label: __('Create redirect', 'vulopilot'),
-											icon: 'link',
-											onClick: (row?: Record<string, unknown>) =>
-												row &&
-												openConvertPopup(row as NotFoundLogRow),
-										},
-										{
-											label: __('Dismiss', 'vulopilot'),
-											icon: 'cross',
-											onClick: (row?: Record<string, unknown>) =>
-												row && handleDismissLog(row as NotFoundLogRow),
-										},
-									] as any[],
-								},
-							}}
-							rows={notFoundLogs.data}
-							ids={notFoundLogs.data.map((row) => row.id)}
-							totalRows={notFoundLogs.total}
-							isLoading={notFoundLogs.isLoading}
-							onQueryUpdate={notFoundLogs.onQueryUpdate}
-							emptyMessage={__(
-								'No 404s logged yet — turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
-								'vulopilot'
-							)}
-						/>
+						<CardComponent
+							title={__('404 Log', 'vulopilot')}
+							titleIcon="error"
+						>
+							<TableCard
+								search={{
+									placeholder: __('Search missing URLs…', 'vulopilot'),
+								}}
+								format={appLocalizer.date_format_js}
+								headers={{
+									requested_path: {
+										label: __('Requested URL', 'vulopilot'),
+									},
+									hit_count: {
+										label: __('Hits', 'vulopilot'),
+										isSortable: true,
+									},
+									last_seen_at: {
+										label: __('Last seen', 'vulopilot'),
+										type: 'date',
+										isSortable: true,
+										defaultSort: true,
+										defaultOrder: 'desc',
+									},
+									actions: {
+										label: __('Actions', 'vulopilot'),
+										type: 'action',
+										actions: [
+											{
+												label: __('Create redirect', 'vulopilot'),
+												icon: 'link',
+												onClick: (row?: Record<string, unknown>) =>
+													row &&
+													openConvertPopup(row as NotFoundLogRow),
+											},
+											{
+												label: __('Dismiss', 'vulopilot'),
+												icon: 'cross',
+												onClick: (row?: Record<string, unknown>) =>
+													row && handleDismissLog(row as NotFoundLogRow),
+											},
+										] as any[],
+									},
+								}}
+								rows={notFoundLogs.data}
+								ids={notFoundLogs.data.map((row) => row.id)}
+								totalRows={notFoundLogs.total}
+								isLoading={notFoundLogs.isLoading}
+								onQueryUpdate={notFoundLogs.onQueryUpdate}
+								emptyMessage={__(
+									'No 404s logged yet — turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
+									'vulopilot'
+								)}
+							/>
+						</CardComponent>
 
 						<PopupComponent
 							open={!!convertingLog}
@@ -507,8 +530,7 @@ const RedirectsTab = () => {
 						</PopupComponent>
 					</>
 				)}
-			</ColumnComponent>
-		</ContainerComponent>
+		</ColumnComponent>
 	);
 };
 
