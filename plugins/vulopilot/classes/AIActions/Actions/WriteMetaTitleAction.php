@@ -62,8 +62,11 @@ class WriteMetaTitleAction extends AbstractBasicAction {
         $post_id = absint( $input['post_id'] ?? 0 );
         $post    = $post_id ? get_post( $post_id ) : null;
 
-        if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
+        // Matches Services\PostSeoMetaFields::POST_TYPES — the metabox's
+        // own "Fix with AI" title button (Checklist.tsx) is the one real
+        // caller that can hand this a product id.
+        if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
+            throw new InvalidActionInputException( __( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ) );
         }
 
         return array(

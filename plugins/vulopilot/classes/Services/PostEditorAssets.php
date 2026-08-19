@@ -19,11 +19,22 @@ defined( 'ABSPATH' ) || exit;
  * `#admin-main-wrapper` render is a different mount point entirely; this
  * is the first VuloPilot surface that hooks the Block Editor itself).
  *
- * Only enqueued for `post`/`page` edit screens, matching
- * AIActions\Actions\WriteMetaTitleAction/WriteMetaDescriptionAction's own
- * `in_array( $post->post_type, array( 'post', 'page' ) )` scope — the
- * metabox edits exactly the fields those two actions already know how to
- * write.
+ * This briefly moved to a classic `add_meta_box()` panel below the content
+ * editor (RankMath's *other* real surface — it registers both), on the
+ * theory that a below-content panel has no forced inner scrollbar the way
+ * a sidebar column does. Reverted per direct instruction — RankMath's
+ * *primary*, most-recognized surface is its sidebar icon/panel, not the
+ * below-content box, and that's the one being matched here. Worth knowing
+ * if this comes up again: the sidebar (`PluginSidebar`'s own
+ * `.interface-complementary-area__body`) does still scroll internally on a
+ * long panel — that's inherent to every PluginSidebar-based Block Editor
+ * extension, RankMath's included, not something specific to this one.
+ *
+ * Only enqueued for every post type Services\PostSeoMetaFields::POST_TYPES
+ * covers (post/page/product) — that constant is the metabox's single
+ * source of truth for which screens it appears on, referenced here rather
+ * than duplicated, so this can't silently drift out of sync with which
+ * postmeta fields are actually registered for a given post type.
  *
  * @class       PostEditorAssets class
  * @version     1.0.0
@@ -39,14 +50,15 @@ class PostEditorAssets {
     }
 
     /**
-     * Enqueues the post-editor sidebar's script/style on post/page edit screens.
+     * Enqueues the post-editor sidebar's script/style on post/page/product
+     * edit screens.
      *
      * @return void
      */
     public function enqueue_assets(): void {
         $screen = get_current_screen();
 
-        if ( ! $screen || ! in_array( $screen->post_type, array( 'post', 'page' ), true ) ) {
+        if ( ! $screen || ! in_array( $screen->post_type, PostSeoMetaFields::POST_TYPES, true ) ) {
             return;
         }
 

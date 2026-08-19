@@ -7,11 +7,22 @@ import SchemaTab from './tabs/SchemaTab';
 
 import type { SeoIssueEditorTab } from '../services/seoIssueEditorTarget';
 
+/**
+ * `icon` (a Dashicon slug — always available in wp-admin, no extra
+ * dependency needed) is what actually gives these RankMath-style
+ * icon-only tabs: TabPanel's own rendering is `children: !tab.icon &&
+ * tab.title` — supplying `icon` here suppresses the visible text label
+ * entirely and shows the icon instead, with `title` surviving only as the
+ * button's accessible name/tooltip (`label: tab.icon && tab.title`,
+ * `showTooltip: !!tab.icon` — both confirmed straight from the installed
+ * `@wordpress/components` build, not undocumented behavior this relies on
+ * by accident).
+ */
 const TABS = [
-	{ name: 'general', title: __( 'General', 'vulopilot' ), Component: GeneralTab },
-	{ name: 'advanced', title: __( 'Advanced', 'vulopilot' ), Component: AdvancedTab },
-	{ name: 'social', title: __( 'Social', 'vulopilot' ), Component: SocialTab },
-	{ name: 'schema', title: __( 'Schema', 'vulopilot' ), Component: SchemaTab },
+	{ name: 'general', title: __( 'General', 'vulopilot' ), icon: 'admin-generic', Component: GeneralTab },
+	{ name: 'advanced', title: __( 'Advanced', 'vulopilot' ), icon: 'portfolio', Component: AdvancedTab },
+	{ name: 'social', title: __( 'Social', 'vulopilot' ), icon: 'share', Component: SocialTab },
+	{ name: 'schema', title: __( 'Schema', 'vulopilot' ), icon: 'editor-code', Component: SchemaTab },
 ];
 
 interface PostSeoPanelProps {
@@ -31,7 +42,7 @@ export default function PostSeoPanel( { initialTabName, highlightTarget }: PostS
 	return (
 		<div className="vulopilot-seo-panel">
 			<TabPanel
-				tabs={ TABS.map( ( { name, title } ) => ( { name, title } ) ) }
+				tabs={ TABS.map( ( { name, title, icon } ) => ( { name, title, icon } ) ) }
 				initialTabName={ initialTabName }
 			>
 				{ ( tab ) => {
