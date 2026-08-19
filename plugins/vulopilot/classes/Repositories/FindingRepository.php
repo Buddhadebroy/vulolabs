@@ -150,6 +150,29 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * Same 3-tier Critical+High/Medium/Low collapse as get_priority_counts(),
+     * scoped to one scanner_id set instead of the whole site — what a
+     * scanner_id-scoped Issues table (the "Schema & Knowledge" tab's own
+     * grouped Issues section) needs for its own stat tiles, since
+     * get_priority_counts() itself has no scoping parameter (every other
+     * caller genuinely wants the sitewide picture regardless of whatever
+     * category tab is active — see its own docblock via
+     * Controllers/Findings.php's get_finding_groups()).
+     *
+     * @param string[] $scanner_ids Scanner ids to scope to.
+     * @return array{high: int, medium: int, low: int}
+     */
+    public function get_priority_counts_for_scanner_ids( array $scanner_ids ): array {
+        $raw = $this->get_severity_breakdown_for_scanner_ids( $scanner_ids );
+
+        return array(
+            'high'   => $raw['critical'] + $raw['high'],
+            'medium' => $raw['medium'],
+            'low'    => $raw['low'] + $raw['info'],
+        );
+    }
+
+    /**
      * Groups every currently open finding by its scanner_id and returns
      * the top $limit groups, most-severe-first (ties broken by count) —
      * "Needs your attention"'s list rows read as real per-issue-type
@@ -337,7 +360,7 @@ class FindingRepository extends AbstractRepository {
      * fall entirely outside the most recent 100 rows once pagination goes
      * past the first page.
      *
-     * @param array{status?: string, category?: string|string[], priority_ranks?: int[], page?: int, per_page?: int} $args Grouping/pagination args — `category` accepts several real category values at once (IN-matched), same reasoning as get_status_counts()'s own `$scanner_ids` param: the Issues table's "SEO & Visibility" tab, for example, folds 4 real category values ('seo'/'images'/'schema'/'links') into one tab. `priority_ranks` filters to groups whose own worst-severity rank (this method's own severity->rank scale, 0=critical..4=info) is one of the given ranks — how the Issues table's High/Medium/Low stat tiles filter the table to match the same priority bucket Controllers/Findings.php maps their click to (same 3-tier collapse get_priority_counts() already uses for the tiles' own counts).
+     * @param array{status?: string, category?: string|string[], scanner_ids?: string[], priority_ranks?: int[], page?: int, per_page?: int} $args Grouping/pagination args — `category` accepts several real category values at once (IN-matched), same reasoning as get_status_counts()'s own `$scanner_ids` param: the Issues table's "SEO & Visibility" tab, for example, folds 4 real category values ('seo'/'images'/'schema'/'links') into one tab. `scanner_ids` (IN-matched, ANDed with `category` when both are given) scopes to an explicit scanner_id set instead — what the "Schema & Knowledge" tab's own grouped Issues section needs, since its 5 real scanners span 3 different categories mixed with many unrelated scanners in those same categories, so `category` alone can't express it. `priority_ranks` filters to groups whose own worst-severity rank (this method's own severity->rank scale, 0=critical..4=info) is one of the given ranks — how the Issues table's High/Medium/Low stat tiles filter the table to match the same priority bucket Controllers/Findings.php maps their click to (same 3-tier collapse get_priority_counts() already uses for the tiles' own counts).
      * @return array{data: array<int, array{scanner_id: string, category: string, count: int, severity: string, object_type: ?string}>, total: int}
      */
     public function get_finding_groups( array $args = array() ): array {
@@ -346,6 +369,7 @@ class FindingRepository extends AbstractRepository {
 
         $status         = ! empty( $args['status'] ) ? (string) $args['status'] : 'open';
         $category       = $args['category'] ?? '';
+        $scanner_ids    = ! empty( $args['scanner_ids'] ) ? (array) $args['scanner_ids'] : array();
         $priority_ranks = ! empty( $args['priority_ranks'] ) ? array_map( 'intval', $args['priority_ranks'] ) : array();
         $page           = max( 1, (int) ( $args['page'] ?? 1 ) );
         $per_page       = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
@@ -361,6 +385,12 @@ class FindingRepository extends AbstractRepository {
         } elseif ( is_string( $category ) && '' !== $category ) {
             $where   .= ' AND category = %s';
             $values[] = $category;
+        }
+
+        if ( $scanner_ids ) {
+            $scanner_placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
+            $where                .= " AND scanner_id IN ({$scanner_placeholders})";
+            array_push( $values, ...$scanner_ids );
         }
 
         // Grouped once, filtered by the group's own worst-severity rank in
@@ -583,12 +613,19 @@ class FindingRepository extends AbstractRepository {
      * as `seo` today).
      *
      * @param string[] $scanner_ids Scanner ids to scope to.
-     * @return array{critical: int, high: int, medium: int, low: int}
+     * @return array{critical: int, high: int, medium: int, low: int, info: int}
      */
     public function get_severity_breakdown_for_scanner_ids( array $scanner_ids ): array {
         global $wpdb;
 
-        $counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low' ), 0 );
+        // Every real Severity value (Severity::all()) — 'info' was missing
+        // here until this fix, which silently dropped any info-severity
+        // finding among $scanner_ids from every caller's total (this
+        // method's own sum, get_priority_counts_for_scanner_ids()'s 'low'
+        // bucket, SchemaCoverageAnalyzer's open_problems_total) rather than
+        // counting it under 'low' the way get_priority_counts() already
+        // does for the sitewide equivalent.
+        $counts = array_fill_keys( array( 'critical', 'high', 'medium', 'low', 'info' ), 0 );
 
         if ( ! $scanner_ids ) {
             return $counts;
