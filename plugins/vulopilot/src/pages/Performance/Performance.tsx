@@ -7,6 +7,7 @@ import {
 	TabsComponent,
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
+import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import OverviewTab from './OverviewTab';
 import SlowPagesTab from './SlowPagesTab';
 
@@ -76,7 +77,10 @@ const Performance = () => {
 				<TabsComponent
 					className="improve-speed-tabs"
 					activeIndex={TAB_IDS.indexOf(activeTab)}
-					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+					onTabChange={(index) => {
+						setActiveTab(TAB_IDS[index]);
+						pushSubtabUrl('performance', TAB_IDS[index]);
+					}}
 					tabs={[
 						{
 							label: __('Overview', 'vulopilot'),
