@@ -24,45 +24,26 @@ interface RedirectRow extends TableRow {
 	last_accessed_at: string | null;
 }
 
-interface NotFoundLogRow extends TableRow {
-	id: number;
-	requested_path: string;
-	referrer: string | null;
-	hit_count: number;
-	last_seen_at: string;
-}
-
 /**
  * "Redirects" tab of "Grow My Traffic" — readme.txt's "Redirects & 404s",
- * a real 301/302 redirect manager plus a 404 visit log, closing
- * the gap the SEO tab's own "Not available yet" placeholder card used to
- * point at (its own Settings → Scanning → SEO toggles previously
- * round-tripped with nothing behind them). Two independent TableCard
- * sections, same "each its own useApiList instance" shape SeoTab.tsx's
- * per-section FindingsTable usage already established, since a redirect
- * and a 404 log entry are different resources with different actions,
- * not one filtered view of the same list.
+ * a real 301/302 redirect manager. Just the one table now: the 404 log
+ * (both real missing-content-page 404s and theme/plugin/core-file/asset
+ * 404s, merged into one filterable table) has shifted to BrokenLinksTab.tsx
+ * per direct instruction — see that file's own docblock — since a 404
+ * visit and a broken link/image finding are both "something's broken on
+ * this site" in a way a plain redirect isn't.
  *
  * The Add/Edit form is a controlled popup (not an inline row like
  * AiProvidersPanel.tsx's single-row-at-a-time form) since this table can
  * hold many rows at once, unlike the small, fixed set of AI provider
- * adapters that panel manages. "Create redirect" on a 404 log row opens
- * its own popup the same way — it used to render its target-URL field
- * inline below both tables instead, which was easy to miss on a page with
- * two full-height TableCards above it.
+ * adapters that panel manages.
  *
  * Moved here from "Improve Speed" (Performance.tsx), which held it only
  * briefly — its own NavigatorHeaderComponent now lives once on GEO.tsx's
  * shared tab-shell header.
  *
- * Both tables fetch with `is_system=0` — a theme/plugin/core-file/asset
- * 404 (Services\NotFoundLogger::is_system_path()) is still logged (a real
- * 404), just not shown here; per direct instruction its own real table now
- * lives on BrokenLinksTab.tsx instead ("System 404s", below "Broken Link
- * Monitoring"), not a popup on this page.
- *
- * Each table has its own real CardComponent heading (title) now too, per
- * direct instruction — previously only the shared error state had one.
+ * Has its own real CardComponent heading (title) now too, per direct
+ * instruction — previously only the shared error state had one.
  */
 const RedirectsTab = () => {
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -71,12 +52,6 @@ const RedirectsTab = () => {
 	const [targetUrl, setTargetUrl] = useState('');
 	const [redirectType, setRedirectType] = useState<string>('301');
 	const [isSaving, setIsSaving] = useState(false);
-
-	const [convertingLog, setConvertingLog] = useState<NotFoundLogRow | null>(
-		null
-	);
-	const [convertTargetUrl, setConvertTargetUrl] = useState('');
-	const [isConverting, setIsConverting] = useState(false);
 
 	const activeOptions = [
 		{ label: __('Active', 'vulopilot'), value: '1' },
@@ -88,16 +63,6 @@ const RedirectsTab = () => {
 		{},
 		{ key: 'is_active', options: activeOptions }
 	);
-
-	// `is_system=0` — real missing content pages only; a theme/plugin/
-	// core-file/asset 404 (Services\NotFoundLogger::is_system_path()) is
-	// still a real 404, just not something anyone would want to "create a
-	// redirect" for here — its own real table now lives on
-	// BrokenLinksTab.tsx's "System 404s" instead (is_system=1).
-	const notFoundLogs = useApiList<NotFoundLogRow>('not-found-logs', {
-		orderby: 'last_seen_at',
-		is_system: '0',
-	});
 
 	const resetForm = () => {
 		setEditingId(null);
@@ -192,68 +157,6 @@ const RedirectsTab = () => {
 				redirects.refetch();
 			}
 		});
-	};
-
-	const handleDismissLog = (row: NotFoundLogRow) => {
-		sendApiResponse(
-			appLocalizer,
-			getApiLink(appLocalizer, `not-found-logs/${row.id}/delete`),
-			{}
-		).then((response) => {
-			if (response) {
-				notFoundLogs.refetch();
-			}
-		});
-	};
-
-	const openConvertPopup = (row: NotFoundLogRow) => {
-		setConvertingLog(row);
-		setConvertTargetUrl('');
-	};
-
-	const closeConvertPopup = () => {
-		setConvertingLog(null);
-		setConvertTargetUrl('');
-	};
-
-	const handleConvertLog = () => {
-		if (!convertingLog || '' === convertTargetUrl.trim()) {
-			return;
-		}
-
-		setIsConverting(true);
-
-		sendApiResponse(
-			appLocalizer,
-			getApiLink(
-				appLocalizer,
-				`not-found-logs/${convertingLog.id}/convert`
-			),
-			{ target_url: convertTargetUrl }
-		)
-			.then((response) => {
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-log-convert',
-					type: response ? 'success' : 'error',
-					position: 'float',
-					message: response
-						? __(
-								'Redirect created from this log entry.',
-								'vulopilot'
-							)
-						: __(
-								'Could not create a redirect — a redirect for this path may already exist.',
-								'vulopilot'
-							),
-				});
-
-				if (response) {
-					closeConvertPopup();
-					notFoundLogs.refetch();
-					redirects.refetch();
-				}
-			})
-			.finally(() => setIsConverting(false));
 	};
 
 	const headerAction = (
@@ -369,107 +272,11 @@ const RedirectsTab = () => {
 								isLoading={redirects.isLoading}
 								onQueryUpdate={redirects.onQueryUpdate}
 								emptyMessage={__(
-									'No redirects yet — add one, or convert an entry from the 404 log below.',
+									'No redirects yet — add one, or convert an entry from the 404 log on the Broken Links tab.',
 									'vulopilot'
 								)}
 							/>
 						</CardComponent>
-
-						<CardComponent
-							title={__('404 Log', 'vulopilot')}
-							titleIcon="error"
-						>
-							<TableCard
-								search={{
-									placeholder: __('Search missing URLs…', 'vulopilot'),
-								}}
-								format={appLocalizer.date_format_js}
-								headers={{
-									requested_path: {
-										label: __('Requested URL', 'vulopilot'),
-									},
-									hit_count: {
-										label: __('Hits', 'vulopilot'),
-										isSortable: true,
-									},
-									last_seen_at: {
-										label: __('Last seen', 'vulopilot'),
-										type: 'date',
-										isSortable: true,
-										defaultSort: true,
-										defaultOrder: 'desc',
-									},
-									actions: {
-										label: __('Actions', 'vulopilot'),
-										type: 'action',
-										actions: [
-											{
-												label: __('Create redirect', 'vulopilot'),
-												icon: 'link',
-												onClick: (row?: Record<string, unknown>) =>
-													row &&
-													openConvertPopup(row as NotFoundLogRow),
-											},
-											{
-												label: __('Dismiss', 'vulopilot'),
-												icon: 'cross',
-												onClick: (row?: Record<string, unknown>) =>
-													row && handleDismissLog(row as NotFoundLogRow),
-											},
-										] as any[],
-									},
-								}}
-								rows={notFoundLogs.data}
-								ids={notFoundLogs.data.map((row) => row.id)}
-								totalRows={notFoundLogs.total}
-								isLoading={notFoundLogs.isLoading}
-								onQueryUpdate={notFoundLogs.onQueryUpdate}
-								emptyMessage={__(
-									'No 404s logged yet — turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
-									'vulopilot'
-								)}
-							/>
-						</CardComponent>
-
-						<PopupComponent
-							open={!!convertingLog}
-							onClose={closeConvertPopup}
-							width={28}
-							height="auto"
-							position="lightbox"
-							header={{
-								title: __('Create redirect', 'vulopilot'),
-							}}
-						>
-							<div className="vulopilot-redirect-form">
-								<TextInput
-									name="convert_source_path"
-									value={convertingLog?.requested_path ?? ''}
-									disabled
-									onChange={() => {}}
-								/>
-								<TextInput
-									name="convert_target_url"
-									placeholder={__(
-										'https://example.com/new-page/',
-										'vulopilot'
-									)}
-									value={convertTargetUrl}
-									onChange={(newValue) =>
-										setConvertTargetUrl(newValue as string)
-									}
-								/>
-								<ButtonInput
-									buttons={{
-										text: __('Save', 'vulopilot'),
-										onClick: handleConvertLog,
-										disabled:
-											isConverting ||
-											'' === convertTargetUrl.trim(),
-									}}
-								/>
-							</div>
-						</PopupComponent>
 
 						<PopupComponent
 							open={isFormOpen}
