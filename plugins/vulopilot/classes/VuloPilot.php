@@ -260,6 +260,20 @@ final class VuloPilot {
         $this->container['post_robots_meta_manager'] = new Services\PostRobotsMetaManager();
         $this->container['post_editor_assets']       = new Services\PostEditorAssets();
 
+        // Gutenberg blocks — `vulopilot/table-of-contents` and
+        // `vulopilot/faq` (src/blocks/), discovered and registered the
+        // same glob-the-built-output way the sibling free plugin
+        // vulocart's own VuloCart\Block class already does.
+        // HeadingAnchorInjector is its own class (not folded into
+        // BlockRegistrar) since it's a real, separate cross-cutting
+        // concern — rewriting core/heading output — not block
+        // registration itself. Both unconditional construction, same
+        // shape as every Services\* above: a core authoring primitive
+        // every install should have in the inserter, not a Modules-system
+        // toggle.
+        $this->container['block_registrar']         = new Services\BlockRegistrar();
+        $this->container['heading_anchor_injector']  = new Services\Blocks\HeadingAnchorInjector();
+
         // Redirects & 404s (readme.txt) — real functionality behind the
         // enable_redirect_manager/auto_redirect_on_slug_change/log_404s
         // settings, which previously only round-tripped through Settings

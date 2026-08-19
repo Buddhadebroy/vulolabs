@@ -31,40 +31,6 @@ export interface EntitiesResponse {
 	categories: Entity[];
 }
 
-/**
- * The 3 entity types the reference mockup features as its own highlighted
- * "at a glance" row + dedicated cards — real counts straight off the same
- * `entities` response the rest of this tab already fetches, no second
- * request. `products` stays in this row even when WooCommerce is inactive
- * (rendered as a real "0, not applicable" state rather than hidden) so the
- * glance row's own 3 numbers always add up to what the cards below it show.
- */
-const GLANCE_ITEMS: {
-	key: 'products' | 'locations' | 'categories';
-	entityKey: keyof EntitiesResponse;
-	label: string;
-	icon: string;
-}[] = [
-	{
-		key: 'products',
-		entityKey: 'products',
-		label: __('Products', 'vulopilot'),
-		icon: 'product',
-	},
-	{
-		key: 'locations',
-		entityKey: 'locations',
-		label: __('Business Locations', 'vulopilot'),
-		icon: 'location',
-	},
-	{
-		key: 'categories',
-		entityKey: 'categories',
-		label: __('Categories', 'vulopilot'),
-		icon: 'category',
-	},
-];
-
 const HIGHLIGHT_MAX_ROWS = 4;
 
 /**
@@ -298,45 +264,48 @@ const EntityHighlightCard = ({
 };
 
 /**
- * "Knowledge Graph" tab of "Grow My Traffic" — Free's own Entity
+ * "Knowledge Graph" section of the merged "Schema & Knowledge" tab (moved
+ * here unchanged from the standalone KnowledgeGraphTab.tsx as part of that
+ * merge — see SchemaKnowledgeTab.tsx's own docblock) — Free's own Entity
  * Extraction (6 real, deterministic entity types, KNOWLEDGE-GRAPH-MODULE.md)
  * restyled to match the reference mockup's own information architecture:
- * a real "at a glance" stat row, the mockup's featured 3 entity cards
- * (Products/Business Locations/Categories, EntityHighlightCard above), a
- * real computed "What should you check?" panel, a static "why this
- * matters" explainer, then the remaining 3 entity types
- * (People/Organizations/Services) as their own real cards below — kept, not
- * dropped, per "existing tab data, no duplicate data" — plus
- * vulopilot-pro's own Graph Visualization/Entity Recommendations/Knowledge
- * Graph Health Pro slots in the second column, unchanged.
+ * the mockup's featured 3 entity cards (Products/Business Locations/
+ * Categories, EntityHighlightCard below), a real computed "What should
+ * you check?" panel, a static "why this matters" explainer, then the
+ * remaining 3 entity types (People/Organizations/Services) as their own
+ * real cards below — kept, not dropped, per "existing tab data, no
+ * duplicate data" — plus vulopilot-pro's own Graph Visualization/Entity
+ * Recommendations/Knowledge Graph Health Pro slots in the second column,
+ * unchanged.
+ *
+ * The former standalone "Your website at a glance" stat row (Products/
+ * Business Locations/Categories counts) was removed per direct
+ * instruction — it repeated exactly the same 3 numbers the
+ * EntityHighlightCards immediately below it already show, each as its
+ * own real count badge.
  */
-const KnowledgeGraphTab = () => {
+const KnowledgeGraphSection = () => {
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	const fetchEntities = () => {
 		if (!isEntityExtractionModuleActive()) {
-			setIsLoading(false);
 			return;
 		}
 
-		setIsLoading(true);
 		setError(null);
 
 		getApiResponse<EntitiesResponse>(getApiLink(appLocalizer, 'entities'), {
 			headers: { 'X-WP-Nonce': appLocalizer.nonce },
-		})
-			.then((response) => {
-				if (response) {
-					setEntities(response);
-				} else {
-					setError(
-						__('Could not load extracted entities.', 'vulopilot')
-					);
-				}
-			})
-			.finally(() => setIsLoading(false));
+		}).then((response) => {
+			if (response) {
+				setEntities(response);
+			} else {
+				setError(
+					__('Could not load extracted entities.', 'vulopilot')
+				);
+			}
+		});
 	};
 
 	useEffect(() => {
@@ -387,38 +356,6 @@ const KnowledgeGraphTab = () => {
 	return (
 		<>
 			<ColumnComponent>
-				<CardComponent
-					title={__('Your website at a glance', 'vulopilot')}
-					desc={__(
-						'These are the main things VuloPilot found on your website.',
-						'vulopilot'
-					)}
-					isLoading={isLoading}
-				>
-					{entities && (
-						<div className="kg-glance-grid">
-							{GLANCE_ITEMS.map((item) => {
-								const rows = entities[item.entityKey];
-								return (
-									<div key={item.key} className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className={`adminfont-${item.icon}`} />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{item.label}
-											</div>
-											<div className="kg-glance-value">
-												{null === rows ? '—' : rows.length}
-											</div>
-										</div>
-									</div>
-								);
-							})}
-						</div>
-					)}
-				</CardComponent>
-
 				{entities && (
 					<ContainerComponent>
 						<ColumnComponent grid={4}>
@@ -575,4 +512,4 @@ const KnowledgeGraphTab = () => {
 	);
 };
 
-export default KnowledgeGraphTab;
+export default KnowledgeGraphSection;

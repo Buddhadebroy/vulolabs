@@ -14,6 +14,16 @@ import { Link } from 'react-router-dom';
 
 interface ConfiguredProviderRow {
 	is_active: boolean;
+	/**
+	 * Whether the stored credential can actually still be decrypted
+	 * (Controllers\AiProviders::prepare_config_for_response()) — `is_active`
+	 * alone isn't enough: a site that rotates its auth salts/keys after
+	 * a credential was saved leaves it undecryptable forever, and
+	 * ProviderRegistry::build_fallback_chain() (the real request path)
+	 * already skips exactly that case. Checking both here is what keeps
+	 * this badge from claiming "Online" while a real AI call would fail.
+	 */
+	credential_ok: boolean;
 }
 
 const TAB_IDS = [
@@ -44,12 +54,14 @@ const AIAssistant = () => {
 		null
 	);
 	// Real, not decorative — "Online" only means something once at least
-	// one AI provider is actually connected and active (same `is_active`
-	// flag ProviderRegistry::build_fallback_chain() itself checks before
-	// trying a provider — AiProvidersPanel.tsx's own GET /ai-providers).
-	// Starts `null` (unknown) rather than defaulting to either state, so
-	// there's a moment before the fetch resolves where no badge is shown
-	// instead of briefly claiming a status that hasn't been confirmed yet.
+	// one AI provider is both active AND actually usable (`is_active` AND
+	// `credential_ok` — same two things ProviderRegistry::build_fallback_chain()
+	// itself checks before trying a provider — AiProvidersPanel.tsx's own
+	// GET /ai-providers). `is_active` alone isn't enough: see
+	// ConfiguredProviderRow's own docblock on `credential_ok`. Starts
+	// `null` (unknown) rather than defaulting to either state, so there's
+	// a moment before the fetch resolves where no badge is shown instead
+	// of briefly claiming a status that hasn't been confirmed yet.
 	const [hasActiveAiProvider, setHasActiveAiProvider] = useState<
 		boolean | null
 	>(null);
@@ -60,7 +72,9 @@ const AIAssistant = () => {
 			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
 		).then((response) => {
 			setHasActiveAiProvider(
-				(response?.configured ?? []).some((row) => row.is_active)
+				(response?.configured ?? []).some(
+					(row) => row.is_active && row.credential_ok
+				)
 			);
 		});
 	}, []);

@@ -52,6 +52,24 @@ class Findings extends \WP_REST_Controller {
     );
 
     /**
+     * GET /findings' own `priority` param (the "Schema & Knowledge" tab's
+     * Issues section — its Critical/Important/Minor pill bar) mapped to a
+     * real `severity` IN(...) filter — same 3-tier collapse
+     * PRIORITY_SEVERITY_RANKS above already applies for `get_finding_groups()`,
+     * expressed here as real severity values (not ranks) since get_items()
+     * filters through FindingRepository::find_all()'s own `severity`
+     * filterable column, which AbstractRepository::build_column_where_clause()
+     * already turns into a real `IN (...)` clause when given an array.
+     *
+     * @var array<string, string[]>
+     */
+    private const PRIORITY_SEVERITY_LABELS = array(
+        'high'   => array( 'critical', 'high' ),
+        'medium' => array( 'medium' ),
+        'low'    => array( 'low', 'info' ),
+    );
+
+    /**
      * @inheritDoc
      */
     public function register_routes() {
@@ -172,9 +190,21 @@ class Findings extends \WP_REST_Controller {
         $status      = sanitize_key( (string) $request->get_param( 'status' ) );
         $search      = sanitize_text_field( (string) $request->get_param( 'search' ) );
         $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
+        $priority    = sanitize_key( (string) $request->get_param( 'priority' ) );
 
         if ( '' !== $severity && ! Severity::is_valid( $severity ) ) {
             return new \WP_Error( 'vulopilot_invalid_severity', __( 'Invalid severity filter.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        // `priority` (the "Schema & Knowledge" tab's Issues section —
+        // Critical/Important/Minor pills) is a display-only relabeling of
+        // the same real severity values — never both at once in practice,
+        // but `severity` wins if a caller somehow sends both, same
+        // "explicit single value beats a derived one" precedence every
+        // other param on this endpoint already has.
+        $severity_filter = $severity;
+        if ( '' === $severity_filter && '' !== $priority && isset( self::PRIORITY_SEVERITY_LABELS[ $priority ] ) ) {
+            $severity_filter = self::PRIORITY_SEVERITY_LABELS[ $priority ];
         }
 
         $result                  = $repository->find_all(
@@ -182,7 +212,7 @@ class Findings extends \WP_REST_Controller {
                 'page'       => absint( $request->get_param( 'page' ) ) ?: 1,
                 'per_page'   => absint( $request->get_param( 'per_page' ) ) ?: 20,
                 'category'   => $category,
-                'severity'   => $severity,
+                'severity'   => $severity_filter,
                 'status'     => $status,
                 'search'     => $search,
                 'scanner_id' => $scanner_ids ?? '',
@@ -192,6 +222,23 @@ class Findings extends \WP_REST_Controller {
         );
         $result['status_counts'] = $repository->get_status_counts( '' !== $category ? $category : null, $scanner_ids );
         $result['data']          = array_map( array( $this, 'add_page_field' ), $result['data'] );
+
+        // Real Critical/Important/Minor pill counts, scoped to this
+        // request's own scanner_id set — reuses
+        // get_severity_breakdown_for_scanner_ids(), the same method
+        // SchemaCoverageAnalyzer already calls for its own "open problems"
+        // total. Only populated when scanner_id was given: this method's
+        // sitewide `priority_counts` already exists via `get_priority_counts()`
+        // elsewhere, so a scanner-agnostic caller has no use for a second,
+        // differently-scoped copy of the same shape.
+        if ( $scanner_ids ) {
+            $breakdown                 = $repository->get_severity_breakdown_for_scanner_ids( $scanner_ids );
+            $result['priority_counts'] = array(
+                'high'   => ( $breakdown['critical'] ?? 0 ) + ( $breakdown['high'] ?? 0 ),
+                'medium' => $breakdown['medium'] ?? 0,
+                'low'    => $breakdown['low'] ?? 0,
+            );
+        }
 
         return rest_ensure_response(
             // Lets a Pro module (vulopilot-pro's OneClickFix) annotate each

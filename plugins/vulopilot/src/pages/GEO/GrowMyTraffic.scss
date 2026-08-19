@@ -787,6 +787,119 @@
 	margin-top: 0.75rem;
 }
 
+// StructuredDataSection.tsx's own "Schema Coverage" table — more generous
+// row padding + a per-type icon tile than the base `.crawler-table`
+// (that class is shared with several plain data grids elsewhere on this
+// page, e.g. CrawlerAnalyticsSection.tsx's own tables, so the extra
+// polish here is scoped under `.schema-coverage-table` rather than
+// changed globally).
+.schema-coverage-table {
+	th,
+	td {
+		padding: 0.875rem 0.5rem;
+	}
+
+	tbody tr:hover {
+		background: var(--theme-background-color, #fafafa);
+	}
+}
+
+.schema-type-cell {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+}
+
+.schema-type-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 0.375rem;
+	background: #f3effc;
+	color: var(--color-primary);
+	flex-shrink: 0;
+
+	i {
+		font-size: 0.875rem;
+	}
+}
+
+.schema-type-name {
+	font-weight: 600;
+}
+
+.schema-view-pages-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	// A real <button> (opens the real pages-for-this-type popup), styled
+	// to read as the same plain text link every other row action here
+	// already looks like.
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	color: var(--color-primary);
+	font-weight: 500;
+	font-size: inherit;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+
+	i {
+		font-size: 0.75rem;
+	}
+}
+
+// StructuredDataSection.tsx's "Pages with {type} schema" popup.
+.schema-view-pages-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.schema-view-pages-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.75rem 0;
+	border-top: 1px solid var(--border-color);
+
+	&:first-child {
+		border-top: none;
+	}
+}
+
+.schema-view-pages-title {
+	font-size: 0.8125rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.schema-view-pages-actions {
+	display: flex;
+	gap: 0.75rem;
+	flex-shrink: 0;
+	font-size: 0.8125rem;
+
+	a {
+		color: var(--color-primary);
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
 .schema-dev-tools-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
@@ -803,6 +916,117 @@
 
 	.admin-badge {
 		margin-top: 0.375rem;
+	}
+}
+
+// SchemaKnowledgeTab.tsx's own inline section headings (Structured
+// Data/Knowledge Graph/Inspector/Issues, all on one continuous page per
+// direct instruction — no inner tab switcher) — same shape AI Copilot's
+// ChatTab.tsx already uses for its own inline "Issues" section heading.
+.schema-knowledge-inline-section-heading {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 2rem 0 1rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--border-color, #e2e8f0);
+
+	h2 {
+		margin: 0;
+		font-size: 1.125rem;
+	}
+}
+
+// The very first section on the page (Structured Data) sits directly
+// under the outer "Schema & Knowledge" tab bar with nothing above it —
+// no divider/top-space needed there, only between sections.
+.schema-knowledge-section:first-child .schema-knowledge-inline-section-heading {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+
+// InspectorSection.tsx.
+.schema-inspector-input-row {
+	display: flex;
+	gap: 0.75rem;
+	align-items: flex-start;
+
+	> :first-child {
+		flex: 1;
+	}
+}
+
+.schema-inspector-result {
+	margin-top: 1.25rem;
+}
+
+.schema-inspector-result-heading {
+	font-weight: 600;
+	font-size: 0.875rem;
+	margin: 1rem 0 0.5rem;
+
+	&:first-child {
+		margin-top: 0;
+	}
+}
+
+.schema-inspector-badge-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.schema-inspector-problem-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.625rem;
+		font-size: 0.8125rem;
+	}
+}
+
+.schema-inspector-preview {
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	padding: 0.875rem 1rem;
+}
+
+.schema-inspector-preview-title {
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+.schema-inspector-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.625rem;
+}
+
+.schema-inspector-jsonld-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.schema-inspector-jsonld-block {
+	background: var(--theme-background-color, #f9fafb);
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	padding: 0.875rem;
+	font-size: 0.75rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0 0 0.75rem;
+
+	&:last-child {
+		margin-bottom: 0;
 	}
 }
 

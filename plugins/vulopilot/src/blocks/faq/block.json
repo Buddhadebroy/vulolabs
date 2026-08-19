@@ -1,0 +1,27 @@
+{
+	"apiVersion": 3,
+	"name": "vulopilot/faq",
+	"title": "FAQ",
+	"category": "widgets",
+	"icon": "editor-help",
+	"description": "A list of questions and answers that also outputs real FAQPage schema.org structured data for search engines.",
+	"textdomain": "vulopilot",
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php",
+	"attributes": {
+		"questions": {
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "object",
+				"properties": {
+					"question": { "type": "string" },
+					"answer": { "type": "string" }
+				}
+			}
+		}
+	},
+	"supports": {
+		"html": false
+	}
+}

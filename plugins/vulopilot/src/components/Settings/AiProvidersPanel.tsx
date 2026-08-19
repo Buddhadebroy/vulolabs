@@ -16,6 +16,18 @@ interface ConfiguredProvider {
 	default_model: string | null;
 	is_active: boolean;
 	has_credential: boolean;
+	/**
+	 * Whether the stored credential can actually still be decrypted
+	 * (Controllers\AiProviders::prepare_config_for_response()). A site
+	 * that rotates its auth salts/keys after this was saved (a
+	 * regenerated wp-config.php, a database copied to a fresh
+	 * environment, ...) leaves this `false` forever — the row still
+	 * looks "configured," but ProviderRegistry::build_fallback_chain()
+	 * (the real request path every "Generate with AI" call goes through)
+	 * already silently skips it. This panel now surfaces that instead of
+	 * only ever showing "Configured with your own credentials."
+	 */
+	credential_ok: boolean;
 	created_at: string;
 }
 
@@ -202,6 +214,68 @@ const AiProvidersPanel = () => {
 		};
 	});
 
+	/**
+	 * Re-saves a configured provider's credential — the real fix for a row
+	 * whose `credential_ok` is false (see ConfiguredProvider's own
+	 * docblock): re-encrypts under the site's CURRENT auth salt via the
+	 * same `POST /ai-providers/{id}` route the "add new provider" flow's
+	 * own edits already use (Controllers\AiProviders::update_item()),
+	 * rather than requiring a full Disconnect + re-Add round trip.
+	 */
+	const handleReconnect = (row: ConfiguredProvider) => {
+		if (isSavingRef.current) {
+			return;
+		}
+
+		const credential = String(
+			newProviderValuesRef.current[row.provider]?.credential ?? ''
+		).trim();
+
+		if ('' === credential) {
+			NoticeManager.add({
+				uniqueKey: 'vulopilot-ai-provider-reconnect',
+				type: 'error',
+				position: 'float',
+				message: __('Enter the new API key first.', 'vulopilot'),
+			});
+			return;
+		}
+
+		isSavingRef.current = true;
+		setIsSaving(true);
+
+		sendApiResponse(
+			appLocalizer,
+			getApiLink(appLocalizer, `ai-providers/${row.id}`),
+			{ credential }
+		)
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-ai-provider-reconnect',
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? __('AI provider reconnected.', 'vulopilot')
+						: __(
+								'Could not save this key — check it and try again.',
+								'vulopilot'
+							),
+				});
+
+				if (response) {
+					const next = { ...newProviderValuesRef.current };
+					delete next[row.provider];
+					newProviderValuesRef.current = next;
+					setNewProviderValues(next);
+					load();
+				}
+			})
+			.finally(() => {
+				isSavingRef.current = false;
+				setIsSaving(false);
+			});
+	};
+
 	const handleDelete = (row: ConfiguredProvider) => {
 		if (
 			!window.confirm(
@@ -237,44 +311,84 @@ const AiProvidersPanel = () => {
 	const configuredMethods = configured.map((row) => {
 		const providerLabel =
 			row.label || adapters[row.provider]?.label || row.provider;
+		const needsReconnect = !row.credential_ok;
+		const adapter = adapters[row.provider];
 
 		return {
 			id: row.provider,
 			icon: 'ai',
 			label: providerLabel,
-			desc: `<span class="vulopilot-provider-summary is-connected">${__('Configured with your own credentials.', 'vulopilot')}</span>`,
+			desc: needsReconnect
+				? `<span class="admin-badge red">${__('Needs reconnecting', 'vulopilot')}</span><span class="vulopilot-provider-summary">${__('This provider stopped working — see below.', 'vulopilot')}</span>`
+				: `<span class="vulopilot-provider-summary is-connected">${__('Configured with your own credentials.', 'vulopilot')}</span>`,
 			isCustom: true,
 			hideDeleteBtn: true,
 			wrapperClass: 'vulopilot-ai-provider-configuration',
-			formFields: [
-				{
-					key: 'provider_details',
-					type: 'notice',
-					label: '',
-					noticeType: 'info',
-					message: row.default_model
-						? sprintf(
-								__(
-									'Provider: %1$s — Default model: %2$s',
-									'vulopilot'
-								),
-								providerLabel,
-								row.default_model
-							)
-						: sprintf(
-								__('Provider: %s', 'vulopilot'),
-								providerLabel
+			formFields: needsReconnect
+				? [
+						{
+							key: 'provider_details',
+							type: 'notice',
+							label: '',
+							noticeType: 'error',
+							message: __(
+								'VuloPilot can no longer read this provider’s saved API key (this usually happens after moving to a new server or environment). AI features have silently stopped using it. Enter the key again to reconnect it.',
+								'vulopilot'
 							),
-				},
-				{
-					key: 'disconnect',
-					type: 'button',
-					label: '',
-					text: __('Disconnect', 'vulopilot'),
-					icon: 'disconnect',
-					onClick: () => handleDelete(row),
-				},
-			],
+						},
+						{
+							key: 'credential',
+							type: adapter?.requires_credential ? 'password' : 'text',
+							label: adapter?.requires_credential
+								? __('API key', 'vulopilot')
+								: __('Base URL', 'vulopilot'),
+						},
+						{
+							key: 'reconnect',
+							type: 'button',
+							label: '',
+							text: __('Save key', 'vulopilot'),
+							disabled: isSaving,
+							onClick: () => handleReconnect(row),
+						},
+						{
+							key: 'disconnect',
+							type: 'button',
+							label: '',
+							text: __('Disconnect', 'vulopilot'),
+							icon: 'disconnect',
+							onClick: () => handleDelete(row),
+						},
+					]
+				: [
+						{
+							key: 'provider_details',
+							type: 'notice',
+							label: '',
+							noticeType: 'info',
+							message: row.default_model
+								? sprintf(
+										__(
+											'Provider: %1$s — Default model: %2$s',
+											'vulopilot'
+										),
+										providerLabel,
+										row.default_model
+									)
+								: sprintf(
+										__('Provider: %s', 'vulopilot'),
+										providerLabel
+									),
+						},
+						{
+							key: 'disconnect',
+							type: 'button',
+							label: '',
+							text: __('Disconnect', 'vulopilot'),
+							icon: 'disconnect',
+							onClick: () => handleDelete(row),
+						},
+					],
 		};
 	});
 
