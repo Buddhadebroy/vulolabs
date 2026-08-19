@@ -20,6 +20,120 @@ const SEVERITY_LABEL: Record<string, string> = {
 	info: __('Info', 'vulopilot'),
 };
 
+/**
+ * Plain-English "what does this actually check" copy, one per
+ * `scanner_id` — added because a site-wide scanner (nothing per-post to
+ * check, e.g. Cron/Database/Server) previously left this panel with
+ * nothing beyond "Status"/"Findings: No issues found." once
+ * `affected_pages` and `scanned_pages` were both empty (see the render
+ * logic below): a page-scoped scanner's own "Pages & posts scanned"
+ * section already explains itself, but a site-wide one had no equivalent
+ * at all. Not exhaustive — every scanner in SCANNERS.md would be a lot to
+ * hand-maintain here and keep in sync — just the scanners a user is
+ * actually likely to click into from History with no other detail to
+ * show (every site-wide, non-page-scoped check). Anything else falls
+ * back to a generic, still-honest note below rather than showing nothing.
+ */
+const SCAN_DESCRIPTIONS: Record<string, string> = {
+	cron: __(
+		'Checks whether WordPress’s own scheduled tasks (WP-Cron) are running on time, or stuck/overdue.',
+		'vulopilot'
+	),
+	database: __(
+		'Checks for database bloat — excess post revisions and other buildup that can slow queries down.',
+		'vulopilot'
+	),
+	'database-cleanup': __(
+		'Checks for expired transients and other safe-to-clear database clutter.',
+		'vulopilot'
+	),
+	'server-health': __(
+		"Checks your hosting environment against WordPress's own recommended server requirements.",
+		'vulopilot'
+	),
+	'wordpress-health': __(
+		'Checks WordPress core’s own Site Health status — the same checks under Tools → Site Health.',
+		'vulopilot'
+	),
+	updates: __(
+		'Checks for pending WordPress core, plugin, and theme updates.',
+		'vulopilot'
+	),
+	plugins: __(
+		'Checks for installed-but-inactive plugins, which still carry any known vulnerabilities on disk.',
+		'vulopilot'
+	),
+	themes: __('Checks for installed-but-inactive themes.', 'vulopilot'),
+	'php-warnings': __(
+		"Checks your site's debug log for recent PHP warnings, notices, and fatal errors.",
+		'vulopilot'
+	),
+	'weak-passwords': __(
+		'Checks every administrator’s password against a list of commonly used, easily guessed passwords.',
+		'vulopilot'
+	),
+	'basic-vulnerabilities': __(
+		'Checks for common WordPress hardening gaps that make a known vulnerability easier to exploit.',
+		'vulopilot'
+	),
+	'core-file-integrity': __(
+		'Compares WordPress core files against their official checksums to detect unauthorized changes.',
+		'vulopilot'
+	),
+	malware: __(
+		'Checks for signs of malicious code hidden in your files.',
+		'vulopilot'
+	),
+	'login-protection': __(
+		'Checks recent login attempts for signs of a brute-force attack.',
+		'vulopilot'
+	),
+	firewall: __(
+		'Checks recent firewall activity for blocked malicious requests.',
+		'vulopilot'
+	),
+	'backup-health': __(
+		'Checks whether your automatic backups are running on schedule.',
+		'vulopilot'
+	),
+	'ssl-monitoring': __(
+		'Checks whether your site is served over HTTPS, and whether your SSL certificate is close to expiring.',
+		'vulopilot'
+	),
+	'site-availability': __(
+		'Checks whether your homepage is reachable and responding normally.',
+		'vulopilot'
+	),
+	'not-found': __(
+		'Checks whether your own published posts and pages still resolve correctly.',
+		'vulopilot'
+	),
+	'redirect-analysis': __(
+		'Checks your homepage’s own redirect chain for unnecessary or broken hops.',
+		'vulopilot'
+	),
+};
+
+/** Fallback for any `scanner_id` not in SCAN_DESCRIPTIONS above — still honest (doesn't fabricate what the scan does), just generic. */
+const GENERIC_SCAN_DESCRIPTION = __(
+	'A site-wide check — not tied to individual pages or posts.',
+	'vulopilot'
+);
+
+/** `duration_ms` is real (ScanResult::get_duration_ms(), persisted on every scan row) but was never shown anywhere in this panel — under a second reads as milliseconds, at or above reads as seconds to one decimal place. */
+const formatScanDuration = (durationMs: number): string =>
+	durationMs < 1000
+		? sprintf(
+				/* translators: %d: milliseconds */
+				__('%dms', 'vulopilot'),
+				Math.round(durationMs)
+			)
+		: sprintf(
+				/* translators: %s: seconds, one decimal place */
+				__('%ss', 'vulopilot'),
+				(durationMs / 1000).toFixed(1)
+			);
+
 const CHANGE_STATUS_LABEL: Record<string, string> = {
 	pending_approval: __('Pending approval', 'vulopilot'),
 	executed: __('Applied', 'vulopilot'),
@@ -213,6 +327,18 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 						<>{__('No issues found.', 'vulopilot')}</>
 					)}
 				</FormGroupComponent>
+				<div className="issue-detail-section">
+					<h4>{__('What this checks', 'vulopilot')}</h4>
+					<p className="small desc">
+						{SCAN_DESCRIPTIONS[row.scan.scanner_id] ??
+							GENERIC_SCAN_DESCRIPTION}
+					</p>
+				</div>
+				{null !== row.scan.duration_ms && (
+					<FormGroupComponent row label={__('Duration', 'vulopilot')}>
+						{formatScanDuration(row.scan.duration_ms)}
+					</FormGroupComponent>
+				)}
 				{row.scan.affected_pages.length > 0 && (
 					<div className="issue-detail-section">
 						<h4>{__('Pages & posts', 'vulopilot')}</h4>

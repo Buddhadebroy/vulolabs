@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useLocation } from 'react-router-dom';
 import { NavigatorHeaderComponent, TabsComponent, ContainerComponent } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
+import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import OverviewTab from './OverviewTab';
 import GeoTab from './GeoTab';
 import AeoTab from './AeoTab';
@@ -142,7 +143,10 @@ const GEO = () => {
 				<TabsComponent
 					className="grow-my-traffic-tabs"
 					activeIndex={TAB_IDS.indexOf(activeTab)}
-					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+					onTabChange={(index) => {
+						setActiveTab(TAB_IDS[index]);
+						pushSubtabUrl('geo', TAB_IDS[index]);
+					}}
 					tabs={[
 						{
 							label: __('Overview', 'vulopilot'),

@@ -7,6 +7,7 @@ import {
 	TabsComponent,
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
+import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import SecurityTab from './SecurityTab';
 import PerformanceTab from './PerformanceTab';
 import SiteHealthTab from './SiteHealthTab';
@@ -122,7 +123,10 @@ const Security = () => {
 				<TabsComponent
 					className="protect-my-site-tabs"
 					activeIndex={TAB_IDS.indexOf(activeTab)}
-					onTabChange={(index) => setActiveTab(TAB_IDS[index])}
+					onTabChange={(index) => {
+						setActiveTab(TAB_IDS[index]);
+						pushSubtabUrl('security', TAB_IDS[index]);
+					}}
 					tabs={[
 						{
 							label: __('Security', 'vulopilot'),
