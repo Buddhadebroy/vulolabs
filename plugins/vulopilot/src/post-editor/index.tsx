@@ -59,11 +59,14 @@ const { wasPresent: shouldOpenSidebar, target: deepLinkTarget } = readDeepLinkTa
  * Editor integration (react-frontend.md's mounting rules cover the
  * dashboard app at `#admin-main-wrapper`/`#vulolabs-store-dashboard`,
  * a different surface entirely). Registered as a `PluginSidebar` rather
- * than a classic `add_meta_box()` panel — the modern, React-native
- * equivalent every current Block-Editor-era SEO plugin (RankMath included,
- * per rankmath.com/kb/on-page-seo/) now uses.
+ * than a classic `add_meta_box()` panel — RankMath's own primary,
+ * most-recognized surface (the icon in the editor's top toolbar opening
+ * this same sidebar), not its secondary below-content metabox. (This
+ * briefly moved to that below-content metabox instead, on the theory that
+ * it avoids the sidebar's own internal scroll on a long panel — reverted
+ * per direct instruction; see PostEditorAssets.php's own class docblock.)
  *
- * Only enqueued for post/page screens
+ * Only enqueued for post/page/product screens
  * (Services\PostEditorAssets::enqueue_assets()), so this module never runs
  * anywhere else.
  */

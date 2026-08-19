@@ -6,6 +6,98 @@
 	}
 }
 
+/**
+ * "Preview"/"Focus Keyword" — the small uppercase section headings
+ * RankMath's own General tab uses above each block, per direct screenshot
+ * comparison.
+ */
+.vulopilot-seo-section-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #1e1e1e;
+	margin: 20px 0 8px;
+
+	&:first-child {
+		margin-top: 4px;
+	}
+}
+
+.vulopilot-seo-edit-snippet-toggle {
+	margin-top: 8px;
+}
+
+.vulopilot-seo-snippet-editor {
+	margin-top: 16px;
+	padding-top: 4px;
+
+	.components-base-control {
+		margin-bottom: 16px;
+	}
+}
+
+.vulopilot-seo-focus-keyword-help {
+	margin-top: 0;
+}
+
+/**
+ * The focus-keyword "pill" — a single, removable tag rather than a plain
+ * text field, matching RankMath's own colored-pill focus keyword input.
+ * Only ever holds the one real `_vulopilot_focus_keyword` value
+ * (GeneralTab.tsx's own docblock explains why this isn't a genuine
+ * multi-keyword input like RankMath's).
+ */
+.vulopilot-seo-focus-keyword {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.vulopilot-seo-keyword-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: #d9ead1;
+	color: #2a5a1e;
+	border-radius: 3px;
+	padding: 4px 6px 4px 8px;
+	font-size: 13px;
+	line-height: 1.4;
+
+	.dashicons {
+		width: 14px;
+		height: 14px;
+		font-size: 14px;
+		color: #6ba043;
+	}
+
+	&__remove {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: none;
+		border: none;
+		padding: 2px;
+		margin: 0;
+		cursor: pointer;
+		color: #2a5a1e;
+
+		.dashicons {
+			width: 12px;
+			height: 12px;
+			font-size: 12px;
+			color: inherit;
+		}
+
+		&:hover {
+			color: #a52a1e;
+		}
+	}
+}
+
 .vulopilot-seo-snippet-preview {
 	margin: 12px 0 20px;
 	padding: 12px;
@@ -41,24 +133,78 @@
 }
 
 .vulopilot-seo-checklist {
-	margin-bottom: 20px;
+	margin-bottom: 16px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	overflow: hidden;
+
+	&__header {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		background: #f6f7f7;
+		border: none;
+		padding: 8px 10px;
+		cursor: pointer;
+		text-align: left;
+	}
 
 	&__title {
 		font-size: 13px;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
+		font-weight: 600;
 		color: #1e1e1e;
-		margin-bottom: 8px;
+		flex-grow: 1;
+	}
+
+	&__summary {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		font-size: 12px;
+		font-weight: 500;
+		padding: 2px 8px;
+		border-radius: 10px;
+
+		.dashicons {
+			width: 14px;
+			height: 14px;
+			font-size: 14px;
+		}
+
+		&--good {
+			background: #d9ead1;
+			color: #2a5a1e;
+		}
+
+		&--ok {
+			background: #fcf1cd;
+			color: #8a6d1e;
+		}
+
+		&--bad {
+			background: #fadad7;
+			color: #8a1e1e;
+		}
+	}
+
+	&__chevron {
+		width: 16px;
+		height: 16px;
+		font-size: 16px;
+		color: #757575;
+		flex-shrink: 0;
 	}
 
 	&__error {
 		color: #cc1818;
+		padding: 8px 10px 0;
 	}
 
 	&__list {
 		list-style: none;
 		margin: 0;
-		padding: 0;
+		padding: 4px 10px 6px;
 	}
 
 	&__item {
@@ -68,6 +214,10 @@
 		padding: 6px 0;
 		border-bottom: 1px solid #f0f0f1;
 		font-size: 13px;
+
+		&:last-child {
+			border-bottom: none;
+		}
 
 		&--pass .vulopilot-seo-checklist__icon {
 			color: #00a32a;
@@ -83,8 +233,9 @@
 	}
 
 	&__icon {
-		font-weight: 700;
-		width: 16px;
+		width: 18px;
+		height: 18px;
+		font-size: 18px;
 		flex-shrink: 0;
 	}
 

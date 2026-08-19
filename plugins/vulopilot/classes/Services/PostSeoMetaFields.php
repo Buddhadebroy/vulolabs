@@ -54,11 +54,19 @@ class PostSeoMetaFields {
     /**
      * Post types the metabox appears on — matches
      * AIActions\Actions\WriteMetaTitleAction/WriteMetaDescriptionAction's
-     * own `array( 'post', 'page' )` scope.
+     * own post-type scope. `product` (WooCommerce) was added alongside the
+     * metabox's move to a real below-content `add_meta_box()` panel
+     * (Services\PostEditorAssets::register_metabox()), which references
+     * this same constant rather than holding its own separate copy — every
+     * other real SEO/GEO/AI-Action scanner and action in this codebase
+     * still only scopes to `post`/`page` (a much larger, separate change,
+     * not part of this pass), so a product's fields/AI-fix buttons work
+     * through this metabox, but it isn't scored by the wider SEO scan
+     * suite yet.
      *
      * @var string[]
      */
-    private const POST_TYPES = array( 'post', 'page' );
+    public const POST_TYPES = array( 'post', 'page', 'product' );
 
     /**
      * PostSeoMetaFields constructor.

@@ -159,7 +159,12 @@ const HistoryTab = ({
 		initialFilter ?? 'all'
 	);
 	const [search, setSearch] = useState('');
-	const [dateRange, setDateRange] = useState<DateRangePreset>('all');
+	// Defaults to the last 30 days rather than 'all' — "all time" on a site
+	// that's been running for months means an ever-growing initial fetch of
+	// mostly-irrelevant old rows; older history is still one dropdown
+	// change away, never actually deleted (vulopilot_ai_history's own
+	// DATABASE.md docblock calls it a "permanent ledger" on purpose).
+	const [dateRange, setDateRange] = useState<DateRangePreset>('30d');
 
 	const [rows, setRows] = useState<HistoryRow[]>([]);
 	const [total, setTotal] = useState(0);
