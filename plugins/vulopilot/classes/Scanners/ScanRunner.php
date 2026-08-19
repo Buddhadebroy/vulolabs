@@ -7,6 +7,7 @@
 
 namespace VuloPilot\Scanners;
 
+use VuloPilot\Contracts\Scanner\SupportsForceRunInterface;
 use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
 use VuloPilot\ValueObjects\ScanResult;
 
@@ -50,13 +51,27 @@ class ScanRunner {
      * Runs a single scanner by id.
      *
      * @param string $scanner_id A scanner's get_id().
+     * @param bool   $force      True for a real, user-initiated "Run scan" — passed on to
+     *                           the scanner via SupportsForceRunInterface::set_force_run()
+     *                           when it implements that optional interface (see that
+     *                           interface's own docblock), so a scanner that self-rate-limits
+     *                           independently of the shared scan cadence (BrokenLinksScanner/
+     *                           BrokenImagesScanner) always actually checks again rather than
+     *                           silently no-op'ing because it already ran earlier today. A
+     *                           scanner that doesn't implement it (the vast majority — they
+     *                           run their real check every time scan() is called regardless)
+     *                           is unaffected either way.
      * @return ScanResult|null Null if no scanner is registered under that id.
      */
-    public function run( string $scanner_id ): ?ScanResult {
+    public function run( string $scanner_id, bool $force = false ): ?ScanResult {
         $scanner = $this->registry->get_scanner( $scanner_id );
 
         if ( ! $scanner ) {
             return null;
+        }
+
+        if ( $force && $scanner instanceof SupportsForceRunInterface ) {
+            $scanner->set_force_run( true );
         }
 
         $started_at = microtime( true );
@@ -89,13 +104,14 @@ class ScanRunner {
     /**
      * Runs every registered scanner.
      *
+     * @param bool $force See run()'s own docblock.
      * @return array<string, ScanResult> Keyed by scanner id.
      */
-    public function run_all(): array {
+    public function run_all( bool $force = false ): array {
         $results = array();
 
         foreach ( array_keys( $this->registry->get_all_scanners() ) as $scanner_id ) {
-            $results[ $scanner_id ] = $this->run( $scanner_id );
+            $results[ $scanner_id ] = $this->run( $scanner_id, $force );
         }
 
         return $results;
@@ -107,13 +123,14 @@ class ScanRunner {
      * why a caller would want this instead of run_all().
      *
      * @param string[] $excluded_categories Category strings to leave out.
+     * @param bool     $force                See run()'s own docblock.
      * @return array<string, ScanResult> Keyed by scanner id.
      */
-    public function run_all_except( array $excluded_categories ): array {
+    public function run_all_except( array $excluded_categories, bool $force = false ): array {
         $results = array();
 
         foreach ( array_keys( $this->registry->get_all_scanners_except( $excluded_categories ) ) as $scanner_id ) {
-            $results[ $scanner_id ] = $this->run( $scanner_id );
+            $results[ $scanner_id ] = $this->run( $scanner_id, $force );
         }
 
         return $results;
@@ -123,13 +140,14 @@ class ScanRunner {
      * Runs every scanner registered under a given category.
      *
      * @param string $category e.g. 'seo', 'security'.
+     * @param bool   $force    See run()'s own docblock.
      * @return array<string, ScanResult> Keyed by scanner id.
      */
-    public function run_category( string $category ): array {
+    public function run_category( string $category, bool $force = false ): array {
         $results = array();
 
         foreach ( array_keys( $this->registry->get_scanners_by_category( $category ) ) as $scanner_id ) {
-            $results[ $scanner_id ] = $this->run( $scanner_id );
+            $results[ $scanner_id ] = $this->run( $scanner_id, $force );
         }
 
         return $results;

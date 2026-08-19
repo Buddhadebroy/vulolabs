@@ -100,11 +100,13 @@ class NotFoundLogs extends \WP_REST_Controller {
 
     /**
      * Lists 404 log entries, paginated/searched, most recently seen first
-     * by default. `is_system` ('0'/'1') scopes this to real missing
-     * content pages or the "system" bucket (theme/plugin/core-file/asset
-     * 404s — Services\NotFoundLogger::is_system_path()) — RedirectsTab.tsx's
-     * main table always passes `is_system=0`; its own "System 404s" popup
-     * passes `is_system=1`. Omitting the param returns both mixed
+     * by default, plus content/system counts for the status pill bar
+     * (same `count_by_column()` pattern Redirects.php's own
+     * `is_active_counts` uses). `is_system` ('0'/'1') scopes this to real
+     * missing content pages or the "system" bucket (theme/plugin/core-file/
+     * asset 404s — Services\NotFoundLogger::is_system_path()) when the
+     * frontend's own "All/Content/System" filter pills narrow it down;
+     * omitting the param (the default "All" pill) returns both mixed
      * together, same as any other AbstractRepository filterable column.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -126,6 +128,8 @@ class NotFoundLogs extends \WP_REST_Controller {
                 'is_system' => sanitize_key( (string) $request->get_param( 'is_system' ) ),
             )
         );
+
+        $result['is_system_counts'] = $repository->count_by_column( 'is_system' );
 
         return rest_ensure_response( $result );
     }

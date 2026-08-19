@@ -66,11 +66,21 @@ class VuloPilotCommand {
      * [--category=<category>]
      * : Run every scanner registered under this category (e.g. 'seo', 'security') instead of one scanner or all of them.
      *
+     * [--force]
+     * : Bypass a scanner's own self-rate-limit (e.g. BrokenLinksScanner/
+     * BrokenImagesScanner's "daily"/"weekly" cadence — see
+     * SupportsForceRunInterface's own docblock) and check again even if
+     * it already ran within its configured window. Off by default so an
+     * unattended/cron `wp vulopilot scan run` keeps respecting the
+     * configured cadence exactly as before; pass this for a deliberate,
+     * one-off re-check.
+     *
      * ## EXAMPLES
      *
      *     wp vulopilot scan run
      *     wp vulopilot scan run security
      *     wp vulopilot scan run --category=seo
+     *     wp vulopilot scan run broken-links --force
      *
      * @param string[]             $args       Positional arguments.
      * @param array<string, mixed> $assoc_args Associative (--flag) arguments.
@@ -79,11 +89,12 @@ class VuloPilotCommand {
     public function scan_run( array $args, array $assoc_args ): void {
         $runner   = VuloPilot()->scan_runner;
         $category = $assoc_args['category'] ?? null;
+        $force    = isset( $assoc_args['force'] );
 
         if ( $category ) {
-            $results = $runner->run_category( sanitize_key( $category ) );
+            $results = $runner->run_category( sanitize_key( $category ), $force );
         } elseif ( ! empty( $args[0] ) ) {
-            $result = $runner->run( sanitize_key( $args[0] ) );
+            $result = $runner->run( sanitize_key( $args[0] ), $force );
 
             if ( null === $result ) {
                 \WP_CLI::error( sprintf( 'No scanner registered with id "%s".', $args[0] ) );
@@ -92,7 +103,7 @@ class VuloPilotCommand {
 
             $results = array( $args[0] => $result );
         } else {
-            $results = $runner->run_all();
+            $results = $runner->run_all( $force );
         }
 
         foreach ( $results as $scanner_id => $result ) {
