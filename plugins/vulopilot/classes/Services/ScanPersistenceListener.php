@@ -41,6 +41,21 @@ defined( 'ABSPATH' ) || exit;
 class ScanPersistenceListener {
 
     /**
+     * Scanners whose findings get looked up (via
+     * FindingRepository::find_open_duplicate()) and refreshed in place
+     * instead of always inserted fresh — see handle_scan_completed()'s own
+     * comment for why this dedup is scoped to just these two rather than
+     * applied to every scanner: they're the one pair a manual "Run scan"/
+     * daily cron genuinely re-checks the exact same URL against, so a
+     * still-broken link would otherwise pile up one duplicate open finding
+     * per run. Other scanners keep today's "one row per scan run" behavior
+     * unchanged.
+     *
+     * @var string[]
+     */
+    private const DEDUPE_ON_RESCAN = array( 'broken-links', 'broken-images' );
+
+    /**
      * @var ScanRepository
      */
     private ScanRepository $scans;
@@ -85,6 +100,38 @@ class ScanPersistenceListener {
         );
 
         foreach ( $scan_result->get_findings() as $finding ) {
+            $duplicate = in_array( $scan_result->get_scanner_id(), self::DEDUPE_ON_RESCAN, true )
+                && $finding->get_object_type()
+                && $finding->get_object_ref()
+                ? $this->findings->find_open_duplicate(
+                    $scan_result->get_scanner_id(),
+                    (string) $finding->get_object_type(),
+                    (string) $finding->get_object_ref(),
+                    $finding->get_title()
+                )
+                : null;
+
+            if ( null !== $duplicate ) {
+                // Same URL is still broken as of this run — refresh the
+                // existing open row's own scan-run-specific fields rather
+                // than inserting a second identical one (see
+                // FindingRepository::find_open_duplicate()'s own
+                // docblock). `created_at`/`id` deliberately untouched, so
+                // this stays "first detected" for the finding, not
+                // "detected again."
+                $this->findings->update(
+                    (int) $duplicate['id'],
+                    array(
+                        'scan_id'     => $scan_id,
+                        'severity'    => $finding->get_severity(),
+                        'category'    => $finding->get_category(),
+                        'description' => $finding->get_description(),
+                        'meta'        => wp_json_encode( $finding->get_meta() ),
+                    )
+                );
+                continue;
+            }
+
             $this->findings->insert(
                 array(
                     'scan_id'     => $scan_id,

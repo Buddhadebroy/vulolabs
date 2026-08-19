@@ -160,10 +160,19 @@ class GoogleServicesConnection {
      * credentials at all, so a broker-only deployment can leave
      * VULOPILOT_GOOGLE_CLIENT_ID/SECRET undefined entirely.
      *
+     * Requires VULOPILOT_GOOGLE_APPLICATION_ID too, not just the broker
+     * URL — VuloCloud's `/plugin/google/*` endpoints resolve which
+     * Organization's Google Cloud OAuth Client to use FROM that id (see
+     * config.php's own docblock); a broker URL with no application id
+     * configured can never complete a real request, so this honestly
+     * reports "not available" rather than sending a request VuloCloud
+     * would just reject.
+     *
      * @return bool
      */
     public function has_broker(): bool {
-        return defined( 'VULOPILOT_GOOGLE_BROKER_URL' ) && '' !== VULOPILOT_GOOGLE_BROKER_URL;
+        return defined( 'VULOPILOT_GOOGLE_BROKER_URL' ) && '' !== VULOPILOT_GOOGLE_BROKER_URL
+            && defined( 'VULOPILOT_GOOGLE_APPLICATION_ID' ) && '' !== VULOPILOT_GOOGLE_APPLICATION_ID;
     }
 
     /**
@@ -205,7 +214,7 @@ class GoogleServicesConnection {
 
         if ( $this->has_broker() ) {
             return ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )
-                ->get_authorize_url( home_url(), $this->get_redirect_uri(), $state );
+                ->get_authorize_url( VULOPILOT_GOOGLE_APPLICATION_ID, home_url(), $this->get_redirect_uri(), $state );
         }
 
         $client_id = $this->get_client_id();
@@ -411,7 +420,7 @@ class GoogleServicesConnection {
                 return false;
             }
 
-            $result = ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )->refresh( home_url(), $refresh_token );
+            $result = ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )->refresh( VULOPILOT_GOOGLE_APPLICATION_ID, home_url(), $refresh_token );
 
             if ( is_wp_error( $result ) ) {
                 return false;

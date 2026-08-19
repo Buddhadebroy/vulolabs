@@ -234,11 +234,20 @@ const statusKeyRank = (key: string): number => {
 	}
 };
 
-const worstStatusKey = (keys: string[]): string =>
-	keys.reduce(
-		(worst, key) => (statusKeyRank(key) < statusKeyRank(worst) ? key : worst),
-		keys[0]
-	);
+/** Every distinct status a page-group's own findings actually carry, first-occurrence order (findings arrive newest-first — see groupFindingsByPage's own docblock — so this reads left-to-right as "most-recently-detected status first," not severity-ranked) — a group with a mix of e.g. DNS and 503 findings shows both badges instead of silently collapsing to just one. */
+const distinctStatusKeys = (keys: string[]): string[] => {
+	const seen = new Set<string>();
+	const distinct: string[] = [];
+
+	keys.forEach((key) => {
+		if (!seen.has(key)) {
+			seen.add(key);
+			distinct.push(key);
+		}
+	});
+
+	return distinct;
+};
 
 /** Palette color name (BadgeComponent's own `color` prop — common.scss's `$color-palette`) — a confirmed HTTP error or DNS failure reads as more severe (red) than an unverified/timed-out check this scanner just couldn't confirm either way (yellow), same distinction the "Broken" vs "Couldn't verify" stat tiles above already draw. */
 const statusKeyColor = (key: string): string =>
@@ -395,6 +404,45 @@ type BrokenLinkRow = PageGroupRow | (BrokenLinkFinding & { isFinding: true });
 const isFindingRow = (
 	row: BrokenLinkRow
 ): row is BrokenLinkFinding & { isFinding: true } => true === row.isFinding;
+
+/**
+ * Collapses duplicate findings for the exact same broken URL on the exact
+ * same page/scanner/status down to just the newest one — a scan re-run
+ * that finds a link is STILL broken re-adds a fresh open finding for it
+ * each time rather than updating the existing one for any row already
+ * persisted before ScanPersistenceListener's own dedup-on-rescan fix
+ * (Services/ScanPersistenceListener.php), so this is what actually makes
+ * an already-duplicated row disappear from the table for a site that had
+ * this happen before that fix shipped, without needing a one-off DB
+ * cleanup. Scoped to (scanner_id, object_ref, url, status) rather than
+ * just (scanner_id, object_ref, url) — an old *resolved* finding and a
+ * newly-detected *open* one for the same URL are two genuinely different,
+ * both-worth-showing rows, not a duplicate. Relies on `findings` already
+ * being newest-first (`orderby=id&order=desc`, same ordering
+ * groupFindingsByPage() below depends on) — the first occurrence of a key
+ * is already the most recent one, so this only needs one pass.
+ */
+const dedupeBrokenFindings = (
+	findings: BrokenLinkFinding[]
+): BrokenLinkFinding[] => {
+	const seen = new Set<string>();
+
+	return findings.filter((finding) => {
+		const key = [
+			finding.scanner_id,
+			finding.object_ref,
+			getBrokenUrl(finding),
+			finding.status,
+		].join('::');
+
+		if (seen.has(key)) {
+			return false;
+		}
+
+		seen.add(key);
+		return true;
+	});
+};
 
 /** Splits a flat finding list into one row per real `page` path (Controllers/Findings.php's own `add_page_field()` — always populated for these two scanners, both `object_type: 'post'`). Map insertion order is what decides display order here — `findings` is already fetched newest-first (`orderby=id&order=desc`), so a page's group naturally sorts by when its most recent finding was detected, with no second sort pass needed. */
 const groupFindingsByPage = (findings: BrokenLinkFinding[]): PageGroupRow[] => {
@@ -567,7 +615,7 @@ const BrokenLinksTab = () => {
 
 		fetchAllBrokenFindings()
 			.then((findings) => {
-				setAllFindings(findings);
+				setAllFindings(dedupeBrokenFindings(findings));
 				setFindingsError(null);
 			})
 			.catch(() =>
@@ -989,23 +1037,29 @@ const BrokenLinksTab = () => {
 		status: {
 			label: __('Status', 'vulopilot'),
 			render: (row: BrokenLinkRow) => {
-				const key = isFindingRow(row)
-					? deriveStatusKey(row)
-					: worstStatusKey(
-							(row as PageGroupRow).findings.map(deriveStatusKey)
-						);
-				const badge = (
-					<BadgeComponent color={statusKeyColor(key)} text={statusKeyLabel(key)} />
+				if (isFindingRow(row)) {
+					const key = deriveStatusKey(row);
+					return (
+						<BadgeComponent color={statusKeyColor(key)} text={statusKeyLabel(key)} />
+					);
+				}
+
+				const keys = distinctStatusKeys(
+					(row as PageGroupRow).findings.map(deriveStatusKey)
 				);
 
-				return isFindingRow(row) ? (
-					badge
-				) : (
+				return (
 					<span
-						className="broken-link-row-expand-trigger"
+						className="broken-link-row-expand-trigger broken-link-status-badges"
 						onClick={toggleRowExpansion}
 					>
-						{badge}
+						{keys.map((key) => (
+							<BadgeComponent
+								key={key}
+								color={statusKeyColor(key)}
+								text={statusKeyLabel(key)}
+							/>
+						))}
 					</span>
 				);
 			},
