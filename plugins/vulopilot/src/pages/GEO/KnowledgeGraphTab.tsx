@@ -345,51 +345,47 @@ const KnowledgeGraphTab = () => {
 
 	if (!isEntityExtractionModuleActive()) {
 		return (
-			<ContainerComponent general>
-				<ColumnComponent>
-					<CardComponent title={__('Entity Extraction', 'vulopilot')}>
-						<ModuleGuardComponent
-							icon="error"
-							title={__(
-								'Entity Extraction module is turned off',
-								'vulopilot'
-							)}
-							desc={__(
-								'Turn the Entity Extraction module back on from Settings → Modules to see your site\'s entities here again.',
-								'vulopilot'
-							)}
-						/>
-					</CardComponent>
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent>
+				<CardComponent title={__('Entity Extraction', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="error"
+						title={__(
+							'Entity Extraction module is turned off',
+							'vulopilot'
+						)}
+						desc={__(
+							'Turn the Entity Extraction module back on from Settings → Modules to see your site\'s entities here again.',
+							'vulopilot'
+						)}
+					/>
+				</CardComponent>
+			</ColumnComponent>
 		);
 	}
 
 	if (error) {
 		return (
-			<ContainerComponent general>
-				<ColumnComponent>
-					<CardComponent title={__('Knowledge Graph', 'vulopilot')}>
-						<ModuleGuardComponent
-							icon="error"
-							title={__(
-								'Could not load extracted entities',
-								'vulopilot'
-							)}
-							desc={error}
-							buttonText={__('Retry', 'vulopilot')}
-							onButtonClick={fetchEntities}
-						/>
-					</CardComponent>
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent>
+				<CardComponent title={__('Knowledge Graph', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="error"
+						title={__(
+							'Could not load extracted entities',
+							'vulopilot'
+						)}
+						desc={error}
+						buttonText={__('Retry', 'vulopilot')}
+						onButtonClick={fetchEntities}
+					/>
+				</CardComponent>
+			</ColumnComponent>
 		);
 	}
 
 	const checks = entities ? buildChecks(entities) : [];
 
 	return (
-		<ContainerComponent general>
+		<>
 			<ColumnComponent>
 				<CardComponent
 					title={__('Your website at a glance', 'vulopilot')}
@@ -575,7 +571,7 @@ const KnowledgeGraphTab = () => {
 				)}
 				{EntityRecommendationsCard && <EntityRecommendationsCard />}
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 

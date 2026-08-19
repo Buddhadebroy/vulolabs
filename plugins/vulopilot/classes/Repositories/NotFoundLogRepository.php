@@ -24,6 +24,16 @@ defined( 'ABSPATH' ) || exit;
 class NotFoundLogRepository extends AbstractRepository {
 
     /**
+     * Columns find_all() may filter on — `is_system` is what lets
+     * RedirectsTab.tsx's main 404 log fetch real content pages only
+     * (`is_system=0`) while its own "System 404s" popup fetches the rest
+     * (`is_system=1`), both from this one table.
+     *
+     * @var string[]
+     */
+    protected array $filterable_columns = array( 'is_system' );
+
+    /**
      * Columns an incoming `search` arg is matched against.
      *
      * @var string[]
@@ -69,9 +79,10 @@ class NotFoundLogRepository extends AbstractRepository {
      *
      * @param string      $requested_path Already-normalized path.
      * @param string|null $referrer       The visit's HTTP referrer, if any.
+     * @param bool        $is_system      True for a theme/plugin/core-file or static-asset path (Services\NotFoundLogger::is_noise_path()) — a real 404, just not a missing CONTENT page.
      * @return void
      */
-    public function log_or_increment( string $requested_path, ?string $referrer ): void {
+    public function log_or_increment( string $requested_path, ?string $referrer, bool $is_system = false ): void {
         $existing = $this->find_by_requested_path( $requested_path );
 
         if ( $existing ) {
@@ -81,6 +92,12 @@ class NotFoundLogRepository extends AbstractRepository {
                     'hit_count'    => (int) $existing['hit_count'] + 1,
                     'referrer'     => $referrer,
                     'last_seen_at' => current_time( 'mysql' ),
+                    // $is_system is recomputed the same way from the same
+                    // path every time, not user/environment-dependent, so
+                    // re-asserting it here on a repeat hit is harmless and
+                    // self-heals a row that predates this column
+                    // (defaulted to 0 by dbDelta's own ADD COLUMN).
+                    'is_system'    => $is_system ? 1 : 0,
                 )
             );
 
@@ -93,6 +110,7 @@ class NotFoundLogRepository extends AbstractRepository {
                 'referrer'       => $referrer,
                 'hit_count'      => 1,
                 'last_seen_at'   => current_time( 'mysql' ),
+                'is_system'      => $is_system ? 1 : 0,
             )
         );
     }

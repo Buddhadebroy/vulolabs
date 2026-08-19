@@ -99,7 +99,13 @@ class NotFoundLogs extends \WP_REST_Controller {
     }
 
     /**
-     * Lists 404 log entries, paginated/searched, most recently seen first by default.
+     * Lists 404 log entries, paginated/searched, most recently seen first
+     * by default. `is_system` ('0'/'1') scopes this to real missing
+     * content pages or the "system" bucket (theme/plugin/core-file/asset
+     * 404s — Services\NotFoundLogger::is_system_path()) — RedirectsTab.tsx's
+     * main table always passes `is_system=0`; its own "System 404s" popup
+     * passes `is_system=1`. Omitting the param returns both mixed
+     * together, same as any other AbstractRepository filterable column.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -112,11 +118,12 @@ class NotFoundLogs extends \WP_REST_Controller {
 
         $result = $repository->find_all(
             array(
-                'page'     => $page ? $page : 1,
-                'per_page' => $per_page ? $per_page : 20,
-                'search'   => sanitize_text_field( (string) $request->get_param( 'search' ) ),
-                'orderby'  => $orderby ? $orderby : 'last_seen_at',
-                'order'    => sanitize_key( (string) $request->get_param( 'order' ) ),
+                'page'      => $page ? $page : 1,
+                'per_page'  => $per_page ? $per_page : 20,
+                'search'    => sanitize_text_field( (string) $request->get_param( 'search' ) ),
+                'orderby'   => $orderby ? $orderby : 'last_seen_at',
+                'order'     => sanitize_key( (string) $request->get_param( 'order' ) ),
+                'is_system' => sanitize_key( (string) $request->get_param( 'is_system' ) ),
             )
         );
 

@@ -6,7 +6,6 @@ import type { ComponentType } from 'react';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
 } from '@zyra/components';
@@ -124,23 +123,21 @@ const BrandVisibilityTab = () => {
 
 	if (!isBrandModuleActive()) {
 		return (
-			<ContainerComponent general>
-				<ColumnComponent>
-					<CardComponent title={__('Brand', 'vulopilot')}>
-						<ModuleGuardComponent
-							icon="error"
-							title={__(
-								'Brand Intelligence module is turned off',
-								'vulopilot'
-							)}
-							desc={__(
-								'Turn the Brand Intelligence module back on from Settings → Modules to resume trust/authority/entity scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page.',
-								'vulopilot'
-							)}
-						/>
-					</CardComponent>
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent>
+				<CardComponent title={__('Brand', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="error"
+						title={__(
+							'Brand Intelligence module is turned off',
+							'vulopilot'
+						)}
+						desc={__(
+							'Turn the Brand Intelligence module back on from Settings → Modules to resume trust/authority/entity scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page.',
+							'vulopilot'
+						)}
+					/>
+				</CardComponent>
+			</ColumnComponent>
 		);
 	}
 

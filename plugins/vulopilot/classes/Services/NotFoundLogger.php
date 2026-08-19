@@ -42,34 +42,39 @@ defined( 'ABSPATH' ) || exit;
 class NotFoundLogger {
 
     /**
-     * Path prefixes never worth logging — core/theme/plugin asset
-     * directories and browser/tooling auto-probe paths (Chrome DevTools'
-     * own `/.well-known/appspecific/com.chrome.devtools.json`, Apple's
+     * Path prefixes that mark a 404 as "system" rather than a missing
+     * CONTENT page — core/theme/plugin asset directories and browser/
+     * tooling auto-probe paths (Chrome DevTools' own
+     * `/.well-known/appspecific/com.chrome.devtools.json`, Apple's
      * `/.well-known/apple-app-site-association`, etc.). On a site where
      * every unmatched request routes through `index.php` (any normal
      * pretty-permalink rewrite setup), a stale/renamed theme or plugin
      * asset URL — or a browser silently probing a well-known path — is a
      * genuine WordPress 404 exactly like a real missing content page is,
      * but nobody ever wants to "create a redirect" for
-     * `/wp-content/themes/x/assets/old.css`. Left unfiltered, these drown
-     * out the actually-actionable missing-page URLs this log exists to
-     * surface.
+     * `/wp-content/themes/x/assets/old.css`. These are still logged (real
+     * 404s, real data) — `is_system_path()` below is what lets
+     * `log_or_increment()` route them to `is_system = 1` instead of
+     * dropping them, so RedirectsTab.tsx's main missing-page list can stay
+     * scoped to `is_system = 0` while its own "System 404s" link still
+     * shows the rest.
      *
      * @var string[]
      */
-    private const NOISE_PATH_PREFIXES = array( '/wp-content/', '/wp-includes/', '/wp-admin/', '/.well-known/' );
+    private const SYSTEM_PATH_PREFIXES = array( '/wp-content/', '/wp-includes/', '/wp-admin/', '/.well-known/' );
 
     /**
-     * File extensions treated the same way as NOISE_PATH_PREFIXES above —
+     * File extensions treated the same way as SYSTEM_PATH_PREFIXES above —
      * a static asset request that 404s (an old cached bundle hash, a
-     * favicon, a source map) is the same kind of noise even when it isn't
-     * under one of those three directories (a root-level `/favicon.ico`,
-     * an upload under `/wp-content/uploads/` already caught by the prefix
-     * check above but listed again here for anything similar outside it).
+     * favicon, a source map) is the same kind of "system, not content" 404
+     * even when it isn't under one of those directories (a root-level
+     * `/favicon.ico`, an upload under `/wp-content/uploads/` already
+     * caught by the prefix check above but listed again here for anything
+     * similar outside it).
      *
      * @var string[]
      */
-    private const NOISE_EXTENSIONS = array(
+    private const SYSTEM_EXTENSIONS = array(
         'css',
         'js',
         'mjs',
@@ -106,8 +111,8 @@ class NotFoundLogger {
     }
 
     /**
-     * Logs the current request as a 404 visit, if it is one and it isn't
-     * asset/tooling noise (see NOISE_PATH_PREFIXES/NOISE_EXTENSIONS).
+     * Logs the current request as a 404 visit, if it is one — classified
+     * as `is_system` (see is_system_path()) or a real content-page miss.
      *
      * @return void
      */
@@ -121,24 +126,23 @@ class NotFoundLogger {
         $requested_uri  = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
         $path           = wp_parse_url( $requested_uri, PHP_URL_PATH ) ?? '/';
         $requested_path = RedirectRepository::normalize_path( $path );
+        $referrer       = wp_get_referer();
 
-        if ( self::is_noise_path( $requested_path ) ) {
-            return;
-        }
-
-        $referrer = wp_get_referer();
-
-        ( new NotFoundLogRepository() )->log_or_increment( $requested_path, $referrer ? esc_url_raw( $referrer ) : null );
+        ( new NotFoundLogRepository() )->log_or_increment(
+            $requested_path,
+            $referrer ? esc_url_raw( $referrer ) : null,
+            self::is_system_path( $requested_path )
+        );
     }
 
     /**
-     * Checks a path against NOISE_PATH_PREFIXES/NOISE_EXTENSIONS.
+     * Checks a path against SYSTEM_PATH_PREFIXES/SYSTEM_EXTENSIONS.
      *
      * @param string $path Already-normalized request path (RedirectRepository::normalize_path()).
      * @return bool True if this path is a static asset/tooling-probe request, not a real missing content page.
      */
-    private static function is_noise_path( string $path ): bool {
-        foreach ( self::NOISE_PATH_PREFIXES as $prefix ) {
+    private static function is_system_path( string $path ): bool {
+        foreach ( self::SYSTEM_PATH_PREFIXES as $prefix ) {
             if ( 0 === strpos( $path, $prefix ) ) {
                 return true;
             }
@@ -146,6 +150,6 @@ class NotFoundLogger {
 
         $extension = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
 
-        return '' !== $extension && in_array( $extension, self::NOISE_EXTENSIONS, true );
+        return '' !== $extension && in_array( $extension, self::SYSTEM_EXTENSIONS, true );
     }
 }

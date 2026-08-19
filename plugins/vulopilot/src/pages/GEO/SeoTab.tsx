@@ -87,26 +87,23 @@ const SeoTab = () => {
 
 	if (!isSeoModuleActive()) {
 		return (
-			<ContainerComponent general>
-				<ColumnComponent>
-					<CardComponent title={__('SEO', 'vulopilot')}>
-						<ModuleGuardComponent
-							icon="error"
-							title={__('SEO module is turned off', 'vulopilot')}
-							desc={__(
-								'Turn the SEO module back on from Settings → Modules to resume SEO scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category.',
-								'vulopilot'
-							)}
-						/>
-					</CardComponent>
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent>
+				<CardComponent title={__('SEO', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="error"
+						title={__('SEO module is turned off', 'vulopilot')}
+						desc={__(
+							'Turn the SEO module back on from Settings → Modules to resume SEO scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category.',
+							'vulopilot'
+						)}
+					/>
+				</CardComponent>
+			</ColumnComponent>
 		);
 	}
 
 	return (
-		<ContainerComponent>
-			<ColumnComponent>
+		<ColumnComponent>
 				<NoticeComponent
 					// type="banner"
 					displayPosition="inline"
@@ -230,8 +227,7 @@ const SeoTab = () => {
 						'vulopilot'
 					)}
 				/>
-			</ColumnComponent>
-		</ContainerComponent>
+		</ColumnComponent>
 	);
 };
 
