@@ -82,7 +82,14 @@ class GoogleSearchConsoleOAuthCallbackHandler {
             exit;
         }
 
-        $result = $connection->exchange_code_for_tokens( $code );
+        // Same `code`+`state` shape either way — a broker-configured
+        // build only ever sent the browser to the broker's own authorize
+        // URL (GoogleServicesConnection::get_authorization_url()), so a
+        // `code` landing back here while the broker is still configured
+        // is VuloCloud's own short-lived exchange code, not Google's.
+        $result = $connection->has_broker()
+            ? $connection->exchange_broker_code_for_tokens( $code )
+            : $connection->exchange_code_for_tokens( $code );
 
         wp_safe_redirect( $redirect_base . '&gsc_status=' . ( is_wp_error( $result ) ? 'error' : 'connected' ) );
         exit;
