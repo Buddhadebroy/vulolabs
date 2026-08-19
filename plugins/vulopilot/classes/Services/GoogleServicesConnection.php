@@ -104,6 +104,12 @@ class GoogleServicesConnection {
                 'adsense_account_id' => '',
                 'adsense_account_name' => '',
                 'connected_at'       => '',
+                // 'direct' (embedded shared Client) or 'broker'
+                // (VuloCloud) — which path actually issued the current
+                // tokens, so refresh_access_token() knows which OAuth
+                // Client the stored refresh_token belongs to. Empty
+                // string only pre-first-connect.
+                'via'                => '',
             )
         );
     }
@@ -145,6 +151,22 @@ class GoogleServicesConnection {
     }
 
     /**
+     * Whether this build has a VuloCloud Google Connect broker configured
+     * (config.php's own docblock) — when true, `get_authorization_url()`
+     * routes through it instead of the embedded shared Client above, and
+     * every customer domain works without being individually registered
+     * in Google Cloud Console. Checked ahead of `has_client_credentials()`
+     * everywhere both are relevant: the broker needs no embedded
+     * credentials at all, so a broker-only deployment can leave
+     * VULOPILOT_GOOGLE_CLIENT_ID/SECRET undefined entirely.
+     *
+     * @return bool
+     */
+    public function has_broker(): bool {
+        return defined( 'VULOPILOT_GOOGLE_BROKER_URL' ) && '' !== VULOPILOT_GOOGLE_BROKER_URL;
+    }
+
+    /**
      * @return string|null
      */
     public function get_client_id(): ?string {
@@ -172,17 +194,24 @@ class GoogleServicesConnection {
      * it just echoes whatever opaque value we send back on redirect.
      *
      * @param string $return_to One of self::RETURN_TARGETS; anything else silently falls back to 'settings'.
-     * @return string|null Null if no client credentials are saved yet.
+     * @return string|null Null if neither a broker nor embedded client credentials are configured for this build yet.
      */
     public function get_authorization_url( string $return_to = 'settings' ): ?string {
+        if ( ! in_array( $return_to, self::RETURN_TARGETS, true ) ) {
+            $return_to = 'settings';
+        }
+
+        $state = self::encode_state( $return_to );
+
+        if ( $this->has_broker() ) {
+            return ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )
+                ->get_authorize_url( home_url(), $this->get_redirect_uri(), $state );
+        }
+
         $client_id = $this->get_client_id();
 
         if ( ! $client_id ) {
             return null;
-        }
-
-        if ( ! in_array( $return_to, self::RETURN_TARGETS, true ) ) {
-            $return_to = 'settings';
         }
 
         $params = array(
@@ -192,7 +221,7 @@ class GoogleServicesConnection {
             'scope'         => implode( ' ', self::SCOPES ),
             'access_type'   => 'offline',
             'prompt'        => 'consent',
-            'state'         => self::encode_state( $return_to ),
+            'state'         => $state,
         );
 
         return self::AUTHORIZE_URL . '?' . http_build_query( $params );
@@ -305,6 +334,7 @@ class GoogleServicesConnection {
             'access_token_enc' => CredentialEncryption::encrypt( $body['access_token'] ),
             'token_expires_at' => time() + (int) ( $body['expires_in'] ?? 3600 ),
             'connected_at'     => current_time( 'mysql' ),
+            'via'              => 'direct',
         );
 
         if ( ! empty( $body['refresh_token'] ) ) {
@@ -317,20 +347,90 @@ class GoogleServicesConnection {
     }
 
     /**
+     * Broker counterpart of `exchange_code_for_tokens()` — redeems the
+     * broker-issued `code` GoogleSearchConsoleOAuthCallbackHandler
+     * received on VuloCloud's own redirect back to this site's
+     * admin-post.php callback, via a real server-to-server
+     * `POST {broker}/plugin/google/exchange` (GoogleOAuthBrokerClient).
+     * Stores `via => 'broker'` so `refresh_access_token()` later knows
+     * this connection's refresh_token belongs to VuloCloud's OAuth
+     * Client, not the embedded one.
+     *
+     * @param string $code The `code` query param VuloCloud's redirect carried back.
+     * @return true|\WP_Error
+     */
+    public function exchange_broker_code_for_tokens( string $code ) {
+        $result = ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )->exchange( home_url(), $code );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        $update = array(
+            'access_token_enc' => CredentialEncryption::encrypt( $result['access_token'] ),
+            'token_expires_at' => time() + $result['expires_in'],
+            'connected_at'     => current_time( 'mysql' ),
+            'via'              => 'broker',
+        );
+
+        if ( '' !== $result['refresh_token'] ) {
+            $update['refresh_token_enc'] = CredentialEncryption::encrypt( $result['refresh_token'] );
+        }
+
+        $this->save_connection( $update );
+
+        return true;
+    }
+
+    /**
      * Real `refresh_token` grant — called by `get_valid_access_token()`
      * whenever the stored access token is expired (or about to be).
+     * Branches on the stored connection's own `via` flag: a refresh
+     * token is only valid against the OAuth Client that issued it, so a
+     * broker-issued one must be refreshed through the broker
+     * (GoogleOAuthBrokerClient::refresh()), not the embedded
+     * Client ID/Secret's direct grant below.
      *
      * @return bool
      */
     private function refresh_access_token(): bool {
         $connection    = $this->get_connection();
-        $client_id     = $this->get_client_id();
-        $client_secret = $this->get_client_secret();
         $refresh_token = '' !== $connection['refresh_token_enc']
             ? CredentialEncryption::decrypt( $connection['refresh_token_enc'] )
             : null;
 
-        if ( ! $client_id || ! $client_secret || ! $refresh_token ) {
+        if ( ! $refresh_token ) {
+            return false;
+        }
+
+        if ( 'broker' === $connection['via'] ) {
+            if ( ! $this->has_broker() ) {
+                // Connected via broker, but this build's broker URL was
+                // since unset — nothing left that can legally refresh
+                // this refresh_token; fail rather than guess.
+                return false;
+            }
+
+            $result = ( new GoogleOAuthBrokerClient( VULOPILOT_GOOGLE_BROKER_URL ) )->refresh( home_url(), $refresh_token );
+
+            if ( is_wp_error( $result ) ) {
+                return false;
+            }
+
+            $this->save_connection(
+                array(
+                    'access_token_enc' => CredentialEncryption::encrypt( $result['access_token'] ),
+                    'token_expires_at' => time() + $result['expires_in'],
+                )
+            );
+
+            return true;
+        }
+
+        $client_id     = $this->get_client_id();
+        $client_secret = $this->get_client_secret();
+
+        if ( ! $client_id || ! $client_secret ) {
             return false;
         }
 
@@ -503,6 +603,7 @@ class GoogleServicesConnection {
                 'adsense_account_id'    => '',
                 'adsense_account_name'  => '',
                 'connected_at'          => '',
+                'via'                   => '',
             )
         );
     }
@@ -521,6 +622,13 @@ class GoogleServicesConnection {
             // panel either shows a working "Connect" button or an honest
             // "not available in this build yet" state based on this flag.
             'has_client_credentials' => $this->has_client_credentials(),
+            // Whether "Connect Google Services" will route through the
+            // VuloCloud broker (any domain works, no per-site Google
+            // Cloud Console registration) rather than the embedded
+            // shared Client above (only domains manually allowlisted on
+            // that Client's own redirect URI list will complete the
+            // handshake) — see config.php's VULOPILOT_GOOGLE_BROKER_URL.
+            'has_broker'              => $this->has_broker(),
             'search_console_site'    => $connection['search_console_site'],
             'ga4_account_id'         => $connection['ga4_account_id'],
             'ga4_account_name'       => $connection['ga4_account_name'],
