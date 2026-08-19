@@ -94,12 +94,76 @@ const StructuredDataSection = () => {
 	const totalProblems = snapshot
 		? snapshot.coverage.reduce((sum, row) => sum + row.problems, 0)
 		: 0;
-	const typesWithProblems = snapshot
-		? snapshot.coverage.filter((row) => row.problems > 0).length
-		: 0;
 
 	return (
 		<ColumnComponent>
+			{snapshot && (
+				<CardComponent
+					title={__('Schema Status', 'vulopilot')}
+					titleIcon="info"
+					desc={__(
+						'VuloPilot checked how your website describes its pages, products, articles and business to search engines.',
+						'vulopilot'
+					)}
+					isLoading={isLoading}
+				>
+					<div className="schema-status-grid">
+						<div className="schema-status-item">
+							<div className="schema-status-icon schema-status-icon--purple">
+								<i className="adminfont-attachment" />
+							</div>
+							<div>
+								<div className="schema-status-value">
+									{snapshot.pages_checked}
+								</div>
+								<div className="schema-status-label">
+									{__('Pages checked', 'vulopilot')}
+								</div>
+							</div>
+						</div>
+						<div className="schema-status-item">
+							<div className="schema-status-icon schema-status-icon--green">
+								<i className="adminfont-check" />
+							</div>
+							<div>
+								<div className="schema-status-value">
+									{snapshot.pages_with_valid_schema}
+								</div>
+								<div className="schema-status-label">
+									{__('Pages with valid schema', 'vulopilot')}
+								</div>
+							</div>
+						</div>
+						<div className="schema-status-item">
+							<div className="schema-status-icon schema-status-icon--orange">
+								<i className="adminfont-alarm" />
+							</div>
+							<div>
+								<div className="schema-status-value">
+									{snapshot.pages_needing_attention}
+								</div>
+								<div className="schema-status-label">
+									{__('Need attention', 'vulopilot')}
+								</div>
+							</div>
+						</div>
+						<div className="schema-status-item">
+							<div className="schema-status-icon schema-status-icon--blue">
+								<i className="adminfont-category" />
+							</div>
+							<div>
+								<div className="schema-status-value">
+									{snapshot.coverage.length}
+								</div>
+								<div className="schema-status-label">
+									{__('Schema types detected', 'vulopilot')}
+								</div>
+							</div>
+						</div>
+					</div>
+				</CardComponent>
+			)}
+
 			<CardComponent
 				title={__('Schema Coverage', 'vulopilot')}
 				titleIcon="attachment"
@@ -135,47 +199,6 @@ const StructuredDataSection = () => {
 
 				{snapshot && (
 					<>
-						<div className="kg-glance-grid schema-status-row">
-							<div className="kg-glance-item">
-								<div className="kg-glance-icon">
-									<i className="adminfont-search" />
-								</div>
-								<div>
-									<div className="kg-glance-label">
-										{__('Pages checked', 'vulopilot')}
-									</div>
-									<div className="kg-glance-value">
-										{snapshot.pages_checked}
-									</div>
-								</div>
-							</div>
-							<div className="kg-glance-item">
-								<div className="kg-glance-icon">
-									<i className="adminfont-attachment" />
-								</div>
-								<div>
-									<div className="kg-glance-label">
-										{__('Schema types detected', 'vulopilot')}
-									</div>
-									<div className="kg-glance-value">
-										{snapshot.coverage.length}
-									</div>
-								</div>
-							</div>
-							<div className="kg-glance-item">
-								<div className="kg-glance-icon">
-									<i className="adminfont-error" />
-								</div>
-								<div>
-									<div className="kg-glance-label">
-										{__('Types with real open issues', 'vulopilot')}
-									</div>
-									<div className="kg-glance-value">
-										{typesWithProblems}
-									</div>
-								</div>
-							</div>
-						</div>
 						<p className="desc schema-generated-at">
 							{sprintf(
 								/* translators: %s is when this real schema sample was generated. */

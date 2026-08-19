@@ -24,10 +24,10 @@ const SECTIONS: {
 	icon: string;
 	label: string;
 }[] = [
-	{ id: 'structured-data', icon: 'attachment', label: __('Structured Data', 'vulopilot') },
-	{ id: 'knowledge-graph', icon: 'centralized-connections', label: __('Knowledge Graph', 'vulopilot') },
-	{ id: 'inspector', icon: 'search', label: __('Inspector', 'vulopilot') },
+	{ id: 'knowledge-graph', icon: 'centralized-connections', label: __('Entities & Relationships', 'vulopilot') },
+	{ id: 'structured-data', icon: 'attachment', label: __('Structured Data (Schema)', 'vulopilot') },
 	{ id: 'issues', icon: 'error', label: __('Issues', 'vulopilot') },
+	{ id: 'inspector', icon: 'search', label: __('Inspector', 'vulopilot') },
 ];
 
 /**

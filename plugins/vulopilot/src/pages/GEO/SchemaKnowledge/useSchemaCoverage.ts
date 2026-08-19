@@ -22,6 +22,10 @@ export interface SchemaCoverageSnapshot {
 	generated_at: string;
 	sample_size: number;
 	pages_checked: number;
+	/** Real count of `pages_checked` where at least one real `@type` was actually found — the "Schema Status" summary card's own per-page pass count. */
+	pages_with_valid_schema: number;
+	/** `pages_checked - pages_with_valid_schema` — pages where the real sample found zero structured data at all. */
+	pages_needing_attention: number;
 	coverage: SchemaCoverageRow[];
 }
 
