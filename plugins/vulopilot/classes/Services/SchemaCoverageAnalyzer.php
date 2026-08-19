@@ -69,7 +69,7 @@ class SchemaCoverageAnalyzer {
      * Runs a fresh real sample and stores it — the only path that performs
      * real outbound HTTP requests (see this class's own docblock).
      *
-     * @return array{generated_at: string, sample_size: int, coverage: array<int, array{type: string, meaning: string, found_on: int, problems: int}>, pages_checked: int}
+     * @return array{generated_at: string, sample_size: int, coverage: array<int, array{type: string, meaning: string, found_on: int, problems: int, pages: array<int, array{id: int, title: string, url: string, edit_url: string|null}>}>, pages_checked: int}
      */
     public function analyze(): array {
         $post_ids = get_posts(
@@ -84,6 +84,12 @@ class SchemaCoverageAnalyzer {
         );
 
         $type_counts = array();
+        // Real, specific pages behind each type's `found_on` count —
+        // "View pages" (StructuredDataSection.tsx) shows exactly these,
+        // instead of the generic "go check the SEO tab" redirect it used
+        // to be: a site owner can now see, per @type, precisely which
+        // real page(s) actually carry it.
+        $type_pages = array();
         $pages_checked = 0;
 
         foreach ( $post_ids as $post_id ) {
@@ -98,8 +104,16 @@ class SchemaCoverageAnalyzer {
             }
 
             ++$pages_checked;
+            $page_entry = array(
+                'id'       => $post_id,
+                'title'    => get_the_title( $post_id ) ?: $permalink,
+                'url'      => $permalink,
+                'edit_url' => current_user_can( 'edit_post', $post_id ) ? get_edit_post_link( $post_id, 'raw' ) : null,
+            );
+
             foreach ( array_unique( $types ) as $type ) {
-                $type_counts[ $type ] = ( $type_counts[ $type ] ?? 0 ) + 1;
+                $type_counts[ $type ]  = ( $type_counts[ $type ] ?? 0 ) + 1;
+                $type_pages[ $type ][] = $page_entry;
             }
         }
 
@@ -109,8 +123,16 @@ class SchemaCoverageAnalyzer {
         // reasoning SchemaScanner already applies.
         $homepage_types = $this->extract_types_from_url( home_url( '/' ) );
         if ( null !== $homepage_types ) {
+            $homepage_entry = array(
+                'id'       => 0,
+                'title'    => __( 'Homepage', 'vulopilot' ),
+                'url'      => home_url( '/' ),
+                'edit_url' => null,
+            );
+
             foreach ( array_unique( $homepage_types ) as $type ) {
-                $type_counts[ $type ] = ( $type_counts[ $type ] ?? 0 ) + 1;
+                $type_counts[ $type ]  = ( $type_counts[ $type ] ?? 0 ) + 1;
+                $type_pages[ $type ][] = $homepage_entry;
             }
         }
 
@@ -136,6 +158,7 @@ class SchemaCoverageAnalyzer {
                 'problems' => $found_on > 0 && $open_problems_total > 0
                     ? (int) round( ( $found_on / array_sum( $type_counts ) ) * $open_problems_total )
                     : 0,
+                'pages'    => $type_pages[ $type ] ?? array(),
             );
         }
 

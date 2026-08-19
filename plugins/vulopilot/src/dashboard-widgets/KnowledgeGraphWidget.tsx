@@ -5,7 +5,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { ListComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
-import type { EntitiesResponse } from '../pages/GEO/KnowledgeGraphTab';
+import type { EntitiesResponse } from '../pages/GEO/SchemaKnowledge/KnowledgeGraphSection';
 
 /**
  * A Dashboard-level teaser for the Knowledge Graph page — same "small

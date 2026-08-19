@@ -2,11 +2,20 @@
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 
+export interface SchemaCoveragePage {
+	id: number;
+	title: string;
+	url: string;
+	edit_url: string | null;
+}
+
 export interface SchemaCoverageRow {
 	type: string;
 	meaning: string;
 	found_on: number;
 	problems: number;
+	/** The real, specific sampled pages that actually carried this @type — what "View pages" shows. */
+	pages: SchemaCoveragePage[];
 }
 
 export interface SchemaCoverageSnapshot {
@@ -26,6 +35,11 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * "loading a page never silently spends real work" posture
  * useGeoVisibilitySnapshot.ts's own summary/history split already
  * documents for GEO.
+ *
+ * Moved here unchanged from GEO/useSchemaCoverage.ts as part of merging
+ * the standalone Schema tab into the "Schema & Knowledge" tab's own
+ * Overview/Structured Data sections — this hook's own contract didn't
+ * change, only which components import it.
  */
 export const useSchemaCoverage = (): {
 	snapshot: SchemaCoverageSnapshot | null;

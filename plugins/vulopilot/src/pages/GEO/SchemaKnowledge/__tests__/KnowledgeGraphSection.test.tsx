@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { getApiResponse } from '@zyra/core';
-import KnowledgeGraph from '../KnowledgeGraphTab';
+import KnowledgeGraph from '../KnowledgeGraphSection';
 
-describe( 'KnowledgeGraph page', () => {
+describe( 'KnowledgeGraph section', () => {
 	beforeEach( () => {
 		( getApiResponse as jest.Mock ).mockReset();
 	} );

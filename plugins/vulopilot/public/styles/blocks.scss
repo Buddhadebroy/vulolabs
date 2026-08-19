@@ -1,0 +1,113 @@
+/*
+ * Frontend + editor styling for the `vulopilot/table-of-contents` and
+ * `vulopilot/faq` blocks (src/blocks/table-of-contents/, src/blocks/faq/).
+ * Enqueued explicitly by Services\BlockRegistrar — see that class's own
+ * docblock for why this goes through the plain public/*.scss pipeline
+ * rather than a webpack-bundled block.json style/editorStyle field.
+ */
+
+.vulopilot-toc {
+	margin: 1.5em 0;
+	padding: 1em 1.25em;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #f6f7f7;
+
+	&__title {
+		margin: 0 0 0.5em;
+		font-weight: 600;
+	}
+
+	&__empty {
+		margin: 0;
+		color: #6b7280;
+		font-style: italic;
+	}
+
+	&__list {
+		margin: 0;
+		padding-left: 1.25em;
+		list-style: disc;
+	}
+
+	&__item {
+		margin: 0.25em 0;
+
+		a {
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+	}
+
+	@for $level from 2 through 6 {
+		&__item--level-#{$level} {
+			margin-left: #{( $level - 2 ) * 1em};
+		}
+	}
+
+	&__details summary {
+		cursor: pointer;
+		font-weight: 600;
+
+		&::-webkit-details-marker {
+			color: #50575e;
+		}
+	}
+
+	&__details[open] summary {
+		margin-bottom: 0.5em;
+	}
+}
+
+.vulopilot-faq {
+	margin: 1.5em 0;
+
+	&__empty {
+		color: #6b7280;
+		font-style: italic;
+	}
+
+	&__item {
+		border-bottom: 1px solid #dcdcde;
+		padding: 0.75em 0;
+	}
+
+	&__question {
+		cursor: pointer;
+		font-weight: 600;
+	}
+
+	&__answer {
+		margin-top: 0.5em;
+		color: #3c434a;
+	}
+
+	/* Editor-only repeater rows — harmless if this stylesheet is also
+	 * enqueued in the editor context (BlockRegistrar::enqueue_editor_styles()). */
+	&__editor-row {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+		margin-bottom: 1em;
+		padding: 0.75em;
+		border: 1px dashed #8c8f94;
+		border-radius: 4px;
+	}
+
+	&__question-input {
+		font-weight: 600;
+		border: none;
+		border-bottom: 1px solid #dcdcde;
+		padding: 0.25em 0;
+	}
+
+	&__answer-input {
+		min-height: 2.5em;
+		border: 1px solid #dcdcde;
+		border-radius: 2px;
+		padding: 0.5em;
+	}
+}

@@ -8,10 +8,11 @@ import GeoTab from './GeoTab';
 import AeoTab from './AeoTab';
 import CrawlerTrafficTab from './CrawlerTrafficTab';
 import BrandVisibilityTab from './BrandVisibilityTab';
-import KnowledgeGraphTab from './KnowledgeGraphTab';
+import SchemaKnowledgeTab, {
+	SchemaKnowledgeSectionId,
+} from './SchemaKnowledge/SchemaKnowledgeTab';
 import SeoTab from './SeoTab';
 import KeywordsTab from './KeywordsTab';
-import SchemaTab from './SchemaTab';
 import BrokenLinksTab from './BrokenLinksTab';
 import RedirectsTab from './RedirectsTab';
 
@@ -23,16 +24,27 @@ const TAB_IDS = [
 	'aeo',
 	'keywords',
 	'crawler-traffic',
-	'knowledge-graph',
-	'schema',
+	'schema-knowledge',
 	'broken-links',
 	'redirects',
 ] as const;
 
 /**
+ * A bookmarked `?subtab=schema` or `?subtab=knowledge-graph` link (both
+ * former standalone tabs, now sections inside `schema-knowledge`) must
+ * still resolve to a real tab rather than silently falling back to
+ * Overview — see this file's own docblock for why nothing actually links
+ * to either today (so this is a safety net, not a live-break fix).
+ */
+const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
+	schema: 'schema-knowledge',
+	'knowledge-graph': 'schema-knowledge',
+};
+
+/**
  * "Grow My Traffic" (WP menu slug `geo`) — a tab shell over Overview
  * (OverviewTab.tsx), and GEO/AEO/Crawler Traffic/Brand Visibility/
- * Knowledge Graph/SEO/Keywords/Schema/Broken Links/Redirects,
+ * Schema & Knowledge/SEO/Keywords/Broken Links/Redirects,
  * folded in as tabs instead of their own now-deleted standalone pages.
  * Keywords (KeywordsTab.tsx) was originally a `ModuleGuardComponent`
  * tucked into the SEO tab's own footer; split into its own tab per direct
@@ -46,7 +58,7 @@ const TAB_IDS = [
  * AEO/Crawler Traffic
  * were already grouped under `Admin.php`'s `legacy_submenus()` "Folded
  * into 'geo' ('Grow My Traffic')" comment (`group: 'ai-visibility'`);
- * Brand Visibility/Knowledge Graph/SEO/Schema had no documented fold
+ * Brand Visibility/Schema & Knowledge/SEO had no documented fold
  * destination there, so they land here too rather than as a second,
  * differently-scoped tab shell. "AI Content" was originally folded in
  * here too, then moved to "Create Content"
@@ -61,6 +73,17 @@ const TAB_IDS = [
  * `TabsComponent`, with `activeTab` owned here so Overview's own "AI
  * Opportunities"/"Discover" cards can jump to the GEO tab.
  *
+ * "Knowledge Graph" and "Schema" were two more of these folded-in tabs
+ * until they were merged into one "Schema & Knowledge" tab
+ * (`SchemaKnowledge/SchemaKnowledgeTab.tsx`, its own 5-way internal
+ * Overview/Structured Data/Knowledge Graph/Inspector/Issues navigation) —
+ * `SUBTAB_ALIASES` above keeps `?subtab=schema`/`?subtab=knowledge-graph`
+ * resolving to the merged tab (and to the matching inner section, via
+ * `initialInnerSection` below) for any pre-existing bookmarked link,
+ * exactly the same "old top-level slug still lands correctly" reasoning
+ * `AuthorityCard.tsx`'s old `?tab=brand-visibility` link already relies
+ * on for this whole tab shell.
+ *
  * Supports the same `subtab` deep-link convention
  * `src/pages/StatusAndTools/StatusAndTools.tsx` already established
  * (`?page=vulopilot#&tab=<page>&subtab=<inner-tab>`) so pre-existing
@@ -69,14 +92,23 @@ const TAB_IDS = [
  * right tab instead of only the default Overview.
  */
 const GEO = () => {
-	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
-		'subtab'
-	);
+	const rawSubtab = new URLSearchParams(
+		useLocation().hash.substring(1)
+	).get('subtab');
+	const resolvedSubtab = rawSubtab
+		? (SUBTAB_ALIASES[rawSubtab] ?? rawSubtab)
+		: null;
 	const initialTab = (
-		subtab && (TAB_IDS as readonly string[]).includes(subtab)
-			? subtab
+		resolvedSubtab && (TAB_IDS as readonly string[]).includes(resolvedSubtab)
+			? resolvedSubtab
 			: 'overview'
 	) as (typeof TAB_IDS)[number];
+	const initialInnerSection: SchemaKnowledgeSectionId =
+		'schema' === rawSubtab
+			? 'structured-data'
+			: 'knowledge-graph' === rawSubtab
+				? 'knowledge-graph'
+				: 'overview';
 
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
@@ -141,12 +173,12 @@ const GEO = () => {
 							content: <CrawlerTrafficTab />,
 						},
 						{
-							label: __('Knowledge Graph', 'vulopilot'),
-							content: <KnowledgeGraphTab />,
-						},
-						{
-							label: __('Schema', 'vulopilot'),
-							content: <SchemaTab />,
+							label: __('Schema & Knowledge', 'vulopilot'),
+							content: (
+								<SchemaKnowledgeTab
+									initialSection={initialInnerSection}
+								/>
+							),
 						},
 						{
 							label: __('Broken Links', 'vulopilot'),

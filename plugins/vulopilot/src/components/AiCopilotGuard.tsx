@@ -12,7 +12,7 @@ interface AiCopilotGuardProps {
 
 /**
  * Shared "AI Copilot is off" fallback for every AI-branded card in this
- * plugin — same real module-inactive shape KnowledgeGraphTab.tsx's own
+ * plugin — same real module-inactive shape KnowledgeGraphSection.tsx's own
  * `<ModuleGuardComponent icon="error" title="Entity Extraction module is
  * turned off" .../>` already uses for a different free module, just with a
  * button (same "Enable Now" deep-link-to-Modules pattern Popup.tsx's

@@ -2,7 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { getApiResponse } from '@zyra/core';
 
 /**
- * KnowledgeGraph.tsx resolves `vulopilot_knowledge_graph_visualization_card`/
+ * KnowledgeGraphSection.tsx resolves
+ * `vulopilot_knowledge_graph_visualization_card`/
  * `vulopilot_knowledge_graph_recommendations_card`/
  * `vulopilot_knowledge_graph_health_card` via applyFilters() once, at
  * module top-level scope — same reasoning
@@ -27,9 +28,9 @@ addFilter(
 	() => () => <div data-testid="kg-health-stub" />
 );
 
-const KnowledgeGraph = require( '../KnowledgeGraphTab' ).default;
+const KnowledgeGraph = require( '../KnowledgeGraphSection' ).default;
 
-describe( 'KnowledgeGraph page — Pro filter slots registered', () => {
+describe( 'KnowledgeGraph section — Pro filter slots registered', () => {
 	it( 'renders all 3 Pro cards registered via the vulopilot_knowledge_graph_* filters', async () => {
 		global.appLocalizer.active_modules = [ 'entity-extraction' ];
 		( getApiResponse as jest.Mock ).mockResolvedValue( {

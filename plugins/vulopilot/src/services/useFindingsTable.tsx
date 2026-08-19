@@ -160,6 +160,16 @@ export interface UseFindingsTableProps {
 	layout?: 'default' | 'compact';
 	/** Empty-state message — shown by TableCard's own `emptyMessage` when there's nothing to list. */
 	description?: string;
+	/**
+	 * Which categorical dimension drives the pill bar above the table —
+	 * `'status'` (Open/Resolved/Ignored/Snoozed, every existing caller's
+	 * default) or `'priority'` (Critical/Important/Minor, the "Schema &
+	 * Knowledge" tab's Issues section — see Findings.php's own
+	 * `priority`/`priority_counts` handling). Real severity values
+	 * underneath either way (`high`/`medium`/`low`) — only the pill
+	 * labels and which REST param they drive change.
+	 */
+	pillDimension?: 'status' | 'priority';
 }
 
 export interface UseFindingsTableResult {
@@ -201,6 +211,7 @@ export const useFindingsTable = ({
 	scannerIds,
 	layout = 'default',
 	description,
+	pillDimension = 'status',
 }: UseFindingsTableProps): UseFindingsTableResult => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
@@ -211,6 +222,24 @@ export const useFindingsTable = ({
 		{ label: __('Ignored', 'vulopilot'), value: 'ignored' },
 		{ label: __('Snoozed', 'vulopilot'), value: 'snoozed' },
 	];
+
+	/**
+	 * Critical/Important/Minor — a display-only relabeling of the same
+	 * real `high`/`medium`/`low` priority buckets `get_finding_groups()`'s
+	 * own stat tiles already use elsewhere; the underlying `severity`
+	 * column/value object is untouched (Findings.php's own
+	 * `PRIORITY_SEVERITY_LABELS`).
+	 */
+	const priorityOptions = [
+		{ label: __('Critical', 'vulopilot'), value: 'high' },
+		{ label: __('Important', 'vulopilot'), value: 'medium' },
+		{ label: __('Minor', 'vulopilot'), value: 'low' },
+	];
+
+	const pillConfig =
+		'priority' === pillDimension
+			? { key: 'priority', options: priorityOptions }
+			: { key: 'status', options: statusOptions };
 
 	const {
 		data,
@@ -230,7 +259,7 @@ export const useFindingsTable = ({
 			// (see parse_scanner_ids()).
 			scanner_id: scannerIds?.length ? scannerIds.join(',') : undefined,
 		},
-		{ key: 'status', options: statusOptions }
+		pillConfig
 	);
 
 	/**
