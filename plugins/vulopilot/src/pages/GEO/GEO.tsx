@@ -7,15 +7,13 @@ import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import OverviewTab from './OverviewTab';
 import GeoTab from './GeoTab';
 import AeoTab from './AeoTab';
-import CrawlerTrafficTab from './CrawlerTrafficTab';
+import CrawlUrlsTab, { CrawlUrlsSectionId } from './CrawlUrlsTab';
 import BrandVisibilityTab from './BrandVisibilityTab';
 import SchemaKnowledgeTab, {
 	SchemaKnowledgeSectionId,
 } from './SchemaKnowledge/SchemaKnowledgeTab';
 import SeoTab from './SeoTab';
 import KeywordsTab from './KeywordsTab';
-import BrokenLinksTab from './BrokenLinksTab';
-import RedirectsTab from './RedirectsTab';
 
 const TAB_IDS = [
 	'overview',
@@ -24,38 +22,37 @@ const TAB_IDS = [
 	'geo',
 	'aeo',
 	'keywords',
-	'crawler-traffic',
+	'crawl-urls',
 	'schema-knowledge',
-	'broken-links',
-	'redirects',
 ] as const;
 
 /**
  * A bookmarked `?subtab=schema` or `?subtab=knowledge-graph` link (both
- * former standalone tabs, now sections inside `schema-knowledge`) must
- * still resolve to a real tab rather than silently falling back to
- * Overview — see this file's own docblock for why nothing actually links
- * to either today (so this is a safety net, not a live-break fix).
+ * former standalone tabs, now sections inside `schema-knowledge`), or
+ * `?subtab=crawler-traffic`/`broken-links`/`redirects` (3 more former
+ * standalone tabs, now inner tabs of `crawl-urls` — see this file's own
+ * docblock on the "Crawl & URLs" merge) must still resolve to a real tab
+ * rather than silently falling back to Overview — see this file's own
+ * docblock for why nothing actually links to either today (so this is a
+ * safety net, not a live-break fix).
  */
 const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
 	schema: 'schema-knowledge',
 	'knowledge-graph': 'schema-knowledge',
+	'crawler-traffic': 'crawl-urls',
+	'broken-links': 'crawl-urls',
+	redirects: 'crawl-urls',
 };
 
 /**
  * "Grow My Traffic" (WP menu slug `geo`) — a tab shell over Overview
- * (OverviewTab.tsx), and GEO/AEO/Crawler Traffic/Brand Visibility/
- * Schema & Knowledge/SEO/Keywords/Broken Links/Redirects,
+ * (OverviewTab.tsx), and GEO/AEO/Crawl & URLs/Brand Visibility/
+ * Schema & Knowledge/SEO/Keywords,
  * folded in as tabs instead of their own now-deleted standalone pages.
  * Keywords (KeywordsTab.tsx) was originally a `ModuleGuardComponent`
  * tucked into the SEO tab's own footer; split into its own tab per direct
  * instruction — see that file's own docblock for why it's still an
  * honest "not connected yet" state rather than fabricated rank data.
- * Broken Links (BrokenLinksTab.tsx), added after Schema per direct
- * instruction, is real `scanner_id: 'broken-links'` findings pulled out
- * of the SEO tab's own "Links & schema" section into their own tab, same
- * `useFindingsTable` hook every other findings-backed tab here uses —
- * see that file's own docblock.
  * AEO/Crawler Traffic
  * were already grouped under `Admin.php`'s `legacy_submenus()` "Folded
  * into 'geo' ('Grow My Traffic')" comment (`group: 'ai-visibility'`);
@@ -85,6 +82,21 @@ const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
  * `AuthorityCard.tsx`'s old `?tab=brand-visibility` link already relies
  * on for this whole tab shell.
  *
+ * "Crawler Traffic", "Broken Links", and "Redirects" (which itself used
+ * to bundle a real 404 log alongside its own redirect-rules table) were 3
+ * more standalone tabs, each with a real but overlapping "URL
+ * maintenance" concern — merged into one "Crawl & URLs" tab
+ * (`CrawlUrlsTab.tsx`, its own 5-way internal Overview/Broken
+ * Links/Redirects/404s/Robots & Sitemap navigation, real inner tabs this
+ * time rather than Schema & Knowledge's own continuous-scroll pattern —
+ * see that file's own docblock for why) per direct instruction: "Broken
+ * Links + Redirects + Crawler Traffic are fragmented... That creates four
+ * URL-maintenance concepts spread across three tabs... one main tab:
+ * Crawl & URLs." `SUBTAB_ALIASES` resolves all 3 old top-level slugs to
+ * `crawl-urls`, and `initialCrawlUrlsSection` below picks the matching
+ * inner tab, same "old bookmarked link still lands correctly" reasoning
+ * the Schema & Knowledge merge already established.
+ *
  * Supports the same `subtab` deep-link convention
  * `src/pages/StatusAndTools/StatusAndTools.tsx` already established
  * (`?page=vulopilot#&tab=<page>&subtab=<inner-tab>`) so pre-existing
@@ -110,10 +122,28 @@ const GEO = () => {
 			: 'knowledge-graph' === rawSubtab
 				? 'knowledge-graph'
 				: 'overview';
+	const initialCrawlUrlsSection: CrawlUrlsSectionId =
+		'crawler-traffic' === rawSubtab
+			? 'overview'
+			: 'broken-links' === rawSubtab
+				? 'broken-links'
+				: 'redirects' === rawSubtab
+					? 'redirects'
+					: 'overview';
 
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
 	);
+	// Which inner tab `<CrawlUrlsTab>` should land on the next time it's
+	// (re)mounted — starts at whatever a bookmarked `?subtab=...` link
+	// resolved to, and `goToTab`'s own optional second argument below can
+	// update it for a same-session cross-tab jump (SeoTab.tsx's own
+	// "Search engine access" link, which needs 'robots-sitemap'
+	// specifically). Read once per mount by CrawlUrlsTab's own
+	// `initialSection` prop, same contract SchemaKnowledgeTab.tsx's
+	// `initialInnerSection` already has.
+	const [crawlUrlsJumpSection, setCrawlUrlsJumpSection] =
+		useState<CrawlUrlsSectionId>(initialCrawlUrlsSection);
 	// Scoped to this page's own categories — GeoTab/AeoTab are 'geo',
 	// SeoTab's 17 scanners span 'seo'/'images'/'schema'/'links' (see its
 	// own docblock) — same "local tab" scoping every other category page's
@@ -122,10 +152,22 @@ const GEO = () => {
 		categories: ['geo', 'seo', 'images', 'schema', 'links'],
 	});
 
-	const goToTab = (tab: string) => {
-		if ((TAB_IDS as readonly string[]).includes(tab)) {
-			setActiveTab(tab as (typeof TAB_IDS)[number]);
+	/**
+	 * `crawlUrlsSection` is only meaningful when `tab` is `'crawl-urls'` —
+	 * every other caller (OverviewTab.tsx's own `'geo' | 'aeo'`-typed
+	 * `onNavigateTab`) never passes it, so `<CrawlUrlsTab>` just keeps
+	 * whatever section it last had.
+	 */
+	const goToTab = (tab: string, crawlUrlsSection?: CrawlUrlsSectionId) => {
+		if (!(TAB_IDS as readonly string[]).includes(tab)) {
+			return;
 		}
+
+		if (crawlUrlsSection) {
+			setCrawlUrlsJumpSection(crawlUrlsSection);
+		}
+
+		setActiveTab(tab as (typeof TAB_IDS)[number]);
 	};
 
 	return (
@@ -158,7 +200,7 @@ const GEO = () => {
 						},
 						{
 							label: __('SEO', 'vulopilot'),
-							content: <SeoTab />,
+							content: <SeoTab onNavigateTab={goToTab} />,
 						},
 						{
 							label: __('GEO', 'vulopilot'),
@@ -173,24 +215,20 @@ const GEO = () => {
 							content: <KeywordsTab />,
 						},
 						{
-							label: __('Crawler Traffic', 'vulopilot'),
-							content: <CrawlerTrafficTab />,
+							label: __('Crawl & URLs', 'vulopilot'),
+							content: (
+								<CrawlUrlsTab
+									initialSection={crawlUrlsJumpSection}
+								/>
+							),
 						},
 						{
-							label: __('Schema & Knowledge', 'vulopilot'),
+							label: __('Business Identity & Schema', 'vulopilot'),
 							content: (
 								<SchemaKnowledgeTab
 									initialSection={initialInnerSection}
 								/>
 							),
-						},
-						{
-							label: __('Broken Links', 'vulopilot'),
-							content: <BrokenLinksTab />,
-						},
-						{
-							label: __('Redirects', 'vulopilot'),
-							content: <RedirectsTab />,
 						},
 					]}
 				/>

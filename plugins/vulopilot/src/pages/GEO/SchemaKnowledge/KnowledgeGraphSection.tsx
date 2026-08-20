@@ -2,8 +2,6 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import type { ComponentType } from 'react';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import {
 	BadgeComponent,
@@ -13,10 +11,11 @@ import {
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import InspectorSection from './InspectorSection';
+import { useFilterSlot } from '../../../services/useFilterSlot';
 
 /** Real Settings → Scanning → AI Visibility subtab id (Settings.tsx's own `currentTab === 'ai-visibility'` branch) — where the `entity_service_pages`/`entity_business_locations` fields this section reads actually live. */
 const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=ai-visibility';
+
 
 export interface Entity {
 	id: string;
@@ -90,32 +89,25 @@ const isEntityExtractionModuleActive = () =>
 	appLocalizer.active_modules?.includes('entity-extraction') ?? false;
 
 /**
- * "Graph Visualization" — vulopilot-pro's KnowledgeGraph module's own
- * force-graph-style render of Free's entities + Pro's relationships, same
- * "register a source, don't modify the host" slot pattern BrandVisibilityTab's
- * Pro card slots already use.
+ * "Graph Visualization"/"Entity Recommendations"/"Knowledge Graph Health"
+ * — vulopilot-pro's KnowledgeGraph module's own real Pro card slots.
+ *
+ * `useFilterSlot()`, not a plain top-level `applyFilters()` read — this
+ * file used the plain-read pattern for all 3 of these slots until now,
+ * which is a real, confirmed bug: BrandVisibilityTab.tsx's own docblock
+ * already documents that a top-level `applyFilters()` call evaluates
+ * before Pro's own script has necessarily finished registering its
+ * filters (Free's bundle can finish importing and evaluating this module
+ * before Pro's later `<script>` tag runs its `addFilter()` calls), which
+ * leaves the slot permanently stuck at `null` regardless of whether the
+ * `knowledge-graph` module is actually active — confirmed live: even with
+ * that module active, "Graph Visualization" kept showing its own
+ * "Graph visualization is a Pro feature" fallback every time, the exact
+ * symptom that docblock describes. `useFilterSlot()` re-checks on the
+ * real `vulopilot_pro_modules_loaded` event Pro's own script fires once
+ * it's actually finished, which is what BrandVisibilityTab.tsx's own 4
+ * slots already correctly use instead of this same broken pattern.
  */
-const KnowledgeGraphVisualizationCard = applyFilters(
-	'vulopilot_knowledge_graph_visualization_card',
-	null
-) as ComponentType | null;
-
-/**
- * "Entity Recommendations" — same slot pattern as
- * CrawlerVisibilityCorrelationCard's slot on CrawlerTrafficTab.tsx.
- */
-const EntityRecommendationsCard = applyFilters(
-	'vulopilot_knowledge_graph_recommendations_card',
-	null
-) as ComponentType | null;
-
-/**
- * "Knowledge Graph Health" — same slot pattern as the two cards above.
- */
-const KnowledgeGraphHealthCard = applyFilters(
-	'vulopilot_knowledge_graph_health_card',
-	null
-) as ComponentType | null;
 
 /**
  * Real category names flagged as worth cleaning up — either the generic WP
@@ -344,29 +336,57 @@ const EntityHighlightCard = ({
 };
 
 /**
- * "Knowledge Graph" section of the merged "Schema & Knowledge" tab (moved
- * here unchanged from the standalone KnowledgeGraphTab.tsx as part of that
- * merge — see SchemaKnowledgeTab.tsx's own docblock) — Free's own Entity
- * Extraction (6 real, deterministic entity types, KNOWLEDGE-GRAPH-MODULE.md)
- * restyled to match the reference mockup's own information architecture:
- * the mockup's featured 3 entity cards (Products/Business Locations/
- * Categories, EntityHighlightCard below), a real computed "What should
- * you check?" panel, a static "why this matters" explainer, then the
- * remaining 3 entity types (People/Organizations/Services) as their own
- * real cards below — kept, not dropped, per "existing tab data, no
- * duplicate data" — plus vulopilot-pro's own Graph Visualization/Entity
- * Recommendations/Knowledge Graph Health Pro slots in the second column,
- * unchanged.
+ * "Knowledge Graph" section of the merged "Business Identity & Schema" tab
+ * (moved here unchanged from the standalone KnowledgeGraphTab.tsx as part
+ * of the original Schema+Knowledge Graph merge — see SchemaKnowledgeTab.tsx's
+ * own docblock; renamed again since, per direct instruction, to match a
+ * newer reference mockup — see that same docblock) — Free's own Entity
+ * Extraction (6 real, deterministic entity types, KNOWLEDGE-GRAPH-MODULE.md).
  *
- * The former standalone "Your website at a glance" stat row (Products/
- * Business Locations/Categories counts) was removed per direct
- * instruction — it repeated exactly the same 3 numbers the
- * EntityHighlightCards immediately below it already show, each as its
- * own real count badge.
+ * "What AI & Search Understand" replaces the former standalone "Your
+ * website at a glance" stat row (Products/Business Locations/Categories
+ * counts only) — real counts for all 6 entity types now (Organization/
+ * Products/Categories/People/Locations/Services), plus vulopilot-pro's own
+ * Graph Visualization Pro slot moved up into this same card (previously
+ * a separate tile in the sidebar column) so the real entity list and the
+ * real relationship diagram sit side by side, matching the mockup.
+ *
+ * The real "Entity Understanding" score that briefly lived here as its
+ * own card moved again, up to BusinessUnderstandingCard.tsx's own hero
+ * section at the top of this page — showing it here too would have
+ * recreated the exact "same real number shown twice" problem fixed
+ * elsewhere this session (see that file's own docblock).
+ *
+ * Below the summary: a real computed "What should you check?" panel, a
+ * static "why this matters" explainer, then all 6 entity types as their
+ * own real detail cards (EntityHighlightCard) — kept, not dropped, per
+ * "existing tab data, no duplicate data" — plus vulopilot-pro's own
+ * Entity Recommendations/Knowledge Graph Health Pro slots in the second
+ * column. InspectorSection.tsx (JSON-LD viewer/Schema Validator/Conflict
+ * Detection) used to also live in this same sidebar column; moved out to
+ * SchemaKnowledgeTab.tsx's own "Technical Details (Schema & Markup)"
+ * section instead — it's fundamentally a schema concern, not a
+ * knowledge-graph/entity one, so it now sits next to StructuredDataSection.tsx
+ * (the same real grouping the reference mockup shows) rather than nested
+ * inside this section's sidebar.
  */
 const KnowledgeGraphSection = () => {
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
 	const [error, setError] = useState<string | null>(null);
+
+	// Called unconditionally, before the early returns below, per the
+	// rules of hooks — same reasoning BrandVisibilityTab.tsx's own 4
+	// useFilterSlot() calls already document (a Pro slot resolving is
+	// irrelevant on the "module off"/error branches anyway).
+	const KnowledgeGraphVisualizationCard = useFilterSlot(
+		'vulopilot_knowledge_graph_visualization_card'
+	);
+	const EntityRecommendationsCard = useFilterSlot(
+		'vulopilot_knowledge_graph_recommendations_card'
+	);
+	const KnowledgeGraphHealthCard = useFilterSlot(
+		'vulopilot_knowledge_graph_health_card'
+	);
 
 	const fetchEntities = () => {
 		if (!isEntityExtractionModuleActive()) {
@@ -436,57 +456,93 @@ const KnowledgeGraphSection = () => {
 		? getMessyCategoryNames(entities.categories)
 		: new Set<string>();
 
+	const understandCounts: { key: string; icon: string; label: string; count: number }[] = entities
+		? [
+				{
+					key: 'organizations',
+					icon: 'global-community',
+					label: __('Organization', 'vulopilot'),
+					count: entities.organizations.length,
+				},
+				{
+					key: 'products',
+					icon: 'product',
+					label: __('Products', 'vulopilot'),
+					count: entities.products?.length ?? 0,
+				},
+				{
+					key: 'categories',
+					icon: 'category',
+					label: __('Categories', 'vulopilot'),
+					count: entities.categories.length,
+				},
+				{
+					key: 'people',
+					icon: 'person',
+					label: __('People', 'vulopilot'),
+					count: entities.people.length,
+				},
+				{
+					key: 'locations',
+					icon: 'location',
+					label: __('Locations', 'vulopilot'),
+					count: entities.locations.length,
+				},
+				{
+					key: 'services',
+					icon: 'customer-service',
+					label: __('Services', 'vulopilot'),
+					count: entities.services.length,
+				},
+			]
+		: [];
+
 	return (
 		<>
 			<ColumnComponent grid={8}>
 				{entities && (
 					<>
 						<CardComponent
-							title={__('Your website at a glance', 'vulopilot')}
+							title={__('What AI & Search Understand', 'vulopilot')}
+							titleIcon="centralized-connections"
 							desc={__(
-								'These are the main things VuloPilot found on your website.',
+								'These are the main things we detected on your site and how they connect.',
 								'vulopilot'
 							)}
+							badges={[
+								{ text: __('Knowledge Graph view', 'vulopilot'), color: 'purple' },
+							]}
 						>
-							<div className="kg-glance-grid">
-								<div className="kg-glance-item">
-									<div className="kg-glance-icon">
-										<i className="adminfont-product" />
-									</div>
-									<div>
-										<div className="kg-glance-label">
-											{__('Products', 'vulopilot')}
-										</div>
-										<div className="kg-glance-value">
-											{entities.products?.length ?? 0}
-										</div>
-									</div>
-								</div>
-								<div className="kg-glance-item">
-									<div className="kg-glance-icon">
-										<i className="adminfont-location" />
-									</div>
-									<div>
-										<div className="kg-glance-label">
-											{__('Business Locations', 'vulopilot')}
-										</div>
-										<div className="kg-glance-value">
-											{entities.locations.length}
-										</div>
-									</div>
-								</div>
-								<div className="kg-glance-item">
-									<div className="kg-glance-icon">
-										<i className="adminfont-category" />
-									</div>
-									<div>
-										<div className="kg-glance-label">
-											{__('Categories', 'vulopilot')}
-										</div>
-										<div className="kg-glance-value">
-											{entities.categories.length}
-										</div>
-									</div>
+							<div className="kg-understand-grid">
+								<ul className="kg-understand-count-list">
+									{understandCounts.map((row) => (
+										<li key={row.key} className="kg-understand-count-row">
+											<i className={`adminfont-${row.icon}`} />
+											<span className="kg-understand-count-label">
+												{row.label}
+											</span>
+											<span className="kg-understand-count-value">
+												{row.count}
+											</span>
+										</li>
+									))}
+								</ul>
+								<div className="kg-understand-graph">
+									{KnowledgeGraphVisualizationCard ? (
+										<KnowledgeGraphVisualizationCard />
+									) : (
+										<ModuleGuardComponent
+											icon="centralized-connections"
+											title={__(
+												'Graph visualization is a Pro feature',
+												'vulopilot'
+											)}
+											desc={__(
+												'Upgrade to see how your real entities connect to each other as a diagram.',
+												'vulopilot'
+											)}
+										/>
+									)}
 								</div>
 							</div>
 						</CardComponent>
@@ -635,11 +691,7 @@ const KnowledgeGraphSection = () => {
 					/>
 				)}
 				{KnowledgeGraphHealthCard && <KnowledgeGraphHealthCard />}
-				{KnowledgeGraphVisualizationCard && (
-					<KnowledgeGraphVisualizationCard />
-				)}
 				{EntityRecommendationsCard && <EntityRecommendationsCard />}
-				<InspectorSection />
 			</ColumnComponent>
 		</>
 	);
