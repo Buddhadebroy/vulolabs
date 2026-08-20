@@ -369,7 +369,7 @@ const HistoryTab = ({
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={8}>
-			<CardComponent titleIcon="history" title={__('History', 'vulopilot')} desc={__('Everything VuloPilot has scanned, changed, or applied. Use filters to find exactly what you need.', 'vulopilot')}>
+			<CardComponent titleIcon="security" title={__('History', 'vulopilot')} desc={__('Everything VuloPilot has scanned, changed, or applied. Use filters to find exactly what you need.', 'vulopilot')}>
 				<div className='filter-wrapper'>
 					<div className="category-filter">
 						{FILTER_TABS.map((tab) => (
