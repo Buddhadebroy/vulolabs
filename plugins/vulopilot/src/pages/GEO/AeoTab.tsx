@@ -1,4 +1,3 @@
-/* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
@@ -11,15 +10,13 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { scrollToId } from '@zyra/core';
-import SectionedFindingsTab from '../Security/SectionedFindingsTab';
-import type { FindingsSection } from '../Security/SectionedFindingsTab';
-import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import ProLockedCard from '../../components/ProLockedCard';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
 import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
 import GeoByTopicGrid from './GeoByTopicGrid';
 import TopPagesCard from './TopPagesCard';
 import GeoPageAnalysisTable from './GeoPageAnalysisTable';
+import IssuesSection from './IssuesSection';
 import { useAllFindingGroups } from './useAllFindingGroups';
 import { sumGroupCounts } from './useGeoFindingGroups';
 import { useGeoVisibilitySnapshot } from './useGeoVisibilitySnapshot';
@@ -53,7 +50,6 @@ const AEO_SECTIONS: {
 	description: string;
 	emptyMessage: string;
 	scannerIds: string[];
-	proModule?: string;
 }[] = [
 	{
 		key: 'coverage',
@@ -150,14 +146,6 @@ const AEO_SECTIONS: {
 
 const ALL_AEO_SCANNER_IDS = AEO_SECTIONS.flatMap((section) => section.scannerIds);
 
-/**
- * Same `active_modules` gate GeoTab.tsx's own isGeoInsightsActive() uses —
- * 'geo-insights' is GeoInsights' folder name kebab-cased
- * (Modules.php::camel_to_kebab()).
- */
-const isGeoInsightsActive = () =>
-	appLocalizer.active_modules?.includes('geo-insights') ?? false;
-
 const getRating = (score: number): string => {
 	if (score >= 70) {
 		return __('Good', 'vulopilot');
@@ -225,26 +213,22 @@ const average = (values: number[]): number =>
  *    genericized this session the same way TopPagesCard.tsx was) — every
  *    page, a real deterministic answer-readiness % scoped to AEO's own
  *    scanner ids, Export CSV.
- * 8. "All AEO Issues" — the same real, unified findings table
- *    (SectionedFindingsTab.tsx) with the same 3 honestly-not-built-yet
- *    cards this tab already had, kept at the bottom.
+ * 8. The same 3 honestly-not-built-yet cards this tab already had, plus
+ *    "All AEO Issues" — now `IssuesSection.tsx` (SeoTab.tsx's own real
+ *    filter-pills + Site-wide Issues + Pages & Posts structure,
+ *    generalized so this tab and GeoTab.tsx can reuse it too, per direct
+ *    instruction), replacing the differently-shaped `SectionedFindingsTab.tsx`
+ *    this used before.
  */
 const AeoTab = () => {
-	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
+	const [categoryFocus, setCategoryFocus] = useState<{
+		key: string;
+		token: number;
+	} | null>(null);
 	const { groups, isLoading: isLoadingGroups } = useAllFindingGroups();
 	const { snapshot, isLoading: isLoadingSnapshot } = useGeoVisibilitySnapshot();
 	const { pages: aeoPages, total: totalPages, isLoading: isLoadingPages } =
 		useAeoPageAnalysis(ALL_AEO_SCANNER_IDS);
-
-	const aeoSections: FindingsSection[] = AEO_SECTIONS.map((section) => ({
-		key: section.key,
-		title: section.title,
-		description: section.description,
-		emptyMessage: section.emptyMessage,
-		scannerIds: section.scannerIds,
-		proModule: section.proModule,
-		locked: Boolean(section.proModule) && !isGeoInsightsActive(),
-	}));
 
 	const totalOpenFindings = sumGroupCounts(groups, ALL_AEO_SCANNER_IDS);
 	// GeoFixTheseFirstCard (reused generically, see its own docblock) sorts
@@ -278,9 +262,16 @@ const AeoTab = () => {
 	// shared one.
 	const pagesReady = aeoPages.filter((page) => 0 === page.open_findings).length;
 
-	const goToIssuesTable = (tab: SectionedIssuesTab = 'all') => {
-		setActiveTab(tab);
-		setTimeout(() => scrollToId('aeo-all-issues-table'), 50);
+	/**
+	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key`
+	 * twice in a row) — `IssuesSection.tsx`'s own effect both switches its
+	 * active filter to that category (or resets to unfiltered for the
+	 * literal `'all'`) and scrolls itself into view, so this doesn't also
+	 * need its own `scrollToId()` call the way the old `SectionedFindingsTab`-based
+	 * version did (that component had no such self-scrolling behavior).
+	 */
+	const goToIssuesTable = (key: string = 'all') => {
+		setCategoryFocus({ key, token: Date.now() });
 	};
 
 	const hasSnapshot = snapshot && snapshot.ai_scores && snapshot.sub_scores;
@@ -577,78 +568,78 @@ const AeoTab = () => {
 				/>
 			</div>
 
+			<ContainerComponent>
+				<CardComponent
+					title={__('Answerability signals', 'vulopilot')}
+					titleIcon="analytics"
+					badges={[
+						{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+					]}
+					toggle
+				>
+					<ModuleGuardComponent
+						icon="info"
+						title={__('Not scoring answerability signals yet', 'vulopilot')}
+						desc={__(
+							'A dedicated per-signal AEO score breakdown hasn’t been built yet. The AEO Score above already reflects several real answer-extraction dimensions for VuloPilot Pro users.',
+							'vulopilot'
+						)}
+					/>
+				</CardComponent>
+				<CardComponent
+					title={__('Answer engine coverage', 'vulopilot')}
+					titleIcon="global-community"
+					desc={__(
+						'Whether AI answer engines currently cite this site when asked questions its content answers.',
+						'vulopilot'
+					)}
+					badges={[
+						{
+							text: __('Simulated Citation Checks', 'vulopilot'),
+							color: 'purple',
+						},
+					]}
+					toggle
+				>
+					<ModuleGuardComponent
+						icon="info"
+						title={__('Not available yet', 'vulopilot')}
+						desc={__(
+							'Live citation testing against ChatGPT, Perplexity, and other AI answer engines isn’t built yet — flag if you want it scoped next.',
+							'vulopilot'
+						)}
+					/>
+				</CardComponent>
+				<CardComponent
+					title={__('Engine Testing', 'vulopilot')}
+					titleIcon="intelligence"
+					desc={__(
+						'Re-verifies a previously-flagged finding against an AI answer engine once you’ve fixed it, instead of waiting for the next full scan.',
+						'vulopilot'
+					)}
+					badges={[
+						{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+					]}
+					toggle
+				>
+					<ModuleGuardComponent
+						icon="info"
+						title={__('Not available yet', 'vulopilot')}
+						desc={__(
+							'Per-engine re-test tracking isn’t built yet — flag if you want it scoped next.',
+							'vulopilot'
+						)}
+					/>
+				</CardComponent>
+			</ContainerComponent>
+
+			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) — replaces the differently-shaped SectionedFindingsTab this used before, per direct instruction. */}
 			<div id="aeo-all-issues-table">
-				<SectionedFindingsTab
-					title={__('All AEO Issues', 'vulopilot')}
-					sections={aeoSections}
-					activeTab={activeTab}
-					onTabChange={setActiveTab}
-					header={
-						<>
-							<CardComponent
-								title={__('Answerability signals', 'vulopilot')}
-								titleIcon="analytics"
-								badges={[
-									{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-								]}
-								toggle
-							>
-								<ModuleGuardComponent
-									icon="info"
-									title={__('Not scoring answerability signals yet', 'vulopilot')}
-									desc={__(
-										'A dedicated per-signal AEO score breakdown hasn’t been built yet. The AEO Score above already reflects several real answer-extraction dimensions for VuloPilot Pro users.',
-										'vulopilot'
-									)}
-								/>
-							</CardComponent>
-							<CardComponent
-								title={__('Answer engine coverage', 'vulopilot')}
-								titleIcon="global-community"
-								desc={__(
-									'Whether AI answer engines currently cite this site when asked questions its content answers.',
-									'vulopilot'
-								)}
-								badges={[
-									{
-										text: __('Simulated Citation Checks', 'vulopilot'),
-										color: 'purple',
-									},
-								]}
-								toggle
-							>
-								<ModuleGuardComponent
-									icon="info"
-									title={__('Not available yet', 'vulopilot')}
-									desc={__(
-										'Live citation testing against ChatGPT, Perplexity, and other AI answer engines isn’t built yet — flag if you want it scoped next.',
-										'vulopilot'
-									)}
-								/>
-							</CardComponent>
-							<CardComponent
-								title={__('Engine Testing', 'vulopilot')}
-								titleIcon="intelligence"
-								desc={__(
-									'Re-verifies a previously-flagged finding against an AI answer engine once you’ve fixed it, instead of waiting for the next full scan.',
-									'vulopilot'
-								)}
-								badges={[
-									{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-								]}
-								toggle
-							>
-								<ModuleGuardComponent
-									icon="info"
-									title={__('Not available yet', 'vulopilot')}
-									desc={__(
-										'Per-engine re-test tracking isn’t built yet — flag if you want it scoped next.',
-										'vulopilot'
-									)}
-								/>
-							</CardComponent>
-						</>
-					}
+				<IssuesSection
+					scannerIds={ALL_AEO_SCANNER_IDS}
+					categories={AEO_SECTIONS}
+					categoryFocus={categoryFocus}
+					issuesColumnLabel={__('AEO Issues', 'vulopilot')}
 				/>
 			</div>
 		</>

@@ -5,14 +5,11 @@ import { CardComponent, ContainerComponent, NoticeComponent } from '@zyra/compon
 import { scrollToId } from '@zyra/core';
 import TopPagesCard from './TopPagesCard';
 import { useFilterSlot } from '../../services/useFilterSlot';
-import SectionedFindingsTab from '../Security/SectionedFindingsTab';
-import type { FindingsSection } from '../Security/SectionedFindingsTab';
-import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
+import IssuesSection from './IssuesSection';
 import ProLockedCard from '../../components/ProLockedCard';
 import { useGeoFindingGroups, sumGroupCounts } from './useGeoFindingGroups';
 import { useGeoVisibilitySnapshot } from './useGeoVisibilitySnapshot';
 import GeoVisibilityOverviewRow from './GeoVisibilityOverviewRow';
-import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
 import GeoTrendCompactCard from './GeoTrendCompactCard';
 import GeoByTopicGrid from './GeoByTopicGrid';
 import GeoPageAnalysisTable from './GeoPageAnalysisTable';
@@ -141,9 +138,12 @@ const isGeoInsightsActive = () =>
  * 2. "Overall AI Visibility" + "The 4 things AI checks for"
  *    (GeoVisibilityOverviewRow.tsx, Pro-gated) — real
  *    `useGeoVisibilitySnapshot()` data, `totalOpenFindings` passed in from
- *    the same `groups` fetch "Fix These First"/"By Topic" already use.
- * 3. "Fix These First" (GeoFixTheseFirstCard.tsx) + "Your Best & Worst
- *    Pages" (TopPagesCard.tsx, restyled) side by side.
+ *    the same `groups` fetch "By Topic" below already uses.
+ * 3. "Your Best & Worst Pages" (TopPagesCard.tsx, restyled) — "Fix These
+ *    First" (GeoFixTheseFirstCard.tsx), previously shown alongside it here,
+ *    removed per direct instruction; that component's still real and still
+ *    used as-is on AeoTab.tsx's own "What Needs Your Attention" card, just
+ *    no longer rendered on this tab.
  * 4. "Are You Getting Easier to Find?" (GeoTrendCompactCard.tsx, Pro-gated)
  *    + "How You Compare to Similar Sites" (Pro's own
  *    CompetitorVisibilityCard, given this site's own real score as
@@ -154,12 +154,17 @@ const isGeoInsightsActive = () =>
  * 6. "Page-by-page analysis" (GeoPageAnalysisTable.tsx) — every page, a
  *    real deterministic visibility % (GeoAnalyzer::score_from_failures()),
  *    Export CSV.
- * 7. "All GEO Issues" — the same real, unified findings table
- *    (SectionedFindingsTab.tsx) already built for this tab, kept as-is and
- *    relocated to the bottom rather than duplicated with a second table.
+ * 7. "All GEO Issues" — now `IssuesSection.tsx` (SeoTab.tsx's own real
+ *    filter-pills + Site-wide Issues + Pages & Posts structure,
+ *    generalized so this tab and AeoTab.tsx can reuse it too, per direct
+ *    instruction), replacing the differently-shaped `SectionedFindingsTab.tsx`
+ *    this used before. Kept at the bottom, same as before.
  */
 const GeoTab = () => {
-	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
+	const [categoryFocus, setCategoryFocus] = useState<{
+		key: string;
+		token: number;
+	} | null>(null);
 	const { groups, isLoading: isLoadingGroups } = useGeoFindingGroups();
 	const { snapshot, history, isLoading: isLoadingSnapshot } =
 		useGeoVisibilitySnapshot();
@@ -174,14 +179,6 @@ const GeoTab = () => {
 		(props: { yourScore?: number | null }) => JSX.Element
 	>('vulopilot_geo_competitor_visibility');
 
-	const geoTopicSections: FindingsSection[] = GEO_TOPICS.map((topic) => ({
-		key: topic.key,
-		title: topic.title,
-		description: topic.description,
-		emptyMessage: topic.emptyMessage,
-		scannerIds: topic.scannerIds,
-	}));
-
 	const allGeoScannerIds = GEO_TOPICS.flatMap((topic) => topic.scannerIds);
 	const totalOpenFindings = sumGroupCounts(groups, allGeoScannerIds);
 
@@ -190,9 +187,16 @@ const GeoTab = () => {
 		? withScore[withScore.length - 1].overall_score
 		: null;
 
-	const goToIssuesTable = (tab: SectionedIssuesTab = 'all') => {
-		setActiveTab(tab);
-		setTimeout(() => scrollToId('geo-all-issues-table'), 50);
+	/**
+	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key`
+	 * twice in a row) — `IssuesSection.tsx`'s own effect both switches its
+	 * active filter to that topic (or resets to unfiltered for the literal
+	 * `'all'`) and scrolls itself into view, so this doesn't also need its
+	 * own `scrollToId()` call the way the old `SectionedFindingsTab`-based
+	 * version did.
+	 */
+	const goToIssuesTable = (key: string = 'all') => {
+		setCategoryFocus({ key, token: Date.now() });
 	};
 
 	return (
@@ -218,18 +222,6 @@ const GeoTab = () => {
 			/>
 
 			<ContainerComponent>
-				<GeoFixTheseFirstCard
-					groups={groups}
-					isLoading={isLoadingGroups}
-					total={totalOpenFindings}
-					onViewAll={() => goToIssuesTable('all')}
-					onSelectScanner={(scannerId) => {
-						const topic = GEO_TOPICS.find((t) =>
-							t.scannerIds.includes(scannerId)
-						);
-						goToIssuesTable(topic?.key ?? 'all');
-					}}
-				/>
 				<TopPagesCard onViewAll={() => scrollToId('geo-page-analysis')} />
 			</ContainerComponent>
 
@@ -269,11 +261,11 @@ const GeoTab = () => {
 			</div>
 
 			<div id="geo-all-issues-table">
-				<SectionedFindingsTab
-					title={__('All GEO Issues', 'vulopilot')}
-					sections={geoTopicSections}
-					activeTab={activeTab}
-					onTabChange={setActiveTab}
+				<IssuesSection
+					scannerIds={allGeoScannerIds}
+					categories={GEO_TOPICS}
+					categoryFocus={categoryFocus}
+					issuesColumnLabel={__('GEO Issues', 'vulopilot')}
 				/>
 			</div>
 		</>
