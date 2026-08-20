@@ -276,6 +276,63 @@ const AiProvidersPanel = () => {
 			});
 	};
 
+	/**
+	 * Changes an already-connected provider's default model — the real fix
+	 * for a gap where a provider offering several models (Gemini's
+	 * `gemini-flash-latest`/`gemini-flash-lite-latest`/`gemini-pro-latest`,
+	 * OpenAI's `gpt-4o`/`gpt-4o-mini`/…) could only ever get the one model
+	 * picked at connect-time: `formFields` below only showed a read-only
+	 * "Default model: X" notice once a provider was configured, with no
+	 * control to change it — even though `Controllers\AiProviders::update_item()`
+	 * already accepted a `default_model` param on this exact route (only
+	 * the "reconnect" credential flow used it). Re-saving without
+	 * disconnecting/reconnecting the whole provider, same
+	 * `POST /ai-providers/{id}` route handleReconnect() already uses.
+	 */
+	const handleUpdateModel = (row: ConfiguredProvider) => {
+		if (isSavingRef.current) {
+			return;
+		}
+
+		const model = String(
+			newProviderValuesRef.current[row.provider]?.default_model ?? ''
+		).trim();
+
+		if ('' === model || model === row.default_model) {
+			return;
+		}
+
+		isSavingRef.current = true;
+		setIsSaving(true);
+
+		sendApiResponse(
+			appLocalizer,
+			getApiLink(appLocalizer, `ai-providers/${row.id}`),
+			{ default_model: model }
+		)
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-ai-provider-model',
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? __('Default model updated.', 'vulopilot')
+						: __(
+								'Could not update the default model.',
+								'vulopilot'
+							),
+				});
+
+				if (response) {
+					load();
+				}
+			})
+			.finally(() => {
+				isSavingRef.current = false;
+				setIsSaving(false);
+			});
+	};
+
 	const handleDelete = (row: ConfiguredProvider) => {
 		if (
 			!window.confirm(
@@ -366,20 +423,34 @@ const AiProvidersPanel = () => {
 							type: 'notice',
 							label: '',
 							noticeType: 'info',
-							message: row.default_model
-								? sprintf(
-										__(
-											'Provider: %1$s — Default model: %2$s',
-											'vulopilot'
-										),
-										providerLabel,
-										row.default_model
-									)
-								: sprintf(
-										__('Provider: %s', 'vulopilot'),
-										providerLabel
-									),
+							message: sprintf(
+								__('Provider: %s', 'vulopilot'),
+								providerLabel
+							),
 						},
+						...(adapter && adapter.available_models.length > 0
+							? [
+									{
+										key: 'default_model',
+										type: 'select',
+										label: __('Default model', 'vulopilot'),
+										options: adapter.available_models.map(
+											(model) => ({
+												label: model,
+												value: model,
+											})
+										),
+									},
+									{
+										key: 'save_model',
+										type: 'button',
+										label: '',
+										text: __('Save model', 'vulopilot'),
+										disabled: isSaving,
+										onClick: () => handleUpdateModel(row),
+									},
+								]
+							: []),
 						{
 							key: 'disconnect',
 							type: 'button',
@@ -398,11 +469,27 @@ const AiProvidersPanel = () => {
 			configured.map((row) => [
 				row.provider,
 				{
+					// Preserves whatever the user is actively editing in this
+					// row's own fields (a picked-but-not-yet-saved
+					// `default_model`, a typed-but-not-yet-saved reconnect
+					// `credential`, …) — ExpandablePanelInput's `value` prop
+					// is what every field actually renders
+					// (`renderField()`'s own `value[methodId]?.[field.key]`),
+					// so overwriting this whole object with only
+					// `enable`/`title` on every render (the previous
+					// behavior) discarded an in-progress selection the very
+					// next render after picking it, before "Save" was ever
+					// clicked.
+					...(newProviderValues[row.provider] ?? {}),
 					enable: true,
 					title:
 						row.label ||
 						adapters[row.provider]?.label ||
 						row.provider,
+					default_model:
+						newProviderValues[row.provider]?.default_model ??
+						row.default_model ??
+						'',
 				},
 			])
 		),
