@@ -1,3 +1,4 @@
+/* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
@@ -5,19 +6,22 @@ import {
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
-	ModuleGuardComponent,
 	NoticeComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import { scrollToId } from '@zyra/core';
 import ProLockedCard from '../../components/ProLockedCard';
-import AiCopilotGuard from '../../components/AiCopilotGuard';
 import GeoByTopicGrid from './GeoByTopicGrid';
 import TopPagesCard from './TopPagesCard';
+import GeoTrendCompactCard from './GeoTrendCompactCard';
+import AeoCitationCoverageCard from './AeoCitationCoverageCard';
+import AeoEngineTestingCard from './AeoEngineTestingCard';
 import IssuesSection from './IssuesSection';
 import { useAllFindingGroups } from './useAllFindingGroups';
 import { sumGroupCounts } from './useGeoFindingGroups';
-import { useGeoVisibilitySnapshot } from './useGeoVisibilitySnapshot';
+import {
+	useGeoVisibilitySnapshot,
+	type GeoVisibilityHistoryRow,
+} from './useGeoVisibilitySnapshot';
 import { useAeoPageAnalysis } from './useAeoPageAnalysis';
 
 /**
@@ -170,6 +174,39 @@ const average = (values: number[]): number =>
 		: 0;
 
 /**
+ * The same 3-dimension average the "AEO Score" ring below computes for
+ * "today" (`answer_first_structure`/`question_coverage`/`citation_readiness`),
+ * applied to one historical `history` row instead — passed as
+ * GeoTrendCompactCard.tsx's own `getScore` prop so "AEO Score Over Time"
+ * trends this scoped average rather than that card's default sitewide
+ * `overall_score`. Returns null for a day the sample batch found nothing
+ * to average (same meaning `overall_score: null` already carries).
+ */
+const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
+	row.ai_scores && row.sub_scores
+		? average([
+				row.ai_scores.answer_first_structure,
+				row.ai_scores.question_coverage,
+				row.sub_scores.citation_readiness,
+			])
+		: null;
+
+/**
+ * Whether GeoInsights' own Rest.php class is registered at all — either
+ * 'geo-insights' or 'aeo-insights' being active is enough, since both
+ * register that same class (AeoInsights\Module.php's own docblock). The
+ * real gate AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx check
+ * before letting a click spend a real AI call, same "check the real
+ * active_modules list directly" posture GeoTab.tsx's own
+ * `isGeoInsightsActive()` already uses for its sibling Competitor
+ * Visibility card.
+ */
+const isCitationCheckActive = (): boolean =>
+	(appLocalizer.active_modules?.includes('geo-insights') ||
+		appLocalizer.active_modules?.includes('aeo-insights')) ??
+	false;
+
+/**
  * AEO = Answer Engine Optimization — whether AI systems can extract,
  * structure, and cite a direct answer from this site's pages (distinct from
  * GEO's broader "can an AI understand this page at all" scope, and from
@@ -179,10 +216,15 @@ const average = (values: number[]): number =>
  * for GEO rather than duplicating them:
  *
  * 1. Two real info banners (static, honest explanatory copy).
- * 2. 4 real stat tiles — AEO Score (Pro-gated bucket average, unchanged),
- *    "Questions Answered" and "Pages Ready" (both NEW — see
- *    useAeoPageAnalysis.ts's own docblock for where their numbers come
- *    from), and Open Issues (unchanged).
+ * 2. 3 real stat tiles — AEO Score (Pro-gated bucket average), "Questions
+ *    Answered" and "Pages Ready" (both NEW — see useAeoPageAnalysis.ts's
+ *    own docblock for where their numbers come from). A 4th tile, "Open
+ *    Issues", used to sit here too — removed (direct instruction: "remove
+ *    the duplicate content") since it was the exact same open-findings
+ *    total already shown two other ways on this same tab: summed across
+ *    "AEO Checks at a Glance"'s 6 topic tiles below, and again as the
+ *    issues table's own "All Issues" summary card (IssuesSection.tsx,
+ *    left untouched — direct instruction: "table intact no change").
  * 3. "Top Pages by Answer Readiness" (TopPagesCard.tsx — genericized so it
  *    can be scoped to AEO's own scanner ids instead of GEO's
  *    `category=geo` default), full width on its own. "What Needs Your
@@ -191,25 +233,57 @@ const average = (values: number[]): number =>
  *    "Fix These First" usage of that same component was removed earlier
  *    this session too — the component itself is still real, just not
  *    currently rendered by either GEO or AEO).
- * 4. "AEO score over time" — an honest not-tracked-yet card (NEW). No
- *    per-dimension AEO score history exists anywhere in this codebase
- *    (GeoInsights\VisibilitySnapshotBuilder's own history table only ever
- *    stores one combined `overall_score` per day, not a per-bucket
- *    breakdown — same gap this file already documented before), so this
- *    is a real acknowledgement of that gap with a real link to the one
- *    place an AEO breakdown does exist today (the page-by-page table
- *    below), not a fabricated trend line.
+ * 4. "AEO Score Over Time" (GeoTrendCompactCard.tsx, genericized and
+ *    reused rather than left as a "not tracked yet" placeholder) — turns
+ *    out `VisibilitySnapshotBuilder` had been writing a real per-day
+ *    `ai_scores`/`sub_scores` breakdown into `vulopilot_geo_visibility_history`
+ *    since day one (GeoVisibilityHistoryRepository::upsert_today()'s own
+ *    `longtext` columns); `Rest.php::get_visibility_history()` just never
+ *    read those two columns back out, so every consumer only ever saw the
+ *    one combined `overall_score`. Decoding and returning them there
+ *    closes that gap for real, so this card now trends the same
+ *    answer_first_structure/question_coverage/citation_readiness average
+ *    the current-day "AEO Score" ring above already uses, per historical
+ *    day — a real trend line, not a fabricated one.
  * 5. "AEO Checks at a Glance" (GeoByTopicGrid.tsx, reused) — now 6 real
  *    topics instead of 5, see AEO_SECTIONS's own docblock.
- * 6. "Need help improving?" (NEW) — 3 real shortcuts: Ask AI Copilot (same
- *    real destination as #3's banner), Fix automatically (scrolls to the
- *    real Fix/Fix-selected actions already live in the issues table below
- *    — see OneClickFix's own `vulopilot_finding_fix_handler` filter, which
- *    is what actually powers that table's row actions when Pro's
- *    One-Click Fix module is active), and Learn more (scrolls back to the
- *    real explanatory banner at the top of this tab).
- * 7. The same 3 honestly-not-built-yet cards this tab already had, plus
- *    "All AEO Issues" — `IssuesSection.tsx` (SeoTab.tsx's own real
+ * 6. "Need Help Improving?" briefly existed here (3 shortcuts: Ask AI
+ *    Copilot, Fix Automatically, Learn More) — removed per direct
+ *    instruction. Its own `scrollToId('aeo-top-banner')` target
+ *    (`<div id="aeo-top-banner">` wrapping the "In plain English" banner
+ *    at the top of this tab) had no other caller once this section was
+ *    gone, so that wrapper div/id was removed too rather than left as
+ *    dead scroll-target infrastructure.
+ * 7. "Answerability Signals" — briefly existed as its own real card (the
+ *    same 3 scores the "AEO Score" ring averages together —
+ *    `answer_first_structure`/`question_coverage`/`citation_readiness` —
+ *    broken out individually), then removed (direct instruction: "remove
+ *    the duplicate content") once it was live: it was the exact same 3
+ *    numbers as the AEO Score ring above, just re-shown unaveraged one
+ *    section down, and its own tile labels ("Direct Answer Structure",
+ *    "Question Coverage", "Citation Readiness") collided confusingly with
+ *    "AEO Checks at a Glance"'s differently-sourced topic tiles ("Direct
+ *    Answers", "Questions & Answers", "Evidence & Sources" — real
+ *    finding counts, not AI-judged scores). The AEO Score ring is the one
+ *    place those 3 dimensions are shown now. "Answer Engine Coverage"
+ *    (AeoCitationCoverageCard.tsx) and "Engine Testing"
+ *    (AeoEngineTestingCard.tsx, NEW) are real and functional now — both
+ *    real outbound calls to this site's own configured AI provider
+ *    (`GeoInsights\CitationCoverageChecker`, reusing Free's own
+ *    `ai_request_sender` — the exact safety-validated call path
+ *    GeoAnalysis\GeoAnalyzer already uses for GEO Score), asking it a real
+ *    question drawn from the site's own content without ever naming the
+ *    site, then checking whether the model's own real answer already
+ *    recognizes it. Genuinely disclosed as "Simulated" (that badge
+ *    predates this build and is still accurate): a plain chat completion
+ *    has no live web search, so it can only ever recognize a site it
+ *    already learned about during training — a "not recognized" result on
+ *    a small or new site is an expected, true finding, not a broken
+ *    check. Both gate on `isCitationCheckActive()` (same real
+ *    `active_modules` check GeoTab.tsx's own `isGeoInsightsActive()`
+ *    already uses for its sibling Competitor Visibility card) rather than
+ *    the `hasSnapshot` a snapshot-cron run happens to have populated.
+ * 8. "All AEO Issues" — `IssuesSection.tsx` (SeoTab.tsx's own real
  *    filter-pills + Site-wide Issues + Pages & Posts structure,
  *    generalized so this tab and GeoTab.tsx can reuse it too, per direct
  *    instruction), replacing the differently-shaped `SectionedFindingsTab.tsx`
@@ -227,11 +301,9 @@ const AeoTab = () => {
 		token: number;
 	} | null>(null);
 	const { groups, isLoading: isLoadingGroups } = useAllFindingGroups();
-	const { snapshot, isLoading: isLoadingSnapshot } = useGeoVisibilitySnapshot();
+	const { snapshot, history, isLoading: isLoadingSnapshot } = useGeoVisibilitySnapshot();
 	const { pages: aeoPages, total: totalPages, isLoading: isLoadingPages } =
 		useAeoPageAnalysis(ALL_AEO_SCANNER_IDS);
-
-	const totalOpenFindings = sumGroupCounts(groups, ALL_AEO_SCANNER_IDS);
 
 	// "Questions Answered" — real published pages minus the real count of
 	// pages with an open geo-faq-opportunity finding (i.e. pages that
@@ -273,24 +345,21 @@ const AeoTab = () => {
 
 	return (
 		<>
-			{/* id kept on this wrapper, not NoticeComponent itself (no id prop) — real scrollToId('aeo-top-banner') target, see the "Learn More" tile's onClick below. */}
-			<div id="aeo-top-banner">
-				<NoticeComponent
-					// type="banner"
-					displayPosition="inline"
-					message={sprintf(
-						'<strong>%1$s</strong> %2$s',
-						__('In plain English:', 'vulopilot'),
-						__(
-							'When someone asks ChatGPT, Perplexity, or Google’s AI a question your page could answer, this checks whether your content is written so AI can actually quote it directly.',
-							'vulopilot'
-						)
-					)}
-				/>
-			</div>
+			<NoticeComponent
+				// type="banner"
+				displayPosition="inline"
+				message={sprintf(
+					'<strong>%1$s</strong> %2$s',
+					__('In plain English:', 'vulopilot'),
+					__(
+						'When someone asks ChatGPT, Perplexity, or Google’s AI a question your page could answer, this checks whether your content is written so AI can actually quote it directly.',
+						'vulopilot'
+					)
+				)}
+			/>
 
 			<ContainerComponent>
-				<ColumnComponent grid={3}>
+				<ColumnComponent grid={4}>
 					<CardComponent
 						title={__('AEO Score', 'vulopilot')}
 						desc={__(
@@ -300,7 +369,7 @@ const AeoTab = () => {
 						isLoading={isLoadingSnapshot}
 					>
 						{!isLoadingSnapshot && !hasSnapshot ? (
-							<ProLockedCard moduleName="geo-insights" />
+							<ProLockedCard moduleName="aeo-insights" />
 						) : (
 							<div className="geo-overall-visibility">
 								<ChartComponent
@@ -336,7 +405,7 @@ const AeoTab = () => {
 						)}
 					</CardComponent>
 				</ColumnComponent>
-				<ColumnComponent grid={3}>
+				<ColumnComponent grid={4}>
 					<CardComponent
 						title={__('Questions Answered', 'vulopilot')}
 						desc={__(
@@ -355,7 +424,7 @@ const AeoTab = () => {
 						</div>
 					</CardComponent>
 				</ColumnComponent>
-				<ColumnComponent grid={3}>
+				<ColumnComponent grid={4}>
 					<CardComponent
 						title={__('Pages Ready', 'vulopilot')}
 						desc={__(
@@ -369,24 +438,6 @@ const AeoTab = () => {
 						</div>
 						<div className="desc">
 							{__('Ready to be quoted by an AI answer engine.', 'vulopilot')}
-						</div>
-					</CardComponent>
-				</ColumnComponent>
-				<ColumnComponent grid={3}>
-					<CardComponent
-						title={__('Open Issues', 'vulopilot')}
-						desc={__(
-							'Real open findings across all 6 AEO checks below.',
-							'vulopilot'
-						)}
-						isLoading={isLoadingGroups}
-					>
-						<div className="crawler-stat-value">{totalOpenFindings}</div>
-						<div className="desc">
-							{__(
-								'Fixing these raises how often AI answer engines can quote this site directly.',
-								'vulopilot'
-							)}
 						</div>
 					</CardComponent>
 				</ColumnComponent>
@@ -406,28 +457,20 @@ const AeoTab = () => {
 				onViewAll={() => scrollToId('aeo-all-issues-table')}
 			/>
 
-			<ContainerComponent>
-				<ColumnComponent grid={12}>
-					<CardComponent
-						title={__('AEO Score Over Time', 'vulopilot')}
-						desc={__(
-							'How your answer-readiness has changed since your last scans.',
-							'vulopilot'
-						)}
-					>
-						<ModuleGuardComponent
-							icon="analytics"
-							title={__('Historical tracking not built yet', 'vulopilot')}
-							desc={__(
-								'Day-by-day AEO score history isn’t recorded yet — only one combined visibility score is tracked over time today. The real, current breakdown is available right now in the page-by-page table below.',
-								'vulopilot'
-							)}
-							buttonText={__('View page-by-page breakdown', 'vulopilot')}
-							onButtonClick={() => scrollToId('aeo-all-issues-table')}
-						/>
-					</CardComponent>
-				</ColumnComponent>
-			</ContainerComponent>
+			<ColumnComponent grid={12}>
+				<GeoTrendCompactCard
+					history={history}
+					isLoading={isLoadingSnapshot}
+					isGeoInsightsActive={isLoadingSnapshot || Boolean(hasSnapshot)}
+					title={__('AEO Score Over Time', 'vulopilot')}
+					desc={__(
+						'Your answer-readiness score over the last 30 days — going up means AI answer engines can extract and quote your content more easily.',
+						'vulopilot'
+					)}
+					moduleName="aeo-insights"
+					getScore={getAeoTrendScore}
+				/>
+			</ColumnComponent>
 
 			<GeoByTopicGrid
 				topics={AEO_SECTIONS}
@@ -441,84 +484,6 @@ const AeoTab = () => {
 				onViewTopic={(key) => goToIssuesTable(key)}
 			/>
 
-			<div className="aeo-help-band">
-				<h3 className="reports-section-title">
-					{__('Need Help Improving?', 'vulopilot')}
-				</h3>
-				<div className="aeo-help-band-grid">
-					<AiCopilotGuard
-						title={__('AI Copilot is turned off', 'vulopilot')}
-						desc={__(
-							'Turn the AI Copilot module back on from Settings → Modules to ask it about these issues.',
-							'vulopilot'
-						)}
-					>
-						<a href="?page=vulopilot#&tab=ai-assistant" className="aeo-help-tile">
-							<i className="adminfont-ai" />
-							<div>
-								<div className="aeo-help-tile-title">
-									{__('Ask AI Copilot', 'vulopilot')}
-								</div>
-								<p className="aeo-help-tile-desc">
-									{__(
-										'Get real suggestions for improving your answer readiness.',
-										'vulopilot'
-									)}
-								</p>
-							</div>
-						</a>
-					</AiCopilotGuard>
-					<ButtonInput
-						position="full-width"
-						buttons={{
-							text: __('Fix Automatically', 'vulopilot'),
-							className: 'aeo-help-tile',
-							onClick: () => goToIssuesTable('all'),
-							children: (
-								<>
-									<i className="adminfont-yes-alt" />
-									<div>
-										<div className="aeo-help-tile-title">
-											{__('Fix Automatically', 'vulopilot')}
-										</div>
-										<p className="aeo-help-tile-desc">
-											{__(
-												'Jump to the issues table below to fix findings one by one or in bulk.',
-												'vulopilot'
-											)}
-										</p>
-									</div>
-								</>
-							),
-						}}
-					/>
-					<ButtonInput
-						position="full-width"
-						buttons={{
-							text: __('Learn More', 'vulopilot'),
-							className: 'aeo-help-tile',
-							onClick: () => scrollToId('aeo-top-banner'),
-							children: (
-								<>
-									<i className="adminfont-info" />
-									<div>
-										<div className="aeo-help-tile-title">
-											{__('Learn More', 'vulopilot')}
-										</div>
-										<p className="aeo-help-tile-desc">
-											{__(
-												'Understand how AEO helps AI answer engines find and quote your content.',
-												'vulopilot'
-											)}
-										</p>
-									</div>
-								</>
-							),
-						}}
-					/>
-				</div>
-			</div>
-
 			<NoticeComponent
 				// type="banner"
 				displayPosition="inline"
@@ -529,68 +494,8 @@ const AeoTab = () => {
 			/>
 
 			<ContainerComponent>
-				<CardComponent
-					title={__('Answerability signals', 'vulopilot')}
-					titleIcon="analytics"
-					badges={[
-						{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-					]}
-					toggle
-				>
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Not scoring answerability signals yet', 'vulopilot')}
-						desc={__(
-							'A dedicated per-signal AEO score breakdown hasn’t been built yet. The AEO Score above already reflects several real answer-extraction dimensions for VuloPilot Pro users.',
-							'vulopilot'
-						)}
-					/>
-				</CardComponent>
-				<CardComponent
-					title={__('Answer engine coverage', 'vulopilot')}
-					titleIcon="global-community"
-					desc={__(
-						'Whether AI answer engines currently cite this site when asked questions its content answers.',
-						'vulopilot'
-					)}
-					badges={[
-						{
-							text: __('Simulated Citation Checks', 'vulopilot'),
-							color: 'purple',
-						},
-					]}
-					toggle
-				>
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Not available yet', 'vulopilot')}
-						desc={__(
-							'Live citation testing against ChatGPT, Perplexity, and other AI answer engines isn’t built yet — flag if you want it scoped next.',
-							'vulopilot'
-						)}
-					/>
-				</CardComponent>
-				<CardComponent
-					title={__('Engine Testing', 'vulopilot')}
-					titleIcon="intelligence"
-					desc={__(
-						'Re-verifies a previously-flagged finding against an AI answer engine once you’ve fixed it, instead of waiting for the next full scan.',
-						'vulopilot'
-					)}
-					badges={[
-						{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
-					]}
-					toggle
-				>
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Not available yet', 'vulopilot')}
-						desc={__(
-							'Per-engine re-test tracking isn’t built yet — flag if you want it scoped next.',
-							'vulopilot'
-						)}
-					/>
-				</CardComponent>
+				<AeoCitationCoverageCard isActive={isCitationCheckActive()} />
+				<AeoEngineTestingCard isActive={isCitationCheckActive()} pages={aeoPages} />
 			</ContainerComponent>
 
 			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) — replaces the differently-shaped SectionedFindingsTab this used before, per direct instruction. `pageAnalysis` merges the former standalone "Page-by-Page Answer Readiness" table into the "Pages & Posts" table below. */}

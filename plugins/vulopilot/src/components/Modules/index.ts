@@ -94,25 +94,30 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         },
         {
             /**
-             * Same real backend id as the GEO card above — AEO's own Pro
-             * features (llms.txt generation, etc.) are also registered by
-             * GeoInsights\Module; there's no separate "AEO" Pro module
-             * folder. This card's own `id` used to be the non-existent
-             * 'aeo-insights' (no `AeoInsights` folder anywhere, and every
-             * other real `moduleName="geo-insights"` call site in the app —
-             * including AeoTab.tsx itself — already used the correct id) —
-             * a real, confirmed bug: toggling this card sent an id
-             * Modules::load_active_modules() would never resolve to any
-             * real module, so the "activation" silently reverted on the
-             * very next page load with no error shown. Fixed to the real
-             * id. Known, accepted side effect of the fix: zyra's
-             * ModuleGridComponent keys its card list by `module.id`, so two
-             * cards intentionally sharing 'geo-insights' now triggers a
-             * harmless React "duplicate key" dev-console warning — toggling
-             * either card still correctly activates/deactivates the one
-             * real module both represent.
+             * A real, separate backend module id — `plugins/vulopilot-pro/
+             * modules/AeoInsights/Module.php`, per direct instruction ("aeo
+             * module id is aeo-insights, geo module id is geo-insights").
+             * This card's own `id` used to be 'geo-insights' (the SAME id
+             * as the GEO Radar card above), deliberately reused at the time
+             * since no `AeoInsights` folder existed and a real-but-wrong id
+             * ('aeo-insights') had already caused a confirmed bug once
+             * (toggling that card sent an id Modules::load_active_modules()
+             * never resolved to any real module, so the "activation"
+             * silently reverted on the very next page load). That workaround
+             * had its own real, confirmed bug, only found later: Popup.tsx's
+             * own `MODULE_CATALOG_BY_ID` is a `Map` keyed by `module.id` —
+             * two entries sharing 'geo-insights' meant the *second* one
+             * (this AEO card) silently won that key, so every
+             * `moduleName="geo-insights"` locked-feature popup anywhere in
+             * the app — including GEO's own cards — showed "Activate AEO
+             * Autopilot" instead of the correct module name. A real,
+             * separate `AeoInsights` module (auto-discovered by Free's own
+             * folder-scan loader — see that module's own Module.php
+             * docblock for why it needs no extra registration, and how it
+             * avoids duplicating GeoInsights' own AI-scoring pipeline)
+             * fixes both bugs at once.
              */
-            id: 'geo-insights',
+            id: 'aeo-insights',
             icon: 'answer',
             name: __('AEO Autopilot — Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage — then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),

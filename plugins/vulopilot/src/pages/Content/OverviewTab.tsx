@@ -3,13 +3,13 @@ import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import ContentToolsGrid from './ContentToolsGrid';
 import ContentStatsCard from './ContentStatsCard';
 import RecentContentCard from './RecentContentCard';
-import ContentScoreCard from './ContentScoreCard';
+import ContentQualityCard from './ContentQualityCard';
 import AiContentAssistantSidebar from './AiContentAssistantSidebar';
 import './CreateContent.scss';
 
 /**
  * "Create Content"'s new default tab — see this folder's sibling files
- * for the per-section real-data mapping (ContentToolsGrid, ContentScoreCard,
+ * for the per-section real-data mapping (ContentToolsGrid, ContentQualityCard,
  * ContentStatsCard, RecentContentCard, AiContentAssistantSidebar — each
  * documents its own data source and, where the mockup shows something
  * with no real backend, its honest fallback).
@@ -30,7 +30,7 @@ const OverviewTab: React.FC = () => {
 					<ContentToolsGrid />
 				</ColumnComponent>
 				<ColumnComponent grid={4}>
-					<ContentScoreCard />
+					<ContentQualityCard />
 					<ContentStatsCard />
 				</ColumnComponent>
 			</ContainerComponent>

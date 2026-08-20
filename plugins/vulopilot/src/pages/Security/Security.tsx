@@ -9,24 +9,14 @@ import {
 import { useRunScan } from '../../services/useRunScan';
 import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import SecurityTab from './SecurityTab';
-import PerformanceTab from './PerformanceTab';
 import SiteHealthTab from './SiteHealthTab';
-import FilesPluginsTab from './FilesPluginsTab';
-import AccessibilityTab from './AccessibilityTab';
 import BackupsTab from './BackupsTab';
 
-const TAB_IDS = [
-	'security',
-	'performance',
-	'site-health',
-	'files-plugins',
-	'accessibility',
-	'backups',
-] as const;
+const TAB_IDS = ['security', 'site-health', 'backups'] as const;
 
 /**
  * "Protect My Site" (WP menu slug `security`) — PROTECT-MY-SITE.md's IA:
- * 6 detail tabs, "Security" first (default tab):
+ * 3 detail tabs, "Security" first (default tab):
  *
  * - Security (SecurityTab.tsx) — the mockup's own single-page
  *   design (hero/status/tile-grid, "Issues that need your attention", a
@@ -47,30 +37,54 @@ const TAB_IDS = [
  *   (SecurityOverviewCard.tsx — the same `category_scores.security` gauge
  *   SecurityStatusCard.tsx, still on this tab via SecurityMockupHeader,
  *   already shows) was deleted along with the Overview tab itself.
- * - Performance (PerformanceTab.tsx) — WordPress/server-side efficiency:
- *   page caching, browser caching, persistent object cache, PHP
- *   acceleration (OPcache). Reads `GET /efficiency-checks`
- *   (Controllers\EfficiencyChecks.php), computed live on every load
- *   rather than stored findings — that controller's own docblock explains
- *   why. Distinct from the separate top-level "Improve My Speed" page
- *   (`routes.ts`'s `tab: 'performance'`, `pages/Performance/`) — that one
- *   covers front-end loading speed/Core Web Vitals, this tab covers
- *   WordPress's own configuration efficiency; PerformanceTab.tsx's own
- *   closing banner links to the other one. Also now home to
- *   LiveSiteInsightsCard.tsx (moved here from AI Copilot's ChatTab.tsx —
- *   see that card's own docblock for why).
  * - Site Health (SiteHealthTab.tsx) — WordPress, Updates, Background
  *   Tasks, Database, Server. "WordPress"/"Server" wrap WordPress core's
  *   own WP_Site_Health tests (WordPressHealthScanner/ServerHealthScanner)
- *   rather than reinventing them.
- * - Files & Plugins (FilesPluginsTab.tsx) — File Integrity, Plugin
- *   Vulnerabilities, Theme Vulnerabilities (ThemeVulnerabilitiesScanner,
- *   the one genuinely new Pro scanner this pass adds), Outdated Software,
- *   Recent File Changes.
- * - Accessibility (AccessibilityTab.tsx) — Images, Page Structure, Forms,
- *   Links & Buttons, Readability, Keyboard & Assistive Technology
- *   (KeyboardAccessibilityScanner — positive tabindex — the one new
- *   accessibility scanner this pass adds).
+ *   rather than reinventing them. "Server" also now shows
+ *   PhpAccelerationCard.tsx (OPcache status) — see below.
+ *
+ * This page used to have a 2nd tab, "Performance" (PerformanceTab.tsx,
+ * now deleted) — WordPress/server-side efficiency checks read live from
+ * `GET /efficiency-checks` (Controllers\EfficiencyChecks.php): page
+ * caching, browser caching, persistent object cache, and PHP acceleration
+ * (OPcache). Removed per direct instruction to eliminate the IA overlap
+ * with the separate top-level "Improve My Speed" page
+ * (`pages/Performance/`) — its content was redistributed rather than
+ * deleted: page/browser caching + persistent object cache (+
+ * LiveSiteInsightsCard.tsx) moved into Improve Speed's own Overview tab
+ * (`pages/Performance/OverviewTab.tsx`, still importing
+ * EfficiencyHeroCard.tsx/EfficiencySectionsList.tsx/
+ * EfficiencyThingsToReview.tsx/EfficiencyOverviewChart.tsx/
+ * LiveSiteInsightsCard.tsx/efficiencyChecks.ts from this folder — kept
+ * here rather than physically moved since SiteHealthTab.tsx, right below,
+ * still needs the same live endpoint for its own PHP-acceleration-only
+ * card), while PHP acceleration itself moved to SiteHealthTab.tsx's
+ * Server section (PhpAccelerationCard.tsx, this folder) since it's a
+ * server-config fact, not a page-delivery one.
+ * This page used to have a "Files & Plugins" tab too (FilesPluginsTab.tsx,
+ * now deleted) — removed per direct instruction, since virtually every
+ * section it held already had a better home: File Integrity, Plugin
+ * Vulnerabilities, Theme Vulnerabilities (ThemeVulnerabilitiesScanner —
+ * the one genuinely new Pro scanner that tab originally added), and
+ * Recent File Changes all moved onto SecurityTab.tsx's own issues table
+ * (its "Vulnerabilities"/"Suspicious File Changes" sections, its own
+ * docblock explains the merge) — Outdated Software wasn't moved anywhere,
+ * since it shared its scanner id with, and was fully covered by,
+ * SiteHealthTab.tsx's own "Updates" section already. Once all 5 sections
+ * were accounted for elsewhere, nothing genuinely Files-&-Plugins-shaped
+ * was left to keep a whole tab for.
+ *
+ * This page also used to have an "Accessibility" tab
+ * (AccessibilityTab.tsx, now moved) — Images, Page Structure, Forms,
+ * Links & Buttons, Readability, Keyboard & Assistive Technology. Promoted
+ * to its own top-level page (`pages/Accessibility/Accessibility.tsx`,
+ * WP menu slug `accessibility`) per direct instruction: its checks are
+ * content-quality concepts, not security/protection ones, so they never
+ * really belonged inside "Protect My Site" — same reasoning that drove
+ * the Performance-tab and Files-&-Plugins-tab removals above, just
+ * pointed at an IA smell instead of a data-overlap one. That page still
+ * imports SectionedIssuesTable.tsx/PluginOverlapCard.tsx from this folder
+ * cross-folder rather than duplicating them.
  * - Backups (BackupsTab.tsx) — real database + file archives
  *   (Services\BackupManager/BackupScheduler), manual or scheduled, with
  *   real download/delete/restore. Also where Recovery's real, destructive
@@ -101,11 +115,11 @@ const Security = () => {
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
 	);
-	// Scoped to every category this page's 4 detail tabs actually show —
+	// Scoped to every category this page's 3 detail tabs actually show —
 	// same "local tab" scoping every other category page's header
 	// "Run scan" button uses.
 	const { runScanButton } = useRunScan({
-		categories: ['security', 'accessibility', 'wordpress', 'server', 'updates'],
+		categories: ['security', 'wordpress', 'server', 'updates'],
 	});
 
 	return (
@@ -133,20 +147,8 @@ const Security = () => {
 							content: <SecurityTab />,
 						},
 						{
-							label: __('Performance', 'vulopilot'),
-							content: <PerformanceTab />,
-						},
-						{
 							label: __('Site Health', 'vulopilot'),
 							content: <SiteHealthTab />,
-						},
-						{
-							label: __('Files & Plugins', 'vulopilot'),
-							content: <FilesPluginsTab />,
-						},
-						{
-							label: __('Accessibility', 'vulopilot'),
-							content: <AccessibilityTab />,
 						},
 						{
 							label: __('Backups', 'vulopilot'),

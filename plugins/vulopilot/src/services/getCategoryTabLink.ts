@@ -1,14 +1,13 @@
 /**
  * A finding's `category` (scanner get_category(), e.g. 'seo', 'images',
- * 'schema', 'links', 'accessibility') isn't the same string as the tab it
- * actually lives on — several categories are grouped under a shared tab's
- * subtab rather than getting a same-named top-level route of their own
- * (routes.ts has no 'seo' or 'accessibility' route; those findings live
- * under GEO → SEO and Security → Accessibility respectively). The three
- * places that used to build this link (AISuggestionsWidget,
- * NeedsAttentionWidget, IssuesList) each hand-rolled their own
- * `category: 'seo'` copy of this mapping, so all three sent users to
- * `?tab=seo`/`?tab=accessibility` — routes that don't exist.
+ * 'schema', 'links', 'accessibility') isn't always the same string as the
+ * tab it actually lives on — some categories are grouped under a shared
+ * tab's subtab rather than getting a same-named top-level route of their
+ * own (routes.ts has no 'seo' route; those findings live under GEO →
+ * SEO). The three places that used to build this link
+ * (AISuggestionsWidget, NeedsAttentionWidget, IssuesList) each hand-rolled
+ * their own `category: 'seo'` copy of this mapping, so all three sent
+ * users to `?tab=seo` — a route that doesn't exist.
  */
 const CATEGORY_TAB_LINKS: Record<string, string> = {
 	// GEO tab, "SEO" subtab — SeoTab.tsx's own SEO_SECTIONS groups the
@@ -32,9 +31,10 @@ const CATEGORY_TAB_LINKS: Record<string, string> = {
 	// a real top-level 'ai_visibility' category any finding actually has.
 	ai_visibility: 'geo&subtab=geo',
 	brand: 'geo&subtab=brand-visibility',
-	// Security tab, "Accessibility" subtab (AccessibilityTab.tsx lives
-	// under pages/Security, not its own top-level route).
-	accessibility: 'security&subtab=accessibility',
+	// Its own top-level route (Accessibility.tsx, pages/Accessibility/) —
+	// used to be "Protect My Site" → "Accessibility" subtab, moved out per
+	// direct instruction.
+	accessibility: 'accessibility',
 	security: 'security&subtab=security',
 	performance: 'performance',
 	woocommerce: 'woocommerce',

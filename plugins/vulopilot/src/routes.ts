@@ -12,6 +12,7 @@ import Settings from './pages/Settings/Settings';
 import StatusAndTools from './pages/StatusAndTools/StatusAndTools';
 import Modules from './components/Modules/Modules';
 import Security from './pages/Security/Security';
+import Accessibility from './pages/Accessibility/Accessibility';
 import Content from './pages/Content/Content';
 
 registerVuloPilotRoute({ tab: 'dashboard', component: Dashboard });
@@ -26,4 +27,5 @@ registerVuloPilotRoute({ tab: 'modules', component: Modules });
 registerVuloPilotRoute({ tab: 'settings', component: Settings });
 registerVuloPilotRoute({ tab: 'status-tools', component: StatusAndTools });
 registerVuloPilotRoute({ tab: 'security', component: Security });
+registerVuloPilotRoute({ tab: 'accessibility', component: Accessibility });
 registerVuloPilotRoute({ tab: 'content', component: Content });

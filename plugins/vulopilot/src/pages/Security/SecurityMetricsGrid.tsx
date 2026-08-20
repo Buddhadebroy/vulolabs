@@ -1,79 +1,53 @@
-/* global appLocalizer */
-import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
 import { ButtonInput } from '@zyra/inputs';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { useLastScanTime } from '../../services/useLastScanTime';
 import { formatWpDate } from '../../services/formatWpDate';
-import { ACCESSIBILITY_SCANNER_IDS } from './accessibilityChecks';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 import type { SectionedIssuesTab } from './SectionedIssuesTable';
 import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 import './ProtectMySite.scss';
 
 /**
- * Where each of the 11 real (scanner-backed) tiles' "View" button goes.
- * "Security Scan"/"SSL"/"Malware"/"Firewall"/"Login Protection" have a real
- * matching section on THIS SAME tab's own merged issues table
- * (SectionedIssuesTable.tsx, via `onViewSection`, passed down from
- * SecurityTab.tsx) — the rest live on a different "Protect My Site" sub-tab
- * entirely (Files & Plugins/Accessibility/Site Health/Backups), so those
- * jump there via a real full-page navigation, same
- * `?page=vulopilot#&tab=security&subtab=<tab>` convention
- * getCategoryTabLink.ts/Security.tsx's own docblock already establish —
- * not a local map there since these aren't finding categories, they're this
- * grid's own tile ids. "Recovery" reuses the same Backups tab link as
- * "Backups" — Recovery's own restore points are just that same tab's real
- * `vulopilot_backups` rows, not a separate page.
+ * Where each of the 7 real (scanner-backed) tiles' "View" button goes —
+ * every one of them now has a real matching section on THIS SAME tab's own
+ * merged issues table (SectionedIssuesTable.tsx, via `onViewSection`,
+ * passed down from SecurityTab.tsx). Used to also carry Accessibility/Site
+ * Health/Backups/Recovery, each linking out to a different "Protect My
+ * Site" sub-tab — removed per direct instruction: those already have their
+ * own dedicated tabs, so showing them a second time here was pure IA
+ * duplication, not a genuine security finding this grid should surface.
+ * "Plugin Vulnerabilities"/"File Changes" used to link out to Files &
+ * Plugins the same way — now real in-tab sections instead
+ * ('vulnerabilities'/'suspicious-file-changes'), since those findings moved
+ * onto this tab's own issues table (SecurityTab.tsx's own docblock).
  */
 const VIEW_TARGET_BY_TILE_ID: Record<
 	string,
-	{ type: 'section'; sectionKey: SectionedIssuesTab } | { type: 'link'; href: string }
+	{ type: 'section'; sectionKey: SectionedIssuesTab }
 > = {
 	'security-scan': { type: 'section', sectionKey: 'all' },
 	ssl: { type: 'section', sectionKey: 'ssl-connection' },
 	malware: { type: 'section', sectionKey: 'malware-intrusion' },
 	firewall: { type: 'section', sectionKey: 'malware-intrusion' },
 	'login-protection': { type: 'section', sectionKey: 'login-accounts' },
-	'plugin-vulnerabilities': {
-		type: 'link',
-		href: '?page=vulopilot#&tab=security&subtab=files-plugins',
-	},
-	'file-changes': {
-		type: 'link',
-		href: '?page=vulopilot#&tab=security&subtab=files-plugins',
-	},
-	accessibility: {
-		type: 'link',
-		href: '?page=vulopilot#&tab=security&subtab=accessibility',
-	},
-	'site-health': {
-		type: 'link',
-		href: '?page=vulopilot#&tab=security&subtab=site-health',
-	},
-	backups: {
-		type: 'link',
-		href: '?page=vulopilot#&tab=security&subtab=backups',
-	},
-	recovery: {
-		type: 'link',
-		href: '?page=vulopilot#&tab=security&subtab=backups',
-	},
+	'plugin-vulnerabilities': { type: 'section', sectionKey: 'vulnerabilities' },
+	'file-changes': { type: 'section', sectionKey: 'suspicious-file-changes' },
 };
 
-/** Real scanner ids each of the 11 backed tiles' own "last scan" lookup is scoped to — same groupings `badgeFor()` below already uses for their open-findings counts, `site-health` omitted (site-wide, no filter). `recovery` reuses `backups`' own `backup-health` scan group — they're the same underlying data, just two different tiles/entry points into it. */
+/** Real scanner ids each of the 7 backed tiles' own "last scan" lookup is scoped to — same groupings `badgeFor()` below already uses for their open-findings counts. */
 const SCANNER_IDS_BY_TILE_ID: Record<string, string[]> = {
 	'security-scan': SECURITY_FINDINGS_SCANNER_IDS,
 	malware: ['malware'],
 	firewall: ['firewall'],
 	'login-protection': ['login-protection'],
-	'plugin-vulnerabilities': ['basic-vulnerabilities', 'advanced-vulnerabilities'],
+	'plugin-vulnerabilities': [
+		'basic-vulnerabilities',
+		'advanced-vulnerabilities',
+		'theme-vulnerabilities',
+	],
 	'file-changes': ['core-file-integrity', 'integrity-monitoring'],
 	ssl: ['ssl-monitoring'],
-	accessibility: ACCESSIBILITY_SCANNER_IDS,
-	backups: ['backup-health'],
-	recovery: ['backup-health'],
 };
 
 /** Real "last scan: {date} at {time}" line — WP's own configured date format for the date, a plain locale clock time (same technique historyTypes.ts's own rowTime() uses) for the time. */
@@ -123,13 +97,13 @@ const METRIC_TILES: MetricTileData[] = [
 	{
 		id: 'plugin-vulnerabilities',
 		icon: 'setting',
-		title: __('Plugin Vulnerabilities', 'vulopilot'),
-		desc: __('Known vulnerabilities in installed plugins.', 'vulopilot'),
+		title: __('Vulnerabilities', 'vulopilot'),
+		desc: __('Known vulnerabilities in installed plugins and themes.', 'vulopilot'),
 	},
 	{
 		id: 'file-changes',
 		icon: 'document',
-		title: __('File Changes', 'vulopilot'),
+		title: __('Suspicious File Changes', 'vulopilot'),
 		desc: __('Unexpected changes to core/theme/plugin files.', 'vulopilot'),
 	},
 	{
@@ -138,30 +112,6 @@ const METRIC_TILES: MetricTileData[] = [
 		title: __('SSL', 'vulopilot'),
 		desc: __('Certificate validity and expiry.', 'vulopilot'),
 	},
-	{
-		id: 'backups',
-		icon: 'cloud-upload',
-		title: __('Backups', 'vulopilot'),
-		desc: __('Automatic site backups.', 'vulopilot'),
-	},
-	{
-		id: 'recovery',
-		icon: 'recycle',
-		title: __('Recovery', 'vulopilot'),
-		desc: __('Restore points to recover your site.', 'vulopilot'),
-	},
-	{
-		id: 'accessibility',
-		icon: 'support',
-		title: __('Accessibility', 'vulopilot'),
-		desc: __('Heading structure, ARIA, and form labels.', 'vulopilot'),
-	},
-	{
-		id: 'site-health',
-		icon: 'analytics',
-		title: __('Site Health', 'vulopilot'),
-		desc: __('Overall site health, across every category.', 'vulopilot'),
-	},
 ];
 
 const NOT_TRACKED_BADGE = {
@@ -169,40 +119,29 @@ const NOT_TRACKED_BADGE = {
 	color: 'indigo',
 };
 
-const getHealthRating = (score: number): { text: string; color: string } => {
-	if (score >= 90) {
-		return { text: __('Excellent', 'vulopilot'), color: 'green' };
-	}
-	if (score >= 70) {
-		return { text: __('Good', 'vulopilot'), color: 'green' };
-	}
-	if (score >= 50) {
-		return { text: __('Fair', 'vulopilot'), color: 'orange' };
-	}
-	return { text: __('Needs work', 'vulopilot'), color: 'red' };
-};
-
 /**
- * The mockup's 11-tile grid — every tile is now real and scanner-backed.
- * Security Scan (whole 'security' category), Plugin Vulnerabilities
- * (`basic-vulnerabilities`/`advanced-vulnerabilities`), File Changes
- * (`core-file-integrity`/`integrity-monitoring`), SSL — note category
- * **'ssl'**, not 'security' (`SslMonitoringScanner` registers under its
- * own category; `useSectionStatus` ANDs category+scanner_id server-side,
- * same as FindingsTable, so passing 'security' here would silently return
- * zero results), Accessibility (whole 'accessibility' category), and Site
- * Health (`overall_score` from `GET /dashboard` — the all-categories
- * combined score `Health.tsx` shows, deliberately different from the
- * `category_scores.security` number the donut below already shows).
+ * The mockup's tile grid — down to 7 tiles (from 11) per direct
+ * instruction: Accessibility/Site Health/Backups/Recovery removed
+ * (dedicated tabs already cover them, so showing them here too was pure
+ * duplication, not a security finding this grid should surface). Every
+ * remaining tile is real and scanner-backed. Security Scan (whole
+ * 'security' category), Vulnerabilities
+ * (`basic-vulnerabilities`/`advanced-vulnerabilities`/`theme-vulnerabilities`
+ * — the latter absorbed from the now-removed "Files & Plugins" tab's own
+ * "Theme Vulnerabilities" section per direct instruction, one combined
+ * tile/section rather than a separate one), Suspicious File
+ * Changes (`core-file-integrity`/`integrity-monitoring`), SSL — note
+ * category **'ssl'**, not 'security' (`SslMonitoringScanner` registers
+ * under its own category; `useSectionStatus` ANDs category+scanner_id
+ * server-side, same as FindingsTable, so passing 'security' here would
+ * silently return zero results).
  *
- * Malware/Firewall/Login Protection/Backups/Recovery — previously "Not
- * tracked yet" — are now real, always-on core features
+ * Malware/Firewall/Login Protection are real, always-on core features
  * (Services\MalwareScanner et al., `classes/Services/`), each with its own
- * companion Scanner (`malware`/`firewall`/`login-protection`/
- * `backup-health`) so they slot into this exact same real
- * `useSectionStatus()` badge machinery.
+ * companion Scanner (`malware`/`firewall`/`login-protection`) so they slot
+ * into this exact same real `useSectionStatus()` badge machinery.
  *
- * Every one of these 11 tiles now also carries a real "Last scan" line
+ * Every one of these 7 tiles still carries a real "Last scan" line
  * (`useLastScanTime()`, `GET /scans` scoped to that tile's own scanner
  * group — `SCANNER_IDS_BY_TILE_ID` above) and a real "View" button
  * (`VIEW_TARGET_BY_TILE_ID` above) — same "per-tile View button" pattern
@@ -218,17 +157,16 @@ const SecurityMetricsGrid = ({
 	const pluginVulnerabilities = useSectionStatus('security', [
 		'basic-vulnerabilities',
 		'advanced-vulnerabilities',
+		'theme-vulnerabilities',
 	]);
 	const fileChanges = useSectionStatus('security', [
 		'core-file-integrity',
 		'integrity-monitoring',
 	]);
 	const ssl = useSectionStatus('ssl', ['ssl-monitoring']);
-	const accessibility = useSectionStatus('accessibility', []);
 	const malware = useSectionStatus('security', ['malware']);
 	const firewall = useSectionStatus('security', ['firewall']);
 	const loginProtection = useSectionStatus('security', ['login-protection']);
-	const backups = useSectionStatus('security', ['backup-health']);
 
 	const securityScanLastScan = useLastScanTime(
 		SCANNER_IDS_BY_TILE_ID['security-scan']
@@ -240,48 +178,21 @@ const SecurityMetricsGrid = ({
 		SCANNER_IDS_BY_TILE_ID['file-changes']
 	);
 	const sslLastScan = useLastScanTime(SCANNER_IDS_BY_TILE_ID.ssl);
-	const accessibilityLastScan = useLastScanTime(
-		SCANNER_IDS_BY_TILE_ID.accessibility
-	);
-	const siteHealthLastScan = useLastScanTime();
 	const malwareLastScan = useLastScanTime(SCANNER_IDS_BY_TILE_ID.malware);
 	const firewallLastScan = useLastScanTime(SCANNER_IDS_BY_TILE_ID.firewall);
 	const loginProtectionLastScan = useLastScanTime(
 		SCANNER_IDS_BY_TILE_ID['login-protection']
 	);
-	const backupsLastScan = useLastScanTime(SCANNER_IDS_BY_TILE_ID.backups);
 
 	const lastScanByTileId: Record<string, string | null> = {
 		'security-scan': securityScanLastScan.lastScanAt,
 		'plugin-vulnerabilities': pluginVulnerabilitiesLastScan.lastScanAt,
 		'file-changes': fileChangesLastScan.lastScanAt,
 		ssl: sslLastScan.lastScanAt,
-		accessibility: accessibilityLastScan.lastScanAt,
-		'site-health': siteHealthLastScan.lastScanAt,
 		malware: malwareLastScan.lastScanAt,
 		firewall: firewallLastScan.lastScanAt,
 		'login-protection': loginProtectionLastScan.lastScanAt,
-		backups: backupsLastScan.lastScanAt,
-		// Recovery is the same underlying backup-health data as "Backups" —
-		// one real fetch, two tiles reading it.
-		recovery: backupsLastScan.lastScanAt,
 	};
-
-	const [healthBadge, setHealthBadge] = useState<{
-		text: string;
-		color: string;
-	} | null>(null);
-
-	useEffect(() => {
-		getApiResponse<{ overall_score: number }>(
-			getApiLink(appLocalizer, 'dashboard'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		).then((response) => {
-			if (response) {
-				setHealthBadge(getHealthRating(response.overall_score));
-			}
-		});
-	}, []);
 
 	const badgeFor = (id: string) => {
 		switch (id) {
@@ -313,15 +224,6 @@ const SecurityMetricsGrid = ({
 						color: 'green',
 					}
 				);
-			case 'accessibility':
-				return (
-					accessibility.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
-			case 'site-health':
-				return healthBadge ?? NOT_TRACKED_BADGE;
 			case 'malware':
 				return (
 					malware.badge ?? {
@@ -343,14 +245,6 @@ const SecurityMetricsGrid = ({
 						color: 'green',
 					}
 				);
-			case 'backups':
-			case 'recovery':
-				return (
-					backups.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
 			default:
 				return NOT_TRACKED_BADGE;
 		}
@@ -359,24 +253,9 @@ const SecurityMetricsGrid = ({
 	const handleView = (tileId: string) => {
 		const target = VIEW_TARGET_BY_TILE_ID[tileId];
 
-		if (!target) {
-			return;
-		}
-
-		if ('section' === target.type) {
+		if (target) {
 			onViewSection(target.sectionKey);
-			return;
 		}
-
-		// A hash-only URL change (same `?page=vulopilot`, different
-		// `#&tab=...&subtab=...`) never triggers a real page load on its
-		// own — browsers treat that as a same-document fragment update by
-		// design, so Security.tsx's own `useState(initialTab)` (read once
-		// from the hash at mount) would never re-run and this tab would
-		// silently stay put. A real `reload()` right after forces a fresh
-		// mount that reads the new hash.
-		window.location.href = target.href;
-		window.location.reload();
 	};
 
 	return (

@@ -19,10 +19,13 @@ const formatModuleName = (name: string): string => {
 
 /**
  * Every real module id from ../Modules/index.ts's own catalog, keyed for a
- * cheap lookup below — 'geo-insights' resolves to whichever of its two
- * cards (GEO Radar/AEO Autopilot, both real 'geo-insights') comes first in
- * that file, since both represent the same underlying module and this
- * popup has no way to know which specific feature the caller meant.
+ * cheap lookup below. GEO Radar ('geo-insights') and AEO Autopilot
+ * ('aeo-insights') used to share one id here, which silently mislabeled
+ * every 'geo-insights' popup as "Activate AEO Autopilot" (a `Map` keyed by
+ * id keeps only the last of two entries sharing a key, and the AEO card is
+ * listed second in that file) — fixed by giving AEO Autopilot its own
+ * real, separate backend module id (see that catalog entry's own
+ * docblock), so this lookup no longer has two entries to choose between.
  */
 const MODULE_CATALOG_BY_ID = new Map(
 	MODULES_CATALOG.modules

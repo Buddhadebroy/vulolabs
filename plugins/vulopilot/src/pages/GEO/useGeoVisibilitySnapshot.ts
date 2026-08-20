@@ -28,6 +28,9 @@ export interface GeoVisibilityHistoryRow {
 	snapshot_date: string;
 	sample_size: number;
 	overall_score: number | null;
+	/** Same per-dimension breakdown `snapshot.ai_scores`/`sub_scores` carries for "today", now also available per historical day — lets a consumer compute its own scoped sub-average trend (e.g. AeoTab.tsx's "AEO Score Over Time") instead of only the one combined `overall_score` above. Null on a day the sample batch found nothing to average, same as `overall_score`. */
+	ai_scores: VisibilityAiScores | null;
+	sub_scores: VisibilitySubScores | null;
 }
 
 /**

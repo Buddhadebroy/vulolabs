@@ -478,6 +478,198 @@
 	font-size: 1.0625rem;
 }
 
+// BusinessUnderstandingCard.tsx's own 4 featured tiles — real found/missing
+// state reuses the same is-good/is-attention color language every other
+// rating badge on this tab shell already uses (GeoTab.tsx's own
+// ratingClass(), etc.).
+.kg-glance-icon.is-good {
+	background: #dcfce7;
+	color: #16a34a;
+}
+
+.kg-glance-icon.is-attention {
+	background: #fef3c7;
+	color: #b45309;
+}
+
+.kg-glance-status {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #b45309;
+	}
+
+	i {
+		font-size: 0.75rem;
+	}
+}
+
+// KnowledgeGraphSection.tsx's own "What AI & Search Understand" card —
+// real entity-type count list beside vulopilot-pro's real relationship
+// diagram.
+.kg-understand-grid {
+	display: grid;
+	grid-template-columns: minmax(11rem, 1fr) 2fr;
+	gap: 1.5rem;
+	align-items: start;
+}
+
+.kg-understand-count-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+}
+
+.kg-understand-count-row {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	font-size: 0.8125rem;
+
+	i {
+		color: var(--color-primary);
+		font-size: 0.9375rem;
+		width: 1.125rem;
+		text-align: center;
+	}
+}
+
+.kg-understand-count-label {
+	flex: 1;
+}
+
+.kg-understand-count-value {
+	font-weight: 600;
+}
+
+.kg-understand-graph {
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	padding: 0.5rem;
+}
+
+// BusinessUnderstandingCard.tsx — real score gauge + a real pill badge
+// underneath it (separate from the ring's own center label, matching the
+// reference mockup's own "ring, then a standalone Good/Needs Work/Poor
+// pill below it" layout).
+.business-score-gauge {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 0.625rem;
+}
+
+.business-score-badge {
+	display: inline-block;
+	padding: 0.1875rem 0.75rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+
+	&.is-good {
+		background: #dcfce7;
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		background: #fef3c7;
+		color: #b45309;
+	}
+
+	&.is-poor {
+		background: #fee2e2;
+		color: #dc2626;
+	}
+}
+
+.business-score-caption {
+	margin: 0;
+	max-width: 14rem;
+}
+
+// BusinessUnderstandingCard.tsx's own 4 featured tiles — one row, icon on
+// top, label + real found/missing status below, divided by real vertical
+// rules (not a wrapping auto-fit grid) to match the reference mockup's own
+// layout.
+.business-understand-tiles {
+	display: flex;
+	align-items: flex-start;
+}
+
+.business-understand-tile {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 0.5rem;
+	padding: 0 0.75rem;
+	border-left: 1px solid var(--border-color);
+
+	&:first-child {
+		border-left: none;
+		padding-left: 0;
+	}
+}
+
+.business-understand-tile-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.625rem;
+
+	i {
+		font-size: 1.125rem;
+	}
+
+	&.is-good {
+		background: #dcfce7;
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		background: #fef3c7;
+		color: #b45309;
+	}
+}
+
+.business-understand-tile-label {
+	font-size: 0.8125rem;
+	color: var(--sub-text-color);
+}
+
+.business-understand-tile-status {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-weight: 600;
+	font-size: 0.8125rem;
+
+	i {
+		font-size: 0.75rem;
+	}
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #b45309;
+	}
+}
+
 // KnowledgeGraphTab.tsx's 3 featured entity cards.
 // .kg-entity-card {
 // 	height: 100%;
@@ -588,6 +780,20 @@
 .kg-check-desc {
 	color: $sub-text-color;
 	font-size: 0.75rem;
+}
+
+// WhatNeedsFixingCard.tsx — reuses .kg-check-row/-icon/-body/-desc above
+// as-is; only the title needs its own layout (real label + real severity
+// badge inline) and the "View all" link below needs a little breathing
+// room.
+.kg-fix-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.kg-fix-view-all {
+	margin-top: 0.75rem;
 }
 
 // SeoTab.tsx's "SEO checks at a glance" — 5 real category tiles, now a real
@@ -816,6 +1022,44 @@
 
 	&.is-warning {
 		color: #dc2626;
+	}
+}
+
+// SeoTab.tsx — "Search engine access" tiny status line, reusing
+// .crawler-health-status's own is-good/is-warning colors (same real
+// robots-txt/sitemap/ai-crawler-blocked-pages findings Crawler Traffic's
+// own Overall Crawl Health status reads, just linked out to instead of
+// duplicated as a drill-down table on this tab).
+.seo-search-engine-access {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	padding: 0.625rem 1rem;
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	margin: 0.75rem 0;
+
+	.crawler-health-status {
+		font-size: 0.9375rem;
+	}
+}
+
+.seo-search-engine-access-link {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--color-primary);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	cursor: pointer;
+
+	i {
+		font-size: 0.875rem;
 	}
 }
 
@@ -1263,55 +1507,31 @@
 	}
 }
 
-// AeoTab.tsx — "Need Help Improving?" band.
-.aeo-help-band {
-	// See .geo-by-topic-section's own comment just above — same bare-block-
-	// in-a-flex-row full-bleed fix.
-	width: 100%;
-	margin: 1.5rem 0;
-}
-
-.aeo-help-band-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-	gap: 0.875rem;
-}
-
-.aeo-help-tile {
+// AeoEngineTestingCard.tsx.
+.aeo-engine-testing-controls {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	gap: 0.75rem;
-	border: $border-light-small;
-	border-radius: 0.5rem;
-	padding: 0.875rem 1rem;
-	background: none;
-	text-decoration: none;
-	cursor: pointer;
-	text-align: left;
-	width: 100%;
-
-	i {
-		font-size: 1.25rem;
-		color: $theme-color;
-		margin-top: 0.125rem;
-	}
-
-	&:hover {
-		border-color: $theme-color;
-		background: $theme-background-color;
-	}
+	flex-wrap: wrap;
+	margin-bottom: 1rem;
 }
 
-.aeo-help-tile-title {
-	margin: 0 0 0.125rem;
-	font-weight: 600;
-	font-size: 0.875rem;
+.aeo-engine-testing-answer-label {
+	margin-top: 0.75rem;
 }
 
-.aeo-help-tile-desc {
-	margin: 0;
-	color: $sub-text-color;
-	font-size: 0.75rem;
+// The real, live-generated AI answer AeoEngineTestingCard.tsx's own
+// cited/not-cited judgment was made from — shown so a re-test visibly
+// produces different real text each time instead of only a static
+// verdict.
+.aeo-engine-testing-answer {
+	margin: 0.25rem 0 0;
+	padding: 0.625rem 0.875rem;
+	border-left: 3px solid var(--border-color);
+	background: var(--theme-background-color, #f9fafb);
+	font-size: 0.8125rem;
+	font-style: italic;
+	color: var(--sub-text-color);
 }
 
 // KeywordsTab.tsx.
@@ -1346,6 +1566,38 @@
 	justify-content: flex-end;
 	gap: 0.625rem;
 	margin-top: 0.5rem;
+}
+
+// SchemaKnowledgeTab.tsx's own real in-page header — GEO.tsx's shared
+// NavigatorHeaderComponent above the tab bar always reads "Grow My
+// Traffic" for every tab (by design — every other tab here follows that
+// same shared-header convention, see GEO.tsx's own docblock), so this
+// page's own distinct title/subtitle (matching the reference mockup)
+// renders as its own real heading inside this tab's own content instead
+// of fighting that shared architecture.
+.schema-page-header {
+	margin-bottom: 0.25rem;
+
+	.desc {
+		margin: 0.25rem 0 0;
+	}
+}
+
+.schema-page-header-title {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+
+	i {
+		font-size: 1.25rem;
+		color: var(--color-primary);
+	}
+
+	h2 {
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 600;
+	}
 }
 
 

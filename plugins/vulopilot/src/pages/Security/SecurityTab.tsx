@@ -10,6 +10,7 @@ import SectionedIssuesTable, {
 } from './SectionedIssuesTable';
 import SecurityMockupHeader from './SecurityMockupHeader';
 import PluginOverlapCard from './PluginOverlapCard';
+import BackupProtectionNotice from './BackupProtectionNotice';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 
 /**
@@ -32,6 +33,23 @@ const SecurityIncidentReportsPanel = applyFilters(
  * exactly the same scope (SECURITY_FINDINGS_SCANNER_IDS), so a separate,
  * identically-scoped section would just be a second "All" under a
  * different label.
+ *
+ * "Vulnerabilities"/"Suspicious File Changes" (2 more sections, appended
+ * last) moved here from the now-removed "Files & Plugins" tab per direct
+ * instruction — Security owns these findings now rather than splitting
+ * them across tabs. Same scanner ids as that tab's former "Plugin
+ * Vulnerabilities"/"File Integrity"/"Recent File Changes" sections,
+ * already counted in `SECURITY_FINDINGS_SCANNER_IDS` before this move (so
+ * "All" never undercounted them), just without a named section here until
+ * now. "Vulnerabilities" also absorbed that tab's former "Theme
+ * Vulnerabilities" section (`theme-vulnerabilities` added to this
+ * section's own scannerIds) rather than getting a separate section of its
+ * own — one real "Vulnerabilities" tile/section covering both plugin and
+ * theme CVEs, matching the generic (not "Plugin"-qualified) name this
+ * section and its matching tile in SecurityMetricsGrid.tsx already used.
+ * "Outdated Software", that tab's 5th section, wasn't moved anywhere —
+ * it shared its scanner id with Site Health's own "Updates" section
+ * (SiteHealthTab.tsx), which already covers the exact same finding.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -103,6 +121,32 @@ const SECTIONS: FindingsSection[] = [
 		),
 		scannerIds: ['malware', 'firewall'],
 	},
+	{
+		key: 'vulnerabilities',
+		title: __('Vulnerabilities', 'vulopilot'),
+		description: __(
+			'Known CVEs matched against your installed plugins\' and themes\' exact versions.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No vulnerability findings yet — run a scan to check.',
+			'vulopilot'
+		),
+		scannerIds: ['advanced-vulnerabilities', 'theme-vulnerabilities'],
+	},
+	{
+		key: 'suspicious-file-changes',
+		title: __('Suspicious File Changes', 'vulopilot'),
+		description: __(
+			'Unexpected changes to core/theme/plugin files.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No file change findings yet — run a scan to check.',
+			'vulopilot'
+		),
+		scannerIds: ['core-file-integrity', 'integrity-monitoring'],
+	},
 ];
 
 /** DOM anchor id the merged table below carries — what "Review Issues" scrolls to. */
@@ -134,11 +178,17 @@ const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
  *   cards stacked here — same merge pattern WooCommerce's own "All
  *   WooCommerce Issues" already established, per direct instruction to
  *   apply it here too.
- * - Closes with PluginOverlapCard filtered to `category="security"` —
- *   promotes the same real cross-sell FilesPluginsTab.tsx introduced
- *   (Wordfence/Sucuri/Solid Security/AIOS active → VuloPilot's own
- *   Security Watchtower) into the tab a user reading about security is
- *   already on, not only the generic Files & Plugins list.
+ * - Closes with BackupProtectionNotice (a single real
+ *   "Backup protection: Enabled/Not enabled" status line + a link to the
+ *   real Backups tab, `GET /settings`'s own `enable_automatic_backups`)
+ *   then PluginOverlapCard filtered to `category="security"` —
+ *   real cross-sell (Wordfence/Sucuri/Solid Security/AIOS active →
+ *   VuloPilot's own Security Watchtower) surfaced in the tab a user
+ *   reading about security is already on. BackupProtectionNotice
+ *   deliberately isn't another full feature card — backup management
+ *   already has a real home (the Backups tab) and configuration already
+ *   has a real home (Settings → Scanning → Backups); this tab only needs
+ *   to say whether protection is on, per direct instruction.
  */
 const SecurityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
@@ -176,6 +226,7 @@ const SecurityTab = () => {
 					activeTab={activeTab}
 					onTabChange={setActiveTab}
 				/>
+				<BackupProtectionNotice />
 				<PluginOverlapCard category="security" />
 				{SecurityIncidentReportsPanel && <SecurityIncidentReportsPanel />}
 			</ColumnComponent>

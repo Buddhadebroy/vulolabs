@@ -1,0 +1,188 @@
+/* global appLocalizer */
+import { __ } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
+import type { ComponentType } from 'react';
+import { CardComponent, ColumnComponent, ModuleGuardComponent } from '@zyra/components';
+import { TableCard, TableRow } from '@zyra/table';
+import { useApiList } from '../../services/useApiList';
+import CrawlerSummaryCard from './CrawlerSummaryCard';
+import CrawlerAnalyticsSection from './CrawlerAnalyticsSection';
+import { useCrawlerAnalytics } from './useCrawlerAnalytics';
+
+/**
+ * vulopilot-pro's AiCrawlerAnalytics module's own cards — "Historical Crawl
+ * Trends", "AI Visibility Correlation", and "AI Crawler Alerts"
+ * (AI-CRAWLER-ANALYTICS-MODULE.md). Same "register a source, don't modify
+ * the host" slot pattern BrandVisibility.tsx's own Pro card slots already
+ * use — null (nothing rendered) until vulopilot-pro's module registers a
+ * component into these filters.
+ */
+const HistoricalCrawlTrendsCard = applyFilters(
+	'vulopilot_crawler_historical_trends_card',
+	null
+) as ComponentType | null;
+
+const CrawlerVisibilityCorrelationCard = applyFilters(
+	'vulopilot_crawler_visibility_correlation_card',
+	null
+) as ComponentType | null;
+
+const CrawlerAlertsCard = applyFilters(
+	'vulopilot_crawler_alerts_card',
+	null
+) as ComponentType | null;
+
+interface CrawlerVisitRow extends TableRow {
+	id: number;
+	bot_name: string;
+	requested_url: string;
+	created_at: string;
+}
+
+/**
+ * "Overview" inner section of the merged "Crawl & URLs" tab — was this
+ * whole tab's own content before the merge split it (direct instruction:
+ * "Broken Links + Redirects + Crawler Traffic are fragmented... one main
+ * tab: Crawl & URLs [with] Overview | Broken Links | Redirects | 404s |
+ * Robots & Sitemap"): a real health/stat row, a real trend chart + "by AI
+ * lab" breakdown, real Top Crawlers/Most Crawled Pages tables (all from
+ * CrawlerAnalyticsSection.tsx, backed by `crawler-traffic/analytics`,
+ * including its own real Crawl Health Checklist), the pre-existing real
+ * "Last seen" tiles (CrawlerSummaryCard.tsx), vulopilot-pro's 3 Pro card
+ * slots, and the pre-existing paginated raw visit log (useApiList +
+ * TableCard, same shape ActivityLogs.php already uses).
+ *
+ * The 3 real findings tables this tab used to also render here — "Blocked
+ * pages"/"Robots.txt Issues"/"XML Sitemap Issues" — moved to
+ * CrawlRobotsSitemapSection.tsx (this same merge's own "Robots & Sitemap"
+ * inner tab): those are drill-down findings about crawl DIRECTIVES
+ * specifically, a distinct concern from this section's own real-time
+ * traffic analytics, and the requested structure gives them their own
+ * tab rather than bundling everything crawler-related into one
+ * "Overview."
+ */
+const CrawlOverviewSection = () => {
+	const botNameOptions = [
+		{ label: __('GPTBot (OpenAI)', 'vulopilot'), value: 'GPTBot (OpenAI)' },
+		{
+			label: __('ChatGPT-User (OpenAI)', 'vulopilot'),
+			value: 'ChatGPT-User (OpenAI)',
+		},
+		{
+			label: __('ClaudeBot (Anthropic)', 'vulopilot'),
+			value: 'ClaudeBot (Anthropic)',
+		},
+		{
+			label: __('anthropic-ai (Anthropic)', 'vulopilot'),
+			value: 'anthropic-ai (Anthropic)',
+		},
+		{
+			label: __('PerplexityBot (Perplexity)', 'vulopilot'),
+			value: 'PerplexityBot (Perplexity)',
+		},
+		{
+			label: __('Bytespider (ByteDance)', 'vulopilot'),
+			value: 'Bytespider (ByteDance)',
+		},
+		{
+			label: __('CCBot (Common Crawl)', 'vulopilot'),
+			value: 'CCBot (Common Crawl)',
+		},
+		{
+			label: __(
+				'Google-CloudVertexBot (Google AI training)',
+				'vulopilot'
+			),
+			value: 'Google-CloudVertexBot (Google AI training)',
+		},
+		{ label: __('Amazonbot (Amazon)', 'vulopilot'), value: 'Amazonbot (Amazon)' },
+	];
+
+	const {
+		data,
+		total,
+		categoryCounts,
+		isLoading,
+		error,
+		refetch,
+		onQueryUpdate,
+	} = useApiList<CrawlerVisitRow>(
+		'crawler-traffic',
+		{},
+		{ key: 'bot_name', options: botNameOptions }
+	);
+	const { analytics, isLoading: isLoadingAnalytics } = useCrawlerAnalytics(30);
+
+	return (
+		<ColumnComponent>
+			{error ? (
+				<CardComponent title={__('Crawler Traffic', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="error"
+						title={__(
+							'Could not load crawler traffic',
+							'vulopilot'
+						)}
+						desc={error}
+						buttonText={__('Retry', 'vulopilot')}
+						onButtonClick={refetch}
+					/>
+				</CardComponent>
+			) : (
+				<>
+					<CrawlerAnalyticsSection
+						analytics={analytics}
+						isLoading={isLoadingAnalytics}
+					/>
+
+					<CrawlerSummaryCard />
+
+					{CrawlerAlertsCard && <CrawlerAlertsCard />}
+					{HistoricalCrawlTrendsCard && (
+						<HistoricalCrawlTrendsCard />
+					)}
+					{CrawlerVisibilityCorrelationCard && (
+						<CrawlerVisibilityCorrelationCard />
+					)}
+
+					<TableCard
+						search={{
+							placeholder: __(
+								'Search requested URLs…',
+								'vulopilot'
+							),
+						}}
+						format={appLocalizer.date_format_js}
+						headers={{
+							bot_name: {
+								label: __('Bot', 'vulopilot'),
+							},
+							requested_url: {
+								label: __('Requested URL', 'vulopilot'),
+							},
+							created_at: {
+								label: __('When', 'vulopilot'),
+								type: 'date',
+								isSortable: true,
+								defaultSort: true,
+								defaultOrder: 'desc',
+							},
+						}}
+						rows={data}
+						ids={data.map((row) => row.id)}
+						totalRows={total}
+						categoryCounts={categoryCounts}
+						isLoading={isLoading}
+						onQueryUpdate={onQueryUpdate}
+						emptyMessage={__(
+							'No AI crawler visits detected yet.',
+							'vulopilot'
+						)}
+					/>
+				</>
+			)}
+		</ColumnComponent>
+	);
+};
+
+export default CrawlOverviewSection;

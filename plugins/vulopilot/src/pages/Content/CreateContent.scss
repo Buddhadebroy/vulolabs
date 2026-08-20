@@ -54,142 +54,51 @@ $content-tool-colors: (
 	color: $sub-text-color;
 }
 
-// "Content Score" (ContentScoreCard.tsx) — real GET /content-intelligence/score
-// data: a pie-ring score plus a real severity breakdown. Reuses the same
-// `.admin-badge badge-{severity}` pill vocabulary
-// AICopilot.scss's `.history-severity-breakdown` already established for
-// this codebase's other severity lists — duplicated here rather than
-// shared, matching how that block's own comment says every usage scopes
-// its own color map rather than importing one.
-.content-score-card {
+// "Content Quality" (ContentQualityCard.tsx) — real, per-selected-post
+// readability/completeness/structure from GET /content-intelligence/quality.
+// Plain label/value rows rather than a pie-ring score, deliberately — this
+// card has no single aggregate number to plot (see that component's own
+// docblock for why: a second site-wide number was the exact problem being
+// fixed here).
+.content-quality-body {
+	margin-top: 1rem;
+}
+
+.content-quality-row {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.625rem 0;
+
+	+ .content-quality-row {
+		border-top: 1px solid var(--border-color, #eef0f2);
+	}
+}
+
+.content-quality-row-label {
+	font-size: 0.813rem;
+	font-weight: 600;
+	color: var(--sub-text-color, #6b7280);
+}
+
+.content-quality-row-value {
+	font-size: 0.875rem;
+	font-weight: 700;
+	color: var(--theme-color, #111827);
+	font-variant-numeric: tabular-nums;
+}
+
+.content-quality-checks {
+	list-style: none;
+	margin: 0 0 0.5rem;
+	padding: 0;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	text-align: center;
+	gap: 0.375rem;
 
-	// ChartComponent's own `.zyra-chart-pie-legend` always renders the
-	// pie's raw per-slice values regardless of the `legendLabels` prop
-	// (that prop only toggles its dot + text label, not the bare number —
-	// confirmed by reading zyra's own compiled component) — redundant
-	// here since `.content-score-value` already shows the real score.
-	// `!important` matches the same override AICopilot.scss's own
-	// `.zyra-chart-pie--side .zyra-chart-pie-legend` rule already needs
-	// against zyra's runtime-injected base style.
-	.zyra-chart-pie-legend {
-		display: none !important;
-	}
-
-	.content-score-value {
-		font-size: 1.75rem;
-		font-weight: 700;
-		color: $theme-color;
-		line-height: 1;
-
-		small {
-			font-size: 0.875rem;
-			font-weight: 500;
-			color: $sub-text-color;
-		}
-	}
-
-	// `.admin-badge`'s own base pill shape comes from zyra at runtime, but
-	// its color modifiers don't — every other `.admin-badge green/red/
-	// yellow` usage in this codebase (e.g. AICopilot.scss's own
-	// `.history-row .admin-badge.green/.red/...`) scopes and re-declares
-	// its own color map rather than relying on one existing globally
-	// (there isn't one), so this does the same rather than silently
-	// rendering an untinted pill.
-	.content-score-rating {
-		margin-top: 0.75rem;
-		padding: 0.25rem 0.75rem;
-		font-size: 0.75rem;
-		font-weight: 600;
-
-		&.green {
-			color: #16a34a;
-			background: color-mix(in srgb, #16a34a 14%, transparent);
-		}
-
-		&.yellow {
-			color: #b45309;
-			background: color-mix(in srgb, #b45309 14%, transparent);
-		}
-
-		&.red {
-			color: #dc2626;
-			background: color-mix(in srgb, #dc2626 14%, transparent);
-		}
-	}
-
-	.content-score-breakdown {
-		width: 100%;
-		margin-top: 1.25rem;
-		padding-top: 1rem;
-		border-top: $border-light-small;
-		text-align: left;
-
-		.content-score-breakdown-header {
-			display: flex;
-			align-items: baseline;
-			justify-content: space-between;
-			margin-bottom: 0.75rem;
-
-			strong {
-				font-size: 0.75rem;
-				font-weight: 700;
-				letter-spacing: 0.04em;
-				color: $sub-text-color;
-			}
-
-			.content-score-breakdown-total {
-				font-size: 0.75rem;
-				color: $sub-text-color;
-			}
-		}
-
-		ul {
-			list-style: none;
-			margin: 0;
-			padding: 0;
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
-		}
-
-		li {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-		}
-
-		.content-score-severity-count {
-			font-weight: 700;
-			font-variant-numeric: tabular-nums;
-			color: $theme-color;
-		}
-
-		.admin-badge {
-			padding: 0.25rem 0.625rem;
-			border-radius: 0.313rem;
-			font-size: 0.75rem;
-			font-weight: 700;
-			text-transform: uppercase;
-			white-space: nowrap;
-		}
-
-		$content-score-severities: (
-			'critical': #dc2626,
-			'high': #d88c5c,
-			'medium': #b45309,
-			'low': #5baab3,
-		);
-
-		@each $name, $color in $content-score-severities {
-			.badge-#{$name} {
-				color: #{$color};
-				background: color-mix(in srgb, #{$color} 14%, transparent);
-			}
-		}
+	li {
+		font-size: 0.8rem;
 	}
 }
 
