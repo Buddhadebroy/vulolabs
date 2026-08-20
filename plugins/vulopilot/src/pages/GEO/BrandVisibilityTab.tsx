@@ -1,8 +1,6 @@
 /* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import type { ComponentType } from 'react';
 import {
 	CardComponent,
 	ColumnComponent,
@@ -13,6 +11,7 @@ import BrandScoreCard from './BrandScoreCard';
 import SectionedFindingsTab from '../Security/SectionedFindingsTab';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
+import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
  * Section → scanner_id grouping for Brand Intelligence's 7 scanners
@@ -76,50 +75,46 @@ const isBrandModuleActive = () =>
 	appLocalizer.active_modules?.includes('brand-intelligence') ?? false;
 
 /**
- * "Authority Trends" — vulopilot-pro's BrandIntelligence module's own
- * sitewide score-history chart, same "register a source, don't modify the
- * host" slot pattern GeoVisibilityTrend's slot on GeoTab.tsx already uses.
- */
-const AuthorityTrendsCard = applyFilters(
-	'vulopilot_brand_authority_trends_card',
-	null
-) as ComponentType | null;
-
-/**
- * "Competitor Comparison" — same slot pattern as ContentGapAnalysisCard's
- * slot on Content.tsx.
- */
-const CompetitorComparisonCard = applyFilters(
-	'vulopilot_brand_competitor_comparison_card',
-	null
-) as ComponentType | null;
-
-/**
- * "Knowledge Panel Optimization" — same slot pattern as the two cards
- * above.
- */
-const KnowledgePanelCard = applyFilters(
-	'vulopilot_brand_knowledge_panel_card',
-	null
-) as ComponentType | null;
-
-/**
  * "Brand Visibility" tab of "Grow My Traffic" — on-site Brand/Trust/
  * Authority/Entity scoring (BRAND-INTELLIGENCE-MODULE.md, real and always
- * available) alongside the pre-existing off-site brand-mention/
- * share-of-voice card (still honestly "Not connected yet" — that gap is
- * unchanged by this move, see its own docblock below). Header content
- * (BrandScoreCard + Pro slots) sits above one real, unified findings table
- * (SectionedFindingsTab.tsx, same shell GeoTab.tsx/AeoTab.tsx/SeoTab.tsx
- * use) per direct instruction, replacing what used to be 3 separate
- * FindingsTable cards; the "Why this matters more than backlinks"/off-site
- * tracking card — previously its own side-by-side sidebar column next to
- * the section list — now sits below the table as `footer` content instead,
- * since a single-column table no longer has a natural second column to
- * pair it with.
+ * available) alongside a real off-site mention card (OffSiteMentionsCard,
+ * vulopilot-pro's own keyless Google News RSS feed — see
+ * OffSiteMentionTracker.php's own docblock for why that source rather than
+ * a paid Ahrefs-style index; falls back to the original static "Not
+ * connected yet" card when Pro/the module isn't active, since the feature
+ * genuinely doesn't run without it). Header content (BrandScoreCard + Pro
+ * slots) sits above one real, unified findings table (SectionedFindingsTab.tsx,
+ * same shell GeoTab.tsx/AeoTab.tsx/SeoTab.tsx use) per direct instruction,
+ * replacing what used to be 3 separate FindingsTable cards; the "Why this
+ * matters more than backlinks"/off-site mentions card — previously its own
+ * side-by-side sidebar column next to the section list — now sits below the
+ * table as `footer` content instead, since a single-column table no longer
+ * has a natural second column to pair it with.
  */
 const BrandVisibilityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
+
+	// useFilterSlot(), not a plain top-level applyFilters() read — that
+	// pattern is a real, measured-live race (useFilterSlot.ts's own
+	// docblock) that would otherwise leave every one of these 4 slots
+	// stuck at null forever regardless of whether Pro/the module is
+	// actually active, since Free's own bundle can finish importing and
+	// evaluating this module before Pro's addFilter() calls have run.
+	// Called unconditionally, before the early return below, per the
+	// rules of hooks — a Pro slot resolving is irrelevant on the "module
+	// off" branch anyway, so there's no behavior difference either way.
+	const AuthorityTrendsCard = useFilterSlot(
+		'vulopilot_brand_authority_trends_card'
+	);
+	const CompetitorComparisonCard = useFilterSlot(
+		'vulopilot_brand_competitor_comparison_card'
+	);
+	const KnowledgePanelCard = useFilterSlot(
+		'vulopilot_brand_knowledge_panel_card'
+	);
+	const OffSiteMentionsCard = useFilterSlot(
+		'vulopilot_brand_offsite_mentions_card'
+	);
 
 	if (!isBrandModuleActive()) {
 		return (
@@ -183,14 +178,18 @@ const BrandVisibilityTab = () => {
 							)}
 						</div>
 					</CardComponent>
-					<ModuleGuardComponent
-						icon="lock"
-						title={__('Off-site mention tracking: not connected yet', 'vulopilot')}
-						desc={__(
-							'Connect an Ahrefs Brand Radar account from Settings to start tracking real mentions, share of voice, and citing domains here.',
-							'vulopilot'
-						)}
-					/>
+					{OffSiteMentionsCard ? (
+						<OffSiteMentionsCard />
+					) : (
+						<ModuleGuardComponent
+							icon="lock"
+							title={__('Off-site mention tracking: not connected yet', 'vulopilot')}
+							desc={__(
+								'Turn on the Brand Intelligence module (Settings → Modules) to start tracking real off-site news mentions and citing domains here — no account or API key needed.',
+								'vulopilot'
+							)}
+						/>
+					)}
 				</>
 			}
 		/>

@@ -100,12 +100,29 @@ final class VuloPilot {
     /**
      * Boots the plugin once every other active plugin has loaded.
      *
+     * Previously only ran Install() on the one-time `run_installer` flag
+     * set at activation — meaning a table added in a later plugin version
+     * (Install.php's own `create_database_tables()` gains one every so
+     * often, most recently `vulopilot_brand_mentions`) would never
+     * actually get created on a site that activated an older version and
+     * simply auto-updated since, since that flag is deleted the moment it
+     * fires once and nothing ever sets it again. Also re-running whenever
+     * the stored `plugin_db_version` doesn't match this code's own
+     * VULOPILOT_PLUGIN_VERSION closes that gap — the standard "version-gate
+     * an idempotent migration" idiom, safe for the same reason Install's
+     * own class docblock already gives for calling create_database_tables()
+     * unconditionally (every table it creates is a plain `CREATE TABLE IF
+     * NOT EXISTS`).
+     *
      * @return void
      */
     public function init_plugin() {
         add_action( 'init', array( $this, 'init_classes' ), 0 );
 
-        if ( get_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'] ) ) {
+        $needs_install = get_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'] )
+            || get_option( Utill::VULOPILOT_OTHER_SETTINGS['plugin_db_version'] ) !== VULOPILOT_PLUGIN_VERSION;
+
+        if ( $needs_install ) {
             new Install();
             delete_option( Utill::VULOPILOT_OTHER_SETTINGS['run_installer'] );
         }
