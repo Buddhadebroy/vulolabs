@@ -61,9 +61,20 @@ export const worstFinding = (findings: RawFinding[]): RawFinding =>
 export const worstSeverity = (findings: RawFinding[]): FindingSeverity =>
 	worstFinding(findings).severity;
 
-/** `GET /findings` is hard-capped at 100 rows/request server-side (AbstractRepository::find_all()) — loops on the response's own `total` rather than assuming a larger per_page is honored, so a site with >100 real open SEO findings doesn't silently under-report. */
-export const fetchAllOpenSeoFindings = async (): Promise<RawFinding[]> => {
-	const scannerParam = ALL_SEO_SCANNER_IDS.join(',');
+/**
+ * `GET /findings` is hard-capped at 100 rows/request server-side
+ * (AbstractRepository::find_all()) — loops on the response's own `total`
+ * rather than assuming a larger per_page is honored, so a site with >100
+ * real open findings for the given scanner ids doesn't silently
+ * under-report. Generalized from the original SEO-only
+ * `fetchAllOpenSeoFindings()` (kept below as a thin wrapper) so
+ * `IssuesSection.tsx` can scope this same real fetch to AEO's/GEO's own
+ * scanner ids too, not just SEO's.
+ */
+export const fetchOpenFindingsFor = async (
+	scannerIds: string[]
+): Promise<RawFinding[]> => {
+	const scannerParam = scannerIds.join(',');
 	let page = 1;
 	let all: RawFinding[] = [];
 
@@ -95,6 +106,10 @@ export const fetchAllOpenSeoFindings = async (): Promise<RawFinding[]> => {
 
 	return all;
 };
+
+/** Thin SEO-scoped wrapper — `SeoIssuesSection.tsx`'s own default usage, unchanged behavior. */
+export const fetchAllOpenSeoFindings = (): Promise<RawFinding[]> =>
+	fetchOpenFindingsFor(ALL_SEO_SCANNER_IDS);
 
 /**
  * Repeated scans create a new "open" Finding row instead of superseding the
