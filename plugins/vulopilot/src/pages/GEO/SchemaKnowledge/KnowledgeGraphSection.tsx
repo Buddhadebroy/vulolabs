@@ -13,6 +13,7 @@ import {
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import InspectorSection from './InspectorSection';
 
 /** Real Settings → Scanning → AI Visibility subtab id (Settings.tsx's own `currentTab === 'ai-visibility'` branch) — where the `entity_service_pages`/`entity_business_locations` fields this section reads actually live. */
 const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=ai-visibility';
@@ -53,31 +54,31 @@ const OTHER_ENTITY_SECTIONS: {
 	icon: string;
 	emptyMessage: string;
 }[] = [
-	{
-		key: 'people',
-		title: __('People', 'vulopilot'),
-		icon: 'person',
-		emptyMessage: __(
-			'No published posts/pages with a real author yet.',
-			'vulopilot'
-		),
-	},
-	{
-		key: 'organizations',
-		title: __('Organizations', 'vulopilot'),
-		icon: 'global-community',
-		emptyMessage: __('Nothing to show yet.', 'vulopilot'),
-	},
-	{
-		key: 'services',
-		title: __('Services', 'vulopilot'),
-		icon: 'customer-service',
-		emptyMessage: __(
-			'No service pages configured yet — add some under Settings → Entity Extraction.',
-			'vulopilot'
-		),
-	},
-];
+		{
+			key: 'people',
+			title: __('People', 'vulopilot'),
+			icon: 'person',
+			emptyMessage: __(
+				'No published posts/pages with a real author yet.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'organizations',
+			title: __('Organizations', 'vulopilot'),
+			icon: 'global-community',
+			emptyMessage: __('Nothing to show yet.', 'vulopilot'),
+		},
+		{
+			key: 'services',
+			title: __('Services', 'vulopilot'),
+			icon: 'customer-service',
+			emptyMessage: __(
+				'No service pages configured yet — add some under Settings → Entity Extraction.',
+				'vulopilot'
+			),
+		},
+	];
 
 /**
  * Same "genuinely gates the underlying data" posture SeoTab.tsx's own
@@ -427,63 +428,58 @@ const KnowledgeGraphSection = () => {
 
 	return (
 		<>
-			{entities && (
-				<ColumnComponent>
-					<CardComponent
-						title={__('Your website at a glance', 'vulopilot')}
-						desc={__(
-							'These are the main things VuloPilot found on your website.',
-							'vulopilot'
-						)}
-					>
-						<div className="kg-glance-grid">
-							<div className="kg-glance-item">
-								<div className="kg-glance-icon">
-									<i className="adminfont-product" />
-								</div>
-								<div>
-									<div className="kg-glance-label">
-										{__('Products', 'vulopilot')}
+			<ColumnComponent grid={8}>
+				{entities && (
+					<>
+						<CardComponent
+							title={__('Your website at a glance', 'vulopilot')}
+							desc={__(
+								'These are the main things VuloPilot found on your website.',
+								'vulopilot'
+							)}
+						>
+							<div className="kg-glance-grid">
+								<div className="kg-glance-item">
+									<div className="kg-glance-icon">
+										<i className="adminfont-product" />
 									</div>
-									<div className="kg-glance-value">
-										{entities.products?.length ?? 0}
+									<div>
+										<div className="kg-glance-label">
+											{__('Products', 'vulopilot')}
+										</div>
+										<div className="kg-glance-value">
+											{entities.products?.length ?? 0}
+										</div>
+									</div>
+								</div>
+								<div className="kg-glance-item">
+									<div className="kg-glance-icon">
+										<i className="adminfont-location" />
+									</div>
+									<div>
+										<div className="kg-glance-label">
+											{__('Business Locations', 'vulopilot')}
+										</div>
+										<div className="kg-glance-value">
+											{entities.locations.length}
+										</div>
+									</div>
+								</div>
+								<div className="kg-glance-item">
+									<div className="kg-glance-icon">
+										<i className="adminfont-category" />
+									</div>
+									<div>
+										<div className="kg-glance-label">
+											{__('Categories', 'vulopilot')}
+										</div>
+										<div className="kg-glance-value">
+											{entities.categories.length}
+										</div>
 									</div>
 								</div>
 							</div>
-							<div className="kg-glance-item">
-								<div className="kg-glance-icon">
-									<i className="adminfont-location" />
-								</div>
-								<div>
-									<div className="kg-glance-label">
-										{__('Business Locations', 'vulopilot')}
-									</div>
-									<div className="kg-glance-value">
-										{entities.locations.length}
-									</div>
-								</div>
-							</div>
-							<div className="kg-glance-item">
-								<div className="kg-glance-icon">
-									<i className="adminfont-category" />
-								</div>
-								<div>
-									<div className="kg-glance-label">
-										{__('Categories', 'vulopilot')}
-									</div>
-									<div className="kg-glance-value">
-										{entities.categories.length}
-									</div>
-								</div>
-							</div>
-						</div>
-					</CardComponent>
-				</ColumnComponent>
-			)}
-
-			<ContainerComponent>
-				<ColumnComponent grid={8}>
-					{entities && (
+						</CardComponent>
 						<EntityHighlightCard
 							id="kg-products"
 							icon="product"
@@ -499,9 +495,6 @@ const KnowledgeGraphSection = () => {
 							)}
 							viewAllHref={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`}
 						/>
-					)}
-
-					{entities && (
 						<EntityHighlightCard
 							id="kg-categories"
 							icon="category"
@@ -515,127 +508,127 @@ const KnowledgeGraphSection = () => {
 							rowBadge={(entity) =>
 								messyCategoryNames.has(entity.name)
 									? {
-											text: __('Needs cleanup', 'vulopilot'),
-											color: 'yellow',
-										}
+										text: __('Needs cleanup', 'vulopilot'),
+										color: 'yellow',
+									}
 									: {
-											text: __('Good', 'vulopilot'),
-											color: 'green',
-										}
+										text: __('Good', 'vulopilot'),
+										color: 'green',
+									}
 							}
 						/>
-					)}
+					</>
+				)}
 
-					{checks.length > 0 && (
-						<CardComponent
-							title={__('What should you check?', 'vulopilot')}
-							titleIcon="analytics"
-							desc={__(
-								'A few things on your website are worth reviewing.',
-								'vulopilot'
-							)}
-						>
-							<div className="kg-check-list">
-								{checks.map((check) => (
-									<div key={check.key} className="kg-check-row">
-										<div className="kg-check-icon">
-											<i className={`adminfont-${check.icon}`} />
-										</div>
-										<div className="kg-check-body">
-											<div className="kg-check-title">
-												{check.title}
-											</div>
-											<div className="kg-check-desc">
-												{check.desc}
-											</div>
-										</div>
-										<ButtonInput
-											buttons={{
-												text: `${__('Review', 'vulopilot')} ›`,
-												color: 'text-purple',
-												onClick: () => scrollToId(check.targetId),
-											}}
-										/>
-									</div>
-								))}
-							</div>
-						</CardComponent>
-					)}
-
+				{checks.length > 0 && (
 					<CardComponent
-						title={__('Why does this matter?', 'vulopilot')}
-						titleIcon="info"
+						title={__('What should you check?', 'vulopilot')}
+						titleIcon="analytics"
+						desc={__(
+							'A few things on your website are worth reviewing.',
+							'vulopilot'
+						)}
 					>
-						<div className="desc">
-							{__(
-								'Search engines and AI systems need to understand who you are, what you offer, and what the important things on your website are. Clear, accurate information helps your content show up in more relevant searches and AI answers.',
-								'vulopilot'
-							)}
+						<div className="kg-check-list">
+							{checks.map((check) => (
+								<div key={check.key} className="kg-check-row">
+									<div className="kg-check-icon">
+										<i className={`adminfont-${check.icon}`} />
+									</div>
+									<div className="kg-check-body">
+										<div className="kg-check-title">
+											{check.title}
+										</div>
+										<div className="kg-check-desc">
+											{check.desc}
+										</div>
+									</div>
+									<ButtonInput
+										buttons={{
+											text: `${__('Review', 'vulopilot')} ›`,
+											color: 'text-purple',
+											onClick: () => scrollToId(check.targetId),
+										}}
+									/>
+								</div>
+							))}
 						</div>
 					</CardComponent>
-				</ColumnComponent>
+				)}
 
-				<ColumnComponent grid={4}>
-					{entities && (
-						<EntityHighlightCard
-							id="kg-locations"
-							icon="location"
-							title={__('Business Locations', 'vulopilot')}
-							rows={entities.locations}
-							emptyMessage={__(
-								'No business locations configured yet — add some under Settings → Entity Extraction.',
-								'vulopilot'
-							)}
-							emptyState={
-								<>
-									<div className="kg-why-it-matters">
-										<i className="adminfont-info" />
-										<div>
-											<div className="kg-why-it-matters-title">
-												{__('Why it matters', 'vulopilot')}
-											</div>
-											<div className="kg-why-it-matters-desc">
-												{__(
-													'Adding your business location helps customers and search engines understand where you operate.',
-													'vulopilot'
-												)}
-											</div>
+				<CardComponent
+					title={__('Why does this matter?', 'vulopilot')}
+					titleIcon="info"
+				>
+					<div className="desc">
+						{__(
+							'Search engines and AI systems need to understand who you are, what you offer, and what the important things on your website are. Clear, accurate information helps your content show up in more relevant searches and AI answers.',
+							'vulopilot'
+						)}
+					</div>
+				</CardComponent>
+				{entities && (
+					<>
+					<ColumnComponent row>
+						{OTHER_ENTITY_SECTIONS.map((section) => (
+								<EntityHighlightCard
+									id={`kg-${section.key}`}
+									icon={section.icon}
+									title={section.title}
+									rows={entities[section.key]}
+									emptyMessage={section.emptyMessage}
+								/>
+							))}
+					</ColumnComponent>
+					</>
+				)}
+			</ColumnComponent>
+
+			<ColumnComponent grid={4}>
+				{entities && (
+					<EntityHighlightCard
+						id="kg-locations"
+						icon="location"
+						title={__('Business Locations', 'vulopilot')}
+						rows={entities.locations}
+						emptyMessage={__(
+							'No business locations configured yet — add some under Settings → Entity Extraction.',
+							'vulopilot'
+						)}
+						emptyState={
+							<>
+								<div className="kg-why-it-matters">
+									<i className="adminfont-info" />
+									<div>
+										<div className="kg-why-it-matters-title">
+											{__('Why it matters', 'vulopilot')}
+										</div>
+										<div className="kg-why-it-matters-desc">
+											{__(
+												'Adding your business location helps customers and search engines understand where you operate.',
+												'vulopilot'
+											)}
 										</div>
 									</div>
-									<a
-										className="schema-view-pages-link kg-entity-view-all"
-										href={ENTITY_SETTINGS_URL}
-									>
-										{__('Check locations', 'vulopilot')}
-										<i className="adminfont-arrow-right" />
-									</a>
-								</>
-							}
-						/>
-					)}
-					{KnowledgeGraphHealthCard && <KnowledgeGraphHealthCard />}
-					{KnowledgeGraphVisualizationCard && (
-						<KnowledgeGraphVisualizationCard />
-					)}
-					{EntityRecommendationsCard && <EntityRecommendationsCard />}
-				</ColumnComponent>
-			</ContainerComponent>
-
-			{entities && (
-				<ContainerComponent>
-					{OTHER_ENTITY_SECTIONS.map((section) => (
-						<ColumnComponent key={section.key} grid={4}>
-							<EntityHighlightCard
-								id={`kg-${section.key}`}
-								icon={section.icon}
-								title={section.title}
-								rows={entities[section.key]}
-								emptyMessage={section.emptyMessage}
-							/>
-						</ColumnComponent>
-					))}
-				</ContainerComponent>
-			)}
+								</div>
+								<a
+									className="schema-view-pages-link kg-entity-view-all"
+									href={ENTITY_SETTINGS_URL}
+								>
+									{__('Check locations', 'vulopilot')}
+									<i className="adminfont-arrow-right" />
+								</a>
+							</>
+						}
+					/>
+				)}
+				{KnowledgeGraphHealthCard && <KnowledgeGraphHealthCard />}
+				{KnowledgeGraphVisualizationCard && (
+					<KnowledgeGraphVisualizationCard />
+				)}
+				{EntityRecommendationsCard && <EntityRecommendationsCard />}
+				<InspectorSection />
+			</ColumnComponent>
 		</>
 	);
 };

@@ -3,11 +3,14 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
+	AnalyticsComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
 	BadgeComponent,
+	ListComponent,
+	ModuleGuardComponent,
 } from '@zyra/components';
 import {
 	Area,
@@ -191,14 +194,22 @@ const CrawlerAnalyticsSection = ({
 						)}
 					</CardComponent>
 				</ColumnComponent>
-				{statCards.map((stat) => (
-					<ColumnComponent key={stat.key} grid={3}>
-						<CardComponent title={stat.label}>
-							<div className="crawler-stat-value">{stat.value}</div>
-							<ChangeBadge current={stat.value} previous={stat.previous} />
-						</CardComponent>
-					</ColumnComponent>
-				))}
+				<ColumnComponent grid={9}>
+					<AnalyticsComponent
+						variant="dashboard"
+						cols={4}
+						data={statCards.map((stat) => ({
+							number: stat.value,
+							text: stat.label,
+							extra: (
+								<ChangeBadge
+									current={stat.value}
+									previous={stat.previous}
+								/>
+							),
+						}))}
+					/>
+				</ColumnComponent>
 			</ContainerComponent>
 
 			<ContainerComponent>
@@ -237,9 +248,14 @@ const CrawlerAnalyticsSection = ({
 						)}
 					>
 						{0 === vendorEntries.length ? (
-							<div className="desc">
-								{__('No AI crawler visits detected yet.', 'vulopilot')}
-							</div>
+							<ModuleGuardComponent
+								icon="info"
+								title={__('No AI crawler visits yet', 'vulopilot')}
+								desc={__(
+									'AI crawler activity will show up here once detected.',
+									'vulopilot'
+								)}
+							/>
 						) : (
 							<>
 								<div className="crawler-vendor-chart">
@@ -289,9 +305,14 @@ const CrawlerAnalyticsSection = ({
 						desc={__('Bots that crawled your site the most.', 'vulopilot')}
 					>
 						{0 === analytics.top_crawlers.length ? (
-							<div className="desc">
-								{__('No AI crawler visits detected yet.', 'vulopilot')}
-							</div>
+							<ModuleGuardComponent
+								icon="info"
+								title={__('No AI crawler visits yet', 'vulopilot')}
+								desc={__(
+									'AI crawler activity will show up here once detected.',
+									'vulopilot'
+								)}
+							/>
 						) : (
 							<table className="crawler-table">
 								<thead>
@@ -325,9 +346,14 @@ const CrawlerAnalyticsSection = ({
 						desc={__('Pages that crawlers visited most often.', 'vulopilot')}
 					>
 						{0 === analytics.most_crawled_pages.length ? (
-							<div className="desc">
-								{__('No AI crawler visits detected yet.', 'vulopilot')}
-							</div>
+							<ModuleGuardComponent
+								icon="info"
+								title={__('No AI crawler visits yet', 'vulopilot')}
+								desc={__(
+									'AI crawler activity will show up here once detected.',
+									'vulopilot'
+								)}
+							/>
 						) : (
 							<table className="crawler-table">
 								<thead>
@@ -361,19 +387,18 @@ const CrawlerAnalyticsSection = ({
 
 			{checklist.length > 0 && (
 				<CardComponent title={__('Crawl Health Checklist', 'vulopilot')}>
-					<div className="crawler-checklist">
-						{checklist.map((item) => (
-							<div key={item.key} className="crawler-checklist-row">
-								<i
-									className={`adminfont-${
-										null === item.isGood
-											? 'info'
-											: item.isGood
-												? 'check'
-												: 'error'
-									}`}
-								/>
-								<span className="crawler-checklist-label">{item.label}</span>
+					<ListComponent
+						className="crawler-checklist"
+						items={checklist.map((item) => ({
+							id: item.key,
+							icon:
+								null === item.isGood
+									? 'info'
+									: item.isGood
+										? 'check'
+										: 'error',
+							title: item.label,
+							tags: (
 								<BadgeComponent
 									color={
 										null === item.isGood
@@ -390,9 +415,9 @@ const CrawlerAnalyticsSection = ({
 												: __('Warning', 'vulopilot')
 									}
 								/>
-							</div>
-						))}
-					</div>
+							),
+						}))}
+					/>
 				</CardComponent>
 			)}
 		</>

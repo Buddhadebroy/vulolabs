@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ChartComponent, ContainerComponent, ColumnComponent, BadgeComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent, ChartComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
 import ProLockedCard from '../../components/ProLockedCard';
 import type {
 	VisibilitySnapshot,

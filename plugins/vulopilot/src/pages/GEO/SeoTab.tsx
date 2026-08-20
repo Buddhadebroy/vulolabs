@@ -2,13 +2,13 @@
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
+	AnalyticsComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
-	BadgeComponent,
 } from '@zyra/components';
 import { useSeoScore } from './useSeoScore';
 import SeoIssuesSection from './SeoIssuesSection';
@@ -127,47 +127,29 @@ const SeoTab = () => {
 								)}
 								isLoading={isLoadingScore}
 							>
-								<div className="geo-four-checks-grid seo-category-grid">
-									{score &&
-										CATEGORY_CARDS.map((card) => {
-											const categoryScore =
-												score.category_scores[card.key];
-											return (
-												<div
-													key={card.key}
-													className={`geo-four-checks-tile geo-four-checks-tile-clickable ${ratingClass(categoryScore)}`}
-													role="button"
-													tabIndex={0}
-													onClick={() =>
-														setCategoryFocus({
-															key: card.key,
-															token: Date.now(),
-														})
-													}
-													onKeyDown={(event) => {
-														if (
-															'Enter' === event.key ||
-															' ' === event.key
-														) {
-															event.preventDefault();
-															setCategoryFocus({
-																key: card.key,
-																token: Date.now(),
-															});
-														}
-													}}
-												>
-													<div className="geo-four-checks-title">
-														{card.title}
-													</div>
-													<BadgeComponent
-														className="geo-four-checks-badge"
-														color={ratingClass(categoryScore)}
-														text={`${categoryScore}/100`}
-													/>
-												</div>
-											);
-										})}
+								<div className="seo-category-grid">
+									<AnalyticsComponent
+										data={
+											score
+												? CATEGORY_CARDS.map((card) => {
+														const categoryScore =
+															score.category_scores[card.key];
+														return {
+															colorClass: ratingClass(categoryScore),
+															number: `${categoryScore}/100`,
+															text: card.title,
+															onClick: () =>
+																setCategoryFocus({
+																	key: card.key,
+																	token: Date.now(),
+																}),
+														};
+													})
+												: []
+										}
+										variant="small-card"
+										isLoading={isLoadingScore}
+									/>
 								</div>
 							</CardComponent>
 						</ColumnComponent>

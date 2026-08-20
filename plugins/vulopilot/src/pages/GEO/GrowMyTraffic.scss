@@ -116,40 +116,51 @@
 	}
 }
 
-// GeoVisibilityOverviewRow.tsx's "The 4 things AI checks for" card.
-.geo-four-checks-grid {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 0.75rem;
-}
-
-.geo-four-checks-tile {
-	border-radius: 0.5rem;
-	border: 1px solid var(--border-color);
-	padding: 0.75rem;
-
-	&.is-good {
-		border-color: #bbf7d0;
-		background: #f0fdf4;
+// GeoVisibilityOverviewRow.tsx's "The 4 things AI checks for" card — a real
+// Zyra `<AnalyticsComponent>` (`.analytics-container`/`.analytics-item`
+// supply the tile chrome) instead of the hand-rolled tile markup this used
+// to be, same `.analytics-item.is-*` `colorClass` conversion SeoTab.tsx's
+// own "SEO checks at a glance" tiles and Security/ProtectMySite.scss's
+// `.vulnerability-hero-stats` already use.
+.geo-four-checks-analytics {
+	.analytics-container {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.75rem;
 	}
 
-	&.is-attention {
-		border-color: #fde68a;
-		background: #fffbeb;
-	}
+	.analytics-item {
+		&.is-good {
+			border-color: #bbf7d0;
+			background: #f0fdf4;
 
-	&.is-poor {
-		border-color: #fecaca;
-		background: #fef2f2;
+			.number {
+				color: #16a34a;
+			}
+		}
+
+		&.is-attention {
+			border-color: #fde68a;
+			background: #fffbeb;
+
+			.number {
+				color: #b45309;
+			}
+		}
+
+		&.is-poor {
+			border-color: #fecaca;
+			background: #fef2f2;
+
+			.number {
+				color: #dc2626;
+			}
+		}
 	}
 }
 
-.geo-four-checks-title {
-	margin: 0 0 0.5rem;
-	font-size: 0.8125rem;
-	font-weight: 500;
-}
-
+// BrandScoreCard.tsx's own 4 score-rating pills — still the plain
+// `<BadgeComponent>` shape, not an AnalyticsComponent tile.
 .geo-four-checks-badge {
 	&.is-good {
 		background: #dcfce7;
@@ -164,22 +175,6 @@
 	&.is-poor {
 		background: #fee2e2;
 		color: #dc2626;
-	}
-}
-
-// SeoTab.tsx's own "SEO checks at a glance" tiles — clicking one scrolls
-// to and filters SeoIssuesSection.tsx's two tables down to that category's
-// real scanner ids.
-.geo-four-checks-tile-clickable {
-	cursor: pointer;
-
-	&:hover {
-		border-color: var(--color-primary);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--color-primary);
-		outline-offset: 2px;
 	}
 }
 
@@ -482,9 +477,9 @@
 }
 
 // KnowledgeGraphTab.tsx's 3 featured entity cards.
-.kg-entity-card {
-	height: 100%;
-}
+// .kg-entity-card {
+// 	height: 100%;
+// }
 
 // Business Locations' own real 0-state (EntityHighlightCard's `emptyState`)
 // — a permanent explainer callout, not a dismissible NoticeComponent (this
@@ -593,11 +588,50 @@
 	font-size: 0.75rem;
 }
 
-// SeoTab.tsx's "SEO checks at a glance" — 5 real category tiles instead of
-// GeoVisibilityOverviewRow.tsx's own fixed 4, reusing the same
-// `.geo-four-checks-tile` tile styling.
+// SeoTab.tsx's "SEO checks at a glance" — 5 real category tiles, now a real
+// Zyra `<AnalyticsComponent>` (`.analytics-container`/`.analytics-item`
+// supply the tile chrome) instead of the hand-rolled tile markup this used
+// to be — same `.analytics-item.is-*` `colorClass` convention as
+// `.geo-four-checks-analytics` above and
+// `.vulnerability-hero-stats`/`.accessibility-hero-stats`
+// (Security/ProtectMySite.scss), just with the tile border/background tint
+// carried over too (not only the number color) to match this tile's own
+// previous look.
 .seo-category-grid {
-	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+	.analytics-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+		gap: 0.75rem;
+	}
+
+	.analytics-item {
+		&.is-good {
+			border-color: #bbf7d0;
+			background: #f0fdf4;
+
+			.number {
+				color: #16a34a;
+			}
+		}
+
+		&.is-attention {
+			border-color: #fde68a;
+			background: #fffbeb;
+
+			.number {
+				color: #b45309;
+			}
+		}
+
+		&.is-poor {
+			border-color: #fecaca;
+			background: #fef2f2;
+
+			.number {
+				color: #dc2626;
+			}
+		}
+	}
 }
 
 // SeoIssuesSection.tsx — wraps the shared filter bar and the two real
@@ -853,26 +887,35 @@
 	white-space: nowrap;
 }
 
+// CrawlerAnalyticsSection.tsx's "Crawl Health Checklist" — a real Zyra
+// `<ListComponent>` now (icon/title/tags supply the row), rather than the
+// hand-rolled `.crawler-checklist-row`/`.crawler-checklist-label` markup
+// this used to be. `.item`/`.details`/`.tags` are ListComponent's own
+// default-variant classes, which stack top-to-bottom rather than laying
+// out as one row — overridden here into the same icon/label/badge row this
+// checklist always had, same "scope the library's own classnames under our
+// own wrapper" convention `.geo-fix-first-list` (GeoFixTheseFirstCard.tsx)
+// already uses.
 .crawler-checklist {
-	display: flex;
-	flex-direction: column;
-}
+	.item {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.625rem 0;
+		border-top: 1px solid var(--border-color);
 
-.crawler-checklist-row {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
-	padding: 0.625rem 0;
-	border-top: 1px solid var(--border-color);
-
-	&:first-child {
-		border-top: none;
+		&:first-child {
+			border-top: none;
+		}
 	}
-}
 
-.crawler-checklist-label {
-	flex: 1;
-	font-size: 0.8125rem;
+	.details {
+		flex: 1;
+	}
+
+	.item-title {
+		font-size: 0.8125rem;
+	}
 }
 
 // StructuredDataSection.tsx's own "Schema Status" summary card — 4 real
@@ -1302,3 +1345,13 @@
 	gap: 0.625rem;
 	margin-top: 0.5rem;
 }
+
+
+.admin-main-wrapper {
+        .card-wrapper {
+            &.row {
+                flex-direction: column;
+                align-items: start;
+            }
+        }
+    }

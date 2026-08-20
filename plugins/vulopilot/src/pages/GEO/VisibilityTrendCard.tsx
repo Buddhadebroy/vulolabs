@@ -18,13 +18,13 @@ const VisibilityTrendCard = () => {
 	const GeoVisibilityTrend = useFilterSlot('vulopilot_geo_visibility_trend');
 
 	return (
-		<CardComponent title={__('Visibility Trend', 'vulopilot')} titleIcon="analytics">
+		<>
 			{isGeoInsightsActive() && GeoVisibilityTrend ? (
 				<GeoVisibilityTrend />
 			) : (
 				<ProLockedCard moduleName="geo-insights" />
 			)}
-		</CardComponent>
+		</>
 	);
 };
 

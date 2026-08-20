@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
-import { ColumnComponent } from '@zyra/components';
 import { scrollToId } from '@zyra/core';
+import {
+	SectionComponent,
+} from '@zyra/components';
 import '../GrowMyTraffic.scss';
 import StructuredDataSection from './StructuredDataSection';
 import KnowledgeGraphSection from './KnowledgeGraphSection';
-import InspectorSection from './InspectorSection';
 import IssuesSection from './IssuesSection';
 
 export type SchemaKnowledgeSectionId =
@@ -75,24 +76,37 @@ const SchemaKnowledgeTab = ({
 
 	return (
 		<>
-			{SECTIONS.map((section) => (
-				<div
-					key={section.id}
-					id={`schema-knowledge-${section.id}`}
-					className="schema-knowledge-section"
-				>
+			<KnowledgeGraphSection />
+
+			 <SectionComponent
+                    title={__('Issues', 'vulopilot')}
+					desc={__('Structured Data (Schema) Structured Data (Schema)Structured Data (Schema)', 'vulopilot')}
+                />
+			<IssuesSection />
+
+			 <SectionComponent
+                    title={__('Structured Data (Schema)', 'vulopilot')}
+					desc={__('Structured Data (Schema) Structured Data (Schema)Structured Data (Schema)', 'vulopilot')}
+                />
+			<StructuredDataSection />
+			{/* {SECTIONS.map((section) => (
+				<ContainerComponent
+						key={section.id}
+						id={`schema-knowledge-${section.id}`}
+						// className="schema-knowledge-section"
+					>
 					<ColumnComponent grid={12}>
 						<div className="schema-knowledge-inline-section-heading">
 							<i className={`adminfont-${section.icon}`} />
 							<h2>{section.label}</h2>
 						</div>
 					</ColumnComponent>
-					{'structured-data' === section.id && <StructuredDataSection />}
 					{'knowledge-graph' === section.id && <KnowledgeGraphSection />}
 					{'inspector' === section.id && <InspectorSection />}
 					{'issues' === section.id && <IssuesSection />}
-				</div>
-			))}
+					{'structured-data' === section.id && <StructuredDataSection />}
+				</ContainerComponent>
+			))} */}
 		</>
 	);
 };
