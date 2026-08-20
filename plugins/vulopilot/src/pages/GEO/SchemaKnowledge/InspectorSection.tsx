@@ -228,7 +228,6 @@ const InspectorSection = () => {
 
 				{result && (
 					<div className="schema-inspector-result">
-						<ContainerComponent>
 							<ColumnComponent grid={6}>
 								<div className="schema-inspector-result-heading">
 									{__('Detected schema', 'vulopilot')}
@@ -278,7 +277,6 @@ const InspectorSection = () => {
 									</ul>
 								)}
 							</ColumnComponent>
-						</ContainerComponent>
 
 						{result.problems.length > 0 && (
 							<button

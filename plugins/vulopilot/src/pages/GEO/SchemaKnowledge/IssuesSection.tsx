@@ -171,7 +171,7 @@ const IssuesSection = () => {
 	}
 
 	return (
-		<ContainerComponent>
+		<>
 			<ColumnComponent grid={8}>
 				<IssuesSummaryCards
 					total={total}
@@ -264,7 +264,7 @@ const IssuesSection = () => {
 					onClose={() => setSelectedGroup(null)}
 				/>
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 
