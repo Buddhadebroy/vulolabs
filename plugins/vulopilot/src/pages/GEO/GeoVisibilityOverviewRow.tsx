@@ -77,13 +77,13 @@ const GeoVisibilityOverviewRow = ({
 			<ContainerComponent>
 				<ColumnComponent grid={6}>
 					<CardComponent
-						title={__('Overall AI Visibility', 'vulopilot')}
+						title={__('The 4 things AI checks for', 'vulopilot')}
 						isLoading
 					/>
 				</ColumnComponent>
 				<ColumnComponent grid={6}>
 					<CardComponent
-						title={__('The 4 things AI checks for', 'vulopilot')}
+						title={__('Overall AI Visibility', 'vulopilot')}
 						isLoading
 					/>
 				</ColumnComponent>
@@ -95,6 +95,11 @@ const GeoVisibilityOverviewRow = ({
 		return (
 			<ContainerComponent>
 				<ColumnComponent grid={6}>
+					<CardComponent title={__('The 4 things AI checks for', 'vulopilot')}>
+						<ProLockedCard moduleName="geo-insights" />
+					</CardComponent>
+				</ColumnComponent>
+				<ColumnComponent grid={6}>
 					<CardComponent
 						title={__('Overall AI Visibility', 'vulopilot')}
 						desc={__(
@@ -102,11 +107,6 @@ const GeoVisibilityOverviewRow = ({
 							'vulopilot'
 						)}
 					>
-						<ProLockedCard moduleName="geo-insights" />
-					</CardComponent>
-				</ColumnComponent>
-				<ColumnComponent grid={6}>
-					<CardComponent title={__('The 4 things AI checks for', 'vulopilot')}>
 						<ProLockedCard moduleName="geo-insights" />
 					</CardComponent>
 				</ColumnComponent>
@@ -165,6 +165,25 @@ const GeoVisibilityOverviewRow = ({
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={6}>
+				<CardComponent title={__('The 4 things AI checks for', 'vulopilot')}>
+					<div className="geo-four-checks-grid">
+						{buckets.map((bucket) => (
+							<div
+								key={bucket.key}
+								className={`geo-four-checks-tile ${ratingClass(bucket.score)}`}
+							>
+								<div className="geo-four-checks-title">{bucket.label}</div>
+								<BadgeComponent
+									className="geo-four-checks-badge"
+									color={ratingClass(bucket.score)}
+									text={getRating(bucket.score)}
+								/>
+							</div>
+						))}
+					</div>
+				</CardComponent>
+			</ColumnComponent>
+			<ColumnComponent grid={6}>
 				<CardComponent title={__('Overall AI Visibility', 'vulopilot')}>
 					<div className="geo-overall-visibility">
 						<ChartComponent
@@ -219,25 +238,6 @@ const GeoVisibilityOverviewRow = ({
 								)}
 							</p>
 						</div>
-					</div>
-				</CardComponent>
-			</ColumnComponent>
-			<ColumnComponent grid={6}>
-				<CardComponent title={__('The 4 things AI checks for', 'vulopilot')}>
-					<div className="geo-four-checks-grid">
-						{buckets.map((bucket) => (
-							<div
-								key={bucket.key}
-								className={`geo-four-checks-tile ${ratingClass(bucket.score)}`}
-							>
-								<div className="geo-four-checks-title">{bucket.label}</div>
-								<BadgeComponent
-									className="geo-four-checks-badge"
-									color={ratingClass(bucket.score)}
-									text={getRating(bucket.score)}
-								/>
-							</div>
-						))}
 					</div>
 				</CardComponent>
 			</ColumnComponent>

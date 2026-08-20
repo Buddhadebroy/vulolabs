@@ -32,6 +32,8 @@ interface TopPagesCardProps {
 	/** Defaults to "Needs attention" (GEO tab). */
 	bottomLabel?: string;
 	id?: string;
+	/** ColumnComponent width (1-12). Defaults to 6 (half width) — AeoTab.tsx's own side-by-side pairing with GeoFixTheseFirstCard relies on that default; GeoTab.tsx passes 12 for its own full-width "Your Best & Worst Pages" row, matching the reference mockup. */
+	grid?: number;
 }
 
 /**
@@ -56,6 +58,7 @@ const TopPagesCard = ({
 	topLabel,
 	bottomLabel,
 	id,
+	grid = 6,
 }: TopPagesCardProps) => {
 	const [data, setData] = useState<TopPagesResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -110,7 +113,7 @@ const TopPagesCard = ({
 	);
 
 	return (
-		<ColumnComponent grid={6} fullHeight>
+		<ColumnComponent grid={grid} fullHeight>
 		<CardComponent
 			id={id || 'geo-top-pages'}
 			title={title || __('Your Best & Worst Pages', 'vulopilot')}

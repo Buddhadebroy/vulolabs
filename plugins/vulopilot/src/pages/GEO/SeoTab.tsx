@@ -118,51 +118,7 @@ const SeoTab = () => {
 				/>
 
 				<ContainerComponent>
-						<ColumnComponent grid={4}>
-							<CardComponent
-								title={__('SEO Score', 'vulopilot')}
-								desc={__(
-									'A composite score across every real SEO check below.',
-									'vulopilot'
-								)}
-								isLoading={isLoadingScore}
-							>
-								{score && (
-									<div className="geo-overall-visibility">
-										<ChartComponent
-											type="pie"
-											height={140}
-											centerLabel={
-												<>
-													<span className="score-ring-number">
-														{score.seo_score}
-													</span>
-													<span className="score-ring-label">/100</span>
-													<span
-														className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
-													>
-														{getRating(score.seo_score)}
-													</span>
-												</>
-											}
-											data={[
-												{
-													label: __('Score', 'vulopilot'),
-													value: score.seo_score,
-													color: '#7C3AED',
-												},
-												{
-													label: __('Remaining', 'vulopilot'),
-													value: 100 - score.seo_score,
-													color: '#e5e7eb',
-												},
-											]}
-										/>
-									</div>
-								)}
-							</CardComponent>
-						</ColumnComponent>
-						<ColumnComponent grid={8}>
+					<ColumnComponent grid={8}>
 							<CardComponent
 								title={__('SEO checks at a glance', 'vulopilot')}
 								desc={__(
@@ -215,18 +171,54 @@ const SeoTab = () => {
 								</div>
 							</CardComponent>
 						</ColumnComponent>
+						<ColumnComponent grid={4}>
+							<CardComponent
+								title={__('SEO Score', 'vulopilot')}
+								desc={__(
+									'A composite score across every real SEO check below.',
+									'vulopilot'
+								)}
+								isLoading={isLoadingScore}
+							>
+								{score && (
+									<div className="geo-overall-visibility">
+										<ChartComponent
+											type="pie"
+											height={140}
+											centerLabel={
+												<>
+													<span className="score-ring-number">
+														{score.seo_score}
+													</span>
+													<span className="score-ring-label">/100</span>
+													<span
+														className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
+													>
+														{getRating(score.seo_score)}
+													</span>
+												</>
+											}
+											data={[
+												{
+													label: __('Score', 'vulopilot'),
+													value: score.seo_score,
+													color: '#7C3AED',
+												},
+												{
+													label: __('Remaining', 'vulopilot'),
+													value: 100 - score.seo_score,
+													color: '#e5e7eb',
+												},
+											]}
+										/>
+									</div>
+								)}
+							</CardComponent>
+						</ColumnComponent>
 					</ContainerComponent>
 
 				<SeoIssuesSection categoryFocus={categoryFocus} />
 
-				<ModuleGuardComponent
-					icon="lock"
-					title={__('Ranking keywords: not connected yet', 'vulopilot')}
-					desc={__(
-						'VuloPilot doesn’t track real keyword positions or search volume yet — that needs a connected Google Search Console (or similar rank-tracking) account. Flag if you want this scoped next.',
-						'vulopilot'
-					)}
-				/>
 		</ColumnComponent>
 	);
 };
