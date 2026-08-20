@@ -106,8 +106,8 @@ const KeywordsTab = () => {
 	return (
 		<ColumnComponent>
 			<NoticeComponent
-				// type="banner"
-				displayPosition="inline"
+				type= 'success'
+				position= 'notice'
 				message={sprintf(
 					'<strong>%1$s</strong> %2$s',
 					__('In plain English:', 'vulopilot'),

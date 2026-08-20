@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-18T13:20:08+00:00\n"
+"POT-Creation-Date: 2026-08-19T13:21:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -127,7 +127,6 @@ msgstr ""
 
 #: classes/Admin.php:246
 #: classes/Scanners/Basic/SchemaScanner.php:40
-#: assets/js/index.js:1
 #: assets/js/post-editor.js:1
 msgid "Schema"
 msgstr ""
@@ -202,8 +201,6 @@ msgstr ""
 #: classes/AIActions/Actions/RefreshContentAction.php:54
 #: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:68
 #: classes/AIActions/Actions/SplitLongParagraphsAction.php:63
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:64
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:66
 #: classes/AIActions/Actions/WritePostContentAction.php:57
 msgid "post_id must refer to an existing post or page."
 msgstr ""
@@ -268,12 +265,12 @@ msgid "None of the other posts sharing this title still exist."
 msgstr ""
 
 #: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:149
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:116
+#: classes/AIActions/Actions/WriteMetaTitleAction.php:119
 msgid "The AI returned an empty title."
 msgstr ""
 
 #: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:153
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:120
+#: classes/AIActions/Actions/WriteMetaTitleAction.php:123
 msgid "The AI returned a title that is too long."
 msgstr ""
 
@@ -429,7 +426,7 @@ msgstr ""
 
 #: classes/AIActions/Actions/GenerateExcerptAction.php:69
 #: classes/AIActions/Actions/GenerateSummaryBlockAction.php:64
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:68
+#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:71
 msgid "This post has no content to summarize."
 msgstr ""
 
@@ -699,16 +696,21 @@ msgstr ""
 msgid "Write meta description"
 msgstr ""
 
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:118
+#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:67
+#: classes/AIActions/Actions/WriteMetaTitleAction.php:69
+msgid "post_id must refer to an existing post, page, or product."
+msgstr ""
+
+#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:121
 msgid "The AI returned an empty description."
 msgstr ""
 
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:122
+#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:125
 msgid "The AI returned a description that is too long."
 msgstr ""
 
 #. translators: %s is the post/page title.
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:133
+#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:136
 #, php-format
 msgid "Set meta description for %s"
 msgstr ""
@@ -717,7 +719,7 @@ msgstr ""
 msgid "Write meta title"
 msgstr ""
 
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:129
+#: classes/AIActions/Actions/WriteMetaTitleAction.php:132
 msgid "Rewrite page title"
 msgstr ""
 
@@ -1333,13 +1335,13 @@ msgstr ""
 msgid "Inactive"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:177
+#: classes/RestAPI/Controllers/Findings.php:196
 msgid "Invalid severity filter."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:321
-#: classes/RestAPI/Controllers/Findings.php:327
-#: classes/RestAPI/Controllers/Findings.php:338
+#: classes/RestAPI/Controllers/Findings.php:381
+#: classes/RestAPI/Controllers/Findings.php:387
+#: classes/RestAPI/Controllers/Findings.php:398
 #: classes/RestAPI/Controllers/History.php:509
 #: classes/RestAPI/Controllers/History.php:601
 #: classes/RestAPI/Controllers/History.php:604
@@ -1347,23 +1349,23 @@ msgstr ""
 msgid "Site-wide"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:378
+#: classes/RestAPI/Controllers/Findings.php:438
 msgid "Invalid finding status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:384
+#: classes/RestAPI/Controllers/Findings.php:444
 msgid "Finding not found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:396
+#: classes/RestAPI/Controllers/Findings.php:456
 msgid "Could not update this finding."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:420
+#: classes/RestAPI/Controllers/Findings.php:480
 msgid "Invalid bulk finding status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Findings.php:424
+#: classes/RestAPI/Controllers/Findings.php:484
 msgid "No findings selected."
 msgstr ""
 
@@ -1413,6 +1415,7 @@ msgstr ""
 
 #: classes/RestAPI/Controllers/History.php:437
 #: classes/RestAPI/Controllers/History.php:497
+#: classes/RestAPI/Controllers/Schema.php:206
 #: assets/js/index.js:1
 msgid "(no title)"
 msgstr ""
@@ -1425,20 +1428,20 @@ msgstr ""
 msgid "No IndexNow API key yet — reload the Instant Indexing tab once to generate one."
 msgstr ""
 
-#: classes/RestAPI/Controllers/NotFoundLogs.php:137
-#: classes/RestAPI/Controllers/NotFoundLogs.php:160
+#: classes/RestAPI/Controllers/NotFoundLogs.php:148
+#: classes/RestAPI/Controllers/NotFoundLogs.php:171
 msgid "Log entry not found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/NotFoundLogs.php:141
+#: classes/RestAPI/Controllers/NotFoundLogs.php:152
 msgid "Could not dismiss this log entry."
 msgstr ""
 
-#: classes/RestAPI/Controllers/NotFoundLogs.php:166
+#: classes/RestAPI/Controllers/NotFoundLogs.php:177
 msgid "A target URL is required to create a redirect."
 msgstr ""
 
-#: classes/RestAPI/Controllers/NotFoundLogs.php:176
+#: classes/RestAPI/Controllers/NotFoundLogs.php:187
 msgid "A redirect for this path already exists — manage it from the Redirects table above."
 msgstr ""
 
@@ -1674,8 +1677,17 @@ msgstr ""
 msgid "Stable"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Scans.php:139
+#: classes/RestAPI/Controllers/Scans.php:153
 msgid "The scan could not be completed."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Schema.php:165
+msgid "Provide a URL or post to inspect."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Schema.php:171
+#: assets/js/index.js:1
+msgid "Could not fetch that page. Check the URL and try again."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Settings.php:201
@@ -2142,30 +2154,30 @@ msgstr ""
 msgid "A non-default table prefix is a small extra hurdle against certain automated SQL-injection attempts. Changing it on an existing site requires a careful, backed-up migration — this is a hardening note, not something to change casually."
 msgstr ""
 
-#: classes/Scanners/Basic/BrokenImagesScanner.php:67
+#: classes/Scanners/Basic/BrokenImagesScanner.php:74
 msgid "Broken Images"
 msgstr ""
 
 #. translators: %s is the broken image URL.
-#: classes/Scanners/Basic/BrokenImagesScanner.php:106
+#: classes/Scanners/Basic/BrokenImagesScanner.php:120
 #, php-format
 msgid "Broken image: %s"
 msgstr ""
 
 #. translators: %s is an HTTP status or error description.
-#: classes/Scanners/Basic/BrokenImagesScanner.php:113
-#: classes/Scanners/Basic/BrokenLinksScanner.php:125
+#: classes/Scanners/Basic/BrokenImagesScanner.php:127
+#: classes/Scanners/Basic/BrokenLinksScanner.php:141
 #, php-format
 msgid "Request failed with: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/BrokenLinksScanner.php:79
+#: classes/Scanners/Basic/BrokenLinksScanner.php:88
 #: assets/js/index.js:1
 msgid "Broken Links"
 msgstr ""
 
 #. translators: %s is the broken URL.
-#: classes/Scanners/Basic/BrokenLinksScanner.php:118
+#: classes/Scanners/Basic/BrokenLinksScanner.php:134
 #, php-format
 msgid "Broken link: %s"
 msgstr ""
@@ -3094,6 +3106,40 @@ msgstr ""
 msgid "Server health check"
 msgstr ""
 
+#: classes/Scanners/Basic/SiteAvailabilityScanner.php:60
+msgid "Website Availability"
+msgstr ""
+
+#: classes/Scanners/Basic/SiteAvailabilityScanner.php:88
+msgid "Website is unreachable"
+msgstr ""
+
+#. translators: %s is the underlying connection error message.
+#: classes/Scanners/Basic/SiteAvailabilityScanner.php:93
+#, php-format
+msgid "A request to the homepage failed: %s"
+msgstr ""
+
+#. translators: %d is the HTTP status code the homepage returned.
+#: classes/Scanners/Basic/SiteAvailabilityScanner.php:110
+#, php-format
+msgid "Website is returning server errors (HTTP %d)"
+msgstr ""
+
+#: classes/Scanners/Basic/SiteAvailabilityScanner.php:115
+msgid "The homepage responded with a server error instead of loading successfully — visitors are likely seeing this too."
+msgstr ""
+
+#. translators: %d is the HTTP status code the homepage returned.
+#: classes/Scanners/Basic/SiteAvailabilityScanner.php:131
+#, php-format
+msgid "Website homepage returned an unexpected status (HTTP %d)"
+msgstr ""
+
+#: classes/Scanners/Basic/SiteAvailabilityScanner.php:136
+msgid "The homepage did not return a normal success response — worth checking manually."
+msgstr ""
+
 #: classes/Scanners/Basic/SitemapScanner.php:45
 #: assets/js/index.js:1
 msgid "Sitemap"
@@ -3444,6 +3490,10 @@ msgstr ""
 msgid "Once Weekly"
 msgstr ""
 
+#: classes/Services/Blocks/TableOfContentsRenderer.php:43
+msgid "Table of Contents"
+msgstr ""
+
 #: classes/Services/FirewallGuard.php:124
 msgid "Request blocked."
 msgstr ""
@@ -3455,7 +3505,7 @@ msgstr ""
 #: classes/Services/GoogleAdSenseClient.php:55
 #: classes/Services/GoogleAnalyticsClient.php:65
 #: classes/Services/GoogleAnalyticsClient.php:115
-#: classes/Services/GoogleServicesConnection.php:416
+#: classes/Services/GoogleServicesConnection.php:525
 msgid "Not connected to Google."
 msgstr ""
 
@@ -3471,19 +3521,33 @@ msgstr ""
 msgid "Could not fetch this property’s data streams."
 msgstr ""
 
+#: classes/Services/GoogleOAuthBrokerClient.php:101
+msgid "Google connect broker could not complete the token exchange."
+msgstr ""
+
+#: classes/Services/GoogleOAuthBrokerClient.php:129
+msgid "Google connect broker could not refresh the access token."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: classes/Services/GoogleOAuthBrokerClient.php:174
+#, php-format
+msgid "Google connect broker returned a non-JSON response (HTTP %d)."
+msgstr ""
+
 #: classes/Services/GoogleSearchConsoleOAuthCallbackHandler.php:61
 msgid "You do not have permission to do this."
 msgstr ""
 
-#: classes/Services/GoogleServicesConnection.php:273
+#: classes/Services/GoogleServicesConnection.php:311
 msgid "No Google OAuth Client ID/Secret saved yet."
 msgstr ""
 
-#: classes/Services/GoogleServicesConnection.php:299
+#: classes/Services/GoogleServicesConnection.php:337
 msgid "Google did not return an access token."
 msgstr ""
 
-#: classes/Services/GoogleServicesConnection.php:432
+#: classes/Services/GoogleServicesConnection.php:541
 msgid "Could not fetch your Search Console properties."
 msgstr ""
 
@@ -3664,6 +3728,7 @@ msgid "Slow server response"
 msgstr ""
 
 #: classes/Services/PageSpeedScanner.php:436
+#: classes/Services/SchemaCoverageAnalyzer.php:151
 #: assets/js/index.js:1
 msgid "Homepage"
 msgstr ""
@@ -3683,19 +3748,103 @@ msgid "Checkout"
 msgstr ""
 
 #. translators: 1: scanner id, 2: number of findings.
-#: classes/Services/ScanPersistenceListener.php:107
+#: classes/Services/ScanPersistenceListener.php:154
 #, php-format
 msgid "Scan \"%1$s\" completed with %2$d finding(s)."
 msgstr ""
 
 #. translators: 1: site name, 2: number of critical findings.
-#: classes/Services/ScanPersistenceListener.php:172
+#: classes/Services/ScanPersistenceListener.php:219
 #, php-format
 msgid "[%1$s] VuloPilot found %2$d critical issue(s)"
 msgstr ""
 
-#: classes/Services/SchemaCoverageAnalyzer.php:127
+#: classes/Services/SchemaCoverageAnalyzer.php:172
 msgid "Structured data"
+msgstr ""
+
+#. translators: 1: schema.org field name, e.g. "offers", 2: schema.org @type, e.g. "Product".
+#: classes/Services/SchemaPageInspector.php:123
+#, php-format
+msgid "%1$s information missing from this page’s %2$s schema."
+msgstr ""
+
+#: classes/Services/SchemaPageInspector.php:171
+msgid "Name"
+msgstr ""
+
+#: classes/Services/SchemaPageInspector.php:172
+msgid "Price/availability"
+msgstr ""
+
+#: classes/Services/SchemaPageInspector.php:173
+msgid "Logo"
+msgstr ""
+
+#: classes/Services/SchemaPageInspector.php:174
+msgid "Address"
+msgstr ""
+
+#: classes/Services/SchemaPageInspector.php:175
+msgid "Headline"
+msgstr ""
+
+#: classes/Services/SchemaPageInspector.php:176
+msgid "Publish date"
+msgstr ""
+
+#: classes/Services/SchemaPageInspector.php:177
+msgid "Author"
+msgstr ""
+
+#: classes/Services/SchemaPageInspector.php:178
+msgid "Review rating"
+msgstr ""
+
+#: assets/js/block/faq/index.js:1
+msgid "Add a question below to get started."
+msgstr ""
+
+#: assets/js/block/faq/index.js:1
+msgid "Question"
+msgstr ""
+
+#: assets/js/block/faq/index.js:1
+msgid "Answer"
+msgstr ""
+
+#: assets/js/block/faq/index.js:1
+#: assets/js/post-editor.js:1
+msgid "Remove"
+msgstr ""
+
+#: assets/js/block/faq/index.js:1
+msgid "Add Question"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Table of Contents Settings"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+#: assets/js/index.js:1
+msgid "Title"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Minimum heading level"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Maximum heading level"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "Collapsible"
+msgstr ""
+
+#: assets/js/block/table-of-contents/index.js:1
+msgid "No headings found yet — add some Heading blocks to this post."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4155,7 +4304,51 @@ msgid "Could not connect this provider — check the key and try again."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Remove this AI provider? Anything relying on it for AI fixes/generation will fall back to another configured provider, if any."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI provider removed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not remove this provider."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Needs reconnecting"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This provider stopped working — see below."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Configured with your own credentials."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "VuloPilot can no longer read this provider’s saved API key (this usually happens after moving to a new server or environment). AI features have silently stopped using it. Enter the key again to reconnect it."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Save key"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI provider reconnected."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not save this key — check it and try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter the new API key first."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnect"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4166,22 +4359,6 @@ msgstr ""
 #: assets/js/index.js:1
 #, js-format
 msgid "Provider: %s"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Disconnect"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Remove this AI provider? Anything relying on it for AI fixes/generation will fall back to another configured provider, if any."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI provider removed."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not remove this provider."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5360,10 +5537,6 @@ msgid "Modified Date"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Title"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Show dates"
 msgstr ""
 
@@ -6170,6 +6343,18 @@ msgid "Snoozed"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Critical"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Important"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Minor"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not update this finding. Please try again."
 msgstr ""
 
@@ -6264,10 +6449,6 @@ msgid "Severity"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Critical"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "High"
 msgstr ""
 
@@ -6316,6 +6497,7 @@ msgid "Run scan"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/post-editor.js:1
 msgid "Needs Improvement"
 msgstr ""
 
@@ -6833,10 +7015,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "All findings in this group ignored."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Important"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8118,7 +8296,122 @@ msgid "Turn the Brand Intelligence module back on from Settings → Modules to r
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Business Locations"
+msgid "Check"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Problems"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schema Status"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "VuloPilot checked how your website describes its pages, products, articles and business to search engines."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pages checked"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pages with valid schema"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Need attention"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schema types detected"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schema Coverage"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "See what structured information is on your website and where something is missing or incorrect — a real sample from its own live pages."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/post-editor.js:1
+msgid "Analyzing…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Re-analyze"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run Schema Check"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not analyzed yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Click \"Run Schema Check\" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask."
+msgstr ""
+
+#. translators: %s is when this real schema sample was generated.
+#: assets/js/index.js:1
+#, js-format
+msgid "Last analyzed %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No structured data (JSON-LD) was found on any sampled page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schema type"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Plain-English meaning"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Found on"
+msgstr ""
+
+#. translators: %d is how many of the real sampled pages carried this schema type.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d pages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View pages"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The real findings behind these numbers already live on the SEO tab’s \"Links & schema\" section."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not seeing a schema type you need?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Custom schema is added per page or post — open any post’s editor, then its SEO panel’s Schema tab."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Add custom schema"
+msgstr ""
+
+#. translators: %s is a real schema.org @type, e.g. "Product".
+#: assets/js/index.js:1
+#, js-format
+msgid "Pages with %s schema"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Edit"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8149,6 +8442,12 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Show less"
+msgstr ""
+
+#. translators: %s is the entity type's own title, e.g. "Products".
+#: assets/js/index.js:1
+#, js-format
+msgid "View all %s"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8198,19 +8497,23 @@ msgid "These are the main things VuloPilot found on your website."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Business Locations"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "No published products yet."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "VuloPilot didn't find a business location on your website."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No business locations configured yet — add some under Settings → Entity Extraction."
+msgid "This site doesn't have an active online store — VuloPilot looks for real WooCommerce products."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "No categories in use yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Needs cleanup"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8231,6 +8534,176 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Search engines and AI systems need to understand who you are, what you offer, and what the important things on your website are. Clear, accurate information helps your content show up in more relevant searches and AI answers."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No business locations configured yet — add some under Settings → Entity Extraction."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Why it matters"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Adding your business location helps customers and search engines understand where you operate."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check locations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schema Inspector"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "See all schema detected on one specific page and where it comes from."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "JSON-LD Viewer"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View, copy and export the raw JSON-LD structured data from any page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schema Validator"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Validate this site's structured data against Google's Rich Results Test."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Conflict Detection"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Detect duplicate or conflicting schema output by more than one plugin or theme."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Inspect a specific page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "See exactly what structured information search engines receive from any page or product."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Select a page or product…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Detected schema"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No structured data (JSON-LD) was found on this page."
+msgstr ""
+
+#. translators: %d is how many real problems were found in this page's structured data.
+#: assets/js/index.js:1
+#, js-format
+msgid "Problems found (%d)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No missing-field problems detected in this page’s structured data."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View problems"
+msgstr ""
+
+#. translators: %d is how many real duplicate/conflicting schema blocks were found on this page.
+#: assets/js/index.js:1
+#, js-format
+msgid "Conflicts detected (%d)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No duplicate or conflicting schema output detected on this page."
+msgstr ""
+
+#. translators: 1: schema.org @type, e.g. "Product", 2: number of JSON-LD blocks on this page sharing that type.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$d separate \"%2$s\" blocks were found on this page — search engines may only use one."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Quick preview"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Not found in this page’s structured data"
+msgstr ""
+
+#. translators: 1: star rating out of 5, 2: number of ratings.
+#: assets/js/index.js:1
+#, js-format
+msgid "Rating: %1$s (%2$d)"
+msgstr ""
+
+#. translators: %s is either the real detected availability value, or a "not found" note.
+#: assets/js/index.js:1
+#, js-format
+msgid "Availability: %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Open page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View JSON-LD"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "JSON-LD copied to clipboard."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not copy to clipboard."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pick a page above to see full results here"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every tool above already works — Schema Validator opens for this site’s homepage until you inspect a specific page, and the others jump you back to the page picker."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Something went wrong while loading issues."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No schema/structured-data findings yet — run a scan to check."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No schema issues right now"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Entities & Relationships"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Structured Data (Schema)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Inspector"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8330,10 +8803,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: assets/js/index.js:1
-msgid "Edit"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "No pages or posts match this filter."
 msgstr ""
 
@@ -8422,128 +8891,19 @@ msgid "Manage full connection"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Schema Inspector"
+msgid "Broken"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "See all schema detected on one specific page and where it comes from."
+msgid "DNS"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "JSON-LD Viewer"
+msgid "Timeout"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "View, copy and export the raw JSON-LD structured data from any page."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Schema Validator"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Validate this site's structured data against Google's Rich Results Test."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Conflict Detection"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Detect duplicate or conflicting schema output by more than one plugin or theme."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Schema Coverage"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "A real sample of what structured information this site actually outputs, sampled from its own live pages."
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/post-editor.js:1
-msgid "Analyzing…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Re-analyze"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Analyze schema coverage"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Not analyzed yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Click \"Analyze schema coverage\" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages checked"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Schema types detected"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Types with real open issues"
-msgstr ""
-
-#. translators: %s is when this real schema sample was generated.
-#: assets/js/index.js:1
-#, js-format
-msgid "Last analyzed %s"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No structured data (JSON-LD) was found on any sampled page."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Schema type"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Plain-English meaning"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Found on"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Est. problems"
-msgstr ""
-
-#. translators: %d is how many of the real sampled pages carried this schema type.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d pages"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Check"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "The real findings behind these numbers already live on the SEO tab’s \"Links & schema\" section."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Inspect a specific page"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Not built yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "A per-page JSON-LD inspector (pick any page, see exactly what structured data it outputs) isn’t built yet — flag if you want it scoped next."
+msgid "Unverified"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8551,8 +8911,40 @@ msgid "Never run yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No broken links or images found yet. Make sure \"Flag broken links\"/\"Flag broken images\" are turned on under Settings → Scanning → SEO, then run a scan."
+msgid "System"
 msgstr ""
+
+#: assets/js/index.js:1
+msgid "This broken URL points to a different site — a redirect can only be created for a path on this site."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Unknown page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Source page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Image"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Link"
+msgstr ""
+
+#. translators: %d: number of broken links/images found on this page.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d broken"
+msgid_plural "%d broken"
+msgstr[0] ""
+msgstr[1] ""
 
 #: assets/js/index.js:1
 msgid "External links can't be redirected from this site"
@@ -8563,15 +8955,35 @@ msgid "Create redirect"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "This broken URL points to a different site — a redirect can only be created for a path on this site."
+msgid "Unignore"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No redirectable link on this page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Ignore all on this page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Already ignored"
+msgstr ""
+
+#. translators: %d: number of findings ignored.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d finding ignored."
+msgid_plural "%d findings ignored."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "Some findings could not be ignored. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "These are real links and images on your published pages that pointed somewhere broken the last time this site checked them."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Need attention"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8623,7 +9035,19 @@ msgid "Broken Link Monitoring"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked. Use the \"Run scan\" button above to check again."
+msgid "Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked, grouped by the page they live on. Use the \"Run scan\" button above to check again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search by URL or source page…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Links"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8631,19 +9055,11 @@ msgid "Show ignored"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Source page"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Broken URL"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Image"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Link"
+msgid "Finding status"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8651,7 +9067,59 @@ msgid "Nothing to export."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "No broken links or images found yet. Make sure \"Flag broken links\"/\"Flag broken images\" are turned on under Settings → Scanning → SEO, then run a scan."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "404 Log"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every real 404 this site has seen, both missing content pages and theme/plugin/core-file/asset requests (a stale cached bundle, a removed theme asset, a browser probing a well-known path) — told apart by the \"Type\" column and filterable by the pills above the table. Only a content-page 404 can be turned into a redirect; nobody redirects a broken theme file."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not load the 404 log"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search missing URLs…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Hits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "System file — no redirect needed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Dismiss"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No 404s logged yet — turn on \"Log 404s\" in Settings → Scanning → SEO to start tracking missing-page visits."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Turn the SEO module back on from Settings → Modules to resume broken-link/image scanning and see findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "https://example.com/new-page/"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Save"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Redirect created from this log entry."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not create a redirect — a redirect for this path may already exist."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8711,10 +9179,6 @@ msgid "From"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Hits"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Created at"
 msgstr ""
 
@@ -8747,35 +9211,7 @@ msgid "Redirect deleted."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No redirects yet — add one, or convert an entry from the 404 log below."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Search missing URLs…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Dismiss"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No 404s logged yet — turn on \"Log 404s\" in Settings → Scanning → SEO to start tracking missing-page visits."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "https://example.com/new-page/"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Save"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Redirect created from this log entry."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not create a redirect — a redirect for this path may already exist."
+msgid "No redirects yet — add one, or convert an entry from the 404 log on the Broken Links tab."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10300,10 +10736,6 @@ msgid "User"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "System"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Could not load the activity log"
 msgstr ""
 
@@ -10506,10 +10938,6 @@ msgid "VuloPilot will log every AI-assisted action here."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Something went wrong while loading issues."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Create new automation"
 msgstr ""
 
@@ -10586,7 +11014,87 @@ msgid "Auto-applies (with approval)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Issues"
+msgid "Checks whether WordPress’s own scheduled tasks (WP-Cron) are running on time, or stuck/overdue."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks for database bloat — excess post revisions and other buildup that can slow queries down."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks for expired transients and other safe-to-clear database clutter."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks your hosting environment against WordPress's own recommended server requirements."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks WordPress core’s own Site Health status — the same checks under Tools → Site Health."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks for pending WordPress core, plugin, and theme updates."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks for installed-but-inactive plugins, which still carry any known vulnerabilities on disk."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks for installed-but-inactive themes."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks your site's debug log for recent PHP warnings, notices, and fatal errors."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks every administrator’s password against a list of commonly used, easily guessed passwords."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks for common WordPress hardening gaps that make a known vulnerability easier to exploit."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Compares WordPress core files against their official checksums to detect unauthorized changes."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks for signs of malicious code hidden in your files."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks recent login attempts for signs of a brute-force attack."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks recent firewall activity for blocked malicious requests."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks whether your automatic backups are running on schedule."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks whether your site is served over HTTPS, and whether your SSL certificate is close to expiring."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks whether your homepage is reachable and responding normally."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks whether your own published posts and pages still resolve correctly."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks your homepage’s own redirect chain for unnecessary or broken hops."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A site-wide check — not tied to individual pages or posts."
 msgstr ""
 
 #. translators: %s: formatted date this event happened
@@ -10604,11 +11112,27 @@ msgid "Manually triggered"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Findings"
+msgid "No issues found."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No issues found."
+msgid "What this checks"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Duration"
+msgstr ""
+
+#. translators: %d: milliseconds
+#: assets/js/index.js:1
+#, js-format
+msgid "%dms"
+msgstr ""
+
+#. translators: %s: seconds, one decimal place
+#: assets/js/index.js:1
+#, js-format
+msgid "%ss"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11798,10 +12322,6 @@ msgid "Other"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "All issues"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Recent Content"
 msgstr ""
 
@@ -12007,6 +12527,10 @@ msgid "Keywords"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Schema & Knowledge"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "AI-powered WooCommerce intelligence to help you increase sales and grow revenue."
 msgstr ""
 
@@ -12103,6 +12627,14 @@ msgid "(No meta description yet — search engines will pick an excerpt from the
 msgstr ""
 
 #: assets/js/post-editor.js:1
+msgid "All Good"
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Could Be Better"
+msgstr ""
+
+#: assets/js/post-editor.js:1
 msgid "Upgrade to fix"
 msgstr ""
 
@@ -12119,11 +12651,15 @@ msgid "Title Readability"
 msgstr ""
 
 #: assets/js/post-editor.js:1
-msgid "Focus Keyword"
+msgid "Preview"
 msgstr ""
 
 #: assets/js/post-editor.js:1
-msgid "The main term you want this page to rank for — drives the checks below."
+msgid "Close Snippet Editor"
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Edit Snippet"
 msgstr ""
 
 #: assets/js/post-editor.js:1
@@ -12140,6 +12676,26 @@ msgstr ""
 
 #: assets/js/post-editor.js:1
 msgid "Shown as the description snippet in search results."
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Focus Keyword"
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "The main term you want this page to rank for — drives the checks below."
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Remove focus keyword"
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Add a focus keyword…"
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Add Focus Keyword"
 msgstr ""
 
 #: assets/js/post-editor.js:1
@@ -12207,10 +12763,6 @@ msgid "Choose Image"
 msgstr ""
 
 #: assets/js/post-editor.js:1
-msgid "Remove"
-msgstr ""
-
-#: assets/js/post-editor.js:1
 msgid "Leave empty to use the featured image."
 msgstr ""
 
@@ -12244,4 +12796,24 @@ msgstr ""
 
 #: assets/js/post-editor.js:1
 msgid "VuloPilot SEO"
+msgstr ""
+
+#: assets/js/block/faq/block.json
+msgctxt "block title"
+msgid "FAQ"
+msgstr ""
+
+#: assets/js/block/faq/block.json
+msgctxt "block description"
+msgid "A list of questions and answers that also outputs real FAQPage schema.org structured data for search engines."
+msgstr ""
+
+#: assets/js/block/table-of-contents/block.json
+msgctxt "block title"
+msgid "Table of Contents"
+msgstr ""
+
+#: assets/js/block/table-of-contents/block.json
+msgctxt "block description"
+msgid "Automatically lists this post's headings and links to each one. Always reflects the post's current heading structure — nothing to keep in sync by hand."
 msgstr ""

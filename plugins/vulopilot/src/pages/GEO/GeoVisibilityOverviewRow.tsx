@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ChartComponent, ContainerComponent, ColumnComponent, BadgeComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent, ChartComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
 import ProLockedCard from '../../components/ProLockedCard';
 import type {
 	VisibilitySnapshot,
@@ -224,20 +224,15 @@ const GeoVisibilityOverviewRow = ({
 			</ColumnComponent>
 			<ColumnComponent grid={6}>
 				<CardComponent title={__('The 4 things AI checks for', 'vulopilot')}>
-					<div className="geo-four-checks-grid">
-						{buckets.map((bucket) => (
-							<div
-								key={bucket.key}
-								className={`geo-four-checks-tile ${ratingClass(bucket.score)}`}
-							>
-								<div className="geo-four-checks-title">{bucket.label}</div>
-								<BadgeComponent
-									className="geo-four-checks-badge"
-									color={ratingClass(bucket.score)}
-									text={getRating(bucket.score)}
-								/>
-							</div>
-						))}
+					<div className="geo-four-checks-analytics">
+						<AnalyticsComponent
+							variant="small-card"
+							data={buckets.map((bucket) => ({
+								colorClass: ratingClass(bucket.score),
+								number: getRating(bucket.score),
+								text: bucket.label,
+							}))}
+						/>
 					</div>
 				</CardComponent>
 			</ColumnComponent>
