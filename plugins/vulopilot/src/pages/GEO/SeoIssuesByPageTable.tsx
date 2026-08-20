@@ -70,6 +70,8 @@ interface SeoIssuesByPageTableProps {
 	isLoading: boolean;
 	hasError: boolean;
 	onRetry: () => void;
+	/** "SEO Issues" by default — IssuesSection.tsx's own AEO/GEO callers pass "AEO Issues"/"GEO Issues" so this column reads correctly for whichever real check set is showing. */
+	issuesColumnLabel?: string;
 }
 
 /**
@@ -103,6 +105,7 @@ const SeoIssuesByPageTable = ({
 	isLoading,
 	hasError,
 	onRetry,
+	issuesColumnLabel = __('SEO Issues', 'vulopilot'),
 }: SeoIssuesByPageTableProps) => {
 	/**
 	 * The active filter pill narrows which PAGES appear (`rowMatchesFilter`
@@ -172,7 +175,7 @@ const SeoIssuesByPageTable = ({
 			<CardComponent title={__('Pages & Posts', 'vulopilot')}>
 				<ModuleGuardComponent
 					icon="error"
-					title={__('Could not load SEO issues', 'vulopilot')}
+					title={__('Could not load these issues', 'vulopilot')}
 					desc={__(
 						'Something went wrong fetching this data. Please try again.',
 						'vulopilot'
@@ -201,9 +204,13 @@ const SeoIssuesByPageTable = ({
 					title={__('Nothing here right now', 'vulopilot')}
 					desc={
 						'all' === activeScannerIds
-							? __(
-									'No open SEO issues on any page or post right now — nice work.',
-									'vulopilot'
+							? sprintf(
+									/* translators: %s: e.g. "SEO", "AEO", "GEO" — issuesColumnLabel with " Issues" stripped off. */
+									__(
+										'No open %s issues on any page or post right now — nice work.',
+										'vulopilot'
+									),
+									issuesColumnLabel.replace(/ Issues$/, '')
 								)
 							: __(
 									'No pages or posts currently have this specific issue.',
@@ -266,7 +273,7 @@ const SeoIssuesByPageTable = ({
 							},
 						},
 						issues: {
-							label: __('SEO Issues', 'vulopilot'),
+							label: issuesColumnLabel,
 							render: (row: TableRow) => {
 								if (isFindingRow(row)) {
 									return (
