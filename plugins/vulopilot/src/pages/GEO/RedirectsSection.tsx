@@ -25,27 +25,31 @@ interface RedirectRow extends TableRow {
 }
 
 /**
- * "Redirects" tab of "Grow My Traffic" — readme.txt's "Redirects & 404s",
- * a real 301/302 redirect manager. Just the one table now: the 404 log
- * (both real missing-content-page 404s and theme/plugin/core-file/asset
- * 404s, merged into one filterable table) has shifted to BrokenLinksTab.tsx
- * per direct instruction — see that file's own docblock — since a 404
- * visit and a broken link/image finding are both "something's broken on
- * this site" in a way a plain redirect isn't.
+ * "Redirects" inner section of the merged "Crawl & URLs" tab (renamed and
+ * moved here — was its own top-level "Redirects" tab, RedirectsTab.tsx —
+ * direct instruction: "Broken Links + Redirects + Crawler Traffic are
+ * fragmented... one main tab: Crawl & URLs"). A real 301/302 redirect
+ * manager, unchanged internally — CrawlUrlsTab.tsx just renders this as
+ * one of its 5 inner tabs now instead of GEO.tsx rendering it as a
+ * sibling top-level tab.
+ *
+ * The 404 log (both real missing-content-page 404s and theme/plugin/
+ * core-file/asset 404s) is NotFoundLogSection.tsx's own separate inner
+ * "404s" tab, not this one — see that file's own docblock (it used to
+ * live on BrokenLinksTab.tsx, per an even earlier direct instruction,
+ * before this merge split it out into its own real section to match the
+ * requested "Overview | Broken Links | Redirects | 404s | Robots &
+ * Sitemap" structure).
  *
  * The Add/Edit form is a controlled popup (not an inline row like
  * AiProvidersPanel.tsx's single-row-at-a-time form) since this table can
  * hold many rows at once, unlike the small, fixed set of AI provider
  * adapters that panel manages.
  *
- * Moved here from "Improve Speed" (Performance.tsx), which held it only
- * briefly — its own NavigatorHeaderComponent now lives once on GEO.tsx's
- * shared tab-shell header.
- *
- * Has its own real CardComponent heading (title) now too, per direct
- * instruction — previously only the shared error state had one.
+ * Has its own real CardComponent heading (title) — previously only the
+ * shared error state had one.
  */
-const RedirectsTab = () => {
+const RedirectsSection = () => {
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [sourcePath, setSourcePath] = useState('');
@@ -272,7 +276,7 @@ const RedirectsTab = () => {
 								isLoading={redirects.isLoading}
 								onQueryUpdate={redirects.onQueryUpdate}
 								emptyMessage={__(
-									'No redirects yet — add one, or convert an entry from the 404 log on the Broken Links tab.',
+									'No redirects yet — add one, or convert an entry from the 404s tab.',
 									'vulopilot'
 								)}
 							/>
@@ -341,4 +345,4 @@ const RedirectsTab = () => {
 	);
 };
 
-export default RedirectsTab;
+export default RedirectsSection;

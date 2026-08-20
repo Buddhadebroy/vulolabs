@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
-import {
-	SectionComponent,
-} from '@zyra/components';
+import { NoticeComponent, SectionComponent } from '@zyra/components';
 import '../GrowMyTraffic.scss';
-import StructuredDataSection from './StructuredDataSection';
+import BusinessUnderstandingCard from './BusinessUnderstandingCard';
 import KnowledgeGraphSection from './KnowledgeGraphSection';
+import WhatNeedsFixingCard from './WhatNeedsFixingCard';
 import IssuesSection from './IssuesSection';
+import TechnicalDetailsSection from './TechnicalDetailsSection';
 
 export type SchemaKnowledgeSectionId =
 	| 'overview'
@@ -20,47 +20,44 @@ interface SchemaKnowledgeTabProps {
 	initialSection?: SchemaKnowledgeSectionId;
 }
 
-const SECTIONS: {
-	id: SchemaKnowledgeSectionId;
-	icon: string;
-	label: string;
-}[] = [
-	{ id: 'knowledge-graph', icon: 'centralized-connections', label: __('Entities & Relationships', 'vulopilot') },
-	{ id: 'structured-data', icon: 'attachment', label: __('Structured Data (Schema)', 'vulopilot') },
-	{ id: 'issues', icon: 'error', label: __('Issues', 'vulopilot') },
-	{ id: 'inspector', icon: 'search', label: __('Inspector', 'vulopilot') },
-];
-
 /**
- * "Schema & Knowledge" tab of "Grow My Traffic" — merges the two former
- * standalone tabs "Schema" (SchemaTab.tsx, deleted) and "Knowledge Graph"
- * (KnowledgeGraphTab.tsx, moved to KnowledgeGraphSection.tsx unchanged)
- * into one module. Every section — Structured Data/Knowledge Graph/
- * Inspector/Issues — renders on one continuous page (per direct
- * instruction: no inner tab switcher), each exactly once, under its own
- * anchored heading, same "one real section heading per area, not a
- * second tab bar" pattern AI Copilot's ChatTab.tsx already uses for its
- * own inline Issues section.
+ * "Business Identity & Schema" tab of "Grow My Traffic" (renamed from
+ * "Schema & Knowledge" — direct instruction, rebuilt to match a newer
+ * reference mockup's own information architecture). Every section here
+ * still renders on one continuous scrolling page under its own anchored
+ * heading, same "no inner tab switcher" precedent this merge already
+ * established (see this file's own earlier history) — the mockup's own
+ * layout doesn't call for real inner tabs the way "Crawl & URLs" needed
+ * them (CrawlUrlsTab.tsx), just a clearer visual order:
  *
- * There is deliberately no separate "Overview"/summary area above these
- * — an earlier version had one (a header card repeating this tab's own
- * title/description, plus two preview cards titled "Structured Data" and
- * "Knowledge Graph" duplicating the real section headings and numbers
- * right below them). Per direct instruction, that whole layer was
- * removed rather than de-duplicated in place: now each area (title,
- * heading, stats) appears exactly once on the page, and this tab's own
- * outer nav label ("Schema & Knowledge" in GEO.tsx's tab bar) is the only
- * place the tab's name/description previously repeated is still shown.
- * `OverviewSection.tsx` and vulopilot-pro's `EntityCompletenessStat.tsx`
- * (its only consumer) were deleted along with it, not left orphaned.
+ * 1. `BusinessUnderstandingCard.tsx` (NEW) — the page's own real hero: a
+ *    score gauge (the same real `entity_score` that briefly lived as its
+ *    own "Entity Understanding" card inside KnowledgeGraphSection.tsx —
+ *    moved up here instead of shown twice) plus 4 featured real entity-
+ *    type tiles (Organization/Products/Location/Categories).
+ * 2. `KnowledgeGraphSection.tsx` — "What AI & Search Understand" (all 6
+ *    real entity-type counts + vulopilot-pro's real relationship diagram,
+ *    moved up from that section's own sidebar to sit beside the list),
+ *    then its own existing real detail cards/checks/Pro slots, unchanged.
+ * 3. `WhatNeedsFixingCard.tsx` (NEW) — a real top-3 preview of the exact
+ *    same findings `IssuesSection.tsx`'s own full table below already
+ *    fetches, per the mockup's own compact "top issues + View all" shape.
+ *    "View all issues" and "Review" both scroll down to that real table
+ *    (`schema-knowledge-issues`) rather than re-implementing it twice.
+ * 4. `TechnicalDetailsSection.tsx` (NEW) — "Technical Details (Schema &
+ *    Markup)" as a real tabbed panel with a real "Show for developers"
+ *    toggle, not a flat scroll — see that file's own docblock for why it's
+ *    2 real tabs (Schema Summary/Page Inspector) rather than the mockup's
+ *    literal 4. `StructuredDataSection.tsx`/`InspectorSection.tsx` are
+ *    unchanged internally, just tabbed now. InspectorSection.tsx used to
+ *    live nested inside KnowledgeGraphSection.tsx's own sidebar; moved
+ *    out since it's a schema concern, not an entity/knowledge-graph one
+ *    (see that file's own docblock).
  *
- * `GEO.tsx` still owns which OUTER tab is active (this component is one
- * `content` value in that tab bar). `initialSection` — set only when a
- * bookmarked `?subtab=schema`/`?subtab=knowledge-graph` link landed here
- * (GEO.tsx's own `SUBTAB_ALIASES`) — scrolls to the matching section on
- * mount; `'overview'` (the default) means "land at the top of the page,"
- * kept as a valid value so GEO.tsx's own alias-resolution logic doesn't
- * need to change.
+ * `initialSection` — set only when a bookmarked `?subtab=schema`/
+ * `?subtab=knowledge-graph` link landed here (GEO.tsx's own
+ * `SUBTAB_ALIASES`) — scrolls to the matching section on mount;
+ * `'overview'` (the default) means "land at the top of the page."
  */
 const SchemaKnowledgeTab = ({
 	initialSection = 'overview',
@@ -76,37 +73,56 @@ const SchemaKnowledgeTab = ({
 
 	return (
 		<>
-			<KnowledgeGraphSection />
+			<div className="schema-page-header">
+				<div className="schema-page-header-title">
+					<i className="adminfont-centralized-connections" />
+					<h2>{__('Business Identity & Schema', 'vulopilot')}</h2>
+				</div>
+				<p className="desc">
+					{__(
+						'See how Google and AI understand your business — and whether your site communicates it correctly.',
+						'vulopilot'
+					)}
+				</p>
+			</div>
 
-			 <SectionComponent
-                    title={__('Issues', 'vulopilot')}
-					desc={__('Structured Data (Schema) Structured Data (Schema)Structured Data (Schema)', 'vulopilot')}
-                />
-			<IssuesSection />
+			<NoticeComponent
+				// type="banner"
+				displayPosition="inline"
+				message={sprintf(
+					'<strong>%1$s</strong> %2$s',
+					__('In plain English:', 'vulopilot'),
+					__(
+						'This shows what search engines know about your business, how those things connect, and what’s missing or unclear.',
+						'vulopilot'
+					)
+				)}
+			/>
 
-			 <SectionComponent
-                    title={__('Structured Data (Schema)', 'vulopilot')}
-					desc={__('Structured Data (Schema) Structured Data (Schema)Structured Data (Schema)', 'vulopilot')}
-                />
-			<StructuredDataSection />
-			{/* {SECTIONS.map((section) => (
-				<ContainerComponent
-						key={section.id}
-						id={`schema-knowledge-${section.id}`}
-						// className="schema-knowledge-section"
-					>
-					<ColumnComponent grid={12}>
-						<div className="schema-knowledge-inline-section-heading">
-							<i className={`adminfont-${section.icon}`} />
-							<h2>{section.label}</h2>
-						</div>
-					</ColumnComponent>
-					{'knowledge-graph' === section.id && <KnowledgeGraphSection />}
-					{'inspector' === section.id && <InspectorSection />}
-					{'issues' === section.id && <IssuesSection />}
-					{'structured-data' === section.id && <StructuredDataSection />}
-				</ContainerComponent>
-			))} */}
+			<BusinessUnderstandingCard />
+
+			<div id="schema-knowledge-knowledge-graph">
+				<KnowledgeGraphSection />
+			</div>
+
+			<WhatNeedsFixingCard />
+
+			<div id="schema-knowledge-issues">
+				<SectionComponent
+					title={__('All Business Identity Issues', 'vulopilot')}
+					desc={__(
+						'Every open schema/entity finding behind the preview above, filterable by priority.',
+						'vulopilot'
+					)}
+				/>
+				<IssuesSection />
+			</div>
+
+			<div id="schema-knowledge-structured-data">
+				<div id="schema-knowledge-inspector">
+					<TechnicalDetailsSection />
+				</div>
+			</div>
 		</>
 	);
 };

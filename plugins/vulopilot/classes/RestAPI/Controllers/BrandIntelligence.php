@@ -31,6 +31,19 @@ defined( 'ABSPATH' ) || exit;
  * explicit id list, not a category string" reasoning Content Score's own
  * docblock gives.
  *
+ * `brand_score` used to blend all 3 sub-scores (Trust + Authority +
+ * Entity) together; now just Trust + Authority (direct instruction:
+ * "Knowledge Graph and Brand Visibility overlap around 'Entity'... Entity
+ * Score therefore has a much stronger conceptual home in Knowledge
+ * Graph... Brand Visibility: 'Do people and AI trust/recognise my
+ * brand?' [vs] Knowledge Graph: 'Does Google/AI understand who and what
+ * my business actually is?'"). `entity_score` itself is still computed
+ * and returned here, unchanged — KnowledgeGraphSection.tsx's own new
+ * "Entity Understanding" card reads it straight from this same real
+ * endpoint/field rather than a second, duplicate calculation; only
+ * BrandScoreCard.tsx stopped rendering it as one of ITS OWN 4 tiles (now
+ * 3: Brand/Trust/Authority).
+ *
  * @class       BrandIntelligence controller
  * @version     1.0.0
  * @author      VuloLabs
@@ -93,8 +106,10 @@ class BrandIntelligence extends \WP_REST_Controller {
         $trust_breakdown     = $findings->get_severity_breakdown_for_scanner_ids( self::TRUST_SCANNER_IDS );
         $authority_breakdown = $findings->get_severity_breakdown_for_scanner_ids( self::AUTHORITY_SCANNER_IDS );
         $entity_breakdown    = $findings->get_severity_breakdown_for_scanner_ids( self::ENTITY_SCANNER_IDS );
+        // Trust + Authority only — see this class's own docblock for why
+        // Entity no longer blends into the overall Brand Score.
         $overall_breakdown   = $findings->get_severity_breakdown_for_scanner_ids(
-            array_merge( self::TRUST_SCANNER_IDS, self::AUTHORITY_SCANNER_IDS, self::ENTITY_SCANNER_IDS )
+            array_merge( self::TRUST_SCANNER_IDS, self::AUTHORITY_SCANNER_IDS )
         );
 
         return rest_ensure_response(

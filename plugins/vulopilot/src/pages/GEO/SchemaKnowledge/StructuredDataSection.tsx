@@ -281,7 +281,7 @@ const StructuredDataSection = () => {
 						{totalProblems > 0 && (
 							<p className="desc schema-see-seo-tab">
 								{__(
-									'The real findings behind these numbers already live on the SEO tab’s "Links & schema" section.',
+									'The real findings behind these numbers already live in the "What Needs Fixing"/"All Business Identity Issues" sections above.',
 									'vulopilot'
 								)}
 							</p>

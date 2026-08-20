@@ -12,7 +12,6 @@ describe( 'BrandBreakdownWidget', () => {
 			brand_score: 72,
 			trust_score: 80,
 			authority_score: 65,
-			entity_score: 70,
 		} );
 
 		render(
@@ -51,7 +50,6 @@ describe( 'BrandBreakdownWidget', () => {
 			brand_score: 72,
 			trust_score: 80,
 			authority_score: 65,
-			entity_score: 70,
 		} );
 
 		render(
@@ -67,6 +65,9 @@ describe( 'BrandBreakdownWidget', () => {
 		// render onward, so findByTestId alone would resolve immediately
 		// against its pre-fetch "0 points" content — waiting on the real
 		// post-fetch text instead actually waits for the score to load.
-		expect( await screen.findByText( '4 points' ) ).toBeInTheDocument();
+		// 3 points now, not 4 — this widget dropped its own Entity bar
+		// alongside Brand Visibility's own Entity Score tile (see
+		// BrandBreakdownWidget.tsx's own docblock).
+		expect( await screen.findByText( '3 points' ) ).toBeInTheDocument();
 	} );
 } );

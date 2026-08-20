@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
  * Score" already use (`100 - critical*15 - high*8 - medium*3 - low*1`,
  * clamped 0-100) over
  * FindingRepository::get_severity_breakdown_for_scanner_ids(), scoped to
- * the same 17 real scanner ids SeoTab.tsx's own SEO_SECTIONS already groups
- * into 5 real sections — this endpoint just also returns the 3-category
+ * the same 15 real scanner ids SeoTab.tsx's own SEO_SECTIONS already groups
+ * into 3 real sections — this endpoint just also returns the 3-category
  * grouping (Search Appearance/Content & Pages/Links & Indexing) the
  * reference mockup's own category cards use, computed the identical way.
  *
@@ -44,10 +44,38 @@ class Seo extends \WP_REST_Controller {
      * category split — so this endpoint's own per-category scores always
      * agree with what the tab's own section tabs/table already show.
      *
+     * `links-schema` used to bundle `internal-linking`/`broken-links`/
+     * `schema`/`structured-data`/`sitewide-structured-data`/`open-graph`/
+     * `twitter-card` into one category — real overlapping ownership with
+     * "Grow My Traffic"'s own dedicated Broken Links tab
+     * (BrokenLinksTab.tsx's own `BROKEN_SCANNER_IDS`) and Schema &
+     * Knowledge tab (SchemaKnowledge/IssuesSection.tsx's own
+     * `SCHEMA_ISSUE_SCANNER_IDS`), which already own those same scanner
+     * ids' findings. Fixed (direct instruction) by narrowing this category
+     * to `internal-linking` only, renamed to `internal-linking`, and
+     * dropping `broken-links`/`schema`/`structured-data`/
+     * `sitewide-structured-data` here entirely — their findings are still
+     * fully real and visible, just only ever through their one real owning
+     * tab now, not duplicated here too. `open-graph`/`twitter-card` have no
+     * dedicated tab anywhere in this codebase, so rather than dropping
+     * their findings from this SEO lens entirely they moved into
+     * `titles-meta` (a meta-tag concern, not a linking one).
+     *
+     * `sitemap`/`robots` were dropped from here entirely for the same
+     * reason (direct instruction): both are crawler/discovery controls,
+     * real overlapping ownership with "Grow My Traffic"'s own dedicated
+     * Crawler Traffic tab, which now owns real `robots-txt`/`sitemap`/
+     * `sitemap-validation`/`ai-crawler-blocked-pages` findings tables
+     * itself (CrawlerTrafficTab.tsx). SeoTab.tsx's own "Search engine
+     * access" status line reads the same 4 scanner ids' open-finding count
+     * directly (not through this endpoint) so it can stay a real tiny
+     * status without this endpoint growing a 6th category no card here
+     * displays.
+     *
      * @var array<string, string[]>
      */
     private const CATEGORY_SCANNER_IDS = array(
-        'titles-meta'  => array(
+        'titles-meta'      => array(
             'seo',
             'meta-description',
             'canonical-url',
@@ -58,19 +86,11 @@ class Seo extends \WP_REST_Controller {
             'meta-description-duplication',
             'multiple-h1',
             'focus-keyword-audit',
-        ),
-        'images'       => array( 'seo-images', 'images' ),
-        'links-schema' => array(
-            'internal-linking',
-            'broken-links',
-            'schema',
-            'structured-data',
-            'sitewide-structured-data',
             'open-graph',
             'twitter-card',
         ),
-        'sitemap'      => array( 'sitemap', 'sitemap-validation' ),
-        'robots'       => array( 'robots-txt', 'ai-crawler-blocked-pages' ),
+        'images'           => array( 'seo-images', 'images' ),
+        'internal-linking' => array( 'internal-linking' ),
     );
 
     /**

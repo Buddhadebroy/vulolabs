@@ -7,9 +7,7 @@ export interface SeoScoreResponse {
 	category_scores: {
 		'titles-meta': number;
 		images: number;
-		'links-schema': number;
-		sitemap: number;
-		robots: number;
+		'internal-linking': number;
 	};
 	severity_breakdown: {
 		critical: number;
@@ -23,7 +21,9 @@ export interface SeoScoreResponse {
 /**
  * `GET /seo/score` — Seo.php's own real, deterministic weighted-severity
  * score (same formula BrandIntelligence's own Brand Score uses), scoped to
- * SeoTab.tsx's own 17 real SEO scanner ids. No AI call, no cost.
+ * SeoTab.tsx's own 15 real SEO scanner ids (on-page SEO only — `sitemap`/
+ * `robots` moved to Crawler Traffic, see Seo.php's own docblock). No AI
+ * call, no cost.
  */
 export const useSeoScore = (): {
 	score: SeoScoreResponse | null;

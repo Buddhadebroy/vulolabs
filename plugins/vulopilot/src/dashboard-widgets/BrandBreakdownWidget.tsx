@@ -10,7 +10,6 @@ interface BrandScore {
 	brand_score: number;
 	trust_score: number;
 	authority_score: number;
-	entity_score: number;
 }
 
 /**
@@ -23,6 +22,14 @@ interface BrandScore {
  * own data rather than reading off the shared /dashboard summary, same
  * reasoning HealthTimelineWidget's own docblock gives for list/breakdown
  * shaped widgets.
+ *
+ * Overall/Trust/Authority only now, not also Entity — this widget is
+ * titled "Brand Visibility breakdown" and the Brand Visibility tab itself
+ * dropped its own Entity Score tile (direct instruction: "Knowledge Graph
+ * and Brand Visibility overlap around 'Entity'... Entity Score therefore
+ * has a much stronger conceptual home in Knowledge Graph" — see
+ * Controllers\BrandIntelligence.php's own docblock), so a bar here would
+ * be showing a number this same-named page no longer does.
  */
 const BrandBreakdownWidget: React.FC<WidgetProps> = ({
 	onHide,
@@ -52,7 +59,6 @@ const BrandBreakdownWidget: React.FC<WidgetProps> = ({
 					label: __('Authority', 'vulopilot'),
 					value: score.authority_score,
 				},
-				{ label: __('Entity', 'vulopilot'), value: score.entity_score },
 			]
 		: [];
 
