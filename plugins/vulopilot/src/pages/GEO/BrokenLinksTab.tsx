@@ -10,6 +10,8 @@ import {
 	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
+	AnalyticsComponent,
+	InformationItemComponent
 } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
@@ -660,9 +662,9 @@ const BrokenLinksTab = () => {
 				message: response
 					? successMessage
 					: __(
-							'Could not update this finding. Please try again.',
-							'vulopilot'
-						),
+						'Could not update this finding. Please try again.',
+						'vulopilot'
+					),
 			});
 
 			if (response) {
@@ -716,8 +718,8 @@ const BrokenLinksTab = () => {
 		if (typeof findingFixHandler === 'function') {
 			Promise.resolve(
 				findingFixHandler(finding) as
-					| Promise<{ success: boolean; message: string }>
-					| undefined
+				| Promise<{ success: boolean; message: string }>
+				| undefined
 			).then((outcome) => {
 				if (outcome?.message) {
 					NoticeManager.add({
@@ -763,19 +765,19 @@ const BrokenLinksTab = () => {
 				message:
 					succeeded === responses.length
 						? sprintf(
-								/* translators: %d: number of findings ignored. */
-								_n(
-									'%d finding ignored.',
-									'%d findings ignored.',
-									succeeded,
-									'vulopilot'
-								),
-								succeeded
-							)
-						: __(
-								'Some findings could not be ignored. Please try again.',
+							/* translators: %d: number of findings ignored. */
+							_n(
+								'%d finding ignored.',
+								'%d findings ignored.',
+								succeeded,
 								'vulopilot'
 							),
+							succeeded
+						)
+						: __(
+							'Some findings could not be ignored. Please try again.',
+							'vulopilot'
+						),
 			});
 
 			if (succeeded > 0) {
@@ -829,9 +831,9 @@ const BrokenLinksTab = () => {
 					message: response
 						? __('Redirect created.', 'vulopilot')
 						: __(
-								'Could not create this redirect — a redirect for this path may already exist.',
-								'vulopilot'
-							),
+							'Could not create this redirect — a redirect for this path may already exist.',
+							'vulopilot'
+						),
 				});
 
 				if (response && redirectFinding) {
@@ -916,13 +918,13 @@ const BrokenLinksTab = () => {
 					position: 'float',
 					message: response
 						? __(
-								'Redirect created from this log entry.',
-								'vulopilot'
-							)
+							'Redirect created from this log entry.',
+							'vulopilot'
+						)
 						: __(
-								'Could not create a redirect — a redirect for this path may already exist.',
-								'vulopilot'
-							),
+							'Could not create a redirect — a redirect for this path may already exist.',
+							'vulopilot'
+						),
 				});
 
 				if (response) {
@@ -937,9 +939,9 @@ const BrokenLinksTab = () => {
 		{
 			label: isExternalFinding(finding)
 				? __(
-						"External links can't be redirected from this site",
-						'vulopilot'
-					)
+					"External links can't be redirected from this site",
+					'vulopilot'
+				)
 				: __('Create redirect', 'vulopilot'),
 			icon: isExternalFinding(finding) ? 'lock' : 'link',
 			onClick: () => {
@@ -1143,350 +1145,313 @@ const BrokenLinksTab = () => {
 	return (
 		<>
 			<ColumnComponent>
-					<NoticeComponent
-						// type="banner"
-						displayPosition="inline"
-						message={sprintf(
-							'<strong>%1$s</strong> %2$s',
-							__('In plain English:', 'vulopilot'),
-							__(
-								'These are real links and images on your published pages that pointed somewhere broken the last time this site checked them.',
-								'vulopilot'
-							)
+				<NoticeComponent
+					// type="banner"
+					displayPosition="inline"
+					message={sprintf(
+						'<strong>%1$s</strong> %2$s',
+						__('In plain English:', 'vulopilot'),
+						__(
+							'These are real links and images on your published pages that pointed somewhere broken the last time this site checked them.',
+							'vulopilot'
+						)
+					)}
+				/>
+			</ColumnComponent>
+			{!isSeoModuleActive() ? (
+				<CardComponent title={__('Broken Links', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="error"
+						title={__('SEO module is turned off', 'vulopilot')}
+						desc={__(
+							'Turn the SEO module back on from Settings → Modules to resume broken-link/image scanning and see findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category.',
+							'vulopilot'
 						)}
 					/>
+				</CardComponent>
+			) : (
+				<>
+					<CardComponent
+						title={__('Need attention', 'vulopilot')}
+						titleIcon="error"
+						isLoading={isLoadingFindings}
+					>
+						<AnalyticsComponent
+							variant="with-out-boxshadow"
+							cols={4}
+							data={[
+								{
+									icon: 'link red',
+									text: __('Broken links', 'vulopilot'),
+									number: summary.brokenLinks,
+								},
+								{
+									icon: 'attachment yellow',
+									text: __('Broken images', 'vulopilot'),
+									number: summary.brokenImages,
+								},
+								{
+									icon: 'info blue',
+									text: __('Couldn’t verify', 'vulopilot'),
+									number: summary.couldntVerify,
+								},
+								{
+									icon: 'eye-blocked green',
+									text: __('Ignored', 'vulopilot'),
+									number: summary.ignored,
+								},
+							]}
+						/>
+					</CardComponent>
 
-					{!isSeoModuleActive() ? (
-						<CardComponent title={__('Broken Links', 'vulopilot')}>
+					{stats && (
+						<ColumnComponent fullHeight grid={6}>
+							<CardComponent
+								title={__('Last scan', 'vulopilot')}
+								titleIcon="search"
+							>
+								<AnalyticsComponent
+									variant="with-out-boxshadow"
+									cols={2}
+									data={[
+										{
+											icon: 'link',
+											number: sprintf(
+												/* translators: 1: healthy count, 2: total checked */
+												__('%1$d / %2$d healthy', 'vulopilot'),
+												stats.links.healthy_count,
+												stats.links.links_checked
+											),
+											text: (
+												<>
+													<div className="kg-glance-label">
+														{__('Links checked', 'vulopilot')}
+													</div>
+
+													<div className="desc">
+														{sprintf(
+															/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
+															__('Across %1$d pages · %2$s', 'vulopilot'),
+															stats.links.pages_scanned,
+															formatCheckedAt(stats.links.checked_at)
+														)}
+													</div>
+												</>
+											),
+										},
+										{
+											icon: 'attachment',
+											number: sprintf(
+												/* translators: 1: healthy count, 2: total checked */
+												__('%1$d / %2$d healthy', 'vulopilot'),
+												stats.images.healthy_count,
+												stats.images.links_checked
+											),
+											text: (
+												<>
+													<div className="kg-glance-label">
+														{__('Images checked', 'vulopilot')}
+													</div>
+
+													<div className="desc">
+														{sprintf(
+															/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
+															__('Across %1$d pages · %2$s', 'vulopilot'),
+															stats.images.pages_scanned,
+															formatCheckedAt(stats.images.checked_at)
+														)}
+													</div>
+												</>
+											),
+										},
+									]}
+								/>
+							</CardComponent>
+						</ColumnComponent>
+					)}
+
+					<CardComponent
+						title={__('Broken Link Monitoring', 'vulopilot')}
+						titleIcon="link"
+						desc={__(
+							'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked, grouped by the page they live on. Use the "Run scan" button above to check again.',
+							'vulopilot'
+						)}
+					>
+						{findingsError ? (
 							<ModuleGuardComponent
 								icon="error"
-								title={__('SEO module is turned off', 'vulopilot')}
-								desc={__(
-									'Turn the SEO module back on from Settings → Modules to resume broken-link/image scanning and see findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category.',
+								title={__('Could not load findings', 'vulopilot')}
+								desc={findingsError}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={loadFindings}
+							/>
+						) : (
+							<TableCard
+								showMenu={false}
+								hideHeader={true}
+								expandable
+								className="transparent-table"
+								headers={headers}
+								rows={tableRows}
+								search={{
+									placeholder: __(
+										'Search by URL or source page…',
+										'vulopilot'
+									),
+								}}
+								filters={[
+									{
+										key: 'type',
+										label: __('All issues', 'vulopilot'),
+										type: 'select',
+										options: [
+											{
+												label: __('All issues', 'vulopilot'),
+												value: 'all',
+											},
+											{
+												label: __('Links', 'vulopilot'),
+												value: 'broken-links',
+											},
+											{
+												label: __('Images', 'vulopilot'),
+												value: 'broken-images',
+											},
+										],
+									},
+									{
+										label: __('Show ignored', 'vulopilot'),
+										value: 'show_ignored',
+									},
+								]}
+								buttonActions={[
+									{
+										label: __('Export CSV', 'vulopilot'),
+										icon: 'export',
+										onClick: handleExportCsv,
+									},
+								]}
+								ids={pageGroups.map((group) => group.id)}
+								totalRows={pageGroups.length}
+								isLoading={isLoadingFindings}
+								emptyMessage={__(
+									'No broken links or images found yet. Make sure "Flag broken links"/"Flag broken images" are turned on under Settings → Scanning → SEO, then run a scan.',
 									'vulopilot'
 								)}
 							/>
-						</CardComponent>
-					) : (
-						<>
-							<CardComponent
-								title={__('Need attention', 'vulopilot')}
-								titleIcon="error"
-								isLoading={isLoadingFindings}
-							>
-								<div className="kg-glance-grid">
-									<div className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className="adminfont-link" />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{__('Broken links', 'vulopilot')}
-											</div>
-											<div className="kg-glance-value">
-												{summary.brokenLinks}
-											</div>
-										</div>
-									</div>
-									<div className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className="adminfont-attachment" />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{__('Broken images', 'vulopilot')}
-											</div>
-											<div className="kg-glance-value">
-												{summary.brokenImages}
-											</div>
-										</div>
-									</div>
-									<div className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className="adminfont-info" />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{__('Couldn’t verify', 'vulopilot')}
-											</div>
-											<div className="kg-glance-value">
-												{summary.couldntVerify}
-											</div>
-										</div>
-									</div>
-									<div className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className="adminfont-eye-blocked" />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{__('Ignored', 'vulopilot')}
-											</div>
-											<div className="kg-glance-value">
-												{summary.ignored}
-											</div>
-										</div>
-									</div>
-								</div>
-								{!isLoadingFindings && 0 === needAttentionTotal && (
-									<p className="desc">
-										{__(
-											'Nothing needs attention right now.',
-											'vulopilot'
-										)}
-									</p>
-								)}
-							</CardComponent>
+						)}
+					</CardComponent>
 
-							{stats && (
-								<CardComponent
-									title={__('Last scan', 'vulopilot')}
-									titleIcon="search"
-									desc={__(
-										'Real coverage from each scanner’s most recent genuine run — a separate real number from "Need attention" above, not a percentage blended from the two (they cover different time windows).',
-										'vulopilot'
-									)}
-								>
-									<div className="kg-glance-grid">
-										<div className="kg-glance-item">
-											<div className="kg-glance-icon">
-												<i className="adminfont-link" />
-											</div>
-											<div>
-												<div className="kg-glance-label">
-													{__('Links checked', 'vulopilot')}
-												</div>
-												<div className="kg-glance-value">
-													{sprintf(
-														/* translators: 1: healthy count, 2: total checked */
-														__('%1$d / %2$d healthy', 'vulopilot'),
-														stats.links.healthy_count,
-														stats.links.links_checked
-													)}
-												</div>
-												<div className="desc">
-													{sprintf(
-														/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
-														__('Across %1$d pages · %2$s', 'vulopilot'),
-														stats.links.pages_scanned,
-														formatCheckedAt(stats.links.checked_at)
-													)}
-												</div>
-											</div>
-										</div>
-										<div className="kg-glance-item">
-											<div className="kg-glance-icon">
-												<i className="adminfont-attachment" />
-											</div>
-											<div>
-												<div className="kg-glance-label">
-													{__('Images checked', 'vulopilot')}
-												</div>
-												<div className="kg-glance-value">
-													{sprintf(
-														/* translators: 1: healthy count, 2: total checked */
-														__('%1$d / %2$d healthy', 'vulopilot'),
-														stats.images.healthy_count,
-														stats.images.links_checked
-													)}
-												</div>
-												<div className="desc">
-													{sprintf(
-														/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
-														__('Across %1$d pages · %2$s', 'vulopilot'),
-														stats.images.pages_scanned,
-														formatCheckedAt(stats.images.checked_at)
-													)}
-												</div>
-											</div>
-										</div>
-									</div>
-								</CardComponent>
-							)}
-
-							<CardComponent
-								title={__('Broken Link Monitoring', 'vulopilot')}
-								titleIcon="link"
-								desc={__(
-									'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked, grouped by the page they live on. Use the "Run scan" button above to check again.',
-									'vulopilot'
-								)}
-								action={
-									<div className="broken-link-monitoring-actions">
-										<TextInput
-											name="broken_link_search"
-											placeholder={__(
-												'Search by URL or source page…',
-												'vulopilot'
-											)}
-											value={searchTerm}
-											onChange={(value) =>
-												setSearchTerm(value as string)
-											}
-										/>
-										<SelectInput
-											name="broken_link_type_filter"
-											value={typeFilter}
-											options={[
-												{ label: __('All issues', 'vulopilot'), value: 'all' },
-												{ label: __('Links', 'vulopilot'), value: 'broken-links' },
-												{ label: __('Images', 'vulopilot'), value: 'broken-images' },
-											]}
-											onChange={(value) =>
-												setTypeFilter(
-													value as 'all' | 'broken-links' | 'broken-images'
-												)
-											}
-											size="10rem"
-										/>
-										<ToggleInput
-											options={[
-												{
-													key: 'show_ignored',
-													value: 'show_ignored',
-													label: __('Show ignored', 'vulopilot'),
-												},
-											]}
-											value={showIgnored ? ['show_ignored'] : []}
-											multiSelect
-											modules={[]}
-											onChange={() =>
-												setShowIgnored((current) => !current)
-											}
-										/>
-										<ButtonInput
-											buttons={{
-												text: __('Export CSV', 'vulopilot'),
-												icon: 'export',
-												color: 'plain',
-												onClick: handleExportCsv,
-											}}
-										/>
-									</div>
-								}
-							>
-								{findingsError ? (
-									<ModuleGuardComponent
-										icon="error"
-										title={__('Could not load findings', 'vulopilot')}
-										desc={findingsError}
-										buttonText={__('Retry', 'vulopilot')}
-										onButtonClick={loadFindings}
-									/>
-								) : (
-									<TableCard
-										showMenu={false}
-										expandable
-										className="transparent-table broken-link-monitoring-table"
-										headers={headers}
-										rows={tableRows}
-										ids={pageGroups.map((group) => group.id)}
-										totalRows={pageGroups.length}
-										isLoading={isLoadingFindings}
-										emptyMessage={__(
-											'No broken links or images found yet. Make sure "Flag broken links"/"Flag broken images" are turned on under Settings → Scanning → SEO, then run a scan.',
-											'vulopilot'
-										)}
-									/>
-								)}
-							</CardComponent>
-
-							<CardComponent
-								title={__('404 Log', 'vulopilot')}
-								titleIcon="error"
-								desc={__(
-									'Every real 404 this site has seen, both missing content pages and theme/plugin/core-file/asset requests (a stale cached bundle, a removed theme asset, a browser probing a well-known path) — told apart by the "Type" column and filterable by the pills above the table. Only a content-page 404 can be turned into a redirect; nobody redirects a broken theme file.',
-									'vulopilot'
-								)}
-							>
-								{notFoundLogs.error ? (
-									<ModuleGuardComponent
-										icon="error"
-										title={__('Could not load the 404 log', 'vulopilot')}
-										desc={notFoundLogs.error}
-										buttonText={__('Retry', 'vulopilot')}
-										onButtonClick={notFoundLogs.refetch}
-									/>
-								) : (
-									<TableCard
-										search={{
-											placeholder: __('Search missing URLs…', 'vulopilot'),
-										}}
-										format={appLocalizer.date_format_js}
-										headers={{
-											requested_path: {
-												label: __('Requested URL', 'vulopilot'),
-											},
-											is_system: {
-												label: __('Type', 'vulopilot'),
-												render: (row: NotFoundLogRow) => (
-													<BadgeComponent
-														color={isSystemLog(row) ? 'yellow' : 'blue'}
-														text={
-															isSystemLog(row)
-																? __('System', 'vulopilot')
-																: __('Content', 'vulopilot')
-														}
-													/>
-												),
-											},
-											hit_count: {
-												label: __('Hits', 'vulopilot'),
-												isSortable: true,
-											},
-											last_seen_at: {
-												label: __('Last seen', 'vulopilot'),
-												type: 'date',
-												isSortable: true,
-												defaultSort: true,
-												defaultOrder: 'desc',
-											},
-											actions: {
-												label: __('Actions', 'vulopilot'),
-												type: 'action',
-												actions: [
+					<CardComponent
+						title={__('404 Log', 'vulopilot')}
+						titleIcon="error"
+						desc={__(
+							'Every real 404 this site has seen, both missing content pages and theme/plugin/core-file/asset requests (a stale cached bundle, a removed theme asset, a browser probing a well-known path) — told apart by the "Type" column and filterable by the pills above the table. Only a content-page 404 can be turned into a redirect; nobody redirects a broken theme file.',
+							'vulopilot'
+						)}
+					>
+						{notFoundLogs.error ? (
+							<ModuleGuardComponent
+								icon="error"
+								title={__('Could not load the 404 log', 'vulopilot')}
+								desc={notFoundLogs.error}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={notFoundLogs.refetch}
+							/>
+						) : (
+							<TableCard
+								search={{
+									placeholder: __('Search missing URLs…', 'vulopilot'),
+								}}
+								hideHeader={true}
+								showMenu={false}
+								className="transparent-table"
+								format={appLocalizer.date_format_js}
+								headers={{
+									title: {
+										label: __('Finding', 'vulopilot'),
+										width: '70%',
+										render: (row: NotFoundLogRow) => (
+											<InformationItemComponent
+												title={row.requested_path}
+												avatar={{
+													iconClass: "info blue",
+												}}
+												badges={[
 													{
-														label: (row?: Record<string, unknown>) =>
-															row && isSystemLog(row as NotFoundLogRow)
-																? __(
-																		"System file — no redirect needed",
-																		'vulopilot'
-																	)
-																: __('Create redirect', 'vulopilot'),
-														icon: (row?: Record<string, unknown>) =>
-															row && isSystemLog(row as NotFoundLogRow)
-																? 'lock'
-																: 'link',
-														onClick: (row?: Record<string, unknown>) =>
-															row &&
-															!isSystemLog(row as NotFoundLogRow) &&
-															openConvertPopup(row as NotFoundLogRow),
+														text: isSystemLog(row)
+															? __('System', 'vulopilot')
+															: __('Content', 'vulopilot'),
+														className: isSystemLog(row)
+															? 'blue'
+															: 'yellow',
+													},
+												]}
+												descriptions={[
+													{
+														value: sprintf(
+															_n(
+																'%d hit',
+																'%d hits',
+																row.hit_count,
+																'vulopilot'
+															),
+															row.hit_count
+														),
+														label: __('Hits', 'vulopilot')
+													},
+												]}
+											/>
+										),
+									},
+									actions: {
+										label: __('Actions', 'vulopilot'),
+										size: '30%',
+										render: (row: NotFoundLogRow) => (
+											<BadgeComponent
+												badges={[
+													{
+														text: isSystemLog(row)
+															? __(
+																'System file — no redirect needed',
+																'vulopilot'
+															)
+															: __('Create redirect', 'vulopilot'),
+														icon: isSystemLog(row) ? 'lock' : 'link',
+														color: isSystemLog(row) ? 'gray' : 'blue',
+														onClick: () => {
+															if (!isSystemLog(row)) {
+																openConvertPopup(row);
+															}
+														},
 													},
 													{
-														label: __('Dismiss', 'vulopilot'),
+														text: __('Dismiss', 'vulopilot'),
 														icon: 'cross',
-														onClick: (row?: Record<string, unknown>) =>
-															row && handleDismissLog(row as NotFoundLogRow),
+														color: 'red',
+														onClick: () => handleDismissLog(row),
 													},
-												] as any[],
-											},
-										}}
-										rows={notFoundLogs.data}
-										ids={notFoundLogs.data.map((row) => row.id)}
-										totalRows={notFoundLogs.total}
-										categoryCounts={notFoundLogs.categoryCounts}
-										isLoading={notFoundLogs.isLoading}
-										onQueryUpdate={notFoundLogs.onQueryUpdate}
-										emptyMessage={__(
-											'No 404s logged yet — turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
-											'vulopilot'
-										)}
-									/>
+												]}
+											/>
+										),
+									},
+								}}
+								rows={notFoundLogs.data}
+								ids={notFoundLogs.data.map((row) => row.id)}
+								totalRows={notFoundLogs.total}
+								categoryCounts={notFoundLogs.categoryCounts}
+								isLoading={notFoundLogs.isLoading}
+								onQueryUpdate={notFoundLogs.onQueryUpdate}
+								emptyMessage={__(
+									'No 404s logged yet — turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
+									'vulopilot'
 								)}
-							</CardComponent>
-						</>
-				)}
-			</ColumnComponent>
+							/>
+						)}
+					</CardComponent>
+				</>
+			)}
 
 			<PopupComponent
 				open={!!convertingLog}
@@ -1503,7 +1468,7 @@ const BrokenLinksTab = () => {
 						name="convert_source_path"
 						value={convertingLog?.requested_path ?? ''}
 						disabled
-						onChange={() => {}}
+						onChange={() => { }}
 					/>
 					<TextInput
 						name="convert_target_url"
@@ -1547,7 +1512,7 @@ const BrokenLinksTab = () => {
 						inputLabel={__('From (path)', 'vulopilot')}
 						value={redirectSourcePath}
 						disabled
-						onChange={() => {}}
+						onChange={() => { }}
 					/>
 					<p className="desc broken-link-redirect-note">
 						{__(

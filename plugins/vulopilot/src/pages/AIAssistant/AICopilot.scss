@@ -1,3 +1,5 @@
+@use '../../components/config' as *;
+
 .chat-prompts-label {
 	font-weight: 600;
 	margin: 1.25rem 0 0.75rem;
@@ -11,7 +13,7 @@
 	gap: 0.5rem;
 	margin: 0.5rem 0 1rem;
 	padding-top: 1.5rem;
-	border-top: 1px solid var(--border-color, #e2e8f0);
+	border-top: $border-light-small;
 
 	h2 {
 		margin: 0;
@@ -27,8 +29,8 @@
 	height: 2rem;
 	border: none;
 	border-radius: 50%;
-	background: var(--color-primary);
-	color: var(--color-white);
+	background: $theme-color;
+	color: $color-white;
 	cursor: pointer;
 
 	.dashicons {
@@ -38,8 +40,8 @@
 	}
 
 	&.disabled {
-		background: var(--border-color);
-		color: var(--sub-text-color);
+		background: $border-color;
+		color: $sub-text-color;
 		cursor: not-allowed;
 	}
 }
@@ -50,7 +52,7 @@
 	justify-content: center;
 	border: none;
 	background: none;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	cursor: pointer;
 	padding: 0;
 }
@@ -71,7 +73,7 @@
 }
 
 .issues-page-desc {
-	color: var(--sub-text-color, #6b7280);
+	color: $sub-text-color;
 	margin: 0 0 1rem;
 }
 
@@ -103,7 +105,7 @@
 		transition: border-color 0.15s ease, background-color 0.15s ease;
 
 		&:hover {
-			background: var(--theme-background-color, #f9fafb);
+			background: $theme-background-color;
 		}
 	}
 
@@ -123,8 +125,8 @@
 	&.active-priority-high .analytics-item:nth-child(2),
 	&.active-priority-medium .analytics-item:nth-child(3),
 	&.active-priority-low .analytics-item:nth-child(4) {
-		border-color: var(--color-primary);
-		background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
+		border-color: $theme-color;
+		background: $color-primary-background;
 	}
 }
 
@@ -149,12 +151,12 @@
 // 		cursor: pointer;
 
 // 		&:hover {
-// 			color: var(--color-primary);
+// 			color: $theme-color;
 // 		}
 
 // 		&.active {
-// 			color: var(--color-primary);
-// 			background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
+// 			color: $theme-color;
+// 			background: $color-primary-background;
 // 		}
 // 	}
 
@@ -213,7 +215,7 @@
 			font-size: 0.75rem;
 			text-transform: uppercase;
 			letter-spacing: 0.03em;
-			color: var(--sub-text-color, #6b7280);
+			color: $sub-text-color;
 			margin: 0 0 0.375rem;
 		}
 
@@ -227,7 +229,7 @@
 	}
 
 	.issue-detail-example-desc {
-		color: var(--sub-text-color, #6b7280);
+		color: $sub-text-color;
 	}
 
 	.issue-detail-where {
@@ -236,7 +238,7 @@
 		gap: 0.5rem;
 
 		code {
-			background: var(--theme-background-color, #f3f4f6);
+			background: $theme-background-color;
 			padding: 0.25rem 0.5rem;
 			border-radius: 0.313rem;
 			font-size: 0.813rem;
@@ -246,10 +248,10 @@
 
 	.issue-detail-copy-btn {
 		cursor: pointer;
-		color: var(--sub-text-color, #6b7280);
+		color: $sub-text-color;
 
 		&:hover {
-			color: var(--color-primary);
+			color: $theme-color;
 		}
 	}
 
@@ -272,7 +274,7 @@
 		.desc {
 			display: inline;
 			margin-left: 0.375rem;
-			color: var(--sub-text-color, #6b7280);
+			color: $sub-text-color;
 		}
 	}
 }
@@ -282,10 +284,10 @@
 // leaving it bare (zyra ships no CSS of its own for `.adminfont-close`).
 .issue-detail-panel .adminfont-close {
 	cursor: pointer;
-	color: var(--sub-text-color, #6b7280);
+	color: $sub-text-color;
 
 	&:hover {
-		color: var(--color-primary);
+		color: $theme-color;
 	}
 }
 
@@ -310,7 +312,7 @@
 }
 
 .attention-summary-label {
-	color: var(--sub-text-color, #6b7280);
+	color: $sub-text-color;
 	font-size: 0.875rem;
 }
 
@@ -362,7 +364,7 @@
 }
 
 .history-page-desc {
-	color: var(--sub-text-color, #6b7280);
+	color: $sub-text-color;
 	margin: 0 0 1rem;
 }
 
@@ -375,44 +377,44 @@
 // map is scoped inside .issues-table's own selector, so it doesn't reach
 // here — duplicated rather than shared, same as .attention-priority-pills'
 // own separate color map above).
-.history-severity-breakdown {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
+// .history-severity-breakdown {
+// 	list-style: none;
+// 	margin: 0;
+// 	padding: 0;
+// 	display: flex;
+// 	flex-direction: column;
+// 	gap: 0.5rem;
 
-	li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
+// 	li {
+// 		display: flex;
+// 		align-items: center;
+// 		gap: 0.5rem;
+// 	}
 
-	.admin-badge {
-		padding: 0.25rem 0.625rem;
-		border-radius: 0.313rem;
-		font-size: 0.75rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		white-space: nowrap;
-	}
+// 	.admin-badge {
+// 		padding: 0.25rem 0.625rem;
+// 		border-radius: 0.313rem;
+// 		font-size: 0.75rem;
+// 		font-weight: 700;
+// 		text-transform: uppercase;
+// 		white-space: nowrap;
+// 	}
 
-	$severities: (
-		'critical': #dc2626,
-		'high': #d88c5c,
-		'medium': #b45309,
-		'low': #5baab3,
-		'info': #6b7280,
-	);
+// 	$severities: (
+// 		'critical': #dc2626,
+// 		'high': #d88c5c,
+// 		'medium': #b45309,
+// 		'low': #5baab3,
+// 		'info': #6b7280,
+// 	);
 
-	@each $name, $color in $severities {
-		.badge-#{$name} {
-			color: #{$color};
-			background: color-mix(in srgb, #{$color} 14%, transparent);
-		}
-	}
-}
+// 	@each $name, $color in $severities {
+// 		.badge-#{$name} {
+// 			color: #{$color};
+// 			background: color-mix(in srgb, #{$color} 14%, transparent);
+// 		}
+// 	}
+// }
 
 // HistoryDetailPanel.tsx's "Pages & posts" list (scan rows) — real per-page
 // finding counts, same list shape .history-related-actions below uses.
@@ -432,7 +434,7 @@
 	}
 
 	a {
-		color: var(--color-primary);
+		color: $theme-color;
 		text-decoration: none;
 
 		&:hover,
@@ -443,7 +445,7 @@
 }
 
 .history-affected-page-count {
-	color: var(--text-secondary, #6b7280);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 	white-space: nowrap;
 }
@@ -453,7 +455,7 @@
 // .history-affected-page-count's layout with a positive tint instead of a
 // count, since there's nothing to count.
 .history-scanned-page-clean {
-	color: var(--color-success, #15803d);
+	color: $color-success;
 }
 
 // HistoryDetailPanel.tsx's Status line — real disclosure for a change run
@@ -461,7 +463,7 @@
 // own 'auto' $method), so this never implies a human clicked Approve on
 // something they didn't.
 .history-auto-approved-note {
-	color: var(--text-secondary, #6b7280);
+	color: $sub-text-color;
 	font-size: 0.8125rem;
 	font-style: italic;
 }
@@ -486,7 +488,7 @@
 }
 
 .history-related-action-link {
-	color: var(--color-primary);
+	color: $theme-color;
 	cursor: pointer;
 	text-decoration: none;
 
@@ -497,7 +499,7 @@
 }
 
 .history-related-action-time {
-	color: var(--text-secondary, #6b7280);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 	white-space: nowrap;
 }
@@ -531,8 +533,8 @@
 	gap: 0.375rem;
 	font-size: 0.8rem;
 	font-weight: 500;
-	color: var(--color-primary);
-	background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
+	color: $theme-color;
+	background: $color-primary-background;
 	border-radius: 999px;
 	padding: 0.3rem 0.7rem;
 
@@ -570,7 +572,7 @@
 	gap: 0.375rem;
 	font-size: 0.8rem;
 	font-weight: 500;
-	background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
+	background: $color-primary-background;
 	border-radius: 999px;
 	padding: 0.3rem 0.7rem;
 }
@@ -578,14 +580,14 @@
 .chat-composer-panel {
 	margin-top: 0.75rem;
 	padding: 0.75rem;
-	border: 1px solid var(--border-color, #e5e7eb);
+	border: $border-light-small;
 	border-radius: 0.5rem;
 	max-height: 14rem;
 	overflow-y: auto;
 }
 
 .chat-composer-panel-label {
-	color: var(--sub-text-color, #6b7280);
+	color: $sub-text-color;
 	font-size: 0.8rem;
 	margin: 0 0 0.5rem;
 }
@@ -600,12 +602,12 @@
 	font-size: 0.85rem;
 
 	&:hover {
-		background: var(--theme-background-color, #f9fafb);
+		background: $theme-background-color;
 	}
 
 	&.selected {
-		background: var(--color-primary-background, rgba(124, 58, 237, 0.08));
-		color: var(--color-primary);
+		background: $color-primary-background;
+		color: $theme-color;
 	}
 
 	i {
@@ -626,7 +628,7 @@
 	display: inline-flex;
 	align-items: center;
 	font-weight: 600;
-	color: var(--color-primary);
+	color: $theme-color;
 	text-decoration: underline;
 }
 

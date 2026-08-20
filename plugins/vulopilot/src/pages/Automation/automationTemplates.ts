@@ -27,7 +27,7 @@ export interface AutomationTemplate {
 export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
 	{
 		id: 'website-health-scan',
-		icon: 'search',
+		icon: 'search blue',
 		label: __('Website health scan', 'vulopilot'),
 		description: __('Check for issues and get alerts', 'vulopilot'),
 		category: 'monitoring',
@@ -36,7 +36,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
 	},
 	{
 		id: 'security-monitoring',
-		icon: 'security',
+		icon: 'security yellow',
 		label: __('Security monitoring', 'vulopilot'),
 		description: __('Keep your site safe', 'vulopilot'),
 		category: 'security',
@@ -45,7 +45,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
 	},
 	{
 		id: 'seo-optimization',
-		icon: 'search-discovery',
+		icon: 'search-discovery pink',
 		label: __('SEO optimization', 'vulopilot'),
 		description: __('Improve rankings and visibility', 'vulopilot'),
 		category: 'content',
@@ -54,7 +54,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
 	},
 	{
 		id: 'woocommerce-monitor',
-		icon: 'woocommerce',
+		icon: 'woocommerce orange',
 		label: __('WooCommerce monitor', 'vulopilot'),
 		description: __('Keep your store running smoothly', 'vulopilot'),
 		category: 'commerce',
@@ -63,7 +63,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
 	},
 	{
 		id: 'content-optimizer',
-		icon: 'document',
+		icon: 'document cyan',
 		label: __('Content optimizer', 'vulopilot'),
 		description: __('Improve content automatically', 'vulopilot'),
 		category: 'content',
@@ -72,7 +72,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
 	},
 	{
 		id: 'from-scratch',
-		icon: 'plus',
+		icon: 'plus rose',
 		label: __('Create from scratch', 'vulopilot'),
 		description: __('Build a custom automation', 'vulopilot'),
 		category: null,

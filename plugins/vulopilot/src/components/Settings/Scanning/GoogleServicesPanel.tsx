@@ -256,11 +256,7 @@ const GoogleServicesPanel = () => {
 	return (
 		<>
 			{status && !status.connected && (
-				<CardComponent
-					title={__('Connect Google Services', 'vulopilot')}
-					titleIcon="admin-links"
-					isLoading={isLoading}
-				>
+				<>
 					{!status.has_client_credentials ? (
 						<ModuleGuardComponent
 							icon="info"
@@ -302,7 +298,7 @@ const GoogleServicesPanel = () => {
 							/>
 						</div>
 					)}
-				</CardComponent>
+				</>
 			)}
 
 			{status && status.connected && (
@@ -534,15 +530,17 @@ const GoogleServicesPanel = () => {
 					/>
 				</>
 			)}
-
-			<NoticeComponent
-				// type="banner"
-				displayPosition="inline"
-				message={__(
-					'Connecting and selecting a property only proves this site can read your real Google data. Storing/reporting on that data over time — the Analytics Database, Frontend Stats Bar, Email Reports, and pulling real ranking keywords onto the Keywords tab — is the next step, not built yet. Flag if you want any of it scoped next.',
-					'vulopilot'
-				)}
-			/>
+			<div className="ui-notice type-info display-notice">
+				<i className="admin-font adminfont-info" />
+				<div className="notice-details">
+					<div className="notice-desc">
+						{__(
+							'Connecting and selecting a property only proves this site can read your real Google data. Storing/reporting on that data over time — the Analytics Database, Frontend Stats Bar, Email Reports, and pulling real ranking keywords onto the Keywords tab — is the next step, not built yet. Flag if you want any of it scoped next.',
+							'vulopilot'
+						)}
+					</div>
+				</div>
+			</div>
 		</>
 	);
 };

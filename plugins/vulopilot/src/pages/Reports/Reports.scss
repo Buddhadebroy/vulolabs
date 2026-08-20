@@ -1,5 +1,7 @@
+@use '../../components/config' as *;
+
 .ai-analyst-desc {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	margin: 0 0 0.75rem;
 }
 
@@ -10,16 +12,16 @@
 	gap: 0.5rem;
 	width: 100%;
 	border-radius: 0.5rem;
-	background: var(--color-primary);
-	color: var(--color-white);
+	background: $theme-color;
+	color: $color-white;
 	font-weight: 600;
 	padding: 0.625rem 1rem;
 	margin-bottom: 0.5rem;
 	cursor: pointer;
 
 	&.disabled {
-		background: var(--border-color);
-		color: var(--sub-text-color);
+		background: $border-color;
+		color: $sub-text-color;
 		cursor: not-allowed;
 	}
 }
@@ -36,7 +38,7 @@
 .reports-generate-toolbar-label {
 	font-size: 0.8125rem;
 	font-weight: 600;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 .website-progress-day-toggle {
@@ -62,7 +64,7 @@
 }
 
 .report-highlight-desc {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.8125rem;
 	margin: 0.25rem 0 0.5rem;
 }
@@ -71,7 +73,7 @@
 .report-type-card-action {
 	border: none;
 	background: none;
-	color: var(--color-primary);
+	color: $theme-color;
 	font-weight: 600;
 	font-size: 0.8125rem;
 	cursor: pointer;
@@ -94,7 +96,7 @@
 }
 
 .report-type-card-desc {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.8125rem;
 	margin: 0.25rem 0 0.5rem;
 }
@@ -106,7 +108,7 @@
 }
 
 .report-schedule-detail {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.8125rem;
 	margin: 0.375rem 0 0;
 }
@@ -125,10 +127,10 @@
 	align-items: center;
 	gap: 0.625rem;
 	font-size: 0.8125rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 
 	i {
-		color: var(--color-primary);
+		color: $theme-color;
 	}
 }
 
@@ -154,8 +156,8 @@
 	gap: 0.5rem;
 	padding: 0.625rem 1rem;
 	border-radius: 0.5rem;
-	border: 1px solid var(--border-color);
-	color: var(--sub-text-color);
+	border: $border-light-small;
+	color: $sub-text-color;
 	cursor: not-allowed;
 }
 
@@ -201,7 +203,7 @@
 }
 
 .reports-hero-desc {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	margin: 0.25rem 0 0.75rem;
 }
 
@@ -224,7 +226,7 @@
 
 .reports-hero-stat-label {
 	font-size: 0.75rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 .reports-hero-stat-delta {
@@ -248,7 +250,7 @@
 	gap: 0.5rem 1.5rem;
 	margin-top: 0.75rem;
 	padding-top: 0.75rem;
-	border-top: 1px solid var(--border-color);
+	border-top: $border-light-small;
 }
 
 .reports-hero-highlight-row {
@@ -276,7 +278,7 @@
 	}
 
 	&.is-flat {
-		color: var(--sub-text-color);
+		color: $sub-text-color;
 	}
 }
 
@@ -319,7 +321,7 @@
 
 	> i {
 		font-size: 1.375rem;
-		color: var(--color-primary);
+		color: $theme-color;
 		margin-bottom: 0.25rem;
 	}
 }
@@ -333,7 +335,7 @@
 .reports-category-tile-sublabel {
 	margin: 0;
 	font-size: 0.75rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 .reports-category-tile-status {
@@ -350,11 +352,11 @@
 	}
 
 	&.is-neutral {
-		color: var(--sub-text-color);
+		color: $sub-text-color;
 	}
 
 	&.is-ok {
-		color: var(--color-primary);
+		color: $theme-color;
 	}
 }
 
@@ -391,12 +393,12 @@
 	display: flex;
 	flex-direction: column-reverse;
 	font-size: 0.75rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 
 	span {
 		font-size: 1.25rem;
 		font-weight: 700;
-		color: var(--text-primary, #1f2937);
+		color: $text-color;
 	}
 
 	&.is-good span {
@@ -412,7 +414,7 @@
 	margin: 0 0 0.375rem;
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 .reports-panel-list {
@@ -444,14 +446,14 @@
 		align-items: center;
 		gap: 0.5rem;
 		font-size: 0.8125rem;
-		color: var(--sub-text-color);
+		color: $sub-text-color;
 	}
 }
 
 .reports-panel-row-value {
 	font-weight: 700;
 	font-size: 1rem;
-	color: var(--text-primary, #1f2937);
+	color: $text-color;
 }
 
 .reports-panel-badge {
@@ -487,7 +489,7 @@
 		justify-content: space-between;
 		font-size: 0.8125rem;
 		padding: 0.375rem 0;
-		border-bottom: 1px solid var(--border-color);
+		border-bottom: $border-light-small;
 	}
 
 	li:last-child {
@@ -520,19 +522,19 @@
 	align-items: center;
 	gap: 0.625rem;
 	font-size: 0.75rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 .reports-speed-device-track {
 	height: 0.5rem;
 	border-radius: 999px;
-	background: var(--border-color);
+	background: $border-color;
 	overflow: hidden;
 }
 
 .reports-speed-device-fill {
 	height: 100%;
-	background: var(--color-primary);
+	background: $theme-color;
 	border-radius: 999px;
 }
 
@@ -544,7 +546,7 @@
 		display: flex;
 		flex-direction: column-reverse;
 		font-size: 0.75rem;
-		color: var(--sub-text-color);
+		color: $sub-text-color;
 	}
 }
 
@@ -566,7 +568,7 @@
 	align-items: center;
 	gap: 0.75rem;
 	padding: 0.625rem 0;
-	border-bottom: 1px solid var(--border-color);
+	border-bottom: $border-light-small;
 	font-size: 0.8125rem;
 
 	&:last-child {
@@ -578,13 +580,13 @@
 .reports-timeline-date {
 	flex-shrink: 0;
 	width: 4rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 }
 
 .reports-timeline-icon {
 	flex-shrink: 0;
-	color: var(--color-primary);
+	color: $theme-color;
 }
 
 .reports-timeline-message {
@@ -609,7 +611,7 @@
 	align-items: center;
 	gap: 0.875rem;
 	padding: 0.75rem 0;
-	border-bottom: 1px solid var(--border-color);
+	border-bottom: $border-light-small;
 
 	&:last-child {
 		border-bottom: none;
@@ -625,8 +627,8 @@
 	width: 1.5rem;
 	height: 1.5rem;
 	border-radius: 50%;
-	background: var(--color-primary);
-	color: var(--color-white);
+	background: $theme-color;
+	color: $color-white;
 	font-size: 0.75rem;
 	font-weight: 700;
 }
@@ -643,7 +645,7 @@
 }
 
 .reports-priority-desc {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 }
 
@@ -651,7 +653,7 @@
 	flex-shrink: 0;
 	font-weight: 600;
 	font-size: 0.8125rem;
-	color: var(--color-primary);
+	color: $theme-color;
 }
 
 // ScheduleReportBanner.tsx now renders through zyra's own NoticeComponent
@@ -674,7 +676,7 @@
 .reports-schedules-section {
 	margin-top: 2rem;
 	padding-top: 1.5rem;
-	border-top: 1px solid var(--border-color);
+	border-top: $border-light-small;
 }
 
 .reports-schedules-tab-title {
@@ -684,5 +686,5 @@
 
 .reports-schedules-tab-desc {
 	margin: 0 0 1rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
