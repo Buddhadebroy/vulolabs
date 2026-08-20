@@ -8,7 +8,8 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	ListComponent,
-	NoticeManager
+	NoticeManager,
+	SectionComponent
 } from '@zyra/components';
 import { FileInput, ButtonInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -675,10 +676,10 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			</ColumnComponent>
 
 			<ColumnComponent grid={12}>
-				<div className="ai-copilot-inline-section-heading" ref={issuesSectionRef}>
-					<i className="adminfont-error" />
-					<h2>{__('Issues', 'vulopilot')}</h2>
-				</div>
+				<SectionComponent
+						title={__('Issues', 'vulopilot')}
+						desc={__('The last 100 IndexNow API requests.', 'vulopilot')}
+					/>
 			</ColumnComponent>
 			<IssuesList
 				key={issuesFilter?.scannerId ?? 'all'}

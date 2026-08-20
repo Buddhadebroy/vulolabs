@@ -1,3 +1,5 @@
+@use './config' as *;
+
 .history-timeline {
     display: flex;
     flex-direction: column;
@@ -12,7 +14,7 @@
         cursor: pointer;
         
         &:hover {
-            background: var(--theme-background-color, #f9fafb);
+            background: $theme-background-color;
         }
 
         .history-row-icon {
@@ -24,8 +26,8 @@
             height: 2.375rem;
             border-radius: 0.5rem;
             font-size: 1.125rem;
-            background: var(--theme-background-color, #f3f4f6);
-            color: var(--theme-color, #6b7280);
+            background: $theme-background-color;
+            color: $theme-color;
         }
 
         .history-row-title {
@@ -40,7 +42,7 @@
         }
 
         .history-row-desc {
-            color: var(--sub-text-color, #6b7280);
+            color: $sub-text-color;
             font-size: 0.813rem;
             margin: 0.125rem 0 0.375rem;
             overflow: hidden;
@@ -53,7 +55,7 @@
         .history-row-time {
             flex-shrink: 0;
             width: 6%;
-            color: var(--sub-text-color, #6b7280);
+            color: $sub-text-color;
             padding-top: 0.625rem;
         }
 
@@ -100,7 +102,7 @@
             .history-row-meta-value {
                 font-size: 0.75rem;
                 font-weight: 600;
-                color: var(--theme-color, #374151);
+                color: $theme-color;
                 white-space: nowrap;
             }
         }
@@ -108,11 +110,11 @@
         .history-row-arrow {
             flex-shrink: 0;
             cursor: pointer;
-            color: var(--sub-text-color, #6b7280);
+            color: $sub-text-color;
             margin-top: 0.5rem;
 
             &:hover {
-                color: var(--color-primary);
+                color: $theme-color;
             }
         }
     }

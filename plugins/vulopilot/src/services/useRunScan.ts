@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
+import { title } from 'node:process';
 
 interface UseRunScanOptions {
 	/**
@@ -56,6 +57,10 @@ export const useRunScan = ({ categories, onSuccess }: UseRunScanOptions = {}) =>
 						uniqueKey: 'vulopilot-scan-started',
 						type: 'success',
 						position: 'float',
+						title: __(
+							'Success',
+							'vulopilot'
+						),
 						message: __(
 							'Scan started — results will appear here shortly.',
 							'vulopilot'
@@ -67,6 +72,10 @@ export const useRunScan = ({ categories, onSuccess }: UseRunScanOptions = {}) =>
 						uniqueKey: 'vulopilot-scan-failed',
 						type: 'error',
 						position: 'float',
+						title: __(
+							'Error',
+							'vulopilot'
+						),
 						message: __(
 							'Could not start a scan. Please try again.',
 							'vulopilot'

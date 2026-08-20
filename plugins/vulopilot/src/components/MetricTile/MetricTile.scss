@@ -1,3 +1,5 @@
+@use '../config' as *;
+
 // Common structure for MetricTile.tsx/MetricTileGrid — the shared shell
 // behind Improve Speed's `.performance-metric-tile`, Protect My Site's
 // `.security-metric-tile`/`.accessibility-check-tile`, and Sell More's
@@ -35,7 +37,7 @@
 
 	.metric-tile-icon {
 		font-size: 1.5rem;
-		color: var(--color-primary);
+		color: $theme-color;
 	}
 
 	.metric-tile-title {

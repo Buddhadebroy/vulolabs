@@ -1,5 +1,7 @@
+@use '../../components/config' as *;
+
 .visibility-score-aeo-note {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 	margin: 0.75rem 0 0;
 }
@@ -8,7 +10,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0.375rem;
-	color: var(--color-primary);
+	color: $theme-color;
 	font-size: 0.8125rem;
 	font-weight: 500;
 	margin: 1rem 0 0;
@@ -35,16 +37,16 @@
 	gap: 0.5rem;
 	width: 100%;
 	border-radius: 0.5rem;
-	background: var(--color-primary);
-	color: var(--color-white);
+	background: $theme-color;
+	color: $color-white;
 	font-weight: 600;
 	padding: 0.625rem 1rem;
 	margin-top: 0.75rem;
 	cursor: pointer;
 
 	&.disabled {
-		background: var(--border-color);
-		color: var(--sub-text-color);
+		background: $border-color;
+		color: $sub-text-color;
 		cursor: not-allowed;
 	}
 }
@@ -56,7 +58,7 @@
 }
 
 .ai-recommendations-win-time {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.70625rem;
 	white-space: nowrap;
 }
@@ -98,7 +100,7 @@
 
 .geo-overall-visibility-desc {
 	margin: 0;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.8125rem;
 }
 
@@ -201,7 +203,7 @@
 	padding: 0.625rem 0.75rem;
 	border-radius: 0.5rem;
 	background: #f3effc;
-	color: var(--color-primary);
+	color: $theme-color;
 	font-size: 0.8125rem;
 	font-weight: 500;
 	text-decoration: none;
@@ -255,7 +257,7 @@
 
 .geo-trend-stat-label {
 	font-size: 0.75rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 // CompetitorVisibilityCard.tsx (Pro, GeoInsights) — its own bundle has no
@@ -285,21 +287,21 @@
 }
 
 .geo-competitor-bar-row.is-you .geo-competitor-bar-label {
-	color: var(--color-primary);
+	color: $theme-color;
 	font-weight: 700;
 }
 
 .geo-competitor-bar-track {
 	height: 0.5rem;
 	border-radius: 0.25rem;
-	background: var(--border-color);
+	background: $border-color;
 	overflow: hidden;
 }
 
 .geo-competitor-bar-fill {
 	height: 100%;
 	border-radius: 0.25rem;
-	background: var(--color-primary);
+	background: $theme-color;
 }
 
 .geo-competitor-bar-row.is-you .geo-competitor-bar-fill {
@@ -328,7 +330,7 @@
 
 .geo-by-topic-desc {
 	margin: 0 0 0.875rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.8125rem;
 }
 
@@ -353,7 +355,7 @@
 
 	i {
 		font-size: 1.25rem;
-		color: var(--color-primary);
+		color: $theme-color;
 	}
 }
 
@@ -365,7 +367,7 @@
 
 .geo-by-topic-tile-sublabel {
 	margin: 0;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 }
 
@@ -405,7 +407,7 @@
 	flex: 1;
 	height: 0.5rem;
 	border-radius: 0.25rem;
-	background: var(--border-color);
+	background: $border-color;
 	overflow: hidden;
 }
 
@@ -433,7 +435,7 @@
 }
 
 .geo-page-visibility-empty {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 // KnowledgeGraphTab.tsx's "Your website at a glance" stat row.
@@ -457,7 +459,7 @@
 	height: 2rem;
 	border-radius: 0.5rem;
 	background: #f3effc;
-	color: var(--color-primary);
+	color: $theme-color;
 	flex-shrink: 0;
 
 	i {
@@ -466,7 +468,7 @@
 }
 
 .kg-glance-label {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 	margin-bottom: 0.125rem;
 }
@@ -700,7 +702,7 @@
 
 .kg-why-it-matters-desc {
 	font-size: 0.8125rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 .kg-entity-list {
@@ -746,7 +748,7 @@
 	align-items: center;
 	gap: 0.75rem;
 	padding: 0.75rem 0;
-	border-top: 1px solid var(--border-color);
+	border-top: $border-light-small;
 
 	&:first-child {
 		border-top: none;
@@ -776,7 +778,7 @@
 }
 
 .kg-check-desc {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 }
 
@@ -886,7 +888,7 @@
 	// row mechanism — this only adds the muted, slightly denser look that
 	// distinguishes a single finding from a page row.
 	.admin-row.variation-row {
-		background: var(--theme-background-color, #fafafa) !important;
+		background: $theme-background-color !important;
 		font-size: 0.8125rem;
 	}
 
@@ -928,7 +930,7 @@
 // rows WERE expandable, just not obviously so).
 .broken-link-monitoring-table {
 	.admin-row.variation-row {
-		background: var(--theme-background-color, #fafafa) !important;
+		background: $theme-background-color !important;
 		font-size: 0.8125rem;
 	}
 
@@ -966,19 +968,19 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 }
 
 .seo-issues-finding-arrow {
-	color: var(--border-color, #c7c7c7);
+	color: $border-color;
 	font-weight: 600;
 }
 
 .seo-issues-finding-scanner {
 	display: inline-block;
 	font-size: 0.75rem;
-	color: var(--sub-text-color);
-	background: var(--theme-background-color, #f3f4f6);
+	color: $sub-text-color;
+	background: $theme-background-color;
 	border-radius: 0.25rem;
 	padding: 0.125rem 0.5rem;
 }
@@ -1003,7 +1005,7 @@
 	}
 
 	&.is-neutral {
-		color: var(--sub-text-color);
+		color: $sub-text-color;
 	}
 }
 
@@ -1095,7 +1097,7 @@
 }
 
 .crawler-vendor-count {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 	white-space: nowrap;
 }
@@ -1107,16 +1109,16 @@
 
 	th {
 		text-align: left;
-		color: var(--sub-text-color);
+		color: $sub-text-color;
 		font-weight: 500;
 		font-size: 0.75rem;
 		padding-bottom: 0.5rem;
-		border-bottom: 1px solid var(--border-color);
+		border-bottom: $border-light-small;
 	}
 
 	td {
 		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border-color);
+		border-bottom: $border-light-small;
 	}
 
 	tr:last-child td {
@@ -1146,7 +1148,7 @@
 		align-items: center;
 		gap: 0.625rem;
 		padding: 0.625rem 0;
-		border-top: 1px solid var(--border-color);
+		border-top: $border-light-small;
 
 		&:first-child {
 			border-top: none;
@@ -1196,7 +1198,7 @@
 
 	&--purple {
 		background: #f3effc;
-		color: var(--color-primary);
+		color: $theme-color;
 	}
 
 	&--green {
@@ -1222,7 +1224,7 @@
 }
 
 .schema-status-label {
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.8125rem;
 }
 
@@ -1247,7 +1249,7 @@
 	}
 
 	tbody tr:hover {
-		background: var(--theme-background-color, #fafafa);
+		background: $theme-background-color;
 	}
 }
 
@@ -1265,7 +1267,7 @@
 	height: 1.75rem;
 	border-radius: 0.375rem;
 	background: #f3effc;
-	color: var(--color-primary);
+	color: $theme-color;
 	flex-shrink: 0;
 
 	i {
@@ -1288,7 +1290,7 @@
 	border: none;
 	padding: 0;
 	cursor: pointer;
-	color: var(--color-primary);
+	color: $theme-color;
 	font-weight: 500;
 	font-size: inherit;
 	text-decoration: none;
@@ -1317,7 +1319,7 @@
 	justify-content: space-between;
 	gap: 1rem;
 	padding: 0.75rem 0;
-	border-top: 1px solid var(--border-color);
+	border-top: $border-light-small;
 
 	&:first-child {
 		border-top: none;
@@ -1338,7 +1340,7 @@
 	font-size: 0.8125rem;
 
 	a {
-		color: var(--color-primary);
+		color: $theme-color;
 		text-decoration: none;
 
 		&:hover {
@@ -1357,7 +1359,7 @@
 	display: flex;
 	align-items: flex-start;
 	gap: 0.75rem;
-	border: 1px solid var(--border-color);
+	border: $border-light-small;
 	border-radius: 0.5rem;
 	padding: 0.875rem;
 
@@ -1373,7 +1375,7 @@
 		cursor: pointer;
 
 		&:hover {
-			border-color: var(--color-primary);
+			border-color: $theme-color;
 		}
 	}
 }
@@ -1381,7 +1383,7 @@
 .schema-dev-tool-chevron {
 	margin-left: auto;
 	align-self: center;
-	color: var(--sub-text-color);
+	color: $sub-text-color;
 	font-size: 0.75rem;
 	flex-shrink: 0;
 }
@@ -1396,7 +1398,7 @@
 	gap: 0.5rem;
 	margin: 2rem 0 1rem;
 	padding-top: 2rem;
-	border-top: 1px solid var(--border-color, #e2e8f0);
+	border-top: $border-light-small;
 
 	h2 {
 		margin: 0;
@@ -1469,7 +1471,7 @@
 }
 
 .schema-inspector-preview {
-	border: 1px solid var(--border-color);
+	border: $border-light-small;
 	border-radius: 0.5rem;
 	padding: 0.875rem 1rem;
 }
@@ -1491,8 +1493,8 @@
 }
 
 .schema-inspector-jsonld-block {
-	background: var(--theme-background-color, #f9fafb);
-	border: 1px solid var(--border-color);
+	background: $theme-background-color;
+	border: $border-light-small;
 	border-radius: 0.5rem;
 	padding: 0.875rem;
 	font-size: 0.75rem;
