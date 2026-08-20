@@ -11,6 +11,9 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import './ImproveSpeed.scss';
 
+/** `id: 'performance'` (Settings/Scanning/Performance.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives. */
+const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=performance';
+
 interface DashboardSummary {
 	category_scores: { performance: number };
 	psi_speed_scores: {
@@ -218,7 +221,15 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent row>
-				<CardComponent title={__('Overall Speed Score', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
+				<CardComponent
+					title={__('Overall Speed Score', 'vulopilot')}
+					titleIcon="analytics"
+					isLoading={isLoading}
+					iconName="setting"
+					onIconClick={() => {
+						window.location.href = PERFORMANCE_SETTINGS_URL;
+					}}
+				>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
 							icon="error"
@@ -283,7 +294,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 								{hasPsi
 									? comparisonMessage()
 									: __(
-											'Connect Google PageSpeed Insights in Settings → Scanning → Performance for a real Mobile/Desktop breakdown.',
+											'Connect Google PageSpeed Insights for a real Mobile/Desktop breakdown.',
 											'vulopilot'
 										)}
 							</div>

@@ -53,6 +53,7 @@ const OTHER_ENTITY_SECTIONS: {
 	title: string;
 	icon: string;
 	emptyMessage: string;
+	settingsUrl?: string;
 }[] = [
 		{
 			key: 'people',
@@ -73,10 +74,8 @@ const OTHER_ENTITY_SECTIONS: {
 			key: 'services',
 			title: __('Services', 'vulopilot'),
 			icon: 'customer-service',
-			emptyMessage: __(
-				'No service pages configured yet — add some under Settings → Entity Extraction.',
-				'vulopilot'
-			),
+			emptyMessage: __('No service pages configured yet.', 'vulopilot'),
+			settingsUrl: ENTITY_SETTINGS_URL,
 		},
 	];
 
@@ -205,6 +204,8 @@ interface EntityHighlightCardProps {
 	emptyState?: ReactNode;
 	/** A real, functional destination for "View all {title} →" — the real WP-admin screen this entity type's own data actually lives on. Omitted entirely when there's nowhere real to send someone (e.g. Business Locations, whose real data is a plugin setting, not a WP-admin list screen). */
 	viewAllHref?: string;
+	/** A real settings-tab deep link, surfaced as a corner gear icon on the card header (`CardComponent`'s own `iconName`/`onIconClick`) — the entity types whose real data lives in a plugin setting rather than a WP-admin screen (Business Locations, Services) get this instead of `viewAllHref`, so "where do I go to add one" is a click on the card itself rather than a "Settings → ..." instruction buried in the empty-state text. */
+	settingsUrl?: string;
 	/**
 	 * Per-row status badge (Categories' own real Good/"Needs cleanup" flag,
 	 * from getMessyCategoryNames()) — omitted for entity types with no real
@@ -233,6 +234,7 @@ const EntityHighlightCard = ({
 	naMessage,
 	emptyState,
 	viewAllHref,
+	settingsUrl,
 	rowBadge,
 }: EntityHighlightCardProps) => {
 	const [expanded, setExpanded] = useState(false);
@@ -259,6 +261,14 @@ const EntityHighlightCard = ({
 			title={title}
 			titleIcon={icon}
 			badges={[{ text: String(rows.length), color: rows.length > 0 ? 'green' : 'grey' }]}
+			iconName={settingsUrl ? 'setting' : undefined}
+			onIconClick={
+				settingsUrl
+					? () => {
+							window.location.href = settingsUrl;
+						}
+					: undefined
+			}
 		>
 			{0 === rows.length ? (
 				emptyState ?? <div className="desc">{emptyMessage}</div>
@@ -577,6 +587,7 @@ const KnowledgeGraphSection = () => {
 									title={section.title}
 									rows={entities[section.key]}
 									emptyMessage={section.emptyMessage}
+									settingsUrl={section.settingsUrl}
 								/>
 							))}
 					</ColumnComponent>
@@ -592,9 +603,10 @@ const KnowledgeGraphSection = () => {
 						title={__('Business Locations', 'vulopilot')}
 						rows={entities.locations}
 						emptyMessage={__(
-							'No business locations configured yet — add some under Settings → Entity Extraction.',
+							'No business locations configured yet.',
 							'vulopilot'
 						)}
+						settingsUrl={ENTITY_SETTINGS_URL}
 						emptyState={
 							<>
 								<div className="kg-why-it-matters">

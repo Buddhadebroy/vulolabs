@@ -22,6 +22,18 @@ import './GrowMyTraffic.scss';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
+/**
+ * `id: 'seo-content'` (SeoContent.ts) — where the real toggles backing both
+ * tables below actually live: "Links & schema"'s `flag_broken_links`/
+ * `flag_broken_images` (Broken Link Monitoring), and "Redirects"'s
+ * `log_404s` (404 Log). Same `?page=vulopilot#&tab=settings&subtab=...`
+ * deep-link shape Settings.tsx's own `NavigatorComponent` `prepareUrl`
+ * already produces — links to the tab itself, not a specific field within
+ * it, same fidelity every other in-app settings deep-link in this codebase
+ * uses.
+ */
+const SEO_CONTENT_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=seo-content';
+
 /** Scanners\Basic\BrokenLinksScanner + Scanners\Basic\BrokenImagesScanner — this tab's own two real data sources. */
 const BROKEN_SCANNER_IDS = ['broken-links', 'broken-images'];
 
@@ -1362,6 +1374,22 @@ const BrokenLinksTab = () => {
 												onClick: handleExportCsv,
 											}}
 										/>
+										{/* CardComponent's own `iconName` corner-icon slot only
+										renders when `action` is unset — this card already
+										uses `action` for the search/filter/export row above,
+										so the "flag_broken_links"/"flag_broken_images" settings
+										link rides along in that same row instead. */}
+										<ButtonInput
+											buttons={{
+												text: '',
+												icon: 'setting',
+												color: 'plain',
+												onClick: () => {
+													window.location.href =
+														SEO_CONTENT_SETTINGS_URL;
+												},
+											}}
+										/>
 									</div>
 								}
 							>
@@ -1384,7 +1412,7 @@ const BrokenLinksTab = () => {
 										totalRows={pageGroups.length}
 										isLoading={isLoadingFindings}
 										emptyMessage={__(
-											'No broken links or images found yet. Make sure "Flag broken links"/"Flag broken images" are turned on under Settings → Scanning → SEO, then run a scan.',
+											'No broken links or images found yet. Run a scan to check your published pages.',
 											'vulopilot'
 										)}
 									/>
@@ -1398,6 +1426,10 @@ const BrokenLinksTab = () => {
 									'Every real 404 this site has seen, both missing content pages and theme/plugin/core-file/asset requests (a stale cached bundle, a removed theme asset, a browser probing a well-known path) — told apart by the "Type" column and filterable by the pills above the table. Only a content-page 404 can be turned into a redirect; nobody redirects a broken theme file.',
 									'vulopilot'
 								)}
+								iconName="setting"
+								onIconClick={() => {
+									window.location.href = SEO_CONTENT_SETTINGS_URL;
+								}}
 							>
 								{notFoundLogs.error ? (
 									<ModuleGuardComponent
@@ -1478,7 +1510,7 @@ const BrokenLinksTab = () => {
 										isLoading={notFoundLogs.isLoading}
 										onQueryUpdate={notFoundLogs.onQueryUpdate}
 										emptyMessage={__(
-											'No 404s logged yet — turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
+											'No 404s logged yet.',
 											'vulopilot'
 										)}
 									/>
