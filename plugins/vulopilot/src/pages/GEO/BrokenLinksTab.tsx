@@ -24,6 +24,18 @@ import './GrowMyTraffic.scss';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
+/**
+ * `id: 'seo-content'` (SeoContent.ts) — where the real toggles backing both
+ * tables below actually live: "Links & schema"'s `flag_broken_links`/
+ * `flag_broken_images` (Broken Link Monitoring), and "Redirects"'s
+ * `log_404s` (404 Log). Same `?page=vulopilot#&tab=settings&subtab=...`
+ * deep-link shape Settings.tsx's own `NavigatorComponent` `prepareUrl`
+ * already produces — links to the tab itself, not a specific field within
+ * it, same fidelity every other in-app settings deep-link in this codebase
+ * uses.
+ */
+const SEO_CONTENT_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=seo-content';
+
 /** Scanners\Basic\BrokenLinksScanner + Scanners\Basic\BrokenImagesScanner — this tab's own two real data sources. */
 const BROKEN_SCANNER_IDS = ['broken-links', 'broken-images'];
 
@@ -1298,17 +1310,197 @@ const BrokenLinksTab = () => {
 									placeholder: __(
 										'Search by URL or source page…',
 										'vulopilot'
-									),
+									)}
+								>
+									<div className="kg-glance-grid">
+										<div className="kg-glance-item">
+											<div className="kg-glance-icon">
+												<i className="adminfont-link" />
+											</div>
+											<div>
+												<div className="kg-glance-label">
+													{__('Links checked', 'vulopilot')}
+												</div>
+												<div className="kg-glance-value">
+													{sprintf(
+														/* translators: 1: healthy count, 2: total checked */
+														__('%1$d / %2$d healthy', 'vulopilot'),
+														stats.links.healthy_count,
+														stats.links.links_checked
+													)}
+												</div>
+												<div className="desc">
+													{sprintf(
+														/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
+														__('Across %1$d pages · %2$s', 'vulopilot'),
+														stats.links.pages_scanned,
+														formatCheckedAt(stats.links.checked_at)
+													)}
+												</div>
+											</div>
+										</div>
+										<div className="kg-glance-item">
+											<div className="kg-glance-icon">
+												<i className="adminfont-attachment" />
+											</div>
+											<div>
+												<div className="kg-glance-label">
+													{__('Images checked', 'vulopilot')}
+												</div>
+												<div className="kg-glance-value">
+													{sprintf(
+														/* translators: 1: healthy count, 2: total checked */
+														__('%1$d / %2$d healthy', 'vulopilot'),
+														stats.images.healthy_count,
+														stats.images.links_checked
+													)}
+												</div>
+												<div className="desc">
+													{sprintf(
+														/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
+														__('Across %1$d pages · %2$s', 'vulopilot'),
+														stats.images.pages_scanned,
+														formatCheckedAt(stats.images.checked_at)
+													)}
+												</div>
+											</div>
+										</div>
+									</div>
+								</CardComponent>
+							)}
+
+							<CardComponent
+								title={__('Broken Link Monitoring', 'vulopilot')}
+								titleIcon="link"
+								desc={__(
+									'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked, grouped by the page they live on. Use the "Run scan" button above to check again.',
+									'vulopilot'
+								)}
+								action={
+									<div className="broken-link-monitoring-actions">
+										<TextInput
+											name="broken_link_search"
+											placeholder={__(
+												'Search by URL or source page…',
+												'vulopilot'
+											)}
+											value={searchTerm}
+											onChange={(value) =>
+												setSearchTerm(value as string)
+											}
+										/>
+										<SelectInput
+											name="broken_link_type_filter"
+											value={typeFilter}
+											options={[
+												{ label: __('All issues', 'vulopilot'), value: 'all' },
+												{ label: __('Links', 'vulopilot'), value: 'broken-links' },
+												{ label: __('Images', 'vulopilot'), value: 'broken-images' },
+											]}
+											onChange={(value) =>
+												setTypeFilter(
+													value as 'all' | 'broken-links' | 'broken-images'
+												)
+											}
+											size="10rem"
+										/>
+										<ToggleInput
+											options={[
+												{
+													key: 'show_ignored',
+													value: 'show_ignored',
+													label: __('Show ignored', 'vulopilot'),
+												},
+											]}
+											value={showIgnored ? ['show_ignored'] : []}
+											multiSelect
+											modules={[]}
+											onChange={() =>
+												setShowIgnored((current) => !current)
+											}
+										/>
+										<ButtonInput
+											buttons={{
+												text: __('Export CSV', 'vulopilot'),
+												icon: 'export',
+												color: 'plain',
+												onClick: handleExportCsv,
+											}}
+										/>
+										{/* CardComponent's own `iconName` corner-icon slot only
+										renders when `action` is unset — this card already
+										uses `action` for the search/filter/export row above,
+										so the "flag_broken_links"/"flag_broken_images" settings
+										link rides along in that same row instead. */}
+										<ButtonInput
+											buttons={{
+												text: '',
+												icon: 'setting',
+												color: 'plain',
+												onClick: () => {
+													window.location.href =
+														SEO_CONTENT_SETTINGS_URL;
+												},
+											}}
+										/>
+									</div>
+								}
+							>
+								{findingsError ? (
+									<ModuleGuardComponent
+										icon="error"
+										title={__('Could not load findings', 'vulopilot')}
+										desc={findingsError}
+										buttonText={__('Retry', 'vulopilot')}
+										onButtonClick={loadFindings}
+									/>
+								) : (
+									<TableCard
+										showMenu={false}
+										expandable
+										className="transparent-table broken-link-monitoring-table"
+										headers={headers}
+										rows={tableRows}
+										ids={pageGroups.map((group) => group.id)}
+										totalRows={pageGroups.length}
+										isLoading={isLoadingFindings}
+										emptyMessage={__(
+											'No broken links or images found yet. Run a scan to check your published pages.',
+											'vulopilot'
+										)}
+									/>
+								)}
+							</CardComponent>
+
+							<CardComponent
+								title={__('404 Log', 'vulopilot')}
+								titleIcon="error"
+								desc={__(
+									'Every real 404 this site has seen, both missing content pages and theme/plugin/core-file/asset requests (a stale cached bundle, a removed theme asset, a browser probing a well-known path) — told apart by the "Type" column and filterable by the pills above the table. Only a content-page 404 can be turned into a redirect; nobody redirects a broken theme file.',
+									'vulopilot'
+								)}
+								iconName="setting"
+								onIconClick={() => {
+									window.location.href = SEO_CONTENT_SETTINGS_URL;
 								}}
-								filters={[
-									{
-										key: 'type',
-										label: __('All issues', 'vulopilot'),
-										type: 'select',
-										options: [
-											{
-												label: __('All issues', 'vulopilot'),
-												value: 'all',
+							>
+								{notFoundLogs.error ? (
+									<ModuleGuardComponent
+										icon="error"
+										title={__('Could not load the 404 log', 'vulopilot')}
+										desc={notFoundLogs.error}
+										buttonText={__('Retry', 'vulopilot')}
+										onButtonClick={notFoundLogs.refetch}
+									/>
+								) : (
+									<TableCard
+										search={{
+											placeholder: __('Search missing URLs…', 'vulopilot'),
+										}}
+										format={appLocalizer.date_format_js}
+										headers={{
+											requested_path: {
+												label: __('Requested URL', 'vulopilot'),
 											},
 											{
 												label: __('Links', 'vulopilot'),
@@ -1432,20 +1624,20 @@ const BrokenLinksTab = () => {
 														color: 'red',
 														onClick: () => handleDismissLog(row),
 													},
-												]}
-											/>
-										),
-									},
-								}}
-								rows={notFoundLogs.data}
-								ids={notFoundLogs.data.map((row) => row.id)}
-								totalRows={notFoundLogs.total}
-								categoryCounts={notFoundLogs.categoryCounts}
-								isLoading={notFoundLogs.isLoading}
-								onQueryUpdate={notFoundLogs.onQueryUpdate}
-								emptyMessage={__(
-									'No 404s logged yet — turn on "Log 404s" in Settings → Scanning → SEO to start tracking missing-page visits.',
-									'vulopilot'
+												] as any[],
+											},
+										}}
+										rows={notFoundLogs.data}
+										ids={notFoundLogs.data.map((row) => row.id)}
+										totalRows={notFoundLogs.total}
+										categoryCounts={notFoundLogs.categoryCounts}
+										isLoading={notFoundLogs.isLoading}
+										onQueryUpdate={notFoundLogs.onQueryUpdate}
+										emptyMessage={__(
+											'No 404s logged yet.',
+											'vulopilot'
+										)}
+									/>
 								)}
 							/>
 						)}

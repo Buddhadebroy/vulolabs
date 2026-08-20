@@ -1,18 +1,16 @@
 /* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ContainerComponent, NoticeComponent } from '@zyra/components';
-import { scrollToId } from '@zyra/core';
-import TopPagesCard from './TopPagesCard';
+import { CardComponent, ColumnComponent, NoticeComponent } from '@zyra/components';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import IssuesSection from './IssuesSection';
 import ProLockedCard from '../../components/ProLockedCard';
 import { useGeoFindingGroups, sumGroupCounts } from './useGeoFindingGroups';
+import { useGeoTopicAffectedPages } from './useGeoTopicAffectedPages';
 import { useGeoVisibilitySnapshot } from './useGeoVisibilitySnapshot';
 import GeoVisibilityOverviewRow from './GeoVisibilityOverviewRow';
 import GeoTrendCompactCard from './GeoTrendCompactCard';
 import GeoByTopicGrid from './GeoByTopicGrid';
-import GeoPageAnalysisTable from './GeoPageAnalysisTable';
 
 /**
  * Which GEO_SECTIONS/GEO_TOPICS card each scanner's findings live under.
@@ -130,35 +128,41 @@ const isGeoInsightsActive = () =>
 /**
  * GEO = Generative Engine Optimization — how discoverable/citable this
  * site is to AI answer engines (distinct from classic search-engine SEO).
- * Rebuilt to match the reference mockup's own information architecture,
- * top to bottom, reusing real data already fetched elsewhere on this tab
- * rather than duplicating it (direct instruction):
+ * Reusing real data already fetched elsewhere on this tab rather than
+ * duplicating it (direct instruction):
  *
  * 1. Two real info banners (static, honest explanatory copy).
  * 2. "Overall AI Visibility" + "The 4 things AI checks for"
  *    (GeoVisibilityOverviewRow.tsx, Pro-gated) — real
  *    `useGeoVisibilitySnapshot()` data, `totalOpenFindings` passed in from
  *    the same `groups` fetch "By Topic" below already uses.
- * 3. "Your Best & Worst Pages" (TopPagesCard.tsx, restyled) — "Fix These
- *    First" (GeoFixTheseFirstCard.tsx), previously shown alongside it here,
- *    removed per direct instruction; that component's still real and still
- *    used as-is on AeoTab.tsx's own "What Needs Your Attention" card, just
- *    no longer rendered on this tab.
+ * 3. "Fix These First" (GeoFixTheseFirstCard.tsx) and "Your Best & Worst
+ *    Pages" (TopPagesCard.tsx) — removed from this tab per direct
+ *    instruction (this tab has now gone back and forth on both a couple of
+ *    times this session; this is the current, standing state). Both
+ *    components are still real and still used as-is elsewhere:
+ *    GeoFixTheseFirstCard.tsx on AeoTab.tsx's own "What Needs Your
+ *    Attention" card, TopPagesCard.tsx on AeoTab.tsx's own "Top Pages by
+ *    Answer Readiness" card — neither is dead code, just not rendered here.
  * 4. "Are You Getting Easier to Find?" (GeoTrendCompactCard.tsx, Pro-gated)
- *    + "How You Compare to Similar Sites" (Pro's own
+ *    and "How You Compare to Similar Sites" (Pro's own
  *    CompetitorVisibilityCard, given this site's own real score as
- *    `yourScore`) side by side.
+ *    `yourScore`) are each their own full-width row.
  * 5. "A Closer Look, By Topic" (GeoByTopicGrid.tsx) — 5 tiles over the
  *    same `groups`/`GEO_TOPICS` the unified table below uses, so both
- *    always agree.
- * 6. "Page-by-page analysis" (GeoPageAnalysisTable.tsx) — every page, a
- *    real deterministic visibility % (GeoAnalyzer::score_from_failures()),
- *    Export CSV.
- * 7. "All GEO Issues" — now `IssuesSection.tsx` (SeoTab.tsx's own real
- *    filter-pills + Site-wide Issues + Pages & Posts structure,
- *    generalized so this tab and AeoTab.tsx can reuse it too, per direct
- *    instruction), replacing the differently-shaped `SectionedFindingsTab.tsx`
- *    this used before. Kept at the bottom, same as before.
+ *    always agree. Each tile also shows a real "Affected pages" stat
+ *    (`useGeoTopicAffectedPages.ts`, a distinct-page count — deliberately
+ *    NOT `groups`' own raw finding-row count, which can over-count a page
+ *    hit by two scanners in the same topic) alongside "Open issues".
+ * 6. "All GEO Issues" — `IssuesSection.tsx` (SeoTab.tsx's own real
+ *    Site-wide Issues + Pages & Posts structure, generalized so this tab
+ *    and AeoTab.tsx can reuse it too), kept at the bottom same as before.
+ *    Its own filter bar is a real `TabsComponent` All/Important/per-category
+ *    row + `IssuesSummaryCards.tsx`'s own priority stat cards, matching
+ *    `SectionedIssuesTable.tsx`'s established real filter bar — see that
+ *    component's own docblock for why. Its own `pageAnalysis` prop merges
+ *    what used to be a separate standalone "Page-by-page analysis" table
+ *    directly into the "Pages & Posts" table here.
  */
 const GeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{
@@ -181,6 +185,8 @@ const GeoTab = () => {
 
 	const allGeoScannerIds = GEO_TOPICS.flatMap((topic) => topic.scannerIds);
 	const totalOpenFindings = sumGroupCounts(groups, allGeoScannerIds);
+	const { affectedPagesByScanner, isLoading: isLoadingAffectedPages } =
+		useGeoTopicAffectedPages(allGeoScannerIds);
 
 	const withScore = history.filter((row) => null !== row.overall_score);
 	const yourScore = withScore.length
@@ -201,18 +207,21 @@ const GeoTab = () => {
 
 	return (
 		<>
-			<NoticeComponent
-				// type="banner"
-				displayPosition="inline"
-				message={sprintf(
-					'<strong>%1$s</strong> %2$s',
-					__('In plain English:', 'vulopilot'),
-					__(
-						'When someone asks ChatGPT, Gemini, or Google’s AI a question your site could answer, you’ll be more likely to get found and recommended.',
-						'vulopilot'
-					)
-				)}
-			/>
+			{/* id kept on this wrapper, not NoticeComponent itself (no id prop) — real jump target for the bottom info banner's own "Learn more about this page" link, same real-anchor technique the top-of-page tab bar itself already relies on for in-page navigation. */}
+			<div id="geo-top-banner">
+				<NoticeComponent
+					// type="banner"
+					displayPosition="inline"
+					message={sprintf(
+						'<strong>%1$s</strong> %2$s',
+						__('In plain English:', 'vulopilot'),
+						__(
+							'When someone asks ChatGPT, Gemini, or Google’s AI a question your site could answer, you’ll be more likely to get found and recommended.',
+							'vulopilot'
+						)
+					)}
+				/>
+			</div>
 
 			<GeoVisibilityOverviewRow
 				snapshot={snapshot}
@@ -221,16 +230,37 @@ const GeoTab = () => {
 				totalOpenFindings={totalOpenFindings}
 			/>
 
-			<ContainerComponent>
-				<TopPagesCard onViewAll={() => scrollToId('geo-page-analysis')} />
-			</ContainerComponent>
+			<GeoByTopicGrid
+				topics={GEO_TOPICS}
+				groups={groups}
+				isLoading={isLoadingGroups || isLoadingAffectedPages}
+				affectedPagesByScanner={affectedPagesByScanner}
+				onViewTopic={(key) => goToIssuesTable(key)}
+			/>
 
-			<ContainerComponent>
+			{/*
+			 * `ColumnComponent grid={12}` alone, deliberately NOT also wrapped
+			 * in a `<ContainerComponent>` — a real, confirmed-live layout bug:
+			 * ContainerComponent's own `.container-wrapper` has no sizing of
+			 * its own (same class of bug `.seo-issues-section`'s own fix
+			 * above already documents), so nesting one single-child
+			 * ColumnComponent inside it just moves the "shrinks to its
+			 * content's own natural width instead of the true available row
+			 * width" problem up one level. `ColumnComponent`'s own
+			 * `[data-cols='12']` rule only computes against 100% of its
+			 * *true* container when it's a direct child of the outer
+			 * page-level flex row (Fragment level here), not an unsized
+			 * intermediate one.
+			 */}
+			<ColumnComponent grid={12}>
 				<GeoTrendCompactCard
 					history={history}
 					isLoading={isLoadingSnapshot}
 					isGeoInsightsActive={isGeoInsightsActive()}
 				/>
+			</ColumnComponent>
+
+			<ColumnComponent grid={12}>
 				{isGeoInsightsActive() && GeoCompetitorVisibility ? (
 					<GeoCompetitorVisibility yourScore={yourScore} />
 				) : (
@@ -238,36 +268,32 @@ const GeoTab = () => {
 						<ProLockedCard moduleName="geo-insights" />
 					</CardComponent>
 				)}
-			</ContainerComponent>
+			</ColumnComponent>
 
 			<NoticeComponent
 				// type="banner"
 				displayPosition="inline"
-				message={__(
-					'This page shows how easy it is for AI tools to find, understand, and recommend your website. Fixing the issues above helps you show up when people ask AI a question you could answer.',
-					'vulopilot'
+				message={sprintf(
+					'%1$s <a href="#geo-top-banner">%2$s ›</a>',
+					__(
+						'This page shows how easy it is for AI tools to find, understand, and recommend your website. Fixing the issues above helps you show up when people ask AI a question you could answer.',
+						'vulopilot'
+					),
+					__('Learn more about this page', 'vulopilot')
 				)}
 			/>
 
-			<GeoByTopicGrid
-				topics={GEO_TOPICS}
-				groups={groups}
-				isLoading={isLoadingGroups}
-				onViewTopic={(key) => goToIssuesTable(key)}
+			<IssuesSection
+				id="geo-all-issues-table"
+				scannerIds={allGeoScannerIds}
+				categories={GEO_TOPICS}
+				categoryFocus={categoryFocus}
+				issuesColumnLabel={__('GEO Issues', 'vulopilot')}
+				pageAnalysis={{
+					scoreColumnLabel: __('AI Visibility', 'vulopilot'),
+					exportFilename: 'geo-page-analysis.csv',
+				}}
 			/>
-
-			<div id="geo-page-analysis">
-				<GeoPageAnalysisTable />
-			</div>
-
-			<div id="geo-all-issues-table">
-				<IssuesSection
-					scannerIds={allGeoScannerIds}
-					categories={GEO_TOPICS}
-					categoryFocus={categoryFocus}
-					issuesColumnLabel={__('GEO Issues', 'vulopilot')}
-				/>
-			</div>
 		</>
 	);
 };

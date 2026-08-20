@@ -21,6 +21,9 @@ import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
 import './ImproveSpeed.scss';
 
+/** `id: 'performance'` (Settings/Scanning/Performance.ts) — where the real PageSpeed Insights API key field this notice's own "no PSI connected" message used to describe in text actually lives. */
+const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=performance';
+
 interface PageSpeedRow {
 	id: number;
 	url: string;
@@ -837,9 +840,21 @@ const SlowPagesTab = () => {
 									'vulopilot'
 								)
 							: __(
-									'Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key in Settings → Scanning → Performance for real Mobile/Desktop scores, page size, requests, and Core Web Vitals instead.',
+									'Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key for real Mobile/Desktop scores, page size, requests, and Core Web Vitals instead.',
 									'vulopilot'
 								)
+					}
+					actionLabel={
+						hasDeviceScores
+							? undefined
+							: __('Go to Settings', 'vulopilot')
+					}
+					onAction={
+						hasDeviceScores
+							? undefined
+							: () => {
+									window.location.href = PERFORMANCE_SETTINGS_URL;
+								}
 					}
 				/>
 			</ColumnComponent>

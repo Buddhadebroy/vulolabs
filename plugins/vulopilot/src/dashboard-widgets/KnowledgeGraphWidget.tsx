@@ -66,13 +66,21 @@ const KnowledgeGraphWidget: React.FC<WidgetProps> = ({
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
+			headerAction={
+				<a
+					href="?page=vulopilot#&tab=settings&subtab=ai-visibility"
+					title={__('Entity Extraction settings', 'vulopilot')}
+				>
+					<i className="adminfont-setting" />
+				</a>
+			}
 		>
 			{!isLoading && totalEntities === 0 ? (
 				<ModuleGuardComponent
 					icon="centralized-connections"
 					title={__('No entities extracted yet', 'vulopilot')}
 					desc={__(
-						'Publish some content, or configure services/locations under Settings → Entity Extraction.',
+						'Publish some content, or configure services/locations to get started.',
 						'vulopilot'
 					)}
 				/>

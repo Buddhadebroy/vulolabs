@@ -7,7 +7,7 @@ import { CardComponent, ModuleGuardComponent, NoticeManager, PopupComponent } fr
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import ShowProPopup from '../../components/Popup/Popup';
-import { RawFinding, RowActionsMenu } from './seoIssuesShared';
+import { PRIORITY_SEVERITIES, Priority, RawFinding, RowActionsMenu } from './seoIssuesShared';
 
 /** What a registered fix handler resolves to — same shape RecentContentCard.tsx's own FixOutcome uses. */
 interface FixOutcome {
@@ -29,6 +29,8 @@ const getFindingFixHandler = () => applyFilters('vulopilot_finding_fix_handler',
 interface SeoSiteWideIssuesTableProps {
 	findings: RawFinding[];
 	activeScannerIds: 'all' | string[];
+	/** IssuesSection.tsx's own real `IssuesSummaryCards` priority tile — `'all'`/`'high'`/`'medium'`/`'low'`, folded against each finding's own real severity via `PRIORITY_SEVERITIES`. */
+	activePriority: Priority;
 	isLoading: boolean;
 	hasError: boolean;
 	onRetry: () => void;
@@ -49,6 +51,7 @@ interface SeoSiteWideIssuesTableProps {
 const SeoSiteWideIssuesTable = ({
 	findings,
 	activeScannerIds,
+	activePriority,
 	isLoading,
 	hasError,
 	onRetry,
@@ -125,10 +128,11 @@ const SeoSiteWideIssuesTable = ({
 		});
 	};
 
-	const visibleFindings =
-		'all' === activeScannerIds
-			? localFindings
-			: localFindings.filter((finding) => activeScannerIds.includes(finding.scanner_id));
+	const visibleFindings = localFindings.filter(
+		(finding) =>
+			('all' === activeScannerIds || activeScannerIds.includes(finding.scanner_id)) &&
+			('all' === activePriority || PRIORITY_SEVERITIES[activePriority].includes(finding.severity))
+	);
 
 	if (hasError) {
 		return (

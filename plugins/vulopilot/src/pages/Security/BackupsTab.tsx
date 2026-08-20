@@ -13,6 +13,9 @@ import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import './ProtectMySite.scss';
 
+/** `id: 'backups'` (Settings/Scanning/Backups.ts) — where the real "schedule automatic backups" toggle/frequency this card's own empty state used to describe in text actually lives. */
+const BACKUPS_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=backups';
+
 interface BackupRow {
 	id: number;
 	status: 'queued' | 'running' | 'completed' | 'failed';
@@ -205,20 +208,32 @@ const BackupsTab = () => {
 				title={__('Backups', 'vulopilot')}
 				titleIcon="cloud-upload"
 				desc={__(
-					'Real database + file archives, stored on this server. Automatic backups can be scheduled in Settings → Scanning → Backups.',
+					'Real database + file archives, stored on this server.',
 					'vulopilot'
 				)}
 				action={
-					<ButtonInput
-						buttons={{
-							text: isCreating
-								? __('Starting…', 'vulopilot')
-								: __('Create Backup Now', 'vulopilot'),
-							icon: 'cloud-upload',
-							onClick: handleCreate,
-							disabled: isCreating,
-						}}
-					/>
+					<>
+						<ButtonInput
+							buttons={{
+								text: isCreating
+									? __('Starting…', 'vulopilot')
+									: __('Create Backup Now', 'vulopilot'),
+								icon: 'cloud-upload',
+								onClick: handleCreate,
+								disabled: isCreating,
+							}}
+						/>
+						<ButtonInput
+							buttons={{
+								text: '',
+								icon: 'setting',
+								color: 'plain',
+								onClick: () => {
+									window.location.href = BACKUPS_SETTINGS_URL;
+								},
+							}}
+						/>
+					</>
 				}
 				isLoading={isLoading}
 			>
@@ -227,7 +242,7 @@ const BackupsTab = () => {
 						icon="cloud-upload"
 						title={__('No backups yet', 'vulopilot')}
 						desc={__(
-							'Create one to get started, or turn on automatic backups in Settings → Scanning → Backups.',
+							'Create one to get started.',
 							'vulopilot'
 						)}
 					/>

@@ -139,10 +139,31 @@ class GeoAnalysis extends \WP_REST_Controller {
 
         usort( $ranked, static fn( $a, $b ) => $a['open_findings'] <=> $b['open_findings'] );
 
+        $top     = array_slice( $ranked, 0, $limit );
+        $top_ids = array_column( $top, 'post_id' );
+
+        // A site with fewer real published pages than `2 * $limit` (e.g. a
+        // fresh dev install with only 2 pages total, $limit=5) would
+        // otherwise show the exact same pages in both "top" and "bottom" —
+        // confirmed live on GeoTab.tsx's own "Your Best & Worst Pages" card,
+        // the same 2 pages listed as both "AI likes these pages already"
+        // AND "Needs attention". Real redundant data, not a fabrication
+        // issue — fixed by excluding whatever's already in `top` before
+        // ranking the worst, so "bottom" only ever shows pages `top`
+        // hasn't already claimed (naturally shorter, even empty, on a very
+        // small site, which TopPagesCard.tsx already handles via its own
+        // `data.bottom.length > 0` check).
+        $remaining = array_values(
+            array_filter(
+                $ranked,
+                static fn( $row ) => ! in_array( $row['post_id'], $top_ids, true )
+            )
+        );
+
         return rest_ensure_response(
             array(
-				'top'    => array_slice( $ranked, 0, $limit ),
-				'bottom' => array_slice( array_reverse( $ranked ), 0, $limit ),
+				'top'    => $top,
+				'bottom' => array_slice( array_reverse( $remaining ), 0, $limit ),
 			)
         );
     }
@@ -150,9 +171,16 @@ class GeoAnalysis extends \WP_REST_Controller {
     /**
      * `GET /geo-analysis/pages` — every published page/post with its real
      * open-GEO-finding count and a real, deterministic (non-AI) visibility
-     * percentage, for the GEO tab's own "Page-by-page analysis" table
-     * (Export CSV + sortable, unlike get_top_pages()'s own bounded top/
-     * bottom-N lists). The visibility score is the exact same formula
+     * percentage. Originally GEO tab's own standalone "Page-by-page
+     * analysis" table (Export CSV + sortable, unlike get_top_pages()'s own
+     * bounded top/bottom-N lists); now also the row source `IssuesSection.tsx`
+     * uses for its "Pages & Posts" table when its own `pageAnalysis` prop is
+     * set (GeoTab.tsx/AeoTab.tsx), merging that visibility % + Export CSV
+     * into the same table instead of two separate ones showing the same
+     * pages twice — per direct instruction. `status`/`date` (added for that
+     * merge) are the real `post_status`/`post_modified`, same fields
+     * `SeoIssuesByPageTable.tsx` already showed via its own `wp/v2` fetch.
+     * The visibility score is the exact same formula
      * GeoAnalyzer::calculate_deterministic_score() computes for one post's
      * own card (GeoAnalyzer::score_from_failures() — see that method's own
      * docblock for why this endpoint calls the extracted, bulk-friendly
@@ -219,6 +247,8 @@ class GeoAnalysis extends \WP_REST_Controller {
                 'title'           => get_the_title( $post ),
                 'edit_link'       => get_edit_post_link( $post_id, 'raw' ),
                 'permalink'       => get_permalink( $post ),
+                'status'          => $post->post_status,
+                'date'            => $post->post_modified,
                 'open_findings'   => $open_findings,
                 'visibility_score' => $has_any_geo_history
                     ? GeoAnalyzer::score_from_failures( $open_findings, $sitewide_trust_signal_failure, $total_checks )

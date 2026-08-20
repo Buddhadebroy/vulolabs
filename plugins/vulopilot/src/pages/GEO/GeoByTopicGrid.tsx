@@ -2,6 +2,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { CardComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { sumGroupCounts } from './useGeoFindingGroups';
+import { countDistinctAffectedPages } from './useGeoTopicAffectedPages';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 
@@ -17,6 +18,15 @@ interface GeoByTopicGridProps {
 	/** Defaults to "A Closer Look, By Topic" (GEO tab) — AeoTab.tsx passes "AEO Checks at a Glance" instead, reusing this same real per-section grid rather than a second copy of it. */
 	title?: string;
 	desc?: string;
+	/**
+	 * Real distinct-page-count-per-scanner map (useGeoTopicAffectedPages.ts)
+	 * — when passed, each tile also shows a real "Affected pages" stat next
+	 * to "Open issues" (matching the reference mockup's own two-stat tile
+	 * layout). Optional so a caller that hasn't wired this fetch up yet
+	 * still gets the single-stat tile this grid always showed before,
+	 * rather than a broken "0 affected pages" for every topic.
+	 */
+	affectedPagesByScanner?: Map<string, Set<number>>;
 }
 
 /**
@@ -35,6 +45,7 @@ const GeoByTopicGrid = ({
 	onViewTopic,
 	title,
 	desc,
+	affectedPagesByScanner,
 }: GeoByTopicGridProps) => (
 	<div className="geo-by-topic-section">
 		<h3 className="reports-section-title">
@@ -50,6 +61,9 @@ const GeoByTopicGrid = ({
 		<div className="geo-by-topic-grid">
 			{topics.map((topic) => {
 				const count = sumGroupCounts(groups, topic.scannerIds);
+				const affectedPages = affectedPagesByScanner
+					? countDistinctAffectedPages(affectedPagesByScanner, topic.scannerIds)
+					: null;
 
 				return (
 					<CardComponent
@@ -65,18 +79,39 @@ const GeoByTopicGrid = ({
 							/>
 						</div>
 						<div className="geo-by-topic-tile-title">{topic.title}</div>
-						<p className="geo-by-topic-tile-sublabel">
-							{sprintf(
-								/* translators: %d is the number of real open GEO findings under this topic. */
-								_n(
-									'%d open issue',
-									'%d open issues',
-									count,
-									'vulopilot'
-								),
-								count
-							)}
-						</p>
+						{null === affectedPages ? (
+							<p className="geo-by-topic-tile-sublabel">
+								{sprintf(
+									/* translators: %d is the number of real open GEO findings under this topic. */
+									_n(
+										'%d open issue',
+										'%d open issues',
+										count,
+										'vulopilot'
+									),
+									count
+								)}
+							</p>
+						) : (
+							<div className="geo-by-topic-tile-stats">
+								<div className="geo-by-topic-tile-stat">
+									<span className="geo-by-topic-tile-stat-label">
+										{__('Open issues', 'vulopilot')}
+									</span>
+									<span className="geo-by-topic-tile-stat-value">
+										{count}
+									</span>
+								</div>
+								<div className="geo-by-topic-tile-stat">
+									<span className="geo-by-topic-tile-stat-label">
+										{__('Affected pages', 'vulopilot')}
+									</span>
+									<span className="geo-by-topic-tile-stat-value">
+										{affectedPages}
+									</span>
+								</div>
+							</div>
+						)}
 						<ButtonInput
 							position="left"
 							buttons={{
