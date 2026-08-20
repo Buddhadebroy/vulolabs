@@ -397,6 +397,35 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 							label: finding.title,
 						}));
 
+		// An empty dropdown with no explanation reads as broken — real for
+		// 'duplicate-finding-picker' especially, since (unlike post/media
+		// pickers on any site with actual content) it's entirely normal for
+		// this to be genuinely empty: DuplicateContentScanner only ever
+		// creates a finding when two or more published posts/pages share
+		// the *exact same* title, which most sites simply never trigger.
+		// Each message names the real, specific reason so it's honest
+		// about what "empty" here actually means, not a generic fallback.
+		if (!isLoadingOptions && 0 === options.length) {
+			return (
+				<p className="desc content-tool-empty-picker">
+					{'duplicate-finding-picker' === field.type
+						? __(
+								"No duplicate titles found. This only lists published posts/pages that currently share the exact same title — most sites never trigger it, and it's not a sign anything is broken. If you expect one here, run a scan under Grow My Traffic → SEO first (DuplicateContentScanner needs a completed scan to have flagged it).",
+								'vulopilot'
+							)
+						: 'media-picker' === field.type
+							? __(
+									'No images found in the Media Library yet — upload one first.',
+									'vulopilot'
+								)
+							: __(
+									'No posts or pages found yet — create one first.',
+									'vulopilot'
+								)}
+				</p>
+			);
+		}
+
 		return (
 			<SelectInput
 				type="single-select"

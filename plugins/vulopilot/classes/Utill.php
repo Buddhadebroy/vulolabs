@@ -63,6 +63,12 @@ class Utill {
         'login_attempt'              => 'vulopilot_login_attempts',
         'firewall_block'             => 'vulopilot_firewall_blocks',
         'backup'                     => 'vulopilot_backups',
+        // Real off-site brand mentions (Grow My Traffic → Brand Visibility's
+        // former "not connected yet" card) — owned here per this file's own
+        // schema-ownership rule even though the fetcher/UI are Pro
+        // (vulopilot-pro's BrandIntelligence module), same precedent
+        // 'brand_score_history' above already sets.
+        'brand_mention'              => 'vulopilot_brand_mentions',
     );
 
     /**

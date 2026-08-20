@@ -373,6 +373,7 @@ class Install {
         self::create_indexnow_log_table();
         self::create_geo_visibility_history_table();
         self::create_brand_score_history_table();
+        self::create_brand_mentions_table();
         self::create_entity_relationships_table();
         self::create_kg_health_history_table();
         self::create_file_baselines_table();
@@ -906,6 +907,47 @@ class Install {
         ) $collate;";
 
         dbDelta( $sql_brand_score_history );
+    }
+
+    /**
+     * `vulopilot_brand_mentions` — real off-site brand mentions
+     * (vulopilot-pro's BrandIntelligence\OffSiteMentionTracker, Google
+     * News RSS-sourced — see that class's own docblock for the "no paid
+     * Ahrefs Brand Radar credentials" reasoning behind that specific
+     * source). One row per real, distinct article `url` (the unique key
+     * both prevents duplicate rows across repeated daily fetches finding
+     * the same still-live article again, and is what the fetcher's own
+     * upsert-by-url logic relies on). `source_domain` is stored
+     * pre-parsed (not derived from `url` at read time) purely so the
+     * "citing domains" rollup the UI needs is a plain `GROUP BY` rather
+     * than a per-row PHP `wp_parse_url()` call over every stored mention.
+     *
+     * @return void
+     */
+    private static function create_brand_mentions_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_brand_mentions = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['brand_mention'] . "` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `title`          text NOT NULL,
+            `url`            varchar(768) NOT NULL,
+            `source_name`    varchar(255) DEFAULT NULL,
+            `source_domain`  varchar(255) NOT NULL,
+            `published_at`   datetime DEFAULT NULL,
+            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_url` (`url`(255)),
+            KEY `idx_published` (`published_at`),
+            KEY `idx_domain` (`source_domain`)
+        ) $collate;";
+
+        dbDelta( $sql_brand_mentions );
     }
 
     /**
