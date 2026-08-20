@@ -5,7 +5,7 @@ import SectionedIssuesTable, {
 } from '../Security/SectionedIssuesTable';
 import PluginOverlapCard from '../Security/PluginOverlapCard';
 
-/** DOM anchor id the merged table below carries — what SpeedBoostCard's/AiSpeedAssistantCard's "View Details"/"Review Speed Issues" buttons scroll to (via OverviewTab.tsx's own `#performance-section-findings` wrapper). */
+/** DOM anchor id the merged table below carries — what AiSpeedAssistantCard's "Review First" button scrolls to (via OverviewTab.tsx's own `#performance-section-findings` wrapper). */
 const ISSUES_TABLE_ID = 'performance-top-issues-table';
 
 /**

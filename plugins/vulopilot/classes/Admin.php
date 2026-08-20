@@ -98,42 +98,47 @@ class Admin {
         $submenus = apply_filters(
             'vulopilot_submenus',
             array(
-                'dashboard'    => array(
+                'dashboard'     => array(
                     'name'     => __( 'Dashboard', 'vulopilot' ),
                     'priority' => 10,
                     'icon'     => 'dashicons-dashboard',
                 ),
-                'ai-assistant' => array(
+                'ai-assistant'  => array(
                     'name'     => __( 'AI Copilot', 'vulopilot' ),
                     'priority' => 20,
                     'icon'     => 'dashicons-lightbulb',
                 ),
-                'geo'          => array(
+                'geo'           => array(
                     'name'     => __( 'Grow My Traffic', 'vulopilot' ),
                     'priority' => 30,
                     'icon'     => 'dashicons-chart-line',
                 ),
-                'content'      => array(
+                'content'       => array(
                     'name'     => __( 'Create Content', 'vulopilot' ),
                     'priority' => 40,
                     'icon'     => 'dashicons-media-text',
                 ),
-                'performance'  => array(
+                'performance'   => array(
                     'name'     => __( 'Improve Speed', 'vulopilot' ),
                     'priority' => 50,
                     'icon'     => 'dashicons-performance',
                 ),
-                'security'     => array(
+                'security'      => array(
                     'name'     => __( 'Protect My Site', 'vulopilot' ),
                     'priority' => 60,
                     'icon'     => 'dashicons-shield',
                 ),
-                'woocommerce'  => array(
+                'accessibility' => array(
+                    'name'     => __( 'Accessibility', 'vulopilot' ),
+                    'priority' => 65,
+                    'icon'     => 'dashicons-universal-access',
+                ),
+                'woocommerce'   => array(
                     'name'     => __( 'Sell More', 'vulopilot' ),
                     'priority' => 70,
                     'icon'     => 'dashicons-cart',
                 ),
-                'automation'   => array(
+                'automation'    => array(
                     'name'     => __( 'Automate Work', 'vulopilot' ),
                     'priority' => 80,
                     'icon'     => 'dashicons-update',
@@ -142,13 +147,13 @@ class Admin {
                 // native submenu (admin-menu-groups.js's addDividers()) —
                 // marks the split between the day-to-day work items above
                 // and the account-level pages below, same as the design.
-                'reports'      => array(
+                'reports'       => array(
                     'name'     => __( 'Reports', 'vulopilot' ),
                     'priority' => 90,
                     'icon'     => 'dashicons-chart-bar',
                     'divider'  => true,
                 ),
-                'settings'     => array(
+                'settings'      => array(
                     'name'     => __( 'Settings', 'vulopilot' ),
                     'priority' => 100,
                     'icon'     => 'dashicons-admin-generic',
@@ -157,7 +162,7 @@ class Admin {
                 // than sorted in by priority number alone, so a filter
                 // adding a higher-priority item later can't accidentally
                 // push Modules out of the last slot.
-                'modules'      => array(
+                'modules'       => array(
                     'name'     => __( 'Modules', 'vulopilot' ),
                     'priority' => PHP_INT_MAX,
                     'icon'     => 'dashicons-admin-plugins',

@@ -8,6 +8,7 @@ import SectionedFindingsTab, {
 import { SectionedIssuesTab } from './SectionedIssuesTable';
 import FindingsHeroCard from './FindingsHeroCard';
 import SiteHealthStatusCard from './SiteHealthStatusCard';
+import PhpAccelerationCard from './PhpAccelerationCard';
 
 /**
  * "Site Health" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) — 5
@@ -26,6 +27,13 @@ import SiteHealthStatusCard from './SiteHealthStatusCard';
  * own AiSalesOptimizerCard/StoreIntelligenceSummaryCard pairing already
  * uses) with SiteHealthStatusCard, a real per-section status row matching
  * the depth of Security's own supporting cards.
+ *
+ * Also carries PhpAccelerationCard.tsx (OPcache status, `GET
+ * /efficiency-checks`) — moved here from the since-removed "Protect My
+ * Site" → Performance tab per direct instruction; its 3 sibling checks
+ * (page/browser caching, persistent object cache) moved to "Improve
+ * Speed" instead, since OPcache is this tab's own kind of server-config
+ * fact rather than a page-delivery one.
  */
 const SECTIONS: FindingsSection[] = [
 	{
@@ -117,19 +125,22 @@ const SiteHealthTab = () => {
 			activeTab={activeTab}
 			onTabChange={setActiveTab}
 			header={
-				<ContainerComponent>
-					<ColumnComponent grid={6}>
-						<SiteHealthStatusCard />
-					</ColumnComponent>
-					<ColumnComponent grid={6}>
-						<FindingsHeroCard
-							icon="active"
-							label={__('Site Health', 'vulopilot')}
-							scannerIds={ALL_SCANNER_IDS}
-							onReviewFirst={() => goToIssuesTable('important')}
-						/>
-					</ColumnComponent>
-				</ContainerComponent>
+				<>
+					<ContainerComponent>
+						<ColumnComponent grid={6}>
+							<SiteHealthStatusCard />
+						</ColumnComponent>
+						<ColumnComponent grid={6}>
+							<FindingsHeroCard
+								icon="active"
+								label={__('Site Health', 'vulopilot')}
+								scannerIds={ALL_SCANNER_IDS}
+								onReviewFirst={() => goToIssuesTable('important')}
+							/>
+						</ColumnComponent>
+					</ContainerComponent>
+					<PhpAccelerationCard />
+				</>
 			}
 		/>
 	);
