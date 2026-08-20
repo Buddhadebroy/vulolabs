@@ -12,10 +12,8 @@ import { ButtonInput } from '@zyra/inputs';
 import { scrollToId } from '@zyra/core';
 import ProLockedCard from '../../components/ProLockedCard';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
-import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
 import GeoByTopicGrid from './GeoByTopicGrid';
 import TopPagesCard from './TopPagesCard';
-import GeoPageAnalysisTable from './GeoPageAnalysisTable';
 import IssuesSection from './IssuesSection';
 import { useAllFindingGroups } from './useAllFindingGroups';
 import { sumGroupCounts } from './useGeoFindingGroups';
@@ -185,13 +183,14 @@ const average = (values: number[]): number =>
  *    "Questions Answered" and "Pages Ready" (both NEW — see
  *    useAeoPageAnalysis.ts's own docblock for where their numbers come
  *    from), and Open Issues (unchanged).
- * 3. "What Needs Your Attention" (GeoFixTheseFirstCard.tsx, unchanged,
- *    already includes a real "Ask AI Copilot" banner) + "Top pages by
- *    answer readiness" (TopPagesCard.tsx, NEW here — genericized this
- *    session so it can be scoped to AEO's own scanner ids instead of
- *    GEO's `category=geo` default) side by side, same layout GeoTab.tsx's
- *    own "Fix These First"/"Your Best & Worst Pages" pairing already
- *    uses.
+ * 3. "Top Pages by Answer Readiness" (TopPagesCard.tsx — genericized so it
+ *    can be scoped to AEO's own scanner ids instead of GEO's
+ *    `category=geo` default), full width on its own. "What Needs Your
+ *    Attention" (GeoFixTheseFirstCard.tsx) used to sit alongside it here —
+ *    removed from this tab per direct instruction (GeoTab.tsx's own
+ *    "Fix These First" usage of that same component was removed earlier
+ *    this session too — the component itself is still real, just not
+ *    currently rendered by either GEO or AEO).
  * 4. "AEO score over time" — an honest not-tracked-yet card (NEW). No
  *    per-dimension AEO score history exists anywhere in this codebase
  *    (GeoInsights\VisibilitySnapshotBuilder's own history table only ever
@@ -209,16 +208,18 @@ const average = (values: number[]): number =>
  *    is what actually powers that table's row actions when Pro's
  *    One-Click Fix module is active), and Learn more (scrolls back to the
  *    real explanatory banner at the top of this tab).
- * 7. "Page-by-page answer readiness" (GeoPageAnalysisTable.tsx, NEW here —
- *    genericized this session the same way TopPagesCard.tsx was) — every
- *    page, a real deterministic answer-readiness % scoped to AEO's own
- *    scanner ids, Export CSV.
- * 8. The same 3 honestly-not-built-yet cards this tab already had, plus
- *    "All AEO Issues" — now `IssuesSection.tsx` (SeoTab.tsx's own real
+ * 7. The same 3 honestly-not-built-yet cards this tab already had, plus
+ *    "All AEO Issues" — `IssuesSection.tsx` (SeoTab.tsx's own real
  *    filter-pills + Site-wide Issues + Pages & Posts structure,
  *    generalized so this tab and GeoTab.tsx can reuse it too, per direct
  *    instruction), replacing the differently-shaped `SectionedFindingsTab.tsx`
- *    this used before.
+ *    this used before. Its own `pageAnalysis` prop merges what used to be a
+ *    separate standalone "Page-by-page answer readiness" table
+ *    (GeoPageAnalysisTable.tsx, every page + a real deterministic
+ *    answer-readiness % scoped to AEO's own scanner ids + Export CSV)
+ *    directly into the "Pages & Posts" table here, per direct instruction
+ *    ("merge the 2 sections... into the 2nd") — that component is now dead
+ *    code on this tab (GeoTab.tsx merges the same way).
  */
 const AeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{
@@ -231,19 +232,6 @@ const AeoTab = () => {
 		useAeoPageAnalysis(ALL_AEO_SCANNER_IDS);
 
 	const totalOpenFindings = sumGroupCounts(groups, ALL_AEO_SCANNER_IDS);
-	// GeoFixTheseFirstCard (reused generically, see its own docblock) sorts
-	// and shows whatever `groups` it's given as-is — it doesn't filter by
-	// scanner id itself, since GeoTab.tsx's own usage already passes a
-	// category-scoped fetch. useAllFindingGroups() here deliberately fetches
-	// every category (aeo-schema/llms-txt-missing don't share GEO's own
-	// 'geo' category — see this file's own useAllFindingGroups.ts docblock),
-	// so it has to be narrowed to just this tab's own real scanner ids before
-	// handing it to a "top findings" card, or "What Needs Your Attention"
-	// would show the single worst finding sitewide (e.g. a Security
-	// finding) instead of an AEO one.
-	const aeoGroups = groups.filter((group) =>
-		ALL_AEO_SCANNER_IDS.includes(group.scanner_id)
-	);
 
 	// "Questions Answered" — real published pages minus the real count of
 	// pages with an open geo-faq-opportunity finding (i.e. pages that
@@ -404,37 +392,19 @@ const AeoTab = () => {
 				</ColumnComponent>
 			</ContainerComponent>
 
-			<ContainerComponent>
-				<GeoFixTheseFirstCard
-					groups={aeoGroups}
-					isLoading={isLoadingGroups}
-					total={totalOpenFindings}
-					title={__('What Needs Your Attention', 'vulopilot')}
-					emptyMessage={__(
-						'No open AEO findings right now — nothing to fix.',
-						'vulopilot'
-					)}
-					onViewAll={() => goToIssuesTable('all')}
-					onSelectScanner={(scannerId) => {
-						const section = AEO_SECTIONS.find((s) =>
-							s.scannerIds.includes(scannerId)
-						);
-						goToIssuesTable(section?.key ?? 'all');
-					}}
-				/>
-				<TopPagesCard
-					scannerIds={ALL_AEO_SCANNER_IDS}
-					title={__('Top Pages by Answer Readiness', 'vulopilot')}
-					desc={__(
-						'Which pages an AI answer engine could already quote, and which need the most work.',
-						'vulopilot'
-					)}
-					topLabel={__('Most ready', 'vulopilot')}
-					bottomLabel={__('Needs attention', 'vulopilot')}
-					id="aeo-top-pages"
-					onViewAll={() => scrollToId('aeo-page-analysis')}
-				/>
-			</ContainerComponent>
+			<TopPagesCard
+				grid={12}
+				scannerIds={ALL_AEO_SCANNER_IDS}
+				title={__('Top Pages by Answer Readiness', 'vulopilot')}
+				desc={__(
+					'Which pages an AI answer engine could already quote, and which need the most work.',
+					'vulopilot'
+				)}
+				topLabel={__('Most ready', 'vulopilot')}
+				bottomLabel={__('Needs attention', 'vulopilot')}
+				id="aeo-top-pages"
+				onViewAll={() => scrollToId('aeo-all-issues-table')}
+			/>
 
 			<ContainerComponent>
 				<ColumnComponent grid={12}>
@@ -453,7 +423,7 @@ const AeoTab = () => {
 								'vulopilot'
 							)}
 							buttonText={__('View page-by-page breakdown', 'vulopilot')}
-							onButtonClick={() => scrollToId('aeo-page-analysis')}
+							onButtonClick={() => scrollToId('aeo-all-issues-table')}
 						/>
 					</CardComponent>
 				</ColumnComponent>
@@ -558,16 +528,6 @@ const AeoTab = () => {
 				)}
 			/>
 
-			<div id="aeo-page-analysis">
-				<GeoPageAnalysisTable
-					scannerIds={ALL_AEO_SCANNER_IDS}
-					title={__('Page-by-Page Answer Readiness', 'vulopilot')}
-					scoreColumnLabel={__('Answer Readiness', 'vulopilot')}
-					exportFilename="aeo-page-analysis.csv"
-					id="aeo-page-analysis-table"
-				/>
-			</div>
-
 			<ContainerComponent>
 				<CardComponent
 					title={__('Answerability signals', 'vulopilot')}
@@ -633,15 +593,18 @@ const AeoTab = () => {
 				</CardComponent>
 			</ContainerComponent>
 
-			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) — replaces the differently-shaped SectionedFindingsTab this used before, per direct instruction. */}
-			<div id="aeo-all-issues-table">
-				<IssuesSection
-					scannerIds={ALL_AEO_SCANNER_IDS}
-					categories={AEO_SECTIONS}
-					categoryFocus={categoryFocus}
-					issuesColumnLabel={__('AEO Issues', 'vulopilot')}
-				/>
-			</div>
+			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) — replaces the differently-shaped SectionedFindingsTab this used before, per direct instruction. `pageAnalysis` merges the former standalone "Page-by-Page Answer Readiness" table into the "Pages & Posts" table below. */}
+			<IssuesSection
+				id="aeo-all-issues-table"
+				scannerIds={ALL_AEO_SCANNER_IDS}
+				categories={AEO_SECTIONS}
+				categoryFocus={categoryFocus}
+				issuesColumnLabel={__('AEO Issues', 'vulopilot')}
+				pageAnalysis={{
+					scoreColumnLabel: __('Answer Readiness', 'vulopilot'),
+					exportFilename: 'aeo-page-analysis.csv',
+				}}
+			/>
 		</>
 	);
 };

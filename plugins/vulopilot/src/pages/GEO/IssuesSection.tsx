@@ -3,11 +3,14 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { TabsComponent } from '@zyra/components';
+import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
 import {
+	PRIORITY_SEVERITIES,
 	PageRow,
 	RawFinding,
 	bucketFindingsByPage,
 	buildEditLink,
+	fetchAllPagesWithScores,
 	fetchOpenFindingsFor,
 	fetchPagesByIds,
 	nonceHeaders,
@@ -18,13 +21,21 @@ import SeoIssuesByPageTable from './SeoIssuesByPageTable';
 interface FindingGroupRow {
 	scanner_id: string;
 	label: string;
+	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
 	count: number;
 }
 
 export interface IssuesSectionCategory {
 	key: string;
+	title: string;
 	scannerIds: string[];
 }
+
+/** `GET /findings/groups`' own raw per-scanner counts, summed across whichever scanner ids matter for a given tab/tile — same convention (and the same real duplicate-row caveat) `SectionedIssuesTable.tsx`'s own local copy already documents; kept here rather than shared so this file doesn't reach into Security's own module for one helper. */
+const sumGroupCounts = (groups: FindingGroupRow[], scannerIds: string[]): number =>
+	groups
+		.filter((group) => scannerIds.includes(group.scanner_id))
+		.reduce((total, group) => total + group.count, 0);
 
 interface CategoryFocus {
 	/** A real category `key` from `categories`, or the literal `'all'` to reset back to the unfiltered view — same "View All" case the AEO/GEO tiles' own "View All"/"Fix Automatically" shortcuts need, which no SEO call site exercises today (every SEO category tile passes its own real key). */
@@ -40,45 +51,98 @@ interface IssuesSectionProps {
 	categoryFocus?: CategoryFocus | null;
 	/** "SEO Issues" by default — AeoTab.tsx/GeoTab.tsx pass "AEO Issues"/"GEO Issues" so the Pages & Posts table's own issues-count column reads correctly for whichever real check set it's showing. */
 	issuesColumnLabel?: string;
+	/**
+	 * When set, this section also becomes GeoTab.tsx's/AeoTab.tsx's own
+	 * standalone "Page-by-page analysis"/"Page-by-Page Answer Readiness"
+	 * table, merged into "Pages & Posts" per direct instruction rather than
+	 * showing the same pages twice: every published page/post (not just
+	 * ones with an open finding right now) via `GET /geo-analysis/pages`,
+	 * with a real deterministic visibility % column and an Export CSV
+	 * action. Omitted entirely by `SeoIssuesSection.tsx`'s own SEO usage,
+	 * which keeps its original findings-only scope (only pages that
+	 * actually have an open SEO finding, no visibility column, no export).
+	 */
+	pageAnalysis?: {
+		/** Defaults to "AI Visibility". */
+		scoreColumnLabel?: string;
+		/** Defaults to 'page-analysis.csv'. */
+		exportFilename?: string;
+	};
+	/**
+	 * Real `scrollToId()` target for GeoTab.tsx's/AeoTab.tsx's own "View
+	 * all"/"View page-by-page breakdown" shortcuts — applied directly to
+	 * this section's own root `<div>` rather than left for the host tab to
+	 * wrap in its own `<div id="...">`. That wrapping was a real,
+	 * confirmed-live layout bug: this section's own outer `.seo-issues-section`
+	 * already fills its flex-row parent (see GrowMyTraffic.scss's own rule
+	 * for that class), but an *extra* unstyled wrapper div around it becomes
+	 * the actual flex-item instead, and — having no sizing of its own —
+	 * only claims its content's natural width, leaving the rest of that row
+	 * empty. SeoTab.tsx's own usage never had this problem since it renders
+	 * `<SeoIssuesSection>` with no such wrapper.
+	 */
+	id?: string;
 }
 
 /**
  * Generalized from `SeoIssuesSection.tsx` (now a thin SEO-defaults wrapper
  * around this) per direct instruction — AEO's and GEO's own "All Issues"
- * tables should have the exact same real structure SEO's already has
- * (a per-scanner filter-pill tab bar, a "Site-wide Issues" table, and a
- * "Pages & Posts" table with real inline expandable findings), not the
- * differently-shaped `SectionedFindingsTab.tsx` those two tabs used before
- * — see AeoTab.tsx's/GeoTab.tsx's own docblocks for exactly what this
- * replaced there. Orchestrates the two real tables `SeoSiteWideIssuesTable.tsx`/
+ * tables should have the exact same real structure SEO's already has, not
+ * the differently-shaped `SectionedFindingsTab.tsx` those two tabs used
+ * before — see AeoTab.tsx's/GeoTab.tsx's own docblocks for exactly what
+ * this replaced there. The filter bar itself was rebuilt a *third* time
+ * (direct instruction — "I want the table filters like this", pointing at
+ * a screenshot of `SectionedIssuesTable.tsx`'s own real filter bar, the
+ * same component Security/Accessibility/WooCommerce's own unified issues
+ * tables already use): a real `TabsComponent` All/Important/one-per-category
+ * tab row, plus `IssuesSummaryCards.tsx` (reused as-is — genuinely generic,
+ * no AI-Assistant-specific coupling) for the All Issues/High/Medium/Low
+ * priority stat cards, replacing this file's own second version (a search
+ * box + a category `<select>` + individual severity pills) so this
+ * section's own filter bar matches that established, already-styled
+ * pattern exactly rather than a bespoke one. Free-text search and 5-level
+ * (not 3-tier-folded) severity are a real loss from that second version —
+ * nothing in the reference screenshot has either, so neither survived this
+ * pass; say so if you want free-text search back alongside this.
+ * `GeoFixTheseFirstCard.tsx`'s/`GeoByTopicGrid.tsx`'s own "View
+ * pages"/"View issues" shortcuts still only ever resolve up to a *category*
+ * key (see GeoTab.tsx's own `onSelectScanner`), never a bare scanner id, so
+ * per-scanner-only filtering remains something nothing here has ever
+ * needed.
+ *
+ * Orchestrates the two real tables `SeoSiteWideIssuesTable.tsx`/
  * `SeoIssuesByPageTable.tsx` render side by side: one real fetch+bucket
  * (findings → `{byPostId, siteWide}` → `rows`) both tables render, passed
- * down as props, so the filter pills' own counts (recomputed from that
- * exact same deduped data) always match what clicking a pill actually
- * reveals — same reasoning `SeoIssuesSection.tsx`'s own original docblock
- * gave for centralizing the fetch here instead of each table fetching
- * independently.
+ * down as props. The tab bar's/stat cards' own counts are deliberately the
+ * raw `GET /findings/groups` counts (`sumGroupCounts()`), not a recount
+ * from that bucketed data — same convention (and the same real
+ * duplicate-scan-row caveat) `SectionedIssuesTable.tsx`'s own identical tab
+ * bar/stat cards already accept, kept consistent here rather than more
+ * precise but visually inconsistent with that reference.
  *
  * `categoryFocus` lets the host tab's own topic tiles/"Fix These
  * First"/"View All" shortcuts drive this section from outside: a fresh
  * `{key, token}` (a new `token` even for the same `key` twice in a row, so
  * re-clicking the same tile still re-triggers the scroll+filter) switches
- * the active filter to that category's real scanner ids (via `categories`)
- * and scrolls this section into view — `key: 'all'` is the one case with
- * no matching category (resets back to the unfiltered view instead of
- * filtering to nothing), which only AEO's/GEO's own "View All"/"Fix
- * Automatically" shortcuts ever pass; no SEO category tile does today.
+ * the active tab to that category (via `categories`) and scrolls this
+ * section into view — `key: 'all'` is the one case with no matching
+ * category (resets back to the "All" tab instead of filtering to nothing),
+ * which only AEO's/GEO's own "View All"/"Fix Automatically" shortcuts ever
+ * pass; no SEO category tile does today.
  */
 const IssuesSection = ({
 	scannerIds,
 	categories = [],
 	categoryFocus,
 	issuesColumnLabel,
+	pageAnalysis,
+	id,
 }: IssuesSectionProps) => {
 	const [rows, setRows] = useState<PageRow[]>([]);
 	const [siteWideFindings, setSiteWideFindings] = useState<RawFinding[]>([]);
 	const [groups, setGroups] = useState<FindingGroupRow[]>([]);
-	const [activeFilter, setActiveFilter] = useState('all');
+	const [activeTab, setActiveTab] = useState('all');
+	const [activePriority, setActivePriority] = useState<Priority>('all');
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
 	const [reloadToken, setReloadToken] = useState(0);
@@ -93,22 +157,44 @@ const IssuesSection = ({
 			try {
 				const findings = await fetchOpenFindingsFor(scannerIds);
 				const { byPostId, siteWide } = bucketFindingsByPage(findings);
-				const pageIds = Array.from(byPostId.keys());
 
-				const [posts, pages] = await Promise.all([
-					fetchPagesByIds('posts', pageIds),
-					fetchPagesByIds('pages', pageIds),
-				]);
+				let builtRows: PageRow[];
 
-				const builtRows: PageRow[] = [...posts, ...pages].map((post) => ({
-					id: post.id,
-					title: post.title.rendered,
-					status: post.status,
-					date: post.date,
-					editLink: buildEditLink(post.id),
-					viewLink: 'publish' === post.status ? post.link : null,
-					findings: byPostId.get(post.id) || [],
-				}));
+				if (pageAnalysis) {
+					// Merged mode (GeoTab.tsx/AeoTab.tsx): every published
+					// page/post, not just ones with an open finding right
+					// now — same real dataset the old standalone
+					// "Page-by-page analysis" table showed.
+					const pages = await fetchAllPagesWithScores(scannerIds);
+
+					builtRows = pages.map((page) => ({
+						id: page.post_id,
+						title: page.title,
+						status: page.status,
+						date: page.date,
+						editLink: page.edit_link,
+						viewLink: 'publish' === page.status ? page.permalink : null,
+						findings: byPostId.get(page.post_id) || [],
+						visibilityScore: page.visibility_score,
+					}));
+				} else {
+					const pageIds = Array.from(byPostId.keys());
+
+					const [posts, pages] = await Promise.all([
+						fetchPagesByIds('posts', pageIds),
+						fetchPagesByIds('pages', pageIds),
+					]);
+
+					builtRows = [...posts, ...pages].map((post) => ({
+						id: post.id,
+						title: post.title.rendered,
+						status: post.status,
+						date: post.date,
+						editLink: buildEditLink(post.id),
+						viewLink: 'publish' === post.status ? post.link : null,
+						findings: byPostId.get(post.id) || [],
+					}));
+				}
 
 				if (!cancelled) {
 					setRows(
@@ -157,9 +243,7 @@ const IssuesSection = ({
 			return;
 		}
 
-		setActiveFilter(
-			'all' === categoryFocus.key ? 'all' : `category:${categoryFocus.key}`
-		);
+		setActiveTab(categoryFocus.key);
 		sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		// Only a fresh external trigger (a new `token` each time) should
 		// re-trigger this — not every re-render that happens to pass a new
@@ -167,85 +251,128 @@ const IssuesSection = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [categoryFocus?.token]);
 
+	// Resets the priority filter whenever the active tab changes, whether it
+	// changed via a click on this section's own tab bar or an external
+	// deep-link (the effect above) — same reasoning SectionedIssuesTable.tsx's
+	// own identical reset already documents: a stale "High" priority filter
+	// left over from a previous tab could otherwise silently hide every row
+	// of a tab someone just switched to.
+	useEffect(() => {
+		setActivePriority('all');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeTab]);
+
 	const refetch = () => setReloadToken((current) => current + 1);
 
-	/** Only used for each pill's human `label` now — see `realScannerCounts` below for why its own `count` isn't used directly. */
+	/** Same CSV shape the old standalone `GeoPageAnalysisTable.tsx` exported — kept identical (header row + escaping) so nothing about the exported file itself changes for anyone already relying on it, just where the button now lives. `undefined` (not called) unless `pageAnalysis` is set. */
+	const exportCsv = pageAnalysis
+		? () => {
+				const scoreLabel = pageAnalysis.scoreColumnLabel || __('AI Visibility', 'vulopilot');
+				const csvEscape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
+				const headerRow = ['Page', 'Status', 'Open Issues', `${scoreLabel} (%)`];
+				const lines = [headerRow.map(csvEscape).join(',')];
+
+				rows.forEach((row) => {
+					const cells = [
+						row.title,
+						row.status,
+						row.findings.length,
+						row.visibilityScore ?? '',
+					];
+					lines.push(cells.map((cell) => csvEscape(String(cell))).join(','));
+				});
+
+				const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+				const url = URL.createObjectURL(blob);
+				const anchor = document.createElement('a');
+				anchor.href = url;
+				anchor.download = pageAnalysis.exportFilename || 'page-analysis.csv';
+				anchor.click();
+				URL.revokeObjectURL(url);
+			}
+		: undefined;
+
+	/** The expanded finding sub-rows' own scanner label (SeoIssuesByPageTable.tsx). */
 	const scannerLabelMap = new Map(groups.map((group) => [group.scanner_id, group.label]));
 
-	/**
-	 * Real, displayed-count-accurate per-scanner totals — deliberately NOT
-	 * `group.count` from `GET /findings/groups`. That raw aggregate counts
-	 * every open Finding row server-side, including the exact duplicate
-	 * rows the pre-existing scan/rescan pipeline gap creates
-	 * (`bucketFindingsByPage`'s own docblock in seoIssuesShared.tsx) —
-	 * `SeoSiteWideIssuesTable.tsx` dedupes those before display, so a pill
-	 * built from the raw count would show a bigger number than what's
-	 * actually visible for site-wide-only scanners. Recomputed here from
-	 * the exact same bucketed+deduped `rows`/`siteWideFindings` both
-	 * tables render.
-	 */
-	const realScannerCounts = new Map<string, number>();
-	siteWideFindings.forEach((finding) => {
-		realScannerCounts.set(
-			finding.scanner_id,
-			(realScannerCounts.get(finding.scanner_id) || 0) + 1
-		);
-	});
-	rows.forEach((row) =>
-		row.findings.forEach((finding) => {
-			realScannerCounts.set(
-				finding.scanner_id,
-				(realScannerCounts.get(finding.scanner_id) || 0) + 1
-			);
-		})
-	);
+	/** Every real scanner id within this section's own scope whose real severity is critical/high — same "Important" concept, same fold, SectionedIssuesTable.tsx's own tab bar already establishes. */
+	const importantScannerIds = groups
+		.filter(
+			(group) =>
+				scannerIds.includes(group.scanner_id) &&
+				('critical' === group.severity || 'high' === group.severity)
+		)
+		.map((group) => group.scanner_id);
 
-	const totalOpenIssues = Array.from(realScannerCounts.values()).reduce(
-		(total, count) => total + count,
-		0
-	);
-
-	const filterPills: { id: string; label: string; count: number }[] = [
-		{ id: 'all', label: __('All', 'vulopilot'), count: totalOpenIssues },
-		...groups.map((group) => ({
-			id: `scanner:${group.scanner_id}`,
-			label: group.label,
-			count: realScannerCounts.get(group.scanner_id) || 0,
+	/** All/Important/one per real `categories` entry — same real tab bar shape (and the same raw `GET /findings/groups` counts) SectionedIssuesTable.tsx's own Security/Accessibility/WooCommerce usage already establishes, reused here per direct instruction so this section's own filter bar matches that one exactly. */
+	const tabs: { id: string; label: string; count: number }[] = [
+		{ id: 'all', label: __('All', 'vulopilot'), count: sumGroupCounts(groups, scannerIds) },
+		{
+			id: 'important',
+			label: __('Important', 'vulopilot'),
+			count: sumGroupCounts(groups, importantScannerIds),
+		},
+		...categories.map((category) => ({
+			id: category.key,
+			label: category.title,
+			count: sumGroupCounts(groups, category.scannerIds),
 		})),
 	];
 
-	/** Resolves the active filter (`'all'`, `scanner:<id>`, or `category:<key>`) down to the concrete scanner ids both tables filter their findings by. */
-	const activeScannerIds: 'all' | string[] = (() => {
-		if ('all' === activeFilter) {
-			return 'all';
-		}
+	const scannerIdsForTab: Record<string, string[]> = {
+		all: scannerIds,
+		important: importantScannerIds,
+	};
+	categories.forEach((category) => {
+		scannerIdsForTab[category.key] = category.scannerIds;
+	});
 
-		if (activeFilter.startsWith('category:')) {
-			const key = activeFilter.slice('category:'.length);
-			const category = categories.find((candidate) => candidate.key === key);
-			return category ? category.scannerIds : [];
-		}
+	/** Resolves the active tab (`'all'`/`'important'`/a real `categories[].key`) down to the concrete scanner ids both tables — and the priority stat cards below — scope to. */
+	const activeScannerIds: 'all' | string[] =
+		'all' === activeTab ? 'all' : (scannerIdsForTab[activeTab] ?? []);
 
-		return [activeFilter.slice('scanner:'.length)];
-	})();
+	const tabGroups = groups.filter(
+		(group) => 'all' === activeScannerIds || activeScannerIds.includes(group.scanner_id)
+	);
+
+	const countByPriority = (priority: Exclude<Priority, 'all'>): number =>
+		tabGroups
+			.filter((group) => PRIORITY_SEVERITIES[priority].includes(group.severity))
+			.reduce((total, group) => total + group.count, 0);
+
+	const priorityCounts = {
+		high: countByPriority('high'),
+		medium: countByPriority('medium'),
+		low: countByPriority('low'),
+	};
+	const activeTabTotal = tabGroups.reduce((total, group) => total + group.count, 0);
 
 	return (
-		<div className="seo-issues-section" ref={sectionRef}>
+		<div className="seo-issues-section" id={id} ref={sectionRef}>
 			<TabsComponent
 				className="seo-issues-filter-tabs"
 				activeIndex={Math.max(
-					filterPills.findIndex((pill) => pill.id === activeFilter),
+					tabs.findIndex((tab) => tab.id === activeTab),
 					0
 				)}
-				onTabChange={(index: number) => setActiveFilter(filterPills[index].id)}
-				tabs={filterPills.map((pill) => ({
-					label: sprintf('%1$s (%2$d)', pill.label, pill.count),
+				onTabChange={(index: number) => setActiveTab(tabs[index].id)}
+				tabs={tabs.map((tab) => ({
+					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
 				}))}
+			/>
+
+			<IssuesSummaryCards
+				total={activeTabTotal}
+				priorityCounts={priorityCounts}
+				isLoading={isLoading}
+				activePriority={activePriority}
+				onSelectPriority={setActivePriority}
 			/>
 
 			<SeoSiteWideIssuesTable
 				findings={siteWideFindings}
 				activeScannerIds={activeScannerIds}
+				activePriority={activePriority}
 				isLoading={isLoading}
 				hasError={hasError}
 				onRetry={refetch}
@@ -253,11 +380,14 @@ const IssuesSection = ({
 			<SeoIssuesByPageTable
 				rows={rows}
 				activeScannerIds={activeScannerIds}
+				activePriority={activePriority}
 				scannerLabelMap={scannerLabelMap}
 				isLoading={isLoading}
 				hasError={hasError}
 				onRetry={refetch}
 				issuesColumnLabel={issuesColumnLabel}
+				visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
+				onExportCsv={exportCsv}
 			/>
 		</div>
 	);

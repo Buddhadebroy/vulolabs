@@ -369,6 +369,31 @@
 	font-size: 0.75rem;
 }
 
+// Two-stat tile layout (real "Open issues" + real distinct "Affected
+// pages") — GeoByTopicGrid.tsx's own `affectedPagesByScanner` prop, wired
+// up by GeoTab.tsx (useGeoTopicAffectedPages.ts). Falls back to the single
+// `.geo-by-topic-tile-sublabel` line above when that prop isn't passed.
+.geo-by-topic-tile-stats {
+	display: flex;
+	gap: 1rem;
+}
+
+.geo-by-topic-tile-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.geo-by-topic-tile-stat-label {
+	color: var(--sub-text-color);
+	font-size: 0.6875rem;
+}
+
+.geo-by-topic-tile-stat-value {
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
 .geo-page-visibility-bar {
 	display: flex;
 	align-items: center;
@@ -620,6 +645,23 @@
 // this section used before was left unstyled after that CSS was
 // deliberately removed from ProtectMySite.scss for the same reason.
 .seo-issues-section {
+	// This section's own top-level wrapper `<div>` (GeoTab.tsx's
+	// `#geo-all-issues-table`/AeoTab.tsx's `#aeo-all-issues-table`/
+	// SeoTab.tsx's own equivalent) is a plain, unwrapped `<div>` sitting
+	// directly among that tab's other real children inside the page's
+	// outer `ContainerComponent general` — a `display: flex` row
+	// container. Without an explicit flex-basis, a bare block child there
+	// only claims its own content's natural width (the two real tables'
+	// own intrinsic size, ~650px) and leaves the rest of that row empty
+	// instead of filling it — a real, confirmed-live layout bug, not a
+	// design choice (every ColumnComponent-wrapped sibling elsewhere on
+	// these tabs gets this exact same full-row sizing via its own
+	// `[data-cols='12']` class, see ContainerComponent.scss — this section
+	// just never had an equivalent). One fix here covers all three tabs at
+	// once.
+	flex: 1 1 100%;
+	max-width: 100%;
+
 	.seo-issues-filter-tabs {
 		margin-bottom: 1rem;
 	}
@@ -650,6 +692,19 @@
 	.header-col.expand,
 	.admin-column.expand {
 		display: none !important;
+	}
+
+	// The merged-in "AI Visibility"/"Answer Readiness" column
+	// (GeoTab.tsx's/AeoTab.tsx's own `pageAnalysis` mode): zyra `Table.tsx`
+	// clips every `<td>` with `overflow: hidden` for its own text-truncation
+	// needs elsewhere in this table, but `.geo-page-visibility-bar`'s own
+	// `min-width` (GrowMyTraffic.scss, shared with what used to be
+	// `GeoPageAnalysisTable.tsx`'s own copy) can end up a few px wider than
+	// this table's auto-sized column — confirmed live, clipping the "N%"
+	// label into the next column instead of just tightening the bar. This
+	// one cell needs to stay visible instead.
+	td:has(.geo-page-visibility-bar) {
+		overflow: visible;
 	}
 }
 

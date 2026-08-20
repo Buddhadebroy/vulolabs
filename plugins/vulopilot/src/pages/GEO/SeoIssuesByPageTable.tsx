@@ -1,5 +1,6 @@
 /* global appLocalizer */
 import React from 'react';
+import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { CardComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
@@ -7,8 +8,11 @@ import { TableCard } from '@zyra/table';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
 import {
 	FindingSeverity,
+	PRIORITY_SEVERITIES,
+	Priority,
 	PageRow,
 	RowActionsMenu,
+	VisibilityCell,
 	worstFinding,
 	worstSeverity,
 } from './seoIssuesShared';
@@ -41,6 +45,20 @@ type TableRow = PageRow | FindingRow;
 
 const isFindingRow = (row: TableRow): row is FindingRow => true === row.isFinding;
 
+/**
+ * The one field of zyra TableCard's own internal query state this table
+ * reads back out of its `onQueryUpdate` callback — same "declare our own
+ * subset locally" workaround `useApiList.ts`'s own `TableCardQuery` already
+ * documents (zyra's own published `QueryProps` type doesn't declare
+ * `searchValue`, even though TableCard.tsx really does set it there — see
+ * that hook's own docblock). Filtered client-side here (all rows are
+ * already loaded into `rows`/`visibleRows`, not paginated from the server),
+ * unlike `useApiList.ts`'s own server-side `search` param.
+ */
+interface TableCardQuery {
+	searchValue?: string;
+}
+
 /** Same navigate-and-highlight deep link `post-editor/index.tsx` reads — deliberately NOT the existing in-place "Fix with AI" (RecentContentCard.tsx/FindingsTable.tsx/IssueDetailPanel.tsx's immediate AI-apply, which `SeoSiteWideIssuesTable.tsx` uses instead since its findings have no page to navigate to). This one takes the user to the editor, opens the "VuloPilot SEO" sidebar, and — where a mapping exists (seoIssueEditorTarget.ts) — switches to the right tab and highlights the specific field/checklist row, so they see exactly what to fix before anything is changed. */
 const buildFixWithAiLink = (editLink: string, scannerId: string): string =>
 	`${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(scannerId)}`;
@@ -66,12 +84,18 @@ const toggleRowExpansion = (event: React.MouseEvent<HTMLElement>) => {
 interface SeoIssuesByPageTableProps {
 	rows: PageRow[];
 	activeScannerIds: 'all' | string[];
+	/** IssuesSection.tsx's own real `IssuesSummaryCards` priority tile — `'all'`/`'high'`/`'medium'`/`'low'`, folded against each finding's own real severity via `PRIORITY_SEVERITIES`. */
+	activePriority: Priority;
 	scannerLabelMap: Map<string, string>;
 	isLoading: boolean;
 	hasError: boolean;
 	onRetry: () => void;
 	/** "SEO Issues" by default — IssuesSection.tsx's own AEO/GEO callers pass "AEO Issues"/"GEO Issues" so this column reads correctly for whichever real check set is showing. */
 	issuesColumnLabel?: string;
+	/** Only set when `IssuesSection.tsx` itself got a `pageAnalysis` prop (GeoTab.tsx/AeoTab.tsx) — adds the real deterministic visibility-% column, merging what used to be the standalone "Page-by-page analysis" table's own scope into this one. Undefined for SeoIssuesSection.tsx's own SEO usage, which never shows this column. */
+	visibilityColumnLabel?: string;
+	/** Only set alongside `visibilityColumnLabel` — shows a real "Export CSV" action in this card's header, same shape the old standalone table's own button used. */
+	onExportCsv?: () => void;
 }
 
 /**
@@ -101,28 +125,45 @@ interface SeoIssuesByPageTableProps {
 const SeoIssuesByPageTable = ({
 	rows,
 	activeScannerIds,
+	activePriority,
 	scannerLabelMap,
 	isLoading,
 	hasError,
 	onRetry,
 	issuesColumnLabel = __('SEO Issues', 'vulopilot'),
+	visibilityColumnLabel,
+	onExportCsv,
 }: SeoIssuesByPageTableProps) => {
+	/** This table's OWN "Search pages…" box (TableCard's built-in search, filtering by PAGE title). */
+	const [searchValue, setSearchValue] = useState('');
+
 	/**
-	 * The active filter pill narrows which PAGES appear (`rowMatchesFilter`
+	 * The category tab bar/priority stat cards (both owned by
+	 * IssuesSection.tsx) narrow which PAGES appear (`rowMatchesFilter`
 	 * below), but every render that shows a row's OWN issues — the "N
 	 * issues" badge, the expanded sub-rows, "Fix with AI"'s target — must
-	 * narrow to the SAME matching findings too. Previously those three
-	 * always used the full, unfiltered `row.findings`, so e.g. filtering to
-	 * "Thin Content" correctly hid pages with no thin-content finding, but
-	 * a page that matched still showed its full issue count/list (SEO,
-	 * images, etc. all mixed in) instead of isolating to the one that
-	 * matched the filter — the reported bug, confirmed live (a "Thin
-	 * Content" filter still showed "18 issues"/"34 issues" badges).
+	 * narrow to the SAME matching findings too. Earlier versions of this
+	 * table always used the full, unfiltered `row.findings` there, so e.g.
+	 * filtering to "Thin Content" correctly hid pages with no thin-content
+	 * finding, but a page that matched still showed its full issue
+	 * count/list (SEO, images, etc. all mixed in) instead of isolating to
+	 * the one that matched the filter — the reported bug, confirmed live (a
+	 * "Thin Content" filter still showed "18 issues"/"34 issues" badges).
+	 *
+	 * `isAnyFilterActive` is what keeps a merged-in page with zero findings
+	 * (GeoTab.tsx's/AeoTab.tsx's own `pageAnalysis` mode) visible under the
+	 * true baseline "nothing filtered" state — once any real filter is
+	 * active, a page needs at least one matching finding to stay visible,
+	 * same as before this priority dimension existed.
 	 */
+	const isAnyFilterActive = 'all' !== activeScannerIds || 'all' !== activePriority;
+
+	const findingMatchesActiveFilters = (finding: PageRow['findings'][number]): boolean =>
+		('all' === activeScannerIds || activeScannerIds.includes(finding.scanner_id)) &&
+		('all' === activePriority || PRIORITY_SEVERITIES[activePriority].includes(finding.severity));
+
 	const getRowFindings = (row: PageRow) =>
-		'all' === activeScannerIds
-			? row.findings
-			: row.findings.filter((finding) => activeScannerIds.includes(finding.scanner_id));
+		isAnyFilterActive ? row.findings.filter(findingMatchesActiveFilters) : row.findings;
 
 	const buildVariationRows = (row: PageRow): FindingRow[] =>
 		getRowFindings(row).map((finding) => ({
@@ -139,10 +180,15 @@ const SeoIssuesByPageTable = ({
 		}));
 
 	const rowMatchesFilter = (row: PageRow): boolean =>
-		'all' === activeScannerIds ||
-		row.findings.some((finding) => activeScannerIds.includes(finding.scanner_id));
+		!isAnyFilterActive || getRowFindings(row).length > 0;
 
-	const visibleRows = rows.filter(rowMatchesFilter);
+	const rowMatchesSearch = (row: PageRow): boolean =>
+		'' === searchValue.trim() ||
+		row.title.toLowerCase().includes(searchValue.trim().toLowerCase());
+
+	const visibleRows = rows.filter(
+		(row) => rowMatchesFilter(row) && rowMatchesSearch(row)
+	);
 
 	const handleFixWithAi = (row: PageRow) => {
 		const rowFindings = getRowFindings(row);
@@ -197,13 +243,36 @@ const SeoIssuesByPageTable = ({
 			className="seo-issues-by-page-card"
 			title={__('Pages & Posts', 'vulopilot')}
 			isLoading={isLoading}
+			action={
+				onExportCsv ? (
+					<ButtonInput
+						buttons={{
+							text: __('Export CSV', 'vulopilot'),
+							leftIcon: 'download',
+							color: 'border-purple',
+							onClick: onExportCsv,
+						}}
+					/>
+				) : undefined
+			}
 		>
-			{!isLoading && 0 === visibleRows.length ? (
+			{/*
+			 * The "nice work, nothing to fix" empty state only replaces the
+			 * whole card when there's truly nothing to show *and* no active
+			 * search — swapping out the real `<TableCard>` for a search-in-
+			 * progress query would take the search box (rendered by
+			 * TableCard itself, not this component) down with it, leaving
+			 * someone who searched away every row with no way to see or
+			 * clear what they typed. A search that matches nothing instead
+			 * falls through to TableCard's own `emptyMessage` below, which
+			 * keeps the search box live.
+			 */}
+			{!isLoading && 0 === visibleRows.length && '' === searchValue.trim() ? (
 				<ModuleGuardComponent
 					icon="check"
 					title={__('Nothing here right now', 'vulopilot')}
 					desc={
-						'all' === activeScannerIds
+						!isAnyFilterActive
 							? sprintf(
 									/* translators: %s: e.g. "SEO", "AEO", "GEO" — issuesColumnLabel with " Issues" stripped off. */
 									__(
@@ -223,6 +292,10 @@ const SeoIssuesByPageTable = ({
 					showMenu={false}
 					expandable
 					className="transparent-table"
+					search={{ placeholder: __('Search pages…', 'vulopilot') }}
+					onQueryUpdate={(query: TableCardQuery) =>
+						setSearchValue(query.searchValue ?? '')
+					}
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
@@ -272,6 +345,25 @@ const SeoIssuesByPageTable = ({
 								);
 							},
 						},
+						...(visibilityColumnLabel
+							? {
+									visibility_score: {
+										label: visibilityColumnLabel,
+										width: '13%',
+										render: (row: TableRow) =>
+											isFindingRow(row) ? null : (
+												<span
+													className="seo-issues-row-expand-trigger"
+													onClick={toggleRowExpansion}
+												>
+													<VisibilityCell
+														score={row.visibilityScore}
+													/>
+												</span>
+											),
+									},
+								}
+							: {}),
 						issues: {
 							label: issuesColumnLabel,
 							render: (row: TableRow) => {
@@ -284,6 +376,17 @@ const SeoIssuesByPageTable = ({
 								}
 
 								const rowFindings = getRowFindings(row);
+
+								if (0 === rowFindings.length) {
+									return (
+										<span
+											className="admin-badge badge-publish seo-issues-row-expand-trigger"
+											onClick={toggleRowExpansion}
+										>
+											{__('No issues', 'vulopilot')}
+										</span>
+									);
+								}
 
 								return (
 									<span
@@ -320,15 +423,21 @@ const SeoIssuesByPageTable = ({
 							render: (row: TableRow) => (
 								<RowActionsMenu
 									actions={[
-										{
-											label: __('Fix with AI', 'vulopilot'),
-											icon: 'ai',
-											onClick: () =>
-												isFindingRow(row)
-													? (window.location.href =
-															row.fixWithAiLink)
-													: handleFixWithAi(row),
-										},
+										// A merged-in page (pageAnalysis mode) can legitimately have
+										// zero matching findings — nothing for "Fix with AI" to open.
+										...(isFindingRow(row) || getRowFindings(row).length > 0
+											? [
+													{
+														label: __('Fix with AI', 'vulopilot'),
+														icon: 'ai',
+														onClick: () =>
+															isFindingRow(row)
+																? (window.location.href =
+																		row.fixWithAiLink)
+																: handleFixWithAi(row),
+													},
+												]
+											: []),
 										{
 											label: __('Edit', 'vulopilot'),
 											icon: 'edit',
@@ -360,7 +469,15 @@ const SeoIssuesByPageTable = ({
 					ids={visibleRows.map((row) => row.id)}
 					totalRows={visibleRows.length}
 					isLoading={isLoading}
-					emptyMessage={__('No pages or posts match this filter.', 'vulopilot')}
+					emptyMessage={
+						'' !== searchValue.trim()
+							? sprintf(
+									/* translators: %s: the search text typed into the "Search pages…" box above. */
+									__('No pages or posts match "%s".', 'vulopilot'),
+									searchValue.trim()
+								)
+							: __('No pages or posts match this filter.', 'vulopilot')
+					}
 				/>
 			)}
 		</CardComponent>

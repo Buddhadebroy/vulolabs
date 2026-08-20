@@ -26,6 +26,15 @@ const MAX_FINDINGS = 1000;
 
 export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
+export type { Priority } from '../AIAssistant/IssuesSummaryCards';
+
+/** Same 3-tier critical→high/info→low fold `SectionedIssuesTable.tsx`'s own local copy (Security/Accessibility/WooCommerce's shared issues table) and Findings.php's own `PRIORITY_SEVERITY_RANKS` use — kept here too so `IssuesSection.tsx`'s own priority stat cards (reusing `IssuesSummaryCards.tsx` as-is, per direct instruction to match that same real filter bar) and its two tables filter findings the exact same way that component already does. */
+export const PRIORITY_SEVERITIES: Record<'high' | 'medium' | 'low', FindingSeverity[]> = {
+	high: ['critical', 'high'],
+	medium: ['medium'],
+	low: ['low', 'info'],
+};
+
 export interface RawFinding {
 	id: number;
 	title: string;
@@ -199,7 +208,70 @@ export interface PageRow {
 	editLink: string;
 	viewLink: string | null;
 	findings: RawFinding[];
+	/** Only set when `IssuesSection.tsx` was given a `pageAnalysis` prop (GeoTab.tsx/AeoTab.tsx) — the real, deterministic `GET /geo-analysis/pages` score (`GeoAnalyzer::score_from_failures()`), `null` for a site with no scan history yet. Undefined (not just null) for `SeoIssuesSection.tsx`'s own SEO usage, which never fetches this. */
+	visibilityScore?: number | null;
 }
+
+export interface GeoAnalysisPageRow {
+	post_id: number;
+	title: string;
+	edit_link: string;
+	permalink: string;
+	status: string;
+	date: string;
+	open_findings: number;
+	visibility_score: number | null;
+}
+
+/**
+ * Every published page/post with its real, deterministic visibility % —
+ * `GET /geo-analysis/pages`, the same real endpoint `GeoPageAnalysisTable.tsx`
+ * used to fetch independently. One unpaginated call (bounded by that
+ * endpoint's own `MAX_PAGES_QUERY` safety cap server-side, same "generous
+ * but not truly unlimited" posture `fetchOpenFindingsFor()`'s own
+ * `MAX_FINDINGS` takes) rather than a paginated loop, since `IssuesSection.tsx`
+ * filters/sorts this client-side same as its own findings-only fetch already
+ * does.
+ */
+export const fetchAllPagesWithScores = async (
+	scannerIds: string[]
+): Promise<GeoAnalysisPageRow[]> => {
+	const response = await getApiResponse<{ data: GeoAnalysisPageRow[]; total: number }>(
+		getApiLink(
+			appLocalizer,
+			`geo-analysis/pages?per_page=1000&scanner_ids=${scannerIds.join(',')}`
+		),
+		nonceHeaders
+	);
+
+	return response?.data ?? [];
+};
+
+const ratingClass = (score: number): string => {
+	if (score >= 70) {
+		return 'is-good';
+	}
+	if (score >= 40) {
+		return 'is-attention';
+	}
+	return 'is-poor';
+};
+
+/** Shared with what used to be `GeoPageAnalysisTable.tsx`'s own local copy — same real bar + `%`/`—` rendering, now also used by `SeoIssuesByPageTable.tsx`'s merged "AI Visibility"/"Answer Readiness" column. */
+export const VisibilityCell = ({ score }: { score: number | null | undefined }) => {
+	if (null === score || undefined === score) {
+		return <span className="geo-page-visibility-empty">—</span>;
+	}
+
+	return (
+		<div className={`geo-page-visibility-bar ${ratingClass(score)}`}>
+			<div className="geo-page-visibility-track">
+				<div className="geo-page-visibility-fill" style={{ width: `${score}%` }} />
+			</div>
+			<span className="geo-page-visibility-value">{score}%</span>
+		</div>
+	);
+};
 
 /** Fetches only the specific posts/pages that actually have an open finding (via WP core's own `include` param), rather than every post/page on the site — this table's scope is bounded by real issue count, not total site content. */
 export const fetchPagesByIds = async (

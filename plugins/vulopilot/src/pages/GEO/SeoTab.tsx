@@ -118,6 +118,41 @@ const SeoTab = () => {
 				/>
 
 				<ContainerComponent>
+					<ColumnComponent grid={8}>
+							<CardComponent
+								title={__('SEO checks at a glance', 'vulopilot')}
+								desc={__(
+									'Each category below has its own real score based on open findings — click one to jump to its issues.',
+									'vulopilot'
+								)}
+								isLoading={isLoadingScore}
+							>
+								<div className="seo-category-grid">
+									<AnalyticsComponent
+										data={
+											score
+												? CATEGORY_CARDS.map((card) => {
+														const categoryScore =
+															score.category_scores[card.key];
+														return {
+															colorClass: ratingClass(categoryScore),
+															number: `${categoryScore}/100`,
+															text: card.title,
+															onClick: () =>
+																setCategoryFocus({
+																	key: card.key,
+																	token: Date.now(),
+																}),
+														};
+													})
+												: []
+										}
+										variant="small-card"
+										isLoading={isLoadingScore}
+									/>
+								</div>
+							</CardComponent>
+						</ColumnComponent>
 						<ColumnComponent grid={4}>
 							<CardComponent
 								title={__('SEO Score', 'vulopilot')}
@@ -162,53 +197,10 @@ const SeoTab = () => {
 								)}
 							</CardComponent>
 						</ColumnComponent>
-						<ColumnComponent grid={8}>
-							<CardComponent
-								title={__('SEO checks at a glance', 'vulopilot')}
-								desc={__(
-									'Each category below has its own real score based on open findings — click one to jump to its issues.',
-									'vulopilot'
-								)}
-								isLoading={isLoadingScore}
-							>
-								<div className="seo-category-grid">
-									<AnalyticsComponent
-										data={
-											score
-												? CATEGORY_CARDS.map((card) => {
-														const categoryScore =
-															score.category_scores[card.key];
-														return {
-															colorClass: ratingClass(categoryScore),
-															number: `${categoryScore}/100`,
-															text: card.title,
-															onClick: () =>
-																setCategoryFocus({
-																	key: card.key,
-																	token: Date.now(),
-																}),
-														};
-													})
-												: []
-										}
-										variant="small-card"
-										isLoading={isLoadingScore}
-									/>
-								</div>
-							</CardComponent>
-						</ColumnComponent>
 					</ContainerComponent>
 
 				<SeoIssuesSection categoryFocus={categoryFocus} />
 
-				<ModuleGuardComponent
-					icon="lock"
-					title={__('Ranking keywords: not connected yet', 'vulopilot')}
-					desc={__(
-						'VuloPilot doesn’t track real keyword positions or search volume yet — that needs a connected Google Search Console (or similar rank-tracking) account. Flag if you want this scoped next.',
-						'vulopilot'
-					)}
-				/>
 		</ColumnComponent>
 	);
 };
