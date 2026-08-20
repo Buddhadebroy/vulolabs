@@ -20,18 +20,18 @@ addFilter(
 	() => () => <div data-testid="accessibility-history-stub" />
 );
 
-const AccessibilityTab = require( '../AccessibilityTab' ).default;
+const Accessibility = require( '../Accessibility' ).default;
 
-describe( 'AccessibilityTab — Pro filter slots registered', () => {
+describe( 'Accessibility — Pro filter slots registered', () => {
 	it( 'renders both Pro cards registered via the vulopilot_accessibility_* filters, around the 6 section FindingsTables', () => {
-		render( <AccessibilityTab /> );
+		render( <Accessibility /> );
 
 		expect( screen.getByTestId( 'accessibility-dashboard-stub' ) ).toBeInTheDocument();
 		// One independent FindingsTable per ACCESSIBILITY_CHECKS.ts bucket
 		// (Page Structure/Images & Media/Links & Forms/Keyboard Use/
 		// Visual Readability) plus one combined "All Accessibility
 		// Findings" section every bucket rolls up into — see
-		// AccessibilityTab.tsx's own docblock.
+		// Accessibility.tsx's own docblock.
 		expect( screen.getAllByTestId( 'findings-table' ) ).toHaveLength( 6 );
 		expect( screen.getByTestId( 'accessibility-history-stub' ) ).toBeInTheDocument();
 	} );

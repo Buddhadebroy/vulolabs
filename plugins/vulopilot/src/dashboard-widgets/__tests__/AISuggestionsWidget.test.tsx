@@ -80,7 +80,7 @@ describe( 'AISuggestionsWidget', () => {
 		);
 	} );
 
-	it( 'sends an \'accessibility\'-category finding to Security\'s Accessibility subtab, not the nonexistent \'?tab=accessibility\'', async () => {
+	it( 'sends an \'accessibility\'-category finding to its own top-level Accessibility page', async () => {
 		( getApiResponse as jest.Mock ).mockResolvedValue( [
 			{ id: 2, title: 'Form input missing a label', severity: 'medium', category: 'accessibility' },
 		] );
@@ -99,7 +99,7 @@ describe( 'AISuggestionsWidget', () => {
 		);
 
 		expect( window.location.href ).toBe(
-			'?page=vulopilot#&tab=security&subtab=accessibility'
+			'?page=vulopilot#&tab=accessibility'
 		);
 	} );
 } );

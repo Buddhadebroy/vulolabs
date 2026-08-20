@@ -18,10 +18,12 @@ interface PluginOverlapCardProps {
 	 * Restricts this instance to one `PluginOverlap::KNOWN_OVERLAPS`
 	 * category (`seo`/`security`/`accessibility`/`automation`/`caching`)
 	 * so the card can be promoted into each theme's own tab — e.g. only
-	 * `security` matches on the Security tab — instead of only ever
-	 * appearing once, generically, on Files & Plugins. Omit to show every
-	 * category (Files & Plugins' own usage: the one place a user browsing
-	 * "what plugins do I have" should see the complete list).
+	 * `security` matches on the Security tab. Omit to show every category
+	 * — no current call site does this; the one that used to
+	 * (Files & Plugins' own unfiltered "what plugins do I have" complete
+	 * list) was removed along with that tab per direct instruction, and
+	 * this prop was left as-is rather than deleted in case a future tab
+	 * wants the unfiltered view back.
 	 */
 	category?: string;
 }
@@ -43,12 +45,14 @@ interface PluginOverlapCardProps {
  * comparison that found nothing" posture as this page's other real-data
  * cards.
  *
- * Promoted into every "Protect My Site" tab whose category has real
- * matches — SecurityTab (`category="security"`), AccessibilityTab
- * (`category="accessibility"`), PerformanceTab (`category="caching"`) —
- * in addition to FilesPluginsTab's own unfiltered, complete-list instance,
- * so the cross-sell surfaces in the context a user is already reading
- * about that exact category, not only on one tab they may never open.
+ * Promoted into every page whose category has real matches — SecurityTab
+ * (`category="security"`), Accessibility.tsx (`category="accessibility"`,
+ * its own top-level page, `../Security/PluginOverlapCard` imported
+ * cross-folder), PerformanceTab (`category="caching"`) — so the
+ * cross-sell surfaces in the context a user is already reading about
+ * that exact category. No current instance covers the `seo`/`automation`
+ * categories — those matches went unsurfaced once FilesPluginsTab.tsx's
+ * own unfiltered, complete-list instance was removed along with that tab.
  */
 const PluginOverlapCard = ({ category }: PluginOverlapCardProps) => {
 	const { data, isLoading } = useApiList<PluginOverlapMatch>('plugin-overlap');

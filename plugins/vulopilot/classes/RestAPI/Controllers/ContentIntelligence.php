@@ -9,6 +9,8 @@ namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Repositories\FindingRepository;
 use VuloPilot\Repositories\ActionRunRepository;
+use VuloPilot\Scanners\Basic\ReadabilityScanner;
+use VuloPilot\Services\OnPageAnalyzer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -79,6 +81,22 @@ class ContentIntelligence extends \WP_REST_Controller {
             )
         );
 
+        // "Content Quality" card (ContentQualityCard.tsx) — real, per-post
+        // readability/completeness/structure for one selected piece of
+        // content, not a second site-wide score competing with `/score`
+        // above or Grow My Traffic's own SEO Score.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/quality',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_quality' ),
+                    'permission_callback' => array( $this, 'get_score_permissions_check' ),
+                ),
+            )
+        );
+
         // "Content Stats" card (ContentStatsCard.tsx) — real
         // Content-Created/Words-Generated counts for one period, plus a
         // real vs-previous-period percent change, same trend math
@@ -128,6 +146,127 @@ class ContentIntelligence extends \WP_REST_Controller {
 				'severity_breakdown' => $breakdown,
 			)
         );
+    }
+
+    /**
+     * Real Flesch Reading Ease bands — the same scale
+     * ReadabilityScanner's own docblock already documents (the formula's
+     * original published scale, not an invented cutoff).
+     *
+     * @var array<int, string>
+     */
+    private const READABILITY_BANDS = array(
+        90 => 'Very Easy',
+        80 => 'Easy',
+        70 => 'Fairly Easy',
+        60 => 'Standard',
+        50 => 'Fairly Difficult',
+        30 => 'Difficult',
+        0  => 'Very Confusing',
+    );
+
+    /**
+     * GET /content-intelligence/quality?post_id={id} — real per-post
+     * signals for exactly one real, already-saved post/page, per direct
+     * instruction: "Content Score" used to recompute the same
+     * weighted-severity formula site-wide (`get_score()` above), heavily
+     * overlapping Grow My Traffic's own SEO Score (5 of 6 shared scanner
+     * ids) and inviting "why is my Content Score 87 but SEO Score 67?"
+     * confusion. This route instead answers "how good is THIS piece of
+     * content" for whichever post the caller picks — no aggregate number
+     * that could be compared against SEO Score at all.
+     *
+     * Only 3 real dimensions, deliberately — "clarity" and "tone" have no
+     * genuine computed signal anywhere in this codebase, so rather than
+     * inventing one, this route only returns what's real:
+     * - readability: ReadabilityScanner::calculate_flesch_reading_ease()
+     *   run directly against this post's own content (the same real
+     *   formula that scanner already uses, just for one post on demand
+     *   rather than batch-scanned).
+     * - completeness: OnPageAnalyzer's own "basic" check group
+     *   (title/description/content length) against this post's real
+     *   saved fields — the same live checklist the post editor's own
+     *   Checklist.tsx already runs, just fed this post's saved values
+     *   instead of the editor's current unsaved ones. No focus_keyword is
+     *   passed (posts don't persist one outside the editor session), so
+     *   the keyword-dependent checks are skipped, same as
+     *   OnPageAnalyzer::analyze() already does when it's blank.
+     * - structure: that same analyzer's real `has_subheadings` check.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response
+     */
+    public function get_quality( $request ) {
+        $post_id = absint( $request->get_param( 'post_id' ) );
+        $post    = $post_id ? get_post( $post_id ) : null;
+
+        if ( ! $post ) {
+            return new \WP_Error( 'vulopilot_post_not_found', __( 'Post not found.', 'vulopilot' ), array( 'status' => 404 ) );
+        }
+
+        $plain_text        = wp_strip_all_tags( $post->post_content );
+        $readability_score = ( new ReadabilityScanner() )->calculate_flesch_reading_ease( $plain_text );
+
+        $checks = ( new OnPageAnalyzer() )->analyze(
+            array(
+                'title'   => $post->post_title,
+                'content' => $post->post_content,
+                'excerpt' => $post->post_excerpt,
+                'slug'    => $post->post_name,
+            )
+        );
+
+        $basic_checks  = array_values(
+            array_filter(
+                $checks,
+                static fn( array $check ): bool => 'basic' === $check['group']
+            )
+        );
+        $passed_checks = array_values(
+            array_filter(
+                $basic_checks,
+                static fn( array $check ): bool => 'pass' === $check['status']
+            )
+        );
+
+        $structure_check = current(
+            array_filter(
+                $checks,
+                static fn( array $check ): bool => 'has_subheadings' === $check['id']
+            )
+        );
+
+        return rest_ensure_response(
+            array(
+                'post_id'      => $post_id,
+                'readability'  => array(
+                    'score' => $readability_score,
+                    'label' => $this->readability_label( $readability_score ),
+                ),
+                'completeness' => array(
+                    'passed' => count( $passed_checks ),
+                    'total'  => count( $basic_checks ),
+                    'checks' => $basic_checks,
+                ),
+                'structure'    => $structure_check ? $structure_check : null,
+            )
+        );
+    }
+
+    /**
+     * Maps a real Flesch Reading Ease score to its published band label.
+     *
+     * @param int $score Real 0-100 Flesch Reading Ease score.
+     * @return string
+     */
+    private function readability_label( int $score ): string {
+        foreach ( self::READABILITY_BANDS as $floor => $label ) {
+            if ( $score >= $floor ) {
+                return $label;
+            }
+        }
+
+        return self::READABILITY_BANDS[0];
     }
 
     /**

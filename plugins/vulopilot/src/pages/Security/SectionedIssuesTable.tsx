@@ -60,10 +60,9 @@ interface SectionedIssuesTableProps {
 	 * `SECURITY_FINDINGS_SCANNER_IDS` counts (e.g. `core-file-integrity`
 	 * has no dedicated section of its own, same reason this tab's old
 	 * catch-all "Security Findings" section used to exist). Omit when `sections`' own union
-	 * genuinely already is everything (Site Health/Files & Plugins/
-	 * Accessibility, whose hero cards already compute their own totals the
-	 * same union way — see SiteHealthTab.tsx's/FilesPluginsTab.tsx's own
-	 * `ALL_SCANNER_IDS`).
+	 * genuinely already is everything (Site Health/Accessibility, whose
+	 * hero cards already compute their own totals the same union way —
+	 * see SiteHealthTab.tsx's own `ALL_SCANNER_IDS`).
 	 */
 	allScannerIds?: string[];
 	activeTab: SectionedIssuesTab;

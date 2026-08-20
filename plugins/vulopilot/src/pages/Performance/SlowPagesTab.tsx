@@ -19,6 +19,7 @@ import {
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
+import RecommendedFixesCard from './RecommendedFixesCard';
 import './ImproveSpeed.scss';
 
 /** `id: 'performance'` (Settings/Scanning/Performance.ts) — where the real PageSpeed Insights API key field this notice's own "no PSI connected" message used to describe in text actually lives. */
@@ -780,34 +781,7 @@ const SlowPagesTab = () => {
 					)}
 				</CardComponent>
 
-				<CardComponent title={__( 'Why these pages matter', 'vulopilot' )} titleIcon="info">
-					<p className="page-speed-sidebar-desc">
-						{__(
-							'Slower pages can frustrate visitors and affect your search rankings.',
-							'vulopilot'
-						)}
-					</p>
-					<ListComponent
-						className="mini-card report"
-						items={[
-							{
-								id: 'poor-ux',
-								title: __( 'Poor user experience', 'vulopilot' ),
-								desc: __( 'Visitors may leave your site.', 'vulopilot' ),
-							},
-							{
-								id: 'lower-conversions',
-								title: __( 'Lower conversions', 'vulopilot' ),
-								desc: __( 'Slow pages reduce sales and signups.', 'vulopilot' ),
-							},
-							{
-								id: 'search-ranking',
-								title: __( 'Search ranking impact', 'vulopilot' ),
-								desc: __( 'Speed is a ranking factor for Google.', 'vulopilot' ),
-							},
-						]}
-					/>
-				</CardComponent>
+				<RecommendedFixesCard topIssues={topIssues} />
 
 				<CardComponent title={__( "What's considered slow?", 'vulopilot' )}>
 					<ul className="page-speed-legend">

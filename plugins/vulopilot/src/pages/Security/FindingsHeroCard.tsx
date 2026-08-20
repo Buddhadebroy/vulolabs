@@ -12,21 +12,24 @@ interface FindingRow {
 interface FindingsHeroCardProps {
 	/** adminfont- icon name for the hero's own icon circle. */
 	icon: string;
-	/** Used in the headline, e.g. "Site Health"/"Files & Plugins". */
+	/** Used in the headline, e.g. "Site Health". */
 	label: string;
-	/** Combined scanner ids across every section this tab shows — same list SiteHealthTab.tsx/FilesPluginsTab.tsx already build for their own SectionedFindingsTab sections. */
+	/** Combined scanner ids across every section this tab shows — same list SiteHealthTab.tsx builds for its own SectionedFindingsTab sections. */
 	scannerIds: string[];
 	/** Scrolls to the tab's own first section. */
 	onReviewFirst: () => void;
 }
 
 /**
- * Shared hero card for SiteHealthTab.tsx/FilesPluginsTab.tsx — same "start
- * with a summary card + a real chart" shape SecurityTab.tsx's
- * SecurityMockupHeader and PerformanceTab.tsx's EfficiencyHeroCard/
- * EfficiencyOverviewChart already establish for their own tabs, which
- * these two tabs previously went straight past into their section list
- * without. Unlike Security's own `/findings/attention-summary` (a fixed,
+ * Shared hero card, currently only consumed by SiteHealthTab.tsx (also
+ * used by the now-removed FilesPluginsTab.tsx, which this component was
+ * originally built alongside — kept generic/reusable rather than folded
+ * into SiteHealthTab.tsx itself, since nothing else about it is
+ * Site-Health-specific) — same "start with a summary card + a real chart"
+ * shape SecurityTab.tsx's SecurityMockupHeader and PerformanceTab.tsx's
+ * EfficiencyHeroCard/EfficiencyOverviewChart already establish for their
+ * own tabs, which this tab previously went straight past into its section
+ * list without. Unlike Security's own `/findings/attention-summary` (a fixed,
  * security-specific endpoint), this fetches the combined open-findings
  * list directly and folds severities client-side — the same
  * critical→high/info→low fold VulnerabilityHeroCard's own attention

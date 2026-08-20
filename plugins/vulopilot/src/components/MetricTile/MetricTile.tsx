@@ -62,7 +62,7 @@ interface MetricTileProps {
  * footer-button CSS under their own class names: MetricsGrid.tsx's
  * `.performance-metric-tile` (Improve Speed), SecurityMetricsGrid.tsx's
  * `.security-metric-tile` (Protect My Site), AccessibilityChecksGrid.tsx's
- * `.accessibility-check-tile` (Protect My Site → Accessibility), and
+ * `.accessibility-check-tile` (Accessibility, its own top-level page), and
  * WooCommerceCategoryGrid.tsx's `.woocommerce-category-card` (Sell More).
  *
  * `variant` (see MetricTile.scss) is the one real visual difference left

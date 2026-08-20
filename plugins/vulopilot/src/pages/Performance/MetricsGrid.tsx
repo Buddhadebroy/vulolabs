@@ -69,12 +69,6 @@ const METRIC_TILES: MetricTileData[] = [
 		title: __('CDN', 'vulopilot'),
 		desc: __('Content delivery network coverage.', 'vulopilot'),
 	},
-	{
-		id: 'performance-monitor',
-		icon: 'analytics',
-		title: __('Performance Monitor', 'vulopilot'),
-		desc: __('Ongoing real-time performance tracking.', 'vulopilot'),
-	},
 ];
 
 const NOT_TRACKED_BADGE = { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' };
@@ -86,9 +80,8 @@ const OPEN_FALLBACK_BADGE = { text: __('No open findings', 'vulopilot'), color: 
  * tile's "View" button jumps straight there and switches to that section's
  * tab, same "per-tile Review button drives a shared table's activeTab"
  * pattern AccessibilityChecksGrid.tsx already established. "Core Web
- * Vitals" and "Performance Monitor" aren't scanner findings (they're live
- * metrics, not issues), so they're handled separately — see
- * `onViewCoreWebVitals`/`onViewPerformanceMonitor` below.
+ * Vitals" isn't a scanner finding (it's a live metric, not an issue), so
+ * it's handled separately — see `onViewCoreWebVitals` below.
  */
 const SECTION_KEY_BY_TILE_ID: Record<string, string> = {
 	caching: 'caching-delivery',
@@ -101,10 +94,6 @@ const SECTION_KEY_BY_TILE_ID: Record<string, string> = {
 	cdn: 'caching-delivery',
 };
 
-interface RealtimeStats {
-	samples_last_hour: number;
-}
-
 interface CoreWebVitalsSummary {
 	sample_count: number;
 }
@@ -112,45 +101,46 @@ interface CoreWebVitalsSummary {
 const MIN_CWV_SAMPLES = 10;
 
 /**
- * The mockup's 10-tile metrics grid. 8 of 10 tiles now map to a real
- * category-'performance' scanner via `useSectionStatus()` (the same real
- * "No open findings"/"N Open" badge `TechnicalVisibilityCard.tsx` already
- * produces): Caching (`cache-detection`), Images (`large-images`), CSS
- * Optimization (`css-optimization`), JavaScript (`javascript-optimization`),
- * Fonts (`fonts`), Lazy Loading (`lazy-loading`), CDN (`cdn`), Database
- * Cleanup (`database-cleanup`) — see each scanner's own file in
- * `classes/Scanners/Basic/`. "Performance Monitor" is real too, but isn't
- * scanner-backed — it reads `GET /performance-realtime` (populated by
- * `Services\PerformanceRequestLogger`) and shows "Active" once any request
- * has been logged in the last hour. "Core Web Vitals" is real too — it
- * reads the same `GET /core-web-vitals` real-visitor RUM summary
- * PerformanceScoreCard's own Core Web Vitals card reads, showing "Tracking"
- * once past that card's own `MIN_SAMPLES` floor, or a real "Collecting
- * data (N/10)" count below it — never a static "Not tracked yet" now that
- * a real collection pipeline exists (Services\CoreWebVitalsBeacon).
+ * The mockup's metrics grid — down to 9 tiles (from 10) per direct
+ * instruction: "Performance Monitor" removed, since it was a pure
+ * duplicate of RealTimeMonitoringCard.tsx — literally the same `GET
+ * /performance-realtime` endpoint, rendered twice on the same page. That
+ * card (further down this page) remains the one real home for this
+ * capability.
  *
- * Each tile now also carries a real "View" button (`ButtonInput`, same
+ * 8 of the 9 remaining tiles map to a real category-'performance' scanner
+ * via `useSectionStatus()` (the same real "No open findings"/"N Open"
+ * badge `TechnicalVisibilityCard.tsx` already produces): Caching
+ * (`cache-detection`), Images (`large-images`), CSS Optimization
+ * (`css-optimization`), JavaScript (`javascript-optimization`), Fonts
+ * (`fonts`), Lazy Loading (`lazy-loading`), CDN (`cdn`), Database Cleanup
+ * (`database-cleanup`) — see each scanner's own file in
+ * `classes/Scanners/Basic/`. "Core Web Vitals" is real too — it reads the
+ * same `GET /core-web-vitals` real-visitor RUM summary PerformanceScoreCard's
+ * own Core Web Vitals card reads, showing "Tracking" once past that
+ * card's own `MIN_SAMPLES` floor, or a real "Collecting data (N/10)"
+ * count below it — never a static "Not tracked yet" now that a real
+ * collection pipeline exists (Services\CoreWebVitalsBeacon).
+ *
+ * Each tile still carries a real "View" button (`ButtonInput`, same
  * component/shape AccessibilityChecksGrid.tsx's own per-tile "Review"
  * button uses): the 8 scanner-backed tiles jump to and select their own
  * section of the "Top Issues" table further down this page
- * (`onViewSection`, via `SECTION_KEY_BY_TILE_ID`); "Core Web Vitals" and
- * "Performance Monitor" instead scroll to their own real detail card
- * higher/lower on this same page (`onViewCoreWebVitals`/
- * `onViewPerformanceMonitor`) — both already show this exact tile's data,
- * so "View" jumps there rather than to a findings table that has no row
- * for either of them.
+ * (`onViewSection`, via `SECTION_KEY_BY_TILE_ID`); "Core Web Vitals"
+ * instead scrolls to its own real detail card higher on this same page
+ * (`onViewCoreWebVitals`) — it already shows this exact tile's data, so
+ * "View" jumps there rather than to a findings table that has no row for
+ * it.
  */
 interface MetricsGridProps {
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onViewSection: (sectionKey: string) => void;
 	onViewCoreWebVitals: () => void;
-	onViewPerformanceMonitor: () => void;
 }
 
 const MetricsGrid = ({
 	onViewSection,
 	onViewCoreWebVitals,
-	onViewPerformanceMonitor,
 }: MetricsGridProps) => {
 	const caching = useSectionStatus('performance', ['cache-detection']);
 	const images = useSectionStatus('performance', ['large-images']);
@@ -161,19 +151,9 @@ const MetricsGrid = ({
 	const cdn = useSectionStatus('performance', ['cdn']);
 	const databaseCleanup = useSectionStatus('performance', ['database-cleanup']);
 
-	const [realtimeStats, setRealtimeStats] = useState<RealtimeStats | null>(null);
 	const [vitalsSummary, setVitalsSummary] = useState<CoreWebVitalsSummary | null>(null);
 
 	useEffect(() => {
-		getApiResponse<RealtimeStats>(
-			getApiLink(appLocalizer, 'performance-realtime'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		).then((response) => {
-			if (response) {
-				setRealtimeStats(response);
-			}
-		});
-
 		getApiResponse<CoreWebVitalsSummary>(
 			getApiLink(appLocalizer, 'core-web-vitals'),
 			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
@@ -213,23 +193,12 @@ const MetricsGrid = ({
 					};
 		}
 
-		if (id === 'performance-monitor') {
-			return realtimeStats && realtimeStats.samples_last_hour > 0
-				? { text: __('Active', 'vulopilot'), color: 'green' }
-				: { text: __('Not collecting data yet', 'vulopilot'), color: 'indigo' };
-		}
-
 		return SECTION_STATUS_BY_TILE[id]?.badge ?? OPEN_FALLBACK_BADGE;
 	};
 
 	const handleView = (tileId: string) => {
 		if (tileId === 'core-web-vitals') {
 			onViewCoreWebVitals();
-			return;
-		}
-
-		if (tileId === 'performance-monitor') {
-			onViewPerformanceMonitor();
 			return;
 		}
 
