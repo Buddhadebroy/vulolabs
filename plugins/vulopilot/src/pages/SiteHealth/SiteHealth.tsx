@@ -33,6 +33,7 @@ const SiteHealth = () => {
 	});
 
 	return (
+		<>
 			<NavigatorHeaderComponent
 				headerIcon="active"
 				headerTitle={__('Site Health', 'vulopilot')}
@@ -43,10 +44,11 @@ const SiteHealth = () => {
 				buttons={[runScanButton]}
 			/>
 			<ContainerComponent general>
-			<BackupProtectionNotice />
-			<SiteHealthTab />
-			<BackupsTab />
-		</ContainerComponent>
+				<BackupProtectionNotice />
+				<SiteHealthTab />
+				<BackupsTab />
+			</ContainerComponent>
+		</>
 	);
 };
 
