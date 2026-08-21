@@ -128,7 +128,7 @@ class Automations extends \WP_REST_Controller {
         $next_run_by_type   = array();
 
         foreach ( $cron_trigger_types as $trigger_type ) {
-            $timestamp                        = wp_next_scheduled( 'vulopilot_automation_tick_' . $trigger_type );
+            $timestamp                        = wp_next_scheduled( 'vulopilot_automations_tick_' . $trigger_type );
             $next_run_by_type[ $trigger_type ] = $timestamp ? gmdate( 'Y-m-d H:i:s', $timestamp ) : null;
         }
 
@@ -156,7 +156,7 @@ class Automations extends \WP_REST_Controller {
         $repository = new AutomationsRepository();
 
         if ( ! $repository->find( $id ) ) {
-            return new \WP_Error( 'vulopilot_automation_not_found', __( 'Automation not found.', 'vulopilot' ), array( 'status' => 404 ) );
+            return new \WP_Error( 'vulopilot_automations_not_found', __( 'Automation not found.', 'vulopilot' ), array( 'status' => 404 ) );
         }
 
         if ( ! $repository->update( $id, array( 'status' => $status ) ) ) {
@@ -179,11 +179,11 @@ class Automations extends \WP_REST_Controller {
         $repository = new AutomationsRepository();
 
         if ( ! $repository->find( $id ) ) {
-            return new \WP_Error( 'vulopilot_automation_not_found', __( 'Automation not found.', 'vulopilot' ), array( 'status' => 404 ) );
+            return new \WP_Error( 'vulopilot_automations_not_found', __( 'Automation not found.', 'vulopilot' ), array( 'status' => 404 ) );
         }
 
         return new \WP_Error(
-            'vulopilot_automation_not_implemented',
+            'vulopilot_automations_not_implemented',
             __( 'Manually running an automation isn\'t supported yet — automations currently only fire from their own configured trigger.', 'vulopilot' ),
             array( 'status' => 501 )
         );

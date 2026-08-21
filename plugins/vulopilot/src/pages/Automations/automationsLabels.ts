@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * Mirrors vulopilot-pro's TRIGGER_TYPE_OPTIONS/ACTION_TYPE_OPTIONS
- * (modules/Automation/src/AutomationPanel.tsx) 1:1 — Free can't import
+ * (modules/Automations/src/AutomationsWizard.tsx) 1:1 — Free can't import
  * Pro's src/ tree directly (only the shared zyra package), so this is its
  * own small copy of the same registry defaults, same convention that file
  * itself already uses for mirroring the backend TriggerRegistry/

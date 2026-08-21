@@ -20,8 +20,8 @@ import NeedsAttentionCard, {
 import RecentConversationsCard from './RecentConversationsCard';
 import AiUsageCard from './AiUsageCard';
 import IssuesList from './IssuesList';
-import AutomationTemplatesCard from '../Automation/AutomationTemplatesCard';
-import { AutomationTemplate } from '../Automation/automationTemplates';
+import AutomationTemplatesCard from '../Automations/AutomationsTemplatesCard';
+import { AutomationTemplate } from '../Automations/automationsTemplates';
 import {
 	useCopilotChat,
 	CopilotChatTurn,
@@ -321,11 +321,11 @@ const ChatTab: React.FC<ChatTabProps> = ({
 
 	/**
 	 * AutomationTemplatesCard's real home is Automate Work
-	 * (`ManageAutomationsSection.tsx`, via `Automation.tsx`) — this preview
+	 * (`ManageAutomationsSection.tsx`, via `Automations.tsx`) — this preview
 	 * on Chat navigates there rather than trying to open a create form that
 	 * lives in a different top-level page's own React tree, carrying the
 	 * picked template through the `automation_template` URL param.
-	 * `Automation.tsx` reads it on mount and forwards it down so the real
+	 * `Automations.tsx` reads it on mount and forwards it down so the real
 	 * wizard opens already seeded, not a bare redirect to a blank page.
 	 * Automate Work has no `subtab=` of its own since its own redesign
 	 * flattened its previous Overview/Automations two-tab shell into one

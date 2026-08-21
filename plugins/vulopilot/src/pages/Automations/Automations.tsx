@@ -56,14 +56,14 @@ interface AutomationSlotValue {
  * spec calls out to consolidate.
  *
  * Owns the real wizard/"Build with AI" popups' open-signal state and the
- * `vulopilot_automation_panel` filter-slot resolution directly (rather than
+ * `vulopilot_automations_panel` filter-slot resolution directly (rather than
  * `ManageAutomationsSection.tsx`, their previous host) since the header's
  * own two buttons need to open them too, not just the table's row actions —
  * a single shared instance of each popup, not two independently-triggered
  * ones.
  */
 const Automations = () => {
-	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automation_panel');
+	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automations_panel');
 	const Wizard = slot?.Wizard;
 	const Generate = slot?.Generate;
 

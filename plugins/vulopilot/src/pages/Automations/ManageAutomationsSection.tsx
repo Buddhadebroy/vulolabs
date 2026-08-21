@@ -29,7 +29,7 @@ export interface AutomationRow extends TableRow {
 
 /**
  * All/Active/Drafts/Paused (spec section 9) — maps directly onto the real
- * `status` column's 3 real values (`AutomationRepository::get_status_counts()`).
+ * `status` column's 3 real values (`AutomationsRepository::get_status_counts()`).
  * "All" is prepended automatically by `useApiList`'s own `categoryFilter`
  * handling, same as every other status-count pill bar in this codebase.
  */
@@ -130,12 +130,12 @@ const StatusToggleCell = ({ row, onToggle, onRunNow, runDisabled }: StatusToggle
 );
 
 interface ManageAutomationsSectionProps {
-	/** Whether the real wizard resolved (`vulopilot_automation_panel`'s own `Wizard` — Pro active and the Automation module on) — gates whether row actions call the real endpoints directly or fall back to the upsell popup. */
+	/** Whether the real wizard resolved (`vulopilot_automations_panel`'s own `Wizard` — Pro active and the Automations module on) — gates whether row actions call the real endpoints directly or fall back to the upsell popup. */
 	hasWizard: boolean;
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onOpenRow: (row: AutomationRow) => void;
 	onRequireProUpsell: () => void;
-	/** Bumped by the host (`Automation.tsx`) after the wizard actually saves/changes something — this table has no fetch state of its own to update otherwise, since it isn't the one that owns the popup that just wrote to it. */
+	/** Bumped by the host (`Automations.tsx`) after the wizard actually saves/changes something — this table has no fetch state of its own to update otherwise, since it isn't the one that owns the popup that just wrote to it. */
 	refetchSignal: number;
 }
 

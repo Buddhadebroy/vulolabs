@@ -16,7 +16,7 @@ interface AutomationRow {
  * (`summary.automation_status`, Controllers/Dashboard.php) — no extra
  * request needed for those two numbers. The row list underneath is a
  * second, small fetch against the same `/automations` endpoint
- * src/pages/Automation/Automation.tsx already uses, capped to 5 rows.
+ * src/pages/Automations/Automations.tsx already uses, capped to 5 rows.
  */
 const AutomationStatusWidget: React.FC<WidgetProps> = ({
 	summary,

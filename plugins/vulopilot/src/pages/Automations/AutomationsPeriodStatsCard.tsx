@@ -49,7 +49,7 @@ const pctBadge = (current: number, previous: number): string | undefined => {
  * shape this pairing had in this page's own earlier design) — "Alerts
  * sent"/"Reports delivered" are new here: real successful counts of the
  * `create-notification`/`send-email` action types for the period
- * (`AutomationRunRepository::get_action_type_totals_for_period()`), not
+ * (`AutomationsRunRepository::get_action_type_totals_for_period()`), not
  * available anywhere else on this page. Worded "Changes made" rather than
  * the mockup's own "Changes detected" — this codebase's Automation Engine
  * makes changes, it doesn't watch for and detect ambient site changes,

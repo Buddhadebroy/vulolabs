@@ -55,7 +55,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * already reads) for "Active"/"Need setup"; real
  * `GET /automation-dashboard-stats?period=month`'s own `last_check_at`
  * (the real most-recent `automation_runs.finished_at` across every
- * automation — `AutomationRunRepository::get_most_recent_finished_at()`)
+ * automation — `AutomationsRunRepository::get_most_recent_finished_at()`)
  * for "Last check".
  *
  * The hero's icon state and headline both degrade honestly when nothing is
