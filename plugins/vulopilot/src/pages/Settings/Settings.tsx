@@ -10,6 +10,7 @@ import { CardComponent, ModuleGuardComponent, NavigatorComponent } from '@zyra/c
 import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import AiProvidersPanel from '../../components/Settings/AiProvidersPanel';
+import ModulesPanel from '../../components/Settings/ModulesPanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import GoogleServicesPanel from '../../components/Settings/Scanning/GoogleServicesPanel';
@@ -39,7 +40,11 @@ import ShowProPopup from '../../components/Popup/Popup';
  * one vulolabs's Settings.tsx uses for StoreStatus/Invoice/etc.) —
  * file download/upload and a destructive reset don't fit the per-field
  * auto-save model, so that one tab id renders ImportExportPanel instead
- * of InputRenderer.
+ * of InputRenderer. 'modules' is the same escape hatch, added per direct
+ * instruction ("move the modules tab in settings after general tab") —
+ * real enable/disable toggles, not persisted fields, so it renders
+ * ModulesPanel.tsx instead; see Modules.ts's own docblock for where its
+ * content used to live.
  */
 const Settings = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -109,6 +114,16 @@ const Settings = () => {
 		// so they don't fit InputRenderer's per-field auto-save model either.
 		if (currentTab === 'ai-providers') {
 			return <AiProvidersPanel />;
+		}
+
+		// Modules tab — real enable/disable toggles (ModuleGridComponent's
+		// own `apiLink="modules"` round-trip), not persisted-field settings
+		// — same escape hatch as 'ai-providers' above. Moved here from a
+		// standalone top-level page per direct instruction ("move the
+		// modules tab in settings after general tab") — see Modules.ts's
+		// own docblock.
+		if (currentTab === 'modules') {
+			return <ModulesPanel />;
 		}
 
 		// Instant Indexing tab's "Submit URLs"/"History" cards are real

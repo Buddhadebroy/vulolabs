@@ -158,15 +158,20 @@ class Admin {
                     'priority' => 100,
                     'icon'     => 'dashicons-admin-generic',
                 ),
-                // Always last — appended after the redesigned menu rather
-                // than sorted in by priority number alone, so a filter
-                // adding a higher-priority item later can't accidentally
-                // push Modules out of the last slot.
-                'modules'       => array(
-                    'name'     => __( 'Modules', 'vulopilot' ),
-                    'priority' => PHP_INT_MAX,
-                    'icon'     => 'dashicons-admin-plugins',
-                ),
+                // 'modules' used to sit here too (always last, pinned via
+                // PHP_INT_MAX so a filter adding a higher-priority item
+                // later couldn't push it out of the last slot) — removed
+                // per direct instruction ("move the modules tab in
+                // settings after general tab"): its real content
+                // (ModuleGridComponent) now renders as Settings' own
+                // "Modules" tab instead (src/components/Settings/Modules.ts,
+                // priority 1.5, right after "General"). The `tab=modules`
+                // React route (src/routes.ts) is still registered and
+                // fully working, reachable directly via
+                // `admin.php?page=vulopilot#&tab=modules` — only this
+                // native submenu row was removed, same "route stays real,
+                // just not in the native submenu list" treatment every
+                // entry in legacy_submenus() below already gets.
             )
         );
 
@@ -279,6 +284,15 @@ class Admin {
             'status-tools'     => array(
                 'name'   => __( 'Status & Tools', 'vulopilot' ),
                 'subtab' => 'system-status',
+            ),
+            // Not folded into a grouped-cluster item like the others above
+            // — moved into "Settings" as that page's own "Modules" tab
+            // instead (src/components/Settings/Modules.ts) per direct
+            // instruction, same "route stays real, submenu row removed"
+            // treatment as every entry above.
+            'modules'          => array(
+                'name' => __( 'Modules', 'vulopilot' ),
+                'icon' => 'dashicons-admin-plugins',
             ),
         );
     }
