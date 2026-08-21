@@ -36,16 +36,18 @@ export interface GeoVisibilityHistoryRow {
 /**
  * Shared `GET /geo-visibility-summary` + `GET /geo-visibility-history`
  * fetch (both vulopilot-pro's GeoInsights module — Pro-only) — one real
- * pair of calls, reused by GeoVisibilityOverviewRow.tsx ("Overall AI
- * Visibility"/"The 4 things AI checks for"), GeoTrendCompactCard.tsx
- * ("Are You Getting Easier to Find?"), and the "your own score" bar
+ * pair of calls, reused by GeoVisibilitySummaryCard.tsx ("Overall AI
+ * Visibility", merging what used to be GeoVisibilityOverviewRow.tsx's
+ * "Overall AI Visibility"/"The 4 things AI checks for" and
+ * GeoTrendCompactCard.tsx's "Are You Getting Easier to Find?" into one
+ * card — see that component's own docblock), and the "your own score" bar
  * GeoTab.tsx passes into the Pro competitor-comparison slot — same "one
  * real call, reused by every card that needs it" pattern
  * useGeoFindingGroups.ts already establishes for `/findings/groups`.
  * `history`'s own most-recent row already carries a real `overall_score`
  * (GeoInsights\VisibilitySnapshotBuilder::calculate_overall_score()) even
  * though `snapshot` itself only exposes the raw per-dimension breakdown —
- * see GeoVisibilityOverviewRow.tsx's own docblock for why both are needed
+ * see GeoVisibilitySummaryCard.tsx's own docblock for why both are needed
  * together.
  */
 export const useGeoVisibilitySnapshot = (): {
