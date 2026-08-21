@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { NavigatorHeaderComponent } from '@zyra/components';
+import { NavigatorHeaderComponent, ContainerComponent } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import SiteHealthTab from '../Security/SiteHealthTab';
 import BackupsTab from '../Security/BackupsTab';
@@ -33,7 +33,6 @@ const SiteHealth = () => {
 	});
 
 	return (
-		<>
 			<NavigatorHeaderComponent
 				headerIcon="active"
 				headerTitle={__('Site Health', 'vulopilot')}
@@ -43,10 +42,11 @@ const SiteHealth = () => {
 				)}
 				buttons={[runScanButton]}
 			/>
+			<ContainerComponent general>
 			<BackupProtectionNotice />
 			<SiteHealthTab />
 			<BackupsTab />
-		</>
+		</ContainerComponent>
 	);
 };
 
