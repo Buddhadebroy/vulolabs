@@ -6,6 +6,8 @@ export interface CrawlerRow {
 	bot_name: string;
 	total: number;
 	previous_total: number;
+	/** Real `MAX(created_at)` for this bot (CrawlerVisitRepository::get_bot_last_seen(), merged into this same row server-side) — null if this bot has never actually visited (only ever appears when it has a real previous-period count but none in the current window). */
+	last_seen_at: string | null;
 }
 
 export interface CrawledPageRow {

@@ -38,7 +38,12 @@ interface SchemaKnowledgeTabProps {
  * 2. `KnowledgeGraphSection.tsx` — "What AI & Search Understand" (all 6
  *    real entity-type counts + vulopilot-pro's real relationship diagram,
  *    moved up from that section's own sidebar to sit beside the list),
- *    then its own existing real detail cards/checks/Pro slots, unchanged.
+ *    then its own existing real detail cards/Pro slots. That section used
+ *    to also have its own "What should you check?" heuristic-checks panel
+ *    — removed per direct instruction ("remove redundant content"): it was
+ *    a 2nd, less-real "What Needs Fixing"-shaped card duplicating item 3
+ *    below, which already covers the same concept with real backend
+ *    findings. See that section's own docblock.
  * 3. `WhatNeedsFixingCard.tsx` (NEW) — a real top-3 preview of the exact
  *    same findings `IssuesSection.tsx`'s own full table below already
  *    fetches, per the mockup's own compact "top issues + View all" shape.

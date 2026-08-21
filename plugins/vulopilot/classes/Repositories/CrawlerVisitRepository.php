@@ -74,7 +74,10 @@ class CrawlerVisitRepository extends AbstractRepository {
 
     /**
      * Most recent visit timestamp per bot — readme.txt's "Last-Seen
-     * Timestamps."
+     * Timestamps." Still backs `GET /crawler-traffic/summary`, and
+     * `get_period_comparison()` above also folds this same real value into
+     * each of its own `top_crawlers` rows (that table's own "Last seen"
+     * column, per direct instruction to merge the two).
      *
      * @return array<int, array{bot_name: string, last_seen_at: string}>
      */
@@ -266,7 +269,7 @@ class CrawlerVisitRepository extends AbstractRepository {
      *     previous_total: int,
      *     current_unique_bots: int,
      *     previous_unique_bots: int,
-     *     top_crawlers: array<int, array{bot_name: string, total: int, previous_total: int}>,
+     *     top_crawlers: array<int, array{bot_name: string, total: int, previous_total: int, last_seen_at: string|null}>,
      *     most_crawled_pages: array<int, array{requested_url: string, total: int, previous_total: int}>,
      * }
      */
@@ -282,6 +285,17 @@ class CrawlerVisitRepository extends AbstractRepository {
         $current  = $this->get_stats_for_period( $current_start, gmdate( 'Y-m-d' ) );
         $previous = $this->get_stats_for_period( $previous_start, $previous_end );
 
+        // Same real `MAX(created_at)` per bot get_bot_last_seen() already
+        // computes for the summary endpoint's own "Last seen" tiles — reused
+        // here (not a second query shape) so Top Crawlers' own "Last seen"
+        // column (direct instruction: "merge top crawlers and last seen
+        // section add a column in top crawlers last seen") is the exact same
+        // real timestamp, not a re-derived one that could disagree.
+        $last_seen_by_bot = array();
+        foreach ( $this->get_bot_last_seen() as $row ) {
+            $last_seen_by_bot[ $row['bot_name'] ] = $row['last_seen_at'];
+        }
+
         $bot_names = array_unique( array_merge( array_keys( $current['by_bot'] ), array_keys( $previous['by_bot'] ) ) );
         $top_crawlers = array();
         foreach ( $bot_names as $bot_name ) {
@@ -289,6 +303,7 @@ class CrawlerVisitRepository extends AbstractRepository {
                 'bot_name'       => $bot_name,
                 'total'          => $current['by_bot'][ $bot_name ] ?? 0,
                 'previous_total' => $previous['by_bot'][ $bot_name ] ?? 0,
+                'last_seen_at'   => $last_seen_by_bot[ $bot_name ] ?? null,
             );
         }
         usort( $top_crawlers, static fn( $a, $b ) => $b['total'] <=> $a['total'] );

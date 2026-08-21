@@ -5,7 +5,6 @@ import type { ComponentType } from 'react';
 import { CardComponent, ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
-import CrawlerSummaryCard from './CrawlerSummaryCard';
 import CrawlerAnalyticsSection from './CrawlerAnalyticsSection';
 import { useCrawlerAnalytics } from './useCrawlerAnalytics';
 
@@ -47,10 +46,17 @@ interface CrawlerVisitRow extends TableRow {
  * Robots & Sitemap"): a real health/stat row, a real trend chart + "by AI
  * lab" breakdown, real Top Crawlers/Most Crawled Pages tables (all from
  * CrawlerAnalyticsSection.tsx, backed by `crawler-traffic/analytics`,
- * including its own real Crawl Health Checklist), the pre-existing real
- * "Last seen" tiles (CrawlerSummaryCard.tsx), vulopilot-pro's 3 Pro card
- * slots, and the pre-existing paginated raw visit log (useApiList +
+ * including its own real Crawl Health Checklist), vulopilot-pro's 3 Pro
+ * card slots, and the pre-existing paginated raw visit log (useApiList +
  * TableCard, same shape ActivityLogs.php already uses).
+ *
+ * Used to also render a separate "Last seen" tiles card
+ * (CrawlerSummaryCard.tsx) right here — removed per direct instruction
+ * ("merge top crawlers and last seen section, add a column in top crawlers
+ * last seen"): that same real per-bot timestamp is now its own "Last seen"
+ * column on CrawlerAnalyticsSection.tsx's own Top Crawlers table instead
+ * (see that file's own docblock). CrawlerSummaryCard.tsx was deleted, not
+ * kept as dead code — this was its only real consumer.
  *
  * The 3 real findings tables this tab used to also render here — "Blocked
  * pages"/"Robots.txt Issues"/"XML Sitemap Issues" — moved to
@@ -134,8 +140,6 @@ const CrawlOverviewSection = () => {
 						analytics={analytics}
 						isLoading={isLoadingAnalytics}
 					/>
-
-					<CrawlerSummaryCard />
 
 					{CrawlerAlertsCard && <CrawlerAlertsCard />}
 					{HistoricalCrawlTrendsCard && (

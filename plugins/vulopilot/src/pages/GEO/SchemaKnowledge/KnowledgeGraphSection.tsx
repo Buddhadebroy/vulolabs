@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	BadgeComponent,
 	CardComponent,
@@ -39,13 +39,23 @@ export interface EntitiesResponse {
 const HIGHLIGHT_MAX_ROWS = 4;
 
 /**
- * Section → response-key grouping for Entity Extraction's remaining 3 types
- * (People/Organizations/Services) — kept as their own real cards below the
- * mockup's featured 3 (Products/Locations/Categories) rather than dropped,
- * per "existing tab data, no duplicate data". Rendered with the same
- * `EntityHighlightCard` used for Products/Categories/Business Locations
- * (icon + count badge header, `kg-entity-list` rows) so all 6 entity types
- * share one visual design, in a 3-up `grid={4}` row of their own.
+ * Section → response-key grouping for Entity Extraction's remaining
+ * multi-item types (People/Services) — kept as their own real cards below
+ * the mockup's featured 3 (Products/Locations/Categories) rather than
+ * dropped, per "existing tab data, no duplicate data". Rendered with the
+ * same `EntityHighlightCard` used for Products/Categories/Business
+ * Locations (icon + count badge header, `kg-entity-list` rows) so every
+ * entity type shares one visual design, in a row of their own.
+ *
+ * Organizations used to be a 3rd card here — removed per direct
+ * instruction ("remove redundant content"): `extract_organizations()`
+ * always returns exactly one real row (this site itself), so unlike every
+ * other card in this row/page it could never grow into an actual list —
+ * its one real value (the org's own name) is already shown twice more
+ * already-visible on this same page (the "What AI & Search Understand"
+ * graph's own anchor node, and the Business Understanding Score hero row's
+ * own "Organization" tile), making a whole 3rd card for that same single
+ * fact pure repetition rather than added real information.
  */
 const OTHER_ENTITY_SECTIONS: {
 	key: keyof EntitiesResponse;
@@ -62,12 +72,6 @@ const OTHER_ENTITY_SECTIONS: {
 				'No published posts/pages with a real author yet.',
 				'vulopilot'
 			),
-		},
-		{
-			key: 'organizations',
-			title: __('Organizations', 'vulopilot'),
-			icon: 'global-community',
-			emptyMessage: __('Nothing to show yet.', 'vulopilot'),
 		},
 		{
 			key: 'services',
@@ -114,11 +118,14 @@ const isEntityExtractionModuleActive = () =>
  * default "Uncategorized" (a real signal nothing meaningful was ever set),
  * or a name reused by more than one real term (possibly across the
  * `category`/`product_cat` taxonomies EntityExtractor::extract_categories()
- * both reads). Kept as one shared function rather than two separate copies
- * of the same "uncategorized or duplicate" rule — `buildChecks()`'s own
- * "What should you check?" panel and each Categories row's own status
- * badge both call this, so they can never silently disagree about which
- * names are messy.
+ * both reads). Drives each Categories row's own real Good/"Needs cleanup"
+ * status badge below. Used to also back this section's own "What should
+ * you check?" panel — removed per direct instruction ("remove redundant
+ * content"): SchemaKnowledgeTab.tsx already renders a real
+ * WhatNeedsFixingCard.tsx right after this whole section, covering the
+ * exact same "What Needs Fixing" concept with real backend findings
+ * instead of this file's own 2 hand-picked heuristic checks — having both
+ * on the same page was the actual redundant content, not this function.
  */
 const getMessyCategoryNames = (categories: Entity[]): Set<string> => {
 	const nameCounts = new Map<string, number>();
@@ -136,53 +143,6 @@ const getMessyCategoryNames = (categories: Entity[]): Set<string> => {
 			)
 			.map((category) => category.name)
 	);
-};
-
-/**
- * Real, computed "What should you check?" findings — no fabricated numbers,
- * every item here is derived directly from the same `entities` response
- * already on screen. Mirrors the reference mockup's own 2 example checks
- * (no locations found / category names need cleaning) but only shows an
- * item when it's actually true for this site's real data.
- */
-const buildChecks = (entities: EntitiesResponse) => {
-	const checks: {
-		key: string;
-		icon: string;
-		title: string;
-		desc: string;
-		targetId: string;
-	}[] = [];
-
-	if (entities.locations.length === 0) {
-		checks.push({
-			key: 'no-locations',
-			icon: 'location',
-			title: __('No business locations found', 'vulopilot'),
-			desc: __(
-				'No business locations were identified on your website.',
-				'vulopilot'
-			),
-			targetId: 'kg-locations',
-		});
-	}
-
-	const messyNames = Array.from(getMessyCategoryNames(entities.categories));
-	if (messyNames.length > 0) {
-		checks.push({
-			key: 'messy-categories',
-			icon: 'category',
-			title: __('Category names need cleaning', 'vulopilot'),
-			desc: sprintf(
-				/* translators: %s is a comma-separated list of real category names found on this site (duplicates and/or "Uncategorized"). */
-				__('%s detected.', 'vulopilot'),
-				messyNames.join(', ')
-			),
-			targetId: 'kg-categories',
-		});
-	}
-
-	return checks;
 };
 
 interface EntityHighlightCardProps {
@@ -357,10 +317,25 @@ const EntityHighlightCard = ({
  * recreated the exact "same real number shown twice" problem fixed
  * elsewhere this session (see that file's own docblock).
  *
- * Below the summary: a real computed "What should you check?" panel, a
- * static "why this matters" explainer, then all 6 entity types as their
- * own real detail cards (EntityHighlightCard) — kept, not dropped, per
- * "existing tab data, no duplicate data" — plus vulopilot-pro's own
+ * Below the summary: a static "why this matters" explainer, then 5 of the
+ * 6 entity types as their own real detail cards (EntityHighlightCard) —
+ * kept, not dropped, per "existing tab data, no duplicate data".
+ * Organizations is the one type that does NOT get its own detail card
+ * here (OTHER_ENTITY_SECTIONS's own docblock explains why: it can never
+ * have more than 1 real row, already shown elsewhere on this page) —
+ * removed per direct instruction ("remove redundant content"). This
+ * section used to also have its own "What should you check?"/"What Needs
+ * Fixing" panel (2 hand-picked heuristic checks: missing business
+ * location, messy category names) — also removed per that same direct
+ * instruction, since SchemaKnowledgeTab.tsx already renders a real
+ * WhatNeedsFixingCard.tsx right after this whole section, a fuller real
+ * "What Needs Fixing" backed by actual scanner findings
+ * (`GET /findings/groups`) rather than 2 hardcoded checks; having both
+ * on the same page under near-identical titles was the redundant content
+ * being flagged, not a design mismatch to fix by restyling this one.
+ * getMessyCategoryNames() itself is kept — it still drives each Categories
+ * row's own real Good/"Needs cleanup" badge below, see its own docblock.
+ * Plus vulopilot-pro's own
  * Entity Recommendations/Knowledge Graph Health Pro slots in the second
  * column. InspectorSection.tsx (JSON-LD viewer/Schema Validator/Conflict
  * Detection) used to also live in this same sidebar column; moved out to
@@ -451,7 +426,6 @@ const KnowledgeGraphSection = () => {
 		);
 	}
 
-	const checks = entities ? buildChecks(entities) : [];
 	const messyCategoryNames = entities
 		? getMessyCategoryNames(entities.categories)
 		: new Set<string>();
@@ -584,42 +558,6 @@ const KnowledgeGraphSection = () => {
 							}
 						/>
 					</>
-				)}
-
-				{checks.length > 0 && (
-					<CardComponent
-						title={__('What should you check?', 'vulopilot')}
-						titleIcon="analytics"
-						desc={__(
-							'A few things on your website are worth reviewing.',
-							'vulopilot'
-						)}
-					>
-						<div className="kg-check-list">
-							{checks.map((check) => (
-								<div key={check.key} className="kg-check-row">
-									<div className="kg-check-icon">
-										<i className={`adminfont-${check.icon}`} />
-									</div>
-									<div className="kg-check-body">
-										<div className="kg-check-title">
-											{check.title}
-										</div>
-										<div className="kg-check-desc">
-											{check.desc}
-										</div>
-									</div>
-									<ButtonInput
-										buttons={{
-											text: `${__('Review', 'vulopilot')} ›`,
-											color: 'text-purple',
-											onClick: () => scrollToId(check.targetId),
-										}}
-									/>
-								</div>
-							))}
-						</div>
-					</CardComponent>
 				)}
 
 				<CardComponent
