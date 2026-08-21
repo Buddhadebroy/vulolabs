@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
 	ColumnComponent,
+	ContainerComponent,
 	ModuleGuardComponent,
 	BadgeComponent,
-	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../../services/formatWpDate';
@@ -75,28 +75,63 @@ const STATUS_CONFIG: Record<
  * (now real, see that file's own docblock) rather than staying here as
  * "not built yet" stubs.
  *
- * "View pages" opens a real popup listing exactly which real sampled
- * page(s)/the homepage carried that row's specific @type
- * (SchemaCoverageAnalyzer::analyze() now records `pages` per row, not
- * just a count) — replaces an earlier version where every row's "View
- * pages" was the exact same static link to the SEO tab regardless of
- * which type was clicked.
+ * Schema Coverage's own row "View" action shows real detail — exactly
+ * which real sampled page(s)/the homepage carried that row's specific
+ * @type (SchemaCoverageAnalyzer::analyze() records `pages` per row, not
+ * just a count) — in a persistent side panel (grid 8/4, table left / detail
+ * right) rather than a popup lightbox, per direct instruction ("the action
+ * i want like above table when click inside details show but look intact
+ * in Schema Coverage table" — "above table" being IssuesSection.tsx's own
+ * table+`IssueDetailPanel` split immediately above this section on the
+ * page): the table itself stays fully visible/unscrolled while a row's
+ * detail is open, same real interaction shape, instead of a modal
+ * overlaying everything. The first real row is auto-selected once a
+ * snapshot loads, same "always something in the detail panel, not empty
+ * until a first click" convention IssuesSection.tsx's own
+ * `selectedGroup` already establishes.
  */
 const StructuredDataSection = () => {
 	const { snapshot, isLoading, isAnalyzing, analyze } = useSchemaCoverage();
-	// The real row a "View pages" click is showing — SchemaCoverageAnalyzer
-	// now records exactly which sampled post(s)/the homepage actually
-	// carried each @type (`row.pages`), so this opens a real list scoped
-	// to that specific type instead of a generic, undifferentiated redirect
-	// every row used to point at.
-	const [pagesRow, setPagesRow] = useState<SchemaCoverageRow | null>(null);
+	// The real row the side detail panel is showing — SchemaCoverageAnalyzer
+	// records exactly which sampled post(s)/the homepage actually carried
+	// each @type (`row.pages`), so the panel shows a real list scoped to
+	// that specific type, not a generic, undifferentiated redirect.
+	const [selectedRow, setSelectedRow] = useState<SchemaCoverageRow | null>(
+		null
+	);
+
+	// Auto-selects the first real row once a snapshot loads (or after a
+	// re-analyze), so the detail panel always has something real to show
+	// rather than sitting empty until a first click — same convention
+	// IssuesSection.tsx's own `selectedGroup` effect already establishes.
+	// Only runs when the currently-selected type is no longer present
+	// (a fresh snapshot, or the selected type disappeared) — a plain click
+	// selection is left alone across re-renders.
+	useEffect(() => {
+		if (!snapshot) {
+			return;
+		}
+		setSelectedRow((current) => {
+			if (
+				current &&
+				snapshot.coverage.some((row) => row.type === current.type)
+			) {
+				return (
+					snapshot.coverage.find((row) => row.type === current.type) ??
+					current
+				);
+			}
+			return snapshot.coverage[0] ?? null;
+		});
+	}, [snapshot]);
 
 	const totalProblems = snapshot
 		? snapshot.coverage.reduce((sum, row) => sum + row.problems, 0)
 		: 0;
 
 	return (
-		<ColumnComponent>
+		<ContainerComponent>
+		<ColumnComponent grid={8}>
 			{snapshot && (
 				<CardComponent
 					title={__('Schema Status', 'vulopilot')}
@@ -230,9 +265,17 @@ const StructuredDataSection = () => {
 									{snapshot.coverage.map((row) => {
 										const status = getRowStatus(row);
 										const statusConfig = STATUS_CONFIG[status];
+										const isSelected = selectedRow?.type === row.type;
 
 										return (
-											<tr key={row.type}>
+											<tr
+												key={row.type}
+												className={
+													isSelected
+														? 'schema-coverage-row-selected'
+														: undefined
+												}
+											>
 												<td>
 													<div className="schema-type-cell">
 														<div className="schema-type-icon">
@@ -264,10 +307,10 @@ const StructuredDataSection = () => {
 												<td>
 													<button
 														type="button"
-														className="schema-view-pages-link"
-														onClick={() => setPagesRow(row)}
+														className={`schema-view-pages-link${isSelected ? ' is-active' : ''}`}
+														onClick={() => setSelectedRow(row)}
 													>
-														{__('View pages', 'vulopilot')}
+														{__('View', 'vulopilot')}
 														<i className="adminfont-arrow-right" />
 													</button>
 												</td>
@@ -306,46 +349,86 @@ const StructuredDataSection = () => {
 					}}
 				/>
 			</CardComponent>
-
-			<PopupComponent
-				open={null !== pagesRow}
-				onClose={() => setPagesRow(null)}
-				width={28}
-				height="auto"
-				position="lightbox"
-				header={{
-					title: pagesRow
-						? sprintf(
-								/* translators: %s is a real schema.org @type, e.g. "Product". */
-								__('Pages with %s schema', 'vulopilot'),
-								pagesRow.type
-							)
-						: '',
-				}}
-			>
-				{pagesRow && (
-					<ul className="schema-view-pages-list">
-						{pagesRow.pages.map((page) => (
-							<li key={page.id} className="schema-view-pages-row">
-								<div className="schema-view-pages-title">
-									{page.title}
-								</div>
-								<div className="schema-view-pages-actions">
-									<a href={page.url} target="_blank" rel="noreferrer">
-										{__('View', 'vulopilot')}
-									</a>
-									{page.edit_url && (
-										<a href={page.edit_url} target="_blank" rel="noreferrer">
-											{__('Edit', 'vulopilot')}
-										</a>
-									)}
-								</div>
-							</li>
-						))}
-					</ul>
-				)}
-			</PopupComponent>
 		</ColumnComponent>
+
+		<ColumnComponent grid={4}>
+			{!selectedRow ? (
+				<CardComponent title={__('Schema details', 'vulopilot')}>
+					<ModuleGuardComponent
+						icon="info"
+						title={__('Select a schema type', 'vulopilot')}
+						desc={__(
+							'Click "View" on a row in the Schema Coverage table to see its real detail here.',
+							'vulopilot'
+						)}
+					/>
+				</CardComponent>
+			) : (
+				<CardComponent
+					title={selectedRow.type}
+					titleIcon={getTypeIcon(selectedRow.type)}
+					desc={selectedRow.meaning}
+				>
+					<div className="schema-detail-stats">
+						<BadgeComponent
+							color={STATUS_CONFIG[getRowStatus(selectedRow)].color}
+							icon={STATUS_CONFIG[getRowStatus(selectedRow)].icon}
+							text={STATUS_CONFIG[getRowStatus(selectedRow)].label}
+						/>
+						<span className="desc">
+							{sprintf(
+								/* translators: 1: how many of the real sampled pages carried this schema type, 2: how many of those had a real problem. */
+								__('Found on %1$d pages · %2$d problems', 'vulopilot'),
+								selectedRow.found_on,
+								selectedRow.problems
+							)}
+						</span>
+					</div>
+
+					<div className="schema-detail-pages-heading">
+						{sprintf(
+							/* translators: %s is a real schema.org @type, e.g. "Product". */
+							__('Pages with %s schema', 'vulopilot'),
+							selectedRow.type
+						)}
+					</div>
+
+					{0 === selectedRow.pages.length ? (
+						<div className="desc">
+							{__(
+								'No individual pages recorded for this type.',
+								'vulopilot'
+							)}
+						</div>
+					) : (
+						<ul className="schema-view-pages-list">
+							{selectedRow.pages.map((page) => (
+								<li key={page.id} className="schema-view-pages-row">
+									<div className="schema-view-pages-title">
+										{page.title}
+									</div>
+									<div className="schema-view-pages-actions">
+										<a href={page.url} target="_blank" rel="noreferrer">
+											{__('View', 'vulopilot')}
+										</a>
+										{page.edit_url && (
+											<a
+												href={page.edit_url}
+												target="_blank"
+												rel="noreferrer"
+											>
+												{__('Edit', 'vulopilot')}
+											</a>
+										)}
+									</div>
+								</li>
+							))}
+						</ul>
+					)}
+				</CardComponent>
+			)}
+		</ColumnComponent>
+		</ContainerComponent>
 	);
 };
 

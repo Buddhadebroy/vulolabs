@@ -8,6 +8,7 @@ import KnowledgeGraphSection from './KnowledgeGraphSection';
 import WhatNeedsFixingCard from './WhatNeedsFixingCard';
 import IssuesSection from './IssuesSection';
 import TechnicalDetailsSection from './TechnicalDetailsSection';
+import InspectorSection from './InspectorSection';
 
 export type SchemaKnowledgeSectionId =
 	| 'overview'
@@ -50,14 +51,18 @@ interface SchemaKnowledgeTabProps {
  *    "View all issues" and "Review" both scroll down to that real table
  *    (`schema-knowledge-issues`) rather than re-implementing it twice.
  * 4. `TechnicalDetailsSection.tsx` (NEW) — "Technical Details (Schema &
- *    Markup)" as a real tabbed panel with a real "Show for developers"
- *    toggle, not a flat scroll — see that file's own docblock for why it's
- *    2 real tabs (Schema Summary/Page Inspector) rather than the mockup's
- *    literal 4. `StructuredDataSection.tsx`/`InspectorSection.tsx` are
- *    unchanged internally, just tabbed now. InspectorSection.tsx used to
- *    live nested inside KnowledgeGraphSection.tsx's own sidebar; moved
- *    out since it's a schema concern, not an entity/knowledge-graph one
- *    (see that file's own docblock).
+ *    Markup)", a real "Show for developers" toggle over
+ *    `StructuredDataSection.tsx` (Schema Status stats + Schema Coverage
+ *    table), unchanged internally.
+ * 5. `InspectorSection.tsx` — "Page Inspector", its own separate section
+ *    now (own `SectionComponent` heading, own anchor id
+ *    `schema-knowledge-inspector`) rather than a 2nd tab inside item 4's
+ *    own card — split out per direct instruction ("firstly separate
+ *    section the page inspector"). Used to live nested inside
+ *    KnowledgeGraphSection.tsx's own sidebar before that, then briefly a
+ *    tab inside TechnicalDetailsSection.tsx — moved out both times since
+ *    it's a schema concern with its own real, self-contained page-picker
+ *    workflow, not a natural sub-tab of either. Internally unchanged.
  *
  * `initialSection` — set only when a bookmarked `?subtab=schema`/
  * `?subtab=knowledge-graph` link landed here (GEO.tsx's own
@@ -124,9 +129,18 @@ const SchemaKnowledgeTab = ({
 			</div>
 
 			<div id="schema-knowledge-structured-data">
-				<div id="schema-knowledge-inspector">
-					<TechnicalDetailsSection />
-				</div>
+				<TechnicalDetailsSection />
+			</div>
+
+			<div id="schema-knowledge-inspector">
+				<SectionComponent
+					title={__('Page Inspector', 'vulopilot')}
+					desc={__(
+						'Check one specific page’s real structured data — its detected schema, problems, JSON-LD, and conflicts.',
+						'vulopilot'
+					)}
+				/>
+				<InspectorSection />
 			</div>
 		</>
 	);
