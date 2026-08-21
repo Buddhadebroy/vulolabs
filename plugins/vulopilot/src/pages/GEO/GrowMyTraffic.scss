@@ -71,12 +71,29 @@
 // NoticeComponent.scss's own `.type-banner`/`.display-inline` rules), so no
 // local styling is needed here anymore.
 
-// GeoVisibilityOverviewRow.tsx's "Overall AI Visibility" card.
+// GeoVisibilityOverviewRow.tsx's "Overall AI Visibility" card (also reused,
+// same class, by SeoTab.tsx's "SEO Score" and AeoTab.tsx's "AEO Score").
 .geo-overall-visibility {
 	display: flex;
 	align-items: center;
 	gap: 1.25rem;
 	flex-wrap: wrap;
+
+	// zyra ChartComponent's own pie legend always renders each slice's raw
+	// value under the donut (e.g. "45  55") regardless of `centerLabel` —
+	// genuine duplicate data next to the real score this component's own
+	// `centerLabel` already shows front and center (direct instruction:
+	// "duplicate data show in the section"). Hidden here — not patched in
+	// zyra itself, a separate external package — for every real score-ring
+	// gauge that uses this same wrapper class. `!important` for the same
+	// reason ProtectMySite.scss's own identical rule already documents:
+	// zyra's own base `.zyra-chart-pie-legend` rule is injected into a
+	// runtime `<style>` tag (styleInject), landing later in the cascade
+	// than any statically-compiled CSS at equal specificity, so it wins on
+	// source order alone without this.
+	.zyra-chart-pie-legend {
+		display: none !important;
+	}
 }
 
 .geo-overall-visibility-meta {
@@ -1600,6 +1617,161 @@
 	}
 }
 
+// AeoScoreSummaryCard.tsx — the reference mockup's own "AEO Score" card:
+// gauge + real "Goal: 70+" nudge on the left, 4 real stat rows on the
+// right, replacing this tab's previous 3-card row. Also reused as-is by
+// GeoVisibilitySummaryCard.tsx's own "Overall AI Visibility" card (direct
+// instruction: "merge this sections and design like attached image" — the
+// same gauge-left/stat-rows-right shape, just with a real trend readout in
+// the goal-box slot and 4 real rating badges instead of AEO's own 4 plain
+// values) — the `aeo-score-*` class names predate that 2nd usage and
+// weren't renamed to something more generic, same "reuse the existing
+// class rather than fork a near-identical one" pattern
+// `.geo-overall-visibility` itself already set for AeoScoreSummaryCard.tsx.
+.aeo-score-summary {
+	display: flex;
+	gap: 2rem;
+	flex-wrap: wrap;
+}
+
+.aeo-score-summary-gauge {
+	display: flex;
+	flex-direction: column;
+	// Deliberately not `align-items: center` — that would stop
+	// `.geo-overall-visibility` stretching to this column's own definite
+	// width, and its own child (zyra ChartComponent's `.zyra-chart`, which
+	// sizes itself via `width: 100%`) would then have nothing real to
+	// resolve that percentage against and collapse to 0 width — a real,
+	// confirmed-live bug (the ring rendered as blank space, text only).
+	// `.geo-overall-visibility`'s own `align-items: center` still centers
+	// the chart vertically against its (nonexistent) sibling meta text, and
+	// ChartComponent centers its own content horizontally internally, so
+	// nothing here needs to do that again.
+	gap: 1rem;
+	flex: 0 0 14rem;
+}
+
+.aeo-score-goal-box {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+	width: 100%;
+	background: #f5f3ff;
+	border-radius: 0.5rem;
+	padding: 0.75rem 0.875rem;
+	box-sizing: border-box;
+
+	i {
+		color: #7c3aed;
+		font-size: 1rem;
+		margin-top: 0.125rem;
+		flex-shrink: 0;
+	}
+
+	strong {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		margin-bottom: 0.25rem;
+
+		// GeoVisibilitySummaryCard.tsx's own real trend readout ("↑/↓ N
+		// points since last scan") in this same box's slot — AeoScoreSummaryCard.tsx's
+		// own static "Goal: 70+" copy never needed a color variant.
+		&.is-good {
+			color: #16a34a;
+		}
+
+		&.is-attention {
+			color: #dc2626;
+		}
+	}
+
+	p {
+		margin: 0;
+		font-size: 0.75rem;
+		color: $sub-text-color;
+	}
+}
+
+.aeo-score-summary-stats {
+	flex: 1;
+	min-width: 16rem;
+	display: flex;
+	flex-direction: column;
+}
+
+.aeo-score-stat-row {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 0.875rem 0;
+	border-top: 1px solid var(--border-color);
+
+	&.is-first {
+		border-top: none;
+		padding-top: 0;
+	}
+}
+
+.aeo-score-stat-icon {
+	flex: 0 0 2.5rem;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.625rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.125rem;
+
+	&.is-score {
+		background: #dcfce7;
+		color: #16a34a;
+	}
+
+	&.is-questions {
+		background: #ede9fe;
+		color: #7c3aed;
+	}
+
+	&.is-ready {
+		background: #fce7f3;
+		color: #db2777;
+	}
+
+	&.is-change {
+		background: #dbeafe;
+		color: #2563eb;
+	}
+}
+
+.aeo-score-stat-text {
+	flex: 1;
+	min-width: 0;
+}
+
+.aeo-score-stat-title {
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+.aeo-score-stat-desc {
+	font-size: 0.75rem;
+	color: $sub-text-color;
+}
+
+.aeo-score-stat-value {
+	font-weight: 700;
+	font-size: 1.0625rem;
+	white-space: nowrap;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #dc2626;
+	}
+}
 
 .admin-main-wrapper {
         .card-wrapper {

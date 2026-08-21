@@ -11,12 +11,23 @@ import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import SecurityTab from './SecurityTab';
 import SiteHealthTab from './SiteHealthTab';
 import BackupsTab from './BackupsTab';
+import BackupProtectionNotice from './BackupProtectionNotice';
 
 const TAB_IDS = ['security', 'site-health', 'backups'] as const;
 
 /**
  * "Protect My Site" (WP menu slug `security`) — PROTECT-MY-SITE.md's IA:
  * 3 detail tabs, "Security" first (default tab):
+ *
+ * BackupProtectionNotice (a single real "Backup protection: Enabled/Not
+ * enabled" status line + a link to the real Backups tab, `GET /settings`'s
+ * own `enable_automatic_backups`) sits here, above this page's own outer
+ * "Security"/"Site Health"/"Backups" tab bar — moved up from inside
+ * SecurityTab.tsx (where it briefly lived twice, in two different spots)
+ * per direct instruction ("move this before tab names Security Site
+ * Health Backups"), so it's a real, always-visible status line no matter
+ * which of the 3 inner tabs is active, not just when "Security" is
+ * selected. See SecurityTab.tsx's own docblock for that history.
  *
  * - Security (SecurityTab.tsx) — the mockup's own single-page
  *   design (hero/status/tile-grid, "Issues that need your attention", a
@@ -133,6 +144,7 @@ const Security = () => {
 				)}
 				buttons={[runScanButton]}
 			/>
+			<BackupProtectionNotice />
 			<ContainerComponent general>
 				<TabsComponent
 					className="protect-my-site-tabs"

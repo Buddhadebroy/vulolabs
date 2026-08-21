@@ -30,8 +30,8 @@ const OverviewTab: React.FC = () => {
 					<ContentToolsGrid />
 				</ColumnComponent>
 				<ColumnComponent grid={4}>
-					<ContentQualityCard />
 					<ContentStatsCard />
+					<ContentQualityCard />
 				</ColumnComponent>
 			</ContainerComponent>
 

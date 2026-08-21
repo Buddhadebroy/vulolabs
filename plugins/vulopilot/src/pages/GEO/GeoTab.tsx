@@ -8,8 +8,7 @@ import ProLockedCard from '../../components/ProLockedCard';
 import { useGeoFindingGroups, sumGroupCounts } from './useGeoFindingGroups';
 import { useGeoTopicAffectedPages } from './useGeoTopicAffectedPages';
 import { useGeoVisibilitySnapshot } from './useGeoVisibilitySnapshot';
-import GeoVisibilityOverviewRow from './GeoVisibilityOverviewRow';
-import GeoTrendCompactCard from './GeoTrendCompactCard';
+import GeoVisibilitySummaryCard from './GeoVisibilitySummaryCard';
 import GeoByTopicGrid from './GeoByTopicGrid';
 
 /**
@@ -132,22 +131,33 @@ const isGeoInsightsActive = () =>
  * duplicating it (direct instruction):
  *
  * 1. Two real info banners (static, honest explanatory copy).
- * 2. "Overall AI Visibility" + "The 4 things AI checks for"
- *    (GeoVisibilityOverviewRow.tsx, Pro-gated) — real
- *    `useGeoVisibilitySnapshot()` data, `totalOpenFindings` passed in from
- *    the same `groups` fetch "By Topic" below already uses.
+ * 2. "Overall AI Visibility" (GeoVisibilitySummaryCard.tsx, Pro-gated) — one
+ *    merged card, gauge-left/stat-rows-right same shape AeoTab.tsx's own
+ *    "AEO Score" card uses, per direct instruction ("merge this sections
+ *    and design like attached image" — that attached reference *is* the
+ *    AEO Score card). Combines what used to be 2 separate full-width rows:
+ *    GeoVisibilityOverviewRow.tsx's own "Overall AI Visibility" gauge + "The
+ *    4 things AI checks for" grid, and GeoTrendCompactCard.tsx's own "Are
+ *    You Getting Easier to Find?" sparkline card — see
+ *    GeoVisibilitySummaryCard.tsx's own docblock for exactly which real
+ *    number came from which. `snapshot`/`history` are the same real
+ *    `useGeoVisibilitySnapshot()` data both former cards already used;
+ *    `totalOpenFindings` is the same real total from the shared `groups`
+ *    fetch "By Topic" below already uses. GeoVisibilityOverviewRow.tsx was
+ *    deleted (fully superseded); GeoTrendCompactCard.tsx's own default
+ *    component is still real code, just no longer rendered here — see its
+ *    own docblock.
  * 3. "Fix These First" (GeoFixTheseFirstCard.tsx) and "Your Best & Worst
  *    Pages" (TopPagesCard.tsx) — removed from this tab per direct
  *    instruction (this tab has now gone back and forth on both a couple of
- *    times this session; this is the current, standing state). Both
- *    components are still real and still used as-is elsewhere:
- *    GeoFixTheseFirstCard.tsx on AeoTab.tsx's own "What Needs Your
- *    Attention" card, TopPagesCard.tsx on AeoTab.tsx's own "Top Pages by
- *    Answer Readiness" card — neither is dead code, just not rendered here.
- * 4. "Are You Getting Easier to Find?" (GeoTrendCompactCard.tsx, Pro-gated)
- *    and "How You Compare to Similar Sites" (Pro's own
- *    CompetitorVisibilityCard, given this site's own real score as
- *    `yourScore`) are each their own full-width row.
+ *    times this session; this is the current, standing state). AeoTab.tsx
+ *    used to render both too (its own "What Needs Your Attention" and "Top
+ *    Pages by Answer Readiness" cards) — both since removed from there as
+ *    well per direct instruction, so neither component is currently
+ *    rendered anywhere; both are still real, just dead code for now.
+ * 4. "How You Compare to Similar Sites" (Pro's own CompetitorVisibilityCard,
+ *    given this site's own real score as `yourScore`) is its own
+ *    full-width row.
  * 5. "A Closer Look, By Topic" (GeoByTopicGrid.tsx) — 5 tiles over the
  *    same `groups`/`GEO_TOPICS` the unified table below uses, so both
  *    always agree. Each tile also shows a real "Affected pages" stat
@@ -223,12 +233,23 @@ const GeoTab = () => {
 				/>
 			</div>
 
-			<GeoVisibilityOverviewRow
-				snapshot={snapshot}
-				history={history}
-				isLoading={isLoadingSnapshot}
-				totalOpenFindings={totalOpenFindings}
-			/>
+			{/*
+			 * `ColumnComponent grid={12}` alone, deliberately NOT also wrapped
+			 * in a `<ContainerComponent>` — same real, confirmed-live layout
+			 * bug the removed "Are You Getting Easier to Find?" row used to
+			 * document here (ContainerComponent's own `.container-wrapper`
+			 * has no sizing of its own, so a single-child ColumnComponent
+			 * nested inside one just shrinks to its own content's natural
+			 * width instead of the true available row width).
+			 */}
+			<ColumnComponent grid={12}>
+				<GeoVisibilitySummaryCard
+					snapshot={snapshot}
+					history={history}
+					isLoading={isLoadingSnapshot}
+					totalOpenFindings={totalOpenFindings}
+				/>
+			</ColumnComponent>
 
 			<GeoByTopicGrid
 				topics={GEO_TOPICS}
@@ -237,28 +258,6 @@ const GeoTab = () => {
 				affectedPagesByScanner={affectedPagesByScanner}
 				onViewTopic={(key) => goToIssuesTable(key)}
 			/>
-
-			{/*
-			 * `ColumnComponent grid={12}` alone, deliberately NOT also wrapped
-			 * in a `<ContainerComponent>` — a real, confirmed-live layout bug:
-			 * ContainerComponent's own `.container-wrapper` has no sizing of
-			 * its own (same class of bug `.seo-issues-section`'s own fix
-			 * above already documents), so nesting one single-child
-			 * ColumnComponent inside it just moves the "shrinks to its
-			 * content's own natural width instead of the true available row
-			 * width" problem up one level. `ColumnComponent`'s own
-			 * `[data-cols='12']` rule only computes against 100% of its
-			 * *true* container when it's a direct child of the outer
-			 * page-level flex row (Fragment level here), not an unsized
-			 * intermediate one.
-			 */}
-			<ColumnComponent grid={12}>
-				<GeoTrendCompactCard
-					history={history}
-					isLoading={isLoadingSnapshot}
-					isGeoInsightsActive={isGeoInsightsActive()}
-				/>
-			</ColumnComponent>
 
 			<ColumnComponent grid={12}>
 				{isGeoInsightsActive() && GeoCompetitorVisibility ? (

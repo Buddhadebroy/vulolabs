@@ -10,7 +10,6 @@ import SectionedIssuesTable, {
 } from './SectionedIssuesTable';
 import SecurityMockupHeader from './SecurityMockupHeader';
 import PluginOverlapCard from './PluginOverlapCard';
-import BackupProtectionNotice from './BackupProtectionNotice';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 
 /**
@@ -172,23 +171,25 @@ const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
  *   button now scrolls straight to the issues table below (`ISSUES_TABLE_ID`)
  *   — previously scrolled to "Issues that need your attention"
  *   (IssuesNeedAttentionCard), removed per direct instruction.
+ * - BackupProtectionNotice (a single real "Backup protection: Enabled/Not
+ *   enabled" status line) used to sit on this tab (first right after the
+ *   header, then briefly right before the issues table's own tab bar) —
+ *   moved one level up, above Security.tsx's own outer "Security"/"Site
+ *   Health"/"Backups" tab bar, per direct instruction ("move this before
+ *   tab names Security Site Health Backups"), so it's now a real,
+ *   always-visible status line regardless of which of those 3 inner tabs
+ *   is active, rather than only showing on this one. See Security.tsx's
+ *   own docblock for where it lives now.
  * - Issues table: one real SectionedIssuesTable (All/Important/Login &
  *   Accounts/Website Exposure/Browser Protection/SSL & Secure Connection),
  *   replacing what used to be 5 separate `layout="compact"` FindingsTable
  *   cards stacked here — same merge pattern WooCommerce's own "All
  *   WooCommerce Issues" already established, per direct instruction to
  *   apply it here too.
- * - Closes with BackupProtectionNotice (a single real
- *   "Backup protection: Enabled/Not enabled" status line + a link to the
- *   real Backups tab, `GET /settings`'s own `enable_automatic_backups`)
- *   then PluginOverlapCard filtered to `category="security"` —
- *   real cross-sell (Wordfence/Sucuri/Solid Security/AIOS active →
- *   VuloPilot's own Security Watchtower) surfaced in the tab a user
- *   reading about security is already on. BackupProtectionNotice
- *   deliberately isn't another full feature card — backup management
- *   already has a real home (the Backups tab) and configuration already
- *   has a real home (Settings → Scanning → Backups); this tab only needs
- *   to say whether protection is on, per direct instruction.
+ * - Closes with PluginOverlapCard filtered to `category="security"` — real
+ *   cross-sell (Wordfence/Sucuri/Solid Security/AIOS active → VuloPilot's
+ *   own Security Watchtower) surfaced in the tab a user reading about
+ *   security is already on.
  */
 const SecurityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
@@ -226,7 +227,6 @@ const SecurityTab = () => {
 					activeTab={activeTab}
 					onTabChange={setActiveTab}
 				/>
-				<BackupProtectionNotice />
 				<PluginOverlapCard category="security" />
 				{SecurityIncidentReportsPanel && <SecurityIncidentReportsPanel />}
 			</ColumnComponent>

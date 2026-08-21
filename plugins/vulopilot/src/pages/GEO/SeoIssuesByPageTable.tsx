@@ -46,17 +46,22 @@ type TableRow = PageRow | FindingRow;
 const isFindingRow = (row: TableRow): row is FindingRow => true === row.isFinding;
 
 /**
- * The one field of zyra TableCard's own internal query state this table
- * reads back out of its `onQueryUpdate` callback — same "declare our own
- * subset locally" workaround `useApiList.ts`'s own `TableCardQuery` already
+ * The fields of zyra TableCard's own internal query state this table reads
+ * back out of its `onQueryUpdate` callback — same "declare our own subset
+ * locally" workaround `useApiList.ts`'s own `TableCardQuery` already
  * documents (zyra's own published `QueryProps` type doesn't declare
  * `searchValue`, even though TableCard.tsx really does set it there — see
- * that hook's own docblock). Filtered client-side here (all rows are
+ * that hook's own docblock). Filtered/sorted client-side here (all rows are
  * already loaded into `rows`/`visibleRows`, not paginated from the server),
- * unlike `useApiList.ts`'s own server-side `search` param.
+ * unlike `useApiList.ts`'s own server-side `search`/`orderby` params.
+ * `orderby`/`order` mirror TableCard's own real header-click sort — the
+ * `visibility_score` column's `isSortable: true` below is the only sortable
+ * column this table has right now.
  */
 interface TableCardQuery {
 	searchValue?: string;
+	orderby?: string;
+	order?: string;
 }
 
 /** Same navigate-and-highlight deep link `post-editor/index.tsx` reads — deliberately NOT the existing in-place "Fix with AI" (RecentContentCard.tsx/FindingsTable.tsx/IssueDetailPanel.tsx's immediate AI-apply, which `SeoSiteWideIssuesTable.tsx` uses instead since its findings have no page to navigate to). This one takes the user to the editor, opens the "VuloPilot SEO" sidebar, and — where a mapping exists (seoIssueEditorTarget.ts) — switches to the right tab and highlights the specific field/checklist row, so they see exactly what to fix before anything is changed. */
@@ -114,6 +119,19 @@ interface SeoIssuesByPageTableProps {
  * Performance and must keep working unchanged; this is a new, separate
  * component.
  *
+ * The visibility-score column (`visibility_score`, only rendered when
+ * `visibilityColumnLabel` is set — i.e. GeoTab.tsx's/AeoTab.tsx's own
+ * "AI Visibility"/"Answer Readiness" usage) is real-sortable
+ * (`isSortable: true`, direct instruction: "sort option beside AI
+ * Visibility"). zyra `Table.tsx` itself never resorts `rows` on a header
+ * click — it only flips that header's own arrow icon and reports the new
+ * `orderby`/`order` back out via `onQueryUpdate` — so `sortBy`/`sortOrder`
+ * state here actually reorders `visibleRows` before it's handed to
+ * `TableCard`, same "read TableCard's own query back out" pattern this
+ * table's `searchValue` already established. Rows with no real score
+ * (`null`/`undefined`, `VisibilityCell`'s own "—" case) always sort last,
+ * in either direction.
+ *
  * Row expansion uses zyra `TableCard`'s own native `expandable` prop
  * (`row.variation: FindingRow[]`) rather than an absolute-positioned
  * popover — clicking a page's issue count reveals its findings as real
@@ -136,6 +154,9 @@ const SeoIssuesByPageTable = ({
 }: SeoIssuesByPageTableProps) => {
 	/** This table's OWN "Search pages…" box (TableCard's built-in search, filtering by PAGE title). */
 	const [searchValue, setSearchValue] = useState('');
+	/** This table's OWN sort state, read back out of TableCard's `onQueryUpdate` (same callback `searchValue` above already uses) — only ever `'visibility_score'` right now, the one sortable column. `null` until the header is clicked once. */
+	const [sortBy, setSortBy] = useState<string | null>(null);
+	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
 	/**
 	 * The category tab bar/priority stat cards (both owned by
@@ -186,8 +207,42 @@ const SeoIssuesByPageTable = ({
 		'' === searchValue.trim() ||
 		row.title.toLowerCase().includes(searchValue.trim().toLowerCase());
 
-	const visibleRows = rows.filter(
-		(row) => rowMatchesFilter(row) && rowMatchesSearch(row)
+	/**
+	 * `Table.tsx` itself never resorts `rows` — clicking a sortable header
+	 * only flips its own arrow icon and reports the new `orderby`/`order`
+	 * back out via `onQueryUpdate` (confirmed by reading zyra's own
+	 * `Table.tsx` source); the actual reordering is left to whoever owns the
+	 * data, same as `searchValue` above. Missing scores (`null`/`undefined`,
+	 * `VisibilityCell`'s own "—" case) always sort to the end regardless of
+	 * direction — there's no real percentage to rank them by.
+	 */
+	const sortRowsByVisibility = (unsorted: PageRow[]): PageRow[] => {
+		if ('visibility_score' !== sortBy) {
+			return unsorted;
+		}
+
+		const direction = 'asc' === sortOrder ? 1 : -1;
+
+		return [...unsorted].sort((a, b) => {
+			const scoreA = a.visibilityScore;
+			const scoreB = b.visibilityScore;
+
+			if (null == scoreA && null == scoreB) {
+				return 0;
+			}
+			if (null == scoreA) {
+				return 1;
+			}
+			if (null == scoreB) {
+				return -1;
+			}
+
+			return (scoreA - scoreB) * direction;
+		});
+	};
+
+	const visibleRows = sortRowsByVisibility(
+		rows.filter((row) => rowMatchesFilter(row) && rowMatchesSearch(row))
 	);
 
 	const handleFixWithAi = (row: PageRow) => {
@@ -293,9 +348,11 @@ const SeoIssuesByPageTable = ({
 					expandable
 					className="transparent-table"
 					search={{ placeholder: __('Search pages…', 'vulopilot') }}
-					onQueryUpdate={(query: TableCardQuery) =>
-						setSearchValue(query.searchValue ?? '')
-					}
+					onQueryUpdate={(query: TableCardQuery) => {
+						setSearchValue(query.searchValue ?? '');
+						setSortBy(query.orderby || null);
+						setSortOrder('asc' === query.order ? 'asc' : 'desc');
+					}}
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
@@ -350,6 +407,7 @@ const SeoIssuesByPageTable = ({
 									visibility_score: {
 										label: visibilityColumnLabel,
 										width: '13%',
+										isSortable: true,
 										render: (row: TableRow) =>
 											isFindingRow(row) ? null : (
 												<span
