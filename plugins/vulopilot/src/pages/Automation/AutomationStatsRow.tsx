@@ -1,8 +1,8 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent } from '@zyra/components';
+import { formatWpDate } from '../../services/formatWpDate';
 
 interface StatusCounts {
 	enabled: number;
@@ -10,53 +10,60 @@ interface StatusCounts {
 }
 
 interface DashboardStats {
-	runs: number;
-	changes_made: number;
-	previous: {
-		runs: number;
-		changes_made: number;
-	};
+	last_check_at: string | null;
 }
+
+/** Real "Today, 3:42 PM"/"August 18, 2026, 3:42 PM" — same technique SecurityMetricsGrid.tsx's own formatLastScan() already established, just with a real "Today" short-circuit for the common case (matches the mockup's own wording) instead of always spelling out the date. */
+const formatLastCheck = (isoDate: string): string => {
+	const date = new Date(isoDate.replace(' ', 'T') + 'Z');
+	const time = date.toLocaleTimeString(undefined, {
+		hour: 'numeric',
+		minute: '2-digit',
+	});
+
+	if (date.toDateString() === new Date().toDateString()) {
+		return sprintf(
+			/* translators: %s is the real time of this site's most recent automation run today. */
+			__('Today, %s', 'vulopilot'),
+			time
+		);
+	}
+
+	return sprintf(
+		/* translators: 1: real formatted date, 2: real formatted time of this site's most recent automation run. */
+		__('%1$s, %2$s', 'vulopilot'),
+		formatWpDate(isoDate),
+		time
+	);
+};
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
- * Same "current vs. immediately preceding period" percent-change formula
- * StoreOverviewCards.tsx/AutomationPeriodStatsCard.tsx already established
- * — ported here rather than imported, this codebase's own "duplicate small
- * per-file hooks" convention.
- */
-const pctBadge = (current: number, previous: number): string | undefined => {
-	if (previous <= 0) {
-		return undefined;
-	}
-
-	const pct = ((current - previous) / previous) * 100;
-
-	return sprintf(
-		/* translators: 1: up/down arrow, 2: absolute percentage change. */
-		__('%1$s%2$s%% vs last month', 'vulopilot'),
-		pct >= 0 ? '↑ ' : '↓ ',
-		Math.abs(pct).toFixed(0)
-	);
-};
-
-/**
- * The mockup's own 4-tile stat row for the "Automations" tab — real
- * `status_counts` (`GET /automations`'s own `enabled`/`disabled` counts,
- * same field ManageAutomationsSection.tsx's status-filter pill bar already
- * reads) for the first two tiles, real `GET /automation-dashboard-stats?period=month`
- * for the last two (`runs`, real real `changes_made` — see
- * AutomationEngine::execute_actions()'s own docblock for why that's a
- * distinct, real count from `actions_executed`, not every action that ran).
+ * "Your website is being watched" — one real card, not two: this used to
+ * sit above a separate 4-tile row (Active automations/Need setup/Checks
+ * this month/Actions taken this month), which duplicated this card's own
+ * real Active/Need setup numbers and — once `AutomationPeriodStatsCard.tsx`
+ * ("This month") shipped elsewhere on this same page — duplicated its
+ * Checks/Changes numbers too. Collapsed into just this card's own real
+ * Active/Need setup/Last check trio per direct instruction; nothing here
+ * needs a fourth number anymore since "This month" already owns the
+ * period-stats job.
  *
- * The mockup's own two tile concepts don't map onto this real data 1:1:
- * "Need setup" here is real disabled-automation count (an automation a
- * user created but hasn't turned on — the literal thing "needs setup"
- * means), and "Changes detected" is relabeled "Actions taken" — this
- * codebase's Automation Engine makes changes, it doesn't watch for and
- * "detect" ambient site changes the way a diff-monitor would, so "taken"
- * is the honest verb for what `changes_made` actually counts.
+ * Real `status_counts` (`GET /automations`'s own `enabled`/`disabled`
+ * counts, same field ManageAutomationsSection.tsx's status-filter pill bar
+ * already reads) for "Active"/"Need setup"; real
+ * `GET /automation-dashboard-stats?period=month`'s own `last_check_at`
+ * (the real most-recent `automation_runs.finished_at` across every
+ * automation — `AutomationRunRepository::get_most_recent_finished_at()`)
+ * for "Last check".
+ *
+ * The hero's icon state and headline both degrade honestly when nothing is
+ * actually active yet, rather than always showing the positive "being
+ * watched" framing the mockup shows unconditionally — same `is-good`/
+ * `is-idle` real-state split this exact card's own predecessor
+ * (AutomationHeroRow.tsx, retired earlier in this page's own redesign)
+ * already established.
  */
 const AutomationStatsRow = () => {
 	const [statusCounts, setStatusCounts] = useState<StatusCounts | null>(
@@ -105,63 +112,85 @@ const AutomationStatsRow = () => {
 	const enabled = statusCounts?.enabled ?? 0;
 	const disabled = statusCounts?.disabled ?? 0;
 
-	const tiles = [
-		{
-			icon: 'active',
-			iconClass: 'is-good',
-			number: isLoading ? '—' : String(enabled),
-			text: __('Active automations', 'vulopilot'),
-			extra: isLoading
-				? undefined
-				: enabled > 0
-					? __('Running smoothly', 'vulopilot')
-					: __('None active yet', 'vulopilot'),
-		},
-		{
-			icon: 'pending',
-			iconClass: 'is-attention',
-			number: isLoading ? '—' : String(disabled),
-			text: __('Need setup', 'vulopilot'),
-			extra: isLoading
-				? undefined
-				: disabled > 0
-					? __('Turn these on to start automating', 'vulopilot')
-					: __('All set', 'vulopilot'),
-		},
-		{
-			icon: 'clock',
-			iconClass: 'is-info',
-			number: stats ? String(stats.runs) : '—',
-			text: __('Checks this month', 'vulopilot'),
-			extra: stats
-				? (pctBadge(stats.runs, stats.previous.runs) ??
-					(stats.runs > 0
-						? undefined
-						: __('No runs yet this month', 'vulopilot')))
-				: undefined,
-		},
-		{
-			icon: 'automation',
-			iconClass: 'is-primary',
-			number: stats ? String(stats.changes_made) : '—',
-			text: __('Actions taken this month', 'vulopilot'),
-			extra: stats
-				? (pctBadge(stats.changes_made, stats.previous.changes_made) ??
-					(stats.changes_made > 0
-						? undefined
-						: __('No changes made yet', 'vulopilot')))
-				: undefined,
-		},
-	];
-
 	return (
 		<div className="automation-stats-row">
-			<AnalyticsComponent
-				variant="dashboard"
-				cols={4}
-				isLoading={isLoading}
-				data={tiles}
-			/>
+			<div className="automation-watch-card">
+				<div className="automation-watch-header">
+					<div className={`automation-watch-icon ${enabled > 0 ? 'is-good' : 'is-idle'}`}>
+						<i className="adminfont-ai" />
+						{enabled > 0 && (
+							<span className="automation-watch-check">
+								<i className="adminfont-check" />
+							</span>
+						)}
+					</div>
+					<div>
+						<div className="automation-watch-title-row">
+							<strong>{__('Your website is being watched', 'vulopilot')}</strong>
+						</div>
+						<p className="automation-watch-sub">
+							{isLoading
+								? __('Loading…', 'vulopilot')
+								: enabled > 0
+									? sprintf(
+											/* translators: %d is the real number of currently-enabled automations. */
+											_n(
+												'%d automation is working for you.',
+												'%d automations are working for you.',
+												enabled,
+												'vulopilot'
+											),
+											enabled
+										)
+									: __('No automations are active yet.', 'vulopilot')}
+						</p>
+						<p className="automation-watch-desc">
+							{__(
+								'VuloPilot regularly checks your website and lets you know when something needs your attention.',
+								'vulopilot'
+							)}
+						</p>
+					</div>
+				</div>
+
+				<div className="automation-watch-stats">
+					<div className="automation-watch-stat">
+						<strong>{isLoading ? '—' : enabled}</strong>
+						<span>{__('Active', 'vulopilot')}</span>
+						<small>
+							{isLoading
+								? ''
+								: enabled > 0
+									? __('Running smoothly', 'vulopilot')
+									: __('None active yet', 'vulopilot')}
+						</small>
+					</div>
+					<div className="automation-watch-stat">
+						<strong>{isLoading ? '—' : disabled}</strong>
+						<span>{__('Need setup', 'vulopilot')}</span>
+						<small>
+							{isLoading
+								? ''
+								: disabled > 0
+									? __('Almost ready', 'vulopilot')
+									: __('All set', 'vulopilot')}
+						</small>
+					</div>
+					<div className="automation-watch-stat">
+						<strong>
+							{stats?.last_check_at
+								? formatLastCheck(stats.last_check_at)
+								: __('—', 'vulopilot')}
+						</strong>
+						<span>{__('Last check', 'vulopilot')}</span>
+						<small>
+							{stats?.last_check_at
+								? __('Everything up to date', 'vulopilot')
+								: __('No checks yet', 'vulopilot')}
+						</small>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 };

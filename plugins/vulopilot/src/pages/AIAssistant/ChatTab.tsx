@@ -320,18 +320,19 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		setAttachments((current) => current.filter((file) => file.id !== id));
 
 	/**
-	 * AutomationTemplatesCard's real home is Automate Work's Automations
-	 * tab (ManageAutomationsSection.tsx) — this preview on Chat navigates
-	 * there rather than trying to open a create form that lives in a
-	 * different top-level page's own React tree, carrying the picked
-	 * template through the same `subtab=` URL-param routing convention
-	 * every other cross-page deep link in this codebase already uses
-	 * (getCategoryTabLink.ts). Automation.tsx reads `automation_template`
-	 * on mount and forwards it down so the real create form opens already
-	 * seeded, not a bare redirect to a blank Automations tab.
+	 * AutomationTemplatesCard's real home is Automate Work
+	 * (`ManageAutomationsSection.tsx`, via `Automation.tsx`) — this preview
+	 * on Chat navigates there rather than trying to open a create form that
+	 * lives in a different top-level page's own React tree, carrying the
+	 * picked template through the `automation_template` URL param.
+	 * `Automation.tsx` reads it on mount and forwards it down so the real
+	 * wizard opens already seeded, not a bare redirect to a blank page.
+	 * Automate Work has no `subtab=` of its own since its own redesign
+	 * flattened its previous Overview/Automations two-tab shell into one
+	 * page — nothing left to route to but the page itself.
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
-		window.location.href = `${appLocalizer.admin_url}#&tab=automation&subtab=automations&automation_template=${template.id}`;
+		window.location.href = `${appLocalizer.admin_url}#&tab=automation&automation_template=${template.id}`;
 	};
 
 	return (

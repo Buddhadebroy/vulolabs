@@ -2,152 +2,115 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { CardComponent, NoticeManager } from '@zyra/components';
+import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { formatWpDate } from '../../services/formatWpDate';
-
-interface FailedRunRow {
-	id: number;
-	automation_id: number;
-	automation_name: string;
-	started_at: string;
-}
-
-const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+import type { AutomationRow } from './ManageAutomationsSection';
 
 interface AutomationAttentionCardProps {
 	onViewAll: () => void;
+	/** Bumped by the host after something changes elsewhere on the page (a new automation created, a status toggled) — this card fetches its own copy of the list (small, per-file fetch, same convention `AutomationSuggestions.tsx` already established), so it needs to know when to refetch. */
+	refetchSignal: number;
 }
 
 /**
- * "Needs your attention" — real failed automation runs, via
- * `GET /automation-runs?status=failed` (same Pro-only endpoint
- * AutomationActivityCard.tsx already reads, just filtered to failures
- * rather than everything — its own raw-fetch-not-useApiList reasoning
- * applies here too: Pro inactive should silently degrade to an empty
- * section, not show a misleading error card). The mockup's own two
- * example rows ("Website check couldn't finish"/"Monthly report has no
- * recipient") don't correspond to real tracked failure reasons — no
- * per-check-type failure classification or report-recipient validation
- * exists in the Automation Engine's data model — so each row shows the
- * real automation name and real run time instead. "Try Again" is a real
- * re-run, `POST /automations/{id}/run` (the same action
- * ManageAutomationsSection.tsx's own "Run now" row action already calls),
- * not a fabricated retry.
+ * "Needs your attention" — real currently-enabled automations whose most
+ * recent run actually failed (`last_run_status === 'failed'`, already
+ * returned by `GET /automations` — no new endpoint). Deliberately doesn't
+ * include the mockup's own second example, "Monthly report has no
+ * recipient": confirmed against `SendEmailAction.php` that a `send-email`
+ * action always resolves a real recipient (`config.recipient` → the
+ * `notification_email` setting → WordPress's own `admin_email`, which
+ * every site has) — there is no real "nothing configured anywhere"
+ * condition to detect, so surfacing that example here would be a fabricated
+ * alert with nothing behind it. "Try Again" re-runs the real automation
+ * (`POST /automations/{id}/run`, the same action `ManageAutomationsSection.tsx`'s
+ * own row-level "Run now" already performs).
  */
-const AutomationAttentionCard = ({ onViewAll }: AutomationAttentionCardProps) => {
-	const [rows, setRows] = useState<FailedRunRow[] | null>(null);
-	const [total, setTotal] = useState(0);
+const AutomationAttentionCard = ({ onViewAll, refetchSignal }: AutomationAttentionCardProps) => {
+	const [failing, setFailing] = useState<AutomationRow[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 	const [retryingId, setRetryingId] = useState<number | null>(null);
 
-	const fetchFailedRuns = () => {
-		const baseUrl = getApiLink(appLocalizer, 'automation-runs');
-		const url = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}status=failed&per_page=3`;
+	useEffect(() => {
+		setIsLoading(true);
 
-		getApiResponse<{ data: FailedRunRow[]; total: number }>(url, nonceHeaders)
-			.then((response) => {
-				setRows(response?.data ?? []);
-				setTotal(response?.total ?? 0);
-			})
-			.catch(() => setRows([]));
-	};
-
-	useEffect(fetchFailedRuns, []);
-
-	if (null === rows || 0 === rows.length) {
-		return null;
-	}
-
-	const retry = (row: FailedRunRow) => {
-		setRetryingId(row.automation_id);
-
-		sendApiResponse<{ success: boolean }>(
-			appLocalizer,
-			getApiLink(appLocalizer, `automations/${row.automation_id}/run`),
-			{}
+		getApiResponse<{ data: AutomationRow[] } | AutomationRow[]>(
+			`${getApiLink(appLocalizer, 'automations')}?per_page=100`,
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
 		)
 			.then((response) => {
-				if (response?.success) {
-					NoticeManager.add({
-						uniqueKey: 'vulopilot-automation-retry',
-						type: 'success',
-						position: 'float',
-						message: sprintf(
-							/* translators: %s is the automation's name. */
-							__('%s ran again.', 'vulopilot'),
-							row.automation_name
-						),
-					});
-					fetchFailedRuns();
-				} else {
-					NoticeManager.add({
-						uniqueKey: 'vulopilot-automation-retry-failed',
-						type: 'error',
-						position: 'float',
-						message: __('Could not run this automation again.', 'vulopilot'),
-					});
-				}
+				const list = Array.isArray(response) ? response : (response?.data ?? []);
+				setFailing(
+					list.filter(
+						(row) => 'enabled' === row.status && 'failed' === row.last_run_status
+					)
+				);
 			})
-			.catch(() => {
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-automation-retry-failed',
-					type: 'error',
-					position: 'float',
-					message: __('Could not run this automation again.', 'vulopilot'),
-				});
+			.finally(() => setIsLoading(false));
+	}, [refetchSignal]);
+
+	const handleRetry = (row: AutomationRow) => {
+		setRetryingId(row.id);
+
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `automations/${row.id}/run`), {})
+			.then((response) => {
+				if (response) {
+					setFailing((current) => current.filter((item) => item.id !== row.id));
+				}
 			})
 			.finally(() => setRetryingId(null));
 	};
 
 	return (
-		<CardComponent className="automation-attention-card">
-			<div className="automation-attention-header">
-				<h3>
+		<CardComponent
+			title={
+				<>
 					{__('Needs your attention', 'vulopilot')}
-					<span className="automation-attention-count">{total}</span>
-				</h3>
-			</div>
+					{failing.length > 0 && (
+						<span className="automation-attention-count">{failing.length}</span>
+					)}
+				</>
+			}
+			isLoading={isLoading}
+		>
+			{!isLoading && 0 === failing.length && (
+				<div className="automation-attention-empty">
+					<i className="adminfont-check" />
+					<p>{__("You're all caught up — nothing needs attention right now.", 'vulopilot')}</p>
+				</div>
+			)}
 			<div className="automation-attention-list">
-				{rows.map((row) => (
+				{failing.map((row) => (
 					<div className="automation-attention-row" key={row.id}>
-						<i className="adminfont-error" />
+						<i className="adminfont-warning" />
 						<div className="automation-attention-body">
 							<strong>
 								{sprintf(
-									/* translators: %s is the automation's name. */
-									__('%s failed to run', 'vulopilot'),
-									row.automation_name
+									/* translators: %s is the real automation's own name whose last run failed. */
+									__('%s couldn\'t finish', 'vulopilot'),
+									row.name
 								)}
 							</strong>
-							<div className="desc">
-								{sprintf(
-									/* translators: %s is a formatted date. */
-									__('Last attempt: %s', 'vulopilot'),
-									formatWpDate(row.started_at)
-								)}
-							</div>
+							<p>{__('The last scheduled run didn\'t complete successfully.', 'vulopilot')}</p>
 						</div>
 						<ButtonInput
 							buttons={{
 								text:
-									retryingId === row.automation_id
+									retryingId === row.id
 										? __('Retrying…', 'vulopilot')
 										: __('Try Again', 'vulopilot'),
-								disabled: retryingId === row.automation_id,
-								onClick: () => retry(row),
+								onClick: () => handleRetry(row),
+								disabled: null !== retryingId,
 							}}
 						/>
 					</div>
 				))}
 			</div>
-			<span
-				className="automation-attention-view-all"
-				role="button"
-				tabIndex={0}
-				onClick={onViewAll}
-			>
-				{__('View all issues →', 'vulopilot')}
-			</span>
+			{failing.length > 0 && (
+				<span className="automation-attention-view-all" onClick={onViewAll}>
+					{__('View all issues →', 'vulopilot')}
+				</span>
+			)}
 		</CardComponent>
 	);
 };

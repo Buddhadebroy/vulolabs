@@ -105,6 +105,55 @@ class AutomationRunRepository extends AbstractRepository {
     }
 
     /**
+     * Real per-action-type success counts for one date range — "N alerts
+     * sent" (`create-notification`) / "N reports delivered" (`send-email`)
+     * on the "Automate Work" page's own "This month" card. `result_log`
+     * (JSON array of `{success, action_id, message}`, this class's own
+     * docblock) has no dedicated column per action type, so this reads and
+     * decodes it per matching run rather than a single aggregate SQL query
+     * — the same real per-action `action_id` `AutomationLogsPanel.tsx`'s
+     * own "View details" expansion already surfaces, just tallied instead
+     * of listed. Counts successful entries only — a failed send-email
+     * attempt wasn't actually "delivered".
+     *
+     * @param string $period_start Y-m-d, inclusive.
+     * @param string $period_end   Y-m-d, inclusive.
+     * @return array<string, int> Real action id => successful-execution count.
+     */
+    public function get_action_type_totals_for_period( string $period_start, string $period_end ): array {
+        global $wpdb;
+
+        $logs = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT result_log FROM {$this->get_table()} WHERE DATE(created_at) BETWEEN %s AND %s AND result_log IS NOT NULL", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $period_start,
+                $period_end
+            )
+        );
+
+        $totals = array();
+
+        foreach ( $logs as $log ) {
+            $entries = json_decode( (string) $log, true );
+
+            if ( ! is_array( $entries ) ) {
+                continue;
+            }
+
+            foreach ( $entries as $entry ) {
+                if ( ! is_array( $entry ) || empty( $entry['success'] ) || empty( $entry['action_id'] ) ) {
+                    continue;
+                }
+
+                $action_id            = (string) $entry['action_id'];
+                $totals[ $action_id ] = ( $totals[ $action_id ] ?? 0 ) + 1;
+            }
+        }
+
+        return $totals;
+    }
+
+    /**
      * The single most recent run per automation, for however many of
      * `$automation_ids` actually have one — backs the "Automations" tab's
      * table ("Last run" column: real finished_at + a real
@@ -189,6 +238,24 @@ class AutomationRunRepository extends AbstractRepository {
                 $since_mysql_datetime
             )
         );
+    }
+
+    /**
+     * The single most recent real run across every automation — what the
+     * "Automate Work" hero card's own real "Last check" stat reads (see
+     * AutomationDashboardRest::get_items()'s own `last_check_at`), not a
+     * per-automation lookup like get_latest_by_automation_ids().
+     *
+     * @return string|null 'Y-m-d H:i:s', or null if no automation has ever run.
+     */
+    public function get_most_recent_finished_at(): ?string {
+        global $wpdb;
+
+        $value = $wpdb->get_var(
+            "SELECT MAX(finished_at) FROM {$this->get_table()} WHERE finished_at IS NOT NULL" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        );
+
+        return $value ?: null;
     }
 
     /**

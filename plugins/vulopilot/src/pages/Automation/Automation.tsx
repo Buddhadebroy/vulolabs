@@ -1,154 +1,158 @@
-import { useEffect, useState } from 'react';
+/* global appLocalizer */
+import { ComponentType, useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Link } from 'react-router-dom';
 import {
-	NavigatorComponent,
+	ColumnComponent,
+	ContainerComponent,
 	NavigatorHeaderComponent,
+	PopupComponent,
 } from '@zyra/components';
-import AutomationOverviewTab from './AutomationOverviewTab';
-import ManageAutomationsSection from './ManageAutomationsSection';
+import ShowProPopup from '../../components/Popup/Popup';
+import { useFilterSlot } from '../../services/useFilterSlot';
+import AutomationStatsRow from './AutomationStatsRow';
+import AutomationAttentionCard from './AutomationAttentionCard';
+import AutomationPeriodStatsCard from './AutomationPeriodStatsCard';
+import AutomationActivityCard from './AutomationActivityCard';
+import AutomationSuggestions from './AutomationSuggestions';
+import ManageAutomationsSection, { AutomationRow } from './ManageAutomationsSection';
+import { AutomationTemplate, getAutomationTemplateById } from './automationTemplates';
 import './AutomateWork.scss';
 
-const TAB_IDS = ['overview', 'automations'] as const;
+/** Mirrors vulopilot-pro's own `AutomationWizardProps` — Free can't import Pro's src/ tree, same small-matching-copy convention `automationLabels.ts` already establishes for its label sets. */
+interface AutomationWizardComponentProps {
+	openSignal?: number;
+	initialName?: string;
+	initialCategory?: string;
+	initialTriggerType?: string;
+	initialActionTypes?: string[];
+	initialNotificationTypes?: string[];
+	initialConditions?: { type: string; config: Record<string, unknown> }[];
+	viewAutomation?: AutomationRow | null;
+	onSaved?: () => void;
+}
 
-const TAB_META: Record<
-	(typeof TAB_IDS)[number],
-	{ headerTitle: string; headerIcon: string }
-> = {
-	overview: { headerTitle: __('Overview', 'vulopilot'), headerIcon: 'bar-chart' },
-	automations: { headerTitle: __('Automations', 'vulopilot'), headerIcon: 'automation' },
-};
+interface AutomationGenerateComponentProps {
+	openSignal?: number;
+	onSaved?: () => void;
+}
+
+interface AutomationSlotValue {
+	Wizard: ComponentType<AutomationWizardComponentProps>;
+	Generate: ComponentType<AutomationGenerateComponentProps>;
+}
 
 /**
- * "Automate Work" — a tab shell over two views. Tab bar/body are
- * `NavigatorComponent` (`variant="tab"`) rather than a bare `TabsComponent`
- * — same real settings-navigator AIAssistant.tsx's/Reports.tsx's own tab
- * shells already use. "Overview" (AutomationOverviewTab.tsx) is the new
- * dashboard-style view merging the latest mockup with this page's real
- * cards; "Automations" is today's real list/create/enable/run management
- * UI (ManageAutomationsSection.tsx, unchanged, just given its own tab
- * instead of sitting at the bottom of one long page). Restores the
- * two-tab shape this page briefly moved away from for its previous
- * single-page rebuild — the new mockup itself shows an "Overview"/
- * "Automations" tab bar, so this isn't a new pattern, it's this page
- * catching back up to it.
+ * "Automate Work" — flattened into one page per the redesign this was built
+ * against: header (title + the two real primary actions, "Create Automation"
+ * and "Build with AI" — never more than these two competing top-level CTAs)
+ * → Suggested Automations (the real, already-curated
+ * `AUTOMATION_TEMPLATES`) → Your Automations (`ManageAutomationsSection.tsx`,
+ * the one real canonical list). Replaces the previous Overview/Automations
+ * two-tab shell — `AutomationOverviewTab.tsx` and its ~9 cards (hero row,
+ * overview grid, attention card, period stats, composer, AI foreman,
+ * activity card, links row, explore banner) are retired: each was some
+ * variant of "Create"/"Manage"/"Explore" competing with the two real CTAs
+ * this header now owns, the exact duplication the redesign's own source
+ * spec calls out to consolidate.
  *
- * `headerTitle`/`headerDescription` are deliberately left unset on
- * `NavigatorComponent` — this page's own `NavigatorHeaderComponent` above
- * already renders the page header, and passing them here would render a
- * second, duplicate one. Each tab's `hideSettingHeader: true` suppresses
- * `NavigatorComponent`'s own per-tab title/description section, since
- * `AutomationOverviewTab`/`ManageAutomationsSection` already render their
- * own. `activeTab`'s setter is still needed (unlike Reports.tsx's own
- * conversion) — `AutomationOverviewTab`'s "Manage automations" action
- * jumps to the Automations tab programmatically via `goToAutomationsTab`,
- * same cross-tab-trigger case AIAssistant.tsx's own `goToTab` handles.
+ * Owns the real wizard/"Build with AI" popups' open-signal state and the
+ * `vulopilot_automation_panel` filter-slot resolution directly (rather than
+ * `ManageAutomationsSection.tsx`, their previous host) since the header's
+ * own two buttons need to open them too, not just the table's row actions —
+ * a single shared instance of each popup, not two independently-triggered
+ * ones.
  */
-const readTabFromHash = (hash: string): (typeof TAB_IDS)[number] => {
-	const subtab = new URLSearchParams(hash.substring(1)).get('subtab');
-
-	return (
-		subtab && (TAB_IDS as readonly string[]).includes(subtab)
-			? subtab
-			: 'overview'
-	) as (typeof TAB_IDS)[number];
-};
-
 const Automation = () => {
-	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(() =>
-		readTabFromHash(window.location.hash)
-	);
+	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automation_panel');
+	const Wizard = slot?.Wizard;
+	const Generate = slot?.Generate;
 
-	// react-router-dom's `useLocation()` (tried first here) never actually
-	// changes on a hash-only URL update in this app — confirmed live: a
-	// `history.pushState`/real browser Back that only changes `subtab`
-	// updates `window.location.hash` correctly but never re-renders this
-	// component via `useLocation()`, so `activeTab` was permanently stuck
-	// on whatever tab was showing at mount. Listening to the native
-	// `popstate` event directly (Back/Forward) and reading
-	// `window.location.hash` straight from the browser sidesteps
-	// react-router's own location tracking for this hash-only case. A
-	// plain tab-bar click already updates `activeTab` synchronously itself
-	// (NavigatorComponent's own handler) and calls `history.pushState`,
-	// which doesn't fire `popstate` — so this listener never fights that
-	// click, it only ever has real work to do on Back/Forward.
-	useEffect(() => {
-		const syncFromHash = () => setActiveTab(readTabFromHash(window.location.hash));
+	const [wizardOpenSignal, setWizardOpenSignal] = useState(0);
+	const [generateOpenSignal, setGenerateOpenSignal] = useState(0);
+	const [refetchSignal, setRefetchSignal] = useState(0);
+	const [viewingRow, setViewingRow] = useState<AutomationRow | null>(null);
+	const [pendingTemplate, setPendingTemplate] = useState<AutomationTemplate | null>(null);
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
-		// 'popstate' covers Back/Forward; 'hashchange' covers a same-page
-		// anchor (or any other `location.hash =`/`href =` assignment) to a
-		// different `subtab` while already mounted here — neither of those
-		// fires the other event.
-		window.addEventListener('popstate', syncFromHash);
-		window.addEventListener('hashchange', syncFromHash);
+	const openProPopup = () => setIsProPopupOpen(true);
 
-		return () => {
-			window.removeEventListener('popstate', syncFromHash);
-			window.removeEventListener('hashchange', syncFromHash);
-		};
-	}, []);
+	const handleSaved = () => setRefetchSignal((n) => n + 1);
+
+	const openCreateWizard = () => {
+		if (!Wizard) {
+			openProPopup();
+			return;
+		}
+
+		setViewingRow(null);
+		setPendingTemplate(null);
+		setWizardOpenSignal((n) => n + 1);
+	};
+
+	const openGenerate = () => {
+		if (!Generate) {
+			openProPopup();
+			return;
+		}
+
+		setGenerateOpenSignal((n) => n + 1);
+	};
+
+	const openTemplate = (template: AutomationTemplate) => {
+		if (!Wizard) {
+			openProPopup();
+			return;
+		}
+
+		setViewingRow(null);
+		setPendingTemplate(template);
+		setWizardOpenSignal((n) => n + 1);
+	};
+
+	const openRow = (row: AutomationRow) => {
+		if (!Wizard) {
+			openProPopup();
+			return;
+		}
+
+		setPendingTemplate(null);
+		setViewingRow(row);
+		setWizardOpenSignal((n) => n + 1);
+	};
 
 	// AI Copilot's Chat tab (ChatTab.tsx's own AutomationTemplatesCard
-	// preview) deep-links here as `&automation_template=<id>` — same
-	// `subtab=` URL-param routing convention this file already reads
-	// above, extended one param further. `useState` initializer only reads
-	// it once (on mount); ManageAutomationsSection.tsx reads it from here
-	// via a prop rather than re-parsing the URL itself.
-	const [initialAutomationTemplateId] = useState<string | null>(() =>
-		new URLSearchParams(window.location.hash.substring(1)).get(
-			'automation_template'
-		)
-	);
+	// preview) deep-links here as `?...#tab=automation&automation_template=<id>`
+	// — read once on mount, same as this page's previous tab-shell version.
+	const firedInitialTemplateRef = useRef(false);
 
-	// Same `subtab=` URL shape NavigatorComponent's own `prepareUrl` below
-	// builds — shared so a programmatic switch (goToAutomationsTab) pushes
-	// the exact same URL a real tab-bar click would, not just React state.
-	const prepareUrl = (subTab: string) =>
-		`?page=vulopilot#&tab=automation&subtab=${subTab}`;
-
-	// Every "Manage Automations"/"Create New Automation"/"View All
-	// Automations"/etc. action throughout AutomationOverviewTab.tsx's own
-	// cards routes through this one function. NavigatorComponent's own
-	// tab-bar click keeps the URL in sync via `history.pushState` (its own
-	// docblock) — this needs to do the same explicitly, since it changes
-	// `activeTab` from *outside* that click handler; without it the address
-	// bar was left showing `subtab=overview` while the Automations tab was
-	// actually visible, so refreshing the page (or sharing the URL) landed
-	// back on Overview, and there was no real history entry for Back to
-	// return to either.
-	const goToAutomationsTab = () => {
-		setActiveTab('automations');
-		window.history.pushState(null, '', prepareUrl('automations'));
-	};
-
-	const settingContent = TAB_IDS.map((tabId) => ({
-		type: 'file' as const,
-		content: {
-			id: tabId,
-			headerTitle: TAB_META[tabId].headerTitle,
-			headerIcon: TAB_META[tabId].headerIcon,
-			hideSettingHeader: true,
-		},
-	}));
-
-	const getForm = (tabId: string) => {
-		switch (tabId) {
-			case 'overview':
-				return (
-					<AutomationOverviewTab
-						onManageAutomations={goToAutomationsTab}
-					/>
-				);
-			case 'automations':
-				return (
-					<ManageAutomationsSection
-						initialTemplateId={initialAutomationTemplateId}
-					/>
-				);
-			default:
-				return <div></div>;
+	useEffect(() => {
+		if (firedInitialTemplateRef.current || !Wizard) {
+			return;
 		}
-	};
+
+		const templateId = new URLSearchParams(window.location.hash.substring(1)).get(
+			'automation_template'
+		);
+		const template = templateId ? getAutomationTemplateById(templateId) : null;
+
+		if (!template) {
+			return;
+		}
+
+		firedInitialTemplateRef.current = true;
+		openTemplate(template);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race — see that hook's docblock); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
+	}, [Wizard]);
+
+	// "View all issues →" (AutomationAttentionCard) and "View automation
+	// history →" (AutomationActivityCard) both jump to the same real
+	// destination — the "Your Automations" table already shows every
+	// automation's own real status/last-run outcome, and the wizard's own
+	// read-only "Open" view already surfaces a filtered run history per
+	// automation; there's no separate unfiltered history view to link to
+	// instead.
+	const scrollToTable = () =>
+		document.getElementById('automation-manage')?.scrollIntoView({ behavior: 'smooth' });
 
 	return (
 		<>
@@ -156,19 +160,76 @@ const Automation = () => {
 				headerIcon="automation"
 				headerTitle={__('Automate Work', 'vulopilot')}
 				headerDescription={__(
-					'Let AI continuously improve your website while you focus on growing your business.',
+					'Create workflows that automatically handle repetitive work and keep you informed.',
 					'vulopilot'
 				)}
+				buttons={[
+					{
+						label: __('Create Automation', 'vulopilot'),
+						icon: 'plus',
+						onClick: openCreateWizard,
+					},
+					{
+						label: __('Build with AI', 'vulopilot'),
+						icon: 'automation',
+						onClick: openGenerate,
+					},
+				]}
 			/>
-			<NavigatorComponent
-				className="automate-work-tabs"
-				settingContent={settingContent}
-				currentSetting={activeTab}
-				getForm={getForm}
-				prepareUrl={prepareUrl}
-				Link={Link}
-				variant="tab"
+
+			<ContainerComponent general>
+				<ColumnComponent grid={7}>
+					<AutomationStatsRow />
+				</ColumnComponent>
+				<ColumnComponent grid={5}>
+					<AutomationPeriodStatsCard />
+					<AutomationAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
+				</ColumnComponent>
+			</ContainerComponent>
+
+
+			<AutomationSuggestions
+				onUseTemplate={openTemplate}
+				onOpenAutomation={openRow}
+				refetchSignal={refetchSignal}
 			/>
+
+			<ManageAutomationsSection
+				hasWizard={Boolean(Wizard)}
+				onOpenRow={openRow}
+				onRequireProUpsell={openProPopup}
+				refetchSignal={refetchSignal}
+			/>
+
+			<AutomationActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
+
+			{Wizard && (
+				<Wizard
+					openSignal={wizardOpenSignal}
+					initialName={pendingTemplate?.category ? pendingTemplate.label : undefined}
+					initialCategory={pendingTemplate?.category ?? undefined}
+					initialTriggerType={pendingTemplate?.triggerType ?? undefined}
+					initialActionTypes={pendingTemplate?.actionTypes ?? undefined}
+					viewAutomation={viewingRow}
+					onSaved={handleSaved}
+				/>
+			)}
+
+			{Generate && <Generate openSignal={generateOpenSignal} onSaved={handleSaved} />}
+
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={() => setIsProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{appLocalizer.khali_dabba ? (
+					<ShowProPopup moduleName="automation" />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
 		</>
 	);
 };
