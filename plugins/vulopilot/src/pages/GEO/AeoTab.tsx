@@ -1,6 +1,6 @@
-/* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
+import { useModules } from '@zyra/core';
 import { ColumnComponent, ContainerComponent, NoticeComponent } from '@zyra/components';
 import GeoByTopicGrid from './GeoByTopicGrid';
 import AeoScoreSummaryCard from './AeoScoreSummaryCard';
@@ -192,11 +192,17 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
  * active_modules list directly" posture GeoTab.tsx's own
  * `isGeoInsightsActive()` already uses for its sibling Competitor
  * Visibility card.
+ *
+ * Takes `modules` from zyra's own `useModules()` store rather than reading
+ * `appLocalizer.active_modules` directly: that global is a static snapshot
+ * localized once at initial page load, so a module toggled on in Settings →
+ * Modules (which updates `useModules()`'s store live via `insertModule()`,
+ * not `appLocalizer`) would otherwise still read as inactive here until a
+ * full browser refresh — "Unlock with Pro" kept popping back up right after
+ * enabling the module for this exact reason.
  */
-const isCitationCheckActive = (): boolean =>
-	(appLocalizer.active_modules?.includes('geo-insights') ||
-		appLocalizer.active_modules?.includes('aeo-insights')) ??
-	false;
+const isCitationCheckActive = (modules: string[]): boolean =>
+	modules.includes('geo-insights') || modules.includes('aeo-insights');
 
 /**
  * AEO = Answer Engine Optimization — whether AI systems can extract,
@@ -313,6 +319,7 @@ const AeoTab = () => {
 		key: string;
 		token: number;
 	} | null>(null);
+	const { modules } = useModules();
 	const { groups, isLoading: isLoadingGroups } = useAllFindingGroups();
 	const { snapshot, history, isLoading: isLoadingSnapshot } = useGeoVisibilitySnapshot();
 	const { pages: aeoPages, total: totalPages, isLoading: isLoadingPages } =
@@ -372,48 +379,43 @@ const AeoTab = () => {
 				)}
 			/>
 
-			<ContainerComponent>
-				<ColumnComponent grid={6}>
-					<GeoByTopicGrid
-						topics={AEO_SECTIONS}
-						groups={groups}
-						isLoading={isLoadingGroups}
-						title={__('AEO Checks at a Glance', 'vulopilot')}
-						desc={__(
-							'Key areas that help answer engines understand and use your content.',
-							'vulopilot'
-						)}
-						onViewTopic={(key) => goToIssuesTable(key)}
-					/>
-				</ColumnComponent>
-				<ColumnComponent grid={6}>
-					<AeoScoreSummaryCard
-						isLoading={isLoadingSnapshot || isLoadingGroups || isLoadingPages}
-						hasSnapshot={Boolean(hasSnapshot)}
-						aeoScore={aeoScore}
-						ratingLabel={getRating(aeoScore)}
-						ratingClassName={ratingClass(aeoScore)}
-						questionsAnswered={questionsAnswered}
-						totalPages={totalPages}
-						pagesReady={pagesReady}
-						trend={aeoTrend}
-					/>
-				</ColumnComponent>
-			</ContainerComponent>
-
-			<NoticeComponent
-				// type="banner"
-				displayPosition="inline"
-				message={__(
-					'AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results.',
-					'vulopilot'
-				)}
-			/>
-
-			<ContainerComponent>
-				<AeoCitationCoverageCard isActive={isCitationCheckActive()} />
-				<AeoEngineTestingCard isActive={isCitationCheckActive()} pages={aeoPages} />
-			</ContainerComponent>
+			<ColumnComponent>
+				<GeoByTopicGrid
+					topics={AEO_SECTIONS}
+					groups={groups}
+					isLoading={isLoadingGroups}
+					title={__('AEO Checks at a Glance', 'vulopilot')}
+					desc={__(
+						'Key areas that help answer engines understand and use your content.',
+						'vulopilot'
+					)}
+					onViewTopic={(key) => goToIssuesTable(key)}
+				/>
+			</ColumnComponent>
+			<ColumnComponent grid={6}>
+				<AeoScoreSummaryCard
+					isLoading={isLoadingSnapshot || isLoadingGroups || isLoadingPages}
+					hasSnapshot={Boolean(hasSnapshot)}
+					aeoScore={aeoScore}
+					ratingLabel={getRating(aeoScore)}
+					ratingClassName={ratingClass(aeoScore)}
+					questionsAnswered={questionsAnswered}
+					totalPages={totalPages}
+					pagesReady={pagesReady}
+					trend={aeoTrend}
+				/>
+				<NoticeComponent
+					// type="banner"
+					displayPosition="inline"
+					message={__(
+						'AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results.',
+						'vulopilot'
+					)}
+				/>
+			</ColumnComponent>
+			<AeoCitationCoverageCard isActive={isCitationCheckActive(modules)} />
+			<AeoEngineTestingCard isActive={isCitationCheckActive(modules)} pages={aeoPages} />
+	
 
 			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) — replaces the differently-shaped SectionedFindingsTab this used before, per direct instruction. `pageAnalysis` merges the former standalone "Page-by-Page Answer Readiness" table into the "Pages & Posts" table below. */}
 			<IssuesSection

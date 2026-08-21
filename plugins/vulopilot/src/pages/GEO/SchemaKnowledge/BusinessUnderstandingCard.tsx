@@ -190,7 +190,7 @@ const BusinessUnderstandingCard = () => {
 				);
 
 	return (
-		<ContainerComponent>
+		<>
 			<ColumnComponent grid={4}>
 				<CardComponent
 					title={__('Business Understanding Score', 'vulopilot')}
@@ -295,7 +295,7 @@ const BusinessUnderstandingCard = () => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 

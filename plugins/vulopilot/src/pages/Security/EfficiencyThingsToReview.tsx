@@ -67,7 +67,6 @@ const EfficiencyThingsToReview = ({
 				</div>
 				{summary && (
 					<ButtonInput
-						wrapperClass="efficiency-review-view-all"
 						buttons={{
 							text: sprintf(
 								/* translators: %d is the total number of efficiency checks. */

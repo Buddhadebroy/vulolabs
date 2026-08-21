@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CardComponent, BadgeComponent } from '@zyra/components';
+import { CardComponent, BadgeComponent, SectionComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { sumGroupCounts } from './useGeoFindingGroups';
 import { countDistinctAffectedPages } from './useGeoTopicAffectedPages';
@@ -48,16 +48,16 @@ const GeoByTopicGrid = ({
 	affectedPagesByScanner,
 }: GeoByTopicGridProps) => (
 	<div className="geo-by-topic-section">
-		<h3 className="reports-section-title">
-			{title || __('A Closer Look, By Topic', 'vulopilot')}
-		</h3>
-		<p className="geo-by-topic-desc">
-			{desc ||
+		<SectionComponent
+			title={title || __('A Closer Look, By Topic', 'vulopilot')}
+			desc={
+				desc ||
 				__(
 					'We grouped every issue by the kind of thing AI is looking for.',
 					'vulopilot'
-				)}
-		</p>
+				)
+			}
+		/>
 		<div className="geo-by-topic-grid">
 			{topics.map((topic) => {
 				const count = sumGroupCounts(groups, topic.scannerIds);

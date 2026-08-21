@@ -101,22 +101,18 @@ const SchemaKnowledgeTab = ({
 
 			<BusinessUnderstandingCard />
 
-			<div id="schema-knowledge-knowledge-graph">
-				<KnowledgeGraphSection />
-			</div>
+			<KnowledgeGraphSection />
 
 			<WhatNeedsFixingCard />
-
-			<div id="schema-knowledge-issues">
-				<SectionComponent
-					title={__('All Business Identity Issues', 'vulopilot')}
-					desc={__(
-						'Every open schema/entity finding behind the preview above, filterable by priority.',
-						'vulopilot'
-					)}
-				/>
-				<IssuesSection />
-			</div>
+			
+			<SectionComponent
+				title={__('All Business Identity Issues', 'vulopilot')}
+				desc={__(
+					'Every open schema/entity finding behind the preview above, filterable by priority.',
+					'vulopilot'
+				)}
+			/>
+			<IssuesSection />
 
 			<div id="schema-knowledge-structured-data">
 				<div id="schema-knowledge-inspector">

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { TabsComponent } from '@zyra/components';
+import { TabsComponent, ColumnComponent } from '@zyra/components';
 import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
 import {
 	PRIORITY_SEVERITIES,
@@ -348,7 +348,7 @@ const IssuesSection = ({
 	const activeTabTotal = tabGroups.reduce((total, group) => total + group.count, 0);
 
 	return (
-		<div className="seo-issues-section" id={id} ref={sectionRef}>
+		<>
 			<TabsComponent
 				className="seo-issues-filter-tabs"
 				activeIndex={Math.max(
@@ -360,36 +360,40 @@ const IssuesSection = ({
 					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
 				}))}
 			/>
-
-			<IssuesSummaryCards
-				total={activeTabTotal}
-				priorityCounts={priorityCounts}
-				isLoading={isLoading}
-				activePriority={activePriority}
-				onSelectPriority={setActivePriority}
-			/>
-
-			<SeoSiteWideIssuesTable
-				findings={siteWideFindings}
-				activeScannerIds={activeScannerIds}
-				activePriority={activePriority}
-				isLoading={isLoading}
-				hasError={hasError}
-				onRetry={refetch}
-			/>
-			<SeoIssuesByPageTable
-				rows={rows}
-				activeScannerIds={activeScannerIds}
-				activePriority={activePriority}
-				scannerLabelMap={scannerLabelMap}
-				isLoading={isLoading}
-				hasError={hasError}
-				onRetry={refetch}
-				issuesColumnLabel={issuesColumnLabel}
-				visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
-				onExportCsv={exportCsv}
-			/>
-		</div>
+			<ColumnComponent>
+				<IssuesSummaryCards
+					total={activeTabTotal}
+					priorityCounts={priorityCounts}
+					isLoading={isLoading}
+					activePriority={activePriority}
+					onSelectPriority={setActivePriority}
+				/>
+			</ColumnComponent>
+			<ColumnComponent fullHeight grid={6}>
+				<SeoSiteWideIssuesTable
+					findings={siteWideFindings}
+					activeScannerIds={activeScannerIds}
+					activePriority={activePriority}
+					isLoading={isLoading}
+					hasError={hasError}
+					onRetry={refetch}
+				/>
+				</ColumnComponent>
+				<ColumnComponent fullHeight grid={6}>
+				<SeoIssuesByPageTable
+					rows={rows}
+					activeScannerIds={activeScannerIds}
+					activePriority={activePriority}
+					scannerLabelMap={scannerLabelMap}
+					isLoading={isLoading}
+					hasError={hasError}
+					onRetry={refetch}
+					issuesColumnLabel={issuesColumnLabel}
+					visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
+					onExportCsv={exportCsv}
+				/>
+			</ColumnComponent>
+		</>
 	);
 };
 

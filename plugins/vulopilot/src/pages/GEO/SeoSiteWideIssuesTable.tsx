@@ -3,7 +3,13 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent, NoticeManager, PopupComponent } from '@zyra/components';
+import {
+	CardComponent,
+	InformationItemComponent,
+	ModuleGuardComponent,
+	NoticeManager,
+	PopupComponent,
+} from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -174,16 +180,22 @@ const SeoSiteWideIssuesTable = ({
 			<TableCard
 				showMenu={false}
 				className="transparent-table"
+				hideHeader={true}
 				headers={{
 					title: {
 						label: __('Issue', 'vulopilot'),
-						width: '55%',
-						render: (row: RawFinding) => <span>{row.title}</span>,
-					},
-					severity: {
-						label: __('Severity', 'vulopilot'),
-						type: 'status',
-						statusClass: (row: RawFinding) => row.severity,
+						width: '75%',
+						render: (row: RawFinding) => (
+							<InformationItemComponent
+								title={row.title}
+								badges={[
+									{
+										text: row.severity,
+										className: `badge-${row.severity}`,
+									},
+								]}
+							/>
+						),
 					},
 					action: {
 						label: __('Action', 'vulopilot'),
