@@ -386,6 +386,7 @@ class Install {
         self::create_login_attempts_table();
         self::create_firewall_blocks_table();
         self::create_backups_table();
+        self::create_backup_storage_configs_table();
     }
 
     /**
@@ -738,6 +739,35 @@ class Install {
      * already established — the real path is always re-derived server-side
      * from `wp_upload_dir()`, never trusted from the client.
      *
+     * `destination`/`destination_status`/`destination_error`/`remote_path`
+     * (Services\BackupStorageManager) — real remote-upload tracking on top
+     * of the local file above, added alongside the storage-destination
+     * settings/credentials feature. `destination` defaults to `'local'`
+     * (every backup already saves locally regardless of any remote
+     * destination) and only becomes `'s3'`/`'google_drive'` for a backup
+     * actually started while that destination was the active one;
+     * `destination_status` stays NULL for a `'local'`-only row (nothing
+     * else to track) and is one of `'uploading'`/`'uploaded'`/`'failed'`/
+     * `'skipped_not_configured'` (the destination was selected but no
+     * valid credentials were on file when this backup finished — a real,
+     * honest state, not the same as a real upload attempt failing) once a
+     * remote destination is involved. `remote_path` is that provider's own
+     * real object key (S3) or file id (Google Drive), never a client-
+     * trusted path — same `resolve_file_path()`-style re-derivation
+     * posture `file_path` above already established, just there is no
+     * local re-derivation needed since it's never used to open a local
+     * file.
+     *
+     * No `IF NOT EXISTS` here (unlike this table's own original CREATE) —
+     * same dbDelta()/"IF NOT EXISTS" parsing bug `create_redirect_tables()`'s
+     * own docblock documents in detail: with that clause present, dbDelta()
+     * misparses the table name off the literal word "IF" on a site that
+     * already has this table, so the real ALTER TABLE ADD COLUMN path that
+     * adds these 4 new columns to an already-installed site would silently
+     * never run. Harmless on a genuinely fresh install either way (MySQL's
+     * own IF NOT EXISTS still applies if dbDelta's plain CREATE races
+     * something into existing first).
+     *
      * @return void
      */
     private static function create_backups_table() {
@@ -749,19 +779,63 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['backup'] . "` (
-            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `status`         varchar(20) NOT NULL DEFAULT 'queued',
-            `trigger_type`   varchar(20) NOT NULL DEFAULT 'manual',
-            `file_path`      varchar(255) DEFAULT NULL,
-            `file_size`      bigint(20) unsigned DEFAULT NULL,
-            `started_at`     datetime DEFAULT NULL,
-            `finished_at`    datetime DEFAULT NULL,
-            `error_message`  text DEFAULT NULL,
-            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        $sql = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['backup'] . "` (
+            `id`                  bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `status`              varchar(20) NOT NULL DEFAULT 'queued',
+            `trigger_type`        varchar(20) NOT NULL DEFAULT 'manual',
+            `file_path`           varchar(255) DEFAULT NULL,
+            `file_size`           bigint(20) unsigned DEFAULT NULL,
+            `destination`         varchar(20) NOT NULL DEFAULT 'local',
+            `destination_status`  varchar(30) DEFAULT NULL,
+            `destination_error`   text DEFAULT NULL,
+            `remote_path`         varchar(500) DEFAULT NULL,
+            `started_at`          datetime DEFAULT NULL,
+            `finished_at`         datetime DEFAULT NULL,
+            `error_message`       text DEFAULT NULL,
+            `created_at`          timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             KEY `idx_status` (`status`),
-            KEY `idx_created` (`created_at`)
+            KEY `idx_created` (`created_at`),
+            KEY `idx_destination` (`destination`)
+        ) $collate;";
+
+        dbDelta( $sql );
+    }
+
+    /**
+     * Creates `vulopilot_backup_storage_configs` — real, encrypted-at-rest
+     * Amazon S3/Google Drive credentials for Backups' own remote storage
+     * destination. Same shape as `vulopilot_ai_provider_configs` above (one
+     * row per provider, `credentials` always the
+     * Services\CredentialEncryption-encrypted form, `is_active` marking
+     * which single provider a backup actually uploads to right now) —
+     * intentionally NOT part of `Utill::VULOPILOT_SETTINGS_KEY`'s flat
+     * option, for the same reason `vulopilot_google_connection` isn't
+     * (GoogleServicesConnection's own docblock): that option round-trips
+     * wholesale to the browser on every `GET /settings` call, and a
+     * secret access key/OAuth client secret/refresh token must never reach
+     * the client.
+     *
+     * @return void
+     */
+    private static function create_backup_storage_configs_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['backup_storage_config'] . "` (
+            `id`           bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `provider`     varchar(20) NOT NULL,
+            `credentials`  longtext NOT NULL,
+            `is_active`    tinyint(1) NOT NULL DEFAULT 0,
+            `created_at`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_provider` (`provider`)
         ) $collate;";
 
         dbDelta( $sql );

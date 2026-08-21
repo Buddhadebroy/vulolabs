@@ -63,6 +63,12 @@ class Utill {
         'login_attempt'              => 'vulopilot_login_attempts',
         'firewall_block'             => 'vulopilot_firewall_blocks',
         'backup'                     => 'vulopilot_backups',
+        // Amazon S3/Google Drive credentials for Backups' own real remote
+        // storage destination (Services\BackupStorageManager) — same
+        // encrypted-credentials-per-provider-row shape as
+        // 'ai_provider_config' above, reused here rather than a new
+        // pattern (Repositories\BackupStorageConfigRepository).
+        'backup_storage_config'      => 'vulopilot_backup_storage_configs',
         // Real off-site brand mentions (Grow My Traffic → Brand Visibility's
         // former "not connected yet" card) — owned here per this file's own
         // schema-ownership rule even though the fetcher/UI are Pro
@@ -217,6 +223,15 @@ class Utill {
         'enable_automatic_backups'              => array(),
         'backup_frequency'                      => 'disabled',
         'backup_retention_count'                => 5,
+        // Which real storage destination a just-completed backup uploads
+        // to, on top of always staying on this server too
+        // (Services\BackupStorageManager, hooked on 'vulopilot_backup_completed').
+        // 'local' is a real, meaningful default (no destination configured
+        // yet), not a placeholder — every backup already stores locally
+        // regardless of this setting. Credentials for 's3'/'google_drive'
+        // live in their own encrypted 'backup_storage_config' table, never
+        // this flat option (see that table's own docblock in Utill::TABLES).
+        'backup_storage_destination'             => 'local',
         // Scanner-category kill switches — each gates every scanner
         // registered under that category string (SCANNERS.md), not just
         // one check, since that's what these settings-page groupings

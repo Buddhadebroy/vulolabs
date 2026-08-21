@@ -81,6 +81,7 @@ class Rest {
             'core_web_vitals_beacon'      => new Controllers\CoreWebVitalsBeaconRest(),
             'page_speed'                  => new Controllers\PageSpeed(),
             'backups'                     => new Controllers\Backups(),
+            'backup_storage'              => new Controllers\BackupStorage(),
             'content_assistant'           => new Controllers\ContentAssistant(),
             'copilot'                     => new Controllers\Copilot(),
             'store_readiness'             => new Controllers\StoreReadiness(),
