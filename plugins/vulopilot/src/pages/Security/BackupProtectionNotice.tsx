@@ -4,8 +4,8 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeComponent } from '@zyra/components';
 
-/** `?page=vulopilot#&tab=security&subtab=backups` — Protect My Site's own Backups tab (BackupsTab.tsx), the real backup-management surface this notice links to. */
-const BACKUPS_TAB_URL = '?page=vulopilot#&tab=security&subtab=backups';
+/** `?page=vulopilot#&tab=site-health` — Site Health's own real backup-management surface (BackupsTab.tsx, merged into that page, no separate subtab) this notice links to. */
+const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health';
 
 /**
  * "Backup protection: Enabled/Not enabled" — a single real status line with

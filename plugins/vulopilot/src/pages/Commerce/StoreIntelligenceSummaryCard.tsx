@@ -3,11 +3,11 @@ import { CardComponent, ListComponent, ModuleGuardComponent } from '@zyra/compon
 import { ButtonInput } from '@zyra/inputs';
 import { useSalesInsights } from '../../services/useSalesInsights';
 import { useSectionStatus } from '../../services/useSectionStatus';
-import type { WooCommerceIssueTab } from './WooCommerceIssuesTable';
+import type { CommerceIssueTab } from './CommerceIssuesTable';
 
 interface StoreIntelligenceSummaryCardProps {
 	onExploreInsights: () => void;
-	onReviewTab: (tab: WooCommerceIssueTab) => void;
+	onReviewTab: (tab: CommerceIssueTab) => void;
 	onFindOpportunities: () => void;
 }
 
@@ -33,7 +33,7 @@ interface NoticedRow {
  * rather than one bullet + one generic button. Every link reuses
  * navigation this page's other cards already wire up — stock/stale
  * products go to the Issues table's "Products" tab (same destination
- * WooCommerceCategoryGrid.tsx's own Inventory/Products cards use),
+ * CommerceCategoryGrid.tsx's own Inventory/Products cards use),
  * payment failures go to its "Checkout" tab (same as the Checkout &
  * Payments card), and the cross-sell pair goes to the "Bulk AI
  * optimization" panel (same `onFindOpportunities` destination

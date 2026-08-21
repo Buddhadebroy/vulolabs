@@ -923,7 +923,7 @@
 	// (GeoTab.tsx's/AeoTab.tsx's own `pageAnalysis` mode): zyra `Table.tsx`
 	// clips every `<td>` with `overflow: hidden` for its own text-truncation
 	// needs elsewhere in this table, but `.geo-page-visibility-bar`'s own
-	// `min-width` (GrowMyTraffic.scss, shared with what used to be
+	// `min-width` (SeoVisibility.scss, shared with what used to be
 	// `GeoPageAnalysisTable.tsx`'s own copy) can end up a few px wider than
 	// this table's auto-sized column — confirmed live, clipping the "N%"
 	// label into the next column instead of just tightening the bar. This

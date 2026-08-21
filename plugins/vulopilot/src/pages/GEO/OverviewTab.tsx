@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import './GrowMyTraffic.scss';
+import './SeoVisibility.scss';
 import {
 	ChatInputComponent,
 	ChatMessageComponent,
@@ -37,7 +37,7 @@ const SUGGESTED_PROMPTS = [
 ];
 
 /**
- * "Grow My Traffic"'s new default tab — see GrowMyTraffic.scss's sibling
+ * "SEO & Visibility"'s new default tab — see SeoVisibility.scss's sibling
  * files for the per-section real-data mapping (VisibilityScoreCard,
  * AiOpportunitiesCard, DiscoverCard, AuthorityCard,
  * TechnicalVisibilityCard, CompetitorRadarCard, VisibilityTrendCard,

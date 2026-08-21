@@ -71,7 +71,7 @@ const useRunningLowProduct = (): NamedProduct | null => {
 /**
  * Real, currently out-of-stock product — `wc/v3/products?stock_status=
  * outofstock`, the same real WooCommerce core query
- * WooCommerceCategoryGrid.tsx's own `useOutOfStockCount()` already uses
+ * CommerceCategoryGrid.tsx's own `useOutOfStockCount()` already uses
  * for its total, here fetching the one actual product row instead of
  * just the header count.
  */
@@ -112,7 +112,7 @@ interface NoticedRow {
 
 /**
  * "Products to look at" — one real example product per risk category,
- * rather than the bare counts WooCommerceCategoryGrid.tsx's own Inventory/
+ * rather than the bare counts CommerceCategoryGrid.tsx's own Inventory/
  * Coupons-style cards already show: the single most urgent running-low
  * product (`useRunningLowProduct()`), the first real out-of-stock product
  * (`useOutOfStockProduct()`), and the first real stale/no-recent-sales

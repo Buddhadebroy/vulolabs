@@ -74,7 +74,7 @@ const buildFixWithAiLink = (editLink: string, scannerId: string): string =>
  * chevron `<i>` it renders itself inside `td.admin-column.expand` (see
  * that component's own source). Per direct instruction, that chevron is
  * hidden (`.seo-issues-by-page-card .admin-column.expand { display: none }`
- * in GrowMyTraffic.scss) and clicking anywhere else in a page row should
+ * in SeoVisibility.scss) and clicking anywhere else in a page row should
  * expand it instead — so this walks up to the row and fires a real `click`
  * on that same (now-invisible) icon, which zyra's own internal handler
  * still picks up. A no-op for finding sub-rows (no `variation`, so no icon

@@ -45,7 +45,7 @@ const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
 };
 
 /**
- * "Grow My Traffic" (WP menu slug `geo`) — a tab shell over Overview
+ * "SEO & Visibility" (WP menu slug `seo-visibility`) — a tab shell over Overview
  * (OverviewTab.tsx), and GEO/AEO/Crawl & URLs/Brand Visibility/
  * Schema & Knowledge/SEO/Keywords,
  * folded in as tabs instead of their own now-deleted standalone pages.
@@ -55,7 +55,7 @@ const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
  * honest "not connected yet" state rather than fabricated rank data.
  * AEO/Crawler Traffic
  * were already grouped under `Admin.php`'s `legacy_submenus()` "Folded
- * into 'geo' ('Grow My Traffic')" comment (`group: 'ai-visibility'`);
+ * into 'seo-visibility' ('SEO & Visibility')" comment (`group: 'ai-visibility'`);
  * Brand Visibility/Schema & Knowledge/SEO had no documented fold
  * destination there, so they land here too rather than as a second,
  * differently-scoped tab shell. "AI Content" was originally folded in
@@ -104,7 +104,7 @@ const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
  * AuthorityCard.tsx's old `?tab=brand-visibility`) can still land on the
  * right tab instead of only the default Overview.
  */
-const GEO = () => {
+const SeoVisibility = () => {
 	const rawSubtab = new URLSearchParams(
 		useLocation().hash.substring(1)
 	).get('subtab');
@@ -174,7 +174,7 @@ const GEO = () => {
 		<>
 			<NavigatorHeaderComponent
 				headerIcon="bar-chart"
-				headerTitle={__('Grow My Traffic', 'vulopilot')}
+				headerTitle={__('SEO & Visibility', 'vulopilot')}
 				headerDescription={__(
 					'Tell AI what you want to achieve. VuloPilot continuously improves your site’s visibility across Google, AI Search, and Answer Engines.',
 					'vulopilot'
@@ -183,11 +183,11 @@ const GEO = () => {
 			/>
 			<ContainerComponent general>
 				<TabsComponent
-					className="grow-my-traffic-tabs"
+					className="seo-visibility-tabs"
 					activeIndex={TAB_IDS.indexOf(activeTab)}
 					onTabChange={(index) => {
 						setActiveTab(TAB_IDS[index]);
-						pushSubtabUrl('geo', TAB_IDS[index]);
+						pushSubtabUrl('seo-visibility', TAB_IDS[index]);
 					}}
 					tabs={[
 						{
@@ -237,4 +237,4 @@ const GEO = () => {
 	);
 };
 
-export default GEO;
+export default SeoVisibility;

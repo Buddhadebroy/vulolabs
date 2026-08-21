@@ -78,7 +78,7 @@ class GoogleServicesConnection {
      * (GoogleSearchConsoleOAuthCallbackHandler::handle_callback()) is
      * allowed to land back on — 'settings' (Settings → Scanning → Google
      * Services, GoogleServicesPanel.tsx's own original, only-ever
-     * destination) or 'keywords' (Grow My Traffic → Keywords,
+     * destination) or 'keywords' (SEO & Visibility → Keywords,
      * KeywordsTab.tsx's own inline connect flow). Kept as a real
      * allow-list rather than trusting whatever string a caller passes
      * straight through into a redirect URL.

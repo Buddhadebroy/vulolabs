@@ -220,7 +220,7 @@ class AutomationsRunRepository extends AbstractRepository {
 
     /**
      * Real count of automation runs that failed to complete since a given
-     * timestamp — backs "Sell More"'s "Store Automation" category card
+     * timestamp — backs "Commerce"'s "Store Automation" category card
      * (StoreReadiness.php) and its own "N automatic tasks failed" number.
      * Same single-status-count shape as get_stats_for_period()'s own
      * `by_status['failed']`, just windowed by a timestamp instead of a

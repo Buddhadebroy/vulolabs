@@ -47,7 +47,7 @@ class Seo extends \WP_REST_Controller {
      * `links-schema` used to bundle `internal-linking`/`broken-links`/
      * `schema`/`structured-data`/`sitewide-structured-data`/`open-graph`/
      * `twitter-card` into one category — real overlapping ownership with
-     * "Grow My Traffic"'s own dedicated Broken Links tab
+     * "SEO & Visibility"'s own dedicated Broken Links tab
      * (BrokenLinksTab.tsx's own `BROKEN_SCANNER_IDS`) and Schema &
      * Knowledge tab (SchemaKnowledge/IssuesSection.tsx's own
      * `SCHEMA_ISSUE_SCANNER_IDS`), which already own those same scanner
@@ -63,7 +63,7 @@ class Seo extends \WP_REST_Controller {
      *
      * `sitemap`/`robots` were dropped from here entirely for the same
      * reason (direct instruction): both are crawler/discovery controls,
-     * real overlapping ownership with "Grow My Traffic"'s own dedicated
+     * real overlapping ownership with "SEO & Visibility"'s own dedicated
      * Crawler Traffic tab, which now owns real `robots-txt`/`sitemap`/
      * `sitemap-validation`/`ai-crawler-blocked-pages` findings tables
      * itself (CrawlerTrafficTab.tsx). SeoTab.tsx's own "Search engine

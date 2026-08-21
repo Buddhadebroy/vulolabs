@@ -7,9 +7,9 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
  * Shared `GET /findings/groups?category=woocommerce` fetch — one real
- * call, reused by WooCommerceCategoryGrid.tsx (per-card counts, summed
- * per scanner_id bucket — see WooCommerceTab.constants.ts) and
- * WooCommerceIssuesTable.tsx (its "Important" tab's scanner_ids, computed
+ * call, reused by CommerceCategoryGrid.tsx (per-card counts, summed
+ * per scanner_id bucket — see CommerceTab.constants.ts) and
+ * CommerceIssuesTable.tsx (its "Important" tab's scanner_ids, computed
  * from whichever groups are currently critical/high severity). 200 is
  * comfortably above the real number of 'woocommerce'-category scanners
  * that exist today (~19), so every group always lands on page 1.

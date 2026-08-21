@@ -13,16 +13,16 @@ import { useFilterSlot } from '../../services/useFilterSlot';
 import { useWooCommerceFindingGroups } from './useWooCommerceFindingGroups';
 import StoreHealthBanner from './StoreHealthBanner';
 import StoreOverviewCards from './StoreOverviewCards';
-import WooCommerceCategoryGrid from './WooCommerceCategoryGrid';
+import CommerceCategoryGrid from './CommerceCategoryGrid';
 import TopIssuesToWorkOn from './TopIssuesToWorkOn';
 import AiSalesOptimizerCard from './AiSalesOptimizerCard';
 import AiSalesAssistantCard from './AiSalesAssistantCard';
 import StoreIntelligenceSummaryCard from './StoreIntelligenceSummaryCard';
 import ProductsToLookAtCard from './ProductsToLookAtCard';
-import WooCommerceIssuesTable, {
-	WooCommerceIssueTab,
-} from './WooCommerceIssuesTable';
-import './SellMore.scss';
+import CommerceIssuesTable, {
+	CommerceIssueTab,
+} from './CommerceIssuesTable';
+import './Commerce.scss';
 
 /**
  * Visible teaser for the bulk-optimize panel above — shown instead of it
@@ -117,12 +117,12 @@ const WooCommerceIntelligenceLockedCard = () => {
 };
 
 /**
- * "WooCommerce" tab of "Sell More" — a real store-health overview
- * (WooCommerceCategoryGrid/StoreOverviewCards/StoreHealthBanner/
+ * "Commerce" page's own content — a real store-health overview
+ * (CommerceCategoryGrid/StoreOverviewCards/StoreHealthBanner/
  * TopIssuesToWorkOn/AiSalesOptimizerCard/StoreIntelligenceSummaryCard/
- * WooCommerceIssuesTable, all real data — see each file's own docblock)
+ * CommerceIssuesTable, all real data — see each file's own docblock)
  * on top of the original page's two Pro panel slots and issues table,
- * kept unchanged below. StoreHealthBanner + WooCommerceCategoryGrid
+ * kept unchanged below. StoreHealthBanner + CommerceCategoryGrid
  * (grid 8) and StoreOverviewCards/"At a Glance" (grid 4) sit side by side
  * in their own nested ContainerComponent, same "one real component reused
  * on two tabs" pattern OverviewTab.tsx already uses for StoreOverviewCards
@@ -132,7 +132,7 @@ const WooCommerceIntelligenceLockedCard = () => {
  * on first?") sits directly below that row. "Store Readiness"
  * (shop/cart/checkout/my-account page + HTTPS
  * status) used to be its own standalone card here; it's now the first
- * card inside WooCommerceCategoryGrid instead, matching that grid's card
+ * card inside CommerceCategoryGrid instead, matching that grid's card
  * style rather than sitting as a separate-looking section (its
  * `id="store-readiness"` scroll anchor moved there too — see
  * StoreHealthBanner's onViewSummary below). `groups` (`GET /findings/
@@ -145,9 +145,9 @@ const WooCommerceIntelligenceLockedCard = () => {
  * the real "Bulk AI optimization" panel (`#woocommerce-bulk-ai`) they both
  * lead into.
  */
-const WooCommerceTab = () => {
+const CommerceTab = () => {
 	const [activeIssueTab, setActiveIssueTab] =
-		useState<WooCommerceIssueTab>('all');
+		useState<CommerceIssueTab>('all');
 	const { groups, isLoading: isLoadingGroups } = useWooCommerceFindingGroups();
 
 	/**
@@ -165,7 +165,7 @@ const WooCommerceTab = () => {
 		'vulopilot_woocommerce_intelligence_panel'
 	);
 
-	const goToIssuesTab = (tab: WooCommerceIssueTab) => {
+	const goToIssuesTab = (tab: CommerceIssueTab) => {
 		setActiveIssueTab(tab);
 		setTimeout(() => scrollToId('woocommerce-issues-table'), 50);
 	};
@@ -178,11 +178,11 @@ const WooCommerceTab = () => {
 					onViewSummary={() => scrollToId('store-readiness')}
 				/>
 				<StoreOverviewCards
-					onNavigateToWooCommerceTab={() => goToIssuesTab('important')}
+					onNavigateToCommerceTab={() => goToIssuesTab('important')}
 				/>
 			</ColumnComponent>
 			<ColumnComponent>
-				<WooCommerceCategoryGrid
+				<CommerceCategoryGrid
 					groups={groups}
 					isLoadingGroups={isLoadingGroups}
 					onReviewTab={goToIssuesTab}
@@ -221,7 +221,7 @@ const WooCommerceTab = () => {
 			/>
 
 			<ColumnComponent>
-				<WooCommerceIssuesTable
+				<CommerceIssuesTable
 					groups={groups}
 					activeTab={activeIssueTab}
 					onTabChange={setActiveIssueTab}
@@ -255,4 +255,4 @@ const WooCommerceTab = () => {
 	);
 };
 
-export default WooCommerceTab;
+export default CommerceTab;

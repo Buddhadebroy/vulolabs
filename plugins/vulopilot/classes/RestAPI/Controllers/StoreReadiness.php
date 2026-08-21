@@ -12,7 +12,7 @@ use VuloPilot\Repositories\AutomationsRunRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /store-readiness — "Sell More"'s live store-status checklist
+ * GET /store-readiness — "Commerce"'s live store-status checklist
  * (`StoreReadinessCard.tsx`) and the informational (not "problem")
  * numbers its category-card grid needs. Deliberately separate from the
  * Findings/scanner system: these are live facts about the store's

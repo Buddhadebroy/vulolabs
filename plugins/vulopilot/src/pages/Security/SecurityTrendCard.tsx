@@ -8,7 +8,7 @@ import { CardComponent, ModuleGuardComponent } from '@zyra/components';
  * `SiteHealthSnapshotRepository::upsert_today()` never writes it — only
  * `overall_score` is ever populated. Reusing the overall-score history
  * here mislabeled as "Security Trend" would misrepresent what it
- * measures, same reasoning that ruled out reusing it for Improve Speed's
+ * measures, same reasoning that ruled out reusing it for Performance's
  * "Speed History". Honest empty state instead of a fabricated trend line.
  */
 const SecurityTrendCard = () => {

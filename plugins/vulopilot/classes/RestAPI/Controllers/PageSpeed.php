@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * and `top_issues` (PageSpeedRepository::get_top_issues() — the real,
  * deduplicated `main_issue` values grouped by how many pages they affect,
  * backing the "Performance Opportunities" tab and "Why these pages are
- * slow?" sidebar) for "Improve Speed" › Slow Pages; `POST /page-speed`
+ * slow?" sidebar) for "Performance" › Slow Pages; `POST /page-speed`
  * (re)starts a real background scan via VuloPilot()->page_speed_scanner
  * (already wired in VuloPilot::init_classes()) — same "GET lists, POST
  * triggers, persistence happens elsewhere" shape Scans.php already uses.

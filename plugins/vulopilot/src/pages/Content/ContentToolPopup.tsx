@@ -410,7 +410,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				<p className="desc content-tool-empty-picker">
 					{'duplicate-finding-picker' === field.type
 						? __(
-								"No duplicate titles found. This only lists published posts/pages that currently share the exact same title — most sites never trigger it, and it's not a sign anything is broken. If you expect one here, run a scan under Grow My Traffic → SEO first (DuplicateContentScanner needs a completed scan to have flagged it).",
+								"No duplicate titles found. This only lists published posts/pages that currently share the exact same title — most sites never trigger it, and it's not a sign anything is broken. If you expect one here, run a scan under SEO & Visibility → SEO first (DuplicateContentScanner needs a completed scan to have flagged it).",
 								'vulopilot'
 							)
 						: 'media-picker' === field.type

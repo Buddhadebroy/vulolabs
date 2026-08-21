@@ -40,7 +40,7 @@ interface CrawlUrlsTabProps {
 }
 
 /**
- * "Crawl & URLs" tab of "Grow My Traffic" — merges 3 former standalone
+ * "Crawl & URLs" tab of "SEO & Visibility" — merges 3 former standalone
  * tabs (Crawler Traffic, Broken Links, Redirects) plus the 404 log that
  * used to live bundled inside Broken Links, into one tab with 5 real
  * inner tabs (direct instruction: "Broken Links + Redirects + Crawler

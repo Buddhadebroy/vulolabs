@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * `POST /copilot/chat` — the real conversational backend for "AI Copilot"'s
- * Chat tab (src/pages/AIAssistant/ChatTab.tsx) and Grow My Traffic's own
+ * Chat tab (src/pages/AIAssistant/ChatTab.tsx) and SEO & Visibility's own
  * "How would you like to grow today?" composer
  * (src/pages/GEO/OverviewTab.tsx) — both previously showed the identical
  * honest "AI chat replies aren't available yet" disabled state since

@@ -11,7 +11,7 @@ jest.mock( '../../../services/useFindingsTable', () => ( {
 } ) );
 
 /**
- * WooCommerce.tsx resolves `vulopilot_woocommerce_ai_panel`/
+ * CommerceTab.tsx resolves `vulopilot_woocommerce_ai_panel`/
  * `vulopilot_woocommerce_intelligence_panel` via applyFilters() once, at
  * module top-level scope. Only the second (WOOCOMMERCE-INTELLIGENCE-MODULE.md's
  * new slot) is registered here — confirms that slot renders its real panel
@@ -27,11 +27,11 @@ addFilter(
 	() => () => <div data-testid="woocommerce-intelligence-stub" />
 );
 
-const WooCommerceTab = require( '../WooCommerceTab' ).default;
+const CommerceTab = require( '../CommerceTab' ).default;
 
-describe( 'WooCommerceTab — Pro filter slots', () => {
+describe( 'CommerceTab — Pro filter slots', () => {
 	it( 'renders the registered WooCommerceIntelligence panel and the unregistered WooCommerceAi slot\'s locked teaser, around the base issues table', () => {
-		render( <WooCommerceTab /> );
+		render( <CommerceTab /> );
 
 		expect(
 			screen.getByTestId( 'woocommerce-intelligence-stub' )

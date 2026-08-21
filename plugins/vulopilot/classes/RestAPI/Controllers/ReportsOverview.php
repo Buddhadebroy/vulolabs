@@ -290,7 +290,7 @@ class ReportsOverview extends \WP_REST_Controller {
             array(
                 'key'      => 'content',
                 'label'    => __( 'Content', 'vulopilot' ),
-                'sublabel' => __( 'Create Content', 'vulopilot' ),
+                'sublabel' => __( 'Creation', 'vulopilot' ),
                 'icon'     => 'document',
                 'score'    => $content_now,
                 'delta'    => $content_now - $content_then,

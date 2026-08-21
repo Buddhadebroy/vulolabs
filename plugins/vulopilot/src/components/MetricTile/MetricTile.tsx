@@ -60,10 +60,10 @@ interface MetricTileProps {
  * Shared shell behind 4 previously independent, near-identical tile
  * grids that each duplicated the same icon + title + optional badge +
  * footer-button CSS under their own class names: MetricsGrid.tsx's
- * `.performance-metric-tile` (Improve Speed), SecurityMetricsGrid.tsx's
+ * `.performance-metric-tile` (Performance), SecurityMetricsGrid.tsx's
  * `.security-metric-tile` (Protect My Site), AccessibilityChecksGrid.tsx's
  * `.accessibility-check-tile` (Accessibility, its own top-level page), and
- * WooCommerceCategoryGrid.tsx's `.woocommerce-category-card` (Sell More).
+ * WooCommerceCategoryGrid.tsx's `.woocommerce-category-card` (Commerce).
  *
  * `variant` (see MetricTile.scss) is the one real visual difference left
  * between them — icon color, footer-button width/alignment, tile gap —

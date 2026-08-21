@@ -13,7 +13,7 @@ use VuloPilot\Scanners\Basic\ImageCleanupScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /performance-actions/{action_id}` — backs "Improve Speed"
+ * `POST /performance-actions/{action_id}` — backs "Performance"
  * Overview's Quick Actions card (QuickActionsCard.tsx). Each of the 6
  * actions is a real, deterministic WordPress-core-or-known-plugin
  * operation, never a fabricated "done" — `minify-css-js` explicitly

@@ -300,7 +300,7 @@ final class VuloPilot {
         $this->container['redirect_manager'] = new Services\RedirectManager();
         $this->container['not_found_logger'] = new Services\NotFoundLogger();
 
-        // "Improve Speed" Overview — Speed History's daily score snapshots
+        // "Performance" Overview — Speed History's daily score snapshots
         // (scan-completed + daily-cron triggered), Real-time Monitoring's
         // per-request timing sample (front-end `shutdown` hook), and the
         // two Quick Actions toggles (force-enable lazy loading, preload
@@ -311,7 +311,7 @@ final class VuloPilot {
         $this->container['performance_request_logger']          = new Services\PerformanceRequestLogger();
         $this->container['performance_optimizations']           = new Services\PerformanceOptimizations();
 
-        // "Improve Speed" Overview's PerformanceScoreCard.tsx redesign —
+        // "Performance" Overview's PerformanceScoreCard.tsx redesign —
         // real Mobile/Desktop PageSpeed Insights scores (only when a
         // psi_api_key is configured) and real Core Web Vitals RUM (no key
         // needed, first-party). Same unconditional-construction,
@@ -320,7 +320,7 @@ final class VuloPilot {
         $this->container['psi_fetcher']            = new Services\PageSpeedInsightsFetcher();
         $this->container['core_web_vitals_beacon'] = new Services\CoreWebVitalsBeacon();
 
-        // "Improve Speed" › Slow Pages — real per-page load-time checks
+        // "Performance" › Slow Pages — real per-page load-time checks
         // (plus real per-page PSI mobile/desktop scores when a psi_api_key
         // is configured), processed in the background via WP-Cron. Same
         // unconditional-construction, self-registers-its-own-hooks shape

@@ -207,7 +207,7 @@ class ScannerRegistry {
             // Free bullets) needed no new scanner — see that doc's own
             // audit table for why.
             Basic\ProductSeoScanner::class,
-            // "Sell More" health overview — checkout/payment-gateway,
+            // "Commerce" health overview — checkout/payment-gateway,
             // order-health, and theme-template-compatibility checks, same
             // category 'woocommerce' (gated by the same
             // enable_woocommerce_scanning toggle as every scanner above).
@@ -234,7 +234,7 @@ class ScannerRegistry {
             Basic\LargeImagesScanner::class,
             Basic\HeavyPluginsScanner::class,
             Basic\CacheDetectionScanner::class,
-            // "Improve Speed" Overview's MetricsGrid tiles — CSS/JavaScript
+            // "Performance" Overview's MetricsGrid tiles — CSS/JavaScript
             // Optimization, Fonts, Lazy Loading, CDN, Database Cleanup.
             Basic\CssOptimizationScanner::class,
             Basic\JavaScriptOptimizationScanner::class,

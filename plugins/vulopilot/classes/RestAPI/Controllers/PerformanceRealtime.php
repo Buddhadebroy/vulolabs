@@ -12,7 +12,7 @@ use VuloPilot\Repositories\PerformanceRequestRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /performance-realtime` — backs "Improve Speed" Overview's
+ * `GET /performance-realtime` — backs "Performance" Overview's
  * RealTimeMonitoringCard.tsx (Server Response Time, Page Views Last 5 Min)
  * and MetricsGrid.tsx's "Performance Monitor" tile (Active vs. not yet
  * collecting). Read-only, real data from

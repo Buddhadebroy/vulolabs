@@ -44,11 +44,11 @@ const STATUS_BADGE: Record<OnPageCheck['status'], { color: string; icon: string 
  * site-wide number that recomputed the same weighted-severity formula
  * `GET /content-intelligence/score` (kept, still backs nothing on this
  * page now) already shares 5 of 6 scanner ids with — and therefore
- * numerically overlaps — Grow My Traffic's own SEO Score, inviting "why
+ * numerically overlaps — SEO & Visibility's own SEO Score, inviting "why
  * is my Content Score 87 but SEO Score 67?" confusion. This card asks a
  * different question ("how good is THIS piece of content"), so there's
  * nothing here that could be compared against SEO Score at all — SEO
- * stays owned entirely by Grow My Traffic.
+ * stays owned entirely by SEO & Visibility.
  *
  * Only 3 dimensions, deliberately — "clarity" and "tone" have no real
  * computed signal anywhere in this codebase (confirmed: no scanner, no

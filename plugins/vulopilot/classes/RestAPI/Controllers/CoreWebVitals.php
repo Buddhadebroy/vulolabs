@@ -12,7 +12,7 @@ use VuloPilot\Repositories\CoreWebVitalsRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /core-web-vitals` — backs "Improve Speed" Overview's
+ * `GET /core-web-vitals` — backs "Performance" Overview's
  * PerformanceScoreCard.tsx Core Web Vitals tiles. Read-only, real p75
  * aggregate from CoreWebVitalsRepository::get_p75_summary() (the actual
  * data the public beacon endpoint,

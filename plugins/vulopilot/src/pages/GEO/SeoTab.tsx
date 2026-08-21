@@ -78,7 +78,7 @@ const isSeoModuleActive = () =>
 	appLocalizer.active_modules?.includes('seo') ?? false;
 
 /**
- * "SEO" tab of "Grow My Traffic" — restyled to match the reference
+ * "SEO" tab of "SEO & Visibility" — restyled to match the reference
  * mockup's own information architecture: a real "SEO Score" gauge
  * (Seo.php's own `GET /seo/score`, the same deterministic weighted-severity
  * formula BrandIntelligence's own Brand Score already uses, scoped to
@@ -94,7 +94,7 @@ const isSeoModuleActive = () =>
  * This tab used to own 5 category cards; 2 real overlaps were fixed (both
  * direct instruction), leaving 3:
  * - "Links & Schema" → "Internal Linking" — real overlapping ownership
- *   with "Grow My Traffic"'s own dedicated Broken Links and Schema &
+ *   with "SEO & Visibility"'s own dedicated Broken Links and Schema &
  *   Knowledge tabs, which already own `broken-links`/`schema`/
  *   `structured-data`/`sitewide-structured-data` findings. See
  *   seoSections.ts's own docblock for the full before/after breakdown.

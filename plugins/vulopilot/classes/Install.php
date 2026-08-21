@@ -492,7 +492,7 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_performance_score_snapshots` — "Improve Speed"
+     * Creates `vulopilot_performance_score_snapshots` — "Performance"
      * Overview's Speed History card. Own dedicated table rather than a
      * reuse of `vulopilot_site_health_snapshots` (that table's other
      * columns are Pro's AdvancedReports module data — see
@@ -524,7 +524,7 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_performance_requests` — "Improve Speed"
+     * Creates `vulopilot_performance_requests` — "Performance"
      * Overview's Real-time Monitoring card. Deliberately no visitor-
      * identifying column at all (see Services\PerformanceRequestLogger's
      * own docblock) — just a response time sample per real front-end
@@ -553,7 +553,7 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_core_web_vitals` — "Improve Speed" Overview's real
+     * Creates `vulopilot_core_web_vitals` — "Performance" Overview's real
      * Core Web Vitals RUM (Services\CoreWebVitalsBeacon's public front-end
      * beacon writes here). One row per real pageview that reported at
      * least one metric; a metric the browser couldn't measure (e.g. no
@@ -588,7 +588,7 @@ class Install {
     }
 
     /**
-     * Creates `vulopilot_page_speed` — "Improve Speed" › Slow Pages'
+     * Creates `vulopilot_page_speed` — "Performance" › Slow Pages'
      * per-page speed table (Services\PageSpeedScanner writes here, one row
      * per real page it has checked, replaced on every rescan). `url`/
      * `title`/`page_type` describe a real WP page, post, or WooCommerce

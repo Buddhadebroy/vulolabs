@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, ChartComponent } from '@zyra/components';
-import './GrowMyTraffic.scss';
+import './SeoVisibility.scss';
 
 interface DashboardSummary {
 	category_scores: { seo: number; geo: number };

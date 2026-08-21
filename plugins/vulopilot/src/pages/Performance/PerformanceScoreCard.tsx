@@ -9,7 +9,7 @@ import {
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import './ImproveSpeed.scss';
+import './Performance.scss';
 
 /** `id: 'performance'` (Settings/Scanning/Performance.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives. */
 const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=performance';

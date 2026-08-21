@@ -20,7 +20,7 @@ import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
 import RecommendedFixesCard from './RecommendedFixesCard';
-import './ImproveSpeed.scss';
+import './Performance.scss';
 
 /** `id: 'performance'` (Settings/Scanning/Performance.ts) — where the real PageSpeed Insights API key field this notice's own "no PSI connected" message used to describe in text actually lives. */
 const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=performance';
@@ -209,7 +209,7 @@ const CoreWebVitalsDots = ( { row }: { row: PageSpeedRow } ) => (
 const csvEscape = ( value: string ): string => `"${ value.replace( /"/g, '""' ) }"`;
 
 /**
- * "Slow Pages" tab of "Improve Speed" — real per-page speed data from
+ * "Slow Pages" tab of "Performance" — real per-page speed data from
  * `GET /page-speed` (Repositories\PageSpeedRepository, populated in the
  * background by Services\PageSpeedScanner). Fetched once per mount/scan
  * (this plugin's own page counts are bounded — see PageSpeedScanner's own

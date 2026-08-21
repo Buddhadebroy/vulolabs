@@ -69,7 +69,7 @@ class Utill {
         // 'ai_provider_config' above, reused here rather than a new
         // pattern (Repositories\BackupStorageConfigRepository).
         'backup_storage_config'      => 'vulopilot_backup_storage_configs',
-        // Real off-site brand mentions (Grow My Traffic → Brand Visibility's
+        // Real off-site brand mentions (SEO & Visibility → Brand Visibility's
         // former "not connected yet" card) — owned here per this file's own
         // schema-ownership rule even though the fetcher/UI are Pro
         // (vulopilot-pro's BrandIntelligence module), same precedent
@@ -269,7 +269,7 @@ class Utill {
         // gate/frequency shape as flag_broken_links/
         // broken_link_check_frequency directly above, for `<img src>`
         // instead of `<a href>`. Added so BrokenLinksTab.tsx's own
-        // "Broken images" tile (Grow My Traffic → Broken Links) reflects
+        // "Broken images" tile (SEO & Visibility → Broken Links) reflects
         // a real, second scanner instead of a number this codebase never
         // actually computed.
         'flag_broken_images'                    => array( 'flag_broken_images' ),
@@ -381,7 +381,7 @@ class Utill {
         // llms_txt_content's own comment gives) rather than defaulted here —
         // an empty string means it hasn't been generated yet.
         'indexnow_api_key'                      => '',
-        // "Improve Speed" Overview's PerformanceScoreCard.tsx — a real,
+        // "Performance" Overview's PerformanceScoreCard.tsx — a real,
         // user-supplied Google PageSpeed Insights API key (free tier
         // available). Read by Services\PageSpeedInsightsFetcher; empty
         // means no key configured, so the card falls back to the single

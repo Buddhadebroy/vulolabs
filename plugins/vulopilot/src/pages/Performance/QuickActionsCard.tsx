@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { CardComponent, ListComponent, NoticeManager } from '@zyra/components';
-import './ImproveSpeed.scss';
+import './Performance.scss';
 
 interface QuickAction {
 	id: string;

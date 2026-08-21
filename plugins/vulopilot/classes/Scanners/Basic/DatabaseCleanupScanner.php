@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags database bloat relevant to the "Improve Speed" page specifically:
+ * Flags database bloat relevant to the "Performance" page specifically:
  * expired transients (rows WordPress itself considers stale, safe to
  * delete) plus revisions beyond the most recent 5 per post. Distinct from
  * DatabaseScanner (category 'database', revisions-only, feeds the Health

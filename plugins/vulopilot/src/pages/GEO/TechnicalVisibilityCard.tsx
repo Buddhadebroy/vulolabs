@@ -55,7 +55,7 @@ const TechnicalVisibilityCard = () => {
 					icon: 'arrow-right',
 					onClick: () => {
 						window.location.href =
-							'?page=vulopilot#&tab=geo&subtab=seo';
+							'?page=vulopilot#&tab=seo-visibility&subtab=seo';
 					},
 				}}
 			/>

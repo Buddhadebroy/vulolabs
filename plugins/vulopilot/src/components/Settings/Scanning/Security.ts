@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
 
 export default {
-	id: 'site-health',
+	id: 'security-scanning',
 	priority: 3,
-	headerTitle: __('Site Health', 'vulopilot'),
+	headerTitle: __('Security', 'vulopilot'),
 	settingTitle:__('Security', 'vulopilot'),
 	headerDescription: __(
 		'Security, accessibility, and performance scanning behavior.',

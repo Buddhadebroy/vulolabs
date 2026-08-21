@@ -17,9 +17,9 @@ import {
 	CHECKOUT_SCANNER_IDS,
 	STORE_SCANNER_IDS,
 	ALL_MAPPED_SCANNER_IDS,
-} from './WooCommerceTab.constants';
+} from './CommerceTab.constants';
 
-export type WooCommerceIssueTab =
+export type CommerceIssueTab =
 	| 'all'
 	| 'important'
 	| 'products'
@@ -84,31 +84,31 @@ const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps)
 	);
 };
 
-interface WooCommerceIssuesTableProps {
+interface CommerceIssuesTableProps {
 	groups: FindingGroup[];
-	activeTab: WooCommerceIssueTab;
-	onTabChange: (tab: WooCommerceIssueTab) => void;
+	activeTab: CommerceIssueTab;
+	onTabChange: (tab: CommerceIssueTab) => void;
 }
 
 /**
  * "All WooCommerce Issues" — a real category-tab bar on top of a real
  * `<TableCard>` (via `useFindingsTable`'s own `scannerIds` scoping —
  * GEO.tsx's per-section tables already scope the same hook the same way).
- * Tab counts are real `/findings/groups` sums per WooCommerceTab.constants.ts's
+ * Tab counts are real `/findings/groups` sums per CommerceTab.constants.ts's
  * scanner_id buckets — "Important" is the one dynamic bucket, built from
  * whichever groups are currently critical/high severity rather than a
  * fixed scanner_id list.
  */
-const WooCommerceIssuesTable = ({
+const CommerceIssuesTable = ({
 	groups,
 	activeTab,
 	onTabChange,
-}: WooCommerceIssuesTableProps) => {
+}: CommerceIssuesTableProps) => {
 	const importantScannerIds = groups
 		.filter((group) => 'critical' === group.severity || 'high' === group.severity)
 		.map((group) => group.scanner_id);
 
-	const tabs: { id: WooCommerceIssueTab; label: string; count: number }[] = [
+	const tabs: { id: CommerceIssueTab; label: string; count: number }[] = [
 		{
 			id: 'all',
 			label: __('All', 'vulopilot'),
@@ -136,7 +136,7 @@ const WooCommerceIssuesTable = ({
 		},
 	];
 
-	const scannerIdsForTab: Record<WooCommerceIssueTab, string[] | undefined> = {
+	const scannerIdsForTab: Record<CommerceIssueTab, string[] | undefined> = {
 		all: undefined,
 		important: importantScannerIds,
 		products: PRODUCT_SCANNER_IDS,
@@ -164,4 +164,4 @@ const WooCommerceIssuesTable = ({
 	);
 };
 
-export default WooCommerceIssuesTable;
+export default CommerceIssuesTable;

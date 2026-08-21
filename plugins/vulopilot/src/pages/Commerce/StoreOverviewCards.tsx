@@ -96,18 +96,18 @@ const useFailedOrdersCount = (): number | null => {
  * cost/expense data exists anywhere in this codebase to compute either.
  * Drops the mockup's "Data synced from VuloCart" badge (vulopilot/vulocart
  * share no namespace — see this repo's own CLAUDE.md). Rendered as a
- * grid-4 sidebar beside WooCommerceCategoryGrid on the WooCommerce tab
+ * grid-4 sidebar beside CommerceCategoryGrid on the WooCommerce tab
  * (its only consumer now that the separate Overview tab is gone — see
  * WooCommerce.tsx) — "View Full Report" stays caller-supplied
- * (`onNavigateToWooCommerceTab`) rather than hardcoded, same shape it
+ * (`onNavigateToCommerceTab`) rather than hardcoded, same shape it
  * already had when it was reused across two tabs.
  */
 interface StoreOverviewCardsProps {
-	onNavigateToWooCommerceTab: () => void;
+	onNavigateToCommerceTab: () => void;
 }
 
 const StoreOverviewCards = ({
-	onNavigateToWooCommerceTab,
+	onNavigateToCommerceTab,
 }: StoreOverviewCardsProps) => {
 	const [period, setPeriod] = useState<PeriodDays>('30');
 	const [rows, setRows] = useState<TrendSnapshotRow[]>([]);
@@ -209,7 +209,7 @@ const StoreOverviewCards = ({
 							icon: 'arrow-right',
 							color: 'text-purple',
 							text: __('View Full Report', 'vulopilot'),
-							onClick: onNavigateToWooCommerceTab,
+							onClick: onNavigateToCommerceTab,
 						}}
 					/>
 				</>

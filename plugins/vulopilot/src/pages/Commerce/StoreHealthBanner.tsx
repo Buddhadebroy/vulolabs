@@ -12,7 +12,7 @@ interface StoreHealthBannerProps {
 }
 
 /**
- * "Sell More" WooCommerce tab's top attention banner — real open-finding
+ * "Commerce" WooCommerce tab's top attention banner — real open-finding
  * total for category 'woocommerce' (same `GET /findings` count every
  * other real-data banner this session reads), covering every scanner
  * feeding this page's issues table (the 12 existing Product* scanners +

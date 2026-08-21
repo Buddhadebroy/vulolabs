@@ -12,7 +12,7 @@ import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import {
 	PRODUCT_SCANNER_IDS,
 	INVENTORY_SCANNER_IDS,
-} from './WooCommerceTab.constants';
+} from './CommerceTab.constants';
 import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
@@ -225,7 +225,7 @@ const useCouponStats = (): { active: number | null; expiringSoon: number | null 
 	return { active, expiringSoon };
 };
 
-interface WooCommerceCategoryGridProps {
+interface CommerceCategoryGridProps {
 	groups: FindingGroup[];
 	isLoadingGroups: boolean;
 	onReviewTab: (tab: 'products' | 'checkout' | 'store') => void;
@@ -253,10 +253,10 @@ interface WooCommerceCategoryGridProps {
  * `WooCommerceMetricsGrid.tsx`'s own docblock already documents).
  *
  * Every number here reconciles exactly to the same `/findings/groups`/
- * `/store-readiness` data WooCommerceIssuesTable.tsx's own tab counts read
- * (see WooCommerceTab.constants.ts's bucket map). `groups` is fetched once
+ * `/store-readiness` data CommerceIssuesTable.tsx's own tab counts read
+ * (see CommerceTab.constants.ts's bucket map). `groups` is fetched once
  * by WooCommerceTab.tsx (`useWooCommerceFindingGroups()`) and threaded
- * down here and to TopIssuesToWorkOn.tsx/WooCommerceIssuesTable.tsx,
+ * down here and to TopIssuesToWorkOn.tsx/CommerceIssuesTable.tsx,
  * rather than each component re-fetching the same real data independently.
  * "Store Readiness" reuses the same `readiness` data this grid already
  * fetches for "Checkout & Payments"/"Store Automation" — it used to be a
@@ -270,11 +270,11 @@ interface WooCommerceCategoryGridProps {
  * findings still show up under the table's "Store" tab alongside general
  * store-setup issues.
  */
-const WooCommerceCategoryGrid = ({
+const CommerceCategoryGrid = ({
 	groups,
 	isLoadingGroups,
 	onReviewTab,
-}: WooCommerceCategoryGridProps) => {
+}: CommerceCategoryGridProps) => {
 	const { data: readiness, isLoading: isLoadingReadiness } =
 		useStoreReadiness();
 	const outOfStock = useOutOfStockCount();
@@ -870,4 +870,4 @@ const WooCommerceCategoryGrid = ({
 	);
 };
 
-export default WooCommerceCategoryGrid;
+export default CommerceCategoryGrid;

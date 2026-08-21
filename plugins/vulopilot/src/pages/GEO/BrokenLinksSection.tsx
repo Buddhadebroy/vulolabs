@@ -18,7 +18,7 @@ import { formatWpDate } from '../../services/formatWpDate';
 import { useApiList } from '../../services/useApiList';
 import { RowAction, RowActionsMenu } from './seoIssuesShared';
 import ShowProPopup from '../../components/Popup/Popup';
-import './GrowMyTraffic.scss';
+import './SeoVisibility.scss';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 

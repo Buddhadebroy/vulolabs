@@ -12,7 +12,7 @@ use VuloPilot\Repositories\PerformanceRequestRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real-time "Improve Speed" telemetry — logs one response-time sample for
+ * Real-time "Performance" telemetry — logs one response-time sample for
  * a real front-end request, the data RealTimeMonitoringCard.tsx's "Server
  * Response Time"/"Page Views (Last 5 Min)" tiles and MetricsGrid.tsx's
  * "Performance Monitor" tile all read via GET /performance-realtime.

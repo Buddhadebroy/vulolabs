@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real Mobile/Desktop performance scores for "Improve Speed" Overview's
+ * Real Mobile/Desktop performance scores for "Performance" Overview's
  * PerformanceScoreCard.tsx, via Google's real PageSpeed Insights API —
  * only when the site owner has supplied their own `psi_api_key` (Settings
  * → Scanning → Performance); does nothing at all otherwise, so the card

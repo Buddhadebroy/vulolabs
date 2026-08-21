@@ -7,7 +7,7 @@ import {
 	PRODUCT_SCANNER_IDS,
 	INVENTORY_SCANNER_IDS,
 	CHECKOUT_SCANNER_IDS,
-} from './WooCommerceTab.constants';
+} from './CommerceTab.constants';
 
 const SEVERITY_RANK: Record<FindingGroup['severity'], number> = {
 	critical: 0,
@@ -49,10 +49,10 @@ const RANK_COLOR: Record<FindingGroup['severity'], string> = {
 };
 
 /**
- * Which real `WooCommerceTab.constants.ts` bucket a scanner_id falls
+ * Which real `CommerceTab.constants.ts` bucket a scanner_id falls
  * into — reused (not re-invented) to drive this row's icon and its
  * "Could help" line, same bucket vocabulary
- * WooCommerceIssuesTable.tsx's own tab bar already groups by. Falls back
+ * CommerceIssuesTable.tsx's own tab bar already groups by. Falls back
  * to the general "store" bucket for anything not in the other three
  * (STORE_SCANNER_IDS plus any future scanner not yet mapped there).
  */
@@ -105,13 +105,13 @@ interface TopIssuesToWorkOnProps {
  * shipping three near-duplicate sections: each row's rank circle (Zyra
  * `ListComponent`'s own `number`/`numberColor` — colored by real
  * severity), icon chip, and "Could help" line (`getBucketMeta()`, driven
- * by the same real scanner_id → bucket mapping WooCommerceIssuesTable.tsx
+ * by the same real scanner_id → bucket mapping CommerceIssuesTable.tsx
  * already uses) replace those three mockups' own icon/badge/impact-line
  * variants — rendered through `ListComponent`'s own row structure rather
  * than bespoke row markup, same "mini-card report" shape
  * NeedsAttentionWidget.tsx's own issue lists already use. The mockups'
  * extra top-of-card "N opportunities" count pill was dropped as a
- * duplicate of the "Important" tab's own count (WooCommerceIssuesTable.tsx)
+ * duplicate of the "Important" tab's own count (CommerceIssuesTable.tsx)
  * rather than shown a second time here.
  */
 const TopIssuesToWorkOn = ({
@@ -135,7 +135,7 @@ const TopIssuesToWorkOn = ({
 		<CardComponent
 			title={__('What should I work on first?', 'vulopilot-pro')}
 			titleIcon="star"
-			// Scopes SellMore.scss's shared `.admin-badge` red/orange/green/
+			// Scopes Commerce.scss's shared `.admin-badge` red/orange/green/
 			// blue color vocabulary (declared once for this whole
 			// WooCommerce tab tree) onto this card's own impact badges —
 			// unchanged from before this was a real `<ListComponent>` row.

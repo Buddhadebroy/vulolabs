@@ -4,8 +4,8 @@
 // and .sell-more-ai-insight/.sell-more-pro-tip (AiInsightBanner.tsx/
 // ProTipBanner.tsx) were removed here — those components only ever
 // rendered on the Overview tab (OverviewTab.tsx), which no longer exists
-// (Sell More now goes straight to the real WooCommerce tab, see
-// WooCommerce.tsx).
+// (Commerce now goes straight to the real WooCommerce tab, see
+// Commerce.tsx).
 
 .ai-sales-optimize {
 	display: inline-flex;
@@ -28,8 +28,8 @@
 	}
 }
 
-// "Sell More" WooCommerce tab's real health-overview section
-// (WooCommerceTab.tsx) — banner, readiness checklist, category grid,
+// "Commerce" WooCommerce tab's real health-overview section
+// (CommerceTab.tsx) — banner, readiness checklist, category grid,
 // "what to work on first", and the issues table's own tab bar.
 .store-health-banner {
 	display: flex;
@@ -133,7 +133,7 @@
 // `.admin-badge`'s own base pill shape comes from zyra at runtime, but its
 // color modifiers don't (same gap CreateContent.scss's own comment
 // documents for `.badge-{severity}`) — every red/orange/green/blue/purple/
-// indigo `admin-badge` in this WooCommerce tab tree (WooCommerceCategoryGrid,
+// indigo `admin-badge` in this WooCommerce tab tree (CommerceCategoryGrid,
 // StoreHealthBanner, TopIssuesToWorkOn) was rendering untinted before this,
 // so this scopes and declares the color vocabulary once here rather than
 // per file.
