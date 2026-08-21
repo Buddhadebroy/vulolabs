@@ -8,6 +8,7 @@ import KnowledgeGraphSection from './KnowledgeGraphSection';
 import WhatNeedsFixingCard from './WhatNeedsFixingCard';
 import IssuesSection from './IssuesSection';
 import TechnicalDetailsSection from './TechnicalDetailsSection';
+import InspectorSection from './InspectorSection';
 
 export type SchemaKnowledgeSectionId =
 	| 'overview'
@@ -38,21 +39,30 @@ interface SchemaKnowledgeTabProps {
  * 2. `KnowledgeGraphSection.tsx` — "What AI & Search Understand" (all 6
  *    real entity-type counts + vulopilot-pro's real relationship diagram,
  *    moved up from that section's own sidebar to sit beside the list),
- *    then its own existing real detail cards/checks/Pro slots, unchanged.
+ *    then its own existing real detail cards/Pro slots. That section used
+ *    to also have its own "What should you check?" heuristic-checks panel
+ *    — removed per direct instruction ("remove redundant content"): it was
+ *    a 2nd, less-real "What Needs Fixing"-shaped card duplicating item 3
+ *    below, which already covers the same concept with real backend
+ *    findings. See that section's own docblock.
  * 3. `WhatNeedsFixingCard.tsx` (NEW) — a real top-3 preview of the exact
  *    same findings `IssuesSection.tsx`'s own full table below already
  *    fetches, per the mockup's own compact "top issues + View all" shape.
  *    "View all issues" and "Review" both scroll down to that real table
  *    (`schema-knowledge-issues`) rather than re-implementing it twice.
  * 4. `TechnicalDetailsSection.tsx` (NEW) — "Technical Details (Schema &
- *    Markup)" as a real tabbed panel with a real "Show for developers"
- *    toggle, not a flat scroll — see that file's own docblock for why it's
- *    2 real tabs (Schema Summary/Page Inspector) rather than the mockup's
- *    literal 4. `StructuredDataSection.tsx`/`InspectorSection.tsx` are
- *    unchanged internally, just tabbed now. InspectorSection.tsx used to
- *    live nested inside KnowledgeGraphSection.tsx's own sidebar; moved
- *    out since it's a schema concern, not an entity/knowledge-graph one
- *    (see that file's own docblock).
+ *    Markup)", a real "Show for developers" toggle over
+ *    `StructuredDataSection.tsx` (Schema Status stats + Schema Coverage
+ *    table), unchanged internally.
+ * 5. `InspectorSection.tsx` — "Page Inspector", its own separate section
+ *    now (own `SectionComponent` heading, own anchor id
+ *    `schema-knowledge-inspector`) rather than a 2nd tab inside item 4's
+ *    own card — split out per direct instruction ("firstly separate
+ *    section the page inspector"). Used to live nested inside
+ *    KnowledgeGraphSection.tsx's own sidebar before that, then briefly a
+ *    tab inside TechnicalDetailsSection.tsx — moved out both times since
+ *    it's a schema concern with its own real, self-contained page-picker
+ *    workflow, not a natural sub-tab of either. Internally unchanged.
  *
  * `initialSection` — set only when a bookmarked `?subtab=schema`/
  * `?subtab=knowledge-graph` link landed here (GEO.tsx's own
@@ -119,9 +129,18 @@ const SchemaKnowledgeTab = ({
 			</div>
 
 			<div id="schema-knowledge-structured-data">
-				<div id="schema-knowledge-inspector">
-					<TechnicalDetailsSection />
-				</div>
+				<TechnicalDetailsSection />
+			</div>
+
+			<div id="schema-knowledge-inspector">
+				<SectionComponent
+					title={__('Page Inspector', 'vulopilot')}
+					desc={__(
+						'Check one specific page’s real structured data — its detected schema, problems, JSON-LD, and conflicts.',
+						'vulopilot'
+					)}
+				/>
+				<InspectorSection />
 			</div>
 		</>
 	);

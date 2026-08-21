@@ -1268,6 +1268,19 @@
 	tbody tr:hover {
 		background: $theme-background-color;
 	}
+
+	// The real row the side detail panel (grid={4} column, same file) is
+	// currently showing — kept visually in sync with that panel per direct
+	// instruction ("look intact in Schema Coverage table": the table stays
+	// fully visible, just highlights which row its own side panel reflects,
+	// instead of a popup covering it).
+	tr.schema-coverage-row-selected {
+		background: $theme-background-color;
+
+		td:first-child {
+			box-shadow: inset 3px 0 0 $theme-color;
+		}
+	}
 }
 
 .schema-type-cell {
@@ -1319,9 +1332,35 @@
 	i {
 		font-size: 0.75rem;
 	}
+
+	&.is-active {
+		text-decoration: underline;
+	}
 }
 
-// StructuredDataSection.tsx's "Pages with {type} schema" popup.
+// StructuredDataSection.tsx's own row detail panel (grid={4} column,
+// "Schema details"/`{selectedRow.type}` card) — real status + real
+// found-on/problems line, above the "Pages with {type} schema" list below
+// (used to be a popup's own content; same list, now rendered inline in
+// this side panel instead — see this file's own docblock).
+.schema-detail-stats {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	flex-wrap: wrap;
+	margin-bottom: 1rem;
+
+	.desc {
+		margin: 0;
+	}
+}
+
+.schema-detail-pages-heading {
+	font-weight: 600;
+	font-size: 0.8125rem;
+	margin-bottom: 0.5rem;
+}
+
 .schema-view-pages-list {
 	list-style: none;
 	margin: 0;

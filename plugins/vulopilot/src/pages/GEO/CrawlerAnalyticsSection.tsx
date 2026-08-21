@@ -23,6 +23,7 @@ import {
 } from 'recharts';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import type { CrawlerAnalytics } from './useCrawlerAnalytics';
+import { formatWpDate } from '../../services/formatWpDate';
 
 const PIE_COLORS = ['#7C3AED', '#2563EB', '#0D9488', '#EA580C', '#DB2777', '#65A30D'];
 
@@ -85,11 +86,19 @@ interface CrawlerAnalyticsSectionProps {
  * Crawl Health" summary, 4 real stat cards (each with a real %-change
  * against the immediately preceding period), a real trend chart, a real
  * "by AI lab" breakdown (not "search vs AI" — see CrawlerTraffic.php's own
- * `get_analytics()` docblock on why), a real Top Crawlers table, a real
- * Most Crawled Pages table with real %-change per page, and a real crawl
- * health checklist. Every number here traces back to either
- * `crawler-traffic/analytics` (CrawlerVisitRepository::get_period_comparison())
- * or a real `findings/groups` fetch — nothing here is invented.
+ * `get_analytics()` docblock on why), a real Top Crawlers table (own real
+ * "Last seen" column — the separate "Last seen" tiles card
+ * (CrawlerSummaryCard.tsx) that used to sit below this section was merged
+ * into this table instead, per direct instruction ("merge top crawlers
+ * and last seen section, add a column in top crawlers last seen") — same
+ * real `MAX(created_at)`-per-bot value, just a column here now instead of
+ * its own card; CrawlerSummaryCard.tsx itself was deleted since this was
+ * its only real consumer), a real Most Crawled Pages table with real
+ * %-change per page, and a real crawl health checklist. Every number here
+ * traces back to either `crawler-traffic/analytics`
+ * (CrawlerVisitRepository::get_period_comparison(), which now folds
+ * get_bot_last_seen()'s own real per-bot timestamp into each `top_crawlers`
+ * row) or a real `findings/groups` fetch — nothing here is invented.
  */
 const CrawlerAnalyticsSection = ({
 	analytics,
@@ -320,6 +329,7 @@ const CrawlerAnalyticsSection = ({
 										<th>{__('Crawler', 'vulopilot')}</th>
 										<th>{__('Requests', 'vulopilot')}</th>
 										<th>{__('Change', 'vulopilot')}</th>
+										<th>{__('Last seen', 'vulopilot')}</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -332,6 +342,11 @@ const CrawlerAnalyticsSection = ({
 													current={crawler.total}
 													previous={crawler.previous_total}
 												/>
+											</td>
+											<td>
+												{crawler.last_seen_at
+													? formatWpDate(crawler.last_seen_at)
+													: '—'}
 											</td>
 										</tr>
 									))}
