@@ -8,7 +8,7 @@
 namespace VuloPilot\Tests;
 
 use Brain\Monkey\Functions;
-use VuloPilot\Automation\Actions\SnoozeFindingAction;
+use VuloPilot\Automations\Actions\SnoozeFindingAction;
 use VuloPilot\Repositories\FindingRepository;
 use VuloPilot\ValueObjects\Impact;
 use VuloPilot\ValueObjects\Recommendation;

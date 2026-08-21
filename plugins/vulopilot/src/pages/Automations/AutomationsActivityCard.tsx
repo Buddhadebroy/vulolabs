@@ -64,7 +64,7 @@ const describeOutcome = (row: AutomationRunRow): string => {
 	return __('No changes needed.', 'vulopilot');
 };
 
-interface AutomationActivityCardProps {
+interface AutomationsActivityCardProps {
 	onViewHistory: () => void;
 	refetchSignal: number;
 }
@@ -85,7 +85,7 @@ interface AutomationActivityCardProps {
  * completed run shows the same real "Completed" badge instead of
  * guessing.
  */
-const AutomationActivityCard = ({ onViewHistory, refetchSignal }: AutomationActivityCardProps) => {
+const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsActivityCardProps) => {
 	const [rows, setRows] = useState<AutomationRunRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -147,4 +147,4 @@ const AutomationActivityCard = ({ onViewHistory, refetchSignal }: AutomationActi
 	);
 };
 
-export default AutomationActivityCard;
+export default AutomationsActivityCard;

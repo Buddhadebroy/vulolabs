@@ -7,7 +7,7 @@
 
 namespace VuloPilot\RestAPI\Controllers;
 
-use VuloPilot\Repositories\AutomationRunRepository;
+use VuloPilot\Repositories\AutomationsRunRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -65,7 +65,7 @@ class StoreReadiness extends \WP_REST_Controller {
 	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
-		$automation_runs = new AutomationRunRepository();
+		$automation_runs = new AutomationsRunRepository();
 
 		return rest_ensure_response(
 			array(

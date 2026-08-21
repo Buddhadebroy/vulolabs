@@ -138,8 +138,8 @@ class Admin {
                     'priority' => 70,
                     'icon'     => 'dashicons-cart',
                 ),
-                'automation'    => array(
-                    'name'     => __( 'Automate Work', 'vulopilot' ),
+                'automations'   => array(
+                    'name'     => __( 'Automations', 'vulopilot' ),
                     'priority' => 80,
                     'icon'     => 'dashicons-update',
                 ),

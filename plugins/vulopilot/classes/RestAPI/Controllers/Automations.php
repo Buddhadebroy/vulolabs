@@ -7,23 +7,23 @@
 
 namespace VuloPilot\RestAPI\Controllers;
 
-use VuloPilot\Repositories\AutomationRepository;
-use VuloPilot\Repositories\AutomationRunRepository;
+use VuloPilot\Repositories\AutomationsRepository;
+use VuloPilot\Repositories\AutomationsRunRepository;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /automations backs src/pages/Automation/Automation.tsx's table.
+ * GET /automations backs src/pages/Automations/Automations.tsx's table.
  * POST /automations/{id} backs its Enable/Disable row action.
  * POST /automations/{id}/run backs its "Run now" row action — returns a
  * clear error rather than pretending to work: there is no trigger→action
  * execution engine anywhere in this codebase yet (only the DB schema, this
- * repository, and an unimplemented Contracts\Automation\TriggerInterface),
+ * repository, and an unimplemented Contracts\Automations\TriggerInterface),
  * so there is nothing to actually run. This route exists so the button
  * gets an honest, specific failure message instead of a 404.
  *
  * This controller didn't exist at all before — the free plugin's own
- * Automation page called an endpoint with no backing route, so its table
+ * Automations page called an endpoint with no backing route, so its table
  * could never load any data. Modeled directly on Findings.php's shape.
  *
  * @class       Automations controller
@@ -96,7 +96,7 @@ class Automations extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function get_items( $request ) {
-        $repository = new AutomationRepository();
+        $repository = new AutomationsRepository();
 
         $status = sanitize_key( (string) $request->get_param( 'status' ) );
         $search = sanitize_text_field( (string) $request->get_param( 'search' ) );
@@ -118,7 +118,7 @@ class Automations extends \WP_REST_Controller {
     }
 
     /**
-     * @see \VuloPilotPro\Automation\AutomationsRest::with_next_run() — identical shape (that controller's own docblock explains the real cron-hook-per-trigger-type reasoning). Doesn't need `VuloPilotPro()->scheduler` — `wp_next_scheduled()` is a plain WP core read, not something only the Pro scheduler wrapper can do.
+     * @see \VuloPilotPro\Automations\AutomationsRest::with_next_run() — identical shape (that controller's own docblock explains the real cron-hook-per-trigger-type reasoning). Doesn't need `VuloPilotPro()->scheduler` — `wp_next_scheduled()` is a plain WP core read, not something only the Pro scheduler wrapper can do.
      *
      * @param array<int, array<string, mixed>> $rows Real automation rows, each with a real 'trigger_type'.
      * @return array<int, array<string, mixed>>
@@ -153,7 +153,7 @@ class Automations extends \WP_REST_Controller {
             return new \WP_Error( 'vulopilot_invalid_status', __( 'Invalid automation status.', 'vulopilot' ), array( 'status' => 400 ) );
         }
 
-        $repository = new AutomationRepository();
+        $repository = new AutomationsRepository();
 
         if ( ! $repository->find( $id ) ) {
             return new \WP_Error( 'vulopilot_automation_not_found', __( 'Automation not found.', 'vulopilot' ), array( 'status' => 404 ) );
@@ -176,7 +176,7 @@ class Automations extends \WP_REST_Controller {
      */
     public function run_item( $request ) {
         $id         = absint( $request->get_param( 'id' ) );
-        $repository = new AutomationRepository();
+        $repository = new AutomationsRepository();
 
         if ( ! $repository->find( $id ) ) {
             return new \WP_Error( 'vulopilot_automation_not_found', __( 'Automation not found.', 'vulopilot' ), array( 'status' => 404 ) );
@@ -195,14 +195,14 @@ class Automations extends \WP_REST_Controller {
      * `last_run_finished_at`) — what the "Automations" tab's table reads
      * for its "Last run" column's real outcome subtext (e.g. "3 actions
      * taken" / "No changes needed" / "Run failed"), one batch query via
-     * AutomationRunRepository::get_latest_by_automation_ids() rather than
+     * AutomationsRunRepository::get_latest_by_automation_ids() rather than
      * N+1 (performance.md). `null` fields mean this automation has never
      * run yet — the frontend renders that as "Never run" rather than a
      * fabricated outcome. Same small helper, independently duplicated in
      * vulopilot-pro's own AutomationsRest.php (that controller doesn't
      * extend this one — it's a separate registry override for when the
-     * Automation module is active — same "duplicate small per-file logic"
-     * convention automationLabels.ts's own docblock already establishes).
+     * Automations module is active — same "duplicate small per-file logic"
+     * convention automationsLabels.ts's own docblock already establishes).
      *
      * @param array<int, array<string, mixed>> $rows Real automation rows, each with a real 'id'.
      * @return array<int, array<string, mixed>>
@@ -213,7 +213,7 @@ class Automations extends \WP_REST_Controller {
             $rows
         );
 
-        $latest_by_id = ( new AutomationRunRepository() )->get_latest_by_automation_ids( $ids );
+        $latest_by_id = ( new AutomationsRunRepository() )->get_latest_by_automation_ids( $ids );
 
         return array_map(
             static function ( array $row ) use ( $latest_by_id ): array {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent } from '@zyra/components';
-import { AUTOMATION_TEMPLATES, AutomationTemplate } from './automationTemplates';
+import { AUTOMATION_TEMPLATES, AutomationTemplate } from './automationsTemplates';
 
-interface AutomationTemplatesCardProps {
+interface AutomationsTemplatesCardProps {
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onSelectTemplate: (template: AutomationTemplate) => void;
 }
@@ -17,7 +17,7 @@ interface AutomationTemplatesCardProps {
  * form in place; `ChatTab.tsx`'s preview navigates to Automate Work first —
  * see each host's own `onSelectTemplate` for the real behavior).
  */
-const AutomationTemplatesCard: React.FC<AutomationTemplatesCardProps> = ({
+const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	onSelectTemplate,
 }) => (
 	<CardComponent title={__('Create new automation', 'vulopilot')} titleIcon="automation">
@@ -40,4 +40,4 @@ const AutomationTemplatesCard: React.FC<AutomationTemplatesCardProps> = ({
 	</CardComponent>
 );
 
-export default AutomationTemplatesCard;
+export default AutomationsTemplatesCard;

@@ -91,7 +91,7 @@ class ReportTypeRegistry {
             Types\WooCommerceReport::class,
             Types\SecurityReport::class,
             Types\AccessibilityReport::class,
-            Types\AutomationReport::class,
+            Types\AutomationsReport::class,
             Types\AiUsageReport::class,
             Types\AiVisibilityReport::class,
             Types\PerformanceReport::class,

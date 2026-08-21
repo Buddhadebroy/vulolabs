@@ -226,7 +226,7 @@ class ScannerRegistry {
             // one gap none of the checks above cover: whether the
             // homepage itself actually responds at all. Curated into
             // vulopilot-pro's "Website Health — Daily Scan" default
-            // automation (Automation\WebsiteHealthScanScheduler).
+            // automation (Automations\WebsiteHealthScanScheduler).
             Basic\SiteAvailabilityScanner::class,
             // Website Performance (readme) — category 'performance', joins
             // the original PerformanceScanner (autoload bloat).
@@ -302,7 +302,7 @@ class ScannerRegistry {
     /**
      * Every registered scanner except those in the given categories —
      * lets a caller that already covers some categories on their own
-     * (e.g. Automation\Scheduler's global tick deferring to
+     * (e.g. Automations\Scheduler's global tick deferring to
      * SecurityScanScheduler/AccessibilityAuditScheduler's own independent
      * cadence, see that class's own docblock) skip re-running them.
      *

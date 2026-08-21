@@ -1,6 +1,6 @@
 <?php
 /**
- * AutomationRepository class file.
+ * AutomationsRepository class file.
  *
  * @package VuloPilot
  */
@@ -12,11 +12,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Persistence for vulopilot_automations (DATABASE.md).
  *
- * @class       AutomationRepository class
+ * @class       AutomationsRepository class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AutomationRepository extends AbstractRepository {
+class AutomationsRepository extends AbstractRepository {
 
     /**
      * @var string[]
@@ -32,7 +32,7 @@ class AutomationRepository extends AbstractRepository {
      * @inheritDoc
      */
     protected function get_table_key(): string {
-        return 'automation';
+        return 'automations';
     }
 
     /**
@@ -49,8 +49,8 @@ class AutomationRepository extends AbstractRepository {
 
     /**
      * Enabled/disabled/draft counts, zero-filled — backs both the
-     * "Automation Status" dashboard widget and the Automation table's
-     * status-count pill bar ("Active"/"Paused"/"Drafts" — Automate Work's
+     * "Automation Status" dashboard widget and the Automations table's
+     * status-count pill bar ("Active"/"Paused"/"Drafts" — Automations'
      * own filter chips read 'enabled'/'disabled'/'draft' by these exact
      * keys). Delegates the actual grouped query to
      * AbstractRepository::count_by_column() rather than running its own

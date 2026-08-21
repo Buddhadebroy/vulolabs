@@ -30,8 +30,8 @@ class Utill {
         'scan'                       => 'vulopilot_scans',
         'scan_finding'               => 'vulopilot_scan_findings',
         'rule'                       => 'vulopilot_rules',
-        'automation'                 => 'vulopilot_automations',
-        'automation_run'             => 'vulopilot_automation_runs',
+        'automations'                => 'vulopilot_automations',
+        'automations_run'            => 'vulopilot_automations_runs',
         'ai_job'                     => 'vulopilot_ai_jobs',
         'ai_history'                 => 'vulopilot_ai_history',
         'ai_provider_config'         => 'vulopilot_ai_provider_configs',
@@ -128,13 +128,13 @@ class Utill {
         // shipped a fixed 60-minute rate limit as a pragmatic v1; this
         // makes it a real, per-site setting instead).
         'automation_cooldown_minutes'           => 60,
-        // Read by vulopilot-pro's Automation\AutomationEngine — 0 (the
+        // Read by vulopilot-pro's Automations\AutomationEngine — 0 (the
         // default) means retries are off; an automation run with at least
         // one failed action simply stays 'failed', same as before this
         // setting existed.
         'automation_max_retries'                => 0,
         'automation_retry_delay_minutes'        => 5,
-        // Automate Work's "Automation modes" card — same "setting lives
+        // Automations' "Automation modes" card — same "setting lives
         // here, only meaningfully acted on by vulopilot-pro" split as
         // automation_max_retries above. Read by vulopilot-pro's
         // RunAiActionAction: 'monitor' skips proposing an AI fix entirely

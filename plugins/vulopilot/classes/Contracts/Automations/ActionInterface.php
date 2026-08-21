@@ -5,9 +5,9 @@
  * @package VuloPilot
  */
 
-namespace VuloPilot\Contracts\Automation;
+namespace VuloPilot\Contracts\Automations;
 
-use VuloPilot\ValueObjects\AutomationRunResult;
+use VuloPilot\ValueObjects\AutomationsRunResult;
 use VuloPilot\ValueObjects\Recommendation;
 
 /**
@@ -39,15 +39,15 @@ interface ActionInterface {
     /**
      * @param Recommendation       $recommendation The recommendation that matched and triggered this run.
      * @param array<string, mixed> $config         This action's own config, from the automation's `actions` JSON.
-     * @return AutomationRunResult
+     * @return AutomationsRunResult
      */
-    public function execute( Recommendation $recommendation, array $config ): AutomationRunResult;
+    public function execute( Recommendation $recommendation, array $config ): AutomationsRunResult;
 
     /**
      * Whether a *successful* execute() call actually changes something on
      * the site (a database row this codebase owns being updated, a real
      * fix applied) versus merely notifying someone about a recommendation
-     * — what `vulopilot_automation_runs.changes_made` counts, distinct
+     * — what `vulopilot_automations_runs.changes_made` counts, distinct
      * from `actions_executed` (every action that ran without erroring,
      * change-making or not). True answers must be literal: an action that
      * only *proposes* a change and waits for separate human approval

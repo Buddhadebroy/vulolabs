@@ -1,6 +1,6 @@
 <?php
 /**
- * AutomationReport class file.
+ * AutomationsReport class file.
  *
  * @package VuloPilot
  */
@@ -8,7 +8,7 @@
 namespace VuloPilot\Reports\Types;
 
 use VuloPilot\Reports\AbstractReportType;
-use VuloPilot\Repositories\AutomationRunRepository;
+use VuloPilot\Repositories\AutomationsRunRepository;
 use VuloPilot\ValueObjects\ReportResult;
 
 defined( 'ABSPATH' ) || exit;
@@ -18,31 +18,31 @@ defined( 'ABSPATH' ) || exit;
  * breakdown included — what an admin reads to see whether their
  * automations are actually doing anything, and whether they're failing.
  *
- * @class       AutomationReport class
+ * @class       AutomationsReport class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AutomationReport extends AbstractReportType {
+class AutomationsReport extends AbstractReportType {
 
     /**
      * @inheritDoc
      */
     public function get_id(): string {
-        return 'automation';
+        return 'automations';
     }
 
     /**
      * @inheritDoc
      */
     public function get_label(): string {
-        return __( 'Automation Report', 'vulopilot' );
+        return __( 'Automations Report', 'vulopilot' );
     }
 
     /**
      * @inheritDoc
      */
     public function generate( string $period_start, string $period_end ): ReportResult {
-        $runs                              = new AutomationRunRepository();
+        $runs                              = new AutomationsRunRepository();
         [ $previous_start, $previous_end ] = $this->get_previous_period( $period_start, $period_end );
 
         $stats          = $runs->get_stats_for_period( $period_start, $period_end );

@@ -6,7 +6,7 @@ import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { AutomationRow } from './ManageAutomationsSection';
 
-interface AutomationAttentionCardProps {
+interface AutomationsAttentionCardProps {
 	onViewAll: () => void;
 	/** Bumped by the host after something changes elsewhere on the page (a new automation created, a status toggled) — this card fetches its own copy of the list (small, per-file fetch, same convention `AutomationSuggestions.tsx` already established), so it needs to know when to refetch. */
 	refetchSignal: number;
@@ -26,7 +26,7 @@ interface AutomationAttentionCardProps {
  * (`POST /automations/{id}/run`, the same action `ManageAutomationsSection.tsx`'s
  * own row-level "Run now" already performs).
  */
-const AutomationAttentionCard = ({ onViewAll, refetchSignal }: AutomationAttentionCardProps) => {
+const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAttentionCardProps) => {
 	const [failing, setFailing] = useState<AutomationRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [retryingId, setRetryingId] = useState<number | null>(null);
@@ -115,4 +115,4 @@ const AutomationAttentionCard = ({ onViewAll, refetchSignal }: AutomationAttenti
 	);
 };
 
-export default AutomationAttentionCard;
+export default AutomationsAttentionCard;

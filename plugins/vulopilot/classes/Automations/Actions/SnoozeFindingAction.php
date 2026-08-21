@@ -5,10 +5,10 @@
  * @package VuloPilot
  */
 
-namespace VuloPilot\Automation\Actions;
+namespace VuloPilot\Automations\Actions;
 
-use VuloPilot\Contracts\Automation\ActionInterface;
-use VuloPilot\ValueObjects\AutomationRunResult;
+use VuloPilot\Contracts\Automations\ActionInterface;
+use VuloPilot\ValueObjects\AutomationsRunResult;
 use VuloPilot\ValueObjects\Recommendation;
 use VuloPilot\Repositories\FindingRepository;
 
@@ -16,8 +16,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Marks the specific Finding a Recommendation came from as 'snoozed' —
- * Free's own manual-only counterpart to vulopilot-pro's Automation module
- * (Contracts\Automation\ActionInterface's Pro-side implementations:
+ * Free's own manual-only counterpart to vulopilot-pro's Automations module
+ * (Contracts\Automations\ActionInterface's Pro-side implementations:
  * SendEmailAction/ResolveFindingAction/CreateNotificationAction/
  * RunAiActionAction). 'snoozed' has been a valid Finding status
  * (FindingRepository::get_status_counts(), the FindingsTable status filter)
@@ -75,12 +75,12 @@ class SnoozeFindingAction implements ActionInterface {
     /**
      * @inheritDoc
      */
-    public function execute( Recommendation $recommendation, array $config ): AutomationRunResult {
+    public function execute( Recommendation $recommendation, array $config ): AutomationsRunResult {
         $object_type = $recommendation->get_object_type();
         $object_ref  = $recommendation->get_object_ref();
 
         if ( ! $object_type || ! $object_ref ) {
-            return new AutomationRunResult( false, $this->get_id(), __( 'This recommendation is not tied to a specific object; nothing to snooze.', 'vulopilot' ) );
+            return new AutomationsRunResult( false, $this->get_id(), __( 'This recommendation is not tied to a specific object; nothing to snooze.', 'vulopilot' ) );
         }
 
         $open_match = $this->findings->find_all(
@@ -93,13 +93,13 @@ class SnoozeFindingAction implements ActionInterface {
         );
 
         if ( empty( $open_match['data'] ) ) {
-            return new AutomationRunResult( false, $this->get_id(), __( 'No matching open finding was found.', 'vulopilot' ) );
+            return new AutomationsRunResult( false, $this->get_id(), __( 'No matching open finding was found.', 'vulopilot' ) );
         }
 
         $finding_id = (int) $open_match['data'][0]['id'];
         $updated    = $this->findings->update( $finding_id, array( 'status' => 'snoozed' ) );
 
-        return new AutomationRunResult(
+        return new AutomationsRunResult(
             $updated,
             $this->get_id(),
             $updated

@@ -39,7 +39,7 @@ class ActivityLogRepository extends AbstractRepository {
      * User/system/automation counts, zero-filled — backs the Activity
      * table's status-count pill bar. Activity has no true lifecycle status
      * column, so actor_type is the closest existing categorical dimension
-     * (same reasoning as AutomationRepository::get_status_counts()).
+     * (same reasoning as AutomationsRepository::get_status_counts()).
      *
      * @return array{user: int, system: int, automation: int}
      */

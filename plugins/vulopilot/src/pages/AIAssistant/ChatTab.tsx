@@ -75,7 +75,7 @@ interface AutomationsResponse {
 }
 
 const contextRefKey = ( ref: CopilotContextRef ): string =>
-	'finding_group' === ref.type ? `finding_group:${ ref.scannerId }` : `automation:${ ref.id }`;
+	'finding_group' === ref.type ? `finding_group:${ ref.scannerId }` : `automations:${ ref.id }`;
 
 interface ChatTabProps {
 	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
@@ -564,7 +564,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 											{(automationOptions ?? []).map(
 												(automation) => {
 													const ref: CopilotContextRef = {
-														type: 'automation',
+														type: 'automations',
 														id: automation.id,
 														name: automation.name,
 													};

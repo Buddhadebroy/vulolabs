@@ -9,14 +9,14 @@ import {
 } from '@zyra/components';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
-import AutomationStatsRow from './AutomationStatsRow';
-import AutomationAttentionCard from './AutomationAttentionCard';
-import AutomationPeriodStatsCard from './AutomationPeriodStatsCard';
-import AutomationActivityCard from './AutomationActivityCard';
-import AutomationSuggestions from './AutomationSuggestions';
+import AutomationsStatsRow from './AutomationsStatsRow';
+import AutomationsAttentionCard from './AutomationsAttentionCard';
+import AutomationsPeriodStatsCard from './AutomationsPeriodStatsCard';
+import AutomationsActivityCard from './AutomationsActivityCard';
+import AutomationsSuggestions from './AutomationsSuggestions';
 import ManageAutomationsSection, { AutomationRow } from './ManageAutomationsSection';
-import { AutomationTemplate, getAutomationTemplateById } from './automationTemplates';
-import './AutomateWork.scss';
+import { AutomationTemplate, getAutomationTemplateById } from './automationsTemplates';
+import './Automations.scss';
 
 /** Mirrors vulopilot-pro's own `AutomationWizardProps` — Free can't import Pro's src/ tree, same small-matching-copy convention `automationLabels.ts` already establishes for its label sets. */
 interface AutomationWizardComponentProps {
@@ -62,7 +62,7 @@ interface AutomationSlotValue {
  * a single shared instance of each popup, not two independently-triggered
  * ones.
  */
-const Automation = () => {
+const Automations = () => {
 	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automation_panel');
 	const Wizard = slot?.Wizard;
 	const Generate = slot?.Generate;
@@ -120,8 +120,8 @@ const Automation = () => {
 		setWizardOpenSignal((n) => n + 1);
 	};
 
-	// AI Copilot's Chat tab (ChatTab.tsx's own AutomationTemplatesCard
-	// preview) deep-links here as `?...#tab=automation&automation_template=<id>`
+	// AI Copilot's Chat tab (ChatTab.tsx's own AutomationsTemplatesCard
+	// preview) deep-links here as `?...#tab=automations&automation_template=<id>`
 	// — read once on mount, same as this page's previous tab-shell version.
 	const firedInitialTemplateRef = useRef(false);
 
@@ -158,7 +158,7 @@ const Automation = () => {
 		<>
 			<NavigatorHeaderComponent
 				headerIcon="automation"
-				headerTitle={__('Automate Work', 'vulopilot')}
+				headerTitle={__('Automations', 'vulopilot')}
 				headerDescription={__(
 					'Create workflows that automatically handle repetitive work and keep you informed.',
 					'vulopilot'
@@ -179,16 +179,16 @@ const Automation = () => {
 
 			<ContainerComponent general>
 				<ColumnComponent grid={7}>
-					<AutomationStatsRow />
+					<AutomationsStatsRow />
 				</ColumnComponent>
 				<ColumnComponent grid={5}>
-					<AutomationPeriodStatsCard />
-					<AutomationAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
+					<AutomationsPeriodStatsCard />
+					<AutomationsAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
 				</ColumnComponent>
 			</ContainerComponent>
 
 
-			<AutomationSuggestions
+			<AutomationsSuggestions
 				onUseTemplate={openTemplate}
 				onOpenAutomation={openRow}
 				refetchSignal={refetchSignal}
@@ -201,7 +201,7 @@ const Automation = () => {
 				refetchSignal={refetchSignal}
 			/>
 
-			<AutomationActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
+			<AutomationsActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
 
 			{Wizard && (
 				<Wizard
@@ -225,7 +225,7 @@ const Automation = () => {
 				position="lightbox"
 			>
 				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="automation" />
+					<ShowProPopup moduleName="automations" />
 				) : (
 					<ShowProPopup />
 				)}
@@ -234,4 +234,4 @@ const Automation = () => {
 	);
 };
 
-export default Automation;
+export default Automations;

@@ -5,7 +5,7 @@
  * @package VuloPilot
  */
 
-namespace VuloPilot\Automation;
+namespace VuloPilot\Automations;
 
 use VuloPilot\Repositories\FindingRepository;
 use VuloPilot\ValueObjects\Impact;
@@ -16,11 +16,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * "Manual Actions Only" (readme.txt) — Free's entire automation capability,
- * on purpose much smaller than vulopilot-pro's Automation module: run one
+ * on purpose much smaller than vulopilot-pro's Automations module: run one
  * registered ActionInterface against one specific, already-known Finding,
  * right now, by hand. No trigger, no bound rule, no cooldown, no
  * `vulopilot_automations` row, no run history — those are exactly the
- * axes vulopilot-pro's own Automation module (Triggers/Conditions/
+ * axes vulopilot-pro's own Automations module (Triggers/Conditions/
  * Schedules/Workflow Builder/Logs/Retries) adds on top of this.
  *
  * ActionInterface::execute() takes a Recommendation, not a Finding — this
@@ -66,7 +66,7 @@ class ManualActionRunner {
     /**
      * @param int    $finding_id A `vulopilot_scan_findings` row id.
      * @param string $action_id  A registered ActionInterface's get_id().
-     * @return \VuloPilot\ValueObjects\AutomationRunResult
+     * @return \VuloPilot\ValueObjects\AutomationsRunResult
      *
      * @throws \InvalidArgumentException If the finding or the action isn't found.
      */

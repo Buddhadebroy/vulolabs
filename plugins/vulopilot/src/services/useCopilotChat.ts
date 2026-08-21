@@ -39,7 +39,7 @@ export type CopilotContextRef =
 			severity: string;
 	  }
 	| {
-			type: 'automation';
+			type: 'automations';
 			id: number;
 			name: string;
 	  };

@@ -4,12 +4,12 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { AUTOMATION_TEMPLATES, AutomationTemplate } from './automationTemplates';
-import { TRIGGER_TYPE_LABELS, ACTION_TYPE_LABELS } from './automationLabels';
+import { AUTOMATION_TEMPLATES, AutomationTemplate } from './automationsTemplates';
+import { TRIGGER_TYPE_LABELS, ACTION_TYPE_LABELS } from './automationsLabels';
 import { formatWpDate } from '../../services/formatWpDate';
 import type { AutomationRow } from './ManageAutomationsSection';
 
-interface AutomationSuggestionsProps {
+interface AutomationsSuggestionsProps {
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onUseTemplate: (template: AutomationTemplate) => void;
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
@@ -90,11 +90,11 @@ const describeLastCheck = (row: AutomationRow): string => {
  * itself (automationTemplates.ts's own docblock: no real 'seo' category
  * exists either, mapped to the closest real one).
  */
-const AutomationSuggestions = ({
+const AutomationsSuggestions = ({
 	onUseTemplate,
 	onOpenAutomation,
 	refetchSignal,
-}: AutomationSuggestionsProps) => {
+}: AutomationsSuggestionsProps) => {
 	const [automations, setAutomations] = useState<AutomationRow[]>([]);
 	const [previewId, setPreviewId] = useState<string | null>(null);
 	const suggestions = AUTOMATION_TEMPLATES.filter(
@@ -247,4 +247,4 @@ const AutomationSuggestions = ({
 	);
 };
 
-export default AutomationSuggestions;
+export default AutomationsSuggestions;

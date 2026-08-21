@@ -65,7 +65,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * (AutomationHeroRow.tsx, retired earlier in this page's own redesign)
  * already established.
  */
-const AutomationStatsRow = () => {
+const AutomationsStatsRow = () => {
 	const [statusCounts, setStatusCounts] = useState<StatusCounts | null>(
 		null
 	);
@@ -195,4 +195,4 @@ const AutomationStatsRow = () => {
 	);
 };
 
-export default AutomationStatsRow;
+export default AutomationsStatsRow;

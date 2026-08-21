@@ -140,7 +140,7 @@ class Install {
             KEY `idx_active` (`is_active`)
         ) $collate;";
 
-        $sql_automations = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['automation'] . "` (
+        $sql_automations = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['automations'] . "` (
             `id`                bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `name`              varchar(191) NOT NULL,
             `rule_id`           bigint(20) unsigned DEFAULT NULL,
@@ -161,7 +161,7 @@ class Install {
             KEY `idx_category` (`category`)
         ) $collate;";
 
-        $sql_automation_runs = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['automation_run'] . "` (
+        $sql_automations_runs = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['automations_run'] . "` (
             `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `automation_id`    bigint(20) unsigned NOT NULL,
             `triggered_by`     varchar(50) NOT NULL,
@@ -358,7 +358,7 @@ class Install {
         dbDelta( $sql_scan_findings );
         dbDelta( $sql_rules );
         dbDelta( $sql_automations );
-        dbDelta( $sql_automation_runs );
+        dbDelta( $sql_automations_runs );
         dbDelta( $sql_ai_jobs );
         dbDelta( $sql_ai_history );
         dbDelta( $sql_ai_provider_configs );

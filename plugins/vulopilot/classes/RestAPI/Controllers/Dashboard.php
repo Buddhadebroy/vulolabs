@@ -9,7 +9,7 @@ namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\ValueObjects\Severity;
 use VuloPilot\Repositories\ActionRunRepository;
-use VuloPilot\Repositories\AutomationRepository;
+use VuloPilot\Repositories\AutomationsRepository;
 use VuloPilot\Repositories\FindingRepository;
 
 defined( 'ABSPATH' ) || exit;
@@ -69,7 +69,7 @@ class Dashboard extends \WP_REST_Controller {
      */
     public function get_items( $request ) {
         $findings    = new FindingRepository();
-        $automations = new AutomationRepository();
+        $automations = new AutomationsRepository();
         $action_runs = new ActionRunRepository();
 
         return rest_ensure_response(

@@ -1,6 +1,6 @@
 <?php
 /**
- * AutomationRunResult file.
+ * AutomationsRunResult file.
  *
  * @package VuloPilot
  */
@@ -8,17 +8,17 @@
 namespace VuloPilot\ValueObjects;
 
 /**
- * The outcome of a single Contracts\Automation\ActionInterface::execute()
+ * The outcome of a single Contracts\Automations\ActionInterface::execute()
  * call — AutomationEngine\AutomationEngine aggregates one or more of these
  * (an automation can run several actions in sequence) into the
- * `vulopilot_automation_runs` row's `actions_executed`/`actions_failed`
+ * `vulopilot_automations_runs` row's `actions_executed`/`actions_failed`
  * counts and `result_log`.
  *
- * @class       AutomationRunResult class
+ * @class       AutomationsRunResult class
  * @version     1.0.0
  * @author      VuloLabs
  */
-final class AutomationRunResult {
+final class AutomationsRunResult {
 
     /**
      * @var bool

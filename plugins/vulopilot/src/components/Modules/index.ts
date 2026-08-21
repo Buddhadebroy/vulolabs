@@ -354,7 +354,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         },
 
 		// Automation & AI Section
-		{ type: 'separator', id: 'automation-ai', label: __('Automation & AI', 'vulopilot') },
+		{ type: 'separator', id: 'automation-ai', label: __('Automations & AI', 'vulopilot') },
 		{
             /**
              * Real, genuinely free module id (modules/AiCopilot/Module.php)
@@ -394,7 +394,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * kebab-cased (no 'Engine' suffix in the real folder name). The
              * mockup's own id ('automation-engine') matches no real module.
              */
-            id: 'automation',
+            id: 'automations',
             icon: 'automation',
             name: __('Workflow Autopilot — Automation Engine', 'vulopilot'),
             desc: __('Triggers, conditions, schedules, and workflows that react to scan findings automatically.', 'vulopilot'),

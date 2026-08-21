@@ -5,16 +5,16 @@
  * @package VuloPilot
  */
 
-namespace VuloPilot\Automation;
+namespace VuloPilot\Automations;
 
-use VuloPilot\Contracts\Automation\ActionInterface;
+use VuloPilot\Contracts\Automations\ActionInterface;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Free's own action registry — deliberately separate from
- * vulopilot-pro's Automation\ActionRegistry (a different filter,
- * `vulopilot_manual_action_sources`, not `vulopilot_automation_action_sources`):
+ * vulopilot-pro's Automations\ActionRegistry (a different filter,
+ * `vulopilot_manual_action_sources`, not `vulopilot_automations_action_sources`):
  * Pro's registry backs the full trigger→rule→action AutomationEngine
  * (cooldown, multi-recommendation fan-out, run history); this one backs
  * only ManualActionRunner's "run one action against one open finding, right

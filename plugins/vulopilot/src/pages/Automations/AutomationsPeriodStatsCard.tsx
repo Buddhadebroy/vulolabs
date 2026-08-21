@@ -56,7 +56,7 @@ const pctBadge = (current: number, previous: number): string | undefined => {
  * same real-verb correction `AutomationStatsRow.tsx`'s own docblock
  * already applied to this exact number.
  */
-const AutomationPeriodStatsCard = () => {
+const AutomationsPeriodStatsCard = () => {
 	const [stats, setStats] = useState<DashboardStats | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -126,4 +126,4 @@ const AutomationPeriodStatsCard = () => {
 	);
 };
 
-export default AutomationPeriodStatsCard;
+export default AutomationsPeriodStatsCard;

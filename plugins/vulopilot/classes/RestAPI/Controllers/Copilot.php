@@ -11,7 +11,7 @@ use VuloPilot\AIActions\ContentCreationOrchestrator;
 use VuloPilot\Exceptions\UnsafePromptException;
 use VuloPilot\ValueObjects\Severity;
 use VuloPilot\Repositories\FindingRepository;
-use VuloPilot\Repositories\AutomationRepository;
+use VuloPilot\Repositories\AutomationsRepository;
 use VuloPilot\Repositories\ActionRunRepository;
 
 defined( 'ABSPATH' ) || exit;
@@ -312,7 +312,7 @@ User: "AI in eCommerce" → {"status":"question","message":"Great — how many w
 User: "1500 words" → {"status":"question","message":"What tone would you prefer? For example: Professional, Friendly, Informative, or Casual."}
 User: "Professional" → {"status":"ready_action","action_id":"generate-blog","input":{"topic":"AI in eCommerce","word_count":1500,"tone":"Professional"}}
 
-For anything that is NOT one of those 3 content kinds — a general question, SEO/performance/security/accessibility/GEO/WooCommerce/automation advice, editing something that already exists, or any other kind of written content — answer using the real site snapshot below when relevant, and point the user to the specific tab (Issues, Performance, Security, GEO, WooCommerce, Automation) where they can review or fix something themselves. You cannot execute any change on the site yourself beyond the 3 content-creation kinds above — say so plainly if asked to perform some other action, rather than claiming to have done it. Reply in plain text or Markdown, never HTML.
+For anything that is NOT one of those 3 content kinds — a general question, SEO/performance/security/accessibility/GEO/WooCommerce/automation advice, editing something that already exists, or any other kind of written content — answer using the real site snapshot below when relevant, and point the user to the specific tab (Issues, Performance, Security, GEO, WooCommerce, Automations) where they can review or fix something themselves. You cannot execute any change on the site yourself beyond the 3 content-creation kinds above — say so plainly if asked to perform some other action, rather than claiming to have done it. Reply in plain text or Markdown, never HTML.
 
 Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of these shapes:
 {"status":"question","message":"<the single next question, phrased naturally>"}
@@ -380,12 +380,12 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of
      * (grouped by scanner_id, same unit NeedsAttentionCard.tsx's own list
      * already shows) or automation — into real, current one-line summaries.
      *
-     * @param array<int, mixed> $raw_refs Client-supplied {type: 'finding_group'|'automation', scanner_id?, id?} entries.
+     * @param array<int, mixed> $raw_refs Client-supplied {type: 'finding_group'|'automations', scanner_id?, id?} entries.
      * @return string Empty string if none resolved.
      */
     private function build_context_refs_block( array $raw_refs ): string {
         $findings    = new FindingRepository();
-        $automations = new AutomationRepository();
+        $automations = new AutomationsRepository();
         $lines       = array();
 
         foreach ( array_slice( $raw_refs, 0, self::MAX_CONTEXT_REFS ) as $ref ) {
@@ -414,7 +414,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of
                     $group['count'],
                     $group['severity']
                 );
-            } elseif ( 'automation' === $type ) {
+            } elseif ( 'automations' === $type ) {
                 $automation_id = absint( $ref['id'] ?? 0 );
                 $automation    = 0 !== $automation_id ? $automations->find( $automation_id ) : null;
 
@@ -584,7 +584,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of
      */
     private function build_site_context(): string {
         $findings    = new FindingRepository();
-        $automations = new AutomationRepository();
+        $automations = new AutomationsRepository();
         $action_runs = new ActionRunRepository();
 
         $categories = array(

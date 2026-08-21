@@ -5,7 +5,7 @@
  * @package VuloPilot
  */
 
-namespace VuloPilot\Contracts\Automation;
+namespace VuloPilot\Contracts\Automations;
 
 /**
  * A trigger decides *when* AutomationEngine re-checks automations bound to

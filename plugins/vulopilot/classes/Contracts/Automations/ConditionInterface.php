@@ -5,7 +5,7 @@
  * @package VuloPilot
  */
 
-namespace VuloPilot\Contracts\Automation;
+namespace VuloPilot\Contracts\Automations;
 
 use VuloPilot\ValueObjects\Recommendation;
 
@@ -21,7 +21,7 @@ use VuloPilot\ValueObjects\Recommendation;
  * automation's `actions` are already a flat ordered list, not a tree)
  * is enough to express "match this rule AND priority >= 50 AND category is
  * one of X". Implemented by AutomationEngine\Conditions\* (Pro) and
- * registered via `vulopilot_automation_condition_sources`.
+ * registered via `vulopilot_automations_condition_sources`.
  *
  * @class       ConditionInterface interface
  * @version     1.0.0

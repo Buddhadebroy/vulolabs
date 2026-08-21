@@ -1,6 +1,6 @@
 <?php
 /**
- * AutomationRunRepository class file.
+ * AutomationsRunRepository class file.
  *
  * @package VuloPilot
  */
@@ -12,21 +12,21 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_automation_runs (DATABASE.md) — one row per
+ * Persistence for vulopilot_automations_runs (DATABASE.md) — one row per
  * time AutomationEngine ran (or attempted to run) an automation's actions.
  * `result_log` stores the JSON-encoded array of
- * VuloPilot\ValueObjects\AutomationRunResult::to_array() entries, one
+ * VuloPilot\ValueObjects\AutomationsRunResult::to_array() entries, one
  * per action executed. `status` is one of 'running'/'completed'/'failed'
  * (AutomationEngine\AutomationEngine::run_automation()) — get_stats_for_period()
  * groups by whatever's actually there, but get_breakdown_by_automation_for_period()'s
  * own SQL below hardcodes those two exact strings, so a new status value
  * introduced without updating both places would silently undercount here.
  *
- * @class       AutomationRunRepository class
+ * @class       AutomationsRunRepository class
  * @version     1.0.0
  * @author      VuloLabs
  */
-class AutomationRunRepository extends AbstractRepository {
+class AutomationsRunRepository extends AbstractRepository {
 
     /**
      * @var string[]
@@ -37,12 +37,12 @@ class AutomationRunRepository extends AbstractRepository {
      * @inheritDoc
      */
     protected function get_table_key(): string {
-        return 'automation_run';
+        return 'automations_run';
     }
 
     /**
      * Run/success/failure counts for one date range — what
-     * Reports\Types\AutomationReport's headline summary reads.
+     * Reports\Types\AutomationsReport's headline summary reads.
      *
      * @param string $period_start Y-m-d, inclusive.
      * @param string $period_end   Y-m-d, inclusive.
@@ -271,7 +271,7 @@ class AutomationRunRepository extends AbstractRepository {
     public function get_breakdown_by_automation_for_period( string $period_start, string $period_end ): array {
         global $wpdb;
 
-        $automations_table = $wpdb->prefix . Utill::TABLES['automation'];
+        $automations_table = $wpdb->prefix . Utill::TABLES['automations'];
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(

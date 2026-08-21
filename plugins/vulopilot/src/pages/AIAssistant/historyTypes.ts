@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 
-export type HistoryFilter = 'all' | 'conversation' | 'scan' | 'change' | 'automation';
+export type HistoryFilter = 'all' | 'conversation' | 'scan' | 'change' | 'automations';
 
 export interface RelatedAction {
 	id: number;
@@ -81,7 +81,7 @@ export const FILTER_TABS: { id: HistoryFilter; label: string }[] = [
 	{ id: 'conversation', label: __('Conversations', 'vulopilot') },
 	{ id: 'scan', label: __('Scans', 'vulopilot') },
 	{ id: 'change', label: __('Changes', 'vulopilot') },
-	{ id: 'automation', label: __('Automations', 'vulopilot') },
+	{ id: 'automations', label: __('Automations', 'vulopilot') },
 ];
 
 /**

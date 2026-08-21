@@ -157,17 +157,17 @@ final class VuloPilot {
         $this->container['scan_persistence'] = new Services\ScanPersistenceListener();
 
         // "Manual Actions Only" (readme.txt) — Free's own small, engine-free
-        // counterpart to vulopilot-pro's Automation module; see
-        // Automation\ManualActionRunner's own docblock for why this doesn't
+        // counterpart to vulopilot-pro's Automations module; see
+        // Automations\ManualActionRunner's own docblock for why this doesn't
         // reuse rule_engine at all.
-        $this->container['manual_action_registry'] = new Automation\ActionRegistry();
-        $this->container['manual_action_runner']   = new Automation\ManualActionRunner( $this->container['manual_action_registry'] );
+        $this->container['manual_action_registry'] = new Automations\ActionRegistry();
+        $this->container['manual_action_runner']   = new Automations\ManualActionRunner( $this->container['manual_action_registry'] );
 
         // Scheduler (recurring scan cron) and the entire AutomationEngine
         // (trigger→action workflows) are Pro business logic now — "Scheduled
         // Website Scans" and "AI Automation Workflows" are both
         // vulopilot-pro-only per the plugin's own readme. They live in
-        // vulopilot-pro's Automation module, constructed with this same
+        // vulopilot-pro's Automations module, constructed with this same
         // rule_engine/scan_runner instance via VuloPilot()->rule_engine /
         // VuloPilot()->scan_runner.
 

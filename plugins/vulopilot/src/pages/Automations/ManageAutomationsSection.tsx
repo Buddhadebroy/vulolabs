@@ -7,7 +7,7 @@ import { MultiCheckboxInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
-import { CATEGORY_LABELS, TRIGGER_TYPE_LABELS, describeAutomationActions } from './automationLabels';
+import { CATEGORY_LABELS, TRIGGER_TYPE_LABELS, describeAutomationActions } from './automationsLabels';
 
 export interface AutomationRow extends TableRow {
 	id: number;

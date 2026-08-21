@@ -128,7 +128,7 @@ const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
 	conversation: 0,
 	scan: 0,
 	change: 0,
-	automation: 0,
+	automations: 0,
 };
 
 interface HistoryTabProps {
@@ -435,7 +435,7 @@ const HistoryTab = ({
 										'No conversations yet',
 										'vulopilot'
 									)
-								: 'automation' === activeFilter
+								: 'automations' === activeFilter
 									? __(
 											'No automation history yet',
 											'vulopilot'
@@ -448,7 +448,7 @@ const HistoryTab = ({
 										"AI chat isn't connected yet — once it is, your conversations will show up here.",
 										'vulopilot'
 									)
-								: 'automation' === activeFilter
+								: 'automations' === activeFilter
 									? __(
 											"No automation has run yet — automated workflows will show up here once they do.",
 											'vulopilot'
