@@ -960,6 +960,41 @@ CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_store_trends_snapshots` (
 - Written by `WooCommerceIntelligence\StoreTrendsSnapshotBuilder` (Pro), its own daily wp-cron tick
   — not scan-driven, since a store's revenue isn't scanner-derived the way a finding count is.
 
+## 25. `vulopilot_ai_conversations` — AI Copilot's own persisted chat threads
+
+Added alongside RecentConversationsCard.tsx's "click to load full history" feature. Deliberately
+**not** a reuse of `vulopilot_ai_history` (table #7 above) — that table is a permanent,
+excerpt-only audit trail of individual AI calls by design, never grouped into threads and never
+storing full text; this table exists specifically to hold the full, untruncated conversation a
+real reload needs.
+
+```sql
+CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}vulopilot_ai_conversations` (
+    `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `user_id`    bigint(20) unsigned NOT NULL,
+    `title`      varchar(255) NOT NULL,
+    `turns`      longtext NOT NULL,
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_updated_at` (`updated_at`)
+) $collate;
+```
+
+- `title` is set once, from the conversation's own first user message (truncated) — cheap to read
+  for the "Recent conversations" list without decoding every row's full `turns` blob.
+- `turns` is `longtext`, `wp_json_encode()`d/`json_decode()`d in `Repositories\AiConversationRepository`
+  — same convention table #13's own `input`/`output`/`preview` columns already use for structured
+  data (per this file's own "`longtext` for JSON payloads" design principle above; no native MySQL
+  JSON column type is used anywhere in this codebase).
+- `user_id` scopes each conversation to the admin who had it — every read/append
+  (`AiConversationRepository::find_full()`/`append_turns()`) is ownership-checked against it, since
+  `manage_options` alone doesn't imply one admin should silently read or append to another's thread.
+- Written by `Controllers\Copilot.php`'s own `POST /copilot/chat` (`persist_conversation()`), in
+  addition to — not instead of — the automatic `vulopilot_ai_history` write every real call already
+  gets.
+
 ---
 
 ## Settings — deliberately **not** a new table

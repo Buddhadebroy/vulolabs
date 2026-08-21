@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { __ } from '@wordpress/i18n';
-import { getApiLink } from '@zyra/core';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 
 /** A real, clickable edit link for content the AI just created and saved — see CopilotChatResponse's own docblock. */
@@ -59,6 +59,23 @@ interface CopilotChatResponse {
 	run_id: number | null;
 	provider: string;
 	model: string;
+	/** The real `vulopilot_ai_conversations.id` this turn was just saved under (Copilot.php's own persist_conversation()) — new on the first turn of a session, unchanged on every following turn in the same session. */
+	conversation_id: number;
+}
+
+/** One turn as `GET /copilot/conversations/{id}` returns it — see CopilotChatTurn's own docblock for the client-side shape this maps onto. */
+interface StoredConversationTurn {
+	role: 'user' | 'assistant';
+	content: string;
+	link?: CopilotChatLink | null;
+	run_id?: number | null;
+	attachments?: CopilotAttachment[];
+}
+
+interface StoredConversation {
+	id: number;
+	title: string;
+	turns: StoredConversationTurn[];
 }
 
 /**
@@ -76,17 +93,20 @@ interface WpRestErrorBody {
 
 /**
  * `POST /copilot/chat` (classes/RestAPI/Controllers/Copilot.php) — the one
- * real chat backend shared by AI Copilot's Chat tab (ChatTab.tsx) and Grow
- * My Traffic's "How would you like to grow today?" composer
+ * real chat backend shared by AI Copilot's Chat tab (ChatTab.tsx) and SEO
+ * & Visibility's "How would you like to grow today?" composer
  * (GEO/OverviewTab.tsx), both of which previously showed the identical
- * disabled "AI chat replies aren't available yet" composer. Deliberately
- * stateless server-side: the running conversation (`turns`) is kept here,
- * client-side, and sent back as `history` on every call — every real call
- * is still recorded to `vulopilot_ai_history` server-side regardless,
- * including a genuine `response_excerpt` of what the AI actually replied
- * (UsageTrackingProvider::record_success()), which is what lets
- * RecentConversationsCard.tsx show real recent activity even though this
- * hook's own `turns` state (the full back-and-forth) is lost on refresh.
+ * disabled "AI chat replies aren't available yet" composer. The running
+ * conversation (`turns`) is still kept here, client-side, and sent back as
+ * `history` on every call — but every real call now also really persists
+ * to `vulopilot_ai_conversations` server-side (Copilot.php's own
+ * persist_conversation()), keyed by `conversationId` below, which is what
+ * lets loadConversation() reload a real, full past thread (not just an
+ * excerpt) after a refresh or a brand-new session. Every real call is
+ * *separately* still recorded to `vulopilot_ai_history` too, unchanged —
+ * that table stays a permanent, excerpt-only audit trail
+ * (UsageTrackingProvider::record_success()), not the source this hook
+ * reloads from.
  *
  * A message like "write a blog about X" now really creates and saves a
  * WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off,
@@ -101,6 +121,9 @@ interface WpRestErrorBody {
 export const useCopilotChat = ( noticeKey: string ) => {
 	const [ turns, setTurns ] = useState< CopilotChatTurn[] >( [] );
 	const [ isSending, setIsSending ] = useState( false );
+	/** The real `vulopilot_ai_conversations.id` this session is saving to — null until the first successful reply of a fresh conversation, or until loadConversation() below hydrates it from a past one. */
+	const [ conversationId, setConversationId ] = useState< number | null >( null );
+	const [ isLoadingConversation, setIsLoadingConversation ] = useState( false );
 
 	const send = (
 		message: string,
@@ -131,6 +154,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 				{
 					message: trimmed,
 					history,
+					conversation_id: conversationId,
 					context_refs: contextRefs.map( ( ref ) =>
 						'finding_group' === ref.type
 							? { type: ref.type, scanner_id: ref.scannerId }
@@ -152,6 +176,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 						runId: response.data.run_id,
 					},
 				] );
+				setConversationId( response.data.conversation_id );
 			} )
 			.catch( ( error ) => {
 				NoticeManager.add( {
@@ -185,5 +210,47 @@ export const useCopilotChat = ( noticeKey: string ) => {
 		);
 	};
 
-	return { turns, isSending, send, markTurnUndone };
+	/**
+	 * Loads a real, past conversation's full turns back into this composer
+	 * (`GET /copilot/conversations/{id}`, Copilot.php's own get_conversation())
+	 * — RecentConversationsCard.tsx's "click to load full history" feature.
+	 * Replaces `turns` entirely and adopts `id` as the active
+	 * `conversationId`, so sending a new message afterward appends to this
+	 * same thread server-side instead of starting a new one.
+	 */
+	const loadConversation = ( id: number ) => {
+		setIsLoadingConversation( true );
+
+		getApiResponse< StoredConversation >(
+			getApiLink( appLocalizer, `copilot/conversations/${ id }` ),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		)
+			.then( ( response ) => {
+				if ( ! response ) {
+					return;
+				}
+
+				setTurns(
+					response.turns.map( ( turn ) => ( {
+						role: turn.role,
+						content: turn.content,
+						link: turn.link ?? null,
+						runId: turn.run_id ?? null,
+						attachments: turn.attachments,
+					} ) )
+				);
+				setConversationId( response.id );
+			} )
+			.finally( () => setIsLoadingConversation( false ) );
+	};
+
+	return {
+		turns,
+		isSending,
+		send,
+		markTurnUndone,
+		loadConversation,
+		isLoadingConversation,
+		conversationId,
+	};
 };

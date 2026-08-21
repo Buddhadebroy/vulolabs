@@ -9,8 +9,9 @@ import { useRunScan } from '../../services/useRunScan';
 import OverviewTab from './OverviewTab';
 import ReportTab from './ReportTab';
 import ActivityTab from './ActivityTab';
+import HistoryTab from './HistoryTab';
 
-const TAB_IDS = ['overview', 'report', 'activity'] as const;
+const TAB_IDS = ['overview', 'report', 'activity', 'history'] as const;
 
 const TAB_META: Record<
 	(typeof TAB_IDS)[number],
@@ -19,11 +20,23 @@ const TAB_META: Record<
 	overview: { headerTitle: __('Overview', 'vulopilot'), headerIcon: 'bar-chart' },
 	report: { headerTitle: __('Report Builder', 'vulopilot'), headerIcon: 'report' },
 	activity: { headerTitle: __('Activity', 'vulopilot'), headerIcon: 'clock' },
+	// Moved here from AI Copilot — a real, day-grouped scan/change/
+	// conversation timeline (HistoryTab.tsx's own docblock), never
+	// specific to that page's own chat surface. Kept as its own tab
+	// alongside Activity rather than merged into it — different source/
+	// shape (GET /history's 3-way scan+change+conversation join vs
+	// Activity's flat GET /activity-logs), per direct instruction.
+	history: { headerTitle: __('History', 'vulopilot'), headerIcon: 'history' },
 };
 
 /**
- * "Reports" — a tab shell. The reference mockup originally showed 3 tabs
- * (Overview/Report Builder/Scheduled Reports); "Scheduled Reports" has
+ * "Reports" — a tab shell. A 4th tab, "History" (HistoryTab.tsx), was
+ * added later — moved here from AI Copilot's own tab shell, which used
+ * to render it alongside Chat; AI Copilot now renders Chat directly
+ * (AIAssistant.tsx), same "drop to one real section, no tab bar" pattern
+ * Commerce.tsx/Security.tsx already established. The reference mockup
+ * originally showed 3 tabs (Overview/Report Builder/Scheduled Reports);
+ * "Scheduled Reports" has
  * since been merged into "Report Builder" per direct instruction (its
  * content — ReportSchedulesSummary.tsx plus the Pro schedule-management
  * panel — now lives inside ReportTab.tsx's own second section; see that
@@ -104,6 +117,8 @@ const Reports = () => {
 				return <ReportTab />;
 			case 'activity':
 				return <ActivityTab />;
+			case 'history':
+				return <HistoryTab />;
 			default:
 				return <div></div>;
 		}

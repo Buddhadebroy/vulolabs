@@ -13,6 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 use VuloPilot\Repositories\FindingRepository;
 use VuloPilot\Repositories\AutomationsRepository;
 use VuloPilot\Repositories\ActionRunRepository;
+use VuloPilot\Repositories\AiConversationRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -142,6 +143,34 @@ class Copilot extends \WP_REST_Controller {
                 ),
             )
         );
+
+        // RecentConversationsCard.tsx's own list of this admin's recent,
+        // real, reloadable conversation threads — see get_conversations().
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/conversations',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_conversations' ),
+                    'permission_callback' => array( $this, 'create_item_permissions_check' ),
+                ),
+            )
+        );
+
+        // useCopilotChat.ts's own loadConversation() — one thread's real,
+        // full, untruncated turns, read back into the composer.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/conversations/(?P<id>\d+)',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_conversation' ),
+                    'permission_callback' => array( $this, 'create_item_permissions_check' ),
+                ),
+            )
+        );
     }
 
     /**
@@ -188,6 +217,9 @@ class Copilot extends \WP_REST_Controller {
                 array( 'status' => 400 )
             );
         }
+
+        $conversation_id_param = $request->get_param( 'conversation_id' );
+        $conversation_id       = $conversation_id_param ? absint( $conversation_id_param ) : null;
 
         $raw_attachments = (array) $request->get_param( 'attachments' );
 
@@ -248,6 +280,18 @@ class Copilot extends \WP_REST_Controller {
                 return $result;
             }
 
+            $conversation_id = $this->persist_conversation(
+                $conversation_id,
+                $message,
+                (array) $request->get_param( 'history' ),
+                array(
+                    'role'    => 'assistant',
+                    'content' => $result['content'] ?? '',
+                    'link'    => $result['link'] ?? null,
+                    'run_id'  => $result['run_id'] ?? null,
+                )
+            );
+
             // provider/model null here, same as ContentAssistant.php's own
             // equivalent response: the AI call that actually generated the
             // saved content happened *inside* the AIAction's own execute()
@@ -255,19 +299,147 @@ class Copilot extends \WP_REST_Controller {
             // decision call — attributing $response's own provider/model to
             // the saved content would be misleading.
             return rest_ensure_response(
-                array_merge( $result, array( 'provider' => null, 'model' => null ) )
+                array_merge(
+                    $result,
+                    array(
+                        'provider'        => null,
+                        'model'           => null,
+                        'conversation_id' => $conversation_id,
+                    )
+                )
             );
         }
 
-        return rest_ensure_response(
+        $conversation_id = $this->persist_conversation(
+            $conversation_id,
+            $message,
+            (array) $request->get_param( 'history' ),
             array(
-                'content'  => $decision['message'],
-                'link'     => null,
-                'run_id'   => null,
-                'provider' => $response->get_provider(),
-                'model'    => $response->get_model(),
+                'role'    => 'assistant',
+                'content' => $decision['message'],
+                'link'    => null,
+                'run_id'  => null,
             )
         );
+
+        return rest_ensure_response(
+            array(
+                'content'         => $decision['message'],
+                'link'            => null,
+                'run_id'          => null,
+                'provider'        => $response->get_provider(),
+                'model'           => $response->get_model(),
+                'conversation_id' => $conversation_id,
+            )
+        );
+    }
+
+    /**
+     * Saves this turn to a real, reloadable conversation thread
+     * (`vulopilot_ai_conversations`) — separate from, and in addition to,
+     * `vulopilot_ai_history`'s own automatic excerpt-only audit-trail write
+     * (UsageTrackingProvider, untouched by this). Starts a new conversation
+     * when `$conversation_id` is null/0 or no longer owned by this user
+     * (e.g. a stale/tampered id), otherwise appends to the existing one.
+     *
+     * @param int|null             $conversation_id Client-supplied existing conversation id, or null for a new one.
+     * @param string               $user_message    This turn's real, full user message — never the context-appended version sent to the AI provider.
+     * @param array<int, mixed>    $client_history   The client's own prior turns, as sent on `history` — only really populated for a conversation started before this feature existed, or a same-request edge case; a fresh conversation's `client_history` is normally empty.
+     * @param array<string, mixed> $assistant_turn   `{role: 'assistant', content, link, run_id}` for this turn's real reply.
+     * @return int The conversation id this turn was saved under.
+     */
+    private function persist_conversation( ?int $conversation_id, string $user_message, array $client_history, array $assistant_turn ): int {
+        $repository = new AiConversationRepository();
+        $user_id    = get_current_user_id();
+
+        $new_turns = array(
+            array(
+                'role'    => 'user',
+                'content' => $user_message,
+            ),
+            $assistant_turn,
+        );
+
+        if ( $conversation_id ) {
+            $existing = $repository->find_full( $conversation_id, $user_id );
+
+            if ( $existing ) {
+                $repository->append_turns( $conversation_id, $user_id, array_merge( $existing['turns'], $new_turns ) );
+
+                return $conversation_id;
+            }
+        }
+
+        return $repository->create( $user_id, $user_message, array_merge( $this->sanitize_client_turns( $client_history ), $new_turns ) );
+    }
+
+    /**
+     * Same shape/sanitization build_messages() already applies to client-
+     * supplied history turns — reused here so a brand-new conversation that
+     * somehow already carries client history (see persist_conversation()'s
+     * own docblock) never persists an unsanitized/malformed entry.
+     *
+     * @param array<int, mixed> $raw_history Client-supplied {role, content} turns.
+     * @return array<int, array{role: string, content: string}>
+     */
+    private function sanitize_client_turns( array $raw_history ): array {
+        $turns = array();
+
+        foreach ( $raw_history as $entry ) {
+            if ( ! is_array( $entry ) || empty( $entry['role'] ) || empty( $entry['content'] ) ) {
+                continue;
+            }
+
+            $turns[] = array(
+                'role'    => 'user' === $entry['role'] ? 'user' : 'assistant',
+                'content' => sanitize_textarea_field( (string) $entry['content'] ),
+            );
+        }
+
+        return $turns;
+    }
+
+    /**
+     * `GET /copilot/conversations` — RecentConversationsCard.tsx's own list
+     * of this admin's most recent real conversation threads.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response
+     */
+    public function get_conversations( $request ) {
+        $per_page = absint( $request->get_param( 'per_page' ) );
+
+        $result = ( new AiConversationRepository() )->get_recent(
+            get_current_user_id(),
+            $per_page > 0 ? $per_page : 5
+        );
+
+        return rest_ensure_response( $result );
+    }
+
+    /**
+     * `GET /copilot/conversations/{id}` — one thread's real, full,
+     * untruncated turns, read back into the composer by useCopilotChat.ts's
+     * own loadConversation().
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function get_conversation( $request ) {
+        $conversation = ( new AiConversationRepository() )->find_full(
+            absint( $request->get_param( 'id' ) ),
+            get_current_user_id()
+        );
+
+        if ( null === $conversation ) {
+            return new \WP_Error(
+                'vulopilot_conversation_not_found',
+                __( 'Conversation not found.', 'vulopilot' ),
+                array( 'status' => 404 )
+            );
+        }
+
+        return rest_ensure_response( $conversation );
     }
 
     /**

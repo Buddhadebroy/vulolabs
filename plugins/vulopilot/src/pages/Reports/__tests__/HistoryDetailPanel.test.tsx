@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { sendApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 import HistoryDetailPanel from '../HistoryDetailPanel';
-import { HistoryRow } from '../historyTypes';
+import { HistoryRow } from '../../AIAssistant/historyTypes';
 
 const SCAN_ROW: HistoryRow = {
 	id: 904,

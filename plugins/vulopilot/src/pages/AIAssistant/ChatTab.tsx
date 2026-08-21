@@ -79,7 +79,7 @@ const contextRefKey = ( ref: CopilotContextRef ): string =>
 
 interface ChatTabProps {
 	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
-	onNavigateTab: (tab: string, filter?: IssuesFilter, selectId?: number) => void;
+	onNavigateTab: (tab: string, filter?: IssuesFilter) => void;
 	message: string;
 	onMessageChange: (message: string) => void;
 	autoApply: boolean;
@@ -106,17 +106,17 @@ interface ChatTabProps {
  * real inline "Undo" (`handleUndo()`, same `POST /ai-action-runs/{id}/rollback`
  * HistoryDetailPanel.tsx's own Undo button already calls) so reverting
  * what was just created doesn't require leaving this tab. Every other kind
- * of request stays advice-only. `turns` itself is kept client-side only
- * (useCopilotChat.ts's own docblock) — there's still no persisted
- * conversation entity to reload past *sessions* from, so a page refresh
- * starts a fresh conversation. "Recent conversations"
- * (RecentConversationsCard.tsx) is a real, adjacent feed of real chat
- * turns only (`GET /history?type=conversation`, `surface`-scoped —
- * historyTypes.ts's own `humanizeConversationExcerpt()` turns each turn's
- * stored orchestrator-JSON reply into human-readable text), not a session
- * list — full past chat *threads* still aren't reloadable, only this
- * activity feed of what was said. The prompt grid still prefills the
- * composer.
+ * of request stays advice-only. A page refresh still starts a fresh, empty
+ * composer (`turns` itself is still client-side-only React state, cleared
+ * on unmount), but every real conversation now really persists server-side
+ * too (`vulopilot_ai_conversations`, Copilot.php's own
+ * persist_conversation()) — "Recent conversations" (RecentConversationsCard.tsx,
+ * `GET /copilot/conversations`) lists the user's own recent real threads,
+ * and clicking one (`handleSelectConversation()` below,
+ * useCopilotChat.ts's own loadConversation()) loads that thread's full,
+ * untruncated turns straight back into this composer, ready to keep
+ * chatting from — not just a read-only excerpt. The prompt grid still
+ * prefills the composer.
  *
  * "Attach" and "Add context" are real: Attach opens zyra's FileInput,
  * which — on this admin screen, now that Admin.php calls
@@ -143,6 +143,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	issuesNavToken,
 }) => {
 	const issuesSectionRef = useRef<HTMLDivElement>(null);
+	const composerRef = useRef<HTMLDivElement>(null);
 	const didMountRef = useRef(false);
 
 	// Scrolls the appended Issues table into view whenever NeedsAttentionCard
@@ -164,10 +165,24 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the token specifically so a same-value issuesFilter update (e.g. "View all issues" when it was already null) still re-triggers the scroll; see AIAssistant.tsx's own docblock on issuesNavToken.
 	}, [issuesNavToken]);
 
-	const { turns, isSending, send, markTurnUndone } = useCopilotChat(
-		'vulopilot-copilot-chat-error'
-	);
+	const { turns, isSending, send, markTurnUndone, loadConversation } =
+		useCopilotChat('vulopilot-copilot-chat-error');
 	const [undoingRunId, setUndoingRunId] = useState<number | null>(null);
+
+	/**
+	 * RecentConversationsCard.tsx's own click-to-load — the card renders
+	 * below the composer on this same tab, so loading a past thread also
+	 * scrolls the composer back into view rather than leaving the user
+	 * looking at the still-visible "Recent conversations" list while the
+	 * turns above it silently change.
+	 */
+	const handleSelectConversation = (id: number) => {
+		loadConversation(id);
+		composerRef.current?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'start',
+		});
+	};
 
 	const [attachments, setAttachments] = useState<CopilotAttachment[]>([]);
 	const [contextRefs, setContextRefs] = useState<CopilotContextRef[]>([]);
@@ -337,7 +352,15 @@ const ChatTab: React.FC<ChatTabProps> = ({
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={8}>
+			<ColumnComponent grid={3}>
+				<RecentConversationsCard
+					onSelectConversation={handleSelectConversation}
+				/>
+			</ColumnComponent>
+
+			<ColumnComponent grid={6}>
+				{/* Scroll target for handleSelectConversation() — loading a past thread from the "Recent conversations" sidebar brings this composer back into view. */}
+				<div ref={composerRef}>
 				<ChatComposerCard<CopilotChatTurn>
 					guarded
 					sendingAvatarIcon="ai"
@@ -658,21 +681,11 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						/>
 					}
 				/>
+				</div>
 			</ColumnComponent>
 
-			<ColumnComponent grid={4}>
+			<ColumnComponent grid={3}>
 				<NeedsAttentionCard onNavigateTab={onNavigateTab} />
-			</ColumnComponent>	
-
-			<ColumnComponent grid={8}>
-				<RecentConversationsCard
-				onNavigateTab={onNavigateTab}
-				onSelectConversation={(id) =>
-					onNavigateTab('history', undefined, id)
-				}
-			/>
-			</ColumnComponent>
-			<ColumnComponent grid={4}>
 				<AutomationTemplatesCard onSelectTemplate={handleSelectAutomationTemplate} />
 			</ColumnComponent>
 
