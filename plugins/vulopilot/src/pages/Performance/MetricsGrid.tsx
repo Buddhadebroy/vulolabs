@@ -5,7 +5,7 @@ import { ButtonInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
-import './ImproveSpeed.scss';
+import './Performance.scss';
 
 interface MetricTileData {
 	id: string;

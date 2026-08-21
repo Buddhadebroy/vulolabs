@@ -30,8 +30,8 @@ class Utill {
         'scan'                       => 'vulopilot_scans',
         'scan_finding'               => 'vulopilot_scan_findings',
         'rule'                       => 'vulopilot_rules',
-        'automation'                 => 'vulopilot_automations',
-        'automation_run'             => 'vulopilot_automation_runs',
+        'automations'                => 'vulopilot_automations',
+        'automations_run'            => 'vulopilot_automations_runs',
         'ai_job'                     => 'vulopilot_ai_jobs',
         'ai_history'                 => 'vulopilot_ai_history',
         'ai_provider_config'         => 'vulopilot_ai_provider_configs',
@@ -69,7 +69,7 @@ class Utill {
         // 'ai_provider_config' above, reused here rather than a new
         // pattern (Repositories\BackupStorageConfigRepository).
         'backup_storage_config'      => 'vulopilot_backup_storage_configs',
-        // Real off-site brand mentions (Grow My Traffic → Brand Visibility's
+        // Real off-site brand mentions (SEO & Visibility → Brand Visibility's
         // former "not connected yet" card) — owned here per this file's own
         // schema-ownership rule even though the fetcher/UI are Pro
         // (vulopilot-pro's BrandIntelligence module), same precedent
@@ -128,13 +128,13 @@ class Utill {
         // shipped a fixed 60-minute rate limit as a pragmatic v1; this
         // makes it a real, per-site setting instead).
         'automation_cooldown_minutes'           => 60,
-        // Read by vulopilot-pro's Automation\AutomationEngine — 0 (the
+        // Read by vulopilot-pro's Automations\AutomationEngine — 0 (the
         // default) means retries are off; an automation run with at least
         // one failed action simply stays 'failed', same as before this
         // setting existed.
         'automation_max_retries'                => 0,
         'automation_retry_delay_minutes'        => 5,
-        // Automate Work's "Automation modes" card — same "setting lives
+        // Automations' "Automation modes" card — same "setting lives
         // here, only meaningfully acted on by vulopilot-pro" split as
         // automation_max_retries above. Read by vulopilot-pro's
         // RunAiActionAction: 'monitor' skips proposing an AI fix entirely
@@ -269,7 +269,7 @@ class Utill {
         // gate/frequency shape as flag_broken_links/
         // broken_link_check_frequency directly above, for `<img src>`
         // instead of `<a href>`. Added so BrokenLinksTab.tsx's own
-        // "Broken images" tile (Grow My Traffic → Broken Links) reflects
+        // "Broken images" tile (SEO & Visibility → Broken Links) reflects
         // a real, second scanner instead of a number this codebase never
         // actually computed.
         'flag_broken_images'                    => array( 'flag_broken_images' ),
@@ -381,7 +381,7 @@ class Utill {
         // llms_txt_content's own comment gives) rather than defaulted here —
         // an empty string means it hasn't been generated yet.
         'indexnow_api_key'                      => '',
-        // "Improve Speed" Overview's PerformanceScoreCard.tsx — a real,
+        // "Performance" Overview's PerformanceScoreCard.tsx — a real,
         // user-supplied Google PageSpeed Insights API key (free tier
         // available). Read by Services\PageSpeedInsightsFetcher; empty
         // means no key configured, so the card falls back to the single

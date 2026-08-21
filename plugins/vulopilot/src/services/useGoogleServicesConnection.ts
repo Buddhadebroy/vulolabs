@@ -33,7 +33,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * GoogleServicesConnection.php's own frontend counterpart, extracted out
  * of GoogleServicesPanel.tsx (Settings → Scanning → Google Services, the
  * full Search Console + Analytics + AdSense picker) so KeywordsTab.tsx's
- * own inline "Connect Google Services" flow (Grow My Traffic → Keywords)
+ * own inline "Connect Google Services" flow (SEO & Visibility → Keywords)
  * can reuse the exact same real handshake — same status shape, same REST
  * routes, same `gsc_status` redirect-flag handling — instead of a second,
  * hand-duplicated copy of this state machine. Neither caller fabricates

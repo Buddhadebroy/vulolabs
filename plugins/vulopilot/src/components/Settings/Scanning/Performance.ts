@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * "Improve Speed" Overview's PerformanceScoreCard.tsx real Mobile/Desktop
+ * "Performance" Overview's PerformanceScoreCard.tsx real Mobile/Desktop
  * speed split — same declarative `{ key, type: 'text', label,
  * settingDescription }` shape InstantIndexing.ts's own `indexnow_api_key`
  * field already uses. Auto-discovered by templateService.ts's
@@ -28,7 +28,7 @@ export default {
 			size: 10,
 			label: __('Google PageSpeed Insights API key', 'vulopilot'),
 			settingDescription: __(
-				'Optional. When set, "Improve Speed" shows a real Mobile/Desktop speed score from Google PageSpeed Insights instead of one unified score. Get a free key from Google Cloud Console (PageSpeed Insights API).',
+				'Optional. When set, "Performance" shows a real Mobile/Desktop speed score from Google PageSpeed Insights instead of one unified score. Get a free key from Google Cloud Console (PageSpeed Insights API).',
 				'vulopilot'
 			),
 		},

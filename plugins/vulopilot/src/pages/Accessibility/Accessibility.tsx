@@ -149,7 +149,7 @@ const AccessibilityHistoryLockedCard = () => {
  * content-quality concepts, not security/protection ones, so bundling
  * them into "Protect My Site" made that page's own architecture harder to
  * read for no real technical reason. Promoted to its own top-level page
- * the same way "Improve Speed"/"Grow My Traffic" already are, rather than
+ * the same way "Performance"/"SEO & Visibility" already are, rather than
  * a togglable Modules-system entry — like those two pages, it's core,
  * always-on functionality, not an optional feature (confirmed: no
  * `modules/Accessibility/Module.php` exists, and none of the other core

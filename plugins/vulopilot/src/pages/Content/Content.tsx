@@ -3,9 +3,9 @@ import { NavigatorHeaderComponent } from '@zyra/components';
 import OverviewTab from './OverviewTab';
 
 /**
- * "Create Content" (WP menu slug `content`) — used to be a tab shell over
+ * "Content" (WP menu slug `content`) — used to be a tab shell over
  * Overview (OverviewTab.tsx), "AI Content" (AiContentTab.tsx, moved here
- * from "Grow My Traffic"), and later a standalone "Content Quality
+ * from "SEO & Visibility"), and later a standalone "Content Quality
  * Issues" card (ContentOpenIssuesCard.tsx) once AI Content was removed.
  * That card's own real data — each post's open content-quality findings,
  * with real Fix with AI/Resolve/Ignore/Review actions — is now shown
@@ -21,7 +21,7 @@ const Content = () => {
 		<>
 			<NavigatorHeaderComponent
 				headerIcon="image"
-				headerTitle={__('Create Content', 'vulopilot')}
+				headerTitle={__('Content', 'vulopilot')}
 				headerDescription={__(
 					'AI-powered tools to help you create, optimize and rank content that drives traffic and engagement.',
 					'vulopilot'

@@ -14,14 +14,14 @@ import SlowPagesTab from './SlowPagesTab';
 const TAB_IDS = ['overview', 'slow-pages'] as const;
 
 /**
- * "Improve Speed" (WP menu slug `performance`) — Overview (OverviewTab.tsx)
+ * "Performance" (WP menu slug `performance`) — Overview (OverviewTab.tsx)
  * and a real "Slow Pages" tab (SlowPagesTab.tsx, a real per-page speed
  * report — Repositories\PageSpeedRepository, populated in the background by
  * Services\PageSpeedScanner). Its former sibling tabs are otherwise gone:
  * the standalone "Performance" tab (PerformanceTab.tsx, now deleted) had its
  * full category-'performance' FindingsTable moved down into Overview itself
  * (`#performance-section-findings`) rather than kept on its own tab;
- * "Redirects & 404s" moved to "Grow My Traffic"
+ * "Redirects & 404s" moved to "SEO & Visibility"
  * (`src/pages/GEO/RedirectsTab.tsx`); "Performance Opportunities"
  * (PerformanceOpportunitiesTab.tsx, removed) surfaced the same
  * PageSpeedRepository::get_top_issues() data Slow Pages' own sidebar
@@ -59,7 +59,7 @@ const Performance = () => {
 		<>
 			<NavigatorHeaderComponent
 				headerIcon="bar-chart"
-				headerTitle={__('Improve Speed', 'vulopilot')}
+				headerTitle={__('Performance', 'vulopilot')}
 				headerDescription={__(
 					'Make your website faster and deliver a better experience to your visitors.',
 					'vulopilot'
@@ -75,7 +75,7 @@ const Performance = () => {
 			/>
 			<ContainerComponent general>
 				<TabsComponent
-					className="improve-speed-tabs"
+					className="performance-tabs"
 					activeIndex={TAB_IDS.indexOf(activeTab)}
 					onTabChange={(index) => {
 						setActiveTab(TAB_IDS[index]);

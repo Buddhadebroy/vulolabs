@@ -145,7 +145,7 @@ const NOT_TRACKED_BADGE = {
  * (`useLastScanTime()`, `GET /scans` scoped to that tile's own scanner
  * group — `SCANNER_IDS_BY_TILE_ID` above) and a real "View" button
  * (`VIEW_TARGET_BY_TILE_ID` above) — same "per-tile View button" pattern
- * Improve Speed's own MetricsGrid.tsx already established.
+ * Performance's own MetricsGrid.tsx already established.
  */
 const SecurityMetricsGrid = ({
 	onViewSection,

@@ -20,8 +20,8 @@ import NeedsAttentionCard, {
 import RecentConversationsCard from './RecentConversationsCard';
 import AiUsageCard from './AiUsageCard';
 import IssuesList from './IssuesList';
-import AutomationTemplatesCard from '../Automation/AutomationTemplatesCard';
-import { AutomationTemplate } from '../Automation/automationTemplates';
+import AutomationTemplatesCard from '../Automations/AutomationsTemplatesCard';
+import { AutomationTemplate } from '../Automations/automationsTemplates';
 import {
 	useCopilotChat,
 	CopilotChatTurn,
@@ -75,7 +75,7 @@ interface AutomationsResponse {
 }
 
 const contextRefKey = ( ref: CopilotContextRef ): string =>
-	'finding_group' === ref.type ? `finding_group:${ ref.scannerId }` : `automation:${ ref.id }`;
+	'finding_group' === ref.type ? `finding_group:${ ref.scannerId }` : `automations:${ ref.id }`;
 
 interface ChatTabProps {
 	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
@@ -321,11 +321,11 @@ const ChatTab: React.FC<ChatTabProps> = ({
 
 	/**
 	 * AutomationTemplatesCard's real home is Automate Work
-	 * (`ManageAutomationsSection.tsx`, via `Automation.tsx`) — this preview
+	 * (`ManageAutomationsSection.tsx`, via `Automations.tsx`) — this preview
 	 * on Chat navigates there rather than trying to open a create form that
 	 * lives in a different top-level page's own React tree, carrying the
 	 * picked template through the `automation_template` URL param.
-	 * `Automation.tsx` reads it on mount and forwards it down so the real
+	 * `Automations.tsx` reads it on mount and forwards it down so the real
 	 * wizard opens already seeded, not a bare redirect to a blank page.
 	 * Automate Work has no `subtab=` of its own since its own redesign
 	 * flattened its previous Overview/Automations two-tab shell into one
@@ -564,7 +564,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 											{(automationOptions ?? []).map(
 												(automation) => {
 													const ref: CopilotContextRef = {
-														type: 'automation',
+														type: 'automations',
 														id: automation.id,
 														name: automation.name,
 													};

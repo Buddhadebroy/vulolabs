@@ -10,7 +10,7 @@ import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
-import './GrowMyTraffic.scss';
+import './SeoVisibility.scss';
 
 interface AiHistoryRow {
 	id: number;

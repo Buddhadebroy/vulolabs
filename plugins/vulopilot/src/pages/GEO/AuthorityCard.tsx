@@ -62,7 +62,7 @@ const AuthorityCard = () => {
 					icon: 'arrow-right',
 					onClick: () => {
 						window.location.href =
-							'?page=vulopilot#&tab=geo&subtab=brand-visibility';
+							'?page=vulopilot#&tab=seo-visibility&subtab=brand-visibility';
 					},
 				}}
 			/>

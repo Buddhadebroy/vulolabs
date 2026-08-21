@@ -207,7 +207,7 @@ class ScannerRegistry {
             // Free bullets) needed no new scanner — see that doc's own
             // audit table for why.
             Basic\ProductSeoScanner::class,
-            // "Sell More" health overview — checkout/payment-gateway,
+            // "Commerce" health overview — checkout/payment-gateway,
             // order-health, and theme-template-compatibility checks, same
             // category 'woocommerce' (gated by the same
             // enable_woocommerce_scanning toggle as every scanner above).
@@ -226,7 +226,7 @@ class ScannerRegistry {
             // one gap none of the checks above cover: whether the
             // homepage itself actually responds at all. Curated into
             // vulopilot-pro's "Website Health — Daily Scan" default
-            // automation (Automation\WebsiteHealthScanScheduler).
+            // automation (Automations\WebsiteHealthScanScheduler).
             Basic\SiteAvailabilityScanner::class,
             // Website Performance (readme) — category 'performance', joins
             // the original PerformanceScanner (autoload bloat).
@@ -234,7 +234,7 @@ class ScannerRegistry {
             Basic\LargeImagesScanner::class,
             Basic\HeavyPluginsScanner::class,
             Basic\CacheDetectionScanner::class,
-            // "Improve Speed" Overview's MetricsGrid tiles — CSS/JavaScript
+            // "Performance" Overview's MetricsGrid tiles — CSS/JavaScript
             // Optimization, Fonts, Lazy Loading, CDN, Database Cleanup.
             Basic\CssOptimizationScanner::class,
             Basic\JavaScriptOptimizationScanner::class,
@@ -302,7 +302,7 @@ class ScannerRegistry {
     /**
      * Every registered scanner except those in the given categories —
      * lets a caller that already covers some categories on their own
-     * (e.g. Automation\Scheduler's global tick deferring to
+     * (e.g. Automations\Scheduler's global tick deferring to
      * SecurityScanScheduler/AccessibilityAuditScheduler's own independent
      * cadence, see that class's own docblock) skip re-running them.
      *

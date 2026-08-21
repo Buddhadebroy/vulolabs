@@ -38,7 +38,7 @@ defined( 'ABSPATH' ) || exit;
  * intelligence — see AiHistoryRepository::CHAT_SURFACES's own docblock).
  *
  * "Automations" stays a real category filter the client always sends but
- * has no backing: `vulopilot_automation_runs` has no writer in this
+ * has no backing: `vulopilot_automations_runs` has no writer in this
  * codebase at all (Automations.php's own `run_item()` is a hard 501) — it
  * honestly returns zero rows rather than fabricating any.
  *
@@ -137,11 +137,11 @@ class History extends \WP_REST_Controller {
         $page         = absint( $request->get_param( 'page' ) );
         $per_page     = absint( $request->get_param( 'per_page' ) );
 
-        // 'automation' is a real filter pill the client always sends, but
+        // 'automations' is a real filter pill the client always sends, but
         // has no backing (see class docblock) — short-circuit to an
         // honest empty page rather than querying for an event_type
         // allow-list that can never match.
-        if ( 'automation' === $category ) {
+        if ( 'automations' === $category ) {
             return rest_ensure_response(
                 array(
                     'data'        => array(),
@@ -215,7 +215,7 @@ class History extends \WP_REST_Controller {
      * into the 2 activity_logs-backed category counts, adds a real
      * conversation count from the separate ai_history source
      * (AiHistoryRepository::get_conversation_count()), and zero-fills
-     * 'automation' — a real pill the client always renders, just always at
+     * 'automations' — a real pill the client always renders, just always at
      * 0 today (see class docblock). 'all' is the real sum of the four —
      * HistoryTab.tsx's own "All" filter pill reads this same object
      * (typeCounts.all), and without this key it silently fell back to its
@@ -224,7 +224,7 @@ class History extends \WP_REST_Controller {
      *
      * @param ActivityLogRepository $repository   Repository to count scan/change from.
      * @param AiHistoryRepository   $history_repo Repository to count conversations from.
-     * @return array{all: int, scan: int, change: int, conversation: int, automation: int}
+     * @return array{all: int, scan: int, change: int, conversation: int, automations: int}
      */
     private function get_type_counts( ActivityLogRepository $repository, AiHistoryRepository $history_repo ): array {
         $raw = $repository->count_by_column( 'event_type' );
@@ -233,7 +233,7 @@ class History extends \WP_REST_Controller {
             'scan'         => 0,
             'change'       => 0,
             'conversation' => $history_repo->get_conversation_count(),
-            'automation'   => 0,
+            'automations'  => 0,
         );
 
         foreach ( self::EVENT_TYPES_BY_CATEGORY as $category => $event_types ) {

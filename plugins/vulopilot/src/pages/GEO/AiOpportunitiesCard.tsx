@@ -4,7 +4,7 @@ import { TooltipComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import OpenIssuesGlimpse from '../../components/OpenIssuesGlimpse';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
-import './GrowMyTraffic.scss';
+import './SeoVisibility.scss';
 
 interface AiOpportunitiesCardProps {
 	onNavigateTab: (tab: 'geo' | 'aeo') => void;

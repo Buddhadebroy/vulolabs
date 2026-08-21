@@ -194,7 +194,7 @@ const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
 const SecurityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
 
-	/** SecurityMetricsGrid's own scanner-backed tiles ("Security Scan"/"SSL") — switches the merged issues table below to that tile's own section and scrolls to it, same "controlled activeTab passed down" shape MetricsGrid.tsx's own View buttons use on Improve Speed. */
+	/** SecurityMetricsGrid's own scanner-backed tiles ("Security Scan"/"SSL") — switches the merged issues table below to that tile's own section and scrolls to it, same "controlled activeTab passed down" shape MetricsGrid.tsx's own View buttons use on Performance. */
 	const goToIssuesTab = (tab: SectionedIssuesTab) => {
 		setActiveTab(tab);
 		setTimeout(

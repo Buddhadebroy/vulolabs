@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, CardComponent, TooltipComponent } from '@zyra/components';
-import './ImproveSpeed.scss';
+import './Performance.scss';
 
 interface RealtimeStats {
 	avg_response_time_ms: number | null;

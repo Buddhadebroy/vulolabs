@@ -1,0 +1,260 @@
+@use '../../components/config' as *;
+
+// .woocommerce-metrics-grid/.woocommerce-metric-tile (WooCommerceMetricsGrid.tsx)
+// and .sell-more-ai-insight/.sell-more-pro-tip (AiInsightBanner.tsx/
+// ProTipBanner.tsx) were removed here — those components only ever
+// rendered on the Overview tab (OverviewTab.tsx), which no longer exists
+// (Commerce now goes straight to the real WooCommerce tab, see
+// Commerce.tsx).
+
+.ai-sales-optimize {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	border-radius: 0.5rem;
+	background: $theme-color;
+	color: $color-white;
+	font-weight: 600;
+	padding: 0.625rem 1rem;
+	margin-top: 0.75rem;
+	cursor: pointer;
+
+	&.disabled {
+		background: $border-color;
+		color: $sub-text-color;
+		cursor: not-allowed;
+	}
+}
+
+// "Commerce" WooCommerce tab's real health-overview section
+// (CommerceTab.tsx) — banner, readiness checklist, category grid,
+// "what to work on first", and the issues table's own tab bar.
+.store-health-banner {
+	display: flex;
+	gap: 1rem;
+	padding: 1.5rem;
+	border-radius: 0.75rem;
+	background: color-mix(in srgb, $theme-color 6%, transparent);
+	border: 1px solid color-mix(in srgb, $theme-color 16%, transparent);
+	margin-bottom: 1rem;
+
+	&.is-healthy {
+		background: color-mix(in srgb, #16a34a 6%, transparent);
+		border-color: color-mix(in srgb, #16a34a 16%, transparent);
+	}
+}
+
+.store-health-banner-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 0.75rem;
+	background: $theme-color;
+	color: $color-white;
+	font-size: 1.375rem;
+}
+
+.store-health-banner-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+}
+
+.store-health-banner-count {
+	color: #dc2626;
+	font-weight: 600;
+	margin-top: 0.25rem;
+}
+
+.store-health-banner.is-healthy .store-health-banner-count {
+	color: #16a34a;
+}
+
+.store-health-banner-desc {
+	color: $sub-text-color;
+	margin-top: 0.375rem;
+	font-size: 0.875rem;
+}
+
+.store-health-banner-actions {
+	display: flex;
+	gap: 0.625rem;
+	margin-top: 1rem;
+}
+
+// "Store Readiness" used to be its own list-styled card here
+// (StoreReadinessCard.tsx, since removed) — it's now the first card
+// inside .woocommerce-category-grid instead, reusing that grid's own
+// .woocommerce-category-row/.value-good/.value-warning styling below
+// rather than needing its own separate rule set.
+
+// `.woocommerce-category-grid`/`.woocommerce-category-card`'s own icon/
+// title/badge/footer-button shell now comes from the shared
+// `<MetricTile variant="woocommerce">` (MetricTile.scss); only this
+// card's own divergent row/highlight body content is still declared
+// locally below.
+
+.woocommerce-category-rows {
+	margin-top: 0.625rem;
+}
+
+.woocommerce-category-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 0.85rem;
+	padding: 0.25rem 0;
+
+	.value-warning {
+		color: #b45309;
+		font-weight: 600;
+	}
+
+	.value-good {
+		color: #16a34a;
+		font-weight: 600;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+}
+
+.woocommerce-category-highlight {
+	color: #dc2626;
+	font-weight: 700;
+	margin-top: 0.5rem;
+}
+
+
+// `.admin-badge`'s own base pill shape comes from zyra at runtime, but its
+// color modifiers don't (same gap CreateContent.scss's own comment
+// documents for `.badge-{severity}`) — every red/orange/green/blue/purple/
+// indigo `admin-badge` in this WooCommerce tab tree (CommerceCategoryGrid,
+// StoreHealthBanner, TopIssuesToWorkOn) was rendering untinted before this,
+// so this scopes and declares the color vocabulary once here rather than
+// per file.
+.metric-tile-grid--woocommerce,
+.woocommerce-top-issues,
+.store-health-banner,
+.products-to-look-at {
+	.admin-badge {
+		&.red {
+			color: #dc2626;
+			background: color-mix(in srgb, #dc2626 14%, transparent);
+		}
+
+		&.orange {
+			color: #b45309;
+			background: color-mix(in srgb, #b45309 14%, transparent);
+		}
+
+		&.green {
+			color: #16a34a;
+			background: color-mix(in srgb, #16a34a 14%, transparent);
+		}
+
+		&.blue {
+			color: #2563eb;
+			background: color-mix(in srgb, #2563eb 14%, transparent);
+		}
+
+		&.purple {
+			color: #7c3aed;
+			background: color-mix(in srgb, #7c3aed 14%, transparent);
+		}
+
+		&.indigo {
+			color: #4f46e5;
+			background: color-mix(in srgb, #4f46e5 14%, transparent);
+		}
+	}
+}
+
+// "VuloPilot noticed" row list (StoreIntelligenceSummaryCard.tsx's
+// active-data state) — a real Zyra `<ListComponent className="mini-card
+// report">` (row layout/divider all come from zyra itself; same
+// "mini-card report" shape TopIssuesToWorkOn.tsx's own issue list and
+// NeedsAttentionWidget.tsx's own Quick fixes/Open issues lists already
+// use). Each row's trailing action is a `ButtonInput` (`color:
+// 'text-purple'`) in the `tags` slot, not zyra's own `.read-more` span
+// style anymore. The one thing left to declare locally is each row's
+// own icon tint — `Item.className: 'is-{color}'` below, since ListComponent
+// has no built-in per-row icon color of its own.
+.store-intelligence-summary-card .item-list {
+	.item.is-orange .item-icon {
+		color: #ea580c;
+	}
+
+	.item.is-green .item-icon {
+		color: #16a34a;
+	}
+
+	.item.is-red .item-icon {
+		color: #dc2626;
+	}
+
+	.item.is-blue .item-icon {
+		color: #2563eb;
+	}
+}
+
+// "Products to look at" (ProductsToLookAtCard.tsx) — one real example
+// product per risk category, now a real Zyra `<ListComponent
+// className="mini-card report">` (same shape the "VuloPilot noticed" list
+// above uses) rather than bespoke row markup; a colored status pill
+// (`.admin-badge`, color vocabulary declared above) and a per-row "View
+// product →" `<ButtonInput>` sit in each row's own `tags`. Only each row's
+// icon chip tone (light/grey/dark, matching this card's own mockup) is
+// still declared locally — same `Item.className: 'is-{tone}'` convention
+// the "VuloPilot noticed" list above uses for its own per-row icon color,
+// just with a background chip here instead of a plain tinted glyph.
+.products-to-look-at .item-list {
+	.item.is-light .item-icon,
+	.item.is-grey .item-icon,
+	.item.is-dark .item-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 0.5rem;
+	}
+
+	.item.is-light .item-icon {
+		background: color-mix(in srgb, $theme-color 12%, transparent);
+		color: $theme-color;
+	}
+
+	.item.is-grey .item-icon {
+		background: $border-color;
+		color: $sub-text-color;
+	}
+
+	.item.is-dark .item-icon {
+		background: #111827;
+		color: $color-white;
+	}
+}
+
+.woocommerce-issues-table {
+	margin-top: 1.5rem;
+}
+
+.woocommerce-issues-table-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+}
+
+.woocommerce-issues-table-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}

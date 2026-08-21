@@ -30,7 +30,7 @@ interface AttentionSummary {
 /**
  * Real category strings (Scanners/*::get_category()) mapped to the
  * mockup's friendlier display groupings — 'seo'/'images'/'schema'/'links'
- * all fold into "Visibility" the same way GEO.tsx's own "Grow My Traffic"
+ * all fold into "Visibility" the same way GEO.tsx's own "SEO & Visibility"
  * tab already treats them as one visibility-adjacent surface, rather than
  * inventing 4 separate display buckets for what the rest of the plugin
  * already treats as one concern. `className` reuses AICopilot.scss's

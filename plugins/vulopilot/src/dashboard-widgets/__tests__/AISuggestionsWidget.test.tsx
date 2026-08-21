@@ -73,10 +73,10 @@ describe( 'AISuggestionsWidget', () => {
 
 		// Regression: this used to send 'seo'-category findings to
 		// '?tab=seo', a route that doesn't exist (routes.ts has no 'seo'
-		// tab — SeoTab.tsx only exists as a subtab of GEO). The real
-		// route for 'seo' findings is GEO's own SEO subtab.
+		// tab — SeoTab.tsx only exists as a subtab of SEO & Visibility).
+		// The real route for 'seo' findings is that page's own SEO subtab.
 		expect( window.location.href ).toBe(
-			'?page=vulopilot#&tab=geo&subtab=seo'
+			'?page=vulopilot#&tab=seo-visibility&subtab=seo'
 		);
 	} );
 

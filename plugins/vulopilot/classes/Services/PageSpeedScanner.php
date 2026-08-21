@@ -13,7 +13,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real per-page speed checks for "Improve Speed" › Slow Pages. Enumerates
+ * Real per-page speed checks for "Performance" › Slow Pages. Enumerates
  * real WP content — the front page, published pages, recent posts, and (if
  * WooCommerce is active) the real shop/cart/checkout pages plus recent
  * products and product categories — then times each one for real via

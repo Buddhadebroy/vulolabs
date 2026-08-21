@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
 import { NoticeComponent, SectionComponent } from '@zyra/components';
-import '../GrowMyTraffic.scss';
+import '../SeoVisibility.scss';
 import BusinessUnderstandingCard from './BusinessUnderstandingCard';
 import KnowledgeGraphSection from './KnowledgeGraphSection';
 import WhatNeedsFixingCard from './WhatNeedsFixingCard';
@@ -21,7 +21,7 @@ interface SchemaKnowledgeTabProps {
 }
 
 /**
- * "Business Identity & Schema" tab of "Grow My Traffic" (renamed from
+ * "Business Identity & Schema" tab of "SEO & Visibility" (renamed from
  * "Schema & Knowledge" — direct instruction, rebuilt to match a newer
  * reference mockup's own information architecture). Every section here
  * still renders on one continuous scrolling page under its own anchored

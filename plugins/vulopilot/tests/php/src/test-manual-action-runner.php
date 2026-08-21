@@ -7,11 +7,11 @@
 
 namespace VuloPilot\Tests;
 
-use VuloPilot\Automation\ActionRegistry;
-use VuloPilot\Automation\ManualActionRunner;
-use VuloPilot\Contracts\Automation\ActionInterface;
+use VuloPilot\Automations\ActionRegistry;
+use VuloPilot\Automations\ManualActionRunner;
+use VuloPilot\Contracts\Automations\ActionInterface;
 use VuloPilot\Repositories\FindingRepository;
-use VuloPilot\ValueObjects\AutomationRunResult;
+use VuloPilot\ValueObjects\AutomationsRunResult;
 use VuloPilot\ValueObjects\Recommendation;
 
 require_once __DIR__ . '/TestCase.php';
@@ -44,7 +44,7 @@ class TestManualActionRunner extends TestCase {
         $findings = \Mockery::mock( FindingRepository::class );
         $findings->shouldReceive( 'find' )->once()->with( 7 )->andReturn( $finding_row );
 
-        $expected_result = new AutomationRunResult( true, 'snooze-finding', 'Finding #7 snoozed.' );
+        $expected_result = new AutomationsRunResult( true, 'snooze-finding', 'Finding #7 snoozed.' );
 
         $action = \Mockery::mock( ActionInterface::class );
         $action->shouldReceive( 'execute' )->once()->with(

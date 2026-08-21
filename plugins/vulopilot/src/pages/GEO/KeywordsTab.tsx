@@ -15,7 +15,7 @@ import {
 	GoogleServicesStatus,
 } from '../../services/useGoogleServicesConnection';
 import { formatWpDate } from '../../services/formatWpDate';
-import './GrowMyTraffic.scss';
+import './SeoVisibility.scss';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
@@ -31,7 +31,7 @@ const BENEFITS = [
 ];
 
 /**
- * "Keywords" tab of "Grow My Traffic" — previously a single
+ * "Keywords" tab of "SEO & Visibility" — previously a single
  * `ModuleGuardComponent` tucked into the SEO tab's own footer; pulled out
  * into its own top-level tab per direct instruction (see SeoTab.tsx's own
  * docblock).

@@ -4,7 +4,7 @@
  * Whether the real, genuinely free `ai-copilot` module
  * (modules/AiCopilot/Module.php) is currently active — the single master
  * gate every AI-branded surface in this plugin now shares (AI Assistant
- * Chat tab, GEO's "Grow My Traffic" composer, every "Fix with AI"/AI
+ * Chat tab, GEO's "SEO & Visibility" composer, every "Fix with AI"/AI
  * suggestion card). `active_modules` is already localized synchronously at
  * page load (see FrontendScripts.php's own localize_scripts()), so this is
  * a plain read, same shape as GeoTab.tsx's own isGeoInsightsActive() —

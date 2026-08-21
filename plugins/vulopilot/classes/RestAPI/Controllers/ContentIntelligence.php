@@ -84,7 +84,7 @@ class ContentIntelligence extends \WP_REST_Controller {
         // "Content Quality" card (ContentQualityCard.tsx) — real, per-post
         // readability/completeness/structure for one selected piece of
         // content, not a second site-wide score competing with `/score`
-        // above or Grow My Traffic's own SEO Score.
+        // above or SEO & Visibility's own SEO Score.
         register_rest_route(
             VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/quality',
@@ -170,7 +170,7 @@ class ContentIntelligence extends \WP_REST_Controller {
      * signals for exactly one real, already-saved post/page, per direct
      * instruction: "Content Score" used to recompute the same
      * weighted-severity formula site-wide (`get_score()` above), heavily
-     * overlapping Grow My Traffic's own SEO Score (5 of 6 shared scanner
+     * overlapping SEO & Visibility's own SEO Score (5 of 6 shared scanner
      * ids) and inviting "why is my Content Score 87 but SEO Score 67?"
      * confusion. This route instead answers "how good is THIS piece of
      * content" for whichever post the caller picks — no aggregate number

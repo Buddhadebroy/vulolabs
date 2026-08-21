@@ -1,0 +1,1783 @@
+@use '../../components/config' as *;
+
+.visibility-score-aeo-note {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	margin: 0.75rem 0 0;
+}
+
+.chat-monitoring-note {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	color: $theme-color;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	margin: 1rem 0 0;
+}
+
+// OverviewTab.tsx's "Thinking…" bubble, shown while a real POST
+// /copilot/chat request is in flight.
+.chat-thinking-spinner {
+	display: inline-block;
+	animation: chat-thinking-spin 1s linear infinite;
+}
+
+@keyframes chat-thinking-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.ai-opportunities-fix-all,
+.ai-recommendations-optimize {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	border-radius: 0.5rem;
+	background: $theme-color;
+	color: $color-white;
+	font-weight: 600;
+	padding: 0.625rem 1rem;
+	margin-top: 0.75rem;
+	cursor: pointer;
+
+	&.disabled {
+		background: $border-color;
+		color: $sub-text-color;
+		cursor: not-allowed;
+	}
+}
+
+.ai-recommendations-review {
+	display: block;
+	text-align: center;
+	margin-top: 0.625rem;
+}
+
+.ai-recommendations-win-time {
+	color: $sub-text-color;
+	font-size: 0.70625rem;
+	white-space: nowrap;
+}
+
+// GeoTab.tsx's own two static explanatory banners, plus every other
+// "In plain English:"/AEO/AI-account-data disclosure banner across GEO
+// (SeoTab.tsx, AeoTab.tsx, KeywordsTab.tsx, BrandVisibilityTab.tsx,
+// GoogleServicesPanel.tsx) — all now render through zyra's own
+// NoticeComponent (`type="banner"` + `displayPosition="inline"`,
+// NoticeComponent.scss's own `.type-banner`/`.display-inline` rules), so no
+// local styling is needed here anymore.
+
+// GeoVisibilityOverviewRow.tsx's "Overall AI Visibility" card (also reused,
+// same class, by SeoTab.tsx's "SEO Score" and AeoTab.tsx's "AEO Score").
+.geo-overall-visibility {
+	display: flex;
+	align-items: center;
+	gap: 1.25rem;
+	flex-wrap: wrap;
+
+	// zyra ChartComponent's own pie legend always renders each slice's raw
+	// value under the donut (e.g. "45  55") regardless of `centerLabel` —
+	// genuine duplicate data next to the real score this component's own
+	// `centerLabel` already shows front and center (direct instruction:
+	// "duplicate data show in the section"). Hidden here — not patched in
+	// zyra itself, a separate external package — for every real score-ring
+	// gauge that uses this same wrapper class. `!important` for the same
+	// reason ProtectMySite.scss's own identical rule already documents:
+	// zyra's own base `.zyra-chart-pie-legend` rule is injected into a
+	// runtime `<style>` tag (styleInject), landing later in the cascade
+	// than any statically-compiled CSS at equal specificity, so it wins on
+	// source order alone without this.
+	.zyra-chart-pie-legend {
+		display: none !important;
+	}
+}
+
+.geo-overall-visibility-meta {
+	flex: 1;
+	min-width: 12rem;
+}
+
+.geo-overall-visibility-delta {
+	margin: 0 0 0.375rem;
+	font-weight: 600;
+	font-size: 0.8125rem;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #dc2626;
+	}
+}
+
+.geo-overall-visibility-desc {
+	margin: 0;
+	color: $sub-text-color;
+	font-size: 0.8125rem;
+}
+
+.geo-overall-rating {
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #f97316;
+	}
+
+	&.is-poor {
+		color: #dc2626;
+	}
+}
+
+// GeoVisibilityOverviewRow.tsx's "The 4 things AI checks for" card — a real
+// Zyra `<AnalyticsComponent>` (`.analytics-container`/`.analytics-item`
+// supply the tile chrome) instead of the hand-rolled tile markup this used
+// to be, same `.analytics-item.is-*` `colorClass` conversion SeoTab.tsx's
+// own "SEO checks at a glance" tiles and Security/ProtectMySite.scss's
+// `.vulnerability-hero-stats` already use.
+.geo-four-checks-analytics {
+	.analytics-container {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.75rem;
+	}
+
+	.analytics-item {
+		&.is-good {
+			border-color: #bbf7d0;
+			background: #f0fdf4;
+
+			.number {
+				color: #16a34a;
+			}
+		}
+
+		&.is-attention {
+			border-color: #fde68a;
+			background: #fffbeb;
+
+			.number {
+				color: #b45309;
+			}
+		}
+
+		&.is-poor {
+			border-color: #fecaca;
+			background: #fef2f2;
+
+			.number {
+				color: #dc2626;
+			}
+		}
+	}
+}
+
+// BrandScoreCard.tsx's own 4 score-rating pills — still the plain
+// `<BadgeComponent>` shape, not an AnalyticsComponent tile.
+.geo-four-checks-badge {
+	&.is-good {
+		background: #dcfce7;
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		background: #fef3c7;
+		color: #b45309;
+	}
+
+	&.is-poor {
+		background: #fee2e2;
+		color: #dc2626;
+	}
+}
+
+// GeoFixTheseFirstCard.tsx. zyra's own ListComponent positions its
+// `.tags` badge absolutely, sized for the single-line title it's normally
+// paired with (OpenIssuesGlimpse.tsx's own usage never passes `desc`) —
+// this card's own real per-finding description is genuinely 2-3 lines
+// long, which pushed the row taller than the badge's fixed offset
+// expects and overlapped it. Clamped to one line + ellipsis rather than
+// dropped outright, so the real text is still there (title attribute)
+// without fighting zyra's own absolute positioning.
+.geo-fix-first-list .desc {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 32rem;
+}
+
+.geo-fix-first-copilot-banner {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.875rem;
+	padding: 0.625rem 0.75rem;
+	border-radius: 0.5rem;
+	background: #f3effc;
+	color: $theme-color;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	text-decoration: none;
+}
+
+// TopPagesCard.tsx's restyled two-column list icons.
+.geo-top-pages__list .title {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+
+	i.adminfont-check {
+		color: #16a34a;
+	}
+
+	i.adminfont-error {
+		color: #dc2626;
+	}
+}
+
+// GeoTrendCompactCard.tsx.
+.geo-trend-sparkline {
+	margin-bottom: 0.75rem;
+}
+
+.geo-trend-stats {
+	display: flex;
+	justify-content: space-between;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.geo-trend-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.geo-trend-stat-value {
+	font-size: 1.0625rem;
+	font-weight: 700;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #dc2626;
+	}
+}
+
+.geo-trend-stat-label {
+	font-size: 0.75rem;
+	color: $sub-text-color;
+}
+
+// CompetitorVisibilityCard.tsx (Pro, GeoInsights) — its own bundle has no
+// SCSS of its own, so it renders inside this page sharing this
+// stylesheet, same "Pro has no SCSS of its own" pattern established for
+// Automation's own Pro form classes.
+.geo-competitor-bars {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	margin-bottom: 1rem;
+}
+
+.geo-competitor-bar-row {
+	display: grid;
+	grid-template-columns: 8rem 1fr 3.5rem;
+	align-items: center;
+	gap: 0.625rem;
+}
+
+.geo-competitor-bar-label {
+	font-size: 0.8125rem;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.geo-competitor-bar-row.is-you .geo-competitor-bar-label {
+	color: $theme-color;
+	font-weight: 700;
+}
+
+.geo-competitor-bar-track {
+	height: 0.5rem;
+	border-radius: 0.25rem;
+	background: $border-color;
+	overflow: hidden;
+}
+
+.geo-competitor-bar-fill {
+	height: 100%;
+	border-radius: 0.25rem;
+	background: $theme-color;
+}
+
+.geo-competitor-bar-row.is-you .geo-competitor-bar-fill {
+	background: #16a34a;
+}
+
+.geo-competitor-bar-score {
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-align: right;
+}
+
+// GeoByTopicGrid.tsx.
+.geo-by-topic-section {
+	// This tab's content area is a flex row (zyra's own tab-content
+	// wrapper) — without an explicit full-bleed width, a bare block like
+	// this one shrinks to fit its own (narrow) tile content instead of
+	// claiming the row, and packs side-by-side with whatever bare block
+	// happens to follow it (AeoTab.tsx's own "Need Help Improving?" band
+	// is the first sibling that ever exposed this, since every other
+	// section on this tab is already a CardComponent/ColumnComponent,
+	// both of which already carry their own full-width rule).
+	width: 100%;
+	margin: 1.5rem 0;
+}
+
+.geo-by-topic-desc {
+	margin: 0 0 0.875rem;
+	color: $sub-text-color;
+	font-size: 0.8125rem;
+}
+
+.geo-by-topic-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+	gap: 0.875rem;
+}
+
+.geo-by-topic-tile {
+	.card-content {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+}
+
+.geo-by-topic-tile-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	i {
+		font-size: 1.25rem;
+		color: $theme-color;
+	}
+}
+
+.geo-by-topic-tile-title {
+	margin: 0;
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+.geo-by-topic-tile-sublabel {
+	margin: 0;
+	color: $sub-text-color;
+	font-size: 0.75rem;
+}
+
+// Two-stat tile layout (real "Open issues" + real distinct "Affected
+// pages") — GeoByTopicGrid.tsx's own `affectedPagesByScanner` prop, wired
+// up by GeoTab.tsx (useGeoTopicAffectedPages.ts). Falls back to the single
+// `.geo-by-topic-tile-sublabel` line above when that prop isn't passed.
+.geo-by-topic-tile-stats {
+	display: flex;
+	gap: 1rem;
+}
+
+.geo-by-topic-tile-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.geo-by-topic-tile-stat-label {
+	color: var(--sub-text-color);
+	font-size: 0.6875rem;
+}
+
+.geo-by-topic-tile-stat-value {
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+.geo-page-visibility-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: 8rem;
+}
+
+.geo-page-visibility-track {
+	flex: 1;
+	height: 0.5rem;
+	border-radius: 0.25rem;
+	background: $border-color;
+	overflow: hidden;
+}
+
+.geo-page-visibility-fill {
+	height: 100%;
+	border-radius: 0.25rem;
+}
+
+.geo-page-visibility-bar.is-good .geo-page-visibility-fill {
+	background: #16a34a;
+}
+
+.geo-page-visibility-bar.is-attention .geo-page-visibility-fill {
+	background: #f97316;
+}
+
+.geo-page-visibility-bar.is-poor .geo-page-visibility-fill {
+	background: #dc2626;
+}
+
+.geo-page-visibility-value {
+	font-size: 0.75rem;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.geo-page-visibility-empty {
+	color: $sub-text-color;
+}
+
+// KnowledgeGraphTab.tsx's "Your website at a glance" stat row.
+.kg-glance-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+	gap: 1rem;
+}
+
+.kg-glance-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+}
+
+.kg-glance-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.5rem;
+	background: #f3effc;
+	color: $theme-color;
+	flex-shrink: 0;
+
+	i {
+		font-size: 1rem;
+	}
+}
+
+.kg-glance-label {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	margin-bottom: 0.125rem;
+}
+
+.kg-glance-value {
+	font-weight: 600;
+	font-size: 1.0625rem;
+}
+
+// BusinessUnderstandingCard.tsx's own 4 featured tiles — real found/missing
+// state reuses the same is-good/is-attention color language every other
+// rating badge on this tab shell already uses (GeoTab.tsx's own
+// ratingClass(), etc.).
+.kg-glance-icon.is-good {
+	background: #dcfce7;
+	color: #16a34a;
+}
+
+.kg-glance-icon.is-attention {
+	background: #fef3c7;
+	color: #b45309;
+}
+
+.kg-glance-status {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #b45309;
+	}
+
+	i {
+		font-size: 0.75rem;
+	}
+}
+
+// KnowledgeGraphSection.tsx's own "What AI & Search Understand" card —
+// real entity-type count list beside vulopilot-pro's real relationship
+// diagram.
+.kg-understand-grid {
+	display: grid;
+	grid-template-columns: minmax(11rem, 1fr) 2fr;
+	gap: 1.5rem;
+	align-items: start;
+}
+
+.kg-understand-count-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+}
+
+.kg-understand-count-row {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	font-size: 0.8125rem;
+
+	i {
+		color: var(--color-primary);
+		font-size: 0.9375rem;
+		width: 1.125rem;
+		text-align: center;
+	}
+}
+
+.kg-understand-count-label {
+	flex: 1;
+}
+
+.kg-understand-count-value {
+	font-weight: 600;
+}
+
+.kg-understand-graph {
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	padding: 0.5rem;
+}
+
+// BusinessUnderstandingCard.tsx — real score gauge + a real pill badge
+// underneath it (separate from the ring's own center label, matching the
+// reference mockup's own "ring, then a standalone Good/Needs Work/Poor
+// pill below it" layout).
+.business-score-gauge {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 0.625rem;
+}
+
+.business-score-badge {
+	display: inline-block;
+	padding: 0.1875rem 0.75rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+
+	&.is-good {
+		background: #dcfce7;
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		background: #fef3c7;
+		color: #b45309;
+	}
+
+	&.is-poor {
+		background: #fee2e2;
+		color: #dc2626;
+	}
+}
+
+.business-score-caption {
+	margin: 0;
+	max-width: 14rem;
+}
+
+// BusinessUnderstandingCard.tsx's own 4 featured tiles — one row, icon on
+// top, label + real found/missing status below, divided by real vertical
+// rules (not a wrapping auto-fit grid) to match the reference mockup's own
+// layout.
+.business-understand-tiles {
+	display: flex;
+	align-items: flex-start;
+}
+
+.business-understand-tile {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 0.5rem;
+	padding: 0 0.75rem;
+	border-left: 1px solid var(--border-color);
+
+	&:first-child {
+		border-left: none;
+		padding-left: 0;
+	}
+}
+
+.business-understand-tile-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.625rem;
+
+	i {
+		font-size: 1.125rem;
+	}
+
+	&.is-good {
+		background: #dcfce7;
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		background: #fef3c7;
+		color: #b45309;
+	}
+}
+
+.business-understand-tile-label {
+	font-size: 0.8125rem;
+	color: var(--sub-text-color);
+}
+
+.business-understand-tile-status {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-weight: 600;
+	font-size: 0.8125rem;
+
+	i {
+		font-size: 0.75rem;
+	}
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #b45309;
+	}
+}
+
+// KnowledgeGraphTab.tsx's 3 featured entity cards.
+// .kg-entity-card {
+// 	height: 100%;
+// }
+
+// Business Locations' own real 0-state (EntityHighlightCard's `emptyState`)
+// — a permanent explainer callout, not a dismissible NoticeComponent (this
+// isn't "something just happened," it's always-true context for as long as
+// no locations are configured).
+.kg-why-it-matters {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+	background: #e8f8ee;
+	border-radius: 0.5rem;
+	padding: 0.875rem 1rem;
+
+	i {
+		color: #16a34a;
+		font-size: 1rem;
+		margin-top: 0.125rem;
+	}
+}
+
+.kg-why-it-matters-title {
+	font-weight: 600;
+	font-size: 0.8125rem;
+	margin-bottom: 0.25rem;
+}
+
+.kg-why-it-matters-desc {
+	font-size: 0.8125rem;
+	color: $sub-text-color;
+}
+
+.kg-entity-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.kg-entity-list-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	font-size: 0.8125rem;
+
+	// The real name/link itself truncates when a row also carries its own
+	// status badge (Categories' own real Good/"Needs cleanup" flag) —
+	// applies to both the plain `<span>` (no real url) and `<a>` (real
+	// term link) cases, since either can be this row's first child.
+	> a,
+	> span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+.kg-entity-view-all {
+	margin-top: 0.5rem;
+}
+
+// KnowledgeGraphTab.tsx's "What should you check?" panel.
+.kg-check-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.kg-check-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-top: $border-light-small;
+
+	&:first-child {
+		border-top: none;
+	}
+}
+
+.kg-check-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 0.5rem;
+	background: #fef3c7;
+	color: #b45309;
+	flex-shrink: 0;
+}
+
+.kg-check-body {
+	flex: 1;
+	min-width: 0;
+}
+
+.kg-check-title {
+	font-weight: 500;
+	font-size: 0.84375rem;
+}
+
+.kg-check-desc {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+}
+
+// WhatNeedsFixingCard.tsx — reuses .kg-check-row/-icon/-body/-desc above
+// as-is; only the title needs its own layout (real label + real severity
+// badge inline) and the "View all" link below needs a little breathing
+// room.
+.kg-fix-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.kg-fix-view-all {
+	margin-top: 0.75rem;
+}
+
+// SeoTab.tsx's "SEO checks at a glance" — 5 real category tiles, now a real
+// Zyra `<AnalyticsComponent>` (`.analytics-container`/`.analytics-item`
+// supply the tile chrome) instead of the hand-rolled tile markup this used
+// to be — same `.analytics-item.is-*` `colorClass` convention as
+// `.geo-four-checks-analytics` above and
+// `.vulnerability-hero-stats`/`.accessibility-hero-stats`
+// (Security/ProtectMySite.scss), just with the tile border/background tint
+// carried over too (not only the number color) to match this tile's own
+// previous look.
+.seo-category-grid {
+	.analytics-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+		gap: 0.75rem;
+	}
+
+	.analytics-item {
+		&.is-good {
+			border-color: #bbf7d0;
+			background: #f0fdf4;
+
+			.number {
+				color: #16a34a;
+			}
+		}
+
+		&.is-attention {
+			border-color: #fde68a;
+			background: #fffbeb;
+
+			.number {
+				color: #b45309;
+			}
+		}
+
+		&.is-poor {
+			border-color: #fecaca;
+			background: #fef2f2;
+
+			.number {
+				color: #dc2626;
+			}
+		}
+	}
+}
+
+// SeoIssuesSection.tsx — wraps the shared filter bar and the two real
+// tables it renders side by side ("Site-wide Issues" +
+// SeoIssuesByPageTable.tsx's page/post-wise table). Filter pills use
+// zyra's real `<TabsComponent>` (`.seo-issues-filter-tabs`) — the same
+// component `SectionedIssuesTable.tsx` migrated to, which ships its own
+// tab-bar/underline/active-state styling via NavigatorComponent.scss
+// (global, not scoped to any one page) — no new pill CSS needed here. The
+// old hand-rolled `.sectioned-issues-tabs`/`.sectioned-issues-tab*` markup
+// this section used before was left unstyled after that CSS was
+// deliberately removed from ProtectMySite.scss for the same reason.
+.seo-issues-section {
+	// This section's own top-level wrapper `<div>` (GeoTab.tsx's
+	// `#geo-all-issues-table`/AeoTab.tsx's `#aeo-all-issues-table`/
+	// SeoTab.tsx's own equivalent) is a plain, unwrapped `<div>` sitting
+	// directly among that tab's other real children inside the page's
+	// outer `ContainerComponent general` — a `display: flex` row
+	// container. Without an explicit flex-basis, a bare block child there
+	// only claims its own content's natural width (the two real tables'
+	// own intrinsic size, ~650px) and leaves the rest of that row empty
+	// instead of filling it — a real, confirmed-live layout bug, not a
+	// design choice (every ColumnComponent-wrapped sibling elsewhere on
+	// these tabs gets this exact same full-row sizing via its own
+	// `[data-cols='12']` class, see ContainerComponent.scss — this section
+	// just never had an equivalent). One fix here covers all three tabs at
+	// once.
+	flex: 1 1 100%;
+	max-width: 100%;
+
+	.seo-issues-filter-tabs {
+		margin-bottom: 1rem;
+	}
+
+	// Real spacing between the two split CardComponents (`.card-content`'s
+	// own bottom margin doesn't apply here — these are direct siblings in
+	// this wrapper `<div>`, not children of a ColumnComponent).
+	.seo-sitewide-issues-card {
+		margin-bottom: 1.5rem;
+	}
+}
+
+.seo-issues-by-page-card {
+	// zyra's own Table.tsx already styles `.admin-row.variation-row`
+	// (transparent background, thin divider) for its native `expandable`
+	// row mechanism — this only adds the muted, slightly denser look that
+	// distinguishes a single finding from a page row.
+	.admin-row.variation-row {
+		background: $theme-background-color !important;
+		font-size: 0.8125rem;
+	}
+
+	// Per direct instruction: no visible chevron — the whole row (title,
+	// status, issue count, date) is the click target instead
+	// (`toggleRowExpansion` in SeoIssuesByPageTable.tsx fires a real click
+	// on this same, now-hidden `<i>` so zyra's own internal expand state
+	// still toggles normally).
+	.header-col.expand,
+	.admin-column.expand {
+		display: none !important;
+	}
+
+	// The merged-in "AI Visibility"/"Answer Readiness" column
+	// (GeoTab.tsx's/AeoTab.tsx's own `pageAnalysis` mode): zyra `Table.tsx`
+	// clips every `<td>` with `overflow: hidden` for its own text-truncation
+	// needs elsewhere in this table, but `.geo-page-visibility-bar`'s own
+	// `min-width` (SeoVisibility.scss, shared with what used to be
+	// `GeoPageAnalysisTable.tsx`'s own copy) can end up a few px wider than
+	// this table's auto-sized column — confirmed live, clipping the "N%"
+	// label into the next column instead of just tightening the bar. This
+	// one cell needs to stay visible instead.
+	td:has(.geo-page-visibility-bar) {
+		overflow: visible;
+	}
+}
+
+.seo-issues-row-expand-trigger {
+	cursor: pointer;
+}
+
+// BrokenLinksTab.tsx's own page-grouped table. Unlike
+// .seo-issues-by-page-card above, the chevron here stays visible
+// (matches the reference mockup's own caret) — .broken-link-row-expand-trigger
+// below just gives the Status badge/"N broken" count two extra, larger
+// click targets that fire a real click on that same chevron
+// (toggleRowExpansion, BrokenLinksTab.tsx), since a single small icon
+// was easy to miss ("I can't see the findings inside each page" — the
+// rows WERE expandable, just not obviously so).
+.broken-link-monitoring-table {
+	.admin-row.variation-row {
+		background: $theme-background-color !important;
+		font-size: 0.8125rem;
+	}
+
+	// zyra's own Table.tsx renders this chevron with no size/spacing of
+	// its own (no rule for it anywhere in that package's Table.scss) — a
+	// few extra px and a pointer cursor make it an obvious, easy-to-hit
+	// click target instead of a barely-visible glyph.
+	.admin-column.expand i {
+		font-size: 1.125rem;
+		cursor: pointer;
+		padding: 0.25rem;
+	}
+}
+
+.broken-link-row-expand-trigger {
+	cursor: pointer;
+}
+
+// A page-group row can carry several distinct finding statuses (e.g. one
+// child link times out on DNS, another comes back HTTP 503) — rendered as
+// one badge per distinct status (BrokenLinksTab.tsx's own distinctStatusKeys)
+// rather than collapsing to a single "worst" one, so this just keeps them
+// from crowding into each other inside the Status column.
+.broken-link-status-badges {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+}
+
+// Sub-row rendered inline (via zyra TableCard's `expandable`/`variation`
+// mechanism) for a single finding beneath its page's row — a real table
+// row, not a popover.
+.seo-issues-finding-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: $sub-text-color;
+}
+
+.seo-issues-finding-arrow {
+	color: $border-color;
+	font-weight: 600;
+}
+
+.seo-issues-finding-scanner {
+	display: inline-block;
+	font-size: 0.75rem;
+	color: $sub-text-color;
+	background: $theme-background-color;
+	border-radius: 0.25rem;
+	padding: 0.125rem 0.5rem;
+}
+
+// CrawlerAnalyticsSection.tsx.
+.crawler-stat-value {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin-bottom: 0.25rem;
+}
+
+.crawler-change {
+	font-size: 0.75rem;
+	font-weight: 600;
+
+	&.is-up {
+		color: #16a34a;
+	}
+
+	&.is-down {
+		color: #dc2626;
+	}
+
+	&.is-neutral {
+		color: $sub-text-color;
+	}
+}
+
+.crawler-health-status {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 700;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-warning {
+		color: #dc2626;
+	}
+}
+
+// SeoTab.tsx — "Search engine access" tiny status line, reusing
+// .crawler-health-status's own is-good/is-warning colors (same real
+// robots-txt/sitemap/ai-crawler-blocked-pages findings Crawler Traffic's
+// own Overall Crawl Health status reads, just linked out to instead of
+// duplicated as a drill-down table on this tab).
+.seo-search-engine-access {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	padding: 0.625rem 1rem;
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	margin: 0.75rem 0;
+
+	.crawler-health-status {
+		font-size: 0.9375rem;
+	}
+}
+
+.seo-search-engine-access-link {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--color-primary);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	cursor: pointer;
+
+	i {
+		font-size: 0.875rem;
+	}
+}
+
+.crawler-vendor-chart {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 0.75rem;
+}
+
+.crawler-vendor-legend {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.crawler-vendor-legend-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8125rem;
+}
+
+.crawler-vendor-dot {
+	width: 0.625rem;
+	height: 0.625rem;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.crawler-vendor-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.crawler-vendor-count {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	white-space: nowrap;
+}
+
+.crawler-table {
+	width: 100%;
+	font-size: 0.8125rem;
+	border-collapse: collapse;
+
+	th {
+		text-align: left;
+		color: $sub-text-color;
+		font-weight: 500;
+		font-size: 0.75rem;
+		padding-bottom: 0.5rem;
+		border-bottom: $border-light-small;
+	}
+
+	td {
+		padding: 0.5rem 0;
+		border-bottom: $border-light-small;
+	}
+
+	tr:last-child td {
+		border-bottom: none;
+	}
+}
+
+.crawler-table-url {
+	max-width: 16rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// CrawlerAnalyticsSection.tsx's "Crawl Health Checklist" — a real Zyra
+// `<ListComponent>` now (icon/title/tags supply the row), rather than the
+// hand-rolled `.crawler-checklist-row`/`.crawler-checklist-label` markup
+// this used to be. `.item`/`.details`/`.tags` are ListComponent's own
+// default-variant classes, which stack top-to-bottom rather than laying
+// out as one row — overridden here into the same icon/label/badge row this
+// checklist always had, same "scope the library's own classnames under our
+// own wrapper" convention `.geo-fix-first-list` (GeoFixTheseFirstCard.tsx)
+// already uses.
+.crawler-checklist {
+	.item {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.625rem 0;
+		border-top: $border-light-small;
+
+		&:first-child {
+			border-top: none;
+		}
+	}
+
+	.details {
+		flex: 1;
+	}
+
+	.item-title {
+		font-size: 0.8125rem;
+	}
+}
+
+// StructuredDataSection.tsx's own "Schema Status" summary card — 4 real
+// per-page/per-type counts (Pages checked/Pages with valid schema/Need
+// attention/Schema types detected), each with a distinct colored circular
+// icon rather than the shared single-purple `.kg-glance-icon` tile
+// (KnowledgeGraphSection.tsx's own stat row), since these 4 numbers are
+// deliberately visually distinct signals (a neutral count, a good count, a
+// warning count, a neutral count) rather than one uniform list.
+.schema-status-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	gap: 1.5rem;
+}
+
+.schema-status-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.schema-status-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 50%;
+	flex-shrink: 0;
+
+	i {
+		font-size: 1.125rem;
+	}
+
+	&--purple {
+		background: #f3effc;
+		color: $theme-color;
+	}
+
+	&--green {
+		background: #e8f8ee;
+		color: #16a34a;
+	}
+
+	&--orange {
+		background: #fef3e2;
+		color: #d97706;
+	}
+
+	&--blue {
+		background: #e8f1fd;
+		color: #2563eb;
+	}
+}
+
+.schema-status-value {
+	font-weight: 700;
+	font-size: 1.5rem;
+	line-height: 1.2;
+}
+
+.schema-status-label {
+	color: $sub-text-color;
+	font-size: 0.8125rem;
+}
+
+.schema-generated-at {
+	margin: 0 0 1rem;
+}
+
+.schema-see-seo-tab {
+	margin-top: 0.75rem;
+}
+
+// StructuredDataSection.tsx's own "Schema Coverage" table — more generous
+// row padding + a per-type icon tile than the base `.crawler-table`
+// (that class is shared with several plain data grids elsewhere on this
+// page, e.g. CrawlerAnalyticsSection.tsx's own tables, so the extra
+// polish here is scoped under `.schema-coverage-table` rather than
+// changed globally).
+.schema-coverage-table {
+	th,
+	td {
+		padding: 0.875rem 0.5rem;
+	}
+
+	tbody tr:hover {
+		background: $theme-background-color;
+	}
+}
+
+.schema-type-cell {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+}
+
+.schema-type-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 0.375rem;
+	background: #f3effc;
+	color: $theme-color;
+	flex-shrink: 0;
+
+	i {
+		font-size: 0.875rem;
+	}
+}
+
+.schema-type-name {
+	font-weight: 600;
+}
+
+.schema-view-pages-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	// A real <button> (opens the real pages-for-this-type popup), styled
+	// to read as the same plain text link every other row action here
+	// already looks like.
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	color: $theme-color;
+	font-weight: 500;
+	font-size: inherit;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+
+	i {
+		font-size: 0.75rem;
+	}
+}
+
+// StructuredDataSection.tsx's "Pages with {type} schema" popup.
+.schema-view-pages-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.schema-view-pages-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.75rem 0;
+	border-top: $border-light-small;
+
+	&:first-child {
+		border-top: none;
+	}
+}
+
+.schema-view-pages-title {
+	font-size: 0.8125rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.schema-view-pages-actions {
+	display: flex;
+	gap: 0.75rem;
+	flex-shrink: 0;
+	font-size: 0.8125rem;
+
+	a {
+		color: $theme-color;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+.schema-dev-tools-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 1rem;
+}
+
+.schema-dev-tool-tile {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	padding: 0.875rem;
+
+	.admin-badge {
+		margin-top: 0.375rem;
+	}
+
+	// Only Developer Tools tiles with somewhere real to jump to
+	// (InspectorSection.tsx's own `tool.onClick`, e.g. "JSON-LD Viewer"
+	// once a result exists) get the pointer affordance + trailing chevron
+	// below — a tile with nothing real to do stays plain, not a fake button.
+	&.is-clickable {
+		cursor: pointer;
+
+		&:hover {
+			border-color: $theme-color;
+		}
+	}
+}
+
+.schema-dev-tool-chevron {
+	margin-left: auto;
+	align-self: center;
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	flex-shrink: 0;
+}
+
+// SchemaKnowledgeTab.tsx's own inline section headings (Structured
+// Data/Knowledge Graph/Inspector/Issues, all on one continuous page per
+// direct instruction — no inner tab switcher) — same shape AI Copilot's
+// ChatTab.tsx already uses for its own inline "Issues" section heading.
+.schema-knowledge-inline-section-heading {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 2rem 0 1rem;
+	padding-top: 2rem;
+	border-top: $border-light-small;
+
+	h2 {
+		margin: 0;
+		font-size: 1.125rem;
+	}
+}
+
+// The very first section on the page (Structured Data) sits directly
+// under the outer "Schema & Knowledge" tab bar with nothing above it —
+// no divider/top-space needed there, only between sections.
+.schema-knowledge-section:first-child .schema-knowledge-inline-section-heading {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+
+// InspectorSection.tsx.
+.schema-inspector-selected-path {
+	margin: 0.375rem 0 0;
+	font-size: 0.75rem;
+}
+
+.schema-inspector-result {
+	margin-top: 1.25rem;
+}
+
+.schema-inspector-result-heading {
+	font-weight: 600;
+	font-size: 0.875rem;
+	margin: 1rem 0 0.5rem;
+
+	&:first-child {
+		margin-top: 0;
+	}
+}
+
+// Shared by "Detected schema"/"Problems found"/"Conflicts detected" — same
+// row shape (a status icon + text), just a different icon/color per column,
+// rather than 3 near-identical list rules.
+.schema-inspector-check-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.625rem;
+		font-size: 0.8125rem;
+	}
+}
+
+.schema-inspector-check-icon--good {
+	color: #16a34a;
+}
+
+.schema-inspector-check-icon--warn {
+	color: #d97706;
+}
+
+.schema-inspector-check-icon--bad {
+	color: #dc2626;
+}
+
+.schema-inspector-view-problems {
+	margin-top: 0.75rem;
+}
+
+.schema-inspector-preview {
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	padding: 0.875rem 1rem;
+}
+
+.schema-inspector-preview-title {
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+.schema-inspector-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.625rem;
+}
+
+.schema-inspector-jsonld-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.schema-inspector-jsonld-block {
+	background: $theme-background-color;
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	padding: 0.875rem;
+	font-size: 0.75rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0 0 0.75rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+// AeoEngineTestingCard.tsx.
+.aeo-engine-testing-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	margin-bottom: 1rem;
+}
+
+.aeo-engine-testing-answer-label {
+	margin-top: 0.75rem;
+}
+
+// The real, live-generated AI answer AeoEngineTestingCard.tsx's own
+// cited/not-cited judgment was made from — shown so a re-test visibly
+// produces different real text each time instead of only a static
+// verdict.
+.aeo-engine-testing-answer {
+	margin: 0.25rem 0 0;
+	padding: 0.625rem 0.875rem;
+	border-left: 3px solid var(--border-color);
+	background: var(--theme-background-color, #f9fafb);
+	font-size: 0.8125rem;
+	font-style: italic;
+	color: var(--sub-text-color);
+}
+
+// KeywordsTab.tsx.
+.keywords-verification-note {
+	margin-top: 1rem;
+}
+
+.keywords-connected-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+
+	i {
+		margin-right: 0.25rem;
+	}
+}
+
+// BrokenLinksTab.tsx.
+.broken-link-redirect-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.broken-link-redirect-note {
+	margin-top: -0.5rem;
+}
+
+.broken-link-redirect-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.625rem;
+	margin-top: 0.5rem;
+}
+
+// SchemaKnowledgeTab.tsx's own real in-page header — GEO.tsx's shared
+// NavigatorHeaderComponent above the tab bar always reads "Grow My
+// Traffic" for every tab (by design — every other tab here follows that
+// same shared-header convention, see GEO.tsx's own docblock), so this
+// page's own distinct title/subtitle (matching the reference mockup)
+// renders as its own real heading inside this tab's own content instead
+// of fighting that shared architecture.
+.schema-page-header {
+	margin-bottom: 0.25rem;
+
+	.desc {
+		margin: 0.25rem 0 0;
+	}
+}
+
+.schema-page-header-title {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+
+	i {
+		font-size: 1.25rem;
+		color: var(--color-primary);
+	}
+
+	h2 {
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 600;
+	}
+}
+
+// AeoScoreSummaryCard.tsx — the reference mockup's own "AEO Score" card:
+// gauge + real "Goal: 70+" nudge on the left, 4 real stat rows on the
+// right, replacing this tab's previous 3-card row. Also reused as-is by
+// GeoVisibilitySummaryCard.tsx's own "Overall AI Visibility" card (direct
+// instruction: "merge this sections and design like attached image" — the
+// same gauge-left/stat-rows-right shape, just with a real trend readout in
+// the goal-box slot and 4 real rating badges instead of AEO's own 4 plain
+// values) — the `aeo-score-*` class names predate that 2nd usage and
+// weren't renamed to something more generic, same "reuse the existing
+// class rather than fork a near-identical one" pattern
+// `.geo-overall-visibility` itself already set for AeoScoreSummaryCard.tsx.
+.aeo-score-summary {
+	display: flex;
+	gap: 2rem;
+	flex-wrap: wrap;
+}
+
+.aeo-score-summary-gauge {
+	display: flex;
+	flex-direction: column;
+	// Deliberately not `align-items: center` — that would stop
+	// `.geo-overall-visibility` stretching to this column's own definite
+	// width, and its own child (zyra ChartComponent's `.zyra-chart`, which
+	// sizes itself via `width: 100%`) would then have nothing real to
+	// resolve that percentage against and collapse to 0 width — a real,
+	// confirmed-live bug (the ring rendered as blank space, text only).
+	// `.geo-overall-visibility`'s own `align-items: center` still centers
+	// the chart vertically against its (nonexistent) sibling meta text, and
+	// ChartComponent centers its own content horizontally internally, so
+	// nothing here needs to do that again.
+	gap: 1rem;
+	flex: 0 0 14rem;
+}
+
+.aeo-score-goal-box {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+	width: 100%;
+	background: #f5f3ff;
+	border-radius: 0.5rem;
+	padding: 0.75rem 0.875rem;
+	box-sizing: border-box;
+
+	i {
+		color: #7c3aed;
+		font-size: 1rem;
+		margin-top: 0.125rem;
+		flex-shrink: 0;
+	}
+
+	strong {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		margin-bottom: 0.25rem;
+
+		// GeoVisibilitySummaryCard.tsx's own real trend readout ("↑/↓ N
+		// points since last scan") in this same box's slot — AeoScoreSummaryCard.tsx's
+		// own static "Goal: 70+" copy never needed a color variant.
+		&.is-good {
+			color: #16a34a;
+		}
+
+		&.is-attention {
+			color: #dc2626;
+		}
+	}
+
+	p {
+		margin: 0;
+		font-size: 0.75rem;
+		color: $sub-text-color;
+	}
+}
+
+.aeo-score-summary-stats {
+	flex: 1;
+	min-width: 16rem;
+	display: flex;
+	flex-direction: column;
+}
+
+.aeo-score-stat-row {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 0.875rem 0;
+	border-top: 1px solid var(--border-color);
+
+	&.is-first {
+		border-top: none;
+		padding-top: 0;
+	}
+}
+
+.aeo-score-stat-icon {
+	flex: 0 0 2.5rem;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 0.625rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.125rem;
+
+	&.is-score {
+		background: #dcfce7;
+		color: #16a34a;
+	}
+
+	&.is-questions {
+		background: #ede9fe;
+		color: #7c3aed;
+	}
+
+	&.is-ready {
+		background: #fce7f3;
+		color: #db2777;
+	}
+
+	&.is-change {
+		background: #dbeafe;
+		color: #2563eb;
+	}
+}
+
+.aeo-score-stat-text {
+	flex: 1;
+	min-width: 0;
+}
+
+.aeo-score-stat-title {
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+.aeo-score-stat-desc {
+	font-size: 0.75rem;
+	color: $sub-text-color;
+}
+
+.aeo-score-stat-value {
+	font-weight: 700;
+	font-size: 1.0625rem;
+	white-space: nowrap;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #dc2626;
+	}
+}
+
+.admin-main-wrapper {
+        .card-wrapper {
+            &.row {
+                flex-direction: column;
+                align-items: start;
+            }
+        }
+    }

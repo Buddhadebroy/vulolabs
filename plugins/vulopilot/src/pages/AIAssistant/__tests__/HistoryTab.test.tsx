@@ -46,7 +46,7 @@ const HISTORY_RESPONSE = {
 		},
 	],
 	total: 2,
-	type_counts: { scan: 887, change: 2, conversation: 0, automation: 0 },
+	type_counts: { scan: 887, change: 2, conversation: 0, automations: 0 },
 };
 
 describe( 'HistoryTab', () => {
@@ -58,7 +58,7 @@ describe( 'HistoryTab', () => {
 		( getApiResponse as jest.Mock ).mockResolvedValue( {
 			data: [],
 			total: 0,
-			type_counts: { scan: 0, change: 0, conversation: 0, automation: 0 },
+			type_counts: { scan: 0, change: 0, conversation: 0, automations: 0 },
 		} );
 
 		render( <HistoryTab /> );
@@ -120,7 +120,7 @@ describe( 'HistoryTab', () => {
 		( getApiResponse as jest.Mock ).mockResolvedValue( {
 			data: [],
 			total: 0,
-			type_counts: { scan: 887, change: 2, conversation: 0, automation: 0 },
+			type_counts: { scan: 887, change: 2, conversation: 0, automations: 0 },
 		} );
 
 		render( <HistoryTab /> );

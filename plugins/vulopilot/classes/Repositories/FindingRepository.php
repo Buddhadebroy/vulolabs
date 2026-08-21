@@ -91,7 +91,7 @@ class FindingRepository extends AbstractRepository {
      * grouping several scanner_id values together, scoped independently of
      * every other SEO section's own pill bar). Delegates to
      * AbstractRepository::count_by_column() rather than hand-rolling
-     * another grouped query (same reasoning as AutomationRepository's
+     * another grouped query (same reasoning as AutomationsRepository's
      * get_status_counts()).
      *
      * @param string|null   $category    One of the scanner category strings (SCANNERS.md), or null for every category.

@@ -108,38 +108,49 @@ class Admin {
                     'priority' => 20,
                     'icon'     => 'dashicons-lightbulb',
                 ),
-                'geo'           => array(
-                    'name'     => __( 'Grow My Traffic', 'vulopilot' ),
+                'seo-visibility' => array(
+                    'name'     => __( 'SEO & Visibility', 'vulopilot' ),
                     'priority' => 30,
                     'icon'     => 'dashicons-chart-line',
                 ),
                 'content'       => array(
-                    'name'     => __( 'Create Content', 'vulopilot' ),
+                    'name'     => __( 'Content', 'vulopilot' ),
                     'priority' => 40,
                     'icon'     => 'dashicons-media-text',
                 ),
                 'performance'   => array(
-                    'name'     => __( 'Improve Speed', 'vulopilot' ),
+                    'name'     => __( 'Performance', 'vulopilot' ),
                     'priority' => 50,
                     'icon'     => 'dashicons-performance',
                 ),
-                'security'      => array(
-                    'name'     => __( 'Protect My Site', 'vulopilot' ),
-                    'priority' => 60,
-                    'icon'     => 'dashicons-shield',
+                // Promoted out of "Protect My Site"'s own former 3-tab
+                // shell (Security.tsx) along with Backups, which is now
+                // merged into this page — see pages/SiteHealth/SiteHealth.tsx's
+                // own docblock.
+                'site-health'   => array(
+                    'name'     => __( 'Site Health', 'vulopilot' ),
+                    'priority' => 55,
+                    'icon'     => 'dashicons-heart',
                 ),
                 'accessibility' => array(
                     'name'     => __( 'Accessibility', 'vulopilot' ),
                     'priority' => 65,
                     'icon'     => 'dashicons-universal-access',
                 ),
-                'woocommerce'   => array(
-                    'name'     => __( 'Sell More', 'vulopilot' ),
+                // "Protect My Site"'s own remaining tab, now standalone —
+                // see pages/Security/Security.tsx's own docblock.
+                'security'      => array(
+                    'name'     => __( 'Security', 'vulopilot' ),
+                    'priority' => 67,
+                    'icon'     => 'dashicons-shield',
+                ),
+                'commerce'      => array(
+                    'name'     => __( 'Commerce', 'vulopilot' ),
                     'priority' => 70,
                     'icon'     => 'dashicons-cart',
                 ),
-                'automation'    => array(
-                    'name'     => __( 'Automate Work', 'vulopilot' ),
+                'automations'   => array(
+                    'name'     => __( 'Automations', 'vulopilot' ),
                     'priority' => 80,
                     'icon'     => 'dashicons-update',
                 ),
@@ -222,7 +233,7 @@ class Admin {
      */
     private function legacy_submenus() {
         return array(
-            // Folded into 'geo' ("Grow My Traffic").
+            // Folded into 'seo-visibility' ("SEO & Visibility").
             'aeo'              => array(
                 'name'  => __( 'AEO', 'vulopilot' ),
                 'group' => 'ai-visibility',
@@ -246,7 +257,7 @@ class Admin {
                 'group' => 'seo-content',
                 'icon'  => 'dashicons-search',
             ),
-            // Folded into 'content' ("Create Content").
+            // Folded into 'content' ("Content").
             'ai-content'       => array(
                 'name'  => __( 'AI Content', 'vulopilot' ),
                 'group' => 'seo-content',
@@ -257,13 +268,13 @@ class Admin {
                 'group' => 'seo-content',
                 'icon'  => 'dashicons-editor-code',
             ),
-            // Folded into 'performance' ("Improve Speed").
+            // Folded into 'performance' ("Performance").
             'redirects'        => array(
                 'name'  => __( 'Redirects & 404s', 'vulopilot' ),
                 'group' => 'site-health',
                 'icon'  => 'dashicons-randomize',
             ),
-            // Folded into 'security' ("Protect My Site").
+            // Folded into 'security' ("Security").
             'accessibility'    => array(
                 'name'  => __( 'Accessibility', 'vulopilot' ),
                 'group' => 'site-health',

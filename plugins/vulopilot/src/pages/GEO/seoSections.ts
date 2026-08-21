@@ -29,7 +29,7 @@ import type { FindingsSection } from '../Security/SectionedFindingsTab';
  *
  * `links-schema` used to bundle `broken-links`/`schema`/`structured-data`/
  * `sitewide-structured-data` in here too — real overlapping ownership
- * with "Grow My Traffic"'s own dedicated Broken Links and Schema &
+ * with "SEO & Visibility"'s own dedicated Broken Links and Schema &
  * Knowledge tabs, which already own those same scanner ids' findings
  * (direct instruction: "Schema should never be bundled into this category
  * when you already have a dedicated Schema screen"). Fixed by narrowing
@@ -43,7 +43,7 @@ import type { FindingsSection } from '../Security/SectionedFindingsTab';
  * `sitemap`/`robots` (2 more full sections) were dropped from here
  * entirely too, same overlap reasoning (direct instruction: "Robots.txt
  * and Sitemap should move away from SEO... these are fundamentally
- * crawler/discovery controls") — "Grow My Traffic"'s own Crawler Traffic
+ * crawler/discovery controls") — "SEO & Visibility"'s own Crawler Traffic
  * tab now owns real `robots-txt`/`sitemap`/`sitemap-validation`/
  * `ai-crawler-blocked-pages` findings tables itself
  * (CrawlerTrafficTab.tsx). SeoTab.tsx's own "Search engine access" status

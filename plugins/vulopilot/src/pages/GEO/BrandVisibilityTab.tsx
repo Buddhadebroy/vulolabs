@@ -75,7 +75,7 @@ const isBrandModuleActive = () =>
 	appLocalizer.active_modules?.includes('brand-intelligence') ?? false;
 
 /**
- * "Brand Visibility" tab of "Grow My Traffic" — on-site Brand/Trust/
+ * "Brand Visibility" tab of "SEO & Visibility" — on-site Brand/Trust/
  * Authority/Entity scoring (BRAND-INTELLIGENCE-MODULE.md, real and always
  * available) alongside a real off-site mention card (OffSiteMentionsCard,
  * vulopilot-pro's own keyless Google News RSS feed — see

@@ -113,7 +113,7 @@ interface PerformanceTabProps {
 }
 
 /**
- * "Top Issues" — Improve Speed's own OverviewTab.tsx (wrapped in
+ * "Top Issues" — Performance's own OverviewTab.tsx (wrapped in
  * `#performance-section-findings`) is this component's only call site.
  * Now the same real, unified issues table (summary priority cards +
  * tabbed category bar + side detail panel) "Protect My Site"'s Security/

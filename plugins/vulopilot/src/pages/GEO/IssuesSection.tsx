@@ -74,7 +74,7 @@ interface IssuesSectionProps {
 	 * this section's own root `<div>` rather than left for the host tab to
 	 * wrap in its own `<div id="...">`. That wrapping was a real,
 	 * confirmed-live layout bug: this section's own outer `.seo-issues-section`
-	 * already fills its flex-row parent (see GrowMyTraffic.scss's own rule
+	 * already fills its flex-row parent (see SeoVisibility.scss's own rule
 	 * for that class), but an *extra* unstyled wrapper div around it becomes
 	 * the actual flex-item instead, and — having no sizing of its own —
 	 * only claims its content's natural width, leaving the rest of that row

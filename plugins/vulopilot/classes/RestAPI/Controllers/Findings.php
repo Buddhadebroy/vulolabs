@@ -147,10 +147,10 @@ class Findings extends \WP_REST_Controller {
         );
 
         // "Manual Actions Only" (readme.txt) — runs one registered
-        // Automation\ActionRegistry action against this specific finding,
-        // right now, via Automation\ManualActionRunner. No trigger, rule,
+        // Automations\ActionRegistry action against this specific finding,
+        // right now, via Automations\ManualActionRunner. No trigger, rule,
         // or `vulopilot_automations` row involved — see that class's own
-        // docblock for how this differs from vulopilot-pro's Automation
+        // docblock for how this differs from vulopilot-pro's Automations
         // module.
         register_rest_route(
             VuloPilot()->rest_namespace,
@@ -503,7 +503,7 @@ class Findings extends \WP_REST_Controller {
 
     /**
      * Backs FindingsTable.tsx's "Snooze" row action (and any other
-     * registered manual action) via Automation\ManualActionRunner.
+     * registered manual action) via Automations\ManualActionRunner.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error

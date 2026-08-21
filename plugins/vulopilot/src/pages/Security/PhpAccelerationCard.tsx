@@ -6,7 +6,7 @@ import './ProtectMySite.scss';
 /**
  * "PHP acceleration" (OPcache) status — the one `GET /efficiency-checks`
  * (Controllers\EfficiencyChecks.php) check that stayed on this page
- * rather than moving with its 3 siblings into "Improve Speed"'s own
+ * rather than moving with its 3 siblings into "Performance"'s own
  * Overview tab (EfficiencyHeroCard.tsx/EfficiencySectionsList.tsx/etc,
  * pages/Performance/OverviewTab.tsx) — OPcache is a server-config fact,
  * the same category as this tab's other Server-section checks

@@ -109,7 +109,7 @@ class PluginOverlap extends \WP_REST_Controller {
             'plugin_name'       => 'Uncanny Automator',
             'category'          => 'automation',
             'vulopilot_feature' => 'Workflow Autopilot',
-            'module_id'         => 'automation',
+            'module_id'         => 'automations',
             'link_tab'          => 'modules',
         ),
         'wp-rocket/wp-rocket.php'                                      => array(

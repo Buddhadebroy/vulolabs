@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * `GET /broken-links/stats` — backs BrokenLinksTab.tsx's own "Link
- * health"/"Coverage" tiles (Grow My Traffic → Broken Links) with real
+ * health"/"Coverage" tiles (SEO & Visibility → Broken Links) with real
  * numbers: BrokenLinksScanner::STATS_OPTION/BrokenImagesScanner::STATS_OPTION,
  * each written fresh every time that scanner's `scan()` genuinely executes
  * a check (not on a rate-limit-skipped run — see each scanner's own

@@ -16,12 +16,12 @@ import RealTimeMonitoringCard from './RealTimeMonitoringCard';
 import BiggestSpeedOpportunityCard from './BiggestSpeedOpportunityCard';
 import AiSpeedAssistantCard from './AiSpeedAssistantCard';
 import PerformanceTab from './PerformanceTab';
-import './ImproveSpeed.scss';
+import './Performance.scss';
 
-const EFFICIENCY_SECTIONS_TOP_ID = 'improve-speed-efficiency-sections';
+const EFFICIENCY_SECTIONS_TOP_ID = 'performance-efficiency-sections';
 
 /**
- * "Improve Speed"'s only tab — see this folder's sibling files for the
+ * "Performance"'s only tab — see this folder's sibling files for the
  * per-section real-data mapping (PerformanceScoreCard, MetricsGrid,
  * SpeedHistoryCard, QuickActionsCard, RealTimeMonitoringCard,
  * BiggestSpeedOpportunityCard, AiSpeedAssistantCard — each documents its own data

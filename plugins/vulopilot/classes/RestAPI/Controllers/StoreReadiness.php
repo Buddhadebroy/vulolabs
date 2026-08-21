@@ -7,12 +7,12 @@
 
 namespace VuloPilot\RestAPI\Controllers;
 
-use VuloPilot\Repositories\AutomationRunRepository;
+use VuloPilot\Repositories\AutomationsRunRepository;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /store-readiness — "Sell More"'s live store-status checklist
+ * GET /store-readiness — "Commerce"'s live store-status checklist
  * (`StoreReadinessCard.tsx`) and the informational (not "problem")
  * numbers its category-card grid needs. Deliberately separate from the
  * Findings/scanner system: these are live facts about the store's
@@ -65,7 +65,7 @@ class StoreReadiness extends \WP_REST_Controller {
 	 * @inheritDoc
 	 */
 	public function get_items( $request ) {
-		$automation_runs = new AutomationRunRepository();
+		$automation_runs = new AutomationsRunRepository();
 
 		return rest_ensure_response(
 			array(

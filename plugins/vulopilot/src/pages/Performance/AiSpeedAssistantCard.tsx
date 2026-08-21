@@ -3,7 +3,7 @@ import { CardComponent, TooltipComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
 import { useApiList } from '../../services/useApiList';
-import './ImproveSpeed.scss';
+import './Performance.scss';
 
 interface FindingRow {
 	id: number;
