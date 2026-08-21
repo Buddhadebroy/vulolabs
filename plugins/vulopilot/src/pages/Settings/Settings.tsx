@@ -11,6 +11,7 @@ import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import AiProvidersPanel from '../../components/Settings/AiProvidersPanel';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
+import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import GoogleServicesPanel from '../../components/Settings/Scanning/GoogleServicesPanel';
@@ -196,12 +197,25 @@ const Settings = () => {
 							/>
 						</>
 					) : (
-						<InputRenderer
-							settings={settingModal}
-							setting={setting}
-							updateSetting={updateSetting}
-							Popup={ShowProPopup}
-						/>
+						<>
+							<InputRenderer
+								settings={settingModal}
+								setting={setting}
+								updateSetting={updateSetting}
+								Popup={ShowProPopup}
+							/>
+							{/* BackupStoragePanel.tsx — appended AFTER this
+							 * tab's own fields (not split around a midpoint
+							 * the way isGeoTabSplit's llms.txt card is
+							 * above), since S3/Google Drive credentials
+							 * only make sense once `backup_storage_destination`
+							 * itself has already been picked, the last
+							 * field this tab's own `modal` renders. See
+							 * Backups.ts's own docblock for why the
+							 * credentials themselves can't just be more
+							 * fields in that same array. */}
+							{'backups' === currentTab && <BackupStoragePanel />}
+						</>
 					)
 				) : (
 					<>{__('Loading…', 'vulopilot')}</>

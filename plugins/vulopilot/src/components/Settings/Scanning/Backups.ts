@@ -7,6 +7,18 @@ import { __ } from '@wordpress/i18n';
  * Auto-discovered by templateService.ts's `require.context` over every
  * `.ts` file under `src/components/Settings/` — no manual registration
  * needed, same as every sibling Scanning/*.ts tab.
+ *
+ * `backup_storage_destination` (real, plain — 'local'/'s3'/'google_drive',
+ * read by Services\BackupStorageManager) is the one field here that's
+ * about remote storage, but the actual Amazon S3/Google Drive credentials
+ * it depends on are NOT in this `modal` array — a secret access key/OAuth
+ * client secret must never round-trip through `GET /settings` the way this
+ * tab's other fields safely do. Settings.tsx's own GetForm() appends
+ * BackupStoragePanel.tsx (its own dedicated, encrypted
+ * `/backup-storage/*` REST surface — Controllers\BackupStorage) right
+ * after this tab's InputRenderer output, same "flat setting for the simple
+ * bit, dedicated credential storage for the secret bit" split
+ * AiProvidersPanel.tsx/Controllers\AiProviders already established.
  */
 export default {
 	id: 'backups',
@@ -60,6 +72,21 @@ export default {
 				'Oldest completed backups beyond this count are automatically deleted after each new one finishes, to keep disk usage bounded.',
 				'vulopilot'
 			),
+		},
+		{
+			key: 'backup_storage_destination',
+			type: 'select',
+			size: 20,
+			label: __('Storage destination', 'vulopilot'),
+			settingDescription: __(
+				'Every backup always saves to this server first. Pick a remote destination below to also upload each completed backup there — configure its credentials in the Cloud Storage section below.',
+				'vulopilot'
+			),
+			options: [
+				{ label: __('This server only (Local)', 'vulopilot'), value: 'local' },
+				{ label: __('Amazon S3', 'vulopilot'), value: 's3' },
+				{ label: __('Google Drive', 'vulopilot'), value: 'google_drive' },
+			],
 		},
 	],
 };

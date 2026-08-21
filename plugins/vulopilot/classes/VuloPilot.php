@@ -341,6 +341,18 @@ final class VuloPilot {
         $this->container['backup_manager']          = new Services\BackupManager();
         $this->container['backup_scheduler']        = new Services\BackupScheduler();
 
+        // Backups' own real cloud-storage destination (Amazon S3/Google
+        // Drive) — BackupStorageManager self-registers on
+        // 'vulopilot_backup_completed' (fired by BackupManager above) and
+        // must be unconditional, same reasoning every other
+        // self-registers-its-own-hooks Services\* class here already has.
+        // BackupGoogleDriveOAuthCallbackHandler is its own real OAuth
+        // redirect handler, same "admin-post.php needs unconditional
+        // construction, not REST-lazy" reasoning
+        // gsc_oauth_callback_handler above already documents.
+        $this->container['backup_storage_manager']              = new Services\BackupStorageManager();
+        $this->container['backup_gdrive_oauth_callback_handler'] = new Services\BackupGoogleDriveOAuthCallbackHandler();
+
         // Extension SDK (ARCHITECTURE.md's Prompt 15) — vulopilot-pro and
         // any third-party plugin register here (`vulopilot_extension_sources`),
         // one tick before ScannerRegistry/RuleRegistry/etc. (all `init`

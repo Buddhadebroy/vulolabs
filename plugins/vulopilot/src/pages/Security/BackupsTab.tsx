@@ -22,6 +22,11 @@ interface BackupRow {
 	trigger_type: 'manual' | 'scheduled' | 'pre_restore_safety';
 	has_file: boolean;
 	file_size: number | null;
+	/** 'local' (the default — every backup always saves here) or the remote destination active when this backup finished (Services\BackupStorageManager). */
+	destination: 'local' | 's3' | 'google_drive';
+	/** Null for a 'local'-only row (nothing else to track) — see Install.php's own `create_backups_table()` docblock for what each real value means. */
+	destination_status: 'uploading' | 'uploaded' | 'failed' | 'skipped_not_configured' | null;
+	destination_error: string | null;
 	started_at: string | null;
 	finished_at: string | null;
 	error_message: string | null;
@@ -39,6 +44,55 @@ const TRIGGER_LABEL: Record<string, string> = {
 	manual: __('Manual', 'vulopilot'),
 	scheduled: __('Scheduled', 'vulopilot'),
 	pre_restore_safety: __('Pre-restore safety snapshot', 'vulopilot'),
+};
+
+const DESTINATION_PROVIDER_LABEL: Record<string, string> = {
+	s3: __('Amazon S3', 'vulopilot'),
+	google_drive: __('Google Drive', 'vulopilot'),
+};
+
+/**
+ * A real remote destination's own upload badge — `null` for a `'local'`
+ * row, rendered as plain text instead (every backup is local; a badge
+ * there would just be visual noise for the common case). Reflects exactly
+ * what `Services\BackupStorageManager` actually did for this row, not the
+ * site's *current* `backup_storage_destination` setting (e.g. deleting the
+ * S3 credentials after a real upload succeeded doesn't retroactively
+ * change what already happened).
+ */
+const destinationBadge = (
+	row: BackupRow
+): { text: string; className: string } | null => {
+	if ('local' === row.destination || !row.destination) {
+		return null;
+	}
+
+	const provider = DESTINATION_PROVIDER_LABEL[row.destination] ?? row.destination;
+
+	switch (row.destination_status) {
+		case 'uploading':
+			return {
+				text: sprintf(__('Uploading to %s…', 'vulopilot'), provider),
+				className: 'orange',
+			};
+		case 'uploaded':
+			return {
+				text: sprintf(__('Uploaded to %s', 'vulopilot'), provider),
+				className: 'green',
+			};
+		case 'failed':
+			return {
+				text: sprintf(__('%s upload failed', 'vulopilot'), provider),
+				className: 'red',
+			};
+		case 'skipped_not_configured':
+			return {
+				text: sprintf(__('%s not configured', 'vulopilot'), provider),
+				className: 'yellow',
+			};
+		default:
+			return { text: provider, className: 'indigo' };
+	}
 };
 
 /** Real file size, human-scaled — same rounding convention this codebase's other byte-count displays already use. */
@@ -66,6 +120,17 @@ const RESTORE_CONFIRM_PHRASE = 'RESTORE';
  * real restore. Restore is real and destructive (overwrites the live
  * database + files) — gated here by a typed confirmation phrase, on top of
  * the automatic pre-restore safety snapshot the backend always takes first.
+ *
+ * "Destination" column — real per-row remote-upload state
+ * (Services\BackupStorageManager, `destination`/`destination_status`/
+ * `destination_error`), not just the site's current
+ * `backup_storage_destination` setting: a `'local'` row (the default —
+ * every backup always saves here regardless) renders as plain text, while
+ * an `'s3'`/`'google_drive'` row shows what actually happened
+ * (Uploading…/Uploaded/upload failed/not configured) via
+ * `destinationBadge()`. Credentials for those 2 remote destinations live
+ * in Settings → Backups' own "Cloud Storage" section
+ * (BackupStoragePanel.tsx), not on this tab.
  */
 const BackupsTab = () => {
 	const { data, isLoading, error, refetch } = useApiList<BackupRow>(
@@ -208,7 +273,7 @@ const BackupsTab = () => {
 				title={__('Backups', 'vulopilot')}
 				titleIcon="cloud-upload"
 				desc={__(
-					'Real database + file archives, stored on this server.',
+					'Real database + file archives, always stored on this server — also uploaded to Amazon S3/Google Drive if you set a remote destination in Settings.',
 					'vulopilot'
 				)}
 				action={
@@ -254,6 +319,7 @@ const BackupsTab = () => {
 									<th>{__('Date', 'vulopilot')}</th>
 									<th>{__('Trigger', 'vulopilot')}</th>
 									<th>{__('Status', 'vulopilot')}</th>
+									<th>{__('Destination', 'vulopilot')}</th>
 									<th>{__('Size', 'vulopilot')}</th>
 									<th>{__('Action', 'vulopilot')}</th>
 								</tr>
@@ -262,6 +328,7 @@ const BackupsTab = () => {
 								{data.map((row) => {
 									const badge =
 										STATUS_BADGE[row.status] ?? STATUS_BADGE.queued;
+									const destBadge = destinationBadge(row);
 									const isBusy = busyId === row.id;
 
 									return (
@@ -283,6 +350,27 @@ const BackupsTab = () => {
 															{row.error_message}
 														</div>
 													)}
+											</td>
+											<td>
+												{destBadge ? (
+													<>
+														<span
+															className={`admin-badge ${destBadge.className}`}
+														>
+															{destBadge.text}
+														</span>
+														{'failed' === row.destination_status &&
+															row.destination_error && (
+																<div className="backups-error-message">
+																	{row.destination_error}
+																</div>
+															)}
+													</>
+												) : (
+													<span className="desc">
+														{__('Local', 'vulopilot')}
+													</span>
+												)}
 											</td>
 											<td>{formatFileSize(row.file_size)}</td>
 											<td>
