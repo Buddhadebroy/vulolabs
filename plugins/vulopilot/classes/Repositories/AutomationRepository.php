@@ -48,20 +48,23 @@ class AutomationRepository extends AbstractRepository {
     }
 
     /**
-     * Enabled/disabled counts, zero-filled — backs both the "Automation
-     * Status" dashboard widget and the Automation table's status-count
-     * pill bar. Delegates the actual grouped query to
+     * Enabled/disabled/draft counts, zero-filled — backs both the
+     * "Automation Status" dashboard widget and the Automation table's
+     * status-count pill bar ("Active"/"Paused"/"Drafts" — Automate Work's
+     * own filter chips read 'enabled'/'disabled'/'draft' by these exact
+     * keys). Delegates the actual grouped query to
      * AbstractRepository::count_by_column() rather than running its own
      * SQL (database.md: prefer one query over several, and don't duplicate
      * query-building logic that already exists).
      *
-     * @return array{enabled: int, disabled: int}
+     * @return array{enabled: int, disabled: int, draft: int}
      */
     public function get_status_counts(): array {
         return array_merge(
             array(
                 'enabled'  => 0,
                 'disabled' => 0,
+                'draft'    => 0,
             ),
             $this->count_by_column( 'status' )
         );
