@@ -4,13 +4,11 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	PopupComponent,
-	NavigatorComponent,
 	ContainerComponent,
+	NavigatorHeaderComponent,
 } from '@zyra/components';
 import ChatTab from './ChatTab';
-import HistoryTab from './HistoryTab';
 import { IssuesFilter } from './NeedsAttentionCard';
-import { Link } from 'react-router-dom';
 
 interface ConfiguredProviderRow {
 	is_active: boolean;
@@ -26,15 +24,18 @@ interface ConfiguredProviderRow {
 	credential_ok: boolean;
 }
 
-const TAB_IDS = [
-	'chat',
-	'history',
-] as const;
-
+/**
+ * "AI Copilot" — used to be a tab shell over Chat/History; History has
+ * moved to Reports (Reports.tsx's own "History" tab — a real, day-grouped
+ * scan/change/conversation timeline that was never specific to this
+ * page's own chat surface). This route now renders ChatTab directly, no
+ * tab bar, same "drop to one real section" pattern Commerce.tsx/
+ * Security.tsx already established — `NavigatorHeaderComponent` replaces
+ * the old `NavigatorComponent`'s own built-in header, carrying over every
+ * real header behavior that used to come from the tab shell (the live
+ * Online/Offline badge, "How it works" popup button).
+ */
 const AIAssistant = () => {
-	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
-		'chat'
-	);
 	const [chatMessage, setChatMessage] = useState('');
 	const [autoApply, setAutoApply] = useState(true);
 	const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
@@ -47,12 +48,6 @@ const AIAssistant = () => {
 	// scroll-into-view effect keys off this instead of `issuesFilter` so a
 	// same-value React state bailout doesn't silently swallow the scroll.
 	const [issuesNavToken, setIssuesNavToken] = useState(0);
-	// Set only when navigation came from RecentConversationsCard.tsx's own
-	// click-through — a plain top-nav click to History passes no selectId
-	// and HistoryTab.tsx falls back to its normal "all, first row" default.
-	const [historySelectId, setHistorySelectId] = useState<number | null>(
-		null
-	);
 	// Real, not decorative — "Online" only means something once at least
 	// one AI provider is both active AND actually usable (`is_active` AND
 	// `credential_ok` — same two things ProviderRegistry::build_fallback_chain()
@@ -79,79 +74,18 @@ const AIAssistant = () => {
 		});
 	}, []);
 
-	const goToTab = (tab: string, filter?: IssuesFilter, selectId?: number) => {
-		if ((TAB_IDS as readonly string[]).includes(tab)) {
-			setActiveTab(tab as (typeof TAB_IDS)[number]);
-		}
-
-		// The Issues table now lives inline on the Chat tab (appended below
-		// the composer) rather than as its own nav tab — NeedsAttentionCard's
-		// "View all issues"/group-row clicks still pass through here as
-		// `onNavigateTab('chat', filter)`, so this still needs to update the
-		// filter that table reads, same as it did for the old 'issues' tab.
+	/**
+	 * The Issues table lives inline on Chat (appended below the composer)
+	 * rather than as its own nav tab — NeedsAttentionCard's "View all
+	 * issues"/group-row clicks still pass through here as
+	 * `onNavigateTab('chat', filter)`, so this still needs to update the
+	 * filter that table reads. `tab` itself is otherwise unused now that
+	 * Chat is the only surface this page renders.
+	 */
+	const goToTab = (tab: string, filter?: IssuesFilter) => {
 		if ('chat' === tab) {
 			setIssuesFilter(filter ?? null);
 			setIssuesNavToken((n) => n + 1);
-		}
-
-		if ('history' === tab) {
-			setHistorySelectId(selectId ?? null);
-		}
-	};
-
-	const settingContent = TAB_IDS.map((tabId) => ({
-		type: 'file' as const,
-		content: {
-			id: tabId,
-			headerTitle: (() => {
-				switch (tabId) {
-					case 'chat':
-						return __('Chat', 'vulopilot');
-					case 'history':
-						return __('History', 'vulopilot');
-					default:
-						return tabId;
-				}
-			})(),
-			headerIcon: (() => {
-				switch (tabId) {
-					case 'chat':
-						return 'ai';
-					case 'history':
-						return 'history';
-					default:
-						return 'settings';
-				}
-			})(),
-			hideSettingHeader: true,
-		},
-	}));
-
-	const getForm = (tabId: string) => {
-		switch (tabId) {
-			case 'chat':
-				return (
-					<ChatTab
-						onNavigateTab={goToTab}
-						message={chatMessage}
-						onMessageChange={setChatMessage}
-						autoApply={autoApply}
-						onAutoApplyChange={setAutoApply}
-						issuesFilter={issuesFilter}
-						issuesNavToken={issuesNavToken}
-					/>
-				);
-			case 'history':
-				return (
-					<HistoryTab
-						initialFilter={
-							historySelectId ? 'conversation' : undefined
-						}
-						initialSelectId={historySelectId}
-					/>
-				);
-			default:
-				return <div></div>;
 		}
 	};
 
@@ -178,16 +112,7 @@ const AIAssistant = () => {
 					)}
 				</p>
 			</PopupComponent>
-			<NavigatorComponent
-				settingContent={settingContent}
-				currentSetting={activeTab}
-				getForm={getForm}
-				prepareUrl={(subTab: string) => 
-					`?page=vulopilot#&tab=ai-assistant&subtab=${subTab}`
-				}
-				Link={Link}
-				variant="tab"
-				menuIcon={true}
+			<NavigatorHeaderComponent
 				headerIcon="ai"
 				headerTitle={__('AI Copilot', 'vulopilot')}
 				headerDescription={__(
@@ -218,6 +143,17 @@ const AIAssistant = () => {
 					},
 				]}
 			/>
+			<ContainerComponent general>
+				<ChatTab
+					onNavigateTab={goToTab}
+					message={chatMessage}
+					onMessageChange={setChatMessage}
+					autoApply={autoApply}
+					onAutoApplyChange={setAutoApply}
+					issuesFilter={issuesFilter}
+					issuesNavToken={issuesNavToken}
+				/>
+			</ContainerComponent>
 		</>
 	);
 };

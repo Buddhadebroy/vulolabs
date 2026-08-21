@@ -387,6 +387,58 @@ class Install {
         self::create_firewall_blocks_table();
         self::create_backups_table();
         self::create_backup_storage_configs_table();
+        self::create_ai_conversations_table();
+    }
+
+    /**
+     * Creates `vulopilot_ai_conversations` — AI Copilot's own persisted chat
+     * threads (Controllers\Copilot.php, RecentConversationsCard.tsx's
+     * "click to load full history" feature). Deliberately a separate table
+     * from `vulopilot_ai_history` (that one stays a permanent, excerpt-only
+     * audit trail by design, never full text, never grouped into threads —
+     * see its own DATABASE.md entry): this table exists specifically to
+     * hold the full, untruncated `turns` array a real conversation needs to
+     * be reloaded and continued.
+     *
+     * `title` is set once, from the conversation's first user message
+     * (truncated) — cheap to read for the "Recent conversations" list
+     * without decoding the full `turns` blob for every row.
+     *
+     * `turns` is `longtext`, `wp_json_encode()`d/`json_decode()`d in
+     * Repositories\AiConversationRepository — same convention
+     * `vulopilot_ai_action_runs`' own `input`/`output`/`preview` columns
+     * already use for structured data (no native MySQL JSON column type is
+     * used anywhere in this codebase).
+     *
+     * `user_id` scopes each conversation to the admin who had it — every
+     * read/append is ownership-checked against it (AiConversationRepository's
+     * own find_full()/append_turns()), since `manage_options` alone doesn't
+     * imply one admin should silently read or append to another's thread.
+     *
+     * @return void
+     */
+    private static function create_ai_conversations_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['ai_conversation'] . "` (
+            `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `user_id`    bigint(20) unsigned NOT NULL,
+            `title`      varchar(255) NOT NULL,
+            `turns`      longtext NOT NULL,
+            `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_user_id` (`user_id`),
+            KEY `idx_updated_at` (`updated_at`)
+        ) $collate;";
+
+        dbDelta( $sql );
     }
 
     /**

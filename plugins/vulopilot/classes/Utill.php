@@ -34,6 +34,12 @@ class Utill {
         'automations_run'            => 'vulopilot_automations_runs',
         'ai_job'                     => 'vulopilot_ai_jobs',
         'ai_history'                 => 'vulopilot_ai_history',
+        // Full, untruncated AI Copilot chat threads (RecentConversationsCard.tsx's
+        // "click to load full history" feature) — deliberately separate
+        // from 'ai_history' above, which is a permanent, excerpt-only audit
+        // trail by design (see that table's own DATABASE.md entry) and was
+        // never meant to store full text or group rows into threads.
+        'ai_conversation'            => 'vulopilot_ai_conversations',
         'ai_provider_config'         => 'vulopilot_ai_provider_configs',
         'report'                     => 'vulopilot_reports',
         'scheduled_job'              => 'vulopilot_scheduled_jobs',

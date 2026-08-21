@@ -25,8 +25,15 @@ import {
 	rowTag,
 	rowTime,
 	rowTitle,
-} from './historyTypes';
-import './AICopilot.scss';
+} from '../AIAssistant/historyTypes';
+// Reports' own page moved here from AI Copilot (History is a general
+// activity timeline, not specific to that page's own conversational
+// surface); the `.history-*`/`.filter-wrapper`/`.category-*` rules this
+// tab needs still live in AICopilot.scss, shared with ChatTab.tsx/
+// NeedsAttentionCard.tsx/IssuesList.tsx there — imported cross-folder
+// rather than duplicated or risked breaking apart from those other real
+// consumers.
+import '../AIAssistant/AICopilot.scss';
 import '../../components/common.scss';
 
 interface HistoryResponse {
@@ -131,16 +138,9 @@ const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
 	automations: 0,
 };
 
-interface HistoryTabProps {
-	/** Seeds the initial filter pill — e.g. RecentConversationsCard.tsx's own click-through lands here on "conversation" instead of "all". Only read once, at mount. */
-	initialFilter?: HistoryFilter;
-	/** A specific `vulopilot_ai_history`/`vulopilot_activity_logs` row id to auto-select once loaded — the other half of the same click-through. Only consumed once, on the first successful fetch after mount, so it doesn't fight later pagination/refetches. */
-	initialSelectId?: number | null;
-}
-
 /**
- * AI Copilot's History tab — a real, day-grouped activity timeline built
- * from `GET /history` (Controllers/History.php), which scopes
+ * Reports' History tab — a real, day-grouped activity timeline built from
+ * `GET /history` (Controllers/History.php), which scopes
  * `vulopilot_activity_logs` to only real scan/AI-action events and joins
  * each row back to its source table for real detail (a scan's real
  * per-severity finding counts, an AI action's real before/after text —
@@ -150,14 +150,17 @@ interface HistoryTabProps {
  * the one filter pill still an honest empty state — no automation
  * execution engine exists in this codebase (Automations.php's own
  * `run_item()` is a hard 501) — see historyTypes.ts.
+ *
+ * Moved here from AI Copilot (this timeline was never specific to that
+ * page's own chat surface — "Conversations" is just one of its filter
+ * pills, alongside real scan/change/automation events too) — Reports is
+ * where the rest of this app's activity/reporting views already live
+ * (ActivityTab.tsx's own flat `vulopilot_activity_logs` table is a
+ * different, narrower view, kept as its own separate tab rather than
+ * merged with this one).
  */
-const HistoryTab = ({
-	initialFilter,
-	initialSelectId,
-}: HistoryTabProps = {}) => {
-	const [activeFilter, setActiveFilter] = useState<HistoryFilter>(
-		initialFilter ?? 'all'
-	);
+const HistoryTab = () => {
+	const [activeFilter, setActiveFilter] = useState<HistoryFilter>('all');
 	const [search, setSearch] = useState('');
 	// Defaults to the last 30 days rather than 'all' — "all time" on a site
 	// that's been running for months means an ever-growing initial fetch of
@@ -175,7 +178,8 @@ const HistoryTab = ({
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [selectedRow, setSelectedRow] = useState<HistoryRow | null>(null);
-	const pendingSelectId = useRef<number | null>(initialSelectId ?? null);
+	/** Set post-mount only, by handleSelectRelatedAction() below — jumping to a related "change" row from within the panel is the only thing that still needs to pre-seed which row gets auto-selected once the next fetch resolves. */
+	const pendingSelectId = useRef<number | null>(null);
 
 	// Debounced search using useEffect
 	useEffect(() => {
@@ -286,11 +290,11 @@ const HistoryTab = ({
 
 	/**
 	 * "Related actions (from this conversation)" (HistoryDetailPanel.tsx)
-	 * jumps to a real 'change' row elsewhere in this same timeline — same
-	 * "seed a pending select id, then let the next fetch consume it"
-	 * mechanism `initialSelectId` already uses for RecentConversationsCard's
-	 * own click-through, just triggered post-mount instead of at mount.
-	 * Deliberately only touches `activeFilter` (not `search`/`dateRange`,
+	 * jumps to a real 'change' row elsewhere in this same timeline — seeds
+	 * `pendingSelectId`, then lets the next fetch consume it (same "select
+	 * this row once it's actually loaded" mechanism, just triggered
+	 * post-mount here rather than needing an initial prop). Deliberately
+	 * only touches `activeFilter` (not `search`/`dateRange`,
 	 * which have their own separate fetch-triggering effects) — changing
 	 * more than one of these together risks two fetches racing to consume
 	 * `pendingSelectId`, with the second (finding it already null) falling

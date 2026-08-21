@@ -10,7 +10,7 @@ import {
 	rowTitle,
 	rowTime,
 	humanizeConversationExcerpt,
-} from './historyTypes';
+} from '../AIAssistant/historyTypes';
 
 const SEVERITY_LABEL: Record<string, string> = {
 	critical: __('Critical', 'vulopilot'),

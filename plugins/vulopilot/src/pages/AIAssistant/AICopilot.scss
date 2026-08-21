@@ -653,3 +653,19 @@
 		pointer-events: none;
 	}
 }
+
+// Recent Conversations now renders as a narrow sidebar next to the composer
+// (ChatTab.tsx), not the wide row it used to be — zyra's default
+// `.mini-card.report .item .tags` is `position: absolute` (fine on a wide
+// row, where it has room to sit at the far right of a single-line title),
+// which instead overlaps a wrapped 2-line title once the column is this
+// narrow. Returning it to normal flow lets it sit on its own line below
+// the title, same "scoped to this one card, not `.mini-card.report`
+// globally" reasoning IssueDetailPanel.tsx's own equivalent override
+// above already documents.
+.recent-conversations-card .mini-card.report .item .tags {
+	position: static;
+	width: 100%;
+	margin-left: 2rem;
+	margin-top: 0.125rem;
+}
