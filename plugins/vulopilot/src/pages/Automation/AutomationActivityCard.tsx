@@ -1,159 +1,148 @@
 /* global appLocalizer */
-import React, { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { useEffect, useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import {
-	ActivityListComponent,
-	CardComponent,
-	ModuleGuardComponent,
-	BadgeComponent,
-} from '@zyra/components';
-import { formatWpDate } from '../../services/formatWpDate';
-import { ACTION_TYPE_LABELS } from './automationLabels';
-
-interface RunResultEntry {
-	success: boolean;
-	action_id: string;
-	message: string;
-}
+import { CardComponent, BadgeComponent } from '@zyra/components';
 
 interface AutomationRunRow {
 	id: number;
+	automation_id: number;
 	automation_name: string;
 	status: 'running' | 'completed' | 'failed';
-	result_log: string | null;
+	actions_executed: number;
+	actions_failed: number;
+	changes_made: number;
 	started_at: string;
-}
-
-interface ActivityRow {
-	id: string;
-	title: string;
-	desc: string;
-	timestamp: string;
-	success: boolean;
+	finished_at: string | null;
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
-const UNDO_DISABLED_REASON = __(
-	"Undo isn't available yet for this change.",
-	'vulopilot'
-);
+const STATUS_META: Record<AutomationRunRow['status'], { label: string; color: string }> = {
+	completed: { label: __('Completed', 'vulopilot'), color: 'green' },
+	failed: { label: __('Failed', 'vulopilot'), color: 'red' },
+	running: { label: __('Running', 'vulopilot'), color: 'grey' },
+};
+
+/** Real "Today, 9:00 AM"/"Yesterday, 8:00 AM"/"Aug 9, 8:00 AM" — same technique `AutomationStatsRow.tsx`'s own `formatLastCheck()` already established, extended with a real "Yesterday" case since this feed shows several rows spanning more than just today/not-today. */
+const formatActivityTime = (isoDate: string): string => {
+	const date = new Date(isoDate.replace(' ', 'T') + 'Z');
+	const time = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+	const today = new Date();
+	const yesterday = new Date();
+	yesterday.setDate(today.getDate() - 1);
+
+	if (date.toDateString() === today.toDateString()) {
+		return `${__('Today', 'vulopilot')}, ${time}`;
+	}
+
+	if (date.toDateString() === yesterday.toDateString()) {
+		return `${__('Yesterday', 'vulopilot')}, ${time}`;
+	}
+
+	return `${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}, ${time}`;
+};
+
+/** A real run's own one-line outcome — same real severity order (failed → changes made → no changes) `ManageAutomationsSection.tsx`'s own `renderLastRunCell()`/`AutomationSuggestions.tsx`'s own `describeLastCheck()` already establish for this exact data, ported here rather than imported (this codebase's own "duplicate small per-file logic" convention). */
+const describeOutcome = (row: AutomationRunRow): string => {
+	if ('failed' === row.status) {
+		return 1 === row.actions_failed
+			? __('1 action failed.', 'vulopilot')
+			: __('Some actions failed.', 'vulopilot');
+	}
+
+	if ('running' === row.status) {
+		return __('Still running…', 'vulopilot');
+	}
+
+	if (row.changes_made > 0) {
+		return 1 === row.changes_made
+			? __('1 change made.', 'vulopilot')
+			: __('Several changes made.', 'vulopilot');
+	}
+
+	return __('No changes needed.', 'vulopilot');
+};
+
+interface AutomationActivityCardProps {
+	onViewHistory: () => void;
+	refetchSignal: number;
+}
 
 /**
- * "Automation Activity" — real, via GET /automation-runs (Pro), flattened
- * per result-log entry (one row per action a run actually executed) rather
- * than the mockup's fabricated specific captions ("Optimized 128 images",
- * "Updated 9 plugins" — neither is a real automation action; see
- * ActionRegistry's real 4: send-email/resolve-finding/create-notification/
- * run-ai-action). Undo is honestly disabled with a tooltip, same exact
- * convention Free's own Dashboard RecentChangesWidget.tsx already
- * established for AI/automation-attributed activity.
+ * "Recent automation activity" — the 5 real most-recent runs across every
+ * automation, `GET /automation-runs` (already exists, backs
+ * `AutomationLogsPanel.tsx`'s own full history view this card's own "View
+ * automation history →" jumps to). Sorted and sliced client-side rather
+ * than trusting an assumed default order — fetches a small page and picks
+ * the 5 most recent by `finished_at`/`started_at`.
  *
- * A raw fetch (not useApiList) on purpose: automation-runs is Pro-only, and
- * useApiList's own error-with-Retry card would misleadingly imply a
- * transient failure when Pro simply isn't active — same graceful-
- * degradation shape AutomationStatusCard.tsx/RevenueInsightsCard.tsx use
- * for other Pro-only endpoints (silently falls back to the honest empty
- * state instead).
+ * Simplified from the mockup in one honest way: the mockup's own "Monthly
+ * website report sent" row shows a "Delivered" badge instead of
+ * "Completed" — `GET /automation-runs` doesn't carry the parent
+ * automation's own configured actions, so there's no real signal here to
+ * tell a send-email-driven completion apart from any other; every
+ * completed run shows the same real "Completed" badge instead of
+ * guessing.
  */
-const AutomationActivityCard = () => {
-	const [runs, setRuns] = useState<AutomationRunRow[] | null>(null);
+const AutomationActivityCard = ({ onViewHistory, refetchSignal }: AutomationActivityCardProps) => {
+	const [rows, setRows] = useState<AutomationRunRow[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		const baseUrl = getApiLink(appLocalizer, 'automation-runs');
-		const url = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}per_page=10`;
+		setIsLoading(true);
 
 		getApiResponse<{ data: AutomationRunRow[] } | AutomationRunRow[]>(
-			url,
+			`${getApiLink(appLocalizer, 'automation-runs')}?per_page=20`,
 			nonceHeaders
-		).then((response) => {
-			const list = Array.isArray(response)
-				? response
-				: (response?.data ?? []);
-			setRuns(list);
-		});
-	}, []);
+		)
+			.then((response) => {
+				const list = Array.isArray(response) ? response : (response?.data ?? []);
+				const sorted = [...list].sort((a, b) =>
+					(b.finished_at ?? b.started_at).localeCompare(a.finished_at ?? a.started_at)
+				);
+				setRows(sorted.slice(0, 5));
+			})
+			.finally(() => setIsLoading(false));
+	}, [refetchSignal]);
 
-	if (runs === null) {
+	if (!isLoading && 0 === rows.length) {
 		return null;
 	}
 
-	const rows: ActivityRow[] = runs.flatMap((run) => {
-		let entries: RunResultEntry[] = [];
-		try {
-			entries = run.result_log ? JSON.parse(run.result_log) : [];
-		} catch {
-			entries = [];
-		}
-
-		if (entries.length === 0) {
-			return [
-				{
-					id: String(run.id),
-					title: sprintf(
-						/* translators: %s: automation name */
-						__('%s ran', 'vulopilot'),
-						run.automation_name
-					),
-					desc:
-						run.status === 'failed'
-							? __('This run failed.', 'vulopilot')
-							: __('No actions were executed.', 'vulopilot'),
-					timestamp: formatWpDate(run.started_at),
-					success: run.status !== 'failed',
-				},
-			];
-		}
-
-		return entries.map((entry, index) => ({
-			id: `${run.id}-${index}`,
-			title: entry.message,
-			desc: sprintf(
-				/* translators: 1: automation name, 2: action type label */
-				__('%1$s · %2$s', 'vulopilot'),
-				run.automation_name,
-				ACTION_TYPE_LABELS[entry.action_id] ?? entry.action_id
-			),
-			timestamp: formatWpDate(run.started_at),
-			success: entry.success,
-		}));
-	});
-
 	return (
 		<CardComponent
-			className="automation-activity-card"
-			titleIcon="update"
-			title={__('Automation Activity', 'vulopilot')}
+			title={__('Recent automation activity', 'vulopilot')}
+			isLoading={isLoading}
+			action={
+				<span className="automation-activity-view-all" onClick={onViewHistory}>
+					{__('View automation history →', 'vulopilot')}
+				</span>
+			}
 		>
-			{rows.length === 0 ? (
-				<ModuleGuardComponent
-					icon="update"
-					title={__('No automation activity yet', 'vulopilot')}
-					desc={__(
-						'Actions your automations take will show up here once one runs.',
-						'vulopilot'
-					)}
-				/>
-			) : (
-				<ActivityListComponent
-					cols={2}
-					items={rows.map((row) => ({
-						id: row.id,
-						icon: row.success ? 'check' : 'close',
-						title: row.title,
-						badge: <BadgeComponent color="blue" text="AI" />,
-						desc: row.desc,
-						timestamp: row.timestamp,
-						action: {
-							label: __('Undo', 'vulopilot'),
-							icon: 'undo',
-							disabled: true,
-							disabledReason: UNDO_DISABLED_REASON,
-						},
-					}))}
-				/>
-			)}
+			<div className="automation-activity-list">
+				{rows.map((row) => {
+					const status = STATUS_META[row.status];
+
+					return (
+						<div className="automation-activity-row" key={row.id}>
+							<div className={`automation-activity-icon is-${status.color}`}>
+								<i className="adminfont-automation" />
+							</div>
+							<div className="automation-activity-body">
+								<span className="automation-activity-time">
+									{formatActivityTime(row.finished_at ?? row.started_at)}
+								</span>
+								<strong>
+									{row.automation_name} {STATUS_META[row.status].label.toLowerCase()}
+								</strong>
+								<p>{describeOutcome(row)}</p>
+							</div>
+							<BadgeComponent color={status.color} text={status.label} />
+						</div>
+					);
+				})}
+			</div>
 		</CardComponent>
 	);
 };

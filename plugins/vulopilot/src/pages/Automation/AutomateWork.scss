@@ -1,71 +1,183 @@
 @use '../../components/config' as *;
 
-.automate-composer-title {
-	margin: 0 0 0.75rem;
-	font-size: 1.0625rem;
-}
-
-.automate-composer-note {
-	margin: 0.75rem 0 0;
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-}
-
-.ai-foreman-desc {
-	color: $sub-text-color;
-	margin: 0 0 0.75rem;
-}
-
-.ai-foreman-build {
+// AutomationAttentionCard.tsx — "Needs your attention"
+.automation-attention-count {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 0.5rem;
-	width: 100%;
-	border-radius: 0.5rem;
-	background: $theme-color;
+	min-width: 1.375rem;
+	height: 1.375rem;
+	padding: 0 0.375rem;
+	margin-left: 0.5rem;
+	border-radius: 50%;
+	background: #dc2626;
 	color: $color-white;
-	font-weight: 600;
-	padding: 0.625rem 1rem;
-	margin-bottom: 0.5rem;
-	cursor: pointer;
+	font-size: 0.75rem;
+	font-weight: 700;
+}
 
-	&.disabled {
-		background: $border-color;
+.automation-attention-empty {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	padding: 0.5rem 0;
+
+	> i {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 50%;
+		background: color-mix(in srgb, #16a34a 14%, transparent);
+		color: #16a34a;
+		flex-shrink: 0;
+	}
+
+	p {
+		margin: 0;
 		color: $sub-text-color;
-		cursor: not-allowed;
+		font-size: 0.8125rem;
 	}
 }
 
-// .upcoming-jobs-list/.upcoming-jobs-name (UpcomingJobsCard.tsx) and
-// .active-workflow-* (ActiveWorkflowCard.tsx) were removed here — both
-// components were replaced by AutomationOverviewGrid.tsx, which shows
-// the same real per-automation cadence/last-run data as cards in a grid
-// instead of two separate, overlapping single-purpose lists.
-
-.automation-status-gauge-label {
-	text-align: center;
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-	margin: 0.5rem 0 0;
-}
-
-.automation-status-actions {
+.automation-attention-list {
 	display: flex;
+	flex-direction: column;
 	gap: 0.75rem;
-	margin-top: 1rem;
-	flex-wrap: wrap;
 }
 
-.automation-link-desc {
-	color: $sub-text-color;
+.automation-attention-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-top: $border-light-small;
+
+	&:first-child {
+		border-top: none;
+	}
+
+	> i {
+		color: #dc2626;
+		font-size: 1.125rem;
+		flex-shrink: 0;
+	}
+}
+
+.automation-attention-body {
+	flex: 1;
+	min-width: 0;
+
+	p {
+		margin: 0.125rem 0 0;
+		color: $sub-text-color;
+		font-size: 0.8125rem;
+	}
+}
+
+.automation-attention-view-all {
+	display: block;
+	margin-top: 0.75rem;
+	color: $theme-color;
+	font-weight: 600;
 	font-size: 0.8125rem;
-	margin: 0 0 0.75rem;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
 }
 
-// AutomationHeroRow.tsx — "Your website is being watched" + "Sit back
-// and relax."
+// AutomationPeriodStatsCard.tsx — "This month"
+.automation-period-stats-compare {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	margin: 0.75rem 0 0;
+}
+
+// AutomationActivityCard.tsx — "Recent automation activity"
+.automation-activity-view-all {
+	color: $theme-color;
+	font-weight: 600;
+	font-size: 0.8125rem;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.automation-activity-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.875rem;
+	margin-top: 0.5rem;
+}
+
+.automation-activity-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding-top: 0.875rem;
+	border-top: $border-light-small;
+
+	&:first-child {
+		padding-top: 0;
+		border-top: none;
+	}
+}
+
+.automation-activity-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, $theme-color 10%, transparent);
+	color: $theme-color;
+
+	&.is-red {
+		background: color-mix(in srgb, #dc2626 12%, transparent);
+		color: #dc2626;
+	}
+
+	&.is-grey {
+		background: $border-color;
+		color: $sub-text-color;
+	}
+}
+
+.automation-activity-body {
+	flex: 1;
+	min-width: 0;
+
+	p {
+		margin: 0.125rem 0 0;
+		color: $sub-text-color;
+		font-size: 0.8125rem;
+	}
+}
+
+.automation-activity-time {
+	display: block;
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	margin-bottom: 0.125rem;
+}
+
+// AutomationStatsRow.tsx's own hero header — "Your website is being
+// watched," merged with the real 4-tile stat row directly below it (one
+// card, no second fetch — see that file's own docblock).
 .automation-watch-card {
+	padding: 1.25rem;
+	border: $border-light-small;
+	border-radius: 0.75rem;
+	background: $background-white;
+	margin-bottom: 1rem;
+
 	.automation-watch-header {
 		display: flex;
 		align-items: flex-start;
@@ -74,6 +186,7 @@
 }
 
 .automation-watch-icon {
+	position: relative;
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
@@ -98,9 +211,16 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
+
+	strong {
+		font-size: 1.0625rem;
+	}
 }
 
 .automation-watch-check {
+	position: absolute;
+	top: -0.25rem;
+	right: -0.25rem;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -109,10 +229,18 @@
 	border-radius: 50%;
 	background: #16a34a;
 	color: $color-white;
-	font-size: 0.7rem;
+	font-size: 0.6875rem;
+	border: 2px solid $background-white;
 }
 
 .automation-watch-sub {
+	color: #16a34a;
+	font-weight: 600;
+	font-size: 0.875rem;
+	margin: 0.25rem 0 0;
+}
+
+.automation-watch-desc {
 	color: $sub-text-color;
 	font-size: 0.8125rem;
 	margin: 0.25rem 0 0;
@@ -120,10 +248,11 @@
 
 .automation-watch-stats {
 	display: flex;
-	gap: 2rem;
+	gap: 2.5rem;
 	margin-top: 1.25rem;
 	padding-top: 1.25rem;
 	border-top: $border-light-small;
+	flex-wrap: wrap;
 }
 
 .automation-watch-stat {
@@ -132,7 +261,7 @@
 	gap: 0.125rem;
 
 	strong {
-		font-size: 1.25rem;
+		font-size: 1.125rem;
 	}
 
 	span {
@@ -146,315 +275,60 @@
 	}
 }
 
-.automation-relax-card {
-	text-align: center;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.5rem;
-
-	p {
-		color: $sub-text-color;
-		font-size: 0.8125rem;
-		margin: 0 0 0.5rem;
-	}
-}
-
-.automation-relax-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	border-radius: 50%;
-	background: color-mix(in srgb, #16a34a 14%, transparent);
-	color: #16a34a;
-	font-size: 1.25rem;
-	margin-bottom: 0.25rem;
-}
-
-// AutomationOverviewGrid.tsx — "What VuloPilot is doing for you"
-.automation-overview-grid-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 0.75rem;
-}
-
-.automation-overview-grid-title {
-	margin: 0;
-	font-size: 1rem;
-}
-
-.automation-overview-grid-view-all {
-	color: $theme-color;
-	font-weight: 600;
-	font-size: 0.8125rem;
-	cursor: pointer;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
-.automation-overview-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-	gap: 1rem;
-}
-
-.automation-overview-card {
-	border: $border-light-small;
-	border-radius: 0.75rem;
-	padding: 1rem;
-}
-
-.automation-overview-card-header {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	margin-bottom: 0.5rem;
-
-	strong {
-		flex: 1;
-		min-width: 0;
-	}
-}
-
-.automation-overview-card-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2rem;
-	height: 2rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, $theme-color 10%, transparent);
-	color: $theme-color;
-	font-size: 0.9rem;
-}
-
-.automation-overview-card-desc {
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-	margin: 0 0 0.625rem;
-}
-
-.automation-overview-card-row {
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-	margin-bottom: 0.75rem;
-}
-
-.automation-overview-card-footer {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.5rem;
-	padding-top: 0.625rem;
-	border-top: $border-light-small;
-}
-
-.automation-overview-card-last-check {
-	font-size: 0.75rem;
-	color: $sub-text-color;
-}
-
-.automation-overview-card-manage {
-	font-size: 0.8125rem;
-	font-weight: 600;
-	color: $theme-color;
-	cursor: pointer;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
-// AutomationAttentionCard.tsx — "Needs your attention"
-.automation-attention-header h3 {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	margin: 0 0 0.75rem;
-	font-size: 1rem;
-}
-
-.automation-attention-count {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 1.375rem;
-	height: 1.375rem;
-	padding: 0 0.375rem;
-	border-radius: 50%;
-	background: #dc2626;
-	color: $color-white;
-	font-size: 0.75rem;
-	font-weight: 700;
-}
-
-.automation-attention-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-}
-
-.automation-attention-row {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 0.75rem 0;
-	border-top: $border-light-small;
-
-	&:first-child {
-		border-top: none;
-	}
-
-	> i {
-		color: #dc2626;
-		font-size: 1.125rem;
-	}
-}
-
-.automation-attention-body {
-	flex: 1;
-	min-width: 0;
-
-	p {
-		margin: 0.125rem 0 0;
-	}
-}
-
-.automation-attention-view-all {
-	display: block;
-	margin-top: 0.75rem;
-	color: $theme-color;
-	font-weight: 600;
-	font-size: 0.8125rem;
-	cursor: pointer;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
-// AutomationPeriodStatsCard.tsx
-.automation-period-stats-compare {
-	color: $sub-text-color;
-	font-size: 0.75rem;
-	margin: 0.5rem 0 0;
-}
-
-// AutomationExploreBanner.tsx
-.automation-explore-banner {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-}
-
-.automation-explore-icon {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	border-radius: 50%;
-	background: color-mix(in srgb, $theme-color 12%, transparent);
-	color: $theme-color;
-	font-size: 1.25rem;
-}
-
-.automation-explore-body {
-	flex: 1;
-	min-width: 0;
-
-	p {
-		color: $sub-text-color;
-		font-size: 0.8125rem;
-		margin: 0.125rem 0 0;
-	}
-}
-
-// `.admin-badge`'s own base pill shape comes from zyra at runtime, but its
-// color modifiers don't (same gap this session already fixed for
-// SellMore.scss) — every green/indigo/blue `admin-badge` on this page
-// (AutomationOverviewGrid's Active/Inactive pill, AutomationActivityCard's
-// pre-existing "AI" tag) was rendering untinted before this.
-.automation-overview-grid,
-.automation-activity-card {
-	.admin-badge {
-		&.green {
-			color: #16a34a;
-			background: color-mix(in srgb, #16a34a 14%, transparent);
-		}
-
-		&.indigo {
-			color: #4f46e5;
-			background: color-mix(in srgb, #4f46e5 14%, transparent);
-		}
-
-		&.blue {
-			color: #2563eb;
-			background: color-mix(in srgb, #2563eb 14%, transparent);
-		}
-	}
-}
-
-// AutomationStatsRow.tsx — the "Automations" tab's own 4-tile stat row,
-// zyra's AnalyticsComponent `variant="dashboard"`. That component's own
-// `iconClass` prop lands on `.analytics-icon i` (confirmed against its own
-// compiled source), not the icon's own colored-square background the
-// mockup shows — these 4 modifiers add that background/border-radius/icon
-// color as one unit, same color-mix() tinting technique as the
-// `.admin-badge` block above.
+// This page's own real AnalyticsComponent `variant="dashboard"` tile
+// cards (`AutomationPeriodStatsCard.tsx`'s "This month" — `AutomationStatsRow.tsx`
+// used to have one of these too before its own 4-tile row was folded into
+// the hero card directly above it). That component's own `iconClass` prop
+// lands on `.analytics-icon i` (confirmed against its own compiled source),
+// not the icon's own colored-square background the mockup shows — these 4
+// modifiers add that background/border-radius/icon color as one unit, same
+// color-mix() tinting technique as the `.admin-badge` block above. Not
+// scoped to one card's own wrapper class since more than one card on this
+// page now renders this same tile shape.
 .automation-stats-row {
 	margin-bottom: 1rem;
+}
 
-	.analytics-icon {
-		border-radius: 0.625rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+.analytics-icon {
+	border-radius: 0.625rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
-		// `iconClass` lands on the `<i>` itself (`adminfont-active is-good`),
-		// not this wrapping div — `:has()` reaches up from the child class to
-		// tint the box, while the plain descendant selector below tints the
-		// glyph itself.
-		&:has(i.is-good) {
-			background: color-mix(in srgb, #16a34a 14%, transparent);
-		}
+	// `iconClass` lands on the `<i>` itself (`adminfont-active is-good`),
+	// not this wrapping div — `:has()` reaches up from the child class to
+	// tint the box, while the plain descendant selector below tints the
+	// glyph itself.
+	&:has(i.is-good) {
+		background: color-mix(in srgb, #16a34a 14%, transparent);
+	}
 
-		&:has(i.is-attention) {
-			background: color-mix(in srgb, #ea580c 14%, transparent);
-		}
+	&:has(i.is-attention) {
+		background: color-mix(in srgb, #ea580c 14%, transparent);
+	}
 
-		&:has(i.is-info) {
-			background: color-mix(in srgb, #7c3aed 14%, transparent);
-		}
+	&:has(i.is-info) {
+		background: color-mix(in srgb, #7c3aed 14%, transparent);
+	}
 
-		&:has(i.is-primary) {
-			background: color-mix(in srgb, #2563eb 14%, transparent);
-		}
+	&:has(i.is-primary) {
+		background: color-mix(in srgb, #2563eb 14%, transparent);
+	}
 
-		i.is-good {
-			color: #16a34a;
-		}
+	i.is-good {
+		color: #16a34a;
+	}
 
-		i.is-attention {
-			color: #ea580c;
-		}
+	i.is-attention {
+		color: #ea580c;
+	}
 
-		i.is-info {
-			color: #7c3aed;
-		}
+	i.is-info {
+		color: #7c3aed;
+	}
 
-		i.is-primary {
-			color: #2563eb;
-		}
+	i.is-primary {
+		color: #2563eb;
 	}
 }
 
@@ -588,17 +462,11 @@
 	}
 }
 
-// vulopilot-pro/modules/Automation/src/AutomationPanel.tsx — that module
-// has no SCSS of its own (Pro's JS renders inside this same page, sharing
-// this stylesheet — see this repo's own CLAUDE.md on how Pro's src/
-// mounts), so its "+ Create automation" toolbar and the Workflow Builder
-// form now living inside a PopupComponent both style from here.
-.vulopilot-pro-automation-toolbar {
-	display: flex;
-	justify-content: flex-end;
-	margin-bottom: 1rem;
-}
-
+// vulopilot-pro/modules/Automation/src/AutomationWizard.tsx and
+// AutomationGenerate.tsx — that module has no SCSS of its own (Pro's JS
+// renders inside this same page, sharing this stylesheet — see this repo's
+// own CLAUDE.md on how Pro's src/ mounts), so the real wizard/generate
+// popups style from here.
 .vulopilot-pro-automation-form {
 	display: flex;
 	flex-direction: column;
@@ -641,8 +509,273 @@
 	}
 }
 
-.vulopilot-pro-automation-view-toggle {
-	margin: 1rem 0;
+// AutomationWizard.tsx — the real 5-step builder popup (Trigger →
+// Conditions → Actions → Notifications → Review & Activate).
+.automation-wizard {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.automation-wizard-name {
+	width: 100%;
+	padding: 0.625rem 0.75rem;
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+
+	&:disabled {
+		background: $theme-background-color;
+		color: $sub-text-color;
+	}
+}
+
+.automation-wizard-steps {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+	border-bottom: $border-light-small;
+	padding-bottom: 0.75rem;
+}
+
+.automation-wizard-step {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.375rem 0.75rem;
+	border: none;
+	border-radius: 999px;
+	background: $theme-background-color;
+	color: $sub-text-color;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	cursor: pointer;
+
+	&.is-active {
+		background: color-mix(in srgb, $theme-color 14%, transparent);
+		color: $theme-color;
+	}
+}
+
+.automation-wizard-step-index {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.125rem;
+	height: 1.125rem;
+	border-radius: 50%;
+	background: color-mix(in srgb, $sub-text-color 18%, transparent);
+	font-size: 0.6875rem;
+
+	.automation-wizard-step.is-active & {
+		background: $theme-color;
+		color: $color-white;
+	}
+}
+
+.automation-wizard-body {
+	h3 {
+		margin: 0 0 0.25rem;
+		font-size: 1rem;
+	}
+}
+
+.automation-wizard-empty {
+	color: $sub-text-color;
+	font-size: 0.8125rem;
+	margin: 0;
+}
+
+.automation-wizard-summary {
+	display: flex;
+	flex-direction: column;
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	overflow: hidden;
+}
+
+.automation-wizard-summary-row {
+	display: flex;
+	align-items: baseline;
+	gap: 0.625rem;
+	padding: 0.625rem 0.875rem;
+
+	+ .automation-wizard-summary-row {
+		border-top: $border-light-small;
+	}
+
+	strong {
+		flex-shrink: 0;
+		width: 4rem;
+		font-size: 0.75rem;
+		color: $sub-text-color;
+	}
+
+	span {
+		flex: 1;
+		min-width: 0;
+		font-size: 0.875rem;
+	}
+
+	button {
+		flex-shrink: 0;
+		border: none;
+		background: none;
+		color: $theme-color;
+		font-weight: 600;
+		font-size: 0.8125rem;
+		cursor: pointer;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+.automation-wizard-activate-row,
+.automation-wizard-view-actions,
+.automation-wizard-nav {
+	display: flex;
+	gap: 0.625rem;
+	justify-content: flex-end;
+}
+
+.automation-wizard-nav {
+	justify-content: space-between;
+}
+
+.automation-wizard-runs-title {
+	margin: 0.5rem 0 0;
+	font-size: 0.875rem;
+}
+
+// AutomationGenerate.tsx — "Build with AI"
+.automation-generate {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+
+	h3 {
+		margin: 0;
+		font-size: 1.0625rem;
+	}
+}
+
+.automation-generate-input {
+	width: 100%;
+	padding: 0.625rem 0.75rem;
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-family: inherit;
+	resize: vertical;
+}
+
+// AutomationSuggestions.tsx (Automate Work's own landing page)
+.automation-suggestions-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+	gap: 1rem;
+}
+
+.automation-suggestion-card {
+	border: $border-light-small;
+	border-radius: 0.75rem;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+.automation-suggestion-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, $theme-color 10%, transparent);
+	color: $theme-color;
+	margin-bottom: 0.25rem;
+	flex-shrink: 0;
+}
+
+// The real-status variant (AutomationSuggestions.tsx's own `is-real`
+// cards) — a template whose category+trigger already matches a real,
+// running automation shows that automation's own status instead of the
+// static pitch below.
+.automation-suggestion-card.is-real {
+	gap: 0.5rem;
+}
+
+.automation-suggestion-card-header {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+
+	.automation-suggestion-icon {
+		margin-bottom: 0;
+	}
+
+	strong {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+.automation-suggestion-schedule {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	font-size: 0.75rem;
+	color: $sub-text-color;
+	padding: 0.5rem 0;
+	border-top: $border-light-small;
+}
+
+.automation-suggestion-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding-top: 0.375rem;
+	border-top: $border-light-small;
+}
+
+.automation-suggestion-last-check {
+	font-size: 0.75rem;
+	color: #16a34a;
+}
+
+.automation-suggestion-manage {
+	border: none;
+	background: none;
+	color: $theme-color;
+	font-weight: 600;
+	font-size: 0.8125rem;
+	cursor: pointer;
+	white-space: nowrap;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.automation-suggestion-preview {
+	background: $theme-background-color;
+	border-radius: 0.375rem;
+	padding: 0.5rem 0.625rem;
+	font-size: 0.75rem;
+	color: $sub-text-color;
+	margin: 0;
+}
+
+.automation-suggestion-actions {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.375rem;
+	flex-wrap: wrap;
 }
 
 // AutomationTemplatesCard.tsx's "Create new automation" list — reuses

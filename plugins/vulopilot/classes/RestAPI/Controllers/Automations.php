@@ -112,9 +112,34 @@ class Automations extends \WP_REST_Controller {
             )
         );
         $result['status_counts'] = $repository->get_status_counts();
-        $result['data']          = self::with_last_run( $result['data'] );
+        $result['data']          = self::with_next_run( self::with_last_run( $result['data'] ) );
 
         return rest_ensure_response( $result );
+    }
+
+    /**
+     * @see \VuloPilotPro\Automation\AutomationsRest::with_next_run() — identical shape (that controller's own docblock explains the real cron-hook-per-trigger-type reasoning). Doesn't need `VuloPilotPro()->scheduler` — `wp_next_scheduled()` is a plain WP core read, not something only the Pro scheduler wrapper can do.
+     *
+     * @param array<int, array<string, mixed>> $rows Real automation rows, each with a real 'trigger_type'.
+     * @return array<int, array<string, mixed>>
+     */
+    private static function with_next_run( array $rows ): array {
+        $cron_trigger_types = array( 'hourly', 'daily', 'weekly', 'monthly' );
+        $next_run_by_type   = array();
+
+        foreach ( $cron_trigger_types as $trigger_type ) {
+            $timestamp                        = wp_next_scheduled( 'vulopilot_automation_tick_' . $trigger_type );
+            $next_run_by_type[ $trigger_type ] = $timestamp ? gmdate( 'Y-m-d H:i:s', $timestamp ) : null;
+        }
+
+        return array_map(
+            static function ( array $row ) use ( $next_run_by_type ): array {
+                $row['next_run_at'] = $next_run_by_type[ $row['trigger_type'] ?? '' ] ?? null;
+
+                return $row;
+            },
+            $rows
+        );
     }
 
     /**
@@ -124,7 +149,7 @@ class Automations extends \WP_REST_Controller {
         $id     = absint( $request->get_param( 'id' ) );
         $status = sanitize_key( (string) $request->get_param( 'status' ) );
 
-        if ( ! in_array( $status, array( 'enabled', 'disabled' ), true ) ) {
+        if ( ! in_array( $status, array( 'enabled', 'disabled', 'draft' ), true ) ) {
             return new \WP_Error( 'vulopilot_invalid_status', __( 'Invalid automation status.', 'vulopilot' ), array( 'status' => 400 ) );
         }
 

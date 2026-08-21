@@ -1,63 +1,44 @@
 /* global appLocalizer */
-import { ComponentType, useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
-import {
-	CardComponent,
-	ModuleGuardComponent,
-	PopupComponent,
-	BadgeComponent,
-} from '@zyra/components';
-import { ButtonInput, MultiCheckboxInput } from '@zyra/inputs';
+import { getApiLink, sendApiResponse } from '@zyra/core';
+import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
+import { MultiCheckboxInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
-import { useFilterSlot } from '../../services/useFilterSlot';
 import { formatWpDate } from '../../services/formatWpDate';
-import ShowProPopup from '../../components/Popup/Popup';
-import AutomationStatsRow from './AutomationStatsRow';
-import { AutomationTemplate, getAutomationTemplateById } from './automationTemplates';
-import {
-	CATEGORY_LABELS,
-	TRIGGER_TYPE_LABELS,
-	describeAutomationActions,
-} from './automationLabels';
+import { CATEGORY_LABELS, TRIGGER_TYPE_LABELS, describeAutomationActions } from './automationLabels';
 
-/**
- * Mirrors `AutomationPanel.tsx`'s own (Pro) `AutomationPanelProps` — Free
- * can't import Pro's src/ tree (that file's own docblock), same "small
- * matching copy" convention `automationLabels.ts` already uses for
- * CATEGORY_OPTIONS/TRIGGER_TYPE_OPTIONS/ACTION_TYPE_OPTIONS.
- */
-interface AutomationPanelComponentProps {
-	openSignal?: number;
-	initialName?: string;
-	initialCategory?: string;
-	initialTriggerType?: string;
-	initialActionTypes?: string[];
-}
-
-interface AutomationRow extends TableRow {
+export interface AutomationRow extends TableRow {
 	id: number;
 	name: string;
 	category: string;
 	trigger_type: string;
 	actions: string;
-	status: 'enabled' | 'disabled';
+	conditions?: string | null;
+	status: 'enabled' | 'disabled' | 'draft';
 	last_triggered_at: string | null;
 	last_run_status: 'running' | 'completed' | 'failed' | null;
 	last_run_actions_executed: number | null;
 	last_run_actions_failed: number | null;
 	last_run_changes_made: number | null;
+	/** Real for the 4 cron-based trigger types only (see `AutomationsRest::with_next_run()`'s own docblock) — null for event/manual/webhook triggers, which have no "next scheduled" concept at all. */
+	next_run_at: string | null;
 	last_run_finished_at: string | null;
 }
 
 /**
- * The "AUTOMATION" column — real icon (fixed per this codebase's own
- * `adminfont-automation` glyph, same one Automation.tsx's own header uses;
- * no per-category icon set exists to honestly pick from instead) + real
- * name + a real category badge (`row.category`, CATEGORY_LABELS —
- * Install.php's own add_automations_category_column() docblock explains
- * why this is a real column, not a fabricated grouping).
+ * All/Active/Drafts/Paused (spec section 9) — maps directly onto the real
+ * `status` column's 3 real values (`AutomationRepository::get_status_counts()`).
+ * "All" is prepended automatically by `useApiList`'s own `categoryFilter`
+ * handling, same as every other status-count pill bar in this codebase.
  */
+const STATUS_OPTIONS = [
+	{ label: __('Active', 'vulopilot'), value: 'enabled' },
+	{ label: __('Drafts', 'vulopilot'), value: 'draft' },
+	{ label: __('Paused', 'vulopilot'), value: 'disabled' },
+];
+
 const renderNameCell = (row: AutomationRow) => (
 	<div className="automations-name-cell">
 		<span className="automations-name-icon">
@@ -83,22 +64,14 @@ const renderRunsCell = (row: AutomationRow) => (
 	<span>{TRIGGER_TYPE_LABELS[row.trigger_type] ?? row.trigger_type}</span>
 );
 
-/**
- * The "LAST RUN" column — real date (`last_run_finished_at`, falling back
- * to the real `last_triggered_at` a run always stamps even before this
- * pass's own `last_run_*` enrichment existed) plus a real colored outcome:
- * never run yet (neutral), failed (red), completed with real changes made
- * (green, real count), or completed with nothing to change (neutral) —
- * never the mockup's own invented "3 opportunities found" copy, always
- * this automation's own real last AutomationRunRepository row
- * (Controllers\Automations::with_last_run()).
- */
 const renderLastRunCell = (row: AutomationRow) => {
 	const date = row.last_run_finished_at ?? row.last_triggered_at;
 
 	let outcome: { text: string; tone: 'is-good' | 'is-attention' | 'is-neutral' };
 
-	if (!row.last_run_status) {
+	if ('draft' === row.status) {
+		outcome = { text: __('Not activated yet', 'vulopilot'), tone: 'is-neutral' };
+	} else if (!row.last_run_status) {
 		outcome = { text: __('Never run', 'vulopilot'), tone: 'is-neutral' };
 	} else if ('failed' === row.last_run_status) {
 		outcome = { text: __('Run failed', 'vulopilot'), tone: 'is-attention' };
@@ -128,26 +101,14 @@ const renderLastRunCell = (row: AutomationRow) => {
 
 interface StatusToggleProps {
 	row: AutomationRow;
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onToggle: (row: AutomationRow) => void;
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onRunNow: (row: AutomationRow) => void;
 	runDisabled?: boolean;
 }
 
-/**
- * A real toggle switch (not the mockup's own untouched screenshot chrome —
- * zyra's `MultiCheckboxInput` with `look="toggle"`, a single-option list
- * standing in for one row's own boolean status rather than a raw
- * `<input type="checkbox">`) plus a compact "Run now" icon button alongside
- * it — this tab's only other real per-row action, kept rather than dropped
- * just because the mockup's own cropped screenshot doesn't show a second
- * control here.
- */
-const StatusToggleCell = ({
-	row,
-	onToggle,
-	onRunNow,
-	runDisabled,
-}: StatusToggleProps) => (
+const StatusToggleCell = ({ row, onToggle, onRunNow, runDisabled }: StatusToggleProps) => (
 	<div className="automations-status-actions">
 		<MultiCheckboxInput
 			look="toggle"
@@ -168,136 +129,89 @@ const StatusToggleCell = ({
 	</div>
 );
 
-/**
- * The real automation list/create/enable/run management UI — today's
- * whole "Automations" tab (Automation.tsx). Every other card's
- * "Manage"/"Create"/"View all" action switches to this tab
- * (`onManageAutomations`) rather than scrolling to it, since it's a full
- * tab of its own now, not a section further down a single long page.
- *
- * Redesigned to match the mockup: a real 4-tile stat row
- * (AutomationStatsRow.tsx) above an "All automations" table whose columns
- * (Automation/What it does/Runs/Last run/Status) are all real data — see
- * each `render*Cell()` helper above for its own honest-substitution notes.
- *
- * The real panel (list, enable/disable, create, run) lives in
- * vulopilot-pro/modules/Automation's own React entry
- * (modules/Automation/src/index.tsx), registered into the
- * `vulopilot_automation_panel` slot — same "register a source, don't
- * modify the host" pattern already used for Reports'
- * `vulopilot_reports_advanced_panel`. Read via `useFilterSlot()`, not a
- * one-time module-scope `applyFilters()` call: Pro's own `addFilter()`
- * call always runs strictly after this component's first render on a
- * fresh page load (FrontendScriptsPro.php's own docblock — Pro's script
- * depends on Free's, but "depends on" only orders the <script> tags, not
- * when each one finishes executing), so a one-time read here permanently
- * missed it — "Create automation" opened the "Unlock with Pro" popup and
- * did nothing even with the real 'automation' module genuinely active,
- * same bug already fixed this session for WooCommerceTab.tsx's two panel
- * slots. AutomationPanel.tsx (Pro) duplicates this same table styling —
- * it can't import this file's src/ tree, only the shared zyra package.
- */
 interface ManageAutomationsSectionProps {
-	/** Automation.tsx's own `automation_template=<id>` URL param — set only when arriving from AI Copilot's Chat tab preview (AutomationTemplatesCard's onSelectTemplate there navigates cross-page with this param). Null for a plain top-nav visit. */
-	initialTemplateId?: string | null;
+	/** Whether the real wizard resolved (`vulopilot_automation_panel`'s own `Wizard` — Pro active and the Automation module on) — gates whether row actions call the real endpoints directly or fall back to the upsell popup. */
+	hasWizard: boolean;
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	onOpenRow: (row: AutomationRow) => void;
+	onRequireProUpsell: () => void;
+	/** Bumped by the host (`Automation.tsx`) after the wizard actually saves/changes something — this table has no fetch state of its own to update otherwise, since it isn't the one that owns the popup that just wrote to it. */
+	refetchSignal: number;
 }
 
+/**
+ * The real, single automations list — "the automation list itself is the
+ * management experience" (spec section 9). Used for both Pro-active and
+ * Pro-inactive states now: `AutomationWizard.tsx`/its now-deleted
+ * predecessor `AutomationPanel.tsx` used to render an entire second,
+ * near-identical table of its own whenever Pro was active, so this table
+ * only ever rendered while Pro was inactive — see this file's own git
+ * history / the redesign plan this was built against for that duplication.
+ * Toggle/Run now now call the real endpoints directly from here either way
+ * (previously only ever real inside Pro's own now-removed internal table);
+ * "Open" (see `renderOpenCell`) hands off to the real wizard's read-only
+ * view when one exists.
+ */
 const ManageAutomationsSection = ({
-	initialTemplateId,
-}: ManageAutomationsSectionProps = {}) => {
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-	const [templateOpenSignal, setTemplateOpenSignal] = useState(0);
-	const [pendingTemplate, setPendingTemplate] = useState<AutomationTemplate | null>(
-		null
-	);
-	const AutomationPanel = useFilterSlot<ComponentType<AutomationPanelComponentProps>>(
-		'vulopilot_automation_panel'
-	);
-	const firedInitialTemplateRef = useRef(false);
+	hasWizard,
+	onOpenRow,
+	onRequireProUpsell,
+	refetchSignal,
+}: ManageAutomationsSectionProps) => {
+	const { data, total, categoryCounts, isLoading, error, refetch, onQueryUpdate } =
+		useApiList<AutomationRow>('automations', {}, { key: 'status', options: STATUS_OPTIONS });
 
-	const statusOptions = [
-		{ label: __('Enabled', 'vulopilot'), value: 'enabled' },
-		{ label: __('Disabled', 'vulopilot'), value: 'disabled' },
-	];
+	useEffect(() => {
+		if (refetchSignal > 0) {
+			refetch();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately keyed only on refetchSignal, the increment-to-refetch token from the host; refetch() itself is stable per useApiList's own useCallback.
+	}, [refetchSignal]);
 
-	const {
-		data,
-		total,
-		categoryCounts,
-		isLoading,
-		error,
-		refetch,
-		onQueryUpdate,
-	} = useApiList<AutomationRow>(
-		'automations',
-		{},
-		{ key: 'status', options: statusOptions }
-	);
-
-	const openProPopup = () => setIsProPopupOpen(true);
-
-	/**
-	 * Templates' own real home — if `AutomationPanel` (Pro) is present,
-	 * open its real create form pre-seeded with this template's
-	 * category/trigger/actions; otherwise (Free / module inactive) fall
-	 * back to the exact same upsell every other create action in this file
-	 * already uses.
-	 */
-	const handleSelectTemplate = (template: AutomationTemplate) => {
-		if (!AutomationPanel) {
-			openProPopup();
+	const handleToggle = (row: AutomationRow) => {
+		if (!hasWizard) {
+			onRequireProUpsell();
 			return;
 		}
 
-		setPendingTemplate(template);
-		setTemplateOpenSignal((n) => n + 1);
+		const nextStatus = 'enabled' === row.status ? 'disabled' : 'enabled';
+
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `automations/${row.id}`), {
+			status: nextStatus,
+		}).then((response) => {
+			if (response) {
+				refetch();
+			}
+		});
 	};
 
-	// `AutomationPanel` (Pro) can resolve asynchronously after this
-	// component's first render (useFilterSlot's own docblock — a real
-	// script-load-order race, not a hypothetical one), so this can't just
-	// fire once on mount; it re-checks whenever `AutomationPanel` itself
-	// changes, but `firedInitialTemplateRef` guarantees the deep-linked
-	// template only ever auto-opens the form once, not every time the slot
-	// re-resolves.
-	useEffect(() => {
-		if (
-			firedInitialTemplateRef.current ||
-			!initialTemplateId ||
-			!AutomationPanel
-		) {
+	const handleRunNow = (row: AutomationRow) => {
+		if (!hasWizard) {
+			onRequireProUpsell();
 			return;
 		}
 
-		const template = getAutomationTemplateById(initialTemplateId);
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `automations/${row.id}/run`), {}).then(
+			(response) => {
+				if (response) {
+					refetch();
+				}
+			}
+		);
+	};
 
-		if (!template) {
+	const handleOpen = (row: AutomationRow) => {
+		if (!hasWizard) {
+			onRequireProUpsell();
 			return;
 		}
 
-		firedInitialTemplateRef.current = true;
-		handleSelectTemplate(template);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- handleSelectTemplate is redefined every render (closes over openProPopup/state setters); the ref guard already makes this safely re-runnable, keying on it would just cause redundant re-checks.
-	}, [AutomationPanel, initialTemplateId]);
+		onOpenRow(row);
+	};
 
 	return (
 		<div id="automation-manage">
-			<AutomationStatsRow />
-			<CardComponent
-				title={__('All automations', 'vulopilot')}
-				titleIcon="automation"
-				action={
-					AutomationPanel ? undefined : (
-						<ButtonInput
-							buttons={{
-								text: __('Create automation', 'vulopilot'),
-								icon: 'plus',
-								onClick: openProPopup,
-							}}
-						/>
-					)
-				}
-			>
+			<CardComponent title={__('Your automations', 'vulopilot')} titleIcon="automation">
 				{error ? (
 					<ModuleGuardComponent
 						icon="error"
@@ -306,103 +220,58 @@ const ManageAutomationsSection = ({
 						buttonText={__('Retry', 'vulopilot')}
 						onButtonClick={refetch}
 					/>
-				) : AutomationPanel ? (
-					<AutomationPanel
-						openSignal={templateOpenSignal}
-						// "Create from scratch" has a null category (its whole
-						// point is an unseeded blank form) — only a real
-						// template's own label makes a sensible default name.
-						initialName={
-							pendingTemplate?.category
-								? pendingTemplate.label
-								: undefined
-						}
-						initialCategory={pendingTemplate?.category ?? undefined}
-						initialTriggerType={pendingTemplate?.triggerType ?? undefined}
-						initialActionTypes={pendingTemplate?.actionTypes ?? undefined}
-					/>
 				) : (
-					<>
-						{/*
-						 * Pro isn't active (or the Automation module isn't) — the
-						 * table still renders with whatever Free's own baseline
-						 * `automations` REST controller returns (list/enable-disable
-						 * only, no create), but every action opens the Pro popup
-						 * instead of calling the API, since creating/running an
-						 * automation for real needs vulopilot-pro's engine.
-						 */}
-						<TableCard
-							search={{
-								placeholder: __(
-									'Search automations…',
-									'vulopilot'
+					<TableCard
+						search={{ placeholder: __('Search automations…', 'vulopilot') }}
+						format={appLocalizer.date_format_js}
+						headers={{
+							name: {
+								label: __('Automation', 'vulopilot'),
+								isSortable: true,
+								render: renderNameCell,
+							},
+							what_it_does: {
+								label: __('What it does', 'vulopilot'),
+								render: renderWhatItDoesCell,
+							},
+							trigger_type: {
+								label: __('Runs', 'vulopilot'),
+								render: renderRunsCell,
+							},
+							last_run: {
+								label: __('Last run', 'vulopilot'),
+								render: renderLastRunCell,
+							},
+							status: {
+								label: __('Status', 'vulopilot'),
+								render: (row: AutomationRow) => (
+									<StatusToggleCell row={row} onToggle={handleToggle} onRunNow={handleRunNow} />
 								),
-							}}
-							format={appLocalizer.date_format_js}
-							headers={{
-								name: {
-									label: __('Automation', 'vulopilot'),
-									isSortable: true,
-									render: renderNameCell,
-								},
-								what_it_does: {
-									label: __('What it does', 'vulopilot'),
-									render: renderWhatItDoesCell,
-								},
-								trigger_type: {
-									label: __('Runs', 'vulopilot'),
-									render: renderRunsCell,
-								},
-								last_run: {
-									label: __('Last run', 'vulopilot'),
-									render: renderLastRunCell,
-								},
-								status: {
-									label: __('Status', 'vulopilot'),
-									render: (row: AutomationRow) => (
-										<StatusToggleCell
-											row={row}
-											onToggle={openProPopup}
-											onRunNow={openProPopup}
-										/>
-									),
-								},
-							}}
-							rows={data}
-							ids={data.map((row) => row.id)}
-							totalRows={total}
-							categoryCounts={categoryCounts}
-							isLoading={isLoading}
-							onQueryUpdate={onQueryUpdate}
-							emptyMessage={__(
-								'No automations yet — create one to react to scan findings automatically.',
-								'vulopilot'
-							)}
-						/>
-						<PopupComponent
-							open={isProPopupOpen}
-							onClose={() => setIsProPopupOpen(false)}
-							width={31.25}
-							height="auto"
-							position="lightbox"
-						>
-							{appLocalizer.khali_dabba ? (
-								// Pro is active — this specific module just
-								// isn't toggled on yet, so point at Modules
-								// rather than pitching an upgrade the user
-								// already has. Real backend id is 'automation'
-								// (Automation's folder name kebab-cased, no
-								// 'Engine' suffix) — this previously pointed
-								// at 'automation-engine', an id no real module
-								// resolves to, same broken-toggle-deep-link
-								// bug fixed for the other <ShowProPopup>
-								// call sites this session.
-								<ShowProPopup moduleName="automation" />
-							) : (
-								<ShowProPopup />
-							)}
-						</PopupComponent>
-					</>
+							},
+							open: {
+								label: '',
+								type: 'action',
+								actions: [
+									{
+										label: __('Open', 'vulopilot'),
+										icon: 'external',
+										onClick: (row?: Record<string, unknown>) =>
+											row && handleOpen(row as AutomationRow),
+									},
+								],
+							},
+						}}
+						rows={data}
+						ids={data.map((row) => row.id)}
+						totalRows={total}
+						categoryCounts={categoryCounts}
+						isLoading={isLoading}
+						onQueryUpdate={onQueryUpdate}
+						emptyMessage={__(
+							'No automations yet — create one to react to scan findings automatically.',
+							'vulopilot'
+						)}
+					/>
 				)}
 			</CardComponent>
 		</div>
