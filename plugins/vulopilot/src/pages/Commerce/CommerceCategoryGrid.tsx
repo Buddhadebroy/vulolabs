@@ -808,7 +808,7 @@ const CommerceCategoryGrid = ({
 							color: 'text-purple',
 							onClick: () =>
 								window.open(
-									`${appLocalizer.admin_url}#&tab=automation`,
+									`${appLocalizer.admin_url}#&tab=automations`,
 									'_self'
 								),
 						}}

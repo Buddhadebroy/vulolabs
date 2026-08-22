@@ -11,7 +11,9 @@ import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import AiProvidersPanel from '../../components/Settings/AiProvidersPanel';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
+import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
+import CrawlerAlertTestPanel from '../../components/Settings/CrawlerAlertTestPanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import GoogleServicesPanel from '../../components/Settings/Scanning/GoogleServicesPanel';
@@ -142,6 +144,12 @@ const Settings = () => {
 			return <GoogleServicesPanel />;
 		}
 
+		// Developer Tools' "Clear cache" is a real action, not a
+		// persisted field — same escape hatch as 'indexnow' above.
+		if (currentTab === 'developer-tools') {
+			return <DeveloperToolsPanel />;
+		}
+
 		// Generic version of the three escape hatches above, for tabs this
 		// plugin doesn't know about at build time — e.g. vulopilot-pro's
 		// Licensing tab, registered into settingsArray via the
@@ -215,6 +223,15 @@ const Settings = () => {
 							 * credentials themselves can't just be more
 							 * fields in that same array. */}
 							{'backups' === currentTab && <BackupStoragePanel />}
+							{/* CrawlerAlertTestPanel.tsx — same "appended
+							 * after this tab's own fields" shape as Backups'
+							 * BackupStoragePanel just above, for the same
+							 * reason: a real API call ("Send Test Alert")
+							 * and a value that must survive a page refresh
+							 * ("Last test alert sent on ..."), neither of
+							 * which fits InputRenderer's static declarative
+							 * fields. See AiCrawlerAlerts.ts's own docblock. */}
+							{'ai-crawler-alerts' === currentTab && <CrawlerAlertTestPanel />}
 						</>
 					)
 				) : (

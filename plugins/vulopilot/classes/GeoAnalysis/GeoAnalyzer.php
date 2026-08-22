@@ -9,6 +9,7 @@ namespace VuloPilot\GeoAnalysis;
 
 use VuloPilot\AIProviders\Support\SafeRequestSender;
 use VuloPilot\ValueObjects\GeoScore;
+use VuloPilot\Repositories\ActivityLogRepository;
 use VuloPilot\Repositories\FindingRepository;
 use VuloPilot\Scanners\Basic\GeoCitationOpportunityScanner;
 
@@ -50,6 +51,7 @@ class GeoAnalyzer {
 
     private FindingRepository $findings;
     private SafeRequestSender $request_sender;
+    private ActivityLogRepository $activity_logs;
 
     /**
      * $request_sender is deliberately required, not defaulted — unlike
@@ -63,12 +65,14 @@ class GeoAnalyzer {
      * class must be given that same instance, the same reason
      * AIActions\ActionRunner requires it too.
      *
-     * @param SafeRequestSender      $request_sender Sends a prompt through the safety-validate → provider chain → sanitize sequence.
-     * @param FindingRepository|null $findings       Defaults to a new instance (injectable for tests).
+     * @param SafeRequestSender          $request_sender Sends a prompt through the safety-validate → provider chain → sanitize sequence.
+     * @param FindingRepository|null     $findings       Defaults to a new instance (injectable for tests).
+     * @param ActivityLogRepository|null $activity_logs Defaults to a new instance (injectable for tests).
      */
-    public function __construct( SafeRequestSender $request_sender, ?FindingRepository $findings = null ) {
+    public function __construct( SafeRequestSender $request_sender, ?FindingRepository $findings = null, ?ActivityLogRepository $activity_logs = null ) {
         $this->request_sender = $request_sender;
         $this->findings       = $findings ?? new FindingRepository();
+        $this->activity_logs  = $activity_logs ?? new ActivityLogRepository();
     }
 
     /**
@@ -128,13 +132,14 @@ class GeoAnalyzer {
 
     /**
      * Compares this analysis's overall_score against the previously stored
-     * one (if any) and emails Settings → Notifications' recipient when it
-     * fell by at least Scanning → GEO's `aeo_drop_threshold` — gated behind
-     * `email_on_geo_score_drop` (default off). Runs before the new score
-     * overwrites the old one in postmeta, since it needs to read the prior
-     * value first; only ever fires on an actual re-analysis of a post that
-     * already had a stored score, never on a post's first-ever analysis
-     * (there is nothing to have "dropped" from).
+     * one (if any) and emails/logs when it fell by at least
+     * `visibility_alerts['geo']['threshold']` — gated behind both
+     * `email_on_visibility_alerts` and `visibility_alerts['geo']['enable']`
+     * (Settings → Notifications → Visibility Alerts, default off). Runs
+     * before the new score overwrites the old one in postmeta, since it
+     * needs to read the prior value first; only ever fires on an actual
+     * re-analysis of a post that already had a stored score, never on a
+     * post's first-ever analysis (there is nothing to have "dropped" from).
      *
      * @param \WP_Post $post          Post just analyzed.
      * @param int      $overall_score The just-computed overall_score.
@@ -143,7 +148,9 @@ class GeoAnalyzer {
     private function maybe_notify_score_drop( \WP_Post $post, int $overall_score ): void {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['email_on_geo_score_drop'] ) ) {
+        $geo_alert = (array) ( $settings['visibility_alerts']['geo'] ?? array() );
+
+        if ( empty( $settings['email_on_visibility_alerts'] ) || empty( $geo_alert['enable'] ) ) {
             return;
         }
 
@@ -153,10 +160,28 @@ class GeoAnalyzer {
             return;
         }
 
-        $threshold = absint( $settings['aeo_drop_threshold'] ?? 5 );
+        $threshold = absint( $geo_alert['threshold'] ?? 5 );
         $drop      = (int) $previous['overall_score'] - $overall_score;
 
         if ( $drop < $threshold ) {
+            return;
+        }
+
+        $message = sprintf(
+            /* translators: 1: previous score, 2: new score, 3: post title. */
+            __( 'The GEO score for "%3$s" fell from %1$d to %2$d.', 'vulopilot' ),
+            (int) $previous['overall_score'],
+            $overall_score,
+            $post->post_title
+        );
+
+        $channels = (array) ( $settings['visibility_alert_channels'] ?? array() );
+
+        if ( in_array( 'dashboard', $channels, true ) ) {
+            $this->activity_logs->log( 'visibility_alert.geo_score_drop', $message, 'warning', 'system', 'post', (string) $post->ID );
+        }
+
+        if ( ! in_array( 'email', $channels, true ) ) {
             return;
         }
 
@@ -176,13 +201,7 @@ class GeoAnalyzer {
                 get_bloginfo( 'name' ),
                 $post->post_title
             ),
-            sprintf(
-                /* translators: 1: previous score, 2: new score, 3: post title. */
-                __( 'The GEO score for "%3$s" fell from %1$d to %2$d.', 'vulopilot' ),
-                (int) $previous['overall_score'],
-                $overall_score,
-                $post->post_title
-            ),
+            $message,
             $headers
         );
     }
@@ -329,11 +348,11 @@ class GeoAnalyzer {
     private function has_open_finding( string $scanner_id, string $object_ref ): bool {
         return 0 < (int) $this->findings->find_all(
             array(
-                'category'    => 'geo',
-                'status'      => 'open',
-                'scanner_id'  => $scanner_id,
-                'object_ref'  => $object_ref,
-                'per_page'    => 1,
+                'category'   => 'geo',
+                'status'     => 'open',
+                'scanner_id' => $scanner_id,
+                'object_ref' => $object_ref,
+                'per_page'   => 1,
             )
         )['total'];
     }
@@ -350,8 +369,8 @@ class GeoAnalyzer {
      * @return int 0-100.
      */
     private function calculate_content_freshness( \WP_Post $post ): int {
-        $settings           = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
-        $stale_after_days   = absint( $settings['stale_content_months'] ?? 12 ) * 30;
+        $settings            = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+        $stale_after_days    = absint( $settings['stale_content_months'] ?? 12 ) * 30;
         $days_since_modified = ( current_time( 'timestamp', true ) - strtotime( $post->post_modified_gmt ) ) / DAY_IN_SECONDS;
 
         if ( $days_since_modified <= $stale_after_days * 0.25 ) {

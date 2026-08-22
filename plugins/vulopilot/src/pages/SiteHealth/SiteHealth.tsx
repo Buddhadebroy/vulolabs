@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { NavigatorHeaderComponent, ContainerComponent } from '@zyra/components';
-import { useRunScan } from '../../services/useRunScan';
+import { NavigatorHeaderComponent } from '@zyra/components';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import SiteHealthTab from '../Security/SiteHealthTab';
 import BackupsTab from '../Security/BackupsTab';
 import BackupProtectionNotice from '../Security/BackupProtectionNotice';
@@ -26,12 +26,6 @@ import BackupProtectionNotice from '../Security/BackupProtectionNotice';
  * since there's no inner tab bar to land on a specific one anymore).
  */
 const SiteHealth = () => {
-	// Scoped to the 5 real health-section categories — same "local tab"
-	// scoping every other category page's header "Run scan" button uses.
-	const { runScanButton } = useRunScan({
-		categories: ['wordpress', 'server', 'cron', 'database', 'updates'],
-	});
-
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -41,7 +35,18 @@ const SiteHealth = () => {
 					'A real-time check of your WordPress core, server, database, and backup protection.',
 					'vulopilot'
 				)}
-				buttons={[runScanButton]}
+				headerCustomContent={
+					<RunScanHeaderExtra
+						categories={[
+							'wordpress',
+							'server',
+							'cron',
+							'database',
+							'updates',
+						]}
+						settingsSubtab="general"
+					/>
+				}
 			/>
 			<ContainerComponent general>
 				<BackupProtectionNotice />

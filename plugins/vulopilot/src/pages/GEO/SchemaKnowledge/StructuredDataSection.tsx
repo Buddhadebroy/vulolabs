@@ -6,8 +6,10 @@ import {
 	ContainerComponent,
 	ModuleGuardComponent,
 	BadgeComponent,
+	InformationItemComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../../services/formatWpDate';
 import { useSchemaCoverage } from './useSchemaCoverage';
 import type { SchemaCoverageRow } from './useSchemaCoverage';
@@ -56,6 +58,25 @@ const STATUS_CONFIG: Record<
 	good: { color: 'green', icon: 'check', label: __('Good', 'vulopilot') },
 	check: { color: 'yellow', icon: 'alarm', label: __('Check', 'vulopilot') },
 	problems: { color: 'red', icon: 'error', label: __('Problems', 'vulopilot') },
+};
+
+/**
+ * Maps this table's own 3-tier status to the real `badge-{severity}` CSS
+ * classes zyra's Table.scss actually defines — 'good'/'check'/'problems'
+ * aren't themselves real severity values anywhere else in this codebase,
+ * so a literal `badge-good` class would render unstyled. Confirmed against
+ * zyra's own source (`packages/table/src/Table.scss`): `badge-high` is the
+ * green bucket, `badge-medium` is yellow, `badge-critical`/`badge-low` are
+ * both red — an existing quirk of that vocabulary (bucketed alongside
+ * unrelated status words like "active"/"paid" for green, "cancelled" for
+ * red) not something introduced here, and not this table's place to fix.
+ * The row's own real label text (`STATUS_CONFIG` above) still reads
+ * "Good"/"Check"/"Problems" either way — only the *color* is borrowed.
+ */
+const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
+	good: 'high',
+	check: 'medium',
+	problems: 'critical',
 };
 
 /**
@@ -132,78 +153,11 @@ const StructuredDataSection = () => {
 	return (
 		<ContainerComponent>
 		<ColumnComponent grid={8}>
-			{snapshot && (
-				<CardComponent
-					title={__('Schema Status', 'vulopilot')}
-					titleIcon="info"
-					desc={__(
-						'VuloPilot checked how your website describes its pages, products, articles and business to search engines.',
-						'vulopilot'
-					)}
-					isLoading={isLoading}
-				>
-					<div className="schema-status-grid">
-						<div className="schema-status-item">
-							<div className="schema-status-icon schema-status-icon--purple">
-								<i className="adminfont-attachment" />
-							</div>
-							<div>
-								<div className="schema-status-value">
-									{snapshot.pages_checked}
-								</div>
-								<div className="schema-status-label">
-									{__('Pages checked', 'vulopilot')}
-								</div>
-							</div>
-						</div>
-						<div className="schema-status-item">
-							<div className="schema-status-icon schema-status-icon--green">
-								<i className="adminfont-check" />
-							</div>
-							<div>
-								<div className="schema-status-value">
-									{snapshot.pages_with_valid_schema}
-								</div>
-								<div className="schema-status-label">
-									{__('Pages with valid schema', 'vulopilot')}
-								</div>
-							</div>
-						</div>
-						<div className="schema-status-item">
-							<div className="schema-status-icon schema-status-icon--orange">
-								<i className="adminfont-alarm" />
-							</div>
-							<div>
-								<div className="schema-status-value">
-									{snapshot.pages_needing_attention}
-								</div>
-								<div className="schema-status-label">
-									{__('Need attention', 'vulopilot')}
-								</div>
-							</div>
-						</div>
-						<div className="schema-status-item">
-							<div className="schema-status-icon schema-status-icon--blue">
-								<i className="adminfont-category" />
-							</div>
-							<div>
-								<div className="schema-status-value">
-									{snapshot.coverage.length}
-								</div>
-								<div className="schema-status-label">
-									{__('Schema types detected', 'vulopilot')}
-								</div>
-							</div>
-						</div>
-					</div>
-				</CardComponent>
-			)}
-
 			<CardComponent
 				title={__('Schema Coverage', 'vulopilot')}
 				titleIcon="attachment"
 				desc={__(
-					'See what structured information is on your website and where something is missing or incorrect — a real sample from its own live pages.',
+					'VuloPilot checked how your website describes its pages, products, articles and business to search engines — see what structured information is there and where something is missing or incorrect, a real sample from its own live pages.',
 					'vulopilot'
 				)}
 				isLoading={isLoading}
@@ -234,6 +188,61 @@ const StructuredDataSection = () => {
 
 				{snapshot && (
 					<>
+						<div className="schema-status-grid">
+							<div className="schema-status-item">
+								<div className="schema-status-icon schema-status-icon--purple">
+									<i className="adminfont-attachment" />
+								</div>
+								<div>
+									<div className="schema-status-value">
+										{snapshot.pages_checked}
+									</div>
+									<div className="schema-status-label">
+										{__('Pages checked', 'vulopilot')}
+									</div>
+								</div>
+							</div>
+							<div className="schema-status-item">
+								<div className="schema-status-icon schema-status-icon--green">
+									<i className="adminfont-check" />
+								</div>
+								<div>
+									<div className="schema-status-value">
+										{snapshot.pages_with_valid_schema}
+									</div>
+									<div className="schema-status-label">
+										{__('Pages with valid schema', 'vulopilot')}
+									</div>
+								</div>
+							</div>
+							<div className="schema-status-item">
+								<div className="schema-status-icon schema-status-icon--orange">
+									<i className="adminfont-alarm" />
+								</div>
+								<div>
+									<div className="schema-status-value">
+										{snapshot.pages_needing_attention}
+									</div>
+									<div className="schema-status-label">
+										{__('Need attention', 'vulopilot')}
+									</div>
+								</div>
+							</div>
+							<div className="schema-status-item">
+								<div className="schema-status-icon schema-status-icon--blue">
+									<i className="adminfont-category" />
+								</div>
+								<div>
+									<div className="schema-status-value">
+										{snapshot.coverage.length}
+									</div>
+									<div className="schema-status-label">
+										{__('Schema types detected', 'vulopilot')}
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<p className="desc schema-generated-at">
 							{sprintf(
 								/* translators: %s is when this real schema sample was generated. */
@@ -250,81 +259,66 @@ const StructuredDataSection = () => {
 								)}
 							</div>
 						) : (
-							<table className="crawler-table schema-coverage-table">
-								<thead>
-									<tr>
-										<th>{__('Schema type', 'vulopilot')}</th>
-										<th>{__('Plain-English meaning', 'vulopilot')}</th>
-										<th>{__('Found on', 'vulopilot')}</th>
-										<th>{__('Problems', 'vulopilot')}</th>
-										<th>{__('Status', 'vulopilot')}</th>
-										<th>{__('Action', 'vulopilot')}</th>
-									</tr>
-								</thead>
-								<tbody>
-									{snapshot.coverage.map((row) => {
-										const status = getRowStatus(row);
-										const statusConfig = STATUS_CONFIG[status];
-										const isSelected = selectedRow?.type === row.type;
-
-										return (
-											<tr
-												key={row.type}
-												className={
-													isSelected
-														? 'schema-coverage-row-selected'
-														: undefined
-												}
-											>
-												<td>
-													<div className="schema-type-cell">
-														<div className="schema-type-icon">
-															<i
-																className={`adminfont-${getTypeIcon(row.type)}`}
-															/>
-														</div>
-														<span className="schema-type-name">
-															{row.type}
-														</span>
-													</div>
-												</td>
-												<td>{row.meaning}</td>
-												<td>
-													{sprintf(
-														/* translators: %d is how many of the real sampled pages carried this schema type. */
-														__('%d pages', 'vulopilot'),
-														row.found_on
-													)}
-												</td>
-												<td>{row.problems}</td>
-												<td>
-													<BadgeComponent
-														color={statusConfig.color}
-														icon={statusConfig.icon}
-														text={statusConfig.label}
-													/>
-												</td>
-												<td>
-													<button
-														type="button"
-														className={`schema-view-pages-link${isSelected ? ' is-active' : ''}`}
-														onClick={() => setSelectedRow(row)}
-													>
-														{__('View', 'vulopilot')}
-														<i className="adminfont-arrow-right" />
-													</button>
-												</td>
-											</tr>
-										);
-									})}
-								</tbody>
-							</table>
+							<TableCard
+								showMenu={false}
+								hideHeader={true}
+								className="transparent-table"
+								headers={{
+									type: {
+										label: __('Schema type', 'vulopilot'),
+										width: '65%',
+										render: (row: SchemaCoverageRow) => (
+											<InformationItemComponent
+												title={row.type}
+												avatar={{ iconClass: getTypeIcon(row.type) }}
+												descriptions={[{ value: row.meaning }]}
+												badges={[
+													{
+														text: STATUS_CONFIG[getRowStatus(row)]
+															.label,
+														className: `badge-${STATUS_SEVERITY_CLASS[getRowStatus(row)]}`,
+													},
+												]}
+											/>
+										),
+									},
+									found_on: {
+										label: __('Found on', 'vulopilot'),
+										render: (row: SchemaCoverageRow) =>
+											sprintf(
+												/* translators: %d is how many of the real sampled pages carried this schema type. */
+												__('%d pages', 'vulopilot'),
+												row.found_on
+											),
+									},
+									action: {
+										type: 'action',
+										label: __('Action', 'vulopilot'),
+										actions: [
+											{
+												label: __('View', 'vulopilot'),
+												icon: 'eye',
+												onClick: (row: SchemaCoverageRow) =>
+													setSelectedRow(row),
+											},
+										],
+									},
+								}}
+								rows={snapshot.coverage}
+								ids={snapshot.coverage.map((row) => row.type)}
+								totalRows={snapshot.coverage.length}
+								isLoading={isLoading}
+								emptyMessage={__(
+									'No structured data (JSON-LD) was found on any sampled page.',
+									'vulopilot'
+								)}
+							/>
 						)}
 
 						{totalProblems > 0 && (
 							<p className="desc schema-see-seo-tab">
 								{__(
-									'The real findings behind these numbers already live in the "What Needs Fixing"/"All Business Identity Issues" sections above.',
+									'The real findings behind these numbers already live in the "Critical Issues"/"All Business Identity Issues" sections above.',
 									'vulopilot'
 								)}
 							</p>

@@ -91,6 +91,19 @@ class Utill {
     const VULOPILOT_OTHER_SETTINGS = array(
         'run_installer'     => 'vulopilot_run_installer',
         'plugin_db_version' => 'vulopilot_version',
+        // AI Crawler Alerts' own system-managed state — not a user-facing
+        // setting (no field ever writes these), so it lives here rather
+        // than in VULOPILOT_SETTINGS_DEFAULTS below. Read/written only by
+        // vulopilot-pro's CrawlerAlertMonitor.
+        // 'new crawler detected' diffs the real bot names seen so far
+        // (CrawlerVisitRepository::get_all_bot_names_ever_seen()) against
+        // this stored list to find ones never alerted on before.
+        'crawler_alert_known_bots'   => 'vulopilot_crawler_alert_known_bots',
+        // Per alert-type digest bookkeeping (last-sent timestamp + pending
+        // items accumulated since then) for the "Daily digest"/"Weekly
+        // digest" frequency options — see CrawlerAlertMonitor's own
+        // docblock for the batching this backs.
+        'crawler_alert_digest_state' => 'vulopilot_crawler_alert_digest_state',
     );
 
     /**
@@ -115,18 +128,68 @@ class Utill {
         // Notifications.
         'notification_email'                    => '',
         'notify_on_critical_findings'           => array(),
-        // Read by GeoAnalysis\GeoAnalyzer::analyze() — compares the fresh
-        // overall_score against the previously-stored one and emails when
-        // it falls by at least Scanning → GEO's `aeo_drop_threshold`.
-        'email_on_geo_score_drop'               => array(),
-        // Read by vulopilot-pro's BrandIntelligence\BrandMonitor — same
-        // shape as 'email_on_geo_score_drop' above, scoped to Brand Score
-        // instead.
-        'email_on_brand_score_drop'             => array(),
+        // Settings → Notifications → Website Alerts' own "Notify me about"
+        // checklist — which category of critical finding
+        // Services\ScanPersistenceListener::maybe_notify_critical_findings()
+        // should actually alert on (gated behind `notify_on_critical_findings`
+        // above either way). Maps to real finding categories; 'other' is
+        // the honest catch-all for every category not called out by its
+        // own checkbox (woocommerce, database, links, etc.) — same
+        // "unmapped scanner isn't gated by the checklist" passthrough
+        // AlertDispatcher::TYPE_SCANNER_MAP's own docblock documents, just
+        // inverted here (an unmapped category always falls under 'other'
+        // rather than always alerting). All on by default, same "off is
+        // the surprising state" posture every other Notifications
+        // checklist in this file already uses.
+        'critical_alert_types'                  => array( 'security', 'availability', 'performance', 'seo', 'other' ),
+        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'/
+        // 'security_alert_channels' above — 'dashboard' off by default here
+        // (unlike those two): a critical finding already gets a real,
+        // permanent `vulopilot_scan_findings` row of its own the moment the
+        // scan persists, so a duplicate activity-log entry is more
+        // optional than it is for a here-today-gone-tomorrow score-drop or
+        // crawler-alert event.
+        'critical_alert_channels'               => array( 'email' ),
         // Read by vulopilot-pro's AiCrawlerAnalytics\CrawlerAlertMonitor —
-        // same shape as 'email_on_geo_score_drop' above, scoped to AI
-        // crawler volume drops/still-blocked-page hits instead.
+        // comma-separated category ids to email/log about; see that
+        // class's own docblock.
         'email_on_crawler_alerts'               => array(),
+        // Settings → Notifications → Visibility Alerts' own master switch —
+        // gates all three panels of 'visibility_alerts' below without
+        // touching any of their own stored `enable`/`threshold` values;
+        // flipping this back on restores exactly what each was already set
+        // to. On by default — same "off is the surprising state" posture
+        // 'crawler_alerts' uses for its own per-type toggles — but each of
+        // the three panels below still defaults its own `enable` to off,
+        // so this alone changes no existing install's actual email volume.
+        'email_on_visibility_alerts'            => array( 'email_on_visibility_alerts' ),
+        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'/
+        // 'security_alert_channels' above.
+        'visibility_alert_channels'             => array( 'email', 'dashboard' ),
+        // Settings → Notifications → Visibility Alerts' own `expandable-panel`
+        // field — same nested-object-keyed-by-id shape 'crawler_alerts'
+        // above already uses, not three separate flat settings. Read by
+        // GeoAnalysis\GeoAnalyzer::analyze() and vulopilot-pro's
+        // GeoInsights\VisibilityMonitor ('geo' — one scores a single post,
+        // the other the sitewide sampled average, same threshold either
+        // way), vulopilot-pro's BrandIntelligence\BrandMonitor ('brand'),
+        // and vulopilot-pro's KnowledgeGraph\KnowledgeGraphHealthMonitor
+        // ('kg') — each checks its own `[id]['enable']` before emailing,
+        // and the drop must be at least `[id]['threshold']` points.
+        'visibility_alerts'                     => array(
+            'geo'   => array(
+                'enable'    => false,
+                'threshold' => 5,
+            ),
+            'brand' => array(
+                'enable'    => false,
+                'threshold' => 5,
+            ),
+            'kg'    => array(
+                'enable'    => false,
+                'threshold' => 5,
+            ),
+        ),
         'email_from_name'                       => '',
         'email_from_address'                    => '',
         // Automation — replaces AutomationEngine's previously-hardcoded
@@ -159,6 +222,22 @@ class Utill {
         'security_alerts_enabled'               => array(),
         'security_alert_email'                  => '',
         'security_alert_min_severity'           => 'high',
+        // Settings → Notifications → Security Alerts' own "Notify me
+        // about" checklist — which alert types vulopilot-pro's
+        // AlertDispatcher should actually raise. Five of the six map to
+        // real scanner ids (AlertDispatcher::TYPE_SCANNER_MAP); 'new_user'
+        // has no scanner behind it at all — it gates a real `user_register`
+        // hook directly, a genuine WP event rather than a scan finding. All
+        // on by default, same "off is the surprising state" posture
+        // 'crawler_alerts' above already uses for its own per-type toggles.
+        'security_alert_types'                  => array( 'vulnerabilities', 'malware', 'failed_login', 'new_user', 'file_changes', 'ssl_certificate' ),
+        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'
+        // above — 'dashboard' writes a real ActivityLogRepository entry
+        // (visible under Settings → History), 'email' goes through
+        // wp_mail(). No 'mobile' value for the same reason documented on
+        // that setting: no real push-delivery mechanism exists anywhere in
+        // this codebase yet.
+        'security_alert_channels'               => array( 'email', 'dashboard' ),
         'enable_integrity_monitoring'           => array( 'enable_integrity_monitoring' ),
         'integrity_monitoring_max_files'        => 2000,
         // ACCESSIBILITY-MODULE.md's "WCAG Scanner" — same granular
@@ -187,6 +266,12 @@ class Utill {
         // Reports.
         'default_report_format'                 => 'pdf',
         'default_report_period_days'            => 30,
+        // "Last test report sent on ..." — set by
+        // Controllers\Settings::send_test_report(), read back by
+        // ReportTestPanel.tsx on load so that line survives a page refresh,
+        // same "system-set, never user-edited" role
+        // 'crawler_alert_last_test_sent' below already plays.
+        'report_last_test_sent'                 => '',
         // Security. Checkbox-type defaults are zyra's own wire shape (an
         // array containing the field's own key when on, or an empty array
         // when off — matches every checkbox option's own `key`/`value` in
@@ -471,16 +556,6 @@ class Utill {
         // Read by GeoAnalysis\GeoAnalyzer::calculate_content_freshness() —
         // the "flag as stale" boundary its tiering scales against.
         'stale_content_months'                  => 12,
-        // Read by GeoAnalysis\GeoAnalyzer::analyze() and
-        // vulopilot-pro's GeoInsights\VisibilityMonitor — the
-        // minimum-points drop in overall_score, since the last analysis,
-        // that triggers Notifications' `email_on_geo_score_drop`. Same
-        // key Settings → Scanning → GEO's "GEO/AEO score drop alert
-        // threshold" field saves to (Scanning/AiVisibility.ts) — AEO has
-        // no separate category from GEO's own (ScannerRegistry's
-        // `AeoSchemaScanner` shares the 'geo' category), so one shared
-        // threshold field covers both.
-        'aeo_drop_threshold'                    => 5,
         // Read by vulopilot-pro's GeoInsights\CompetitorVisibilityAnalyzer —
         // newline-separated competitor URLs to fetch and compare structural
         // GEO-readiness signals against (schema/author/heading structure),
@@ -502,12 +577,6 @@ class Utill {
         // substantive rather than a placeholder, not a claim about ideal
         // About-page length.
         'brand_about_page_min_words'            => 80,
-        // Read by vulopilot-pro's BrandIntelligence\BrandMonitor — the
-        // minimum-points drop in Brand Score, since the last snapshot, that
-        // triggers `email_on_brand_score_drop`. Same "setting round-trips
-        // through Settings regardless of which tier reads it" posture as
-        // 'geo_competitor_urls' above.
-        'brand_drop_threshold'                  => 5,
         // AI Crawler Traffic Monitoring.
         'enable_crawler_tracking'               => array( 'enable_crawler_tracking' ),
         // Read by Services\CrawlerTrafficLogger::run_cleanup() as the base
@@ -522,6 +591,79 @@ class Utill {
         // "setting round-trips through Settings regardless of which tier
         // reads it" posture as 'geo_competitor_urls' above.
         'crawler_volume_drop_threshold_percent' => 50,
+        // Notifications > AI Crawler Alerts' "Notify me about" — one real
+        // zyra `expandable-panel` field (AiCrawlerAlerts.ts), all 5 rows in
+        // a single panel group, one nested object keyed by alert type
+        // rather than N flat keys (that field type's own value shape,
+        // `{ [methodId]: { ...formFields } }`). Each `enable` gates one
+        // specific real check within CrawlerAlertMonitor::run_daily_check(),
+        // independent of (but still subordinate to) the master
+        // `email_on_crawler_alerts` switch above.
+        //
+        // 'blocked' reuses the existing "bot ignoring its own robots.txt
+        // block" check (count_bots_ignoring_blocked_pages(), now
+        // find_bots_ignoring_blocked_pages()) rather than a new one.
+        // 'access_limited' is a new check (CrawlerAlertMonitor::find_bots_with_high_404_rate(),
+        // reads CrawlerVisitRepository::get_404_rate_for_bot()) — no
+        // dedicated threshold field on the tab (the mockup only exposes a
+        // frequency dropdown for this row, not a % control like traffic
+        // drop gets), so HIGH_404_RATE_THRESHOLD_PERCENT in
+        // CrawlerAlertMonitor is a fixed internal cutoff instead.
+        // 'traffic_drop' only nests its own `enable` here — its actual
+        // threshold stays the flat `crawler_volume_drop_threshold_percent`
+        // just above, since that field is ALSO independently exposed on
+        // Scanning → AI Visibility (that tab's own field, predates this
+        // one): nesting the threshold itself here too would either
+        // duplicate that number under a second, driftable key, or make
+        // two unrelated tabs read/write the same nested blob through two
+        // different UI shapes. Its panel body just links to where the
+        // threshold is actually set, rather than a second control for it.
+        // 'inactive' is a new check (find_newly_inactive_bots(), reads
+        // CrawlerVisitRepository::get_bot_last_seen()) that only
+        // re-notifies if a bot goes active again and then falls inactive a
+        // second time — not every day it stays quiet. 'new_bot' is a new
+        // check (find_newly_detected_bots(), reads
+        // CrawlerVisitRepository::get_all_bot_names_ever_seen() against
+        // the stored 'crawler_alert_known_bots' list, VULOPILOT_OTHER_SETTINGS)
+        // — defaults to weekly digest, matching the mockup's own selected
+        // value, since a brand-new crawler showing up isn't as
+        // time-sensitive as a block or a traffic drop.
+        'crawler_alerts'                         => array(
+            'blocked'        => array(
+                'enable'    => true,
+                'frequency' => 'immediate',
+            ),
+            'access_limited' => array(
+                'enable'    => true,
+                'frequency' => 'immediate',
+            ),
+            'traffic_drop'   => array(
+                'enable' => true,
+            ),
+            'inactive'       => array(
+                'enable'         => true,
+                'days_threshold' => '7',
+            ),
+            'new_bot'        => array(
+                'enable'    => true,
+                'frequency' => 'weekly_digest',
+            ),
+        ),
+        // "Notification channels" — one multi-checkbox field, real values
+        // 'email' (always goes through wp_mail(), same as every other
+        // VuloPilot notification) and 'dashboard' (writes a real
+        // ActivityLogRepository entry, visible under Settings → History —
+        // not just an unused toggle). Mobile push has no real delivery
+        // mechanism anywhere in this codebase (no app, no push
+        // infrastructure) — deliberately not one of the real option
+        // values here; the tab mentions it's not available yet rather than
+        // offering a checkbox that can never do anything, Pro or not.
+        'crawler_alert_channels'                 => array( 'email', 'dashboard' ),
+        // "Last test alert sent successfully on ..." — set by
+        // Controllers\Settings::send_test_crawler_alert(), read back by
+        // CrawlerAlertTestPanel.tsx on load so that line survives a page
+        // refresh instead of only showing right after a click.
+        'crawler_alert_last_test_sent'           => '',
         // Scanning > Entity Extraction (KNOWLEDGE-GRAPH-MODULE.md). Read by
         // Services\EntityExtractor. Newline-separated page URLs/ids — this
         // codebase has no existing Service concept to derive these from
@@ -533,11 +675,6 @@ class Utill {
         // LocalBusiness address field is ever written anywhere in this
         // codebase to derive this from automatically).
         'entity_business_locations'             => '',
-        // Read by vulopilot-pro's KnowledgeGraph\KnowledgeGraphHealthMonitor
-        // — same "setting round-trips through Settings regardless of which
-        // tier reads it" posture as 'geo_competitor_urls' above.
-        'kg_health_drop_threshold'              => 5,
-        'email_on_kg_health_drop'               => array(),
         // Advanced / Debug.
         'enable_debug_logging'                  => array(),
     );

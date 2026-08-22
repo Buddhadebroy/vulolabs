@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
-import { NoticeComponent, SectionComponent } from '@zyra/components';
+import { ColumnComponent, NoticeComponent, SectionComponent } from '@zyra/components';
 import '../SeoVisibility.scss';
 import BusinessUnderstandingCard from './BusinessUnderstandingCard';
+import CriticalIssuesCard from './CriticalIssuesCard';
+import ValidSchemaCard from './ValidSchemaCard';
 import KnowledgeGraphSection from './KnowledgeGraphSection';
-import WhatNeedsFixingCard from './WhatNeedsFixingCard';
 import IssuesSection from './IssuesSection';
 import TechnicalDetailsSection from './TechnicalDetailsSection';
 import InspectorSection from './InspectorSection';
@@ -31,32 +32,47 @@ interface SchemaKnowledgeTabProps {
  * layout doesn't call for real inner tabs the way "Crawl & URLs" needed
  * them (CrawlUrlsTab.tsx), just a clearer visual order:
  *
- * 1. `BusinessUnderstandingCard.tsx` (NEW) — the page's own real hero: a
- *    score gauge (the same real `entity_score` that briefly lived as its
- *    own "Entity Understanding" card inside KnowledgeGraphSection.tsx —
- *    moved up here instead of shown twice) plus 4 featured real entity-
- *    type tiles (Organization/Products/Location/Categories).
+ * The real "In plain English" `NoticeComponent` above item 1 is wrapped in
+ * its own `ColumnComponent grid={12}` — every card row on this page shares
+ * one implicit `.container-wrapper` flex-wrap context (there's no local
+ * `ContainerComponent` per row), and `NoticeComponent` itself has no real
+ * width of its own (sized to its own text content). Left unwrapped, it
+ * silently shared a row with whatever `data-cols` card came right after it
+ * instead of always starting a fresh row — invisible while that next card
+ * was wide (the former grid=8 headline card below), but broke visibly the
+ * moment 3 narrower grid=4 cards needed a clean row of their own.
+ *
+ * 1. `BusinessUnderstandingCard.tsx` — the page's own real hero score gauge
+ *    (the same real `entity_score` that briefly lived as its own "Entity
+ *    Understanding" card inside KnowledgeGraphSection.tsx — moved up here
+ *    instead of shown twice), plus `CriticalIssuesCard.tsx`/
+ *    `ValidSchemaCard.tsx` beside it — real top-severity findings and real
+ *    schema-coverage stats, replacing this row's former 2nd, wider
+ *    "We understand your organization, products, categories." headline+
+ *    tiles card per direct instruction to remove that and build these 2
+ *    cards from a reference mockup instead. See those 2 files' own
+ *    docblocks for exactly which real data each shows.
  * 2. `KnowledgeGraphSection.tsx` — "What AI & Search Understand" (all 6
  *    real entity-type counts + vulopilot-pro's real relationship diagram,
  *    moved up from that section's own sidebar to sit beside the list),
  *    then its own existing real detail cards/Pro slots. That section used
  *    to also have its own "What should you check?" heuristic-checks panel
  *    — removed per direct instruction ("remove redundant content"): it was
- *    a 2nd, less-real "What Needs Fixing"-shaped card duplicating item 3
- *    below, which already covers the same concept with real backend
- *    findings. See that section's own docblock.
- * 3. `WhatNeedsFixingCard.tsx` (NEW) — a real top-3 preview of the exact
- *    same findings `IssuesSection.tsx`'s own full table below already
- *    fetches, per the mockup's own compact "top issues + View all" shape.
- *    "View all issues" and "Review" both scroll down to that real table
- *    (`schema-knowledge-issues`) rather than re-implementing it twice.
- * 4. `TechnicalDetailsSection.tsx` (NEW) — "Technical Details (Schema &
+ *    a 2nd, less-real "What Needs Fixing"-shaped card duplicating the real
+ *    Issues table below, which already covers the same concept with real
+ *    backend findings. See that section's own docblock. A 3rd such card —
+ *    `WhatNeedsFixingCard.tsx`'s own top-3 findings preview, which used to
+ *    render here between this section and the Issues table — was removed
+ *    outright per direct instruction ("remove the card - What Needs
+ *    Fixing"); `CriticalIssuesCard.tsx` above now covers the same
+ *    "preview of real findings, link to the full table" role.
+ * 3. `TechnicalDetailsSection.tsx` (NEW) — "Technical Details (Schema &
  *    Markup)", a real "Show for developers" toggle over
  *    `StructuredDataSection.tsx` (Schema Status stats + Schema Coverage
  *    table), unchanged internally.
- * 5. `InspectorSection.tsx` — "Page Inspector", its own separate section
+ * 4. `InspectorSection.tsx` — "Page Inspector", its own separate section
  *    now (own `SectionComponent` heading, own anchor id
- *    `schema-knowledge-inspector`) rather than a 2nd tab inside item 4's
+ *    `schema-knowledge-inspector`) rather than a 2nd tab inside item 3's
  *    own card — split out per direct instruction ("firstly separate
  *    section the page inspector"). Used to live nested inside
  *    KnowledgeGraphSection.tsx's own sidebar before that, then briefly a
@@ -96,25 +112,27 @@ const SchemaKnowledgeTab = ({
 				</p>
 			</div>
 
-			<NoticeComponent
-				// type="banner"
-				displayPosition="inline"
-				message={sprintf(
-					'<strong>%1$s</strong> %2$s',
-					__('In plain English:', 'vulopilot'),
-					__(
-						'This shows what search engines know about your business, how those things connect, and what’s missing or unclear.',
-						'vulopilot'
-					)
-				)}
-			/>
+			<ColumnComponent grid={12}>
+				<NoticeComponent
+					// type="banner"
+					displayPosition="inline"
+					message={sprintf(
+						'<strong>%1$s</strong> %2$s',
+						__('In plain English:', 'vulopilot'),
+						__(
+							'This shows what search engines know about your business, how those things connect, and what’s missing or unclear.',
+							'vulopilot'
+						)
+					)}
+				/>
+			</ColumnComponent>
 
 			<BusinessUnderstandingCard />
+			<CriticalIssuesCard />
+			<ValidSchemaCard />
 
 			<KnowledgeGraphSection />
 
-			<WhatNeedsFixingCard />
-			
 			<SectionComponent
 				title={__('All Business Identity Issues', 'vulopilot')}
 				desc={__(

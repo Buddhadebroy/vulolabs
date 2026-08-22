@@ -205,14 +205,24 @@ export default {
             title: __('Alerts', 'vulopilot'),
         },
         {
-            key: 'aeo_drop_threshold',
-            type: 'number',            
-            label: __('GEO/AEO score drop alert threshold (points)', 'vulopilot'),
-            settingDescription: __(
-                'Used by the "Email me when GEO score drops" notification in the Notifications tab.',
+            // Not a real, independently-writable field here — the actual
+            // enable/threshold live in the real, single nested
+            // `visibility_alerts.geo` setting
+            // (Utill::VULOPILOT_SETTINGS_DEFAULTS), edited on its own
+            // dedicated Notifications tab instead. Same
+            // "real `type: 'notice'` pointing elsewhere rather than a
+            // second control duplicating the same setting" reasoning
+            // AiCrawlerAlerts.ts's own traffic-drop-threshold-note
+            // documents, just in the opposite direction (that one points
+            // off this tab; this one points onto Notifications).
+            key: 'aeo-drop-threshold-note',
+            type: 'notice',
+            noticeType: 'info',
+            label: '',
+            message: __(
+                'GEO/AEO score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
                 'vulopilot'
             ),
-			size: 5,
             moduleEnabled: 'geo',
         },
 		{
@@ -257,15 +267,16 @@ export default {
 			title: __('Alerts', 'vulopilot'),
 		},
 		{
-			key: 'kg_health_drop_threshold',
-			type: 'number',
-			size: 5,
-			label: __(
-				'Knowledge Graph Health drop alert threshold (points)',
-				'vulopilot'
-			),
-			settingDescription: __(
-				'Used by the "Email me when Knowledge Graph Health drops" notification in the Notifications tab.',
+			// Not a real, independently-writable field here — see this
+			// file's own `aeo-drop-threshold-note` above for the full
+			// reasoning; same treatment, scoped to `visibility_alerts.kg`
+			// instead of `.geo`.
+			key: 'kg-health-drop-threshold-note',
+			type: 'notice',
+			noticeType: 'info',
+			label: '',
+			message: __(
+				'Knowledge Graph Health drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
 				'vulopilot'
 			),
 		},

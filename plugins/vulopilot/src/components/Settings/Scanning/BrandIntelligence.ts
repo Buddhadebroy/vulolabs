@@ -66,12 +66,16 @@ export default {
 			title: __('Alerts', 'vulopilot'),
 		},
 		{
-			key: 'brand_drop_threshold',
-			type: 'number',
-			size: 10,
-			label: __('Brand score drop alert threshold (points)', 'vulopilot'),
-			settingDescription: __(
-				'Used by the "Email me when Brand score drops" notification in the Notifications tab.',
+			// Not a real, independently-writable field here — see
+			// AiVisibility.ts's own `aeo-drop-threshold-note` for the full
+			// reasoning; same treatment, scoped to `visibility_alerts.brand`
+			// instead of `.geo`.
+			key: 'brand-drop-threshold-note',
+			type: 'notice',
+			noticeType: 'info',
+			label: '',
+			message: __(
+				'Brand score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
 				'vulopilot'
 			),
 		},

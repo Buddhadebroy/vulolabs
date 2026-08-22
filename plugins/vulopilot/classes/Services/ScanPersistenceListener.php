@@ -56,6 +56,23 @@ class ScanPersistenceListener {
     private const DEDUPE_ON_RESCAN = array( 'broken-links', 'broken-images' );
 
     /**
+     * Maps a "Notify me about" checklist type (Settings → Notifications →
+     * Website Alerts, 'critical_alert_types') to the real finding
+     * categories that back it. A category not listed here (e.g.
+     * 'woocommerce', 'database', 'links') falls under the 'other' catch-all
+     * instead of its own checkbox — see that setting's own Utill.php
+     * docblock.
+     *
+     * @var array<string, string[]>
+     */
+    private const CRITICAL_ALERT_CATEGORIES = array(
+        'security'     => array( 'security', 'ssl' ),
+        'availability' => array( 'availability' ),
+        'performance'  => array( 'performance' ),
+        'seo'          => array( 'seo', 'geo' ),
+    );
+
+    /**
      * @var ScanRepository
      */
     private ScanRepository $scans;
@@ -193,14 +210,45 @@ class ScanPersistenceListener {
             return;
         }
 
+        $enabled_types = (array) ( $settings['critical_alert_types'] ?? array() );
+
         $critical_findings = array_values(
             array_filter(
                 $scan_result->get_findings(),
-                static fn( Finding $finding ) => Severity::CRITICAL === $finding->get_severity()
+                fn( Finding $finding ) =>
+                    Severity::CRITICAL === $finding->get_severity()
+                    && $this->is_critical_alert_type_enabled( $finding->get_category(), $enabled_types )
             )
         );
 
         if ( empty( $critical_findings ) ) {
+            return;
+        }
+
+        $message = implode(
+            "\n",
+            array_map(
+                static fn( Finding $finding ): string => '- ' . $finding->get_title(),
+                $critical_findings
+            )
+        );
+
+        $channels = (array) ( $settings['critical_alert_channels'] ?? array() );
+
+        if ( in_array( 'dashboard', $channels, true ) ) {
+            $this->activity_logs->log(
+                'critical_alert',
+                sprintf(
+                    /* translators: %d is the number of critical findings. */
+                    __( 'VuloPilot found %d critical issue(s).', 'vulopilot' ),
+                    count( $critical_findings )
+                ),
+                'critical',
+                'system'
+            );
+        }
+
+        if ( ! in_array( 'email', $channels, true ) ) {
             return;
         }
 
@@ -220,14 +268,25 @@ class ScanPersistenceListener {
                 get_bloginfo( 'name' ),
                 count( $critical_findings )
             ),
-            implode(
-                "\n",
-                array_map(
-                    static fn( Finding $finding ): string => '- ' . $finding->get_title(),
-                    $critical_findings
-                )
-            ),
+            $message,
             $headers
         );
+    }
+
+    /**
+     * Whether $category is allowed to alert, per the "Notify me about" checklist.
+     *
+     * @param string   $category      The finding's own real category.
+     * @param string[] $enabled_types Enabled 'critical_alert_types' values.
+     * @return bool
+     */
+    private function is_critical_alert_type_enabled( string $category, array $enabled_types ): bool {
+        foreach ( self::CRITICAL_ALERT_CATEGORIES as $type => $categories ) {
+            if ( in_array( $category, $categories, true ) ) {
+                return in_array( $type, $enabled_types, true );
+            }
+        }
+
+        return in_array( 'other', $enabled_types, true );
     }
 }

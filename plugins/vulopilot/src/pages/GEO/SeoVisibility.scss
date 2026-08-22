@@ -527,12 +527,14 @@
 	}
 }
 
-// KnowledgeGraphSection.tsx's own "What AI & Search Understand" card —
-// real entity-type count list beside vulopilot-pro's real relationship
-// diagram.
+// KnowledgeGraphSection.tsx's own "What AI & Search Understand" card — real
+// entity-type count list, vulopilot-pro's real relationship diagram, and
+// the currently active tab's own real detail panel, all 3 side by side in
+// one row (rather than the 3rd dropping to a full-width row underneath —
+// direct instruction).
 .kg-understand-grid {
 	display: grid;
-	grid-template-columns: minmax(11rem, 1fr) 2fr;
+	grid-template-columns: minmax(11rem, 0.85fr) 1.3fr 1.3fr;
 	gap: 1.5rem;
 	align-items: start;
 }
@@ -551,12 +553,35 @@
 	align-items: center;
 	gap: 0.625rem;
 	font-size: 0.8125rem;
+	cursor: pointer;
+	border-radius: 0.25rem;
+	padding: 0.125rem 0.25rem;
+	margin: -0.125rem -0.25rem;
+	transition: background-color 0.15s ease;
 
 	i {
 		color: var(--color-primary);
 		font-size: 0.9375rem;
 		width: 1.125rem;
 		text-align: center;
+	}
+
+	&:hover,
+	&:focus-visible {
+		background: $theme-background-color;
+		outline: none;
+	}
+
+	// The currently selected tab — same $color-primary-background/$theme-color
+	// accent every other "active" state in this stylesheet already uses.
+	&.is-active {
+		background: $color-primary-background;
+
+		i,
+		.kg-understand-count-label {
+			color: $theme-color;
+			font-weight: 600;
+		}
 	}
 }
 
@@ -572,6 +597,35 @@
 	border: 1px solid var(--border-color);
 	border-radius: 0.5rem;
 	padding: 0.5rem;
+}
+
+// .kg-understand-grid's own 3rd column — the selected tab's own real
+// entity detail (EntityDetailContent), consolidating what used to be 5
+// separate cards (Products/Categories/People/Locations/Services) into this
+// one card. Bordered like .kg-understand-graph beside it so all 3 columns
+// read as matching panels in the same row.
+.kg-entity-tab-content {
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	padding: 0.75rem;
+	min-width: 0;
+}
+
+.kg-entity-tab-content-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+
+	i {
+		color: $theme-color;
+		font-size: 1rem;
+	}
+}
+
+.kg-entity-tab-content-title {
+	font-weight: 600;
+	font-size: 0.9375rem;
 }
 
 // BusinessUnderstandingCard.tsx — real score gauge + a real pill badge
@@ -612,79 +666,6 @@
 .business-score-caption {
 	margin: 0;
 	max-width: 14rem;
-}
-
-// BusinessUnderstandingCard.tsx's own 4 featured tiles — one row, icon on
-// top, label + real found/missing status below, divided by real vertical
-// rules (not a wrapping auto-fit grid) to match the reference mockup's own
-// layout.
-.business-understand-tiles {
-	display: flex;
-	align-items: flex-start;
-}
-
-.business-understand-tile {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	text-align: center;
-	gap: 0.5rem;
-	padding: 0 0.75rem;
-	border-left: 1px solid var(--border-color);
-
-	&:first-child {
-		border-left: none;
-		padding-left: 0;
-	}
-}
-
-.business-understand-tile-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.5rem;
-	height: 2.5rem;
-	border-radius: 0.625rem;
-
-	i {
-		font-size: 1.125rem;
-	}
-
-	&.is-good {
-		background: #dcfce7;
-		color: #16a34a;
-	}
-
-	&.is-attention {
-		background: #fef3c7;
-		color: #b45309;
-	}
-}
-
-.business-understand-tile-label {
-	font-size: 0.8125rem;
-	color: var(--sub-text-color);
-}
-
-.business-understand-tile-status {
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	font-weight: 600;
-	font-size: 0.8125rem;
-
-	i {
-		font-size: 0.75rem;
-	}
-
-	&.is-good {
-		color: #16a34a;
-	}
-
-	&.is-attention {
-		color: #b45309;
-	}
 }
 
 // KnowledgeGraphTab.tsx's 3 featured entity cards.
@@ -754,17 +735,40 @@
 	margin-top: 0.5rem;
 }
 
-// KnowledgeGraphTab.tsx's "What should you check?" panel.
+// Originally KnowledgeGraphTab.tsx's own "What should you check?" panel
+// (removed), then WhatNeedsFixingCard.tsx (also removed, per direct
+// instruction — see SchemaKnowledgeTab.tsx's own docblock) — `.kg-check-list`
+// itself is still real, reused as-is by CriticalIssuesCard.tsx's own issue
+// list; `.kg-fix-view-all` likewise reused by both CriticalIssuesCard.tsx
+// and ValidSchemaCard.tsx's own "View all …" links.
 .kg-check-list {
 	display: flex;
 	flex-direction: column;
 }
 
-.kg-check-row {
+.kg-fix-view-all {
+	margin-top: 0.75rem;
+}
+
+// CriticalIssuesCard.tsx — replaces the former "We understand your
+// organization, products, categories." headline card.
+.critical-issues-count {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #dc2626;
+	line-height: 1.2;
+}
+
+.critical-issues-caption {
+	margin-bottom: 0.75rem;
+}
+
+.critical-issue-row {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
-	padding: 0.75rem 0;
+	gap: 0.625rem;
+	padding: 0.5rem 0;
+	font-size: 0.8125rem;
 	border-top: $border-light-small;
 
 	&:first-child {
@@ -772,45 +776,29 @@
 	}
 }
 
-.kg-check-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
-	border-radius: 0.5rem;
-	background: #fef3c7;
-	color: #b45309;
+.critical-issue-icon {
+	color: #dc2626;
+	font-size: 0.875rem;
 	flex-shrink: 0;
 }
 
-.kg-check-body {
-	flex: 1;
-	min-width: 0;
+// ValidSchemaCard.tsx — real `pages_checked`/`pages_with_valid_schema`
+// stats, replacing the same former headline card.
+.valid-schema-without {
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: $border-light-small;
 }
 
-.kg-check-title {
-	font-weight: 500;
-	font-size: 0.84375rem;
-}
-
-.kg-check-desc {
+.valid-schema-without-label {
 	color: $sub-text-color;
-	font-size: 0.75rem;
+	font-size: 0.8125rem;
+	margin-bottom: 0.25rem;
 }
 
-// WhatNeedsFixingCard.tsx — reuses .kg-check-row/-icon/-body/-desc above
-// as-is; only the title needs its own layout (real label + real severity
-// badge inline) and the "View all" link below needs a little breathing
-// room.
-.kg-fix-title {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-.kg-fix-view-all {
-	margin-top: 0.75rem;
+.valid-schema-without-value {
+	font-size: 1.25rem;
+	font-weight: 600;
 }
 
 // SeoTab.tsx's "SEO checks at a glance" — 5 real category tiles, now a real
@@ -1192,6 +1180,12 @@
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
 	gap: 1.5rem;
+	// Schema Status and Schema Coverage now share one card (merged, no
+	// separate section between them) — this bottom margin is what used to
+	// be free spacing between two adjacent cards.
+	margin-bottom: 1.5rem;
+	padding-bottom: 1.5rem;
+	border-bottom: $border-light-small;
 }
 
 .schema-status-item {
@@ -1251,62 +1245,6 @@
 
 .schema-see-seo-tab {
 	margin-top: 0.75rem;
-}
-
-// StructuredDataSection.tsx's own "Schema Coverage" table — more generous
-// row padding + a per-type icon tile than the base `.crawler-table`
-// (that class is shared with several plain data grids elsewhere on this
-// page, e.g. CrawlerAnalyticsSection.tsx's own tables, so the extra
-// polish here is scoped under `.schema-coverage-table` rather than
-// changed globally).
-.schema-coverage-table {
-	th,
-	td {
-		padding: 0.875rem 0.5rem;
-	}
-
-	tbody tr:hover {
-		background: $theme-background-color;
-	}
-
-	// The real row the side detail panel (grid={4} column, same file) is
-	// currently showing — kept visually in sync with that panel per direct
-	// instruction ("look intact in Schema Coverage table": the table stays
-	// fully visible, just highlights which row its own side panel reflects,
-	// instead of a popup covering it).
-	tr.schema-coverage-row-selected {
-		background: $theme-background-color;
-
-		td:first-child {
-			box-shadow: inset 3px 0 0 $theme-color;
-		}
-	}
-}
-
-.schema-type-cell {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
-}
-
-.schema-type-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
-	border-radius: 0.375rem;
-	background: #f3effc;
-	color: $theme-color;
-	flex-shrink: 0;
-
-	i {
-		font-size: 0.875rem;
-	}
-}
-
-.schema-type-name {
-	font-weight: 600;
 }
 
 .schema-view-pages-link {
@@ -1405,43 +1343,15 @@
 	}
 }
 
-.schema-dev-tools-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-	gap: 1rem;
-}
-
-.schema-dev-tool-tile {
+// InspectorSection.tsx's own pre-selection hint — a compact one-line
+// alternative to the picker, shown only before any page has been chosen
+// (real Schema Validator link-out, same one the post-selection actions
+// row below also offers, just re-targeted once a real page is picked).
+.schema-inspector-validator-hint {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	gap: 0.75rem;
-	border: $border-light-small;
-	border-radius: 0.5rem;
-	padding: 0.875rem;
-
-	.admin-badge {
-		margin-top: 0.375rem;
-	}
-
-	// Only Developer Tools tiles with somewhere real to jump to
-	// (InspectorSection.tsx's own `tool.onClick`, e.g. "JSON-LD Viewer"
-	// once a result exists) get the pointer affordance + trailing chevron
-	// below — a tile with nothing real to do stays plain, not a fake button.
-	&.is-clickable {
-		cursor: pointer;
-
-		&:hover {
-			border-color: $theme-color;
-		}
-	}
-}
-
-.schema-dev-tool-chevron {
-	margin-left: auto;
-	align-self: center;
-	color: $sub-text-color;
-	font-size: 0.75rem;
-	flex-shrink: 0;
+	margin-top: 0.75rem;
 }
 
 // SchemaKnowledgeTab.tsx's own inline section headings (Structured
