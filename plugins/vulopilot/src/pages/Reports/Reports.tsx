@@ -5,7 +5,7 @@ import {
 	NavigatorComponent,
 	NavigatorHeaderComponent,
 } from '@zyra/components';
-import { useRunScan } from '../../services/useRunScan';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import OverviewTab from './OverviewTab';
 import ReportTab from './ReportTab';
 import ActivityTab from './ActivityTab';
@@ -94,11 +94,6 @@ const Reports = () => {
 	// itself from there (its own `activeSetting` state, updated by its
 	// tab-bar Link clicks / prepareUrl's pushState).
 	const [activeTab] = useState<(typeof TAB_IDS)[number]>(initialTab);
-	// Whole-site scan, same reasoning Dashboard's Run Audit widget/
-	// Health.tsx's own header button already use (this page reports on
-	// every category, not one).
-	const { runScanButton } = useRunScan();
-
 	const settingContent = TAB_IDS.map((tabId) => ({
 		type: 'file' as const,
 		content: {
@@ -133,7 +128,9 @@ const Reports = () => {
 					"AI-powered insights about your website's performance and growth.",
 					'vulopilot'
 				)}
-				buttons={[runScanButton]}
+				headerCustomContent={
+					<RunScanHeaderExtra settingsSubtab="reports" />
+				}
 			/>
 			<NavigatorComponent
 				className="reports-tabs"

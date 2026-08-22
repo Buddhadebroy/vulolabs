@@ -12,7 +12,7 @@ import {
 	SectionComponent
 } from '@zyra/components';
 import { FileInput, ButtonInput } from '@zyra/inputs';
-import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, scrollToId, sendApiResponse } from '@zyra/core';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
 	IssuesFilter,
@@ -142,7 +142,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	issuesFilter,
 	issuesNavToken,
 }) => {
-	const issuesSectionRef = useRef<HTMLDivElement>(null);
 	const composerRef = useRef<HTMLDivElement>(null);
 	const didMountRef = useRef(false);
 
@@ -152,16 +151,21 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	// now that it's inline further down the same tab, without this the
 	// click would silently do nothing visible if the table is off-screen.
 	// Skipped on first mount so loading the Chat tab itself never auto-scrolls.
+	//
+	// Real bug fixed here: this used to scroll via a `useRef` that was
+	// declared but never actually attached to any element with
+	// `ref={...}` — `issuesSectionRef.current` was always `null`, so
+	// "View all issues" silently did nothing. `scrollToId()` (the same
+	// `getElementById` + `scrollIntoView` helper every other "scroll to a
+	// section" click on this page already uses) targets IssuesList.tsx's
+	// own real `id="ai-copilot-issues-section"` instead.
 	useEffect(() => {
 		if (!didMountRef.current) {
 			didMountRef.current = true;
 			return;
 		}
 
-		issuesSectionRef.current?.scrollIntoView({
-			behavior: 'smooth',
-			block: 'start',
-		});
+		scrollToId('ai-copilot-issues-section');
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the token specifically so a same-value issuesFilter update (e.g. "View all issues" when it was already null) still re-triggers the scroll; see AIAssistant.tsx's own docblock on issuesNavToken.
 	}, [issuesNavToken]);
 

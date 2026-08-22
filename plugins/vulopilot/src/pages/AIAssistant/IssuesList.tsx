@@ -201,7 +201,18 @@ const IssuesList: React.FC<IssuesListProps> = ({
 ];
 	return (
 		<>
+			{/* Real scroll target for ChatTab.tsx's own "View all issues"/
+			group-row clicks (NeedsAttentionCard.tsx →
+			`scrollToId('ai-copilot-issues-section')`) — kept INSIDE this
+			grid={8} column rather than as a wrapping element around both of
+			this component's own columns, since a wrapping `<div>` there
+			would put the grid={8}/grid={4} pair inside ITS OWN box instead
+			of the page's shared flex row they're meant to sit side by side
+			in (same real layout bug already fixed once for
+			SchemaKnowledge/IssuesSection.tsx — see that file's own
+			docblock). */}
 			<ColumnComponent grid={8}>
+				<div id="ai-copilot-issues-section">
 				<IssuesSummaryCards
 					total={total}
 					priorityCounts={priorityCounts}
@@ -305,6 +316,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 						)}
 					/>
 				)}
+				</div>
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>

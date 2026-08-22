@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { ContainerComponent, NavigatorHeaderComponent } from '@zyra/components';
-import { useRunScan } from '../../services/useRunScan';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import CommerceTab from './CommerceTab';
 
 /**
@@ -14,10 +14,6 @@ import CommerceTab from './CommerceTab';
  * that real data immediately rather than requiring a second click.
  */
 const Commerce = () => {
-	// Scoped to this page's own 'woocommerce' category — same "local tab"
-	// scoping every other category page's header "Run scan" button uses.
-	const { runScanButton } = useRunScan({ categories: ['woocommerce'] });
-
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -27,7 +23,12 @@ const Commerce = () => {
 					'AI-powered WooCommerce intelligence to help you increase sales and grow revenue.',
 					'vulopilot'
 				)}
-				buttons={[runScanButton]}
+				headerCustomContent={
+					<RunScanHeaderExtra
+						categories={['woocommerce']}
+						settingsSubtab="woocommerce"
+					/>
+				}
 			/>
 			<ContainerComponent general>
 				<CommerceTab />

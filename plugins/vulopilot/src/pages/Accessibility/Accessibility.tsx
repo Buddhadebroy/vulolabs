@@ -9,7 +9,7 @@ import {
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { useRunScan } from '../../services/useRunScan';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import SectionedIssuesTable, {
@@ -181,10 +181,6 @@ const Accessibility = () => {
 	const AccessibilityHistoryPanel = useFilterSlot(
 		'vulopilot_accessibility_history_panel'
 	);
-	// Scoped to this page's own 'accessibility' category — same "local tab"
-	// scoping every other top-level page's header "Run scan" button uses.
-	const { runScanButton } = useRunScan({ categories: ['accessibility'] });
-
 	const goToIssuesTable = (tab: SectionedIssuesTab) => {
 		setActiveTab(tab);
 		setTimeout(
@@ -205,7 +201,12 @@ const Accessibility = () => {
 					'Make sure everyone can use your website.',
 					'vulopilot'
 				)}
-				buttons={[runScanButton]}
+				headerCustomContent={
+					<RunScanHeaderExtra
+						categories={['accessibility']}
+						settingsSubtab="modules"
+					/>
+				}
 			/>
 			<ContainerComponent general>
 				<ContainerComponent>

@@ -128,18 +128,68 @@ class Utill {
         // Notifications.
         'notification_email'                    => '',
         'notify_on_critical_findings'           => array(),
-        // Read by GeoAnalysis\GeoAnalyzer::analyze() — compares the fresh
-        // overall_score against the previously-stored one and emails when
-        // it falls by at least Scanning → GEO's `aeo_drop_threshold`.
-        'email_on_geo_score_drop'               => array(),
-        // Read by vulopilot-pro's BrandIntelligence\BrandMonitor — same
-        // shape as 'email_on_geo_score_drop' above, scoped to Brand Score
-        // instead.
-        'email_on_brand_score_drop'             => array(),
+        // Settings → Notifications → Website Alerts' own "Notify me about"
+        // checklist — which category of critical finding
+        // Services\ScanPersistenceListener::maybe_notify_critical_findings()
+        // should actually alert on (gated behind `notify_on_critical_findings`
+        // above either way). Maps to real finding categories; 'other' is
+        // the honest catch-all for every category not called out by its
+        // own checkbox (woocommerce, database, links, etc.) — same
+        // "unmapped scanner isn't gated by the checklist" passthrough
+        // AlertDispatcher::TYPE_SCANNER_MAP's own docblock documents, just
+        // inverted here (an unmapped category always falls under 'other'
+        // rather than always alerting). All on by default, same "off is
+        // the surprising state" posture every other Notifications
+        // checklist in this file already uses.
+        'critical_alert_types'                  => array( 'security', 'availability', 'performance', 'seo', 'other' ),
+        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'/
+        // 'security_alert_channels' above — 'dashboard' off by default here
+        // (unlike those two): a critical finding already gets a real,
+        // permanent `vulopilot_scan_findings` row of its own the moment the
+        // scan persists, so a duplicate activity-log entry is more
+        // optional than it is for a here-today-gone-tomorrow score-drop or
+        // crawler-alert event.
+        'critical_alert_channels'               => array( 'email' ),
         // Read by vulopilot-pro's AiCrawlerAnalytics\CrawlerAlertMonitor —
-        // same shape as 'email_on_geo_score_drop' above, scoped to AI
-        // crawler volume drops/still-blocked-page hits instead.
+        // comma-separated category ids to email/log about; see that
+        // class's own docblock.
         'email_on_crawler_alerts'               => array(),
+        // Settings → Notifications → Visibility Alerts' own master switch —
+        // gates all three panels of 'visibility_alerts' below without
+        // touching any of their own stored `enable`/`threshold` values;
+        // flipping this back on restores exactly what each was already set
+        // to. On by default — same "off is the surprising state" posture
+        // 'crawler_alerts' uses for its own per-type toggles — but each of
+        // the three panels below still defaults its own `enable` to off,
+        // so this alone changes no existing install's actual email volume.
+        'email_on_visibility_alerts'            => array( 'email_on_visibility_alerts' ),
+        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'/
+        // 'security_alert_channels' above.
+        'visibility_alert_channels'             => array( 'email', 'dashboard' ),
+        // Settings → Notifications → Visibility Alerts' own `expandable-panel`
+        // field — same nested-object-keyed-by-id shape 'crawler_alerts'
+        // above already uses, not three separate flat settings. Read by
+        // GeoAnalysis\GeoAnalyzer::analyze() and vulopilot-pro's
+        // GeoInsights\VisibilityMonitor ('geo' — one scores a single post,
+        // the other the sitewide sampled average, same threshold either
+        // way), vulopilot-pro's BrandIntelligence\BrandMonitor ('brand'),
+        // and vulopilot-pro's KnowledgeGraph\KnowledgeGraphHealthMonitor
+        // ('kg') — each checks its own `[id]['enable']` before emailing,
+        // and the drop must be at least `[id]['threshold']` points.
+        'visibility_alerts'                     => array(
+            'geo'   => array(
+                'enable'    => false,
+                'threshold' => 5,
+            ),
+            'brand' => array(
+                'enable'    => false,
+                'threshold' => 5,
+            ),
+            'kg'    => array(
+                'enable'    => false,
+                'threshold' => 5,
+            ),
+        ),
         'email_from_name'                       => '',
         'email_from_address'                    => '',
         // Automation — replaces AutomationEngine's previously-hardcoded
@@ -172,6 +222,22 @@ class Utill {
         'security_alerts_enabled'               => array(),
         'security_alert_email'                  => '',
         'security_alert_min_severity'           => 'high',
+        // Settings → Notifications → Security Alerts' own "Notify me
+        // about" checklist — which alert types vulopilot-pro's
+        // AlertDispatcher should actually raise. Five of the six map to
+        // real scanner ids (AlertDispatcher::TYPE_SCANNER_MAP); 'new_user'
+        // has no scanner behind it at all — it gates a real `user_register`
+        // hook directly, a genuine WP event rather than a scan finding. All
+        // on by default, same "off is the surprising state" posture
+        // 'crawler_alerts' above already uses for its own per-type toggles.
+        'security_alert_types'                  => array( 'vulnerabilities', 'malware', 'failed_login', 'new_user', 'file_changes', 'ssl_certificate' ),
+        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'
+        // above — 'dashboard' writes a real ActivityLogRepository entry
+        // (visible under Settings → History), 'email' goes through
+        // wp_mail(). No 'mobile' value for the same reason documented on
+        // that setting: no real push-delivery mechanism exists anywhere in
+        // this codebase yet.
+        'security_alert_channels'               => array( 'email', 'dashboard' ),
         'enable_integrity_monitoring'           => array( 'enable_integrity_monitoring' ),
         'integrity_monitoring_max_files'        => 2000,
         // ACCESSIBILITY-MODULE.md's "WCAG Scanner" — same granular
@@ -200,6 +266,12 @@ class Utill {
         // Reports.
         'default_report_format'                 => 'pdf',
         'default_report_period_days'            => 30,
+        // "Last test report sent on ..." — set by
+        // Controllers\Settings::send_test_report(), read back by
+        // ReportTestPanel.tsx on load so that line survives a page refresh,
+        // same "system-set, never user-edited" role
+        // 'crawler_alert_last_test_sent' below already plays.
+        'report_last_test_sent'                 => '',
         // Security. Checkbox-type defaults are zyra's own wire shape (an
         // array containing the field's own key when on, or an empty array
         // when off — matches every checkbox option's own `key`/`value` in
@@ -484,16 +556,6 @@ class Utill {
         // Read by GeoAnalysis\GeoAnalyzer::calculate_content_freshness() —
         // the "flag as stale" boundary its tiering scales against.
         'stale_content_months'                  => 12,
-        // Read by GeoAnalysis\GeoAnalyzer::analyze() and
-        // vulopilot-pro's GeoInsights\VisibilityMonitor — the
-        // minimum-points drop in overall_score, since the last analysis,
-        // that triggers Notifications' `email_on_geo_score_drop`. Same
-        // key Settings → Scanning → GEO's "GEO/AEO score drop alert
-        // threshold" field saves to (Scanning/AiVisibility.ts) — AEO has
-        // no separate category from GEO's own (ScannerRegistry's
-        // `AeoSchemaScanner` shares the 'geo' category), so one shared
-        // threshold field covers both.
-        'aeo_drop_threshold'                    => 5,
         // Read by vulopilot-pro's GeoInsights\CompetitorVisibilityAnalyzer —
         // newline-separated competitor URLs to fetch and compare structural
         // GEO-readiness signals against (schema/author/heading structure),
@@ -515,12 +577,6 @@ class Utill {
         // substantive rather than a placeholder, not a claim about ideal
         // About-page length.
         'brand_about_page_min_words'            => 80,
-        // Read by vulopilot-pro's BrandIntelligence\BrandMonitor — the
-        // minimum-points drop in Brand Score, since the last snapshot, that
-        // triggers `email_on_brand_score_drop`. Same "setting round-trips
-        // through Settings regardless of which tier reads it" posture as
-        // 'geo_competitor_urls' above.
-        'brand_drop_threshold'                  => 5,
         // AI Crawler Traffic Monitoring.
         'enable_crawler_tracking'               => array( 'enable_crawler_tracking' ),
         // Read by Services\CrawlerTrafficLogger::run_cleanup() as the base
@@ -619,11 +675,6 @@ class Utill {
         // LocalBusiness address field is ever written anywhere in this
         // codebase to derive this from automatically).
         'entity_business_locations'             => '',
-        // Read by vulopilot-pro's KnowledgeGraph\KnowledgeGraphHealthMonitor
-        // — same "setting round-trips through Settings regardless of which
-        // tier reads it" posture as 'geo_competitor_urls' above.
-        'kg_health_drop_threshold'              => 5,
-        'email_on_kg_health_drop'               => array(),
         // Advanced / Debug.
         'enable_debug_logging'                  => array(),
     );

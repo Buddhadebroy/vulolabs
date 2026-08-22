@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { NavigatorHeaderComponent } from '@zyra/components';
-import { useRunScan } from '../../services/useRunScan';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import SecurityTab from './SecurityTab';
 
 /**
@@ -21,10 +21,6 @@ import SecurityTab from './SecurityTab';
  * Plugins, Accessibility) and where each real section actually landed.
  */
 const Security = () => {
-	// Scoped to this page's own real category — same "local tab" scoping
-	// every other category page's header "Run scan" button uses.
-	const { runScanButton } = useRunScan({ categories: ['security'] });
-
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -34,7 +30,12 @@ const Security = () => {
 					'AI continuously protects your website from threats and vulnerabilities.',
 					'vulopilot'
 				)}
-				buttons={[runScanButton]}
+				headerCustomContent={
+					<RunScanHeaderExtra
+						categories={['security']}
+						settingsSubtab="security-scanning"
+					/>
+				}
 			/>
 			<SecurityTab />
 		</>

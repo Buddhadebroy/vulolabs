@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-21T13:36:55+00:00\n"
+"POT-Creation-Date: 2026-08-22T07:40:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -1699,7 +1699,7 @@ msgstr ""
 msgid "Stable"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Scans.php:153
+#: classes/RestAPI/Controllers/Scans.php:175
 msgid "The scan could not be completed."
 msgstr ""
 
@@ -1712,47 +1712,52 @@ msgstr ""
 msgid "Could not fetch that page. Check the URL and try again."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:201
+#: classes/RestAPI/Controllers/Settings.php:220
 msgid "Settings saved."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:253
+#: classes/RestAPI/Controllers/Settings.php:272
 msgid "That file doesn't look like a valid VuloPilot settings export."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:263
+#: classes/RestAPI/Controllers/Settings.php:282
 msgid "Settings imported."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:281
+#: classes/RestAPI/Controllers/Settings.php:300
 msgid "Settings reset to defaults."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:305
+#: classes/RestAPI/Controllers/Settings.php:343
+#: assets/js/index.js:1
+msgid "Cache cleared."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Settings.php:367
 msgid "The notification email address isn't valid."
 msgstr ""
 
 #. translators: %s is the site name.
-#: classes/RestAPI/Controllers/Settings.php:321
+#: classes/RestAPI/Controllers/Settings.php:383
 #, php-format
 msgid "[%s] VuloPilot test email"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:324
+#: classes/RestAPI/Controllers/Settings.php:386
 msgid "This is a test email from VuloPilot's Notifications settings. If you received this, your notification email is configured correctly."
 msgstr ""
 
 #. translators: %s is the recipient email address.
-#: classes/RestAPI/Controllers/Settings.php:334
+#: classes/RestAPI/Controllers/Settings.php:396
 #, php-format
 msgid "Test email sent to %s."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:337
+#: classes/RestAPI/Controllers/Settings.php:399
 msgid "wp_mail() returned false — check your site's mail configuration."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:407
+#: classes/RestAPI/Controllers/Settings.php:469
 msgid "No module id given."
 msgstr ""
 
@@ -3790,7 +3795,7 @@ msgid "Slow server response"
 msgstr ""
 
 #: classes/Services/PageSpeedScanner.php:436
-#: classes/Services/SchemaCoverageAnalyzer.php:151
+#: classes/Services/SchemaCoverageAnalyzer.php:161
 #: assets/js/index.js:1
 msgid "Homepage"
 msgstr ""
@@ -3821,7 +3826,7 @@ msgstr ""
 msgid "[%1$s] VuloPilot found %2$d critical issue(s)"
 msgstr ""
 
-#: classes/Services/SchemaCoverageAnalyzer.php:172
+#: classes/Services/SchemaCoverageAnalyzer.php:182
 msgid "Structured data"
 msgstr ""
 
@@ -4696,6 +4701,34 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not save this Client ID/Secret. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Developer Tools"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Diagnostics and maintenance actions for troubleshooting VuloPilot."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Cache"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clears every real cached result VuloPilot computes — the Knowledge Graph’s extracted entities, the Schema Coverage snapshot, the robots.txt bot-access parse, and (if active) vulopilot-pro’s own Knowledge Graph recommendations. Everything is rebuilt fresh automatically the next time it’s needed — nothing is deleted permanently."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clearing…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Clear cache"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not clear the cache. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6076,10 +6109,6 @@ msgid "Products without valid Product structured data."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Developer Tools"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Site errors and events are logged for easy troubleshooting."
 msgstr ""
 
@@ -6515,6 +6544,24 @@ msgid "Extend: CatalogX, Notifima"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Success"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Error"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run scan"
+msgstr ""
+
+#. translators: 1: formatted date, 2: formatted time.
+#: assets/js/index.js:1
+#, js-format
+msgid "Last scan: %1$s • %2$s"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Open"
 msgstr ""
 
@@ -6678,18 +6725,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Health score trend, last 30 days"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Success"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Error"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Run scan"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8976,48 +9011,6 @@ msgstr ""
 msgid "Business Understanding Score"
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Entity Extraction and Brand Intelligence are both turned off"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Turn either module back on from Settings → Modules to see how Google and AI understand your business here."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Organization"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Location"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "We understand your business clearly."
-msgstr ""
-
-#. translators: %s is a comma-separated list of real entity types this site's own data actually has (e.g. "organization, products").
-#: assets/js/index.js:1
-#, js-format
-msgid "We understand your %s."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "basic business details"
-msgstr ""
-
-#. translators: %d is how many of the 4 featured business details below are missing on this real site.
-#: assets/js/index.js:1
-#, js-format
-msgid "However, %d important detail needs clarification to improve your visibility in search results and AI answers."
-msgid_plural "However, %d important details need clarification to improve your visibility in search results and AI answers."
-msgstr[0] ""
-msgstr[1] ""
-
-#: assets/js/index.js:1
-msgid "All the core details search engines and AI look for were found on your site."
-msgstr ""
-
 #. translators: %s is "good"/"needs work"/"poor".
 #: assets/js/index.js:1
 #, js-format
@@ -9028,22 +9021,54 @@ msgstr ""
 msgid "Turn it back on from Settings → Modules to see a real score here."
 msgstr ""
 
-#. translators: %d is a real count of this entity type found on the site.
+#: assets/js/index.js:1
+msgid "Something went wrong while loading issues."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Critical Issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Need your attention"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View all issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Nothing critical right now"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No open critical or high-priority schema/entity findings."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pages with Valid Schema"
+msgstr ""
+
+#. translators: %d is how many of the real sampled pages were actually checked.
 #: assets/js/index.js:1
 #, js-format
-msgid "%d found"
+msgid "Out of %d pages"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Missing"
+msgid "Pages without schema"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No published posts/pages with a real author yet."
+msgid "View all pages"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No service pages configured yet."
+msgid "Not analyzed yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run a Schema Check below to see real page coverage here."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9071,6 +9096,10 @@ msgid "View all %s"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Manage in Settings"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load extracted entities."
 msgstr ""
 
@@ -9088,6 +9117,54 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not load extracted entities"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Organization"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No organization detected yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No published products yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This site doesn't have an active online store — VuloPilot looks for real WooCommerce products."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No categories in use yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Needs cleanup"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No published posts/pages with a real author yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No business locations configured yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Why it matters"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Adding your business location helps customers and search engines understand where you operate."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Check locations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No service pages configured yet."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9111,82 +9188,6 @@ msgid "Upgrade to see how your real entities connect to each other as a diagram.
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No published products yet."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "This site doesn't have an active online store — VuloPilot looks for real WooCommerce products."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No categories in use yet."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Needs cleanup"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Why does this matter?"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Search engines and AI systems need to understand who you are, what you offer, and what the important things on your website are. Clear, accurate information helps your content show up in more relevant searches and AI answers."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Business Locations"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No business locations configured yet."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Why it matters"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Adding your business location helps customers and search engines understand where you operate."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Check locations"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Something went wrong while loading issues."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "What Needs Fixing"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "These issues are preventing search engines and AI from understanding your business completely."
-msgstr ""
-
-#. translators: %d is a real count of affected pages/site-wide checks.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d item affected."
-msgid_plural "%d items affected."
-msgstr[0] ""
-msgstr[1] ""
-
-#: assets/js/index.js:1
-msgid "View all issues"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Nothing needs fixing right now"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No open schema or entity-related findings — run a scan to check again."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "No schema/structured-data findings yet — run a scan to check."
 msgstr ""
 
@@ -9203,31 +9204,11 @@ msgid "Problems"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Schema Status"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "VuloPilot checked how your website describes its pages, products, articles and business to search engines."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages checked"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages with valid schema"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Schema types detected"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Schema Coverage"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "See what structured information is on your website and where something is missing or incorrect — a real sample from its own live pages."
+msgid "VuloPilot checked how your website describes its pages, products, articles and business to search engines — see what structured information is there and where something is missing or incorrect, a real sample from its own live pages."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9244,11 +9225,19 @@ msgid "Run Schema Check"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Not analyzed yet"
+msgid "Click \"Run Schema Check\" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Click \"Run Schema Check\" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask."
+msgid "Pages checked"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Pages with valid schema"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Schema types detected"
 msgstr ""
 
 #. translators: %s is when this real schema sample was generated.
@@ -9266,10 +9255,6 @@ msgid "Schema type"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Plain-English meaning"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Found on"
 msgstr ""
 
@@ -9280,7 +9265,7 @@ msgid "%d pages"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "The real findings behind these numbers already live in the \"What Needs Fixing\"/\"All Business Identity Issues\" sections above."
+msgid "The real findings behind these numbers already live in the \"Critical Issues\"/\"All Business Identity Issues\" sections above."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9336,38 +9321,6 @@ msgid "Show for developers"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Schema Inspector"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "See all schema detected on one specific page and where it comes from."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "JSON-LD Viewer"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "View, copy and export the raw JSON-LD structured data from any page."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Schema Validator"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Validate this site's structured data against Google's Rich Results Test."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Conflict Detection"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Detect duplicate or conflicting schema output by more than one plugin or theme."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Inspect a specific page"
 msgstr ""
 
@@ -9377,6 +9330,14 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Select a page or product…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Or check this site’s homepage right now, without picking a page:"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Validate homepage with Google →"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9442,7 +9403,11 @@ msgid "Open page"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "View JSON-LD"
+msgid "Validate with Google"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "JSON-LD"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9451,14 +9416,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not copy to clipboard."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pick a page above to see full results here"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Every tool above already works — Schema Validator opens for this site’s homepage until you inspect a specific page, and the others jump you back to the page picker."
 msgstr ""
 
 #: assets/js/index.js:1

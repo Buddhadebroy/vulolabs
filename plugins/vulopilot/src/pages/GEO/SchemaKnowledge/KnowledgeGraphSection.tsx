@@ -7,7 +7,6 @@ import {
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
@@ -249,14 +248,15 @@ const EntityDetailContent = ({
  * People/Locations/Services) IS the tab selector — clicking one sets
  * `activeEntityTab` and shows that type's own real detail (the exact same
  * list/empty-state/badge/link content the old standalone cards rendered,
- * via `EntityDetailContent`) in a content area appended right below the
- * count list + Graph Visualization, inside this same card. Defaults to
- * the "Organization" tab so the appended area never starts blank.
+ * via `EntityDetailContent`) in its own panel, inside this same card.
+ * Defaults to the "Organization" tab so that panel never starts blank.
  *
- * The Graph Visualization pane itself is untouched — still always visible
- * beside the count list regardless of which tab is active, per direct
- * instruction to leave the existing card layout intact and only append
- * the entity detail content to it.
+ * Count list, Graph Visualization, and the active tab's detail panel sit
+ * side by side as 3 columns in one row (`.kg-understand-grid`) rather than
+ * the detail panel dropping to a full-width row underneath — per direct
+ * instruction ("make the 3 sections side by side instead of organization
+ * list in the 2nd row"). The Graph Visualization pane itself is otherwise
+ * untouched — still always visible regardless of which tab is active.
  */
 const KnowledgeGraphSection = () => {
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
@@ -489,7 +489,7 @@ const KnowledgeGraphSection = () => {
 
 	return (
 		<>
-			<ColumnComponent grid={8}>
+			<ColumnComponent grid={12}>
 				{entities && (
 					<CardComponent
 						title={__('What AI & Search Understand', 'vulopilot')}
@@ -549,50 +549,44 @@ const KnowledgeGraphSection = () => {
 									/>
 								)}
 							</div>
-						</div>
 
-						{activeTab && (
-							<div id="kg-entity-tab-content" className="kg-entity-tab-content">
-								<div className="kg-entity-tab-content-header">
-									<i className={`adminfont-${activeTab.icon}`} />
-									<span className="kg-entity-tab-content-title">
-										{activeTab.label}
-									</span>
-									<BadgeComponent
-										color={activeTab.count > 0 ? 'green' : 'grey'}
-										text={String(activeTab.count)}
+							{activeTab && (
+								<div
+									id="kg-entity-tab-content"
+									className="kg-entity-tab-content"
+								>
+									<div className="kg-entity-tab-content-header">
+										<i className={`adminfont-${activeTab.icon}`} />
+										<span className="kg-entity-tab-content-title">
+											{activeTab.label}
+										</span>
+										<BadgeComponent
+											color={activeTab.count > 0 ? 'green' : 'grey'}
+											text={String(activeTab.count)}
+										/>
+									</div>
+									<EntityDetailContent
+										title={activeTab.label}
+										rows={activeTab.rows}
+										emptyMessage={activeTab.emptyMessage}
+										naMessage={activeTab.naMessage}
+										emptyState={activeTab.emptyState}
+										viewAllHref={activeTab.viewAllHref}
+										settingsUrl={activeTab.settingsUrl}
+										rowBadge={activeTab.rowBadge}
 									/>
 								</div>
-								<EntityDetailContent
-									title={activeTab.label}
-									rows={activeTab.rows}
-									emptyMessage={activeTab.emptyMessage}
-									naMessage={activeTab.naMessage}
-									emptyState={activeTab.emptyState}
-									viewAllHref={activeTab.viewAllHref}
-									settingsUrl={activeTab.settingsUrl}
-									rowBadge={activeTab.rowBadge}
-								/>
-							</div>
-						)}
+							)}
+						</div>
 					</CardComponent>
 				)}
-
-				<CardComponent
-					title={__('Why does this matter?', 'vulopilot')}
-					titleIcon="info"
-				>
-					<div className="desc">
-						{__(
-							'Search engines and AI systems need to understand who you are, what you offer, and what the important things on your website are. Clear, accurate information helps your content show up in more relevant searches and AI answers.',
-							'vulopilot'
-						)}
-					</div>
-				</CardComponent>
+				
 			</ColumnComponent>
 
-			<ColumnComponent grid={4}>
+			<ColumnComponent grid={6}>
 				{KnowledgeGraphHealthCard && <KnowledgeGraphHealthCard />}
+			</ColumnComponent>
+			<ColumnComponent grid={6}>
 				{EntityRecommendationsCard && <EntityRecommendationsCard />}
 			</ColumnComponent>
 		</>

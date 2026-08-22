@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation } from 'react-router-dom';
 import { NavigatorHeaderComponent, TabsComponent, ContainerComponent } from '@zyra/components';
-import { useRunScan } from '../../services/useRunScan';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import OverviewTab from './OverviewTab';
 import GeoTab from './GeoTab';
@@ -144,14 +144,6 @@ const SeoVisibility = () => {
 	// `initialInnerSection` already has.
 	const [crawlUrlsJumpSection, setCrawlUrlsJumpSection] =
 		useState<CrawlUrlsSectionId>(initialCrawlUrlsSection);
-	// Scoped to this page's own categories — GeoTab/AeoTab are 'geo',
-	// SeoTab's 17 scanners span 'seo'/'images'/'schema'/'links' (see its
-	// own docblock) — same "local tab" scoping every other category page's
-	// header "Run scan" button uses.
-	const { runScanButton } = useRunScan({
-		categories: ['geo', 'seo', 'images', 'schema', 'links'],
-	});
-
 	/**
 	 * `crawlUrlsSection` is only meaningful when `tab` is `'crawl-urls'` —
 	 * every other caller (OverviewTab.tsx's own `'geo' | 'aeo'`-typed
@@ -179,7 +171,12 @@ const SeoVisibility = () => {
 					'Tell AI what you want to achieve. VuloPilot continuously improves your site’s visibility across Google, AI Search, and Answer Engines.',
 					'vulopilot'
 				)}
-				buttons={[runScanButton]}
+				headerCustomContent={
+					<RunScanHeaderExtra
+						categories={['geo', 'seo', 'images', 'schema', 'links']}
+						settingsSubtab="seo-content"
+					/>
+				}
 			/>
 			<ContainerComponent general>
 				<TabsComponent

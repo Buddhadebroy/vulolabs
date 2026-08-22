@@ -4,7 +4,6 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	ColumnComponent,
-	ContainerComponent,
 	InformationItemComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
@@ -172,89 +171,101 @@ const IssuesSection = () => {
 
 	return (
 		<>
+			{/* Real scroll target for "View all issues"/"Review" elsewhere
+			on this page (`scrollToId('schema-knowledge-issues')`) — kept
+			INSIDE this grid={8} column rather than as a wrapping element
+			around both of this component's own columns, since a wrapping
+			`<div>` there would put the grid={8}/grid={4} pair inside ITS
+			OWN box instead of the page's shared `.container-wrapper` flex
+			row they're meant to sit side by side in (SchemaKnowledgeTab.tsx
+			used to wrap this whole component in exactly such a div, which
+			broke that side-by-side layout — fixed by moving the id here
+			instead). */}
 			<ColumnComponent grid={8}>
-				<IssuesSummaryCards
-					total={total}
-					priorityCounts={priorityCounts}
-					isLoading={isLoading}
-					activePriority={activePriority}
-					onSelectPriority={handlePriorityChange}
-				/>
-
-				{!isLoading && data.length === 0 ? (
-					<ModuleGuardComponent
-						icon="check"
-						title={__('No schema issues right now', 'vulopilot')}
-						desc={__(
-							'No schema/structured-data findings yet — run a scan to check.',
-							'vulopilot'
-						)}
-					/>
-				) : (
-					<TableCard
-						showMenu={false}
-						hideHeader={true}
-						className="transparent-table"
-						headers={{
-							issue: {
-								label: __('Issue', 'vulopilot'),
-								width: '65%',
-								render: (row: FindingGroup) => (
-									<InformationItemComponent
-										title={row.label}
-										descriptions={[
-											{
-												value: row.sample?.description || '',
-											},
-										]}
-										badges={[
-											{
-												text: CATEGORY_LABELS[row.category] ?? row.category,
-												className: `badge-${row.category}`,
-											},
-											{
-												text: row.severity,
-												className: `badge-${row.severity}`,
-											},
-										]}
-									/>
-								),
-							},
-							affected: {
-								label: __('Affected', 'vulopilot'),
-								render: (row: FindingGroup) =>
-									formatAffected(row.count, row.object_type),
-							},
-							action: {
-								type: 'action',
-								label: __('Action', 'vulopilot'),
-								actions: [
-									{
-										label: __('View', 'vulopilot'),
-										icon: 'eye',
-										onClick: (row: FindingGroup) =>
-											setSelectedGroup(row),
-									},
-								],
-							},
-						}}
-						rows={data}
-						ids={data.map((row) => row.scanner_id)}
-						totalRows={total}
+				<div id="schema-knowledge-issues">
+					<IssuesSummaryCards
+						total={total}
+						priorityCounts={priorityCounts}
 						isLoading={isLoading}
-						onQueryUpdate={(query: {
-							paged?: number | string;
-							per_page?: number | string;
-						}) => {
-							setPaged(Number(query.paged) || 1);
-							setPerPage(Number(query.per_page) || 10);
-						}}
-						emptyMessage={__(
-							'No schema/structured-data findings yet — run a scan to check.',
-							'vulopilot'
-						)}
+						activePriority={activePriority}
+						onSelectPriority={handlePriorityChange}
 					/>
-				)}
+
+					{!isLoading && data.length === 0 ? (
+						<ModuleGuardComponent
+							icon="check"
+							title={__('No schema issues right now', 'vulopilot')}
+							desc={__(
+								'No schema/structured-data findings yet — run a scan to check.',
+								'vulopilot'
+							)}
+						/>
+					) : (
+						<TableCard
+							showMenu={false}
+							hideHeader={true}
+							className="transparent-table"
+							headers={{
+								issue: {
+									label: __('Issue', 'vulopilot'),
+									width: '65%',
+									render: (row: FindingGroup) => (
+										<InformationItemComponent
+											title={row.label}
+											descriptions={[
+												{
+													value: row.sample?.description || '',
+												},
+											]}
+											badges={[
+												{
+													text: CATEGORY_LABELS[row.category] ?? row.category,
+													className: `badge-${row.category}`,
+												},
+												{
+													text: row.severity,
+													className: `badge-${row.severity}`,
+												},
+											]}
+										/>
+									),
+								},
+								affected: {
+									label: __('Affected', 'vulopilot'),
+									render: (row: FindingGroup) =>
+										formatAffected(row.count, row.object_type),
+								},
+								action: {
+									type: 'action',
+									label: __('Action', 'vulopilot'),
+									actions: [
+										{
+											label: __('View', 'vulopilot'),
+											icon: 'eye',
+											onClick: (row: FindingGroup) =>
+												setSelectedGroup(row),
+										},
+									],
+								},
+							}}
+							rows={data}
+							ids={data.map((row) => row.scanner_id)}
+							totalRows={total}
+							isLoading={isLoading}
+							onQueryUpdate={(query: {
+								paged?: number | string;
+								per_page?: number | string;
+							}) => {
+								setPaged(Number(query.paged) || 1);
+								setPerPage(Number(query.per_page) || 10);
+							}}
+							emptyMessage={__(
+								'No schema/structured-data findings yet — run a scan to check.',
+								'vulopilot'
+							)}
+						/>
+					)}
+				</div>
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
