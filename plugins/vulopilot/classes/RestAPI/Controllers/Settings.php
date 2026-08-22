@@ -8,6 +8,7 @@
 namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Utill;
+use VuloPilot\Repositories\ReportRepository;
 use VuloPilot\Services\EntityExtractor;
 use VuloPilot\Services\SchemaCoverageAnalyzer;
 use VuloPilot\Services\RobotsTxtBotAccess;
@@ -160,6 +161,27 @@ class Settings extends \WP_REST_Controller {
                 array(
                     'methods'             => \WP_REST_Server::CREATABLE,
                     'callback'            => array( $this, 'send_test_crawler_alert' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
+        // "Send Test Report" (Settings → Reports) — same shape as
+        // /test-email above, but generates a real report first
+        // (VuloPilot()->report_generator, the exact engine
+        // Controllers\Reports::create_item() itself uses) using whatever
+        // format/period this tab currently has configured, then emails a
+        // "your report is ready" notice rather than attaching the file —
+        // same real pattern vulopilot-pro's ScheduledReportRunner::maybe_email_report()
+        // already uses for scheduled reports. See send_test_report()'s own
+        // docblock.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/test-report',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'send_test_report' ),
                     'permission_callback' => array( $this, 'update_item_permissions_check' ),
                 ),
             )
@@ -412,6 +434,107 @@ class Settings extends \WP_REST_Controller {
                     ? sprintf(
                         /* translators: %s is the recipient email address. */
                         __( 'Test email sent to %s.', 'vulopilot' ),
+                        $recipient
+                    )
+                    : __( 'wp_mail() returned false — check your site\'s mail configuration.', 'vulopilot' ),
+            )
+        );
+    }
+
+    /**
+     * "Send Test Report" (Settings → Reports) — a real, full generation
+     * through the exact same engine Controllers\Reports::create_item()
+     * itself uses (`VuloPilot()->report_generator`), using this tab's own
+     * currently-configured `default_report_format`/`default_report_period_days`
+     * (same fallback-to-csv-when-unregistered posture create_item() already
+     * takes for the settings default, so choosing 'pdf' without Pro's
+     * AdvancedReports module active here behaves identically to a real
+     * report request would). Emails a "ready" notice rather than attaching
+     * the file — same real pattern vulopilot-pro's
+     * AdvancedReports\ScheduledReportRunner::maybe_email_report() already
+     * uses for scheduled reports, not a new delivery mechanism.
+     *
+     * On success, also persists a real `report_last_test_sent` timestamp —
+     * same "survives a page refresh" purpose
+     * `crawler_alert_last_test_sent` already serves below.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function send_test_report( $request ) {
+        $settings  = $this->get_stored_settings();
+        $recipient = $settings['notification_email'] ? $settings['notification_email'] : get_option( 'admin_email' );
+
+        if ( ! is_email( $recipient ) ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'The notification email address isn\'t valid.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $format = (string) $settings['default_report_format'];
+
+        if ( ! VuloPilot()->report_exporter_registry->get_exporter( $format ) ) {
+            $format = 'csv';
+        }
+
+        $period_days  = absint( $settings['default_report_period_days'] );
+        $period_days  = max( 1, $period_days ? $period_days : 30 );
+        $period_end   = current_time( 'Y-m-d' );
+        $period_start = gmdate( 'Y-m-d', strtotime( '-' . ( $period_days - 1 ) . ' days', strtotime( $period_end ) ) );
+
+        $report_id = VuloPilot()->report_generator->generate(
+            'scan_summary',
+            $format,
+            $period_start,
+            $period_end,
+            array(),
+            get_current_user_id()
+        );
+
+        $report = ( new ReportRepository() )->find( $report_id );
+
+        if ( ! $report || 'ready' !== $report['status'] ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'Could not generate a test report. Please try again.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $headers = array();
+
+        if ( ! empty( $settings['email_from_address'] ) && is_email( $settings['email_from_address'] ) ) {
+            $from_name = $settings['email_from_name'] ? $settings['email_from_name'] : get_bloginfo( 'name' );
+            $headers[] = sprintf( 'From: %s <%s>', $from_name, $settings['email_from_address'] );
+        }
+
+        $sent = wp_mail(
+            $recipient,
+            sprintf(
+                /* translators: %s is the site name. */
+                __( '[%s] Your test report is ready', 'vulopilot' ),
+                get_bloginfo( 'name' )
+            ),
+            __( 'This is a test report from VuloPilot\'s Reports settings. Sign in to your dashboard\'s Reports page to view and download it.', 'vulopilot' ),
+            $headers
+        );
+
+        if ( $sent ) {
+            $updated = array_merge( $this->get_stored_settings(), array( 'report_last_test_sent' => current_time( 'mysql', true ) ) );
+            update_option( Utill::VULOPILOT_SETTINGS_KEY, $updated );
+        }
+
+        return rest_ensure_response(
+            array(
+                'success' => $sent,
+                'message' => $sent
+                    ? sprintf(
+                        /* translators: %s is the recipient email address. */
+                        __( 'Test report generated and emailed to %s.', 'vulopilot' ),
                         $recipient
                     )
                     : __( 'wp_mail() returned false — check your site\'s mail configuration.', 'vulopilot' ),

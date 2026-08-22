@@ -58,7 +58,7 @@ const FREQUENCY_OPTIONS = [
  */
 export default {
 	id: 'ai-crawler-alerts',
-	priority: 3,
+	priority: 2,
 	headerTitle: __('AI Crawler Alerts', 'vulopilot'),
 	headerDescription: __(
 		'Get notified when AI crawlers are blocked, limited, or stop visiting your website.',
