@@ -49,7 +49,7 @@ const BackupProtectionNotice = () => {
 	return (
 		<NoticeComponent
 			type={isEnabled ? 'success' : 'info'}
-			displayPosition="inline-notice"
+			displayPosition="notice"
 			message={
 				isEnabled
 					? __('Backup protection: Enabled', 'vulopilot')

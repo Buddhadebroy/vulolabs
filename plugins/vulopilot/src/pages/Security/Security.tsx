@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { NavigatorHeaderComponent } from '@zyra/components';
+import { NavigatorHeaderComponent, ContainerComponent } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
 import SecurityTab from './SecurityTab';
 
@@ -36,7 +36,9 @@ const Security = () => {
 				)}
 				buttons={[runScanButton]}
 			/>
-			<SecurityTab />
+			<ContainerComponent general>
+				<SecurityTab />
+			</ContainerComponent>
 		</>
 	);
 };
