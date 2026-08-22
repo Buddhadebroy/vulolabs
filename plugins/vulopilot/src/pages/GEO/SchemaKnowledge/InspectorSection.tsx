@@ -3,8 +3,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
 	ColumnComponent,
-	ContainerComponent,
-	ModuleGuardComponent,
 	NoticeComponent,
 } from '@zyra/components';
 import { ButtonInput, SelectInput } from '@zyra/inputs';
@@ -18,14 +16,6 @@ interface InspectablePage {
 	type: string;
 	type_label: string;
 	url: string;
-}
-
-interface DevTool {
-	key: string;
-	icon: string;
-	title: string;
-	desc: string;
-	onClick: () => void;
 }
 
 const downloadJson = (filename: string, content: string) => {
@@ -64,11 +54,22 @@ const pathOf = (url: string): string => {
  * from a real dropdown of this site's own recent posts/pages/products
  * (`GET /schema/inspectable-pages`) rather than typed in as a raw URL —
  * selecting one runs the real inspection immediately, no separate "Inspect"
- * button. Detected types, problems, and the JSON-LD viewer are all read
- * directly off the real decoded structured data on the inspected page; the
- * Schema Validator tile is a real link-out to Google's own public Rich
- * Results Test (zero backend needed); Conflict Detection flags real cases
- * of more than one JSON-LD block sharing the same @type on one page.
+ * button.
+ *
+ * One card, not three — this used to be "Inspect a specific page" + a
+ * separate "JSON-LD Viewer" card + a separate "Developer Tools" card
+ * holding a 4-tile grid, per direct instruction to merge them into
+ * something "compact yet meaningful" instead. Two of those four tiles
+ * (Schema Inspector, JSON-LD Viewer) were already just scroll-jumps to
+ * content that's now simply the next thing down in this same card — not a
+ * real second action, just navigation to itself. A third (Conflict
+ * Detection) jumped to the Conflicts section below, likewise now just
+ * "scroll down a bit" once everything lives in one place. Only Schema
+ * Validator (a real link-out to Google's own public Rich Results Test) was
+ * a genuinely distinct action, so that's the one thing kept as its own
+ * button — real and useful even before a page is picked (defaults to this
+ * site's own homepage), and automatically re-targets to the actually-
+ * inspected page's own URL once one is selected.
  */
 const InspectorSection = () => {
 	const [pages, setPages] = useState<InspectablePage[]>([]);
@@ -118,70 +119,12 @@ const InspectorSection = () => {
 		);
 	};
 
-	const scrollTo = (id: string) =>
-		document
-			.getElementById(id)
-			?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-	/**
-	 * Every tile is a real, always-clickable action — none of them are
-	 * inert descriptions. Before any page has been inspected, a tile with
-	 * nothing of its own to show yet (JSON-LD Viewer/Conflict Detection)
-	 * falls back to scrolling up to the real page picker rather than doing
-	 * nothing; Schema Validator still has a real, useful default target
-	 * (this site's own homepage) even with nothing inspected yet.
-	 */
-	const devTools: DevTool[] = [
-		{
-			key: 'inspector',
-			icon: 'search',
-			title: __('Schema Inspector', 'vulopilot'),
-			desc: __(
-				'See all schema detected on one specific page and where it comes from.',
-				'vulopilot'
-			),
-			onClick: () => scrollTo('schema-inspector-picker'),
-		},
-		{
-			key: 'jsonld',
-			icon: 'editor-code',
-			title: __('JSON-LD Viewer', 'vulopilot'),
-			desc: __(
-				'View, copy and export the raw JSON-LD structured data from any page.',
-				'vulopilot'
-			),
-			onClick: result
-				? () => scrollTo('schema-inspector-jsonld')
-				: () => scrollTo('schema-inspector-picker'),
-		},
-		{
-			key: 'validator',
-			icon: 'security',
-			title: __('Schema Validator', 'vulopilot'),
-			desc: __(
-				"Validate this site's structured data against Google's Rich Results Test.",
-				'vulopilot'
-			),
-			onClick: () =>
-				window.open(
-					`https://search.google.com/test/rich-results?url=${encodeURIComponent(result ? result.url : appLocalizer.site_url)}`,
-					'_blank',
-					'noreferrer'
-				),
-		},
-		{
-			key: 'conflict',
-			icon: 'analytics',
-			title: __('Conflict Detection', 'vulopilot'),
-			desc: __(
-				'Detect duplicate or conflicting schema output by more than one plugin or theme.',
-				'vulopilot'
-			),
-			onClick: result
-				? () => scrollTo('schema-inspector-conflicts')
-				: () => scrollTo('schema-inspector-picker'),
-		},
-	];
+	const openRichResultsTest = () =>
+		window.open(
+			`https://search.google.com/test/rich-results?url=${encodeURIComponent(result ? result.url : appLocalizer.site_url)}`,
+			'_blank',
+			'noreferrer'
+		);
 
 	return (
 		<ColumnComponent>
@@ -224,6 +167,28 @@ const InspectorSection = () => {
 						displayPosition="inline-notice"
 						message={error}
 					/>
+				)}
+
+				{!result && (
+					<div className="schema-inspector-validator-hint">
+						<span className="desc">
+							{__(
+								'Or check this site’s homepage right now, without picking a page:',
+								'vulopilot'
+							)}
+						</span>
+						<ButtonInput
+							position="left"
+							buttons={{
+								text: __(
+									'Validate homepage with Google →',
+									'vulopilot'
+								),
+								color: 'text-purple',
+								onClick: openRichResultsTest,
+							}}
+						/>
+					</div>
 				)}
 
 				{result && (
@@ -289,42 +254,40 @@ const InspectorSection = () => {
 							</button>
 						)}
 
-						<div id="schema-inspector-conflicts">
-							<div className="schema-inspector-result-heading">
-								{sprintf(
-									/* translators: %d is how many real duplicate/conflicting schema blocks were found on this page. */
-									__('Conflicts detected (%d)', 'vulopilot'),
-									result.conflicts.length
-								)}
-							</div>
-							{0 === result.conflicts.length ? (
-								<div className="desc">
-									{__(
-										'No duplicate or conflicting schema output detected on this page.',
-										'vulopilot'
-									)}
-								</div>
-							) : (
-								<ul className="schema-inspector-check-list">
-									{result.conflicts.map((conflict) => (
-										<li key={conflict.type}>
-											<i className="adminfont-error schema-inspector-check-icon--bad" />
-											<span>
-												{sprintf(
-													/* translators: 1: schema.org @type, e.g. "Product", 2: number of JSON-LD blocks on this page sharing that type. */
-													__(
-														'%1$d separate "%2$s" blocks were found on this page — search engines may only use one.',
-														'vulopilot'
-													),
-													conflict.block_indexes.length,
-													conflict.type
-												)}
-											</span>
-										</li>
-									))}
-								</ul>
+						<div className="schema-inspector-result-heading">
+							{sprintf(
+								/* translators: %d is how many real duplicate/conflicting schema blocks were found on this page. */
+								__('Conflicts detected (%d)', 'vulopilot'),
+								result.conflicts.length
 							)}
 						</div>
+						{0 === result.conflicts.length ? (
+							<div className="desc">
+								{__(
+									'No duplicate or conflicting schema output detected on this page.',
+									'vulopilot'
+								)}
+							</div>
+						) : (
+							<ul className="schema-inspector-check-list">
+								{result.conflicts.map((conflict) => (
+									<li key={conflict.type}>
+										<i className="adminfont-error schema-inspector-check-icon--bad" />
+										<span>
+											{sprintf(
+												/* translators: 1: schema.org @type, e.g. "Product", 2: number of JSON-LD blocks on this page sharing that type. */
+												__(
+													'%1$d separate "%2$s" blocks were found on this page — search engines may only use one.',
+													'vulopilot'
+												),
+												conflict.block_indexes.length,
+												conflict.type
+											)}
+										</span>
+									</li>
+								))}
+							</ul>
+						)}
 
 						{result.preview && (
 							<>
@@ -380,15 +343,9 @@ const InspectorSection = () => {
 							/>
 							<ButtonInput
 								buttons={{
-									text: __('View JSON-LD', 'vulopilot'),
+									text: __('Validate with Google', 'vulopilot'),
 									color: 'text-purple',
-									onClick: () =>
-										document
-											.getElementById('schema-inspector-jsonld')
-											?.scrollIntoView({
-												behavior: 'smooth',
-												block: 'start',
-											}),
+									onClick: openRichResultsTest,
 								}}
 							/>
 						</div>
@@ -401,16 +358,10 @@ const InspectorSection = () => {
 								message={copyNotice}
 							/>
 						)}
-					</div>
-				)}
-			</CardComponent>
 
-			{result && (
-				<CardComponent
-					id="schema-inspector-jsonld"
-					title={__('JSON-LD Viewer', 'vulopilot')}
-					titleIcon="editor-code"
-					action={
+						<div className="schema-inspector-result-heading">
+							{__('JSON-LD', 'vulopilot')}
+						</div>
 						<div className="schema-inspector-jsonld-actions">
 							<ButtonInput
 								buttons={{
@@ -425,55 +376,12 @@ const InspectorSection = () => {
 								}}
 							/>
 						</div>
-					}
-				>
-					{result.blocks.map((block) => (
-						<pre key={block.index} className="schema-inspector-jsonld-block">
-							{prettyPrint(block.raw)}
-						</pre>
-					))}
-				</CardComponent>
-			)}
-
-			<CardComponent
-				title={__('Developer Tools', 'vulopilot')}
-				titleIcon="editor-code"
-			>
-				<div className="schema-dev-tools-grid">
-					{devTools.map((tool) => (
-						<div
-							key={tool.key}
-							className="schema-dev-tool-tile is-clickable"
-							role="button"
-							tabIndex={0}
-							onClick={tool.onClick}
-							onKeyDown={(e) => {
-								if ('Enter' === e.key || ' ' === e.key) {
-									e.preventDefault();
-									tool.onClick();
-								}
-							}}
-						>
-							<div className="kg-glance-icon">
-								<i className={`adminfont-${tool.icon}`} />
-							</div>
-							<div>
-								<div className="kg-check-title">{tool.title}</div>
-								<div className="kg-check-desc">{tool.desc}</div>
-							</div>
-							<i className="adminfont-arrow-right schema-dev-tool-chevron" />
-						</div>
-					))}
-				</div>
-				{!result && (
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Pick a page above to see full results here', 'vulopilot')}
-						desc={__(
-							'Every tool above already works — Schema Validator opens for this site’s homepage until you inspect a specific page, and the others jump you back to the page picker.',
-							'vulopilot'
-						)}
-					/>
+						{result.blocks.map((block) => (
+							<pre key={block.index} className="schema-inspector-jsonld-block">
+								{prettyPrint(block.raw)}
+							</pre>
+						))}
+					</div>
 				)}
 			</CardComponent>
 		</ColumnComponent>

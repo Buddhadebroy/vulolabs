@@ -53,7 +53,7 @@ const RunAuditWidget: React.FC<WidgetProps> = ({
 	};
 
 	const handleScheduleAudit = () => {
-		window.location.href = '?page=vulopilot#&tab=automation';
+		window.location.href = '?page=vulopilot#&tab=automations';
 	};
 
 	return (

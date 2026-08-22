@@ -347,7 +347,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	 * page — nothing left to route to but the page itself.
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
-		window.location.href = `${appLocalizer.admin_url}#&tab=automation&automation_template=${template.id}`;
+		window.location.href = `${appLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
 	};
 
 	return (

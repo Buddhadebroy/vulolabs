@@ -32,6 +32,16 @@ class RobotsTxtBotAccess {
     private const CACHE_TTL_SECONDS       = HOUR_IN_SECONDS;
 
     /**
+     * Settings → Developer Tools' "Clear cache" — same public
+     * `clear_cache()` shape `Services\EntityExtractor` already establishes.
+     *
+     * @return void
+     */
+    public function clear_cache(): void {
+        delete_transient( self::CACHE_KEY );
+    }
+
+    /**
      * Disallow paths for one bot token — its own named group if robots.txt
      * has one, otherwise the wildcard group's rules, otherwise empty (no
      * restriction found for that bot).

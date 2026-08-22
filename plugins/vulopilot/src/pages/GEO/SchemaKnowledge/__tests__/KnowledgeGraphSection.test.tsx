@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { getApiResponse } from '@zyra/core';
 import KnowledgeGraph from '../KnowledgeGraphSection';
 
@@ -17,7 +18,15 @@ describe( 'KnowledgeGraph section', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'renders each entity section with its real count when the module is active', async () => {
+	/**
+	 * Regression: Products/Categories/People/Locations/Services used to
+	 * each be their own standalone card, all visible at once. They're now
+	 * tabs inside "What AI & Search Understand" — only the active tab's
+	 * own detail is shown at a time (defaults to "Organization"), and
+	 * clicking a different row in the count list switches which one is
+	 * shown, replacing the previous tab's content rather than adding to it.
+	 */
+	it( 'shows the Organization tab by default, and switches tabs on click', async () => {
 		global.appLocalizer.active_modules = [ 'entity-extraction' ];
 		( getApiResponse as jest.Mock ).mockResolvedValue( {
 			people: [
@@ -50,22 +59,33 @@ describe( 'KnowledgeGraph section', () => {
 
 		render( <KnowledgeGraph /> );
 
-		// People/Organizations/Services now share the same EntityHighlightCard
-		// design as Products/Categories/Business Locations — real count shown
-		// as its own badge, not concatenated into the title text.
-		expect( await screen.findByText( 'Jane Doe' ) ).toBeInTheDocument();
-		// "People"/"Organizations" each appear once as their EntityHighlightCard
-		// title.
+		// Every count-list row (the tab selector) is always visible,
+		// regardless of which tab is active.
+		expect( await screen.findByText( 'Organization' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Products' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'People' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Organizations' ) ).toBeInTheDocument();
-		// Products also appears as the "Your website at a glance" card's own
-		// real stat label, hence getAllByText rather than getByText.
-		expect( screen.getAllByText( 'Products' ).length ).toBeGreaterThan( 0 );
+
+		// Default tab (Organization) shows its own real entity.
+		expect( await screen.findByText( 'Acme Site' ) ).toBeInTheDocument();
+		// A different tab's content isn't shown until it's actually selected.
+		expect( screen.queryByText( 'Jane Doe' ) ).not.toBeInTheDocument();
 		expect(
-			screen.getByText( /not applicable to this site/i )
-		).toBeInTheDocument();
+			screen.queryByText( /not applicable to this site/i )
+		).not.toBeInTheDocument();
+
+		// Switch to the "People" tab.
+		await userEvent.click( screen.getByText( 'People' ) );
+
+		expect( await screen.findByText( 'Jane Doe' ) ).toBeInTheDocument();
+		// The previous tab's own content (Organization's real row) is gone
+		// now that a different tab is active.
+		expect( screen.queryByText( 'Acme Site' ) ).not.toBeInTheDocument();
+
+		// Switch to "Products" — a `rows: null` type (WooCommerce inactive).
+		await userEvent.click( screen.getByText( 'Products' ) );
+
 		expect(
-			screen.getByText( /no service pages configured yet/i )
+			await screen.findByText( /not applicable to this site/i )
 		).toBeInTheDocument();
 	} );
 
