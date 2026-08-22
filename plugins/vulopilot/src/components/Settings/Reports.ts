@@ -136,5 +136,12 @@ export default {
 				'vulopilot'
 			),
 		},
+		{
+			key: 'send_test_report',
+			type: 'button',
+			name: __('Send Test Report', 'vulopilot'),
+			apilink: 'settings/test-report',
+			method: 'POST',
+		},
 	],
 };
