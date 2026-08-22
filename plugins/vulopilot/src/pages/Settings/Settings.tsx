@@ -11,6 +11,7 @@ import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import AiProvidersPanel from '../../components/Settings/AiProvidersPanel';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
+import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
@@ -140,6 +141,12 @@ const Settings = () => {
 		// auto-save model either).
 		if (currentTab === 'google-services') {
 			return <GoogleServicesPanel />;
+		}
+
+		// Developer Tools' "Clear cache" is a real action, not a
+		// persisted field — same escape hatch as 'indexnow' above.
+		if (currentTab === 'developer-tools') {
+			return <DeveloperToolsPanel />;
 		}
 
 		// Generic version of the three escape hatches above, for tabs this

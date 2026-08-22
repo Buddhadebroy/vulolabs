@@ -66,6 +66,16 @@ class SchemaCoverageAnalyzer {
     );
 
     /**
+     * Settings → Developer Tools' "Clear cache" — same public
+     * `clear_cache()` shape `Services\EntityExtractor` already establishes.
+     *
+     * @return void
+     */
+    public function clear_cache(): void {
+        delete_transient( self::CACHE_KEY );
+    }
+
+    /**
      * Runs a fresh real sample and stores it — the only path that performs
      * real outbound HTTP requests (see this class's own docblock).
      *

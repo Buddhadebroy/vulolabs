@@ -6,8 +6,10 @@ import {
 	ContainerComponent,
 	ModuleGuardComponent,
 	BadgeComponent,
+	InformationItemComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../../services/formatWpDate';
 import { useSchemaCoverage } from './useSchemaCoverage';
 import type { SchemaCoverageRow } from './useSchemaCoverage';
@@ -56,6 +58,22 @@ const STATUS_CONFIG: Record<
 	good: { color: 'green', icon: 'check', label: __('Good', 'vulopilot') },
 	check: { color: 'yellow', icon: 'alarm', label: __('Check', 'vulopilot') },
 	problems: { color: 'red', icon: 'error', label: __('Problems', 'vulopilot') },
+};
+
+/**
+ * Maps this table's own 3-tier status to the real severity vocabulary
+ * `badge-{severity}` CSS (already styled green/yellow/red, confirmed by
+ * IssuesSection.tsx's own `badge-${row.severity}` usage) actually
+ * recognizes — 'good'/'check'/'problems' aren't themselves real severity
+ * values anywhere else in this codebase, so a literal `badge-good` class
+ * would render unstyled. The row's own real label text (`STATUS_CONFIG`
+ * above) still reads "Good"/"Check"/"Problems" either way — only the
+ * *color* is borrowed from the severity vocabulary, not the wording.
+ */
+const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
+	good: 'low',
+	check: 'medium',
+	problems: 'high',
 };
 
 /**
@@ -250,75 +268,60 @@ const StructuredDataSection = () => {
 								)}
 							</div>
 						) : (
-							<table className="crawler-table schema-coverage-table">
-								<thead>
-									<tr>
-										<th>{__('Schema type', 'vulopilot')}</th>
-										<th>{__('Plain-English meaning', 'vulopilot')}</th>
-										<th>{__('Found on', 'vulopilot')}</th>
-										<th>{__('Problems', 'vulopilot')}</th>
-										<th>{__('Status', 'vulopilot')}</th>
-										<th>{__('Action', 'vulopilot')}</th>
-									</tr>
-								</thead>
-								<tbody>
-									{snapshot.coverage.map((row) => {
-										const status = getRowStatus(row);
-										const statusConfig = STATUS_CONFIG[status];
-										const isSelected = selectedRow?.type === row.type;
-
-										return (
-											<tr
-												key={row.type}
-												className={
-													isSelected
-														? 'schema-coverage-row-selected'
-														: undefined
-												}
-											>
-												<td>
-													<div className="schema-type-cell">
-														<div className="schema-type-icon">
-															<i
-																className={`adminfont-${getTypeIcon(row.type)}`}
-															/>
-														</div>
-														<span className="schema-type-name">
-															{row.type}
-														</span>
-													</div>
-												</td>
-												<td>{row.meaning}</td>
-												<td>
-													{sprintf(
-														/* translators: %d is how many of the real sampled pages carried this schema type. */
-														__('%d pages', 'vulopilot'),
-														row.found_on
-													)}
-												</td>
-												<td>{row.problems}</td>
-												<td>
-													<BadgeComponent
-														color={statusConfig.color}
-														icon={statusConfig.icon}
-														text={statusConfig.label}
-													/>
-												</td>
-												<td>
-													<button
-														type="button"
-														className={`schema-view-pages-link${isSelected ? ' is-active' : ''}`}
-														onClick={() => setSelectedRow(row)}
-													>
-														{__('View', 'vulopilot')}
-														<i className="adminfont-arrow-right" />
-													</button>
-												</td>
-											</tr>
-										);
-									})}
-								</tbody>
-							</table>
+							<TableCard
+								showMenu={false}
+								hideHeader={true}
+								className="transparent-table"
+								headers={{
+									type: {
+										label: __('Schema type', 'vulopilot'),
+										width: '65%',
+										render: (row: SchemaCoverageRow) => (
+											<InformationItemComponent
+												title={row.type}
+												avatar={{ iconClass: getTypeIcon(row.type) }}
+												descriptions={[{ value: row.meaning }]}
+												badges={[
+													{
+														text: STATUS_CONFIG[getRowStatus(row)]
+															.label,
+														className: `badge-${STATUS_SEVERITY_CLASS[getRowStatus(row)]}`,
+													},
+												]}
+											/>
+										),
+									},
+									found_on: {
+										label: __('Found on', 'vulopilot'),
+										render: (row: SchemaCoverageRow) =>
+											sprintf(
+												/* translators: %d is how many of the real sampled pages carried this schema type. */
+												__('%d pages', 'vulopilot'),
+												row.found_on
+											),
+									},
+									action: {
+										type: 'action',
+										label: __('Action', 'vulopilot'),
+										actions: [
+											{
+												label: __('View', 'vulopilot'),
+												icon: 'eye',
+												onClick: (row: SchemaCoverageRow) =>
+													setSelectedRow(row),
+											},
+										],
+									},
+								}}
+								rows={snapshot.coverage}
+								ids={snapshot.coverage.map((row) => row.type)}
+								totalRows={snapshot.coverage.length}
+								isLoading={isLoading}
+								emptyMessage={__(
+									'No structured data (JSON-LD) was found on any sampled page.',
+									'vulopilot'
+								)}
+							/>
 						)}
 
 						{totalProblems > 0 && (

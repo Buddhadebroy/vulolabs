@@ -551,12 +551,35 @@
 	align-items: center;
 	gap: 0.625rem;
 	font-size: 0.8125rem;
+	cursor: pointer;
+	border-radius: 0.25rem;
+	padding: 0.125rem 0.25rem;
+	margin: -0.125rem -0.25rem;
+	transition: background-color 0.15s ease;
 
 	i {
 		color: var(--color-primary);
 		font-size: 0.9375rem;
 		width: 1.125rem;
 		text-align: center;
+	}
+
+	&:hover,
+	&:focus-visible {
+		background: $theme-background-color;
+		outline: none;
+	}
+
+	// The currently selected tab — same $color-primary-background/$theme-color
+	// accent every other "active" state in this stylesheet already uses.
+	&.is-active {
+		background: $color-primary-background;
+
+		i,
+		.kg-understand-count-label {
+			color: $theme-color;
+			font-weight: 600;
+		}
 	}
 }
 
@@ -572,6 +595,33 @@
 	border: 1px solid var(--border-color);
 	border-radius: 0.5rem;
 	padding: 0.5rem;
+}
+
+// Appended below .kg-understand-grid, inside the same "What AI & Search
+// Understand" card — the selected tab's own real entity detail
+// (EntityDetailContent), consolidating what used to be 5 separate cards
+// (Products/Categories/People/Locations/Services) into this one card.
+.kg-entity-tab-content {
+	margin-top: 1.25rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--border-color);
+}
+
+.kg-entity-tab-content-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+
+	i {
+		color: $theme-color;
+		font-size: 1rem;
+	}
+}
+
+.kg-entity-tab-content-title {
+	font-weight: 600;
+	font-size: 0.9375rem;
 }
 
 // BusinessUnderstandingCard.tsx — real score gauge + a real pill badge
@@ -1405,43 +1455,15 @@
 	}
 }
 
-.schema-dev-tools-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-	gap: 1rem;
-}
-
-.schema-dev-tool-tile {
+// InspectorSection.tsx's own pre-selection hint — a compact one-line
+// alternative to the picker, shown only before any page has been chosen
+// (real Schema Validator link-out, same one the post-selection actions
+// row below also offers, just re-targeted once a real page is picked).
+.schema-inspector-validator-hint {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	gap: 0.75rem;
-	border: $border-light-small;
-	border-radius: 0.5rem;
-	padding: 0.875rem;
-
-	.admin-badge {
-		margin-top: 0.375rem;
-	}
-
-	// Only Developer Tools tiles with somewhere real to jump to
-	// (InspectorSection.tsx's own `tool.onClick`, e.g. "JSON-LD Viewer"
-	// once a result exists) get the pointer affordance + trailing chevron
-	// below — a tile with nothing real to do stays plain, not a fake button.
-	&.is-clickable {
-		cursor: pointer;
-
-		&:hover {
-			border-color: $theme-color;
-		}
-	}
-}
-
-.schema-dev-tool-chevron {
-	margin-left: auto;
-	align-self: center;
-	color: $sub-text-color;
-	font-size: 0.75rem;
-	flex-shrink: 0;
+	margin-top: 0.75rem;
 }
 
 // SchemaKnowledgeTab.tsx's own inline section headings (Structured

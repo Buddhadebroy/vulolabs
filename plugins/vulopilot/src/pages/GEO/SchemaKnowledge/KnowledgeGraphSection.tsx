@@ -39,50 +39,6 @@ export interface EntitiesResponse {
 const HIGHLIGHT_MAX_ROWS = 4;
 
 /**
- * Section → response-key grouping for Entity Extraction's remaining
- * multi-item types (People/Services) — kept as their own real cards below
- * the mockup's featured 3 (Products/Locations/Categories) rather than
- * dropped, per "existing tab data, no duplicate data". Rendered with the
- * same `EntityHighlightCard` used for Products/Categories/Business
- * Locations (icon + count badge header, `kg-entity-list` rows) so every
- * entity type shares one visual design, in a row of their own.
- *
- * Organizations used to be a 3rd card here — removed per direct
- * instruction ("remove redundant content"): `extract_organizations()`
- * always returns exactly one real row (this site itself), so unlike every
- * other card in this row/page it could never grow into an actual list —
- * its one real value (the org's own name) is already shown twice more
- * already-visible on this same page (the "What AI & Search Understand"
- * graph's own anchor node, and the Business Understanding Score hero row's
- * own "Organization" tile), making a whole 3rd card for that same single
- * fact pure repetition rather than added real information.
- */
-const OTHER_ENTITY_SECTIONS: {
-	key: keyof EntitiesResponse;
-	title: string;
-	icon: string;
-	emptyMessage: string;
-	settingsUrl?: string;
-}[] = [
-		{
-			key: 'people',
-			title: __('People', 'vulopilot'),
-			icon: 'person',
-			emptyMessage: __(
-				'No published posts/pages with a real author yet.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'services',
-			title: __('Services', 'vulopilot'),
-			icon: 'customer-service',
-			emptyMessage: __('No service pages configured yet.', 'vulopilot'),
-			settingsUrl: ENTITY_SETTINGS_URL,
-		},
-	];
-
-/**
  * Same "genuinely gates the underlying data" posture SeoTab.tsx's own
  * isSeoModuleActive() already documents — EntityExtractor returns empty
  * groups when this module is inactive (see its own docblock), so this
@@ -118,14 +74,8 @@ const isEntityExtractionModuleActive = () =>
  * default "Uncategorized" (a real signal nothing meaningful was ever set),
  * or a name reused by more than one real term (possibly across the
  * `category`/`product_cat` taxonomies EntityExtractor::extract_categories()
- * both reads). Drives each Categories row's own real Good/"Needs cleanup"
- * status badge below. Used to also back this section's own "What should
- * you check?" panel — removed per direct instruction ("remove redundant
- * content"): SchemaKnowledgeTab.tsx already renders a real
- * WhatNeedsFixingCard.tsx right after this whole section, covering the
- * exact same "What Needs Fixing" concept with real backend findings
- * instead of this file's own 2 hand-picked heuristic checks — having both
- * on the same page was the actual redundant content, not this function.
+ * both reads). Drives the Categories tab's own real Good/"Needs cleanup"
+ * status badge below.
  */
 const getMessyCategoryNames = (categories: Entity[]): Set<string> => {
 	const nameCounts = new Map<string, number>();
@@ -145,18 +95,16 @@ const getMessyCategoryNames = (categories: Entity[]): Set<string> => {
 	);
 };
 
-interface EntityHighlightCardProps {
-	id: string;
-	icon: string;
+interface EntityDetailContentProps {
 	title: string;
 	rows: Entity[] | null;
 	emptyMessage: string;
 	naMessage?: string;
-	/** Replaces the plain `emptyMessage` text with a richer real callout (Business Locations' own "Why it matters" box) — only rendered when `rows.length === 0`. */
+	/** Replaces the plain `emptyMessage` text with a richer real callout (Locations' own "Why it matters" box) — only rendered when `rows.length === 0`. */
 	emptyState?: ReactNode;
-	/** A real, functional destination for "View all {title} →" — the real WP-admin screen this entity type's own data actually lives on. Omitted entirely when there's nowhere real to send someone (e.g. Business Locations, whose real data is a plugin setting, not a WP-admin list screen). */
+	/** A real, functional destination for "View all {title} →" — the real WP-admin screen this entity type's own data actually lives on. Omitted entirely when there's nowhere real to send someone (e.g. Locations, whose real data is a plugin setting, not a WP-admin list screen). */
 	viewAllHref?: string;
-	/** A real settings-tab deep link, surfaced as a corner gear icon on the card header (`CardComponent`'s own `iconName`/`onIconClick`) — the entity types whose real data lives in a plugin setting rather than a WP-admin screen (Business Locations, Services) get this instead of `viewAllHref`, so "where do I go to add one" is a click on the card itself rather than a "Settings → ..." instruction buried in the empty-state text. */
+	/** A real settings-tab deep link ("Manage in Settings →") — the entity types whose real data lives in a plugin setting rather than a WP-admin screen (Locations, Services). */
 	settingsUrl?: string;
 	/**
 	 * Per-row status badge (Categories' own real Good/"Needs cleanup" flag,
@@ -171,15 +119,17 @@ interface EntityHighlightCardProps {
 }
 
 /**
- * One of the mockup's 3 featured entity cards (Products/Business Locations/
- * Categories) — real count, first 4 real names, and a "+N more" toggle that
- * expands the same already-fetched list in place rather than a modal (no
- * modal component is otherwise used on this tab shell, see GeoTab.tsx's own
- * precedent of plain in-page navigation/scroll instead of dialogs).
+ * One entity type's real detail — count, first 4 real names, and a "+N
+ * more" toggle that expands the same already-fetched list in place rather
+ * than a modal (no modal component is otherwise used on this tab shell,
+ * see GeoTab.tsx's own precedent of plain in-page navigation/scroll
+ * instead of dialogs). Content only, no card chrome of its own — rendered
+ * inside "What AI & Search Understand"'s own tab content area
+ * (KnowledgeGraphSection's own render, below), not as a separate card, per
+ * direct instruction to consolidate what used to be 5 standalone cards
+ * (Products/Categories/People/Locations/Services) into that one card.
  */
-const EntityHighlightCard = ({
-	id,
-	icon,
+const EntityDetailContent = ({
 	title,
 	rows,
 	emptyMessage,
@@ -188,110 +138,98 @@ const EntityHighlightCard = ({
 	viewAllHref,
 	settingsUrl,
 	rowBadge,
-}: EntityHighlightCardProps) => {
+}: EntityDetailContentProps) => {
 	const [expanded, setExpanded] = useState(false);
 
 	if (null === rows) {
 		return (
-			<CardComponent id={id} className="kg-entity-card" title={title} titleIcon={icon}>
-				<ModuleGuardComponent
-					icon="info"
-					title={__('Not applicable to this site', 'vulopilot')}
-					desc={naMessage || __("WooCommerce isn't active.", 'vulopilot')}
-				/>
-			</CardComponent>
+			<ModuleGuardComponent
+				icon="info"
+				title={__('Not applicable to this site', 'vulopilot')}
+				desc={naMessage || __("WooCommerce isn't active.", 'vulopilot')}
+			/>
 		);
+	}
+
+	if (0 === rows.length) {
+		return emptyState ?? <div className="desc">{emptyMessage}</div>;
 	}
 
 	const visible = expanded ? rows : rows.slice(0, HIGHLIGHT_MAX_ROWS);
 	const remaining = rows.length - visible.length;
 
 	return (
-		<CardComponent
-			id={id}
-			className="kg-entity-card"
-			title={title}
-			titleIcon={icon}
-			badges={[{ text: String(rows.length), color: rows.length > 0 ? 'green' : 'grey' }]}
-			iconName={settingsUrl ? 'setting' : undefined}
-			onIconClick={
-				settingsUrl
-					? () => {
-							window.location.href = settingsUrl;
-						}
-					: undefined
-			}
-		>
-			{0 === rows.length ? (
-				emptyState ?? <div className="desc">{emptyMessage}</div>
-			) : (
-				<>
-					<ul className="kg-entity-list">
-						{visible.map((entity) => {
-							const badge = rowBadge?.(entity);
+		<>
+			<ul className="kg-entity-list">
+				{visible.map((entity) => {
+					const badge = rowBadge?.(entity);
 
-							return (
-								<li key={entity.id} className="kg-entity-list-row">
-									{entity.url ? (
-										<a href={entity.url} target="_blank" rel="noreferrer">
-											{entity.name}
-										</a>
-									) : (
-										<span>{entity.name}</span>
-									)}
-									{badge && (
-										<BadgeComponent
-											color={badge.color}
-											icon={'green' === badge.color ? 'check' : 'alarm'}
-											text={badge.text}
-										/>
-									)}
-								</li>
-							);
-						})}
-					</ul>
-					{remaining > 0 && (
-						<ButtonInput
-							position="left"
-							buttons={{
-								text: sprintf(
-									/* translators: %d is how many more real entities of this type exist beyond the first few shown. */
-									__('+ %d more', 'vulopilot'),
-									remaining
-								),
-								color: 'text-purple',
-								onClick: () => setExpanded(true),
-							}}
-						/>
-					)}
-					{expanded && rows.length > HIGHLIGHT_MAX_ROWS && (
-						<ButtonInput
-							position="left"
-							buttons={{
-								text: __('Show less', 'vulopilot'),
-								color: 'text-purple',
-								onClick: () => setExpanded(false),
-							}}
-						/>
-					)}
-					{viewAllHref && (
-						<a
-							className="schema-view-pages-link kg-entity-view-all"
-							href={viewAllHref}
-							target="_blank"
-							rel="noreferrer"
-						>
-							{sprintf(
-								/* translators: %s is the entity type's own title, e.g. "Products". */
-								__('View all %s', 'vulopilot'),
-								title
+					return (
+						<li key={entity.id} className="kg-entity-list-row">
+							{entity.url ? (
+								<a href={entity.url} target="_blank" rel="noreferrer">
+									{entity.name}
+								</a>
+							) : (
+								<span>{entity.name}</span>
 							)}
-							<i className="adminfont-arrow-right" />
-						</a>
-					)}
-				</>
+							{badge && (
+								<BadgeComponent
+									color={badge.color}
+									icon={'green' === badge.color ? 'check' : 'alarm'}
+									text={badge.text}
+								/>
+							)}
+						</li>
+					);
+				})}
+			</ul>
+			{remaining > 0 && (
+				<ButtonInput
+					position="left"
+					buttons={{
+						text: sprintf(
+							/* translators: %d is how many more real entities of this type exist beyond the first few shown. */
+							__('+ %d more', 'vulopilot'),
+							remaining
+						),
+						color: 'text-purple',
+						onClick: () => setExpanded(true),
+					}}
+				/>
 			)}
-		</CardComponent>
+			{expanded && rows.length > HIGHLIGHT_MAX_ROWS && (
+				<ButtonInput
+					position="left"
+					buttons={{
+						text: __('Show less', 'vulopilot'),
+						color: 'text-purple',
+						onClick: () => setExpanded(false),
+					}}
+				/>
+			)}
+			{viewAllHref && (
+				<a
+					className="schema-view-pages-link kg-entity-view-all"
+					href={viewAllHref}
+					target="_blank"
+					rel="noreferrer"
+				>
+					{sprintf(
+						/* translators: %s is the entity type's own title, e.g. "Products". */
+						__('View all %s', 'vulopilot'),
+						title
+					)}
+					<i className="adminfont-arrow-right" />
+				</a>
+			)}
+			{settingsUrl && (
+				<a className="schema-view-pages-link kg-entity-view-all" href={settingsUrl}>
+					{__('Manage in Settings', 'vulopilot')}
+					<i className="adminfont-arrow-right" />
+				</a>
+			)}
+		</>
 	);
 };
 
@@ -303,51 +241,28 @@ const EntityHighlightCard = ({
  * newer reference mockup — see that same docblock) — Free's own Entity
  * Extraction (6 real, deterministic entity types, KNOWLEDGE-GRAPH-MODULE.md).
  *
- * "What AI & Search Understand" replaces the former standalone "Your
- * website at a glance" stat row (Products/Business Locations/Categories
- * counts only) — real counts for all 6 entity types now (Organization/
- * Products/Categories/People/Locations/Services), plus vulopilot-pro's own
- * Graph Visualization Pro slot moved up into this same card (previously
- * a separate tile in the sidebar column) so the real entity list and the
- * real relationship diagram sit side by side, matching the mockup.
+ * "What AI & Search Understand" is now a real tabbed card, not just a
+ * count list — per direct instruction ("remove the separate
+ * Business Locations/Categories/People/Services cards, populate their
+ * data inside this card in tabbed format, clicking a row shows that
+ * tab"). Each of the 6 count-list rows (Organization/Products/Categories/
+ * People/Locations/Services) IS the tab selector — clicking one sets
+ * `activeEntityTab` and shows that type's own real detail (the exact same
+ * list/empty-state/badge/link content the old standalone cards rendered,
+ * via `EntityDetailContent`) in a content area appended right below the
+ * count list + Graph Visualization, inside this same card. Defaults to
+ * the "Organization" tab so the appended area never starts blank.
  *
- * The real "Entity Understanding" score that briefly lived here as its
- * own card moved again, up to BusinessUnderstandingCard.tsx's own hero
- * section at the top of this page — showing it here too would have
- * recreated the exact "same real number shown twice" problem fixed
- * elsewhere this session (see that file's own docblock).
- *
- * Below the summary: a static "why this matters" explainer, then 5 of the
- * 6 entity types as their own real detail cards (EntityHighlightCard) —
- * kept, not dropped, per "existing tab data, no duplicate data".
- * Organizations is the one type that does NOT get its own detail card
- * here (OTHER_ENTITY_SECTIONS's own docblock explains why: it can never
- * have more than 1 real row, already shown elsewhere on this page) —
- * removed per direct instruction ("remove redundant content"). This
- * section used to also have its own "What should you check?"/"What Needs
- * Fixing" panel (2 hand-picked heuristic checks: missing business
- * location, messy category names) — also removed per that same direct
- * instruction, since SchemaKnowledgeTab.tsx already renders a real
- * WhatNeedsFixingCard.tsx right after this whole section, a fuller real
- * "What Needs Fixing" backed by actual scanner findings
- * (`GET /findings/groups`) rather than 2 hardcoded checks; having both
- * on the same page under near-identical titles was the redundant content
- * being flagged, not a design mismatch to fix by restyling this one.
- * getMessyCategoryNames() itself is kept — it still drives each Categories
- * row's own real Good/"Needs cleanup" badge below, see its own docblock.
- * Plus vulopilot-pro's own
- * Entity Recommendations/Knowledge Graph Health Pro slots in the second
- * column. InspectorSection.tsx (JSON-LD viewer/Schema Validator/Conflict
- * Detection) used to also live in this same sidebar column; moved out to
- * SchemaKnowledgeTab.tsx's own "Technical Details (Schema & Markup)"
- * section instead — it's fundamentally a schema concern, not a
- * knowledge-graph/entity one, so it now sits next to StructuredDataSection.tsx
- * (the same real grouping the reference mockup shows) rather than nested
- * inside this section's sidebar.
+ * The Graph Visualization pane itself is untouched — still always visible
+ * beside the count list regardless of which tab is active, per direct
+ * instruction to leave the existing card layout intact and only append
+ * the entity detail content to it.
  */
 const KnowledgeGraphSection = () => {
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [activeEntityTab, setActiveEntityTab] =
+		useState<keyof EntitiesResponse>('organizations');
 
 	// Called unconditionally, before the early returns below, per the
 	// rules of hooks — same reasoning BrandVisibilityTab.tsx's own 4
@@ -430,134 +345,237 @@ const KnowledgeGraphSection = () => {
 		? getMessyCategoryNames(entities.categories)
 		: new Set<string>();
 
-	const understandCounts: { key: string; icon: string; label: string; count: number }[] = entities
+	/**
+	 * One entry per real entity type — both the count-list/tab-selector row
+	 * data AND (via the rest of the fields) exactly what EntityDetailContent
+	 * needs to render that tab's own real detail, once selected. Replaces
+	 * the old `understandCounts` (count-list-only) and `OTHER_ENTITY_SECTIONS`
+	 * (People/Services-only) arrays — one list now covers all 6 types, since
+	 * all 6 are real tabs.
+	 */
+	const entityTabs: {
+		key: keyof EntitiesResponse;
+		icon: string;
+		label: string;
+		count: number;
+		rows: Entity[] | null;
+		emptyMessage: string;
+		naMessage?: string;
+		emptyState?: ReactNode;
+		viewAllHref?: string;
+		settingsUrl?: string;
+		// eslint-disable-next-line no-unused-vars
+		rowBadge?: (entity: Entity) => { text: string; color: string } | null;
+	}[] = entities
 		? [
 				{
 					key: 'organizations',
 					icon: 'global-community',
 					label: __('Organization', 'vulopilot'),
 					count: entities.organizations.length,
+					rows: entities.organizations,
+					emptyMessage: __(
+						'No organization detected yet.',
+						'vulopilot'
+					),
 				},
 				{
 					key: 'products',
 					icon: 'product',
 					label: __('Products', 'vulopilot'),
 					count: entities.products?.length ?? 0,
+					rows: entities.products,
+					emptyMessage: __(
+						'No published products yet.',
+						'vulopilot'
+					),
+					naMessage: __(
+						"This site doesn't have an active online store — VuloPilot looks for real WooCommerce products.",
+						'vulopilot'
+					),
+					viewAllHref: `${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`,
 				},
 				{
 					key: 'categories',
 					icon: 'category',
 					label: __('Categories', 'vulopilot'),
 					count: entities.categories.length,
+					rows: entities.categories,
+					emptyMessage: __(
+						'No categories in use yet.',
+						'vulopilot'
+					),
+					viewAllHref: `${appLocalizer.site_url}/wp-admin/edit-tags.php?taxonomy=category`,
+					rowBadge: (entity) =>
+						messyCategoryNames.has(entity.name)
+							? {
+									text: __('Needs cleanup', 'vulopilot'),
+									color: 'yellow',
+								}
+							: {
+									text: __('Good', 'vulopilot'),
+									color: 'green',
+								},
 				},
 				{
 					key: 'people',
 					icon: 'person',
 					label: __('People', 'vulopilot'),
 					count: entities.people.length,
+					rows: entities.people,
+					emptyMessage: __(
+						'No published posts/pages with a real author yet.',
+						'vulopilot'
+					),
 				},
 				{
 					key: 'locations',
 					icon: 'location',
 					label: __('Locations', 'vulopilot'),
 					count: entities.locations.length,
+					rows: entities.locations,
+					emptyMessage: __(
+						'No business locations configured yet.',
+						'vulopilot'
+					),
+					settingsUrl: ENTITY_SETTINGS_URL,
+					emptyState: (
+						<>
+							<div className="kg-why-it-matters">
+								<i className="adminfont-info" />
+								<div>
+									<div className="kg-why-it-matters-title">
+										{__('Why it matters', 'vulopilot')}
+									</div>
+									<div className="kg-why-it-matters-desc">
+										{__(
+											'Adding your business location helps customers and search engines understand where you operate.',
+											'vulopilot'
+										)}
+									</div>
+								</div>
+							</div>
+							<a
+								className="schema-view-pages-link kg-entity-view-all"
+								href={ENTITY_SETTINGS_URL}
+							>
+								{__('Check locations', 'vulopilot')}
+								<i className="adminfont-arrow-right" />
+							</a>
+						</>
+					),
 				},
 				{
 					key: 'services',
 					icon: 'customer-service',
 					label: __('Services', 'vulopilot'),
 					count: entities.services.length,
+					rows: entities.services,
+					emptyMessage: __(
+						'No service pages configured yet.',
+						'vulopilot'
+					),
+					settingsUrl: ENTITY_SETTINGS_URL,
 				},
 			]
 		: [];
+
+	const activeTab = entityTabs.find((tab) => tab.key === activeEntityTab);
+
+	const scrollToTabContent = () =>
+		document
+			.getElementById('kg-entity-tab-content')
+			?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 	return (
 		<>
 			<ColumnComponent grid={8}>
 				{entities && (
-					<>
-						<CardComponent
-							title={__('What AI & Search Understand', 'vulopilot')}
-							titleIcon="centralized-connections"
-							desc={__(
-								'These are the main things we detected on your site and how they connect.',
-								'vulopilot'
-							)}
-							badges={[
-								{ text: __('Knowledge Graph view', 'vulopilot'), color: 'purple' },
-							]}
-						>
-							<div className="kg-understand-grid">
-								<ul className="kg-understand-count-list">
-									{understandCounts.map((row) => (
-										<li key={row.key} className="kg-understand-count-row">
-											<i className={`adminfont-${row.icon}`} />
-											<span className="kg-understand-count-label">
-												{row.label}
-											</span>
-											<span className="kg-understand-count-value">
-												{row.count}
-											</span>
-										</li>
-									))}
-								</ul>
-								<div className="kg-understand-graph">
-									{KnowledgeGraphVisualizationCard ? (
-										<KnowledgeGraphVisualizationCard />
-									) : (
-										<ModuleGuardComponent
-											icon="centralized-connections"
-											title={__(
-												'Graph visualization is a Pro feature',
-												'vulopilot'
-											)}
-											desc={__(
-												'Upgrade to see how your real entities connect to each other as a diagram.',
-												'vulopilot'
-											)}
-										/>
-									)}
-								</div>
+					<CardComponent
+						title={__('What AI & Search Understand', 'vulopilot')}
+						titleIcon="centralized-connections"
+						desc={__(
+							'These are the main things we detected on your site and how they connect.',
+							'vulopilot'
+						)}
+						badges={[
+							{ text: __('Knowledge Graph view', 'vulopilot'), color: 'purple' },
+						]}
+					>
+						<div className="kg-understand-grid">
+							<ul className="kg-understand-count-list">
+								{entityTabs.map((tab) => (
+									<li
+										key={tab.key}
+										className={`kg-understand-count-row${tab.key === activeEntityTab ? ' is-active' : ''}`}
+										role="button"
+										tabIndex={0}
+										onClick={() => {
+											setActiveEntityTab(tab.key);
+											scrollToTabContent();
+										}}
+										onKeyDown={(e) => {
+											if ('Enter' === e.key || ' ' === e.key) {
+												e.preventDefault();
+												setActiveEntityTab(tab.key);
+												scrollToTabContent();
+											}
+										}}
+									>
+										<i className={`adminfont-${tab.icon}`} />
+										<span className="kg-understand-count-label">
+											{tab.label}
+										</span>
+										<span className="kg-understand-count-value">
+											{tab.count}
+										</span>
+									</li>
+								))}
+							</ul>
+							<div className="kg-understand-graph">
+								{KnowledgeGraphVisualizationCard ? (
+									<KnowledgeGraphVisualizationCard />
+								) : (
+									<ModuleGuardComponent
+										icon="centralized-connections"
+										title={__(
+											'Graph visualization is a Pro feature',
+											'vulopilot'
+										)}
+										desc={__(
+											'Upgrade to see how your real entities connect to each other as a diagram.',
+											'vulopilot'
+										)}
+									/>
+								)}
 							</div>
-						</CardComponent>
-						<EntityHighlightCard
-							id="kg-products"
-							icon="product"
-							title={__('Products', 'vulopilot')}
-							rows={entities.products}
-							emptyMessage={__(
-								'No published products yet.',
-								'vulopilot'
-							)}
-							naMessage={__(
-								"This site doesn't have an active online store — VuloPilot looks for real WooCommerce products.",
-								'vulopilot'
-							)}
-							viewAllHref={`${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`}
-						/>
-						<EntityHighlightCard
-							id="kg-categories"
-							icon="category"
-							title={__('Categories', 'vulopilot')}
-							rows={entities.categories}
-							emptyMessage={__(
-								'No categories in use yet.',
-								'vulopilot'
-							)}
-							viewAllHref={`${appLocalizer.site_url}/wp-admin/edit-tags.php?taxonomy=category`}
-							rowBadge={(entity) =>
-								messyCategoryNames.has(entity.name)
-									? {
-										text: __('Needs cleanup', 'vulopilot'),
-										color: 'yellow',
-									}
-									: {
-										text: __('Good', 'vulopilot'),
-										color: 'green',
-									}
-							}
-						/>
-					</>
+						</div>
+
+						{activeTab && (
+							<div id="kg-entity-tab-content" className="kg-entity-tab-content">
+								<div className="kg-entity-tab-content-header">
+									<i className={`adminfont-${activeTab.icon}`} />
+									<span className="kg-entity-tab-content-title">
+										{activeTab.label}
+									</span>
+									<BadgeComponent
+										color={activeTab.count > 0 ? 'green' : 'grey'}
+										text={String(activeTab.count)}
+									/>
+								</div>
+								<EntityDetailContent
+									title={activeTab.label}
+									rows={activeTab.rows}
+									emptyMessage={activeTab.emptyMessage}
+									naMessage={activeTab.naMessage}
+									emptyState={activeTab.emptyState}
+									viewAllHref={activeTab.viewAllHref}
+									settingsUrl={activeTab.settingsUrl}
+									rowBadge={activeTab.rowBadge}
+								/>
+							</div>
+						)}
+					</CardComponent>
 				)}
 
 				<CardComponent
@@ -571,63 +589,9 @@ const KnowledgeGraphSection = () => {
 						)}
 					</div>
 				</CardComponent>
-				{entities && (
-					<>
-					<ColumnComponent row>
-						{OTHER_ENTITY_SECTIONS.map((section) => (
-								<EntityHighlightCard
-									id={`kg-${section.key}`}
-									icon={section.icon}
-									title={section.title}
-									rows={entities[section.key]}
-									emptyMessage={section.emptyMessage}
-									settingsUrl={section.settingsUrl}
-								/>
-							))}
-					</ColumnComponent>
-					</>
-				)}
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
-				{entities && (
-					<EntityHighlightCard
-						id="kg-locations"
-						icon="location"
-						title={__('Business Locations', 'vulopilot')}
-						rows={entities.locations}
-						emptyMessage={__(
-							'No business locations configured yet.',
-							'vulopilot'
-						)}
-						settingsUrl={ENTITY_SETTINGS_URL}
-						emptyState={
-							<>
-								<div className="kg-why-it-matters">
-									<i className="adminfont-info" />
-									<div>
-										<div className="kg-why-it-matters-title">
-											{__('Why it matters', 'vulopilot')}
-										</div>
-										<div className="kg-why-it-matters-desc">
-											{__(
-												'Adding your business location helps customers and search engines understand where you operate.',
-												'vulopilot'
-											)}
-										</div>
-									</div>
-								</div>
-								<a
-									className="schema-view-pages-link kg-entity-view-all"
-									href={ENTITY_SETTINGS_URL}
-								>
-									{__('Check locations', 'vulopilot')}
-									<i className="adminfont-arrow-right" />
-								</a>
-							</>
-						}
-					/>
-				)}
 				{KnowledgeGraphHealthCard && <KnowledgeGraphHealthCard />}
 				{EntityRecommendationsCard && <EntityRecommendationsCard />}
 			</ColumnComponent>

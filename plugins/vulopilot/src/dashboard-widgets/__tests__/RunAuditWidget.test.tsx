@@ -35,7 +35,7 @@ describe( 'RunAuditWidget', () => {
 		);
 	} );
 
-	it( 'navigates to the Automation tab when "Schedule Audit" is clicked', async () => {
+	it( 'navigates to the Automations tab when "Schedule Audit" is clicked', async () => {
 		render(
 			<RunAuditWidget
 				summary={ {} as never }
@@ -49,8 +49,10 @@ describe( 'RunAuditWidget', () => {
 			screen.getByRole( 'button', { name: /schedule audit/i } )
 		);
 
+		// Regression: this used to point at '?tab=automation' (singular),
+		// a route that doesn't exist — routes.ts registers 'automations'.
 		expect( window.location.href ).toBe(
-			'?page=vulopilot#&tab=automation'
+			'?page=vulopilot#&tab=automations'
 		);
 	} );
 } );

@@ -8,6 +8,9 @@
 namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Utill;
+use VuloPilot\Services\EntityExtractor;
+use VuloPilot\Services\SchemaCoverageAnalyzer;
+use VuloPilot\Services\RobotsTxtBotAccess;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -107,6 +110,22 @@ class Settings extends \WP_REST_Controller {
                 array(
                     'methods'             => \WP_REST_Server::CREATABLE,
                     'callback'            => array( $this, 'reset_settings' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
+        // Settings → Developer Tools' "Clear cache" — same
+        // `type: 'button'` + `apilink` shape as /reset above, its own
+        // dedicated route since it does something conceptually different
+        // (clearing transient caches, not touching stored setting values).
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/clear-cache',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'clear_cache' ),
                     'permission_callback' => array( $this, 'update_item_permissions_check' ),
                 ),
             )
@@ -279,6 +298,49 @@ class Settings extends \WP_REST_Controller {
             array(
                 'success' => true,
                 'message' => __( 'Settings reset to defaults.', 'vulopilot' ),
+            )
+        );
+    }
+
+    /**
+     * Settings → Developer Tools' "Clear cache" — every real, transient-
+     * cached piece of *content* this plugin (and vulopilot-pro, if active)
+     * computes: Knowledge Graph's own extracted entities, the Schema
+     * Coverage snapshot, and the AI-crawler-analytics robots.txt bot-group
+     * parse. Deliberately scoped to real content caches only, not every
+     * transient this plugin owns — the AI-provider per-minute rate-limit
+     * counters (AIProviders\Decorators\RateLimitedProvider) and the Core
+     * Web Vitals beacon's own rate-limit transient aren't "stale data,"
+     * clearing them would just reset a rate limit early, a different
+     * (and unwanted here) effect.
+     *
+     * Pro's own real content cache (`vulopilot_kg_recommendations`,
+     * KnowledgeGraph\EntityRecommendationAnalyzer) is cleared via this same
+     * action rather than a direct call — Free never imports Pro's
+     * namespace, so `vulopilot_clear_all_caches` is the same hook-based
+     * cross-boundary contribution `vulopilot_settings_context` (Settings
+     * tab registration) already establishes, just an action instead of a
+     * filter since nothing needs collecting back. Deliberately does NOT
+     * clear Pro's own security-alert-already-sent dedup transient or its
+     * license status cache — the same "real content vs. behavioral state"
+     * distinction as the rate-limit counters above; each has its own real
+     * side effect (resending old alerts, forcing a redundant license
+     * re-check) that isn't "refreshing stale data" either.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function clear_cache( $request ) {
+        ( new EntityExtractor() )->clear_cache();
+        ( new SchemaCoverageAnalyzer() )->clear_cache();
+        ( new RobotsTxtBotAccess() )->clear_cache();
+
+        do_action( 'vulopilot_clear_all_caches' );
+
+        return rest_ensure_response(
+            array(
+                'success' => true,
+                'message' => __( 'Cache cleared.', 'vulopilot' ),
             )
         );
     }
