@@ -48,9 +48,11 @@ const SiteHealth = () => {
 					/>
 				}
 			/>
-			<BackupProtectionNotice />
-			<SiteHealthTab />
-			<BackupsTab />
+			<ContainerComponent general>
+				<BackupProtectionNotice />
+				<SiteHealthTab />
+				<BackupsTab />
+			</ContainerComponent>
 		</>
 	);
 };

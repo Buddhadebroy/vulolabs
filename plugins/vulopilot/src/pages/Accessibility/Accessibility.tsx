@@ -209,34 +209,34 @@ const Accessibility = () => {
 				}
 			/>
 			<ContainerComponent general>
-				<ContainerComponent>
-					<ColumnComponent grid={8}>
-						<AccessibilityChecksGrid onReview={goToIssuesTable} />
-					</ColumnComponent>
-					<ColumnComponent grid={4}>
-						<AccessibilityHeroCard
-							onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
-							onViewAll={() => goToIssuesTable('all')}
-						/>
-					</ColumnComponent>
+				<ColumnComponent grid={8}>
+					<AccessibilityChecksGrid onReview={goToIssuesTable} />
+				</ColumnComponent>
+				<ColumnComponent grid={4}>
+					<AccessibilityHeroCard
+						onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
+						onViewAll={() => goToIssuesTable('all')}
+					/>
+				</ColumnComponent>
 
-					<ColumnComponent>
-						{AccessibilityDashboardCard ? (
-							<AccessibilityDashboardCard />
-						) : (
-							<AccessibilityDashboardLockedCard />
-						)}
-					</ColumnComponent>
+				<ColumnComponent>
+					{AccessibilityDashboardCard ? (
+						<AccessibilityDashboardCard />
+					) : (
+						<AccessibilityDashboardLockedCard />
+					)}
+				</ColumnComponent>
 
-					<ColumnComponent>
-						<AccessibilityPriorityList
-							id={PRIORITY_LIST_ID}
-							onViewAll={() => goToIssuesTable('all')}
-							onReviewCheck={goToIssuesTable}
-						/>
-					</ColumnComponent>
-					<AccessibilityManualTestingPanel />
-					<AccessibilityWcagNotice />
+				<ColumnComponent>
+					<AccessibilityPriorityList
+						id={PRIORITY_LIST_ID}
+						onViewAll={() => goToIssuesTable('all')}
+						onReviewCheck={goToIssuesTable}
+					/>
+				</ColumnComponent>
+				<AccessibilityManualTestingPanel />
+				<AccessibilityWcagNotice />
+				<ColumnComponent>
 					<SectionedIssuesTable
 						id={ISSUES_TABLE_ID}
 						title={__('All Accessibility Findings', 'vulopilot')}
@@ -244,13 +244,15 @@ const Accessibility = () => {
 						activeTab={activeTab}
 						onTabChange={setActiveTab}
 					/>
+				</ColumnComponent>
+				<ColumnComponent>
 					{AccessibilityHistoryPanel ? (
 						<AccessibilityHistoryPanel />
 					) : (
 						<AccessibilityHistoryLockedCard />
 					)}
 					<PluginOverlapCard category="accessibility" />
-				</ContainerComponent>
+				</ColumnComponent>
 			</ContainerComponent>
 		</>
 	);

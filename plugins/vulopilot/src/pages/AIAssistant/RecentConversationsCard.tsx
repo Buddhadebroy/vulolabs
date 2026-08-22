@@ -1,13 +1,35 @@
-import React from 'react';
+/* global appLocalizer */
+import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ListComponent, ModuleGuardComponent, ButtonInput} from '@zyra/components';
+import {
+	CardComponent,
+	ChatMessageComponent,
+	ListComponent,
+	ModuleGuardComponent,
+	ButtonInput,
+	PopupComponent,
+} from '@zyra/components';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import { useApiList } from '../../services/useApiList';
+import { ChatMarkdown } from '../../components/ChatMarkdown';
 
 /** One row of `GET /copilot/conversations` (Copilot.php's own get_conversations()) — a real, reloadable conversation thread, not a single logged AI call. */
 interface RecentConversationRow {
 	id: number;
 	title: string;
 	updated_at: string;
+}
+
+/** One turn of `GET /copilot/conversations/{id}` — same real endpoint/shape useCopilotChat.ts's own loadConversation() reads (StoredConversationTurn there), just the subset this read-only preview popup actually renders. */
+interface ConversationPreviewTurn {
+	role: 'user' | 'assistant';
+	content: string;
+}
+
+interface ConversationPreviewResponse {
+	id: number;
+	title: string;
+	turns: ConversationPreviewTurn[];
 }
 
 /**
@@ -68,59 +90,143 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 		'copilot/conversations',
 		{ per_page: 5 }
 	);
+	/** The conversation currently shown in the preview popup — null closes it. `turns` starts empty while the fetch below is in flight. */
+	const [previewConversation, setPreviewConversation] = useState<{
+		id: number;
+		title: string;
+		turns: ConversationPreviewTurn[];
+	} | null>(null);
+	const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+
+	/**
+	 * Opens the popup immediately (with a loading state) and fetches the
+	 * same real `GET /copilot/conversations/{id}` useCopilotChat.ts's own
+	 * loadConversation() reads — read-only here, unlike that hook: this
+	 * never touches the composer's own `turns`/`conversationId` state, so
+	 * previewing a thread never disturbs whatever the user is already
+	 * composing. `e.stopPropagation()` keeps this icon's click from also
+	 * bubbling up into the row's own `action` (ListComponent's item click
+	 * handler), which would otherwise ALSO fire onSelectConversation and
+	 * load this thread into the composer — the row itself still does that
+	 * on its own click, unchanged.
+	 */
+	const handlePreview = (
+		row: RecentConversationRow,
+		e: React.MouseEvent
+	) => {
+		e.stopPropagation();
+		setPreviewConversation({ id: row.id, title: row.title, turns: [] });
+		setIsLoadingPreview(true);
+
+		getApiResponse<ConversationPreviewResponse>(
+			getApiLink(appLocalizer, `copilot/conversations/${row.id}`),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		)
+			.then((response) => {
+				if (response) {
+					setPreviewConversation({
+						id: response.id,
+						title: response.title,
+						turns: response.turns,
+					});
+				}
+			})
+			.finally(() => setIsLoadingPreview(false));
+	};
 
 	return (
-		<CardComponent
-			className="recent-conversations-card"
-			title={__('Recent conversations', 'vulopilot')}
-			titleIcon="live-chat"
-			action={
-				<ButtonInput
-					buttons={{
-						text: __('View all history', 'vulopilot'),
-						rightIcon: 'arrow-right',
-						color: 'text-purple',
-						onClick: (e) => {
-							e.preventDefault();
-							window.location.href =
-								'?page=vulopilot#&tab=reports&subtab=history';
-						},
-					}}
-				/>
-			}
-		>
-			{error ? (
-				<ModuleGuardComponent
-					icon="error"
-					title={__('Could not load recent conversations', 'vulopilot')}
-					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
-				/>
-			) : !isLoading && data.length === 0 ? (
-				<ModuleGuardComponent
-					icon="live-chat"
-					title={__('No AI activity yet', 'vulopilot')}
-					desc={__(
-						'VuloPilot will log every AI-assisted action here.',
-						'vulopilot'
-					)}
-				/>
-			) : (
-				<ListComponent
-					className="mini-card report"
-					isLoading={isLoading}
-					items={data.map((row) => ({
-						id: row.id,
-						icon: 'live-chat',
-						title: row.title,
-						tags: (<> <div className='small desc'>{timeAgo(row.updated_at)}</div></>),
-						action: () =>
-							onSelectConversation(Number(row.id)),
-					}))}
-				/>
-			)}
-		</CardComponent>
+		<>
+			<CardComponent
+				className="recent-conversations-card"
+				title={__('Recent conversations', 'vulopilot')}
+				titleIcon="live-chat"
+				action={
+					<ButtonInput
+						buttons={{
+							text: __('View all history', 'vulopilot'),
+							rightIcon: 'arrow-right',
+							color: 'text-purple',
+							onClick: (e) => {
+								e.preventDefault();
+								window.location.href =
+									'?page=vulopilot#&tab=reports&subtab=history';
+							},
+						}}
+					/>
+				}
+			>
+				{error ? (
+					<ModuleGuardComponent
+						icon="error"
+						title={__('Could not load recent conversations', 'vulopilot')}
+						desc={error}
+						buttonText={__('Retry', 'vulopilot')}
+						onButtonClick={refetch}
+					/>
+				) : !isLoading && data.length === 0 ? (
+					<ModuleGuardComponent
+						icon="live-chat"
+						title={__('No AI activity yet', 'vulopilot')}
+						desc={__(
+							'VuloPilot will log every AI-assisted action here.',
+							'vulopilot'
+						)}
+					/>
+				) : (
+					<ListComponent
+						className="mini-card report"
+						isLoading={isLoading}
+						items={data.map((row) => ({
+							id: row.id,
+							icon: 'live-chat',
+							title: row.title,
+							tags: (
+								<>
+									<div className="small desc">
+										{timeAgo(row.updated_at)}
+									</div>
+									<i
+										className="adminfont-eye recent-conversation-preview-icon"
+										title={__('Preview', 'vulopilot')}
+										onClick={(e) => handlePreview(row, e)}
+									/>
+								</>
+							),
+							action: () =>
+								onSelectConversation(Number(row.id)),
+						}))}
+					/>
+				)}
+			</CardComponent>
+
+			<PopupComponent
+				open={null !== previewConversation}
+				onClose={() => setPreviewConversation(null)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{previewConversation && (
+					<div className="recent-conversation-preview">
+						<div className="recent-conversation-preview-title">
+							{previewConversation.title}
+						</div>
+						{isLoadingPreview && 0 === previewConversation.turns.length ? (
+							<p>{__('Loading…', 'vulopilot')}</p>
+						) : (
+							previewConversation.turns.map((turn, index) => (
+								<ChatMessageComponent
+									key={index}
+									sender={'user' === turn.role ? 'user' : 'ai'}
+								>
+									<ChatMarkdown text={turn.content} />
+								</ChatMessageComponent>
+							))
+						)}
+					</div>
+				)}
+			</PopupComponent>
+		</>
 	);
 };
 

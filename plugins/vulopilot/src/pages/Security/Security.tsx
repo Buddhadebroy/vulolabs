@@ -37,7 +37,9 @@ const Security = () => {
 					/>
 				}
 			/>
-			<SecurityTab />
+			<ContainerComponent general>
+				<SecurityTab />
+			</ContainerComponent>
 		</>
 	);
 };
