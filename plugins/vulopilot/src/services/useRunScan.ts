@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
-import { title } from 'node:process';
 
 interface UseRunScanOptions {
 	/**

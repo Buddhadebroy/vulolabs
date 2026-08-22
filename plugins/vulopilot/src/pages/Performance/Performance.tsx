@@ -6,7 +6,7 @@ import {
 	NavigatorHeaderComponent,
 	TabsComponent,
 } from '@zyra/components';
-import { useRunScan } from '../../services/useRunScan';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import OverviewTab from './OverviewTab';
 import SlowPagesTab from './SlowPagesTab';
@@ -49,10 +49,6 @@ const Performance = () => {
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
 	);
-	// Scoped to this page's own 'performance' category — same "local tab"
-	// scoping every other category page's header "Run scan" button uses.
-	const { isScanning, runScanButton } = useRunScan({ categories: ['performance'] });
-
 	const goToSlowPages = () => setActiveTab('slow-pages');
 
 	return (
@@ -64,14 +60,13 @@ const Performance = () => {
 					'Make your website faster and deliver a better experience to your visitors.',
 					'vulopilot'
 				)}
-				buttons={[
-					{
-						...runScanButton,
-						label: isScanning
-							? __('Scanning…', 'vulopilot')
-							: __('Run Speed Test', 'vulopilot'),
-					},
-				]}
+				headerCustomContent={
+					<RunScanHeaderExtra
+						categories={['performance']}
+						settingsSubtab="performance"
+						label={__('Run Speed Test', 'vulopilot')}
+					/>
+				}
 			/>
 			<ContainerComponent general>
 				<TabsComponent

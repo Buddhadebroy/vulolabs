@@ -10,9 +10,9 @@ import {
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import ShowProPopup from '../../components/Popup/Popup';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import { useFindingsTable } from '../../services/useFindingsTable';
 import HealthScoreSummary from './HealthScoreSummary';
-import { useRunScan } from '../../services/useRunScan';
 
 /**
  * Every finding across every scanner category — the SEO/GEO/WooCommerce
@@ -32,7 +32,6 @@ import { useRunScan } from '../../services/useRunScan';
  * calls "Health") had none of it.
  */
 const Health = () => {
-	const { runScanButton } = useRunScan();
 	const title = __('Site health', 'vulopilot');
 	const { tableCardProps, error, refetch, isProPopupOpen, closeProPopup } =
 		useFindingsTable({
@@ -51,7 +50,9 @@ const Health = () => {
 					'Every open finding across every scanner category.',
 					'vulopilot'
 				)}
-				buttons={[runScanButton]}
+				headerCustomContent={
+					<RunScanHeaderExtra settingsSubtab="general" />
+				}
 			/>
 			<ContainerComponent general>
 				<ColumnComponent>

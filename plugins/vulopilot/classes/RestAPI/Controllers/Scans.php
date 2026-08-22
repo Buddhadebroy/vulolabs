@@ -8,6 +8,7 @@
 namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Repositories\ScanRepository;
+use VuloPilot\Scanners\ScannerRegistry;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -76,10 +77,31 @@ class Scans extends \WP_REST_Controller {
      * summary card) can ask for `?scanner_id=...&status=completed&
      * per_page=1&orderby=finished_at&order=desc` instead of paging through
      * every scan run to find it client-side.
+     *
+     * `category` (comma-separated, e.g. `security,accessibility`) — the
+     * same real category → scanner-ids mapping `create_item()`'s own
+     * `ScanRunner::run_category()` already resolves via
+     * `ScannerRegistry::get_scanners_by_category()`, resolved here instead
+     * so a category page's own header "Last scan: …" text
+     * (useRunScan.ts/useLastScanTime.ts) can ask by the same real category
+     * it scans by, rather than every caller having to know and hardcode
+     * that category's own raw scanner ids. Merges with any explicit
+     * `scanner_id` also given, rather than one replacing the other.
      */
     public function get_items( $request ) {
         $repository  = new ScanRepository();
-        $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) );
+        $scanner_ids = $this->parse_comma_separated_list( $request->get_param( 'scanner_id' ) ) ?? array();
+        $categories  = $this->parse_comma_separated_list( $request->get_param( 'category' ) );
+
+        if ( $categories ) {
+            $registry = new ScannerRegistry();
+
+            foreach ( $categories as $category ) {
+                $scanner_ids = array_merge( $scanner_ids, array_keys( $registry->get_scanners_by_category( $category ) ) );
+            }
+        }
+
+        $scanner_ids = array_values( array_unique( $scanner_ids ) );
 
         return rest_ensure_response(
             $repository->find_all(
@@ -87,7 +109,7 @@ class Scans extends \WP_REST_Controller {
                     'page'       => absint( $request->get_param( 'page' ) ) ?: 1,
                     'per_page'   => absint( $request->get_param( 'per_page' ) ) ?: 20,
                     'status'     => sanitize_key( (string) $request->get_param( 'status' ) ),
-                    'scanner_id' => $scanner_ids ?? '',
+                    'scanner_id' => $scanner_ids ? $scanner_ids : '',
                     'orderby'    => sanitize_key( (string) $request->get_param( 'orderby' ) ),
                     'order'      => sanitize_key( (string) $request->get_param( 'order' ) ),
                 )
