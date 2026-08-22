@@ -14,7 +14,7 @@ use VuloPilot\Services\GoogleAdSenseClient;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs Settings → Scanning → Google Services' real "Connect Google
+ * Backs Settings → Connections → Google Services' real "Connect Google
  * Services" flow (GoogleServicesPanel.tsx) and the Keywords tab's own
  * real connection-status read (KeywordsTab.tsx). Replaces the earlier,
  * narrower Controllers\SearchConsole — one connection now covers Search

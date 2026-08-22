@@ -8,9 +8,11 @@
 namespace VuloPilot\AIActions;
 
 use VuloPilot\ValueObjects\Severity;
+use VuloPilot\ValueObjects\Impact;
 use VuloPilot\AIProviders\Support\SafeRequestSender;
 use VuloPilot\Repositories\ActionRunRepository;
 use VuloPilot\Repositories\ActivityLogRepository;
+use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -69,9 +71,23 @@ class ActionRunner {
      * previews the result. Persists the outcome as a `pending_approval`
      * row — nothing about the site's actual content changes yet.
      *
+     * Also gates Settings → Automation → Approval Settings' "Ask before
+     * applying AI changes" — after persisting the pending_approval row,
+     * immediately self-approve()s it (method 'auto_unattended') when the
+     * site's `ai_change_approval_mode` setting says this proposal's own
+     * risk level doesn't need a human to look at it first (see
+     * should_auto_approve()'s own docblock). This is the one general gate
+     * every propose() call goes through — manual one-click fixes and
+     * automation-triggered ones alike — independent of vulopilot-pro's own
+     * Automations\Actions\RunAiActionAction, whose narrower 'auto_fix'
+     * automation-mode gate (automation runs only, method 'auto_automation')
+     * still layers on top of this one; that class checks this method's own
+     * `auto_approved` return value first so the two auto-approval paths
+     * never race to approve() the same run twice.
+     *
      * @param string               $action_id  e.g. 'generate-alt'.
      * @param array<string, mixed> $raw_input Raw input (REST params, or built from a Recommendation).
-     * @return array{run_id: int, preview: array<string, mixed>}
+     * @return array{run_id: int, preview: array<string, mixed>, auto_approved: bool, approval_method: string|null}
      *
      * @throws \InvalidArgumentException If $action_id isn't registered.
      * @throws \RuntimeException         If no AI provider is configured.
@@ -86,12 +102,14 @@ class ActionRunner {
         $output = $action->parse_response( $response );
         $action->validate_output( $output, $input );
 
-        $preview = $action->build_preview( $output, $input );
+        $preview    = $action->build_preview( $output, $input );
+        $risk_level = $action->get_risk_level();
 
         $run_id = $this->runs->insert(
             array(
                 'action_id'    => $action_id,
                 'status'       => 'pending_approval',
+                'risk_level'   => $risk_level,
                 'input'        => wp_json_encode( $input ),
                 'output'       => wp_json_encode( $output ),
                 'preview'      => wp_json_encode( $preview->to_array() ),
@@ -101,27 +119,89 @@ class ActionRunner {
 
         $this->log( $run_id, 'ai_action.proposed', Severity::INFO, sprintf( '%s proposed: %s', $action->get_label(), $preview->get_summary() ) );
 
+        $auto_approved   = false;
+        $approval_method = null;
+
+        if ( $this->should_auto_approve( $risk_level ) ) {
+            try {
+                $this->approve( $run_id, 'auto_unattended' );
+                $auto_approved   = true;
+                $approval_method = 'auto_unattended';
+            } catch ( \Throwable $exception ) {
+                // Leave it pending_approval — a human can still review and
+                // approve it manually; an auto-approve failure shouldn't
+                // lose the proposal itself.
+            }
+        }
+
         return array(
-            'run_id'  => $run_id,
-            'preview' => $preview->to_array(),
+            'run_id'          => $run_id,
+            'preview'         => $preview->to_array(),
+            'auto_approved'   => $auto_approved,
+            'approval_method' => $approval_method,
         );
+    }
+
+    /**
+     * `ai_change_approval_mode` (Utill::VULOPILOT_SETTINGS_DEFAULTS, free
+     * plugin, meaningfully acted on right here — unlike automation_mode/
+     * auto_fix_max_impact, which are only ever read by vulopilot-pro):
+     *  - 'always'      — never auto-approves; today's existing, unchanged
+     *                     behavior (every propose() waits for a human).
+     *  - 'risk_based'  — auto-approves only Impact::LOW proposals; anything
+     *                     Impact::MEDIUM/HIGH still waits for a human.
+     *  - 'never'       — auto-approves every proposal regardless of risk.
+     *                     Pro-gated the same way automation_mode's own
+     *                     'auto_fix' option is (InputRenderer's own
+     *                     `proSetting` lock icon) — but real-enforced here
+     *                     too via Utill::is_khali_dabba() rather than only
+     *                     trusting the stored option value, since nothing
+     *                     structurally prevents a free install from having
+     *                     'never' already saved (e.g. a lapsed license).
+     *
+     * @param string $risk_level One of Impact::LOW/MEDIUM/HIGH — the
+     *                           proposal's own AIActionInterface::get_risk_level().
+     * @return bool
+     */
+    private function should_auto_approve( string $risk_level ): bool {
+        $settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+        $mode     = $settings['ai_change_approval_mode'] ?? 'always';
+
+        if ( 'never' === $mode ) {
+            return VuloPilot()->util->is_khali_dabba();
+        }
+
+        if ( 'risk_based' === $mode ) {
+            return Impact::LOW === $risk_level;
+        }
+
+        return false;
     }
 
     /**
      * Stage 6: applies a previously proposed, still-pending action.
      *
      * @param int    $run_id A propose()-returned run_id.
-     * @param string $method 'manual' (a human clicked Approve, the only way
+     * @param string $method 'manual' (a human clicked Approve — the only way
      *                       this was ever called before Automate Work's
-     *                       Auto-fix mode) or 'auto' (vulopilot-pro's
-     *                       RunAiActionAction calling this immediately after
-     *                       propose(), with no human involved at all —
-     *                       `approved_by` is left null rather than
-     *                       attributing it to whichever user id happens to
-     *                       own the request context, and `approval_method`
-     *                       is persisted so History can honestly say "auto-
-     *                       approved by automation" instead of implying a
-     *                       person clicked Approve).
+     *                       Auto-fix mode and Approval Settings' risk-based/
+     *                       "Do not ask" modes), 'auto_automation'
+     *                       (vulopilot-pro's RunAiActionAction calling this
+     *                       immediately after propose(), gated on Automate
+     *                       Work's own automation_mode setting), or
+     *                       'auto_unattended' (propose() calling this on
+     *                       itself via should_auto_approve(), gated on
+     *                       Approval Settings' ai_change_approval_mode
+     *                       setting) — the latter two both mean no human
+     *                       was involved at all: `approved_by` is left null
+     *                       rather than attributing it to whichever user id
+     *                       happens to own the request context, and
+     *                       `approval_method` is persisted with its exact
+     *                       value so History can honestly say *which* of
+     *                       the two unattended paths actually applied the
+     *                       change, instead of a single generic "auto"
+     *                       that would imply automation even when nothing
+     *                       automated was involved.
      * @return array<string, mixed> ActionExecutionResult::to_array().
      *
      * @throws \RuntimeException If $run_id doesn't exist or isn't pending approval.
@@ -133,7 +213,8 @@ class ActionRunner {
         $input  = json_decode( (string) $run['input'], true ) ?? array();
         $output = json_decode( (string) $run['output'], true ) ?? array();
 
-        $result = $action->execute( $output, $input );
+        $result        = $action->execute( $output, $input );
+        $is_unattended = 0 === strpos( $method, 'auto' );
 
         $this->runs->update(
             $run_id,
@@ -143,7 +224,7 @@ class ActionRunner {
                 'object_ref'      => $result->get_object_ref(),
                 'snapshot'        => wp_json_encode( $result->get_snapshot() ),
                 'error_message'   => $result->get_message(),
-                'approved_by'     => 'auto' === $method ? null : get_current_user_id(),
+                'approved_by'     => $is_unattended ? null : get_current_user_id(),
                 'approval_method' => $method,
                 'approved_at'     => current_time( 'mysql', true ),
                 'executed_at'     => $result->is_success() ? current_time( 'mysql', true ) : null,
@@ -156,7 +237,11 @@ class ActionRunner {
             $result->is_success() ? Severity::INFO : Severity::HIGH,
             $result->is_success()
                 ? sprintf(
-                    'auto' === $method ? '%s auto-approved and executed by automation.' : '%s executed.',
+                    'auto_automation' === $method
+                        ? '%s auto-approved and executed by automation.'
+                        : ( 'auto_unattended' === $method
+                            ? '%s applied automatically — no approval required by Approval Settings.'
+                            : '%s executed.' ),
                     $action->get_label()
                 )
                 : sprintf( '%s failed: %s', $action->get_label(), $result->get_message() )

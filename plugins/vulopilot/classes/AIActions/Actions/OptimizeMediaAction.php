@@ -12,6 +12,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -45,6 +46,15 @@ class OptimizeMediaAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Optimize media', 'vulopilot' );
+    }
+
+    /**
+     * Impact::LOW — Rewrites an attachment's own `post_title`/`post_excerpt` — narrow fields on the attachment object itself, never a post's `post_content`.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::LOW;
     }
 
     /**

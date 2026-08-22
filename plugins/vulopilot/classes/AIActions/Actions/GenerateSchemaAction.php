@@ -13,6 +13,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -60,6 +61,15 @@ class GenerateSchemaAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Generate structured data (JSON-LD)', 'vulopilot' );
+    }
+
+    /**
+     * Impact::LOW — Writes structured-data JSON to a single postmeta value — invisible to visitors, never touches `post_content`.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::LOW;
     }
 
     /**

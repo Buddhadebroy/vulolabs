@@ -233,7 +233,7 @@ final class VuloPilot {
         // shape as CanonicalUrlManager/SocialMetaTagsManager below.
         $this->container['webmaster_tools_manager'] = new Services\WebmasterToolsManager();
 
-        // Scanning → Google Services (Search Console/Analytics/AdSense) —
+        // Connections → Google Services (Search Console/Analytics/AdSense) —
         // real Google OAuth 2.0 redirect handler (self-registers its own
         // `admin_post_*` hook; must be unconditional, not REST-lazy — see
         // that class's own docblock) and real `gtag.js` output once a GA4

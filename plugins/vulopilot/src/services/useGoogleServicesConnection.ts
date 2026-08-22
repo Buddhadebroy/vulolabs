@@ -31,7 +31,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 /**
  * Shared real Google OAuth 2.0 status/connect/disconnect logic —
  * GoogleServicesConnection.php's own frontend counterpart, extracted out
- * of GoogleServicesPanel.tsx (Settings → Scanning → Google Services, the
+ * of GoogleServicesPanel.tsx (Settings → Connections → Google Services, the
  * full Search Console + Analytics + AdSense picker) so KeywordsTab.tsx's
  * own inline "Connect Google Services" flow (SEO & Visibility → Keywords)
  * can reuse the exact same real handshake — same status shape, same REST

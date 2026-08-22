@@ -13,6 +13,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -51,6 +52,15 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Write meta description', 'vulopilot' );
+    }
+
+    /**
+     * Impact::LOW — Rewrites `post_excerpt` only (this codebase's meta-description field) — one narrow, easily-reverted field, never `post_content`.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::LOW;
     }
 
     /**

@@ -9,14 +9,12 @@ import { InputRenderer } from '@zyra/inputs';
 import { CardComponent, ModuleGuardComponent, NavigatorComponent } from '@zyra/components';
 import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
-import AiProvidersPanel from '../../components/Settings/AiProvidersPanel';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
 import CrawlerAlertTestPanel from '../../components/Settings/CrawlerAlertTestPanel';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
-import GoogleServicesPanel from '../../components/Settings/Scanning/GoogleServicesPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
 /**
@@ -111,19 +109,13 @@ const Settings = () => {
 			return null;
 		}
 
-		// Same "special component" escape hatch as 'import-export' above —
-		// AI provider configs live in their own vulopilot_ai_provider_configs
-		// table (AI-ARCHITECTURE.md), not this tab's flat settings option,
-		// so they don't fit InputRenderer's per-field auto-save model either.
-		if (currentTab === 'ai-providers') {
-			return <AiProvidersPanel />;
-		}
-
 		// Modules tab — real enable/disable toggles (ModuleGridComponent's
 		// own `apiLink="modules"` round-trip), not persisted-field settings
-		// — same escape hatch as 'ai-providers' above. Moved here from a
-		// standalone top-level page per direct instruction ("move the
-		// modules tab in settings after general tab") — see Modules.ts's
+		// — same escape hatch as the generic `PanelComponent` case below
+		// (AI Providers/Licensing use that one instead since their config
+		// lives outside this plugin's own hardcoded tab ids). Moved here
+		// from a standalone top-level page per direct instruction ("move
+		// the modules tab in settings after general tab") — see Modules.ts's
 		// own docblock.
 		if (currentTab === 'modules') {
 			return <ModulesPanel />;
@@ -131,17 +123,9 @@ const Settings = () => {
 
 		// Instant Indexing tab's "Submit URLs"/"History" cards are real
 		// actions/logs, not persisted-field settings — same escape hatch as
-		// 'ai-providers' above (see InstantIndexing.ts's own docblock).
+		// 'modules' above (see InstantIndexing.ts's own docblock).
 		if (currentTab === 'indexnow') {
 			return <IndexNowPanel />;
-		}
-
-		// Google Services tab's real OAuth connect/disconnect flow — same
-		// escape hatch as 'indexnow' above (see GoogleServices.ts's own
-		// docblock for why this doesn't fit InputRenderer's per-field
-		// auto-save model either).
-		if (currentTab === 'google-services') {
-			return <GoogleServicesPanel />;
 		}
 
 		// Developer Tools' "Clear cache" is a real action, not a
@@ -150,16 +134,20 @@ const Settings = () => {
 			return <DeveloperToolsPanel />;
 		}
 
-		// Generic version of the three escape hatches above, for tabs this
-		// plugin doesn't know about at build time — e.g. vulopilot-pro's
-		// Licensing tab, registered into settingsArray via the
-		// `vulopilot_settings_context` filter (templateService.ts) rather
-		// than a file under this plugin's own components/Settings/. Free
-		// can't hardcode a `currentTab === 'licensing'` case without
-		// importing something Pro-specific, so instead any tab config may
-		// carry its own `PanelComponent` and have it rendered here in
-		// place of InputRenderer — the same role as the three cases above,
-		// just resolved from the config object itself instead of the tab id.
+		// Generic version of the three escape hatches above — Connections/
+		// AiProviders.ts and Connections/GoogleServices.ts (real OAuth/
+		// credential flows, same reasoning as 'indexnow' above) carry
+		// their own `PanelComponent` this way instead of a hardcoded
+		// `currentTab === '...'` case, the same mechanism vulopilot-pro's
+		// Licensing tab already relies on since it's registered into
+		// settingsArray via the `vulopilot_settings_context` filter
+		// (templateService.ts) rather than a file under this plugin's own
+		// components/Settings/ — Free can't hardcode a
+		// `currentTab === 'licensing'` case without importing something
+		// Pro-specific, so any tab config may carry its own
+		// `PanelComponent` and have it rendered here in place of
+		// InputRenderer instead, resolved from the config object itself
+		// rather than the tab id.
 		if (settingModal?.PanelComponent) {
 			const PanelComponent = settingModal.PanelComponent;
 			return <PanelComponent />;

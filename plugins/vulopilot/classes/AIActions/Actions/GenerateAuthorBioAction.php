@@ -12,6 +12,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,6 +45,15 @@ class GenerateAuthorBioAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Generate author bio', 'vulopilot' );
+    }
+
+    /**
+     * Impact::LOW — Writes one isolated postmeta/user-meta value, never touches `post_content`.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::LOW;
     }
 
     /**
