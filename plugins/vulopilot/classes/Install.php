@@ -912,11 +912,18 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        $sql_crawler_visits = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['crawler_visit'] . "` (
+        // No "IF NOT EXISTS" — same dbDelta()-misparses-the-table-name
+        // limitation documented at length on create_backups_table() below;
+        // `is_404` needed the ALTER-diff path to actually reach sites that
+        // already had this table before AI Crawler Alerts' "access
+        // limited" check (CrawlerAlertMonitor::find_bots_with_high_404_rate())
+        // needed it.
+        $sql_crawler_visits = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['crawler_visit'] . "` (
             `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `bot_name`       varchar(50) NOT NULL,
             `user_agent`     varchar(255) NOT NULL,
             `requested_url`  varchar(255) NOT NULL,
+            `is_404`         tinyint(1) unsigned NOT NULL DEFAULT 0,
             `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             KEY `idx_bot` (`bot_name`),

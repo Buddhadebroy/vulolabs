@@ -49,14 +49,18 @@ class CrawlerVisitRepository extends AbstractRepository {
      * @param string $bot_name      Display name of the matched bot (CrawlerTrafficLogger::BOT_SIGNATURES value).
      * @param string $user_agent    The raw User-Agent header that matched.
      * @param string $requested_url The requested path.
+     * @param bool   $is_404        Whether WordPress resolved this exact request to a 404 (`is_404()` at
+     *                              `template_redirect` time, the same hook this is logged from) — AI Crawler
+     *                              Alerts' "access limited" check reads this back via get_404_rate_for_bot().
      * @return int Inserted row id.
      */
-    public function log( string $bot_name, string $user_agent, string $requested_url ): int {
+    public function log( string $bot_name, string $user_agent, string $requested_url, bool $is_404 = false ): int {
         return $this->insert(
             array(
                 'bot_name'      => $bot_name,
                 'user_agent'    => $user_agent,
                 'requested_url' => $requested_url,
+                'is_404'        => $is_404 ? 1 : 0,
             )
         );
     }
@@ -341,6 +345,63 @@ class CrawlerVisitRepository extends AbstractRepository {
             'top_crawlers'         => $top_crawlers,
             'most_crawled_pages'   => $most_crawled_pages,
         );
+    }
+
+    /**
+     * 404 rate for one bot's most recent visits — AI Crawler Alerts'
+     * "access limited" check. Scoped to the last $recent_n visits (not a
+     * time window) so a bot that visits rarely doesn't get judged on a
+     * single stale hit from weeks ago, and returns null (not 0) when there
+     * aren't yet $min_sample visits to judge from — same "don't flag on
+     * too little data" restraint CrawlerAlertMonitor::calculate_volume_drop_percent()
+     * already applies (requires 8 full days before computing a drop %).
+     *
+     * @param string $bot_name  Display name (CrawlerTrafficLogger::BOT_SIGNATURES value).
+     * @param int    $recent_n  How many of the bot's most recent visits to look at.
+     * @param int    $min_sample Minimum visits required before a rate is considered meaningful.
+     * @return array{rate_percent: int, sample_size: int}|null
+     */
+    public function get_404_rate_for_bot( string $bot_name, int $recent_n = 20, int $min_sample = 5 ): ?array {
+        global $wpdb;
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT is_404 FROM {$this->get_table()} WHERE bot_name = %s ORDER BY created_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $bot_name,
+                max( 1, $recent_n )
+            ),
+            ARRAY_A
+        );
+
+        $sample_size = count( (array) $rows );
+
+        if ( $sample_size < max( 1, $min_sample ) ) {
+            return null;
+        }
+
+        $not_found = array_sum( array_column( (array) $rows, 'is_404' ) );
+
+        return array(
+            'rate_percent' => (int) round( ( $not_found / $sample_size ) * 100 ),
+            'sample_size'  => $sample_size,
+        );
+    }
+
+    /**
+     * Every bot name that has ever logged at least one visit — AI Crawler
+     * Alerts' "new crawler detected" check diffs this against a stored
+     * "already known" list (CrawlerAlertMonitor::find_newly_detected_bots())
+     * rather than a time-windowed query, since a bot's very first visit
+     * could have happened at any point in this table's retention window.
+     *
+     * @return string[]
+     */
+    public function get_all_bot_names_ever_seen(): array {
+        global $wpdb;
+
+        $names = $wpdb->get_col( "SELECT DISTINCT bot_name FROM {$this->get_table()}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        return $names ?: array();
     }
 
     /**

@@ -91,6 +91,19 @@ class Utill {
     const VULOPILOT_OTHER_SETTINGS = array(
         'run_installer'     => 'vulopilot_run_installer',
         'plugin_db_version' => 'vulopilot_version',
+        // AI Crawler Alerts' own system-managed state — not a user-facing
+        // setting (no field ever writes these), so it lives here rather
+        // than in VULOPILOT_SETTINGS_DEFAULTS below. Read/written only by
+        // vulopilot-pro's CrawlerAlertMonitor.
+        // 'new crawler detected' diffs the real bot names seen so far
+        // (CrawlerVisitRepository::get_all_bot_names_ever_seen()) against
+        // this stored list to find ones never alerted on before.
+        'crawler_alert_known_bots'   => 'vulopilot_crawler_alert_known_bots',
+        // Per alert-type digest bookkeeping (last-sent timestamp + pending
+        // items accumulated since then) for the "Daily digest"/"Weekly
+        // digest" frequency options — see CrawlerAlertMonitor's own
+        // docblock for the batching this backs.
+        'crawler_alert_digest_state' => 'vulopilot_crawler_alert_digest_state',
     );
 
     /**
@@ -522,6 +535,79 @@ class Utill {
         // "setting round-trips through Settings regardless of which tier
         // reads it" posture as 'geo_competitor_urls' above.
         'crawler_volume_drop_threshold_percent' => 50,
+        // Notifications > AI Crawler Alerts' "Notify me about" — one real
+        // zyra `expandable-panel` field (AiCrawlerAlerts.ts), all 5 rows in
+        // a single panel group, one nested object keyed by alert type
+        // rather than N flat keys (that field type's own value shape,
+        // `{ [methodId]: { ...formFields } }`). Each `enable` gates one
+        // specific real check within CrawlerAlertMonitor::run_daily_check(),
+        // independent of (but still subordinate to) the master
+        // `email_on_crawler_alerts` switch above.
+        //
+        // 'blocked' reuses the existing "bot ignoring its own robots.txt
+        // block" check (count_bots_ignoring_blocked_pages(), now
+        // find_bots_ignoring_blocked_pages()) rather than a new one.
+        // 'access_limited' is a new check (CrawlerAlertMonitor::find_bots_with_high_404_rate(),
+        // reads CrawlerVisitRepository::get_404_rate_for_bot()) — no
+        // dedicated threshold field on the tab (the mockup only exposes a
+        // frequency dropdown for this row, not a % control like traffic
+        // drop gets), so HIGH_404_RATE_THRESHOLD_PERCENT in
+        // CrawlerAlertMonitor is a fixed internal cutoff instead.
+        // 'traffic_drop' only nests its own `enable` here — its actual
+        // threshold stays the flat `crawler_volume_drop_threshold_percent`
+        // just above, since that field is ALSO independently exposed on
+        // Scanning → AI Visibility (that tab's own field, predates this
+        // one): nesting the threshold itself here too would either
+        // duplicate that number under a second, driftable key, or make
+        // two unrelated tabs read/write the same nested blob through two
+        // different UI shapes. Its panel body just links to where the
+        // threshold is actually set, rather than a second control for it.
+        // 'inactive' is a new check (find_newly_inactive_bots(), reads
+        // CrawlerVisitRepository::get_bot_last_seen()) that only
+        // re-notifies if a bot goes active again and then falls inactive a
+        // second time — not every day it stays quiet. 'new_bot' is a new
+        // check (find_newly_detected_bots(), reads
+        // CrawlerVisitRepository::get_all_bot_names_ever_seen() against
+        // the stored 'crawler_alert_known_bots' list, VULOPILOT_OTHER_SETTINGS)
+        // — defaults to weekly digest, matching the mockup's own selected
+        // value, since a brand-new crawler showing up isn't as
+        // time-sensitive as a block or a traffic drop.
+        'crawler_alerts'                         => array(
+            'blocked'        => array(
+                'enable'    => true,
+                'frequency' => 'immediate',
+            ),
+            'access_limited' => array(
+                'enable'    => true,
+                'frequency' => 'immediate',
+            ),
+            'traffic_drop'   => array(
+                'enable' => true,
+            ),
+            'inactive'       => array(
+                'enable'         => true,
+                'days_threshold' => '7',
+            ),
+            'new_bot'        => array(
+                'enable'    => true,
+                'frequency' => 'weekly_digest',
+            ),
+        ),
+        // "Notification channels" — one multi-checkbox field, real values
+        // 'email' (always goes through wp_mail(), same as every other
+        // VuloPilot notification) and 'dashboard' (writes a real
+        // ActivityLogRepository entry, visible under Settings → History —
+        // not just an unused toggle). Mobile push has no real delivery
+        // mechanism anywhere in this codebase (no app, no push
+        // infrastructure) — deliberately not one of the real option
+        // values here; the tab mentions it's not available yet rather than
+        // offering a checkbox that can never do anything, Pro or not.
+        'crawler_alert_channels'                 => array( 'email', 'dashboard' ),
+        // "Last test alert sent successfully on ..." — set by
+        // Controllers\Settings::send_test_crawler_alert(), read back by
+        // CrawlerAlertTestPanel.tsx on load so that line survives a page
+        // refresh instead of only showing right after a click.
+        'crawler_alert_last_test_sent'           => '',
         // Scanning > Entity Extraction (KNOWLEDGE-GRAPH-MODULE.md). Read by
         // Services\EntityExtractor. Newline-separated page URLs/ids — this
         // codebase has no existing Service concept to derive these from

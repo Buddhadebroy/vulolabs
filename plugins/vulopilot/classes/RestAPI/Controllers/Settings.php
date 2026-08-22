@@ -147,6 +147,24 @@ class Settings extends \WP_REST_Controller {
             )
         );
 
+        // "Send Test Alert" (Notifications → AI Crawler Alerts) — same
+        // shape as /test-email above. The real check/send logic lives in
+        // vulopilot-pro's CrawlerAlertMonitor (that whole feature is
+        // Pro-only), so this route only fires the `vulopilot_send_test_crawler_alert`
+        // filter and passes its result straight through — see
+        // send_test_crawler_alert()'s own docblock.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/test-crawler-alert',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'send_test_crawler_alert' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
         // Enable/disable a module — mirrors the free vulolabs plugin's
         // own Settings controller (module-architecture.md), same GET/POST
         // shape zyra's ModuleGridComponent already expects.
@@ -399,6 +417,55 @@ class Settings extends \WP_REST_Controller {
                     : __( 'wp_mail() returned false — check your site\'s mail configuration.', 'vulopilot' ),
             )
         );
+    }
+
+    /**
+     * "Send Test Alert" (Notifications → AI Crawler Alerts). The whole AI
+     * Crawler Alerts feature (CrawlerAlertMonitor, the 5 real checks it
+     * runs daily) lives in vulopilot-pro, and Free never `use`s Pro's
+     * namespace (this repo's own CLAUDE.md) — so rather than a direct
+     * class reference, this fires the `vulopilot_send_test_crawler_alert`
+     * filter and returns whatever comes back. `has_filter()` first means
+     * this honestly reports "requires Pro" instead of a generic failure
+     * when nothing is listening (Pro inactive, or this specific module
+     * toggled off — see Module.php's own registration).
+     *
+     * On success, also persists a real `crawler_alert_last_test_sent`
+     * timestamp into the flat settings option — CrawlerAlertTestPanel.tsx
+     * reads it back on load so the "Last test alert sent successfully on
+     * ..." line survives a page refresh, not just the moment right after
+     * the click.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function send_test_crawler_alert( $request ) {
+        if ( ! has_filter( 'vulopilot_send_test_crawler_alert' ) ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'AI Crawler Alerts requires VuloPilot Pro, with the AI Crawler Analytics module active.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $result = apply_filters( 'vulopilot_send_test_crawler_alert', null );
+
+        if ( ! is_array( $result ) || ! isset( $result['success'] ) ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'Could not send a test alert.', 'vulopilot' ),
+                )
+            );
+        }
+
+        if ( $result['success'] ) {
+            $updated = array_merge( $this->get_stored_settings(), array( 'crawler_alert_last_test_sent' => current_time( 'mysql' ) ) );
+            update_option( Utill::VULOPILOT_SETTINGS_KEY, $updated );
+        }
+
+        return rest_ensure_response( $result );
     }
 
     /**
