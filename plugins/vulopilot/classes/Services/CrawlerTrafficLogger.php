@@ -110,7 +110,12 @@ class CrawlerTrafficLogger {
 
             $requested_url = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
-            ( new CrawlerVisitRepository() )->log( $bot_name, $user_agent, $requested_url );
+            // is_404() is already reliable here — `template_redirect` fires
+            // after WP has resolved the main query, so this is the request's
+            // real outcome, not a guess. AI Crawler Alerts' "access limited"
+            // check (CrawlerAlertMonitor::find_bots_with_high_404_rate())
+            // reads this back per bot.
+            ( new CrawlerVisitRepository() )->log( $bot_name, $user_agent, $requested_url, is_404() );
             return;
         }
     }

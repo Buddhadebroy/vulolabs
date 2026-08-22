@@ -222,3 +222,27 @@
 		margin: 0;
 	}
 }
+
+// CrawlerAlertTestPanel.tsx (Settings → Notifications → AI Crawler
+// Alerts' own "Send Test Alert" row) — same minimal-supporting-CSS
+// posture as the `.backup-storage-*` rules above.
+.crawler-alert-test-panel {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+.crawler-alert-test-result {
+	margin: 0;
+	font-size: 0.8125rem;
+
+	&.is-success {
+		color: #16a34a;
+	}
+
+	&.is-error {
+		color: #dc2626;
+	}
+}
