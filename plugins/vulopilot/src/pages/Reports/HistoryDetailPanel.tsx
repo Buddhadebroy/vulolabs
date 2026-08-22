@@ -425,10 +425,18 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 						<p>
 							{CHANGE_STATUS_LABEL[row.change.status] ??
 								row.change.status}
-							{'auto' === row.change.approval_method && (
+							{'auto_automation' === row.change.approval_method && (
 								<span className="history-auto-approved-note">
 									{__(
 										' — Auto-approved by automation',
+										'vulopilot'
+									)}
+								</span>
+							)}
+							{'auto_unattended' === row.change.approval_method && (
+								<span className="history-auto-approved-note">
+									{__(
+										' — Applied automatically (no approval required by Approval Settings)',
 										'vulopilot'
 									)}
 								</span>

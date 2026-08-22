@@ -13,6 +13,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -55,6 +56,15 @@ class GenerateBlogAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Generate blog post', 'vulopilot' );
+    }
+
+    /**
+     * Impact::HIGH — `wp_insert_post()`s a brand-new post with AI-generated `post_content` — creates new, potentially publicly-visible content outright.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::HIGH;
     }
 
     /**

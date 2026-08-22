@@ -44,6 +44,8 @@ interface ProposeResponse {
 		after: string;
 		format: string;
 	};
+	/** Settings → Automation → Approval Settings — true when ActionRunner::propose() itself already approved and executed this run (risk-based/"Do not ask" mode), same as AIActions\ActionRunner::propose()'s own docblock. When true there's nothing left to review — see the propose `.then()` handler below. */
+	auto_approved?: boolean;
 }
 
 type Step = 'input' | 'loading' | 'preview' | 'error';
@@ -291,6 +293,27 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				return body as ProposeResponse;
 			})
 			.then((body) => {
+				// Settings → Automation → Approval Settings' risk-based/
+				// "Do not ask" modes can make propose() itself apply this
+				// change immediately — there's no pending run left to show
+				// an Approve/Reject step for, so this is the same real
+				// success notice handleApprove() below shows after a human
+				// clicks Approve, just fired for a change that already
+				// went live without waiting for one.
+				if (body.auto_approved) {
+					NoticeManager.add({
+						uniqueKey: `content-tool-approve-${body.run_id}`,
+						type: 'success',
+						position: 'float',
+						message: __(
+							'Applied automatically — the change is now live.',
+							'vulopilot'
+						),
+					});
+					onClose();
+					return;
+				}
+
 				setRunId(body.run_id ?? null);
 				setPreview(body.preview ?? null);
 				setStep('preview');

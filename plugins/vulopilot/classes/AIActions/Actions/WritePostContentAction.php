@@ -12,6 +12,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,6 +45,15 @@ class WritePostContentAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Write content', 'vulopilot' );
+    }
+
+    /**
+     * Impact::HIGH — Replaces the post's entire `post_content` body wholesale — the widest single-post blast radius this plugin's AI actions have.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::HIGH;
     }
 
     /**

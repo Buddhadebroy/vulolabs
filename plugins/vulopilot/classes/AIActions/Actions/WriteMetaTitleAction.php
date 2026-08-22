@@ -12,6 +12,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -53,6 +54,15 @@ class WriteMetaTitleAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Write meta title', 'vulopilot' );
+    }
+
+    /**
+     * Impact::LOW — Rewrites `post_title` only — one narrow, easily-reverted field.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::LOW;
     }
 
     /**

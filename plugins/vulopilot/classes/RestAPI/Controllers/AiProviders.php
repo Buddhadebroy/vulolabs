@@ -9,6 +9,7 @@ namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Repositories\AiProviderConfigRepository;
 use VuloPilot\Services\CredentialEncryption;
+use VuloPilot\ValueObjects\AIRequest;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,7 +19,9 @@ defined( 'ABSPATH' ) || exit;
  * "What's not here yet" section flagged as missing: "nothing yet writes
  * to vulopilot_ai_provider_configs from the dashboard — AiProviderConfigRepository
  * exists and works, but there's no REST controller or Settings-page section
- * wired to it yet." Backs src/components/Settings/Account/AiProvidersPanel.tsx.
+ * wired to it yet." Backs
+ * src/components/Settings/Connections/AiProvidersPanel.tsx (Settings →
+ * Connections → AI Providers).
  * update_item()'s route also answers PATCH (WP_REST_Server::EDITABLE) for
  * any other REST-y consumer, but every route here is reachable by POST
  * specifically because @zyra/core's sendApiResponse() (what the actual
@@ -94,6 +97,19 @@ class AiProviders extends \WP_REST_Controller {
                 ),
             )
         );
+
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/(?P<id>\d+)/test',
+            array(
+                array(
+                    // Same POST-only reasoning as .../delete above.
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'test_connection_item' ),
+                    'permission_callback' => array( $this, 'test_connection_item_permissions_check' ),
+                ),
+            )
+        );
     }
 
     /**
@@ -121,6 +137,13 @@ class AiProviders extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function delete_item_permissions_check( $request ) {
+        return current_user_can( 'manage_options' );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function test_connection_item_permissions_check( $request ) {
         return current_user_can( 'manage_options' );
     }
 
@@ -251,6 +274,93 @@ class AiProviders extends \WP_REST_Controller {
         }
 
         return rest_ensure_response( array( 'deleted' => true ) );
+    }
+
+    /**
+     * A real "Test Connection" — Settings → Connections → AI Providers'
+     * own mockup asked for this, and there was previously no way to know a
+     * saved key actually worked short of trying "Generate with AI" and
+     * seeing whether it silently used a different, still-working provider
+     * from the fallback chain instead. Builds this provider's own fully
+     * decorated adapter the exact same way a real generation request would
+     * (ProviderRegistry::build_provider() — rate-limited, retried, and
+     * usage-tracked, not a raw unprotected adapter call that would bypass
+     * this site's own configured budget), then sends the smallest real
+     * request that still proves the key/model combination actually works.
+     *
+     * Reuses build_provider()'s own existing, real "not configured" cases
+     * (inactive, no credential, undecryptable credential) instead of a
+     * fresh set of checks — same honest distinctions
+     * prepare_config_for_response()'s `credential_ok` already surfaces
+     * elsewhere on this same panel.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function test_connection_item( $request ) {
+        $id         = absint( $request->get_param( 'id' ) );
+        $repository = new AiProviderConfigRepository();
+        $config     = $repository->find( $id );
+
+        if ( ! $config ) {
+            return new \WP_Error( 'vulopilot_provider_config_not_found', __( 'Provider configuration not found.', 'vulopilot' ), array( 'status' => 404 ) );
+        }
+
+        $provider = VuloPilot()->ai_provider_registry->build_provider( (string) $config['provider'] );
+
+        if ( ! $provider ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => empty( $config['is_active'] )
+                        ? __( 'This provider is disabled — enable it first, then test the connection.', 'vulopilot' )
+                        : __( 'VuloPilot can no longer read this provider’s saved API key. Enter it again to reconnect, then test the connection.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $model = (string) ( $config['default_model'] ?? '' );
+
+        if ( '' === $model ) {
+            $models = $provider->get_available_models();
+            $model  = $models[0] ?? '';
+        }
+
+        try {
+            $provider->send(
+                new AIRequest(
+                    $model,
+                    array(
+                        array(
+                            'role'    => 'user',
+                            'content' => 'Reply with the single word OK.',
+                        ),
+                    ),
+                    null,
+                    // A real, minimal request — just enough tokens for a
+                    // one-word reply, so a working key is confirmed
+                    // without meaningfully touching this site's own usage
+                    // budget/rate limit.
+                    5,
+                    null,
+                    'connection_test'
+                )
+            );
+        } catch ( \Throwable $exception ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => $exception->getMessage(),
+                )
+            );
+        }
+
+        return rest_ensure_response(
+            array(
+                'success' => true,
+                'message' => __( 'Connected — the API key works.', 'vulopilot' ),
+            )
+        );
     }
 
     /**

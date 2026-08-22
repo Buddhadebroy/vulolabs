@@ -12,6 +12,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -63,6 +64,15 @@ class CreateTrustPageAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Create missing trust page(s)', 'vulopilot' );
+    }
+
+    /**
+     * Impact::HIGH — `wp_insert_post()`s a brand-new page with `post_status => publish` — creates and immediately publishes new content outright.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::HIGH;
     }
 
     /**

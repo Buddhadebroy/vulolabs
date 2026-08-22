@@ -60,8 +60,8 @@ export interface ChangeDetail {
 	format: 'text' | 'html' | 'json';
 	error_message: string | null;
 	page: string | null;
-	/** 'auto' when Automate Work's Auto-fix mode approved this run itself (ActionRunner::approve()'s own $method param) — real rows from before this column existed fall back to 'manual'. */
-	approval_method: 'manual' | 'auto';
+	/** 'auto_automation' when Automate Work's Auto-fix mode approved this run itself, 'auto_unattended' when Settings → Automation → Approval Settings' own risk-based/"Do not ask" mode did (ActionRunner::approve()'s own $method param — see that method's docblock for why these are two distinct values, not one generic 'auto') — real rows from before this column existed, or from before the second value existed, fall back to 'manual'/'auto_automation' respectively. */
+	approval_method: 'manual' | 'auto_automation' | 'auto_unattended';
 }
 
 export interface HistoryRow {

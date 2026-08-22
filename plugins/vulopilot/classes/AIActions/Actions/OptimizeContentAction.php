@@ -12,6 +12,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,6 +45,15 @@ class OptimizeContentAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Optimize content', 'vulopilot' );
+    }
+
+    /**
+     * Impact::HIGH — Replaces the post's entire `post_content` body wholesale (a full rewrite, not a structural edit within the existing text).
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::HIGH;
     }
 
     /**

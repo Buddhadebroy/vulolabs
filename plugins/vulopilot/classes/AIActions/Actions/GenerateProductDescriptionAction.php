@@ -12,6 +12,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -51,6 +52,15 @@ class GenerateProductDescriptionAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Generate product description', 'vulopilot' );
+    }
+
+    /**
+     * Impact::HIGH — `wp_insert_post()`s/replaces the product's entire `post_content` body — the widest blast radius among the product-description actions.
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::HIGH;
     }
 
     /**

@@ -13,6 +13,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,6 +45,15 @@ class GenerateAltAction extends AbstractBasicAction {
      */
     public function get_label(): string {
         return __( 'Generate ALT text', 'vulopilot' );
+    }
+
+    /**
+     * Impact::LOW — Touches exactly one postmeta value (`_wp_attachment_image_alt`) — the narrowest possible blast radius, and its own docblock already calls it "the metadata-only-write pattern".
+     *
+     * @inheritDoc
+     */
+    public function get_risk_level(): string {
+        return Impact::LOW;
     }
 
     /**

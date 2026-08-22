@@ -12,6 +12,7 @@ use VuloPilot\Exceptions\InvalidActionOutputException;
 use VuloPilot\ValueObjects\ActionExecutionResult;
 use VuloPilot\ValueObjects\ActionPreview;
 use VuloPilot\ValueObjects\AIResponse;
+use VuloPilot\ValueObjects\Impact;
 
 /**
  * An AI action is a user-typed-input AI workflow with an approval-gated
@@ -41,6 +42,21 @@ interface AIActionInterface {
      * @return string 'free' or 'pro'.
      */
     public function get_tier(): string;
+
+    /**
+     * How much this action's own execute() can change on the site,
+     * reusing ValueObjects\Impact's existing LOW/MEDIUM/HIGH scale
+     * (previously "a rule's estimated impact if its recommendation is
+     * resolved" — generalized here to the same "rank the enum, compare
+     * ranks" idiom for an AI action's own approval risk, rather than
+     * introducing a second near-identical enum). Settings → Automation →
+     * Approval Settings' "Ask for medium & high risk changes" mode reads
+     * this via ActionRunner::propose() to decide whether a given proposed
+     * change can skip human approval — Impact::LOW only.
+     *
+     * @return string One of Impact::LOW/MEDIUM/HIGH.
+     */
+    public function get_risk_level(): string;
 
     /**
      * Validates and normalizes the raw user-supplied input.

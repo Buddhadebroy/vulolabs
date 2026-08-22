@@ -214,6 +214,21 @@ class Utill {
         // fix when its estimated_impact is at/below auto_fix_max_impact.
         'automation_mode'                       => 'suggest',
         'auto_fix_max_impact'                   => 'low',
+        // Settings → Automation → Approval Settings' "Ask before applying
+        // AI changes" — read by AIActions\ActionRunner::propose() itself
+        // (not vulopilot-pro-only), so unlike automation_mode above this
+        // one is meaningfully acted on by the free plugin too: 'always'
+        // (default — today's existing behavior, unchanged) always creates
+        // a pending_approval row and waits for a human; 'risk_based' skips
+        // that wait only for a proposed change whose own action
+        // (AIActionInterface::get_risk_level()) is Impact::LOW; 'never' —
+        // Pro-gated the same way automation_mode's own 'auto_fix' is,
+        // real-enforced server-side via Utill::is_khali_dabba() rather
+        // than trusting the stored value — skips the wait unconditionally.
+        // Replaces the previous `require_approval_before_ai_change`
+        // boolean, which had no default here and nothing ever actually
+        // read.
+        'ai_change_approval_mode'               => 'always',
         // SECURITY-MODULE.md's "Scheduled Security Monitoring"/"Alerts"/
         // "Integrity Monitoring" — same "setting lives here, only
         // meaningfully acted on by vulopilot-pro's SecurityMonitoring
@@ -436,7 +451,7 @@ class Utill {
         // CanonicalUrlManager/SocialMetaTagsManager. Empty string = that
         // provider's tag isn't output at all.
         'webmaster_google_verification'         => '',
-        // Scanning > Google Services (GoogleServicesPanel.tsx). Read by
+        // Connections > Google Services (GoogleServicesPanel.tsx). Read by
         // Services\GoogleAnalyticsTracker — real `gtag.js` output on
         // `wp_head`, gated on `ga_install_tracking_code` and a connected
         // GA4 property (GoogleServicesConnection's own `ga4_measurement_id`,

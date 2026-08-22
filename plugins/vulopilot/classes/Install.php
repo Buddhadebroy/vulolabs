@@ -328,8 +328,8 @@ class Install {
 
         // No "IF NOT EXISTS" here — same dbDelta()/"IF NOT EXISTS" ALTER-path
         // bug documented above ai_history's own CREATE — needed so
-        // `approval_method` actually gets added on an upgrade, not just a
-        // fresh install.
+        // `approval_method`/`risk_level` actually get added on an upgrade,
+        // not just a fresh install.
         $sql_ai_action_runs = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['ai_action_run'] . "` (
             `id`              bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `action_id`       varchar(100) NOT NULL,
@@ -344,6 +344,7 @@ class Install {
             `requested_by`    bigint(20) unsigned DEFAULT NULL,
             `approved_by`     bigint(20) unsigned DEFAULT NULL,
             `approval_method` varchar(20) NOT NULL DEFAULT 'manual',
+            `risk_level`      varchar(10) NOT NULL DEFAULT 'medium',
             `created_at`      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `approved_at`     datetime DEFAULT NULL,
             `executed_at`     datetime DEFAULT NULL,
