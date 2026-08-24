@@ -296,6 +296,34 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					<FormGroupComponent   row label={__('Affected', 'vulopilot')}>
 						{formatAffected(group.count, group.object_type)}
 					</FormGroupComponent>
+					{group.sample && (
+						<FormGroupComponent   row label={__('Example finding', 'vulopilot')}>
+							<span className="desc">
+								{group.sample.title}
+							</span>
+							<span className="desc">
+								{group.sample.description}
+							</span>
+						</FormGroupComponent>
+					)}
+
+					{group.sample && (
+						<FormGroupComponent  row label={__('Where', 'vulopilot')}>
+							<ClipboardComponent
+								text={group.sample.page || __('Site-wide', 'vulopilot')}
+								variant="code"
+								copyButtonLabel={__('Copy', 'vulopilot')}
+								copiedLabel={__('Copied!', 'vulopilot')}
+							/>
+							<div className="small desc">
+								{sprintf(
+									/* translators: %s: formatted date this finding was detected */
+									__('Detected %s', 'vulopilot'),
+									formatWpDate(group.sample.created_at)
+								)}
+							</div>
+						</FormGroupComponent>
+					)}
 					{/* No `row` here unlike the fields above — this holds a
 					whole list, not one short value, so squeezing it into
 					the same narrow side-by-side layout as Priority/
@@ -310,9 +338,10 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						<ListComponent
 							className="mini-card report"
 							loading={isLoadingAffected}
-							items={(affectedItems ?? []).map((row) => ({
+							items={(affectedItems ?? []).map((row, index) => ({
 								id: row.id,
-								// icon: CATEGORY_ICONS[group.category] ?? 'ai',
+								number: index + 1,
+								icon: CATEGORY_ICONS[group.category] ?? 'ai',
 								title: row.title,
 								desc: sprintf(
 									/* translators: 1: affected page/location, 2: formatted detection date */
@@ -347,34 +376,6 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								</span>
 							)}
 					</FormGroupComponent>
-					{group.sample && (
-						<FormGroupComponent   row label={__('Example finding', 'vulopilot')}>
-							<span className="desc">
-								{group.sample.title}
-							</span>
-							<span className="desc">
-								{group.sample.description}
-							</span>
-						</FormGroupComponent>
-					)}
-
-					{group.sample && (
-						<FormGroupComponent  row label={__('Where', 'vulopilot')}>
-							<ClipboardComponent
-								text={group.sample.page || __('Site-wide', 'vulopilot')}
-								variant="code"
-								copyButtonLabel={__('Copy', 'vulopilot')}
-								copiedLabel={__('Copied!', 'vulopilot')}
-							/>
-							<div className="small desc">
-								{sprintf(
-									/* translators: %s: formatted date this finding was detected */
-									__('Detected %s', 'vulopilot'),
-									formatWpDate(group.sample.created_at)
-								)}
-							</div>
-						</FormGroupComponent>
-					)}
 				</FormGroupWrapperComponent>
 
 				<ButtonInput

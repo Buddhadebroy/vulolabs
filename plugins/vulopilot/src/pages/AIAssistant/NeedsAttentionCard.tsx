@@ -264,7 +264,6 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 							text: __('View all issues', 'vulopilot'),
 							icon: 'arrow-right',
 							iconPosition: 'right',
-							// color: 'bpurple',
 							position: 'full-width',
 							onClick: goToAllIssues,
 						}}
