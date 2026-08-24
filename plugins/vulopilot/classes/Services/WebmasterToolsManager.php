@@ -42,9 +42,13 @@ class WebmasterToolsManager {
      * name-vs-property distinction SocialMetaTagsManager already handles
      * for `twitter:*` vs Open Graph tags.
      *
+     * Public (not `private`) so Controllers\Settings::verify_webmaster_tool()
+     * can reuse the exact same provider → meta-tag mapping this class
+     * itself outputs on `wp_head`, rather than a second, driftable copy.
+     *
      * @var array<string, string>
      */
-    private const VERIFICATION_META_NAMES = array(
+    public const VERIFICATION_META_NAMES = array(
         'webmaster_google_verification'    => 'google-site-verification',
         'webmaster_bing_verification'      => 'msvalidate.01',
         'webmaster_baidu_verification'     => 'baidu-site-verification',

@@ -61,9 +61,9 @@ class OnPageAnalyzer {
     /**
      * Words from the start of the content the focus keyword should appear
      * within for the "keyword in first paragraph" check — an editorial
-     * analogue of GeoSummaryBlockScanner's `answer_first_words` setting,
-     * kept as its own constant since it checks keyword placement, not an
-     * AI-summary marker.
+     * analogue of GeoSummaryBlockScanner's `ai_visibility_scans.answer_first.min_words`
+     * setting, kept as its own constant since it checks keyword placement,
+     * not an AI-summary marker.
      */
     private const FIRST_PARAGRAPH_WORDS = 100;
 

@@ -7,12 +7,19 @@ import { __ } from '@wordpress/i18n';
  * option key/value is the field's own settings key (not a shared
  * 'enabled' literal), matching every other settings tab in this plugin.
  *
+ * `flag_missing_meta_description`/`flag_duplicate_titles`,
+ * `flag_missing_alt_text`, `flag_broken_links`/`broken_link_check_frequency`/
+ * `flag_broken_images`/`broken_image_check_frequency`, `flag_missing_schema`,
+ * and `content_readability_min_score` moved out — into their own
+ * Settings → Scanning → "Content & Search" tab (`content_search_scans`
+ * nested setting, ContentSearch.ts) — not duplicated. See that file's own
+ * docblock.
+ *
  * Real backing per card:
- * - Titles & meta / Images / Links & schema: each toggle gates the one
- *   scanner it names directly (Scanners\Basic\MetaDescriptionScanner,
- *   DuplicateContentScanner, OrphanPageScanner, ThinContentScanner,
- *   SeoImagesScanner, ImagesScanner, BrokenLinksScanner, SchemaScanner +
- *   StructuredDataValidationScanner).
+ * - Titles & meta / Images: `flag_orphan_pages`/`thin_content_word_threshold`
+ *   gate ThinContentScanner/OrphanPageScanner (not one of Content &
+ *   Search's own 5 cards); `flag_missing_featured_image` gates
+ *   SeoImagesScanner.
  * - Robots.txt: a real toggle over WordPress core's own virtual
  *   robots.txt (via Services\RobotsTxtManager) — not a from-scratch
  *   generator, plus `flag_ai_crawler_blocked_pages`
@@ -48,35 +55,6 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'flag_missing_meta_description',
-			type: 'checkbox',
-			look: 'toggle',
-			
-			label: __('Flag missing meta descriptions', 'vulopilot'),
-			settingDescription: __('Pages and posts with no meta description set.', 'vulopilot'),
-			options: [
-				{
-					key: 'flag_missing_meta_description',
-					label: '',
-					value: 'flag_missing_meta_description',
-				},
-			],
-		},
-		{
-			key: 'flag_duplicate_titles',
-			type: 'checkbox',
-			look: 'toggle',
-			
-			label: __('Flag duplicate title tags', 'vulopilot'),
-			settingDescription: __(
-				'Two or more published pages sharing the exact same title.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'flag_duplicate_titles', label: '', value: 'flag_duplicate_titles' },
-			],
-		},
-		{
 			key: 'flag_orphan_pages',
 			type: 'checkbox',
 			look: 'toggle',
@@ -110,7 +88,7 @@ export default {
 			key: 'flag_missing_featured_image',
 			type: 'checkbox',
 			look: 'toggle',
-			
+
 			label: __('Flag missing featured images', 'vulopilot'),
 			settingDescription: __(
 				'Published pages, posts, or products with no featured image set.',
@@ -125,96 +103,13 @@ export default {
 			],
 		},
 		{
-			key: 'flag_missing_alt_text',
-			type: 'checkbox',
-			look: 'toggle',
-			
-			label: __('Flag missing alt text', 'vulopilot'),
-			settingDescription: __('Content images with no alt attribute.', 'vulopilot'),
-			options: [
-				{ key: 'flag_missing_alt_text', label: '', value: 'flag_missing_alt_text' },
-			],
-		},
-		{
 			key: 'seo-section-links-schema',
 			type: 'section',
 			title: __('Links & schema', 'vulopilot'),
 			desc: __(
-				'Controls the "Links & Indexability" and "Schema" findings groups.',
+				'Controls the "Links & Indexability" findings group. Broken links/images and structured data moved to Settings → Scanning → Content & Search.',
 				'vulopilot'
 			),
-		},
-		{
-			key: 'flag_broken_links',
-			type: 'checkbox',
-			look: 'toggle',
-			
-			label: __('Flag broken internal links', 'vulopilot'),
-			settingDescription: __(
-				'Internal links pointing to a 404 or removed page.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'flag_broken_links', label: '', value: 'flag_broken_links' },
-			],
-		},
-		{
-			key: 'broken_link_check_frequency',
-			type: 'select',
-			size: 8,
-			label: __('Broken link check frequency', 'vulopilot'),
-			settingDescription: __(
-				'How often this specific check re-runs, independent of the overall scan frequency in the General tab.',
-				'vulopilot'
-			),
-			options: [
-				{ label: __('Daily', 'vulopilot'), value: 'daily' },
-				{ label: __('Weekly', 'vulopilot'), value: 'weekly' },
-			],
-			dependent: { key: 'flag_broken_links', value: 'flag_broken_links', set: true },
-		},
-		{
-			key: 'flag_broken_images',
-			type: 'checkbox',
-			look: 'toggle',
-
-			label: __('Flag broken images', 'vulopilot'),
-			settingDescription: __(
-				'Image tags pointing to a source URL that returns a broken (non-2xx/3xx) response.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'flag_broken_images', label: '', value: 'flag_broken_images' },
-			],
-		},
-		{
-			key: 'broken_image_check_frequency',
-			type: 'select',
-			size: 8,
-			label: __('Broken image check frequency', 'vulopilot'),
-			settingDescription: __(
-				'How often this specific check re-runs, independent of the overall scan frequency in the General tab.',
-				'vulopilot'
-			),
-			options: [
-				{ label: __('Daily', 'vulopilot'), value: 'daily' },
-				{ label: __('Weekly', 'vulopilot'), value: 'weekly' },
-			],
-			dependent: { key: 'flag_broken_images', value: 'flag_broken_images', set: true },
-		},
-		{
-			key: 'flag_missing_schema',
-			type: 'checkbox',
-			look: 'toggle',
-			
-			label: __('Flag missing structured data', 'vulopilot'),
-			settingDescription: __(
-				'Content types (FAQ, Review, HowTo, etc.) without valid schema markup.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'flag_missing_schema', label: '', value: 'flag_missing_schema' },
-			],
 		},
 		{
 			key: 'canonical_url_enabled',
@@ -353,25 +248,8 @@ export default {
 		// 	type: 'section',
 		// 	title: __('Content Intelligence', 'vulopilot'),
 		// },
-		{
-			key: 'content-section-readability',
-			type: 'section',
-			title: __('Readability', 'vulopilot'),
-			desc: __(
-				'Controls the Content and AI Content pages\' readability findings — a standard Flesch Reading Ease score (0-100, higher is easier to read).',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'content_readability_min_score',
-			type: 'number',
-			size: 7,
-			label: __('Minimum readability score', 'vulopilot'),
-			settingDescription: __(
-				'Posts scoring below this on the Flesch Reading Ease scale are flagged. 50 is that scale\'s own "Fairly Difficult" boundary.',
-				'vulopilot'
-			),
-		},
+		// Readability moved to Settings → Scanning → Content & Search
+		// (content_search_scans.readability — ContentSearch.ts).
 		// {
 		// 	key: 'sitemap-section',
 		// 	type: 'section',

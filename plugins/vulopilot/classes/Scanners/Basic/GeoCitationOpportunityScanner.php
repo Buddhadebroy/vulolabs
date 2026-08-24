@@ -9,6 +9,7 @@ namespace VuloPilot\Scanners\Basic;
 
 
 use VuloPilot\Contracts\Scanner\TracksScannedObjectsInterface;
+use VuloPilot\Utill;
 use VuloPilot\ValueObjects\Finding;
 use VuloPilot\ValueObjects\Severity;
 
@@ -22,6 +23,16 @@ defined( 'ABSPATH' ) || exit;
  * citation next to a factual claim — a real, bounded regex-based
  * heuristic for "this reads like it's citing something but isn't," not a
  * claim to verify whether any specific fact is actually true.
+ *
+ * `ai_visibility_scans.evidence.enable` (Settings → Scanning → AI
+ * Visibility's "Evidence checks" row, Free's Utill::VULOPILOT_SETTINGS_DEFAULTS)
+ * is this scanner's own on/off switch — a real gate this scanner didn't
+ * have before (it always ran); added so that row's Active/Inactive pill
+ * is honest, same reasoning StaleContentScanner's own new
+ * `ai_visibility_scans.freshness.enable` gate documents. This is a
+ * separate concern from `ai_visibility_scans.evidence.min_data_points`,
+ * which only ever fed GeoAnalyzer's own "Data Point & Evidence Density"
+ * per-post sub-score, not this findings-list scanner.
  *
  * @class       GeoCitationOpportunityScanner class
  * @version     1.0.0
@@ -68,6 +79,12 @@ class GeoCitationOpportunityScanner extends AbstractBasicScanner implements Trac
      * @inheritDoc
      */
     public function scan(): array {
+        $settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        if ( empty( $settings['ai_visibility_scans']['evidence']['enable'] ) ) {
+            return array();
+        }
+
         $findings  = array();
         $home_host = wp_parse_url( home_url(), PHP_URL_HOST );
         $posts     = get_posts(

@@ -11,8 +11,8 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import './Performance.scss';
 
-/** `id: 'performance'` (Settings/Scanning/Performance.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives. */
-const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=performance';
+/** `id: 'pagespeed-insights'` (Settings/Connections/PageSpeedInsights.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; moved from the old Settings → Scanning → Performance tab, same "moved into Connections" precedent GoogleServices.ts's own docblock documents. */
+const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=pagespeed-insights';
 
 interface DashboardSummary {
 	category_scores: { performance: number };

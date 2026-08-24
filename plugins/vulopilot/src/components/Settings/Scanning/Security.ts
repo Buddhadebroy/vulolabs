@@ -257,57 +257,12 @@ export default {
 			moduleEnabled: 'security-monitoring',
 		},
 		{
-			key: 'accessibility-section',
-			type: 'section',
-			title: __('Accessibility', 'vulopilot'),
-		},
-		{
-			key: 'enable_wcag_scanner',
-			type: 'checkbox',
-			look: 'toggle',
-			
-			label: __('Check for generic, out-of-context link text', 'vulopilot'),
-			settingDescription: __(
-				'Flags links whose entire visible text is a generic phrase like "click here" or "read more" — link text should describe its own destination (WCAG 2.4.4).',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'enable_wcag_scanner', label: '', value: 'enable_wcag_scanner' },
-			],
-		},
-		{
-			key: 'accessibility_audit_frequency',
-			type: 'select',
-			size: 7,
-			label: __('Scheduled accessibility audits', 'vulopilot'),
-			settingDescription: __(
-				'Runs only the accessibility-category scanners on this cadence, independent of the general Scan frequency setting under General.',
-				'vulopilot'
-			),
-			options: [
-				{ label: __('Off', 'vulopilot'), value: 'disabled' },
-				{ label: __('Hourly', 'vulopilot'), value: 'hourly' },
-				{ label: __('Daily', 'vulopilot'), value: 'daily' },
-				{ label: __('Weekly', 'vulopilot'), value: 'weekly' },
-			],
-			moduleEnabled: 'accessibility-audits',
-		},
-		{
-			key: 'target_wcag_level',
-			type: 'select',
-			size: 7,
-			label: __('Target WCAG level', 'vulopilot'),
-			settingDescription: __(
-				'Used to determine which accessibility checks are marked critical vs. warning.',
-				'vulopilot'
-			),
-			options: [
-				{ label: __('WCAG 2.1 A', 'vulopilot'), value: '2.1_a' },
-				{ label: __('WCAG 2.1 AA', 'vulopilot'), value: '2.1_aa' },
-				{ label: __('WCAG 2.1 AAA', 'vulopilot'), value: '2.1_aaa' },
-			],
-		},
-		{
+			// Accessibility's own 3 fields (enable_wcag_scanner/
+			// accessibility_audit_frequency/target_wcag_level) moved to
+			// their own Settings → Scanning → Accessibility tab — see
+			// Accessibility.ts's own docblock. `target_wcag_level` also
+			// gained a real PHP consumer there for the first time (it was
+			// a fully orphaned UI-only field here before).
 			key: 'performance-section',
 			type: 'section',
 			title: __('Performance', 'vulopilot'),

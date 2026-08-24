@@ -12,6 +12,7 @@ use VuloPilot\Repositories\ReportRepository;
 use VuloPilot\Services\EntityExtractor;
 use VuloPilot\Services\SchemaCoverageAnalyzer;
 use VuloPilot\Services\RobotsTxtBotAccess;
+use VuloPilot\Services\WebmasterToolsManager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -182,6 +183,81 @@ class Settings extends \WP_REST_Controller {
                 array(
                     'methods'             => \WP_REST_Server::CREATABLE,
                     'callback'            => array( $this, 'send_test_report' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
+        // Settings → Connections → PageSpeed Insights: GET returns the
+        // real on-load "Connected" pill/usage-bar state without calling
+        // Google's API (PageSpeedInsightsFetcher::get_status()); POST
+        // ("Test Connection") makes a real, live call
+        // (PageSpeedInsightsFetcher::test_connection()).
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/test-pagespeed',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_pagespeed_status' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                ),
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'send_test_pagespeed' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
+        // "Verify" (Settings → Connections → Site Verification) — a real
+        // self-check, not a call to Google/Bing/Pinterest: saves whatever
+        // verification code is currently in the request, then fetches this
+        // site's OWN homepage and confirms the matching real `<meta>` tag
+        // (Services\WebmasterToolsManager, the same class that outputs it
+        // on `wp_head`) actually renders there. See
+        // verify_webmaster_tool()'s own docblock.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/verify-webmaster',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'verify_webmaster_tool' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
+        // "Restore Defaults" (Settings → Scanning → AI Visibility) — a
+        // real reset scoped to just the `ai_visibility_scans` nested
+        // setting (the 5-row scan-category panel), not the sitewide
+        // `POST /settings/reset` General.ts's own "Reset all settings"
+        // button already uses. See reset_ai_visibility_scans()'s own
+        // docblock.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/reset-ai-visibility-scans',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'reset_ai_visibility_scans' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            )
+        );
+
+        // "Restore Defaults" (Settings → Scanning → Content & Search) —
+        // same scoped-reset shape as reset-ai-visibility-scans directly
+        // above, just for the `content_search_scans` nested setting
+        // instead. See reset_content_search_scans()'s own docblock.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/reset-content-search-scans',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'reset_content_search_scans' ),
                     'permission_callback' => array( $this, 'update_item_permissions_check' ),
                 ),
             )
@@ -538,6 +614,162 @@ class Settings extends \WP_REST_Controller {
                         $recipient
                     )
                     : __( 'wp_mail() returned false — check your site\'s mail configuration.', 'vulopilot' ),
+            )
+        );
+    }
+
+    /**
+     * "Test Connection" (Settings → Connections → PageSpeed Insights) — a
+     * real, synchronous call through Services\PageSpeedInsightsFetcher::test_connection(),
+     * the same class the daily cron already uses, so this is genuinely
+     * "run today's fetch right now" rather than a separate check. That
+     * method already covers the missing-key and quota-exhausted cases with
+     * their own honest messages, so this callback is a thin passthrough.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function send_test_pagespeed( $request ) {
+        return rest_ensure_response( VuloPilot()->psi_fetcher->test_connection() );
+    }
+
+    /**
+     * The real on-load "Connected" pill/usage-bar state, without calling
+     * Google's API — see PageSpeedInsightsFetcher::get_status()'s own
+     * docblock.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function get_pagespeed_status( $request ) {
+        return rest_ensure_response( VuloPilot()->psi_fetcher->get_status() );
+    }
+
+    /**
+     * "Verify"/"Verify with Bing"/"Verify with Pinterest" (Settings →
+     * Connections → Site Verification) — saves whatever code was
+     * submitted (same "Verify always saves first" shape a real click
+     * needs, since the code field isn't wired through InputRenderer's own
+     * auto-save on this hand-built panel), then does a real, honest
+     * self-check: fetches this site's OWN homepage and confirms the exact
+     * `<meta>` tag Services\WebmasterToolsManager itself outputs on
+     * `wp_head` for this provider actually renders there. This never
+     * calls Google/Bing/Pinterest — see `webmaster_google_verified_at`'s
+     * own docblock (Utill::VULOPILOT_SETTINGS_DEFAULTS) for why that's an
+     * honest, different claim than "your account is verified with them."
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function verify_webmaster_tool( $request ) {
+        $provider = sanitize_key( (string) $request->get_param( 'provider' ) );
+
+        if ( ! in_array( $provider, array( 'google', 'bing', 'pinterest' ), true ) ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'Unknown verification provider.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $setting_key = 'webmaster_' . $provider . '_verification';
+        $code        = sanitize_text_field( (string) $request->get_param( 'code' ) );
+        $settings    = $this->get_stored_settings();
+
+        $settings[ $setting_key ] = $code;
+        update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
+
+        if ( '' === $code ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'Enter a verification code first.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $meta_name = WebmasterToolsManager::VERIFICATION_META_NAMES[ $setting_key ] ?? '';
+        $attribute = 'webmaster_pinterest_verification' === $setting_key ? 'property' : 'name';
+
+        $response = wp_remote_get( home_url( '/' ), array( 'timeout' => 15 ) );
+
+        if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'Could not load your homepage to check — please try again.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $body    = wp_remote_retrieve_body( $response );
+        $pattern = '/<meta\s+[^>]*' . preg_quote( $attribute, '/' ) . '\s*=\s*["\']' . preg_quote( $meta_name, '/' ) . '["\'][^>]*content\s*=\s*["\']' . preg_quote( $code, '/' ) . '["\'][^>]*\/?>/i';
+
+        if ( ! preg_match( $pattern, $body ) ) {
+            return rest_ensure_response(
+                array(
+                    'success' => false,
+                    'message' => __( 'Verification tag not found on your homepage yet — if you just saved it, clear any caching and try again.', 'vulopilot' ),
+                )
+            );
+        }
+
+        $settings[ 'webmaster_' . $provider . '_verified_at' ] = current_time( 'mysql', true );
+        update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
+
+        return rest_ensure_response(
+            array(
+                'success' => true,
+                'message' => __( 'Verified — the tag is live on your homepage.', 'vulopilot' ),
+            )
+        );
+    }
+
+    /**
+     * "Restore Defaults" (Settings → Scanning → AI Visibility) — resets
+     * only `ai_visibility_scans` back to its own defaults
+     * (Utill::VULOPILOT_SETTINGS_DEFAULTS), leaving every other stored
+     * setting untouched. Returns the restored value directly so
+     * AiVisibilityScansHeader.tsx can push it straight into SettingContext
+     * without a second round-trip or a page reload.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function reset_ai_visibility_scans( $request ) {
+        $settings                        = $this->get_stored_settings();
+        $settings['ai_visibility_scans'] = Utill::VULOPILOT_SETTINGS_DEFAULTS['ai_visibility_scans'];
+        update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
+
+        return rest_ensure_response(
+            array(
+                'success'             => true,
+                'ai_visibility_scans' => $settings['ai_visibility_scans'],
+            )
+        );
+    }
+
+    /**
+     * "Restore Defaults" (Settings → Scanning → Content & Search) — resets
+     * only `content_search_scans` back to its own defaults
+     * (Utill::VULOPILOT_SETTINGS_DEFAULTS), leaving every other stored
+     * setting untouched. Returns the restored value directly so
+     * ContentSearchScansHeader.tsx can push it straight into
+     * SettingContext without a second round-trip or a page reload.
+     *
+     * @param \WP_REST_Request $request Full details about the request.
+     * @return \WP_REST_Response
+     */
+    public function reset_content_search_scans( $request ) {
+        $settings                         = $this->get_stored_settings();
+        $settings['content_search_scans'] = Utill::VULOPILOT_SETTINGS_DEFAULTS['content_search_scans'];
+        update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
+
+        return rest_ensure_response(
+            array(
+                'success'              => true,
+                'content_search_scans' => $settings['content_search_scans'],
             )
         );
     }

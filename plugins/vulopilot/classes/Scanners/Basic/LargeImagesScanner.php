@@ -59,6 +59,12 @@ class LargeImagesScanner extends AbstractBasicScanner {
      * @inheritDoc
      */
     public function scan(): array {
+        $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        if ( empty( $settings['content_search_scans']['images']['enable'] ) ) {
+            return array();
+        }
+
         $findings    = array();
         $attachments = get_posts(
             array(

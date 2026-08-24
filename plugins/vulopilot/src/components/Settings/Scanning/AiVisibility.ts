@@ -1,16 +1,173 @@
 import { __ } from '@wordpress/i18n';
 
+const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactive', 'vulopilot') };
+
+/**
+ * Settings → Scanning → AI Visibility.
+ *
+ * Redesigned to match a mockup: a 5-row `type: 'expandable-panel'` field
+ * (`ai_visibility_scans`) up top — same real zyra component
+ * Notifications/VisibilityAlerts.ts's own `visibility_alerts` field
+ * already uses for its 3 rows — each row a real, honest scan-category
+ * toggle, followed by the tab's pre-existing fields appended below
+ * (Competitor URLs, llms.txt, entity Services/Locations, Crawler Traffic).
+ *
+ * Real backend: 7 previously-flat settings (`flag_missing_semantic`,
+ * `flag_weak_entity`, `minimum_entity_mentions`, `flag_missing_ai_summary`,
+ * `answer_first_words`, `min_data_points`, `stale_content_months`) were
+ * migrated into this one nested `ai_visibility_scans` setting
+ * (Utill::VULOPILOT_SETTINGS_DEFAULTS's own docblock has the full
+ * migration list) — each row's `enable` is a REAL on/off switch its own
+ * PHP scanner now checks:
+ *   - 'structure'    → Scanners\Basic\GeoSemanticStructureScanner
+ *   - 'entity'       → GeoAnalysis\GeoAnalyzer (entity_coverage AI dimension)
+ *   - 'freshness'    → vulopilot-pro's GeoInsights\Scanners\StaleContentScanner
+ *     (a genuinely NEW gate — this scanner always ran before)
+ *   - 'answer_first' → Scanners\Basic\GeoSummaryBlockScanner
+ *   - 'evidence'     → Scanners\Basic\GeoCitationOpportunityScanner
+ *     (also a genuinely NEW gate — this scanner always ran before)
+ * Each row's own threshold (min_mentions/stale_months/min_words/
+ * min_data_points) lives in that same panel item's `formFields`, not a
+ * separate flat setting duplicating the same value.
+ *
+ * "Restore Defaults" is AiVisibilityScansHeader.tsx (Settings.tsx's own
+ * GetForm(), rendered just before this tab's fields) — a real, scoped
+ * reset (`POST /settings/reset-ai-visibility-scans`), not a UI-only
+ * component field, since it needs to persist server-side and refresh
+ * SettingContext in place.
+ */
 export default {
 	id: 'ai-visibility',
 	priority: 1,
 	headerTitle: __('AI Visibility', 'vulopilot'),
 	headerDescription: __(
-		'GEO, AEO, entity extraction, and AI crawler tracking behavior.',
+		'These scans help your content get understood by AI systems and shown in AI results.',
 		'vulopilot'
 	),
 	headerIcon: 'global-community',
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'ai_visibility_scans',
+			type: 'expandable-panel',
+			label: '',
+			modal: [
+				{
+					id: 'structure',
+					icon: 'editor-list',
+					label: __('AI-readable structure', 'vulopilot'),
+					desc: __(
+						'Check if your pages use clear structure that AI systems can easily read and understand.',
+						'vulopilot'
+					),
+					disableBtn: true,
+					statusLabels: STATUS_LABELS,
+					formFields: [],
+				},
+				{
+					id: 'entity',
+					icon: 'centralized-connections',
+					label: __('Entity clarity', 'vulopilot'),
+					desc: __(
+						'Analyze how clearly your brand, people, products, and topics are defined and connected.',
+						'vulopilot'
+					),
+					disableBtn: true,
+					statusLabels: STATUS_LABELS,
+					formFields: [
+						{
+							key: 'min_mentions',
+							type: 'number',
+							size: 5,
+							label: __('Minimum entity mentions', 'vulopilot'),
+							settingDescription: __(
+								"Pages with fewer mentions of their primary entity than this are flagged as low-clarity.",
+								'vulopilot'
+							),
+						},
+					],
+				},
+				{
+					id: 'freshness',
+					icon: 'calendar',
+					label: __('Content freshness', 'vulopilot'),
+					desc: __(
+						'Check how up-to-date your content is and how often it gets refreshed.',
+						'vulopilot'
+					),
+					disableBtn: true,
+					statusLabels: STATUS_LABELS,
+					formFields: [
+						{
+							key: 'stale_months',
+							type: 'number',
+							size: 5,
+							label: __('Flag content older than (months)', 'vulopilot'),
+							settingDescription: __(
+								"Pages not updated within this window are flagged (Pro) and score lower on the GEO AI score's Content Freshness.",
+								'vulopilot'
+							),
+						},
+					],
+				},
+				{
+					id: 'answer_first',
+					icon: 'live-chat',
+					label: __('Answer-first content', 'vulopilot'),
+					desc: __(
+						'Identify if your content answers real questions in a clear and direct way.',
+						'vulopilot'
+					),
+					disableBtn: true,
+					statusLabels: STATUS_LABELS,
+					formFields: [
+						{
+							key: 'min_words',
+							type: 'number',
+							size: 5,
+							label: __('Answer-first threshold (words)', 'vulopilot'),
+							settingDescription: __(
+								"Flag a page if its core answer doesn't appear within this many words from the top.",
+								'vulopilot'
+							),
+						},
+					],
+				},
+				{
+					id: 'evidence',
+					icon: 'security',
+					label: __('Evidence checks', 'vulopilot'),
+					desc: __(
+						'Check if your content includes citations, sources, and verifiable evidence.',
+						'vulopilot'
+					),
+					disableBtn: true,
+					statusLabels: STATUS_LABELS,
+					formFields: [
+						{
+							key: 'min_data_points',
+							type: 'number',
+							size: 5,
+							label: __('Minimum data points per 500 words', 'vulopilot'),
+							settingDescription: __(
+								"Pages with fewer stats, numbers, or cited facts than this score lower on the GEO AI score's Data Point & Evidence Density.",
+								'vulopilot'
+							),
+						},
+					],
+				},
+			],
+		},
+		{
+			key: 'ai-visibility-scans-notice',
+			type: 'notice',
+			noticeType: 'info',
+			title: __('Why these scans matter', 'vulopilot'),
+			message: __(
+				'Strong AI visibility increases your chances of being referenced in AI answers and recommendations.',
+				'vulopilot'
+			),
+		},
 		{
 			key: 'geo_competitor_urls',
 			type: 'textarea',
@@ -22,209 +179,92 @@ export default {
 			moduleEnabled: 'geo',
 		},
 		{
-			key: 'semantic_html',
+			key: 'aeo-section-llms-txt',
 			type: 'section',
-			title: __('Structure & semantic HTML', 'vulopilot'),
+			title: __('llms.txt', 'vulopilot'),
 			settingDescription: __(
-				"Controls the GEO page's 'Structure' findings group.",
+				'A Markdown index of your key pages, served at /llms.txt for AI systems to read instead of crawling your whole site.',
 				'vulopilot'
 			),
 		},
 		{
-			key: 'flag_missing_semantic',
+			key: 'enable_llms_txt',
 			type: 'checkbox',
 			look: 'toggle',
-			
-			label: __('Flag missing semantic HTML', 'vulopilot'),
-			settingDescription: __( "", 'vulopilot' ),
-			options: [
-				{ key: 'flag_missing_semantic', label: '', value: 'flag_missing_semantic' },
-			],
-		},
-		{
-			key: 'entity-section',
-			type: 'section',
-			title: __('Entity coverage', 'vulopilot'),
+			label: __('Generate llms.txt', 'vulopilot'),
 			settingDescription: __(
-				"Feeds VuloPilot Pro's per-post GEO AI Score — doesn't affect the GEO page's free 'Entities & Trust' findings list below, which checks author info and naming consistency instead.",
-				'vulopilot'
-			),
-		},
-		{
-			key: 'flag_weak_entity',
-			type: 'checkbox',
-			look: 'toggle',
-			
-			label: __('Flag weak entity coverage', 'vulopilot'),
-			settingDescription: __(
-				"Pages that don't clearly identify their primary entity (product, service, or organization).",
+				"Available at your site's /llms.txt once enabled.",
 				'vulopilot'
 			),
 			options: [
-				{ key: 'flag_weak_entity', label: '', value: 'flag_weak_entity' },
+				{ key: 'enable_llms_txt', label: '', value: 'enable_llms_txt' },
 			],
 		},
 		{
-			key: 'minimum_entity_mentions',
-			type: 'number',
-			size: 5,
-			label: __('Minimum entity mentions', 'vulopilot'),
+			key: 'llms_auto_regen',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Auto-regenerate on publish', 'vulopilot'),
 			settingDescription: __(
-				"Pages with fewer mentions of their primary entity than this are flagged as low-clarity.",
+				'Rebuild llms.txt whenever a page, post, or product is published or updated — requires the GEO module (Modules page) to be active.',
 				'vulopilot'
 			),
+			options: [
+				{ key: 'llms_auto_regen', label: '', value: 'llms_auto_regen' },
+			],
+			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
 		},
 		{
-			key: 'freshness-section',
+			key: 'llms_include_types',
+			type: 'choice-toggle',
+			label: __('Included content types', 'vulopilot'),
+			settingDescription: __(
+				'Which content types are listed in llms.txt.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'pages', label: __('Pages', 'vulopilot'), value: 'pages' },
+				{ key: 'posts', label: __('Posts', 'vulopilot'), value: 'posts' },
+				{ key: 'products', label: __('Products', 'vulopilot'), value: 'products' },
+			],
+			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
+		},
+		{
+			key: 'llms_txt_content',
+			type: 'textarea',
+			label: __('llms.txt content', 'vulopilot'),
+			settingDescription: __(
+				'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
+				'vulopilot'
+			),
+			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
+		},
+		{
+			key: 'aeo-section-alerts',
 			type: 'section',
-			title: __('Freshness', 'vulopilot'),
+			title: __('Alerts', 'vulopilot'),
 		},
 		{
-			key: 'stale_content_months',
-			type: 'number',
-			size: 5,
-			label: __('Flag content older than (months)', 'vulopilot'),
-			settingDescription: __(
-				"Pages not updated within this window score lower on the GEO AI score's Content Freshness (Pro).",
+			// Not a real, independently-writable field here — the actual
+			// enable/threshold live in the real, single nested
+			// `visibility_alerts.geo` setting
+			// (Utill::VULOPILOT_SETTINGS_DEFAULTS), edited on its own
+			// dedicated Notifications tab instead. Same
+			// "real `type: 'notice'` pointing elsewhere rather than a
+			// second control duplicating the same setting" reasoning
+			// AiCrawlerAlerts.ts's own traffic-drop-threshold-note
+			// documents, just in the opposite direction (that one points
+			// off this tab; this one points onto Notifications).
+			key: 'aeo-drop-threshold-note',
+			type: 'notice',
+			noticeType: 'info',
+			label: '',
+			message: __(
+				'GEO/AEO score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
 				'vulopilot'
 			),
+			moduleEnabled: 'geo',
 		},
-		{
-            key: 'aeo-section-llms-txt',
-            type: 'section',
-            title: __('llms.txt', 'vulopilot'),
-            settingDescription: __(
-                'A Markdown index of your key pages, served at /llms.txt for AI systems to read instead of crawling your whole site.',
-                'vulopilot'
-            ),
-        },
-        {
-            key: 'enable_llms_txt',
-            type: 'checkbox',
-            look: 'toggle',
-            
-            label: __('Generate llms.txt', 'vulopilot'),
-            settingDescription: __(
-                "Available at your site's /llms.txt once enabled.",
-                'vulopilot'
-            ),
-            options: [
-                { key: 'enable_llms_txt', label: '', value: 'enable_llms_txt' },
-            ],
-        },
-        {
-            key: 'llms_auto_regen',
-            type: 'checkbox',
-            look: 'toggle',
-            
-            label: __('Auto-regenerate on publish', 'vulopilot'),
-            settingDescription: __(
-                'Rebuild llms.txt whenever a page, post, or product is published or updated — requires the GEO module (Modules page) to be active.',
-                'vulopilot'
-            ),
-            options: [
-                { key: 'llms_auto_regen', label: '', value: 'llms_auto_regen' },
-            ],
-            dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
-        },
-        {
-            key: 'llms_include_types',
-            type: 'choice-toggle',
-            
-            label: __('Included content types', 'vulopilot'),
-            settingDescription: __(
-                'Which content types are listed in llms.txt.',
-                'vulopilot'
-            ),
-            options: [
-                { key: 'pages', label: __('Pages', 'vulopilot'), value: 'pages' },
-                { key: 'posts', label: __('Posts', 'vulopilot'), value: 'posts' },
-                { key: 'products', label: __('Products', 'vulopilot'), value: 'products' },
-            ],
-            dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
-        },
-        {
-            key: 'llms_txt_content',
-            type: 'textarea',
-            
-            label: __('llms.txt content', 'vulopilot'),
-            settingDescription: __(
-                'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
-                'vulopilot'
-            ),
-            dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
-        },
-        {
-            key: 'aeo-section-ai-summary',
-            type: 'section',
-            title: __('AI summary & answer structure', 'vulopilot'),
-        },
-        {
-            key: 'flag_missing_ai_summary',
-            type: 'checkbox',
-            look: 'toggle',
-            
-            label: __('Flag pages missing an AI summary block', 'vulopilot'),
-            settingDescription: __(
-                'Pages with no clear, extractable answer near the top of the content.',
-                'vulopilot'
-            ),
-            options: [
-                { key: 'flag_missing_ai_summary', label: '', value: 'flag_missing_ai_summary' },
-            ],
-        },
-        {
-            key: 'answer_first_words',
-            type: 'number',
-            size: 5,
-            label: __('Answer-first threshold (words)', 'vulopilot'),
-            settingDescription: __(
-                "Flag a page if its core answer doesn't appear within this many words from the top.",
-                'vulopilot'
-            ),
-            dependent: { key: 'flag_missing_ai_summary', value: 'flag_missing_ai_summary', set: true },
-        },
-        {
-            key: 'aeo-section-evidence',
-            type: 'section',
-            title: __('Evidence & freshness', 'vulopilot'),
-        },
-        {
-            key: 'min_data_points',
-            type: 'number',
-            size: 5,
-            label: __('Minimum data points per 500 words', 'vulopilot'),
-            settingDescription: __(
-                "Pages with fewer stats, numbers, or cited facts than this score lower on the GEO AI score's Data Point & Evidence Density (Pro).",
-                'vulopilot'
-            ),
-        },
-        {
-            key: 'aeo-section-alerts',
-            type: 'section',
-            title: __('Alerts', 'vulopilot'),
-        },
-        {
-            // Not a real, independently-writable field here — the actual
-            // enable/threshold live in the real, single nested
-            // `visibility_alerts.geo` setting
-            // (Utill::VULOPILOT_SETTINGS_DEFAULTS), edited on its own
-            // dedicated Notifications tab instead. Same
-            // "real `type: 'notice'` pointing elsewhere rather than a
-            // second control duplicating the same setting" reasoning
-            // AiCrawlerAlerts.ts's own traffic-drop-threshold-note
-            // documents, just in the opposite direction (that one points
-            // off this tab; this one points onto Notifications).
-            key: 'aeo-drop-threshold-note',
-            type: 'notice',
-            noticeType: 'info',
-            label: '',
-            message: __(
-                'GEO/AEO score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
-                'vulopilot'
-            ),
-            moduleEnabled: 'geo',
-        },
 		{
 			key: 'entity-section-services',
 			type: 'section',
@@ -289,7 +329,7 @@ export default {
 		{
 			key: 'enable_crawler_tracking',
 			type: 'checkbox',
-			look: 'toggle',			
+			look: 'toggle',
 			label: __('Log AI crawler visits', 'vulopilot'),
 			settingDescription: __(
 				'No human visitor data is collected — only known AI bot user agents (GPTBot, ClaudeBot, PerplexityBot, and others).',
@@ -305,7 +345,7 @@ export default {
 		},
 		{
 			key: 'log_retention',
-			type: 'select',			
+			type: 'select',
 			label: __('Log retention', 'vulopilot'),
 			size: 7,
 			settingDescription: __(
@@ -330,8 +370,8 @@ export default {
 		},
 		{
 			key: 'crawler_volume_drop_threshold_percent',
-			type: 'number',		
-			size: 5,	
+			type: 'number',
+			size: 5,
 			label: __(
 				'Crawl volume drop alert threshold (%)',
 				'vulopilot'

@@ -19,8 +19,15 @@ defined( 'ABSPATH' ) || exit;
  * already render the post title as the page's single `<h1>`, so an
  * `<h1>` inside the post body itself produces two competing top-level
  * headings on the same page — a heading-hierarchy conflict that confuses
- * screen-reader navigation (WCAG 2.4.6 territory), independent of
+ * screen-reader navigation (WCAG 2.4.6, Level AA), independent of
  * ImagesScanner's separate alt-text check.
+ *
+ * Settings → Scanning → Accessibility's own "WCAG level" row
+ * (`target_wcag_level`, Utill::VULOPILOT_SETTINGS_DEFAULTS) gates this
+ * one specifically: it's the only one of this codebase's 5 accessibility
+ * scanners that maps to a Level AA (not Level A) success criterion, so
+ * it's the only one that skips itself at the 'A' target — see that
+ * setting's own docblock for the other 4 scanners staying unconditional.
  *
  * @class       AccessibilityScanner class
  * @version     1.0.0
@@ -60,6 +67,12 @@ class AccessibilityScanner extends AbstractBasicScanner implements TracksScanned
      * @inheritDoc
      */
     public function scan(): array {
+        $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        if ( '2.1_a' === ( $settings['target_wcag_level'] ?? '2.1_aa' ) ) {
+            return array();
+        }
+
         $findings = array();
         $posts    = get_posts(
             array(

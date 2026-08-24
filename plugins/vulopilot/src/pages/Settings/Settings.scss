@@ -507,3 +507,67 @@
 	padding: 1rem 1.25rem;
 	border-radius: 0 0 0.5rem 0.5rem;
 }
+
+// Connections/PageSpeedStatusPanel.tsx (Settings → Connections →
+// PageSpeed Insights' own Connection Status pill/Daily API Usage bar/Test
+// Connection button) — reuses the same `.ai-provider-card*`/`.gsc-*`
+// shapes above; only the usage bar itself is genuinely new here.
+.psi-status-panel {
+	.ai-provider-card-header {
+		flex-wrap: wrap;
+	}
+
+	.gsc-service-body {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+
+.psi-usage {
+	width: 100%;
+}
+
+.psi-usage-label {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	margin-bottom: 0.375rem;
+}
+
+.psi-usage-bar {
+	height: 0.5rem;
+	border-radius: 999px;
+	background: $background-color;
+	overflow: hidden;
+}
+
+.psi-usage-bar-fill {
+	height: 100%;
+	background: $theme-color;
+	border-radius: inherit;
+}
+
+.psi-last-checked {
+	margin-top: 0.75rem;
+}
+
+// Connections/SiteVerificationPanel.tsx (Settings → Connections → Site
+// Verification's own Google/Bing/Pinterest/Other rows) — reuses the same
+// `.ai-provider-card*`/`.gsc-*` shapes above; only the code field's own
+// flex sizing is genuinely new here.
+.site-verification-code-field {
+	flex: 1;
+	min-width: 16rem;
+	margin-bottom: 0;
+}
+
+// Scanning/AiVisibilityScansHeader.tsx (Settings → Scanning → AI
+// Visibility's own "Restore Defaults" button, sitting above the
+// `ai_visibility_scans` expandable-panel InputRenderer renders directly
+// below it).
+.ai-visibility-scans-header {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 1rem;
+}
