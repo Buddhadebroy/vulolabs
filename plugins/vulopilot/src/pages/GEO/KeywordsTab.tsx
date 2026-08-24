@@ -8,6 +8,7 @@ import {
 	ModuleGuardComponent,
 	NoticeComponent,
 	BadgeComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import {
@@ -202,14 +203,14 @@ const KeywordsTab = () => {
 					<>
 						<div className="keywords-connected-row">
 							<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
-							<span className="desc">
+							<TypographyComponent as="span" variant="desc">
 								<i className="adminfont-search" /> {status.search_console_site}
-							</span>
+							</TypographyComponent>
 							{status.connected_at && (
-								<span className="desc">
+								<TypographyComponent as="span" variant="desc">
 									{__('Since', 'vulopilot')}{' '}
 									{formatWpDate(status.connected_at)}
-								</span>
+								</TypographyComponent>
 							)}
 							<button
 								type="button"

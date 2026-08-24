@@ -10,6 +10,7 @@ import {
 	ContainerComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { useSeoScore } from './useSeoScore';
@@ -284,15 +285,27 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 											height={140}
 											centerLabel={
 												<>
-													<span className="score-ring-number">
+													<TypographyComponent
+														as="span"
+														variant="h2"
+														className="score-ring-number"
+													>
 														{score.seo_score}
-													</span>
-													<span className="score-ring-label">/100</span>
-													<span
+													</TypographyComponent>
+													<TypographyComponent
+														as="span"
+														variant="body-xs"
+														className="score-ring-label"
+													>
+														/100
+													</TypographyComponent>
+													<TypographyComponent
+														as="span"
+														variant="body-xs"
 														className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
 													>
 														{getRating(score.seo_score)}
-													</span>
+													</TypographyComponent>
 												</>
 											}
 											data={[

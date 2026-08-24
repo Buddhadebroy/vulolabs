@@ -273,6 +273,6 @@ const SeoVisibility = () => {
 			/>
 		</>
 	);
-};
+};	
 
 export default SeoVisibility;

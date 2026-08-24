@@ -10,6 +10,7 @@ import {
 	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
@@ -917,7 +918,7 @@ const BrokenLinksSection = () => {
 
 					return (
 						<div className="broken-link-finding-source">
-							<span className="broken-link-finding-arrow">↳</span>
+							<TypographyComponent as="span" variant="body-xs" className="broken-link-finding-arrow">↳</TypographyComponent>
 							<a href={url} target="_blank" rel="noreferrer">
 								{url}
 							</a>
@@ -970,18 +971,20 @@ const BrokenLinksSection = () => {
 			render: (row: BrokenLinkRow) => {
 				if (isFindingRow(row)) {
 					return (
-						<span className="broken-link-finding-type">
+						<TypographyComponent as="span" variant="body-xs" className="broken-link-finding-type">
 							{'broken-images' === row.scanner_id
 								? __('Image', 'vulopilot')
 								: __('Link', 'vulopilot')}
-						</span>
+						</TypographyComponent>
 					);
 				}
 
 				const count = (row as PageGroupRow).findings.length;
 
 				return (
-					<span
+					<TypographyComponent
+						as="span"
+						variant="body-xs"
 						className="broken-link-row-expand-trigger"
 						onClick={toggleRowExpansion}
 					>
@@ -990,7 +993,7 @@ const BrokenLinksSection = () => {
 							_n('%d broken', '%d broken', count, 'vulopilot'),
 							count
 						)}
-					</span>
+					</TypographyComponent>
 				);
 			},
 		},
@@ -1130,12 +1133,12 @@ const BrokenLinksSection = () => {
 									</div>
 								</div>
 								{!isLoadingFindings && 0 === needAttentionTotal && (
-									<p className="desc">
+									<TypographyComponent as="p" variant="desc">
 										{__(
 											'Nothing needs attention right now.',
 											'vulopilot'
 										)}
-									</p>
+									</TypographyComponent>
 								)}
 							</CardComponent>
 
@@ -1304,12 +1307,12 @@ const BrokenLinksSection = () => {
 				header={{ title: __('Create redirect', 'vulopilot') }}
 			>
 				<div className="broken-link-redirect-form">
-					<p className="desc">
+					<TypographyComponent as="p" variant="desc">
 						{__(
 							'Redirect this broken URL to a working destination.',
 							'vulopilot'
 						)}
-					</p>
+					</TypographyComponent>
 					<TextInput
 						name="redirect_source_path"
 						inputLabel={__('From (path)', 'vulopilot')}
@@ -1317,12 +1320,12 @@ const BrokenLinksSection = () => {
 						disabled
 						onChange={() => {}}
 					/>
-					<p className="desc broken-link-redirect-note">
+					<TypographyComponent as="p" variant="desc" className="broken-link-redirect-note">
 						{__(
 							'Auto-generated from the broken URL. Edit or fine-tune it afterward from the Redirects tab if you need something more specific.',
 							'vulopilot'
 						)}
-					</p>
+					</TypographyComponent>
 					<TextInput
 						name="redirect_target_url"
 						inputLabel={__('To', 'vulopilot')}

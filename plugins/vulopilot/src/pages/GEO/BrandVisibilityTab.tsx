@@ -164,20 +164,18 @@ const BrandVisibilityTab = () => {
 			}
 			footer={
 				<>
-					<CardComponent
-						className="brand-visibility-why-card"
-						title={__(
-							'Why this matters more than backlinks',
-							'vulopilot'
-						)}
-					>
-						<div className="desc">
-							{__(
+					<NoticeComponent
+						// type="banner"
+						displayPosition="inline"
+						message={sprintf(
+							'<strong>%1$s</strong> %2$s',
+							__('Why this matters more than backlinks:', 'vulopilot'),
+							__(
 								'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
 								'vulopilot'
-							)}
-						</div>
-					</CardComponent>
+							)
+						)}
+					/>
 					{OffSiteMentionsCard ? (
 						<OffSiteMentionsCard />
 					) : (
