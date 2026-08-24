@@ -107,7 +107,7 @@ class GeoAnalyzer {
         // scanner reporting no finding. GeoScore's consumers (GeoScoreCard,
         // VisibilitySnapshotBuilder) already treat every ai_scores key as
         // optional for exactly this kind of missing-key case.
-        if ( empty( $settings['flag_weak_entity'] ) ) {
+        if ( empty( $settings['ai_visibility_scans']['entity']['enable'] ) ) {
             unset( $ai_scores_and_suggestions['ai_scores']['entity_coverage'] );
         }
 
@@ -361,16 +361,21 @@ class GeoAnalyzer {
      * Coarse recency tiering off `post_modified` — a genuinely different
      * signal from GeoEeatSignalsScanner's binary "never edited" check,
      * since this scores *how* stale, not just whether. Tier boundaries
-     * scale off Scanning → GEO's `stale_content_months` setting (the
+     * scale off Settings → Scanning → AI Visibility's "Content freshness"
+     * row's own `ai_visibility_scans.freshness.stale_months` (the
      * "flag as stale" point becomes the bottom tier) rather than the
-     * fixed 90/180/365-day boundaries this originally shipped with.
+     * fixed 90/180/365-day boundaries this originally shipped with. This
+     * deterministic sub-score always runs regardless of that row's own
+     * `enable` toggle — unlike StaleContentScanner's own findings-list
+     * check, it's one of 6 fixed inputs to the overall per-post GEO score,
+     * not a standalone, independently-disable-able check.
      *
      * @param \WP_Post $post Post being scored.
      * @return int 0-100.
      */
     private function calculate_content_freshness( \WP_Post $post ): int {
         $settings            = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
-        $stale_after_days    = absint( $settings['stale_content_months'] ?? 12 ) * 30;
+        $stale_after_days    = absint( $settings['ai_visibility_scans']['freshness']['stale_months'] ?? 12 ) * 30;
         $days_since_modified = ( current_time( 'timestamp', true ) - strtotime( $post->post_modified_gmt ) ) / DAY_IN_SECONDS;
 
         if ( $days_since_modified <= $stale_after_days * 0.25 ) {
@@ -390,16 +395,18 @@ class GeoAnalyzer {
      * truth for "what a data point/citable claim looks like") but counts
      * matches instead of just checking presence — "Data Point & Evidence
      * Density" is about how much supporting evidence a piece has, not
-     * only whether it has any. The top-tier threshold is Scanning → GEO's
-     * `min_data_points` setting (matches per 500 words) rather than a
-     * fixed `>= 3`; the middle tier sits at half that.
+     * only whether it has any. The top-tier threshold is Settings →
+     * Scanning → AI Visibility's "Evidence checks" row's own
+     * `ai_visibility_scans.evidence.min_data_points` (matches per 500
+     * words) rather than a fixed `>= 3`; the middle tier sits at half
+     * that.
      *
      * @param \WP_Post $post Post being scored.
      * @return int 0-100.
      */
     private function calculate_evidence_density( \WP_Post $post ): int {
         $settings        = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
-        $min_data_points = max( 1, absint( $settings['min_data_points'] ?? 3 ) );
+        $min_data_points = max( 1, absint( $settings['ai_visibility_scans']['evidence']['min_data_points'] ?? 3 ) );
 
         $plain_text  = wp_strip_all_tags( $post->post_content );
         $word_count  = str_word_count( $plain_text );
@@ -420,21 +427,22 @@ class GeoAnalyzer {
     /**
      * @param \WP_Post             $post                Post being analyzed.
      * @param int|null             $deterministic_score Already-known deterministic score, if any — given to the AI as context.
-     * @param array<string, mixed> $settings            Stored plugin settings — only `flag_weak_entity`/`minimum_entity_mentions` are read here.
+     * @param array<string, mixed> $settings            Stored plugin settings — only `ai_visibility_scans.entity` is read here.
      * @return array<int, array{role: string, content: string}>
      */
     private function build_prompt( \WP_Post $post, ?int $deterministic_score, array $settings ): array {
-        // Scanning → GEO's "Minimum entity mentions" — entity_coverage is
-        // still an AI judgment call (see analyze()'s own comment on
-        // `flag_weak_entity`), but this gives the AI a concrete, user-
-        // configurable anchor point instead of an unparameterized "judge
-        // this holistically," the same "factor this in" context
-        // $deterministic_score already gets below.
+        // Settings → Scanning → AI Visibility's "Entity clarity" row's own
+        // `min_mentions` — entity_coverage is still an AI judgment call
+        // (see analyze()'s own comment on `ai_visibility_scans.entity.enable`),
+        // but this gives the AI a concrete, user-configurable anchor point
+        // instead of an unparameterized "judge this holistically," the
+        // same "factor this in" context $deterministic_score already gets
+        // below.
         $entity_guidance = '';
-        if ( ! empty( $settings['flag_weak_entity'] ) ) {
+        if ( ! empty( $settings['ai_visibility_scans']['entity']['enable'] ) ) {
             $entity_guidance = sprintf(
                 "\n\n(Score \"entity_coverage\" low if this content mentions its primary subject/entity — the main product, service, or organization it's about — fewer than %d times.)",
-                max( 1, absint( $settings['minimum_entity_mentions'] ?? 2 ) )
+                max( 1, absint( $settings['ai_visibility_scans']['entity']['min_mentions'] ?? 2 ) )
             );
         }
 

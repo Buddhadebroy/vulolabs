@@ -57,7 +57,7 @@ class ImagesScanner extends AbstractBasicScanner {
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['flag_missing_alt_text'] ) ) {
+        if ( empty( $settings['content_search_scans']['images']['enable'] ) || empty( $settings['content_search_scans']['images']['missing_alt_text'] ) ) {
             return array();
         }
 

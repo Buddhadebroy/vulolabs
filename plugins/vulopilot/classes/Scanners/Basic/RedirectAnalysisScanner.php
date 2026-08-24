@@ -67,6 +67,12 @@ class RedirectAnalysisScanner extends AbstractBasicScanner {
      * @inheritDoc
      */
     public function scan(): array {
+        $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        if ( empty( $settings['content_search_scans']['links']['enable'] ) ) {
+            return array();
+        }
+
         $url  = home_url( '/' );
         $hops = array();
 

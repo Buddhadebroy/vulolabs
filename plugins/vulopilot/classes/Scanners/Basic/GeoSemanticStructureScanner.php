@@ -63,8 +63,14 @@ class GeoSemanticStructureScanner extends AbstractBasicScanner implements Tracks
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
         // GEO has no whole-category kill switch (see GeoSummaryBlockScanner's
-        // own docblock) — this is this one scanner's own on/off switch.
-        if ( empty( $settings['flag_missing_semantic'] ) ) {
+        // own docblock) — this is this one scanner's own on/off switch,
+        // Settings → Scanning → AI Visibility's "AI-readable structure"
+        // row (Connections/AiVisibility.ts's own `ai_visibility_scans`
+        // expandable-panel, Utill::VULOPILOT_SETTINGS_DEFAULTS). Moved
+        // from the old flat `flag_missing_semantic` boolean into this
+        // nested shape — same migration `visibility_alerts` already went
+        // through for its own 3 rows.
+        if ( empty( $settings['ai_visibility_scans']['structure']['enable'] ) ) {
             return array();
         }
 

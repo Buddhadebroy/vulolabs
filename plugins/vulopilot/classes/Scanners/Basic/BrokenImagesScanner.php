@@ -94,7 +94,7 @@ class BrokenImagesScanner extends AbstractBasicScanner implements TracksScannedO
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['flag_broken_images'] ) ) {
+        if ( empty( $settings['content_search_scans']['images']['enable'] ) || empty( $settings['content_search_scans']['images']['broken_images'] ) ) {
             return array();
         }
 

@@ -62,7 +62,7 @@ class MetaDescriptionScanner extends AbstractBasicScanner implements TracksScann
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['flag_missing_meta_description'] ) ) {
+        if ( empty( $settings['content_search_scans']['seo']['enable'] ) || empty( $settings['content_search_scans']['seo']['missing_meta_description'] ) ) {
             return array();
         }
 

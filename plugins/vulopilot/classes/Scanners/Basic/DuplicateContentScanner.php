@@ -67,7 +67,7 @@ class DuplicateContentScanner extends AbstractBasicScanner {
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['flag_duplicate_titles'] ) ) {
+        if ( empty( $settings['content_search_scans']['seo']['enable'] ) || empty( $settings['content_search_scans']['seo']['duplicate_titles'] ) ) {
             return array();
         }
 

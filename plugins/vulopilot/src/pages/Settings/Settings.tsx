@@ -13,6 +13,10 @@ import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
 import CrawlerAlertTestPanel from '../../components/Settings/CrawlerAlertTestPanel';
+import PageSpeedStatusPanel from '../../components/Settings/Connections/PageSpeedStatusPanel';
+import AiVisibilityScansHeader from '../../components/Settings/Scanning/AiVisibilityScansHeader';
+import AccessibilityRestoreDefaultsHeader from '../../components/Settings/Scanning/AccessibilityRestoreDefaultsHeader';
+import ContentSearchScansHeader from '../../components/Settings/Scanning/ContentSearchScansHeader';
 import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -160,7 +164,7 @@ const Settings = () => {
 		// InputRenderer twice (same setting/updateSetting/id/submitUrl)
 		// reuses the existing renderer rather than introducing a new one.
 		const llmsTxtSectionEnd = settingModal?.modal?.findIndex(
-			(field: { key: string }) => field.key === 'aeo-section-ai-summary'
+			(field: { key: string }) => field.key === 'aeo-section-alerts'
 		);
 		const isGeoTabSplit =
 			currentTab === 'ai-visibility' &&
@@ -172,6 +176,14 @@ const Settings = () => {
 				{settingName === currentTab ? (
 					isGeoTabSplit ? (
 						<>
+							{/* AiVisibilityScansHeader.tsx — rendered BEFORE this
+							 * tab's own fields, same "before, not after" placement
+							 * PageSpeedStatusPanel.tsx uses: the mockup's "Restore
+							 * Defaults" button sits above the 5 scan-category rows,
+							 * which are themselves the first real field
+							 * (`ai_visibility_scans`) InputRenderer renders just
+							 * below. See that component's own docblock. */}
+							<AiVisibilityScansHeader />
 							<InputRenderer
 								settings={{
 									...settingModal,
@@ -194,6 +206,17 @@ const Settings = () => {
 						</>
 					) : (
 						<>
+							{'pagespeed-insights' === currentTab && <PageSpeedStatusPanel />}
+							{/* AccessibilityRestoreDefaultsHeader.tsx — same
+							 * "before, not after" placement AiVisibilityScansHeader.tsx
+							 * uses: the mockup's "Restore Defaults" button sits above
+							 * this tab's own fields. */}
+							{'accessibility' === currentTab && <AccessibilityRestoreDefaultsHeader />}
+							{/* ContentSearchScansHeader.tsx — same "before, not after"
+							 * placement AccessibilityRestoreDefaultsHeader.tsx uses above:
+							 * the mockup's "Restore Defaults" button sits above this
+							 * tab's own fields. */}
+							{'content-search' === currentTab && <ContentSearchScansHeader />}
 							<InputRenderer
 								settings={settingModal}
 								setting={setting}

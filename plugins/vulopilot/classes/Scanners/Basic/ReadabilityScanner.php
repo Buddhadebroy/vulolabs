@@ -50,8 +50,8 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
     private const MIN_WORDS_TO_SCORE = 100;
 
     /**
-     * Fallback only — the real threshold is Scanning → Content
-     * Intelligence's `content_readability_min_score` setting.
+     * Fallback only — the real threshold is Scanning → Content & Search's
+     * `content_search_scans.readability.min_score` setting.
      */
     private const DEFAULT_MIN_SCORE = 50;
 
@@ -80,9 +80,14 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
      * @inheritDoc
      */
     public function scan(): array {
-        $settings  = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
-        $min_score = is_numeric( $settings['content_readability_min_score'] ?? null )
-            ? (int) $settings['content_readability_min_score']
+        $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        if ( empty( $settings['content_search_scans']['readability']['enable'] ) ) {
+            return array();
+        }
+
+        $min_score = is_numeric( $settings['content_search_scans']['readability']['min_score'] ?? null )
+            ? (int) $settings['content_search_scans']['readability']['min_score']
             : self::DEFAULT_MIN_SCORE;
 
         $findings = array();

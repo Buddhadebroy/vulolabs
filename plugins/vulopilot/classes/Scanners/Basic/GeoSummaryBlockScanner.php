@@ -37,7 +37,7 @@ class GeoSummaryBlockScanner extends AbstractBasicScanner implements TracksScann
 
     /**
      * Rough average English word length (letters + trailing space) used
-     * to convert Scanning → GEO's `answer_first_words` setting (a word
+     * to convert `ai_visibility_scans.answer_first.min_words` (a word
      * count, matching how the field is actually labeled/described to an
      * admin) into the character-based window has_early_summary() scans —
      * a real character count is needed since summary markers/list tags
@@ -77,12 +77,17 @@ class GeoSummaryBlockScanner extends AbstractBasicScanner implements TracksScann
         // GEO has no whole-category kill switch (unlike SEO/Accessibility/
         // WooCommerce) — this is this one scanner's own on/off switch,
         // letting an admin turn off just this check while every other GEO
-        // check keeps running.
-        if ( empty( $settings['flag_missing_ai_summary'] ) ) {
+        // check keeps running. Settings → Scanning → AI Visibility's
+        // "Answer-first content" row — moved from the old flat
+        // `flag_missing_ai_summary`/`answer_first_words` pair into the
+        // nested `ai_visibility_scans.answer_first` shape (same migration
+        // GeoSemanticStructureScanner's own "structure" row already went
+        // through).
+        if ( empty( $settings['ai_visibility_scans']['answer_first']['enable'] ) ) {
             return array();
         }
 
-        $window_chars = absint( $settings['answer_first_words'] ?? 200 ) * self::CHARS_PER_WORD;
+        $window_chars = absint( $settings['ai_visibility_scans']['answer_first']['min_words'] ?? 200 ) * self::CHARS_PER_WORD;
 
         $findings = array();
         $posts    = get_posts(

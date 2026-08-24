@@ -264,6 +264,18 @@ class Utill {
         // lives here, only meaningfully acted on by vulopilot-pro's
         // AccessibilityAudits module" split as security_scan_frequency above.
         'accessibility_audit_frequency'         => 'daily',
+        // Settings → Scanning → Accessibility's own "WCAG level" row. Real
+        // consumer: Scanners\Basic\AccessibilityScanner (the one check
+        // among the 5 accessibility scanners that maps to a Level AA
+        // success criterion, WCAG 2.4.6) skips itself when this is
+        // '2.1_a'. The other 4 scanners (form labels, ARIA roles, keyboard
+        // focus order, link text) all map to Level A criteria, so they run
+        // unconditionally regardless of this setting — and 'AAA' currently
+        // behaves identically to 'AA', since no check in this codebase yet
+        // maps to a genuine Level AAA criterion (previously an orphaned
+        // UI-only field in Scanning → Security with no PHP consumer at
+        // all; this is its first real read).
+        'target_wcag_level'                     => '2.1_aa',
         // WOOCOMMERCE-INTELLIGENCE-MODULE.md's "Inventory Intelligence" —
         // same "setting lives here, only meaningfully acted on by
         // vulopilot-pro's WooCommerceIntelligence module" split as
@@ -355,15 +367,58 @@ class Utill {
         // scanner it corresponds to; there's no "seo" category kill
         // switch to fall back on above, same posture GEO's scanners
         // already use.
-        'flag_missing_meta_description'         => array( 'flag_missing_meta_description' ),
-        'flag_duplicate_titles'                 => array( 'flag_duplicate_titles' ),
         'flag_orphan_pages'                     => array( 'flag_orphan_pages' ),
         // Read by Scanners\Basic\ThinContentScanner as its minimum word
         // count instead of a hardcoded constant.
         'thin_content_word_threshold'           => 300,
         'flag_missing_featured_image'           => array( 'flag_missing_featured_image' ),
-        'flag_missing_alt_text'                 => array( 'flag_missing_alt_text' ),
-        'flag_broken_links'                     => array( 'flag_broken_links' ),
+        // Scanning > Content & Search — Settings → Scanning →
+        // "Content & Search" tab's own 5 toggle-card rows (seo/images/
+        // links/schema/readability), same nested-object-keyed-by-id shape
+        // `ai_visibility_scans` below already uses. Migrated from 8
+        // previously-flat keys (flag_missing_meta_description,
+        // flag_duplicate_titles, flag_missing_alt_text, flag_broken_links,
+        // broken_link_check_frequency, flag_broken_images,
+        // broken_image_check_frequency, flag_missing_schema,
+        // content_readability_min_score) — each row's own `enable` is a
+        // genuinely new master switch (previously SeoScanner,
+        // HeadingStructureScanner, LargeImagesScanner,
+        // RedirectAnalysisScanner, NotFoundScanner,
+        // StructuredDataValidationScanner, and ReadabilityScanner had no
+        // on/off setting of their own at all), layered on top of the
+        // pre-existing granular flags (now nested) rather than replacing
+        // them, so a scanner with its own flag only runs when BOTH its
+        // row's `enable` and that flag are true.
+        'content_search_scans'                  => array(
+            'seo'         => array(
+                'enable'                   => true,
+                'missing_meta_description' => true,
+                'duplicate_titles'         => true,
+            ),
+            'images'      => array(
+                'enable'           => true,
+                'missing_alt_text' => true,
+                'broken_images'    => true,
+            ),
+            'links'       => array(
+                'enable'       => true,
+                'broken_links' => true,
+            ),
+            // Covers both SchemaScanner (presence) and
+            // StructuredDataValidationScanner (validity) — the mockup
+            // this card was built from has one "Structured data checks"
+            // toggle for both, not two.
+            'schema'      => array(
+                'enable' => true,
+            ),
+            'readability' => array(
+                'enable'    => true,
+                // 50 is the Flesch Reading Ease scale's own published
+                // "Fairly Difficult" boundary, not an arbitrary
+                // VuloPilot-specific number.
+                'min_score' => 50,
+            ),
+        ),
         // Read by Scanners\Basic\BrokenLinksScanner to self-rate-limit —
         // 'daily'/'weekly', since this codebase's scan scheduling is one
         // global cadence (`scan_frequency` above), not a per-scanner cron;
@@ -372,19 +427,9 @@ class Utill {
         // time or skips (based on when it last genuinely ran).
         'broken_link_check_frequency'           => 'daily',
         // Read by Scanners\Basic\BrokenImagesScanner — same real
-        // gate/frequency shape as flag_broken_links/
-        // broken_link_check_frequency directly above, for `<img src>`
-        // instead of `<a href>`. Added so BrokenLinksTab.tsx's own
-        // "Broken images" tile (SEO & Visibility → Broken Links) reflects
-        // a real, second scanner instead of a number this codebase never
-        // actually computed.
-        'flag_broken_images'                    => array( 'flag_broken_images' ),
+        // gate/frequency shape as broken_link_check_frequency directly
+        // above, for `<img src>` instead of `<a href>`.
         'broken_image_check_frequency'          => 'daily',
-        // Covers both SchemaScanner (presence) and
-        // StructuredDataValidationScanner (validity) — the mockup this
-        // was built from has one "Flag missing structured data" toggle
-        // for both, not two.
-        'flag_missing_schema'                   => array( 'flag_missing_schema' ),
         // Scanning > Sitemap — moved out of the SEO tab into its own
         // dedicated Settings sub-tab (Scanning/Sitemap.ts), matching the
         // mockup's own tab boundary. Read by Services\SitemapManager — real
@@ -476,6 +521,19 @@ class Utill {
         // this with an allowlist limited to `<meta ...>` tags only (mockup's
         // own "Only <meta> tags are allowed" copy) before echoing it.
         'webmaster_custom_tags'                 => '',
+        // Connections > Site Verification (SiteVerificationPanel.tsx) —
+        // set only by Controllers\Settings::verify_webmaster_tool(), never
+        // user-edited directly, same "system-set, survives a page refresh"
+        // role `crawler_alert_last_test_sent` plays elsewhere. A real,
+        // honest self-check: this plugin fetches its OWN homepage and
+        // confirms the matching `<meta>` tag actually renders there — it
+        // does NOT call Google/Bing/Pinterest to ask whether THEY consider
+        // the site verified (no such API is integrated here), so "Verified"
+        // in this tab means the tag is live on your homepage, not that
+        // Google/Bing/Pinterest have confirmed account ownership.
+        'webmaster_google_verified_at'          => '',
+        'webmaster_bing_verified_at'            => '',
+        'webmaster_pinterest_verified_at'       => '',
         // Scanning > Instant Indexing (IndexNow). Read by
         // Services\IndexNowClient/IndexNowAutoSubmitter/IndexNowKeyFileServer.
         // Empty `indexnow_post_types` means auto-submit-on-publish is off;
@@ -494,6 +552,16 @@ class Utill {
         // real unified category_scores.performance number instead of a
         // fabricated Mobile/Desktop split.
         'psi_api_key'                           => '',
+        // Settings → Connections → PageSpeed Insights' own "Daily API
+        // Limit" — a real soft cap Services\PageSpeedInsightsFetcher
+        // checks before making a real request to Google's API, protecting
+        // the site owner's own PSI quota from "Test Connection" clicks
+        // stacking on top of the daily cron's own 2 real requests/day.
+        // Google's real free-tier PSI quota is far higher than this
+        // default (25,000/day per Cloud project) — 1000 is just a sane,
+        // mockup-matching default a site owner can raise or lower, not a
+        // reflection of any real Google-side limit this plugin knows about.
+        'psi_daily_limit'                       => 1000,
         // Read by Services\RobotsTxtManager — appends a `Sitemap:` line to
         // WordPress core's own virtual robots.txt via the `robots_txt`
         // filter; see that class's own docblock for why this isn't a
@@ -540,37 +608,69 @@ class Utill {
         // Read by GeoAnalysis\LlmsTxtGenerator::generate() to decide which
         // sections to build at all.
         'llms_include_types'                    => array( 'pages', 'posts' ),
-        // Read by Scanners\Basic\GeoSemanticStructureScanner — its own
-        // on/off switch, same granular-toggle posture as
-        // 'flag_missing_ai_summary' below.
-        'flag_missing_semantic'                 => array( 'flag_missing_semantic' ),
-        // Read by GeoAnalysis\GeoAnalyzer — gates whether the AI-judged
-        // "entity_coverage" dimension is scored at all for a post (Entity
-        // Coverage needs AI judgment per GEO-MODULE.md's "Splitting 12
-        // checks into two honest categories," so this can't be a
-        // deterministic scanner's kill switch the way
-        // 'flag_missing_semantic' above is).
-        'flag_weak_entity'                      => array( 'flag_weak_entity' ),
-        // Read by GeoAnalysis\GeoAnalyzer — passed to the AI as the
-        // minimum number of times a page should mention its primary
-        // entity before "entity_coverage" scores well. Only used while
-        // 'flag_weak_entity' above is enabled.
-        'minimum_entity_mentions'               => 2,
-        // Read by Scanners\Basic\GeoSummaryBlockScanner — GEO scanning has
-        // no whole-category kill switch (unlike SEO/Accessibility/
-        // WooCommerce above), so this is that scanner's only on/off switch.
-        'flag_missing_ai_summary'               => array( 'flag_missing_ai_summary' ),
-        // Read by Scanners\Basic\GeoSummaryBlockScanner — how many words
-        // from the top of a page/post its summary marker must appear
-        // within.
-        'answer_first_words'                    => 200,
-        // Read by GeoAnalysis\GeoAnalyzer::calculate_evidence_density() —
-        // stats/citations per 500 words a page needs to score well on
-        // "Data Point & Evidence Density".
-        'min_data_points'                       => 3,
-        // Read by GeoAnalysis\GeoAnalyzer::calculate_content_freshness() —
-        // the "flag as stale" boundary its tiering scales against.
-        'stale_content_months'                  => 12,
+        // Settings → Scanning → AI Visibility's own `expandable-panel`
+        // field (AiVisibility.ts) — one row per scan category, each with
+        // a real Active/Inactive `enable` toggle and that category's own
+        // threshold as a `formFields` entry. Replaces 7 previously-flat
+        // keys (`flag_missing_semantic`, `flag_weak_entity`,
+        // `minimum_entity_mentions`, `flag_missing_ai_summary`,
+        // `answer_first_words`, `min_data_points`, `stale_content_months`)
+        // with this nested-object-keyed-by-id shape — same migration
+        // `visibility_alerts` above already went through for its own 3
+        // rows. All 5 default `enable` to `true` (unlike
+        // `visibility_alerts`'s own rows, which default off): these are
+        // existing, already-always-on checks gaining an off switch, not
+        // new opt-in alerts, so "on" is the non-surprising default that
+        // changes no existing install's findings.
+        'ai_visibility_scans'                   => array(
+            // Read by Scanners\Basic\GeoSemanticStructureScanner — its own
+            // on/off switch, same granular-toggle posture the other 4
+            // rows below share.
+            'structure'    => array(
+                'enable' => true,
+            ),
+            // `enable` gates whether GeoAnalysis\GeoAnalyzer's AI-judged
+            // "entity_coverage" dimension is scored at all for a post
+            // (Entity Coverage needs AI judgment per GEO-MODULE.md's
+            // "Splitting 12 checks into two honest categories," so this
+            // can't be a deterministic scanner's kill switch the way
+            // 'structure' above is). `min_mentions` is passed to the AI as
+            // the minimum number of times a page should mention its
+            // primary entity before "entity_coverage" scores well — only
+            // used while `enable` is true.
+            'entity'       => array(
+                'enable'       => true,
+                'min_mentions' => 2,
+            ),
+            // Read by vulopilot-pro's GeoInsights\Scanners\StaleContentScanner
+            // (its `enable`) and GeoAnalysis\GeoAnalyzer::calculate_content_freshness()
+            // (`stale_months` only — that deterministic per-post sub-score
+            // always runs regardless of `enable`, see that method's own
+            // docblock).
+            'freshness'    => array(
+                'enable'       => true,
+                'stale_months' => 12,
+            ),
+            // Read by Scanners\Basic\GeoSummaryBlockScanner — GEO scanning
+            // has no whole-category kill switch (unlike SEO/Accessibility/
+            // WooCommerce above), so `enable` is that scanner's only
+            // on/off switch. `min_words` is how many words from the top of
+            // a page/post its summary marker must appear within.
+            'answer_first' => array(
+                'enable'    => true,
+                'min_words' => 200,
+            ),
+            // `enable` gates Scanners\Basic\GeoCitationOpportunityScanner
+            // (its own findings-list check). `min_data_points` only ever
+            // fed GeoAnalysis\GeoAnalyzer::calculate_evidence_density()'s
+            // per-post "Data Point & Evidence Density" sub-score (stats/
+            // citations per 500 words a page needs to score well) — a
+            // separate concern from whether the scanner itself runs.
+            'evidence'     => array(
+                'enable'          => true,
+                'min_data_points' => 3,
+            ),
+        ),
         // Read by vulopilot-pro's GeoInsights\CompetitorVisibilityAnalyzer —
         // newline-separated competitor URLs to fetch and compare structural
         // GEO-readiness signals against (schema/author/heading structure),
@@ -580,12 +680,6 @@ class Utill {
         // reads it" posture every other Pro-gated setting in this file
         // already takes.
         'geo_competitor_urls'                   => '',
-        // Scanning > Content Intelligence. Read by
-        // Scanners\Basic\ReadabilityScanner — a post scoring below this on
-        // the standard Flesch Reading Ease scale (0-100, higher = easier
-        // to read) is flagged. 50 is the formula's own published "Fairly
-        // Difficult" boundary, not an arbitrary VuloPilot-specific number.
-        'content_readability_min_score'         => 50,
         // Scanning > Brand Intelligence. Read by
         // Scanners\Basic\AboutPageAnalysisScanner — the minimum real word
         // count an existing About-shaped page needs before it counts as
