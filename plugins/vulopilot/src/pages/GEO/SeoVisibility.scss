@@ -1,5 +1,27 @@
 @use '../../components/config' as *;
 
+// SeoSiteWideIssuesTable.tsx's row actions (Resolve/Fix with AI/Ignore) —
+// zyra's BadgeComponent only ships specific semantic status classes
+// (badge-resolved, badge-high, …), not generic color names, so these 3
+// get their own scoped rules here rather than reusing an unrelated
+// status class just because it happens to be the right color. Same
+// `color-mix(in srgb, #{$color} 14%, transparent)` idiom AICopilot.scss's
+// own `.attention-priority-pills` map already uses.
+.admin-badge.badge-action-resolve {
+	color: $color-success;
+	background: color-mix(in srgb, #{$color-success} 14%, transparent);
+}
+
+.admin-badge.badge-action-fix-ai {
+	color: $theme-color;
+	background: $color-primary-background;
+}
+
+.admin-badge.badge-action-ignore {
+	color: #dc2626;
+	background: color-mix(in srgb, #dc2626 14%, transparent);
+}
+
 .visibility-score-aeo-note {
 	color: $sub-text-color;
 	font-size: 0.75rem;
@@ -895,6 +917,20 @@
 	.admin-row.variation-row {
 		background: $theme-background-color !important;
 		font-size: 0.8125rem;
+
+		// A finding sub-row already renders its own title without the
+		// click-to-expand wrapper (SeoIssuesByPageTable.tsx's own
+		// `isFindingRow` branch skips `seo-issues-row-expand-trigger`
+		// entirely) — this only covers the `visibility_score` column,
+		// which reuses the same trigger class for its parent-row click
+		// target. Per direct instruction, a finding row has nothing to
+		// expand and no per-finding action either, so both the trigger
+		// and the action column's own `BadgeComponent` array
+		// (`.admin-badges-wrapper` — the title cell's own badges render
+		// one-at-a-time via `BadgeComponent`'s single-badge mode instead,
+		// a bare `.admin-badge` with no wrapper div, so this never
+		// touches those) stay hidden here rather than showing an inert
+		// click target.
 	}
 
 	// Per direct instruction: no visible chevron — the whole row (title,
@@ -902,10 +938,6 @@
 	// (`toggleRowExpansion` in SeoIssuesByPageTable.tsx fires a real click
 	// on this same, now-hidden `<i>` so zyra's own internal expand state
 	// still toggles normally).
-	.header-col.expand,
-	.admin-column.expand {
-		display: none !important;
-	}
 
 	// The merged-in "AI Visibility"/"Answer Readiness" column
 	// (GeoTab.tsx's/AeoTab.tsx's own `pageAnalysis` mode): zyra `Table.tsx`

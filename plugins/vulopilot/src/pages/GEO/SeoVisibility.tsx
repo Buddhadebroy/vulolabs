@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useLocation } from 'react-router-dom';
-import { NavigatorHeaderComponent, TabsComponent, ContainerComponent } from '@zyra/components';
+import { useLocation, Link } from 'react-router-dom';
+import { NavigatorHeaderComponent, NavigatorComponent } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
-import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import OverviewTab from './OverviewTab';
 import GeoTab from './GeoTab';
 import AeoTab from './AeoTab';
@@ -45,6 +44,33 @@ const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
 };
 
 /**
+ * `NavigatorComponent`'s own `variant="compact"` icon-over-title tab bar
+ * needs a real `headerIcon` per tab — same `Record<TabId, {...}>` shape
+ * Reports.tsx's own `TAB_META` already establishes for its `variant="tab"`
+ * conversion. Reused where an icon is already semantically established
+ * elsewhere on this same tab shell (`bar-chart` is this page's own
+ * `NavigatorHeaderComponent` icon; `person`/`ai` are the same icons
+ * GeoVisibilitySummaryCard.tsx's "recognition" bucket / GEO_TOPICS' "AI
+ * Summary" topic already use) rather than picked arbitrarily.
+ */
+const TAB_META: Record<
+	(typeof TAB_IDS)[number],
+	{ headerTitle: string; headerIcon: string }
+> = {
+	overview: { headerTitle: __('Overview', 'vulopilot'), headerIcon: 'bar-chart' },
+	'brand-visibility': { headerTitle: __('Brand Visibility', 'vulopilot'), headerIcon: 'person' },
+	seo: { headerTitle: __('SEO', 'vulopilot'), headerIcon: 'search' },
+	geo: { headerTitle: __('GEO', 'vulopilot'), headerIcon: 'search-discovery' },
+	aeo: { headerTitle: __('AEO', 'vulopilot'), headerIcon: 'ai' },
+	keywords: { headerTitle: __('Keywords', 'vulopilot'), headerIcon: 'vpn-key' },
+	'crawl-urls': { headerTitle: __('Crawl & URLs', 'vulopilot'), headerIcon: 'link' },
+	'schema-knowledge': {
+		headerTitle: __('Business Identity & Schema', 'vulopilot'),
+		headerIcon: 'identity-verification',
+	},
+};
+
+/**
  * "SEO & Visibility" (WP menu slug `seo-visibility`) — a tab shell over Overview
  * (OverviewTab.tsx), and GEO/AEO/Crawl & URLs/Brand Visibility/
  * Schema & Knowledge/SEO/Keywords,
@@ -66,10 +92,27 @@ const SUBTAB_ALIASES: Record<string, (typeof TAB_IDS)[number]> = {
  * (ContentOpenIssuesCard.tsx), then merged directly into that page's
  * `src/pages/Content/RecentContentCard.tsx`, which now shows each post's
  * own real open findings inline instead of a separate glimpse card.
- * Same shape as AI Copilot's own tab shell
- * (`src/pages/AIAssistant/AIAssistant.tsx`): a constant header above
- * `TabsComponent`, with `activeTab` owned here so Overview's own "AI
- * Opportunities"/"Discover" cards can jump to the GEO tab.
+ * Tab bar/body are `NavigatorComponent` (`variant="compact"`, its own
+ * icon-over-title tab look — see `TAB_META` above) rather than a bare
+ * `TabsComponent`, same real settings-navigator component Reports.tsx's
+ * own tab shell already uses (`variant="tab"` there; this page's own
+ * compact look was a direct instruction). `activeTab` is still owned
+ * here, fed into `NavigatorComponent`'s own `currentSetting` prop, so
+ * Overview's own "AI Opportunities"/"Discover" cards can still jump to
+ * the GEO tab via `goToTab()` — `NavigatorComponent` re-syncs its
+ * internal active tab whenever `currentSetting` changes, not just on
+ * mount. `NavigatorComponent` also wraps its own tab body in
+ * `ContainerComponent general` internally, so — unlike the old
+ * `TabsComponent`, which needed one wrapped around it here — there's no
+ * separate wrapper needed any more (same reasoning Reports.tsx's own
+ * docblock already gives). Each tab's `hideSettingHeader: true` suppresses
+ * `NavigatorComponent`'s own per-tab title/description section, since
+ * every one of these tabs already renders its own header/cards.
+ * `prepareUrl()` below reproduces the exact same
+ * `?page=vulopilot#&tab=seo-visibility&subtab=<id>` URL shape the old
+ * `onTabChange`'s own `pushSubtabUrl()` call used to push — the URL
+ * update now happens via `NavigatorComponent`'s own internal `navigate()`
+ * (a real tab-bar click) instead.
  *
  * "Knowledge Graph" and "Schema" were two more of these folded-in tabs
  * until they were merged into one "Schema & Knowledge" tab
@@ -162,6 +205,44 @@ const SeoVisibility = () => {
 		setActiveTab(tab as (typeof TAB_IDS)[number]);
 	};
 
+	// `NavigatorComponent`'s own flat "one file per tab" shape — same
+	// `TAB_IDS.map()` conversion Reports.tsx's own `settingContent` already
+	// does for its `variant="tab"` tab bar.
+	const settingContent = TAB_IDS.map((tabId) => ({
+		type: 'file' as const,
+		content: {
+			id: tabId,
+			headerTitle: TAB_META[tabId].headerTitle,
+			headerIcon: TAB_META[tabId].headerIcon,
+			hideSettingHeader: true,
+		},
+	}));
+
+	const getForm = (tabId: string) => {
+		switch (tabId) {
+			case 'overview':
+				return <OverviewTab onNavigateTab={goToTab} />;
+			case 'brand-visibility':
+				return <BrandVisibilityTab />;
+			case 'seo':
+				return <SeoTab onNavigateTab={goToTab} />;
+			case 'geo':
+				return <GeoTab />;
+			case 'aeo':
+				return <AeoTab />;
+			case 'keywords':
+				return <KeywordsTab />;
+			case 'crawl-urls':
+				return <CrawlUrlsTab initialSection={crawlUrlsJumpSection} />;
+			case 'schema-knowledge':
+				return (
+					<SchemaKnowledgeTab initialSection={initialInnerSection} />
+				);
+			default:
+				return <div></div>;
+		}
+	};
+
 	return (
 		<>
 			<NavigatorHeaderComponent
@@ -178,60 +259,20 @@ const SeoVisibility = () => {
 					/>
 				}
 			/>
-			<ContainerComponent general>
-				<TabsComponent
-					className="seo-visibility-tabs"
-					activeIndex={TAB_IDS.indexOf(activeTab)}
-					onTabChange={(index) => {
-						setActiveTab(TAB_IDS[index]);
-						pushSubtabUrl('seo-visibility', TAB_IDS[index]);
-					}}
-					tabs={[
-						{
-							label: __('Overview', 'vulopilot'),
-							content: <OverviewTab onNavigateTab={goToTab} />,
-						},
-						{
-							label: __('Brand Visibility', 'vulopilot'),
-							content: <BrandVisibilityTab />,
-						},
-						{
-							label: __('SEO', 'vulopilot'),
-							content: <SeoTab onNavigateTab={goToTab} />,
-						},
-						{
-							label: __('GEO', 'vulopilot'),
-							content: <GeoTab />,
-						},
-						{
-							label: __('AEO', 'vulopilot'),
-							content: <AeoTab />,
-						},
-						{
-							label: __('Keywords', 'vulopilot'),
-							content: <KeywordsTab />,
-						},
-						{
-							label: __('Crawl & URLs', 'vulopilot'),
-							content: (
-								<CrawlUrlsTab
-									initialSection={crawlUrlsJumpSection}
-								/>
-							),
-						},
-						{
-							label: __('Business Identity & Schema', 'vulopilot'),
-							content: (
-								<SchemaKnowledgeTab
-									initialSection={initialInnerSection}
-								/>
-							),
-						},
-					]}
-				/>
-			</ContainerComponent>
+			<NavigatorComponent
+				className="seo-visibility-tabs"
+				settingContent={settingContent}
+				currentSetting={activeTab}
+				getForm={getForm}
+				prepareUrl={(subTab: string) =>
+					`?page=vulopilot#&tab=seo-visibility&subtab=${subTab}`
+				}
+				Link={Link}
+				variant="tabs"
+				menuIcon
+			/>
 		</>
 	);
-};
+};	
 
 export default SeoVisibility;

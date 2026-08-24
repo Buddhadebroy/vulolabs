@@ -2,7 +2,7 @@
 import React from 'react';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CardComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager } from '@zyra/components';
+import { BadgeComponent, CardComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
@@ -11,7 +11,6 @@ import {
 	PRIORITY_SEVERITIES,
 	Priority,
 	PageRow,
-	RowActionsMenu,
 	VisibilityCell,
 	worstFinding,
 	worstSeverity,
@@ -85,6 +84,38 @@ const toggleRowExpansion = (event: React.MouseEvent<HTMLElement>) => {
 	const expandIcon = rowEl?.querySelector<HTMLElement>(':scope > td.admin-column.expand > i');
 	expandIcon?.click();
 };
+
+/**
+ * Same Title Case formatting the old standalone "Status" column used for
+ * both a page's own `status` and a finding's `severity` (e.g.
+ * 'in_progress' -> 'In Progress') — extracted so it can be reused for
+ * InformationItemComponent's own `badges` prop on the title cell now that
+ * Status is one of those badges rather than its own column.
+ */
+const formatStatusLabel = (value: string): string =>
+	String(value)
+		.toLowerCase()
+		.split(/[-_]/)
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+
+/**
+ * Same "N issue(s)"/"No issues" badge the old standalone "Issues" column
+ * used to build for a page row — extracted for the same reason as
+ * formatStatusLabel above.
+ */
+const buildIssuesBadge = (
+	rowFindings: PageRow['findings']
+): { text: string; className: string } =>
+	0 === rowFindings.length
+		? { text: __('No issues', 'vulopilot'), className: 'badge-publish' }
+		: {
+				text: sprintf(
+					_n('%d issue', '%d issues', rowFindings.length, 'vulopilot'),
+					rowFindings.length
+				),
+				className: `badge-${worstSeverity(rowFindings)}`,
+			};
 
 interface SeoIssuesByPageTableProps {
 	rows: PageRow[];
@@ -298,18 +329,6 @@ const SeoIssuesByPageTable = ({
 			className="seo-issues-by-page-card"
 			title={__('Pages & Posts', 'vulopilot')}
 			isLoading={isLoading}
-			action={
-				onExportCsv ? (
-					<ButtonInput
-						buttons={{
-							text: __('Export CSV', 'vulopilot'),
-							leftIcon: 'download',
-							color: 'border-purple',
-							onClick: onExportCsv,
-						}}
-					/>
-				) : undefined
-			}
 		>
 			{/*
 			 * The "nice work, nothing to fix" empty state only replaces the
@@ -346,8 +365,20 @@ const SeoIssuesByPageTable = ({
 				<TableCard
 					showMenu={false}
 					expandable
+					hideHeader
 					className="transparent-table"
 					search={{ placeholder: __('Search pages…', 'vulopilot') }}
+					buttonActions={
+						onExportCsv
+							? [
+									{
+										label: __('Export CSV', 'vulopilot'),
+										icon: 'download',
+										onClick: onExportCsv,
+									},
+								]
+							: undefined
+					}
 					onQueryUpdate={(query: TableCardQuery) => {
 						setSearchValue(query.searchValue ?? '');
 						setSortBy(query.orderby || null);
@@ -356,14 +387,33 @@ const SeoIssuesByPageTable = ({
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
-							width: '35%',
+							width: '65%',
+							/**
+							 * Status and Issues used to be their own columns —
+							 * consolidated here as InformationItemComponent's own
+							 * `badges` prop instead (per direct instruction), same
+							 * "title + badges, no separate status/category column"
+							 * shape IssuesList.tsx's own issue rows already use.
+							 */
 							render: (row: TableRow) =>
 								isFindingRow(row) ? (
 									<div className="seo-issues-finding-title">
 										<span className="seo-issues-finding-arrow">
 											↳
 										</span>
-										<span>{row.title}</span>
+										<InformationItemComponent
+											title={row.title}
+											badges={[
+												{
+													text: formatStatusLabel(row.severity),
+													className: `badge-${row.severity}`,
+												},
+												{
+													text: row.scannerLabel,
+													className: 'badge-info',
+												},
+											]}
+										/>
 									</div>
 								) : (
 									<div
@@ -373,40 +423,29 @@ const SeoIssuesByPageTable = ({
 										<InformationItemComponent
 											title={row.title || __('(no title)', 'vulopilot')}
 											titleLink={row.editLink}
+											badges={[
+												{
+													text: formatStatusLabel(row.status),
+													className: `badge-${String(row.status).toLowerCase()}`,
+												},
+												buildIssuesBadge(getRowFindings(row)),
+											]}
+											descriptions={[
+												{
+													icon: 'calendar',
+													label: __('Updated', 'vulopilot'),
+													value: new Date(row.date).toLocaleDateString(),
+												},
+											]}
 										/>
 									</div>
 								),
-						},
-						status: {
-							label: __('Status', 'vulopilot'),
-							render: (row: TableRow) => {
-								const value = isFindingRow(row) ? row.severity : row.status;
-								const formatted = String(value)
-									.toLowerCase()
-									.split(/[-_]/)
-									.map(
-										(word) =>
-											word.charAt(0).toUpperCase() + word.slice(1)
-									)
-									.join(' ');
-
-								return (
-									<span
-										className={`admin-badge badge-${String(value).toLowerCase()} ${isFindingRow(row) ? '' : 'seo-issues-row-expand-trigger'}`}
-										onClick={
-											isFindingRow(row) ? undefined : toggleRowExpansion
-										}
-									>
-										{formatted}
-									</span>
-								);
-							},
 						},
 						...(visibilityColumnLabel
 							? {
 									visibility_score: {
 										label: visibilityColumnLabel,
-										width: '13%',
+										width: '3rem',
 										isSortable: true,
 										render: (row: TableRow) =>
 											isFindingRow(row) ? null : (
@@ -422,72 +461,28 @@ const SeoIssuesByPageTable = ({
 									},
 								}
 							: {}),
-						issues: {
-							label: issuesColumnLabel,
-							render: (row: TableRow) => {
-								if (isFindingRow(row)) {
-									return (
-										<span className="seo-issues-finding-scanner">
-											{row.scannerLabel}
-										</span>
-									);
-								}
-
-								const rowFindings = getRowFindings(row);
-
-								if (0 === rowFindings.length) {
-									return (
-										<span
-											className="admin-badge badge-publish seo-issues-row-expand-trigger"
-											onClick={toggleRowExpansion}
-										>
-											{__('No issues', 'vulopilot')}
-										</span>
-									);
-								}
-
-								return (
-									<span
-										className={`admin-badge badge-${worstSeverity(rowFindings)} seo-issues-row-expand-trigger`}
-										onClick={toggleRowExpansion}
-									>
-										{sprintf(
-											_n(
-												'%d issue',
-												'%d issues',
-												rowFindings.length,
-												'vulopilot'
-											),
-											rowFindings.length
-										)}
-									</span>
-								);
-							},
-						},
-						date: {
-							label: __('Updated', 'vulopilot'),
-							render: (row: TableRow) =>
-								isFindingRow(row) ? null : (
-									<span
-										className="seo-issues-row-expand-trigger"
-										onClick={toggleRowExpansion}
-									>
-										{new Date(row.date).toLocaleDateString()}
-									</span>
-								),
-						},
 						action: {
 							label: __('Action', 'vulopilot'),
+							// Direct `BadgeComponent` array instead of
+							// `TableRowActions` — every action here always
+							// renders as a badge, so `TableRowActions`' own
+							// icon/dropdown-menu machinery had nothing left
+							// to do. "Fix with AI" keeps its own
+							// `badge-action-fix-ai` color (SeoVisibility.scss,
+							// already defined for SeoSiteWideIssuesTable.tsx's
+							// own row actions); Edit/View get the default
+							// badge look.
 							render: (row: TableRow) => (
-								<RowActionsMenu
-									actions={[
+								<BadgeComponent
+									badges={[
 										// A merged-in page (pageAnalysis mode) can legitimately have
 										// zero matching findings — nothing for "Fix with AI" to open.
 										...(isFindingRow(row) || getRowFindings(row).length > 0
 											? [
 													{
-														label: __('Fix with AI', 'vulopilot'),
+														text: __('Fix with AI', 'vulopilot'),
 														icon: 'ai',
+														className: 'badge-action-fix-ai',
 														onClick: () =>
 															isFindingRow(row)
 																? (window.location.href =
@@ -497,13 +492,13 @@ const SeoIssuesByPageTable = ({
 												]
 											: []),
 										{
-											label: __('Edit', 'vulopilot'),
+											text: __('Edit', 'vulopilot'),
 											icon: 'edit',
 											onClick: () =>
 												(window.location.href = row.editLink),
 										},
 										{
-											label: __('View', 'vulopilot'),
+											text: __('View', 'vulopilot'),
 											icon: 'eye',
 											onClick: () => {
 												if (row.viewLink) {

@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
+	BadgeComponent,
 	CardComponent,
 	InformationItemComponent,
 	ModuleGuardComponent,
@@ -13,7 +14,8 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import ShowProPopup from '../../components/Popup/Popup';
-import { PRIORITY_SEVERITIES, Priority, RawFinding, RowActionsMenu } from './seoIssuesShared';
+import { PRIORITY_SEVERITIES, Priority, RawFinding } from './seoIssuesShared';
+import './SeoVisibility.scss';
 
 /** What a registered fix handler resolves to — same shape RecentContentCard.tsx's own FixOutcome uses. */
 interface FixOutcome {
@@ -184,7 +186,7 @@ const SeoSiteWideIssuesTable = ({
 				headers={{
 					title: {
 						label: __('Issue', 'vulopilot'),
-						width: '75%',
+						width: '55%',
 						render: (row: RawFinding) => (
 							<InformationItemComponent
 								title={row.title}
@@ -200,11 +202,12 @@ const SeoSiteWideIssuesTable = ({
 					action: {
 						label: __('Action', 'vulopilot'),
 						render: (row: RawFinding) => (
-							<RowActionsMenu
-								actions={[
+							<BadgeComponent
+								badges={[
 									{
-										label: __('Resolve', 'vulopilot'),
+										text: __('Resolve', 'vulopilot'),
 										icon: 'check',
+										className: 'badge-action-resolve',
 										onClick: () =>
 											handleStatus(
 												row,
@@ -216,16 +219,21 @@ const SeoSiteWideIssuesTable = ({
 											),
 									},
 									{
-										label:
+										text:
 											fixingFindingId === row.id
 												? __('Fixing…', 'vulopilot')
 												: __('Fix with AI', 'vulopilot'),
 										icon: 'ai',
-										onClick: () => handleFix(row),
+										className: 'badge-action-fix-ai',
+										onClick:
+											fixingFindingId === row.id
+												? undefined
+												: () => handleFix(row),
 									},
 									{
-										label: __('Ignore', 'vulopilot'),
+										text: __('Ignore', 'vulopilot'),
 										icon: 'eye-blocked',
+										className: 'badge-action-ignore',
 										onClick: () =>
 											handleStatus(
 												row,

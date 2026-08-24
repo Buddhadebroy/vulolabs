@@ -182,111 +182,107 @@ const GeoVisibilitySummaryCard = ({
 			desc={cardDesc}
 			isLoading={isLoading}
 		>
-			{!isLoading && !hasSnapshot ? (
-				<ProLockedCard moduleName="geo-insights" />
-			) : (
-				<div className="aeo-score-summary">
-					<div className="aeo-score-summary-gauge">
-						<div className="geo-overall-visibility">
-							<ChartComponent
-								type="pie"
-								height={140}
-								centerLabel={
-									<>
-										<span className="score-ring-number">
-											{overall}
-										</span>
-										<span className="score-ring-label">/100</span>
-										<span
-											className={`score-ring-label geo-overall-rating ${ratingClass(overall)}`}
-										>
-											{getRating(overall)}
-										</span>
-									</>
-								}
-								data={[
-									{
-										label: __('Score', 'vulopilot'),
-										value: overall,
-										color: '#16a34a',
-									},
-									{
-										label: __('Remaining', 'vulopilot'),
-										value: 100 - overall,
-										color: '#e5e7eb',
-									},
-								]}
-							/>
-						</div>
-						<div className="aeo-score-goal-box">
-							<i className="adminfont-light" />
-							{trend ? (
-								<div>
-									<strong
-										className={trend.change >= 0 ? 'is-good' : 'is-attention'}
+			<div className="aeo-score-summary">
+				<div className="aeo-score-summary-gauge">
+					<div className="geo-overall-visibility">
+						<ChartComponent
+							type="pie"
+							height={140}
+							centerLabel={
+								<>
+									<span className="score-ring-number">
+										{overall}
+									</span>
+									<span className="score-ring-label">/100</span>
+									<span
+										className={`score-ring-label geo-overall-rating ${ratingClass(overall)}`}
 									>
-										{trend.change >= 0 ? '↑' : '↓'}{' '}
-										{sprintf(
-											/* translators: %d is the number of points changed since the previous scan. */
-											__('%d points since last scan', 'vulopilot'),
-											Math.abs(trend.change)
-										)}
-									</strong>
-									<p>
-										{sprintf(
-											/* translators: 1: number of times this site has been scanned, 2: the best score ever recorded, 3: the date it was recorded on. */
-											__(
-												'Checked %1$d times · best %2$d/100 on %3$s',
-												'vulopilot'
-											),
-											trend.checkedCount,
-											trend.best,
-											formatWpDate(trend.bestDate)
-										)}
-									</p>
-								</div>
-							) : (
-								<div>
-									<strong>
-										{__('Not enough history yet', 'vulopilot')}
-									</strong>
-									<p>
-										{__(
-											'This builds up automatically each time your snapshot schedule runs.',
-											'vulopilot'
-										)}
-									</p>
-								</div>
-							)}
-						</div>
+										{getRating(overall)}
+									</span>
+								</>
+							}
+							data={[
+								{
+									label: __('Score', 'vulopilot'),
+									value: overall,
+									color: '#16a34a',
+								},
+								{
+									label: __('Remaining', 'vulopilot'),
+									value: 100 - overall,
+									color: '#e5e7eb',
+								},
+							]}
+						/>
 					</div>
-					<div className="aeo-score-summary-stats">
-						{buckets.map((bucket, index) => (
-							<div
-								key={bucket.key}
-								className={`aeo-score-stat-row ${0 === index ? 'is-first' : ''}`}
-							>
-								<div className={`aeo-score-stat-icon ${bucket.colorClass}`}>
-									<i className={`adminfont-${bucket.icon}`} />
-								</div>
-								<div className="aeo-score-stat-text">
-									<div className="aeo-score-stat-title">
-										{bucket.title}
-									</div>
-									<div className="aeo-score-stat-desc">
-										{bucket.desc}
-									</div>
-								</div>
-								<BadgeComponent
-									className="geo-four-checks-badge"
-									color={ratingClass(bucket.score)}
-									text={getRating(bucket.score)}
-								/>
+					<div className="aeo-score-goal-box">
+						<i className="adminfont-light" />
+						{trend ? (
+							<div>
+								<strong
+									className={trend.change >= 0 ? 'is-good' : 'is-attention'}
+								>
+									{trend.change >= 0 ? '↑' : '↓'}{' '}
+									{sprintf(
+										/* translators: %d is the number of points changed since the previous scan. */
+										__('%d points since last scan', 'vulopilot'),
+										Math.abs(trend.change)
+									)}
+								</strong>
+								<p>
+									{sprintf(
+										/* translators: 1: number of times this site has been scanned, 2: the best score ever recorded, 3: the date it was recorded on. */
+										__(
+											'Checked %1$d times · best %2$d/100 on %3$s',
+											'vulopilot'
+										),
+										trend.checkedCount,
+										trend.best,
+										formatWpDate(trend.bestDate)
+									)}
+								</p>
 							</div>
-						))}
+						) : (
+							<div>
+								<strong>
+									{__('Not enough history yet', 'vulopilot')}
+								</strong>
+								<p>
+									{__(
+										'This builds up automatically each time your snapshot schedule runs.',
+										'vulopilot'
+									)}
+								</p>
+							</div>
+						)}
 					</div>
 				</div>
-			)}
+				<div className="aeo-score-summary-stats">
+					{buckets.map((bucket, index) => (
+						<div
+							key={bucket.key}
+							className={`aeo-score-stat-row ${0 === index ? 'is-first' : ''}`}
+						>
+							<div className={`aeo-score-stat-icon ${bucket.colorClass}`}>
+								<i className={`adminfont-${bucket.icon}`} />
+							</div>
+							<div className="aeo-score-stat-text">
+								<div className="aeo-score-stat-title">
+									{bucket.title}
+								</div>
+								<div className="aeo-score-stat-desc">
+									{bucket.desc}
+								</div>
+							</div>
+							<BadgeComponent
+								className="geo-four-checks-badge"
+								color={ratingClass(bucket.score)}
+								text={getRating(bucket.score)}
+							/>
+						</div>
+					))}
+				</div>
+			</div>
 		</CardComponent>
 	);
 };

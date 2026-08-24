@@ -369,30 +369,26 @@ const IssuesSection = ({
 					onSelectPriority={setActivePriority}
 				/>
 			</ColumnComponent>
-			<ColumnComponent fullHeight grid={6}>
-				<SeoSiteWideIssuesTable
-					findings={siteWideFindings}
-					activeScannerIds={activeScannerIds}
-					activePriority={activePriority}
-					isLoading={isLoading}
-					hasError={hasError}
-					onRetry={refetch}
-				/>
-				</ColumnComponent>
-				<ColumnComponent fullHeight grid={6}>
-				<SeoIssuesByPageTable
-					rows={rows}
-					activeScannerIds={activeScannerIds}
-					activePriority={activePriority}
-					scannerLabelMap={scannerLabelMap}
-					isLoading={isLoading}
-					hasError={hasError}
-					onRetry={refetch}
-					issuesColumnLabel={issuesColumnLabel}
-					visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
-					onExportCsv={exportCsv}
-				/>
-			</ColumnComponent>
+			<SeoSiteWideIssuesTable
+				findings={siteWideFindings}
+				activeScannerIds={activeScannerIds}
+				activePriority={activePriority}
+				isLoading={isLoading}
+				hasError={hasError}
+				onRetry={refetch}
+			/>
+			<SeoIssuesByPageTable
+				rows={rows}
+				activeScannerIds={activeScannerIds}
+				activePriority={activePriority}
+				scannerLabelMap={scannerLabelMap}
+				isLoading={isLoading}
+				hasError={hasError}
+				onRetry={refetch}
+				issuesColumnLabel={issuesColumnLabel}
+				visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
+				onExportCsv={exportCsv}
+			/>
 		</>
 	);
 };
