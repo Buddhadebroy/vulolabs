@@ -123,8 +123,23 @@ class Utill {
      * @var array
      */
     const VULOPILOT_SETTINGS_DEFAULTS = array(
-        // General.
+        // General. Previously only `scan_frequency` had a default here —
+        // the other 3 General tab fields round-tripped through Settings
+        // with no default and no PHP consumer anywhere.
+        // `automatic_site_scan` is now Automations\Scheduler's own real
+        // whole-scan kill switch (vulopilot-pro) — 'enabled' is the
+        // non-surprising default, matching `scan_frequency` already
+        // running unconditionally before this pass. `keep_data_uninstall`
+        // is read by this plugin's own uninstall.php (the safe default —
+        // an uninstall keeps data unless the exact 'delete_everything'
+        // value is stored). `anonymous_usage_data` still has no real
+        // telemetry collector anywhere in this codebase to gate — this
+        // default alone doesn't change that; see the field's own
+        // settingDescription in General.ts.
+        'automatic_site_scan'                   => 'enabled',
         'scan_frequency'                        => 'daily',
+        'keep_data_uninstall'                   => 'keep_data',
+        'anonymous_usage_data'                  => 'disabled',
         // Notifications.
         'notification_email'                    => '',
         'notify_on_critical_findings'           => array(),

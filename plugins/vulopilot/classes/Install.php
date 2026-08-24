@@ -106,20 +106,34 @@ class Install {
             KEY `idx_created` (`created_at`)
         ) $collate;";
 
-        $sql_scan_findings = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['scan_finding'] . "` (
-            `id`          bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `scan_id`     bigint(20) unsigned NOT NULL,
-            `scanner_id`  varchar(100) NOT NULL,
-            `severity`    varchar(20) NOT NULL DEFAULT 'info',
-            `category`    varchar(50) NOT NULL,
-            `title`       varchar(255) NOT NULL,
-            `description` longtext DEFAULT NULL,
-            `object_type` varchar(50) DEFAULT NULL,
-            `object_ref`  varchar(255) DEFAULT NULL,
-            `status`      varchar(20) NOT NULL DEFAULT 'open',
-            `resolved_at` datetime DEFAULT NULL,
-            `meta`        longtext DEFAULT NULL,
-            `created_at`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        // No "IF NOT EXISTS" here — same dbDelta table-name-parsing bug
+        // $sql_redirects/$sql_not_found_logs's own docblock documents
+        // (`preg_match( '|CREATE TABLE ([^ ]*)|', ... )` captures "IF" as
+        // the table name, so dbDelta never diffs against the real table
+        // and a new column added here would silently never reach an
+        // already-installed site). Confirmed live the same way that
+        // docblock did: `array( 'IF' => 'Created table IF' )` against a
+        // database that already had this exact table, while adding
+        // `last_seen_at` below. Every OTHER `CREATE TABLE IF NOT EXISTS`
+        // in this class still has this same latent bug — not fixed here,
+        // since none of them are adding a new column in this pass; see
+        // that docblock for the full explanation if one of them ever needs
+        // a schema change on top of an already-installed site.
+        $sql_scan_findings = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['scan_finding'] . "` (
+            `id`           bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `scan_id`      bigint(20) unsigned NOT NULL,
+            `scanner_id`   varchar(100) NOT NULL,
+            `severity`     varchar(20) NOT NULL DEFAULT 'info',
+            `category`     varchar(50) NOT NULL,
+            `title`        varchar(255) NOT NULL,
+            `description`  longtext DEFAULT NULL,
+            `object_type`  varchar(50) DEFAULT NULL,
+            `object_ref`   varchar(255) DEFAULT NULL,
+            `status`       varchar(20) NOT NULL DEFAULT 'open',
+            `resolved_at`  datetime DEFAULT NULL,
+            `meta`         longtext DEFAULT NULL,
+            `created_at`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `last_seen_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             KEY `idx_scan` (`scan_id`),
             KEY `idx_severity` (`severity`),

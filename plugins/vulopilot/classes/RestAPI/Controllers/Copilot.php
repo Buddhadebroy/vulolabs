@@ -273,6 +273,23 @@ class Copilot extends \WP_REST_Controller {
 
         $decision = $this->orchestrator->parse_response( $response );
 
+        // "Auto-applies (with approval)" (ChatTab.tsx) — the one real
+        // content-creation capability this orchestrator has (a new blog
+        // post/landing page/product description draft) is auto-approved
+        // by default, same as before this param existed. Turning the
+        // toggle off downgrades a `ready_action` decision to the same
+        // honest "respond" shape every other kind of request already
+        // gets, rather than silently creating something the user asked
+        // not to be auto-applied.
+        $auto_apply = rest_sanitize_boolean( $request->get_param( 'auto_apply' ) ?? true );
+
+        if ( 'ready_action' === $decision['status'] && ! $auto_apply ) {
+            $decision = array(
+                'status'  => 'respond',
+                'message' => $this->describe_pending_action( $decision ),
+            );
+        }
+
         if ( 'ready_action' === $decision['status'] ) {
             $result = $this->orchestrator->create_content_and_respond( $decision );
 
@@ -402,17 +419,22 @@ class Copilot extends \WP_REST_Controller {
     /**
      * `GET /copilot/conversations` — RecentConversationsCard.tsx's own list
      * of this admin's most recent real conversation threads.
+     * RecentConversationsSection.tsx's inline variant passes
+     * `?with_excerpt=1` for the same rows plus a real one-line excerpt (see
+     * AiConversationRepository::get_recent_with_excerpt()'s own docblock
+     * for why that's a separate repository method, not the default here).
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
      */
     public function get_conversations( $request ) {
-        $per_page = absint( $request->get_param( 'per_page' ) );
+        $per_page     = absint( $request->get_param( 'per_page' ) );
+        $with_excerpt = rest_sanitize_boolean( $request->get_param( 'with_excerpt' ) );
+        $repository   = new AiConversationRepository();
 
-        $result = ( new AiConversationRepository() )->get_recent(
-            get_current_user_id(),
-            $per_page > 0 ? $per_page : 5
-        );
+        $result = $with_excerpt
+            ? $repository->get_recent_with_excerpt( get_current_user_id(), $per_page > 0 ? $per_page : 3 )
+            : $repository->get_recent( get_current_user_id(), $per_page > 0 ? $per_page : 5 );
 
         return rest_ensure_response( $result );
     }
@@ -440,6 +462,37 @@ class Copilot extends \WP_REST_Controller {
         }
 
         return rest_ensure_response( $conversation );
+    }
+
+    /**
+     * "Auto-applies (with approval)" turned off — describes what the
+     * orchestrator would have created instead of creating it. Uses
+     * ContentCreationOrchestrator::CONTENT_CREATION_ACTIONS's own `noun`
+     * for the action, and the AI-supplied `topic`/`title` input field when
+     * present, so the message names the actual thing it would make rather
+     * than a generic placeholder.
+     *
+     * @param array{action_id: string, input: array<string, mixed>} $decision parse_response()'s "ready_action" return value.
+     * @return string
+     */
+    private function describe_pending_action( array $decision ): string {
+        $noun  = ContentCreationOrchestrator::CONTENT_CREATION_ACTIONS[ $decision['action_id'] ]['noun'] ?? 'content';
+        $topic = sanitize_text_field( (string) ( $decision['input']['topic'] ?? $decision['input']['title'] ?? '' ) );
+
+        if ( '' !== $topic ) {
+            return sprintf(
+                /* translators: 1: e.g. "blog post", 2: the requested topic/title. */
+                __( 'I can create a %1$s about "%2$s" for you — turn on "Auto-applies (with approval)" and ask again to have me create it.', 'vulopilot' ),
+                $noun,
+                $topic
+            );
+        }
+
+        return sprintf(
+            /* translators: %s is e.g. "blog post". */
+            __( 'I can create a %s for you — turn on "Auto-applies (with approval)" and ask again to have me create it.', 'vulopilot' ),
+            $noun
+        );
     }
 
     /**

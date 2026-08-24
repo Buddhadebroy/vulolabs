@@ -29,6 +29,12 @@ class AiConversationRepository extends AbstractRepository {
     private const TITLE_MAX_LENGTH = 80;
 
     /**
+     * How many leading characters of the first user message become
+     * get_recent_with_excerpt()'s `excerpt` field.
+     */
+    private const EXCERPT_MAX_LENGTH = 140;
+
+    /**
      * @var string[]
      */
     protected array $filterable_columns = array( 'user_id' );
@@ -71,6 +77,89 @@ class AiConversationRepository extends AbstractRepository {
             'data'  => null !== $rows ? $rows : array(),
             'total' => $total,
         );
+    }
+
+    /**
+     * Same real rows get_recent() returns, plus a real `excerpt` — the
+     * conversation's own first user turn, read from its `turns` JSON blob.
+     * Deliberately a SEPARATE method rather than a param on get_recent():
+     * that method's own docblock says never to decode `turns` just to
+     * render a list, and this method still doesn't for any caller passing
+     * a large $limit — it only exists because ChatTab.tsx's own inline
+     * "Recent conversations" section shows a real one-line excerpt under
+     * each thread's `title` (already just an 80-char truncation of that
+     * same first message — showing it twice as both headline and
+     * description would be redundant), and only ever asks for 3 rows.
+     *
+     * @param int $user_id Only this user's own conversations.
+     * @param int $limit   Max rows to return — keep small; each row decodes its own `turns` blob.
+     * @return array{data: array<int, array{id: int, title: string, excerpt: string, updated_at: string}>, total: int}
+     */
+    public function get_recent_with_excerpt( int $user_id, int $limit = 3 ): array {
+        global $wpdb;
+
+        $table = $this->get_table();
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT id, title, turns, updated_at FROM {$table} WHERE user_id = %d ORDER BY updated_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $user_id,
+                $limit
+            ),
+            ARRAY_A
+        );
+
+        $total = (int) $wpdb->get_var(
+            $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE user_id = %d", $user_id ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        );
+
+        return array(
+            'data'  => array_map( array( $this, 'build_excerpt_row' ), null !== $rows ? $rows : array() ),
+            'total' => $total,
+        );
+    }
+
+    /**
+     * Decodes one raw get_recent_with_excerpt() row into its response shape.
+     *
+     * @param array<string, mixed> $row Raw `id`/`title`/`turns`/`updated_at` row.
+     * @return array{id: int, title: string, excerpt: string, updated_at: string}
+     */
+    private function build_excerpt_row( array $row ): array {
+        $turns           = json_decode( (string) $row['turns'], true );
+        $first_user_turn = null;
+
+        if ( is_array( $turns ) ) {
+            foreach ( $turns as $turn ) {
+                if ( isset( $turn['role'], $turn['content'] ) && 'user' === $turn['role'] ) {
+                    $first_user_turn = (string) $turn['content'];
+                    break;
+                }
+            }
+        }
+
+        return array(
+            'id'         => (int) $row['id'],
+            'title'      => $row['title'],
+            'excerpt'    => $this->build_excerpt( $first_user_turn ?? $row['title'] ),
+            'updated_at' => $row['updated_at'],
+        );
+    }
+
+    /**
+     * Truncates a real first message down to EXCERPT_MAX_LENGTH.
+     *
+     * @param string $first_message Real first user message.
+     * @return string Truncated to EXCERPT_MAX_LENGTH, with an ellipsis when cut.
+     */
+    private function build_excerpt( string $first_message ): string {
+        $trimmed = trim( $first_message );
+
+        if ( mb_strlen( $trimmed ) <= self::EXCERPT_MAX_LENGTH ) {
+            return $trimmed;
+        }
+
+        return mb_substr( $trimmed, 0, self::EXCERPT_MAX_LENGTH - 1 ) . '…';
     }
 
     /**

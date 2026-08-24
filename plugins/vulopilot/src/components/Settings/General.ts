@@ -98,12 +98,21 @@ export default {
 			// scan toggle above — SettingContext keys its stored value by
 			// field key, so the two toggles were silently reading/writing
 			// the same state and always moved together. Real own key here.
+				//
+				// This setting itself now round-trips correctly (a real
+				// default in Utill::VULOPILOT_SETTINGS_DEFAULTS), but no
+				// telemetry collector exists anywhere in this codebase to
+				// gate on it — there's no outbound "usage" request for this
+				// toggle to turn on or off yet. Left in (rather than removed)
+				// since the setting is real and forward-looking, but the
+				// description below says so honestly instead of implying a
+				// data collection pipeline that doesn't exist.
 			key: 'anonymous_usage_data',
 			type: 'choice-toggle',
 			size: 20,
 			label: __('Anonymous usage data', 'vulopilot'),
 			settingDescription: __(
-				"Help improve VuloPilot by sharing anonymous information about how its features are used.",
+					"Help improve VuloPilot by sharing anonymous information about how its features are used. Not yet collected — this stores your preference for when usage reporting ships.",
 				'vulopilot'
 			),
 			desc: __(

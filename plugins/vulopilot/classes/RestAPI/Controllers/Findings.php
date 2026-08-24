@@ -251,12 +251,30 @@ class Findings extends \WP_REST_Controller {
     }
 
     /**
+     * Bucket id => the real `category` values it draws its top finding-type
+     * group from — AI Copilot's "Recommended by VuloPilot" card (one card
+     * per bucket, most-urgent finding in that bucket). Matches the same
+     * category groupings issuesTypes.ts's own CATEGORY_TABS uses for
+     * "Security"/"Performance"/"AI Visibility", so a card's own "View
+     * issues" click lands on the same tab a site owner would expect.
+     *
+     * @var array<string, string[]>
+     */
+    private const RECOMMENDATION_BUCKETS = array(
+        'security'      => array( 'security', 'ssl', 'rest-api' ),
+        'performance'   => array( 'performance' ),
+        'ai-visibility' => array( 'geo', 'brand' ),
+    );
+
+    /**
      * GET /findings/attention-summary — real open-findings counts bucketed
-     * into 3 priority tiers, plus the top 3 issue types (grouped by
-     * scanner_id, most severe first), each annotated with its scanner's
-     * human `get_label()` so the client never has to hardcode a
-     * scanner_id → label map. See FindingRepository::get_priority_counts()/
-     * get_top_finding_groups() for how each half is computed.
+     * into 3 priority tiers, the top 3 issue types sitewide (grouped by
+     * scanner_id, most severe first), and one top issue per
+     * RECOMMENDATION_BUCKETS bucket — every group/recommendation annotated
+     * with its scanner's human `get_label()` so the client never has to
+     * hardcode a scanner_id => label map. See
+     * FindingRepository::get_priority_counts()/get_top_finding_groups()/
+     * get_top_finding_group_for_categories() for how each part is computed.
      *
      * @param \WP_REST_Request $request Full details about the request.
      * @return \WP_REST_Response
@@ -266,21 +284,33 @@ class Findings extends \WP_REST_Controller {
         $priority_counts = $repository->get_priority_counts();
         $groups          = $repository->get_top_finding_groups( 3 );
 
-        $groups = array_map(
-            static function ( array $group ): array {
-                $scanner        = VuloPilot()->scanner_registry->get_scanner( $group['scanner_id'] );
-                $group['label'] = $scanner ? $scanner->get_label() : $group['scanner_id'];
+        $label_scanner = static function ( array $group ): array {
+            $scanner        = VuloPilot()->scanner_registry->get_scanner( $group['scanner_id'] );
+            $group['label'] = $scanner ? $scanner->get_label() : $group['scanner_id'];
 
-                return $group;
-            },
-            $groups
-        );
+            return $group;
+        };
+
+        $groups = array_map( $label_scanner, $groups );
+
+        $recommendations = array();
+
+        foreach ( self::RECOMMENDATION_BUCKETS as $bucket => $categories ) {
+            $group = $repository->get_top_finding_group_for_categories( $categories );
+
+            if ( null === $group ) {
+                continue;
+            }
+
+            $recommendations[] = array_merge( array( 'bucket' => $bucket ), $label_scanner( $group ) );
+        }
 
         return rest_ensure_response(
             array(
                 'total'           => array_sum( $priority_counts ),
                 'priority_counts' => $priority_counts,
                 'groups'          => $groups,
+                'recommendations' => $recommendations,
             )
         );
     }

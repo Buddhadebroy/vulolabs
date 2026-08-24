@@ -41,19 +41,33 @@ defined( 'ABSPATH' ) || exit;
 class ScanPersistenceListener {
 
     /**
-     * Scanners whose findings get looked up (via
-     * FindingRepository::find_open_duplicate()) and refreshed in place
-     * instead of always inserted fresh — see handle_scan_completed()'s own
-     * comment for why this dedup is scoped to just these two rather than
-     * applied to every scanner: they're the one pair a manual "Run scan"/
-     * daily cron genuinely re-checks the exact same URL against, so a
-     * still-broken link would otherwise pile up one duplicate open finding
-     * per run. Other scanners keep today's "one row per scan run" behavior
-     * unchanged.
+     * Scanner ids that never dedupe on rescan — always inserted fresh,
+     * every run, even if the exact same object_type/object_ref/title
+     * combination is already open. This used to be an ALLOWLIST (only
+     * `broken-links`/`broken-images`, later also `core-file-integrity`,
+     * deduped; every other scanner always inserted fresh) — flipped to a
+     * denylist after a real environment showed the allowlist approach
+     * doesn't scale: virtually every scanner that re-checks a bounded,
+     * identifiable set of objects (posts, plugins, themes, URLs, ...) hits
+     * the identical pileup broken-links was originally fixed for, just
+     * under a different scanner_id each time (basic-vulnerabilities,
+     * canonical-url, thin-content, meta-description, seo, geo-author-info,
+     * geo-trust-signals, internal-linking, seo-images, images, plugins,
+     * themes, cdn, and more — confirmed live, up to 24 duplicate open rows
+     * for one object). Deduping is now the default whenever a finding
+     * carries both a real `object_type` and `object_ref` (handle_scan_completed()'s
+     * own guard) — the same two-field key that already made
+     * find_open_duplicate() safe for the original two scanners generalizes
+     * cleanly to any scanner with an identifiable target; a finding with
+     * neither (a purely sitewide check with nothing to match on) is
+     * unaffected either way. This list only exists for a scanner that
+     * genuinely wants more than one simultaneously-open row for the same
+     * object+title — none do today, but the mechanism stays available
+     * rather than assuming that'll never be true.
      *
      * @var string[]
      */
-    private const DEDUPE_ON_RESCAN = array( 'broken-links', 'broken-images' );
+    private const NEVER_DEDUPE_ON_RESCAN = array();
 
     /**
      * Maps a "Notify me about" checklist type (Settings → Notifications →
@@ -117,7 +131,7 @@ class ScanPersistenceListener {
         );
 
         foreach ( $scan_result->get_findings() as $finding ) {
-            $duplicate = in_array( $scan_result->get_scanner_id(), self::DEDUPE_ON_RESCAN, true )
+            $duplicate = ! in_array( $scan_result->get_scanner_id(), self::NEVER_DEDUPE_ON_RESCAN, true )
                 && $finding->get_object_type()
                 && $finding->get_object_ref()
                 ? $this->findings->find_open_duplicate(
@@ -129,21 +143,29 @@ class ScanPersistenceListener {
                 : null;
 
             if ( null !== $duplicate ) {
-                // Same URL is still broken as of this run — refresh the
-                // existing open row's own scan-run-specific fields rather
-                // than inserting a second identical one (see
+                // Same problem is still present as of this run — refresh
+                // the existing open row's own scan-run-specific fields
+                // rather than inserting a second identical one (see
                 // FindingRepository::find_open_duplicate()'s own
                 // docblock). `created_at`/`id` deliberately untouched, so
                 // this stays "first detected" for the finding, not
-                // "detected again."
+                // "detected again" — real historical queries
+                // (get_severity_breakdown_for_category_as_of() and
+                // friends) depend on `created_at` meaning that. `last_seen_at`
+                // DOES move to this run's timestamp, though: it's what the
+                // Issues table's "Affected" list actually displays
+                // ("Detected {date}"), so a still-open, still-recurring
+                // finding shows when it was last reconfirmed rather than
+                // looking stale the moment it was first found.
                 $this->findings->update(
                     (int) $duplicate['id'],
                     array(
-                        'scan_id'     => $scan_id,
-                        'severity'    => $finding->get_severity(),
-                        'category'    => $finding->get_category(),
-                        'description' => $finding->get_description(),
-                        'meta'        => wp_json_encode( $finding->get_meta() ),
+                        'scan_id'      => $scan_id,
+                        'severity'     => $finding->get_severity(),
+                        'category'     => $finding->get_category(),
+                        'description'  => $finding->get_description(),
+                        'meta'         => wp_json_encode( $finding->get_meta() ),
+                        'last_seen_at' => current_time( 'mysql', true ),
                     )
                 );
                 continue;
