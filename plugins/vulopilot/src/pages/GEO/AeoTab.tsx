@@ -365,7 +365,7 @@ const AeoTab = () => {
 	const aeoTrend = computeTrendChange(history, getAeoTrendScore);
 
 	return (
-		<>
+		<ContainerComponent>
 			<NoticeComponent
 				// type="banner"
 				displayPosition="inline"
@@ -428,7 +428,7 @@ const AeoTab = () => {
 					exportFilename: 'aeo-page-analysis.csv',
 				}}
 			/>
-		</>
+		</ContainerComponent>
 	);
 };
 

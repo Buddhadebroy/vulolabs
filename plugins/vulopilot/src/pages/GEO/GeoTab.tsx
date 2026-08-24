@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ColumnComponent, NoticeComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent, NoticeComponent, ContainerComponent } from '@zyra/components';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import IssuesSection from './IssuesSection';
 import ProLockedCard from '../../components/ProLockedCard';
@@ -216,7 +216,7 @@ const GeoTab = () => {
 	};
 
 	return (
-		<>
+		<ContainerComponent>
 			{/* id kept on this wrapper, not NoticeComponent itself (no id prop) — real jump target for the bottom info banner's own "Learn more about this page" link, same real-anchor technique the top-of-page tab bar itself already relies on for in-page navigation. */}
 			<div id="geo-top-banner">
 				<NoticeComponent
@@ -293,7 +293,7 @@ const GeoTab = () => {
 					exportFilename: 'geo-page-analysis.csv',
 				}}
 			/>
-		</>
+		</ContainerComponent>
 	);
 };
 

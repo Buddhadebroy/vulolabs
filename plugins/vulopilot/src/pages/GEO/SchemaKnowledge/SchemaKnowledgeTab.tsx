@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
-import { ColumnComponent, NoticeComponent, SectionComponent } from '@zyra/components';
+import { ColumnComponent, NoticeComponent, SectionComponent, ContainerComponent } from '@zyra/components';
 import '../SeoVisibility.scss';
 import BusinessUnderstandingCard from './BusinessUnderstandingCard';
 import CriticalIssuesCard from './CriticalIssuesCard';
@@ -98,7 +98,7 @@ const SchemaKnowledgeTab = ({
 	}, []);
 
 	return (
-		<>
+		<ContainerComponent>
 			<div className="schema-page-header">
 				<div className="schema-page-header-title">
 					<i className="adminfont-centralized-connections" />
@@ -156,7 +156,7 @@ const SchemaKnowledgeTab = ({
 				/>
 				<InspectorSection />
 			</div>
-		</>
+		</ContainerComponent>
 	);
 };
 
