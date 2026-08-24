@@ -115,57 +115,59 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 	);
 	const efficiencySummary = efficiencyData
 		? {
-				total: efficiencyData.summary.total - 1,
-				need_attention:
-					efficiencyData.summary.need_attention -
-					(opcacheCheck?.status === 'attention' ? 1 : 0),
-				working:
-					efficiencyData.summary.working -
-					(opcacheCheck?.status === 'good' ? 1 : 0),
-				not_applicable:
-					efficiencyData.summary.not_applicable -
-					(opcacheCheck?.status === 'not_applicable' ? 1 : 0),
-			}
+			total: efficiencyData.summary.total - 1,
+			need_attention:
+				efficiencyData.summary.need_attention -
+				(opcacheCheck?.status === 'attention' ? 1 : 0),
+			working:
+				efficiencyData.summary.working -
+				(opcacheCheck?.status === 'good' ? 1 : 0),
+			not_applicable:
+				efficiencyData.summary.not_applicable -
+				(opcacheCheck?.status === 'not_applicable' ? 1 : 0),
+		}
 		: null;
 
 	return (
 		<>
-				<ColumnComponent grid={8}>
-					<PerformanceScoreCard onViewDetails={onNavigateToSlowPages} />
+			{/* 1st fold */}
+			<PerformanceScoreCard onViewDetails={onNavigateToSlowPages} />
 
-					<MetricsGrid
-						onViewSection={goToIssuesSection}
-						onViewCoreWebVitals={() =>
-							scrollToId('performance-core-web-vitals-card')
-						}
-					/>
+			{/* 2nd fold */}
+			<ColumnComponent grid={8}>
+				<MetricsGrid
+					onViewSection={goToIssuesSection}
+					onViewCoreWebVitals={() =>
+						scrollToId('performance-core-web-vitals-card')
+					}
+				/>
+			</ColumnComponent>
 
-					<SpeedHistoryCard />
-				</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<AiSpeedAssistantCard onReviewIssues={scrollToFindings} />
+				<BiggestSpeedOpportunityCard onViewSlowPages={onNavigateToSlowPages} />
+			</ColumnComponent>
+			
+			{/* 3rd fold */}
+			<ColumnComponent grid={6} fullHeight>
+				<SpeedHistoryCard />
+			</ColumnComponent>
 
-				<ColumnComponent grid={4}>
-					<QuickActionsCard />
-					<RealTimeMonitoringCard />
-					<BiggestSpeedOpportunityCard onViewSlowPages={onNavigateToSlowPages} />
-					<AiSpeedAssistantCard onReviewIssues={scrollToFindings} />
-				</ColumnComponent>
-
-			<ContainerComponent>
-				<ColumnComponent fullHeight grid={6}>
-					<EfficiencyHeroCard
-						summary={efficiencySummary}
-						isLoading={isEfficiencyLoading}
-						onReviewImprovements={() => scrollToId(THINGS_TO_REVIEW_ID)}
-					/>
-				</ColumnComponent>
-				<ColumnComponent fullHeight grid={6}>
-					<EfficiencyOverviewChart
-						summary={efficiencySummary}
-						isLoading={isEfficiencyLoading}
-						onViewAll={() => scrollToId(EFFICIENCY_SECTIONS_TOP_ID)}
-					/>
-				</ColumnComponent>
-			</ContainerComponent>
+			{/* 4th fold */}
+			<ColumnComponent fullHeight grid={4}>
+				<EfficiencyHeroCard
+					summary={efficiencySummary}
+					isLoading={isEfficiencyLoading}
+					onReviewImprovements={() => scrollToId(THINGS_TO_REVIEW_ID)}
+				/>
+			</ColumnComponent>
+			<ColumnComponent fullHeight grid={6}>
+				<EfficiencyOverviewChart
+					summary={efficiencySummary}
+					isLoading={isEfficiencyLoading}
+					onViewAll={() => scrollToId(EFFICIENCY_SECTIONS_TOP_ID)}
+				/>
+			</ColumnComponent>
 
 			<div id={EFFICIENCY_SECTIONS_TOP_ID}>
 				<EfficiencySectionsList

@@ -11,6 +11,8 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import './Performance.scss';
+import RealTimeMonitoringCard from './RealTimeMonitoringCard';
+import QuickActionsCard from './QuickActionsCard';
 
 /** `id: 'pagespeed-insights'` (Settings/Connections/PageSpeedInsights.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; moved from the old Settings → Scanning → Performance tab, same "moved into Connections" precedent GoogleServices.ts's own docblock documents. */
 const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=pagespeed-insights';
@@ -274,8 +276,8 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	};
 
 	return (
-		<ContainerComponent>
-			<ColumnComponent row>
+		<>
+			<ColumnComponent row fullHeight>
 				<CardComponent>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
@@ -388,8 +390,10 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 						</>
 					)}
 				</CardComponent>
+				<RealTimeMonitoringCard />
+				<QuickActionsCard />
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 
