@@ -731,6 +731,7 @@ const RecentContentCard = () => {
 
 	return (
 		<CardComponent
+			id="content-audit-section"
 			className="recent-content-card"
 			title={__('Recent Content', 'vulopilot')}
 			action={
