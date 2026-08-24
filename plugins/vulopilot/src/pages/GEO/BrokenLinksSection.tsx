@@ -630,9 +630,9 @@ const BrokenLinksSection = () => {
 				message: response
 					? successMessage
 					: __(
-							'Could not update this finding. Please try again.',
-							'vulopilot'
-						),
+						'Could not update this finding. Please try again.',
+						'vulopilot'
+					),
 			});
 
 			if (response) {
@@ -686,8 +686,8 @@ const BrokenLinksSection = () => {
 		if (typeof findingFixHandler === 'function') {
 			Promise.resolve(
 				findingFixHandler(finding) as
-					| Promise<{ success: boolean; message: string }>
-					| undefined
+				| Promise<{ success: boolean; message: string }>
+				| undefined
 			).then((outcome) => {
 				if (outcome?.message) {
 					NoticeManager.add({
@@ -733,19 +733,19 @@ const BrokenLinksSection = () => {
 				message:
 					succeeded === responses.length
 						? sprintf(
-								/* translators: %d: number of findings ignored. */
-								_n(
-									'%d finding ignored.',
-									'%d findings ignored.',
-									succeeded,
-									'vulopilot'
-								),
-								succeeded
-							)
-						: __(
-								'Some findings could not be ignored. Please try again.',
+							/* translators: %d: number of findings ignored. */
+							_n(
+								'%d finding ignored.',
+								'%d findings ignored.',
+								succeeded,
 								'vulopilot'
 							),
+							succeeded
+						)
+						: __(
+							'Some findings could not be ignored. Please try again.',
+							'vulopilot'
+						),
 			});
 
 			if (succeeded > 0) {
@@ -799,9 +799,9 @@ const BrokenLinksSection = () => {
 					message: response
 						? __('Redirect created.', 'vulopilot')
 						: __(
-								'Could not create this redirect — a redirect for this path may already exist.',
-								'vulopilot'
-							),
+							'Could not create this redirect — a redirect for this path may already exist.',
+							'vulopilot'
+						),
 				});
 
 				if (response && redirectFinding) {
@@ -839,9 +839,9 @@ const BrokenLinksSection = () => {
 		{
 			label: isExternalFinding(finding)
 				? __(
-						"External links can't be redirected from this site",
-						'vulopilot'
-					)
+					"External links can't be redirected from this site",
+					'vulopilot'
+				)
 				: __('Create redirect', 'vulopilot'),
 			icon: isExternalFinding(finding) ? 'lock' : 'link',
 			onClick: () => {
@@ -1047,36 +1047,104 @@ const BrokenLinksSection = () => {
 	return (
 		<>
 			<ColumnComponent>
-					<NoticeComponent
-						// type="banner"
-						displayPosition="inline"
-						message={sprintf(
-							'<strong>%1$s</strong> %2$s',
-							__('In plain English:', 'vulopilot'),
-							__(
-								'These are real links and images on your published pages that pointed somewhere broken the last time this site checked them.',
+				<NoticeComponent
+					displayPosition="inline-notice"
+					title={__('In plain English:', 'vulopilot')}
+					message={__(
+						'These are real links and images on your published pages that pointed somewhere broken the last time this site checked them.',
+						'vulopilot'
+					)}
+				/>
+				{!isSeoModuleActive() ? (
+					<CardComponent title={__('Broken Links', 'vulopilot')}>
+						<ModuleGuardComponent
+							icon="error"
+							title={__('SEO module is turned off', 'vulopilot')}
+							desc={__(
+								'Turn the SEO module back on from Settings → Modules to resume broken-link/image scanning and see findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category.',
 								'vulopilot'
-							)
-						)}
-					/>
+							)}
+						/>
+					</CardComponent>
+				) : (
+					<>
+						<CardComponent
+							title={__('Need attention', 'vulopilot')}
+							titleIcon="error"
+							isLoading={isLoadingFindings}
+						>
+							<div className="kg-glance-grid">
+								<div className="kg-glance-item">
+									<div className="kg-glance-icon">
+										<i className="adminfont-link" />
+									</div>
+									<div>
+										<div className="kg-glance-label">
+											{__('Broken links', 'vulopilot')}
+										</div>
+										<div className="kg-glance-value">
+											{summary.brokenLinks}
+										</div>
+									</div>
+								</div>
+								<div className="kg-glance-item">
+									<div className="kg-glance-icon">
+										<i className="adminfont-attachment" />
+									</div>
+									<div>
+										<div className="kg-glance-label">
+											{__('Broken images', 'vulopilot')}
+										</div>
+										<div className="kg-glance-value">
+											{summary.brokenImages}
+										</div>
+									</div>
+								</div>
+								<div className="kg-glance-item">
+									<div className="kg-glance-icon">
+										<i className="adminfont-info" />
+									</div>
+									<div>
+										<div className="kg-glance-label">
+											{__('Couldn’t verify', 'vulopilot')}
+										</div>
+										<div className="kg-glance-value">
+											{summary.couldntVerify}
+										</div>
+									</div>
+								</div>
+								<div className="kg-glance-item">
+									<div className="kg-glance-icon">
+										<i className="adminfont-eye-blocked" />
+									</div>
+									<div>
+										<div className="kg-glance-label">
+											{__('Ignored', 'vulopilot')}
+										</div>
+										<div className="kg-glance-value">
+											{summary.ignored}
+										</div>
+									</div>
+								</div>
+							</div>
+							{!isLoadingFindings && 0 === needAttentionTotal && (
+								<TypographyComponent as="p" variant="desc">
+									{__(
+										'Nothing needs attention right now.',
+										'vulopilot'
+									)}
+								</TypographyComponent>
+							)}
+						</CardComponent>
 
-					{!isSeoModuleActive() ? (
-						<CardComponent title={__('Broken Links', 'vulopilot')}>
-							<ModuleGuardComponent
-								icon="error"
-								title={__('SEO module is turned off', 'vulopilot')}
+						{stats && (
+							<CardComponent
+								title={__('Last scan', 'vulopilot')}
+								titleIcon="search"
 								desc={__(
-									'Turn the SEO module back on from Settings → Modules to resume broken-link/image scanning and see findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category.',
+									'Real coverage from each scanner’s most recent genuine run — a separate real number from "Need attention" above, not a percentage blended from the two (they cover different time windows).',
 									'vulopilot'
 								)}
-							/>
-						</CardComponent>
-					) : (
-						<>
-							<CardComponent
-								title={__('Need attention', 'vulopilot')}
-								titleIcon="error"
-								isLoading={isLoadingFindings}
 							>
 								<div className="kg-glance-grid">
 									<div className="kg-glance-item">
@@ -1085,10 +1153,23 @@ const BrokenLinksSection = () => {
 										</div>
 										<div>
 											<div className="kg-glance-label">
-												{__('Broken links', 'vulopilot')}
+												{__('Links checked', 'vulopilot')}
 											</div>
 											<div className="kg-glance-value">
-												{summary.brokenLinks}
+												{sprintf(
+													/* translators: 1: healthy count, 2: total checked */
+													__('%1$d / %2$d healthy', 'vulopilot'),
+													stats.links.healthy_count,
+													stats.links.links_checked
+												)}
+											</div>
+											<div className="desc">
+												{sprintf(
+													/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
+													__('Across %1$d pages · %2$s', 'vulopilot'),
+													stats.links.pages_scanned,
+													formatCheckedAt(stats.links.checked_at)
+												)}
 											</div>
 										</div>
 									</div>
@@ -1098,203 +1179,117 @@ const BrokenLinksSection = () => {
 										</div>
 										<div>
 											<div className="kg-glance-label">
-												{__('Broken images', 'vulopilot')}
+												{__('Images checked', 'vulopilot')}
 											</div>
 											<div className="kg-glance-value">
-												{summary.brokenImages}
+												{sprintf(
+													/* translators: 1: healthy count, 2: total checked */
+													__('%1$d / %2$d healthy', 'vulopilot'),
+													stats.images.healthy_count,
+													stats.images.links_checked
+												)}
 											</div>
-										</div>
-									</div>
-									<div className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className="adminfont-info" />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{__('Couldn’t verify', 'vulopilot')}
-											</div>
-											<div className="kg-glance-value">
-												{summary.couldntVerify}
-											</div>
-										</div>
-									</div>
-									<div className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className="adminfont-eye-blocked" />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{__('Ignored', 'vulopilot')}
-											</div>
-											<div className="kg-glance-value">
-												{summary.ignored}
+											<div className="desc">
+												{sprintf(
+													/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
+													__('Across %1$d pages · %2$s', 'vulopilot'),
+													stats.images.pages_scanned,
+													formatCheckedAt(stats.images.checked_at)
+												)}
 											</div>
 										</div>
 									</div>
 								</div>
-								{!isLoadingFindings && 0 === needAttentionTotal && (
-									<TypographyComponent as="p" variant="desc">
-										{__(
-											'Nothing needs attention right now.',
+							</CardComponent>
+						)}
+
+						<CardComponent
+							title={__('Broken Link Monitoring', 'vulopilot')}
+							titleIcon="link"
+							desc={__(
+								'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked, grouped by the page they live on. Use the "Run scan" button above to check again.',
+								'vulopilot'
+							)}
+							action={
+								<div className="broken-link-monitoring-actions">
+									<TextInput
+										name="broken_link_search"
+										placeholder={__(
+											'Search by URL or source page…',
 											'vulopilot'
 										)}
-									</TypographyComponent>
-								)}
-							</CardComponent>
-
-							{stats && (
-								<CardComponent
-									title={__('Last scan', 'vulopilot')}
-									titleIcon="search"
-									desc={__(
-										'Real coverage from each scanner’s most recent genuine run — a separate real number from "Need attention" above, not a percentage blended from the two (they cover different time windows).',
+										value={searchTerm}
+										onChange={(value) =>
+											setSearchTerm(value as string)
+										}
+									/>
+									<SelectInput
+										name="broken_link_type_filter"
+										value={typeFilter}
+										options={[
+											{ label: __('All issues', 'vulopilot'), value: 'all' },
+											{ label: __('Links', 'vulopilot'), value: 'broken-links' },
+											{ label: __('Images', 'vulopilot'), value: 'broken-images' },
+										]}
+										onChange={(value) =>
+											setTypeFilter(
+												value as 'all' | 'broken-links' | 'broken-images'
+											)
+										}
+										size="10rem"
+									/>
+									<ToggleInput
+										options={[
+											{
+												key: 'show_ignored',
+												value: 'show_ignored',
+												label: __('Show ignored', 'vulopilot'),
+											},
+										]}
+										value={showIgnored ? ['show_ignored'] : []}
+										multiSelect
+										modules={[]}
+										onChange={() =>
+											setShowIgnored((current) => !current)
+										}
+									/>
+									<ButtonInput
+										buttons={{
+											text: __('Export CSV', 'vulopilot'),
+											icon: 'export',
+											color: 'plain',
+											onClick: handleExportCsv,
+										}}
+									/>
+								</div>
+							}
+						>
+							{findingsError ? (
+								<ModuleGuardComponent
+									icon="error"
+									title={__('Could not load findings', 'vulopilot')}
+									desc={findingsError}
+									buttonText={__('Retry', 'vulopilot')}
+									onButtonClick={loadFindings}
+								/>
+							) : (
+								<TableCard
+									showMenu={false}
+									expandable
+									className="transparent-table broken-link-monitoring-table"
+									headers={headers}
+									rows={tableRows}
+									ids={pageGroups.map((group) => group.id)}
+									totalRows={pageGroups.length}
+									isLoading={isLoadingFindings}
+									emptyMessage={__(
+										'No broken links or images found yet. Make sure "Flag broken links"/"Flag broken images" are turned on under Settings → Scanning → SEO, then run a scan.',
 										'vulopilot'
 									)}
-								>
-									<div className="kg-glance-grid">
-										<div className="kg-glance-item">
-											<div className="kg-glance-icon">
-												<i className="adminfont-link" />
-											</div>
-											<div>
-												<div className="kg-glance-label">
-													{__('Links checked', 'vulopilot')}
-												</div>
-												<div className="kg-glance-value">
-													{sprintf(
-														/* translators: 1: healthy count, 2: total checked */
-														__('%1$d / %2$d healthy', 'vulopilot'),
-														stats.links.healthy_count,
-														stats.links.links_checked
-													)}
-												</div>
-												<div className="desc">
-													{sprintf(
-														/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
-														__('Across %1$d pages · %2$s', 'vulopilot'),
-														stats.links.pages_scanned,
-														formatCheckedAt(stats.links.checked_at)
-													)}
-												</div>
-											</div>
-										</div>
-										<div className="kg-glance-item">
-											<div className="kg-glance-icon">
-												<i className="adminfont-attachment" />
-											</div>
-											<div>
-												<div className="kg-glance-label">
-													{__('Images checked', 'vulopilot')}
-												</div>
-												<div className="kg-glance-value">
-													{sprintf(
-														/* translators: 1: healthy count, 2: total checked */
-														__('%1$d / %2$d healthy', 'vulopilot'),
-														stats.images.healthy_count,
-														stats.images.links_checked
-													)}
-												</div>
-												<div className="desc">
-													{sprintf(
-														/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
-														__('Across %1$d pages · %2$s', 'vulopilot'),
-														stats.images.pages_scanned,
-														formatCheckedAt(stats.images.checked_at)
-													)}
-												</div>
-											</div>
-										</div>
-									</div>
-								</CardComponent>
+								/>
 							)}
-
-							<CardComponent
-								title={__('Broken Link Monitoring', 'vulopilot')}
-								titleIcon="link"
-								desc={__(
-									'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked, grouped by the page they live on. Use the "Run scan" button above to check again.',
-									'vulopilot'
-								)}
-								action={
-									<div className="broken-link-monitoring-actions">
-										<TextInput
-											name="broken_link_search"
-											placeholder={__(
-												'Search by URL or source page…',
-												'vulopilot'
-											)}
-											value={searchTerm}
-											onChange={(value) =>
-												setSearchTerm(value as string)
-											}
-										/>
-										<SelectInput
-											name="broken_link_type_filter"
-											value={typeFilter}
-											options={[
-												{ label: __('All issues', 'vulopilot'), value: 'all' },
-												{ label: __('Links', 'vulopilot'), value: 'broken-links' },
-												{ label: __('Images', 'vulopilot'), value: 'broken-images' },
-											]}
-											onChange={(value) =>
-												setTypeFilter(
-													value as 'all' | 'broken-links' | 'broken-images'
-												)
-											}
-											size="10rem"
-										/>
-										<ToggleInput
-											options={[
-												{
-													key: 'show_ignored',
-													value: 'show_ignored',
-													label: __('Show ignored', 'vulopilot'),
-												},
-											]}
-											value={showIgnored ? ['show_ignored'] : []}
-											multiSelect
-											modules={[]}
-											onChange={() =>
-												setShowIgnored((current) => !current)
-											}
-										/>
-										<ButtonInput
-											buttons={{
-												text: __('Export CSV', 'vulopilot'),
-												icon: 'export',
-												color: 'plain',
-												onClick: handleExportCsv,
-											}}
-										/>
-									</div>
-								}
-							>
-								{findingsError ? (
-									<ModuleGuardComponent
-										icon="error"
-										title={__('Could not load findings', 'vulopilot')}
-										desc={findingsError}
-										buttonText={__('Retry', 'vulopilot')}
-										onButtonClick={loadFindings}
-									/>
-								) : (
-									<TableCard
-										showMenu={false}
-										expandable
-										className="transparent-table broken-link-monitoring-table"
-										headers={headers}
-										rows={tableRows}
-										ids={pageGroups.map((group) => group.id)}
-										totalRows={pageGroups.length}
-										isLoading={isLoadingFindings}
-										emptyMessage={__(
-											'No broken links or images found yet. Make sure "Flag broken links"/"Flag broken images" are turned on under Settings → Scanning → SEO, then run a scan.',
-											'vulopilot'
-										)}
-									/>
-								)}
-							</CardComponent>
-						</>
+						</CardComponent>
+					</>
 				)}
 			</ColumnComponent>
 
@@ -1318,7 +1313,7 @@ const BrokenLinksSection = () => {
 						inputLabel={__('From (path)', 'vulopilot')}
 						value={redirectSourcePath}
 						disabled
-						onChange={() => {}}
+						onChange={() => { }}
 					/>
 					<TypographyComponent as="p" variant="desc" className="broken-link-redirect-note">
 						{__(

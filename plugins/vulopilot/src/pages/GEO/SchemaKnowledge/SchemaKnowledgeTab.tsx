@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
-import { ColumnComponent, NoticeComponent, SectionComponent } from '@zyra/components';
+import { ColumnComponent, NoticeComponent, SectionComponent, ContainerComponent } from '@zyra/components';
 import '../SeoVisibility.scss';
 import BusinessUnderstandingCard from './BusinessUnderstandingCard';
 import CriticalIssuesCard from './CriticalIssuesCard';
@@ -98,19 +98,26 @@ const SchemaKnowledgeTab = ({
 	}, []);
 
 	return (
-		<>
-			<div className="schema-page-header">
-				<div className="schema-page-header-title">
-					<i className="adminfont-centralized-connections" />
-					<h2>{__('Business Identity & Schema', 'vulopilot')}</h2>
-				</div>
-				<p className="desc">
-					{__(
-						'See how Google and AI understand your business — and whether your site communicates it correctly.',
-						'vulopilot'
-					)}
-				</p>
-			</div>
+		<ContainerComponent>
+			{/*
+			 * NavigatorHeaderComponent above the tab bar always reads "Grow
+			 * My Traffic" for every tab (by design — every other tab here
+			 * follows that same shared-header convention, see GEO.tsx's own
+			 * docblock), so this page's own distinct title/subtitle
+			 * (matching the reference mockup) renders as its own real
+			 * heading here instead of fighting that shared architecture —
+			 * zyra's own `SectionComponent` (same real title+icon+desc
+			 * component NavigatorComponent's own `renderSettingHeaderInfo()`
+			 * already uses internally) instead of hand-rolled markup.
+			 */}
+			<SectionComponent
+				icon="centralized-connections"
+				title={__('Business Identity & Schema', 'vulopilot')}
+				desc={__(
+					'See how Google and AI understand your business — and whether your site communicates it correctly.',
+					'vulopilot'
+				)}
+			/>
 
 			<ColumnComponent grid={12}>
 				<NoticeComponent
@@ -156,7 +163,7 @@ const SchemaKnowledgeTab = ({
 				/>
 				<InspectorSection />
 			</div>
-		</>
+		</ContainerComponent>
 	);
 };
 

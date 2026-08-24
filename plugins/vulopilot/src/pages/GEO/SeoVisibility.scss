@@ -200,8 +200,11 @@
 	}
 }
 
-// BrandScoreCard.tsx's own 4 score-rating pills — still the plain
-// `<BadgeComponent>` shape, not an AnalyticsComponent tile.
+// BrandScoreCard.tsx's own score-rating pills, passed through as
+// `badgeClassName` on zyra `AnalyticsComponent`'s own `variant="score-ring"`
+// tiles (that component only ships specific semantic status classes, not
+// generic color names — see `BadgeComponent`'s own docblock) — also reused
+// as-is by `.geo-four-checks-analytics`'s own tiles above.
 .geo-four-checks-badge {
 	&.is-good {
 		background: #dcfce7;
@@ -824,14 +827,20 @@
 }
 
 // SeoTab.tsx's "SEO checks at a glance" — 5 real category tiles, now a real
-// Zyra `<AnalyticsComponent>` (`.analytics-container`/`.analytics-item`
-// supply the tile chrome) instead of the hand-rolled tile markup this used
-// to be — same `.analytics-item.is-*` `colorClass` convention as
-// `.geo-four-checks-analytics` above and
-// `.vulnerability-hero-stats`/`.accessibility-hero-stats`
-// (Security/ProtectMySite.scss), just with the tile border/background tint
-// carried over too (not only the number color) to match this tile's own
-// previous look.
+// Zyra `<AnalyticsComponent variant="small-card">` (`.analytics-container`/
+// `.analytics-item` supply the tile chrome, real `$color-palette` border/
+// background tint included) instead of the hand-rolled tile markup this
+// used to be. `colorClass` is one of that same real palette's own names
+// now (`ratingColor()` in SeoTab.tsx — `green`/`yellow`/`red`, same
+// convention `BrandScoreCard.tsx`'s own `variant="score-ring"` tiles
+// already established), not the bespoke `is-good`/`is-attention`/`is-poor`
+// classes this rule used to key off — those never actually matched
+// `small-card`'s own compiled `@each $name, $style in $color-palette` tint
+// rule (`.green`/`.yellow`/`.red`, not `.is-good` etc.), so every tile here
+// silently rendered untinted before this fix. Zyra's own rule only colors
+// `.card-graph`/`.details .text`, not the big score number itself — this
+// still supplements that with a real `.number` color per rating so the
+// score reads at a glance the same way the reference mockup's own tiles do.
 .seo-category-grid {
 	.analytics-container {
 		display: grid;
@@ -840,31 +849,65 @@
 	}
 
 	.analytics-item {
-		&.is-good {
-			border-color: #bbf7d0;
-			background: #f0fdf4;
-
-			.number {
-				color: #16a34a;
-			}
+		&.green .details .number {
+			color: #16a34a;
 		}
 
-		&.is-attention {
-			border-color: #fde68a;
-			background: #fffbeb;
+		&.yellow .details .number {
+			color: #b7791f;
+		}
 
-			.number {
-				color: #b45309;
-			}
+		&.red .details .number {
+			color: #dc2626;
+		}
+	}
+}
+
+// SeoTab.tsx's own "SEO Health Score" hero card — the real ring
+// (`.geo-overall-visibility`, shared with every other score-ring gauge
+// across GEO/AEO/SEO) plus a real 4-stat row (Pages checked/Issues found/
+// Critical issues/High priority issues) beside it, same real numbers
+// `.seo-category-grid` above and the rest of this tab already read, just
+// laid out together to match the reference mockup's own single hero card
+// rather than 2 separate ones.
+.seo-health-score-layout {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 2rem;
+}
+
+.seo-health-score-ring {
+	flex: 0 0 auto;
+}
+
+.seo-health-score-stats {
+	flex: 1 1 16rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+	gap: 1.25rem;
+}
+
+.seo-health-stat {
+	.typography-h3 {
+		margin: 0 0 0.125rem;
+
+		&.is-attention {
+			color: #b45309;
 		}
 
 		&.is-poor {
-			border-color: #fecaca;
-			background: #fef2f2;
+			color: #dc2626;
+		}
+	}
 
-			.number {
-				color: #dc2626;
-			}
+	.typography-caption {
+		&.is-good {
+			color: #16a34a;
+		}
+
+		&.is-attention {
+			color: #b45309;
 		}
 	}
 }
@@ -1567,37 +1610,6 @@
 }
 
 // SchemaKnowledgeTab.tsx's own real in-page header — GEO.tsx's shared
-// NavigatorHeaderComponent above the tab bar always reads "Grow My
-// Traffic" for every tab (by design — every other tab here follows that
-// same shared-header convention, see GEO.tsx's own docblock), so this
-// page's own distinct title/subtitle (matching the reference mockup)
-// renders as its own real heading inside this tab's own content instead
-// of fighting that shared architecture.
-.schema-page-header {
-	margin-bottom: 0.25rem;
-
-	.desc {
-		margin: 0.25rem 0 0;
-	}
-}
-
-.schema-page-header-title {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
-
-	i {
-		font-size: 1.25rem;
-		color: var(--color-primary);
-	}
-
-	h2 {
-		margin: 0;
-		font-size: 1.25rem;
-		font-weight: 600;
-	}
-}
-
 // AeoScoreSummaryCard.tsx — the reference mockup's own "AEO Score" card:
 // gauge + real "Goal: 70+" nudge on the left, 4 real stat rows on the
 // right, replacing this tab's previous 3-card row. Also reused as-is by
