@@ -280,6 +280,15 @@ const SectionedIssuesTable = ({
 								showMenu={false}
 								hideHeader={true}
 								className="transparent-table"
+								// Highlights the row whose details are showing in
+								// the side panel (zyra's own `is-selected` row
+								// style, see @zyra/table's TableCard/Table) —
+								// same real pattern AI Copilot's own Issues table
+								// (IssuesList.tsx) already established, kept in
+								// sync with the action cell's own row-is-active
+								// check below rather than a separate piece of
+								// state.
+								activeRowId={selectedGroup?.scanner_id}
 								headers={{
 									issue: {
 										label: __('Issue', 'vulopilot'),
@@ -316,16 +325,32 @@ const SectionedIssuesTable = ({
 											),
 									},
 									action: {
-										type: 'action',
 										label: __('Action', 'vulopilot'),
-										actions: [
-											{
-												label: __('View', 'vulopilot'),
-												icon: 'eye',
-												onClick: (row: FindingGroup) =>
-													setSelectedGroup(row),
-											},
-										],
+										// "More Details"/"Showing" toggle + active
+										// state — same real pattern AI Copilot's own
+										// Issues table (IssuesList.tsx) already
+										// established, instead of a plain icon-only
+										// "View" action.
+										render: (row: FindingGroup) => {
+											const isActiveRow =
+												row.scanner_id === selectedGroup?.scanner_id;
+
+											return (
+												<span
+													className={`more-details admin-btn btn-text-purple${isActiveRow ? ' is-active' : ''}`}
+													onClick={() =>
+														setSelectedGroup(
+															isActiveRow ? null : row
+														)
+													}
+												>
+													{isActiveRow
+														? __('Showing', 'vulopilot')
+														: __('More Details', 'vulopilot')}{' '}
+													<i className="adminfont-pagination-next-arrow" />
+												</span>
+											);
+										},
 									},
 								}}
 								rows={pageRows}

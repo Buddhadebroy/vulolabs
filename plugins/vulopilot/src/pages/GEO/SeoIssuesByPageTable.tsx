@@ -2,9 +2,9 @@
 import React from 'react';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CardComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager } from '@zyra/components';
+import { BadgeComponent, CardComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { TableCard, TableRowActions } from '@zyra/table';
+import { TableCard } from '@zyra/table';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
 import {
 	FindingSeverity,
@@ -387,7 +387,7 @@ const SeoIssuesByPageTable = ({
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
-							width: '50%',
+							width: '65%',
 							/**
 							 * Status and Issues used to be their own columns —
 							 * consolidated here as InformationItemComponent's own
@@ -445,7 +445,7 @@ const SeoIssuesByPageTable = ({
 							? {
 									visibility_score: {
 										label: visibilityColumnLabel,
-										width: '13%',
+										width: '3rem',
 										isSortable: true,
 										render: (row: TableRow) =>
 											isFindingRow(row) ? null : (
@@ -463,27 +463,24 @@ const SeoIssuesByPageTable = ({
 							: {}),
 						action: {
 							label: __('Action', 'vulopilot'),
-							type: 'action',
-							// zyra `TableRowActions`' own new `type: 'badge'`
-							// variant, set once here (not repeated per
-							// action) — every action below renders as a real
-							// clickable BadgeComponent pill instead of a
-							// plain icon. "Fix with AI" keeps its own
+							// Direct `BadgeComponent` array instead of
+							// `TableRowActions` — every action here always
+							// renders as a badge, so `TableRowActions`' own
+							// icon/dropdown-menu machinery had nothing left
+							// to do. "Fix with AI" keeps its own
 							// `badge-action-fix-ai` color (SeoVisibility.scss,
 							// already defined for SeoSiteWideIssuesTable.tsx's
 							// own row actions); Edit/View get the default
 							// badge look.
 							render: (row: TableRow) => (
-								<TableRowActions
-									row={row}
-									type="badge"
-									rowActions={[
+								<BadgeComponent
+									badges={[
 										// A merged-in page (pageAnalysis mode) can legitimately have
 										// zero matching findings — nothing for "Fix with AI" to open.
 										...(isFindingRow(row) || getRowFindings(row).length > 0
 											? [
 													{
-														label: __('Fix with AI', 'vulopilot'),
+														text: __('Fix with AI', 'vulopilot'),
 														icon: 'ai',
 														className: 'badge-action-fix-ai',
 														onClick: () =>
@@ -495,13 +492,13 @@ const SeoIssuesByPageTable = ({
 												]
 											: []),
 										{
-											label: __('Edit', 'vulopilot'),
+											text: __('Edit', 'vulopilot'),
 											icon: 'edit',
 											onClick: () =>
 												(window.location.href = row.editLink),
 										},
 										{
-											label: __('View', 'vulopilot'),
+											text: __('View', 'vulopilot'),
 											icon: 'eye',
 											onClick: () => {
 												if (row.viewLink) {

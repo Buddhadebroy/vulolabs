@@ -1,6 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ChartComponent } from '@zyra/components';
-import ProLockedCard from '../../components/ProLockedCard';
 import type { TrendChange } from './GeoTrendCompactCard';
 
 /**
@@ -14,7 +13,6 @@ const GOOD_RATING_THRESHOLD = 70;
 
 interface AeoScoreSummaryCardProps {
 	isLoading: boolean;
-	hasSnapshot: boolean;
 	aeoScore: number;
 	ratingLabel: string;
 	ratingClassName: string;
@@ -47,7 +45,6 @@ interface AeoScoreSummaryCardProps {
  */
 const AeoScoreSummaryCard = ({
 	isLoading,
-	hasSnapshot,
 	aeoScore,
 	ratingLabel,
 	ratingClassName,
@@ -119,85 +116,84 @@ const AeoScoreSummaryCard = ({
 			)}
 			isLoading={isLoading}
 		>
-			
-				<div className="aeo-score-summary">
-					<div className="aeo-score-summary-gauge">
-						<div className="geo-overall-visibility">
-							<ChartComponent
-								type="pie"
-								height={140}
-								centerLabel={
-									<>
-										<span className="score-ring-number">
-											{aeoScore}
-										</span>
-										<span className="score-ring-label">/100</span>
-										<span
-											className={`score-ring-label geo-overall-rating ${ratingClassName}`}
-										>
-											{ratingLabel}
-										</span>
-									</>
-								}
-								data={[
-									{
-										label: __('Score', 'vulopilot'),
-										value: aeoScore,
-										color: '#7C3AED',
-									},
-									{
-										label: __('Remaining', 'vulopilot'),
-										value: 100 - aeoScore,
-										color: '#e5e7eb',
-									},
-								]}
-							/>
-						</div>
-						<div className="aeo-score-goal-box">
-							<i className="adminfont-light" />
-							<div>
-								<strong>
-									{sprintf(
-										/* translators: %d is the real score this tab's own "Good" rating starts at. */
-										__('Goal: %d+ for strong AI visibility', 'vulopilot'),
-										GOOD_RATING_THRESHOLD
-									)}
-								</strong>
-								<p>
-									{__(
-										'Improve content structure and clarity to be more discoverable by AI engines.',
-										'vulopilot'
-									)}
-								</p>
-							</div>
-						</div>
+			<div className="aeo-score-summary">
+				<div className="aeo-score-summary-gauge">
+					<div className="geo-overall-visibility">
+						<ChartComponent
+							type="pie"
+							height={140}
+							centerLabel={
+								<>
+									<span className="score-ring-number">
+										{aeoScore}
+									</span>
+									<span className="score-ring-label">/100</span>
+									<span
+										className={`score-ring-label geo-overall-rating ${ratingClassName}`}
+									>
+										{ratingLabel}
+									</span>
+								</>
+							}
+							data={[
+								{
+									label: __('Score', 'vulopilot'),
+									value: aeoScore,
+									color: '#7C3AED',
+								},
+								{
+									label: __('Remaining', 'vulopilot'),
+									value: 100 - aeoScore,
+									color: '#e5e7eb',
+								},
+							]}
+						/>
 					</div>
-					<div className="aeo-score-summary-stats">
-						{rows.map((row, index) => (
-							<div
-								key={row.key}
-								className={`aeo-score-stat-row ${0 === index ? 'is-first' : ''}`}
-							>
-								<div className={`aeo-score-stat-icon ${row.colorClass}`}>
-									<i className={`adminfont-${row.icon}`} />
-								</div>
-								<div className="aeo-score-stat-text">
-									<div className="aeo-score-stat-title">
-										{row.title}
-									</div>
-									<div className="aeo-score-stat-desc">
-										{row.desc}
-									</div>
-								</div>
-								<div
-									className={`aeo-score-stat-value ${row.valueClass ?? ''}`}
-								>
-									{row.value}
-								</div>
-							</div>
-						))}
+					<div className="aeo-score-goal-box">
+						<i className="adminfont-light" />
+						<div>
+							<strong>
+								{sprintf(
+									/* translators: %d is the real score this tab's own "Good" rating starts at. */
+									__('Goal: %d+ for strong AI visibility', 'vulopilot'),
+									GOOD_RATING_THRESHOLD
+								)}
+							</strong>
+							<p>
+								{__(
+									'Improve content structure and clarity to be more discoverable by AI engines.',
+									'vulopilot'
+								)}
+							</p>
+						</div>
 					</div>
 				</div>
+				<div className="aeo-score-summary-stats">
+					{rows.map((row, index) => (
+						<div
+							key={row.key}
+							className={`aeo-score-stat-row ${0 === index ? 'is-first' : ''}`}
+						>
+							<div className={`aeo-score-stat-icon ${row.colorClass}`}>
+								<i className={`adminfont-${row.icon}`} />
+							</div>
+							<div className="aeo-score-stat-text">
+								<div className="aeo-score-stat-title">
+									{row.title}
+								</div>
+								<div className="aeo-score-stat-desc">
+									{row.desc}
+								</div>
+							</div>
+							<div
+								className={`aeo-score-stat-value ${row.valueClass ?? ''}`}
+							>
+								{row.value}
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
 		</CardComponent>
 	);
 };
