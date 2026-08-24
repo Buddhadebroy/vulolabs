@@ -34,6 +34,28 @@ interface FixOutcome {
  */
 const getFindingFixHandler = () => applyFilters('vulopilot_finding_fix_handler', null);
 
+/** Same local helper RecentContentCard.tsx's own `timeAgo` is — kept per-file rather than shared since this is the only real date this page renders. */
+const timeAgo = (dateString: string): string => {
+	const seconds = Math.max(
+		0,
+		Math.floor((Date.now() - new Date(dateString).getTime()) / 1000)
+	);
+
+	if (seconds < 60) {
+		return __('just now', 'vulopilot');
+	}
+	const minutes = Math.floor(seconds / 60);
+	if (minutes < 60) {
+		return `${minutes}m ago`;
+	}
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) {
+		return `${hours}h ago`;
+	}
+	const days = Math.floor(hours / 24);
+	return `${days}d ago`;
+};
+
 interface SeoSiteWideIssuesTableProps {
 	findings: RawFinding[];
 	activeScannerIds: 'all' | string[];
@@ -195,6 +217,10 @@ const SeoSiteWideIssuesTable = ({
 										text: row.severity,
 										className: `badge-${row.severity}`,
 									},
+								]}
+								descriptions={[
+									{ value: row.scanner_id, icon: 'category' },
+									{ value: timeAgo(row.created_at), icon: 'clock' },
 								]}
 							/>
 						),

@@ -18,8 +18,6 @@ import AiSpeedAssistantCard from './AiSpeedAssistantCard';
 import PerformanceTab from './PerformanceTab';
 import './Performance.scss';
 
-const EFFICIENCY_SECTIONS_TOP_ID = 'performance-efficiency-sections';
-
 /**
  * "Performance"'s only tab — see this folder's sibling files for the
  * per-section real-data mapping (PerformanceScoreCard, MetricsGrid,
@@ -94,6 +92,18 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 
 	const scrollToFindings = () => scrollToId('performance-section-findings');
 
+	// "View all" on the efficiency hero/chart/review cards used to scroll
+	// to a wrapping div's own id — now that each section card carries its
+	// own real id (`section.key`, see EfficiencySectionsList.tsx), it
+	// scrolls straight to the first rendered section instead.
+	const scrollToEfficiencySections = () => {
+		const firstSectionId = efficiencySections[0]?.key;
+
+		if (firstSectionId) {
+			scrollToId(firstSectionId);
+		}
+	};
+
 	/** MetricsGrid's own scanner-backed tiles — switches the Top Issues table to that tile's section, then scrolls to it. */
 	const goToIssuesSection = (sectionKey: string) => {
 		setActiveIssuesTab(sectionKey);
@@ -115,75 +125,77 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 	);
 	const efficiencySummary = efficiencyData
 		? {
-				total: efficiencyData.summary.total - 1,
-				need_attention:
-					efficiencyData.summary.need_attention -
-					(opcacheCheck?.status === 'attention' ? 1 : 0),
-				working:
-					efficiencyData.summary.working -
-					(opcacheCheck?.status === 'good' ? 1 : 0),
-				not_applicable:
-					efficiencyData.summary.not_applicable -
-					(opcacheCheck?.status === 'not_applicable' ? 1 : 0),
-			}
+			total: efficiencyData.summary.total - 1,
+			need_attention:
+				efficiencyData.summary.need_attention -
+				(opcacheCheck?.status === 'attention' ? 1 : 0),
+			working:
+				efficiencyData.summary.working -
+				(opcacheCheck?.status === 'good' ? 1 : 0),
+			not_applicable:
+				efficiencyData.summary.not_applicable -
+				(opcacheCheck?.status === 'not_applicable' ? 1 : 0),
+		}
 		: null;
 
 	return (
 		<>
-				<ColumnComponent grid={8}>
-					<PerformanceScoreCard onViewDetails={onNavigateToSlowPages} />
+			{/* 1st fold */}
+			<PerformanceScoreCard onViewDetails={onNavigateToSlowPages} />
 
-					<MetricsGrid
-						onViewSection={goToIssuesSection}
-						onViewCoreWebVitals={() =>
-							scrollToId('performance-core-web-vitals-card')
-						}
-					/>
-
-					<SpeedHistoryCard />
-				</ColumnComponent>
-
-				<ColumnComponent grid={4}>
-					<QuickActionsCard />
-					<RealTimeMonitoringCard />
-					<BiggestSpeedOpportunityCard onViewSlowPages={onNavigateToSlowPages} />
-					<AiSpeedAssistantCard onReviewIssues={scrollToFindings} />
-				</ColumnComponent>
-
-			<ContainerComponent>
-				<ColumnComponent fullHeight grid={6}>
-					<EfficiencyHeroCard
-						summary={efficiencySummary}
-						isLoading={isEfficiencyLoading}
-						onReviewImprovements={() => scrollToId(THINGS_TO_REVIEW_ID)}
-					/>
-				</ColumnComponent>
-				<ColumnComponent fullHeight grid={6}>
-					<EfficiencyOverviewChart
-						summary={efficiencySummary}
-						isLoading={isEfficiencyLoading}
-						onViewAll={() => scrollToId(EFFICIENCY_SECTIONS_TOP_ID)}
-					/>
-				</ColumnComponent>
-			</ContainerComponent>
-
-			<div id={EFFICIENCY_SECTIONS_TOP_ID}>
-				<EfficiencySectionsList
-					sections={efficiencySections}
-					isLoading={isEfficiencyLoading}
+			{/* 2nd fold */}
+			<ColumnComponent grid={8}>
+				<MetricsGrid
+					onViewSection={goToIssuesSection}
+					onViewCoreWebVitals={() =>
+						scrollToId('performance-core-web-vitals-card')
+					}
 				/>
-			</div>
+			</ColumnComponent>
 
-			<EfficiencyThingsToReview
-				reviewItems={efficiencyReviewItems}
-				summary={efficiencySummary}
+			<ColumnComponent grid={4}>
+				<AiSpeedAssistantCard onReviewIssues={scrollToFindings} />
+				<BiggestSpeedOpportunityCard onViewSlowPages={onNavigateToSlowPages} />
+			</ColumnComponent>
+			
+			{/* 3rd fold */}
+			<ColumnComponent grid={6} fullHeight>
+				<SpeedHistoryCard />
+			</ColumnComponent>
+
+			{/* 4th fold */}
+			<ColumnComponent fullHeight grid={4}>
+				<EfficiencyHeroCard
+					summary={efficiencySummary}
+					isLoading={isEfficiencyLoading}
+					onReviewImprovements={() => scrollToId(THINGS_TO_REVIEW_ID)}
+				/>
+			</ColumnComponent>
+			<ColumnComponent fullHeight grid={4}>
+				<EfficiencyOverviewChart
+					summary={efficiencySummary}
+					isLoading={isEfficiencyLoading}
+					onViewAll={scrollToEfficiencySections}
+				/>
+			</ColumnComponent>
+
+			<EfficiencySectionsList
+				sections={efficiencySections}
 				isLoading={isEfficiencyLoading}
-				onViewAll={() => scrollToId(EFFICIENCY_SECTIONS_TOP_ID)}
 			/>
-
-			<LiveSiteInsightsCard />
-
-			<ColumnComponent>
+			
+			<ColumnComponent fullHeight grid={6}>
+				<EfficiencyThingsToReview
+					reviewItems={efficiencyReviewItems}
+					summary={efficiencySummary}
+					isLoading={isEfficiencyLoading}
+					onViewAll={scrollToEfficiencySections}
+				/>
+			</ColumnComponent>
+			<ColumnComponent grid={6}>
+				<LiveSiteInsightsCard />
+			</ColumnComponent>
+			<ColumnComponent >
 				<div id="performance-section-findings">
 					<PerformanceTab
 						activeTab={activeIssuesTab}

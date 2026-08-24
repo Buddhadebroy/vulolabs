@@ -807,99 +807,110 @@ const RecentContentCard = () => {
 			<TableCard
 				className="transparent-table"
 				showMenu={false}
+				hideHeader={true}
 				expandable
 				headers={{
 					title: {
 						label: __('Content', 'vulopilot'),
 						width: '40%',
-						render: (row: ContentRow) => (
-							<InformationItemComponent
-								title={
-									row.title || __('(no title)', 'vulopilot')
-								}
-								titleLink={row.editLink}
-								avatar={{
-									iconClass: CATEGORY_ICONS[row.category],
-								}}
-								descriptions={[
-									{ value: formatWordCount(row.wordCount) },
-								]}
-							/>
-						),
-					},
-					category: {
-						label: __('Type', 'vulopilot'),
-						render: (row: ContentRow) =>
-							CATEGORY_LABELS[row.category],
-					},
-					status: {
-							label: __('Status', 'vulopilot'),
-							type: 'status' , statusClass: (row: ContentRow) => `${row.status}`,
-						},
-					issues: {
-						label: __('Issues', 'vulopilot'),
 						render: (row: ContentRow) => {
+							// Same real findings/severity this row's own
+							// "Issues" column below computes — duplicated
+							// here (rather than lifted onto ContentRow)
+							// since each TableCard column's `render` is
+							// otherwise independent, same as `issues`
+							// already recomputing it from `row` alone.
 							const findings = visibleFindingsFor(row);
 							const openFindings = row.findings.filter(
 								(finding) => 'open' === finding.status
 							);
 
-							if (0 === findings.length) {
-								return __('None', 'vulopilot');
-							}
-
-							// Click-to-expand now lives on the row's own real
-							// expand `<tr>` arrow (TableCard's `expandable`,
-							// wired via `row.expandedContent` below) — this is
-							// just a static count/severity indicator.
 							return (
-								<BadgeComponent
-									color={`badge-${worstSeverity(openFindings)}`}
-									text={sprintf(
-										_n(
-											'%d issue',
-											'%d issues',
-											findings.length,
-											'vulopilot'
-										),
-										findings.length
-									)}
+								<InformationItemComponent
+									title={
+										row.title ||
+										__('(no title)', 'vulopilot')
+									}
+									titleLink={row.editLink}
+									avatar={{
+										iconClass: CATEGORY_ICONS[row.category],
+									}}
+									badges={[
+										{
+											text: row.status,
+											className: row.status,
+										},
+										...(findings.length > 0
+											? [
+													{
+														text: sprintf(
+															_n(
+																'%d issue',
+																'%d issues',
+																findings.length,
+																'vulopilot'
+															),
+															findings.length
+														),
+														className: `badge-${worstSeverity(openFindings)}`,
+													},
+												]
+											: []),
+									]}
+									descriptions={[
+										{
+											value: formatWordCount(
+												row.wordCount
+											),
+											icon: 'text-fields',
+										},
+										{
+											value: CATEGORY_LABELS[row.category],
+											icon: CATEGORY_ICONS[row.category],
+										},
+										{
+											value: timeAgo(row.date),
+											icon: 'clock',
+										},
+									]}
 								/>
 							);
 						},
 					},
-					date: {
-						label: __('Updated', 'vulopilot'),
-						render: (row: ContentRow) => timeAgo(row.date),
-					},
 					action: {
 						label: __('Actions', 'vulopilot'),
-						type: 'action',
-						actions: [
-							{
-								label: __('Edit', 'vulopilot'),
-								icon: 'edit',
-								onClick: (row: ContentRow) =>
-									(window.location.href = row.editLink),
-							},
-							{
-								label: __('View', 'vulopilot'),
-								icon: 'eye',
-								onClick: (row: ContentRow) => {
-									if (row.viewLink) {
-										window.open(row.viewLink, '_blank', 'noreferrer');
-									}
-								},
-							},
-							{
-								label: (row: ContentRow) =>
-									deletingId === row.id
-										? __('Deleting…', 'vulopilot')
-										: __('Delete', 'vulopilot'),
-								icon: 'delete',
-								onClick: handleDelete,
-							},
-						],
+						render: (row: ContentRow) => (
+							<BadgeComponent
+								badges={[
+									{
+										text: __('Edit', 'vulopilot'),
+										icon: 'edit',
+										className: 'yellow',
+										onClick: () =>
+											(window.location.href = row.editLink),
+									},
+									{
+										text: __('View', 'vulopilot'),
+										icon: 'eye',
+										className: 'blue',
+										onClick: () => {
+											if (row.viewLink) {
+												window.open(row.viewLink, '_blank', 'noreferrer');
+											}
+										},
+									},
+									{
+										text:
+											deletingId === row.id
+												? __('Deleting…', 'vulopilot')
+												: __('Delete', 'vulopilot'),
+										icon: 'delete',
+										className: 'red',
+										onClick: () => handleDelete(row),
+									},
+								]}
+							/>
+						),
 					},
 				}}
 				rows={tableRows}

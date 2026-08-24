@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent } from '@zyra/components';
+import { SectionComponent } from '@zyra/components';
 import { formatAffected } from './issuesTypes';
 import { IssuesFilter } from './NeedsAttentionCard';
 import './AICopilot.scss';
@@ -75,13 +75,11 @@ const RecommendedActionsCard: React.FC<RecommendedActionsCardProps> = ({ onNavig
 	}
 
 	return (
-		<CardComponent
-			className="dashboard-widget"
-			titleIcon="ai"
-			title={__('Recommended by VuloPilot', 'vulopilot')}
-			desc={__('High impact actions suggested by AI', 'vulopilot')}
-			isLoading={isLoading}
-		>
+		<>
+			<SectionComponent
+				title={__('Recommended by VuloPilot', 'vulopilot')}
+				desc={__('High impact actions suggested by AI', 'vulopilot')}
+			/>
 			<div className="recommended-actions-grid">
 				{recommendations.map((rec) => {
 					const meta = BUCKET_META[rec.bucket];
@@ -117,7 +115,7 @@ const RecommendedActionsCard: React.FC<RecommendedActionsCardProps> = ({ onNavig
 					);
 				})}
 			</div>
-		</CardComponent>
+		</>
 	);
 };
 

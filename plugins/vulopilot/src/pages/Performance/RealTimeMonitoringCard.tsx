@@ -45,7 +45,7 @@ const RealTimeMonitoringCard = () => {
 	}, []);
 
 	return (
-		<CardComponent id="performance-realtime-monitoring-card" title={__('Real-time Monitoring', 'vulopilot')} isLoading={isLoading}>
+		<CardComponent id="performance-realtime-monitoring-card" title={__('Real-time Monitoring', 'vulopilot')} titleIcon="bar-chart" isLoading={isLoading}>
 			{stats && (
 				<AnalyticsComponent
 					cols={2}

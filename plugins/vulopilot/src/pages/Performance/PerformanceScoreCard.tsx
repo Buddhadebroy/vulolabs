@@ -11,6 +11,8 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import './Performance.scss';
+import RealTimeMonitoringCard from './RealTimeMonitoringCard';
+import QuickActionsCard from './QuickActionsCard';
 
 /** `id: 'pagespeed-insights'` (Settings/Connections/PageSpeedInsights.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; moved from the old Settings → Scanning → Performance tab, same "moved into Connections" precedent GoogleServices.ts's own docblock documents. */
 const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=pagespeed-insights';
@@ -114,6 +116,48 @@ const VitalRow = ({ label, displayValue, value, thresholds, goodCaption }: Vital
 				<div className={`core-web-vital-bar-fill ${rating.className}`} style={{ width: `${fillPercent}%` }} />
 			</div>
 			<div className="core-web-vital-row-caption">{goodCaption}</div>
+		</div>
+	);
+};
+
+interface ScoreTileProps {
+	label: string;
+	score: number;
+	/** `speed-score-tile-single` when there's no PSI key configured (one real unified score, not a device split) — see the "Overall Speed Score" fallback below. */
+	single?: boolean;
+}
+
+/**
+ * One score-ring tile — Mobile/Desktop (real PSI key configured) or Overall
+ * (no PSI key, the single real unified `category_scores.performance`
+ * number). Extracted from 3 near-identical copies of the same
+ * ring+label+rating markup, one per case, that only ever differed in which
+ * real score they read.
+ */
+const ScoreTile = ({ label, score, single = false }: ScoreTileProps) => {
+	const rating = getScoreRating(score);
+
+	return (
+		<div className={`speed-score-tile${single ? ' speed-score-tile-single' : ''}`}>
+			<div className="speed-score-tile-label">{label}</div>
+			<ChartComponent
+				type="ring"
+				height={90}
+				color={RATING_COLOR[rating.className]}
+				data={[{ value: score }]}
+				centerLabel={
+					<>
+						<span className={`speed-score-tile-value ${rating.className}`}>
+							{score}
+						</span>
+						<span className="speed-score-tile-max">/100</span>
+					</>
+				}
+			/>
+			<span className={`speed-score-tile-rating ${rating.className}`}>
+				<span className="speed-score-tile-dot" />
+				{rating.label}
+			</span>
 		</div>
 	);
 };
@@ -232,8 +276,8 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	};
 
 	return (
-		<ContainerComponent>
-			<ColumnComponent row>
+		<>
+			<ColumnComponent row fullHeight>
 				<CardComponent>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
@@ -247,75 +291,15 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 							<div className="speed-score-tiles">
 								{hasPsi && psi ? (
 									<>
-										<div className="speed-score-tile">
-											<div className="speed-score-tile-label">{__('Mobile', 'vulopilot')}</div>
-											<ChartComponent
-												type="ring"
-												height={150}
-												color={RATING_COLOR[getScoreRating(psi.mobile as number).className]}
-												data={[{ value: psi.mobile as number }]}
-												centerLabel={
-													<>
-														<span className={`speed-score-tile-value ${getScoreRating(psi.mobile as number).className}`}>
-															{psi.mobile}
-														</span>
-														<span className="speed-score-tile-max">/100</span>
-													</>
-												}
-											/>
-											<span className={`speed-score-tile-rating ${getScoreRating(psi.mobile as number).className}`}>
-												<span className="speed-score-tile-dot" />
-												{getScoreRating(psi.mobile as number).label}
-											</span>
-										</div>
-										<div className="speed-score-tile">
-											<div className="speed-score-tile-label">{__('Desktop', 'vulopilot')}</div>
-											<ChartComponent
-												type="ring"
-												height={90}
-												color={RATING_COLOR[getScoreRating(psi.desktop as number).className]}
-												data={[{ value: psi.desktop as number }]}
-												centerLabel={
-													<>
-														<span className={`speed-score-tile-value ${getScoreRating(psi.desktop as number).className}`}>
-															{psi.desktop}
-														</span>
-														<span className="speed-score-tile-max">/100</span>
-													</>
-												}
-											/>
-											<span className={`speed-score-tile-rating ${getScoreRating(psi.desktop as number).className}`}>
-												<span className="speed-score-tile-dot" />
-												{getScoreRating(psi.desktop as number).label}
-											</span>
-										</div>
+										<ScoreTile label={__('Mobile', 'vulopilot')} score={psi.mobile as number} />
+										<ScoreTile label={__('Desktop', 'vulopilot')} score={psi.desktop as number} />
 									</>
 								) : (
-									<div className="speed-score-tile speed-score-tile-single">
-										<div className="speed-score-tile-label">{__('Overall', 'vulopilot')}</div>
-										<ChartComponent
-											type="ring"
-											height={90}
-											color={RATING_COLOR[getScoreRating(dashboard.category_scores.performance).className]}
-											data={[{ value: dashboard.category_scores.performance }]}
-											centerLabel={
-												<>
-													<span
-														className={`speed-score-tile-value ${getScoreRating(dashboard.category_scores.performance).className}`}
-													>
-														{dashboard.category_scores.performance}
-													</span>
-													<span className="speed-score-tile-max">/100</span>
-												</>
-											}
-										/>
-										<span
-											className={`speed-score-tile-rating ${getScoreRating(dashboard.category_scores.performance).className}`}
-										>
-											<span className="speed-score-tile-dot" />
-											{getScoreRating(dashboard.category_scores.performance).label}
-										</span>
-									</div>
+									<ScoreTile
+										label={__('Overall', 'vulopilot')}
+										score={dashboard.category_scores.performance}
+										single
+									/>
 								)}
 							</div>
 
@@ -406,8 +390,10 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 						</>
 					)}
 				</CardComponent>
+				<RealTimeMonitoringCard />
+				<QuickActionsCard />
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 

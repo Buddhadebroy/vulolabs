@@ -43,6 +43,8 @@ export interface RawFinding {
 	scanner_id: string;
 	object_type: string;
 	object_ref: string;
+	/** Real column (`FindingRepository`'s table), already returned by `find_all()`'s own `SELECT *` — just not typed here until `SeoSiteWideIssuesTable.tsx` needed it for a real "found on" date, same "narrow type widened once a real field is actually needed" pattern `RecentContentCard.tsx`'s own `RawFinding` docblock documents for `object_type`/`object_ref`. */
+	created_at: string;
 }
 
 interface FindingsResponse {
