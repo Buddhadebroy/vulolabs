@@ -402,3 +402,25 @@ $content-tool-colors: (
 		background: color-mix(in srgb, #16a34a 8%, transparent);
 	}
 }
+
+// QuickActionsCard.tsx
+.quick-actions-coming-soon {
+	font-size: 0.6875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	color: $sub-text-color;
+	background: $background-color;
+	border-radius: $border-radius-small;
+	padding: 0.1875rem 0.5rem;
+	white-space: nowrap;
+}
+
+.quick-actions-view-all {
+	margin-top: 0.75rem;
+
+	.admin-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}
