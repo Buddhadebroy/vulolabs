@@ -44,6 +44,24 @@ export default {
 			],
 		},
 		{
+			// Moved from Settings → Scanning → Security's own stray
+			// "Performance" section (see Security.ts's own docblock) — not
+			// a security setting, and Security is now scoped to exactly
+			// what its own mockup shows. Sits next to `scan_frequency`
+			// since it's the same kind of scan-behavior toggle.
+			key: 'mobile_core_web_vitals',
+			type: 'checkbox',
+			look: 'toggle',
+			label: __('Include mobile Core Web Vitals', 'vulopilot'),
+			settingDescription: __(
+				'Run Core Web Vitals checks against mobile as well as desktop.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'mobile_core_web_vitals', label: '', value: 'mobile_core_web_vitals' },
+			],
+		},
+		{
 			key: 'general-section',
 			type: 'section',
 			title: __('Basic Preferences', 'vulopilot'),

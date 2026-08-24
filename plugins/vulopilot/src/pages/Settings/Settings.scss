@@ -508,6 +508,42 @@
 	border-radius: 0 0 0.5rem 0.5rem;
 }
 
+// Scanning/SecurityPanel.tsx (Settings → Scanning → Security's own
+// section dividers between its 3 card groups, and the "Why these scans
+// matter" notice) — same minimal-supporting-CSS posture as
+// `.backup-storage-section-title` above, own prefix since this page isn't
+// part of that panel.
+.security-panel-section-title {
+	margin: 1.75rem 0 0.25rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
+}
+
+.security-panel-section-desc {
+	margin: 0 0 0.75rem;
+	font-size: 0.8125rem;
+	color: $sub-text-color;
+}
+
+.security-panel-notice {
+	background: $background-color;
+	border-radius: 0.5rem;
+	padding: 1rem 1.25rem;
+	margin: 1rem 0 0;
+
+	strong {
+		display: block;
+		font-size: 0.875rem;
+		margin-bottom: 0.25rem;
+	}
+
+	p {
+		margin: 0;
+		font-size: 0.8125rem;
+		color: $sub-text-color;
+	}
+}
+
 // Connections/PageSpeedStatusPanel.tsx (Settings → Connections →
 // PageSpeed Insights' own Connection Status pill/Daily API Usage bar/Test
 // Connection button) — reuses the same `.ai-provider-card*`/`.gsc-*`
