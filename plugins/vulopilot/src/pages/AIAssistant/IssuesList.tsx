@@ -236,6 +236,13 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							hideHeader={true}
 							categoryCounts={tableCategoryCounts}
 							activeCategory={activeTabId}
+							// Highlights the row whose details are showing in
+							// the side panel (zyra's own `is-selected` row
+							// style, see @zyra/table's TableCard/Table) —
+							// kept in sync with the action cell's own
+							// row-is-active check below rather than a
+							// separate piece of state.
+							activeRowId={selectedGroup?.scanner_id}
 							headers={{
 								issue: {
 									label: __('Issue', 'vulopilot'),
@@ -275,15 +282,26 @@ const IssuesList: React.FC<IssuesListProps> = ({
 								},
 								action: {
 									label: __('Affected', 'vulopilot'),
-									render: (row: FindingGroup) => (
-										<span
-											className="more-details admin-btn btn-text-purple"
-											onClick={() => setSelectedGroup(row)}
-										>
-											More Details{' '}
-											<i className="adminfont-pagination-next-arrow" />
-										</span>
-									),
+									render: (row: FindingGroup) => {
+										const isActiveRow =
+											row.scanner_id === selectedGroup?.scanner_id;
+
+										return (
+											<span
+												className={`more-details admin-btn btn-text-purple${isActiveRow ? ' is-active' : ''}`}
+												onClick={() =>
+													setSelectedGroup(
+														isActiveRow ? null : row
+													)
+												}
+											>
+												{isActiveRow
+													? __('Showing', 'vulopilot')
+													: __('More Details', 'vulopilot')}{' '}
+												<i className="adminfont-pagination-next-arrow" />
+											</span>
+										);
+									},
 								},
 							}}
 							rows={data}

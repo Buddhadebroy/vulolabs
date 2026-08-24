@@ -119,9 +119,7 @@ const AeoScoreSummaryCard = ({
 			)}
 			isLoading={isLoading}
 		>
-			{!isLoading && !hasSnapshot ? (
-				<ProLockedCard moduleName="aeo-insights" />
-			) : (
+			
 				<div className="aeo-score-summary">
 					<div className="aeo-score-summary-gauge">
 						<div className="geo-overall-visibility">
@@ -200,7 +198,6 @@ const AeoScoreSummaryCard = ({
 						))}
 					</div>
 				</div>
-			)}
 		</CardComponent>
 	);
 };

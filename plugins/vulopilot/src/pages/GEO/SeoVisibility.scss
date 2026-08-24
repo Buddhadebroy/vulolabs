@@ -1,5 +1,27 @@
 @use '../../components/config' as *;
 
+// SeoSiteWideIssuesTable.tsx's row actions (Resolve/Fix with AI/Ignore) —
+// zyra's BadgeComponent only ships specific semantic status classes
+// (badge-resolved, badge-high, …), not generic color names, so these 3
+// get their own scoped rules here rather than reusing an unrelated
+// status class just because it happens to be the right color. Same
+// `color-mix(in srgb, #{$color} 14%, transparent)` idiom AICopilot.scss's
+// own `.attention-priority-pills` map already uses.
+.admin-badge.badge-action-resolve {
+	color: $color-success;
+	background: color-mix(in srgb, #{$color-success} 14%, transparent);
+}
+
+.admin-badge.badge-action-fix-ai {
+	color: $theme-color;
+	background: $color-primary-background;
+}
+
+.admin-badge.badge-action-ignore {
+	color: #dc2626;
+	background: color-mix(in srgb, #dc2626 14%, transparent);
+}
+
 .visibility-score-aeo-note {
 	color: $sub-text-color;
 	font-size: 0.75rem;

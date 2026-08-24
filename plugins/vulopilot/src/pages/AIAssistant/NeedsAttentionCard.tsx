@@ -5,91 +5,30 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	InformationItemComponent,
-	ListComponent,
 	ModuleGuardComponent,
-	AnalyticsComponent
+	ChartComponent,
+	ListComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import './AICopilot.scss';
 
-interface FindingGroup {
-	scanner_id: string;
-	count: number;
-	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
-	category: string;
-	object_type: string | null;
-	label: string;
-}
-
-interface AttentionSummary {
-	total: number;
-	priority_counts: { high: number; medium: number; low: number };
-	groups: FindingGroup[];
-}
-
 /**
- * Real category strings (Scanners/*::get_category()) mapped to the
- * mockup's friendlier display groupings — 'seo'/'images'/'schema'/'links'
- * all fold into "Visibility" the same way GEO.tsx's own "SEO & Visibility"
- * tab already treats them as one visibility-adjacent surface, rather than
- * inventing 4 separate display buckets for what the rest of the plugin
- * already treats as one concern. `className` reuses AICopilot.scss's
- * existing `.suggested-actions-list` per-category icon-tint map
- * (IssuesList.tsx's own CATEGORY_ICONS neighbor) — 'seo' is
- * already one of its defined colors, so images/schema/links inherit that
- * same blue rather than needing new CSS.
+ * Narrow local slice of `/dashboard`'s real aggregate payload (same
+ * endpoint OverallScoreWidget.tsx/SecurityStatusCard.tsx already read) —
+ * only the fields this card's own "Site Overview" breakdown renders,
+ * same "define just the subset actually used" call SecurityStatusCard.tsx
+ * already makes rather than importing dashboard-widgets/types.ts's full
+ * DashboardSummary wholesale.
  */
-const CATEGORY_DISPLAY: Record<string, { label: string; className: string }> = {
-	seo: { label: __('Visibility', 'vulopilot'), className: 'category-seo' },
-	images: { label: __('Visibility', 'vulopilot'), className: 'category-seo' },
-	schema: { label: __('Visibility', 'vulopilot'), className: 'category-seo' },
-	links: { label: __('Visibility', 'vulopilot'), className: 'category-seo' },
-	accessibility: {
-		label: __('Accessibility', 'vulopilot'),
-		className: 'category-accessibility',
-	},
-	woocommerce: {
-		label: __('WooCommerce', 'vulopilot'),
-		className: 'category-woocommerce',
-	},
-	security: { label: __('Security', 'vulopilot'), className: 'category-security' },
-	performance: {
-		label: __('Performance', 'vulopilot'),
-		className: 'category-performance',
-	},
-	geo: { label: __('GEO', 'vulopilot'), className: 'category-geo' },
-	content: { label: __('Content', 'vulopilot'), className: 'category-content' },
-	brand: { label: __('Brand', 'vulopilot'), className: 'category-brand' },
-};
-
-const CATEGORY_ICONS: Record<string, string> = {
-	seo: 'search-discovery yellow',
-	images: 'search-discovery blue',
-	schema: 'search-discovery pink',
-	links: 'search-discovery red',
-	accessibility: 'security green',
-	woocommerce: 'woocommerce indigo',
-	security: 'security purple',
-	performance: 'bar-chart teal',
-	geo: 'geo-location red',
-	content: 'document yellow',
-	brand: 'star green',
-};
-
-/**
- * 5-level severity collapsed into the mockup's 3-tier "impact" label —
- * same bucketing FindingRepository::get_priority_counts() already applies
- * server-side to the header counts, applied again here client-side to
- * each group's own `severity` so a row's "Impact" label always agrees
- * with which priority pill it would count toward.
- */
-const IMPACT_LABEL: Record<FindingGroup['severity'], string> = {
-	critical: __('High Impact', 'vulopilot'),
-	high: __('High Impact', 'vulopilot'),
-	medium: __('Medium Impact', 'vulopilot'),
-	low: __('Low Impact', 'vulopilot'),
-	info: __('Low Impact', 'vulopilot'),
-};
+interface DashboardSummary {
+	overall_score: number;
+	open_findings: number;
+	category_scores: {
+		seo: number;
+		performance: number;
+		security: number;
+		content: number;
+	};
+}
 
 export interface IssuesFilter {
 	scannerId: string;
@@ -101,19 +40,53 @@ interface NeedsAttentionCardProps {
 	onNavigateTab: (tab: string, filter?: IssuesFilter) => void;
 }
 
+type ScoreTone = 'green' | 'orange' | 'red';
+
 /**
- * AI Copilot's "Needs your attention" card — replaces the old "Suggested
- * Actions" preview (a flat list of individual open findings) with a
- * priority-bucketed summary read from `GET /findings/attention-summary`
- * (Findings.php::get_attention_summary()): a real total, 3 real
- * priority-count pills, and the top 3 issue types (grouped by scanner,
- * most severe first) with a real per-type count instead of one row per
- * individual finding.
+ * One shared 3-band split for both the ring's own descriptive rating and
+ * each category row's colored number — green >= 75, orange 60-74, red <
+ * 60. Deliberately one function reused both places rather than two
+ * separately-tuned scales, so a row's color and the headline rating it
+ * rolls up into never disagree about where a given score sits.
+ */
+const getScoreTone = (score: number): ScoreTone => {
+	if (score >= 75) {
+		return 'green';
+	}
+	if (score >= 60) {
+		return 'orange';
+	}
+	return 'red';
+};
+
+// Same hex values SecurityStatusCard.tsx's own ChartComponent pie already
+// uses for this exact "green/orange/red gauge" pattern (that one only
+// needed two of the three, this one needs the full set).
+const TONE_COLOR: Record<ScoreTone, string> = {
+	green: '#16a34a',
+	orange: '#d97706',
+	red: '#dc2626',
+};
+
+const TONE_RATING_LABEL: Record<ScoreTone, string> = {
+	green: __('Good', 'vulopilot'),
+	orange: __('Needs improvement', 'vulopilot'),
+	red: __('Needs attention', 'vulopilot'),
+};
+
+/**
+ * AI Copilot's "Site Overview" card — a real health-score breakdown read
+ * from `GET /dashboard` (the same aggregate payload the Dashboard's own
+ * OverallScoreWidget/SecurityStatusCard already read), replacing the old
+ * priority-pill + top-issue-type preview: a ring for `overall_score`, the
+ * 4 category scores the mockup shows (SEO & Visibility, Performance,
+ * Security, Content), and a real `open_findings` count linking to the
+ * Issues table.
  */
 const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 	onNavigateTab,
 }) => {
-	const [summary, setSummary] = useState<AttentionSummary | null>(null);
+	const [summary, setSummary] = useState<DashboardSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -121,15 +94,14 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 		setIsLoading(true);
 		setError(null);
 
-		getApiResponse<AttentionSummary>(
-			getApiLink(appLocalizer, 'findings/attention-summary'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		)
+		getApiResponse<DashboardSummary>(getApiLink(appLocalizer, 'dashboard'), {
+			headers: { 'X-WP-Nonce': appLocalizer.nonce },
+		})
 			.then((response) => {
 				if (!response) {
 					setError(
 						__(
-							'Could not load what needs your attention.',
+							'Could not load your site overview.',
 							'vulopilot'
 						)
 					);
@@ -150,43 +122,39 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 	// effect, rather than actually switching tabs.
 	const goToAllIssues = () => onNavigateTab('chat');
 
-	/**
-	 * Regression: every group row here used to navigate to the same
-	 * unfiltered `goToAllIssues` as the "View all issues" button — so
-	 * clicking "18 findings: Weak Password Detection" landed on the Issues
-	 * tab's own flat, unrelated top-20-by-severity list, which often
-	 * didn't contain a single Weak Password Detection row at all. Passing
-	 * the group's own `scanner_id` through lets the Issues tab filter
-	 * to exactly the findings this row is counting.
-	 */
-	const goToGroup = (group: FindingGroup) =>
-		onNavigateTab('chat', {
-			scannerId: group.scanner_id,
-			label: group.label,
-			category: group.category,
-		});
+	const overallTone = summary ? getScoreTone(summary.overall_score) : 'green';
 
-	// Prepare priority data for AnalyticsComponent
-	const priorityData = summary ? [
-		{
-			colorClass: 'admin-bg-color2',
-			number: summary.priority_counts.high,
-			text: __('High priority', 'vulopilot'),
-		},
-		{
-			colorClass: 'admin-bg-color3',
-			number: summary.priority_counts.medium,
-			text: __('Medium priority', 'vulopilot'),
-		},
-		{
-			colorClass: 'admin-bg-color4',
-			number: summary.priority_counts.low,
-			text: __('Low priority', 'vulopilot'),
-		},
-	] : [];
+	const scoreRows = summary
+		? [
+				{
+					key: 'seo',
+					icon: 'search-discovery yellow',
+					label: __('SEO & Visibility', 'vulopilot'),
+					score: summary.category_scores.seo,
+				},
+				{
+					key: 'performance',
+					icon: 'bar-chart teal',
+					label: __('Performance', 'vulopilot'),
+					score: summary.category_scores.performance,
+				},
+				{
+					key: 'security',
+					icon: 'security purple',
+					label: __('Security', 'vulopilot'),
+					score: summary.category_scores.security,
+				},
+				{
+					key: 'content',
+					icon: 'document yellow',
+					label: __('Content', 'vulopilot'),
+					score: summary.category_scores.content,
+				},
+			]
+		: [];
 
 	return (
-		<CardComponent title={__('Needs your attention', 'vulopilot')} titleIcon="error">
+		<CardComponent title={__('Site Overview', 'vulopilot')} titleIcon="analytics">
 			{error ? (
 				<ModuleGuardComponent
 					icon="error"
@@ -195,79 +163,95 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 					buttonText={__('Retry', 'vulopilot')}
 					onButtonClick={load}
 				/>
-			) : isLoading ? (
+			) : isLoading || !summary ? (
 				<>
 					{Array.from({ length: 3 }).map((_, index) => (
 						<InformationItemComponent key={index} title="" isLoading />
 					))}
 				</>
-			) : !summary || summary.total === 0 ? (
-				<ModuleGuardComponent
-					icon="check"
-					title={__('Nothing needs attention right now', 'vulopilot')}
-					desc={__(
-						'Open findings will appear here once a scan finds something worth fixing.',
-						'vulopilot'
-					)}
-				/>
 			) : (
 				<>
-					<div className="attention-summary-header">
-						<span className="attention-summary-count">
-							{summary.total}
-						</span>
-						<span className="attention-summary-label">
-							{__('things need attention', 'vulopilot')}
-						</span>
+					<div className="site-overview-health">
+						<ChartComponent
+							type="pie"
+							height={92}
+							isLoading={false}
+							centerLabel={
+								<span className="site-overview-ring-number">
+									{summary.overall_score}
+								</span>
+							}
+							data={[
+								{
+									label: __('Score', 'vulopilot'),
+									value: summary.overall_score,
+									color: TONE_COLOR[overallTone],
+								},
+								{
+									label: __('Remaining', 'vulopilot'),
+									value: 100 - summary.overall_score,
+									color: '#e5e7eb',
+								},
+							]}
+						/>
+						<div className="site-overview-health-text">
+							<div className="site-overview-health-title">
+								{__('Overall Health', 'vulopilot')}
+							</div>
+							<div
+								className={`site-overview-health-rating tone-${overallTone}`}
+							>
+								{TONE_RATING_LABEL[overallTone]}
+							</div>
+						</div>
 					</div>
-					<AnalyticsComponent
-						data={priorityData}
-						variant="background-color"
-						cols={3}
-						isLoading={false}
-					/>
 
+					{/* Same `ListComponent` + "mini-card report" variant this card's own
+					    old group rows used (and most other cards across this plugin —
+					    TopIssuesToWorkOn.tsx, StoreIntelligenceSummaryCard.tsx, etc. —
+					    already reuse it too): icon on the left, `tags` pinned to the
+					    right (ListComponent.scss's own `.report .tags`), which is
+					    exactly this row's icon+label…score shape without hand-rolling a
+					    new row layout. */}
 					<ListComponent
-						className="mini-card report "
-						items={summary.groups.map((group) => {
-							const display =
-								CATEGORY_DISPLAY[group.category] ?? null;
+						className="mini-card report"
+						items={scoreRows.map((row) => {
+							const tone = getScoreTone(row.score);
 
 							return {
-								id: group.scanner_id,
-								icon: CATEGORY_ICONS[group.category] ?? 'ai',
-								className: display?.className ?? '',
-								title: sprintf(
-									/* translators: 1: real open-finding count, 2: scanner label, e.g. "Meta Descriptions" */
-									__('%1$d findings: %2$s', 'vulopilot'),
-									group.count,
-									group.label
-								),
-								desc: sprintf(
-									/* translators: 1: category display label, 2: impact label */
-									__('%1$s • %2$s', 'vulopilot'),
-									display?.label ?? group.category,
-									IMPACT_LABEL[group.severity] ??
-										__('Medium Impact', 'vulopilot')
-								),
+								id: row.key,
+								icon: row.icon,
+								title: row.label,
 								tags: (
-									<i className="adminfont-pagination-right-arrow ai-copilot-row-arrow" />
+									<span
+										className={`site-overview-score-row-value tone-${tone}`}
+									>
+										{row.score}
+										<span className="site-overview-score-row-suffix">
+											/100
+										</span>
+									</span>
 								),
-								action: () => goToGroup(group),
 							};
 						})}
 					/>
 
-					<ButtonInput
-						position="full-width"
-						buttons={{
-							text: __('View all issues', 'vulopilot'),
-							icon: 'arrow-right',
-							iconPosition: 'right',
-							position: 'full-width',
-							onClick: goToAllIssues,
-						}}
-					/>
+					<div className="site-overview-footer">
+						<span className="site-overview-footer-count">
+							{sprintf(
+								/* translators: %d: number of real open findings across the site */
+								__('%d open issues found', 'vulopilot'),
+								summary.open_findings
+							)}
+						</span>
+						<span
+							className="site-overview-footer-link"
+							onClick={goToAllIssues}
+						>
+							{__('View all issues', 'vulopilot')}{' '}
+							<i className="adminfont-pagination-right-arrow" />
+						</span>
+					</div>
 				</>
 			)}
 		</CardComponent>
