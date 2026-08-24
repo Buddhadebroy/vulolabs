@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { EfficiencyCheck, EfficiencySection } from './efficiencyChecks';
 import { THINGS_TO_REVIEW_ID } from './efficiencyChecks';
@@ -99,23 +99,26 @@ const EfficiencySectionsList = ({
 	return (
 		<>
 			{sections.map((section) => (
-				<CardComponent
-					key={section.key}
-					title={section.label}
-					titleIcon={SECTION_ICONS[section.key] || 'document'}
-					className="efficiency-section-card"
-				>
-					<p className="efficiency-section-question">{section.question}</p>
-					<div className="efficiency-check-list">
-						{section.checks.map((check, index) => (
-							<CheckRow
-								key={check.id}
-								check={check}
-								isLast={index === section.checks.length - 1}
-							/>
-						))}
-					</div>
-				</CardComponent>
+				<ColumnComponent grid={4} fullHeight>
+					<CardComponent
+						key={section.key}
+						id={section.key}
+						title={section.label}
+						titleIcon={SECTION_ICONS[section.key] || 'document'}
+						className="efficiency-section-card"
+					>
+						<p className="efficiency-section-question">{section.question}</p>
+						<div className="efficiency-check-list">
+							{section.checks.map((check, index) => (
+								<CheckRow
+									key={check.id}
+									check={check}
+									isLast={index === section.checks.length - 1}
+								/>
+							))}
+						</div>
+					</CardComponent>
+				</ColumnComponent>
 			))}
 		</>
 	);

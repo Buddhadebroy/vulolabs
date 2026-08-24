@@ -8,6 +8,7 @@ import {
 	ModuleGuardComponent,
 	ChartComponent,
 	ListComponent,
+	TypographyComponent
 } from '@zyra/components';
 import './AICopilot.scss';
 
@@ -173,36 +174,32 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 				<>
 					<div className="site-overview-health">
 						<ChartComponent
-							type="pie"
-							height={92}
+							type="ring"
+							height={100}
 							isLoading={false}
+							color={TONE_COLOR[overallTone]}
 							centerLabel={
 								<span className="site-overview-ring-number">
 									{summary.overall_score}
 								</span>
 							}
-							data={[
-								{
-									label: __('Score', 'vulopilot'),
-									value: summary.overall_score,
-									color: TONE_COLOR[overallTone],
-								},
-								{
-									label: __('Remaining', 'vulopilot'),
-									value: 100 - summary.overall_score,
-									color: '#e5e7eb',
-								},
-							]}
+							data={[{ value: summary.overall_score }]}
 						/>
 						<div className="site-overview-health-text">
-							<div className="site-overview-health-title">
+							<TypographyComponent
+								variant="body-md"
+								weight="semibold"
+								className="site-overview-health-title"
+							>
 								{__('Overall Health', 'vulopilot')}
-							</div>
-							<div
+							</TypographyComponent>
+							<TypographyComponent
+								variant="h4	"
+								weight="semibold"
 								className={`site-overview-health-rating tone-${overallTone}`}
 							>
 								{TONE_RATING_LABEL[overallTone]}
-							</div>
+							</TypographyComponent>
 						</div>
 					</div>
 

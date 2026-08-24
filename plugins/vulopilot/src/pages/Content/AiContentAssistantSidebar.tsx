@@ -270,7 +270,7 @@ const AiContentAssistantSidebar = () => {
 			}
 			prompts={
 				<ListComponent
-					className="badge-list"
+					className="chip-grid"
 					items={PROMPT_CHIPS.map((prompt) => ({
 						id: prompt.id,
 						icon: prompt.icon,

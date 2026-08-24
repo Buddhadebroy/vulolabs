@@ -31,6 +31,7 @@ const EfficiencyOverviewChart = ({
 	return (
 		<CardComponent
 			title={__('Efficiency Overview', 'vulopilot')}
+			titleIcon="report"
 			desc={__('How your WordPress efficiency looks overall.', 'vulopilot')}
 			isLoading={isLoading}
 		>

@@ -39,6 +39,8 @@ const AIAssistant = () => {
 	const [chatMessage, setChatMessage] = useState('');
 	const [autoApply, setAutoApply] = useState(true);
 	const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
+	/** Opens ChatTab.tsx's own "Recent conversations" popup — the header button lives here since NavigatorHeaderComponent (and its "How it works" button) does, but the popup and the real conversation data/selection it needs still render inside ChatTab.tsx, so only the open/close boolean is lifted up. */
+	const [isHistoryPopupOpen, setIsHistoryPopupOpen] = useState(false);
 	const [issuesFilter, setIssuesFilter] = useState<IssuesFilter | null>(
 		null
 	);
@@ -137,6 +139,12 @@ const AIAssistant = () => {
 				}
 				buttons={[
 					{
+						label: __('Conversation history', 'vulopilot'),
+						icon: 'clock',
+						color: 'border-purple',
+						onClick: () => setIsHistoryPopupOpen(true),
+					},
+					{
 						label: __('How it works', 'vulopilot'),
 						icon: 'help',
 						onClick: () => setIsHowItWorksOpen(true),
@@ -152,6 +160,8 @@ const AIAssistant = () => {
 					onAutoApplyChange={setAutoApply}
 					issuesFilter={issuesFilter}
 					issuesNavToken={issuesNavToken}
+					isHistoryPopupOpen={isHistoryPopupOpen}
+					onCloseHistoryPopup={() => setIsHistoryPopupOpen(false)}
 				/>
 			</ContainerComponent>
 		</>

@@ -31,6 +31,7 @@ const EfficiencyThingsToReview = ({
 	<CardComponent
 		id={THINGS_TO_REVIEW_ID}
 		title={__('Things to review', 'vulopilot')}
+		titleIcon="review"
 		desc={__(
 			'These items are affecting WordPress efficiency.',
 			'vulopilot'
@@ -73,6 +74,7 @@ const EfficiencyThingsToReview = ({
 								__('View all efficiency checks (%d) →', 'vulopilot'),
 								summary.total
 							),
+							color: 'text-purple',
 							onClick: onViewAll,
 						}}
 					/>

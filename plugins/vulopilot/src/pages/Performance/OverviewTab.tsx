@@ -18,8 +18,6 @@ import AiSpeedAssistantCard from './AiSpeedAssistantCard';
 import PerformanceTab from './PerformanceTab';
 import './Performance.scss';
 
-const EFFICIENCY_SECTIONS_TOP_ID = 'performance-efficiency-sections';
-
 /**
  * "Performance"'s only tab — see this folder's sibling files for the
  * per-section real-data mapping (PerformanceScoreCard, MetricsGrid,
@@ -94,6 +92,18 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 
 	const scrollToFindings = () => scrollToId('performance-section-findings');
 
+	// "View all" on the efficiency hero/chart/review cards used to scroll
+	// to a wrapping div's own id — now that each section card carries its
+	// own real id (`section.key`, see EfficiencySectionsList.tsx), it
+	// scrolls straight to the first rendered section instead.
+	const scrollToEfficiencySections = () => {
+		const firstSectionId = efficiencySections[0]?.key;
+
+		if (firstSectionId) {
+			scrollToId(firstSectionId);
+		}
+	};
+
 	/** MetricsGrid's own scanner-backed tiles — switches the Top Issues table to that tile's section, then scrolls to it. */
 	const goToIssuesSection = (sectionKey: string) => {
 		setActiveIssuesTab(sectionKey);
@@ -161,31 +171,31 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 					onReviewImprovements={() => scrollToId(THINGS_TO_REVIEW_ID)}
 				/>
 			</ColumnComponent>
-			<ColumnComponent fullHeight grid={6}>
+			<ColumnComponent fullHeight grid={4}>
 				<EfficiencyOverviewChart
 					summary={efficiencySummary}
 					isLoading={isEfficiencyLoading}
-					onViewAll={() => scrollToId(EFFICIENCY_SECTIONS_TOP_ID)}
+					onViewAll={scrollToEfficiencySections}
 				/>
 			</ColumnComponent>
 
-			<div id={EFFICIENCY_SECTIONS_TOP_ID}>
-				<EfficiencySectionsList
-					sections={efficiencySections}
-					isLoading={isEfficiencyLoading}
-				/>
-			</div>
-
-			<EfficiencyThingsToReview
-				reviewItems={efficiencyReviewItems}
-				summary={efficiencySummary}
+			<EfficiencySectionsList
+				sections={efficiencySections}
 				isLoading={isEfficiencyLoading}
-				onViewAll={() => scrollToId(EFFICIENCY_SECTIONS_TOP_ID)}
 			/>
-
-			<LiveSiteInsightsCard />
-
-			<ColumnComponent>
+			
+			<ColumnComponent fullHeight grid={6}>
+				<EfficiencyThingsToReview
+					reviewItems={efficiencyReviewItems}
+					summary={efficiencySummary}
+					isLoading={isEfficiencyLoading}
+					onViewAll={scrollToEfficiencySections}
+				/>
+			</ColumnComponent>
+			<ColumnComponent grid={6}>
+				<LiveSiteInsightsCard />
+			</ColumnComponent>
+			<ColumnComponent >
 				<div id="performance-section-findings">
 					<PerformanceTab
 						activeTab={activeIssuesTab}

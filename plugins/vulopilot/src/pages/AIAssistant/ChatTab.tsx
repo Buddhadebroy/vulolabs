@@ -12,7 +12,7 @@ import {
 	PopupComponent,
 	SectionComponent
 } from '@zyra/components';
-import { FileInput, ButtonInput } from '@zyra/inputs';
+import { FileInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse, scrollToId, sendApiResponse } from '@zyra/core';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
@@ -90,6 +90,9 @@ interface ChatTabProps {
 	issuesFilter: IssuesFilter | null;
 	/** Bumped on every such navigation, even when `issuesFilter` resolves to the same value as before — see AIAssistant.tsx's own docblock on issuesNavToken. */
 	issuesNavToken: number;
+	/** Owned by AIAssistant.tsx, whose header now carries the "Conversation history" button that opens this — the popup itself (the same real "Recent conversations" list the grid=3 sidebar already shows) still renders here since it's this tab's own data/selection flow. */
+	isHistoryPopupOpen: boolean;
+	onCloseHistoryPopup: () => void;
 }
 
 /**
@@ -143,6 +146,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	onAutoApplyChange,
 	issuesFilter,
 	issuesNavToken,
+	isHistoryPopupOpen,
+	onCloseHistoryPopup,
 }) => {
 	const composerRef = useRef<HTMLDivElement>(null);
 	const didMountRef = useRef(false);
@@ -189,9 +194,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			block: 'start',
 		});
 	};
-
-	/** The chat card's own "history" icon (ChatComposerCard's `cardAction`) — opens the same real "Recent conversations" list the grid=3 sidebar already shows, in a popup, for a one-click path back to it that doesn't depend on that sidebar column being visible/scrolled to. Selecting a conversation there both loads it (handleSelectConversation, unchanged) and closes this popup. */
-	const [isHistoryPopupOpen, setIsHistoryPopupOpen] = useState(false);
 
 	const [attachments, setAttachments] = useState<CopilotAttachment[]>([]);
 	const [contextRefs, setContextRefs] = useState<CopilotContextRef[]>([]);
@@ -367,13 +369,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 					<ChatComposerCard<CopilotChatTurn>
 						guarded
 						sendingAvatarIcon="ai"
-						cardAction={
-							<i
-								className="adminfont-clock chat-history-icon"
-								title={__('Conversation history', 'vulopilot')}
-								onClick={() => setIsHistoryPopupOpen(true)}
-							/>
-						}
 						welcome={
 							<>
 								<strong>
@@ -690,7 +685,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				</div>
 				<PopupComponent
 					open={isHistoryPopupOpen}
-					onClose={() => setIsHistoryPopupOpen(false)}
+					onClose={onCloseHistoryPopup}
 					width={25}
 					height="auto"
 					position="lightbox"
@@ -698,7 +693,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 					<RecentConversationsCard
 						onSelectConversation={(id: number) => {
 							handleSelectConversation(id);
-							setIsHistoryPopupOpen(false);
+							onCloseHistoryPopup();
 						}}
 					/>
 				</PopupComponent>
