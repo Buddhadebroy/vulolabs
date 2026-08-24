@@ -21,6 +21,162 @@
 	}
 }
 
+// RecommendedActionsCard.tsx — one tinted mini-card per finding bucket
+// (security/performance/ai-visibility). Tint colors match NeedsAttentionCard.tsx's
+// own TONE_COLOR red/orange (`#dc2626`/`#d97706`); teal is new here, used only
+// for the ai-visibility bucket.
+.recommended-actions-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+
+	.recommended-actions-card {
+		flex: 1 1 12rem;
+		min-width: 12rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		padding: 1rem;
+		border-radius: $border-radius-small;
+		background: var(--recommended-tone-bg);
+
+		&.tone-red {
+			--recommended-tone-bg: #{rgba(#dc2626, 0.08)};
+			--recommended-tone-fg: #dc2626;
+		}
+
+		&.tone-orange {
+			--recommended-tone-bg: #{rgba(#d97706, 0.08)};
+			--recommended-tone-fg: #d97706;
+		}
+
+		&.tone-teal {
+			--recommended-tone-bg: #{rgba(#0d9488, 0.08)};
+			--recommended-tone-fg: #0d9488;
+		}
+	}
+
+	.recommended-actions-card-eyebrow {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		color: var(--recommended-tone-fg);
+		font-size: 0.8125rem;
+		font-weight: 600;
+
+		.recommended-actions-card-icon {
+			font-size: 1rem;
+		}
+	}
+
+	.recommended-actions-card-title {
+		font-size: 1rem;
+		font-weight: 600;
+		color: $text-color;
+	}
+
+	.recommended-actions-card-detail {
+		font-size: 0.8125rem;
+		color: $sub-text-color;
+	}
+
+	.recommended-actions-card-cta {
+		align-self: flex-start;
+		margin-top: 0.25rem;
+		border: none;
+		background: none;
+		padding: 0;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: var(--recommended-tone-fg);
+		cursor: pointer;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+// RecentConversationsSection.tsx — the inline "Recent conversations" row
+// below the chat window, distinct from RecentConversationsCard.tsx's own
+// vertical list (still used in the composer's history popup).
+.recent-conversations-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+
+	.recent-conversations-card {
+		flex: 1 1 14rem;
+		min-width: 14rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 1rem;
+		border: $border-light-small;
+		border-radius: $border-radius-small;
+	}
+
+	.recent-conversations-card-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: $border-radius-small;
+		background: $color-primary-background;
+		color: $theme-color;
+
+		.recent-conversations-card-icon-glyph {
+			font-size: 1.125rem;
+		}
+	}
+
+	.recent-conversations-card-title {
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: $text-color;
+	}
+
+	.recent-conversations-card-excerpt {
+		flex: 1;
+		font-size: 0.8125rem;
+		color: $sub-text-color;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+
+	.recent-conversations-card-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.recent-conversations-card-time {
+		font-size: 0.75rem;
+		color: $sub-text-color;
+	}
+
+	.recent-conversations-card-cta {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border: none;
+		border-radius: 50%;
+		background: $color-primary-background;
+		color: $theme-color;
+		cursor: pointer;
+
+		&:hover {
+			background: $theme-color;
+			color: $color-white;
+		}
+	}
+}
+
 .ai-workflow-run-btn {
 	display: flex;
 	align-items: center;

@@ -28,7 +28,22 @@ import {
 interface FixOutcome {
 	success: boolean;
 	message: string;
+	succeeded?: number;
+	total?: number;
+	noFixAvailable?: number;
 }
+
+/**
+ * Mirrors vulopilot-pro/modules/OneClickFix/src/index.tsx's own exported
+ * `BULK_FIX_MAX_ITEMS` (that module can't be imported directly — a
+ * separate plugin's own webpack bundle, see getFindingBulkFixHandler's own
+ * docblock for why filters are how the two talk) — a group can have
+ * hundreds of open findings (e.g. "File Changes"), well past what one
+ * `POST /findings/bulk-fix` request accepts (BulkFixRest::MAX_BULK_ITEMS),
+ * so handleFix() below batches its own calls to the registered handler
+ * rather than sending every id at once and getting a flat 400.
+ */
+const BULK_FIX_BATCH_SIZE = 50;
 
 interface FindingRow {
 	id: number;
@@ -36,6 +51,16 @@ interface FindingRow {
 	object_type: string | null;
 	object_ref: string | null;
 	created_at: string;
+	/**
+	 * When this row was last reconfirmed by a scan — same value as
+	 * `created_at` for a finding that's only ever been detected once;
+	 * moves forward for a scanner in ScanPersistenceListener's own
+	 * DEDUPE_ON_RESCAN list (e.g. `core-file-integrity`) each time a
+	 * still-open problem is seen again, rather than piling up a duplicate
+	 * row per scan run. Optional only because a row fetched before this
+	 * column existed won't have it — falls back to `created_at` below.
+	 */
+	last_seen_at?: string;
 	page?: string;
 }
 
@@ -225,6 +250,95 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			.finally(() => setIsBusy(false));
 	};
 
+	/**
+	 * Runs the registered bulk-fix handler once per BULK_FIX_BATCH_SIZE
+	 * chunk of ids (sequentially — these can be real AI propose+approve
+	 * calls, not something to fire dozens of at once) and aggregates the
+	 * real succeeded/total/noFixAvailable counts across every batch into
+	 * one final outcome, rather than reporting only the last batch's own
+	 * numbers.
+	 */
+	const runBulkFixInBatches = (
+		// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+		bulkFixHandler: (batchIds: number[]) => Promise<FixOutcome> | undefined,
+		ids: number[]
+	): Promise<FixOutcome> => {
+		const batches: number[][] = [];
+
+		for (let i = 0; i < ids.length; i += BULK_FIX_BATCH_SIZE) {
+			batches.push(ids.slice(i, i + BULK_FIX_BATCH_SIZE));
+		}
+
+		return batches
+			.reduce(
+				(chain, batch) =>
+					chain.then((totals) =>
+						Promise.resolve(bulkFixHandler(batch)).then((outcome) => ({
+							succeeded: totals.succeeded + (outcome?.succeeded ?? 0),
+							total: totals.total + (outcome?.total ?? batch.length),
+							noFixAvailable:
+								totals.noFixAvailable + (outcome?.noFixAvailable ?? 0),
+							lastMessage: outcome?.message ?? totals.lastMessage,
+						}))
+					),
+				Promise.resolve({
+					succeeded: 0,
+					total: 0,
+					noFixAvailable: 0,
+					lastMessage: '',
+				})
+			)
+			.then(({ succeeded, total, noFixAvailable, lastMessage }) => {
+				const failed = total - succeeded;
+
+				// Single batch: the handler's own message already says
+				// exactly the right thing (including the "no automatic
+				// fix exists yet" honest case) — reuse it as-is rather
+				// than re-deriving a coarser version here.
+				if (batches.length <= 1) {
+					return { success: 0 === failed, message: lastMessage };
+				}
+
+				let message: string;
+
+				if (0 === failed) {
+					message = sprintf(
+						/* translators: %d is how many findings were fixed. */
+						__('Fixed %d findings.', 'vulopilot'),
+						succeeded
+					);
+				} else if (noFixAvailable === failed) {
+					message =
+						succeeded > 0
+							? sprintf(
+									/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
+									__(
+										'Fixed %1$d findings — no automatic fix exists yet for the other %2$d.',
+										'vulopilot'
+									),
+									succeeded,
+									noFixAvailable
+								)
+							: __(
+									'No automatic fix exists yet for these findings.',
+									'vulopilot'
+								);
+				} else {
+					message = sprintf(
+						/* translators: 1: number fixed, 2: total findings attempted. */
+						__(
+							'Fixed %1$d of %2$d findings — some had no fix available or failed.',
+							'vulopilot'
+						),
+						succeeded,
+						total
+					);
+				}
+
+				return { success: 0 === failed, message };
+			});
+	};
+
 	const handleFix = () => {
 		const bulkFixHandler = getFindingBulkFixHandler();
 
@@ -240,9 +354,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					return;
 				}
 
-				return Promise.resolve(
-					bulkFixHandler(ids) as Promise<FixOutcome> | undefined
-				).then((outcome) => {
+				return runBulkFixInBatches(bulkFixHandler, ids).then((outcome) => {
 					if (outcome?.message) {
 						NoticeManager.add({
 							uniqueKey: `issue-group-fix-${group.scanner_id}`,
@@ -319,7 +431,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								{sprintf(
 									/* translators: %s: formatted date this finding was detected */
 									__('Detected %s', 'vulopilot'),
-									formatWpDate(group.sample.created_at)
+									formatWpDate(group.sample.last_seen_at ?? group.sample.created_at)
 								)}
 							</div>
 						</FormGroupComponent>
@@ -347,7 +459,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									/* translators: 1: affected page/location, 2: formatted detection date */
 									__('%1$s • Detected %2$s', 'vulopilot'),
 									row.page || __('Site-wide', 'vulopilot'),
-									formatWpDate(row.created_at)
+									formatWpDate(row.last_seen_at ?? row.created_at)
 								),
 							}))}
 						/>

@@ -72,9 +72,10 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
  * dashboard is modeled on never showing a score two different ways.
  * Content/Brand moved the same way — they're now score cards inside
  * OverallScoreWidget's own card grid. AI usage moved off the Dashboard
- * entirely — it's now AiUsageCard on the AI Copilot page
- * (pages/AIAssistant/AiUsageCard.tsx), reading the same real
- * `ai_jobs_used`/`ai_jobs_quota` fields directly from `GET /dashboard`.
+ * entirely, then off the AI Copilot page too — the raw used/quota count
+ * (`ai_jobs_used`/`ai_jobs_quota` on `GET /dashboard`) was replaced there by
+ * RecommendedActionsCard (pages/AIAssistant/RecommendedActionsCard.tsx),
+ * a more actionable real-findings summary.
  */
 
 const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [];

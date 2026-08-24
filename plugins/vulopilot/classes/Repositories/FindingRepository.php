@@ -45,25 +45,30 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * The already-open finding a fresh re-detection of the exact same
-     * problem should refresh instead of duplicating — added specifically
-     * for BrokenLinksScanner/BrokenImagesScanner: a link that's still
-     * broken on the next run (daily cron, or a manual "Run scan") re-adds
-     * the same `scanner_id`/`object_type`/`object_ref`/`title` every time
+     * problem should refresh instead of duplicating — originally added
+     * specifically for BrokenLinksScanner/BrokenImagesScanner, now called
+     * for every scanner by default (ScanPersistenceListener::NEVER_DEDUPE_ON_RESCAN's
+     * own docblock explains why the allowlist approach was abandoned): a
+     * problem that's still present on the next run (daily cron, or a
+     * manual "Run scan") re-adds the same
+     * `scanner_id`/`object_type`/`object_ref`/`title` every time
      * (ScanPersistenceListener's own insert loop had no existence check
-     * at all), and BrokenLinksTab.tsx's page-grouped table then shows two
-     * identical child rows for the one still-broken URL. Matches on
-     * `title` rather than digging into the JSON `meta` column — both
-     * scanners bake the URL into their own finding title
-     * (`sprintf('Broken link: %s', $url)`), so it's already the natural
-     * per-URL key without a JSON comparison in SQL. Scoped to `status =
-     * 'open'` only — a finding a site owner already resolved/ignored
-     * should get a brand-new row if the same URL breaks again later, not
-     * silently flip a closed one back open.
+     * at all), and any page grouping findings by object then shows one
+     * duplicate child row per rescan for the one still-open problem — up
+     * to 24 duplicate rows for a single object, confirmed live, before
+     * this was generalized. Matches on `title` rather than digging into
+     * the JSON `meta` column — every scanner already bakes whatever
+     * distinguishes this specific finding into its own title (a URL, a
+     * file path, ...), so it's already the natural per-object key without
+     * a JSON comparison in SQL. Scoped to `status = 'open'` only — a
+     * finding a site owner already resolved/ignored should get a
+     * brand-new row if the same problem recurs later, not silently flip a
+     * closed one back open.
      *
-     * @param string $scanner_id  e.g. 'broken-links'/'broken-images'.
-     * @param string $object_type Finding::get_object_type() — 'post' for both broken-link scanners.
-     * @param string $object_ref  Finding::get_object_ref() — the post id, as a string.
-     * @param string $title       Finding::get_title() — already bakes the checked URL in for both broken-link scanners.
+     * @param string $scanner_id  Finding::get_category()'s owning scanner's own get_id().
+     * @param string $object_type Finding::get_object_type().
+     * @param string $object_ref  Finding::get_object_ref().
+     * @param string $title       Finding::get_title().
      * @return array<string, mixed>|null
      */
     public function find_open_duplicate( string $scanner_id, string $object_type, string $object_ref, string $title ): ?array {
@@ -189,22 +194,35 @@ class FindingRepository extends AbstractRepository {
      * types on the same page — a genuinely rare shape (SCANNERS.md's
      * full catalog is ~65 scanners total, all categories combined).
      *
-     * @param int $limit Max groups to return.
+     * @param int      $limit      Max groups to return.
+     * @param string[] $categories Optional real `category` values to scope both the
+     *                             per-scanner counts and the representative sample to
+     *                             (get_top_finding_group_for_categories() passes this so
+     *                             "top 3 sitewide" and "top 1 within this category bucket"
+     *                             share one implementation) — empty means sitewide, same as before.
      * @return array<int, array{scanner_id: string, count: int, severity: string, category: string, object_type: ?string}>
      */
-    public function get_top_finding_groups( int $limit = 3 ): array {
-        $counts_by_scanner = $this->count_by_column( 'scanner_id', array( 'status' => 'open' ) );
+    public function get_top_finding_groups( int $limit = 3, array $categories = array() ): array {
+        $scope = array( 'status' => 'open' );
+
+        if ( $categories ) {
+            $scope['category'] = $categories;
+        }
+
+        $counts_by_scanner = $this->count_by_column( 'scanner_id', $scope );
 
         if ( empty( $counts_by_scanner ) ) {
             return array();
         }
 
         $sample = $this->find_all(
-            array(
-                'status'   => 'open',
-                'per_page' => 100,
-                'orderby'  => 'id',
-                'order'    => 'desc',
+            array_merge(
+                $scope,
+                array(
+                    'per_page' => 100,
+                    'orderby'  => 'id',
+                    'order'    => 'desc',
+                )
             )
         );
 
@@ -271,6 +289,23 @@ class FindingRepository extends AbstractRepository {
         );
 
         return array_slice( $groups, 0, $limit );
+    }
+
+    /**
+     * The single top open finding-type group within a fixed set of real
+     * `category` values — AI Copilot's "Recommended by VuloPilot" card
+     * uses this once per bucket (security/performance/ai-visibility) so
+     * each bucket gets its own real top issue instead of `get_top_finding_groups()`'s
+     * sitewide top 3, which could land two or three cards in the same
+     * category and leave another bucket with nothing to show.
+     *
+     * @param string[] $categories Real category values (e.g. ['security', 'ssl', 'rest-api']).
+     * @return array{scanner_id: string, count: int, severity: string, category: string, object_type: ?string}|null
+     */
+    public function get_top_finding_group_for_categories( array $categories ): ?array {
+        $groups = $this->get_top_finding_groups( 1, $categories );
+
+        return $groups[0] ?? null;
     }
 
     /**

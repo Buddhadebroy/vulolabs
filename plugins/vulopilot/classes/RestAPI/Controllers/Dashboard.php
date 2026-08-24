@@ -9,6 +9,7 @@ namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\ValueObjects\Severity;
 use VuloPilot\Repositories\ActionRunRepository;
+use VuloPilot\Repositories\AiHistoryRepository;
 use VuloPilot\Repositories\AutomationsRepository;
 use VuloPilot\Repositories\FindingRepository;
 
@@ -71,6 +72,7 @@ class Dashboard extends \WP_REST_Controller {
         $findings    = new FindingRepository();
         $automations = new AutomationsRepository();
         $action_runs = new ActionRunRepository();
+        $ai_usage    = $this->build_ai_usage_this_month();
 
         return rest_ensure_response(
             array(
@@ -79,12 +81,8 @@ class Dashboard extends \WP_REST_Controller {
                 'critical_findings'        => $findings->count_by_severity( Severity::CRITICAL ),
                 'findings_by_severity'     => $this->build_findings_by_severity( $findings ),
                 'active_automations'       => $automations->count_enabled(),
-                // AI provider usage isn't tracked yet — no AIProviders usage-metering
-                // subsystem writes here (see AI-ARCHITECTURE.md's "What's not here
-                // yet": quota enforcement). Reporting 0/0 honestly rather than
-                // fabricating a number.
-                'ai_jobs_used'             => 0,
-                'ai_jobs_quota'            => 0,
+                'ai_jobs_used'             => $ai_usage['ai_jobs_used'],
+                'ai_jobs_quota'            => $ai_usage['ai_jobs_quota'],
                 'category_scores'          => $this->build_category_scores( $findings ),
                 'psi_speed_scores'         => $this->build_psi_speed_scores(),
                 'category_scores_7d_ago'   => $this->build_category_scores_as_of( $findings, gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
@@ -103,6 +101,32 @@ class Dashboard extends \WP_REST_Controller {
                 )['total'],
                 'automation_status'        => $automations->get_status_counts(),
             )
+        );
+    }
+
+    /**
+     * Real AI usage for the current calendar month, read from
+     * `vulopilot_ai_history` — the ledger `UsageTrackingProvider` writes a
+     * row to on every real AI provider call (see its own docblock), already
+     * consumed by the AI Usage Report and Recent Conversations. `ai_jobs_used`
+     * is real; `ai_jobs_quota` stays honestly 0 (meaning "no cap configured"),
+     * since `vulopilot_ai_provider_configs.quota_limit` is schema-only and
+     * nothing sets it yet (AI-ARCHITECTURE.md's "What's not here yet" —
+     * quota enforcement). No widget on the Dashboard/AI Copilot pages reads
+     * these two fields today (the AI Copilot page's own usage widget was
+     * replaced by RecommendedActionsCard — a real-findings summary, not a
+     * usage count), but they stay real rather than a hardcoded stub since
+     * DashboardSummary's own contract (this class's docblock) is "one
+     * aggregate payload, widgets pick the fields they need."
+     *
+     * @return array{ai_jobs_used: int, ai_jobs_quota: int}
+     */
+    private function build_ai_usage_this_month(): array {
+        $stats = ( new AiHistoryRepository() )->get_stats_for_period( gmdate( 'Y-m-01' ), gmdate( 'Y-m-d' ) );
+
+        return array(
+            'ai_jobs_used'  => $stats['total_calls'],
+            'ai_jobs_quota' => 0,
         );
     }
 

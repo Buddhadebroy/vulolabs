@@ -116,6 +116,13 @@ interface WpRestErrorBody {
  * identical `link` field. Every other kind of request is still advice-only,
  * per build_messages()'s own system prompt.
  *
+ * `send()`'s own `autoApply` (from ChatTab.tsx's "Auto-applies (with
+ * approval)" toggle) is sent as `auto_apply` and is what actually gates
+ * the one real content-creation capability above — previously local UI
+ * state with no server effect at all. When off, Copilot.php describes
+ * what it would create instead of creating it, same "advice-only" shape
+ * every other kind of request already gets.
+ *
  * @param noticeKey Unique NoticeManager key for this composer's error banner, so two composers on the same page (if that ever happens) don't clobber each other's notice.
  */
 export const useCopilotChat = ( noticeKey: string ) => {
@@ -128,7 +135,8 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	const send = (
 		message: string,
 		contextRefs: CopilotContextRef[] = [],
-		attachments: CopilotAttachment[] = []
+		attachments: CopilotAttachment[] = [],
+		autoApply: boolean = true
 	) => {
 		const trimmed = message.trim();
 
@@ -155,6 +163,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 					message: trimmed,
 					history,
 					conversation_id: conversationId,
+					auto_apply: autoApply,
 					context_refs: contextRefs.map( ( ref ) =>
 						'finding_group' === ref.type
 							? { type: ref.type, scanner_id: ref.scannerId }

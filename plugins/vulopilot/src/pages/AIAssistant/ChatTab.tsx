@@ -19,7 +19,8 @@ import NeedsAttentionCard, {
 	IssuesFilter,
 } from './NeedsAttentionCard';
 import RecentConversationsCard from './RecentConversationsCard';
-import AiUsageCard from './AiUsageCard';
+import RecentConversationsSection from './RecentConversationsSection';
+import RecommendedActionsCard from './RecommendedActionsCard';
 import IssuesList from './IssuesList';
 import AutomationTemplatesCard from '../Automations/AutomationsTemplatesCard';
 import { AutomationTemplate } from '../Automations/automationsTemplates';
@@ -206,7 +207,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	>(null);
 
 	const handleSend = () => {
-		send(message, contextRefs, attachments);
+		send(message, contextRefs, attachments, autoApply);
 		onMessageChange('');
 		setAttachments([]);
 		setContextRefs([]);
@@ -472,10 +473,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						isSending={isSending}
 						beforeComposer={
 							<>
-								<p className="chat-prompts-label">
-									{__('Try asking me…', 'vulopilot')}
-								</p>
-
 								{(attachments.length > 0 || contextRefs.length > 0) && (
 									<div className="chat-composer-chips">
 										{attachments.map((attachment) => (
@@ -714,9 +711,17 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			</ColumnComponent>
 
 			<ColumnComponent grid={12}>
+				<RecentConversationsSection onSelectConversation={handleSelectConversation} />
+			</ColumnComponent>
+
+			<ColumnComponent grid={12}>
+				<RecommendedActionsCard onNavigateTab={onNavigateTab} />
+			</ColumnComponent>
+
+			<ColumnComponent grid={12}>
 				<SectionComponent
 						title={__('Issues', 'vulopilot')}
-						desc={__('The last 100 IndexNow API requests.', 'vulopilot')}
+						desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
 					/>
 			</ColumnComponent>
 			<IssuesList

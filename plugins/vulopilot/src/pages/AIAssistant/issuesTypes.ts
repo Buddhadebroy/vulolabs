@@ -5,6 +5,8 @@ export interface FindingSample {
 	object_type: string | null;
 	object_ref: string | null;
 	created_at: string;
+	/** Same "last reconfirmed by a scan" field IssueDetailPanel.tsx's own FindingRow carries — see that interface's own docblock. */
+	last_seen_at?: string;
 	/** Resolved page path or 'Site-wide' — added server-side by Findings.php's add_page_field(). */
 	page?: string;
 }
