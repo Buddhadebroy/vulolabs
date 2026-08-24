@@ -739,6 +739,38 @@ class FindingRepository extends AbstractRepository {
     }
 
     /**
+     * Distinct real pages/posts/URLs with at least one currently-open
+     * finding among $scanner_ids — the real "N pages affected" count
+     * Seo.php's own category cards need alongside
+     * get_severity_breakdown_for_scanner_ids()'s own per-severity counts.
+     * `object_ref` is that finding's own real target (a `WP_Post::ID` for
+     * most scanners, a URL string for the few that are — `canonical-url`'s
+     * own object_type is `url`, not `post`); counted together rather than
+     * scoped to `object_type = 'post'`, since a category can legitimately
+     * mix both and every value is still a real distinct affected target
+     * either way.
+     *
+     * @param string[] $scanner_ids Scanner ids to scope to.
+     * @return int
+     */
+    public function get_affected_object_count_for_scanner_ids( array $scanner_ids ): int {
+        global $wpdb;
+
+        if ( ! $scanner_ids ) {
+            return 0;
+        }
+
+        $placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT object_ref) FROM {$this->get_table()} WHERE scanner_id IN ({$placeholders}) AND status = 'open'", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
+                ...$scanner_ids
+            )
+        );
+    }
+
+    /**
      * Aggregate counts for one date range — what every Reports\Types\*
      * report reads instead of pulling every row in the period into PHP to
      * count them (performance.md). $category narrows to one scanner

@@ -145,15 +145,11 @@ const BrandVisibilityTab = () => {
 			header={
 				<>
 					<NoticeComponent
-						// type="banner"
-						displayPosition="inline"
-						message={sprintf(
-							'<strong>%1$s</strong> %2$s',
-							__('In plain English:', 'vulopilot'),
-							__(
-								'This checks whether AI systems describe your business accurately, and treat it as trustworthy, when it comes up in an answer.',
-								'vulopilot'
-							)
+						displayPosition="inline-notice"
+						title={__('In plain English:', 'vulopilot')}
+						message={__(
+							'This checks whether AI systems describe your business accurately, and treat it as trustworthy, when it comes up in an answer.',
+							'vulopilot'
 						)}
 					/>
 					<BrandScoreCard />
@@ -165,13 +161,13 @@ const BrandVisibilityTab = () => {
 			footer={
 				<>
 					<NoticeComponent
-						// type="banner"
+						type="info"
 						displayPosition="inline-notice"
 						title={__('Why this matters more than backlinks:', 'vulopilot')}
 						message={__(
-								'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
-								'vulopilot'
-							)}
+							'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
+							'vulopilot'
+						)}
 					/>
 					{OffSiteMentionsCard ? (
 						<OffSiteMentionsCard />

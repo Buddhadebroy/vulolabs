@@ -2,12 +2,23 @@
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
+export interface SeoCategoryScore {
+	score: number;
+	open_count: number;
+	affected_pages: number;
+}
+
 export interface SeoScoreResponse {
 	seo_score: number;
+	/** Real published post+page count — the same real scope SeoScanner itself scans. */
+	pages_checked: number;
 	category_scores: {
-		'titles-meta': number;
-		images: number;
-		'internal-linking': number;
+		'titles-meta': SeoCategoryScore;
+		'content-structure': SeoCategoryScore;
+		images: SeoCategoryScore;
+		'internal-linking': SeoCategoryScore;
+		'indexability-canonicals': SeoCategoryScore;
+		'structured-data': SeoCategoryScore;
 	};
 	severity_breakdown: {
 		critical: number;
@@ -16,6 +27,13 @@ export interface SeoScoreResponse {
 		low: number;
 	};
 	total_open: number;
+	/** Real exact reconstruction (`FindingRepository::..._as_of()`, no stored snapshot needed) of the same totals `lookback_days` ago — positive means more open findings now than then. */
+	deltas: {
+		lookback_days: number;
+		total_open: number;
+		critical: number;
+		high: number;
+	};
 }
 
 /**
