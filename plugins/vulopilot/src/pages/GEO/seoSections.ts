@@ -23,9 +23,10 @@ import type { FindingsSection } from '../Security/SectionedFindingsTab';
  * fetches (no category filter, client-side scanner-id allowlisting) handle
  * this the same way this file's sections always did.
  *
- * Kept in exact sync with Seo.php's own `CATEGORY_SCANNER_IDS` (same 3
- * `key`s) so SeoTab.tsx's real per-category scores always agree with what
- * these sections' union actually covers.
+ * Kept in exact sync with Seo.php's own `CATEGORY_SCANNER_IDS` (same 6
+ * `key`s now — see that file's own docblock for the full up-to-6 breakdown)
+ * so SeoTab.tsx's real per-category scores always agree with what these
+ * sections' union actually covers.
  *
  * `links-schema` used to bundle `broken-links`/`schema`/`structured-data`/
  * `sitewide-structured-data` in here too — real overlapping ownership
@@ -33,12 +34,12 @@ import type { FindingsSection } from '../Security/SectionedFindingsTab';
  * Knowledge tabs, which already own those same scanner ids' findings
  * (direct instruction: "Schema should never be bundled into this category
  * when you already have a dedicated Schema screen"). Fixed by narrowing
- * this section to `internal-linking` alone and renaming it
- * `internal-linking` — those other scanners' findings are still fully
- * real, just only ever shown through their one real owning tab now, not
- * duplicated here too. `open-graph`/`twitter-card` have no dedicated tab
- * anywhere, so they moved into `titles-meta` instead of losing their SEO-
- * tab visibility entirely.
+ * this section to `internal-linking` alone — those other scanners'
+ * findings are still fully real, just only ever shown through their one
+ * real owning tab now, not duplicated here too. `open-graph`/
+ * `twitter-card` have no dedicated tab anywhere, so they kept their SEO-tab
+ * visibility as their own `structured-data` section below (Seo.php's own
+ * docblock explains why that label, not the real schema scanner ids).
  *
  * `sitemap`/`robots` (2 more full sections) were dropped from here
  * entirely too, same overlap reasoning (direct instruction: "Robots.txt
@@ -58,29 +59,34 @@ import type { FindingsSection } from '../Security/SectionedFindingsTab';
 export const SEO_SECTIONS: FindingsSection[] = [
 	{
 		key: 'titles-meta',
-		title: __('Titles & meta', 'vulopilot'),
+		title: __('Titles & Meta', 'vulopilot'),
 		description: __(
-			'Title length, meta descriptions, canonicals, duplicate titles, orphan pages, thin content, heading structure, and (Pro) duplicate meta descriptions, multiple H1s, and focus keyword drift.',
+			'Title tags, meta descriptions, and (Pro) duplicate meta descriptions and focus keyword drift.',
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No titles/meta findings yet — run a scan to check titles, descriptions, and content structure.',
+			'No titles/meta findings yet — run a scan to check titles and descriptions.',
 			'vulopilot'
 		),
 		scannerIds: [
 			'seo',
 			'meta-description',
-			'canonical-url',
-			'duplicate-content',
-			'orphan-pages',
-			'thin-content',
-			'heading-structure',
 			'meta-description-duplication',
-			'multiple-h1',
 			'focus-keyword-audit',
-			'open-graph',
-			'twitter-card',
 		],
+	},
+	{
+		key: 'content-structure',
+		title: __('Content Structure', 'vulopilot'),
+		description: __(
+			'Heading hierarchy, duplicate/missing H1s, and thin content.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No content structure findings yet — run a scan to check headings and content length.',
+			'vulopilot'
+		),
+		scannerIds: ['heading-structure', 'multiple-h1', 'thin-content'],
 	},
 	{
 		key: 'images',
@@ -107,5 +113,31 @@ export const SEO_SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		scannerIds: ['internal-linking'],
+	},
+	{
+		key: 'indexability-canonicals',
+		title: __('Indexability & Canonicals', 'vulopilot'),
+		description: __(
+			'Canonical URLs, duplicate content, and orphan pages with no internal links pointing to them.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No indexability findings yet — run a scan to check canonicals, duplicate content, and orphan pages.',
+			'vulopilot'
+		),
+		scannerIds: ['canonical-url', 'duplicate-content', 'orphan-pages'],
+	},
+	{
+		key: 'structured-data',
+		title: __('Structured Data', 'vulopilot'),
+		description: __(
+			'Open Graph and Twitter Card tags — the structured metadata social platforms and some AI crawlers read.',
+			'vulopilot'
+		),
+		emptyMessage: __(
+			'No structured data findings yet — run a scan to check Open Graph and Twitter Card tags.',
+			'vulopilot'
+		),
+		scannerIds: ['open-graph', 'twitter-card'],
 	},
 ];

@@ -62,7 +62,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 	};
 
 	return (
-		<>
+		<ContainerComponent>
 			<ColumnComponent grid={8}>
 				<ChatComposerCard<CopilotChatTurn>
 					cardTitle={__('How would you like to grow today?', 'vulopilot')}
@@ -146,7 +146,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 			 */}
 				<CompetitorRadarCard />
 				<VisibilityTrendCard />
-		</>
+		</ContainerComponent>
 	);
 };
 

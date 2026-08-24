@@ -365,18 +365,14 @@ const AeoTab = () => {
 	const aeoTrend = computeTrendChange(history, getAeoTrendScore);
 
 	return (
-		<>
+		<ContainerComponent>
 			<NoticeComponent
-				// type="banner"
-				displayPosition="inline"
-				message={sprintf(
-					'<strong>%1$s</strong> %2$s',
-					__('In plain English:', 'vulopilot'),
-					__(
+				displayPosition="inline-notice"
+				title={__('In plain English:', 'vulopilot')}
+				message={__(
 						'When someone asks ChatGPT, Perplexity, or Google’s AI a question your page could answer, this checks whether your content is written so AI can actually quote it directly.',
 						'vulopilot'
-					)
-				)}
+					)}
 			/>
 
 			<ColumnComponent>
@@ -428,7 +424,7 @@ const AeoTab = () => {
 					exportFilename: 'aeo-page-analysis.csv',
 				}}
 			/>
-		</>
+		</ContainerComponent>
 	);
 };
 

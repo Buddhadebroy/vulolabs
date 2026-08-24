@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ColumnComponent, ContainerComponent, BadgeComponent } from '@zyra/components';
+import { AnalyticsComponent } from '@zyra/components';
 
 interface BrandScoreResponse {
 	brand_score: number;
@@ -28,14 +28,36 @@ const getRating = (score: number): string => {
 	return __('Poor', 'vulopilot');
 };
 
-const ratingClass = (score: number): string => {
+/**
+ * Same 3-tier thresholds as `getRating()` above, as one of zyra's own
+ * `$color-palette` names (`BadgeComponent`'s own `color` prop, and
+ * `AnalyticsComponent`'s own `variant="score-ring"` `iconClass`/`badgeColor`
+ * props, both resolve these against that same real palette — see
+ * `AnalyticsComponent.stories.tsx`'s own "ScoreRing" story) rather than a
+ * bespoke semantic class name, so the icon tint, the badge, and the ring
+ * all draw from the exact same real color source instead of 3 separately
+ * hand-picked ones.
+ */
+const ratingColor = (score: number): string => {
 	if (score >= 70) {
-		return 'is-good';
+		return 'green';
 	}
 	if (score >= 40) {
-		return 'is-attention';
+		return 'yellow';
 	}
-	return 'is-poor';
+	return 'red';
+};
+
+/**
+ * The same 3 `ratingColor()` names, as the real hex value zyra's own
+ * `$color-palette` maps each one to (`packages/theme/src/global.scss`) —
+ * `AnalyticsComponent`'s own ring is a `ChartComponent` stroke, which needs
+ * a literal CSS color rather than a class name to color itself.
+ */
+const RING_COLOR: Record<string, string> = {
+	green: '#16a34a',
+	yellow: '#b7791f',
+	red: '#dc2626',
 };
 
 const SCORE_TILES: {
@@ -79,10 +101,14 @@ const SCORE_TILES: {
 /**
  * Brand Visibility page's own score cards — `GET /brand-intelligence/score`
  * (Controllers\BrandIntelligence, Free — deterministic, no AI call), the
- * same real endpoint this card has always used, restyled from one combined
- * AnalyticsComponent tile row into separate cards (each with a real status
- * pill) to match the reference mockup's own visual language, same
- * "Good"/"Needs Work"/"Poor" thresholds GeoTab.tsx's own rating helpers use.
+ * same real endpoint this card has always used. Real 3-tile
+ * `AnalyticsComponent` row (`variant="score-ring"`, direct instruction —
+ * added to zyra itself for this rather than hand-rolled markup) matching
+ * the reference screenshot's own icon+title/desc/score/badge-left,
+ * ring-right shape, replacing what had briefly been 3 separate
+ * `CardComponent`s (each with a plain status pill, no ring) — this tab
+ * used one combined `AnalyticsComponent` row even before that, so this is
+ * a return to that shape with a real ring now rather than a 2nd rewrite.
  *
  * 3 tiles now (Brand/Trust/Authority), not 4 — Entity Score moved to
  * KnowledgeGraphSection.tsx's own new "Entity Understanding" card (direct
@@ -111,32 +137,27 @@ const BrandScoreCard = () => {
 	}, []);
 
 	return (
-		<ContainerComponent>
-			{SCORE_TILES.map((tile) => {
+		<AnalyticsComponent
+			variant="score-ring"
+			cols={3}
+			isLoading={isLoading}
+			data={SCORE_TILES.map((tile) => {
 				const score = data ? data[tile.key] : 0;
-				return (
-					<ColumnComponent key={tile.key} grid={4}>
-						<CardComponent
-							title={tile.title}
-							titleIcon={tile.icon}
-							desc={tile.desc}
-							isLoading={isLoading}
-						>
-							{data && (
-								<>
-									<div className="crawler-stat-value">{score}/100</div>
-									<BadgeComponent
-										className="geo-four-checks-badge"
-										color={ratingClass(score)}
-										text={getRating(score)}
-									/>
-								</>
-							)}
-						</CardComponent>
-					</ColumnComponent>
-				);
+				const color = ratingColor(score);
+
+				return {
+					icon: tile.icon,
+					iconClass: color,
+					text: tile.title,
+					desc: tile.desc,
+					number: score,
+					progress: score,
+					badgeText: getRating(score),
+					badgeColor: color,
+					ringColor: RING_COLOR[color],
+				};
 			})}
-		</ContainerComponent>
+		/>
 	);
 };
 
