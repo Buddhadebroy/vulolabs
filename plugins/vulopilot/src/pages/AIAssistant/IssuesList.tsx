@@ -184,21 +184,21 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		);
 	}
 	const tableCategoryCounts = [
-    {
-        value: 'all',
-        label: __('All', 'vulopilot'),
-        count: total,
-    },
-    ...CATEGORY_TABS.map((tab) => ({
-        value: tab.id,
-        label: tab.label,
-        count: tab.categories.reduce(
-            (sum, category) =>
-                sum + (categoryCounts[category] ?? 0),
-            0
-        ),
-    })),
-];
+		{
+			value: 'all',
+			label: __('All', 'vulopilot'),
+			count: total,
+		},
+		...CATEGORY_TABS.map((tab) => ({
+			value: tab.id,
+			label: tab.label,
+			count: tab.categories.reduce(
+				(sum, category) =>
+					sum + (categoryCounts[category] ?? 0),
+				0
+			),
+		})),
+	];
 	return (
 		<>
 			{/* Real scroll target for ChatTab.tsx's own "View all issues"/
@@ -213,109 +213,132 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			docblock). */}
 			<ColumnComponent grid={8}>
 				<div id="ai-copilot-issues-section">
-				<IssuesSummaryCards
-					total={total}
-					priorityCounts={priorityCounts}
-					isLoading={isLoading}
-					activePriority={activePriority}
-					onSelectPriority={handlePriorityChange}
-				/>
-
-				{!isLoading && data.length === 0 ? (
-					<ModuleGuardComponent
-						icon="check"
-						title={__('Nothing to suggest right now', 'vulopilot')}
-						desc={__(
-							'AI suggestions appear here once a scan finds something worth fixing.',
-							'vulopilot'
-						)}
-					/>
-				) : (
-					<TableCard
-						showMenu={false}
-						hideHeader={true}
-						categoryCounts={tableCategoryCounts}
-    					activeCategory={activeTabId}
-						headers={{
-							issue: {
-								label: __('Issue', 'vulopilot'),
-								width:'65%',
-								render: (row: FindingGroup) => (
-									<InformationItemComponent
-										title={row.label}
-										descriptions={[
-											{
-												value: row.sample?.description || '',
-											},
-										]}
-										badges={[
-											{
-												text: CATEGORY_LABELS[row.category] ?? row.category,
-												className: `badge-${row.category}`,
-											},
-											{
-												text: row.severity,
-												className: `badge-${row.severity}`,
-											},
-										]}
-									/>
-								),
-							},
-							affected: {
-								label: __('Affected', 'vulopilot'),
-								render: (row: FindingGroup) =>
-									formatAffected(
-										row.count,
-										row.object_type
-									),
-							},
-							action: {
-								type: 'action',
-								label: 'Action',
-								actions: [
-									{
-										label: 'View',
-										icon: 'eye',
-										onClick: (row: FindingGroup) => setSelectedGroup(row),
-									},
-								],
-							},
-						}}
-						rows={data}
-						ids={data.map((row) => row.scanner_id)}
-						totalRows={total}
+					<IssuesSummaryCards
+						total={total}
+						priorityCounts={priorityCounts}
 						isLoading={isLoading}
-						onQueryUpdate={(query: {
-							paged?: number | string;
-							per_page?: number | string;
-							categoryFilter?: string;
-						}) => {
-							setPaged(Number(query.paged) || 1);
-							setPerPage(Number(query.per_page) || 10);
-
-							// TableCard renders/highlights the category tab
-							// bar itself and reports a click here as part of
-							// this same query object (its own
-							// `handleCategoryChange` → `onQueryUpdate`) —
-							// there's no separate callback for it. Without
-							// this, a tab visually highlighted on click
-							// never actually reached `activeTabId` (the
-							// state the real `GET /findings/groups?category=`
-							// fetch above is keyed on), so every tab kept
-							// showing the same unfiltered "All" rows.
-							if (
-								query.categoryFilter &&
-								query.categoryFilter !== activeTabId
-							) {
-								setActiveTabId(query.categoryFilter);
-							}
-						}}
-						emptyMessage={__(
-							'AI suggestions appear here once a scan finds something worth fixing.',
-							'vulopilot'
-						)}
+						activePriority={activePriority}
+						onSelectPriority={handlePriorityChange}
 					/>
-				)}
+
+					{!isLoading && data.length === 0 ? (
+						<ModuleGuardComponent
+							icon="check"
+							title={__('Nothing to suggest right now', 'vulopilot')}
+							desc={__(
+								'AI suggestions appear here once a scan finds something worth fixing.',
+								'vulopilot'
+							)}
+						/>
+					) : (
+						<TableCard
+							showMenu={false}
+							hideHeader={true}
+							categoryCounts={tableCategoryCounts}
+							activeCategory={activeTabId}
+							// Highlights the row whose details are showing in
+							// the side panel (zyra's own `is-selected` row
+							// style, see @zyra/table's TableCard/Table) —
+							// kept in sync with the action cell's own
+							// row-is-active check below rather than a
+							// separate piece of state.
+							activeRowId={selectedGroup?.scanner_id}
+							headers={{
+								issue: {
+									label: __('Issue', 'vulopilot'),
+									width: '70%',
+									render: (row: FindingGroup) => (
+										<InformationItemComponent
+											avatar={{ iconClass: 'search-discovery pink' }}
+											title={row.label}
+											descriptions={[
+												{
+													value:
+														(row.sample?.description?.length ?? 0) > 80
+															? `${row.sample?.description?.slice(0, 80)}...`
+															: row.sample?.description || '',
+												},
+											]}
+											badges={[
+												{
+													text: CATEGORY_LABELS[row.category] ?? row.category,
+													className: `badge-${row.category}`,
+												},
+												{
+													text: row.severity,
+													className: `badge-${row.severity}`,
+												},
+											]}
+										/>
+									),
+								},
+								affected: {
+									label: __('Affected', 'vulopilot'),
+									render: (row: FindingGroup) =>
+										formatAffected(
+											row.count,
+											row.object_type
+										),
+								},
+								action: {
+									label: __('Affected', 'vulopilot'),
+									render: (row: FindingGroup) => {
+										const isActiveRow =
+											row.scanner_id === selectedGroup?.scanner_id;
+
+										return (
+											<span
+												className={`more-details admin-btn btn-text-purple${isActiveRow ? ' is-active' : ''}`}
+												onClick={() =>
+													setSelectedGroup(
+														isActiveRow ? null : row
+													)
+												}
+											>
+												{isActiveRow
+													? __('Showing', 'vulopilot')
+													: __('More Details', 'vulopilot')}{' '}
+												<i className="adminfont-pagination-next-arrow" />
+											</span>
+										);
+									},
+								},
+							}}
+							rows={data}
+							ids={data.map((row) => row.scanner_id)}
+							totalRows={total}
+							isLoading={isLoading}
+							onQueryUpdate={(query: {
+								paged?: number | string;
+								per_page?: number | string;
+								categoryFilter?: string;
+							}) => {
+								setPaged(Number(query.paged) || 1);
+								setPerPage(Number(query.per_page) || 10);
+
+								// TableCard renders/highlights the category tab
+								// bar itself and reports a click here as part of
+								// this same query object (its own
+								// `handleCategoryChange` → `onQueryUpdate`) —
+								// there's no separate callback for it. Without
+								// this, a tab visually highlighted on click
+								// never actually reached `activeTabId` (the
+								// state the real `GET /findings/groups?category=`
+								// fetch above is keyed on), so every tab kept
+								// showing the same unfiltered "All" rows.
+								if (
+									query.categoryFilter &&
+									query.categoryFilter !== activeTabId
+								) {
+									setActiveTabId(query.categoryFilter);
+								}
+							}}
+							emptyMessage={__(
+								'AI suggestions appear here once a scan finds something worth fixing.',
+								'vulopilot'
+							)}
+						/>
+					)}
 				</div>
 			</ColumnComponent>
 

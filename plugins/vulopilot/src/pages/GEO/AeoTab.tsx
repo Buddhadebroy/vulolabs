@@ -395,7 +395,6 @@ const AeoTab = () => {
 			<ColumnComponent grid={6}>
 				<AeoScoreSummaryCard
 					isLoading={isLoadingSnapshot || isLoadingGroups || isLoadingPages}
-					hasSnapshot={Boolean(hasSnapshot)}
 					aeoScore={aeoScore}
 					ratingLabel={getRating(aeoScore)}
 					ratingClassName={ratingClass(aeoScore)}

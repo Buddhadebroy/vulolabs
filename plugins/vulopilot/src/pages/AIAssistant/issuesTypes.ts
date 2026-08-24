@@ -81,22 +81,22 @@ export const findTabIdForCategory = (category: string): string =>
 	CATEGORY_TABS.find((tab) => tab.categories.includes(category))?.id ?? 'all';
 
 export const CATEGORY_ICONS: Record<string, string> = {
-	seo: 'search-discovery',
-	images: 'search-discovery',
-	schema: 'search-discovery',
-	links: 'search-discovery',
-	geo: 'geo-location',
-	brand: 'star',
-	accessibility: 'security',
-	security: 'security',
-	'rest-api': 'security',
-	ssl: 'security',
-	performance: 'bar-chart',
-	woocommerce: 'woocommerce',
-	content: 'document',
-	plugins: 'coding',
-	themes: 'coding',
-	'php-warnings': 'coding',
+	seo: 'search-discovery yellow',
+	images: 'search-discovery blue',
+	schema: 'search-discovery blue',
+	links: 'search-discovery blue',
+	geo: 'geo-location pink',
+	brand: 'star teal',
+	accessibility: 'security lime',
+	security: 'security lime',
+	'rest-api': 'security lime',
+	ssl: 'security lime',
+	performance: 'bar-chart rose',
+	woocommerce: 'woocommerce rose',
+	content: 'document orange',
+	plugins: 'coding lime',
+	themes: 'coding lime',
+	'php-warnings': 'coding lime',
 };
 
 /** count + a real object_type field → a display noun for the "Affected" column, e.g. "8 images"/"1 endpoint". */

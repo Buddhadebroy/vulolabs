@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent,ColumnComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ProLockedCard from '../../components/ProLockedCard';
 
@@ -92,22 +92,25 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 
 	if (!isActive) {
 		return (
-			<CardComponent
-				title={__('Answer Engine Coverage', 'vulopilot')}
-				titleIcon="global-community"
-				desc={__(
-					'Whether AI answer engines currently cite this site when asked questions its content answers.',
-					'vulopilot'
-				)}
-				badges={badges}
-				toggle
-			>
-				<ProLockedCard moduleName="aeo-insights" />
-			</CardComponent>
+			<ColumnComponent grid={6} fullHeight>
+				<CardComponent
+					title={__('Answer Engine Coverage', 'vulopilot')}
+					titleIcon="global-community"
+					desc={__(
+						'Whether AI answer engines currently cite this site when asked questions its content answers.',
+						'vulopilot'
+					)}
+					badges={badges}
+					toggle
+				>
+					<ProLockedCard moduleName="aeo-insights" />
+				</CardComponent>
+			</ColumnComponent>
 		);
 	}
 
 	return (
+		<ColumnComponent grid={6} fullHeight>
 		<CardComponent
 			title={__('Answer Engine Coverage', 'vulopilot')}
 			titleIcon="global-community"
@@ -189,6 +192,7 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 				</>
 			)}
 		</CardComponent>
+		</ColumnComponent>
 	);
 };
 

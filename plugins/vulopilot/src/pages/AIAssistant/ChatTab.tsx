@@ -360,12 +360,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={3}>
-				<RecentConversationsCard
-					onSelectConversation={handleSelectConversation}
-				/>
-			</ColumnComponent>
-
 			<ColumnComponent grid={8}>
 				{/* Scroll target for handleSelectConversation() — loading a past thread from the "Recent conversations" sidebar brings this composer back into view. */}
 				<div ref={composerRef}>
@@ -686,7 +680,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						}
 						prompts={
 							<ListComponent
-								className="badge-list"
+								className="chip-grid"
 								items={SUGGESTED_PROMPTS.map((prompt) => ({
 									id: prompt.id,
 									icon: prompt.icon,

@@ -291,62 +291,94 @@
 	}
 }
 
-// "Needs your attention" card (NeedsAttentionCard.tsx, replaces the old
-// Suggested Actions sidebar preview) — mockup: a big total + "things need
-// attention" label, 3 priority-count pills, then the same
-// .suggested-actions-list row layout above, reused as-is for real
-// per-issue-type counts instead of individual findings.
-.attention-summary-header {
+// "Site Overview" card (NeedsAttentionCard.tsx) — a real health-score
+// breakdown read from `GET /dashboard`: a ring for `overall_score` beside
+// its own "Overall Health"/rating text, the 4 real category_scores as
+// plain icon+label+score rows, and a footer count + "View all issues"
+// link. Same green/orange/red 3-tone split (getScoreTone()) colors both
+// the ring's own rating text and each row's score number, so a row's
+// color never disagrees with the headline rating it rolls up into.
+.site-overview-health {
 	display: flex;
-	align-items: baseline;
-	gap: 0.5rem;
-	margin-bottom: 0.75rem;
-}
-
-.attention-summary-count {
-	font-size: 1.75rem;
-	font-weight: 700;
-	// Same red as .issues-table's own 'critical' badge tier below —
-	// this card's own "most urgent" color, not a new one.
-	color: #dc2626;
-}
-
-.attention-summary-label {
-	color: $sub-text-color;
-	font-size: 0.875rem;
-}
-
-.attention-priority-pills {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
+	align-items: center;
+	gap: 1rem;
 	margin-bottom: 1rem;
 
-	// Same 3 hex values .issues-table's own severity badges use (this
-	// file), collapsed to the same high/medium/low bucketing
-	// FindingRepository::get_priority_counts() applies server-side — a
-	// pill's color always agrees with the severity badges on the Issues
-	// table.
-	$priorities: (
-		'high': #dc2626,
-		'medium': #b45309,
-		'low': #5baab3,
-	);
-
-	@each $name, $color in $priorities {
-		.attention-priority-#{$name} {
-			color: #{$color};
-			background: color-mix(in srgb, #{$color} 14%, transparent);
-		}
+	.zyra-chart {
+		flex-shrink: 0;
 	}
 }
 
-.attention-view-all-btn {
-	margin-top: 0.75rem;
+.site-overview-ring-number {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: $text-color;
+}
 
-	.admin-btn {
-		width: 100%;
-		justify-content: center;
+.site-overview-health-title {
+	font-weight: 600;
+	color: $text-color;
+}
+
+.site-overview-health-rating {
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+// The rows themselves are zyra's own `ListComponent` "mini-card report"
+// variant (icon left, `tags` slot pinned right) — only the `tags` slot's
+// own colored score content needs styling here.
+.site-overview-score-row-value {
+	font-weight: 700;
+}
+
+.site-overview-score-row-suffix {
+	font-weight: 400;
+	color: $sub-text-color;
+	margin-left: 0.125rem;
+}
+
+// Same 3-tone hex values TONE_COLOR (NeedsAttentionCard.tsx) uses for the
+// ring itself, so a row's text color always matches its own slice color.
+.site-overview-health-rating,
+.site-overview-score-row-value {
+	&.tone-green {
+		color: $color-success;
+	}
+
+	&.tone-orange {
+		color: #d97706;
+	}
+
+	&.tone-red {
+		color: #dc2626;
+	}
+}
+
+.site-overview-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding-top: 0.75rem;
+	border-top: $border-light-small;
+}
+
+.site-overview-footer-count {
+	font-weight: 600;
+	color: $text-color;
+}
+
+.site-overview-footer-link {
+	display: inline-flex;
+	align-items: center;
+	color: $theme-color;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+
+	&:hover {
+		text-decoration: underline;
 	}
 }
 

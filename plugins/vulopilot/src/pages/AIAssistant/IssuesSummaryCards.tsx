@@ -69,14 +69,15 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 	];
 
 	return (
-		<div className={`issues-summary-cards active-priority-${activePriority}`}>
+		// <div className={`issues-summary-cards active-priority-${activePriority}`}>
 			<AnalyticsComponent
 				data={data}
+				className={`active-priority-${activePriority}`}
 				variant="small-card"
 				cols={4}
 				isLoading={isLoading}
 			/>
-		</div>
+		// </div>
 	);
 };
 
