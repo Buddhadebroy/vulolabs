@@ -87,9 +87,21 @@ const DEFAULT_DUMMY_CONTENT = (
  *    {name}" instead of re-pitching an upgrade they already have — same
  *    branch ProLockedCard.tsx already relies on. Pass `null` as `moduleId`
  *    to skip this check for a section with no module dependency of its
- *    own.
+ *    own. `isModuleActive` is an escape hatch for a caller whose own real
+ *    "active" check isn't a single module id lookup — e.g.
+ *    AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx are unlocked by
+ *    *either* of two real modules (`geo-insights` OR `aeo-insights`, both
+ *    registering the same real backend class — see AeoTab.tsx's own
+ *    `isCitationCheckActive()`), so they pass that already-correct boolean
+ *    straight through instead of this hook re-deriving a single-id check
+ *    that would only ever look at one of the two and get it wrong for the
+ *    other. `moduleId` is still used for the tag's own display name/popup
+ *    target either way.
  */
-export const useContentGate = (moduleId: string | null) => {
+export const useContentGate = (
+	moduleId: string | null,
+	isModuleActive?: boolean
+) => {
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const { isLoggedIn: isVuloCloudLoggedIn } = useVuloCloudAccountLogin();
 
@@ -99,7 +111,7 @@ export const useContentGate = (moduleId: string | null) => {
 		!isVuloCloudLocked &&
 		!isProLocked &&
 		!!moduleId &&
-		!appLocalizer.active_modules.includes(moduleId);
+		!(isModuleActive ?? appLocalizer.active_modules.includes(moduleId));
 
 	const gateReason: 'vulocloud' | 'pro' | 'module' | null = isVuloCloudLocked
 		? 'vulocloud'

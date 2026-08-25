@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { ButtonInput, SelectInput } from '@zyra/inputs';
-import ProLockedCard from '../../components/ProLockedCard';
+import { useContentGate } from '../../services/useContentGate';
 import type { CitationCheckResult } from './AeoCitationCoverageCard';
 import type { AeoPageRow } from './useAeoPageAnalysis';
 
@@ -79,105 +79,124 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 			.finally(() => setIsRunning(false));
 	};
 
-	if (!isActive) {
-		return (
-			<CardComponent
-				title={__('Engine Testing', 'vulopilot')}
-				titleIcon="intelligence"
-				desc={__(
-					'Re-verifies a previously-flagged finding against an AI answer engine once you’ve fixed it, instead of waiting for the next full scan.',
-					'vulopilot'
-				)}
-				toggle
-			>
-				<ProLockedCard moduleName="aeo-insights" />
-			</CardComponent>
-		);
-	}
+	// Same real OR-of-two-modules override as AeoCitationCoverageCard.tsx —
+	// see that card's own comment and useContentGate.tsx's own docblock for
+	// why `isActive` (not this hook's default single-id check) drives the
+	// module gate here.
+	const { wrap } = useContentGate('aeo-insights', isActive);
+
+	const dummyContent = (
+		<div className="aeo-engine-testing-controls">
+			<SelectInput
+				name="engine_testing_post_id_dummy"
+				value=""
+				placeholder={__('Select a page…', 'vulopilot')}
+				options={[]}
+				onChange={() => {}}
+				size="16rem"
+				disabled
+			/>
+			<ButtonInput
+				buttons={{ text: __('Test this page', 'vulopilot'), disabled: true, onClick: () => {} }}
+			/>
+		</div>
+	);
 
 	return (
 		<CardComponent
 			title={__('Engine Testing', 'vulopilot')}
 			titleIcon="intelligence"
-			desc={__(
-				'Pick a page you’ve just fixed and re-run the same real citation check against it right now, instead of waiting for the next full scan.',
-				'vulopilot'
-			)}
+			desc={
+				isActive
+					? __(
+							'Pick a page you’ve just fixed and re-run the same real citation check against it right now, instead of waiting for the next full scan.',
+							'vulopilot'
+						)
+					: __(
+							'Re-verifies a previously-flagged finding against an AI answer engine once you’ve fixed it, instead of waiting for the next full scan.',
+							'vulopilot'
+						)
+			}
 			toggle
 		>
-			<div className="aeo-engine-testing-controls">
-				<SelectInput
-					name="engine_testing_post_id"
-					value={selectedPostId}
-					placeholder={__('Select a page…', 'vulopilot')}
-					options={pages.map((page) => ({
-						label: page.title,
-						value: String(page.post_id),
-					}))}
-					onChange={(newValue) => setSelectedPostId(newValue as string)}
-					size="16rem"
-				/>
-				<ButtonInput
-					buttons={{
-						text: isRunning
-							? __('Testing…', 'vulopilot')
-							: __('Test this page', 'vulopilot'),
-						onClick: handleTest,
-						disabled: isRunning || !selectedPostId,
-					}}
-				/>
-			</div>
+			{wrap(
+				<>
+					<div className="aeo-engine-testing-controls">
+						<SelectInput
+							name="engine_testing_post_id"
+							value={selectedPostId}
+							placeholder={__('Select a page…', 'vulopilot')}
+							options={pages.map((page) => ({
+								label: page.title,
+								value: String(page.post_id),
+							}))}
+							onChange={(newValue) => setSelectedPostId(newValue as string)}
+							size="16rem"
+						/>
+						<ButtonInput
+							buttons={{
+								text: isRunning
+									? __('Testing…', 'vulopilot')
+									: __('Test this page', 'vulopilot'),
+								onClick: handleTest,
+								disabled: isRunning || !selectedPostId,
+							}}
+						/>
+					</div>
 
-			{error && (
-				<ModuleGuardComponent
-					icon="error"
-					title={__('Could not run this test', 'vulopilot')}
-					desc={error}
-				/>
-			)}
-
-			{!error && !result && !isRunning && (
-				<ModuleGuardComponent
-					icon="info"
-					title={__('Not tested yet', 'vulopilot')}
-					desc={__(
-						'Pick a page above and click "Test this page" to run a real, single-page citation check.',
-						'vulopilot'
+					{error && (
+						<ModuleGuardComponent
+							icon="error"
+							title={__('Could not run this test', 'vulopilot')}
+							desc={error}
+						/>
 					)}
-				/>
-			)}
 
-			{result && (
-				<div
-					className={`geo-four-checks-tile ${result.cited ? 'is-good' : 'is-attention'}`}
-				>
-					<div className="geo-four-checks-title">{result.question}</div>
-					<p className="desc">
-						{result.from_content
-							? __('Question taken from this page’s own content.', 'vulopilot')
-							: __('Question built from this page’s title.', 'vulopilot')}
-					</p>
-					<p className="desc">
-						{result.cited
-							? __('Your configured AI provider already recognizes this site for this question.', 'vulopilot')
-							: __('Your configured AI provider does not yet recognize this site for this question.', 'vulopilot')}
-					</p>
-					{/* The real generated text the judgment above was made from —
-					shown so this doesn't read as a static verdict: every run
-					re-asks the model live and this answer changes accordingly,
-					even when the cited/not-cited outcome itself doesn't. */}
-					<p className="desc aeo-engine-testing-answer-label">
-						{sprintf(
-							/* translators: 1: AI provider id (e.g. "gemini"), 2: model id. */
-							__('What %1$s (%2$s) actually said, live:', 'vulopilot'),
-							result.provider,
-							result.model
-						)}
-					</p>
-					<blockquote className="aeo-engine-testing-answer">
-						{result.answer}
-					</blockquote>
-				</div>
+					{!error && !result && !isRunning && (
+						<ModuleGuardComponent
+							icon="info"
+							title={__('Not tested yet', 'vulopilot')}
+							desc={__(
+								'Pick a page above and click "Test this page" to run a real, single-page citation check.',
+								'vulopilot'
+							)}
+						/>
+					)}
+
+					{result && (
+						<div
+							className={`geo-four-checks-tile ${result.cited ? 'is-good' : 'is-attention'}`}
+						>
+							<div className="geo-four-checks-title">{result.question}</div>
+							<p className="desc">
+								{result.from_content
+									? __('Question taken from this page’s own content.', 'vulopilot')
+									: __('Question built from this page’s title.', 'vulopilot')}
+							</p>
+							<p className="desc">
+								{result.cited
+									? __('Your configured AI provider already recognizes this site for this question.', 'vulopilot')
+									: __('Your configured AI provider does not yet recognize this site for this question.', 'vulopilot')}
+							</p>
+							{/* The real generated text the judgment above was made from —
+							shown so this doesn't read as a static verdict: every run
+							re-asks the model live and this answer changes accordingly,
+							even when the cited/not-cited outcome itself doesn't. */}
+							<p className="desc aeo-engine-testing-answer-label">
+								{sprintf(
+									/* translators: 1: AI provider id (e.g. "gemini"), 2: model id. */
+									__('What %1$s (%2$s) actually said, live:', 'vulopilot'),
+									result.provider,
+									result.model
+								)}
+							</p>
+							<blockquote className="aeo-engine-testing-answer">
+								{result.answer}
+							</blockquote>
+						</div>
+					)}
+				</>,
+				dummyContent
 			)}
 		</CardComponent>
 	);
