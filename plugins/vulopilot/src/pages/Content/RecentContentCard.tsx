@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -9,6 +9,7 @@ import {
 	NoticeManager,
 	PopupComponent,
 	BadgeComponent,
+	TooltipComponent,
 } from '@zyra/components';
 import {
 	ButtonInput,
@@ -140,20 +141,40 @@ const RESOURCE_OPTIONS: { id: Tab; label: string }[] = [
 	{ id: 'other', label: __('Other', 'vulopilot') },
 ];
 
-const SEVERITY_OPTIONS: { id: SeverityFilter; label: string }[] = [
-	{ id: 'all', label: __('All issues', 'vulopilot') },
-	{ id: 'critical', label: __('Critical', 'vulopilot') },
-	{ id: 'high', label: __('High', 'vulopilot') },
-	{ id: 'medium', label: __('Medium', 'vulopilot') },
-	{ id: 'low', label: __('Low', 'vulopilot') },
-];
+const SEVERITY_LABELS: Record<FindingSeverity, string> = {
+	critical: __('Critical', 'vulopilot'),
+	high: __('High', 'vulopilot'),
+	medium: __('Medium', 'vulopilot'),
+	low: __('Low', 'vulopilot'),
+	info: __('Info', 'vulopilot'),
+};
 
+/**
+ * `label` deliberately empty — zyra's `look="toggle"` variant renders the
+ * switch pill via CSS on the SAME `<label>` element that would carry
+ * `option.label`'s text (`.toggle-checkbox label` styles it as a
+ * 44×19px pill; that rule's higher specificity than `.checkbox-label`
+ * wins), so any real text passed there gets visually swallowed into the
+ * switch shape instead of reading as a label (confirmed live). Every
+ * other `look="toggle"` caller in this codebase already leaves `label`
+ * empty for the same reason (ManageAutomationsSection.tsx's own
+ * `StatusToggleCell`) — the visible "Show ignored" text below is
+ * rendered externally instead, next to the switch.
+ */
 const SHOW_IGNORED_OPTION = [
 	{
 		key: 'show-ignored',
 		value: 'show-ignored',
+		label: '',
 	},
 ];
+
+/** Shown next to the switch, and in full on hover (TooltipComponent) — see SHOW_IGNORED_OPTION's own docblock for why the switch itself can't carry this text. */
+const SHOW_IGNORED_LABEL = __('Show ignored', 'vulopilot');
+const SHOW_IGNORED_TOOLTIP = __(
+	'Also count and show findings you’ve already dismissed with "Ignore" in the list below.',
+	'vulopilot'
+);
 
 /**
  * Real word count from real rendered HTML — the only honest way to show
@@ -401,6 +422,37 @@ const RecentContentCard = () => {
 			})
 			.finally(() => setIsLoading(false));
 	}, []);
+
+	/**
+	 * Severity filter options, built from the severities actually present
+	 * in this card's own real findings — not a fixed 5-level list. All 3
+	 * scanners this card reads from (thin-content/readability/heading-structure)
+	 * only ever emit `Severity::LOW` findings (see each scanner's own
+	 * `get_severity()`/`Severity::LOW` call) — a hardcoded Critical/High/
+	 * Medium/Low dropdown would offer 3 options that can never match a
+	 * single row, which reads as "the filter is broken" rather than what it
+	 * actually is (this content-quality check just doesn't have severity
+	 * tiers above Low). Recomputed whenever the real data changes, so if a
+	 * future scanner joins this card with a higher severity, its option
+	 * appears automatically.
+	 */
+	const severityOptions = useMemo(() => {
+		const present = new Set<FindingSeverity>();
+
+		rows.forEach((row) =>
+			row.findings.forEach((finding) => present.add(finding.severity))
+		);
+
+		return [
+			{ id: 'all' as SeverityFilter, label: __('All issues', 'vulopilot') },
+			...Array.from(present)
+				.sort((a, b) => SEVERITY_RANK[a] - SEVERITY_RANK[b])
+				.map((severity) => ({
+					id: severity as SeverityFilter,
+					label: SEVERITY_LABELS[severity],
+				})),
+		];
+	}, [rows]);
 
 	/** A row's findings that are actually relevant to show right now — open always, ignored only while "Show ignored" is on — further narrowed by the severity filter. */
 	const visibleFindingsFor = (row: ContentRow): RawFinding[] =>
@@ -768,7 +820,7 @@ const RecentContentCard = () => {
 					onChange={(value) =>
 						setSeverityFilter(value as SeverityFilter)
 					}
-					options={SEVERITY_OPTIONS.map((option) => ({
+					options={severityOptions.map((option) => ({
 						label: option.label,
 						value: option.id,
 					}))}
@@ -785,15 +837,27 @@ const RecentContentCard = () => {
 					}))}
 					isClearable={false}
 				/>
-				<MultiCheckboxInput
-					look="toggle"
-					modules={[]}
-					options={SHOW_IGNORED_OPTION}
-					value={showIgnored ? ['show-ignored'] : []}
-					onChange={(value) =>
-						setShowIgnored(value.includes('show-ignored'))
-					}
-				/>
+				<TooltipComponent
+					text={SHOW_IGNORED_TOOLTIP}
+					className="recent-content-show-ignored"
+				>
+					{/* Own onClick (not a real <label htmlFor>, since MultiCheckboxInput generates its input's id internally) so clicking the visible text toggles the switch too, same as clicking any other checkbox's label would. */}
+					<span
+						className="recent-content-show-ignored-label"
+						onClick={() => setShowIgnored(!showIgnored)}
+					>
+						{SHOW_IGNORED_LABEL}
+					</span>
+					<MultiCheckboxInput
+						look="toggle"
+						modules={[]}
+						options={SHOW_IGNORED_OPTION}
+						value={showIgnored ? ['show-ignored'] : []}
+						onChange={(value) =>
+							setShowIgnored(value.includes('show-ignored'))
+						}
+					/>
+				</TooltipComponent>
 				<ButtonInput
 					buttons={{
 						text: __('Export CSV', 'vulopilot'),

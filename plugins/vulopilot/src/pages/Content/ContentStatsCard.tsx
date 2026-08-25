@@ -179,26 +179,26 @@ const ContentStatsCard = () => {
 						{
 							icon: 'bar-chart',
 							colorClass: 'admin-bg-color4',
-							number: '0',
+							number: '—',
 							text: (
 								<>
 									{__('SEO Score Improved', 'vulopilot')}
-									{/* <span className="content-stats-tile-untracked">
+									<span className="content-stats-tile-untracked">
 										{__('Not tracked yet', 'vulopilot')}
-									</span> */}
+									</span>
 								</>
 							),
 						},
 						{
 							icon: 'clock',
 							colorClass: 'admin-bg-color5',
-							number: '0',
+							number: '—',
 							text: (
 								<>
 									{__('Time Saved', 'vulopilot')}
-									{/* <span className="content-stats-tile-untracked">
+									<span className="content-stats-tile-untracked">
 										{__('Not tracked yet', 'vulopilot')}
-									</span> */}
+									</span>
 								</>
 							),
 						},
