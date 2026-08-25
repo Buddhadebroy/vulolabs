@@ -75,7 +75,8 @@ class HeavyPluginsScanner extends AbstractBasicScanner {
                 __( 'A large number of active plugins increases the odds of conflicts and can slow down every admin and frontend request.', 'vulopilot' ),
                 'table',
                 'active_plugins',
-                array( 'plugin_count' => $plugin_count )
+                array( 'plugin_count' => $plugin_count ),
+                'active-plugin-count'
             ),
         );
     }

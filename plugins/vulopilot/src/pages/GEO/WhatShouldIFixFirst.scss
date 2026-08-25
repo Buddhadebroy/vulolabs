@@ -1,0 +1,176 @@
+@use '../../components/config' as *;
+
+// "What should I fix first?" (WhatShouldIFixFirstCard.tsx) and "Pages that
+// need attention" (PagesNeedingAttentionTable.tsx) — two new, additive
+// sections above SEO's existing filter-tabs/severity cards/Site-wide
+// Issues/Pages & Posts, which stay completely untouched. Reuses the exact
+// same severity color language (#16a34a/#b45309/#dc2626) SeoVisibility.scss's
+// own `.seo-health-stat`/`.seo-area-tile-pill` already establish, so a
+// "Critical"/"High"/"Low" number here reads the same color as it does in the
+// "SEO Health Score" card right above it.
+
+.fix-first-layout {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem;
+}
+
+.fix-first-severity {
+	flex: 0 1 18rem;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1.25rem;
+}
+
+.fix-first-severity-stat {
+	.typography-h3 {
+		margin: 0 0 0.125rem;
+
+		&.is-attention {
+			color: #b45309;
+		}
+
+		&.is-poor {
+			color: #dc2626;
+		}
+
+		&.is-good {
+			color: #16a34a;
+		}
+
+		&.is-medium {
+			color: #ca8a04;
+		}
+	}
+}
+
+.fix-first-ranked {
+	flex: 1 1 20rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.fix-first-ranked-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.fix-first-ranked-count {
+	flex: 0 0 auto;
+	min-width: 2rem;
+	text-align: center;
+	font-weight: 600;
+	font-size: 0.8125rem;
+	padding: 0.25rem 0.5rem;
+	border-radius: 999px;
+	color: #b45309;
+	background: color-mix(in srgb, #b45309 14%, transparent);
+}
+
+.fix-first-ranked-label {
+	font-size: 0.8125rem;
+}
+
+.fix-first-empty {
+	padding: 0.5rem 0;
+}
+
+.fix-first-view-all {
+	margin-top: 1.5rem;
+	display: flex;
+	justify-content: center;
+}
+
+.fix-first-score-pill {
+	display: inline-block;
+	font-weight: 600;
+	font-size: 0.8125rem;
+	padding: 0.125rem 0.625rem;
+	border-radius: 999px;
+
+	&.is-good {
+		color: #16a34a;
+		background: color-mix(in srgb, #16a34a 14%, transparent);
+	}
+
+	&.is-attention {
+		color: #b45309;
+		background: color-mix(in srgb, #b45309 14%, transparent);
+	}
+
+	&.is-poor {
+		color: #dc2626;
+		background: color-mix(in srgb, #dc2626 14%, transparent);
+	}
+}
+
+.fix-first-change {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-weight: 600;
+	font-size: 0.8125rem;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-attention {
+		color: #dc2626;
+	}
+
+	&.is-steady {
+		color: $sub-text-color;
+		font-weight: 400;
+	}
+}
+
+.pages-needing-attention-link {
+	font-weight: 600;
+	color: inherit;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+// SeoProgressCard.tsx — same plain-flexbox two-column layout as
+// `.fix-first-layout` above (never a `ColumnComponent` nested inside another
+// `ColumnComponent`: that specific nesting is what caused the real, confirmed
+// live "flex-basis: 100% means full column height instead of full width"
+// layout bug fixed earlier on this same tab).
+.seo-progress-layout {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem;
+}
+
+.seo-progress-chart {
+	flex: 1 1 24rem;
+	position: relative;
+}
+
+.seo-progress-chart-title {
+	margin-bottom: 0.5rem;
+}
+
+.seo-progress-latest-score {
+	position: absolute;
+	top: 1.75rem;
+	right: 0.5rem;
+	font-weight: 700;
+	font-size: 0.875rem;
+	color: #7c3aed;
+	background: color-mix(in srgb, #7c3aed 12%, transparent);
+	padding: 0.125rem 0.625rem;
+	border-radius: 999px;
+}
+
+.seo-progress-stats {
+	flex: 0 1 16rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}

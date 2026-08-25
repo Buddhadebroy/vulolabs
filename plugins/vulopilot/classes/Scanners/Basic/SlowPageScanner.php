@@ -87,7 +87,8 @@ class SlowPageScanner extends AbstractBasicScanner {
                 __( 'A slow homepage response affects every visit and is one of the biggest levers on perceived site speed.', 'vulopilot' ),
                 'url',
                 home_url( '/' ),
-                array( 'response_time_seconds' => round( $elapsed, 2 ) )
+                array( 'response_time_seconds' => round( $elapsed, 2 ) ),
+                'homepage-response-time'
             ),
         );
     }

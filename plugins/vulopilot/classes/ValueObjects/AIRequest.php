@@ -95,6 +95,23 @@ final class AIRequest {
     }
 
     /**
+     * A copy of this request with a different `$model` — everything else
+     * unchanged. `ProviderFallbackChain::try_each()`'s own real fix needs
+     * this: the model a request should use is provider-specific (an
+     * OpenAI model id sent to Gemini's own API is a real, confirmed-live
+     * "model not found" failure, not a hypothetical one), so a fallback
+     * attempt on the *next* provider in the chain needs its own freshly
+     * resolved model, not whichever provider's model this request started
+     * with.
+     *
+     * @param string $model Model id to use instead.
+     * @return self
+     */
+    public function with_model( string $model ): self {
+        return new self( $model, $this->messages, $this->temperature, $this->max_tokens, $this->image, $this->surface );
+    }
+
+    /**
      * @return array<int, array{role: string, content: string}>
      */
     public function get_messages(): array {

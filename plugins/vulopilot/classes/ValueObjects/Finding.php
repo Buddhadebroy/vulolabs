@@ -53,6 +53,12 @@ final class Finding {
     private array $meta;
 
     /**
+     * @var string|null A stable identity for this finding, independent of
+     *                  `$title`'s exact text, used for dedupe matching.
+     */
+    private ?string $dedupe_key;
+
+    /**
      * @param string      $title       Human-readable summary.
      * @param string      $severity    One of Severity's constants.
      * @param string      $category    Category this finding belongs to.
@@ -60,6 +66,25 @@ final class Finding {
      * @param string|null $object_type What kind of thing this finding is about, if any.
      * @param string|null $object_ref  Reference to the specific object, if any.
      * @param array       $meta        Arbitrary scanner-specific extra data.
+     * @param string|null $dedupe_key  A stable per-scanner identity for this
+     *                                 finding to match on across rescans,
+     *                                 for a scanner whose `$title` bakes in
+     *                                 a live, scan-to-scan-fluctuating value
+     *                                 (a word count, a score, a byte size, a
+     *                                 count) that would otherwise defeat
+     *                                 FindingRepository::find_open_duplicate()'s
+     *                                 exact-`title`-match fallback — see
+     *                                 that method's own docblock. Left
+     *                                 `null` (the default) for every scanner
+     *                                 whose title is already a stable
+     *                                 identifying value on its own (a URL, a
+     *                                 file path, a fixed name) or that can
+     *                                 legitimately emit more than one
+     *                                 Finding for the same `object_type`/
+     *                                 `object_ref` in a single `scan()` call
+     *                                 (dedupe then still falls back to
+     *                                 matching the full `title`, exactly as
+     *                                 before this param existed).
      */
     public function __construct(
         string $title,
@@ -68,7 +93,8 @@ final class Finding {
         string $description,
         ?string $object_type = null,
         ?string $object_ref = null,
-        array $meta = array()
+        array $meta = array(),
+        ?string $dedupe_key = null
     ) {
         $this->title       = $title;
         $this->severity    = $severity;
@@ -77,6 +103,7 @@ final class Finding {
         $this->object_type = $object_type;
         $this->object_ref  = $object_ref;
         $this->meta        = $meta;
+        $this->dedupe_key  = $dedupe_key;
     }
 
     /**
@@ -126,5 +153,12 @@ final class Finding {
      */
     public function get_meta(): array {
         return $this->meta;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function get_dedupe_key(): ?string {
+        return $this->dedupe_key;
     }
 }

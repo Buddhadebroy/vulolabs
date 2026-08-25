@@ -84,7 +84,8 @@ class CssOptimizationScanner extends AbstractAssetOptimizationScanner {
                 __( 'These stylesheets aren\'t minified and no minification plugin is active. Minifying CSS reduces file size and speeds up page rendering.', 'vulopilot' ),
                 'url',
                 home_url( '/' ),
-                array( 'stylesheets' => $unminified )
+                array( 'stylesheets' => $unminified ),
+                'unminified-styles'
             ),
         );
     }

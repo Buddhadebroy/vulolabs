@@ -94,9 +94,17 @@ class DuplicateContentScanner extends AbstractBasicScanner {
                 continue; // An empty/untitled draft-like title isn't a meaningful duplicate.
             }
 
+            // ORDER BY ID is load-bearing, not cosmetic: this result feeds
+            // straight into object_ref below (implode(',', $matching_ids)),
+            // which find_open_duplicate() matches on exact string equality.
+            // Without a deterministic order, MySQL is free to return the
+            // same row set in a different sequence on a later scan even
+            // with zero real change to which posts share this title,
+            // producing a different object_ref string and silently
+            // defeating dedup the same way a volatile title would.
             $matching_ids = $wpdb->get_col(
                 $wpdb->prepare(
-                    "SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_status = 'publish' AND post_type IN ('post', 'page')", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    "SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_status = 'publish' AND post_type IN ('post', 'page') ORDER BY ID ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                     $title
                 )
             );

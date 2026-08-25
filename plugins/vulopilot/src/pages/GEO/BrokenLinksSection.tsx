@@ -918,7 +918,7 @@ const BrokenLinksSection = () => {
 
 					return (
 						<div className="broken-link-finding-source">
-							<TypographyComponent as="span" variant="body-xs" className="broken-link-finding-arrow">↳</TypographyComponent>
+							<span className="typography-body-xs broken-link-finding-arrow">↳</span>
 							<a href={url} target="_blank" rel="noreferrer">
 								{url}
 							</a>
@@ -971,21 +971,19 @@ const BrokenLinksSection = () => {
 			render: (row: BrokenLinkRow) => {
 				if (isFindingRow(row)) {
 					return (
-						<TypographyComponent as="span" variant="body-xs" className="broken-link-finding-type">
+						<span className="typography-body-xs broken-link-finding-type">
 							{'broken-images' === row.scanner_id
 								? __('Image', 'vulopilot')
 								: __('Link', 'vulopilot')}
-						</TypographyComponent>
+						</span>
 					);
 				}
 
 				const count = (row as PageGroupRow).findings.length;
 
 				return (
-					<TypographyComponent
-						as="span"
-						variant="body-xs"
-						className="broken-link-row-expand-trigger"
+					<span
+						className="typography-body-xs broken-link-row-expand-trigger"
 						onClick={toggleRowExpansion}
 					>
 						{sprintf(
@@ -993,7 +991,7 @@ const BrokenLinksSection = () => {
 							_n('%d broken', '%d broken', count, 'vulopilot'),
 							count
 						)}
-					</TypographyComponent>
+					</span>
 				);
 			},
 		},
@@ -1128,12 +1126,12 @@ const BrokenLinksSection = () => {
 								</div>
 							</div>
 							{!isLoadingFindings && 0 === needAttentionTotal && (
-								<TypographyComponent as="p" variant="desc">
+								<p className="desc">
 									{__(
 										'Nothing needs attention right now.',
 										'vulopilot'
 									)}
-								</TypographyComponent>
+								</p>
 							)}
 						</CardComponent>
 
@@ -1302,12 +1300,12 @@ const BrokenLinksSection = () => {
 				header={{ title: __('Create redirect', 'vulopilot') }}
 			>
 				<div className="broken-link-redirect-form">
-					<TypographyComponent as="p" variant="desc">
+					<p className="desc">
 						{__(
 							'Redirect this broken URL to a working destination.',
 							'vulopilot'
 						)}
-					</TypographyComponent>
+					</p>
 					<TextInput
 						name="redirect_source_path"
 						inputLabel={__('From (path)', 'vulopilot')}
@@ -1315,12 +1313,12 @@ const BrokenLinksSection = () => {
 						disabled
 						onChange={() => { }}
 					/>
-					<TypographyComponent as="p" variant="desc" className="broken-link-redirect-note">
+					<p className="desc broken-link-redirect-note">
 						{__(
 							'Auto-generated from the broken URL. Edit or fine-tune it afterward from the Redirects tab if you need something more specific.',
 							'vulopilot'
 						)}
-					</TypographyComponent>
+					</p>
 					<TextInput
 						name="redirect_target_url"
 						inputLabel={__('To', 'vulopilot')}

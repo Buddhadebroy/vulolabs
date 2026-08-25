@@ -89,7 +89,8 @@ class DatabaseCleanupScanner extends AbstractBasicScanner {
                 array(
                     'expired_transients' => $expired_transients,
                     'excess_revisions'   => $excess_revisions,
-                )
+                ),
+                'db-cleanup'
             ),
         );
     }
