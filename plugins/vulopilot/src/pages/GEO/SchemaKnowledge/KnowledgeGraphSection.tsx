@@ -11,9 +11,10 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../../services/useFilterSlot';
+import { KnowledgeGraphDiagram } from './KnowledgeGraphDiagramCard';
 
-/** Real Settings → Scanning → AI Visibility subtab id (Settings.tsx's own `currentTab === 'ai-visibility'` branch) — where the `entity_service_pages`/`entity_business_locations` fields this section reads actually live. */
-const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=ai-visibility';
+/** Real Settings → Scanning → AI Visibility subtab id (Settings.tsx's own `currentTab === 'ai-visibility'` branch) — where the `entity_business_type`/`entity_service_pages`/`entity_business_locations` fields this section (and BusinessProfileCard.tsx/KnowledgeGraphDiagramCard.tsx, which import this same constant) read actually live. */
+export const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=ai-visibility';
 
 
 export interface Entity {
@@ -33,6 +34,13 @@ export interface EntitiesResponse {
 	services: Entity[];
 	locations: Entity[];
 	categories: Entity[];
+	/** Real, owner-provided `entity_business_type` setting (Settings → Scanning → AI Visibility) — empty string until set, never guessed. */
+	business_type: string;
+	/** Real, deterministic check — a published page at `/contact/` or `/contact-us/` (Services\EntityExtractor::find_contact_page(), same slug list Scanners\Basic\GeoTrustSignalsScanner's own "missing Contact page" finding already checks). */
+	has_contact_page: boolean;
+	contact_page_url: string | null;
+	/** Real, template-built (never AI-generated) candidate relationships — see Services\EntityExtractor::build_suggested_relationships()'s own docblock for why these are "suggested," not "confirmed." */
+	suggested_relationships: string[];
 }
 
 const HIGHLIGHT_MAX_ROWS = 4;
@@ -256,7 +264,15 @@ const EntityDetailContent = ({
  * the detail panel dropping to a full-width row underneath — per direct
  * instruction ("make the 3 sections side by side instead of organization
  * list in the 2nd row"). The Graph Visualization pane itself is otherwise
- * untouched — still always visible regardless of which tab is active.
+ * untouched — still always visible regardless of which tab is active. It
+ * renders vulopilot-pro's own richer `vulopilot_knowledge_graph_visualization_card`
+ * slot when that module is active; otherwise it now renders the real,
+ * free `KnowledgeGraphDiagram` (imported from KnowledgeGraphDiagramCard.tsx
+ * — that file's own former standalone card wrapping this same diagram was
+ * removed per direct instruction, this is its only remaining render site
+ * now), reusing `entities` already fetched here rather than a 2nd fetch —
+ * instead of the former "Graph visualization is a Pro feature" upgrade
+ * placeholder.
  */
 const KnowledgeGraphSection = () => {
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
@@ -536,17 +552,7 @@ const KnowledgeGraphSection = () => {
 								{KnowledgeGraphVisualizationCard ? (
 									<KnowledgeGraphVisualizationCard />
 								) : (
-									<ModuleGuardComponent
-										icon="centralized-connections"
-										title={__(
-											'Graph visualization is a Pro feature',
-											'vulopilot'
-										)}
-										desc={__(
-											'Upgrade to see how your real entities connect to each other as a diagram.',
-											'vulopilot'
-										)}
-									/>
+									<KnowledgeGraphDiagram entities={entities} />
 								)}
 							</div>
 

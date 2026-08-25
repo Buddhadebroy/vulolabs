@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
 import { ColumnComponent, NoticeComponent, SectionComponent, ContainerComponent } from '@zyra/components';
 import '../SeoVisibility.scss';
-import BusinessUnderstandingCard from './BusinessUnderstandingCard';
+import BusinessProfileCard from './BusinessProfileCard';
 import CriticalIssuesCard from './CriticalIssuesCard';
 import ValidSchemaCard from './ValidSchemaCard';
 import KnowledgeGraphSection from './KnowledgeGraphSection';
@@ -42,37 +42,46 @@ interface SchemaKnowledgeTabProps {
  * was wide (the former grid=8 headline card below), but broke visibly the
  * moment 3 narrower grid=4 cards needed a clean row of their own.
  *
- * 1. `BusinessUnderstandingCard.tsx` — the page's own real hero score gauge
- *    (the same real `entity_score` that briefly lived as its own "Entity
- *    Understanding" card inside KnowledgeGraphSection.tsx — moved up here
- *    instead of shown twice), plus `CriticalIssuesCard.tsx`/
- *    `ValidSchemaCard.tsx` beside it — real top-severity findings and real
- *    schema-coverage stats, replacing this row's former 2nd, wider
- *    "We understand your organization, products, categories." headline+
- *    tiles card per direct instruction to remove that and build these 2
- *    cards from a reference mockup instead. See those 2 files' own
- *    docblocks for exactly which real data each shows.
+ * 1. `BusinessProfileCard.tsx` — "Business Profile", per a newer reference
+ *    mockup: the same real `entity_score` gauge the former, narrower
+ *    `BusinessUnderstandingCard.tsx` showed alone (now removed — this
+ *    replaces it), beside a real per-field table of exactly what
+ *    Services\EntityExtractor detected (business name/type, people,
+ *    services, products, locations, contact details) and a real "Update
+ *    Information" deep link. `CriticalIssuesCard.tsx`/`ValidSchemaCard.tsx`
+ *    still render beside it, unchanged — real top-severity findings and
+ *    real schema-coverage stats. See those 3 files' own docblocks for
+ *    exactly which real data each shows.
  * 2. `KnowledgeGraphSection.tsx` — "What AI & Search Understand" (all 6
- *    real entity-type counts + vulopilot-pro's real relationship diagram,
- *    moved up from that section's own sidebar to sit beside the list),
- *    then its own existing real detail cards/Pro slots. That section used
- *    to also have its own "What should you check?" heuristic-checks panel
- *    — removed per direct instruction ("remove redundant content"): it was
- *    a 2nd, less-real "What Needs Fixing"-shaped card duplicating the real
- *    Issues table below, which already covers the same concept with real
- *    backend findings. See that section's own docblock. A 3rd such card —
- *    `WhatNeedsFixingCard.tsx`'s own top-3 findings preview, which used to
- *    render here between this section and the Issues table — was removed
- *    outright per direct instruction ("remove the card - What Needs
- *    Fixing"); `CriticalIssuesCard.tsx` above now covers the same
- *    "preview of real findings, link to the full table" role.
+ *    real entity-type counts + a real hub-and-spoke diagram in the middle
+ *    pane, moved up from that section's own sidebar to sit beside the
+ *    list), then its own existing real detail cards/Pro slots. That
+ *    diagram used to also render a 2nd time as its own standalone
+ *    `KnowledgeGraphDiagramCard.tsx` card here — removed per direct
+ *    instruction ("remove this section"), since it was the exact same
+ *    real diagram (`KnowledgeGraphDiagramCard.tsx`'s own exported
+ *    `KnowledgeGraphDiagram`) KnowledgeGraphSection.tsx's own middle pane
+ *    already renders at `compact` size; that file itself still exists
+ *    (and is still imported from) purely for that shared component, not
+ *    as a standalone card any more — see its own docblock. That section
+ *    used to also have its own "What should you check?" heuristic-checks
+ *    panel — removed per direct instruction ("remove redundant content"):
+ *    it was a 2nd, less-real "What Needs Fixing"-shaped card duplicating
+ *    the real Issues table below, which already covers the same concept
+ *    with real backend findings. See that section's own docblock. A 3rd
+ *    such card — `WhatNeedsFixingCard.tsx`'s own top-3 findings preview,
+ *    which used to render here between this section and the Issues
+ *    table — was removed outright per direct instruction ("remove the
+ *    card - What Needs Fixing"); `CriticalIssuesCard.tsx` above now
+ *    covers the same "preview of real findings, link to the full table"
+ *    role.
  * 3. `TechnicalDetailsSection.tsx` (NEW) — "Technical Details (Schema &
  *    Markup)", a real "Show for developers" toggle over
  *    `StructuredDataSection.tsx` (Schema Status stats + Schema Coverage
  *    table), unchanged internally.
  * 4. `InspectorSection.tsx` — "Page Inspector", its own separate section
  *    now (own `SectionComponent` heading, own anchor id
- *    `schema-knowledge-inspector`) rather than a 2nd tab inside item 3's
+ *    `schema-knowledge-inspector`) rather than a 2nd tab inside item 2's
  *    own card — split out per direct instruction ("firstly separate
  *    section the page inspector"). Used to live nested inside
  *    KnowledgeGraphSection.tsx's own sidebar before that, then briefly a
@@ -134,7 +143,7 @@ const SchemaKnowledgeTab = ({
 				/>
 			</ColumnComponent>
 
-			<BusinessUnderstandingCard />
+			<BusinessProfileCard />
 			<CriticalIssuesCard />
 			<ValidSchemaCard />
 

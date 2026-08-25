@@ -61,7 +61,25 @@ class EntityExtractor {
     private const PRODUCT_BATCH_SIZE = 200;
 
     /**
-     * @return array{people: array, organizations: array, products: array|null, services: array, locations: array, categories: array}
+     * Same real slug list Scanners\Basic\GeoTrustSignalsScanner already
+     * checks for its own "site is missing a Contact page" finding —
+     * duplicated here rather than shared (same "duplicate small logic
+     * across scopes" precedent this codebase already uses elsewhere, e.g.
+     * ContentIntelligence.php's category-score weighting) since that
+     * scanner's own check is `private` and scoped to producing a Finding,
+     * not a reusable boolean.
+     */
+    private const CONTACT_SLUGS = array( 'contact', 'contact-us' );
+
+    /**
+     * Real relationship sentences the "Knowledge Graph" section's own
+     * "Suggested relationships" panel shows — capped so a site with many
+     * real services/products doesn't produce an unbounded list.
+     */
+    private const MAX_SUGGESTED_RELATIONSHIPS = 6;
+
+    /**
+     * @return array{people: array, organizations: array, products: array|null, services: array, locations: array, categories: array, business_type: string, has_contact_page: bool, contact_page_url: string|null, suggested_relationships: array<int, string>}
      */
     public function extract_all(): array {
         $cached = get_transient( self::CACHE_KEY );
@@ -72,29 +90,131 @@ class EntityExtractor {
 
         if ( ! $this->is_module_active() ) {
             $empty = array(
-                'people'        => array(),
-                'organizations' => array(),
-                'products'      => class_exists( 'WooCommerce' ) ? array() : null,
-                'services'      => array(),
-                'locations'     => array(),
-                'categories'    => array(),
+                'people'                  => array(),
+                'organizations'           => array(),
+                'products'                => class_exists( 'WooCommerce' ) ? array() : null,
+                'services'                => array(),
+                'locations'               => array(),
+                'categories'              => array(),
+                'business_type'           => '',
+                'has_contact_page'        => false,
+                'contact_page_url'        => null,
+                'suggested_relationships' => array(),
             );
 
             return $empty;
         }
 
+        $people        = $this->extract_people();
+        $organizations = $this->extract_organizations();
+        $products      = $this->extract_products();
+        $services      = $this->extract_services();
+        $locations     = $this->extract_locations();
+        $categories    = $this->extract_categories();
+        $contact       = $this->find_contact_page();
+        $business_name = $organizations[0]['name'] ?? trim( (string) get_bloginfo( 'name' ) );
+
         $result = array(
-            'people'        => $this->extract_people(),
-            'organizations' => $this->extract_organizations(),
-            'products'      => $this->extract_products(),
-            'services'      => $this->extract_services(),
-            'locations'     => $this->extract_locations(),
-            'categories'    => $this->extract_categories(),
+            'people'                  => $people,
+            'organizations'           => $organizations,
+            'products'                => $products,
+            'services'                => $services,
+            'locations'               => $locations,
+            'categories'              => $categories,
+            'business_type'           => $this->get_business_type_setting(),
+            'has_contact_page'        => null !== $contact,
+            'contact_page_url'        => $contact,
+            'suggested_relationships' => $this->build_suggested_relationships( $business_name, $services, $products, $categories ),
         );
 
         set_transient( self::CACHE_KEY, $result, self::CACHE_TTL_SECONDS );
 
         return $result;
+    }
+
+    /**
+     * @return string Real, owner-provided `entity_business_type` setting — empty until set, never guessed.
+     */
+    private function get_business_type_setting(): string {
+        $settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        return trim( (string) ( $settings['entity_business_type'] ?? '' ) );
+    }
+
+    /**
+     * @return string|null Real permalink of the first published About/Contact-slugged page found, or null if none exists.
+     */
+    private function find_contact_page(): ?string {
+        foreach ( self::CONTACT_SLUGS as $slug ) {
+            $page = get_page_by_path( $slug, OBJECT, 'page' );
+
+            if ( $page && 'publish' === $page->post_status ) {
+                return get_permalink( $page->ID ) ?: null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Real, deterministic, template-built candidate relationships — never
+     * AI-generated (no AI provider call, no cost) — each sentence names a
+     * real entity this site already has (a real service page's own title,
+     * a real published product's own title, a real, non-"messy" category
+     * with real published content in it). Labeled "suggested" rather than
+     * "confirmed" on purpose: none of these are actually encoded as real
+     * schema.org relationship markup (`Organization.makesOffer`/
+     * `hasOfferCatalog`) anywhere on this site yet — that's the real gap
+     * this panel is pointing at, not a claim that structured data already
+     * exists.
+     *
+     * @param string  $business_name Real organization name (extract_organizations()'s own first entry).
+     * @param array   $services      extract_services()'s own real rows.
+     * @param array|null $products   extract_products()'s own real rows (null when WooCommerce isn't active).
+     * @param array   $categories    extract_categories()'s own real rows.
+     * @return array<int, string>
+     */
+    private function build_suggested_relationships( string $business_name, array $services, ?array $products, array $categories ): array {
+        $relationships = array();
+
+        foreach ( $services as $service ) {
+            $relationships[] = sprintf(
+                /* translators: 1: real business name, 2: real service page title. */
+                __( '%1$s offers %2$s', 'vulopilot' ),
+                $business_name,
+                $service['name']
+            );
+        }
+
+        foreach ( (array) $products as $product ) {
+            $relationships[] = sprintf(
+                /* translators: 1: real business name, 2: real published product title. */
+                __( '%1$s offers %2$s', 'vulopilot' ),
+                $business_name,
+                $product['name']
+            );
+        }
+
+        // Only real categories with real published content in them
+        // (`extract_categories()` already filters to `hide_empty`) and
+        // only the taxonomy WordPress core itself calls "categories" —
+        // `product_cat` terms are already covered by the real product
+        // rows above, so including them here too would double up the
+        // same real relationship under two different sentences.
+        foreach ( $categories as $category ) {
+            if ( 'category' !== ( $category['meta']['taxonomy'] ?? '' ) ) {
+                continue;
+            }
+
+            $relationships[] = sprintf(
+                /* translators: 1: real business name, 2: real published category name. */
+                __( '%1$s publishes content about %2$s', 'vulopilot' ),
+                $business_name,
+                $category['name']
+            );
+        }
+
+        return array_slice( $relationships, 0, self::MAX_SUGGESTED_RELATIONSHIPS );
     }
 
     /**
