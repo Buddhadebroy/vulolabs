@@ -4,8 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	CardComponent,
-	InformationItemComponent,
+	ListComponent,
 	ModuleGuardComponent,
+	TypographyComponent
 } from '@zyra/components';
 
 interface DashboardSummary {
@@ -123,81 +124,94 @@ const LiveSiteInsightsCard: React.FC = () => {
 			title={__('Live Site Insights', 'vulopilot')}
 			titleIcon="analytics"
 		>
-			<InformationItemComponent
-				isLoading={isLoading}
-				avatar={{ iconClass: 'security' }}
-				title={__('Security score', 'vulopilot')}
-				amount={
-					isLoading
-						? ''
-						: sprintf(
-								/* translators: %d: real 0-100 security score computed from open security findings */
-								__('%d/100', 'vulopilot'),
-								dashboard?.category_scores?.security ?? 0
-							)
-				}
-				descriptions={[
-					__('From your open security findings', 'vulopilot'),
-				]}
-			/>
-			<InformationItemComponent
-				isLoading={isLoading}
-				avatar={{ iconClass: 'search-discovery' }}
-				title={__('AI crawler traffic (30 days)', 'vulopilot')}
-				amount={isLoading ? '' : String(crawlerVisits30d)}
-				descriptions={[
-					crawlerVisits30d > 0
-						? sprintf(
-								/* translators: %d: number of distinct AI crawler bots that have visited */
-								__('Across %d bot(s)', 'vulopilot'),
-								distinctBots
-							)
-						: __('No AI crawlers have visited yet', 'vulopilot'),
-				]}
-			/>
-			<InformationItemComponent
-				isLoading={isLoading}
-				avatar={{ iconClass: 'bar-chart' }}
-				title={__('Core Web Vitals', 'vulopilot')}
-				amount={
-					isLoading
-						? ''
-						: vitals &&
-							  vitals.sample_count > 0 &&
-							  null !== vitals.lcp_ms
-							? sprintf(
-									/* translators: %d: real p75 Largest Contentful Paint, in milliseconds, from actual visitors */
-									__('%dms LCP (p75)', 'vulopilot'),
-									vitals.lcp_ms
-								)
-							: __('Collecting data', 'vulopilot')
-				}
-				descriptions={[
-					vitals && vitals.sample_count > 0
-						? sprintf(
-								/* translators: %d: real number of visitor samples this p75 was computed from */
-								__('From %d real visits', 'vulopilot'),
-								vitals.sample_count
-							)
-						: __(
-								'Visit your live site to start collecting real data',
-								'vulopilot'
-							),
-				]}
-			/>
-			{showStoreMetrics && (
-				<InformationItemComponent
-					avatar={{ iconClass: 'woocommerce' }}
-					title={__('Store metrics', 'vulopilot')}
-					amount={__('Not available yet', 'vulopilot')}
-					descriptions={[
-						__(
-							"Orders, revenue, and conversion data aren't connected in this version.",
-							'vulopilot'
+			<ListComponent
+				loading={isLoading}
+				skeletonCount={showStoreMetrics ? 4 : 3}
+				className="mini-card report list"
+				items={[
+					{
+						id: 'security-score',
+						icon: 'security green',
+						title: __('Security score', 'vulopilot'),
+						tags: (
+							<>
+								
+								<TypographyComponent variant="h4">
+									{sprintf(
+									/* translators: %d: real 0-100 security score computed from open security findings */
+									__('%d/100', 'vulopilot'),
+									dashboard?.category_scores?.security ?? 0
+								)}
+								</TypographyComponent>
+							</>
 						),
-					]}
-				/>
-			)}
+						desc: __('From your open security findings', 'vulopilot'),
+					},
+					{
+						id: 'ai-crawler-traffic',
+						icon: 'search-discovery',
+						title: __('AI crawler traffic (30 days)', 'vulopilot'),
+						tags: (
+							<TypographyComponent variant="h4">
+								{crawlerVisits30d}
+							</TypographyComponent>
+						),
+						desc:
+							crawlerVisits30d > 0
+								? sprintf(
+									/* translators: %d: number of distinct AI crawler bots that have visited */
+									__('Across %d bot(s)', 'vulopilot'),
+									distinctBots
+								)
+								: __('No AI crawlers have visited yet', 'vulopilot'),
+					},
+					{
+						id: 'core-web-vitals',
+						icon: 'bar-chart',
+						title: __('Core Web Vitals', 'vulopilot'),
+						tags: (
+							<TypographyComponent variant="h4">
+								{vitals && vitals.sample_count > 0 && null !== vitals.lcp_ms
+									? sprintf(
+										/* translators: %d: real p75 Largest Contentful Paint, in milliseconds, from actual visitors */
+										__('%dms LCP (p75)', 'vulopilot'),
+										vitals.lcp_ms
+									)
+									: __('Collecting data', 'vulopilot')}
+							</TypographyComponent>
+						),
+						desc:
+							vitals && vitals.sample_count > 0
+								? sprintf(
+									/* translators: %d: real number of visitor samples this p75 was computed from */
+									__('From %d real visits', 'vulopilot'),
+									vitals.sample_count
+								)
+								: __(
+									'Visit your live site to start collecting real data',
+									'vulopilot'
+								),
+					},
+					...(showStoreMetrics
+						? [
+							{
+								id: 'store-metrics',
+								icon: 'woocommerce',
+								title: __('Store metrics', 'vulopilot'),
+								tags: (
+									<TypographyComponent variant="desc" color="red">
+										{__('Not available yet', 'vulopilot')}
+									</TypographyComponent>
+								),
+								desc: __(
+									"Orders, revenue, and conversion data aren't connected in this version.",
+									'vulopilot'
+								),
+							},
+						]
+						: []),
+				]}
+			/>
 		</CardComponent>
 	);
 };

@@ -78,6 +78,7 @@ const AiSalesAssistantCard = ({
 							{
 								text: __('Let AI Optimize My Store', 'vulopilot'),
 								icon: 'ai',
+								color: 'orange-bg',
 								onClick: onOptimizeStore,
 							},
 							{

@@ -121,7 +121,7 @@ const CrawlerAnalyticsSection = ({
 	if (isLoading || !analytics) {
 		return (
 			<ContainerComponent>
-				<ColumnComponent grid={12}>
+				<ColumnComponent >
 					<CardComponent
 						title={__('Overall Crawl Health', 'vulopilot')}
 						isLoading

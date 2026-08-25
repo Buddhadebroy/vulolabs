@@ -306,7 +306,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					</button>
 				</div>
 
-				<ColumnComponent grid={12}>
+				<ColumnComponent >
 					<CardComponent
 						title={__('SEO Health Score', 'vulopilot')}
 						desc={__(
@@ -413,7 +413,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					</CardComponent>
 				</ColumnComponent>
 
-				<ColumnComponent grid={12}>
+				<ColumnComponent >
 					<CardComponent
 						title={__('SEO areas', 'vulopilot')}
 						desc={__(

@@ -589,6 +589,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 							buttons={{
 								text: __('Generate', 'vulopilot'),
 								icon: 'ai',
+								color: 'orange-bg',
 								onClick: handleSubmit,
 								disabled: !isReadyToSubmit,
 							}}

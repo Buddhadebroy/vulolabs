@@ -28,14 +28,14 @@ const OverviewTab: React.FC = () => {
 			<ColumnComponent grid={8}>
 				<AiContentAssistantSidebar />
 				<ContentToolsGrid />
+				<ContentQualityCard />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
 				<ContentStatsCard />
-				<ContentQualityCard />
 				<QuickActionsCard />
 			</ColumnComponent>
 
-			<ColumnComponent grid={12}>
+			<ColumnComponent >
 				<RecentContentCard />
 			</ColumnComponent>
 		</ContainerComponent>

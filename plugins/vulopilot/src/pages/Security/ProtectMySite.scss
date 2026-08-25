@@ -471,11 +471,6 @@
 	margin-top: 0.875rem;
 }
 
-// Each of the 3 grouped sections (Page Delivery/WordPress Data
-// Efficiency/Server Processing).
-.efficiency-section-card {
-	margin-top: 1rem;
-}
 
 .efficiency-section-eyebrow {
 	display: flex;
@@ -646,67 +641,20 @@
 }
 
 // EfficiencyThingsToReview.tsx.
-.efficiency-review-list {
-	display: flex;
-	flex-direction: column;
-}
-
-.efficiency-review-row {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.75rem;
-	padding: 0.75rem 0;
-	border-bottom: $border-light-small;
-
-	&:first-child {
-		padding-top: 0;
-	}
-
-	&:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-}
-
-.efficiency-review-icon {
-	flex-shrink: 0;
-	margin-top: 0.125rem;
+// EfficiencyThingsToReview.tsx's "Things to review" rows — now a real
+// zyra `<ListComponent className="mini-card list">`; only the one real
+// visual difference from that variant's own default (an orange, not
+// theme-purple, icon — these are all "needs attention" items, same
+// #f97316 EfficiencyOverviewChart.tsx's own "attention" slice/dot uses)
+// needs its own override here.
+.efficiency-review-list .item-icon {
 	color: #f97316;
-}
-
-.efficiency-review-body {
-	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-}
-
-.efficiency-review-title {
-	font-weight: 600;
-	font-size: 0.875rem;
-}
-
-.efficiency-review-desc {
-	color: $sub-text-color;
-	font-size: 0.8125rem;
 }
 
 .admin-badge.badge-open {
 	flex-shrink: 0;
 	color: #d97706;
 	background: #fef3e8;
-}
-
-.efficiency-review-view-all,
-.efficiency-overview-view-all {
-	display: inline-block;
-	margin-top: 0.875rem;
-	background: none;
-	border: none;
-	padding: 0;
-	font-weight: 600;
-	font-size: 0.8125rem;
-	color: $theme-color;
-	cursor: pointer;
 }
 
 // EfficiencyOverviewChart.tsx.
@@ -721,14 +669,9 @@
 	flex-shrink: 0;
 	width: 11rem;
 
-	// Same "hide zyra's own injected legend row" fix
-	// AccessibilityHeroCard.tsx's own docblock (and
-	// .accessibility-hero-score's own comment above) documents — a
-	// custom right-aligned dot+label+count legend
-	// (.efficiency-overview-legend) is used instead.
-	.zyra-chart-pie-legend {
-		display: none !important;
-	}
+	// zyra's own pie legend is turned off at the source now
+	// (`<ChartComponent legendPosition="none">`) rather than hidden here —
+	// `LegendComponent` (`.efficiency-overview-legend` below) replaces it.
 }
 
 .efficiency-overview-chart-number {
@@ -744,46 +687,11 @@
 	color: $sub-text-color;
 }
 
+// Sizing only — dot/label/value chrome itself is zyra's own
+// `LegendComponent` (LegendComponent.scss's `.zyra-legend-vertical`).
 .efficiency-overview-legend {
 	flex-grow: 1;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.625rem;
 	min-width: 14rem;
-
-	li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.8125rem;
-	}
-}
-
-.efficiency-overview-dot {
-	flex-shrink: 0;
-	width: 0.625rem;
-	height: 0.625rem;
-	border-radius: 50%;
-
-	&.is-good {
-		background: #16a34a;
-	}
-
-	&.is-attention {
-		background: #f97316;
-	}
-
-	&.is-neutral {
-		background: #d1d5db;
-	}
-}
-
-.efficiency-overview-count {
-	margin-left: auto;
-	font-weight: 700;
 }
 
 // PerformanceTab.tsx's own real cross-linked speed-score trend
@@ -874,13 +782,10 @@
 	flex-shrink: 0;
 	width: 10rem;
 
-	// Same "hide zyra's own injected legend row" fix
-	// AccessibilityHeroCard.tsx/.efficiency-overview-chart's own comments
-	// document — this row uses its own dot+label+count legend
-	// (.efficiency-overview-legend, reused as-is) instead.
-	.zyra-chart-pie-legend {
-		display: none !important;
-	}
+	// zyra's own pie legend is turned off at the source now
+	// (`<ChartComponent legendPosition="none">`) — this row reuses the
+	// same `LegendComponent` `.efficiency-overview-legend` sizing
+	// EfficiencyOverviewChart.tsx's own comment above documents.
 }
 
 .findings-hero-chart-number {

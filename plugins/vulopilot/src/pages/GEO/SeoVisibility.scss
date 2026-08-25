@@ -12,9 +12,16 @@
 	background: color-mix(in srgb, #{$color-success} 14%, transparent);
 }
 
+// Orange — same "Fix with AI" convention every other real AI-action
+// button in this plugin now uses (`color: 'orange-bg'`, e.g.
+// IssueDetailPanel.tsx/RecentContentCard.tsx's own "Fix with AI"
+// ButtonInput) — kept as its own scoped rule rather than switched to
+// zyra's `color: 'orange-bg'` prop since BadgeComponent only ships
+// specific semantic status classes, not that generic palette (see this
+// block's own docblock above).
 .admin-badge.badge-action-fix-ai {
-	color: $theme-color;
-	background: $color-primary-background;
+	color: #e67a2e;
+	background: color-mix(in srgb, #e67a2e 14%, transparent);
 }
 
 .admin-badge.badge-action-ignore {

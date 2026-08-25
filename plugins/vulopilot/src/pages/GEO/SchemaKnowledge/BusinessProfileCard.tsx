@@ -218,7 +218,7 @@ const BusinessProfileCard = () => {
 	const missingCount = rows.filter((row) => !row.found && !row.notApplicable).length;
 
 	return (
-		<ColumnComponent grid={12}>
+		<ColumnComponent >
 			<CardComponent
 				title={__('Business Profile', 'vulopilot')}
 				titleIcon="info"

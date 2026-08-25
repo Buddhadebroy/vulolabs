@@ -59,6 +59,7 @@ const AiRecommendationsSidebar = () => {
 						buttons={{
 							text: __('Let AI Optimize My Site', 'vulopilot'),
 							icon: 'ai',
+							color: 'orange-bg',
 							disabled: true,
 							onClick: () => {},
 						}}
@@ -73,6 +74,7 @@ const AiRecommendationsSidebar = () => {
 			</CardComponent>
 
 			<CardComponent
+				className="ai-card"
 				title={__('Recent AI Wins', 'vulopilot')}
 				titleIcon="ai"
 				isLoading={isLoading}

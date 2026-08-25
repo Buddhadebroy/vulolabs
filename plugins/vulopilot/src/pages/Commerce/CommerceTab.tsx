@@ -45,6 +45,7 @@ const WooCommerceAiLockedCard = () => {
 	return (
 		<>
 			<CardComponent
+				className="ai-card"
 				title={__('Bulk AI optimization', 'vulopilot')}
 				titleIcon="ai"
 				desc={__(

@@ -450,9 +450,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						<ListComponent
 							className="mini-card report"
 							loading={isLoadingAffected}
-							items={(affectedItems ?? []).map((row, index) => ({
+							items={(affectedItems ?? []).map((row) => ({
 								id: row.id,
-								number: index + 1,
 								icon: CATEGORY_ICONS[group.category] ?? 'ai',
 								title: row.title,
 								desc: sprintf(

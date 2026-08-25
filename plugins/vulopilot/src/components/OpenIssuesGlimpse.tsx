@@ -57,6 +57,8 @@ interface OpenIssuesGlimpseProps {
 	title?: string;
 	/** Rendered below the list, e.g. a "Fix Everything with AI" action. */
 	footer?: React.ReactNode;
+	/** Forwarded to the underlying `CardComponent` — e.g. `"ai-card"`, the class real AI-credit cards in this plugin carry (AiRecommendationsSidebar.tsx's "Recent AI Wins", CommerceTab.tsx's "Bulk AI optimization"). None of the current `OpenIssuesGlimpse` callers pass one — every real "Fix with AI" affordance on this glimpse is still a disabled stub (no bulk-fix backend yet, see AiOpportunitiesCard.tsx's own docblock) — kept as an optional slot for whichever caller earns it once one does. */
+	className?: string;
 }
 
 /**
@@ -83,6 +85,7 @@ const OpenIssuesGlimpse = ({
 	titleIcon,
 	title,
 	footer,
+	className,
 }: OpenIssuesGlimpseProps) => {
 	const { data, total, isLoading } = useApiList<FindingRow>('findings', {
 		category,
@@ -107,6 +110,7 @@ const OpenIssuesGlimpse = ({
 	return (
 		<ColumnComponent grid={6} fullHeight>
 			<CardComponent
+				className={className}
 				title={title ?? __('Open issues', 'vulopilot')}
 				titleIcon={titleIcon}
 				isLoading={isLoading}

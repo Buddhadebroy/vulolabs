@@ -86,22 +86,31 @@ $vulopilot-rating-very-poor: #991b1b;
 	cursor: pointer;
 }
 
-.core-web-vital-row {
-	margin-bottom: 1rem;
+// Small independent "status row" ring gauges — zyra's own ChartComponent
+// Storybook `RingRow` story (per-metric ring, custom color, no shared
+// axis) — replacing what used to be 3 stacked label+value+bar rows.
+.core-web-vitals-ring-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+}
 
-	&:last-of-type {
-		margin-bottom: 0;
-	}
+.core-web-vital-row {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	flex: 1 1 29%;
 }
 
 .core-web-vital-row-label {
+	margin-top: 0.5rem;
 	font-size: 0.8125rem;
 	color: $sub-text-color;
-	margin-bottom: 0.25rem;
 }
 
 .core-web-vital-row-value {
-	font-size: 1.375rem;
+	font-size: 1.125rem;
 	font-weight: 700;
 	line-height: 1.2;
 	@include vulopilot-rating-colors;
@@ -111,9 +120,9 @@ $vulopilot-rating-very-poor: #991b1b;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
+	margin-top: 0.25rem;
 	font-size: 0.75rem;
 	font-weight: 600;
-	margin-bottom: 0.375rem;
 	@include vulopilot-rating-colors;
 
 	.core-web-vital-row-dot {
@@ -121,30 +130,6 @@ $vulopilot-rating-very-poor: #991b1b;
 		height: 0.4rem;
 		border-radius: 50%;
 		background: currentColor;
-	}
-}
-
-.core-web-vital-bar {
-	height: 0.375rem;
-	border-radius: 999px;
-	background: $theme-background-color;
-	overflow: hidden;
-}
-
-.core-web-vital-bar-fill {
-	height: 100%;
-	border-radius: 999px;
-
-	&.good {
-		background: $vulopilot-rating-good;
-	}
-
-	&.needs-improvement {
-		background: $vulopilot-rating-needs-improvement;
-	}
-
-	&.poor {
-		background: $vulopilot-rating-poor;
 	}
 }
 
