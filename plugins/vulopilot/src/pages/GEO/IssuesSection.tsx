@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { TabsComponent, ColumnComponent } from '@zyra/components';
+import { TabsComponent } from '@zyra/components';
 import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
 import {
 	PRIORITY_SEVERITIES,
@@ -82,6 +82,8 @@ interface IssuesSectionProps {
 	 * `<SeoIssuesSection>` with no such wrapper.
 	 */
 	id?: string;
+	/** Only passed by `SeoIssuesSection.tsx`'s own SEO usage — see `SeoIssuesByPageTable.tsx`'s own `onAnalyze` prop docblock. */
+	onAnalyze?: (postId: number) => void;
 }
 
 /**
@@ -137,6 +139,7 @@ const IssuesSection = ({
 	issuesColumnLabel,
 	pageAnalysis,
 	id,
+	onAnalyze,
 }: IssuesSectionProps) => {
 	const [rows, setRows] = useState<PageRow[]>([]);
 	const [siteWideFindings, setSiteWideFindings] = useState<RawFinding[]>([]);
@@ -360,15 +363,13 @@ const IssuesSection = ({
 					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
 				}))}
 			/>
-			<ColumnComponent>
-				<IssuesSummaryCards
-					total={activeTabTotal}
-					priorityCounts={priorityCounts}
-					isLoading={isLoading}
-					activePriority={activePriority}
-					onSelectPriority={setActivePriority}
-				/>
-			</ColumnComponent>
+			<IssuesSummaryCards
+				total={activeTabTotal}
+				priorityCounts={priorityCounts}
+				isLoading={isLoading}
+				activePriority={activePriority}
+				onSelectPriority={setActivePriority}
+			/>
 			<SeoSiteWideIssuesTable
 				findings={siteWideFindings}
 				activeScannerIds={activeScannerIds}
@@ -388,6 +389,7 @@ const IssuesSection = ({
 				issuesColumnLabel={issuesColumnLabel}
 				visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
 				onExportCsv={exportCsv}
+				onAnalyze={onAnalyze}
 			/>
 		</>
 	);

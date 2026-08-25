@@ -105,7 +105,8 @@ class ProductCompletenessScanner extends AbstractBasicScanner {
                 array(
                     'check'              => 'low_completeness',
                     'completeness_score' => $score,
-                )
+                ),
+                'product-completeness'
             );
         }
 

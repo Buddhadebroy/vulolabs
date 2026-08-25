@@ -65,7 +65,17 @@ class SafeRequestSender {
             throw new \RuntimeException( __( 'No AI provider is configured.', 'vulopilot' ) );
         }
 
-        $model    = $this->provider_registry->get_default_model( $provider->get_id() ) ?? ( $provider->get_available_models()[0] ?? '' );
+        // $provider here is really a ProviderFallbackChain (or a lone
+        // decorated provider) — its own try_each() re-resolves this same
+        // real per-provider model again for whichever provider actually
+        // ends up handling the request, including this first one, via the
+        // exact same ProviderRegistry::resolve_model_for() call. Still
+        // resolved here too so the initial AIRequest always carries a real,
+        // valid model rather than an empty placeholder — for the ordinary
+        // single-provider-succeeds case this is exactly the model that
+        // provider ends up using; a fallback past it gets its own real
+        // model regardless (see ProviderFallbackChain::try_each()).
+        $model    = $this->provider_registry->resolve_model_for( $provider );
         $response = $provider->send( new AIRequest( $model, $messages, null, null, $image, $surface ) );
 
         return $this->safety_validator->sanitize_response( $response );

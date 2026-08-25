@@ -76,7 +76,8 @@ class DatabaseScanner extends AbstractBasicScanner {
                 __( 'A large number of stored revisions increases database size and can slow down post-list and search queries.', 'vulopilot' ),
                 'table',
                 $wpdb->posts,
-                array( 'revision_count' => $revision_count )
+                array( 'revision_count' => $revision_count ),
+                'post-revisions-count'
             );
         }
 

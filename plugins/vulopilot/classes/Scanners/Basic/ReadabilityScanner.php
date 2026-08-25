@@ -129,7 +129,8 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
                 __( 'Shorter sentences and simpler words generally read easier for both visitors and AI systems summarizing this content.', 'vulopilot' ),
                 'post',
                 (string) $post->ID,
-                array( 'readability_score' => $score )
+                array( 'readability_score' => $score ),
+                'readability-score'
             );
         }
 

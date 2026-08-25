@@ -92,7 +92,9 @@ class LoginProtectionScanner extends AbstractBasicScanner {
                     self::LOOKBACK_DAYS
                 ),
                 'ip_address',
-                $lockout['ip_address']
+                $lockout['ip_address'],
+                array(),
+                'login-lockout'
             );
         }
 

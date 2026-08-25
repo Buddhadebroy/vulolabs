@@ -102,7 +102,8 @@ class KeyboardAccessibilityScanner extends AbstractBasicScanner implements Track
                 __( 'A tabindex of 1 or higher pulls an element out of the page\'s natural keyboard tab order and inserts it at a fixed position — this almost always produces a confusing, unpredictable focus jump rather than the intended fix. Use tabindex="0" (join the natural order) or remove it entirely (WCAG 2.4.3).', 'vulopilot' ),
                 'post',
                 (string) $post->ID,
-                array( 'positive_tabindex_count' => $count )
+                array( 'positive_tabindex_count' => $count ),
+                'positive-tabindex'
             );
         }
 

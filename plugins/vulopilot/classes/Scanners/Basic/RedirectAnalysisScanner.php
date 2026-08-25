@@ -123,7 +123,8 @@ class RedirectAnalysisScanner extends AbstractBasicScanner {
                     __( 'Long or looping redirect chains slow down every visit and hurt search engine crawling.', 'vulopilot' ),
                     'url',
                     home_url( '/' ),
-                    array( 'chain' => $hops )
+                    array( 'chain' => $hops ),
+                    'homepage-redirect-chain'
                 ),
             );
         }

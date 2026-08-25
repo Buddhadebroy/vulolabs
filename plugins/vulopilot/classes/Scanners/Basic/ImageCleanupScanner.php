@@ -91,7 +91,8 @@ class ImageCleanupScanner extends AbstractBasicScanner {
                 array(
                     'orphaned_image_count' => $count,
                     'bytes'                => $bytes,
-                )
+                ),
+                'unused-images'
             ),
         );
     }

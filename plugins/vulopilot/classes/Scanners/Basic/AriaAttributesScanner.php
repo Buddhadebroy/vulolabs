@@ -92,7 +92,8 @@ class AriaAttributesScanner extends AbstractBasicScanner implements TracksScanne
                 __( 'A <div> or <span> with a click handler but no role attribute is invisible to screen readers as an interactive element.', 'vulopilot' ),
                 'post',
                 (string) $post->ID,
-                array( 'missing_role_count' => $count )
+                array( 'missing_role_count' => $count ),
+                'missing-aria-role'
             );
         }
 

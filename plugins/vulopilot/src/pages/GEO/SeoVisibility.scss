@@ -848,6 +848,26 @@
 // `.card-graph`/`.details .text`, not the big score number itself — this
 // still supplements that with a real `.number` color per rating so the
 // score reads at a glance the same way the reference mockup's own tiles do.
+// Fixed per-category icon identity colors — independent of `colorClass`'s
+// real live-status tint above (a `purple` "Titles & Meta" icon can sit next
+// to a `red` status border when that category's real score is Poor).
+// zyra's own `small-card` template hides `.analytics-icon` unconditionally
+// (`display: none` in its own runtime-injected CSS, confirmed by reading
+// its compiled source — a real, deliberate zyra default, not a bug this
+// codebase can patch upstream) — overridden here the same way
+// AICopilot.scss's own `.zyra-chart-pie-legend` rule already documents
+// needing `!important` for: that rule is injected into a runtime
+// `<style>` tag, landing later in the cascade than any statically-compiled
+// CSS at equal specificity.
+$seo-area-icon-colors: (
+	'purple': #7c3aed,
+	'blue': #2563eb,
+	'green': #16a34a,
+	'indigo': #4f46e5,
+	'teal': #0d9488,
+	'orange': #d97706,
+);
+
 .seo-category-grid {
 	.analytics-container {
 		display: grid;
@@ -867,16 +887,74 @@
 		&.red .details .number {
 			color: #dc2626;
 		}
+
+		.analytics-icon {
+			display: flex !important;
+			margin-bottom: 0.5rem;
+
+			i {
+				border-radius: 0.625rem !important;
+			}
+		}
+
+		@each $name, $color in $seo-area-icon-colors {
+			.analytics-icon i.icon-#{$name} {
+				color: #{$color};
+				background: color-mix(in srgb, #{$color} 14%, transparent);
+			}
+		}
 	}
+}
+
+.seo-area-tile-title {
+	font-weight: 600;
+	margin-bottom: 0.375rem;
+}
+
+.seo-area-tile-pill {
+	display: inline-block;
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.125rem 0.5rem;
+	border-radius: $border-radius-small;
+	margin-bottom: 0.5rem;
+
+	&.is-good {
+		color: #16a34a;
+		background: color-mix(in srgb, #16a34a 14%, transparent);
+	}
+
+	&.is-attention {
+		color: #b45309;
+		background: color-mix(in srgb, #b45309 14%, transparent);
+	}
+
+	&.is-poor {
+		color: #dc2626;
+		background: color-mix(in srgb, #dc2626 14%, transparent);
+	}
+}
+
+.seo-area-tile-issues {
+	font-size: 0.8125rem;
+	font-weight: 600;
+}
+
+.seo-area-tile-pages {
+	margin-top: 0.125rem;
 }
 
 // SeoTab.tsx's own "SEO Health Score" hero card — the real ring
 // (`.geo-overall-visibility`, shared with every other score-ring gauge
-// across GEO/AEO/SEO) plus a real 4-stat row (Pages checked/Issues found/
-// Critical issues/High priority issues) beside it, same real numbers
-// `.seo-category-grid` above and the rest of this tab already read, just
-// laid out together to match the reference mockup's own single hero card
-// rather than 2 separate ones.
+// across GEO/AEO/SEO), a real Pages checked/Issues found pair (each with
+// its own real week-over-week delta), a divider, then real Critical/High
+// priority counts — same real numbers `.seo-category-grid` above and the
+// rest of this tab already read, just regrouped to match the reference
+// mockup's own layout. No delta shown under "Pages checked" — unlike
+// Issues found/Critical/High, `Seo.php`'s own `/seo/score` endpoint has no
+// real historical count to diff `pages_checked` against (see
+// SeoScoreResponse's own docblock), so it stays a bare real number rather
+// than a fabricated trend.
 .seo-health-score-layout {
 	display: flex;
 	align-items: center;
@@ -889,10 +967,20 @@
 }
 
 .seo-health-score-stats {
-	flex: 1 1 16rem;
+	flex: 0 1 20rem;
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
 	gap: 1.25rem;
+}
+
+.seo-health-score-stats-severity {
+	flex: 0 1 16rem;
+}
+
+.seo-health-score-divider {
+	align-self: stretch;
+	width: 0.063rem;
+	background: $border-color;
 }
 
 .seo-health-stat {

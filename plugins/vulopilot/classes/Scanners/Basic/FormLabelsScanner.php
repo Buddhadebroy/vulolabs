@@ -90,7 +90,8 @@ class FormLabelsScanner extends AbstractBasicScanner implements TracksScannedObj
                 __( 'Every <input>/<textarea>/<select> needs an associated <label>, aria-label, or aria-labelledby so screen reader users know what it is for.', 'vulopilot' ),
                 'post',
                 (string) $post->ID,
-                array( 'unlabeled_count' => $unlabeled_count )
+                array( 'unlabeled_count' => $unlabeled_count ),
+                'unlabeled-form-fields'
             );
         }
 
