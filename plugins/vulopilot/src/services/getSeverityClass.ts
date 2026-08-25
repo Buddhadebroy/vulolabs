@@ -12,13 +12,22 @@ export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
  * neither `'green'` nor any other real named color) — the exact
  * "different color for the same severity in different places" bug this
  * shared mapping exists to make impossible.
+ *
+ * Darkest (most severe) to lightest — same ramp zyra's own
+ * `.badge-critical`/`.badge-high`/`.badge-medium`/`.badge-low`/
+ * `.badge-info` (BadgeComponent.scss) now ship, which used to bundle
+ * `high` into the same green group as "Active"/"Approved"/"Completed"
+ * and `low` into the same red group as `critical` — this mapping and
+ * that CSS must always agree, since `useFindingsTable.tsx`'s own
+ * `className={`badge-${severity}`}` reads the CSS directly rather than
+ * through this function.
  */
 const SEVERITY_COLOR_NAME: Record<FindingSeverity, keyof typeof COLOR_PALETTE> = {
 	critical: 'critical',
 	high: 'red',
 	medium: 'orange',
-	low: 'blue',
-	info: 'gray',
+	low: 'yellow',
+	info: 'blue',
 };
 
 /** Same plain color-name modifier classes HealthPillarsWidget's own

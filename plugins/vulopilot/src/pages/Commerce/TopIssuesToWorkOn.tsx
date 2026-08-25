@@ -2,6 +2,7 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
 import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
+import { COLOR_PALETTE } from '@zyra/core';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import {
 	PRODUCT_SCANNER_IDS,
@@ -34,18 +35,20 @@ const IMPACT_COLOR: Record<FindingGroup['severity'], string> = {
 };
 
 /**
- * Same red/orange/green rank progression the merged mockup design used,
- * driven by real severity rather than fixed position — raw hex rather
- * than an `admin-badge`-style color name, matching ListComponent's own
- * `Item.numberColor` contract (any CSS color, same "raw color string"
- * pattern InformationItemComponent's `avatar.color` prop already uses).
+ * Same real zyra hex `IMPACT_COLOR` above resolves to (`COLOR_PALETTE`,
+ * `@zyra/core`) — this used to disagree with it on the exact same row
+ * (`low`/`info` rendered as a green rank number next to a blue "LOW
+ * IMPACT" badge), raw hex rather than a color name since ListComponent's
+ * own `Item.numberColor` contract wants any real CSS color, same "raw
+ * color string" pattern InformationItemComponent's `avatar.color` prop
+ * already uses.
  */
 const RANK_COLOR: Record<FindingGroup['severity'], string> = {
-	critical: '#dc2626',
-	high: '#dc2626',
-	medium: '#ea580c',
-	low: '#16a34a',
-	info: '#16a34a',
+	critical: COLOR_PALETTE.red,
+	high: COLOR_PALETTE.red,
+	medium: COLOR_PALETTE.orange,
+	low: COLOR_PALETTE.blue,
+	info: COLOR_PALETTE.blue,
 };
 
 /**
