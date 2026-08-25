@@ -403,6 +403,64 @@ class Install {
         self::create_backups_table();
         self::create_backup_storage_configs_table();
         self::create_ai_conversations_table();
+        self::create_keyword_rankings_table();
+    }
+
+    /**
+     * Creates `vulopilot_keyword_rankings` — SEO & Visibility → Keywords'
+     * real Search Console rank-tracking history (Services\KeywordRankingsSyncService).
+     * Own method, same shape as create_indexnow_log_table() above.
+     *
+     * One row per (`query`, `page`, `snapshot_date`) — NOT upserted-in-place
+     * the way `vulopilot_not_found_logs` is, deliberately: every real sync
+     * (daily cron, or a manual "Sync now") writes a fresh row for that day
+     * rather than overwriting the previous one, because "Previous"/
+     * "Change"/"Best Position" and the trend sparklines KeywordsTab.tsx
+     * shows are all computed by comparing/aggregating across these real
+     * historical rows (Repositories\KeywordRankingRepository) — there would
+     * be nothing to compare against if only the latest value were ever
+     * kept. `synced_at` is separate from `snapshot_date` (date-only, the
+     * calendar day this row's sync ran) purely so a repeat manual sync on
+     * the same day can still be told apart in `synced_at` while still
+     * upserting into that same day's row (KeywordRankingRepository's own
+     * find-then-insert/update, same idiom NotFoundLogRepository already
+     * uses — no DB-level unique key, enforced at the application layer).
+     *
+     * `position`/`ctr` are `decimal`, not one of this codebase's usual
+     * integer-thousandths columns (`cls_thousandths` etc.) — Search
+     * Console's own `searchAnalytics.query` response already returns both
+     * as real floats (e.g. position 4.83), and there's no fixed-precision
+     * convention to round them into without losing real precision a rank
+     * tracker's own "Position" column is expected to show.
+     *
+     * @return void
+     */
+    private static function create_keyword_rankings_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql_keyword_rankings = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['keyword_ranking'] . "` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `query`          varchar(255) NOT NULL,
+            `page`           varchar(500) NOT NULL DEFAULT '',
+            `clicks`         int(10) unsigned NOT NULL DEFAULT 0,
+            `impressions`    int(10) unsigned NOT NULL DEFAULT 0,
+            `ctr`            decimal(6,3) NOT NULL DEFAULT 0.000,
+            `position`       decimal(6,2) NOT NULL DEFAULT 0.00,
+            `snapshot_date`  date NOT NULL,
+            `synced_at`      datetime NOT NULL,
+            PRIMARY KEY (`id`),
+            KEY `idx_query` (`query`(191)),
+            KEY `idx_page` (`page`(191)),
+            KEY `idx_snapshot_date` (`snapshot_date`)
+        ) $collate;";
+
+        dbDelta( $sql_keyword_rankings );
     }
 
     /**

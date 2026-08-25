@@ -9,11 +9,11 @@ import {
 	ColumnComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
-	TypographyComponent,
 } from '@zyra/components';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { useSeoScore, SeoScoreResponse } from './useSeoScore';
 import SeoIssuesSection from './SeoIssuesSection';
+import TypographyComponent from '../../components/TypographyComponent';
 
 const CATEGORY_CARDS: {
 	key: keyof SeoScoreResponse['category_scores'];

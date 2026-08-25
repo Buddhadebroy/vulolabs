@@ -10,11 +10,11 @@ import {
 	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
-	TypographyComponent,
 } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { Finding, getFindingFixHandler } from '../../services/useFindingsTable';
+import TypographyComponent from '../../components/TypographyComponent';
 import { formatWpDate } from '../../services/formatWpDate';
 import { useApiList } from '../../services/useApiList';
 import { RowAction, RowActionsMenu } from './seoIssuesShared';
