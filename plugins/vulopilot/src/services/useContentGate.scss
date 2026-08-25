@@ -1,0 +1,87 @@
+@use '../components/config' as *;
+
+// useContentGate.tsx's own locked-state UI, shared across every
+// `useContentGate()` caller (imported once, from the hook itself, not
+// colocated per-page) — a real Settings-style Pro/module tag row on top, a
+// generic dummy content preview underneath it.
+.content-gate {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.content-gate-tag {
+	// `.admin-tag.pro-tag` (zyra's own theme/src/common.scss) is written
+	// for Settings' own form-group rows — `position: absolute; right:
+	// 1rem; top: 0.813rem` docked to that row's own relatively-positioned
+	// wrapper. Reset back to normal flow here so the same real tag (same
+	// colors/shape "like settings") lays out inside this card's own row
+	// instead of jumping to a corner with nothing to dock against.
+	.pro-tag {
+		position: static;
+		transform: none;
+	}
+}
+
+// Covers the whole `.content-gate` box (tag + dummy content) so a click
+// anywhere within it opens the popup — a real `<button disabled>` inside
+// `dummyContent` never dispatches a click at all (native browser
+// behavior), so relying on bubbling from inside the section wouldn't
+// reliably catch a click landing exactly on one of those.
+.content-gate-click-overlay {
+	position: absolute;
+	inset: 0;
+	cursor: pointer;
+	z-index: 1;
+	border-radius: 0.375rem;
+
+	&:hover,
+	&:focus-visible {
+		background: color-mix(in srgb, $theme-color 5%, transparent);
+	}
+
+	&:focus-visible {
+		outline: $border-theme-small;
+		outline-offset: 0.125rem;
+	}
+}
+
+.content-gate-dummy-content {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	opacity: 0.6;
+	pointer-events: none;
+	user-select: none;
+}
+
+// Check 3 (VuloCloud account) only — blurs the caller's own real content
+// in place instead of substituting dummy content, so its real shape stays
+// visible underneath. Checks 1/2 (Pro/module) use `.content-gate-dummy-content`
+// above instead; see useContentGate.tsx's own docblock for why the two
+// checks differ here.
+.content-gate-blur-content {
+	filter: blur(0.25rem);
+	pointer-events: none;
+	user-select: none;
+}
+
+.content-gate-vulocloud-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.25rem 0.625rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: $sub-text-color;
+	// Same translucent idiom Connections/AiProvidersPanel.tsx's own icon
+	// box uses ($theme-color mixed toward transparent), mixed against the
+	// theme's own background token here instead of a hardcoded color.
+	background: color-mix(in srgb, $background-white 65%, transparent);
+
+	i {
+		font-size: 0.875rem;
+	}
+}
