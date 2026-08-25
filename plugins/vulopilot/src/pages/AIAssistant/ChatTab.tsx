@@ -697,20 +697,16 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						}}
 					/>
 				</PopupComponent>
-
-				<AutomationTemplatesCard onSelectTemplate={handleSelectAutomationTemplate} />
+				<RecommendedActionsCard onNavigateTab={onNavigateTab} />
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
 				<NeedsAttentionCard onNavigateTab={onNavigateTab} />
+				<AutomationTemplatesCard onSelectTemplate={handleSelectAutomationTemplate} />
 			</ColumnComponent>
 
 			<ColumnComponent grid={12}>
 				<RecentConversationsSection onSelectConversation={handleSelectConversation} />
-			</ColumnComponent>
-
-			<ColumnComponent grid={12}>
-				<RecommendedActionsCard onNavigateTab={onNavigateTab} />
 			</ColumnComponent>
 
 			<ColumnComponent grid={12}>

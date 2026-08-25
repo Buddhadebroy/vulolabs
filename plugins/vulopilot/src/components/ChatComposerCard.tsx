@@ -137,7 +137,7 @@ const ChatComposerCard = <TTurn,>( {
 			title={ cardTitle }
 			titleIcon={ cardTitleIcon }
 			action={ cardAction }
-			className={ cardClassName }
+			className={`${cardClassName} ai-card`}
 		>
 			{ guarded ? <AiCopilotGuard>{ body }</AiCopilotGuard> : body }
 		</CardComponent>

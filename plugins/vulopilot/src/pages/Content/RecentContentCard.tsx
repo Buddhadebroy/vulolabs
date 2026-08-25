@@ -8,7 +8,6 @@ import {
 	InformationItemComponent,
 	NoticeManager,
 	PopupComponent,
-	BadgeComponent,
 	TooltipComponent,
 } from '@zyra/components';
 import {
@@ -489,11 +488,11 @@ const RecentContentCard = () => {
 			current.map((row) =>
 				row.id === rowId
 					? {
-							...row,
-							findings: row.findings.filter(
-								(finding) => finding.id !== findingId
-							),
-						}
+						...row,
+						findings: row.findings.filter(
+							(finding) => finding.id !== findingId
+						),
+					}
 					: row
 			)
 		);
@@ -566,13 +565,13 @@ const RecentContentCard = () => {
 						current.map((r) =>
 							r.id === row.id
 								? {
-										...r,
-										findings: r.findings.map((f) =>
-											f.id === finding.id
-												? { ...f, status: 'open' as const }
-												: f
-										),
-									}
+									...r,
+									findings: r.findings.map((f) =>
+										f.id === finding.id
+											? { ...f, status: 'open' as const }
+											: f
+									),
+								}
 								: r
 						)
 					);
@@ -611,6 +610,8 @@ const RecentContentCard = () => {
 						buttons={[
 							{
 								text: __('Review', 'vulopilot'),
+								color: 'text-yellow',
+								icon: 'review',
 								onClick: () => (window.location.href = row.editLink),
 							},
 							{
@@ -618,6 +619,8 @@ const RecentContentCard = () => {
 									'ignored' === finding.status
 										? __('Reopen', 'vulopilot')
 										: __('Resolve', 'vulopilot'),
+								color: 'text-blue',
+								icon: 'bulk-action',
 								onClick: () =>
 									handleFindingStatus(
 										row,
@@ -630,26 +633,29 @@ const RecentContentCard = () => {
 							},
 							...('ignored' !== finding.status
 								? [
-										{
-											text: __('Ignore', 'vulopilot'),
-											onClick: () =>
-												handleFindingStatus(
-													row,
-													finding,
-													'ignored',
-													__('Finding ignored.', 'vulopilot')
-												),
-										},
-										{
-											text:
-												fixingFindingId === finding.id
-													? __('Fixing…', 'vulopilot')
-													: __('Fix with AI', 'vulopilot'),
-											icon: 'ai',
-											disabled: fixingFindingId === finding.id,
-											onClick: () => handleFixFinding(row, finding),
-										},
-									]
+									{
+										text: __('Ignore', 'vulopilot'),
+										color: 'text-red',
+										icon: 'membership',
+										onClick: () =>
+											handleFindingStatus(
+												row,
+												finding,
+												'ignored',
+												__('Finding ignored.', 'vulopilot')
+											),
+									},
+									{
+										text:
+											fixingFindingId === finding.id
+												? __('Fixing…', 'vulopilot')
+												: __('Fix with AI', 'vulopilot'),
+										color: 'orange-bg',
+										icon: 'ai',
+										disabled: fixingFindingId === finding.id,
+										onClick: () => handleFixFinding(row, finding),
+									},
+								]
 								: []),
 						]}
 					/>
@@ -680,10 +686,10 @@ const RecentContentCard = () => {
 			'product' === row.category
 				? getApiLink(appLocalizer, `products/${row.id}`, 'wc/v3')
 				: getApiLink(
-						appLocalizer,
-						`${'landing-page' === row.category || 'other' === row.category ? 'pages' : 'posts'}/${row.id}`,
-						'wp/v2'
-					);
+					appLocalizer,
+					`${'landing-page' === row.category || 'other' === row.category ? 'pages' : 'posts'}/${row.id}`,
+					'wp/v2'
+				);
 
 		fetch(endpoint, {
 			method: 'DELETE',
@@ -787,7 +793,7 @@ const RecentContentCard = () => {
 			className="recent-content-card"
 			title={__('Recent Content', 'vulopilot')}
 			action={
-					<ButtonInput
+				<ButtonInput
 					buttons={{
 						text: __('View All', 'vulopilot'),
 						rightIcon: 'arrow-right',
@@ -798,7 +804,7 @@ const RecentContentCard = () => {
 						},
 					}}
 				/>
-				}
+			}
 			isLoading={isLoading}>
 
 			<div className="recent-content-toolbar">
@@ -902,23 +908,24 @@ const RecentContentCard = () => {
 									badges={[
 										{
 											text: row.status,
-											className: row.status,
+											className: `badge-${row.status}`,
+
 										},
 										...(findings.length > 0
 											? [
-													{
-														text: sprintf(
-															_n(
-																'%d issue',
-																'%d issues',
-																findings.length,
-																'vulopilot'
-															),
-															findings.length
+												{
+													text: sprintf(
+														_n(
+															'%d issue',
+															'%d issues',
+															findings.length,
+															'vulopilot'
 														),
-														className: `badge-${worstSeverity(openFindings)}`,
-													},
-												]
+														findings.length
+													),
+													className: `badge-${worstSeverity(openFindings)}`,
+												},
+											]
 											: []),
 									]}
 									descriptions={[
@@ -944,19 +951,21 @@ const RecentContentCard = () => {
 					action: {
 						label: __('Actions', 'vulopilot'),
 						render: (row: ContentRow) => (
-							<BadgeComponent
-								badges={[
+							<ButtonInput
+								wrapperClass="recent-content-row-actions"
+								buttons={[
 									{
 										text: __('Edit', 'vulopilot'),
 										icon: 'edit',
-										className: 'yellow',
+										color: 'text-yellow',
 										onClick: () =>
 											(window.location.href = row.editLink),
 									},
 									{
 										text: __('View', 'vulopilot'),
 										icon: 'eye',
-										className: 'blue',
+										color: 'text-blue',
+										disabled: !row.viewLink,
 										onClick: () => {
 											if (row.viewLink) {
 												window.open(row.viewLink, '_blank', 'noreferrer');
@@ -969,7 +978,8 @@ const RecentContentCard = () => {
 												? __('Deleting…', 'vulopilot')
 												: __('Delete', 'vulopilot'),
 										icon: 'delete',
-										className: 'red',
+										color: 'text-red',
+										disabled: deletingId === row.id,
 										onClick: () => handleDelete(row),
 									},
 								]}
@@ -983,8 +993,8 @@ const RecentContentCard = () => {
 				isLoading={isLoading}
 				emptyMessage={
 					search ||
-					'all' !== severityFilter ||
-					'all' !== resourceFilter
+						'all' !== severityFilter ||
+						'all' !== resourceFilter
 						? __('No content matches these filters.', 'vulopilot')
 						: __('No content found yet.', 'vulopilot')
 				}
