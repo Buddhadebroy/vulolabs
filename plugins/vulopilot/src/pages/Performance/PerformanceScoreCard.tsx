@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	CardComponent,
 	ChartComponent,
@@ -59,15 +59,16 @@ const getScoreRating = (score: number): Rating => {
 };
 
 /**
- * The exact same 3 hex values Performance.scss's own `$vulopilot-rating-*`
- * variables already use for this tile's text/badge colors — `ChartComponent`'s
- * own `type="ring"` needs a literal CSS color for its stroke, not a class
- * name, so this mirrors those rather than inventing a 2nd color source.
+ * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — the same real
+ * colors Performance.scss's own `$vulopilot-rating-*` variables now read
+ * too. `ChartComponent`'s own `type="ring"` needs a literal CSS color for
+ * its stroke, not a class name, so this reads the shared source rather
+ * than inventing a 2nd copy of it.
  */
 const RATING_COLOR: Record<Rating['className'], string> = {
-	good: '#16a34a',
-	'needs-improvement': '#d97706',
-	poor: '#dc2626',
+	good: COLOR_PALETTE.green,
+	'needs-improvement': COLOR_PALETTE.orange,
+	poor: COLOR_PALETTE.red,
 };
 
 /** Google's real, public Core Web Vitals thresholds — LCP/INP in ms, CLS unitless. */

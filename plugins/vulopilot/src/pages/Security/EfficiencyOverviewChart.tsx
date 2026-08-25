@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ChartComponent, LegendComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { COLOR_PALETTE } from '@zyra/core';
 import type { EfficiencySummary } from './efficiencyChecks';
 
 interface EfficiencyOverviewChartProps {
@@ -59,12 +60,12 @@ const EfficiencyOverviewChart = ({
 									{
 										label: __('Working correctly', 'vulopilot'),
 										value: working,
-										color: '#16a34a',
+										color: COLOR_PALETTE.green,
 									},
 									{
 										label: __('Need attention', 'vulopilot'),
 										value: needAttention,
-										color: '#f97316',
+										color: COLOR_PALETTE.orange,
 									},
 									{
 										label: __('Not applicable', 'vulopilot'),

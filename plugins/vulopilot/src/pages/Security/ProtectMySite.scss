@@ -60,7 +60,7 @@
 	}
 
 	.analytics-item.is-medium .number {
-		color: #d97706;
+		color: #e67a2e;
 	}
 
 	.analytics-item.is-low .number {
@@ -194,7 +194,7 @@
 
 	.analytics-item.is-total .number,
 	.analytics-item.is-high .number {
-		color: #f97316;
+		color: #e67a2e;
 	}
 
 	.analytics-item.is-pages .number {
@@ -419,7 +419,7 @@
 		background: #fef3e8;
 
 		i {
-			color: #f97316;
+			color: #e67a2e;
 		}
 	}
 }
@@ -460,7 +460,7 @@
 }
 
 .efficiency-hero-stat.is-attention .efficiency-hero-stat-value {
-	color: #f97316;
+	color: #e67a2e;
 }
 
 .efficiency-hero-stat.is-good .efficiency-hero-stat-value {
@@ -540,7 +540,7 @@
 		background: #fef3e8;
 
 		i {
-			color: #f97316;
+			color: #e67a2e;
 		}
 	}
 }
@@ -574,7 +574,7 @@
 	}
 
 	&.is-attention {
-		color: #d97706;
+		color: #e67a2e;
 		background: #fef3e8;
 	}
 
@@ -624,7 +624,7 @@
 	}
 
 	.is-attention .efficiency-check-detail-dot {
-		background: #f97316;
+		background: #e67a2e;
 	}
 
 	.efficiency-check-detail-text {
@@ -645,15 +645,15 @@
 // zyra `<ListComponent className="mini-card list">`; only the one real
 // visual difference from that variant's own default (an orange, not
 // theme-purple, icon — these are all "needs attention" items, same
-// #f97316 EfficiencyOverviewChart.tsx's own "attention" slice/dot uses)
+// #e67a2e EfficiencyOverviewChart.tsx's own "attention" slice/dot uses)
 // needs its own override here.
 .efficiency-review-list .item-icon {
-	color: #f97316;
+	color: #e67a2e;
 }
 
 .admin-badge.badge-open {
 	flex-shrink: 0;
-	color: #d97706;
+	color: #e67a2e;
 	background: #fef3e8;
 }
 

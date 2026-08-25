@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	CardComponent,
 	BadgeComponent,
@@ -55,11 +55,12 @@ const getScoreTone = (percent: number): ScoreTone => {
 	return 'red';
 };
 
-// Same hex values NeedsAttentionCard.tsx's own ring uses for this exact tone split.
+// Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — same colors
+// NeedsAttentionCard.tsx's own ring uses for this exact tone split.
 const TONE_COLOR: Record<ScoreTone, string> = {
-	green: '#16a34a',
-	orange: '#d97706',
-	red: '#dc2626',
+	green: COLOR_PALETTE.green,
+	orange: COLOR_PALETTE.orange,
+	red: COLOR_PALETTE.red,
 };
 
 /** A smiley reads fine for "Fairly Easy"/"Very Easy" — misleading for a genuinely poor score, so the red band gets an alert icon instead rather than always smiling at bad news. */

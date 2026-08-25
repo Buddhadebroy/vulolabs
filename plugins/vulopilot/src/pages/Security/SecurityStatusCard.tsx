@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import { CardComponent, ChartComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 
@@ -65,7 +65,7 @@ const SecurityStatusCard = () => {
 						{
 							label: __('Score', 'vulopilot'),
 							value: score,
-							color: openFindings > 0 ? '#d97706' : '#16a34a',
+							color: openFindings > 0 ? COLOR_PALETTE.orange : COLOR_PALETTE.green,
 						},
 						{
 							label: __('Remaining', 'vulopilot'),

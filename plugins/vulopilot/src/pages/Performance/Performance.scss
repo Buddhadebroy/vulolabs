@@ -1,10 +1,17 @@
 @use '../../components/config' as *;
 
+// Real zyra palette hex (green/orange/red/critical — same values
+// `@zyra/core`'s `COLOR_PALETTE` exports for PerformanceScoreCard.tsx's
+// own `RATING_COLOR`, matching zyra's real `$color-palette` in
+// packages/theme/src/global.scss) — was `#d97706` for
+// needs-improvement, a locally-invented orange that drifted from
+// zyra's own real `#e67a2e`.
 $vulopilot-rating-good: #16a34a;
-$vulopilot-rating-needs-improvement: #d97706;
+$vulopilot-rating-needs-improvement: #e67a2e;
 $vulopilot-rating-poor: #dc2626;
 // "Very Slow" — a real sub-band within "Poor" (score < PageSpeedRepository::SCORE_VERY_SLOW),
-// a darker red so it reads as more severe than plain "Poor" at a glance.
+// a darker red so it reads as more severe than plain "Poor" at a glance —
+// same value zyra's own new "critical" palette color now ships too.
 $vulopilot-rating-very-poor: #991b1b;
 
 @mixin vulopilot-rating-colors {

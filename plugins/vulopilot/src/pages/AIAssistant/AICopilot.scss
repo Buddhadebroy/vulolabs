@@ -23,7 +23,7 @@
 
 // RecommendedActionsCard.tsx — one tinted mini-card per finding bucket
 // (security/performance/ai-visibility). Tint colors match NeedsAttentionCard.tsx's
-// own TONE_COLOR red/orange (`#dc2626`/`#d97706`); teal is new here, used only
+// own TONE_COLOR red/orange (`#dc2626`/`#e67a2e`); teal is new here, used only
 // for the ai-visibility bucket.
 .recommended-actions-grid {
 	display: flex;
@@ -515,7 +515,7 @@
 	}
 
 	&.tone-orange {
-		color: #d97706;
+		color: #e67a2e;
 	}
 
 	&.tone-red {

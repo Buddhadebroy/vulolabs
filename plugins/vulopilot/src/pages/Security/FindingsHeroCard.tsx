@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ChartComponent, LegendComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
+import { getSeverityColor } from '../../services/getSeverityClass';
 import './ProtectMySite.scss';
 
 interface FindingRow {
@@ -110,17 +111,17 @@ const FindingsHeroCard = ({
 										{
 											label: __('High', 'vulopilot'),
 											value: high,
-											color: '#dc2626',
+											color: getSeverityColor('high'),
 										},
 										{
 											label: __('Medium', 'vulopilot'),
 											value: medium,
-											color: '#d97706',
+											color: getSeverityColor('medium'),
 										},
 										{
 											label: __('Low', 'vulopilot'),
 											value: low,
-											color: '#2563eb',
+											color: getSeverityColor('low'),
 										},
 									]}
 								/>
@@ -132,19 +133,19 @@ const FindingsHeroCard = ({
 										key: 'high',
 										label: __('High', 'vulopilot'),
 										value: high,
-										color: '#dc2626',
+										color: getSeverityColor('high'),
 									},
 									{
 										key: 'medium',
 										label: __('Medium', 'vulopilot'),
 										value: medium,
-										color: '#d97706',
+										color: getSeverityColor('medium'),
 									},
 									{
 										key: 'low',
 										label: __('Low', 'vulopilot'),
 										value: low,
-										color: '#2563eb',
+										color: getSeverityColor('low'),
 									},
 								]}
 							/>
