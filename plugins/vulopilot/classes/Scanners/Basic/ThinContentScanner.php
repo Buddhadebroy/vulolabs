@@ -103,7 +103,8 @@ class ThinContentScanner extends AbstractBasicScanner implements TracksScannedOb
                 ),
                 'post',
                 (string) $post->ID,
-                array( 'word_count' => $word_count )
+                array( 'word_count' => $word_count ),
+                'thin-content'
             );
         }
 

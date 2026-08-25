@@ -132,6 +132,8 @@ interface SeoIssuesByPageTableProps {
 	visibilityColumnLabel?: string;
 	/** Only set alongside `visibilityColumnLabel` — shows a real "Export CSV" action in this card's header, same shape the old standalone table's own button used. */
 	onExportCsv?: () => void;
+	/** Only set by `SeoIssuesSection.tsx`'s own SEO usage — adds a real "Analyze" row action opening SeoTab.tsx's own PageAnalysisPanel for that page. `undefined` for AeoTab.tsx's/GeoTab.tsx's own `pageAnalysis` usage, which has no such panel. */
+	onAnalyze?: (postId: number) => void;
 }
 
 /**
@@ -182,6 +184,7 @@ const SeoIssuesByPageTable = ({
 	issuesColumnLabel = __('SEO Issues', 'vulopilot'),
 	visibilityColumnLabel,
 	onExportCsv,
+	onAnalyze,
 }: SeoIssuesByPageTableProps) => {
 	/** This table's OWN "Search pages…" box (TableCard's built-in search, filtering by PAGE title). */
 	const [searchValue, setSearchValue] = useState('');
@@ -475,6 +478,15 @@ const SeoIssuesByPageTable = ({
 							render: (row: TableRow) => (
 								<BadgeComponent
 									badges={[
+										...(onAnalyze && !isFindingRow(row)
+											? [
+													{
+														text: __('Analyze', 'vulopilot'),
+														icon: 'search',
+														onClick: () => onAnalyze(row.id),
+													},
+												]
+											: []),
 										// A merged-in page (pageAnalysis mode) can legitimately have
 										// zero matching findings — nothing for "Fix with AI" to open.
 										...(isFindingRow(row) || getRowFindings(row).length > 0

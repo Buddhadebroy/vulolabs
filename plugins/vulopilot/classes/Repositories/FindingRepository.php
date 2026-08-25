@@ -65,25 +65,76 @@ class FindingRepository extends AbstractRepository {
      * brand-new row if the same problem recurs later, not silently flip a
      * closed one back open.
      *
-     * @param string $scanner_id  Finding::get_category()'s owning scanner's own get_id().
-     * @param string $object_type Finding::get_object_type().
-     * @param string $object_ref  Finding::get_object_ref().
-     * @param string $title       Finding::get_title().
+     * `$object_type`/`$object_ref` are nullable for the purely-sitewide
+     * scanners that have no specific object to key on (e.g. `php-warnings`
+     * — a PHP notice isn't "about" any one post) — those store SQL `NULL`
+     * in both columns (AbstractRepository::insert() passes `null` straight
+     * through to `$wpdb->insert()`, which stores a real `NULL`, not the
+     * string `''`). A plain `column = %s` comparison is never true against
+     * a `NULL` column regardless of what's bound, so matching on `NULL`
+     * needs its own `IS NULL` branch rather than reusing the `%s`
+     * comparison — confirmed live: without this, `php-warnings` piled up
+     * 10 duplicate open rows for the identical warning message before
+     * this was added, since every rescan's lookup silently matched
+     * nothing and fell through to a fresh insert. `title` alone is still
+     * enough of a natural key for most scanners (see this method's own
+     * docblock above on why `title` already carries whatever distinguishes
+     * one finding from another) — but not all of them: a scanner whose
+     * title bakes in a live, scan-to-scan-fluctuating number (a word
+     * count, a readability score, a byte size) breaks a plain `title`
+     * match the moment that number ticks even slightly, same underlying
+     * symptom as the `NULL`-object case above (confirmed live:
+     * `ThinContentScanner`'s "Thin content (154 words): Sample Page" vs.
+     * "Thin content (155 words): Sample Page" on unrelated later runs of
+     * the identical page, two permanently-orphaned open rows for one real
+     * problem). `$dedupe_key` is that scanner's opt-in fix: when a Finding
+     * supplies one (Finding::get_dedupe_key()), matching uses it INSTEAD
+     * of `title` entirely, so the volatile display text can keep changing
+     * every run without ever affecting dedup. When a Finding doesn't
+     * supply one (the default, `null`, for every scanner not rewritten to
+     * need this), matching falls back to the exact legacy `title = %s`
+     * behavior, scoped to rows that themselves have no `dedupe_key` either
+     * — so a pre-existing title-matched row and a future dedupe_key-keyed
+     * row for the same scanner can never cross-match each other by
+     * accident.
+     *
+     * @param string      $scanner_id  Finding::get_category()'s owning scanner's own get_id().
+     * @param string|null $object_type Finding::get_object_type().
+     * @param string|null $object_ref  Finding::get_object_ref().
+     * @param string      $title       Finding::get_title().
+     * @param string|null $dedupe_key  Finding::get_dedupe_key().
      * @return array<string, mixed>|null
      */
-    public function find_open_duplicate( string $scanner_id, string $object_type, string $object_ref, string $title ): ?array {
+    public function find_open_duplicate( string $scanner_id, ?string $object_type, ?string $object_ref, string $title, ?string $dedupe_key = null ): ?array {
         global $wpdb;
 
-        $row = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT * FROM {$this->get_table()} WHERE status = 'open' AND scanner_id = %s AND object_type = %s AND object_ref = %s AND title = %s ORDER BY id DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-                $scanner_id,
-                $object_type,
-                $object_ref,
-                $title
-            ),
-            ARRAY_A
-        );
+        $conditions = array( "status = 'open'", 'scanner_id = %s' );
+        $params     = array( $scanner_id );
+
+        foreach ( array(
+            'object_type' => $object_type,
+            'object_ref'  => $object_ref,
+        ) as $column => $value ) {
+            if ( null === $value || '' === $value ) {
+                $conditions[] = "{$column} IS NULL";
+            } else {
+                $conditions[] = "{$column} = %s";
+                $params[]     = $value;
+            }
+        }
+
+        if ( null !== $dedupe_key ) {
+            $conditions[] = 'dedupe_key = %s';
+            $params[]     = $dedupe_key;
+        } else {
+            $conditions[] = 'title = %s';
+            $conditions[] = 'dedupe_key IS NULL';
+            $params[]     = $title;
+        }
+
+        $sql = "SELECT * FROM {$this->get_table()} WHERE " . implode( ' AND ', $conditions ) . ' ORDER BY id DESC LIMIT 1'; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+        $row = $wpdb->get_row( $wpdb->prepare( $sql, $params ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
         return $row ?: null;
     }
@@ -692,13 +743,23 @@ class FindingRepository extends AbstractRepository {
      * score snapshot exists (only `vulopilot_site_health_snapshots.overall_score`
      * is ever written; see SiteHealthSnapshotRepository in vulopilot-pro).
      * A finding counts as "open as of $as_of" when it already existed
-     * (`created_at <= $as_of`) and hadn't resolved yet by then
-     * (`resolved_at` null or after `$as_of`) — both real, already-persisted
-     * timestamps, so this is an exact reconstruction, not an estimate.
-     * Currently ignored/snoozed findings are excluded from both ends (same
-     * exclusion get_severity_breakdown_for_category()'s `status = 'open'`
-     * filter already applies today) since ignored/snoozed transitions don't
-     * carry their own timestamp to reconstruct from.
+     * (`created_at <= $as_of`) and either is still `status = 'open'` right
+     * now, or has a real `resolved_at` timestamp after `$as_of` — NOT a bare
+     * `resolved_at IS NULL` check (this method's own original condition,
+     * confirmed live to silently over-count: 120 of this table's 192
+     * `status = 'resolved'` rows have a `NULL resolved_at` — resolved
+     * before `resolved_at` tracking existed/was backfilled, not "still
+     * open" — so treating a null timestamp as "not yet resolved" was
+     * counting a majority of already-resolved findings as still open in
+     * every historical reconstruction). A currently-resolved finding with
+     * no real resolved timestamp is instead treated as already resolved by
+     * `$as_of` — the honest assumption when the exact moment isn't known,
+     * rather than the previous assumption that silently inflated every
+     * "as of" score below its real historical value. Currently
+     * ignored/snoozed findings stay excluded from both ends (same exclusion
+     * get_severity_breakdown_for_category()'s `status = 'open'` filter
+     * already applies today) since ignored/snoozed transitions don't carry
+     * their own timestamp to reconstruct from.
      *
      * @param string $category One of the scanner category strings (SCANNERS.md).
      * @param string $as_of    MySQL datetime (UTC) to reconstruct the open set as of.
@@ -713,7 +774,7 @@ class FindingRepository extends AbstractRepository {
             $wpdb->prepare(
                 "SELECT severity, COUNT(*) AS total FROM {$this->get_table()}
                 WHERE category = %s AND status != 'ignored' AND status != 'snoozed'
-                AND created_at <= %s AND ( resolved_at IS NULL OR resolved_at > %s )
+                AND created_at <= %s AND ( status = 'open' OR ( resolved_at IS NOT NULL AND resolved_at > %s ) )
                 GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $category,
                 $as_of,
@@ -733,10 +794,12 @@ class FindingRepository extends AbstractRepository {
 
     /**
      * Same "as of a past moment" reconstruction as
-     * get_severity_breakdown_for_category_as_of(), scoped to an explicit
-     * scanner_id list instead — what Content/Brand's composite scores'
-     * trend needs, same reasoning as get_severity_breakdown_for_scanner_ids()
-     * own docblock for why those two scores can't use a category string.
+     * get_severity_breakdown_for_category_as_of() — including that same
+     * method's own fix for `status = 'resolved'` rows with a `NULL
+     * resolved_at` (see its docblock) — scoped to an explicit scanner_id
+     * list instead — what Content/Brand's composite scores' trend needs,
+     * same reasoning as get_severity_breakdown_for_scanner_ids() own
+     * docblock for why those two scores can't use a category string.
      *
      * @param string[] $scanner_ids Scanner ids to scope to.
      * @param string   $as_of       MySQL datetime (UTC) to reconstruct the open set as of.
@@ -757,7 +820,7 @@ class FindingRepository extends AbstractRepository {
             $wpdb->prepare(
                 "SELECT severity, COUNT(*) AS total FROM {$this->get_table()}
                 WHERE scanner_id IN ({$placeholders}) AND status != 'ignored' AND status != 'snoozed'
-                AND created_at <= %s AND ( resolved_at IS NULL OR resolved_at > %s )
+                AND created_at <= %s AND ( status = 'open' OR ( resolved_at IS NOT NULL AND resolved_at > %s ) )
                 GROUP BY severity", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
                 ...array_merge( $scanner_ids, array( $as_of, $as_of ) )
             ),
@@ -771,6 +834,75 @@ class FindingRepository extends AbstractRepository {
         }
 
         return $counts;
+    }
+
+    /**
+     * Every currently-open — or, with `$as_of` set, real
+     * historically-reconstructed open-as-of-that-moment (same exact
+     * reconstruction `get_severity_breakdown_for_scanner_ids_as_of()`
+     * already uses) — finding among `$scanner_ids` that's tied to a real
+     * page/post, bucketed by post id. Seo.php's own "Pages that need
+     * attention" table needs this to compute a real per-page score/Main
+     * Problem/Change without an N+1 query per page.
+     * `DuplicateContentScanner`'s own `object_ref` is a comma-joined list of
+     * post ids (one finding genuinely spans multiple posts) — split and
+     * attached to EACH matching post here, same real handling
+     * `seoIssuesShared.tsx`'s own `bucketFindingsByPage()` already does
+     * client-side for the current (non-as-of) case.
+     *
+     * @param string[]    $scanner_ids Scanner ids to scope to.
+     * @param string|null $as_of       MySQL datetime (UTC) to reconstruct the open set as of; null for the real current open set.
+     * @return array<int, array<int, array{id: int, title: string, severity: string}>> post_id => that post's own open findings.
+     */
+    public function get_open_findings_for_scanner_ids_by_post( array $scanner_ids, ?string $as_of = null ): array {
+        global $wpdb;
+
+        $buckets = array();
+
+        if ( ! $scanner_ids ) {
+            return $buckets;
+        }
+
+        $placeholders = implode( ', ', array_fill( 0, count( $scanner_ids ), '%s' ) );
+
+        if ( null === $as_of ) {
+            $rows = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT id, title, severity, object_ref FROM {$this->get_table()}
+                    WHERE scanner_id IN ({$placeholders}) AND status = 'open' AND object_type = 'post'", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
+                    ...$scanner_ids
+                ),
+                ARRAY_A
+            );
+        } else {
+            $rows = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT id, title, severity, object_ref FROM {$this->get_table()}
+                    WHERE scanner_id IN ({$placeholders}) AND object_type = 'post'
+                    AND status != 'ignored' AND status != 'snoozed'
+                    AND created_at <= %s AND ( status = 'open' OR ( resolved_at IS NOT NULL AND resolved_at > %s ) )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders' %s count matches $scanner_ids' size at runtime.
+                    ...array_merge( $scanner_ids, array( $as_of, $as_of ) )
+                ),
+                ARRAY_A
+            );
+        }
+
+        foreach ( (array) $rows as $row ) {
+            $post_ids = array_filter(
+                array_map( 'intval', explode( ',', (string) $row['object_ref'] ) ),
+                static fn( $id ) => $id > 0
+            );
+
+            foreach ( $post_ids as $post_id ) {
+                $buckets[ $post_id ][] = array(
+                    'id'       => (int) $row['id'],
+                    'title'    => $row['title'],
+                    'severity' => $row['severity'],
+                );
+            }
+        }
+
+        return $buckets;
     }
 
     /**

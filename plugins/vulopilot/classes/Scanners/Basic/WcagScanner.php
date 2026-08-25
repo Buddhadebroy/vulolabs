@@ -122,7 +122,8 @@ class WcagScanner extends AbstractBasicScanner implements TracksScannedObjectsIn
                 __( 'A link reading only "click here" or "read more" makes no sense out of context — screen reader users who navigate by a page\'s link list can\'t tell them apart. Link text should describe its own destination (WCAG 2.4.4).', 'vulopilot' ),
                 'post',
                 (string) $post->ID,
-                array( 'ambiguous_link_count' => $count )
+                array( 'ambiguous_link_count' => $count ),
+                'generic-link-text'
             );
         }
 

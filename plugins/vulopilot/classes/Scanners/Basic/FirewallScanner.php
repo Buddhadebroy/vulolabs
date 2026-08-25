@@ -104,7 +104,9 @@ class FirewallScanner extends AbstractBasicScanner {
                 $this->get_category(),
                 $description,
                 'ip_address',
-                $most_active['ip_address']
+                $most_active['ip_address'],
+                array(),
+                'firewall-ip-activity'
             );
         } else {
             $findings[] = new Finding(
@@ -115,7 +117,11 @@ class FirewallScanner extends AbstractBasicScanner {
                 ),
                 Severity::MEDIUM,
                 $this->get_category(),
-                $description
+                $description,
+                null,
+                null,
+                array(),
+                'firewall-sitewide-activity'
             );
         }
 

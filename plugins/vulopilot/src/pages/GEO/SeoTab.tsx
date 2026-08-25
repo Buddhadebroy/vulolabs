@@ -7,25 +7,32 @@ import {
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
+	ContainerComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
-	TypographyComponent,
 } from '@zyra/components';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { useSeoScore, SeoScoreResponse } from './useSeoScore';
+import { getRating, ratingClass, ratingColor } from './seoRating';
 import SeoIssuesSection from './SeoIssuesSection';
+import PageAnalysisPanel from './PageAnalysisPanel';
+import WhatShouldIFixFirstCard from './WhatShouldIFixFirstCard';
+import PagesNeedingAttentionTable from './PagesNeedingAttentionTable';
+import SeoProgressCard from './SeoProgressCard';
 
 const CATEGORY_CARDS: {
 	key: keyof SeoScoreResponse['category_scores'];
 	title: string;
 	icon: string;
+	/** A fixed per-category identity color for the icon box — independent of `ratingColor(category.score)`, which separately tints the border/graph/number by real live status. */
+	color: string;
 }[] = [
-	{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search' },
-	{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list' },
-	{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment' },
-	{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'admin-links' },
-	{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery' },
-	{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks' },
+	{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search', color: 'purple' },
+	{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list', color: 'blue' },
+	{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment', color: 'green' },
+	{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'admin-links', color: 'indigo' },
+	{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery', color: 'teal' },
+	{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks', color: 'orange' },
 ];
 
 /**
@@ -47,44 +54,6 @@ const SEARCH_ENGINE_ACCESS_SCANNER_IDS = [
 	'ai-crawler-blocked-pages',
 ];
 
-const getRating = (score: number): string => {
-	if (score >= 70) {
-		return __('Good', 'vulopilot');
-	}
-	if (score >= 40) {
-		return __('Needs Work', 'vulopilot');
-	}
-	return __('Poor', 'vulopilot');
-};
-
-const ratingClass = (score: number): string => {
-	if (score >= 70) {
-		return 'is-good';
-	}
-	if (score >= 40) {
-		return 'is-attention';
-	}
-	return 'is-poor';
-};
-
-/**
- * Same 3-tier thresholds as `ratingClass()`/`getRating()` above, as one of
- * zyra's own `$color-palette` names — `AnalyticsComponent`'s own
- * `variant="small-card"` tiles below resolve `colorClass` against that same
- * real palette (same convention `BrandScoreCard.tsx`'s own `ratingColor()`
- * already established for its `variant="score-ring"` tiles), not the
- * `is-good`/`is-attention`/`is-poor` semantic classes this file's own score
- * ring/badges still use elsewhere.
- */
-const ratingColor = (score: number): string => {
-	if (score >= 70) {
-		return 'green';
-	}
-	if (score >= 40) {
-		return 'yellow';
-	}
-	return 'red';
-};
 
 /**
  * Real week-over-week delta text for one of `useSeoScore()`'s own
@@ -214,6 +183,8 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	const [searchEngineAccessOpen, setSearchEngineAccessOpen] = useState<
 		number | null
 	>(null);
+	/** Set by a real "Analyze" click in the "Pages & Posts" table below — opens PageAnalysisPanel as a real sidebar alongside this tab's own existing content, rather than replacing it. */
+	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 
 	useEffect(() => {
 		if (!isSeoModuleActive()) {
@@ -253,7 +224,8 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	}
 
 	return (
-		<ColumnComponent>
+		<ContainerComponent>
+			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
 				<NoticeComponent
 					// type="banner"
 					displayPosition="inline"
@@ -306,168 +278,187 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					</button>
 				</div>
 
-				<ColumnComponent grid={12}>
-					<CardComponent
-						title={__('SEO Health Score', 'vulopilot')}
-						desc={__(
-							'A composite score across every real SEO check below.',
-							'vulopilot'
-						)}
-						isLoading={isLoadingScore}
-					>
-						{score && (
-							<div className="seo-health-score-layout">
-								<div className="geo-overall-visibility seo-health-score-ring">
-									<ChartComponent
-										type="pie"
-										height={140}
-										centerLabel={
-											<>
-												<TypographyComponent
-													as="span"
-													variant="h2"
-													className="score-ring-number"
-												>
-													{score.seo_score}
-												</TypographyComponent>
-												<TypographyComponent
-													as="span"
-													variant="body-xs"
-													className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
-												>
-													{getRating(score.seo_score)}
-												</TypographyComponent>
-											</>
-										}
-										data={[
-											{
-												label: __('Score', 'vulopilot'),
-												value: score.seo_score,
-												color: '#7C3AED',
-											},
-											{
-												label: __('Remaining', 'vulopilot'),
-												value: 100 - score.seo_score,
-												color: '#e5e7eb',
-											},
-										]}
-									/>
+				<SeoProgressCard />
+
+				<CardComponent
+					title={__('SEO Health Score', 'vulopilot')}
+					desc={__(
+						'A composite score across every real SEO check below.',
+						'vulopilot'
+					)}
+					isLoading={isLoadingScore}
+				>
+					{score && (
+						<div className="seo-health-score-layout">
+							<div className="geo-overall-visibility seo-health-score-ring">
+								<ChartComponent
+									type="pie"
+									height={140}
+									centerLabel={
+										<>
+											<span className="score-ring-number">
+												{score.seo_score}
+											</span>
+											<span
+												className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
+											>
+												{getRating(score.seo_score)}
+											</span>
+										</>
+									}
+									data={[
+										{
+											label: __('Score', 'vulopilot'),
+											value: score.seo_score,
+											color: '#7C3AED',
+										},
+										{
+											label: __('Remaining', 'vulopilot'),
+											value: 100 - score.seo_score,
+											color: '#e5e7eb',
+										},
+									]}
+								/>
+							</div>
+							<div className="seo-health-score-stats">
+								<div className="seo-health-stat">
+									<div className="typography-h3">
+										{score.pages_checked}
+									</div>
+									<div className="typography-body-xs">
+										{__('Pages checked', 'vulopilot')}
+									</div>
 								</div>
-								<div className="seo-health-score-stats">
-									<div className="seo-health-stat">
-										<TypographyComponent as="div" variant="h3">
-											{score.pages_checked}
-										</TypographyComponent>
-										<TypographyComponent as="div" variant="body-xs">
-											{__('Pages checked', 'vulopilot')}
-										</TypographyComponent>
+								<div className="seo-health-stat">
+									<div className="typography-h3">
+										{score.total_open}
 									</div>
-									<div className="seo-health-stat">
-										<TypographyComponent as="div" variant="h3">
-											{score.total_open}
-										</TypographyComponent>
-										<TypographyComponent as="div" variant="body-xs">
-											{__('Issues found', 'vulopilot')}
-										</TypographyComponent>
-										<TypographyComponent
-											as="div"
-											variant="caption"
-											className={score.deltas.total_open <= 0 ? 'is-good' : 'is-attention'}
-										>
-											{deltaLabel(score.deltas.total_open, score.deltas.lookback_days)}
-										</TypographyComponent>
+									<div className="typography-body-xs">
+										{__('Issues found', 'vulopilot')}
 									</div>
-									<div className="seo-health-stat">
-										<TypographyComponent as="div" variant="h3" className="is-poor">
-											{score.severity_breakdown.critical}
-										</TypographyComponent>
-										<TypographyComponent as="div" variant="body-xs">
-											{__('Critical issues', 'vulopilot')}
-										</TypographyComponent>
-										<TypographyComponent
-											as="div"
-											variant="caption"
-											className={score.deltas.critical <= 0 ? 'is-good' : 'is-attention'}
-										>
-											{deltaLabel(score.deltas.critical, score.deltas.lookback_days)}
-										</TypographyComponent>
-									</div>
-									<div className="seo-health-stat">
-										<TypographyComponent as="div" variant="h3" className="is-attention">
-											{score.severity_breakdown.high}
-										</TypographyComponent>
-										<TypographyComponent as="div" variant="body-xs">
-											{__('High priority issues', 'vulopilot')}
-										</TypographyComponent>
-										<TypographyComponent
-											as="div"
-											variant="caption"
-											className={score.deltas.high <= 0 ? 'is-good' : 'is-attention'}
-										>
-											{deltaLabel(score.deltas.high, score.deltas.lookback_days)}
-										</TypographyComponent>
+									<div
+										className={`typography-caption ${score.deltas.total_open <= 0 ? 'is-good' : 'is-attention'}`}
+									>
+										{deltaLabel(score.deltas.total_open, score.deltas.lookback_days)}
 									</div>
 								</div>
 							</div>
-						)}
-					</CardComponent>
-				</ColumnComponent>
 
-				<ColumnComponent grid={12}>
-					<CardComponent
-						title={__('SEO areas', 'vulopilot')}
-						desc={__(
-							'Overview of where your SEO health is by area — click one to jump to its issues.',
-							'vulopilot'
-						)}
-						isLoading={isLoadingScore}
-					>
-						<div className="seo-category-grid">
-							<AnalyticsComponent
-								data={
-									score
-										? CATEGORY_CARDS.map((card) => {
-												const category = score.category_scores[card.key];
-												return {
-													icon: card.icon,
-													colorClass: ratingColor(category.score),
-													number: `${category.score}/100`,
-													text: (
-														<>
-															<div>{card.title}</div>
-															<TypographyComponent
-																as="div"
-																variant="caption"
-															>
-																{sprintf(
-																	/* translators: 1: number of open issues, 2: number of affected pages. */
-																	__('%1$d issues • %2$d pages affected', 'vulopilot'),
-																	category.open_count,
-																	category.affected_pages
-																)}
-															</TypographyComponent>
-														</>
-													),
-													onClick: () =>
-														setCategoryFocus({
-															key: card.key,
-															token: Date.now(),
-														}),
-												};
-											})
-										: []
-								}
-								variant="small-card"
-								cols={3}
-								isLoading={isLoadingScore}
-							/>
+							<div className="seo-health-score-divider" />
+
+							<div className="seo-health-score-stats seo-health-score-stats-severity">
+								<div className="seo-health-stat">
+									<div className="typography-h3 is-poor">
+										{score.severity_breakdown.critical}
+									</div>
+									<div className="typography-body-xs">
+										{__('Critical issues', 'vulopilot')}
+									</div>
+								</div>
+								<div className="seo-health-stat">
+									<div className="typography-h3 is-attention">
+										{score.severity_breakdown.high}
+									</div>
+									<div className="typography-body-xs">
+										{__('High priority issues', 'vulopilot')}
+									</div>
+								</div>
+							</div>
 						</div>
-					</CardComponent>
+					)}
+				</CardComponent>
+
+				<CardComponent
+					title={__('SEO areas', 'vulopilot')}
+					desc={__(
+						'Overview of where your SEO health is by area — click one to jump to its issues.',
+						'vulopilot'
+					)}
+					isLoading={isLoadingScore}
+				>
+					<div className="seo-category-grid">
+						<AnalyticsComponent
+							data={
+								score
+									? CATEGORY_CARDS.map((card) => {
+											const category = score.category_scores[card.key];
+											return {
+												icon: card.icon,
+												iconClass: `icon-${card.color}`,
+												colorClass: ratingColor(category.score),
+												number: `${category.score}/100`,
+												text: (
+													<>
+														<div className="seo-area-tile-title">
+															{card.title}
+														</div>
+														<span
+															className={`seo-area-tile-pill ${ratingClass(category.score)}`}
+														>
+															{getRating(category.score)}
+														</span>
+														<div className="seo-area-tile-issues">
+															{sprintf(
+																/* translators: %d: number of open issues. */
+																__('%d issues', 'vulopilot'),
+																category.open_count
+															)}
+														</div>
+														<div className="seo-area-tile-pages typography-caption">
+															{sprintf(
+																/* translators: %d: number of affected pages. */
+																__('%d pages affected', 'vulopilot'),
+																category.affected_pages
+															)}
+														</div>
+													</>
+												),
+												onClick: () =>
+													setCategoryFocus({
+														key: card.key,
+														token: Date.now(),
+													}),
+											};
+										})
+									: []
+							}
+							variant="small-card"
+							cols={3}
+							isLoading={isLoadingScore}
+						/>
+					</div>
+				</CardComponent>
+
+				<WhatShouldIFixFirstCard
+					severityBreakdown={
+						score?.severity_breakdown ?? {
+							critical: 0,
+							high: 0,
+							medium: 0,
+							low: 0,
+						}
+					}
+					totalOpen={score?.total_open ?? 0}
+					isLoadingScore={isLoadingScore}
+				/>
+
+				<PagesNeedingAttentionTable onAnalyze={setAnalyzingPostId} />
+
+				<SeoIssuesSection
+					categoryFocus={categoryFocus}
+					onAnalyze={setAnalyzingPostId}
+				/>
+			</ColumnComponent>
+
+			{analyzingPostId && (
+				<ColumnComponent grid={4}>
+					<PageAnalysisPanel
+						postId={analyzingPostId}
+						onClose={() => setAnalyzingPostId(null)}
+					/>
 				</ColumnComponent>
-
-				<SeoIssuesSection categoryFocus={categoryFocus} />
-
-		</ColumnComponent>
+			)}
+		</ContainerComponent>
 	);
 };
 

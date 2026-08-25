@@ -9,6 +9,8 @@ interface CategoryFocus {
 
 interface SeoIssuesSectionProps {
 	categoryFocus?: CategoryFocus | null;
+	/** SeoTab.tsx's own real PageAnalysisPanel trigger — see SeoIssuesByPageTable.tsx's own `onAnalyze` prop docblock. */
+	onAnalyze?: (postId: number) => void;
 }
 
 /**
@@ -20,12 +22,13 @@ interface SeoIssuesSectionProps {
  * `SeoTab.tsx` didn't need to change at all: same import path, same
  * `categoryFocus` prop, identical behavior to before this split.
  */
-const SeoIssuesSection = ({ categoryFocus }: SeoIssuesSectionProps) => (
+const SeoIssuesSection = ({ categoryFocus, onAnalyze }: SeoIssuesSectionProps) => (
 	<IssuesSection
 		scannerIds={ALL_SEO_SCANNER_IDS}
 		categories={SEO_SECTIONS}
 		categoryFocus={categoryFocus}
 		issuesColumnLabel="SEO Issues"
+		onAnalyze={onAnalyze}
 	/>
 );
 

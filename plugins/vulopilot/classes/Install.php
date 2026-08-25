@@ -129,6 +129,7 @@ class Install {
             `description`  longtext DEFAULT NULL,
             `object_type`  varchar(50) DEFAULT NULL,
             `object_ref`   varchar(255) DEFAULT NULL,
+            `dedupe_key`   varchar(255) DEFAULT NULL,
             `status`       varchar(20) NOT NULL DEFAULT 'open',
             `resolved_at`  datetime DEFAULT NULL,
             `meta`         longtext DEFAULT NULL,

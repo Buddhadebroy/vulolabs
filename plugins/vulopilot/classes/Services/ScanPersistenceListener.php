@@ -54,16 +54,16 @@ class ScanPersistenceListener {
      * canonical-url, thin-content, meta-description, seo, geo-author-info,
      * geo-trust-signals, internal-linking, seo-images, images, plugins,
      * themes, cdn, and more — confirmed live, up to 24 duplicate open rows
-     * for one object). Deduping is now the default whenever a finding
-     * carries both a real `object_type` and `object_ref` (handle_scan_completed()'s
-     * own guard) — the same two-field key that already made
-     * find_open_duplicate() safe for the original two scanners generalizes
-     * cleanly to any scanner with an identifiable target; a finding with
-     * neither (a purely sitewide check with nothing to match on) is
-     * unaffected either way. This list only exists for a scanner that
-     * genuinely wants more than one simultaneously-open row for the same
-     * object+title — none do today, but the mechanism stays available
-     * rather than assuming that'll never be true.
+     * for one object). Deduping is now the default for every scanner,
+     * regardless of whether a finding carries a real `object_type`/
+     * `object_ref` — find_open_duplicate() matches those two columns
+     * NULL-safely, so a purely sitewide check with nothing to match on
+     * (e.g. `php-warnings`) dedupes on `scanner_id`+`title` alone the same
+     * way an object-scoped finding dedupes on the full four-column key.
+     * This list only exists for a scanner that genuinely wants more than
+     * one simultaneously-open row for the same object+title — none do
+     * today, but the mechanism stays available rather than assuming
+     * that'll never be true.
      *
      * @var string[]
      */
@@ -132,13 +132,12 @@ class ScanPersistenceListener {
 
         foreach ( $scan_result->get_findings() as $finding ) {
             $duplicate = ! in_array( $scan_result->get_scanner_id(), self::NEVER_DEDUPE_ON_RESCAN, true )
-                && $finding->get_object_type()
-                && $finding->get_object_ref()
                 ? $this->findings->find_open_duplicate(
                     $scan_result->get_scanner_id(),
-                    (string) $finding->get_object_type(),
-                    (string) $finding->get_object_ref(),
-                    $finding->get_title()
+                    $finding->get_object_type(),
+                    $finding->get_object_ref(),
+                    $finding->get_title(),
+                    $finding->get_dedupe_key()
                 )
                 : null;
 
@@ -156,13 +155,20 @@ class ScanPersistenceListener {
                 // Issues table's "Affected" list actually displays
                 // ("Detected {date}"), so a still-open, still-recurring
                 // finding shows when it was last reconfirmed rather than
-                // looking stale the moment it was first found.
+                // looking stale the moment it was first found. `title`
+                // DOES move too (unlike everything above, this wasn't true
+                // before `dedupe_key` existed): a finding matched via a
+                // stable `dedupe_key` can have a `title` that legitimately
+                // drifts every run (a word count, a score) — refreshing it
+                // here is what keeps the number a site owner sees current
+                // instead of frozen at whatever it was on first detection.
                 $this->findings->update(
                     (int) $duplicate['id'],
                     array(
                         'scan_id'      => $scan_id,
                         'severity'     => $finding->get_severity(),
                         'category'     => $finding->get_category(),
+                        'title'        => $finding->get_title(),
                         'description'  => $finding->get_description(),
                         'meta'         => wp_json_encode( $finding->get_meta() ),
                         'last_seen_at' => current_time( 'mysql', true ),
@@ -181,6 +187,7 @@ class ScanPersistenceListener {
                     'description' => $finding->get_description(),
                     'object_type' => $finding->get_object_type(),
                     'object_ref'  => $finding->get_object_ref(),
+                    'dedupe_key'  => $finding->get_dedupe_key(),
                     'meta'        => wp_json_encode( $finding->get_meta() ),
                 )
             );

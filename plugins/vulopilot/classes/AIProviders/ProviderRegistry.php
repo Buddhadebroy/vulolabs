@@ -187,7 +187,7 @@ class ProviderRegistry {
             }
         }
 
-        return $providers ? new Decorators\ProviderFallbackChain( $providers ) : null;
+        return $providers ? new Decorators\ProviderFallbackChain( $providers, $this ) : null;
     }
 
     /**
@@ -210,6 +210,27 @@ class ProviderRegistry {
         $model  = (string) ( $config['default_model'] ?? '' );
 
         return '' !== $model ? $model : null;
+    }
+
+    /**
+     * The real model id one specific provider should actually be asked to
+     * use — this provider's own configured `get_default_model()`, falling
+     * back to its own adapter's first `get_available_models()` entry.
+     * Extracted out of SafeRequestSender::send() (still the caller for the
+     * *first* attempt) so ProviderFallbackChain::try_each() can call this
+     * same real per-provider resolution again for every fallback attempt —
+     * confirmed live: without this, a fallback attempt reused whichever
+     * model was resolved for the *first* provider in the chain, so a real
+     * OpenAI model id ("gpt-4o") got sent straight to Gemini's own API the
+     * moment OpenAI itself failed and the chain fell back — a real,
+     * guaranteed-wrong model for that second provider, not a hypothetical
+     * edge case.
+     *
+     * @param AIProviderInterface $provider Provider to resolve a model for — `get_id()`/`get_available_models()` proxy through any decorator wrapping it back to the real adapter.
+     * @return string Real model id, or '' if this provider has neither a configured default nor any known models.
+     */
+    public function resolve_model_for( AIProviderInterface $provider ): string {
+        return $this->get_default_model( $provider->get_id() ) ?? ( $provider->get_available_models()[0] ?? '' );
     }
 
     /**
