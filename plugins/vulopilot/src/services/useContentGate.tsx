@@ -28,7 +28,7 @@ const DEFAULT_DUMMY_CONTENT = (
 		</div>
 		<ButtonInput
 			position="full-width"
-			buttons={{ text: __('Take Action', 'vulopilot'), icon: 'ai', disabled: true, onClick: () => {} }}
+			buttons={{ text: __('Take Action', 'vulopilot'), icon: 'ai', color: 'orange-bg', disabled: true, onClick: () => {} }}
 		/>
 	</div>
 );

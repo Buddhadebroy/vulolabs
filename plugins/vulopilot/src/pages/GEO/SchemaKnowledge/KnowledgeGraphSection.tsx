@@ -505,7 +505,7 @@ const KnowledgeGraphSection = () => {
 
 	return (
 		<>
-			<ColumnComponent grid={12}>
+			<ColumnComponent >
 				{entities && (
 					<CardComponent
 						title={__('What AI & Search Understand', 'vulopilot')}

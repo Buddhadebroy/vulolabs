@@ -68,9 +68,9 @@ const QuickActionsCard = () => {
 	};
 
 	return (
-		<CardComponent title={__('Quick Actions', 'vulopilot')}>
+		<CardComponent title={__('Quick Actions', 'vulopilot')} titleIcon="ai">
 			<ListComponent
-				className="mini-card"
+				className="mini-card report without-border"
 				border
 				items={QUICK_ACTIONS.map((action) => ({
 					id: action.id,

@@ -44,7 +44,7 @@ const QuickActionsCard = () => {
 	return (
 		<CardComponent title={__('Quick Actions', 'vulopilot')} titleIcon="ai">
 			<ListComponent
-				className="mini-card list"
+				className="mini-card report without-border "
 				border
 				items={[
 					{

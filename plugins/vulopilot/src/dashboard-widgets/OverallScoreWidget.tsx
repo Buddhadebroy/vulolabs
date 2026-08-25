@@ -274,7 +274,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 						}))}
 					/>
 				</ColumnComponent>
-				<ColumnComponent grid={12}>
+				<ColumnComponent >
 					<div className="score-trend-row">
 						{trendItems.map((item) => (
 							<div className="score-trend-item" key={item.key}>

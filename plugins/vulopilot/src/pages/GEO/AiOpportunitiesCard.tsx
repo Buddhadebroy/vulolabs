@@ -55,6 +55,7 @@ const AiOpportunitiesCard: React.FC<AiOpportunitiesCardProps> = ({
 						buttons={{
 							text: __('Fix Everything with AI', 'vulopilot'),
 							icon: 'ai',
+							color: 'orange-bg',
 							disabled: true,
 							onClick: () => {},
 						}}

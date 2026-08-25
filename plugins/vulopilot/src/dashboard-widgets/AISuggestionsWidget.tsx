@@ -83,7 +83,7 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 											buttons={[
 												{
 													icon: 'ai',
-													color: 'border-purple',
+													color: 'orange-bg',
 													text: __('Fix with AI', 'vulopilot'),
 													onClick: (e) => {
 														e.stopPropagation();

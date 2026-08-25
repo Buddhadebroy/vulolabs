@@ -1,7 +1,8 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ChartComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, LegendComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
+import { getSeverityColor } from '../../services/getSeverityClass';
 import './ProtectMySite.scss';
 
 interface FindingRow {
@@ -95,6 +96,7 @@ const FindingsHeroCard = ({
 								<ChartComponent
 									type="pie"
 									height={140}
+									legendPosition="none"
 									centerLabel={
 										<>
 											<span className="findings-hero-chart-number">
@@ -109,47 +111,44 @@ const FindingsHeroCard = ({
 										{
 											label: __('High', 'vulopilot'),
 											value: high,
-											color: '#dc2626',
+											color: getSeverityColor('high'),
 										},
 										{
 											label: __('Medium', 'vulopilot'),
 											value: medium,
-											color: '#d97706',
+											color: getSeverityColor('medium'),
 										},
 										{
 											label: __('Low', 'vulopilot'),
 											value: low,
-											color: '#2563eb',
+											color: getSeverityColor('low'),
 										},
 									]}
 								/>
 							</div>
-							<ul className="efficiency-overview-legend">
-								<li>
-									<span
-										className="efficiency-overview-dot"
-										style={{ background: '#dc2626' }}
-									/>
-									{__('High', 'vulopilot')}
-									<span className="efficiency-overview-count">{high}</span>
-								</li>
-								<li>
-									<span
-										className="efficiency-overview-dot"
-										style={{ background: '#d97706' }}
-									/>
-									{__('Medium', 'vulopilot')}
-									<span className="efficiency-overview-count">{medium}</span>
-								</li>
-								<li>
-									<span
-										className="efficiency-overview-dot"
-										style={{ background: '#2563eb' }}
-									/>
-									{__('Low', 'vulopilot')}
-									<span className="efficiency-overview-count">{low}</span>
-								</li>
-							</ul>
+							<LegendComponent
+								className="efficiency-overview-legend"
+								items={[
+									{
+										key: 'high',
+										label: __('High', 'vulopilot'),
+										value: high,
+										color: getSeverityColor('high'),
+									},
+									{
+										key: 'medium',
+										label: __('Medium', 'vulopilot'),
+										value: medium,
+										color: getSeverityColor('medium'),
+									},
+									{
+										key: 'low',
+										label: __('Low', 'vulopilot'),
+										value: low,
+										color: getSeverityColor('low'),
+									},
+								]}
+							/>
 						</div>
 					)}
 					{total > 0 && (

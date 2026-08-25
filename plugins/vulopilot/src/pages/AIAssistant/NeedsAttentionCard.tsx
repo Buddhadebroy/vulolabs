@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	CardComponent,
 	InformationItemComponent,
@@ -61,13 +61,15 @@ const getScoreTone = (score: number): ScoreTone => {
 	return 'red';
 };
 
-// Same hex values SecurityStatusCard.tsx's own ChartComponent pie already
-// uses for this exact "green/orange/red gauge" pattern (that one only
-// needed two of the three, this one needs the full set).
+// Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — same colors
+// SecurityStatusCard.tsx's own ChartComponent pie uses for this exact
+// "green/orange/red gauge" pattern (that one only needed two of the
+// three, this one needs the full set), read from the one shared source
+// instead of each file guessing its own approximation of "orange".
 const TONE_COLOR: Record<ScoreTone, string> = {
-	green: '#16a34a',
-	orange: '#d97706',
-	red: '#dc2626',
+	green: COLOR_PALETTE.green,
+	orange: COLOR_PALETTE.orange,
+	red: COLOR_PALETTE.red,
 };
 
 const TONE_RATING_LABEL: Record<ScoreTone, string> = {

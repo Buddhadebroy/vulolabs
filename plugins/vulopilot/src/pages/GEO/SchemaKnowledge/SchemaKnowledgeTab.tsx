@@ -33,7 +33,7 @@ interface SchemaKnowledgeTabProps {
  * them (CrawlUrlsTab.tsx), just a clearer visual order:
  *
  * The real "In plain English" `NoticeComponent` above item 1 is wrapped in
- * its own `ColumnComponent grid={12}` — every card row on this page shares
+ * its own `ColumnComponent ` — every card row on this page shares
  * one implicit `.container-wrapper` flex-wrap context (there's no local
  * `ContainerComponent` per row), and `NoticeComponent` itself has no real
  * width of its own (sized to its own text content). Left unwrapped, it
@@ -128,7 +128,7 @@ const SchemaKnowledgeTab = ({
 				)}
 			/>
 
-			<ColumnComponent grid={12}>
+			<ColumnComponent >
 				<NoticeComponent
 					// type="banner"
 					displayPosition="inline"

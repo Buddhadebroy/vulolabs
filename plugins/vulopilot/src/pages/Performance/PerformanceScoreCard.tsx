@@ -1,13 +1,14 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	CardComponent,
 	ChartComponent,
 	ContainerComponent,
 	ColumnComponent,
 	ModuleGuardComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import './Performance.scss';
@@ -58,15 +59,16 @@ const getScoreRating = (score: number): Rating => {
 };
 
 /**
- * The exact same 3 hex values Performance.scss's own `$vulopilot-rating-*`
- * variables already use for this tile's text/badge colors — `ChartComponent`'s
- * own `type="ring"` needs a literal CSS color for its stroke, not a class
- * name, so this mirrors those rather than inventing a 2nd color source.
+ * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — the same real
+ * colors Performance.scss's own `$vulopilot-rating-*` variables now read
+ * too. `ChartComponent`'s own `type="ring"` needs a literal CSS color for
+ * its stroke, not a class name, so this reads the shared source rather
+ * than inventing a 2nd copy of it.
  */
 const RATING_COLOR: Record<Rating['className'], string> = {
-	good: '#16a34a',
-	'needs-improvement': '#d97706',
-	poor: '#dc2626',
+	good: COLOR_PALETTE.green,
+	'needs-improvement': COLOR_PALETTE.orange,
+	poor: COLOR_PALETTE.red,
 };
 
 /** Google's real, public Core Web Vitals thresholds — LCP/INP in ms, CLS unitless. */
@@ -97,25 +99,47 @@ interface VitalRowProps {
 	goodCaption: string;
 }
 
+/**
+ * Same small "status row" ring gauge zyra's own ChartComponent Storybook
+ * `RingRow` story establishes (independent per-metric rings, custom
+ * per-item color, no shared axis) — replacing this row's own linear
+ * fill bar, which plotted the exact same proportional read (`fillPercent`
+ * below, unchanged) just as a bar instead of a ring.
+ */
 const VitalRow = ({ label, displayValue, value, thresholds, goodCaption }: VitalRowProps) => {
 	const rating = getVitalRating(value, thresholds);
-	// Fill width scaled against 1.3x the "needs improvement" ceiling, capped
-	// at 100% — a real proportional read of where this value sits, not a
-	// literal percentile-of-all-sites (no such dataset exists here).
+	// How far this value sits toward 1.3x the "needs improvement" ceiling,
+	// capped at 100 — a real proportional read of where this value sits,
+	// not a literal percentile-of-all-sites (no such dataset exists here).
 	const fillPercent = Math.min(100, (value / (thresholds.needsImprovement * 1.3)) * 100);
 
 	return (
 		<div className="core-web-vital-row">
-			<div className="core-web-vital-row-label">{label}</div>
-			<div className={`core-web-vital-row-value ${rating.className}`}>{displayValue}</div>
-			<div className={`core-web-vital-row-rating ${rating.className}`}>
+			<ChartComponent
+				type="ring"
+				height={90}
+				color={RATING_COLOR[rating.className]}
+				data={[{ value: fillPercent }]}
+				centerLabel={
+					<span className={`core-web-vital-row-value ${rating.className}`}>
+						{displayValue}
+					</span>
+				}
+			/>
+			<TypographyComponent variant="body-sm" className="core-web-vital-row-label">
+				{label}
+			</TypographyComponent>
+			<TypographyComponent
+				variant="body-sm"
+				weight="semibold"
+				className={`core-web-vital-row-rating ${rating.className}`}
+			>
 				<span className="core-web-vital-row-dot" />
 				{rating.label}
-			</div>
-			<div className="core-web-vital-bar">
-				<div className={`core-web-vital-bar-fill ${rating.className}`} style={{ width: `${fillPercent}%` }} />
-			</div>
-			<div className="core-web-vital-row-caption">{goodCaption}</div>
+			</TypographyComponent>
+			<TypographyComponent variant="desc" className="core-web-vital-row-caption">
+				{goodCaption}
+			</TypographyComponent>
 		</div>
 	);
 };
@@ -316,6 +340,8 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 								position="full-width"
 								buttons={{
 									text: __('View Slow Pages', 'vulopilot'),
+									icon: 'eye',
+									color: 'border-purple',
 									onClick: onViewDetails,
 								}}
 							/>
@@ -345,7 +371,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 									)}
 								</div>
 							) : (
-								<>
+								<div className="core-web-vitals-ring-row">
 									{'number' === typeof vitals.lcp_ms && (
 										<VitalRow
 											label={__('Largest Contentful Paint (LCP)', 'vulopilot')}
@@ -373,11 +399,13 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 											goodCaption={__('Good: ≤ 0.1', 'vulopilot')}
 										/>
 									)}
-								</>
+								</div>
 							)}
 							<ButtonInput
+								position='full-width'
 								buttons={{
-									text: `${__('About Core Web Vitals', 'vulopilot')} ↗`,
+									text: `${__('About Core Web Vitals', 'vulopilot')}`,
+									rightIcon: 'external',
 									color: 'border-purple',
 									onClick: () =>
 										window.open(

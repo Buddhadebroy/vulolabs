@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ChartComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, LegendComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { COLOR_PALETTE } from '@zyra/core';
 import type { EfficiencySummary } from './efficiencyChecks';
 
 interface EfficiencyOverviewChartProps {
@@ -12,11 +13,13 @@ interface EfficiencyOverviewChartProps {
 /**
  * The mockup's closing "Efficiency Overview" donut — real
  * working/need-attention/not-applicable counts, same `summary` object
- * every other component on this tab reads. zyra's `ChartComponent`
- * always renders its own "label: value" legend row below the chart with
- * no prop to disable it (same gap AccessibilityHeroCard.tsx's own docblock
- * documents) — hidden here the same `!important` way, in favor of this
- * mockup's own right-aligned dot+label+count list instead.
+ * every other component on this tab reads. zyra's `ChartComponent` used
+ * to always render its own "label: value" legend row below the chart
+ * with no prop to disable it (same gap AccessibilityHeroCard.tsx's own
+ * docblock still documents for its own still-hidden usage) — now a real
+ * `legendPosition="none"`, paired with zyra's own `LegendComponent` for
+ * this mockup's right-aligned dot+label+count list instead of a
+ * `display: none !important` override plus a hand-rolled `<ul>`.
  */
 const EfficiencyOverviewChart = ({
 	summary,
@@ -42,6 +45,7 @@ const EfficiencyOverviewChart = ({
 							<ChartComponent
 								type="pie"
 								height={160}
+								legendPosition="none"
 								centerLabel={
 									<>
 										<span className="efficiency-overview-chart-number">
@@ -56,12 +60,12 @@ const EfficiencyOverviewChart = ({
 									{
 										label: __('Working correctly', 'vulopilot'),
 										value: working,
-										color: '#16a34a',
+										color: COLOR_PALETTE.green,
 									},
 									{
 										label: __('Need attention', 'vulopilot'),
 										value: needAttention,
-										color: '#f97316',
+										color: COLOR_PALETTE.orange,
 									},
 									{
 										label: __('Not applicable', 'vulopilot'),
@@ -71,36 +75,40 @@ const EfficiencyOverviewChart = ({
 								]}
 							/>
 						</div>
-						<ul className="efficiency-overview-legend">
-							<li>
-								<span className="efficiency-overview-dot is-good" />
-								{__('Working correctly', 'vulopilot')}
-								<span className="efficiency-overview-count">{working}</span>
-							</li>
-							<li>
-								<span className="efficiency-overview-dot is-attention" />
-								{__('Need attention', 'vulopilot')}
-								<span className="efficiency-overview-count">
-									{needAttention}
-								</span>
-							</li>
-							<li>
-								<span className="efficiency-overview-dot is-neutral" />
-								{__('Not applicable', 'vulopilot')}
-								<span className="efficiency-overview-count">
-									{notApplicable}
-								</span>
-							</li>
-						</ul>
+						<LegendComponent
+							className="efficiency-overview-legend"
+							items={[
+								{
+									key: 'working',
+									label: __('Working correctly', 'vulopilot'),
+									value: working,
+									color: 'good',
+								},
+								{
+									key: 'need-attention',
+									label: __('Need attention', 'vulopilot'),
+									value: needAttention,
+									color: 'attention',
+								},
+								{
+									key: 'not-applicable',
+									label: __('Not applicable', 'vulopilot'),
+									value: notApplicable,
+									color: 'neutral',
+								},
+							]}
+						/>
 					</div>
 					<ButtonInput
-						wrapperClass="efficiency-overview-view-all"
+						position= 'full-width'
 						buttons={{
 							text: sprintf(
 								/* translators: %d is the total number of efficiency checks. */
-								__('View all checks (%d) →', 'vulopilot'),
+								__('View all checks (%d)', 'vulopilot'),
 								total
 							),
+							icon:"eye",
+							color: 'border-purple',
 							onClick: onViewAll,
 						}}
 					/>

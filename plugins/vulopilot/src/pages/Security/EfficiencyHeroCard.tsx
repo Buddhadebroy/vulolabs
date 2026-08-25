@@ -82,6 +82,7 @@ const EfficiencyHeroCard = ({
 					{needAttention > 0 && (
 						<div className="efficiency-hero-actions">
 							<ButtonInput
+								position= 'full-width'
 								buttons={{
 									text: sprintf(
 										/* translators: %d is the number of efficiency checks that need attention. */
@@ -89,7 +90,7 @@ const EfficiencyHeroCard = ({
 										needAttention
 									),
 									rightIcon: 'pagination-right-arrow',
-									color: 'purple-bg',
+									color: 'border-purple',
 									onClick: onReviewImprovements,
 								}}
 							/>

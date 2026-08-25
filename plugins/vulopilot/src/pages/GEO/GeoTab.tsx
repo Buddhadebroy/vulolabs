@@ -234,7 +234,7 @@ const GeoTab = () => {
 			</div>
 
 			{/*
-			 * `ColumnComponent grid={12}` alone, deliberately NOT also wrapped
+			 * `ColumnComponent ` alone, deliberately NOT also wrapped
 			 * in a `<ContainerComponent>` — same real, confirmed-live layout
 			 * bug the removed "Are You Getting Easier to Find?" row used to
 			 * document here (ContainerComponent's own `.container-wrapper`
@@ -242,7 +242,7 @@ const GeoTab = () => {
 			 * nested inside one just shrinks to its own content's natural
 			 * width instead of the true available row width).
 			 */}
-			<ColumnComponent grid={12}>
+			<ColumnComponent >
 				<GeoVisibilitySummaryCard
 					snapshot={snapshot}
 					history={history}
@@ -259,7 +259,7 @@ const GeoTab = () => {
 				onViewTopic={(key) => goToIssuesTable(key)}
 			/>
 
-			<ColumnComponent grid={12}>
+			<ColumnComponent >
 				{isGeoInsightsActive() && GeoCompetitorVisibility ? (
 					<GeoCompetitorVisibility yourScore={yourScore} />
 				) : (

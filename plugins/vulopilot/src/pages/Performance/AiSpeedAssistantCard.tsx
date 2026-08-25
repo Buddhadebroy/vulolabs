@@ -67,7 +67,7 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 			</div>
 			<ButtonInput
 				position="full-width"
-				buttons={{ text: __('Optimize with AI', 'vulopilot'), icon: 'ai', disabled: true, onClick: () => {} }}
+				buttons={{ text: __('Optimize with AI', 'vulopilot'), icon: 'ai', color: 'orange-bg', disabled: true, onClick: () => {} }}
 			/>
 			<ButtonInput
 				position="full-width"
@@ -110,6 +110,7 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 							buttons={{
 								text: __('Optimize with AI', 'vulopilot'),
 								icon: 'ai',
+								color: 'orange-bg',
 								disabled: true,
 								onClick: () => {},
 							}}

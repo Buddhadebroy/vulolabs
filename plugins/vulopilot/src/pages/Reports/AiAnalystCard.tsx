@@ -42,6 +42,7 @@ const AiAnalystCard = () => (
 					buttons={{
 						text: __('Let AI Execute Recommendations', 'vulopilot'),
 						icon: 'ai',
+						color: 'orange-bg',
 						disabled: true,
 						onClick: () => {},
 					}}

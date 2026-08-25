@@ -705,11 +705,11 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				<AutomationTemplatesCard onSelectTemplate={handleSelectAutomationTemplate} />
 			</ColumnComponent>
 
-			<ColumnComponent grid={12}>
+			<ColumnComponent >
 				<RecentConversationsSection onSelectConversation={handleSelectConversation} />
 			</ColumnComponent>
 
-			<ColumnComponent grid={12}>
+			<ColumnComponent >
 				<SectionComponent
 						title={__('Issues', 'vulopilot')}
 						desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}

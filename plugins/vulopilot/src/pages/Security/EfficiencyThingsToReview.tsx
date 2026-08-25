@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, BadgeComponent, ListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { EfficiencyCheck, EfficiencySummary } from './efficiencyChecks';
 import { THINGS_TO_REVIEW_ID } from './efficiencyChecks';
@@ -50,31 +50,31 @@ const EfficiencyThingsToReview = ({
 		)}
 		{!isLoading && reviewItems.length > 0 && (
 			<>
-				<div className="efficiency-review-list">
-					{reviewItems.map((item) => (
-						<div className="efficiency-review-row" key={item.id}>
-							<i className="adminfont-error efficiency-review-icon" />
-							<div className="efficiency-review-body">
-								<span className="efficiency-review-title">
-									{item.review_title}
-								</span>
-								<span className="efficiency-review-desc">
-									{item.review_description}
-								</span>
-							</div>
-							<BadgeComponent color="badge-open" text={__('Open', 'vulopilot')} />
-						</div>
-					))}
-				</div>
+				<ListComponent
+					className="mini-card report"
+					items={reviewItems.map((item) => ({
+						id: String(item.id),
+						icon: 'error red',
+						title: item.review_title,
+						desc: item.review_description,
+						tags: (
+							<BadgeComponent
+								color="green"
+								text={__('Open', 'vulopilot')}
+							/>
+						),
+					}))}
+				/>
 				{summary && (
 					<ButtonInput
+						position="full-width"
 						buttons={{
 							text: sprintf(
 								/* translators: %d is the total number of efficiency checks. */
 								__('View all efficiency checks (%d) →', 'vulopilot'),
 								summary.total
 							),
-							color: 'text-purple',
+							color: 'border-purple',
 							onClick: onViewAll,
 						}}
 					/>

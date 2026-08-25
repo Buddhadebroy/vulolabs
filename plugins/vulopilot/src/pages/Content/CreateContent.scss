@@ -9,7 +9,7 @@ $content-tool-colors: (
 	'purple': #7c3aed,
 	'green': #16a34a,
 	'blue': #2563eb,
-	'orange': #d97706,
+	'orange': #e67a2e,
 	'red': #dc2626,
 	'indigo': #4f46e5,
 	'teal': #0d9488,
@@ -56,50 +56,91 @@ $content-tool-colors: (
 
 // "Content Quality" (ContentQualityCard.tsx) — real, per-selected-post
 // readability/completeness/structure from GET /content-intelligence/quality.
-// Plain label/value rows rather than a pie-ring score, deliberately — this
-// card has no single aggregate number to plot (see that component's own
-// docblock for why: a second site-wide number was the exact problem being
-// fixed here).
+// The ring/tiles/assessment-list layout below all plot the same 3 real
+// dimensions that component's own docblock already explains (no fabricated
+// 4th metric) — only the visual shape changed, not what's real underneath.
 .content-quality-body {
 	margin-top: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
 }
 
-.content-quality-row {
+.content-quality-overview {
 	display: flex;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 0.75rem;
-	padding: 0.625rem 0;
+	align-items: center;
+	gap: 1.5rem;
+	padding: 1.25rem;
+	border-radius: 0.75rem;
+	background: var(--background-primary, #ece2f9f1);
+}
 
-	+ .content-quality-row {
-		border-top: 1px solid var(--border-color, #eef0f2);
+.content-quality-overview-score {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.content-quality-overview-score-number {
+	font-size: 1.5rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+
+	small {
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--sub-text-color, #6b7280);
 	}
 }
 
-.content-quality-row-label {
-	font-size: 0.813rem;
-	font-weight: 600;
-	color: var(--sub-text-color, #6b7280);
+.content-quality-overview-score-label {
+	margin-top: 0.125rem;
 }
 
-.content-quality-row-value {
-	font-size: 0.875rem;
-	font-weight: 700;
-	color: var(--theme-color, #111827);
-	font-variant-numeric: tabular-nums;
+.content-quality-overview-text {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+}
+
+.content-quality-overview-badge {
+	flex-shrink: 0;
+	align-self: flex-start;
 }
 
 .content-quality-checks {
-	list-style: none;
-	margin: 0 0 0.5rem;
-	padding: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.375rem;
+	gap: 0.5rem;
+}
 
-	li {
-		font-size: 0.8rem;
-	}
+// Each row is now a real `<NoticeComponent displayPosition="inline-notice">`
+// — its own `type-*` CSS already supplies the tinted background/border/
+// padding/radius (NoticeComponent.scss), so this card only needs to place
+// the status badge it renders as that notice's own trailing child.
+.content-quality-check-badge {
+	flex-shrink: 0;
+}
+
+.content-quality-structure-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.625rem;
+}
+
+.content-quality-structure-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 0.5rem;
+	background: var(--background-primary, #ece2f9f1);
+	color: var(--color-primary, #7c3aed);
 }
 
 // "Recent Content" (RecentContentCard.tsx) — real posts/pages/products,
