@@ -460,9 +460,21 @@
 	gap: 1rem;
 	margin-bottom: 1rem;
 
+	// zyra's own `.zyra-chart { width: 100%; }` fills this flex row
+	// entirely when only `flex-shrink: 0` is set (confirmed live: the
+	// ring claimed the full card width, squeezing site-overview-health-text
+	// down to ~60px and overflowing it past the card) — a fixed width
+	// matching the ring's own `height={100}` prop (NeedsAttentionCard.tsx)
+	// keeps it square instead.
 	.zyra-chart {
-		flex-shrink: 0;
+		flex: 0 0 6.25rem;
+		width: 6.25rem;
 	}
+}
+
+.site-overview-health-text {
+	flex: 1;
+	min-width: 0;
 }
 
 .site-overview-ring-number {
