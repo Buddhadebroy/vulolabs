@@ -266,6 +266,36 @@ export default {
 			moduleEnabled: 'geo',
 		},
 		{
+			// Business Identity & Schema's own "Business Profile" card
+			// (BusinessProfileCard.tsx) shows this back as-is under
+			// "Business type" — real, owner-provided, same "no existing
+			// concept to derive this automatically, so it's an
+			// owner-curated field, empty (not fabricated) until set"
+			// posture Services\EntityExtractor's own docblock already
+			// establishes for `entity_service_pages`/`entity_business_locations`
+			// below. A free-text field, not a fixed schema.org @type
+			// picker — this only ever reaches the client as plain display
+			// text (`Controllers\EntityExtraction::get_items()`), it
+			// isn't written into any real Organization/LocalBusiness
+			// JSON-LD anywhere in this codebase.
+			key: 'entity-section-business',
+			type: 'section',
+			title: __('Business', 'vulopilot'),
+			settingDescription: __(
+				'What kind of business this is — shown on the Business Profile card, not written into any structured data.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'entity_business_type',
+			type: 'text',
+			label: __('Business type', 'vulopilot'),
+			settingDescription: __(
+				'e.g. Software Company, Online Store, Consulting Agency.',
+				'vulopilot'
+			),
+		},
+		{
 			key: 'entity-section-services',
 			type: 'section',
 			title: __('Services', 'vulopilot'),

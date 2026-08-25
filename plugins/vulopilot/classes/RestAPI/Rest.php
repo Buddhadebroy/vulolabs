@@ -124,6 +124,7 @@ class Rest {
             'seo_score'                   => new Controllers\Seo(),
             'schema_coverage'             => new Controllers\Schema(),
             'google_services'             => new Controllers\GoogleServices(),
+            'keyword_rankings'            => new Controllers\KeywordRankings(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

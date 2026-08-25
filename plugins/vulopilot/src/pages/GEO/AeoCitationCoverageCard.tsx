@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent,ColumnComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import ProLockedCard from '../../components/ProLockedCard';
+import { useContentGate } from '../../services/useContentGate';
 
 export interface CitationCheckResult {
 	post_id: number;
@@ -90,108 +90,121 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 		{ text: __('Simulated Citation Checks', 'vulopilot'), color: 'purple' },
 	];
 
-	if (!isActive) {
-		return (
-			<ColumnComponent grid={6} fullHeight>
-				<CardComponent
-					title={__('Answer Engine Coverage', 'vulopilot')}
-					titleIcon="global-community"
-					desc={__(
-						'Whether AI answer engines currently cite this site when asked questions its content answers.',
+	// Both 'geo-insights' and 'aeo-insights' are real, independent Pro
+	// modules that unlock this same card (`isActive` above is already
+	// their real OR — see AeoTab.tsx's own `isCitationCheckActive()`), so
+	// this hook's own single-id module check is overridden with that
+	// already-correct boolean; 'aeo-insights' is still what the tag names/
+	// the popup deep-links to, same single target ProLockedCard used here
+	// before.
+	const { wrap } = useContentGate('aeo-insights', isActive);
+
+	const dummyContent = (
+		<>
+			<div className="crawler-stat-value">{sprintf('%d/%d', 3, 5)}</div>
+			<div className="desc">
+				{sprintf(
+					/* translators: %d is a placeholder example percent, not real data. */
+					__(
+						'questions your AI provider already recognized this site for (%d%%).',
 						'vulopilot'
-					)}
-					badges={badges}
-					toggle
-				>
-					<ProLockedCard moduleName="aeo-insights" />
-				</CardComponent>
-			</ColumnComponent>
-		);
-	}
+					),
+					60
+				)}
+			</div>
+		</>
+	);
 
 	return (
 		<ColumnComponent grid={6} fullHeight>
-		<CardComponent
-			title={__('Answer Engine Coverage', 'vulopilot')}
-			titleIcon="global-community"
-			desc={__(
-				"Asks your own configured AI provider real questions from your content — without ever naming your site — and checks whether it already recognizes you as a source. A real, disclosed simulation of what that model already knows, not a live ChatGPT/Perplexity search.",
-				'vulopilot'
-			)}
-			badges={badges}
-			toggle
-			isLoading={isLoading}
-			action={
-				<ButtonInput
-					buttons={{
-						text: isRunning
-							? __('Checking…', 'vulopilot')
-							: coverage?.generated_at
-								? __('Run again', 'vulopilot')
-								: __('Run check', 'vulopilot'),
-						onClick: handleRun,
-						disabled: isRunning,
-					}}
-				/>
-			}
-		>
-			{error && (
-				<ModuleGuardComponent
-					icon="error"
-					title={__('Nothing to test yet', 'vulopilot')}
-					desc={error}
-				/>
-			)}
-			{!error && !isLoading && !coverage?.generated_at && (
-				<ModuleGuardComponent
-					icon="info"
-					title={__('Not run yet', 'vulopilot')}
-					desc={__(
-						'Click "Run check" to ask your configured AI provider a handful of real questions from your own published content.',
-						'vulopilot'
-					)}
-				/>
-			)}
-			{!error && coverage?.generated_at && (
-				<>
-					<div className="crawler-stat-value">
-						{sprintf('%d/%d', coverage.cited, coverage.tested)}
-					</div>
-					<div className="desc">
-						{sprintf(
-							/* translators: %d is the percent of tested questions the AI provider already recognized this site for. */
-							__(
-								'questions your AI provider already recognized this site for (%d%%).',
-								'vulopilot'
-							),
-							coverage.coverage_percent
+			<CardComponent
+				title={__('Answer Engine Coverage', 'vulopilot')}
+				titleIcon="global-community"
+				desc={__(
+					"Asks your own configured AI provider real questions from your content — without ever naming your site — and checks whether it already recognizes you as a source. A real, disclosed simulation of what that model already knows, not a live ChatGPT/Perplexity search.",
+					'vulopilot'
+				)}
+				badges={badges}
+				toggle
+				isLoading={isLoading}
+				action={
+					isActive && (
+						<ButtonInput
+							buttons={{
+								text: isRunning
+									? __('Checking…', 'vulopilot')
+									: coverage?.generated_at
+										? __('Run again', 'vulopilot')
+										: __('Run check', 'vulopilot'),
+								onClick: handleRun,
+								disabled: isRunning,
+							}}
+						/>
+					)
+				}
+			>
+				{wrap(
+					<>
+						{error && (
+							<ModuleGuardComponent
+								icon="error"
+								title={__('Nothing to test yet', 'vulopilot')}
+								desc={error}
+							/>
 						)}
-					</div>
-					<table className="geo-competitor-visibility__table">
-						<thead>
-							<tr>
-								<th>{__('Question', 'vulopilot')}</th>
-								<th>{__('Source', 'vulopilot')}</th>
-								<th>{__('Recognized?', 'vulopilot')}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{coverage.results.map((row) => (
-								<tr key={row.post_id}>
-									<td>{row.question}</td>
-									<td>
-										{row.from_content
-											? __('From your content', 'vulopilot')
-											: __('From page title', 'vulopilot')}
-									</td>
-									<td>{row.cited ? '✓' : '—'}</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</>
-			)}
-		</CardComponent>
+						{!error && !isLoading && !coverage?.generated_at && (
+							<ModuleGuardComponent
+								icon="info"
+								title={__('Not run yet', 'vulopilot')}
+								desc={__(
+									'Click "Run check" to ask your configured AI provider a handful of real questions from your own published content.',
+									'vulopilot'
+								)}
+							/>
+						)}
+						{!error && coverage?.generated_at && (
+							<>
+								<div className="crawler-stat-value">
+									{sprintf('%d/%d', coverage.cited, coverage.tested)}
+								</div>
+								<div className="desc">
+									{sprintf(
+										/* translators: %d is the percent of tested questions the AI provider already recognized this site for. */
+										__(
+											'questions your AI provider already recognized this site for (%d%%).',
+											'vulopilot'
+										),
+										coverage.coverage_percent
+									)}
+								</div>
+								<table className="geo-competitor-visibility__table">
+									<thead>
+										<tr>
+											<th>{__('Question', 'vulopilot')}</th>
+											<th>{__('Source', 'vulopilot')}</th>
+											<th>{__('Recognized?', 'vulopilot')}</th>
+										</tr>
+									</thead>
+									<tbody>
+										{coverage.results.map((row) => (
+											<tr key={row.post_id}>
+												<td>{row.question}</td>
+												<td>
+													{row.from_content
+														? __('From your content', 'vulopilot')
+														: __('From page title', 'vulopilot')}
+												</td>
+												<td>{row.cited ? '✓' : '—'}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</>
+						)}
+					</>,
+					dummyContent
+				)}
+			</CardComponent>
 		</ColumnComponent>
 	);
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { SectionComponent, ListComponent } from '@zyra/components';
+import { SectionComponent, ListComponent, CardComponent } from '@zyra/components';
 import { AUTOMATION_TEMPLATES, AutomationTemplate } from './automationsTemplates';
 
 interface AutomationsTemplatesCardProps {
@@ -21,23 +21,23 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	onSelectTemplate,
 }) => (
 		<>
-		<SectionComponent
-			title={__('Create new automation', 'vulopilot')}
-			desc={__('Start with a template or build your own.', 'vulopilot')}
-		/>
-		<ListComponent
-			className="tool-grid"
-			items={AUTOMATION_TEMPLATES.map((template) => ({
-				id: template.id,
-				icon: template.icon,
-				title: template.label,
-				desc: template.description,
-				tags: (
-					<i className="adminfont-pagination-right-arrow ai-copilot-row-arrow" />
-				),
-				action: () => onSelectTemplate(template),
-			}))}
-		/>
+		<CardComponent
+			title={ __( 'Create new automation', 'vulopilot-pro' ) } titleIcon="analytics"
+		>
+			<ListComponent
+				className="mini-card report"
+				items={AUTOMATION_TEMPLATES.map((template) => ({
+					id: template.id,
+					icon: template.icon,
+					title: template.label,
+					desc: template.description,
+					tags: (
+						<i className="adminfont-pagination-right-arrow ai-copilot-row-arrow" />
+					),
+					action: () => onSelectTemplate(template),
+				}))}
+			/>
+		</CardComponent>
 		</>
 );
 

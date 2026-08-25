@@ -36,6 +36,13 @@ class GoogleAnalyticsClient {
     private const DATA_STREAMS_URL = 'https://analyticsadmin.googleapis.com/v1beta/%s/dataStreams';
 
     /**
+     * A different real Google API entirely from the two above (GA4 Data
+     * API, not Admin API) — `%s` is a real `properties/{id}` resource name,
+     * same shape `list_data_streams()`'s own `sprintf()` already uses.
+     */
+    private const RUN_REPORT_URL = 'https://analyticsdata.googleapis.com/v1beta/%s:runReport';
+
+    /**
      * @var GoogleServicesConnection
      */
     private GoogleServicesConnection $connection;
@@ -148,5 +155,86 @@ class GoogleAnalyticsClient {
                 $streams
             )
         );
+    }
+
+    /**
+     * Real `POST .../v1beta/{property}:runReport` — real daily GA4
+     * `sessions` counts for a real, already-connected property, one row
+     * per real calendar day GA4 has data for. Backs Keywords' own
+     * "Estimated Traffic" card (Controllers\KeywordRankings::get_summary())
+     * when a GA4 property has actually been selected
+     * (GoogleServicesConnection's own `ga4_property_id`) — that card falls
+     * back to real Search Console click totals otherwise, never a
+     * fabricated number either way. A single `date`-dimensioned call
+     * covering the whole requested range (rather than two separate
+     * current/previous-period totals calls) so the caller can both sum a
+     * period's total AND build a real day-by-day trend sparkline from one
+     * real API round trip.
+     *
+     * @param string $property_id A real `property_id` (GoogleServicesConnection::get_status()'s own `ga4_property_id`).
+     * @param string $start_date  `Y-m-d`.
+     * @param string $end_date    `Y-m-d`.
+     * @return array<string, int>|\WP_Error `Y-m-d` => real session count, only for days GA4 actually returned a row.
+     */
+    public function run_sessions_report( string $property_id, string $start_date, string $end_date ) {
+        $token = $this->connection->get_valid_access_token();
+
+        if ( ! $token ) {
+            return new \WP_Error( 'vulopilot_ga4_not_connected', __( 'Not connected to Google.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        $response = wp_remote_post(
+            sprintf( self::RUN_REPORT_URL, 'properties/' . $property_id ),
+            array(
+                'timeout' => 30,
+                'headers' => array(
+                    'Authorization' => 'Bearer ' . $token,
+                    'Content-Type'  => 'application/json',
+                ),
+                'body'    => wp_json_encode(
+                    array(
+                        'dateRanges' => array(
+                            array(
+                                'startDate' => $start_date,
+                                'endDate'   => $end_date,
+                            ),
+                        ),
+                        'dimensions' => array( array( 'name' => 'date' ) ),
+                        'metrics'    => array( array( 'name' => 'sessions' ) ),
+                        'limit'      => 1000,
+                    )
+                ),
+            )
+        );
+
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
+        if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+            return new \WP_Error( 'vulopilot_ga4_report_failed', __( 'Could not fetch your Google Analytics traffic.', 'vulopilot' ), array( 'status' => 502 ) );
+        }
+
+        $body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+
+        $sessions_by_date = array();
+
+        foreach ( (array) ( $body['rows'] ?? array() ) as $row ) {
+            // GA4's own `YYYYMMDD` date-dimension format, normalized to
+            // `Y-m-d` so this matches every other date this codebase
+            // stores/compares (`snapshot_date` etc.) rather than
+            // introducing a second date format for callers to juggle.
+            $raw_date = (string) ( $row['dimensionValues'][0]['value'] ?? '' );
+
+            if ( 8 !== strlen( $raw_date ) ) {
+                continue;
+            }
+
+            $normalized_date = substr( $raw_date, 0, 4 ) . '-' . substr( $raw_date, 4, 2 ) . '-' . substr( $raw_date, 6, 2 );
+
+            $sessions_by_date[ $normalized_date ] = (int) ( $row['metricValues'][0]['value'] ?? 0 );
+        }
+
+        return $sessions_by_date;
     }
 }

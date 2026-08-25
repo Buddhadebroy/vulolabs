@@ -81,6 +81,14 @@ class Utill {
         // (vulopilot-pro's BrandIntelligence module), same precedent
         // 'brand_score_history' above already sets.
         'brand_mention'              => 'vulopilot_brand_mentions',
+        // Real Search Console `searchAnalytics.query` snapshots (SEO &
+        // Visibility → Keywords) — one row per (query, page, snapshot_date)
+        // captured on each real sync (Services\KeywordRankingsSyncService),
+        // never one row per query overwritten in place: the whole point is
+        // a real day-over-day history so "Previous"/"Change"/"Best
+        // Position" and the trend sparklines are computed from actual past
+        // snapshots, not invented. See that service's own docblock.
+        'keyword_ranking'            => 'vulopilot_keyword_rankings',
     );
 
     /**
@@ -789,10 +797,16 @@ class Utill {
         // refresh instead of only showing right after a click.
         'crawler_alert_last_test_sent'           => '',
         // Scanning > Entity Extraction (KNOWLEDGE-GRAPH-MODULE.md). Read by
-        // Services\EntityExtractor. Newline-separated page URLs/ids — this
-        // codebase has no existing Service concept to derive these from
-        // automatically, so the site owner explicitly curates which real
-        // published pages are "services."
+        // Services\EntityExtractor. Free text — no schema.org @type or
+        // WooCommerce/existing setting anywhere in this codebase implies a
+        // business type, so the site owner provides it directly. Shown
+        // as-is on the Business Profile card; never written into any real
+        // Organization/LocalBusiness JSON-LD.
+        'entity_business_type'                  => '',
+        // Newline-separated page URLs/ids — this codebase has no existing
+        // Service concept to derive these from automatically, so the site
+        // owner explicitly curates which real published pages are
+        // "services."
         'entity_service_pages'                  => '',
         // Newline-separated `Name | Address` lines — same reasoning as
         // 'entity_service_pages' above, for Location entities (no

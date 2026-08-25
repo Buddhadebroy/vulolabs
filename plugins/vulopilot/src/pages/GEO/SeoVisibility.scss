@@ -1673,9 +1673,70 @@ $seo-area-icon-colors: (
 	align-items: center;
 	gap: 0.75rem;
 	margin-bottom: 1rem;
+	flex-wrap: wrap;
 
 	i {
 		margin-right: 0.25rem;
+	}
+}
+
+// KeywordsTab.tsx's real 6-stat-card row (Total Keywords/Top 3/Top 10/Avg.
+// Position/Estimated Traffic/Impressions) — each card's own real trend
+// sparkline is zyra ChartComponent's `type="area" sparkline` mode, fed real
+// `vulopilot_keyword_rankings` history (Controllers\KeywordRankings::get_summary()'s
+// own `trend` block), not a decorative shape.
+.keyword-stat-card {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.keyword-stat-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	font-weight: 500;
+
+	i {
+		font-size: 0.9375rem;
+		color: $theme-color;
+	}
+}
+
+.keyword-stat-value {
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.keyword-stat-note {
+	color: $sub-text-color;
+	font-size: 0.6875rem;
+}
+
+.keyword-stat-sparkline {
+	margin-top: 0.25rem;
+}
+
+// PositionChangeCell (Ranking Keywords table's own "Change" column) — a
+// real query with no row on the previous real sync date at all, told apart
+// from a real "no change" (.crawler-change.is-neutral, reused as-is).
+.keyword-change-new {
+	color: $theme-color;
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+.keyword-view-page-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: $theme-color;
+
+	i {
+		font-size: 0.9375rem;
 	}
 }
 
@@ -1862,3 +1923,231 @@ $seo-area-icon-colors: (
             }
         }
     }
+
+// BusinessProfileCard.tsx — score gauge / real per-field table / real
+// "Update Information" side panel, 3 up in one row (matches the reference
+// mockup's own layout); stacks to one column on narrow viewports since a
+// 3-way split of the real table's own columns has no sensible narrower
+// layout otherwise.
+.business-profile-grid {
+	display: grid;
+	grid-template-columns: minmax(11rem, 0.8fr) minmax(18rem, 2fr) minmax(11rem, 0.8fr);
+	gap: 1.5rem;
+	align-items: start;
+
+	@media (max-width: 900px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.business-profile-gauge-col {
+	// Same real `.business-score-gauge`/`.business-score-badge`/
+	// `.business-score-caption` classes BusinessUnderstandingCard.tsx's
+	// own gauge already used, unchanged — see this stylesheet's own
+	// earlier rules for those.
+	border-right: $border-light-small;
+	padding-right: 1.5rem;
+
+	@media (max-width: 900px) {
+		border-right: none;
+		padding-right: 0;
+		border-bottom: $border-light-small;
+		padding-bottom: 1.5rem;
+	}
+}
+
+.business-profile-table-col {
+	min-width: 0;
+}
+
+.business-profile-table {
+	th:nth-child(2),
+	td:nth-child(2) {
+		color: $sub-text-color;
+	}
+
+	th:nth-child(3),
+	td:nth-child(3) {
+		text-align: right;
+		white-space: nowrap;
+	}
+}
+
+.business-profile-confidence {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	margin-right: 0.375rem;
+}
+
+.business-profile-status-icon {
+	font-size: 0.875rem;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-poor {
+		color: #dc2626;
+	}
+}
+
+.business-profile-side-col {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.75rem;
+	background: $theme-background-color;
+	border-radius: 0.5rem;
+	padding: 1rem;
+}
+
+.business-profile-side-icon {
+	width: 2.25rem;
+	height: 2.25rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: #f3effc;
+	color: $theme-color;
+	font-size: 1rem;
+}
+
+// KnowledgeGraphDiagramCard.tsx's real hub-and-spoke diagram — rendered by
+// KnowledgeGraphSection.tsx's own "What AI & Search Understand" card, in
+// its `.kg-understand-graph` pane (one of 3 columns sharing that card's
+// own row) — sized for that pane so 5 satellite boxes don't collide in
+// it, this diagram's only remaining render site.
+.kg-diagram-wrap {
+	position: relative;
+	height: 12.5rem;
+}
+
+.kg-diagram-lines {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+
+	line {
+		stroke: $theme-color;
+		stroke-width: 0.4;
+		stroke-dasharray: 2 2;
+		opacity: 0.5;
+		vector-effect: non-scaling-stroke;
+	}
+}
+
+.kg-diagram-node {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	text-align: center;
+	transform: translate(-50%, -50%);
+}
+
+.kg-diagram-node--center {
+	left: 50%;
+	top: 50%;
+	width: 5.5rem;
+	z-index: 1;
+	background: $color-primary-background;
+	border: $border-theme-medium;
+	border-radius: 0.75rem;
+	padding: 0.625rem 0.5rem;
+}
+
+.kg-diagram-node-center-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	background: $color-white;
+	color: $theme-color;
+	font-size: 0.8125rem;
+}
+
+.kg-diagram-node-center-name {
+	font-size: 0.625rem;
+	font-weight: 700;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 100%;
+}
+
+.kg-diagram-node-center-sub {
+	font-size: 0.5625rem;
+	color: $theme-color;
+}
+
+.kg-diagram-node--satellite {
+	width: 5rem;
+}
+
+.kg-diagram-node-label {
+	font-size: 0.5625rem;
+	color: $sub-text-color;
+}
+
+// The real per-node status box — found (plain), missing (a real, fixable
+// gap, styled as an actionable alert), not-applicable (a real "doesn't
+// apply to this site" state, styled as a neutral note rather than an
+// alert since there's nothing to fix). Same amber #fef3c7/#b45309 pairing
+// $.kg-glance-icon.is-attention already uses above for this exact
+// "needs attention" meaning, reused here instead of a 3rd ad hoc color.
+.kg-diagram-node-box {
+	width: 100%;
+	background: $color-white;
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	padding: 0.25rem 0.375rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.125rem;
+
+	&.is-missing {
+		background: #fef3c7;
+		border: 1.5px dashed #b45309;
+	}
+
+	&.is-na {
+		background: $theme-background-color;
+		border-style: dashed;
+	}
+}
+
+.kg-diagram-node-value {
+	font-size: 0.625rem;
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 100%;
+}
+
+.kg-diagram-node-missing-text {
+	font-size: 0.625rem;
+	font-weight: 600;
+	color: #b45309;
+}
+
+.kg-diagram-node-na-text {
+	font-size: 0.625rem;
+	color: $sub-text-color;
+}
+
+.kg-diagram-node-cta {
+	font-size: 0.625rem;
+	font-weight: 600;
+	color: $theme-color;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
