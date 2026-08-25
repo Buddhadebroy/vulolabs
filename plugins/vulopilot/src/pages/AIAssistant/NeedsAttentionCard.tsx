@@ -8,7 +8,9 @@ import {
 	ModuleGuardComponent,
 	ChartComponent,
 	ListComponent,
+	TypographyComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import './AICopilot.scss';
 
 /**
@@ -185,14 +187,20 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 							data={[{ value: summary.overall_score }]}
 						/>
 						<div className="site-overview-health-text">
-							<div className="site-overview-health-title">
+							<TypographyComponent
+								variant="body-md"
+								weight="semibold"
+								className="site-overview-health-title"
+							>
 								{__('Overall Health', 'vulopilot')}
-							</div>
-							<div
-								className={`site-overview-health-rating tone-${overallTone}`}
+							</TypographyComponent>
+							<TypographyComponent
+								variant="h5"
+								weight="semibold"
+								color={overallTone}
 							>
 								{TONE_RATING_LABEL[overallTone]}
-							</div>
+							</TypographyComponent>
 						</div>
 					</div>
 
@@ -204,7 +212,7 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 					    exactly this row's icon+label…score shape without hand-rolling a
 					    new row layout. */}
 					<ListComponent
-						className="mini-card report"
+						className="mini-card report without-border"
 						items={scoreRows.map((row) => {
 							const tone = getScoreTone(row.score);
 
@@ -213,35 +221,48 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 								icon: row.icon,
 								title: row.label,
 								tags: (
-									<span
-										className={`site-overview-score-row-value tone-${tone}`}
+									<TypographyComponent
+										as="span"
+										variant="body-md"
+										weight="bold"
+										color={tone}
+										className="site-overview-score-row-value"
 									>
 										{row.score}
-										<span className="site-overview-score-row-suffix">
+										<TypographyComponent
+											as="span"
+											variant="body-md"
+											className="site-overview-score-row-suffix"
+										>
 											/100
-										</span>
-									</span>
+										</TypographyComponent>
+									</TypographyComponent>
 								),
 							};
 						})}
 					/>
 
 					<div className="site-overview-footer">
-						<span className="site-overview-footer-count">
+						<TypographyComponent
+							variant="desc"
+						>
 							{sprintf(
 								/* translators: %d: number of real open findings across the site */
 								__('%d open issues found', 'vulopilot'),
 								summary.open_findings
 							)}
-						</span>
-						<span
-							className="site-overview-footer-link"
-							onClick={goToAllIssues}
-						>
-							{__('View all issues', 'vulopilot')}{' '}
-							<i className="adminfont-pagination-right-arrow" />
-						</span>
+						</TypographyComponent>
+						<ButtonInput
+							wrapperClass="site-overview-footer-link"
+							buttons={{
+								text: __('View all issues', 'vulopilot'),
+								rightIcon: 'pagination-right-arrow',
+								color: 'text-purple',
+								onClick: goToAllIssues,
+							}}
+						/>
 					</div>
+
 				</>
 			)}
 		</CardComponent>

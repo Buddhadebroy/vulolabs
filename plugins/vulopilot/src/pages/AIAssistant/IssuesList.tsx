@@ -249,7 +249,11 @@ const IssuesList: React.FC<IssuesListProps> = ({
 									width: '70%',
 									render: (row: FindingGroup) => (
 										<InformationItemComponent
-											avatar={{ iconClass: 'search-discovery pink' }}
+											avatar={{
+												iconClass:
+													CATEGORY_ICONS[row.category] ??
+													'search-discovery pink',
+											}}
 											title={row.label}
 											descriptions={[
 												{
@@ -282,6 +286,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 								},
 								action: {
 									label: __('Affected', 'vulopilot'),
+									type: 'action',
 									render: (row: FindingGroup) => {
 										const isActiveRow =
 											row.scanner_id === selectedGroup?.scanner_id;

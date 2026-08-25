@@ -24,25 +24,21 @@ import './CreateContent.scss';
  */
 const OverviewTab: React.FC = () => {
 	return (
-		<>
-			<ContainerComponent general>
-				<ColumnComponent grid={8}>
-					<AiContentAssistantSidebar />
-					<ContentToolsGrid />
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<ContentStatsCard />
-					<QuickActionsCard />
-					<ContentQualityCard />
-				</ColumnComponent>
-			</ContainerComponent>
+		<ContainerComponent general>
+			<ColumnComponent grid={8}>
+				<AiContentAssistantSidebar />
+				<ContentToolsGrid />
+			</ColumnComponent>
+			<ColumnComponent grid={4}>
+				<ContentStatsCard />
+				<ContentQualityCard />
+				<QuickActionsCard />
+			</ColumnComponent>
 
-			<ContainerComponent general>
-				<ColumnComponent grid={12}>
-					<RecentContentCard />
-				</ColumnComponent>
-			</ContainerComponent>
-		</>
+			<ColumnComponent grid={12}>
+				<RecentContentCard />
+			</ColumnComponent>
+		</ContainerComponent>
 	);
 };
 

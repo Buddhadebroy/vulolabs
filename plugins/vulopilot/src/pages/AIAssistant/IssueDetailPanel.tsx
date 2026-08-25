@@ -496,6 +496,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						{
 							text: __('Fix with AI', 'vulopilot'),
 							icon: 'ai',
+							color: 'orange-bg',
 							onClick: handleFix,
 							disabled: isBusy,
 						},

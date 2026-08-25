@@ -3,8 +3,11 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse } from '@zyra/core';
+import {
+	MetricTileComponent,
+	MetricTileGridComponent,
+} from '@zyra/components';
 import { useSectionStatus } from '../../services/useSectionStatus';
-import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 import './Performance.scss';
 
 interface MetricTileData {
@@ -210,13 +213,12 @@ const MetricsGrid = ({
 	};
 
 	return (
-		<MetricTileGrid variant="performance">
+		<MetricTileGridComponent cols={3}>
 			{METRIC_TILES.map((tile) => {
 				const badge = badgeFor(tile.id);
 				return (
-					<MetricTile
+					<MetricTileComponent
 						key={tile.id}
-						variant="performance"
 						icon={tile.icon}
 						title={tile.title}
 						badge={badge}
@@ -232,10 +234,10 @@ const MetricsGrid = ({
 						}
 					>
 						<div className="desc">{tile.desc}</div>
-					</MetricTile>
+					</MetricTileComponent>
 				);
 			})}
-		</MetricTileGrid>
+		</MetricTileGridComponent>
 	);
 };
 
