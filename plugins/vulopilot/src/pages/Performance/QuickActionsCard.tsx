@@ -2,7 +2,12 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { CardComponent, ListComponent, NoticeManager } from '@zyra/components';
+import {
+	CardComponent,
+	ListComponent,
+	NoticeManager,
+	NoticeReceiverComponent,
+} from '@zyra/components';
 import './Performance.scss';
 
 interface QuickAction {
@@ -24,17 +29,29 @@ const QUICK_ACTIONS: QuickAction[] = [
 	{ id: 'image-cleanup', icon: 'delete', label: __('Image Cleanup', 'vulopilot') },
 	{ id: 'lazy-loading', icon: 'eye', label: __('Enable Lazy Loading', 'vulopilot') },
 	{ id: 'preload-resources', icon: 'cloud-upload', label: __('Preload Critical Resources', 'vulopilot') },
+	{ id: 'browser-caching', icon: 'global-community', label: __('Enable Browser Caching', 'vulopilot') },
 ];
 
 /**
- * "Quick Actions" — each of the 7 buttons is a real
+ * "Quick Actions" — each of the 8 buttons is a real
  * `POST /performance-actions/{id}` call (`classes/RestAPI/Controllers/
  * PerformanceActions.php`): cache flush, DB cleanup, image cleanup, and the
- * two toggles always genuinely happen; image optimization regenerates real
- * thumbnails; minify is the one action that honestly reports "nothing to
- * do" when no minification-capable plugin is active, rather than
- * pretending to have minified anything. The result toast always shows the
- * backend's own real, specific message.
+ * three toggles (lazy loading, preload, browser caching) always genuinely
+ * happen; image optimization regenerates real thumbnails; minify and
+ * browser-caching are the two actions that honestly report "nothing to
+ * do"/failure (no minification plugin active; `.htaccess` not writable)
+ * rather than pretending to have succeeded. The result notice always shows
+ * the backend's own real, specific message — rendered inline in this card
+ * (`position: 'notice'` + `NoticeReceiverComponent`, the same boxed style
+ * `NoticeComponent`'s own default `displayPosition="notice"` uses
+ * elsewhere) per direct instruction, not as a floating toast. A finite
+ * validity (`5000`) is passed explicitly since `NoticeManager.add()` only
+ * auto-expires `position: 'float'` items by default — anything else is
+ * `'lifetime'`, and a plain-string message here renders no close icon
+ * (`renderNoticeContent()` only adds one for an array `message`), so
+ * without an explicit validity the notice would never go away, and a
+ * second click of the same action would silently no-op (`add()` skips a
+ * still-queued `uniqueKey`).
  */
 const QuickActionsCard = () => {
 	const [runningActionId, setRunningActionId] = useState<string | null>(null);
@@ -52,17 +69,20 @@ const QuickActionsCard = () => {
 			{}
 		)
 			.then((response) => {
-				NoticeManager.add({
-					uniqueKey: `speed-quick-action-${action.id}`,
-					type: response && response.success ? 'success' : 'info',
-					position: 'float',
-					message: response
-						? response.message
-						: __(
-								'Could not run this action — please try again.',
-								'vulopilot'
-							),
-				});
+				NoticeManager.add(
+					{
+						uniqueKey: `speed-quick-action-${action.id}`,
+						type: response && response.success ? 'success' : 'info',
+						position: 'notice',
+						message: response
+							? response.message
+							: __(
+									'Could not run this action — please try again.',
+									'vulopilot'
+								),
+					},
+					5000
+				);
 			})
 			.finally(() => setRunningActionId(null));
 	};
@@ -85,6 +105,7 @@ const QuickActionsCard = () => {
 					action: () => runAction(action),
 				}))}
 			/>
+			<NoticeReceiverComponent position="notice" />
 		</CardComponent>
 	);
 };

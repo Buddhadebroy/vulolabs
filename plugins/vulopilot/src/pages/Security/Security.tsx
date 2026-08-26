@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { NavigatorHeaderComponent } from '@zyra/components';
+import { ContainerComponent, NavigatorHeaderComponent } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import SecurityTab from './SecurityTab';
 

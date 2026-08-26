@@ -21,6 +21,7 @@ import AccessibilityChecksGrid from './AccessibilityChecksGrid';
 import AccessibilityPriorityList from './AccessibilityPriorityList';
 import AccessibilityManualTestingPanel from './AccessibilityManualTestingPanel';
 import AccessibilityWcagNotice from './AccessibilityWcagNotice';
+import WhyAccessibilityMattersCard from './WhyAccessibilityMattersCard';
 import { ACCESSIBILITY_CHECKS } from './accessibilityChecks';
 
 /** Anchor id "Review Important Issues"/the empty state scroll to. */
@@ -168,6 +169,11 @@ const AccessibilityHistoryLockedCard = () => {
  * permanently miss it and show the locked teaser even with the module
  * genuinely active.
  *
+ * The history-trend slot is paired grid={8}/grid={4} with
+ * WhyAccessibilityMattersCard (per reference mockup) — static explainer
+ * copy, not license-gated like the chart beside it, since there's no real
+ * data behind those 4 points to withhold.
+ *
  * Closes with PluginOverlapCard (`../Security/`) filtered to
  * `category="accessibility"` — real cross-sell (e.g. WP Accessibility
  * active → VuloPilot's own Accessibility Guard) surfaced in the page a
@@ -245,12 +251,18 @@ const Accessibility = () => {
 						onTabChange={setActiveTab}
 					/>
 				</ColumnComponent>
-				<ColumnComponent>
+				<ColumnComponent grid={8}>
 					{AccessibilityHistoryPanel ? (
 						<AccessibilityHistoryPanel />
 					) : (
 						<AccessibilityHistoryLockedCard />
 					)}
+				</ColumnComponent>
+				<ColumnComponent grid={4}>
+					<WhyAccessibilityMattersCard />
+				</ColumnComponent>
+
+				<ColumnComponent>
 					<PluginOverlapCard category="accessibility" />
 				</ColumnComponent>
 			</ContainerComponent>

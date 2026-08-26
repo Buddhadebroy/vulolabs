@@ -18,7 +18,10 @@ defined( 'ABSPATH' ) || exit;
  * Called by real visitors' browsers (public/js/performance-vitals-beacon.js,
  * enqueued by Services\CoreWebVitalsBeacon), so it can't use a nonce the
  * way every logged-in-admin route here does — every value is sanitized
- * and range-clamped rather than trusted, and the whole endpoint is
+ * and range-clamped rather than trusted (including `page_load_ms`/
+ * `transfer_bytes` — real Navigation/Resource Timing reads, same
+ * clamp-don't-trust treatment as the 3 Core Web Vitals), and the whole
+ * endpoint is
  * rate-limited by a single global rolling-window counter (deliberately
  * **not** keyed on the visitor's IP — this codebase has twice already
  * promised never to log or key anything on IP, see
@@ -56,6 +59,13 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
     private const MAX_CLS_THOUSANDTHS = 10000;
 
     /**
+     * A real page transfer is never above 500MB — anything past this is
+     * treated as unmeasured rather than trusted, same "clamp, don't trust"
+     * posture as MAX_MS/MAX_CLS_THOUSANDTHS above.
+     */
+    private const MAX_TRANSFER_BYTES = 500 * MB_IN_BYTES;
+
+    /**
      * Registers POST /performance-vitals-beacon.
      *
      * @inheritDoc
@@ -86,12 +96,14 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
         $lcp_ms          = $this->sanitize_ms( $request->get_param( 'lcp_ms' ) );
         $inp_ms          = $this->sanitize_ms( $request->get_param( 'inp_ms' ) );
         $cls_thousandths = $this->sanitize_cls( $request->get_param( 'cls_thousandths' ) );
+        $page_load_ms    = $this->sanitize_ms( $request->get_param( 'page_load_ms' ) );
+        $transfer_bytes  = $this->sanitize_bytes( $request->get_param( 'transfer_bytes' ) );
 
-        if ( null === $lcp_ms && null === $inp_ms && null === $cls_thousandths ) {
+        if ( null === $lcp_ms && null === $inp_ms && null === $cls_thousandths && null === $page_load_ms && null === $transfer_bytes ) {
             return new \WP_Error( 'vulopilot_no_metrics', __( 'No usable metrics in this request.', 'vulopilot' ), array( 'status' => 400 ) );
         }
 
-        ( new CoreWebVitalsRepository() )->record( $lcp_ms, $cls_thousandths, $inp_ms );
+        ( new CoreWebVitalsRepository() )->record( $lcp_ms, $cls_thousandths, $inp_ms, $page_load_ms, $transfer_bytes );
 
         return rest_ensure_response( array( 'recorded' => true ) );
     }
@@ -122,6 +134,20 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
         $thousandths = (int) round( (float) $value );
 
         return ( $thousandths >= 0 && $thousandths <= self::MAX_CLS_THOUSANDTHS ) ? $thousandths : null;
+    }
+
+    /**
+     * @param mixed $value Raw request value — real summed Navigation+Resource Timing `transferSize`, in bytes.
+     * @return int|null
+     */
+    private function sanitize_bytes( $value ): ?int {
+        if ( ! is_numeric( $value ) ) {
+            return null;
+        }
+
+        $bytes = (int) round( (float) $value );
+
+        return ( $bytes >= 0 && $bytes <= self::MAX_TRANSFER_BYTES ) ? $bytes : null;
     }
 
     /**
