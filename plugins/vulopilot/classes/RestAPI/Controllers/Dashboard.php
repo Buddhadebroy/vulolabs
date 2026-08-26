@@ -69,21 +69,22 @@ class Dashboard extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function get_items( $request ) {
-        $findings    = new FindingRepository();
-        $automations = new AutomationsRepository();
-        $action_runs = new ActionRunRepository();
-        $ai_usage    = $this->build_ai_usage_this_month();
+        $findings        = new FindingRepository();
+        $automations     = new AutomationsRepository();
+        $action_runs     = new ActionRunRepository();
+        $ai_usage        = $this->build_ai_usage_this_month();
+        $category_scores = $this->build_category_scores( $findings );
 
         return rest_ensure_response(
             array(
-                'overall_score'            => $this->calculate_overall_score( $findings ),
+                'overall_score'            => $this->calculate_overall_score( $category_scores ),
                 'open_findings'            => $this->count_open_findings( $findings ),
                 'critical_findings'        => $findings->count_by_severity( Severity::CRITICAL ),
                 'findings_by_severity'     => $this->build_findings_by_severity( $findings ),
                 'active_automations'       => $automations->count_enabled(),
                 'ai_jobs_used'             => $ai_usage['ai_jobs_used'],
                 'ai_jobs_quota'            => $ai_usage['ai_jobs_quota'],
-                'category_scores'          => $this->build_category_scores( $findings ),
+                'category_scores'          => $category_scores,
                 'psi_speed_scores'         => $this->build_psi_speed_scores(),
                 'category_scores_7d_ago'   => $this->build_category_scores_as_of( $findings, gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ),
                 // Dashboard's "Good / N open findings" hero badges — real
@@ -403,20 +404,42 @@ class Dashboard extends \WP_REST_Controller {
     }
 
     /**
-     * Same weighting ScanPersistenceListener uses when it upserts the
-     * daily snapshot — kept identical so the dashboard's headline score
-     * always matches what the trend chart's most recent point says.
+     * "Overall Health" — the average of every applicable category's own
+     * already-computed, already-displayed 0-100 score (build_category_scores()'s
+     * return value), not an independent raw severity-count formula run
+     * across every open finding sitewide in one combined total.
      *
-     * @param FindingRepository $findings Repository to read counts from.
+     * That combined-total formula is what this method used to do, and on
+     * any real, actively-scanned site it saturates almost immediately:
+     * confirmed live on this site's own 507 open findings (238 of them
+     * `high`, weighted 8 points each — 1904 points of "damage" alone) blew
+     * straight through the same 100-point budget calculate_category_score()
+     * applies per category, clamping this one stat to 0 while every
+     * category tile right below it (SEO 35, Performance 96, Security 0,
+     * Content 68) still showed real gradation — reading as "this number
+     * isn't syncing" rather than "this site has a lot of open issues," and
+     * guaranteed to keep reading that way on this site (or any similarly
+     * sized one) regardless of how much real progress is made. Averaging
+     * the categories instead keeps this headline inside the same range the
+     * tiles beneath it show, and since each category already clamps itself
+     * to 0-100 before this average runs, one saturated category (Security,
+     * here) can no longer single-handedly floor the whole site's score.
+     *
+     * @param array<string, int|null> $category_scores build_category_scores()'s own return value — null entries (e.g. `woocommerce` on a non-WooCommerce site) are excluded from the average rather than counted as 0.
      * @return int 0-100.
      */
-    private function calculate_overall_score( FindingRepository $findings ): int {
-        $score = 100
-            - ( $findings->count_by_severity( Severity::CRITICAL ) * 15 )
-            - ( $findings->count_by_severity( Severity::HIGH ) * 8 )
-            - ( $findings->count_by_severity( Severity::MEDIUM ) * 3 )
-            - ( $findings->count_by_severity( Severity::LOW ) * 1 );
+    private function calculate_overall_score( array $category_scores ): int {
+        $applicable = array_filter(
+            $category_scores,
+            static function ( $score ) {
+                return null !== $score;
+            }
+        );
 
-        return max( 0, min( 100, $score ) );
+        if ( ! $applicable ) {
+            return 100;
+        }
+
+        return (int) round( array_sum( $applicable ) / count( $applicable ) );
     }
 }

@@ -14,11 +14,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * `POST /performance-actions/{action_id}` — backs "Performance"
- * Overview's Quick Actions card (QuickActionsCard.tsx). Each of the 6
+ * Overview's Quick Actions card (QuickActionsCard.tsx). Each of the 8
  * actions is a real, deterministic WordPress-core-or-known-plugin
  * operation, never a fabricated "done" — `minify-css-js` explicitly
  * returns `success: false` with an honest explanation when no
- * minification-capable plugin is active, rather than pretending to have
+ * minification-capable plugin is active (same posture `browser-caching`
+ * uses when `.htaccess` isn't writable), rather than pretending to have
  * minified anything.
  *
  * @class       PerformanceActions controller
@@ -113,6 +114,8 @@ class PerformanceActions extends \WP_REST_Controller {
                 return rest_ensure_response( $this->run_enable_lazy_loading() );
             case 'preload-resources':
                 return rest_ensure_response( $this->run_enable_preload_resources() );
+            case 'browser-caching':
+                return rest_ensure_response( $this->run_enable_browser_caching() );
             default:
                 return new \WP_Error(
                     'vulopilot_unknown_performance_action',
@@ -399,6 +402,70 @@ class PerformanceActions extends \WP_REST_Controller {
             'message' => $was_enabled
                 ? __( 'Critical resource preloading was already enabled.', 'vulopilot' )
                 : __( 'Critical resource preloading is now enabled — the site logo and main stylesheet will be preloaded.', 'vulopilot' ),
+        );
+    }
+
+    /**
+     * Real, one-time `.htaccess` write — `insert_with_markers()` is the
+     * same core function WordPress itself uses to write its own rewrite
+     * rules (`wp-admin/includes/misc.php`), inside a self-contained
+     * "VuloPilot Browser Caching" marker block so re-running this action
+     * never duplicates or clobbers the site's existing rules (including
+     * WordPress's own `# BEGIN WordPress` block just above it). Emits
+     * `mod_expires` directives, not `mod_headers` — Apache's mod_expires
+     * module generates both the `Expires` and `Cache-Control: max-age=…`
+     * response headers on its own once `ExpiresActive On` is set, matching
+     * exactly the two signals `check_browser_caching()`
+     * (Controllers\EfficiencyChecks.php) probes for on a real static
+     * asset request. Returns an honest failure, not a fabricated success,
+     * when `.htaccess` isn't writable — same posture `run_minify_css_js()`
+     * already uses for its own "nothing to do" case.
+     *
+     * @return array{success: bool, message: string}
+     */
+    private function run_enable_browser_caching(): array {
+        if ( ! function_exists( 'get_home_path' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+
+        if ( ! function_exists( 'insert_with_markers' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/misc.php';
+        }
+
+        $htaccess_file = get_home_path() . '.htaccess';
+
+        $written = insert_with_markers(
+            $htaccess_file,
+            'VuloPilot Browser Caching',
+            array(
+                '<IfModule mod_expires.c>',
+                'ExpiresActive On',
+                'ExpiresByType text/css "access plus 1 year"',
+                'ExpiresByType application/javascript "access plus 1 year"',
+                'ExpiresByType text/javascript "access plus 1 year"',
+                'ExpiresByType image/jpeg "access plus 1 year"',
+                'ExpiresByType image/png "access plus 1 year"',
+                'ExpiresByType image/gif "access plus 1 year"',
+                'ExpiresByType image/webp "access plus 1 year"',
+                'ExpiresByType image/svg+xml "access plus 1 year"',
+                'ExpiresByType image/x-icon "access plus 1 year"',
+                'ExpiresByType font/woff2 "access plus 1 year"',
+                'ExpiresByType font/woff "access plus 1 year"',
+                'ExpiresByType application/font-woff "access plus 1 year"',
+                '</IfModule>',
+            )
+        );
+
+        if ( ! $written ) {
+            return array(
+                'success' => false,
+                'message' => __( 'Could not write browser caching rules to .htaccess — check that the file is writable.', 'vulopilot' ),
+            );
+        }
+
+        return array(
+            'success' => true,
+            'message' => __( 'Browser caching headers are now active for CSS, JS, images, and fonts.', 'vulopilot' ),
         );
     }
 

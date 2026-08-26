@@ -467,32 +467,6 @@
 	color: #16a34a;
 }
 
-.efficiency-hero-actions {
-	margin-top: 0.875rem;
-}
-
-
-.efficiency-section-eyebrow {
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-	font-size: 0.75rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
-	color: $theme-color;
-
-	i {
-		font-size: 0.875rem;
-	}
-}
-
-.efficiency-section-question {
-	margin: 0.25rem 0 1rem;
-	font-weight: 700;
-	font-size: 1rem;
-}
-
 .efficiency-check-list {
 	display: flex;
 	flex-direction: column;
@@ -634,61 +608,13 @@
 			font-weight: 600;
 		}
 	}
-
-	.efficiency-check-detail-review {
-		margin-left: auto;
-	}
-}
-
-// EfficiencyThingsToReview.tsx.
-// EfficiencyThingsToReview.tsx's "Things to review" rows — now a real
-// zyra `<ListComponent className="mini-card list">`; only the one real
-// visual difference from that variant's own default (an orange, not
-// theme-purple, icon — these are all "needs attention" items, same
-// #e67a2e EfficiencyOverviewChart.tsx's own "attention" slice/dot uses)
-// needs its own override here.
-.efficiency-review-list .item-icon {
-	color: #e67a2e;
-}
-
-.admin-badge.badge-open {
-	flex-shrink: 0;
-	color: #e67a2e;
-	background: #fef3e8;
-}
-
-// EfficiencyOverviewChart.tsx.
-.efficiency-overview-body {
-	display: flex;
-	align-items: center;
-	gap: 2rem;
-	flex-wrap: wrap;
-}
-
-.efficiency-overview-chart {
-	flex-shrink: 0;
-	width: 11rem;
-
-	// zyra's own pie legend is turned off at the source now
-	// (`<ChartComponent legendPosition="none">`) rather than hidden here —
-	// `LegendComponent` (`.efficiency-overview-legend` below) replaces it.
-}
-
-.efficiency-overview-chart-number {
-	display: block;
-	font-weight: 700;
-	font-size: 1.5rem;
-	line-height: 1.2;
-}
-
-.efficiency-overview-chart-label {
-	display: block;
-	font-size: 0.75rem;
-	color: $sub-text-color;
 }
 
 // Sizing only — dot/label/value chrome itself is zyra's own
 // `LegendComponent` (LegendComponent.scss's `.zyra-legend-vertical`).
+// Originally EfficiencyOverviewChart.tsx's own (now deleted, per direct
+// instruction — see OverviewTab.tsx's own docblock); still real, reused
+// as-is by FindingsHeroCard.tsx's own severity-breakdown donut legend.
 .efficiency-overview-legend {
 	flex-grow: 1;
 	min-width: 14rem;

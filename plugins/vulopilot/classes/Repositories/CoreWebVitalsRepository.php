@@ -17,7 +17,9 @@ defined( 'ABSPATH' ) || exit;
  * rather than relying on MySQL/MariaDB window-function `PERCENTILE_CONT`,
  * which isn't reliably available across this codebase's supported DB
  * range — the same real percentile CrUX/Google's own Core Web Vitals
- * methodology uses.
+ * methodology uses. `page_load_ms`/`transfer_bytes` use this exact same
+ * p75 method, not a separate average — one consistent "typical real
+ * visitor" statistic across every metric this table stores.
  *
  * @class       CoreWebVitalsRepository class
  * @version     1.0.0
@@ -45,20 +47,24 @@ class CoreWebVitalsRepository extends AbstractRepository {
      * @param int|null $lcp_ms          Milliseconds, or null if the browser never reported one.
      * @param int|null $cls_thousandths CLS ×1000, or null.
      * @param int|null $inp_ms          Milliseconds, or null.
+     * @param int|null $page_load_ms    Milliseconds (real Navigation Timing `loadEventEnd`), or null if the `load` event hadn't fired before the beacon sent.
+     * @param int|null $transfer_bytes  Real summed Navigation+Resource Timing `transferSize`, or null if unsupported.
      * @return void
      */
-    public function record( ?int $lcp_ms, ?int $cls_thousandths, ?int $inp_ms ): void {
+    public function record( ?int $lcp_ms, ?int $cls_thousandths, ?int $inp_ms, ?int $page_load_ms = null, ?int $transfer_bytes = null ): void {
         $this->insert(
             array(
                 'lcp_ms'          => $lcp_ms,
                 'cls_thousandths' => $cls_thousandths,
                 'inp_ms'          => $inp_ms,
+                'page_load_ms'    => $page_load_ms,
+                'transfer_bytes'  => $transfer_bytes,
             )
         );
     }
 
     /**
-     * @return array{lcp_ms: int|null, cls: float|null, inp_ms: int|null, sample_count: int}
+     * @return array{lcp_ms: int|null, cls: float|null, inp_ms: int|null, page_load_ms: int|null, transfer_bytes: int|null, sample_count: int}
      */
     public function get_p75_summary(): array {
         global $wpdb;
@@ -66,7 +72,7 @@ class CoreWebVitalsRepository extends AbstractRepository {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT lcp_ms, cls_thousandths, inp_ms FROM {$this->get_table()} ORDER BY created_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT lcp_ms, cls_thousandths, inp_ms, page_load_ms, transfer_bytes FROM {$this->get_table()} ORDER BY created_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 self::MAX_SAMPLES
             ),
             ARRAY_A
@@ -75,10 +81,12 @@ class CoreWebVitalsRepository extends AbstractRepository {
         $rows = (array) $rows;
 
         return array(
-            'lcp_ms'       => $this->percentile_75( array_column( $rows, 'lcp_ms' ) ),
-            'cls'          => $this->percentile_75_cls( array_column( $rows, 'cls_thousandths' ) ),
-            'inp_ms'       => $this->percentile_75( array_column( $rows, 'inp_ms' ) ),
-            'sample_count' => count( $rows ),
+            'lcp_ms'         => $this->percentile_75( array_column( $rows, 'lcp_ms' ) ),
+            'cls'            => $this->percentile_75_cls( array_column( $rows, 'cls_thousandths' ) ),
+            'inp_ms'         => $this->percentile_75( array_column( $rows, 'inp_ms' ) ),
+            'page_load_ms'   => $this->percentile_75( array_column( $rows, 'page_load_ms' ) ),
+            'transfer_bytes' => $this->percentile_75( array_column( $rows, 'transfer_bytes' ) ),
+            'sample_count'   => count( $rows ),
         );
     }
 
