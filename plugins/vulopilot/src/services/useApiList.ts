@@ -8,10 +8,11 @@ export interface ApiListResult<T> {
 	data: T[];
 	total: number;
 	/**
-	 * `[{value: 'all', label, count}, ...]` — only populated when a
-	 * `categoryFilter` config is passed in; empty otherwise. Pass straight
-	 * through to TableCard's `categoryCounts` prop to render its status-count
-	 * pill bar.
+	 * `[{value, label, count}, ...]`, one entry per `categoryFilter.options`
+	 * entry (no "All" pill — every list page's pill bar is real categories
+	 * only now) — only populated when a `categoryFilter` config is passed
+	 * in; empty otherwise. Pass straight through to TableCard's
+	 * `categoryCounts` prop to render its status-count pill bar.
 	 */
 	categoryCounts: CategoryCount[];
 	isLoading: boolean;
@@ -53,11 +54,12 @@ interface TableCardQuery {
 /**
  * A status-like categorical dimension a list page wants surfaced as a
  * TableCard status-count pill bar (Findings' status, Automation's status,
- * Activity's actor_type, etc.) — `options` excludes "All", which this hook
- * always prepends itself. The REST param this maps `categoryFilter` onto,
- * and the response field its counts are read from, are both `key`
- * (`${key}_counts` in the response body) — see each controller's
- * `get_items()` for the matching backend half of this contract.
+ * Activity's actor_type, etc.) — `options` is the full real pill list this
+ * hook renders (no "All" pill prepended). The REST param this maps
+ * `categoryFilter` onto, and the response field its counts are read from,
+ * are both `key` (`${key}_counts` in the response body) — see each
+ * controller's `get_items()` for the matching backend half of this
+ * contract.
  */
 export interface CategoryFilterConfig {
 	key: string;
@@ -187,18 +189,13 @@ export const useApiList = <T = Record<string, unknown>>(
 							number
 						>) ?? {};
 
-					setCategoryCounts([
-						{
-							value: 'all',
-							label: __('All', 'vulopilot'),
-							count: rowTotal,
-						},
-						...categoryFilter.options.map((option) => ({
+					setCategoryCounts(
+						categoryFilter.options.map((option) => ({
 							value: option.value,
 							label: option.label,
 							count: counts[option.value] ?? 0,
-						})),
-					]);
+						}))
+					);
 				}
 			})
 			.finally(() => {

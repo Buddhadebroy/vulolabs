@@ -409,7 +409,6 @@ const SlowPagesTab = () => {
 	const topIssues = response?.top_issues ?? [];
 
 	const filterPills: { value: string; label: string; count: number }[] = [
-		{ value: 'all', label: __( 'All', 'vulopilot' ), count: summary?.total ?? 0 },
 		{ value: 'slow', label: __( 'Slow', 'vulopilot' ), count: statusCounts.slow ?? 0 },
 		{
 			value: 'needs_improvement',

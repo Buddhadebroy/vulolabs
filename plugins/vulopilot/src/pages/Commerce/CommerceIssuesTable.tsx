@@ -16,7 +16,6 @@ import {
 	PRODUCT_SCANNER_IDS,
 	CHECKOUT_SCANNER_IDS,
 	STORE_SCANNER_IDS,
-	ALL_MAPPED_SCANNER_IDS,
 } from './CommerceTab.constants';
 
 export type CommerceIssueTab =
@@ -109,11 +108,6 @@ const CommerceIssuesTable = ({
 		.map((group) => group.scanner_id);
 
 	const tabs: { id: CommerceIssueTab; label: string; count: number }[] = [
-		{
-			id: 'all',
-			label: __('All', 'vulopilot'),
-			count: sumGroupCounts(groups, ALL_MAPPED_SCANNER_IDS),
-		},
 		{
 			id: 'important',
 			label: __('Important', 'vulopilot'),

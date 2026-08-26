@@ -183,22 +183,15 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			/>
 		);
 	}
-	const tableCategoryCounts = [
-		{
-			value: 'all',
-			label: __('All', 'vulopilot'),
-			count: total,
-		},
-		...CATEGORY_TABS.map((tab) => ({
-			value: tab.id,
-			label: tab.label,
-			count: tab.categories.reduce(
-				(sum, category) =>
-					sum + (categoryCounts[category] ?? 0),
-				0
-			),
-		})),
-	];
+	const tableCategoryCounts = CATEGORY_TABS.map((tab) => ({
+		value: tab.id,
+		label: tab.label,
+		count: tab.categories.reduce(
+			(sum, category) =>
+				sum + (categoryCounts[category] ?? 0),
+			0
+		),
+	}));
 
 	return (
 		<>
@@ -215,7 +208,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			<ColumnComponent grid={8}>
 				<div id="ai-copilot-issues-section">
 					<IssuesSummaryCards
-						total={total}
 						priorityCounts={priorityCounts}
 						isLoading={isLoading}
 						activePriority={activePriority}

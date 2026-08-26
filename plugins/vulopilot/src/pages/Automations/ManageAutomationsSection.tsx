@@ -28,10 +28,8 @@ export interface AutomationRow extends TableRow {
 }
 
 /**
- * All/Active/Drafts/Paused (spec section 9) — maps directly onto the real
+ * Active/Drafts/Paused (spec section 9) — maps directly onto the real
  * `status` column's 3 real values (`AutomationsRepository::get_status_counts()`).
- * "All" is prepended automatically by `useApiList`'s own `categoryFilter`
- * handling, same as every other status-count pill bar in this codebase.
  */
 const STATUS_OPTIONS = [
 	{ label: __('Active', 'vulopilot'), value: 'enabled' },

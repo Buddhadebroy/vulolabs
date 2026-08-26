@@ -281,22 +281,24 @@
 		}
 	}
 
-	.analytics-item:nth-child(2) .analytics-icon i {
+	// Shifted down one slot each (was 2/3/4) now that the "All Issues"
+	// tile (formerly slot 1) is gone — High/Medium/Low are the only tiles
+	// left, in slots 1/2/3.
+	.analytics-item:nth-child(1) .analytics-icon i {
 		color: #dc2626;
 	}
 
-	.analytics-item:nth-child(3) .analytics-icon i {
+	.analytics-item:nth-child(2) .analytics-icon i {
 		color: #b45309;
 	}
 
-	.analytics-item:nth-child(4) .analytics-icon i {
+	.analytics-item:nth-child(3) .analytics-icon i {
 		color: #5baab3;
 	}
 
-	&.active-priority-all .analytics-item:nth-child(1),
-	&.active-priority-high .analytics-item:nth-child(2),
-	&.active-priority-medium .analytics-item:nth-child(3),
-	&.active-priority-low .analytics-item:nth-child(4) {
+	&.active-priority-high .analytics-item:nth-child(1),
+	&.active-priority-medium .analytics-item:nth-child(2),
+	&.active-priority-low .analytics-item:nth-child(3) {
 		border-color: $theme-color;
 		background: $color-primary-background;
 	}

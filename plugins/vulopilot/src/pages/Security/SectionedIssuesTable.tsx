@@ -165,11 +165,6 @@ const SectionedIssuesTable = ({
 
 	const tabs: { id: SectionedIssuesTab; label: string; count: number }[] = [
 		{
-			id: 'all',
-			label: __('All', 'vulopilot'),
-			count: sumGroupCounts(groups, allScannerIds),
-		},
-		{
 			id: 'important',
 			label: __('Important', 'vulopilot'),
 			count: sumGroupCounts(groups, importantScannerIds),
@@ -208,10 +203,6 @@ const SectionedIssuesTable = ({
 		medium: countByPriority('medium'),
 		low: countByPriority('low'),
 	};
-	const activeTabTotal = tabGroups.reduce(
-		(total, group) => total + group.count,
-		0
-	);
 
 	const priorityFilteredGroups =
 		'all' === activePriority
@@ -256,7 +247,6 @@ const SectionedIssuesTable = ({
 				) : (
 					<>
 						<IssuesSummaryCards
-							total={activeTabTotal}
 							priorityCounts={priorityCounts}
 							isLoading={isLoading}
 							activePriority={activePriority}
