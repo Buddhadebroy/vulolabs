@@ -77,7 +77,6 @@ export interface HistoryRow {
 }
 
 export const FILTER_TABS: { id: HistoryFilter; label: string }[] = [
-	{ id: 'all', label: __('All', 'vulopilot') },
 	{ id: 'conversation', label: __('Conversations', 'vulopilot') },
 	{ id: 'scan', label: __('Scans', 'vulopilot') },
 	{ id: 'change', label: __('Changes', 'vulopilot') },

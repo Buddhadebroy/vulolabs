@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ColumnComponent, ModuleGuardComponent, InformationItemComponent, BadgeComponent } from '@zyra/components';
+import { ColumnComponent, ModuleGuardComponent, InformationItemComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import './AICopilot.scss';
 import IssuesSummaryCards, { Priority } from './IssuesSummaryCards';
@@ -183,22 +183,16 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			/>
 		);
 	}
-	const tableCategoryCounts = [
-		{
-			value: 'all',
-			label: __('All', 'vulopilot'),
-			count: total,
-		},
-		...CATEGORY_TABS.map((tab) => ({
-			value: tab.id,
-			label: tab.label,
-			count: tab.categories.reduce(
-				(sum, category) =>
-					sum + (categoryCounts[category] ?? 0),
-				0
-			),
-		})),
-	];
+	const tableCategoryCounts = CATEGORY_TABS.map((tab) => ({
+		value: tab.id,
+		label: tab.label,
+		count: tab.categories.reduce(
+			(sum, category) =>
+				sum + (categoryCounts[category] ?? 0),
+			0
+		),
+	}));
+
 	return (
 		<>
 			{/* Real scroll target for ChatTab.tsx's own "View all issues"/
@@ -214,7 +208,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			<ColumnComponent grid={8}>
 				<div id="ai-copilot-issues-section">
 					<IssuesSummaryCards
-						total={total}
 						priorityCounts={priorityCounts}
 						isLoading={isLoading}
 						activePriority={activePriority}
@@ -286,26 +279,16 @@ const IssuesList: React.FC<IssuesListProps> = ({
 								},
 								action: {
 									label: __('Affected', 'vulopilot'),
-									type: 'action',
-									render: (row: FindingGroup) => {
-										const isActiveRow =
-											row.scanner_id === selectedGroup?.scanner_id;
-
-										return (
-											<span
-												className={`more-details admin-btn btn-text-purple${isActiveRow ? ' is-active' : ''}`}
-												onClick={() =>
-													setSelectedGroup(
-														isActiveRow ? null : row
-													)
-												}
-											>
-												{isActiveRow
-													? __('Showing', 'vulopilot')
-													: __('More Details', 'vulopilot')}{' '}
-												<i className="adminfont-pagination-next-arrow" />
-											</span>
-										);
+									type: 'more-action',
+									onToggleRow: (row: FindingGroup) =>
+										setSelectedGroup(
+											row.scanner_id === selectedGroup?.scanner_id
+												? null
+												: row
+										),
+									moreActionLabels: {
+										active: __('Showing', 'vulopilot'),
+										inactive: __('More Details', 'vulopilot'),
 									},
 								},
 							}}
@@ -320,17 +303,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							}) => {
 								setPaged(Number(query.paged) || 1);
 								setPerPage(Number(query.per_page) || 10);
-
-								// TableCard renders/highlights the category tab
-								// bar itself and reports a click here as part of
-								// this same query object (its own
-								// `handleCategoryChange` → `onQueryUpdate`) —
-								// there's no separate callback for it. Without
-								// this, a tab visually highlighted on click
-								// never actually reached `activeTabId` (the
-								// state the real `GET /findings/groups?category=`
-								// fetch above is keyed on), so every tab kept
-								// showing the same unfiltered "All" rows.
 								if (
 									query.categoryFilter &&
 									query.categoryFilter !== activeTabId

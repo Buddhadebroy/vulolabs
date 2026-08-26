@@ -120,8 +120,6 @@ const CheckRow: React.FC<{ check: OnPageCheck; onClick?: () => void }> = ({
 		displayPosition="inline-notice"
 		type={STATUS_NOTICE_TYPE[check.status]}
 		message={check.message}
-		actionLabel={onClick ? __('View', 'vulopilot') : undefined}
-		onAction={onClick}
 	>
 		<BadgeComponent
 			color={STATUS_BADGE[check.status].color}
@@ -298,103 +296,109 @@ const ContentQualityCard = () => {
 
 			{!isLoading && data && (
 				<div className="content-quality-body">
-					<div className="content-quality-overview">
-						<div className="content-quality-overview-score">
-							<ChartComponent
-								type="ring"
-								height={120}
-								isLoading={false}
-								color={TONE_COLOR[readabilityTone]}
-								centerLabel={
-									<span className="content-quality-overview-score-number">
-										{data.readability.score}
-										<small>/100</small>
-									</span>
-								}
-								data={[{ value: data.readability.score }]}
-							/>
-							<TypographyComponent
-								variant="body-sm"
-								weight="semibold"
+					<div className='content-quality-overview-wrapper'>
+						<div className="content-quality-overview">
+							<div className="content-quality-overview-score">
+								<ChartComponent
+									type="ring"
+									height={120}
+									isLoading={false}
+									color={TONE_COLOR[readabilityTone]}
+									centerLabel={
+										<span className="content-quality-overview-score-number">
+											{data.readability.score}
+											<small>/100</small>
+										</span>
+									}
+									data={[{ value: data.readability.score }]}
+								/>
+								<TypographyComponent
+									variant="body-sm"
+									weight="semibold"
+									color={readabilityTone}
+									className="content-quality-overview-score-label"
+								>
+									{data.readability.label}
+								</TypographyComponent>
+							</div>
+							<div className="content-quality-overview-text">
+								<TypographyComponent variant="h5" weight="semibold">
+									{__('Overall Content Quality', 'vulopilot')}
+								</TypographyComponent>
+								<TypographyComponent variant="desc">
+									{QUALITY_BAND_DESCRIPTION[readabilityTone]}
+								</TypographyComponent>
+							</div>
+							<BadgeComponent
+								icon={TONE_BADGE_ICON[readabilityTone]}
 								color={readabilityTone}
-								className="content-quality-overview-score-label"
-							>
-								{data.readability.label}
-							</TypographyComponent>
+								text={data.readability.label}
+								className="content-quality-overview-badge"
+							/>
 						</div>
-						<div className="content-quality-overview-text">
-							<TypographyComponent variant="h5" weight="semibold">
-								{__('Overall Content Quality', 'vulopilot')}
-							</TypographyComponent>
-							<TypographyComponent variant="desc">
-								{QUALITY_BAND_DESCRIPTION[readabilityTone]}
-							</TypographyComponent>
-						</div>
-						<BadgeComponent
-							icon={TONE_BADGE_ICON[readabilityTone]}
-							color={readabilityTone}
-							text={data.readability.label}
-							className="content-quality-overview-badge"
+
+						<AnalyticsComponent
+							variant="progress"
+							cols={3}
+							data={[
+								{
+									icon: 'knowledgebase',
+									number: sprintf(
+										/* translators: %d: real Flesch Reading Ease score, 0-100. */
+										__('%d/100', 'vulopilot'),
+										data.readability.score
+									),
+									text: __('Readability', 'vulopilot'),
+									progress: data.readability.score,
+									// `{tone}-color` is a real zyra utility class
+									// (common.scss's own `$color-palette` loop) that
+									// also tints this same tile's `.progress-bar`
+									// automatically — no separate bar CSS needed.
+									colorClass: `${readabilityTone}-color`,
+								},
+								{
+									icon: 'search',
+									number: `${data.completeness.passed}/${data.completeness.total}`,
+									text: __('Checks passed', 'vulopilot'),
+									progress: completenessPercent,
+									colorClass: `${completenessTone}-color`,
+								},
+								{
+									icon: 'document',
+									number: issuesFound,
+									progress: issuesFound,
+									colorClass: `${completenessTone}-color`,
+									text: __('Issues Found', 'vulopilot'),
+									// A real count, not a percentage — no
+									// `progress`/`colorClass` here rather than
+									// fabricating a ratio just to fill the bar.
+									onClick:
+										issuesFound > 0 ? scrollToAssessment : undefined,
+								},
+							]}
 						/>
 					</div>
 
-					<AnalyticsComponent
-						variant="progress"
-						cols={3}
-						data={[
-							{
-								icon: 'knowledgebase',
-								number: sprintf(
-									/* translators: %d: real Flesch Reading Ease score, 0-100. */
-									__('%d/100', 'vulopilot'),
-									data.readability.score
-								),
-								text: __('Readability', 'vulopilot'),
-								progress: data.readability.score,
-								// `{tone}-color` is a real zyra utility class
-								// (common.scss's own `$color-palette` loop) that
-								// also tints this same tile's `.progress-bar`
-								// automatically — no separate bar CSS needed.
-								colorClass: `${readabilityTone}-color`,
-							},
-							{
-								icon: 'search',
-								number: `${data.completeness.passed}/${data.completeness.total}`,
-								text: __('Checks passed', 'vulopilot'),
-								progress: completenessPercent,
-								colorClass: `${completenessTone}-color`,
-							},
-							{
-								icon: 'document',
-								number: issuesFound,
-								progress: issuesFound,
-								colorClass: `${completenessTone}-color`,
-								text: __('Issues Found', 'vulopilot'),
-								// A real count, not a percentage — no
-								// `progress`/`colorClass` here rather than
-								// fabricating a ratio just to fill the bar.
-								onClick:
-									issuesFound > 0 ? scrollToAssessment : undefined,
-							},
-						]}
-					/>
-
-					<SectionComponent icon='ai'
-						title={__('Content Assessment', 'vulopilot')}
-					/>
-					<div className="content-quality-checks">
-						{data.completeness.checks.map((check) => (
-							<CheckRow key={check.id} check={check} />
-						))}
-					</div>
-					{data.structure && (
-						<>
-							<SectionComponent icon='blocks'
-								title={__('Structure', 'vulopilot')}
+					<div className='content-quality-overview-wrapper'>
+						<div className="content-quality-checks">
+							<SectionComponent icon='ai'
+								title={__('Content Assessment', 'vulopilot')}
 							/>
-							<CheckRow check={data.structure} onClick={goToPostEditor} />
-						</>
-					)}
+							{data.completeness.checks.map((check) => (
+								<CheckRow key={check.id} check={check} />
+							))}
+						</div>
+						<div className="content-quality-checks">
+							{data.structure && (
+								<>
+									<SectionComponent icon='blocks'
+										title={__('Structure', 'vulopilot')}
+									/>
+									<CheckRow check={data.structure} onClick={goToPostEditor} />
+								</>
+							)}
+						</div>
+					</div>
 				</div>
 			)}
 		</CardComponent>

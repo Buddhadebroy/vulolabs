@@ -5,7 +5,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	PopupComponent,
 	ContainerComponent,
-	NavigatorHeaderComponent,
+	NavigatorHeaderComponent
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import { IssuesFilter } from './NeedsAttentionCard';
@@ -139,12 +139,6 @@ const AIAssistant = () => {
 				}
 				buttons={[
 					{
-						label: __('Conversation history', 'vulopilot'),
-						icon: 'clock',
-						color: 'border-purple',
-						onClick: () => setIsHistoryPopupOpen(true),
-					},
-					{
 						label: __('How it works', 'vulopilot'),
 						icon: 'help',
 						onClick: () => setIsHowItWorksOpen(true),
@@ -162,6 +156,7 @@ const AIAssistant = () => {
 					issuesNavToken={issuesNavToken}
 					isHistoryPopupOpen={isHistoryPopupOpen}
 					onCloseHistoryPopup={() => setIsHistoryPopupOpen(false)}
+					onOpenHistoryPopup={() => setIsHistoryPopupOpen(true)}
 				/>
 			</ContainerComponent>
 		</>

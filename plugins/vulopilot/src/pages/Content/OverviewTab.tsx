@@ -28,7 +28,6 @@ const OverviewTab: React.FC = () => {
 			<ColumnComponent grid={8}>
 				<AiContentAssistantSidebar />
 				<ContentToolsGrid />
-				<ContentQualityCard />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
 				<ContentStatsCard />
@@ -36,6 +35,7 @@ const OverviewTab: React.FC = () => {
 			</ColumnComponent>
 
 			<ColumnComponent >
+				<ContentQualityCard />
 				<RecentContentCard />
 			</ColumnComponent>
 		</ContainerComponent>

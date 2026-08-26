@@ -66,6 +66,10 @@ $content-tool-colors: (
 	gap: 1.25rem;
 }
 
+.content-quality-overview-wrapper{
+	display: flex;
+	gap: 1rem;
+}
 .content-quality-overview {
 	display: flex;
 	align-items: center;
@@ -73,6 +77,10 @@ $content-tool-colors: (
 	padding: 1.25rem;
 	border-radius: 0.75rem;
 	background: var(--background-primary, #ece2f9f1);
+
+	.analytics-container{
+		width: 50%;
+	}
 }
 
 .content-quality-overview-score {
@@ -115,6 +123,7 @@ $content-tool-colors: (
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
+	width: 50%;
 }
 
 // Each row is now a real `<NoticeComponent displayPosition="inline-notice">`

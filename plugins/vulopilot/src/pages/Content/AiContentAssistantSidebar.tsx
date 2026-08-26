@@ -4,13 +4,11 @@ import axios from 'axios';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
 import {
-	ChatInputComponent,
-	ChatMessageComponent,
 	ListComponent,
 	NoticeManager,
 } from '@zyra/components';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
-import ChatComposerCard from '../../components/ChatComposerCard';
+import ChatComposerCard, { ChatInput, ChatMessage } from '../../components/ChatComposerCard';
 
 interface ChatLink {
 	url: string;
@@ -134,7 +132,7 @@ const PROMPT_CHIPS: PromptChip[] = [
  * generate-product-description — the same ones ContentToolsGrid.tsx's own
  * tiles run), actually creates and saves the WordPress draft, and this
  * response's `link` carries the real edit URL, rendered below as a real
- * clickable `<a>` — never markdown-in-text, since ChatMessageComponent
+ * clickable `<a>` — never markdown-in-text, since ChatMessage
  * renders `content` as plain text.
  */
 const AiContentAssistantSidebar = () => {
@@ -242,7 +240,7 @@ const AiContentAssistantSidebar = () => {
 			)}
 			turns={turns}
 			renderTurn={(turn, index) => (
-				<ChatMessageComponent
+				<ChatMessage
 					key={index}
 					sender={'user' === turn.role ? 'user' : 'ai'}
 				>
@@ -259,12 +257,12 @@ const AiContentAssistantSidebar = () => {
 							</a>
 						</div>
 					)}
-				</ChatMessageComponent>
+				</ChatMessage>
 			)}
 			isSending={isSending}
 			sendingSpinnerClassName="content-assistant-spinner"
 			composer={
-				<ChatInputComponent
+				<ChatInput
 					value={message}
 					onChange={setMessage}
 					onSend={handleSend}

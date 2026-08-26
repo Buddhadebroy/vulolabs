@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	CardComponent,
-	ChatMessageComponent,
 	ListComponent,
 	ModuleGuardComponent,
 	ButtonInput,
@@ -12,6 +11,7 @@ import {
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { useApiList } from '../../services/useApiList';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
+import { ChatMessage } from '../../components/ChatComposerCard';
 
 /** One row of `GET /copilot/conversations` (Copilot.php's own get_conversations()) — a real, reloadable conversation thread, not a single logged AI call. */
 interface RecentConversationRow {
@@ -215,12 +215,12 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 							<p>{__('Loading…', 'vulopilot')}</p>
 						) : (
 							previewConversation.turns.map((turn, index) => (
-								<ChatMessageComponent
+								<ChatMessage
 									key={index}
 									sender={'user' === turn.role ? 'user' : 'ai'}
 								>
 									<ChatMarkdown text={turn.content} />
-								</ChatMessageComponent>
+								</ChatMessage>
 							))
 						)}
 					</div>

@@ -151,7 +151,6 @@ const ContentStatsCard = () => {
 					data={[
 						{
 							colorClass: 'admin-bg-color2',
-							icon: 'document',
 							number: (
 								<>
 									{stats.content_created.current.toLocaleString()}
@@ -163,7 +162,6 @@ const ContentStatsCard = () => {
 							text: __('Content Created', 'vulopilot'),
 						},
 						{
-							icon: 'edit',
 							colorClass: 'admin-bg-color3',
 							number: (
 								<>
@@ -178,7 +176,6 @@ const ContentStatsCard = () => {
 							text: __('Words Generated', 'vulopilot'),
 						},
 						{
-							icon: 'bar-chart',
 							colorClass: 'admin-bg-color4',
 							number: '0',
 							text: (
@@ -188,7 +185,6 @@ const ContentStatsCard = () => {
 							),
 						},
 						{
-							icon: 'clock',
 							colorClass: 'admin-bg-color6',
 							number: '0',
 							text: (

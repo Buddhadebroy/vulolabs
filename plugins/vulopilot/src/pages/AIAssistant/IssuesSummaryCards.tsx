@@ -2,10 +2,13 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { ColumnComponent, AnalyticsComponent } from '@zyra/components';
 
+// `'all'` no longer has its own tile (removed) — it's kept as a real
+// state value only, meaning "no priority filter selected" (the initial
+// state before High/Medium/Low is clicked, and what deselecting the
+// active one falls back to).
 export type Priority = 'all' | 'high' | 'medium' | 'low';
 
 interface IssuesSummaryCardsProps {
-	total: number;
 	priorityCounts: { high: number; medium: number; low: number };
 	isLoading: boolean;
 	activePriority: Priority;
@@ -20,7 +23,6 @@ interface SummaryTile {
 }
 
 const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
-	total,
 	priorityCounts,
 	isLoading,
 	activePriority,
@@ -28,23 +30,13 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 }) => {
 	// Reads the real `priority` field carried on each tile rather than
 	// reverse-parsing it from the tile's own translated display text
-	// (`item.text`) — that used to compare `"All Issues".toLowerCase()`
-	// against `PRIORITY_ORDER`'s `'all'`, which never matches (extra
-	// word), so clicking the "All Issues" tile silently did nothing; the
-	// same text-matching approach would also break for High/Medium/Low
-	// the moment their labels are translated to any other language.
+	// (`item.text`) — text-matching would break for High/Medium/Low the
+	// moment their labels are translated to any other language.
 	const handleClick = (item: SummaryTile) => {
 		onSelectPriority(item.priority);
 	};
 
 	const data: (SummaryTile & { onClick?: (item: SummaryTile) => void })[] = [
-		{
-			priority: 'all',
-			colorClass: 'purple',
-			number: total,
-			text: __('All Issues', 'vulopilot'),
-			onClick: isLoading ? undefined : handleClick,
-		},
 		{
 			priority: 'high',
 			colorClass: 'green',
@@ -74,7 +66,7 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 				data={data}
 				className={`active-priority-${activePriority}`}
 				variant="small-card"
-				cols={4}
+				cols={3}
 				isLoading={isLoading}
 			/>
 		// </div>

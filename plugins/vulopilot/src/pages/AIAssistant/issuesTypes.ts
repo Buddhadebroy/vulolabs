@@ -115,8 +115,12 @@ const OBJECT_TYPE_NOUNS: Record<string, [string, string]> = {
 	site: ['site-wide check', 'site-wide checks'],
 };
 
-export const formatAffected = (count: number, objectType: string | null): string => {
+/** Just the noun half of `formatAffected` (no count prefix) — for a caller that renders the count and noun as two separate pieces. */
+export const getObjectTypeNoun = (count: number, objectType: string | null): string => {
 	const [singular, plural] = OBJECT_TYPE_NOUNS[objectType ?? ''] ?? ['issue', 'issues'];
 
-	return `${count} ${1 === count ? singular : plural}`;
+	return 1 === count ? singular : plural;
 };
+
+export const formatAffected = (count: number, objectType: string | null): string =>
+	`${count} ${getObjectTypeNoun(count, objectType)}`;

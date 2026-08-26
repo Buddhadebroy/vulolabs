@@ -6,8 +6,8 @@ import './ChatMarkdown.scss';
  * instead of literal asterisks and backticks — every AI chat surface in
  * this plugin (Copilot.php's/ContentAssistant.php's system prompts both
  * say "Reply in plain text or Markdown, never HTML") gets real Markdown
- * back, but ChatMessageComponent (@zyra/components) renders `children` as
- * an opaque node with no parsing of its own, so a plain string shows the
+ * back, but ChatMessage (../components/ChatComposerCard) renders `children`
+ * as an opaque node with no parsing of its own, so a plain string shows the
  * raw syntax. Deliberately narrow — bold text, inline code, bullet and
  * numbered lists, paragraphs, and line breaks, the shapes these prompts
  * actually produce — not a full CommonMark implementation (no tables,

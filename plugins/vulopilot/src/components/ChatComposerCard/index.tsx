@@ -1,12 +1,16 @@
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ChatMessageComponent } from '@zyra/components';
-import AiCopilotGuard from './AiCopilotGuard';
+import { CardComponent } from '@zyra/components';
+import AiCopilotGuard from '../AiCopilotGuard';
+import ChatMessage from './ChatMessage';
+import './ChatComposerCard.scss';
 
 export interface ChatComposerCardProps<TTurn = unknown> {
 	/** Passed straight through to CardComponent. */
 	cardTitle?: ReactNode;
 	cardTitleIcon?: string;
+	/** Passed straight through to CardComponent's own `desc` — a one-line subtitle under `cardTitle`. */
+	cardDesc?: ReactNode;
 	cardAction?: ReactNode;
 	cardClassName?: string;
 	/**
@@ -18,8 +22,20 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	guarded?: boolean;
 	/** A custom header rendered above everything else, for cards whose title isn't a plain CardComponent `title` (AutomationComposerCard's own `<h2>`). */
 	header?: ReactNode;
-	/** A static first turn (e.g. a greeting), rendered before `turns`. */
+	/** A static first turn (e.g. a greeting), rendered before `turns` — as a real `ChatMessage` bubble, and (unlike `emptyState` below) still shown once real turns exist. */
 	welcome?: ReactNode;
+	/**
+	 * A centered "nothing sent yet" placeholder (icon + heading + subtitle,
+	 * typically) rendered on its own — NOT wrapped in a `ChatMessage`
+	 * bubble — in place of `welcome`/`turns` while `turns` is empty and
+	 * nothing is sending. Once a real turn exists (or one is in flight),
+	 * this stops rendering and `welcome`/`turns` take over as normal. Only
+	 * needed by a composer whose empty state is a distinct hero rather than
+	 * a chat bubble (AI Copilot's own Chat tab) — leave unset to keep the
+	 * plain `welcome`-bubble behavior every other composer here already
+	 * uses.
+	 */
+	emptyState?: ReactNode;
 	turns?: TTurn[];
 	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	renderTurn?: (turn: TTurn, index: number) => ReactNode;
@@ -28,8 +44,8 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	sendingAvatarIcon?: string;
 	sendingSpinnerClassName?: string;
 	/**
-	 * The fully-built `<ChatInputComponent />` element. Left to the caller
-	 * rather than genericized — each site's composer props diverge too much
+	 * The fully-built `<ChatInput />` element. Left to the caller rather
+	 * than genericized — each site's composer props diverge too much
 	 * (`sendDisabledReason` vs `onAttach`/`onAddContext`/`autoApply`) to be
 	 * worth forcing through one shared prop shape.
 	 */
@@ -62,19 +78,27 @@ export interface ChatComposerCardProps<TTurn = unknown> {
  * to that site and are passed in pre-built via `renderTurn`/`composer`/
  * `prompts` — deliberately not flattened into one giant generic prop shape,
  * since those parts don't actually share behavior, just adjacent JSX.
+ *
+ * `ChatMessage`/`ChatInput` (this folder's other two files) used to be
+ * zyra's own ChatMessageComponent/ChatInputComponent (@zyra/components) —
+ * every real consumer of either lived in this plugin alone, so both moved
+ * here (styles included, ChatComposerCard.scss) instead of staying in the
+ * shared design system.
  */
-const ChatComposerCard = <TTurn,>( {
+const ChatComposerCard = <TTurn,>({
 	cardTitle,
 	cardTitleIcon,
+	cardDesc,
 	cardAction,
 	cardClassName,
 	guarded = false,
 	header,
 	welcome,
+	emptyState,
 	turns = [],
 	renderTurn,
 	isSending = false,
-	sendingLabel = __( 'Thinking…', 'vulopilot' ),
+	sendingLabel = __('Thinking…', 'vulopilot'),
 	sendingAvatarIcon,
 	sendingSpinnerClassName = 'chat-thinking-spinner',
 	composer,
@@ -82,66 +106,72 @@ const ChatComposerCard = <TTurn,>( {
 	beforeComposer,
 	prompts,
 	note,
-}: ChatComposerCardProps<TTurn> ) => {
-	const turnsBlock = (
-		<>
-			{ welcome && (
-				<ChatMessageComponent
-					sender="ai"
-					{ ...( sendingAvatarIcon
-						? { avatarIcon: sendingAvatarIcon }
-						: {} ) }
-				>
-					{ welcome }
-				</ChatMessageComponent>
-			) }
+}: ChatComposerCardProps<TTurn>) => {
+	const turnsBlock =
+		emptyState && 0 === turns.length && !isSending ? (
+			emptyState
+		) : (
+			<>
+				{welcome && (
+					<ChatMessage
+						sender="ai"
+						{...(sendingAvatarIcon
+							? { avatarIcon: sendingAvatarIcon }
+							: {})}
+					>
+						{welcome}
+					</ChatMessage>
+				)}
 
-			{ turns.map( ( turn, index ) =>
-				renderTurn ? (
-					renderTurn( turn, index )
-				) : (
-					<ChatMessageComponent key={ index }>
-						{ turn as ReactNode }
-					</ChatMessageComponent>
-				)
-			) }
+				{turns.map((turn, index) =>
+					renderTurn ? (
+						renderTurn(turn, index)
+					) : (
+						<ChatMessage key={index}>{turn as ReactNode}</ChatMessage>
+					)
+				)}
 
-			{ isSending && (
-				<ChatMessageComponent
-					sender="ai"
-					{ ...( sendingAvatarIcon
-						? { avatarIcon: sendingAvatarIcon }
-						: {} ) }
-				>
-					<i className={ `adminfont-refresh ${ sendingSpinnerClassName }` } />{ ' ' }
-					{ sendingLabel }
-				</ChatMessageComponent>
-			) }
-		</>
-	);
+				{isSending && (
+					<ChatMessage
+						sender="ai"
+						{...(sendingAvatarIcon
+							? { avatarIcon: sendingAvatarIcon }
+							: {})}
+					>
+						<i
+							className={`adminfont-refresh ${sendingSpinnerClassName}`}
+						/>{' '}
+						{sendingLabel}
+					</ChatMessage>
+				)}
+			</>
+		);
 
 	const body = (
 		<>
-			{ header }
-			{ 'before-turns' === composerPosition && composer }
-			{ turnsBlock }
-			{ beforeComposer }
-			{ 'after-turns' === composerPosition && composer }
-			{ prompts }
-			{ note }
+			{header}
+			{'before-turns' === composerPosition && composer}
+			{turnsBlock}
+			{beforeComposer}
+			{'after-turns' === composerPosition && composer}
+			{prompts}
+			{note}
 		</>
 	);
 
 	return (
 		<CardComponent
-			title={ cardTitle }
-			titleIcon={ cardTitleIcon }
-			action={ cardAction }
+			title={cardTitle}
+			titleIcon={cardTitleIcon}
+			desc={cardDesc}
+			action={cardAction}
 			className={`${cardClassName} ai-card`}
 		>
-			{ guarded ? <AiCopilotGuard>{ body }</AiCopilotGuard> : body }
+			{guarded ? <AiCopilotGuard>{body}</AiCopilotGuard> : body}
 		</CardComponent>
 	);
 };
 
 export default ChatComposerCard;
+export { default as ChatMessage } from './ChatMessage';
+export { default as ChatInput } from './ChatInput';

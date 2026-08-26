@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { SectionComponent } from '@zyra/components';
+import { SectionComponent, ButtonInput } from '@zyra/components';
 import { formatAffected } from './issuesTypes';
 import { IssuesFilter } from './NeedsAttentionCard';
 import './AICopilot.scss';
@@ -30,9 +30,9 @@ const BUCKET_META: Record<
 	Recommendation['bucket'],
 	{ icon: string; tone: string; ctaFallback: string }
 > = {
-	security: { icon: 'security', tone: 'tone-red', ctaFallback: __('Security', 'vulopilot') },
-	performance: { icon: 'bar-chart', tone: 'tone-orange', ctaFallback: __('Performance', 'vulopilot') },
-	'ai-visibility': { icon: 'geo-location', tone: 'tone-teal', ctaFallback: __('AI Visibility', 'vulopilot') },
+	security: { icon: 'security', tone: 'red', ctaFallback: __('Security', 'vulopilot') },
+	performance: { icon: 'bar-chart', tone: 'green', ctaFallback: __('Performance', 'vulopilot') },
+	'ai-visibility': { icon: 'geo-location', tone: 'teal', ctaFallback: __('AI Visibility', 'vulopilot') },
 };
 
 const isUrgent = (severity: Recommendation['severity']): boolean =>
@@ -86,31 +86,33 @@ const RecommendedActionsCard: React.FC<RecommendedActionsCardProps> = ({ onNavig
 					const urgent = isUrgent(rec.severity);
 
 					return (
-						<div className={`recommended-actions-card ${meta.tone}`} key={rec.bucket}>
-							<div className="recommended-actions-card-eyebrow">
-								<i className={`recommended-actions-card-icon adminfont-${meta.icon}`} />
-								<span>{urgent ? __('Critical', 'vulopilot') : meta.ctaFallback}</span>
+						<div className={`recommended-actions-card tone-${meta.tone}`} key={rec.bucket}>
+							<div className={`recommended-actions-details ${meta.tone}`}>
+								<div className="recommended-actions-card-eyebrow">
+									<i className={`recommended-actions-card-icon adminfont-${meta.icon}`} />
+									<span>{urgent ? __('Critical', 'vulopilot') : meta.ctaFallback}</span>
+								</div>
+								<div className="recommended-actions-card-title">{rec.label}</div>
+								<div className="recommended-actions-card-detail">
+									{formatAffected(rec.count, rec.object_type)}
+								</div>
 							</div>
-							<div className="recommended-actions-card-title">{rec.label}</div>
-							<div className="recommended-actions-card-detail">
-								{formatAffected(rec.count, rec.object_type)}
-							</div>
-							<button
-								type="button"
-								className="recommended-actions-card-cta"
-								onClick={() =>
-									onNavigateTab('chat', {
-										scannerId: rec.scanner_id,
-										label: rec.label,
-										category: rec.category,
-									})
-								}
-							>
-								{urgent
-									? __('Investigate with AI', 'vulopilot')
-									: __('Improve with AI', 'vulopilot')}
-								{' →'}
-							</button>
+							<ButtonInput
+								position = 'left'
+								buttons={{
+									text: urgent
+										? __('Investigate with AI', 'vulopilot')
+										: __('Improve with AI', 'vulopilot'),
+									rightIcon: 'arrow-right',
+									color: `text-${meta.tone}`,
+									onClick: () =>
+										onNavigateTab('chat', {
+											scannerId: rec.scanner_id,
+											label: rec.label,
+											category: rec.category,
+										}),
+								}}
+							/>
 						</div>
 					);
 				})}

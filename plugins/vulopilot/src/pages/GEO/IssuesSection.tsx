@@ -307,9 +307,8 @@ const IssuesSection = ({
 		)
 		.map((group) => group.scanner_id);
 
-	/** All/Important/one per real `categories` entry — same real tab bar shape (and the same raw `GET /findings/groups` counts) SectionedIssuesTable.tsx's own Security/Accessibility/WooCommerce usage already establishes, reused here per direct instruction so this section's own filter bar matches that one exactly. */
+	/** Important/one per real `categories` entry — same real tab bar shape (and the same raw `GET /findings/groups` counts) SectionedIssuesTable.tsx's own Security/Accessibility/WooCommerce usage already establishes, reused here per direct instruction so this section's own filter bar matches that one exactly. */
 	const tabs: { id: string; label: string; count: number }[] = [
-		{ id: 'all', label: __('All', 'vulopilot'), count: sumGroupCounts(groups, scannerIds) },
 		{
 			id: 'important',
 			label: __('Important', 'vulopilot'),
@@ -364,7 +363,6 @@ const IssuesSection = ({
 				}))}
 			/>
 			<IssuesSummaryCards
-				total={activeTabTotal}
 				priorityCounts={priorityCounts}
 				isLoading={isLoading}
 				activePriority={activePriority}
