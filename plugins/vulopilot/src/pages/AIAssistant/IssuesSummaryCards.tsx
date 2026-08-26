@@ -39,13 +39,6 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 
 	const data: (SummaryTile & { onClick?: (item: SummaryTile) => void })[] = [
 		{
-			priority: 'all',
-			colorClass: 'purple',
-			number: total,
-			text: __('All Issues', 'vulopilot'),
-			onClick: isLoading ? undefined : handleClick,
-		},
-		{
 			priority: 'high',
 			colorClass: 'green',
 			number: priorityCounts.high,

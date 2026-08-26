@@ -5,59 +5,12 @@
 	margin: 1.25rem 0 0.75rem;
 }
 
-// ChatTab.tsx's own "Chat with VuloPilot" card (ChatComposerCard's
-// `cardClassName`) — the mockup's own icon-badge title treatment and
-// pill-shaped/chevron prompt grid, scoped here rather than in
-// ChatComposerCard.scss/zyra's own ListComponent.scss since every other
-// `chip-grid`/card-title consumer (GEO's "How would you like to grow
-// today?", Create Content's AI Content Assistant) keeps its plain look.
-.ai-copilot-main-chat {
-	.card-header .left .typography-title > i {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 1.75rem;
-		height: 1.75rem;
-		border-radius: $border-radius-small;
-		background: $theme-color;
-		color: $color-white;
-		font-size: 1rem;
-		margin-right: 0.25rem;
-	}
-
-	.ai-copilot-chat-history-action {
-		white-space: nowrap;
-	}
-
-	.chip-grid {
-		.item {
-			border-radius: 1.5rem;
-			justify-content: space-between;
-
-			.item-icon {
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				width: 1.75rem;
-				height: 1.75rem;
-				border-radius: 50%;
-				background: $theme-background-color;
-				flex-shrink: 0;
-			}
-
-			.details {
-				flex: 1;
-				min-width: 0;
-			}
-
-			.tags {
-				display: flex;
-				align-items: center;
-				flex-shrink: 0;
-				color: $sub-text-color;
-			}
-		}
-	}
+// ChatTab.tsx's own "Chat with VuloPilot" card — the icon-badge title
+// treatment and pill-shaped/chevron chip-grid are now shared by every
+// ChatComposerCard (`.ai-card` in ChatComposerCard.scss); only this one
+// Copilot-specific whitespace tweak stays local.
+.ai-copilot-main-chat .ai-copilot-chat-history-action {
+	white-space: nowrap;
 }
 
 // ChatTab.tsx's own "Issues" section heading, above the Issues table now

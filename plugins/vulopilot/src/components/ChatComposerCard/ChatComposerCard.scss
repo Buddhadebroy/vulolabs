@@ -184,3 +184,56 @@ $chat-message-avatar-bg: #e67a2e;
 		max-width: 28rem;
 	}
 }
+
+// Every ChatComposerCard's own CardComponent carries this class
+// unconditionally (see index.tsx's `className={`${cardClassName} ai-card`}`)
+// — scoping the title-icon badge + pill-shaped/chevron chip-grid here (keyed
+// off it, not a per-page class) is what makes this one shared look instead
+// of AI Copilot's Chat tab being the only composer with it. `chip-grid`
+// itself has no other consumer in this plugin outside a ChatComposerCard's
+// own `prompts`, so `.ai-card` is really just belt-and-suspenders against a
+// future unrelated `CardComponent`/`chip-grid` picking this up by accident.
+.ai-card {
+	.card-header .left .typography-title > i {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: $border-radius-small;
+		background: $theme-color;
+		color: $color-white;
+		font-size: 1rem;
+		margin-right: 0.25rem;
+	}
+
+	.chip-grid {
+		.item {
+			border-radius: 1.5rem;
+			justify-content: space-between;
+
+			.item-icon {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 1.75rem;
+				height: 1.75rem;
+				border-radius: 50%;
+				background: $theme-background-color;
+				flex-shrink: 0;
+			}
+
+			.details {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.tags {
+				display: flex;
+				align-items: center;
+				flex-shrink: 0;
+				color: $sub-text-color;
+			}
+		}
+	}
+}

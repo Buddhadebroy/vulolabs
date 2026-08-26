@@ -139,12 +139,6 @@ const AIAssistant = () => {
 				}
 				buttons={[
 					{
-						label: __('Conversation history', 'vulopilot'),
-						icon: 'clock',
-						color: 'border-purple',
-						onClick: () => setIsHistoryPopupOpen(true),
-					},
-					{
 						label: __('How it works', 'vulopilot'),
 						icon: 'help',
 						onClick: () => setIsHowItWorksOpen(true),
