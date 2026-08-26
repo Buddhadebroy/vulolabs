@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, InformationItemComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import {
 	ACCESSIBILITY_SCANNER_IDS,
@@ -38,6 +39,7 @@ interface AccessibilityPriorityListProps {
 	id?: string;
 	onViewAll: () => void;
 	/** Switches the merged issues table below to the check this row belongs to, then scrolls to it — same purpose the row's own inline scroll-to-section used to serve, back when each check was its own separate card rather than a tab of one shared table. */
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onReviewCheck: (checkKey: string) => void;
 }
 
@@ -50,6 +52,20 @@ interface AccessibilityPriorityListProps {
  * merged issues table below to that finding's own check/tab
  * (`onReviewCheck`) rather than the finding itself — there's no
  * single-finding detail view on this page.
+ *
+ * A real zyra `TableCard` (`transparent-table`, same borderless in-card
+ * look `SeoIssuesByPageTable.tsx` uses) rather than a hand-rolled flex-row
+ * list — `totalRows` is deliberately left at its default 0 so no
+ * pagination footer renders under a list that's always exactly 3 rows.
+ * The single "Issue" column is a real `InformationItemComponent`
+ * (avatar/title/descriptions), same shape `IssuesList.tsx`'s own findings
+ * table already uses — the 3-tier priority pill rides along as one of its
+ * `badges` entries rather than a separate column, via a scoped
+ * `accessibility-priority-badge` class (ProtectMySite.scss) rather than
+ * zyra's own generic `badge-high`/`badge-low`/etc. classes: those are
+ * wired to unrelated status semantics (`badge-high` = green "published",
+ * `badge-low` = red "rejected" — see SeoVisibility.scss's own docblock for
+ * the same trap), not a red/amber/blue risk scale.
  */
 const AccessibilityPriorityList = ({
 	id,
@@ -103,57 +119,74 @@ const AccessibilityPriorityList = ({
 				</div>
 			)}
 			{!isLoading && topFindings.length > 0 && (
-				<div className="accessibility-priority-list">
-					{topFindings.map((row) => {
-						const check = checkForScannerId(row.scanner_id);
+				<TableCard
+					className="transparent-table"
+					hideHeader={true}
+					showMenu={false}
+					headers={{
+						issue: {
+							label: __('Issue', 'vulopilot'),
+							width: '70%',
+							render: (row: AccessibilityFinding) => {
+								const check = checkForScannerId(row.scanner_id);
 
-						return (
-							<div className="accessibility-priority-row" key={row.id}>
-								<span
-									className={`accessibility-priority-pill is-${row.severity}`}
-								>
-									{PRIORITY_LABEL[row.severity]}
-								</span>
-								{check && (
-									<i
-										className={`adminfont-${check.icon} accessibility-priority-icon`}
-										style={{ color: check.color }}
+								return (
+									<InformationItemComponent
+										title={row.title}
+										avatar={
+											check
+												? { iconClass: check.icon, color: check.color }
+												: undefined
+										}
+										badges={[
+											{
+												text: PRIORITY_LABEL[row.severity],
+												className: `accessibility-priority-badge is-${row.severity}`,
+											},
+										]}
+										descriptions={[
+											{
+												value: [
+													row.page &&
+														sprintf(
+															/* translators: %s is a page path or "Site-wide". */
+															__('Page: %s', 'vulopilot'),
+															row.page
+														),
+													row.description,
+												]
+													.filter(Boolean)
+													.join(' — '),
+											},
+										]}
 									/>
-								)}
-								<div className="accessibility-priority-title-block">
-									<div className="accessibility-priority-title">
-										{row.title}
-									</div>
-									{row.page && (
-										<div className="accessibility-priority-page">
-											{sprintf(
-												/* translators: %s is a page path or "Site-wide". */
-												__('Page: %s', 'vulopilot'),
-												row.page
-											)}
-										</div>
-									)}
-								</div>
-								{row.description && (
-									<div className="accessibility-priority-explain">
-										{row.description}
-									</div>
-								)}
-								<ButtonInput
-									buttons={{
-										text: __('Review', 'vulopilot'),
-										rightIcon: 'pagination-right-arrow',
-										color: 'border-purple',
-										onClick: () =>
-											onReviewCheck(
-												check?.key || 'page-structure'
-											),
-									}}
-								/>
-							</div>
-						);
-					})}
-				</div>
+								);
+							},
+						},
+						action: {
+							render: (row: AccessibilityFinding) => {
+								const check = checkForScannerId(row.scanner_id);
+
+								return (
+									<ButtonInput
+										buttons={{
+											text: __('Review', 'vulopilot'),
+											rightIcon: 'pagination-right-arrow',
+											color: 'text-purple',
+											onClick: () =>
+												onReviewCheck(
+													check?.key || 'page-structure'
+												),
+										}}
+									/>
+								);
+							},
+						},
+					}}
+					rows={topFindings}
+					ids={topFindings.map((row) => row.id)}
+					isLoading={isLoading}
+				/>
 			)}
 		</CardComponent>
 	);

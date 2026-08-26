@@ -62,7 +62,7 @@ const AccessibilityManualTestingPanel = () => (
 		]}
 	>
 		<ListComponent
-			className="mini-card report accessibility-manual-checks"
+			className="mini-card report"
 			items={MANUAL_CHECKS.map((check) => ({
 				id: check.key,
 				icon: check.icon,

@@ -230,40 +230,21 @@
 	font-size: 0.75rem;
 }
 
-// AccessibilityPriorityList.tsx's "What should I fix first?" rows — a
-// single horizontal line (priority pill, check icon, title/page, real
-// explanation, Review button), matching this specific reference mockup's
-// own row anatomy.
-.accessibility-priority-list {
-	display: flex;
-	flex-direction: column;
-}
-
-.accessibility-priority-row {
-	display: flex;
-	align-items: center;
-	gap: 0.875rem;
-	padding: 0.75rem 0;
-	border-bottom: $border-light-small;
-
-	&:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-
-	&:first-child {
-		padding-top: 0;
-	}
-}
-
-.accessibility-priority-pill {
-	flex-shrink: 0;
-	padding: 0.25rem 0.625rem;
-	border-radius: 0.375rem;
+// AccessibilityPriorityList.tsx's "What should I fix first?" rows — a real
+// TableCard now (check icon/title/page/description via
+// InformationItemComponent, Review button), so only the priority badge's
+// own color scheme still needs a scoped rule here. Deliberately its own
+// class rather than zyra's generic `badge-high`/`badge-low`/etc — those
+// are wired to unrelated status semantics (`badge-high` = green
+// "published", `badge-low` = red "rejected"), not a red/amber/blue risk
+// scale, so reusing them here would color HIGH-risk findings green and
+// LOW-risk ones red (see SeoVisibility.scss's own docblock for the same
+// trap).
+.accessibility-priority-badge {
 	font-size: 0.6875rem;
 	font-weight: 700;
 	text-transform: uppercase;
-	white-space: nowrap;
+	border: none;
 
 	&.is-critical,
 	&.is-high {
@@ -281,32 +262,6 @@
 		color: #2563eb;
 		background: #e3f0fd;
 	}
-}
-
-.accessibility-priority-icon {
-	flex-shrink: 0;
-	font-size: 1.125rem;
-}
-
-.accessibility-priority-title-block {
-	flex-shrink: 0;
-	min-width: 12rem;
-}
-
-.accessibility-priority-title {
-	font-weight: 600;
-	font-size: 0.875rem;
-}
-
-.accessibility-priority-page {
-	color: $sub-text-color;
-	font-size: 0.75rem;
-}
-
-.accessibility-priority-explain {
-	flex-grow: 1;
-	color: $sub-text-color;
-	font-size: 0.8125rem;
 }
 
 // AccessibilityManualTestingPanel.tsx.

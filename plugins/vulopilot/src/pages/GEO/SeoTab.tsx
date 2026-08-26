@@ -378,6 +378,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 				>
 					<div className="seo-category-grid">
 						<AnalyticsComponent
+							cols="4"
 							data={
 								score
 									? CATEGORY_CARDS.map((card) => {

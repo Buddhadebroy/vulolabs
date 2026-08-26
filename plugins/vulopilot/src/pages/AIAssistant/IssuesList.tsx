@@ -239,7 +239,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							headers={{
 								issue: {
 									label: __('Issue', 'vulopilot'),
-									width: '70%',
+									width: '75%',
 									render: (row: FindingGroup) => (
 										<InformationItemComponent
 											avatar={{
