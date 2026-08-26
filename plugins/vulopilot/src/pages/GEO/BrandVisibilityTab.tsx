@@ -118,7 +118,7 @@ const BrandVisibilityTab = () => {
 
 	if (!isBrandModuleActive()) {
 		return (
-			<ColumnComponent>
+			<ColumnComponent general>
 				<CardComponent title={__('Brand', 'vulopilot')}>
 					<ModuleGuardComponent
 						icon="error"

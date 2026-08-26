@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation, Link } from 'react-router-dom';
-import { NavigatorHeaderComponent, NavigatorComponent } from '@zyra/components';
+import { NavigatorHeaderComponent, NavigatorComponent, ContainerComponent } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import OverviewTab from './OverviewTab';
 import GeoTab from './GeoTab';
@@ -245,7 +245,7 @@ const SeoVisibility = () => {
 
 	return (
 		<>
-			<NavigatorHeaderComponent
+			<NavigatorComponent
 				headerIcon="bar-chart"
 				headerTitle={__('SEO & Visibility', 'vulopilot')}
 				headerDescription={__(
@@ -258,8 +258,6 @@ const SeoVisibility = () => {
 						settingsSubtab="seo-content"
 					/>
 				}
-			/>
-			<NavigatorComponent
 				className="seo-visibility-tabs"
 				settingContent={settingContent}
 				currentSetting={activeTab}
@@ -273,6 +271,6 @@ const SeoVisibility = () => {
 			/>
 		</>
 	);
-};	
+};
 
 export default SeoVisibility;

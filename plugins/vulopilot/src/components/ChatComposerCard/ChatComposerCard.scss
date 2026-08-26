@@ -92,21 +92,12 @@ $chat-message-avatar-bg: #e67a2e;
 }
 
 .chat-input-send {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
-	border: none;
-	border-radius: 50%;
-	background: $theme-color;
-	color: $color-white;
-	cursor: pointer;
+	border-radius: 50% !important;
+    padding: 0.625rem !important;
 
 	&:disabled,
 	&[aria-disabled='true'] {
-		opacity: 0.5;
+		
 		cursor: not-allowed;
 	}
 
