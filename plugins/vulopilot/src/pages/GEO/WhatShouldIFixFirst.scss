@@ -83,29 +83,6 @@
 	justify-content: center;
 }
 
-.fix-first-score-pill {
-	display: inline-block;
-	font-weight: 600;
-	font-size: 0.8125rem;
-	padding: 0.125rem 0.625rem;
-	border-radius: 999px;
-
-	&.is-good {
-		color: #16a34a;
-		background: color-mix(in srgb, #16a34a 14%, transparent);
-	}
-
-	&.is-attention {
-		color: #b45309;
-		background: color-mix(in srgb, #b45309 14%, transparent);
-	}
-
-	&.is-poor {
-		color: #dc2626;
-		background: color-mix(in srgb, #dc2626 14%, transparent);
-	}
-}
-
 .fix-first-change {
 	display: inline-flex;
 	align-items: center;
@@ -124,15 +101,6 @@
 	&.is-steady {
 		color: $sub-text-color;
 		font-weight: 400;
-	}
-}
-
-.pages-needing-attention-link {
-	font-weight: 600;
-	color: inherit;
-
-	&:hover {
-		text-decoration: underline;
 	}
 }
 

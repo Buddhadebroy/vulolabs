@@ -1,11 +1,16 @@
 /* global appLocalizer */
 import { useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { BadgeComponent, CardComponent, ModuleGuardComponent } from '@zyra/components';
+import {
+	CardComponent,
+	ChartComponent,
+	InformationItemComponent,
+	ModuleGuardComponent,
+} from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
-import { ratingClass } from './seoRating';
+import { ratingColor } from './seoRating';
 import { nonceHeaders } from './seoIssuesShared';
 import './WhatShouldIFixFirst.scss';
 
@@ -27,10 +32,6 @@ interface PagesNeedingAttentionResponse {
 
 const DEFAULT_PER_PAGE = 10;
 
-const ScorePill = ({ score }: { score: number }) => (
-	<span className={`fix-first-score-pill ${ratingClass(score)}`}>{score}</span>
-);
-
 /** Same "no real number, no arrow" honesty `deltaLabel()` (SeoTab.tsx) already established for the sitewide score's own delta — a page with no findings 7 days ago and none now genuinely has 0 change, which is a real, meaningful "steady" state, not missing data, so it still renders (just without an arrow). */
 const ChangeCell = ({ change }: { change: number }) => {
 	if (0 === change) {
@@ -48,6 +49,7 @@ const ChangeCell = ({ change }: { change: number }) => {
 };
 
 interface PagesNeedingAttentionTableProps {
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onAnalyze: (postId: number) => void;
 }
 
@@ -161,34 +163,42 @@ const PagesNeedingAttentionTable = ({ onAnalyze }: PagesNeedingAttentionTablePro
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
-							width: '35%',
+							width: '55%',
 							render: (row: PageNeedingAttentionRow) => (
-								<a
-									href={row.edit_link}
-									className="pages-needing-attention-link"
-								>
-									{row.title || __('(no title)', 'vulopilot')}
-								</a>
+								<InformationItemComponent
+									title={row.title || __('(no title)', 'vulopilot')}
+									titleLink={row.edit_link}
+									badges={[
+										{
+											text: sprintf(
+												/* translators: %d: number of open issues on this page. */
+												_n(
+													'%d Issue',
+													'%d Issues',
+													row.issues,
+													'vulopilot'
+												),
+												row.issues
+											),
+											className: 'badge-info',
+										},
+									]}
+									descriptions={[{ value: row.main_problem }]}
+								/>
 							),
 						},
 						score: {
 							label: __('SEO Score', 'vulopilot'),
 							render: (row: PageNeedingAttentionRow) => (
-								<ScorePill score={row.score} />
+								<ChartComponent
+									type="ring"
+									height={40}
+									color={ratingColor(row.score)}
+									dataKey="score"
+									data={[{ score: row.score }]}
+									centerLabel={row.score}
+								/>
 							),
-						},
-						main_problem: {
-							label: __('Main Problems', 'vulopilot'),
-							render: (row: PageNeedingAttentionRow) => row.main_problem,
-						},
-						issues: {
-							label: __('Issues', 'vulopilot'),
-							render: (row: PageNeedingAttentionRow) =>
-								sprintf(
-									/* translators: %d: number of open issues on this page. */
-									__('%d', 'vulopilot'),
-									row.issues
-								),
 						},
 						change: {
 							label: __('Change', 'vulopilot'),
@@ -198,17 +208,13 @@ const PagesNeedingAttentionTable = ({ onAnalyze }: PagesNeedingAttentionTablePro
 						},
 						action: {
 							label: __('Action', 'vulopilot'),
-							render: (row: PageNeedingAttentionRow) => (
-								<BadgeComponent
-									badges={[
-										{
-											text: __('Analyze', 'vulopilot'),
-											icon: 'search',
-											onClick: () => onAnalyze(row.post_id),
-										},
-									]}
-								/>
-							),
+							type: 'more-action',
+							onToggleRow: (row: PageNeedingAttentionRow) =>
+								onAnalyze(row.post_id),
+							moreActionLabels: {
+								active: __('Viewing', 'vulopilot'),
+								inactive: __('Analyze', 'vulopilot'),
+							},
 						},
 					}}
 					rows={pageRows}
