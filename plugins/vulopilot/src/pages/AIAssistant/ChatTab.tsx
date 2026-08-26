@@ -5,10 +5,10 @@ import './AICopilot.scss';
 import {
 	ColumnComponent,
 	ContainerComponent,
-	ListComponent,
 	NoticeManager,
 	PopupComponent,
-	SectionComponent
+	SectionComponent,
+	TooltipComponent
 } from '@zyra/components';
 import { FileInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse, scrollToId, sendApiResponse } from '@zyra/core';
@@ -24,12 +24,11 @@ import AutomationTemplatesCard from '../Automations/AutomationsTemplatesCard';
 import { AutomationTemplate } from '../Automations/automationsTemplates';
 import {
 	useCopilotChat,
-	CopilotChatTurn,
 	CopilotContextRef,
 	CopilotAttachment,
 } from '../../services/useCopilotChat';
-import { ChatMarkdown } from '../../components/ChatMarkdown';
-import ChatComposerCard, { ChatInput, ChatMessage } from '../../components/ChatComposerCard';
+import { ChatInput } from '../../components/ChatComposerCard';
+import CopilotChatComposer from './CopilotChatComposer';
 
 /** Mirrors Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
@@ -47,9 +46,6 @@ const MAX_CONTEXT_REFS = 5;
  */
 const ATTACHMENT_ACCEPT =
 	'.txt,.csv,text/plain,text/csv,.jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp';
-
-/** Matches the image extensions inside ATTACHMENT_ACCEPT — used to decide whether a sent turn's attachment renders as an inline thumbnail or a plain file chip. */
-const IMAGE_EXTENSION_RE = /\.(jpe?g|png|gif|webp)$/i;
 
 interface FindingGroupOption {
 	scanner_id: string;
@@ -91,6 +87,8 @@ interface ChatTabProps {
 	/** Owned by AIAssistant.tsx, whose header now carries the "Conversation history" button that opens this — the popup itself (the same real "Recent conversations" list the grid=3 sidebar already shows) still renders here since it's this tab's own data/selection flow. */
 	isHistoryPopupOpen: boolean;
 	onCloseHistoryPopup: () => void;
+	/** Opens the same popup `isHistoryPopupOpen` controls — AIAssistant.tsx's own NavigatorHeaderComponent "Conversation history" button already calls this; the composer card's own "Chat History" action (matching the mockup's per-card button) reuses it rather than duplicating the popup. */
+	onOpenHistoryPopup: () => void;
 }
 
 /**
@@ -146,6 +144,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	issuesNavToken,
 	isHistoryPopupOpen,
 	onCloseHistoryPopup,
+	onOpenHistoryPopup,
 }) => {
 	const composerRef = useRef<HTMLDivElement>(null);
 	const didMountRef = useRef(false);
@@ -364,106 +363,14 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			<ColumnComponent grid={8}>
 				{/* Scroll target for handleSelectConversation() — loading a past thread from the "Recent conversations" sidebar brings this composer back into view. */}
 				<div ref={composerRef}>
-					<ChatComposerCard<CopilotChatTurn>
-						guarded
-						sendingAvatarIcon="ai"
-						welcome={
-							<>
-								<strong>
-									{__(
-										"Hi! I'm VuloPilot, your AI website copilot. 👋",
-										'vulopilot'
-									)}
-								</strong>
-								<div>
-									{__(
-										'I monitor your site 24×7, find opportunities and help you improve it — automatically or with your approval.',
-										'vulopilot'
-									)}
-								</div>
-							</>
-						}
+					<CopilotChatComposer
+						onOpenHistoryPopup={onOpenHistoryPopup}
+						prompts={SUGGESTED_PROMPTS}
+						onSelectPrompt={onMessageChange}
 						turns={turns}
-						renderTurn={(turn, index) => (
-							<ChatMessage
-								key={index}
-								sender={'user' === turn.role ? 'user' : 'ai'}
-							>
-								{turn.attachments && turn.attachments.length > 0 && (
-									<div className="chat-message-attachments">
-										{turn.attachments.map((attachment) =>
-											IMAGE_EXTENSION_RE.test(attachment.name) ? (
-												<img
-													key={`sent-attachment-${attachment.id}`}
-													className="chat-message-attachment-thumb"
-													src={attachment.url}
-													alt={attachment.name}
-												/>
-											) : (
-												<span
-													key={`sent-attachment-${attachment.id}`}
-													className="chat-message-attachment-chip"
-												>
-													<i className="adminfont-attachment" />
-													{attachment.name}
-												</span>
-											)
-										)}
-									</div>
-								)}
-								<ChatMarkdown text={turn.content} />
-								{turn.link && (
-									<div className="copilot-created-link">
-										<a
-											className="copilot-created-link-anchor"
-											href={turn.link.url}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											{turn.link.label}
-										</a>
-										{turn.runId && (
-											<span
-												className={`copilot-created-undo${turn.undone || undoingRunId === turn.runId ? ' disabled' : ''}`}
-												role="button"
-												tabIndex={0}
-												onClick={() => {
-													if (
-														turn.runId &&
-														!turn.undone &&
-														undoingRunId !== turn.runId
-													) {
-														handleUndo(turn.runId);
-													}
-												}}
-												onKeyDown={(e) => {
-													if (
-														('Enter' === e.key ||
-															' ' === e.key) &&
-														turn.runId &&
-														!turn.undone &&
-														undoingRunId !== turn.runId
-													) {
-														e.preventDefault();
-														handleUndo(turn.runId);
-													}
-												}}
-											>
-												{turn.undone
-													? __('Undone', 'vulopilot')
-													: undoingRunId === turn.runId
-														? __(
-																'Undoing…',
-																'vulopilot'
-															)
-														: __('Undo', 'vulopilot')}
-											</span>
-										)}
-									</div>
-								)}
-							</ChatMessage>
-						)}
 						isSending={isSending}
+						undoingRunId={undoingRunId}
+						onUndo={handleUndo}
 						beforeComposer={
 							<>
 								{(attachments.length > 0 || contextRefs.length > 0) && (
@@ -660,24 +567,25 @@ const ChatTab: React.FC<ChatTabProps> = ({
 									autoApply={{
 										checked: autoApply,
 										onChange: onAutoApplyChange,
-										label: __(
-											'Auto-applies (with approval)',
-											'vulopilot'
+										label: (
+											<>
+												{__(
+													'Auto-applies (with approval)',
+													'vulopilot'
+												)}
+												<TooltipComponent
+													text={__(
+														'When on, VuloPilot applies a fix itself and still asks you to approve it before it goes live — nothing changes on your site without your say.',
+														'vulopilot'
+													)}
+												>
+													<i className="adminfont-info chat-input-autoapply-info" />
+												</TooltipComponent>
+											</>
 										),
 									}}
 								/>
 							</div>
-						}
-						prompts={
-							<ListComponent
-								className="chip-grid"
-								items={SUGGESTED_PROMPTS.map((prompt) => ({
-									id: prompt.id,
-									icon: prompt.icon,
-									title: prompt.title,
-									action: () => onMessageChange(prompt.title),
-								}))}
-							/>
 						}
 					/>
 				</div>

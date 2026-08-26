@@ -62,19 +62,20 @@ $chat-message-avatar-bg: #e67a2e;
 
 .chat-input {
 	border: $border-light-small;
-	border-radius: $border-radius-small;
-	padding: 0.75rem 1rem;
+	border-radius: 1.5rem;
+	padding: 0.625rem 0.75rem;
 	background: #ffffff82;
 }
 
 .chat-input-row {
 	display: flex;
-	align-items: flex-end;
+	align-items: center;
+	flex-wrap: wrap;
 	gap: 0.75rem;
 }
 
 .chat-input-textarea {
-	flex: 1;
+	flex: 1 1 10rem;
 	min-width: 0;
 	resize: none;
 	border: none;
@@ -114,34 +115,18 @@ $chat-message-avatar-bg: #e67a2e;
 	}
 }
 
-.chat-input-footer {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.75rem;
-	margin-top: 0.75rem;
-	padding-top: 0.75rem;
-	border-top: $border-light-small;
-	flex-wrap: wrap;
-}
-
-.chat-input-actions {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
 .chat-input-action {
+	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.375rem;
 	border: $border-light-small;
-	border-radius: $border-radius-small;
+	border-radius: 1.25rem;
 	background: none;
 	color: $sub-text-color;
 	font-size: 0.8125rem;
 	font-weight: 500;
-	padding: 0.375rem 0.625rem;
+	padding: 0.375rem 0.75rem;
 	cursor: pointer;
 
 	i {
@@ -150,6 +135,7 @@ $chat-message-avatar-bg: #e67a2e;
 }
 
 .chat-input-autoapply {
+	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -158,4 +144,43 @@ $chat-message-avatar-bg: #e67a2e;
 .chat-input-autoapply-label {
 	font-size: 0.8125rem;
 	color: $sub-text-color;
+}
+
+// ChatComposerCard's `emptyState` — a centered "nothing sent yet" hero
+// (icon + heading + subtitle) shown in place of `welcome`/`turns` while the
+// conversation is empty, instead of the plain `ChatMessage` bubble every
+// other composer here uses. Bare/generic on purpose: page-specific touches
+// (AI Copilot's own icon treatment) stay in that page's own SCSS.
+.chat-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 0.375rem;
+	padding: 2rem 1rem;
+
+	.chat-empty-state-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 4rem;
+		height: 4rem;
+		border-radius: 50%;
+		background: $chat-message-bubble-bg;
+		color: $chat-message-avatar-bg;
+		font-size: 1.75rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.chat-empty-state-title {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: $text-color;
+	}
+
+	.chat-empty-state-desc {
+		font-size: 0.875rem;
+		color: $sub-text-color;
+		max-width: 28rem;
+	}
 }

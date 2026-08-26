@@ -5,7 +5,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	PopupComponent,
 	ContainerComponent,
-	NavigatorHeaderComponent,
+	NavigatorHeaderComponent
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import { IssuesFilter } from './NeedsAttentionCard';
@@ -162,6 +162,7 @@ const AIAssistant = () => {
 					issuesNavToken={issuesNavToken}
 					isHistoryPopupOpen={isHistoryPopupOpen}
 					onCloseHistoryPopup={() => setIsHistoryPopupOpen(false)}
+					onOpenHistoryPopup={() => setIsHistoryPopupOpen(true)}
 				/>
 			</ContainerComponent>
 		</>

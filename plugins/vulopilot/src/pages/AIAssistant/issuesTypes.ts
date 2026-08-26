@@ -115,7 +115,7 @@ const OBJECT_TYPE_NOUNS: Record<string, [string, string]> = {
 	site: ['site-wide check', 'site-wide checks'],
 };
 
-/** Just the noun half of `formatAffected` (no count prefix) — for callers that render the count and noun as two separate pieces, e.g. TableCard's `variant="findings"` `FindingItem.statCount`/`statLabel`. */
+/** Just the noun half of `formatAffected` (no count prefix) — for a caller that renders the count and noun as two separate pieces. */
 export const getObjectTypeNoun = (count: number, objectType: string | null): string => {
 	const [singular, plural] = OBJECT_TYPE_NOUNS[objectType ?? ''] ?? ['issue', 'issues'];
 
@@ -124,17 +124,3 @@ export const getObjectTypeNoun = (count: number, objectType: string | null): str
 
 export const formatAffected = (count: number, objectType: string | null): string =>
 	`${count} ${getObjectTypeNoun(count, objectType)}`;
-
-/** `object_type` → the adminfont icon shown before a finding-list row's stat count (TableCard's `variant="findings"` `FindingItem.statIcon`) — a plausible icon per noun, not tied to any other icon mapping in this file. */
-export const OBJECT_TYPE_STAT_ICONS: Record<string, string> = {
-	post: 'document',
-	attachment: 'document',
-	product: 'cart',
-	user: 'user-circle',
-	url: 'global-community',
-	plugin: 'coding',
-	theme: 'coding',
-	table: 'database',
-	file: 'document',
-	site: 'alarm',
-};

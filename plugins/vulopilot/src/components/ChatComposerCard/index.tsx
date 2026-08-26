@@ -9,6 +9,8 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	/** Passed straight through to CardComponent. */
 	cardTitle?: ReactNode;
 	cardTitleIcon?: string;
+	/** Passed straight through to CardComponent's own `desc` — a one-line subtitle under `cardTitle`. */
+	cardDesc?: ReactNode;
 	cardAction?: ReactNode;
 	cardClassName?: string;
 	/**
@@ -20,8 +22,20 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	guarded?: boolean;
 	/** A custom header rendered above everything else, for cards whose title isn't a plain CardComponent `title` (AutomationComposerCard's own `<h2>`). */
 	header?: ReactNode;
-	/** A static first turn (e.g. a greeting), rendered before `turns`. */
+	/** A static first turn (e.g. a greeting), rendered before `turns` — as a real `ChatMessage` bubble, and (unlike `emptyState` below) still shown once real turns exist. */
 	welcome?: ReactNode;
+	/**
+	 * A centered "nothing sent yet" placeholder (icon + heading + subtitle,
+	 * typically) rendered on its own — NOT wrapped in a `ChatMessage`
+	 * bubble — in place of `welcome`/`turns` while `turns` is empty and
+	 * nothing is sending. Once a real turn exists (or one is in flight),
+	 * this stops rendering and `welcome`/`turns` take over as normal. Only
+	 * needed by a composer whose empty state is a distinct hero rather than
+	 * a chat bubble (AI Copilot's own Chat tab) — leave unset to keep the
+	 * plain `welcome`-bubble behavior every other composer here already
+	 * uses.
+	 */
+	emptyState?: ReactNode;
 	turns?: TTurn[];
 	// eslint-disable-next-line no-unused-vars -- named params on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	renderTurn?: (turn: TTurn, index: number) => ReactNode;
@@ -74,11 +88,13 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 const ChatComposerCard = <TTurn,>({
 	cardTitle,
 	cardTitleIcon,
+	cardDesc,
 	cardAction,
 	cardClassName,
 	guarded = false,
 	header,
 	welcome,
+	emptyState,
 	turns = [],
 	renderTurn,
 	isSending = false,
@@ -91,42 +107,45 @@ const ChatComposerCard = <TTurn,>({
 	prompts,
 	note,
 }: ChatComposerCardProps<TTurn>) => {
-	const turnsBlock = (
-		<>
-			{welcome && (
-				<ChatMessage
-					sender="ai"
-					{...(sendingAvatarIcon
-						? { avatarIcon: sendingAvatarIcon }
-						: {})}
-				>
-					{welcome}
-				</ChatMessage>
-			)}
+	const turnsBlock =
+		emptyState && 0 === turns.length && !isSending ? (
+			emptyState
+		) : (
+			<>
+				{welcome && (
+					<ChatMessage
+						sender="ai"
+						{...(sendingAvatarIcon
+							? { avatarIcon: sendingAvatarIcon }
+							: {})}
+					>
+						{welcome}
+					</ChatMessage>
+				)}
 
-			{turns.map((turn, index) =>
-				renderTurn ? (
-					renderTurn(turn, index)
-				) : (
-					<ChatMessage key={index}>{turn as ReactNode}</ChatMessage>
-				)
-			)}
+				{turns.map((turn, index) =>
+					renderTurn ? (
+						renderTurn(turn, index)
+					) : (
+						<ChatMessage key={index}>{turn as ReactNode}</ChatMessage>
+					)
+				)}
 
-			{isSending && (
-				<ChatMessage
-					sender="ai"
-					{...(sendingAvatarIcon
-						? { avatarIcon: sendingAvatarIcon }
-						: {})}
-				>
-					<i
-						className={`adminfont-refresh ${sendingSpinnerClassName}`}
-					/>{' '}
-					{sendingLabel}
-				</ChatMessage>
-			)}
-		</>
-	);
+				{isSending && (
+					<ChatMessage
+						sender="ai"
+						{...(sendingAvatarIcon
+							? { avatarIcon: sendingAvatarIcon }
+							: {})}
+					>
+						<i
+							className={`adminfont-refresh ${sendingSpinnerClassName}`}
+						/>{' '}
+						{sendingLabel}
+					</ChatMessage>
+				)}
+			</>
+		);
 
 	const body = (
 		<>
@@ -144,6 +163,7 @@ const ChatComposerCard = <TTurn,>({
 		<CardComponent
 			title={cardTitle}
 			titleIcon={cardTitleIcon}
+			desc={cardDesc}
 			action={cardAction}
 			className={`${cardClassName} ai-card`}
 		>

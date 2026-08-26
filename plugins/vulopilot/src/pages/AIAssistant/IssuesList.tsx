@@ -2,21 +2,18 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
+import { ColumnComponent, ModuleGuardComponent, InformationItemComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
-import type { FindingItem } from '@zyra/table';
 import './AICopilot.scss';
 import IssuesSummaryCards, { Priority } from './IssuesSummaryCards';
 import IssueDetailPanel from './IssueDetailPanel';
-import { getSeverityClass } from '../../services/getSeverityClass';
 import {
 	CATEGORY_ICONS,
 	CATEGORY_LABELS,
 	CATEGORY_TABS,
 	FindingGroup,
-	OBJECT_TYPE_STAT_ICONS,
 	findTabIdForCategory,
-	getObjectTypeNoun,
+	formatAffected,
 } from './issuesTypes';
 
 interface GroupsResponse {
@@ -203,54 +200,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 		})),
 	];
 
-	// TableCard's `variant="findings"` row shape (icon chip + title + tag
-	// pills + desc, a stat, and a "View details" button) — replaces the
-	// former `variant="default"` column grid (issue/affected/action
-	// headers) this table used to render, per the `table/TableCard--findings`
-	// Storybook story. `CATEGORY_ICONS[row.category]` is "<icon> <color>"
-	// (e.g. "security lime") shared with other consumers of that map
-	// (IssueDetailPanel.tsx, RecentContentCard.tsx) as one combined
-	// className string — split here since `FindingItem` wants the icon name
-	// and its palette color as two separate fields.
-	const findingItems: FindingItem[] = data.map((row) => {
-		const [icon, iconColor] = (
-			CATEGORY_ICONS[row.category] ?? 'search-discovery pink'
-		).split(' ');
-		const isActiveRow = row.scanner_id === selectedGroup?.scanner_id;
-
-		return {
-			id: row.scanner_id,
-			icon,
-			iconColor,
-			title: row.label,
-			badges: [
-				{
-					text: CATEGORY_LABELS[row.category] ?? row.category,
-					color: iconColor,
-				},
-				{
-					text: row.severity,
-					color: getSeverityClass(row.severity),
-				},
-			],
-			desc: row.sample?.description || undefined,
-			statIcon: OBJECT_TYPE_STAT_ICONS[row.object_type ?? ''] ?? 'alarm',
-			statCount: row.count,
-			statLabel: getObjectTypeNoun(row.count, row.object_type),
-			// Replaces the old grid layout's `is-selected` row tint +
-			// "Showing"/"More Details" label swap (both driven by
-			// `activeRowId`/`type: 'more-action'`, neither of which
-			// `variant="findings"` rows carry) — computed here instead so
-			// clicking the currently-open row's own button still reads as
-			// "already showing" and toggles the detail panel closed.
-			viewDetailsText: isActiveRow
-				? __('Showing', 'vulopilot')
-				: __('View Details', 'vulopilot'),
-			onViewDetails: () =>
-				setSelectedGroup(isActiveRow ? null : row),
-		};
-	});
-
 	return (
 		<>
 			{/* Real scroll target for ChatTab.tsx's own "View all issues"/
@@ -284,10 +233,75 @@ const IssuesList: React.FC<IssuesListProps> = ({
 						/>
 					) : (
 						<TableCard
-							variant="findings"
+							showMenu={false}
+							hideHeader={true}
 							categoryCounts={tableCategoryCounts}
 							activeCategory={activeTabId}
-							findings={findingItems}
+							// Highlights the row whose details are showing in
+							// the side panel (zyra's own `is-selected` row
+							// style, see @zyra/table's TableCard/Table) —
+							// kept in sync with the action cell's own
+							// row-is-active check below rather than a
+							// separate piece of state.
+							activeRowId={selectedGroup?.scanner_id}
+							headers={{
+								issue: {
+									label: __('Issue', 'vulopilot'),
+									width: '70%',
+									render: (row: FindingGroup) => (
+										<InformationItemComponent
+											avatar={{
+												iconClass:
+													CATEGORY_ICONS[row.category] ??
+													'search-discovery pink',
+											}}
+											title={row.label}
+											descriptions={[
+												{
+													value:
+														(row.sample?.description?.length ?? 0) > 80
+															? `${row.sample?.description?.slice(0, 80)}...`
+															: row.sample?.description || '',
+												},
+											]}
+											badges={[
+												{
+													text: CATEGORY_LABELS[row.category] ?? row.category,
+													className: `badge-${row.category}`,
+												},
+												{
+													text: row.severity,
+													className: `badge-${row.severity}`,
+												},
+											]}
+										/>
+									),
+								},
+								affected: {
+									label: __('Affected', 'vulopilot'),
+									render: (row: FindingGroup) =>
+										formatAffected(
+											row.count,
+											row.object_type
+										),
+								},
+								action: {
+									label: __('Affected', 'vulopilot'),
+									type: 'more-action',
+									onToggleRow: (row: FindingGroup) =>
+										setSelectedGroup(
+											row.scanner_id === selectedGroup?.scanner_id
+												? null
+												: row
+										),
+									moreActionLabels: {
+										active: __('Showing', 'vulopilot'),
+										inactive: __('More Details', 'vulopilot'),
+									},
+								},
+							}}
+							rows={data}
+							ids={data.map((row) => row.scanner_id)}
 							totalRows={total}
 							isLoading={isLoading}
 							onQueryUpdate={(query: {
@@ -297,17 +311,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							}) => {
 								setPaged(Number(query.paged) || 1);
 								setPerPage(Number(query.per_page) || 10);
-
-								// TableCard renders/highlights the category tab
-								// bar itself and reports a click here as part of
-								// this same query object (its own
-								// `handleCategoryChange` → `onQueryUpdate`) —
-								// there's no separate callback for it. Without
-								// this, a tab visually highlighted on click
-								// never actually reached `activeTabId` (the
-								// state the real `GET /findings/groups?category=`
-								// fetch above is keyed on), so every tab kept
-								// showing the same unfiltered "All" rows.
 								if (
 									query.categoryFilter &&
 									query.categoryFilter !== activeTabId

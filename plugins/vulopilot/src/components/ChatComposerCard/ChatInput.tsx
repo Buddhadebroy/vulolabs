@@ -66,6 +66,26 @@ const ChatInput: React.FC<ChatInputProps> = ({
 	return (
 		<div className="chat-input">
 			<div className="chat-input-row">
+				{onAttach && (
+					<button
+						type="button"
+						className="chat-input-action"
+						onClick={onAttach}
+					>
+						<IconComponent name="attachment" />
+						{attachLabel}
+					</button>
+				)}
+				{onAddContext && (
+					<button
+						type="button"
+						className="chat-input-action"
+						onClick={onAddContext}
+					>
+						<IconComponent name="plus-circle" />
+						{addContextLabel}
+					</button>
+				)}
 				<textarea
 					className="chat-input-textarea"
 					value={value}
@@ -80,6 +100,28 @@ const ChatInput: React.FC<ChatInputProps> = ({
 						}
 					}}
 				/>
+				{autoApply && (
+					<div className="chat-input-autoapply">
+						<MultiCheckboxInput
+							look="toggle"
+							modules={[]}
+							options={[
+								{ key: 'auto-apply', value: 'auto-apply' },
+							]}
+							value={autoApply.checked ? ['auto-apply'] : []}
+							onChange={(vals) =>
+								autoApply.onChange(
+									vals.includes('auto-apply')
+								)
+							}
+						/>
+						{autoApply.label && (
+							<span className="chat-input-autoapply-label">
+								{autoApply.label}
+							</span>
+						)}
+					</div>
+				)}
 				{sendDisabledReason ? (
 					<TooltipComponent text={sendDisabledReason}>
 						{sendButton}
@@ -88,54 +130,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 					sendButton
 				)}
 			</div>
-			{(onAttach || onAddContext || autoApply) && (
-				<div className="chat-input-footer">
-					<div className="chat-input-actions">
-						{onAttach && (
-							<button
-								type="button"
-								className="chat-input-action"
-								onClick={onAttach}
-							>
-								<IconComponent name="attachment" />
-								{attachLabel}
-							</button>
-						)}
-						{onAddContext && (
-							<button
-								type="button"
-								className="chat-input-action"
-								onClick={onAddContext}
-							>
-								<IconComponent name="plus-circle" />
-								{addContextLabel}
-							</button>
-						)}
-					</div>
-					{autoApply && (
-						<div className="chat-input-autoapply">
-							<MultiCheckboxInput
-								look="toggle"
-								modules={[]}
-								options={[
-									{ key: 'auto-apply', value: 'auto-apply' },
-								]}
-								value={autoApply.checked ? ['auto-apply'] : []}
-								onChange={(vals) =>
-									autoApply.onChange(
-										vals.includes('auto-apply')
-									)
-								}
-							/>
-							{autoApply.label && (
-								<span className="chat-input-autoapply-label">
-									{autoApply.label}
-								</span>
-							)}
-						</div>
-					)}
-				</div>
-			)}
 		</div>
 	);
 };
