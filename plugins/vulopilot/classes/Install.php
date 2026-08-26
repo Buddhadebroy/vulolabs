@@ -686,8 +686,15 @@ class Install {
      * interaction yet for INP) is NULL, never a fabricated zero. `cls`
      * stored ×1000 as a smallint (`cls_thousandths`), matching this
      * codebase's own preference for integer ms/thousandths columns over
-     * float columns. Own method, same shape as create_redirect_tables()
-     * above.
+     * float columns. `page_load_ms`/`transfer_bytes` are the same real
+     * beacon's Navigation/Resource Timing read (`window.performance`'s own
+     * `loadEventEnd`/summed `transferSize`) — real-visitor "Page Load
+     * Time"/"Bandwidth Usage", backing RealTimeMonitoringCard.tsx's own
+     * two tiles that previously had no real data source at all. Own
+     * method, same shape as create_redirect_tables() above. Adding these
+     * 2 columns to an already-installed table is safe and automatic —
+     * see this class's own docblock on why `run_migration()` re-runs
+     * `dbDelta()` unconditionally on every request.
      *
      * @return void
      */
@@ -700,11 +707,23 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['core_web_vital'] . "` (
+        // No "IF NOT EXISTS" — dbDelta() extracts the table name via
+        // `preg_match('|CREATE TABLE ([^ ]*)|', ...)`, which reads "IF" as
+        // the table name when that clause is present, so it never
+        // recognizes this as an existing table and never runs the
+        // ALTER TABLE ADD COLUMN a schema change (like `page_load_ms`/
+        // `transfer_bytes` below) needs — a real, confirmed-live dbDelta
+        // limitation (see https://developer.wordpress.org/reference/functions/dbdelta/
+        // "you must not use IF NOT EXISTS"), not a style preference.
+        // dbDelta() already checks table existence itself before deciding
+        // CREATE vs ALTER, so the SQL-level guard was always redundant.
+        $sql = "CREATE TABLE `{$wpdb->prefix}" . Utill::TABLES['core_web_vital'] . "` (
             `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `lcp_ms`           smallint(5) unsigned DEFAULT NULL,
             `cls_thousandths`  smallint(5) unsigned DEFAULT NULL,
             `inp_ms`           smallint(5) unsigned DEFAULT NULL,
+            `page_load_ms`     smallint(5) unsigned DEFAULT NULL,
+            `transfer_bytes`   int(10) unsigned DEFAULT NULL,
             `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             KEY `idx_created` (`created_at`)

@@ -1,0 +1,19 @@
+@use '../../components/config' as *;
+
+.why-accessibility-matters-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.why-accessibility-matters-row {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	font-size: 0.8125rem;
+}
+
+.why-accessibility-matters-icon {
+	color: $color-success;
+	flex-shrink: 0;
+}
