@@ -189,9 +189,19 @@ const AiContentAssistantSidebar = () => {
 	 * instruction (e.g. "Write a blog about eco-friendly packaging") —
 	 * what's actually shown as the user's turn and sent to the AI, not the
 	 * bare reply on its own.
+	 *
+	 * Guarded on `pendingChip` the same way `handleSend()` already guards
+	 * on `isSending` — the chip grid stays clickable the whole time (it's
+	 * not disabled/hidden once a question is asked), so without this a
+	 * user clicking the same chip again while its question is still
+	 * unanswered re-ran this and appended a 2nd, identical "assistant"
+	 * turn — confirmed live: 4 clicks on "Write a blog" stacked 4 copies
+	 * of "What should the blog be about?" in the chat. One open question
+	 * at a time is the real, correct behavior; the user must answer (or
+	 * the request must finish) before another chip can ask a new one.
 	 */
 	const handleChipClick = (chip: PromptChip) => {
-		if (isSending) {
+		if (isSending || pendingChip) {
 			return;
 		}
 
