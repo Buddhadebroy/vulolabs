@@ -29,11 +29,9 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	 * typically) rendered on its own — NOT wrapped in a `ChatMessage`
 	 * bubble — in place of `welcome`/`turns` while `turns` is empty and
 	 * nothing is sending. Once a real turn exists (or one is in flight),
-	 * this stops rendering and `welcome`/`turns` take over as normal. Only
-	 * needed by a composer whose empty state is a distinct hero rather than
-	 * a chat bubble (AI Copilot's own Chat tab) — leave unset to keep the
-	 * plain `welcome`-bubble behavior every other composer here already
-	 * uses.
+	 * this stops rendering and `welcome`/`turns` take over as normal. Most
+	 * callers get this for free via `AiChatCard` (this folder's own
+	 * `ChatComposerCard`+`ai.png` wrapper) rather than building it by hand.
 	 */
 	emptyState?: ReactNode;
 	turns?: TTurn[];
@@ -57,32 +55,28 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	/**
 	 * The fully-built prompt-pills element. Left to the caller for the same
 	 * reason as `composer` — shapes genuinely differ (zyra's `ListComponent`
-	 * chip-grid vs AutomationComposerCard's raw `<button>` grid).
+	 * chip-grid vs AutomationComposerCard's raw `<button>` grid). Most
+	 * callers get this for free via `AiChatCard` instead.
 	 */
 	prompts?: ReactNode;
 	note?: ReactNode;
 }
 
 /**
- * The shared skeleton behind every "AI chat composer" card in this plugin:
- * Automation's composer (AutomationComposerCard.tsx), GEO's "How would you
- * like to grow today?" card (pages/GEO/OverviewTab.tsx), the "AI Content
- * Assistant" sidebar (pages/Content/AiContentAssistantSidebar.tsx), and AI
- * Assistant's own Chat tab (pages/AIAssistant/ChatTab.tsx) — same
- * CardComponent/AiCopilotGuard/welcome+turns/"Thinking…"/composer/prompts
- * ordering, copy-pasted with small variations across all four before this.
+ * The shared low-level skeleton behind every "AI chat composer" card in
+ * this plugin — CardComponent/AiCopilotGuard/welcome-or-emptyState+turns/
+ * "Thinking…"/composer/prompts ordering. Genuinely bare on purpose: this
+ * is the primitive `AiChatCard` (this folder's own opinionated wrapper —
+ * card header + `ai.png` empty state + chip-grid prompts, the "Chat with
+ * VuloPilot" look every real composer here now shares) is built on top
+ * of; reach for this one directly only for a composer that deliberately
+ * doesn't want that shared look (there are none today, but the primitive
+ * stays available rather than folding everything into one component).
  *
- * Only the genuinely-shared skeleton lives here. Each site's own
- * turn-shape, composer props (attachments, context refs, undo, pending-chip
- * placeholders, `sendDisabledReason`, …) and prompt-pill markup stay local
- * to that site and are passed in pre-built via `renderTurn`/`composer`/
- * `prompts` — deliberately not flattened into one giant generic prop shape,
- * since those parts don't actually share behavior, just adjacent JSX.
- *
- * `ChatMessage`/`ChatInput` (this folder's other two files) used to be
- * zyra's own ChatMessageComponent/ChatInputComponent (@zyra/components) —
- * every real consumer of either lived in this plugin alone, so both moved
- * here (styles included, ChatComposerCard.scss) instead of staying in the
+ * `ChatMessage`/`ChatInput` (this folder's other files) used to be zyra's
+ * own ChatMessageComponent/ChatInputComponent (@zyra/components) — every
+ * real consumer of either lived in this plugin alone, so both moved here
+ * (styles included, ChatComposerCard.scss) instead of staying in the
  * shared design system.
  */
 const ChatComposerCard = <TTurn,>({
@@ -173,5 +167,3 @@ const ChatComposerCard = <TTurn,>({
 };
 
 export default ChatComposerCard;
-export { default as ChatMessage } from './ChatMessage';
-export { default as ChatInput } from './ChatInput';

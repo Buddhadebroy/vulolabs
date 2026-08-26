@@ -10,7 +10,7 @@ import {
 	SectionComponent,
 	TooltipComponent
 } from '@zyra/components';
-import { FileInput } from '@zyra/inputs';
+import { ButtonInput, FileInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse, scrollToId, sendApiResponse } from '@zyra/core';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
@@ -27,8 +27,7 @@ import {
 	CopilotContextRef,
 	CopilotAttachment,
 } from '../../services/useCopilotChat';
-import { ChatInput } from '../../components/ChatComposerCard';
-import CopilotChatComposer from './CopilotChatComposer';
+import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 
 /** Mirrors Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
@@ -363,14 +362,39 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			<ColumnComponent grid={8}>
 				{/* Scroll target for handleSelectConversation() — loading a past thread from the "Recent conversations" sidebar brings this composer back into view. */}
 				<div ref={composerRef}>
-					<CopilotChatComposer
-						onOpenHistoryPopup={onOpenHistoryPopup}
+					<AiChatCard
+						cardClassName="ai-copilot-main-chat"
+						cardTitle={__('Chat with VuloPilot', 'vulopilot')}
+						cardDesc={__(
+							'Ask anything about your website, performance, security, content and more.',
+							'vulopilot'
+						)}
+						cardAction={
+							<ButtonInput
+								buttons={{
+									text: __('Chat History', 'vulopilot'),
+									leftIcon: 'clock',
+									color: 'text-purple',
+									onClick: onOpenHistoryPopup,
+								}}
+							/>
+						}
+						emptyDesc={__(
+							'Ask me anything about your website, performance, security, content and more.',
+							'vulopilot'
+						)}
 						prompts={SUGGESTED_PROMPTS}
 						onSelectPrompt={onMessageChange}
 						turns={turns}
+						renderTurn={(turn, index) => (
+							<CopilotTurnBubble
+								key={index}
+								turn={turn}
+								undoingRunId={undoingRunId}
+								onUndo={handleUndo}
+							/>
+						)}
 						isSending={isSending}
-						undoingRunId={undoingRunId}
-						onUndo={handleUndo}
 						beforeComposer={
 							<>
 								{(attachments.length > 0 || contextRefs.length > 0) && (
@@ -570,7 +594,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 										label: (
 											<>
 												{__(
-													'Auto-applies (with approval)',
+													'Auto-applies',
 													'vulopilot'
 												)}
 												<TooltipComponent

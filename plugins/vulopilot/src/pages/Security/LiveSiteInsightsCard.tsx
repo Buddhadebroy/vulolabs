@@ -136,7 +136,7 @@ const LiveSiteInsightsCard: React.FC = () => {
 						tags: (
 							<>
 								
-								<TypographyComponent variant="h4">
+								<TypographyComponent variant="h5">
 									{sprintf(
 									/* translators: %d: real 0-100 security score computed from open security findings */
 									__('%d/100', 'vulopilot'),

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TooltipComponent, IconComponent } from '@zyra/components';
+import { TooltipComponent, IconComponent, ButtonInput } from '@zyra/components';
 import { MultiCheckboxInput } from '@zyra/inputs';
 
 interface ChatInputProps {
@@ -52,15 +52,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
 	};
 
 	const sendButton = (
-		<button
-			type="button"
-			className="chat-input-send"
-			disabled={disabled || (!sendDisabledReason && !value.trim())}
-			aria-disabled={!!sendDisabledReason}
-			onClick={handleSend}
-		>
-			<IconComponent name="send" />
-		</button>
+		<ButtonInput
+			buttons={[
+				{
+					icon: 'send',
+					color: 'purple chat-input-send',
+					disabled: disabled || (!sendDisabledReason && !value.trim()),
+					ariaDisabled: !!sendDisabledReason,
+					onClick: handleSend,
+				},
+			]}
+		/>
 	);
 
 	return (

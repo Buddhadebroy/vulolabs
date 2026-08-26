@@ -233,118 +233,57 @@ $vulopilot-rating-very-poor: #991b1b;
 // (SlowPagesTab.tsx), which supplies its own icon/message/action-link
 // styling.
 
-.page-speed-last-scanned {
-	font-size: 0.8125rem;
-	color: $sub-text-color;
-	white-space: nowrap;
-	margin-right: 0.25rem;
-}
-
-.page-speed-toolbar {
+// Status filter pills, search box, and Export/Scan Again now render through
+// TableCard's own `categoryCounts`/`search`/`buttonActions` (SlowPagesTab.tsx)
+// — that row's chrome comes from Table.scss, not this file. Only the
+// trend-days select + last-scanned caption stay outside TableCard (they
+// drive the AnalyticsComponent trend tile above, not the table's own rows).
+.page-speed-trend-toolbar {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
 	flex-wrap: wrap;
 	gap: 0.75rem;
 	margin-bottom: 1rem;
 }
 
-// Holds both the status pills and the trend-days/page-type SelectInputs —
-// the two selects used to sit in the now-removed .page-speed-toolbar-actions
-// wrapper alongside the search box/export/scan buttons; they're grouped
-// here with the pills instead, as this toolbar's one filter group.
-.page-speed-filter-pills {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-}
-
-.page-speed-filter-pill {
-	padding: 0.4rem 0.875rem;
-	border-radius: 999px;
-	border: $border-light-small;
-	background: $color-white;
-	color: $theme-color;
-	font-weight: 600;
+.page-speed-last-scanned {
 	font-size: 0.8125rem;
-	cursor: pointer;
-	transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
-
-	&:hover:not(.is-active) {
-		border-color: $theme-color;
-	}
-
-	&.is-active {
-		background: $theme-color;
-		border-color: $theme-color;
-		color: $color-white;
-	}
+	color: $sub-text-color;
+	white-space: nowrap;
 }
-
-// TextInput's own wrapperClass hook (default `.setting-form-input
-// .input-wrapper` from TextInput.tsx itself) — same flex-basis convention
-// RecentContentCard.tsx's own `.recent-content-search` already uses for a
-// search box sharing a toolbar row with other controls.
-.table-search {
-	flex: 1 1 14rem;
-}
-
-// `.page-speed-export-button`/`.page-speed-scan-button`'s own outline-button
-// CSS used to live here — removed now that both actions render through a
-// real Zyra `<ButtonInput>` (SlowPagesTab.tsx), which supplies its own
-// button chrome/hover/disabled states.
 
 // `.page-speed-table-wrap`/`.page-speed-table`'s own raw <table> CSS used to
 // live here — removed now that this is a real Zyra `<TableCard>`
 // (SlowPagesTab.tsx), which supplies its own table chrome/row-hover/borders.
-// `.page-speed-main-issue` (still a real `cellClassName` on that TableCard's
-// "Main Issue" column) is the one cell style kept, now standalone rather
-// than nested under the removed `.page-speed-table`.
-.page-speed-main-issue {
-	white-space: normal;
-	max-width: 16rem;
-	color: $sub-text-color;
-}
+// `.page-speed-main-issue`/`.page-speed-page-link`'s own cell CSS used to
+// live here too — the "Page" column is now a real
+// `<InformationItemComponent>` (title+link, page-type badge, main-issue
+// desc), which supplies its own link/badge/description styling.
 
-.page-speed-page-link {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4rem;
-	color: $theme-color;
-	font-weight: 600;
-
-	i {
-		color: $theme-color;
-	}
-}
-
-.page-speed-score-pill {
-	display: inline-block;
-	min-width: 2.25rem;
-	padding: 0.2rem 0.5rem;
-	border-radius: 999px;
-	text-align: center;
+// `.page-speed-score-pill`'s own flat-badge CSS used to live here — the
+// Score/Mobile Score/Desktop Score cells now render a real
+// `<ChartComponent type="ring">` (ScorePill in SlowPagesTab.tsx, same
+// "ring-row" ring+centered-value pattern PerformanceScoreCard.tsx's own
+// ScoreTile/VitalRow already use), whose ring color comes straight from
+// RATING_RING_COLOR — only the centered value's own text color is styled
+// here now.
+.page-speed-score-ring-value {
 	font-weight: 700;
 	font-size: 0.8125rem;
 
 	&.good {
-		background: rgb(22 163 74 / 12%);
 		color: $vulopilot-rating-good;
 	}
 
 	&.needs-improvement {
-		background: rgb(217 119 6 / 12%);
 		color: $vulopilot-rating-needs-improvement;
 	}
 
 	&.poor {
-		background: rgb(220 38 38 / 12%);
 		color: $vulopilot-rating-poor;
 	}
 
 	&.unknown {
-		background: $theme-background-color;
 		color: $sub-text-color;
 	}
 }
@@ -407,46 +346,12 @@ $vulopilot-rating-very-poor: #991b1b;
 // title+desc row shape already used elsewhere on this page's own
 // WooCommerce-tab siblings.
 
-.page-speed-legend {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	font-size: 0.8125rem;
-
-	li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-}
-
-.page-speed-legend-dot {
-	width: 0.5rem;
-	height: 0.5rem;
-	border-radius: 50%;
-
-	&.poor {
-		background: $vulopilot-rating-poor;
-	}
-
-	&.needs-improvement {
-		background: $vulopilot-rating-needs-improvement;
-	}
-
-	&.good {
-		background: $vulopilot-rating-good;
-	}
-
-	&.very-poor {
-		background: $vulopilot-rating-very-poor;
-	}
-}
-
+// `.page-speed-legend`/`.page-speed-legend-dot`'s own <ul>/dot CSS used to
+// live here — removed now that this is a real Zyra `<ListComponent
+// className="list">` (SlowPagesTab.tsx), whose own `item.numberColor` renders
+// each rating's colored dot. `.page-speed-legend-range` (still a real `tags`
+// node on each of that list's items) is the one piece kept.
 .page-speed-legend-range {
-	margin-left: auto;
 	color: $sub-text-color;
 }
 

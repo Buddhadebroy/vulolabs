@@ -21,8 +21,8 @@ interface RunScanHeaderExtraProps {
  * header now shows, per direct instruction ("in every page where run scan
  * button show then show the last scan time … also beside run button show a
  * settings icon"). One shared component rather than duplicating this same
- * wiring across all 8 header call sites (Health/Security/Site Health/
- * Accessibility/Commerce/SEO & Visibility/Reports/Performance).
+ * wiring across all 9 header call sites (Health/Security/Site Health/
+ * Accessibility/Commerce/SEO & Visibility/Reports/Performance/Content).
  *
  * Passed as `NavigatorHeaderComponent`'s own `headerCustomContent` — not
  * its `buttons` prop — since `.title-section` lays `.title-wrapper` and

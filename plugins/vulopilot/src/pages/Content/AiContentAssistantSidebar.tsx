@@ -3,12 +3,9 @@ import { useState } from 'react';
 import axios from 'axios';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
-import {
-	ListComponent,
-	NoticeManager,
-} from '@zyra/components';
+import { NoticeManager } from '@zyra/components';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
-import ChatComposerCard, { ChatInput, ChatMessage } from '../../components/ChatComposerCard';
+import { ChatInput, ChatMessage, AiChatCard } from '../../components/ChatComposerCard';
 
 interface ChatLink {
 	url: string;
@@ -227,10 +224,23 @@ const AiContentAssistantSidebar = () => {
 		sendToAi(realMessage, history);
 	};
 
+	// AiChatCard's own onSelectPrompt only hands back a prompt's title (the
+	// shape every real composer's prompt grid shares) — looked back up
+	// against PROMPT_CHIPS here since handleChipClick needs the chip's own
+	// `ask`/`build`, not just its title.
+	const handleSelectPrompt = (title: string) => {
+		const chip = PROMPT_CHIPS.find((c) => c.title === title);
+
+		if (chip) {
+			handleChipClick(chip);
+		}
+	};
+
 	return (
-		<ChatComposerCard<ChatTurn>
-			guarded
-			welcome={sprintf(
+		<AiChatCard<ChatTurn>
+			cardTitle={__('AI Content Assistant', 'vulopilot')}
+			cardTitleIcon="edit"
+			emptyDesc={sprintf(
 				/* translators: %s: the real logged-in WP user's own display name */
 				__(
 					'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
@@ -238,6 +248,8 @@ const AiContentAssistantSidebar = () => {
 				),
 				appLocalizer.current_user_display_name
 			)}
+			prompts={PROMPT_CHIPS}
+			onSelectPrompt={handleSelectPrompt}
 			turns={turns}
 			renderTurn={(turn, index) => (
 				<ChatMessage
@@ -272,17 +284,6 @@ const AiContentAssistantSidebar = () => {
 							? __('Type your answer…', 'vulopilot')
 							: __('Ask Anything…', 'vulopilot')
 					}
-				/>
-			}
-			prompts={
-				<ListComponent
-					className="chip-grid"
-					items={PROMPT_CHIPS.map((prompt) => ({
-						id: prompt.id,
-						icon: prompt.icon,
-						title: prompt.title,
-						action: () => handleChipClick(prompt),
-					}))}
 				/>
 			}
 		/>
