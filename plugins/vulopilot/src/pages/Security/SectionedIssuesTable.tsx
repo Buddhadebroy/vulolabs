@@ -238,7 +238,7 @@ const SectionedIssuesTable = ({
 	// object it's attached to) is what every tab showed even before this
 	// was a real TabsComponent, so it's simply handed to all of them here.
 	const sectionContent = (
-		<ContainerComponent>
+		<>
 			<ColumnComponent grid={8}>
 				{isActiveSectionLocked ? (
 					<ProLockedCard
@@ -362,11 +362,11 @@ const SectionedIssuesTable = ({
 					onClose={() => setSelectedGroup(null)}
 				/>
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 
 	return (
-		<div id={id} className="sectioned-issues-table">
+		<ContainerComponent id={id} className="sectioned-issues-table">
 			<SectionComponent title={title} />
 
 			<TabsComponent
@@ -380,7 +380,7 @@ const SectionedIssuesTable = ({
 					content: sectionContent,
 				}))}
 			/>
-		</div>
+		</ContainerComponent>
 	);
 };
 

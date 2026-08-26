@@ -217,12 +217,32 @@ const Settings = () => {
 							 * the mockup's "Restore Defaults" button sits above this
 							 * tab's own fields. */}
 							{'content-search' === currentTab && <ContentSearchScansHeader />}
-							<InputRenderer
-								settings={settingModal}
-								setting={setting}
-								updateSetting={updateSetting}
-								Popup={ShowProPopup}
-							/>
+							{/* `settingModal` is `getSettingById(settingsArray, currentTab)`
+							 * (line ~93) — real `null` for a `currentTab` that doesn't
+							 * match any entry in `settingsArray` (a stale/unknown
+							 * `subtab=` URL param, or a tab gated behind a module
+							 * that's since been deactivated). `InputRenderer` itself
+							 * unconditionally destructures its own `settings` prop
+							 * (zyra's own InputRenderer.tsx) and crashes the whole
+							 * page rather than degrading, so this has to stay guarded
+							 * here rather than just passing `settingModal` through. */}
+							{settingModal ? (
+								<InputRenderer
+									settings={settingModal}
+									setting={setting}
+									updateSetting={updateSetting}
+									Popup={ShowProPopup}
+								/>
+							) : (
+								<ModuleGuardComponent
+									icon="error"
+									title={__('This settings section isn’t available', 'vulopilot')}
+									desc={__(
+										'The tab you linked to doesn’t exist, or the module it belongs to is turned off.',
+										'vulopilot'
+									)}
+								/>
+							)}
 							{/* BackupStoragePanel.tsx — appended AFTER this
 							 * tab's own fields (not split around a midpoint
 							 * the way isGeoTabSplit's llms.txt card is

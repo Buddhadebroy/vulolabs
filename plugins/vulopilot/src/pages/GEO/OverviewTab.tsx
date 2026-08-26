@@ -4,12 +4,10 @@ import './SeoVisibility.scss';
 import {
 	ColumnComponent,
 	ContainerComponent,
-	ListComponent,
 } from '@zyra/components';
 import { useRunScan } from '../../services/useRunScan';
-import { useCopilotChat, CopilotChatTurn } from '../../services/useCopilotChat';
-import { ChatMarkdown } from '../../components/ChatMarkdown';
-import ChatComposerCard, { ChatInput, ChatMessage } from '../../components/ChatComposerCard';
+import { useCopilotChat } from '../../services/useCopilotChat';
+import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 import VisibilityScoreCard from './VisibilityScoreCard';
 import AiOpportunitiesCard from './AiOpportunitiesCard';
 import DiscoverCard from './DiscoverCard';
@@ -59,13 +57,26 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 		setMessage('');
 	};
 
+	// The "Audit my website" chip runs a real scan instead of prefilling the
+	// composer, same as every other prompt — matched by id (not the
+	// translated title text) since `AiChatCard.onSelectPrompt` only hands
+	// back the title.
+	const handleSelectPrompt = (title: string) => {
+		const prompt = SUGGESTED_PROMPTS.find((p) => p.title === title);
+
+		if ('audit' === prompt?.id) {
+			runScan();
+		} else {
+			setMessage(title);
+		}
+	};
+
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={8}>
-				<ChatComposerCard<CopilotChatTurn>
+				<AiChatCard
 					cardTitle={__('How would you like to grow today?', 'vulopilot')}
 					cardTitleIcon="bar-chart"
-					guarded
 					composerPosition="before-turns"
 					composer={
 						<ChatInput
@@ -76,30 +87,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 							placeholder={__('Ask VuloPilot anything…', 'vulopilot')}
 						/>
 					}
+					prompts={SUGGESTED_PROMPTS}
+					onSelectPrompt={handleSelectPrompt}
 					turns={turns}
 					renderTurn={(turn, index) => (
-						<ChatMessage
-							key={index}
-							sender={'user' === turn.role ? 'user' : 'ai'}
-						>
-							<ChatMarkdown text={turn.content} />
-						</ChatMessage>
+						<CopilotTurnBubble key={index} turn={turn} />
 					)}
 					isSending={isSending}
-					prompts={
-						<ListComponent
-							className="chip-grid"
-							items={SUGGESTED_PROMPTS.map((prompt) => ({
-								id: prompt.id,
-								icon: prompt.icon,
-								title: prompt.title,
-								action: () =>
-									prompt.id === 'audit'
-										? runScan()
-										: setMessage(prompt.title),
-							}))}
-						/>
-					}
 					note={
 						<p className="chat-monitoring-note">
 							<i className="adminfont-ai" />

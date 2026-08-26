@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
+	AnalyticsComponent,
+	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
@@ -14,9 +16,8 @@ import {
 	NoticeManager,
 	PopupComponent,
 	TooltipComponent,
-	TrendStatComponent,
 } from '@zyra/components';
-import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
+import { SelectInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
 import RecommendedFixesCard from './RecommendedFixesCard';
@@ -408,7 +409,11 @@ const SlowPagesTab = () => {
 	const summary = response?.summary ?? null;
 	const topIssues = response?.top_issues ?? [];
 
-	const filterPills: { value: string; label: string; count: number }[] = [
+	// Fed to TableCard's own `categoryCounts`/`activeCategory` — same
+	// status-filter pills, now rendered by the table itself (`admin-top-filter`)
+	// instead of hand-rolled `<button>`s, same convention IssuesList.tsx's own
+	// TableCard already uses.
+	const statusCategoryCounts = [
 		{ value: 'slow', label: __( 'Slow', 'vulopilot' ), count: statusCounts.slow ?? 0 },
 		{
 			value: 'needs_improvement',
@@ -493,57 +498,69 @@ const SlowPagesTab = () => {
 					)}
 				</p> */}
 
-				<TrendStatComponent
+				<AnalyticsComponent
+					variant="dashboard"
 					cols={4}
 					isLoading={isLoading || isTrendLoading}
-					items={[
+					data={[
 						{
 							icon: 'error',
-							label: __( 'Slow Pages', 'vulopilot' ),
-							value: summary?.slow ?? 0,
-							badge: {
-								text: __( 'Needs Improvement', 'vulopilot' ),
-								color: 'orange',
-							},
+							text: __( 'Slow Pages', 'vulopilot' ),
+							number: summary?.slow ?? 0,
+							extra: (
+								<BadgeComponent
+									text={__( 'Needs Improvement', 'vulopilot' )}
+									color="orange"
+								/>
+							),
 						},
 						{
 							icon: 'error',
-							label: __( 'Very Slow Pages', 'vulopilot' ),
-							value: summary?.very_slow ?? 0,
-							badge: { text: __( 'Poor', 'vulopilot' ), color: 'red' },
+							text: __( 'Very Slow Pages', 'vulopilot' ),
+							number: summary?.very_slow ?? 0,
+							extra: (
+								<BadgeComponent
+									text={__( 'Poor', 'vulopilot' )}
+									color="red"
+								/>
+							),
 						},
 						{
 							icon: 'form-phone',
-							label: __( 'Average Load Time', 'vulopilot' ),
-							value:
+							text: __( 'Average Load Time', 'vulopilot' ),
+							number:
 								avgLoadTimeMs !== null
 									? sprintf( __( '%s s', 'vulopilot' ), (avgLoadTimeMs / 1000).toFixed(1) )
 									: '—',
-							badge: {
-								text:
-									null !== avgScore
-										? sprintf(
-												/* translators: %s is a rating word like "Good"/"Poor". */
-												__( '%s score', 'vulopilot' ),
-												avgScoreRating.label
-											)
-										: __( 'Not scored yet', 'vulopilot' ),
-								color: RATING_BADGE_COLOR[avgScoreRating.className],
-							},
+							extra: (
+								<BadgeComponent
+									text={
+										null !== avgScore
+											? sprintf(
+													/* translators: %s is a rating word like "Good"/"Poor". */
+													__( '%s score', 'vulopilot' ),
+													avgScoreRating.label
+												)
+											: __( 'Not scored yet', 'vulopilot' )
+									}
+									color={RATING_BADGE_COLOR[avgScoreRating.className]}
+								/>
+							),
 						},
 						{
 							icon: 'check',
-							label:
+							text:
 								null !== trendDelta
 									? __( 'Performance Trend', 'vulopilot' )
 									: __( 'Not enough trend data yet', 'vulopilot' ),
-							value:
-								null !== trendDelta
-									? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__( 'pts', 'vulopilot' )}`
-									: '—',
-							color: isTrendImproving ? '#16a34a' : '#dc2626',
-							chartData: trend.length >= 2 ? trend : undefined,
-							chartDataKey: 'performance_score',
+							number:
+								null !== trendDelta ? (
+									<span style={{ color: isTrendImproving ? '#16a34a' : '#dc2626' }}>
+										{`${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__( 'pts', 'vulopilot' )}`}
+									</span>
+								) : (
+									'—'
+								),
 						},
 					]}
 				/>
@@ -551,7 +568,7 @@ const SlowPagesTab = () => {
 				<NoticeComponent
 					type="info"
 					displayPosition="inline-notice"
-					message={__(
+					title={__(
 						'Slow pages can hurt user experience and search rankings. Focus on the pages with the lowest scores first for the biggest impact.',
 						'vulopilot'
 					)}
@@ -564,69 +581,6 @@ const SlowPagesTab = () => {
 						)
 					}
 				/>
-
-				<div className="page-speed-toolbar">
-					<div className="page-speed-filter-pills">
-						{filterPills.map((pill) => (
-							<button
-								key={pill.value}
-								type="button"
-								className={`page-speed-filter-pill ${statusFilter === pill.value ? 'is-active' : ''}`}
-								onClick={() => setStatusFilter(pill.value)}
-							>
-								{pill.label} ({pill.count})
-							</button>
-						))}
-						<SelectInput
-							name="page_speed_trend_days"
-							value={trendDays}
-							options={TREND_DAY_OPTIONS}
-							onChange={(value) => setTrendDays(value as string)}
-							size="9rem"
-						/>
-						<SelectInput
-							name="page_type_filter"
-							value={pageTypeFilter}
-							options={pageTypeOptions}
-							onChange={(value) => setPageTypeFilter(value as string)}
-							size="12rem"
-						/>
-					</div>
-					{summary?.last_scanned_at && (
-						<span className="page-speed-last-scanned">
-							{sprintf(
-								/* translators: %s is a formatted date/time. */
-								__( 'Last scan: %s', 'vulopilot' ),
-								formatWpDate(summary.last_scanned_at)
-							)}
-						</span>
-					)}
-					<TextInput
-						name="page_speed_search"
-						placeholder={__( 'Search pages…', 'vulopilot' )}
-						value={searchTerm}
-						onChange={(value) => setSearchTerm(value as string)}
-						wrapperClass="table-search"
-					/>
-					<ButtonInput
-						buttons={[
-							{
-								text: __( 'Export', 'vulopilot' ),
-								icon: 'export',
-								color: 'border-purple',
-								onClick: handleExport,
-							},
-							{
-								text: isScanning
-									? __( 'Starting…', 'vulopilot' )
-									: __( 'Scan Again', 'vulopilot' ),
-								icon: 'refresh',
-								onClick: handleScan,
-								disabled: isScanning,
-							},
-						]}
-					/>
-				</div>
 
 					{0 === filteredRows.length ? (
 						<ModuleGuardComponent
@@ -647,6 +601,37 @@ const SlowPagesTab = () => {
 					) : (
 						<TableCard
 							showMenu={false}
+							categoryCounts={statusCategoryCounts}
+							activeCategory={statusFilter}
+							search={{ placeholder: __( 'Search pages…', 'vulopilot' ) }}
+							filters={[
+								{
+									key: 'page_type',
+									label: __( 'Page Type', 'vulopilot' ),
+									type: 'select',
+									size: 12,
+									options: pageTypeOptions,
+								},
+							]}
+							buttonActions={[
+								{
+									label: __( 'Export', 'vulopilot' ),
+									icon: 'export',
+									color: 'border-purple',
+									onClick: handleExport,
+								},
+								{
+									label: isScanning
+										? __( 'Starting…', 'vulopilot' )
+										: __( 'Scan Again', 'vulopilot' ),
+									icon: 'refresh',
+									onClick: () => {
+										if ( ! isScanning ) {
+											handleScan();
+										}
+									},
+								},
+							]}
 							headers={{
 								title: {
 									label: __( 'Page', 'vulopilot' ),
@@ -740,9 +725,23 @@ const SlowPagesTab = () => {
 							rows={pageRows}
 							ids={pageRows.map((row) => row.id)}
 							totalRows={filteredRows.length}
-							onQueryUpdate={(query: { paged?: number | string; per_page?: number | string }) => {
+							onQueryUpdate={(query: {
+								paged?: number | string;
+								per_page?: number | string;
+								categoryFilter?: string;
+								searchValue?: string;
+								filter?: { page_type?: string };
+							}) => {
 								setPaged(Number(query.paged) || 1);
 								setPerPage(Number(query.per_page) || 10);
+								if (
+									query.categoryFilter &&
+									query.categoryFilter !== statusFilter
+								) {
+									setStatusFilter(query.categoryFilter);
+								}
+								setSearchTerm(query.searchValue ?? '');
+								setPageTypeFilter(query.filter?.page_type ?? '');
 							}}
 						/>
 					)}
@@ -782,25 +781,32 @@ const SlowPagesTab = () => {
 
 				<RecommendedFixesCard topIssues={topIssues} />
 
-				<CardComponent title={__( "What's considered slow?", 'vulopilot' )}>
-					<ul className="page-speed-legend">
-						<li>
-							<span className="page-speed-legend-dot very-poor" />
-							{__( 'Very Slow', 'vulopilot' )} <span className="page-speed-legend-range">0 – 24</span>
-						</li>
-						<li>
-							<span className="page-speed-legend-dot poor" />
-							{__( 'Slow', 'vulopilot' )} <span className="page-speed-legend-range">25 – 49</span>
-						</li>
-						<li>
-							<span className="page-speed-legend-dot needs-improvement" />
-							{__( 'Needs Improvement', 'vulopilot' )} <span className="page-speed-legend-range">50 – 79</span>
-						</li>
-						<li>
-							<span className="page-speed-legend-dot good" />
-							{__( 'Good', 'vulopilot' )} <span className="page-speed-legend-range">80 – 100</span>
-						</li>
-					</ul>
+				<CardComponent title={__( "What's considered slow?", 'vulopilot' )} titleIcon="ai">
+					<ListComponent
+						className="mini-card report without-border"
+						items={[
+							{
+								id: 'very-poor',
+								title: __( 'Very Slow', 'vulopilot' ),
+								tags: <span className="page-speed-legend-range">0 – 24</span>,
+							},
+							{
+								id: 'poor',
+								title: __( 'Slow', 'vulopilot' ),
+								tags: <span className="page-speed-legend-range">25 – 49</span>,
+							},
+							{
+								id: 'needs-improvement',
+								title: __( 'Needs Improvement', 'vulopilot' ),
+								tags: <span className="page-speed-legend-range">50 – 79</span>,
+							},
+							{
+								id: 'good',
+								title: __( 'Good', 'vulopilot' ),
+								tags: <span className="page-speed-legend-range">80 – 100</span>,
+							},
+						]}
+					/>
 				</CardComponent>
 
 				<NoticeComponent

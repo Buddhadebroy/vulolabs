@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { NavigatorHeaderComponent } from '@zyra/components';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import OverviewTab from './OverviewTab';
 
 /**
@@ -15,6 +16,14 @@ import OverviewTab from './OverviewTab';
  * single body, same as any other single-view admin page in this codebase
  * — a tab bar with exactly one, permanently-active tab isn't real
  * navigation.
+ *
+ * The header's own bare settings-gear button used to be this page's one
+ * real outlier — every other category page's header (Health/Security/
+ * Site Health/Accessibility/Commerce/SEO & Visibility/Reports/Performance)
+ * already gets the shared `RunScanHeaderExtra` cluster (Run Scan button +
+ * gear + real last-scan time, RunScanHeaderExtra.tsx's own docblock) — now
+ * matches, scoped to the real `content` scan category
+ * (Scanners/Basic/ReadabilityScanner.php's own `get_category()`).
  */
 const Content = () => {
 	return (
@@ -26,16 +35,12 @@ const Content = () => {
 					'AI-powered tools to help you create, optimize and rank content that drives traffic and engagement.',
 					'vulopilot'
 				)}
-				buttons={[
-					{
-						label: __('Content Settings', 'vulopilot'),
-						icon: 'setting',
-						onClick: () => {
-							window.location.href =
-								'?page=vulopilot#&tab=settings';
-						},
-					},
-				]}
+				headerCustomContent={
+					<RunScanHeaderExtra
+						categories={['content']}
+						settingsSubtab="seo-content"
+					/>
+				}
 			/>
 			<OverviewTab />
 		</>
