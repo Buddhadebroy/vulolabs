@@ -396,6 +396,7 @@ class Install {
         self::create_accessibility_snapshots_table();
         self::create_store_trends_snapshots_table();
         self::create_performance_score_snapshots_table();
+        self::create_security_score_snapshots_table();
         self::create_performance_requests_table();
         self::create_core_web_vitals_table();
         self::create_page_speed_table();
@@ -642,6 +643,40 @@ class Install {
             `snapshot_date`     date NOT NULL,
             `performance_score` tinyint(3) unsigned NOT NULL DEFAULT 0,
             `created_at`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
+        ) $collate;";
+
+        dbDelta( $sql );
+    }
+
+    /**
+     * Creates `vulopilot_security_score_snapshots` — "Security" tab's
+     * SecurityTrendCard.tsx. Same reasoning as
+     * create_performance_score_snapshots_table() just above (own dedicated
+     * table rather than a reuse of `vulopilot_site_health_snapshots` —
+     * that table's `security_score` column exists but is only ever written
+     * by Pro's AdvancedReports module, so a Free-tier trend card can't
+     * depend on it being populated) — see
+     * Services\SecurityScoreSnapshotRecorder's own docblock. Own method,
+     * same shape as create_performance_score_snapshots_table() above.
+     *
+     * @return void
+     */
+    private static function create_security_score_snapshots_table() {
+        global $wpdb;
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        }
+
+        $collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}" . Utill::TABLES['security_score_snapshot'] . "` (
+            `id`             bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `snapshot_date`  date NOT NULL,
+            `security_score` tinyint(3) unsigned NOT NULL DEFAULT 0,
+            `created_at`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             UNIQUE KEY `uniq_snapshot_date` (`snapshot_date`)
         ) $collate;";

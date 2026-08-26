@@ -76,6 +76,7 @@ class Rest {
             'indexnow'                    => new Controllers\IndexNow(),
             'performance_actions'         => new Controllers\PerformanceActions(),
             'performance_score_snapshots' => new Controllers\PerformanceScoreSnapshots(),
+            'security_score_snapshots'    => new Controllers\SecurityScoreSnapshots(),
             'performance_realtime'        => new Controllers\PerformanceRealtime(),
             'core_web_vitals'             => new Controllers\CoreWebVitals(),
             'core_web_vitals_beacon'      => new Controllers\CoreWebVitalsBeaconRest(),

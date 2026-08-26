@@ -164,7 +164,7 @@ const ISSUES_TABLE_ID = 'protect-my-site-security-issues-table';
  *
  * - Hero/status/tile-grid: SecurityMockupHeader. RecentActivityCard
  *   ("Recent Security Activity") and SecurityTrendCard ("Security
- *   Trend", honestly untracked) live inside that same component,
+ *   Trend", real daily score history) live inside that same component,
  *   stacked one after another directly below "Security Status" in its
  *   own narrow sidebar column — per direct instruction, not a separate
  *   full-width 3-column row on this tab. Its own "Review Issues First"

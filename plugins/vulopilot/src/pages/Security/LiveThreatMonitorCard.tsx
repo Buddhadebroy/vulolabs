@@ -68,7 +68,7 @@ const LiveThreatMonitorCard = () => {
 						text: __('View full logs', 'vulopilot'),
 						onClick: () => {
 							window.open(
-								`${appLocalizer.admin_url}#&tab=activity`,
+								`${appLocalizer.admin_url}#&tab=reports&subtab=activity`,
 								'_self'
 							);
 						},
