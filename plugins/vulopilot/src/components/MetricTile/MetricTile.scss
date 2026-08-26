@@ -45,6 +45,18 @@
 		font-size: 0.9rem;
 	}
 
+	// Badge doubles as the tile's click target (MetricTile.tsx's own
+	// `badge.onClick`) instead of a separate footer button — e.g.
+	// SecurityMetricsGrid.tsx's tiles, where clicking the open-findings
+	// count itself jumps to that tile's own issues-table section.
+	.metric-tile-badge--clickable {
+		cursor: pointer;
+
+		&:hover {
+			opacity: 0.8;
+		}
+	}
+
 	.metric-tile-footer {
 		width: 100%;
 		margin-top: 0.25rem;

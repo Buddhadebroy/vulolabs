@@ -79,8 +79,10 @@ const describeLastCheck = (row: AutomationRow): string => {
  * running status (icon/name/status badge/real schedule/real last-check
  * outcome) instead of the static template pitch — "what VuloPilot is
  * doing for you," not just "here's an idea." A template with no matching
- * real automation still shows today's plain pitch card
- * (label/description/"Use this automation"/"Preview").
+ * real automation still shows a plain pitch card (icon/label/description,
+ * a real always-visible "When: … · Then: …" summary — no separate toggle
+ * to click for it — and a single "Use this automation" CTA; the former
+ * second "Preview" button was removed per direct instruction).
  *
  * The match is category+trigger_type equality — the closest real signal
  * available without a schema addition tracking "created from template X"
@@ -96,7 +98,6 @@ const AutomationsSuggestions = ({
 	refetchSignal,
 }: AutomationsSuggestionsProps) => {
 	const [automations, setAutomations] = useState<AutomationRow[]>([]);
-	const [previewId, setPreviewId] = useState<string | null>(null);
 	const suggestions = AUTOMATION_TEMPLATES.filter(
 		(template) => 'from-scratch' !== template.id
 	);
@@ -200,22 +201,21 @@ const AutomationsSuggestions = ({
 
 					return (
 						<div className="automation-suggestion-card" key={template.id}>
-							<div className="automation-suggestion-icon">
-								<i className={`adminfont-${template.icon.split(' ')[0]}`} />
+							<div className="automation-suggestion-card-header">
+								<div className="automation-suggestion-icon">
+									<i className={`adminfont-${template.icon.split(' ')[0]}`} />
+								</div>
+								<strong>{template.label}</strong>
 							</div>
-							<strong>{template.label}</strong>
 							<p className="small desc">{template.description}</p>
-
-							{previewId === template.id && (
-								<p className="automation-suggestion-preview">
-									{__('When:', 'vulopilot')}{' '}
-									{template.triggerType
-										? (TRIGGER_TYPE_LABELS[template.triggerType] ?? template.triggerType)
-										: '—'}
-									{' · '}
-									{__('Then:', 'vulopilot')} {describeTemplateActions(template)}
-								</p>
-							)}
+							<p className="automation-suggestion-preview">
+								{__('When:', 'vulopilot')}{' '}
+								{template.triggerType
+									? (TRIGGER_TYPE_LABELS[template.triggerType] ?? template.triggerType)
+									: '—'}
+								{' · '}
+								{__('Then:', 'vulopilot')} {describeTemplateActions(template)}
+							</p>
 
 							<div className="automation-suggestion-actions">
 								<ButtonInput
@@ -223,19 +223,6 @@ const AutomationsSuggestions = ({
 										text: __('Use this automation', 'vulopilot'),
 										icon: 'plus',
 										onClick: () => onUseTemplate(template),
-									}}
-								/>
-								<ButtonInput
-									buttons={{
-										text:
-											previewId === template.id
-												? __('Hide preview', 'vulopilot')
-												: __('Preview', 'vulopilot'),
-										icon: 'visibility',
-										onClick: () =>
-											setPreviewId((current) =>
-												current === template.id ? null : template.id
-											),
 									}}
 								/>
 							</div>

@@ -686,6 +686,23 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.375rem;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+	&:hover {
+		border-color: color-mix(in srgb, $theme-color 35%, transparent);
+		box-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 4%);
+	}
+
+	// Plain pitch cards (no matching real automation) push their CTA to the
+	// card's bottom edge regardless of description length, so every card in
+	// a row lines its button up on the same baseline — `.is-real` cards
+	// don't need this since their own footer already sits after a fixed
+	// set of rows.
+	&:not(.is-real) {
+		.desc {
+			flex: 1;
+		}
+	}
 }
 
 .automation-suggestion-icon {
@@ -697,7 +714,6 @@
 	border-radius: 0.5rem;
 	background: color-mix(in srgb, $theme-color 10%, transparent);
 	color: $theme-color;
-	margin-bottom: 0.25rem;
 	flex-shrink: 0;
 }
 
@@ -762,20 +778,25 @@
 	}
 }
 
+// Always-visible "When: … · Then: …" summary — same bordered meta-strip
+// language `.automation-suggestion-schedule` (the real-status cards) uses,
+// so both card states read as one consistent design rather than two
+// different treatments.
 .automation-suggestion-preview {
-	background: $theme-background-color;
-	border-radius: 0.375rem;
-	padding: 0.5rem 0.625rem;
 	font-size: 0.75rem;
 	color: $sub-text-color;
+	padding: 0.5rem 0;
+	border-top: $border-light-small;
 	margin: 0;
 }
 
 .automation-suggestion-actions {
-	display: flex;
-	gap: 0.5rem;
-	margin-top: 0.375rem;
-	flex-wrap: wrap;
+	margin-top: 0.125rem;
+
+	.admin-btn {
+		width: 100%;
+		justify-content: center;
+	}
 }
 
 // AutomationTemplatesCard.tsx's "Create new automation" list — reuses

@@ -11,6 +11,8 @@ export type MetricTileVariant =
 interface MetricTileBadge {
 	color: string;
 	text: string;
+	/** When set, the badge itself becomes the tile's click target (e.g. jumping to that tile's own section in an issues table) instead of a separate footer button. */
+	onClick?: () => void;
 }
 
 interface MetricTileGridProps {
@@ -98,7 +100,14 @@ const MetricTile = ({
 			style={iconColor ? { color: iconColor } : undefined}
 		/>
 		<div className="metric-tile-title">{title}</div>
-		{badge && <BadgeComponent color={badge.color} text={badge.text} />}
+		{badge && (
+			<BadgeComponent
+				color={badge.color}
+				text={badge.text}
+				className={badge.onClick ? 'metric-tile-badge--clickable' : ''}
+				onClick={badge.onClick}
+			/>
+		)}
 		{children}
 		{footer && <div className="metric-tile-footer">{footer}</div>}
 	</CardComponent>

@@ -1,5 +1,4 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { ButtonInput } from '@zyra/inputs';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { useLastScanTime } from '../../services/useLastScanTime';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -143,9 +142,11 @@ const NOT_TRACKED_BADGE = {
  *
  * Every one of these 7 tiles still carries a real "Last scan" line
  * (`useLastScanTime()`, `GET /scans` scoped to that tile's own scanner
- * group — `SCANNER_IDS_BY_TILE_ID` above) and a real "View" button
- * (`VIEW_TARGET_BY_TILE_ID` above) — same "per-tile View button" pattern
- * Performance's own MetricsGrid.tsx already established.
+ * group — `SCANNER_IDS_BY_TILE_ID` above). No separate "View" footer button
+ * per direct instruction — the badge itself (`MetricTile`'s own
+ * `badge.onClick`) is the click target, jumping to that tile's own section
+ * on this same tab's merged issues table (`VIEW_TARGET_BY_TILE_ID` above),
+ * same destination the old button used.
  */
 const SecurityMetricsGrid = ({
 	onViewSection,
@@ -261,9 +262,12 @@ const SecurityMetricsGrid = ({
 	return (
 		<MetricTileGrid variant="security">
 			{METRIC_TILES.map((tile) => {
-				const badge = badgeFor(tile.id);
-				const lastScanAt = lastScanByTileId[tile.id] ?? null;
 				const isTracked = Boolean(VIEW_TARGET_BY_TILE_ID[tile.id]);
+				const badge = {
+					...badgeFor(tile.id),
+					...(isTracked && { onClick: () => handleView(tile.id) }),
+				};
+				const lastScanAt = lastScanByTileId[tile.id] ?? null;
 
 				return (
 					<MetricTile
@@ -272,18 +276,6 @@ const SecurityMetricsGrid = ({
 						icon={tile.icon}
 						title={tile.title}
 						badge={badge}
-						footer={
-							isTracked && (
-								<ButtonInput
-									buttons={{
-										text: __('View', 'vulopilot'),
-										rightIcon: 'pagination-right-arrow',
-										color: 'border-purple',
-										onClick: () => handleView(tile.id),
-									}}
-								/>
-							)
-						}
 					>
 						<div className="desc">{tile.desc}</div>
 						{isTracked && (
