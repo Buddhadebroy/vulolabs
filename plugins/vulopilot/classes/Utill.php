@@ -58,6 +58,7 @@ class Utill {
         'accessibility_snapshot'     => 'vulopilot_accessibility_snapshots',
         'store_trends_snapshot'      => 'vulopilot_store_trends_snapshots',
         'performance_score_snapshot' => 'vulopilot_performance_score_snapshots',
+        'security_score_snapshot'    => 'vulopilot_security_score_snapshots',
         'performance_request'        => 'vulopilot_performance_requests',
         'core_web_vital'             => 'vulopilot_core_web_vitals',
         'page_speed'                 => 'vulopilot_page_speed',

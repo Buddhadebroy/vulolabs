@@ -35,7 +35,8 @@ interface SecurityMockupHeaderProps {
  * sized for that narrower column; getting this nesting wrong once made
  * an earlier pass render 4 tiles per row here instead of the mockup's 2).
  *
- * RecentActivityCard/SecurityTrendCard stack
+ * RecentActivityCard/SecurityTrendCard (real daily score history, its own
+ * dedicated table — see that component's own docblock) stack
  * directly below SecurityStatusCard in this same grid={4} sidebar column
  * (per direct instruction — one after another, narrow, not a separate
  * full-width 3-column row) rather than living in SecurityTab.tsx

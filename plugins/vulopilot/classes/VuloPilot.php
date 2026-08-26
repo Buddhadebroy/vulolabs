@@ -311,10 +311,12 @@ final class VuloPilot {
         // (scan-completed + daily-cron triggered), Real-time Monitoring's
         // per-request timing sample (front-end `shutdown` hook), and the
         // two Quick Actions toggles (force-enable lazy loading, preload
-        // critical resources). Same unconditional-construction,
-        // self-registers-its-own-hooks shape as every Services\* class
-        // above.
+        // critical resources). SecurityScoreSnapshotRecorder is the same
+        // shape, one category over, for "Security"'s own SecurityTrendCard.tsx.
+        // Same unconditional-construction, self-registers-its-own-hooks
+        // shape as every Services\* class above.
         $this->container['performance_score_snapshot_recorder'] = new Services\PerformanceScoreSnapshotRecorder();
+        $this->container['security_score_snapshot_recorder']    = new Services\SecurityScoreSnapshotRecorder();
         $this->container['performance_request_logger']          = new Services\PerformanceRequestLogger();
         $this->container['performance_optimizations']           = new Services\PerformanceOptimizations();
 

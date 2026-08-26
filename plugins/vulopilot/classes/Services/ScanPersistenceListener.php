@@ -87,6 +87,16 @@ class ScanPersistenceListener {
     );
 
     /**
+     * Real scanner categories `maybe_log_security_scan_activity()` scopes
+     * to — same 'security'/'ssl' pairing CRITICAL_ALERT_CATEGORIES['security']
+     * already uses (SslMonitoringScanner's own real category is 'ssl', not
+     * 'security').
+     *
+     * @var string[]
+     */
+    private const SECURITY_SCOPED_CATEGORIES = array( 'security', 'ssl' );
+
+    /**
      * @var ScanRepository
      */
     private ScanRepository $scans;
@@ -207,6 +217,7 @@ class ScanPersistenceListener {
             (string) $scan_id
         );
 
+        $this->maybe_log_security_scan_activity( $scan_result, $scan_id );
         $this->maybe_notify_critical_findings( $scan_result );
 
         /**
@@ -221,6 +232,54 @@ class ScanPersistenceListener {
          * @param int        $scan_id     The just-inserted `vulopilot_scans` row id.
          */
         do_action( 'vulopilot_scan_persisted', $scan_result, $scan_id );
+    }
+
+    /**
+     * A second, additional real activity-log row for the exact same
+     * completion this method's caller just logged as the generic
+     * 'scan.completed' event — under a distinct, always-on event type
+     * ('scan.completed.security') whenever the just-completed scanner's
+     * own real category is security-relevant (SECURITY_SCOPED_CATEGORIES
+     * above). What "Security" tab's own RecentActivityCard.tsx needs to
+     * filter on: the Pro-only 'security.alert' event type
+     * (vulopilot-pro\SecurityMonitoring\AlertDispatcher) only exists with
+     * an active Pro license AND the site's own `security_alerts_enabled`
+     * setting turned on (default off) — meaning on Free-only installs,
+     * unlicensed Pro installs, and licensed-but-unconfigured Pro installs
+     * (the large majority of real sites), that card would stay
+     * permanently empty no matter how many open security findings exist.
+     * This fires every real security-category scan completion, findings
+     * or not, zero configuration required — resolved via the real
+     * ScannerRegistry singleton (`VuloPilot()->scanner_registry`, already
+     * populated by the time any real scan can complete — scans only ever
+     * run well after `init` priority 20) rather than the completed scan's
+     * own findings, so a clean scan (0 findings) still logs real activity
+     * instead of this card only ever showing up when something's wrong.
+     *
+     * @param ScanResult $scan_result The completed scan.
+     * @param int        $scan_id     The just-inserted `vulopilot_scans` row id.
+     * @return void
+     */
+    private function maybe_log_security_scan_activity( ScanResult $scan_result, int $scan_id ): void {
+        $scanner = VuloPilot()->scanner_registry->get_scanner( $scan_result->get_scanner_id() );
+
+        if ( ! $scanner || ! in_array( $scanner->get_category(), self::SECURITY_SCOPED_CATEGORIES, true ) ) {
+            return;
+        }
+
+        $this->activity_logs->log(
+            'scan.completed.security',
+            sprintf(
+                /* translators: 1: scanner id, 2: number of findings. */
+                __( 'Scan "%1$s" completed with %2$d finding(s).', 'vulopilot' ),
+                $scan_result->get_scanner_id(),
+                count( $scan_result->get_findings() )
+            ),
+            ScanResult::STATUS_FAILED === $scan_result->get_status() ? Severity::HIGH : Severity::INFO,
+            'system',
+            'scan',
+            (string) $scan_id
+        );
     }
 
     /**
