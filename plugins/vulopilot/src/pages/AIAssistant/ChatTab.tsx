@@ -3,8 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import './AICopilot.scss';
 import {
-	ChatInputComponent,
-	ChatMessageComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ListComponent,
@@ -31,7 +29,7 @@ import {
 	CopilotAttachment,
 } from '../../services/useCopilotChat';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
-import ChatComposerCard from '../../components/ChatComposerCard';
+import ChatComposerCard, { ChatInput, ChatMessage } from '../../components/ChatComposerCard';
 
 /** Mirrors Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
@@ -387,7 +385,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						}
 						turns={turns}
 						renderTurn={(turn, index) => (
-							<ChatMessageComponent
+							<ChatMessage
 								key={index}
 								sender={'user' === turn.role ? 'user' : 'ai'}
 							>
@@ -463,7 +461,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 										)}
 									</div>
 								)}
-							</ChatMessageComponent>
+							</ChatMessage>
 						)}
 						isSending={isSending}
 						beforeComposer={
@@ -644,9 +642,9 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							</>
 						}
 						composer={
-							// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element. Bubble-phase (not capture) on purpose: capture fires top-down *before* the event reaches ChatInputComponent's own textarea, so stopping it there would swallow the textarea's own Enter-to-send handler before it ever runs. Bubble-phase stopPropagation() lets the textarea's own listener fire first, then blocks it from reaching any page-level listener above this point.
+							// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element. Bubble-phase (not capture) on purpose: capture fires top-down *before* the event reaches ChatInput's own textarea, so stopping it there would swallow the textarea's own Enter-to-send handler before it ever runs. Bubble-phase stopPropagation() lets the textarea's own listener fire first, then blocks it from reaching any page-level listener above this point.
 							<div onKeyDown={(e) => e.stopPropagation()}>
-								<ChatInputComponent
+								<ChatInput
 									value={message}
 									onChange={onMessageChange}
 									onSend={handleSend}

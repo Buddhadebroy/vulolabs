@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ChatMessageComponent } from '@zyra/components';
-import AiCopilotGuard from './AiCopilotGuard';
+import { CardComponent } from '@zyra/components';
+import AiCopilotGuard from '../AiCopilotGuard';
+import ChatMessage from './ChatMessage';
+import './ChatComposerCard.scss';
 
 export interface ChatComposerCardProps<TTurn = unknown> {
 	/** Passed straight through to CardComponent. */
@@ -28,8 +30,8 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	sendingAvatarIcon?: string;
 	sendingSpinnerClassName?: string;
 	/**
-	 * The fully-built `<ChatInputComponent />` element. Left to the caller
-	 * rather than genericized — each site's composer props diverge too much
+	 * The fully-built `<ChatInput />` element. Left to the caller rather
+	 * than genericized — each site's composer props diverge too much
 	 * (`sendDisabledReason` vs `onAttach`/`onAddContext`/`autoApply`) to be
 	 * worth forcing through one shared prop shape.
 	 */
@@ -62,8 +64,14 @@ export interface ChatComposerCardProps<TTurn = unknown> {
  * to that site and are passed in pre-built via `renderTurn`/`composer`/
  * `prompts` — deliberately not flattened into one giant generic prop shape,
  * since those parts don't actually share behavior, just adjacent JSX.
+ *
+ * `ChatMessage`/`ChatInput` (this folder's other two files) used to be
+ * zyra's own ChatMessageComponent/ChatInputComponent (@zyra/components) —
+ * every real consumer of either lived in this plugin alone, so both moved
+ * here (styles included, ChatComposerCard.scss) instead of staying in the
+ * shared design system.
  */
-const ChatComposerCard = <TTurn,>( {
+const ChatComposerCard = <TTurn,>({
 	cardTitle,
 	cardTitleIcon,
 	cardAction,
@@ -74,7 +82,7 @@ const ChatComposerCard = <TTurn,>( {
 	turns = [],
 	renderTurn,
 	isSending = false,
-	sendingLabel = __( 'Thinking…', 'vulopilot' ),
+	sendingLabel = __('Thinking…', 'vulopilot'),
 	sendingAvatarIcon,
 	sendingSpinnerClassName = 'chat-thinking-spinner',
 	composer,
@@ -82,66 +90,68 @@ const ChatComposerCard = <TTurn,>( {
 	beforeComposer,
 	prompts,
 	note,
-}: ChatComposerCardProps<TTurn> ) => {
+}: ChatComposerCardProps<TTurn>) => {
 	const turnsBlock = (
 		<>
-			{ welcome && (
-				<ChatMessageComponent
+			{welcome && (
+				<ChatMessage
 					sender="ai"
-					{ ...( sendingAvatarIcon
+					{...(sendingAvatarIcon
 						? { avatarIcon: sendingAvatarIcon }
-						: {} ) }
+						: {})}
 				>
-					{ welcome }
-				</ChatMessageComponent>
-			) }
+					{welcome}
+				</ChatMessage>
+			)}
 
-			{ turns.map( ( turn, index ) =>
+			{turns.map((turn, index) =>
 				renderTurn ? (
-					renderTurn( turn, index )
+					renderTurn(turn, index)
 				) : (
-					<ChatMessageComponent key={ index }>
-						{ turn as ReactNode }
-					</ChatMessageComponent>
+					<ChatMessage key={index}>{turn as ReactNode}</ChatMessage>
 				)
-			) }
+			)}
 
-			{ isSending && (
-				<ChatMessageComponent
+			{isSending && (
+				<ChatMessage
 					sender="ai"
-					{ ...( sendingAvatarIcon
+					{...(sendingAvatarIcon
 						? { avatarIcon: sendingAvatarIcon }
-						: {} ) }
+						: {})}
 				>
-					<i className={ `adminfont-refresh ${ sendingSpinnerClassName }` } />{ ' ' }
-					{ sendingLabel }
-				</ChatMessageComponent>
-			) }
+					<i
+						className={`adminfont-refresh ${sendingSpinnerClassName}`}
+					/>{' '}
+					{sendingLabel}
+				</ChatMessage>
+			)}
 		</>
 	);
 
 	const body = (
 		<>
-			{ header }
-			{ 'before-turns' === composerPosition && composer }
-			{ turnsBlock }
-			{ beforeComposer }
-			{ 'after-turns' === composerPosition && composer }
-			{ prompts }
-			{ note }
+			{header}
+			{'before-turns' === composerPosition && composer}
+			{turnsBlock}
+			{beforeComposer}
+			{'after-turns' === composerPosition && composer}
+			{prompts}
+			{note}
 		</>
 	);
 
 	return (
 		<CardComponent
-			title={ cardTitle }
-			titleIcon={ cardTitleIcon }
-			action={ cardAction }
+			title={cardTitle}
+			titleIcon={cardTitleIcon}
+			action={cardAction}
 			className={`${cardClassName} ai-card`}
 		>
-			{ guarded ? <AiCopilotGuard>{ body }</AiCopilotGuard> : body }
+			{guarded ? <AiCopilotGuard>{body}</AiCopilotGuard> : body}
 		</CardComponent>
 	);
 };
 
 export default ChatComposerCard;
+export { default as ChatMessage } from './ChatMessage';
+export { default as ChatInput } from './ChatInput';

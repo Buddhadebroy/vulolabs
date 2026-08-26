@@ -30,47 +30,55 @@
 	flex-wrap: wrap;
 	gap: 1rem;
 
+	.recommended-actions-details{
+		padding: 1rem;
+		background: var(--recommended-bg);
+	}
+	.admin-btn{
+			margin: 1rem;
+		}
 	.recommended-actions-card {
 		flex: 1 1 12rem;
 		min-width: 12rem;
 		display: flex;
 		flex-direction: column;
-		gap: 0.375rem;
-		padding: 1rem;
-		border-radius: $border-radius-small;
-		background: var(--recommended-tone-bg);
+		border: 0.063rem solid var(--recommended-bg);
+		border-radius: 0.313rem;
+
 
 		&.tone-red {
-			--recommended-tone-bg: #{rgba(#dc2626, 0.08)};
-			--recommended-tone-fg: #dc2626;
+			--recommended-bg: #{rgba(#dc2626, 0.08)};
+			--recommended-fg: #dc2626;
 		}
 
-		&.tone-orange {
-			--recommended-tone-bg: #{rgba(#65a30d, 0.08)};
-			--recommended-tone-fg: #65a30d;
+		&.tone-green {
+			--recommended-bg: #{rgba(#65a30d, 0.08)};
+			--recommended-fg: #65a30d;
 		}
 
 		&.tone-teal {
-			--recommended-tone-bg: #{rgba(#0d9488, 0.08)};
-			--recommended-tone-fg: #0d9488;
+			--recommended-bg: #{rgba(#0d9488, 0.08)};
+			--recommended-fg: #0d9488;
 		}
 	}
 
 	.recommended-actions-card-eyebrow {
 		display: flex;
 		align-items: center;
-		gap: 0.375rem;
-		color: var(--recommended-tone-fg);
-		font-size: 0.8125rem;
+		color: var(--recommended-fg);
+		font-size: 0.938rem;
 		font-weight: 600;
-
+		margin-bottom: 0.45rem;
+		
 		.recommended-actions-card-icon {
-			font-size: 1rem;
+			font-size: 1.5rem;
+			padding-right: 0.5rem;
 		}
 	}
 
 	.recommended-actions-card-title {
-		font-size: 1rem;
+		font-size: 1.125rem;
+		padding: 0.313rem 0;
 		font-weight: 600;
 		color: $text-color;
 	}
@@ -88,7 +96,7 @@
 		padding: 0;
 		font-size: 0.8125rem;
 		font-weight: 600;
-		color: var(--recommended-tone-fg);
+		color: var(--recommended-fg);
 		cursor: pointer;
 
 		&:hover {
@@ -451,7 +459,7 @@
 // breakdown read from `GET /dashboard`: a ring for `overall_score` beside
 // its own "Overall Health"/rating text, the 4 real category_scores as
 // plain icon+label+score rows, and a footer count + "View all issues"
-// link. Same green/orange/red 3-tone split (getScoreTone()) colors both
+// link. Same green/orange/red 3 split (getScoreTone()) colors both
 // the ring's own rating text and each row's score number, so a row's
 // color never disagrees with the headline rating it rolls up into.
 .site-overview-health {
@@ -506,7 +514,7 @@
 	margin-left: 0.125rem;
 }
 
-// Same 3-tone hex values TONE_COLOR (NeedsAttentionCard.tsx) uses for the
+// Same 3 hex values TONE_COLOR (NeedsAttentionCard.tsx) uses for the
 // ring itself, so a row's text color always matches its own slice color.
 .site-overview-health-rating,
 .site-overview-score-row-value {
@@ -718,7 +726,7 @@
 }
 
 // The composer's real "Attach"/"Add context" picks (ChatTab.tsx) — a chip
-// row above ChatInputComponent, and the two toggleable picker panels
+// row above ChatInput, and the two toggleable picker panels
 // (file upload / finding-group+automation list) that fill it.
 .chat-composer-chips {
 	display: flex;

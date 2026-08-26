@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import {
 	CardComponent,
-	ChatMessageComponent,
 	ListComponent,
 	ModuleGuardComponent,
 	TooltipComponent,
@@ -10,6 +9,7 @@ import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
+import { ChatMessage } from '../../components/ChatComposerCard';
 import './SeoVisibility.scss';
 
 interface AiHistoryRow {
@@ -43,12 +43,12 @@ const AiRecommendationsSidebar = () => {
 	return (
 		<AiCopilotGuard>
 			<CardComponent>
-				<ChatMessageComponent sender="ai" avatarIcon="ai">
+				<ChatMessage sender="ai" avatarIcon="ai">
 					{__(
 						"I'm continuously monitoring your site's SEO, GEO, and brand visibility signals.",
 						'vulopilot'
 					)}
-				</ChatMessageComponent>
+				</ChatMessage>
 				<TooltipComponent
 					text={__(
 						"Bulk auto-fix isn't available yet — there's no AI action-trigger engine wired up.",

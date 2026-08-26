@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import './SeoVisibility.scss';
 import {
-	ChatInputComponent,
-	ChatMessageComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ListComponent,
@@ -11,7 +9,7 @@ import {
 import { useRunScan } from '../../services/useRunScan';
 import { useCopilotChat, CopilotChatTurn } from '../../services/useCopilotChat';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
-import ChatComposerCard from '../../components/ChatComposerCard';
+import ChatComposerCard, { ChatInput, ChatMessage } from '../../components/ChatComposerCard';
 import VisibilityScoreCard from './VisibilityScoreCard';
 import AiOpportunitiesCard from './AiOpportunitiesCard';
 import DiscoverCard from './DiscoverCard';
@@ -70,7 +68,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 					guarded
 					composerPosition="before-turns"
 					composer={
-						<ChatInputComponent
+						<ChatInput
 							value={message}
 							onChange={setMessage}
 							onSend={handleSend}
@@ -80,12 +78,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateTab }) => {
 					}
 					turns={turns}
 					renderTurn={(turn, index) => (
-						<ChatMessageComponent
+						<ChatMessage
 							key={index}
 							sender={'user' === turn.role ? 'user' : 'ai'}
 						>
 							<ChatMarkdown text={turn.content} />
-						</ChatMessageComponent>
+						</ChatMessage>
 					)}
 					isSending={isSending}
 					prompts={

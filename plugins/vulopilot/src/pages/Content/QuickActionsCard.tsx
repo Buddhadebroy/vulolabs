@@ -97,7 +97,7 @@ const QuickActionsCard = () => {
 				buttons={{
 					text: __('View all tools', 'vulopilot'),
 					rightIcon: 'arrow-right',
-					color: 'purple-bg',
+					color: 'border-purple',
 					onClick: () => scrollTo('content-tools-grid'),
 				}}
 			/>

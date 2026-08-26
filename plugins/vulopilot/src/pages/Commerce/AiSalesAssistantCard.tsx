@@ -1,7 +1,8 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { CardComponent, ChatMessageComponent, ColumnComponent } from '@zyra/components';
+import { CardComponent, ColumnComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
+import { ChatMessage } from '../../components/ChatComposerCard';
 import { useApiList } from '../../services/useApiList';
 
 interface FindingRow {
@@ -54,7 +55,7 @@ const AiSalesAssistantCard = ({
 			>
 				<AiCopilotGuard>
 					{!isLoading && (
-						<ChatMessageComponent sender="ai" avatarIcon="ai">
+						<ChatMessage sender="ai" avatarIcon="ai">
 							{total > 0
 								? sprintf(
 										/* translators: %d is the number of open WooCommerce findings. */
@@ -70,7 +71,7 @@ const AiSalesAssistantCard = ({
 										"You're all caught up — no open findings need your attention right now. I can still help you optimize a batch of products with AI.",
 										'vulopilot'
 									)}
-						</ChatMessageComponent>
+						</ChatMessage>
 					)}
 					<ButtonInput
 						position="full-width"

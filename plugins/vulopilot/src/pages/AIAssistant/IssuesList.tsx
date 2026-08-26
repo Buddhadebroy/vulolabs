@@ -2,18 +2,21 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ColumnComponent, ModuleGuardComponent, InformationItemComponent, BadgeComponent } from '@zyra/components';
+import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
+import type { FindingItem } from '@zyra/table';
 import './AICopilot.scss';
 import IssuesSummaryCards, { Priority } from './IssuesSummaryCards';
 import IssueDetailPanel from './IssueDetailPanel';
+import { getSeverityClass } from '../../services/getSeverityClass';
 import {
 	CATEGORY_ICONS,
 	CATEGORY_LABELS,
 	CATEGORY_TABS,
 	FindingGroup,
+	OBJECT_TYPE_STAT_ICONS,
 	findTabIdForCategory,
-	formatAffected,
+	getObjectTypeNoun,
 } from './issuesTypes';
 
 interface GroupsResponse {
@@ -199,6 +202,55 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			),
 		})),
 	];
+
+	// TableCard's `variant="findings"` row shape (icon chip + title + tag
+	// pills + desc, a stat, and a "View details" button) — replaces the
+	// former `variant="default"` column grid (issue/affected/action
+	// headers) this table used to render, per the `table/TableCard--findings`
+	// Storybook story. `CATEGORY_ICONS[row.category]` is "<icon> <color>"
+	// (e.g. "security lime") shared with other consumers of that map
+	// (IssueDetailPanel.tsx, RecentContentCard.tsx) as one combined
+	// className string — split here since `FindingItem` wants the icon name
+	// and its palette color as two separate fields.
+	const findingItems: FindingItem[] = data.map((row) => {
+		const [icon, iconColor] = (
+			CATEGORY_ICONS[row.category] ?? 'search-discovery pink'
+		).split(' ');
+		const isActiveRow = row.scanner_id === selectedGroup?.scanner_id;
+
+		return {
+			id: row.scanner_id,
+			icon,
+			iconColor,
+			title: row.label,
+			badges: [
+				{
+					text: CATEGORY_LABELS[row.category] ?? row.category,
+					color: iconColor,
+				},
+				{
+					text: row.severity,
+					color: getSeverityClass(row.severity),
+				},
+			],
+			desc: row.sample?.description || undefined,
+			statIcon: OBJECT_TYPE_STAT_ICONS[row.object_type ?? ''] ?? 'alarm',
+			statCount: row.count,
+			statLabel: getObjectTypeNoun(row.count, row.object_type),
+			// Replaces the old grid layout's `is-selected` row tint +
+			// "Showing"/"More Details" label swap (both driven by
+			// `activeRowId`/`type: 'more-action'`, neither of which
+			// `variant="findings"` rows carry) — computed here instead so
+			// clicking the currently-open row's own button still reads as
+			// "already showing" and toggles the detail panel closed.
+			viewDetailsText: isActiveRow
+				? __('Showing', 'vulopilot')
+				: __('View Details', 'vulopilot'),
+			onViewDetails: () =>
+				setSelectedGroup(isActiveRow ? null : row),
+		};
+	});
+
 	return (
 		<>
 			{/* Real scroll target for ChatTab.tsx's own "View all issues"/
@@ -232,85 +284,10 @@ const IssuesList: React.FC<IssuesListProps> = ({
 						/>
 					) : (
 						<TableCard
-							showMenu={false}
-							hideHeader={true}
+							variant="findings"
 							categoryCounts={tableCategoryCounts}
 							activeCategory={activeTabId}
-							// Highlights the row whose details are showing in
-							// the side panel (zyra's own `is-selected` row
-							// style, see @zyra/table's TableCard/Table) —
-							// kept in sync with the action cell's own
-							// row-is-active check below rather than a
-							// separate piece of state.
-							activeRowId={selectedGroup?.scanner_id}
-							headers={{
-								issue: {
-									label: __('Issue', 'vulopilot'),
-									width: '70%',
-									render: (row: FindingGroup) => (
-										<InformationItemComponent
-											avatar={{
-												iconClass:
-													CATEGORY_ICONS[row.category] ??
-													'search-discovery pink',
-											}}
-											title={row.label}
-											descriptions={[
-												{
-													value:
-														(row.sample?.description?.length ?? 0) > 80
-															? `${row.sample?.description?.slice(0, 80)}...`
-															: row.sample?.description || '',
-												},
-											]}
-											badges={[
-												{
-													text: CATEGORY_LABELS[row.category] ?? row.category,
-													className: `badge-${row.category}`,
-												},
-												{
-													text: row.severity,
-													className: `badge-${row.severity}`,
-												},
-											]}
-										/>
-									),
-								},
-								affected: {
-									label: __('Affected', 'vulopilot'),
-									render: (row: FindingGroup) =>
-										formatAffected(
-											row.count,
-											row.object_type
-										),
-								},
-								action: {
-									label: __('Affected', 'vulopilot'),
-									type: 'action',
-									render: (row: FindingGroup) => {
-										const isActiveRow =
-											row.scanner_id === selectedGroup?.scanner_id;
-
-										return (
-											<span
-												className={`more-details admin-btn btn-text-purple${isActiveRow ? ' is-active' : ''}`}
-												onClick={() =>
-													setSelectedGroup(
-														isActiveRow ? null : row
-													)
-												}
-											>
-												{isActiveRow
-													? __('Showing', 'vulopilot')
-													: __('More Details', 'vulopilot')}{' '}
-												<i className="adminfont-pagination-next-arrow" />
-											</span>
-										);
-									},
-								},
-							}}
-							rows={data}
-							ids={data.map((row) => row.scanner_id)}
+							findings={findingItems}
 							totalRows={total}
 							isLoading={isLoading}
 							onQueryUpdate={(query: {

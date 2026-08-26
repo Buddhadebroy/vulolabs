@@ -327,29 +327,21 @@ const SectionedIssuesTable = ({
 									action: {
 										label: __('Action', 'vulopilot'),
 										// "More Details"/"Showing" toggle + active
-										// state — same real pattern AI Copilot's own
-										// Issues table (IssuesList.tsx) already
-										// established, instead of a plain icon-only
-										// "View" action.
-										render: (row: FindingGroup) => {
-											const isActiveRow =
-												row.scanner_id === selectedGroup?.scanner_id;
-
-											return (
-												<span
-													className={`more-details admin-btn btn-text-purple${isActiveRow ? ' is-active' : ''}`}
-													onClick={() =>
-														setSelectedGroup(
-															isActiveRow ? null : row
-														)
-													}
-												>
-													{isActiveRow
-														? __('Showing', 'vulopilot')
-														: __('More Details', 'vulopilot')}{' '}
-													<i className="adminfont-pagination-next-arrow" />
-												</span>
-											);
+										// state — zyra's own built-in `more-action`
+										// column type (Table.tsx), same one AI
+										// Copilot's Issues table (IssuesList.tsx)
+										// uses, instead of a plain icon-only "View"
+										// action.
+										type: 'more-action',
+										onToggleRow: (row: FindingGroup) =>
+											setSelectedGroup(
+												row.scanner_id === selectedGroup?.scanner_id
+													? null
+													: row
+											),
+										moreActionLabels: {
+											active: __('Showing', 'vulopilot'),
+											inactive: __('More Details', 'vulopilot'),
 										},
 									},
 								}}
