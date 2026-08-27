@@ -4,12 +4,12 @@ import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
-	BadgeComponent,
 	CardComponent,
 	InformationItemComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
+	SectionComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
@@ -192,15 +192,11 @@ const SeoSiteWideIssuesTable = ({
 	}
 
 	return (
-		<CardComponent
-			className="seo-sitewide-issues-card"
-			title={__('Site-wide Issues', 'vulopilot')}
-			desc={__(
-				'Not tied to a specific page — these affect the whole site (e.g. your XML sitemap or robots.txt).',
-				'vulopilot'
-			)}
-			isLoading={isLoading}
-		>
+		<>
+			<SectionComponent
+				title={__('Site-wide Issues', 'vulopilot')}
+				desc={__('Not tied to a specific page — these affect the whole site (e.g. your XML sitemap or robots.txt).', 'vulopilot')}
+			/>
 			<TableCard
 				showMenu={false}
 				className="transparent-table"
@@ -227,49 +223,56 @@ const SeoSiteWideIssuesTable = ({
 					},
 					action: {
 						label: __('Action', 'vulopilot'),
-						render: (row: RawFinding) => (
-							<BadgeComponent
-								badges={[
-									{
-										text: __('Resolve', 'vulopilot'),
-										icon: 'check',
-										className: 'badge-action-resolve',
-										onClick: () =>
-											handleStatus(
-												row,
-												'resolved',
-												__(
-													'Finding marked as resolved.',
-													'vulopilot'
-												)
-											),
-									},
-									{
-										text:
-											fixingFindingId === row.id
-												? __('Fixing…', 'vulopilot')
-												: __('Fix with AI', 'vulopilot'),
-										icon: 'ai',
-										className: 'badge-action-fix-ai',
-										onClick:
-											fixingFindingId === row.id
-												? undefined
-												: () => handleFix(row),
-									},
-									{
-										text: __('Ignore', 'vulopilot'),
-										icon: 'eye-blocked',
-										className: 'badge-action-ignore',
-										onClick: () =>
-											handleStatus(
-												row,
-												'ignored',
-												__('Finding ignored.', 'vulopilot')
-											),
-									},
-								]}
-							/>
-						),
+						type: 'action',
+						actions: [
+							{
+								type: 'button',
+								label: __('Resolve', 'vulopilot'),
+								icon: 'check',
+								onClick: (row) =>
+									handleStatus(
+										row as unknown as RawFinding,
+										'resolved',
+										__(
+											'Finding marked as resolved.',
+											'vulopilot'
+										)
+									),
+							},
+							{
+								type: 'button',
+								label: (row) =>
+									fixingFindingId ===
+									(row as unknown as RawFinding)?.id
+										? __('Fixing…', 'vulopilot')
+										: __('Fix with AI', 'vulopilot'),
+								icon: 'ai',
+								onClick: (row) => {
+									const finding = row as unknown as RawFinding;
+									// Was `onClick: undefined` on the raw
+									// `<BadgeComponent>` badge to disable the
+									// click while a fix is already running —
+									// `ActionItem.onClick` is required here, so
+									// a no-op stands in for that same "ignore
+									// clicks mid-fix" behavior instead.
+									if (fixingFindingId === finding.id) {
+										return;
+									}
+									handleFix(finding);
+								},
+							},
+							{
+								type: 'button',
+								label: __('Ignore', 'vulopilot'),
+								icon: 'eye-blocked',
+								onClick: (row) =>
+									handleStatus(
+										row as unknown as RawFinding,
+										'ignored',
+										__('Finding ignored.', 'vulopilot')
+									),
+							},
+						],
 					},
 				}}
 				rows={visibleFindings}
@@ -292,7 +295,7 @@ const SeoSiteWideIssuesTable = ({
 					<ShowProPopup />
 				)}
 			</PopupComponent>
-		</CardComponent>
+		</>
 	);
 };
 

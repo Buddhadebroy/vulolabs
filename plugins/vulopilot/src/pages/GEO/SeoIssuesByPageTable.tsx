@@ -2,7 +2,7 @@
 import React from 'react';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { BadgeComponent, CardComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager } from '@zyra/components';
+import { CardComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager, SectionComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
@@ -328,11 +328,11 @@ const SeoIssuesByPageTable = ({
 	}
 
 	return (
-		<CardComponent
-			className="seo-issues-by-page-card"
-			title={__('Pages & Posts', 'vulopilot')}
-			isLoading={isLoading}
-		>
+		<>
+			<SectionComponent
+				title={__('Pages & Posts', 'vulopilot')}
+				desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
+			/>
 			{/*
 			 * The "nice work, nothing to fix" empty state only replaces the
 			 * whole card when there's truly nothing to show *and* no active
@@ -466,65 +466,79 @@ const SeoIssuesByPageTable = ({
 							: {}),
 						action: {
 							label: __('Action', 'vulopilot'),
-							// Direct `BadgeComponent` array instead of
-							// `TableRowActions` — every action here always
-							// renders as a badge, so `TableRowActions`' own
-							// icon/dropdown-menu machinery had nothing left
-							// to do. "Fix with AI" keeps its own
-							// `badge-action-fix-ai` color (SeoVisibility.scss,
-							// already defined for SeoSiteWideIssuesTable.tsx's
-							// own row actions); Edit/View get the default
-							// badge look.
-							render: (row: TableRow) => (
-								<BadgeComponent
-									badges={[
-										...(onAnalyze && !isFindingRow(row)
-											? [
-													{
-														text: __('Analyze', 'vulopilot'),
-														icon: 'search',
-														onClick: () => onAnalyze(row.id),
-													},
-												]
-											: []),
-										// A merged-in page (pageAnalysis mode) can legitimately have
-										// zero matching findings — nothing for "Fix with AI" to open.
-										...(isFindingRow(row) || getRowFindings(row).length > 0
-											? [
-													{
-														text: __('Fix with AI', 'vulopilot'),
-														icon: 'ai',
-														className: 'badge-action-fix-ai',
-														onClick: () =>
-															isFindingRow(row)
-																? (window.location.href =
-																		row.fixWithAiLink)
-																: handleFixWithAi(row),
-													},
-												]
-											: []),
-										{
-											text: __('Edit', 'vulopilot'),
-											icon: 'edit',
-											onClick: () =>
-												(window.location.href = row.editLink),
-										},
-										{
-											text: __('View', 'vulopilot'),
-											icon: 'eye',
-											onClick: () => {
-												if (row.viewLink) {
-													window.open(
-														row.viewLink,
-														'_blank',
-														'noreferrer'
-													);
-												}
-											},
-										},
-									]}
-								/>
-							),
+							// Native `type: 'action'` + `type: 'button'`
+							// actions (TableRowActions.tsx) instead of a
+							// hand-built `<BadgeComponent>` in `render` —
+							// same real Analyze/Fix with AI/Edit/View
+							// actions. Analyze/Fix with AI only apply to some
+							// rows (a finding sub-row has no post of its own
+							// to "Analyze"; a merged page row can legitimately
+							// have zero matching findings for "Fix with AI"
+							// to open) — `hidden` (zyra's own real per-row
+							// action visibility, added for this conversion)
+							// drops them from THIS row's action list
+							// entirely, rather than a disabled/no-op button
+							// standing in for "not applicable here".
+							type: 'action',
+							actions: [
+								{
+									type: 'button',
+									label: __('Analyze', 'vulopilot'),
+									icon: 'search',
+									hidden: (row) =>
+										!onAnalyze ||
+										isFindingRow(row as unknown as TableRow),
+									onClick: (row) =>
+										onAnalyze?.(
+											(row as unknown as PageRow).id
+										),
+								},
+								{
+									type: 'button',
+									label: __('Fix with AI', 'vulopilot'),
+									icon: 'ai',
+									hidden: (row) => {
+										const typedRow = row as unknown as TableRow;
+										return (
+											!isFindingRow(typedRow) &&
+											0 === getRowFindings(typedRow).length
+										);
+									},
+									onClick: (row) => {
+										const typedRow = row as unknown as TableRow;
+										if (isFindingRow(typedRow)) {
+											window.location.href = typedRow.fixWithAiLink;
+										} else {
+											handleFixWithAi(typedRow);
+										}
+									},
+								},
+								{
+									type: 'button',
+									label: __('Edit', 'vulopilot'),
+									icon: 'edit',
+									onClick: (row) => {
+										window.location.href = (
+											row as unknown as TableRow
+										).editLink;
+									},
+								},
+								{
+									type: 'button',
+									label: __('View', 'vulopilot'),
+									icon: 'eye',
+									onClick: (row) => {
+										const typedRow = row as unknown as TableRow;
+										if (typedRow.viewLink) {
+											window.open(
+												typedRow.viewLink,
+												'_blank',
+												'noreferrer'
+											);
+										}
+									},
+								},
+							],
 						},
 					}}
 					rows={visibleRows.map((row) => ({
@@ -545,7 +559,7 @@ const SeoIssuesByPageTable = ({
 					}
 				/>
 			)}
-		</CardComponent>
+		</>
 	);
 };
 

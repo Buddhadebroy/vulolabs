@@ -859,89 +859,35 @@
 // needing `!important` for: that rule is injected into a runtime
 // `<style>` tag, landing later in the cascade than any statically-compiled
 // CSS at equal specificity.
-$seo-area-icon-colors: (
-	'purple': #7c3aed,
-	'blue': #2563eb,
-	'green': #16a34a,
-	'indigo': #4f46e5,
-	'teal': #0d9488,
-	'orange': #d97706,
-);
+// "SEO areas" grid — now a real `<MetricTileComponent>` (@zyra/components;
+// takes the whole `data` array and lays out its own grid — no separate
+// grid-wrapper component). The old `.seo-category-grid`/`.analytics-*`/
+// `.seo-area-tile-title`/`.seo-area-tile-pill`/`.seo-area-tile-score`/
+// `.seo-area-tile-issues`/`.seo-area-tile-pages` overrides that used to
+// hand-restyle a raw `<AnalyticsComponent>` for this same grid are gone
+// along with it — `number`/`stat`/`desc` (real 0-100 score/open-issue
+// count/affected-pages line) now render through that component's own
+// `.metric-tile-number`/`.metric-tile-stat`/`.desc` styling instead.
+// `$seo-area-icon-colors` moved to SeoTab.tsx's own `SEO_AREA_ICON_COLORS`
+// (real per-category identity hex, passed straight to `MetricTileItem`'s
+// own `iconColor` — no colored chip behind the icon any more, unlike this
+// grid's old bespoke look).
+//
+// `MetricTileComponent`'s own `badge` prop has no click handler (confirmed
+// reading its source — same real gap MetricsGrid.tsx's own docblock
+// already flags), so the real click-to-jump-to-issues rating pill is a
+// manually-built `<BadgeComponent>` in `footer` instead — this is that
+// badge's own pointer/hover affordance, same rule Performance.scss's own
+// `.metric-tile-badge-clickable` already defines for its own tiles (kept
+// per-page rather than shared, matching this component's own established
+// per-consumer-CSS convention).
+.metric-tile-badge-clickable {
+	cursor: pointer;
 
-.seo-category-grid {
-	.analytics-container {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-		gap: 0.75rem;
+	&:hover,
+	&:focus-visible {
+		opacity: 0.8;
 	}
-
-	.analytics-item {
-		&.green .details .number {
-			color: #16a34a;
-		}
-
-		&.yellow .details .number {
-			color: #b7791f;
-		}
-
-		&.red .details .number {
-			color: #dc2626;
-		}
-
-		.analytics-icon {
-			display: flex !important;
-			margin-bottom: 0.5rem;
-
-			i {
-				border-radius: 0.625rem !important;
-			}
-		}
-
-		@each $name, $color in $seo-area-icon-colors {
-			.analytics-icon i.icon-#{$name} {
-				color: #{$color};
-				background: color-mix(in srgb, #{$color} 14%, transparent);
-			}
-		}
-	}
-}
-
-.seo-area-tile-title {
-	font-weight: 600;
-	margin-bottom: 0.375rem;
-}
-
-.seo-area-tile-pill {
-	display: inline-block;
-	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 0.125rem 0.5rem;
-	border-radius: $border-radius-small;
-	margin-bottom: 0.5rem;
-
-	&.is-good {
-		color: #16a34a;
-		background: color-mix(in srgb, #16a34a 14%, transparent);
-	}
-
-	&.is-attention {
-		color: #b45309;
-		background: color-mix(in srgb, #b45309 14%, transparent);
-	}
-
-	&.is-poor {
-		color: #dc2626;
-		background: color-mix(in srgb, #dc2626 14%, transparent);
-	}
-}
-
-.seo-area-tile-issues {
-	font-size: 0.8125rem;
-	font-weight: 600;
-}
-
-.seo-area-tile-pages {
-	margin-top: 0.125rem;
 }
 
 // SeoTab.tsx's own "SEO Health Score" hero card — the real ring
@@ -975,6 +921,11 @@ $seo-area-icon-colors: (
 
 .seo-health-score-stats-severity {
 	flex: 0 1 16rem;
+	// Critical/High priority stack vertically here (reference mockup) —
+	// overrides the inherited `.seo-health-score-stats` auto-fit grid,
+	// which side-by-sides Pages checked/Issues found instead.
+	grid-template-columns: 1fr;
+	gap: 0.75rem;
 }
 
 .seo-health-score-divider {

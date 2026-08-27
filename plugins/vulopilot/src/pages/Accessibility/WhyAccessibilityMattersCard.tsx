@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, ListComponent } from '@zyra/components';
 import './Accessibility.scss';
 
 /**
@@ -23,14 +23,14 @@ const WhyAccessibilityMattersCard = () => (
 		title={__('Why accessibility matters', 'vulopilot')}
 		titleIcon="question"
 	>
-		<ul className="why-accessibility-matters-list">
-			{WHY_IT_MATTERS_POINTS.map((point) => (
-				<li key={point} className="why-accessibility-matters-row">
-					<i className="adminfont-check why-accessibility-matters-icon" />
-					<span>{point}</span>
-				</li>
-			))}
-		</ul>
+		<ListComponent
+			className="checklist"
+			items={WHY_IT_MATTERS_POINTS.map((point) => ({
+				id: point,
+				icon: 'check green-color',
+				title: point,
+			}))}
+		/>
 	</CardComponent>
 );
 

@@ -1,13 +1,15 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	AnalyticsComponent,
+	BadgeComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
+	MetricTileComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
 } from '@zyra/components';
@@ -27,13 +29,23 @@ const CATEGORY_CARDS: {
 	/** A fixed per-category identity color for the icon box — independent of `ratingColor(category.score)`, which separately tints the border/graph/number by real live status. */
 	color: string;
 }[] = [
-	{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search', color: 'purple' },
-	{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list', color: 'blue' },
-	{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment', color: 'green' },
-	{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'admin-links', color: 'indigo' },
-	{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery', color: 'teal' },
-	{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks', color: 'orange' },
-];
+		{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search', color: 'purple' },
+		{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list', color: 'blue' },
+		{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment', color: 'green' },
+		{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'admin-links', color: 'indigo' },
+		{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery', color: 'teal' },
+		{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks', color: 'orange' },
+	];
+
+/** Same real per-category identity hex `CATEGORY_CARDS[].color` names already referred to — mirrors SeoVisibility.scss's own `$seo-area-icon-colors` map (that CSS-side map still backs the now-unused `.icon-#{$name}` chip rule; kept in sync by hand, same as that file's own comment already flags for `COLOR_PALETTE`-adjacent maps). `MetricTileComponent`'s own `iconColor` (`MetricTileItem`, `@zyra/components`) only tints the glyph itself — no colored chip behind it. */
+const SEO_AREA_ICON_COLORS: Record<string, string> = {
+	purple: '#7c3aed',
+	blue: '#2563eb',
+	green: '#16a34a',
+	indigo: '#4f46e5',
+	teal: '#0d9488',
+	orange: '#d97706',
+};
 
 /**
  * Real `robots-txt`/`sitemap`/`sitemap-validation`/`ai-crawler-blocked-pages`
@@ -226,37 +238,22 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
-				<NoticeComponent
-					// type="banner"
-					displayPosition="inline"
-					message={sprintf(
-						'<strong>%1$s</strong> %2$s',
-						__('In plain English:', 'vulopilot'),
-						__(
-							'This checks whether your pages are set up correctly for classic Google search — titles, descriptions, images, and internal links.',
-							'vulopilot'
-						)
-					)}
-				/>
-
 				<div className="seo-search-engine-access">
 					<span
-						className={`crawler-health-status ${
-							null === searchEngineAccessOpen
-								? ''
-								: 0 === searchEngineAccessOpen
-									? 'is-good'
-									: 'is-warning'
-						}`}
+						className={`crawler-health-status ${null === searchEngineAccessOpen
+							? ''
+							: 0 === searchEngineAccessOpen
+								? 'is-good'
+								: 'is-warning'
+							}`}
 					>
 						<i
-							className={`adminfont-${
-								null === searchEngineAccessOpen
-									? 'info'
-									: 0 === searchEngineAccessOpen
-										? 'check'
-										: 'error'
-							}`}
+							className={`adminfont-${null === searchEngineAccessOpen
+								? 'info'
+								: 0 === searchEngineAccessOpen
+									? 'check'
+									: 'error'
+								}`}
 						/>
 						{sprintf(
 							/* translators: %s is "Healthy", "Needs Attention", or "Checking…". */
@@ -278,92 +275,102 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					</button>
 				</div>
 
-				<SeoProgressCard />
 
 				<CardComponent
 					title={__('SEO Health Score', 'vulopilot')}
-					desc={__(
-						'A composite score across every real SEO check below.',
-						'vulopilot'
-					)}
 					isLoading={isLoadingScore}
 				>
 					{score && (
 						<div className="seo-health-score-layout">
-							<div className="geo-overall-visibility seo-health-score-ring">
-								<ChartComponent
-									type="pie"
-									height={140}
-									centerLabel={
-										<>
-											<span className="score-ring-number">
-												{score.seo_score}
-											</span>
+							<ChartComponent
+								type="ring"
+								height={140}
+								centerLabel={
+									<>
+										<span className="score-ring-number">
+											{score.seo_score}
+										</span>
+										<span
+											className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
+										>
+											{getRating(score.seo_score)}
+										</span>
+									</>
+								}
+								data={[
+									{
+										label: __('Score', 'vulopilot'),
+										value: score.seo_score,
+										// Same real rating color the ring's
+										// own "Needs Attention"/"Good"/"Poor"
+										// label below already uses
+										// (`ratingClass()`/`getRating()`) —
+										// resolved through `COLOR_PALETTE`
+										// for the real hex `ratingColor()`'s
+										// own palette name stands for,
+										// rather than a fixed brand purple
+										// unrelated to the actual score.
+										color: COLOR_PALETTE[
+											ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE
+										],
+									},
+									{
+										label: __('Remaining', 'vulopilot'),
+										value: 100 - score.seo_score,
+										color: '#e5e7eb',
+									},
+								]}
+							/>
+							<AnalyticsComponent
+								variant="with-out-boxshadow"
+								cols={4}
+								isLoading={isLoadingScore}
+								data={[
+									{
+										number: score.pages_checked,
+										text: __('Pages checked', 'vulopilot'),
+										iconClass: 'admin-bg-color2',
+									},
+									{
+										number: score.total_open,
+										text: __('Issues found', 'vulopilot'),
+										iconClass: 'admin-bg-color2',
+										extra: (
 											<span
-												className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
+												className={
+													score.deltas.total_open <= 0
+														? 'is-good'
+														: 'is-attention'
+												}
 											>
-												{getRating(score.seo_score)}
+												{deltaLabel(
+													score.deltas.total_open,
+													score.deltas.lookback_days
+												)}
 											</span>
-										</>
-									}
-									data={[
-										{
-											label: __('Score', 'vulopilot'),
-											value: score.seo_score,
-											color: '#7C3AED',
-										},
-										{
-											label: __('Remaining', 'vulopilot'),
-											value: 100 - score.seo_score,
-											color: '#e5e7eb',
-										},
-									]}
-								/>
-							</div>
-							<div className="seo-health-score-stats">
-								<div className="seo-health-stat">
-									<div className="typography-h3">
-										{score.pages_checked}
-									</div>
-									<div className="typography-body-xs">
-										{__('Pages checked', 'vulopilot')}
-									</div>
-								</div>
-								<div className="seo-health-stat">
-									<div className="typography-h3">
-										{score.total_open}
-									</div>
-									<div className="typography-body-xs">
-										{__('Issues found', 'vulopilot')}
-									</div>
-									<div
-										className={`typography-caption ${score.deltas.total_open <= 0 ? 'is-good' : 'is-attention'}`}
-									>
-										{deltaLabel(score.deltas.total_open, score.deltas.lookback_days)}
-									</div>
-								</div>
-							</div>
+										),
+									},
+									{
+									number: (
+										<span className="is-poor">
+											{score.severity_breakdown.critical}
+										</span>
+									),
+									text: __('Critical issues', 'vulopilot'),
+									iconClass: 'admin-bg-color2',
+								},
+								{
+									number: (
+										<span className="is-attention">
+											{score.severity_breakdown.high}
+										</span>
+									),
+									text: __('High priority issues', 'vulopilot'),
+									iconClass: 'admin-bg-color2',
+								},
+								]}
+							/>
 
-							<div className="seo-health-score-divider" />
-
-							<div className="seo-health-score-stats seo-health-score-stats-severity">
-								<div className="seo-health-stat">
-									<div className="typography-h3 is-poor">
-										{score.severity_breakdown.critical}
-									</div>
-									<div className="typography-body-xs">
-										{__('Critical issues', 'vulopilot')}
-									</div>
-								</div>
-								<div className="seo-health-stat">
-									<div className="typography-h3 is-attention">
-										{score.severity_breakdown.high}
-									</div>
-									<div className="typography-body-xs">
-										{__('High priority issues', 'vulopilot')}
-									</div>
-								</div>
-							</div>
 						</div>
 					)}
 				</CardComponent>
@@ -376,58 +383,73 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					)}
 					isLoading={isLoadingScore}
 				>
-					<div className="seo-category-grid">
-						<AnalyticsComponent
-							cols="4"
-							data={
-								score
-									? CATEGORY_CARDS.map((card) => {
-											const category = score.category_scores[card.key];
-											return {
-												icon: card.icon,
-												iconClass: `icon-${card.color}`,
-												colorClass: ratingColor(category.score),
-												number: `${category.score}/100`,
-												text: (
-													<>
-														<div className="seo-area-tile-title">
-															{card.title}
-														</div>
-														<span
-															className={`seo-area-tile-pill ${ratingClass(category.score)}`}
-														>
-															{getRating(category.score)}
-														</span>
-														<div className="seo-area-tile-issues">
-															{sprintf(
-																/* translators: %d: number of open issues. */
-																__('%d issues', 'vulopilot'),
-																category.open_count
-															)}
-														</div>
-														<div className="seo-area-tile-pages typography-caption">
-															{sprintf(
-																/* translators: %d: number of affected pages. */
-																__('%d pages affected', 'vulopilot'),
-																category.affected_pages
-															)}
-														</div>
-													</>
-												),
-												onClick: () =>
+					{score && (
+						<MetricTileComponent
+							cols={3}
+							isLoading={isLoadingScore}
+							data={CATEGORY_CARDS.map((card) => {
+								const category = score.category_scores[card.key];
+
+								return {
+									id: card.key,
+									icon: card.icon,
+									iconColor: SEO_AREA_ICON_COLORS[card.color],
+									title: card.title,
+									number: sprintf(
+										/* translators: %d: real 0-100 category score. */
+										__('%d/100', 'vulopilot'),
+										category.score
+									),
+									stat: sprintf(
+										/* translators: %d: number of open issues. */
+										__('%d issues', 'vulopilot'),
+										category.open_count
+									),
+									desc: sprintf(
+										/* translators: %d: number of affected pages. */
+										__('%d pages affected', 'vulopilot'),
+										category.affected_pages
+									),
+									// `MetricTileComponent`'s own `badge` prop
+									// only ever reads `badge.color`/`badge.text`
+									// — no click handler (confirmed reading its
+									// source, same real gap MetricsGrid.tsx's
+									// own docblock already flags) — so the real
+									// click-to-jump-to-issues badge goes in
+									// `footer` (the one slot that really does
+									// take arbitrary content) instead of the
+									// built-in `badge` slot.
+									footer: (
+										<BadgeComponent
+											text={getRating(category.score)}
+											color={ratingColor(category.score)}
+											className="metric-tile-badge-clickable"
+											role="button"
+											tabIndex={0}
+											onClick={() =>
+												setCategoryFocus({
+													key: card.key,
+													token: Date.now(),
+												})
+											}
+											onKeyDown={(event) => {
+												if (
+													'Enter' === event.key ||
+													' ' === event.key
+												) {
+													event.preventDefault();
 													setCategoryFocus({
 														key: card.key,
 														token: Date.now(),
-													}),
-											};
-										})
-									: []
-							}
-							variant="small-card"
-							cols={3}
-							isLoading={isLoadingScore}
+													});
+												}
+											}}
+										/>
+									),
+								};
+							})}
 						/>
-					</div>
+					)}
 				</CardComponent>
 
 				<WhatShouldIFixFirstCard
@@ -443,7 +465,10 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					isLoadingScore={isLoadingScore}
 				/>
 
-				<PagesNeedingAttentionTable onAnalyze={setAnalyzingPostId} />
+				<PagesNeedingAttentionTable
+					onAnalyze={setAnalyzingPostId}
+					activePostId={analyzingPostId}
+				/>
 
 				<SeoIssuesSection
 					categoryFocus={categoryFocus}
@@ -459,6 +484,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					/>
 				</ColumnComponent>
 			)}
+			<SeoProgressCard />
 		</ContainerComponent>
 	);
 };

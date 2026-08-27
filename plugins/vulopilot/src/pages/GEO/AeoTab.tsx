@@ -366,15 +366,6 @@ const AeoTab = () => {
 
 	return (
 		<ContainerComponent>
-			<NoticeComponent
-				displayPosition="inline-notice"
-				title={__('In plain English:', 'vulopilot')}
-				message={__(
-						'When someone asks ChatGPT, Perplexity, or Google’s AI a question your page could answer, this checks whether your content is written so AI can actually quote it directly.',
-						'vulopilot'
-					)}
-			/>
-
 			<ColumnComponent>
 				<GeoByTopicGrid
 					topics={AEO_SECTIONS}

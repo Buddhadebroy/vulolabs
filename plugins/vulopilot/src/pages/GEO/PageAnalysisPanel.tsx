@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import './PageAnalysisPanel.scss';
 
 type CheckStatus = 'pass' | 'warn' | 'fail';
@@ -38,9 +38,16 @@ interface PageAnalysisPanelProps {
  * glyph to "needs attention" among the 4 that actually exist.
  */
 const STATUS_ICON: Record<CheckStatus, string> = {
-	pass: 'adminfont-check',
-	warn: 'adminfont-error',
-	fail: 'adminfont-close',
+	pass: 'check green',
+	warn: 'error red',
+	fail: 'close red',
+};
+
+/** Real per-check status pill (reference mockup) — reuses `BadgeComponent`'s own `border` outline look, same real pass/warn/fail 3-way this row's own `STATUS_ICON` above already keys off. */
+const STATUS_BADGE: Record<CheckStatus, { text: string; color: string }> = {
+	pass: { text: __('Passed', 'vulopilot'), color: 'green' },
+	warn: { text: __('Needs work', 'vulopilot'), color: 'orange' },
+	fail: { text: __('Failed', 'vulopilot'), color: 'red' },
 };
 
 /**
@@ -131,26 +138,25 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 						</div>
 					</div>
 
-					<ul className="page-analysis-checks">
-						{data.checks.map((check) => (
-							<li
-								key={check.key}
-								className={`page-analysis-check page-analysis-check-${check.status}`}
-							>
-								<i
-									className={`page-analysis-check-icon ${STATUS_ICON[check.status]}`}
-								/>
-								<div>
-									<div className="page-analysis-check-label">
-										{check.label}
-									</div>
-									<div className="page-analysis-check-message">
-										{check.message}
-									</div>
-								</div>
-							</li>
-						))}
-					</ul>
+					<ListComponent
+						className="mini-card report"
+						items={data.checks.map((template) => ({
+							id: template.id,
+							icon: STATUS_ICON[template.status],
+							title: template.label,
+							desc: template.message,
+							tags: (
+								<>
+									<BadgeComponent
+										border
+										color={STATUS_BADGE[template.status].color}
+										text={STATUS_BADGE[template.status].text}
+									/>
+									<i className="adminfont-pagination-right-arrow ai-copilot-row-arrow" />
+								</>
+							),
+						}))}
+					/>
 				</>
 			)}
 		</CardComponent>
