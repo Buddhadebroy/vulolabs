@@ -1,14 +1,10 @@
-/* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ColumnComponent, NoticeComponent, ContainerComponent } from '@zyra/components';
-import { useFilterSlot } from '../../services/useFilterSlot';
+import { NoticeComponent, ContainerComponent } from '@zyra/components';
 import IssuesSection from './IssuesSection';
-import ProLockedCard from '../../components/ProLockedCard';
-import { useGeoFindingGroups, sumGroupCounts } from './useGeoFindingGroups';
+import { useGeoFindingGroups } from './useGeoFindingGroups';
 import { useGeoTopicAffectedPages } from './useGeoTopicAffectedPages';
-import { useGeoVisibilitySnapshot } from './useGeoVisibilitySnapshot';
-import GeoVisibilitySummaryCard from './GeoVisibilitySummaryCard';
+import GeoScoreSection from './GeoScoreSection';
 import GeoByTopicGrid from './GeoByTopicGrid';
 
 /**
@@ -116,37 +112,25 @@ const GEO_TOPICS: {
 ];
 
 /**
- * Same `active_modules` gate CrawlerTraffic.tsx's isSeoModuleActive() /
- * BrandVisibility.tsx / KnowledgeGraph.tsx already use for their own
- * Pro-module-gated cards — 'geo-insights' is GeoInsights' folder name
- * kebab-cased (Modules.php::camel_to_kebab()).
- */
-const isGeoInsightsActive = () =>
-	appLocalizer.active_modules?.includes('geo-insights') ?? false;
-
-/**
  * GEO = Generative Engine Optimization — how discoverable/citable this
  * site is to AI answer engines (distinct from classic search-engine SEO).
  * Reusing real data already fetched elsewhere on this tab rather than
  * duplicating it (direct instruction):
  *
  * 1. Two real info banners (static, honest explanatory copy).
- * 2. "Overall AI Visibility" (GeoVisibilitySummaryCard.tsx, Pro-gated) — one
- *    merged card, gauge-left/stat-rows-right same shape AeoTab.tsx's own
- *    "AEO Score" card uses, per direct instruction ("merge this sections
- *    and design like attached image" — that attached reference *is* the
- *    AEO Score card). Combines what used to be 2 separate full-width rows:
- *    GeoVisibilityOverviewRow.tsx's own "Overall AI Visibility" gauge + "The
- *    4 things AI checks for" grid, and GeoTrendCompactCard.tsx's own "Are
- *    You Getting Easier to Find?" sparkline card — see
- *    GeoVisibilitySummaryCard.tsx's own docblock for exactly which real
- *    number came from which. `snapshot`/`history` are the same real
- *    `useGeoVisibilitySnapshot()` data both former cards already used;
- *    `totalOpenFindings` is the same real total from the shared `groups`
- *    fetch "By Topic" below already uses. GeoVisibilityOverviewRow.tsx was
- *    deleted (fully superseded); GeoTrendCompactCard.tsx's own default
- *    component is still real code, just no longer rendered here — see its
- *    own docblock.
+ * 2. "GEO Score" (GeoScoreSection.tsx) — a real, free, deterministic
+ *    scorecard (`GET /geo/score`/`GET /geo/progress`, Geo.php), matching a
+ *    reference mockup's own 4-part layout: score ring + "how calculated"
+ *    list, a real day-range trend, a real per-signal breakdown table, and
+ *    Competitor Comparison (absorbed from this tab's own former standalone
+ *    "How You Compare to Similar Sites" row — see GeoScoreSection.tsx's own
+ *    docblock). Replaces `GeoVisibilitySummaryCard`'s former "Overall AI
+ *    Visibility" slot here, whose own real number came from Pro-only routes
+ *    and silently read `0/100 Poor` with vulopilot-pro inactive —
+ *    `GeoVisibilitySummaryCard.tsx`/`useGeoVisibilitySnapshot.ts`/
+ *    `GeoTrendCompactCard.tsx` are left in place, still real, valid code,
+ *    just no longer rendered on this tab (see GeoScoreSection.tsx's own
+ *    docblock for the full reasoning).
  * 3. "Fix These First" (GeoFixTheseFirstCard.tsx) and "Your Best & Worst
  *    Pages" (TopPagesCard.tsx) — removed from this tab per direct
  *    instruction (this tab has now gone back and forth on both a couple of
@@ -155,16 +139,13 @@ const isGeoInsightsActive = () =>
  *    Pages by Answer Readiness" cards) — both since removed from there as
  *    well per direct instruction, so neither component is currently
  *    rendered anywhere; both are still real, just dead code for now.
- * 4. "How You Compare to Similar Sites" (Pro's own CompetitorVisibilityCard,
- *    given this site's own real score as `yourScore`) is its own
- *    full-width row.
- * 5. "A Closer Look, By Topic" (GeoByTopicGrid.tsx) — 5 tiles over the
+ * 4. "A Closer Look, By Topic" (GeoByTopicGrid.tsx) — 5 tiles over the
  *    same `groups`/`GEO_TOPICS` the unified table below uses, so both
  *    always agree. Each tile also shows a real "Affected pages" stat
  *    (`useGeoTopicAffectedPages.ts`, a distinct-page count — deliberately
  *    NOT `groups`' own raw finding-row count, which can over-count a page
  *    hit by two scanners in the same topic) alongside "Open issues".
- * 6. "All GEO Issues" — `IssuesSection.tsx` (SeoTab.tsx's own real
+ * 5. "All GEO Issues" — `IssuesSection.tsx` (SeoTab.tsx's own real
  *    Site-wide Issues + Pages & Posts structure, generalized so this tab
  *    and AeoTab.tsx can reuse it too), kept at the bottom same as before.
  *    Its own filter bar is a real `TabsComponent` All/Important/per-category
@@ -180,28 +161,10 @@ const GeoTab = () => {
 		token: number;
 	} | null>(null);
 	const { groups, isLoading: isLoadingGroups } = useGeoFindingGroups();
-	const { snapshot, history, isLoading: isLoadingSnapshot } =
-		useGeoVisibilitySnapshot();
-
-	/**
-	 * Competitor Visibility is vulopilot-pro's own GeoInsights slot —
-	 * `useFilterSlot()` returns the component itself, so `yourScore` can be
-	 * passed straight through as a normal prop (see that component's own
-	 * docblock for why).
-	 */
-	const GeoCompetitorVisibility = useFilterSlot<
-		(props: { yourScore?: number | null }) => JSX.Element
-	>('vulopilot_geo_competitor_visibility');
 
 	const allGeoScannerIds = GEO_TOPICS.flatMap((topic) => topic.scannerIds);
-	const totalOpenFindings = sumGroupCounts(groups, allGeoScannerIds);
 	const { affectedPagesByScanner, isLoading: isLoadingAffectedPages } =
 		useGeoTopicAffectedPages(allGeoScannerIds);
-
-	const withScore = history.filter((row) => null !== row.overall_score);
-	const yourScore = withScore.length
-		? withScore[withScore.length - 1].overall_score
-		: null;
 
 	/**
 	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key`
@@ -233,23 +196,7 @@ const GeoTab = () => {
 				/>
 			</div>
 
-			{/*
-			 * `ColumnComponent ` alone, deliberately NOT also wrapped
-			 * in a `<ContainerComponent>` — same real, confirmed-live layout
-			 * bug the removed "Are You Getting Easier to Find?" row used to
-			 * document here (ContainerComponent's own `.container-wrapper`
-			 * has no sizing of its own, so a single-child ColumnComponent
-			 * nested inside one just shrinks to its own content's natural
-			 * width instead of the true available row width).
-			 */}
-			<ColumnComponent >
-				<GeoVisibilitySummaryCard
-					snapshot={snapshot}
-					history={history}
-					isLoading={isLoadingSnapshot}
-					totalOpenFindings={totalOpenFindings}
-				/>
-			</ColumnComponent>
+			<GeoScoreSection />
 
 			<GeoByTopicGrid
 				topics={GEO_TOPICS}
@@ -258,16 +205,6 @@ const GeoTab = () => {
 				affectedPagesByScanner={affectedPagesByScanner}
 				onViewTopic={(key) => goToIssuesTable(key)}
 			/>
-
-			<ColumnComponent >
-				{isGeoInsightsActive() && GeoCompetitorVisibility ? (
-					<GeoCompetitorVisibility yourScore={yourScore} />
-				) : (
-					<CardComponent title={__('How You Compare to Similar Sites', 'vulopilot')}>
-						<ProLockedCard moduleName="geo-insights" />
-					</CardComponent>
-				)}
-			</ColumnComponent>
 
 			<NoticeComponent
 				// type="banner"
