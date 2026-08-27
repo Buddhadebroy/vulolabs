@@ -9,6 +9,7 @@ namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Scanners\Basic\BrokenLinksScanner;
 use VuloPilot\Scanners\Basic\BrokenImagesScanner;
+use VuloPilot\Repositories\ScanRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -68,8 +69,9 @@ class BrokenLinksStats extends \WP_REST_Controller {
     public function get_stats() {
         return rest_ensure_response(
             array(
-                'links'  => $this->read_stats( BrokenLinksScanner::STATS_OPTION ),
-                'images' => $this->read_stats( BrokenImagesScanner::STATS_OPTION ),
+                'links'    => $this->read_stats( BrokenLinksScanner::STATS_OPTION ),
+                'images'   => $this->read_stats( BrokenImagesScanner::STATS_OPTION ),
+                'last_run' => ( new ScanRepository() )->get_latest_completed( array( 'broken-links', 'broken-images' ) ),
             )
         );
     }

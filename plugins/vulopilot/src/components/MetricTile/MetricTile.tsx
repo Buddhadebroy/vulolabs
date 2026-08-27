@@ -6,7 +6,8 @@ export type MetricTileVariant =
 	| 'performance'
 	| 'security'
 	| 'accessibility'
-	| 'woocommerce';
+	| 'woocommerce'
+	| 'broken-links';
 
 interface MetricTileBadge {
 	color: string;

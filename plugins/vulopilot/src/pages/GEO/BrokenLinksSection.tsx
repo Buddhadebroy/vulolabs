@@ -1,22 +1,22 @@
 /* global appLocalizer */
 import React, { useEffect, useState } from 'react';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
 	ModuleGuardComponent,
-	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
+	TooltipComponent,
 } from '@zyra/components';
-import { ButtonInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
-import { TableCard, TableRow } from '@zyra/table';
+import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import { Finding, getFindingFixHandler } from '../../services/useFindingsTable';
+import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 import TypographyComponent from '../../components/TypographyComponent';
 import { formatWpDate } from '../../services/formatWpDate';
-import { useApiList } from '../../services/useApiList';
 import { RowAction, RowActionsMenu } from './seoIssuesShared';
 import ShowProPopup from '../../components/Popup/Popup';
 import './SeoVisibility.scss';
@@ -28,17 +28,23 @@ const BROKEN_SCANNER_IDS = ['broken-links', 'broken-images'];
 
 /**
  * `GET /findings` is a real `SELECT *` (AbstractRepository::find_all()),
- * so every row already carries the raw `meta`/`scanner_id`/`object_ref`
- * DB columns even though the shared `Finding` type (useFindingsTable.tsx)
- * only declares the fields every OTHER findings-backed tab has needed so
- * far. `object_ref` is a single real post id string for both these
- * scanners (never the comma-joined list DuplicateContentScanner's own
- * multi-page findings use — see each scanner's own `scan()`).
+ * so every row already carries the raw `meta`/`scanner_id`/`object_ref`/
+ * `last_seen_at` DB columns even though the shared `Finding` type
+ * (useFindingsTable.tsx) only declares the fields every OTHER
+ * findings-backed tab has needed so far. `object_ref` is a single real
+ * post id string for both these scanners (never the comma-joined list
+ * DuplicateContentScanner's own multi-page findings use — see each
+ * scanner's own `scan()`). `last_seen_at` is real, distinct from
+ * `created_at`: ScanPersistenceListener bumps it every time a rescan
+ * still finds the same broken URL, while `created_at` stays frozen at
+ * first detection — the "First Found"/"Last Checked" columns below read
+ * these two real columns directly, nothing derived/fabricated.
  */
 interface BrokenLinkFinding extends Finding {
 	meta?: string;
 	scanner_id?: string;
 	object_ref?: string;
+	last_seen_at?: string;
 }
 
 interface RunStats {
@@ -48,9 +54,16 @@ interface RunStats {
 	checked_at: number | null;
 }
 
+/** `ScanRepository::get_latest_completed()` — the most recent genuinely-finished run of either scanner, real `vulopilot_scans` columns. Null when neither has ever completed one. */
+interface LastRunStats {
+	duration_ms: number;
+	finished_at: number;
+}
+
 interface BrokenLinksStatsResponse {
 	links: RunStats;
 	images: RunStats;
+	last_run: LastRunStats | null;
 }
 
 interface BrokenFindingsSummary {
@@ -126,15 +139,27 @@ const deriveSourcePath = (url: string): string | null => {
 
 /**
  * True when a finding's broken URL points at a different site entirely —
- * i.e. deriveSourcePath() above returns null for it. Used to disable the
- * "Create redirect" row action up front for these rows (dynamic
- * label/icon/onClick, see the `actions` column below) instead of only
- * rejecting the click after the fact, since RedirectManager.php can
- * never intercept a request that never reaches this site in the first
- * place.
+ * i.e. deriveSourcePath() above returns null for it. Backs both the
+ * "Link Type" column (Internal/External) and the "Create redirect"
+ * action's disabled state: RedirectManager.php can never intercept a
+ * request that never reaches this site in the first place.
  */
 const isExternalFinding = (finding: BrokenLinkFinding): boolean =>
 	!deriveSourcePath(getBrokenUrl(finding));
+
+/** Real HTTP reason phrases for the status codes these two scanners actually see in practice — anything not listed here still shows the real numeric code alone rather than a guessed phrase. */
+const HTTP_STATUS_PHRASES: Record<string, string> = {
+	'400': __('Bad Request', 'vulopilot'),
+	'401': __('Unauthorized', 'vulopilot'),
+	'403': __('Forbidden', 'vulopilot'),
+	'404': __('Not Found', 'vulopilot'),
+	'410': __('Gone', 'vulopilot'),
+	'429': __('Too Many Requests', 'vulopilot'),
+	'500': __('Internal Server Error', 'vulopilot'),
+	'502': __('Bad Gateway', 'vulopilot'),
+	'503': __('Service Unavailable', 'vulopilot'),
+	'504': __('Gateway Timeout', 'vulopilot'),
+};
 
 /**
  * A short, real status key derived from the scanner's own real
@@ -147,14 +172,11 @@ const isExternalFinding = (finding: BrokenLinkFinding): boolean =>
  * other "timed out", falling back to a generic 'unverified'.
  *
  * Deliberately does NOT invent categories neither scanner has any way to
- * actually detect — a "Soft 404" or a redirect "Chain" (the reference
- * mockup's own other status pills) would need following redirects and
- * inspecting the destination page's own content/status, which
- * check_link()/check_image() don't do today (a single HEAD request,
- * `redirection: 5` handled transparently by wp_remote_head() itself, so
- * this code never even sees an intermediate hop to call a "chain"). See
- * this file's own docblock for the full list of what was and wasn't
- * built to match that mockup.
+ * actually detect — a "Soft 404" or a redirect "Chain" would need
+ * following redirects and inspecting the destination page's own content/
+ * status, which check_link()/check_image() don't do (a single HEAD
+ * request; wp_remote_head() already follows up to 5 redirects
+ * transparently, so this code never even sees an intermediate hop).
  */
 const deriveStatusKey = (finding: BrokenLinkFinding): string => {
 	const { reason } = getFindingMeta(finding);
@@ -176,7 +198,7 @@ const deriveStatusKey = (finding: BrokenLinkFinding): string => {
 	return 'unverified';
 };
 
-/** Human label for a deriveStatusKey() result — real HTTP codes pass through unchanged (they're already the label). */
+/** Human label for a deriveStatusKey() result — a real numeric HTTP code gets its real reason phrase appended when known (HTTP_STATUS_PHRASES); otherwise the code is shown alone rather than guessing. */
 const statusKeyLabel = (key: string): string => {
 	switch (key) {
 		case 'broken':
@@ -188,59 +210,43 @@ const statusKeyLabel = (key: string): string => {
 		case 'unverified':
 			return __('Unverified', 'vulopilot');
 		default:
-			return key; // a real numeric HTTP status code
+			return HTTP_STATUS_PHRASES[key]
+				? `${key} ${HTTP_STATUS_PHRASES[key]}`
+				: key; // a real numeric HTTP status code with no known phrase
 	}
 };
 
-/** Lower rank = shown as the page-group's own worst/representative status when it has several findings — a confirmed HTTP error outranks an unverified/DNS/timeout result, since it's the more certain problem. */
-const statusKeyRank = (key: string): number => {
-	if (/^\d+$/.test(key)) {
-		return 0;
-	}
-
-	switch (key) {
-		case 'dns':
-			return 1;
-		case 'timeout':
-			return 2;
-		default:
-			return 3;
-	}
-};
-
-/** Every distinct status a page-group's own findings actually carry, first-occurrence order (findings arrive newest-first — see groupFindingsByPage's own docblock — so this reads left-to-right as "most-recently-detected status first," not severity-ranked) — a group with a mix of e.g. DNS and 503 findings shows both badges instead of silently collapsing to just one. */
-const distinctStatusKeys = (keys: string[]): string[] => {
-	const seen = new Set<string>();
-	const distinct: string[] = [];
-
-	keys.forEach((key) => {
-		if (!seen.has(key)) {
-			seen.add(key);
-			distinct.push(key);
-		}
-	});
-
-	return distinct;
-};
-
-/** Palette color name (BadgeComponent's own `color` prop — common.scss's `$color-palette`) — a confirmed HTTP error or DNS failure reads as more severe (red) than an unverified/timed-out check this scanner just couldn't confirm either way (yellow), same distinction the "Broken" vs "Couldn't verify" stat tiles above already draw. */
+/** A confirmed HTTP error or DNS failure reads as more severe (red) than an unverified/timed-out check this scanner just couldn't confirm either way (yellow), same distinction the "Broken" vs "Couldn't verify" stat tiles above already draw. */
 const statusKeyColor = (key: string): string =>
-	0 === statusKeyRank(key) || 'dns' === key ? 'red' : 'yellow';
+	/^\d+$/.test(key) || 'dns' === key ? 'red' : 'yellow';
+
+/** mm:ss (or hh:mm:ss past an hour) — real `vulopilot_scans.duration_ms` for the scan's own "Last scan completed" banner. */
+const formatDurationMs = (ms: number): string => {
+	const totalSeconds = Math.max(0, Math.round(ms / 1000));
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const seconds = totalSeconds % 60;
+	const pad = (value: number) => String(value).padStart(2, '0');
+
+	return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+};
 
 /**
- * Real, client-side CSV built straight from whatever findings are
- * currently visible (all of them — search/show-ignored already applied
- * by the caller — not just one page's worth, now that this tab fetches
- * every finding up front for the page-grouped table below).
+ * Real, client-side CSV built straight from whatever findings currently
+ * pass every active filter (search/issue/link-type/page/status) — not
+ * just one page's worth, since the endpoint itself returns every
+ * matching row unpaginated and this tab slices client-side.
  */
 const downloadBrokenLinksCsv = (rows: BrokenLinkFinding[]) => {
 	const header = [
 		__('Source page', 'vulopilot'),
-		__('Broken URL', 'vulopilot'),
+		__('Target URL', 'vulopilot'),
 		__('Type', 'vulopilot'),
+		__('Link type', 'vulopilot'),
 		__('Status', 'vulopilot'),
 		__('Finding status', 'vulopilot'),
-		__('Detected', 'vulopilot'),
+		__('First found', 'vulopilot'),
+		__('Last checked', 'vulopilot'),
 	];
 	const lines = rows.map((row) =>
 		[
@@ -249,9 +255,13 @@ const downloadBrokenLinksCsv = (rows: BrokenLinkFinding[]) => {
 			'broken-images' === row.scanner_id
 				? __('Image', 'vulopilot')
 				: __('Link', 'vulopilot'),
+			isExternalFinding(row)
+				? __('External', 'vulopilot')
+				: __('Internal', 'vulopilot'),
 			statusKeyLabel(deriveStatusKey(row)),
 			row.status,
 			row.created_at,
+			row.last_seen_at ?? row.created_at,
 		]
 			.map((value) => `"${String(value ?? '').replace(/"/g, '""')}"`)
 			.join(',')
@@ -272,17 +282,15 @@ const downloadBrokenLinksCsv = (rows: BrokenLinkFinding[]) => {
 const FINDINGS_PAGE_SIZE = 100;
 /** Safety ceiling for the pagination loop below — both scanners are bounded to ~40 checks/run by design, so a real site needs a long history of distinct broken URLs to ever approach this. */
 const MAX_FINDINGS = 500;
+/** This table's own client-side page size (rows already fetched in full above; TableCard's footer/page-size selector just slices them, same pattern PagesNeedingAttentionTable.tsx/SlowPagesTab.tsx use). */
+const DEFAULT_PER_PAGE = 10;
 
 /**
  * Fetches every real broken-link/broken-image finding, any status —
  * bounded pagination loop, same real shape seoIssuesShared.tsx's own
  * fetchAllOpenSeoFindings uses, just not status-filtered up front (the
- * "Ignored" tile and "Show ignored" toggle both need `status === 'ignored'`
- * rows too, which an `open`-only fetch would hide). Feeds both the stat
- * tiles AND the page-grouped table below from this one fetch — grouping
- * by page only makes sense over the FULL result set, not one server-paged
- * slice of it, so this tab no longer uses useFindingsTable's own
- * per-page fetch for its main table (see this file's own docblock).
+ * stat tiles AND the "All status" filter both need `status === 'ignored'`/
+ * `'resolved'` rows too, which an `open`-only fetch would hide).
  */
 const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 	const scannerParam = BROKEN_SCANNER_IDS.join(',');
@@ -321,6 +329,42 @@ const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 	return all;
 };
 
+/**
+ * Collapses duplicate findings for the exact same broken URL on the exact
+ * same page/scanner/status down to just the newest one — a scan re-run
+ * that finds a link is STILL broken now bumps that same row's own
+ * `last_seen_at` (ScanPersistenceListener's dedup-on-rescan) rather than
+ * inserting a fresh one, but this still cleans up any legacy duplicate
+ * rows created before that fix shipped. Scoped to (scanner_id,
+ * object_ref, url, status) rather than just (scanner_id, object_ref,
+ * url) — an old *resolved* finding and a newly-detected *open* one for
+ * the same URL are two genuinely different, both-worth-showing rows, not
+ * a duplicate. Relies on `findings` already being newest-first
+ * (`orderby=id&order=desc`), so the first occurrence of a key is already
+ * the most recent one.
+ */
+const dedupeBrokenFindings = (
+	findings: BrokenLinkFinding[]
+): BrokenLinkFinding[] => {
+	const seen = new Set<string>();
+
+	return findings.filter((finding) => {
+		const key = [
+			finding.scanner_id,
+			finding.object_ref,
+			getBrokenUrl(finding),
+			finding.status,
+		].join('::');
+
+		if (seen.has(key)) {
+			return false;
+		}
+
+		seen.add(key);
+		return true;
+	});
+};
+
 const summarizeBrokenFindings = (
 	findings: BrokenLinkFinding[]
 ): BrokenFindingsSummary => {
@@ -351,226 +395,63 @@ const summarizeBrokenFindings = (
 	return summary;
 };
 
-const formatCheckedAt = (unixSeconds: number | null): string =>
-	unixSeconds
-		? formatWpDate(new Date(unixSeconds * 1000).toISOString())
-		: __('Never run yet', 'vulopilot');
+type IssueFilter = 'all' | 'broken-links' | 'broken-images' | 'unverified';
+type LinkTypeFilter = 'all' | 'internal' | 'external';
+type StatusFilter = 'all' | 'open' | 'resolved' | 'ignored' | 'snoozed';
 
 /**
- * One row per SOURCE PAGE, its findings nested as real expandable
- * sub-rows — zyra `TableCard`'s own native `expandable` mechanism
- * (`row.variation: BrokenLinkFinding[]`), the same real, already-shipped
- * pattern SeoIssuesByPageTable.tsx uses for its own page-grouped SEO
- * issues table, not a hand-rolled tree. `id`s are `page:${path}` strings
- * for group rows (a real finding's own numeric `id` would never collide
- * with one, but namespacing it removes any doubt) and the real finding
- * `id` for its own sub-rows.
- */
-interface PageGroupRow extends TableRow {
-	id: string;
-	isFinding?: false;
-	page: string;
-	findings: BrokenLinkFinding[];
-}
-
-type BrokenLinkRow = PageGroupRow | (BrokenLinkFinding & { isFinding: true });
-
-const isFindingRow = (
-	row: BrokenLinkRow
-): row is BrokenLinkFinding & { isFinding: true } => true === row.isFinding;
-
-/**
- * Collapses duplicate findings for the exact same broken URL on the exact
- * same page/scanner/status down to just the newest one — a scan re-run
- * that finds a link is STILL broken re-adds a fresh open finding for it
- * each time rather than updating the existing one for any row already
- * persisted before ScanPersistenceListener's own dedup-on-rescan fix
- * (Services/ScanPersistenceListener.php), so this is what actually makes
- * an already-duplicated row disappear from the table for a site that had
- * this happen before that fix shipped, without needing a one-off DB
- * cleanup. Scoped to (scanner_id, object_ref, url, status) rather than
- * just (scanner_id, object_ref, url) — an old *resolved* finding and a
- * newly-detected *open* one for the same URL are two genuinely different,
- * both-worth-showing rows, not a duplicate. Relies on `findings` already
- * being newest-first (`orderby=id&order=desc`, same ordering
- * groupFindingsByPage() below depends on) — the first occurrence of a key
- * is already the most recent one, so this only needs one pass.
- */
-const dedupeBrokenFindings = (
-	findings: BrokenLinkFinding[]
-): BrokenLinkFinding[] => {
-	const seen = new Set<string>();
-
-	return findings.filter((finding) => {
-		const key = [
-			finding.scanner_id,
-			finding.object_ref,
-			getBrokenUrl(finding),
-			finding.status,
-		].join('::');
-
-		if (seen.has(key)) {
-			return false;
-		}
-
-		seen.add(key);
-		return true;
-	});
-};
-
-/** Splits a flat finding list into one row per real `page` path (Controllers/Findings.php's own `add_page_field()` — always populated for these two scanners, both `object_type: 'post'`). Map insertion order is what decides display order here — `findings` is already fetched newest-first (`orderby=id&order=desc`), so a page's group naturally sorts by when its most recent finding was detected, with no second sort pass needed. */
-const groupFindingsByPage = (findings: BrokenLinkFinding[]): PageGroupRow[] => {
-	const byPage = new Map<string, BrokenLinkFinding[]>();
-
-	findings.forEach((finding) => {
-		const page = finding.page || __('Unknown page', 'vulopilot');
-		byPage.set(page, [...(byPage.get(page) || []), finding]);
-	});
-
-	return Array.from(byPage.entries()).map(([page, pageFindings]) => ({
-		id: `page:${page}`,
-		page,
-		findings: pageFindings,
-	}));
-};
-
-/**
- * zyra `Table.tsx`'s own expand/collapse state (`expandedRows`) is fully
- * internal — the only way to toggle it from outside is a real click on the
- * chevron `<i>` it renders itself inside `td.admin-column.expand` (see
- * that component's own source; SeoIssuesByPageTable.tsx's own docblock
- * confirms the same). That chevron is small and easy to miss on a row that
- * otherwise reads as plain text, so the Status badge and "N broken" count
- * below both also walk up to their row and fire a real `click` on the
- * (still visible, unlike SeoIssuesByPageTable.tsx's own hidden one) chevron
- * — giving a page row two large, obvious click targets in addition to the
- * chevron itself, not just the one small icon. A no-op on a finding
- * sub-row (no chevron there to find, since sub-rows never render one).
- */
-const toggleRowExpansion = (event: React.MouseEvent<HTMLElement>) => {
-	const rowEl = event.currentTarget.closest('tr.admin-row');
-	const expandIcon = rowEl?.querySelector<HTMLElement>(
-		':scope > td.admin-column.expand > i'
-	);
-	expandIcon?.click();
-};
-
-/** First real candidate a page-group's own "Create redirect" action can act on — skips ignored/external findings, same eligibility a single finding row's own action already enforces. Multiple eligible findings on one page still each get their own "Create redirect" once the group is expanded; this only picks ONE target for the group row's own single action, since one click can't sensibly redirect several different broken URLs to one destination at once. */
-const firstRedirectCandidate = (
-	findings: BrokenLinkFinding[]
-): BrokenLinkFinding | null =>
-	findings.find(
-		(finding) => 'ignored' !== finding.status && !isExternalFinding(finding)
-	) ?? null;
-
-/**
- * "Broken Links" inner section of the merged "Crawl & URLs" tab (renamed
- * and moved here — was its own top-level "Broken Links" tab,
- * BrokenLinksTab.tsx — direct instruction: "Broken Links + Redirects +
- * Crawler Traffic are fragmented... one main tab: Crawl & URLs"): real,
- * scanned results from Scanners\Basic\BrokenLinksScanner AND
- * BrokenImagesScanner (`scanner_id: 'broken-links'|'broken-images'`), the
- * same `vulopilot_scan_findings` rows the SEO tab's own "Links & schema"
- * section used to also include for broken links (before that overlap was
- * fixed too — see SeoTab.tsx's own docblock).
+ * "Broken Links" inner section of the "Crawl & URLs" tab
+ * (BrokenLinksSection.tsx): real, scanned results from
+ * Scanners\Basic\BrokenLinksScanner AND BrokenImagesScanner
+ * (`scanner_id: 'broken-links'|'broken-images'`), the same real
+ * `vulopilot_scan_findings` rows other findings tabs read from.
  *
- * The 404 log this tab used to also render below "Broken Link Monitoring"
- * split out into its own real NotFoundLogSection.tsx (this same merge's
- * own "404s" inner tab) — a 404 visit and a broken link/image finding are
- * both "something's broken on this site," but the requested "Overview |
- * Broken Links | Redirects | 404s | Robots & Sitemap" structure gives
- * each its own real tab rather than bundling them under this one's name.
- * Nothing about the split logic itself changed — NotFoundLogSection.tsx's
- * own `notFoundLogs`/`convertingLog`/convert-to-redirect flow is the
- * exact same code, just in its own file, since it never shared any real
- * state with this tab's own broken-link/image findings (confirmed before
- * splitting: its own `POST /not-found-logs/{id}/convert` call is fully
- * self-contained, same as this tab's own separate `openRedirectPopup`
- * flow for a broken-link finding is).
+ * Rebuilt to match the reference mockup 1:1 wherever the underlying data
+ * genuinely supports it (see this repo's own investigation before this
+ * pass — `classes/Install.php`'s `vulopilot_scan_findings`/`vulopilot_scans`
+ * schemas):
+ *   - 4 standalone stat tiles (Broken links/Broken images/Couldn't
+ *     verify/Ignored) — real counts from summarizeBrokenFindings(), no
+ *     fabricated "since last scan" delta (STATS_OPTION is overwritten,
+ *     not accumulated, each run — there is no real previous-run snapshot
+ *     to diff against).
+ *   - A real "Last scan completed" banner: `vulopilot_scans.duration_ms`/
+ *     `finished_at` for the latest genuinely-completed run of either
+ *     scanner (ScanRepository::get_latest_completed(), added alongside
+ *     this pass — BrokenLinksStats controller didn't expose this before).
+ *   - A flat table, one row per real finding (no page-grouping) —
+ *     Source page / Status / Link Type (Internal/External,
+ *     isExternalFinding) / Target URL (`meta.url`) / First Found
+ *     (`created_at`) / Last Checked (`last_seen_at`, a real, distinct,
+ *     rescan-refreshed column — confirmed via ScanPersistenceListener,
+ *     not derived/guessed) / Actions.
+ *   - Real "All issues"/"All link types"/"All pages"/"All status"
+ *     filters alongside search + Export CSV, all client-side over the one
+ *     full fetch this tab already makes (fetchAllBrokenFindings()).
  *
- * No separate "Enabled"/frequency/"Scan now" controls on this tab per
- * direct instruction — GEO.tsx's own page-level "Run scan" button already
- * covers the `links`/`images` categories. The
- * `flag_broken_links`/`flag_broken_images` settings (and their own
- * frequencies) are still real and live — reachable from Settings →
- * Scanning → SEO.
- *
- * Stat tiles are real, not decorative, per direct instruction to match
- * the reference mockup's own "Need attention"/"Ignored"/"Last scan"
- * groups without fabricating anything — see summarizeBrokenFindings()'s
- * own docblock. Deliberately NOT blended into one combined "X% healthy"
- * figure: "Need attention" is a cumulative, all-time view of currently
- * open findings, while "Last scan" reflects only the single most recent
- * run — dividing one by the other would silently mix two different time
- * windows into a number that looks precise but isn't actually coherent.
- *
- * The main table is grouped by source page, per direct instruction to
- * match the reference mockup's own layout — one row per page (real path,
- * from `Finding.page`), its own broken links/images nested underneath as
- * real expandable sub-rows (zyra `TableCard`'s native `expandable`
- * mechanism, the same one SeoIssuesByPageTable.tsx already uses; unlike
- * that table, this one leaves zyra's own expand chevron visible rather
- * than hiding it, matching the mockup's own visible caret). Two real
- * things the mockup shows that this table deliberately does NOT
- * reproduce, because there's no real data behind them in this codebase:
- *   - Its "Findings" column sometimes reads "1 page issue + N broken" —
- *     the "page issue" half implies the SOURCE PAGE ITSELF is broken
- *     (soft-404, etc.), which can't happen here: both scanners only ever
- *     scan already-published posts/pages for broken `<a href>`/`<img
- *     src>` INSIDE their content, so a "source page" row is always a
- *     real, live page. This table's own "Findings" column just reads "N
- *     broken" — a real, honest count of that page's own findings, no
- *     invented second category.
- *   - Its "Status" pills include "DNS"/"Chain"/"Soft 404" alongside real
- *     HTTP codes. "DNS" is real here too (deriveStatusKey() below reads
- *     it straight off a real cURL "could not resolve host" error); "Soft
- *     404" and "Chain" aren't — both would need actually following a
- *     redirect chain and inspecting the destination's own content/status,
- *     which neither scanner does (a single HEAD request; wp_remote_head()
- *     already follows up to 5 redirects transparently, so this code never
- *     even sees an intermediate hop). Every status pill this table shows
- *     is a real value straight off that finding's own `meta.reason`/
- *     `description` — a real HTTP code, "DNS", "Timeout", or a generic
- *     "Unverified", never a guess.
- *
- * A page-group row's own "Create redirect"/"Ignore" actions are real bulk
- * shortcuts, not per-finding actions relocated up a level: "Ignore"
- * ignores every currently-open finding on that page in one real batch of
- * `POST /findings/{id}` calls (handleBulkIgnore); "Create redirect" opens
- * the same real popup RedirectsTab.tsx's own "Add redirect" form uses,
- * targeting the first eligible (open, non-ignored, same-site) finding on
- * that page (firstRedirectCandidate) — genuinely disabled with an
- * explanatory hover label, same isExternalFinding pattern a single
- * finding row's own action already uses, when nothing on that page
- * qualifies. Expanding a page still shows each finding's own full action
- * set (Create redirect/Resolve/Ignore/Snooze/Fix) for anything the bulk
- * shortcut doesn't cover.
+ * Two things the mockup shows that this deliberately does NOT reproduce,
+ * because there's no real data behind them: a numeric "+N since last
+ * scan" delta on the stat tiles (see above), and "Soft 404"/"Chain"
+ * status pills (would need following redirect chains and inspecting the
+ * destination's own content/status, which neither scanner does).
  *
  * "Fix" reuses useFindingsTable.tsx's own exported getFindingFixHandler()
  * — same real Pro-gating (vulopilot-pro's OneClickFix module registers
  * the real handler; Free shows the Pro popup when it isn't active) other
- * findings tables get from that hook directly, without pulling the whole
- * hook in here: this tab builds its own grouped rows/headers rather than
- * rendering useFindingsTable's tableCardProps, and needs the exact same
- * fetch-after-every-action data flow as its "Need attention" tiles and
- * "Show ignored" toggle (loadFindings(), below) — which a component
- * bound to that hook's own internal refetch() can't guarantee, since its
- * row-action closures don't expose a completion callback to chain onto.
- *
- * "Show ignored" is a real, functional toggle — client-side hides/shows
- * `status === 'ignored'` findings from the one real, full-site fetch this
- * tab already makes (loadFindings(), below) before grouping by page, so a
- * page whose only findings are all ignored disappears entirely with the
- * toggle off, same as before.
+ * findings tables get from that hook.
  */
 const BrokenLinksSection = () => {
 	const [allFindings, setAllFindings] = useState<BrokenLinkFinding[]>([]);
 	const [isLoadingFindings, setIsLoadingFindings] = useState(true);
 	const [findingsError, setFindingsError] = useState<string | null>(null);
 	const [stats, setStats] = useState<BrokenLinksStatsResponse | null>(null);
-	const [showIgnored, setShowIgnored] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
-	const [typeFilter, setTypeFilter] = useState<'all' | 'broken-links' | 'broken-images'>('all');
+	const [issueFilter, setIssueFilter] = useState<IssueFilter>('all');
+	const [linkTypeFilter, setLinkTypeFilter] = useState<LinkTypeFilter>('all');
+	const [pageFilter, setPageFilter] = useState('all');
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+	const [paged, setPaged] = useState(1);
+	const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
 	const [redirectFinding, setRedirectFinding] =
@@ -608,6 +489,13 @@ const BrokenLinksSection = () => {
 		).then((response) => response && setStats(response));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	// Any filter/search change can shrink the result set below the
+	// currently-viewed page — reset to page 1 rather than showing an
+	// empty table stuck on e.g. page 3.
+	useEffect(() => {
+		setPaged(1);
+	}, [searchTerm, issueFilter, linkTypeFilter, pageFilter, statusFilter]);
 
 	const summary = summarizeBrokenFindings(allFindings);
 	const needAttentionTotal =
@@ -706,54 +594,6 @@ const BrokenLinksSection = () => {
 		setIsProPopupOpen(true);
 	};
 
-	const handleBulkIgnore = (findings: BrokenLinkFinding[]) => {
-		const openFindings = findings.filter(
-			(finding) => 'open' === finding.status
-		);
-
-		if (!openFindings.length) {
-			return;
-		}
-
-		Promise.all(
-			openFindings.map((finding) =>
-				sendApiResponse(
-					appLocalizer,
-					getApiLink(appLocalizer, `findings/${finding.id}`),
-					{ status: 'ignored' }
-				)
-			)
-		).then((responses) => {
-			const succeeded = responses.filter(Boolean).length;
-
-			NoticeManager.add({
-				uniqueKey: `broken-link-bulk-ignore-${openFindings[0]?.id ?? 'x'}`,
-				type: succeeded === responses.length ? 'success' : 'error',
-				position: 'float',
-				message:
-					succeeded === responses.length
-						? sprintf(
-							/* translators: %d: number of findings ignored. */
-							_n(
-								'%d finding ignored.',
-								'%d findings ignored.',
-								succeeded,
-								'vulopilot'
-							),
-							succeeded
-						)
-						: __(
-							'Some findings could not be ignored. Please try again.',
-							'vulopilot'
-						),
-			});
-
-			if (succeeded > 0) {
-				loadFindings();
-			}
-		});
-	};
-
 	const openRedirectPopup = (finding: BrokenLinkFinding) => {
 		const brokenUrl = getBrokenUrl(finding);
 		const sourcePath = deriveSourcePath(brokenUrl);
@@ -821,6 +661,58 @@ const BrokenLinksSection = () => {
 			.finally(() => setIsSavingRedirect(false));
 	};
 
+	// Real client-side filters over the one full fetch this tab already
+	// makes (loadFindings(), above) — search/issue/link-type/page/status
+	// all compose, matching the mockup's own toolbar of independent
+	// dropdowns.
+	const visibleFindings = allFindings
+		.filter((finding) => 'all' === statusFilter || finding.status === statusFilter)
+		.filter((finding) => {
+			if ('all' === issueFilter) {
+				return true;
+			}
+
+			if ('unverified' === issueFilter) {
+				return 'unverified' === getFindingMeta(finding).reason;
+			}
+
+			return (
+				finding.scanner_id === issueFilter &&
+				'unverified' !== getFindingMeta(finding).reason
+			);
+		})
+		.filter((finding) => {
+			if ('all' === linkTypeFilter) {
+				return true;
+			}
+
+			return (
+				('external' === linkTypeFilter) === isExternalFinding(finding)
+			);
+		})
+		.filter((finding) => 'all' === pageFilter || finding.page === pageFilter)
+		.filter((finding) => {
+			if ('' === searchTerm.trim()) {
+				return true;
+			}
+
+			const term = searchTerm.trim().toLowerCase();
+
+			return (
+				(finding.page || '').toLowerCase().includes(term) ||
+				getBrokenUrl(finding).toLowerCase().includes(term)
+			);
+		});
+
+	const pageOptions = Array.from(
+		new Set(allFindings.map((finding) => finding.page).filter(Boolean))
+	) as string[];
+
+	const pageRows = visibleFindings.slice(
+		(paged - 1) * perPage,
+		paged * perPage
+	);
+
 	const handleExportCsv = () => {
 		if (!visibleFindings.length) {
 			NoticeManager.add({
@@ -835,21 +727,7 @@ const BrokenLinksSection = () => {
 		downloadBrokenLinksCsv(visibleFindings);
 	};
 
-	const buildFindingActions = (finding: BrokenLinkFinding): RowAction[] => [
-		{
-			label: isExternalFinding(finding)
-				? __(
-					"External links can't be redirected from this site",
-					'vulopilot'
-				)
-				: __('Create redirect', 'vulopilot'),
-			icon: isExternalFinding(finding) ? 'lock' : 'link',
-			onClick: () => {
-				if (!isExternalFinding(finding)) {
-					openRedirectPopup(finding);
-				}
-			},
-		},
+	const buildFindingMoreActions = (finding: BrokenLinkFinding): RowAction[] => [
 		{
 			label:
 				'resolved' === finding.status
@@ -884,175 +762,130 @@ const BrokenLinksSection = () => {
 		},
 	];
 
-	// Real client-side "Show ignored" filter + search over the one full
-	// fetch this tab already makes (loadFindings(), above) — applied
-	// BEFORE grouping by page, so a fully-ignored/filtered-out page
-	// disappears from the grouped table entirely rather than showing an
-	// empty group.
-	const visibleFindings = allFindings
-		.filter((finding) => showIgnored || 'ignored' !== finding.status)
-		.filter(
-			(finding) => 'all' === typeFilter || finding.scanner_id === typeFilter
-		)
-		.filter((finding) => {
-			if ('' === searchTerm.trim()) {
-				return true;
-			}
-
-			const term = searchTerm.trim().toLowerCase();
-
-			return (
-				(finding.page || '').toLowerCase().includes(term) ||
-				getBrokenUrl(finding).toLowerCase().includes(term)
-			);
-		});
-
-	const pageGroups = groupFindingsByPage(visibleFindings);
-
 	const headers = {
 		page: {
 			label: __('Source page', 'vulopilot'),
-			render: (row: BrokenLinkRow) => {
-				if (isFindingRow(row)) {
-					const url = getBrokenUrl(row);
-
-					return (
-						<div className="broken-link-finding-source">
-							<span className="typography-body-xs broken-link-finding-arrow">↳</span>
-							<a href={url} target="_blank" rel="noreferrer">
-								{url}
-							</a>
-						</div>
-					);
-				}
-
-				const group = row as PageGroupRow;
-				const pageUrl = `${appLocalizer.site_url}${group.page}`;
+			render: (row: BrokenLinkFinding) => {
+				const pageUrl = `${appLocalizer.site_url}${row.page}`;
 
 				return (
-					<a href={pageUrl} target="_blank" rel="noreferrer">
-						{group.page}
-					</a>
+					<div className="broken-link-source-cell">
+						<i
+							className={`adminfont-${'broken-images' === row.scanner_id ? 'attachment' : 'link'} broken-link-source-icon`}
+						/>
+						<a href={pageUrl} target="_blank" rel="noreferrer">
+							{row.page}
+						</a>
+					</div>
 				);
 			},
 		},
 		status: {
 			label: __('Status', 'vulopilot'),
-			render: (row: BrokenLinkRow) => {
-				if (isFindingRow(row)) {
-					const key = deriveStatusKey(row);
-					return (
-						<BadgeComponent color={statusKeyColor(key)} text={statusKeyLabel(key)} />
-					);
-				}
-
-				const keys = distinctStatusKeys(
-					(row as PageGroupRow).findings.map(deriveStatusKey)
-				);
-
+			render: (row: BrokenLinkFinding) => {
+				const key = deriveStatusKey(row);
 				return (
-					<span
-						className="broken-link-row-expand-trigger broken-link-status-badges"
-						onClick={toggleRowExpansion}
-					>
-						{keys.map((key) => (
-							<BadgeComponent
-								key={key}
-								color={statusKeyColor(key)}
-								text={statusKeyLabel(key)}
-							/>
-						))}
-					</span>
+					<BadgeComponent
+						color={statusKeyColor(key)}
+						text={statusKeyLabel(key)}
+					/>
 				);
 			},
 		},
-		findings_summary: {
-			label: __('Findings', 'vulopilot'),
-			render: (row: BrokenLinkRow) => {
-				if (isFindingRow(row)) {
-					return (
-						<span className="typography-body-xs broken-link-finding-type">
-							{'broken-images' === row.scanner_id
-								? __('Image', 'vulopilot')
-								: __('Link', 'vulopilot')}
-						</span>
-					);
-				}
-
-				const count = (row as PageGroupRow).findings.length;
+		link_type: {
+			label: __('Link Type', 'vulopilot'),
+			render: (row: BrokenLinkFinding) => (
+				<span
+					className={`broken-link-type-pill ${isExternalFinding(row) ? 'is-external' : 'is-internal'}`}
+				>
+					{isExternalFinding(row)
+						? __('External', 'vulopilot')
+						: __('Internal', 'vulopilot')}
+				</span>
+			),
+		},
+		target_url: {
+			label: __('Target URL', 'vulopilot'),
+			render: (row: BrokenLinkFinding) => {
+				const url = getBrokenUrl(row);
 
 				return (
-					<span
-						className="typography-body-xs broken-link-row-expand-trigger"
-						onClick={toggleRowExpansion}
+					<a
+						href={url}
+						target="_blank"
+						rel="noreferrer"
+						className="broken-link-target-url"
+						title={url}
 					>
-						{sprintf(
-							/* translators: %d: number of broken links/images found on this page. */
-							_n('%d broken', '%d broken', count, 'vulopilot'),
-							count
-						)}
-					</span>
+						{url}
+					</a>
 				);
 			},
+		},
+		first_found: {
+			label: __('First Found', 'vulopilot'),
+			render: (row: BrokenLinkFinding) => (
+				<span className="typography-body-xs">
+					{formatWpDate(row.created_at)}
+				</span>
+			),
+		},
+		last_checked: {
+			label: __('Last Checked', 'vulopilot'),
+			render: (row: BrokenLinkFinding) => (
+				<span className="typography-body-xs">
+					{formatWpDate(row.last_seen_at || row.created_at)}
+				</span>
+			),
 		},
 		actions: {
 			label: __('Actions', 'vulopilot'),
-			render: (row: BrokenLinkRow) => {
-				if (isFindingRow(row)) {
-					return <RowActionsMenu actions={buildFindingActions(row)} />;
-				}
+			render: (row: BrokenLinkFinding) => {
+				const url = getBrokenUrl(row);
+				const external = isExternalFinding(row);
 
-				const group = row as PageGroupRow;
-				const redirectCandidate = firstRedirectCandidate(group.findings);
-				const openFindings = group.findings.filter(
-					(finding) => 'open' === finding.status
-				);
-
-				const actions: RowAction[] = [
-					{
-						label: redirectCandidate
-							? __('Create redirect', 'vulopilot')
-							: __('No redirectable link on this page', 'vulopilot'),
-						icon: redirectCandidate ? 'link' : 'lock',
-						onClick: () => {
-							if (redirectCandidate) {
-								openRedirectPopup(redirectCandidate);
+				return (
+					<div className="broken-link-row-actions">
+						<TooltipComponent text={__('Open URL', 'vulopilot')}>
+							<button
+								type="button"
+								className="broken-link-icon-btn"
+								onClick={() =>
+									window.open(url, '_blank', 'noopener,noreferrer')
+								}
+							>
+								<i className="adminfont-eye" />
+							</button>
+						</TooltipComponent>
+						<TooltipComponent
+							text={
+								external
+									? __(
+										"External links can't be redirected from this site",
+										'vulopilot'
+									)
+									: __('Create redirect', 'vulopilot')
 							}
-						},
-					},
-					{
-						label: openFindings.length
-							? __('Ignore all on this page', 'vulopilot')
-							: __('Already ignored', 'vulopilot'),
-						icon: 'eye-blocked',
-						onClick: () => handleBulkIgnore(group.findings),
-					},
-				];
-
-				return <RowActionsMenu actions={actions} />;
+						>
+							<button
+								type="button"
+								className="broken-link-icon-btn"
+								disabled={external}
+								onClick={() => openRedirectPopup(row)}
+							>
+								<i className="adminfont-link" />
+							</button>
+						</TooltipComponent>
+						<RowActionsMenu actions={buildFindingMoreActions(row)} />
+					</div>
+				);
 			},
 		},
 	};
 
-	const tableRows: BrokenLinkRow[] = pageGroups.map((group) => ({
-		...group,
-		variation: group.findings.map((finding) => ({
-			...finding,
-			isFinding: true as const,
-		})),
-	}));
-
 	return (
 		<>
 			<ColumnComponent>
-				<NoticeComponent
-					displayPosition="inline-notice"
-					title={__('In plain English:', 'vulopilot')}
-					message={__(
-						'These are real links and images on your published pages that pointed somewhere broken the last time this site checked them.',
-						'vulopilot'
-					)}
-				/>
 				{!isSeoModuleActive() ? (
 					<CardComponent title={__('Broken Links', 'vulopilot')}>
 						<ModuleGuardComponent
@@ -1066,146 +899,142 @@ const BrokenLinksSection = () => {
 					</CardComponent>
 				) : (
 					<>
-						<CardComponent
-							title={__('Need attention', 'vulopilot')}
-							titleIcon="error"
-							isLoading={isLoadingFindings}
-						>
-							<div className="kg-glance-grid">
-								<div className="kg-glance-item">
-									<div className="kg-glance-icon">
-										<i className="adminfont-link" />
+						<MetricTileGrid variant="broken-links">
+							<MetricTile
+								variant="broken-links"
+								icon="link"
+								iconColor="#dc2626"
+								title={__('Broken Links', 'vulopilot')}
+								isLoading={isLoadingFindings}
+							>
+								<TypographyComponent
+									as="span"
+									variant="h3"
+									className="broken-link-stat-value"
+								>
+									{summary.brokenLinks}
+								</TypographyComponent>
+								<p className="desc">
+									{__('Currently open — needs attention', 'vulopilot')}
+								</p>
+							</MetricTile>
+							<MetricTile
+								variant="broken-links"
+								icon="attachment"
+								iconColor="#dc2626"
+								title={__('Broken Images', 'vulopilot')}
+								isLoading={isLoadingFindings}
+							>
+								<TypographyComponent
+									as="span"
+									variant="h3"
+									className="broken-link-stat-value"
+								>
+									{summary.brokenImages}
+								</TypographyComponent>
+								<p className="desc">
+									{__('Currently open — needs attention', 'vulopilot')}
+								</p>
+							</MetricTile>
+							<MetricTile
+								variant="broken-links"
+								icon="info"
+								iconColor="#b45309"
+								title={__("Couldn't Verify", 'vulopilot')}
+								isLoading={isLoadingFindings}
+							>
+								<TypographyComponent
+									as="span"
+									variant="h3"
+									className="broken-link-stat-value is-attention"
+								>
+									{summary.couldntVerify}
+								</TypographyComponent>
+								<p className="desc">
+									{__('Timed out or DNS failed on last check', 'vulopilot')}
+								</p>
+							</MetricTile>
+							<MetricTile
+								variant="broken-links"
+								icon="eye-blocked"
+								title={__('Ignored', 'vulopilot')}
+								isLoading={isLoadingFindings}
+							>
+								<TypographyComponent
+									as="span"
+									variant="h3"
+									className="broken-link-stat-value is-muted"
+								>
+									{summary.ignored}
+								</TypographyComponent>
+								<p className="desc">
+									{__('Hidden from “needs attention”', 'vulopilot')}
+								</p>
+							</MetricTile>
+						</MetricTileGrid>
+
+						{!isLoadingFindings && 0 === needAttentionTotal && (
+							<p className="desc">
+								{__('Nothing needs attention right now.', 'vulopilot')}
+							</p>
+						)}
+
+						<div className="broken-link-scan-summary-row">
+							<div className="broken-link-scan-banner">
+								<i className="adminfont-yes-alt broken-link-scan-banner-icon" />
+								<div>
+									<div className="broken-link-scan-banner-title">
+										{__('Last scan completed', 'vulopilot')}
 									</div>
-									<div>
-										<div className="kg-glance-label">
-											{__('Broken links', 'vulopilot')}
-										</div>
-										<div className="kg-glance-value">
-											{summary.brokenLinks}
-										</div>
+									<div className="broken-link-scan-banner-meta">
+										{stats?.last_run
+											? sprintf(
+												/* translators: 1: formatted date/time, 2: duration as hh:mm:ss */
+												__('%1$s · Duration %2$s', 'vulopilot'),
+												formatWpDate(
+													new Date(
+														stats.last_run.finished_at * 1000
+													).toISOString()
+												),
+												formatDurationMs(stats.last_run.duration_ms)
+											)
+											: __(
+												'No scan has completed yet — use "Run scan" above to start one.',
+												'vulopilot'
+											)}
 									</div>
-								</div>
-								<div className="kg-glance-item">
-									<div className="kg-glance-icon">
-										<i className="adminfont-attachment" />
-									</div>
-									<div>
-										<div className="kg-glance-label">
-											{__('Broken images', 'vulopilot')}
+									{stats && (stats.links.checked_at || stats.images.checked_at) && (
+										<div className="broken-link-scan-banner-meta">
+											{sprintf(
+												/* translators: 1: healthy/total links checked, 2: healthy/total images checked */
+												__('%1$d/%2$d links healthy · %3$d/%4$d images healthy', 'vulopilot'),
+												stats.links.healthy_count,
+												stats.links.links_checked,
+												stats.images.healthy_count,
+												stats.images.links_checked
+											)}
 										</div>
-										<div className="kg-glance-value">
-											{summary.brokenImages}
-										</div>
-									</div>
-								</div>
-								<div className="kg-glance-item">
-									<div className="kg-glance-icon">
-										<i className="adminfont-info" />
-									</div>
-									<div>
-										<div className="kg-glance-label">
-											{__('Couldn’t verify', 'vulopilot')}
-										</div>
-										<div className="kg-glance-value">
-											{summary.couldntVerify}
-										</div>
-									</div>
-								</div>
-								<div className="kg-glance-item">
-									<div className="kg-glance-icon">
-										<i className="adminfont-eye-blocked" />
-									</div>
-									<div>
-										<div className="kg-glance-label">
-											{__('Ignored', 'vulopilot')}
-										</div>
-										<div className="kg-glance-value">
-											{summary.ignored}
-										</div>
-									</div>
+									)}
 								</div>
 							</div>
-							{!isLoadingFindings && 0 === needAttentionTotal && (
-								<p className="desc">
-									{__(
-										'Nothing needs attention right now.',
-										'vulopilot'
-									)}
-								</p>
-							)}
-						</CardComponent>
-
-						{stats && (
-							<CardComponent
-								title={__('Last scan', 'vulopilot')}
-								titleIcon="search"
-								desc={__(
-									'Real coverage from each scanner’s most recent genuine run — a separate real number from "Need attention" above, not a percentage blended from the two (they cover different time windows).',
-									'vulopilot'
-								)}
-							>
-								<div className="kg-glance-grid">
-									<div className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className="adminfont-link" />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{__('Links checked', 'vulopilot')}
-											</div>
-											<div className="kg-glance-value">
-												{sprintf(
-													/* translators: 1: healthy count, 2: total checked */
-													__('%1$d / %2$d healthy', 'vulopilot'),
-													stats.links.healthy_count,
-													stats.links.links_checked
-												)}
-											</div>
-											<div className="desc">
-												{sprintf(
-													/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
-													__('Across %1$d pages · %2$s', 'vulopilot'),
-													stats.links.pages_scanned,
-													formatCheckedAt(stats.links.checked_at)
-												)}
-											</div>
-										</div>
-									</div>
-									<div className="kg-glance-item">
-										<div className="kg-glance-icon">
-											<i className="adminfont-attachment" />
-										</div>
-										<div>
-											<div className="kg-glance-label">
-												{__('Images checked', 'vulopilot')}
-											</div>
-											<div className="kg-glance-value">
-												{sprintf(
-													/* translators: 1: healthy count, 2: total checked */
-													__('%1$d / %2$d healthy', 'vulopilot'),
-													stats.images.healthy_count,
-													stats.images.links_checked
-												)}
-											</div>
-											<div className="desc">
-												{sprintf(
-													/* translators: 1: pages scanned, 2: formatted date/"Never run yet" */
-													__('Across %1$d pages · %2$s', 'vulopilot'),
-													stats.images.pages_scanned,
-													formatCheckedAt(stats.images.checked_at)
-												)}
-											</div>
-										</div>
-									</div>
+							<div className="broken-link-why-fix">
+								<div className="broken-link-why-fix-title">
+									<i className="adminfont-info" />
+									{__('Why fix broken links?', 'vulopilot')}
 								</div>
-							</CardComponent>
-						)}
+								<ul>
+									<li>{__('Better user experience', 'vulopilot')}</li>
+									<li>{__('Improved SEO rankings', 'vulopilot')}</li>
+									<li>{__('More crawlable pages', 'vulopilot')}</li>
+								</ul>
+							</div>
+						</div>
 
 						<CardComponent
 							title={__('Broken Link Monitoring', 'vulopilot')}
 							titleIcon="link"
 							desc={__(
-								'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked, grouped by the page they live on. Use the "Run scan" button above to check again.',
+								'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked. Use the "Run scan" button above to check again.',
 								'vulopilot'
 							)}
 							action={
@@ -1222,34 +1051,59 @@ const BrokenLinksSection = () => {
 										}
 									/>
 									<SelectInput
-										name="broken_link_type_filter"
-										value={typeFilter}
+										name="broken_link_issue_filter"
+										value={issueFilter}
 										options={[
 											{ label: __('All issues', 'vulopilot'), value: 'all' },
-											{ label: __('Links', 'vulopilot'), value: 'broken-links' },
-											{ label: __('Images', 'vulopilot'), value: 'broken-images' },
+											{ label: __('Broken links', 'vulopilot'), value: 'broken-links' },
+											{ label: __('Broken images', 'vulopilot'), value: 'broken-images' },
+											{ label: __("Couldn't verify", 'vulopilot'), value: 'unverified' },
 										]}
 										onChange={(value) =>
-											setTypeFilter(
-												value as 'all' | 'broken-links' | 'broken-images'
-											)
+											setIssueFilter(value as IssueFilter)
 										}
 										size="10rem"
 									/>
-									<ToggleInput
+									<SelectInput
+										name="broken_link_type_filter"
+										value={linkTypeFilter}
 										options={[
-											{
-												key: 'show_ignored',
-												value: 'show_ignored',
-												label: __('Show ignored', 'vulopilot'),
-											},
+											{ label: __('All link types', 'vulopilot'), value: 'all' },
+											{ label: __('Internal', 'vulopilot'), value: 'internal' },
+											{ label: __('External', 'vulopilot'), value: 'external' },
 										]}
-										value={showIgnored ? ['show_ignored'] : []}
-										multiSelect
-										modules={[]}
-										onChange={() =>
-											setShowIgnored((current) => !current)
+										onChange={(value) =>
+											setLinkTypeFilter(value as LinkTypeFilter)
 										}
+										size="10rem"
+									/>
+									<SelectInput
+										name="broken_link_page_filter"
+										value={pageFilter}
+										options={[
+											{ label: __('All pages', 'vulopilot'), value: 'all' },
+											...pageOptions.map((page) => ({
+												label: page,
+												value: page,
+											})),
+										]}
+										onChange={(value) => setPageFilter(value as string)}
+										size="10rem"
+									/>
+									<SelectInput
+										name="broken_link_status_filter"
+										value={statusFilter}
+										options={[
+											{ label: __('All status', 'vulopilot'), value: 'all' },
+											{ label: __('Open', 'vulopilot'), value: 'open' },
+											{ label: __('Resolved', 'vulopilot'), value: 'resolved' },
+											{ label: __('Ignored', 'vulopilot'), value: 'ignored' },
+											{ label: __('Snoozed', 'vulopilot'), value: 'snoozed' },
+										]}
+										onChange={(value) =>
+											setStatusFilter(value as StatusFilter)
+										}
+										size="10rem"
 									/>
 									<ButtonInput
 										buttons={{
@@ -1273,13 +1127,16 @@ const BrokenLinksSection = () => {
 							) : (
 								<TableCard
 									showMenu={false}
-									expandable
 									className="transparent-table broken-link-monitoring-table"
 									headers={headers}
-									rows={tableRows}
-									ids={pageGroups.map((group) => group.id)}
-									totalRows={pageGroups.length}
+									rows={pageRows}
+									ids={pageRows.map((row) => row.id)}
+									totalRows={visibleFindings.length}
 									isLoading={isLoadingFindings}
+									onQueryUpdate={(query: { paged?: number | string; per_page?: number | string }) => {
+										setPaged(Number(query.paged) || 1);
+										setPerPage(Number(query.per_page) || DEFAULT_PER_PAGE);
+									}}
 									emptyMessage={__(
 										'No broken links or images found yet. Make sure "Flag broken links"/"Flag broken images" are turned on under Settings → Scanning → SEO, then run a scan.',
 										'vulopilot'

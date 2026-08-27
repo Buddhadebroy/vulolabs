@@ -34,6 +34,16 @@ class Redirects extends \WP_REST_Controller {
     protected $rest_base = 'redirects';
 
     /**
+     * Real per-check results cache for get_health() — see that method's
+     * own docblock.
+     */
+    private const HEALTH_OPTION = 'vulopilot_redirect_health';
+
+    private const HEALTH_CACHE_SECONDS          = HOUR_IN_SECONDS;
+    private const MAX_HEALTH_CHECKS             = 50;
+    private const HEALTH_REQUEST_TIMEOUT_SECONDS = 5;
+
+    /**
      * Registers GET/POST /redirects, POST /redirects/{id}, POST /redirects/{id}/delete.
      *
      * @inheritDoc
@@ -76,6 +86,18 @@ class Redirects extends \WP_REST_Controller {
                     'methods'             => \WP_REST_Server::CREATABLE,
                     'callback'            => array( $this, 'delete_item' ),
                     'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+                ),
+            )
+        );
+
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/health',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_health' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
                 ),
             )
         );
@@ -178,7 +200,7 @@ class Redirects extends \WP_REST_Controller {
             array(
                 'source_path'   => $source_path,
                 'target_url'    => $target_url,
-                'redirect_type' => in_array( $redirect_type, array( 301, 302 ), true ) ? $redirect_type : 301,
+                'redirect_type' => in_array( $redirect_type, array( 301, 302, 307 ), true ) ? $redirect_type : 301,
                 'hit_count'     => 0,
                 'is_active'     => 1,
                 'created_by'    => get_current_user_id(),
@@ -210,7 +232,7 @@ class Redirects extends \WP_REST_Controller {
 
         if ( null !== $request->get_param( 'redirect_type' ) ) {
             $redirect_type           = absint( $request->get_param( 'redirect_type' ) );
-            $update['redirect_type'] = in_array( $redirect_type, array( 301, 302 ), true ) ? $redirect_type : 301;
+            $update['redirect_type'] = in_array( $redirect_type, array( 301, 302, 307 ), true ) ? $redirect_type : 301;
         }
 
         if ( null !== $request->get_param( 'is_active' ) ) {
@@ -247,5 +269,92 @@ class Redirects extends \WP_REST_Controller {
         }
 
         return rest_ensure_response( array( 'deleted' => true ) );
+    }
+
+    /**
+     * Real "Broken Redirects" data — nothing in this codebase previously
+     * checked whether a redirect's own `target_url` actually resolves
+     * (BrokenLinksScanner only checks `<a href>`s found in page content,
+     * never this table). Same HEAD-request/timeout/reason shape as
+     * BrokenLinksScanner::check_link() so a redirect's "broken" state
+     * means exactly what a broken link's does elsewhere in this plugin.
+     *
+     * Cached in a single option for `HEALTH_CACHE_SECONDS` (real, honest
+     * "Last checked" timestamp for RedirectsSection.tsx's own stat tile —
+     * there is no scheduler/cron for this, so unlike BrokenLinksScanner
+     * there's no "next run" to report) rather than re-checking every
+     * target on every page load — `force=1` bypasses the cache for an
+     * explicit "Recheck now" action. Bounded to `MAX_HEALTH_CHECKS`
+     * active redirects per call, same reasoning BrokenLinksScanner caps
+     * itself per run: a bulk redirect importer creating hundreds of rows
+     * shouldn't turn one page load into hundreds of serial HTTP requests.
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response
+     */
+    public function get_health( $request ) {
+        $cached = get_option( self::HEALTH_OPTION, array() );
+        $force  = (bool) $request->get_param( 'force' );
+
+        if ( ! $force && ! empty( $cached['checked_at'] ) && ( time() - (int) $cached['checked_at'] ) < self::HEALTH_CACHE_SECONDS ) {
+            return rest_ensure_response( $cached );
+        }
+
+        $repository = new RedirectRepository();
+        $active     = $repository->find_all(
+            array(
+                'is_active' => '1',
+                'page'      => 1,
+                'per_page'  => self::MAX_HEALTH_CHECKS,
+            )
+        );
+
+        $results = array();
+
+        foreach ( $active['data'] as $redirect ) {
+            $results[ (int) $redirect['id'] ] = $this->check_target( (string) $redirect['target_url'] );
+        }
+
+        $payload = array(
+            'checked_at' => time(),
+            'results'    => $results,
+        );
+
+        update_option( self::HEALTH_OPTION, $payload, false );
+
+        return rest_ensure_response( $payload );
+    }
+
+    /**
+     * Same real HEAD-request check BrokenLinksScanner::check_link() uses
+     * for in-content links, applied here to a redirect row's own
+     * `target_url` instead.
+     *
+     * @param string $url Real target URL to check.
+     * @return array{broken: bool, status: int|string}
+     */
+    private function check_target( string $url ): array {
+        $response = wp_remote_head(
+            $url,
+            array(
+                'timeout'     => self::HEALTH_REQUEST_TIMEOUT_SECONDS,
+                'redirection' => 5,
+                'sslverify'   => false,
+            )
+        );
+
+        if ( is_wp_error( $response ) ) {
+            return array(
+                'broken' => true,
+                'status' => 'unverified',
+            );
+        }
+
+        $status_code = wp_remote_retrieve_response_code( $response );
+
+        return array(
+            'broken' => ! ( $status_code >= 200 && $status_code < 400 ),
+            'status' => $status_code,
+        );
     }
 }

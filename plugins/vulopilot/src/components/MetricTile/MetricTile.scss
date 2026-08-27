@@ -27,6 +27,17 @@
 		grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
 		margin: 1rem 0;
 	}
+
+	// BrokenLinksSection.tsx's own 4 stat tiles (Broken links/Broken
+	// images/Couldn't verify/Ignored) — one flat row of 4 on a wide screen,
+	// matching the reference mockup.
+	&--broken-links {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+
+		@media screen and (width <=64rem) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
 }
 
 .metric-tile {
