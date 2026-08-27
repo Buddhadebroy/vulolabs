@@ -208,13 +208,15 @@
 	margin-top: 0.875rem;
 }
 
-// AccessibilityChecksGrid.tsx — `.accessibility-checks-grid`/
-// `.accessibility-check-tile`'s own icon/title/footer-button shell now
-// comes from the shared `<MetricTile variant="accessibility">`
-// (MetricTile.scss); only this tile's own divergent body content (the
-// open-issues count and "pages affected" line — neither has an
-// equivalent on any of the other 3 MetricTile call sites) is still
-// declared locally.
+// AccessibilityChecksGrid.tsx — icon/title/footer-button shell now comes
+// from the real `<MetricTileComponent>` (@zyra/components,
+// MetricTileComponent.scss) — the now-deleted local
+// `components/MetricTile/MetricTile.tsx` used to wrap that same real
+// component behind an extra layer. Only this tile's own divergent `desc`
+// content (the colored open-issues count) still needs a scoped rule here
+// — the "pages affected" line reuses that shared component's own
+// `.metric-tile-stat` styling directly now instead of a near-identical
+// local copy.
 .accessibility-check-count {
 	font-weight: 700;
 	font-size: 0.9375rem;
@@ -223,11 +225,6 @@
 .accessibility-check-desc {
 	color: $sub-text-color;
 	font-size: 0.8125rem;
-}
-
-.accessibility-check-pages {
-	color: $sub-text-color;
-	font-size: 0.75rem;
 }
 
 // AccessibilityPriorityList.tsx's "What should I fix first?" rows — a real

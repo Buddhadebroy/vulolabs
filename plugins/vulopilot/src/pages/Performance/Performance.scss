@@ -147,23 +147,12 @@ $vulopilot-rating-very-poor: #991b1b;
 }
 
 // `.performance-metrics-grid`/`.performance-metric-tile`'s own icon/
-// title/badge/footer-button shell now comes from the shared
-// `<MetricTile variant="performance">` (MetricTile.scss) — nothing
-// page-specific was left to declare here.
-
-// MetricsGrid.tsx's own per-tile badge — real click target replacing the
-// removed "View" button (per direct instruction), so it needs the pointer
-// affordance its shared `admin-badge` base styling doesn't apply on its
-// own (that class also backs plenty of purely-informational, non-clickable
-// badges elsewhere in this codebase).
-.metric-tile-badge-clickable {
-	cursor: pointer;
-
-	&:hover,
-	&:focus-visible {
-		opacity: 0.8;
-	}
-}
+// title/badge/footer-button shell now comes from the real
+// `<MetricTileComponent>` (@zyra/components, MetricTileComponent.scss) —
+// its own `badge.onClick` (real click target replacing the removed "View"
+// button, per direct instruction) ships its own
+// `.metric-tile-badge-clickable` pointer/hover affordance now too, so
+// nothing page-specific is left to declare here.
 
 // The grid/tile/label/value box model used to be declared here — removed
 // now that the 4 stats render through a real Zyra `<AnalyticsComponent

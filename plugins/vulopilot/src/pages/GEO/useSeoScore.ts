@@ -6,6 +6,8 @@ export interface SeoCategoryScore {
 	score: number;
 	open_count: number;
 	affected_pages: number;
+	/** Real per-category N-day score trend, oldest first (Seo.php's own `get_category_trend()`) — feeds this category's own `MetricTileComponent` sparkline. */
+	trend: number[];
 }
 
 export interface SeoScoreResponse {

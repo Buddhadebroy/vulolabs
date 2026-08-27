@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { CardComponent, BadgeComponent } from '@zyra/components';
-import './MetricTile.scss';
 
 export type MetricTileVariant =
 	| 'performance'

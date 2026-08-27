@@ -371,11 +371,6 @@ const AeoTab = () => {
 					topics={AEO_SECTIONS}
 					groups={groups}
 					isLoading={isLoadingGroups}
-					title={__('AEO Checks at a Glance', 'vulopilot')}
-					desc={__(
-						'Key areas that help answer engines understand and use your content.',
-						'vulopilot'
-					)}
 					onViewTopic={(key) => goToIssuesTable(key)}
 				/>
 			</ColumnComponent>
@@ -392,7 +387,7 @@ const AeoTab = () => {
 				/>
 				<NoticeComponent
 					// type="banner"
-					displayPosition="inline"
+					displayPosition="inline-notice"
 					message={__(
 						'AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results.',
 						'vulopilot'

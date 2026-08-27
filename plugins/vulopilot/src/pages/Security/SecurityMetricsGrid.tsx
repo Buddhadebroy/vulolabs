@@ -1,10 +1,10 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { MetricTileComponent } from '@zyra/components';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { useLastScanTime } from '../../services/useLastScanTime';
 import { formatWpDate } from '../../services/formatWpDate';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 import type { SectionedIssuesTab } from './SectionedIssuesTable';
-import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 import './ProtectMySite.scss';
 
 /**
@@ -260,35 +260,30 @@ const SecurityMetricsGrid = ({
 	};
 
 	return (
-		<MetricTileGrid variant="security">
-			{METRIC_TILES.map((tile) => {
+		<MetricTileComponent
+			cols={3}
+			data={METRIC_TILES.map((tile) => {
 				const isTracked = Boolean(VIEW_TARGET_BY_TILE_ID[tile.id]);
-				const badge = {
-					...badgeFor(tile.id),
-					...(isTracked && { onClick: () => handleView(tile.id) }),
-				};
+				const badge = badgeFor(tile.id);
 				const lastScanAt = lastScanByTileId[tile.id] ?? null;
 
-				return (
-					<MetricTile
-						key={tile.id}
-						variant="security"
-						icon={tile.icon}
-						title={tile.title}
-						badge={badge}
-					>
-						<div className="desc">{tile.desc}</div>
-						{isTracked && (
-							<div className="security-metric-last-scan">
-								{lastScanAt
-									? formatLastScan(lastScanAt)
-									: __('Never scanned yet', 'vulopilot')}
-							</div>
-						)}
-					</MetricTile>
-				);
+				return {
+					id: tile.id,
+					icon: tile.icon,
+					title: tile.title,
+					badge: {
+						...badge,
+						...(isTracked && { onClick: () => handleView(tile.id) }),
+					},
+					desc: tile.desc,
+					stat: isTracked
+						? lastScanAt
+							? formatLastScan(lastScanAt)
+							: __('Never scanned yet', 'vulopilot')
+						: undefined,
+				};
 			})}
-		</MetricTileGrid>
+		/>
 	);
 };
 

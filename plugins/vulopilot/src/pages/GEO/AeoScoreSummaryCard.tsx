@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ChartComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, ListComponent } from '@zyra/components';
 import type { TrendChange } from './GeoTrendCompactCard';
 
 /**
@@ -42,6 +42,15 @@ interface AeoScoreSummaryCardProps {
  * placeholder. "Questions Answered"/"Pages Ready" are the same two real
  * numbers (`useAeoPageAnalysis.ts`) this tab already computed for its own
  * former standalone tiles.
+ *
+ * The 4 rows are a real `ListComponent` (`@zyra/components`,
+ * `className="mini-card report"`) — same shape GeoVisibilitySummaryCard.tsx's
+ * own 4 rows already moved to, just with each row's own plain
+ * `.aeo-score-stat-value` div as the trailing tag instead of a
+ * `BadgeComponent` (this card's own values are numbers, not a
+ * Good/Needs Work/Poor rating). Icon chip tint still comes from
+ * SeoVisibility.scss's shared `.aeo-score-summary-stats` rules (`Item.className:
+ * 'is-{color}'` → `.item-icon`), which both cards' rows share.
  */
 const AeoScoreSummaryCard = ({
 	isLoading,
@@ -74,32 +83,28 @@ const AeoScoreSummaryCard = ({
 	}[] = [
 		{
 			key: 'score',
-			icon: 'check',
-			colorClass: 'is-score',
+			icon: 'check green',
 			title: __('Out of 100', 'vulopilot'),
 			desc: __('Current AEO Score', 'vulopilot'),
 			value: String(aeoScore),
 		},
 		{
 			key: 'questions',
-			icon: 'faq',
-			colorClass: 'is-questions',
+			icon: 'faq blue',
 			title: __('Questions Answered', 'vulopilot'),
 			desc: __('Published pages with adequate FAQ/Q&A', 'vulopilot'),
 			value: sprintf('%d/%d', questionsAnswered, totalPages),
 		},
 		{
 			key: 'pages-ready',
-			icon: 'document',
-			colorClass: 'is-ready',
+			icon: 'document pink',
 			title: __('Pages Ready', 'vulopilot'),
 			desc: __('Ready for AI answer engine', 'vulopilot'),
 			value: sprintf('%d/%d', pagesReady, totalPages),
 		},
 		{
 			key: 'change',
-			icon: trend && trend.change < 0 ? 'arrow-down' : 'arrow-up',
-			colorClass: 'is-change',
+			icon: trend && trend.change < 0 ? 'arrow-down indigo' : 'arrow-up indigo',
 			title: __('Content Change', 'vulopilot'),
 			desc: __('Score movement (last 30 days)', 'vulopilot'),
 			value: changeValue,
@@ -168,30 +173,24 @@ const AeoScoreSummaryCard = ({
 						</div>
 					</div>
 				</div>
-				<div className="aeo-score-summary-stats">
-					{rows.map((row, index) => (
-						<div
-							key={row.key}
-							className={`aeo-score-stat-row ${0 === index ? 'is-first' : ''}`}
-						>
-							<div className={`aeo-score-stat-icon ${row.colorClass}`}>
-								<i className={`adminfont-${row.icon}`} />
-							</div>
-							<div className="aeo-score-stat-text">
-								<div className="aeo-score-stat-title">
-									{row.title}
+				<div className="aeo-score-summary-stat">
+					<ListComponent
+						className="mini-card report"
+						items={rows.map((row) => ({
+							id: row.key,
+							icon: row.icon,
+							className: row.colorClass,
+							title: row.title,
+							desc: row.desc,
+							tags: (
+								<div
+									className={`aeo-score-stat-value ${row.valueClass ?? ''}`}
+								>
+									{row.value}
 								</div>
-								<div className="aeo-score-stat-desc">
-									{row.desc}
-								</div>
-							</div>
-							<div
-								className={`aeo-score-stat-value ${row.valueClass ?? ''}`}
-							>
-								{row.value}
-							</div>
-						</div>
-					))}
+							),
+						}))}
+					/>
 				</div>
 			</div>
 		</CardComponent>

@@ -21,8 +21,9 @@ defined( 'ABSPATH' ) || exit;
  * FindingRepository::get_severity_breakdown_for_scanner_ids(), scoped to the
  * same 15 real scanner ids SeoTab.tsx's own SEO_SECTIONS groups its unified
  * findings table into — this endpoint just also returns that same grouping's
- * own per-category scores, real open/affected-page counts, and a real
- * week-over-week delta, all computed the identical documented way.
+ * own per-category scores, real open/affected-page counts, a real
+ * week-over-week delta, and a real per-category N-day sparkline trend
+ * (`get_category_trend()`), all computed the identical documented way.
  *
  * @class       Seo controller
  * @version     1.0.0
@@ -118,6 +119,12 @@ class Seo extends \WP_REST_Controller {
      * once per day instead of once total. No new table — every point is
      * computed fresh from `vulopilot_scan_findings`' own real
      * `created_at`/`resolved_at` timestamps.
+     *
+     * Also reused by `get_category_trend()` below for each "SEO areas"
+     * tile's own real sparkline (`MetricTileComponent`'s `chart` slot,
+     * SeoTab.tsx) — same technique, just re-scoped to one category's own
+     * scanner ids per call instead of all 15 combined, so both sparklines
+     * cover the identical real N-day window.
      *
      * @var int
      */
@@ -229,6 +236,7 @@ class Seo extends \WP_REST_Controller {
                 'score'          => $this->calculate_score( $category_breakdown ),
                 'open_count'     => array_sum( $category_breakdown ),
                 'affected_pages' => $findings->get_affected_object_count_for_scanner_ids( $scanner_ids ),
+                'trend'          => $this->get_category_trend( $findings, $scanner_ids ),
             );
         }
 
@@ -266,6 +274,36 @@ class Seo extends \WP_REST_Controller {
         $pages = wp_count_posts( 'page' );
 
         return (int) ( $posts->publish ?? 0 ) + (int) ( $pages->publish ?? 0 );
+    }
+
+    /**
+     * Real `PROGRESS_TREND_DAYS`-point daily score trend for one "SEO
+     * areas" category — each `MetricTileComponent` tile's own real
+     * sparkline (`chart: { type: 'sparkline', data: category.trend }`,
+     * SeoTab.tsx). Same `get_severity_breakdown_for_scanner_ids_as_of()`
+     * reconstruction `get_progress()`'s own sitewide trend already uses,
+     * just re-run per category against that category's own scanner ids
+     * rather than all 15 combined — no new stored snapshot table, every
+     * point is a fresh reconstruction of real `vulopilot_scan_findings`
+     * rows as of that day.
+     *
+     * @param FindingRepository $findings    Shared repository instance, reused across every category's own call rather than re-instantiated per category.
+     * @param string[]          $scanner_ids This one category's own scanner ids (one value of `self::CATEGORY_SCANNER_IDS`).
+     * @return int[] `PROGRESS_TREND_DAYS` real scores, oldest first.
+     */
+    private function get_category_trend( FindingRepository $findings, array $scanner_ids ): array {
+        $trend = array();
+
+        for ( $days_ago = self::PROGRESS_TREND_DAYS - 1; $days_ago >= 0; $days_ago-- ) {
+            $breakdown = $findings->get_severity_breakdown_for_scanner_ids_as_of(
+                $scanner_ids,
+                gmdate( 'Y-m-d 23:59:59', strtotime( "-{$days_ago} days" ) )
+            );
+
+            $trend[] = $this->calculate_score( $breakdown );
+        }
+
+        return $trend;
     }
 
     /**

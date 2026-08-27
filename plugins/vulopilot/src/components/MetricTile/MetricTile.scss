@@ -1,8 +1,0 @@
-@use '../config' as *;
-
-// Common structure for MetricTile.tsx/MetricTileGrid — the shared shell
-// behind Improve Speed's `.performance-metric-tile`, Protect My Site's
-// `.security-metric-tile`/`.accessibility-check-tile`, and Sell More's
-// `.woocommerce-category-card`. Each page's own scss file keeps only its
-// own divergent body content (rows, desc, counts, last-scan line, …) —
-// see MetricTile.tsx's own docblock.

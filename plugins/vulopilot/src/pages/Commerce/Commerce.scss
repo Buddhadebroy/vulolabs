@@ -93,10 +93,13 @@
 // rather than needing its own separate rule set.
 
 // `.woocommerce-category-grid`/`.woocommerce-category-card`'s own icon/
-// title/badge/footer-button shell now comes from the shared
-// `<MetricTile variant="woocommerce">` (MetricTile.scss); only this
-// card's own divergent row/highlight body content is still declared
-// locally below.
+// title/badge/footer-button shell now comes from the real
+// `<MetricTileComponent>` (@zyra/components, MetricTileComponent.scss —
+// the now-deleted local `components/MetricTile/MetricTile.tsx` used to
+// wrap that same real component behind an extra layer); only this card's
+// own divergent row/highlight body content (passed through that
+// component's own `desc` slot, which takes arbitrary content) is still
+// declared locally below.
 
 .woocommerce-category-rows {
 	margin-top: 0.625rem;

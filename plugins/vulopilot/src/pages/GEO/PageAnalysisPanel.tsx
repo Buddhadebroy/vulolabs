@@ -148,7 +148,6 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 							tags: (
 								<>
 									<BadgeComponent
-										border
 										color={STATUS_BADGE[template.status].color}
 										text={STATUS_BADGE[template.status].text}
 									/>

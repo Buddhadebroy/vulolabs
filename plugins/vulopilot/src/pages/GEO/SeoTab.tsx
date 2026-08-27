@@ -4,7 +4,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	AnalyticsComponent,
-	BadgeComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
@@ -29,23 +28,14 @@ const CATEGORY_CARDS: {
 	/** A fixed per-category identity color for the icon box — independent of `ratingColor(category.score)`, which separately tints the border/graph/number by real live status. */
 	color: string;
 }[] = [
-		{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search', color: 'purple' },
-		{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list', color: 'blue' },
-		{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment', color: 'green' },
-		{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'admin-links', color: 'indigo' },
-		{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery', color: 'teal' },
-		{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks', color: 'orange' },
+		{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search blue', color: 'purple' },
+		{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list red', color: 'blue' },
+		{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment pink', color: 'green' },
+		{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'admin-links lime', color: 'indigo' },
+		{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery cyan', color: 'teal' },
+		{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks teal', color: 'orange' },
 	];
 
-/** Same real per-category identity hex `CATEGORY_CARDS[].color` names already referred to — mirrors SeoVisibility.scss's own `$seo-area-icon-colors` map (that CSS-side map still backs the now-unused `.icon-#{$name}` chip rule; kept in sync by hand, same as that file's own comment already flags for `COLOR_PALETTE`-adjacent maps). `MetricTileComponent`'s own `iconColor` (`MetricTileItem`, `@zyra/components`) only tints the glyph itself — no colored chip behind it. */
-const SEO_AREA_ICON_COLORS: Record<string, string> = {
-	purple: '#7c3aed',
-	blue: '#2563eb',
-	green: '#16a34a',
-	indigo: '#4f46e5',
-	teal: '#0d9488',
-	orange: '#d97706',
-};
 
 /**
  * Real `robots-txt`/`sitemap`/`sitemap-validation`/`ai-crawler-blocked-pages`
@@ -393,7 +383,6 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 								return {
 									id: card.key,
 									icon: card.icon,
-									iconColor: SEO_AREA_ICON_COLORS[card.color],
 									title: card.title,
 									number: sprintf(
 										/* translators: %d: real 0-100 category score. */
@@ -410,42 +399,20 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 										__('%d pages affected', 'vulopilot'),
 										category.affected_pages
 									),
-									// `MetricTileComponent`'s own `badge` prop
-									// only ever reads `badge.color`/`badge.text`
-									// — no click handler (confirmed reading its
-									// source, same real gap MetricsGrid.tsx's
-									// own docblock already flags) — so the real
-									// click-to-jump-to-issues badge goes in
-									// `footer` (the one slot that really does
-									// take arbitrary content) instead of the
-									// built-in `badge` slot.
-									footer: (
-										<BadgeComponent
-											text={getRating(category.score)}
-											color={ratingColor(category.score)}
-											className="metric-tile-badge-clickable"
-											role="button"
-											tabIndex={0}
-											onClick={() =>
-												setCategoryFocus({
-													key: card.key,
-													token: Date.now(),
-												})
-											}
-											onKeyDown={(event) => {
-												if (
-													'Enter' === event.key ||
-													' ' === event.key
-												) {
-													event.preventDefault();
-													setCategoryFocus({
-														key: card.key,
-														token: Date.now(),
-													});
-												}
-											}}
-										/>
-									),
+									chart: {
+										type: 'sparkline',
+										data: category.trend,
+										color: COLOR_PALETTE[ratingColor(category.score) as keyof typeof COLOR_PALETTE],
+									},
+									badge: {
+										text: getRating(category.score),
+										color: ratingColor(category.score),
+										onClick: () =>
+											setCategoryFocus({
+												key: card.key,
+												token: Date.now(),
+											}),
+									},
 								};
 							})}
 						/>

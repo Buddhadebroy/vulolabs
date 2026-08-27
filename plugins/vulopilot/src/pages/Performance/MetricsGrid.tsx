@@ -2,11 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import {
-	BadgeComponent,
-	MetricTileComponent,
-	MetricTileGridComponent,
-} from '@zyra/components';
+import { MetricTileComponent } from '@zyra/components';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { useEfficiencyChecks } from '../Security/efficiencyChecks';
 import './Performance.scss';
@@ -182,11 +178,10 @@ const MIN_CWV_SAMPLES = 10;
  * collection pipeline exists (Services\CoreWebVitalsBeacon).
  *
  * Per direct instruction, the separate "View" button (`ButtonInput`) is
- * gone — each tile's own real status badge is the click target now
- * instead, rendered here directly (not via `MetricTileComponent`'s own
- * `badge` prop, which only ever reads `badge.color`/`badge.text` and
- * never wires up a click handler — confirmed reading its source) so a
- * real `onClick` can be attached. Same destination either way: the 8
+ * gone — each tile's own real status badge (`MetricTileComponent`'s own
+ * `badge` prop, `@zyra/components` — `badge.onClick` doubles it as this
+ * tile's click target) is the click target now instead. Same destination
+ * either way: the 8
  * scanner-backed tiles jump to and select their own section of the "Top
  * Issues" table further down this page (`onViewSection`, via
  * `SECTION_KEY_BY_TILE_ID`); "Core Web Vitals" instead scrolls to its own
@@ -292,34 +287,19 @@ const MetricsGrid = ({
 	};
 
 	return (
-		<MetricTileGridComponent cols={3}>
-			{METRIC_TILES.map((tile) => {
-				const badge = badgeFor(tile.id);
-				return (
-					<MetricTileComponent
-						key={tile.id}
-						icon={tile.icon}
-						title={tile.title}
-					>
-						<BadgeComponent
-							text={badge.text}
-							color={badge.color}
-							className="metric-tile-badge-clickable"
-							role="button"
-							tabIndex={0}
-							onClick={() => handleView(tile.id)}
-							onKeyDown={(event) => {
-								if ('Enter' === event.key || ' ' === event.key) {
-									event.preventDefault();
-									handleView(tile.id);
-								}
-							}}
-						/>
-						<div className="desc">{tile.desc}</div>
-					</MetricTileComponent>
-				);
-			})}
-		</MetricTileGridComponent>
+		<MetricTileComponent
+			cols={3}
+			data={METRIC_TILES.map((tile) => ({
+				id: tile.id,
+				icon: tile.icon,
+				title: tile.title,
+				badge: {
+					...badgeFor(tile.id),
+					onClick: () => handleView(tile.id),
+				},
+				desc: tile.desc,
+			}))}
+		/>
 	);
 };
 

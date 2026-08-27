@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { BadgeComponent, CardComponent, ChartComponent } from '@zyra/components';
+import { BadgeComponent, CardComponent, ChartComponent, ListComponent } from '@zyra/components';
 import { formatWpDate } from '../../services/formatWpDate';
 import ProLockedCard from '../../components/ProLockedCard';
 import { computeTrendChange } from './GeoTrendCompactCard';
@@ -65,11 +65,21 @@ interface GeoVisibilitySummaryCardProps {
  *   for" grid): the same real 4 buckets (Clarity/Recognition/Evidence/Trust,
  *   each a genuine average of `snapshot`'s own `ai_scores`/`sub_scores`
  *   dimensions — see that removed component's own former docblock, reused
- *   verbatim here), one stat row per bucket with a real Good/Needs
- *   Work/Poor `BadgeComponent` as its value — filling the reference image's
+ *   verbatim here), one row per bucket with a real Good/Needs Work/Poor
+ *   `BadgeComponent` as its trailing tag — filling the reference image's
  *   4-row list shape with this tab's own real per-dimension breakdown
  *   instead of AeoTab's questions/pages/change numbers, since GEO doesn't
- *   have those.
+ *   have those. Rows are a real `ListComponent` (`@zyra/components`,
+ *   `className="mini-card report"` — same row/divider/trailing-tag shape
+ *   the "VuloPilot noticed"/"Products to look at" lists already use, see
+ *   Commerce.scss's own docblock), same as AeoScoreSummaryCard.tsx's own
+ *   sibling 4-row list (that card's own values are plain numbers, so its
+ *   trailing tag is a plain `.aeo-score-stat-value` div instead of this
+ *   card's `BadgeComponent`) — each bucket's own `colorClass` becomes the
+ *   row's real `Item.className`, so its icon chip tint comes from this
+ *   file's own scoped CSS below, same "`Item.className: 'is-{color}'` tints
+ *   `.item-icon`" convention Commerce.scss's own per-row icon lists already
+ *   establish.
  * - Card `desc` restates GeoVisibilityOverviewRow.tsx's own real "We checked
  *   N pages and found M things AI cares about" line (`history`'s own
  *   `sample_size` + `totalOpenFindings`), same real numbers, just moved up
@@ -257,31 +267,23 @@ const GeoVisibilitySummaryCard = ({
 						)}
 					</div>
 				</div>
-				<div className="aeo-score-summary-stats">
-					{buckets.map((bucket, index) => (
-						<div
-							key={bucket.key}
-							className={`aeo-score-stat-row ${0 === index ? 'is-first' : ''}`}
-						>
-							<div className={`aeo-score-stat-icon ${bucket.colorClass}`}>
-								<i className={`adminfont-${bucket.icon}`} />
-							</div>
-							<div className="aeo-score-stat-text">
-								<div className="aeo-score-stat-title">
-									{bucket.title}
-								</div>
-								<div className="aeo-score-stat-desc">
-									{bucket.desc}
-								</div>
-							</div>
+				<ListComponent
+					className="mini-card report"
+					items={buckets.map((bucket) => ({
+						id: bucket.key,
+						icon: bucket.icon,
+						className: bucket.colorClass,
+						title: bucket.title,
+						desc: bucket.desc,
+						tags: (
 							<BadgeComponent
 								className="geo-four-checks-badge"
 								color={ratingClass(bucket.score)}
 								text={getRating(bucket.score)}
 							/>
-						</div>
-					))}
-				</div>
+						),
+					}))}
+				/>
 			</div>
 		</CardComponent>
 	);
