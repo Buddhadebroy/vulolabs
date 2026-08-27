@@ -73,6 +73,7 @@ class Rest {
             'redirects'                   => new Controllers\Redirects(),
             'not_found_logs'              => new Controllers\NotFoundLogs(),
             'broken_links_stats'          => new Controllers\BrokenLinksStats(),
+            'robots_sitemap'              => new Controllers\RobotsSitemap(),
             'indexnow'                    => new Controllers\IndexNow(),
             'performance_actions'         => new Controllers\PerformanceActions(),
             'performance_score_snapshots' => new Controllers\PerformanceScoreSnapshots(),
