@@ -29,6 +29,17 @@ const PRIORITY_LIST_ID = 'accessibility-a11y-priority';
 /** DOM anchor id the merged issues table below carries. */
 const ISSUES_TABLE_ID = 'accessibility-a11y-issues-table';
 
+/**
+ * `ACCESSIBILITY_CHECKS` minus its synthetic `'all'` tile (AccessibilityChecksGrid.tsx's
+ * own 6th grid tile, not a real per-scanner bucket) — SectionedIssuesTable.tsx
+ * already synthesizes its own "All" tab above whatever `sections` it's
+ * given (see that component's own docblock), so passing that tile through
+ * too would render two.
+ */
+const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
+	(check) => 'all' !== check.key
+);
+
 const scrollTo = (id: string) => () =>
 	document
 		.getElementById(id)
@@ -215,16 +226,15 @@ const Accessibility = () => {
 				}
 			/>
 			<ContainerComponent general>
-				<ColumnComponent grid={8}>
-					<AccessibilityChecksGrid onReview={goToIssuesTable} />
-				</ColumnComponent>
 				<ColumnComponent grid={4}>
 					<AccessibilityHeroCard
 						onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
 						onViewAll={() => goToIssuesTable('all')}
 					/>
 				</ColumnComponent>
-
+				<ColumnComponent grid={8}>
+					<AccessibilityChecksGrid onReview={goToIssuesTable} />
+				</ColumnComponent>
 				<ColumnComponent>
 					{AccessibilityDashboardCard ? (
 						<AccessibilityDashboardCard />
@@ -246,7 +256,7 @@ const Accessibility = () => {
 					<SectionedIssuesTable
 						id={ISSUES_TABLE_ID}
 						title={__('All Accessibility Findings', 'vulopilot')}
-						sections={ACCESSIBILITY_CHECKS}
+						sections={ISSUES_TABLE_SECTIONS}
 						activeTab={activeTab}
 						onTabChange={setActiveTab}
 					/>

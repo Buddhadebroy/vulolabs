@@ -58,6 +58,29 @@ const SEARCH_ENGINE_ACCESS_SCANNER_IDS = [
 
 
 /**
+ * Real day-by-day average of every real per-category `trend` array
+ * (`Seo.php`'s own `get_category_trend()`, already real, one point per
+ * category per day) — the "All areas" tile's own sparkline below. A real
+ * derived number, not a fabricated one: each day's value is the same real
+ * per-category scores `CATEGORY_CARDS`' own 6 tiles already plot,
+ * averaged the same way `average()` (GeoVisibilitySummaryCard.tsx) folds
+ * several already-fetched real sub-scores into one combined number.
+ */
+const overallCategoryTrend = (score: SeoScoreResponse): number[] => {
+	const trends = Object.values(score.category_scores).map(
+		(category) => category.trend
+	);
+	const days = trends[0]?.length ?? 0;
+
+	return Array.from({ length: days }, (_, dayIndex) =>
+		Math.round(
+			trends.reduce((sum, trend) => sum + (trend[dayIndex] ?? 0), 0) /
+				trends.length
+		)
+	);
+};
+
+/**
  * Real week-over-week delta text for one of `useSeoScore()`'s own
  * `deltas` fields — `Seo.php`'s own exact reconstruction of that same
  * count `deltas.lookback_days` ago (no fabricated/estimated number, no
@@ -130,7 +153,10 @@ const isSeoModuleActive = () =>
  * - "SEO areas" is the same real per-category score grid as before, now 6
  *   tiles instead of 3 (`Seo.php`'s own docblock has the full scanner-id
  *   regrouping) with 2 more real numbers per tile (open issue count, real
- *   distinct affected-page count) alongside the existing score.
+ *   distinct affected-page count) alongside the existing score, plus a
+ *   real 7th "All Areas" tile combining those 6 (`overallCategoryTrend()`'s
+ *   own docblock) — same real overall numbers the "SEO Health Score" card
+ *   above already shows, not a second invented total.
  * - "What should I fix first?"/"Pages that need attention"/"All SEO
  *   findings" are the same real `SeoIssuesSection`/`IssuesSection` this tab
  *   already had (priority stat cards + the 2 real tables) — unchanged.
@@ -377,44 +403,91 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 						<MetricTileComponent
 							cols={3}
 							isLoading={isLoadingScore}
-							data={CATEGORY_CARDS.map((card) => {
-								const category = score.category_scores[card.key];
+							data={[
+								...CATEGORY_CARDS.map((card) => {
+									const category = score.category_scores[card.key];
 
-								return {
-									id: card.key,
-									icon: card.icon,
-									title: card.title,
+									return {
+										id: card.key,
+										icon: card.icon,
+										title: card.title,
+										number: sprintf(
+											/* translators: %d: real 0-100 category score. */
+											__('%d/100', 'vulopilot'),
+											category.score
+										),
+										stat: sprintf(
+											/* translators: %d: number of open issues. */
+											__('%d issues', 'vulopilot'),
+											category.open_count
+										),
+										desc: sprintf(
+											/* translators: %d: number of affected pages. */
+											__('%d pages affected', 'vulopilot'),
+											category.affected_pages
+										),
+										chart: {
+											type: 'sparkline',
+											data: category.trend,
+											color: COLOR_PALETTE[ratingColor(category.score) as keyof typeof COLOR_PALETTE],
+										},
+										badge: {
+											text: getRating(category.score),
+											color: ratingColor(category.score),
+											onClick: () =>
+												setCategoryFocus({
+													key: card.key,
+													token: Date.now(),
+												}),
+										},
+									};
+								}),
+								// A real 7th "All areas" tile combining the 6 real
+								// categories above — not a fabricated summary:
+								// score/open-count are the same overall
+								// `score.seo_score`/`score.total_open` the "SEO
+								// Health Score" card above already shows, "pages
+								// checked" is that same card's own real total
+								// scope (not a naive per-category sum, which
+								// would double-count a page flagged in more than
+								// one category), and the sparkline is a real
+								// day-by-day average of the 6 categories' own
+								// already-real trends (`overallCategoryTrend()`).
+								{
+									id: 'all',
+									icon: 'category gray',
+									title: __('All Areas', 'vulopilot'),
 									number: sprintf(
-										/* translators: %d: real 0-100 category score. */
+										/* translators: %d: real 0-100 sitewide SEO score. */
 										__('%d/100', 'vulopilot'),
-										category.score
+										score.seo_score
 									),
 									stat: sprintf(
-										/* translators: %d: number of open issues. */
+										/* translators: %d: number of open issues across every SEO area. */
 										__('%d issues', 'vulopilot'),
-										category.open_count
+										score.total_open
 									),
 									desc: sprintf(
-										/* translators: %d: number of affected pages. */
-										__('%d pages affected', 'vulopilot'),
-										category.affected_pages
+										/* translators: %d: total real published pages checked. */
+										__('%d pages checked', 'vulopilot'),
+										score.pages_checked
 									),
 									chart: {
 										type: 'sparkline',
-										data: category.trend,
-										color: COLOR_PALETTE[ratingColor(category.score) as keyof typeof COLOR_PALETTE],
+										data: overallCategoryTrend(score),
+										color: COLOR_PALETTE[ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE],
 									},
 									badge: {
-										text: getRating(category.score),
-										color: ratingColor(category.score),
+										text: getRating(score.seo_score),
+										color: ratingColor(score.seo_score),
 										onClick: () =>
 											setCategoryFocus({
-												key: card.key,
+												key: 'all',
 												token: Date.now(),
 											}),
 									},
-								};
-							})}
+								},
+							]}
 						/>
 					)}
 				</CardComponent>

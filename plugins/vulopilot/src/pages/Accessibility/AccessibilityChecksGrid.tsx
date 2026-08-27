@@ -19,7 +19,8 @@ interface AccessibilityChecksGridProps {
 }
 
 /**
- * The mockup's "Accessibility Checks" 5-tile grid — one real
+ * The mockup's "Accessibility Checks" 5-tile grid, plus a real 6th "All
+ * Checks" tile (direct instruction) combining the other 5 — one real
  * scanner_id-scoped open-findings count + distinct-pages-affected count
  * per tile (ACCESSIBILITY_CHECKS.tsx's own shared definitions), each
  * "Review" switching the merged issues table further down this tab to
@@ -38,7 +39,7 @@ interface AccessibilityChecksGridProps {
  * rules-of-hooks violation regardless of the array being static. This
  * also gives every tile its own real per-check loading state, which
  * `MetricTileComponent`'s own `isLoading` can't (it's one flag for the
- * whole grid, not per item) — this grid instead treats "all 5 real
+ * whole grid, not per item) — this grid instead treats "all 6 real
  * fetches have resolved" as the whole grid's loading state.
  */
 const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => {
@@ -67,6 +68,11 @@ const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => 
 		status: 'open',
 		per_page: 100,
 	});
+	const allChecks = useApiList<AccessibilityFinding>('findings', {
+		scanner_id: ACCESSIBILITY_CHECKS[5].scannerIds.join(','),
+		status: 'open',
+		per_page: 100,
+	});
 
 	const results = [
 		pageStructure,
@@ -74,12 +80,13 @@ const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => 
 		linksForms,
 		keyboardUse,
 		visualReadability,
+		allChecks,
 	];
 	const isLoading = results.some((result) => result.isLoading);
 
 	return (
 		<MetricTileComponent
-			cols={5}
+			cols={3}
 			isLoading={isLoading}
 			data={ACCESSIBILITY_CHECKS.map((check, index) => {
 				const result = results[index];

@@ -28,7 +28,7 @@ export interface AccessibilityCheck {
  * table at the bottom of the page) — one definition, not four driftable
  * copies.
  */
-export const ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
+const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	{
 		key: 'page-structure',
 		title: __('Page Structure', 'vulopilot'),
@@ -100,10 +100,45 @@ export const ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	},
 ];
 
-/** Every scanner id any tile covers — the hero card's own combined counts. */
-export const ACCESSIBILITY_SCANNER_IDS = ACCESSIBILITY_CHECKS.flatMap(
+/** Every real scanner id any of the 5 buckets above covers — the hero card's own combined counts. Deliberately excludes the synthetic `'all'` tile below (its own `scannerIds` already reduces to this same list) so nothing here double-counts. */
+export const ACCESSIBILITY_SCANNER_IDS = REAL_ACCESSIBILITY_CHECKS.flatMap(
 	(check) => check.scannerIds
 );
+
+/**
+ * The 5 real buckets above, plus a 6th synthetic `'all'` tile — a real 6th
+ * "All Checks" spot for AccessibilityChecksGrid.tsx's own grid (direct
+ * instruction), combining every one of the 5 real buckets' own scanner
+ * ids into one, same real total `ACCESSIBILITY_SCANNER_IDS` above already
+ * is. Deliberately last, not first: `checkForScannerId()` below is a
+ * `.find()`, so every real scanner id still resolves to its own specific
+ * bucket first — `'all'` is never actually reachable through that lookup,
+ * it exists only for the grid tile itself.
+ *
+ * Not passed to SectionedIssuesTable.tsx's own `sections` prop
+ * (Accessibility.tsx filters this `'all'` entry back out before passing
+ * it down) — that component already synthesizes its own "All" tab above
+ * `sections` (see its own docblock), so including this tile there would
+ * render two.
+ */
+export const ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
+	...REAL_ACCESSIBILITY_CHECKS,
+	{
+		key: 'all',
+		title: __('All Checks', 'vulopilot'),
+		description: __(
+			'Every accessibility check, combined.',
+			'vulopilot'
+		),
+		scannerIds: ACCESSIBILITY_SCANNER_IDS,
+		icon: 'admin-tools',
+		color: '#4b5563',
+		emptyMessage: __(
+			'No accessibility findings yet — run a scan to check everything at once.',
+			'vulopilot'
+		),
+	},
+];
 
 /** Which tile a given finding's scanner_id belongs to, for its icon/color. */
 export const checkForScannerId = (
