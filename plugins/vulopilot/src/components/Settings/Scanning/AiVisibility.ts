@@ -230,16 +230,6 @@ export default {
 			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
 		},
 		{
-			key: 'llms_txt_content',
-			type: 'textarea',
-			label: __('llms.txt content', 'vulopilot'),
-			settingDescription: __(
-				'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
-				'vulopilot'
-			),
-			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
-		},
-		{
 			key: 'aeo-section-alerts',
 			type: 'section',
 			title: __('Alerts', 'vulopilot'),

@@ -1,0 +1,26 @@
+diff --git a/es/util.js b/es/util.js
+index 1e2b57ce8472dd73d4d79dca88b159c0d3020944..fa541fe9fc69643ef992653f55df292f6f697a21 100644
+--- a/es/util.js
++++ b/es/util.js
+@@ -9,7 +9,7 @@ var closest = function closest(el, selector, rootNode) {
+   var element = el;
+   while (element) {
+     var isRoot = element === rootNode || element === document.body;
+-    if (isRoot || element.nodeType === 1 && element.matches(selector)) {
++    if (isRoot || element.nodeType === 1 && !!selector && element.matches(selector)) {
+       if (isRoot) {
+         element = null;
+       }
+diff --git a/lib/util.js b/lib/util.js
+index 119de3d4666f3485a09eb282ac5bd919eb2c4d03..b9899cc06ef84bb09591893bbeb489febd7fb7f0 100644
+--- a/lib/util.js
++++ b/lib/util.js
+@@ -14,7 +14,7 @@ var closest = function closest(el, selector, rootNode) {
+   var element = el;
+   while (element) {
+     var isRoot = element === rootNode || element === document.body;
+-    if (isRoot || element.nodeType === 1 && element.matches(selector)) {
++    if (isRoot || element.nodeType === 1 && !!selector && element.matches(selector)) {
+       if (isRoot) {
+         element = null;
+       }

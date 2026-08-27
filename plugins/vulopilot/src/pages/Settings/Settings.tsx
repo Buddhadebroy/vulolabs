@@ -17,7 +17,6 @@ import PageSpeedStatusPanel from '../../components/Settings/Connections/PageSpee
 import AiVisibilityScansHeader from '../../components/Settings/Scanning/AiVisibilityScansHeader';
 import AccessibilityRestoreDefaultsHeader from '../../components/Settings/Scanning/AccessibilityRestoreDefaultsHeader';
 import ContentSearchScansHeader from '../../components/Settings/Scanning/ContentSearchScansHeader';
-import LlmsTxtCard from '../../components/Settings/Scanning/LlmsTxtCard';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
@@ -157,114 +156,78 @@ const Settings = () => {
 			return <PanelComponent />;
 		}
 
-		// The mockup places the "live file / regenerate" row inside the
-		// llms.txt field group, before the AI summary/evidence/alerts
-		// sections below it — not after the whole tab. Splitting the one
-		// settingModal.modal array around that boundary and rendering
-		// InputRenderer twice (same setting/updateSetting/id/submitUrl)
-		// reuses the existing renderer rather than introducing a new one.
-		const llmsTxtSectionEnd = settingModal?.modal?.findIndex(
-			(field: { key: string }) => field.key === 'aeo-section-alerts'
-		);
-		const isGeoTabSplit =
-			currentTab === 'ai-visibility' &&
-			typeof llmsTxtSectionEnd === 'number' &&
-			llmsTxtSectionEnd > -1;
-
 		return (
 			<>
 				{settingName === currentTab ? (
-					isGeoTabSplit ? (
-						<>
-							{/* AiVisibilityScansHeader.tsx — rendered BEFORE this
-							 * tab's own fields, same "before, not after" placement
-							 * PageSpeedStatusPanel.tsx uses: the mockup's "Restore
-							 * Defaults" button sits above the 5 scan-category rows,
-							 * which are themselves the first real field
-							 * (`ai_visibility_scans`) InputRenderer renders just
-							 * below. See that component's own docblock. */}
-							<AiVisibilityScansHeader />
+					<>
+						{'pagespeed-insights' === currentTab && <PageSpeedStatusPanel />}
+						{/* AiVisibilityScansHeader.tsx — rendered BEFORE this
+						 * tab's own fields, same "before, not after" placement
+						 * PageSpeedStatusPanel.tsx uses above: the mockup's
+						 * "Restore Defaults" button sits above the 5
+						 * scan-category rows, which are themselves the first
+						 * real field (`ai_visibility_scans`) InputRenderer
+						 * renders just below. See that component's own
+						 * docblock. (The llms.txt content editor that used to
+						 * split this same tab around `aeo-section-alerts` now
+						 * lives on Crawl & URLs → Robots & Sitemap instead —
+						 * see CrawlRobotsSitemapSection.tsx.) */}
+						{'ai-visibility' === currentTab && <AiVisibilityScansHeader />}
+						{/* AccessibilityRestoreDefaultsHeader.tsx — same
+						 * "before, not after" placement AiVisibilityScansHeader.tsx
+						 * uses: the mockup's "Restore Defaults" button sits above
+						 * this tab's own fields. */}
+						{'accessibility' === currentTab && <AccessibilityRestoreDefaultsHeader />}
+						{/* ContentSearchScansHeader.tsx — same "before, not after"
+						 * placement AccessibilityRestoreDefaultsHeader.tsx uses above:
+						 * the mockup's "Restore Defaults" button sits above this
+						 * tab's own fields. */}
+						{'content-search' === currentTab && <ContentSearchScansHeader />}
+						{/* `settingModal` is `getSettingById(settingsArray, currentTab)`
+						 * (line ~93) — real `null` for a `currentTab` that doesn't
+						 * match any entry in `settingsArray` (a stale/unknown
+						 * `subtab=` URL param, or a tab gated behind a module
+						 * that's since been deactivated). `InputRenderer` itself
+						 * unconditionally destructures its own `settings` prop
+						 * (zyra's own InputRenderer.tsx) and crashes the whole
+						 * page rather than degrading, so this has to stay guarded
+						 * here rather than just passing `settingModal` through. */}
+						{settingModal ? (
 							<InputRenderer
-								settings={{
-									...settingModal,
-									modal: settingModal.modal.slice(0, llmsTxtSectionEnd),
-								}}
+								settings={settingModal}
 								setting={setting}
 								updateSetting={updateSetting}
 								Popup={ShowProPopup}
 							/>
-							<LlmsTxtCard />
-							<InputRenderer
-								settings={{
-									...settingModal,
-									modal: settingModal.modal.slice(llmsTxtSectionEnd),
-								}}
-								setting={setting}
-								updateSetting={updateSetting}
-								Popup={ShowProPopup}
+						) : (
+							<ModuleGuardComponent
+								icon="error"
+								title={__('This settings section isn’t available', 'vulopilot')}
+								desc={__(
+									'The tab you linked to doesn’t exist, or the module it belongs to is turned off.',
+									'vulopilot'
+								)}
 							/>
-						</>
-					) : (
-						<>
-							{'pagespeed-insights' === currentTab && <PageSpeedStatusPanel />}
-							{/* AccessibilityRestoreDefaultsHeader.tsx — same
-							 * "before, not after" placement AiVisibilityScansHeader.tsx
-							 * uses: the mockup's "Restore Defaults" button sits above
-							 * this tab's own fields. */}
-							{'accessibility' === currentTab && <AccessibilityRestoreDefaultsHeader />}
-							{/* ContentSearchScansHeader.tsx — same "before, not after"
-							 * placement AccessibilityRestoreDefaultsHeader.tsx uses above:
-							 * the mockup's "Restore Defaults" button sits above this
-							 * tab's own fields. */}
-							{'content-search' === currentTab && <ContentSearchScansHeader />}
-							{/* `settingModal` is `getSettingById(settingsArray, currentTab)`
-							 * (line ~93) — real `null` for a `currentTab` that doesn't
-							 * match any entry in `settingsArray` (a stale/unknown
-							 * `subtab=` URL param, or a tab gated behind a module
-							 * that's since been deactivated). `InputRenderer` itself
-							 * unconditionally destructures its own `settings` prop
-							 * (zyra's own InputRenderer.tsx) and crashes the whole
-							 * page rather than degrading, so this has to stay guarded
-							 * here rather than just passing `settingModal` through. */}
-							{settingModal ? (
-								<InputRenderer
-									settings={settingModal}
-									setting={setting}
-									updateSetting={updateSetting}
-									Popup={ShowProPopup}
-								/>
-							) : (
-								<ModuleGuardComponent
-									icon="error"
-									title={__('This settings section isn’t available', 'vulopilot')}
-									desc={__(
-										'The tab you linked to doesn’t exist, or the module it belongs to is turned off.',
-										'vulopilot'
-									)}
-								/>
-							)}
-							{/* BackupStoragePanel.tsx — appended AFTER this
-							 * tab's own fields (not split around a midpoint
-							 * the way isGeoTabSplit's llms.txt card is
-							 * above), since S3/Google Drive credentials
-							 * only make sense once `backup_storage_destination`
-							 * itself has already been picked, the last
-							 * field this tab's own `modal` renders. See
-							 * Backups.ts's own docblock for why the
-							 * credentials themselves can't just be more
-							 * fields in that same array. */}
-							{'backups' === currentTab && <BackupStoragePanel />}
-							{/* CrawlerAlertTestPanel.tsx — same "appended
-							 * after this tab's own fields" shape as Backups'
-							 * BackupStoragePanel just above, for the same
-							 * reason: a real API call ("Send Test Alert")
-							 * and a value that must survive a page refresh
-							 * ("Last test alert sent on ..."), neither of
-							 * which fits InputRenderer's static declarative
-							 * fields. See AiCrawlerAlerts.ts's own docblock. */}
-							{'ai-crawler-alerts' === currentTab && <CrawlerAlertTestPanel />}
-						</>
-					)
+						)}
+						{/* BackupStoragePanel.tsx — appended AFTER this
+						 * tab's own fields, since S3/Google Drive credentials
+						 * only make sense once `backup_storage_destination`
+						 * itself has already been picked, the last
+						 * field this tab's own `modal` renders. See
+						 * Backups.ts's own docblock for why the
+						 * credentials themselves can't just be more
+						 * fields in that same array. */}
+						{'backups' === currentTab && <BackupStoragePanel />}
+						{/* CrawlerAlertTestPanel.tsx — same "appended
+						 * after this tab's own fields" shape as Backups'
+						 * BackupStoragePanel just above, for the same
+						 * reason: a real API call ("Send Test Alert")
+						 * and a value that must survive a page refresh
+						 * ("Last test alert sent on ..."), neither of
+						 * which fits InputRenderer's static declarative
+						 * fields. See AiCrawlerAlerts.ts's own docblock. */}
+						{'ai-crawler-alerts' === currentTab && <CrawlerAlertTestPanel />}
+					</>
 				) : (
 					<>{__('Loading…', 'vulopilot')}</>
 				)}
