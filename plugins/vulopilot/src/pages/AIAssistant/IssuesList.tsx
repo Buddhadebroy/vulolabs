@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ColumnComponent, ModuleGuardComponent, InformationItemComponent } from '@zyra/components';
+import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import './AICopilot.scss';
 import IssuesSummaryCards, { Priority } from './IssuesSummaryCards';
@@ -236,38 +236,31 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							// row-is-active check below rather than a
 							// separate piece of state.
 							activeRowId={selectedGroup?.scanner_id}
+							// Same toggle the action cell's own "More
+							// Details"/"Showing" button already does — a
+							// click anywhere on the row now opens/closes the
+							// details panel too, not just that one small
+							// button (zyra's own `onRowClick`, which already
+							// skips the action cell itself via
+							// `stopPropagation`, so this doesn't double-fire
+							// alongside a real button click).
+							onRowClick={(row: Record<string, unknown>) => {
+								const group = row as unknown as FindingGroup;
+								setSelectedGroup(
+									group.scanner_id === selectedGroup?.scanner_id
+										? null
+										: group
+								);
+							}}
 							headers={{
 								issue: {
+									key: 'label',
+									type: 'info',
 									label: __('Issue', 'vulopilot'),
 									width: '75%',
-									render: (row: FindingGroup) => (
-										<InformationItemComponent
-											avatar={{
-												iconClass:
-													CATEGORY_ICONS[row.category] ??
-													'search-discovery pink',
-											}}
-											title={row.label}
-											descriptions={[
-												{
-													value:
-														(row.sample?.description?.length ?? 0) > 80
-															? `${row.sample?.description?.slice(0, 80)}...`
-															: row.sample?.description || '',
-												},
-											]}
-											badges={[
-												{
-													text: CATEGORY_LABELS[row.category] ?? row.category,
-													className: `badge-${row.category}`,
-												},
-												{
-													text: row.severity,
-													className: `badge-${row.severity}`,
-												},
-											]}
-										/>
-									),
+									iconKey: 'categoryIcon',
+									descriptionKey: 'descriptionText',
+									badgesKey: 'issueBadges',
 								},
 								affected: {
 									label: __('Affected', 'vulopilot'),
@@ -279,12 +272,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 								},
 								action: {
 									label: __('Affected', 'vulopilot'),
-									// `type: 'more-action'` no longer exists in
-									// @zyra/table — `type: 'action'` now covers
-									// that same single-toggle-button case via a
-									// `type: 'button'` action whose label/icon
-									// are functions of `row` (see that type's
-									// own docblock, TableRowActions.tsx).
 									type: 'action',
 									actions: [
 										{
@@ -299,8 +286,8 @@ const IssuesList: React.FC<IssuesListProps> = ({
 												(row as unknown as FindingGroup)
 													.scanner_id ===
 												selectedGroup?.scanner_id
-													? 'eye-blocked'
-													: 'eye',
+														? 'eye'
+														: 'pagination-next-arrow',
 											onClick: (row) => {
 												const group = row as unknown as FindingGroup;
 												setSelectedGroup(
@@ -313,7 +300,22 @@ const IssuesList: React.FC<IssuesListProps> = ({
 									],
 								},
 							}}
-							rows={data}
+							rows={data.map((row) => ({
+								...row,
+								categoryIcon:
+									CATEGORY_ICONS[row.category] ?? 'search-discovery pink',
+								descriptionText:
+									(row.sample?.description?.length ?? 0) > 80
+										? `${row.sample?.description?.slice(0, 80)}...`
+										: row.sample?.description || '',
+								issueBadges: [
+									{
+										text: CATEGORY_LABELS[row.category] ?? row.category,
+										color: `badge-${row.category}`,
+									},
+									{ text: row.severity, color: `badge-${row.severity}` },
+								],
+							}))}
 							ids={data.map((row) => row.scanner_id)}
 							totalRows={total}
 							isLoading={isLoading}

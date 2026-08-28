@@ -5,7 +5,6 @@ import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
-	InformationItemComponent,
 	NoticeManager,
 	PopupComponent,
 	TooltipComponent,
@@ -777,6 +776,9 @@ const RecentContentCard = () => {
 	// the "Issues" column's own `findings.length` check above.
 	const tableRows = visibleRows.slice(0, 8).map((row) => {
 		const findings = visibleFindingsFor(row);
+		const openFindings = row.findings.filter(
+			(finding) => 'open' === finding.status
+		);
 
 		return {
 			...row,
@@ -784,6 +786,39 @@ const RecentContentCard = () => {
 				findings.length > 0
 					? renderFindingsDetail(row, findings)
 					: undefined,
+			// "Content" column's own `type: 'info'` fields — title/icon/
+			// badges/descriptions built from this same row, same real
+			// values the hand-rolled `InformationItemComponent` render
+			// used to build.
+			contentTitle: row.title || __('(no title)', 'vulopilot'),
+			contentIcon: CATEGORY_ICONS[row.category],
+			contentBadges: [
+				{ text: row.status, color: `badge-${row.status}` },
+				...(findings.length > 0
+					? [
+						{
+							text: sprintf(
+								_n(
+									'%d issue',
+									'%d issues',
+									findings.length,
+									'vulopilot'
+								),
+								findings.length
+							),
+							color: `badge-${worstSeverity(openFindings)}`,
+						},
+					]
+					: []),
+			],
+			contentDescriptions: [
+				{ value: formatWordCount(row.wordCount), icon: 'text-fields' },
+				{
+					value: CATEGORY_LABELS[row.category],
+					icon: CATEGORY_ICONS[row.category],
+				},
+				{ value: timeAgo(row.date), icon: 'clock' },
+			],
 		};
 	});
 
@@ -881,72 +916,14 @@ const RecentContentCard = () => {
 				expandable
 				headers={{
 					title: {
+						key: 'contentTitle',
+						type: 'info',
 						label: __('Content', 'vulopilot'),
 						width: '40%',
-						render: (row: ContentRow) => {
-							// Same real findings/severity this row's own
-							// "Issues" column below computes — duplicated
-							// here (rather than lifted onto ContentRow)
-							// since each TableCard column's `render` is
-							// otherwise independent, same as `issues`
-							// already recomputing it from `row` alone.
-							const findings = visibleFindingsFor(row);
-							const openFindings = row.findings.filter(
-								(finding) => 'open' === finding.status
-							);
-
-							return (
-								<InformationItemComponent
-									title={
-										row.title ||
-										__('(no title)', 'vulopilot')
-									}
-									titleLink={row.editLink}
-									avatar={{
-										iconClass: CATEGORY_ICONS[row.category],
-									}}
-									badges={[
-										{
-											text: row.status,
-											className: `badge-${row.status}`,
-
-										},
-										...(findings.length > 0
-											? [
-												{
-													text: sprintf(
-														_n(
-															'%d issue',
-															'%d issues',
-															findings.length,
-															'vulopilot'
-														),
-														findings.length
-													),
-													className: `badge-${worstSeverity(openFindings)}`,
-												},
-											]
-											: []),
-									]}
-									descriptions={[
-										{
-											value: formatWordCount(
-												row.wordCount
-											),
-											icon: 'text-fields',
-										},
-										{
-											value: CATEGORY_LABELS[row.category],
-											icon: CATEGORY_ICONS[row.category],
-										},
-										{
-											value: timeAgo(row.date),
-											icon: 'clock',
-										},
-									]}
-								/>
-							);
-						},
+						titleLinkKey: 'editLink',
+						iconKey: 'contentIcon',
+						descriptionKey: 'contentDescriptions',
+						badgesKey: 'contentBadges',
 					},
 					action: {
 						label: __('Actions', 'vulopilot'),

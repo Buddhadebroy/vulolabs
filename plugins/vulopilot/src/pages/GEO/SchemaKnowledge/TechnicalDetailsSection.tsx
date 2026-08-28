@@ -24,6 +24,7 @@ const TechnicalDetailsSection = () => {
 	return (
 		<CardComponent
 			title={__('Technical Details (Schema & Markup)', 'vulopilot')}
+			titleIcon="coding"
 			desc={__(
 				'How your business information is technically implemented on your site.',
 				'vulopilot'

@@ -839,53 +839,32 @@
 // PluginOverlapCard.tsx's own per-row "View in VuloPilot →" link is now
 // a real `<ButtonInput color="text-purple">` — no local CSS needed.
 
-// BackupsTab.tsx's own real backups list — plain HTML table, same
-// established pattern SlowPagesTab.tsx's own `.page-speed-table` already
-// uses rather than pulling in zyra's heavier TableCard for a small,
-// rarely-paginated list.
-.backups-table-wrap {
-	overflow-x: auto;
-}
+// `.backups-table-wrap`/`.backups-table`/`.backups-row-actions`/
+// `.backups-error-message` were all removed here — BackupsTab.tsx's own
+// backups list is a real `<TableCard>` (@zyra/table) now, not a
+// hand-rolled `<table>`, and its Status/Destination columns' own inline
+// errors are a real `NoticeComponent` (`type="error"`
+// `displayPosition="inline"`) instead of that local class — all styling
+// comes from those shared components now.
 
-.backups-table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.875rem;
-
-	th {
-		text-align: left;
-		padding: 0.625rem 0.75rem;
-		color: $sub-text-color;
-		font-weight: 600;
-		border-bottom: $border-light-small;
-	}
-
-	td {
-		padding: 0.625rem 0.75rem;
-		border-bottom: $border-light-small;
-		vertical-align: top;
-	}
-
-	tr:last-child td {
-		border-bottom: none;
-	}
-}
-
-.backups-error-message {
-	margin-top: 0.25rem;
-	font-size: 0.75rem;
-	color: #dc2626;
-	max-width: 20rem;
-}
-
-.backups-row-actions {
+// Status column (reference mockup) — the real badge (icon+label) plus a
+// real "Finished in/Failed after/Elapsed" sub-line built from this row's
+// own `started_at`/`finished_at` timestamps (`statusSubtext()`). The
+// mockup's own "Running" row also shows a numeric progress %, a progress
+// bar, and an "Est: …" remaining-time estimate — deliberately not
+// reproduced (see that function's own docblock: nothing in this codebase
+// tracks or returns a real completion percentage/estimate for an
+// in-progress backup).
+.backups-status-cell {
 	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
+	flex-direction: column;
+	gap: 0.25rem;
+	align-items: flex-start;
+}
 
-	.admin-badge {
-		cursor: pointer;
-	}
+.backups-status-subtext {
+	font-size: 0.75rem;
+	color: $sub-text-color;
 }
 
 .backups-restore-confirm {

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { InformationItemComponent, NoticeManager } from '@zyra/components';
+import { NoticeManager } from '@zyra/components';
 import type { TableCardProps, TableRow } from '@zyra/table';
 import { useApiList } from './useApiList';
 import { formatWpDate } from './formatWpDate';
@@ -391,40 +391,12 @@ export const useFindingsTable = ({
 
 	const defaultHeaders: Record<string, any> = {
 		title: {
+			key: 'title',
+			type: 'info',
 			label: __('Finding', 'vulopilot'),
-			render: (row: Finding) => (
-				<InformationItemComponent
-					title={row.title}
-					avatar={{
-						iconClass:
-							row.severity === 'low' || row.severity === 'info'
-								? 'info blue'
-								: 'error red',
-					}}
-					badges={[
-						{
-							text: row.status,
-							className: `badge-${row.status}`,
-						},
-						{
-							text: row.severity,
-							className: `badge-${row.severity}`,
-						},
-					]}
-					descriptions={[
-						{
-							value:
-								row.description ||
-								sprintf(
-									/* translators: 1: page path or "Site-wide", 2: formatted date */
-									__('%1$s · Detected %2$s', 'vulopilot'),
-									row.page || __('Site-wide', 'vulopilot'),
-									formatWpDate(row.created_at)
-								),
-						},
-					]}
-				/>
-			),
+			iconKey: 'defaultTitleIcon',
+			descriptionKey: 'descriptionText',
+			badgesKey: 'defaultTitleBadges',
 		},
 		...(category
 			? {}
@@ -500,58 +472,13 @@ export const useFindingsTable = ({
 	 */
 	const compactHeaders: Record<string, any> = {
 		title: {
+			key: 'title',
+			type: 'info',
 			label: __('issue', 'vulopilot'),
-			render: (row: Finding) => (
-				<InformationItemComponent
-					title={row.title}
-					avatar={{
-						iconClass:
-							row.severity === 'low' || row.severity === 'info'
-								? 'info'
-								: 'error',
-						color: getSeverityColor(row.severity),
-					}}
-					badges={[
-						{
-							// Plain, uncolored — zyra's `admin-badge` base
-							// style alone (no color modifier class exists
-							// for a neutral tag), same idea as the section
-							// card's own already-plain title, just repeated
-							// per row for the mockup's category tag.
-							text: humanizeCategory(row.category),
-							className: '',
-						},
-						{
-							// `badge-{severity}` is a real zyra-defined
-							// modifier (badge-critical/high/medium/low/info
-							// — confirmed in its shipped styles), the same
-							// one TableCard's own Severity column already
-							// renders via `statusClass` in the default
-							// layout — kept identical here for a compact
-							// row's severity badge to color the same way.
-							text: row.severity,
-							className: `badge-${row.severity}`,
-						},
-					]}
-					descriptions={[
-						{
-							// The scanner's own explanation when it set one
-							// (every scanner does, in practice — see
-							// Finding::get_description()'s own docblock);
-							// falls back to the old page/date line for any
-							// row that genuinely has none.
-							value:
-								row.description ||
-								sprintf(
-									/* translators: 1: page path or "Site-wide", 2: formatted date */
-									__('%1$s · Detected %2$s', 'vulopilot'),
-									row.page || __('Site-wide', 'vulopilot'),
-									formatWpDate(row.created_at)
-								),
-						},
-					]}
-				/>
-			),
+			iconKey: 'compactTitleIcon',
+			iconColorKey: 'compactTitleIconColor',
+			descriptionKey: 'descriptionText',
+			badgesKey: 'compactTitleBadges',
 		},
 		action: {
 			label: __('Action', 'vulopilot'),
@@ -600,7 +527,55 @@ export const useFindingsTable = ({
 		format: appLocalizer.date_format_js,
 		showMenu: false,
 		className: 'transparent-table',
-		rows: data,
+		rows: data.map((row) => {
+			const descriptionText =
+				row.description ||
+				sprintf(
+					/* translators: 1: page path or "Site-wide", 2: formatted date */
+					__('%1$s · Detected %2$s', 'vulopilot'),
+					row.page || __('Site-wide', 'vulopilot'),
+					formatWpDate(row.created_at)
+				);
+
+			return {
+				...row,
+				descriptionText,
+				// `defaultHeaders.title`'s own avatar — color baked into the
+				// icon string (real zyra `$color-palette` utility class, see
+				// SeoTab.tsx's own `icon: 'name colorword'` convention).
+				defaultTitleIcon:
+					row.severity === 'low' || row.severity === 'info'
+						? 'info blue'
+						: 'error red',
+				defaultTitleBadges: [
+					{ text: row.status, color: `badge-${row.status}` },
+					{ text: row.severity, color: `badge-${row.severity}` },
+				],
+				// `compactHeaders.title`'s own avatar — same real icon, but
+				// tinted via a real color (`iconColorKey`) instead of a
+				// baked-in class word.
+				compactTitleIcon:
+					row.severity === 'low' || row.severity === 'info'
+						? 'info'
+						: 'error',
+				compactTitleIconColor: getSeverityColor(row.severity),
+				compactTitleBadges: [
+					// Plain, uncolored — zyra's `admin-badge` base style
+					// alone (no color modifier class exists for a neutral
+					// tag), same idea as the section card's own
+					// already-plain title, just repeated per row for the
+					// mockup's category tag.
+					{ text: humanizeCategory(row.category), color: '' },
+					// `badge-{severity}` is a real zyra-defined modifier
+					// (badge-critical/high/medium/low/info — confirmed in
+					// its shipped styles), the same one TableCard's own
+					// Severity column already renders via `statusClass` in
+					// the default layout — kept identical here for a
+					// compact row's severity badge to color the same way.
+					{ text: row.severity, color: `badge-${row.severity}` },
+				],
+			};
+		}),
 		ids: data.map((row) => row.id),
 		totalRows: total,
 		categoryCounts,

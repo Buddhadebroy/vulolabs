@@ -72,8 +72,15 @@ const CriticalIssuesCard = () => {
 
 	if (error) {
 		return (
-			<ColumnComponent grid={4}>
-				<CardComponent title={__('Critical Issues', 'vulopilot')}>
+			<ColumnComponent grid={6}>
+				<CardComponent
+					title={__('Critical Issues', 'vulopilot')}
+					titleIcon="error"
+					desc={__(
+						'The highest-priority open schema/entity issues that need your attention first.',
+						'vulopilot'
+					)}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__('Could not load findings', 'vulopilot')}
@@ -87,8 +94,16 @@ const CriticalIssuesCard = () => {
 	}
 
 	return (
-		<ColumnComponent grid={4}>
-			<CardComponent title={__('Critical Issues', 'vulopilot')} isLoading={isLoading}>
+		<ColumnComponent grid={6}>
+			<CardComponent
+				title={__('Critical Issues', 'vulopilot')}
+				titleIcon="error"
+				desc={__(
+					'The highest-priority open schema/entity issues that need your attention first.',
+					'vulopilot'
+				)}
+				isLoading={isLoading}
+			>
 				{!isLoading && 0 === total ? (
 					<ModuleGuardComponent
 						icon="check"

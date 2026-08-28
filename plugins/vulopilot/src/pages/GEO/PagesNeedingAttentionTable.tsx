@@ -5,7 +5,6 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	ChartComponent,
-	InformationItemComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
@@ -164,32 +163,22 @@ const PagesNeedingAttentionTable = ({ onAnalyze, activePostId }: PagesNeedingAtt
 					hideHeader
 					className="transparent-table"
 					activeRowId={activePostId ?? undefined}
+					// Same toggle the action cell's own "Analyze"/"Viewing"
+					// button already does — a click anywhere on the row now
+					// opens/closes the analysis panel too, not just that one
+					// small button.
+					onRowClick={(row: Record<string, unknown>) =>
+						onAnalyze((row as unknown as PageNeedingAttentionRow).post_id)
+					}
 					headers={{
 						title: {
+							key: 'title',
+							type: 'info',
 							label: __('Page', 'vulopilot'),
 							width: '55%',
-							render: (row: PageNeedingAttentionRow) => (
-								<InformationItemComponent
-									title={row.title || __('(no title)', 'vulopilot')}
-									titleLink={row.edit_link}
-									badges={[
-										{
-											text: sprintf(
-												/* translators: %d: number of open issues on this page. */
-												_n(
-													'%d Issue',
-													'%d Issues',
-													row.issues,
-													'vulopilot'
-												),
-												row.issues
-											),
-											className: 'badge-info',
-										},
-									]}
-									descriptions={[{ value: row.main_problem }]}
-								/>
-							),
+							titleLinkKey: 'edit_link',
+							descriptionKey: 'main_problem',
+							badgesKey: 'titleBadges',
 						},
 						score: {
 							label: __('SEO Score', 'vulopilot'),
@@ -243,7 +232,25 @@ const PagesNeedingAttentionTable = ({ onAnalyze, activePostId }: PagesNeedingAtt
 							],
 						},
 					}}
-					rows={pageRows}
+					rows={pageRows.map((row) => ({
+						...row,
+						title: row.title || __('(no title)', 'vulopilot'),
+						titleBadges: [
+							{
+								text: sprintf(
+									/* translators: %d: number of open issues on this page. */
+									_n(
+										'%d Issue',
+										'%d Issues',
+										row.issues,
+										'vulopilot'
+									),
+									row.issues
+								),
+								color: 'badge-info',
+							},
+						],
+					}))}
 					ids={pageRows.map((row) => row.post_id)}
 					totalRows={rows.length}
 					isLoading={isLoading}

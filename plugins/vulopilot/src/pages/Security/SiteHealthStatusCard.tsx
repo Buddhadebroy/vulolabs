@@ -40,16 +40,25 @@ const SiteHealthStatusCard = () => {
 	return (
 		<CardComponent title={__('Site Health Status', 'vulopilot')} titleIcon="active">
 			<ListComponent
-				className="mini-card list"
-				border
+				className="mini-card report list"
 				items={rows.map((row) => ({
 					id: row.id,
 					title: row.label,
-					tags: row.status.badge ? (
-						<BadgeComponent
-							color={row.status.badge.color}
-							text={row.status.badge.text}
-						/>
+					// 2 real separate badges (total open + top-severity
+					// breakdown), not 1 merged "N Open · N {Severity}
+					// Severity" pill — `useSectionStatus()`'s own `badges`
+					// array, added alongside its existing single `badge` for
+					// exactly this real "show these split" case.
+					tags: row.status.badges ? (
+						<>
+							{row.status.badges.map((badge, index) => (
+								<BadgeComponent
+									key={index}
+									color={badge.color}
+									text={badge.text}
+								/>
+							))}
+						</>
 					) : null,
 				}))}
 			/>

@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, InformationItemComponent } from '@zyra/components';
+import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
@@ -125,43 +125,14 @@ const AccessibilityPriorityList = ({
 					showMenu={false}
 					headers={{
 						issue: {
+							key: 'title',
+							type: 'info',
 							label: __('Issue', 'vulopilot'),
 							width: '70%',
-							render: (row: AccessibilityFinding) => {
-								const check = checkForScannerId(row.scanner_id);
-
-								return (
-									<InformationItemComponent
-										title={row.title}
-										avatar={
-											check
-												? { iconClass: check.icon, color: check.color }
-												: undefined
-										}
-										badges={[
-											{
-												text: PRIORITY_LABEL[row.severity],
-												className: `accessibility-priority-badge is-${row.severity}`,
-											},
-										]}
-										descriptions={[
-											{
-												value: [
-													row.page &&
-														sprintf(
-															/* translators: %s is a page path or "Site-wide". */
-															__('Page: %s', 'vulopilot'),
-															row.page
-														),
-													row.description,
-												]
-													.filter(Boolean)
-													.join(' — '),
-											},
-										]}
-									/>
-								);
-							},
+							iconKey: 'checkIcon',
+							iconColorKey: 'checkColor',
+							descriptionKey: 'descriptionText',
+							badgesKey: 'priorityBadges',
 						},
 						action: {
 							render: (row: AccessibilityFinding) => {
@@ -183,7 +154,32 @@ const AccessibilityPriorityList = ({
 							},
 						},
 					}}
-					rows={topFindings}
+					rows={topFindings.map((row) => {
+						const check = checkForScannerId(row.scanner_id);
+
+						return {
+							...row,
+							checkIcon: check?.icon,
+							checkColor: check?.color,
+							descriptionText: [
+								row.page &&
+									sprintf(
+										/* translators: %s is a page path or "Site-wide". */
+										__('Page: %s', 'vulopilot'),
+										row.page
+									),
+								row.description,
+							]
+								.filter(Boolean)
+								.join(' — '),
+							priorityBadges: [
+								{
+									text: PRIORITY_LABEL[row.severity],
+									color: `accessibility-priority-badge is-${row.severity}`,
+								},
+							],
+						};
+					})}
 					ids={topFindings.map((row) => row.id)}
 					isLoading={isLoading}
 				/>
