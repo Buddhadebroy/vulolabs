@@ -548,58 +548,60 @@
 	align-items: start;
 }
 
+// Real `ListComponent` (@zyra/components) now, not a hand-rolled `<ul>/<li>`
+// — `className="kg-understand-count-list"` opts out of every one of that
+// component's own built-in variants (mini-card/report/notification/…), so
+// its `.item`/`.item-icon`/`.details`/`.tags` markup gets no default
+// styling of its own; this scopes the exact same look the old `<li>` row
+// had directly onto that markup instead.
 .kg-understand-count-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
 	display: flex;
 	flex-direction: column;
 	gap: 0.625rem;
-}
 
-.kg-understand-count-row {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
-	font-size: 0.8125rem;
-	cursor: pointer;
-	border-radius: 0.25rem;
-	padding: 0.125rem 0.25rem;
-	margin: -0.125rem -0.25rem;
-	transition: background-color 0.15s ease;
+	.item {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		font-size: 0.8125rem;
+		cursor: pointer;
+		border-radius: 0.25rem;
+		padding: 0.125rem 0.25rem;
+		transition: background-color 0.15s ease;
 
-	i {
-		color: var(--color-primary);
-		font-size: 0.9375rem;
-		width: 1.125rem;
-		text-align: center;
-	}
+		.item-icon {
+			color: var(--color-primary);
+			font-size: 0.9375rem;
+			width: 1.125rem;
+			text-align: center;
+		}
 
-	&:hover,
-	&:focus-visible {
-		background: $theme-background-color;
-		outline: none;
-	}
+		.details {
+			flex: 1;
+		}
 
-	// The currently selected tab — same $color-primary-background/$theme-color
-	// accent every other "active" state in this stylesheet already uses.
-	&.is-active {
-		background: $color-primary-background;
-
-		i,
-		.kg-understand-count-label {
-			color: $theme-color;
+		.tags {
 			font-weight: 600;
 		}
+
+		&:hover,
+		&:focus-visible {
+			background: $theme-background-color;
+			outline: none;
+		}
+
+		// The currently selected tab — same $color-primary-background/$theme-color
+		// accent every other "active" state in this stylesheet already uses.
+		&.is-active {
+			background: $color-primary-background;
+
+			.item-icon,
+			.item-title {
+				color: $theme-color;
+				font-weight: 600;
+			}
+		}
 	}
-}
-
-.kg-understand-count-label {
-	flex: 1;
-}
-
-.kg-understand-count-value {
-	font-weight: 600;
 }
 
 .kg-understand-graph {

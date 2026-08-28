@@ -207,7 +207,7 @@ const SecurityTab = () => {
 	};
 
 	return (
-		<ContainerComponent>
+		<>
 			<ColumnComponent>
 				<SecurityMockupHeader
 					scrollTargetId={ISSUES_TABLE_ID}
@@ -230,7 +230,7 @@ const SecurityTab = () => {
 				<PluginOverlapCard category="security" />
 				{SecurityIncidentReportsPanel && <SecurityIncidentReportsPanel />}
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 

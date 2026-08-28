@@ -1,14 +1,17 @@
 /* global appLocalizer */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
+	BadgeComponent,
 	CardComponent,
 	ModuleGuardComponent,
+	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import './ProtectMySite.scss';
@@ -38,6 +41,72 @@ const STATUS_BADGE: Record<string, { text: string; className: string }> = {
 	running: { text: __('Running', 'vulopilot'), className: 'orange' },
 	completed: { text: __('Completed', 'vulopilot'), className: 'green' },
 	failed: { text: __('Failed', 'vulopilot'), className: 'red' },
+};
+
+const STATUS_ICON: Record<string, string> = {
+	queued: 'clock',
+	running: 'update',
+	completed: 'check',
+	failed: 'error',
+};
+
+/**
+ * Real HH:MM:SS between two real timestamps — same padding technique
+ * BrokenLinksSection.tsx's own `formatDurationMs()` already uses, just
+ * over a real start/end pair instead of a stored `duration_ms`.
+ */
+const formatDuration = (startIso: string, endIso: string): string => {
+	const totalSeconds = Math.max(
+		0,
+		Math.round(
+			(new Date(endIso).getTime() - new Date(startIso).getTime()) / 1000
+		)
+	);
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const seconds = totalSeconds % 60;
+	const pad = (value: number) => String(value).padStart(2, '0');
+
+	return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+};
+
+/**
+ * Real "Finished in/Failed after/Elapsed" sub-line under the Status badge
+ * (reference mockup) — built only from this row's own real `started_at`/
+ * `finished_at` timestamps. The mockup's own "Running" row also shows a
+ * numeric progress % + a progress bar + an "Est: …" remaining-time
+ * estimate — deliberately NOT reproduced here: nothing in
+ * `Services\BackupManager`/`Controllers\Backups.php` tracks or returns a
+ * real completion percentage or estimate for an in-progress backup, so
+ * those would be fabricated. "Elapsed" alone (real, computed from
+ * `started_at` to now) is the honest subset of that same row.
+ */
+const statusSubtext = (row: BackupRow): string | null => {
+	if ('completed' === row.status && row.started_at && row.finished_at) {
+		return sprintf(
+			/* translators: %s: real HH:MM:SS duration this backup took to finish. */
+			__('Finished in %s', 'vulopilot'),
+			formatDuration(row.started_at, row.finished_at)
+		);
+	}
+
+	if ('failed' === row.status && row.started_at && row.finished_at) {
+		return sprintf(
+			/* translators: %s: real HH:MM:SS duration until this backup failed. */
+			__('Failed after %s', 'vulopilot'),
+			formatDuration(row.started_at, row.finished_at)
+		);
+	}
+
+	if ('running' === row.status && row.started_at) {
+		return sprintf(
+			/* translators: %s: real HH:MM:SS elapsed so far. */
+			__('Elapsed: %s', 'vulopilot'),
+			formatDuration(row.started_at, new Date().toISOString())
+		);
+	}
+
+	return null;
 };
 
 const TRIGGER_LABEL: Record<string, string> = {
@@ -143,6 +212,29 @@ const BackupsTab = () => {
 	const [restoreTarget, setRestoreTarget] = useState<BackupRow | null>(null);
 	const [confirmText, setConfirmText] = useState('');
 	const [isRestoring, setIsRestoring] = useState(false);
+
+	const hasPendingBackup = data.some(
+		(row) => 'queued' === row.status || 'running' === row.status
+	);
+
+	/**
+	 * Real live-refresh while a backup is queued/running — this list has no
+	 * push/WS channel, so a queued/running row's real status can only reach
+	 * this screen by re-fetching `backups` again; without this, a
+	 * completed/failed transition only ever showed up after the admin
+	 * manually reloaded the whole page. Polls this same real list endpoint
+	 * every 5s and stops itself the moment nothing is pending — no
+	 * open-ended polling once every row has settled.
+	 */
+	useEffect(() => {
+		if (!hasPendingBackup) {
+			return;
+		}
+
+		const intervalId = window.setInterval(() => refetch(), 5000);
+
+		return () => window.clearInterval(intervalId);
+	}, [hasPendingBackup, refetch]);
 
 	const handleCreate = () => {
 		setIsCreating(true);
@@ -284,6 +376,7 @@ const BackupsTab = () => {
 									? __('Starting…', 'vulopilot')
 									: __('Create Backup Now', 'vulopilot'),
 								icon: 'cloud-upload',
+								color: 'border-purple',
 								onClick: handleCreate,
 								disabled: isCreating,
 							}}
@@ -292,7 +385,7 @@ const BackupsTab = () => {
 							buttons={{
 								text: '',
 								icon: 'setting',
-								color: 'plain',
+								color: 'text-purple',
 								onClick: () => {
 									window.location.href = BACKUPS_SETTINGS_URL;
 								},
@@ -312,120 +405,138 @@ const BackupsTab = () => {
 						)}
 					/>
 				) : (
-					<div className="backups-table-wrap">
-						<table className="backups-table">
-							<thead>
-								<tr>
-									<th>{__('Date', 'vulopilot')}</th>
-									<th>{__('Trigger', 'vulopilot')}</th>
-									<th>{__('Status', 'vulopilot')}</th>
-									<th>{__('Destination', 'vulopilot')}</th>
-									<th>{__('Size', 'vulopilot')}</th>
-									<th>{__('Action', 'vulopilot')}</th>
-								</tr>
-							</thead>
-							<tbody>
-								{data.map((row) => {
+					<TableCard
+						showMenu={false}
+						className="transparent-table"
+						headers={{
+							created_at: {
+								label: __('Date', 'vulopilot'),
+								render: (row: BackupRow) => formatWpDate(row.created_at),
+							},
+							trigger_type: {
+								label: __('Trigger', 'vulopilot'),
+								render: (row: BackupRow) =>
+									TRIGGER_LABEL[row.trigger_type] ?? row.trigger_type,
+							},
+							status: {
+								label: __('Status', 'vulopilot'),
+								render: (row: BackupRow) => {
 									const badge =
 										STATUS_BADGE[row.status] ?? STATUS_BADGE.queued;
-									const destBadge = destinationBadge(row);
-									const isBusy = busyId === row.id;
 
 									return (
-										<tr key={row.id}>
-											<td>{formatWpDate(row.created_at)}</td>
-											<td>
-												{TRIGGER_LABEL[row.trigger_type] ??
-													row.trigger_type}
-											</td>
-											<td>
-												<span
-													className={`admin-badge ${badge.className}`}
-												>
-													{badge.text}
-												</span>
-												{'failed' === row.status &&
-													row.error_message && (
-														<div className="backups-error-message">
-															{row.error_message}
-														</div>
-													)}
-											</td>
-											<td>
-												{destBadge ? (
-													<>
-														<span
-															className={`admin-badge ${destBadge.className}`}
-														>
-															{destBadge.text}
-														</span>
-														{'failed' === row.destination_status &&
-															row.destination_error && (
-																<div className="backups-error-message">
-																	{row.destination_error}
-																</div>
-															)}
-													</>
-												) : (
-													<span className="desc">
-														{__('Local', 'vulopilot')}
-													</span>
+										<>
+											<BadgeComponent
+												icon={STATUS_ICON[row.status] ?? 'clock'}
+												color={badge.className}
+												text={badge.text}
+											/>
+											{'failed' === row.status &&
+												row.error_message && (
+													<NoticeComponent
+														type="error"
+														displayPosition="inline"
+														message={row.error_message}
+													/>
 												)}
-											</td>
-											<td>{formatFileSize(row.file_size)}</td>
-											<td>
-												<div className="backups-row-actions">
-													{'completed' === row.status &&
-														row.has_file && (
-															<>
-																<span
-																	className="admin-badge purple"
-																	role="button"
-																	tabIndex={0}
-																	onClick={() =>
-																		handleDownload(row)
-																	}
-																>
-																	{__(
-																		'Download',
-																		'vulopilot'
-																	)}
-																</span>
-																<span
-																	className="admin-badge blue"
-																	role="button"
-																	tabIndex={0}
-																	onClick={() =>
-																		setRestoreTarget(row)
-																	}
-																>
-																	{__(
-																		'Restore',
-																		'vulopilot'
-																	)}
-																</span>
-															</>
-														)}
-													<span
-														className="admin-badge red"
-														role="button"
-														tabIndex={0}
-														onClick={() =>
-															!isBusy && handleDelete(row)
-														}
-													>
-														{isBusy
-															? __('…', 'vulopilot')
-															: __('Delete', 'vulopilot')}
-													</span>
-												</div>
-											</td>
-										</tr>
+										</>
 									);
-								})}
-							</tbody>
-						</table>
-					</div>
+								},
+							},
+							destination: {
+								label: __('Destination', 'vulopilot'),
+								render: (row: BackupRow) => {
+									const destBadge = destinationBadge(row);
+
+									return destBadge ? (
+										<>
+											<BadgeComponent
+												color={destBadge.className}
+												text={destBadge.text}
+											/>
+											{'failed' === row.destination_status &&
+												row.destination_error && (
+													<NoticeComponent
+														type="error"
+														displayPosition="inline"
+														message={row.destination_error}
+													/>
+												)}
+										</>
+									) : (
+										<span className="desc">
+											{__('Local', 'vulopilot')}
+										</span>
+									);
+								},
+							},
+							file_size: {
+								label: __('Size', 'vulopilot'),
+								render: (row: BackupRow) => formatFileSize(row.file_size),
+							},
+							action: {
+								label: __('Action', 'vulopilot'),
+								// Button actions, not icon-only/badges — each
+								// action below sets its own real
+								// `type: 'button'` (TableRowActions.tsx),
+								// which renders as an always-visible labelled
+								// `ButtonInput` (label + icon) instead of the
+								// icon-only look the column's own `type: 'action'`
+								// would otherwise default every action to.
+								type: 'action',
+								actions: [
+									{
+										label: __('Download', 'vulopilot'),
+										type: 'button',
+										icon: 'download',
+										hidden: (row) =>
+											!(
+												'completed' ===
+													(row as unknown as BackupRow)?.status &&
+												(row as unknown as BackupRow)?.has_file
+											),
+										onClick: (row) =>
+											handleDownload(row as unknown as BackupRow),
+									},
+									{
+										label: __('Restore', 'vulopilot'),
+										type: 'button',
+										icon: 'undo',
+										hidden: (row) =>
+											!(
+												'completed' ===
+													(row as unknown as BackupRow)?.status &&
+												(row as unknown as BackupRow)?.has_file
+											),
+										onClick: (row) =>
+											setRestoreTarget(row as unknown as BackupRow),
+									},
+									{
+										label: (row) =>
+											busyId === (row as unknown as BackupRow)?.id
+												? __('Deleting…', 'vulopilot')
+												: __('Delete', 'vulopilot'),
+										type: 'button',
+										icon: (row) =>
+											busyId === (row as unknown as BackupRow)?.id
+												? 'update'
+												: 'delete',
+										onClick: (row) => {
+											const backupRow = row as unknown as BackupRow;
+
+											if (busyId !== backupRow.id) {
+												handleDelete(backupRow);
+											}
+										},
+									},
+								],
+							},
+						}}
+						rows={data}
+						ids={data.map((row) => row.id)}
+						totalRows={data.length}
+						isLoading={isLoading}
+					/>
 				)}
 			</CardComponent>
 

@@ -6,7 +6,6 @@ import {
 	ContainerComponent,
 	ModuleGuardComponent,
 	BadgeComponent,
-	InformationItemComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
@@ -265,22 +264,13 @@ const StructuredDataSection = () => {
 								className="transparent-table"
 								headers={{
 									type: {
+										key: 'type',
+										type: 'info',
 										label: __('Schema type', 'vulopilot'),
 										width: '65%',
-										render: (row: SchemaCoverageRow) => (
-											<InformationItemComponent
-												title={row.type}
-												avatar={{ iconClass: getTypeIcon(row.type) }}
-												descriptions={[{ value: row.meaning }]}
-												badges={[
-													{
-														text: STATUS_CONFIG[getRowStatus(row)]
-															.label,
-														className: `badge-${STATUS_SEVERITY_CLASS[getRowStatus(row)]}`,
-													},
-												]}
-											/>
-										),
+										iconKey: 'typeIcon',
+										descriptionKey: 'meaning',
+										badgesKey: 'statusBadges',
 									},
 									found_on: {
 										label: __('Found on', 'vulopilot'),
@@ -304,7 +294,16 @@ const StructuredDataSection = () => {
 										],
 									},
 								}}
-								rows={snapshot.coverage}
+								rows={snapshot.coverage.map((row) => ({
+									...row,
+									typeIcon: getTypeIcon(row.type),
+									statusBadges: [
+										{
+											text: STATUS_CONFIG[getRowStatus(row)].label,
+											color: `badge-${STATUS_SEVERITY_CLASS[getRowStatus(row)]}`,
+										},
+									],
+								}))}
 								ids={snapshot.coverage.map((row) => row.type)}
 								totalRows={snapshot.coverage.length}
 								isLoading={isLoading}
@@ -327,13 +326,14 @@ const StructuredDataSection = () => {
 				)}
 			</CardComponent>
 
-			<CardComponent title={__('Not seeing a schema type you need?', 'vulopilot')}>
-				<p className="desc">
-					{__(
-						'Custom schema is added per page or post — open any post’s editor, then its SEO panel’s Schema tab.',
-						'vulopilot'
-					)}
-				</p>
+			<CardComponent
+				title={__('Not seeing a schema type you need?', 'vulopilot')}
+				titleIcon="plus"
+				desc={__(
+					'Custom schema is added per page or post — open any post’s editor, then its SEO panel’s Schema tab.',
+					'vulopilot'
+				)}
+			>
 				<ButtonInput
 					buttons={{
 						text: __('Add custom schema', 'vulopilot'),
@@ -347,7 +347,14 @@ const StructuredDataSection = () => {
 
 		<ColumnComponent grid={4}>
 			{!selectedRow ? (
-				<CardComponent title={__('Schema details', 'vulopilot')}>
+				<CardComponent
+					title={__('Schema details', 'vulopilot')}
+					titleIcon="attachment"
+					desc={__(
+						'Real detail for whichever schema type you select from the Schema Coverage table.',
+						'vulopilot'
+					)}
+				>
 					<ModuleGuardComponent
 						icon="info"
 						title={__('Select a schema type', 'vulopilot')}

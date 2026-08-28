@@ -48,7 +48,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'coverage',
 		title: __('Questions & Answers', 'vulopilot'),
-		titleIcon: 'form-phone',
+		titleIcon: 'question blue',
 		description: __(
 			'Whether pages clearly answer the questions people are likely to ask, with a dedicated FAQ or Q&A block making that answer easy for AI to extract.',
 			'vulopilot'
@@ -62,7 +62,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'answers',
 		title: __('Direct Answers', 'vulopilot'),
-		titleIcon: 'analytics',
+		titleIcon: 'analytics pink',
 		description: __(
 			'Whether pages have an extractable AI summary — a short, up-front answer an AI system can quote directly, rather than one buried in the middle of the content.',
 			'vulopilot'
@@ -76,7 +76,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'readability',
 		title: __('Content Structure', 'vulopilot'),
-		titleIcon: 'blocks',
+		titleIcon: 'blocks lime',
 		description: __(
 			'Paragraph length and heading hierarchy — how easily an AI system can pull out one clean, self-contained chunk to answer a question with.',
 			'vulopilot'
@@ -90,7 +90,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'schema',
 		title: __('Schema Markup', 'vulopilot'),
-		titleIcon: 'editor-code',
+		titleIcon: 'shortcode teal',
 		description: __(
 			'Content already shaped like an FAQ or a how-to guide, but missing the schema.org markup that lets AI answer engines recognize it as one.',
 			'vulopilot'
@@ -104,7 +104,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'citation',
 		title: __('Evidence & Sources', 'vulopilot'),
-		titleIcon: 'attachment',
+		titleIcon: 'attachment cyan',
 		description: __(
 			'Statistic-shaped claims with no citation or outbound link backing them up — the evidence an AI system needs before it will cite this site as a source.',
 			'vulopilot'
@@ -118,7 +118,7 @@ const AEO_SECTIONS: {
 	{
 		key: 'other',
 		title: __('Other Signals', 'vulopilot'),
-		titleIcon: 'person',
+		titleIcon: 'person green',
 		description: __(
 			'Author credentials, naming consistency, trust pages, llms.txt, and content freshness — signals that shape whether an AI system trusts an answer enough to cite it.',
 			'vulopilot'

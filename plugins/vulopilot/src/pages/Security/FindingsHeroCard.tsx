@@ -1,4 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { COLOR_PALETTE } from '@zyra/core';
 import { CardComponent, ChartComponent, LegendComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
@@ -9,6 +10,38 @@ interface FindingRow {
 	id: number;
 	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
 }
+
+/**
+ * Same canonical weighted-severity formula this codebase's own SEO/Content/
+ * Brand scores already use (`100 - critical*15 - high*8 - medium*3 -
+ * low*1`, clamped 0-100) — just without a separate `critical` term, since
+ * this card's own `high` already folds critical+high together (see this
+ * file's own docblock). A real, derived number from the same counts
+ * already fetched here, not a fabricated one.
+ */
+const calculateScore = (high: number, medium: number, low: number): number =>
+	Math.max(0, Math.min(100, 100 - high * 8 - medium * 3 - low * 1));
+
+/** Same 3-tier 0-100 thresholds seoRating.ts's own `getRating()`/`ratingColor()` already establish elsewhere in this codebase — kept local here rather than imported since this component lives outside GEO. */
+const getRating = (score: number): string => {
+	if (score >= 70) {
+		return __('Good', 'vulopilot');
+	}
+	if (score >= 40) {
+		return __('Needs Attention', 'vulopilot');
+	}
+	return __('Poor', 'vulopilot');
+};
+
+const ratingColorName = (score: number): keyof typeof COLOR_PALETTE => {
+	if (score >= 70) {
+		return 'green';
+	}
+	if (score >= 40) {
+		return 'yellow';
+	}
+	return 'red';
+};
 
 interface FindingsHeroCardProps {
 	/** adminfont- icon name for the hero's own icon circle. */
@@ -59,6 +92,7 @@ const FindingsHeroCard = ({
 	const low = data.filter(
 		(row) => row.severity === 'low' || row.severity === 'info'
 	).length;
+	const score = calculateScore(high, medium, low);
 
 	return (
 		<CardComponent isLoading={isLoading}
@@ -94,36 +128,24 @@ const FindingsHeroCard = ({
 						<div className="findings-hero-chart-row">
 							<div className="findings-hero-chart">
 								<ChartComponent
-									type="pie"
+									type="gauge"
 									height={140}
-									legendPosition="none"
+									color={COLOR_PALETTE[ratingColorName(score)]}
 									centerLabel={
 										<>
 											<span className="findings-hero-chart-number">
-												{total}
+												{sprintf(
+													/* translators: %d: real 0-100 weighted-severity score. */
+													__('%d/100', 'vulopilot'),
+													score
+												)}
 											</span>
 											<span className="findings-hero-chart-label">
-												{__('Open', 'vulopilot')}
+												{getRating(score)}
 											</span>
 										</>
 									}
-									data={[
-										{
-											label: __('High', 'vulopilot'),
-											value: high,
-											color: getSeverityColor('high'),
-										},
-										{
-											label: __('Medium', 'vulopilot'),
-											value: medium,
-											color: getSeverityColor('medium'),
-										},
-										{
-											label: __('Low', 'vulopilot'),
-											value: low,
-											color: getSeverityColor('low'),
-										},
-									]}
+									data={[{ value: score }]}
 								/>
 							</div>
 							<LegendComponent
@@ -157,7 +179,7 @@ const FindingsHeroCard = ({
 							buttons={{
 								text: __('Review Issues', 'vulopilot'),
 								rightIcon: 'pagination-right-arrow',
-								color: 'purple-bg',
+								color: 'border-purple',
 								onClick: onReviewFirst,
 							}}
 						/>

@@ -2,11 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import {
-	ColumnComponent,
-	InformationItemComponent,
-	ModuleGuardComponent,
-} from '@zyra/components';
+import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import type { FindingGroup } from '../../AIAssistant/issuesTypes';
 import { CATEGORY_LABELS, formatAffected } from '../../AIAssistant/issuesTypes';
@@ -205,50 +201,101 @@ const IssuesSection = () => {
 							showMenu={false}
 							hideHeader={true}
 							className="transparent-table"
+							// Highlights the row whose details are showing in
+							// the side panel — same real `activeRowId`/action-
+							// toggle pairing IssuesList.tsx's own Issue/Affected/
+							// Action table already uses.
+							activeRowId={selectedGroup?.scanner_id}
+							// Same toggle the action cell's own "More
+							// Details"/"Showing" button already does — a
+							// click anywhere on the row now opens/closes the
+							// details panel too, not just that one small
+							// button.
+							onRowClick={(row: Record<string, unknown>) => {
+								const group = row as unknown as FindingGroup;
+								setSelectedGroup(
+									group.scanner_id === selectedGroup?.scanner_id
+										? null
+										: group
+								);
+							}}
 							headers={{
 								issue: {
+									// `type: 'info'`'s own `key` is the row field
+									// that becomes the title (@zyra/table's
+									// TableUtils.tsx) — `descriptionKey`/`badgesKey`
+									// name the row fields that feed the rest, so
+									// `tableRows` below precomputes both onto each
+									// row rather than this column needing its own
+									// per-row `render()` (same real
+									// InformationItemComponent output as before,
+									// just built by the shared column type now).
+									key: 'label',
+									type: 'info',
 									label: __('Issue', 'vulopilot'),
 									width: '65%',
-									render: (row: FindingGroup) => (
-										<InformationItemComponent
-											title={row.label}
-											descriptions={[
-												{
-													value: row.sample?.description || '',
-												},
-											]}
-											badges={[
-												{
-													text: CATEGORY_LABELS[row.category] ?? row.category,
-													className: `badge-${row.category}`,
-												},
-												{
-													text: row.severity,
-													className: `badge-${row.severity}`,
-												},
-											]}
-										/>
-									),
+									descriptionKey: 'descriptionText',
+									badgesKey: 'issueBadges',
 								},
 								affected: {
 									label: __('Affected', 'vulopilot'),
-									render: (row: FindingGroup) =>
+									width: '65%',
+									render: (row: FindingGroup) =>										
 										formatAffected(row.count, row.object_type),
 								},
 								action: {
-									type: 'action',
 									label: __('Action', 'vulopilot'),
+									// `type: 'more-action'` no longer exists in
+									// @zyra/table — `type: 'action'` now covers
+									// that same single-toggle-button case via a
+									// `type: 'button'` action whose label/icon
+									// are functions of `row` (see that type's
+									// own docblock, TableRowActions.tsx) — same
+									// real "Showing"/"More Details" toggle
+									// IssuesList.tsx's own Issues table already
+									// uses.
+									type: 'action',
 									actions: [
 										{
-											label: __('View', 'vulopilot'),
-											icon: 'eye',
-											onClick: (row: FindingGroup) =>
-												setSelectedGroup(row),
+											type: 'button',
+											label: (row) =>
+												(row as unknown as FindingGroup)
+													.scanner_id ===
+												selectedGroup?.scanner_id
+													? __('Showing', 'vulopilot')
+													: __('More Details', 'vulopilot'),
+											icon: (row) =>
+												(row as unknown as FindingGroup)
+													.scanner_id ===
+												selectedGroup?.scanner_id
+														? 'eye'
+														: 'pagination-next-arrow',
+											onClick: (row) => {
+												const group = row as unknown as FindingGroup;
+												setSelectedGroup(
+													group.scanner_id === selectedGroup?.scanner_id
+														? null
+														: group
+												);
+											},
 										},
 									],
 								},
 							}}
-							rows={data}
+							rows={data.map((row) => ({
+								...row,
+								descriptionText: row.sample?.description || '',
+								issueBadges: [
+									{
+										text: CATEGORY_LABELS[row.category] ?? row.category,
+										color: `badge-${row.category}`,
+									},
+									{
+										text: row.severity,
+										color: `badge-${row.severity}`,
+									},
+								],
+							}))}
 							ids={data.map((row) => row.scanner_id)}
 							totalRows={total}
 							isLoading={isLoading}

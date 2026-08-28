@@ -31,9 +31,14 @@ const ValidSchemaCard = () => {
 	const { snapshot, isLoading } = useSchemaCoverage();
 
 	return (
-		<ColumnComponent grid={4}>
+		<ColumnComponent grid={6}>
 			<CardComponent
 				title={__('Pages with Valid Schema', 'vulopilot')}
+				titleIcon="check"
+				desc={__(
+					'Real sampled pages that have correct, error-free structured data.',
+					'vulopilot'
+				)}
 				isLoading={isLoading}
 			>
 				{!isLoading && !snapshot ? (

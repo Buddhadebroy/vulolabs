@@ -7,6 +7,7 @@ import {
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
+	ListComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
@@ -321,7 +322,14 @@ const KnowledgeGraphSection = () => {
 	if (!isEntityExtractionModuleActive()) {
 		return (
 			<ColumnComponent>
-				<CardComponent title={__('Entity Extraction', 'vulopilot')}>
+				<CardComponent
+					title={__('Entity Extraction', 'vulopilot')}
+					titleIcon="centralized-connections"
+					desc={__(
+						'What VuloPilot extracts from your site — organizations, products, categories, people, locations, and services — and how they relate.',
+						'vulopilot'
+					)}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__(
@@ -341,7 +349,14 @@ const KnowledgeGraphSection = () => {
 	if (error) {
 		return (
 			<ColumnComponent>
-				<CardComponent title={__('Knowledge Graph', 'vulopilot')}>
+				<CardComponent
+					title={__('Knowledge Graph', 'vulopilot')}
+					titleIcon="centralized-connections"
+					desc={__(
+						'These are the main things we detected on your site and how they connect.',
+						'vulopilot'
+					)}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__(
@@ -383,7 +398,7 @@ const KnowledgeGraphSection = () => {
 		// eslint-disable-next-line no-unused-vars
 		rowBadge?: (entity: Entity) => { text: string; color: string } | null;
 	}[] = entities
-		? [
+			? [
 				{
 					key: 'organizations',
 					icon: 'global-community',
@@ -425,13 +440,13 @@ const KnowledgeGraphSection = () => {
 					rowBadge: (entity) =>
 						messyCategoryNames.has(entity.name)
 							? {
-									text: __('Needs cleanup', 'vulopilot'),
-									color: 'yellow',
-								}
+								text: __('Needs cleanup', 'vulopilot'),
+								color: 'yellow',
+							}
 							: {
-									text: __('Good', 'vulopilot'),
-									color: 'green',
-								},
+								text: __('Good', 'vulopilot'),
+								color: 'green',
+							},
 				},
 				{
 					key: 'people',
@@ -494,7 +509,7 @@ const KnowledgeGraphSection = () => {
 					settingsUrl: ENTITY_SETTINGS_URL,
 				},
 			]
-		: [];
+			: [];
 
 	const activeTab = entityTabs.find((tab) => tab.key === activeEntityTab);
 
@@ -519,35 +534,25 @@ const KnowledgeGraphSection = () => {
 						]}
 					>
 						<div className="kg-understand-grid">
-							<ul className="kg-understand-count-list">
-								{entityTabs.map((tab) => (
-									<li
-										key={tab.key}
-										className={`kg-understand-count-row${tab.key === activeEntityTab ? ' is-active' : ''}`}
-										role="button"
-										tabIndex={0}
-										onClick={() => {
-											setActiveEntityTab(tab.key);
-											scrollToTabContent();
-										}}
-										onKeyDown={(e) => {
-											if ('Enter' === e.key || ' ' === e.key) {
-												e.preventDefault();
-												setActiveEntityTab(tab.key);
-												scrollToTabContent();
-											}
-										}}
-									>
-										<i className={`adminfont-${tab.icon}`} />
-										<span className="kg-understand-count-label">
-											{tab.label}
-										</span>
+							<ListComponent
+								className="kg-understand-count-list"
+								items={entityTabs.map((tab) => ({
+									id: tab.key,
+									icon: tab.icon,
+									title: tab.label,
+									className:
+										tab.key === activeEntityTab ? 'is-active' : '',
+									tags: (
 										<span className="kg-understand-count-value">
 											{tab.count}
 										</span>
-									</li>
-								))}
-							</ul>
+									),
+									action: () => {
+										setActiveEntityTab(tab.key);
+										scrollToTabContent();
+									},
+								}))}
+							/>
 							<div className="kg-understand-graph">
 								{KnowledgeGraphVisualizationCard ? (
 									<KnowledgeGraphVisualizationCard />
@@ -586,15 +591,18 @@ const KnowledgeGraphSection = () => {
 						</div>
 					</CardComponent>
 				)}
-				
-			</ColumnComponent>
 
-			<ColumnComponent grid={6}>
-				{KnowledgeGraphHealthCard && <KnowledgeGraphHealthCard />}
 			</ColumnComponent>
-			<ColumnComponent grid={6}>
-				{EntityRecommendationsCard && <EntityRecommendationsCard />}
-			</ColumnComponent>
+			{KnowledgeGraphHealthCard &&
+				<ColumnComponent grid={6} fullHeight>
+					<KnowledgeGraphHealthCard />
+				</ColumnComponent>
+			}
+			{EntityRecommendationsCard &&
+				<ColumnComponent grid={6} fullHeight>
+					<EntityRecommendationsCard />
+				</ColumnComponent>
+			}
 		</>
 	);
 };

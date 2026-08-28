@@ -5,7 +5,6 @@ import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
-	InformationItemComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -203,23 +202,12 @@ const SeoSiteWideIssuesTable = ({
 				hideHeader={true}
 				headers={{
 					title: {
+						key: 'title',
+						type: 'info',
 						label: __('Issue', 'vulopilot'),
 						width: '55%',
-						render: (row: RawFinding) => (
-							<InformationItemComponent
-								title={row.title}
-								badges={[
-									{
-										text: row.severity,
-										className: `badge-${row.severity}`,
-									},
-								]}
-								descriptions={[
-									{ value: row.scanner_id, icon: 'category' },
-									{ value: timeAgo(row.created_at), icon: 'clock' },
-								]}
-							/>
-						),
+						descriptionKey: 'descriptionItems',
+						badgesKey: 'titleBadges',
 					},
 					action: {
 						label: __('Action', 'vulopilot'),
@@ -275,7 +263,16 @@ const SeoSiteWideIssuesTable = ({
 						],
 					},
 				}}
-				rows={visibleFindings}
+				rows={visibleFindings.map((finding) => ({
+					...finding,
+					titleBadges: [
+						{ text: finding.severity, color: `badge-${finding.severity}` },
+					],
+					descriptionItems: [
+						{ value: finding.scanner_id, icon: 'category' },
+						{ value: timeAgo(finding.created_at), icon: 'clock' },
+					],
+				}))}
 				ids={visibleFindings.map((finding) => finding.id)}
 				totalRows={visibleFindings.length}
 				isLoading={isLoading}

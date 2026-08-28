@@ -10,7 +10,6 @@ import {
 	ContainerComponent,
 	FormGroupComponent,
 	FormGroupWrapperComponent,
-	InformationItemComponent,
 	ListComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
@@ -650,28 +649,14 @@ const SlowPagesTab = () => {
 							]}
 							headers={{
 								title: {
+									key: 'title',
+									type: 'info',
 									label: __( 'Page', 'vulopilot' ),
 									width: '60%',
-									render: (row: PageSpeedRow) => (
-										<InformationItemComponent
-											avatar={{ iconClass: PAGE_TYPE_ICONS[row.page_type] ?? 'document' }}
-											title={row.title}
-											titleLink={row.url}
-											badges={[
-												{
-													text: PAGE_TYPE_LABELS[row.page_type] ?? row.page_type,
-													className: 'green',
-												},
-											]}
-											descriptions={[
-												{
-													value:
-														row.main_issue ??
-														__( 'No issues detected', 'vulopilot' ),
-												},
-											]}
-										/>
-									),
+									iconKey: 'pageTypeIcon',
+									titleLinkKey: 'url',
+									descriptionKey: 'descriptionText',
+									badgesKey: 'pageTypeBadges',
 								},
 								...(hasDeviceScores
 									? {
@@ -762,10 +747,32 @@ const SlowPagesTab = () => {
 									],
 								},
 							}}
-							rows={pageRows}
+							rows={pageRows.map((row) => ({
+								...row,
+								pageTypeIcon: PAGE_TYPE_ICONS[row.page_type] ?? 'document',
+								descriptionText:
+									row.main_issue ?? __( 'No issues detected', 'vulopilot' ),
+								pageTypeBadges: [
+									{
+										text: PAGE_TYPE_LABELS[row.page_type] ?? row.page_type,
+										color: 'green',
+									},
+								],
+							}))}
 							ids={pageRows.map((row) => row.id)}
 							totalRows={filteredRows.length}
 							activeRowId={detailRow?.id}
+							// Same toggle the action cell's own "More
+							// Details"/"Showing" button already does — a
+							// click anywhere on the row now opens/closes the
+							// details panel too, not just that one small
+							// button.
+							onRowClick={(row: Record<string, unknown>) => {
+								const pageRow = row as unknown as PageSpeedRow;
+								setDetailRow(
+									pageRow.id === detailRow?.id ? null : pageRow
+								);
+							}}
 							onQueryUpdate={(query: {
 								paged?: number | string;
 								per_page?: number | string;

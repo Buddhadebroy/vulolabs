@@ -5,7 +5,6 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	ColumnComponent,
 	ContainerComponent,
-	InformationItemComponent,
 	ModuleGuardComponent,
 	TabsComponent,
 	SectionComponent
@@ -279,32 +278,27 @@ const SectionedIssuesTable = ({
 								// check below rather than a separate piece of
 								// state.
 								activeRowId={selectedGroup?.scanner_id}
+								// Same toggle the action cell's own "More
+								// Details"/"Showing" button already does — a
+								// click anywhere on the row now opens/closes
+								// the details panel too, not just that one
+								// small button.
+								onRowClick={(row: Record<string, unknown>) => {
+									const group = row as unknown as FindingGroup;
+									setSelectedGroup(
+										group.scanner_id === selectedGroup?.scanner_id
+											? null
+											: group
+									);
+								}}
 								headers={{
 									issue: {
+										key: 'label',
+										type: 'info',
 										label: __('Issue', 'vulopilot'),
 										width: '65%',
-										render: (row: FindingGroup) => (
-											<InformationItemComponent
-												title={row.label}
-												badges={[
-													{
-														text:
-															CATEGORY_LABELS[row.category] ??
-															row.category,
-														className: 'blue',
-													},
-													{
-														text: row.severity,
-														className: `badge-${row.severity}`,
-													},
-												]}
-												descriptions={[
-													{
-														value: row.sample?.description || '',
-													},
-												]}
-											/>
-										),
+										descriptionKey: 'descriptionText',
+										badgesKey: 'issueBadges',
 									},
 									affected: {
 										label: __('Affected', 'vulopilot'),
@@ -355,7 +349,17 @@ const SectionedIssuesTable = ({
 										],
 									},
 								}}
-								rows={pageRows}
+								rows={pageRows.map((row) => ({
+									...row,
+									descriptionText: row.sample?.description || '',
+									issueBadges: [
+										{
+											text: CATEGORY_LABELS[row.category] ?? row.category,
+											color: 'blue',
+										},
+										{ text: row.severity, color: `badge-${row.severity}` },
+									],
+								}))}
 								ids={pageRows.map((row) => row.scanner_id)}
 								totalRows={sortedGroups.length}
 								isLoading={isLoading}
