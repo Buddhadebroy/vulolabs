@@ -2324,6 +2324,92 @@ $seo-area-icon-colors: (
 	}
 }
 
+// GeoScoreSection.tsx — "GEO Score" card (ring + "How this score is
+// calculated" list). Same 2-column shell `.aeo-score-summary`/
+// `-summary-gauge`/`-summary-stats` above already establish, own
+// `geo-score-*` prefix since this is a different card with different
+// content (a plain signal-name list, not stat rows with values — no
+// per-signal weight number exists anywhere in this codebase to honestly
+// print here, see GeoScoreSection.tsx's own docblock).
+.geo-score-card-layout {
+	display: flex;
+	gap: 2rem;
+	flex-wrap: wrap;
+}
+
+.geo-score-ring-col {
+	display: flex;
+	justify-content: center;
+	// Same reasoning `.aeo-score-summary-gauge` already documents: a
+	// definite width is required for zyra ChartComponent's own
+	// `width: 100%` to resolve against, or the ring collapses to 0 width.
+	flex: 0 0 14rem;
+}
+
+.geo-score-calc-col {
+	flex: 1;
+	min-width: 14rem;
+}
+
+.geo-score-calc-title {
+	font-weight: 600;
+	font-size: 0.875rem;
+	margin-bottom: 0.75rem;
+}
+
+.geo-score-calc-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		font-size: 0.8125rem;
+	}
+
+	i {
+		color: $theme-color;
+		font-size: 1rem;
+		width: 1.125rem;
+		text-align: center;
+		flex-shrink: 0;
+	}
+}
+
+// GeoScoreSection.tsx — "GEO Score Breakdown" table (Signal/Score/Status/
+// Main Problem), same shape `.robots-directives-table` already establishes.
+.geo-score-breakdown-table {
+	width: 100%;
+	border-collapse: collapse;
+
+	th,
+	td {
+		text-align: left;
+		padding: 0.625rem 0;
+		border-bottom: 1px solid $border-color;
+		font-size: 0.8125rem;
+	}
+
+	th {
+		color: $sub-text-color;
+		font-weight: 600;
+	}
+
+	tr:last-child td {
+		border-bottom: none;
+	}
+}
+
+.geo-score-breakdown-problem {
+	color: $sub-text-color;
+	max-width: 18rem;
+}
+
 .admin-main-wrapper {
         .card-wrapper {
             &.row {
