@@ -26,6 +26,8 @@ export interface CrawlerAnalytics {
 	by_vendor: Record<string, number>;
 	blocked_pages_total: number;
 	daily_volume: { date: string; total: number }[];
+	/** Real weighted-severity score (0-100, CrawlerTraffic.php's own `calculate_score()`) over the same 4 real scanner ids the Crawl Health Checklist below already groups into — meaningful only while the SEO module is active, same gate the checklist itself already requires. */
+	crawl_health_score: number;
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
