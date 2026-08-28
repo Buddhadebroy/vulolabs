@@ -230,14 +230,19 @@
 }
 
 // GeoFixTheseFirstCard.tsx. zyra's own ListComponent positions its
-// `.tags` badge absolutely, sized for the single-line title it's normally
-// paired with (OpenIssuesGlimpse.tsx's own usage never passes `desc`) —
-// this card's own real per-finding description is genuinely 2-3 lines
-// long, which pushed the row taller than the badge's fixed offset
-// expects and overlapped it. Clamped to one line + ellipsis rather than
-// dropped outright, so the real text is still there (title attribute)
-// without fighting zyra's own absolute positioning.
-.geo-fix-first-list .desc {
+// `.tags` badge absolutely (`top: 40.5px; right: 0`), sized for the
+// single-line title it's normally paired with (OpenIssuesGlimpse.tsx's own
+// usage never passes `desc`) — this card's own real per-finding description
+// is genuinely 1-3 sentences long, which pushed the row taller than the
+// badge's fixed offset expects and overlapped it. Clamped to one line +
+// ellipsis rather than dropped outright, so the real text is still there
+// (title attribute) without fighting zyra's own absolute positioning.
+// Selector confirmed live against the actual rendered DOM (OverviewTab.tsx's
+// own "Top Opportunities" card, the first real place this component ever
+// got rendered) — zyra's current ListComponent renders the description in
+// `.typography.typography-desc`, not a bare `.desc`; the previous selector
+// silently matched nothing.
+.geo-fix-first-list .typography-desc {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -1546,35 +1551,64 @@
 	white-space: nowrap;
 }
 
-// CrawlerAnalyticsSection.tsx's "Crawl Health Checklist" — a real Zyra
-// `<ListComponent>` now (icon/title/tags supply the row), rather than the
-// hand-rolled `.crawler-checklist-row`/`.crawler-checklist-label` markup
-// this used to be. `.item`/`.details`/`.tags` are ListComponent's own
-// default-variant classes, which stack top-to-bottom rather than laying
-// out as one row — overridden here into the same icon/label/badge row this
-// checklist always had, same "scope the library's own classnames under our
-// own wrapper" convention `.geo-fix-first-list` (GeoFixTheseFirstCard.tsx)
-// already uses.
-.crawler-checklist {
-	.item {
-		display: flex;
-		align-items: center;
-		gap: 0.625rem;
-		padding: 0.625rem 0;
-		border-top: $border-light-small;
+// CrawlerAnalyticsSection.tsx's "Overall Crawl Health" ring — same 2-slice
+// score/remaining `ChartComponent type="pie"` + `centerLabel` shape
+// GeoScoreSection.tsx's own "GEO Score" ring already establishes, reusing
+// its `.score-ring-number`/`.score-ring-label`/`.geo-overall-rating`
+// classes as-is.
+.crawl-health-ring {
+	display: flex;
+	justify-content: center;
+}
 
-		&:first-child {
-			border-top: none;
-		}
-	}
+// CrawlerAnalyticsSection.tsx's "View all" links under Top Crawlers/Most
+// Crawled Pages — real scroll-anchor jumps to "Recent Crawl Requests"
+// (CrawlOverviewSection.tsx's own `#recent-crawl-requests`), same
+// "honest, real anchor rather than a dead link" pattern
+// CrawlRobotsSitemapSection.tsx's own "View blocked pages" link already
+// establishes.
+.crawler-view-all-link {
+	display: inline-block;
+	margin-top: 0.75rem;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: $theme-color;
 
-	.details {
-		flex: 1;
+	&:hover {
+		text-decoration: underline;
 	}
+}
 
-	.item-title {
-		font-size: 0.8125rem;
+// CrawlerAnalyticsSection.tsx's "Crawl Health Checklist" — real chip row
+// (icon + label + real Good/Warning/Checking… badge per item), replacing a
+// former vertical zyra `<ListComponent>` version to match the reference
+// mockup's own horizontal layout.
+.crawler-checklist-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.crawler-checklist-chip {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex: 1 1 12rem;
+	padding: 0.75rem 0.875rem;
+	border: 1px solid $border-color;
+	border-radius: 0.5rem;
+
+	i {
+		color: $sub-text-color;
+		font-size: 1rem;
+		flex-shrink: 0;
 	}
+}
+
+.crawler-checklist-chip-label {
+	flex: 1;
+	font-size: 0.8125rem;
+	font-weight: 500;
 }
 
 // StructuredDataSection.tsx's own "Schema Status" summary card — 4 real
@@ -2264,6 +2298,74 @@
 .geo-score-breakdown-problem {
 	color: $sub-text-color;
 	max-width: 18rem;
+}
+
+// OverviewTab.tsx (SEO & Visibility's top-level Overview tab) — the 4 real
+// score cards (Visibility/Brand/SEO/GEO).
+.visibility-stat-card {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+}
+
+.visibility-stat-value {
+	display: flex;
+	align-items: baseline;
+	gap: 0.25rem;
+
+	.typography-h2 {
+		margin: 0;
+	}
+}
+
+// OverviewTab.tsx's own "Quick Links" grid — real in-SPA tab navigation
+// buttons, styled as cards.
+.visibility-quick-links {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+	gap: 0.75rem;
+}
+
+.visibility-quick-link {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+	text-align: left;
+	background: none;
+	border: 1px solid $border-color;
+	border-radius: 0.5rem;
+	padding: 0.75rem 0.875rem;
+	cursor: pointer;
+
+	&:hover {
+		background: $theme-background-color;
+		border-color: $theme-color;
+	}
+
+	i {
+		color: $theme-color;
+		font-size: 1.0625rem;
+		flex-shrink: 0;
+		margin-top: 0.125rem;
+	}
+}
+
+.visibility-quick-link-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.visibility-quick-link-title {
+	font-weight: 600;
+	font-size: 0.8125rem;
+}
+
+.visibility-quick-link-desc {
+	font-size: 0.75rem;
+	color: $sub-text-color;
 }
 
 .admin-main-wrapper {

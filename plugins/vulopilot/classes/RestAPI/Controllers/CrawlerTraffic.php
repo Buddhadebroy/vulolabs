@@ -138,13 +138,29 @@ class CrawlerTraffic extends \WP_REST_Controller {
         }
         arsort( $by_vendor );
 
-        $blocked_pages_total = ( new FindingRepository() )->find_all(
+        $findings             = new FindingRepository();
+        $blocked_pages_total  = $findings->find_all(
             array(
                 'scanner_id' => 'ai-crawler-blocked-pages',
                 'status'     => 'open',
                 'per_page'   => 1,
             )
         )['total'];
+
+        // Same real weighted-severity formula Controllers\Seo::calculate_score()/
+        // Controllers\Geo::calculate_score() already use, scoped to the exact
+        // same 4 real scanner ids CrawlerAnalyticsSection.tsx's own
+        // CHECKLIST_ITEMS already groups its "Crawl Health Checklist" into
+        // (robots.txt reachable, sitemap reachable, no critical AI-bot
+        // blocks) — one real number standing in for what that checklist
+        // already shows as 3 separate pass/fail rows, for the mockup's own
+        // "Overall Crawl Health" ring. Frontend only renders this ring while
+        // the SEO module is active (same `isSeoModuleActive()` gate the
+        // checklist itself already requires) — these scanners simply never
+        // run otherwise, so 0 open findings there would be a false "100",
+        // not a real one.
+        $crawl_scanner_ids   = array( 'robots-txt', 'sitemap', 'sitemap-validation', 'ai-crawler-blocked-pages' );
+        $crawl_health_score  = $this->calculate_score( $findings->get_severity_breakdown_for_scanner_ids( $crawl_scanner_ids ) );
 
         return rest_ensure_response(
             array_merge(
@@ -153,9 +169,30 @@ class CrawlerTraffic extends \WP_REST_Controller {
                     'by_vendor'            => $by_vendor,
                     'blocked_pages_total'  => (int) $blocked_pages_total,
                     'daily_volume'         => $repository->get_daily_volume( $days ),
+                    'crawl_health_score'   => $crawl_health_score,
                 )
             )
         );
+    }
+
+    /**
+     * Same weighting `Controllers\Seo::calculate_score()`/
+     * `Controllers\Geo::calculate_score()` already use — kept as its own
+     * private copy here rather than a shared trait, same "each controller
+     * keeps its own copy" convention those two (plus BrandIntelligence)
+     * already established.
+     *
+     * @param array{critical: int, high: int, medium: int, low: int} $breakdown Severity breakdown to score.
+     * @return int 0-100.
+     */
+    private function calculate_score( array $breakdown ): int {
+        $score = 100
+            - ( $breakdown['critical'] * 15 )
+            - ( $breakdown['high'] * 8 )
+            - ( $breakdown['medium'] * 3 )
+            - ( $breakdown['low'] * 1 );
+
+        return max( 0, min( 100, $score ) );
     }
 
     /**

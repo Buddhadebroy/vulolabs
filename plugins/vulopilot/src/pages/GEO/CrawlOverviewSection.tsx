@@ -2,7 +2,7 @@
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
-import { CardComponent, ColumnComponent, ModuleGuardComponent } from '@zyra/components';
+import { BadgeComponent, CardComponent, ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import CrawlerAnalyticsSection from './CrawlerAnalyticsSection';
@@ -36,6 +36,8 @@ interface CrawlerVisitRow extends TableRow {
 	bot_name: string;
 	requested_url: string;
 	created_at: string;
+	/** Real `is_404` column (`wp_vulopilot_crawler_visits`) — whether WordPress resolved this exact request to a 404 at the time it was logged (CrawlerVisitRepository::log()'s own docblock). wpdb returns this as a numeric string over REST (e.g. `"1"`), not a real boolean. */
+	is_404: string | number | boolean;
 }
 
 /**
@@ -149,40 +151,53 @@ const CrawlOverviewSection = () => {
 						<CrawlerVisibilityCorrelationCard />
 					)}
 
-					<TableCard
-						search={{
-							placeholder: __(
-								'Search requested URLs…',
-								'vulopilot'
-							),
-						}}
-						format={appLocalizer.date_format_js}
-						headers={{
-							bot_name: {
-								label: __('Bot', 'vulopilot'),
-							},
-							requested_url: {
-								label: __('Requested URL', 'vulopilot'),
-							},
-							created_at: {
-								label: __('When', 'vulopilot'),
-								type: 'date',
-								isSortable: true,
-								defaultSort: true,
-								defaultOrder: 'desc',
-							},
-						}}
-						rows={data}
-						ids={data.map((row) => row.id)}
-						totalRows={total}
-						categoryCounts={categoryCounts}
-						isLoading={isLoading}
-						onQueryUpdate={onQueryUpdate}
-						emptyMessage={__(
-							'No AI crawler visits detected yet.',
-							'vulopilot'
-						)}
-					/>
+					<div id="recent-crawl-requests">
+						<CardComponent title={__('Recent Crawl Requests', 'vulopilot')}>
+							<TableCard
+								search={{
+									placeholder: __(
+										'Search requested URLs…',
+										'vulopilot'
+									),
+								}}
+								format={appLocalizer.date_format_js}
+								headers={{
+									bot_name: {
+										label: __('Bot', 'vulopilot'),
+									},
+									requested_url: {
+										label: __('Requested URL', 'vulopilot'),
+									},
+									is_404: {
+										label: __('Status', 'vulopilot'),
+										render: (row: CrawlerVisitRow) =>
+											Number(row.is_404) ? (
+												<BadgeComponent color="red" text={__('Not Found', 'vulopilot')} />
+											) : (
+												<BadgeComponent color="green" text={__('Success', 'vulopilot')} />
+											),
+									},
+									created_at: {
+										label: __('When', 'vulopilot'),
+										type: 'date',
+										isSortable: true,
+										defaultSort: true,
+										defaultOrder: 'desc',
+									},
+								}}
+								rows={data}
+								ids={data.map((row) => row.id)}
+								totalRows={total}
+								categoryCounts={categoryCounts}
+								isLoading={isLoading}
+								onQueryUpdate={onQueryUpdate}
+								emptyMessage={__(
+									'No AI crawler visits detected yet.',
+									'vulopilot'
+								)}
+							/>
+						</CardComponent>
+					</div>
 				</>
 			)}
 		</ColumnComponent>

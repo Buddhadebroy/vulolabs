@@ -9,7 +9,6 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	BadgeComponent,
-	ListComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
 import {
@@ -26,6 +25,27 @@ import type { CrawlerAnalytics } from './useCrawlerAnalytics';
 import { formatWpDate } from '../../services/formatWpDate';
 
 const PIE_COLORS = ['#7C3AED', '#2563EB', '#0D9488', '#EA580C', '#DB2777', '#65A30D'];
+
+/** Same 3-tier 0-100 band this codebase's other real score rings (GeoScoreSection.tsx, GeoVisibilitySummaryCard.tsx) already use. */
+const getRating = (score: number): string => {
+	if (score >= 70) {
+		return __('Good', 'vulopilot');
+	}
+	if (score >= 40) {
+		return __('Needs Attention', 'vulopilot');
+	}
+	return __('Poor', 'vulopilot');
+};
+
+const ratingClass = (score: number): string => {
+	if (score >= 70) {
+		return 'is-good';
+	}
+	if (score >= 40) {
+		return 'is-attention';
+	}
+	return 'is-poor';
+};
 
 const pctChange = (current: number, previous: number): number | null => {
 	if (0 === previous) {
@@ -142,8 +162,6 @@ const CrawlerAnalyticsSection = ({
 				isGood: null === checklistGroups ? null : 0 === openCount(item.scannerIds),
 			}))
 		: [];
-	const allGood =
-		checklist.length > 0 && checklist.every((item) => item.isGood);
 
 	const statCards = [
 		{
@@ -190,15 +208,36 @@ const CrawlerAnalyticsSection = ({
 								)}
 							</div>
 						) : (
-							<div
-								className={`crawler-health-status ${allGood ? 'is-good' : 'is-warning'}`}
-							>
-								<i
-									className={`adminfont-${allGood ? 'check' : 'error'}`}
+							<div className="crawl-health-ring">
+								<ChartComponent
+									type="pie"
+									height={110}
+									centerLabel={
+										<>
+											<span className="score-ring-number">
+												{analytics.crawl_health_score}
+											</span>
+											<span className="score-ring-label">/100</span>
+											<span
+												className={`score-ring-label geo-overall-rating ${ratingClass(analytics.crawl_health_score)}`}
+											>
+												{getRating(analytics.crawl_health_score)}
+											</span>
+										</>
+									}
+									data={[
+										{
+											label: __('Score', 'vulopilot'),
+											value: analytics.crawl_health_score,
+											color: '#16a34a',
+										},
+										{
+											label: __('Remaining', 'vulopilot'),
+											value: 100 - analytics.crawl_health_score,
+											color: '#e5e7eb',
+										},
+									]}
 								/>
-								{allGood
-									? __('Good', 'vulopilot')
-									: __('Needs attention', 'vulopilot')}
 							</div>
 						)}
 					</CardComponent>
@@ -271,6 +310,16 @@ const CrawlerAnalyticsSection = ({
 									<ChartComponent
 										type="pie"
 										height={160}
+										centerLabel={
+											<>
+												<span className="score-ring-number">
+													{vendorTotal.toLocaleString()}
+												</span>
+												<span className="score-ring-label">
+													{__('Total', 'vulopilot')}
+												</span>
+											</>
+										}
 										data={vendorEntries.map(([vendor, total], index) => ({
 											label: vendor,
 											value: total,
@@ -323,35 +372,53 @@ const CrawlerAnalyticsSection = ({
 								)}
 							/>
 						) : (
-							<table className="crawler-table">
-								<thead>
-									<tr>
-										<th>{__('Crawler', 'vulopilot')}</th>
-										<th>{__('Requests', 'vulopilot')}</th>
-										<th>{__('Change', 'vulopilot')}</th>
-										<th>{__('Last seen', 'vulopilot')}</th>
-									</tr>
-								</thead>
-								<tbody>
-									{analytics.top_crawlers.slice(0, 8).map((crawler) => (
-										<tr key={crawler.bot_name}>
-											<td>{crawler.bot_name}</td>
-											<td>{crawler.total.toLocaleString()}</td>
-											<td>
-												<ChangeBadge
-													current={crawler.total}
-													previous={crawler.previous_total}
-												/>
-											</td>
-											<td>
-												{crawler.last_seen_at
-													? formatWpDate(crawler.last_seen_at)
-													: '—'}
-											</td>
+							<>
+								<table className="crawler-table">
+									<thead>
+										<tr>
+											<th>{__('Crawler', 'vulopilot')}</th>
+											<th>{__('Requests', 'vulopilot')}</th>
+											<th>{__('Change', 'vulopilot')}</th>
+											<th>{__('Last seen', 'vulopilot')}</th>
 										</tr>
-									))}
-								</tbody>
-							</table>
+									</thead>
+									<tbody>
+										{analytics.top_crawlers.slice(0, 8).map((crawler) => (
+											<tr key={crawler.bot_name}>
+												<td>{crawler.bot_name}</td>
+												<td>{crawler.total.toLocaleString()}</td>
+												<td>
+													<ChangeBadge
+														current={crawler.total}
+														previous={crawler.previous_total}
+													/>
+												</td>
+												<td>
+													{crawler.last_seen_at
+														? formatWpDate(crawler.last_seen_at)
+														: '—'}
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+								<a
+									className="crawler-view-all-link"
+									href="#recent-crawl-requests"
+									onClick={(event) => {
+										event.preventDefault();
+										document
+											.getElementById('recent-crawl-requests')
+											?.scrollIntoView({ behavior: 'smooth' });
+									}}
+								>
+									{sprintf(
+										/* translators: %d: real total number of distinct crawlers seen. */
+										__('View all (%d total) ›', 'vulopilot'),
+										analytics.top_crawlers.length
+									)}
+								</a>
+							</>
 						)}
 					</CardComponent>
 				</ColumnComponent>
@@ -370,31 +437,45 @@ const CrawlerAnalyticsSection = ({
 								)}
 							/>
 						) : (
-							<table className="crawler-table">
-								<thead>
-									<tr>
-										<th>{__('Page', 'vulopilot')}</th>
-										<th>{__('Requests', 'vulopilot')}</th>
-										<th>{__('Change', 'vulopilot')}</th>
-									</tr>
-								</thead>
-								<tbody>
-									{analytics.most_crawled_pages.slice(0, 8).map((page) => (
-										<tr key={page.requested_url}>
-											<td className="crawler-table-url">
-												{page.requested_url}
-											</td>
-											<td>{page.total.toLocaleString()}</td>
-											<td>
-												<ChangeBadge
-													current={page.total}
-													previous={page.previous_total}
-												/>
-											</td>
+							<>
+								<table className="crawler-table">
+									<thead>
+										<tr>
+											<th>{__('Page', 'vulopilot')}</th>
+											<th>{__('Requests', 'vulopilot')}</th>
+											<th>{__('Change', 'vulopilot')}</th>
 										</tr>
-									))}
-								</tbody>
-							</table>
+									</thead>
+									<tbody>
+										{analytics.most_crawled_pages.slice(0, 8).map((page) => (
+											<tr key={page.requested_url}>
+												<td className="crawler-table-url">
+													{page.requested_url}
+												</td>
+												<td>{page.total.toLocaleString()}</td>
+												<td>
+													<ChangeBadge
+														current={page.total}
+														previous={page.previous_total}
+													/>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+								<a
+									className="crawler-view-all-link"
+									href="#recent-crawl-requests"
+									onClick={(event) => {
+										event.preventDefault();
+										document
+											.getElementById('recent-crawl-requests')
+											?.scrollIntoView({ behavior: 'smooth' });
+									}}
+								>
+									{__('View all pages ›', 'vulopilot')}
+								</a>
+							</>
 						)}
 					</CardComponent>
 				</ColumnComponent>
@@ -402,18 +483,21 @@ const CrawlerAnalyticsSection = ({
 
 			{checklist.length > 0 && (
 				<CardComponent title={__('Crawl Health Checklist', 'vulopilot')}>
-					<ListComponent
-						className="crawler-checklist"
-						items={checklist.map((item) => ({
-							id: item.key,
-							icon:
-								null === item.isGood
-									? 'info'
-									: item.isGood
-										? 'check'
-										: 'error',
-							title: item.label,
-							tags: (
+					<div className="crawler-checklist-row">
+						{checklist.map((item) => (
+							<div key={item.key} className="crawler-checklist-chip">
+								<i
+									className={`adminfont-${
+										null === item.isGood
+											? 'info'
+											: item.isGood
+												? 'check'
+												: 'error'
+									}`}
+								/>
+								<span className="crawler-checklist-chip-label">
+									{item.label}
+								</span>
 								<BadgeComponent
 									color={
 										null === item.isGood
@@ -430,9 +514,9 @@ const CrawlerAnalyticsSection = ({
 												: __('Warning', 'vulopilot')
 									}
 								/>
-							),
-						}))}
-					/>
+							</div>
+						))}
+					</div>
 				</CardComponent>
 			)}
 		</>

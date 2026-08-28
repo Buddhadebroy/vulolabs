@@ -1,18 +1,18 @@
 import { __ } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
-import { useEfficiencyChecks } from './efficiencyChecks';
-import './ProtectMySite.scss';
+import { useEfficiencyChecks } from '../Security/efficiencyChecks';
+import '../Security/ProtectMySite.scss';
 
 /**
  * "PHP acceleration" (OPcache) status — the one `GET /efficiency-checks`
- * (Controllers\EfficiencyChecks.php) check that stayed on this page
- * rather than moving with its 3 siblings into "Performance"'s own
- * Overview tab (EfficiencyHeroCard.tsx/EfficiencySectionsList.tsx/etc,
- * pages/Performance/OverviewTab.tsx) — OPcache is a server-config fact,
- * the same category as this tab's other Server-section checks
- * (ServerHealthScanner), not a page-delivery one. Reads the same live
- * endpoint as those moved components rather than a stored finding, since
- * that's still the only place this check exists.
+ * (Controllers\EfficiencyChecks.php) check rendered as its own full card
+ * rather than folded into MetricsGrid.tsx's own 3 efficiency tiles (page/
+ * browser caching, persistent object cache): those 3 are single-badge
+ * facts, while this one also carries a real technical-details list
+ * (OPcache enabled/status) that doesn't fit a tile's plain description.
+ * Moved here from "Protect My Site" → Site Health per direct instruction.
+ * Reads the same live endpoint MetricsGrid.tsx's efficiency tiles and
+ * `useEfficiencyChecks()`'s other callers already read — no new endpoint.
  */
 const PhpAccelerationCard = () => {
 	const { data, isLoading } = useEfficiencyChecks();

@@ -125,6 +125,7 @@ class Rest {
             'entities'                    => new Controllers\EntityExtraction(),
             'seo_score'                   => new Controllers\Seo(),
             'geo_score'                   => new Controllers\Geo(),
+            'visibility_score'            => new Controllers\Visibility(),
             'schema_coverage'             => new Controllers\Schema(),
             'google_services'             => new Controllers\GoogleServices(),
             'keyword_rankings'            => new Controllers\KeywordRankings(),

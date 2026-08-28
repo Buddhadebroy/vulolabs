@@ -7,6 +7,7 @@ import PerformanceScoreCard from './PerformanceScoreCard';
 import MetricsGrid from './MetricsGrid';
 import SpeedHistoryCard from './SpeedHistoryCard';
 import BiggestSpeedOpportunityCard from './BiggestSpeedOpportunityCard';
+import PhpAccelerationCard from './PhpAccelerationCard';
 import PerformanceTab from './PerformanceTab';
 import './Performance.scss';
 
@@ -63,9 +64,12 @@ import './Performance.scss';
  * (`onViewSection('caching-delivery')`), same real destination the
  * existing Caching/CDN tiles already use, rather than to a now-removed
  * dedicated card. `useEfficiencyChecks()` itself stays put in
- * `../Security/efficiencyChecks.ts` — SiteHealthTab.tsx's
- * PhpAccelerationCard.tsx still needs it for the OPcache check, and
- * MetricsGrid.tsx now calls it directly for its own 3 tiles.
+ * `../Security/efficiencyChecks.ts` (shared hook, not moved) —
+ * PhpAccelerationCard.tsx (OPcache status) moved here from "Protect My
+ * Site" → Site Health per direct instruction and reads that same hook,
+ * rendered full-card below rather than as a 4th MetricsGrid tile since it
+ * also carries a real technical-details list a tile has no room for;
+ * MetricsGrid.tsx calls the hook directly for its own 3 tiles.
  *
  * Doesn't repeat SpeedHistoryCard a second time (the old Performance tab
  * paired it with the now-deleted EfficiencyHeroCard/EfficiencyOverviewChart)
@@ -112,6 +116,7 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 				/>
 				<SpeedHistoryCard />
 				<LiveSiteInsightsCard />
+				<PhpAccelerationCard />
 			</ColumnComponent>
 
 			<ColumnComponent >
