@@ -317,22 +317,42 @@ const SectionedIssuesTable = ({
 									action: {
 										label: __('Action', 'vulopilot'),
 										// "More Details"/"Showing" toggle + active
-										// state — zyra's own built-in `more-action`
-										// column type (Table.tsx), same one AI
-										// Copilot's Issues table (IssuesList.tsx)
-										// uses, instead of a plain icon-only "View"
-										// action.
-										type: 'more-action',
-										onToggleRow: (row: FindingGroup) =>
-											setSelectedGroup(
-												row.scanner_id === selectedGroup?.scanner_id
-													? null
-													: row
-											),
-										moreActionLabels: {
-											active: __('Showing', 'vulopilot'),
-											inactive: __('More Details', 'vulopilot'),
-										},
+										// state, same one AI Copilot's Issues
+										// table (IssuesList.tsx) uses, instead of
+										// a plain icon-only "View" action. Zyra's
+										// own dedicated `more-action` column type
+										// no longer exists — `type: 'action'` now
+										// covers this same single-toggle-button
+										// case via a `type: 'button'` action
+										// whose label/icon are functions of `row`
+										// (see that type's own docblock,
+										// TableRowActions.tsx).
+										type: 'action',
+										actions: [
+											{
+												type: 'button',
+												label: (row) =>
+													(row as unknown as FindingGroup)
+														.scanner_id ===
+													selectedGroup?.scanner_id
+														? __('Showing', 'vulopilot')
+														: __('More Details', 'vulopilot'),
+												icon: (row) =>
+													(row as unknown as FindingGroup)
+														.scanner_id ===
+													selectedGroup?.scanner_id
+														? 'eye'
+														: 'pagination-next-arrow',
+												onClick: (row) => {
+													const group = row as unknown as FindingGroup;
+													setSelectedGroup(
+														group.scanner_id === selectedGroup?.scanner_id
+															? null
+															: group
+													);
+												},
+											},
+										],
 									},
 								}}
 								rows={pageRows}

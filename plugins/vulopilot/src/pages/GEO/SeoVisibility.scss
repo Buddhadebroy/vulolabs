@@ -383,36 +383,13 @@
 	font-size: 0.8125rem;
 }
 
-.geo-by-topic-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-	gap: 0.875rem;
-}
-
-.geo-by-topic-tile {
-	.card-content {
-		display: flex;
-		flex-direction: column;
-		gap: 0.375rem;
-	}
-}
-
-.geo-by-topic-tile-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-
-	i {
-		font-size: 1.25rem;
-		color: $theme-color;
-	}
-}
-
-.geo-by-topic-tile-title {
-	margin: 0;
-	font-weight: 600;
-	font-size: 0.875rem;
-}
+// `.geo-by-topic-grid`/`.geo-by-topic-tile`/`.geo-by-topic-tile-header`/
+// `.geo-by-topic-tile-title` were removed here — that grid shell (auto-fit
+// columns, icon chip, title, badge) now comes from the real
+// `<MetricTileComponent>` (@zyra/components, MetricTileComponent.scss);
+// only this card's own divergent stat body below (passed through that
+// component's own `desc` slot, which takes arbitrary content) is still
+// declared locally.
 
 .geo-by-topic-tile-sublabel {
 	margin: 0;
@@ -859,90 +836,22 @@
 // needing `!important` for: that rule is injected into a runtime
 // `<style>` tag, landing later in the cascade than any statically-compiled
 // CSS at equal specificity.
-$seo-area-icon-colors: (
-	'purple': #7c3aed,
-	'blue': #2563eb,
-	'green': #16a34a,
-	'indigo': #4f46e5,
-	'teal': #0d9488,
-	'orange': #d97706,
-);
-
-.seo-category-grid {
-	.analytics-container {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-		gap: 0.75rem;
-	}
-
-	.analytics-item {
-		&.green .details .number {
-			color: #16a34a;
-		}
-
-		&.yellow .details .number {
-			color: #b7791f;
-		}
-
-		&.red .details .number {
-			color: #dc2626;
-		}
-
-		.analytics-icon {
-			display: flex !important;
-			margin-bottom: 0.5rem;
-
-			i {
-				border-radius: 0.625rem !important;
-			}
-		}
-
-		@each $name, $color in $seo-area-icon-colors {
-			.analytics-icon i.icon-#{$name} {
-				color: #{$color};
-				background: color-mix(in srgb, #{$color} 14%, transparent);
-			}
-		}
-	}
-}
-
-.seo-area-tile-title {
-	font-weight: 600;
-	margin-bottom: 0.375rem;
-}
-
-.seo-area-tile-pill {
-	display: inline-block;
-	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 0.125rem 0.5rem;
-	border-radius: $border-radius-small;
-	margin-bottom: 0.5rem;
-
-	&.is-good {
-		color: #16a34a;
-		background: color-mix(in srgb, #16a34a 14%, transparent);
-	}
-
-	&.is-attention {
-		color: #b45309;
-		background: color-mix(in srgb, #b45309 14%, transparent);
-	}
-
-	&.is-poor {
-		color: #dc2626;
-		background: color-mix(in srgb, #dc2626 14%, transparent);
-	}
-}
-
-.seo-area-tile-issues {
-	font-size: 0.8125rem;
-	font-weight: 600;
-}
-
-.seo-area-tile-pages {
-	margin-top: 0.125rem;
-}
+// "SEO areas" grid — now a real `<MetricTileComponent>` (@zyra/components;
+// takes the whole `data` array and lays out its own grid — no separate
+// grid-wrapper component). The old `.seo-category-grid`/`.analytics-*`/
+// `.seo-area-tile-title`/`.seo-area-tile-pill`/`.seo-area-tile-score`/
+// `.seo-area-tile-issues`/`.seo-area-tile-pages` overrides that used to
+// hand-restyle a raw `<AnalyticsComponent>` for this same grid are gone
+// along with it — `number`/`stat`/`desc` (real 0-100 score/open-issue
+// count/affected-pages line) now render through that component's own
+// `.metric-tile-number`/`.metric-tile-stat`/`.desc` styling instead, and
+// the real click-to-jump-to-issues rating pill is that same component's
+// own `badge.onClick` (its `.metric-tile-badge-clickable` pointer/hover
+// affordance now ships with `MetricTileComponent.scss` itself, no local
+// copy needed here any more). `$seo-area-icon-colors` moved to
+// SeoTab.tsx's own `SEO_AREA_ICON_COLORS` (real per-category identity
+// hex, passed straight to `MetricTileItem`'s own `iconColor` — no colored
+// chip behind the icon any more, unlike this grid's old bespoke look).
 
 // SeoTab.tsx's own "SEO Health Score" hero card — the real ring
 // (`.geo-overall-visibility`, shared with every other score-ring gauge
@@ -975,6 +884,11 @@ $seo-area-icon-colors: (
 
 .seo-health-score-stats-severity {
 	flex: 0 1 16rem;
+	// Critical/High priority stack vertically here (reference mockup) —
+	// overrides the inherited `.seo-health-score-stats` auto-fit grid,
+	// which side-by-sides Pages checked/Issues found instead.
+	grid-template-columns: 1fr;
+	gap: 0.75rem;
 }
 
 .seo-health-score-divider {
@@ -2182,7 +2096,6 @@ $seo-area-icon-colors: (
 .aeo-score-summary {
 	display: flex;
 	gap: 2rem;
-	flex-wrap: wrap;
 }
 
 .aeo-score-summary-gauge {
@@ -2244,72 +2157,15 @@ $seo-area-icon-colors: (
 	}
 }
 
-.aeo-score-summary-stats {
-	flex: 1;
-	min-width: 16rem;
-	display: flex;
-	flex-direction: column;
-}
 
-.aeo-score-stat-row {
-	display: flex;
-	align-items: center;
-	gap: 0.875rem;
-	padding: 0.875rem 0;
-	border-top: 1px solid var(--border-color);
-
-	&.is-first {
-		border-top: none;
-		padding-top: 0;
-	}
-}
-
-.aeo-score-stat-icon {
-	flex: 0 0 2.5rem;
-	width: 2.5rem;
-	height: 2.5rem;
-	border-radius: 0.625rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 1.125rem;
-
-	&.is-score {
-		background: #dcfce7;
-		color: #16a34a;
-	}
-
-	&.is-questions {
-		background: #ede9fe;
-		color: #7c3aed;
-	}
-
-	&.is-ready {
-		background: #fce7f3;
-		color: #db2777;
-	}
-
-	&.is-change {
-		background: #dbeafe;
-		color: #2563eb;
-	}
-}
-
-.aeo-score-stat-text {
-	flex: 1;
-	min-width: 0;
-}
-
-.aeo-score-stat-title {
-	font-weight: 600;
-	font-size: 0.875rem;
-}
-
-.aeo-score-stat-desc {
-	font-size: 0.75rem;
-	color: $sub-text-color;
-}
-
+// `.aeo-score-stat-row`/`-icon`/`-text`/`-title`/`-desc` were removed here
+// — both real consumers (this file's own rules above, GeoVisibilitySummaryCard.tsx,
+// and AeoScoreSummaryCard.tsx) now render their 4 rows through a real
+// `ListComponent` (`className="mini-card report"`) instead of that
+// hand-rolled markup, so nothing renders those classes anymore.
+// `.aeo-score-stat-value` stays — AeoScoreSummaryCard.tsx's own rows still
+// render one directly (in `ListComponent`'s own `tags` slot) as their
+// plain-number trailing value.
 .aeo-score-stat-value {
 	font-weight: 700;
 	font-size: 1.0625rem;

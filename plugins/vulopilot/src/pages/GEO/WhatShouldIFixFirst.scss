@@ -11,18 +11,66 @@
 
 .fix-first-layout {
 	display: flex;
-	flex-wrap: wrap;
 	gap: 2rem;
+
+	.analytics-container,
+	.item-list{
+		width: 50% !important;
+	}
 }
 
 .fix-first-severity {
-	flex: 0 1 18rem;
+	flex: 0 1 26rem;
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
+	grid-template-columns: repeat(3, 1fr);
 	gap: 1.25rem;
 }
 
 .fix-first-severity-stat {
+	text-align: center;
+
+	// Real per-tier hex, matching each `.typography-h3` modifier below — a
+	// lighter tint of the same color behind the icon, same
+	// `color-mix(... transparent)` badge-tint convention
+	// `.fix-first-ranked-count`/`.fix-first-ranked-icon` already use here.
+	--fix-first-severity-color: #{$sub-text-color};
+
+	&.is-poor {
+		--fix-first-severity-color: #dc2626;
+	}
+
+	&.is-attention {
+		--fix-first-severity-color: #b45309;
+	}
+
+	&.is-medium {
+		--fix-first-severity-color: #ca8a04;
+	}
+
+	&.is-good {
+		--fix-first-severity-color: #16a34a;
+	}
+
+	&.is-info {
+		--fix-first-severity-color: #0284c7;
+	}
+
+	.fix-first-severity-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		margin: 0 auto 0.5rem;
+		border-radius: 50%;
+		background: color-mix(in srgb, var(--fix-first-severity-color) 14%, transparent);
+
+		i {
+			font-size: 1.25rem;
+			color: var(--fix-first-severity-color);
+		}
+	}
+
 	.typography-h3 {
 		margin: 0 0 0.125rem;
 
@@ -41,6 +89,10 @@
 		&.is-medium {
 			color: #ca8a04;
 		}
+
+		&.is-info {
+			color: #0284c7;
+		}
 	}
 }
 
@@ -54,23 +106,47 @@
 .fix-first-ranked-row {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
+	gap: 0.625rem;
+	width: 100%;
+	padding: 0.5rem 0.25rem;
+	border: none;
+	background: transparent;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	border-radius: $border-radius-small;
+
+	&:hover {
+		background: $theme-background-color;
+
+		.fix-first-ranked-chevron {
+			color: $theme-color;
+		}
+	}
 }
 
-.fix-first-ranked-count {
+.fix-first-ranked-icon {
 	flex: 0 0 auto;
-	min-width: 2rem;
-	text-align: center;
-	font-weight: 600;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
 	font-size: 0.8125rem;
-	padding: 0.25rem 0.5rem;
-	border-radius: 999px;
-	color: #b45309;
-	background: color-mix(in srgb, #b45309 14%, transparent);
+	color: #dc2626;
+	background: color-mix(in srgb, #dc2626 14%, transparent);
 }
 
 .fix-first-ranked-label {
+	flex: 1 1 auto;
 	font-size: 0.8125rem;
+}
+
+.fix-first-ranked-chevron {
+	flex: 0 0 auto;
+	font-size: 0.8125rem;
+	color: $sub-text-color;
 }
 
 .fix-first-empty {

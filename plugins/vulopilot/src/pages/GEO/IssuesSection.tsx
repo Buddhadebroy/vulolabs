@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { TabsComponent } from '@zyra/components';
+import { TabsComponent, CardComponent } from '@zyra/components';
 import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
 import {
 	PRIORITY_SEVERITIES,
@@ -350,7 +350,7 @@ const IssuesSection = ({
 	const activeTabTotal = tabGroups.reduce((total, group) => total + group.count, 0);
 
 	return (
-		<>
+		<CardComponent title={__('All SEO finding', 'vulopilot')} desc={__('All SEO finding All SEO finding All SEO finding' , 'vulopilot')}>
 			<TabsComponent
 				className="seo-issues-filter-tabs"
 				activeIndex={Math.max(
@@ -389,7 +389,7 @@ const IssuesSection = ({
 				onExportCsv={exportCsv}
 				onAnalyze={onAnalyze}
 			/>
-		</>
+		</CardComponent>
 	);
 };
 

@@ -733,16 +733,33 @@ const SlowPagesTab = () => {
 										}
 									: {}),
 								action: {
-									type: 'more-action',
 									label: __( 'Action', 'vulopilot' ),
-									onToggleRow: (row: PageSpeedRow) =>
-										setDetailRow(
-											row.id === detailRow?.id ? null : row
-										),
-									moreActionLabels: {
-										active: __( 'Showing', 'vulopilot' ),
-										inactive: __( 'More Details', 'vulopilot' ),
-									},
+									// `type: 'more-action'` no longer exists in
+									// @zyra/table — `type: 'action'` now covers
+									// that same single-toggle-button case via a
+									// `type: 'button'` action whose label/icon
+									// are functions of `row` (see that type's
+									// own docblock, TableRowActions.tsx).
+									type: 'action',
+									actions: [
+										{
+											type: 'button',
+											label: (row) =>
+												(row as unknown as PageSpeedRow).id === detailRow?.id
+													? __( 'Showing', 'vulopilot' )
+													: __( 'More Details', 'vulopilot' ),
+											icon: (row) =>
+												(row as unknown as PageSpeedRow).id === detailRow?.id
+													? 'eye'
+													: 'pagination-next-arrow',
+											onClick: (row) => {
+												const pageRow = row as unknown as PageSpeedRow;
+												setDetailRow(
+													pageRow.id === detailRow?.id ? null : pageRow
+												);
+											},
+										},
+									],
 								},
 							}}
 							rows={pageRows}

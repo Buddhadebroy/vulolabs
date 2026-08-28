@@ -51,6 +51,8 @@ const ChangeCell = ({ change }: { change: number }) => {
 interface PagesNeedingAttentionTableProps {
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onAnalyze: (postId: number) => void;
+	/** SeoTab.tsx's own `analyzingPostId` — which row's panel (if any) is currently open, so this row's own action button can read "Viewing" instead of "Analyze". */
+	activePostId?: number | null;
 }
 
 /**
@@ -69,7 +71,7 @@ interface PagesNeedingAttentionTableProps {
  * one `analyzingPostId` state in `SeoTab.tsx`, so only one panel is ever open
  * at a time regardless of which table it was opened from.
  */
-const PagesNeedingAttentionTable = ({ onAnalyze }: PagesNeedingAttentionTableProps) => {
+const PagesNeedingAttentionTable = ({ onAnalyze, activePostId }: PagesNeedingAttentionTableProps) => {
 	const [rows, setRows] = useState<PageNeedingAttentionRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
@@ -144,6 +146,7 @@ const PagesNeedingAttentionTable = ({ onAnalyze }: PagesNeedingAttentionTablePro
 	return (
 		<CardComponent
 			title={__('Pages that need attention', 'vulopilot')}
+			desc="Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi dolore sequi totam pariatur quaerat possimus ipsum doloremque eveniet iste corrupti? Distinctio harum error accusantium sint unde fugiat ratione nostrum porro."
 			isLoading={isLoading}
 		>
 			{!isLoading && 0 === rows.length ? (
@@ -160,6 +163,7 @@ const PagesNeedingAttentionTable = ({ onAnalyze }: PagesNeedingAttentionTablePro
 					showMenu={false}
 					hideHeader
 					className="transparent-table"
+					activeRowId={activePostId ?? undefined}
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
@@ -208,13 +212,35 @@ const PagesNeedingAttentionTable = ({ onAnalyze }: PagesNeedingAttentionTablePro
 						},
 						action: {
 							label: __('Action', 'vulopilot'),
-							type: 'more-action',
-							onToggleRow: (row: PageNeedingAttentionRow) =>
-								onAnalyze(row.post_id),
-							moreActionLabels: {
-								active: __('Viewing', 'vulopilot'),
-								inactive: __('Analyze', 'vulopilot'),
-							},
+							// `type: 'more-action'` no longer exists (zyra's
+							// `TableRowActions` now covers that same "single
+							// labelled toggle button" case via a
+							// `type: 'button'` action whose own label/icon
+							// are functions of `row` — see that type's own
+							// docblock) — this is that same "More Details"/
+							// "Showing" toggle shape, just relabeled
+							// "Analyze"/"Viewing".
+							type: 'action',
+							actions: [
+								{
+									type: 'button',
+									label: (row) =>
+										(row as unknown as PageNeedingAttentionRow)
+											.post_id === activePostId
+											? __('Viewing', 'vulopilot')
+											: __('Analyze', 'vulopilot'),
+									icon: (row) =>
+										(row as unknown as PageNeedingAttentionRow)
+											.post_id === activePostId
+											? 'eye'
+											: 'pagination-next-arrow',
+									onClick: (row) =>
+										onAnalyze(
+											(row as unknown as PageNeedingAttentionRow)
+												.post_id
+										),
+								},
+							],
 						},
 					}}
 					rows={pageRows}

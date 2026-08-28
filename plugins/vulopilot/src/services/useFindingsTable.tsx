@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { InformationItemComponent, NoticeManager, BadgeComponent } from '@zyra/components';
+import { InformationItemComponent, NoticeManager } from '@zyra/components';
 import type { TableCardProps, TableRow } from '@zyra/table';
 import { useApiList } from './useApiList';
 import { formatWpDate } from './formatWpDate';
@@ -555,47 +555,42 @@ export const useFindingsTable = ({
 		},
 		action: {
 			label: __('Action', 'vulopilot'),
-			render: (row: Finding) => {
-				const asRecord = row as unknown as Record<string, unknown>;
-
-				return (
-					<div className="buttons-wrapper">
-						{row.status === 'open' ? (
-							<>
-								<BadgeComponent
-									color="purple"
-									role="button"
-									tabIndex={0}
-									onClick={() => handleFix(asRecord)}
-									text={__('Fix', 'vulopilot')}
-								/>
-								<BadgeComponent
-									color="green"
-									role="button"
-									tabIndex={0}
-									onClick={() => handleResolve(asRecord)}
-									text={__('Resolve', 'vulopilot')}
-								/>
-								<BadgeComponent
-									color="red"
-									role="button"
-									tabIndex={0}
-									onClick={() => handleIgnore(asRecord)}
-									text={__('Ignore', 'vulopilot')}
-								/>
-							</>
-						) : (
-							<BadgeComponent
-								color="blue"
-								role="button"
-								tabIndex={0}
-								onClick={() => handleReopen(asRecord)}
-								text={__('Reopen', 'vulopilot')}
-							/>
-						)}
-					</div>
-				);
-			},
+			// Native `type: 'action'` + `type: 'button'` actions
+			// (TableRowActions.tsx) instead of a hand-built
+			// `<BadgeComponent>` in `render` — same real Fix/Resolve/
+			// Ignore/Reopen actions. Fix/Resolve/Ignore only apply to an
+			// open finding, Reopen only to a resolved/ignored/snoozed one
+			// — `hidden` (zyra's own real per-row action visibility) drops
+			// whichever set doesn't apply to this row's own `status`,
+			// same real either/or the old `row.status === 'open' ? … : …`
+			// branch enforced.
+			type: 'action',
+			actions: [
+				{
+					type: 'button',
+					label: __('Fix', 'vulopilot'),
+					hidden: (row) => 'open' !== (row as Finding | undefined)?.status,
+					onClick: (row) => handleFix(row),
+				},
+				{
+					type: 'button',
+					label: __('Resolve', 'vulopilot'),
+					hidden: (row) => 'open' !== (row as Finding | undefined)?.status,
+					onClick: (row) => handleResolve(row),
+				},
+				{
+					type: 'button',
+					label: __('Ignore', 'vulopilot'),
+					hidden: (row) => 'open' !== (row as Finding | undefined)?.status,
+					onClick: (row) => handleIgnore(row),
+				},
+				{
+					type: 'button',
+					label: __('Reopen', 'vulopilot'),
+					hidden: (row) => 'open' === (row as Finding | undefined)?.status,
+					onClick: (row) => handleReopen(row),
+				},
+			],
 		},
 	};
 

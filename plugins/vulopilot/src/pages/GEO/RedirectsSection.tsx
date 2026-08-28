@@ -6,6 +6,7 @@ import {
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
+	MetricTileComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -13,8 +14,6 @@ import {
 } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
-import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
-import TypographyComponent from '../../components/TypographyComponent';
 import { formatWpDate } from '../../services/formatWpDate';
 import { RowAction, RowActionsMenu } from './seoIssuesShared';
 import './SeoVisibility.scss';
@@ -586,66 +585,92 @@ const RedirectsSection = () => {
 
 	return (
 		<ColumnComponent>
-			<MetricTileGrid variant="broken-links" className="redirect-stat-grid">
-				<MetricTile variant="broken-links" icon="update" title={__('Total Redirects', 'vulopilot')} isLoading={isLoading}>
-					<TypographyComponent as="span" variant="h3" className="redirect-stat-value">
-						{totalCount}
-					</TypographyComponent>
-					<p className="desc">{__('All redirects found', 'vulopilot')}</p>
-				</MetricTile>
-				<MetricTile variant="broken-links" icon="check" iconColor="#16a34a" title={__('Active', 'vulopilot')} isLoading={isLoading}>
-					<TypographyComponent as="span" variant="h3" className="redirect-stat-value is-good">
-						{activeCount}
-					</TypographyComponent>
-					<p className="desc">
-						{sprintf(
+			<MetricTileComponent
+				cols={5}
+				className="redirect-stat-grid"
+				// Grid-wide, not per-tile — `MetricTileComponent`'s own `isLoading`
+				// is one flag for the whole grid (see its own docblock), unlike
+				// the old local `MetricTile`'s per-tile prop this replaces, which
+				// let the last 2 tiles (their own separate `GET /redirects/health`
+				// fetch) skeleton independently of the first 3 (`allRedirects`).
+				// Both real fetches start together in the same effect below and
+				// neither is Pro-gated, so combining them is the honest read
+				// here — not the same "exclude one slow Pro-gated tile" trade-off
+				// CommerceCategoryGrid.tsx's own docblock makes for its Revenue
+				// tile.
+				isLoading={isLoading || isCheckingHealth}
+				data={[
+					{
+						id: 'total',
+						icon: 'update',
+						title: __('Total Redirects', 'vulopilot'),
+						number: totalCount,
+						desc: __('All redirects found', 'vulopilot'),
+					},
+					{
+						id: 'active',
+						icon: 'check',
+						iconColor: '#16a34a',
+						title: __('Active', 'vulopilot'),
+						number: (
+							<span className="redirect-stat-value is-good">
+								{activeCount}
+							</span>
+						),
+						desc: sprintf(
 							/* translators: %d: percentage of redirects that are active. */
 							__('Working correctly · %d%% of total', 'vulopilot'),
 							totalCount ? Math.round((activeCount / totalCount) * 100) : 0
-						)}
-					</p>
-				</MetricTile>
-				<MetricTile variant="broken-links" icon="link" iconColor="#b45309" title={__('Redirect Chains', 'vulopilot')} isLoading={isLoading}>
-					<TypographyComponent as="span" variant="h3" className="redirect-stat-value is-attention">
-						{chainCount}
-					</TypographyComponent>
-					<p className="desc">
-						{chainCount
+						),
+					},
+					{
+						id: 'chains',
+						icon: 'link',
+						iconColor: '#b45309',
+						title: __('Redirect Chains', 'vulopilot'),
+						number: (
+							<span className="redirect-stat-value is-attention">
+								{chainCount}
+							</span>
+						),
+						desc: chainCount
 							? sprintf(
 								/* translators: %d: number of chains detected. */
 								_n('%d chain detected — needs review', '%d chains detected — needs review', chainCount, 'vulopilot'),
 								chainCount
 							)
-							: __('No chains detected', 'vulopilot')}
-					</p>
-				</MetricTile>
-				<MetricTile variant="broken-links" icon="error" title={__('Broken Redirects', 'vulopilot')} isLoading={isCheckingHealth}>
-					<TypographyComponent as="span" variant="h3" className="redirect-stat-value">
-						{brokenCount}
-					</TypographyComponent>
-					<p className="desc">
-						{sprintf(
+							: __('No chains detected', 'vulopilot'),
+					},
+					{
+						id: 'broken',
+						icon: 'error',
+						title: __('Broken Redirects', 'vulopilot'),
+						number: brokenCount,
+						desc: sprintf(
 							/* translators: %d: percentage of redirects that are broken. */
 							__('Needs attention · %d%% of total', 'vulopilot'),
 							totalCount ? Math.round((brokenCount / totalCount) * 100) : 0
-						)}
-					</p>
-				</MetricTile>
-				<MetricTile variant="broken-links" icon="calendar" title={__('Last Checked', 'vulopilot')} isLoading={isCheckingHealth}>
-					<TypographyComponent as="span" variant="h3" className="redirect-stat-value is-muted">
-						{health ? formatWpDate(new Date(health.checked_at * 1000).toISOString()) : __('Never', 'vulopilot')}
-					</TypographyComponent>
-					<p className="desc">
-						{nextCheckLabel
+						),
+					},
+					{
+						id: 'last-checked',
+						icon: 'calendar',
+						title: __('Last Checked', 'vulopilot'),
+						number: (
+							<span className="redirect-stat-value is-muted">
+								{health ? formatWpDate(new Date(health.checked_at * 1000).toISOString()) : __('Never', 'vulopilot')}
+							</span>
+						),
+						desc: nextCheckLabel
 							? sprintf(
 								/* translators: %s: formatted date/time of the next automatic health check. */
 								__('Next automatic check: %s', 'vulopilot'),
 								nextCheckLabel
 							)
-							: __('Broken-redirect check has not run yet.', 'vulopilot')}
-					</p>
-				</MetricTile>
-			</MetricTileGrid>
+							: __('Broken-redirect check has not run yet.', 'vulopilot'),
+					},
+				]}
+			/>
 
 			<CardComponent title={__('Redirects', 'vulopilot')} titleIcon="link">
 				<div className="redirect-toolbar">

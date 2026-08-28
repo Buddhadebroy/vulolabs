@@ -1,13 +1,14 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	AnalyticsComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
+	MetricTileComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
 } from '@zyra/components';
@@ -27,13 +28,14 @@ const CATEGORY_CARDS: {
 	/** A fixed per-category identity color for the icon box — independent of `ratingColor(category.score)`, which separately tints the border/graph/number by real live status. */
 	color: string;
 }[] = [
-	{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search', color: 'purple' },
-	{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list', color: 'blue' },
-	{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment', color: 'green' },
-	{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'admin-links', color: 'indigo' },
-	{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery', color: 'teal' },
-	{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks', color: 'orange' },
-];
+		{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search blue', color: 'purple' },
+		{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list red', color: 'blue' },
+		{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment pink', color: 'green' },
+		{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'admin-links lime', color: 'indigo' },
+		{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery cyan', color: 'teal' },
+		{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks teal', color: 'orange' },
+	];
+
 
 /**
  * Real `robots-txt`/`sitemap`/`sitemap-validation`/`ai-crawler-blocked-pages`
@@ -54,6 +56,29 @@ const SEARCH_ENGINE_ACCESS_SCANNER_IDS = [
 	'ai-crawler-blocked-pages',
 ];
 
+
+/**
+ * Real day-by-day average of every real per-category `trend` array
+ * (`Seo.php`'s own `get_category_trend()`, already real, one point per
+ * category per day) — the "All areas" tile's own sparkline below. A real
+ * derived number, not a fabricated one: each day's value is the same real
+ * per-category scores `CATEGORY_CARDS`' own 6 tiles already plot,
+ * averaged the same way `average()` (GeoVisibilitySummaryCard.tsx) folds
+ * several already-fetched real sub-scores into one combined number.
+ */
+const overallCategoryTrend = (score: SeoScoreResponse): number[] => {
+	const trends = Object.values(score.category_scores).map(
+		(category) => category.trend
+	);
+	const days = trends[0]?.length ?? 0;
+
+	return Array.from({ length: days }, (_, dayIndex) =>
+		Math.round(
+			trends.reduce((sum, trend) => sum + (trend[dayIndex] ?? 0), 0) /
+				trends.length
+		)
+	);
+};
 
 /**
  * Real week-over-week delta text for one of `useSeoScore()`'s own
@@ -128,7 +153,10 @@ const isSeoModuleActive = () =>
  * - "SEO areas" is the same real per-category score grid as before, now 6
  *   tiles instead of 3 (`Seo.php`'s own docblock has the full scanner-id
  *   regrouping) with 2 more real numbers per tile (open issue count, real
- *   distinct affected-page count) alongside the existing score.
+ *   distinct affected-page count) alongside the existing score, plus a
+ *   real 7th "All Areas" tile combining those 6 (`overallCategoryTrend()`'s
+ *   own docblock) — same real overall numbers the "SEO Health Score" card
+ *   above already shows, not a second invented total.
  * - "What should I fix first?"/"Pages that need attention"/"All SEO
  *   findings" are the same real `SeoIssuesSection`/`IssuesSection` this tab
  *   already had (priority stat cards + the 2 real tables) — unchanged.
@@ -226,37 +254,22 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
-				<NoticeComponent
-					// type="banner"
-					displayPosition="inline"
-					message={sprintf(
-						'<strong>%1$s</strong> %2$s',
-						__('In plain English:', 'vulopilot'),
-						__(
-							'This checks whether your pages are set up correctly for classic Google search — titles, descriptions, images, and internal links.',
-							'vulopilot'
-						)
-					)}
-				/>
-
 				<div className="seo-search-engine-access">
 					<span
-						className={`crawler-health-status ${
-							null === searchEngineAccessOpen
-								? ''
-								: 0 === searchEngineAccessOpen
-									? 'is-good'
-									: 'is-warning'
-						}`}
+						className={`crawler-health-status ${null === searchEngineAccessOpen
+							? ''
+							: 0 === searchEngineAccessOpen
+								? 'is-good'
+								: 'is-warning'
+							}`}
 					>
 						<i
-							className={`adminfont-${
-								null === searchEngineAccessOpen
-									? 'info'
-									: 0 === searchEngineAccessOpen
-										? 'check'
-										: 'error'
-							}`}
+							className={`adminfont-${null === searchEngineAccessOpen
+								? 'info'
+								: 0 === searchEngineAccessOpen
+									? 'check'
+									: 'error'
+								}`}
 						/>
 						{sprintf(
 							/* translators: %s is "Healthy", "Needs Attention", or "Checking…". */
@@ -278,92 +291,102 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					</button>
 				</div>
 
-				<SeoProgressCard />
 
 				<CardComponent
 					title={__('SEO Health Score', 'vulopilot')}
-					desc={__(
-						'A composite score across every real SEO check below.',
-						'vulopilot'
-					)}
 					isLoading={isLoadingScore}
 				>
 					{score && (
 						<div className="seo-health-score-layout">
-							<div className="geo-overall-visibility seo-health-score-ring">
-								<ChartComponent
-									type="pie"
-									height={140}
-									centerLabel={
-										<>
-											<span className="score-ring-number">
-												{score.seo_score}
-											</span>
+							<ChartComponent
+								type="ring"
+								height={140}
+								centerLabel={
+									<>
+										<span className="score-ring-number">
+											{score.seo_score}
+										</span>
+										<span
+											className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
+										>
+											{getRating(score.seo_score)}
+										</span>
+									</>
+								}
+								data={[
+									{
+										label: __('Score', 'vulopilot'),
+										value: score.seo_score,
+										// Same real rating color the ring's
+										// own "Needs Attention"/"Good"/"Poor"
+										// label below already uses
+										// (`ratingClass()`/`getRating()`) —
+										// resolved through `COLOR_PALETTE`
+										// for the real hex `ratingColor()`'s
+										// own palette name stands for,
+										// rather than a fixed brand purple
+										// unrelated to the actual score.
+										color: COLOR_PALETTE[
+											ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE
+										],
+									},
+									{
+										label: __('Remaining', 'vulopilot'),
+										value: 100 - score.seo_score,
+										color: '#e5e7eb',
+									},
+								]}
+							/>
+							<AnalyticsComponent
+								variant="with-out-boxshadow"
+								cols={4}
+								isLoading={isLoadingScore}
+								data={[
+									{
+										number: score.pages_checked,
+										text: __('Pages checked', 'vulopilot'),
+										iconClass: 'admin-bg-color2',
+									},
+									{
+										number: score.total_open,
+										text: __('Issues found', 'vulopilot'),
+										iconClass: 'admin-bg-color2',
+										extra: (
 											<span
-												className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
+												className={
+													score.deltas.total_open <= 0
+														? 'is-good'
+														: 'is-attention'
+												}
 											>
-												{getRating(score.seo_score)}
+												{deltaLabel(
+													score.deltas.total_open,
+													score.deltas.lookback_days
+												)}
 											</span>
-										</>
-									}
-									data={[
-										{
-											label: __('Score', 'vulopilot'),
-											value: score.seo_score,
-											color: '#7C3AED',
-										},
-										{
-											label: __('Remaining', 'vulopilot'),
-											value: 100 - score.seo_score,
-											color: '#e5e7eb',
-										},
-									]}
-								/>
-							</div>
-							<div className="seo-health-score-stats">
-								<div className="seo-health-stat">
-									<div className="typography-h3">
-										{score.pages_checked}
-									</div>
-									<div className="typography-body-xs">
-										{__('Pages checked', 'vulopilot')}
-									</div>
-								</div>
-								<div className="seo-health-stat">
-									<div className="typography-h3">
-										{score.total_open}
-									</div>
-									<div className="typography-body-xs">
-										{__('Issues found', 'vulopilot')}
-									</div>
-									<div
-										className={`typography-caption ${score.deltas.total_open <= 0 ? 'is-good' : 'is-attention'}`}
-									>
-										{deltaLabel(score.deltas.total_open, score.deltas.lookback_days)}
-									</div>
-								</div>
-							</div>
+										),
+									},
+									{
+									number: (
+										<span className="is-poor">
+											{score.severity_breakdown.critical}
+										</span>
+									),
+									text: __('Critical issues', 'vulopilot'),
+									iconClass: 'admin-bg-color2',
+								},
+								{
+									number: (
+										<span className="is-attention">
+											{score.severity_breakdown.high}
+										</span>
+									),
+									text: __('High priority issues', 'vulopilot'),
+									iconClass: 'admin-bg-color2',
+								},
+								]}
+							/>
 
-							<div className="seo-health-score-divider" />
-
-							<div className="seo-health-score-stats seo-health-score-stats-severity">
-								<div className="seo-health-stat">
-									<div className="typography-h3 is-poor">
-										{score.severity_breakdown.critical}
-									</div>
-									<div className="typography-body-xs">
-										{__('Critical issues', 'vulopilot')}
-									</div>
-								</div>
-								<div className="seo-health-stat">
-									<div className="typography-h3 is-attention">
-										{score.severity_breakdown.high}
-									</div>
-									<div className="typography-body-xs">
-										{__('High priority issues', 'vulopilot')}
-									</div>
-								</div>
-							</div>
 						</div>
 					)}
 				</CardComponent>
@@ -376,58 +399,97 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					)}
 					isLoading={isLoadingScore}
 				>
-					<div className="seo-category-grid">
-						<AnalyticsComponent
-							cols="4"
-							data={
-								score
-									? CATEGORY_CARDS.map((card) => {
-											const category = score.category_scores[card.key];
-											return {
-												icon: card.icon,
-												iconClass: `icon-${card.color}`,
-												colorClass: ratingColor(category.score),
-												number: `${category.score}/100`,
-												text: (
-													<>
-														<div className="seo-area-tile-title">
-															{card.title}
-														</div>
-														<span
-															className={`seo-area-tile-pill ${ratingClass(category.score)}`}
-														>
-															{getRating(category.score)}
-														</span>
-														<div className="seo-area-tile-issues">
-															{sprintf(
-																/* translators: %d: number of open issues. */
-																__('%d issues', 'vulopilot'),
-																category.open_count
-															)}
-														</div>
-														<div className="seo-area-tile-pages typography-caption">
-															{sprintf(
-																/* translators: %d: number of affected pages. */
-																__('%d pages affected', 'vulopilot'),
-																category.affected_pages
-															)}
-														</div>
-													</>
-												),
-												onClick: () =>
-													setCategoryFocus({
-														key: card.key,
-														token: Date.now(),
-													}),
-											};
-										})
-									: []
-							}
-							variant="small-card"
+					{score && (
+						<MetricTileComponent
 							cols={3}
 							isLoading={isLoadingScore}
+							data={[
+								...CATEGORY_CARDS.map((card) => {
+									const category = score.category_scores[card.key];
+
+									return {
+										id: card.key,
+										icon: card.icon,
+										title: card.title,
+										number: sprintf(
+											/* translators: %d: real 0-100 category score. */
+											__('%d/100', 'vulopilot'),
+											category.score
+										),
+										stat: sprintf(
+											/* translators: %d: number of open issues. */
+											__('%d issues', 'vulopilot'),
+											category.open_count
+										),
+										desc: sprintf(
+											/* translators: %d: number of affected pages. */
+											__('%d pages affected', 'vulopilot'),
+											category.affected_pages
+										),
+										chart: {
+											type: 'sparkline',
+											data: category.trend,
+											color: COLOR_PALETTE[ratingColor(category.score) as keyof typeof COLOR_PALETTE],
+										},
+										badge: {
+											text: getRating(category.score),
+											color: ratingColor(category.score),
+											onClick: () =>
+												setCategoryFocus({
+													key: card.key,
+													token: Date.now(),
+												}),
+										},
+									};
+								}),
+								// A real 7th "All areas" tile combining the 6 real
+								// categories above — not a fabricated summary:
+								// score/open-count are the same overall
+								// `score.seo_score`/`score.total_open` the "SEO
+								// Health Score" card above already shows, "pages
+								// checked" is that same card's own real total
+								// scope (not a naive per-category sum, which
+								// would double-count a page flagged in more than
+								// one category), and the sparkline is a real
+								// day-by-day average of the 6 categories' own
+								// already-real trends (`overallCategoryTrend()`).
+								{
+									id: 'all',
+									icon: 'category gray',
+									title: __('All Areas', 'vulopilot'),
+									number: sprintf(
+										/* translators: %d: real 0-100 sitewide SEO score. */
+										__('%d/100', 'vulopilot'),
+										score.seo_score
+									),
+									stat: sprintf(
+										/* translators: %d: number of open issues across every SEO area. */
+										__('%d issues', 'vulopilot'),
+										score.total_open
+									),
+									desc: sprintf(
+										/* translators: %d: total real published pages checked. */
+										__('%d pages checked', 'vulopilot'),
+										score.pages_checked
+									),
+									chart: {
+										type: 'sparkline',
+										data: overallCategoryTrend(score),
+										color: COLOR_PALETTE[ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE],
+									},
+									badge: {
+										text: getRating(score.seo_score),
+										color: ratingColor(score.seo_score),
+										onClick: () =>
+											setCategoryFocus({
+												key: 'all',
+												token: Date.now(),
+											}),
+									},
+								},
+							]}
 						/>
-					</div>
+					)}
 				</CardComponent>
 
 				<WhatShouldIFixFirstCard
@@ -443,7 +505,10 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					isLoadingScore={isLoadingScore}
 				/>
 
-				<PagesNeedingAttentionTable onAnalyze={setAnalyzingPostId} />
+				<PagesNeedingAttentionTable
+					onAnalyze={setAnalyzingPostId}
+					activePostId={analyzingPostId}
+				/>
 
 				<SeoIssuesSection
 					categoryFocus={categoryFocus}
@@ -459,6 +524,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					/>
 				</ColumnComponent>
 			)}
+			<SeoProgressCard />
 		</ContainerComponent>
 	);
 };

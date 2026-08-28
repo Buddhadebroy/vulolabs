@@ -6,6 +6,7 @@ import {
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
+	MetricTileComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -14,8 +15,6 @@ import {
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { Finding, getFindingFixHandler } from '../../services/useFindingsTable';
-import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
-import TypographyComponent from '../../components/TypographyComponent';
 import { formatWpDate } from '../../services/formatWpDate';
 import { RowAction, RowActionsMenu } from './seoIssuesShared';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -899,79 +898,59 @@ const BrokenLinksSection = () => {
 					</CardComponent>
 				) : (
 					<>
-						<MetricTileGrid variant="broken-links">
-							<MetricTile
-								variant="broken-links"
-								icon="link"
-								iconColor="#dc2626"
-								title={__('Broken Links', 'vulopilot')}
-								isLoading={isLoadingFindings}
-							>
-								<TypographyComponent
-									as="span"
-									variant="h3"
-									className="broken-link-stat-value"
-								>
-									{summary.brokenLinks}
-								</TypographyComponent>
-								<p className="desc">
-									{__('Currently open — needs attention', 'vulopilot')}
-								</p>
-							</MetricTile>
-							<MetricTile
-								variant="broken-links"
-								icon="attachment"
-								iconColor="#dc2626"
-								title={__('Broken Images', 'vulopilot')}
-								isLoading={isLoadingFindings}
-							>
-								<TypographyComponent
-									as="span"
-									variant="h3"
-									className="broken-link-stat-value"
-								>
-									{summary.brokenImages}
-								</TypographyComponent>
-								<p className="desc">
-									{__('Currently open — needs attention', 'vulopilot')}
-								</p>
-							</MetricTile>
-							<MetricTile
-								variant="broken-links"
-								icon="info"
-								iconColor="#b45309"
-								title={__("Couldn't Verify", 'vulopilot')}
-								isLoading={isLoadingFindings}
-							>
-								<TypographyComponent
-									as="span"
-									variant="h3"
-									className="broken-link-stat-value is-attention"
-								>
-									{summary.couldntVerify}
-								</TypographyComponent>
-								<p className="desc">
-									{__('Timed out or DNS failed on last check', 'vulopilot')}
-								</p>
-							</MetricTile>
-							<MetricTile
-								variant="broken-links"
-								icon="eye-blocked"
-								title={__('Ignored', 'vulopilot')}
-								isLoading={isLoadingFindings}
-							>
-								<TypographyComponent
-									as="span"
-									variant="h3"
-									className="broken-link-stat-value is-muted"
-								>
-									{summary.ignored}
-								</TypographyComponent>
-								<p className="desc">
-									{__('Hidden from “needs attention”', 'vulopilot')}
-								</p>
-							</MetricTile>
-						</MetricTileGrid>
+						<MetricTileComponent
+							cols={4}
+							isLoading={isLoadingFindings}
+							data={[
+								{
+									id: 'broken-links',
+									icon: 'link',
+									iconColor: '#dc2626',
+									title: __('Broken Links', 'vulopilot'),
+									number: (
+										<span className="broken-link-stat-value">
+											{summary.brokenLinks}
+										</span>
+									),
+									desc: __('Currently open — needs attention', 'vulopilot'),
+								},
+								{
+									id: 'broken-images',
+									icon: 'attachment',
+									iconColor: '#dc2626',
+									title: __('Broken Images', 'vulopilot'),
+									number: (
+										<span className="broken-link-stat-value">
+											{summary.brokenImages}
+										</span>
+									),
+									desc: __('Currently open — needs attention', 'vulopilot'),
+								},
+								{
+									id: 'unverified',
+									icon: 'info',
+									iconColor: '#b45309',
+									title: __("Couldn't Verify", 'vulopilot'),
+									number: (
+										<span className="broken-link-stat-value is-attention">
+											{summary.couldntVerify}
+										</span>
+									),
+									desc: __('Timed out or DNS failed on last check', 'vulopilot'),
+								},
+								{
+									id: 'ignored',
+									icon: 'eye-blocked',
+									title: __('Ignored', 'vulopilot'),
+									number: (
+										<span className="broken-link-stat-value is-muted">
+											{summary.ignored}
+										</span>
+									),
+									desc: __('Hidden from “needs attention”', 'vulopilot'),
+								},
+							]}
+						/>
 
 						{!isLoadingFindings && 0 === needAttentionTotal && (
 							<p className="desc">

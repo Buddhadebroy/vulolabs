@@ -116,37 +116,34 @@ const AccessibilityHeroCard = ({
 		<CardComponent isLoading={!isReady} className="accessibility-hero">
 			{isReady && (
 				<>
-					{/* <div className="accessibility-hero-score"> */}
-						<ChartComponent
-							type="pie"
-							height={90}
-							centerLabel={
-								<>
-									<span className="score-ring-number">{score}</span>
-									<span className="score-ring-label">/100</span>
-								</>
-							}
-							data={[
-								{
-									label: __('Score', 'vulopilot'),
-									value: score as number,
-									color: '#7c3aed',
-								},
-								{
-									label: __('Remaining', 'vulopilot'),
-									value: 100 - (score as number),
-									color: '#f97316',
-								},
-							]}
-						/>
-					{/* </div> */}
+					<ChartComponent
+						type="ring"
+						height={150}
+						centerLabel={
+							<>
+								<span className="score-ring-number">{score}</span>
+								<span className="score-ring-label">/100</span>
+							</>
+						}
+						data={[
+							{
+								label: __('Score', 'vulopilot'),
+								value: score as number,
+								color: '#7c3aed',
+							},
+							{
+								label: __('Remaining', 'vulopilot'),
+								value: 100 - (score as number),
+								color: '#f97316',
+							},
+						]}
+					/>
 					<div className="title">
 						{getRating(score as number)}
 						{null !== scoreDelta && (
 							<span
-								className={`accessibility-hero-delta ${
-									scoreDelta > 0 ? 'is-up' : 'is-down'
-								}`}
+								className={`accessibility-hero-delta ${scoreDelta > 0 ? 'is-up' : 'is-down'
+									}`}
 							>
 								{sprintf(
 									/* translators: 1: "↑" or "↓", 2: how many points the accessibility score changed by since last week. */
@@ -160,18 +157,18 @@ const AccessibilityHeroCard = ({
 					<div className="desc">
 						{total > 0
 							? sprintf(
-									/* translators: 1: number of open accessibility findings, 2: number of distinct pages affected. */
-									__(
-										'%1$d accessibility issue(s) found across %2$d page(s). Most visitors can use your site, but some areas could be improved.',
-										'vulopilot'
-									),
-									total,
-									pagesAffected
-								)
-							: __(
-									"You're all caught up — no open accessibility issues right now.",
+								/* translators: 1: number of open accessibility findings, 2: number of distinct pages affected. */
+								__(
+									'%1$d accessibility issue(s) found across %2$d page(s). Most visitors can use your site, but some areas could be improved.',
 									'vulopilot'
-								)}
+								),
+								total,
+								pagesAffected
+							)
+							: __(
+								"You're all caught up — no open accessibility issues right now.",
+								'vulopilot'
+							)}
 					</div>
 					{total > 0 && (
 						<>
@@ -200,31 +197,31 @@ const AccessibilityHeroCard = ({
 							/>
 						</>
 					)}
-						<ButtonInput
-							position="full-width"
-							buttons={[
-								{
-									text: __('Review Important Issues', 'vulopilot'),
-									rightIcon: 'pagination-right-arrow',
-									color: 'purple-bg',
-									onClick: onReviewIssues,
-								},
-								...(total > 0
-									? [
-											{
-												text: sprintf(
-													/* translators: %d is the number of open findings. */
-													__('View All %d Findings', 'vulopilot'),
-													total
-												),
-												rightIcon: 'pagination-right-arrow',
-												color: 'border-purple',
-												onClick: onViewAll,
-											},
-										]
-									: []),
-							]}
-						/>
+					<ButtonInput
+						position="full-width"
+						buttons={[
+							{
+								text: __('Review Important Issues', 'vulopilot'),
+								rightIcon: 'pagination-right-arrow',
+								color: 'purple-bg',
+								onClick: onReviewIssues,
+							},
+							...(total > 0
+								? [
+									{
+										text: sprintf(
+											/* translators: %d is the number of open findings. */
+											__('View All %d Findings', 'vulopilot'),
+											total
+										),
+										rightIcon: 'pagination-right-arrow',
+										color: 'border-purple',
+										onClick: onViewAll,
+									},
+								]
+								: []),
+						]}
+					/>
 				</>
 			)}
 		</CardComponent>

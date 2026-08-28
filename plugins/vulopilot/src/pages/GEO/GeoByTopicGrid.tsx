@@ -1,5 +1,6 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CardComponent, BadgeComponent, SectionComponent } from '@zyra/components';
+import { MetricTileComponent, SectionComponent } from '@zyra/components';
+import type { MetricTileItem } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { sumGroupCounts } from './useGeoFindingGroups';
 import { countDistinctAffectedPages } from './useGeoTopicAffectedPages';
@@ -37,6 +38,15 @@ interface GeoByTopicGridProps {
  * fetch GeoFixTheseFirstCard.tsx already uses — no second fetch). "View
  * issues" switches the unified table's own active tab to that topic
  * instead of duplicating a second findings list here.
+ *
+ * Tiles are a real `MetricTileComponent` (`@zyra/components`) —
+ * icon/title/badge/grid shell all come from there now; only this grid's
+ * own divergent stat body (the two-stat "Open issues"/"Affected pages"
+ * row, or the single-line sublabel fallback) still needs its own markup,
+ * passed through that component's own `desc` slot (arbitrary content, not
+ * just text) — same "real content lives in `desc`, shell comes from
+ * MetricTileComponent" split CommerceCategoryGrid.tsx's own category tiles
+ * already use.
  */
 const GeoByTopicGrid = ({
 	topics,
@@ -46,85 +56,65 @@ const GeoByTopicGrid = ({
 	title,
 	desc,
 	affectedPagesByScanner,
-}: GeoByTopicGridProps) => (
-	<div className="geo-by-topic-section">
-		<SectionComponent
-			title={title || __('A Closer Look, By Topic', 'vulopilot')}
-			desc={
-				desc ||
-				__(
-					'We grouped every issue by the kind of thing AI is looking for.',
-					'vulopilot'
-				)
-			}
-		/>
-		<div className="geo-by-topic-grid">
-			{topics.map((topic) => {
-				const count = sumGroupCounts(groups, topic.scannerIds);
-				const affectedPages = affectedPagesByScanner
-					? countDistinctAffectedPages(affectedPagesByScanner, topic.scannerIds)
-					: null;
+}: GeoByTopicGridProps) => {
+	const tiles: MetricTileItem[] = topics.map((topic) => {
+		const count = sumGroupCounts(groups, topic.scannerIds);
+		const affectedPages = affectedPagesByScanner
+			? countDistinctAffectedPages(affectedPagesByScanner, topic.scannerIds)
+			: null;
 
-				return (
-					<CardComponent
-						key={topic.key}
-						className="geo-by-topic-tile"
-						isLoading={isLoading}
-					>
-						<div className="geo-by-topic-tile-header">
-							<i className={`adminfont-${topic.titleIcon}`} />
-							<BadgeComponent
-								color={count > 0 ? 'red' : 'green'}
-								text={String(count)}
-							/>
-						</div>
-						<div className="geo-by-topic-tile-title">{topic.title}</div>
-						{null === affectedPages ? (
-							<p className="geo-by-topic-tile-sublabel">
-								{sprintf(
-									/* translators: %d is the number of real open GEO findings under this topic. */
-									_n(
-										'%d open issue',
-										'%d open issues',
-										count,
-										'vulopilot'
-									),
-									count
-								)}
-							</p>
-						) : (
-							<div className="geo-by-topic-tile-stats">
-								<div className="geo-by-topic-tile-stat">
-									<span className="geo-by-topic-tile-stat-label">
-										{__('Open issues', 'vulopilot')}
-									</span>
-									<span className="geo-by-topic-tile-stat-value">
-										{count}
-									</span>
-								</div>
-								<div className="geo-by-topic-tile-stat">
-									<span className="geo-by-topic-tile-stat-label">
-										{__('Affected pages', 'vulopilot')}
-									</span>
-									<span className="geo-by-topic-tile-stat-value">
-										{affectedPages}
-									</span>
-								</div>
-							</div>
+		return {
+			id: topic.key,
+			icon: topic.titleIcon,
+			title: topic.title,
+			badge: {
+				color: count > 0 ? 'red' : 'green',
+				text: String(count),
+			},
+			desc:
+				null === affectedPages ? (
+					<p className="geo-by-topic-tile-sublabel">
+						{sprintf(
+							/* translators: %d is the number of real open GEO findings under this topic. */
+							_n('%d open issue', '%d open issues', count, 'vulopilot'),
+							count
 						)}
-						<ButtonInput
-							position="left"
-							buttons={{
-								text: `${__('View issues', 'vulopilot')} ›`,
-								color: 'text-purple',
-								onClick: () => onViewTopic(topic.key),
-							}}
-						/>
-					</CardComponent>
-				);
-			})}
-		</div>
-	</div>
-);
+					</p>
+				) : (
+					<div className="geo-by-topic-tile-stats">
+						<div className="geo-by-topic-tile-stat">
+							<span className="geo-by-topic-tile-stat-label">
+								{__('Open issues', 'vulopilot')}
+							</span>
+							<span className="geo-by-topic-tile-stat-value">{count}</span>
+						</div>
+						<div className="geo-by-topic-tile-stat">
+							<span className="geo-by-topic-tile-stat-label">
+								{__('Affected pages', 'vulopilot')}
+							</span>
+							<span className="geo-by-topic-tile-stat-value">
+								{affectedPages}
+							</span>
+						</div>
+					</div>
+				),
+			footer: (
+				<ButtonInput
+					buttons={{
+						text: `${__('View issues', 'vulopilot')} ›`,
+						color: 'text-purple',
+						onClick: () => onViewTopic(topic.key),
+					}}
+				/>
+			),
+		};
+	});
+
+	return (
+		<>
+			<MetricTileComponent autoFit minTileWidth={13} compact isLoading={isLoading} data={tiles} />
+		</>
+	);
+};
 
 export default GeoByTopicGrid;

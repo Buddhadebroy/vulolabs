@@ -7,6 +7,7 @@ import {
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
+	MetricTileComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -14,7 +15,6 @@ import {
 } from '@zyra/components';
 import { ButtonInput, TextAreaInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
-import MetricTile, { MetricTileGrid } from '../../components/MetricTile/MetricTile';
 import TypographyComponent from '../../components/TypographyComponent';
 import { formatWpDate } from '../../services/formatWpDate';
 import { useFindingsTable } from '../../services/useFindingsTable';
@@ -413,23 +413,25 @@ const CrawlRobotsSitemapSection = () => {
 	return (
 		<>
 			<ColumnComponent>
-				<MetricTileGrid variant="broken-links">
-					<MetricTile
-						variant="broken-links"
-						icon={'valid' === robotsStatus ? 'check' : 'error'}
-						iconColor={'valid' === robotsStatus ? '#16a34a' : 'unreachable' === robotsStatus ? '#dc2626' : '#b45309'}
-						title={__('Robots.txt Status', 'vulopilot')}
-						isLoading={isLoadingRobots}
-					>
-						<TypographyComponent as="span" variant="h3" className="redirect-stat-value">
-							{'valid' === robotsStatus
-								? __('Valid', 'vulopilot')
-								: 'unreachable' === robotsStatus
-									? __('Not reachable', 'vulopilot')
-									: __('Needs attention', 'vulopilot')}
-						</TypographyComponent>
-						<p className="desc">
-							{'valid' === robotsStatus
+				<MetricTileComponent
+					cols={4}
+					isLoading={isLoadingRobots || isLoadingSitemap}
+					data={[
+						{
+							id: 'robots',
+							icon: 'valid' === robotsStatus ? 'check' : 'error',
+							iconColor: 'valid' === robotsStatus ? '#16a34a' : 'unreachable' === robotsStatus ? '#dc2626' : '#b45309',
+							title: __('Robots.txt Status', 'vulopilot'),
+							number: (
+								<span className="redirect-stat-value">
+									{'valid' === robotsStatus
+										? __('Valid', 'vulopilot')
+										: 'unreachable' === robotsStatus
+											? __('Not reachable', 'vulopilot')
+											: __('Needs attention', 'vulopilot')}
+								</span>
+							),
+							desc: 'valid' === robotsStatus
 								? __('Reachable and valid', 'vulopilot')
 								: 'unreachable' === robotsStatus
 									? __('robots.txt did not respond', 'vulopilot')
@@ -437,68 +439,74 @@ const CrawlRobotsSitemapSection = () => {
 										/* translators: %d: number of open robots.txt findings. */
 										__('%d open finding(s)', 'vulopilot'),
 										robotsOpenCount
-									)}
-						</p>
-						<a href={robots?.url ?? `${appLocalizer.site_url}/robots.txt`} target="_blank" rel="noreferrer">
-							{__('View robots.txt', 'vulopilot')}
-						</a>
-					</MetricTile>
-
-					<MetricTile
-						variant="broken-links"
-						icon={'valid' === sitemapStatus ? 'check' : 'error'}
-						iconColor={'valid' === sitemapStatus ? '#16a34a' : 'unreachable' === sitemapStatus ? '#dc2626' : '#b45309'}
-						title={__('XML Sitemap Status', 'vulopilot')}
-						isLoading={isLoadingSitemap}
-					>
-						<TypographyComponent as="span" variant="h3" className="redirect-stat-value">
-							{'valid' === sitemapStatus
-								? __('Valid', 'vulopilot')
-								: 'unreachable' === sitemapStatus
-									? __('Not reachable', 'vulopilot')
-									: __('Needs attention', 'vulopilot')}
-						</TypographyComponent>
-						<p className="desc">
-							{'valid' === sitemapStatus
+									),
+							footer: (
+								<a href={robots?.url ?? `${appLocalizer.site_url}/robots.txt`} target="_blank" rel="noreferrer">
+									{__('View robots.txt', 'vulopilot')}
+								</a>
+							),
+							footerAlign: 'start' as const,
+						},
+						{
+							id: 'sitemap',
+							icon: 'valid' === sitemapStatus ? 'check' : 'error',
+							iconColor: 'valid' === sitemapStatus ? '#16a34a' : 'unreachable' === sitemapStatus ? '#dc2626' : '#b45309',
+							title: __('XML Sitemap Status', 'vulopilot'),
+							number: (
+								<span className="redirect-stat-value">
+									{'valid' === sitemapStatus
+										? __('Valid', 'vulopilot')
+										: 'unreachable' === sitemapStatus
+											? __('Not reachable', 'vulopilot')
+											: __('Needs attention', 'vulopilot')}
+								</span>
+							),
+							desc: 'valid' === sitemapStatus
 								? __('Sitemap index is reachable', 'vulopilot')
-								: __('No usable sitemap found', 'vulopilot')}
-						</p>
-						<a href={sitemap?.index_url ?? `${appLocalizer.site_url}/wp-sitemap.xml`} target="_blank" rel="noreferrer">
-							{__('View sitemap index', 'vulopilot')}
-						</a>
-					</MetricTile>
-
-					<MetricTile
-						variant="broken-links"
-						icon="search"
-						iconColor={gscStatus?.search_console_site ? '#16a34a' : undefined}
-						title={__('Search Console', 'vulopilot')}
-					>
-						<TypographyComponent as="span" variant="h3" className="redirect-stat-value is-muted">
-							{gscStatus?.search_console_site || __('Not connected', 'vulopilot')}
-						</TypographyComponent>
-						<p className="desc">
-							{__(
+								: __('No usable sitemap found', 'vulopilot'),
+							footer: (
+								<a href={sitemap?.index_url ?? `${appLocalizer.site_url}/wp-sitemap.xml`} target="_blank" rel="noreferrer">
+									{__('View sitemap index', 'vulopilot')}
+								</a>
+							),
+							footerAlign: 'start' as const,
+						},
+						{
+							id: 'search-console',
+							icon: 'search',
+							iconColor: gscStatus?.search_console_site ? '#16a34a' : undefined,
+							title: __('Search Console', 'vulopilot'),
+							number: (
+								<span className="redirect-stat-value is-muted">
+									{gscStatus?.search_console_site || __('Not connected', 'vulopilot')}
+								</span>
+							),
+							desc: __(
 								'This plugin doesn’t pull an indexed-page count from Search Console yet — only keyword rankings.',
 								'vulopilot'
-							)}
-						</p>
-						<a href={searchConsoleUrl} target="_blank" rel="noreferrer">
-							{gscStatus?.search_console_site
-								? __('Open Search Console', 'vulopilot')
-								: __('Connect Google Services', 'vulopilot')}
-						</a>
-					</MetricTile>
-
-					<MetricTile variant="broken-links" icon="calendar" title={__('Last Checked', 'vulopilot')}>
-						<TypographyComponent as="span" variant="h3" className="redirect-stat-value is-muted">
-							{lastScanAt ? formatWpDate(lastScanAt) : __('Never scanned', 'vulopilot')}
-						</TypographyComponent>
-						<p className="desc">
-							{__('From the most recent robots.txt/sitemap scan run.', 'vulopilot')}
-						</p>
-					</MetricTile>
-				</MetricTileGrid>
+							),
+							footer: (
+								<a href={searchConsoleUrl} target="_blank" rel="noreferrer">
+									{gscStatus?.search_console_site
+										? __('Open Search Console', 'vulopilot')
+										: __('Connect Google Services', 'vulopilot')}
+								</a>
+							),
+							footerAlign: 'start' as const,
+						},
+						{
+							id: 'last-checked',
+							icon: 'calendar',
+							title: __('Last Checked', 'vulopilot'),
+							number: (
+								<span className="redirect-stat-value is-muted">
+									{lastScanAt ? formatWpDate(lastScanAt) : __('Never scanned', 'vulopilot')}
+								</span>
+							),
+							desc: __('From the most recent robots.txt/sitemap scan run.', 'vulopilot'),
+						},
+					]}
+				/>
 
 				<CardComponent
 					title={__('Robots.txt Analysis', 'vulopilot')}

@@ -2,7 +2,7 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, ListComponent, AnalyticsComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { SeoScoreResponse } from './useSeoScore';
 import {
@@ -65,6 +65,12 @@ const WhatShouldIFixFirstCard = ({
 	isLoadingScore,
 }: WhatShouldIFixFirstCardProps) => {
 	const [rankedIssues, setRankedIssues] = useState<RankedIssueType[]>([]);
+	// `severityBreakdown` (useSeoScore()) only ever carries critical/high/
+	// medium/low — no `info` tier. This card already fetches every real
+	// open SEO finding for the ranked list below, so `info`'s own real
+	// count comes from that same fetch (each finding's own real
+	// `severity`) rather than a second endpoint or a fabricated number.
+	const [infoCount, setInfoCount] = useState(0);
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
@@ -79,6 +85,13 @@ const WhatShouldIFixFirstCard = ({
 						nonceHeaders
 					),
 				]);
+
+				if (!cancelled) {
+					setInfoCount(
+						findings.filter((finding) => 'info' === finding.severity)
+							.length
+					);
+				}
 
 				const { byPostId } = bucketFindingsByPage(findings);
 				const labelByScannerId = new Map<string, string>(
@@ -132,11 +145,12 @@ const WhatShouldIFixFirstCard = ({
 			?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	};
 
-	const severityStats: { key: keyof SeoScoreResponse['severity_breakdown']; label: string; className: string }[] = [
-		{ key: 'critical', label: __('Critical', 'vulopilot'), className: 'is-poor' },
-		{ key: 'high', label: __('High', 'vulopilot'), className: 'is-attention' },
-		{ key: 'medium', label: __('Medium', 'vulopilot'), className: 'is-medium' },
-		{ key: 'low', label: __('Low', 'vulopilot'), className: 'is-good' },
+	const severityStats: { key: string; label: string; colorClass: string; icon: string; value: number }[] = [
+		{ key: 'critical', label: __('Critical', 'vulopilot'), colorClass: 'pink', icon: 'error', value: severityBreakdown.critical },
+		{ key: 'high', label: __('High', 'vulopilot'), colorClass: 'green', icon: 'error', value: severityBreakdown.high },
+		{ key: 'medium', label: __('Medium', 'vulopilot'), colorClass: 'yellow', icon: 'error', value: severityBreakdown.medium },
+		{ key: 'low', label: __('Low', 'vulopilot'), colorClass: 'red', icon: 'error', value: severityBreakdown.low },
+		{ key: 'info', label: __('Info', 'vulopilot'), colorClass: 'blue', icon: 'info', value: infoCount },
 	];
 
 	return (
@@ -149,45 +163,53 @@ const WhatShouldIFixFirstCard = ({
 			isLoading={isLoadingScore || isLoading}
 		>
 			<div className="fix-first-layout">
-				<div className="fix-first-severity">
-					{severityStats.map((stat) => (
-						<div className="fix-first-severity-stat" key={stat.key}>
-							<div className={`typography-h3 ${stat.className}`}>
-								{severityBreakdown[stat.key]}
-							</div>
-							<div className="typography-body-xs">{stat.label}</div>
-						</div>
-					))}
-				</div>
+				<AnalyticsComponent
+					cols={3}
+					isLoading={isLoading}
+					variant='small-card'
+					data={severityStats.map((stat) => ({
+						icon: stat.icon,
+						iconClass: stat.colorClass,
+						colorClass: stat.colorClass,
+						number: stat.value,
+						text: stat.label,
+					}))}
+				/>
 
-				<div className="fix-first-ranked">
-					{0 === rankedIssues.length && !isLoading ? (
-						<div className="fix-first-empty typography-body-xs">
-							{__('No open SEO issues right now — nice work.', 'vulopilot')}
-						</div>
-					) : (
-						rankedIssues.map((issue) => (
-							<div className="fix-first-ranked-row" key={issue.scannerId}>
-								<span className="fix-first-ranked-count">
-									{issue.affectedPages}
-								</span>
-								<span className="fix-first-ranked-label">
-									{sprintf(
-										/* translators: %s: real issue type label, e.g. "Canonical URL". */
-										_n(
-											'%s — 1 page affected',
-											'%s — %d pages affected',
-											issue.affectedPages,
-											'vulopilot'
-										),
-										issue.label,
-										issue.affectedPages
-									)}
-								</span>
-							</div>
-						))
-					)}
-				</div>
+				<ListComponent
+					className="mini-card report"
+					items={
+						0 === rankedIssues.length && !isLoading
+							? [
+								{
+									id: 'empty',
+									title: __(
+										'No open SEO issues right now — nice work.',
+										'vulopilot'
+									),
+								},
+							]
+							: rankedIssues.map((issue) => ({
+								id: String(issue.scannerId),
+								title: sprintf(
+									/* translators: 1: real number of affected pages, 2: real issue type label, e.g. "Canonical URL". */
+									_n(
+										'%1$d page has %2$s',
+										'%1$d pages have %2$s',
+										issue.affectedPages,
+										'vulopilot'
+									),
+									issue.affectedPages,
+									issue.label
+								),
+								icon: 'error red',
+								action: scrollToIssues,
+								tags: (
+									<i className="adminfont-next" />
+								),
+							}))
+					}
+				/>
 			</div>
 
 			<div className="fix-first-view-all">
@@ -198,6 +220,8 @@ const WhatShouldIFixFirstCard = ({
 							__('View all %d issues', 'vulopilot'),
 							totalOpen
 						),
+						color: 'border-purple',
+						rightIcon: 'arrow-right',
 						onClick: scrollToIssues,
 					}}
 				/>
