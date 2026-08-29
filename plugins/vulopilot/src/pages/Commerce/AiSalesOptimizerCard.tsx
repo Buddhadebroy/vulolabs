@@ -55,29 +55,33 @@ const AiSalesOptimizerCard = ({
 							)}
 						</div>
 						<AnalyticsComponent
-							variant="small"
+							variant="background-color"
 							cols={3}
 							data={[
 								{
 									icon: 'link',
 									number: data.cross_sell_count,
 									text: __('Cross-sell opportunities', 'vulopilot'),
+									colorClass: 'admin-bg-color2',
 								},
 								{
 									icon: 'bar-chart',
 									number: data.upsell_count,
 									text: __('Upsell opportunities', 'vulopilot'),
+									colorClass: 'admin-bg-color3',
 								},
 								{
 									icon: 'refresh',
 									number: data.bundle_count,
 									text: __('Bundle opportunities', 'vulopilot'),
+									colorClass: 'admin-bg-color4',
 								},
 							]}
 						/>
 						<ButtonInput
 							buttons={{
 								text: __('Find Sales Opportunities →', 'vulopilot'),
+								color: 'border-purple',
 								onClick: onFindOpportunities,
 							}}
 						/>

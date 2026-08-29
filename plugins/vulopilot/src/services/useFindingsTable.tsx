@@ -398,13 +398,6 @@ export const useFindingsTable = ({
 			descriptionKey: 'descriptionText',
 			badgesKey: 'defaultTitleBadges',
 		},
-		...(category
-			? {}
-			: {
-					category: {
-						label: __('Category', 'vulopilot'),
-					},
-				}),
 		created_at: {
 			label: __('Detected', 'vulopilot'),
 			type: 'date',
@@ -548,6 +541,27 @@ export const useFindingsTable = ({
 						? 'info blue'
 						: 'error red',
 				defaultTitleBadges: [
+					// Same real category tag the compact layout's own
+					// `compactTitleBadges` already shows — folded in here
+					// instead of the separate, now-removed standalone
+					// "Category" column, only when this table itself spans
+					// more than one category (a `category`-scoped caller's
+					// own rows are all the same one already, so repeating
+					// it per row would just be noise). Same real
+					// `badge-{value}` convention the status/severity badges
+					// right below already use — not the uncolored `color: ''`
+					// `compactTitleBadges` uses for this same tag, which
+					// renders as a real, styled color for every category that
+					// has one (`badge-seo`/`badge-geo`/`badge-security`, see
+					// BadgeComponent.scss) instead of always plain/uncolored.
+					...(category
+						? []
+						: [
+								{
+									text: humanizeCategory(row.category),
+									color: `badge-${row.category}`,
+								},
+							]),
 					{ text: row.status, color: `badge-${row.status}` },
 					{ text: row.severity, color: `badge-${row.severity}` },
 				],

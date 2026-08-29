@@ -171,7 +171,7 @@ const ProductsToLookAtCard = () => {
 	}
 
 	return (
-		<ColumnComponent fullHeight grid={6}>
+		<ColumnComponent fullHeight grid={4}>
 			<CardComponent
 				className="products-to-look-at"
 				title={__('Products to look at', 'vulopilot')}

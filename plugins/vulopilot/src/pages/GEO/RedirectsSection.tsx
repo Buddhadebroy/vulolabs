@@ -602,15 +602,14 @@ const RedirectsSection = () => {
 				data={[
 					{
 						id: 'total',
-						icon: 'update',
+						icon: 'plus red',
 						title: __('Total Redirects', 'vulopilot'),
 						number: totalCount,
 						desc: __('All redirects found', 'vulopilot'),
 					},
 					{
 						id: 'active',
-						icon: 'check',
-						iconColor: '#16a34a',
+						icon: 'check green',
 						title: __('Active', 'vulopilot'),
 						number: (
 							<span className="redirect-stat-value is-good">
@@ -625,8 +624,7 @@ const RedirectsSection = () => {
 					},
 					{
 						id: 'chains',
-						icon: 'link',
-						iconColor: '#b45309',
+						icon: 'link yellow',
 						title: __('Redirect Chains', 'vulopilot'),
 						number: (
 							<span className="redirect-stat-value is-attention">
@@ -643,7 +641,7 @@ const RedirectsSection = () => {
 					},
 					{
 						id: 'broken',
-						icon: 'error',
+						icon: 'error pink',
 						title: __('Broken Redirects', 'vulopilot'),
 						number: brokenCount,
 						desc: sprintf(
@@ -654,7 +652,7 @@ const RedirectsSection = () => {
 					},
 					{
 						id: 'last-checked',
-						icon: 'calendar',
+						icon: 'calendar blue',
 						title: __('Last Checked', 'vulopilot'),
 						number: (
 							<span className="redirect-stat-value is-muted">
@@ -677,56 +675,6 @@ const RedirectsSection = () => {
 				titleIcon="link"
 				desc={__('Every real redirect rule you\'ve set up, searchable and filterable.', 'vulopilot')}
 			>
-				<div className="redirect-toolbar">
-					<TextInput
-						name="redirect_search"
-						placeholder={__('Search by URL or redirect…', 'vulopilot')}
-						value={searchTerm}
-						onChange={(value) => setSearchTerm(value as string)}
-					/>
-					<SelectInput
-						name="redirect_type_filter"
-						value={String(typeFilter)}
-						options={[
-							{ label: __('All types', 'vulopilot'), value: 'all' },
-							{ label: '301', value: '301' },
-							{ label: '302', value: '302' },
-							{ label: '307', value: '307' },
-						]}
-						onChange={(value) =>
-							setTypeFilter('all' === value ? 'all' : (Number(value) as TypeFilter))
-						}
-						size="9rem"
-					/>
-					<SelectInput
-						name="redirect_status_filter"
-						value={statusFilter}
-						options={[
-							{ label: __('All status', 'vulopilot'), value: 'all' },
-							{ label: __('Active', 'vulopilot'), value: 'active' },
-							{ label: __('Inactive', 'vulopilot'), value: 'inactive' },
-							{ label: __('Broken', 'vulopilot'), value: 'broken' },
-						]}
-						onChange={(value) => setStatusFilter(value as StatusFilter)}
-						size="9rem"
-					/>
-					<ButtonInput
-						buttons={[
-							{
-								text: __('Add redirect', 'vulopilot'),
-								icon: 'plus',
-								onClick: openAddForm,
-							},
-							{
-								text: __('Export CSV', 'vulopilot'),
-								icon: 'export',
-								color: 'plain',
-								onClick: handleExportCsv,
-							},
-						]}
-					/>
-				</div>
-
 				<TableCard
 					showMenu={false}
 					className="transparent-table redirect-table"
@@ -735,9 +683,67 @@ const RedirectsSection = () => {
 					ids={pageRows.map((row) => row.id)}
 					totalRows={visibleRedirects.length}
 					isLoading={isLoading}
-					onQueryUpdate={(query: { paged?: number | string; per_page?: number | string }) => {
+					search={{
+						placeholder: __('Search by URL or redirect…', 'vulopilot'),
+					}}
+					filters={[
+						{
+							key: 'type',
+							label: __('Type', 'vulopilot'),
+							type: 'select',
+							size: 9,
+							options: [
+								{ label: __('All types', 'vulopilot'), value: 'all' },
+								{ label: '301', value: '301' },
+								{ label: '302', value: '302' },
+								{ label: '307', value: '307' },
+							],
+						},
+						{
+							key: 'status',
+							label: __('Status', 'vulopilot'),
+							type: 'select',
+							size: 9,
+							options: [
+								{ label: __('All status', 'vulopilot'), value: 'all' },
+								{ label: __('Active', 'vulopilot'), value: 'active' },
+								{ label: __('Inactive', 'vulopilot'), value: 'inactive' },
+								{ label: __('Broken', 'vulopilot'), value: 'broken' },
+							],
+						},
+					]}
+					buttonActions={[
+						{
+							label: __('Export CSV', 'vulopilot'),
+							icon: 'export',
+							color: 'border-purple',
+							onClick: handleExportCsv,
+						},
+						{
+							label: __('Add redirect', 'vulopilot'),
+							icon: 'plus',
+							onClick: openAddForm,
+						},
+					]}
+					headerHide={true}
+					onQueryUpdate={(query: {
+						paged?: number | string;
+						per_page?: number | string;
+						searchValue?: string;
+						filter?: Record<string, string>;
+					}) => {
 						setPaged(Number(query.paged) || 1);
 						setPerPage(Number(query.per_page) || DEFAULT_PER_PAGE);
+						setSearchTerm(query.searchValue ?? '');
+						const typeValue = query.filter?.type;
+						setTypeFilter(
+							!typeValue || 'all' === typeValue
+								? 'all'
+								: (Number(typeValue) as TypeFilter)
+						);
+						setStatusFilter(
+							(query.filter?.status as StatusFilter) ?? 'all'
+						);
 					}}
 					emptyMessage={__(
 						'No redirects yet — add one, or convert an entry from the 404s tab.',
@@ -754,7 +760,7 @@ const RedirectsSection = () => {
 				}}
 				width={28}
 				height="auto"
-				position="lightbox"
+				
 				header={{
 					title: editingId
 						? __('Edit redirect', 'vulopilot')

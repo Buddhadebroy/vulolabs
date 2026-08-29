@@ -4,8 +4,8 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeComponent } from '@zyra/components';
 
-/** `?page=vulopilot#&tab=site-health` — Site Health's own real backup-management surface (BackupsTab.tsx, merged into that page, no separate subtab) this notice links to. */
-const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health';
+/** `?page=vulopilot#&tab=site-health&subtab=backups` — Site Health's own real "Backups" tab (BackupsTab.tsx) this notice links to when it's not already rendered there itself (see `onNavigateToBackups`). */
+const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health&subtab=backups';
 
 /**
  * "Backup protection: Enabled/Not enabled" — a single real status line with
@@ -25,7 +25,21 @@ const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health';
  * whether a backup has ever actually run — that's Backups tab's own job
  * (real row list), not this one-line summary's.
  */
-const BackupProtectionNotice = () => {
+interface BackupProtectionNoticeProps {
+	/**
+	 * Switches this same page's own real "Backups" tab in place instead of
+	 * navigating — passed only by SiteHealth.tsx, the one real page that
+	 * now has that tab itself. Omit to navigate to `BACKUPS_TAB_URL`
+	 * instead (a full page load), the only real option for every other
+	 * caller (Security.tsx/SecurityTab.tsx), which don't have a "Backups"
+	 * tab of their own to switch to.
+	 */
+	onNavigateToBackups?: () => void;
+}
+
+const BackupProtectionNotice = ({
+	onNavigateToBackups,
+}: BackupProtectionNoticeProps = {}) => {
 	const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
 
 	useEffect(() => {
@@ -56,10 +70,13 @@ const BackupProtectionNotice = () => {
 					: __('Backup protection: Not enabled', 'vulopilot')
 			}
 			actionLabel={__('View Backups', 'vulopilot')}
-			onAction={() => {
-				window.location.href = BACKUPS_TAB_URL;
-				window.location.reload();
-			}}
+			onAction={
+				onNavigateToBackups ??
+				(() => {
+					window.location.href = BACKUPS_TAB_URL;
+					window.location.reload();
+				})
+			}
 		/>
 	);
 };

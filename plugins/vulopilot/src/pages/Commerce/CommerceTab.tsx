@@ -190,20 +190,12 @@ const CommerceTab = () => {
 				/>
 			</ColumnComponent>
 
-			<ColumnComponent grid={8}> 
-				<TopIssuesToWorkOn
-					groups={groups}
-					isLoading={isLoadingGroups}
-					onViewAll={() => goToIssuesTab('important')}
-				/>
-			</ColumnComponent>
-
 			<ColumnComponent fullHeight grid={4}>
 				<AiSalesOptimizerCard
 					onFindOpportunities={() => scrollToId('woocommerce-bulk-ai')}
 				/>
 			</ColumnComponent>
-			<ColumnComponent fullHeight grid={6}>
+			<ColumnComponent fullHeight grid={4}>
 				<StoreIntelligenceSummaryCard
 					onExploreInsights={() =>
 						scrollToId('store-intelligence-panel')
@@ -252,6 +244,14 @@ const CommerceTab = () => {
 					</div>
 				</ColumnComponent>
 			)}
+
+			<ColumnComponent grid={8}> 
+				<TopIssuesToWorkOn
+					groups={groups}
+					isLoading={isLoadingGroups}
+					onViewAll={() => goToIssuesTab('important')}
+				/>
+			</ColumnComponent>
 		</>
 	);
 };

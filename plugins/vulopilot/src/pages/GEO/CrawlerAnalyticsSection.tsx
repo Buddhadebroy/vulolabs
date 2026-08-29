@@ -9,6 +9,7 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	BadgeComponent,
+	ListComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
 import {
@@ -57,7 +58,7 @@ const pctChange = (current: number, previous: number): number | null => {
 const ChangeBadge = ({ current, previous }: { current: number; previous: number }) => {
 	const change = pctChange(current, previous);
 	if (null === change) {
-		return <span className="crawler-change is-neutral">—</span>;
+		return;
 	}
 	return (
 		<span className={`crawler-change ${change >= 0 ? 'is-up' : 'is-down'}`}>
@@ -159,27 +160,30 @@ const CrawlerAnalyticsSection = ({
 
 	const checklist = isSeoModuleActive()
 		? CHECKLIST_ITEMS.map((item) => ({
-				...item,
-				isGood: null === checklistGroups ? null : 0 === openCount(item.scannerIds),
-			}))
+			...item,
+			isGood: null === checklistGroups ? null : 0 === openCount(item.scannerIds),
+		}))
 		: [];
 
 	const statCards = [
 		{
 			key: 'requests',
 			label: __('Total Crawl Requests', 'vulopilot'),
+			colorClass: 'green',
 			value: analytics.current_total,
 			previous: analytics.previous_total,
 		},
 		{
 			key: 'crawlers',
 			label: __('Unique Crawlers', 'vulopilot'),
+			colorClass: 'sky',
 			value: analytics.current_unique_bots,
 			previous: analytics.previous_unique_bots,
 		},
 		{
 			key: 'pages',
 			label: __('Pages Crawled', 'vulopilot'),
+			colorClass: 'lime',
 			value: analytics.most_crawled_pages.length,
 			previous: analytics.most_crawled_pages.filter(
 				(page) => page.previous_total > 0
@@ -188,6 +192,7 @@ const CrawlerAnalyticsSection = ({
 		{
 			key: 'blocked',
 			label: __('Blocked Pages', 'vulopilot'),
+			colorClass: 'indigo',
 			value: analytics.blocked_pages_total,
 			previous: analytics.blocked_pages_total,
 		},
@@ -199,7 +204,7 @@ const CrawlerAnalyticsSection = ({
 	return (
 		<>
 			<ContainerComponent>
-				<ColumnComponent grid={3}>
+				<ColumnComponent grid={4}>
 					<CardComponent
 						title={__('Overall Crawl Health', 'vulopilot')}
 						titleIcon="search-discovery"
@@ -215,8 +220,8 @@ const CrawlerAnalyticsSection = ({
 						) : (
 							<div className="crawl-health-ring">
 								<ChartComponent
-									type="pie"
-									height={110}
+									type="ring"
+									height={150}
 									centerLabel={
 										<>
 											<span className="score-ring-number">
@@ -247,13 +252,14 @@ const CrawlerAnalyticsSection = ({
 						)}
 					</CardComponent>
 				</ColumnComponent>
-				<ColumnComponent grid={9}>
+				<ColumnComponent grid={8}>
 					<AnalyticsComponent
-						variant="dashboard"
+						variant="small-card"
 						cols={4}
 						data={statCards.map((stat) => ({
 							number: stat.value,
 							text: stat.label,
+							colorClass: stat.colorClass,
 							extra: (
 								<ChangeBadge
 									current={stat.value}
@@ -293,7 +299,7 @@ const CrawlerAnalyticsSection = ({
 						</div>
 					</CardComponent>
 				</ColumnComponent>
-				<ColumnComponent grid={5}>
+				<ColumnComponent grid={5} fullHeight>
 					<CardComponent
 						title={__('Crawler Traffic by AI Lab', 'vulopilot')}
 						titleIcon="global-community"
@@ -496,21 +502,18 @@ const CrawlerAnalyticsSection = ({
 					titleIcon="check"
 					desc={__('Real robots.txt/sitemap crawl-health checks, at a glance.', 'vulopilot')}
 				>
-					<div className="crawler-checklist-row">
-						{checklist.map((item) => (
-							<div key={item.key} className="crawler-checklist-chip">
-								<i
-									className={`adminfont-${
-										null === item.isGood
-											? 'info'
-											: item.isGood
-												? 'check'
-												: 'error'
-									}`}
-								/>
-								<span className="crawler-checklist-chip-label">
-									{item.label}
-								</span>
+					<ListComponent
+						className="crawler-checklist-row"
+						items={checklist.map((item) => ({
+							id: item.key,
+							icon:
+								null === item.isGood
+									? 'info'
+									: item.isGood
+										? 'check'
+										: 'error',
+							title: item.label,
+							tags: (
 								<BadgeComponent
 									color={
 										null === item.isGood
@@ -527,9 +530,9 @@ const CrawlerAnalyticsSection = ({
 												: __('Warning', 'vulopilot')
 									}
 								/>
-							</div>
-						))}
-					</div>
+							),
+						}))}
+					/>
 				</CardComponent>
 			)}
 		</>

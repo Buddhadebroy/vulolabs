@@ -1,9 +1,8 @@
 /* global appLocalizer */
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
-	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
 	ModuleGuardComponent,
@@ -13,6 +12,7 @@ import {
 import { ButtonInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
+import { formatWpDate } from '../../services/formatWpDate';
 
 /**
  * `wp_vulopilot_not_found_logs` rows — Services\NotFoundLogger's own real
@@ -169,34 +169,15 @@ const NotFoundLogSection = () => {
 							search={{
 								placeholder: __('Search missing URLs…', 'vulopilot'),
 							}}
-							format={appLocalizer.date_format_js}
+							hideHeader={true}
 							headers={{
 								requested_path: {
+									key: 'requested_path',
+									type: 'info',
 									label: __('Requested URL', 'vulopilot'),
-								},
-								is_system: {
-									label: __('Type', 'vulopilot'),
-									render: (row: NotFoundLogRow) => (
-										<BadgeComponent
-											color={isSystemLog(row) ? 'yellow' : 'blue'}
-											text={
-												isSystemLog(row)
-													? __('System', 'vulopilot')
-													: __('Content', 'vulopilot')
-											}
-										/>
-									),
-								},
-								hit_count: {
-									label: __('Hits', 'vulopilot'),
-									isSortable: true,
-								},
-								last_seen_at: {
-									label: __('Last seen', 'vulopilot'),
-									type: 'date',
-									isSortable: true,
-									defaultSort: true,
-									defaultOrder: 'desc',
+									iconKey: 'rowIcon',
+									descriptionKey: 'descriptionItems',
+									badgesKey: 'typeBadges',
 								},
 								actions: {
 									label: __('Actions', 'vulopilot'),
@@ -207,7 +188,7 @@ const NotFoundLogSection = () => {
 									type: 'action',
 									actions: [
 										{
-											type: 'button',
+											// type: 'button',
 											label: (row: Record<string, unknown>) =>
 												isSystemLog(row as unknown as NotFoundLogRow)
 													? __(
@@ -228,7 +209,7 @@ const NotFoundLogSection = () => {
 											},
 										},
 										{
-											type: 'button',
+											// type: 'button',
 											label: __('Dismiss', 'vulopilot'),
 											icon: 'cross',
 											onClick: (row: Record<string, unknown>) =>
@@ -237,7 +218,36 @@ const NotFoundLogSection = () => {
 									],
 								},
 							}}
-							rows={notFoundLogs.data}
+							rows={notFoundLogs.data.map((row) => ({
+								...row,
+								rowIcon: isSystemLog(row) ? 'lock' : 'link',
+								descriptionItems: [
+									{
+										icon: 'eye',
+										value: sprintf(
+											/* translators: %d: real number of 404 hits on this URL. */
+											_n('%d hit', '%d hits', row.hit_count, 'vulopilot'),
+											row.hit_count
+										),
+									},
+									{
+										icon: 'clock',
+										value: sprintf(
+											/* translators: %s: formatted date/time this URL was last requested. */
+											__('Last seen %s', 'vulopilot'),
+											formatWpDate(row.last_seen_at)
+										),
+									},
+								],
+								typeBadges: [
+									{
+										text: isSystemLog(row)
+											? __('System', 'vulopilot')
+											: __('Content', 'vulopilot'),
+										color: isSystemLog(row) ? 'yellow' : 'blue',
+									},
+								],
+							}))}
 							ids={notFoundLogs.data.map((row) => row.id)}
 							totalRows={notFoundLogs.total}
 							categoryCounts={notFoundLogs.categoryCounts}
@@ -257,7 +267,7 @@ const NotFoundLogSection = () => {
 				onClose={closeConvertPopup}
 				width={28}
 				height="auto"
-				position="lightbox"
+				
 				header={{
 					title: __('Create redirect', 'vulopilot'),
 				}}

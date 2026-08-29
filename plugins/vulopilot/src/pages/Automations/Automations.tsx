@@ -165,14 +165,15 @@ const Automations = () => {
 				)}
 				buttons={[
 					{
+						label: __('Build with AI', 'vulopilot'),
+						icon: 'automation',
+						color: 'border-purple',
+						onClick: openGenerate,
+					},
+					{
 						label: __('Create Automation', 'vulopilot'),
 						icon: 'plus',
 						onClick: openCreateWizard,
-					},
-					{
-						label: __('Build with AI', 'vulopilot'),
-						icon: 'automation',
-						onClick: openGenerate,
 					},
 				]}
 			/>
