@@ -47,7 +47,7 @@ const AiSalesAssistantCard = ({
 	});
 
 	return (
-		<ColumnComponent fullHeight grid={6}>
+		<ColumnComponent fullHeight grid={4}>
 			<CardComponent
 				title={__('AI Sales Assistant', 'vulopilot')}
 				titleIcon="ai"

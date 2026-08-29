@@ -22,33 +22,35 @@ const TechnicalDetailsSection = () => {
 	const [showDeveloperContent, setShowDeveloperContent] = useState(true);
 
 	return (
-		<CardComponent
-			title={__('Technical Details (Schema & Markup)', 'vulopilot')}
-			titleIcon="coding"
-			desc={__(
-				'How your business information is technically implemented on your site.',
-				'vulopilot'
-			)}
-			action={
-				<ToggleInput
-					options={[
-						{
-							key: 'show_for_developers',
-							value: 'show_for_developers',
-							label: __('Show for developers', 'vulopilot'),
-						},
-					]}
-					value={showDeveloperContent ? ['show_for_developers'] : []}
-					multiSelect
-					modules={[]}
-					onChange={() =>
-						setShowDeveloperContent((current) => !current)
-					}
-				/>
-			}
-		>
+		<>
+			{/* <CardComponent
+				title={__('Technical Details (Schema & Markup)', 'vulopilot')}
+				titleIcon="coding"
+				desc={__(
+					'How your business information is technically implemented on your site.',
+					'vulopilot'
+				)}
+				action={
+					<ToggleInput
+						options={[
+							{
+								key: 'show_for_developers',
+								value: 'show_for_developers',
+								label: __('Show for developers', 'vulopilot'),
+							},
+						]}
+						value={showDeveloperContent ? ['show_for_developers'] : []}
+						multiSelect
+						modules={[]}
+						onChange={() =>
+							setShowDeveloperContent((current: boolean) => !current)
+						}
+					/>
+				}
+			> */}
 			{showDeveloperContent && <StructuredDataSection />}
-		</CardComponent>
+			{/* </CardComponent> */}
+		</>
 	);
 };
 

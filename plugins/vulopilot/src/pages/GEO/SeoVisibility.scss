@@ -1190,55 +1190,11 @@
 	}
 }
 
-.redirect-toolbar {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.625rem;
-	margin-bottom: 1rem;
-}
-
 // CrawlRobotsSitemapSection.tsx.
 .robots-analysis-actions {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-}
-
-.robots-rule-stats {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1.5rem;
-	margin-bottom: 1rem;
-}
-
-.robots-rule-stat {
-	.typography-h3 {
-		margin: 0 0 0.125rem;
-
-		&.is-good {
-			color: #16a34a;
-		}
-
-		&.is-attention {
-			color: #b45309;
-		}
-	}
-}
-
-.robots-txt-content {
-	max-height: 16rem;
-	overflow: auto;
-	background: $theme-background-color;
-	border-radius: 0.375rem;
-	padding: 0.875rem 1rem;
-	font-size: 0.8125rem;
-	line-height: 1.6;
-
-	code {
-		white-space: pre-wrap;
-		word-break: break-word;
-	}
 }
 
 .robots-blocked-count {
@@ -1252,97 +1208,8 @@
 	}
 }
 
-.robots-directives-table {
-	width: 100%;
-	border-collapse: collapse;
-
-	th,
-	td {
-		text-align: left;
-		padding: 0.5rem 0;
-		border-bottom: 1px solid $border-color;
-		font-size: 0.8125rem;
-	}
-
-	th {
-		width: 40%;
-		color: $sub-text-color;
-		font-weight: 600;
-	}
-
-	tr:last-child th,
-	tr:last-child td {
-		border-bottom: none;
-	}
-}
-
-.robots-quick-actions {
-	display: flex;
-	flex-direction: column;
-	gap: 0.625rem;
-
-	// zyra's own TooltipComponent wrapper (`.tooltip-wrapper`, wrapping the
-	// "Resubmit sitemap" action) defaults to `justify-content: center`,
-	// which centers just that one row instead of left-aligning it like
-	// every sibling `<a>`/`<button>` here — confirmed live.
-	.tooltip-wrapper {
-		justify-content: flex-start;
-	}
-}
-
-.robots-quick-action {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	background: none;
-	border: none;
-	padding: 0;
-	font-size: 0.8125rem;
-	color: $theme-color;
-	cursor: pointer;
-	text-align: left;
-
-	i {
-		font-size: 1rem;
-	}
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
-.robots-edit-form {
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-
-	.textarea-input {
-		width: 100%;
-		font-family: monospace;
-		font-size: 0.8125rem;
-	}
-}
-
-.robots-edit-actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 0.625rem;
-}
-
 // CrawlRobotsSitemapSection.tsx — "llms.txt content" card, moved here from
-// Settings → AI Visibility. Same left label/right field two-column shape
-// InputRenderer's own settings rows use elsewhere, rebuilt by hand since
-// this card no longer renders through InputRenderer/SettingContext.
-.llms-txt-card-body {
-	display: grid;
-	grid-template-columns: minmax(12rem, 1fr) 2fr;
-	gap: 1.5rem;
-
-	@media (max-width: 48rem) {
-		grid-template-columns: 1fr;
-	}
-}
-
+// Settings → AI Visibility.
 .llms-txt-card-field {
 	.textarea-input {
 		width: 100%;
@@ -1577,36 +1444,38 @@
 	}
 }
 
-// CrawlerAnalyticsSection.tsx's "Crawl Health Checklist" — real chip row
-// (icon + label + real Good/Warning/Checking… badge per item), replacing a
-// former vertical zyra `<ListComponent>` version to match the reference
-// mockup's own horizontal layout.
-.crawler-checklist-row {
+// CrawlerAnalyticsSection.tsx's "Crawl Health Checklist" — a real zyra
+// `<ListComponent>` (icon + label + real Good/Warning/Checking… badge per
+// item, via `tags`) styled as the reference mockup's own horizontal chip
+// row instead of that component's default vertical list — targets its own
+// `.item-list`/`.item`/`.item-icon`/`.item-title` classes rather than the
+// bespoke `.crawler-checklist-chip`/`-chip-label` markup this used to be.
+.crawler-checklist-row.item-list {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.75rem;
-}
 
-.crawler-checklist-chip {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	flex: 1 1 12rem;
-	padding: 0.75rem 0.875rem;
-	border: 1px solid $border-color;
-	border-radius: 0.5rem;
+	.item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex: 1 1 12rem;
+		padding: 0.75rem 0.875rem;
+		border: 1px solid $border-color;
+		border-radius: 0.5rem;
+	}
 
-	i {
+	.item-icon {
 		color: $sub-text-color;
 		font-size: 1rem;
 		flex-shrink: 0;
 	}
-}
 
-.crawler-checklist-chip-label {
-	flex: 1;
-	font-size: 0.8125rem;
-	font-weight: 500;
+	.item-title {
+		flex: 1;
+		font-size: 0.8125rem;
+		font-weight: 500;
+	}
 }
 
 // StructuredDataSection.tsx's own "Schema Status" summary card — 4 real
@@ -2035,83 +1904,6 @@
 	margin-top: 0.5rem;
 }
 
-// BrokenLinksSection.tsx's 4 stat tiles (MetricTileGrid variant="broken-links").
-.broken-link-stat-value {
-	font-weight: 700;
-	color: #dc2626;
-
-	&.is-attention {
-		color: #b45309;
-	}
-
-	&.is-muted {
-		color: $sub-text-color;
-	}
-}
-
-// "Last scan completed" banner + "Why fix broken links?" info box, side
-// by side per the reference mockup.
-.broken-link-scan-summary-row {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1rem;
-	margin: 1rem 0;
-}
-
-.broken-link-scan-banner {
-	flex: 1 1 20rem;
-	display: flex;
-	align-items: flex-start;
-	gap: 0.75rem;
-	padding: 1rem 1.25rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, #16a34a 10%, transparent);
-	border: 1px solid color-mix(in srgb, #16a34a 25%, transparent);
-}
-
-.broken-link-scan-banner-icon {
-	font-size: 1.375rem;
-	color: #16a34a;
-	margin-top: 0.125rem;
-}
-
-.broken-link-scan-banner-title {
-	font-weight: 700;
-	margin-bottom: 0.25rem;
-}
-
-.broken-link-scan-banner-meta {
-	font-size: 0.8125rem;
-	color: $sub-text-color;
-}
-
-.broken-link-why-fix {
-	flex: 1 1 16rem;
-	padding: 1rem 1.25rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, #2563eb 8%, transparent);
-	border: 1px solid color-mix(in srgb, #2563eb 20%, transparent);
-}
-
-.broken-link-why-fix-title {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	font-weight: 700;
-	margin-bottom: 0.5rem;
-	color: #2563eb;
-}
-
-.broken-link-why-fix ul {
-	margin: 0;
-	padding-left: 1.125rem;
-	font-size: 0.8125rem;
-	color: $sub-text-color;
-
-	li {
-		margin-bottom: 0.25rem;
-	}
-}
 
 // SchemaKnowledgeTab.tsx's own real in-page header — GEO.tsx's shared
 // AeoScoreSummaryCard.tsx — the reference mockup's own "AEO Score" card:
@@ -2247,7 +2039,7 @@
 
 
 // GeoScoreSection.tsx — "GEO Score Breakdown" table (Signal/Score/Status/
-// Main Problem), same shape `.robots-directives-table` already establishes.
+// Main Problem).
 .geo-score-breakdown-table {
 	width: 100%;
 	border-collapse: collapse;

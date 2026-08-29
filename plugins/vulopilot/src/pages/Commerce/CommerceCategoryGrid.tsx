@@ -312,37 +312,37 @@ const CommerceCategoryGrid = ({
 	const NOT_TRACKED_TILES: { id: string; icon: string; title: string; desc: string }[] = [
 		{
 			id: 'cart',
-			icon: 'cart',
+			icon: 'cart purple',
 			title: __('Cart', 'vulopilot'),
 			desc: __('AI insights to increase add-to-cart and AOV.', 'vulopilot'),
 		},
 		{
 			id: 'product-schema',
-			icon: 'editor-code',
+			icon: 'editor-code gray',
 			title: __('Product Schema', 'vulopilot'),
 			desc: __('Enhance rich results & search visibility.', 'vulopilot'),
 		},
 		{
 			id: 'conversion',
-			icon: 'analytics',
+			icon: 'analytics teal',
 			title: __('Conversion', 'vulopilot'),
 			desc: __('Improve conversion rate with AI recommendations.', 'vulopilot'),
 		},
 		{
 			id: 'recommendations',
-			icon: 'thumb-up',
+			icon: 'thumb-up pink',
 			title: __('Recommendations', 'vulopilot'),
 			desc: __('AI-powered product recommendations.', 'vulopilot'),
 		},
 		{
 			id: 'funnels',
-			icon: 'filter',
+			icon: 'filter indigo',
 			title: __('Funnels', 'vulopilot'),
 			desc: __('Build high-converting sales funnels.', 'vulopilot'),
 		},
 		{
 			id: 'abandoned-cart',
-			icon: 'cart',
+			icon: 'cart orange',
 			title: __('Abandoned Cart', 'vulopilot'),
 			desc: __('Recover lost sales from abandoned carts.', 'vulopilot'),
 		},
@@ -362,7 +362,7 @@ const CommerceCategoryGrid = ({
 	const tiles: MetricTileItem[] = [
 		{
 			id: 'store-readiness',
-			icon: 'shield',
+			icon: 'shield blue',
 			title: __('Store Readiness', 'vulopilot'),
 			badge: readinessNeedsAttention
 				? { color: 'red', text: __('Needs attention', 'vulopilot') }
@@ -413,7 +413,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'checkout-payments',
-			icon: 'cash',
+			icon: 'cash green',
 			title: __('Checkout & Payments', 'vulopilot'),
 			badge: failedOrdersCount > 0
 				? { color: 'red', text: __('Needs attention', 'vulopilot') }
@@ -463,7 +463,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'products',
-			icon: 'cart',
+			icon: 'cart purple',
 			title: __('Products', 'vulopilot'),
 			badge: productsCount > 0
 				? {
@@ -491,7 +491,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'inventory',
-			icon: 'database',
+			icon: 'database teal',
 			title: __('Inventory', 'vulopilot'),
 			badge:
 				inventoryFindingsCount > 0 || (null !== outOfStock && outOfStock > 0)
@@ -537,7 +537,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'orders',
-			icon: 'order',
+			icon: 'order orange',
 			title: __('Orders', 'vulopilot'),
 			badge: failedOrdersCount + onHoldCount + pendingTooLongCount > 0
 				? {
@@ -581,7 +581,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'coupons',
-			icon: 'price',
+			icon: 'price rose',
 			title: __('Coupons', 'vulopilot'),
 			badge:
 				null !== coupons.expiringSoon && coupons.expiringSoon > 0
@@ -632,7 +632,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'categories',
-			icon: 'category',
+			icon: 'category indigo',
 			title: __('Categories', 'vulopilot'),
 			desc: (
 				<div className="woocommerce-category-rows">
@@ -660,7 +660,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'product-seo',
-			icon: 'search',
+			icon: 'search sky',
 			title: __('Product SEO', 'vulopilot'),
 			badge: productSeo.badge ?? undefined,
 			desc: __('Improve product visibility on search engines.', 'vulopilot'),
@@ -676,7 +676,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'customer-insights',
-			icon: 'person',
+			icon: 'person cyan',
 			title: __('Customer Insights', 'vulopilot'),
 			desc: (
 				<div className="woocommerce-category-rows">
@@ -704,7 +704,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'revenue-reports',
-			icon: 'bar-chart',
+			icon: 'bar-chart green',
 			title: __('Revenue Reports', 'vulopilot'),
 			badge: !revenue ? { color: 'purple', text: __('Pro', 'vulopilot') } : undefined,
 			desc: revenue ? (
@@ -755,7 +755,7 @@ const CommerceCategoryGrid = ({
 		),
 		{
 			id: 'store-automation',
-			icon: 'automation',
+			icon: 'automation violet',
 			title: __('Store Automation', 'vulopilot'),
 			badge:
 				(readiness?.automation_failed_count ?? 0) > 0
@@ -794,7 +794,7 @@ const CommerceCategoryGrid = ({
 		},
 		{
 			id: 'compatibility',
-			icon: 'editor-code',
+			icon: 'editor-code gray',
 			title: __('Compatibility', 'vulopilot'),
 			badge: compatibilityCount > 0
 				? {

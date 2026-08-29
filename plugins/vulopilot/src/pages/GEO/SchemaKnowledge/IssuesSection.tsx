@@ -239,8 +239,7 @@ const IssuesSection = () => {
 								},
 								affected: {
 									label: __('Affected', 'vulopilot'),
-									width: '65%',
-									render: (row: FindingGroup) =>										
+									render: (row: FindingGroup) =>
 										formatAffected(row.count, row.object_type),
 								},
 								action: {

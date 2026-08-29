@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, TrendStatComponent } from '@zyra/components';
+import { AnalyticsComponent, BadgeComponent, CardComponent } from '@zyra/components';
 import { ButtonInput, SelectInput } from '@zyra/inputs';
 
 interface TrendSnapshotRow {
@@ -141,51 +141,56 @@ const StoreOverviewCards = ({
 	const aovCurrent = ordersCurrent > 0 ? revenueCurrent / ordersCurrent : 0;
 	const aovPrevious = ordersPrevious > 0 ? revenuePrevious / ordersPrevious : 0;
 
+	const notTrackedBadge = { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' };
+	const renderBadge = (badge?: { text: string; color: string }) =>
+		badge && <BadgeComponent color={badge.color} text={badge.text} />;
+
 	const items = [
 		{
 			icon: 'price',
-			label: __('Total Revenue', 'vulopilot'),
-			value: formatCurrency(revenueCurrent),
-			badge: pctBadge(revenueCurrent, revenuePrevious),
-			color: 'primary',
-			chartData: current.map((row) => ({ value: Number(row.revenue) })),
+			iconClass: 'admin-bg-color2',
+			text: __('Total Revenue', 'vulopilot'),
+			number: formatCurrency(revenueCurrent),
+			extra: renderBadge(pctBadge(revenueCurrent, revenuePrevious)),
 		},
 		{
 			icon: 'cart',
-			label: __('Orders', 'vulopilot'),
-			value: ordersCurrent.toLocaleString(),
-			badge: pctBadge(ordersCurrent, ordersPrevious),
-			color: 'border-purple',
-			chartData: current.map((row) => ({ value: Number(row.order_count) })),
+			iconClass: 'admin-bg-color3',
+			text: __('Orders', 'vulopilot'),
+			number: ordersCurrent.toLocaleString(),
+			extra: renderBadge(pctBadge(ordersCurrent, ordersPrevious)),
 		},
 		{
 			icon: 'bar-chart',
-			label: __('Average Order Value', 'vulopilot'),
-			value: formatCurrency(aovCurrent),
-			badge: pctBadge(aovCurrent, aovPrevious),
-			color: 'accent',
-			chartData: current.map((row) => ({ value: Number(row.avg_order_value) })),
+			iconClass: 'admin-bg-color4',
+			text: __('Average Order Value', 'vulopilot'),
+			number: formatCurrency(aovCurrent),
+			extra: renderBadge(pctBadge(aovCurrent, aovPrevious)),
 		},
 		{
 			icon: 'error',
-			label: __('Failed Purchases', 'vulopilot'),
-			value: null !== failedOrders ? failedOrders.toLocaleString() : '—',
-			badge:
+			iconClass: 'admin-bg-color5',
+			text: __('Failed Purchases', 'vulopilot'),
+			number: null !== failedOrders ? failedOrders.toLocaleString() : '—',
+			extra: renderBadge(
 				null !== failedOrders && failedOrders > 0
 					? { text: __('Needs attention', 'vulopilot'), color: 'red' }
-					: undefined,
+					: undefined
+			),
 		},
 		{
 			icon: 'analytics',
-			label: __('Conversion Rate', 'vulopilot'),
-			value: '—',
-			badge: { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+			iconClass: 'admin-bg-color6',
+			text: __('Conversion Rate', 'vulopilot'),
+			number: '—',
+			extra: renderBadge(notTrackedBadge),
 		},
 		{
 			icon: 'revenue',
-			label: __('Net Profit', 'vulopilot'),
-			value: '—',
-			badge: { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+			iconClass: 'admin-bg-color2',
+			text: __('Net Profit', 'vulopilot'),
+			number: '—',
+			extra: renderBadge(notTrackedBadge),
 		},
 	];
 
@@ -207,7 +212,7 @@ const StoreOverviewCards = ({
 					/>
 					<ButtonInput
 						buttons={{
-							icon: 'arrow-right',
+							rightIcon: 'arrow-right',
 							color: 'text-purple',
 							text: __('View Full Report', 'vulopilot'),
 							onClick: onNavigateToCommerceTab,
@@ -216,7 +221,12 @@ const StoreOverviewCards = ({
 				</>
 			}
 		>
-			<TrendStatComponent items={items} cols={3} isLoading={isLoading} />
+			<AnalyticsComponent
+				variant="dashboard"
+				cols={3}
+				isLoading={isLoading}
+				data={items}
+			/>
 		</CardComponent>
 	);
 };

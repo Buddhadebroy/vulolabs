@@ -3,10 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
+	AnalyticsComponent,
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
-	MetricTileComponent,
+	ListComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -898,117 +899,110 @@ const BrokenLinksSection = () => {
 					</CardComponent>
 				) : (
 					<>
-						<MetricTileComponent
+						<AnalyticsComponent
 							cols={4}
+							variant="with-out-boxshadow"
 							isLoading={isLoadingFindings}
 							data={[
 								{
-									id: 'broken-links',
 									icon: 'link',
-									iconColor: '#dc2626',
-									title: __('Broken Links', 'vulopilot'),
-									number: (
-										<span className="broken-link-stat-value">
-											{summary.brokenLinks}
-										</span>
-									),
-									desc: __('Currently open — needs attention', 'vulopilot'),
+									iconClass: 'admin-bg-color2',
+									number: summary.brokenLinks,
+									text: __('Broken Links', 'vulopilot'),
 								},
 								{
-									id: 'broken-images',
 									icon: 'attachment',
-									iconColor: '#dc2626',
-									title: __('Broken Images', 'vulopilot'),
-									number: (
-										<span className="broken-link-stat-value">
-											{summary.brokenImages}
-										</span>
-									),
-									desc: __('Currently open — needs attention', 'vulopilot'),
+									iconClass: 'admin-bg-color3',
+									number: summary.brokenImages,
+									text: __('Broken Images', 'vulopilot'),
 								},
 								{
-									id: 'unverified',
 									icon: 'info',
-									iconColor: '#b45309',
-									title: __("Couldn't Verify", 'vulopilot'),
-									number: (
-										<span className="broken-link-stat-value is-attention">
-											{summary.couldntVerify}
-										</span>
-									),
-									desc: __('Timed out or DNS failed on last check', 'vulopilot'),
+									iconClass: 'admin-bg-color4',
+									number: summary.couldntVerify,
+									text: __("Couldn't Verify", 'vulopilot'),
 								},
 								{
-									id: 'ignored',
 									icon: 'eye-blocked',
-									title: __('Ignored', 'vulopilot'),
-									number: (
-										<span className="broken-link-stat-value is-muted">
-											{summary.ignored}
-										</span>
-									),
-									desc: __('Hidden from “needs attention”', 'vulopilot'),
+									iconClass: 'admin-bg-color5',
+									number: summary.ignored,
+									text: __('Ignored', 'vulopilot'),
 								},
 							]}
 						/>
-
-						{!isLoadingFindings && 0 === needAttentionTotal && (
-							<p className="desc">
-								{__('Nothing needs attention right now.', 'vulopilot')}
-							</p>
-						)}
-
-						<div className="broken-link-scan-summary-row">
-							<div className="broken-link-scan-banner">
-								<i className="adminfont-yes-alt broken-link-scan-banner-icon" />
-								<div>
-									<div className="broken-link-scan-banner-title">
-										{__('Last scan completed', 'vulopilot')}
-									</div>
-									<div className="broken-link-scan-banner-meta">
-										{stats?.last_run
-											? sprintf(
-												/* translators: 1: formatted date/time, 2: duration as hh:mm:ss */
-												__('%1$s · Duration %2$s', 'vulopilot'),
-												formatWpDate(
-													new Date(
-														stats.last_run.finished_at * 1000
-													).toISOString()
-												),
-												formatDurationMs(stats.last_run.duration_ms)
-											)
-											: __(
-												'No scan has completed yet — use "Run scan" above to start one.',
-												'vulopilot'
-											)}
-									</div>
-									{stats && (stats.links.checked_at || stats.images.checked_at) && (
-										<div className="broken-link-scan-banner-meta">
-											{sprintf(
-												/* translators: 1: healthy/total links checked, 2: healthy/total images checked */
-												__('%1$d/%2$d links healthy · %3$d/%4$d images healthy', 'vulopilot'),
-												stats.links.healthy_count,
-												stats.links.links_checked,
-												stats.images.healthy_count,
-												stats.images.links_checked
-											)}
+						<CardComponent className='broken-link-scan-summary-row'>
+							<>
+								<div className="broken-link-section left">
+									<i className="adminfont-form-checkboxes green" />
+									<div className='broken-link-details'>
+										<div className="title">
+											{__('Last scan completed', 'vulopilot')}
 										</div>
-									)}
+										<div className="desc">
+											{stats?.last_run
+												? sprintf(
+													/* translators: 1: formatted date/time, 2: duration as hh:mm:ss */
+													__('%1$s · Duration %2$s', 'vulopilot'),
+													formatWpDate(
+														new Date(
+															stats.last_run.finished_at * 1000
+														).toISOString()
+													),
+													formatDurationMs(stats.last_run.duration_ms)
+												)
+												: __(
+													'No scan has completed yet — use "Run scan" above to start one.',
+													'vulopilot'
+												)}
+										</div>
+										{stats && (stats.links.checked_at || stats.images.checked_at) && (
+											<AnalyticsComponent
+												cols={2}
+												variant="background-color"
+												data={[
+													{
+														number: `${stats.links.healthy_count}/${stats.links.links_checked}`,
+														text: __('Links healthy', 'vulopilot'),
+														colorClass: 'admin-bg-color2',
+													},
+													{
+														number: `${stats.images.healthy_count}/${stats.images.links_checked}`,
+														text: __('Images healthy', 'vulopilot'),
+														colorClass: 'admin-bg-color2',
+													},
+												]}
+											/>
+										)}
+									</div>
 								</div>
-							</div>
-							<div className="broken-link-why-fix">
-								<div className="broken-link-why-fix-title">
-									<i className="adminfont-info" />
-									{__('Why fix broken links?', 'vulopilot')}
+								<div className="broken-link-section right">
+									<div className="title">
+										<i className="adminfont-info" />
+										{__('Why fix broken links?', 'vulopilot')}
+									</div>
+									<ListComponent
+										className="checklist"
+										items={[
+											{
+												id: 'ux',
+												icon: 'check green-color',
+												title: __('Better user experience', 'vulopilot'),
+											},
+											{
+												id: 'seo',
+												icon: 'check green-color',
+												title: __('Improved SEO rankings', 'vulopilot'),
+											},
+											{
+												id: 'crawlable',
+												icon: 'check green-color',
+												title: __('More crawlable pages', 'vulopilot'),
+											},
+										]}
+									/>
 								</div>
-								<ul>
-									<li>{__('Better user experience', 'vulopilot')}</li>
-									<li>{__('Improved SEO rankings', 'vulopilot')}</li>
-									<li>{__('More crawlable pages', 'vulopilot')}</li>
-								</ul>
-							</div>
-						</div>
-
+							</>
+						</CardComponent>
 						<CardComponent
 							title={__('Broken Link Monitoring', 'vulopilot')}
 							titleIcon="link"
@@ -1016,84 +1010,6 @@ const BrokenLinksSection = () => {
 								'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked. Use the "Run scan" button above to check again.',
 								'vulopilot'
 							)}
-							action={
-								<div className="broken-link-monitoring-actions">
-									<TextInput
-										name="broken_link_search"
-										placeholder={__(
-											'Search by URL or source page…',
-											'vulopilot'
-										)}
-										value={searchTerm}
-										onChange={(value) =>
-											setSearchTerm(value as string)
-										}
-									/>
-									<SelectInput
-										name="broken_link_issue_filter"
-										value={issueFilter}
-										options={[
-											{ label: __('All issues', 'vulopilot'), value: 'all' },
-											{ label: __('Broken links', 'vulopilot'), value: 'broken-links' },
-											{ label: __('Broken images', 'vulopilot'), value: 'broken-images' },
-											{ label: __("Couldn't verify", 'vulopilot'), value: 'unverified' },
-										]}
-										onChange={(value) =>
-											setIssueFilter(value as IssueFilter)
-										}
-										size="10rem"
-									/>
-									<SelectInput
-										name="broken_link_type_filter"
-										value={linkTypeFilter}
-										options={[
-											{ label: __('All link types', 'vulopilot'), value: 'all' },
-											{ label: __('Internal', 'vulopilot'), value: 'internal' },
-											{ label: __('External', 'vulopilot'), value: 'external' },
-										]}
-										onChange={(value) =>
-											setLinkTypeFilter(value as LinkTypeFilter)
-										}
-										size="10rem"
-									/>
-									<SelectInput
-										name="broken_link_page_filter"
-										value={pageFilter}
-										options={[
-											{ label: __('All pages', 'vulopilot'), value: 'all' },
-											...pageOptions.map((page) => ({
-												label: page,
-												value: page,
-											})),
-										]}
-										onChange={(value) => setPageFilter(value as string)}
-										size="10rem"
-									/>
-									<SelectInput
-										name="broken_link_status_filter"
-										value={statusFilter}
-										options={[
-											{ label: __('All status', 'vulopilot'), value: 'all' },
-											{ label: __('Open', 'vulopilot'), value: 'open' },
-											{ label: __('Resolved', 'vulopilot'), value: 'resolved' },
-											{ label: __('Ignored', 'vulopilot'), value: 'ignored' },
-											{ label: __('Snoozed', 'vulopilot'), value: 'snoozed' },
-										]}
-										onChange={(value) =>
-											setStatusFilter(value as StatusFilter)
-										}
-										size="10rem"
-									/>
-									<ButtonInput
-										buttons={{
-											text: __('Export CSV', 'vulopilot'),
-											icon: 'export',
-											color: 'plain',
-											onClick: handleExportCsv,
-										}}
-									/>
-								</div>
-							}
 						>
 							{findingsError ? (
 								<ModuleGuardComponent
@@ -1106,15 +1022,95 @@ const BrokenLinksSection = () => {
 							) : (
 								<TableCard
 									showMenu={false}
-									className="transparent-table broken-link-monitoring-table"
+									className="transparent-table"
 									headers={headers}
 									rows={pageRows}
 									ids={pageRows.map((row) => row.id)}
 									totalRows={visibleFindings.length}
 									isLoading={isLoadingFindings}
-									onQueryUpdate={(query: { paged?: number | string; per_page?: number | string }) => {
+									search={{
+										placeholder: __(
+											'Search by URL or source page…',
+											'vulopilot'
+										),
+									}}
+									filters={[
+										{
+											key: 'issue',
+											label: __('Issue', 'vulopilot'),
+											type: 'select',
+											size: 10,
+											options: [
+												{ label: __('All issues', 'vulopilot'), value: 'all' },
+												{ label: __('Broken links', 'vulopilot'), value: 'broken-links' },
+												{ label: __('Broken images', 'vulopilot'), value: 'broken-images' },
+												{ label: __("Couldn't verify", 'vulopilot'), value: 'unverified' },
+											],
+										},
+										{
+											key: 'link_type',
+											label: __('Link Type', 'vulopilot'),
+											type: 'select',
+											size: 10,
+											options: [
+												{ label: __('All link types', 'vulopilot'), value: 'all' },
+												{ label: __('Internal', 'vulopilot'), value: 'internal' },
+												{ label: __('External', 'vulopilot'), value: 'external' },
+											],
+										},
+										{
+											key: 'page',
+											label: __('Page', 'vulopilot'),
+											type: 'select',
+											size: 10,
+											options: [
+												{ label: __('All pages', 'vulopilot'), value: 'all' },
+												...pageOptions.map((page) => ({
+													label: page,
+													value: page,
+												})),
+											],
+										},
+										{
+											key: 'status',
+											label: __('Status', 'vulopilot'),
+											type: 'select',
+											size: 10,
+											options: [
+												{ label: __('All status', 'vulopilot'), value: 'all' },
+												{ label: __('Open', 'vulopilot'), value: 'open' },
+												{ label: __('Resolved', 'vulopilot'), value: 'resolved' },
+												{ label: __('Ignored', 'vulopilot'), value: 'ignored' },
+												{ label: __('Snoozed', 'vulopilot'), value: 'snoozed' },
+											],
+										},
+									]}
+									buttonActions={[
+										{
+											label: __('Export CSV', 'vulopilot'),
+											icon: 'export',
+											onClick: handleExportCsv,
+										},
+									]}
+									onQueryUpdate={(query: {
+										paged?: number | string;
+										per_page?: number | string;
+										searchValue?: string;
+										filter?: Record<string, string>;
+									}) => {
 										setPaged(Number(query.paged) || 1);
 										setPerPage(Number(query.per_page) || DEFAULT_PER_PAGE);
+										setSearchTerm(query.searchValue ?? '');
+										setIssueFilter(
+											(query.filter?.issue as IssueFilter) ?? 'all'
+										);
+										setLinkTypeFilter(
+											(query.filter?.link_type as LinkTypeFilter) ?? 'all'
+										);
+										setPageFilter(query.filter?.page ?? 'all');
+										setStatusFilter(
+											(query.filter?.status as StatusFilter) ?? 'all'
+										);
 									}}
 									emptyMessage={__(
 										'No broken links or images found yet. Make sure "Flag broken links"/"Flag broken images" are turned on under Settings → Scanning → SEO, then run a scan.',
@@ -1132,7 +1128,7 @@ const BrokenLinksSection = () => {
 				onClose={closeRedirectPopup}
 				width={28}
 				height="auto"
-				position="lightbox"
+
 				header={{ title: __('Create redirect', 'vulopilot') }}
 			>
 				<div className="broken-link-redirect-form">
@@ -1199,7 +1195,7 @@ const BrokenLinksSection = () => {
 				onClose={() => setIsProPopupOpen(false)}
 				width={31.25}
 				height="auto"
-				position="lightbox"
+
 			>
 				{appLocalizer.khali_dabba ? (
 					<ShowProPopup moduleName="one-click-fix" />

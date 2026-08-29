@@ -321,7 +321,7 @@ const KnowledgeGraphSection = () => {
 
 	if (!isEntityExtractionModuleActive()) {
 		return (
-			<ColumnComponent>
+			<ColumnComponent grid={6}>
 				<CardComponent
 					title={__('Entity Extraction', 'vulopilot')}
 					titleIcon="centralized-connections"
@@ -520,7 +520,7 @@ const KnowledgeGraphSection = () => {
 
 	return (
 		<>
-			<ColumnComponent >
+			<ColumnComponent grid={8} fullHeight>
 				{entities && (
 					<CardComponent
 						title={__('What AI & Search Understand', 'vulopilot')}
@@ -553,13 +553,6 @@ const KnowledgeGraphSection = () => {
 									},
 								}))}
 							/>
-							<div className="kg-understand-graph">
-								{KnowledgeGraphVisualizationCard ? (
-									<KnowledgeGraphVisualizationCard />
-								) : (
-									<KnowledgeGraphDiagram entities={entities} />
-								)}
-							</div>
 
 							{activeTab && (
 								<div
@@ -591,7 +584,13 @@ const KnowledgeGraphSection = () => {
 						</div>
 					</CardComponent>
 				)}
-
+			</ColumnComponent>
+			<ColumnComponent grid={4} fullHeight>
+				{KnowledgeGraphVisualizationCard ? (
+					<KnowledgeGraphVisualizationCard />
+				) : (
+					<KnowledgeGraphDiagram entities={entities} />
+				)}
 			</ColumnComponent>
 			{KnowledgeGraphHealthCard &&
 				<ColumnComponent grid={6} fullHeight>
