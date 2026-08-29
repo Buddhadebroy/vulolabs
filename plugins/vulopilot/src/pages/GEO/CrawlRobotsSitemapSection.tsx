@@ -620,38 +620,37 @@ const CrawlRobotsSitemapSection = () => {
 										'User-agent: *\nDisallow: /wp-admin/',
 										'vulopilot'
 									)}
-								/>
-								<div className="llms-txt-card-footer">
-									<div className="llms-txt-live-link">
-										{'saving' === robotsSaveState && (
-											<span className="llms-txt-save-status">
-												{__('Saving…', 'vulopilot')}
-											</span>
-										)}
-										{'saved' === robotsSaveState && (
-											<span className="llms-txt-save-status is-good">
-												{__('Saved', 'vulopilot')}
-											</span>
-										)}
-										{'error' === robotsSaveState && (
-											<span className="llms-txt-save-status is-attention">
-												{__('Could not save', 'vulopilot')}
-											</span>
-										)}
-									</div>
-									{robots.is_custom && (
-										<ButtonInput
-											buttons={{
-												text: __(
-													'Reset to WordPress default',
-													'vulopilot'
-												),
-												color: 'plain',
-												onClick: handleResetRobotsToDefault,
-											}}
-										/>
+							/>
+								{/* <div className="llms-txt-live-link">
+									{'saving' === robotsSaveState && (
+										<span className="llms-txt-save-status">
+											{__('Saving…', 'vulopilot')}
+										</span>
 									)}
-								</div>
+									{'saved' === robotsSaveState && (
+										<span className="llms-txt-save-status is-good">
+											{__('Saved', 'vulopilot')}
+										</span>
+									)}
+									{'error' === robotsSaveState && (
+										<span className="llms-txt-save-status is-attention">
+											{__('Could not save', 'vulopilot')}
+										</span>
+									)}
+								</div> */}
+								{robots.is_custom && (
+									<ButtonInput
+										buttons={{
+											text: __(
+												'Reset to WordPress default',
+												'vulopilot'
+											),
+											icon: 'refresh',
+											color: 'border-purple',
+											onClick: handleResetRobotsToDefault,
+										}}
+									/>
+								)}
 							</div>
 						</>
 					) : (
@@ -823,46 +822,17 @@ const CrawlRobotsSitemapSection = () => {
 									rowNumber={10}
 									usePlainText
 								/>
-								<div className="llms-txt-card-footer">
-									<div className="llms-txt-live-link">
-										{__('Live file:', 'vulopilot')}{' '}
-										<a
-											href={`${appLocalizer.site_url}/llms.txt`}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											{`${appLocalizer.site_url}/llms.txt`}
-										</a>
-										{'saving' === llmsTxtSaveState && (
-											<span className="llms-txt-save-status">
-												{' · '}
-												{__('Saving…', 'vulopilot')}
-											</span>
-										)}
-										{'saved' === llmsTxtSaveState && (
-											<span className="llms-txt-save-status is-good">
-												{' · '}
-												{__('Saved', 'vulopilot')}
-											</span>
-										)}
-										{'error' === llmsTxtSaveState && (
-											<span className="llms-txt-save-status is-attention">
-												{' · '}
-												{__('Could not save', 'vulopilot')}
-											</span>
-										)}
-									</div>
 									<ButtonInput
 										buttons={{
 											text: isRegeneratingLlmsTxt
 												? __('Regenerating…', 'vulopilot')
 												: __('Regenerate', 'vulopilot'),
 											icon: 'refresh',
+											color: 'border-purple',
 											onClick: handleRegenerateLlmsTxt,
 											disabled: isRegeneratingLlmsTxt,
 										}}
 									/>
-								</div>
 							</div>
 						) : (
 							<ModuleGuardComponent
