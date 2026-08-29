@@ -10,47 +10,102 @@ import NeedsAttentionWidget from './NeedsAttentionWidget';
 import BrandBreakdownWidget from './BrandBreakdownWidget';
 import OverallScoreWidget from './OverallScoreWidget';
 import RunAuditWidget from './RunAuditWidget';
-import AISuggestionsWidget from './AISuggestionsWidget';
-import TodaysTasksWidget from './TodaysTasksWidget';
 import RecentChangesWidget from './RecentChangesWidget';
+import KeyPagesWidget from './KeyPagesWidget';
+import SiteSnapshotWidget from './SiteSnapshotWidget';
+import RecentActivityWidget from './RecentActivityWidget';
+import VuloPilotActivityWidget from './VuloPilotActivityWidget';
 import { WidgetDefinition } from './types';
 
 /**
- * The Dashboard mockup's own top section, in its exact order — Overall
- * Site Score, Run Complete Audit, the 4 score-ring cards, AI Suggestions,
- * Today's Tasks, Recent Changes. Prepended ahead of every other widget
- * below (STANDALONE_WIDGETS/STAT_WIDGETS) so the default, never-customized
- * layout matches the mockup top-to-bottom; every existing widget keeps
- * its id, its order relative to the others, and its own behavior.
+ * The newer "Good morning" Dashboard mockup's own top section, in its exact
+ * order — Vital Pulse (full-width now that "Run complete audit" lives in
+ * the page header instead, see Dashboard.tsx), VuloPilot activity (a
+ * separate mockup screenshot — 5 real tiles, see VuloPilotActivityWidget.tsx's
+ * own docblock for which real endpoint backs each one and why its mockup's
+ * 6th tile, "Next audit", isn't included), Needs your attention (moved up
+ * from STANDALONE_WIDGETS below to sit right under Vital Pulse, matching
+ * the mockup), Key pages at a glance + Site snapshot (a new side-by-side
+ * pair), Recent activity. Every pre-existing widget this mockup doesn't
+ * show as its own card (Run Complete Audit, Recent Changes) is NOT removed —
+ * per direct instruction, anything already on this Dashboard that isn't
+ * depicted in the new mockup stays, appended immediately after this list
+ * (still inside MOCKUP_WIDGETS, so the never-customized default layout
+ * keeps them, just lower on the page).
+ *
+ * AI Suggestions and Today's Tasks WERE removed from here (per direct
+ * instruction, after confirming the duplication) — not kept-but-appended
+ * like the rest, because both were genuine content duplicates rather than
+ * merely "not in the new mockup":
+ * - AISuggestionsWidget.tsx's own docblock already said it "reads the same
+ *   `/findings` endpoint NeedsAttentionWidget's 'Open issues' tab already
+ *   uses" — same query, same real findings, just a second styling of the
+ *   identical rows.
+ * - TodaysTasksWidget.tsx read the same unfiltered `/activity-logs` feed
+ *   RecentActivityWidget now reads (curated to a real, meaningful
+ *   event-type subset) — confirmed live to show the same rows in practice.
+ * Both component files are left in place, unused, rather than deleted
+ * (same "supersede don't delete" posture this codebase already applies to
+ * other superseded components) — their own docblocks now point at their
+ * replacement. Removed from `Utill::DASHBOARD_WIDGET_IDS` too, so neither
+ * can be re-added via "Customize dashboard" (the id is no longer valid) and
+ * an existing saved layout naturally drops its now-meaningless entry for
+ * either on its next reconciliation.
  */
 const MOCKUP_WIDGETS: WidgetDefinition[] = [
 	{
 		id: 'overall-score',
-		title: __('Overall Site Score', 'vulopilot'),
+		title: __('Vital Pulse', 'vulopilot'),
 		icon: 'analytics',
-		grid: 8,
+		grid: 12,
 		component: OverallScoreWidget,
 	},
+	{
+		id: 'vulopilot-activity',
+		title: __('VuloPilot activity', 'vulopilot'),
+		icon: 'analytics',
+		grid: 12,
+		component: VuloPilotActivityWidget,
+	},
+	{
+		id: 'needs-attention',
+		title: __('Needs your attention', 'vulopilot'),
+		icon: 'error',
+		grid: 12,
+		component: NeedsAttentionWidget,
+	},
+	{
+		id: 'key-pages',
+		title: __('Key pages at a glance', 'vulopilot'),
+		icon: 'pages',
+		grid: 6,
+		component: KeyPagesWidget,
+	},
+	{
+		id: 'site-snapshot',
+		title: __('Site snapshot', 'vulopilot'),
+		icon: 'info',
+		grid: 6,
+		component: SiteSnapshotWidget,
+	},
+	{
+		id: 'recent-activity',
+		title: __('Recent activity', 'vulopilot'),
+		icon: 'clock',
+		grid: 12,
+		component: RecentActivityWidget,
+	},
+	// Below this point: every widget that predates the new mockup and isn't
+	// depicted in it — kept, unmoved in behavior, just appended rather than
+	// deleted (direct instruction). `run-audit` is grid:12 (was grid:4,
+	// paired with the now-removed ai-suggestions/todays-tasks in the same
+	// row) since it has no row-mate left to share a line with.
 	{
 		id: 'run-audit',
 		title: __('Run Complete Audit', 'vulopilot'),
 		icon: 'search',
-		grid: 4,
+		grid: 12,
 		component: RunAuditWidget,
-	},
-	{
-		id: 'ai-suggestions',
-		title: __('AI Suggestions', 'vulopilot'),
-		icon: 'ai',
-		grid: 7,
-		component: AISuggestionsWidget,
-	},
-	{
-		id: 'todays-tasks',
-		title: __("Today's Tasks", 'vulopilot'),
-		icon: 'clock',
-		grid: 5,
-		component: TodaysTasksWidget,
 	},
 	{
 		id: 'recent-changes',
@@ -85,13 +140,6 @@ const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [];
  * Widgets with custom layouts
  */
 const STANDALONE_WIDGETS: WidgetDefinition[] = [
-	{
-		id: 'needs-attention',
-		title: __('Needs your attention', 'vulopilot'),
-		icon: 'error',
-		grid: 12,
-		component: NeedsAttentionWidget,
-	},
 	{
 		id: 'automation-status',
 		title: __('Automation status', 'vulopilot'),
@@ -166,12 +214,11 @@ const STAT_WIDGETS: WidgetDefinition[] = STAT_WIDGET_CONFIGS.map(
 
 export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] = applyFilters(
 	'vulopilot_dashboard_widgets',
-	// mockup-widgets leads (Overall Site Score through Recent Changes, the
-	// mockup's own top-to-bottom order), then health-pillars (the
-	// "everything, at a glance" hero among the pre-existing widgets) —
-	// this only affects the default layout a never-customized install
-	// seeds; anyone who has already saved a layout keeps their own order
-	// (DashboardLayout.php persists that separately from this array).
+	// MOCKUP_WIDGETS leads (Vital Pulse through every pre-mockup widget it
+	// carries forward, see its own docblock above), then STANDALONE_WIDGETS/
+	// STAT_WIDGETS — this only affects the default layout a never-customized
+	// install seeds; anyone who has already saved a layout keeps their own
+	// order (DashboardLayout.php persists that separately from this array).
 		[
 			...MOCKUP_WIDGETS,
 			...STANDALONE_WIDGETS,

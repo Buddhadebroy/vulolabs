@@ -15,6 +15,18 @@ interface ActivityLogRow {
 }
 
 /**
+ * UNUSED — no longer registered in registry.ts's MOCKUP_WIDGETS (removed
+ * per direct instruction once confirmed as a real content duplicate of
+ * RecentActivityWidget: this widget's own `/activity-logs` call has no
+ * `event_type` filter, so on a real site it surfaces whatever's most
+ * recent in the log — in practice the same `scan.completed` rows
+ * RecentActivityWidget's own curated event-type list already shows,
+ * confirmed live showing identical rows side by side on the Dashboard).
+ * Its id (`todays-tasks`) was also dropped from `Utill::DASHBOARD_WIDGET_IDS`,
+ * so it can't be re-added via "Customize dashboard" either. Left in place
+ * rather than deleted, same "supersede don't delete" posture this codebase
+ * already applies elsewhere.
+ *
  * "Today's Tasks" — the mockup mixes completed items ("Scan completed")
  * with pending/scheduled ones ("Plugin update pending", "Weekly report at
  * 6 PM"). Nothing in this codebase tracks upcoming/scheduled tasks (only

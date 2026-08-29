@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { HeaderComponent } from '@zyra/components';
+import { scrollToId } from '@zyra/core';
 import Brand from './assets/images/vulopilot-logo.svg';
 import { searchIndex, SearchItem } from './searchIndex';
 import './routeRegistry';
@@ -85,8 +86,36 @@ const App = () => {
 		setResults(filtered);
 	};
 
+	/**
+	 * A page-section result's target tab may not be mounted yet at click
+	 * time (the hash change above triggers Route's own async re-render) —
+	 * `scrollToId()` itself is a one-shot `getElementById` + `scrollIntoView`
+	 * with no retry (confirmed reading zyra's source), so it'd silently no-op
+	 * if called synchronously right after switching tabs. Poll briefly for
+	 * the real DOM id that section's own card renders instead of a fixed
+	 * delay, since mount time varies by tab (a heavier tab's first fetch
+	 * takes longer to paint its cards than a lighter one).
+	 */
+	const scrollToSectionWhenReady = (sectionId: string, attempt = 0) => {
+		if (document.getElementById(sectionId)) {
+			scrollToId(sectionId);
+			return;
+		}
+
+		if (attempt < 20) {
+			setTimeout(
+				() => scrollToSectionWhenReady(sectionId, attempt + 1),
+				100
+			);
+		}
+	};
+
 	const handleResultClick = (item: SearchItem) => {
 		window.location.hash = item.link;
+
+		if (item.sectionId) {
+			scrollToSectionWhenReady(item.sectionId);
+		}
 	};
 
 	// Highlight the active tab in the WP admin sidebar submenu.
@@ -137,6 +166,10 @@ const App = () => {
 						{
 							value: 'settings',
 							label: __('Settings', 'vulopilot'),
+						},
+						{
+							value: 'sections',
+							label: __('Sections', 'vulopilot'),
 						},
 					],
 				}}

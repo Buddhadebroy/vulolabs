@@ -20,7 +20,7 @@ interface AutomationsTemplatesCardProps {
 const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	onSelectTemplate,
 }) => (
-		<>
+		<div id="create-new-automation-card">
 		<CardComponent
 			title={ __( 'Create new automation', 'vulopilot-pro' ) } titleIcon="analytics"
 			desc={ __( 'Start from a ready-made template instead of building one from scratch.', 'vulopilot-pro' ) }
@@ -39,7 +39,7 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 				}))}
 			/>
 		</CardComponent>
-		</>
+		</div>
 );
 
 export default AutomationsTemplatesCard;
