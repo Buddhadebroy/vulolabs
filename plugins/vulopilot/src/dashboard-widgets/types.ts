@@ -57,6 +57,17 @@ export interface DashboardSummary {
 		enabled: number;
 		disabled: number;
 	};
+	/** Real WP core counts (Dashboard controller's build_site_snapshot()) — plain `wp_count_posts()`/`get_plugins()`/etc, not derived from scan findings like every other field here. */
+	site_snapshot: {
+		posts: number;
+		pages: number;
+		comments: number;
+		users: number;
+		plugins_active: number;
+		plugins_total: number;
+		wp_version: string;
+		php_version: string;
+	};
 }
 
 export interface WidgetProps {

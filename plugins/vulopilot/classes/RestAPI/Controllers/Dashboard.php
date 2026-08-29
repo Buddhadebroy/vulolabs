@@ -101,7 +101,44 @@ class Dashboard extends \WP_REST_Controller {
 					)
                 )['total'],
                 'automation_status'        => $automations->get_status_counts(),
+                'site_snapshot'            => $this->build_site_snapshot(),
             )
+        );
+    }
+
+    /**
+     * "Site snapshot" — real WordPress core counts, every one a plain core
+     * function call (`wp_count_posts()`/`wp_count_comments()`/`count_users()`/
+     * `get_plugins()`/`phpversion()`/`get_bloginfo('version')`), not derived
+     * from scan findings the way every other field on this payload is.
+     * Nothing in this codebase exposed these before this method — added
+     * specifically to back the Dashboard's own "Site snapshot" widget
+     * rather than leave that section fabricated or omitted, since every
+     * number here is genuinely free to compute (no query, no scan, just
+     * core WP state already loaded on every request).
+     *
+     * @return array{posts: int, pages: int, comments: int, users: int, plugins_active: int, plugins_total: int, wp_version: string, php_version: string}
+     */
+    private function build_site_snapshot(): array {
+        if ( ! function_exists( 'get_plugins' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $post_counts    = wp_count_posts( 'post' );
+        $page_counts    = wp_count_posts( 'page' );
+        $comment_counts = wp_count_comments();
+        $user_counts    = count_users();
+        $active_plugins = (array) get_option( 'active_plugins', array() );
+
+        return array(
+            'posts'          => (int) ( $post_counts->publish ?? 0 ),
+            'pages'          => (int) ( $page_counts->publish ?? 0 ),
+            'comments'       => (int) ( $comment_counts->approved ?? 0 ),
+            'users'          => (int) ( $user_counts['total_users'] ?? 0 ),
+            'plugins_active' => count( $active_plugins ),
+            'plugins_total'  => count( get_plugins() ),
+            'wp_version'     => get_bloginfo( 'version' ),
+            'php_version'    => PHP_VERSION,
         );
     }
 
