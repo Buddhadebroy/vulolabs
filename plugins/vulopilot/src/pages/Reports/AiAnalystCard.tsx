@@ -24,14 +24,12 @@ const AiAnalystCard = () => (
 		className="ai-analyst-card"
 		titleIcon="ai"
 		title={__('AI Analyst', 'vulopilot')}
+		desc={__(
+			'I keep an eye on your scans and reports. Open findings across your site are real opportunities to improve — review them and decide what to fix.',
+			'vulopilot'
+		)}
 	>
 		<AiCopilotGuard>
-			<p className="ai-analyst-desc">
-				{__(
-					'I keep an eye on your scans and reports. Open findings across your site are real opportunities to improve — review them and decide what to fix.',
-					'vulopilot'
-				)}
-			</p>
 			<TooltipComponent
 				text={__(
 					"Bulk-executing recommendations isn't available yet — review and apply fixes individually from the AI Assistant tab.",

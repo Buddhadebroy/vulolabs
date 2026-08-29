@@ -236,7 +236,13 @@ const ContentToolsGrid = () => {
 	const [activeTool, setActiveTool] = useState<ContentTool | null>(null);
 
 	return (
-		<CardComponent id="content-tools-grid" className="ai-card" title={__('Content Tools', 'vulopilot')} titleIcon='ai'>
+		<CardComponent
+			id="content-tools-grid"
+			className="ai-card"
+			title={__('Content Tools', 'vulopilot')}
+			titleIcon='ai'
+			desc={__('AI tools to help you create and improve content.', 'vulopilot')}
+		>
 			<ListComponent
 				className="tool-grid"
 				items={CONTENT_TOOLS.map((tool) => ({

@@ -50,6 +50,7 @@ const MANUAL_CHECKS: ManualCheck[] = [
 const AccessibilityManualTestingPanel = () => (
 	<CardComponent
 		title={__('Some accessibility checks need a person', 'vulopilot')}
+		titleIcon="person"
 		desc={__(
 			'Automated tests can find many technical issues, but real user experiences need to be checked manually.',
 			'vulopilot'
@@ -70,28 +71,31 @@ const AccessibilityManualTestingPanel = () => (
 				desc: check.description,
 			}))}
 		/>
-		<div className="accessibility-manual-actions">
 			<ButtonInput
-				buttons={{
-					text: __('Open Manual Checklist', 'vulopilot'),
-					rightIcon: 'pagination-right-arrow',
-					color: 'purple-bg',
-					onClick: () =>
-						window.open(
-							'https://www.w3.org/WAI/WCAG21/quickref/',
-							'_blank'
-						),
-				}}
+				position="left"
+				buttons={[
+					{
+						text: __('Open Manual Checklist', 'vulopilot'),
+						rightIcon: 'pagination-right-arrow',
+						color: 'purple-bg',
+						onClick: () =>
+							window.open(
+								'https://www.w3.org/WAI/WCAG21/quickref/',
+								'_blank'
+							),
+					},
+					{
+						text: __('Learn more about accessibility', 'vulopilot'),
+						color: 'border-purple',
+						rightIcon: 'pagination-right-arrow',
+						onClick: () =>
+							window.open(
+								'https://www.w3.org/WAI/fundamentals/accessibility-intro/',
+								'_blank'
+							),
+					},
+				]}
 			/>
-			<a
-				href="https://www.w3.org/WAI/fundamentals/accessibility-intro/"
-				target="_blank"
-				rel="noopener noreferrer"
-				className="admin-btn btn-text-purple"
-			>
-				{__('Learn more about accessibility', 'vulopilot')}
-			</a>
-		</div>
 	</CardComponent>
 );
 

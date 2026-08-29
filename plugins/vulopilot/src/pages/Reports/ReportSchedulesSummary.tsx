@@ -72,6 +72,7 @@ const ReportSchedulesSummary = () => {
 						className="report-schedule-card"
 						titleIcon="calendar"
 						title={cadence.label}
+						desc={__('The most recent auto-generated report on this schedule.', 'vulopilot')}
 					>
 						{!latest ? (
 							<ModuleGuardComponent

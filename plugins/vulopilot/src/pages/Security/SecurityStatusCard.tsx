@@ -48,6 +48,7 @@ const SecurityStatusCard = () => {
 		<CardComponent
 			title={__('Security Status', 'vulopilot')}
 			titleIcon="security"
+			desc={__('Your real, site-wide security score.', 'vulopilot')}
 			isLoading={isLoading}
 		>
 			{score !== null && (

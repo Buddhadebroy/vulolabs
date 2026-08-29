@@ -138,6 +138,7 @@ const TopIssuesToWorkOn = ({
 		<CardComponent
 			title={__('What should I work on first?', 'vulopilot-pro')}
 			titleIcon="star"
+			desc={__('The 5 highest-impact open WooCommerce findings.', 'vulopilot-pro')}
 			// Scopes Commerce.scss's shared `.admin-badge` red/orange/green/
 			// blue color vocabulary (declared once for this whole
 			// WooCommerce tab tree) onto this card's own impact badges —

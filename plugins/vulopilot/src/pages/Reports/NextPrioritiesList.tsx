@@ -32,6 +32,8 @@ const NextPrioritiesList = ({
 	<CardComponent
 		className="reports-priorities-card"
 		title={__('Your next priorities', 'vulopilot')}
+		titleIcon="star"
+		desc={__('The 3 highest-severity open findings site-wide.', 'vulopilot')}
 		isLoading={isLoading}
 	>
 		{!isLoading && priorities.length === 0 && (

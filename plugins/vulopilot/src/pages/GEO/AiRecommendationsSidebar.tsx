@@ -77,6 +77,7 @@ const AiRecommendationsSidebar = () => {
 				className="ai-card"
 				title={__('Recent AI Wins', 'vulopilot')}
 				titleIcon="ai"
+				desc={__('Your last 3 successful AI actions.', 'vulopilot')}
 				isLoading={isLoading}
 				action={
 					<a href="?page=vulopilot#&tab=ai-assistant">

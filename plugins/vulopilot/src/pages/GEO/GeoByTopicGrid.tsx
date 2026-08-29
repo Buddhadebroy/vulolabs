@@ -67,10 +67,6 @@ const GeoByTopicGrid = ({
 			id: topic.key,
 			icon: topic.titleIcon,
 			title: topic.title,
-			badge: {
-				color: count > 0 ? 'red' : 'green',
-				text: String(count),
-			},
 			desc:
 				null === affectedPages ? (
 					<p className="geo-by-topic-tile-sublabel">

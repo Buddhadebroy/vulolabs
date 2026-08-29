@@ -141,6 +141,7 @@ const StoreIntelligenceSummaryCard = ({
 			className="store-intelligence-summary-card"
 			titleIcon="ai"
 			title={__('Store Intelligence', 'vulopilot')}
+			desc={__('Real, actionable insights about your store\'s revenue and products.', 'vulopilot')}
 			badges={[{ text: __('PRO', 'vulopilot'), color: 'purple' }]}
 			isLoading={isLoading}
 		>

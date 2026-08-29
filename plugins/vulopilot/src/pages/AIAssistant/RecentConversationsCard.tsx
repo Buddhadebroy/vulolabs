@@ -140,6 +140,7 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 				className="recent-conversations-card"
 				title={__('Recent conversations', 'vulopilot')}
 				titleIcon="live-chat"
+				desc={__('Your past conversations with AI Copilot.', 'vulopilot')}
 				action={
 					<ButtonInput
 						buttons={{

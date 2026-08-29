@@ -48,7 +48,7 @@ const ActivityTab = () => {
 	return (
 		<ColumnComponent>
 			{error ? (
-				<CardComponent title={__('Activity', 'vulopilot')}>
+				<CardComponent title={__('Activity', 'vulopilot')} titleIcon="error">
 					<ModuleGuardComponent
 						icon="error"
 						title={__(

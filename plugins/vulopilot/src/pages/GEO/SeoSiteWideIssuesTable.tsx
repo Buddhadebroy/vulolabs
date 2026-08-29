@@ -165,7 +165,7 @@ const SeoSiteWideIssuesTable = ({
 
 	if (hasError) {
 		return (
-			<CardComponent title={__('Site-wide Issues', 'vulopilot')}>
+			<CardComponent title={__('Site-wide Issues', 'vulopilot')} titleIcon="error">
 				<ModuleGuardComponent
 					icon="error"
 					title={__('Could not load site-wide issues', 'vulopilot')}

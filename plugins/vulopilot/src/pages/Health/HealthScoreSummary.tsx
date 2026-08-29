@@ -122,7 +122,11 @@ const HealthScoreSummary = () => {
 
 	return (
 		<>
-			<CardComponent title={__('Website health score', 'vulopilot')}>
+			<CardComponent
+				title={__('Website health score', 'vulopilot')}
+				titleIcon="home"
+				desc={__('Your overall score plus open and critical findings site-wide.', 'vulopilot')}
+			>
 				<AnalyticsComponent
 					variant="dashboard"
 					cols={4}
@@ -146,7 +150,11 @@ const HealthScoreSummary = () => {
 				/>
 			</CardComponent>
 
-			<CardComponent title={__('Score by pillar', 'vulopilot')}>
+			<CardComponent
+				title={__('Score by pillar', 'vulopilot')}
+				titleIcon="category"
+				desc={__('Your score broken down by scanner area.', 'vulopilot')}
+			>
 				<AnalyticsComponent
 					variant="progress"
 					cols={5}
@@ -154,7 +162,11 @@ const HealthScoreSummary = () => {
 				/>
 			</CardComponent>
 
-			<CardComponent title={__('Health score trend, last 30 days', 'vulopilot')}>
+			<CardComponent
+				title={__('Health score trend, last 30 days', 'vulopilot')}
+				titleIcon="analytics"
+				desc={__('Your real overall health score, tracked daily.', 'vulopilot')}
+			>
 				{snapshots.length === 0 ? (
 					<ModuleGuardComponent
 						icon="analytics"

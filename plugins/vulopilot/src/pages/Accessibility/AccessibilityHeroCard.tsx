@@ -173,12 +173,12 @@ const AccessibilityHeroCard = ({
 					{total > 0 && (
 						<>
 							<AnalyticsComponent
-								variant="card"
+								variant="background-color"
 								data={[
 									{
 										number: total,
 										text: __('Issues found', 'vulopilot'),
-										colorClass: 'is-total red',
+										colorClass: 'red',
 									},
 									{
 										number: highCount,
@@ -186,19 +186,19 @@ const AccessibilityHeroCard = ({
 											'Should review first',
 											'vulopilot'
 										),
-										colorClass: 'is-high green',
+										colorClass: 'green',
 									},
 									{
 										number: pagesAffected,
 										text: __('Pages affected', 'vulopilot'),
-										colorClass: 'is-pages blue',
+										colorClass: ' blue',	
 									},
 								]}
 							/>
 						</>
 					)}
 					<ButtonInput
-						position="full-width"
+						position="left"
 						buttons={[
 							{
 								text: __('Review Important Issues', 'vulopilot'),

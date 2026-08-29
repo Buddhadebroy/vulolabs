@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { NoticeComponent, ContainerComponent } from '@zyra/components';
+import { NoticeComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
 import IssuesSection from './IssuesSection';
 import { useGeoFindingGroups } from './useGeoFindingGroups';
 import { useGeoTopicAffectedPages } from './useGeoTopicAffectedPages';
@@ -32,84 +32,84 @@ const GEO_TOPICS: {
 	emptyMessage: string;
 	scannerIds: string[];
 }[] = [
-	{
-		key: 'ai-summary',
-		title: __('AI Summary', 'vulopilot'),
-		titleIcon: 'ai',
-		description: __(
-			'Whether pages have an extractable AI summary block an AI system can lift directly.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No AI summary findings yet — run a scan to check for summary blocks.',
-			'vulopilot'
-		),
-		scannerIds: ['geo-summary-block'],
-	},
-	{
-		key: 'faq-questions',
-		title: __('FAQ-style Questions', 'vulopilot'),
-		titleIcon: 'question',
-		description: __(
-			'Commonly-asked questions a page plausibly answers, but with no FAQ or Q&A block making that answer easy to extract.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No question-coverage findings yet — run a scan to check for FAQ opportunities.',
-			'vulopilot'
-		),
-		scannerIds: ['geo-faq-opportunity'],
-	},
-	{
-		key: 'evidence-citations',
-		title: __('Evidence & Citations', 'vulopilot'),
-		titleIcon: 'report',
-		description: __(
-			'Statistic-shaped claims with no citation or outbound link backing them up.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No evidence findings yet — run a scan to check for uncited claims.',
-			'vulopilot'
-		),
-		scannerIds: ['geo-citation-opportunities'],
-	},
-	{
-		key: 'ai-readable-structure',
-		title: __('AI-Readable Structure', 'vulopilot'),
-		titleIcon: 'blocks',
-		description: __(
-			'Paragraph length and heading hierarchy — how easily an AI system can extract a clean chunk of this content.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No structure findings yet — run a scan to check paragraph length and heading hierarchy.',
-			'vulopilot'
-		),
-		scannerIds: ['geo-chunking', 'geo-semantic-structure'],
-	},
-	{
-		key: 'other-signals',
-		title: __('Other Signals', 'vulopilot'),
-		titleIcon: 'person',
-		description: __(
-			'Author credentials, naming consistency, trust pages, llms.txt, and content freshness.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No other findings yet — run a scan to check author info, naming consistency, and freshness.',
-			'vulopilot'
-		),
-		scannerIds: [
-			'geo-author-info',
-			'geo-eeat-signals',
-			'geo-entity-naming-consistency',
-			'geo-trust-signals',
-			'llms-txt-missing',
-			'stale-content',
-		],
-	},
-];
+		{
+			key: 'ai-summary',
+			title: __('AI Summary', 'vulopilot'),
+			titleIcon: 'ai violet',
+			description: __(
+				'Whether pages have an extractable AI summary block an AI system can lift directly.',
+				'vulopilot'
+			),
+			emptyMessage: __(
+				'No AI summary findings yet — run a scan to check for summary blocks.',
+				'vulopilot'
+			),
+			scannerIds: ['geo-summary-block'],
+		},
+		{
+			key: 'faq-questions',
+			title: __('FAQ-style Questions', 'vulopilot'),
+			titleIcon: 'question green',
+			description: __(
+				'Commonly-asked questions a page plausibly answers, but with no FAQ or Q&A block making that answer easy to extract.',
+				'vulopilot'
+			),
+			emptyMessage: __(
+				'No question-coverage findings yet — run a scan to check for FAQ opportunities.',
+				'vulopilot'
+			),
+			scannerIds: ['geo-faq-opportunity'],
+		},
+		{
+			key: 'evidence-citations',
+			title: __('Evidence & Citations', 'vulopilot'),
+			titleIcon: 'report rose',
+			description: __(
+				'Statistic-shaped claims with no citation or outbound link backing them up.',
+				'vulopilot'
+			),
+			emptyMessage: __(
+				'No evidence findings yet — run a scan to check for uncited claims.',
+				'vulopilot'
+			),
+			scannerIds: ['geo-citation-opportunities'],
+		},
+		{
+			key: 'ai-readable-structure',
+			title: __('AI-Readable Structure', 'vulopilot'),
+			titleIcon: 'blocks lime',
+			description: __(
+				'Paragraph length and heading hierarchy — how easily an AI system can extract a clean chunk of this content.',
+				'vulopilot'
+			),
+			emptyMessage: __(
+				'No structure findings yet — run a scan to check paragraph length and heading hierarchy.',
+				'vulopilot'
+			),
+			scannerIds: ['geo-chunking', 'geo-semantic-structure'],
+		},
+		{
+			key: 'other-signals',
+			title: __('Other Signals', 'vulopilot'),
+			titleIcon: 'person yellow',
+			description: __(
+				'Author credentials, naming consistency, trust pages, llms.txt, and content freshness.',
+				'vulopilot'
+			),
+			emptyMessage: __(
+				'No other findings yet — run a scan to check author info, naming consistency, and freshness.',
+				'vulopilot'
+			),
+			scannerIds: [
+				'geo-author-info',
+				'geo-eeat-signals',
+				'geo-entity-naming-consistency',
+				'geo-trust-signals',
+				'llms-txt-missing',
+				'stale-content',
+			],
+		},
+	];
 
 /**
  * GEO = Generative Engine Optimization — how discoverable/citable this
@@ -180,35 +180,20 @@ const GeoTab = () => {
 
 	return (
 		<ContainerComponent>
-			{/* id kept on this wrapper, not NoticeComponent itself (no id prop) — real jump target for the bottom info banner's own "Learn more about this page" link, same real-anchor technique the top-of-page tab bar itself already relies on for in-page navigation. */}
-			<div id="geo-top-banner">
-				<NoticeComponent
-					// type="banner"
-					displayPosition="inline"
-					message={sprintf(
-						'<strong>%1$s</strong> %2$s',
-						__('In plain English:', 'vulopilot'),
-						__(
-							'When someone asks ChatGPT, Gemini, or Google’s AI a question your site could answer, you’ll be more likely to get found and recommended.',
-							'vulopilot'
-						)
-					)}
-				/>
-			</div>
 
 			<GeoScoreSection />
 
-			<GeoByTopicGrid
-				topics={GEO_TOPICS}
-				groups={groups}
-				isLoading={isLoadingGroups || isLoadingAffectedPages}
-				affectedPagesByScanner={affectedPagesByScanner}
-				onViewTopic={(key) => goToIssuesTable(key)}
-			/>
-
+			<ColumnComponent>
+				<GeoByTopicGrid
+					topics={GEO_TOPICS}
+					groups={groups}
+					isLoading={isLoadingGroups || isLoadingAffectedPages}
+					affectedPagesByScanner={affectedPagesByScanner}
+					onViewTopic={(key) => goToIssuesTable(key)}
+				/>
+			</ColumnComponent>
 			<NoticeComponent
-				// type="banner"
-				displayPosition="inline"
+				displayPosition="inline-notice"
 				message={sprintf(
 					'%1$s <a href="#geo-top-banner">%2$s ›</a>',
 					__(

@@ -178,7 +178,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 
 	if (!group) {
 		return (
-			<CardComponent title={__('Issue details', 'vulopilot')}>
+			<CardComponent title={__('Issue details', 'vulopilot')} titleIcon="ai">
 				<ModuleGuardComponent
 					icon="ai"
 					title={__('Select an issue', 'vulopilot')}
@@ -376,6 +376,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				className="issue-detail-panel"
 				title={group.label}
 				titleIcon="error"
+				desc={group.sample?.description}
 				action={
 					<i
 						className="adminfont-close"

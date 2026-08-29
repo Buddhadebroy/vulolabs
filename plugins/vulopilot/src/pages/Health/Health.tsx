@@ -58,7 +58,7 @@ const Health = () => {
 				<ColumnComponent>
 					<HealthScoreSummary />
 					{error ? (
-						<CardComponent title={title}>
+						<CardComponent title={title} titleIcon="error">
 							<ModuleGuardComponent
 								icon="error"
 								title={__(

@@ -201,22 +201,10 @@ const KeywordsTab = () => {
 	if (isConnectionLoading || !status || !status.connected || !status.search_console_site) {
 		return (
 			<ColumnComponent>
-				<NoticeComponent
-					type="success"
-					position="notice"
-					message={sprintf(
-						'<strong>%1$s</strong> %2$s',
-						__('In plain English:', 'vulopilot'),
-						__(
-							'This is where you’d see which real Google search queries your pages already rank for, and where.',
-							'vulopilot'
-						)
-					)}
-				/>
-
 				<CardComponent
 					title={__('Ranking Keywords', 'vulopilot')}
 					titleIcon="search"
+					desc={__('Connect Google Search Console to see your real keyword rankings.', 'vulopilot')}
 					isLoading={isConnectionLoading}
 				>
 					{!isConnectionLoading && status && !status.connected && (
@@ -371,7 +359,11 @@ const KeywordsTab = () => {
 
 	return (
 		<ColumnComponent>
-			<CardComponent title={__('Search Console', 'vulopilot')} titleIcon="search">
+			<CardComponent
+				title={__('Search Console', 'vulopilot')}
+				titleIcon="search"
+				desc={__('Your connected Google Search Console property.', 'vulopilot')}
+			>
 				<div className="keywords-connected-row">
 					<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
 					<TypographyComponent as="span" variant="desc">
@@ -405,7 +397,7 @@ const KeywordsTab = () => {
 			</CardComponent>
 
 			{!isSummaryLoading && summary && !summary.synced && (
-				<CardComponent title={__('Ranking Keywords', 'vulopilot')} titleIcon="chart-bar">
+				<CardComponent title={__('Ranking Keywords', 'vulopilot')} titleIcon="bar-chart">
 					<ModuleGuardComponent
 						icon="info"
 						title={__('Not synced yet', 'vulopilot')}
@@ -474,7 +466,8 @@ const KeywordsTab = () => {
 						<ColumnComponent grid={5}>
 							<CardComponent
 								title={__('Keyword Position Distribution', 'vulopilot')}
-								titleIcon="chart-bar"
+								titleIcon="bar-chart"
+								desc={__('Where your ranking keywords fall across Google\'s result pages.', 'vulopilot')}
 								isLoading={isSummaryLoading}
 							>
 								{summary && (
@@ -497,7 +490,7 @@ const KeywordsTab = () => {
 						<ColumnComponent grid={7}>
 							<CardComponent
 								title={__('Top Opportunities', 'vulopilot')}
-								titleIcon="chart-line"
+								titleIcon="star"
 								desc={__(
 									'Real keywords already ranking on page 1-2 (position 4-20) with real impressions — the closest, real path to a Top 3 result.',
 									'vulopilot'
@@ -583,7 +576,11 @@ const KeywordsTab = () => {
 						)}
 					</CardComponent>
 
-					<CardComponent title={__('Ranking Keywords', 'vulopilot')} titleIcon="search">
+					<CardComponent
+						title={__('Ranking Keywords', 'vulopilot')}
+						titleIcon="search"
+						desc={__('Every real keyword Search Console has data for, searchable.', 'vulopilot')}
+					>
 						<TableCard
 							showMenu={false}
 							search={{ placeholder: __('Search keywords…', 'vulopilot') }}

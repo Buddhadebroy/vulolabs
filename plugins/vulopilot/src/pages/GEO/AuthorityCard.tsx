@@ -33,7 +33,11 @@ const AuthorityCard = () => {
 	}, []);
 
 	return (
-		<CardComponent title={__('Authority', 'vulopilot')} titleIcon="star">
+		<CardComponent
+			title={__('Authority', 'vulopilot')}
+			titleIcon="star"
+			desc={__('Your entity, authority, and trust sub-scores.', 'vulopilot')}
+		>
 			{data && (
 				<ListComponent
 					className="mini-card"

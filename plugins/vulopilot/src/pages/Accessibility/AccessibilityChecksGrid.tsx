@@ -138,7 +138,7 @@ const AccessibilityChecksGrid = ({ onReview }: AccessibilityChecksGridProps) => 
 							buttons={{
 								text: __('Review', 'vulopilot'),
 								rightIcon: 'pagination-right-arrow',
-								color: 'border-purple',
+								color: 'text-purple',
 								onClick: () => onReview(check.key),
 							}}
 						/>

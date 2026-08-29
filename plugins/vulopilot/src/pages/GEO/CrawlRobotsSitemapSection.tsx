@@ -396,7 +396,7 @@ const CrawlRobotsSitemapSection = () => {
 	if (!isSeoModuleActive()) {
 		return (
 			<ColumnComponent>
-				<CardComponent title={__('Robots & Sitemap', 'vulopilot')}>
+				<CardComponent title={__('Robots & Sitemap', 'vulopilot')} titleIcon="link">
 					<ModuleGuardComponent
 						icon="error"
 						title={__('SEO module is turned off', 'vulopilot')}
@@ -587,6 +587,7 @@ const CrawlRobotsSitemapSection = () => {
 				<CardComponent
 					title={__('XML Sitemap Overview', 'vulopilot')}
 					titleIcon="link"
+					desc={__('Check your live sitemap (fetched right now, not a cached copy).', 'vulopilot')}
 					isLoading={isLoadingSitemap}
 					action={
 						sitemap?.reachable && (
@@ -674,17 +675,17 @@ const CrawlRobotsSitemapSection = () => {
 					)}
 				</CardComponent>
 
-				<CardComponent title={__('llms.txt content', 'vulopilot')} titleIcon="list" isLoading={isLoadingLlmsTxt}>
+				<CardComponent
+					title={__('llms.txt content', 'vulopilot')}
+					titleIcon="menu"
+					desc={__(
+						'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
+						'vulopilot'
+					)}
+					isLoading={isLoadingLlmsTxt}
+				>
 					{isLlmsTxtEnabled ? (
 						<div className="llms-txt-card-body">
-							<div className="llms-txt-card-label">
-								<p className="desc">
-									{__(
-										'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
-										'vulopilot'
-									)}
-								</p>
-							</div>
 							<div className="llms-txt-card-field">
 								<TextAreaInput
 									value={llmsTxtContent}
@@ -795,7 +796,8 @@ const CrawlRobotsSitemapSection = () => {
 
 					<CardComponent
 						title={__('Important Crawl Directives', 'vulopilot')}
-						titleIcon="list"
+						titleIcon="menu"
+						desc={__('The real user-agent/allow/disallow/sitemap rules robots.txt currently sets.', 'vulopilot')}
 						isLoading={isLoadingRobots}
 					>
 						{robots?.reachable ? (
@@ -832,7 +834,11 @@ const CrawlRobotsSitemapSection = () => {
 						)}
 					</CardComponent>
 
-					<CardComponent title={__('Quick Actions', 'vulopilot')} titleIcon="dashboard">
+					<CardComponent
+						title={__('Quick Actions', 'vulopilot')}
+						titleIcon="tools"
+						desc={__('Shortcuts to the tools you use most on this page.', 'vulopilot')}
+					>
 						<div className="robots-quick-actions">
 							<a
 								className="robots-quick-action"
@@ -873,6 +879,7 @@ const CrawlRobotsSitemapSection = () => {
 				<div id="blocked-pages-table">
 					<CardComponent
 						title={__('Blocked pages', 'vulopilot')}
+						titleIcon="eye-blocked"
 						desc={__('Real pages robots.txt disallows for one specific AI bot.', 'vulopilot')}
 					>
 						{blockedPagesError ? (
@@ -891,6 +898,7 @@ const CrawlRobotsSitemapSection = () => {
 
 				<CardComponent
 					title={__('Robots.txt Issues', 'vulopilot')}
+					titleIcon="link"
 					desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
 				>
 					{robotsTxtError ? (
@@ -908,6 +916,7 @@ const CrawlRobotsSitemapSection = () => {
 
 				<CardComponent
 					title={__('XML Sitemap Issues', 'vulopilot')}
+					titleIcon="link"
 					desc={__('Whether /wp-sitemap.xml is reachable and valid.', 'vulopilot')}
 				>
 					{sitemapFindingsError ? (

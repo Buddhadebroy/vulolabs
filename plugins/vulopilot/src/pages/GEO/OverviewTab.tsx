@@ -8,9 +8,11 @@ import {
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
+	MetricTileComponent,
 	ModuleGuardComponent,
+	type MetricTileItem,
 } from '@zyra/components';
-import { SelectInput } from '@zyra/inputs';
+import { ButtonInput, SelectInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { useVisibilityScore } from './useVisibilityScore';
@@ -34,12 +36,12 @@ const getRating = (score: number): string => {
 
 const ratingClass = (score: number): string => {
 	if (score >= 70) {
-		return 'is-good';
+		return 'green';
 	}
 	if (score >= 40) {
-		return 'is-attention';
+		return 'blue';
 	}
-	return 'is-poor';
+	return 'red';
 };
 
 const ScoreDelta = ({ change }: { change: number }) => (
@@ -53,30 +55,32 @@ const ScoreDelta = ({ change }: { change: number }) => (
 	</span>
 );
 
-const ScoreStatCard = ({
+/**
+ * One `MetricTileItem` per real score area — `number` (the real 0-100
+ * score), `status` (the same real `ratingClass()`/`getRating()` pairing
+ * `BadgeComponent` used to render directly, now via `MetricTileComponent`'s
+ * own identical `admin-badge {color}` construction), and `stat` (the real
+ * `ScoreDelta` "↑/↓ N pts vs last week" line, reused as-is — `stat` accepts
+ * any `ReactNode`, so this is the same component, not a re-implementation).
+ * `area` is `null` while loading or before this score area has real data —
+ * that tile then renders header-only (icon/title), same as the old
+ * `ScoreStatCard`'s own empty body.
+ */
+const scoreTile = (
+	id: string,
+	title: string,
+	icon: string,
+	area: VisibilityArea | { score: number; change: number } | null
+): MetricTileItem => ({
+	id,
+	icon,
 	title,
-	titleIcon,
-	area,
-	isLoading,
-}: {
-	title: string;
-	titleIcon: string;
-	area: VisibilityArea | { score: number; change: number } | null;
-	isLoading: boolean;
-}) => (
-	<CardComponent title={title} titleIcon={titleIcon} isLoading={isLoading}>
-		{area && (
-			<div className="visibility-stat-card">
-				<div className="visibility-stat-value">
-					<span className="typography-h2">{area.score}</span>
-					<span className="desc">/100</span>
-				</div>
-				<BadgeComponent color={ratingClass(area.score)} text={getRating(area.score)} />
-				<ScoreDelta change={area.change} />
-			</div>
-		)}
-	</CardComponent>
-);
+	number: area ? `${area.score}/100` : undefined,
+	status: area
+		? { text: getRating(area.score), color: ratingClass(area.score) }
+		: undefined,
+	stat: area ? <ScoreDelta change={area.change} /> : undefined,
+});
 
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
@@ -288,46 +292,45 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={3}>
-				<ScoreStatCard
-					title={__('Visibility Score', 'vulopilot')}
-					titleIcon="bar-chart"
+			<ColumnComponent>
+				<MetricTileComponent
+					cols={4}
 					isLoading={isLoading}
-					area={
-						score
-							? { score: score.visibility_score, change: score.change }
-							: null
-					}
-				/>
-			</ColumnComponent>
-			<ColumnComponent grid={3}>
-				<ScoreStatCard
-					title={__('Brand Visibility Score', 'vulopilot')}
-					titleIcon="person"
-					isLoading={isLoading}
-					area={areas?.brand ?? null}
-				/>
-			</ColumnComponent>
-			<ColumnComponent grid={3}>
-				<ScoreStatCard
-					title={__('SEO Health Score', 'vulopilot')}
-					titleIcon="search"
-					isLoading={isLoading}
-					area={areas?.seo ?? null}
-				/>
-			</ColumnComponent>
-			<ColumnComponent grid={3}>
-				<ScoreStatCard
-					title={__('GEO Visibility Score', 'vulopilot')}
-					titleIcon="search-discovery"
-					isLoading={isLoading}
-					area={areas?.geo ?? null}
+					data={[
+						scoreTile(
+							'visibility',
+							__('Visibility Score', 'vulopilot'),
+							'bar-chart',
+							score
+								? { score: score.visibility_score, change: score.change }
+								: null
+						),
+						scoreTile(
+							'brand',
+							__('Brand Visibility Score', 'vulopilot'),
+							'person',
+							areas?.brand ?? null
+						),
+						scoreTile(
+							'seo',
+							__('SEO Health Score', 'vulopilot'),
+							'search',
+							areas?.seo ?? null
+						),
+						scoreTile(
+							'geo',
+							__('GEO Visibility Score', 'vulopilot'),
+							'search-discovery',
+							areas?.geo ?? null
+						),
+					]}
 				/>
 			</ColumnComponent>
 
-			<ColumnComponent grid={7}>
+			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Visibility Trend', 'vulopilot')}
+					titleIcon='security'
 					desc={
 						null !== trendUplift
 							? sprintf(
@@ -363,9 +366,10 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-			<ColumnComponent grid={5}>
+			<ColumnComponent grid={6}>
 				<CardComponent
 					title={__('Visibility by Area', 'vulopilot')}
+					titleIcon='security'
 					desc={__('The same 4 real area scores above, compared at a glance.', 'vulopilot')}
 					isLoading={isLoading}
 				>
@@ -410,22 +414,21 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 				</CardComponent>
 			</ColumnComponent>
 
-			<ColumnComponent grid={6}>
+			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Visibility Breakdown', 'vulopilot')}
+					titleIcon="category"
 					desc={__('See how your site performs across each real area.', 'vulopilot')}
 					isLoading={isLoading}
 					action={
-						<a
-							className="crawler-view-all-link"
-							href="#"
-							onClick={(event) => {
-								event.preventDefault();
-								onNavigateTab('seo');
+						<ButtonInput
+							buttons={{
+								text: __('View all sections', 'vulopilot'),
+								rightIcon: 'pagination-right-arrow',
+								color: 'text-purple',
+								onClick: () => onNavigateTab('seo'),
 							}}
-						>
-							{__('View all sections ›', 'vulopilot')}
-						</a>
+						/>
 					}
 				>
 					{areas && (
@@ -485,14 +488,19 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 				<CardComponent
 					title={__('Recent Activity', 'vulopilot')}
 					titleIcon="clock"
+					desc={__('Scans, alerts, and applied fixes across your site.', 'vulopilot')}
 					isLoading={isLoadingActivity}
 					action={
-						<a
-							className="crawler-view-all-link"
-							href={`${appLocalizer.admin_url}#&tab=reports&subtab=activity`}
-						>
-							{__('View all activity ›', 'vulopilot')}
-						</a>
+						<ButtonInput
+						buttons={{
+							text: __('View all activity', 'vulopilot'),
+							rightIcon: 'pagination-right-arrow',
+							color: 'text-purple',
+							onClick: () => {
+								window.location.href = `${appLocalizer.admin_url}#&tab=reports&subtab=activity`;
+							},
+						}}
+					/>
 					}
 				>
 					{!isLoadingActivity && 0 === activity.length ? (
@@ -502,11 +510,11 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							desc={__('Scans, alerts, and applied fixes will appear here as they happen.', 'vulopilot')}
 						/>
 					) : (
-						<ul className="security-recent-activity-list">
+						<ul className="activity-log">
 							{activity.map((row) => (
-								<li key={row.id}>
-									<span className="security-recent-activity-message">{row.message}</span>
-									<span className="security-recent-activity-time">
+								<li key={row.id} className='activity'>
+									<div className="title">{row.message}</div>
+									<span>
 										{timeAgo(row.created_at)}
 									</span>
 								</li>
@@ -515,8 +523,12 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-			<ColumnComponent grid={6}>
-				<CardComponent title={__('Quick Links', 'vulopilot')}>
+			<ColumnComponent grid={6} fullHeight>
+				<CardComponent
+					title={__('Quick Links', 'vulopilot')}
+					titleIcon="link"
+					desc={__('Jump straight to any SEO & Visibility section.', 'vulopilot')}
+				>
 					<div className="visibility-quick-links">
 						{QUICK_LINKS.map((link) => (
 							<button

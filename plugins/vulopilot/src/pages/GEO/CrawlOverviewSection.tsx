@@ -124,7 +124,7 @@ const CrawlOverviewSection = () => {
 	return (
 		<ColumnComponent>
 			{error ? (
-				<CardComponent title={__('Crawler Traffic', 'vulopilot')}>
+				<CardComponent title={__('Crawler Traffic', 'vulopilot')} titleIcon="error">
 					<ModuleGuardComponent
 						icon="error"
 						title={__(
@@ -152,7 +152,11 @@ const CrawlOverviewSection = () => {
 					)}
 
 					<div id="recent-crawl-requests">
-						<CardComponent title={__('Recent Crawl Requests', 'vulopilot')}>
+						<CardComponent
+							title={__('Recent Crawl Requests', 'vulopilot')}
+							titleIcon="search-discovery"
+							desc={__('Every real crawler visit to your site, searchable and filterable.', 'vulopilot')}
+						>
 							<TableCard
 								search={{
 									placeholder: __(

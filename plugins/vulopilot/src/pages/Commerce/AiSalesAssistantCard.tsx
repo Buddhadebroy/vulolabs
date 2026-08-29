@@ -51,6 +51,7 @@ const AiSalesAssistantCard = ({
 			<CardComponent
 				title={__('AI Sales Assistant', 'vulopilot')}
 				titleIcon="ai"
+				desc={__('Real open WooCommerce findings, summarized.', 'vulopilot')}
 				isLoading={isLoading}
 			>
 				<AiCopilotGuard>

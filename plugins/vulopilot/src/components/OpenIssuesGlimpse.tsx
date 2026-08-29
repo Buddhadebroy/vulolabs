@@ -113,6 +113,7 @@ const OpenIssuesGlimpse = ({
 				className={className}
 				title={title ?? __('Open issues', 'vulopilot')}
 				titleIcon={titleIcon}
+				desc={__('The 5 most recent open findings.', 'vulopilot')}
 				isLoading={isLoading}
 			>
 				{!isLoading && data.length === 0 ? (

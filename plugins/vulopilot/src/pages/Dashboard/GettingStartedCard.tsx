@@ -25,6 +25,7 @@ const GettingStartedCard: React.FC = () => {
 		<CardComponent
 			title={__('Welcome to VuloPilot — finish setup', 'vulopilot')}
 			titleIcon="ai purple-color"
+			desc={__('Docs, help, and modules to get the most out of VuloPilot.', 'vulopilot')}
 			borderColor="purple"
 			toggle
 			action={

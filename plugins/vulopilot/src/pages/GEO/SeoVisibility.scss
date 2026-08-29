@@ -823,7 +823,7 @@
 // background tint included) instead of the hand-rolled tile markup this
 // used to be. `colorClass` is one of that same real palette's own names
 // now (`ratingColor()` in SeoTab.tsx — `green`/`yellow`/`red`, same
-// convention `BrandScoreCard.tsx`'s own `variant="score-ring"` tiles
+// convention `BrandScoreCard.tsx`'s own `MetricTileComponent` score tiles
 // already established), not the bespoke `is-good`/`is-attention`/`is-poor`
 // classes this rule used to key off — those never actually matched
 // `small-card`'s own compiled `@each $name, $style in $color-palette` tint
@@ -1341,10 +1341,6 @@
 	@media (max-width: 48rem) {
 		grid-template-columns: 1fr;
 	}
-}
-
-.llms-txt-card-label .desc {
-	margin: 0;
 }
 
 .llms-txt-card-field {
@@ -2249,29 +2245,6 @@
 	margin-bottom: 0.75rem;
 }
 
-.geo-score-calc-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.625rem;
-
-	li {
-		display: flex;
-		align-items: center;
-		gap: 0.625rem;
-		font-size: 0.8125rem;
-	}
-
-	i {
-		color: $theme-color;
-		font-size: 1rem;
-		width: 1.125rem;
-		text-align: center;
-		flex-shrink: 0;
-	}
-}
 
 // GeoScoreSection.tsx — "GEO Score Breakdown" table (Signal/Score/Status/
 // Main Problem), same shape `.robots-directives-table` already establishes.
@@ -2300,25 +2273,6 @@
 .geo-score-breakdown-problem {
 	color: $sub-text-color;
 	max-width: 18rem;
-}
-
-// OverviewTab.tsx (SEO & Visibility's top-level Overview tab) — the 4 real
-// score cards (Visibility/Brand/SEO/GEO).
-.visibility-stat-card {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 0.5rem;
-}
-
-.visibility-stat-value {
-	display: flex;
-	align-items: baseline;
-	gap: 0.25rem;
-
-	.typography-h2 {
-		margin: 0;
-	}
 }
 
 // OverviewTab.tsx's own "Quick Links" grid — real in-SPA tab navigation

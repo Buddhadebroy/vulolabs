@@ -132,6 +132,7 @@ const ContentStatsCard = () => {
 			className="content-stats-card"
 			title={__('Content Stats', 'vulopilot')}
 			titleIcon='ai'
+			desc={__('Your real content numbers for the selected period.', 'vulopilot')}
 			isLoading={isLoading}
 			action={
 				<SelectInput

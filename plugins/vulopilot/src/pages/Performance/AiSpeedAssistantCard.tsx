@@ -77,7 +77,12 @@ const AiSpeedAssistantCard = ({ onReviewIssues }: AiSpeedAssistantCardProps) => 
 	);
 
 	return (
-		<CardComponent title={__('AI Speed Assistant', 'vulopilot')} titleIcon="ai" isLoading={isLoading}>
+		<CardComponent
+			title={__('AI Speed Assistant', 'vulopilot')}
+			titleIcon="ai"
+			desc={__('Real open performance findings, summarized.', 'vulopilot')}
+			isLoading={isLoading}
+		>
 			{wrap(
 				<>
 					{!isLoading && (

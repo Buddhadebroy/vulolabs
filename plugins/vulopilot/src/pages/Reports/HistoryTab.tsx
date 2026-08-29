@@ -97,6 +97,7 @@ const AiAnalyticsLockedCard = () => {
 		<>
 			<CardComponent
 				title={__('AI cost & provider breakdown', 'vulopilot')}
+				titleIcon="lock"
 				desc={__(
 					'A per-provider cost, token, and success-rate breakdown of the history above.',
 					'vulopilot'

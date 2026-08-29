@@ -21,7 +21,11 @@ const CompetitorRadarCard = () => {
 	);
 
 	return (
-		<CardComponent title={__('Competitor Radar', 'vulopilot')} titleIcon="bar-chart">
+		<CardComponent
+			title={__('Competitor Radar', 'vulopilot')}
+			titleIcon="bar-chart"
+			desc={__('How your site structurally compares to the competitor URLs you\'ve configured.', 'vulopilot')}
+		>
 			{isGeoInsightsActive() && GeoCompetitorVisibility ? (
 				<GeoCompetitorVisibility />
 			) : (

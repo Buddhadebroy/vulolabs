@@ -79,11 +79,13 @@ const RecentActivityCard = () => {
 		<CardComponent
 			title={__('Recent Activity', 'vulopilot')}
 			titleIcon="clock"
+			desc={__('Your last 4 real security-related events.', 'vulopilot')}
 			isLoading={isLoading}
 			action={
 				<ButtonInput
 					buttons={{
 						text: __('View all activity', 'vulopilot'),
+						color: 'text-purple',
 						onClick: () => {
 							window.open(
 								`${appLocalizer.admin_url}#&tab=reports&subtab=activity`,
@@ -105,13 +107,13 @@ const RecentActivityCard = () => {
 				/>
 			)}
 			{!isLoading && data.length > 0 && (
-				<ul className="security-recent-activity-list">
+				<ul className="activity-log">
 					{data.map((row) => (
-						<li key={row.id}>
-							<span className="security-recent-activity-message">
+						<li key={row.id} className='activity'>
+							<div className="title">
 								{row.message}
-							</span>
-							<span className="security-recent-activity-time">
+							</div>
+							<span>
 								{timeAgo(row.created_at)}
 							</span>
 						</li>

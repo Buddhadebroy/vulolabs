@@ -25,6 +25,7 @@ export const SearchPerformancePanel = ({
 		className="reports-panel"
 		titleIcon="search-discovery"
 		title={__('Search Performance', 'vulopilot')}
+		desc={__('Fixed, new, and still-open SEO findings this period.', 'vulopilot')}
 		isLoading={isLoading}
 	>
 		{!isLoading && panel && (
@@ -95,6 +96,7 @@ export const AiVisibilityPanel = ({
 			className="reports-panel"
 			titleIcon="ai"
 			title={__('AI Visibility', 'vulopilot')}
+			desc={__('Real GEO checks for how easy your site is for AI to find and understand.', 'vulopilot')}
 			isLoading={isLoading}
 		>
 			{!isLoading && (
@@ -152,6 +154,7 @@ export const SpeedPerformancePanel = ({
 		className="reports-panel"
 		titleIcon="analytics"
 		title={__('Website Speed', 'vulopilot')}
+		desc={__('Your real average mobile and desktop speed scores.', 'vulopilot')}
 		isLoading={isLoading}
 	>
 		{!isLoading && speed && (

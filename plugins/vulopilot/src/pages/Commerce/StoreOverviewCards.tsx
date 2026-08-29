@@ -193,6 +193,7 @@ const StoreOverviewCards = ({
 		<CardComponent
 			title={__('At a Glance', 'vulopilot')}
 			titleIcon="cart"
+			desc={__('Your store\'s key numbers for the selected period.', 'vulopilot')}
 			isLoading={isLoading}
 			action={
 				<>

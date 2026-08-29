@@ -22,6 +22,7 @@ const WhyAccessibilityMattersCard = () => (
 		className="why-accessibility-matters-card"
 		title={__('Why accessibility matters', 'vulopilot')}
 		titleIcon="question"
+		desc={__('More than a checkbox — it\'s good for everyone.', 'vulopilot')}
 	>
 		<ListComponent
 			className="checklist"

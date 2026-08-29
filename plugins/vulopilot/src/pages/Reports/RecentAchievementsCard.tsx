@@ -38,6 +38,7 @@ const RecentAchievementsCard = () => {
 			className="recent-achievements-card"
 			titleIcon="star"
 			title={__('Recent AI Achievements', 'vulopilot')}
+			desc={__('Real automated changes AI has made recently.', 'vulopilot')}
 		>
 			{!isLoading && data.length === 0 ? (
 				<ModuleGuardComponent

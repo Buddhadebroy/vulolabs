@@ -34,7 +34,7 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 		title: __('Page Structure', 'vulopilot'),
 		description: __('Some pages may be harder to navigate.', 'vulopilot'),
 		scannerIds: ['accessibility'],
-		icon: 'editor-list',
+		icon: 'editor-list purple',
 		color: '#7c3aed',
 		emptyMessage: __(
 			'No page structure findings yet — run a scan to check heading hierarchy.',
@@ -49,7 +49,7 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 			'vulopilot'
 		),
 		scannerIds: ['images'],
-		icon: 'image',
+		icon: 'image green',
 		color: '#16a34a',
 		emptyMessage: __(
 			'No image findings yet — run a scan to check for missing alt text.',
@@ -64,7 +64,7 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 			'vulopilot'
 		),
 		scannerIds: ['form-labels', 'aria-attributes', 'wcag-scanner'],
-		icon: 'link',
+		icon: 'link yellow',
 		color: '#d97706',
 		emptyMessage: __(
 			'No link/form findings yet — run a scan to check for unlabeled fields and ambiguous link text.',
@@ -79,7 +79,7 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 			'vulopilot'
 		),
 		scannerIds: ['keyboard-accessibility'],
-		icon: 'coding',
+		icon: 'coding blue',
 		color: '#2563eb',
 		emptyMessage: __(
 			'No keyboard accessibility findings yet — run a scan to check.',
@@ -91,8 +91,8 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 		title: __('Visual Readability', 'vulopilot'),
 		description: __('Some text may be difficult to see.', 'vulopilot'),
 		scannerIds: ['readability'],
-		icon: 'eye',
-		color: '#0d9488',
+		icon: 'eye pink',
+		color: '#e11d48 ',
 		emptyMessage: __(
 			'No readability findings yet — run a scan to check.',
 			'vulopilot'
@@ -131,8 +131,8 @@ export const ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 			'vulopilot'
 		),
 		scannerIds: ACCESSIBILITY_SCANNER_IDS,
-		icon: 'admin-tools',
-		color: '#4b5563',
+		icon: 'security lime',
+		color: '#65a30d',
 		emptyMessage: __(
 			'No accessibility findings yet — run a scan to check everything at once.',
 			'vulopilot'

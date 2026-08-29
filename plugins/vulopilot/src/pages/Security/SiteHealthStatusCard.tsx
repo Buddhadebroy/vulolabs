@@ -38,7 +38,11 @@ const SiteHealthStatusCard = () => {
 	];
 
 	return (
-		<CardComponent title={__('Site Health Status', 'vulopilot')} titleIcon="active">
+		<CardComponent
+			title={__('Site Health Status', 'vulopilot')}
+			titleIcon="active"
+			desc={__('Open findings across WordPress, updates, background tasks, database, and server.', 'vulopilot')}
+		>
 			<ListComponent
 				className="mini-card report list"
 				items={rows.map((row) => ({

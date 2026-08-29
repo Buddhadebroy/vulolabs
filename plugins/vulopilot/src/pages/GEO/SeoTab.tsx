@@ -237,7 +237,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	if (!isSeoModuleActive()) {
 		return (
 			<ColumnComponent>
-				<CardComponent title={__('SEO', 'vulopilot')}>
+				<CardComponent title={__('SEO', 'vulopilot')} titleIcon="search">
 					<ModuleGuardComponent
 						icon="error"
 						title={__('SEO module is turned off', 'vulopilot')}
@@ -254,7 +254,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
-				<div className="seo-search-engine-access">
+				{/* <div className="seo-search-engine-access">
 					<span
 						className={`crawler-health-status ${null === searchEngineAccessOpen
 							? ''
@@ -272,7 +272,6 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 								}`}
 						/>
 						{sprintf(
-							/* translators: %s is "Healthy", "Needs Attention", or "Checking…". */
 							__('Search engine access: %s', 'vulopilot'),
 							null === searchEngineAccessOpen
 								? __('Checking…', 'vulopilot')
@@ -289,11 +288,13 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 						{__('View in Crawl & URLs', 'vulopilot')}
 						<i className="adminfont-arrow-right" />
 					</button>
-				</div>
+				</div> */}
 
 
 				<CardComponent
 					title={__('SEO Health Score', 'vulopilot')}
+					titleIcon="search"
+					desc={__('Your real, site-wide SEO score and open issue counts.', 'vulopilot')}
 					isLoading={isLoadingScore}
 				>
 					{score && (
@@ -393,6 +394,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 
 				<CardComponent
 					title={__('SEO areas', 'vulopilot')}
+					titleIcon="category"
 					desc={__(
 						'Overview of where your SEO health is by area — click one to jump to its issues.',
 						'vulopilot'

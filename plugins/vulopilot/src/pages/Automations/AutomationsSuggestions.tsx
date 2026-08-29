@@ -141,6 +141,7 @@ const AutomationsSuggestions = ({
 		<CardComponent
 			title={__('Suggested automations', 'vulopilot')}
 			titleIcon="lightbulb"
+			desc={__('Common automations you can turn on in one click.', 'vulopilot')}
 		>
 			<div className="automation-suggestions-grid">
 				{matches.map(({ template, match }) => {

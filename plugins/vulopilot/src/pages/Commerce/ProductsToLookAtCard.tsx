@@ -176,6 +176,7 @@ const ProductsToLookAtCard = () => {
 				className="products-to-look-at"
 				title={__('Products to look at', 'vulopilot')}
 				titleIcon="cart"
+				desc={__('Real products with low stock, no sales, or missing info.', 'vulopilot')}
 				action={
 					<ButtonInput
 						buttons={{

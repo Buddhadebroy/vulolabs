@@ -212,6 +212,7 @@ const ReportTab = () => {
 				{error ? (
 					<CardComponent
 						title={__('Reports', 'vulopilot')}
+						titleIcon="error"
 						action={pageHeaderAction}
 					>
 						<ModuleGuardComponent

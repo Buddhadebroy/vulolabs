@@ -119,7 +119,7 @@ const BrandVisibilityTab = () => {
 	if (!isBrandModuleActive()) {
 		return (
 			<ColumnComponent general>
-				<CardComponent title={__('Brand', 'vulopilot')}>
+				<CardComponent title={__('Brand', 'vulopilot')} titleIcon="module">
 					<ModuleGuardComponent
 						icon="error"
 						title={__(
@@ -144,14 +144,6 @@ const BrandVisibilityTab = () => {
 			onTabChange={setActiveTab}
 			header={
 				<>
-					<NoticeComponent
-						displayPosition="inline-notice"
-						title={__('In plain English:', 'vulopilot')}
-						message={__(
-							'This checks whether AI systems describe your business accurately, and treat it as trustworthy, when it comes up in an answer.',
-							'vulopilot'
-						)}
-					/>
 					<BrandScoreCard />
 					{AuthorityTrendsCard && <AuthorityTrendsCard />}
 					{CompetitorComparisonCard && <CompetitorComparisonCard />}
@@ -168,6 +160,7 @@ const BrandVisibilityTab = () => {
 							'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
 							'vulopilot'
 						)}
+
 					/>
 					{OffSiteMentionsCard ? (
 						<OffSiteMentionsCard />

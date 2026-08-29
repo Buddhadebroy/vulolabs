@@ -29,6 +29,7 @@ const AiSalesOptimizerCard = ({
 			className="ai-sales-optimizer-card"
 			titleIcon="ai"
 			title={__('AI Sales Optimizer', 'vulopilot')}
+			desc={__('Real cross-sell, upsell, and bundle opportunities across your store.', 'vulopilot')}
 			badges={[{ text: __('PRO', 'vulopilot'), color: 'purple' }]}
 			isLoading={isLoading}
 		>

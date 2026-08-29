@@ -81,6 +81,7 @@ const SeoProgressCard = () => {
 	return (
 		<CardComponent
 			title={__('SEO progress', 'vulopilot')}
+			titleIcon="analytics"
 			desc={__('Track your SEO health over time.', 'vulopilot')}
 			isLoading={isLoading}
 		>

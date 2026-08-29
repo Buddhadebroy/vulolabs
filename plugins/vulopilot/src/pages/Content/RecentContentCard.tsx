@@ -827,6 +827,8 @@ const RecentContentCard = () => {
 			id="content-audit-section"
 			className="recent-content-card"
 			title={__('Recent Content', 'vulopilot')}
+			titleIcon="edit"
+			desc={__('Your most recently published or updated content.', 'vulopilot')}
 			action={
 				<ButtonInput
 					buttons={{
