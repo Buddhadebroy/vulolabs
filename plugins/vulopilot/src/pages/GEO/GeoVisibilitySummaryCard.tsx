@@ -189,6 +189,7 @@ const GeoVisibilitySummaryCard = ({
 	return (
 		<CardComponent
 			title={__('Overall AI Visibility', 'vulopilot')}
+			titleIcon="global-community"
 			desc={cardDesc}
 			isLoading={isLoading}
 		>

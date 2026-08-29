@@ -57,15 +57,13 @@ const ReportHighlightsRow = () => {
 				className="report-highlight-tile"
 				titleIcon="error"
 				title={__('Needs Attention', 'vulopilot')}
+				desc={__(
+					'Critical and high-severity findings still open.',
+					'vulopilot'
+				)}
 			>
 				<p className="report-highlight-value">
 					{needsAttention === null ? '—' : needsAttention}
-				</p>
-				<p className="report-highlight-desc">
-					{__(
-						'Critical and high-severity findings still open.',
-						'vulopilot'
-					)}
 				</p>
 				<button
 					type="button"
@@ -80,12 +78,8 @@ const ReportHighlightsRow = () => {
 				className="report-highlight-tile"
 				titleIcon="search-discovery"
 				title={__('Opportunities', 'vulopilot')}
-			>
-				<p className="report-highlight-value">
-					{stats === null ? '—' : stats.open_findings}
-				</p>
-				<p className="report-highlight-desc">
-					{stats === null
+				desc={
+					stats === null
 						? ''
 						: sprintf(
 								/* translators: %d: number of open findings */
@@ -94,7 +88,11 @@ const ReportHighlightsRow = () => {
 									'vulopilot'
 								),
 								stats.open_findings
-							)}
+							)
+				}
+			>
+				<p className="report-highlight-value">
+					{stats === null ? '—' : stats.open_findings}
 				</p>
 				<button
 					type="button"

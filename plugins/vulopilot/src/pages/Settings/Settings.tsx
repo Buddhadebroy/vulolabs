@@ -237,7 +237,11 @@ const Settings = () => {
 
 	if (error) {
 		return (
-			<CardComponent title={__('Settings', 'vulopilot')}>
+			<CardComponent
+				title={__('Settings', 'vulopilot')}
+				titleIcon="setting"
+				desc={__('There was a problem loading your settings.', 'vulopilot')}
+			>
 				<ModuleGuardComponent
 					icon="error"
 					title={__('Could not load settings', 'vulopilot')}
@@ -250,7 +254,7 @@ const Settings = () => {
 	}
 
 	if (isLoading) {
-		return <CardComponent title={__('Settings', 'vulopilot')} isLoading />;
+		return <CardComponent title={__('Settings', 'vulopilot')} titleIcon="setting" isLoading />;
 	}
 
 	return (

@@ -97,6 +97,8 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 		<CardComponent
 			className="page-analysis-panel"
 			title={__('Page Analysis', 'vulopilot')}
+			titleIcon="search"
+			desc={__('A single page\'s real SEO/GEO signals, checked live.', 'vulopilot')}
 			action={
 				<button
 					type="button"

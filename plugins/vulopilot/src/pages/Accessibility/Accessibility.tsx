@@ -66,6 +66,7 @@ const AccessibilityDashboardLockedCard = () => {
 		<>
 			<CardComponent
 				title={__('Accessibility Dashboard', 'vulopilot')}
+				titleIcon="lock"
 				desc={__(
 					'A real severity breakdown, your last scan time, and your scheduled scan frequency.',
 					'vulopilot'
@@ -107,6 +108,7 @@ const AccessibilityHistoryLockedCard = () => {
 		<>
 			<CardComponent
 				title={__('Accessibility Score History', 'vulopilot')}
+				titleIcon="lock"
 				desc={__(
 					'Real historical accessibility score trend over time, so you can see whether things are actually improving.',
 					'vulopilot'

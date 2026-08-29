@@ -1,10 +1,5 @@
 @use '../../components/config' as *;
 
-.ai-analyst-desc {
-	color: $sub-text-color;
-	margin: 0 0 0.75rem;
-}
-
 .ai-analyst-execute {
 	display: inline-flex;
 	align-items: center;
@@ -61,12 +56,6 @@
 	font-size: 1.75rem;
 	font-weight: 700;
 	margin: 0;
-}
-
-.report-highlight-desc {
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-	margin: 0.25rem 0 0.5rem;
 }
 
 .report-highlight-action,

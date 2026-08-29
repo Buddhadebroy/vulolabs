@@ -38,6 +38,7 @@ const WebsiteProgressChart = () => {
 			className="website-progress-card"
 			titleIcon="analytics"
 			title={__('Website Progress', 'vulopilot')}
+			desc={__('Your site health score over time.', 'vulopilot')}
 			action={
 				<div className="website-progress-day-toggle">
 					{DAY_OPTIONS.map((option) => (

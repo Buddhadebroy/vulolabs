@@ -54,7 +54,11 @@ const DiscoverCard = ({
 	};
 
 	return (
-		<CardComponent title={__('Discover', 'vulopilot')} titleIcon="search-discovery">
+		<CardComponent
+			title={__('Discover', 'vulopilot')}
+			titleIcon="search-discovery"
+			desc={__('How many of your pages are ranked, and how many need work.', 'vulopilot')}
+		>
 			{counts && (
 				<ListComponent
 					className="mini-card"

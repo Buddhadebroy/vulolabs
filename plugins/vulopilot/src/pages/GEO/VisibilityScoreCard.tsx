@@ -83,6 +83,7 @@ const VisibilityScoreCard = () => {
 		<CardComponent
 			title={__('Visibility Score', 'vulopilot')}
 			titleIcon="analytics"
+			desc={__('Your combined SEO, GEO, and Brand visibility score.', 'vulopilot')}
 			isLoading={isLoading}
 		>
 			{scores && (

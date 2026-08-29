@@ -266,6 +266,7 @@ const ContentQualityCard = () => {
 		<CardComponent
 			title={__('Content Quality', 'vulopilot')}
 			titleIcon="ai"
+			desc={__('Real AI-assessed quality signals for this piece of content.', 'vulopilot')}
 			isLoading={isLoadingOptions}
 			action={
 				!isLoadingOptions && options.length > 0 ? (

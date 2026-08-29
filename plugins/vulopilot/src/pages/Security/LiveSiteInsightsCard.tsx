@@ -123,6 +123,7 @@ const LiveSiteInsightsCard: React.FC = () => {
 		<CardComponent
 			title={__('Live Site Insights', 'vulopilot')}
 			titleIcon="analytics"
+			desc={__('Real crawler traffic and site metrics, at a glance.', 'vulopilot')}
 		>
 			<ListComponent
 				loading={isLoading}

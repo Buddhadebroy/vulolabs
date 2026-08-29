@@ -114,7 +114,7 @@ const GeoTrendCompactCard = ({
 }: GeoTrendCompactCardProps) => {
 	if (!isGeoInsightsActive) {
 		return (
-			<CardComponent title={title}>
+			<CardComponent title={title} titleIcon="analytics" desc={desc}>
 				<ProLockedCard moduleName={moduleName} />
 			</CardComponent>
 		);
@@ -124,7 +124,7 @@ const GeoTrendCompactCard = ({
 
 	if (!isLoading && !trend) {
 		return (
-			<CardComponent title={title} isLoading={isLoading}>
+			<CardComponent title={title} titleIcon="analytics" desc={desc} isLoading={isLoading}>
 				<ModuleGuardComponent
 					icon="analytics"
 					title={__('Not enough history yet', 'vulopilot')}
@@ -135,7 +135,7 @@ const GeoTrendCompactCard = ({
 	}
 
 	return (
-		<CardComponent title={title} desc={desc} isLoading={isLoading}>
+		<CardComponent title={title} titleIcon="analytics" desc={desc} isLoading={isLoading}>
 			{!isLoading && trend && (
 				<>
 					<div className="geo-trend-sparkline">

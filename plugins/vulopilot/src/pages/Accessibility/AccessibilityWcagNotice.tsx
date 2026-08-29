@@ -24,8 +24,7 @@ import { NoticeComponent } from '@zyra/components';
  */
 const AccessibilityWcagNotice = () => (
 	<NoticeComponent
-		type="notice"
-		displayPosition="inline"
+		displayPosition="inline-notice"
 		message={sprintf(
 			'%1$s <a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a>',
 			__(

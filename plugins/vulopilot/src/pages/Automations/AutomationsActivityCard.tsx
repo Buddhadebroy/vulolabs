@@ -113,6 +113,8 @@ const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsAc
 	return (
 		<CardComponent
 			title={__('Recent automation activity', 'vulopilot')}
+				titleIcon="clock"
+				desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
 			isLoading={isLoading}
 			action={
 				<span className="automation-activity-view-all" onClick={onViewHistory}>

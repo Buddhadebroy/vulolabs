@@ -3,7 +3,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { JSX } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { BadgeComponent, CardComponent, ChartComponent, ContainerComponent } from '@zyra/components';
+import { BadgeComponent, CardComponent, ChartComponent, ColumnComponent, ContainerComponent, ListComponent, TypographyComponent } from '@zyra/components';
 import { SelectInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import ProLockedCard from '../../components/ProLockedCard';
@@ -23,12 +23,12 @@ const getRating = (score: number): string => {
 
 const ratingClass = (score: number): string => {
 	if (score >= 70) {
-		return 'is-good';
+		return 'green';
 	}
 	if (score >= 40) {
-		return 'is-attention';
+		return 'yellow';
 	}
-	return 'is-poor';
+	return 'red';
 };
 
 /**
@@ -52,7 +52,7 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 	{
 		key: 'ai-summary',
 		label: __('AI Summary', 'vulopilot'),
-		icon: 'ai',
+		icon: 'ai orange',
 		description: __(
 			'Whether pages have an extractable AI summary block an AI system can lift directly.',
 			'vulopilot'
@@ -61,7 +61,7 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 	{
 		key: 'question-coverage',
 		label: __('Question Coverage', 'vulopilot'),
-		icon: 'question',
+		icon: 'question blue',
 		description: __(
 			'Commonly-asked questions a page plausibly answers, but with no FAQ or Q&A block making that answer easy to extract.',
 			'vulopilot'
@@ -70,7 +70,7 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 	{
 		key: 'evidence-citations',
 		label: __('Evidence & Citations', 'vulopilot'),
-		icon: 'report',
+		icon: 'report sky',
 		description: __(
 			'Statistic-shaped claims with no citation or outbound link backing them up.',
 			'vulopilot'
@@ -79,7 +79,7 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 	{
 		key: 'ai-readable-structure',
 		label: __('AI-Readable Structure', 'vulopilot'),
-		icon: 'blocks',
+		icon: 'blocks lime',
 		description: __(
 			'Paragraph length and heading hierarchy — how easily an AI system can extract a clean chunk of this content.',
 			'vulopilot'
@@ -88,7 +88,7 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 	{
 		key: 'entity-clarity',
 		label: __('Entity Clarity', 'vulopilot'),
-		icon: 'person',
+		icon: 'person cyan',
 		description: __(
 			'Whether your brand, people, and product names are used consistently enough for AI to recognize them as the same entity.',
 			'vulopilot'
@@ -97,7 +97,7 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 	{
 		key: 'content-freshness',
 		label: __('Content Freshness', 'vulopilot'),
-		icon: 'calendar',
+		icon: 'calendar green',
 		description: __(
 			'How recently your published pages have been updated, relative to your own "stale after" setting.',
 			'vulopilot'
@@ -106,7 +106,7 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 	{
 		key: 'other-geo-signals',
 		label: __('Other GEO Signals', 'vulopilot'),
-		icon: 'dashboard',
+		icon: 'module violet',
 		description: __('Author credentials, trust signals, and llms.txt.', 'vulopilot'),
 	},
 ];
@@ -187,9 +187,10 @@ const GeoScoreSection = () => {
 
 	return (
 		<>
-			<ContainerComponent>
+			<ColumnComponent grid={6}>
 				<CardComponent
 					title={__('GEO Score', 'vulopilot')}
+					titleIcon='tools'
 					desc={sprintf(
 						/* translators: %d: real number of published pages/posts every GEO scanner scans. */
 						__('Based on %d published pages.', 'vulopilot'),
@@ -200,7 +201,7 @@ const GeoScoreSection = () => {
 					<div className="geo-score-card-layout">
 						<div className="geo-score-ring-col">
 							<ChartComponent
-								type="pie"
+								type="ring"
 								height={140}
 								centerLabel={
 									<>
@@ -218,23 +219,26 @@ const GeoScoreSection = () => {
 							/>
 						</div>
 						<div className="geo-score-calc-col">
-							<div className="geo-score-calc-title">
+							<TypographyComponent variant="title">
 								{__('How this score is calculated', 'vulopilot')}
-							</div>
-							<ul className="geo-score-calc-list">
-								{SIGNAL_META.map((meta) => (
-									<li key={meta.key}>
-										<i className={`adminfont-${meta.icon}`} />
-										{meta.label}
-									</li>
-								))}
-							</ul>
+							</TypographyComponent>
+							<ListComponent
+								className="mini-card without-border report"
+								items={SIGNAL_META.map((meta) => ({
+									id: meta.key,
+									icon: meta.icon,
+									title: meta.label,
+								}))}
+							/>
 						</div>
 					</div>
 				</CardComponent>
-
+			</ColumnComponent>
+			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Score Snapshot', 'vulopilot')}
+					desc={__('Score Snapshot Score Snapshot Score Snapshot', 'vulopilot')}
+					titleIcon='tools'
 					isLoading={isLoadingProgress}
 					action={
 						<SelectInput
@@ -259,55 +263,54 @@ const GeoScoreSection = () => {
 						/>
 					)}
 				</CardComponent>
-			</ContainerComponent>
+			</ColumnComponent>
+			<CardComponent
+				title={__('GEO Score Breakdown', 'vulopilot')}
+				desc={__('See how your site performs across the signals that matter most for AI engines.', 'vulopilot')}
+				isLoading={isLoading}
+				titleIcon='tools'
+			>
+				<table className="geo-score-breakdown-table">
+					<thead>
+						<tr>
+							<th>{__('Signal', 'vulopilot')}</th>
+							<th>{__('Score', 'vulopilot')}</th>
+							<th>{__('Status', 'vulopilot')}</th>
+							<th>{__('Main Problem', 'vulopilot')}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{SIGNAL_META.map((meta) => {
+							const signal = score?.signals[meta.key];
+							const rowScore = signal?.score ?? null;
 
-			<ContainerComponent>
-				<CardComponent
-					title={__('GEO Score Breakdown', 'vulopilot')}
-					desc={__('See how your site performs across the signals that matter most for AI engines.', 'vulopilot')}
-					isLoading={isLoading}
-				>
-					<table className="geo-score-breakdown-table">
-						<thead>
-							<tr>
-								<th>{__('Signal', 'vulopilot')}</th>
-								<th>{__('Score', 'vulopilot')}</th>
-								<th>{__('Status', 'vulopilot')}</th>
-								<th>{__('Main Problem', 'vulopilot')}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{SIGNAL_META.map((meta) => {
-								const signal = score?.signals[meta.key];
-								const rowScore = signal?.score ?? null;
+							return (
+								<tr key={meta.key}>
+									<td>{meta.label}</td>
+									<td>{null === rowScore ? __('—', 'vulopilot') : `${rowScore}/100`}</td>
+									<td>
+										{null !== rowScore && (
+											<BadgeComponent color={ratingClass(rowScore)} text={getRating(rowScore)} />
+										)}
+									</td>
+									<td className="geo-score-breakdown-problem">
+										{signal ? mainProblemText(meta.key, signal) : __('—', 'vulopilot')}
+									</td>
+								</tr>
+							);
+						})}
+					</tbody>
+				</table>
+			</CardComponent>
 
-								return (
-									<tr key={meta.key}>
-										<td>{meta.label}</td>
-										<td>{null === rowScore ? __('—', 'vulopilot') : `${rowScore}/100`}</td>
-										<td>
-											{null !== rowScore && (
-												<BadgeComponent color={ratingClass(rowScore)} text={getRating(rowScore)} />
-											)}
-										</td>
-										<td className="geo-score-breakdown-problem">
-											{signal ? mainProblemText(meta.key, signal) : __('—', 'vulopilot')}
-										</td>
-									</tr>
-								);
-							})}
-						</tbody>
-					</table>
+			{isGeoInsightsActive() && GeoCompetitorVisibility ? (
+				<GeoCompetitorVisibility yourScore={score?.geo_score ?? null} />
+			) : (
+				<CardComponent title={__('Competitor Comparison', 'vulopilot')} desc={__('See how your site performs across the signals that matter most for AI engines.', 'vulopilot')}
+				titleIcon='tools'>
+					<ProLockedCard moduleName="geo-insights" />
 				</CardComponent>
-
-				{isGeoInsightsActive() && GeoCompetitorVisibility ? (
-					<GeoCompetitorVisibility yourScore={score?.geo_score ?? null} />
-				) : (
-					<CardComponent title={__('Competitor Comparison', 'vulopilot')}>
-						<ProLockedCard moduleName="geo-insights" />
-					</CardComponent>
-				)}
-			</ContainerComponent>
+			)}
 		</>
 	);
 };

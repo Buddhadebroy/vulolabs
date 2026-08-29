@@ -35,6 +35,7 @@ const TechnicalVisibilityCard = () => {
 		<CardComponent
 			title={__('Technical Visibility', 'vulopilot')}
 			titleIcon="coding"
+			desc={__('Open findings for robots.txt, sitemap, redirects, and internal links.', 'vulopilot')}
 		>
 			<ListComponent
 				className="mini-card report"

@@ -412,7 +412,8 @@ const SlowPagesTab = () => {
 	// Real share of scanned pages in each bucket — `AnalyticsComponent`'s own
 	// `variant="score-ring"` ring fill for the Slow/Very Slow tiles below,
 	// same "ring fill = a real 0-100 reading" contract every other
-	// `score-ring` consumer in this codebase (BrandScoreCard.tsx) already
+	// score-ring consumer in this codebase (e.g. BrandScoreCard.tsx's own
+	// `MetricTileComponent` `chart: { type: 'ring' }` tiles) already
 	// follows, rather than a static/no-op ring.
 	const totalScanned = summary?.total ?? 0;
 	const slowPercent =
@@ -485,7 +486,7 @@ const SlowPagesTab = () => {
 		return (
 			<ContainerComponent general>
 				<ColumnComponent>
-					<CardComponent title={__( 'Slow Pages', 'vulopilot' )}>
+					<CardComponent title={__( 'Slow Pages', 'vulopilot' )} titleIcon="error">
 						<ModuleGuardComponent
 							icon="error"
 							title={__( 'Could not load Slow Pages', 'vulopilot' )}
@@ -804,6 +805,7 @@ const SlowPagesTab = () => {
 				<CardComponent
 					title={detailRow?.title ?? __( 'Page details', 'vulopilot' )}
 					titleIcon="info"
+					desc={detailRow?.url}
 					action={
 						detailRow && (
 							<i
@@ -916,7 +918,11 @@ const SlowPagesTab = () => {
 
 				<RecommendedFixesCard topIssues={topIssues} />
 
-				<CardComponent title={__( "What's considered slow?", 'vulopilot' )} titleIcon="ai">
+				<CardComponent
+					title={__( "What's considered slow?", 'vulopilot' )}
+					titleIcon="ai"
+					desc={__('How page speed scores map to real performance ratings.', 'vulopilot')}
+				>
 					<ListComponent
 						className="mini-card report without-border"
 						items={[

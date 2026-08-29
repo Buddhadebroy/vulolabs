@@ -71,6 +71,8 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 					)}
 				</>
 			}
+			titleIcon="error"
+			desc={__('Automations that failed and may need a retry.', 'vulopilot')}
 			isLoading={isLoading}
 		>
 			{!isLoading && 0 === failing.length && (

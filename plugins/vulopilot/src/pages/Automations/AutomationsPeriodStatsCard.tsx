@@ -110,7 +110,12 @@ const AutomationsPeriodStatsCard = () => {
 	];
 
 	return (
-		<CardComponent title={__('This month', 'vulopilot')} isLoading={isLoading}>
+		<CardComponent
+			title={__('This month', 'vulopilot')}
+			titleIcon="calendar"
+			desc={__('Automation runs, alerts, and reports this period vs. the last.', 'vulopilot')}
+			isLoading={isLoading}
+		>
 			<AnalyticsComponent variant="dashboard" cols={4} isLoading={isLoading} data={tiles} />
 			{stats && (
 				<p className="automation-period-stats-compare">

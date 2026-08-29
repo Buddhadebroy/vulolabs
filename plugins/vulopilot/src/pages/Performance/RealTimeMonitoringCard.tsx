@@ -84,7 +84,13 @@ const RealTimeMonitoringCard = () => {
 	const transferBytes = vitals?.transfer_bytes ?? null;
 
 	return (
-		<CardComponent id="performance-realtime-monitoring-card" title={__('Real-time Monitoring', 'vulopilot')} titleIcon="bar-chart" isLoading={isLoading}>
+		<CardComponent
+			id="performance-realtime-monitoring-card"
+			title={__('Real-time Monitoring', 'vulopilot')}
+			titleIcon="bar-chart"
+			desc={__('Real, live page-load metrics from your actual visitors.', 'vulopilot')}
+			isLoading={isLoading}
+		>
 			{stats && (
 				<AnalyticsComponent
 					cols={2}

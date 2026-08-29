@@ -23,6 +23,7 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 		<>
 		<CardComponent
 			title={ __( 'Create new automation', 'vulopilot-pro' ) } titleIcon="analytics"
+			desc={ __( 'Start from a ready-made template instead of building one from scratch.', 'vulopilot-pro' ) }
 		>
 			<ListComponent
 				className="mini-card report"

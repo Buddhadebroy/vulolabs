@@ -200,32 +200,41 @@ const NotFoundLogSection = () => {
 								},
 								actions: {
 									label: __('Actions', 'vulopilot'),
+									// Real labelled buttons, same `type: 'button'`
+									// convention every other table's own action
+									// column now uses (TableRowActions.tsx) — not
+									// the plain icon-only look.
 									type: 'action',
 									actions: [
 										{
-											label: (row?: Record<string, unknown>) =>
-												row && isSystemLog(row as NotFoundLogRow)
+											type: 'button',
+											label: (row: Record<string, unknown>) =>
+												isSystemLog(row as unknown as NotFoundLogRow)
 													? __(
 															"System file — no redirect needed",
 															'vulopilot'
 														)
 													: __('Create redirect', 'vulopilot'),
-											icon: (row?: Record<string, unknown>) =>
-												row && isSystemLog(row as NotFoundLogRow)
+											icon: (row: Record<string, unknown>) =>
+												isSystemLog(row as unknown as NotFoundLogRow)
 													? 'lock'
 													: 'link',
-											onClick: (row?: Record<string, unknown>) =>
-												row &&
-												!isSystemLog(row as NotFoundLogRow) &&
-												openConvertPopup(row as NotFoundLogRow),
+											onClick: (row: Record<string, unknown>) => {
+												const logRow = row as unknown as NotFoundLogRow;
+
+												if (!isSystemLog(logRow)) {
+													openConvertPopup(logRow);
+												}
+											},
 										},
 										{
+											type: 'button',
 											label: __('Dismiss', 'vulopilot'),
 											icon: 'cross',
-											onClick: (row?: Record<string, unknown>) =>
-												row && handleDismissLog(row as NotFoundLogRow),
+											onClick: (row: Record<string, unknown>) =>
+												handleDismissLog(row as unknown as NotFoundLogRow),
 										},
-									] as any[],
+									],
 								},
 							}}
 							rows={notFoundLogs.data}

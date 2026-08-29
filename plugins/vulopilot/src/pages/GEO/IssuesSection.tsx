@@ -350,7 +350,9 @@ const IssuesSection = ({
 	const activeTabTotal = tabGroups.reduce((total, group) => total + group.count, 0);
 
 	return (
-		<CardComponent title={__('All SEO finding', 'vulopilot')} desc={__('All SEO finding All SEO finding All SEO finding' , 'vulopilot')}>
+		<CardComponent title={__('All SEO Findings', 'vulopilot')}
+				titleIcon="search"
+				desc={__('Every open SEO finding, filterable by priority.', 'vulopilot')}>
 			<TabsComponent
 				className="seo-issues-filter-tabs"
 				activeIndex={Math.max(

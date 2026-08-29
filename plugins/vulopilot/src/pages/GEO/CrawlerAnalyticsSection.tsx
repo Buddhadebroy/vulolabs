@@ -144,6 +144,7 @@ const CrawlerAnalyticsSection = ({
 				<ColumnComponent >
 					<CardComponent
 						title={__('Overall Crawl Health', 'vulopilot')}
+						titleIcon="search-discovery"
 						isLoading
 					/>
 				</ColumnComponent>
@@ -199,7 +200,11 @@ const CrawlerAnalyticsSection = ({
 		<>
 			<ContainerComponent>
 				<ColumnComponent grid={3}>
-					<CardComponent title={__('Overall Crawl Health', 'vulopilot')}>
+					<CardComponent
+						title={__('Overall Crawl Health', 'vulopilot')}
+						titleIcon="search-discovery"
+						desc={__('How many robots.txt/sitemap crawl-health checks currently pass.', 'vulopilot')}
+					>
 						{checklist.length === 0 ? (
 							<div className="desc">
 								{__(
@@ -264,6 +269,7 @@ const CrawlerAnalyticsSection = ({
 				<ColumnComponent grid={7}>
 					<CardComponent
 						title={__('Crawl Requests Over Time', 'vulopilot')}
+						titleIcon="analytics"
 						desc={__(
 							'Number of requests your site received from AI crawlers.',
 							'vulopilot'
@@ -290,6 +296,7 @@ const CrawlerAnalyticsSection = ({
 				<ColumnComponent grid={5}>
 					<CardComponent
 						title={__('Crawler Traffic by AI Lab', 'vulopilot')}
+						titleIcon="global-community"
 						desc={__(
 							'Breakdown of AI-crawler requests by the company behind each bot.',
 							'vulopilot'
@@ -360,6 +367,7 @@ const CrawlerAnalyticsSection = ({
 				<ColumnComponent grid={6}>
 					<CardComponent
 						title={__('Top Crawlers', 'vulopilot')}
+						titleIcon="search-discovery"
 						desc={__('Bots that crawled your site the most.', 'vulopilot')}
 					>
 						{0 === analytics.top_crawlers.length ? (
@@ -425,6 +433,7 @@ const CrawlerAnalyticsSection = ({
 				<ColumnComponent grid={6}>
 					<CardComponent
 						title={__('Most Crawled Pages', 'vulopilot')}
+						titleIcon="document"
 						desc={__('Pages that crawlers visited most often.', 'vulopilot')}
 					>
 						{0 === analytics.most_crawled_pages.length ? (
@@ -482,7 +491,11 @@ const CrawlerAnalyticsSection = ({
 			</ContainerComponent>
 
 			{checklist.length > 0 && (
-				<CardComponent title={__('Crawl Health Checklist', 'vulopilot')}>
+				<CardComponent
+					title={__('Crawl Health Checklist', 'vulopilot')}
+					titleIcon="check"
+					desc={__('Real robots.txt/sitemap crawl-health checks, at a glance.', 'vulopilot')}
+				>
 					<div className="crawler-checklist-row">
 						{checklist.map((item) => (
 							<div key={item.key} className="crawler-checklist-chip">

@@ -24,6 +24,7 @@ const PhpAccelerationCard = () => {
 		<CardComponent
 			title={__('PHP acceleration', 'vulopilot')}
 			titleIcon="coding"
+			desc={__('Whether OPcache is enabled and speeding up PHP execution.', 'vulopilot')}
 			isLoading={isLoading}
 		>
 			{!isLoading && check && (

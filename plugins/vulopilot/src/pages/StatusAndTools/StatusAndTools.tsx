@@ -121,7 +121,7 @@ const StatusAndTools: React.FC = () => {
 
 	if (error) {
 		return (
-			<CardComponent title={__('Status & Tools', 'multivendorx')}>
+			<CardComponent title={__('Status & Tools', 'multivendorx')} titleIcon="error">
 				<ModuleGuardComponent
 					icon="error"
 					title={__('Could not load settings', 'multivendorx')}
@@ -137,6 +137,7 @@ const StatusAndTools: React.FC = () => {
 		return (
 			<CardComponent
 				title={__('Status & Tools', 'multivendorx')}
+				titleIcon="tools"
 				isLoading
 			/>
 		);

@@ -109,6 +109,7 @@ const ReportTypeCards = () => {
 						className="report-type-card"
 						titleIcon={card.icon}
 						title={card.label}
+						desc={__('Total findings from your most recent report of this type.', 'vulopilot')}
 					>
 						{!latest ? (
 							<ModuleGuardComponent

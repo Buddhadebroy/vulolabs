@@ -292,6 +292,7 @@ const IndexNowPanel = () => {
 
 			<CardComponent
 				title={__('History', 'vulopilot')}
+				titleIcon="clock"
 				desc={__('The last 100 IndexNow API requests.', 'vulopilot')}
 				isLoading={isLoadingHistory}
 				action={

@@ -564,7 +564,7 @@ const RedirectsSection = () => {
 	if (error) {
 		return (
 			<ColumnComponent>
-				<CardComponent title={__('Redirects', 'vulopilot')} action={headerAction}>
+				<CardComponent title={__('Redirects', 'vulopilot')} titleIcon="link" action={headerAction}>
 					<ModuleGuardComponent
 						icon="error"
 						title={__('Could not load redirects', 'vulopilot')}
@@ -672,7 +672,11 @@ const RedirectsSection = () => {
 				]}
 			/>
 
-			<CardComponent title={__('Redirects', 'vulopilot')} titleIcon="link">
+			<CardComponent
+				title={__('Redirects', 'vulopilot')}
+				titleIcon="link"
+				desc={__('Every real redirect rule you\'ve set up, searchable and filterable.', 'vulopilot')}
+			>
 				<div className="redirect-toolbar">
 					<TextInput
 						name="redirect_search"

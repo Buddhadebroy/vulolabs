@@ -187,7 +187,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 
 	if (!row) {
 		return (
-			<CardComponent title={__('Selected item', 'vulopilot')}>
+			<CardComponent title={__('Selected item', 'vulopilot')} titleIcon="ai">
 				<ModuleGuardComponent
 					icon="ai"
 					title={__('Select an item', 'vulopilot')}
@@ -264,6 +264,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 		<CardComponent
 			className="issue-detail-panel history-detail-panel"
 			title={rowTitle(row)}
+			titleIcon="clock"
 			action={
 				<i
 					className="adminfont-close"

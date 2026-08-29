@@ -81,6 +81,7 @@ const RecentConversationsSection: React.FC<RecentConversationsSectionProps> = ({
 			className="dashboard-widget"
 			titleIcon="live-chat"
 			title={__('Recent conversations', 'vulopilot')}
+			desc={__('Your last 3 conversations with AI Copilot.', 'vulopilot')}
 			isLoading={isLoading}
 			action={
 				<ButtonInput

@@ -125,7 +125,6 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 					'vulopilot'
 				)}
 				badges={badges}
-				toggle
 				isLoading={isLoading}
 				action={
 					isActive && (

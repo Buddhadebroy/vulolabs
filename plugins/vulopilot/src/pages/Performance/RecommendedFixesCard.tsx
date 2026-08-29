@@ -102,7 +102,11 @@ const RecommendedFixesCard = ({ topIssues }: { topIssues: PageSpeedIssue[] }) =>
 	};
 
 	return (
-		<CardComponent title={__('Recommended Fixes', 'vulopilot')} titleIcon="light">
+		<CardComponent
+			title={__('Recommended Fixes', 'vulopilot')}
+			titleIcon="light"
+			desc={__('Real, one-click fixes for your slowest pages\' top issues.', 'vulopilot')}
+		>
 			<ListComponent
 				className="mini-card"
 				border

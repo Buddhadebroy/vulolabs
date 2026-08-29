@@ -64,7 +64,7 @@ const RunScanHeaderExtra = ({
 					buttons={{
 						text: '',
 						icon: 'setting',
-						color: 'purple',
+						color: 'text-purple',
 						onClick: () => {
 							window.location.href = `?page=vulopilot#&tab=settings&subtab=${settingsSubtab}`;
 						},

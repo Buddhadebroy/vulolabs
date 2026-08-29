@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ListComponent } from '@zyra/components';
+import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
 import { formatAffected } from '../AIAssistant/issuesTypes';
@@ -59,6 +59,7 @@ const GeoFixTheseFirstCard = ({
 		<CardComponent
 			title={title || __('Fix These First', 'vulopilot')}
 			titleIcon="error"
+			desc={__('The worst-severity open findings, ranked first.', 'vulopilot')}
 			isLoading={isLoading}
 			badges={[{ text: String(total), color: 'red' }]}
 			action={
@@ -88,13 +89,19 @@ const GeoFixTheseFirstCard = ({
 						desc: group.sample?.description || '',
 						action: () => onSelectScanner(group.scanner_id),
 						tags: (
-							<ButtonInput
-								buttons={{
-									text: formatAffected(group.count, group.object_type),
-									color: 'border-light',
-									onClick: () => onSelectScanner(group.scanner_id),
-								}}
-							/>
+							<>
+								<BadgeComponent
+									color='blue'
+									text={formatAffected(group.count, group.object_type)}
+								/>
+								<ButtonInput
+									buttons={{
+										text: __('View', 'vulopilot'),
+										color: 'text-purple',
+										onClick: () => onSelectScanner(group.scanner_id),
+									}}
+								/>
+							</>
 						),
 					}))}
 				/>

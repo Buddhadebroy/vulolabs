@@ -62,6 +62,7 @@ const LiveThreatMonitorCard = () => {
 		<CardComponent
 			title={__('Live Threat Monitor', 'vulopilot')}
 			titleIcon="security"
+			desc={__('Real-time status for each real security check.', 'vulopilot')}
 			action={
 				<ButtonInput
 					buttons={{

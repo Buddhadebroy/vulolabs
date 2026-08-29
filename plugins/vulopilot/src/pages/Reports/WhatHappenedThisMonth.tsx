@@ -33,6 +33,8 @@ const WhatHappenedThisMonth = () => {
 		<CardComponent
 			className="reports-timeline-card"
 			title={__('What happened this month?', 'vulopilot')}
+			titleIcon="calendar"
+			desc={__('The 8 most recent scans, content updates, and automation runs.', 'vulopilot')}
 			isLoading={isLoading}
 		>
 			{!isLoading && data.length === 0 && (

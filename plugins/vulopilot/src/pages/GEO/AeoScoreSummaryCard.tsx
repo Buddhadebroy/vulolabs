@@ -115,6 +115,7 @@ const AeoScoreSummaryCard = ({
 	return (
 		<CardComponent
 			title={__('AEO Score', 'vulopilot')}
+			titleIcon="ai"
 			desc={__(
 				'How ready your content is to be extracted and quoted directly by AI answer engines.',
 				'vulopilot'

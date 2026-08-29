@@ -89,6 +89,7 @@ const AccessibilityPriorityList = ({
 		<CardComponent
 			id={id}
 			title={__('What should I fix first?', 'vulopilot')}
+			titleIcon="star"
 			desc={__(
 				'These issues have the biggest impact on accessibility.',
 				'vulopilot'

@@ -307,7 +307,7 @@ const SeoIssuesByPageTable = ({
 
 	if (hasError) {
 		return (
-			<CardComponent title={__('Pages & Posts', 'vulopilot')}>
+			<CardComponent title={__('Pages & Posts', 'vulopilot')} titleIcon="error">
 				<ModuleGuardComponent
 					icon="error"
 					title={__('Could not load these issues', 'vulopilot')}

@@ -1,8 +1,8 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent } from '@zyra/components';
+import { MetricTileComponent, type MetricTileItem } from '@zyra/components';
 
 interface BrandScoreResponse {
 	brand_score: number;
@@ -30,13 +30,11 @@ const getRating = (score: number): string => {
 
 /**
  * Same 3-tier thresholds as `getRating()` above, as one of zyra's own
- * `$color-palette` names (`BadgeComponent`'s own `color` prop, and
- * `AnalyticsComponent`'s own `variant="score-ring"` `iconClass`/`badgeColor`
- * props, both resolve these against that same real palette — see
- * `AnalyticsComponent.stories.tsx`'s own "ScoreRing" story) rather than a
- * bespoke semantic class name, so the icon tint, the badge, and the ring
- * all draw from the exact same real color source instead of 3 separately
- * hand-picked ones.
+ * `$color-palette` names — `MetricTileComponent`'s own `status.color`
+ * (rendered as a real `admin-badge {color}` pill) resolves this against
+ * that same real palette (`packages/theme/src/global.scss`), so the icon
+ * tint, the status pill, and the ring all draw from the exact same real
+ * color source instead of 3 separately hand-picked ones.
  */
 const ratingColor = (score: number): string => {
 	if (score >= 70) {
@@ -51,8 +49,9 @@ const ratingColor = (score: number): string => {
 /**
  * The same 3 `ratingColor()` names, as the real hex value zyra's own
  * `$color-palette` maps each one to (`packages/theme/src/global.scss`) —
- * `AnalyticsComponent`'s own ring is a `ChartComponent` stroke, which needs
- * a literal CSS color rather than a class name to color itself.
+ * `MetricTileComponent`'s own icon tint (`iconColor`, an inline style) and
+ * its ring (a `ChartComponent` stroke via `chart.color`) both need a
+ * literal CSS color rather than a class name to color themselves.
  */
 const RING_COLOR: Record<string, string> = {
 	green: '#16a34a',
@@ -71,7 +70,7 @@ const SCORE_TILES: {
 }[] = [
 	{
 		key: 'brand_score',
-		icon: 'person',
+		icon: 'person green',
 		title: __('Brand Score', 'vulopilot'),
 		desc: __(
 			'A composite score across trust signals and authority signals.',
@@ -80,7 +79,7 @@ const SCORE_TILES: {
 	},
 	{
 		key: 'trust_score',
-		icon: 'security',
+		icon: 'security blue',
 		title: __('Trust Score', 'vulopilot'),
 		desc: __(
 			'How trustworthy your site looks to people and AI engines.',
@@ -89,7 +88,7 @@ const SCORE_TILES: {
 	},
 	{
 		key: 'authority_score',
-		icon: 'star',
+		icon: 'star pink',
 		title: __('Authority Score', 'vulopilot'),
 		desc: __(
 			'How strong your brand is based on reputation and credibility.',
@@ -102,13 +101,13 @@ const SCORE_TILES: {
  * Brand Visibility page's own score cards — `GET /brand-intelligence/score`
  * (Controllers\BrandIntelligence, Free — deterministic, no AI call), the
  * same real endpoint this card has always used. Real 3-tile
- * `AnalyticsComponent` row (`variant="score-ring"`, direct instruction —
- * added to zyra itself for this rather than hand-rolled markup) matching
- * the reference screenshot's own icon+title/desc/score/badge-left,
- * ring-right shape, replacing what had briefly been 3 separate
- * `CardComponent`s (each with a plain status pill, no ring) — this tab
- * used one combined `AnalyticsComponent` row even before that, so this is
- * a return to that shape with a real ring now rather than a 2nd rewrite.
+ * `MetricTileComponent` row (`chart: { type: 'ring' }`, direct instruction
+ * — see that component's own "ScoreRings" story) matching the reference
+ * screenshot's own icon+title/desc/score/status-left, ring-right shape —
+ * previously the same shape via `AnalyticsComponent`'s own
+ * `variant="score-ring"` (still real and in use elsewhere, e.g.
+ * SlowPagesTab.tsx's own Slow/Very Slow tiles — just no longer what this
+ * card itself renders).
  *
  * 3 tiles now (Brand/Trust/Authority), not 4 — Entity Score moved to
  * KnowledgeGraphSection.tsx's own new "Entity Understanding" card (direct
@@ -137,8 +136,7 @@ const BrandScoreCard = () => {
 	}, []);
 
 	return (
-		<AnalyticsComponent
-			variant="score-ring"
+		<MetricTileComponent
 			cols={3}
 			isLoading={isLoading}
 			data={SCORE_TILES.map((tile) => {
@@ -146,17 +144,24 @@ const BrandScoreCard = () => {
 				const color = ratingColor(score);
 
 				return {
+					id: tile.key,
 					icon: tile.icon,
-					iconClass: color,
-					text: tile.title,
+					title: tile.title,
 					desc: tile.desc,
-					number: score,
-					progress: score,
-					badgeText: getRating(score),
-					badgeColor: color,
-					ringColor: RING_COLOR[color],
+					number: sprintf(
+						/* translators: %d: real 0-100 score. */
+						__('%d/100', 'vulopilot'),
+						score
+					),
+					status: { text: getRating(score), color },
+					chart: {
+						type: 'ring',
+						data: score,
+						color: RING_COLOR[color],
+						height: 130,
+					},
 				};
-			})}
+			}) as MetricTileItem[]}
 		/>
 	);
 };

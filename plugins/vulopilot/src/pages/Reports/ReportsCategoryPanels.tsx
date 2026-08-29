@@ -21,6 +21,7 @@ export const SecurityPerformancePanel = ({
 		className="reports-panel"
 		titleIcon="security"
 		title={__('Security', 'vulopilot')}
+		desc={__('Fixed, new, and still-open security findings this period.', 'vulopilot')}
 		isLoading={isLoading}
 	>
 		{!isLoading && panel && (
@@ -88,6 +89,7 @@ export const ContentProgressPanel = ({
 		className="reports-panel"
 		titleIcon="document"
 		title={__('Content Progress', 'vulopilot')}
+		desc={__('Real content improvements this period.', 'vulopilot')}
 		isLoading={isLoading}
 	>
 		{!isLoading && content && (
@@ -166,6 +168,7 @@ export const StorePerformancePanel = ({
 		className="reports-panel"
 		titleIcon="woocommerce"
 		title={__('Store Performance', 'vulopilot')}
+		desc={__('Your real store numbers this period.', 'vulopilot')}
 		isLoading={isLoading}
 	>
 		{!isLoading && store && !store.available && (

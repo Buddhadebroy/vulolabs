@@ -156,6 +156,7 @@ const WhatShouldIFixFirstCard = ({
 	return (
 		<CardComponent
 			title={__('What should I fix first?', 'vulopilot')}
+			titleIcon="star"
 			desc={__(
 				'These issues have the biggest impact on your search visibility.',
 				'vulopilot'

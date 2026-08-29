@@ -117,7 +117,6 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 							'vulopilot'
 						)
 			}
-			toggle
 		>
 			{wrap(
 				<>
