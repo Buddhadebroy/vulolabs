@@ -158,6 +158,7 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 		: [];
 
 	return (
+		<div id="site-overview-card">
 		<CardComponent title={__('Site Overview', 'vulopilot')} titleIcon="analytics">
 			{error ? (
 				<ModuleGuardComponent
@@ -268,6 +269,7 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 				</>
 			)}
 		</CardComponent>
+		</div>
 	);
 };
 

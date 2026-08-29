@@ -24,6 +24,18 @@ const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health';
  * default, not a plain boolean) rather than inferring "protected" from
  * whether a backup has ever actually run — that's Backups tab's own job
  * (real row list), not this one-line summary's.
+ *
+ * `uniqueKey` on the `NoticeComponent` below is required, not decorative:
+ * a `displayPosition="notice"` NoticeComponent doesn't render inline — it
+ * calls zyra's own `NoticeManager.add()` once on mount and lets a separate,
+ * globally-mounted receiver render it (confirmed reading zyra's source),
+ * with `'lifetime'` validity (no auto-expiry) for this non-`'float'`
+ * position. `NoticeManager.add()` only dedupes an entry against one
+ * already in its queue with the exact same `uniqueKey`; without one, it
+ * defaults to `Date.now().toString()` per mount, so remounting this
+ * component (e.g. navigating away from Site Health and back) pushed a
+ * second, differently-keyed, equally-non-expiring entry instead of
+ * replacing the first — the real cause of the notice visibly doubling.
  */
 const BackupProtectionNotice = () => {
 	const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
@@ -48,6 +60,7 @@ const BackupProtectionNotice = () => {
 
 	return (
 		<NoticeComponent
+			uniqueKey="backup-protection-notice"
 			type={isEnabled ? 'success' : 'info'}
 			displayPosition="notice"
 			message={
