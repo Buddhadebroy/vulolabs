@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	ColumnComponent,
@@ -10,6 +10,7 @@ import {
 } from '@zyra/components';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import GettingStartedCard from './GettingStartedCard';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import { DashboardSummary } from '../../dashboard-widgets/types';
 
 /**
@@ -51,14 +52,54 @@ const EMPTY_SUMMARY: DashboardSummary = {
 	quick_fixes: 0,
 	pending_approvals: 0,
 	automation_status: { enabled: 0, disabled: 0 },
+	site_snapshot: {
+		posts: 0,
+		pages: 0,
+		comments: 0,
+		users: 0,
+		plugins_active: 0,
+		plugins_total: 0,
+		wp_version: '',
+		php_version: '',
+	},
 };
 
 /**
- * "Website Health" — the same title/subtitle/action-buttons header shape
- * every other page in this plugin uses via NavigatorHeaderComponent,
- * matching the Dashboard mockup's own Header component instead of the
- * buttons-only bar this used to be (back when WelcomeSection carried the
- * page's title/description instead).
+ * Real time-of-day greeting, computed from the visitor's own local clock
+ * (`new Date().getHours()`) — not a fabricated business number, the same
+ * kind of real-computed-value convention this codebase already applies to
+ * `timeAgo()`/relative-timestamp helpers elsewhere.
+ */
+const getGreeting = (): string => {
+	const hour = new Date().getHours();
+
+	if (hour < 12) {
+		return __('Good morning', 'vulopilot');
+	}
+	if (hour < 18) {
+		return __('Good afternoon', 'vulopilot');
+	}
+	return __('Good evening', 'vulopilot');
+};
+
+/**
+ * Personalized "Good morning, {name}!" header — matches the Dashboard
+ * mockup's own greeting, using the real `wp_get_current_user()->display_name`
+ * (`appLocalizer.current_user_display_name`, already localized in
+ * FrontendScripts.php and already used the same way by
+ * AiContentAssistantSidebar.tsx) rather than a generic page title.
+ * `getGreeting()`'s time-of-day text is a real computed value from the
+ * visitor's own clock, not a fabricated one.
+ *
+ * `headerCustomContent` carries the mockup's "Run complete audit" button +
+ * real "Last scan: …" line — the exact same `RunScanHeaderExtra` cluster
+ * every other category page's header already uses (site-wide scope here,
+ * same as Health.tsx, since Dashboard has no one category of its own),
+ * relabeled via its own `label` prop rather than a new component. Refetches
+ * this page's own summary on a successful scan via `onSuccess`. Sits
+ * alongside (not instead of) the existing Customize/Reset/Save `buttons` —
+ * `NavigatorHeaderComponent` renders both as sibling flex children
+ * (confirmed reading its source), so Customize-dashboard mode isn't lost.
  */
 const Dashboard = () => {
 	const [summary, setSummary] = useState<DashboardSummary>(EMPTY_SUMMARY);
@@ -104,12 +145,24 @@ const Dashboard = () => {
 
 	const pageHeader = (
 		<NavigatorHeaderComponent
-			headerTitle={__('Website Health', 'vulopilot')}
-			headerIcon='module'
+			headerTitle={sprintf(
+				/* translators: %s: the logged-in admin's real display name. */
+				__('%s, %s! \u{1F44B}', 'vulopilot'),
+				getGreeting(),
+				appLocalizer.current_user_display_name
+			)}
+			headerIcon="module"
 			headerDescription={__(
-				"Your site's overall health, at a glance.",
+				"Here's how your site is doing.",
 				'vulopilot'
 			)}
+			headerCustomContent={
+				<RunScanHeaderExtra
+					label={__('Run complete audit', 'vulopilot')}
+					settingsSubtab="general"
+					onSuccess={loadDashboard}
+				/>
+			}
 			buttons={
 				isCustomizing
 					? [

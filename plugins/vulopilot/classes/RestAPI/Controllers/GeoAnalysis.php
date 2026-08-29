@@ -110,17 +110,24 @@ class GeoAnalysis extends \WP_REST_Controller {
         $requested_limit = absint( $request->get_param( 'limit' ) );
         $limit           = min( 20, max( 1, $requested_limit ? $requested_limit : 5 ) );
         $scanner_ids     = $this->parse_scanner_ids( $request );
+        // `scope=all` (Dashboard's own "Key pages at a glance" widget) ranks
+        // by open findings of ANY category, not just GEO — additive, opt-in
+        // param so every existing GEO-tab/AEO-tab caller (which never sends
+        // it) keeps today's GEO-only ranking unchanged.
+        $sitewide        = 'all' === $request->get_param( 'scope' );
         $counts          = ( new FindingRepository() )->count_by_column(
             'object_ref',
-            $scanner_ids
-                ? array(
-					'scanner_id' => $scanner_ids,
-					'status'     => 'open',
-				)
-                : array(
-					'category' => 'geo',
-					'status'   => 'open',
-				)
+            $sitewide
+                ? array( 'status' => 'open' )
+                : ( $scanner_ids
+                    ? array(
+						'scanner_id' => $scanner_ids,
+						'status'     => 'open',
+					)
+                    : array(
+						'category' => 'geo',
+						'status'   => 'open',
+					) )
         );
 
         $ranked = array();

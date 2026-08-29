@@ -47,6 +47,16 @@ const EMPTY_SUMMARY = {
 	quick_fixes: 0,
 	pending_approvals: 0,
 	automation_status: { enabled: 0, disabled: 0 },
+	site_snapshot: {
+		posts: 0,
+		pages: 0,
+		comments: 0,
+		users: 0,
+		plugins_active: 0,
+		plugins_total: 0,
+		wp_version: '',
+		php_version: '',
+	},
 };
 
 describe( 'DashboardGrid', () => {
@@ -73,12 +83,12 @@ describe( 'DashboardGrid', () => {
 
 		// The initial loading skeleton (while `/dashboard-layout` is still
 		// in flight) always renders the first 4 registry widgets —
-		// including Overall Site Score — regardless of the saved layout,
+		// including Vital Pulse — regardless of the saved layout,
 		// so 'Run Complete Audit' alone isn't proof the real layout has
 		// loaded. Wait for the skeleton-only widget to clear first.
 		await waitFor( () => {
 			expect(
-				screen.queryByText( 'Overall Site Score' )
+				screen.queryByText( 'Vital Pulse' )
 			).not.toBeInTheDocument();
 		} );
 		expect( screen.getByText( 'Run Complete Audit' ) ).toBeInTheDocument();
@@ -106,7 +116,7 @@ describe( 'DashboardGrid', () => {
 
 		await waitFor( () => {
 			expect(
-				screen.queryByText( 'Overall Site Score' )
+				screen.queryByText( 'Vital Pulse' )
 			).not.toBeInTheDocument();
 		} );
 		expect( screen.getByText( 'Run Complete Audit' ) ).toBeInTheDocument();
@@ -121,7 +131,7 @@ describe( 'DashboardGrid', () => {
 		);
 
 		expect(
-			await screen.findByText( 'Overall Site Score' )
+			await screen.findByText( 'Vital Pulse' )
 		).toBeInTheDocument();
 
 		expect( sendApiResponse ).toHaveBeenCalledWith(

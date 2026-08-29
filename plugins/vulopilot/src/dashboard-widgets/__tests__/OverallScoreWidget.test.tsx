@@ -36,6 +36,16 @@ const summary: DashboardSummary = {
 	quick_fixes: 0,
 	pending_approvals: 0,
 	automation_status: { enabled: 2, disabled: 0 },
+	site_snapshot: {
+		posts: 10,
+		pages: 5,
+		comments: 20,
+		users: 3,
+		plugins_active: 8,
+		plugins_total: 10,
+		wp_version: '6.7',
+		php_version: '8.2',
+	},
 };
 
 describe( 'OverallScoreWidget', () => {
@@ -58,7 +68,7 @@ describe( 'OverallScoreWidget', () => {
 		);
 
 		expect(
-			await screen.findByText( 'Overall Site Score' )
+			await screen.findByText( 'Vital Pulse' )
 		).toBeInTheDocument();
 
 		await userEvent.click(
@@ -67,7 +77,7 @@ describe( 'OverallScoreWidget', () => {
 		expect( onHide ).toHaveBeenCalled();
 	} );
 
-	it( 'shows the real overall score and open-findings count', () => {
+	it( 'shows the real overall score and open/critical findings counts', () => {
 		render(
 			<OverallScoreWidget
 				summary={ summary }
@@ -79,8 +89,9 @@ describe( 'OverallScoreWidget', () => {
 
 		expect( screen.getByText( '82' ) ).toBeInTheDocument();
 		expect(
-			screen.getByText( '5 open findings across your site.' )
+			screen.getByText( '5 issues found' )
 		).toBeInTheDocument();
+		expect( screen.getByText( '1 critical' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the real net-change badge (fixed minus new) for this week', () => {

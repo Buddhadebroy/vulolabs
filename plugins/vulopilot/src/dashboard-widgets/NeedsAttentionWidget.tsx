@@ -35,6 +35,15 @@ interface ActionRunRow {
  * approval), combined into one tabbed widget instead. Mirrors the
  * Dashboard mockup's own tabbed "Needs your attention" panel rather than
  * three near-duplicate list cards competing for space in the grid.
+ *
+ * "Open issues" leads (default-active tab, `TabsComponent` has no separate
+ * `defaultActiveKey` — whichever entry is first in `tabs` starts active) —
+ * the newer "Good morning" Dashboard mockup shows this panel as one flat,
+ * mixed-category list of real open findings with severity badges, which is
+ * exactly what "Open issues" already is; "Quick fixes" (images-only) moved
+ * to 2nd since it's a narrower slice a user reaches for less by default.
+ * Both tabs, and "Pending approval", stay real and one click away either
+ * way — this only changes which loads pre-selected.
  */
 const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 	onHide,
@@ -109,6 +118,38 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 				className="dashboard-attention-tabs"
 				tabs={[
 					{
+						label: __('Open issues', 'vulopilot'),
+						content:
+							openIssues.data.length === 0 ? (
+								<ModuleGuardComponent
+									icon="check"
+									title={__('No open issues', 'vulopilot')}
+									desc={__(
+										'Every scanned finding is resolved right now.',
+										'vulopilot'
+									)}
+								/>
+							) : (
+								<ListComponent
+									className= "mini-card report"
+									items={openIssues.data.map((finding) => ({
+										id: String(finding.id),
+										title: finding.title,
+										action: () => {
+											window.location.href =
+												getCategoryTabLink(finding.category);
+										},
+										tags: (
+											<BadgeComponent
+												color={`badge-${finding.severity}`}
+												text={finding.severity}
+											/>
+										),
+									}))}
+								/>
+							),
+					},
+					{
 						label: __('Quick fixes', 'vulopilot'),
 						content:
 							quickFixes.data.length === 0 ? (
@@ -132,38 +173,6 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 										action: () => {
 											window.location.href =
 												'?page=vulopilot#&tab=seo-visibility&subtab=seo';
-										},
-										tags: (
-											<BadgeComponent
-												color={`badge-${finding.severity}`}
-												text={finding.severity}
-											/>
-										),
-									}))}
-								/>
-							),
-					},
-					{
-						label: __('Open issues', 'vulopilot'),
-						content:
-							openIssues.data.length === 0 ? (
-								<ModuleGuardComponent
-									icon="check"
-									title={__('No open issues', 'vulopilot')}
-									desc={__(
-										'Every scanned finding is resolved right now.',
-										'vulopilot'
-									)}
-								/>
-							) : (
-								<ListComponent
-									className= "mini-card report"
-									items={openIssues.data.map((finding) => ({
-										id: String(finding.id),
-										title: finding.title,
-										action: () => {
-											window.location.href =
-												getCategoryTabLink(finding.category);
 										},
 										tags: (
 											<BadgeComponent

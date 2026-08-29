@@ -831,14 +831,26 @@ class Utill {
      * @var string[]
      */
     const DASHBOARD_WIDGET_IDS = array(
-        // The Dashboard mockup's own top section (registry.ts's
+        // The newer Dashboard mockup's own top section (registry.ts's
         // MOCKUP_WIDGETS), in its order.
         'overall-score',
-        'run-audit',
-        'ai-suggestions',
-        'todays-tasks',
-        'recent-changes',
+        'vulopilot-activity',
         'needs-attention',
+        'key-pages',
+        'site-snapshot',
+        'recent-activity',
+        // Pre-existing widgets the newer mockup doesn't depict as their own
+        // card — kept real and selectable, just appended after the above in
+        // registry.ts's own default order (see that file's own docblock).
+        // `ai-suggestions`/`todays-tasks` are deliberately NOT here anymore —
+        // both were retired as real content duplicates of `needs-attention`/
+        // `recent-activity` respectively (registry.ts's own docblock has the
+        // full reasoning); removing them from this whitelist means a saved
+        // layout's now-meaningless entry for either is dropped on its next
+        // reconciliation, and neither can be re-added via "Customize
+        // dashboard".
+        'run-audit',
+        'recent-changes',
         'automation-status',
         'crawler-traffic',
         // Registered by vulopilot-pro's AiCrawlerAnalytics module via
