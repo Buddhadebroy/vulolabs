@@ -228,6 +228,7 @@ const IndexNowPanel = () => {
 
 				<FormGroupComponent
 						label={__('Auto-submit post types', 'vulopilot')}
+						row 
 						desc={__(
 							'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
 							'vulopilot'
@@ -241,7 +242,7 @@ const IndexNowPanel = () => {
 							onChange={handlePostTypesChange}
 						/>
 					</FormGroupComponent>
-					<FormGroupComponent
+					<FormGroupComponent row
 						label={__('API key', 'vulopilot')}
 						desc={__(
 							"The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties.",
@@ -257,6 +258,7 @@ const IndexNowPanel = () => {
 							/>
 						)}
 						<ButtonInput
+							position="left"
 							buttons={{
 								text: isChangingKey
 									? __('Changing…', 'vulopilot')
@@ -267,7 +269,7 @@ const IndexNowPanel = () => {
 						/>
 					</FormGroupComponent>
 					{apiKey && (
-						<FormGroupComponent
+						<FormGroupComponent row
 							label={__('API key location', 'vulopilot')}
 							desc={__(
 								'Open this link to verify the key file is reachable by search engines — it should show the key.',

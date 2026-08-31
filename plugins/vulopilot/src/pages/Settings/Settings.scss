@@ -163,15 +163,46 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1.75rem;
+
+	.backup-storage-header {
+		display: flex;
+		gap: 0.813rem;
+		padding: 1rem;
+		border-bottom: $border-light-small;
+		align-items: center;
+
+		i {
+			padding: 0.45rem;
+			font-size: 1.625rem;
+			border-radius: 0.313rem;
+		}
+	}
+
+	.backup-storage-section {
+		// padding: 1rem;
+		border: $border-light-small;
+		border-radius: 0.313rem;
+	}
 }
 
 .backup-storage-section-title {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	margin: 0 0 0.75rem;
-	font-size: 0.9375rem;
+	font-size: 1.25rem;
 	font-weight: 600;
+
+	&.is-clickable {
+		cursor: pointer;
+	}
+}
+
+// The S3/Google Drive section header's own click-to-collapse chevron —
+// BackupStoragePanel.tsx's own docblock explains why this is a plain
+// local-state toggle rather than zyra's real `ExpandablePanelInput`.
+.backup-storage-expand-icon {
+	margin-left: auto;
+	color: $sub-text-color;
 }
 
 .backup-storage-status-row {
