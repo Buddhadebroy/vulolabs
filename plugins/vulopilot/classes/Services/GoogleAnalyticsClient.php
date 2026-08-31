@@ -237,4 +237,77 @@ class GoogleAnalyticsClient {
 
         return $sessions_by_date;
     }
+
+    /**
+     * Real `POST .../v1beta/{property}:runReport` — real GA4 sessions
+     * grouped by `sessionDefaultChannelGroup`, GA4's own built-in traffic-
+     * source classification ("Organic Search", "Direct", "Referral",
+     * "Organic Social", "Paid Search", "Email", etc. — the exact same
+     * grouping GA4's own "Traffic acquisition" report uses). Backs "SEO &
+     * Visibility → Overview"'s "Visibility by Source" card
+     * (Controllers\Visibility::get_traffic_sources()) — this plugin has no
+     * traffic-source data of its own to fabricate (see that method's own
+     * docblock), so this card only ever renders when a real GA4 property
+     * is connected and genuinely has session data to report.
+     *
+     * @param string $property_id A real `property_id` (GoogleServicesConnection::get_status()'s own `ga4_property_id`).
+     * @param string $start_date  `Y-m-d`.
+     * @param string $end_date    `Y-m-d`.
+     * @return array<string, int>|\WP_Error Real channel label => real session count, only for channels GA4 actually returned a row for.
+     */
+    public function run_channel_group_report( string $property_id, string $start_date, string $end_date ) {
+        $token = $this->connection->get_valid_access_token();
+
+        if ( ! $token ) {
+            return new \WP_Error( 'vulopilot_ga4_not_connected', __( 'Not connected to Google.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        $response = wp_remote_post(
+            sprintf( self::RUN_REPORT_URL, 'properties/' . $property_id ),
+            array(
+                'timeout' => 30,
+                'headers' => array(
+                    'Authorization' => 'Bearer ' . $token,
+                    'Content-Type'  => 'application/json',
+                ),
+                'body'    => wp_json_encode(
+                    array(
+                        'dateRanges' => array(
+                            array(
+                                'startDate' => $start_date,
+                                'endDate'   => $end_date,
+                            ),
+                        ),
+                        'dimensions' => array( array( 'name' => 'sessionDefaultChannelGroup' ) ),
+                        'metrics'    => array( array( 'name' => 'sessions' ) ),
+                        'limit'      => 50,
+                    )
+                ),
+            )
+        );
+
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
+        if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+            return new \WP_Error( 'vulopilot_ga4_report_failed', __( 'Could not fetch your Google Analytics traffic sources.', 'vulopilot' ), array( 'status' => 502 ) );
+        }
+
+        $body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+
+        $sessions_by_channel = array();
+
+        foreach ( (array) ( $body['rows'] ?? array() ) as $row ) {
+            $channel = (string) ( $row['dimensionValues'][0]['value'] ?? '' );
+
+            if ( '' === $channel ) {
+                continue;
+            }
+
+            $sessions_by_channel[ $channel ] = (int) ( $row['metricValues'][0]['value'] ?? 0 );
+        }
+
+        return $sessions_by_channel;
+    }
 }

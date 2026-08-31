@@ -1385,6 +1385,80 @@
 	white-space: nowrap;
 }
 
+// VisibilityBySourceCard.tsx — donut + legend side by side (dot/name/
+// count/% columns), matching the reference mockup's own "Visibility by
+// Source" layout. Deliberately separate from .crawler-vendor-* above (that
+// block is shared with CrawlerAnalyticsSection.tsx's own stacked
+// donut+legend, a different layout this card doesn't use). Was
+// `.visibility-area-*`, styling an earlier version of this same card slot
+// that showed the 4 real area scores instead of real GA4 traffic sources —
+// renamed along with that swap so the class names describe what's actually
+// rendered; see VisibilityBySourceCard.tsx's own docblock.
+.visibility-source-body {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+.visibility-source-chart {
+	// Explicit width (matching the `height={160}` passed to ChartComponent)
+	// is required here, not cosmetic: as a flex item of `.visibility-source-body`
+	// with no intrinsic width of its own, recharts' `ResponsiveContainer`
+	// inside it (width:100% of an otherwise indefinite parent) collapses to
+	// 0×0 and never renders — confirmed live, the donut silently
+	// disappeared until this was added.
+	flex-shrink: 0;
+	width: 10rem;
+}
+
+.visibility-source-legend {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	flex: 1;
+	min-width: 0;
+}
+
+.visibility-source-legend-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8125rem;
+}
+
+.visibility-source-dot {
+	width: 0.625rem;
+	height: 0.625rem;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.visibility-source-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: $text-color;
+}
+
+.visibility-source-count {
+	color: $text-color;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.visibility-source-percent {
+	color: $sub-text-color;
+	font-weight: 600;
+	white-space: nowrap;
+	min-width: 2.25rem;
+	text-align: right;
+}
+
+.visibility-source-insight {
+	margin-top: 1.25rem;
+}
+
 .crawler-table {
 	width: 100%;
 	font-size: 0.8125rem;
