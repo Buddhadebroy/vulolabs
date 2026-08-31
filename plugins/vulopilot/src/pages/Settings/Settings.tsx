@@ -12,11 +12,8 @@ import getTemplateData from '../../services/templateService';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
-import CrawlerAlertTestPanel from '../../components/Settings/CrawlerAlertTestPanel';
 import PageSpeedStatusPanel from '../../components/Settings/Connections/PageSpeedStatusPanel';
-import AiVisibilityScansHeader from '../../components/Settings/Scanning/AiVisibilityScansHeader';
 import AccessibilityRestoreDefaultsHeader from '../../components/Settings/Scanning/AccessibilityRestoreDefaultsHeader';
-import ContentSearchScansHeader from '../../components/Settings/Scanning/ContentSearchScansHeader';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
@@ -161,28 +158,11 @@ const Settings = () => {
 				{settingName === currentTab ? (
 					<>
 						{'pagespeed-insights' === currentTab && <PageSpeedStatusPanel />}
-						{/* AiVisibilityScansHeader.tsx — rendered BEFORE this
-						 * tab's own fields, same "before, not after" placement
-						 * PageSpeedStatusPanel.tsx uses above: the mockup's
-						 * "Restore Defaults" button sits above the 5
-						 * scan-category rows, which are themselves the first
-						 * real field (`ai_visibility_scans`) InputRenderer
-						 * renders just below. See that component's own
-						 * docblock. (The llms.txt content editor that used to
-						 * split this same tab around `aeo-section-alerts` now
-						 * lives on Crawl & URLs → Robots & Sitemap instead —
-						 * see CrawlRobotsSitemapSection.tsx.) */}
-						{'ai-visibility' === currentTab && <AiVisibilityScansHeader />}
 						{/* AccessibilityRestoreDefaultsHeader.tsx — same
 						 * "before, not after" placement AiVisibilityScansHeader.tsx
 						 * uses: the mockup's "Restore Defaults" button sits above
 						 * this tab's own fields. */}
 						{'accessibility' === currentTab && <AccessibilityRestoreDefaultsHeader />}
-						{/* ContentSearchScansHeader.tsx — same "before, not after"
-						 * placement AccessibilityRestoreDefaultsHeader.tsx uses above:
-						 * the mockup's "Restore Defaults" button sits above this
-						 * tab's own fields. */}
-						{'content-search' === currentTab && <ContentSearchScansHeader />}
 						{/* `settingModal` is `getSettingById(settingsArray, currentTab)`
 						 * (line ~93) — real `null` for a `currentTab` that doesn't
 						 * match any entry in `settingsArray` (a stale/unknown
@@ -218,15 +198,14 @@ const Settings = () => {
 						 * credentials themselves can't just be more
 						 * fields in that same array. */}
 						{'backups' === currentTab && <BackupStoragePanel />}
-						{/* CrawlerAlertTestPanel.tsx — same "appended
-						 * after this tab's own fields" shape as Backups'
-						 * BackupStoragePanel just above, for the same
-						 * reason: a real API call ("Send Test Alert")
-						 * and a value that must survive a page refresh
-						 * ("Last test alert sent on ..."), neither of
-						 * which fits InputRenderer's static declarative
-						 * fields. See AiCrawlerAlerts.ts's own docblock. */}
-						{'ai-crawler-alerts' === currentTab && <CrawlerAlertTestPanel />}
+						{/* AI Crawler Alerts' own "Send Test Alert" button
+						 * (CrawlerAlertTestPanel.tsx) is NOT appended here
+						 * — unlike Backups above, it's wired straight into
+						 * AiCrawlerAlerts.ts's own "Notification channels"
+						 * `type: 'section'` field via SectionComponent's
+						 * `rightContent` slot, so InputRenderer renders it
+						 * inline as part of that tab's own fields. See
+						 * that file's own docblock. */}
 					</>
 				) : (
 					<>{__('Loading…', 'vulopilot')}</>

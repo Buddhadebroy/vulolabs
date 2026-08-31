@@ -41,7 +41,7 @@ export default {
 		{
 			key: 'psi_api_key',
 			type: 'password',
-			size: 10,
+			size: 30,
 			label: __('API Key', 'vulopilot'),
 			settingDescription: __(
 				'Enter your Google PageSpeed Insights API key.',
@@ -51,7 +51,7 @@ export default {
 		{
 			key: 'psi_daily_limit',
 			type: 'number',
-			size: 10,
+			size: 30,
 			label: __('Daily API Limit', 'vulopilot'),
 			settingDescription: __(
 				'Set the maximum number of requests VuloPilot can make per day. Leave at 0 for unlimited (subject to your API plan limits).',
@@ -62,9 +62,8 @@ export default {
 			key: 'pagespeed-about-notice',
 			type: 'notice',
 			noticeType: 'info',
-			label: __('About PageSpeed Insights API', 'vulopilot'),
 			message: __(
-				'VuloPilot uses PageSpeed Insights API data to show speed reports under Improve My Speed. We only read performance data and never make changes to your site.',
+				'VuloPilot uses PageSpeed Insights API data to show speed reports under <a class="link-item">Improve My Speed.</a> <br/> <a class="link-item"> We only read performance data and never make changes to your site. </a>',
 				'vulopilot'
 			),
 		},

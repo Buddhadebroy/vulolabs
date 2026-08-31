@@ -1,4 +1,4 @@
-import { ContainerComponent, ModuleGridComponent } from '@zyra/components';
+import { ModuleGridComponent, FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
 import { getModuleData } from '../../services/templateService';
 import proPopupContent from '../Popup/Popup';
 
@@ -14,20 +14,26 @@ import proPopupContent from '../Popup/Popup';
  * every other Settings tab gets its header from NavigatorComponent reading
  * that tab's own config rather than rendering one itself (see
  * AiProvidersPanel.tsx for the same "no header inside the panel body"
- * pattern).
+ * pattern). No own `ContainerComponent general` wrapper either (per direct
+ * instruction) — NavigatorComponent.tsx's own `<ContainerComponent general>`
+ * already wraps `tab-content` (and this panel's own render output inside
+ * it) once; this component rendering a second one produced a genuinely
+ * redundant nested `.container-wrapper.general-wrapper` div.
  */
 const ModulesPanel = () => {
 	const modulesArray = getModuleData();
 
 	return (
-		<ContainerComponent general>
-			<ModuleGridComponent
-				modulesArray={modulesArray}
-				apiLink="modules"
-				pluginName="vulopilot"
-				proPopupContent={proPopupContent}
-			/>
-		</ContainerComponent>
+		<FormGroupWrapperComponent>
+			<FormGroupComponent>
+				<ModuleGridComponent
+					modulesArray={modulesArray}
+					apiLink="modules"
+					pluginName="vulopilot"
+					proPopupContent={proPopupContent}
+				/>
+			</FormGroupComponent>
+		</FormGroupWrapperComponent>
 	);
 };
 

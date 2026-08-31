@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { ButtonInput } from '@zyra/inputs';
+import { FormGroupComponent, FormGroupWrapperComponent, NoticeManager } from '@zyra/components';
+import CardHeader from '../../CardHeader';
 import { formatWpDate } from '../../../services/formatWpDate';
 
 interface PsiStatus {
@@ -50,7 +52,6 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 const PageSpeedStatusPanel = () => {
 	const [status, setStatus] = useState<PsiStatus | null>(null);
 	const [isTesting, setIsTesting] = useState(false);
-	const [result, setResult] = useState<TestResult | null>(null);
 
 	const loadStatus = () => {
 		getApiResponse<PsiStatus>(getApiLink(appLocalizer, 'settings/test-pagespeed'), nonceHeaders).then(
@@ -66,7 +67,6 @@ const PageSpeedStatusPanel = () => {
 
 	const testConnection = () => {
 		setIsTesting(true);
-		setResult(null);
 
 		sendApiResponse<TestResult>(
 			appLocalizer,
@@ -77,7 +77,15 @@ const PageSpeedStatusPanel = () => {
 				if (!response) {
 					return;
 				}
-				setResult(response);
+				// Floating notice (NoticeReceiverComponent position="float",
+				// already mounted app-wide by zyra's own HeaderComponent) —
+				// per direct instruction, not the inline <p> this used to
+				// render in the card body.
+				NoticeManager.add({
+					message: response.message,
+					type: response.success ? 'success' : 'error',
+					position: 'float',
+				});
 				if (response.success) {
 					loadStatus();
 				}
@@ -91,83 +99,80 @@ const PageSpeedStatusPanel = () => {
 			: 0;
 
 	return (
-		<div className="ai-provider-card gsc-service-card psi-status-panel">
-			<div className="ai-provider-card-header">
-				<div className="ai-provider-card-icon">
-					<i className="adminfont-analytics" />
-				</div>
-				<div className="ai-provider-card-title">
-					<strong>{__('PageSpeed Insights', 'vulopilot')}</strong>
-					<span className="desc">
-						{__(
-							'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',
-							'vulopilot'
+		<FormGroupWrapperComponent>
+			<FormGroupComponent>
+				<CardHeader
+					icon="analytics"
+					className='compact'
+					title={__('PageSpeed Insights', 'vulopilot')}
+					desc={__(
+						'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',
+						'vulopilot'
+					)}
+					badge={
+						<span className={`admin-badge ${status?.connected ? 'green' : 'red'}`}>
+							{status?.connected ? __('Connected', 'vulopilot') : __('Not Connected', 'vulopilot')}
+						</span>
+					}
+					action={
+						<>
+							<ButtonInput
+								wrapperClass="psi-test-connection-button"
+								buttons={{
+									text: isTesting ? __('Testing…', 'vulopilot') : __('Test Connection', 'vulopilot'),
+									icon: 'update',
+									disabled: isTesting,
+									onClick: testConnection,
+								}}
+							/>
+						</>
+					}
+				>
+					<div className="ai-provider-card-body">
+						{status && status.daily_limit > 0 && (
+							<div className="psi-usage">
+								<div className="psi-usage-label">
+									<span>{__('Daily API Usage', 'vulopilot')}</span>
+									<span>{usagePercent}%</span>
+								</div>
+								<div className="psi-usage-bar">
+									<div className="psi-usage-bar-fill" style={{ width: `${usagePercent}%` }} />
+								</div>
+								<div className="desc">
+									{sprintf(
+										/* translators: 1: requests made today, 2: the site's own configured daily limit. */
+										__('%1$s / %2$s requests used', 'vulopilot'),
+										status.requests_today.toLocaleString(),
+										status.daily_limit.toLocaleString()
+									)}
+								</div>
+							</div>
 						)}
-					</span>
-				</div>
-				<span className={`gsc-service-status ${status?.connected ? 'is-connected' : 'is-not-connected'}`}>
-					{status?.connected ? __('Connected', 'vulopilot') : __('Not Connected', 'vulopilot')}
-				</span>
-				<ButtonInput
-					wrapperClass="psi-test-connection-button"
-					buttons={{
-						text: isTesting ? __('Testing…', 'vulopilot') : __('Test Connection', 'vulopilot'),
-						icon: 'update',
-						disabled: isTesting,
-						onClick: testConnection,
-					}}
-				/>
-			</div>
 
-			<div className="ai-provider-card-body gsc-service-body">
-				{status && status.daily_limit > 0 && (
-					<div className="psi-usage">
-						<div className="psi-usage-label">
-							<span>{__('Daily API Usage', 'vulopilot')}</span>
-							<span>{usagePercent}%</span>
-						</div>
-						<div className="psi-usage-bar">
-							<div className="psi-usage-bar-fill" style={{ width: `${usagePercent}%` }} />
-						</div>
-						<div className="desc">
-							{sprintf(
-								/* translators: 1: requests made today, 2: the site's own configured daily limit. */
-								__('%1$s / %2$s requests used', 'vulopilot'),
-								status.requests_today.toLocaleString(),
-								status.daily_limit.toLocaleString()
-							)}
-						</div>
-					</div>
-				)}
-
-				{status?.connected && status.checked_at && (
-					<div className="desc psi-last-checked">
-						{sprintf(
-							/* translators: %s is a formatted date/time. */
-							__('Last checked on %s.', 'vulopilot'),
-							formatWpDate(status.checked_at)
-						)}
-						{'number' === typeof status.mobile && 'number' === typeof status.desktop && (
-							<>
-								{' '}
+						{status?.connected && status.checked_at && (
+							<div className="desc psi-last-checked">
 								{sprintf(
-									/* translators: 1: mobile score, 2: desktop score, both 0-100. */
-									__('Mobile %1$d/100, Desktop %2$d/100.', 'vulopilot'),
-									status.mobile,
-									status.desktop
+									/* translators: %s is a formatted date/time. */
+									__('Last checked on %s.', 'vulopilot'),
+									formatWpDate(status.checked_at)
 								)}
-							</>
+								{'number' === typeof status.mobile && 'number' === typeof status.desktop && (
+									<>
+										{' '}
+										{sprintf(
+											/* translators: 1: mobile score, 2: desktop score, both 0-100. */
+											__('Mobile %1$d/100, Desktop %2$d/100.', 'vulopilot'),
+											status.mobile,
+											status.desktop
+										)}
+									</>
+								)}
+							</div>
 						)}
 					</div>
-				)}
-
-				{result && (
-					<p className={`ai-provider-test-result ${result.success ? 'is-success' : 'is-error'}`}>
-						{result.message}
-					</p>
-				)}
-			</div>
-		</div>
+				</CardHeader>
+			</FormGroupComponent>
+		</FormGroupWrapperComponent>
 	);
 };
 

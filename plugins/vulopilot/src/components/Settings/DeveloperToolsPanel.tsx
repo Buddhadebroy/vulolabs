@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { CardComponent, FormGroupWrapperComponent, NoticeManager } from '@zyra/components';
+import { FormGroupWrapperComponent, NoticeManager } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import CardHeader from '../CardHeader';
 
 /**
  * Hand-built rather than InputRenderer-driven — same escape hatch
@@ -47,9 +48,9 @@ const DeveloperToolsPanel = () => {
 
 	return (
 		<FormGroupWrapperComponent>
-			<CardComponent
+			<CardHeader
+				icon="refresh"
 				title={__('Cache', 'vulopilot')}
-				titleIcon="refresh"
 				desc={__(
 					'Clears every real cached result VuloPilot computes — the Knowledge Graph’s extracted entities, the Schema Coverage snapshot, the robots.txt bot-access parse, and (if active) vulopilot-pro’s own Knowledge Graph recommendations. Everything is rebuilt fresh automatically the next time it’s needed — nothing is deleted permanently.',
 					'vulopilot'
@@ -64,7 +65,7 @@ const DeveloperToolsPanel = () => {
 						disabled: isClearing,
 					}}
 				/>
-			</CardComponent>
+			</CardHeader>
 		</FormGroupWrapperComponent>
 	);
 };

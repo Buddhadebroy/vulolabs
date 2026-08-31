@@ -1,4 +1,6 @@
+import { createElement } from 'react';
 import { __ } from '@wordpress/i18n';
+import AiVisibilityScansHeader from './AiVisibilityScansHeader';
 
 const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactive', 'vulopilot') };
 
@@ -30,11 +32,19 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * min_data_points) lives in that same panel item's `formFields`, not a
  * separate flat setting duplicating the same value.
  *
- * "Restore Defaults" is AiVisibilityScansHeader.tsx (Settings.tsx's own
- * GetForm(), rendered just before this tab's fields) — a real, scoped
+ * "Restore Defaults" is AiVisibilityScansHeader.tsx — a real, scoped
  * reset (`POST /settings/reset-ai-visibility-scans`), not a UI-only
  * component field, since it needs to persist server-side and refresh
- * SettingContext in place.
+ * SettingContext in place. Set as this tab's own top-level `settingAction`
+ * (per direct instruction, same as ContentSearch.ts's own "Restore
+ * Defaults" and AiCrawlerAlerts.ts's own "Send Test Alert" — see either
+ * file's own docblock), not Settings.tsx's GetForm() special-casing this
+ * tab id anymore: `settingAction` is NavigatorComponent.tsx's own per-tab
+ * header action slot (`renderSettingHeaderInfo()`'s `<SectionComponent
+ * rightContent={activeFile.settingAction} />`, rendered once above every
+ * tab's own fields using this exact settings object's own `headerTitle`/
+ * `headerDescription`), so this now sits right next to "AI Visibility"
+ * itself instead of as a bare block above the fields.
  */
 export default {
 	id: 'ai-visibility',
@@ -46,6 +56,7 @@ export default {
 	),
 	headerIcon: 'global-community',
 	submitUrl: 'settings',
+	settingAction: createElement(AiVisibilityScansHeader),
 	modal: [
 		{
 			key: 'ai_visibility_scans',
@@ -230,11 +241,6 @@ export default {
 			dependent: { key: 'enable_llms_txt', value: 'enable_llms_txt', set: true },
 		},
 		{
-			key: 'aeo-section-alerts',
-			type: 'section',
-			title: __('Alerts', 'vulopilot'),
-		},
-		{
 			// Not a real, independently-writable field here — the actual
 			// enable/threshold live in the real, single nested
 			// `visibility_alerts.geo` setting
@@ -322,11 +328,6 @@ export default {
 			),
 		},
 		{
-			key: 'entity-section-alerts',
-			type: 'section',
-			title: __('Alerts', 'vulopilot'),
-		},
-		{
 			// Not a real, independently-writable field here — see this
 			// file's own `aeo-drop-threshold-note` above for the full
 			// reasoning; same treatment, scoped to `visibility_alerts.kg`
@@ -378,15 +379,6 @@ export default {
 				{ label: __('90 days', 'vulopilot'), value: '90' },
 				{ label: __('1 year', 'vulopilot'), value: '365' },
 			],
-		},
-		{
-			key: 'crawler-analytics-section-alerts',
-			type: 'section',
-			title: __('Alerts', 'vulopilot'),
-			settingDescription: __(
-				'Read by vulopilot-pro\'s AI Crawler Alerts — sitewide AI crawler visit-volume monitoring, not per-page findings.',
-				'vulopilot'
-			),
 		},
 		{
 			key: 'crawler_volume_drop_threshold_percent',

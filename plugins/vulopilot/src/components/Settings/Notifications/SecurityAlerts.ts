@@ -22,15 +22,19 @@ const MASTER_ENABLED_DEPENDENT = { key: 'security_alerts_enabled', value: 'secur
  * notice at the bottom links there instead of a second copy of the same
  * controls.
  *
- * "Notify me about" is a real `type: 'checkbox'` field (not an
- * `expandable-panel` — none of these six have their own sub-configuration
- * the way AiCrawlerAlerts.ts's per-item frequency picker does, so a plain
- * checklist is the honest fit) — `security_alert_types`
- * (Utill::VULOPILOT_SETTINGS_DEFAULTS) is a flat array of enabled type
- * keys, same shape as `crawler_alert_channels` below. Five of the six map
- * to real scanner ids AlertDispatcher::TYPE_SCANNER_MAP already defines;
- * "New user created" has no scanner behind it — see that constant's own
- * docblock.
+ * "Notify me about" is a real zyra `type: 'setting-row'` field
+ * (`components-settingrowcomponent--with-checkbox`, per direct
+ * instruction) — one row per alert type, each with a plain checkbox
+ * control (`control: { checkbox: true }`, SettingRowComponent's own
+ * declarative shape for a flat multi-select array field — see that
+ * component's own docblock for why this is a different value shape than
+ * AiCrawlerAlerts.ts's `toggle`/`select` rows). `security_alert_types`
+ * (Utill::VULOPILOT_SETTINGS_DEFAULTS) is still a flat array of enabled
+ * type keys, same shape as `crawler_alert_channels` below — unchanged from
+ * when this was a plain `type: 'checkbox'` field; only the row-list
+ * presentation changed. Five of the six map to real scanner ids
+ * AlertDispatcher::TYPE_SCANNER_MAP already defines; "New user created"
+ * has no scanner behind it — see that constant's own docblock.
  *
  * "Notification channels" mirrors AiCrawlerAlerts.ts's own
  * `crawler_alert_channels` field exactly: real 'email'/'dashboard' values,
@@ -72,77 +76,82 @@ export default {
 			dependent: MASTER_ENABLED_DEPENDENT,
 		},
 		{
+			// zyra's real `type: 'setting-row'` field
+			// (`components-settingrowcomponent--with-checkbox`, per direct
+			// instruction) — see this file's own docblock for why
+			// `control: { checkbox: true }` fits this flat multi-select
+			// array field, unlike AiCrawlerAlerts.ts's per-type
+			// toggle/select rows.
 			key: 'security_alert_types',
-			type: 'checkbox',
-			label: '',
+			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,
-			options: [
+			rows: [
 				{
-					key: 'vulnerabilities',
-					value: 'vulnerabilities',
-					label: __('Security vulnerabilities', 'vulopilot'),
+					valueKey: 'vulnerabilities',
+					icon: 'security blue',
+					title: __('Security vulnerabilities', 'vulopilot'),
 					desc: __(
 						'Critical WordPress core, theme, or plugin vulnerabilities.',
 						'vulopilot'
 					),
+					control: { checkbox: true },
 				},
 				{
-					key: 'malware',
-					value: 'malware',
-					label: __('Malware detected', 'vulopilot'),
+					valueKey: 'malware',
+					icon: 'error red',
+					title: __('Malware detected', 'vulopilot'),
 					desc: __(
 						'When malware, suspicious files, or malicious code is detected.',
 						'vulopilot'
 					),
+					control: { checkbox: true },
 				},
 				{
-					key: 'failed_login',
-					value: 'failed_login',
-					label: __('Failed login attempts', 'vulopilot'),
+					valueKey: 'failed_login',
+					icon: 'lock lime',
+					title: __('Failed login attempts', 'vulopilot'),
 					desc: __(
 						'Multiple failed login attempts or brute-force login activity.',
 						'vulopilot'
 					),
+					control: { checkbox: true },
 				},
 				{
-					key: 'new_user',
-					value: 'new_user',
-					label: __('New user created', 'vulopilot'),
+					valueKey: 'new_user',
+					icon: 'profile yellow',
+					title: __('New user created', 'vulopilot'),
 					desc: __(
 						'When a new administrator or user account is created.',
 						'vulopilot'
 					),
+					control: { checkbox: true },
 				},
 				{
-					key: 'file_changes',
-					value: 'file_changes',
-					label: __('File changes', 'vulopilot'),
+					valueKey: 'file_changes',
+					icon: 'file-submission pink',
+					title: __('File changes', 'vulopilot'),
 					desc: __(
 						'When core, plugin, or theme files are modified.',
 						'vulopilot'
 					),
+					control: { checkbox: true },
 				},
 				{
-					key: 'ssl_certificate',
-					value: 'ssl_certificate',
-					label: __('SSL / Certificate issues', 'vulopilot'),
+					valueKey: 'ssl_certificate',
+					icon: 'web-page-website red',
+					title: __('SSL / Certificate issues', 'vulopilot'),
 					desc: __(
 						'When your SSL certificate is about to expire or has issues.',
 						'vulopilot'
 					),
+					control: { checkbox: true },
 				},
 			],
 		},
 		{
-			key: 'security-alerts-channels-section',
-			type: 'section',
-			title: __('Notification channels', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
-		},
-		{
 			key: 'security_alert_channels',
 			type: 'checkbox',
-			label: '',
+			label: __('Notification channels', 'vulopilot'),
 			dependent: MASTER_ENABLED_DEPENDENT,
 			options: [
 				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },

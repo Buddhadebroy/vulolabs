@@ -47,7 +47,7 @@ const ContentSearchScansHeader = () => {
 	};
 
 	return (
-		<div className="ai-visibility-scans-header">
+		<>
 			<ButtonInput
 				wrapperClass="ai-visibility-restore-defaults"
 				buttons={{
@@ -58,7 +58,7 @@ const ContentSearchScansHeader = () => {
 					onClick: restoreDefaults,
 				}}
 			/>
-		</div>
+		</>
 	);
 };
 

@@ -61,11 +61,6 @@ export default {
 			),
 		},
 		{
-			key: 'brand-section-alerts',
-			type: 'section',
-			title: __('Alerts', 'vulopilot'),
-		},
-		{
 			// Not a real, independently-writable field here — see
 			// AiVisibility.ts's own `aeo-drop-threshold-note` for the full
 			// reasoning; same treatment, scoped to `visibility_alerts.brand`

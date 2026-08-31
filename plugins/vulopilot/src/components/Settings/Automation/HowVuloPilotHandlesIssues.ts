@@ -34,16 +34,12 @@ export default {
 		{
 			key: 'automation_mode',
 			type: 'choice-toggle',
-			custom: true,
 			defaultValue: 'suggest',
 			label: __('Automation modes', 'vulopilot'),
 			settingDescription: __(
 				'Choose how VuloPilot should handle issues.',
 				'vulopilot'
 			),
-			// The Automation module (vulopilot-pro) is what actually reads
-			// this — RunAiActionAction::execute() — same reasoning as every
-			// other field on this tab.
 			moduleEnabled: 'automation',
 			options: [
 				{
@@ -52,7 +48,6 @@ export default {
 					label: __('Monitor', 'vulopilot'),
 					desc: __('Find issues and notify you.', 'vulopilot'),
 					icon: 'eye',
-					width: '100%',
 					// Confirmed with the user: Monitor is Pro-gated even
 					// though the mockup only marked Auto-fix "(Pro)".
 					proSetting: true,
@@ -66,7 +61,6 @@ export default {
 						'vulopilot'
 					),
 					icon: 'check',
-					width: '100%',
 				},
 				{
 					key: 'auto_fix',
@@ -77,7 +71,6 @@ export default {
 						'vulopilot'
 					),
 					icon: 'ai',
-					width: '100%',
 					proSetting: true,
 				},
 			],

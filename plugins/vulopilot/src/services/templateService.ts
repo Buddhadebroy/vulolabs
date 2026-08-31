@@ -83,11 +83,27 @@ const importAll = (
 		});
 
 		if (fileName !== 'FolderPriority.ts') {
-			currentFolder.push({
-				name: fileName!.replace('.ts', ''),
-				type: 'file',
-				content: inpContext(key).default,
-			});
+			const content = inpContext(key)?.default;
+
+			// Not every `.ts` file under components/Settings/ is a
+			// settings-tab config with a real default export — e.g.
+			// CrawlerAlertRows.ts only has a named export
+			// (`CRAWLER_ALERT_ROWS`, consumed directly by
+			// Notifications/AiCrawlerAlerts.ts) since it's a helper
+			// module, not a tab. Pushing it here as a file node with
+			// `content: undefined` reaches getAvailableSettings()/
+			// getSettingById() downstream, which read real fields (e.g.
+			// `pro_dependent`) off every node's `content` and crash the
+			// whole Settings page on `undefined` — skip it instead, same
+			// as searchIndex.ts's own `buildIndexFromContext()` now does
+			// for the same file.
+			if (content !== undefined) {
+				currentFolder.push({
+					name: fileName!.replace('.ts', ''),
+					type: 'file',
+					content,
+				});
+			}
 		}
 	});
 

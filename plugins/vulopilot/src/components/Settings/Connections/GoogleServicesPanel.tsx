@@ -8,6 +8,7 @@ import {
 	NoticeManager,
 } from '@zyra/components';
 import { ButtonInput, SelectInput, ToggleInput } from '@zyra/inputs';
+import CardHeader from '../../CardHeader';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
 import {
@@ -108,19 +109,17 @@ const GoogleServiceCard = ( {
 	isExpanded,
 	children,
 }: GoogleServiceCardProps ) => (
-	<div className="ai-provider-card gsc-service-card">
-		<div className="ai-provider-card-header">
-			<div className="ai-provider-card-icon">
-				<i className={ `adminfont-${ icon }` } />
-			</div>
-			<div className="ai-provider-card-title">
-				<strong>{ title }</strong>
-				<span className="desc">{ desc }</span>
-			</div>
-			<span className={ `gsc-service-status ${ isConnected ? 'is-connected' : 'is-not-connected' }` }>
+	<CardHeader
+		className="gsc-service-card"
+		icon={ icon }
+		title={ title }
+		desc={ desc }
+		action={
+			<span className={ `admin-badge ${ isConnected ? 'green' : 'red' }` }>
 				{ isConnected ? __( 'Connected', 'vulopilot' ) : __( 'Not Connected', 'vulopilot' ) }
 			</span>
-		</div>
+		}
+	>
 
 		<div className="ai-provider-card-body gsc-service-body">
 			<div className="gsc-service-info">{ statusLines }</div>
@@ -162,7 +161,7 @@ const GoogleServiceCard = ( {
 		</div>
 
 		{ isExpanded && <div className="ai-provider-card-body gsc-service-expand">{ children }</div> }
-	</div>
+	</CardHeader>
 );
 
 /**

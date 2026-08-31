@@ -3,6 +3,7 @@ import {
 	ContainerComponent,
 	ModuleGridComponent,
 	NavigatorHeaderComponent,
+	FormGroupWrapperComponent
 } from '@zyra/components';
 import { getModuleData } from '../../services/templateService';
 import proPopupContent from '../Popup/Popup';
@@ -28,22 +29,12 @@ const Modules = () => {
 
 	return (
 		<>
-			<NavigatorHeaderComponent
-				headerIcon="module"
-				headerTitle={__('Modules', 'vulopilot')}
-				headerDescription={__(
-					'Enable or disable optional VuloPilot features.',
-					'vulopilot'
-				)}
+			<ModuleGridComponent
+				modulesArray={modulesArray}
+				apiLink="modules"
+				pluginName="vulopilot"
+				proPopupContent={proPopupContent}
 			/>
-			<ContainerComponent general>
-				<ModuleGridComponent
-					modulesArray={modulesArray}
-					apiLink="modules"
-					pluginName="vulopilot"
-					proPopupContent={proPopupContent}
-				/>
-			</ContainerComponent>
 		</>
 	);
 };
