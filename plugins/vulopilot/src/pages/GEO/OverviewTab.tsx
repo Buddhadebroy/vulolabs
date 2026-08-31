@@ -18,6 +18,7 @@ import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { useVisibilityScore } from './useVisibilityScore';
 import type { VisibilityArea } from './useVisibilityScore';
 import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
+import VisibilityBySourceCard from './VisibilityBySourceCard';
 import './SeoVisibility.scss';
 
 interface OverviewTabProps {
@@ -212,16 +213,21 @@ const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] 
  * - "Visibility Trend": `GET /visibility/progress?days=N`, a real daily
  *   reconstructed combined score, same technique `Controllers\Geo`'s own
  *   `/geo/progress` already uses.
- * - "Visibility by Area" (replacing the mockup's own "Visibility by
- *   Source" — Organic/Direct/Referral/Social): this plugin tracks zero
- *   human-visitor traffic-source data anywhere (`vulopilot_crawler_visits`
- *   is AI bots only, by explicit design — see `CrawlerTraffic.php`'s own
- *   docblock; Search Console is organic-search-only by definition; GA4
- *   integration pulls session totals, not a channel-group split) —
- *   fabricating that split would mean inventing 4 numbers outright, so
- *   this donut instead shows the same 4 real area scores the cards/table
- *   above already show, reusing that one response rather than a second
- *   fetch.
+ * - "Visibility by Source" (VisibilityBySourceCard.tsx, matching the
+ *   mockup's own donut+legend layout AND content this time — an earlier
+ *   version of this card substituted the 4 real area scores here instead,
+ *   reasoning that this plugin tracks no traffic-source data of its own
+ *   anywhere; that's still true of `vulopilot_crawler_visits` (AI bots
+ *   only) and Search Console (organic-search-only by definition), but GA4's
+ *   own Data API genuinely exposes a real `sessionDefaultChannelGroup`
+ *   dimension — the exact Organic Search/Direct/Referral/Social split the
+ *   mockup shows — for any already-connected GA4 property
+ *   (`GoogleAnalyticsClient::run_channel_group_report()`, `GET
+ *   /visibility/traffic-sources`). So this card now shows genuinely real
+ *   GA4 session data when a property is connected, and an honest "Connect
+ *   Google Analytics" prompt otherwise — never a fabricated split. See
+ *   that component's own docblock for why its center number is real total
+ *   sessions rather than a 0-100 "score."
  * - "Top Opportunities": real sitewide `GET /findings/groups?per_page=5`
  *   (no category scope — unlike GeoTab.tsx's own "Fix These First" copy of
  *   this same component, this one intentionally spans every real scanner
@@ -285,6 +291,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 	);
 
 	const areas = score?.areas;
+
 	const trendUplift =
 		progress && progress.trend.length > 1
 			? progress.trend[progress.trend.length - 1].score - progress.trend[0].score
@@ -367,51 +374,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 				</CardComponent>
 			</ColumnComponent>
 			<ColumnComponent grid={6}>
-				<CardComponent
-					title={__('Visibility by Area', 'vulopilot')}
-					titleIcon='security'
-					desc={__('The same 4 real area scores above, compared at a glance.', 'vulopilot')}
-					isLoading={isLoading}
-				>
-					{areas && (
-						<>
-							<div className="crawler-vendor-chart">
-								<ChartComponent
-									type="pie"
-									height={160}
-									centerLabel={
-										<>
-											<span className="score-ring-number">
-												{score?.visibility_score}
-											</span>
-											<span className="score-ring-label">/100</span>
-										</>
-									}
-									data={[
-										{ label: areas.brand.label, value: areas.brand.score, color: '#7C3AED' },
-										{ label: areas.seo.label, value: areas.seo.score, color: '#2563EB' },
-										{ label: areas.geo.label, value: areas.geo.score, color: '#0D9488' },
-										{ label: areas.crawl.label, value: areas.crawl.score, color: '#EA580C' },
-									]}
-								/>
-							</div>
-							<div className="crawler-vendor-legend">
-								{[areas.brand, areas.seo, areas.geo, areas.crawl].map((area, index) => (
-									<div key={area.label} className="crawler-vendor-legend-row">
-										<span
-											className="crawler-vendor-dot"
-											style={{
-												backgroundColor: ['#7C3AED', '#2563EB', '#0D9488', '#EA580C'][index],
-											}}
-										/>
-										<span className="crawler-vendor-name">{area.label}</span>
-										<span className="crawler-vendor-count">{area.score}/100</span>
-									</div>
-								))}
-							</div>
-						</>
-					)}
-				</CardComponent>
+				<VisibilityBySourceCard />
 			</ColumnComponent>
 
 			<ColumnComponent grid={6} fullHeight>
