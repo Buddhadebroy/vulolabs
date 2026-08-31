@@ -148,15 +148,9 @@ export default {
 			],
 		},
 		{
-			key: 'visibility-alerts-channels-section',
-			type: 'section',
-			title: __('Notification channels', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
-		},
-		{
 			key: 'visibility_alert_channels',
 			type: 'checkbox',
-			label: '',
+			label: __('Notification channels', 'vulopilot'),
 			dependent: MASTER_ENABLED_DEPENDENT,
 			options: [
 				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },

@@ -47,7 +47,7 @@ const AccessibilityRestoreDefaultsHeader = () => {
 	};
 
 	return (
-		<div className="ai-visibility-scans-header">
+		<>
 			<ButtonInput
 				wrapperClass="ai-visibility-restore-defaults"
 				buttons={{
@@ -58,7 +58,7 @@ const AccessibilityRestoreDefaultsHeader = () => {
 					onClick: restoreDefaults,
 				}}
 			/>
-		</div>
+		</>
 	);
 };
 

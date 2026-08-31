@@ -149,15 +149,9 @@ export default {
 			],
 		},
 		{
-			key: 'security-alerts-channels-section',
-			type: 'section',
-			title: __('Notification channels', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
-		},
-		{
 			key: 'security_alert_channels',
 			type: 'checkbox',
-			label: '',
+			label: __('Notification channels', 'vulopilot'),
 			dependent: MASTER_ENABLED_DEPENDENT,
 			options: [
 				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },

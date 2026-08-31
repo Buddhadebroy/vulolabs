@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { ButtonInput } from '@zyra/inputs';
-import { FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
-import AiProviderCardHeader from '../../AiProviderCardHeader';
+import { FormGroupComponent, FormGroupWrapperComponent, NoticeManager } from '@zyra/components';
+import CardHeader from '../../CardHeader';
 import { formatWpDate } from '../../../services/formatWpDate';
 
 interface PsiStatus {
@@ -52,7 +52,6 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 const PageSpeedStatusPanel = () => {
 	const [status, setStatus] = useState<PsiStatus | null>(null);
 	const [isTesting, setIsTesting] = useState(false);
-	const [result, setResult] = useState<TestResult | null>(null);
 
 	const loadStatus = () => {
 		getApiResponse<PsiStatus>(getApiLink(appLocalizer, 'settings/test-pagespeed'), nonceHeaders).then(
@@ -68,7 +67,6 @@ const PageSpeedStatusPanel = () => {
 
 	const testConnection = () => {
 		setIsTesting(true);
-		setResult(null);
 
 		sendApiResponse<TestResult>(
 			appLocalizer,
@@ -79,7 +77,15 @@ const PageSpeedStatusPanel = () => {
 				if (!response) {
 					return;
 				}
-				setResult(response);
+				// Floating notice (NoticeReceiverComponent position="float",
+				// already mounted app-wide by zyra's own HeaderComponent) —
+				// per direct instruction, not the inline <p> this used to
+				// render in the card body.
+				NoticeManager.add({
+					message: response.message,
+					type: response.success ? 'success' : 'error',
+					position: 'float',
+				});
 				if (response.success) {
 					loadStatus();
 				}
@@ -95,77 +101,76 @@ const PageSpeedStatusPanel = () => {
 	return (
 		<FormGroupWrapperComponent>
 			<FormGroupComponent>
-			<AiProviderCardHeader
-				icon="analytics"
-				title={__('PageSpeed Insights', 'vulopilot')}
-				desc={__(
-					'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',
-					'vulopilot'
-				)}
-			/>
-
-				<div className="ai-provider-card-body gsc-service-body">
-
-					<span >
-						{__('Connected', 'vulopilot')}<span className={`admin-badge ${status?.connected ? 'green' : 'red'}`}>	{status?.connected ? __('Connected', 'vulopilot') : __('Not Connected', 'vulopilot')} </span>
-					</span>
-					{status && status.daily_limit > 0 && (
-						<div className="psi-usage">
-							<div className="psi-usage-label">
-								<span>{__('Daily API Usage', 'vulopilot')}</span>
-								<span>{usagePercent}%</span>
+				<CardHeader
+					icon="analytics"
+					className='compact'
+					title={__('PageSpeed Insights', 'vulopilot')}
+					desc={__(
+						'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',
+						'vulopilot'
+					)}
+					badge={
+						<span className={`admin-badge ${status?.connected ? 'green' : 'red'}`}>
+							{status?.connected ? __('Connected', 'vulopilot') : __('Not Connected', 'vulopilot')}
+						</span>
+					}
+					action={
+						<>
+							<ButtonInput
+								wrapperClass="psi-test-connection-button"
+								buttons={{
+									text: isTesting ? __('Testing…', 'vulopilot') : __('Test Connection', 'vulopilot'),
+									icon: 'update',
+									disabled: isTesting,
+									onClick: testConnection,
+								}}
+							/>
+						</>
+					}
+				>
+					<div className="ai-provider-card-body">
+						{status && status.daily_limit > 0 && (
+							<div className="psi-usage">
+								<div className="psi-usage-label">
+									<span>{__('Daily API Usage', 'vulopilot')}</span>
+									<span>{usagePercent}%</span>
+								</div>
+								<div className="psi-usage-bar">
+									<div className="psi-usage-bar-fill" style={{ width: `${usagePercent}%` }} />
+								</div>
+								<div className="desc">
+									{sprintf(
+										/* translators: 1: requests made today, 2: the site's own configured daily limit. */
+										__('%1$s / %2$s requests used', 'vulopilot'),
+										status.requests_today.toLocaleString(),
+										status.daily_limit.toLocaleString()
+									)}
+								</div>
 							</div>
-							<div className="psi-usage-bar">
-								<div className="psi-usage-bar-fill" style={{ width: `${usagePercent}%` }} />
-							</div>
-							<div className="desc">
+						)}
+
+						{status?.connected && status.checked_at && (
+							<div className="desc psi-last-checked">
 								{sprintf(
-									/* translators: 1: requests made today, 2: the site's own configured daily limit. */
-									__('%1$s / %2$s requests used', 'vulopilot'),
-									status.requests_today.toLocaleString(),
-									status.daily_limit.toLocaleString()
+									/* translators: %s is a formatted date/time. */
+									__('Last checked on %s.', 'vulopilot'),
+									formatWpDate(status.checked_at)
+								)}
+								{'number' === typeof status.mobile && 'number' === typeof status.desktop && (
+									<>
+										{' '}
+										{sprintf(
+											/* translators: 1: mobile score, 2: desktop score, both 0-100. */
+											__('Mobile %1$d/100, Desktop %2$d/100.', 'vulopilot'),
+											status.mobile,
+											status.desktop
+										)}
+									</>
 								)}
 							</div>
-						</div>
-					)}
-
-					{status?.connected && status.checked_at && (
-						<div className="desc psi-last-checked">
-							{sprintf(
-								/* translators: %s is a formatted date/time. */
-								__('Last checked on %s.', 'vulopilot'),
-								formatWpDate(status.checked_at)
-							)}
-							{'number' === typeof status.mobile && 'number' === typeof status.desktop && (
-								<>
-									{' '}
-									{sprintf(
-										/* translators: 1: mobile score, 2: desktop score, both 0-100. */
-										__('Mobile %1$d/100, Desktop %2$d/100.', 'vulopilot'),
-										status.mobile,
-										status.desktop
-									)}
-								</>
-							)}
-						</div>
-					)}
-
-					{result && (
-						<p className={`ai-provider-test-result ${result.success ? 'is-success' : 'is-error'}`}>
-							{result.message}
-						</p>
-					)}
-				</div>
-
-				<ButtonInput
-					wrapperClass="psi-test-connection-button"
-					buttons={{
-						text: isTesting ? __('Testing…', 'vulopilot') : __('Test Connection', 'vulopilot'),
-						icon: 'update',
-						disabled: isTesting,
-						onClick: testConnection,
-					}}
-				/>
+						)}
+					</div>
+				</CardHeader>
 			</FormGroupComponent>
 		</FormGroupWrapperComponent>
 	);

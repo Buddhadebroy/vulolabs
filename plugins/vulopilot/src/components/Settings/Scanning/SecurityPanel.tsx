@@ -1,14 +1,12 @@
 /* global appLocalizer */
-import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse, useModules } from '@zyra/core';
 import {
-	ButtonInput,
 	ExpandablePanelInput,
 	SelectInput,
 	SectionComponent
 } from '@zyra/inputs';
-import { FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
+import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent } from '@zyra/components';
 import { useSetting } from '../../../contexts/SettingContext';
 
 const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactive', 'vulopilot') };
@@ -223,25 +221,6 @@ const MONITORING_ROWS: Row[] = [
 
 const ALL_ROWS = [...SCAN_ROWS, ...PROTECTION_ROWS, ...MONITORING_ROWS];
 
-const DEFAULTS: Record<string, unknown> = {
-	enable_weak_password_scanner: ['enable_weak_password_scanner'],
-	enable_basic_vulnerabilities_scanner: ['enable_basic_vulnerabilities_scanner'],
-	enable_core_file_integrity_scanner: ['enable_core_file_integrity_scanner'],
-	enable_malware_scanner: ['enable_malware_scanner'],
-	enable_rest_api_scanner: ['enable_rest_api_scanner'],
-	enable_login_protection: ['enable_login_protection'],
-	login_max_attempts: 5,
-	login_lockout_minutes: 15,
-	enable_firewall: ['enable_firewall'],
-	enable_firewall_blocking: [],
-	security_scan_frequency: 'daily',
-	security_alerts_enabled: [],
-	security_alert_email: '',
-	security_alert_min_severity: 'high',
-	enable_integrity_monitoring: ['enable_integrity_monitoring'],
-	integrity_monitoring_max_files: 2000,
-};
-
 const isChecked = (value: unknown): boolean => Array.isArray(value) && value.length > 0;
 
 const proBadge = () =>
@@ -296,23 +275,6 @@ const SecurityPanel = () => {
 	const { setting, updateSetting } = useSetting();
 	const { modules } = useModules();
 	const hasSecurityMonitoring = modules.includes('security-monitoring');
-	const [isResetting, setIsResetting] = useState(false);
-
-	const restoreDefaults = () => {
-		setIsResetting(true);
-
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
-			setting: DEFAULTS,
-			settingName: 'security-scanning',
-		})
-			.then((response) => {
-				if (!response) {
-					return;
-				}
-				Object.entries(DEFAULTS).forEach(([key, value]) => updateSetting(key, value));
-			})
-			.finally(() => setIsResetting(false));
-	};
 
 	const buildMethods = (rows: Row[]) =>
 		rows.map((row) => ({
@@ -383,19 +345,6 @@ const SecurityPanel = () => {
 	return (
 		<FormGroupWrapperComponent>
 			<FormGroupComponent row >
-					<ButtonInput
-						wrapperClass="ai-visibility-restore-defaults"
-						buttons={{
-							text: isResetting ? __('Restoring…', 'vulopilot') : __('Restore Defaults', 'vulopilot'),
-							icon: 'refresh',
-							color: 'border-purple',
-							disabled: isResetting,
-							onClick: restoreDefaults,
-						}}
-					/>
-			</FormGroupComponent>
-
-			<FormGroupComponent row >
 				<ExpandablePanelInput
 					name="security_scans_cards"
 					methods={buildMethods(SCAN_ROWS)}
@@ -404,28 +353,30 @@ const SecurityPanel = () => {
 					canAccess
 				/>
 			</FormGroupComponent>
-			<div className="security-panel-notice">
-				<strong>{__('Why these scans matter', 'vulopilot')}</strong>
-				<p>
-					{__(
-						'Regular security scans help you protect your website, your users, and your business from threats and attacks.',
-						'vulopilot'
-					)}
-				</p>
-			</div>
-
-			<SectionComponent
-				title={__('Protection', 'vulopilot')}
-				desc={__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
+			<NoticeComponent
+				displayPosition="inline-notice"
+				type="info"
+				title={__('Why these scans matter', 'vulopilot')}
+				message={__(
+					'Regular security scans help you protect your website, your users, and your business from threats and attacks.',
+					'vulopilot'
+				)}
 			/>
-			<FormGroupComponent row ></FormGroupComponent>
-			<ExpandablePanelInput
-				name="security_protection_cards"
-				methods={buildMethods(PROTECTION_ROWS)}
-				value={buildValue(PROTECTION_ROWS)}
-				onChange={handleChange}
-				canAccess
-			/>
+			<FormGroupComponent row >
+				<SectionComponent
+					title={__('Protection', 'vulopilot')}
+					desc={__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
+				/>
+			</FormGroupComponent>
+			<FormGroupComponent row >
+				<ExpandablePanelInput
+					name="security_protection_cards"
+					methods={buildMethods(PROTECTION_ROWS)}
+					value={buildValue(PROTECTION_ROWS)}
+					onChange={handleChange}
+					canAccess
+				/>
+			</FormGroupComponent>
 			<SectionComponent
 				title={__('Security Monitoring', 'vulopilot')}
 				desc={__('Ongoing monitoring beyond a single scan run.', 'vulopilot')}
@@ -441,6 +392,7 @@ const SecurityPanel = () => {
 			>
 				<SelectInput
 					value={String(setting.security_scan_frequency ?? 'daily')}
+					size={15}
 					disabled={!hasSecurityMonitoring}
 					onChange={(value) => {
 						if (!hasSecurityMonitoring) {
@@ -464,13 +416,15 @@ const SecurityPanel = () => {
 					<span dangerouslySetInnerHTML={{ __html: proBadge() }} />
 				)}
 			</FormGroupComponent>
-			<ExpandablePanelInput
-				name="security_monitoring_cards"
-				methods={buildMethods(MONITORING_ROWS)}
-				value={buildValue(MONITORING_ROWS)}
-				onChange={handleChange}
-				canAccess
-			/>
+			<FormGroupComponent row >
+				<ExpandablePanelInput
+					name="security_monitoring_cards"
+					methods={buildMethods(MONITORING_ROWS)}
+					value={buildValue(MONITORING_ROWS)}
+					onChange={handleChange}
+					canAccess
+				/>
+			</FormGroupComponent>
 		</FormGroupWrapperComponent>
 	);
 };

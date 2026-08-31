@@ -8,7 +8,6 @@ import {
 	NoticeManager,
 } from '@zyra/components';
 import { ButtonInput, ExpandablePanelInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
-import AiProviderCardHeader from '../../AiProviderCardHeader';
 
 interface ConfiguredProvider {
 	id: number;
@@ -125,11 +124,15 @@ const ProviderCard = ( {
 
 	return (
 		<div className="ai-provider-card">
-			<AiProviderCardHeader
-				icon="ai"
-				title={ adapter.label }
-				desc={ hero?.desc }
-				action={ config && (
+			<div className="ai-provider-card-header">
+				<div className="ai-provider-card-icon">
+					<i className="adminfont-ai" />
+				</div>
+				<div className="ai-provider-card-title">
+					<strong>{ adapter.label }</strong>
+					<span className="desc">{ hero?.desc }</span>
+				</div>
+				{ config && (
 					<ToggleInput
 						options={ [ { key: 'enabled', value: 'enabled', label: config.is_active ? __( 'Enabled', 'vulopilot' ) : __( 'Disabled', 'vulopilot' ) } ] }
 						value={ config.is_active ? [ 'enabled' ] : [] }
@@ -138,7 +141,7 @@ const ProviderCard = ( {
 						onChange={ () => onToggleActive( config ) }
 					/>
 				) }
-			/>
+			</div>
 
 			{ ! config && (
 				<div className="ai-provider-card-body">
@@ -730,27 +733,32 @@ const AiProvidersPanel = () => {
 						) ) }
 
 						<div className="ai-provider-card ai-provider-other-card">
-							<AiProviderCardHeader
-								wrapperClass="is-clickable"
+							<div
+								className="ai-provider-card-header is-clickable"
 								onClick={ () => setIsOtherProvidersOpen( ( v ) => ! v ) }
-								icon="ai"
-								title={ __( 'Other providers', 'vulopilot' ) }
-								desc={ __( 'Connect with other AI providers.', 'vulopilot' ) }
-								action={ <>
-									{ /* Plain status text, not a ToggleInput — "Other providers" isn't
-									 * one real row with its own is_active to flip; it's a derived
-									 * "is anything in here active" summary, so a switch that looked
-									 * interactive but didn't actually toggle anything would be
-									 * misleading. Enabling/disabling a specific other provider still
-									 * happens for real, per-row, once this section is expanded. */ }
-									<span
-										className={ `ai-provider-connection-status ${ anyOtherActive ? 'is-success' : '' }` }
-									>
-										{ anyOtherActive ? __( 'Enabled', 'vulopilot' ) : __( 'Disabled', 'vulopilot' ) }
+							>
+								<div className="ai-provider-card-icon">
+									<i className="adminfont-ai" />
+								</div>
+								<div className="ai-provider-card-title">
+									<strong>{ __( 'Other providers', 'vulopilot' ) }</strong>
+									<span className="desc">
+										{ __( 'Connect with other AI providers.', 'vulopilot' ) }
 									</span>
-									<i className={ `adminfont-arrow-${ isOtherProvidersOpen ? 'up' : 'down' } ai-provider-expand-icon` } />
-								</> }
-							/>
+								</div>
+								{ /* Plain status text, not a ToggleInput — "Other providers" isn't
+								 * one real row with its own is_active to flip; it's a derived
+								 * "is anything in here active" summary, so a switch that looked
+								 * interactive but didn't actually toggle anything would be
+								 * misleading. Enabling/disabling a specific other provider still
+								 * happens for real, per-row, once this section is expanded. */ }
+								<span
+									className={ `ai-provider-connection-status ${ anyOtherActive ? 'is-success' : '' }` }
+								>
+									{ anyOtherActive ? __( 'Enabled', 'vulopilot' ) : __( 'Disabled', 'vulopilot' ) }
+								</span>
+								<i className={ `adminfont-arrow-${ isOtherProvidersOpen ? 'up' : 'down' } ai-provider-expand-icon` } />
+							</div>
 
 							{ isOtherProvidersOpen && (
 								<div className="ai-provider-card-body">

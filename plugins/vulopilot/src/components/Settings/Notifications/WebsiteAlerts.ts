@@ -74,6 +74,11 @@ export default {
 			// `control: { checkbox: true }` fits this flat multi-select
 			// array field, same shape SecurityAlerts.ts's own
 			// `security_alert_types` already uses.
+			label: __('Enabled', 'vulopilot'),
+			settingDescription: __(
+				'Master switch for every critical issue alert below — turn this off to silence all of them at once.',
+				'vulopilot'
+			),
 			key: 'critical_alert_types',
 			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,

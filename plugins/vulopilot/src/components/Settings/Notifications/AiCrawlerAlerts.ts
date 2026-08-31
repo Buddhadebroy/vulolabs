@@ -186,15 +186,17 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * needs live state (an API call, and a value that must survive a page
  * refresh) InputRenderer's own declarative fields can't provide, so it's
  * a hand-built component (CrawlerAlertTestPanel.tsx) rather than another
- * field type. zyra's real `type: 'section'` field already supports
- * embedding one: `SectionComponent`'s own `rightContent` prop ("Content
- * shown on the right of the title row — typically a button") is wired
- * straight through by `SectionFieldComponent`'s `render()` as
- * `field.rightContent`, so this sits inline next to "Notification
- * channels" below (not appended at the bottom of the tab the way Backups'
- * BackupStoragePanel.tsx is, via Settings.tsx's own GetForm()) — testing
- * alert delivery is a channels concern, not an alert-types one. See
- * CrawlerAlertTestPanel.tsx's own docblock.
+ * field type — set as this tab's own top-level `settingAction` (per
+ * direct instruction), not a per-field `rightContent`. `settingAction` is
+ * NavigatorComponent.tsx's own per-tab header action slot: its
+ * `renderSettingHeaderInfo()` renders one `<SectionComponent
+ * rightContent={activeFile.settingAction} />` above every tab's own
+ * fields, using this exact settings object's `settingTitle ?? headerTitle`/
+ * `settingSubTitle ?? headerDescription` as that header's own title/desc —
+ * so this sits right next to "AI Crawler Alerts" itself, not down by
+ * "Notification channels" or appended at the bottom of the tab the way
+ * Backups' BackupStoragePanel.tsx is (via Settings.tsx's own GetForm()).
+ * See CrawlerAlertTestPanel.tsx's own docblock.
  */
 export default {
 	id: 'ai-crawler-alerts',
@@ -206,6 +208,16 @@ export default {
 	),
 	headerIcon: 'ai',
 	submitUrl: 'settings',
+	// CrawlerAlertTestPanel.tsx's own "Send Test Alert" button + persisted
+	// "Last test alert sent on ..." line — moved here (per direct
+	// instruction) from the "Notification channels" section's own
+	// `rightContent`. `settingAction` is NavigatorComponent.tsx's own
+	// per-tab header action slot (`renderSettingHeaderInfo()`'s
+	// `<SectionComponent rightContent={activeFile.settingAction} />`,
+	// rendered once above every tab's own fields), so this now sits next
+	// to the tab's own "AI Crawler Alerts" title instead of down by the
+	// channels it tests.
+	settingAction: createElement(CrawlerAlertTestPanel),
 	modal: [
 		{
 			key: 'email_on_crawler_alerts',
@@ -234,18 +246,6 @@ export default {
 			rows: CRAWLER_ALERT_ROWS,
 		},
 		{
-			key: 'ai-crawler-alerts-channels-section',
-			type: 'section',
-			title: __('Notification channels', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
-			// CrawlerAlertTestPanel.tsx's own "Send Test Alert" button +
-			// persisted "Last test alert sent on ..." line — see this
-			// file's own docblock for why it sits here (next to the
-			// channels it actually tests) instead of at the bottom of the
-			// tab.
-			rightContent: createElement(CrawlerAlertTestPanel),
-		},
-		{
 			// One multi-checkbox field, real values 'email'/'dashboard' —
 			// see CrawlerAlertMonitor::send_alert()'s own docblock for what
 			// each one actually does. No "Mobile" option here — there's no
@@ -254,7 +254,7 @@ export default {
 			// notice below says so instead.
 			key: 'crawler_alert_channels',
 			type: 'checkbox',
-			label: '',
+			label: __('Notification channels', 'vulopilot'),
 			dependent: MASTER_ENABLED_DEPENDENT,
 			options: [
 				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },

@@ -29,22 +29,12 @@ const Modules = () => {
 
 	return (
 		<>
-			{/* <NavigatorHeaderComponent
-				headerIcon="module"
-				headerTitle={__('Modules', 'vulopilot')}
-				headerDescription={__(
-					'Enable or disable optional VuloPilot features.',
-					'vulopilot'
-				)}
-			/> */}
-			<FormGroupWrapperComponent>
-				<ModuleGridComponent
-					modulesArray={modulesArray}
-					apiLink="modules"
-					pluginName="vulopilot"
-					proPopupContent={proPopupContent}
-				/>
-			</FormGroupWrapperComponent>
+			<ModuleGridComponent
+				modulesArray={modulesArray}
+				apiLink="modules"
+				pluginName="vulopilot"
+				proPopupContent={proPopupContent}
+			/>
 		</>
 	);
 };

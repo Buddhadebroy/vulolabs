@@ -264,64 +264,12 @@
 	color: var(--sub-text-color);
 }
 
-// Connections/AiProvidersPanel.tsx (Settings → Connections → AI
-// Providers' own Gemini/OpenAI hero cards + "Other providers" section) —
-// same minimal-supporting-CSS posture as the `.gsc-*`/`.backup-storage-*`
-// rules above.
-.ai-provider-card {
-	border: $border-light-small;
-	border-radius: 0.5rem;
-	padding: 1.25rem;
-	margin-bottom: 1rem;
-}
-
-.ai-provider-card-header {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-
-	&.is-clickable {
-		cursor: pointer;
-	}
-}
-
-.ai-provider-card-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.5rem;
-	height: 2.5rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, $theme-color 12%, transparent);
-	color: $theme-color;
-	flex-shrink: 0;
-}
-
-.ai-provider-card-title {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-
-	strong {
-		font-size: 0.9375rem;
-	}
-
-	.desc {
-		margin: 0.125rem 0 0;
-		font-size: 0.8125rem;
-		color: $sub-text-color;
-	}
-}
+// CardHeader.tsx's own `.common-card*` rules moved to its co-located
+// CardHeader.scss (imported directly by CardHeader.tsx) — see that file.
 
 .ai-provider-expand-icon {
 	margin-left: 0.5rem;
 	color: $sub-text-color;
-}
-
-.ai-provider-card-body {
-	margin-top: 1rem;
-	padding-top: 1rem;
-	border-top: $border-light-small;
 }
 
 .ai-provider-card-row {
@@ -342,7 +290,7 @@
 	gap: 0.375rem;
 	margin-bottom: 1rem;
 
-	> label {
+	>label {
 		font-size: 0.8125rem;
 		font-weight: 600;
 	}
@@ -563,10 +511,10 @@
 
 // Connections/PageSpeedStatusPanel.tsx (Settings → Connections →
 // PageSpeed Insights' own Connection Status pill/Daily API Usage bar/Test
-// Connection button) — reuses the same `.ai-provider-card*`/`.gsc-*`
-// shapes above; only the usage bar itself is genuinely new here.
+// Connection button) — reuses the same `.common-card*`/`.gsc-*` shapes
+// above; only the usage bar itself is genuinely new here.
 .psi-status-panel {
-	.ai-provider-card-header {
+	.common-card-header {
 		flex-wrap: wrap;
 	}
 

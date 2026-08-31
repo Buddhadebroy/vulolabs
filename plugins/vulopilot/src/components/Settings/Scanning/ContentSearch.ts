@@ -1,4 +1,6 @@
+import { createElement } from 'react';
 import { __ } from '@wordpress/i18n';
+import ContentSearchScansHeader from './ContentSearchScansHeader';
 
 const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactive', 'vulopilot') };
 
@@ -41,12 +43,19 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  *     `enable` gate — previously only had a threshold, no on/off switch
  *     at all)
  *
- * "Restore Defaults" is ContentSearchScansHeader.tsx (Settings.tsx's own
- * GetForm(), rendered just before this tab's fields) — a real, scoped
+ * "Restore Defaults" is ContentSearchScansHeader.tsx — a real, scoped
  * reset (`POST /settings/reset-content-search-scans`), not a UI-only
  * component field, since it needs to persist server-side and refresh
- * SettingContext in place. Same shape AiVisibilityScansHeader.tsx already
- * established.
+ * SettingContext in place. Set as this tab's own top-level `settingAction`
+ * (per direct instruction, same as AiCrawlerAlerts.ts's own "Send Test
+ * Alert" button — see that file's own docblock), not Settings.tsx's
+ * GetForm() special-casing this tab id anymore: `settingAction` is
+ * NavigatorComponent.tsx's own per-tab header action slot
+ * (`renderSettingHeaderInfo()`'s `<SectionComponent
+ * rightContent={activeFile.settingAction} />`, rendered once above every
+ * tab's own fields using this exact settings object's own `headerTitle`/
+ * `headerDescription`), so this now sits right next to "Content & Search"
+ * itself instead of as a bare block above the fields.
  */
 export default {
 	id: 'content-search',
@@ -58,6 +67,7 @@ export default {
 	),
 	headerIcon: 'search',
 	submitUrl: 'settings',
+	settingAction: createElement(ContentSearchScansHeader),
 	modal: [
 		{
 			key: 'content_search_scans',

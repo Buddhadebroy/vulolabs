@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	CardComponent,
+	FormGroupComponent,
 	FormGroupWrapperComponent,
 	NoticeManager,
 	ClipboardComponent,
@@ -184,7 +185,7 @@ const IndexNowPanel = () => {
 			<FormGroupWrapperComponent>
 				<FormGroupComponent
 					label={__('URLs to submit', 'vulopilot')}
-					description={__('One per line, up to 10,000.', 'vulopilot')}
+					desc={__('One per line, up to 10,000.', 'vulopilot')}
 				>
 					<TextAreaInput
 						name="indexnow_urls"
@@ -227,7 +228,7 @@ const IndexNowPanel = () => {
 
 				<FormGroupComponent
 						label={__('Auto-submit post types', 'vulopilot')}
-						description={__(
+						desc={__(
 							'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
 							'vulopilot'
 						)}
@@ -242,7 +243,7 @@ const IndexNowPanel = () => {
 					</FormGroupComponent>
 					<FormGroupComponent
 						label={__('API key', 'vulopilot')}
-						description={__(
+						desc={__(
 							"The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties.",
 							'vulopilot'
 						)}
@@ -268,7 +269,7 @@ const IndexNowPanel = () => {
 					{apiKey && (
 						<FormGroupComponent
 							label={__('API key location', 'vulopilot')}
-							description={__(
+							desc={__(
 								'Open this link to verify the key file is reachable by search engines — it should show the key.',
 								'vulopilot'
 							)}

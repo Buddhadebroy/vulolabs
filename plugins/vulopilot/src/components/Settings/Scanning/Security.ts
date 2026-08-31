@@ -1,5 +1,7 @@
+import { createElement } from 'react';
 import { __ } from '@wordpress/i18n';
 import SecurityPanel from './SecurityPanel';
+import SecurityRestoreDefaultsHeader from './SecurityRestoreDefaultsHeader';
 
 /**
  * Settings → Scanning → Security.
@@ -13,6 +15,19 @@ import SecurityPanel from './SecurityPanel';
  * `modal` array directly. See SecurityPanel.tsx's own docblock for the
  * actual layout (3 real card panels — Security scans / Protection /
  * Security Monitoring — plus one plain frequency select).
+ *
+ * "Restore Defaults" is SecurityRestoreDefaultsHeader.tsx — extracted out
+ * of SecurityPanel.tsx's own body (per direct instruction, same extraction
+ * AiVisibilityScansHeader.tsx/ContentSearchScansHeader.tsx already are)
+ * into this tab's own top-level `settingAction` instead of being rendered
+ * inline at the top of that panel. `settingAction` is
+ * NavigatorComponent.tsx's own per-tab header action slot
+ * (`renderSettingHeaderInfo()`'s `<SectionComponent
+ * rightContent={activeFile.settingAction} />`, rendered once above every
+ * tab's own fields — real regardless of whether that tab uses `modal` or,
+ * like this one, `PanelComponent`), so this now sits right next to
+ * "Security" itself instead of as a bare block above SecurityPanel's own
+ * body.
  *
  * `mobile_core_web_vitals` (previously this tab's own stray "Performance"
  * section) moved out to Settings → General — it isn't a security setting,
@@ -31,6 +46,7 @@ export default {
 	),
 	headerIcon: 'security',
 	submitUrl: 'settings',
+	settingAction: createElement(SecurityRestoreDefaultsHeader),
 	PanelComponent: SecurityPanel,
 	modal: [
 		{ key: 'enable_weak_password_scanner', type: 'checkbox', label: '', options: [] },

@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { ButtonInput, TextInput } from '@zyra/inputs';
-import AiProviderCardHeader from '../../AiProviderCardHeader';
+import { NoticeComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
+import CardHeader from '../../CardHeader';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
 
@@ -22,8 +23,8 @@ interface ProviderRowConfig {
 const PROVIDERS: ProviderRowConfig[] = [
 	{
 		provider: 'google',
-		icon: 'google',
-		title: __('Google', 'vulopilot'),
+		icon: 'google yellow',
+		title: __('Google ', 'vulopilot'),
 		desc: __(
 			'Verify your site with Google to access Search Console data, indexing status, and rich insights.',
 			'vulopilot'
@@ -31,13 +32,13 @@ const PROVIDERS: ProviderRowConfig[] = [
 	},
 	{
 		provider: 'bing',
-		icon: 'search-discovery',
+		icon: 'search-discovery blue',
 		title: __('Bing', 'vulopilot'),
 		desc: __('Verify your site with Bing to get insights from Bing Webmaster Tools.', 'vulopilot'),
 	},
 	{
 		provider: 'pinterest',
-		icon: 'pinterest',
+		icon: 'pinterest red',
 		title: __('Pinterest', 'vulopilot'),
 		desc: __('Verify your site with Pinterest to claim your site and unlock analytics.', 'vulopilot'),
 	},
@@ -63,14 +64,12 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 		(setting[codeKey] as string | undefined) ?? ''
 	);
 	const [isVerifying, setIsVerifying] = useState(false);
-	const [result, setResult] = useState<VerifyResult | null>(null);
 
 	const verifiedAt = (setting[verifiedAtKey] as string | undefined) || '';
 	const isVerified = '' !== verifiedAt;
 
 	const verify = () => {
 		setIsVerifying(true);
-		setResult(null);
 
 		sendApiResponse<VerifyResult>(
 			appLocalizer,
@@ -81,7 +80,16 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 				if (!response) {
 					return;
 				}
-				setResult(response);
+				// Floating notice (NoticeReceiverComponent position="float",
+				// already mounted app-wide by zyra's own HeaderComponent) —
+				// same conversion PageSpeedStatusPanel.tsx's own Test
+				// Connection result already uses, not the inline <p> this
+				// used to render below the code field.
+				NoticeManager.add({
+					message: response.message,
+					type: response.success ? 'success' : 'error',
+					position: 'float',
+				});
 				updateSetting(codeKey, code);
 				if (response.success) {
 					updateSetting(verifiedAtKey, new Date().toISOString());
@@ -91,18 +99,46 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 	};
 
 	return (
-		<div className="ai-provider-card gsc-service-card">
-			<AiProviderCardHeader
-				icon={icon}
-				title={title}
-				desc={desc}
-				action={
-					<span className={`gsc-service-status ${isVerified ? 'is-connected' : 'is-not-connected'}`}>
-						{isVerified ? __('Verified', 'vulopilot') : __('Not Verified', 'vulopilot')}
-					</span>
-				}
-			/>
-
+		<CardHeader
+			className='compact'
+			icon={icon}
+			title={title}
+			desc={desc}
+			badge={
+				<span className={`admin-badge ${isVerified ? 'green' : 'red'}`}>
+					{isVerified ? __('Verified', 'vulopilot') : __('Not Verified', 'vulopilot')}
+				</span>
+			}
+			action={
+				<>
+					<ButtonInput
+						buttons={{
+							text: isVerifying
+								? __('Verifying…', 'vulopilot')
+								: isVerified
+									? __('Manage Verification', 'vulopilot')
+									: sprintf(
+										/* translators: %s is the provider name (Bing, Pinterest). */
+										__('Verify with %s', 'vulopilot'),
+										title
+									),
+							color: isVerifying
+								? 'purple-bg'
+								: isVerified
+									? 'border-purple'
+									: 'purple-bg',
+							icon: isVerifying
+								? 'setting'
+								: isVerified
+									? 'spmv'
+									: 'setting',
+							disabled: isVerifying,
+							onClick: verify,
+						}}
+					/>
+				</>
+			}
+		>
 			<div className="ai-provider-card-body gsc-service-body">
 				<div className="ai-provider-field site-verification-code-field">
 					<label htmlFor={`${codeKey}-input`}>
@@ -120,40 +156,19 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 						placeholder={__('Paste the verification code from your provider', 'vulopilot')}
 					/>
 					{isVerified && (
-						<div className="desc">
-							{sprintf(
+						<NoticeComponent
+							displayPosition="inline"
+							type="success"
+							message={sprintf(
 								/* translators: %s is a formatted date/time. */
 								__('Verified on %s. Method: HTML Tag.', 'vulopilot'),
 								formatWpDate(verifiedAt)
 							)}
-						</div>
+						/>
 					)}
 				</div>
-				<div className="gsc-service-actions">
-					<ButtonInput
-						buttons={{
-							text: isVerifying
-								? __('Verifying…', 'vulopilot')
-								: isVerified
-									? __('Manage Verification', 'vulopilot')
-									: sprintf(
-											/* translators: %s is the provider name (Bing, Pinterest). */
-											__('Verify with %s', 'vulopilot'),
-											title
-										),
-							disabled: isVerifying,
-							onClick: verify,
-						}}
-					/>
-				</div>
 			</div>
-
-			{result && (
-				<p className={`ai-provider-test-result ${result.success ? 'is-success' : 'is-error'}`}>
-					{result.message}
-				</p>
-			)}
-		</div>
+		</CardHeader>
 	);
 };
 
@@ -187,64 +202,68 @@ const SiteVerificationPanel = () => {
 
 	const hasOtherVerification = Boolean(
 		(setting.webmaster_baidu_verification as string | undefined) ||
-			(setting.webmaster_yandex_verification as string | undefined) ||
-			(setting.webmaster_norton_verification as string | undefined) ||
-			(setting.webmaster_custom_tags as string | undefined)
+		(setting.webmaster_yandex_verification as string | undefined) ||
+		(setting.webmaster_norton_verification as string | undefined) ||
+		(setting.webmaster_custom_tags as string | undefined)
 	);
 
 	return (
-		<div className="site-verification-panel">
+		<>
 			{PROVIDERS.map((row) => (
 				<ProviderRow key={row.provider} {...row} />
 			))}
-
-			<div className="ai-provider-card gsc-service-card">
-				<AiProviderCardHeader
-					icon="link"
-					title={__('Other verification', 'vulopilot')}
-					desc={__(
-						'Add custom verification for other platforms like Yandex, Baidu, and more.',
-						'vulopilot'
-					)}
-					action={
-						<span className={`gsc-service-status ${hasOtherVerification ? 'is-connected' : 'is-not-connected'}`}>
-							{hasOtherVerification ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
-						</span>
-					}
-				/>
-				<div className="ai-provider-card-body gsc-service-body">
-					<div className="gsc-service-info">
-						<div className="desc">
-							{__('Add meta tags or file verification for other platforms.', 'vulopilot')}
+			<FormGroupWrapperComponent>
+				<FormGroupComponent>
+					<CardHeader
+						className='compact'
+						icon="link"
+						title={__('Other verification', 'vulopilot')}
+						desc={__(
+							'Add custom verification for other platforms like Yandex, Baidu, and more.',
+							'vulopilot'
+						)}
+						badge={
+							<span className={`admin-badge ${hasOtherVerification ? 'green' : 'red'}`}>
+								{hasOtherVerification ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
+							</span>
+						}
+						action={
+							<>
+								<ButtonInput
+									buttons={{
+										text: __('Add Verification', 'vulopilot'),
+										icon: 'plus',
+										color: 'border-purple',
+										onClick: () => {
+											window.location.href = SEO_CONTENT_URL;
+										},
+									}}
+								/>
+							</>
+						}
+					>
+						<div className="ai-provider-card-body gsc-service-body">
+							<div className="gsc-service-info">
+								<div className="desc">
+									{__('Add meta tags or file verification for other platforms.', 'vulopilot')}
+								</div>
+							</div>
 						</div>
-					</div>
-					<div className="gsc-service-actions">
-						<ButtonInput
-							buttons={{
-								text: __('Add Verification', 'vulopilot'),
-								icon: 'plus-circle',
-								onClick: () => {
-									window.location.href = SEO_CONTENT_URL;
-								},
-							}}
-						/>
-					</div>
-				</div>
-			</div>
-
-			<div className="ui-notice type-info display-notice">
-				<i className="admin-font adminfont-info" />
-				<div className="notice-details">
-					<strong>{__('Why verify your site?', 'vulopilot')}</strong>
-					<div className="notice-desc">
-						{__(
+					</CardHeader>
+				</FormGroupComponent>
+				<FormGroupComponent>
+					<NoticeComponent
+						displayPosition="inline-notice"
+						type="info"
+						title={__('Why verify your site?', 'vulopilot')}
+						message={__(
 							'Site verification helps VuloPilot fetch accurate data, monitor your presence, and provide personalized recommendations.',
 							'vulopilot'
 						)}
-					</div>
-				</div>
-			</div>
-		</div>
+					/>
+				</FormGroupComponent>
+			</FormGroupWrapperComponent>
+		</>
 	);
 };
 

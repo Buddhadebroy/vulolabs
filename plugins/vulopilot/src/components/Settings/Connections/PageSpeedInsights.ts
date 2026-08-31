@@ -62,9 +62,8 @@ export default {
 			key: 'pagespeed-about-notice',
 			type: 'notice',
 			noticeType: 'info',
-			label: __('About PageSpeed Insights API', 'vulopilot'),
 			message: __(
-				'VuloPilot uses PageSpeed Insights API data to show speed reports under Improve My Speed. We only read performance data and never make changes to your site.',
+				'VuloPilot uses PageSpeed Insights API data to show speed reports under <a class="link-item">Improve My Speed.</a> <br/> <a class="link-item"> We only read performance data and never make changes to your site. </a>',
 				'vulopilot'
 			),
 		},
