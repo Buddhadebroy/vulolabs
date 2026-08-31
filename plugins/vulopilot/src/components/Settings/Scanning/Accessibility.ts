@@ -51,7 +51,7 @@ export default {
 			look: 'toggle',
 			label: __('Accessibility checks', 'vulopilot'),
 			settingDescription: __(
-				'Scan your website for accessibility issues that impact users with disabilities.',
+				'Scan your website for accessibility issues that impact users with disabilities. <br> <a href="?page=vulopilot#&tab=accessibility">View checklist of accessibility tests</a>',
 				'vulopilot'
 			),
 			options: [
@@ -59,39 +59,14 @@ export default {
 			],
 		},
 		{
-			// `settingDescription` (InputRenderer.tsx) only ever interpolates
-			// as plain text, never HTML — a `type: 'notice'` field's own
-			// `message` is the real, established way to include a clickable
-			// link here (same `NoticeComponent`'s `dangerouslySetInnerHTML`
-			// this file's own `aeo-drop-threshold-note`-shaped notices below
-			// already rely on). Links to the real `pages/Accessibility/Accessibility.tsx`
-			// page (routes.ts's own `tab: 'accessibility'`) — the actual
-			// per-check results list this toggle's scanners feed.
-			key: 'accessibility-checklist-notice',
-			type: 'notice',
-			noticeType: 'info',
-			label: '',
-			message: __(
-				'<a href="?page=vulopilot#&tab=accessibility">View checklist of accessibility tests</a>',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'accessibility-frequency-section',
-			type: 'section',
-			title: __('Scan frequency', 'vulopilot'),
-			desc: __(
+			key: 'accessibility_audit_frequency',
+			label:__('Scan frequency', 'vulopilot'),
+			settingDescription: __(
 				'Choose how often VuloPilot should scan your website for accessibility issues.',
 				'vulopilot'
 			),
-		},
-		{
-			key: 'accessibility_audit_frequency',
 			type: 'choice-toggle',
-			custom: true,
 			defaultValue: 'daily',
-			label: '',
-			settingDescription: __('Recommended: Weekly', 'vulopilot'),
 			options: [
 				{ key: 'disabled', value: 'disabled', label: __('Off', 'vulopilot'), width: '100%' },
 				{ key: 'hourly', value: 'hourly', label: __('Hourly', 'vulopilot'), width: '100%' },
@@ -101,24 +76,14 @@ export default {
 			moduleEnabled: 'accessibility-audits',
 		},
 		{
-			key: 'accessibility-wcag-section',
-			type: 'section',
-			title: __('WCAG level', 'vulopilot'),
-			desc: __(
-				'Select the Web Content Accessibility Guidelines (WCAG) level for scanning.',
-				'vulopilot'
-			),
-		},
-		{
 			key: 'target_wcag_level',
 			type: 'choice-toggle',
-			custom: true,
-			defaultValue: '2.1_aa',
-			label: '',
+			label:__('WCAG level', 'vulopilot'),
 			settingDescription: __(
-				'Recommended: AA. AAA currently runs the same checks as AA — no automated check here maps to a Level AAA criterion yet.',
+				'Choose how often VuloPilot should scan your website for accessibility issues.',
 				'vulopilot'
 			),
+			defaultValue: '2.1_aa',
 			options: [
 				{ key: '2.1_a', value: '2.1_a', label: __('A', 'vulopilot'), width: '100%' },
 				{ key: '2.1_aa', value: '2.1_aa', label: __('AA', 'vulopilot'), width: '100%' },
@@ -131,7 +96,7 @@ export default {
 			look: 'toggle',
 			label: __('Check for generic, out-of-context link text', 'vulopilot'),
 			settingDescription: __(
-				'Flags links whose entire visible text is a generic phrase like "click here" or "read more" — link text should describe its own destination (WCAG 2.4.4).',
+				'Select the Web Content Accessibility Guidelines (WCAG) level for scanning.',
 				'vulopilot'
 			),
 			options: [

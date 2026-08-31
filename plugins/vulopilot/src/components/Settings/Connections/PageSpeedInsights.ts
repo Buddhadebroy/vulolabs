@@ -41,7 +41,7 @@ export default {
 		{
 			key: 'psi_api_key',
 			type: 'password',
-			size: 10,
+			size: 30,
 			label: __('API Key', 'vulopilot'),
 			settingDescription: __(
 				'Enter your Google PageSpeed Insights API key.',
@@ -51,7 +51,7 @@ export default {
 		{
 			key: 'psi_daily_limit',
 			type: 'number',
-			size: 10,
+			size: 30,
 			label: __('Daily API Limit', 'vulopilot'),
 			settingDescription: __(
 				'Set the maximum number of requests VuloPilot can make per day. Leave at 0 for unlimited (subject to your API plan limits).',

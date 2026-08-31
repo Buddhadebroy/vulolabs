@@ -247,6 +247,23 @@
 	}
 }
 
+// CrawlerAlertRows.tsx (Settings → Notifications → AI Crawler Alerts' own
+// "Notify me about" rows) — just the frequency/duration select's own
+// caption, same minimal-supporting-CSS posture as the rules above.
+// SettingRowComponent.scss itself already styles everything else
+// (.setting-row, .setting-row-control, .setting-toggle, ...).
+.crawler-alert-row-select {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 10rem;
+}
+
+.crawler-alert-row-select-label {
+	font-size: 0.75rem;
+	color: var(--sub-text-color);
+}
+
 // Connections/AiProvidersPanel.tsx (Settings → Connections → AI
 // Providers' own Gemini/OpenAI hero cards + "Other providers" section) —
 // same minimal-supporting-CSS posture as the `.gsc-*`/`.backup-storage-*`

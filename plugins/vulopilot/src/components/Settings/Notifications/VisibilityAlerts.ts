@@ -28,13 +28,20 @@ const THRESHOLD_OPTIONS = [5, 10, 20, 30].map((points) => ({
  * (this tab's own master switch) additionally gates all three without
  * touching any of their own stored `enable`/`threshold` values.
  *
- * "Notify me when" is a real zyra `type: 'expandable-panel'` field — same
- * component 'crawler_alerts' below (AiCrawlerAlerts.ts) already uses, one
- * unified panel group covering all three score types. Each panel's own
- * `enable`/`threshold` writes into the single nested `visibility_alerts`
- * setting (`{ geo: {enable, threshold}, brand: {...}, kg: {...} }`,
- * Utill::VULOPILOT_SETTINGS_DEFAULTS), not three flat settings — see that
- * constant's own docblock.
+ * "Notify me when" is a real zyra `type: 'setting-row'` field (per direct
+ * instruction — same field type 'crawler_alerts' in AiCrawlerAlerts.ts
+ * already uses, with `control: { toggle: true, select: {...} }` for all
+ * three rows since every score type here has a real threshold), one flat
+ * row per score type, its own threshold select and on/off toggle both
+ * visible at once — no expand/collapse step. Each row's own
+ * `enable`/`threshold` still writes into the single nested
+ * `visibility_alerts` setting (`{ geo: {enable, threshold}, brand: {...},
+ * kg: {...} }`, Utill::VULOPILOT_SETTINGS_DEFAULTS), not three flat
+ * settings — see that constant's own docblock. Persisting a row goes
+ * through InputRenderer's normal auto-save path (SettingRowComponent's own
+ * `resolveControl()` builds the real toggle/select pair and patches this
+ * field's `value`/`onChange` itself) — no bespoke API-call component
+ * needed, same as AiCrawlerAlerts.ts's own rows.
  *
  * "Notification channels" mirrors AiCrawlerAlerts.ts's own
  * `crawler_alert_channels` field exactly: real 'email'/'dashboard' values
@@ -76,83 +83,67 @@ export default {
 			dependent: MASTER_ENABLED_DEPENDENT,
 		},
 		{
-			// One unified panel group for all 3 rows, a fixed, non-addable
-			// set (no `addNewBtn`), each `disableBtn: true` so its header
-			// shows a real Enable/Settings/Disable control instead of an
-			// always-on toggle — same shape 'crawler_alerts' below uses.
+			// zyra's real `type: 'setting-row'` field (per direct
+			// instruction) — one flat row per score type, each with its own
+			// threshold select and on/off toggle both visible at once, no
+			// expand/collapse step — same field type 'crawler_alerts' in
+			// AiCrawlerAlerts.ts already uses. See this file's own docblock
+			// for the value shape (unchanged from the old expandable-panel
+			// field).
 			key: 'visibility_alerts',
-			type: 'expandable-panel',
-			label: '',
+			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,
-			modal: [
+			rows: [
 				{
-					id: 'geo',
-					icon: 'ai',
-					label: __('AI visibility score drop', 'vulopilot'),
+					valueKey: 'geo',
+					icon: 'ai green',
+					title: __('AI visibility score drop', 'vulopilot'),
 					desc: __(
 						'When your overall AI visibility score drops by the selected percentage.',
 						'vulopilot'
 					),
-					settingDescription: __(
-						'When your overall AI visibility score drops by the selected percentage.',
-						'vulopilot'
-					),
-					disableBtn: true,
-					statusLabels: { active: __('Enabled', 'vulopilot'), inactive: __('Disabled', 'vulopilot') },
-					formFields: [
-						{
+					control: {
+						toggle: true,
+						select: {
 							key: 'threshold',
-							type: 'select',
 							label: __('Notify me if score drops by', 'vulopilot'),
 							options: THRESHOLD_OPTIONS,
 						},
-					],
+					},
 				},
 				{
-					id: 'brand',
-					icon: 'announcement',
-					label: __('Brand score drop', 'vulopilot'),
+					valueKey: 'brand',
+					icon: 'announcement red',
+					title: __('Brand score drop', 'vulopilot'),
 					desc: __(
 						'When your brand visibility score drops by the selected percentage.',
 						'vulopilot'
 					),
-					settingDescription: __(
-						'When your brand visibility score drops by the selected percentage.',
-						'vulopilot'
-					),
-					disableBtn: true,
-					statusLabels: { active: __('Enabled', 'vulopilot'), inactive: __('Disabled', 'vulopilot') },
-					formFields: [
-						{
+					control: {
+						toggle: true,
+						select: {
 							key: 'threshold',
-							type: 'select',
 							label: __('Notify me if score drops by', 'vulopilot'),
 							options: THRESHOLD_OPTIONS,
 						},
-					],
+					},
 				},
 				{
-					id: 'kg',
-					icon: 'intelligence',
-					label: __('Knowledge Graph score drop', 'vulopilot'),
+					valueKey: 'kg',
+					icon: 'intelligence yellow',
+					title: __('Knowledge Graph score drop', 'vulopilot'),
 					desc: __(
 						'When your Knowledge Graph score drops by the selected percentage.',
 						'vulopilot'
 					),
-					settingDescription: __(
-						'When your Knowledge Graph score drops by the selected percentage.',
-						'vulopilot'
-					),
-					disableBtn: true,
-					statusLabels: { active: __('Enabled', 'vulopilot'), inactive: __('Disabled', 'vulopilot') },
-					formFields: [
-						{
+					control: {
+						toggle: true,
+						select: {
 							key: 'threshold',
-							type: 'select',
 							label: __('Notify me if score drops by', 'vulopilot'),
 							options: THRESHOLD_OPTIONS,
 						},
-					],
+					},
 				},
 			],
 		},

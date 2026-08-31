@@ -22,12 +22,19 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * which itself only fires a filter vulopilot-pro's CrawlerAlertMonitor
  * listens on — see that method's own docblock for why Free's controller
  * can't call Pro's class directly), plus the persisted "Last test alert
- * sent successfully on ..." line. Same "hand-built escape-hatch panel
- * appended after InputRenderer's own fields" shape BackupStoragePanel.tsx
- * already establishes for Backups — needed here for the same reason: a
- * real API call and a value that must still be visible after a page
- * refresh, neither of which a static `type: 'notice'` field's `message`
- * string (evaluated once, at config-definition time) can provide.
+ * sent successfully on ..." line. A hand-built component rather than
+ * another declarative field type — needed here for the same reason
+ * BackupStoragePanel.tsx exists for Backups: a real API call and a value
+ * that must still be visible after a page refresh, neither of which a
+ * static `type: 'notice'` field's `message` string (evaluated once, at
+ * config-definition time) can provide.
+ *
+ * Unlike BackupStoragePanel.tsx (which Settings.tsx's own GetForm()
+ * appends after ALL of its tab's fields), this one is wired straight into
+ * AiCrawlerAlerts.ts's own "Notification channels" `type: 'section'`
+ * field, via `SectionComponent`'s real `rightContent` slot — see that
+ * file's own docblock for why this belongs next to the channels it tests
+ * rather than at the bottom of the tab.
  *
  * Reads its own `crawler_alert_last_test_sent` value directly from
  * `GET /settings` on mount rather than through SettingContext — that

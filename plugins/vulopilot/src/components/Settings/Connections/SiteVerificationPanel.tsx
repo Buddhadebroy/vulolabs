@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { ButtonInput, TextInput } from '@zyra/inputs';
+import AiProviderCardHeader from '../../AiProviderCardHeader';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
 
@@ -91,18 +92,16 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 
 	return (
 		<div className="ai-provider-card gsc-service-card">
-			<div className="ai-provider-card-header">
-				<div className="ai-provider-card-icon">
-					<i className={`adminfont-${icon}`} />
-				</div>
-				<div className="ai-provider-card-title">
-					<strong>{title}</strong>
-					<span className="desc">{desc}</span>
-				</div>
-				<span className={`gsc-service-status ${isVerified ? 'is-connected' : 'is-not-connected'}`}>
-					{isVerified ? __('Verified', 'vulopilot') : __('Not Verified', 'vulopilot')}
-				</span>
-			</div>
+			<AiProviderCardHeader
+				icon={icon}
+				title={title}
+				desc={desc}
+				action={
+					<span className={`gsc-service-status ${isVerified ? 'is-connected' : 'is-not-connected'}`}>
+						{isVerified ? __('Verified', 'vulopilot') : __('Not Verified', 'vulopilot')}
+					</span>
+				}
+			/>
 
 			<div className="ai-provider-card-body gsc-service-body">
 				<div className="ai-provider-field site-verification-code-field">
@@ -200,20 +199,19 @@ const SiteVerificationPanel = () => {
 			))}
 
 			<div className="ai-provider-card gsc-service-card">
-				<div className="ai-provider-card-header">
-					<div className="ai-provider-card-icon">
-						<i className="adminfont-link" />
-					</div>
-					<div className="ai-provider-card-title">
-						<strong>{__('Other verification', 'vulopilot')}</strong>
-						<span className="desc">
-							{__('Add custom verification for other platforms like Yandex, Baidu, and more.', 'vulopilot')}
+				<AiProviderCardHeader
+					icon="link"
+					title={__('Other verification', 'vulopilot')}
+					desc={__(
+						'Add custom verification for other platforms like Yandex, Baidu, and more.',
+						'vulopilot'
+					)}
+					action={
+						<span className={`gsc-service-status ${hasOtherVerification ? 'is-connected' : 'is-not-connected'}`}>
+							{hasOtherVerification ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
 						</span>
-					</div>
-					<span className={`gsc-service-status ${hasOtherVerification ? 'is-connected' : 'is-not-connected'}`}>
-						{hasOtherVerification ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
-					</span>
-				</div>
+					}
+				/>
 				<div className="ai-provider-card-body gsc-service-body">
 					<div className="gsc-service-info">
 						<div className="desc">

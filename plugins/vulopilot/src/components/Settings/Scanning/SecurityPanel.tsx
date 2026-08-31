@@ -6,6 +6,7 @@ import {
 	ButtonInput,
 	ExpandablePanelInput,
 	SelectInput,
+	SectionComponent
 } from '@zyra/inputs';
 import { FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
 import { useSetting } from '../../../contexts/SettingContext';
@@ -380,28 +381,29 @@ const SecurityPanel = () => {
 	};
 
 	return (
-		<div className="security-panel">
-			<div className="ai-visibility-scans-header">
-				<ButtonInput
-					wrapperClass="ai-visibility-restore-defaults"
-					buttons={{
-						text: isResetting ? __('Restoring…', 'vulopilot') : __('Restore Defaults', 'vulopilot'),
-						icon: 'refresh',
-						color: 'border-purple',
-						disabled: isResetting,
-						onClick: restoreDefaults,
-					}}
+		<FormGroupWrapperComponent>
+			<FormGroupComponent row >
+					<ButtonInput
+						wrapperClass="ai-visibility-restore-defaults"
+						buttons={{
+							text: isResetting ? __('Restoring…', 'vulopilot') : __('Restore Defaults', 'vulopilot'),
+							icon: 'refresh',
+							color: 'border-purple',
+							disabled: isResetting,
+							onClick: restoreDefaults,
+						}}
+					/>
+			</FormGroupComponent>
+
+			<FormGroupComponent row >
+				<ExpandablePanelInput
+					name="security_scans_cards"
+					methods={buildMethods(SCAN_ROWS)}
+					value={buildValue(SCAN_ROWS)}
+					onChange={handleChange}
+					canAccess
 				/>
-			</div>
-
-			<ExpandablePanelInput
-				name="security_scans_cards"
-				methods={buildMethods(SCAN_ROWS)}
-				value={buildValue(SCAN_ROWS)}
-				onChange={handleChange}
-				canAccess
-			/>
-
+			</FormGroupComponent>
 			<div className="security-panel-notice">
 				<strong>{__('Why these scans matter', 'vulopilot')}</strong>
 				<p>
@@ -412,10 +414,11 @@ const SecurityPanel = () => {
 				</p>
 			</div>
 
-			<div className="security-panel-section-title">{__('Protection', 'vulopilot')}</div>
-			<p className="security-panel-section-desc">
-				{__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
-			</p>
+			<SectionComponent
+				title={__('Protection', 'vulopilot')}
+				desc={__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
+			/>
+			<FormGroupComponent row ></FormGroupComponent>
 			<ExpandablePanelInput
 				name="security_protection_cards"
 				methods={buildMethods(PROTECTION_ROWS)}
@@ -423,46 +426,44 @@ const SecurityPanel = () => {
 				onChange={handleChange}
 				canAccess
 			/>
+			<SectionComponent
+				title={__('Security Monitoring', 'vulopilot')}
+				desc={__('Ongoing monitoring beyond a single scan run.', 'vulopilot')}
+			/>
 
-			<div className="security-panel-section-title">{__('Security Monitoring', 'vulopilot')}</div>
-			<p className="security-panel-section-desc">
-				{__('Ongoing monitoring beyond a single scan run.', 'vulopilot')}
-			</p>
-			<FormGroupWrapperComponent>
-				<FormGroupComponent
-					row
-					label={__('Scheduled security monitoring', 'vulopilot')}
-					desc={__(
-						'Runs only the security-category scanners on this cadence, independent of the general Scan frequency setting under General.',
-						'vulopilot'
-					)}
-				>
-					<SelectInput
-						value={String(setting.security_scan_frequency ?? 'daily')}
-						disabled={!hasSecurityMonitoring}
-						onChange={(value) => {
-							if (!hasSecurityMonitoring) {
-								return;
-							}
-							const next = value as string;
-							updateSetting('security_scan_frequency', next);
-							sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
-								setting: { security_scan_frequency: next },
-								settingName: 'security-scanning',
-							});
-						}}
-						options={[
-							{ label: __('Off', 'vulopilot'), value: 'disabled' },
-							{ label: __('Hourly', 'vulopilot'), value: 'hourly' },
-							{ label: __('Daily', 'vulopilot'), value: 'daily' },
-							{ label: __('Weekly', 'vulopilot'), value: 'weekly' },
-						]}
-					/>
-					{!hasSecurityMonitoring && (
-						<span dangerouslySetInnerHTML={{ __html: proBadge() }} />
-					)}
-				</FormGroupComponent>
-			</FormGroupWrapperComponent>
+			<FormGroupComponent
+				row
+				label={__('Scheduled security monitoring', 'vulopilot')}
+				desc={__(
+					'Runs only the security-category scanners on this cadence, independent of the general Scan frequency setting under General.',
+					'vulopilot'
+				)}
+			>
+				<SelectInput
+					value={String(setting.security_scan_frequency ?? 'daily')}
+					disabled={!hasSecurityMonitoring}
+					onChange={(value) => {
+						if (!hasSecurityMonitoring) {
+							return;
+						}
+						const next = value as string;
+						updateSetting('security_scan_frequency', next);
+						sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+							setting: { security_scan_frequency: next },
+							settingName: 'security-scanning',
+						});
+					}}
+					options={[
+						{ label: __('Off', 'vulopilot'), value: 'disabled' },
+						{ label: __('Hourly', 'vulopilot'), value: 'hourly' },
+						{ label: __('Daily', 'vulopilot'), value: 'daily' },
+						{ label: __('Weekly', 'vulopilot'), value: 'weekly' },
+					]}
+				/>
+				{!hasSecurityMonitoring && (
+					<span dangerouslySetInnerHTML={{ __html: proBadge() }} />
+				)}
+			</FormGroupComponent>
 			<ExpandablePanelInput
 				name="security_monitoring_cards"
 				methods={buildMethods(MONITORING_ROWS)}
@@ -470,7 +471,7 @@ const SecurityPanel = () => {
 				onChange={handleChange}
 				canAccess
 			/>
-		</div>
+		</FormGroupWrapperComponent>
 	);
 };
 

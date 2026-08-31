@@ -10,18 +10,14 @@ import { __ } from '@wordpress/i18n';
  * own notice links already take.
  */
 const highlight = ( text: string ): string =>
-	`<span style="display:inline-block;padding:2px 10px;border-radius:999px;background:rgba(124,58,237,0.1);color:#7c3aed;font-size:0.75rem;font-weight:600;">${ text }</span>`;
+	`<div class="admin-badge purple">${ text }</div>`;
 
 /** Same real severity palette this codebase's own Issues table/AI Copilot attention pills already use (AICopilot.scss's own `$priorities` map) — reused here rather than inventing separate risk colors, since it's the same LOW/MEDIUM/HIGH scale (ValueObjects\Impact). */
-const RISK_COLORS: Record<'low' | 'medium' | 'high', string> = {
-	low: '#5baab3',
-	medium: '#b45309',
-	high: '#dc2626',
-};
-
-const riskBadge = ( level: 'low' | 'medium' | 'high', label: string ): string =>
-	`<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600;font-size:0.75rem;color:${ RISK_COLORS[ level ] };background:${ RISK_COLORS[ level ] }24;">${ label }</span>`;
-
+const riskBadge = (
+	level: 'low' | 'medium' | 'high',
+	label: string
+): string =>
+	`<span class="admin-badge badge-${level}">${label}</span>`;
 /**
  * Settings → Automation → Approval Settings ("Ask before applying AI
  * changes").
@@ -66,6 +62,7 @@ export default {
 			custom: true,
 			defaultValue: 'always',
 			label: __( 'Ask before applying AI changes', 'vulopilot' ),
+			width: '60%',
 			settingDescription: __(
 				'Choose when VuloPilot should ask for your approval before applying AI-suggested changes.',
 				'vulopilot'
@@ -79,8 +76,7 @@ export default {
 						'VuloPilot will always ask for your approval before applying any AI-generated changes.',
 						'vulopilot'
 					),
-					icon: 'info',
-					width: '100%',
+					icon: 'info blue',
 					customHtml: highlight(
 						__( 'You stay in full control of every change.', 'vulopilot' )
 					),
@@ -93,7 +89,7 @@ export default {
 						'VuloPilot will ask for approval for medium and high risk changes, but apply low risk changes automatically.',
 						'vulopilot'
 					),
-					icon: 'warning',
+					icon: 'error red',
 					width: '100%',
 					customHtml: highlight( __( 'Balanced control and automation.', 'vulopilot' ) ),
 				},
@@ -105,8 +101,7 @@ export default {
 						'VuloPilot will apply eligible AI-generated changes automatically without asking.',
 						'vulopilot'
 					),
-					icon: 'check',
-					width: '100%',
+					icon: 'check green',
 					proSetting: true,
 					customHtml: highlight(
 						__( 'Maximum automation. Use with caution.', 'vulopilot' )
@@ -132,18 +127,13 @@ export default {
 					"Risk levels are determined by the type of change and its potential impact on your website.",
 					'vulopilot'
 				) +
-				'<br /><br />' +
+				'<br />' +
 				riskBadge( 'low', __( 'Low risk', 'vulopilot' ) ) +
-				' – ' +
-				__( 'Applied automatically', 'vulopilot' ) +
-				'<br />' +
+				__( ' Applied automatically', 'vulopilot' ) +
 				riskBadge( 'medium', __( 'Medium risk', 'vulopilot' ) ) +
-				' – ' +
-				__( 'Approval required', 'vulopilot' ) +
-				'<br />' +
+				__( ' Approval required', 'vulopilot' ) +
 				riskBadge( 'high', __( 'High risk', 'vulopilot' ) ) +
-				' – ' +
-				__( 'Approval required', 'vulopilot' ),
+				__( ' Approval required', 'vulopilot' ),
 		},
 	],
 };

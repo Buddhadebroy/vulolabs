@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { ButtonInput } from '@zyra/inputs';
+import { FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
+import AiProviderCardHeader from '../../AiProviderCardHeader';
 import { formatWpDate } from '../../../services/formatWpDate';
 
 interface PsiStatus {
@@ -91,23 +93,70 @@ const PageSpeedStatusPanel = () => {
 			: 0;
 
 	return (
-		<div className="ai-provider-card gsc-service-card psi-status-panel">
-			<div className="ai-provider-card-header">
-				<div className="ai-provider-card-icon">
-					<i className="adminfont-analytics" />
-				</div>
-				<div className="ai-provider-card-title">
-					<strong>{__('PageSpeed Insights', 'vulopilot')}</strong>
-					<span className="desc">
-						{__(
-							'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',
-							'vulopilot'
-						)}
+		<FormGroupWrapperComponent>
+			<FormGroupComponent>
+			<AiProviderCardHeader
+				icon="analytics"
+				title={__('PageSpeed Insights', 'vulopilot')}
+				desc={__(
+					'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',
+					'vulopilot'
+				)}
+			/>
+
+				<div className="ai-provider-card-body gsc-service-body">
+
+					<span >
+						{__('Connected', 'vulopilot')}<span className={`admin-badge ${status?.connected ? 'green' : 'red'}`}>	{status?.connected ? __('Connected', 'vulopilot') : __('Not Connected', 'vulopilot')} </span>
 					</span>
+					{status && status.daily_limit > 0 && (
+						<div className="psi-usage">
+							<div className="psi-usage-label">
+								<span>{__('Daily API Usage', 'vulopilot')}</span>
+								<span>{usagePercent}%</span>
+							</div>
+							<div className="psi-usage-bar">
+								<div className="psi-usage-bar-fill" style={{ width: `${usagePercent}%` }} />
+							</div>
+							<div className="desc">
+								{sprintf(
+									/* translators: 1: requests made today, 2: the site's own configured daily limit. */
+									__('%1$s / %2$s requests used', 'vulopilot'),
+									status.requests_today.toLocaleString(),
+									status.daily_limit.toLocaleString()
+								)}
+							</div>
+						</div>
+					)}
+
+					{status?.connected && status.checked_at && (
+						<div className="desc psi-last-checked">
+							{sprintf(
+								/* translators: %s is a formatted date/time. */
+								__('Last checked on %s.', 'vulopilot'),
+								formatWpDate(status.checked_at)
+							)}
+							{'number' === typeof status.mobile && 'number' === typeof status.desktop && (
+								<>
+									{' '}
+									{sprintf(
+										/* translators: 1: mobile score, 2: desktop score, both 0-100. */
+										__('Mobile %1$d/100, Desktop %2$d/100.', 'vulopilot'),
+										status.mobile,
+										status.desktop
+									)}
+								</>
+							)}
+						</div>
+					)}
+
+					{result && (
+						<p className={`ai-provider-test-result ${result.success ? 'is-success' : 'is-error'}`}>
+							{result.message}
+						</p>
+					)}
 				</div>
-				<span className={`gsc-service-status ${status?.connected ? 'is-connected' : 'is-not-connected'}`}>
-					{status?.connected ? __('Connected', 'vulopilot') : __('Not Connected', 'vulopilot')}
-				</span>
+
 				<ButtonInput
 					wrapperClass="psi-test-connection-button"
 					buttons={{
@@ -117,57 +166,8 @@ const PageSpeedStatusPanel = () => {
 						onClick: testConnection,
 					}}
 				/>
-			</div>
-
-			<div className="ai-provider-card-body gsc-service-body">
-				{status && status.daily_limit > 0 && (
-					<div className="psi-usage">
-						<div className="psi-usage-label">
-							<span>{__('Daily API Usage', 'vulopilot')}</span>
-							<span>{usagePercent}%</span>
-						</div>
-						<div className="psi-usage-bar">
-							<div className="psi-usage-bar-fill" style={{ width: `${usagePercent}%` }} />
-						</div>
-						<div className="desc">
-							{sprintf(
-								/* translators: 1: requests made today, 2: the site's own configured daily limit. */
-								__('%1$s / %2$s requests used', 'vulopilot'),
-								status.requests_today.toLocaleString(),
-								status.daily_limit.toLocaleString()
-							)}
-						</div>
-					</div>
-				)}
-
-				{status?.connected && status.checked_at && (
-					<div className="desc psi-last-checked">
-						{sprintf(
-							/* translators: %s is a formatted date/time. */
-							__('Last checked on %s.', 'vulopilot'),
-							formatWpDate(status.checked_at)
-						)}
-						{'number' === typeof status.mobile && 'number' === typeof status.desktop && (
-							<>
-								{' '}
-								{sprintf(
-									/* translators: 1: mobile score, 2: desktop score, both 0-100. */
-									__('Mobile %1$d/100, Desktop %2$d/100.', 'vulopilot'),
-									status.mobile,
-									status.desktop
-								)}
-							</>
-						)}
-					</div>
-				)}
-
-				{result && (
-					<p className={`ai-provider-test-result ${result.success ? 'is-success' : 'is-error'}`}>
-						{result.message}
-					</p>
-				)}
-			</div>
-		</div>
+			</FormGroupComponent>
+		</FormGroupWrapperComponent>
 	);
 };
 

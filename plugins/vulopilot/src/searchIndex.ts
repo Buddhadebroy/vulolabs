@@ -74,6 +74,19 @@ function buildIndexFromContext(context: any): SearchItem[] {
 		.keys()
 		.map((key) => context(key).default as ModuleConfig)
 		.flatMap((cfg) => {
+			// Not every `.ts`/`.tsx` under this require.context glob is a
+			// Settings-tab config or a Modules catalog — e.g.
+			// CrawlerAlertRows.ts only has a named export (`CRAWLER_ALERT_ROWS`),
+			// so `context(key).default` is `undefined` for it; without this
+			// guard `cfg.tab` below throws instead of falling through to
+			// the same "doesn't match either known shape" `return []` a
+			// present-but-unrelated default export (e.g.
+			// CrawlerAlertTestPanel.tsx's component) already falls through
+			// to further down.
+			if (!cfg) {
+				return [];
+			}
+
 			const baseTab = cfg.tab || cfg.submitUrl || 'modules';
 
 			// Modules catalog — cfg.modules holds the real, searchable items.
