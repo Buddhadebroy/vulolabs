@@ -13,7 +13,6 @@ import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
 import PageSpeedStatusPanel from '../../components/Settings/Connections/PageSpeedStatusPanel';
-import AccessibilityRestoreDefaultsHeader from '../../components/Settings/Scanning/AccessibilityRestoreDefaultsHeader';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
@@ -158,11 +157,6 @@ const Settings = () => {
 				{settingName === currentTab ? (
 					<>
 						{'pagespeed-insights' === currentTab && <PageSpeedStatusPanel />}
-						{/* AccessibilityRestoreDefaultsHeader.tsx — same
-						 * "before, not after" placement AiVisibilityScansHeader.tsx
-						 * uses: the mockup's "Restore Defaults" button sits above
-						 * this tab's own fields. */}
-						{'accessibility' === currentTab && <AccessibilityRestoreDefaultsHeader />}
 						{/* `settingModal` is `getSettingById(settingsArray, currentTab)`
 						 * (line ~93) — real `null` for a `currentTab` that doesn't
 						 * match any entry in `settingsArray` (a stale/unknown

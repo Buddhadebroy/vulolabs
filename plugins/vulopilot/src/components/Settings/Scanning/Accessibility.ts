@@ -1,4 +1,6 @@
 import { __ } from '@wordpress/i18n';
+import { createElement } from 'react';
+import AccessibilityRestoreDefaultsHeader from './AccessibilityRestoreDefaultsHeader';
 
 /**
  * Settings → Scanning → Accessibility.
@@ -30,9 +32,11 @@ import { __ } from '@wordpress/i18n';
  *   is offered honestly rather than hidden, with that limitation called
  *   out in its own settingDescription below.
  *
- * "Restore Defaults" is AccessibilityRestoreDefaultsHeader.tsx
- * (Settings.tsx's own GetForm(), rendered before this tab's fields, same
- * "before, not after" placement AiVisibilityScansHeader.tsx uses).
+ * "Restore Defaults" is AccessibilityRestoreDefaultsHeader.tsx, wired via
+ * this config's own `settingAction` (same migration ContentSearch.ts/
+ * AiVisibility.ts/Security.ts already went through — rendered by
+ * NavigatorComponent.tsx's renderSettingHeaderInfo(), not Settings.tsx's
+ * own currentTab special-case anymore).
  */
 export default {
 	id: 'accessibility',
@@ -43,6 +47,7 @@ export default {
 		'vulopilot'
 	),
 	headerIcon: 'person',
+	settingAction: createElement(AccessibilityRestoreDefaultsHeader),
 	submitUrl: 'settings',
 	modal: [
 		{
