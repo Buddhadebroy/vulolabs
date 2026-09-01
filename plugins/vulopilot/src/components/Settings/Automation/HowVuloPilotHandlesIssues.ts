@@ -52,7 +52,7 @@ export default {
 					icon: 'eye green',
 					proSetting: true,
 					customHtml: `<div class="admin-badge green"> No changes will  be made to your websites</div>`, 
-					rightCustomHtml: `<div class="best-for-wrapper"> <span class="best-for-label">Best for:</span> <span class="best-for-value">Monitoring</span></div>` 
+					rightCustomHtml: `<div class="best-for-wrapper"> <span class="best-for-label">Best for:</span> <span class="desc">No changes will  be made to your websites</span></div>` 
 				},
 				{
 					key: 'suggest',
@@ -63,21 +63,22 @@ export default {
 						'vulopilot'
 					),
 					icon: 'check blue',
-					customHtml: `<div class="admin-badge green"> No changes will  be made to your websites</div>`, 
-					rightCustomHtml: `<div class="best-for-wrapper"> <span class="best-for-label">Best for:</span> <span class="best-for-value">Monitoring</span></div>` 
+					customHtml: `<div class="admin-badge blue"> No changes will  be made to your websites</div>`, 
+					rightCustomHtml: `<div class="best-for-wrapper"> <span class="best-for-label">Best for:</span> <span class="desc">No changes will  be made to your websites</span></div>` 
 				},
 				{
 					key: 'auto_fix',
 					value: 'auto_fix',
-					label: __('Auto-fix (Pro)', 'vulopilot'),
+					label: __('Auto-fix', 'vulopilot'),
 					desc: __(
 						'Automatically fix issues with your approval rules.',
 						'vulopilot'
 					),
 					icon: 'ai orange',
+					badgeColor: 'orange', badgeText: 'Pro',
 					proSetting: true,
-					customHtml: `<div class="admin-badge green"> No changes will  be made to your websites</div>`, 
-					rightCustomHtml: `<div class="best-for-wrapper"> <span class="best-for-label">Best for:</span> <span class="best-for-value">Monitoring</span></div>` 
+					customHtml: `<div class="admin-badge orange"> No changes will  be made to your websites</div>`, 
+					rightCustomHtml: `<div class="best-for-wrapper orange"> <span class="best-for-label">Best for:</span> <span class="desc">No changes will  be made to your websites</span></div>` 
 				},
 			],
 		},

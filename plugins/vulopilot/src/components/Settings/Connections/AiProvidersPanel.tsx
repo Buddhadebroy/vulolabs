@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	FormGroupWrapperComponent,
+	FormGroupComponent,
 	NoticeManager,
 } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
@@ -124,6 +125,8 @@ const ProviderCard = ( {
 
 	return (
 		<div className="ai-provider-card">
+			<FormGroupWrapperComponent>
+				<FormGroupComponent>
 			<div className="ai-provider-card-header">
 				<div className="ai-provider-card-icon">
 					<i className="adminfont-ai" />
@@ -284,6 +287,8 @@ const ProviderCard = ( {
 					) }
 				</div>
 			) }
+			</FormGroupComponent>
+			</FormGroupWrapperComponent>
 		</div>
 	);
 };

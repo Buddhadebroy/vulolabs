@@ -62,7 +62,7 @@ export default {
 			variant: 'compact',
 			defaultValue: 'always',
 			label: __( 'Ask before applying AI changes', 'vulopilot' ),
-			width: '60%',
+			width: '90%',
 			settingDescription: __(
 				'Choose when VuloPilot should ask for your approval before applying AI-suggested changes.',
 				'vulopilot'
@@ -78,9 +78,7 @@ export default {
 						'vulopilot'
 					),
 					icon: 'info blue',
-					customHtml: highlight(
-						__( 'You stay in full control of every change.', 'vulopilot' )
-					),
+					customHtml: `<div class="admin-badge blue">You stay in full control of every change.</div>`
 				},
 				{
 					key: 'risk_based',
@@ -91,7 +89,7 @@ export default {
 						'vulopilot'
 					),
 					icon: 'error red',
-					customHtml: highlight( __( 'Balanced control and automation.', 'vulopilot' ) ),
+					customHtml: `<div class="admin-badge red">Balanced control and automation.</div>`
 				},
 				{
 					key: 'never',
@@ -104,9 +102,7 @@ export default {
 					),
 					icon: 'check green',
 					proSetting: true,
-					customHtml: highlight(
-						__( 'Maximum automation. Use with caution.', 'vulopilot' )
-					),
+					customHtml: `<div class="admin-badge green">Maximum automation. Use with caution.</div>`
 				},
 			],
 		},
