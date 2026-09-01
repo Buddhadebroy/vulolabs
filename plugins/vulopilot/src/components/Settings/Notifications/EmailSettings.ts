@@ -65,7 +65,6 @@ export default {
 			type: 'button',
 			name: __('Send Test Email', 'vulopilot'),
 			label: __('Send test email', 'vulopilot'),
-			icon: 'send',
 			settingDescription: __(
 				'Sends a real email to the notification address above, using the from name/address configured above — confirms VuloPilot can actually deliver its notification emails on this site.',
 				'vulopilot'

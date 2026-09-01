@@ -59,7 +59,7 @@ export default {
 		{
 			key: 'ai_change_approval_mode',
 			type: 'choice-toggle',
-			custom: true,
+			variant: 'compact',
 			defaultValue: 'always',
 			label: __( 'Ask before applying AI changes', 'vulopilot' ),
 			width: '60%',
@@ -71,7 +71,8 @@ export default {
 				{
 					key: 'always',
 					value: 'always',
-					label: __( 'Always ask (Recommended)', 'vulopilot' ),
+					label: __( 'Always ask', 'vulopilot' ),
+					badgeColor: 'blue', badgeText: 'Recommended',
 					desc: __(
 						'VuloPilot will always ask for your approval before applying any AI-generated changes.',
 						'vulopilot'
@@ -90,13 +91,13 @@ export default {
 						'vulopilot'
 					),
 					icon: 'error red',
-					width: '100%',
 					customHtml: highlight( __( 'Balanced control and automation.', 'vulopilot' ) ),
 				},
 				{
 					key: 'never',
 					value: 'never',
 					label: __( 'Do not ask (Pro)', 'vulopilot' ),
+					badgeColor: 'green', badgeText: 'Pro',
 					desc: __(
 						'VuloPilot will apply eligible AI-generated changes automatically without asking.',
 						'vulopilot'

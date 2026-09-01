@@ -7,7 +7,7 @@ import {
 	NoticeComponent,
 	NoticeManager,
 } from '@zyra/components';
-import { ButtonInput, SelectInput, ToggleInput } from '@zyra/inputs';
+import { ButtonInput, ChoiceToggleInput, SelectInput } from '@zyra/inputs';
 import CardHeader from '../../CardHeader';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
@@ -553,7 +553,7 @@ const GoogleServicesPanel = () => {
 				</div>
 
 				<div className="gsc-toggle-row">
-					<ToggleInput
+					<ChoiceToggleInput
 						options={ [
 							{
 								key: 'ga_install_tracking_code',
@@ -583,7 +583,7 @@ const GoogleServicesPanel = () => {
 								[ 'ga_exclude_logged_in_users', __( 'Exclude logged-in users', 'vulopilot' ), excludeLoggedInUsers ],
 							] as const
 						).map( ( [ key, label, isOn ] ) => (
-							<ToggleInput
+							<ChoiceToggleInput
 								key={ key }
 								options={ [ { key, value: key, label } ] }
 								value={ isOn ? [ key ] : [] }

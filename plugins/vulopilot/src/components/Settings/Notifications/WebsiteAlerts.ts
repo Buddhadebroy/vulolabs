@@ -63,23 +63,16 @@ export default {
 			],
 		},
 		{
-			key: 'website-alerts-notify-section',
-			type: 'section',
-			title: __('Notify me about', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
-		},
-		{
 			// zyra's real `type: 'setting-row'` field (per direct
 			// instruction) — see this file's own docblock for why
 			// `control: { checkbox: true }` fits this flat multi-select
 			// array field, same shape SecurityAlerts.ts's own
-			// `security_alert_types` already uses. No `label`/
-			// `settingDescription` here — confirmed dead once `rows` is given
-			// (SettingRowComponent.tsx branches straight to `rows.map(...)`,
-			// never reads its own top-level `title`/`desc`); this was a stray
-			// copy-paste of the master-switch checkbox field above it, and
-			// the "website-alerts-notify-section" SectionComponent above
-			// already carries the real heading.
+			// `security_alert_types` already uses. `label` now renders for
+			// real (fixed at the source — see AiCrawlerAlerts.ts's own
+			// `crawler_alerts` field docblock), so the old
+			// "website-alerts-notify-section" SectionComponent field that
+			// used to fake this heading is gone.
+			label: __('Notify me about', 'vulopilot'),
 			key: 'critical_alert_types',
 			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,

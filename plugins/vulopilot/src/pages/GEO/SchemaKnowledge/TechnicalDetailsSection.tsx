@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
-import { ToggleInput } from '@zyra/inputs';
+import { ChoiceToggleInput } from '@zyra/inputs';
 import StructuredDataSection from './StructuredDataSection';
 
 /**
@@ -31,7 +31,7 @@ const TechnicalDetailsSection = () => {
 					'vulopilot'
 				)}
 				action={
-					<ToggleInput
+					<ChoiceToggleInput
 						options={[
 							{
 								key: 'show_for_developers',

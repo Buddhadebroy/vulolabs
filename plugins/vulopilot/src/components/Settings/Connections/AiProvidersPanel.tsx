@@ -7,7 +7,7 @@ import {
 	FormGroupComponent,
 	NoticeManager,
 } from '@zyra/components';
-import { ButtonInput, ExpandablePanelInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
+import { ButtonInput, ChoiceToggleInput, ExpandablePanelInput, SelectInput, TextInput } from '@zyra/inputs';
 
 interface ConfiguredProvider {
 	id: number;
@@ -133,7 +133,7 @@ const ProviderCard = ( {
 					<span className="desc">{ hero?.desc }</span>
 				</div>
 				{ config && (
-					<ToggleInput
+					<ChoiceToggleInput
 						options={ [ { key: 'enabled', value: 'enabled', label: config.is_active ? __( 'Enabled', 'vulopilot' ) : __( 'Disabled', 'vulopilot' ) } ] }
 						value={ config.is_active ? [ 'enabled' ] : [] }
 						multiSelect

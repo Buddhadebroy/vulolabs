@@ -231,14 +231,9 @@
 }
 
 .ai-copilot-row-arrow {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border: none;
-	background: none;
-	color: $sub-text-color;
+	font-size: 1.25rem;
 	cursor: pointer;
-	padding: 0;
+	
 }
 
 .zyra-chart.zyra-chart-pie--side .zyra-chart-pie-legend{

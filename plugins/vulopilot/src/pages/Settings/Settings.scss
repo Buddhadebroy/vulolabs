@@ -198,7 +198,8 @@
 	background: color-mix(in srgb, $theme-color 12%, transparent);
 	color: $theme-color;
 	flex-shrink: 0;
-	font-size: 1.625rem;
+	font-size: 2.125rem;
+	display: flex !important;
 }
 
 .backup-storage-card-title {

@@ -252,9 +252,7 @@ const BackupStoragePanel = () => {
 							className="backup-storage-header is-clickable"
 							onClick={() => setIsS3Open((v) => !v)}
 						>
-							<div className="backup-storage-card-icon">
-								<i className="adminfont-cloud-upload red" />
-							</div>
+							<i className="backup-storage-card-icon adminfont-cloud-upload red" />
 							<div className="backup-storage-card-title">
 								<strong>{__('Amazon S3', 'vulopilot')}</strong>
 								<span className="desc">
@@ -262,7 +260,7 @@ const BackupStoragePanel = () => {
 								</span>
 							</div>
 							<span
-								className={`backup-storage-connection-status ${status.s3.configured ? 'is-success' : ''}`}
+								className={`admin-badge ${status.s3.configured ? 'green' : 'red'}`}
 							>
 								{status.s3.configured ? __('Configured', 'vulopilot') : __('Not configured', 'vulopilot')}
 							</span>
@@ -365,9 +363,7 @@ const BackupStoragePanel = () => {
 							className="backup-storage-header is-clickable"
 							onClick={() => setIsGoogleDriveOpen((v) => !v)}
 						>
-							<div className="backup-storage-card-icon">
-								<i className="adminfont-google yellow" />
-							</div>
+							<i className="backup-storage-card-icon adminfont-google yellow" />
 							<div className="backup-storage-card-title">
 								<strong>{__('Google Drive', 'vulopilot')}</strong>
 								<span className="desc">
@@ -375,7 +371,7 @@ const BackupStoragePanel = () => {
 								</span>
 							</div>
 							<span
-								className={`backup-storage-connection-status ${status.google_drive.connected ? 'is-success' : ''}`}
+								className={`admin-badge ${status.google_drive.connected ? 'green' : 'red'}`}
 							>
 								{status.google_drive.connected ? __('Connected', 'vulopilot') : __('Not connected', 'vulopilot')}
 							</span>
@@ -383,123 +379,123 @@ const BackupStoragePanel = () => {
 						</div>
 
 						{isGoogleDriveOpen && (
-						<div className="backup-storage-card-body">
-						<FormGroupWrapperComponent>
-							{status.google_drive.connected ? (
-								<div className="backup-storage-status-row">
-									<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
-									{status.google_drive.connected_at && (
-										<span className="desc">
-											{__('Since', 'vulopilot')} {formatWpDate(status.google_drive.connected_at)}
-										</span>
-									)}
-									<button
-										type="button"
-										className="backup-storage-inline-action"
-										onClick={handleTestGoogleDrive}
-										disabled={isTestingGoogleDrive}
-									>
-										{isTestingGoogleDrive
-											? __('Testing…', 'vulopilot')
-											: __('Test connection', 'vulopilot')}
-									</button>
-									<button
-										type="button"
-										className="backup-storage-inline-action is-destructive"
-										onClick={handleDisconnectGoogleDrive}
-										disabled={isDisconnectingGoogleDrive}
-									>
-										{isDisconnectingGoogleDrive
-											? __('Disconnecting…', 'vulopilot')
-											: __('Disconnect', 'vulopilot')}
-									</button>
-								</div>
-							) : status.google_drive.client_configured ? (
-								<>
-									<p className="desc">
-										{__(
-											'OAuth Client saved — connect your Google account to finish.',
-											'vulopilot'
-										)}
-									</p>
-									<ButtonInput
-										buttons={{
-											text: __('Connect Google Drive', 'vulopilot'),
-											icon: 'admin-links',
-											onClick: () => {
-												if (status.google_drive.authorize_url) {
-													window.location.href = status.google_drive.authorize_url;
-												}
-											},
-											disabled: !status.google_drive.authorize_url,
-										}}
-									/>
-								</>
-							) : (
-								<>
-									<NoticeComponent
-										displayPosition="inline-notice"
-										type="info"
-										message={__(
-											'Register your own free Google Cloud OAuth Client (one-time setup) to connect Google Drive — VuloPilot never uses a shared account for this, only files it creates itself.',
-											'vulopilot'
-										)}
-									/>
-									<FormGroupComponent label={__('Authorized redirect URI to register on that Client:', 'vulopilot')}>
-										<ClipboardComponent
-											text={status.google_drive.redirect_uri}
-											variant="code"
-											copyButtonLabel={__('Copy', 'vulopilot')}
-											copiedLabel={__('Copied!', 'vulopilot')}
-										/>
-									</FormGroupComponent>
-									<FormGroupWrapperComponent>
-										<FormGroupComponent cols="6" label={__('Client ID', 'vulopilot')}>
-											<TextInput
-												name="gdrive_client_id"
-												inputLabel={__('Client ID', 'vulopilot')}
-												placeholder="xxxxxxxx.apps.googleusercontent.com"
-												value={clientId}
-												onChange={(value) => setClientId(value as string)}
-											/>
-										</FormGroupComponent>
-										<FormGroupComponent cols="6" label={__('Client Secret', 'vulopilot')}>
-											<TextInput
-												name="gdrive_client_secret"
-												inputLabel={__('Client Secret', 'vulopilot')}
-												placeholder="••••••••••••••••••••"
-												value={clientSecret}
-												onChange={(value) => setClientSecret(value as string)}
-											/>
-										</FormGroupComponent>
-										<FormGroupComponent label="">
+							<div className="backup-storage-card-body">
+								<FormGroupWrapperComponent>
+									{status.google_drive.connected ? (
+										<div className="backup-storage-status-row">
+											<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
+											{status.google_drive.connected_at && (
+												<span className="desc">
+													{__('Since', 'vulopilot')} {formatWpDate(status.google_drive.connected_at)}
+												</span>
+											)}
+											<button
+												type="button"
+												className="backup-storage-inline-action"
+												onClick={handleTestGoogleDrive}
+												disabled={isTestingGoogleDrive}
+											>
+												{isTestingGoogleDrive
+													? __('Testing…', 'vulopilot')
+													: __('Test connection', 'vulopilot')}
+											</button>
+											<button
+												type="button"
+												className="backup-storage-inline-action is-destructive"
+												onClick={handleDisconnectGoogleDrive}
+												disabled={isDisconnectingGoogleDrive}
+											>
+												{isDisconnectingGoogleDrive
+													? __('Disconnecting…', 'vulopilot')
+													: __('Disconnect', 'vulopilot')}
+											</button>
+										</div>
+									) : status.google_drive.client_configured ? (
+										<>
+											<p className="desc">
+												{__(
+													'OAuth Client saved — connect your Google account to finish.',
+													'vulopilot'
+												)}
+											</p>
 											<ButtonInput
 												buttons={{
-													text: isSavingGoogleClient
-														? __('Saving…', 'vulopilot')
-														: __('Save', 'vulopilot'),
-													onClick: handleSaveGoogleClient,
-													disabled:
-														isSavingGoogleClient || !clientId || !clientSecret,
+													text: __('Connect Google Drive', 'vulopilot'),
+													icon: 'admin-links',
+													onClick: () => {
+														if (status.google_drive.authorize_url) {
+															window.location.href = status.google_drive.authorize_url;
+														}
+													},
+													disabled: !status.google_drive.authorize_url,
 												}}
 											/>
-										</FormGroupComponent>
-									</FormGroupWrapperComponent>
-								</>
-							)}
+										</>
+									) : (
+										<>
+											<NoticeComponent
+												displayPosition="inline-notice"
+												type="info"
+												message={__(
+													'Register your own free Google Cloud OAuth Client (one-time setup) to connect Google Drive — VuloPilot never uses a shared account for this, only files it creates itself.',
+													'vulopilot'
+												)}
+											/>
+											<FormGroupComponent label={__('Authorized redirect URI to register on that Client:', 'vulopilot')}>
+												<ClipboardComponent
+													text={status.google_drive.redirect_uri}
+													variant="code"
+													copyButtonLabel={__('Copy', 'vulopilot')}
+													copiedLabel={__('Copied!', 'vulopilot')}
+												/>
+											</FormGroupComponent>
+											<FormGroupWrapperComponent>
+												<FormGroupComponent cols="6" label={__('Client ID', 'vulopilot')}>
+													<TextInput
+														name="gdrive_client_id"
+														inputLabel={__('Client ID', 'vulopilot')}
+														placeholder="xxxxxxxx.apps.googleusercontent.com"
+														value={clientId}
+														onChange={(value) => setClientId(value as string)}
+													/>
+												</FormGroupComponent>
+												<FormGroupComponent cols="6" label={__('Client Secret', 'vulopilot')}>
+													<TextInput
+														name="gdrive_client_secret"
+														inputLabel={__('Client Secret', 'vulopilot')}
+														placeholder="••••••••••••••••••••"
+														value={clientSecret}
+														onChange={(value) => setClientSecret(value as string)}
+													/>
+												</FormGroupComponent>
+												<FormGroupComponent label="">
+													<ButtonInput
+														buttons={{
+															text: isSavingGoogleClient
+																? __('Saving…', 'vulopilot')
+																: __('Save', 'vulopilot'),
+															onClick: handleSaveGoogleClient,
+															disabled:
+																isSavingGoogleClient || !clientId || !clientSecret,
+														}}
+													/>
+												</FormGroupComponent>
+											</FormGroupWrapperComponent>
+										</>
+									)}
 
-							{googleTestResult && (
-								<NoticeComponent
-									displayPosition="inline"
-									type={googleTestResult.success ? 'success' : 'error'}
-									message={googleTestResult.message}
-								/>
-							)}
-						</FormGroupWrapperComponent>
+									{googleTestResult && (
+										<NoticeComponent
+											displayPosition="inline"
+											type={googleTestResult.success ? 'success' : 'error'}
+											message={googleTestResult.message}
+										/>
+									)}
+								</FormGroupWrapperComponent>
+							</div>
+						)}
 					</div>
-					)}
 				</div>
-			</div>
 			)}
 		</CardComponent>
 	);

@@ -26,6 +26,11 @@ const FREQUENCY_OPTIONS = [
 	{ label: __('Weekly digest', 'vulopilot'), value: 'weekly_digest' },
 ];
 
+// Shared by every row's own `control.toggleStatusLabel` below — "On"/"Off"
+// per direct instruction, rather than SettingToggle's own default
+// "Enabled"/"Disabled" flip text.
+const TOGGLE_STATUS_LABEL = { on: __('On', 'vulopilot'), off: __('Off', 'vulopilot') };
+
 const DAYS_OPTIONS = [
 	{ label: __('3 days', 'vulopilot'), value: '3' },
 	{ label: __('7 days', 'vulopilot'), value: '7' },
@@ -50,7 +55,15 @@ interface CrawlerAlertRow {
 	 * InputRenderer's normal auto-save path, the same as every other
 	 * field on this tab.
 	 */
-	control: { toggle: boolean; select?: { key: string; label: string; options: { label: string; value: string }[] } };
+	control: {
+		toggle: boolean;
+		// zyra's own SettingRowControl.toggleStatusLabel — a real on/off
+		// pair for each row's own toggle (SettingToggle's own
+		// `statusLabel`), same shape email_on_crawler_alerts's own master
+		// switch already uses via MultiCheckboxInput's `toggleStatusLabel`.
+		toggleStatusLabel?: { on: string; off: string };
+		select?: { key: string; label: string; options: { label: string; value: string }[] };
+	};
 }
 
 /**
@@ -71,6 +84,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 		),
 		control: {
 			toggle: true,
+			toggleStatusLabel: TOGGLE_STATUS_LABEL,
 			select: { key: 'frequency', label: __('Notify if', 'vulopilot'), options: FREQUENCY_OPTIONS },
 		},
 	},
@@ -87,6 +101,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 		),
 		control: {
 			toggle: true,
+			toggleStatusLabel: TOGGLE_STATUS_LABEL,
 			select: { key: 'frequency', label: __('Notify if', 'vulopilot'), options: FREQUENCY_OPTIONS },
 		},
 	},
@@ -113,7 +128,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 				__('Set the % threshold under Scanning → AI Visibility.', 'vulopilot')
 			)
 		),
-		control: { toggle: true },
+		control: { toggle: true, toggleStatusLabel: TOGGLE_STATUS_LABEL },
 	},
 	{
 		valueKey: 'inactive',
@@ -125,6 +140,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 		),
 		control: {
 			toggle: true,
+			toggleStatusLabel: TOGGLE_STATUS_LABEL,
 			select: {
 				key: 'days_threshold',
 				label: __('Notify if inactive for', 'vulopilot'),
@@ -139,6 +155,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 		desc: __('When a bot starts visiting your website for the first time.', 'vulopilot'),
 		control: {
 			toggle: true,
+			toggleStatusLabel: TOGGLE_STATUS_LABEL,
 			select: { key: 'frequency', label: __('Notify if', 'vulopilot'), options: FREQUENCY_OPTIONS },
 		},
 	},
@@ -231,21 +248,10 @@ export default {
 			options: [
 				{ key: 'email_on_crawler_alerts', label: '', value: 'email_on_crawler_alerts' },
 			],
+			toggleStatusLabel: { on: 'Enabled', off: 'Disabled' }
 		},
 		{
-			key: 'ai-crawler-alerts-notify-section',
-			type: 'section',
-			title: __('Notify me about', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
-		},
-		{
-			// No `label` here — confirmed in zyra's own SettingRowComponent.tsx:
-			// once `rows` is given, `SettingRowComponent` branches straight to
-			// `rows.map(...)` and never reads its own top-level `title`/`label`
-			// prop at all (real gap, not a `desc`/`description`-style renamed
-			// prop). The `ai-crawler-alerts-notify-section` SectionComponent
-			// right above already renders this exact "Notify me about" heading,
-			// so this was always a dead, unrendered duplicate of it.
+			label: __('Notify me about', 'vulopilot'),
 			key: 'crawler_alerts',
 			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,

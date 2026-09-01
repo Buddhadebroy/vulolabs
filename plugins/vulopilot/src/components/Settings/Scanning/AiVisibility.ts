@@ -61,7 +61,7 @@ export default {
 		{
 			key: 'ai_visibility_scans',
 			type: 'expandable-panel',
-			label: '',
+			label: 'AI Visibility Scans',
 			modal: [
 				{
 					id: 'structure',

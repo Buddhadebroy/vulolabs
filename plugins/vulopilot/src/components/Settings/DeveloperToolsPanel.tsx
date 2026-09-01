@@ -49,7 +49,7 @@ const DeveloperToolsPanel = () => {
 	return (
 		<FormGroupWrapperComponent>
 			<CardHeader
-				icon="refresh"
+				icon="refresh pink"
 				title={__('Cache', 'vulopilot')}
 				desc={__(
 					'Clears every real cached result VuloPilot computes — the Knowledge Graph’s extracted entities, the Schema Coverage snapshot, the robots.txt bot-access parse, and (if active) vulopilot-pro’s own Knowledge Graph recommendations. Everything is rebuilt fresh automatically the next time it’s needed — nothing is deleted permanently.',

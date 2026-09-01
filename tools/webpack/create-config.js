@@ -301,7 +301,18 @@ module.exports = function createWebpackConfig(
 		},
 
 		watchOptions: {
-			ignored: /node_modules/,
+			// '@multivendorx/zyra' is a real pnpm symlink into a sibling
+			// zyra checkout (not a real, static, installed dependency) —
+			// blanket-ignoring all of node_modules here meant an ongoing
+			// zyra source edit's rebuilt output never got noticed once
+			// this watcher was already running (only a *fresh* `pnpm
+			// watch` start ever picked up the current on-disk content,
+			// since that's a one-time resolve/read, not a watch). Carve
+			// out just that one package so live zyra-repo edits keep
+			// reflecting here without a full webpack restart each time —
+			// everything else under node_modules (thousands of real,
+			// static dependencies) stays ignored as before.
+			ignored: /node_modules\/(?!\.pnpm\/.*@multivendorx\+zyra|@multivendorx\/zyra)/,
 		},
 
 		module: {
@@ -509,6 +520,40 @@ module.exports = function createWebpackConfig(
 				// upstream in the zyra repo) — BlockBuilder, CanvasEditor,
 				// SettingMetaBox, FormViewer, FreeFormCustomizer, FIELD_REGISTRY.
 				'@zyra/builders': '@multivendorx/zyra',
+
+				// ── Local zyra source dev toggle ──────────────────────────
+				// The block above resolves every zyra import to the one
+				// installed '@multivendorx/zyra' dependency, i.e. its
+				// prebuilt `packages/bundle/build/index.js` — a real zyra
+				// source edit (in the sibling zyra repo this is pnpm-linked
+				// from) only shows up here once zyra's own `pnpm run dev`/
+				// `pnpm run build` has re-emitted that build output; this
+				// webpack watcher has no visibility into zyra's raw
+				// TypeScript source on its own.
+				//
+				// To make zyra source changes reflect live in THIS plugin's
+				// watch without a manual zyra rebuild each time: comment out
+				// the six 'zyra'/'@zyra/*' lines above, uncomment the block
+				// below, and point ZYRA_SRC_DIR at your local zyra checkout
+				// (only needed once — this plugin doesn't otherwise know
+				// where a sibling zyra repo lives on disk). Every '@zyra/*'
+				// name below resolves straight to that sub-package's own
+				// `src/index.ts`, so ts-loader compiles zyra's real source
+				// as part of this plugin's own build (the `.tsx?` rule's
+				// `exclude: /node_modules/` doesn't apply — the zyra repo
+				// lives outside node_modules). Switch back to the block
+				// above before building for release — this alias resolves
+				// zyra's raw, untranspiled-by-zyra-itself source, not the
+				// package a real install would use.
+				//
+				// const ZYRA_SRC_DIR = '/absolute/path/to/zyra/packages';
+				// zyra: path.resolve(ZYRA_SRC_DIR, 'bundle/src/index.ts'),
+				// '@zyra/core': path.resolve(ZYRA_SRC_DIR, 'core/src/index.ts'),
+				// '@zyra/components': path.resolve(ZYRA_SRC_DIR, 'components/src/index.ts'),
+				// '@zyra/inputs': path.resolve(ZYRA_SRC_DIR, 'inputs/src/index.ts'),
+				// '@zyra/table': path.resolve(ZYRA_SRC_DIR, 'table/src/index.ts'),
+				// '@zyra/builders': path.resolve(ZYRA_SRC_DIR, 'builders/src/index.ts'),
+				// '@zyra/theme': path.resolve(ZYRA_SRC_DIR, 'theme/src/index.ts'),
 			},
 		},
 

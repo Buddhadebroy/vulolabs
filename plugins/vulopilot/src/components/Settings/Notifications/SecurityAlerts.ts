@@ -70,18 +70,17 @@ export default {
 			],
 		},
 		{
-			key: 'security-alerts-notify-section',
-			type: 'section',
-			title: __('Notify me about', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
-		},
-		{
 			// zyra's real `type: 'setting-row'` field
 			// (`components-settingrowcomponent--with-checkbox`, per direct
 			// instruction) — see this file's own docblock for why
 			// `control: { checkbox: true }` fits this flat multi-select
 			// array field, unlike AiCrawlerAlerts.ts's per-type
-			// toggle/select rows.
+			// toggle/select rows. `label` now renders for real (fixed at
+			// the source — see AiCrawlerAlerts.ts's own `crawler_alerts`
+			// field docblock), so the old
+			// `security-alerts-notify-section` SectionComponent field
+			// that used to fake this heading is gone.
+			label: __('Notify me about', 'vulopilot'),
 			key: 'security_alert_types',
 			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,
