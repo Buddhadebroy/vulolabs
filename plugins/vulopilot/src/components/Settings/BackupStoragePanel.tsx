@@ -238,7 +238,6 @@ const BackupStoragePanel = () => {
 	return (
 		<CardComponent
 			title={__('Cloud Storage', 'vulopilot')}
-			titleIcon="plus"
 			desc={__(
 				'Credentials for the remote destinations "Storage destination" above can upload completed backups to. Every backup always saves to this server first regardless.',
 				'vulopilot'

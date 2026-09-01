@@ -72,7 +72,7 @@ export default {
 		{
 			key: 'content_search_scans',
 			type: 'expandable-panel',
-			label: '',
+			label: __('Content & Search', 'vulopilot'),
 			modal: [
 				{
 					id: 'seo',

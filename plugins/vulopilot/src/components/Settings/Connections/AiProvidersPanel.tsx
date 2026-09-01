@@ -4,10 +4,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	FormGroupWrapperComponent,
-	FormGroupComponent,
 	NoticeManager,
 } from '@zyra/components';
-import { ButtonInput, ChoiceToggleInput, ExpandablePanelInput, SelectInput, TextInput } from '@zyra/inputs';
+import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
+import OtherProvidersCard from './OtherProvidersCard';
 
 interface ConfiguredProvider {
 	id: number;
@@ -133,10 +133,19 @@ const ProviderCard = ( {
 					<span className="desc">{ hero?.desc }</span>
 				</div>
 				{ config && (
-					<ChoiceToggleInput
-						options={ [ { key: 'enabled', value: 'enabled', label: config.is_active ? __( 'Enabled', 'vulopilot' ) : __( 'Disabled', 'vulopilot' ) } ] }
+					// MultiCheckboxInput's own `look="toggle"` — the real oval
+					// pill switch (SettingToggle's own docblock: "the same
+					// pill switch ModuleGridComponent's module activate/
+					// deactivate control already renders"), not
+					// ChoiceToggleInput's bordered button-group look, which
+					// is right for a real multi-option choice (IndexNowPanel.tsx's
+					// post-type picker) but wrong for a single on/off switch.
+					<MultiCheckboxInput
+						look="toggle"
+						type="checkbox"
+						toggleStatusLabel={ { on: __( 'Enabled', 'vulopilot' ), off: __( 'Disabled', 'vulopilot' ) } }
+						options={ [ { key: 'enabled', value: 'enabled' } ] }
 						value={ config.is_active ? [ 'enabled' ] : [] }
-						multiSelect
 						modules={ [] }
 						onChange={ () => onToggleActive( config ) }
 					/>
@@ -316,7 +325,6 @@ const AiProvidersPanel = () => {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ savingProviderId, setSavingProviderId ] = useState<string | null>( null );
-	const [ isOtherProvidersOpen, setIsOtherProvidersOpen ] = useState( false );
 	const [ newProviderValues, setNewProviderValues ] = useState<
 		Record<string, Record<string, unknown>>
 	>( {} );
@@ -423,6 +431,54 @@ const AiProvidersPanel = () => {
 			row.is_active ? __( 'Provider disabled.', 'vulopilot' ) : __( 'Provider enabled.', 'vulopilot' ),
 			__( 'Could not update this provider.', 'vulopilot' )
 		);
+	};
+
+	/**
+	 * "Other providers" own real Enabled/Disabled switch — unlike a hero
+	 * card's own `handleToggleActive` (one real row, one real `is_active`),
+	 * this flips every currently-configured non-hero provider's own
+	 * `is_active` at once, to the opposite of `anyOtherActive` (any one
+	 * active → turn all off; none active → turn all on). Same real
+	 * `PATCH /ai-providers/{id}` each row's own toggle already uses — just
+	 * fired for all of them together — not a fabricated switch with no
+	 * real effect. A no-op (and never called — the switch is disabled)
+	 * when nothing is configured yet, since there's nothing to flip.
+	 */
+	const handleToggleAllOtherProviders = () => {
+		if ( 0 === otherConfigured.length ) {
+			return;
+		}
+
+		const nextActive = ! anyOtherActive;
+
+		setIsSaving( true );
+
+		Promise.all(
+			otherConfigured
+				.filter( ( row ) => row.is_active !== nextActive )
+				.map( ( row ) =>
+					sendApiResponse( appLocalizer, getApiLink( appLocalizer, `ai-providers/${ row.id }` ), {
+						is_active: nextActive,
+					} )
+				)
+		)
+			.then( ( responses ) => {
+				const allSucceeded = responses.every( Boolean );
+
+				NoticeManager.add( {
+					uniqueKey: 'vulopilot-ai-providers-other-toggle-all',
+					type: allSucceeded ? 'success' : 'error',
+					position: 'float',
+					message: allSucceeded
+						? ( nextActive
+							? __( 'All other providers enabled.', 'vulopilot' )
+							: __( 'All other providers disabled.', 'vulopilot' ) )
+						: __( 'Could not update every other provider — some may be unchanged.', 'vulopilot' ),
+				} );
+
+				load();
+			} )
+			.finally( () => setIsSaving( false ) );
 	};
 
 	const handleSaveModel = ( row: ConfiguredProvider, model: string ) => {
@@ -732,58 +788,18 @@ const AiProvidersPanel = () => {
 							/>
 						) ) }
 
-						<div className="ai-provider-card ai-provider-other-card">
-							<div
-								className="ai-provider-card-header is-clickable"
-								onClick={ () => setIsOtherProvidersOpen( ( v ) => ! v ) }
-							>
-								<div className="ai-provider-card-icon">
-									<i className="adminfont-ai" />
-								</div>
-								<div className="ai-provider-card-title">
-									<strong>{ __( 'Other providers', 'vulopilot' ) }</strong>
-									<span className="desc">
-										{ __( 'Connect with other AI providers.', 'vulopilot' ) }
-									</span>
-								</div>
-								{ /* Plain status text, not a ToggleInput — "Other providers" isn't
-								 * one real row with its own is_active to flip; it's a derived
-								 * "is anything in here active" summary, so a switch that looked
-								 * interactive but didn't actually toggle anything would be
-								 * misleading. Enabling/disabling a specific other provider still
-								 * happens for real, per-row, once this section is expanded. */ }
-								<span
-									className={ `ai-provider-connection-status ${ anyOtherActive ? 'is-success' : '' }` }
-								>
-									{ anyOtherActive ? __( 'Enabled', 'vulopilot' ) : __( 'Disabled', 'vulopilot' ) }
-								</span>
-								<i className={ `adminfont-arrow-${ isOtherProvidersOpen ? 'up' : 'down' } ai-provider-expand-icon` } />
-							</div>
-
-							{ isOtherProvidersOpen && (
-								<div className="ai-provider-card-body">
-									<FormGroupComponent row label={ __( 'Add and configure other AI providers that are compatible with the OpenAI API format.', 'vulopilot' ) }>
-										{ otherConfigured.length > 0 || newProviderOptions.length > 0 ? (
-											<ExpandablePanelInput
-												key={ `${ newProviderPanelKey }-${ otherConfigured.map( ( { id } ) => id ).join( '-' ) }` }
-												name="ai-providers-other"
-												methods={ otherConfiguredMethods }
-												value={ otherPanelValues }
-												onChange={ handleNewProviderChange }
-												canAccess
-												addNewBtn={ newProviderOptions.length > 0 }
-												addNewTemplate={ {
-													editableFields: { title: false, description: false },
-												} }
-												addNewOptions={ newProviderOptions }
-											/>
-										) : (
-											<div className="desc">{ __( 'No other providers configured yet.', 'vulopilot' ) }</div>
-										) }
-									</FormGroupComponent>
-								</div>
-							) }
-						</div>
+						<OtherProvidersCard
+							otherConfiguredCount={ otherConfigured.length }
+							newProviderOptionsCount={ newProviderOptions.length }
+							anyOtherActive={ anyOtherActive }
+							isTogglingAll={ isSaving }
+							onToggleAll={ handleToggleAllOtherProviders }
+							panelKey={ `${ newProviderPanelKey }-${ otherConfigured.map( ( { id } ) => id ).join( '-' ) }` }
+							methods={ otherConfiguredMethods }
+							value={ otherPanelValues }
+							onChange={ handleNewProviderChange }
+							addNewOptions={ newProviderOptions }
+						/>
 					</>
 				) }
 			</FormGroupWrapperComponent>
