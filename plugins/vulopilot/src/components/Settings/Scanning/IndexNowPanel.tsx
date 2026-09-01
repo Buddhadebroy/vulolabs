@@ -11,7 +11,7 @@ import {
 	ClipboardComponent,
 	SectionComponent
 } from '@zyra/components';
-import { ButtonInput, ChoiceToggleInput, TextAreaInput } from '@zyra/inputs';
+import { ButtonInput, MultiCheckboxInput, TextAreaInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
 
@@ -235,10 +235,9 @@ const IndexNowPanel = () => {
 							'vulopilot'
 						)}
 					>
-						<ChoiceToggleInput
+						<MultiCheckboxInput
 							options={POST_TYPE_OPTIONS}
 							value={postTypes}
-							multiSelect
 							modules={[]}
 							onChange={handlePostTypesChange}
 						/>
