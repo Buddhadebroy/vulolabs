@@ -484,6 +484,7 @@ const SeoIssuesByPageTable = ({
 								{
 									type: 'button',
 									label: __('Analyze', 'vulopilot'),
+									
 									icon: 'search',
 									hidden: (row) =>
 										!onAnalyze ||
@@ -493,9 +494,38 @@ const SeoIssuesByPageTable = ({
 											(row as unknown as PageRow).id
 										),
 								},
+								
+								{
+									type: 'button',
+									label: __('Edit', 'vulopilot'),
+									color: 'text-green',
+									icon: 'edit',
+									onClick: (row) => {
+										window.location.href = (
+											row as unknown as TableRow
+										).editLink;
+									},
+								},
+								{
+									type: 'button',
+									label: __('View', 'vulopilot'),
+									color: 'text-blue',
+									icon: 'eye',
+									onClick: (row) => {
+										const typedRow = row as unknown as TableRow;
+										if (typedRow.viewLink) {
+											window.open(
+												typedRow.viewLink,
+												'_blank',
+												'noreferrer'
+											);
+										}
+									},
+								},
 								{
 									type: 'button',
 									label: __('Fix with AI', 'vulopilot'),
+									color: 'orange-bg',
 									icon: 'ai',
 									hidden: (row) => {
 										const typedRow = row as unknown as TableRow;
@@ -510,31 +540,6 @@ const SeoIssuesByPageTable = ({
 											window.location.href = typedRow.fixWithAiLink;
 										} else {
 											handleFixWithAi(typedRow);
-										}
-									},
-								},
-								{
-									type: 'button',
-									label: __('Edit', 'vulopilot'),
-									icon: 'edit',
-									onClick: (row) => {
-										window.location.href = (
-											row as unknown as TableRow
-										).editLink;
-									},
-								},
-								{
-									type: 'button',
-									label: __('View', 'vulopilot'),
-									icon: 'eye',
-									onClick: (row) => {
-										const typedRow = row as unknown as TableRow;
-										if (typedRow.viewLink) {
-											window.open(
-												typedRow.viewLink,
-												'_blank',
-												'noreferrer'
-											);
 										}
 									},
 								},

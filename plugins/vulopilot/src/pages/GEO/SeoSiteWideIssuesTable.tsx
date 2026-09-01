@@ -217,6 +217,7 @@ const SeoSiteWideIssuesTable = ({
 								type: 'button',
 								label: __('Resolve', 'vulopilot'),
 								icon: 'check',
+								color: 'text-blue',
 								onClick: (row) =>
 									handleStatus(
 										row as unknown as RawFinding,
@@ -229,12 +230,25 @@ const SeoSiteWideIssuesTable = ({
 							},
 							{
 								type: 'button',
+								label: __('Ignore', 'vulopilot'),
+								color: 'text-red',
+								icon: 'eye-blocked',
+								onClick: (row) =>
+									handleStatus(
+										row as unknown as RawFinding,
+										'ignored',
+										__('Finding ignored.', 'vulopilot')
+									),
+							},
+							{
+								type: 'button',
 								label: (row) =>
 									fixingFindingId ===
 									(row as unknown as RawFinding)?.id
 										? __('Fixing…', 'vulopilot')
 										: __('Fix with AI', 'vulopilot'),
 								icon: 'ai',
+								color: 'orange-bg',
 								onClick: (row) => {
 									const finding = row as unknown as RawFinding;
 									// Was `onClick: undefined` on the raw
@@ -248,17 +262,6 @@ const SeoSiteWideIssuesTable = ({
 									}
 									handleFix(finding);
 								},
-							},
-							{
-								type: 'button',
-								label: __('Ignore', 'vulopilot'),
-								icon: 'eye-blocked',
-								onClick: (row) =>
-									handleStatus(
-										row as unknown as RawFinding,
-										'ignored',
-										__('Finding ignored.', 'vulopilot')
-									),
 							},
 						],
 					},

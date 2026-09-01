@@ -239,7 +239,13 @@ export default {
 			dependent: MASTER_ENABLED_DEPENDENT,
 		},
 		{
-			label: __('', 'vulopilot'),
+			// No `label` here — confirmed in zyra's own SettingRowComponent.tsx:
+			// once `rows` is given, `SettingRowComponent` branches straight to
+			// `rows.map(...)` and never reads its own top-level `title`/`label`
+			// prop at all (real gap, not a `desc`/`description`-style renamed
+			// prop). The `ai-crawler-alerts-notify-section` SectionComponent
+			// right above already renders this exact "Notify me about" heading,
+			// so this was always a dead, unrendered duplicate of it.
 			key: 'crawler_alerts',
 			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,

@@ -5,6 +5,18 @@
 	margin: 1.25rem 0 0.75rem;
 }
 
+// AIAssistant.tsx's own title-bar info icon — replaces the old "How it
+// works" popup button with a hover tooltip on the title itself
+// (TooltipComponent, `headerTitle` cast through JSX since
+// NavigatorHeaderComponent's own type only declares it as `string`).
+.ai-copilot-title-info {
+	margin-left: 0.375rem;
+	font-size: 1rem;
+	color: $sub-text-color;
+	cursor: help;
+	vertical-align: middle;
+}
+
 // ChatTab.tsx's own "Chat with VuloPilot" card — the icon-badge title
 // treatment and pill-shaped/chevron chip-grid are now shared by every
 // ChatComposerCard (`.ai-card` in ChatComposerCard.scss); only this one

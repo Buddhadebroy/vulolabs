@@ -515,7 +515,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						},
 						{
 							text: __('Ignore all', 'vulopilot'),
-							color: 'border-purple',
+							color: 'border-red',
 							onClick: () =>
 								handleBulkStatus(
 									'ignored',

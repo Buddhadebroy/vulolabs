@@ -73,12 +73,13 @@ export default {
 			// instruction) — see this file's own docblock for why
 			// `control: { checkbox: true }` fits this flat multi-select
 			// array field, same shape SecurityAlerts.ts's own
-			// `security_alert_types` already uses.
-			label: __('Enabled', 'vulopilot'),
-			settingDescription: __(
-				'Master switch for every critical issue alert below — turn this off to silence all of them at once.',
-				'vulopilot'
-			),
+			// `security_alert_types` already uses. No `label`/
+			// `settingDescription` here — confirmed dead once `rows` is given
+			// (SettingRowComponent.tsx branches straight to `rows.map(...)`,
+			// never reads its own top-level `title`/`desc`); this was a stray
+			// copy-paste of the master-switch checkbox field above it, and
+			// the "website-alerts-notify-section" SectionComponent above
+			// already carries the real heading.
 			key: 'critical_alert_types',
 			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,

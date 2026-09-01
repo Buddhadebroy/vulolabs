@@ -67,6 +67,9 @@ const BackupStoragePanel = () => {
 	const [status, setStatus] = useState<BackupStorageStatus | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
+	const [isS3Open, setIsS3Open] = useState(true);
+	const [isGoogleDriveOpen, setIsGoogleDriveOpen] = useState(true);
+
 	const [accessKey, setAccessKey] = useState('');
 	const [secretKey, setSecretKey] = useState('');
 	const [bucket, setBucket] = useState('');
@@ -245,105 +248,142 @@ const BackupStoragePanel = () => {
 			{!isLoading && status && (
 				<div className="backup-storage-panel">
 					<div className="backup-storage-section">
-						<div className='backup-storage-header'>
-							<div className="backup-storage-section-title">
-								<i className="adminfont-cloud-upload red" /> {__('Amazon S3', 'vulopilot')}
+						<div
+							className="backup-storage-header is-clickable"
+							onClick={() => setIsS3Open((v) => !v)}
+						>
+							<div className="backup-storage-card-icon">
+								<i className="adminfont-cloud-upload red" />
 							</div>
-
-							{status.s3.configured && (
-								<div className="backup-storage-status-row">
-									<BadgeComponent color="green" text={__('Configured', 'vulopilot')} />
-									<span className="desc">
-										{sprintf(
-											/* translators: 1: bucket name, 2: AWS region, 3: masked access key. */
-											__('%1$s · %2$s · Access Key %3$s', 'vulopilot'),
-											status.s3.bucket,
-											status.s3.region,
-											status.s3.access_key_masked
-										)}
-									</span>
-									<button
-										type="button"
-										className="backup-storage-inline-action"
-										onClick={handleTestS3}
-										disabled={isTestingS3}
-									>
-										{isTestingS3
-											? __('Testing…', 'vulopilot')
-											: __('Test connection', 'vulopilot')}
-									</button>
-								</div>
-							)}
-
-							{s3TestResult && (
-								<NoticeComponent
-									displayPosition="inline"
-									type={s3TestResult.success ? 'success' : 'error'}
-									message={s3TestResult.message}
-								/>
-							)}
+							<div className="backup-storage-card-title">
+								<strong>{__('Amazon S3', 'vulopilot')}</strong>
+								<span className="desc">
+									{__('Store backups in an Amazon S3 bucket.', 'vulopilot')}
+								</span>
+							</div>
+							<span
+								className={`backup-storage-connection-status ${status.s3.configured ? 'is-success' : ''}`}
+							>
+								{status.s3.configured ? __('Configured', 'vulopilot') : __('Not configured', 'vulopilot')}
+							</span>
+							<i className={`adminfont-arrow-${isS3Open ? 'up' : 'down'} backup-storage-expand-icon`} />
 						</div>
-						<FormGroupWrapperComponent>
-							<FormGroupComponent cols="6" label={__('Access Key ID', 'vulopilot')}>
-								<TextInput
-									name="s3_access_key"
-									inputLabel={__('Access Key ID', 'vulopilot')}
-									placeholder="AKIAIOSFODNN7EXAMPLE"
-									value={accessKey}
-									onChange={(value) => setAccessKey(value as string)}
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent cols="6" label={__('Secret Access Key', 'vulopilot')}>
-								<TextInput
-									name="s3_secret_key"
-									inputLabel={__('Secret Access Key', 'vulopilot')}
-									placeholder="••••••••••••••••••••••••"
-									value={secretKey}
-									onChange={(value) => setSecretKey(value as string)}
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent cols="6" label={__('Bucket', 'vulopilot')}>
-								<TextInput
-									name="s3_bucket"
-									inputLabel={__('Bucket', 'vulopilot')}
-									placeholder="my-backups-bucket"
-									value={bucket}
-									onChange={(value) => setBucket(value as string)}
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent cols="6" label={__('Region', 'vulopilot')}>
-								<TextInput
-									name="s3_region"
-									inputLabel={__('Region', 'vulopilot')}
-									placeholder="us-east-1"
-									value={region}
-									onChange={(value) => setRegion(value as string)}
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent label="">
-								<ButtonInput
-									buttons={{
-										text: isSavingS3
-											? __('Saving…', 'vulopilot')
-											: status.s3.configured
-												? __('Update', 'vulopilot')
-												: __('Save', 'vulopilot'),
-										onClick: handleSaveS3,
-										disabled:
-											isSavingS3 || !accessKey || !secretKey || !bucket,
-									}}
-								/>
-							</FormGroupComponent>
-						</FormGroupWrapperComponent>
+
+						{isS3Open && (
+							<div className="backup-storage-card-body">
+								{status.s3.configured && (
+									<div className="backup-storage-status-row">
+										<BadgeComponent color="green" text={__('Configured', 'vulopilot')} />
+										<span className="desc">
+											{sprintf(
+												/* translators: 1: bucket name, 2: AWS region, 3: masked access key. */
+												__('%1$s · %2$s · Access Key %3$s', 'vulopilot'),
+												status.s3.bucket,
+												status.s3.region,
+												status.s3.access_key_masked
+											)}
+										</span>
+										<button
+											type="button"
+											className="backup-storage-inline-action"
+											onClick={handleTestS3}
+											disabled={isTestingS3}
+										>
+											{isTestingS3
+												? __('Testing…', 'vulopilot')
+												: __('Test connection', 'vulopilot')}
+										</button>
+									</div>
+								)}
+
+								{s3TestResult && (
+									<NoticeComponent
+										displayPosition="inline"
+										type={s3TestResult.success ? 'success' : 'error'}
+										message={s3TestResult.message}
+									/>
+								)}
+
+								<FormGroupWrapperComponent>
+									<FormGroupComponent cols="6" label={__('Access Key ID', 'vulopilot')}>
+										<TextInput
+											name="s3_access_key"
+											inputLabel={__('Access Key ID', 'vulopilot')}
+											placeholder="AKIAIOSFODNN7EXAMPLE"
+											value={accessKey}
+											onChange={(value) => setAccessKey(value as string)}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent cols="6" label={__('Secret Access Key', 'vulopilot')}>
+										<TextInput
+											name="s3_secret_key"
+											inputLabel={__('Secret Access Key', 'vulopilot')}
+											placeholder="••••••••••••••••••••••••"
+											value={secretKey}
+											onChange={(value) => setSecretKey(value as string)}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent cols="6" label={__('Bucket', 'vulopilot')}>
+										<TextInput
+											name="s3_bucket"
+											inputLabel={__('Bucket', 'vulopilot')}
+											placeholder="my-backups-bucket"
+											value={bucket}
+											onChange={(value) => setBucket(value as string)}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent cols="6" label={__('Region', 'vulopilot')}>
+										<TextInput
+											name="s3_region"
+											inputLabel={__('Region', 'vulopilot')}
+											placeholder="us-east-1"
+											value={region}
+											onChange={(value) => setRegion(value as string)}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent label="">
+										<ButtonInput
+											buttons={{
+												text: isSavingS3
+													? __('Saving…', 'vulopilot')
+													: status.s3.configured
+														? __('Update', 'vulopilot')
+														: __('Save', 'vulopilot'),
+												onClick: handleSaveS3,
+												disabled:
+													isSavingS3 || !accessKey || !secretKey || !bucket,
+											}}
+										/>
+									</FormGroupComponent>
+								</FormGroupWrapperComponent>
+							</div>
+						)}
 					</div>
 
 					<div className="backup-storage-section">
-						<div className='backup-storage-header'>
-							<div className="backup-storage-section-title">
-								<i className="adminfont-google yellow" /> {__('Google Drive', 'vulopilot')}
+						<div
+							className="backup-storage-header is-clickable"
+							onClick={() => setIsGoogleDriveOpen((v) => !v)}
+						>
+							<div className="backup-storage-card-icon">
+								<i className="adminfont-google yellow" />
 							</div>
+							<div className="backup-storage-card-title">
+								<strong>{__('Google Drive', 'vulopilot')}</strong>
+								<span className="desc">
+									{__('Store backups in a Google Drive folder.', 'vulopilot')}
+								</span>
+							</div>
+							<span
+								className={`backup-storage-connection-status ${status.google_drive.connected ? 'is-success' : ''}`}
+							>
+								{status.google_drive.connected ? __('Connected', 'vulopilot') : __('Not connected', 'vulopilot')}
+							</span>
+							<i className={`adminfont-arrow-${isGoogleDriveOpen ? 'up' : 'down'} backup-storage-expand-icon`} />
 						</div>
 
+						{isGoogleDriveOpen && (
+						<div className="backup-storage-card-body">
 						<FormGroupWrapperComponent>
 							{status.google_drive.connected ? (
 								<div className="backup-storage-status-row">
@@ -457,7 +497,9 @@ const BackupStoragePanel = () => {
 							)}
 						</FormGroupWrapperComponent>
 					</div>
+					)}
 				</div>
+			</div>
 			)}
 		</CardComponent>
 	);
