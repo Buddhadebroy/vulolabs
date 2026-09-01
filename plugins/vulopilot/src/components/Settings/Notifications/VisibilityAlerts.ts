@@ -14,6 +14,12 @@ const THRESHOLD_OPTIONS = [5, 10, 20, 30].map((points) => ({
 	value: String(points),
 }));
 
+// Shared by every row's own `control.toggleStatusLabel` below — "On"/"Off"
+// per direct instruction, same shape AiCrawlerAlerts.ts's own
+// TOGGLE_STATUS_LABEL uses, rather than SettingToggle's own default
+// "Enabled"/"Disabled" flip text.
+const TOGGLE_STATUS_LABEL = { on: __('On', 'vulopilot'), off: __('Off', 'vulopilot') };
+
 /**
  * Settings → Notifications → Visibility Alerts.
  *
@@ -77,12 +83,6 @@ export default {
 			],
 		},
 		{
-			key: 'visibility-alerts-notify-section',
-			type: 'section',
-			title: __('Notify me when', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
-		},
-		{
 			// zyra's real `type: 'setting-row'` field (per direct
 			// instruction) — one flat row per score type, each with its own
 			// threshold select and on/off toggle both visible at once, no
@@ -90,6 +90,7 @@ export default {
 			// AiCrawlerAlerts.ts already uses. See this file's own docblock
 			// for the value shape (unchanged from the old expandable-panel
 			// field).
+			label: __('Notify me when', 'vulopilot'),
 			key: 'visibility_alerts',
 			type: 'setting-row',
 			dependent: MASTER_ENABLED_DEPENDENT,
@@ -104,6 +105,7 @@ export default {
 					),
 					control: {
 						toggle: true,
+						toggleStatusLabel: TOGGLE_STATUS_LABEL,
 						select: {
 							key: 'threshold',
 							label: __('Notify me if score drops by', 'vulopilot'),
@@ -121,6 +123,7 @@ export default {
 					),
 					control: {
 						toggle: true,
+						toggleStatusLabel: TOGGLE_STATUS_LABEL,
 						select: {
 							key: 'threshold',
 							label: __('Notify me if score drops by', 'vulopilot'),
@@ -138,6 +141,7 @@ export default {
 					),
 					control: {
 						toggle: true,
+						toggleStatusLabel: TOGGLE_STATUS_LABEL,
 						select: {
 							key: 'threshold',
 							label: __('Notify me if score drops by', 'vulopilot'),

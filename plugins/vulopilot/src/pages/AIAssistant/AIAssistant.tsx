@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
-	PopupComponent,
 	ContainerComponent,
-	NavigatorHeaderComponent
+	NavigatorHeaderComponent,
+	TooltipComponent
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import { IssuesFilter } from './NeedsAttentionCard';
@@ -33,13 +33,16 @@ interface ConfiguredProviderRow {
  * Security.tsx already established — `NavigatorHeaderComponent` replaces
  * the old `NavigatorComponent`'s own built-in header, carrying over every
  * real header behavior that used to come from the tab shell (the live
- * Online/Offline badge, "How it works" popup button).
+ * Online/Offline badge). The old "How it works" popup button is now a
+ * hover tooltip on the title itself instead (`headerTitle` cast through
+ * JSX — NavigatorHeaderComponent's own type only declares it as `string`,
+ * but it just renders `{headerTitle}` as children, so a real element works
+ * at runtime the same way `field.component`'s escape hatch does elsewhere).
  */
 const AIAssistant = () => {
 	const [chatMessage, setChatMessage] = useState('');
 	const [autoApply, setAutoApply] = useState(true);
-	const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
-	/** Opens ChatTab.tsx's own "Recent conversations" popup — the header button lives here since NavigatorHeaderComponent (and its "How it works" button) does, but the popup and the real conversation data/selection it needs still render inside ChatTab.tsx, so only the open/close boolean is lifted up. */
+	/** Opens ChatTab.tsx's own "Recent conversations" popup — the header button lives here since NavigatorHeaderComponent does, but the popup and the real conversation data/selection it needs still render inside ChatTab.tsx, so only the open/close boolean is lifted up. */
 	const [isHistoryPopupOpen, setIsHistoryPopupOpen] = useState(false);
 	const [issuesFilter, setIssuesFilter] = useState<IssuesFilter | null>(
 		null
@@ -93,30 +96,24 @@ const AIAssistant = () => {
 
 	return (
 		<>
-			<PopupComponent
-				open={isHowItWorksOpen}
-				onClose={() => setIsHowItWorksOpen(false)}
-				width={28}
-				height="auto"
-				position="lightbox"
-			>
-				<h2>{__('How AI Copilot works', 'vulopilot')}</h2>
-				<p>
-					{__(
-						'Ask a question or pick a suggested prompt. VuloPilot checks your live site data — scans, traffic, security, and store health — and answers with real recommendations.',
-						'vulopilot'
-					)}
-				</p>
-				<p>
-					{__(
-						'Ask for a blog post, landing page, or product description and VuloPilot writes it and saves it as a real draft for you, logged to History with a real Undo. Everything else — SEO, performance, security, and other fixes — is advice only for now: VuloPilot will point you to exactly where to review and apply it yourself.',
-						'vulopilot'
-					)}
-				</p>
-			</PopupComponent>
 			<NavigatorHeaderComponent
 				headerIcon="ai"
-				headerTitle={__('AI Copilot', 'vulopilot')}
+				headerTitle={
+					(
+						<>
+							{__('AI Copilot', 'vulopilot')}
+							<TooltipComponent
+								text={__(
+									'Ask a question or pick a suggested prompt. VuloPilot checks your live site data — scans, traffic, security, and store health — and answers with real recommendations. Ask for a blog post, landing page, or product description and it writes one and saves it as a real draft, logged to History with a real Undo. Everything else — SEO, performance, security, and other fixes — is advice only for now.',
+									'vulopilot'
+								)}
+								position="bottom"
+							>
+								<i className="adminfont-info ai-copilot-title-info" />
+							</TooltipComponent>
+						</>
+					) as unknown as string
+				}
 				headerDescription={__(
 					'Your always-on AI assistant for WordPress. Ask anything, get intelligent answers and take action.',
 					'vulopilot'
@@ -137,13 +134,6 @@ const AIAssistant = () => {
 										},
 							]
 				}
-				buttons={[
-					{
-						label: __('How it works', 'vulopilot'),
-						icon: 'help',
-						onClick: () => setIsHowItWorksOpen(true),
-					},
-				]}
 			/>
 			<ContainerComponent general>
 				<ChatTab

@@ -59,10 +59,10 @@ export default {
 		{
 			key: 'ai_change_approval_mode',
 			type: 'choice-toggle',
-			custom: true,
+			variant: 'compact',
 			defaultValue: 'always',
 			label: __( 'Ask before applying AI changes', 'vulopilot' ),
-			width: '60%',
+			width: '90%',
 			settingDescription: __(
 				'Choose when VuloPilot should ask for your approval before applying AI-suggested changes.',
 				'vulopilot'
@@ -71,15 +71,14 @@ export default {
 				{
 					key: 'always',
 					value: 'always',
-					label: __( 'Always ask (Recommended)', 'vulopilot' ),
+					label: __( 'Always ask', 'vulopilot' ),
+					badgeColor: 'blue', badgeText: 'Recommended',
 					desc: __(
 						'VuloPilot will always ask for your approval before applying any AI-generated changes.',
 						'vulopilot'
 					),
 					icon: 'info blue',
-					customHtml: highlight(
-						__( 'You stay in full control of every change.', 'vulopilot' )
-					),
+					customHtml: `<div class="admin-badge blue">You stay in full control of every change.</div>`
 				},
 				{
 					key: 'risk_based',
@@ -90,22 +89,20 @@ export default {
 						'vulopilot'
 					),
 					icon: 'error red',
-					width: '100%',
-					customHtml: highlight( __( 'Balanced control and automation.', 'vulopilot' ) ),
+					customHtml: `<div class="admin-badge red">Balanced control and automation.</div>`
 				},
 				{
 					key: 'never',
 					value: 'never',
 					label: __( 'Do not ask (Pro)', 'vulopilot' ),
+					badgeColor: 'green', badgeText: 'Pro',
 					desc: __(
 						'VuloPilot will apply eligible AI-generated changes automatically without asking.',
 						'vulopilot'
 					),
 					icon: 'check green',
 					proSetting: true,
-					customHtml: highlight(
-						__( 'Maximum automation. Use with caution.', 'vulopilot' )
-					),
+					customHtml: `<div class="admin-badge green">Maximum automation. Use with caution.</div>`
 				},
 			],
 		},

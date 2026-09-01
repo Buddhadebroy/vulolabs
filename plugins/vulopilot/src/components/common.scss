@@ -137,16 +137,19 @@
 
         .broken-link-section {
             width: 50%;
-            .broken-link-scan-banner-title{
+
+            .broken-link-scan-banner-title {
                 font-size: 1.125rem;
             }
-            .broken-link-details{
+
+            .broken-link-details {
                 width: 100%;
 
-                .analytics-container{
+                .analytics-container {
                     margin-top: 0.813rem;
                 }
             }
+
             &.left {
                 display: flex;
                 align-items: start;
@@ -158,9 +161,31 @@
                     border-radius: 0.313rem;
                 }
             }
-            &.right{
+
+            &.right {
                 background: $theme-background-color;
             }
         }
+    }
+}
+
+
+.best-for-wrapper {
+    max-width: 10rem;
+    padding: 0.625rem;
+    background: $theme-background-color;
+    border-radius: 0.313rem;
+
+    .best-for-label{
+        color: $theme-color;
+    }
+    .desc {
+        font-size: 0.813rem;
+        line-height: 1.2;
+        margin-top: 0.313rem;
+    }
+
+    &.orange .best-for-label{
+        color: #e67a2e;
     }
 }

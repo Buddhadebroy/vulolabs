@@ -344,7 +344,7 @@ const SecurityPanel = () => {
 
 	return (
 		<FormGroupWrapperComponent>
-			<FormGroupComponent row >
+			<FormGroupComponent row label={__('Security scans', 'vulopilot')}>
 				<ExpandablePanelInput
 					name="security_scans_cards"
 					methods={buildMethods(SCAN_ROWS)}
@@ -353,22 +353,22 @@ const SecurityPanel = () => {
 					canAccess
 				/>
 			</FormGroupComponent>
-			<NoticeComponent
-				displayPosition="inline-notice"
-				type="info"
-				title={__('Why these scans matter', 'vulopilot')}
-				message={__(
-					'Regular security scans help you protect your website, your users, and your business from threats and attacks.',
-					'vulopilot'
-				)}
-			/>
-			<FormGroupComponent row >
-				<SectionComponent
-					title={__('Protection', 'vulopilot')}
-					desc={__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
+			<FormGroupComponent row label="">
+				<NoticeComponent
+					displayPosition="inline-notice"
+					type="info"
+					title={__('Why these scans matter', 'vulopilot')}
+					message={__(
+						'Regular security scans help you protect your website, your users, and your business from threats and attacks.',
+						'vulopilot'
+					)}
 				/>
 			</FormGroupComponent>
-			<FormGroupComponent row >
+			<SectionComponent
+				title={__('Protection', 'vulopilot')}
+				desc={__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
+			/>
+			<FormGroupComponent row label={__('Protection', 'vulopilot')}>
 				<ExpandablePanelInput
 					name="security_protection_cards"
 					methods={buildMethods(PROTECTION_ROWS)}
@@ -416,7 +416,7 @@ const SecurityPanel = () => {
 					<span dangerouslySetInnerHTML={{ __html: proBadge() }} />
 				)}
 			</FormGroupComponent>
-			<FormGroupComponent row >
+			<FormGroupComponent row label={__('Security Monitoring', 'vulopilot')}>
 				<ExpandablePanelInput
 					name="security_monitoring_cards"
 					methods={buildMethods(MONITORING_ROWS)}

@@ -56,7 +56,7 @@ export default {
 		{
 			key: 'default_report_format',
 			type: 'choice-toggle',
-			custom: true,
+			variant: 'compact',
 			defaultValue: 'pdf',
 			label: 'Default report format',
 			settingDescription: __(
@@ -67,9 +67,10 @@ export default {
 				{
 					key: 'pdf',
 					value: 'pdf',
-					label: __('PDF (Recommended)', 'vulopilot'),
+					label: __('PDF', 'vulopilot'),
+					badgeColor: 'green', badgeText: __('Recommended', 'vulopilot') ,
 					desc: __('Great for sharing and printing.', 'vulopilot'),
-					icon: 'pdf',
+					icon: 'pdf blue',
 					moduleEnabled: 'advanced-reports',
 				},
 				{
@@ -77,7 +78,7 @@ export default {
 					value: 'csv',
 					label: __('CSV', 'vulopilot'),
 					desc: __('Best for data analysis in spreadsheets.', 'vulopilot'),
-					icon: 'csv',
+					icon: 'csv green',
 				},
 			],
 		},

@@ -33,7 +33,7 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 					title: template.label,
 					desc: template.description,
 					tags: (
-						<i className="adminfont-pagination-right-arrow ai-copilot-row-arrow" />
+						<i className="adminfont-plus ai-copilot-row-arrow" />
 					),
 					action: () => onSelectTemplate(template),
 				}))}

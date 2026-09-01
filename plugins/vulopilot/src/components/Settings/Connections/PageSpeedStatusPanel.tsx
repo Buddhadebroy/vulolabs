@@ -102,7 +102,7 @@ const PageSpeedStatusPanel = () => {
 		<FormGroupWrapperComponent>
 			<FormGroupComponent>
 				<CardHeader
-					icon="analytics"
+					icon="analytics green"
 					className='compact'
 					title={__('PageSpeed Insights', 'vulopilot')}
 					desc={__(

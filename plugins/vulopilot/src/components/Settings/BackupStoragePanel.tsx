@@ -67,6 +67,9 @@ const BackupStoragePanel = () => {
 	const [status, setStatus] = useState<BackupStorageStatus | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
+	const [isS3Open, setIsS3Open] = useState(true);
+	const [isGoogleDriveOpen, setIsGoogleDriveOpen] = useState(true);
+
 	const [accessKey, setAccessKey] = useState('');
 	const [secretKey, setSecretKey] = useState('');
 	const [bucket, setBucket] = useState('');
@@ -235,7 +238,6 @@ const BackupStoragePanel = () => {
 	return (
 		<CardComponent
 			title={__('Cloud Storage', 'vulopilot')}
-			titleIcon="plus"
 			desc={__(
 				'Credentials for the remote destinations "Storage destination" above can upload completed backups to. Every backup always saves to this server first regardless.',
 				'vulopilot'
@@ -245,217 +247,252 @@ const BackupStoragePanel = () => {
 			{!isLoading && status && (
 				<div className="backup-storage-panel">
 					<div className="backup-storage-section">
-						<div className='backup-storage-header'>
-							<div className="backup-storage-section-title">
-								<i className="adminfont-cloud-upload red" /> {__('Amazon S3', 'vulopilot')}
+						<div
+							className="backup-storage-header is-clickable"
+							onClick={() => setIsS3Open((v) => !v)}
+						>
+							<i className="backup-storage-card-icon adminfont-cloud-upload red" />
+							<div className="backup-storage-card-title">
+								<strong>{__('Amazon S3', 'vulopilot')}</strong>
+								<span className="desc">
+									{__('Store backups in an Amazon S3 bucket.', 'vulopilot')}
+								</span>
 							</div>
-
-							{status.s3.configured && (
-								<div className="backup-storage-status-row">
-									<BadgeComponent color="green" text={__('Configured', 'vulopilot')} />
-									<span className="desc">
-										{sprintf(
-											/* translators: 1: bucket name, 2: AWS region, 3: masked access key. */
-											__('%1$s · %2$s · Access Key %3$s', 'vulopilot'),
-											status.s3.bucket,
-											status.s3.region,
-											status.s3.access_key_masked
-										)}
-									</span>
-									<button
-										type="button"
-										className="backup-storage-inline-action"
-										onClick={handleTestS3}
-										disabled={isTestingS3}
-									>
-										{isTestingS3
-											? __('Testing…', 'vulopilot')
-											: __('Test connection', 'vulopilot')}
-									</button>
-								</div>
-							)}
-
-							{s3TestResult && (
-								<NoticeComponent
-									displayPosition="inline"
-									type={s3TestResult.success ? 'success' : 'error'}
-									message={s3TestResult.message}
-								/>
-							)}
+							<span
+								className={`admin-badge ${status.s3.configured ? 'green' : 'red'}`}
+							>
+								{status.s3.configured ? __('Configured', 'vulopilot') : __('Not configured', 'vulopilot')}
+							</span>
+							<i className={`adminfont-arrow-${isS3Open ? 'up' : 'down'} backup-storage-expand-icon`} />
 						</div>
-						<FormGroupWrapperComponent>
-							<FormGroupComponent cols="6" label={__('Access Key ID', 'vulopilot')}>
-								<TextInput
-									name="s3_access_key"
-									inputLabel={__('Access Key ID', 'vulopilot')}
-									placeholder="AKIAIOSFODNN7EXAMPLE"
-									value={accessKey}
-									onChange={(value) => setAccessKey(value as string)}
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent cols="6" label={__('Secret Access Key', 'vulopilot')}>
-								<TextInput
-									name="s3_secret_key"
-									inputLabel={__('Secret Access Key', 'vulopilot')}
-									placeholder="••••••••••••••••••••••••"
-									value={secretKey}
-									onChange={(value) => setSecretKey(value as string)}
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent cols="6" label={__('Bucket', 'vulopilot')}>
-								<TextInput
-									name="s3_bucket"
-									inputLabel={__('Bucket', 'vulopilot')}
-									placeholder="my-backups-bucket"
-									value={bucket}
-									onChange={(value) => setBucket(value as string)}
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent cols="6" label={__('Region', 'vulopilot')}>
-								<TextInput
-									name="s3_region"
-									inputLabel={__('Region', 'vulopilot')}
-									placeholder="us-east-1"
-									value={region}
-									onChange={(value) => setRegion(value as string)}
-								/>
-							</FormGroupComponent>
-							<FormGroupComponent label="">
-								<ButtonInput
-									buttons={{
-										text: isSavingS3
-											? __('Saving…', 'vulopilot')
-											: status.s3.configured
-												? __('Update', 'vulopilot')
-												: __('Save', 'vulopilot'),
-										onClick: handleSaveS3,
-										disabled:
-											isSavingS3 || !accessKey || !secretKey || !bucket,
-									}}
-								/>
-							</FormGroupComponent>
-						</FormGroupWrapperComponent>
+
+						{isS3Open && (
+							<div className="backup-storage-card-body">
+								{status.s3.configured && (
+									<div className="backup-storage-status-row">
+										<BadgeComponent color="green" text={__('Configured', 'vulopilot')} />
+										<span className="desc">
+											{sprintf(
+												/* translators: 1: bucket name, 2: AWS region, 3: masked access key. */
+												__('%1$s · %2$s · Access Key %3$s', 'vulopilot'),
+												status.s3.bucket,
+												status.s3.region,
+												status.s3.access_key_masked
+											)}
+										</span>
+										<button
+											type="button"
+											className="backup-storage-inline-action"
+											onClick={handleTestS3}
+											disabled={isTestingS3}
+										>
+											{isTestingS3
+												? __('Testing…', 'vulopilot')
+												: __('Test connection', 'vulopilot')}
+										</button>
+									</div>
+								)}
+
+								{s3TestResult && (
+									<NoticeComponent
+										displayPosition="inline"
+										type={s3TestResult.success ? 'success' : 'error'}
+										message={s3TestResult.message}
+									/>
+								)}
+
+								<FormGroupWrapperComponent>
+									<FormGroupComponent cols="6" label={__('Access Key ID', 'vulopilot')}>
+										<TextInput
+											name="s3_access_key"
+											inputLabel={__('Access Key ID', 'vulopilot')}
+											placeholder="AKIAIOSFODNN7EXAMPLE"
+											value={accessKey}
+											onChange={(value) => setAccessKey(value as string)}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent cols="6" label={__('Secret Access Key', 'vulopilot')}>
+										<TextInput
+											name="s3_secret_key"
+											inputLabel={__('Secret Access Key', 'vulopilot')}
+											placeholder="••••••••••••••••••••••••"
+											value={secretKey}
+											onChange={(value) => setSecretKey(value as string)}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent cols="6" label={__('Bucket', 'vulopilot')}>
+										<TextInput
+											name="s3_bucket"
+											inputLabel={__('Bucket', 'vulopilot')}
+											placeholder="my-backups-bucket"
+											value={bucket}
+											onChange={(value) => setBucket(value as string)}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent cols="6" label={__('Region', 'vulopilot')}>
+										<TextInput
+											name="s3_region"
+											inputLabel={__('Region', 'vulopilot')}
+											placeholder="us-east-1"
+											value={region}
+											onChange={(value) => setRegion(value as string)}
+										/>
+									</FormGroupComponent>
+									<FormGroupComponent label="">
+										<ButtonInput
+											buttons={{
+												text: isSavingS3
+													? __('Saving…', 'vulopilot')
+													: status.s3.configured
+														? __('Update', 'vulopilot')
+														: __('Save', 'vulopilot'),
+												onClick: handleSaveS3,
+												disabled:
+													isSavingS3 || !accessKey || !secretKey || !bucket,
+											}}
+										/>
+									</FormGroupComponent>
+								</FormGroupWrapperComponent>
+							</div>
+						)}
 					</div>
 
 					<div className="backup-storage-section">
-						<div className='backup-storage-header'>
-							<div className="backup-storage-section-title">
-								<i className="adminfont-google yellow" /> {__('Google Drive', 'vulopilot')}
+						<div
+							className="backup-storage-header is-clickable"
+							onClick={() => setIsGoogleDriveOpen((v) => !v)}
+						>
+							<i className="backup-storage-card-icon adminfont-google yellow" />
+							<div className="backup-storage-card-title">
+								<strong>{__('Google Drive', 'vulopilot')}</strong>
+								<span className="desc">
+									{__('Store backups in a Google Drive folder.', 'vulopilot')}
+								</span>
 							</div>
+							<span
+								className={`admin-badge ${status.google_drive.connected ? 'green' : 'red'}`}
+							>
+								{status.google_drive.connected ? __('Connected', 'vulopilot') : __('Not connected', 'vulopilot')}
+							</span>
+							<i className={`adminfont-arrow-${isGoogleDriveOpen ? 'up' : 'down'} backup-storage-expand-icon`} />
 						</div>
 
-						<FormGroupWrapperComponent>
-							{status.google_drive.connected ? (
-								<div className="backup-storage-status-row">
-									<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
-									{status.google_drive.connected_at && (
-										<span className="desc">
-											{__('Since', 'vulopilot')} {formatWpDate(status.google_drive.connected_at)}
-										</span>
-									)}
-									<button
-										type="button"
-										className="backup-storage-inline-action"
-										onClick={handleTestGoogleDrive}
-										disabled={isTestingGoogleDrive}
-									>
-										{isTestingGoogleDrive
-											? __('Testing…', 'vulopilot')
-											: __('Test connection', 'vulopilot')}
-									</button>
-									<button
-										type="button"
-										className="backup-storage-inline-action is-destructive"
-										onClick={handleDisconnectGoogleDrive}
-										disabled={isDisconnectingGoogleDrive}
-									>
-										{isDisconnectingGoogleDrive
-											? __('Disconnecting…', 'vulopilot')
-											: __('Disconnect', 'vulopilot')}
-									</button>
-								</div>
-							) : status.google_drive.client_configured ? (
-								<>
-									<p className="desc">
-										{__(
-											'OAuth Client saved — connect your Google account to finish.',
-											'vulopilot'
-										)}
-									</p>
-									<ButtonInput
-										buttons={{
-											text: __('Connect Google Drive', 'vulopilot'),
-											icon: 'admin-links',
-											onClick: () => {
-												if (status.google_drive.authorize_url) {
-													window.location.href = status.google_drive.authorize_url;
-												}
-											},
-											disabled: !status.google_drive.authorize_url,
-										}}
-									/>
-								</>
-							) : (
-								<>
-									<NoticeComponent
-										displayPosition="inline-notice"
-										type="info"
-										message={__(
-											'Register your own free Google Cloud OAuth Client (one-time setup) to connect Google Drive — VuloPilot never uses a shared account for this, only files it creates itself.',
-											'vulopilot'
-										)}
-									/>
-									<FormGroupComponent label={__('Authorized redirect URI to register on that Client:', 'vulopilot')}>
-										<ClipboardComponent
-											text={status.google_drive.redirect_uri}
-											variant="code"
-											copyButtonLabel={__('Copy', 'vulopilot')}
-											copiedLabel={__('Copied!', 'vulopilot')}
-										/>
-									</FormGroupComponent>
-									<FormGroupWrapperComponent>
-										<FormGroupComponent cols="6" label={__('Client ID', 'vulopilot')}>
-											<TextInput
-												name="gdrive_client_id"
-												inputLabel={__('Client ID', 'vulopilot')}
-												placeholder="xxxxxxxx.apps.googleusercontent.com"
-												value={clientId}
-												onChange={(value) => setClientId(value as string)}
-											/>
-										</FormGroupComponent>
-										<FormGroupComponent cols="6" label={__('Client Secret', 'vulopilot')}>
-											<TextInput
-												name="gdrive_client_secret"
-												inputLabel={__('Client Secret', 'vulopilot')}
-												placeholder="••••••••••••••••••••"
-												value={clientSecret}
-												onChange={(value) => setClientSecret(value as string)}
-											/>
-										</FormGroupComponent>
-										<FormGroupComponent label="">
+						{isGoogleDriveOpen && (
+							<div className="backup-storage-card-body">
+								<FormGroupWrapperComponent>
+									{status.google_drive.connected ? (
+										<div className="backup-storage-status-row">
+											<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
+											{status.google_drive.connected_at && (
+												<span className="desc">
+													{__('Since', 'vulopilot')} {formatWpDate(status.google_drive.connected_at)}
+												</span>
+											)}
+											<button
+												type="button"
+												className="backup-storage-inline-action"
+												onClick={handleTestGoogleDrive}
+												disabled={isTestingGoogleDrive}
+											>
+												{isTestingGoogleDrive
+													? __('Testing…', 'vulopilot')
+													: __('Test connection', 'vulopilot')}
+											</button>
+											<button
+												type="button"
+												className="backup-storage-inline-action is-destructive"
+												onClick={handleDisconnectGoogleDrive}
+												disabled={isDisconnectingGoogleDrive}
+											>
+												{isDisconnectingGoogleDrive
+													? __('Disconnecting…', 'vulopilot')
+													: __('Disconnect', 'vulopilot')}
+											</button>
+										</div>
+									) : status.google_drive.client_configured ? (
+										<>
+											<p className="desc">
+												{__(
+													'OAuth Client saved — connect your Google account to finish.',
+													'vulopilot'
+												)}
+											</p>
 											<ButtonInput
 												buttons={{
-													text: isSavingGoogleClient
-														? __('Saving…', 'vulopilot')
-														: __('Save', 'vulopilot'),
-													onClick: handleSaveGoogleClient,
-													disabled:
-														isSavingGoogleClient || !clientId || !clientSecret,
+													text: __('Connect Google Drive', 'vulopilot'),
+													icon: 'admin-links',
+													onClick: () => {
+														if (status.google_drive.authorize_url) {
+															window.location.href = status.google_drive.authorize_url;
+														}
+													},
+													disabled: !status.google_drive.authorize_url,
 												}}
 											/>
-										</FormGroupComponent>
-									</FormGroupWrapperComponent>
-								</>
-							)}
+										</>
+									) : (
+										<>
+											<NoticeComponent
+												displayPosition="inline-notice"
+												type="info"
+												message={__(
+													'Register your own free Google Cloud OAuth Client (one-time setup) to connect Google Drive — VuloPilot never uses a shared account for this, only files it creates itself.',
+													'vulopilot'
+												)}
+											/>
+											<FormGroupComponent label={__('Authorized redirect URI to register on that Client:', 'vulopilot')}>
+												<ClipboardComponent
+													text={status.google_drive.redirect_uri}
+													variant="code"
+													copyButtonLabel={__('Copy', 'vulopilot')}
+													copiedLabel={__('Copied!', 'vulopilot')}
+												/>
+											</FormGroupComponent>
+											<FormGroupWrapperComponent>
+												<FormGroupComponent cols="6" label={__('Client ID', 'vulopilot')}>
+													<TextInput
+														name="gdrive_client_id"
+														inputLabel={__('Client ID', 'vulopilot')}
+														placeholder="xxxxxxxx.apps.googleusercontent.com"
+														value={clientId}
+														onChange={(value) => setClientId(value as string)}
+													/>
+												</FormGroupComponent>
+												<FormGroupComponent cols="6" label={__('Client Secret', 'vulopilot')}>
+													<TextInput
+														name="gdrive_client_secret"
+														inputLabel={__('Client Secret', 'vulopilot')}
+														placeholder="••••••••••••••••••••"
+														value={clientSecret}
+														onChange={(value) => setClientSecret(value as string)}
+													/>
+												</FormGroupComponent>
+												<FormGroupComponent label="">
+													<ButtonInput
+														buttons={{
+															text: isSavingGoogleClient
+																? __('Saving…', 'vulopilot')
+																: __('Save', 'vulopilot'),
+															onClick: handleSaveGoogleClient,
+															disabled:
+																isSavingGoogleClient || !clientId || !clientSecret,
+														}}
+													/>
+												</FormGroupComponent>
+											</FormGroupWrapperComponent>
+										</>
+									)}
 
-							{googleTestResult && (
-								<NoticeComponent
-									displayPosition="inline"
-									type={googleTestResult.success ? 'success' : 'error'}
-									message={googleTestResult.message}
-								/>
-							)}
-						</FormGroupWrapperComponent>
+									{googleTestResult && (
+										<NoticeComponent
+											displayPosition="inline"
+											type={googleTestResult.success ? 'success' : 'error'}
+											message={googleTestResult.message}
+										/>
+									)}
+								</FormGroupWrapperComponent>
+							</div>
+						)}
 					</div>
 				</div>
 			)}

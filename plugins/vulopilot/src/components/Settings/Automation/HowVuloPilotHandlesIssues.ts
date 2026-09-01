@@ -34,23 +34,25 @@ export default {
 		{
 			key: 'automation_mode',
 			type: 'choice-toggle',
+			variant: 'compact',
 			defaultValue: 'suggest',
 			label: __('Automation modes', 'vulopilot'),
 			settingDescription: __(
 				'Choose how VuloPilot should handle issues.',
 				'vulopilot'
 			),
-			moduleEnabled: 'automation',
+			// moduleEnabled: 'automation',
+			width: '100%',
 			options: [
 				{
 					key: 'monitor',
 					value: 'monitor',
 					label: __('Monitor', 'vulopilot'),
 					desc: __('Find issues and notify you.', 'vulopilot'),
-					icon: 'eye',
-					// Confirmed with the user: Monitor is Pro-gated even
-					// though the mockup only marked Auto-fix "(Pro)".
+					icon: 'eye green',
 					proSetting: true,
+					customHtml: `<div class="admin-badge green"> No changes will  be made to your websites</div>`, 
+					rightCustomHtml: `<div class="best-for-wrapper"> <span class="best-for-label">Best for:</span> <span class="desc">No changes will  be made to your websites</span></div>` 
 				},
 				{
 					key: 'suggest',
@@ -60,18 +62,23 @@ export default {
 						'Find issues and suggest fixes for your review.',
 						'vulopilot'
 					),
-					icon: 'check',
+					icon: 'check blue',
+					customHtml: `<div class="admin-badge blue"> No changes will  be made to your websites</div>`, 
+					rightCustomHtml: `<div class="best-for-wrapper"> <span class="best-for-label">Best for:</span> <span class="desc">No changes will  be made to your websites</span></div>` 
 				},
 				{
 					key: 'auto_fix',
 					value: 'auto_fix',
-					label: __('Auto-fix (Pro)', 'vulopilot'),
+					label: __('Auto-fix', 'vulopilot'),
 					desc: __(
 						'Automatically fix issues with your approval rules.',
 						'vulopilot'
 					),
-					icon: 'ai',
+					icon: 'ai orange',
+					badgeColor: 'orange', badgeText: 'Pro',
 					proSetting: true,
+					customHtml: `<div class="admin-badge orange"> No changes will  be made to your websites</div>`, 
+					rightCustomHtml: `<div class="best-for-wrapper orange"> <span class="best-for-label">Best for:</span> <span class="desc">No changes will  be made to your websites</span></div>` 
 				},
 			],
 		},

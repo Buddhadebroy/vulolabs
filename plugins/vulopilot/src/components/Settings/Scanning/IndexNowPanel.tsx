@@ -11,7 +11,7 @@ import {
 	ClipboardComponent,
 	SectionComponent
 } from '@zyra/components';
-import { ButtonInput, ToggleInput, TextAreaInput } from '@zyra/inputs';
+import { ButtonInput, MultiCheckboxInput, TextAreaInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
 
@@ -186,6 +186,7 @@ const IndexNowPanel = () => {
 				<FormGroupComponent
 					label={__('URLs to submit', 'vulopilot')}
 					desc={__('One per line, up to 10,000.', 'vulopilot')}
+					row
 				>
 					<TextAreaInput
 						name="indexnow_urls"
@@ -234,10 +235,9 @@ const IndexNowPanel = () => {
 							'vulopilot'
 						)}
 					>
-						<ToggleInput
+						<MultiCheckboxInput
 							options={POST_TYPE_OPTIONS}
 							value={postTypes}
-							multiSelect
 							modules={[]}
 							onChange={handlePostTypesChange}
 						/>
