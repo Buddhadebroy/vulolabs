@@ -223,11 +223,6 @@ const ALL_ROWS = [...SCAN_ROWS, ...PROTECTION_ROWS, ...MONITORING_ROWS];
 
 const isChecked = (value: unknown): boolean => Array.isArray(value) && value.length > 0;
 
-const proBadge = () =>
-	`<span class="admin-tag module-tag"><i class="adminfont-security"></i> ${__(
-		'Security Monitoring',
-		'vulopilot'
-	)}<i class="adminfont-lock"></i></span>`;
 
 /**
  * Settings → Scanning → Security.
@@ -281,7 +276,7 @@ const SecurityPanel = () => {
 			id: row.id,
 			icon: row.icon,
 			label: row.label,
-			desc: row.pro && !hasSecurityMonitoring ? `${row.desc} ${proBadge()}` : row.desc,
+			desc: row.pro && !hasSecurityMonitoring ? `${row.desc}` : row.desc,
 			settingDescription: '',
 			disableBtn: true,
 			statusLabels: STATUS_LABELS,
@@ -412,9 +407,6 @@ const SecurityPanel = () => {
 						{ label: __('Weekly', 'vulopilot'), value: 'weekly' },
 					]}
 				/>
-				{!hasSecurityMonitoring && (
-					<span dangerouslySetInnerHTML={{ __html: proBadge() }} />
-				)}
 			</FormGroupComponent>
 			<FormGroupComponent row label={__('Security Monitoring', 'vulopilot')}>
 				<ExpandablePanelInput
