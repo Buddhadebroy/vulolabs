@@ -51,9 +51,21 @@ export default {
 		'Controls what shows up in the SEO page\'s "Titles & Meta" and "Content Structure" findings.',
 		'vulopilot'
 	),
+	hideSettingHeader: true,
+	groupBySections: true,
 	headerIcon: 'search',
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'setting',
+			title: __('Titles & meta', 'vulopilot'),
+			desc:  __(
+		'Controls what shows up in the SEO page\'s "Titles & Meta" and "Content Structure" findings.',
+		'vulopilot'
+	),
+		},
 		{
 			key: 'flag_orphan_pages',
 			type: 'checkbox',

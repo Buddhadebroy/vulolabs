@@ -172,6 +172,15 @@ const Settings = () => {
 								setting={setting}
 								updateSetting={updateSetting}
 								Popup={ShowProPopup}
+								// Per-tab opt-in (General.ts's own `groupBySections: true`
+								// is the first) into InputRenderer's card-grouped layout —
+								// same `.settings-section-group` real CSS
+								// NavigatorComponent.scss already ships, matching
+								// NavigatorComponent's own "Default" Storybook story.
+								// `hideSettingHeader` is deliberately NOT forwarded here:
+								// it only ever gates NavigatorComponent's own outer header
+								// (see that story's own docblock), not this grouping.
+								groupBySections={settingModal.groupBySections}
 							/>
 						) : (
 							<ModuleGuardComponent
