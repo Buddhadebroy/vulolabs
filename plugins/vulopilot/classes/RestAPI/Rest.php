@@ -85,7 +85,16 @@ class Rest {
             'backups'                     => new Controllers\Backups(),
             'backup_storage'              => new Controllers\BackupStorage(),
             'content_assistant'           => new Controllers\ContentAssistant(),
-            'copilot'                     => new Controllers\Copilot(),
+            // Deliberately NOT registered here any more — "Chat with
+            // VuloPilot" (the real /copilot/chat + /copilot/conversations
+            // backend, formerly Controllers\Copilot) is now a genuine Pro
+            // feature; vulopilot-pro's own CopilotChat module registers
+            // its own Rest.php under this same 'copilot' REST base via
+            // the 'vulopilot_rest_controllers' filter below, key
+            // 'copilot_chat_pro' (same different-key-same-base convention
+            // as 'geo_top_pages'/'content_score'/'brand_score' above).
+            // Free's own ChatTab.tsx still renders the section, gated by
+            // useCopilotChatEnabled() — see that hook's own docblock.
             'store_readiness'             => new Controllers\StoreReadiness(),
             'efficiency_checks'           => new Controllers\EfficiencyChecks(),
             'plugin_overlap'              => new Controllers\PluginOverlap(),

@@ -52,15 +52,18 @@ const resolveModuleDisplayName = (moduleId: string): string =>
 	MODULE_CATALOG_BY_ID.get(moduleId)?.name ?? formatModuleName(moduleId);
 
 /**
- * Real icons for the 2 real backend modules with no catalog entry at all
+ * Real icons for the real backend modules with no catalog entry at all
  * (see Modules/index.ts's own ModuleCatalogEntry.icon docblock) — kept
  * local here rather than added to that catalog, which would misleadingly
- * imply these two have a real card to point `moduleName`'s "Enable Now"
+ * imply these have a real card to point `moduleName`'s "Enable Now"
  * link at.
  */
 const CARDLESS_MODULE_ICONS: Record<string, string> = {
 	'advanced-reports': 'report',
 	'one-click-fix': 'tools',
+	// "Chat with VuloPilot" (modules/CopilotChat/Module.php, Pro) — also
+	// cardless, same reasoning.
+	'copilot-chat': 'ai',
 };
 
 /**

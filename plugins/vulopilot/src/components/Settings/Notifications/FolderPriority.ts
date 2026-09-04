@@ -5,5 +5,5 @@ export default {
 	// Settings / Alert Preferences), same "folder of sub-tab files" shape
 	// Settings/Scanning/ already established. See EmailSettings.ts's own
 	// docblock for why.
-	priority: 2,
+	priority: 6,
 };

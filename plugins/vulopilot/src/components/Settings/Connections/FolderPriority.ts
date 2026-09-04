@@ -4,5 +4,5 @@ export default {
 	// inner tab bar (AI Providers / Webhooks / External Services), same
 	// "folder of sub-tab files" shape Settings/Scanning/,
 	// Settings/Notifications/, and Settings/Automation/ already use.
-	priority: 7,
+	priority: 2,
 };

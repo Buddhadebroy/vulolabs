@@ -2,6 +2,7 @@ import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ButtonInput } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
+import { useCopilotChatEnabled } from '../../services/useCopilotChatEnabled';
 
 /** One row of `GET /copilot/conversations?with_excerpt=1` — same real threads RecentConversationsCard.tsx's popup list shows, plus a real `excerpt` (AiConversationRepository::get_recent_with_excerpt()). */
 interface RecentConversationExcerptRow {
@@ -67,12 +68,17 @@ const formatCardTime = (dateString: string): string => {
 const RecentConversationsSection: React.FC<RecentConversationsSectionProps> = ({
 	onSelectConversation,
 }) => {
+	// Called unconditionally (Rules of Hooks) even though this section
+	// returns null below without a real Pro license either way — see
+	// RecentConversationsCard.tsx's own docblock for why the GET simply
+	// 404s in that case (the route itself isn't registered).
 	const { data, isLoading } = useApiList<RecentConversationExcerptRow>(
 		'copilot/conversations',
 		{ per_page: 3, with_excerpt: 1 }
 	);
+	const isCopilotChatEnabled = useCopilotChatEnabled();
 
-	if (!isLoading && 0 === data.length) {
+	if (!isCopilotChatEnabled || (!isLoading && 0 === data.length)) {
 		return null;
 	}
 

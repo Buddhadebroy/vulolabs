@@ -28,7 +28,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'modules',
-	priority: 1.5,
+	priority: 8,
 	headerTitle: __('Modules', 'vulopilot'),
 	headerDescription: __(
 		'Enable or disable optional VuloPilot features.',
