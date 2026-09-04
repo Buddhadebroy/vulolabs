@@ -9,6 +9,7 @@ import {
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import { IssuesFilter } from './NeedsAttentionCard';
+import { useCopilotChatEnabled } from '../../services/useCopilotChatEnabled';
 
 interface ConfiguredProviderRow {
 	is_active: boolean;
@@ -65,6 +66,8 @@ const AIAssistant = () => {
 	const [hasActiveAiProvider, setHasActiveAiProvider] = useState<
 		boolean | null
 	>(null);
+	/** "Chat with VuloPilot" itself is a real Pro feature now — see ChatTab.tsx's own "PRO" card badge and useCopilotChat.ts's own docblock for the fuller gate; this is the same real check, just also surfaced as a real header badge (same Online/Offline `badges` slot below) so the Pro tag is visible before scrolling down to the chat card itself. */
+	const isCopilotChatEnabled = useCopilotChatEnabled();
 
 	useEffect(() => {
 		getApiResponse<{ configured?: ConfiguredProviderRow[] }>(
@@ -119,8 +122,9 @@ const AIAssistant = () => {
 					'vulopilot'
 				)}
 				showPremiumLink={false}
-				badges={
-					null === hasActiveAiProvider
+				badges={[
+					...(isCopilotChatEnabled ? [] : [{ text: __('PRO', 'vulopilot'), color: 'purple' }]),
+					...(null === hasActiveAiProvider
 						? []
 						: [
 								hasActiveAiProvider
@@ -132,8 +136,8 @@ const AIAssistant = () => {
 											text: `● ${__('Offline', 'vulopilot')}`,
 											color: 'red',
 										},
-							]
-				}
+							]),
+				]}
 			/>
 			<ContainerComponent general>
 				<ChatTab

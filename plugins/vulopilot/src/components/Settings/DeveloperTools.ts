@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'developer-tools',
-	priority: 8,
+	priority: 7,
 	headerTitle: __('Developer Tools', 'vulopilot'),
 	headerDescription: __(
 		'Diagnostics and maintenance actions for troubleshooting VuloPilot.',
