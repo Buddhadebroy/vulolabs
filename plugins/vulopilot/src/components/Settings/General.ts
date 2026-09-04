@@ -79,6 +79,7 @@ export default {
 			key: 'general-section',
 			type: 'section',
 			title: __('Basic Preferences', 'vulopilot'),
+			icon: 'setting',
 			desc: __(
 				'Essential plugin preferences and data handling options.',
 				'vulopilot'

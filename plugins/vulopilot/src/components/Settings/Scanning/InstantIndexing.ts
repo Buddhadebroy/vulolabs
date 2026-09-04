@@ -27,6 +27,8 @@ export default {
 		'vulopilot'
 	),
 	headerIcon: 'web-page-website',
+	groupBySections: true,
+	hideSettingHeader: true,
 	submitUrl: 'settings',
 	modal: [
 		{ key: 'indexnow_api_key', type: 'text', label: '' },

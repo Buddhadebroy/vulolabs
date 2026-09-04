@@ -2,12 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import {
-	FormGroupWrapperComponent,
-	FormGroupComponent,
-	NoticeManager,
-} from '@zyra/components';
-import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
+import { FormGroupWrapperComponent, FormGroupComponent, NoticeManager } from '@zyra/components';
+import { ExpandablePanelInput } from '@zyra/inputs';
 import OtherProvidersCard from './OtherProvidersCard';
 
 interface ConfiguredProvider {
@@ -56,242 +52,32 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  */
 const HERO_PROVIDERS: Record<string, { desc: string; helpLabel: string; helpUrl: string }> = {
 	gemini: {
-		desc: __( "Google's next-generation AI model.", 'vulopilot' ),
-		helpLabel: __( 'Google AI Studio', 'vulopilot' ),
+		desc: __("Google's next-generation AI model.", 'vulopilot'),
+		helpLabel: __('Google AI Studio', 'vulopilot'),
 		helpUrl: 'https://aistudio.google.com/apikey',
 	},
 	openai: {
-		desc: __( 'Advanced AI models for chat, content, and more.', 'vulopilot' ),
+		desc: __('Advanced AI models for chat, content, and more.', 'vulopilot'),
 		helpLabel: 'platform.openai.com',
 		helpUrl: 'https://platform.openai.com/api-keys',
 	},
 };
 
-interface ProviderCardProps {
-	providerId: string;
-	adapter: AdapterMeta;
-	config: ConfiguredProvider | null;
-	isSaving: boolean;
-	onConnect: ( providerId: string, credential: string, defaultModel: string ) => void;
-	onToggleActive: ( row: ConfiguredProvider ) => void;
-	onSaveModel: ( row: ConfiguredProvider, model: string ) => void;
-	onReconnect: ( row: ConfiguredProvider, credential: string ) => void;
-	onDisconnect: ( row: ConfiguredProvider ) => void;
-	onTest: ( row: ConfiguredProvider ) => Promise<{ success: boolean; message: string }>;
-}
-
 /**
- * One Gemini/OpenAI hero card — connect / connected(healthy) / needs
- * reconnecting, matching the mockup's own 3 real states. The API key field
- * is only ever a live, freshly-typed value (connect or rotate) with a real
- * show/hide toggle on what's actually being typed — GET /ai-providers never
- * returns a saved credential (Controllers\AiProviders's own docblock), so a
- * "connected" row shows a static masked placeholder instead of a
- * reveal-my-old-key control that could never really reveal anything.
+ * Real per-provider brand icons (zyra's own adminfont set — `.adminfont-google`,
+ * `.adminfont-chatgpt`, `.adminfont-openrouter` all exist), not the one
+ * generic `icon: 'ai'` every provider row used before. Adapters this map
+ * doesn't know about (Anthropic, Ollama, Groq, or anything else
+ * `vulopilot_ai_provider_sources` adds with no dedicated icon in the font)
+ * fall back to `'link'` — still a real, distinct icon, not the same `'ai'`
+ * glyph repeated for every row regardless of which provider it is.
  */
-const ProviderCard = ( {
-	providerId,
-	adapter,
-	config,
-	isSaving,
-	onConnect,
-	onToggleActive,
-	onSaveModel,
-	onReconnect,
-	onDisconnect,
-	onTest,
-}: ProviderCardProps ) => {
-	const hero = HERO_PROVIDERS[ providerId ];
-	const [ credential, setCredential ] = useState( '' );
-	const [ showCredential, setShowCredential ] = useState( false );
-	const [ model, setModel ] = useState( config?.default_model ?? '' );
-	const [ isTesting, setIsTesting ] = useState( false );
-	const [ testResult, setTestResult ] = useState<{ success: boolean; message: string } | null>( null );
-
-	const needsReconnect = !! config && ! config.credential_ok;
-
-	const handleTest = () => {
-		if ( ! config ) {
-			return;
-		}
-
-		setIsTesting( true );
-		setTestResult( null );
-
-		onTest( config )
-			.then( setTestResult )
-			.finally( () => setIsTesting( false ) );
-	};
-
-	return (
-		<div className="ai-provider-card">
-			<FormGroupWrapperComponent>
-				<FormGroupComponent>
-			<div className="ai-provider-card-header">
-				<div className="ai-provider-card-icon">
-					<i className="adminfont-ai" />
-				</div>
-				<div className="ai-provider-card-title">
-					<strong>{ adapter.label }</strong>
-					<span className="desc">{ hero?.desc }</span>
-				</div>
-				{ config && (
-					// MultiCheckboxInput's own `look="toggle"` — the real oval
-					// pill switch (SettingToggle's own docblock: "the same
-					// pill switch ModuleGridComponent's module activate/
-					// deactivate control already renders"), not
-					// ChoiceToggleInput's bordered button-group look, which
-					// is right for a real multi-option choice (IndexNowPanel.tsx's
-					// post-type picker) but wrong for a single on/off switch.
-					<MultiCheckboxInput
-						look="toggle"
-						type="checkbox"
-						toggleStatusLabel={ { on: __( 'Enabled', 'vulopilot' ), off: __( 'Disabled', 'vulopilot' ) } }
-						options={ [ { key: 'enabled', value: 'enabled' } ] }
-						value={ config.is_active ? [ 'enabled' ] : [] }
-						modules={ [] }
-						onChange={ () => onToggleActive( config ) }
-					/>
-				) }
-			</div>
-
-			{ ! config && (
-				<div className="ai-provider-card-body">
-					<div className="ai-provider-field">
-						<label>{ __( 'API Key', 'vulopilot' ) }</label>
-						<div className="ai-provider-input-with-eye">
-							<TextInput
-								type={ showCredential ? 'text' : 'password' }
-								value={ credential }
-								onChange={ setCredential }
-								placeholder={ __( 'Paste your API key', 'vulopilot' ) }
-							/>
-							<i
-								className={ `adminfont-${ showCredential ? 'eye' : 'eye-blocked' }` }
-								onClick={ () => setShowCredential( ( v ) => ! v ) }
-							/>
-						</div>
-						{ hero && (
-							<div className="desc">
-								{ __( 'Get your API key from', 'vulopilot' ) }{ ' ' }
-								<a href={ hero.helpUrl } target="_blank" rel="noreferrer">
-									{ hero.helpLabel }
-								</a>
-							</div>
-						) }
-					</div>
-					<ButtonInput
-						buttons={ {
-							text: isSaving ? __( 'Connecting…', 'vulopilot' ) : __( 'Connect', 'vulopilot' ),
-							disabled: isSaving || '' === credential.trim(),
-							onClick: () => onConnect( providerId, credential, model ),
-						} }
-					/>
-				</div>
-			) }
-
-			{ config && (
-				<div className="ai-provider-card-body">
-					<div className="ai-provider-card-row">
-						<div className="ai-provider-field">
-							<label>{ __( 'API Key', 'vulopilot' ) }</label>
-							{ needsReconnect ? (
-								<div className="ai-provider-input-with-eye">
-									<TextInput
-										type={ showCredential ? 'text' : 'password' }
-										value={ credential }
-										onChange={ setCredential }
-										placeholder={ __( 'Enter a new API key', 'vulopilot' ) }
-									/>
-									<i
-										className={ `adminfont-${ showCredential ? 'eye' : 'eye-blocked' }` }
-										onClick={ () => setShowCredential( ( v ) => ! v ) }
-									/>
-								</div>
-							) : (
-								<TextInput type="text" value="••••••••••••••••" onChange={ () => undefined } readOnly />
-							) }
-							{ hero && (
-								<div className="desc">
-									{ __( 'Get your API key from', 'vulopilot' ) }{ ' ' }
-									<a href={ hero.helpUrl } target="_blank" rel="noreferrer">
-										{ hero.helpLabel }
-									</a>
-								</div>
-							) }
-						</div>
-						{ adapter.available_models.length > 0 && (
-							<div className="ai-provider-field">
-								<label>{ __( 'Model', 'vulopilot' ) }</label>
-								<SelectInput
-									name={ `${ providerId }-model` }
-									value={ model }
-									options={ adapter.available_models.map( ( m ) => ( { label: m, value: m } ) ) }
-									onChange={ ( value ) => {
-										const next = value as string;
-										setModel( next );
-										onSaveModel( config, next );
-									} }
-								/>
-								<div className="desc">
-									{ __( 'Choose the model to use for AI responses.', 'vulopilot' ) }
-								</div>
-							</div>
-						) }
-					</div>
-
-					{ needsReconnect && (
-						<ButtonInput
-							buttons={ {
-								text: isSaving ? __( 'Saving…', 'vulopilot' ) : __( 'Save key', 'vulopilot' ),
-								disabled: isSaving || '' === credential.trim(),
-								onClick: () => onReconnect( config, credential ),
-							} }
-						/>
-					) }
-
-					<div className="ai-provider-card-footer">
-						<div className={ `ai-provider-connection-status ${ needsReconnect ? 'is-error' : 'is-success' }` }>
-							<i className={ `adminfont-${ needsReconnect ? 'warning' : 'check' }` } />
-							{ __( 'Connection status:', 'vulopilot' ) }{ ' ' }
-							<strong>
-								{ needsReconnect
-									? __( 'Needs reconnecting', 'vulopilot' )
-									: __( 'Connected', 'vulopilot' ) }
-							</strong>
-						</div>
-						<div className="ai-provider-card-actions">
-							<ButtonInput
-								wrapperClass="ai-provider-test-button"
-								buttons={ {
-									text: isTesting ? __( 'Testing…', 'vulopilot' ) : __( 'Test Connection', 'vulopilot' ),
-									icon: 'refresh',
-									disabled: isTesting || needsReconnect,
-									onClick: handleTest,
-								} }
-							/>
-							<button
-								type="button"
-								className="ai-provider-inline-action is-destructive"
-								onClick={ () => onDisconnect( config ) }
-							>
-								{ __( 'Disconnect', 'vulopilot' ) }
-							</button>
-						</div>
-					</div>
-
-					{ testResult && (
-						<p className={ `ai-provider-test-result ${ testResult.success ? 'is-success' : 'is-error' }` }>
-							{ testResult.message }
-						</p>
-					) }
-				</div>
-			) }
-			</FormGroupComponent>
-			</FormGroupWrapperComponent>
-		</div>
-	);
+const PROVIDER_ICONS: Record<string, string> = {
+	gemini: 'google',
+	openai: 'chatgpt',
+	openrouter: 'openrouter',
 };
+const providerIcon = (providerId: string): string => PROVIDER_ICONS[providerId] ?? 'link';
 
 /**
  * Settings → Connections → AI Providers.
@@ -325,47 +111,60 @@ const ProviderCard = ( {
  * settings option row every other Settings tab auto-saves into.
  */
 const AiProvidersPanel = () => {
-	const [ configured, setConfigured ] = useState<ConfiguredProvider[]>( [] );
-	const [ adapters, setAdapters ] = useState<Record<string, AdapterMeta>>( {} );
-	const [ isLoading, setIsLoading ] = useState( true );
-	const [ isSaving, setIsSaving ] = useState( false );
-	const [ savingProviderId, setSavingProviderId ] = useState<string | null>( null );
-	const [ newProviderValues, setNewProviderValues ] = useState<
+	const [configured, setConfigured] = useState<ConfiguredProvider[]>([]);
+	const [adapters, setAdapters] = useState<Record<string, AdapterMeta>>({});
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSaving, setIsSaving] = useState(false);
+	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
+	const [newProviderValues, setNewProviderValues] = useState<
 		Record<string, Record<string, unknown>>
-	>( {} );
-	const [ newProviderPanelKey, setNewProviderPanelKey ] = useState( 0 );
-	const newProviderValuesRef = useRef( newProviderValues );
-	const isSavingRef = useRef( false );
+	>({});
+	const [newProviderPanelKey, setNewProviderPanelKey] = useState(0);
+	const newProviderValuesRef = useRef(newProviderValues);
+	const isSavingRef = useRef(false);
+
+	// Gemini/OpenAI hero cards, now real `ExpandablePanelInput` panels
+	// (per direct instruction, matching Storybook's own
+	// inputs-expandablepanelinput--ai-providers story) instead of
+	// hand-rolled JSX. `heroValues` holds each panel's own live-typed
+	// fields (a freshly-typed API key, an in-progress model pick) the
+	// same way `newProviderValues` already does for "Other providers"
+	// below — merged with real server state (`is_active`,
+	// `default_model`) in `heroPanelValues` just like that section's own
+	// `otherPanelValues` already does.
+	const [heroValues, setHeroValues] = useState<Record<string, Record<string, unknown>>>({});
+	const [heroTestState, setHeroTestState] = useState<
+		Record<string, { isTesting: boolean; testResult: { success: boolean; message: string } | null }>
+	>({});
 
 	const load = () => {
-		setIsLoading( true );
+		setIsLoading(true);
 
 		getApiResponse<AiProvidersResponse>(
-			getApiLink( appLocalizer, 'ai-providers' ),
+			getApiLink(appLocalizer, 'ai-providers'),
 			nonceHeaders
 		)
-			.then( ( response ) => {
-				if ( ! response ) {
+			.then((response) => {
+				if (!response) {
 					return;
 				}
 
-				setConfigured( response.configured );
-				setAdapters( response.adapters );
-			} )
-			.finally( () => setIsLoading( false ) );
+				setConfigured(response.configured);
+				setAdapters(response.adapters);
+			})
+			.finally(() => setIsLoading(false));
 	};
 
-	useEffect( load, [] );
+	useEffect(load, []);
 
-	const heroProviderIds = Object.keys( HERO_PROVIDERS ).filter( ( id ) => adapters[ id ] );
-	const otherAdapterIds = Object.keys( adapters ).filter( ( id ) => ! HERO_PROVIDERS[ id ] );
-	const otherConfigured = configured.filter( ( row ) => ! HERO_PROVIDERS[ row.provider ] );
+	const heroProviderIds = Object.keys(HERO_PROVIDERS).filter((id) => adapters[id]);
+	const otherAdapterIds = Object.keys(adapters).filter((id) => !HERO_PROVIDERS[id]);
+	const otherConfigured = configured.filter((row) => !HERO_PROVIDERS[row.provider]);
 	const otherUnconfiguredIds = otherAdapterIds.filter(
-		( id ) => ! configured.some( ( row ) => row.provider === id )
+		(id) => !configured.some((row) => row.provider === id)
 	);
-	const anyOtherActive = otherConfigured.some( ( row ) => row.is_active );
 
-	const activeCount = configured.filter( ( row ) => row.is_active ).length;
+	const activeCount = configured.filter((row) => row.is_active).length;
 
 	const genericUpdate = (
 		id: number,
@@ -373,155 +172,107 @@ const AiProvidersPanel = () => {
 		successMessage: string,
 		errorMessage: string
 	) => {
-		setIsSaving( true );
+		setIsSaving(true);
 
-		return sendApiResponse( appLocalizer, getApiLink( appLocalizer, `ai-providers/${ id }` ), data )
-			.then( ( response ) => {
-				NoticeManager.add( {
-					uniqueKey: `vulopilot-ai-provider-${ id }`,
+		return sendApiResponse(appLocalizer, getApiLink(appLocalizer, `ai-providers/${id}`), data)
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: `vulopilot-ai-provider-${id}`,
 					type: response ? 'success' : 'error',
 					position: 'float',
 					message: response ? successMessage : errorMessage,
-				} );
+				});
 
-				if ( response ) {
+				if (response) {
 					load();
 				}
 
 				return response;
-			} )
-			.finally( () => setIsSaving( false ) );
+			})
+			.finally(() => setIsSaving(false));
 	};
 
 	/** Real `POST /ai-providers` connect, scoped to one hero provider's own card rather than the generic "Add a new provider" picker below. */
-	const handleHeroConnect = ( providerId: string, credential: string, defaultModel: string ) => {
-		if ( isSavingRef.current ) {
+	const handleHeroConnect = (providerId: string, credential: string, defaultModel: string) => {
+		if (isSavingRef.current) {
 			return;
 		}
 
 		isSavingRef.current = true;
-		setIsSaving( true );
-		setSavingProviderId( providerId );
+		setIsSaving(true);
+		setSavingProviderId(providerId);
 
-		sendApiResponse( appLocalizer, getApiLink( appLocalizer, 'ai-providers' ), {
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'ai-providers'), {
 			provider: providerId,
 			credential,
 			default_model: defaultModel,
-		} )
-			.then( ( response ) => {
-				NoticeManager.add( {
+		})
+			.then((response) => {
+				NoticeManager.add({
 					uniqueKey: 'vulopilot-ai-provider-add',
 					type: response ? 'success' : 'error',
 					position: 'float',
 					message: response
-						? __( 'AI provider connected.', 'vulopilot' )
-						: __( 'Could not connect this provider — check the key and try again.', 'vulopilot' ),
-				} );
+						? __('AI provider connected.', 'vulopilot')
+						: __('Could not connect this provider — check the key and try again.', 'vulopilot'),
+				});
 
-				if ( response ) {
+				if (response) {
 					load();
 				}
-			} )
-			.finally( () => {
+			})
+			.finally(() => {
 				isSavingRef.current = false;
-				setIsSaving( false );
-				setSavingProviderId( null );
-			} );
+				setIsSaving(false);
+				setSavingProviderId(null);
+			});
 	};
 
-	const handleToggleActive = ( row: ConfiguredProvider ) => {
+	const handleToggleActive = (row: ConfiguredProvider) => {
 		genericUpdate(
 			row.id,
-			{ is_active: ! row.is_active },
-			row.is_active ? __( 'Provider disabled.', 'vulopilot' ) : __( 'Provider enabled.', 'vulopilot' ),
-			__( 'Could not update this provider.', 'vulopilot' )
+			{ is_active: !row.is_active },
+			row.is_active ? __('Provider disabled.', 'vulopilot') : __('Provider enabled.', 'vulopilot'),
+			__('Could not update this provider.', 'vulopilot')
 		);
 	};
 
-	/**
-	 * "Other providers" own real Enabled/Disabled switch — unlike a hero
-	 * card's own `handleToggleActive` (one real row, one real `is_active`),
-	 * this flips every currently-configured non-hero provider's own
-	 * `is_active` at once, to the opposite of `anyOtherActive` (any one
-	 * active → turn all off; none active → turn all on). Same real
-	 * `PATCH /ai-providers/{id}` each row's own toggle already uses — just
-	 * fired for all of them together — not a fabricated switch with no
-	 * real effect. A no-op (and never called — the switch is disabled)
-	 * when nothing is configured yet, since there's nothing to flip.
-	 */
-	const handleToggleAllOtherProviders = () => {
-		if ( 0 === otherConfigured.length ) {
-			return;
-		}
-
-		const nextActive = ! anyOtherActive;
-
-		setIsSaving( true );
-
-		Promise.all(
-			otherConfigured
-				.filter( ( row ) => row.is_active !== nextActive )
-				.map( ( row ) =>
-					sendApiResponse( appLocalizer, getApiLink( appLocalizer, `ai-providers/${ row.id }` ), {
-						is_active: nextActive,
-					} )
-				)
-		)
-			.then( ( responses ) => {
-				const allSucceeded = responses.every( Boolean );
-
-				NoticeManager.add( {
-					uniqueKey: 'vulopilot-ai-providers-other-toggle-all',
-					type: allSucceeded ? 'success' : 'error',
-					position: 'float',
-					message: allSucceeded
-						? ( nextActive
-							? __( 'All other providers enabled.', 'vulopilot' )
-							: __( 'All other providers disabled.', 'vulopilot' ) )
-						: __( 'Could not update every other provider — some may be unchanged.', 'vulopilot' ),
-				} );
-
-				load();
-			} )
-			.finally( () => setIsSaving( false ) );
-	};
-
-	const handleSaveModel = ( row: ConfiguredProvider, model: string ) => {
-		if ( '' === model || model === row.default_model ) {
+	const handleSaveModel = (row: ConfiguredProvider, model: string) => {
+		if ('' === model || model === row.default_model) {
 			return;
 		}
 
 		genericUpdate(
 			row.id,
 			{ default_model: model },
-			__( 'Default model updated.', 'vulopilot' ),
-			__( 'Could not update the default model.', 'vulopilot' )
+			__('Default model updated.', 'vulopilot'),
+			__('Could not update the default model.', 'vulopilot')
 		);
 	};
 
 	/** Re-saves a configured provider's credential — re-encrypts under the site's CURRENT auth salt (see ConfiguredProvider's own `credential_ok` docblock) rather than requiring a full Disconnect + re-Add round trip. */
-	const handleReconnect = ( row: ConfiguredProvider, credential: string ) => {
-		if ( '' === credential.trim() ) {
-			NoticeManager.add( {
+	const handleReconnect = (row: ConfiguredProvider, credential: string) => {
+		if ('' === credential.trim()) {
+			NoticeManager.add({
 				uniqueKey: 'vulopilot-ai-provider-reconnect',
 				type: 'error',
 				position: 'float',
-				message: __( 'Enter the new API key first.', 'vulopilot' ),
-			} );
+				message: __('Enter the new API key first.', 'vulopilot'),
+			});
 			return;
 		}
 
 		genericUpdate(
 			row.id,
 			{ credential },
-			__( 'AI provider reconnected.', 'vulopilot' ),
-			__( 'Could not save this key — check it and try again.', 'vulopilot' )
+			__('AI provider reconnected.', 'vulopilot'),
+			__('Could not save this key — check it and try again.', 'vulopilot')
 		);
 	};
 
-	const handleDisconnect = ( row: ConfiguredProvider ) => {
+	const handleDisconnect = (row: ConfiguredProvider) => {
 		if (
-			! window.confirm(
+			!window.confirm(
 				__(
 					'Remove this AI provider? Anything relying on it for AI fixes/generation will fall back to another configured provider, if any.',
 					'vulopilot'
@@ -531,18 +282,18 @@ const AiProvidersPanel = () => {
 			return;
 		}
 
-		sendApiResponse( appLocalizer, getApiLink( appLocalizer, `ai-providers/${ row.id }/delete` ), {} ).then(
-			( response ) => {
-				NoticeManager.add( {
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `ai-providers/${row.id}/delete`), {}).then(
+			(response) => {
+				NoticeManager.add({
 					uniqueKey: 'vulopilot-ai-provider-delete',
 					type: response ? 'success' : 'error',
 					position: 'float',
 					message: response
-						? __( 'AI provider removed.', 'vulopilot' )
-						: __( 'Could not remove this provider.', 'vulopilot' ),
-				} );
+						? __('AI provider removed.', 'vulopilot')
+						: __('Could not remove this provider.', 'vulopilot'),
+				});
 
-				if ( response ) {
+				if (response) {
 					load();
 				}
 			}
@@ -550,277 +301,472 @@ const AiProvidersPanel = () => {
 	};
 
 	/** Real `POST /ai-providers/{id}/test` — see this file's own docblock. */
-	const handleTest = ( row: ConfiguredProvider ) =>
+	const handleTest = (row: ConfiguredProvider) =>
 		sendApiResponse<{ success: boolean; message: string }>(
 			appLocalizer,
-			getApiLink( appLocalizer, `ai-providers/${ row.id }/test` ),
+			getApiLink(appLocalizer, `ai-providers/${row.id}/test`),
 			{}
 		).then(
-			( response ) =>
+			(response) =>
 				response ?? {
 					success: false,
-					message: __( 'Could not reach the server to test this connection.', 'vulopilot' ),
+					message: __('Could not reach the server to test this connection.', 'vulopilot'),
 				}
 		);
 
+	/** `heroTestState` is keyed by provider id since both hero panels share this one component instance. */
+	const handleHeroTest = (providerId: string, row: ConfiguredProvider) => {
+		setHeroTestState((s) => ({ ...s, [providerId]: { isTesting: true, testResult: null } }));
+
+		handleTest(row).then((result) =>
+			setHeroTestState((s) => ({ ...s, [providerId]: { isTesting: false, testResult: result } }))
+		);
+	};
+
+	/**
+	 * `ExpandablePanelInput`'s own `onChange` — fires on every keystroke in
+	 * a live field (api_key/model) AND on the panel's own built-in
+	 * Enable/Disable gesture (the 3-dot "Disable" action, or the "Enable"
+	 * link when `disableBtn` and not yet on). Live field edits just update
+	 * local state (same as `newProviderValues` below); an actual
+	 * enable/disable flip on an already-connected row is routed into the
+	 * real `PATCH /ai-providers/{id}` via `handleToggleActive` — for a
+	 * not-yet-connected provider there's nothing to toggle server-side yet
+	 * (that's what the real "Connect" button is for), so it's left as
+	 * local-only state.
+	 */
+	const handleHeroChange = (next: Record<string, Record<string, unknown>>) => {
+		heroProviderIds.forEach((providerId) => {
+			const config = configured.find((row) => row.provider === providerId) ?? null;
+			if (!config) {
+				return;
+			}
+
+			const prevOn = Boolean(heroValues[providerId]?.enable ?? config.is_active);
+			const nextOn = Boolean(next[providerId]?.enable);
+
+			if (nextOn !== prevOn && nextOn !== config.is_active) {
+				handleToggleActive(config);
+			}
+
+			const nextModel = next[providerId]?.model;
+			if (nextModel !== undefined && nextModel !== config.default_model) {
+				handleSaveModel(config, String(nextModel));
+			}
+		});
+
+		setHeroValues(next);
+	};
+
 	// --- "Other providers" — the original generic add/edit list, scoped
 	// to exclude the two hero providers above.
-	const handleAdd = ( provider: string ) => {
-		if ( isSavingRef.current ) {
+	const handleAdd = (provider: string) => {
+		if (isSavingRef.current) {
 			return;
 		}
 
-		const values = newProviderValuesRef.current[ provider ] ?? {};
+		const values = newProviderValuesRef.current[provider] ?? {};
 
 		isSavingRef.current = true;
-		setIsSaving( true );
+		setIsSaving(true);
 
-		sendApiResponse( appLocalizer, getApiLink( appLocalizer, 'ai-providers' ), {
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'ai-providers'), {
 			provider,
 			label: values.label ?? '',
 			credential: values.credential ?? '',
 			default_model: values.default_model ?? '',
-		} )
-			.then( ( response ) => {
-				NoticeManager.add( {
+		})
+			.then((response) => {
+				NoticeManager.add({
 					uniqueKey: 'vulopilot-ai-provider-add',
 					type: response ? 'success' : 'error',
 					position: 'float',
 					message: response
-						? __( 'AI provider connected.', 'vulopilot' )
-						: __( 'Could not connect this provider — check the key and try again.', 'vulopilot' ),
-				} );
+						? __('AI provider connected.', 'vulopilot')
+						: __('Could not connect this provider — check the key and try again.', 'vulopilot'),
+				});
 
-				if ( response ) {
+				if (response) {
 					newProviderValuesRef.current = {};
-					setNewProviderValues( {} );
-					setNewProviderPanelKey( ( key ) => key + 1 );
+					setNewProviderValues({});
+					setNewProviderPanelKey((key) => key + 1);
 					load();
 				}
-			} )
-			.finally( () => {
+			})
+			.finally(() => {
 				isSavingRef.current = false;
-				setIsSaving( false );
-			} );
+				setIsSaving(false);
+			});
 	};
 
-	const handleNewProviderChange = ( values: Record<string, Record<string, unknown>> ) => {
+	const handleNewProviderChange = (values: Record<string, Record<string, unknown>>) => {
 		newProviderValuesRef.current = values;
-		setNewProviderValues( values );
+		setNewProviderValues(values);
 	};
 
-	const newProviderOptions = otherUnconfiguredIds.map( ( id ) => {
-		const adapter = adapters[ id ];
+	const newProviderOptions = otherUnconfiguredIds.map((id) => {
+		const adapter = adapters[id];
 
 		return {
 			value: id,
 			label: adapter.label,
 			template: {
-				icon: 'ai',
+				icon: providerIcon(id),
 				label: adapter.label,
-				desc: `<span class="admin-badge blue">${ __( 'Not connected', 'vulopilot' ) }</span><span class="vulopilot-provider-summary">${ __( 'Configure this provider with your own credentials.', 'vulopilot' ) }</span>`,
+				desc: `<span class="admin-badge blue">${__('Not connected', 'vulopilot')}</span><span class="vulopilot-provider-summary">${__('Configure this provider with your own credentials.', 'vulopilot')}</span>`,
 				formFields: [
 					{
 						key: 'label',
 						type: 'text',
-						label: __( 'Label', 'vulopilot' ),
+						label: __('Label', 'vulopilot'),
 						placeholder: adapter.label,
 					},
 					{
 						key: 'credential',
 						type: adapter.requires_credential ? 'password' : 'text',
-						label: adapter.requires_credential ? __( 'API key', 'vulopilot' ) : __( 'Base URL', 'vulopilot' ),
+						label: adapter.requires_credential ? __('API key', 'vulopilot') : __('Base URL', 'vulopilot'),
 						desc: adapter.requires_credential
 							? undefined
-							: __( 'Defaults to http://localhost:11434 if left blank.', 'vulopilot' ),
+							: __('Defaults to http://localhost:11434 if left blank.', 'vulopilot'),
 					},
-					...( adapter.available_models.length > 0
+					...(adapter.available_models.length > 0
 						? [
-								{
-									key: 'default_model',
-									type: 'select',
-									label: __( 'Default model', 'vulopilot' ),
-									options: adapter.available_models.map( ( model ) => ( {
-										label: model,
-										value: model,
-									} ) ),
-								},
-							]
-						: [] ),
+							{
+								key: 'default_model',
+								type: 'select',
+								label: __('Default model', 'vulopilot'),
+								options: adapter.available_models.map((model) => ({
+									label: model,
+									value: model,
+								})),
+							},
+						]
+						: []),
 					{
 						key: 'connect',
 						type: 'button',
 						label: '',
-						text: __( 'Connect provider', 'vulopilot' ),
+						text: __('Connect provider', 'vulopilot'),
 						disabled: isSaving,
-						onClick: () => handleAdd( id ),
+						onClick: () => handleAdd(id),
 					},
 				],
 			},
 		};
-	} );
+	});
 
-	const otherConfiguredMethods = otherConfigured.map( ( row ) => {
-		const providerLabel = row.label || adapters[ row.provider ]?.label || row.provider;
-		const needsReconnect = ! row.credential_ok;
-		const adapter = adapters[ row.provider ];
+	const otherConfiguredMethods = otherConfigured.map((row) => {
+		const providerLabel = row.label || adapters[row.provider]?.label || row.provider;
+		const needsReconnect = !row.credential_ok;
+		const adapter = adapters[row.provider];
 
 		return {
 			id: row.provider,
 			icon: 'ai',
 			label: providerLabel,
 			desc: needsReconnect
-				? `<span class="admin-badge red">${ __( 'Needs reconnecting', 'vulopilot' ) }</span><span class="vulopilot-provider-summary">${ __( 'This provider stopped working — see below.', 'vulopilot' ) }</span>`
-				: `<span class="vulopilot-provider-summary is-connected">${ __( 'Configured with your own credentials.', 'vulopilot' ) }</span>`,
+				? `<span class="admin-badge red">${__('Needs reconnecting', 'vulopilot')}</span><span class="vulopilot-provider-summary">${__('This provider stopped working — see below.', 'vulopilot')}</span>`
+				: `<span class="vulopilot-provider-summary is-connected">${__('Configured with your own credentials.', 'vulopilot')}</span>`,
 			isCustom: true,
 			hideDeleteBtn: true,
 			wrapperClass: 'vulopilot-ai-provider-configuration',
 			formFields: needsReconnect
 				? [
-						{
-							key: 'provider_details',
-							type: 'notice',
-							label: '',
-							noticeType: 'error',
-							message: __(
-								'VuloPilot can no longer read this provider’s saved API key (this usually happens after moving to a new server or environment). AI features have silently stopped using it. Enter the key again to reconnect it.',
-								'vulopilot'
-							),
-						},
-						{
-							key: 'credential',
-							type: adapter?.requires_credential ? 'password' : 'text',
-							label: adapter?.requires_credential ? __( 'API key', 'vulopilot' ) : __( 'Base URL', 'vulopilot' ),
-						},
-						{
-							key: 'reconnect',
-							type: 'button',
-							label: '',
-							text: __( 'Save key', 'vulopilot' ),
-							disabled: isSaving,
-							onClick: () => handleReconnect( row, String( newProviderValuesRef.current[ row.provider ]?.credential ?? '' ) ),
-						},
-						{
-							key: 'disconnect',
-							type: 'button',
-							label: '',
-							text: __( 'Disconnect', 'vulopilot' ),
-							icon: 'disconnect',
-							onClick: () => handleDisconnect( row ),
-						},
-					]
+					{
+						key: 'provider_details',
+						type: 'notice',
+						label: '',
+						noticeType: 'error',
+						message: __(
+							'VuloPilot can no longer read this provider’s saved API key (this usually happens after moving to a new server or environment). AI features have silently stopped using it. Enter the key again to reconnect it.',
+							'vulopilot'
+						),
+					},
+					{
+						key: 'credential',
+						type: adapter?.requires_credential ? 'password' : 'text',
+						label: adapter?.requires_credential ? __('API key', 'vulopilot') : __('Base URL', 'vulopilot'),
+					},
+					{
+						key: 'reconnect',
+						type: 'button',
+						label: '',
+						text: __('Save key', 'vulopilot'),
+						disabled: isSaving,
+						onClick: () => handleReconnect(row, String(newProviderValuesRef.current[row.provider]?.credential ?? '')),
+					},
+					{
+						key: 'disconnect',
+						type: 'button',
+						label: '',
+						text: __('Disconnect', 'vulopilot'),
+						icon: 'disconnect',
+						onClick: () => handleDisconnect(row),
+					},
+				]
 				: [
-						{
-							key: 'provider_details',
-							type: 'notice',
-							label: '',
-							noticeType: 'info',
-							message: sprintf( __( 'Provider: %s', 'vulopilot' ), providerLabel ),
-						},
-						...( adapter && adapter.available_models.length > 0
-							? [
-									{
-										key: 'default_model',
-										type: 'select',
-										label: __( 'Default model', 'vulopilot' ),
-										options: adapter.available_models.map( ( model ) => ( {
-											label: model,
-											value: model,
-										} ) ),
-									},
-									{
-										key: 'save_model',
-										type: 'button',
-										label: '',
-										text: __( 'Save model', 'vulopilot' ),
-										disabled: isSaving,
-										onClick: () =>
-											handleSaveModel(
-												row,
-												String( newProviderValuesRef.current[ row.provider ]?.default_model ?? '' )
-											),
-									},
-								]
-							: [] ),
-						{
-							key: 'disconnect',
-							type: 'button',
-							label: '',
-							text: __( 'Disconnect', 'vulopilot' ),
-							icon: 'disconnect',
-							onClick: () => handleDisconnect( row ),
-						},
-					],
+					{
+						key: 'provider_details',
+						type: 'notice',
+						label: '',
+						noticeType: 'info',
+						message: sprintf(__('Provider: %s', 'vulopilot'), providerLabel),
+					},
+					...(adapter && adapter.available_models.length > 0
+						? [
+							{
+								key: 'default_model',
+								type: 'select',
+								label: __('Default model', 'vulopilot'),
+								options: adapter.available_models.map((model) => ({
+									label: model,
+									value: model,
+								})),
+							},
+							{
+								key: 'save_model',
+								type: 'button',
+								label: '',
+								text: __('Save model', 'vulopilot'),
+								disabled: isSaving,
+								onClick: () =>
+									handleSaveModel(
+										row,
+										String(newProviderValuesRef.current[row.provider]?.default_model ?? '')
+									),
+							},
+						]
+						: []),
+					{
+						key: 'disconnect',
+						type: 'button',
+						label: '',
+						text: __('Disconnect', 'vulopilot'),
+						icon: 'disconnect',
+						onClick: () => handleDisconnect(row),
+					},
+				],
 		};
-	} );
+	});
 
 	const otherPanelValues = {
 		...newProviderValues,
 		...Object.fromEntries(
-			otherConfigured.map( ( row ) => [
+			otherConfigured.map((row) => [
 				row.provider,
 				{
-					...( newProviderValues[ row.provider ] ?? {} ),
+					...(newProviderValues[row.provider] ?? {}),
 					enable: true,
-					title: row.label || adapters[ row.provider ]?.label || row.provider,
+					title: row.label || adapters[row.provider]?.label || row.provider,
 					default_model:
-						newProviderValues[ row.provider ]?.default_model ?? row.default_model ?? '',
+						newProviderValues[row.provider]?.default_model ?? row.default_model ?? '',
 				},
-			] )
+			])
 		),
 	};
 
-	return (
-		<div className="vulopilot-ai-providers-panel">
-			<FormGroupWrapperComponent>
-				{ isLoading ? (
-					<div className="desc">{ __( 'Loading…', 'vulopilot' ) }</div>
-				) : (
-					<>
-						{ heroProviderIds.map( ( providerId ) => (
-							<ProviderCard
-								key={ providerId }
-								providerId={ providerId }
-								adapter={ adapters[ providerId ] }
-								config={ configured.find( ( row ) => row.provider === providerId ) ?? null }
-								isSaving={ isSaving && savingProviderId === providerId }
-								onConnect={ handleHeroConnect }
-								onToggleActive={ handleToggleActive }
-								onSaveModel={ handleSaveModel }
-								onReconnect={ handleReconnect }
-								onDisconnect={ handleDisconnect }
-								onTest={ handleTest }
-							/>
-						) ) }
+	// Merges each hero panel's live-typed fields with real server state —
+	// `enable` reflects `is_active` once connected (unset/false before
+	// that, so the panel starts collapsed/"Disabled"), `model` falls back
+	// to the saved `default_model` until the user picks a different one.
+	const heroPanelValues: Record<string, Record<string, unknown>> = Object.fromEntries(
+		heroProviderIds.map((providerId) => {
+			const config = configured.find((row) => row.provider === providerId) ?? null;
+			const live = heroValues[providerId] ?? {};
 
-						<OtherProvidersCard
-							otherConfiguredCount={ otherConfigured.length }
-							newProviderOptionsCount={ newProviderOptions.length }
-							anyOtherActive={ anyOtherActive }
-							isTogglingAll={ isSaving }
-							onToggleAll={ handleToggleAllOtherProviders }
-							panelKey={ `${ newProviderPanelKey }-${ otherConfigured.map( ( { id } ) => id ).join( '-' ) }` }
-							methods={ otherConfiguredMethods }
-							value={ otherPanelValues }
-							onChange={ handleNewProviderChange }
-							addNewOptions={ newProviderOptions }
-						/>
-					</>
-				) }
+			return [
+				providerId,
+				{
+					...live,
+					enable: config ? config.is_active : Boolean(live.enable),
+					model: live.model ?? config?.default_model ?? '',
+				},
+			];
+		})
+	);
+
+	const heroMethods = heroProviderIds.map((providerId) => {
+		const adapter = adapters[providerId];
+		const hero = HERO_PROVIDERS[providerId];
+		const config = configured.find((row) => row.provider === providerId) ?? null;
+		const needsReconnect = !!config && !config.credential_ok;
+		const connecting = isSaving && savingProviderId === providerId;
+		const { isTesting, testResult } = heroTestState[providerId] ?? { isTesting: false, testResult: null };
+
+		const helpDesc = hero
+			? sprintf(
+				/* translators: 1: help URL, 2: help link label (e.g. "Google AI Studio"). */
+				__('Get your API key from <a href="%1$s" target="_blank" rel="noreferrer">%2$s</a>', 'vulopilot'),
+				hero.helpUrl,
+				hero.helpLabel
+			)
+			: undefined;
+
+		const modelFields = adapter.available_models.length > 0
+			? [
+				{
+					key: 'model',
+					type: 'select',
+					label: __('Model', 'vulopilot'),
+					settingDescription: __('Choose the model to use for AI responses.', 'vulopilot'),
+					options: adapter.available_models.map((m) => ({ label: m, value: m })),
+				},
+			]
+			: [];
+
+		const testResultFields = testResult
+			? [
+				{
+					key: 'test_result',
+					type: 'notice',
+					label: '',
+					noticeType: testResult.success ? 'success' : 'error',
+					message: testResult.message,
+				},
+			]
+			: [];
+
+		const statusField = (color: string, label: string) => ({
+			key: 'connection_status',
+			type: 'section',
+			title: `<span style="display:inline-block;width:0.5rem;height:0.5rem;border-radius:50%;background:${color};margin-right:0.5rem"></span>${__('Connection status:', 'vulopilot')} <strong style="color:${color}">${label}</strong>`,
+		});
+
+		let formFields;
+
+		if (!config) {
+			formFields = [
+				{
+					key: 'api_key',
+					type: 'password',
+					label: __('API Key', 'vulopilot'),
+					settingDescription: helpDesc,
+				},
+				...modelFields,
+				{
+					key: 'connect',
+					type: 'button',
+					label: '',
+					text: connecting ? __('Connecting…', 'vulopilot') : __('Connect', 'vulopilot'),
+					disabled: connecting || '' === String(heroPanelValues[providerId]?.api_key ?? '').trim(),
+					onClick: () =>
+						handleHeroConnect(
+							providerId,
+							String(heroPanelValues[providerId]?.api_key ?? ''),
+							String(heroPanelValues[providerId]?.model ?? '')
+						),
+				},
+			];
+		} else if (needsReconnect) {
+			formFields = [
+				{
+					key: 'api_key',
+					type: 'password',
+					label: __('API Key', 'vulopilot'),
+					settingDescription: helpDesc,
+				},
+				...modelFields,
+				statusField('#dc2626', __('Needs reconnecting', 'vulopilot')),
+				{
+					key: 'save_key',
+					type: 'button',
+					label: '',
+					text: isSaving ? __('Saving…', 'vulopilot') : __('Save key', 'vulopilot'),
+					disabled: isSaving || '' === String(heroPanelValues[providerId]?.api_key ?? '').trim(),
+					onClick: () => handleReconnect(config, String(heroPanelValues[providerId]?.api_key ?? '')),
+				},
+				{
+					key: 'disconnect',
+					type: 'button',
+					label: '',
+					text: __('Disconnect', 'vulopilot'),
+					icon: 'disconnect',
+					color: 'red',
+					onClick: () => handleDisconnect(config),
+				},
+				...testResultFields,
+			];
+		} else {
+			formFields = [
+				...modelFields,
+				statusField('#16a34a', __('Connected', 'vulopilot')),
+				{
+					key: 'test_connection',
+					type: 'button',
+					label: '',
+					text: isTesting ? __('Testing…', 'vulopilot') : __('Test Connection', 'vulopilot'),
+					icon: 'refresh',
+					disabled: isTesting,
+					onClick: () => handleHeroTest(providerId, config),
+				},
+				{
+					key: 'disconnect',
+					type: 'button',
+					label: '',
+					text: __('Disconnect', 'vulopilot'),
+					icon: 'disconnect',
+					color: 'red',
+					onClick: () => handleDisconnect(config),
+				},
+				...testResultFields,
+			];
+		}
+
+		return {
+			id: providerId,
+			icon: 'ai',
+			label: adapter.label,
+			desc: hero?.desc ?? '',
+			disableBtn: true,
+			statusLabels: { active: __('Enabled', 'vulopilot'), inactive: __('Disabled', 'vulopilot') },
+			formFields,
+		};
+	});
+
+	return (
+		<>
+			<FormGroupWrapperComponent>
+				<FormGroupComponent>
+					{isLoading ? (
+						<div className="desc">{__('Loading…', 'vulopilot')}</div>
+					) : (
+						<>
+							{heroMethods.length > 0 && (
+								<ExpandablePanelInput
+									name="ai-providers-hero"
+									methods={heroMethods}
+									value={heroPanelValues}
+									onChange={handleHeroChange}
+									canAccess
+								/>
+							)}
+
+							<OtherProvidersCard
+								otherConfiguredCount={otherConfigured.length}
+								newProviderOptionsCount={newProviderOptions.length}
+								panelKey={`${newProviderPanelKey}-${otherConfigured.map(({ id }) => id).join('-')}`}
+								methods={otherConfiguredMethods}
+								value={otherPanelValues}
+								onChange={handleNewProviderChange}
+								addNewOptions={newProviderOptions}
+							/>
+						</>
+					)}
+				</FormGroupComponent>
 			</FormGroupWrapperComponent>
-			{ activeCount > 1 && (
+			{activeCount > 1 && (
 				<div className="desc settings-metabox-description">
-					{ sprintf(
+					{sprintf(
 						/* translators: %d is how many AI providers are currently active. */
 						__(
 							'%d providers are active — if the first one fails or is rate-limited, VuloPilot automatically retries with the next.',
 							'vulopilot'
 						),
 						activeCount
-					) }
+					)}
 				</div>
-			) }
-		</div>
+			)}
+		</>
 	);
 };
 

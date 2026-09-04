@@ -54,14 +54,25 @@ export default {
 		'These scans help your content get understood by AI systems and shown in AI results.',
 		'vulopilot'
 	),
+	groupBySections: true,
+	hideSettingHeader: true,
 	headerIcon: 'global-community',
 	submitUrl: 'settings',
 	settingAction: createElement(AiVisibilityScansHeader),
 	modal: [
 		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'setting',
+			title: __('AI Visibility', 'vulopilot'),
+			desc: __('Configure how vuloPilot monitors your site for issues.', 'vulopilot'),
+		},
+		{
 			key: 'ai_visibility_scans',
 			type: 'expandable-panel',
 			label: 'AI Visibility Scans',
+			className: 'full-width',
+			row: false,
 			modal: [
 				{
 					id: 'structure',
@@ -192,8 +203,9 @@ export default {
 		{
 			key: 'aeo-section-llms-txt',
 			type: 'section',
+			icon: 'document',
 			title: __('llms.txt', 'vulopilot'),
-			settingDescription: __(
+			desc: __(
 				'A Markdown index of your key pages, served at /llms.txt for AI systems to read instead of crawling your whole site.',
 				'vulopilot'
 			),
@@ -276,8 +288,9 @@ export default {
 			// JSON-LD anywhere in this codebase.
 			key: 'entity-section-business',
 			type: 'section',
+			icon: 'category',
 			title: __('Business', 'vulopilot'),
-			settingDescription: __(
+			desc: __(
 				'What kind of business this is — shown on the Business Profile card, not written into any structured data.',
 				'vulopilot'
 			),
@@ -294,8 +307,9 @@ export default {
 		{
 			key: 'entity-section-services',
 			type: 'section',
+			icon: 'link',
 			title: __('Services', 'vulopilot'),
-			settingDescription: __(
+			desc: __(
 				'One published page per line — a URL or a numeric page ID. Pages that don\'t resolve are skipped.',
 				'vulopilot'
 			),
@@ -312,8 +326,9 @@ export default {
 		{
 			key: 'entity-section-locations',
 			type: 'section',
+			icon: 'location',
 			title: __('Locations', 'vulopilot'),
-			settingDescription: __(
+			desc: __(
 				'One location per line, as "Name | Address".',
 				'vulopilot'
 			),
@@ -344,8 +359,9 @@ export default {
 		{
 			key: 'crawler-traffic',
 			type: 'section',
+			icon: 'chart-line',
 			title: __('Crawler Traffic', 'vulopilot'),
-			settingDescription: __('', 'vulopilot'),
+			desc: __('', 'vulopilot'),
 		},
 		{
 			key: 'enable_crawler_tracking',
