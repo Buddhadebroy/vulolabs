@@ -30,8 +30,17 @@ export default {
 		'vulopilot'
 	),
 	headerIcon: 'cloud-upload',
+	hideSettingHeader: true,
+	groupBySections: true,
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'cloud-upload',
+			title: __('Backups', 'vulopilot'),
+			desc: __('Automatic site backups and how long they\'re kept.', 'vulopilot'),
+		},
 		{
 			key: 'enable_automatic_backups',
 			type: 'checkbox',

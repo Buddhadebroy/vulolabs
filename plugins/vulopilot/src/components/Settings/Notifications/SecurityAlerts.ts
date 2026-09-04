@@ -65,6 +65,7 @@ export default {
 				'Master switch for every Security Alert below — turn this off to silence all of them at once.',
 				'vulopilot'
 			),
+			toggleStatusLabel: { on: 'Enabled', off: 'Disabled' },
 			options: [
 				{ key: 'security_alerts_enabled', label: '', value: 'security_alerts_enabled' },
 			],

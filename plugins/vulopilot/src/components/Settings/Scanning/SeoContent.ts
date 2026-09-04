@@ -51,9 +51,21 @@ export default {
 		'Controls what shows up in the SEO page\'s "Titles & Meta" and "Content Structure" findings.',
 		'vulopilot'
 	),
+	hideSettingHeader: true,
+	groupBySections: true,
 	headerIcon: 'search',
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'setting',
+			title: __('Titles & meta', 'vulopilot'),
+			desc:  __(
+		'Controls what shows up in the SEO page\'s "Titles & Meta" and "Content Structure" findings.',
+		'vulopilot'
+	),
+		},
 		{
 			key: 'flag_orphan_pages',
 			type: 'checkbox',
@@ -78,6 +90,7 @@ export default {
 		{
 			key: 'seo-section-images',
 			type: 'section',
+			icon: 'image',
 			title: __('Images', 'vulopilot'),
 			desc: __(
 				'Controls the "Images" findings group on the SEO page.',
@@ -105,6 +118,7 @@ export default {
 		{
 			key: 'seo-section-links-schema',
 			type: 'section',
+			icon: 'link',
 			title: __('Links & schema', 'vulopilot'),
 			desc: __(
 				'Controls the "Links & Indexability" findings group. Broken links/images and structured data moved to Settings → Scanning → Content & Search.',
@@ -150,6 +164,7 @@ export default {
 		{
 			key: 'seo-section-robots',
 			type: 'section',
+			icon: 'search-discovery',
 			title: __('Robots.txt', 'vulopilot'),
 		},
 		{
@@ -188,6 +203,7 @@ export default {
 		{
 			key: 'seo-section-redirects',
 			type: 'section',
+			icon: 'external',
 			title: __('Redirects', 'vulopilot'),
 		},
 		{
@@ -258,6 +274,7 @@ export default {
 		{
 			key: 'sitemap-section-xml',
 			type: 'section',
+			icon: 'editor-list',
 			title: __('XML Sitemap', 'vulopilot'),
 		},
 		{
@@ -332,6 +349,7 @@ export default {
 		{
 			key: 'sitemap-section-images',
 			type: 'section',
+			icon: 'image',
 			title: __('Images in sitemap', 'vulopilot'),
 			desc: __(
 				'Not yet implemented — WordPress core\'s native XML sitemap has no image entry support to hook into. These round-trip through Settings but have no effect on the sitemap output yet.',
@@ -374,6 +392,7 @@ export default {
 		{
 			key: 'sitemap-section-post-types',
 			type: 'section',
+			icon: 'category',
 			title: __('Post types & taxonomies in sitemap', 'vulopilot'),
 			desc: __(
 				'Which real post types/taxonomies are included in the XML sitemap vs. the [vulopilot_html_sitemap] shortcode below — a type can be in one, both, or neither. "Products"/"Product categories"/"Product tags" only take effect when WooCommerce is active.',
@@ -431,6 +450,7 @@ export default {
 		{
 			key: 'sitemap-section-html',
 			type: 'section',
+			icon: 'web-page-website',
 			title: __('HTML Sitemap', 'vulopilot'),
 		},
 		{
@@ -513,6 +533,7 @@ export default {
 		{
 			key: 'webmaster-section-verification',
 			type: 'section',
+			icon: 'identity-verification',
 			title: __('Webmaster Tools', 'vulopilot'),
 			desc: __(
 				'Enter verification codes for third-party webmaster tools. Each one is rendered as its own <meta> tag on every page.',
@@ -582,6 +603,7 @@ export default {
 		{
 			key: 'webmaster-section-custom',
 			type: 'section',
+			icon: 'shortcode',
 			title: __('Custom Webmaster Tags', 'vulopilot'),
 		},
 		{

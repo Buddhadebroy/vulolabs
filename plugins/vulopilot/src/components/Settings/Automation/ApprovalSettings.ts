@@ -123,14 +123,7 @@ export default {
 				__(
 					"Risk levels are determined by the type of change and its potential impact on your website.",
 					'vulopilot'
-				) +
-				'<br />' +
-				riskBadge( 'low', __( 'Low risk', 'vulopilot' ) ) +
-				__( ' Applied automatically', 'vulopilot' ) +
-				riskBadge( 'medium', __( 'Medium risk', 'vulopilot' ) ) +
-				__( ' Approval required', 'vulopilot' ) +
-				riskBadge( 'high', __( 'High risk', 'vulopilot' ) ) +
-				__( ' Approval required', 'vulopilot' ),
+				)
 		},
 	],
 };

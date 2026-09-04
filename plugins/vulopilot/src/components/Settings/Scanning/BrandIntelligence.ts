@@ -20,9 +20,21 @@ export default {
 		'Brand visibility tracking and trust-signal checks.',
 		'vulopilot'
 	),
+	groupBySections: true,
+	hideSettingHeader: true,
 	headerIcon: 'person',
 	submitUrl: 'settings',
 	modal: [
+		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'person',
+			title: __('Brand Intelligence', 'vulopilot'),
+			desc: __(
+		'Brand visibility tracking and trust-signal checks.',
+		'vulopilot'
+	),
+		},
 		{
 			key: 'tracked_competitors',
 			type: 'expandable-panel',
@@ -45,6 +57,7 @@ export default {
 			key: 'brand-section-about-page',
 			type: 'section',
 			title: __('About Page', 'vulopilot'),
+			icon: 'web-page-website',
 			desc: __(
 				'Controls the Brand page\'s About Page Analysis finding — evaluated only for sites that already have an About-shaped page.',
 				'vulopilot'

@@ -222,14 +222,28 @@ const IndexNowPanel = () => {
 						</div>
 					</FormGroupComponent>
 				)}
+			</FormGroupWrapperComponent>
 
-				 <SectionComponent
-                    title={__('Settings', 'vulopilot')}
-                />
-
-				<FormGroupComponent
+			{/*
+			 * `.settings-section-group` > `.settings-section` (the section
+			 * header) + a nested `FormGroupWrapperComponent` (that group's
+			 * own fields) — same markup/classes as SecurityPanel.tsx's own
+			 * hand-built section groups (see that file's own docblock for
+			 * why: InputRenderer.tsx's own `renderForm()` generates this
+			 * automatically for a declarative `modal` array grouped by
+			 * `type: 'section'` fields, but this tab is hand-built).
+			 */}
+			<div className="settings-section-group">
+				<div className="settings-section">
+					<SectionComponent
+						icon="setting"
+						title={__('Settings', 'vulopilot')}
+					/>
+				</div>
+				<FormGroupWrapperComponent>
+					<FormGroupComponent
 						label={__('Auto-submit post types', 'vulopilot')}
-						row 
+						row
 						desc={__(
 							'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
 							'vulopilot'
@@ -285,12 +299,14 @@ const IndexNowPanel = () => {
 							</a>
 						</FormGroupComponent>
 					)}
+				</FormGroupWrapperComponent>
+			</div>
 
-					<SectionComponent
-						title={__('History', 'vulopilot')}
-						desc={__('The last 100 IndexNow API requests.', 'vulopilot')}
-					/>
-			</FormGroupWrapperComponent>
+			<SectionComponent
+				icon="clock"
+				title={__('History', 'vulopilot')}
+				desc={__('The last 100 IndexNow API requests.', 'vulopilot')}
+			/>
 
 
 			<CardComponent

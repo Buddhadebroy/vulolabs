@@ -16,7 +16,7 @@ export default {
 		'Diagnostics and maintenance actions for troubleshooting VuloPilot.',
 		'vulopilot'
 	),
-	headerIcon: 'settings',
+	headerIcon: 'setting',
 	submitUrl: 'settings',
 	modal: [],
 };

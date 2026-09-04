@@ -34,6 +34,7 @@ export default {
 		'Enable or disable optional VuloPilot features.',
 		'vulopilot'
 	),
+	hideSettingHeader: true,
 	headerIcon: 'module',
 	submitUrl: 'settings',
 	modal: [],

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { NoticeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
 
@@ -94,20 +95,19 @@ const CrawlerAlertTestPanel = () => {
 			/>
 
 			{result && (
-				<p
-					className={`crawler-alert-test-result ${
-						result.success ? 'is-success' : 'is-error'
-					}`}
-				>
-					{result.message}
-				</p>
+				<NoticeComponent
+					displayPosition="inline"
+					type={result.success ? 'success' : 'error'}
+					message={result.message}
+				/>
 			)}
 
 			{!result && lastSentAt && (
-				<p className="crawler-alert-test-result is-success">
-					{__('Last test alert sent successfully on', 'vulopilot')}{' '}
-					{formatWpDate(lastSentAt)}
-				</p>
+				<NoticeComponent
+					displayPosition="inline"
+					type="success"
+					message={`${__('Last test alert sent successfully on', 'vulopilot')} ${formatWpDate(lastSentAt)}`}
+				/>
 			)}
 		</div>
 	);

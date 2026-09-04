@@ -48,7 +48,16 @@ export default {
 	submitUrl: 'settings',
 	settingAction: createElement(SecurityRestoreDefaultsHeader),
 	PanelComponent: SecurityPanel,
+	groupBySections: true,
+	hideSettingHeader: true,
 	modal: [
+		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'setting',
+			title: __('Site Monitoring', 'vulopilot'),
+			desc: __('Configure how vuloPilot monitors your site for issues.', 'vulopilot'),
+		},
 		{ key: 'enable_weak_password_scanner', type: 'checkbox', label: '', options: [] },
 		{ key: 'enable_basic_vulnerabilities_scanner', type: 'checkbox', label: '', options: [] },
 		{ key: 'enable_core_file_integrity_scanner', type: 'checkbox', label: '', options: [] },
