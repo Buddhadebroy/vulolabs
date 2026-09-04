@@ -38,7 +38,7 @@ const SCAN_ROWS: Row[] = [
 	{
 		id: 'weak-passwords',
 		flatKey: 'enable_weak_password_scanner',
-		icon: 'lock',
+		icon: 'lock blue',
 		label: __('Weak password checks', 'vulopilot'),
 		desc: __(
 			'Find users with weak passwords and get suggestions to make them stronger.',
@@ -48,7 +48,7 @@ const SCAN_ROWS: Row[] = [
 	{
 		id: 'wordpress-exposure',
 		flatKey: 'enable_basic_vulnerabilities_scanner',
-		icon: 'wordpress',
+		icon: 'wordpress gray',
 		label: __('WordPress exposure', 'vulopilot'),
 		desc: __(
 			'Check common WordPress exposure issues that can be exploited by attackers, like an exposed version number or a default database table prefix.',
@@ -58,7 +58,7 @@ const SCAN_ROWS: Row[] = [
 	{
 		id: 'core-files',
 		flatKey: 'enable_core_file_integrity_scanner',
-		icon: 'document',
+		icon: 'document orange',
 		label: __('Core file changes', 'vulopilot'),
 		desc: __(
 			'Detect unauthorized changes in WordPress core files.',
@@ -68,7 +68,7 @@ const SCAN_ROWS: Row[] = [
 	{
 		id: 'malware',
 		flatKey: 'enable_malware_scanner',
-		icon: 'error',
+		icon: 'error red',
 		label: __('Malware checks', 'vulopilot'),
 		desc: __(
 			'Scan your website for malware, suspicious code, and harmful scripts.',
@@ -78,7 +78,7 @@ const SCAN_ROWS: Row[] = [
 	{
 		id: 'user-exposure',
 		flatKey: 'enable_rest_api_scanner',
-		icon: 'person',
+		icon: 'person pink',
 		label: __('User exposure', 'vulopilot'),
 		// The mockup's own copy here ("risky roles or unnecessary access")
 		// doesn't describe any real scanner this codebase has — the closest
@@ -98,7 +98,7 @@ const PROTECTION_ROWS: Row[] = [
 	{
 		id: 'login-protection',
 		flatKey: 'enable_login_protection',
-		icon: 'vpn-key',
+		icon: 'vpn-key blue',
 		label: __('Block repeated failed login attempts', 'vulopilot'),
 		desc: __(
 			'Real brute-force protection — an IP that fails to log in too many times within the window below is blocked from trying again until it passes.',
@@ -132,7 +132,7 @@ const PROTECTION_ROWS: Row[] = [
 	{
 		id: 'firewall',
 		flatKey: 'enable_firewall',
-		icon: 'blocks',
+		icon: 'blocks yellow',
 		label: __('Log requests matching known attack patterns', 'vulopilot'),
 		desc: __(
 			'Checks every request\'s URL against known SQL-injection, path-traversal, and direct-PHP-execution patterns and logs any match — always safe, never blocks anyone on its own.',
@@ -158,7 +158,7 @@ const MONITORING_ROWS: Row[] = [
 	{
 		id: 'alerts',
 		flatKey: 'security_alerts_enabled',
-		icon: 'notification',
+		icon: 'notification green',
 		label: __('Email me on new security alerts', 'vulopilot'),
 		desc: __(
 			'Send an email when a scan detects a new security finding at or above the minimum severity below. Already-alerted, still-open findings aren\'t re-sent on every scan.',
@@ -196,7 +196,7 @@ const MONITORING_ROWS: Row[] = [
 	{
 		id: 'integrity-monitoring',
 		flatKey: 'enable_integrity_monitoring',
-		icon: 'view-files',
+		icon: 'view-files lime',
 		label: __('Monitor plugin/theme files for changes', 'vulopilot'),
 		desc: __(
 			'Maintains a local baseline of every plugin/theme PHP file and flags any added, modified, or removed since the last scan.',
