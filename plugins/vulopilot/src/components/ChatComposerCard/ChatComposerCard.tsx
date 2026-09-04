@@ -161,7 +161,9 @@ const ChatComposerCard = <TTurn,>({
 			action={cardAction}
 			className={`${cardClassName} ai-card`}
 		>
+			<div className='chat-composer-body'>
 			{guarded ? <AiCopilotGuard>{body}</AiCopilotGuard> : body}
+			</div>
 		</CardComponent>
 	);
 };

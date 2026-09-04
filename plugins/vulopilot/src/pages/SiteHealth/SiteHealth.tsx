@@ -4,13 +4,12 @@ import { useLocation } from 'react-router-dom';
 import {
 	ContainerComponent,
 	NavigatorHeaderComponent,
-	TabsComponent,
+	TabsComponent
 } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import SiteHealthTab from '../Security/SiteHealthTab';
 import BackupsTab from '../Security/BackupsTab';
-import BackupProtectionNotice from '../Security/BackupProtectionNotice';
 
 const TAB_IDS = ['site-health', 'backups'] as const;
 
@@ -24,17 +23,20 @@ const TAB_IDS = ['site-health', 'backups'] as const;
  * + `subtab` deep-link shape Performance.tsx/GEO.tsx/Security.tsx already
  * use, replacing this page's own former no-tab-bar stacked layout.
  *
- * `SiteHealthTab`/`BackupsTab`/`BackupProtectionNotice` are imported from
- * `../Security/` rather than physically moved — they're both still
- * genuinely shared with Security's own file tree there (`SectionedFindingsTab`,
+ * `SiteHealthTab`/`BackupsTab` are imported from `../Security/` rather
+ * than physically moved — they're both still genuinely shared with
+ * Security's own file tree there (`SectionedFindingsTab`,
  * `SectionedIssuesTable` types), same "kept here, cross-imported" choice
  * `Performance/OverviewTab.tsx` already makes for the Efficiency* cards it
  * shares with this same folder.
  *
- * `BackupProtectionNotice` stays above the tab bar (visible on both tabs,
- * same spot it held in the former stacked layout) — its own "View Backups"
- * action now switches this page's real `backups` tab in place
- * (`onNavigateToBackups`) instead of a full reload back to this same page.
+ * `BackupProtectionNotice` now renders inside `SiteHealthTab.tsx` itself
+ * (its own header, right before `SiteHealthStatusCard`) rather than above
+ * the tab bar here — `goToBackups` is still owned by this component (it's
+ * the one holding `activeTab` state) and passed down as
+ * `onNavigateToBackups` so the notice's "View Backups" action can still
+ * switch this page's real `backups` tab in place instead of a full reload
+ * back to this same page.
  */
 const SiteHealth = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -74,7 +76,6 @@ const SiteHealth = () => {
 				}
 			/>
 			<ContainerComponent general>
-				<BackupProtectionNotice onNavigateToBackups={goToBackups} />
 				<TabsComponent
 					className="site-health-tabs"
 					activeIndex={TAB_IDS.indexOf(activeTab)}
@@ -85,7 +86,7 @@ const SiteHealth = () => {
 					tabs={[
 						{
 							label: __('Site Health', 'vulopilot'),
-							content: <SiteHealthTab />,
+							content: <SiteHealthTab onNavigateToBackups={goToBackups} />,
 						},
 						{
 							label: __('Backups', 'vulopilot'),

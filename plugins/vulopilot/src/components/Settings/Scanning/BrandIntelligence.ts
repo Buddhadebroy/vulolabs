@@ -29,20 +29,17 @@ export default {
 			key: 'general_settings',
 			type: 'section',
 			icon: 'person',
-			title: __('Brand Intelligence', 'vulopilot'),
+			title: __('Tracked competitors', 'vulopilot'),
 			desc: __(
-		'Brand visibility tracking and trust-signal checks.',
+		'Used to calculate Share of Voice on the Brand Visibility page.',
 		'vulopilot'
 	),
 		},
 		{
 			key: 'tracked_competitors',
 			type: 'expandable-panel',
-			label: __('Tracked competitors', 'multivendorx'),
-			settingDescription: __(
-				'Used to calculate Share of Voice on the Brand Visibility page.',
-				'multivendorx'
-			),
+			className: 'full-width',
+			label: __('', 'vulopilot'),
 			addNewBtn: true,
 			addNewTemplate: {
 				label: 'New competitors',

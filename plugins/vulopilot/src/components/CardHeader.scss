@@ -12,7 +12,7 @@
 	justify-content: space-between;
 	align-items: center;
     padding-bottom: 0.625rem;
-	padding: 1.5rem;
+	padding: 0.75rem;
 	.common-card-header{
 		width: 70%;
 	}
@@ -45,13 +45,13 @@
 	display: flex !important;
 	align-items: center;
 	justify-content: center;
-	width: 3.313rem;
-	height: 3.313rem;
+	width: 2.25rem;
+	height: 2.25rem;
 	border-radius: 0.5rem;
 	background: color-mix(in srgb, $theme-color 12%, transparent);
 	color: $theme-color;
 	flex-shrink: 0;
-	font-size: 2.313rem;
+	font-size: 1.813rem;
 }
 
 .common-card-details {
@@ -61,9 +61,11 @@
 	flex: 1;
 
 	.title {
-		font-size: 1.25rem;
+		font-size: 1.125rem;
 	}
-
+	.desc{
+		font-size: 0.95rem;
+	}
 }
 
 // Sits inside `<strong>{title}</strong>` (CardHeader.tsx), right after the

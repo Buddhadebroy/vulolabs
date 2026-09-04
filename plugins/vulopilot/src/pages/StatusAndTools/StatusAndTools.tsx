@@ -44,7 +44,7 @@ const StatusAndTools: React.FC = () => {
 		)
 			.then((response) => {
 				if (!response) {
-					setError(__('Could not load settings.', 'multivendorx'));
+					setError(__('Could not load settings.', 'vulopilot'));
 					return;
 				}
 
@@ -113,7 +113,7 @@ const StatusAndTools: React.FC = () => {
 						Popup={ShowProPopup}
 					/>
 				) : (
-					<>{__('Loading...', 'multivendorx')}</>
+					<>{__('Loading...', 'vulopilot')}</>
 				)}
 			</>
 		);
@@ -121,12 +121,12 @@ const StatusAndTools: React.FC = () => {
 
 	if (error) {
 		return (
-			<CardComponent title={__('Status & Tools', 'multivendorx')} titleIcon="error">
+			<CardComponent title={__('Status & Tools', 'vulopilot')} titleIcon="error">
 				<ModuleGuardComponent
 					icon="error"
-					title={__('Could not load settings', 'multivendorx')}
+					title={__('Could not load settings', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'multivendorx')}
+					buttonText={__('Retry', 'vulopilot')}
 					onButtonClick={loadSettings}
 				/>
 			</CardComponent>
@@ -136,7 +136,7 @@ const StatusAndTools: React.FC = () => {
 	if (isLoading) {
 		return (
 			<CardComponent
-				title={__('Status & Tools', 'multivendorx')}
+				title={__('Status & Tools', 'vulopilot')}
 				titleIcon="tools"
 				isLoading
 			/>

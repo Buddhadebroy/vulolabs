@@ -1,5 +1,40 @@
 @use '../config' as *;
 
+.ai-card {
+	padding: 0 !important;
+	gap: 0 !important;
+
+	.chat-composer-body {
+		background: $background-white;
+	}
+
+	.card-header {
+		margin: 1rem;
+		border: none;
+		margin-bottom: 0;
+	}
+
+	.chat-composer-body {
+		min-height: 35rem;
+		max-height: 35rem;
+
+		.chat-input {
+			border-radius: 0.313rem;
+			padding: 0.625rem 0.75rem;
+			position: absolute;
+			width: 100%;
+			box-sizing: border-box;
+			bottom: 0;
+		}
+	}
+}
+
+
+
+
+
+
+
 // Ported from zyra's own ChatMessageComponent.scss/ChatInputComponent.scss
 // (@zyra/components) — every real consumer of those two components lived in
 // this plugin alone, so their styles moved here with the components rather
@@ -60,12 +95,12 @@ $chat-message-avatar-bg: #e67a2e;
 	}
 }
 
-.chat-input {
-	border: $border-light-small;
-	border-radius: 0.313rem;
-	padding: 0.625rem 0.75rem;
-	background: #ffffff82;
-}
+// .chat-input {
+// 	border: $border-light-small;
+// 	border-radius: 0.313rem;
+// 	padding: 0.625rem 0.75rem;
+// 	background: #ffffff82;
+// }
 
 .chat-input-row {
 	display: flex;
@@ -93,11 +128,11 @@ $chat-message-avatar-bg: #e67a2e;
 
 .chat-input-send {
 	border-radius: 50% !important;
-    padding: 0.625rem !important;
+	padding: 0.625rem !important;
 
 	&:disabled,
 	&[aria-disabled='true'] {
-		
+
 		cursor: not-allowed;
 	}
 
@@ -178,7 +213,7 @@ $chat-message-avatar-bg: #e67a2e;
 // own `prompts`, so `.ai-card` is really just belt-and-suspenders against a
 // future unrelated `CardComponent`/`chip-grid` picking this up by accident.
 .ai-card {
-	.card-header .left .typography-title > i {
+	.card-header .left .typography-title>i {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;

@@ -8,6 +8,7 @@ import SectionedFindingsTab, {
 import { SectionedIssuesTab } from './SectionedIssuesTable';
 import FindingsHeroCard from './FindingsHeroCard';
 import SiteHealthStatusCard from './SiteHealthStatusCard';
+import BackupProtectionNotice from './BackupProtectionNotice';
 
 /**
  * "Site Health" tab of "Protect My Site" (PROTECT-MY-SITE.md's IA) — 5
@@ -97,7 +98,12 @@ const ALL_SCANNER_IDS = Array.from(
 	new Set(SECTIONS.flatMap((section) => section.scannerIds))
 );
 
-const SiteHealthTab = () => {
+interface SiteHealthTabProps {
+	/** Switches SiteHealth.tsx's own `backups` tab in place — see BackupProtectionNotice.tsx's own docblock. */
+	onNavigateToBackups: () => void;
+}
+
+const SiteHealthTab = ({ onNavigateToBackups }: SiteHealthTabProps) => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
 
 	const goToIssuesTable = (tab: SectionedIssuesTab) => {
@@ -119,6 +125,9 @@ const SiteHealthTab = () => {
 			onTabChange={setActiveTab}
 			header={
 				<ContainerComponent>
+					<ColumnComponent>
+						<BackupProtectionNotice onNavigateToBackups={onNavigateToBackups} />
+					</ColumnComponent>
 					<ColumnComponent grid={6}>
 						<SiteHealthStatusCard />
 					</ColumnComponent>
