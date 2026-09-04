@@ -4,7 +4,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { FormGroupWrapperComponent, FormGroupComponent, NoticeManager } from '@zyra/components';
 import { ExpandablePanelInput } from '@zyra/inputs';
-import OtherProvidersCard from './OtherProvidersCard';
 
 interface ConfiguredProvider {
 	id: number;
@@ -737,28 +736,26 @@ const AiProvidersPanel = () => {
 					<div className="desc">{__('Loading…', 'vulopilot')}</div>
 				) : (
 					<>
-						{heroMethods.length > 0 && (
+						{(heroMethods.length > 0 || otherConfiguredMethods.length > 0 || newProviderOptions.length > 0) && (
 							<FormGroupComponent>
 								<ExpandablePanelInput
-									name="ai-providers-hero"
-									methods={heroMethods}
-									value={heroPanelValues}
-									onChange={handleHeroChange}
+									key={`${newProviderPanelKey}-${otherConfigured.map(({ id }) => id).join('-')}`}
+									name="ai-providers"
+									methods={[...heroMethods, ...otherConfiguredMethods]}
+									value={{ ...heroPanelValues, ...otherPanelValues }}
+									onChange={(next) => {
+										handleHeroChange(next);
+										handleNewProviderChange(next);
+									}}
 									canAccess
+									addNewBtn={newProviderOptions.length > 0}
+									addNewTemplate={{
+										editableFields: { title: false, description: false },
+									}}
+									addNewOptions={newProviderOptions}
 								/>
 							</FormGroupComponent>
 						)}
-						<FormGroupComponent>
-							<OtherProvidersCard
-								otherConfiguredCount={otherConfigured.length}
-								newProviderOptionsCount={newProviderOptions.length}
-								panelKey={`${newProviderPanelKey}-${otherConfigured.map(({ id }) => id).join('-')}`}
-								methods={otherConfiguredMethods}
-								value={otherPanelValues}
-								onChange={handleNewProviderChange}
-								addNewOptions={newProviderOptions}
-							/>
-						</FormGroupComponent>
 					</>
 				)}
 			</FormGroupWrapperComponent>

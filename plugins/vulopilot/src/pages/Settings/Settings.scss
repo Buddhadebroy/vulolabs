@@ -188,10 +188,10 @@
 // CardHeader.tsx's own `.common-card*` rules moved to its co-located
 // CardHeader.scss (imported directly by CardHeader.tsx) — see that file.
 
-// AiProvidersPanel.tsx (ProviderCard) / OtherProvidersCard.tsx's own card
-// shell — real gap until now: every `.ai-provider-card*` DETAIL rule below
-// (row/footer/field/...) existed, but the outer shell classes these two
-// components actually render (`.vulopilot-ai-providers-panel`,
+// AiProvidersPanel.tsx (ProviderCard) own card shell — real gap until now:
+// every `.ai-provider-card*` DETAIL rule below (row/footer/field/...)
+// existed, but the outer shell classes this file actually renders
+// (`.vulopilot-ai-providers-panel`,
 // `.ai-provider-card`, `.ai-provider-card-header`, `.ai-provider-card-icon`,
 // `.ai-provider-card-title`, `.ai-provider-card-body`) had no CSS at all —
 // every provider card rendered as unstyled block flow, all three visually
@@ -339,14 +339,6 @@
 	}
 }
 
-// OtherProvidersCard.tsx's own real Enabled/Disabled switch (its own
-// docblock explains why it's a real, wired ChoiceToggleInput rather than
-// the plain status text this card used before) — `.is-disabled` since that
-// component has no real `disabled` prop of its own to gate on.
-.ai-provider-other-toggle.is-disabled {
-	opacity: 0.5;
-	pointer-events: none;
-}
 
 .ai-provider-card-actions {
 	display: flex;
