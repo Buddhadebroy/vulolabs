@@ -35,6 +35,7 @@ export default {
 		'Connect PageSpeed Insights API to analyze your site speed, Core Web Vitals, and get actionable optimization suggestions.',
 		'vulopilot'
 	),
+	hideSettingHeader: true,
 	headerIcon: 'analytics',
 	submitUrl: 'settings',
 	modal: [

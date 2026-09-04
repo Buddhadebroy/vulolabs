@@ -732,12 +732,13 @@ const AiProvidersPanel = () => {
 	return (
 		<>
 			<FormGroupWrapperComponent>
-				<FormGroupComponent>
-					{isLoading ? (
-						<div className="desc">{__('Loading…', 'vulopilot')}</div>
-					) : (
-						<>
-							{heroMethods.length > 0 && (
+
+				{isLoading ? (
+					<div className="desc">{__('Loading…', 'vulopilot')}</div>
+				) : (
+					<>
+						{heroMethods.length > 0 && (
+							<FormGroupComponent>
 								<ExpandablePanelInput
 									name="ai-providers-hero"
 									methods={heroMethods}
@@ -745,8 +746,9 @@ const AiProvidersPanel = () => {
 									onChange={handleHeroChange}
 									canAccess
 								/>
-							)}
-
+							</FormGroupComponent>
+						)}
+						<FormGroupComponent>
 							<OtherProvidersCard
 								otherConfiguredCount={otherConfigured.length}
 								newProviderOptionsCount={newProviderOptions.length}
@@ -756,9 +758,9 @@ const AiProvidersPanel = () => {
 								onChange={handleNewProviderChange}
 								addNewOptions={newProviderOptions}
 							/>
-						</>
-					)}
-				</FormGroupComponent>
+						</FormGroupComponent>
+					</>
+				)}
 			</FormGroupWrapperComponent>
 			{activeCount > 1 && (
 				<div className="desc settings-metabox-description">

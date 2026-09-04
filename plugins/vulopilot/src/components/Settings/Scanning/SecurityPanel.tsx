@@ -342,6 +342,7 @@ const SecurityPanel = () => {
 			<div className="settings-section-group">
 				<div className="settings-section">
 					<SectionComponent
+						icon="security"
 						title={__('Security scans', 'vulopilot')}
 						desc={__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
 					/>
@@ -356,7 +357,7 @@ const SecurityPanel = () => {
 							canAccess
 						/>
 					</FormGroupComponent>
-					<FormGroupComponent row label="">
+					<FormGroupComponent className="full-width" label="">
 						<NoticeComponent
 							displayPosition="inline-notice"
 							type="info"
@@ -387,12 +388,13 @@ const SecurityPanel = () => {
 			<div className="settings-section-group">
 				<div className="settings-section">
 					<SectionComponent
+						icon="vpn-key"
 						title={__('Protection', 'vulopilot')}
 						desc={__('Block brute-force logins and log known attack patterns.', 'vulopilot')}
 					/>
 				</div>
 				<FormGroupWrapperComponent>
-					<FormGroupComponent row label={__('Protection', 'vulopilot')}>
+					<FormGroupComponent>
 						<ExpandablePanelInput
 							name="security_protection_cards"
 							methods={buildMethods(PROTECTION_ROWS)}
@@ -407,6 +409,7 @@ const SecurityPanel = () => {
 			<div className="settings-section-group">
 				<div className="settings-section">
 					<SectionComponent
+						icon="view-files"
 						title={__('Security Monitoring', 'vulopilot')}
 						desc={__('Ongoing monitoring beyond a single scan run.', 'vulopilot')}
 					/>
@@ -443,7 +446,7 @@ const SecurityPanel = () => {
 							]}
 						/>
 					</FormGroupComponent>
-					<FormGroupComponent row label={__('Security Monitoring', 'vulopilot')}>
+					<FormGroupComponent label={__('Security Monitoring', 'vulopilot')}>
 						<ExpandablePanelInput
 							name="security_monitoring_cards"
 							methods={buildMethods(MONITORING_ROWS)}

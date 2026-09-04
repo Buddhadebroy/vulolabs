@@ -3,15 +3,12 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
-	CardComponent,
-	BadgeComponent,
-	ClipboardComponent,
-	NoticeComponent,
-	NoticeManager,
+	SectionComponent,
+	FormGroupWrapperComponent,
 	FormGroupComponent,
-	FormGroupWrapperComponent
+	NoticeManager,
 } from '@zyra/components';
-import { ButtonInput, TextInput } from '@zyra/inputs';
+import { ExpandablePanelInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
 
 interface S3Status {
@@ -57,6 +54,21 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * Settings.tsx's own GetForm() already uses for `ai-visibility`'s llms.txt
  * card — see Backups.ts's own docblock for exactly where this is appended.
  *
+ * Both destinations are now one real `ExpandablePanelInput` (per direct
+ * instruction, matching AiProvidersPanel.tsx's own "Other providers"
+ * list) instead of two hand-rolled `is-clickable` header divs — same real
+ * zyra component, `isCustom`/`hideDeleteBtn`/`badgeColor`/`badgeText` rows
+ * with no on/off `enable` semantics of their own (neither destination has
+ * an "activate" concept, only "configured or not"/"connected or not"), and
+ * expand/collapse is the panel's own built-in `activeTab` state rather
+ * than the `isS3Open`/`isGoogleDriveOpen` state this file used to keep by
+ * hand. Each row's live-typed fields (access key, client secret, ...) live
+ * in `panelValues`, merged with real server state in `mergedValues` the
+ * same way AiProvidersPanel.tsx's own `heroPanelValues` merges `heroValues`
+ * with `configured` — `handleSaveS3`/`handleSaveGoogleClient` read off
+ * `mergedValues` instead of the individual `accessKey`/`secretKey`/...
+ * state this file used to keep per field.
+ *
  * Neither section pretends a save/connect succeeded — every "Saved"/
  * "Connected" state and every "Test connection" result comes straight back
  * from a real REST call to Controllers\BackupStorage, which itself only
@@ -67,19 +79,12 @@ const BackupStoragePanel = () => {
 	const [status, setStatus] = useState<BackupStorageStatus | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const [isS3Open, setIsS3Open] = useState(true);
-	const [isGoogleDriveOpen, setIsGoogleDriveOpen] = useState(true);
+	const [panelValues, setPanelValues] = useState<Record<string, Record<string, unknown>>>({});
 
-	const [accessKey, setAccessKey] = useState('');
-	const [secretKey, setSecretKey] = useState('');
-	const [bucket, setBucket] = useState('');
-	const [region, setRegion] = useState('us-east-1');
 	const [isSavingS3, setIsSavingS3] = useState(false);
 	const [isTestingS3, setIsTestingS3] = useState(false);
 	const [s3TestResult, setS3TestResult] = useState<TestResult | null>(null);
 
-	const [clientId, setClientId] = useState('');
-	const [clientSecret, setClientSecret] = useState('');
 	const [isSavingGoogleClient, setIsSavingGoogleClient] = useState(false);
 	const [isTestingGoogleDrive, setIsTestingGoogleDrive] = useState(false);
 	const [googleTestResult, setGoogleTestResult] = useState<TestResult | null>(null);
@@ -92,8 +97,6 @@ const BackupStoragePanel = () => {
 		).then((response) => {
 			if (response) {
 				setStatus(response);
-				setBucket(response.s3.bucket || '');
-				setRegion(response.s3.region || 'us-east-1');
 			}
 			return response;
 		});
@@ -133,14 +136,38 @@ const BackupStoragePanel = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	// Live-typed fields merged with real server state — `bucket`/`region`
+	// fall back to the saved values until the user types their own, same
+	// "live merged with saved" shape AiProvidersPanel.tsx's own
+	// `heroPanelValues` uses.
+	const mergedValues: Record<string, Record<string, unknown>> = {
+		s3: {
+			access_key: panelValues.s3?.access_key ?? '',
+			secret_key: panelValues.s3?.secret_key ?? '',
+			bucket: panelValues.s3?.bucket ?? status?.s3.bucket ?? '',
+			region: panelValues.s3?.region ?? status?.s3.region ?? 'us-east-1',
+		},
+		google_drive: {
+			client_id: panelValues.google_drive?.client_id ?? '',
+			client_secret: panelValues.google_drive?.client_secret ?? '',
+		},
+	};
+
 	const handleSaveS3 = () => {
+		const { access_key, secret_key, bucket, region } = mergedValues.s3 as {
+			access_key: string;
+			secret_key: string;
+			bucket: string;
+			region: string;
+		};
+
 		setIsSavingS3(true);
 		setS3TestResult(null);
 
 		sendApiResponse<S3Status>(
 			appLocalizer,
 			getApiLink(appLocalizer, 'backup-storage/s3'),
-			{ access_key: accessKey, secret_key: secretKey, bucket, region }
+			{ access_key, secret_key, bucket, region }
 		)
 			.then((response) => {
 				NoticeManager.add({
@@ -157,8 +184,10 @@ const BackupStoragePanel = () => {
 					// Never left sitting in the form after a successful
 					// save — the Secret Access Key is never returned by
 					// the server either, so there's nothing to re-show.
-					setAccessKey('');
-					setSecretKey('');
+					setPanelValues((prev) => ({
+						...prev,
+						s3: { ...prev.s3, access_key: '', secret_key: '' },
+					}));
 				}
 			})
 			.finally(() => setIsSavingS3(false));
@@ -178,13 +207,18 @@ const BackupStoragePanel = () => {
 	};
 
 	const handleSaveGoogleClient = () => {
+		const { client_id, client_secret } = mergedValues.google_drive as {
+			client_id: string;
+			client_secret: string;
+		};
+
 		setIsSavingGoogleClient(true);
 		setGoogleTestResult(null);
 
 		sendApiResponse<GoogleDriveStatus>(
 			appLocalizer,
 			getApiLink(appLocalizer, 'backup-storage/google-drive/client'),
-			{ client_id: clientId, client_secret: clientSecret }
+			{ client_id, client_secret }
 		)
 			.then((response) => {
 				NoticeManager.add({
@@ -198,8 +232,10 @@ const BackupStoragePanel = () => {
 
 				if (response) {
 					setStatus((prev) => (prev ? { ...prev, google_drive: response } : prev));
-					setClientId('');
-					setClientSecret('');
+					setPanelValues((prev) => ({
+						...prev,
+						google_drive: { ...prev.google_drive, client_id: '', client_secret: '' },
+					}));
 				}
 			})
 			.finally(() => setIsSavingGoogleClient(false));
@@ -235,268 +271,258 @@ const BackupStoragePanel = () => {
 			.finally(() => setIsDisconnectingGoogleDrive(false));
 	};
 
+	const methods = status
+		? [
+			{
+				id: 's3',
+				icon: 'cloud-upload red',
+				label: __('Amazon S3', 'vulopilot'),
+				desc: __('Store backups in an Amazon S3 bucket.', 'vulopilot'),
+				isCustom: true,
+				hideDeleteBtn: true,
+				badgeColor: status.s3.configured ? 'green' : 'red',
+				badgeText: status.s3.configured
+					? __('Configured', 'vulopilot')
+					: __('Not configured', 'vulopilot'),
+				formFields: [
+					...(status.s3.configured
+						? [
+							{
+								key: 's3_status',
+								type: 'notice',
+								label: '',
+								noticeType: 'info',
+								message: sprintf(
+									/* translators: 1: bucket name, 2: AWS region, 3: masked access key. */
+									__('%1$s · %2$s · Access Key %3$s', 'vulopilot'),
+									status.s3.bucket,
+									status.s3.region,
+									status.s3.access_key_masked
+								),
+							},
+							{
+								key: 'test_s3',
+								type: 'button',
+								label: '',
+								text: isTestingS3
+									? __('Testing…', 'vulopilot')
+									: __('Test connection', 'vulopilot'),
+								onClick: handleTestS3,
+								disabled: isTestingS3,
+							},
+						]
+						: []),
+					...(s3TestResult
+						? [
+							{
+								key: 's3_test_result',
+								type: 'notice',
+								label: '',
+								noticeType: s3TestResult.success ? 'success' : 'error',
+								message: s3TestResult.message,
+							},
+						]
+						: []),
+					{
+						key: 'access_key',
+						type: 'text',
+						label: __('Access Key ID', 'vulopilot'),
+						placeholder: 'AKIAIOSFODNN7EXAMPLE',
+					},
+					{
+						key: 'secret_key',
+						type: 'password',
+						label: __('Secret Access Key', 'vulopilot'),
+						placeholder: '••••••••••••••••••••••••',
+					},
+					{
+						key: 'bucket',
+						type: 'text',
+						label: __('Bucket', 'vulopilot'),
+						placeholder: 'my-backups-bucket',
+					},
+					{
+						key: 'region',
+						type: 'text',
+						label: __('Region', 'vulopilot'),
+						placeholder: 'us-east-1',
+					},
+					{
+						key: 'save_s3',
+						type: 'button',
+						label: '',
+						text: isSavingS3
+							? __('Saving…', 'vulopilot')
+							: status.s3.configured
+								? __('Update', 'vulopilot')
+								: __('Save', 'vulopilot'),
+						onClick: handleSaveS3,
+						disabled:
+							isSavingS3 ||
+							!mergedValues.s3.access_key ||
+							!mergedValues.s3.secret_key ||
+							!mergedValues.s3.bucket,
+					},
+				],
+			},
+			{
+				id: 'google_drive',
+				icon: 'google yellow',
+				label: __('Google Drive', 'vulopilot'),
+				desc: __('Store backups in a Google Drive folder.', 'vulopilot'),
+				isCustom: true,
+				hideDeleteBtn: true,
+				badgeColor: status.google_drive.connected ? 'green' : 'red',
+				badgeText: status.google_drive.connected
+					? __('Connected', 'vulopilot')
+					: __('Not connected', 'vulopilot'),
+				formFields: status.google_drive.connected
+					? [
+						{
+							key: 'gdrive_status',
+							type: 'notice',
+							label: '',
+							noticeType: 'success',
+							message: status.google_drive.connected_at
+								? `${__('Since', 'vulopilot')} ${formatWpDate(status.google_drive.connected_at)}`
+								: __('Connected', 'vulopilot'),
+						},
+						{
+							key: 'test_gdrive',
+							type: 'button',
+							label: '',
+							text: isTestingGoogleDrive
+								? __('Testing…', 'vulopilot')
+								: __('Test connection', 'vulopilot'),
+							onClick: handleTestGoogleDrive,
+							disabled: isTestingGoogleDrive,
+						},
+						{
+							key: 'disconnect_gdrive',
+							type: 'button',
+							label: '',
+							text: isDisconnectingGoogleDrive
+								? __('Disconnecting…', 'vulopilot')
+								: __('Disconnect', 'vulopilot'),
+							icon: 'disconnect',
+							onClick: handleDisconnectGoogleDrive,
+							disabled: isDisconnectingGoogleDrive,
+						},
+						...(googleTestResult
+							? [
+								{
+									key: 'gdrive_test_result',
+									type: 'notice',
+									label: '',
+									noticeType: googleTestResult.success ? 'success' : 'error',
+									message: googleTestResult.message,
+								},
+							]
+							: []),
+					]
+					: status.google_drive.client_configured
+						? [
+							{
+								key: 'gdrive_client_saved',
+								type: 'notice',
+								label: '',
+								noticeType: 'info',
+								message: __(
+									'OAuth Client saved — connect your Google account to finish.',
+									'vulopilot'
+								),
+							},
+							{
+								key: 'connect_gdrive',
+								type: 'button',
+								label: '',
+								text: __('Connect Google Drive', 'vulopilot'),
+								icon: 'admin-links',
+								onClick: () => {
+									if (status.google_drive.authorize_url) {
+										window.location.href = status.google_drive.authorize_url;
+									}
+								},
+								disabled: !status.google_drive.authorize_url,
+							},
+						]
+						: [
+							{
+								key: 'gdrive_setup_notice',
+								type: 'notice',
+								label: '',
+								noticeType: 'info',
+								message: __(
+									'Register your own free Google Cloud OAuth Client (one-time setup) to connect Google Drive — VuloPilot never uses a shared account for this, only files it creates itself.',
+									'vulopilot'
+								),
+							},
+							{
+								key: 'gdrive_redirect_uri',
+								type: 'copy-to-clipboard',
+								label: __('Authorized redirect URI to register on that Client:', 'vulopilot'),
+								text: status.google_drive.redirect_uri,
+								variant: 'code',
+								copyButtonLabel: __('Copy', 'vulopilot'),
+								copiedLabel: __('Copied!', 'vulopilot'),
+							},
+							{
+								key: 'client_id',
+								type: 'text',
+								label: __('Client ID', 'vulopilot'),
+								placeholder: 'xxxxxxxx.apps.googleusercontent.com',
+							},
+							{
+								key: 'client_secret',
+								type: 'password',
+								label: __('Client Secret', 'vulopilot'),
+								placeholder: '••••••••••••••••••••',
+							},
+							{
+								key: 'save_gdrive_client',
+								type: 'button',
+								label: '',
+								text: isSavingGoogleClient
+									? __('Saving…', 'vulopilot')
+									: __('Save', 'vulopilot'),
+								onClick: handleSaveGoogleClient,
+								disabled:
+									isSavingGoogleClient ||
+									!mergedValues.google_drive.client_id ||
+									!mergedValues.google_drive.client_secret,
+							},
+						],
+			},
+		]
+		: [];
+
 	return (
-		<CardComponent
-			title={__('Cloud Storage', 'vulopilot')}
-			desc={__(
-				'Credentials for the remote destinations "Storage destination" above can upload completed backups to. Every backup always saves to this server first regardless.',
-				'vulopilot'
-			)}
-			isLoading={isLoading}
-		>
-			{!isLoading && status && (
-				<div className="backup-storage-panel">
-					<div className="backup-storage-section">
-						<div
-							className="backup-storage-header is-clickable"
-							onClick={() => setIsS3Open((v) => !v)}
-						>
-							<i className="backup-storage-card-icon adminfont-cloud-upload red" />
-							<div className="backup-storage-card-title">
-								<strong>{__('Amazon S3', 'vulopilot')}</strong>
-								<span className="desc">
-									{__('Store backups in an Amazon S3 bucket.', 'vulopilot')}
-								</span>
-							</div>
-							<span
-								className={`admin-badge ${status.s3.configured ? 'green' : 'red'}`}
-							>
-								{status.s3.configured ? __('Configured', 'vulopilot') : __('Not configured', 'vulopilot')}
-							</span>
-							<i className={`adminfont-arrow-${isS3Open ? 'up' : 'down'} backup-storage-expand-icon`} />
-						</div>
-
-						{isS3Open && (
-							<div className="backup-storage-card-body">
-								{status.s3.configured && (
-									<div className="backup-storage-status-row">
-										<BadgeComponent color="green" text={__('Configured', 'vulopilot')} />
-										<span className="desc">
-											{sprintf(
-												/* translators: 1: bucket name, 2: AWS region, 3: masked access key. */
-												__('%1$s · %2$s · Access Key %3$s', 'vulopilot'),
-												status.s3.bucket,
-												status.s3.region,
-												status.s3.access_key_masked
-											)}
-										</span>
-										<button
-											type="button"
-											className="backup-storage-inline-action"
-											onClick={handleTestS3}
-											disabled={isTestingS3}
-										>
-											{isTestingS3
-												? __('Testing…', 'vulopilot')
-												: __('Test connection', 'vulopilot')}
-										</button>
-									</div>
-								)}
-
-								{s3TestResult && (
-									<NoticeComponent
-										displayPosition="inline"
-										type={s3TestResult.success ? 'success' : 'error'}
-										message={s3TestResult.message}
-									/>
-								)}
-
-								<FormGroupWrapperComponent>
-									<FormGroupComponent cols="6" label={__('Access Key ID', 'vulopilot')}>
-										<TextInput
-											name="s3_access_key"
-											inputLabel={__('Access Key ID', 'vulopilot')}
-											placeholder="AKIAIOSFODNN7EXAMPLE"
-											value={accessKey}
-											onChange={(value) => setAccessKey(value as string)}
-										/>
-									</FormGroupComponent>
-									<FormGroupComponent cols="6" label={__('Secret Access Key', 'vulopilot')}>
-										<TextInput
-											name="s3_secret_key"
-											inputLabel={__('Secret Access Key', 'vulopilot')}
-											placeholder="••••••••••••••••••••••••"
-											value={secretKey}
-											onChange={(value) => setSecretKey(value as string)}
-										/>
-									</FormGroupComponent>
-									<FormGroupComponent cols="6" label={__('Bucket', 'vulopilot')}>
-										<TextInput
-											name="s3_bucket"
-											inputLabel={__('Bucket', 'vulopilot')}
-											placeholder="my-backups-bucket"
-											value={bucket}
-											onChange={(value) => setBucket(value as string)}
-										/>
-									</FormGroupComponent>
-									<FormGroupComponent cols="6" label={__('Region', 'vulopilot')}>
-										<TextInput
-											name="s3_region"
-											inputLabel={__('Region', 'vulopilot')}
-											placeholder="us-east-1"
-											value={region}
-											onChange={(value) => setRegion(value as string)}
-										/>
-									</FormGroupComponent>
-									<FormGroupComponent label="">
-										<ButtonInput
-											buttons={{
-												text: isSavingS3
-													? __('Saving…', 'vulopilot')
-													: status.s3.configured
-														? __('Update', 'vulopilot')
-														: __('Save', 'vulopilot'),
-												onClick: handleSaveS3,
-												disabled:
-													isSavingS3 || !accessKey || !secretKey || !bucket,
-											}}
-										/>
-									</FormGroupComponent>
-								</FormGroupWrapperComponent>
-							</div>
-						)}
-					</div>
-
-					<div className="backup-storage-section">
-						<div
-							className="backup-storage-header is-clickable"
-							onClick={() => setIsGoogleDriveOpen((v) => !v)}
-						>
-							<i className="backup-storage-card-icon adminfont-google yellow" />
-							<div className="backup-storage-card-title">
-								<strong>{__('Google Drive', 'vulopilot')}</strong>
-								<span className="desc">
-									{__('Store backups in a Google Drive folder.', 'vulopilot')}
-								</span>
-							</div>
-							<span
-								className={`admin-badge ${status.google_drive.connected ? 'green' : 'red'}`}
-							>
-								{status.google_drive.connected ? __('Connected', 'vulopilot') : __('Not connected', 'vulopilot')}
-							</span>
-							<i className={`adminfont-arrow-${isGoogleDriveOpen ? 'up' : 'down'} backup-storage-expand-icon`} />
-						</div>
-
-						{isGoogleDriveOpen && (
-							<div className="backup-storage-card-body">
-								<FormGroupWrapperComponent>
-									{status.google_drive.connected ? (
-										<div className="backup-storage-status-row">
-											<BadgeComponent color="green" text={__('Connected', 'vulopilot')} />
-											{status.google_drive.connected_at && (
-												<span className="desc">
-													{__('Since', 'vulopilot')} {formatWpDate(status.google_drive.connected_at)}
-												</span>
-											)}
-											<button
-												type="button"
-												className="backup-storage-inline-action"
-												onClick={handleTestGoogleDrive}
-												disabled={isTestingGoogleDrive}
-											>
-												{isTestingGoogleDrive
-													? __('Testing…', 'vulopilot')
-													: __('Test connection', 'vulopilot')}
-											</button>
-											<button
-												type="button"
-												className="backup-storage-inline-action is-destructive"
-												onClick={handleDisconnectGoogleDrive}
-												disabled={isDisconnectingGoogleDrive}
-											>
-												{isDisconnectingGoogleDrive
-													? __('Disconnecting…', 'vulopilot')
-													: __('Disconnect', 'vulopilot')}
-											</button>
-										</div>
-									) : status.google_drive.client_configured ? (
-										<>
-											<p className="desc">
-												{__(
-													'OAuth Client saved — connect your Google account to finish.',
-													'vulopilot'
-												)}
-											</p>
-											<ButtonInput
-												buttons={{
-													text: __('Connect Google Drive', 'vulopilot'),
-													icon: 'admin-links',
-													onClick: () => {
-														if (status.google_drive.authorize_url) {
-															window.location.href = status.google_drive.authorize_url;
-														}
-													},
-													disabled: !status.google_drive.authorize_url,
-												}}
-											/>
-										</>
-									) : (
-										<>
-											<NoticeComponent
-												displayPosition="inline-notice"
-												type="info"
-												message={__(
-													'Register your own free Google Cloud OAuth Client (one-time setup) to connect Google Drive — VuloPilot never uses a shared account for this, only files it creates itself.',
-													'vulopilot'
-												)}
-											/>
-											<FormGroupComponent label={__('Authorized redirect URI to register on that Client:', 'vulopilot')}>
-												<ClipboardComponent
-													text={status.google_drive.redirect_uri}
-													variant="code"
-													copyButtonLabel={__('Copy', 'vulopilot')}
-													copiedLabel={__('Copied!', 'vulopilot')}
-												/>
-											</FormGroupComponent>
-											<FormGroupWrapperComponent>
-												<FormGroupComponent cols="6" label={__('Client ID', 'vulopilot')}>
-													<TextInput
-														name="gdrive_client_id"
-														inputLabel={__('Client ID', 'vulopilot')}
-														placeholder="xxxxxxxx.apps.googleusercontent.com"
-														value={clientId}
-														onChange={(value) => setClientId(value as string)}
-													/>
-												</FormGroupComponent>
-												<FormGroupComponent cols="6" label={__('Client Secret', 'vulopilot')}>
-													<TextInput
-														name="gdrive_client_secret"
-														inputLabel={__('Client Secret', 'vulopilot')}
-														placeholder="••••••••••••••••••••"
-														value={clientSecret}
-														onChange={(value) => setClientSecret(value as string)}
-													/>
-												</FormGroupComponent>
-												<FormGroupComponent label="">
-													<ButtonInput
-														buttons={{
-															text: isSavingGoogleClient
-																? __('Saving…', 'vulopilot')
-																: __('Save', 'vulopilot'),
-															onClick: handleSaveGoogleClient,
-															disabled:
-																isSavingGoogleClient || !clientId || !clientSecret,
-														}}
-													/>
-												</FormGroupComponent>
-											</FormGroupWrapperComponent>
-										</>
-									)}
-
-									{googleTestResult && (
-										<NoticeComponent
-											displayPosition="inline"
-											type={googleTestResult.success ? 'success' : 'error'}
-											message={googleTestResult.message}
-										/>
-									)}
-								</FormGroupWrapperComponent>
-							</div>
-						)}
-					</div>
-				</div>
-			)}
-		</CardComponent>
+		<div className="settings-section-group">
+			<div className="settings-section">
+				<SectionComponent
+					icon="cloud-upload"
+					title={__('Cloud Storage', 'vulopilot')}
+					desc={__(
+						'Credentials for the remote destinations "Storage destination" above can upload completed backups to. Every backup always saves to this server first regardless.',
+						'vulopilot'
+					)}
+					isLoading={isLoading}
+				/>
+			</div>
+			<FormGroupWrapperComponent>
+				<FormGroupComponent>
+					{!isLoading && status && (
+						<ExpandablePanelInput
+							name="backup-storage-destinations"
+							methods={methods}
+							value={mergedValues}
+							onChange={setPanelValues}
+							canAccess
+						/>
+					)}
+				</FormGroupComponent>
+			</FormGroupWrapperComponent>
+		</div>
 	);
 };
 

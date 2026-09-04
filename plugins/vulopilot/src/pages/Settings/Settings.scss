@@ -156,140 +156,10 @@
 	margin-left: 1.5rem;
 }
 
-// BackupStoragePanel.tsx (Settings → Backups' own "Cloud Storage"
-// section) — same `.gsc-*` visual language above, own prefix since this
-// panel isn't part of the Google Services connection.
-.backup-storage-panel {
-	display: flex;
-	flex-direction: column;
-	gap: 1.75rem;
-
-	.backup-storage-header {
-		display: flex;
-		gap: 0.813rem;
-		padding: 1rem;
-		border-bottom: $border-light-small;
-		align-items: center;
-
-		&.is-clickable {
-			cursor: pointer;
-		}
-	}
-
-	.backup-storage-section {
-		// padding: 1rem;
-		border: $border-light-small;
-		border-radius: 0.313rem;
-	}
-}
-
-// Same click-to-collapse card shape AiProvidersPanel.tsx's own
-// "Other providers" card uses (`.ai-provider-card*`/`.common-card-icon`) —
-// own `.backup-storage-*` prefix since this isn't that panel. Plain
-// local-state toggle, not zyra's real `ExpandablePanelInput` — see
-// BackupStoragePanel.tsx's own docblock for why.
-.backup-storage-card-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 3rem;
-	height: 3rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, $theme-color 12%, transparent);
-	color: $theme-color;
-	flex-shrink: 0;
-	font-size: 2.125rem;
-	display: flex !important;
-}
-
-.backup-storage-card-title {
-	display: flex;
-	flex-direction: column;
-	gap: 0.125rem;
-	flex: 1;
-
-	strong {
-		font-size: 1.25rem;
-	}
-
-	.desc {
-		margin: 0;
-	}
-}
-
-.backup-storage-card-body {
-	padding: 1rem;
-}
-
-.backup-storage-connection-status {
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-	font-size: 0.8125rem;
-	color: $sub-text-color;
-
-	&.is-success {
-		color: #16a34a;
-	}
-}
-
-.backup-storage-expand-icon {
-	margin-left: 0.5rem;
-	color: $sub-text-color;
-}
-
-.backup-storage-status-row {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 0.75rem;
-	margin-bottom: 0.75rem;
-
-	.desc {
-		margin: 0;
-	}
-}
-
-.backup-storage-inline-action {
-	background: none;
-	border: none;
-	padding: 0;
-	color: $theme-color;
-	font-weight: 600;
-	font-size: 0.8125rem;
-	cursor: pointer;
-
-	&.is-destructive {
-		color: #dc2626;
-	}
-
-	&:disabled {
-		opacity: 0.6;
-		cursor: default;
-	}
-}
-
-.backup-storage-form-row {
-	display: flex;
-	align-items: flex-end;
-	flex-wrap: wrap;
-	gap: 0.75rem;
-}
-
-.backup-storage-gdrive-redirect-uri {
-	display: flex;
-	flex-direction: column;
-	gap: 0.375rem;
-	margin-bottom: 1rem;
-
-	.desc {
-		margin: 0;
-	}
-}
-
 // CrawlerAlertTestPanel.tsx (Settings → Notifications → AI Crawler
-// Alerts' own "Send Test Alert" row) — same minimal-supporting-CSS
-// posture as the `.backup-storage-*` rules above.
+// Alerts' own "Send Test Alert" row) — minimal supporting CSS; the panel's
+// own result/status text is a real `NoticeComponent` now, styled by
+// NoticeComponent.scss.
 .crawler-alert-test-panel {
 	display: flex;
 	align-items: center;
@@ -609,9 +479,8 @@
 
 // Scanning/SecurityPanel.tsx (Settings → Scanning → Security's own
 // section dividers between its 3 card groups, and the "Why these scans
-// matter" notice) — same minimal-supporting-CSS posture as
-// `.backup-storage-section-title` above, own prefix since this page isn't
-// part of that panel.
+// matter" notice) — minimal supporting CSS, own prefix since this page
+// isn't part of any other panel.
 .security-panel-section-title {
 	margin: 1.75rem 0 0.25rem;
 	font-size: 0.9375rem;
