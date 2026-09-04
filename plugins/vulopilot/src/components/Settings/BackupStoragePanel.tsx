@@ -498,7 +498,7 @@ const BackupStoragePanel = () => {
 
 	return (
 		<div className="settings-section-group">
-			<div className="settings-section">
+			<div className="settings-left-section">
 				<SectionComponent
 					icon="cloud-upload"
 					title={__('Cloud Storage', 'vulopilot')}
@@ -509,19 +509,21 @@ const BackupStoragePanel = () => {
 					isLoading={isLoading}
 				/>
 			</div>
-			<FormGroupWrapperComponent>
-				<FormGroupComponent>
-					{!isLoading && status && (
-						<ExpandablePanelInput
-							name="backup-storage-destinations"
-							methods={methods}
-							value={mergedValues}
-							onChange={setPanelValues}
-							canAccess
-						/>
-					)}
-				</FormGroupComponent>
-			</FormGroupWrapperComponent>
+			<div className="settings-right-section">
+				<FormGroupWrapperComponent>
+					<FormGroupComponent>
+						{!isLoading && status && (
+							<ExpandablePanelInput
+								name="backup-storage-destinations"
+								methods={methods}
+								value={mergedValues}
+								onChange={setPanelValues}
+								canAccess
+							/>
+						)}
+					</FormGroupComponent>
+				</FormGroupWrapperComponent>
+			</div>
 		</div>
 	);
 };

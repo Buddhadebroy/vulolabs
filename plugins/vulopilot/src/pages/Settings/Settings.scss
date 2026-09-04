@@ -1,47 +1,6 @@
 @use '../../components/config' as *;
 
-// The "space-between" field layout (General tab's Scan Frequency —
-// General.ts's `classes: 'space-between'`) shrinks the label/input columns
-// to fit-content so the select doesn't stretch full width. That leaves the
-// shared `.admin-pro-tag.module` badge (FormGroupWrapperComponent.scss,
-// `position: absolute; right: 1rem; top: 0.813rem`) floating wherever that
-// fixed offset lands — no longer reliably next to the input it used to sit
-// above when the row was full width. Re-flowing it as a normal flex item
-// right after the label, and pushing the input to the far right via its
-// own auto margin instead of the shared rule's space-between, keeps the
-// badge visually beside "Scan Frequency" regardless of row width. Scoped
-// to `.admin-settings` (this page's own NavigatorComponent className) so
-// no other `.space-between` field elsewhere in the app is affected.
-.admin-settings .form-group.space-between {
-	justify-content: flex-start;
-	align-items: center;
-
-	.admin-pro-tag.module {
-		position: static;
-		transform: none;
-		order: 0;
-		margin-left: 0.5rem;
-	}
-
-	.settings-input-content {
-		order: 1;
-		margin-left: auto;
-	}
-}
-
 // GoogleServicesPanel.tsx.
-.gsc-connected-row {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	margin-bottom: 0.75rem;
-}
-
-.gsc-selected-site {
-	font-weight: 600;
-	margin: 0 0 1rem;
-}
-
 .gsc-site-picker {
 	margin-bottom: 1rem;
 }
@@ -134,10 +93,6 @@
 	margin-bottom: 0.75rem;
 }
 
-.gsc-measurement-id {
-	margin-bottom: 1rem;
-}
-
 .gsc-toggle-row {
 	display: flex;
 	align-items: center;
@@ -168,115 +123,16 @@
 	margin-top: 1rem;
 }
 
-// CrawlerAlertRows.tsx (Settings → Notifications → AI Crawler Alerts' own
-// "Notify me about" rows) — just the frequency/duration select's own
-// caption, same minimal-supporting-CSS posture as the rules above.
-// SettingRowComponent.scss itself already styles everything else
-// (.setting-row, .setting-row-control, .setting-toggle, ...).
-.crawler-alert-row-select {
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
-	min-width: 10rem;
-}
-
-.crawler-alert-row-select-label {
-	font-size: 0.75rem;
-	color: var(--sub-text-color);
-}
-
 // CardHeader.tsx's own `.common-card*` rules moved to its co-located
 // CardHeader.scss (imported directly by CardHeader.tsx) — see that file.
 
-// AiProvidersPanel.tsx (ProviderCard) own card shell — real gap until now:
-// every `.ai-provider-card*` DETAIL rule below (row/footer/field/...)
-// existed, but the outer shell classes this file actually renders
-// (`.vulopilot-ai-providers-panel`,
-// `.ai-provider-card`, `.ai-provider-card-header`, `.ai-provider-card-icon`,
-// `.ai-provider-card-title`, `.ai-provider-card-body`) had no CSS at all —
-// every provider card rendered as unstyled block flow, all three visually
-// merging into one row instead of stacking as separate bordered cards.
-// Same `.common-card-icon` visual treatment CardHeader.scss already uses,
-// for one consistent icon-box look across both card systems.
-.vulopilot-ai-providers-panel {
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-}
-
-.ai-provider-card {
-	// `.ai-provider-card` is a direct child of zyra's own
-	// `.form-group-wrapper` (`FormGroupWrapperComponent`, `display: flex;
-	// flex-wrap: wrap;`) — without an explicit full width here, each card
-	// only takes up its own content width and wraps side-by-side with the
-	// next one instead of stacking, one per row, as its own card.
-	width: 100%;
-	border: $border-light-small;
-	border-radius: 0.313rem;
-}
-
-.ai-provider-card-header {
-	display: flex;
-	align-items: center;
-	gap: 0.875rem;
-	padding: 1rem;
-	width: 100%;
-	&.is-clickable {
-		cursor: pointer;
-	}
-}
-
-.ai-provider-card-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 3.313rem;
-	height: 3.313rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, $theme-color 12%, transparent);
-	color: $theme-color;
-	flex-shrink: 0;
-	font-size: 1.625rem;
-}
-
-.ai-provider-card-title {
-	display: flex;
-	flex-direction: column;
-	gap: 0.125rem;
-	flex: 1;
-	min-width: 0;
-
-	strong {
-		font-size: 1.125rem;
-	}
-
-	.desc {
-		margin: 0;
-	}
-}
-
+// AiProvidersPanel.tsx/GoogleServicesPanel.tsx/PageSpeedStatusPanel.tsx/
+// SiteVerificationPanel.tsx's own shared card-body shell.
 .ai-provider-card-body {
 	padding: 0 1rem 1rem;
 	padding-top: 1rem;
 	width: 100%;
 	box-sizing: border-box;
-}
-
-.ai-provider-expand-icon {
-	margin-left: 0.5rem;
-	color: $sub-text-color;
-}
-
-.ai-provider-card-row {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1.5rem;
-	margin-bottom: 1rem;
-
-	.ai-provider-field {
-		flex: 1;
-		min-width: 14rem;
-	}
 }
 
 .ai-provider-field {
@@ -297,33 +153,6 @@
 	}
 }
 
-.ai-provider-input-with-eye {
-	position: relative;
-
-	input {
-		width: 100%;
-		padding-right: 2.25rem;
-	}
-
-	i {
-		position: absolute;
-		right: 0.75rem;
-		top: 50%;
-		transform: translateY(-50%);
-		cursor: pointer;
-		color: $sub-text-color;
-	}
-}
-
-.ai-provider-card-footer {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.75rem;
-	margin-top: 0.5rem;
-}
-
 .ai-provider-connection-status {
 	display: flex;
 	align-items: center;
@@ -340,12 +169,6 @@
 }
 
 
-.ai-provider-card-actions {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-}
-
 .ai-provider-inline-action {
 	background: none;
 	border: none;
@@ -360,42 +183,11 @@
 	}
 }
 
-.ai-provider-test-result {
-	margin: 0.5rem 0 0;
-	font-size: 0.8125rem;
-
-	&.is-success {
-		color: #16a34a;
-	}
-
-	&.is-error {
-		color: #dc2626;
-	}
-}
-
 // Connections/GoogleServicesPanel.tsx (Settings → Connections → Google
 // Services' own Search Console/Analytics/AdSense summary cards) — reuses
 // the `.ai-provider-card*` shapes above (same visual language), adding
-// only what's genuinely new here: the status pill, the body's
-// info/actions split, and the ⋮ menu.
-.gsc-service-status {
-	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 0.25rem 0.625rem;
-	border-radius: 999px;
-	white-space: nowrap;
-
-	&.is-connected {
-		color: #16a34a;
-		background: rgba(22, 163, 74, 0.12);
-	}
-
-	&.is-not-connected {
-		color: #b45309;
-		background: rgba(180, 83, 9, 0.12);
-	}
-}
-
+// only what's genuinely new here: the body's info/actions split and the
+// ⋮ menu.
 .gsc-service-body {
 	display: flex;
 	flex-wrap: wrap;
@@ -469,56 +261,10 @@
 	border-radius: 0 0 0.5rem 0.5rem;
 }
 
-// Scanning/SecurityPanel.tsx (Settings → Scanning → Security's own
-// section dividers between its 3 card groups, and the "Why these scans
-// matter" notice) — minimal supporting CSS, own prefix since this page
-// isn't part of any other panel.
-.security-panel-section-title {
-	margin: 1.75rem 0 0.25rem;
-	font-size: 0.9375rem;
-	font-weight: 600;
-}
-
-.security-panel-section-desc {
-	margin: 0 0 0.75rem;
-	font-size: 0.8125rem;
-	color: $sub-text-color;
-}
-
-.security-panel-notice {
-	background: $background-color;
-	border-radius: 0.5rem;
-	padding: 1rem 1.25rem;
-	margin: 1rem 0 0;
-
-	strong {
-		display: block;
-		font-size: 0.875rem;
-		margin-bottom: 0.25rem;
-	}
-
-	p {
-		margin: 0;
-		font-size: 0.8125rem;
-		color: $sub-text-color;
-	}
-}
-
 // Connections/PageSpeedStatusPanel.tsx (Settings → Connections →
 // PageSpeed Insights' own Connection Status pill/Daily API Usage bar/Test
 // Connection button) — reuses the same `.common-card*`/`.gsc-*` shapes
 // above; only the usage bar itself is genuinely new here.
-.psi-status-panel {
-	.common-card-header {
-		flex-wrap: wrap;
-	}
-
-	.gsc-service-body {
-		flex-direction: column;
-		align-items: stretch;
-	}
-}
-
 .psi-usage {
 	width: 100%;
 }
@@ -556,14 +302,4 @@
 	flex: 1;
 	min-width: 16rem;
 	margin-bottom: 0;
-}
-
-// Scanning/AiVisibilityScansHeader.tsx (Settings → Scanning → AI
-// Visibility's own "Restore Defaults" button, sitting above the
-// `ai_visibility_scans` expandable-panel InputRenderer renders directly
-// below it).
-.ai-visibility-scans-header {
-	display: flex;
-	justify-content: flex-end;
-	margin-bottom: 1rem;
 }
