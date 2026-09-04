@@ -76,7 +76,7 @@ export default {
 			modal: [
 				{
 					id: 'structure',
-					icon: 'editor-list',
+					icon: 'editor-list blue',
 					label: __('AI-readable structure', 'vulopilot'),
 					desc: __(
 						'Check if your pages use clear structure that AI systems can easily read and understand.',
@@ -88,7 +88,7 @@ export default {
 				},
 				{
 					id: 'entity',
-					icon: 'centralized-connections',
+					icon: 'centralized-connections yellow',
 					label: __('Entity clarity', 'vulopilot'),
 					desc: __(
 						'Analyze how clearly your brand, people, products, and topics are defined and connected.',
@@ -111,7 +111,7 @@ export default {
 				},
 				{
 					id: 'freshness',
-					icon: 'calendar',
+					icon: 'calendar pink',
 					label: __('Content freshness', 'vulopilot'),
 					desc: __(
 						'Check how up-to-date your content is and how often it gets refreshed.',
@@ -134,7 +134,7 @@ export default {
 				},
 				{
 					id: 'answer_first',
-					icon: 'live-chat',
+					icon: 'live-chat lime',
 					label: __('Answer-first content', 'vulopilot'),
 					desc: __(
 						'Identify if your content answers real questions in a clear and direct way.',
@@ -157,7 +157,7 @@ export default {
 				},
 				{
 					id: 'evidence',
-					icon: 'security',
+					icon: 'security orange',
 					label: __('Evidence checks', 'vulopilot'),
 					desc: __(
 						'Check if your content includes citations, sources, and verifiable evidence.',
@@ -359,7 +359,7 @@ export default {
 		{
 			key: 'crawler-traffic',
 			type: 'section',
-			icon: 'chart-line',
+			icon: 'setting',
 			title: __('Crawler Traffic', 'vulopilot'),
 			desc: __('', 'vulopilot'),
 		},

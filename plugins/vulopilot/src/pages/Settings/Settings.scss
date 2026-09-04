@@ -298,19 +298,6 @@
 	margin-top: 1rem;
 }
 
-.crawler-alert-test-result {
-	margin: 0;
-	font-size: 0.8125rem;
-
-	&.is-success {
-		color: #16a34a;
-	}
-
-	&.is-error {
-		color: #dc2626;
-	}
-}
-
 // CrawlerAlertRows.tsx (Settings → Notifications → AI Crawler Alerts' own
 // "Notify me about" rows) — just the frequency/duration select's own
 // caption, same minimal-supporting-CSS posture as the rules above.

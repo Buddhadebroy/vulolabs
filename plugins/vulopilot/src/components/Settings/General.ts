@@ -151,7 +151,6 @@ export default {
 			type: 'button',
 			name: __('Reset settings', 'vulopilot'),
 			label: __('Reset VuloPilot', 'vulopilot'),
-			icon: 'refresh',
 			settingDescription: __(
 				'Restore VuloPilot settings to their original defaults.',
 				'vulopilot'

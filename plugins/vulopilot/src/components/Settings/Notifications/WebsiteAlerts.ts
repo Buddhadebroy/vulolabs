@@ -58,6 +58,7 @@ export default {
 				'Master switch for every critical issue alert below — turn this off to silence all of them at once.',
 				'vulopilot'
 			),
+			toggleStatusLabel: { on: 'Enabled', off: 'Disabled' },
 			options: [
 				{ key: 'notify_on_critical_findings', label: '', value: 'notify_on_critical_findings' },
 			],

@@ -76,7 +76,7 @@ export default {
 			modal: [
 				{
 					id: 'seo',
-					icon: 'search',
+					icon: 'search blue',
 					label: __('SEO checks', 'vulopilot'),
 					desc: __(
 						'Scan important SEO elements like titles, meta descriptions, headings, and more.',
@@ -112,7 +112,7 @@ export default {
 				},
 				{
 					id: 'images',
-					icon: 'image',
+					icon: 'image yellow',
 					label: __('Image checks', 'vulopilot'),
 					desc: __(
 						'Check images for missing alt text, large file sizes, and optimization issues.',
@@ -148,7 +148,7 @@ export default {
 				},
 				{
 					id: 'links',
-					icon: 'link',
+					icon: 'link pink',
 					label: __('Broken link checks', 'vulopilot'),
 					desc: __(
 						'Find broken links and redirects that can hurt user experience and SEO.',
@@ -174,7 +174,7 @@ export default {
 				},
 				{
 					id: 'schema',
-					icon: 'document',
+					icon: 'document lime',
 					label: __('Structured data checks', 'vulopilot'),
 					desc: __(
 						'Validate structured data and ensure your pages are eligible for rich results.',
@@ -186,7 +186,7 @@ export default {
 				},
 				{
 					id: 'readability',
-					icon: 'text',
+					icon: 'text yellow',
 					label: __('Readability', 'vulopilot'),
 					desc: __(
 						"Analyze content readability to ensure it's easy for your visitors to read and understand.",

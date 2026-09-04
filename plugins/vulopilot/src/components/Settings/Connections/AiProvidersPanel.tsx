@@ -73,11 +73,11 @@ const HERO_PROVIDERS: Record<string, { desc: string; helpLabel: string; helpUrl:
  * glyph repeated for every row regardless of which provider it is.
  */
 const PROVIDER_ICONS: Record<string, string> = {
-	gemini: 'google',
-	openai: 'chatgpt',
-	openrouter: 'openrouter',
+	gemini: 'google yellow',
+	openai: 'chatgpt blue',
+	openrouter: 'openrouter green',
 };
-const providerIcon = (providerId: string): string => PROVIDER_ICONS[providerId] ?? 'link';
+const providerIcon = (providerId: string): string => PROVIDER_ICONS[providerId] ?? 'link pink';
 
 /**
  * Settings → Connections → AI Providers.
@@ -413,7 +413,9 @@ const AiProvidersPanel = () => {
 			template: {
 				icon: providerIcon(id),
 				label: adapter.label,
-				desc: `<span class="admin-badge blue">${__('Not connected', 'vulopilot')}</span><span class="vulopilot-provider-summary">${__('Configure this provider with your own credentials.', 'vulopilot')}</span>`,
+				desc: __('Configure this provider with your own credentials.', 'vulopilot'),
+				badgeColor: 'blue',
+				badgeText: __('Not connected', 'vulopilot'),
 				formFields: [
 					{
 						key: 'label',
@@ -462,11 +464,15 @@ const AiProvidersPanel = () => {
 
 		return {
 			id: row.provider,
-			icon: 'ai',
+			icon: providerIcon(row.provider),
 			label: providerLabel,
 			desc: needsReconnect
-				? `<span class="admin-badge red">${__('Needs reconnecting', 'vulopilot')}</span><span class="vulopilot-provider-summary">${__('This provider stopped working — see below.', 'vulopilot')}</span>`
-				: `<span class="vulopilot-provider-summary is-connected">${__('Configured with your own credentials.', 'vulopilot')}</span>`,
+				? __('This provider stopped working — see below.', 'vulopilot')
+				: __('Configured with your own credentials.', 'vulopilot'),
+			badgeColor: needsReconnect ? 'red' : 'green',
+			badgeText: needsReconnect
+				? __('Needs reconnecting', 'vulopilot')
+				: __('Connected', 'vulopilot'),
 			isCustom: true,
 			hideDeleteBtn: true,
 			wrapperClass: 'vulopilot-ai-provider-configuration',
@@ -714,7 +720,7 @@ const AiProvidersPanel = () => {
 
 		return {
 			id: providerId,
-			icon: 'ai',
+			icon: providerIcon(providerId),
 			label: adapter.label,
 			desc: hero?.desc ?? '',
 			disableBtn: true,
