@@ -20,7 +20,7 @@ interface ChatMessageProps {
  * of ChatComposerCard instead of in the shared design system.
  */
 const ChatMessage: React.FC<ChatMessageProps> = ({
-	sender = 'ai',
+	sender = 'person',
 	avatarIcon = 'ai',
 	children,
 }) => {
