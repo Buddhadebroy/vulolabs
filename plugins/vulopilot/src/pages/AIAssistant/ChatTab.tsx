@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import './AICopilot.scss';
 import {
+	BadgeComponent,
 	ColumnComponent,
 	ContainerComponent,
 	NoticeManager,
@@ -12,6 +13,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput, FileInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse, scrollToId, sendApiResponse } from '@zyra/core';
+import ShowProPopup from '../../components/Popup/Popup';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
 	IssuesFilter,
@@ -22,6 +24,7 @@ import RecommendedActionsCard from './RecommendedActionsCard';
 import IssuesList from './IssuesList';
 import AutomationTemplatesCard from '../Automations/AutomationsTemplatesCard';
 import { AutomationTemplate } from '../Automations/automationsTemplates';
+import { useFilterSlot } from '../../services/useFilterSlot';
 import {
 	useCopilotChat,
 	CopilotContextRef,
@@ -29,19 +32,19 @@ import {
 } from '../../services/useCopilotChat';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 
-/** Mirrors Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
+/** Mirrors vulopilot-pro's own Rest.php (modules/CopilotChat/) own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
 const MAX_CONTEXT_REFS = 5;
 
 /**
- * The types Copilot.php actually does something real with: text/csv files
+ * The types vulopilot-pro's own Rest.php actually does something real with: text/csv files
  * are read as text (ATTACHMENT_TEXT_MIME_TYPES), images are sent as a real
  * inline image when the active provider supports vision
  * (ATTACHMENT_IMAGE_MIME_TYPES/supports_vision() — Gemini today). Only
  * restricts the drag-and-drop/native-picker validation path — the
  * "Upload File" button's wp.media() library picker ignores `accept`
  * entirely and can select anything already in the Media Library, which
- * Copilot.php still resolves honestly either way.
+ * Rest.php still resolves honestly either way.
  */
 const ATTACHMENT_ACCEPT =
 	'.txt,.csv,text/plain,text/csv,.jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp';
@@ -96,10 +99,14 @@ interface ChatTabProps {
  * "Needs your attention" findings summary (`/findings/attention-summary`,
  * NeedsAttentionCard.tsx) + AI Workflows (`/automations`) preview in the
  * sidebar. Sending now really talks to `POST /copilot/chat`
- * (classes/RestAPI/Controllers/Copilot.php, shared via useCopilotChat.ts)
- * — a real reply grounded in this site's own open findings/automation
+ * (vulopilot-pro's own modules/CopilotChat/Rest.php, shared via
+ * useCopilotChat.ts — moved there from Free's own Controllers\Copilot.php
+ * when "Chat with VuloPilot" became a real Pro feature, direct
+ * instruction; see that hook's own docblock for the real "PRO" badge/
+ * locked-popup gate this tab now shows without an active Pro license) —
+ * a real reply grounded in this site's own open findings/automation
  * counts, not a canned response. A request like "write a blog about X"
- * really creates and saves a WordPress draft (Copilot.php's own
+ * really creates and saves a WordPress draft (Rest.php's own
  * ContentCreationOrchestrator hand-off, the same real capability "Create
  * Content"'s own AI Content Assistant sidebar already had) — that turn's
  * `link` is rendered below as a real clickable edit link, right next to a
@@ -109,7 +116,7 @@ interface ChatTabProps {
  * of request stays advice-only. A page refresh still starts a fresh, empty
  * composer (`turns` itself is still client-side-only React state, cleared
  * on unmount), but every real conversation now really persists server-side
- * too (`vulopilot_ai_conversations`, Copilot.php's own
+ * too (`vulopilot_ai_conversations`, Rest.php's own
  * persist_conversation()) — "Recent conversations" (RecentConversationsCard.tsx,
  * `GET /copilot/conversations`) lists the user's own recent real threads,
  * and clicking one (`handleSelectConversation()` below,
@@ -126,7 +133,7 @@ interface ChatTabProps {
  * finding groups) and this tab's own automation entry points show (active
  * automations). Both are sent as `context_refs`/`attachments` on the next
  * `POST /copilot/chat` and re-resolved against real, current data
- * server-side (Copilot.php's build_extra_context()) — this component only
+ * server-side (Rest.php's build_extra_context()) — this component only
  * carries an id/ref, never the resolved content itself.
  *
  * `message`/`autoApply` are owned by AIAssistant.tsx rather than locally,
@@ -172,8 +179,16 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the token specifically so a same-value issuesFilter update (e.g. "View all issues" when it was already null) still re-triggers the scroll; see AIAssistant.tsx's own docblock on issuesNavToken.
 	}, [issuesNavToken]);
 
-	const { turns, isSending, send, markTurnUndone, loadConversation } =
-		useCopilotChat('vulopilot-copilot-chat-error');
+	const {
+		turns,
+		isSending,
+		send,
+		markTurnUndone,
+		loadConversation,
+		isEnabled: isCopilotChatEnabled,
+		isProLocked,
+		dismissProLocked,
+	} = useCopilotChat('vulopilot-copilot-chat-error');
 	const [undoingRunId, setUndoingRunId] = useState<number | null>(null);
 
 	/**
@@ -342,6 +357,27 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		setAttachments((current) => current.filter((file) => file.id !== id));
 
 	/**
+	 * Same real `vulopilot_automations_panel` Pro filter slot
+	 * Automations.tsx itself reads — its own `Wizard`/`Generate` come from
+	 * there, and `!Wizard` is the exact same "Automations Pro module isn't
+	 * active" check that page's own openTemplate()/openCreateWizard()/etc.
+	 * already gate every action on. Read here too so a locked click on
+	 * *this* card shows the real "Unlock with Pro" popup immediately,
+	 * right where it was clicked — direct instruction ("when click popup
+	 * open if pro is deactivate"). Before this, a locked click here fell
+	 * through to handleSelectAutomationTemplate()'s own plain navigation
+	 * below, landing on Automate Work first and only *then* showing the
+	 * popup there (Automations.tsx's own `automation_template` URL-param
+	 * effect) — a real, jarring two-step "page changes, then something
+	 * pops up" flow for what should be one click, one popup.
+	 */
+	const automationsPanelSlot = useFilterSlot<{ Wizard?: unknown }>(
+		'vulopilot_automations_panel'
+	);
+	const [isAutomationsProPopupOpen, setIsAutomationsProPopupOpen] =
+		useState(false);
+
+	/**
 	 * AutomationTemplatesCard's real home is Automate Work
 	 * (`ManageAutomationsSection.tsx`, via `Automations.tsx`) — this preview
 	 * on Chat navigates there rather than trying to open a create form that
@@ -351,9 +387,17 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	 * wizard opens already seeded, not a bare redirect to a blank page.
 	 * Automate Work has no `subtab=` of its own since its own redesign
 	 * flattened its previous Overview/Automations two-tab shell into one
-	 * page — nothing left to route to but the page itself.
+	 * page — nothing left to route to but the page itself. Only reached
+	 * when `automationsPanelSlot.Wizard` is real (Pro's Automations module
+	 * is active) — without it, the popup above opens instead of navigating
+	 * anywhere.
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
+		if (!automationsPanelSlot?.Wizard) {
+			setIsAutomationsProPopupOpen(true);
+			return;
+		}
+
 		window.location.href = `${appLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
 	};
 
@@ -370,14 +414,20 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							'vulopilot'
 						)}
 						cardAction={
-							<ButtonInput
-								buttons={{
-									text: __('Chat History', 'vulopilot'),
-									leftIcon: 'clock',
-									color: 'text-purple',
-									onClick: onOpenHistoryPopup,
-								}}
-							/>
+							<>
+								{/* "Chat with VuloPilot" is a real, direct-instruction Pro feature now (see useCopilotChat.ts's own docblock) — the same "PRO" badge convention StoreIntelligenceSummaryCard.tsx/AiSalesOptimizerCard.tsx already use for a Pro-gated card's own header. Section still renders fully in Free (per that same instruction: "the section show in free with pro tag but functionality is pro feature") — only the real send is blocked, in handleSend() below. */}
+								{!isCopilotChatEnabled && (
+									<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
+								)}
+								<ButtonInput
+									buttons={{
+										text: __('Chat History', 'vulopilot'),
+										leftIcon: 'clock',
+										color: 'text-purple',
+										onClick: onOpenHistoryPopup,
+									}}
+								/>
+							</>
 						}
 						emptyDesc={__(
 							'Ask me anything about your website, performance, security, content and more.',
@@ -626,6 +676,34 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							onCloseHistoryPopup();
 						}}
 					/>
+				</PopupComponent>
+				{/* handleSend()'s own send() call sets this the moment a real send is attempted without an active Pro license — same "Unlock with Pro" popup every other Pro-gated surface in this plugin uses (components/ProLockedCard.tsx's own exact pattern). */}
+				<PopupComponent
+					open={isProLocked}
+					onClose={dismissProLocked}
+					width={31.25}
+					height="auto"
+					position="lightbox"
+				>
+					{appLocalizer.khali_dabba ? (
+						<ShowProPopup moduleName="copilot-chat" />
+					) : (
+						<ShowProPopup />
+					)}
+				</PopupComponent>
+				{/* handleSelectAutomationTemplate()'s own click gate — see that function's own docblock. */}
+				<PopupComponent
+					open={isAutomationsProPopupOpen}
+					onClose={() => setIsAutomationsProPopupOpen(false)}
+					width={31.25}
+					height="auto"
+					position="lightbox"
+				>
+					{appLocalizer.khali_dabba ? (
+						<ShowProPopup moduleName="automations" />
+					) : (
+						<ShowProPopup />
+					)}
 				</PopupComponent>
 				<RecommendedActionsCard onNavigateTab={onNavigateTab} />
 			</ColumnComponent>
