@@ -160,9 +160,16 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * own real `count` (shown above this list) stays the true total either
 	 * way, and bulk actions below still act on every open finding via their
 	 * own uncapped fetchGroupIds() call.
+	 *
+	 * Skipped entirely (no request at all) while Pro is inactive — this
+	 * same list is one of the sections `renderProGatedSection` below
+	 * replaces with dummy content, per direct instruction ("the actual
+	 * content is show only when pro active"): real per-site data shouldn't
+	 * even be fetched into the browser for a section that's locked, not
+	 * just left unrendered.
 	 */
 	useEffect(() => {
-		if (!group) {
+		if (!group || !appLocalizer.khali_dabba) {
 			setAffectedItems(null);
 			return;
 		}
@@ -205,13 +212,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	/**
 	 * "Example finding", "Affected items"/"Affected endpoints", and the
 	 * Fix with AI/Resolve all/Ignore all action row below are all real,
-	 * per-site detail/actions — a Pro feature, per direct instruction. The
-	 * data itself still loads and renders normally either way (same "blur
-	 * the real thing in place" idiom useContentGate.tsx's own VuloCloud
-	 * check already uses); this only decides whether it's shown plainly or
-	 * blurred behind a "Pro" tag (with the buttons themselves inert
-	 * underneath the blur — `pointer-events: none`, same as the other two
-	 * gated sections — so the whole-box overlay is the only click target).
+	 * per-site detail/actions — a Pro feature, per direct instruction.
 	 * Deliberately just `khali_dabba` (the Pro plugin active at all) and
 	 * not a specific module id — this same panel is shared by
 	 * Security/Performance/GEO/Content/AI Assistant's own issue tables, no
@@ -225,21 +226,46 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 */
 	const isProActive = !!appLocalizer.khali_dabba;
 
-	const renderProGatedSection = (content: ReactNode): ReactNode => {
+	/**
+	 * Same "never render the real thing while locked, not even faded"
+	 * idiom useContentGate.tsx's own Pro/module checks already use (its
+	 * own docblock explains why: a locked section shouldn't leak its real
+	 * data at all) — per direct instruction, corrected here from an
+	 * earlier pass that blurred the real content in place instead. Every
+	 * caller passes its own `dummyContent` (a generic preview of that
+	 * section's shape, same convention useContentGate.tsx's own
+	 * `DEFAULT_DUMMY_CONTENT` sets), never `realContent` itself. The
+	 * "Affected items" list's own real data isn't even fetched while
+	 * locked (see that effect's own docblock above) — this only covers
+	 * what's rendered, not what's requested.
+	 */
+	const renderProGatedSection = (
+		realContent: ReactNode,
+		dummyContent: ReactNode,
+		// "Affected items" and the action row right below it sit back to
+		// back with no other field between them — two "Pro" tags stacked
+		// that close together read as a duplicate, not two separate locked
+		// things, per direct instruction. The action row's own call passes
+		// `false` here (still fully blurred/gated, just without its own
+		// tag) since "Affected items" right above it already carries one.
+		showTag: boolean = true
+	): ReactNode => {
 		if (isProActive) {
-			return content;
+			return realContent;
 		}
 
 		return (
 			<div className="issue-detail-pro-gate">
-				<div className="issue-detail-pro-gate-tag">
-					<span className="admin-tag pro-tag">
-						<i className="adminfont-pro-tag" />
-						{__('Pro', 'vulopilot')}
-					</span>
-				</div>
-				<div className="issue-detail-pro-gate-blur" aria-hidden="true">
-					{content}
+				{showTag && (
+					<div className="issue-detail-pro-gate-tag">
+						<span className="admin-tag pro-tag">
+							<i className="adminfont-pro-tag" />
+							{__('Pro', 'vulopilot')}
+						</span>
+					</div>
+				)}
+				<div className="issue-detail-pro-gate-dummy" aria-hidden="true">
+					{dummyContent}
 				</div>
 				<div
 					className="issue-detail-pro-gate-overlay"
@@ -486,7 +512,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									<span className="desc">
 										{group.sample.description}
 									</span>
-								</>
+								</>,
+								<span className="desc">
+									{__(
+										'A real, representative finding from this group appears here once Pro is active.',
+										'vulopilot'
+									)}
+								</span>
 							)}
 						</FormGroupComponent>
 					)}
@@ -560,7 +592,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 											)}
 										</span>
 									)}
-							</>
+							</>,
+							<span className="desc">
+								{__(
+									'The specific accounts/pages/etc. this group affects appear here once Pro is active.',
+									'vulopilot'
+								)}
+							</span>
 						)}
 					</FormGroupComponent>
 				</FormGroupWrapperComponent>
@@ -603,7 +641,32 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								disabled: isBusy,
 							},
 						]}
-					/>
+					/>,
+					<ButtonInput
+						position="full-width"
+						buttons={[
+							{
+								text: __('Fix with AI', 'vulopilot'),
+								icon: 'ai',
+								color: 'orange-bg',
+								disabled: true,
+								onClick: () => {},
+							},
+							{
+								text: __('Resolve all', 'vulopilot'),
+								color: 'border-purple',
+								disabled: true,
+								onClick: () => {},
+							},
+							{
+								text: __('Ignore all', 'vulopilot'),
+								color: 'border-red',
+								disabled: true,
+								onClick: () => {},
+							},
+						]}
+					/>,
+					false
 				)}
 			</CardComponent>
 			<PopupComponent

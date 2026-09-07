@@ -138,6 +138,7 @@ class Rest {
             'schema_coverage'             => new Controllers\Schema(),
             'google_services'             => new Controllers\GoogleServices(),
             'keyword_rankings'            => new Controllers\KeywordRankings(),
+            'vulocloud_account'           => new Controllers\VuloCloudAccount(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

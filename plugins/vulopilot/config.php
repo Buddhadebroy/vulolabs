@@ -122,3 +122,26 @@ if ( ! defined( 'VULOPILOT_GOOGLE_BROKER_URL' ) ) {
 if ( ! defined( 'VULOPILOT_GOOGLE_APPLICATION_ID' ) ) {
 	define( 'VULOPILOT_GOOGLE_APPLICATION_ID', '' );
 }
+
+/**
+ * Base URL of the VuloCloud platform's own public API (its
+ * `identity-access` bounded context — `POST {url}/auth/login`, same
+ * "one dedicated server, no per-site registration needed" shape
+ * VULOPILOT_PRO_LICENSE_SERVER_URL already has for Licensing, just a
+ * different bounded context and, unlike that constant, owned here in the
+ * FREE plugin rather than vulopilot-pro — this is a *person* logging into
+ * their own VuloCloud account (VuloCloudAccountConnection), never a
+ * per-site Product ID/License Key pair, so it has nothing to do with
+ * whether Pro is even installed. See useContentGate.tsx/
+ * useVuloCloudAccountLogin.ts (both in src/services/) for the real
+ * feature this backs — the "log in" tier every one of that hook's own 3
+ * gates checks first.
+ *
+ * Empty by default, same "safe to ship/commit, real value lives outside
+ * version control" reasoning VULOPILOT_GOOGLE_CLIENT_ID's own docblock
+ * above documents — wp-config.php-only for now since there's no
+ * settings-panel field for it yet.
+ */
+if ( ! defined( 'VULOPILOT_VULOCLOUD_URL' ) ) {
+	define( 'VULOPILOT_VULOCLOUD_URL', '' );
+}
