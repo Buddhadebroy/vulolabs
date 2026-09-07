@@ -150,10 +150,10 @@ const LiveSiteInsightsCard: React.FC = () => {
 					},
 					{
 						id: 'ai-crawler-traffic',
-						icon: 'search-discovery',
+						icon: 'search-discovery yellow',
 						title: __('AI crawler traffic (30 days)', 'vulopilot'),
 						tags: (
-							<TypographyComponent variant="h4">
+							<TypographyComponent variant="h5">
 								{crawlerVisits30d}
 							</TypographyComponent>
 						),
@@ -168,10 +168,10 @@ const LiveSiteInsightsCard: React.FC = () => {
 					},
 					{
 						id: 'core-web-vitals',
-						icon: 'bar-chart',
+						icon: 'bar-chart pink',
 						title: __('Core Web Vitals', 'vulopilot'),
 						tags: (
-							<TypographyComponent variant="h4">
+							<TypographyComponent variant="h5">
 								{vitals && vitals.sample_count > 0 && null !== vitals.lcp_ms
 									? sprintf(
 										/* translators: %d: real p75 Largest Contentful Paint, in milliseconds, from actual visitors */
@@ -197,7 +197,7 @@ const LiveSiteInsightsCard: React.FC = () => {
 						? [
 							{
 								id: 'store-metrics',
-								icon: 'woocommerce',
+								icon: 'woocommerce sky',
 								title: __('Store metrics', 'vulopilot'),
 								tags: (
 									<TypographyComponent variant="desc" color="red">

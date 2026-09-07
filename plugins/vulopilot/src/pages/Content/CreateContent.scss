@@ -138,21 +138,21 @@ $content-tool-colors: (
 // own `type-*` CSS did, so this card restores the same real green/orange/
 // red background itself, keyed off the same `item.className`
 // (`content-quality-check-item is-{green|orange|red}`) CheckRow sets.
-// .content-quality-check-item {
-// 	border-radius: $border-radius-small;
+.content-quality-check-item {
+	border-radius: $border-radius-small;
 
-// 	&.is-green {
-// 		background: color-mix(in srgb, #16a34a 8%, transparent);
-// 	}
+	&.is-green {
+		background: color-mix(in srgb, #16a34a 8%, transparent);
+	}
 
-// 	&.is-orange {
-// 		background: color-mix(in srgb, #e67a2e 8%, transparent);
-// 	}
+	&.is-orange {
+		background: color-mix(in srgb, #e67a2e 8%, transparent);
+	}
 
-// 	&.is-red {
-// 		background: color-mix(in srgb, #dc2626 8%, transparent);
-// 	}
-// }
+	&.is-red {
+		background: color-mix(in srgb, #dc2626 8%, transparent);
+	}
+}
 
 
 .content-quality-structure-header {

@@ -15,6 +15,7 @@ import {
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
+import ShowProPopup from '../../components/Popup/Popup';
 import { RowAction, RowActionsMenu } from './seoIssuesShared';
 import './SeoVisibility.scss';
 
@@ -203,6 +204,8 @@ const RedirectsSection = () => {
 	const [targetUrl, setTargetUrl] = useState('');
 	const [redirectType, setRedirectType] = useState<string>('301');
 	const [isSaving, setIsSaving] = useState(false);
+	/** Row pending deletion, shown via the `confirmMode` popup below instead of `window.confirm()`. */
+	const [deleteTarget, setDeleteTarget] = useState<RedirectRow | null>(null);
 
 	const loadRedirects = () => {
 		setIsLoading(true);
@@ -318,14 +321,18 @@ const RedirectsSection = () => {
 		});
 	};
 
+	/** Opens the `confirmMode` popup — the actual delete runs from `handleConfirmDeleteRedirect` once the user confirms there. */
 	const handleDeleteRedirect = (row: RedirectRow) => {
-		if (
-			!window.confirm(
-				__('Delete this redirect? This cannot be undone.', 'vulopilot')
-			)
-		) {
+		setDeleteTarget(row);
+	};
+
+	const handleConfirmDeleteRedirect = () => {
+		if (!deleteTarget) {
 			return;
 		}
+
+		const row = deleteTarget;
+		setDeleteTarget(null);
 
 		sendApiResponse(
 			appLocalizer,
@@ -803,6 +810,24 @@ const RedirectsSection = () => {
 						}}
 					/>
 				</div>
+			</PopupComponent>
+
+			<PopupComponent
+				position="lightbox"
+				open={!!deleteTarget}
+				onClose={() => setDeleteTarget(null)}
+				width={31.25}
+				height="auto"
+			>
+				<ShowProPopup
+					confirmMode
+					title={__('Delete Redirect', 'vulopilot')}
+					confirmMessage={__('Delete this redirect? This cannot be undone.', 'vulopilot')}
+					confirmYesText={__('Delete', 'vulopilot')}
+					confirmNoText={__('Cancel', 'vulopilot')}
+					onConfirm={handleConfirmDeleteRedirect}
+					onCancel={() => setDeleteTarget(null)}
+				/>
 			</PopupComponent>
 		</ColumnComponent>
 	);

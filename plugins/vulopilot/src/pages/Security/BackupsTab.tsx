@@ -14,6 +14,7 @@ import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
+import ShowProPopup from '../../components/Popup/Popup';
 import './ProtectMySite.scss';
 
 /** `id: 'backups'` (Settings/Scanning/Backups.ts) — where the real "schedule automatic backups" toggle/frequency this card's own empty state used to describe in text actually lives. */
@@ -212,6 +213,8 @@ const BackupsTab = () => {
 	const [restoreTarget, setRestoreTarget] = useState<BackupRow | null>(null);
 	const [confirmText, setConfirmText] = useState('');
 	const [isRestoring, setIsRestoring] = useState(false);
+	/** Row pending deletion, shown via the `confirmMode` popup below instead of `window.confirm()`. */
+	const [deleteTarget, setDeleteTarget] = useState<BackupRow | null>(null);
 
 	const hasPendingBackup = data.some(
 		(row) => 'queued' === row.status || 'running' === row.status
@@ -273,15 +276,18 @@ const BackupsTab = () => {
 		window.open(`${baseUrl}${separator}_wpnonce=${appLocalizer.nonce}`, '_blank');
 	};
 
+	/** Opens the `confirmMode` popup — the actual delete runs from `handleConfirmDelete` once the user confirms there. */
 	const handleDelete = (row: BackupRow) => {
-		if (
-			!window.confirm(
-				__('Delete this backup? This cannot be undone.', 'vulopilot')
-			)
-		) {
+		setDeleteTarget(row);
+	};
+
+	const handleConfirmDelete = () => {
+		if (!deleteTarget) {
 			return;
 		}
 
+		const row = deleteTarget;
+		setDeleteTarget(null);
 		setBusyId(row.id);
 
 		fetch(`${getApiLink(appLocalizer, 'backups')}/${row.id}`, {
@@ -596,6 +602,24 @@ const BackupsTab = () => {
 						/>
 					</div>
 				</div>
+			</PopupComponent>
+
+			<PopupComponent
+				position="lightbox"
+				open={null !== deleteTarget}
+				onClose={() => setDeleteTarget(null)}
+				width={31.25}
+				height="auto"
+			>
+				<ShowProPopup
+					confirmMode
+					title={__('Delete Backup', 'vulopilot')}
+					confirmMessage={__('Delete this backup? This cannot be undone.', 'vulopilot')}
+					confirmYesText={__('Delete', 'vulopilot')}
+					confirmNoText={__('Cancel', 'vulopilot')}
+					onConfirm={handleConfirmDelete}
+					onCancel={() => setDeleteTarget(null)}
+				/>
 			</PopupComponent>
 		</>
 	);

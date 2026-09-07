@@ -6,6 +6,7 @@ import LiveSiteInsightsCard from '../Security/LiveSiteInsightsCard';
 import PerformanceScoreCard from './PerformanceScoreCard';
 import MetricsGrid from './MetricsGrid';
 import SpeedHistoryCard from './SpeedHistoryCard';
+import QuickActionsCard from './QuickActionsCard';
 import BiggestSpeedOpportunityCard from './BiggestSpeedOpportunityCard';
 import PhpAccelerationCard from './PhpAccelerationCard';
 import PerformanceTab from './PerformanceTab';
@@ -16,9 +17,11 @@ import './Performance.scss';
  * per-section real-data mapping (PerformanceScoreCard, MetricsGrid,
  * SpeedHistoryCard, BiggestSpeedOpportunityCard — each documents its own
  * data source and, where the mockup shows something with no real backend,
- * its honest fallback). QuickActionsCard and RealTimeMonitoringCard are
- * rendered from inside PerformanceScoreCard.tsx's own 1st-fold row, not
- * imported here directly. AiSpeedAssistantCard.tsx is unused — its one
+ * its honest fallback). RealTimeMonitoringCard is rendered from inside
+ * PerformanceScoreCard.tsx's own 1st-fold row, not imported here directly —
+ * QuickActionsCard used to be as well, but now renders here instead, first
+ * in the 2nd fold's right-hand column, ahead of BiggestSpeedOpportunityCard.
+ * AiSpeedAssistantCard.tsx is unused — its one
  * call site below is commented out per direct instruction (a second CTA
  * for the exact same action BiggestSpeedOpportunityCard's own button
  * already covers); the file itself is left in place rather than deleted.
@@ -110,14 +113,22 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
+				<QuickActionsCard />
 				<BiggestSpeedOpportunityCard
 					onViewSlowPages={onNavigateToSlowPages}
 					onViewFindings={scrollToFindings}
 				/>
+			</ColumnComponent>
+			<ColumnComponent grid={4} fullHeight>
 				<SpeedHistoryCard />
+			</ColumnComponent>
+			<ColumnComponent grid={4} fullHeight >
 				<LiveSiteInsightsCard />
+			</ColumnComponent>
+			<ColumnComponent grid={4} fullHeight>
 				<PhpAccelerationCard />
 			</ColumnComponent>
+
 
 			<ColumnComponent >
 				<div id="performance-section-findings">

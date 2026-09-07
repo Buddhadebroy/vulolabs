@@ -295,6 +295,8 @@ const RecentContentCard = () => {
 	const [deletingId, setDeletingId] = useState<number | null>(null);
 	const [fixingFindingId, setFixingFindingId] = useState<number | null>(null);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	/** Row pending deletion, shown via the `confirmMode` popup below instead of `window.confirm()`. */
+	const [deleteTarget, setDeleteTarget] = useState<ContentRow | null>(null);
 
 	useEffect(() => {
 		const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
@@ -663,22 +665,18 @@ const RecentContentCard = () => {
 		</div>
 	);
 
+	/** Opens the `confirmMode` popup — the actual delete runs from `handleConfirmDelete` once the user confirms there. */
 	const handleDelete = (row: ContentRow) => {
-		// Same native window.confirm() pattern RedirectsTab.tsx/
-		// AiProvidersPanel.tsx already use for one-off destructive
-		// confirmations, rather than building a bespoke confirm dialog
-		// for a single call site.
-		if (
-			!window.confirm(
-				__(
-					'Move this to trash? You can restore it from Trash afterward.',
-					'vulopilot'
-				)
-			)
-		) {
+		setDeleteTarget(row);
+	};
+
+	const handleConfirmDelete = () => {
+		if (!deleteTarget) {
 			return;
 		}
 
+		const row = deleteTarget;
+		setDeleteTarget(null);
 		setDeletingId(row.id);
 
 		const endpoint =
@@ -991,6 +989,27 @@ const RecentContentCard = () => {
 				) : (
 					<ShowProPopup />
 				)}
+			</PopupComponent>
+
+			<PopupComponent
+				open={!!deleteTarget}
+				onClose={() => setDeleteTarget(null)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup
+					confirmMode
+					title={__('Move to Trash', 'vulopilot')}
+					confirmMessage={__(
+						'Move this to trash? You can restore it from Trash afterward.',
+						'vulopilot'
+					)}
+					confirmYesText={__('Move to Trash', 'vulopilot')}
+					confirmNoText={__('Cancel', 'vulopilot')}
+					onConfirm={handleConfirmDelete}
+					onCancel={() => setDeleteTarget(null)}
+				/>
 			</PopupComponent>
 		</CardComponent>
 	);

@@ -8,6 +8,22 @@ import '../Popup/Popup.scss';
 interface PopupProps {
 	moduleName?: string;
 	plugin?: string;
+
+	/**
+	 * Renders a plain yes/no confirmation instead of the module/plugin/
+	 * upgrade pitches below — same `PopupComponent` + `<Popup confirmMode>`
+	 * shape multivendorx-pro's own `components/Popup/Popup.tsx` already
+	 * established, reusing zyra's own built-in `.popup-confirm` styling
+	 * (PopupComponent.scss) rather than a native `window.confirm()`, which
+	 * every call site in this plugin used to fall back to.
+	 */
+	confirmMode?: boolean;
+	title?: string;
+	confirmMessage?: React.ReactNode;
+	confirmYesText?: string;
+	confirmNoText?: string;
+	onConfirm?: () => void;
+	onCancel?: () => void;
 }
 
 const formatModuleName = (name: string): string => {
@@ -105,6 +121,32 @@ const proPopupContent = {
 };
 
 const ShowProPopup: React.FC<PopupProps> = (props) => {
+	if (props.confirmMode) {
+		return (
+			<div className="popup-confirm">
+				<i className="popup-icon adminfont-suspended admin-badge red"></i>
+				<div className="title">{props.title || __('Confirmation', 'vulopilot')}</div>
+				<div className="desc">{props.confirmMessage}</div>
+				<ButtonInput
+					position="center"
+					buttons={[
+						{
+							icon: 'close',
+							text: props.confirmNoText || __('Cancel', 'vulopilot'),
+							color: 'red',
+							onClick: props.onCancel,
+						},
+						{
+							icon: 'delete',
+							text: props.confirmYesText || __('Confirm', 'vulopilot'),
+							onClick: props.onConfirm,
+						},
+					]}
+				/>
+			</div>
+		);
+	}
+
 	if (props.plugin) {
 		return (
 			<div className="popup-wrapper">

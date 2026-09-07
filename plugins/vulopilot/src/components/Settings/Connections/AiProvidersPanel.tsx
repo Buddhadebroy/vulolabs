@@ -2,8 +2,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { FormGroupWrapperComponent, FormGroupComponent, NoticeManager } from '@zyra/components';
+import { FormGroupWrapperComponent, FormGroupComponent, NoticeManager, PopupComponent } from '@zyra/components';
 import { ExpandablePanelInput } from '@zyra/inputs';
+import ShowProPopup from '../../Popup/Popup';
 
 interface ConfiguredProvider {
 	id: number;
@@ -119,6 +120,8 @@ const AiProvidersPanel = () => {
 		Record<string, Record<string, unknown>>
 	>({});
 	const [newProviderPanelKey, setNewProviderPanelKey] = useState(0);
+	/** Row pending removal, shown via the `confirmMode` popup below instead of `window.confirm()`. */
+	const [disconnectTarget, setDisconnectTarget] = useState<ConfiguredProvider | null>(null);
 	const newProviderValuesRef = useRef(newProviderValues);
 	const isSavingRef = useRef(false);
 
@@ -290,17 +293,18 @@ const AiProvidersPanel = () => {
 		);
 	};
 
+	/** Opens the `confirmMode` popup — the actual delete runs from `handleConfirmDisconnect` once the user confirms there. */
 	const handleDisconnect = (row: ConfiguredProvider) => {
-		if (
-			!window.confirm(
-				__(
-					'Remove this AI provider? Anything relying on it for AI fixes/generation will fall back to another configured provider, if any.',
-					'vulopilot'
-				)
-			)
-		) {
+		setDisconnectTarget(row);
+	};
+
+	const handleConfirmDisconnect = () => {
+		if (!disconnectTarget) {
 			return;
 		}
+
+		const row = disconnectTarget;
+		setDisconnectTarget(null);
 
 		sendApiResponse(appLocalizer, getApiLink(appLocalizer, `ai-providers/${row.id}/delete`), {}).then(
 			(response) => {
@@ -810,6 +814,26 @@ const AiProvidersPanel = () => {
 					)}
 				</div>
 			)}
+			<PopupComponent
+				position="lightbox"
+				open={!!disconnectTarget}
+				onClose={() => setDisconnectTarget(null)}
+				width={31.25}
+				height="auto"
+			>
+				<ShowProPopup
+					confirmMode
+					title={__('Remove AI Provider', 'vulopilot')}
+					confirmMessage={__(
+						'Remove this AI provider? Anything relying on it for AI fixes/generation will fall back to another configured provider, if any.',
+						'vulopilot'
+					)}
+					confirmYesText={__('Remove', 'vulopilot')}
+					confirmNoText={__('Cancel', 'vulopilot')}
+					onConfirm={handleConfirmDisconnect}
+					onCancel={() => setDisconnectTarget(null)}
+				/>
+			</PopupComponent>
 		</>
 	);
 };
