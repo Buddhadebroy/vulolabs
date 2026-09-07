@@ -6,6 +6,8 @@ import { AUTOMATION_TEMPLATES, AutomationTemplate } from './automationsTemplates
 interface AutomationsTemplatesCardProps {
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onSelectTemplate: (template: AutomationTemplate) => void;
+	/** Real "PRO" tag on this card's own header — same `badges` convention StoreIntelligenceSummaryCard.tsx/AiSalesOptimizerCard.tsx already use for a Pro-gated card, shown only while the caller's own real Automations Pro check (`vulopilot_automations_panel` filter slot) says it's actually inactive; never a decorative default. */
+	showProBadge?: boolean;
 }
 
 /**
@@ -19,11 +21,13 @@ interface AutomationsTemplatesCardProps {
  */
 const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	onSelectTemplate,
+	showProBadge,
 }) => (
 		<div id="create-new-automation-card">
 		<CardComponent
 			title={ __( 'Create new automation', 'vulopilot-pro' ) } titleIcon="analytics"
 			desc={ __( 'Start from a ready-made template instead of building one from scratch.', 'vulopilot-pro' ) }
+			badges={ showProBadge ? [ { text: __( 'PRO', 'vulopilot-pro' ), color: 'purple' } ] : undefined }
 		>
 			<ListComponent
 				className="mini-card report"

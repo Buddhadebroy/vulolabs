@@ -1,0 +1,56 @@
+@use '../../components/config' as *;
+
+// IssueDetailPanel.tsx's own Pro lock for its "Example finding"/"Affected
+// endpoints" sections — real data still loads and renders underneath (same
+// "blur the real thing in place" idiom useContentGate.tsx's own VuloCloud
+// check already uses, not a fake/mock substitute), just visually blurred
+// and tagged "Pro" until the Pro plugin itself is active
+// (`appLocalizer.khali_dabba`). Colocated here (imported by
+// IssueDetailPanel.tsx directly) rather than duplicated into every host
+// page's own SCSS (Security/ProtectMySite.scss, AIAssistant/AICopilot.scss,
+// etc.) since this same shared component also renders inside Performance,
+// GEO, and Content's own issue tables with no SCSS of their own for it.
+.issue-detail-pro-gate {
+	position: relative;
+}
+
+.issue-detail-pro-gate-tag {
+	position: absolute;
+	top: 0.375rem;
+	right: 0.375rem;
+	z-index: 2;
+
+	// `.admin-tag.pro-tag` (zyra's own theme/src/common.scss) is written for
+	// Settings' own form-group rows — reset its own absolute positioning so
+	// it docks to this corner instead of jumping to one of its own.
+	.pro-tag {
+		position: static;
+		transform: none;
+	}
+}
+
+.issue-detail-pro-gate-blur {
+	filter: blur(0.25rem);
+	pointer-events: none;
+	user-select: none;
+}
+
+// Covers the whole blurred box so a click anywhere in it (not just the tag)
+// opens the upgrade popup.
+.issue-detail-pro-gate-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	cursor: pointer;
+	border-radius: 0.375rem;
+
+	&:hover,
+	&:focus-visible {
+		background: color-mix(in srgb, $theme-color 5%, transparent);
+	}
+
+	&:focus-visible {
+		outline: $border-theme-small;
+		outline-offset: 0.125rem;
+	}
+}
