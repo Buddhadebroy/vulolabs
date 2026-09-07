@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../components/Popup/Popup';
+import VuloCloudConnectPopup from '../components/Popup/VuloCloudConnectPopup';
 import MODULES_CATALOG, { isModuleCatalogEntry } from '../components/Modules';
 import { useVuloCloudAccountLogin } from './useVuloCloudAccountLogin';
 import './useContentGate.scss';
@@ -62,13 +63,16 @@ const DEFAULT_DUMMY_CONTENT = (
  * not-logged-in-VuloCloud site sees the blurred content even if Pro and
  * its module are also off:
  *
- * 1. **VuloCloud account** (`useVuloCloudAccountLogin()`) — a plain label,
- *    not a clickable tag (no real "log into VuloCloud" flow exists
- *    anywhere in this codebase yet for it to open — see that hook's own
- *    docblock for what it actually reports today), with `realContent`
- *    itself blurred underneath instead of `dummyContent` — its real shape
- *    stays visible, just unreadable/non-interactive, rather than being
- *    replaced by a mock preview.
+ * 1. **VuloCloud account** (`useVuloCloudAccountLogin()`) — a real,
+ *    clickable label (VuloCloudAccountConnection.php's own
+ *    `POST /auth/login` proxy — the flow this label's own text used to
+ *    say didn't exist yet), with `realContent` itself blurred underneath
+ *    instead of `dummyContent` — its real shape stays visible, just
+ *    unreadable/non-interactive, rather than being replaced by a mock
+ *    preview. Clicking it opens `VuloCloudConnectPopup` (a real email/
+ *    password — and, when the account has it enabled, two-factor code —
+ *    form); a successful connect reloads the page (see that popup's own
+ *    docblock for why) rather than updating this hook's own state.
  * 2. **Pro** (`appLocalizer.khali_dabba` false) — a "Pro" tag on top,
  *    `dummyContent` below it — a caller's own mock preview of its real
  *    shape (e.g. AiSpeedAssistantCard.tsx passes a fake count line plus
@@ -167,40 +171,38 @@ export const useContentGate = (
 			return realContent;
 		}
 
-		// Pro/module: dummy content, whole section clickable → popup.
-		// VuloCloud: the real content itself, blurred in place — no popup
-		// to open (see this hook's own docblock for why), so no click
-		// target either.
-		if ('vulocloud' === gateReason) {
-			return (
-				<div className="content-gate">
-					<div className="content-gate-tag">{renderTag()}</div>
-					<div className="content-gate-blur-content" aria-hidden="true">
-						{realContent}
-					</div>
-				</div>
-			);
-		}
+		const isVuloCloud = 'vulocloud' === gateReason;
 
 		return (
 			<div className="content-gate">
 				<div className="content-gate-tag">{renderTag()}</div>
-				{dummyContent}
-				{/* Covers the whole section (tag + dummy content) so a click
-				 * anywhere within it opens the popup — not just on the tag
-				 * itself. */}
+				{/* VuloCloud: the real content itself, blurred in place.
+				 * Pro/module: the caller's own dummy preview. See this
+				 * hook's own docblock for why the two look different. */}
+				{isVuloCloud ? (
+					<div className="content-gate-blur-content" aria-hidden="true">
+						{realContent}
+					</div>
+				) : (
+					dummyContent
+				)}
+				{/* Covers the whole section (tag + dummy/blurred content) so
+				 * a click anywhere within it opens the popup — not just on
+				 * the tag itself. */}
 				<div
 					className="content-gate-click-overlay"
 					role="button"
 					tabIndex={0}
 					aria-label={
-						'pro' === gateReason
-							? __('Upgrade to Pro', 'vulopilot')
-							: sprintf(
-									/* translators: %s is the real module's own display name. */
-									__('Activate %s', 'vulopilot'),
-									MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
-								)
+						isVuloCloud
+							? __('Log in to VuloCloud', 'vulopilot')
+							: 'pro' === gateReason
+								? __('Upgrade to Pro', 'vulopilot')
+								: sprintf(
+										/* translators: %s is the real module's own display name. */
+										__('Activate %s', 'vulopilot'),
+										MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
+									)
 					}
 					onClick={() => setIsPopupOpen(true)}
 					onKeyDown={handleSectionKeyDown}
@@ -212,7 +214,13 @@ export const useContentGate = (
 					height="auto"
 					position="lightbox"
 				>
-					{'pro' === gateReason ? <ShowProPopup /> : <ShowProPopup moduleName={moduleId ?? ''} />}
+					{isVuloCloud ? (
+						<VuloCloudConnectPopup />
+					) : 'pro' === gateReason ? (
+						<ShowProPopup />
+					) : (
+						<ShowProPopup moduleName={moduleId ?? ''} />
+					)}
 				</PopupComponent>
 			</div>
 		);

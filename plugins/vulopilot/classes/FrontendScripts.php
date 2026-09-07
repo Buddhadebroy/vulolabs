@@ -7,6 +7,8 @@
 
 namespace VuloPilot;
 
+use VuloPilot\Services\VuloCloudAccountConnection;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -145,6 +147,8 @@ class FrontendScripts {
      * @return void
      */
     public static function localize_scripts( $handle ) {
+        $vulocloud_status = ( new VuloCloudAccountConnection() )->get_status();
+
         wp_localize_script(
             $handle,
             'appLocalizer',
@@ -180,6 +184,14 @@ class FrontendScripts {
                 // appLocalizer already, but nothing populated them yet.
                 'khali_dabba'               => VuloPilot()->util->is_khali_dabba(),
                 'active_modules'            => VuloPilot()->modules->get_active_modules(),
+                // useVuloCloudAccountLogin.ts's own real, synchronous read —
+                // same "localized once at page load, no fetch/loading state
+                // needed" shape 'khali_dabba' above already has. A *person*
+                // logged into VuloCloud (VuloCloudAccountConnection), not
+                // this site's own Pro license — see that class's own
+                // docblock.
+                'vulocloud_connected'       => $vulocloud_status['connected'],
+                'vulocloud_account_email'   => $vulocloud_status['email'],
                 'shop_url'                  => VULOPILOT_PRO_SHOP_URL,
                 // 'version' defaults to false (Pro not installed) unless
                 // vulopilot-pro's own bootstrap overrides it — same

@@ -67,6 +67,11 @@
 	user-select: none;
 }
 
+// Sits under the same `.content-gate-click-overlay` every other tag does
+// — real now (VuloCloudConnectPopup.tsx), not just a static label; kept
+// its own class/shape (a pill, not `.admin-tag`) since it reads as a
+// sentence ("Log in to your VuloCloud account to use this"), not a short
+// tag like "Pro"/a module name.
 .content-gate-vulocloud-label {
 	display: inline-flex;
 	align-items: center;

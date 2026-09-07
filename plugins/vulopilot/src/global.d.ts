@@ -27,6 +27,10 @@ declare global {
 		khali_dabba: boolean;
 		/** Kebab-case ids of every currently-active module (Free's own + any active vulopilot-pro modules) — feeds zyra's `moduleEnabled` settings-field gate and vulopilot-pro/src/index.tsx's per-module JS loading. */
 		active_modules: string[];
+		/** Whether this WP admin has a personal VuloCloud account connected (VuloCloudAccountConnection.php) — a *person* logged into VuloCloud, not this site's own Pro license (`khali_dabba` above). Feeds useVuloCloudAccountLogin.ts, the "log in" tier useContentGate.tsx's own 3 checks starts with. */
+		vulocloud_connected: boolean;
+		/** The connected VuloCloud account's own email, empty string when not connected — feeds useVuloCloudAccountLogin.ts's own `email`. */
+		vulocloud_account_email: string;
 		/** Where to send a user who wants to buy VuloPilot Pro — feeds zyra's configureZyra()/ZyraVariable.shop_url and the generic "Upgrade to Pro" popup's CTA link. */
 		shop_url: string;
 		/** VuloPilot Pro's own reported version/account-management link — `version: false` when Pro isn't installed/registered, populated via the `vulopilot_update_pro_data` filter Pro's own bootstrap hooks. Feeds the header's "Pro: …" version tag. */

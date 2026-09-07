@@ -361,21 +361,22 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	 * Automations.tsx itself reads — its own `Wizard`/`Generate` come from
 	 * there, and `!Wizard` is the exact same "Automations Pro module isn't
 	 * active" check that page's own openTemplate()/openCreateWizard()/etc.
-	 * already gate every action on. Read here too so a locked click on
-	 * *this* card shows the real "Unlock with Pro" popup immediately,
-	 * right where it was clicked — direct instruction ("when click popup
-	 * open if pro is deactivate"). Before this, a locked click here fell
-	 * through to handleSelectAutomationTemplate()'s own plain navigation
-	 * below, landing on Automate Work first and only *then* showing the
-	 * popup there (Automations.tsx's own `automation_template` URL-param
-	 * effect) — a real, jarring two-step "page changes, then something
-	 * pops up" flow for what should be one click, one popup.
+	 * already gate every action on. Passed to AutomationTemplatesCard.tsx's
+	 * own `isAutomationsActive` prop — that card's own useContentGate.tsx
+	 * call (login → Pro → this module, per direct instruction) now decides
+	 * whether a template row is even real/clickable, so a locked click on
+	 * *that card* shows the real "Unlock with Pro" popup immediately from
+	 * inside it, right where it was clicked — direct instruction ("when
+	 * click popup open if pro is deactivate"). Before this, a locked click
+	 * fell through to plain navigation below, landing on Automate Work
+	 * first and only *then* showing a popup there (Automations.tsx's own
+	 * `automation_template` URL-param effect) — a real, jarring two-step
+	 * "page changes, then something pops up" flow for what should be one
+	 * click, one popup.
 	 */
 	const automationsPanelSlot = useFilterSlot<{ Wizard?: unknown }>(
 		'vulopilot_automations_panel'
 	);
-	const [isAutomationsProPopupOpen, setIsAutomationsProPopupOpen] =
-		useState(false);
 
 	/**
 	 * AutomationTemplatesCard's real home is Automate Work
@@ -387,17 +388,14 @@ const ChatTab: React.FC<ChatTabProps> = ({
 	 * wizard opens already seeded, not a bare redirect to a blank page.
 	 * Automate Work has no `subtab=` of its own since its own redesign
 	 * flattened its previous Overview/Automations two-tab shell into one
-	 * page — nothing left to route to but the page itself. Only reached
-	 * when `automationsPanelSlot.Wizard` is real (Pro's Automations module
-	 * is active) — without it, the popup above opens instead of navigating
-	 * anywhere.
+	 * page — nothing left to route to but the page itself. Only ever
+	 * called for a real, unlocked row now — AutomationTemplatesCard.tsx's
+	 * own content gate replaces its real, clickable list with an inert
+	 * dummy one (and its own popup) whenever this same
+	 * `automationsPanelSlot.Wizard` check (or the login/Pro tiers above it)
+	 * is locked, so this function is never reached in that case.
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
-		if (!automationsPanelSlot?.Wizard) {
-			setIsAutomationsProPopupOpen(true);
-			return;
-		}
-
 		window.location.href = `${appLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
 	};
 
@@ -688,20 +686,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						<ShowProPopup />
 					)}
 				</PopupComponent>
-				{/* handleSelectAutomationTemplate()'s own click gate — see that function's own docblock. */}
-				<PopupComponent
-					open={isAutomationsProPopupOpen}
-					onClose={() => setIsAutomationsProPopupOpen(false)}
-					width={31.25}
-					height="auto"
-					position="lightbox"
-				>
-					{appLocalizer.khali_dabba ? (
-						<ShowProPopup moduleName="automations" />
-					) : (
-						<ShowProPopup />
-					)}
-				</PopupComponent>
 				<RecommendedActionsCard onNavigateTab={onNavigateTab} />
 			</ColumnComponent>
 
@@ -709,7 +693,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				<NeedsAttentionCard onNavigateTab={onNavigateTab} />
 				<AutomationTemplatesCard
 					onSelectTemplate={handleSelectAutomationTemplate}
-					showProBadge={!appLocalizer.khali_dabba}
+					isAutomationsActive={!!automationsPanelSlot?.Wizard}
 				/>
 			</ColumnComponent>
 
