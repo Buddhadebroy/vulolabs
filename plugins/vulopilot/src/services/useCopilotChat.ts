@@ -289,12 +289,27 @@ export const useCopilotChat = ( noticeKey: string ) => {
 			.finally( () => setIsLoadingConversation( false ) );
 	};
 
+	/**
+	 * "New Chat" — clears `turns` and drops `conversationId` so the next
+	 * `send()` starts a genuinely new `vulopilot_ai_conversations` row
+	 * server-side (Rest.php's own persist_conversation() only appends to an
+	 * existing conversation when `conversation_id` is sent) instead of
+	 * appending onto whatever thread was active. Purely client-side reset —
+	 * the conversation just left doesn't need a corresponding request:
+	 * it's already been saved turn-by-turn as it happened.
+	 */
+	const startNewConversation = () => {
+		setTurns( [] );
+		setConversationId( null );
+	};
+
 	return {
 		turns,
 		isSending,
 		send,
 		markTurnUndone,
 		loadConversation,
+		startNewConversation,
 		isLoadingConversation,
 		conversationId,
 		isEnabled,

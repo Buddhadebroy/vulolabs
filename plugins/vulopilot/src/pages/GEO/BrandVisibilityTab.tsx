@@ -6,6 +6,7 @@ import {
 	ColumnComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
+	ContainerComponent
 } from '@zyra/components';
 import BrandScoreCard from './BrandScoreCard';
 import SectionedFindingsTab from '../Security/SectionedFindingsTab';
@@ -146,13 +147,19 @@ const BrandVisibilityTab = () => {
 				<>
 					<BrandScoreCard />
 					{AuthorityTrendsCard && <AuthorityTrendsCard />}
-					{CompetitorComparisonCard && <CompetitorComparisonCard />}
-					{KnowledgePanelCard && <KnowledgePanelCard />}
+					<ContainerComponent>
+						<ColumnComponent grid={6} fullHeight>
+							{CompetitorComparisonCard && <CompetitorComparisonCard />}
+						</ColumnComponent>
+						<ColumnComponent grid={6} fullHeight>
+							{KnowledgePanelCard && <KnowledgePanelCard />}
+						</ColumnComponent>
+					</ContainerComponent>
 				</>
 			}
 			footer={
 				<>
-					<NoticeComponent
+					{/* <NoticeComponent
 						type="info"
 						displayPosition="inline-notice"
 						title={__('Why this matters more than backlinks:', 'vulopilot')}
@@ -161,7 +168,7 @@ const BrandVisibilityTab = () => {
 							'vulopilot'
 						)}
 
-					/>
+					/> */}
 					{OffSiteMentionsCard ? (
 						<OffSiteMentionsCard />
 					) : (

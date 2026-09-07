@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { NoticeManager, PopupComponent } from '@zyra/components';
+import { NoticeComponent, NoticeManager, PopupComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import {
 	ButtonInput,
 	SelectInput,
@@ -283,10 +283,10 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				if (!response.ok) {
 					throw new Error(
 						body?.message ||
-							__(
-								'Something went wrong. Please try again.',
-								'vulopilot'
-							)
+						__(
+							'Something went wrong. Please try again.',
+							'vulopilot'
+						)
 					);
 				}
 
@@ -343,9 +343,9 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 					message: response?.success
 						? __('Applied — the change is now live.', 'vulopilot')
 						: __(
-								'Could not apply this change. Please try again.',
-								'vulopilot'
-							),
+							'Could not apply this change. Please try again.',
+							'vulopilot'
+						),
 				});
 
 				if (response?.success) {
@@ -416,9 +416,9 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				: 'media-picker' === field.type
 					? mediaOptions
 					: duplicateFindings.map((finding) => ({
-							value: String(finding.id),
-							label: finding.title,
-						}));
+						value: String(finding.id),
+						label: finding.title,
+					}));
 
 		// An empty dropdown with no explanation reads as broken — real for
 		// 'duplicate-finding-picker' especially, since (unlike post/media
@@ -433,18 +433,18 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				<p className="desc content-tool-empty-picker">
 					{'duplicate-finding-picker' === field.type
 						? __(
-								"No duplicate titles found. This only lists published posts/pages that currently share the exact same title — most sites never trigger it, and it's not a sign anything is broken. If you expect one here, run a scan under SEO & Visibility → SEO first (DuplicateContentScanner needs a completed scan to have flagged it).",
-								'vulopilot'
-							)
+							"No duplicate titles found. This only lists published posts/pages that currently share the exact same title — most sites never trigger it, and it's not a sign anything is broken. If you expect one here, run a scan under SEO & Visibility → SEO first (DuplicateContentScanner needs a completed scan to have flagged it).",
+							'vulopilot'
+						)
 						: 'media-picker' === field.type
 							? __(
-									'No images found in the Media Library yet — upload one first.',
-									'vulopilot'
-								)
+								'No images found in the Media Library yet — upload one first.',
+								'vulopilot'
+							)
 							: __(
-									'No posts or pages found yet — create one first.',
-									'vulopilot'
-								)}
+								'No posts or pages found yet — create one first.',
+								'vulopilot'
+							)}
 				</p>
 			);
 		}
@@ -472,118 +472,14 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			open={Boolean(tool)}
 			onClose={onClose}
 			width={31.25}
-			height="auto"
-			position="lightbox"
-		>
-			<div className="content-tool-popup">
-				<div className="content-tool-popup-header">
-					<span
-						className={`content-tool-popup-icon icon-${tool.color}`}
-					>
-						<i className={`adminfont-${tool.icon}`} />
-					</span>
-					<div>
-						<div className="content-tool-popup-title">
-							{tool.title}
-						</div>
-						<div className="desc">{tool.desc}</div>
-					</div>
-				</div>
-
-				<div className="content-tool-popup-body">
-					{'input' === step && (
-						<>
-							{hasProductPicker && (
-								<div className="content-tool-field content-tool-product-picker">
-									<label htmlFor="_product_picker">
-										{__(
-											'Or pick an existing product (optional)',
-											'vulopilot'
-										)}
-									</label>
-									<SelectInput
-										type="single-select"
-										name="_product_picker"
-										value={selectedProductId}
-										onChange={(value) =>
-											handlePickProduct(value as string)
-										}
-										placeholder={
-											products.length > 0
-												? __(
-														'Select a product…',
-														'vulopilot'
-													)
-												: __(
-														'No products found',
-														'vulopilot'
-													)
-										}
-										options={products.map((product) => ({
-											value: String(product.id),
-											label: product.name,
-										}))}
-										isClearable={false}
-									/>
-								</div>
-							)}
-
-							{tool.fields.map((field) => (
-								<div
-									className="content-tool-field"
-									key={field.key}
-								>
-									<label htmlFor={field.key}>
-										{field.label}
-									</label>
-									{renderField(field)}
-								</div>
-							))}
-						</>
-					)}
-
-					{'loading' === step && (
-						<div className="content-tool-loading">
-							<i className="adminfont-refresh content-tool-spinner" />
-							<div className="desc">
-								{__('Generating with AI…', 'vulopilot')}
-							</div>
-						</div>
-					)}
-
-					{'error' === step && (
-						<div className="content-tool-error">
-							<i className="adminfont-error" />
-							{errorMessage}
-						</div>
-					)}
-
-					{'preview' === step && preview && (
-						<div className="content-tool-preview">
-							<div className="content-tool-preview-title">
-								{preview.title}
-							</div>
-							{null !== preview.before && (
-								<>
-									<div className="content-tool-preview-label">
-										{__('Before', 'vulopilot')}
-									</div>
-									<div className="content-tool-preview-before">
-										{preview.before}
-									</div>
-								</>
-							)}
-							<div className="content-tool-preview-label">
-								{__('After', 'vulopilot')}
-							</div>
-							<div className="content-tool-preview-after">
-								{preview.after}
-							</div>
-						</div>
-					)}
-				</div>
-
-				<div className="content-tool-popup-footer">
+			height="50%"
+			header={{
+				title: tool.title,
+				icon: tool.icon,
+				description: tool.desc,
+			}}
+			footer={
+				<>
 					{'input' === step && (
 						<ButtonInput
 							buttons={{
@@ -600,7 +496,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						<ButtonInput
 							buttons={{
 								text: __('Try again', 'vulopilot'),
-								color: 'border-purple',
+								color: 'border-red',
 								onClick: () => setStep('input'),
 							}}
 						/>
@@ -611,7 +507,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 							<ButtonInput
 								buttons={{
 									text: __('Reject', 'vulopilot'),
-									color: 'border-purple',
+									color: 'border-red',
 									onClick: handleReject,
 									disabled: isBusy,
 								}}
@@ -626,8 +522,97 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 							/>
 						</>
 					)}
-				</div>
-			</div>
+				</>
+			}
+		>
+			<>
+				{'input' === step && (
+					<>
+						{hasProductPicker && (
+							<div className="content-tool-field content-tool-product-picker">
+								<label htmlFor="_product_picker">
+									{__(
+										'Or pick an existing product (optional)',
+										'vulopilot'
+									)}
+								</label>
+								<SelectInput
+									type="single-select"
+									name="_product_picker"
+									value={selectedProductId}
+									onChange={(value) =>
+										handlePickProduct(value as string)
+									}
+									placeholder={
+										products.length > 0
+											? __(
+												'Select a product…',
+												'vulopilot'
+											)
+											: __(
+												'No products found',
+												'vulopilot'
+											)
+									}
+									options={products.map((product) => ({
+										value: String(product.id),
+										label: product.name,
+									}))}
+									isClearable={false}
+								/>
+							</div>
+						)}
+						<FormGroupWrapperComponent>
+						{tool.fields.map((field) => (
+							<FormGroupComponent label={field.label}>
+								{renderField(field)}
+							</FormGroupComponent >
+						))}
+						</FormGroupWrapperComponent>
+					</>
+				)}
+
+				{'loading' === step && (
+					<div className="content-tool-loading">
+						<i className="adminfont-refresh content-tool-spinner" />
+						<div className="desc">
+							{__('Generating with AI…', 'vulopilot')}
+						</div>
+					</div>
+				)}
+
+				{'error' === step && (
+					<NoticeComponent
+						displayPosition="inline-notice"
+						type="error"
+						message={errorMessage}
+					/>
+				)}
+
+				{'preview' === step && preview && (
+					<div className="content-tool-preview">
+						<div className="content-tool-preview-title">
+							{preview.title}
+						</div>
+						{null !== preview.before && (
+							<>
+								<div className="content-tool-preview-label">
+									{__('Before', 'vulopilot')}
+								</div>
+								<div className="content-tool-preview-before">
+									{preview.before}
+								</div>
+							</>
+						)}
+						<div className="content-tool-preview-label">
+							{__('After', 'vulopilot')}
+						</div>
+						<div className="content-tool-preview-after">
+							{preview.after}
+						</div>
+					</div>
+				)}
+			</>
 		</PopupComponent>
 	);
 };

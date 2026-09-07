@@ -484,7 +484,7 @@ const SlowPagesTab = () => {
 
 	if (error) {
 		return (
-			<ContainerComponent general>
+			<ContainerComponent>
 				<ColumnComponent>
 					<CardComponent title={__( 'Slow Pages', 'vulopilot' )} titleIcon="error">
 						<ModuleGuardComponent
@@ -501,7 +501,7 @@ const SlowPagesTab = () => {
 	}
 
 	return (
-		<>
+		<ContainerComponent>
 			<ColumnComponent grid={8}>
 				{/* <p className="page-speed-intro">
 					{__(
@@ -978,7 +978,7 @@ const SlowPagesTab = () => {
 					}
 				/>
 			</ColumnComponent>
-		</>
+		</ContainerComponent>
 	);
 };
 

@@ -140,6 +140,7 @@ const Settings = () => {
 				Link={ Link }
 				settingName="Settings"
 				className="vulocart-settings"
+				menuIcon
 			/>
 		</SettingProvider>
 	);

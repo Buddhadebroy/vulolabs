@@ -141,13 +141,28 @@ const ChatComposerCard = <TTurn,>({
 			</div>
 		);
 
+	// Every real composer here is a `ChatInput` whose own textarea handles
+	// Enter-to-send — without this, a page-level `keydown` listener above
+	// this card (e.g. a global hotkey) sees that same Enter bubble past the
+	// textarea and can fire too. Bubble-phase (not capture) on purpose:
+	// capture fires top-down *before* the event reaches ChatInput's own
+	// textarea, so stopping it there would swallow the textarea's own
+	// Enter-to-send handler before it ever runs — this lets that listener
+	// fire first, then blocks it from reaching anything above this point.
+	// Lives here once rather than in every `composer` prop's own JSX (each
+	// consumer building one used to hand-wrap it identically).
+	const wrappedComposer = (
+		// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element.
+		<div onKeyDown={(e) => e.stopPropagation()}>{composer}</div>
+	);
+
 	const body = (
 		<>
 			{header}
-			{'before-turns' === composerPosition && composer}
+			{'before-turns' === composerPosition && wrappedComposer}
 			{turnsBlock}
 			{beforeComposer}
-			{'after-turns' === composerPosition && composer}
+			{'after-turns' === composerPosition && wrappedComposer}
 			{prompts}
 			{note}
 		</>
