@@ -240,7 +240,7 @@ const ContentToolsGrid = () => {
 			id="content-tools-grid"
 			className="ai-card"
 			title={__('Content Tools', 'vulopilot')}
-			titleIcon='ai'
+			titleIcon='tools'
 			desc={__('AI tools to help you create and improve content.', 'vulopilot')}
 		>
 			<ListComponent

@@ -850,11 +850,12 @@
 	}
 }
 
-// ChatTab.tsx's real "View/Edit …" link, shown when a chat message actually
-// created and saved a new post (generate-blog/generate-landing-page/
-// generate-product-description) — same rules as CreateContent.scss's own
-// .content-assistant-created-link*, duplicated locally rather than
-// cross-imported from that page's stylesheet.
+// CopilotTurnBubble.tsx's real "View/Edit …" link, shown when a chat
+// message actually created and saved a new post (generate-blog/
+// generate-landing-page/generate-product-description) — shared by every
+// real `CopilotTurnBubble` consumer (ChatTab.tsx, GEO's own composer,
+// AiContentAssistantSidebar.tsx), so this is the only place these rules
+// need to live.
 .copilot-created-link {
 	margin-top: 0.5rem;
 }
