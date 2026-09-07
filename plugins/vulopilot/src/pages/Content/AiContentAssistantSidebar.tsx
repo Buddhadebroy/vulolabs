@@ -4,8 +4,7 @@ import axios from 'axios';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
-import { ChatMarkdown } from '../../components/ChatMarkdown';
-import { ChatInput, ChatMessage, AiChatCard } from '../../components/ChatComposerCard';
+import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 
 interface ChatLink {
 	url: string;
@@ -237,9 +236,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	return (
-		<AiChatCard<ChatTurn>
-			cardTitle={__('AI Content Assistant', 'vulopilot')}
-			cardTitleIcon="edit"
+		<AiChatCard
 			emptyDesc={sprintf(
 				/* translators: %s: the real logged-in WP user's own display name */
 				__(
@@ -252,24 +249,7 @@ const AiContentAssistantSidebar = () => {
 			onSelectPrompt={handleSelectPrompt}
 			turns={turns}
 			renderTurn={(turn, index) => (
-				<ChatMessage
-					key={index}
-					sender={'user' === turn.role ? 'user' : 'ai'}
-				>
-					<ChatMarkdown text={turn.content} />
-					{turn.link && (
-						<div className="content-assistant-created-link">
-							<a
-								className="content-assistant-created-link-anchor"
-								href={turn.link.url}
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{turn.link.label}
-							</a>
-						</div>
-					)}
-				</ChatMessage>
+				<CopilotTurnBubble key={index} turn={turn} />
 			)}
 			isSending={isSending}
 			sendingSpinnerClassName="content-assistant-spinner"

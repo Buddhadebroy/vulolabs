@@ -22,11 +22,14 @@ type SettingNode = {
 	type: 'folder' | 'file';
 	content: SettingNode[] | any;
 	folderPriority?: number;
+	/** Same field name each file's own `content.headerIcon` already uses — read from that folder's own `FolderPriority.ts` (parallel to `priority`) so the top-level tab bar's folder tabs (General/Integrations/Commerce) get a real `menuIcon` icon too, not just standalone files like Advanced.ts. */
+	headerIcon?: string;
 };
 
 const importAll = ( inpContext: any ): SettingNode[] => {
 	const folderStructure: SettingNode[] = [];
 	const folderPriorityMap: Record< string, number > = {};
+	const folderIconMap: Record< string, string > = {};
 
 	inpContext.keys().forEach( ( key: string ) => {
 		if ( key.endsWith( 'FolderPriority.ts' ) ) {
@@ -36,6 +39,9 @@ const importAll = ( inpContext: any ): SettingNode[] => {
 			const priorityData = inpContext( key )?.default;
 			if ( priorityData && typeof priorityData.priority === 'number' ) {
 				folderPriorityMap[ folderPath ] = priorityData.priority;
+			}
+			if ( priorityData && typeof priorityData.headerIcon === 'string' ) {
+				folderIconMap[ folderPath ] = priorityData.headerIcon;
 			}
 		}
 	} );
@@ -72,6 +78,7 @@ const importAll = ( inpContext: any ): SettingNode[] => {
 					type: 'folder',
 					content: [],
 					folderPriority: folderPriorityMap[ fullPath ],
+					headerIcon: folderIconMap[ fullPath ],
 				};
 				currentFolder.push( folderObject );
 			}

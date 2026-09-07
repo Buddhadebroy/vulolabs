@@ -86,9 +86,9 @@ export const useRunScan = ({ categories, onSuccess }: UseRunScanOptions = {}) =>
 	};
 
 	const runScanButton = {
-		label: isScanning ? __('Scanning…', 'vulopilot') : __('Run scan', 'vulopilot'),
+		// label: isScanning ? __('Scanning…', 'vulopilot') : __('Run scan', 'vulopilot'),
 		icon: 'search',
-		color: 'purple-bg',
+		color: 'purple',
 		onClick: runScan,
 	};
 

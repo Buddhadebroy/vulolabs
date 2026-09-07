@@ -141,7 +141,6 @@ const Reports = () => {
 					`?page=vulopilot#&tab=reports&subtab=${subTab}`
 				}
 				Link={Link}
-				variant="tab"
 			/>
 		</>
 	);

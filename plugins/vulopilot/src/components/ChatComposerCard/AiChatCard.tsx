@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
-import { ListComponent } from '@zyra/components';
+import { BadgeComponent, ListComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import ChatComposerCard from './ChatComposerCard';
 import aiImage from '../../assets/images/ai.png';
 
@@ -18,8 +19,12 @@ export interface AiChatCardProps<TTurn> {
 	cardTitle: ReactNode;
 	cardTitleIcon?: string;
 	cardDesc?: ReactNode;
-	/** e.g. AI Copilot's own "Chat History" button — omit for a composer with no card-level action. */
-	cardAction?: ReactNode;
+	/** Shows the "PRO" badge next to the card header — the same convention StoreIntelligenceSummaryCard.tsx/AiSalesOptimizerCard.tsx already use for a Pro-gated card, matching AI Copilot's own real "Chat with VuloPilot is Pro" gate (useCopilotChat.ts's own docblock). Omit/`false` for a composer with no Pro gate. */
+	showProBadge?: boolean;
+	/** Renders a real "Chat History" button in the card header — omit for a composer with no conversation history to show (only AI Copilot's own Chat tab has one today). */
+	onOpenHistoryPopup?: () => void;
+	/** Renders a real "New Chat" button in the card header, right next to "Chat History" — resets the current conversation (e.g. useCopilotChat.ts's own `startNewConversation()`). Omit for a composer with no conversation to reset. */
+	onNewChat?: () => void;
 	emptyTitle?: ReactNode;
 	emptyDesc?: ReactNode;
 	/** Suggested-prompt pills, rendered right below the empty-state text (only while `turns` is empty) — clicking one calls `onSelectPrompt(prompt.title)`. Omit/pass `[]` for a composer with no prompt grid. */
@@ -52,7 +57,14 @@ export interface AiChatCardProps<TTurn> {
  * prompts nested inside it, shown only before the first real turn — not
  * a separate always-visible slot), and the chip-grid prompt pills —
  * `.ai-card`/`.chip-grid` in ChatComposerCard.scss already style all of
- * this identically for every consumer.
+ * this identically for every consumer. The header's own "PRO" badge/
+ * "New Chat"/"Chat History" buttons (previously each hand-built via
+ * `ChatComposerCard`'s generic `cardAction` slot) now live here too, real
+ * props (`showProBadge`/`onNewChat`/`onOpenHistoryPopup`) rather than
+ * freeform JSX — AI Copilot's Chat tab is still the only real consumer of
+ * any of them today, but any future composer with the same Pro gate/
+ * reset/history popup gets all three for free instead of re-assembling
+ * this exact badge+button set.
  *
  * Turn rendering stays a `renderTurn` callback rather than being folded
  * in here too: `CopilotTurnBubble` (this folder's own component) is the
@@ -66,11 +78,13 @@ export interface AiChatCardProps<TTurn> {
 const AiChatCard = <TTurn,>({
 	guarded = true,
 	sendingAvatarIcon = 'person',
-	cardClassName,
-	cardTitle,
+	cardClassName = 'ai-copilot-main-chat',
+	cardTitle = 'Chat with VuloPilot',
 	cardTitleIcon = 'ai',
-	cardDesc,
-	cardAction,
+	cardDesc = 'Ask anything about your website, performance, security, content and more.',
+	showProBadge = false,
+	onOpenHistoryPopup,
+	onNewChat,
 	emptyTitle = __('How can I help you today?', 'vulopilot'),
 	emptyDesc,
 	prompts = [],
@@ -91,7 +105,35 @@ const AiChatCard = <TTurn,>({
 		cardTitle={cardTitle}
 		cardTitleIcon={cardTitleIcon}
 		cardDesc={cardDesc}
-		cardAction={cardAction}
+		cardAction={
+			(showProBadge || onNewChat || onOpenHistoryPopup) && (
+				<>
+					{showProBadge && (
+						<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
+					)}
+					{onNewChat && (
+						<ButtonInput
+							buttons={{
+								text: __('New Chat', 'vulopilot'),
+								leftIcon: 'plus',
+								color: 'text-purple',
+								onClick: onNewChat,
+							}}
+						/>
+					)}
+					{onOpenHistoryPopup && (
+						<ButtonInput
+							buttons={{
+								text: __('Chat History', 'vulopilot'),
+								leftIcon: 'clock',
+								color: 'purple',
+								onClick: onOpenHistoryPopup,
+							}}
+						/>
+					)}
+				</>
+			)
+		}
 		emptyState={
 			<div className="chat-empty-state">
 				<img className="chat-empty-state-image" src={aiImage} alt="" />

@@ -1,5 +1,16 @@
 @use '../../components/config' as *;
 
+// start
+.content-quality-overview-wrapper{
+	display: flex;
+	gap: 1rem;
+	.content-quality-overview,
+	.analytics-container{
+		width: 50%;
+	}
+}
+// end
+
 // Named colors shared by RecentContentCard.tsx's row icons and
 // ContentToolPopup.tsx's own icon (icon-purple/green/blue/orange/red/
 // indigo/teal/pink) — matches ContentToolsGrid.tsx's own CONTENT_TOOLS
@@ -64,11 +75,6 @@ $content-tool-colors: (
 	display: flex;
 	flex-direction: column;
 	gap: 1.25rem;
-}
-
-.content-quality-overview-wrapper{
-	display: flex;
-	gap: 1rem;
 }
 .content-quality-overview {
 	display: flex;
@@ -405,34 +411,6 @@ $content-tool-colors: (
 .content-assistant-spinner {
 	display: inline-block;
 	animation: content-tool-spin 1s linear infinite;
-}
-
-// AiContentAssistantSidebar.tsx's real "View/Edit …" link, shown when a
-// chat message actually created and saved a new post (generate-blog/
-// generate-landing-page/generate-product-description).
-.content-assistant-created-link {
-	margin-top: 0.5rem;
-}
-
-.content-assistant-created-link-anchor {
-	display: inline-flex;
-	align-items: center;
-	font-weight: 600;
-	color: $theme-color;
-	text-decoration: underline;
-}
-
-.content-tool-error {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.5rem;
-	color: #dc2626;
-	background: color-mix(in srgb, #dc2626 8%, transparent);
-	border: 1px solid color-mix(in srgb, #dc2626 20%, transparent);
-	padding: 0.75rem 0.875rem;
-	border-radius: 0.5rem;
-	font-size: 0.85rem;
-	margin: 0;
 }
 
 .content-tool-preview {
