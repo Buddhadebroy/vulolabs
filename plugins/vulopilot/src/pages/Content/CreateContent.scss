@@ -198,6 +198,7 @@ $content-tool-colors: (
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	justify-content: end;
 	gap: 0.625rem;
 	margin-bottom: 1rem;
 }

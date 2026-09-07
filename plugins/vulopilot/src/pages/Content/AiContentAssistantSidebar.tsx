@@ -235,6 +235,36 @@ const AiContentAssistantSidebar = () => {
 		}
 	};
 
+	/**
+	 * "New Chat" — this composer has no server-side conversation entity to
+	 * reset (see this file's own docblock: `turns` is client-side-only,
+	 * sent back as plain `history` on every call), so starting fresh is
+	 * just clearing everything local: the running turns, whatever's typed,
+	 * and a still-unanswered chip question.
+	 */
+	const handleNewChat = () => {
+		setTurns([]);
+		setMessage('');
+		setPendingChip(null);
+	};
+
+	/**
+	 * "Chat History" — unlike AI Copilot's own per-conversation popup, this
+	 * composer has no `vulopilot_ai_conversations` row to reopen a past
+	 * thread from (this file's own docblock). What IS real: every message
+	 * that actually creates content runs through the same
+	 * `ContentCreationOrchestrator` AI Copilot's own content-creation turns
+	 * do (ContentAssistant.php), which logs a real `vulopilot_ai_action_runs`
+	 * row/activity-log "change" event — exactly what Reports → History's
+	 * own "Change" filter (HistoryTab.tsx, moved there from AI Copilot)
+	 * already lists. So "Chat History" here is a real navigation to that
+	 * existing report rather than a reopen-this-thread popup — there's
+	 * nothing to reopen, but there's real history to see.
+	 */
+	const handleOpenHistory = () => {
+		window.location.href = '?page=vulopilot#&tab=reports&subtab=history';
+	};
+
 	return (
 		<AiChatCard
 			emptyDesc={sprintf(
@@ -247,6 +277,8 @@ const AiContentAssistantSidebar = () => {
 			)}
 			prompts={PROMPT_CHIPS}
 			onSelectPrompt={handleSelectPrompt}
+			onNewChat={handleNewChat}
+			onOpenHistoryPopup={handleOpenHistory}
 			turns={turns}
 			renderTurn={(turn, index) => (
 				<CopilotTurnBubble key={index} turn={turn} />
