@@ -712,7 +712,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 				<NeedsAttentionCard onNavigateTab={onNavigateTab} />
 				<AutomationTemplatesCard
 					onSelectTemplate={handleSelectAutomationTemplate}
-					showProBadge={!automationsPanelSlot?.Wizard}
+					showProBadge={!appLocalizer.khali_dabba}
 				/>
 			</ColumnComponent>
 
