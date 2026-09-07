@@ -53,17 +53,16 @@ const RunScanHeaderExtra = ({
 				<ButtonInput
 					buttons={[
 						{
-							// text:
-							// 	!isScanning && label ? label : runScanButton.label,
+							text:
+								!isScanning && label ? label : runScanButton.label,
 							icon: runScanButton.icon,
 							color: runScanButton.color,
-							tooltip: !isScanning && label ? label : runScanButton.label,
 							onClick: runScanButton.onClick,
 						},
 						{
 							text: '',
 							icon: 'setting',
-							color: 'purple icon',
+							color: 'text-purple icon',
 							tooltip: __('Scan settings', 'vulopilot'),
 							onClick: () => {
 								window.location.href = `?page=vulopilot#&tab=settings&subtab=${settingsSubtab}`;

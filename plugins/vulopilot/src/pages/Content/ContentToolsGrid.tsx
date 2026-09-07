@@ -247,8 +247,20 @@ const ContentToolsGrid = () => {
 				className="tool-grid"
 				items={CONTENT_TOOLS.map((tool) => ({
 					id: tool.id,
-					icon: tool.icon,
-					className: `icon-${tool.color}`,
+					// "<adminfont name> <$color-palette key>" — same
+					// icon-name-plus-palette-key convention MetricsGrid.tsx/
+					// SecurityMetricsGrid.tsx already use: the extra word
+					// isn't part of the icon name, it's zyra's own real,
+					// already-compiled `.{color}` global utility class
+					// (theme/src/common.scss's `@each $name, $style in
+					// $color-palette` loop) tacked on via IconComponent's
+					// className string. Replaces a custom `icon-${tool.color}`
+					// class this card used to set — that class landed on the
+					// whole list-item row (ListComponent's own `item.className`
+					// slot), not the icon, and had no matching CSS rule
+					// anywhere in this codebase either way, so it never
+					// painted anything.
+					icon: `${tool.icon} ${tool.color}`,
 					title: tool.title,
 					desc: tool.desc,
 					tags: <i className="adminfont-arrow-right" />,

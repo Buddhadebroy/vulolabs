@@ -1,5 +1,19 @@
 @use '../../components/config' as *;
 
+// The green/orange/red used throughout this file for "good"/"attention"/
+// "down" states (#16a34a/#e67a2e/#dc2626) are literal mirrors of zyra's own
+// real global color palette (`$color-palette`'s `green`/`orange`/`red`
+// entries, theme/src/global.scss) — not invented one-off values. They stay
+// as plain hex rather than a Sass variable reference because that palette
+// map is zyra's own internal source; `@multivendorx/zyra`'s published
+// package ships only compiled build output (no .scss source, see its own
+// package.json `files`), so this plugin's SCSS has no `@use`-able map or
+// CSS custom property to point at instead — same reasoning documented
+// where CreateContent.scss's own is-green/is-orange/is-red rules mirror the
+// same 3 values. ($color-success, config.scss's own attempt at a reusable
+// token here, resolves to `var(--color-success)` — a custom property zyra
+// never actually defines anywhere, so it renders as nothing; not used here
+// for that reason.)
 .ai-analyst-execute {
 	display: inline-flex;
 	align-items: center;
@@ -164,7 +178,7 @@
 	}
 
 	&.is-good {
-		background: #eafaf0;
+		background: color-mix(in srgb, #16a34a 14%, transparent);
 
 		i {
 			color: #16a34a;
@@ -455,7 +469,7 @@
 
 	&.is-good {
 		color: #16a34a;
-		background: #eafaf0;
+		background: color-mix(in srgb, #16a34a 14%, transparent);
 	}
 
 	&.is-attention {

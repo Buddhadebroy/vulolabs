@@ -925,7 +925,6 @@ const RecentContentCard = () => {
 						label: __('Actions', 'vulopilot'),
 						render: (row: ContentRow) => (
 							<ButtonInput
-								wrapperClass="recent-content-row-actions"
 								buttons={[
 									{
 										text: __('Edit', 'vulopilot'),
