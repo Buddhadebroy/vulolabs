@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, type ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
@@ -24,6 +24,7 @@ import {
 	formatAffected,
 	FindingGroup,
 } from './issuesTypes';
+import './IssueDetailPanel.scss';
 
 interface FixOutcome {
 	success: boolean;
@@ -134,6 +135,16 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 }) => {
 	const [isBusy, setIsBusy] = useState(false);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	/**
+	 * Separate from `isProPopupOpen` above (that one is scoped to the
+	 * "Fix with AI" button specifically, and can branch to a
+	 * `moduleName="one-click-fix"` popup even while Pro itself is active) —
+	 * this one only ever opens from the "Example finding"/"Affected items"
+	 * blur below, which only ever gates on the Pro plugin being active at
+	 * all (`appLocalizer.khali_dabba`), so it always shows the generic
+	 * upgrade pitch, never a per-module one.
+	 */
+	const [isDetailProPopupOpen, setIsDetailProPopupOpen] = useState(false);
 	const [affectedItems, setAffectedItems] = useState<FindingRow[] | null>(
 		null
 	);
@@ -190,6 +201,62 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			</CardComponent>
 		);
 	}
+
+	/**
+	 * "Example finding", "Affected items"/"Affected endpoints", and the
+	 * Fix with AI/Resolve all/Ignore all action row below are all real,
+	 * per-site detail/actions — a Pro feature, per direct instruction. The
+	 * data itself still loads and renders normally either way (same "blur
+	 * the real thing in place" idiom useContentGate.tsx's own VuloCloud
+	 * check already uses); this only decides whether it's shown plainly or
+	 * blurred behind a "Pro" tag (with the buttons themselves inert
+	 * underneath the blur — `pointer-events: none`, same as the other two
+	 * gated sections — so the whole-box overlay is the only click target).
+	 * Deliberately just `khali_dabba` (the Pro plugin active at all) and
+	 * not a specific module id — this same panel is shared by
+	 * Security/Performance/GEO/Content/AI Assistant's own issue tables, no
+	 * single module id would even apply to all of them. `handleFix` below
+	 * still keeps its own, separate `one-click-fix`-module check
+	 * (`isProPopupOpen`) as defense-in-depth for the one edge case this
+	 * gate can't see — Pro active overall but that one cardless module
+	 * specifically toggled off — though the overlay below already blocks
+	 * every click while Pro itself is inactive, before that handler is
+	 * ever reached.
+	 */
+	const isProActive = !!appLocalizer.khali_dabba;
+
+	const renderProGatedSection = (content: ReactNode): ReactNode => {
+		if (isProActive) {
+			return content;
+		}
+
+		return (
+			<div className="issue-detail-pro-gate">
+				<div className="issue-detail-pro-gate-tag">
+					<span className="admin-tag pro-tag">
+						<i className="adminfont-pro-tag" />
+						{__('Pro', 'vulopilot')}
+					</span>
+				</div>
+				<div className="issue-detail-pro-gate-blur" aria-hidden="true">
+					{content}
+				</div>
+				<div
+					className="issue-detail-pro-gate-overlay"
+					role="button"
+					tabIndex={0}
+					aria-label={__('Upgrade to Pro', 'vulopilot')}
+					onClick={() => setIsDetailProPopupOpen(true)}
+					onKeyDown={(e) => {
+						if ('Enter' === e.key || ' ' === e.key) {
+							e.preventDefault();
+							setIsDetailProPopupOpen(true);
+						}
+					}}
+				/>
+			</div>
+		);
+	};
 
 	/**
 	 * The group response only ever carries a `count` + one sample row, not
@@ -411,12 +478,16 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					</FormGroupComponent>
 					{group.sample && (
 						<FormGroupComponent   row label={__('Example finding', 'vulopilot')}>
-							<span className="desc">
-								{group.sample.title}
-							</span>
-							<span className="desc">
-								{group.sample.description}
-							</span>
+							{renderProGatedSection(
+								<>
+									<span className="desc">
+										{group.sample.title}
+									</span>
+									<span className="desc">
+										{group.sample.description}
+									</span>
+								</>
+							)}
 						</FormGroupComponent>
 					)}
 
@@ -448,86 +519,92 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							__('Affected items', 'vulopilot')
 						}
 					>
-						<ListComponent
-							className="mini-card report"
-							loading={isLoadingAffected}
-							items={(affectedItems ?? []).map((row) => ({
-								id: row.id,
-								icon: CATEGORY_ICONS[group.category] ?? 'ai',
-								title: row.title,
-								desc: sprintf(
-									/* translators: 1: affected page/location, 2: formatted detection date */
-									__('%1$s • Detected %2$s', 'vulopilot'),
-									row.page || __('Site-wide', 'vulopilot'),
-									formatWpDate(row.last_seen_at ?? row.created_at)
-								),
-							}))}
-						/>
-						{!isLoadingAffected &&
-							affectedItems &&
-							0 === affectedItems.length && (
-								<span className="desc">
-									{__(
-										'No individual findings could be loaded for this group right now.',
-										'vulopilot'
-									)}
-								</span>
-							)}
-						{!isLoadingAffected &&
-							affectedItems &&
-							group.count > affectedItems.length && (
-								<span className="small desc">
-									{sprintf(
-										/* translators: %d: how many further open findings exist beyond the list shown above */
-										__(
-											'+%d more not shown here — use Resolve all/Ignore all below, or open the Issues table to see every one.',
-											'vulopilot'
+						{renderProGatedSection(
+							<>
+								<ListComponent
+									className="mini-card report"
+									loading={isLoadingAffected}
+									items={(affectedItems ?? []).map((row) => ({
+										id: row.id,
+										icon: CATEGORY_ICONS[group.category] ?? 'ai',
+										title: row.title,
+										desc: sprintf(
+											/* translators: 1: affected page/location, 2: formatted detection date */
+											__('%1$s • Detected %2$s', 'vulopilot'),
+											row.page || __('Site-wide', 'vulopilot'),
+											formatWpDate(row.last_seen_at ?? row.created_at)
 										),
-										group.count - affectedItems.length
+									}))}
+								/>
+								{!isLoadingAffected &&
+									affectedItems &&
+									0 === affectedItems.length && (
+										<span className="desc">
+											{__(
+												'No individual findings could be loaded for this group right now.',
+												'vulopilot'
+											)}
+										</span>
 									)}
-								</span>
-							)}
+								{!isLoadingAffected &&
+									affectedItems &&
+									group.count > affectedItems.length && (
+										<span className="small desc">
+											{sprintf(
+												/* translators: %d: how many further open findings exist beyond the list shown above */
+												__(
+													'+%d more not shown here — use Resolve all/Ignore all below, or open the Issues table to see every one.',
+													'vulopilot'
+												),
+												group.count - affectedItems.length
+											)}
+										</span>
+									)}
+							</>
+						)}
 					</FormGroupComponent>
 				</FormGroupWrapperComponent>
 
-				<ButtonInput
-					position="full-width"
-					buttons={[
-						{
-							text: __('Fix with AI', 'vulopilot'),
-							icon: 'ai',
-							color: 'orange-bg',
-							onClick: handleFix,
-							disabled: isBusy,
-						},
-						{
-							text: __('Resolve all', 'vulopilot'),
-							color: 'border-purple',
-							onClick: () =>
-								handleBulkStatus(
-									'resolved',
-									__(
-										'All findings in this group marked resolved.',
-										'vulopilot'
-									)
-								),
-							disabled: isBusy,
-						},
-						{
-							text: __('Ignore all', 'vulopilot'),
-							color: 'border-red',
-							onClick: () =>
-								handleBulkStatus(
-									'ignored',
-									__(
-										'All findings in this group ignored.',
-										'vulopilot'
-									)
-								),
-							disabled: isBusy,
-						},
-					]}
-				/>
+				{renderProGatedSection(
+					<ButtonInput
+						position="full-width"
+						buttons={[
+							{
+								text: __('Fix with AI', 'vulopilot'),
+								icon: 'ai',
+								color: 'orange-bg',
+								onClick: handleFix,
+								disabled: isBusy,
+							},
+							{
+								text: __('Resolve all', 'vulopilot'),
+								color: 'border-purple',
+								onClick: () =>
+									handleBulkStatus(
+										'resolved',
+										__(
+											'All findings in this group marked resolved.',
+											'vulopilot'
+										)
+									),
+								disabled: isBusy,
+							},
+							{
+								text: __('Ignore all', 'vulopilot'),
+								color: 'border-red',
+								onClick: () =>
+									handleBulkStatus(
+										'ignored',
+										__(
+											'All findings in this group ignored.',
+											'vulopilot'
+										)
+									),
+								disabled: isBusy,
+							},
+						]}
+					/>
+				)}
 			</CardComponent>
 			<PopupComponent
 				open={isProPopupOpen}
@@ -541,6 +618,15 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				) : (
 					<ShowProPopup />
 				)}
+			</PopupComponent>
+			<PopupComponent
+				open={isDetailProPopupOpen}
+				onClose={() => setIsDetailProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup />
 			</PopupComponent>
 		</>
 	);

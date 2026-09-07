@@ -6,6 +6,20 @@ import { AUTOMATION_TEMPLATES, AutomationTemplate } from './automationsTemplates
 interface AutomationsTemplatesCardProps {
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onSelectTemplate: (template: AutomationTemplate) => void;
+	/**
+	 * Real "PRO" tag on this card's own header — same `badges` convention
+	 * StoreIntelligenceSummaryCard.tsx/AiSalesOptimizerCard.tsx already use
+	 * for a Pro-gated card. ChatTab.tsx's own call site drives this off
+	 * `appLocalizer.khali_dabba` (the Pro plugin active at all), per
+	 * direct instruction ("pro plugin on then why pro tag show, i want
+	 * when pro off then pro tag show") — deliberately the overall license
+	 * state, not the more specific `vulopilot_automations_panel` filter
+	 * slot the click behavior below (`onSelectTemplate`) checks, since
+	 * Automations is its own separately-toggled module and can be off
+	 * while Pro itself is on (that combination should still hide this
+	 * tag — only the click-time popup cares about the module specifically).
+	 */
+	showProBadge?: boolean;
 }
 
 /**
@@ -19,11 +33,13 @@ interface AutomationsTemplatesCardProps {
  */
 const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	onSelectTemplate,
+	showProBadge,
 }) => (
 		<div id="create-new-automation-card">
 		<CardComponent
 			title={ __( 'Create new automation', 'vulopilot-pro' ) } titleIcon="analytics"
 			desc={ __( 'Start from a ready-made template instead of building one from scratch.', 'vulopilot-pro' ) }
+			badges={ showProBadge ? [ { text: __( 'PRO', 'vulopilot-pro' ), color: 'purple' } ] : undefined }
 		>
 			<ListComponent
 				className="mini-card report"
