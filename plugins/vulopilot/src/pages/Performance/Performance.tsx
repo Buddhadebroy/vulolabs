@@ -105,7 +105,7 @@ const Performance = () => {
 						label={__('Run Speed Test', 'vulopilot')}
 					/>
 				}
-				className="performance-tabs"
+				className="tabs"
 				settingContent={settingContent}
 				currentSetting={activeTab}
 				getForm={getForm}

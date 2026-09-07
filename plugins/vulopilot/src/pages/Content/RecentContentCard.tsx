@@ -295,6 +295,8 @@ const RecentContentCard = () => {
 	const [deletingId, setDeletingId] = useState<number | null>(null);
 	const [fixingFindingId, setFixingFindingId] = useState<number | null>(null);
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	/** Row pending deletion, shown via the `confirmMode` popup below instead of `window.confirm()`. */
+	const [deleteTarget, setDeleteTarget] = useState<ContentRow | null>(null);
 
 	useEffect(() => {
 		const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
@@ -663,22 +665,18 @@ const RecentContentCard = () => {
 		</div>
 	);
 
+	/** Opens the `confirmMode` popup — the actual delete runs from `handleConfirmDelete` once the user confirms there. */
 	const handleDelete = (row: ContentRow) => {
-		// Same native window.confirm() pattern RedirectsTab.tsx/
-		// AiProvidersPanel.tsx already use for one-off destructive
-		// confirmations, rather than building a bespoke confirm dialog
-		// for a single call site.
-		if (
-			!window.confirm(
-				__(
-					'Move this to trash? You can restore it from Trash afterward.',
-					'vulopilot'
-				)
-			)
-		) {
+		setDeleteTarget(row);
+	};
+
+	const handleConfirmDelete = () => {
+		if (!deleteTarget) {
 			return;
 		}
 
+		const row = deleteTarget;
+		setDeleteTarget(null);
 		setDeletingId(row.id);
 
 		const endpoint =
@@ -854,6 +852,7 @@ const RecentContentCard = () => {
 						'Search by title or source page…',
 						'vulopilot'
 					)}
+					size={20}
 					wrapperClass="recent-content-search"
 				/>
 				<SelectInput
@@ -880,27 +879,22 @@ const RecentContentCard = () => {
 					}))}
 					isClearable={false}
 				/>
-				<TooltipComponent
-					text={SHOW_IGNORED_TOOLTIP}
-					className="recent-content-show-ignored"
+				{/* Own onClick (not a real <label htmlFor>, since MultiCheckboxInput generates its input's id internally) so clicking the visible text toggles the switch too, same as clicking any other checkbox's label would. */}
+				<span
+					className="recent-content-show-ignored-label"
+					onClick={() => setShowIgnored(!showIgnored)}
 				>
-					{/* Own onClick (not a real <label htmlFor>, since MultiCheckboxInput generates its input's id internally) so clicking the visible text toggles the switch too, same as clicking any other checkbox's label would. */}
-					<span
-						className="recent-content-show-ignored-label"
-						onClick={() => setShowIgnored(!showIgnored)}
-					>
-						{SHOW_IGNORED_LABEL}
-					</span>
-					<MultiCheckboxInput
-						look="toggle"
-						modules={[]}
-						options={SHOW_IGNORED_OPTION}
-						value={showIgnored ? ['show-ignored'] : []}
-						onChange={(value) =>
-							setShowIgnored(value.includes('show-ignored'))
-						}
-					/>
-				</TooltipComponent>
+					{SHOW_IGNORED_LABEL}
+				</span>
+				<MultiCheckboxInput
+					look="toggle"
+					modules={[]}
+					options={SHOW_IGNORED_OPTION}
+					value={showIgnored ? ['show-ignored'] : []}
+					onChange={(value) =>
+						setShowIgnored(value.includes('show-ignored'))
+					}
+				/>
 				<ButtonInput
 					buttons={{
 						text: __('Export CSV', 'vulopilot'),
@@ -915,7 +909,7 @@ const RecentContentCard = () => {
 				className="transparent-table"
 				showMenu={false}
 				hideHeader={true}
-				expandable
+				expandOnRowClick
 				headers={{
 					title: {
 						key: 'contentTitle',
@@ -931,7 +925,6 @@ const RecentContentCard = () => {
 						label: __('Actions', 'vulopilot'),
 						render: (row: ContentRow) => (
 							<ButtonInput
-								wrapperClass="recent-content-row-actions"
 								buttons={[
 									{
 										text: __('Edit', 'vulopilot'),
@@ -995,6 +988,27 @@ const RecentContentCard = () => {
 				) : (
 					<ShowProPopup />
 				)}
+			</PopupComponent>
+
+			<PopupComponent
+				open={!!deleteTarget}
+				onClose={() => setDeleteTarget(null)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup
+					confirmMode
+					title={__('Move to Trash', 'vulopilot')}
+					confirmMessage={__(
+						'Move this to trash? You can restore it from Trash afterward.',
+						'vulopilot'
+					)}
+					confirmYesText={__('Move to Trash', 'vulopilot')}
+					confirmNoText={__('Cancel', 'vulopilot')}
+					onConfirm={handleConfirmDelete}
+					onCancel={() => setDeleteTarget(null)}
+				/>
 			</PopupComponent>
 		</CardComponent>
 	);

@@ -466,19 +466,6 @@ const SeoIssuesByPageTable = ({
 							: {}),
 						action: {
 							label: __('Action', 'vulopilot'),
-							// Native `type: 'action'` + `type: 'button'`
-							// actions (TableRowActions.tsx) instead of a
-							// hand-built `<BadgeComponent>` in `render` —
-							// same real Analyze/Fix with AI/Edit/View
-							// actions. Analyze/Fix with AI only apply to some
-							// rows (a finding sub-row has no post of its own
-							// to "Analyze"; a merged page row can legitimately
-							// have zero matching findings for "Fix with AI"
-							// to open) — `hidden` (zyra's own real per-row
-							// action visibility, added for this conversion)
-							// drops them from THIS row's action list
-							// entirely, rather than a disabled/no-op button
-							// standing in for "not applicable here".
 							type: 'action',
 							actions: [
 								{
@@ -493,8 +480,7 @@ const SeoIssuesByPageTable = ({
 										onAnalyze?.(
 											(row as unknown as PageRow).id
 										),
-								},
-								
+								},								
 								{
 									type: 'button',
 									label: __('Edit', 'vulopilot'),
@@ -542,7 +528,7 @@ const SeoIssuesByPageTable = ({
 											handleFixWithAi(typedRow);
 										}
 									},
-								},
+								}
 							],
 						},
 					}}

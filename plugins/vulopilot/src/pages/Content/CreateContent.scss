@@ -11,22 +11,6 @@
 }
 // end
 
-// Named colors shared by RecentContentCard.tsx's row icons and
-// ContentToolPopup.tsx's own icon (icon-purple/green/blue/orange/red/
-// indigo/teal/pink) — matches ContentToolsGrid.tsx's own CONTENT_TOOLS
-// `color` field. Declared here, above every `@each` that references it,
-// since plain Sass variables have no hoisting.
-$content-tool-colors: (
-	'purple': #7c3aed,
-	'green': #16a34a,
-	'blue': #2563eb,
-	'orange': #e67a2e,
-	'red': #dc2626,
-	'indigo': #4f46e5,
-	'teal': #0d9488,
-	'pink': #db2777,
-);
-
 // "Content Stats" (ContentStatsCard.tsx) — real GET /content-intelligence/stats
 // Content Created/Words Generated counts for the selected real period,
 // alongside 2 honest "Not tracked yet" tiles (no historical score/
@@ -132,13 +116,28 @@ $content-tool-colors: (
 	width: 50%;
 }
 
-// Each row is now a real `<NoticeComponent displayPosition="inline-notice">`
-// — its own `type-*` CSS already supplies the tinted background/border/
-// padding/radius (NoticeComponent.scss), so this card only needs to place
-// the status badge it renders as that notice's own trailing child.
-.content-quality-check-badge {
-	flex-shrink: 0;
+// Each row is now a real `ListComponent` item (CheckRow, ContentQualityCard.tsx)
+// rather than a `<NoticeComponent displayPosition="inline-notice">` —
+// `ListComponent` has no built-in per-status tint the way that component's
+// own `type-*` CSS did, so this card restores the same real green/orange/
+// red background itself, keyed off the same `item.className`
+// (`content-quality-check-item is-{green|orange|red}`) CheckRow sets.
+.content-quality-check-item {
+	border-radius: $border-radius-small;
+
+	&.is-green {
+		background: color-mix(in srgb, #16a34a 8%, transparent);
+	}
+
+	&.is-orange {
+		background: color-mix(in srgb, #e67a2e 8%, transparent);
+	}
+
+	&.is-red {
+		background: color-mix(in srgb, #dc2626 8%, transparent);
+	}
 }
+
 
 .content-quality-structure-header {
 	display: flex;
@@ -198,12 +197,8 @@ $content-tool-colors: (
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	justify-content: end;
 	gap: 0.625rem;
-	margin-bottom: 1rem;
-}
-
-.recent-content-search {
-	flex: 1 1 14rem;
 }
 
 // The "Show ignored" toggle — RecentContentCard.tsx renders its own plain
@@ -255,11 +250,7 @@ $content-tool-colors: (
 	}
 }
 // The real propose → preview → approve/reject flow (ContentToolPopup.tsx)
-// every Content Tools/Quick Start tile opens — reuses $content-tool-colors
-// (declared at the top of this file) for its own icon, since
-// `.icon-{color}` on the grid tiles themselves has no CSS anywhere in
-// this codebase today (a separate, pre-existing gap — not this popup's
-// to silently fix).
+// every Content Tools/Quick Start tile opens.
 .content-tool-popup {
 	// PopupComponent's own body has no padding of its own (zyra ships no
 	// CSS at all), so this owns its full layout — header, scrollable
@@ -286,24 +277,6 @@ $content-tool-colors: (
 		margin: 0;
 		color: $sub-text-color;
 		font-size: 0.85rem;
-	}
-}
-
-.content-tool-popup-icon {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	border-radius: 0.75rem;
-	font-size: 1.25rem;
-
-	@each $name, $color in $content-tool-colors {
-		&.icon-#{$name} {
-			color: #{$color};
-			background: color-mix(in srgb, #{$color} 14%, transparent);
-		}
 	}
 }
 

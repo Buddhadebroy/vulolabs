@@ -46,14 +46,14 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 		},
 		{
 			priority: 'medium',
-			colorClass: 'pink',
+			colorClass: 'blue',
 			number: priorityCounts.medium,
 			text: __('Medium', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
 			priority: 'low',
-			colorClass: 'green',
+			colorClass: 'red',
 			number: priorityCounts.low,
 			text: __('Low', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,

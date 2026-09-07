@@ -14,6 +14,7 @@ import {
 	ModuleGuardComponent,
 	NoticeComponent,
 	TooltipComponent,
+	TrendStatComponent,
 } from '@zyra/components';
 import { SelectInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
@@ -77,9 +78,9 @@ interface ScoreSnapshot {
 }
 
 const TREND_DAY_OPTIONS = [
-	{ label: __( 'Last 7 days', 'vulopilot' ), value: '7' },
-	{ label: __( 'Last 30 days', 'vulopilot' ), value: '30' },
-	{ label: __( 'Last 90 days', 'vulopilot' ), value: '90' },
+	{ label: __('Last 7 days', 'vulopilot'), value: '7' },
+	{ label: __('Last 30 days', 'vulopilot'), value: '30' },
+	{ label: __('Last 90 days', 'vulopilot'), value: '90' },
 ];
 
 const PAGE_TYPE_ICONS: Record<string, string> = {
@@ -94,30 +95,30 @@ const PAGE_TYPE_ICONS: Record<string, string> = {
 };
 
 const PAGE_TYPE_LABELS: Record<string, string> = {
-	homepage: __( 'Homepage', 'vulopilot' ),
-	page: __( 'Page', 'vulopilot' ),
-	post: __( 'Post', 'vulopilot' ),
-	shop: __( 'Shop Page', 'vulopilot' ),
-	cart: __( 'Cart Page', 'vulopilot' ),
-	checkout: __( 'Checkout Page', 'vulopilot' ),
-	product: __( 'Product Page', 'vulopilot' ),
-	category: __( 'Category Page', 'vulopilot' ),
+	homepage: __('Homepage', 'vulopilot'),
+	page: __('Page', 'vulopilot'),
+	post: __('Post', 'vulopilot'),
+	shop: __('Shop Page', 'vulopilot'),
+	cart: __('Cart Page', 'vulopilot'),
+	checkout: __('Checkout Page', 'vulopilot'),
+	product: __('Product Page', 'vulopilot'),
+	category: __('Category Page', 'vulopilot'),
 };
 
-const ratingFor = ( score: number | null ): { label: string; className: 'good' | 'needs-improvement' | 'poor' | 'unknown' } => {
-	if ( null === score ) {
-		return { label: __( 'Not scored yet', 'vulopilot' ), className: 'unknown' };
+const ratingFor = (score: number | null): { label: string; className: 'good' | 'needs-improvement' | 'poor' | 'unknown' } => {
+	if (null === score) {
+		return { label: __('Not scored yet', 'vulopilot'), className: 'unknown' };
 	}
 
-	if ( score >= 80 ) {
-		return { label: __( 'Good', 'vulopilot' ), className: 'good' };
+	if (score >= 80) {
+		return { label: __('Good', 'vulopilot'), className: 'good' };
 	}
 
-	if ( score >= 50 ) {
-		return { label: __( 'Needs Improvement', 'vulopilot' ), className: 'needs-improvement' };
+	if (score >= 50) {
+		return { label: __('Needs Improvement', 'vulopilot'), className: 'needs-improvement' };
 	}
 
-	return { label: __( 'Poor', 'vulopilot' ), className: 'poor' };
+	return { label: __('Poor', 'vulopilot'), className: 'poor' };
 };
 
 /** Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — same `ratingFor()`-keyed map PerformanceScoreCard.tsx's own `RATING_COLOR` already uses for its ring tiles, reused here so this table's per-row score ring and that card's own score rings agree on what "good"/"poor" look like. */
@@ -128,8 +129,8 @@ const RATING_RING_COLOR: Record<'good' | 'needs-improvement' | 'poor' | 'unknown
 	unknown: COLOR_PALETTE.gray,
 };
 
-const ScorePill = ( { score }: { score: number | null } ) => {
-	const rating = ratingFor( score );
+const ScorePill = ({ score }: { score: number | null }) => {
+	const rating = ratingFor(score);
 
 	return (
 		<ChartComponent
@@ -138,8 +139,8 @@ const ScorePill = ( { score }: { score: number | null } ) => {
 			color={RATING_RING_COLOR[rating.className]}
 			data={[{ value: score ?? 0 }]}
 			centerLabel={
-				<span className={ `page-speed-score-ring-value ${ rating.className }` }>
-					{ null === score ? '—' : score }
+				<span className={`page-speed-score-ring-value ${rating.className}`}>
+					{null === score ? '—' : score}
 				</span>
 			}
 		/>
@@ -147,20 +148,20 @@ const ScorePill = ( { score }: { score: number | null } ) => {
 };
 
 /** Real byte count → a human string, same MB/KB thresholds browser devtools use. */
-const formatBytes = ( bytes: number | null ): string => {
-	if ( null === bytes ) {
+const formatBytes = (bytes: number | null): string => {
+	if (null === bytes) {
 		return '—';
 	}
 
-	if ( bytes >= 1024 * 1024 ) {
-		return `${ ( bytes / ( 1024 * 1024 ) ).toFixed( 1 ) } MB`;
+	if (bytes >= 1024 * 1024) {
+		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 	}
 
-	if ( bytes >= 1024 ) {
-		return `${ ( bytes / 1024 ).toFixed( 0 ) } KB`;
+	if (bytes >= 1024) {
+		return `${(bytes / 1024).toFixed(0)} KB`;
 	}
 
-	return `${ bytes } B`;
+	return `${bytes} B`;
 };
 
 /**
@@ -197,31 +198,31 @@ const CWV_METRICS = [
  * pages; CrUX only reports once enough real visits exist). Never a
  * fabricated color.
  */
-const CoreWebVitalsDots = ( { row }: { row: PageSpeedRow } ) => (
+const CoreWebVitalsDots = ({ row }: { row: PageSpeedRow }) => (
 	<div className="page-speed-cwv-dots">
-		{ CWV_METRICS.map( ( metric ) => {
-			const rating = row[ metric.ratingKey ];
-			const dotClass = rating ? ( CWV_DOT_CLASS[ rating ] ?? 'unknown' ) : 'unknown';
+		{CWV_METRICS.map((metric) => {
+			const rating = row[metric.ratingKey];
+			const dotClass = rating ? (CWV_DOT_CLASS[rating] ?? 'unknown') : 'unknown';
 
 			return (
 				<span
-					key={ metric.key }
+					key={metric.key}
 					className="page-speed-cwv-item"
 					title={
 						rating
-							? `${ metric.label }: ${ rating }`
-							: `${ metric.label }: ${ __( 'No field data yet', 'vulopilot' ) }`
+							? `${metric.label}: ${rating}`
+							: `${metric.label}: ${__('No field data yet', 'vulopilot')}`
 					}
 				>
-					<span className={ `page-speed-cwv-dot ${ dotClass }` } />
-					<span className="page-speed-cwv-label">{ metric.label }</span>
+					<span className={`page-speed-cwv-dot ${dotClass}`} />
+					<span className="page-speed-cwv-label">{metric.label}</span>
 				</span>
 			);
-		} ) }
+		})}
 	</div>
 );
 
-const csvEscape = ( value: string ): string => `"${ value.replace( /"/g, '""' ) }"`;
+const csvEscape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
 /**
  * "Slow Pages" tab of "Performance" — real per-page speed data from
@@ -346,8 +347,8 @@ const SlowPagesTab = () => {
 	// key was configured — the common case.
 	const avgScore = response?.summary
 		? (hasDeviceScores
-				? response.summary.avg_mobile_score
-				: response.summary.avg_score)
+			? response.summary.avg_mobile_score
+			: response.summary.avg_score)
 		: null;
 	const avgScoreRating = ratingFor(avgScore);
 	const avgLoadTimeMs = response?.summary?.avg_load_time_ms ?? null;
@@ -357,17 +358,11 @@ const SlowPagesTab = () => {
 			? trend[trend.length - 1].performance_score - trend[0].performance_score
 			: null;
 	const isTrendImproving = null !== trendDelta && trendDelta >= 0;
-	// Real latest performance-score snapshot — the "Performance Trend" ring's
-	// own `progress`/fill amount below, so that ring shows an honest current
-	// score level rather than a fabricated percent derived from the delta
-	// (which can be negative or > 100 and has no natural 0-100 reading).
-	const latestTrendScore =
-		trend.length > 0 ? trend[trend.length - 1].performance_score : 0;
 
 	const pageTypeOptions = useMemo(() => {
 		const present = Array.from(new Set(rows.map((row) => row.page_type)));
 		return [
-			{ label: __( 'All Page Types', 'vulopilot' ), value: '' },
+			{ label: __('All Page Types', 'vulopilot'), value: '' },
 			...present.map((type) => ({
 				label: PAGE_TYPE_LABELS[type] ?? type,
 				value: type,
@@ -409,30 +404,19 @@ const SlowPagesTab = () => {
 	const summary = response?.summary ?? null;
 	const topIssues = response?.top_issues ?? [];
 
-	// Real share of scanned pages in each bucket — `AnalyticsComponent`'s own
-	// `variant="score-ring"` ring fill for the Slow/Very Slow tiles below,
-	// same "ring fill = a real 0-100 reading" contract every other
-	// score-ring consumer in this codebase (e.g. BrandScoreCard.tsx's own
-	// `MetricTileComponent` `chart: { type: 'ring' }` tiles) already
-	// follows, rather than a static/no-op ring.
-	const totalScanned = summary?.total ?? 0;
-	const slowPercent =
-		totalScanned > 0 ? Math.round( ( ( summary?.slow ?? 0 ) / totalScanned ) * 100 ) : 0;
-	const verySlowPercent =
-		totalScanned > 0 ? Math.round( ( ( summary?.very_slow ?? 0 ) / totalScanned ) * 100 ) : 0;
 
 	// Fed to TableCard's own `categoryCounts`/`activeCategory` — same
 	// status-filter pills, now rendered by the table itself (`admin-top-filter`)
 	// instead of hand-rolled `<button>`s, same convention IssuesList.tsx's own
 	// TableCard already uses.
 	const statusCategoryCounts = [
-		{ value: 'slow', label: __( 'Slow', 'vulopilot' ), count: statusCounts.slow ?? 0 },
+		{ value: 'slow', label: __('Slow', 'vulopilot'), count: statusCounts.slow ?? 0 },
 		{
 			value: 'needs_improvement',
-			label: __( 'Needs Improvement', 'vulopilot' ),
+			label: __('Needs Improvement', 'vulopilot'),
 			count: statusCounts.needs_improvement ?? 0,
 		},
-		{ value: 'good', label: __( 'Good', 'vulopilot' ), count: statusCounts.good ?? 0 },
+		{ value: 'good', label: __('Good', 'vulopilot'), count: statusCounts.good ?? 0 },
 	];
 
 	const handleExport = () => {
@@ -457,15 +441,15 @@ const SlowPagesTab = () => {
 				row.load_time_ms ?? '',
 				...(hasPsiDetail
 					? [
-							row.page_size_bytes ?? '',
-							row.requests_count ?? '',
-							row.lcp_ms ?? '',
-							row.lcp_rating ?? '',
-							row.inp_ms ?? '',
-							row.inp_rating ?? '',
-							row.cls_thousandths ?? '',
-							row.cls_rating ?? '',
-						]
+						row.page_size_bytes ?? '',
+						row.requests_count ?? '',
+						row.lcp_ms ?? '',
+						row.lcp_rating ?? '',
+						row.inp_ms ?? '',
+						row.inp_rating ?? '',
+						row.cls_thousandths ?? '',
+						row.cls_rating ?? '',
+					]
 					: []),
 				row.main_issue ?? '',
 			];
@@ -486,12 +470,12 @@ const SlowPagesTab = () => {
 		return (
 			<ContainerComponent>
 				<ColumnComponent>
-					<CardComponent title={__( 'Slow Pages', 'vulopilot' )} titleIcon="error">
+					<CardComponent title={__('Slow Pages', 'vulopilot')} titleIcon="error">
 						<ModuleGuardComponent
 							icon="error"
-							title={__( 'Could not load Slow Pages', 'vulopilot' )}
+							title={__('Could not load Slow Pages', 'vulopilot')}
 							desc={error}
-							buttonText={__( 'Retry', 'vulopilot' )}
+							buttonText={__('Retry', 'vulopilot')}
 							onButtonClick={load}
 						/>
 					</CardComponent>
@@ -502,95 +486,69 @@ const SlowPagesTab = () => {
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={8}>
-				{/* <p className="page-speed-intro">
-					{__(
-						'These pages are loading slowly and need your attention.',
-						'vulopilot'
-					)}
-				</p> */}
-
-				<AnalyticsComponent
-					variant="score-ring"
-					cols={2}
-					ringSize={130}
+			<ColumnComponent>
+				<TrendStatComponent
+					cols={4}
 					isLoading={isLoading || isTrendLoading}
-					data={[
+					items={[
 						{
 							icon: 'error',
-							iconClass: 'orange',
-							text: __( 'Slow Pages', 'vulopilot' ),
-							desc: sprintf(
-								/* translators: 1: number of slow pages, 2: total pages scanned. */
-								__( '%1$d of %2$d pages scanned', 'vulopilot' ),
-								summary?.slow ?? 0,
-								totalScanned
-							),
-							number: summary?.slow ?? 0,
-							progress: slowPercent,
-							badgeText: __( 'Needs Improvement', 'vulopilot' ),
-							badgeColor: 'orange',
-							ringColor: COLOR_PALETTE.orange,
+							label: __('Slow Pages', 'vulopilot'),
+							value: summary?.slow ?? 0,
+							badge: { text: __('Needs Improvement', 'vulopilot'), color: 'orange' },
+							color: COLOR_PALETTE.orange,
 						},
 						{
 							icon: 'error',
-							iconClass: 'red',
-							text: __( 'Very Slow Pages', 'vulopilot' ),
-							desc: sprintf(
-								/* translators: 1: number of very slow pages, 2: total pages scanned. */
-								__( '%1$d of %2$d pages scanned', 'vulopilot' ),
-								summary?.very_slow ?? 0,
-								totalScanned
-							),
-							number: summary?.very_slow ?? 0,
-							progress: verySlowPercent,
-							badgeText: __( 'Poor', 'vulopilot' ),
-							badgeColor: 'red',
-							ringColor: COLOR_PALETTE.red,
+							label: __('Very Slow Pages', 'vulopilot'),
+							value: summary?.very_slow ?? 0,
+							badge: { text: __('Poor', 'vulopilot'), color: 'red' },
+							color: COLOR_PALETTE.red,
 						},
 						{
 							icon: 'form-phone',
-							iconClass: RATING_BADGE_COLOR[avgScoreRating.className] || 'gray',
-							text: __( 'Average Load Time', 'vulopilot' ),
-							number:
+							label: __('Average Load Time', 'vulopilot'),
+							value:
 								avgLoadTimeMs !== null
-									? sprintf( __( '%s s', 'vulopilot' ), (avgLoadTimeMs / 1000).toFixed(1) )
+									? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
 									: '—',
-							progress: avgScore ?? 0,
-							badgeText:
+							badge:
 								null !== avgScore
-									? sprintf(
+									? {
+										text: sprintf(
 											/* translators: %s is a rating word like "Good"/"Poor". */
-											__( '%s score', 'vulopilot' ),
+											__('%s score', 'vulopilot'),
 											avgScoreRating.label
-										)
-									: __( 'Not scored yet', 'vulopilot' ),
-							badgeColor: RATING_BADGE_COLOR[avgScoreRating.className],
-							ringColor: RATING_RING_COLOR[avgScoreRating.className],
+										),
+										color: RATING_BADGE_COLOR[avgScoreRating.className],
+									}
+									: { text: __('Not scored yet', 'vulopilot'), color: 'gray' },
+							color: RATING_RING_COLOR[avgScoreRating.className],
 						},
 						{
 							icon: 'check',
-							iconClass: isTrendImproving ? 'green' : 'red',
-							text:
+							label:
 								null !== trendDelta
-									? __( 'Performance Trend', 'vulopilot' )
-									: __( 'Not enough trend data yet', 'vulopilot' ),
-							number:
+									? __('Performance Trend', 'vulopilot')
+									: __('Not enough trend data yet', 'vulopilot'),
+							value:
 								null !== trendDelta
-									? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__( 'pts', 'vulopilot' )}`
+									? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
 									: '—',
-							progress: latestTrendScore,
-							badgeText: null !== trendDelta
-								? ( isTrendImproving
-									? __( 'Improving', 'vulopilot' )
-									: __( 'Declining', 'vulopilot' ) )
+							badge: null !== trendDelta
+								? {
+									text: isTrendImproving
+										? __('Improving', 'vulopilot')
+										: __('Declining', 'vulopilot'),
+									color: isTrendImproving ? 'green' : 'red',
+								}
 								: undefined,
-							badgeColor: isTrendImproving ? 'green' : 'red',
-							ringColor: isTrendImproving ? COLOR_PALETTE.green : COLOR_PALETTE.red,
+							color: isTrendImproving ? COLOR_PALETTE.green : COLOR_PALETTE.red,
 						},
 					]}
 				/>
-
+			</ColumnComponent>
+			<ColumnComponent grid={8}>
 				<NoticeComponent
 					type="info"
 					displayPosition="inline-notice"
@@ -598,7 +556,7 @@ const SlowPagesTab = () => {
 						'Slow pages can hurt user experience and search rankings. Focus on the pages with the lowest scores first for the biggest impact.',
 						'vulopilot'
 					)}
-					actionLabel={`${__( 'Learn more', 'vulopilot' )} ↗`}
+					actionLabel={`${__('Learn more', 'vulopilot')} ↗`}
 					onAction={() =>
 						window.open(
 							'https://web.dev/articles/vitals',
@@ -608,192 +566,192 @@ const SlowPagesTab = () => {
 					}
 				/>
 
-					{0 === filteredRows.length ? (
-						<ModuleGuardComponent
-							icon="document"
-							title={__( 'No pages found', 'vulopilot' )}
-							desc={
-								0 === rows.length
-									? __(
-											'No pages scanned yet — click "Scan Again" to check your real pages\' load times.',
-											'vulopilot'
-										)
-									: __(
-											'No pages match this filter.',
-											'vulopilot'
-										)
-							}
-						/>
-					) : (
-						<TableCard
-							showMenu={false}
-							hideHeader={true}
-							categoryCounts={statusCategoryCounts}
-							activeCategory={statusFilter}
-							search={{ placeholder: __( 'Search pages…', 'vulopilot' ) }}
-							filters={[
-								{
-									key: 'page_type',
-									label: __( 'Page Type', 'vulopilot' ),
-									type: 'select',
-									size: 12,
-									options: pageTypeOptions,
-								},
-							]}
-							buttonActions={[
-								{
-									label: __( 'Export', 'vulopilot' ),
-									icon: 'export',
-									color: 'border-purple',
-									onClick: handleExport,
-								},
-							]}
-							headers={{
-								title: {
-									key: 'title',
-									type: 'info',
-									label: __( 'Page', 'vulopilot' ),
-									width: '60%',
-									iconKey: 'pageTypeIcon',
-									titleLinkKey: 'url',
-									descriptionKey: 'descriptionText',
-									badgesKey: 'pageTypeBadges',
-								},
-								...(hasDeviceScores
-									? {
-											mobile_score: {
-												label: __( 'Mobile Score', 'vulopilot' ),
-												render: (row: PageSpeedRow) => <ScorePill score={row.mobile_score} />,
-											},
-											desktop_score: {
-												label: __( 'Desktop Score', 'vulopilot' ),
-												render: (row: PageSpeedRow) => <ScorePill score={row.desktop_score} />,
-											},
-										}
-									: {
-											score: {
-												label: __( 'Score', 'vulopilot' ),
-												render: (row: PageSpeedRow) => <ScorePill score={row.score} />,
-											},
-										}),
-								load_time_ms: {
-									label: __( 'Load Time', 'vulopilot' ),
-									render: (row: PageSpeedRow) =>
-										null !== row.load_time_ms
-											? sprintf( __( 'Load Time: %s s', 'vulopilot' ), (row.load_time_ms / 1000).toFixed(1) )
-											: '—',
-								},
-								...(hasPsiDetail
-									? {
-											page_size_bytes: {
-												label: (
-													<TooltipComponent
-														text={__( 'Total real page weight (Lighthouse total-byte-weight audit)', 'vulopilot' )}
-													>
-														{__( 'Page Size', 'vulopilot' )}
-													</TooltipComponent>
-												),
-												render: (row: PageSpeedRow) => formatBytes(row.page_size_bytes),
-											},
-											requests_count: {
-												label: (
-													<TooltipComponent
-														text={__( 'Real network requests observed (Lighthouse network-requests audit)', 'vulopilot' )}
-													>
-														{__( 'Requests', 'vulopilot' )}
-													</TooltipComponent>
-												),
-												render: (row: PageSpeedRow) =>
-													null !== row.requests_count ? row.requests_count : '—',
-											},
-											core_web_vitals: {
-												label: (
-													<TooltipComponent
-														text={__( 'Real Chrome UX Report field data: Largest Contentful Paint / Interaction to Next Paint / Cumulative Layout Shift', 'vulopilot' )}
-													>
-														{__( 'Core Web Vitals', 'vulopilot' )}
-													</TooltipComponent>
-												),
-												render: (row: PageSpeedRow) => <CoreWebVitalsDots row={row} />,
-											},
-										}
-									: {}),
-								action: {
-									label: __( 'Action', 'vulopilot' ),
-									// `type: 'more-action'` no longer exists in
-									// @zyra/table — `type: 'action'` now covers
-									// that same single-toggle-button case via a
-									// `type: 'button'` action whose label/icon
-									// are functions of `row` (see that type's
-									// own docblock, TableRowActions.tsx).
-									type: 'action',
-									actions: [
-										{
-											type: 'button',
-											label: (row) =>
-												(row as unknown as PageSpeedRow).id === detailRow?.id
-													? __( 'Showing', 'vulopilot' )
-													: __( 'More Details', 'vulopilot' ),
-											icon: (row) =>
-												(row as unknown as PageSpeedRow).id === detailRow?.id
-													? 'eye'
-													: 'pagination-next-arrow',
-											onClick: (row) => {
-												const pageRow = row as unknown as PageSpeedRow;
-												setDetailRow(
-													pageRow.id === detailRow?.id ? null : pageRow
-												);
-											},
-										},
-									],
-								},
-							}}
-							rows={pageRows.map((row) => ({
-								...row,
-								pageTypeIcon: PAGE_TYPE_ICONS[row.page_type] ?? 'document',
-								descriptionText:
-									row.main_issue ?? __( 'No issues detected', 'vulopilot' ),
-								pageTypeBadges: [
+				{0 === filteredRows.length ? (
+					<ModuleGuardComponent
+						icon="document"
+						title={__('No pages found', 'vulopilot')}
+						desc={
+							0 === rows.length
+								? __(
+									'No pages scanned yet — click "Scan Again" to check your real pages\' load times.',
+									'vulopilot'
+								)
+								: __(
+									'No pages match this filter.',
+									'vulopilot'
+								)
+						}
+					/>
+				) : (
+					<TableCard
+						showMenu={false}
+						hideHeader={true}
+						categoryCounts={statusCategoryCounts}
+						activeCategory={statusFilter}
+						search={{ placeholder: __('Search pages…', 'vulopilot') }}
+						filters={[
+							{
+								key: 'page_type',
+								label: __('Page Type', 'vulopilot'),
+								type: 'select',
+								size: 12,
+								options: pageTypeOptions,
+							},
+						]}
+						buttonActions={[
+							{
+								label: __('Export', 'vulopilot'),
+								icon: 'export',
+								color: 'border-purple',
+								onClick: handleExport,
+							},
+						]}
+						headers={{
+							title: {
+								key: 'title',
+								type: 'info',
+								label: __('Page', 'vulopilot'),
+								width: '60%',
+								iconKey: 'pageTypeIcon',
+								titleLinkKey: 'url',
+								descriptionKey: 'descriptionText',
+								badgesKey: 'pageTypeBadges',
+							},
+							...(hasDeviceScores
+								? {
+									mobile_score: {
+										label: __('Mobile Score', 'vulopilot'),
+										render: (row: PageSpeedRow) => <ScorePill score={row.mobile_score} />,
+									},
+									desktop_score: {
+										label: __('Desktop Score', 'vulopilot'),
+										render: (row: PageSpeedRow) => <ScorePill score={row.desktop_score} />,
+									},
+								}
+								: {
+									score: {
+										label: __('Score', 'vulopilot'),
+										render: (row: PageSpeedRow) => <ScorePill score={row.score} />,
+									},
+								}),
+							load_time_ms: {
+								label: __('Load Time', 'vulopilot'),
+								render: (row: PageSpeedRow) =>
+									null !== row.load_time_ms
+										? sprintf(__('Load Time: %s s', 'vulopilot'), (row.load_time_ms / 1000).toFixed(1))
+										: '—',
+							},
+							...(hasPsiDetail
+								? {
+									page_size_bytes: {
+										label: (
+											<TooltipComponent
+												text={__('Total real page weight (Lighthouse total-byte-weight audit)', 'vulopilot')}
+											>
+												{__('Page Size', 'vulopilot')}
+											</TooltipComponent>
+										),
+										render: (row: PageSpeedRow) => formatBytes(row.page_size_bytes),
+									},
+									requests_count: {
+										label: (
+											<TooltipComponent
+												text={__('Real network requests observed (Lighthouse network-requests audit)', 'vulopilot')}
+											>
+												{__('Requests', 'vulopilot')}
+											</TooltipComponent>
+										),
+										render: (row: PageSpeedRow) =>
+											null !== row.requests_count ? row.requests_count : '—',
+									},
+									core_web_vitals: {
+										label: (
+											<TooltipComponent
+												text={__('Real Chrome UX Report field data: Largest Contentful Paint / Interaction to Next Paint / Cumulative Layout Shift', 'vulopilot')}
+											>
+												{__('Core Web Vitals', 'vulopilot')}
+											</TooltipComponent>
+										),
+										render: (row: PageSpeedRow) => <CoreWebVitalsDots row={row} />,
+									},
+								}
+								: {}),
+							action: {
+								label: __('Action', 'vulopilot'),
+								// `type: 'more-action'` no longer exists in
+								// @zyra/table — `type: 'action'` now covers
+								// that same single-toggle-button case via a
+								// `type: 'button'` action whose label/icon
+								// are functions of `row` (see that type's
+								// own docblock, TableRowActions.tsx).
+								type: 'action',
+								actions: [
 									{
-										text: PAGE_TYPE_LABELS[row.page_type] ?? row.page_type,
-										color: 'green',
+										type: 'button',
+										label: (row) =>
+											(row as unknown as PageSpeedRow).id === detailRow?.id
+												? __('Showing', 'vulopilot')
+												: __('More Details', 'vulopilot'),
+										icon: (row) =>
+											(row as unknown as PageSpeedRow).id === detailRow?.id
+												? 'eye'
+												: 'pagination-next-arrow',
+										onClick: (row) => {
+											const pageRow = row as unknown as PageSpeedRow;
+											setDetailRow(
+												pageRow.id === detailRow?.id ? null : pageRow
+											);
+										},
 									},
 								],
-							}))}
-							ids={pageRows.map((row) => row.id)}
-							totalRows={filteredRows.length}
-							activeRowId={detailRow?.id}
-							// Same toggle the action cell's own "More
-							// Details"/"Showing" button already does — a
-							// click anywhere on the row now opens/closes the
-							// details panel too, not just that one small
-							// button.
-							onRowClick={(row: Record<string, unknown>) => {
-								const pageRow = row as unknown as PageSpeedRow;
-								setDetailRow(
-									pageRow.id === detailRow?.id ? null : pageRow
-								);
-							}}
-							onQueryUpdate={(query: {
-								paged?: number | string;
-								per_page?: number | string;
-								categoryFilter?: string;
-								searchValue?: string;
-								filter?: { page_type?: string };
-							}) => {
-								setPaged(Number(query.paged) || 1);
-								setPerPage(Number(query.per_page) || 10);
-								if (
-									query.categoryFilter &&
-									query.categoryFilter !== statusFilter
-								) {
-									setStatusFilter(query.categoryFilter);
-								}
-								setSearchTerm(query.searchValue ?? '');
-								setPageTypeFilter(query.filter?.page_type ?? '');
-							}}
-						/>
-					)}
+							},
+						}}
+						rows={pageRows.map((row) => ({
+							...row,
+							pageTypeIcon: PAGE_TYPE_ICONS[row.page_type] ?? 'document',
+							descriptionText:
+								row.main_issue ?? __('No issues detected', 'vulopilot'),
+							pageTypeBadges: [
+								{
+									text: PAGE_TYPE_LABELS[row.page_type] ?? row.page_type,
+									color: 'green',
+								},
+							],
+						}))}
+						ids={pageRows.map((row) => row.id)}
+						totalRows={filteredRows.length}
+						activeRowId={detailRow?.id}
+						// Same toggle the action cell's own "More
+						// Details"/"Showing" button already does — a
+						// click anywhere on the row now opens/closes the
+						// details panel too, not just that one small
+						// button.
+						onRowClick={(row: Record<string, unknown>) => {
+							const pageRow = row as unknown as PageSpeedRow;
+							setDetailRow(
+								pageRow.id === detailRow?.id ? null : pageRow
+							);
+						}}
+						onQueryUpdate={(query: {
+							paged?: number | string;
+							per_page?: number | string;
+							categoryFilter?: string;
+							searchValue?: string;
+							filter?: { page_type?: string };
+						}) => {
+							setPaged(Number(query.paged) || 1);
+							setPerPage(Number(query.per_page) || 10);
+							if (
+								query.categoryFilter &&
+								query.categoryFilter !== statusFilter
+							) {
+								setStatusFilter(query.categoryFilter);
+							}
+							setSearchTerm(query.searchValue ?? '');
+							setPageTypeFilter(query.filter?.page_type ?? '');
+						}}
+					/>
+				)}
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
@@ -803,7 +761,7 @@ const SlowPagesTab = () => {
 				above keep the selected row's own "Showing" state and this
 				panel in sync. */}
 				<CardComponent
-					title={detailRow?.title ?? __( 'Page details', 'vulopilot' )}
+					title={detailRow?.title ?? __('Page details', 'vulopilot')}
 					titleIcon="info"
 					desc={detailRow?.url}
 					action={
@@ -812,7 +770,7 @@ const SlowPagesTab = () => {
 								className="adminfont-close"
 								role="button"
 								tabIndex={0}
-								aria-label={__( 'Close', 'vulopilot' )}
+								aria-label={__('Close', 'vulopilot')}
 								onClick={() => setDetailRow(null)}
 								onKeyDown={(e) => {
 									if ('Enter' === e.key || ' ' === e.key) {
@@ -827,7 +785,7 @@ const SlowPagesTab = () => {
 					{!detailRow ? (
 						<ModuleGuardComponent
 							icon="document"
-							title={__( 'Select a page', 'vulopilot' )}
+							title={__('Select a page', 'vulopilot')}
 							desc={__(
 								'Click "More Details" on a row to see it here.',
 								'vulopilot'
@@ -835,61 +793,61 @@ const SlowPagesTab = () => {
 						/>
 					) : (
 						<FormGroupWrapperComponent>
-							<FormGroupComponent row label={__( 'URL', 'vulopilot' )}>
+							<FormGroupComponent row label={__('URL', 'vulopilot')}>
 								<a href={detailRow.url} target="_blank" rel="noopener noreferrer">
 									{detailRow.url}
 								</a>
 							</FormGroupComponent>
-							<FormGroupComponent row label={__( 'Type', 'vulopilot' )}>
+							<FormGroupComponent row label={__('Type', 'vulopilot')}>
 								{PAGE_TYPE_LABELS[detailRow.page_type] ?? detailRow.page_type}
 							</FormGroupComponent>
-							<FormGroupComponent row label={__( 'Load Time', 'vulopilot' )}>
+							<FormGroupComponent row label={__('Load Time', 'vulopilot')}>
 								{null !== detailRow.load_time_ms
-									? sprintf( __( '%s s', 'vulopilot' ), (detailRow.load_time_ms / 1000).toFixed(2) )
+									? sprintf(__('%s s', 'vulopilot'), (detailRow.load_time_ms / 1000).toFixed(2))
 									: '—'}
 							</FormGroupComponent>
 							{hasDeviceScores ? (
 								<>
-									<FormGroupComponent row label={__( 'Mobile Score', 'vulopilot' )}>
+									<FormGroupComponent row label={__('Mobile Score', 'vulopilot')}>
 										<ScorePill score={detailRow.mobile_score} />
 									</FormGroupComponent>
-									<FormGroupComponent row label={__( 'Desktop Score', 'vulopilot' )}>
+									<FormGroupComponent row label={__('Desktop Score', 'vulopilot')}>
 										<ScorePill score={detailRow.desktop_score} />
 									</FormGroupComponent>
 								</>
 							) : (
-								<FormGroupComponent row label={__( 'Score', 'vulopilot' )}>
+								<FormGroupComponent row label={__('Score', 'vulopilot')}>
 									<ScorePill score={detailRow.score} />
 								</FormGroupComponent>
 							)}
 							{hasPsiDetail && (
 								<>
-									<FormGroupComponent row label={__( 'Page Size', 'vulopilot' )}>
+									<FormGroupComponent row label={__('Page Size', 'vulopilot')}>
 										{formatBytes(detailRow.page_size_bytes)}
 									</FormGroupComponent>
-									<FormGroupComponent row label={__( 'Requests', 'vulopilot' )}>
+									<FormGroupComponent row label={__('Requests', 'vulopilot')}>
 										{null !== detailRow.requests_count ? detailRow.requests_count : '—'}
 									</FormGroupComponent>
-									<FormGroupComponent row label={__( 'Core Web Vitals', 'vulopilot' )}>
+									<FormGroupComponent row label={__('Core Web Vitals', 'vulopilot')}>
 										<CoreWebVitalsDots row={detailRow} />
 									</FormGroupComponent>
 								</>
 							)}
-							<FormGroupComponent row label={__( 'Main Issue', 'vulopilot' )}>
-								{detailRow.main_issue ?? __( 'None detected', 'vulopilot' )}
+							<FormGroupComponent row label={__('Main Issue', 'vulopilot')}>
+								{detailRow.main_issue ?? __('None detected', 'vulopilot')}
 							</FormGroupComponent>
-							<FormGroupComponent row label={__( 'Last Scanned', 'vulopilot' )}>
+							<FormGroupComponent row label={__('Last Scanned', 'vulopilot')}>
 								{formatWpDate(detailRow.scanned_at)}
 							</FormGroupComponent>
 						</FormGroupWrapperComponent>
 					)}
 				</CardComponent>
 
-				<CardComponent title={__( 'Why these pages are slow?', 'vulopilot' )} titleIcon="info">
+				<CardComponent title={__('Why these pages are slow?', 'vulopilot')} titleIcon="info">
 					{0 === topIssues.length ? (
 						<ModuleGuardComponent
 							icon="check"
-							title={__( 'No issues detected', 'vulopilot' )}
+							title={__('No issues detected', 'vulopilot')}
 							desc={__(
 								'Run a scan to check your real pages for common slowdown causes.',
 								'vulopilot'
@@ -919,7 +877,7 @@ const SlowPagesTab = () => {
 				<RecommendedFixesCard topIssues={topIssues} />
 
 				<CardComponent
-					title={__( "What's considered slow?", 'vulopilot' )}
+					title={__("What's considered slow?", 'vulopilot')}
 					titleIcon="ai"
 					desc={__('How page speed scores map to real performance ratings.', 'vulopilot')}
 				>
@@ -928,22 +886,22 @@ const SlowPagesTab = () => {
 						items={[
 							{
 								id: 'very-poor',
-								title: __( 'Very Slow', 'vulopilot' ),
+								title: __('Very Slow', 'vulopilot'),
 								tags: <span className="page-speed-legend-range">0 – 24</span>,
 							},
 							{
 								id: 'poor',
-								title: __( 'Slow', 'vulopilot' ),
+								title: __('Slow', 'vulopilot'),
 								tags: <span className="page-speed-legend-range">25 – 49</span>,
 							},
 							{
 								id: 'needs-improvement',
-								title: __( 'Needs Improvement', 'vulopilot' ),
+								title: __('Needs Improvement', 'vulopilot'),
 								tags: <span className="page-speed-legend-range">50 – 79</span>,
 							},
 							{
 								id: 'good',
-								title: __( 'Good', 'vulopilot' ),
+								title: __('Good', 'vulopilot'),
 								tags: <span className="page-speed-legend-range">80 – 100</span>,
 							},
 						]}
@@ -956,13 +914,13 @@ const SlowPagesTab = () => {
 					message={
 						hasDeviceScores
 							? __(
-									'Scores are real per-page Google PageSpeed Insights results. Page size, requests, and Core Web Vitals are real Lighthouse/Chrome UX Report data from that same response.',
-									'vulopilot'
-								)
+								'Scores are real per-page Google PageSpeed Insights results. Page size, requests, and Core Web Vitals are real Lighthouse/Chrome UX Report data from that same response.',
+								'vulopilot'
+							)
 							: __(
-									'Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key for real Mobile/Desktop scores, page size, requests, and Core Web Vitals instead.',
-									'vulopilot'
-								)
+								'Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key for real Mobile/Desktop scores, page size, requests, and Core Web Vitals instead.',
+								'vulopilot'
+							)
 					}
 					actionLabel={
 						hasDeviceScores
@@ -973,8 +931,8 @@ const SlowPagesTab = () => {
 						hasDeviceScores
 							? undefined
 							: () => {
-									window.location.href = PERFORMANCE_SETTINGS_URL;
-								}
+								window.location.href = PERFORMANCE_SETTINGS_URL;
+							}
 					}
 				/>
 			</ColumnComponent>

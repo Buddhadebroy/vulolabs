@@ -10,7 +10,7 @@ import {
 	TypographyComponent,
 	IconComponent,
 	AnalyticsComponent,
-	NoticeComponent,
+	ListComponent,
 	SectionComponent
 } from '@zyra/components';
 import type { NoticeType } from '@zyra/components';
@@ -88,9 +88,9 @@ const QUALITY_BAND_DESCRIPTION: Record<ScoreTone, string> = {
 
 /** Real `OnPageCheck.status` → NoticeComponent's own `NoticeType` — `warning` maps to `'warning'` itself rather than the `'info'` workaround this used before NoticeComponent took over rendering the icon/color (NoticeComponent.scss already ships real `type-warning` coloring; only the bare, uncomposed `icon: 'warning'` this card built by hand was ever missing a real glyph — moot now that NoticeComponent owns the icon). */
 const STATUS_NOTICE_TYPE: Record<OnPageCheck['status'], NoticeType> = {
-	pass: 'success',
-	warning: 'warning',
-	fail: 'error',
+	pass: 'success green',
+	warning: 'info yellow',
+	fail: 'error red',
 };
 
 /** Short status pill — Good/Medium/High — alongside the real message NoticeComponent renders. */
@@ -101,32 +101,37 @@ const STATUS_BADGE: Record<OnPageCheck['status'], { color: string; label: string
 };
 
 /**
- * One real on-page check — zyra's own `NoticeComponent` (`displayPosition="inline-notice"`)
- * renders the icon + real `message`, tinted by status; a status badge and
- * (when clickable) NoticeComponent's own real `actionLabel`/`onAction`
- * affordance are added alongside it. Used both for the Content Assessment
- * list and (structure being the exact same `OnPageCheck` shape) the
- * Structure row below it, so the two never drift into two different
- * visual treatments for the same real data type.
+ * One real on-page check — zyra's own `ListComponent`, one item per check,
+ * status badge in `tags` (same "mini-card"-style `tags` usage
+ * KnowledgePanelCard.tsx's own results list already establishes). Used
+ * both for the Content Assessment list and (structure being the exact
+ * same `OnPageCheck` shape) the Structure row below it, so the two never
+ * drift into two different visual treatments for the same real data type.
+ * `onClick` (when given) wires into `ListComponent`'s own real `action`/
+ * `onItemClick` — the whole row becomes a genuine click target rather
+ * than needing its own wrapping button.
  */
 const CheckRow: React.FC<{ check: OnPageCheck; onClick?: () => void }> = ({
 	check,
 	onClick,
 }) => (
-	// `NoticeComponent`'s own `display-inline-notice`/`type-*` CSS already
-	// supplies the row's real background tint, border, padding, and
-	// radius — no wrapping box of this card's own needed on top of it.
-	<NoticeComponent
-		displayPosition="inline-notice"
-		type={STATUS_NOTICE_TYPE[check.status]}
-		message={check.message}
-	>
-		<BadgeComponent
-			color={STATUS_BADGE[check.status].color}
-			text={STATUS_BADGE[check.status].label}
-			className="content-quality-check-badge"
-		/>
-	</NoticeComponent>
+	<ListComponent
+		className='mini-card report'
+		items={[
+			{
+				id: check.id,
+				icon: STATUS_NOTICE_TYPE[check.status],
+				title: check.message,
+				action: onClick,
+				tags: (
+					<BadgeComponent
+						color={STATUS_BADGE[check.status].color}
+						text={STATUS_BADGE[check.status].label}
+					/>
+				),
+			},
+		]}
+	/>
 );
 
 /**

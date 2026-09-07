@@ -6,9 +6,11 @@ import {
 	ModuleGuardComponent,
 	NoticeComponent,
 	NoticeManager,
+	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput, ChoiceToggleInput, SelectInput } from '@zyra/inputs';
 import CardHeader from '../../CardHeader';
+import ShowProPopup from '../../Popup/Popup';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
 import {
@@ -211,6 +213,8 @@ const GoogleServicesPanel = () => {
 
 	const [ expandedCard, setExpandedCard ] = useState<string | null>( null );
 	const [ openMenu, setOpenMenu ] = useState<string | null>( null );
+	/** Shown via the `confirmMode` popup below instead of `window.confirm()`. */
+	const [ confirmDisconnectOpen, setConfirmDisconnectOpen ] = useState( false );
 
 	const installTrackingCode = ( ( setting.ga_install_tracking_code as string[] ) || [] ).length > 0;
 	const anonymizeIp = ( ( setting.ga_anonymize_ip as string[] ) || [] ).length > 0;
@@ -276,17 +280,13 @@ const GoogleServicesPanel = () => {
 		).then( ( response ) => setGa4Streams( response ?? [] ) );
 	}, [ selectedPropertyId ] );
 
+	/** Opens the `confirmMode` popup — the actual disconnect runs from `confirmDisconnect` once the user confirms there. */
 	const disconnectAndResetPickers = () => {
-		if (
-			! window.confirm(
-				__(
-					'Disconnect your Google account? This affects Search Console, Analytics, and AdSense all at once — they share one connection.',
-					'vulopilot'
-				)
-			)
-		) {
-			return;
-		}
+		setConfirmDisconnectOpen( true );
+	};
+
+	const confirmDisconnect = () => {
+		setConfirmDisconnectOpen( false );
 
 		handleDisconnect().then( () => {
 			setGscSites( null );
@@ -693,6 +693,27 @@ const GoogleServicesPanel = () => {
 					</div>
 				</div>
 			</div>
+
+			<PopupComponent
+				position="lightbox"
+				open={ confirmDisconnectOpen }
+				onClose={ () => setConfirmDisconnectOpen( false ) }
+				width={ 31.25 }
+				height="auto"
+			>
+				<ShowProPopup
+					confirmMode
+					title={ __( 'Disconnect Google Account', 'vulopilot' ) }
+					confirmMessage={ __(
+						'Disconnect your Google account? This affects Search Console, Analytics, and AdSense all at once — they share one connection.',
+						'vulopilot'
+					) }
+					confirmYesText={ __( 'Disconnect', 'vulopilot' ) }
+					confirmNoText={ __( 'Cancel', 'vulopilot' ) }
+					onConfirm={ confirmDisconnect }
+					onCancel={ () => setConfirmDisconnectOpen( false ) }
+				/>
+			</PopupComponent>
 		</>
 	);
 };

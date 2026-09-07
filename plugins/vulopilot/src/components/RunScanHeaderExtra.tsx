@@ -50,26 +50,26 @@ const RunScanHeaderExtra = ({
 
 	return (
 		<div className="run-scan-header-extra">
-			<div className="run-scan-header-extra-buttons">
 				<ButtonInput
-					buttons={{
-						// text:
-						// 	!isScanning && label ? label : runScanButton.label,
-						icon: runScanButton.icon,
-						color: runScanButton.color,
-						onClick: runScanButton.onClick,
-					}}
-				/>
-				<ButtonInput
-					buttons={{
-						text: '',
-						icon: 'setting',
-						onClick: () => {
-							window.location.href = `?page=vulopilot#&tab=settings&subtab=${settingsSubtab}`;
+					buttons={[
+						{
+							text:
+								!isScanning && label ? label : runScanButton.label,
+							icon: runScanButton.icon,
+							color: runScanButton.color,
+							onClick: runScanButton.onClick,
 						},
-					}}
+						{
+							text: '',
+							icon: 'setting',
+							color: 'text-purple icon',
+							tooltip: __('Scan settings', 'vulopilot'),
+							onClick: () => {
+								window.location.href = `?page=vulopilot#&tab=settings&subtab=${settingsSubtab}`;
+							},
+						},
+					]}
 				/>
-			</div>
 			{!isLoading && lastScanAt && (
 				<div className="run-scan-header-extra-last-scan desc">
 					{sprintf(

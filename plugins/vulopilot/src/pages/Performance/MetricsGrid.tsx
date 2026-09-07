@@ -9,6 +9,14 @@ import './Performance.scss';
 
 interface MetricTileData {
 	id: string;
+	/**
+	 * `"<adminfont name> <$color-palette key>"` — same
+	 * icon-name-plus-palette-key convention CATEGORY_CARDS (SeoTab.tsx) and
+	 * GeoScoreSection.tsx already use: the second word isn't part of the
+	 * icon name, it's a plain `.{color}` utility class (theme/src/common.scss's
+	 * `@each $name, $style in $color-palette` loop) tacked on via
+	 * `IconComponent`'s className string, tinting the glyph.
+	 */
 	icon: string;
 	title: string;
 	desc: string;
@@ -17,61 +25,61 @@ interface MetricTileData {
 const METRIC_TILES: MetricTileData[] = [
 	{
 		id: 'core-web-vitals',
-		icon: 'analytics',
+		icon: 'analytics violet',
 		title: __('Core Web Vitals', 'vulopilot'),
 		desc: __('LCP, INP, CLS, and FCP — see the Performance Score card above.', 'vulopilot'),
 	},
 	{
 		id: 'caching',
-		icon: 'refresh-bold',
+		icon: 'refresh-bold blue',
 		title: __('Caching', 'vulopilot'),
 		desc: __('Page caching effectiveness.', 'vulopilot'),
 	},
 	{
 		id: 'css-optimization',
-		icon: 'coding',
+		icon: 'coding sky',
 		title: __('CSS Optimization', 'vulopilot'),
 		desc: __('Unused or render-blocking CSS.', 'vulopilot'),
 	},
 	{
 		id: 'javascript',
-		icon: 'shortcode',
+		icon: 'shortcode yellow',
 		title: __('JavaScript', 'vulopilot'),
 		desc: __('Unused or blocking JavaScript.', 'vulopilot'),
 	},
 	{
 		id: 'images',
-		icon: 'image',
+		icon: 'image green',
 		title: __('Images', 'vulopilot'),
 		desc: __('Oversized or unoptimized images.', 'vulopilot'),
 	},
 	{
 		id: 'fonts',
-		icon: 'text-fields',
+		icon: 'text-fields red',
 		title: __('Fonts', 'vulopilot'),
 		desc: __('Web font loading performance.', 'vulopilot'),
 	},
 	{
 		id: 'database-cleanup',
-		icon: 'database',
+		icon: 'database orange',
 		title: __('Database Cleanup', 'vulopilot'),
 		desc: __('Post revisions, transients, and other bloat.', 'vulopilot'),
 	},
 	{
 		id: 'lazy-loading',
-		icon: 'eye',
+		icon: 'eye teal',
 		title: __('Lazy Loading', 'vulopilot'),
 		desc: __('Deferred loading for below-the-fold content.', 'vulopilot'),
 	},
 	{
 		id: 'cdn',
-		icon: 'global-community',
+		icon: 'global-community indigo',
 		title: __('CDN', 'vulopilot'),
 		desc: __('Content delivery network coverage.', 'vulopilot'),
 	},
 	{
 		id: 'page-caching',
-		icon: 'refresh-bold',
+		icon: 'refresh-bold blue',
 		title: __('Page caching', 'vulopilot'),
 		desc: __(
 			'WordPress may be rebuilding pages that could otherwise be served from a saved copy.',
@@ -80,13 +88,13 @@ const METRIC_TILES: MetricTileData[] = [
 	},
 	{
 		id: 'browser-caching',
-		icon: 'global-community',
+		icon: 'global-community indigo',
 		title: __('Browser caching', 'vulopilot'),
 		desc: __('Visitors can reuse suitable website files.', 'vulopilot'),
 	},
 	{
 		id: 'persistent-object-cache',
-		icon: 'database',
+		icon: 'database orange',
 		title: __('Persistent object cache', 'vulopilot'),
 		desc: __(
 			'Your website may benefit from keeping frequently used WordPress data ready between visits.',
