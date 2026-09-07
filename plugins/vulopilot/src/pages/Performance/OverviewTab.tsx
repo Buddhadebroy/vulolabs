@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ColumnComponent } from '@zyra/components';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import { scrollToId } from '@zyra/core';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import LiveSiteInsightsCard from '../Security/LiveSiteInsightsCard';
@@ -95,7 +95,7 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 	};
 
 	return (
-		<>
+		<ContainerComponent>
 			{/* 1st fold */}
 			<PerformanceScoreCard onViewDetails={onNavigateToSlowPages} />
 
@@ -127,7 +127,7 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 					/>
 				</div>
 			</ColumnComponent>
-		</>
+		</ContainerComponent>
 	);
 };
 

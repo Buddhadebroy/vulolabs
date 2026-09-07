@@ -8,7 +8,7 @@ import {
 	ContainerComponent,
 	ColumnComponent,
 	ModuleGuardComponent,
-	TypographyComponent,
+	TypographyComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import './Performance.scss';
@@ -300,8 +300,8 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	};
 
 	return (
-		<>
-			<ColumnComponent row fullHeight>
+		<ContainerComponent>
+			<ColumnComponent grid={4} row fullHeight>
 				<CardComponent>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
@@ -331,9 +331,9 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 								{hasPsi
 									? comparisonMessage()
 									: __(
-											'Connect Google PageSpeed Insights for a real Mobile/Desktop breakdown.',
-											'vulopilot'
-										)}
+										'Connect Google PageSpeed Insights for a real Mobile/Desktop breakdown.',
+										'vulopilot'
+									)}
 							</div>
 
 							<ButtonInput
@@ -348,6 +348,8 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 						</>
 					)}
 				</CardComponent>
+			</ColumnComponent>
+			<ColumnComponent grid={4} row fullHeight>
 				<CardComponent id="performance-core-web-vitals-card" title={__('Core Web Vitals', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
@@ -418,10 +420,12 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 						</>
 					)}
 				</CardComponent>
-				<RealTimeMonitoringCard />
-				<QuickActionsCard />
 			</ColumnComponent>
-		</>
+			<ColumnComponent grid={4} row fullHeight>
+				<RealTimeMonitoringCard />
+			</ColumnComponent>
+			<QuickActionsCard />
+		</ContainerComponent>
 	);
 };
 

@@ -132,13 +132,28 @@ $content-tool-colors: (
 	width: 50%;
 }
 
-// Each row is now a real `<NoticeComponent displayPosition="inline-notice">`
-// — its own `type-*` CSS already supplies the tinted background/border/
-// padding/radius (NoticeComponent.scss), so this card only needs to place
-// the status badge it renders as that notice's own trailing child.
-.content-quality-check-badge {
-	flex-shrink: 0;
-}
+// Each row is now a real `ListComponent` item (CheckRow, ContentQualityCard.tsx)
+// rather than a `<NoticeComponent displayPosition="inline-notice">` —
+// `ListComponent` has no built-in per-status tint the way that component's
+// own `type-*` CSS did, so this card restores the same real green/orange/
+// red background itself, keyed off the same `item.className`
+// (`content-quality-check-item is-{green|orange|red}`) CheckRow sets.
+// .content-quality-check-item {
+// 	border-radius: $border-radius-small;
+
+// 	&.is-green {
+// 		background: color-mix(in srgb, #16a34a 8%, transparent);
+// 	}
+
+// 	&.is-orange {
+// 		background: color-mix(in srgb, #e67a2e 8%, transparent);
+// 	}
+
+// 	&.is-red {
+// 		background: color-mix(in srgb, #dc2626 8%, transparent);
+// 	}
+// }
+
 
 .content-quality-structure-header {
 	display: flex;
@@ -200,11 +215,6 @@ $content-tool-colors: (
 	align-items: center;
 	justify-content: end;
 	gap: 0.625rem;
-	margin-bottom: 1rem;
-}
-
-.recent-content-search {
-	flex: 1 1 14rem;
 }
 
 // The "Show ignored" toggle — RecentContentCard.tsx renders its own plain

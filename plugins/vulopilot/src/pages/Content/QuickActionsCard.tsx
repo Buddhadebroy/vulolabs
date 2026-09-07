@@ -79,7 +79,7 @@ const QuickActionsCard = () => {
 						title: __('Content Planner', 'vulopilot'),
 						desc: __('Plan and schedule content', 'vulopilot'),
 						tags: (
-							<span className="quick-actions-coming-soon">
+							<span className="admin-badge blue">
 								{__('Coming soon', 'vulopilot')}
 							</span>
 						),

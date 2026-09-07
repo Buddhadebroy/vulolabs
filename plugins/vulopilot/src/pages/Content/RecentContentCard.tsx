@@ -854,6 +854,7 @@ const RecentContentCard = () => {
 						'Search by title or source page…',
 						'vulopilot'
 					)}
+					size={20}
 					wrapperClass="recent-content-search"
 				/>
 				<SelectInput
@@ -880,27 +881,22 @@ const RecentContentCard = () => {
 					}))}
 					isClearable={false}
 				/>
-				<TooltipComponent
-					text={SHOW_IGNORED_TOOLTIP}
-					className="recent-content-show-ignored"
+				{/* Own onClick (not a real <label htmlFor>, since MultiCheckboxInput generates its input's id internally) so clicking the visible text toggles the switch too, same as clicking any other checkbox's label would. */}
+				<span
+					className="recent-content-show-ignored-label"
+					onClick={() => setShowIgnored(!showIgnored)}
 				>
-					{/* Own onClick (not a real <label htmlFor>, since MultiCheckboxInput generates its input's id internally) so clicking the visible text toggles the switch too, same as clicking any other checkbox's label would. */}
-					<span
-						className="recent-content-show-ignored-label"
-						onClick={() => setShowIgnored(!showIgnored)}
-					>
-						{SHOW_IGNORED_LABEL}
-					</span>
-					<MultiCheckboxInput
-						look="toggle"
-						modules={[]}
-						options={SHOW_IGNORED_OPTION}
-						value={showIgnored ? ['show-ignored'] : []}
-						onChange={(value) =>
-							setShowIgnored(value.includes('show-ignored'))
-						}
-					/>
-				</TooltipComponent>
+					{SHOW_IGNORED_LABEL}
+				</span>
+				<MultiCheckboxInput
+					look="toggle"
+					modules={[]}
+					options={SHOW_IGNORED_OPTION}
+					value={showIgnored ? ['show-ignored'] : []}
+					onChange={(value) =>
+						setShowIgnored(value.includes('show-ignored'))
+					}
+				/>
 				<ButtonInput
 					buttons={{
 						text: __('Export CSV', 'vulopilot'),
@@ -915,7 +911,7 @@ const RecentContentCard = () => {
 				className="transparent-table"
 				showMenu={false}
 				hideHeader={true}
-				expandable
+				expandOnRowClick
 				headers={{
 					title: {
 						key: 'contentTitle',
