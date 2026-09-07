@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { NoticeManager, PopupComponent } from '@zyra/components';
+import { NoticeComponent, NoticeManager, PopupComponent, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import {
 	ButtonInput,
 	SelectInput,
@@ -472,7 +472,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			open={Boolean(tool)}
 			onClose={onClose}
 			width={31.25}
-			height="70%"
+			height="50%"
 			header={{
 				title: tool.title,
 				icon: tool.icon,
@@ -562,18 +562,13 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 								/>
 							</div>
 						)}
-
+						<FormGroupWrapperComponent>
 						{tool.fields.map((field) => (
-							<div
-								className="content-tool-field"
-								key={field.key}
-							>
-								<label htmlFor={field.key}>
-									{field.label}
-								</label>
+							<FormGroupComponent label={field.label}>
 								{renderField(field)}
-							</div>
+							</FormGroupComponent >
 						))}
+						</FormGroupWrapperComponent>
 					</>
 				)}
 
@@ -587,10 +582,11 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				)}
 
 				{'error' === step && (
-					<div className="content-tool-error">
-						<i className="adminfont-error" />
-						{errorMessage}
-					</div>
+					<NoticeComponent
+						displayPosition="inline-notice"
+						type="error"
+						message={errorMessage}
+					/>
 				)}
 
 				{'preview' === step && preview && (

@@ -272,6 +272,7 @@ const ContentQualityCard = () => {
 				!isLoadingOptions && options.length > 0 ? (
 					<SelectInput
 						name="content-quality-picker"
+						size={10}
 						type="single-select"
 						value={selectedId ? String(selectedId) : ''}
 						onChange={(value) => setSelectedId(Number(value))}

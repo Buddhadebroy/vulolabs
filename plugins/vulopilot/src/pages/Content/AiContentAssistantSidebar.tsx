@@ -236,9 +236,7 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	return (
-		<AiChatCard<ChatTurn>
-			cardTitle={__('AI Content Assistant', 'vulopilot')}
-			cardTitleIcon="edit"
+		<AiChatCard
 			emptyDesc={sprintf(
 				/* translators: %s: the real logged-in WP user's own display name */
 				__(

@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import './AICopilot.scss';
 import {
-	BadgeComponent,
 	ColumnComponent,
 	ContainerComponent,
 	NoticeManager,
@@ -11,7 +10,7 @@ import {
 	SectionComponent,
 	TooltipComponent
 } from '@zyra/components';
-import { ButtonInput, FileInput } from '@zyra/inputs';
+import { FileInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse, scrollToId, sendApiResponse } from '@zyra/core';
 import ShowProPopup from '../../components/Popup/Popup';
 import { SUGGESTED_PROMPTS } from './copilotData';
@@ -185,6 +184,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		send,
 		markTurnUndone,
 		loadConversation,
+		startNewConversation,
 		isEnabled: isCopilotChatEnabled,
 		isProLocked,
 		dismissProLocked,
@@ -410,25 +410,21 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						cardClassName="ai-copilot-main-chat"
 						cardTitle={__('Chat with VuloPilot', 'vulopilot')}
 						cardDesc={__(
-							'Ask anything about your website, performance, security, content and more.',
+							'',
 							'vulopilot'
 						)}
-						cardAction={
-							<>
-								{/* "Chat with VuloPilot" is a real, direct-instruction Pro feature now (see useCopilotChat.ts's own docblock) — the same "PRO" badge convention StoreIntelligenceSummaryCard.tsx/AiSalesOptimizerCard.tsx already use for a Pro-gated card's own header. Section still renders fully in Free (per that same instruction: "the section show in free with pro tag but functionality is pro feature") — only the real send is blocked, in handleSend() below. */}
-								{!isCopilotChatEnabled && (
-									<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
-								)}
-								<ButtonInput
-									buttons={{
-										text: __('Chat History', 'vulopilot'),
-										leftIcon: 'clock',
-										color: 'text-purple',
-										onClick: onOpenHistoryPopup,
-									}}
-								/>
-							</>
-						}
+						// "Chat with VuloPilot" is a real, direct-instruction Pro
+						// feature now (see useCopilotChat.ts's own docblock) —
+						// AiChatCard's own `showProBadge` renders the same "PRO"
+						// badge convention StoreIntelligenceSummaryCard.tsx/
+						// AiSalesOptimizerCard.tsx already use for a Pro-gated
+						// card's own header. Section still renders fully in Free
+						// (per that same instruction: "the section show in free
+						// with pro tag but functionality is pro feature") — only
+						// the real send is blocked, in handleSend() below.
+						showProBadge={!isCopilotChatEnabled}
+						onNewChat={startNewConversation}
+						onOpenHistoryPopup={onOpenHistoryPopup}
 						emptyDesc={__(
 							'Ask me anything about your website, performance, security, content and more.',
 							'vulopilot'
@@ -623,43 +619,44 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							</>
 						}
 						composer={
-							// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- pure event-propagation guard, not an interactive element. Bubble-phase (not capture) on purpose: capture fires top-down *before* the event reaches ChatInput's own textarea, so stopping it there would swallow the textarea's own Enter-to-send handler before it ever runs. Bubble-phase stopPropagation() lets the textarea's own listener fire first, then blocks it from reaching any page-level listener above this point.
-							<div onKeyDown={(e) => e.stopPropagation()}>
-								<ChatInput
-									value={message}
-									onChange={onMessageChange}
-									onSend={handleSend}
-									disabled={isSending}
-									placeholder={__(
-										'Ask VuloPilot anything about your website…',
-										'vulopilot'
-									)}
-									onAttach={toggleAttachPanel}
-									attachLabel={__('Attach', 'vulopilot')}
-									onAddContext={toggleContextPanel}
-									addContextLabel={__('Add context', 'vulopilot')}
-									autoApply={{
-										checked: autoApply,
-										onChange: onAutoApplyChange,
-										label: (
-											<>
-												{__(
-													'Auto-applies',
+							// The Enter-to-send bubble-propagation guard every
+							// real composer needs now lives once in
+							// ChatComposerCard.tsx itself (wraps `composer`
+							// there) rather than duplicated per consumer.
+							<ChatInput
+								value={message}
+								onChange={onMessageChange}
+								onSend={handleSend}
+								disabled={isSending}
+								placeholder={__(
+									'Ask VuloPilot anything about your website…',
+									'vulopilot'
+								)}
+								onAttach={toggleAttachPanel}
+								attachLabel={__('Attach', 'vulopilot')}
+								onAddContext={toggleContextPanel}
+								addContextLabel={__('Add context', 'vulopilot')}
+								autoApply={{
+									checked: autoApply,
+									onChange: onAutoApplyChange,
+									label: (
+										<>
+											{__(
+												'Auto-applies',
+												'vulopilot'
+											)}
+											<TooltipComponent
+												text={__(
+													'When on, VuloPilot applies a fix itself and still asks you to approve it before it goes live — nothing changes on your site without your say.',
 													'vulopilot'
 												)}
-												<TooltipComponent
-													text={__(
-														'When on, VuloPilot applies a fix itself and still asks you to approve it before it goes live — nothing changes on your site without your say.',
-														'vulopilot'
-													)}
-												>
-													<i className="adminfont-info chat-input-autoapply-info" />
-												</TooltipComponent>
-											</>
-										),
-									}}
-								/>
-							</div>
+											>
+												<i className="adminfont-info chat-input-autoapply-info" />
+											</TooltipComponent>
+										</>
+									),
+								}}
+							/>
 						}
 					/>
 				</div>

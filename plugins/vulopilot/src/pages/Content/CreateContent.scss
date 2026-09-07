@@ -413,19 +413,6 @@ $content-tool-colors: (
 	animation: content-tool-spin 1s linear infinite;
 }
 
-.content-tool-error {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.5rem;
-	color: #dc2626;
-	background: color-mix(in srgb, #dc2626 8%, transparent);
-	border: 1px solid color-mix(in srgb, #dc2626 20%, transparent);
-	padding: 0.75rem 0.875rem;
-	border-radius: 0.5rem;
-	font-size: 0.85rem;
-	margin: 0;
-}
-
 .content-tool-preview {
 	.content-tool-preview-title {
 		margin: 0 0 0.75rem;

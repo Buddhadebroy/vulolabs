@@ -248,10 +248,10 @@ const SeoVisibility = () => {
 			<NavigatorComponent
 				headerIcon="bar-chart"
 				headerTitle={__('SEO & Visibility', 'vulopilot')}
-				headerDescription={__(
-					'Tell AI what you want to achieve. VuloPilot continuously improves your site’s visibility across Google, AI Search, and Answer Engines.',
-					'vulopilot'
-				)}
+				// headerDescription={__(
+				// 	'Tell AI what you want to achieve. VuloPilot continuously improves your site’s visibility across Google, AI Search, and Answer Engines.',
+				// 	'vulopilot'
+				// )}
 				headerCustomContent={
 					<RunScanHeaderExtra
 						categories={['geo', 'seo', 'images', 'schema', 'links']}
@@ -266,7 +266,7 @@ const SeoVisibility = () => {
 					`?page=vulopilot#&tab=seo-visibility&subtab=${subTab}`
 				}
 				Link={Link}
-				variant="tabs"
+				settingName="SEO Visibility"
 				menuIcon
 			/>
 		</>
