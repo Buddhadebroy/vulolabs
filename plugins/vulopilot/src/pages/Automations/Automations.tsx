@@ -193,16 +193,17 @@ const Automations = () => {
 					onOpenAutomation={openRow}
 					refetchSignal={refetchSignal}
 				/>
-
-				<ManageAutomationsSection
-					hasWizard={Boolean(Wizard)}
-					onOpenRow={openRow}
-					onRequireProUpsell={openProPopup}
-					refetchSignal={refetchSignal}
-				/>
-
-				<AutomationsActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
-
+				<ColumnComponent grid={7}>
+					<ManageAutomationsSection
+						hasWizard={Boolean(Wizard)}
+						onOpenRow={openRow}
+						onRequireProUpsell={openProPopup}
+						refetchSignal={refetchSignal}
+					/>
+				</ColumnComponent>
+				<ColumnComponent grid={5}>
+					<AutomationsActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
+				</ColumnComponent>
 				{Wizard && (
 					<Wizard
 						openSignal={wizardOpenSignal}

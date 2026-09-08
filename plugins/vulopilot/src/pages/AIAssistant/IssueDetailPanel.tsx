@@ -196,7 +196,11 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 
 	if (!group) {
 		return (
-			<CardComponent title={__('Issue details', 'vulopilot')} titleIcon="ai">
+			<CardComponent
+				title={__('Issue details', 'vulopilot')}
+				titleIcon="ai"
+				desc={__('More detail on the issue you select from the table.', 'vulopilot')}
+			>
 				<ModuleGuardComponent
 					icon="ai"
 					title={__('Select an issue', 'vulopilot')}

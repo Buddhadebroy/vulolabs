@@ -54,7 +54,11 @@ const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps)
 	return (
 		<>
 			{error ? (
-				<CardComponent title={__('WooCommerce', 'vulopilot')} titleIcon="error">
+				<CardComponent
+					title={__('WooCommerce', 'vulopilot')}
+					titleIcon="error"
+					desc={__('Commerce issues found across your store.', 'vulopilot')}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__('Could not load findings', 'vulopilot')}

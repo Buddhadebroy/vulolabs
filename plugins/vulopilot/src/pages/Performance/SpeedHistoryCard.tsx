@@ -25,7 +25,11 @@ const SpeedHistoryCard = () => {
 	);
 
 	return (
-		<CardComponent title={__('Speed History', 'vulopilot')} titleIcon="analytics">
+		<CardComponent
+			title={__('Speed History', 'vulopilot')}
+			titleIcon="analytics"
+			desc={__('Your daily performance score over the last 30 days.', 'vulopilot')}
+		>
 			{!isLoading && snapshots.length === 0 ? (
 				<ModuleGuardComponent
 					icon="analytics"

@@ -397,7 +397,11 @@ const KeywordsTab = () => {
 			</CardComponent>
 
 			{!isSummaryLoading && summary && !summary.synced && (
-				<CardComponent title={__('Ranking Keywords', 'vulopilot')} titleIcon="bar-chart">
+				<CardComponent
+					title={__('Ranking Keywords', 'vulopilot')}
+					titleIcon="bar-chart"
+					desc={__('Keyword rankings pulled from Google Search Console.', 'vulopilot')}
+				>
 					<ModuleGuardComponent
 						icon="info"
 						title={__('Not synced yet', 'vulopilot')}

@@ -2,11 +2,10 @@
 import { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { MultiCheckboxInput } from '@zyra/inputs';
-import { TableCard, TableRow } from '@zyra/table';
+import { TableCard, TableRow, TableRowActions, ActionItem } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
-import { formatWpDate } from '../../services/formatWpDate';
 import { CATEGORY_LABELS, TRIGGER_TYPE_LABELS, describeAutomationActions } from './automationsLabels';
 
 export interface AutomationRow extends TableRow {
@@ -37,65 +36,27 @@ const STATUS_OPTIONS = [
 	{ label: __('Paused', 'vulopilot'), value: 'disabled' },
 ];
 
-const renderNameCell = (row: AutomationRow) => (
-	<div className="automations-name-cell">
-		<span className="automations-name-icon">
-			<i className="adminfont-automation" />
-		</span>
-		<span className="automations-name-text">
-			<strong>{row.name}</strong>
-			<BadgeComponent
-				color={`category-${row.category}`}
-				text={CATEGORY_LABELS[row.category] ?? row.category}
-			/>
-		</span>
-	</div>
-);
-
-const renderWhatItDoesCell = (row: AutomationRow) => (
-	<span className="automations-what-it-does">
-		{describeAutomationActions(row.actions)}
-	</span>
-);
-
-const renderRunsCell = (row: AutomationRow) => (
-	<span>{TRIGGER_TYPE_LABELS[row.trigger_type] ?? row.trigger_type}</span>
-);
-
-const renderLastRunCell = (row: AutomationRow) => {
-	const date = row.last_run_finished_at ?? row.last_triggered_at;
-
-	let outcome: { text: string; tone: 'is-good' | 'is-attention' | 'is-neutral' };
-
-	if ('draft' === row.status) {
-		outcome = { text: __('Not activated yet', 'vulopilot'), tone: 'is-neutral' };
-	} else if (!row.last_run_status) {
-		outcome = { text: __('Never run', 'vulopilot'), tone: 'is-neutral' };
-	} else if ('failed' === row.last_run_status) {
-		outcome = { text: __('Run failed', 'vulopilot'), tone: 'is-attention' };
-	} else if ((row.last_run_changes_made ?? 0) > 0) {
-		outcome = {
-			text:
-				1 === row.last_run_changes_made
-					? __('1 change made', 'vulopilot')
-					: `${row.last_run_changes_made} ${__('changes made', 'vulopilot')}`,
-			tone: 'is-good',
-		};
-	} else {
-		outcome = { text: __('No changes needed', 'vulopilot'), tone: 'is-neutral' };
-	}
-
-	return (
-		<div className="automations-last-run">
-			<span className="automations-last-run-date">
-				{date ? formatWpDate(date) : __('—', 'vulopilot')}
-			</span>
-			<span className={`automations-last-run-outcome ${outcome.tone}`}>
-				{outcome.text}
-			</span>
-		</div>
-	);
-};
+/**
+ * `name`/`what_it_does`/`trigger_type`/`category` — 4 of the former
+ * 6 columns — collapsed into the "info"-type first column's own
+ * `iconKey`/`descriptionKey`/`badgesKey` fields (`type: 'info'` reads
+ * these straight off each row, see TableUtils.tsx's own `case 'info'`),
+ * same `hideHeader` + merged-first-column shape `useFindingsTable.tsx`'s
+ * own `defaultHeaders` already establishes for the Issues table, applied
+ * here per direct instruction. Real data only: no field here is invented,
+ * just regrouped onto the row TableCard actually reads.
+ */
+const withInfoColumnFields = (row: AutomationRow) => ({
+	...row,
+	defaultTitleIcon: 'automation',
+	defaultTitleBadges: [
+		{
+			text: CATEGORY_LABELS[row.category] ?? row.category,
+			color: `category-${row.category}`,
+		},
+	],
+	descriptionText: `${describeAutomationActions(row.actions)} • ${TRIGGER_TYPE_LABELS[row.trigger_type] ?? row.trigger_type}`,
+});
 
 interface StatusToggleProps {
 	row: AutomationRow;
@@ -103,29 +64,48 @@ interface StatusToggleProps {
 	onToggle: (row: AutomationRow) => void;
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onRunNow: (row: AutomationRow) => void;
-	runDisabled?: boolean;
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	onOpen: (row: AutomationRow) => void;
 }
 
-const StatusToggleCell = ({ row, onToggle, onRunNow, runDisabled }: StatusToggleProps) => (
-	<div className="automations-status-actions">
-		<MultiCheckboxInput
-			look="toggle"
-			options={[{ value: 'enabled', label: '' }]}
-			value={'enabled' === row.status ? ['enabled'] : []}
-			onChange={() => onToggle(row)}
-			modules={[]}
-		/>
-		<button
-			type="button"
-			className="automations-run-now"
-			title={__('Run now', 'vulopilot')}
-			disabled={runDisabled}
-			onClick={() => onRunNow(row)}
-		>
-			<i className="adminfont-next" />
-		</button>
-	</div>
-);
+/**
+ * Toggle + Run now + Open, all folded into this one 2nd/last column — was
+ * 2 separate headers (`status`/`open`) before that merge (a 3rd column,
+ * "Last run", also existed briefly during the merge and was removed per
+ * direct instruction). Run now/Open themselves are TableCard's own native
+ * row-action mechanism (`TableRowActions`, the same `ActionItem[]` shape
+ * `useFindingsTable.tsx`'s own `actions`-type headers already use) — real
+ * icon buttons with a real tooltip, not 2 hand-rolled `<button>`s —
+ * rendered inline here (rather than as a separate `type: 'action'` header
+ * of their own) so they stay next to the toggle in this one column.
+ */
+const StatusToggleCell = ({ row, onToggle, onRunNow, onOpen }: StatusToggleProps) => {
+	const rowActions: ActionItem[] = [
+		{
+			label: __('Run now', 'vulopilot'),
+			icon: 'refresh blue',
+			onClick: () => onRunNow(row),
+		},
+		{
+			label: __('Open', 'vulopilot'),
+			icon: 'external yellow',
+			onClick: () => onOpen(row),
+		},
+	];
+
+	return (
+		<div className="automations-status-actions">
+			<MultiCheckboxInput
+				look="toggle"
+				options={[{ value: 'enabled', label: '' }]}
+				value={'enabled' === row.status ? ['enabled'] : []}
+				onChange={() => onToggle(row)}
+				modules={[]}
+			/>
+			<TableRowActions row={row} rowActions={rowActions} />
+		</div>
+	);
+};
 
 interface ManageAutomationsSectionProps {
 	/** Whether the real wizard resolved (`vulopilot_automations_panel`'s own `Wizard` — Pro active and the Automations module on) — gates whether row actions call the real endpoints directly or fall back to the upsell popup. */
@@ -147,8 +127,9 @@ interface ManageAutomationsSectionProps {
  * history / the redesign plan this was built against for that duplication.
  * Toggle/Run now now call the real endpoints directly from here either way
  * (previously only ever real inside Pro's own now-removed internal table);
- * "Open" (see `renderOpenCell`) hands off to the real wizard's read-only
- * view when one exists.
+ * "Open" (folded into `StatusToggleCell`'s own `onOpen`, alongside Toggle/
+ * Run now, as this table's 2nd/last column) hands off to the real wizard's
+ * read-only view when one exists.
  */
 const ManageAutomationsSection = ({
 	hasWizard,
@@ -209,7 +190,11 @@ const ManageAutomationsSection = ({
 
 	return (
 		<div id="automation-manage">
-			<CardComponent title={__('Your automations', 'vulopilot')} titleIcon="automation">
+			<CardComponent
+				title={__('Your automations', 'vulopilot')}
+				titleIcon="automation"
+				desc={__('React to scan findings automatically — enable, pause, or run an automation, and see when it last ran.', 'vulopilot')}
+			>
 				{error ? (
 					<ModuleGuardComponent
 						icon="error"
@@ -220,46 +205,33 @@ const ManageAutomationsSection = ({
 					/>
 				) : (
 					<TableCard
+						hideHeader={true}
 						search={{ placeholder: __('Search automations…', 'vulopilot') }}
 						format={appLocalizer.date_format_js}
 						headers={{
 							name: {
+								key: 'name',
+								type: 'info',
 								label: __('Automation', 'vulopilot'),
 								isSortable: true,
-								render: renderNameCell,
-							},
-							what_it_does: {
-								label: __('What it does', 'vulopilot'),
-								render: renderWhatItDoesCell,
-							},
-							trigger_type: {
-								label: __('Runs', 'vulopilot'),
-								render: renderRunsCell,
-							},
-							last_run: {
-								label: __('Last run', 'vulopilot'),
-								render: renderLastRunCell,
+								width: '65%',
+								iconKey: 'defaultTitleIcon',
+								descriptionKey: 'descriptionText',
+								badgesKey: 'defaultTitleBadges',
 							},
 							status: {
 								label: __('Status', 'vulopilot'),
 								render: (row: AutomationRow) => (
-									<StatusToggleCell row={row} onToggle={handleToggle} onRunNow={handleRunNow} />
+									<StatusToggleCell
+										row={row}
+										onToggle={handleToggle}
+										onRunNow={handleRunNow}
+										onOpen={handleOpen}
+									/>
 								),
 							},
-							open: {
-								label: '',
-								type: 'action',
-								actions: [
-									{
-										label: __('Open', 'vulopilot'),
-										icon: 'external',
-										onClick: (row?: Record<string, unknown>) =>
-											row && handleOpen(row as AutomationRow),
-									},
-								],
-							},
 						}}
-						rows={data}
+						rows={data.map(withInfoColumnFields)}
 						ids={data.map((row) => row.id)}
 						totalRows={total}
 						categoryCounts={categoryCounts}

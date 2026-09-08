@@ -237,7 +237,11 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	if (!isSeoModuleActive()) {
 		return (
 			<ColumnComponent>
-				<CardComponent title={__('SEO', 'vulopilot')} titleIcon="search">
+				<CardComponent
+					title={__('SEO', 'vulopilot')}
+					titleIcon="search"
+					desc={__('Your site-wide SEO score and open issues.', 'vulopilot')}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__('SEO module is turned off', 'vulopilot')}

@@ -58,7 +58,11 @@ const Health = () => {
 				<ColumnComponent>
 					<HealthScoreSummary />
 					{error ? (
-						<CardComponent title={title} titleIcon="error">
+						<CardComponent
+							title={title}
+							titleIcon="error"
+							desc={__('Every open finding across every scanner category.', 'vulopilot')}
+						>
 							<ModuleGuardComponent
 								icon="error"
 								title={__(

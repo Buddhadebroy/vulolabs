@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, BadgeComponent } from '@zyra/components';
+import { CardComponent, BadgeComponent, ListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 
 interface AutomationRunRow {
@@ -120,36 +120,29 @@ const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsAc
 			action={
 				<ButtonInput
 					buttons={{
-						text: __('View automation history →', 'vulopilot'),
+						text: __('View automation history', 'vulopilot'),
+						icon: 'arrow-right',
 						color: 'text-purple',
 						onClick: onViewHistory,
 					}}
 				/>
 			}
 		>
-			<div className="automation-activity-list">
-				{rows.map((row) => {
+			<ListComponent
+				className="automation-activity-list mini-card report"
+				items={rows.map((row: AutomationRunRow) => {
 					const status = STATUS_META[row.status];
 
-					return (
-						<div className="automation-activity-row" key={row.id}>
-							<div className={`automation-activity-icon is-${status.color}`}>
-								<i className="adminfont-automation" />
-							</div>
-							<div className="automation-activity-body">
-								<span className="automation-activity-time">
-									{formatActivityTime(row.finished_at ?? row.started_at)}
-								</span>
-								<strong>
-									{row.automation_name} {STATUS_META[row.status].label.toLowerCase()}
-								</strong>
-								<p>{describeOutcome(row)}</p>
-							</div>
-							<BadgeComponent color={status.color} text={status.label} />
-						</div>
-					);
+					return {
+						id: String(row.id),
+						icon: 'automation orange',
+						className: `is-${status.color}`,
+						title: `${row.automation_name} ${status.label.toLowerCase()}`,
+						desc: `${formatActivityTime(row.finished_at ?? row.started_at)} · ${describeOutcome(row)}`,
+						tags: <BadgeComponent color={status.color} text={status.label} />,
+					};
 				})}
-			</div>
+			/>
 		</CardComponent>
 	);
 };

@@ -236,7 +236,14 @@ const Settings = () => {
 	}
 
 	if (isLoading) {
-		return <CardComponent title={__('Settings', 'vulopilot')} titleIcon="setting" isLoading />;
+		return (
+			<CardComponent
+				title={__('Settings', 'vulopilot')}
+				titleIcon="setting"
+				desc={__('Configure how vulopilot works on this site.', 'vulopilot')}
+				isLoading
+			/>
+		);
 	}
 
 	return (
