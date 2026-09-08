@@ -48,6 +48,19 @@ class SafeRequestSender {
     }
 
     /**
+     * Whether this site has at least one active, configured BYOK provider
+     * — added for AIActions\ActionRunner's own credits-vs-BYOK precedence
+     * check (a site owner's own configured key is preferred over spending
+     * AI Credits, since it costs them nothing further; see that class's
+     * own docblock on why).
+     *
+     * @return bool
+     */
+    public function has_configured_provider(): bool {
+        return null !== $this->provider_registry->build_fallback_chain();
+    }
+
+    /**
      * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
      * @param array{mime_type: string, data: string}|null      $image    Optional inline image for the current turn — only meaningful when the provider that ends up handling this request supports vision (ProviderRegistry::supports_vision()); callers should check that first, since a provider that doesn't will simply never look at this.
      * @param string|null                                      $surface  Optional real feature label recorded to `vulopilot_ai_history.surface` — see AIRequest::get_surface()'s own docblock.

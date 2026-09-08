@@ -9,9 +9,13 @@ namespace VuloPilot\AIActions;
 
 use VuloPilot\ValueObjects\Severity;
 use VuloPilot\ValueObjects\Impact;
+use VuloPilot\ValueObjects\AIResponse;
 use VuloPilot\AIProviders\Support\SafeRequestSender;
 use VuloPilot\Repositories\ActionRunRepository;
 use VuloPilot\Repositories\ActivityLogRepository;
+use VuloPilot\Services\AiCreditGatewayClient;
+use VuloPilot\Services\AiCreditsConnection;
+use VuloPilot\Exceptions\InsufficientCreditsException;
 use VuloPilot\Utill;
 
 defined( 'ABSPATH' ) || exit;
@@ -46,23 +50,46 @@ class ActionRunner {
     private SafeRequestSender $request_sender;
     private ActionRunRepository $runs;
     private ActivityLogRepository $activity_logs;
+    private AiCreditGatewayClient $credit_gateway;
+    private AiCreditsConnection $credits_connection;
+
+    /**
+     * Real, structured `{action_id: [feature_id, action]}` mapping onto
+     * VuloCloud's own ai-gateway feature catalog (architecture plan §C,
+     * "3 representative features") — every other AI action id (not in this
+     * map) is unaffected and stays exactly on the BYOK path it's always
+     * used. Adding a feature to a future migration pass means adding one
+     * entry here plus a matching build_credit_context() case, not
+     * restructuring propose() itself.
+     */
+    private const CREDIT_FEATURE_MAP = array(
+        'write-meta-title'       => array( 'seo_title', 'generate' ),
+        'write-meta-description' => array( 'meta_description', 'generate' ),
+        'improve-readability'    => array( 'content_improvement', 'rewrite' ),
+    );
 
     /**
      * @param ActionRegistry             $registry           Registry to resolve action ids from.
      * @param SafeRequestSender          $request_sender      Sends a prompt through the safety-validate → provider chain → sanitize sequence.
      * @param ActionRunRepository|null   $runs           Defaults to a new instance (injectable for tests).
      * @param ActivityLogRepository|null $activity_logs Defaults to a new instance (injectable for tests).
+     * @param AiCreditGatewayClient|null $credit_gateway Defaults to a new instance (injectable for tests).
+     * @param AiCreditsConnection|null   $credits_connection Defaults to a new instance (injectable for tests).
      */
     public function __construct(
         ActionRegistry $registry,
         SafeRequestSender $request_sender,
         ?ActionRunRepository $runs = null,
-        ?ActivityLogRepository $activity_logs = null
+        ?ActivityLogRepository $activity_logs = null,
+        ?AiCreditGatewayClient $credit_gateway = null,
+        ?AiCreditsConnection $credits_connection = null
     ) {
-        $this->registry       = $registry;
-        $this->request_sender = $request_sender;
-        $this->runs           = $runs ?? new ActionRunRepository();
-        $this->activity_logs  = $activity_logs ?? new ActivityLogRepository();
+        $this->registry           = $registry;
+        $this->request_sender     = $request_sender;
+        $this->runs               = $runs ?? new ActionRunRepository();
+        $this->activity_logs      = $activity_logs ?? new ActivityLogRepository();
+        $this->credits_connection = $credits_connection ?? new AiCreditsConnection();
+        $this->credit_gateway     = $credit_gateway ?? new AiCreditGatewayClient( $this->credits_connection );
     }
 
     /**
@@ -96,8 +123,7 @@ class ActionRunner {
         $action = $this->get_action_or_fail( $action_id );
 
         $input    = $action->validate_input( $raw_input );
-        $messages = $action->build_prompt( $input );
-        $response = $this->request_sender->send( $messages, null, 'ai_action' );
+        $response = $this->send_prompt_or_credits( $action_id, $action, $input );
 
         $output = $action->parse_response( $response );
         $action->validate_output( $output, $input );
@@ -140,6 +166,100 @@ class ActionRunner {
             'auto_approved'   => $auto_approved,
             'approval_method' => $approval_method,
         );
+    }
+
+    /**
+     * Chooses between the two ways this codebase can now actually get an
+     * AI completion for a proposed action: a site owner's own configured
+     * BYOK provider (unchanged, existing behavior — build_prompt() +
+     * SafeRequestSender), or VuloCloud's hosted AI Gateway spending real
+     * AI Credits (architecture plan §C). BYOK is preferred whenever it's
+     * configured — it costs the site owner nothing further once they've
+     * set up a key, so there's no reason to spend their credits on an
+     * action they can already do for free; credits are the fallback for a
+     * site with no BYOK provider configured at all, and only for the
+     * three action ids in CREDIT_FEATURE_MAP (VuloPilot brief §9's
+     * structured-request contract only has a real feature-catalog entry
+     * for those three today — every other action id always uses BYOK,
+     * exactly as it always has, whether or not credits are connected).
+     *
+     * @param string                             $action_id Real, registered action id.
+     * @param \VuloPilot\Contracts\AI\AIActionInterface $action    Same instance get_action_or_fail() already resolved.
+     * @param array                              $input     validate_input()'s own normalized output.
+     * @return \VuloPilot\ValueObjects\AIResponse
+     *
+     * @throws InsufficientCreditsException If the credits path was used and VuloCloud reports an empty balance.
+     * @throws \RuntimeException            If the credits path was used and VuloCloud is unreachable/misconfigured.
+     */
+    private function send_prompt_or_credits( string $action_id, $action, array $input ): AIResponse {
+        $use_credits = isset( self::CREDIT_FEATURE_MAP[ $action_id ] )
+            && $this->credits_connection->is_connected()
+            && ! $this->request_sender->has_configured_provider();
+
+        if ( ! $use_credits ) {
+            return $this->request_sender->send( $action->build_prompt( $input ), null, 'ai_action' );
+        }
+
+        list( $feature_id, $credit_action ) = self::CREDIT_FEATURE_MAP[ $action_id ];
+        $context = $this->build_credit_context( $action_id, $input );
+
+        $result = $this->credit_gateway->execute( $feature_id, $credit_action, $context );
+
+        if ( $result instanceof \WP_Error ) {
+            throw new \RuntimeException( $result->get_error_message() );
+        }
+
+        if ( empty( $result['success'] ) ) {
+            throw new InsufficientCreditsException(
+                __( 'You’ve used all your AI Credits.', 'vulopilot' ),
+                (int) ( $result['credits_remaining'] ?? 0 ),
+                (bool) ( $result['can_buy_credits'] ?? false ),
+                (bool) ( $result['can_upgrade'] ?? false )
+            );
+        }
+
+        // provider/model/token counts are deliberately generic —
+        // VuloCloud's feature catalog owns which real provider/model
+        // actually answered (VuloPilot brief §9), and its own
+        // /plugin/ai/execute response never exposes that to this site
+        // (§19) — parse_response()/validate_output()/build_preview() below
+        // only ever read get_content() regardless of these other fields.
+        return new AIResponse( $result['response'], 'vulocloud', 'hosted', 0, 0, 'stop' );
+    }
+
+    /**
+     * The structured `context` payload for one of CREDIT_FEATURE_MAP's
+     * three action ids — field names translated from each Action class's
+     * own validate_input() output into the exact names VuloCloud's
+     * matching feature-catalog entry expects (ai-feature-catalog.ts on the
+     * vulocloud side) since they don't always match 1:1 (e.g.
+     * WriteMetaTitleAction's own `previous_title` vs. the catalog's
+     * `title`).
+     *
+     * @param string $action_id Real, registered action id — always one of CREDIT_FEATURE_MAP's own keys.
+     * @param array  $input     validate_input()'s own normalized output for that same action.
+     * @return array<string, mixed>
+     */
+    private function build_credit_context( string $action_id, array $input ): array {
+        switch ( $action_id ) {
+            case 'write-meta-title':
+                return array(
+                    'title'   => $input['previous_title'],
+                    'content' => $input['content'],
+                );
+            case 'write-meta-description':
+                return array(
+                    'title'   => $input['title'],
+                    'content' => $input['content'],
+                );
+            case 'improve-readability':
+                return array(
+                    'content' => $input['original_content'],
+                    'goal'    => 'improve readability',
+                );
+            default:
+                return array();
+        }
     }
 
     /**

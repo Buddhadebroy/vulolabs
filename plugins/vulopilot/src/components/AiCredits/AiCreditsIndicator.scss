@@ -1,0 +1,177 @@
+// Mounted as a sibling of zyra's own HeaderComponent (see
+// AiCreditsIndicator.tsx's own docblock on why it isn't routed through
+// that component's utilityList prop) — position:relative here is what
+// PopupComponent's own `position="menu-dropdown"` absolute-positions
+// against.
+.ai-credits-indicator {
+	position: fixed;
+	// WordPress's own #wpadminbar is 32px tall and sits at z-index 99999,
+	// full-width above everything — confirmed live (a first pass at
+	// top: 14px rendered the indicator, but #wpadminbar physically
+	// covered it and intercepted every click, regardless of this
+	// element's own z-index). 46px clears it with the same ~14px breathing
+	// room the original offset intended; z-index only needs to beat
+	// zyra's own header content underneath it, not the admin bar itself,
+	// but is kept comfortably below 99999 so it can never re-cover it if
+	// WordPress ever changes the admin bar's own stacking.
+	top: 46px;
+	// Left of zyra's own search/utility icons in the header's right
+	// section — a fixed offset rather than trying to compute zyra's own
+	// layout width, same pragmatic approach this codebase already takes
+	// for a handful of other fixed-position admin overlays.
+	right: 320px;
+	z-index: 9999;
+}
+
+.ai-credits-indicator-trigger {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border: 1px solid #e0e0e0;
+	border-radius: 20px;
+	background: #fff;
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1e1e1e;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+	&:hover {
+		border-color: #7c3aed;
+		box-shadow: 0 0.125rem 0.375rem rgb(124 58 237 / 12%);
+	}
+}
+
+.ai-credits-indicator-bolt {
+	font-size: 14px;
+	line-height: 1;
+}
+
+.ai-credits-indicator-count {
+	white-space: nowrap;
+}
+
+.ai-credits-balance-panel {
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 4px;
+}
+
+.ai-credits-balance-panel-count {
+	font-size: 32px;
+	font-weight: 700;
+	color: #7c3aed;
+	line-height: 1;
+}
+
+.ai-credits-balance-panel-label {
+	font-size: 12px;
+	color: #757575;
+	margin-bottom: 8px;
+}
+
+.ai-credits-balance-panel-stats {
+	display: flex;
+	gap: 16px;
+	font-size: 12px;
+	color: #757575;
+	margin-bottom: 12px;
+}
+
+.ai-credits-balance-panel-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+	margin-top: 8px;
+}
+
+// Fully self-owned styling, not zyra's `.admin-btn` — confirmed live
+// (screenshot) that class alone renders as unstyled text in this context,
+// not the filled button Popup.tsx's own usage implied it would be.
+.ai-credits-balance-panel-primary-link {
+	display: block;
+	text-align: center;
+	padding: 9px 12px;
+	border-radius: 6px;
+	background: #7c3aed;
+	color: #fff;
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: 600;
+
+	&:hover {
+		background: #5b21b6;
+		color: #fff;
+	}
+}
+
+.ai-credits-balance-panel-secondary-link {
+	display: block;
+	text-align: center;
+	padding: 8px 12px;
+	border-radius: 6px;
+	border: 1px solid #e0e0e0;
+	color: #1e1e1e;
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: 600;
+
+	&:hover {
+		border-color: #7c3aed;
+		color: #7c3aed;
+	}
+}
+
+.ai-credits-balance-panel-refresh {
+	margin-top: 12px;
+	background: none;
+	border: none;
+	color: #757575;
+	font-size: 12px;
+	cursor: pointer;
+	text-decoration: underline;
+
+	&:hover {
+		color: #1e1e1e;
+	}
+}
+
+.ai-credits-connect-panel {
+	padding: 16px;
+	width: 100%;
+}
+
+.ai-credits-connect-panel-title {
+	font-size: 14px;
+	font-weight: 700;
+	color: #1e1e1e;
+	margin-bottom: 4px;
+}
+
+.ai-credits-connect-panel-desc {
+	font-size: 12px;
+	color: #757575;
+	margin-bottom: 12px;
+}
+
+.ai-credits-connect-panel-toggle {
+	display: block;
+	margin-top: 12px;
+	background: none;
+	border: none;
+	color: #7c3aed;
+	font-size: 12px;
+	cursor: pointer;
+	text-decoration: underline;
+	text-align: left;
+	padding: 0;
+
+	&:hover {
+		color: #5b21b6;
+	}
+}

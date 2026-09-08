@@ -145,3 +145,24 @@ if ( ! defined( 'VULOPILOT_GOOGLE_APPLICATION_ID' ) ) {
 if ( ! defined( 'VULOPILOT_VULOCLOUD_URL' ) ) {
 	define( 'VULOPILOT_VULOCLOUD_URL', '' );
 }
+
+/**
+ * The one, fixed VuloLabs-owned Organization id solo site owners register
+ * under when they pick "I'm a solo site owner" in the AI Credits connect
+ * panel (AiCreditsIndicator.tsx) instead of "I manage multiple client
+ * sites" — VuloCloud's Customer Portal auth
+ * (`organizations/{id}/portal/auth/register|login`) always lives under a
+ * specific Organization, unlike the agency path's self-service
+ * `POST /organizations` (AiCreditsConnection::resolve_organization_id()),
+ * which creates a brand-new one per account. Same "single deploy-time
+ * constant, wp-config.php-only for now" shape as
+ * VULOPILOT_PRO_APPLICATION_ID/VULOPILOT_GOOGLE_CLIENT_ID.
+ *
+ * Empty by default — the solo-site-owner choice is simply unavailable
+ * (AiCreditsConnection::connect_and_claim() returns a clear error rather
+ * than silently falling back to the agency path) until a real deploy sets
+ * this.
+ */
+if ( ! defined( 'VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID' ) ) {
+	define( 'VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID', '' );
+}
