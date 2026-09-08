@@ -427,7 +427,11 @@ const CrawlRobotsSitemapSection = () => {
 	if (!isSeoModuleActive()) {
 		return (
 			<ColumnComponent>
-				<CardComponent title={__('Robots & Sitemap', 'vulopilot')} titleIcon="link">
+				<CardComponent
+					title={__('Robots & Sitemap', 'vulopilot')}
+					titleIcon="link"
+					desc={__('Robots.txt and XML sitemap checks for this site.', 'vulopilot')}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__('SEO module is turned off', 'vulopilot')}

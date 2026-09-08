@@ -30,7 +30,11 @@ const SecurityTrendCard = () => {
 	);
 
 	return (
-		<CardComponent title={__('Security Trend', 'vulopilot')} titleIcon="security">
+		<CardComponent
+			title={__('Security Trend', 'vulopilot')}
+			titleIcon="security"
+			desc={__('Your daily security score over the last 30 days.', 'vulopilot')}
+		>
 			{!isLoading && snapshots.length === 0 ? (
 				<ModuleGuardComponent
 					icon="analytics"

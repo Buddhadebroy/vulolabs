@@ -96,76 +96,23 @@
 	margin: 0.75rem 0 0;
 }
 
-// AutomationActivityCard.tsx — "Recent automation activity"
-.automation-activity-view-all {
-	color: $theme-color;
-	font-weight: 600;
-	font-size: 0.8125rem;
-	cursor: pointer;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
+// AutomationActivityCard.tsx — "Recent automation activity". The row list
+// itself is zyra's own ListComponent (`mini-card report` variant) now, not
+// hand-rolled markup — only this row-level icon-color override still lives
+// here, since that variant has no per-item icon-color prop of its own
+// (unlike ActivityListComponent's `iconColor`). "Completed" (green) needs
+// no override — it already reads as `mini-card report`'s own default
+// theme-purple icon color.
 .automation-activity-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0.875rem;
-	margin-top: 0.5rem;
-}
-
-.automation-activity-row {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.75rem;
-	padding-top: 0.875rem;
-	border-top: $border-light-small;
-
-	&:first-child {
-		padding-top: 0;
-		border-top: none;
-	}
-}
-
-.automation-activity-icon {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
-	border-radius: 0.5rem;
-	background: color-mix(in srgb, $theme-color 10%, transparent);
-	color: $theme-color;
-
-	&.is-red {
+	.item.is-red .item-icon {
 		background: color-mix(in srgb, #dc2626 12%, transparent);
 		color: #dc2626;
 	}
 
-	&.is-grey {
+	.item.is-grey .item-icon {
 		background: $border-color;
 		color: $sub-text-color;
 	}
-}
-
-.automation-activity-body {
-	flex: 1;
-	min-width: 0;
-
-	p {
-		margin: 0.125rem 0 0;
-		color: $sub-text-color;
-		font-size: 0.8125rem;
-	}
-}
-
-.automation-activity-time {
-	display: block;
-	color: $sub-text-color;
-	font-size: 0.75rem;
-	margin-bottom: 0.125rem;
 }
 
 // AutomationStatsRow.tsx's own hero header — "Your website is being
@@ -332,99 +279,23 @@
 	}
 }
 
-// ManageAutomationsSection.tsx's restyled table — the "AUTOMATION" cell
-// (icon + name + real category badge), "WHAT IT DOES" cell, "LAST RUN"
-// cell (date + a real colored outcome), and the real enable/disable toggle
-// switch, all rendered via TableCard's own `header.render(row)` (confirmed
-// against its compiled source — a fully custom cell, not one of its
-// built-in `type`s).
-.automations-name-cell {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
+// ManageAutomationsSection.tsx's restyled table, now 2 columns (hideHeader):
+// column 1 (icon + name + "what it does"/"runs" description + real category
+// badge) is TableCard's own built-in `type: 'info'` cell now
+// (InformationItemComponent, styled by zyra's own Table.scss, not here — no
+// `.automations-name-cell`/`-icon`/`-text` of this page's own any more).
+// Column 2 (enable/disable toggle + Run now + Open) is still this page's own
+// custom `header.render(row)` cell (confirmed against TableCard's compiled
+// source). The former "LAST RUN" 3rd column (`.automations-last-run*`) was
+// removed per direct instruction.
 
-	.automations-name-icon {
-		width: 2rem;
-		height: 2rem;
-		border-radius: 0.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-shrink: 0;
-		background: color-mix(in srgb, $theme-color 14%, transparent);
-
-		i {
-			color: $theme-color;
-		}
-	}
-
-	.automations-name-text {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		align-items: flex-start;
-	}
-}
-
-.automations-what-it-does {
-	color: $sub-text-color;
-	font-size: 0.8125rem;
-}
-
-.automations-last-run {
-	display: flex;
-	flex-direction: column;
-	gap: 0.125rem;
-
-	.automations-last-run-date {
-		font-size: 0.8125rem;
-	}
-
-	.automations-last-run-outcome {
-		font-size: 0.75rem;
-
-		&.is-good {
-			color: #16a34a;
-		}
-
-		&.is-attention {
-			color: #dc2626;
-		}
-
-		&.is-neutral {
-			color: $sub-text-color;
-		}
-	}
-}
-
+// Run now/Open are zyra's own `TableRowActions` now (its `.table-action`/
+// `.inline-actions` markup, styled by Table.scss) — no `.automations-run-now`/
+// `.automations-open` button styling of this page's own left to keep.
 .automations-status-actions {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-}
-
-.automations-run-now {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
-	border: $border-light-small;
-	border-radius: 0.375rem;
-	background: $background-white;
-	cursor: pointer;
-	color: $sub-text-color;
-	transition: border-color 0.15s ease, color 0.15s ease;
-
-	&:hover:not(:disabled) {
-		border-color: $theme-color;
-		color: $theme-color;
-	}
-
-	&:disabled {
-		cursor: not-allowed;
-		opacity: 0.5;
-	}
 }
 
 // Real category badges (`category` column — monitoring/security/content/

@@ -738,38 +738,38 @@
 // Copilot's own Issues tab) — same real classes confirmed against zyra's
 // compiled AnalyticsComponent source (AICopilot.scss's own docblock), same
 // severity palette as the table's own Priority badges above.
-.issues-summary-cards {
-	margin-bottom: 1rem;
+// .issues-summary-cards {
+// 	margin-bottom: 1rem;
 
-	.analytics-item.clickable {
-		border: 1px solid transparent;
-		transition: border-color 0.15s ease, background-color 0.15s ease;
+// 	.analytics-item.clickable {
+// 		border: 1px solid transparent;
+// 		transition: border-color 0.15s ease, background-color 0.15s ease;
 
-		&:hover {
-			background: $theme-background-color;
-		}
-	}
+// 		&:hover {
+// 			background: $theme-background-color;
+// 		}
+// 	}
 
-	.analytics-item:nth-child(2) .analytics-icon i {
-		color: #dc2626;
-	}
+// 	.analytics-item:nth-child(2) .analytics-icon i {
+// 		color: #dc2626;
+// 	}
 
-	.analytics-item:nth-child(3) .analytics-icon i {
-		color: #b45309;
-	}
+// 	.analytics-item:nth-child(3) .analytics-icon i {
+// 		color: #b45309;
+// 	}
 
-	.analytics-item:nth-child(4) .analytics-icon i {
-		color: #5baab3;
-	}
+// 	.analytics-item:nth-child(4) .analytics-icon i {
+// 		color: #5baab3;
+// 	}
 
-	&.active-priority-all .analytics-item:nth-child(1),
-	&.active-priority-high .analytics-item:nth-child(2),
-	&.active-priority-medium .analytics-item:nth-child(3),
-	&.active-priority-low .analytics-item:nth-child(4) {
-		border-color: $theme-color;
-		background: $color-primary-background;
-	}
-}
+// 	&.active-priority-all .analytics-item:nth-child(1),
+// 	&.active-priority-high .analytics-item:nth-child(2),
+// 	&.active-priority-medium .analytics-item:nth-child(3),
+// 	&.active-priority-low .analytics-item:nth-child(4) {
+// 		border-color: $theme-color;
+// 		background: $color-primary-background;
+// 	}
+// }
 
 // The side detail panel (IssueDetailPanel.tsx, reused as-is from AI
 // Copilot's own Issues tab).

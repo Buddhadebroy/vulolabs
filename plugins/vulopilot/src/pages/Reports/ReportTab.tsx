@@ -213,6 +213,7 @@ const ReportTab = () => {
 					<CardComponent
 						title={__('Reports', 'vulopilot')}
 						titleIcon="error"
+						desc={__('Generate and download reports for this site.', 'vulopilot')}
 						action={pageHeaderAction}
 					>
 						<ModuleGuardComponent

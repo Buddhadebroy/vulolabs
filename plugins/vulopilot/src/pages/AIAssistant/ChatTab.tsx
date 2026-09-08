@@ -698,10 +698,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 			</ColumnComponent>
 
 			<ColumnComponent >
-				<RecentConversationsSection onSelectConversation={handleSelectConversation} />
-			</ColumnComponent>
-
-			<ColumnComponent >
 				<SectionComponent
 						title={__('Issues', 'vulopilot')}
 						desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}

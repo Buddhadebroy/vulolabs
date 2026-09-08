@@ -111,7 +111,11 @@ const PagesNeedingAttentionTable = ({ onAnalyze, activePostId }: PagesNeedingAtt
 
 	if (hasError) {
 		return (
-			<CardComponent title={__('Pages that need attention', 'vulopilot')} titleIcon="error">
+			<CardComponent
+				title={__('Pages that need attention', 'vulopilot')}
+				titleIcon="error"
+				desc={__('Real published pages with the most open SEO issues.', 'vulopilot')}
+			>
 				<ModuleGuardComponent
 					icon="error"
 					title={__('Could not load these pages', 'vulopilot')}
@@ -219,6 +223,11 @@ const PagesNeedingAttentionTable = ({ onAnalyze, activePostId }: PagesNeedingAtt
 											.post_id === activePostId
 											? __('Viewing', 'vulopilot')
 											: __('Analyze', 'vulopilot'),
+									color: (row) =>
+										(row as unknown as PageNeedingAttentionRow)
+											.post_id === activePostId
+											? 'text-green'
+											: 'text-purple',
 									icon: (row) =>
 										(row as unknown as PageNeedingAttentionRow)
 											.post_id === activePostId

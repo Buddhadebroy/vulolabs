@@ -58,6 +58,7 @@ const SECTIONS: FindingsSection[] = [
 			'Weak or easily-guessed admin credentials, plus real IPs blocked by Login Protection\'s brute-force lockout.',
 			'vulopilot'
 		),
+		icon: 'user-circle',
 		emptyMessage: __(
 			'No login/account findings yet — run a scan to check for weak credentials.',
 			'vulopilot'
@@ -83,6 +84,7 @@ const SECTIONS: FindingsSection[] = [
 			'file-editor',
 			'basic-vulnerabilities',
 		],
+		icon: 'eye',
 	},
 	{
 		key: 'browser-protection',
@@ -96,6 +98,7 @@ const SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		scannerIds: ['security-headers'],
+		icon: 'privacy',
 	},
 	{
 		key: 'ssl-connection',
@@ -106,6 +109,7 @@ const SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		scannerIds: ['ssl-monitoring'],
+		icon: 'lock',
 	},
 	{
 		key: 'malware-intrusion',
@@ -119,6 +123,7 @@ const SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		scannerIds: ['malware', 'firewall'],
+		icon: 'exclude',
 	},
 	{
 		key: 'vulnerabilities',
@@ -132,6 +137,7 @@ const SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		scannerIds: ['advanced-vulnerabilities', 'theme-vulnerabilities'],
+		icon: 'report',
 	},
 	{
 		key: 'suspicious-file-changes',
@@ -145,6 +151,7 @@ const SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		scannerIds: ['core-file-integrity', 'integrity-monitoring'],
+		icon: 'document',
 	},
 ];
 

@@ -228,13 +228,13 @@ const Accessibility = () => {
 				}
 			/>
 			<ContainerComponent general>
-				<ColumnComponent grid={4}>
+				<ColumnComponent fullHeight grid={4}>
 					<AccessibilityHeroCard
 						onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
 						onViewAll={() => goToIssuesTable('all')}
 					/>
 				</ColumnComponent>
-				<ColumnComponent grid={8}>
+				<ColumnComponent fullHeight grid={8}>
 					<AccessibilityChecksGrid onReview={goToIssuesTable} />
 				</ColumnComponent>
 				<ColumnComponent>

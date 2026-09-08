@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
+	ActivityListComponent,
 	BadgeComponent,
 	CardComponent,
 	ChartComponent,
@@ -66,12 +67,26 @@ const ScoreDelta = ({ change }: { change: number }) => (
  * `area` is `null` while loading or before this score area has real data —
  * that tile then renders header-only (icon/title), same as the old
  * `ScoreStatCard`'s own empty body.
+ *
+ * `trend`, when given, becomes the tile's own `chart` (a real sparkline —
+ * MetricTileComponent's `chart.type: 'sparkline'`). Real data only: the
+ * combined "Visibility Score" tile gets `progress.trend`'s own multi-point
+ * daily history (already fetched for the "Visibility Trend" chart below,
+ * reused here rather than a second endpoint); Brand/SEO/GEO have no
+ * per-area history endpoint of their own, so each gets its own real
+ * `[previous_score, score]` 2-point line instead of a fabricated longer
+ * series — still genuinely the real direction/shape of that area's last
+ * change, just not a daily-resolution one. Omitted (no `chart` at all)
+ * whenever fewer than 2 real points exist, same "never render a single dot
+ * as if it were a trend" reasoning `trendUplift` below already applies to
+ * the bigger chart.
  */
 const scoreTile = (
 	id: string,
 	title: string,
 	icon: string,
-	area: VisibilityArea | { score: number; change: number } | null
+	area: VisibilityArea | { score: number; change: number } | null,
+	trend?: number[]
 ): MetricTileItem => ({
 	id,
 	icon,
@@ -81,6 +96,10 @@ const scoreTile = (
 		? { text: getRating(area.score), color: ratingClass(area.score) }
 		: undefined,
 	stat: area ? <ScoreDelta change={area.change} /> : undefined,
+	chart:
+		trend && trend.length > 1
+			? { type: 'sparkline', data: trend }
+			: undefined,
 });
 
 type PeriodDays = '7' | '30' | '90';
@@ -307,28 +326,43 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 						scoreTile(
 							'visibility',
 							__('Visibility Score', 'vulopilot'),
-							'bar-chart',
+							'bar-chart red',
 							score
 								? { score: score.visibility_score, change: score.change }
-								: null
+								: null,
+							progress
+								? progress.trend.map(
+										(point: { date: string; score: number }) =>
+											point.score
+									)
+								: undefined
 						),
 						scoreTile(
 							'brand',
 							__('Brand Visibility Score', 'vulopilot'),
-							'person',
-							areas?.brand ?? null
+							'person green',
+							areas?.brand ?? null,
+							areas?.brand
+								? [areas.brand.previous_score, areas.brand.score]
+								: undefined
 						),
 						scoreTile(
-							'seo',
+							'seo ',
 							__('SEO Health Score', 'vulopilot'),
-							'search',
-							areas?.seo ?? null
+							'search yellow',
+							areas?.seo ?? null,
+							areas?.seo
+								? [areas.seo.previous_score, areas.seo.score]
+								: undefined
 						),
 						scoreTile(
-							'geo',
+							'geo ',
 							__('GEO Visibility Score', 'vulopilot'),
-							'search-discovery',
-							areas?.geo ?? null
+							'search-discovery blue',
+							areas?.geo ?? null,
+							areas?.geo
+								? [areas.geo.previous_score, areas.geo.score]
+								: undefined
 						),
 					]}
 				/>
@@ -473,16 +507,15 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							desc={__('Scans, alerts, and applied fixes will appear here as they happen.', 'vulopilot')}
 						/>
 					) : (
-						<ul className="activity-log">
-							{activity.map((row) => (
-								<li key={row.id} className='activity'>
-									<div className="title">{row.message}</div>
-									<span>
-										{timeAgo(row.created_at)}
-									</span>
-								</li>
-							))}
-						</ul>
+						<ActivityListComponent
+							cols={1}
+							items={activity.map((row) => ({
+								id: String(row.id),
+								icon: 'clock',
+								title: row.message,
+								timestamp: timeAgo(row.created_at),
+							}))}
+						/>
 					)}
 				</CardComponent>
 			</ColumnComponent>

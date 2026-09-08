@@ -45,7 +45,7 @@ const DEFAULT_DUMMY_CONTENT = (
  * ```tsx
  * const { wrap } = useContentGate('ai-copilot');
  * return (
- *   <CardComponent title="…" titleIcon="ai" isLoading={isLoading}>
+ *   <CardComponent title="…" titleIcon="ai" desc="…" isLoading={isLoading}>
  *     {wrap(realContent, dummyContent)}
  *   </CardComponent>
  * );

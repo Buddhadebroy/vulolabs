@@ -263,6 +263,12 @@ const IssuesSection = () => {
 												selectedGroup?.scanner_id
 													? __('Showing', 'vulopilot')
 													: __('More Details', 'vulopilot'),
+											color: (row) =>
+												(row as unknown as FindingGroup)
+													.scanner_id ===
+												selectedGroup?.scanner_id
+													? 'text-green'
+													: 'text-purple',
 											icon: (row) =>
 												(row as unknown as FindingGroup)
 													.scanner_id ===

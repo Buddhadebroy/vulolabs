@@ -887,7 +887,11 @@ const BrokenLinksSection = () => {
 		<>
 			<ColumnComponent>
 				{!isSeoModuleActive() ? (
-					<CardComponent title={__('Broken Links', 'vulopilot')} titleIcon="link">
+					<CardComponent
+						title={__('Broken Links', 'vulopilot')}
+						titleIcon="link"
+						desc={__('Broken links and images found across your site.', 'vulopilot')}
+					>
 						<ModuleGuardComponent
 							icon="error"
 							title={__('SEO module is turned off', 'vulopilot')}

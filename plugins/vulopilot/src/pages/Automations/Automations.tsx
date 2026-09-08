@@ -179,58 +179,59 @@ const Automations = () => {
 			/>
 
 			<ContainerComponent general>
-				<ColumnComponent grid={7}>
+				<ColumnComponent grid={6}>
 					<AutomationsStatsRow />
 				</ColumnComponent>
-				<ColumnComponent grid={5}>
+				<ColumnComponent grid={6}>
 					<AutomationsPeriodStatsCard />
 					<AutomationsAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
 				</ColumnComponent>
-			</ContainerComponent>
 
 
-			<AutomationsSuggestions
-				onUseTemplate={openTemplate}
-				onOpenAutomation={openRow}
-				refetchSignal={refetchSignal}
-			/>
-
-			<ManageAutomationsSection
-				hasWizard={Boolean(Wizard)}
-				onOpenRow={openRow}
-				onRequireProUpsell={openProPopup}
-				refetchSignal={refetchSignal}
-			/>
-
-			<AutomationsActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
-
-			{Wizard && (
-				<Wizard
-					openSignal={wizardOpenSignal}
-					initialName={pendingTemplate?.category ? pendingTemplate.label : undefined}
-					initialCategory={pendingTemplate?.category ?? undefined}
-					initialTriggerType={pendingTemplate?.triggerType ?? undefined}
-					initialActionTypes={pendingTemplate?.actionTypes ?? undefined}
-					viewAutomation={viewingRow}
-					onSaved={handleSaved}
+				<AutomationsSuggestions
+					onUseTemplate={openTemplate}
+					onOpenAutomation={openRow}
+					refetchSignal={refetchSignal}
 				/>
-			)}
-
-			{Generate && <Generate openSignal={generateOpenSignal} onSaved={handleSaved} />}
-
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="automations" />
-				) : (
-					<ShowProPopup />
+				<ColumnComponent grid={7} fullHeight>
+					<ManageAutomationsSection
+						hasWizard={Boolean(Wizard)}
+						onOpenRow={openRow}
+						onRequireProUpsell={openProPopup}
+						refetchSignal={refetchSignal}
+					/>
+				</ColumnComponent>
+				<ColumnComponent grid={5} fullHeight>
+					<AutomationsActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
+				</ColumnComponent>
+				{Wizard && (
+					<Wizard
+						openSignal={wizardOpenSignal}
+						initialName={pendingTemplate?.category ? pendingTemplate.label : undefined}
+						initialCategory={pendingTemplate?.category ?? undefined}
+						initialTriggerType={pendingTemplate?.triggerType ?? undefined}
+						initialActionTypes={pendingTemplate?.actionTypes ?? undefined}
+						viewAutomation={viewingRow}
+						onSaved={handleSaved}
+					/>
 				)}
-			</PopupComponent>
+
+				{Generate && <Generate openSignal={generateOpenSignal} onSaved={handleSaved} />}
+
+				<PopupComponent
+					open={isProPopupOpen}
+					onClose={() => setIsProPopupOpen(false)}
+					width={31.25}
+					height="auto"
+					position="lightbox"
+				>
+					{appLocalizer.khali_dabba ? (
+						<ShowProPopup moduleName="automations" />
+					) : (
+						<ShowProPopup />
+					)}
+				</PopupComponent>
+			</ContainerComponent>
 		</>
 	);
 };

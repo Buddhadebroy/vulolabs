@@ -353,7 +353,11 @@ const BackupsTab = () => {
 
 	if (error) {
 		return (
-			<CardComponent title={__('Backups', 'vulopilot')} titleIcon="error">
+			<CardComponent
+				title={__('Backups', 'vulopilot')}
+				titleIcon="error"
+				desc={__('Database and file backups for this site.', 'vulopilot')}
+			>
 				<ModuleGuardComponent
 					icon="error"
 					title={__('Could not load backups', 'vulopilot')}

@@ -128,10 +128,10 @@ const SiteHealthTab = ({ onNavigateToBackups }: SiteHealthTabProps) => {
 					<ColumnComponent>
 						<BackupProtectionNotice onNavigateToBackups={onNavigateToBackups} />
 					</ColumnComponent>
-					<ColumnComponent grid={6}>
+					<ColumnComponent fullHeight grid={6}>
 						<SiteHealthStatusCard />
 					</ColumnComponent>
-					<ColumnComponent grid={6}>
+					<ColumnComponent fullHeight grid={6}>
 						<FindingsHeroCard
 							icon="active"
 							label={__('Site Health', 'vulopilot')}

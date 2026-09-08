@@ -120,7 +120,11 @@ const BrandVisibilityTab = () => {
 	if (!isBrandModuleActive()) {
 		return (
 			<ColumnComponent general>
-				<CardComponent title={__('Brand', 'vulopilot')} titleIcon="module">
+				<CardComponent
+					title={__('Brand', 'vulopilot')}
+					titleIcon="module"
+					desc={__('Trust, authority, and entity signals across your site.', 'vulopilot')}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__(
@@ -146,15 +150,16 @@ const BrandVisibilityTab = () => {
 			header={
 				<>
 					<BrandScoreCard />
-					{AuthorityTrendsCard && <AuthorityTrendsCard />}
 					<ContainerComponent>
 						<ColumnComponent grid={6} fullHeight>
-							{CompetitorComparisonCard && <CompetitorComparisonCard />}
+							{AuthorityTrendsCard && <AuthorityTrendsCard />}
 						</ColumnComponent>
 						<ColumnComponent grid={6} fullHeight>
 							{KnowledgePanelCard && <KnowledgePanelCard />}
 						</ColumnComponent>
 					</ContainerComponent>
+					{CompetitorComparisonCard && <CompetitorComparisonCard />}
+
 				</>
 			}
 			footer={

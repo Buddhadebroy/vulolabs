@@ -124,7 +124,11 @@ const CrawlOverviewSection = () => {
 	return (
 		<ColumnComponent>
 			{error ? (
-				<CardComponent title={__('Crawler Traffic', 'vulopilot')} titleIcon="error">
+				<CardComponent
+					title={__('Crawler Traffic', 'vulopilot')}
+					titleIcon="error"
+					desc={__('Real crawler visits to your site, over time.', 'vulopilot')}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__(

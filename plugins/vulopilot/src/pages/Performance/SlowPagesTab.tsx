@@ -470,7 +470,11 @@ const SlowPagesTab = () => {
 		return (
 			<ContainerComponent>
 				<ColumnComponent>
-					<CardComponent title={__('Slow Pages', 'vulopilot')} titleIcon="error">
+					<CardComponent
+						title={__('Slow Pages', 'vulopilot')}
+						titleIcon="error"
+						desc={__('Pages with the slowest real load times.', 'vulopilot')}
+					>
 						<ModuleGuardComponent
 							icon="error"
 							title={__('Could not load Slow Pages', 'vulopilot')}
@@ -692,6 +696,10 @@ const SlowPagesTab = () => {
 											(row as unknown as PageSpeedRow).id === detailRow?.id
 												? __('Showing', 'vulopilot')
 												: __('More Details', 'vulopilot'),
+										color: (row) =>
+											(row as unknown as PageSpeedRow).id === detailRow?.id
+												? 'text-green'
+												: 'text-purple',
 										icon: (row) =>
 											(row as unknown as PageSpeedRow).id === detailRow?.id
 												? 'eye'
@@ -843,7 +851,11 @@ const SlowPagesTab = () => {
 					)}
 				</CardComponent>
 
-				<CardComponent title={__('Why these pages are slow?', 'vulopilot')} titleIcon="info">
+				<CardComponent
+					title={__('Why these pages are slow?', 'vulopilot')}
+					titleIcon="info"
+					desc={__('The most common issues dragging your pages down.', 'vulopilot')}
+				>
 					{0 === topIssues.length ? (
 						<ModuleGuardComponent
 							icon="check"

@@ -187,7 +187,11 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 
 	if (!row) {
 		return (
-			<CardComponent title={__('Selected item', 'vulopilot')} titleIcon="ai">
+			<CardComponent
+				title={__('Selected item', 'vulopilot')}
+				titleIcon="ai"
+				desc={__('More detail on the entry you select from the timeline.', 'vulopilot')}
+			>
 				<ModuleGuardComponent
 					icon="ai"
 					title={__('Select an item', 'vulopilot')}
@@ -265,6 +269,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 			className="issue-detail-panel history-detail-panel"
 			title={rowTitle(row)}
 			titleIcon="clock"
+			desc={formatWpDate(row.created_at)}
 			action={
 				<i
 					className="adminfont-close"
@@ -281,14 +286,6 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 				/>
 			}
 		>
-			<p className="small desc">
-				{sprintf(
-					/* translators: %s: formatted date this event happened */
-					__('%s', 'vulopilot'),
-					formatWpDate(row.created_at)
-				)}
-			</p>
-			
 			<FormGroupWrapperComponent>
 			{row.scan && (
 				<>

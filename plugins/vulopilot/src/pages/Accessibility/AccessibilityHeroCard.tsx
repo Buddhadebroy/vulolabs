@@ -203,7 +203,7 @@ const AccessibilityHeroCard = ({
 							{
 								text: __('Review Important Issues', 'vulopilot'),
 								rightIcon: 'pagination-right-arrow',
-								color: 'purple-bg',
+								color: 'border-purple',
 								onClick: onReviewIssues,
 							},
 							...(total > 0

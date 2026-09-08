@@ -162,18 +162,43 @@ const SectionedIssuesTable = ({
 		)
 		.map((group) => group.scanner_id);
 
-	const tabs: { id: SectionedIssuesTab; label: string; count: number }[] = [
+	const tabs: {
+		id: SectionedIssuesTab;
+		label: string;
+		description: string;
+		icon?: string;
+		count: number;
+	}[] = [
+		{
+			id: 'all',
+			label: __('All', 'vulopilot'),
+			description: __(
+				'Every open finding across every category below.',
+				'vulopilot'
+			),
+			icon: 'security',
+			count: sumGroupCounts(groups, allScannerIds),
+		},
 		{
 			id: 'important',
 			label: __('Important', 'vulopilot'),
+			description: __(
+				'Critical and high-severity findings that need attention first.',
+				'vulopilot'
+			),
+			icon: 'error',
 			count: sumGroupCounts(groups, importantScannerIds),
 		},
 		...sections.map((section) => ({
 			id: section.key,
 			label: section.title,
+			description: section.description,
+			icon: section.icon,
 			count: sumGroupCounts(groups, section.scannerIds),
 		})),
 	];
+
+	const activeTabMeta = tabs.find((tab) => tab.id === activeTab);
 
 	const scannerIdsForTab: Record<string, string[]> = {
 		all: allScannerIds,
@@ -331,6 +356,12 @@ const SectionedIssuesTable = ({
 													selectedGroup?.scanner_id
 														? __('Showing', 'vulopilot')
 														: __('More Details', 'vulopilot'),
+												color: (row) =>
+													(row as unknown as FindingGroup)
+														.scanner_id ===
+													selectedGroup?.scanner_id
+														? 'text-green'
+														: 'text-purple',
 												icon: (row) =>
 													(row as unknown as FindingGroup)
 														.scanner_id ===
@@ -391,7 +422,11 @@ const SectionedIssuesTable = ({
 
 	return (
 		<ContainerComponent id={id} className="sectioned-issues-table">
-			<SectionComponent title={title} />
+			<SectionComponent
+				title={title}
+				desc={activeTabMeta?.description}
+				icon={activeTabMeta?.icon}
+			/>
 
 			<TabsComponent
 				activeIndex={Math.max(

@@ -571,7 +571,12 @@ const RedirectsSection = () => {
 	if (error) {
 		return (
 			<ColumnComponent>
-				<CardComponent title={__('Redirects', 'vulopilot')} titleIcon="link" action={headerAction}>
+				<CardComponent
+					title={__('Redirects', 'vulopilot')}
+					titleIcon="link"
+					desc={__('Every redirect rule you\'ve set up.', 'vulopilot')}
+					action={headerAction}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__('Could not load redirects', 'vulopilot')}

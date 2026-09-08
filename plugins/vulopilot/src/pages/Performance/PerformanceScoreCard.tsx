@@ -349,7 +349,13 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 				</CardComponent>
 			</ColumnComponent>
 			<ColumnComponent grid={4} row fullHeight>
-				<CardComponent id="performance-core-web-vitals-card" title={__('Core Web Vitals', 'vulopilot')} titleIcon="analytics" isLoading={isLoading}>
+				<CardComponent
+					id="performance-core-web-vitals-card"
+					title={__('Core Web Vitals', 'vulopilot')}
+					titleIcon="analytics"
+					desc={__('Real Google Core Web Vitals for this site.', 'vulopilot')}
+					isLoading={isLoading}
+				>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
 							icon="error"
