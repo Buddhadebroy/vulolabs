@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 
 interface PageSpeedIssue {
@@ -138,32 +138,36 @@ const BiggestSpeedOpportunityCard = ({
 			)}
 			{!isLoading && opportunity && (
 				<>
-					<div className="speed-opportunity-title">
-						{opportunity.label}
-					</div>
-					<div className="desc">
-						{'page_speed' === opportunity.source
-							? sprintf(
-								/* translators: %d is the number of real pages this issue affects. */
-								_n(
-									'Affects %d page.',
-									'Affects %d pages.',
-									opportunity.count,
-									'vulopilot'
-								),
-								opportunity.count
-							)
-							: sprintf(
-								/* translators: %d is the number of real endpoints this issue affects. */
-								_n(
-									'Affects %d endpoint.',
-									'Affects %d endpoints.',
-									opportunity.count,
-									'vulopilot'
-								),
-								opportunity.count
-							)}
-					</div>
+					<AnalyticsComponent
+						variant="with-out-boxshadow"
+						data={[
+							{
+								icon: 'single-product',
+								iconClass: 'admin-bg-color2',
+								number: opportunity.label,
+								text:
+									'page_speed' === opportunity.source
+										? sprintf(
+											_n(
+												'Affects %d page.',
+												'Affects %d pages.',
+												opportunity.count,
+												'vulopilot'
+											),
+											opportunity.count
+										)
+										: sprintf(
+											_n(
+												'Affects %d endpoint.',
+												'Affects %d endpoints.',
+												opportunity.count,
+												'vulopilot'
+											),
+											opportunity.count
+										),
+							},
+						]}
+					/>
 					<ButtonInput
 						position="full-width"
 						buttons={{

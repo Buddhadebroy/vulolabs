@@ -909,7 +909,7 @@ const RecentContentCard = () => {
 				className="transparent-table"
 				showMenu={false}
 				hideHeader={true}
-				expandOnRowClick
+				expandable
 				headers={{
 					title: {
 						key: 'contentTitle',
@@ -922,41 +922,42 @@ const RecentContentCard = () => {
 						badgesKey: 'contentBadges',
 					},
 					action: {
+						type: 'action',
 						label: __('Actions', 'vulopilot'),
-						render: (row: ContentRow) => (
-							<ButtonInput
-								buttons={[
-									{
-										text: __('Edit', 'vulopilot'),
-										icon: 'edit',
-										color: 'text-yellow',
-										onClick: () =>
-											(window.location.href = row.editLink),
-									},
-									{
-										text: __('View', 'vulopilot'),
-										icon: 'eye',
-										color: 'text-blue',
-										disabled: !row.viewLink,
-										onClick: () => {
-											if (row.viewLink) {
-												window.open(row.viewLink, '_blank', 'noreferrer');
-											}
-										},
-									},
-									{
-										text:
-											deletingId === row.id
-												? __('Deleting…', 'vulopilot')
-												: __('Delete', 'vulopilot'),
-										icon: 'delete',
-										color: 'text-red',
-										disabled: deletingId === row.id,
-										onClick: () => handleDelete(row),
-									},
-								]}
-							/>
-						),
+						actions: [
+							{
+								label: __('Edit', 'vulopilot'),
+								icon: 'edit yellow',
+								onClick: (row?: Record<string, unknown>) =>
+									(window.location.href = (row as ContentRow).editLink),
+							},
+							{
+								label: __('View', 'vulopilot'),
+								icon: 'eye blue',
+								hidden: (row?: Record<string, unknown>) =>
+									!(row as ContentRow)?.viewLink,
+								onClick: (row?: Record<string, unknown>) => {
+									const viewLink = (row as ContentRow).viewLink;
+									if (viewLink) {
+										window.open(viewLink, '_blank', 'noreferrer');
+									}
+								},
+							},
+							{
+								label: (row?: Record<string, unknown>) =>
+									deletingId === (row as ContentRow)?.id
+										? __('Deleting…', 'vulopilot')
+										: __('Delete', 'vulopilot'),
+								icon: 'delete',
+								onClick: (row?: Record<string, unknown>) => {
+									const contentRow = row as ContentRow;
+									if (deletingId === contentRow.id) {
+										return;
+									}
+									handleDelete(contentRow);
+								},
+							},
+						],
 					},
 				}}
 				rows={tableRows}

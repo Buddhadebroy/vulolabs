@@ -18,8 +18,10 @@ interface IssuesSummaryCardsProps {
 interface SummaryTile {
 	priority: Priority;
 	colorClass: string;
+	icon: string;
 	number: number;
 	text: string;
+	linkText: string;
 }
 
 const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
@@ -39,37 +41,47 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 	const data: (SummaryTile & { onClick?: (item: SummaryTile) => void })[] = [
 		{
 			priority: 'high',
-			colorClass: 'green',
+			colorClass: 'red',
+			icon: 'error',
 			number: priorityCounts.high,
-			text: __('High', 'vulopilot'),
+			text: __('High priority', 'vulopilot'),
+			linkText: __('View issues', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
 			priority: 'medium',
-			colorClass: 'blue',
+			colorClass: 'orange',
+			icon: 'error',
 			number: priorityCounts.medium,
-			text: __('Medium', 'vulopilot'),
+			text: __('Medium priority', 'vulopilot'),
+			linkText: __('View issues', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 		{
 			priority: 'low',
-			colorClass: 'red',
+			colorClass: 'green',
+			icon: 'check',
 			number: priorityCounts.low,
-			text: __('Low', 'vulopilot'),
+			text: __('Low priority', 'vulopilot'),
+			linkText: __('View issues', 'vulopilot'),
 			onClick: isLoading ? undefined : handleClick,
 		},
 	];
 
 	return (
-		// <div className={`issues-summary-cards active-priority-${activePriority}`}>
+		<div className="issues-summary-cards">
+			<div className="details-wrapper">
+				<div className="title">{__('Filter by priority', 'vulopilot')}</div>
+				<div className="desc">{__('Click a priority level to view matching issues', 'vulopilot')}</div>
+			</div>
 			<AnalyticsComponent
 				data={data}
 				className={`active-priority-${activePriority}`}
-				variant="small-card"
+				variant="priority-card"
 				cols={3}
 				isLoading={isLoading}
 			/>
-		// </div>
+		</div>
 	);
 };
 

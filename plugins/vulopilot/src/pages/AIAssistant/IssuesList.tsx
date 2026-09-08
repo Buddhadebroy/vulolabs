@@ -15,6 +15,7 @@ import {
 	findTabIdForCategory,
 	formatAffected,
 } from './issuesTypes';
+import { COLOR_PANEL } from 'recharts/types/util/Constants';
 
 interface GroupsResponse {
 	data: FindingGroup[];
@@ -183,15 +184,25 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			/>
 		);
 	}
-	const tableCategoryCounts = CATEGORY_TABS.map((tab) => ({
-		value: tab.id,
-		label: tab.label,
-		count: tab.categories.reduce(
-			(sum, category) =>
-				sum + (categoryCounts[category] ?? 0),
-			0
-		),
-	}));
+	const tableCategoryCounts = [
+		{
+			value: 'all',
+			label: __('All', 'vulopilot'),
+			count: Object.values(categoryCounts).reduce(
+				(sum, count) => sum + count,
+				0
+			),
+		},
+		...CATEGORY_TABS.map((tab) => ({
+			value: tab.id,
+			label: tab.label,
+			count: tab.categories.reduce(
+				(sum, category) =>
+					sum + (categoryCounts[category] ?? 0),
+				0
+			),
+		})),
+	];
 
 	return (
 		<>
@@ -279,15 +290,21 @@ const IssuesList: React.FC<IssuesListProps> = ({
 											label: (row) =>
 												(row as unknown as FindingGroup)
 													.scanner_id ===
-												selectedGroup?.scanner_id
+													selectedGroup?.scanner_id
 													? __('Showing', 'vulopilot')
 													: __('More Details', 'vulopilot'),
+											color: (row) =>
+												(row as unknown as FindingGroup)
+													.scanner_id ===
+													selectedGroup?.scanner_id
+													? 'text-green'
+													: 'text-purple',
 											icon: (row) =>
 												(row as unknown as FindingGroup)
 													.scanner_id ===
-												selectedGroup?.scanner_id
-														? 'eye'
-														: 'pagination-next-arrow',
+													selectedGroup?.scanner_id
+													? 'eye'
+													: 'pagination-next-arrow',
 											onClick: (row) => {
 												const group = row as unknown as FindingGroup;
 												setSelectedGroup(

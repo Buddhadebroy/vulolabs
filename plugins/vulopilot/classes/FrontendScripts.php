@@ -115,8 +115,32 @@ class FrontendScripts {
             'vulopilot-admin-style',
             self::get_asset_url() . 'styles/index.css',
             array(),
-            VULOPILOT_PLUGIN_VERSION
+            self::get_style_version()
         );
+    }
+
+    /**
+     * Cache-busting version for the built `styles/index.css` bundle. Unlike
+     * index.js/vendors.js — versioned off wp-scripts' own generated
+     * `.asset.php` content hash, which changes on every real rebuild — the
+     * webpack config emits this CSS file under a fixed `styles/[name].css`
+     * name with no hash of its own (tools/webpack/create-config.js's
+     * MiniCssExtractPlugin config), so falling back to the static
+     * VULOPILOT_PLUGIN_VERSION here (as this used to) means a `pnpm watch`
+     * rebuild — including changes to the zyra scss this bundle also
+     * contains — never changes the enqueued URL and the browser keeps
+     * serving its cached copy of the old CSS until a hard refresh. Real
+     * `filemtime()` of the built file changes on every rebuild, dev or
+     * production alike, so this fixes both without needing a hard refresh;
+     * falls back to the plugin version when the file doesn't exist yet
+     * (e.g. before the first `pnpm build`).
+     *
+     * @return string
+     */
+    private static function get_style_version() {
+        $style_path = VuloPilot()->plugin_path . 'assets/styles/index.css';
+
+        return file_exists( $style_path ) ? (string) filemtime( $style_path ) : VULOPILOT_PLUGIN_VERSION;
     }
 
     /**

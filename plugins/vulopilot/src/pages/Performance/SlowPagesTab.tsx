@@ -692,6 +692,10 @@ const SlowPagesTab = () => {
 											(row as unknown as PageSpeedRow).id === detailRow?.id
 												? __('Showing', 'vulopilot')
 												: __('More Details', 'vulopilot'),
+										color: (row) =>
+											(row as unknown as PageSpeedRow).id === detailRow?.id
+												? 'text-green'
+												: 'text-purple',
 										icon: (row) =>
 											(row as unknown as PageSpeedRow).id === detailRow?.id
 												? 'eye'

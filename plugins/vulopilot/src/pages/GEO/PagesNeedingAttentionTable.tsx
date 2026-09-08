@@ -219,6 +219,11 @@ const PagesNeedingAttentionTable = ({ onAnalyze, activePostId }: PagesNeedingAtt
 											.post_id === activePostId
 											? __('Viewing', 'vulopilot')
 											: __('Analyze', 'vulopilot'),
+									color: (row) =>
+										(row as unknown as PageNeedingAttentionRow)
+											.post_id === activePostId
+											? 'text-green'
+											: 'text-purple',
 									icon: (row) =>
 										(row as unknown as PageNeedingAttentionRow)
 											.post_id === activePostId

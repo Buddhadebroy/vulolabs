@@ -1,7 +1,9 @@
 @use './config' as *;
-.admin-header .left-section .brand-logo{
+
+.admin-header .left-section .brand-logo {
     height: 3.313rem !important;
 }
+
 .history-timeline {
     display: flex;
     flex-direction: column;
@@ -124,14 +126,6 @@
     }
 }
 
-
-
-.tabs-wrapper {
-    // width: 100%; // remove and fixed improve speed
-}
-
-
-// 
 .broken-link-scan-summary-row {
 
     .card-body {
@@ -178,16 +172,37 @@
     background: $theme-background-color;
     border-radius: 0.313rem;
 
-    .best-for-label{
+    .best-for-label {
         color: $theme-color;
     }
+
     .desc {
         font-size: 0.813rem;
         line-height: 1.2;
         margin-top: 0.313rem;
     }
 
-    &.orange .best-for-label{
+    &.orange .best-for-label {
         color: #e67a2e;
+    }
+}
+
+
+// issue table filter 
+.issues-summary-cards {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.625rem;
+    border: $border-light-small;
+    border-radius: $border-radius-small;
+    background: #f5f5f5;
+
+    .details-wrapper{
+        width: 20%;
+    }
+
+    .analytics-container{
+        width: 80%;
     }
 }
