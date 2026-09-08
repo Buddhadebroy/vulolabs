@@ -1,8 +1,8 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, BadgeComponent, ListComponent } from '@zyra/components';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
+import { CardComponent, BadgeComponent, ActivityListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 
 interface AutomationRunRow {
@@ -22,7 +22,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 const STATUS_META: Record<AutomationRunRow['status'], { label: string; color: string }> = {
 	completed: { label: __('Completed', 'vulopilot'), color: 'green' },
 	failed: { label: __('Failed', 'vulopilot'), color: 'red' },
-	running: { label: __('Running', 'vulopilot'), color: 'grey' },
+	running: { label: __('Running', 'vulopilot'), color: 'gray' },
 };
 
 /** Real "Today, 9:00 AM"/"Yesterday, 8:00 AM"/"Aug 9, 8:00 AM" — same technique `AutomationStatsRow.tsx`'s own `formatLastCheck()` already established, extended with a real "Yesterday" case since this feed shows several rows spanning more than just today/not-today. */
@@ -114,32 +114,32 @@ const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsAc
 	return (
 		<CardComponent
 			title={__('Recent automation activity', 'vulopilot')}
-				titleIcon="clock"
-				desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
+			titleIcon="clock"
+			desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
 			isLoading={isLoading}
 			action={
 				<ButtonInput
 					buttons={{
 						text: __('View automation history', 'vulopilot'),
-						icon: 'arrow-right',
+						rightIcon: 'arrow-right',
 						color: 'text-purple',
 						onClick: onViewHistory,
 					}}
 				/>
 			}
 		>
-			<ListComponent
-				className="automation-activity-list mini-card report"
+			<ActivityListComponent
 				items={rows.map((row: AutomationRunRow) => {
 					const status = STATUS_META[row.status];
 
 					return {
 						id: String(row.id),
-						icon: 'automation orange',
-						className: `is-${status.color}`,
+						icon: 'automation',
+						iconColor: COLOR_PALETTE[status.color as keyof typeof COLOR_PALETTE],
 						title: `${row.automation_name} ${status.label.toLowerCase()}`,
-						desc: `${formatActivityTime(row.finished_at ?? row.started_at)} · ${describeOutcome(row)}`,
-						tags: <BadgeComponent color={status.color} text={status.label} />,
+						badge: <BadgeComponent color={status.color} text={status.label} />,
+						desc: describeOutcome(row),
+						timestamp: formatActivityTime(row.finished_at ?? row.started_at),
 					};
 				})}
 			/>

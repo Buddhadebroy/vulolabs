@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { MultiCheckboxInput } from '@zyra/inputs';
-import { TableCard, TableRow, TableRowActions, ActionItem } from '@zyra/table';
+import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { CATEGORY_LABELS, TRIGGER_TYPE_LABELS, describeAutomationActions } from './automationsLabels';
 
@@ -62,50 +62,22 @@ interface StatusToggleProps {
 	row: AutomationRow;
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onToggle: (row: AutomationRow) => void;
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
-	onRunNow: (row: AutomationRow) => void;
-	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
-	onOpen: (row: AutomationRow) => void;
 }
 
 /**
- * Toggle + Run now + Open, all folded into this one 2nd/last column — was
- * 2 separate headers (`status`/`open`) before that merge (a 3rd column,
- * "Last run", also existed briefly during the merge and was removed per
- * direct instruction). Run now/Open themselves are TableCard's own native
- * row-action mechanism (`TableRowActions`, the same `ActionItem[]` shape
- * `useFindingsTable.tsx`'s own `actions`-type headers already use) — real
- * icon buttons with a real tooltip, not 2 hand-rolled `<button>`s —
- * rendered inline here (rather than as a separate `type: 'action'` header
- * of their own) so they stay next to the toggle in this one column.
+ * Just the enable/disable toggle now — Run now/Open moved out to their own
+ * `type: 'action'` header (see `headers.actions` below) instead of being
+ * rendered inline here via `TableRowActions`, per direct instruction.
  */
-const StatusToggleCell = ({ row, onToggle, onRunNow, onOpen }: StatusToggleProps) => {
-	const rowActions: ActionItem[] = [
-		{
-			label: __('Run now', 'vulopilot'),
-			icon: 'refresh blue',
-			onClick: () => onRunNow(row),
-		},
-		{
-			label: __('Open', 'vulopilot'),
-			icon: 'external yellow',
-			onClick: () => onOpen(row),
-		},
-	];
-
-	return (
-		<div className="automations-status-actions">
-			<MultiCheckboxInput
-				look="toggle"
-				options={[{ value: 'enabled', label: '' }]}
-				value={'enabled' === row.status ? ['enabled'] : []}
-				onChange={() => onToggle(row)}
-				modules={[]}
-			/>
-			<TableRowActions row={row} rowActions={rowActions} />
-		</div>
-	);
-};
+const StatusToggleCell = ({ row, onToggle }: StatusToggleProps) => (
+	<MultiCheckboxInput
+		look="toggle"
+		options={[{ value: 'enabled', label: '' }]}
+		value={'enabled' === row.status ? ['enabled'] : []}
+		onChange={() => onToggle(row)}
+		modules={[]}
+	/>
+);
 
 interface ManageAutomationsSectionProps {
 	/** Whether the real wizard resolved (`vulopilot_automations_panel`'s own `Wizard` — Pro active and the Automations module on) — gates whether row actions call the real endpoints directly or fall back to the upsell popup. */
@@ -127,9 +99,9 @@ interface ManageAutomationsSectionProps {
  * history / the redesign plan this was built against for that duplication.
  * Toggle/Run now now call the real endpoints directly from here either way
  * (previously only ever real inside Pro's own now-removed internal table);
- * "Open" (folded into `StatusToggleCell`'s own `onOpen`, alongside Toggle/
- * Run now, as this table's 2nd/last column) hands off to the real wizard's
- * read-only view when one exists.
+ * "Open" (its own `type: 'action'` header, alongside Run now — see
+ * `headers.actions` below) hands off to the real wizard's read-only view
+ * when one exists.
  */
 const ManageAutomationsSection = ({
 	hasWizard,
@@ -189,10 +161,10 @@ const ManageAutomationsSection = ({
 	};
 
 	return (
-		<div id="automation-manage">
 			<CardComponent
 				title={__('Your automations', 'vulopilot')}
 				titleIcon="automation"
+				id="automation-manage"
 				desc={__('React to scan findings automatically — enable, pause, or run an automation, and see when it last ran.', 'vulopilot')}
 			>
 				{error ? (
@@ -206,6 +178,7 @@ const ManageAutomationsSection = ({
 				) : (
 					<TableCard
 						hideHeader={true}
+						className="transparent-table"
 						search={{ placeholder: __('Search automations…', 'vulopilot') }}
 						format={appLocalizer.date_format_js}
 						headers={{
@@ -222,19 +195,33 @@ const ManageAutomationsSection = ({
 							status: {
 								label: __('Status', 'vulopilot'),
 								render: (row: AutomationRow) => (
-									<StatusToggleCell
-										row={row}
-										onToggle={handleToggle}
-										onRunNow={handleRunNow}
-										onOpen={handleOpen}
-									/>
+									<StatusToggleCell row={row} onToggle={handleToggle} />
 								),
+							},
+							actions: {
+								label: '',
+								type: 'action',
+								actions: [
+									{
+										label: __('Run now', 'vulopilot'),
+										icon: 'refresh blue',
+										onClick: (row?: Record<string, unknown>) =>
+											row && handleRunNow(row as unknown as AutomationRow),
+									},
+									{
+										label: __('Open', 'vulopilot'),
+										icon: 'external yellow',
+										onClick: (row?: Record<string, unknown>) =>
+											row && handleOpen(row as unknown as AutomationRow),
+									},
+								],
 							},
 						}}
 						rows={data.map(withInfoColumnFields)}
 						ids={data.map((row) => row.id)}
 						totalRows={total}
-						categoryCounts={categoryCounts}
+						// categoryCounts={categoryCounts}
+						showMenu={false}
 						isLoading={isLoading}
 						onQueryUpdate={onQueryUpdate}
 						emptyMessage={__(
@@ -244,7 +231,6 @@ const ManageAutomationsSection = ({
 					/>
 				)}
 			</CardComponent>
-		</div>
 	);
 };
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
+	ActivityListComponent,
 	BadgeComponent,
 	CardComponent,
 	ChartComponent,
@@ -506,16 +507,15 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							desc={__('Scans, alerts, and applied fixes will appear here as they happen.', 'vulopilot')}
 						/>
 					) : (
-						<ul className="activity-log">
-							{activity.map((row) => (
-								<li key={row.id} className='activity'>
-									<div className="title">{row.message}</div>
-									<span>
-										{timeAgo(row.created_at)}
-									</span>
-								</li>
-							))}
-						</ul>
+						<ActivityListComponent
+							cols={1}
+							items={activity.map((row) => ({
+								id: String(row.id),
+								icon: 'clock',
+								title: row.message,
+								timestamp: timeAgo(row.created_at),
+							}))}
+						/>
 					)}
 				</CardComponent>
 			</ColumnComponent>

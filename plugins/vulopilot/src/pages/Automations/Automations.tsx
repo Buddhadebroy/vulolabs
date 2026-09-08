@@ -179,10 +179,10 @@ const Automations = () => {
 			/>
 
 			<ContainerComponent general>
-				<ColumnComponent grid={7}>
+				<ColumnComponent grid={6}>
 					<AutomationsStatsRow />
 				</ColumnComponent>
-				<ColumnComponent grid={5}>
+				<ColumnComponent grid={6}>
 					<AutomationsPeriodStatsCard />
 					<AutomationsAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
 				</ColumnComponent>
@@ -193,7 +193,7 @@ const Automations = () => {
 					onOpenAutomation={openRow}
 					refetchSignal={refetchSignal}
 				/>
-				<ColumnComponent grid={7}>
+				<ColumnComponent grid={7} fullHeight>
 					<ManageAutomationsSection
 						hasWizard={Boolean(Wizard)}
 						onOpenRow={openRow}
@@ -201,7 +201,7 @@ const Automations = () => {
 						refetchSignal={refetchSignal}
 					/>
 				</ColumnComponent>
-				<ColumnComponent grid={5}>
+				<ColumnComponent grid={5} fullHeight>
 					<AutomationsActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
 				</ColumnComponent>
 				{Wizard && (

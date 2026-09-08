@@ -81,28 +81,28 @@ const AutomationsPeriodStatsCard = () => {
 	const tiles = [
 		{
 			icon: 'calendar',
-			iconClass: 'is-primary',
+			iconClass: 'red',
 			number: stats ? String(stats.runs) : '—',
 			text: __('Checks completed', 'vulopilot'),
 			extra: stats ? pctBadge(stats.runs, stats.previous.runs) : undefined,
 		},
 		{
 			icon: 'document',
-			iconClass: 'is-good',
+			iconClass: 'green',
 			number: stats ? String(stats.changes_made) : '—',
 			text: __('Changes made', 'vulopilot'),
 			extra: stats ? pctBadge(stats.changes_made, stats.previous.changes_made) : undefined,
 		},
 		{
 			icon: 'bell',
-			iconClass: 'is-attention',
+			iconClass: 'blue',
 			number: stats ? String(alertsSent) : '—',
 			text: __('Alerts sent', 'vulopilot'),
 			extra: stats ? pctBadge(alertsSent, previousAlertsSent) : undefined,
 		},
 		{
 			icon: 'automation',
-			iconClass: 'is-info',
+			iconClass: 'pink',
 			number: stats ? String(reportsDelivered) : '—',
 			text: __('Reports delivered', 'vulopilot'),
 			extra: stats ? pctBadge(reportsDelivered, previousReportsDelivered) : undefined,
