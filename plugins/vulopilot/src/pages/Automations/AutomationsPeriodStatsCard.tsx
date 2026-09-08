@@ -78,31 +78,44 @@ const AutomationsPeriodStatsCard = () => {
 	const reportsDelivered = stats?.action_type_totals?.['send-email'] ?? 0;
 	const previousReportsDelivered = stats?.previous?.action_type_totals?.['send-email'] ?? 0;
 
+	/**
+	 * `iconClass: '{color}-bg'` + `colorClass: '{color}'` — the same paired
+	 * classes zyra's own `AnalyticsComponent` "dashboard" variant story uses
+	 * (`iconClass: 'primary-color-bg'`/`colorClass: 'primary-color'`), not
+	 * just a bare color name: this variant's own SCSS forces the icon glyph
+	 * to `color: #fff`, which only reads correctly against the solid `-bg`
+	 * fill — the bare name class gives a pale tinted background instead,
+	 * fighting that white icon color.
+	 */
 	const tiles = [
 		{
 			icon: 'calendar',
-			iconClass: 'red',
+			iconClass: 'red-bg',
+			colorClass: 'red',
 			number: stats ? String(stats.runs) : '—',
 			text: __('Checks completed', 'vulopilot'),
 			extra: stats ? pctBadge(stats.runs, stats.previous.runs) : undefined,
 		},
 		{
 			icon: 'document',
-			iconClass: 'green',
+			iconClass: 'green-bg',
+			colorClass: 'green',
 			number: stats ? String(stats.changes_made) : '—',
 			text: __('Changes made', 'vulopilot'),
 			extra: stats ? pctBadge(stats.changes_made, stats.previous.changes_made) : undefined,
 		},
 		{
-			icon: 'bell',
-			iconClass: 'blue',
+			icon: 'plus',
+			iconClass: 'blue-bg',
+			colorClass: 'blue',
 			number: stats ? String(alertsSent) : '—',
 			text: __('Alerts sent', 'vulopilot'),
 			extra: stats ? pctBadge(alertsSent, previousAlertsSent) : undefined,
 		},
 		{
 			icon: 'automation',
-			iconClass: 'pink',
+			iconClass: 'pink-bg',
+			colorClass: 'pink',
 			number: stats ? String(reportsDelivered) : '—',
 			text: __('Reports delivered', 'vulopilot'),
 			extra: stats ? pctBadge(reportsDelivered, previousReportsDelivered) : undefined,
