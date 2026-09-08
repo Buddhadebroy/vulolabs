@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useLocation } from 'react-router-dom';
-import {
-	ContainerComponent,
-	NavigatorHeaderComponent,
-	TabsComponent
-} from '@zyra/components';
+import { useLocation, Link } from 'react-router-dom';
+import { NavigatorComponent } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
-import { pushSubtabUrl } from '../../services/pushSubtabUrl';
 import SiteHealthTab from '../Security/SiteHealthTab';
 import BackupsTab from '../Security/BackupsTab';
 
 const TAB_IDS = ['site-health', 'backups'] as const;
+
+const TAB_META: Record<
+	(typeof TAB_IDS)[number],
+	{ headerTitle: string; headerIcon: string }
+> = {
+	'site-health': { headerTitle: __('Site Health', 'vulopilot'), headerIcon: 'active' },
+	backups: { headerTitle: __('Backups', 'vulopilot'), headerIcon: 'error' },
+};
 
 /**
  * "Site Health" (WP menu slug `site-health`) — promoted out of the former
@@ -19,24 +22,35 @@ const TAB_IDS = ['site-health', 'backups'] as const;
  * hold Security/Site Health/Backups as inner tabs. Security became its own
  * standalone top-level page; Site Health and Backups are merged into this
  * one page as 2 real inner tabs — Site Health first (SiteHealthTab.tsx),
- * Backups second (BackupsTab.tsx) — same real `activeIndex`/`onTabChange`
- * + `subtab` deep-link shape Performance.tsx/GEO.tsx/Security.tsx already
- * use, replacing this page's own former no-tab-bar stacked layout.
+ * Backups second (BackupsTab.tsx).
+ *
+ * Tab bar/body are one `NavigatorComponent` rather than a bare
+ * `TabsComponent` — same real settings-navigator component
+ * Performance.tsx/SeoVisibility.tsx's own tab shells already use, reused
+ * here instead of a hand-rolled `TAB_IDS`-driven `TabsComponent` +
+ * separate `NavigatorHeaderComponent` above it. `NavigatorComponent` wraps
+ * its own tab body in `ContainerComponent general` internally, so no
+ * separate wrapper is needed here either. Each tab's `hideSettingHeader:
+ * true` suppresses `NavigatorComponent`'s own per-tab title/description
+ * section, since `SiteHealthTab`/`BackupsTab` already render their own.
+ *
+ * `activeTab` is still owned here (not left as `NavigatorComponent`'s own
+ * uncontrolled tracking) so `BackupProtectionNotice`'s "View Backups"
+ * action (rendered inside `SiteHealthTab.tsx`) can jump straight to the
+ * Backups tab in place instead of a full reload — fed into
+ * `NavigatorComponent`'s own `currentSetting` prop, same "re-syncs its
+ * internal active tab whenever `currentSetting` changes, not just on
+ * mount" behavior Performance.tsx's own conversion already relies on for
+ * the same kind of cross-tab jump.
  *
  * `SiteHealthTab`/`BackupsTab` are imported from `../Security/` rather
  * than physically moved — they're both still genuinely shared with
  * Security's own file tree there (`SectionedFindingsTab`,
  * `SectionedIssuesTable` types), same "kept here, cross-imported" choice
  * `Performance/OverviewTab.tsx` already makes for the Efficiency* cards it
- * shares with this same folder.
- *
- * `BackupProtectionNotice` now renders inside `SiteHealthTab.tsx` itself
- * (its own header, right before `SiteHealthStatusCard`) rather than above
- * the tab bar here — `goToBackups` is still owned by this component (it's
- * the one holding `activeTab` state) and passed down as
- * `onNavigateToBackups` so the notice's "View Backups" action can still
- * switch this page's real `backups` tab in place instead of a full reload
- * back to this same page.
+ * shares with this same folder. `BackupProtectionNotice` itself renders
+ * inside `SiteHealthTab.tsx` (its own header, right before
+ * `SiteHealthStatusCard`) rather than above the tab bar here.
  */
 const SiteHealth = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -53,49 +67,58 @@ const SiteHealth = () => {
 	);
 	const goToBackups = () => setActiveTab('backups');
 
+	const settingContent = TAB_IDS.map((tabId) => ({
+		type: 'file' as const,
+		content: {
+			id: tabId,
+			headerTitle: TAB_META[tabId].headerTitle,
+			headerIcon: TAB_META[tabId].headerIcon,
+			hideSettingHeader: true,
+		},
+	}));
+
+	const getForm = (tabId: string) => {
+		switch (tabId) {
+			case 'site-health':
+				return <SiteHealthTab onNavigateToBackups={goToBackups} />;
+			case 'backups':
+				return <BackupsTab />;
+			default:
+				return <div></div>;
+		}
+	};
+
 	return (
-		<>
-			<NavigatorHeaderComponent
-				headerIcon="active"
-				headerTitle={__('Site Health', 'vulopilot')}
-				headerDescription={__(
-					'A real-time check of your WordPress core, server, database, and backup protection.',
-					'vulopilot'
-				)}
-				headerCustomContent={
-					<RunScanHeaderExtra
-						categories={[
-							'wordpress',
-							'server',
-							'cron',
-							'database',
-							'updates',
-						]}
-						settingsSubtab="general"
-					/>
-				}
-			/>
-			<ContainerComponent general>
-				<TabsComponent
-					className="site-health-tabs"
-					activeIndex={TAB_IDS.indexOf(activeTab)}
-					onTabChange={(index) => {
-						setActiveTab(TAB_IDS[index]);
-						pushSubtabUrl('site-health', TAB_IDS[index]);
-					}}
-					tabs={[
-						{
-							label: __('Site Health', 'vulopilot'),
-							content: <SiteHealthTab onNavigateToBackups={goToBackups} />,
-						},
-						{
-							label: __('Backups', 'vulopilot'),
-							content: <BackupsTab />,
-						},
+		<NavigatorComponent
+			headerIcon="active"
+			headerTitle={__('Site Health', 'vulopilot')}
+			headerDescription={__(
+				'A real-time check of your WordPress core, server, database, and backup protection.',
+				'vulopilot'
+			)}
+			headerCustomContent={
+				<RunScanHeaderExtra
+					categories={[
+						'wordpress',
+						'server',
+						'cron',
+						'database',
+						'updates',
 					]}
+					settingsSubtab="general"
 				/>
-			</ContainerComponent>
-		</>
+			}
+			className="site-health-tabs"
+			settingContent={settingContent}
+			currentSetting={activeTab}
+			getForm={getForm}
+			prepareUrl={(subTab: string) =>
+				`?page=vulopilot#&tab=site-health&subtab=${subTab}`
+			}
+			Link={Link}
+			settingName="Site Health"
+			menuIcon
+		/>
 	);
 };
 

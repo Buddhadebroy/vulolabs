@@ -283,43 +283,43 @@
 // applied despite every tile already being a real, working priority
 // filter (IssuesSummaryCards.tsx's own `handleClick` — fixed alongside
 // this, see that file's docblock for the matching click-handling bug).
-.issues-summary-cards {
-	margin-bottom: 1rem;
+// .issues-summary-cards {
+// 	margin-bottom: 1rem;
 
-	// `AnalyticsComponent` already renders a real `<button>` (not a div)
-	// whenever `item.onClick` is set, and adds its own "clickable" class —
-	// this just adds the hover/transition polish a plain button lacks.
-	.analytics-item.clickable {
-		border: 1px solid transparent;
-		transition: border-color 0.15s ease, background-color 0.15s ease;
+// 	// `AnalyticsComponent` already renders a real `<button>` (not a div)
+// 	// whenever `item.onClick` is set, and adds its own "clickable" class —
+// 	// this just adds the hover/transition polish a plain button lacks.
+// 	.analytics-item.clickable {
+// 		border: 1px solid transparent;
+// 		transition: border-color 0.15s ease, background-color 0.15s ease;
 
-		&:hover {
-			background: $theme-background-color;
-		}
-	}
+// 		&:hover {
+// 			background: $theme-background-color;
+// 		}
+// 	}
 
-	// Shifted down one slot each (was 2/3/4) now that the "All Issues"
-	// tile (formerly slot 1) is gone — High/Medium/Low are the only tiles
-	// left, in slots 1/2/3.
-	.analytics-item:nth-child(1) .analytics-icon i {
-		color: #dc2626;
-	}
+// 	// Shifted down one slot each (was 2/3/4) now that the "All Issues"
+// 	// tile (formerly slot 1) is gone — High/Medium/Low are the only tiles
+// 	// left, in slots 1/2/3.
+// 	.analytics-item:nth-child(1) .analytics-icon i {
+// 		color: #dc2626;
+// 	}
 
-	.analytics-item:nth-child(2) .analytics-icon i {
-		color: #b45309;
-	}
+// 	.analytics-item:nth-child(2) .analytics-icon i {
+// 		color: #b45309;
+// 	}
 
-	.analytics-item:nth-child(3) .analytics-icon i {
-		color: #5baab3;
-	}
+// 	.analytics-item:nth-child(3) .analytics-icon i {
+// 		color: #5baab3;
+// 	}
 
-	&.active-priority-high .analytics-item:nth-child(1),
-	&.active-priority-medium .analytics-item:nth-child(2),
-	&.active-priority-low .analytics-item:nth-child(3) {
-		border-color: $theme-color;
-		background: $color-primary-background;
-	}
-}
+// 	&.active-priority-high .analytics-item:nth-child(1),
+// 	&.active-priority-medium .analytics-item:nth-child(2),
+// 	&.active-priority-low .analytics-item:nth-child(3) {
+// 		border-color: $theme-color;
+// 		background: $color-primary-background;
+// 	}
+// }
 
 // Category tab bar — same local pattern as Content's own
 // .recent-content-tabs/.recent-content-tab (CreateContent.scss), scoped
