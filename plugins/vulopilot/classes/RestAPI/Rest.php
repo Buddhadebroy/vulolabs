@@ -139,6 +139,7 @@ class Rest {
             'google_services'             => new Controllers\GoogleServices(),
             'keyword_rankings'            => new Controllers\KeywordRankings(),
             'vulocloud_account'           => new Controllers\VuloCloudAccount(),
+            'ai_credits'                  => new Controllers\AiCredits(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );
