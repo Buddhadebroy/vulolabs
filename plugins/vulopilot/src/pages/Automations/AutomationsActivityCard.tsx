@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, BadgeComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 
 interface AutomationRunRow {
 	id: number;
@@ -117,9 +118,13 @@ const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsAc
 				desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
 			isLoading={isLoading}
 			action={
-				<span className="automation-activity-view-all" onClick={onViewHistory}>
-					{__('View automation history →', 'vulopilot')}
-				</span>
+				<ButtonInput
+					buttons={{
+						text: __('View automation history →', 'vulopilot'),
+						color: 'text-purple',
+						onClick: onViewHistory,
+					}}
+				/>
 			}
 		>
 			<div className="automation-activity-list">

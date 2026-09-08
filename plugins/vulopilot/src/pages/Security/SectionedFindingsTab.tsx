@@ -8,6 +8,8 @@ export interface FindingsSection {
 	key: string;
 	title: string;
 	description: string;
+	/** adminfont icon name (no `adminfont-` prefix) shown next to this section's tab-bar title in SectionedIssuesTable's own header — e.g. `'lock'`. Optional: a section with none just renders no icon, same as the 'All'/'Important' tabs before this field existed. */
+	icon?: string;
 	emptyMessage: string;
 	scannerIds: string[];
 	/**
