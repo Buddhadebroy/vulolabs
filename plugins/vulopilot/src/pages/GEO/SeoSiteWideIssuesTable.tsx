@@ -196,109 +196,111 @@ const SeoSiteWideIssuesTable = ({
 
 	return (
 		<>
-			<SectionComponent
+			<CardComponent
 				title={__('Site-wide Issues', 'vulopilot')}
+				titleIcon="module"
 				desc={__('Not tied to a specific page — these affect the whole site (e.g. your XML sitemap or robots.txt).', 'vulopilot')}
-			/>
-			<TableCard
-				showMenu={false}
-				className="transparent-table"
-				hideHeader={true}
-				headers={{
-					title: {
-						key: 'title',
-						type: 'info',
-						label: __('Issue', 'vulopilot'),
-						width: '55%',
-						descriptionKey: 'descriptionItems',
-						badgesKey: 'titleBadges',
-					},
-					action: {
-						label: __('Action', 'vulopilot'),
-						type: 'action',
-						actions: [
-							{
-								type: 'button',
-								label: __('Resolve', 'vulopilot'),
-								icon: 'check',
-								color: 'text-blue',
-								onClick: (row) =>
-									handleStatus(
-										row as unknown as RawFinding,
-										'resolved',
-										__(
-											'Finding marked as resolved.',
-											'vulopilot'
-										)
-									),
-							},
-							{
-								type: 'button',
-								label: __('Ignore', 'vulopilot'),
-								color: 'text-red',
-								icon: 'eye-blocked',
-								onClick: (row) =>
-									handleStatus(
-										row as unknown as RawFinding,
-										'ignored',
-										__('Finding ignored.', 'vulopilot')
-									),
-							},
-							{
-								type: 'button',
-								label: (row) =>
-									fixingFindingId ===
-									(row as unknown as RawFinding)?.id
-										? __('Fixing…', 'vulopilot')
-										: __('Fix with AI', 'vulopilot'),
-								icon: 'ai',
-								color: 'orange-bg',
-								onClick: (row) => {
-									const finding = row as unknown as RawFinding;
-									// Was `onClick: undefined` on the raw
-									// `<BadgeComponent>` badge to disable the
-									// click while a fix is already running —
-									// `ActionItem.onClick` is required here, so
-									// a no-op stands in for that same "ignore
-									// clicks mid-fix" behavior instead.
-									if (fixingFindingId === finding.id) {
-										return;
-									}
-									handleFix(finding);
-								},
-							},
-						],
-					},
-				}}
-				rows={visibleFindings.map((finding) => ({
-					...finding,
-					titleBadges: [
-						{ text: finding.severity, color: `badge-${finding.severity}` },
-					],
-					descriptionItems: [
-						{ value: finding.scanner_id, icon: 'category' },
-						{ value: timeAgo(finding.created_at), icon: 'clock' },
-					],
-				}))}
-				ids={visibleFindings.map((finding) => finding.id)}
-				totalRows={visibleFindings.length}
-				isLoading={isLoading}
-				emptyMessage={__('No site-wide issues match this filter.', 'vulopilot')}
-			/>
-
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				
 			>
-				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="one-click-fix" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
+				<TableCard
+					showMenu={false}
+					className="transparent-table"
+					hideHeader={true}
+					headers={{
+						title: {
+							key: 'title',
+							type: 'info',
+							label: __('Issue', 'vulopilot'),
+							width: '55%',
+							descriptionKey: 'descriptionItems',
+							badgesKey: 'titleBadges',
+						},
+						action: {
+							label: __('Action', 'vulopilot'),
+							type: 'action',
+							actions: [
+								{
+									type: 'button',
+									label: __('Resolve', 'vulopilot'),
+									icon: 'check',
+									color: 'text-blue',
+									onClick: (row) =>
+										handleStatus(
+											row as unknown as RawFinding,
+											'resolved',
+											__(
+												'Finding marked as resolved.',
+												'vulopilot'
+											)
+										),
+								},
+								{
+									type: 'button',
+									label: __('Ignore', 'vulopilot'),
+									color: 'text-red',
+									icon: 'eye-blocked',
+									onClick: (row) =>
+										handleStatus(
+											row as unknown as RawFinding,
+											'ignored',
+											__('Finding ignored.', 'vulopilot')
+										),
+								},
+								{
+									type: 'button',
+									label: (row) =>
+										fixingFindingId ===
+											(row as unknown as RawFinding)?.id
+											? __('Fixing…', 'vulopilot')
+											: __('Fix with AI', 'vulopilot'),
+									icon: 'ai',
+									color: 'orange-bg',
+									onClick: (row) => {
+										const finding = row as unknown as RawFinding;
+										// Was `onClick: undefined` on the raw
+										// `<BadgeComponent>` badge to disable the
+										// click while a fix is already running —
+										// `ActionItem.onClick` is required here, so
+										// a no-op stands in for that same "ignore
+										// clicks mid-fix" behavior instead.
+										if (fixingFindingId === finding.id) {
+											return;
+										}
+										handleFix(finding);
+									},
+								},
+							],
+						},
+					}}
+					rows={visibleFindings.map((finding) => ({
+						...finding,
+						titleBadges: [
+							{ text: finding.severity, color: `badge-${finding.severity}` },
+						],
+						descriptionItems: [
+							{ value: finding.scanner_id, icon: 'category' },
+							{ value: timeAgo(finding.created_at), icon: 'clock' },
+						],
+					}))}
+					ids={visibleFindings.map((finding) => finding.id)}
+					totalRows={visibleFindings.length}
+					isLoading={isLoading}
+					emptyMessage={__('No site-wide issues match this filter.', 'vulopilot')}
+				/>
+
+				<PopupComponent
+					open={isProPopupOpen}
+					onClose={() => setIsProPopupOpen(false)}
+					width={31.25}
+					height="auto"
+
+				>
+					{appLocalizer.khali_dabba ? (
+						<ShowProPopup moduleName="one-click-fix" />
+					) : (
+						<ShowProPopup />
+					)}
+				</PopupComponent>
+			</CardComponent>
 		</>
 	);
 };

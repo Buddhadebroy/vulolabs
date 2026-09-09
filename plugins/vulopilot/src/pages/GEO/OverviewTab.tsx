@@ -320,12 +320,12 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 		<ContainerComponent>
 			<ColumnComponent>
 				<MetricTileComponent
-					cols={4}
+					cols={5}
 					isLoading={isLoading}
 					data={[
 						scoreTile(
 							'visibility',
-							__('Visibility Score', 'vulopilot'),
+							__('Overall Score', 'vulopilot'),
 							'bar-chart red',
 							score
 								? { score: score.visibility_score, change: score.change }
@@ -362,6 +362,15 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							areas?.geo ?? null,
 							areas?.geo
 								? [areas.geo.previous_score, areas.geo.score]
+								: undefined
+						),
+						scoreTile(
+							'crawl',
+							__('Crawl & URLs Score', 'vulopilot'),
+							'link purple',
+							areas?.crawl ?? null,
+							areas?.crawl
+								? [areas.crawl.previous_score, areas.crawl.score]
 								: undefined
 						),
 					]}
@@ -410,59 +419,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 			<ColumnComponent grid={6}>
 				<VisibilityBySourceCard />
 			</ColumnComponent>
-
-			<ColumnComponent grid={6} fullHeight>
-				<CardComponent
-					title={__('Visibility Breakdown', 'vulopilot')}
-					titleIcon="category"
-					desc={__('See how your site performs across each real area.', 'vulopilot')}
-					isLoading={isLoading}
-					action={
-						<ButtonInput
-							buttons={{
-								text: __('View all sections', 'vulopilot'),
-								rightIcon: 'pagination-right-arrow',
-								color: 'text-purple',
-								onClick: () => onNavigateTab('seo'),
-							}}
-						/>
-					}
-				>
-					{areas && (
-						<table className="geo-score-breakdown-table">
-							<thead>
-								<tr>
-									<th>{__('Area', 'vulopilot')}</th>
-									<th>{__('Score', 'vulopilot')}</th>
-									<th>{__('Change', 'vulopilot')}</th>
-									<th>{__('Status', 'vulopilot')}</th>
-								</tr>
-							</thead>
-							<tbody>
-								{(Object.keys(areas) as (keyof typeof areas)[]).map((key) => {
-									const area = areas[key];
-									return (
-										<tr key={key}>
-											<td>{area.label}</td>
-											<td>{area.score}/100</td>
-											<td>
-												<ScoreDelta change={area.change} />
-											</td>
-											<td>
-												<BadgeComponent
-													color={ratingClass(area.score)}
-													text={getRating(area.score)}
-												/>
-											</td>
-										</tr>
-									);
-								})}
-							</tbody>
-						</table>
-					)}
-				</CardComponent>
-			</ColumnComponent>
-			<ColumnComponent grid={6}>
+			<ColumnComponent grid={8}>
 				<GeoFixTheseFirstCard
 					title={__('Top Opportunities', 'vulopilot')}
 					emptyMessage={__('No open findings right now — nothing to fix.', 'vulopilot')}
@@ -479,9 +436,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 						onNavigateTab(group ? categoryToTab(group.category) : 'seo');
 					}}
 				/>
-			</ColumnComponent>
-
-			<ColumnComponent grid={6}>
 				<CardComponent
 					title={__('Recent Activity', 'vulopilot')}
 					titleIcon="clock"
@@ -519,7 +473,8 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-			<ColumnComponent grid={6} fullHeight>
+
+			<ColumnComponent grid={4} fullHeight>
 				<CardComponent
 					title={__('Quick Links', 'vulopilot')}
 					titleIcon="link"
