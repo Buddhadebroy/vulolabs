@@ -244,6 +244,14 @@ final class VuloPilot {
         $this->container['gsc_oauth_callback_handler'] = new Services\GoogleSearchConsoleOAuthCallbackHandler();
         $this->container['google_analytics_tracker']   = new Services\GoogleAnalyticsTracker();
 
+        // Connections → AI Providers' own passwordless "Connect to
+        // VuloCloud" broker redirect handler — same unconditional-
+        // construction/self-registers-its-own-admin_post-hook reasoning as
+        // gsc_oauth_callback_handler immediately above (a request to
+        // admin-post.php never fires rest_api_init, so this can't be
+        // lazily instantiated inside a REST controller).
+        $this->container['connect_broker_callback_handler'] = new Services\ConnectBrokerCallbackHandler();
+
         // SEO & Visibility → Keywords' real rank-tracking sync (daily cron
         // + Controllers\KeywordRankings::sync()'s own "Sync now") — same
         // unconditional-construction/self-registers-its-own-cron-hook
@@ -257,6 +265,15 @@ final class VuloPilot {
         // on publish/update/trash, gated by their own settings.
         $this->container['indexnow_key_file_server'] = new Services\IndexNowKeyFileServer();
         $this->container['indexnow_auto_submitter']  = new Services\IndexNowAutoSubmitter();
+
+        // Connections → AI Providers' "Site tone" field — learned
+        // automatically from the site's own recent content on
+        // publish/update (deferred via WP-Cron, never inline with the
+        // save), reusing the same ai_request_sender every AIAction/
+        // geo_analyzer/content_analyzer already goes through. Self-
+        // registers its own save_post/cron hooks, same unconditional-
+        // construction shape as indexnow_auto_submitter above.
+        $this->container['site_tone_learner'] = new Services\SiteToneLearner( $this->container['ai_request_sender'] );
 
         // One-Click Fix coverage pass for the SEO category (vulopilot-pro's
         // OneClickFix\ScannerFixMap) — the mechanical (non-AI) fixes for
@@ -296,7 +313,7 @@ final class VuloPilot {
         // every install should have in the inserter, not a Modules-system
         // toggle.
         $this->container['block_registrar']         = new Services\BlockRegistrar();
-        $this->container['heading_anchor_injector']  = new Services\Blocks\HeadingAnchorInjector();
+        $this->container['heading_anchor_injector'] = new Services\Blocks\HeadingAnchorInjector();
 
         // Redirects & 404s (readme.txt) — real functionality behind the
         // enable_redirect_manager/auto_redirect_on_slug_change/log_404s
@@ -346,9 +363,9 @@ final class VuloPilot {
         // shows up in the exact same findings/scans/SecurityMetricsGrid
         // machinery every other Security tile already uses.
         $this->container['login_protection_guard'] = new Services\LoginProtectionGuard();
-        $this->container['firewall_guard']          = new Services\FirewallGuard();
-        $this->container['backup_manager']          = new Services\BackupManager();
-        $this->container['backup_scheduler']        = new Services\BackupScheduler();
+        $this->container['firewall_guard']         = new Services\FirewallGuard();
+        $this->container['backup_manager']         = new Services\BackupManager();
+        $this->container['backup_scheduler']       = new Services\BackupScheduler();
 
         // Backups' own real cloud-storage destination (Amazon S3/Google
         // Drive) — BackupStorageManager self-registers on
@@ -359,7 +376,7 @@ final class VuloPilot {
         // redirect handler, same "admin-post.php needs unconditional
         // construction, not REST-lazy" reasoning
         // gsc_oauth_callback_handler above already documents.
-        $this->container['backup_storage_manager']              = new Services\BackupStorageManager();
+        $this->container['backup_storage_manager']               = new Services\BackupStorageManager();
         $this->container['backup_gdrive_oauth_callback_handler'] = new Services\BackupGoogleDriveOAuthCallbackHandler();
 
         // Extension SDK (ARCHITECTURE.md's Prompt 15) — vulopilot-pro and

@@ -9,6 +9,7 @@ namespace VuloPilot\AIProviders;
 
 use VuloPilot\Contracts\AI\AIProviderInterface;
 use VuloPilot\Repositories\AiProviderConfigRepository;
+use VuloPilot\Services\AiCreditsConnection;
 use VuloPilot\Services\CredentialEncryption;
 
 defined( 'ABSPATH' ) || exit;
@@ -43,11 +44,14 @@ class ProviderRegistry {
 
     private AiProviderConfigRepository $configs;
 
+    private AiCreditsConnection $credits_connection;
+
     /**
      * ProviderRegistry constructor.
      */
     public function __construct() {
-        $this->configs = new AiProviderConfigRepository();
+        $this->configs            = new AiProviderConfigRepository();
+        $this->credits_connection = new AiCreditsConnection();
 
         add_action( 'init', array( $this, 'register_providers' ), 20 );
     }
@@ -60,16 +64,20 @@ class ProviderRegistry {
     }
 
     /**
+     * 'vulocloud' collapses what used to be 5 separate, locally-configured
+     * cloud provider ids (openai/anthropic/gemini/openrouter/groq) into
+     * one entry — none of them hold a local credential or build a
+     * vendor-specific request anymore (VuloCloudProxyProvider's own
+     * docblock). 'ollama' is the one adapter that stays real, local, and
+     * individually configured, since it's the site's own infrastructure,
+     * not a vendor account VuloCloud could reach.
+     *
      * @return array<string, class-string<AIProviderInterface>>
      */
     private function get_default_adapter_classes(): array {
         return array(
-            'openai'     => Providers\OpenAiProvider::class,
-            'anthropic'  => Providers\AnthropicProvider::class,
-            'gemini'     => Providers\GeminiProvider::class,
-            'openrouter' => Providers\OpenRouterProvider::class,
-            'ollama'     => Providers\OllamaProvider::class,
-            'groq'       => Providers\GroqProvider::class,
+            'vulocloud' => Providers\VuloCloudProxyProvider::class,
+            'ollama'    => Providers\OllamaProvider::class,
         );
     }
 
@@ -95,12 +103,21 @@ class ProviderRegistry {
      * method must not be used anywhere a real request could actually be
      * sent, only for reading get_id()/get_label()/get_available_models().
      *
+     * 'vulocloud' is deliberately excluded — it has no local credential to
+     * manage from this panel at all (VuloCloudProxyProvider's own
+     * docblock); the Settings UI shows its connection status via a
+     * separate call (AiByokGatewayClient::status()), not this method.
+     *
      * @return array<string, array{label: string, available_models: string[], requires_credential: bool}>
      */
     public function get_available_adapters(): array {
         $adapters = array();
 
         foreach ( $this->adapter_classes as $provider_id => $class ) {
+            if ( 'vulocloud' === $provider_id ) {
+                continue;
+            }
+
             $instance = new $class( '' );
 
             $adapters[ $provider_id ] = array(
@@ -137,12 +154,33 @@ class ProviderRegistry {
      * Settings → AI Providers." — re-saving the key there re-encrypts it
      * under the current salt).
      *
-     * @param string $provider_id e.g. 'openai'.
+     * @param string $provider_id e.g. 'ollama', or 'vulocloud'.
      * @return AIProviderInterface|null
      */
     public function build_provider( string $provider_id ): ?AIProviderInterface {
         if ( ! isset( $this->adapter_classes[ $provider_id ] ) ) {
             return null;
+        }
+
+        $class = $this->adapter_classes[ $provider_id ];
+
+        // 'vulocloud' has no local credential row at all — "configured" is
+        // simply "this site is connected to VuloCloud"; whether an
+        // Organization or allowed Customer backup key actually exists is
+        // resolved server-side on every real call (VuloCloudProxyProvider's
+        // own docblock), not knowable — or needed — here.
+        if ( 'vulocloud' === $provider_id ) {
+            if ( ! $this->credits_connection->is_connected() ) {
+                return null;
+            }
+
+            $adapter = new $class( '' );
+
+            return new Decorators\UsageTrackingProvider(
+                new Decorators\RetryingProvider(
+                    new Decorators\RateLimitedProvider( $adapter )
+                )
+            );
         }
 
         $config = $this->configs->find_by_provider( $provider_id );
@@ -157,7 +195,6 @@ class ProviderRegistry {
             return null;
         }
 
-        $class   = $this->adapter_classes[ $provider_id ];
         $adapter = new $class( $credential );
 
         return new Decorators\UsageTrackingProvider(
@@ -197,12 +234,13 @@ class ProviderRegistry {
      * request (SafeRequestSender) should prefer this over blindly picking
      * a provider's get_available_models()[0]: an adapter's static model
      * catalog is a list of models the API *supports*, not a guarantee
-     * every one of them is available to every API key (e.g. a free-tier
-     * Gemini key rejecting "gemini-2.5-pro" — GeminiProvider's own
-     * catalog[0] — with "no longer available to new users," while
-     * "gemini-2.5-flash," this site's actual configured default, works).
+     * every one of them is available to every API key. Today this only
+     * ever has a real row for 'ollama' — 'vulocloud' has no local config
+     * at all, let alone a chosen default model (get_available_adapters()'s
+     * own docblock), since model choice for it happens entirely
+     * server-side now.
      *
-     * @param string $provider_id e.g. 'gemini'.
+     * @param string $provider_id e.g. 'ollama'.
      * @return string|null Null if unconfigured or no default was ever chosen.
      */
     public function get_default_model( string $provider_id ): ?string {
@@ -235,23 +273,22 @@ class ProviderRegistry {
 
     /**
      * Whether this provider's adapter actually emits a real inline image
-     * part when AIRequest::get_image() is set (GeminiProvider::build_body()
-     * today — the only adapter in this codebase built to send one; every
-     * other adapter's build_body()/AIRequest usage stays text-only and
-     * would silently never look at get_image() at all). Callers building a
-     * request with a real image attachment (Copilot.php) must check this
-     * against whichever provider will actually answer — build_fallback_chain()
-     * ->get_id() proxies to the first active provider in the chain — before
-     * attaching one, since a fallback chain can silently land on a
-     * different, non-vision provider first if more than one is configured.
-     * Sending an image to a provider that ignores it would make that
-     * provider guess/hallucinate a description instead of honestly saying
-     * it can't see the attachment, which is worse than not attaching it.
+     * part when AIRequest::get_image() is set. Currently always false: the
+     * one adapter this was ever true for (GeminiProvider) is gone now that
+     * cloud providers resolve through VuloCloudProxyProvider instead (see
+     * that class's own docblock) — and neither its wire contract
+     * (AiByokGatewayClient::execute()'s `{feature, prompt, context,
+     * site_tone}` body) nor OllamaProvider send an image today. Left in
+     * place, still checked by CopilotChat\Rest.php before attaching an
+     * image, rather than deleted — restoring real vision support (either
+     * a VuloCloud-side wire contract change, or a local vision-capable
+     * adapter) should flip this back on for whichever provider actually
+     * gains it, not re-derive the check from scratch.
      *
-     * @param string $provider_id e.g. 'gemini'.
+     * @param string $provider_id e.g. 'vulocloud'.
      * @return bool
      */
     public function supports_vision( string $provider_id ): bool {
-        return 'gemini' === $provider_id;
+        return false;
     }
 }

@@ -21,6 +21,16 @@ defined( 'ABSPATH' ) || exit;
  * docblock for the full "install → claim 100 free credits → connect
  * account" orchestration this collapses into one call).
  *
+ * `get_broker_authorize_url()`/`exchange_broker_code()` are a second,
+ * passwordless front door to this exact same stored connection — the
+ * site owner authenticates on a VuloCloud-hosted page instead of typing a
+ * VuloCloud password into this plugin at all (ConnectBrokerClient/
+ * ConnectBrokerCallbackHandler), landing on the identical `save_connection()`
+ * call `connect_and_claim()`'s legacy path already uses. Settings → AI
+ * Providers' own Connect button uses this path exclusively;
+ * `connect_and_claim()` remains for AiCreditsIndicator.tsx's existing
+ * toolbar dropdown.
+ *
  * Storage is one dedicated `vulopilot_ai_credits_connection` option, same
  * "never round-trips the secret to the browser, encrypted at rest"
  * posture GoogleServicesConnection.php/VuloCloudAccountConnection.php
@@ -498,6 +508,93 @@ class AiCreditsConnection {
     }
 
     /**
+     * The redirect_uri VuloCloud's own `/plugin/connect/exchange` redirect
+     * must land back on — `admin-post.php` (not a REST route), same
+     * reasoning GoogleServicesConnection::get_redirect_uri() documents:
+     * this browser redirect carries no `X-WP-Nonce` header for a REST
+     * nonce check, and `admin-post.php` already authenticates via the same
+     * login cookie every other wp-admin page load does.
+     *
+     * @return string
+     */
+    public function get_broker_redirect_uri(): string {
+        return admin_url( 'admin-post.php?action=vulopilot_connect_broker_callback' );
+    }
+
+    /**
+     * The passwordless "Connect to VuloCloud" URL — Settings → AI
+     * Providers' own Connect button 302s the browser here instead of
+     * rendering a login/signup form itself (see this repo's
+     * ConnectBrokerClient/ConnectBrokerCallbackHandler for the rest of the
+     * sequence). `state` is a real WP nonce (verified in
+     * `verify_broker_state()` on the way back, guarding the callback
+     * against CSRF the same way every other WordPress admin-post handler's
+     * own `check_admin_referer()` would) — VuloCloud itself never inspects
+     * it, only echoes it back verbatim.
+     *
+     * @return string|null Null if this build isn't configured to reach VuloCloud at all yet.
+     */
+    public function get_broker_authorize_url(): ?string {
+        if ( '' === trim( VULOPILOT_VULOCLOUD_URL ) ) {
+            return null;
+        }
+
+        $state = wp_create_nonce( 'vulopilot_connect_broker' );
+
+        // Browser-facing: must be reachable from the site owner's own
+        // browser, which is not always true of VULOPILOT_VULOCLOUD_URL
+        // itself (e.g. `host.docker.internal` in local Docker dev) — see
+        // VULOPILOT_VULOCLOUD_PUBLIC_URL's own docblock in config.php.
+        $browser_url = '' !== trim( VULOPILOT_VULOCLOUD_PUBLIC_URL ) ? VULOPILOT_VULOCLOUD_PUBLIC_URL : VULOPILOT_VULOCLOUD_URL;
+
+        return ( new ConnectBrokerClient( $browser_url ) )->get_authorize_url(
+            home_url(),
+            $this->get_broker_redirect_uri(),
+            $state,
+            trim( VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID )
+        );
+    }
+
+    /**
+     * @param string $state The `state` query param the broker's redirect carried back.
+     * @return bool
+     */
+    public function verify_broker_state( string $state ): bool {
+        return false !== wp_verify_nonce( $state, 'vulopilot_connect_broker' );
+    }
+
+    /**
+     * Redeems the broker's own single-use exchange `code`
+     * (ConnectBrokerCallbackHandler's own caller) and, on success, stores
+     * the real ConnectedSite credential exactly like connect_and_claim()'s
+     * own legacy password-based flow does — this is simply a different
+     * front door to the same stored connection, not a parallel one.
+     *
+     * @param string $code The single-use exchange code from the broker's own return redirect.
+     * @return array<string, mixed>|\WP_Error Same shape as get_status().
+     */
+    public function exchange_broker_code( string $code ) {
+        $result = ( new ConnectBrokerClient( VULOPILOT_VULOCLOUD_URL ) )->exchange( home_url(), $code );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        $this->save_connection(
+            array(
+                'site_id'         => $result['siteId'],
+                'secret_enc'      => CredentialEncryption::encrypt( $result['siteSecret'] ),
+                'credits'         => $result['credits'],
+                'lifetime_earned' => $result['credits'],
+                'connected_at'    => current_time( 'mysql' ),
+                'last_synced_at'  => current_time( 'mysql' ),
+            )
+        );
+
+        return $this->get_status();
+    }
+
+    /**
      * Records a real, successful AI Gateway spend against the LOCAL cache
      * immediately (rather than waiting for the next refresh_balance() call)
      * — called by AiCreditGatewayClient right after a real
@@ -521,15 +618,32 @@ class AiCreditsConnection {
     }
 
     /**
-     * Local-only — clears the cached connection so the UI shows
-     * "not connected" again. Does not revoke the ConnectedSite/secret on
-     * VuloCloud's own side (no revoke-site endpoint is exposed by
-     * ai-credits yet — a real gap to close before shipping a "Disconnect"
-     * button in the UI, not pretended-away here).
+     * Real self-service revoke on VuloCloud's own side
+     * (`POST /plugin/ai-credits/disconnect`, ConnectedSiteService::revokeBySite())
+     * — an earlier version of this method only ever cleared the local
+     * option, since no revoke-site endpoint existed yet; that gap is
+     * closed now. The remote call is best-effort: this always clears the
+     * local option regardless of its outcome (an already-revoked/unknown
+     * site, or VuloCloud being briefly unreachable, shouldn't leave this
+     * site stuck showing "Connected" when the site owner explicitly
+     * asked to disconnect) — see the loud `error_log()` below for the one
+     * case worth a site owner's admin knowing about: the remote secret
+     * living on past a local disconnect, still usable by nothing since
+     * this site no longer holds it, but not actually revoked either.
      *
      * @return void
      */
     public function disconnect(): void {
+        $credential = $this->get_site_credential();
+
+        if ( $credential ) {
+            $result = ( new AiCreditsApiClient( VULOPILOT_VULOCLOUD_URL ) )->disconnect_site( $credential['site_id'], $credential['secret'] );
+
+            if ( is_wp_error( $result ) ) {
+                error_log( sprintf( '[VuloPilot] Could not revoke ConnectedSite %s on disconnect: %s', $credential['site_id'], $result->get_error_message() ) );
+            }
+        }
+
         delete_option( self::OPTION_KEY );
     }
 }

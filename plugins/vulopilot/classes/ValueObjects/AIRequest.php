@@ -39,9 +39,9 @@ final class AIRequest {
     /**
      * A single inline image for the current turn, `{mime_type, data}`
      * (`data` base64-encoded) — additive and optional so every existing
-     * caller building a text-only request is unaffected. Only
-     * GeminiProvider reads this today (see its own build_body() and
-     * ProviderRegistry::supports_vision()); every other adapter simply
+     * caller building a text-only request is unaffected. No adapter
+     * currently reads this (ProviderRegistry::supports_vision() is always
+     * false today — see its own docblock on why); every adapter simply
      * never looks at it, the same way they already ignore
      * get_temperature()/get_max_tokens() when null.
      *

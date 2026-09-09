@@ -17,9 +17,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Wraps any AIProviderInterface with retry-with-backoff on transient
  * failures — implements the same interface it wraps (AI-ARCHITECTURE.md's
- * decorator pattern), so ProviderRegistry can stack this around an
- * OpenAiProvider exactly the same way it would around any other adapter,
- * with zero code here that knows which provider it's wrapping.
+ * decorator pattern), so ProviderRegistry can stack this around
+ * VuloCloudProxyProvider exactly the same way it would around any other
+ * adapter, with zero code here that knows which provider it's wrapping.
  *
  * Only catches TransientProviderException — a ProviderRequestException
  * (bad API key, malformed request) or RateLimitExceededException

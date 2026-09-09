@@ -15,6 +15,7 @@ use VuloPilot\Repositories\ActionRunRepository;
 use VuloPilot\Repositories\ActivityLogRepository;
 use VuloPilot\Services\AiCreditGatewayClient;
 use VuloPilot\Services\AiCreditsConnection;
+use VuloPilot\Exceptions\AiByokNotConfiguredException;
 use VuloPilot\Exceptions\InsufficientCreditsException;
 use VuloPilot\Utill;
 
@@ -170,34 +171,44 @@ class ActionRunner {
 
     /**
      * Chooses between the two ways this codebase can now actually get an
-     * AI completion for a proposed action: a site owner's own configured
-     * BYOK provider (unchanged, existing behavior — build_prompt() +
-     * SafeRequestSender), or VuloCloud's hosted AI Gateway spending real
-     * AI Credits (architecture plan §C). BYOK is preferred whenever it's
-     * configured — it costs the site owner nothing further once they've
-     * set up a key, so there's no reason to spend their credits on an
-     * action they can already do for free; credits are the fallback for a
-     * site with no BYOK provider configured at all, and only for the
-     * three action ids in CREDIT_FEATURE_MAP (VuloPilot brief §9's
-     * structured-request contract only has a real feature-catalog entry
-     * for those three today — every other action id always uses BYOK,
-     * exactly as it always has, whether or not credits are connected).
+     * AI completion for a proposed action: this site's own configured
+     * BYOK path — an Organization's own key, or (if allowed) a Customer
+     * backup key, resolved entirely server-side and proxied through
+     * VuloCloud (VuloCloudProxyProvider, contexts/vulopilot/ai-byok on the
+     * VuloCloud side) — or VuloCloud's hosted AI Gateway spending real AI
+     * Credits (architecture plan §C).
+     *
+     * Unlike the earlier, pre-BYOK-proxy version of this method, "is BYOK
+     * configured" can no longer be answered locally before making a call
+     * — that state lives in VuloCloud now (an Organization's/Customer's
+     * own credential store), not in a local option this site can read for
+     * free. So this always ATTEMPTS the BYOK path first (via
+     * SafeRequestSender, same as before) and only decides whether to fall
+     * through to credits by reacting to a real AiByokNotConfiguredException
+     * — a second, separate "is it configured?" pre-check would just be a
+     * redundant network round trip for the exact same answer the real
+     * attempt already gives, and would risk a stale answer if a key was
+     * just added/removed moments earlier. Falling through only ever
+     * happens for the three action ids in CREDIT_FEATURE_MAP (VuloPilot
+     * brief §9's structured-request contract only has a real feature-
+     * catalog entry for those three today); every other action id's
+     * "not configured" is a final, honest error, exactly as it always was.
      *
      * @param string                             $action_id Real, registered action id.
      * @param \VuloPilot\Contracts\AI\AIActionInterface $action    Same instance get_action_or_fail() already resolved.
      * @param array                              $input     validate_input()'s own normalized output.
      * @return \VuloPilot\ValueObjects\AIResponse
      *
-     * @throws InsufficientCreditsException If the credits path was used and VuloCloud reports an empty balance.
-     * @throws \RuntimeException            If the credits path was used and VuloCloud is unreachable/misconfigured.
+     * @throws InsufficientCreditsException If the credits fallback was used and VuloCloud reports an empty balance.
+     * @throws \RuntimeException            If no AI is available at all — neither a BYOK key nor (for an eligible action) AI Credits.
      */
     private function send_prompt_or_credits( string $action_id, $action, array $input ): AIResponse {
-        $use_credits = isset( self::CREDIT_FEATURE_MAP[ $action_id ] )
-            && $this->credits_connection->is_connected()
-            && ! $this->request_sender->has_configured_provider();
-
-        if ( ! $use_credits ) {
+        try {
             return $this->request_sender->send( $action->build_prompt( $input ), null, 'ai_action' );
+        } catch ( AiByokNotConfiguredException $exception ) {
+            if ( ! isset( self::CREDIT_FEATURE_MAP[ $action_id ] ) || ! $this->credits_connection->is_connected() ) {
+                throw new \RuntimeException( __( 'No AI provider is configured. Add one in your VuloCloud account, or ask your agency to.', 'vulopilot' ) );
+            }
         }
 
         list( $feature_id, $credit_action ) = self::CREDIT_FEATURE_MAP[ $action_id ];

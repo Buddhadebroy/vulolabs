@@ -147,6 +147,23 @@ if ( ! defined( 'VULOPILOT_VULOCLOUD_URL' ) ) {
 }
 
 /**
+ * Browser-facing override of VULOPILOT_VULOCLOUD_URL above, used only when
+ * the two differ — a real deployment serves both the API this site's own
+ * PHP calls server-to-server AND the hosted pages a human's browser is
+ * ever redirected to (ConnectBrokerClient::get_authorize_url()) from the
+ * one public domain, so VULOPILOT_VULOCLOUD_URL alone is already correct
+ * and this constant stays empty/unused there. Local Docker dev is the one
+ * place they legitimately differ: WordPress's own container resolves
+ * VuloCloud via `host.docker.internal` (only reachable from inside a
+ * container, never from the host machine's own browser), while a human's
+ * browser needs the real `localhost` port instead. Empty by default —
+ * falls back to VULOPILOT_VULOCLOUD_URL wherever it's read.
+ */
+if ( ! defined( 'VULOPILOT_VULOCLOUD_PUBLIC_URL' ) ) {
+	define( 'VULOPILOT_VULOCLOUD_PUBLIC_URL', '' );
+}
+
+/**
  * The one, fixed VuloLabs-owned Organization id solo site owners register
  * under when they pick "I'm a solo site owner" in the AI Credits connect
  * panel (AiCreditsIndicator.tsx) instead of "I manage multiple client
