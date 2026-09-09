@@ -15,12 +15,19 @@ export const TRIGGER_TYPE_LABELS: Record<string, string> = {
 	daily: __('Daily', 'vulopilot'),
 	weekly: __('Weekly', 'vulopilot'),
 	monthly: __('Monthly', 'vulopilot'),
-	post_published: __('Page published', 'vulopilot'),
+	post_published: __('Post published', 'vulopilot'),
+	post_updated: __('Post updated', 'vulopilot'),
+	page_published: __('Page published', 'vulopilot'),
+	page_updated: __('Page updated', 'vulopilot'),
 	product_created: __('Product created', 'vulopilot'),
 	product_updated: __('Product updated', 'vulopilot'),
 	order_completed: __('Order completed', 'vulopilot'),
 	user_registered: __('User registered', 'vulopilot'),
 	low_stock: __('Low stock', 'vulopilot'),
+	geo_score_drop: __('GEO score drop', 'vulopilot'),
+	security_score_drop: __('Security score drop', 'vulopilot'),
+	visibility_score_drop: __('Visibility score drop', 'vulopilot'),
+	finding_detected: __('New finding detected', 'vulopilot'),
 };
 
 /** The 4 cron-based trigger types — the only ones with a real cadence to badge. */
@@ -31,6 +38,9 @@ export const ACTION_TYPE_LABELS: Record<string, string> = {
 	'resolve-finding': __('Resolve finding', 'vulopilot'),
 	'run-ai-action': __('Run AI action', 'vulopilot'),
 	'create-notification': __('Create notification', 'vulopilot'),
+	'apply-mechanical-fix': __('Apply built-in fix', 'vulopilot'),
+	'regenerate-llms-txt': __('Regenerate llms.txt', 'vulopilot'),
+	'run-scan': __('Run a scan', 'vulopilot'),
 };
 
 /**

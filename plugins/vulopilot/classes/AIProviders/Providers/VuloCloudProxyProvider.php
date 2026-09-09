@@ -77,9 +77,7 @@ class VuloCloudProxyProvider implements AIProviderInterface {
      */
     public function get_available_models(): array {
         // Model choice happens entirely server-side now — nothing here
-        // for a settings screen to ever list (see ProviderRegistry's own
-        // get_available_adapters(), which no longer surfaces this
-        // provider id to that panel at all).
+        // for a settings screen to ever list.
         return array();
     }
 

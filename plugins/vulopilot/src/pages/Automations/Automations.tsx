@@ -5,6 +5,7 @@ import {
 	ColumnComponent,
 	ContainerComponent,
 	NavigatorHeaderComponent,
+	NoticeComponent,
 	PopupComponent,
 } from '@zyra/components';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -13,7 +14,7 @@ import AutomationsStatsRow from './AutomationsStatsRow';
 import AutomationsAttentionCard from './AutomationsAttentionCard';
 import AutomationsPeriodStatsCard from './AutomationsPeriodStatsCard';
 import AutomationsActivityCard from './AutomationsActivityCard';
-import AutomationsSuggestions from './AutomationsSuggestions';
+import BuiltinAutomationCards from './BuiltinAutomationCards';
 import ManageAutomationsSection, { AutomationRow } from './ManageAutomationsSection';
 import { AutomationTemplate, getAutomationTemplateById } from './automationsTemplates';
 import './Automations.scss';
@@ -39,21 +40,23 @@ interface AutomationGenerateComponentProps {
 interface AutomationSlotValue {
 	Wizard: ComponentType<AutomationWizardComponentProps>;
 	Generate: ComponentType<AutomationGenerateComponentProps>;
+	Templates: ComponentType<AutomationGenerateComponentProps>;
 }
 
 /**
- * "Automate Work" — flattened into one page per the redesign this was built
- * against: header (title + the two real primary actions, "Create Automation"
- * and "Build with AI" — never more than these two competing top-level CTAs)
- * → Suggested Automations (the real, already-curated
- * `AUTOMATION_TEMPLATES`) → Your Automations (`ManageAutomationsSection.tsx`,
- * the one real canonical list). Replaces the previous Overview/Automations
- * two-tab shell — `AutomationOverviewTab.tsx` and its ~9 cards (hero row,
- * overview grid, attention card, period stats, composer, AI foreman,
- * activity card, links row, explore banner) are retired: each was some
- * variant of "Create"/"Manage"/"Explore" competing with the two real CTAs
- * this header now owns, the exact duplication the redesign's own source
- * spec calls out to consolidate.
+ * "Automate Work" — VuloPilot Free vs Pro Automation Builder Prompt.md's own
+ * split: Free gets exactly 2 fixed, schedule-only automations
+ * (`BuiltinAutomationCards.tsx` — "Run Full Site Scan"/"Send Visibility
+ * Report", no template picker, no wizard) always shown at the top; the full
+ * trigger→condition→action→notification wizard, "Build with AI", and the
+ * "Create Automation" header button only render when Pro's own
+ * `vulopilot_automations_panel` filter slot resolves (`Wizard`/`Generate`
+ * below) — a Free site simply doesn't see those entry points at all, rather
+ * than seeing them fail into an upsell popup ("Do NOT make Free look like a
+ * disabled Pro interface," same prompt). `ManageAutomationsSection.tsx`'s
+ * table still renders underneath either way — it's Pro users' own list of
+ * any *additional* automations they've built beyond the 2 built-in ones
+ * (it already excludes those 2 rows, see that file's own docblock).
  *
  * Owns the real wizard/"Build with AI" popups' open-signal state and the
  * `vulopilot_automations_panel` filter-slot resolution directly (rather than
@@ -66,9 +69,11 @@ const Automations = () => {
 	const slot = useFilterSlot<AutomationSlotValue>('vulopilot_automations_panel');
 	const Wizard = slot?.Wizard;
 	const Generate = slot?.Generate;
+	const Templates = slot?.Templates;
 
 	const [wizardOpenSignal, setWizardOpenSignal] = useState(0);
 	const [generateOpenSignal, setGenerateOpenSignal] = useState(0);
+	const [templatesOpenSignal, setTemplatesOpenSignal] = useState(0);
 	const [refetchSignal, setRefetchSignal] = useState(0);
 	const [viewingRow, setViewingRow] = useState<AutomationRow | null>(null);
 	const [pendingTemplate, setPendingTemplate] = useState<AutomationTemplate | null>(null);
@@ -96,6 +101,15 @@ const Automations = () => {
 		}
 
 		setGenerateOpenSignal((n) => n + 1);
+	};
+
+	const openTemplatesLibrary = () => {
+		if (!Templates) {
+			openProPopup();
+			return;
+		}
+
+		setTemplatesOpenSignal((n) => n + 1);
 	};
 
 	const openTemplate = (template: AutomationTemplate) => {
@@ -163,22 +177,52 @@ const Automations = () => {
 					'Create workflows that automatically handle repetitive work and keep you informed.',
 					'vulopilot'
 				)}
-				buttons={[
-					{
-						label: __('Build with AI', 'vulopilot'),
-						icon: 'automation',
-						color: 'border-purple',
-						onClick: openGenerate,
-					},
-					{
-						label: __('Create Automation', 'vulopilot'),
-						icon: 'plus',
-						onClick: openCreateWizard,
-					},
-				]}
+				buttons={
+					Wizard
+						? [
+								{
+									label: __('Build with AI', 'vulopilot'),
+									icon: 'automation',
+									color: 'border-purple',
+									onClick: openGenerate,
+								},
+								{
+									// Secondary — VuloPilot Free vs Pro Automation Builder Prompt.md's own
+									// "Make templates the preferred starting point in Pro. Allow 'Create
+									// from scratch' as a secondary Pro option" — this button keeps working
+									// exactly as before, just no longer the rightmost/most prominent one.
+									label: __('Create Automation', 'vulopilot'),
+									icon: 'plus',
+									color: 'border-purple',
+									onClick: openCreateWizard,
+								},
+								{
+									// Preferred/rightmost — same "templates first, from-scratch second"
+									// ordering as above.
+									label: __('Browse Templates', 'vulopilot'),
+									icon: 'search',
+									onClick: openTemplatesLibrary,
+								},
+						  ]
+						: []
+				}
 			/>
 
 			<ContainerComponent general>
+				<ColumnComponent grid={12}>
+					<BuiltinAutomationCards refetchSignal={refetchSignal} onChanged={handleSaved} />
+					{!Wizard && (
+						<NoticeComponent
+							displayPosition="inline"
+							type="info"
+							message={__(
+								'Need custom triggers, conditions, actions or notifications? Available with VuloPilot Pro.',
+								'vulopilot'
+							)}
+						/>
+					)}
+				</ColumnComponent>
+
 				<ColumnComponent grid={6}>
 					<AutomationsStatsRow />
 				</ColumnComponent>
@@ -187,21 +231,17 @@ const Automations = () => {
 					<AutomationsAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
 				</ColumnComponent>
 
-
-				<AutomationsSuggestions
-					onUseTemplate={openTemplate}
-					onOpenAutomation={openRow}
-					refetchSignal={refetchSignal}
-				/>
-				<ColumnComponent grid={7} fullHeight>
-					<ManageAutomationsSection
-						hasWizard={Boolean(Wizard)}
-						onOpenRow={openRow}
-						onRequireProUpsell={openProPopup}
-						refetchSignal={refetchSignal}
-					/>
-				</ColumnComponent>
-				<ColumnComponent grid={5} fullHeight>
+				{Wizard && (
+					<ColumnComponent grid={7} fullHeight>
+						<ManageAutomationsSection
+							hasWizard={Boolean(Wizard)}
+							onOpenRow={openRow}
+							onRequireProUpsell={openProPopup}
+							refetchSignal={refetchSignal}
+						/>
+					</ColumnComponent>
+				)}
+				<ColumnComponent grid={Wizard ? 5 : 12} fullHeight>
 					<AutomationsActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
 				</ColumnComponent>
 				{Wizard && (
@@ -217,6 +257,8 @@ const Automations = () => {
 				)}
 
 				{Generate && <Generate openSignal={generateOpenSignal} onSaved={handleSaved} />}
+
+				{Templates && <Templates openSignal={templatesOpenSignal} onSaved={handleSaved} />}
 
 				<PopupComponent
 					open={isProPopupOpen}
