@@ -1,9 +1,10 @@
 /* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { NoticeComponent, PopupComponent } from '@zyra/components';
+import { getApiLink, getApiResponse } from '@zyra/core';
+import { NoticeComponent, NoticeManager, PopupComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import { useAiCredits } from '../../services/useAiCredits';
-import AiCreditsConnectForm from './AiCreditsConnectForm';
 import './AiCreditsIndicator.scss';
 
 /**
@@ -18,10 +19,12 @@ import './AiCreditsIndicator.scss';
  *
  * Three real states, all driven by useAiCredits()'s own live
  * `GET /ai-credits/status` read — never a fabricated number:
- * - Not connected: "Claim your 100 Free AI Credits" — opens the
- *   connect/create-account form (VuloPilot brief §4's whole flow, but
- *   collapsed server-side into one `connect_and_claim()` call — see that
- *   method's own docblock).
+ * - Not connected: "Claim your 100 Free AI Credits" — opens the same
+ *   passwordless "Connect to VuloCloud" redirect Settings → AI Providers'
+ *   own button uses (AiCreditsConnection::get_broker_authorize_url()'s own
+ *   docblock for the full sequence) rather than a second, separate
+ *   embedded login/signup form — one connect flow in the whole plugin, not
+ *   two that could drift.
  * - Connected: the real credit count, click-through to balance/usage +
  *   "Buy More Credits"/"Explore VuloPilot Pro" (both external, same
  *   `appLocalizer.shop_url` link Popup.tsx's own generic Pro upsell
@@ -33,10 +36,41 @@ import './AiCreditsIndicator.scss';
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
 	const [isOpen, setIsOpen] = useState(false);
+	const [isConnecting, setIsConnecting] = useState(false);
 
 	if (isLoading || !status) {
 		return null;
 	}
+
+	/** Same `GET /ai-providers/broker-authorize-url` redirect
+	 * AiProvidersPanel.tsx's own "Connect to VuloCloud" button uses — the
+	 * broker's own return redirect lands back on that Settings tab
+	 * regardless of where this button was clicked from, so there's no
+	 * separate "connected" callback to wire up here; navigating away
+	 * makes this popup's own open/loading state moot. */
+	const handleConnectToVulocloud = () => {
+		setIsConnecting(true);
+
+		getApiResponse<{ url: string }>(
+			getApiLink(appLocalizer, 'ai-providers/broker-authorize-url'),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		)
+			.then((response) => {
+				if (response?.url) {
+					window.location.href = response.url;
+					return;
+				}
+
+				setIsConnecting(false);
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-connect-broker-unavailable',
+					type: 'error',
+					position: 'float',
+					message: __('VuloCloud isn’t configured for this build yet.', 'vulopilot'),
+				});
+			})
+			.catch(() => setIsConnecting(false));
+	};
 
 	return (
 		<div className="ai-credits-indicator">
@@ -73,12 +107,26 @@ const AiCreditsIndicator = () => {
 						onRefresh={refresh}
 					/>
 				) : (
-					<AiCreditsConnectForm
-						onConnected={() => {
-							refresh();
-							setIsOpen(false);
-						}}
-					/>
+					<div className="ai-credits-connect-prompt">
+						<NoticeComponent
+							displayPosition="inline"
+							type="info"
+							message={__(
+								'Claim 100 Free AI Credits — no credit card required.',
+								'vulopilot'
+							)}
+						/>
+						<ButtonInput
+							position="left"
+							buttons={{
+								text: isConnecting
+									? __('Connecting…', 'vulopilot')
+									: __('Connect to VuloCloud', 'vulopilot'),
+								disabled: isConnecting,
+								onClick: handleConnectToVulocloud,
+							}}
+						/>
+					</div>
 				)}
 			</PopupComponent>
 		</div>

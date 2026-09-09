@@ -25,6 +25,13 @@ interface ConfiguredProviderRow {
 	credential_ok: boolean;
 }
 
+interface VuloCloudStatus {
+	/** Is this site connected to a VuloCloud account at all (a real site secret exists)? */
+	connected: boolean;
+	/** Does an Organization's own (or an allowed Customer backup) AI provider key actually resolve for this site right now? */
+	configured: boolean;
+}
+
 /**
  * "AI Copilot" — used to be a tab shell over Chat/History; History has
  * moved to Reports (Reports.tsx's own "History" tab — a real, day-grouped
@@ -54,15 +61,20 @@ const AIAssistant = () => {
 	// scroll-into-view effect keys off this instead of `issuesFilter` so a
 	// same-value React state bailout doesn't silently swallow the scroll.
 	const [issuesNavToken, setIssuesNavToken] = useState(0);
-	// Real, not decorative — "Online" only means something once at least
-	// one AI provider is both active AND actually usable (`is_active` AND
-	// `credential_ok` — same two things ProviderRegistry::build_fallback_chain()
-	// itself checks before trying a provider — AiProvidersPanel.tsx's own
-	// GET /ai-providers). `is_active` alone isn't enough: see
-	// ConfiguredProviderRow's own docblock on `credential_ok`. Starts
-	// `null` (unknown) rather than defaulting to either state, so there's
-	// a moment before the fetch resolves where no badge is shown instead
-	// of briefly claiming a status that hasn't been confirmed yet.
+	// Real, not decorative — "Online" only means something once AI is
+	// actually usable one of two ways: a site connected to VuloCloud with a
+	// real provider key resolving (`vulocloud_status.connected &&
+	// .configured` — the only path a fresh site has, now that AI Providers
+	// no longer offers any local credential of its own, see
+	// AiProvidersPanel.tsx's own docblock), or a legacy local `configured`
+	// row (`is_active` AND `credential_ok` — same two things
+	// ProviderRegistry::build_fallback_chain() itself checks before trying
+	// a provider) surviving from before that change. `is_active` alone
+	// isn't enough: see ConfiguredProviderRow's own docblock on
+	// `credential_ok`. Starts `null` (unknown) rather than defaulting to
+	// either state, so there's a moment before the fetch resolves where no
+	// badge is shown instead of briefly claiming a status that hasn't been
+	// confirmed yet.
 	const [hasActiveAiProvider, setHasActiveAiProvider] = useState<
 		boolean | null
 	>(null);
@@ -70,15 +82,21 @@ const AIAssistant = () => {
 	const isCopilotChatEnabled = useCopilotChatEnabled();
 
 	useEffect(() => {
-		getApiResponse<{ configured?: ConfiguredProviderRow[] }>(
+		getApiResponse<{
+			configured?: ConfiguredProviderRow[];
+			vulocloud_status?: VuloCloudStatus;
+		}>(
 			getApiLink(appLocalizer, 'ai-providers'),
 			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
 		).then((response) => {
-			setHasActiveAiProvider(
-				(response?.configured ?? []).some(
-					(row) => row.is_active && row.credential_ok
-				)
+			const vulocloudReady = Boolean(
+				response?.vulocloud_status?.connected && response?.vulocloud_status?.configured
 			);
+			const legacyProviderReady = (response?.configured ?? []).some(
+				(row) => row.is_active && row.credential_ok
+			);
+
+			setHasActiveAiProvider(vulocloudReady || legacyProviderReady);
 		});
 	}, []);
 

@@ -63,7 +63,39 @@ class SecurityScoreSnapshotRecorder {
 
         $score = max( 0, min( 100, $score ) );
 
-        ( new SecurityScoreSnapshotRepository() )->upsert_today( $score );
+        $repository     = new SecurityScoreSnapshotRepository();
+        $previous_score = $this->find_previous_score( $repository );
+
+        $repository->upsert_today( $score );
+
+        /**
+         * Fires after today's security-category score snapshot is written
+         * — vulopilot-pro's Automations\Triggers\SecurityScoreDropTrigger
+         * own extension point, same "fire the real number plus what it was
+         * compared against" shape GeoInsights\VisibilitySnapshotBuilder's
+         * own `vulopilot_pro_geo_visibility_snapshot_built` action already
+         * established.
+         *
+         * @param int      $score          Today's real security_score (0-100).
+         * @param int|null $previous_score The most recent prior day's security_score, or null before this site has a second day of history.
+         */
+        do_action( 'vulopilot_security_score_recorded', $score, $previous_score );
+    }
+
+    /**
+     * @param SecurityScoreSnapshotRepository $repository Repository to read history from.
+     * @return int|null The most recent snapshot strictly before today, or null if none exists yet.
+     */
+    private function find_previous_score( SecurityScoreSnapshotRepository $repository ): ?int {
+        $today = current_time( 'Y-m-d' );
+
+        foreach ( array_reverse( $repository->get_recent( 7 ) ) as $row ) {
+            if ( $today !== $row['snapshot_date'] ) {
+                return (int) $row['security_score'];
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -187,7 +187,7 @@ class ScanPersistenceListener {
                 continue;
             }
 
-            $this->findings->insert(
+            $new_finding_id = $this->findings->insert(
                 array(
                     'scan_id'     => $scan_id,
                     'scanner_id'  => $scan_result->get_scanner_id(),
@@ -200,6 +200,37 @@ class ScanPersistenceListener {
                     'dedupe_key'  => $finding->get_dedupe_key(),
                     'meta'        => wp_json_encode( $finding->get_meta() ),
                 )
+            );
+
+            /**
+             * Fires only for a genuinely NEW finding — the branch above
+             * (an existing open duplicate refreshed instead) never reaches
+             * here, so a still-recurring problem doesn't re-fire this on
+             * every scan. vulopilot-pro's Automations\Triggers\
+             * NewFindingTrigger's own extension point — "trigger decides
+             * WHEN, conditions decide whether to continue" (same posture
+             * every other trigger in that registry already follows): this
+             * fires for every new finding regardless of severity/category,
+             * and a real automation narrows it down to "critical" or
+             * "broken link" etc. via its own existing min-priority/
+             * category/min-impact conditions, same GEO/security/visibility
+             * score-drop triggers' own "no built-in threshold" posture,
+             * rather than this codebase growing a separate hardcoded
+             * trigger per severity/category combination.
+             *
+             * @param int    $finding_id  The just-inserted `vulopilot_findings` row id.
+             * @param string $severity    Severity::* constant.
+             * @param string $category    Real finding category.
+             * @param string|null $object_type From the triggering Finding, if any.
+             * @param string|null $object_ref  From the triggering Finding, if any.
+             */
+            do_action(
+                'vulopilot_finding_created',
+                $new_finding_id,
+                $finding->get_severity(),
+                $finding->get_category(),
+                $finding->get_object_type(),
+                $finding->get_object_ref()
             );
         }
 

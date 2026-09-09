@@ -1,0 +1,15 @@
+@use '../../components/config' as *;
+
+// BuiltinAutomationCards.tsx — Free's own exactly-2 fixed automations
+// ("Automation → Choose frequency → Save").
+.builtin-automation-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.builtin-automation-fixed-day {
+	font-size: 0.8125rem;
+	color: $sub-text-color;
+}

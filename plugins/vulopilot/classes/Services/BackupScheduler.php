@@ -64,17 +64,25 @@ class BackupScheduler {
 
     /**
      * Reconciles the real scheduled cron event against the real, current
-     * `backup_frequency` setting.
+     * `enable_automatic_backups`/`backup_frequency` settings — both are
+     * required, matching Backups.ts's own `backup_frequency` field
+     * description ("How often an automatic backup runs, when enabled
+     * above"): the checkbox is the master switch, the dropdown only
+     * matters once it's on. BackupHealthScanner::scan() already gates its
+     * own read of these same two settings the same way; this method used
+     * to check `backup_frequency` alone, which let the checkbox silently
+     * do nothing.
      *
      * @return void
      */
     public function ensure_scheduled(): void {
         $settings  = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+        $enabled   = ! empty( $settings['enable_automatic_backups'] );
         $frequency = (string) ( $settings['backup_frequency'] ?? 'disabled' );
 
         $scheduled = wp_get_scheduled_event( self::CRON_HOOK );
 
-        if ( ! in_array( $frequency, array( 'daily', 'weekly' ), true ) ) {
+        if ( ! $enabled || ! in_array( $frequency, array( 'daily', 'weekly' ), true ) ) {
             if ( $scheduled ) {
                 wp_clear_scheduled_hook( self::CRON_HOOK );
             }

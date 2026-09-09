@@ -8,6 +8,9 @@ import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { CATEGORY_LABELS, TRIGGER_TYPE_LABELS, describeAutomationActions } from './automationsLabels';
 
+/** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants — BuiltinAutomationCards.tsx (this page's own top section) is their one real home; excluded here so they never show up twice on the same page. */
+const BUILTIN_TRIGGER_TYPES = ['free_full_site_scan', 'free_visibility_report'];
+
 export interface AutomationRow extends TableRow {
 	id: number;
 	name: string;
@@ -111,6 +114,8 @@ const ManageAutomationsSection = ({
 }: ManageAutomationsSectionProps) => {
 	const { data, total, categoryCounts, isLoading, error, refetch, onQueryUpdate } =
 		useApiList<AutomationRow>('automations', {}, { key: 'status', options: STATUS_OPTIONS });
+
+	const visibleData = data.filter((row) => !BUILTIN_TRIGGER_TYPES.includes(row.trigger_type));
 
 	useEffect(() => {
 		if (refetchSignal > 0) {
@@ -217,9 +222,9 @@ const ManageAutomationsSection = ({
 								],
 							},
 						}}
-						rows={data.map(withInfoColumnFields)}
-						ids={data.map((row) => row.id)}
-						totalRows={total}
+						rows={visibleData.map(withInfoColumnFields)}
+						ids={visibleData.map((row) => row.id)}
+						totalRows={Math.max(0, total - 2)}
 						// categoryCounts={categoryCounts}
 						showMenu={false}
 						isLoading={isLoading}

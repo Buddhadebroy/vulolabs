@@ -163,13 +163,15 @@ final class VuloPilot {
         $this->container['manual_action_registry'] = new Automations\ActionRegistry();
         $this->container['manual_action_runner']   = new Automations\ManualActionRunner( $this->container['manual_action_registry'] );
 
-        // Scheduler (recurring scan cron) and the entire AutomationEngine
-        // (trigger→action workflows) are Pro business logic now — "Scheduled
-        // Website Scans" and "AI Automation Workflows" are both
-        // vulopilot-pro-only per the plugin's own readme. They live in
+        // The full, Recommendation-driven AutomationEngine (conditional
+        // trigger→condition→action workflows) is still Pro business logic —
+        // "AI Automation Workflows" per the plugin's own readme. It lives in
         // vulopilot-pro's Automations module, constructed with this same
         // rule_engine/scan_runner instance via VuloPilot()->rule_engine /
-        // VuloPilot()->scan_runner.
+        // VuloPilot()->scan_runner. Free's own two fixed, schedule-only
+        // automations ("Run Full Site Scan"/"Send Visibility Report" — see
+        // Automations\BuiltinAutomationSeeder's own docblock) are seeded and
+        // run below, independent of that Pro engine.
 
         $this->container['report_type_registry']     = new Reports\ReportTypeRegistry();
         $this->container['report_exporter_registry'] = new Reports\ReportExporterRegistry();
@@ -181,6 +183,12 @@ final class VuloPilot {
         // business logic now — it lives in vulopilot-pro's AdvancedReports
         // module, constructed with this same report_generator instance via
         // VuloPilot()->report_generator.
+
+        $this->container['builtin_automation_seeder'] = new Automations\BuiltinAutomationSeeder();
+        $this->container['automation_scheduler']       = new Services\AutomationScheduler(
+            $this->container['scan_runner'],
+            $this->container['report_generator']
+        );
 
         $this->container['rest'] = new RestAPI\Rest();
 

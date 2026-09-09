@@ -7,6 +7,7 @@
 
 namespace VuloPilot\RestAPI\Controllers;
 
+use VuloPilot\Automations\BuiltinAutomationSeeder;
 use VuloPilot\Repositories\AutomationsRepository;
 use VuloPilot\Repositories\AutomationsRunRepository;
 
@@ -146,20 +147,41 @@ class Automations extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function update_item( $request ) {
-        $id     = absint( $request->get_param( 'id' ) );
-        $status = sanitize_key( (string) $request->get_param( 'status' ) );
-
-        if ( ! in_array( $status, array( 'enabled', 'disabled', 'draft' ), true ) ) {
-            return new \WP_Error( 'vulopilot_invalid_status', __( 'Invalid automation status.', 'vulopilot' ), array( 'status' => 400 ) );
-        }
-
+        $id         = absint( $request->get_param( 'id' ) );
         $repository = new AutomationsRepository();
+        $row        = $repository->find( $id );
 
-        if ( ! $repository->find( $id ) ) {
+        if ( ! $row ) {
             return new \WP_Error( 'vulopilot_automations_not_found', __( 'Automation not found.', 'vulopilot' ), array( 'status' => 404 ) );
         }
 
-        if ( ! $repository->update( $id, array( 'status' => $status ) ) ) {
+        $data = array();
+
+        if ( null !== $request->get_param( 'status' ) ) {
+            $status = sanitize_key( (string) $request->get_param( 'status' ) );
+
+            if ( ! in_array( $status, array( 'enabled', 'disabled', 'draft' ), true ) ) {
+                return new \WP_Error( 'vulopilot_invalid_status', __( 'Invalid automation status.', 'vulopilot' ), array( 'status' => 400 ) );
+            }
+
+            $data['status'] = $status;
+        }
+
+        if ( null !== $request->get_param( 'trigger_config' ) ) {
+            $trigger_config = $this->validate_builtin_trigger_config( (string) $row['trigger_type'], (array) $request->get_param( 'trigger_config' ) );
+
+            if ( is_wp_error( $trigger_config ) ) {
+                return $trigger_config;
+            }
+
+            $data['trigger_config'] = wp_json_encode( $trigger_config );
+        }
+
+        if ( ! $data ) {
+            return new \WP_Error( 'vulopilot_nothing_to_update', __( 'Nothing to update.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        if ( ! $repository->update( $id, $data ) ) {
             return new \WP_Error( 'vulopilot_update_failed', __( 'Could not update this automation.', 'vulopilot' ), array( 'status' => 500 ) );
         }
 
@@ -172,14 +194,74 @@ class Automations extends \WP_REST_Controller {
     }
 
     /**
+     * Free's own two built-in automations (Automations\
+     * BuiltinAutomationSeeder) are the only rows this route allows a
+     * `trigger_config` patch for — every other row's trigger configuration
+     * is Pro's own AutomationsRest::update_item() territory (a full wizard
+     * re-save, not a partial patch). Preserves the row's own
+     * `system_default` marker unconditionally (never client-writable — it's
+     * how BuiltinAutomationSeeder/AutomationScheduler keep recognizing this
+     * row across renames).
+     *
+     * @param string               $trigger_type   The row's own, already-known trigger_type.
+     * @param array<string, mixed> $incoming       Raw `trigger_config` from the request body.
+     * @return array<string, mixed>|\WP_Error
+     */
+    private function validate_builtin_trigger_config( string $trigger_type, array $incoming ) {
+        $allowed_frequencies = array(
+            BuiltinAutomationSeeder::TRIGGER_FULL_SITE_SCAN   => array( 'manual', 'daily', 'weekly', 'monthly' ),
+            BuiltinAutomationSeeder::TRIGGER_VISIBILITY_REPORT => array( 'weekly', 'monthly' ),
+        );
+
+        if ( ! isset( $allowed_frequencies[ $trigger_type ] ) ) {
+            return new \WP_Error( 'vulopilot_trigger_config_not_editable', __( 'This automation\'s schedule can\'t be edited here.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        $frequency = sanitize_key( (string) ( $incoming['frequency'] ?? '' ) );
+
+        if ( ! in_array( $frequency, $allowed_frequencies[ $trigger_type ], true ) ) {
+            return new \WP_Error( 'vulopilot_invalid_frequency', __( 'Invalid schedule frequency.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        $config = array(
+            'frequency'      => $frequency,
+            'system_default' => BuiltinAutomationSeeder::TRIGGER_FULL_SITE_SCAN === $trigger_type
+                ? BuiltinAutomationSeeder::MARKER_FULL_SITE_SCAN
+                : BuiltinAutomationSeeder::MARKER_VISIBILITY_REPORT,
+        );
+
+        if ( 'weekly' === $frequency ) {
+            $config['day_of_week'] = max( 1, min( 7, absint( $incoming['day_of_week'] ?? 1 ) ) );
+        }
+
+        return $config;
+    }
+
+    /**
      * @inheritDoc
      */
     public function run_item( $request ) {
         $id         = absint( $request->get_param( 'id' ) );
         $repository = new AutomationsRepository();
+        $row        = $repository->find( $id );
 
-        if ( ! $repository->find( $id ) ) {
+        if ( ! $row ) {
             return new \WP_Error( 'vulopilot_automations_not_found', __( 'Automation not found.', 'vulopilot' ), array( 'status' => 404 ) );
+        }
+
+        // Free's own two built-in automations run synchronously here — same
+        // real action Services\AutomationScheduler's own cron tick calls,
+        // just triggered on demand instead of waiting for the schedule.
+        if ( BuiltinAutomationSeeder::TRIGGER_FULL_SITE_SCAN === $row['trigger_type'] ) {
+            VuloPilot()->automation_scheduler->run_scheduled_scan();
+
+            return rest_ensure_response( array( 'success' => true ) );
+        }
+
+        if ( BuiltinAutomationSeeder::TRIGGER_VISIBILITY_REPORT === $row['trigger_type'] ) {
+            VuloPilot()->automation_scheduler->run_scheduled_report();
+
+            return rest_ensure_response( array( 'success' => true ) );
         }
 
         return new \WP_Error(
