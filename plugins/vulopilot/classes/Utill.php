@@ -149,6 +149,19 @@ class Utill {
         'scan_frequency'                        => 'daily',
         'keep_data_uninstall'                   => 'keep_data',
         'anonymous_usage_data'                  => 'disabled',
+        // A short, freeform phrase describing this site's writing voice,
+        // sent as a `site_tone` hint on every AI request
+        // (AIProviders\Providers\VuloCloudProxyProvider). Lives in this
+        // flat option (not its own dedicated one) so General.ts's own
+        // field autosaves through the same debounced InputRenderer path
+        // every other General setting already uses — no separate "Save"
+        // button needed. `site_tone_source` ('auto' — Services\SiteToneLearner's
+        // own freshly-learned phrase; 'manual' — a site owner's own saved
+        // override, never auto-overwritten) is flipped to 'manual' by
+        // Controllers\Settings::update_item() the moment `site_tone`
+        // itself is present in a save — see that method's own comment.
+        'site_tone'                              => '',
+        'site_tone_source'                       => 'auto',
         // Notifications.
         'notification_email'                    => '',
         'notify_on_critical_findings'           => array(),

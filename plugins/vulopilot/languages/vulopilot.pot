@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T05:32:46+00:00\n"
+"POT-Creation-Date: 2026-09-09T06:13:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -182,11 +182,19 @@ msgstr ""
 msgid "Tools"
 msgstr ""
 
-#: classes/AIActions/ActionRunner.php:282
+#: classes/AIActions/ActionRunner.php:210
+msgid "No AI provider is configured. Add one in your VuloCloud account, or ask your agency to."
+msgstr ""
+
+#: classes/AIActions/ActionRunner.php:225
+msgid "You’ve used all your AI Credits."
+msgstr ""
+
+#: classes/AIActions/ActionRunner.php:413
 msgid "This action run cannot be rolled back."
 msgstr ""
 
-#: classes/AIActions/ActionRunner.php:326
+#: classes/AIActions/ActionRunner.php:457
 msgid "This action run is not awaiting approval."
 msgstr ""
 
@@ -777,28 +785,13 @@ msgstr ""
 msgid "%1$s rate limit reached (%2$d requests/minute)."
 msgstr ""
 
-#: classes/AIProviders/Providers/AnthropicProvider.php:60
-msgid "Anthropic"
-msgstr ""
-
-#: classes/AIProviders/Providers/GeminiProvider.php:60
-msgid "Google Gemini"
-msgstr ""
-
-#: classes/AIProviders/Providers/GroqProvider.php:36
-msgid "Groq"
-msgstr ""
-
 #: classes/AIProviders/Providers/OllamaProvider.php:59
 msgid "Ollama (self-hosted)"
 msgstr ""
 
-#: classes/AIProviders/Providers/OpenAiProvider.php:32
-msgid "OpenAI"
-msgstr ""
-
-#: classes/AIProviders/Providers/OpenRouterProvider.php:36
-msgid "OpenRouter"
+#: classes/AIProviders/Providers/VuloCloudProxyProvider.php:64
+#: assets/js/index.js:1
+msgid "VuloCloud AI"
 msgstr ""
 
 #. translators: %d is the maximum allowed prompt length in characters.
@@ -970,55 +963,75 @@ msgstr ""
 msgid "51+"
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiActionRuns.php:133
+#: classes/RestAPI/Controllers/AiActionRuns.php:134
 msgid "Enable the AI Copilot module to use AI actions."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiActionRuns.php:163
+#: classes/RestAPI/Controllers/AiActionRuns.php:164
 msgid "action_id is required."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:177
+#: classes/RestAPI/Controllers/AiCredits.php:131
+#: classes/RestAPI/Controllers/VuloCloudAccount.php:106
+msgid "Enter a valid email address."
+msgstr ""
+
+#: classes/RestAPI/Controllers/AiCredits.php:135
+#: classes/RestAPI/Controllers/VuloCloudAccount.php:110
+msgid "Enter your VuloCloud password."
+msgstr ""
+
+#: classes/RestAPI/Controllers/AiProviders.php:249
+#: classes/Services/AiByokGatewayClient.php:55
+#: classes/Services/AiCreditGatewayClient.php:57
+#: classes/Services/AiCreditsConnection.php:185
+#: classes/Services/VuloCloudAccountConnection.php:124
+#: classes/Services/VuloCloudAccountConnection.php:188
+#: assets/js/index.js:1
+msgid "VuloCloud isn’t configured for this build yet."
+msgstr ""
+
+#: classes/RestAPI/Controllers/AiProviders.php:263
 msgid "Unknown AI provider."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:185
+#: classes/RestAPI/Controllers/AiProviders.php:271
 msgid "This provider is already configured — edit or delete the existing one instead."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:194
+#: classes/RestAPI/Controllers/AiProviders.php:280
 msgid "An API key is required for this provider."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:227
-#: classes/RestAPI/Controllers/AiProviders.php:269
-#: classes/RestAPI/Controllers/AiProviders.php:306
+#: classes/RestAPI/Controllers/AiProviders.php:313
+#: classes/RestAPI/Controllers/AiProviders.php:355
+#: classes/RestAPI/Controllers/AiProviders.php:392
 msgid "Provider configuration not found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:251
+#: classes/RestAPI/Controllers/AiProviders.php:337
 #: classes/RestAPI/Controllers/Redirects.php:243
 msgid "Nothing to update."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:255
+#: classes/RestAPI/Controllers/AiProviders.php:341
 #: assets/js/index.js:1
 msgid "Could not update this provider."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:273
+#: classes/RestAPI/Controllers/AiProviders.php:359
 msgid "Could not delete this provider."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:316
+#: classes/RestAPI/Controllers/AiProviders.php:402
 msgid "This provider is disabled — enable it first, then test the connection."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:317
+#: classes/RestAPI/Controllers/AiProviders.php:403
 msgid "VuloPilot can no longer read this provider’s saved API key. Enter it again to reconnect, then test the connection."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:361
+#: classes/RestAPI/Controllers/AiProviders.php:447
 msgid "Connected — the API key works."
 msgstr ""
 
@@ -1980,14 +1993,6 @@ msgstr ""
 
 #: classes/RestAPI/Controllers/Settings.php:891
 msgid "No module id given."
-msgstr ""
-
-#: classes/RestAPI/Controllers/VuloCloudAccount.php:106
-msgid "Enter a valid email address."
-msgstr ""
-
-#: classes/RestAPI/Controllers/VuloCloudAccount.php:110
-msgid "Enter your VuloCloud password."
 msgstr ""
 
 #: classes/RuleEngine/Rules/CoreUpdateAvailableRule.php:42
@@ -3708,6 +3713,87 @@ msgstr ""
 msgid "Extension \"%1$s\" failed to register: %2$s"
 msgstr ""
 
+#: classes/Services/AiByokGatewayClient.php:61
+msgid "This site is not connected to VuloCloud."
+msgstr ""
+
+#. translators: %s: underlying error message.
+#: classes/Services/AiByokGatewayClient.php:97
+#: classes/Services/AiCreditGatewayClient.php:95
+#: classes/Services/AiCreditsConnection.php:230
+#: classes/Services/AiCreditsConnection.php:279
+#: classes/Services/AiCreditsConnection.php:302
+#: classes/Services/AiCreditsConnection.php:370
+#: classes/Services/AiCreditsConnection.php:393
+#: classes/Services/AiCreditsConnection.php:425
+#: classes/Services/AiCreditsConnection.php:481
+#: classes/Services/VuloCloudAccountConnection.php:137
+#: classes/Services/VuloCloudAccountConnection.php:201
+#, php-format
+msgid "Could not reach VuloCloud: %s"
+msgstr ""
+
+#: classes/Services/AiByokGatewayClient.php:108
+#: classes/Services/AiCreditGatewayClient.php:106
+msgid "VuloCloud returned an unexpected response."
+msgstr ""
+
+#: classes/Services/AiByokGatewayClient.php:120
+msgid "No AI provider is configured for this site."
+msgstr ""
+
+#: classes/Services/AiByokGatewayClient.php:125
+#: classes/Services/AiCreditGatewayClient.php:121
+msgid "VuloCloud could not process this AI request right now."
+msgstr ""
+
+#: classes/Services/AiCreditGatewayClient.php:63
+#: classes/Services/AiCreditsConnection.php:469
+msgid "This site is not connected to VuloCloud AI Credits."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: classes/Services/AiCreditsApiClient.php:202
+#: classes/Services/VuloCloudAccountApiClient.php:211
+#, php-format
+msgid "VuloCloud returned a non-JSON response (HTTP %d)."
+msgstr ""
+
+#: classes/Services/AiCreditsConnection.php:211
+#: classes/Services/AiCreditsConnection.php:413
+msgid "Your VuloCloud session could not be verified. Please try connecting again."
+msgstr ""
+
+#: classes/Services/AiCreditsConnection.php:243
+#: classes/Services/AiCreditsConnection.php:438
+msgid "Could not connect this site to VuloCloud AI Credits."
+msgstr ""
+
+#: classes/Services/AiCreditsConnection.php:312
+msgid "Could not set up a VuloCloud account for this site."
+msgstr ""
+
+#: classes/Services/AiCreditsConnection.php:347
+msgid "The solo site owner option isn’t configured for this build yet."
+msgstr ""
+
+#: classes/Services/AiCreditsConnection.php:358
+msgid "Enter your first and last name."
+msgstr ""
+
+#: classes/Services/AiCreditsConnection.php:380
+#: classes/Services/VuloCloudAccountConnection.php:216
+msgid "Could not create your VuloCloud account."
+msgstr ""
+
+#: classes/Services/AiCreditsConnection.php:403
+msgid "Could not sign in to your VuloCloud account."
+msgstr ""
+
+#: classes/Services/AiCreditsConnection.php:491
+msgid "Could not refresh your AI credit balance."
+msgstr ""
+
 #: classes/Services/BackupGoogleDriveConnection.php:196
 #: classes/Services/GoogleServicesConnection.php:311
 msgid "No Google OAuth Client ID/Secret saved yet."
@@ -3728,6 +3814,7 @@ msgid "This backup’s local file could not be found."
 msgstr ""
 
 #: classes/Services/BackupGoogleDriveOAuthCallbackHandler.php:45
+#: classes/Services/ConnectBrokerCallbackHandler.php:45
 #: classes/Services/GoogleSearchConsoleOAuthCallbackHandler.php:61
 msgid "You do not have permission to do this."
 msgstr ""
@@ -3790,6 +3877,16 @@ msgstr ""
 #: classes/Services/CloudStorage/S3Client.php:275
 #, php-format
 msgid "S3 request failed (HTTP %d)."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: classes/Services/ConnectBrokerClient.php:102
+#, php-format
+msgid "Connect broker returned a non-JSON response (HTTP %d)."
+msgstr ""
+
+#: classes/Services/ConnectBrokerClient.php:111
+msgid "Connect broker could not complete the connection."
 msgstr ""
 
 #. translators: 1: real business name, 2: real service page title.
@@ -4145,23 +4242,7 @@ msgstr ""
 msgid "Review rating"
 msgstr ""
 
-#. translators: %d: HTTP status code.
-#: classes/Services/VuloCloudAccountApiClient.php:129
-#, php-format
-msgid "VuloCloud returned a non-JSON response (HTTP %d)."
-msgstr ""
-
-#: classes/Services/VuloCloudAccountConnection.php:109
-msgid "VuloCloud isn’t configured for this build yet."
-msgstr ""
-
-#. translators: %s: underlying error message.
-#: classes/Services/VuloCloudAccountConnection.php:122
-#, php-format
-msgid "Could not reach VuloCloud: %s"
-msgstr ""
-
-#: classes/Services/VuloCloudAccountConnection.php:137
+#: classes/Services/VuloCloudAccountConnection.php:152
 msgid "Could not connect to VuloCloud."
 msgstr ""
 
@@ -4985,6 +5066,14 @@ msgid "Advanced AI models for chat, content, and more."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Connected to VuloCloud."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not connect to VuloCloud. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Default model updated."
 msgstr ""
 
@@ -5112,6 +5201,50 @@ msgid "Loading…"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Connected — an AI provider key is configured for this site by your Organization (or an allowed personal backup key)."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connected to VuloCloud, but no AI provider key is configured yet for this site. Add one from your VuloCloud account, or ask your agency to."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect this site to VuloCloud to use an AI provider key managed by your Organization."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect to VuloCloud"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Site tone"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A short description of how this site should sound (e.g. \"Friendly and casual\" or \"Formal and technical\") — included with every AI request."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "e.g. Friendly and casual"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Site tone saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not save the site tone."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manually set — won’t be overwritten automatically."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Auto-detected from your site’s recent content."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Provider disabled."
 msgstr ""
 
@@ -5139,6 +5272,22 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not remove this provider."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnect VuloCloud"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnect this site from VuloCloud? AI features that rely on your Organization’s key will stop working until you connect again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnected from VuloCloud."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not disconnect from VuloCloud."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7219,6 +7368,112 @@ msgid "Quick-start templates for a website health scan, security monitoring, SEO
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Create your free VuloCloud account"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect your VuloCloud account"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Claim 100 Free AI Credits — no credit card required."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Account type"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "I manage multiple client sites"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "I'm a solo site owner"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Password"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "First name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Last name"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Two-factor authentication code"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create account & claim credits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect & claim credits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter the two-factor authentication code for your VuloCloud account."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Already have a VuloCloud account? Log in"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New to VuloCloud? Create an account"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI Credits remaining"
+msgstr ""
+
+#. translators: %d: real lifetime-earned credit count.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d earned"
+msgstr ""
+
+#. translators: %d: real lifetime-used credit count.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d used"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "You've used all your AI Credits."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Free AI: use your credits for manual AI assistance. Pro: unlock automation, AI fixing, and advanced intelligence."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Buy More Credits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Explore VuloPilot Pro"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Refresh balance"
+msgstr ""
+
+#. translators: %d: real remaining AI Credit balance.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d AI Credits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Claim free AI Credits"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Unlock with Pro"
 msgstr ""
 
@@ -7932,15 +8187,15 @@ msgid "Live Site Insights"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Real crawler traffic and site metrics, at a glance."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load live insights"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Please refresh the page to try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Real crawler traffic and site metrics, at a glance."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8090,6 +8345,10 @@ msgid "View Slow Pages"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Real Google Core Web Vitals for this site."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load Core Web Vitals"
 msgstr ""
 
@@ -8204,6 +8463,10 @@ msgid "Speed History"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Your daily performance score over the last 30 days."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Speed history builds up after your first scan — run a scan, or check back after today."
 msgstr ""
 
@@ -8259,7 +8522,6 @@ msgstr ""
 msgid "Run a speed test to find your biggest opportunity."
 msgstr ""
 
-#. translators: %d is the number of real pages this issue affects.
 #: assets/js/index.js:1
 #, js-format
 msgid "Affects %d page."
@@ -8267,7 +8529,6 @@ msgid_plural "Affects %d pages."
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: %d is the number of real endpoints this issue affects.
 #: assets/js/index.js:1
 #, js-format
 msgid "Affects %d endpoint."
@@ -8285,6 +8546,30 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Whether OPcache is enabled and speeding up PHP execution."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "High priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "View issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Medium priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Low priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Filter by priority"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Click a priority level to view matching issues"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8345,6 +8630,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Issue details"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "More detail on the issue you select from the table."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8462,6 +8751,18 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "All findings in this group ignored."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every open finding across every category below."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Critical and high-severity findings that need attention first."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8639,6 +8940,10 @@ msgid "Slow"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Pages with the slowest real load times."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load Slow Pages"
 msgstr ""
 
@@ -8781,6 +9086,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Why these pages are slow?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "The most common issues dragging your pages down."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9111,6 +9420,10 @@ msgid "Site-wide Issues"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "SEO issues that affect the whole site rather than one page."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load site-wide issues"
 msgstr ""
 
@@ -9136,6 +9449,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Pages & Posts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SEO issues broken down by the page or post they were found on."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9333,10 +9650,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: assets/js/index.js:1
-msgid "View issues"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "No AI summary findings yet — run a scan to check for summary blocks."
 msgstr ""
 
@@ -9431,27 +9744,7 @@ msgid "Improve content structure and clarity to be more discoverable by AI engin
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Connect to VuloCloud"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Log in with your VuloCloud account to unlock this."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Password"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Two-factor authentication code"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Enter the two-factor authentication code for your VuloCloud account."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not connect to VuloCloud. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9802,6 +10095,10 @@ msgid "Amazonbot (Amazon)"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Real crawler visits to your site, over time."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load crawler traffic"
 msgstr ""
 
@@ -10048,6 +10345,10 @@ msgid "No broken links or images found yet. Make sure \"Flag broken links\"/\"Fl
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Broken links and images found across your site."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "SEO module is turned off"
 msgstr ""
 
@@ -10143,6 +10444,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Add redirect"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every redirect rule you've set up."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10654,6 +10959,10 @@ msgid "Robots & Sitemap"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Robots.txt and XML sitemap checks for this site."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Turn the SEO module back on from Settings → Modules to resume robots.txt/sitemap checks."
 msgstr ""
 
@@ -10723,6 +11032,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Turn on the Brand Intelligence module (Settings → Modules) to start tracking real off-site news mentions and citing domains here — no account or API key needed."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Trust, authority, and entity signals across your site."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11387,11 +11700,11 @@ msgid "Pages that need attention"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not load these pages"
+msgid "Real published pages with the most open SEO issues."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Real published pages with the most open SEO issues."
+msgid "Could not load these pages"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11509,6 +11822,10 @@ msgid "%d pages checked"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Your site-wide SEO score and open issues."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Turn the SEO module back on from Settings → Modules to resume SEO scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category."
 msgstr ""
 
@@ -11583,6 +11900,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Sync now"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keyword rankings pulled from Google Search Console."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -12297,6 +12618,10 @@ msgid "No WooCommerce findings yet — run a scan to check store settings, produ
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Commerce issues found across your store."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "All WooCommerce Issues"
 msgstr ""
 
@@ -12477,7 +12802,7 @@ msgid "The last 5 automation runs and what they did."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "View automation history →"
+msgid "View automation history"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -12681,19 +13006,11 @@ msgid "Drafts"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "changes made"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Never run"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Run now"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Your automations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "React to scan findings automatically — enable, pause, or run an automation, and see when it last ran."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -12705,15 +13022,7 @@ msgid "Automation"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "What it does"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Runs"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Last run"
+msgid "Run now"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -13109,6 +13418,10 @@ msgid "Generate report"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Generate and download reports for this site."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Report type"
 msgstr ""
 
@@ -13142,6 +13455,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "User"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A log of automated changes made on this site."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -13310,12 +13627,6 @@ msgstr ""
 msgid "A site-wide check — not tied to individual pages or posts."
 msgstr ""
 
-#. translators: %s: formatted date this event happened
-#: assets/js/index.js:1
-#, js-format
-msgid "%s"
-msgstr ""
-
 #: assets/js/index.js:1
 msgid "Manually triggered"
 msgstr ""
@@ -13428,6 +13739,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Selected item"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "More detail on the entry you select from the timeline."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -13567,6 +13882,10 @@ msgid "Could not load your site overview."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Your open issues, broken down by category."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not load issues"
 msgstr ""
 
@@ -13615,18 +13934,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Upgrade to Pro to chat with VuloPilot and see your real conversation history here."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Just now"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Your last 3 conversations with AI Copilot."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Continue this conversation"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -13844,6 +14151,10 @@ msgid "Security Trend"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Your daily security score over the last 30 days."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Security trend builds up after your first scan — run a scan, or check back after today."
 msgstr ""
 
@@ -14013,6 +14324,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Pre-restore safety snapshot"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Database and file backups for this site."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -14937,11 +15252,19 @@ msgid "Could not load settings"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Configure how vulopilot works on this site."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "This settings section isn’t available"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "The tab you linked to doesn’t exist, or the module it belongs to is turned off."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Server environment info and site utilities."
 msgstr ""
 
 #: assets/js/index.js:1

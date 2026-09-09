@@ -140,6 +140,36 @@ export default {
 			],
 		},
 		{
+			key: 'ai-section',
+			type: 'section',
+			title: __('AI Assistant', 'vulopilot'),
+			icon: 'ai',
+			desc: __(
+				'Controls how VuloPilot’s AI features sound when writing or rewriting your content.',
+				'vulopilot'
+			),
+		},
+		{
+			// Moved from Settings → Connections → AI Providers, which had
+			// its own bespoke "Save" button and a separate
+			// `ai-providers/site-tone` endpoint/option
+			// (`vulopilot_site_tone`) — now a plain field in this tab's own
+			// `vulopilot_settings` option instead (see
+			// Utill::VULOPILOT_SETTINGS_DEFAULTS's own comment on
+			// `site_tone`), so it autosaves through the same debounced
+			// InputRenderer path every other field on this page already
+			// uses, with no separate button of its own.
+			key: 'site_tone',
+			type: 'text',
+			size: 30,
+			label: __('Site tone', 'vulopilot'),
+			settingDescription: __(
+				'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") — included with every AI request.',
+				'vulopilot'
+			),
+			placeholder: __('e.g. Friendly and casual', 'vulopilot'),
+		},
+		{
 			// Same real `POST /settings/reset` route Notifications.ts's
 			// "Send test email" button already calls via `apilink` —
 			// Controllers\Settings::reset_settings() deletes the whole

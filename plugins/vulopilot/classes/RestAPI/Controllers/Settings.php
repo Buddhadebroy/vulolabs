@@ -329,6 +329,21 @@ class Settings extends \WP_REST_Controller {
 
         $updated = array_merge( $this->get_stored_settings(), $tab_fields );
 
+        // General tab's own "Site tone" field autosaving a real, human-
+        // typed value means it's no longer Services\SiteToneLearner's own
+        // auto-detected phrase — same "an edited field also needs an
+        // immediate side effect on save" shape llms_txt_content/
+        // indexnow_api_key below already use, just flipping a sibling flag
+        // rather than writing a file. Deliberately keyed on `site_tone`
+        // being present at all (even if saved back to '') rather than a
+        // non-empty check — clearing the field is itself a deliberate
+        // human action that should stick, not fall back to 'auto' and
+        // risk SiteToneLearner silently repopulating it on the next
+        // relearn.
+        if ( array_key_exists( 'site_tone', $tab_fields ) ) {
+            $updated['site_tone_source'] = 'manual';
+        }
+
         update_option( Utill::VULOPILOT_SETTINGS_KEY, $updated );
 
         $response = array(

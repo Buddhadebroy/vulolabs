@@ -11,6 +11,7 @@ use VuloPilot\Contracts\AI\AIProviderInterface;
 use VuloPilot\Exceptions\AiByokNotConfiguredException;
 use VuloPilot\Exceptions\ProviderRequestException;
 use VuloPilot\Services\AiByokGatewayClient;
+use VuloPilot\Utill;
 use VuloPilot\ValueObjects\AIRequest;
 use VuloPilot\ValueObjects\AIResponse;
 
@@ -86,11 +87,16 @@ class VuloCloudProxyProvider implements AIProviderInterface {
      * @inheritDoc
      */
     public function send( AIRequest $request ): AIResponse {
+        // Lives in the flat `vulopilot_settings` option (General tab's own
+        // "Site tone" field, autosaved) rather than a dedicated option —
+        // see Utill::VULOPILOT_SETTINGS_DEFAULTS's own comment on `site_tone`.
+        $settings = wp_parse_args( (array) get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
         $result = $this->gateway->execute(
             $request->get_surface() ?? 'ai_action',
             $this->flatten_messages( $request->get_messages() ),
             array(),
-            (string) get_option( 'vulopilot_site_tone', '' )
+            (string) $settings['site_tone']
         );
 
         if ( is_wp_error( $result ) ) {

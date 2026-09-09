@@ -115,20 +115,6 @@ class AiProviders extends \WP_REST_Controller {
 
         register_rest_route(
             VuloPilot()->rest_namespace,
-            '/' . $this->rest_base . '/site-tone',
-            array(
-                array(
-                    // Same POST-only reasoning as every other write route
-                    // here — @zyra/core's sendApiResponse() always issues POST.
-                    'methods'             => \WP_REST_Server::CREATABLE,
-                    'callback'            => array( $this, 'update_site_tone' ),
-                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
-                ),
-            )
-        );
-
-        register_rest_route(
-            VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/broker-authorize-url',
             array(
                 array(
@@ -188,14 +174,12 @@ class AiProviders extends \WP_REST_Controller {
 
         // 'adapters' now only ever lists Ollama (get_available_adapters()'s
         // own docblock) — the 5 cloud providers have no local credential
-        // to manage from this panel anymore. 'vulocloud_status'/'site_tone'
-        // are what replace them: a cheap connection-status check
-        // (AiByokGatewayClient::status(), never a key/prompt) plus the
-        // field sent with every BYOK request (see VuloCloudProxyProvider's
-        // own docblock) — 'site_tone_source' tells the panel whether the
-        // current value was Services\SiteToneLearner's own real, freshly-
-        // learned phrase or a site owner's own saved override (see that
-        // class's own docblock and update_site_tone() below).
+        // to manage from this panel anymore. 'vulocloud_status' is what
+        // replaces them: a cheap connection-status check
+        // (AiByokGatewayClient::status(), never a key/prompt). "Site tone"
+        // itself moved to Settings → General (Utill::VULOPILOT_SETTINGS_DEFAULTS's
+        // own comment on `site_tone`) — it autosaves through the generic
+        // `/settings` route now, not this one.
         $vulocloud_status = ( new AiByokGatewayClient() )->status();
 
         return rest_ensure_response(
@@ -205,32 +189,6 @@ class AiProviders extends \WP_REST_Controller {
                 'vulocloud_status' => is_wp_error( $vulocloud_status )
                     ? array( 'connected' => false, 'configured' => false )
                     : $vulocloud_status,
-                'site_tone'        => (string) get_option( 'vulopilot_site_tone', '' ),
-                'site_tone_source' => (string) get_option( 'vulopilot_site_tone_source', 'auto' ),
-            )
-        );
-    }
-
-    /**
-     * Saves the "site tone" field (see VuloCloudProxyProvider's own
-     * docblock) and marks it 'manual' — the only place that ever happens,
-     * so Services\SiteToneLearner's own later automatic re-learns know to
-     * leave a site owner's own edit alone (see that class's own
-     * maybe_store_learned_tone()).
-     *
-     * @param \WP_REST_Request $request Full details about the request.
-     * @return \WP_REST_Response
-     */
-    public function update_site_tone( $request ) {
-        $site_tone = sanitize_text_field( (string) $request->get_param( 'site_tone' ) );
-
-        update_option( 'vulopilot_site_tone', $site_tone, false );
-        update_option( 'vulopilot_site_tone_source', 'manual', false );
-
-        return rest_ensure_response(
-            array(
-                'site_tone'        => $site_tone,
-                'site_tone_source' => 'manual',
             )
         );
     }
