@@ -212,6 +212,9 @@ export interface PageRow {
 	findings: RawFinding[];
 	/** Only set when `IssuesSection.tsx` was given a `pageAnalysis` prop (GeoTab.tsx/AeoTab.tsx) — the real, deterministic `GET /geo-analysis/pages` score (`GeoAnalyzer::score_from_failures()`), `null` for a site with no scan history yet. Undefined (not just null) for `SeoIssuesSection.tsx`'s own SEO usage, which never fetches this. */
 	visibilityScore?: number | null;
+	/** Only set when `IssuesSection.tsx` was given `pageScore: true` (`SeoIssuesSection.tsx`'s own SEO usage) — the real per-page SEO score/week-over-week change `GET /seo/pages-needing-attention` (Seo.php) already computes, joined onto this row by `id` (was `PagesNeedingAttentionTable.tsx`'s own standalone data source before that table was folded into this one — see `IssuesSection.tsx`'s own `pageScore` docblock). `undefined` for any row that endpoint didn't return (a page with no open finding, or a non-SEO caller). */
+	seoScore?: number;
+	seoScoreChange?: number;
 }
 
 export interface GeoAnalysisPageRow {

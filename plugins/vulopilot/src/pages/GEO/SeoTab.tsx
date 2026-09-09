@@ -17,9 +17,9 @@ import { useSeoScore, SeoScoreResponse } from './useSeoScore';
 import { useSeoProgress } from './useSeoProgress';
 import { getRating, ratingClass, ratingColor } from './seoRating';
 import SeoIssuesSection from './SeoIssuesSection';
+import SeoProgressCard from './SeoProgressCard';
 import PageAnalysisPanel from './PageAnalysisPanel';
 import WhatShouldIFixFirstCard from './WhatShouldIFixFirstCard';
-import PagesNeedingAttentionTable from './PagesNeedingAttentionTable';
 
 const CATEGORY_CARDS: {
 	key: keyof SeoScoreResponse['category_scores'];
@@ -310,6 +310,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 						]}
 					/>
 				)}
+				<SeoProgressCard />
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
@@ -419,70 +420,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 									},
 								]}
 							/>
-							{progress && (
-								<AnalyticsComponent
-									variant="background-color"
-									cols={4}
-									data={[
-										{
-											number:
-												progress.trend.length > 0
-													? progress.trend[progress.trend.length - 1].score
-													: undefined,
-											text: __('Latest score', 'vulopilot'),
-											colorClass: 'admin-bg-color6',
-										},
-										{
-											number: progress.issues_fixed.this_week,
-											text: __('Issues Fixed', 'vulopilot'),
-											colorClass: 'admin-bg-color7',
-											extra: (
-												<span className="is-good">
-													{sprintf(
-														/* translators: %s: signed change vs the previous week, e.g. "+18". */
-														__('%s this week', 'vulopilot'),
-														signedDelta(progress.issues_fixed.delta)
-													)}
-												</span>
-											),
-										},
-										{
-											number: progress.new_issues.this_week,
-											text: __('New Issues', 'vulopilot'),
-											colorClass: 'admin-bg-color8',
-											extra: (
-												<span
-													className={
-														progress.new_issues.delta <= 0
-															? 'is-good'
-															: 'is-attention'
-													}
-												>
-													{sprintf(
-														/* translators: %s: signed change vs the previous week, e.g. "-6". */
-														__('%s this week', 'vulopilot'),
-														signedDelta(progress.new_issues.delta)
-													)}
-												</span>
-											),
-										},
-										{
-											number: progress.pages_improved.this_week,
-											text: __('Pages Improved', 'vulopilot'),
-											colorClass: 'admin-bg-color9',
-											extra: (
-												<span className="is-good">
-													{sprintf(
-														/* translators: %s: signed change vs the previous week, e.g. "+3". */
-														__('%s this week', 'vulopilot'),
-														signedDelta(progress.pages_improved.delta)
-													)}
-												</span>
-											),
-										},
-									]}
-								/>
-							)}
+
 						</div>
 					)}
 				</CardComponent>
@@ -502,10 +440,11 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 				/>
 			</ColumnComponent> */}
 			<ColumnComponent grid={8}>
-			<SeoIssuesSection
-				categoryFocus={categoryFocus}
-				onAnalyze={setAnalyzingPostId}
-			/>
+				<SeoIssuesSection
+					categoryFocus={categoryFocus}
+					onAnalyze={setAnalyzingPostId}
+					activePostId={analyzingPostId}
+				/>
 			</ColumnComponent>
 			{analyzingPostId && (
 				<ColumnComponent grid={4}>

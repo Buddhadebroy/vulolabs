@@ -841,7 +841,6 @@ const RecentContentCard = () => {
 				/>
 			}
 			isLoading={isLoading}>
-
 			<div className="recent-content-toolbar">
 				<TextInput
 					type="search"

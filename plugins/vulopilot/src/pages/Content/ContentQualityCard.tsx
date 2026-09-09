@@ -267,26 +267,41 @@ const ContentQualityCard = () => {
 		}
 	};
 
+	const selectedOption = options.find((option: ContentOption) => option.id === selectedId);
+
 	return (
 		<CardComponent
 			title={__('Content Quality', 'vulopilot')}
 			titleIcon="ai"
-			desc={__('Real AI-assessed quality signals for this piece of content.', 'vulopilot')}
+			desc={__('Real AI-assessed quality signals for the selected page.', 'vulopilot')}
 			isLoading={isLoadingOptions}
 			action={
 				!isLoadingOptions && options.length > 0 ? (
-					<SelectInput
-						name="content-quality-picker"
-						size={10}
-						type="single-select"
-						value={selectedId ? String(selectedId) : ''}
-						onChange={(value) => setSelectedId(Number(value))}
-						options={options.map((option) => ({
-							label: option.title,
-							value: String(option.id),
-						}))}
-						isClearable={false}
-					/>
+					<div className="content-quality-picker">
+						<TypographyComponent
+							variant="caption"
+							weight="semibold"
+							className="content-quality-picker-label"
+						>
+							{__('Page being analyzed', 'vulopilot')}
+						</TypographyComponent>
+						<SelectInput
+							name="content-quality-picker"
+							size={10}
+							type="single-select"
+							value={selectedId ? String(selectedId) : ''}
+							onChange={(value: string) => setSelectedId(Number(value))}
+							options={options.map((option: ContentOption) => ({
+								label: option.title,
+								value: String(option.id),
+							}))}
+							isClearable={false}
+						/>
+						<div className="content-quality-picker-hint">
+							<IconComponent name="info" />
+							{__('Changing the page updates all results below.', 'vulopilot')}
+						</div>
+					</div>
 				) : undefined
 			}
 		>
@@ -299,6 +314,23 @@ const ContentQualityCard = () => {
 						'vulopilot'
 					)}
 				/>
+			)}
+
+			{!isLoading && data && selectedOption && (
+				<div className="content-quality-analyzing-banner">
+					<span className="content-quality-analyzing-banner-label">
+						<IconComponent name="doc" />
+						{__('Showing analysis for:', 'vulopilot')}{' '}
+						<strong>{selectedOption.title}</strong>
+					</span>
+					<span className="content-quality-analyzing-banner-hint">
+						<IconComponent name="ai" />
+						{__(
+							'Analysis updates automatically when you select a different page.',
+							'vulopilot'
+						)}
+					</span>
+				</div>
 			)}
 
 			{!isLoading && data && (
@@ -357,10 +389,6 @@ const ContentQualityCard = () => {
 									),
 									text: __('Readability', 'vulopilot'),
 									progress: data.readability.score,
-									// `{tone}-color` is a real zyra utility class
-									// (common.scss's own `$color-palette` loop) that
-									// also tints this same tile's `.progress-bar`
-									// automatically — no separate bar CSS needed.
 									colorClass: `${readabilityTone}-color`,
 								},
 								{
@@ -391,7 +419,7 @@ const ContentQualityCard = () => {
 							<SectionComponent icon='ai'
 								title={__('Content Assessment', 'vulopilot')}
 							/>
-							{data.completeness.checks.map((check) => (
+							{data.completeness.checks.map((check: OnPageCheck) => (
 								<CheckRow key={check.id} check={check} />
 							))}
 						</div>

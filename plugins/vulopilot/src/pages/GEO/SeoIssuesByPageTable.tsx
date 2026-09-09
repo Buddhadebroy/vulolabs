@@ -2,10 +2,11 @@
 import React from 'react';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CardComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager, SectionComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager, SectionComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
+import { ratingColor } from './seoRating';
 import {
 	FindingSeverity,
 	PRIORITY_SEVERITIES,
@@ -66,6 +67,31 @@ interface TableCardQuery {
 /** Same navigate-and-highlight deep link `post-editor/index.tsx` reads — deliberately NOT the existing in-place "Fix with AI" (RecentContentCard.tsx/FindingsTable.tsx/IssueDetailPanel.tsx's immediate AI-apply, which `SeoSiteWideIssuesTable.tsx` uses instead since its findings have no page to navigate to). This one takes the user to the editor, opens the "VuloPilot SEO" sidebar, and — where a mapping exists (seoIssueEditorTarget.ts) — switches to the right tab and highlights the specific field/checklist row, so they see exactly what to fix before anything is changed. */
 const buildFixWithAiLink = (editLink: string, scannerId: string): string =>
 	`${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(scannerId)}`;
+
+/**
+ * Same real "no real number, no arrow" honesty `PagesNeedingAttentionTable.tsx`'s
+ * own identical cell already established — a page with no findings 7 days
+ * ago and none now genuinely has 0 change, a real "steady" state, not
+ * missing data, so it still renders (just without an arrow). Ported here
+ * (this codebase's own "duplicate small per-file logic" convention) now
+ * that table's Score/Change columns moved into this one, per direct
+ * instruction — not imported, since `PagesNeedingAttentionTable.tsx` no
+ * longer exists as its own separate table.
+ */
+const ChangeCell = ({ change }: { change: number }) => {
+	if (0 === change) {
+		return <span className="fix-first-change is-steady">{__('No change', 'vulopilot')}</span>;
+	}
+
+	const improved = change > 0;
+
+	return (
+		<span className={`fix-first-change ${improved ? 'is-good' : 'is-attention'}`}>
+			<i className={`adminfont-arrow-${improved ? 'up' : 'down'}`} />
+			{Math.abs(change)}
+		</span>
+	);
+};
 
 /**
  * zyra `Table.tsx`'s own expand/collapse state (`expandedRows`) is fully
@@ -134,6 +160,10 @@ interface SeoIssuesByPageTableProps {
 	onExportCsv?: () => void;
 	/** Only set by `SeoIssuesSection.tsx`'s own SEO usage — adds a real "Analyze" row action opening SeoTab.tsx's own PageAnalysisPanel for that page. `undefined` for AeoTab.tsx's/GeoTab.tsx's own `pageAnalysis` usage, which has no such panel. */
 	onAnalyze?: (postId: number) => void;
+	/** SeoTab.tsx's own `analyzingPostId` — which row's panel (if any) is currently open, so this row's own "Analyze" action can read "Viewing" instead, same real toggle `PagesNeedingAttentionTable.tsx`'s own identical action used to establish. */
+	activePostId?: number | null;
+	/** Only set by `SeoIssuesSection.tsx`'s own SEO usage (`IssuesSection.tsx`'s own `pageScore` prop) — adds a real Score ring + Change column per page, reading `row.seoScore`/`row.seoScoreChange`. This was `PagesNeedingAttentionTable.tsx`'s own standalone table before being folded into this one per direct instruction. */
+	showScoreChange?: boolean;
 }
 
 /**
@@ -185,6 +215,8 @@ const SeoIssuesByPageTable = ({
 	visibilityColumnLabel,
 	onExportCsv,
 	onAnalyze,
+	activePostId,
+	showScoreChange,
 }: SeoIssuesByPageTableProps) => {
 	/** This table's OWN "Search pages…" box (TableCard's built-in search, filtering by PAGE title). */
 	const [searchValue, setSearchValue] = useState('');
@@ -279,6 +311,17 @@ const SeoIssuesByPageTable = ({
 		rows.filter((row) => rowMatchesFilter(row) && rowMatchesSearch(row))
 	);
 
+	/**
+	 * Restored — real, needed action for `IssuesSection.tsx`'s own
+	 * AeoTab.tsx/GeoTab.tsx callers, which have no `PageAnalysisPanel`
+	 * equivalent to move this into the way SeoTab.tsx's own SEO usage does
+	 * (`PageAnalysisPanel.tsx`'s own header actions). "Move Edit/View/Fix
+	 * with AI to Page Analysis" only ever made sense for SEO's own flow;
+	 * stripping them from this shared table left AEO's/GEO's own tables
+	 * with an empty Action column on every row (no `onAnalyze` there means
+	 * "Analyze" — the one action left — was always `hidden`, and it was
+	 * the only entry).
+	 */
 	const handleFixWithAi = (row: PageRow) => {
 		const rowFindings = getRowFindings(row);
 		const scannerIds = Array.from(new Set(rowFindings.map((finding) => finding.scanner_id)));
@@ -371,9 +414,9 @@ const SeoIssuesByPageTable = ({
 			) : (
 				<TableCard
 					showMenu={false}
-					expandable
 					hideHeader
 					className="transparent-table"
+					activeRowId={activePostId ?? undefined}
 					search={{ placeholder: __('Search pages…', 'vulopilot') }}
 					buttonActions={
 						onExportCsv
@@ -394,7 +437,7 @@ const SeoIssuesByPageTable = ({
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
-							width: '65%',
+							width: '45%',
 							/**
 							 * Status and Issues used to be their own columns —
 							 * consolidated here as InformationItemComponent's own
@@ -468,15 +511,75 @@ const SeoIssuesByPageTable = ({
 									},
 								}
 							: {}),
+						// Real per-page SEO score/week-over-week change —
+						// `PagesNeedingAttentionTable.tsx`'s own former 2
+						// columns, folded into "Pages & Posts" per direct
+						// instruction. `row.seoScore`/`row.seoScoreChange`
+						// only exist when `IssuesSection.tsx` was given
+						// `pageScore: true` (SeoTab.tsx's own SEO usage);
+						// `undefined` (SkeletonComponent shown instead)
+						// elsewhere.
+						...(showScoreChange
+							? {
+									seo_score: {
+										label: __('SEO Score', 'vulopilot'),
+										render: (row: TableRow) =>
+											isFindingRow(row) ||
+											undefined === row.seoScore ? null : (
+												<span
+													className="seo-issues-row-expand-trigger"
+													onClick={toggleRowExpansion}
+												>
+													<ChartComponent
+														type="ring"
+														height={40}
+														color={ratingColor(row.seoScore)}
+														dataKey="score"
+														data={[{ score: row.seoScore }]}
+														centerLabel={row.seoScore}
+													/>
+												</span>
+											),
+									},
+									seo_score_change: {
+										label: __('Change', 'vulopilot'),
+										render: (row: TableRow) =>
+											isFindingRow(row) ||
+											undefined === row.seoScoreChange ? null : (
+												<span
+													className="seo-issues-row-expand-trigger"
+													onClick={toggleRowExpansion}
+												>
+													<ChangeCell change={row.seoScoreChange} />
+												</span>
+											),
+									},
+								}
+							: {}),
 						action: {
 							label: __('Action', 'vulopilot'),
 							type: 'action',
 							actions: [
 								{
 									type: 'button',
-									label: __('Analyze', 'vulopilot'),
-									
-									icon: 'search',
+									// Same real "More Details"/"Showing" toggle shape
+									// `PagesNeedingAttentionTable.tsx`'s own identical
+									// action already establishes for this same
+									// PageAnalysisPanel — "Viewing" (not "Analyze")
+									// once this row's own panel is the one currently
+									// open.
+									label: (row: Record<string, unknown>) =>
+										(row as unknown as PageRow).id === activePostId
+											? __('Viewing', 'vulopilot')
+											: __('Analyze', 'vulopilot'),
+									color: (row: Record<string, unknown>) =>
+										(row as unknown as PageRow).id === activePostId
+											? 'text-green'
+											: 'text-purple',
+									icon: (row: Record<string, unknown>) =>
+										(row as unknown as PageRow).id === activePostId
+											? 'eye'
+											: 'search',
 									hidden: (row) =>
 										!onAnalyze ||
 										isFindingRow(row as unknown as TableRow),
@@ -484,54 +587,6 @@ const SeoIssuesByPageTable = ({
 										onAnalyze?.(
 											(row as unknown as PageRow).id
 										),
-								},								
-								{
-									type: 'button',
-									label: __('Edit', 'vulopilot'),
-									color: 'text-green',
-									icon: 'edit',
-									onClick: (row) => {
-										window.location.href = (
-											row as unknown as TableRow
-										).editLink;
-									},
-								},
-								{
-									type: 'button',
-									label: __('View', 'vulopilot'),
-									color: 'text-blue',
-									icon: 'eye',
-									onClick: (row) => {
-										const typedRow = row as unknown as TableRow;
-										if (typedRow.viewLink) {
-											window.open(
-												typedRow.viewLink,
-												'_blank',
-												'noreferrer'
-											);
-										}
-									},
-								},
-								{
-									type: 'button',
-									label: __('Fix with AI', 'vulopilot'),
-									color: 'orange-bg',
-									icon: 'ai',
-									hidden: (row) => {
-										const typedRow = row as unknown as TableRow;
-										return (
-											!isFindingRow(typedRow) &&
-											0 === getRowFindings(typedRow).length
-										);
-									},
-									onClick: (row) => {
-										const typedRow = row as unknown as TableRow;
-										if (isFindingRow(typedRow)) {
-											window.location.href = typedRow.fixWithAiLink;
-										} else {
-											handleFixWithAi(typedRow);
-										}
-									},
 								}
 							],
 						},

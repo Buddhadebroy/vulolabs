@@ -84,6 +84,20 @@ interface IssuesSectionProps {
 	id?: string;
 	/** Only passed by `SeoIssuesSection.tsx`'s own SEO usage — see `SeoIssuesByPageTable.tsx`'s own `onAnalyze` prop docblock. */
 	onAnalyze?: (postId: number) => void;
+	/** `SeoTab.tsx`'s own `analyzingPostId` — which row's `PageAnalysisPanel` (if any) is currently open, threaded straight through to `SeoIssuesByPageTable.tsx`'s own identical prop so its "Analyze" action can read "Viewing" instead. */
+	activePostId?: number | null;
+	/**
+	 * Only set by `SeoIssuesSection.tsx`'s own SEO usage — additionally
+	 * fetches `GET /seo/pages-needing-attention` (real per-page SEO score +
+	 * week-over-week change, `Seo.php`) and joins it onto each row by `id`,
+	 * so `SeoIssuesByPageTable.tsx` can render a real Score ring + Change
+	 * column per page. This was `PagesNeedingAttentionTable.tsx`'s own
+	 * separate table/fetch before being folded into "Pages & Posts" here
+	 * per direct instruction, rather than showing the same pages twice.
+	 * `undefined`/`false` for AeoTab.tsx's/GeoTab.tsx's own usage, which has
+	 * no equivalent real score endpoint.
+	 */
+	pageScore?: boolean;
 }
 
 /**
@@ -140,6 +154,8 @@ const IssuesSection = ({
 	pageAnalysis,
 	id,
 	onAnalyze,
+	activePostId,
+	pageScore,
 }: IssuesSectionProps) => {
 	const [rows, setRows] = useState<PageRow[]>([]);
 	const [siteWideFindings, setSiteWideFindings] = useState<RawFinding[]>([]);
@@ -197,6 +213,40 @@ const IssuesSection = ({
 						viewLink: 'publish' === post.status ? post.link : null,
 						findings: byPostId.get(post.id) || [],
 					}));
+				}
+
+				if (pageScore) {
+					// Real per-page SEO score/week-over-week change —
+					// `PagesNeedingAttentionTable.tsx`'s own former data
+					// source, joined onto these same rows by id now that
+					// its table is folded into "Pages & Posts" instead of
+					// standing on its own (per direct instruction). Only
+					// ever returns pages with at least one open finding —
+					// the same real set `byPostId` above already scopes
+					// `rows` to — so every row here has a real match; a
+					// row with no match (this endpoint failing/returning
+					// nothing) just keeps `seoScore`/`seoScoreChange`
+					// `undefined`, same as before this join existed.
+					const scoreResponse = await getApiResponse<{
+						data: { post_id: number; score: number; change: number }[];
+					}>(getApiLink(appLocalizer, 'seo/pages-needing-attention'), nonceHeaders);
+
+					const scoreByPostId = new Map<number, { score: number; change: number }>(
+						(scoreResponse?.data ?? []).map(
+							(row: { post_id: number; score: number; change: number }) => [
+								row.post_id,
+								{ score: row.score, change: row.change },
+							]
+						)
+					);
+
+					builtRows = builtRows.map((row) => {
+						const match = scoreByPostId.get(row.id);
+
+						return match
+							? { ...row, seoScore: match.score, seoScoreChange: match.change }
+							: row;
+					});
 				}
 
 				if (!cancelled) {
@@ -390,6 +440,8 @@ const IssuesSection = ({
 				visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
 				onExportCsv={exportCsv}
 				onAnalyze={onAnalyze}
+				activePostId={activePostId}
+				showScoreChange={pageScore}
 			/>
 		</CardComponent>
 	);
