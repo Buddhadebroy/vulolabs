@@ -9,7 +9,7 @@ import {
 	NoticeManager,
 	PopupComponent,
 } from '@zyra/components';
-import { ButtonInput, ExpandablePanelInput, TextInput } from '@zyra/inputs';
+import { ButtonInput, ExpandablePanelInput } from '@zyra/inputs';
 import ShowProPopup from '../../Popup/Popup';
 
 interface ConfiguredProvider {
@@ -51,9 +51,6 @@ interface AiProvidersResponse {
 	configured: ConfiguredProvider[];
 	adapters: Record<string, AdapterMeta>;
 	vulocloud_status: VuloCloudStatus;
-	site_tone: string;
-	/** 'auto' — Services\SiteToneLearner's own real, freshly-learned phrase (from this site's recent content); 'manual' — a site owner's own saved override, never auto-overwritten. */
-	site_tone_source: 'auto' | 'manual';
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
@@ -134,9 +131,6 @@ const AiProvidersPanel = () => {
 		connected: false,
 		configured: false,
 	});
-	const [siteTone, setSiteTone] = useState('');
-	const [siteToneSource, setSiteToneSource] = useState<'auto' | 'manual'>('auto');
-	const [isSavingSiteTone, setIsSavingSiteTone] = useState(false);
 	const [isConnectingToVulocloud, setIsConnectingToVulocloud] = useState(false);
 	const [isDisconnectingFromVulocloud, setIsDisconnectingFromVulocloud] = useState(false);
 	const [showVulocloudDisconnectConfirm, setShowVulocloudDisconnectConfirm] = useState(false);
@@ -192,8 +186,6 @@ const AiProvidersPanel = () => {
 				setConfigured(response.configured);
 				setAdapters(response.adapters);
 				setVulocloudStatus(response.vulocloud_status);
-				setSiteTone(response.site_tone);
-				setSiteToneSource(response.site_tone_source);
 			})
 			.finally(() => setIsLoading(false));
 	};
@@ -277,29 +269,6 @@ const AiProvidersPanel = () => {
 				}
 			})
 			.finally(() => setIsDisconnectingFromVulocloud(false));
-	};
-
-	const handleSaveSiteTone = () => {
-		setIsSavingSiteTone(true);
-
-		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'ai-providers/site-tone'), {
-			site_tone: siteTone,
-		})
-			.then((response) => {
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-site-tone',
-					type: response ? 'success' : 'error',
-					position: 'float',
-					message: response
-						? __('Site tone saved.', 'vulopilot')
-						: __('Could not save the site tone.', 'vulopilot'),
-				});
-
-				if (response) {
-					setSiteToneSource('manual');
-				}
-			})
-			.finally(() => setIsSavingSiteTone(false));
 	};
 
 	const heroProviderIds = Object.keys(HERO_PROVIDERS).filter((id) => adapters[id]);
@@ -973,42 +942,6 @@ const AiProvidersPanel = () => {
 										}}
 									/>
 								</>
-							)}
-						</FormGroupComponent>
-
-						<FormGroupComponent
-							label={__('Site tone', 'vulopilot')}
-							desc={__(
-								'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") — included with every AI request.',
-								'vulopilot'
-							)}
-						>
-							<TextInput
-								name="site_tone"
-								value={siteTone}
-								onChange={(value: unknown) => setSiteTone(String(value))}
-								placeholder={__('e.g. Friendly and casual', 'vulopilot')}
-							/>
-							<ButtonInput
-								position="left"
-								buttons={{
-									text: isSavingSiteTone ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
-									disabled: isSavingSiteTone,
-									onClick: handleSaveSiteTone,
-								}}
-							/>
-							{'' !== siteTone && (
-								<div className="desc">
-									{'manual' === siteToneSource
-										? __(
-												'Manually set — won’t be overwritten automatically.',
-												'vulopilot'
-											)
-										: __(
-												'Auto-detected from your site’s recent content.',
-												'vulopilot'
-											)}
-								</div>
 							)}
 						</FormGroupComponent>
 

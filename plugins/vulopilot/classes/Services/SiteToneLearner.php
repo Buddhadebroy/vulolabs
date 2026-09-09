@@ -9,6 +9,7 @@ namespace VuloPilot\Services;
 
 use VuloPilot\AIProviders\Support\SafeRequestSender;
 use VuloPilot\Repositories\ActivityLogRepository;
+use VuloPilot\Utill;
 use VuloPilot\ValueObjects\Severity;
 
 defined( 'ABSPATH' ) || exit;
@@ -185,9 +186,13 @@ class SiteToneLearner {
     }
 
     /**
-     * Never overwrites a site owner's own manually-saved tone — see
-     * RestAPI\Controllers\AiProviders::update_site_tone(), the only place
-     * `vulopilot_site_tone_source` is ever set to 'manual'.
+     * Never overwrites a site owner's own manually-saved tone —
+     * `site_tone_source` is only ever set to 'manual' by
+     * Controllers\Settings::update_item(), whenever the General tab's own
+     * "Site tone" field itself autosaves. Lives in the same flat
+     * `vulopilot_settings` option every other setting does (not its own
+     * dedicated option) — see Utill::VULOPILOT_SETTINGS_DEFAULTS's own
+     * comment on `site_tone` for why.
      *
      * @param string $tone The AI's own real, freshly-learned phrase.
      * @return void
@@ -197,11 +202,14 @@ class SiteToneLearner {
             return;
         }
 
-        if ( 'manual' === get_option( 'vulopilot_site_tone_source', 'auto' ) ) {
+        $settings = wp_parse_args( (array) get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        if ( 'manual' === $settings['site_tone_source'] ) {
             return;
         }
 
-        update_option( 'vulopilot_site_tone', $tone, false );
-        update_option( 'vulopilot_site_tone_source', 'auto', false );
+        $settings['site_tone']        = $tone;
+        $settings['site_tone_source'] = 'auto';
+        update_option( Utill::VULOPILOT_SETTINGS_KEY, $settings );
     }
 }
