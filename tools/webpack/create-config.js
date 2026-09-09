@@ -302,6 +302,18 @@ module.exports = function createWebpackConfig(
 
 		watchOptions: {
 			ignored: /node_modules/,
+			// Without this, a real `node_modules/@multivendorx/zyra` that's
+			// actually a symlink (e.g. `pnpm link`, or the `file:`/workspace
+			// override a contributor uses to develop against a local zyra
+			// checkout) never triggers a rebuild when its *target* content
+			// changes: webpack watches a symlinked module at the symlink's
+			// own path by default, and that path's own mtime never changes
+			// just because what it points to did. `followSymlinks` makes
+			// webpack resolve through the link and watch the real file
+			// instead — the same real resolved path `resolve.symlinks`
+			// (default `true`) already uses to build the module in the
+			// first place, so this just makes watching match resolution.
+			followSymlinks: true,
 		},
 
 		module: {

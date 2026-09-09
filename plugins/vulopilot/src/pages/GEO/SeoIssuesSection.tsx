@@ -1,6 +1,6 @@
 import { SEO_SECTIONS } from './seoSections';
 import { ALL_SEO_SCANNER_IDS } from './seoIssuesShared';
-import IssuesSection, { SiteWideIssuesData } from './IssuesSection';
+import IssuesSection from './IssuesSection';
 
 interface CategoryFocus {
 	key: string;
@@ -11,15 +11,6 @@ interface SeoIssuesSectionProps {
 	categoryFocus?: CategoryFocus | null;
 	/** SeoTab.tsx's own real PageAnalysisPanel trigger — see SeoIssuesByPageTable.tsx's own `onAnalyze` prop docblock. */
 	onAnalyze?: (postId: number) => void;
-	/**
-	 * When given, this section hides its own `SeoSiteWideIssuesTable` and
-	 * instead reports that same real data here — for SeoTab.tsx, which
-	 * renders that table itself elsewhere on the page (between
-	 * `PagesNeedingAttentionTable` and this section) rather than in its
-	 * usual spot inside "All SEO Findings", per direct instruction. Omit
-	 * for the original, unmoved layout.
-	 */
-	onSiteWideDataChange?: (data: SiteWideIssuesData) => void;
 }
 
 /**
@@ -31,15 +22,13 @@ interface SeoIssuesSectionProps {
  * `SeoTab.tsx` didn't need to change at all: same import path, same
  * `categoryFocus` prop, identical behavior to before this split.
  */
-const SeoIssuesSection = ({ categoryFocus, onAnalyze, onSiteWideDataChange }: SeoIssuesSectionProps) => (
+const SeoIssuesSection = ({ categoryFocus, onAnalyze }: SeoIssuesSectionProps) => (
 	<IssuesSection
 		scannerIds={ALL_SEO_SCANNER_IDS}
 		categories={SEO_SECTIONS}
 		categoryFocus={categoryFocus}
 		issuesColumnLabel="SEO Issues"
 		onAnalyze={onAnalyze}
-		hideSiteWideTable={!!onSiteWideDataChange}
-		onSiteWideDataChange={onSiteWideDataChange}
 	/>
 );
 

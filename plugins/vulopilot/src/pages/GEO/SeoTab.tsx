@@ -17,8 +17,6 @@ import { useSeoScore, SeoScoreResponse } from './useSeoScore';
 import { useSeoProgress } from './useSeoProgress';
 import { getRating, ratingClass, ratingColor } from './seoRating';
 import SeoIssuesSection from './SeoIssuesSection';
-import type { SiteWideIssuesData } from './IssuesSection';
-import SeoSiteWideIssuesTable from './SeoSiteWideIssuesTable';
 import PageAnalysisPanel from './PageAnalysisPanel';
 import WhatShouldIFixFirstCard from './WhatShouldIFixFirstCard';
 import PagesNeedingAttentionTable from './PagesNeedingAttentionTable';
@@ -221,8 +219,6 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	>(null);
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below — opens PageAnalysisPanel as a real sidebar alongside this tab's own existing content, rather than replacing it. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
-	/** "Site-wide Issues" moved up here from its usual spot inside `SeoIssuesSection`'s own "All SEO Findings" card, per direct instruction — real data still comes from that one section's own single findings fetch (`IssuesSection.tsx`'s own `onSiteWideDataChange`), just mirrored into this tab's own state so the table itself can render here instead, with no second fetch. */
-	const [siteWideData, setSiteWideData] = useState<SiteWideIssuesData | null>(null);
 
 	useEffect(() => {
 		if (!isSeoModuleActive()) {
@@ -311,51 +307,6 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 									},
 								};
 							}),
-							// A real 7th "All areas" tile combining the 6 real
-							// categories above — not a fabricated summary:
-							// score/open-count are the same overall
-							// `score.seo_score`/`score.total_open` the "SEO
-							// Health Score" card above already shows, "pages
-							// checked" is that same card's own real total
-							// scope (not a naive per-category sum, which
-							// would double-count a page flagged in more than
-							// one category), and the sparkline is a real
-							// day-by-day average of the 6 categories' own
-							// already-real trends (`overallCategoryTrend()`).
-							{
-								id: 'all',
-								icon: 'category gray',
-								title: __('All Areas', 'vulopilot'),
-								number: sprintf(
-									/* translators: %d: real 0-100 sitewide SEO score. */
-									__('%d/100', 'vulopilot'),
-									score.seo_score
-								),
-								stat: sprintf(
-									/* translators: %d: number of open issues across every SEO area. */
-									__('%d issues', 'vulopilot'),
-									score.total_open
-								),
-								desc: sprintf(
-									/* translators: %d: total real published pages checked. */
-									__('%d pages checked', 'vulopilot'),
-									score.pages_checked
-								),
-								chart: {
-									type: 'sparkline',
-									data: overallCategoryTrend(score),
-									color: COLOR_PALETTE[ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE],
-								},
-								badge: {
-									text: getRating(score.seo_score),
-									color: ratingColor(score.seo_score),
-									onClick: () =>
-										setCategoryFocus({
-											key: 'all',
-											token: Date.now(),
-										}),
-								},
-							},
 						]}
 					/>
 				)}
@@ -456,83 +407,87 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 										text: __('High priority issues', 'vulopilot'),
 										colorClass: 'admin-bg-color5',
 									},
-									...(progress
-										? [
-												{
-													number:
-														progress.trend.length > 0
-															? progress.trend[progress.trend.length - 1].score
-															: undefined,
-													text: __('Latest score', 'vulopilot'),
-													colorClass: 'admin-bg-color6',
-												},
-												{
-													number: progress.issues_fixed.this_week,
-													text: __('Issues Fixed', 'vulopilot'),
-													colorClass: 'admin-bg-color7',
-													extra: (
-														<span className="is-good">
-															{sprintf(
-																/* translators: %s: signed change vs the previous week, e.g. "+18". */
-																__('%s this week', 'vulopilot'),
-																signedDelta(progress.issues_fixed.delta)
-															)}
-														</span>
-													),
-												},
-												{
-													number: progress.new_issues.this_week,
-													text: __('New Issues', 'vulopilot'),
-													colorClass: 'admin-bg-color8',
-													extra: (
-														<span
-															className={
-																progress.new_issues.delta <= 0
-																	? 'is-good'
-																	: 'is-attention'
-															}
-														>
-															{sprintf(
-																/* translators: %s: signed change vs the previous week, e.g. "-6". */
-																__('%s this week', 'vulopilot'),
-																signedDelta(progress.new_issues.delta)
-															)}
-														</span>
-													),
-												},
-												{
-													number: progress.pages_improved.this_week,
-													text: __('Pages Improved', 'vulopilot'),
-													colorClass: 'admin-bg-color9',
-													extra: (
-														<span className="is-good">
-															{sprintf(
-																/* translators: %s: signed change vs the previous week, e.g. "+3". */
-																__('%s this week', 'vulopilot'),
-																signedDelta(progress.pages_improved.delta)
-															)}
-														</span>
-													),
-												},
-											]
-										: []),
+									{
+										number: score.severity_breakdown.medium,
+										text: __('Medium priority issues', 'vulopilot'),
+										colorClass: 'admin-bg-color10',
+									},
+									{
+										number: score.severity_breakdown.low,
+										text: __('Low priority issues', 'vulopilot'),
+										colorClass: 'admin-bg-color11',
+									},
 								]}
 							/>
+							{progress && (
+								<AnalyticsComponent
+									variant="background-color"
+									cols={4}
+									data={[
+										{
+											number:
+												progress.trend.length > 0
+													? progress.trend[progress.trend.length - 1].score
+													: undefined,
+											text: __('Latest score', 'vulopilot'),
+											colorClass: 'admin-bg-color6',
+										},
+										{
+											number: progress.issues_fixed.this_week,
+											text: __('Issues Fixed', 'vulopilot'),
+											colorClass: 'admin-bg-color7',
+											extra: (
+												<span className="is-good">
+													{sprintf(
+														/* translators: %s: signed change vs the previous week, e.g. "+18". */
+														__('%s this week', 'vulopilot'),
+														signedDelta(progress.issues_fixed.delta)
+													)}
+												</span>
+											),
+										},
+										{
+											number: progress.new_issues.this_week,
+											text: __('New Issues', 'vulopilot'),
+											colorClass: 'admin-bg-color8',
+											extra: (
+												<span
+													className={
+														progress.new_issues.delta <= 0
+															? 'is-good'
+															: 'is-attention'
+													}
+												>
+													{sprintf(
+														/* translators: %s: signed change vs the previous week, e.g. "-6". */
+														__('%s this week', 'vulopilot'),
+														signedDelta(progress.new_issues.delta)
+													)}
+												</span>
+											),
+										},
+										{
+											number: progress.pages_improved.this_week,
+											text: __('Pages Improved', 'vulopilot'),
+											colorClass: 'admin-bg-color9',
+											extra: (
+												<span className="is-good">
+													{sprintf(
+														/* translators: %s: signed change vs the previous week, e.g. "+3". */
+														__('%s this week', 'vulopilot'),
+														signedDelta(progress.pages_improved.delta)
+													)}
+												</span>
+											),
+										},
+									]}
+								/>
+							)}
 						</div>
 					)}
 				</CardComponent>
 			</ColumnComponent>
-			{siteWideData && (
-				<SeoSiteWideIssuesTable
-					findings={siteWideData.findings}
-					activeScannerIds={siteWideData.activeScannerIds}
-					activePriority={siteWideData.activePriority}
-					isLoading={siteWideData.isLoading}
-					hasError={siteWideData.hasError}
-					onRetry={siteWideData.refetch}
-				/>
-			)}
-			<ColumnComponent>
+			{/* <ColumnComponent>
 				<WhatShouldIFixFirstCard
 					severityBreakdown={
 						score?.severity_breakdown ?? {
@@ -545,14 +500,21 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					totalOpen={score?.total_open ?? 0}
 					isLoadingScore={isLoadingScore}
 				/>
-			</ColumnComponent>
-			
+			</ColumnComponent> */}
+			<ColumnComponent grid={8}>
 			<SeoIssuesSection
 				categoryFocus={categoryFocus}
 				onAnalyze={setAnalyzingPostId}
-				onSiteWideDataChange={setSiteWideData}
 			/>
-			
+			</ColumnComponent>
+			{analyzingPostId && (
+				<ColumnComponent grid={4}>
+					<PageAnalysisPanel
+						postId={analyzingPostId}
+						onClose={() => setAnalyzingPostId(null)}
+					/>
+				</ColumnComponent>
+			)}
 		</ContainerComponent>
 	);
 };

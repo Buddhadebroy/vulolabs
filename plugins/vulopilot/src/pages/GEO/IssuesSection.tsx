@@ -84,35 +84,6 @@ interface IssuesSectionProps {
 	id?: string;
 	/** Only passed by `SeoIssuesSection.tsx`'s own SEO usage — see `SeoIssuesByPageTable.tsx`'s own `onAnalyze` prop docblock. */
 	onAnalyze?: (postId: number) => void;
-	/**
-	 * Skips this section's own `SeoSiteWideIssuesTable` render — for a
-	 * caller (SeoTab.tsx, via `SeoIssuesSection.tsx`) that renders that same
-	 * table itself, elsewhere on the page, using `onSiteWideDataChange`
-	 * below rather than duplicating this section's own real fetch. Only
-	 * hides the table; the by-page table/tabs/summary cards below are
-	 * unaffected. Defaults to `false` (unchanged behavior) for every other
-	 * real call site (AeoTab.tsx/GeoTab.tsx), which still render it here.
-	 */
-	hideSiteWideTable?: boolean;
-	/**
-	 * Fires whenever this section's own real site-wide-findings data
-	 * changes — the same `findings`/`activeScannerIds`/`activePriority`/
-	 * `isLoading`/`hasError`/`refetch` this section's own `SeoSiteWideIssuesTable`
-	 * would otherwise receive directly. Lets a caller mirror that real data
-	 * into its own state to render that table somewhere else on the page
-	 * (paired with `hideSiteWideTable` above) without a second, duplicate
-	 * fetch.
-	 */
-	onSiteWideDataChange?: (data: SiteWideIssuesData) => void;
-}
-
-export interface SiteWideIssuesData {
-	findings: RawFinding[];
-	activeScannerIds: 'all' | string[];
-	activePriority: Priority;
-	isLoading: boolean;
-	hasError: boolean;
-	refetch: () => void;
 }
 
 /**
@@ -169,8 +140,6 @@ const IssuesSection = ({
 	pageAnalysis,
 	id,
 	onAnalyze,
-	hideSiteWideTable = false,
-	onSiteWideDataChange,
 }: IssuesSectionProps) => {
 	const [rows, setRows] = useState<PageRow[]>([]);
 	const [siteWideFindings, setSiteWideFindings] = useState<RawFinding[]>([]);
@@ -380,18 +349,6 @@ const IssuesSection = ({
 	};
 	const activeTabTotal = tabGroups.reduce((total, group) => total + group.count, 0);
 
-	useEffect(() => {
-		onSiteWideDataChange?.({
-			findings: siteWideFindings,
-			activeScannerIds,
-			activePriority,
-			isLoading,
-			hasError,
-			refetch,
-		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- `onSiteWideDataChange`/`refetch`/`activeScannerIds` are fresh references every render from every real call site; re-running on those would notify the caller every render for no real data change. `siteWideFindings`/`activePriority`/`isLoading`/`hasError` are this effect's real triggers.
-	}, [siteWideFindings, activePriority, isLoading, hasError]);
-
 	return (
 		<CardComponent title={__('All SEO Findings', 'vulopilot')}
 				titleIcon="search"
@@ -413,16 +370,14 @@ const IssuesSection = ({
 				activePriority={activePriority}
 				onSelectPriority={setActivePriority}
 			/>
-			{!hideSiteWideTable && (
-				<SeoSiteWideIssuesTable
-					findings={siteWideFindings}
-					activeScannerIds={activeScannerIds}
-					activePriority={activePriority}
-					isLoading={isLoading}
-					hasError={hasError}
-					onRetry={refetch}
-				/>
-			)}
+			<SeoSiteWideIssuesTable
+				findings={siteWideFindings}
+				activeScannerIds={activeScannerIds}
+				activePriority={activePriority}
+				isLoading={isLoading}
+				hasError={hasError}
+				onRetry={refetch}
+			/>
 			<SeoIssuesByPageTable
 				rows={rows}
 				activeScannerIds={activeScannerIds}
