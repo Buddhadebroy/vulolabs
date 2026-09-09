@@ -1,10 +1,13 @@
 /* global appLocalizer */
+import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { TabsComponent, CardComponent } from '@zyra/components';
+import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
 import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
 import {
+	FindingSeverity,
 	PRIORITY_SEVERITIES,
 	PageRow,
 	RawFinding,
@@ -31,6 +34,15 @@ export interface IssuesSectionCategory {
 	scannerIds: string[];
 }
 
+/** `content.toolbarFilters`'s own real severity `<select>` labels — same real 5-level set `RecentContentCard.tsx`'s own original `SEVERITY_LABELS` used. */
+const SEVERITY_LABELS: Record<FindingSeverity, string> = {
+	critical: __('Critical', 'vulopilot'),
+	high: __('High', 'vulopilot'),
+	medium: __('Medium', 'vulopilot'),
+	low: __('Low', 'vulopilot'),
+	info: __('Info', 'vulopilot'),
+};
+
 /** `GET /findings/groups`' own raw per-scanner counts, summed across whichever scanner ids matter for a given tab/tile — same convention (and the same real duplicate-row caveat) `SectionedIssuesTable.tsx`'s own local copy already documents; kept here rather than shared so this file doesn't reach into Security's own module for one helper. */
 const sumGroupCounts = (groups: FindingGroupRow[], scannerIds: string[]): number =>
 	groups
@@ -43,8 +55,49 @@ interface CategoryFocus {
 	token: number;
 }
 
+export interface ContentRowTab {
+	key: string;
+	label: string;
+	/** Real per-row test — `RecentContentCard.tsx`'s own post-type/meta classification (Blog Post/Landing Page/Product/Other), evaluated against each already-built real row. */
+	matches: (row: PageRow) => boolean;
+}
+
+/**
+ * `RecentContentCard.tsx`'s own real content mode — every recent
+ * post/page/product (not just ones with an open finding), a real
+ * per-row category badge/word count, and real per-row tabs (`rowTabs`)
+ * instead of the scanner-id-based `categories` dimension every other
+ * caller uses (SEO/AEO/GEO's 3 content-quality scanner ids don't split
+ * by post type at all, so a scanner-id tab bar has nothing real to
+ * divide there). Kept as its own opt-in branch of the main fetch effect
+ * rather than threaded through the existing `pageAnalysis`/default
+ * branches, so SEO's/AEO's/GEO's own real behavior stays provably
+ * untouched.
+ */
+export interface ContentModeConfig {
+	/** `GenerateLandingPageAction::META_KEY` — the real page meta flag that tells a landing page apart from any other real `page` post type (see `RecentContentCard.tsx`'s own `LANDING_PAGE_META_KEY` docblock). */
+	landingPageMetaKey: string;
+	/** Real display label/icon per raw `categoryKey` (`'blog-post'`/`'landing-page'`/`'product'`/`'other'`) — `RecentContentCard.tsx`'s own `CATEGORY_LABELS`/`CATEGORY_ICONS`. */
+	categories: Record<string, { label: string; icon: string }>;
+	rowTabs: ContentRowTab[];
+	/** Real `DELETE` row action (moves to trash) — `undefined` hides it. */
+	onDelete?: (row: PageRow) => void;
+	/** Which row's real delete request is currently in flight, so that row's own action label can read "Deleting…". */
+	deletingId?: number | null;
+	/**
+	 * `RecentContentCard.tsx`'s own real filter bar — a search box + real
+	 * severity/resource `<select>`s + a real "Show ignored" toggle + Export
+	 * CSV, replacing the usual `TabsComponent`/`IssuesSummaryCards` pair
+	 * entirely for this one real caller (per direct instruction — its own
+	 * original bespoke toolbar, restored, rather than that shared tab-bar
+	 * shape). `undefined`/`false` for every other real caller, which keeps
+	 * the usual tabs/summary-cards structure untouched.
+	 */
+	toolbarFilters?: boolean;
+}
+
 interface IssuesSectionProps {
-	/** Every real scanner id this section covers — `SeoTab.tsx` passes SEO_SECTIONS' own ids, AeoTab.tsx/GeoTab.tsx pass their own AEO_SECTIONS/GEO_TOPICS ids. Drives both the findings fetch and the filter pills' own scope. */
+	/** Every real scanner id this section covers — `SeoTab.tsx` passes SEO_SECTIONS' own ids, AeoTab.tsx/GeoTab.tsx pass their own AEO_SECTIONS/GEO_TOPICS ids, `RecentContentCard.tsx` passes its own 3 content-quality scanner ids. Drives both the findings fetch and the filter pills' own scope. */
 	scannerIds: string[];
 	/** Only needed if `categoryFocus` is ever set to a real category key (not just `'all'`) — resolves that key down to its own scannerIds, same role `SEO_SECTIONS` plays for SeoTab.tsx's own category tiles. */
 	categories?: IssuesSectionCategory[];
@@ -98,6 +151,15 @@ interface IssuesSectionProps {
 	 * no equivalent real score endpoint.
 	 */
 	pageScore?: boolean;
+	/** Defaults to "All SEO Findings" (this section's own original real hardcoded title, kept as the default so SEO's/AEO's/GEO's own existing usage is unaffected) — `RecentContentCard.tsx`'s own usage overrides all 3 of `title`/`titleIcon`/`desc`. */
+	title?: string;
+	titleIcon?: string;
+	desc?: string;
+	/** `CardComponent`'s own header `action` slot — `undefined` for SEO/AEO/GEO (which have none today); `RecentContentCard.tsx`'s own "View All" button. */
+	headerAction?: ReactNode;
+	content?: ContentModeConfig;
+	/** Bumped by the host after it changes something outside this section's own control (e.g. `RecentContentCard.tsx`'s own real Delete, once the request succeeds) — same `refetchSignal` convention `ManageAutomationsSection.tsx` already establishes, since this section owns its own fetch/row state and has no other way for a parent to ask it to reload. `undefined`/unchanged for every other real caller, which never needs this. */
+	reloadSignal?: number;
 }
 
 /**
@@ -156,6 +218,12 @@ const IssuesSection = ({
 	onAnalyze,
 	activePostId,
 	pageScore,
+	title = __('All SEO Findings', 'vulopilot'),
+	titleIcon = 'search',
+	desc = __('Every open SEO finding, filterable by priority.', 'vulopilot'),
+	headerAction,
+	content,
+	reloadSignal,
 }: IssuesSectionProps) => {
 	const [rows, setRows] = useState<PageRow[]>([]);
 	const [siteWideFindings, setSiteWideFindings] = useState<RawFinding[]>([]);
@@ -166,6 +234,17 @@ const IssuesSection = ({
 	const [hasError, setHasError] = useState(false);
 	const [reloadToken, setReloadToken] = useState(0);
 	const sectionRef = useRef<HTMLDivElement>(null);
+
+	// `content.toolbarFilters`'s own real state — `RecentContentCard.tsx`'s
+	// original bespoke toolbar, restored in place of the usual
+	// TabsComponent/IssuesSummaryCards pair for this one real caller.
+	// `activeTab` above is reused as the resource-type select's own value
+	// (`content.rowTabs[].key`) rather than a second, parallel piece of
+	// state — nothing else needs `activeTab` when this mode is on, since
+	// the tab bar itself never renders.
+	const [toolbarSearch, setToolbarSearch] = useState('');
+	const [toolbarSeverity, setToolbarSeverity] = useState<'all' | FindingSeverity>('all');
+	const [toolbarShowIgnored, setToolbarShowIgnored] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -179,7 +258,157 @@ const IssuesSection = ({
 
 				let builtRows: PageRow[];
 
-				if (pageAnalysis) {
+				if (content) {
+					// `RecentContentCard.tsx`'s own real content mode — every
+					// recent post/page/product (not narrowed to `byPostId`'s
+					// keys the way the other 2 branches are, since a page
+					// with zero open findings is still real, recent content
+					// worth listing), fetched with the extra real fields
+					// (`content`/`meta`/`description`) neither
+					// `fetchPagesByIds()` nor `fetchAllPagesWithScores()`
+					// requests, needed here for real word counts and the
+					// real landing-page meta check.
+					const countWords = (html: string): number => {
+						const text = html
+							.replace(/<[^>]+>/g, ' ')
+							.replace(/&[a-z0-9#]+;/gi, ' ')
+							.trim();
+
+						return text ? text.split(/\s+/).length : 0;
+					};
+
+					interface RawContentPost {
+						id: number;
+						title: { rendered: string };
+						content: { rendered: string };
+						status: string;
+						date: string;
+						link: string;
+						meta?: Record<string, unknown>;
+					}
+
+					interface RawContentProduct {
+						id: number;
+						name: string;
+						description: string;
+						status: string;
+						date_created: string;
+						permalink: string;
+					}
+
+					const fetchContentPosts = (endpoint: 'posts' | 'pages') =>
+						getApiResponse<RawContentPost[]>(
+							getApiLink(
+								appLocalizer,
+								`${endpoint}?per_page=20&orderby=date&order=desc&_fields=id,title,content,status,date,link,meta`,
+								'wp/v2'
+							),
+							nonceHeaders
+						)
+							.then((response) => response || [])
+							.catch(() => [] as RawContentPost[]);
+
+					const fetchContentProducts = () =>
+						getApiResponse<RawContentProduct[]>(
+							getApiLink(
+								appLocalizer,
+								'products?per_page=20&orderby=date&order=desc&_fields=id,name,description,status,date_created,permalink',
+								'wc/v3'
+							),
+							nonceHeaders
+						)
+							.then((response) => response || [])
+							.catch(() => [] as RawContentProduct[]);
+
+					// `toolbarFilters`'s own real "Show ignored" toggle needs
+					// real ignored findings to show, not just open ones —
+					// `fetchOpenFindingsFor()` above only ever requests
+					// `status=open`. Fetched unconditionally (not gated on
+					// `toolbarFilters` — a real toggle later needs this data
+					// to already be there, same "fetch it up front so
+					// toggling is instant" reasoning `RecentContentCard.tsx`'s
+					// own original 2-request open+ignored fetch already
+					// established) and merged onto the same real
+					// `byPostId` findings map, so every row's own
+					// `findings` carries both — display-time filtering
+					// (open-only vs open+ignored) happens in
+					// `SeoIssuesByPageTable.tsx` itself.
+					const ignoredFindings = await getApiResponse<{ data: RawFinding[] }>(
+						getApiLink(
+							appLocalizer,
+							`findings?scanner_id=${scannerIds.join(',')}&status=ignored&per_page=100&orderby=id&order=desc`
+						),
+						nonceHeaders
+					)
+						.then((response: { data: RawFinding[] } | undefined) => response?.data ?? [])
+						.catch(() => [] as RawFinding[]);
+
+					const contentByPostId = new Map(byPostId);
+
+					ignoredFindings.forEach((finding: RawFinding) => {
+						if ('post' !== finding.object_type) {
+							return;
+						}
+
+						const postId = Number(finding.object_ref);
+						contentByPostId.set(postId, [
+							...(contentByPostId.get(postId) || []),
+							finding,
+						]);
+					});
+
+					const [rawPosts, rawPages, rawProducts] = await Promise.all([
+						fetchContentPosts('posts'),
+						fetchContentPosts('pages'),
+						fetchContentProducts(),
+					]);
+
+					const postRows: PageRow[] = rawPosts
+						.map((post: RawContentPost) => ({ ...post, categoryKey: 'blog-post' }))
+						.concat(
+							rawPages.map((post: RawContentPost) => ({
+								...post,
+								categoryKey:
+									true === post.meta?.[content.landingPageMetaKey]
+										? 'landing-page'
+										: 'other',
+							}))
+						)
+						.map((post: RawContentPost & { categoryKey: string }) => ({
+							id: post.id,
+							title: post.title.rendered,
+							status: post.status,
+							date: post.date,
+							editLink: buildEditLink(post.id),
+							viewLink: 'publish' === post.status ? post.link : null,
+							findings: contentByPostId.get(post.id) || [],
+							categoryKey: post.categoryKey,
+							wordCount: countWords(post.content.rendered),
+						}));
+
+					const productRows: PageRow[] = rawProducts.map((product) => ({
+						id: product.id,
+						title: product.name,
+						status: product.status,
+						date: product.date_created,
+						editLink: buildEditLink(product.id),
+						viewLink:
+							'publish' === product.status ? product.permalink : null,
+						findings: contentByPostId.get(product.id) || [],
+						categoryKey: 'product',
+						wordCount: countWords(product.description),
+					}));
+
+					builtRows = [...postRows, ...productRows].map((row) => {
+						const category = content.categories?.[row.categoryKey ?? ''];
+
+						return {
+							...row,
+							categoryLabel: category?.label,
+							categoryIcon: category?.icon,
+						};
+					});
+				} else if (pageAnalysis) {
 					// Merged mode (GeoTab.tsx/AeoTab.tsx): every published
 					// page/post, not just ones with an open finding right
 					// now — same real dataset the old standalone
@@ -272,8 +501,8 @@ const IssuesSection = ({
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- `scannerIds` is a fresh array every render from every real call site (inline `.flatMap()`/literal); re-running on its own reference would refetch every render. Callers never change which scanner ids a given tab covers at runtime, so `reloadToken` (Retry) is the only real trigger this needs.
-	}, [reloadToken]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `scannerIds` is a fresh array every render from every real call site (inline `.flatMap()`/literal); re-running on its own reference would refetch every render. Callers never change which scanner ids a given tab covers at runtime, so `reloadToken` (Retry) / `reloadSignal` (a parent-triggered reload, e.g. `RecentContentCard.tsx`'s own real Delete) are the only real triggers this needs.
+	}, [reloadToken, reloadSignal]);
 
 	useEffect(() => {
 		getApiResponse<{ data: FindingGroupRow[] }>(
@@ -290,6 +519,57 @@ const IssuesSection = ({
 			.catch(() => setGroups([]));
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- see the fetch effect above.
 	}, [reloadToken]);
+
+	/**
+	 * `content` mode's own real per-row readability score — same real
+	 * `GET /content-intelligence/quality?post_id=` `ContentQualityCard.tsx`'s
+	 * own ring already plots, one real request per row (no bulk equivalent
+	 * of that endpoint exists — `SeoIssuesByPageTable.tsx`'s own `seoScore`
+	 * column instead reads a real bulk endpoint, `pageScore`'s own docblock).
+	 * Kept as its own effect, running once real rows exist, so the table
+	 * itself renders immediately and each row's score ring fills in as its
+	 * own real fetch resolves, rather than blocking the whole table on all
+	 * of them finishing first.
+	 */
+	useEffect(() => {
+		if (!content || 0 === rows.length) {
+			return;
+		}
+
+		let cancelled = false;
+
+		Promise.all(
+			rows.map((row) =>
+				getApiResponse<{ readability: { score: number } }>(
+					getApiLink(appLocalizer, `content-intelligence/quality?post_id=${row.id}`),
+					nonceHeaders
+				)
+					.then(
+						(response: { readability: { score: number } } | undefined) =>
+							[row.id, response?.readability.score] as [number, number | undefined]
+					)
+					.catch(() => [row.id, undefined] as [number, number | undefined])
+			)
+		).then((results) => {
+			if (cancelled) {
+				return;
+			}
+
+			const scoreByPostId = new Map(results);
+
+			setRows((current) =>
+				current.map((row) => ({
+					...row,
+					contentQualityScore: scoreByPostId.get(row.id) ?? row.contentQualityScore,
+				}))
+			);
+		});
+
+		return () => {
+			cancelled = true;
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on `rows.length` (a fresh real fetch/page of rows), not `rows` itself — `rows` gets a new array reference every time this same effect's own `setRows` call above runs, which would otherwise re-trigger it forever.
+	}, [content, rows.length, reloadToken, reloadSignal]);
 
 	useEffect(() => {
 		if (!categoryFocus) {
@@ -317,33 +597,57 @@ const IssuesSection = ({
 
 	const refetch = () => setReloadToken((current) => current + 1);
 
-	/** Same CSV shape the old standalone `GeoPageAnalysisTable.tsx` exported — kept identical (header row + escaping) so nothing about the exported file itself changes for anyone already relying on it, just where the button now lives. `undefined` (not called) unless `pageAnalysis` is set. */
-	const exportCsv = pageAnalysis
-		? () => {
-				const scoreLabel = pageAnalysis.scoreColumnLabel || __('AI Visibility', 'vulopilot');
-				const csvEscape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
-				const headerRow = ['Page', 'Status', 'Open Issues', `${scoreLabel} (%)`];
-				const lines = [headerRow.map(csvEscape).join(',')];
+	/** Same CSV shape the old standalone `GeoPageAnalysisTable.tsx` exported — kept identical (header row + escaping) so nothing about the exported file itself changes for anyone already relying on it, just where the button now lives. Also covers `content` mode now (`RecentContentCard.tsx`'s own real client-side export, same real "export exactly what's currently on screen" pattern, just a Title/Category/Status/Words/Open Issues header row instead of Page/Status/Open Issues/Score). `undefined` (not called) unless `pageAnalysis` or `content` is set. */
+	const exportCsv =
+		pageAnalysis || content
+			? () => {
+					const csvEscape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
+					const headerRow = content
+						? [
+								__('Title', 'vulopilot'),
+								__('Category', 'vulopilot'),
+								__('Status', 'vulopilot'),
+								__('Words', 'vulopilot'),
+								__('Open Issues', 'vulopilot'),
+							]
+						: [
+								'Page',
+								'Status',
+								'Open Issues',
+								`${pageAnalysis?.scoreColumnLabel || __('AI Visibility', 'vulopilot')} (%)`,
+							];
+					const lines = [headerRow.map(csvEscape).join(',')];
 
-				rows.forEach((row) => {
-					const cells = [
-						row.title,
-						row.status,
-						row.findings.length,
-						row.visibilityScore ?? '',
-					];
-					lines.push(cells.map((cell) => csvEscape(String(cell))).join(','));
-				});
+					(content?.toolbarFilters ? toolbarRows : rows).forEach((row) => {
+						const cells = content
+							? [
+									row.title,
+									row.categoryLabel ?? '',
+									row.status,
+									row.wordCount ?? '',
+									row.findings.filter((finding) => 'open' === finding.status)
+										.length,
+								]
+							: [
+									row.title,
+									row.status,
+									row.findings.length,
+									row.visibilityScore ?? '',
+								];
+						lines.push(cells.map((cell) => csvEscape(String(cell))).join(','));
+					});
 
-				const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
-				const url = URL.createObjectURL(blob);
-				const anchor = document.createElement('a');
-				anchor.href = url;
-				anchor.download = pageAnalysis.exportFilename || 'page-analysis.csv';
-				anchor.click();
-				URL.revokeObjectURL(url);
-			}
-		: undefined;
+					const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+					const url = URL.createObjectURL(blob);
+					const anchor = document.createElement('a');
+					anchor.href = url;
+					anchor.download = content
+						? 'vulopilot-recent-content.csv'
+						: pageAnalysis?.exportFilename || 'page-analysis.csv';
+					anchor.click();
+					URL.revokeObjectURL(url);
+				}
+			: undefined;
 
 	/** The expanded finding sub-rows' own scanner label (SeoIssuesByPageTable.tsx). */
 	const scannerLabelMap = new Map(groups.map((group) => [group.scanner_id, group.label]));
@@ -357,19 +661,35 @@ const IssuesSection = ({
 		)
 		.map((group) => group.scanner_id);
 
-	/** Important/one per real `categories` entry — same real tab bar shape (and the same raw `GET /findings/groups` counts) SectionedIssuesTable.tsx's own Security/Accessibility/WooCommerce usage already establishes, reused here per direct instruction so this section's own filter bar matches that one exactly. */
-	const tabs: { id: string; label: string; count: number }[] = [
-		{
-			id: 'important',
-			label: __('Important', 'vulopilot'),
-			count: sumGroupCounts(groups, importantScannerIds),
-		},
-		...categories.map((category) => ({
-			id: category.key,
-			label: category.title,
-			count: sumGroupCounts(groups, category.scannerIds),
-		})),
-	];
+	/**
+	 * Important/one per real `categories` entry — same real tab bar shape
+	 * (and the same raw `GET /findings/groups` counts) SectionedIssuesTable.tsx's
+	 * own Security/Accessibility/WooCommerce usage already establishes,
+	 * reused here per direct instruction so this section's own filter bar
+	 * matches that one exactly. `content.rowTabs` replaces this entirely
+	 * for `RecentContentCard.tsx`'s own usage: real per-row counts (not
+	 * `/findings/groups` sums — those 3 content-quality scanner ids don't
+	 * split by post type at all), since a *category* tab there means
+	 * "which post type," not "which scanner flagged it."
+	 */
+	const tabs: { id: string; label: string; count: number }[] = content
+		? content.rowTabs.map((tab) => ({
+				id: tab.key,
+				label: tab.label,
+				count: rows.filter((row) => tab.matches(row)).length,
+			}))
+		: [
+				{
+					id: 'important',
+					label: __('Important', 'vulopilot'),
+					count: sumGroupCounts(groups, importantScannerIds),
+				},
+				...categories.map((category) => ({
+					id: category.key,
+					label: category.title,
+					count: sumGroupCounts(groups, category.scannerIds),
+				})),
+			];
 
 	const scannerIdsForTab: Record<string, string[]> = {
 		all: scannerIds,
@@ -379,9 +699,78 @@ const IssuesSection = ({
 		scannerIdsForTab[category.key] = category.scannerIds;
 	});
 
-	/** Resolves the active tab (`'all'`/`'important'`/a real `categories[].key`) down to the concrete scanner ids both tables — and the priority stat cards below — scope to. */
-	const activeScannerIds: 'all' | string[] =
-		'all' === activeTab ? 'all' : (scannerIdsForTab[activeTab] ?? []);
+	/** Resolves the active tab (`'all'`/`'important'`/a real `categories[].key`) down to the concrete scanner ids both tables — and the priority stat cards below — scope to. Always `'all'` in `content` mode: its tabs split by real post category, a dimension no scanner id carries, so there's nothing real to narrow scanner ids by there. */
+	const activeScannerIds: 'all' | string[] = content
+		? 'all'
+		: 'all' === activeTab
+			? 'all'
+			: (scannerIdsForTab[activeTab] ?? []);
+
+	/** `content` mode's own real row-level filter — which post-category tab is active, applied to `rows` directly (not `activeScannerIds`, which stays `'all'` above) before `<SeoIssuesByPageTable>` ever sees them. */
+	const activeRowTab = content?.rowTabs.find((tab) => tab.key === activeTab);
+	const contentRows =
+		content && activeRowTab ? rows.filter((row) => activeRowTab.matches(row)) : rows;
+
+	/** Darkest (most severe) to lightest — same real order `RecentContentCard.tsx`'s own original `SEVERITY_RANK` used for its severity `<select>`'s own option order. */
+	const SEVERITY_RANK: Record<FindingSeverity, number> = {
+		critical: 0,
+		high: 1,
+		medium: 2,
+		low: 3,
+		info: 4,
+	};
+
+	/** `toolbarFilters`'s own real severity `<select>` options — built from the severities actually present in this section's own real findings (same "no option that can never match a real row" reasoning `RecentContentCard.tsx`'s own original `severityOptions` already documented), not a fixed 5-level list. */
+	const toolbarSeverityOptions: { id: 'all' | FindingSeverity; label: string }[] = content
+		?.toolbarFilters
+		? [
+				{ id: 'all', label: __('All issues', 'vulopilot') },
+				...Array.from(
+					new Set(rows.flatMap((row) => row.findings.map((finding) => finding.severity)))
+				)
+					.sort((a, b) => SEVERITY_RANK[a] - SEVERITY_RANK[b])
+					.map((severity) => ({
+						id: severity,
+						label: SEVERITY_LABELS[severity],
+					})),
+			]
+		: [];
+
+	/** A row's findings that are actually relevant to show right now — open always, ignored only while `toolbarShowIgnored` is on — further narrowed by `toolbarSeverity`. Same real logic `RecentContentCard.tsx`'s own original `visibleFindingsFor()` already established. */
+	const toolbarVisibleFindingsFor = (row: PageRow) =>
+		row.findings.filter(
+			(finding) =>
+				('open' === finding.status ||
+					(toolbarShowIgnored && 'ignored' === finding.status)) &&
+				('all' === toolbarSeverity || finding.severity === toolbarSeverity)
+		);
+
+	/**
+	 * `toolbarFilters`'s own final real row set — `contentRows` (already
+	 * narrowed to the active resource tab) further narrowed by real
+	 * search/severity, with each row's own `findings` replaced by
+	 * `toolbarVisibleFindingsFor()`'s real subset so `SeoIssuesByPageTable.tsx`'s
+	 * own issue-count badge/expanded findings reflect the same real
+	 * open/ignored + severity scope, not the row's full, unfiltered
+	 * findings list (that table's own internal `activeScannerIds`/
+	 * `activePriority` filtering is a no-op here — both stay `'all'` for
+	 * `content` mode, since neither dimension applies to real post-type
+	 * tabs/raw severity the way this toolbar's own real filters do).
+	 */
+	const toolbarRows = content?.toolbarFilters
+		? contentRows
+				.map((row) => ({ ...row, findings: toolbarVisibleFindingsFor(row) }))
+				.filter((row) => {
+					if (
+						toolbarSearch &&
+						!row.title.toLowerCase().includes(toolbarSearch.toLowerCase())
+					) {
+						return false;
+					}
+
+					return 'all' === toolbarSeverity || row.findings.length > 0;
+				})
+		: contentRows;
 
 	const tabGroups = groups.filter(
 		(group) => 'all' === activeScannerIds || activeScannerIds.includes(group.scanner_id)
@@ -400,36 +789,108 @@ const IssuesSection = ({
 	const activeTabTotal = tabGroups.reduce((total, group) => total + group.count, 0);
 
 	return (
-		<CardComponent title={__('All SEO Findings', 'vulopilot')}
-				titleIcon="search"
-				desc={__('Every open SEO finding, filterable by priority.', 'vulopilot')}>
-			<TabsComponent
-				className="seo-issues-filter-tabs"
-				activeIndex={Math.max(
-					tabs.findIndex((tab) => tab.id === activeTab),
-					0
-				)}
-				onTabChange={(index: number) => setActiveTab(tabs[index].id)}
-				tabs={tabs.map((tab) => ({
-					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
-				}))}
-			/>
-			<IssuesSummaryCards
-				priorityCounts={priorityCounts}
-				isLoading={isLoading}
-				activePriority={activePriority}
-				onSelectPriority={setActivePriority}
-			/>
-			<SeoSiteWideIssuesTable
-				findings={siteWideFindings}
-				activeScannerIds={activeScannerIds}
-				activePriority={activePriority}
-				isLoading={isLoading}
-				hasError={hasError}
-				onRetry={refetch}
-			/>
+		<div ref={sectionRef} id={id}>
+		<CardComponent
+			title={title}
+			titleIcon={titleIcon}
+			desc={desc}
+			action={headerAction}
+		>
+			{content?.toolbarFilters ? (
+				<div className="recent-content-toolbar">
+					<TextInput
+						type="search"
+						name="recent-content-search"
+						value={toolbarSearch}
+						onChange={(value: string) => setToolbarSearch(value)}
+						placeholder={__('Search by title or source page…', 'vulopilot')}
+						size={20}
+						wrapperClass="recent-content-search"
+					/>
+					<SelectInput
+						name="recent-content-severity-filter"
+						type="single-select"
+						value={toolbarSeverity}
+						onChange={(value: string) =>
+							setToolbarSeverity(value as 'all' | FindingSeverity)
+						}
+						options={toolbarSeverityOptions.map((option) => ({
+							label: option.label,
+							value: option.id,
+						}))}
+						isClearable={false}
+					/>
+					<SelectInput
+						name="recent-content-resource-filter"
+						type="single-select"
+						value={activeTab}
+						onChange={(value: string) => setActiveTab(value)}
+						options={content.rowTabs.map((tab) => ({
+							label: tab.label,
+							value: tab.key,
+						}))}
+						isClearable={false}
+					/>
+					{/* Own onClick (not a real <label htmlFor>, since MultiCheckboxInput generates its input's id internally) so clicking the visible text toggles the switch too, same as clicking any other checkbox's label would. */}
+					<span
+						className="recent-content-show-ignored-label"
+						onClick={() => setToolbarShowIgnored(!toolbarShowIgnored)}
+					>
+						{__('Show ignored', 'vulopilot')}
+					</span>
+					<MultiCheckboxInput
+						look="toggle"
+						modules={[]}
+						options={[{ key: 'show-ignored', value: 'show-ignored', label: '' }]}
+						value={toolbarShowIgnored ? ['show-ignored'] : []}
+						onChange={(value: string[]) =>
+							setToolbarShowIgnored(value.includes('show-ignored'))
+						}
+					/>
+					{exportCsv && (
+						<ButtonInput
+							buttons={{
+								text: __('Export CSV', 'vulopilot'),
+								icon: 'download',
+								onClick: exportCsv,
+								disabled: 0 === toolbarRows.length,
+							}}
+						/>
+					)}
+				</div>
+			) : (
+				<>
+					<TabsComponent
+						className="seo-issues-filter-tabs"
+						activeIndex={Math.max(
+							tabs.findIndex((tab) => tab.id === activeTab),
+							0
+						)}
+						onTabChange={(index: number) => setActiveTab(tabs[index].id)}
+						tabs={tabs.map((tab) => ({
+							label: sprintf('%1$s (%2$d)', tab.label, tab.count),
+						}))}
+					/>
+					{/* <IssuesSummaryCards
+						priorityCounts={priorityCounts}
+						isLoading={isLoading}
+						activePriority={activePriority}
+						onSelectPriority={setActivePriority}
+					/> */}
+				</>
+			)}
+			{!content && (
+				<SeoSiteWideIssuesTable
+					findings={siteWideFindings}
+					activeScannerIds={activeScannerIds}
+					activePriority={activePriority}
+					isLoading={isLoading}
+					hasError={hasError}
+					onRetry={refetch}
+				/>
+			)}
 			<SeoIssuesByPageTable
-				rows={rows}
+				rows={content?.toolbarFilters ? toolbarRows : content ? contentRows : rows}
 				activeScannerIds={activeScannerIds}
 				activePriority={activePriority}
 				scannerLabelMap={scannerLabelMap}
@@ -438,12 +899,22 @@ const IssuesSection = ({
 				onRetry={refetch}
 				issuesColumnLabel={issuesColumnLabel}
 				visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
-				onExportCsv={exportCsv}
+				// This table's own Export CSV button would otherwise
+				// duplicate `content.toolbarFilters`'s own copy in the
+				// toolbar above — only ever this table's own for
+				// `pageAnalysis` mode (GeoTab.tsx/AeoTab.tsx), which has
+				// no toolbar of its own.
+				onExportCsv={content?.toolbarFilters ? undefined : exportCsv}
+				hideSearch={Boolean(content?.toolbarFilters)}
 				onAnalyze={onAnalyze}
 				activePostId={activePostId}
 				showScoreChange={pageScore}
+				showContentScore={Boolean(content)}
+				onDelete={content?.onDelete}
+				deletingId={content?.deletingId}
 			/>
 		</CardComponent>
+		</div>
 	);
 };
 

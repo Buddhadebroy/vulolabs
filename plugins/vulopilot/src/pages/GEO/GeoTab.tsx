@@ -180,18 +180,7 @@ const GeoTab = () => {
 
 	return (
 		<ContainerComponent>
-
 			<GeoScoreSection />
-
-			<ColumnComponent>
-				<GeoByTopicGrid
-					topics={GEO_TOPICS}
-					groups={groups}
-					isLoading={isLoadingGroups || isLoadingAffectedPages}
-					affectedPagesByScanner={affectedPagesByScanner}
-					onViewTopic={(key) => goToIssuesTable(key)}
-				/>
-			</ColumnComponent>
 			<NoticeComponent
 				displayPosition="inline-notice"
 				message={sprintf(

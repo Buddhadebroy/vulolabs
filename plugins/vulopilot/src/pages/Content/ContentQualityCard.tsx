@@ -168,15 +168,39 @@ const CheckRow: React.FC<{ check: OnPageCheck; onClick?: () => void }> = ({
  * most recently modified piece of content rather than requiring a click
  * before showing anything — same "useful default, still real user
  * control" shape `SlowPagesTab.tsx`'s own filters already establish.
+ *
+ * `postId`/`onClose` (both optional): when given, this card is driven
+ * externally instead of its own picker — `RecentContentCard.tsx`'s own
+ * "Analyze" action opens this same real component as its side panel
+ * (same real `GET /content-intelligence/quality?post_id=` this card
+ * already fetches for its own picker's current selection, just for
+ * whichever row's "Analyze" was clicked), matching the same real
+ * ring/Content Assessment/Structure breakdown either way — not a second,
+ * differently-shaped panel. The options fetch/picker/"Page being
+ * analyzed" action are skipped entirely in this mode (there's nothing to
+ * pick — the id is already given); a real close button takes the
+ * picker's place instead.
  */
-const ContentQualityCard = () => {
+interface ContentQualityCardProps {
+	postId?: number;
+	/** Real row title `RecentContentCard.tsx` already has on hand (no extra fetch needed) — `GET /content-intelligence/quality` itself doesn't return one. Only read in `postId` mode. */
+	title?: string;
+	onClose?: () => void;
+}
+
+const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onClose }: ContentQualityCardProps = {}) => {
+	const isExternal = undefined !== externalPostId;
 	const [options, setOptions] = useState<ContentOption[]>([]);
-	const [selectedId, setSelectedId] = useState<number | null>(null);
-	const [isLoadingOptions, setIsLoadingOptions] = useState(true);
+	const [selectedId, setSelectedId] = useState<number | null>(externalPostId ?? null);
+	const [isLoadingOptions, setIsLoadingOptions] = useState(!isExternal);
 	const [data, setData] = useState<ContentQualityResponse | null>(null);
 	const [isLoadingQuality, setIsLoadingQuality] = useState(false);
 
 	useEffect(() => {
+		if (isExternal) {
+			return;
+		}
+
 		const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 		const fetchType = (endpoint: 'posts' | 'pages') =>
 			getApiResponse<WpRestPost[]>(
@@ -207,7 +231,19 @@ const ContentQualityCard = () => {
 				}
 			})
 			.finally(() => setIsLoadingOptions(false));
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `isExternal`/`externalPostId` are fixed for this component instance's whole lifetime (RecentContentCard.tsx always mounts a fresh instance per `analyzingId`, same as PageAnalysisPanel.tsx's own `postId` prop) — this effect only ever needs to run once, for the picker-driven case.
 	}, []);
+
+	// Externally driven: track a later `postId` prop change too (e.g. the
+	// host clicking "Analyze" on a *different* row while this panel is
+	// already open) — the picker-driven branch above never re-runs this,
+	// so this is the one real trigger `isExternal` mode needs.
+	useEffect(() => {
+		if (isExternal) {
+			setSelectedId(externalPostId);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [externalPostId]);
 
 	useEffect(() => {
 		if (!selectedId) {
@@ -268,15 +304,31 @@ const ContentQualityCard = () => {
 	};
 
 	const selectedOption = options.find((option: ContentOption) => option.id === selectedId);
+	/** Real title either way — `RecentContentCard.tsx`'s own row title in `postId` mode, this card's own fetched picker option otherwise. */
+	const analyzedTitle = externalTitle ?? selectedOption?.title;
 
 	return (
 		<CardComponent
-			title={__('Content Quality', 'vulopilot')}
+			className={isExternal ? 'page-analysis-panel' : undefined}
+			title={isExternal ? __('Page Analysis', 'vulopilot') : __('Content Quality', 'vulopilot')}
 			titleIcon="ai"
-			desc={__('Real AI-assessed quality signals for the selected page.', 'vulopilot')}
-			isLoading={isLoadingOptions}
+			desc={
+				isExternal
+					? __("A single page's real content-quality signals, checked live.", 'vulopilot')
+					: __('Real AI-assessed quality signals for the selected page.', 'vulopilot')
+			}
+			isLoading={isExternal ? isLoadingQuality : isLoadingOptions}
 			action={
-				!isLoadingOptions && options.length > 0 ? (
+				isExternal ? (
+					<button
+						type="button"
+						className="page-analysis-panel-close"
+						onClick={onClose}
+						aria-label={__('Close', 'vulopilot')}
+					>
+						<i className="adminfont-close" />
+					</button>
+				) : !isLoadingOptions && options.length > 0 ? (
 					<div className="content-quality-picker">
 						<TypographyComponent
 							variant="caption"
@@ -305,7 +357,7 @@ const ContentQualityCard = () => {
 				) : undefined
 			}
 		>
-			{!isLoadingOptions && 0 === options.length && (
+			{!isExternal && !isLoadingOptions && 0 === options.length && (
 				<ModuleGuardComponent
 					icon="doc"
 					title={__('No content yet', 'vulopilot')}
@@ -316,12 +368,12 @@ const ContentQualityCard = () => {
 				/>
 			)}
 
-			{!isLoading && data && selectedOption && (
+			{!isExternal && !isLoading && data && analyzedTitle && (
 				<div className="content-quality-analyzing-banner">
 					<span className="content-quality-analyzing-banner-label">
 						<IconComponent name="doc" />
 						{__('Showing analysis for:', 'vulopilot')}{' '}
-						<strong>{selectedOption.title}</strong>
+						<strong>{analyzedTitle}</strong>
 					</span>
 					<span className="content-quality-analyzing-banner-hint">
 						<IconComponent name="ai" />
@@ -333,107 +385,62 @@ const ContentQualityCard = () => {
 				</div>
 			)}
 
+			{isExternal && !isLoading && data && analyzedTitle && (
+				<div className="page-analysis-panel-meta">{analyzedTitle}</div>
+			)}
+
 			{!isLoading && data && (
 				<div className="content-quality-body">
-					<div className='content-quality-overview-wrapper'>
-						<div className="content-quality-overview">
-							<div className="content-quality-overview-score">
-								<ChartComponent
-									type="ring"
-									height={120}
-									isLoading={false}
-									color={TONE_COLOR[readabilityTone]}
-									centerLabel={
-										<span className="content-quality-overview-score-number">
-											{data.readability.score}
-											<small>/100</small>
-										</span>
-									}
-									data={[{ value: data.readability.score }]}
-								/>
-								<TypographyComponent
-									variant="body-sm"
-									weight="semibold"
-									color={readabilityTone}
-									className="content-quality-overview-score-label"
-								>
-									{data.readability.label}
-								</TypographyComponent>
-							</div>
-							<div className="content-quality-overview-text">
-								<TypographyComponent variant="h5" weight="semibold">
-									{__('Overall Content Quality', 'vulopilot')}
-								</TypographyComponent>
-								<TypographyComponent variant="desc">
-									{QUALITY_BAND_DESCRIPTION[readabilityTone]}
-								</TypographyComponent>
-							</div>
-							<BadgeComponent
-								icon={TONE_BADGE_ICON[readabilityTone]}
-								color={readabilityTone}
-								text={data.readability.label}
-								className="content-quality-overview-badge"
+					<AnalyticsComponent
+						variant="progress"
+						cols={3}
+						data={[
+							{
+								icon: 'knowledgebase',
+								number: sprintf(
+									/* translators: %d: real Flesch Reading Ease score, 0-100. */
+									__('%d/100', 'vulopilot'),
+									data.readability.score
+								),
+								text: __('Readability', 'vulopilot'),
+								progress: data.readability.score,
+								colorClass: `${readabilityTone}-color`,
+							},
+							{
+								icon: 'search',
+								number: `${data.completeness.passed}/${data.completeness.total}`,
+								text: __('Checks passed', 'vulopilot'),
+								progress: completenessPercent,
+								colorClass: `${completenessTone}-color`,
+							},
+							{
+								icon: 'document',
+								number: issuesFound,
+								progress: issuesFound,
+								colorClass: `${completenessTone}-color`,
+								text: __('Issues Found', 'vulopilot'),
+								// A real count, not a percentage — no
+								// `progress`/`colorClass` here rather than
+								// fabricating a ratio just to fill the bar.
+								onClick:
+									issuesFound > 0 ? scrollToAssessment : undefined,
+							},
+						]}
+					/>
+					<SectionComponent icon='ai'
+						title={__('Content Assessment', 'vulopilot')}
+					/>
+					{data.completeness.checks.map((check: OnPageCheck) => (
+						<CheckRow key={check.id} check={check} />
+					))}
+					{data.structure && (
+						<>
+							<SectionComponent icon='blocks'
+								title={__('Structure', 'vulopilot')}
 							/>
-						</div>
-
-						<AnalyticsComponent
-							variant="progress"
-							cols={3}
-							data={[
-								{
-									icon: 'knowledgebase',
-									number: sprintf(
-										/* translators: %d: real Flesch Reading Ease score, 0-100. */
-										__('%d/100', 'vulopilot'),
-										data.readability.score
-									),
-									text: __('Readability', 'vulopilot'),
-									progress: data.readability.score,
-									colorClass: `${readabilityTone}-color`,
-								},
-								{
-									icon: 'search',
-									number: `${data.completeness.passed}/${data.completeness.total}`,
-									text: __('Checks passed', 'vulopilot'),
-									progress: completenessPercent,
-									colorClass: `${completenessTone}-color`,
-								},
-								{
-									icon: 'document',
-									number: issuesFound,
-									progress: issuesFound,
-									colorClass: `${completenessTone}-color`,
-									text: __('Issues Found', 'vulopilot'),
-									// A real count, not a percentage — no
-									// `progress`/`colorClass` here rather than
-									// fabricating a ratio just to fill the bar.
-									onClick:
-										issuesFound > 0 ? scrollToAssessment : undefined,
-								},
-							]}
-						/>
-					</div>
-
-					<div className='content-quality-overview-wrapper'>
-						<div className="content-quality-checks">
-							<SectionComponent icon='ai'
-								title={__('Content Assessment', 'vulopilot')}
-							/>
-							{data.completeness.checks.map((check: OnPageCheck) => (
-								<CheckRow key={check.id} check={check} />
-							))}
-						</div>
-						<div className="content-quality-checks">
-							{data.structure && (
-								<>
-									<SectionComponent icon='blocks'
-										title={__('Structure', 'vulopilot')}
-									/>
-									<CheckRow check={data.structure} onClick={goToPostEditor} />
-								</>
-							)}
-						</div>
-					</div>
+							<CheckRow check={data.structure} onClick={goToPostEditor} />
+						</>
+					)}
 				</div>
 			)}
 		</CardComponent>

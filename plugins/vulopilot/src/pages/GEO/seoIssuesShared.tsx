@@ -215,6 +215,15 @@ export interface PageRow {
 	/** Only set when `IssuesSection.tsx` was given `pageScore: true` (`SeoIssuesSection.tsx`'s own SEO usage) — the real per-page SEO score/week-over-week change `GET /seo/pages-needing-attention` (Seo.php) already computes, joined onto this row by `id` (was `PagesNeedingAttentionTable.tsx`'s own standalone data source before that table was folded into this one — see `IssuesSection.tsx`'s own `pageScore` docblock). `undefined` for any row that endpoint didn't return (a page with no open finding, or a non-SEO caller). */
 	seoScore?: number;
 	seoScoreChange?: number;
+	/** Only set when `IssuesSection.tsx` was given a `content` config (`RecentContentCard.tsx`'s own real Blog Post/Landing Page/Product Description/Other split) — the raw category key (e.g. `'blog-post'`), used by `ContentModeConfig.rowTabs[].matches()` to filter rows per tab. */
+	categoryKey?: string;
+	/** Real display label/icon for `categoryKey` above — the same real category badge/icon that table's own hand-rolled `InformationItemComponent` used to render. Undefined for every other real caller, which has no row-based category dimension. */
+	categoryLabel?: string;
+	categoryIcon?: string;
+	/** Only set alongside `categoryLabel` — real client-computed word count (`RecentContentCard.tsx`'s own `countWords()`), shown as an extra description line. */
+	wordCount?: number;
+	/** Only set when `IssuesSection.tsx`'s own `content` mode also fetched this row's real readability score (`GET /content-intelligence/quality?post_id=`'s own `readability.score` — the same real Flesch Reading Ease number `ContentQualityCard.tsx`'s own ring plots) — one real request per row, since no bulk equivalent of that endpoint exists. `undefined` while that row's own fetch hasn't resolved yet, or for any non-`content` caller. */
+	contentQualityScore?: number;
 }
 
 export interface GeoAnalysisPageRow {

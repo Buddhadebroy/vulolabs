@@ -166,48 +166,6 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 					 * real place left that already knows this page's own
 					 * edit link/permalink/worst-check.
 					 */}
-					<ButtonInput
-						buttons={{
-							icon: 'edit',
-							color: 'text-green',
-							className: 'icon',
-							tooltip: __('Edit', 'vulopilot'),
-							onClick: () => {
-								window.location.href = buildEditLink(postId);
-							},
-						}}
-					/>
-					<ButtonInput
-						buttons={{       
-							icon: 'eye',
-							color: 'text-blue',
-							className: 'icon',
-							tooltip: __('View', 'vulopilot'),
-							disabled: !data?.permalink,
-							onClick: () => {
-								if (data?.permalink) {
-									window.open(data.permalink, '_blank', 'noreferrer');
-								}
-							},
-						}}
-					/>
-					<ButtonInput
-						buttons={{
-							icon: 'ai',
-							color: 'orange-bg',
-							className: 'icon',
-							tooltip: __('Fix with AI', 'vulopilot'),
-							disabled: !primaryFixCheck,
-							onClick: () => {
-								if (primaryFixCheck) {
-									window.location.href = buildCheckEditLink(
-										postId,
-										primaryFixCheck.key
-									);
-								}
-							},
-						}}
-					/>
 					<button
 						type="button"
 						className="page-analysis-panel-close"
@@ -272,6 +230,45 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 								</>
 							),
 						}))}
+					/>
+
+					<ButtonInput
+						position="full-width"
+						buttons={[
+							{
+								icon: 'edit',
+								color: 'border-green',
+								text: __('Edit', 'vulopilot'),
+								onClick: () => {
+									window.location.href = buildEditLink(postId);
+								},
+							},
+							{
+								icon: 'eye',
+								color: 'border-blue',
+								text: __('View', 'vulopilot'),
+								disabled: !data?.permalink,
+								onClick: () => {
+									if (data?.permalink) {
+										window.open(data.permalink, '_blank', 'noreferrer');
+									}
+								},
+							},
+							{
+								icon: 'ai',
+								color: 'orange-bg',
+								text: __('Fix with AI', 'vulopilot'),
+								disabled: !primaryFixCheck,
+								onClick: () => {
+									if (primaryFixCheck) {
+										window.location.href = buildCheckEditLink(
+											postId,
+											primaryFixCheck.key
+										);
+									}
+								},
+							},
+						]}
 					/>
 				</>
 			)}

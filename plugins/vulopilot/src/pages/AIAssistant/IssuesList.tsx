@@ -218,12 +218,12 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			docblock). */}
 			<ColumnComponent grid={8}>
 				<div id="ai-copilot-issues-section">
-					<IssuesSummaryCards
+					{/* <IssuesSummaryCards
 						priorityCounts={priorityCounts}
 						isLoading={isLoading}
 						activePriority={activePriority}
 						onSelectPriority={handlePriorityChange}
-					/>
+					/> */}
 
 					{!isLoading && data.length === 0 ? (
 						<ModuleGuardComponent

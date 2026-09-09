@@ -164,6 +164,14 @@ interface SeoIssuesByPageTableProps {
 	activePostId?: number | null;
 	/** Only set by `SeoIssuesSection.tsx`'s own SEO usage (`IssuesSection.tsx`'s own `pageScore` prop) — adds a real Score ring + Change column per page, reading `row.seoScore`/`row.seoScoreChange`. This was `PagesNeedingAttentionTable.tsx`'s own standalone table before being folded into this one per direct instruction. */
 	showScoreChange?: boolean;
+	/** Only set by `IssuesSection.tsx`'s own `content` mode — a real Score-only ring column (no Change column: there's no real "previous score" to diff a per-page readability score against), reading `row.contentQualityScore`. */
+	showContentScore?: boolean;
+	/** Only set by `IssuesSection.tsx`'s own `content.toolbarFilters` mode — that toolbar already has its own real search box, so this table's own built-in `TableCard` search would just duplicate it. */
+	hideSearch?: boolean;
+	/** Only set by `IssuesSection.tsx`'s own `content` mode (`RecentContentCard.tsx`) — a real "Delete" row action (moves to trash), same real `DELETE` request that table's own hand-rolled action used to fire. `undefined` hides it, same as every other optional action here. */
+	onDelete?: (row: PageRow) => void;
+	/** Only set alongside `onDelete` — which row's real delete request is currently in flight, so that row's own action label can read "Deleting…" instead of just disappearing with no feedback. */
+	deletingId?: number | null;
 }
 
 /**
@@ -217,6 +225,10 @@ const SeoIssuesByPageTable = ({
 	onAnalyze,
 	activePostId,
 	showScoreChange,
+	showContentScore,
+	hideSearch,
+	onDelete,
+	deletingId,
 }: SeoIssuesByPageTableProps) => {
 	/** This table's OWN "Search pages…" box (TableCard's built-in search, filtering by PAGE title). */
 	const [searchValue, setSearchValue] = useState('');
@@ -417,7 +429,7 @@ const SeoIssuesByPageTable = ({
 					hideHeader
 					className="transparent-table"
 					activeRowId={activePostId ?? undefined}
-					search={{ placeholder: __('Search pages…', 'vulopilot') }}
+					search={hideSearch ? undefined : { placeholder: __('Search pages…', 'vulopilot') }}
 					buttonActions={
 						onExportCsv
 							? [
@@ -437,7 +449,7 @@ const SeoIssuesByPageTable = ({
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
-							width: '45%',
+							width: '65%',
 							/**
 							 * Status and Issues used to be their own columns —
 							 * consolidated here as InformationItemComponent's own
@@ -473,12 +485,16 @@ const SeoIssuesByPageTable = ({
 										<InformationItemComponent
 											title={row.title || __('(no title)', 'vulopilot')}
 											titleLink={row.editLink}
+											icon={row.categoryIcon}
 											badges={[
 												{
 													text: formatStatusLabel(row.status),
 													className: `badge-${String(row.status).toLowerCase()}`,
 												},
 												buildIssuesBadge(getRowFindings(row)),
+												...(row.categoryLabel
+													? [{ text: row.categoryLabel, className: 'badge-info' }]
+													: []),
 											]}
 											descriptions={[
 												{
@@ -486,6 +502,15 @@ const SeoIssuesByPageTable = ({
 													label: __('Updated', 'vulopilot'),
 													value: new Date(row.date).toLocaleDateString(),
 												},
+												...(undefined !== row.wordCount
+													? [
+															{
+																icon: 'text-fields',
+																label: __('Words', 'vulopilot'),
+																value: row.wordCount.toLocaleString(),
+															},
+														]
+													: []),
 											]}
 										/>
 									</div>
@@ -556,6 +581,35 @@ const SeoIssuesByPageTable = ({
 									},
 								}
 							: {}),
+						// `content` mode's own real per-page readability
+						// score — same real ring `showScoreChange` above
+						// renders, minus the Change column (no real
+						// "previous score" exists to diff a readability
+						// score against).
+						...(showContentScore
+							? {
+									content_quality_score: {
+										label: __('Score', 'vulopilot'),
+										render: (row: TableRow) =>
+											isFindingRow(row) ||
+											undefined === row.contentQualityScore ? null : (
+												<span
+													className="seo-issues-row-expand-trigger"
+													onClick={toggleRowExpansion}
+												>
+													<ChartComponent
+														type="ring"
+														height={40}
+														color={ratingColor(row.contentQualityScore)}
+														dataKey="score"
+														data={[{ score: row.contentQualityScore }]}
+														centerLabel={row.contentQualityScore}
+													/>
+												</span>
+											),
+									},
+								}
+							: {}),
 						action: {
 							label: __('Action', 'vulopilot'),
 							type: 'action',
@@ -587,7 +641,27 @@ const SeoIssuesByPageTable = ({
 										onAnalyze?.(
 											(row as unknown as PageRow).id
 										),
-								}
+								},
+								{
+									type: 'button',
+									label: (row: Record<string, unknown>) =>
+										deletingId === (row as unknown as PageRow).id
+											? __('Deleting…', 'vulopilot')
+											: __('Delete', 'vulopilot'),
+									color: 'text-red',
+									icon: 'delete',
+									hidden: (row) =>
+										!onDelete || isFindingRow(row as unknown as TableRow),
+									onClick: (row) => {
+										const pageRow = row as unknown as PageRow;
+
+										if (deletingId === pageRow.id) {
+											return;
+										}
+
+										onDelete?.(pageRow);
+									},
+								},
 							],
 						},
 					}}
