@@ -873,13 +873,48 @@
 // than a fabricated trend.
 .seo-health-score-layout {
 	display: flex;
+	gap: 1.5rem;
+	align-items: start;
+}
+
+.seo-health-score-ring-block {
+	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	gap: 2rem;
+	gap: 1.5rem;
 }
 
 .seo-health-score-ring {
 	flex: 0 0 auto;
+}
+
+// "Overall SEO Score" title/summary/"Run Complete Audit" copy block,
+// alongside the ring — reference mockup's own left-hand layout.
+.seo-health-score-ring-copy {
+	flex: 1 1 14rem;
+	min-width: 12rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	align-items: flex-start;
+}
+
+
+// Same "mini-card report" `tags` slot's own colored score content
+// `NeedsAttentionCard.tsx`'s own `.site-overview-score-row-value`/`-suffix`
+// already style, duplicated locally under this tab's own class names per
+// this codebase's own "duplicate small per-file logic" convention rather
+// than reaching into another page's scss file. Color itself comes from
+// `TypographyComponent`'s own `color={ratingColor(...)}` prop, not a class
+// here — this only sets weight/spacing.
+.seo-health-score-row-value {
+	font-weight: 700;
+}
+
+.seo-health-score-row-suffix {
+	font-weight: 400;
+	color: $sub-text-color;
+	margin-left: 0.125rem;
 }
 
 .seo-health-score-stats {
