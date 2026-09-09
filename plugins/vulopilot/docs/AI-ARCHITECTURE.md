@@ -1,7 +1,7 @@
 # VuloPilot — AI provider architecture
 
 Companion to [`RULE-ENGINE.md`](RULE-ENGINE.md), [`SCANNERS.md`](SCANNERS.md), and
-[`DATABASE.md`](DATABASE.md). Covers the adapter contract, all 6 provider adapters, the
+[`DATABASE.md`](DATABASE.md). Covers the adapter contract, the 2 provider adapters, the
 decorator stack (usage-tracking/retry/rate-limit/fallback), `SafeRequestSender`, safety
 validation, and the extension strategy.
 
@@ -40,8 +40,8 @@ classes/
 - **`AIProviderInterface` is the only interface for a "provider"** — and every decorator
   (`Decorators\*`) implements the *same* interface it wraps. That's what makes "no
   provider-specific code outside adapters" structurally true: `AIActions\ActionRunner` calling
-  `send()` never knows or needs to know whether it's talking to a raw `OpenAiProvider` or several
-  decorators deep.
+  `send()` never knows or needs to know whether it's talking to a raw `VuloCloudProxyProvider` or
+  several decorators deep.
 - **No `AIRequestInterface`/`AIResponseInterface`** — same reasoning as `Finding`/`ScanResult`/
   `Recommendation` in the Scanner/Rule Engine passes: there's exactly one shape for "a
   provider-agnostic chat request/response," so an interface for either would have one
@@ -52,33 +52,35 @@ classes/
   inspecting *what kind* of provider it's wrapping** — `RetryingProvider` only ever asks "was
   this a `TransientProviderException`?", never "was this an OpenAI rate limit?".
 
-## The 6 adapters (`classes/AIProviders/Providers/`)
+## The 2 adapters (`classes/AIProviders/Providers/`)
 
-| Adapter | Auth | Notable difference from the others |
+An earlier pass of this doc described 6 adapters here — one per cloud vendor
+(OpenAI/Anthropic/Gemini/OpenRouter/Groq) plus Ollama, each holding its own locally-stored,
+per-vendor-wire-format credential. That's gone: the 5 cloud adapters (and their shared
+`AbstractOpenAiCompatibleProvider` base) were deleted once cloud BYOK moved server-side (see
+"Credentials (BYOK)" above) — none of them held real, distinguishable logic once every cloud
+vendor's actual key resolution and wire-format translation moved to VuloCloud. Two adapters
+remain:
+
+| Adapter | Auth | Notable difference from the other |
 |---|---|---|
-| `OpenAiProvider` | `Authorization: Bearer` | The reference shape — `/chat/completions`, SSE streaming |
-| `OpenRouterProvider` | `Authorization: Bearer` | Same wire protocol as OpenAI + `HTTP-Referer`/`X-Title` headers |
-| `GroqProvider` | `Authorization: Bearer` | Same wire protocol as OpenAI, different base URL |
-| `AnthropicProvider` | `x-api-key` header | `system` role pulled out of `messages[]` into a top-level field; `max_tokens` is *required*; response `content` is typed blocks, not a string; SSE framed as named events |
-| `GeminiProvider` | `?key=` query param | `contents`/`parts` shape; assistant role is called `'model'`; system message goes in `systemInstruction`; streaming needs `alt=sse` to get line-by-line events instead of one streamed JSON array |
-| `OllamaProvider` | none (local server) | No API key at all — what's "configured" is a base URL; streaming is raw NDJSON, not SSE |
+| `VuloCloudProxyProvider` | none locally — VuloCloud resolves the real credential server-side | `get_id()` returns `'vulocloud'` regardless of which real vendor answers; `send()` flattens `AIRequest`'s messages into one prompt string and posts it to VuloCloud (`Services\AiByokGatewayClient`) instead of building any vendor-specific wire request itself; `get_available_models()` is always empty — model choice is no longer this site's decision |
+| `OllamaProvider` | none (local server) | No API key at all — what's "configured" is a base URL; streaming is raw NDJSON, not SSE; the one adapter that still builds a real, local wire request itself |
 
-Still exactly 6, still exactly this list — `ProviderRegistry::get_default_adapter_classes()`
-maps `'openai'|'anthropic'|'gemini'|'openrouter'|'ollama'|'groq'` to these same 6 classes today.
-
-**`AbstractOpenAiCompatibleProvider`** is the shared base for OpenAI/OpenRouter/Groq — real code
-reuse, not a forced abstraction, because those three genuinely speak the same protocol.
-Anthropic/Gemini/Ollama each get a standalone adapter because their request/response shapes are
-genuinely different — folding them into the same base class would have been the opposite
-mistake (a false abstraction hiding real differences).
+`ProviderRegistry::get_default_adapter_classes()` maps `'vulocloud'|'ollama'` to these two classes
+today — see that method's own docblock for why `'vulocloud'` collapses what used to be 5 separate
+ids into one.
 
 ### Streaming — what's real here and what's a documented gap
 
 `StreamingHttpClient` (`AIProviders/Support/`) opens a real blocking socket read via PHP's native
 `http://`/`https://` stream wrapper (`fopen()` + `fread()` in a loop) — not `wp_remote_post()`,
 which buffers WordPress's entire HTTP response before returning and has no incremental-read hook
-at all. This is genuine, working streaming transport: bytes are delivered to each adapter's
-line-parsing callback as the server sends them, not simulated after the fact.
+at all. This is genuine, working streaming transport: bytes are delivered to each *streaming-capable*
+adapter's line-parsing callback as the server sends them, not simulated after the fact.
+`OllamaProvider` is the one left that actually does this — `VuloCloudProxyProvider::supports_streaming()`
+is `false` (VuloCloud's own `/plugin/ai/byok-execute` is a single request/response call, not a
+streamed one), and its `send_streaming()` just calls `send()`.
 
 What's **not** here: real concurrent multi-stream handling (e.g. a raw cURL multi-handle) — every
 `send_streaming()` call is a single blocking connection, which is the correct and sufficient
@@ -87,30 +89,46 @@ for.
 
 ## Credentials (BYOK)
 
-`vulopilot_ai_provider_configs` (`DATABASE.md`) stores `provider`, `credentials` (always
-encrypted — see below), `default_model`, `is_active`, `quota_limit`/`quota_used`.
-`Repositories\AiProviderConfigRepository` is a thin `AbstractRepository` subclass, same shape as
-every other repository in this codebase.
+An earlier pass of this doc described BYOK as five locally-configured cloud adapters
+(OpenAI/Anthropic/Gemini/OpenRouter/Groq), each decrypting its own stored key via
+`ProviderRegistry::build_provider()`. That's no longer how cloud BYOK works: those five classes
+are gone, collapsed into one adapter, **`AIProviders\Providers\VuloCloudProxyProvider`**
+(`get_id()` returns `'vulocloud'`). This site no longer holds a cloud provider credential at all —
+`VuloCloudProxyProvider::send()` calls `Services\AiByokGatewayClient::execute()`, which posts
+`{siteId, secret, feature, prompt, context, site_tone}` to VuloCloud's own
+`POST /plugin/ai/byok-execute`, and VuloCloud alone resolves whichever Organization's (or allowed
+Customer backup's) key should actually answer — this site never learns which vendor/key was used.
+`vulopilot_ai_provider_configs` and `Services\CredentialEncryption` (still AES-256-CBC, key
+derived via `wp_salt('auth')`, exactly as originally designed) are **not gone** — they're just down
+to one real row now: **`ollama`**, the one adapter that stays local (its "credential" is a base
+URL, not a secret — see that adapter's own docblock). `ProviderRegistry::build_provider()` is still
+the one place a credential is ever decrypted, for the one provider that still has one.
 
-**`Services\CredentialEncryption`** is confirmed still exactly as designed — AES-256-CBC
-(`openssl_encrypt`/`openssl_decrypt`), key derived via `hash('sha256', wp_salt('auth'), true)`
-(never stored in the database itself), random IV per call. `ProviderRegistry::build_provider()` is
-the **one place** a credential is ever decrypted — repositories, REST controllers, and action
-code never see a raw key.
+`ProviderRegistry::get_available_adapters()` (backs the Settings UI's provider list) deliberately
+excludes `'vulocloud'` — it has nothing to configure from that panel. The panel instead shows a
+connection-status readout via `AiByokGatewayClient::status()` (`POST /plugin/ai/byok-status`, a
+cheap boolean-only check) and a "site tone" field (`vulopilot_site_tone`, sent as a hint on every
+BYOK request) — see `RestAPI\Controllers\AiProviders::update_site_tone()` and
+`Services\SiteToneLearner`, which keeps that field populated automatically from the site's own
+recent published content (`save_post` → deferred `wp_schedule_single_event()`, never inline with
+the save; never overwrites a site owner's own manually-saved value).
 
 ### BYOK vs. Built-in Credits
 
-This pass builds BYOK only — a site owner enters their own key, it's encrypted and stored, and
-`ProviderRegistry` decrypts it to build an adapter. **Built-in Credits (a VuloLabs-hosted,
-metered proxy so a site owner doesn't need their own key) is a Pro-tier extension point, not built
-here** — the natural shape for it is a `BuiltInCreditsProvider` decorator (license-gated, like
-every other Pro capability per `plugin-families.md`) that implements `AIProviderInterface` and
-proxies through VuloLabs's own server instead of decrypting a stored key, composing with the
-existing decorator stack exactly the way `RetryingProvider`/`RateLimitedProvider` do. Confirmed
-still unbuilt — there is no such class, and no `vulopilot-pro` module registers a second AI
-provider via `vulopilot_ai_provider_sources` today. This keeps Free's adapters and BYOK fully
-functional and real on their own, with Pro adding a mode, not adding business logic Free is
-missing.
+An earlier pass of this doc described Built-in Credits as an unbuilt Pro-tier extension point.
+**It's built now, and it isn't a decorator on top of BYOK — it's a separate fallback path**,
+`Services\AiCreditGatewayClient`/`AiCreditsConnection` calling VuloCloud's credit-metered
+`POST /plugin/ai/execute` (a genuinely different wire contract —
+`{featureId, action, context}`, VuloCloud's own feature catalog — from BYOK's
+`{feature, prompt, context, site_tone}`). `AIActions\ActionRunner::send_prompt_or_credits()` is
+where the two paths meet: it always attempts BYOK first (`SafeRequestSender` →
+`VuloCloudProxyProvider`), and only falls through to credits — for the three action ids in
+`CREDIT_FEATURE_MAP` — when that attempt throws `Exceptions\AiByokNotConfiguredException` (VuloCloud
+reporting `AI_BYOK_NOT_CONFIGURED`; every other action id's "not configured" is a final
+`\RuntimeException`, not a credits fallback). This still keeps BYOK the free, always-preferred path
+and credits a metered fallback, just resolved per-request against a live VuloCloud answer instead of
+a local "is a key configured" check — see `ActionRunner::send_prompt_or_credits()`'s own docblock
+for why a separate local pre-check would just be a redundant, staleness-prone round trip.
 
 ### Settings UI
 
@@ -238,24 +256,26 @@ not directly by adapters:
 
 Identical shape to `SCANNERS.md`/`RULE-ENGINE.md`, again on purpose:
 
-1. **A new Free adapter** (a 7th provider): implement `AIProviderInterface`, add it to
-   `ProviderRegistry::get_default_adapter_classes()`.
-2. **A Pro provider mode** (e.g. the Built-in Credits decorator described above): register
-   via `add_filter( 'vulopilot_ai_provider_sources', ... )` from a Pro module, license-gated the
-   same way every other Pro capability is (`plugin-families.md`), `get_tier()` returning `'pro'`
-   — not `'premium'`, the same correction made in `SCANNERS.md`'s and `AI-ACTIONS.md`'s own
-   extension-strategy sections. **Nothing does this yet** — see "BYOK vs. Built-in Credits" above.
-3. **A third-party adapter**: the same filter (`vulopilot_ai_provider_sources`), from any other
-   plugin — no more privileged a path for Pro than for a third party.
+1. **A new local adapter** (like Ollama): implement `AIProviderInterface`, add it to
+   `ProviderRegistry::get_default_adapter_classes()`. A new *cloud* vendor is no longer added this
+   way — that's a VuloCloud-side change (`contexts/vulopilot/ai-byok`), not a new class here.
+2. **The Built-in Credits fallback**: real now (see "BYOK vs. Built-in Credits" above) —
+   `AIActions\ActionRunner`'s own `CREDIT_FEATURE_MAP`, not a provider-registry extension point.
+3. **A third-party adapter**: `add_filter( 'vulopilot_ai_provider_sources', ... )`, the same path
+   Ollama itself would use — no more privileged a path for Pro than for a third party.
 
 ## What's not here yet
 
-- **Multimodal (vision) messages.** `AIRequest`'s `messages` are still plain
-  `{role, content: string}` — no image/file attachment support. `AI-ACTIONS.md`'s
-  `GenerateAltAction` is context-based, not vision-based, as an honest answer to that gap, not a
-  stand-in claiming to be vision-based.
-- **Built-in Credits.** BYOK is fully real and functional; the Pro-tier hosted/metered mode is
-  designed (see above) but not built.
+- **Multimodal (vision) messages.** `AIRequest::get_image()` exists, but
+  `ProviderRegistry::supports_vision()` is unconditionally `false` today — the one adapter this was
+  ever true for (`GeminiProvider`) is gone now that cloud providers resolve through
+  `VuloCloudProxyProvider`, and neither that adapter's wire contract
+  (`AiByokGatewayClient::execute()`) nor `OllamaProvider` sends an image. `CopilotChat\Rest.php`
+  (`vulopilot-pro`) still checks `supports_vision()` before attaching one, so this is a real,
+  currently-dead capability, not a removed code path — restoring it needs either a VuloCloud-side
+  wire contract change or a local vision-capable adapter, not just flipping a flag here.
+  `AI-ACTIONS.md`'s `GenerateAltAction` is context-based, not vision-based, as an honest answer to
+  that gap, not a stand-in claiming to be vision-based.
 - **Quota enforcement** against `vulopilot_ai_provider_configs.quota_limit`/`quota_used` — the
   columns exist in `DATABASE.md`'s schema (confirmed still present in `Install.php`); nothing
   reads or increments them anywhere in the codebase today. `RateLimitedProvider` enforces a *rate*

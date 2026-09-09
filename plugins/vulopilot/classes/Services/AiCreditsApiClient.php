@@ -143,6 +143,26 @@ class AiCreditsApiClient {
     }
 
     /**
+     * `POST /plugin/ai-credits/disconnect` — site-secret authenticated,
+     * same shape as get_balance() above (no human token). Real
+     * self-service revoke on VuloCloud's own side (ConnectedSiteService::revokeBySite()),
+     * not just a local option clear.
+     *
+     * @param string $site_id The ConnectedSite id returned by connect_site().
+     * @param string $secret  The plaintext site secret returned by connect_site().
+     * @return array|\WP_Error
+     */
+    public function disconnect_site( $site_id, $secret ) {
+        return $this->request(
+            '/plugin/ai-credits/disconnect',
+            array(
+				'siteId' => $site_id,
+				'secret' => $secret,
+            )
+        );
+    }
+
+    /**
      * Shared POST + "completed round trip vs genuine network failure" split.
      *
      * @param string $path         e.g. '/plugin/ai-credits/balance'.

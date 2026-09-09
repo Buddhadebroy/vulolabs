@@ -2,8 +2,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { FormGroupWrapperComponent, FormGroupComponent, NoticeManager, PopupComponent } from '@zyra/components';
-import { ExpandablePanelInput } from '@zyra/inputs';
+import {
+	FormGroupWrapperComponent,
+	FormGroupComponent,
+	NoticeComponent,
+	NoticeManager,
+	PopupComponent,
+} from '@zyra/components';
+import { ButtonInput, ExpandablePanelInput, TextInput } from '@zyra/inputs';
 import ShowProPopup from '../../Popup/Popup';
 
 interface ConfiguredProvider {
@@ -34,9 +40,20 @@ interface AdapterMeta {
 	requires_credential: boolean;
 }
 
+interface VuloCloudStatus {
+	/** Is this site connected to a VuloCloud account at all (a real site secret exists)? */
+	connected: boolean;
+	/** Does an Organization's own (or an allowed Customer backup) AI provider key actually resolve for this site right now? */
+	configured: boolean;
+}
+
 interface AiProvidersResponse {
 	configured: ConfiguredProvider[];
 	adapters: Record<string, AdapterMeta>;
+	vulocloud_status: VuloCloudStatus;
+	site_tone: string;
+	/** 'auto' — Services\SiteToneLearner's own real, freshly-learned phrase (from this site's recent content); 'manual' — a site owner's own saved override, never auto-overwritten. */
+	site_tone_source: 'auto' | 'manual';
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
@@ -113,6 +130,16 @@ const providerIcon = (providerId: string): string => PROVIDER_ICONS[providerId] 
 const AiProvidersPanel = () => {
 	const [configured, setConfigured] = useState<ConfiguredProvider[]>([]);
 	const [adapters, setAdapters] = useState<Record<string, AdapterMeta>>({});
+	const [vulocloudStatus, setVulocloudStatus] = useState<VuloCloudStatus>({
+		connected: false,
+		configured: false,
+	});
+	const [siteTone, setSiteTone] = useState('');
+	const [siteToneSource, setSiteToneSource] = useState<'auto' | 'manual'>('auto');
+	const [isSavingSiteTone, setIsSavingSiteTone] = useState(false);
+	const [isConnectingToVulocloud, setIsConnectingToVulocloud] = useState(false);
+	const [isDisconnectingFromVulocloud, setIsDisconnectingFromVulocloud] = useState(false);
+	const [showVulocloudDisconnectConfirm, setShowVulocloudDisconnectConfirm] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
@@ -164,11 +191,116 @@ const AiProvidersPanel = () => {
 
 				setConfigured(response.configured);
 				setAdapters(response.adapters);
+				setVulocloudStatus(response.vulocloud_status);
+				setSiteTone(response.site_tone);
+				setSiteToneSource(response.site_tone_source);
 			})
 			.finally(() => setIsLoading(false));
 	};
 
 	useEffect(load, []);
+
+	// ConnectBrokerCallbackHandler.php's own redirect lands back on this
+	// exact URL carrying `connect_status=connected|error` as a real signal
+	// — same `?_status=` redirect-flag handling
+	// useGoogleServicesConnection.ts's own hook already establishes for
+	// the Google Connect broker.
+	useEffect(() => {
+		const params = new URLSearchParams(
+			window.location.hash.split('?')[1] || window.location.hash.substring(1)
+		);
+		const connectStatus = params.get('connect_status');
+
+		if ('connected' === connectStatus) {
+			NoticeManager.add({
+				uniqueKey: 'vulopilot-connect-broker-connected',
+				type: 'success',
+				position: 'float',
+				message: __('Connected to VuloCloud.', 'vulopilot'),
+			});
+		} else if ('error' === connectStatus) {
+			NoticeManager.add({
+				uniqueKey: 'vulopilot-connect-broker-failed',
+				type: 'error',
+				position: 'float',
+				message: __('Could not connect to VuloCloud. Please try again.', 'vulopilot'),
+			});
+		}
+	}, []);
+
+	const handleConnectToVulocloud = () => {
+		setIsConnectingToVulocloud(true);
+
+		getApiResponse<{ url: string }>(
+			getApiLink(appLocalizer, 'ai-providers/broker-authorize-url'),
+			nonceHeaders
+		)
+			.then((response) => {
+				if (response?.url) {
+					window.location.href = response.url;
+					return;
+				}
+
+				setIsConnectingToVulocloud(false);
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-connect-broker-unavailable',
+					type: 'error',
+					position: 'float',
+					message: __('VuloCloud isn’t configured for this build yet.', 'vulopilot'),
+				});
+			})
+			.catch(() => setIsConnectingToVulocloud(false));
+	};
+
+	/** Opens the confirm popup — the actual disconnect runs from `handleConfirmDisconnectVulocloud` once the user confirms there. */
+	const handleDisconnectFromVulocloud = () => {
+		setShowVulocloudDisconnectConfirm(true);
+	};
+
+	const handleConfirmDisconnectVulocloud = () => {
+		setShowVulocloudDisconnectConfirm(false);
+		setIsDisconnectingFromVulocloud(true);
+
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'ai-credits/disconnect'), {})
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-vulocloud-disconnected',
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? __('Disconnected from VuloCloud.', 'vulopilot')
+						: __('Could not disconnect from VuloCloud.', 'vulopilot'),
+				});
+
+				if (response) {
+					load();
+				}
+			})
+			.finally(() => setIsDisconnectingFromVulocloud(false));
+	};
+
+	const handleSaveSiteTone = () => {
+		setIsSavingSiteTone(true);
+
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'ai-providers/site-tone'), {
+			site_tone: siteTone,
+		})
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-site-tone',
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? __('Site tone saved.', 'vulopilot')
+						: __('Could not save the site tone.', 'vulopilot'),
+				});
+
+				if (response) {
+					setSiteToneSource('manual');
+				}
+			})
+			.finally(() => setIsSavingSiteTone(false));
+	};
 
 	const heroProviderIds = Object.keys(HERO_PROVIDERS).filter((id) => adapters[id]);
 	const otherAdapterIds = Object.keys(adapters).filter((id) => !HERO_PROVIDERS[id]);
@@ -177,7 +309,15 @@ const AiProvidersPanel = () => {
 		(id) => !configured.some((row) => row.provider === id)
 	);
 
-	const activeCount = configured.filter((row) => row.is_active).length;
+	// Counts only rows this panel actually still shows (hero cards are
+	// permanently empty now that the cloud providers they represented —
+	// gemini/openai — resolve through VuloCloud instead of a local row;
+	// see ProviderRegistry::get_available_adapters()'s own docblock) —
+	// a stale/orphaned local row from before that change existing in the
+	// database shouldn't produce a count with nothing visible above it.
+	const activeCount =
+		heroProviderIds.filter((id) => configured.some((row) => row.provider === id && row.is_active))
+			.length + otherConfigured.filter((row) => row.is_active).length;
 
 	const genericUpdate = (
 		id: number,
@@ -779,6 +919,99 @@ const AiProvidersPanel = () => {
 					<div className="desc">{__('Loading…', 'vulopilot')}</div>
 				) : (
 					<>
+						<FormGroupComponent label={__('VuloCloud AI', 'vulopilot')}>
+							{!vulocloudStatus.connected ? (
+								<>
+									<NoticeComponent
+										displayPosition="inline"
+										type="info"
+										message={__(
+											'Connect this site to VuloCloud to use an AI provider key managed by your Organization.',
+											'vulopilot'
+										)}
+									/>
+									<ButtonInput
+										position="left"
+										buttons={{
+											text: isConnectingToVulocloud
+												? __('Connecting…', 'vulopilot')
+												: __('Connect to VuloCloud', 'vulopilot'),
+											disabled: isConnectingToVulocloud,
+											onClick: handleConnectToVulocloud,
+										}}
+									/>
+								</>
+							) : (
+								<>
+									{vulocloudStatus.configured ? (
+										<NoticeComponent
+											displayPosition="inline"
+											type="success"
+											message={__(
+												'Connected — an AI provider key is configured for this site by your Organization (or an allowed personal backup key).',
+												'vulopilot'
+											)}
+										/>
+									) : (
+										<NoticeComponent
+											displayPosition="inline"
+											type="warning"
+											message={__(
+												'Connected to VuloCloud, but no AI provider key is configured yet for this site. Add one from your VuloCloud account, or ask your agency to.',
+												'vulopilot'
+											)}
+										/>
+									)}
+									<ButtonInput
+										position="left"
+										buttons={{
+											text: isDisconnectingFromVulocloud
+												? __('Disconnecting…', 'vulopilot')
+												: __('Disconnect', 'vulopilot'),
+											disabled: isDisconnectingFromVulocloud,
+											onClick: handleDisconnectFromVulocloud,
+										}}
+									/>
+								</>
+							)}
+						</FormGroupComponent>
+
+						<FormGroupComponent
+							label={__('Site tone', 'vulopilot')}
+							desc={__(
+								'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") — included with every AI request.',
+								'vulopilot'
+							)}
+						>
+							<TextInput
+								name="site_tone"
+								value={siteTone}
+								onChange={(value: unknown) => setSiteTone(String(value))}
+								placeholder={__('e.g. Friendly and casual', 'vulopilot')}
+							/>
+							<ButtonInput
+								position="left"
+								buttons={{
+									text: isSavingSiteTone ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
+									disabled: isSavingSiteTone,
+									onClick: handleSaveSiteTone,
+								}}
+							/>
+							{'' !== siteTone && (
+								<div className="desc">
+									{'manual' === siteToneSource
+										? __(
+												'Manually set — won’t be overwritten automatically.',
+												'vulopilot'
+											)
+										: __(
+												'Auto-detected from your site’s recent content.',
+												'vulopilot'
+											)}
+								</div>
+							)}
+						</FormGroupComponent>
+
 						{(heroMethods.length > 0 || otherConfiguredMethods.length > 0 || newProviderOptions.length > 0) && (
 							<FormGroupComponent>
 								<ExpandablePanelInput
@@ -832,6 +1065,26 @@ const AiProvidersPanel = () => {
 					confirmNoText={__('Cancel', 'vulopilot')}
 					onConfirm={handleConfirmDisconnect}
 					onCancel={() => setDisconnectTarget(null)}
+				/>
+			</PopupComponent>
+			<PopupComponent
+				position="lightbox"
+				open={showVulocloudDisconnectConfirm}
+				onClose={() => setShowVulocloudDisconnectConfirm(false)}
+				width={31.25}
+				height="auto"
+			>
+				<ShowProPopup
+					confirmMode
+					title={__('Disconnect VuloCloud', 'vulopilot')}
+					confirmMessage={__(
+						'Disconnect this site from VuloCloud? AI features that rely on your Organization’s key will stop working until you connect again.',
+						'vulopilot'
+					)}
+					confirmYesText={__('Disconnect', 'vulopilot')}
+					confirmNoText={__('Cancel', 'vulopilot')}
+					onConfirm={handleConfirmDisconnectVulocloud}
+					onCancel={() => setShowVulocloudDisconnectConfirm(false)}
 				/>
 			</PopupComponent>
 		</>

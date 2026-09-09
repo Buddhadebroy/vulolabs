@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * Two gates every AI call goes through: validate_prompt() before a
  * request is ever sent (called by AIActions\ActionRunner, not by adapters — an
  * adapter's only job is wire-format translation, per
- * AbstractOpenAiCompatibleProvider's docblock), and sanitize_response()
+ * OllamaProvider's docblock), and sanitize_response()
  * on whatever comes back before it's used anywhere a site owner would
  * see it (a Recommendation's description, a future auto-applied fix).
  *
