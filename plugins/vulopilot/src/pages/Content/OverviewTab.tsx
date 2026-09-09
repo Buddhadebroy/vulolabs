@@ -35,7 +35,6 @@ const OverviewTab: React.FC = () => {
 			</ColumnComponent>
 
 			<ColumnComponent >
-				<ContentQualityCard />
 				<RecentContentCard />
 			</ColumnComponent>
 		</ContainerComponent>

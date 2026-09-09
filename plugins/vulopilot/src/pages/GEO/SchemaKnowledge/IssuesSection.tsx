@@ -179,13 +179,13 @@ const IssuesSection = () => {
 			instead). */}
 			<ColumnComponent grid={8}>
 				<div id="schema-knowledge-issues">
-					<IssuesSummaryCards
+					{/* <IssuesSummaryCards
 						total={total}
 						priorityCounts={priorityCounts}
 						isLoading={isLoading}
 						activePriority={activePriority}
 						onSelectPriority={handlePriorityChange}
-					/>
+					/> */}
 
 					{!isLoading && data.length === 0 ? (
 						<ModuleGuardComponent

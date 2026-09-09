@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent, ListComponent, BadgeComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
+import { buildEditLink } from './seoIssuesShared';
+import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
 import './PageAnalysisPanel.scss';
 
 type CheckStatus = 'pass' | 'warn' | 'fail';
@@ -51,6 +54,47 @@ const STATUS_BADGE: Record<CheckStatus, { text: string; color: string }> = {
 };
 
 /**
+ * This endpoint's own real check `key`s (`Seo.php::get_page_analysis()`,
+ * e.g. `title_tag`/`h1_heading`) → the scanner id `seoIssueEditorTarget.ts`
+ * already understands (the same ids `SeoIssuesByPageTable.tsx`'s own "Fix
+ * with AI" deep link uses) — a translation layer, not a second copy of
+ * that file's own tab/field targets, so this row's own "go to editor" link
+ * opens the exact same real sidebar tab + highlighted field "Fix with AI"
+ * would for the matching real scanner, with no target logic duplicated
+ * here. `title_tag`/`h1_heading`/`headings` have no dedicated scanner of
+ * their own (this endpoint synthesizes them fresh — see this file's own
+ * top docblock) but map onto the closest real equivalent scanner's own
+ * target field instead of nothing. `indexability` has no real equivalent
+ * anywhere else in this codebase (nothing else surfaces "is this page
+ * published and not marked noindex" as its own scanner) — omitted here on
+ * purpose, same as every other id with no entry in
+ * `SEO_ISSUE_EDITOR_TARGETS`: the editor still opens the sidebar, just
+ * without pretending to highlight a field that isn't there.
+ */
+const CHECK_KEY_TO_SCANNER_ID: Record<string, string> = {
+	title_tag: 'seo',
+	meta_description: 'meta-description',
+	h1_heading: 'heading-structure',
+	headings: 'heading-structure',
+	content: 'thin-content',
+	images: 'images',
+	internal_links: 'internal-linking',
+	canonical: 'canonical-url',
+	structured_data: 'structured-data',
+	social_metadata: 'open-graph',
+};
+
+/** Real navigate-and-highlight deep link — same `SEO_ISSUE_QUERY_PARAM` convention `SeoIssuesByPageTable.tsx`'s own `buildFixWithAiLink()` already established, reused here per this codebase's own "duplicate small per-file logic" convention rather than importing that file's own postId-scoped helper. */
+const buildCheckEditLink = (postId: number, checkKey: string): string => {
+	const editLink = buildEditLink(postId);
+	const scannerId = CHECK_KEY_TO_SCANNER_ID[checkKey];
+
+	return scannerId
+		? `${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(scannerId)}`
+		: editLink;
+};
+
+/**
  * "Page Analysis" (SEO & Visibility → SEO's own "Pages & Posts" table, a new
  * "Analyze" row action) — `GET /seo/analyze-page?post_id=…`
  * (Controllers\Seo::get_page_analysis(), Free). Every one of the 11 checks
@@ -93,6 +137,19 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 			.finally(() => setIsLoading(false));
 	}, [postId]);
 
+	/**
+	 * "Fix with AI" for this whole page — same real "pick the worst one"
+	 * posture `SeoIssuesByPageTable.tsx`'s own now-removed per-row action
+	 * used (`worstFinding()`), just over this endpoint's own real `checks`
+	 * instead of stored findings: the first real `fail`, or the first real
+	 * `warn` if nothing's outright failing, or `null` when every check
+	 * already passes (button disabled rather than linking nowhere).
+	 */
+	const primaryFixCheck =
+		data?.checks.find((check: PageCheck) => 'fail' === check.status) ??
+		data?.checks.find((check: PageCheck) => 'warn' === check.status) ??
+		null;
+
 	return (
 		<CardComponent
 			className="page-analysis-panel"
@@ -100,14 +157,24 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 			titleIcon="search"
 			desc={__('A single page\'s real SEO/GEO signals, checked live.', 'vulopilot')}
 			action={
-				<button
-					type="button"
-					className="page-analysis-panel-close"
-					onClick={onClose}
-					aria-label={__('Close', 'vulopilot')}
-				>
-					<i className="adminfont-close" />
-				</button>
+				<div className="page-analysis-panel-actions">
+					{/*
+					 * Edit/View/Fix with AI — moved here from
+					 * SeoIssuesByPageTable.tsx's own row actions (per direct
+					 * instruction: that table's "Pages & Posts" row now shows
+					 * only "Analyze"/"Viewing"), since this panel is the one
+					 * real place left that already knows this page's own
+					 * edit link/permalink/worst-check.
+					 */}
+					<button
+						type="button"
+						className="page-analysis-panel-close"
+						onClick={onClose}
+						aria-label={__('Close', 'vulopilot')}
+					>
+						<i className="adminfont-close" />
+					</button>
+				</div>
 			}
 			isLoading={isLoading}
 		>
@@ -143,10 +210,16 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 					<ListComponent
 						className="mini-card report"
 						items={data.checks.map((template) => ({
-							id: template.id,
+							id: template.key,
 							icon: STATUS_ICON[template.status],
 							title: template.label,
 							desc: template.message,
+							action: () => {
+								window.location.href = buildCheckEditLink(
+									data.post_id,
+									template.key
+								);
+							},
 							tags: (
 								<>
 									<BadgeComponent
@@ -157,6 +230,45 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 								</>
 							),
 						}))}
+					/>
+
+					<ButtonInput
+						position="full-width"
+						buttons={[
+							{
+								icon: 'edit',
+								color: 'border-green',
+								text: __('Edit', 'vulopilot'),
+								onClick: () => {
+									window.location.href = buildEditLink(postId);
+								},
+							},
+							{
+								icon: 'eye',
+								color: 'border-blue',
+								text: __('View', 'vulopilot'),
+								disabled: !data?.permalink,
+								onClick: () => {
+									if (data?.permalink) {
+										window.open(data.permalink, '_blank', 'noreferrer');
+									}
+								},
+							},
+							{
+								icon: 'ai',
+								color: 'orange-bg',
+								text: __('Fix with AI', 'vulopilot'),
+								disabled: !primaryFixCheck,
+								onClick: () => {
+									if (primaryFixCheck) {
+										window.location.href = buildCheckEditLink(
+											postId,
+											primaryFixCheck.key
+										);
+									}
+								},
+							},
+						]}
 					/>
 				</>
 			)}

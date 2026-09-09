@@ -218,7 +218,6 @@ const SeoSiteWideIssuesTable = ({
 						type: 'action',
 						actions: [
 							{
-								type: 'button',
 								label: __('Resolve', 'vulopilot'),
 								icon: 'check',
 								color: 'text-blue',
@@ -233,7 +232,6 @@ const SeoSiteWideIssuesTable = ({
 									),
 							},
 							{
-								type: 'button',
 								label: __('Ignore', 'vulopilot'),
 								color: 'text-red',
 								icon: 'eye-blocked',

@@ -54,6 +54,88 @@
 // The ring/tiles/assessment-list layout below all plot the same 3 real
 // dimensions that component's own docblock already explains (no fabricated
 // 4th metric) — only the visual shape changed, not what's real underneath.
+// The picker (`action`, top-right of the card) — a real label above the
+// dropdown ("Page being analyzed") plus a real hint line below it
+// ("Changing the page updates all results below."), matching the
+// reference mockup rather than a bare, unlabeled `<SelectInput>`.
+.content-quality-picker {
+	display: flex;
+	gap: 0.375rem;
+	min-width: 16rem;
+}
+
+.content-quality-picker-label {
+	color: $sub-text-color;
+}
+
+.content-quality-picker-hint {
+	display: flex;
+	align-items: center;
+	gap: 0.313rem;
+	font-size: 0.75rem;
+	color: $sub-text-color;
+
+	i {
+		color: $theme-color;
+	}
+}
+
+// The "Showing analysis for: {page}" banner between the card's own
+// title/picker and the real ring/tiles/checks below — same light-purple
+// tint `.content-quality-overview` already uses, so the two visually
+// belong to the same real "this is the page you're looking at" idea.
+.content-quality-analyzing-banner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	margin-top: 1rem;
+	border-radius: 0.625rem;
+	background: var(--background-primary, #ece2f9f1);
+	font-size: 0.875rem;
+}
+
+.content-quality-analyzing-banner-label {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+
+	i {
+		color: $theme-color;
+	}
+
+	strong {
+		color: $theme-color;
+	}
+}
+
+.content-quality-analyzing-banner-hint {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	color: $theme-color;
+	font-size: 0.813rem;
+	font-weight: 600;
+}
+
+// The "Analyzed page: {page}" caption under the ring's own headline text —
+// same real selected-page reference the banner above already shows, just
+// repeated at the point of the score itself.
+.content-quality-overview-analyzed-page {
+	display: flex;
+	align-items: center;
+	gap: 0.313rem;
+	margin-top: 0.125rem;
+	font-size: 0.75rem;
+	color: $sub-text-color;
+
+	strong {
+		color: $text-color;
+	}
+}
+
 .content-quality-body {
 	margin-top: 1rem;
 	display: flex;

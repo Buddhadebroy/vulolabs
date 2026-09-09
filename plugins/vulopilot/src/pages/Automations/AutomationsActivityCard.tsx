@@ -1,8 +1,8 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
-import { CardComponent, BadgeComponent, ActivityListComponent } from '@zyra/components';
+import { getApiLink, getApiResponse } from '@zyra/core';
+import { CardComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 
 interface AutomationRunRow {
@@ -128,21 +128,22 @@ const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsAc
 				/>
 			}
 		>
-			<ActivityListComponent
-				items={rows.map((row: AutomationRunRow) => {
+			<ul className="activity-log">
+				{rows.map((row: AutomationRunRow) => {
 					const status = STATUS_META[row.status];
 
-					return {
-						id: String(row.id),
-						icon: 'automation',
-						iconColor: COLOR_PALETTE[status.color as keyof typeof COLOR_PALETTE],
-						title: `${row.automation_name} ${status.label.toLowerCase()}`,
-						badge: <BadgeComponent color={status.color} text={status.label} />,
-						desc: describeOutcome(row),
-						timestamp: formatActivityTime(row.finished_at ?? row.started_at),
-					};
+					return (
+						<li key={row.id} className="activity">
+							<div className="title">
+								{`${row.automation_name} ${status.label.toLowerCase()}`}
+								<BadgeComponent color={status.color} text={status.label} />
+							</div>
+							<p className="activity-outcome">{describeOutcome(row)}</p>
+							<span>{formatActivityTime(row.finished_at ?? row.started_at)}</span>
+						</li>
+					);
 				})}
-			/>
+			</ul>
 		</CardComponent>
 	);
 };

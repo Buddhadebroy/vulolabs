@@ -111,85 +111,74 @@ const SeoProgressCard = () => {
 							yDomain={[0, 100]}
 							color="#7C3AED"
 						/>
-						{null !== latestScore && (
-							<div className="seo-progress-latest-score">
-								{sprintf(
-									/* translators: %d: current real SEO score, 0-100. */
-									__('Latest: %d', 'vulopilot'),
-									latestScore
-								)}
-							</div>
-						)}
 					</div>
 
-					<div className="seo-progress-stats">
-						<AnalyticsComponent
-							data={[
-								{
-									icon: 'check',
-									colorClass: 'green',
-									number: String(data.issues_fixed.this_week),
-									text: (
-										<>
-											<div className="typography-body-xs">
-												{__('Issues Fixed', 'vulopilot')}
-											</div>
-											<div className="typography-caption is-good">
-												{sprintf(
-													/* translators: %s: signed change vs the previous week, e.g. "+18". */
-													__('%s this week', 'vulopilot'),
-													signedDelta(data.issues_fixed.delta)
-												)}
-											</div>
-										</>
-									),
-								},
-								{
-									icon: 'error',
-									colorClass: 'yellow',
-									number: String(data.new_issues.this_week),
-									text: (
-										<>
-											<div className="typography-body-xs">
-												{__('New Issues', 'vulopilot')}
-											</div>
-											<div
-												className={`typography-caption ${data.new_issues.delta <= 0 ? 'is-good' : 'is-attention'}`}
-											>
-												{sprintf(
-													/* translators: %s: signed change vs the previous week, e.g. "-6". */
-													__('%s this week', 'vulopilot'),
-													signedDelta(data.new_issues.delta)
-												)}
-											</div>
-										</>
-									),
-								},
-								{
-									icon: 'document',
-									colorClass: 'blue',
-									number: String(data.pages_improved.this_week),
-									text: (
-										<>
-											<div className="typography-body-xs">
-												{__('Pages Improved', 'vulopilot')}
-											</div>
-											<div className="typography-caption is-good">
-												{sprintf(
-													/* translators: %s: signed change vs the previous week, e.g. "+3". */
-													__('%s this week', 'vulopilot'),
-													signedDelta(data.pages_improved.delta)
-												)}
-											</div>
-										</>
-									),
-								},
-							]}
-							variant="small-card"
-							cols={1}
-							isLoading={isLoading}
-						/>
-					</div>
+					<AnalyticsComponent
+						cols={3}
+						data={[
+							{
+								icon: 'check',
+								colorClass: 'green',
+								number: String(data.issues_fixed.this_week),
+								text: (
+									<>
+										<div className="typography-body-xs">
+											{__('Issues Fixed', 'vulopilot')}
+										</div>
+										<div className="typography-caption is-good">
+											{sprintf(
+												/* translators: %s: signed change vs the previous week, e.g. "+18". */
+												__('%s this week', 'vulopilot'),
+												signedDelta(data.issues_fixed.delta)
+											)}
+										</div>
+									</>
+								),
+							},
+							{
+								icon: 'error',
+								colorClass: 'yellow',
+								number: String(data.new_issues.this_week),
+								text: (
+									<>
+										<div className="typography-body-xs">
+											{__('New Issues', 'vulopilot')}
+										</div>
+										<div
+											className={`typography-caption ${data.new_issues.delta <= 0 ? 'is-good' : 'is-attention'}`}
+										>
+											{sprintf(
+												/* translators: %s: signed change vs the previous week, e.g. "-6". */
+												__('%s this week', 'vulopilot'),
+												signedDelta(data.new_issues.delta)
+											)}
+										</div>
+									</>
+								),
+							},
+							{
+								icon: 'document',
+								colorClass: 'blue',
+								number: String(data.pages_improved.this_week),
+								text: (
+									<>
+										<div className="typography-body-xs">
+											{__('Pages Improved', 'vulopilot')}
+										</div>
+										<div className="typography-caption is-good">
+											{sprintf(
+												/* translators: %s: signed change vs the previous week, e.g. "+3". */
+												__('%s this week', 'vulopilot'),
+												signedDelta(data.pages_improved.delta)
+											)}
+										</div>
+									</>
+								),
+							},
+						]}
+						variant="background-color"
+						isLoading={isLoading}
+					/>
 				</div>
 			)}
 		</CardComponent>

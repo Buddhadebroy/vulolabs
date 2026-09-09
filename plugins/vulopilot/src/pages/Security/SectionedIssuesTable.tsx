@@ -270,12 +270,12 @@ const SectionedIssuesTable = ({
 					/>
 				) : (
 					<>
-						<IssuesSummaryCards
+						{/* <IssuesSummaryCards
 							priorityCounts={priorityCounts}
 							isLoading={isLoading}
 							activePriority={activePriority}
 							onSelectPriority={handlePriorityChange}
-						/>
+						/> */}
 
 						{!isLoading && 0 === sortedGroups.length ? (
 							<ModuleGuardComponent

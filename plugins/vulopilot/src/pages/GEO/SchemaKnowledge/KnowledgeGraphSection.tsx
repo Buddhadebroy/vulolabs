@@ -589,7 +589,15 @@ const KnowledgeGraphSection = () => {
 				{KnowledgeGraphVisualizationCard ? (
 					<KnowledgeGraphVisualizationCard />
 				) : (
-					<KnowledgeGraphDiagram entities={entities} />
+					// `entities` is still null for a real, guaranteed-to-happen window
+					// on every load (this state's own initial value, before `GET
+					// /entities` resolves) — KnowledgeGraphDiagram's own props type
+					// requires a real EntitiesResponse and dereferences it immediately
+					// (`entities.organizations[0]`), so rendering it unguarded crashed
+					// this entire tab on every single load whenever Pro's own
+					// KnowledgeGraphVisualizationCard wasn't available. Same `entities
+					// &&` guard the left-hand column above already uses.
+					entities && <KnowledgeGraphDiagram entities={entities} />
 				)}
 			</ColumnComponent>
 			{KnowledgeGraphHealthCard &&
