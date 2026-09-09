@@ -111,15 +111,6 @@ const SeoProgressCard = () => {
 							yDomain={[0, 100]}
 							color="#7C3AED"
 						/>
-						{null !== latestScore && (
-							<div className="seo-progress-latest-score">
-								{sprintf(
-									/* translators: %d: current real SEO score, 0-100. */
-									__('Latest: %d', 'vulopilot'),
-									latestScore
-								)}
-							</div>
-						)}
 					</div>
 
 					<AnalyticsComponent
@@ -185,7 +176,7 @@ const SeoProgressCard = () => {
 								),
 							},
 						]}
-						variant="small-card"
+						variant="background-color"
 						isLoading={isLoading}
 					/>
 				</div>
