@@ -127,10 +127,11 @@ class ServerHealthScanner extends AbstractBasicScanner {
     }
 
     /**
-     * Same real paragraph-recovery `WordPressHealthScanner`'s own
-     * `split_into_paragraphs()` documents — duplicated here rather than
-     * shared, same restraint this class's own top docblock already
-     * explains for `finding_from_test_result()` itself.
+     * Same real paragraph-recovery (and same `<br>`-within-a-paragraph
+     * handling) `WordPressHealthScanner`'s own `split_into_paragraphs()`
+     * documents — duplicated here rather than shared, same restraint this
+     * class's own top docblock already explains for
+     * `finding_from_test_result()` itself.
      *
      * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
      * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.
@@ -141,7 +142,9 @@ class ServerHealthScanner extends AbstractBasicScanner {
         return array_values(
             array_filter(
                 array_map(
-                    static fn( string $chunk ): string => trim( wp_strip_all_tags( $chunk ) ),
+                    static fn( string $chunk ): string => trim(
+                        wp_strip_all_tags( preg_replace( '/<br\s*\/?>/i', ' — ', $chunk ) ?? $chunk )
+                    ),
                     $chunks
                 ),
                 static fn( string $paragraph ): bool => '' !== $paragraph
