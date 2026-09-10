@@ -60,7 +60,15 @@ class LazyLoadingScanner extends AbstractBasicScanner {
                 $this->get_category(),
                 __( 'A theme or plugin has disabled WordPress\'s built-in lazy-loading for images, so all images now load immediately instead of only as visitors scroll to them.', 'vulopilot' ),
                 'setting',
-                'wp_lazy_loading_enabled'
+                'wp_lazy_loading_enabled',
+                array(
+                    'recommended_fix' => array(
+                        __( 'Check whether a theme or plugin is filtering wp_lazy_loading_enabled to false, and remove that filter if it isn\'t intentional.', 'vulopilot' ),
+                        __( 'Enable lazy loading in your caching/optimization plugin if it offers the option.', 'vulopilot' ),
+                        __( 'Confirm below-the-fold images include loading="lazy" after re-enabling.', 'vulopilot' ),
+                        __( 'Re-run this scan to confirm lazy loading is active again.', 'vulopilot' ),
+                    ),
+                )
             ),
         );
     }

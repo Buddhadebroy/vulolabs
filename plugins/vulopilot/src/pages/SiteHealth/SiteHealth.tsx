@@ -43,6 +43,20 @@ const TAB_META: Record<
  * mount" behavior Performance.tsx's own conversion already relies on for
  * the same kind of cross-tab jump.
  *
+ * `goToBackups()` also pushes the matching URL itself
+ * (`window.history.pushState`) — confirmed live: `NavigatorComponent`'s own
+ * `useEffect` that reacts to a `currentSetting` prop change (as opposed to
+ * one of its own tab-bar `Link` clicks) only updates its internal active
+ * tab, it never calls `prepareUrl`/`pushState` for that path (that's
+ * install-specific to its own `navigate()`, run only from a real click).
+ * Left alone, the panel content correctly swapped to Backups but the
+ * address bar silently kept showing Site Health — refreshing, using back,
+ * or sharing/copying the link would all land back on Site Health instead.
+ * The `window.history.pushState(null, '', url)` call below is the exact
+ * same real call zyra's own `navigate()` makes for a genuine tab click
+ * (confirmed by reading the installed `@multivendorx/zyra` build), so this
+ * keeps the address bar in sync the same way a direct click already does.
+ *
  * `SiteHealthTab`/`BackupsTab` are imported from `../Security/` rather
  * than physically moved — they're both still genuinely shared with
  * Security's own file tree there (`SectionedFindingsTab`,
@@ -65,7 +79,14 @@ const SiteHealth = () => {
 	const [activeTab, setActiveTab] = useState<(typeof TAB_IDS)[number]>(
 		initialTab
 	);
-	const goToBackups = () => setActiveTab('backups');
+
+	const prepareUrl = (subTab: string) =>
+		`?page=vulopilot#&tab=site-health&subtab=${subTab}`;
+
+	const goToBackups = () => {
+		setActiveTab('backups');
+		window.history.pushState(null, '', prepareUrl('backups'));
+	};
 
 	const settingContent = TAB_IDS.map((tabId) => ({
 		type: 'file' as const,
@@ -112,9 +133,7 @@ const SiteHealth = () => {
 			settingContent={settingContent}
 			currentSetting={activeTab}
 			getForm={getForm}
-			prepareUrl={(subTab: string) =>
-				`?page=vulopilot#&tab=site-health&subtab=${subTab}`
-			}
+			prepareUrl={prepareUrl}
 			Link={Link}
 			settingName="Site Health"
 			menuIcon

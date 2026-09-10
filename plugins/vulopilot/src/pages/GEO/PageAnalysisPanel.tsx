@@ -5,7 +5,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { buildEditLink } from './seoIssuesShared';
-import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
+import { PAGE_ANALYSIS_CHECK_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
 import { formatWpDate } from '../../services/formatWpDate';
 import './PageAnalysisPanel.scss';
 
@@ -65,54 +65,18 @@ const sortByStatus = (checks: PageCheck[]): PageCheck[] =>
 	[...checks].sort((a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status]);
 
 /**
- * This endpoint's own real check `key`s (`Seo.php::get_page_analysis()`,
- * e.g. `title_tag`/`h1_heading`) → the scanner id `seoIssueEditorTarget.ts`
- * already understands (the same ids `SeoIssuesByPageTable.tsx`'s own "Fix
- * with AI" deep link uses) — a translation layer, not a second copy of
- * that file's own tab/field targets, so this row's own "go to editor" link
- * opens the exact same real sidebar tab + highlighted field "Fix with AI"
- * would for the matching real scanner, with no target logic duplicated
- * here. `title_tag`/`h1_heading`/`headings` have no dedicated scanner of
- * their own (this endpoint synthesizes them fresh — see this file's own
- * top docblock) but map onto the closest real equivalent scanner's own
- * target field instead of nothing. `indexability` has no real equivalent
- * anywhere else in this codebase (nothing else surfaces "is this page
- * published and not marked noindex" as its own scanner) — omitted here on
- * purpose, same as every other id with no entry in
- * `SEO_ISSUE_EDITOR_TARGETS`: the editor still opens the sidebar, just
- * without pretending to highlight a field that isn't there. `broken_links`
- * maps onto `internal-linking`'s own real `has_links` target for the same
- * reason `title_tag`/`h1_heading`/`headings` do — neither `broken-links`
- * nor `orphan-pages` has a dedicated editor-sidebar field of its own
- * (`seoIssueEditorTarget.ts`'s own docblock lists both as deliberately
- * omitted), so `broken_links` reuses the closest real one that exists
- * instead of highlighting nothing; `orphan_page` maps straight onto
- * `orphan-pages` and gets no highlight, same as `indexability` below.
+ * Real navigate-and-highlight deep link — this endpoint's own check `key`
+ * (`Seo.php::get_page_analysis()`, e.g. `broken_links`/`indexability`) goes
+ * straight through as `PAGE_ANALYSIS_CHECK_QUERY_PARAM`'s value, which the
+ * editor's own "Page Analysis" tab (`post-editor/tabs/PageAnalysisTab.tsx`)
+ * renders as the exact same real checklist and highlights by matching
+ * `key` — no scanner-id translation layer needed (that only covers a
+ * different, smaller vocabulary several of these 13 checks — Featured
+ * Image, Broken Links, Orphan Page, Indexability — have no member of at
+ * all; see `PAGE_ANALYSIS_CHECK_QUERY_PARAM`'s own docblock).
  */
-const CHECK_KEY_TO_SCANNER_ID: Record<string, string> = {
-	title_tag: 'seo',
-	meta_description: 'meta-description',
-	h1_heading: 'heading-structure',
-	headings: 'heading-structure',
-	content: 'thin-content',
-	images: 'images',
-	featured_image: 'seo-images',
-	broken_links: 'internal-linking',
-	orphan_page: 'orphan-pages',
-	canonical: 'canonical-url',
-	structured_data: 'structured-data',
-	social_metadata: 'open-graph',
-};
-
-/** Real navigate-and-highlight deep link — same `SEO_ISSUE_QUERY_PARAM` convention `SeoIssuesByPageTable.tsx`'s own `buildFixWithAiLink()` already established, reused here per this codebase's own "duplicate small per-file logic" convention rather than importing that file's own postId-scoped helper. */
-const buildCheckEditLink = (postId: number, checkKey: string): string => {
-	const editLink = buildEditLink(postId);
-	const scannerId = CHECK_KEY_TO_SCANNER_ID[checkKey];
-
-	return scannerId
-		? `${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(scannerId)}`
-		: editLink;
-};
+const buildCheckEditLink = (postId: number, checkKey: string): string =>
+	`${buildEditLink(postId)}&${PAGE_ANALYSIS_CHECK_QUERY_PARAM}=${encodeURIComponent(checkKey)}`;
 
 /**
  * "Page Analysis" (SEO & Visibility → SEO's own "Pages & Posts" table, a new

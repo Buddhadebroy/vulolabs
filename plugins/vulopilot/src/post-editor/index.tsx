@@ -7,38 +7,55 @@ import PostSeoPanel from './PostSeoPanel';
 import {
 	getEditorTargetForScanner,
 	SEO_ISSUE_QUERY_PARAM,
-	SeoIssueEditorTarget,
+	PAGE_ANALYSIS_CHECK_QUERY_PARAM,
+	SeoIssueEditorTab,
 } from '../services/seoIssueEditorTarget';
 import './style.scss';
 
 const SIDEBAR_NAME = 'vulopilot-seo-sidebar';
 
+interface DeepLinkTarget {
+	wasPresent: boolean;
+	tab?: SeoIssueEditorTab;
+	target?: string;
+}
+
 /**
- * "All SEO Issues" table's "Fix with AI" deep link
- * (`src/pages/GEO/SeoIssuesByPageTable.tsx`) lands here as
- * `?vulopilot_seo_issue={scannerId}`. Read once, on module load (before
- * first render — matches TabPanel's own mount-time-only `initialTabName`
- * prop), then stripped from the URL immediately so a page refresh doesn't
- * keep re-triggering the highlight. Resolved via the same shared map the
- * table itself used to build the link, so both sides agree on what
- * "general/description_length" etc. means without either duplicating the
- * other's logic.
+ * Two independent deep-link sources land here, both stripped from the URL
+ * immediately so a page refresh doesn't keep re-triggering the highlight,
+ * and both read once, on module load (before first render — matches
+ * TabPanel's own mount-time-only `initialTabName` prop):
  *
- * `wasPresent` is tracked separately from the resolved target — the query
- * param can be present but resolve to nothing (a scanner id with no
- * editor-sidebar equivalent, e.g. 'broken-links'); the sidebar should still
+ * - "All SEO Issues" table's "Fix with AI" link
+ *   (`src/pages/GEO/SeoIssuesByPageTable.tsx`) and
+ *   `Content/ContentQualityCard.tsx`'s own check rows, as
+ *   `?vulopilot_seo_issue={scannerId}` — resolved via
+ *   `SEO_ISSUE_EDITOR_TARGETS`, the same shared map those callers used to
+ *   build the link, so both sides agree on what "general/description_length"
+ *   etc. means without either duplicating the other's logic.
+ * - `GEO/PageAnalysisPanel.tsx`'s own checklist, as
+ *   `?vulopilot_page_analysis_check={checkKey}` — always resolves straight
+ *   to the "Page Analysis" tab, highlighting the row whose `key` matches
+ *   (see `PAGE_ANALYSIS_CHECK_QUERY_PARAM`'s own docblock for why this one
+ *   doesn't go through the scanner-id map at all).
+ *
+ * `wasPresent` is tracked separately from the resolved tab/target — the
+ * first source's query param can be present but resolve to nothing (a
+ * scanner id with no editor-sidebar equivalent); the sidebar should still
  * open in that case so the user isn't left staring at a plain redirect with
  * nothing visibly changed, it just won't have a specific tab/highlight.
  */
-const readDeepLinkTarget = (): { wasPresent: boolean; target: SeoIssueEditorTarget | null } => {
+const readDeepLinkTarget = (): DeepLinkTarget => {
 	const params = new URLSearchParams( window.location.search );
 	const scannerId = params.get( SEO_ISSUE_QUERY_PARAM );
+	const pageAnalysisCheckKey = params.get( PAGE_ANALYSIS_CHECK_QUERY_PARAM );
 
-	if ( ! scannerId ) {
-		return { wasPresent: false, target: null };
+	if ( ! scannerId && ! pageAnalysisCheckKey ) {
+		return { wasPresent: false };
 	}
 
 	params.delete( SEO_ISSUE_QUERY_PARAM );
+	params.delete( PAGE_ANALYSIS_CHECK_QUERY_PARAM );
 	const query = params.toString();
 	window.history.replaceState(
 		{},
@@ -46,13 +63,18 @@ const readDeepLinkTarget = (): { wasPresent: boolean; target: SeoIssueEditorTarg
 		window.location.pathname + ( query ? `?${ query }` : '' ) + window.location.hash
 	);
 
-	return { wasPresent: true, target: getEditorTargetForScanner( scannerId ) };
+	if ( pageAnalysisCheckKey ) {
+		return { wasPresent: true, tab: 'page-analysis', target: pageAnalysisCheckKey };
+	}
+
+	const resolved = getEditorTargetForScanner( scannerId as string );
+	return { wasPresent: true, tab: resolved?.tab, target: resolved?.target };
 };
 
 // Read once at module scope, before first render — deep-link state is
 // static for the lifetime of this editor page load, so there's no need to
 // re-derive it on every render the way component state would.
-const { wasPresent: shouldOpenSidebar, target: deepLinkTarget } = readDeepLinkTarget();
+const { wasPresent: shouldOpenSidebar, tab: deepLinkTab, target: deepLinkHighlight } = readDeepLinkTarget();
 
 /**
  * "Meta Box Appearing in Single Posts & Pages" — VuloPilot's first Block
@@ -106,8 +128,8 @@ const VuloPilotSeoPlugin = () => {
 			</PluginSidebarMoreMenuItem>
 			<PluginSidebar name={ SIDEBAR_NAME } title={ __( 'VuloPilot SEO', 'vulopilot' ) }>
 				<PostSeoPanel
-					initialTabName={ deepLinkTarget?.tab }
-					highlightTarget={ deepLinkTarget?.target }
+					initialTabName={ deepLinkTab }
+					highlightTarget={ deepLinkHighlight }
 				/>
 			</PluginSidebar>
 		</>

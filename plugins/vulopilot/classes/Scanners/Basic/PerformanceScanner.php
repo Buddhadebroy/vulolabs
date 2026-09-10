@@ -78,7 +78,15 @@ class PerformanceScanner extends AbstractBasicScanner {
                 __( 'Autoloaded options are loaded into memory on every page request. A large autoload footprint slows down every request site-wide.', 'vulopilot' ),
                 'table',
                 $wpdb->options,
-                array( 'autoload_bytes' => $autoload_bytes )
+                array(
+                    'autoload_bytes'  => $autoload_bytes,
+                    'recommended_fix' => array(
+                        __( 'Identify large autoloaded options with a query monitor or plugin (e.g. Query Monitor).', 'vulopilot' ),
+                        __( 'Set autoload to "no" for large, non-critical options in the wp_options table.', 'vulopilot' ),
+                        __( 'Remove leftover options from plugins you\'ve since deactivated or deleted.', 'vulopilot' ),
+                        __( 'Re-run this scan to confirm the autoloaded size has dropped.', 'vulopilot' ),
+                    ),
+                )
             );
         }
 

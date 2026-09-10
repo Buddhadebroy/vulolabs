@@ -18,6 +18,23 @@ export interface AnalysisResult {
 	action_id: string | null;
 }
 
+/** One row of `Controllers\Seo::get_page_analysis()`'s real `checks` array — the same saved-post-state SEO/GEO checklist `GEO/PageAnalysisPanel.tsx`'s own "Page Analysis" panel already renders, reused here verbatim so this tab's own "Page Analysis" list is never a second, possibly-drifting copy of that data. */
+export interface PageAnalysisCheck {
+	key: string;
+	label: string;
+	status: 'pass' | 'warn' | 'fail';
+	message: string;
+}
+
+export interface PageAnalysisResponse {
+	post_id: number;
+	title: string;
+	permalink: string;
+	meta_description: string;
+	analyzed_at: string;
+	checks: PageAnalysisCheck[];
+}
+
 export interface FixResponse {
 	success: boolean;
 	message?: string;
@@ -64,6 +81,11 @@ export function analyzePost(
 		method: 'POST',
 		body: JSON.stringify( payload ),
 	} );
+}
+
+/** Same real `GET vulopilot/v1/seo/analyze-page?post_id=` `GEO/PageAnalysisPanel.tsx` already calls — this bundle's own `apiUrl`/nonce just point at the same `vulopilot/v1` namespace under a different localized script (see this file's own top docblock). */
+export function analyzePage( postId: number ): Promise< PageAnalysisResponse > {
+	return request( `seo/analyze-page?post_id=${ postId }`, { method: 'GET' } );
 }
 
 export function fixWithAi( postId: number, actionId: string ): Promise< FixResponse > {

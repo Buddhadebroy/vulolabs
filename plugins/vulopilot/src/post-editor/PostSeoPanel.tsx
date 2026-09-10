@@ -4,6 +4,7 @@ import GeneralTab from './tabs/GeneralTab';
 import AdvancedTab from './tabs/AdvancedTab';
 import SocialTab from './tabs/SocialTab';
 import SchemaTab from './tabs/SchemaTab';
+import PageAnalysisTab from './tabs/PageAnalysisTab';
 
 import type { SeoIssueEditorTab } from '../services/seoIssueEditorTarget';
 
@@ -23,6 +24,7 @@ const TABS = [
 	{ name: 'advanced', title: __( 'Advanced', 'vulopilot' ), icon: 'portfolio', Component: AdvancedTab },
 	{ name: 'social', title: __( 'Social', 'vulopilot' ), icon: 'share', Component: SocialTab },
 	{ name: 'schema', title: __( 'Schema', 'vulopilot' ), icon: 'editor-code', Component: SchemaTab },
+	{ name: 'page-analysis', title: __( 'Page Analysis', 'vulopilot' ), icon: 'chart-bar', Component: PageAnalysisTab },
 ];
 
 interface PostSeoPanelProps {
@@ -33,10 +35,12 @@ interface PostSeoPanelProps {
 }
 
 /**
- * The metabox's own tab shell — General/Advanced/Social/Schema, mirroring
+ * The metabox's own tab shell — General/Advanced/Social/Schema mirror
  * RankMath's own meta box structure (rankmath.com/kb/on-page-seo/) as
- * researched for the readme rewrite pass. Rendered inside the PluginSidebar
- * registered by src/post-editor/index.tsx.
+ * researched for the readme rewrite pass; "Page Analysis" is VuloPilot's
+ * own addition, mirroring `GEO/PageAnalysisPanel.tsx`'s real checklist
+ * inside the editor itself (see PageAnalysisTab.tsx's own docblock).
+ * Rendered inside the PluginSidebar registered by src/post-editor/index.tsx.
  */
 export default function PostSeoPanel( { initialTabName, highlightTarget }: PostSeoPanelProps ) {
 	return (

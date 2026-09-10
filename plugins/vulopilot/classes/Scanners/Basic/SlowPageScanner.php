@@ -87,7 +87,15 @@ class SlowPageScanner extends AbstractBasicScanner {
                 __( 'A slow homepage response affects every visit and is one of the biggest levers on perceived site speed.', 'vulopilot' ),
                 'url',
                 home_url( '/' ),
-                array( 'response_time_seconds' => round( $elapsed, 2 ) ),
+                array(
+                    'response_time_seconds' => round( $elapsed, 2 ),
+                    'recommended_fix'       => array(
+                        __( 'Enable a page caching plugin (e.g. WP Super Cache, WP Rocket) if none is active.', 'vulopilot' ),
+                        __( 'Check your hosting plan\'s server resources — shared hosting is a common bottleneck.', 'vulopilot' ),
+                        __( 'Reduce the number of active plugins that run on the homepage.', 'vulopilot' ),
+                        __( 'Consider a persistent object cache (Redis/Memcached) for database-heavy pages.', 'vulopilot' ),
+                    ),
+                ),
                 'homepage-response-time'
             ),
         );

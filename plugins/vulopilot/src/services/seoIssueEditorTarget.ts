@@ -14,7 +14,7 @@
  * pretend to highlight something that isn't there.
  */
 
-export type SeoIssueEditorTab = 'general' | 'advanced' | 'social' | 'schema';
+export type SeoIssueEditorTab = 'general' | 'advanced' | 'social' | 'schema' | 'page-analysis';
 
 export interface SeoIssueEditorTarget {
 	tab: SeoIssueEditorTab;
@@ -44,3 +44,20 @@ export const getEditorTargetForScanner = (
 
 /** Query-string param name the table and the editor both agree on. */
 export const SEO_ISSUE_QUERY_PARAM = 'vulopilot_seo_issue';
+
+/**
+ * Separate deep-link param `GEO/PageAnalysisPanel.tsx`'s own checklist uses
+ * instead of `SEO_ISSUE_QUERY_PARAM` above — its checks come from
+ * `Controllers\Seo::get_page_analysis()`'s own `key`s (`title_tag`,
+ * `broken_links`, `orphan_page`, `indexability`, …), a different, larger
+ * vocabulary than `SEO_ISSUE_EDITOR_TARGETS`' scanner ids, several of which
+ * (Featured Image, Broken Links, Orphan Page, Indexability) have no real
+ * scanner-id equivalent at all. Rather than force-fitting all 13 of that
+ * panel's checks through a scanner-id translation layer that can't
+ * represent them, the value here carries the check `key` straight through;
+ * the editor's own "Page Analysis" tab (`post-editor/tabs/PageAnalysisTab.tsx`)
+ * renders that exact same real checklist and highlights the row whose
+ * `key` matches, so every issue this panel shows is genuinely listed and
+ * highlightable in the editor — not just "the sidebar opens."
+ */
+export const PAGE_ANALYSIS_CHECK_QUERY_PARAM = 'vulopilot_page_analysis_check';

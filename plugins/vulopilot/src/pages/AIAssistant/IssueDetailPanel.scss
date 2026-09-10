@@ -1,7 +1,16 @@
 @use '../../components/config' as *;
 
-// The top "Priority/Category/Affected/Detected" stat-tile row — real
-// group.severity/category/count/detected-date, just laid out as 4 tiles
+// Priority/Category — real group.severity/category, docked as inline
+// badges right under the header (per direct instruction, matching a
+// reference design) instead of two of the stat-tile grid's own tiles.
+.issue-detail-badges-row {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 0.875rem;
+}
+
+// The "Affected/Detected/Scope" stat-tile row — real group.count/
+// object_type, group.sample's own detected date, and group.sample.page
 // (per direct instruction, matching a reference design) instead of the
 // stacked label/value rows this panel used before.
 .issue-detail-stats-grid {
@@ -35,6 +44,39 @@
 .issue-detail-stat-value {
 	font-weight: 600;
 	font-size: 0.875rem;
+}
+
+// WordPressHealthScanner.php/ServerHealthScanner.php's own real
+// `meta.why_it_matters` — see IssueDetailPanel.tsx's own top docblock for
+// why this is never fabricated and why it's the one section here that's
+// never Pro-gated. `#e67a2e` matches AICopilot.scss's own existing orange
+// literal rather than introducing a second, possibly-drifting one.
+.issue-detail-why-it-matters {
+	display: flex;
+	gap: 0.625rem;
+	padding: 0.875rem 1rem;
+	margin-bottom: 1rem;
+	border-radius: $border-radius-small;
+	background: color-mix(in srgb, #e67a2e 8%, transparent);
+}
+
+.issue-detail-why-it-matters-icon {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	background: #e67a2e;
+	color: #fff;
+	font-size: 0.875rem;
+}
+
+.issue-detail-why-it-matters-title {
+	font-weight: 600;
+	color: #e67a2e;
+	margin-bottom: 0.25rem;
 }
 
 // "Example finding"/"Affected items" — each its own bordered, icon-headed
@@ -89,6 +131,44 @@
 
 .issue-detail-example-where {
 	margin-top: 0.5rem;
+}
+
+// Performance findings' own real, scanner-authored "Recommended fix" steps
+// (`Finding::get_meta()['recommended_fix']`) — replaces "Example finding"
+// for this one category only, per direct instruction. Numbered circles
+// match that same reference design's own step list.
+.issue-detail-fix-steps {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.issue-detail-fix-step {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+}
+
+.issue-detail-fix-step-number {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.375rem;
+	height: 1.375rem;
+	border-radius: 50%;
+	background: color-mix(in srgb, $theme-color 15%, transparent);
+	color: $theme-color;
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+.issue-detail-fix-step-text {
+	padding-top: 0.125rem;
+	font-size: 0.8125rem;
 }
 
 // The locked-state info line above the footer's own "Upgrade to Pro"/
