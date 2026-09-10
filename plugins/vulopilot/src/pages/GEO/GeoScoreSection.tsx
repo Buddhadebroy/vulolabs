@@ -4,7 +4,7 @@ import { JSX } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, BadgeComponent, CardComponent, ChartComponent, ColumnComponent, ContainerComponent, IconComponent, ListComponent, TypographyComponent } from '@zyra/components';
-import { ChoiceToggleInput } from '@zyra/inputs';
+import { ToggleInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import ProLockedCard from '../../components/ProLockedCard';
 import { useGeoScore } from './useGeoScore';
@@ -401,7 +401,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 					titleIcon='tools'
 					isLoading={isLoadingProgress}
 					action={
-						<ChoiceToggleInput
+						<ToggleInput
 							options={PERIOD_OPTIONS}
 							value={period}
 							onChange={(value) => setPeriod(value as PeriodDays)}

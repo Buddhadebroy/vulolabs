@@ -13,7 +13,7 @@ import {
 	ModuleGuardComponent,
 	TypographyComponent,
 } from '@zyra/components';
-import { ButtonInput, ChoiceToggleInput } from '@zyra/inputs';
+import { ButtonInput, ToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { useVisibilityScore } from './useVisibilityScore';
@@ -73,7 +73,7 @@ const AREA_TILES: Record<
 
 type PeriodDays = '7' | '30' | '90';
 // Same real `key` field `GeoScoreSection.tsx`'s own identical
-// `ChoiceToggleInput` usage already includes — `ToggleInput`'s own options
+// `ToggleInput` usage already includes — `ToggleInput`'s own options
 // use `option.key` for both React's own list `key` and each real radio's
 // `id`/`htmlFor` pair (`SelectInput`, this used to feed, never needed one).
 // Without it every option here shared the same `undefined` key/id, so only
@@ -426,7 +426,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					}
 					isLoading={isLoadingProgress}
 					action={
-						<ChoiceToggleInput
+						<ToggleInput
 							options={PERIOD_OPTIONS}
 							value={period}
 							onChange={(value) => setPeriod(value as PeriodDays)}
