@@ -37,12 +37,12 @@ defined( 'ABSPATH' ) || exit;
  * (`destination` stays the column's own default, `destination_status`
  * stays NULL) — nothing here runs at all in that case.
  *
- * Known gap, documented rather than silently glossed over: deleting a
- * backup (`Controllers\Backups::delete_item()`) or letting retention clean
- * one up (`BackupManager::apply_retention()`) only ever removes the local
- * file + row — a backup that was also uploaded to S3/Google Drive leaves
- * its remote copy in place. Flag if automatic remote cleanup on
- * delete/retention should be scoped next.
+ * `delete_remote_copy()` below closes what used to be a documented gap
+ * here: `Controllers\Backups::delete_item()` and `BackupManager::apply_retention()`
+ * both call it (with the real row they already have in hand) right
+ * alongside their own local unlink()+row-delete, so a backup that was
+ * uploaded to S3/Google Drive doesn't leave an orphaned remote copy behind
+ * once it's gone locally.
  *
  * @class       BackupStorageManager class
  * @version     1.0.0
@@ -214,5 +214,49 @@ class BackupStorageManager {
                 'remote_path'        => $result,
             )
         );
+    }
+
+    /**
+     * Real remote-copy cleanup — called by `Controllers\Backups::delete_item()`
+     * and `BackupManager::apply_retention()` right alongside their own local
+     * unlink()+row-delete, with the real row they already have in hand (no
+     * second DB read here). A no-op for a `'local'`-only backup, one that
+     * never finished uploading (`destination_status` isn't `'uploaded'`
+     * yet — nothing real exists remotely to clean up), or one with no
+     * `remote_path` recorded.
+     *
+     * Deliberately best-effort: runs synchronously (a single lightweight
+     * DELETE request, not the multi-hundred-KB/MB PUT/upload
+     * `upload_to_remote()` above schedules onto its own cron tick) and
+     * never blocks or fails the caller's own local delete — a remote
+     * provider being briefly unreachable shouldn't prevent someone from
+     * deleting a backup row locally. Errors are logged (`Utill::log()`,
+     * same real opt-in debug-log posture every other best-effort failure in
+     * this codebase already uses — wrapped in a plain `\Exception` since
+     * that method takes a `\Throwable`, not a `\WP_Error`), not surfaced to
+     * the REST response.
+     *
+     * @param array<string, mixed> $backup Real `vulopilot_backups` row (the same one the caller already fetched).
+     * @return void
+     */
+    public function delete_remote_copy( array $backup ): void {
+        $destination = (string) ( $backup['destination'] ?? '' );
+        $remote_path = (string) ( $backup['remote_path'] ?? '' );
+
+        if ( 'uploaded' !== ( $backup['destination_status'] ?? '' ) || '' === $remote_path ) {
+            return;
+        }
+
+        if ( 's3' === $destination ) {
+            $result = ( new BackupS3Connection() )->delete_object( $remote_path );
+        } elseif ( 'google_drive' === $destination ) {
+            $result = ( new BackupGoogleDriveConnection() )->delete_backup_file( $remote_path );
+        } else {
+            return;
+        }
+
+        if ( is_wp_error( $result ) ) {
+            VuloPilot()->util->log( new \Exception( esc_html( $result->get_error_message() ) ) );
+        }
     }
 }

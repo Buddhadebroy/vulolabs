@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-09T06:13:00+00:00\n"
+"POT-Creation-Date: 2026-09-10T07:32:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -54,7 +54,7 @@ msgstr ""
 
 #: classes/Admin.php:117
 #: classes/RestAPI/Controllers/ReportsOverview.php:292
-#: classes/RestAPI/Controllers/Seo.php:719
+#: classes/RestAPI/Controllers/Seo.php:733
 #: assets/js/index.js:1
 msgid "Content"
 msgstr ""
@@ -789,7 +789,7 @@ msgstr ""
 msgid "Ollama (self-hosted)"
 msgstr ""
 
-#: classes/AIProviders/Providers/VuloCloudProxyProvider.php:64
+#: classes/AIProviders/Providers/VuloCloudProxyProvider.php:65
 #: assets/js/index.js:1
 msgid "VuloCloud AI"
 msgstr ""
@@ -828,6 +828,16 @@ msgstr ""
 
 #: classes/Automations/Actions/SnoozeFindingAction.php:111
 msgid "Could not update the finding."
+msgstr ""
+
+#: classes/Automations/BuiltinAutomationSeeder.php:95
+#: assets/js/index.js:1
+msgid "Run Full Site Scan"
+msgstr ""
+
+#: classes/Automations/BuiltinAutomationSeeder.php:110
+#: assets/js/index.js:1
+msgid "Send Visibility Report"
 msgstr ""
 
 #: classes/ContentIntelligence/ContentAnalyzer.php:196
@@ -981,7 +991,7 @@ msgstr ""
 msgid "Enter your VuloCloud password."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:249
+#: classes/RestAPI/Controllers/AiProviders.php:126
 #: classes/Services/AiByokGatewayClient.php:55
 #: classes/Services/AiCreditGatewayClient.php:57
 #: classes/Services/AiCreditsConnection.php:185
@@ -991,77 +1001,46 @@ msgstr ""
 msgid "VuloCloud isn’t configured for this build yet."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:263
-msgid "Unknown AI provider."
+#: classes/RestAPI/Controllers/Automations.php:155
+#: classes/RestAPI/Controllers/Automations.php:249
+msgid "Automation not found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:271
-msgid "This provider is already configured — edit or delete the existing one instead."
+#: classes/RestAPI/Controllers/Automations.php:164
+msgid "Invalid automation status."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:280
-msgid "An API key is required for this provider."
-msgstr ""
-
-#: classes/RestAPI/Controllers/AiProviders.php:313
-#: classes/RestAPI/Controllers/AiProviders.php:355
-#: classes/RestAPI/Controllers/AiProviders.php:392
-msgid "Provider configuration not found."
-msgstr ""
-
-#: classes/RestAPI/Controllers/AiProviders.php:337
+#: classes/RestAPI/Controllers/Automations.php:181
 #: classes/RestAPI/Controllers/Redirects.php:243
 msgid "Nothing to update."
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiProviders.php:341
-#: assets/js/index.js:1
-msgid "Could not update this provider."
-msgstr ""
-
-#: classes/RestAPI/Controllers/AiProviders.php:359
-msgid "Could not delete this provider."
-msgstr ""
-
-#: classes/RestAPI/Controllers/AiProviders.php:402
-msgid "This provider is disabled — enable it first, then test the connection."
-msgstr ""
-
-#: classes/RestAPI/Controllers/AiProviders.php:403
-msgid "VuloPilot can no longer read this provider’s saved API key. Enter it again to reconnect, then test the connection."
-msgstr ""
-
-#: classes/RestAPI/Controllers/AiProviders.php:447
-msgid "Connected — the API key works."
-msgstr ""
-
-#: classes/RestAPI/Controllers/Automations.php:153
-msgid "Invalid automation status."
-msgstr ""
-
-#: classes/RestAPI/Controllers/Automations.php:159
-#: classes/RestAPI/Controllers/Automations.php:182
-msgid "Automation not found."
-msgstr ""
-
-#: classes/RestAPI/Controllers/Automations.php:163
+#: classes/RestAPI/Controllers/Automations.php:185
 msgid "Could not update this automation."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Automations.php:187
+#: classes/RestAPI/Controllers/Automations.php:217
+msgid "This automation's schedule can't be edited here."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Automations.php:223
+msgid "Invalid schedule frequency."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Automations.php:269
 msgid "Manually running an automation isn't supported yet — automations currently only fire from their own configured trigger."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Backups.php:173
-#: classes/RestAPI/Controllers/Backups.php:204
+#: classes/RestAPI/Controllers/Backups.php:210
 msgid "Backup not found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Backups.php:208
+#: classes/RestAPI/Controllers/Backups.php:214
 msgid "This backup is not ready to download yet."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Backups.php:214
+#: classes/RestAPI/Controllers/Backups.php:220
 #: classes/Services/BackupManager.php:537
 msgid "This backup's file could not be found on disk."
 msgstr ""
@@ -1726,272 +1705,298 @@ msgstr ""
 msgid "That page could not be found."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:616
+#: classes/RestAPI/Controllers/Seo.php:630
 msgid "Title Tag"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:620
+#: classes/RestAPI/Controllers/Seo.php:634
 msgid "Missing title tag"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:633
+#: classes/RestAPI/Controllers/Seo.php:647
 msgid "Duplicate title — shared with another published page"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:636
+#: classes/RestAPI/Controllers/Seo.php:650
 msgid "Title tag is unique and set"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:648
+#: classes/RestAPI/Controllers/Seo.php:662
 #: assets/js/post-editor.js:1
 msgid "Meta Description"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:653
+#: classes/RestAPI/Controllers/Seo.php:667
 #: classes/RuleEngine/Rules/MissingMetaDescriptionRule.php:44
 msgid "Missing meta description"
 msgstr ""
 
 #. translators: %d: real current character count.
-#: classes/RestAPI/Controllers/Seo.php:663
+#: classes/RestAPI/Controllers/Seo.php:677
 #, php-format
 msgid "Too short (%d characters)"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:669
+#: classes/RestAPI/Controllers/Seo.php:683
 msgid "Meta description is set"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:682
+#: classes/RestAPI/Controllers/Seo.php:696
 msgid "H1 Heading"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:685
+#: classes/RestAPI/Controllers/Seo.php:699
 msgid "H1 tag found"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:688
+#: classes/RestAPI/Controllers/Seo.php:702
 msgid "H1 tag not found"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:702
+#: classes/RestAPI/Controllers/Seo.php:716
 msgid "Headings"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:705
+#: classes/RestAPI/Controllers/Seo.php:719
 msgid "H2, H3+ tags found"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:708
+#: classes/RestAPI/Controllers/Seo.php:722
 msgid "No subheadings found"
 msgstr ""
 
 #. translators: 1: real word count, 2: real minimum recommended word count.
-#: classes/RestAPI/Controllers/Seo.php:732
+#: classes/RestAPI/Controllers/Seo.php:746
 #, php-format
 msgid "Thin content (%1$d words, recommended %2$d+)"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:739
+#: classes/RestAPI/Controllers/Seo.php:753
 msgid "Word count is good"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:752
+#: classes/RestAPI/Controllers/Seo.php:766
 #: classes/Scanners/Basic/ImagesScanner.php:44
 #: assets/js/index.js:1
 msgid "Images"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:755
+#: classes/RestAPI/Controllers/Seo.php:769
 msgid "No images in this content"
 msgstr ""
 
 #. translators: %d: real number of images missing alt text on this page.
-#: classes/RestAPI/Controllers/Seo.php:776
+#: classes/RestAPI/Controllers/Seo.php:790
 #, php-format
 msgid "%d image missing alt text"
 msgid_plural "%d images missing alt text"
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/RestAPI/Controllers/Seo.php:782
+#: classes/RestAPI/Controllers/Seo.php:796
 msgid "All images have alt text"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:798
-msgid "Internal Links"
+#: classes/RestAPI/Controllers/Seo.php:818
+msgid "Featured Image"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Seo.php:821
+msgid "Featured image is set"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Seo.php:824
+msgid "No featured image set"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Seo.php:843
+#: classes/Scanners/Basic/BrokenLinksScanner.php:88
+#: assets/js/index.js:1
+msgid "Broken Links"
 msgstr ""
 
 #. translators: %d: real number of broken links found on this page by the Broken Links scanner.
-#: classes/RestAPI/Controllers/Seo.php:819
+#: classes/RestAPI/Controllers/Seo.php:864
 #, php-format
 msgid "%d broken internal link found"
 msgid_plural "%d broken internal links found"
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/RestAPI/Controllers/Seo.php:825
+#: classes/RestAPI/Controllers/Seo.php:870
 msgid "No broken links found"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:839
+#: classes/RestAPI/Controllers/Seo.php:896
+msgid "Orphan Page"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Seo.php:913
+msgid "0 internal links point to this page — nothing else links to it"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Seo.php:917
+msgid "At least one other page links to this page"
+msgstr ""
+
+#: classes/RestAPI/Controllers/Seo.php:931
 msgid "Canonical"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:842
-#: classes/RestAPI/Controllers/Seo.php:889
-#: classes/RestAPI/Controllers/Seo.php:911
+#: classes/RestAPI/Controllers/Seo.php:934
+#: classes/RestAPI/Controllers/Seo.php:981
+#: classes/RestAPI/Controllers/Seo.php:1003
 msgid "Could not fetch this page to check"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:846
+#: classes/RestAPI/Controllers/Seo.php:938
 msgid "Canonical is set"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:849
+#: classes/RestAPI/Controllers/Seo.php:941
 msgid "No canonical URL tag found"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:864
+#: classes/RestAPI/Controllers/Seo.php:956
 msgid "Indexability"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:867
+#: classes/RestAPI/Controllers/Seo.php:959
 msgid "Not published"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:871
+#: classes/RestAPI/Controllers/Seo.php:963
 msgid "Site is set to discourage search engines (Settings → Reading)"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:874
+#: classes/RestAPI/Controllers/Seo.php:966
 msgid "Content is indexed"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:886
+#: classes/RestAPI/Controllers/Seo.php:978
 #: classes/Scanners/Basic/StructuredDataValidationScanner.php:44
 #: assets/js/index.js:1
 msgid "Structured Data"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:893
+#: classes/RestAPI/Controllers/Seo.php:985
 msgid "Structured data (JSON-LD) found"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:896
+#: classes/RestAPI/Controllers/Seo.php:988
 msgid "No schema detected"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:908
+#: classes/RestAPI/Controllers/Seo.php:1000
 msgid "Social Metadata"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Seo.php:924
+#: classes/RestAPI/Controllers/Seo.php:1016
 msgid "Open Graph tags found"
 msgstr ""
 
 #. translators: %s: real comma-separated list of missing Open Graph properties.
-#: classes/RestAPI/Controllers/Seo.php:933
+#: classes/RestAPI/Controllers/Seo.php:1025
 #, php-format
 msgid "Open Graph tags missing: %s"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:336
+#: classes/RestAPI/Controllers/Settings.php:351
 msgid "Settings saved."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:388
+#: classes/RestAPI/Controllers/Settings.php:403
 msgid "That file doesn't look like a valid VuloPilot settings export."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:398
+#: classes/RestAPI/Controllers/Settings.php:413
 msgid "Settings imported."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:416
+#: classes/RestAPI/Controllers/Settings.php:431
 msgid "Settings reset to defaults."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:459
+#: classes/RestAPI/Controllers/Settings.php:474
 #: assets/js/index.js:1
 msgid "Cache cleared."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:483
-#: classes/RestAPI/Controllers/Settings.php:548
+#: classes/RestAPI/Controllers/Settings.php:498
+#: classes/RestAPI/Controllers/Settings.php:563
 msgid "The notification email address isn't valid."
 msgstr ""
 
 #. translators: %s is the site name.
-#: classes/RestAPI/Controllers/Settings.php:499
+#: classes/RestAPI/Controllers/Settings.php:514
 #, php-format
 msgid "[%s] VuloPilot test email"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:502
+#: classes/RestAPI/Controllers/Settings.php:517
 msgid "This is a test email from VuloPilot's Notifications settings. If you received this, your notification email is configured correctly."
 msgstr ""
 
 #. translators: %s is the recipient email address.
-#: classes/RestAPI/Controllers/Settings.php:512
+#: classes/RestAPI/Controllers/Settings.php:527
 #, php-format
 msgid "Test email sent to %s."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:515
-#: classes/RestAPI/Controllers/Settings.php:616
+#: classes/RestAPI/Controllers/Settings.php:530
+#: classes/RestAPI/Controllers/Settings.php:631
 msgid "wp_mail() returned false — check your site's mail configuration."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:579
+#: classes/RestAPI/Controllers/Settings.php:594
 msgid "Could not generate a test report. Please try again."
 msgstr ""
 
 #. translators: %s is the site name.
-#: classes/RestAPI/Controllers/Settings.php:595
+#: classes/RestAPI/Controllers/Settings.php:610
 #, php-format
 msgid "[%s] Your test report is ready"
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:598
+#: classes/RestAPI/Controllers/Settings.php:613
 msgid "This is a test report from VuloPilot's Reports settings. Sign in to your dashboard's Reports page to view and download it."
 msgstr ""
 
 #. translators: %s is the recipient email address.
-#: classes/RestAPI/Controllers/Settings.php:613
+#: classes/RestAPI/Controllers/Settings.php:628
 #, php-format
 msgid "Test report generated and emailed to %s."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:671
+#: classes/RestAPI/Controllers/Settings.php:686
 msgid "Unknown verification provider."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:687
+#: classes/RestAPI/Controllers/Settings.php:702
 msgid "Enter a verification code first."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:701
+#: classes/RestAPI/Controllers/Settings.php:716
 msgid "Could not load your homepage to check — please try again."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:713
+#: classes/RestAPI/Controllers/Settings.php:728
 msgid "Verification tag not found on your homepage yet — if you just saved it, clear any caching and try again."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:724
+#: classes/RestAPI/Controllers/Settings.php:739
 msgid "Verified — the tag is live on your homepage."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:802
+#: classes/RestAPI/Controllers/Settings.php:817
 msgid "AI Crawler Alerts requires VuloPilot Pro, with the AI Crawler Analytics module active."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:813
+#: classes/RestAPI/Controllers/Settings.php:828
 msgid "Could not send a test alert."
 msgstr ""
 
-#: classes/RestAPI/Controllers/Settings.php:891
+#: classes/RestAPI/Controllers/Settings.php:906
 msgid "No module id given."
 msgstr ""
 
@@ -2427,11 +2432,6 @@ msgstr ""
 #: classes/Scanners/Basic/BrokenLinksScanner.php:141
 #, php-format
 msgid "Request failed with: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/BrokenLinksScanner.php:88
-#: assets/js/index.js:1
-msgid "Broken Links"
 msgstr ""
 
 #. translators: %s is the broken URL.
@@ -3794,6 +3794,15 @@ msgstr ""
 msgid "Could not refresh your AI credit balance."
 msgstr ""
 
+#: classes/Services/AutomationScheduler.php:84
+#: classes/Services/BackupScheduler.php:58
+msgid "Once Weekly"
+msgstr ""
+
+#: classes/Services/AutomationScheduler.php:91
+msgid "Once Monthly"
+msgstr ""
+
 #: classes/Services/BackupGoogleDriveConnection.php:196
 #: classes/Services/GoogleServicesConnection.php:311
 msgid "No Google OAuth Client ID/Secret saved yet."
@@ -3806,6 +3815,7 @@ msgstr ""
 
 #: classes/Services/BackupGoogleDriveConnection.php:352
 #: classes/Services/BackupGoogleDriveConnection.php:380
+#: classes/Services/BackupGoogleDriveConnection.php:412
 msgid "Not connected to Google Drive."
 msgstr ""
 
@@ -3844,11 +3854,8 @@ msgid "Restored the site from backup #%1$d (created %2$s)"
 msgstr ""
 
 #: classes/Services/BackupS3Connection.php:121
+#: classes/Services/BackupS3Connection.php:139
 msgid "Amazon S3 isn’t configured yet."
-msgstr ""
-
-#: classes/Services/BackupScheduler.php:58
-msgid "Once Weekly"
 msgstr ""
 
 #: classes/Services/BackupStorageManager.php:126
@@ -3860,21 +3867,21 @@ msgid "Table of Contents"
 msgstr ""
 
 #. translators: %d is the real HTTP status code Google Drive returned.
-#: classes/Services/CloudStorage/GoogleDriveClient.php:212
+#: classes/Services/CloudStorage/GoogleDriveClient.php:249
 #, php-format
 msgid "Google Drive request failed (HTTP %d)."
 msgstr ""
 
-#: classes/Services/CloudStorage/S3Client.php:267
+#: classes/Services/CloudStorage/S3Client.php:310
 msgid "Access denied — check the Access Key ID/Secret Access Key and that this key has permission on this bucket."
 msgstr ""
 
-#: classes/Services/CloudStorage/S3Client.php:271
+#: classes/Services/CloudStorage/S3Client.php:314
 msgid "Bucket not found — check the bucket name and region."
 msgstr ""
 
 #. translators: %d is the real HTTP status code S3 returned.
-#: classes/Services/CloudStorage/S3Client.php:275
+#: classes/Services/CloudStorage/S3Client.php:318
 #, php-format
 msgid "S3 request failed (HTTP %d)."
 msgstr ""
@@ -4141,7 +4148,6 @@ msgid "Consider adding a number to the title (e.g. a year or a count) — these 
 msgstr ""
 
 #: classes/Services/PageSpeedInsightsFetcher.php:136
-#: assets/js/index.js:1
 msgid "Enter an API key first."
 msgstr ""
 
@@ -4182,20 +4188,20 @@ msgid "Checkout"
 msgstr ""
 
 #. translators: 1: scanner id, 2: number of findings.
-#: classes/Services/ScanPersistenceListener.php:210
-#: classes/Services/ScanPersistenceListener.php:274
+#: classes/Services/ScanPersistenceListener.php:241
+#: classes/Services/ScanPersistenceListener.php:305
 #, php-format
 msgid "Scan \"%1$s\" completed with %2$d finding(s)."
 msgstr ""
 
 #. translators: %d is the number of critical findings.
-#: classes/Services/ScanPersistenceListener.php:331
+#: classes/Services/ScanPersistenceListener.php:362
 #, php-format
 msgid "VuloPilot found %d critical issue(s)."
 msgstr ""
 
 #. translators: 1: site name, 2: number of critical findings.
-#: classes/Services/ScanPersistenceListener.php:355
+#: classes/Services/ScanPersistenceListener.php:386
 #, php-format
 msgid "[%1$s] VuloPilot found %2$d critical issue(s)"
 msgstr ""
@@ -4242,6 +4248,50 @@ msgstr ""
 msgid "Review rating"
 msgstr ""
 
+#. translators: %s: site name.
+#: classes/Services/VisibilityReportMailer.php:151
+#, php-format
+msgid "[%s] Your VuloPilot Visibility Report"
+msgstr ""
+
+#. translators: 1: period start, 2: period end.
+#: classes/Services/VisibilityReportMailer.php:157
+#, php-format
+msgid "Here's your visibility summary for %1$s – %2$s."
+msgstr ""
+
+#. translators: %d: number.
+#: classes/Services/VisibilityReportMailer.php:159
+#, php-format
+msgid "%d open issues"
+msgstr ""
+
+#. translators: %d: number.
+#: classes/Services/VisibilityReportMailer.php:160
+#, php-format
+msgid "%d resolved this period"
+msgstr ""
+
+#. translators: %d: number.
+#: classes/Services/VisibilityReportMailer.php:161
+#, php-format
+msgid "%d critical issues"
+msgstr ""
+
+#. translators: %s: signed percent change, e.g. "+12%" or "-8%".
+#: classes/Services/VisibilityReportMailer.php:164
+#, php-format
+msgid "Total findings changed %s vs. the previous period."
+msgstr ""
+
+#: classes/Services/VisibilityReportMailer.php:167
+msgid "Pages needing attention:"
+msgstr ""
+
+#: classes/Services/VisibilityReportMailer.php:174
+msgid "Sign in to your dashboard to see the full picture and recommended next steps."
+msgstr ""
+
 #: classes/Services/VuloCloudAccountConnection.php:152
 msgid "Could not connect to VuloCloud."
 msgstr ""
@@ -4260,7 +4310,6 @@ msgid "Answer"
 msgstr ""
 
 #: assets/js/block/faq/index.js:1
-#: assets/js/index.js:1
 #: assets/js/post-editor.js:1
 msgid "Remove"
 msgstr ""
@@ -4954,22 +5003,6 @@ msgid "Saving…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Update"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Save"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Amazon S3 credentials saved."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not save these credentials. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Google Drive"
 msgstr ""
 
@@ -5030,19 +5063,27 @@ msgid "Client Secret"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Google OAuth Client saved."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not save this Client ID/Secret. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Cloud Storage"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Credentials for the remote destinations \"Storage destination\" above can upload completed backups to. Every backup always saves to this server first regardless."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Amazon S3 credentials saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not save these credentials. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Google OAuth Client saved."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not save this Client ID/Secret. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5054,146 +5095,11 @@ msgid "Configure and manage your AI provider connections. Add API keys to enable
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Google's next-generation AI model."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Google AI Studio"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Advanced AI models for chat, content, and more."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Connected to VuloCloud."
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Could not connect to VuloCloud. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Default model updated."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not update the default model."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI provider reconnected."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not save this key — check it and try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Enter the new API key first."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Configure this provider with your own credentials."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Label"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "API key"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Base URL"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Defaults to http://localhost:11434 if left blank."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Default model"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connect provider"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI provider connected."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not connect this provider — check the key and try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "This provider stopped working — see below."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Configured with your own credentials."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Needs reconnecting"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "VuloPilot can no longer read this provider’s saved API key (this usually happens after moving to a new server or environment). AI features have silently stopped using it. Enter the key again to reconnect it."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Save key"
-msgstr ""
-
-#: assets/js/index.js:1
-#, js-format
-msgid "Provider: %s"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Save model"
-msgstr ""
-
-#. translators: 1: help URL, 2: help link label (e.g. "Google AI Studio").
-#: assets/js/index.js:1
-#, js-format
-msgid "Get your API key from <a href=\"%1$s\" target=\"_blank\" rel=\"noreferrer\">%2$s</a>"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Model"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Choose the model to use for AI responses."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connection status:"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "API Key"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Test Connection"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not reach the server to test this connection."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connecting…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connect"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5213,65 +5119,11 @@ msgid "Connect this site to VuloCloud to use an AI provider key managed by your 
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Connecting…"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Connect to VuloCloud"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Site tone"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "A short description of how this site should sound (e.g. \"Friendly and casual\" or \"Formal and technical\") — included with every AI request."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "e.g. Friendly and casual"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Site tone saved."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not save the site tone."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Manually set — won’t be overwritten automatically."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Auto-detected from your site’s recent content."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Provider disabled."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Provider enabled."
-msgstr ""
-
-#. translators: %d is how many AI providers are currently active.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d providers are active — if the first one fails or is rate-limited, VuloPilot automatically retries with the next."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Remove AI Provider"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Remove this AI provider? Anything relying on it for AI fixes/generation will fall back to another configured provider, if any."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "AI provider removed."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not remove this provider."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5332,6 +5184,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "More actions"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Test Connection"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5500,6 +5356,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Connect PageSpeed Insights API to analyze your site speed, Core Web Vitals, and get actionable optimization suggestions."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "API Key"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5776,6 +5636,26 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "No website content, passwords, customer information, or personal data is collected."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "AI Assistant"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Controls how VuloPilot’s AI features sound when writing or rewriting your content."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Site tone"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A short description of how this site should sound (e.g. \"Friendly and casual\" or \"Formal and technical\") — included with every AI request."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "e.g. Friendly and casual"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6704,6 +6584,10 @@ msgid "Submit posts from these post types automatically to the IndexNow API when
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "API key"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties."
 msgstr ""
 
@@ -7088,14 +6972,6 @@ msgid "Term IDs to exclude, separated by commas. Applies across all included tax
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Images in sitemap"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Not yet implemented — WordPress core's native XML sitemap has no image entry support to hook into. These round-trip through Settings but have no effect on the sitemap output yet."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Images in sitemaps"
 msgstr ""
 
@@ -7209,6 +7085,30 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "SEO Titles"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tag Manager"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Adds Google Tag Manager to every page — its own <script> in the page head and a <noscript> fallback right after <body>."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable Google Tag Manager"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Loads your Tag Manager container on every page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Container ID"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your Google Tag Manager container ID, e.g. GTM-XXXXXXX."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7368,66 +7268,6 @@ msgid "Quick-start templates for a website health scan, security monitoring, SEO
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Create your free VuloCloud account"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connect your VuloCloud account"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Claim 100 Free AI Credits — no credit card required."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Account type"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "I manage multiple client sites"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "I'm a solo site owner"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Password"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "First name"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Last name"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Two-factor authentication code"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Create account & claim credits"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connect & claim credits"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Enter the two-factor authentication code for your VuloCloud account."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Already have a VuloCloud account? Log in"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "New to VuloCloud? Create an account"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "AI Credits remaining"
 msgstr ""
 
@@ -7471,6 +7311,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Claim free AI Credits"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Claim 100 Free AI Credits — no credit card required."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7737,8 +7581,6 @@ msgid "1 issue"
 msgstr ""
 
 #. translators: %d: number of real open findings, any category.
-#. translators: %d: number of open issues.
-#. translators: %d: number of open issues across every SEO area.
 #: assets/js/index.js:1
 #, js-format
 msgid "%d issues"
@@ -8204,8 +8046,6 @@ msgstr ""
 
 #. translators: %d: real 0-100 security score computed from open security findings
 #. translators: %d: real 0-100 score.
-#. translators: %d: real 0-100 category score.
-#. translators: %d: real 0-100 sitewide SEO score.
 #. translators: %d: real 0-100 weighted-severity score.
 #. translators: %d: real Flesch Reading Ease score, 0-100.
 #: assets/js/index.js:1
@@ -8549,30 +8389,6 @@ msgid "Whether OPcache is enabled and speeding up PHP execution."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "High priority"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "View issues"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Medium priority"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Low priority"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Filter by priority"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Click a priority level to view matching issues"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Affected accounts"
 msgstr ""
 
@@ -8673,17 +8489,7 @@ msgid "Example finding"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "A real, representative finding from this group appears here once Pro is active."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Where"
-msgstr ""
-
-#. translators: %s: formatted date this finding was detected
-#: assets/js/index.js:1
-#, js-format
-msgid "Detected %s"
+msgid "A real, representative finding from this group — its title, description, and where it was found — appears here once Pro is active."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8708,6 +8514,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "The specific accounts/pages/etc. this group affects appear here once Pro is active."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Detailed examples, the full affected list, and AI-assisted fixes are included in Pro."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8751,6 +8561,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "All findings in this group ignored."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Unlock fix details"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9219,14 +9033,14 @@ msgstr ""
 msgid "Keep optimizing to grow even more."
 msgstr ""
 
-#: assets/js/index.js:1
-msgid "Needs Work"
-msgstr ""
-
 #. translators: %d: real point change vs 7 days ago.
 #: assets/js/index.js:1
 #, js-format
 msgid "%d pts vs last week"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Needs Work"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9274,6 +9088,10 @@ msgid "Manage structured data & entities."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Overall Score"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Brand Visibility Score"
 msgstr ""
 
@@ -9283,6 +9101,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "GEO Visibility Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Crawl & URLs Score"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9297,26 +9119,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Combined score across Brand, SEO, GEO, and Crawl & URLs."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Visibility Breakdown"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "See how your site performs across each real area."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "View all sections"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Area"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Change"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9444,6 +9246,14 @@ msgid "No site-wide issues match this filter."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Needs Attention"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No change"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "SEO Issues"
 msgstr ""
 
@@ -9480,20 +9290,36 @@ msgid "Updated"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Words"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SEO Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Change"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Viewing"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Analyze"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Edit"
+msgid "Deleting…"
 msgstr ""
 
-#. translators: %d: number of other open issues on this page.
 #: assets/js/index.js:1
-#, js-format
-msgid "Opening the highest-priority issue first — %d other issue on this page also needs attention."
-msgid_plural "Opening the highest-priority issue first — %d other issues on this page also need attention."
-msgstr[0] ""
-msgstr[1] ""
+msgid "Delete"
+msgstr ""
 
 #. translators: %s: the search text typed into the "Search pages…" box above.
 #: assets/js/index.js:1
@@ -9521,6 +9347,22 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Every open SEO finding, filterable by priority."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Open Issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search by title or source page…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Show ignored"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9641,14 +9483,6 @@ msgstr ""
 msgid "Competitor Comparison"
 msgstr ""
 
-#. translators: %d is the number of real open GEO findings under this topic.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d open issue"
-msgid_plural "%d open issues"
-msgstr[0] ""
-msgstr[1] ""
-
 #: assets/js/index.js:1
 msgid "No AI summary findings yet — run a scan to check for summary blocks."
 msgstr ""
@@ -9691,6 +9525,18 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "GEO Issues"
+msgstr ""
+
+#. translators: %d is the number of real open GEO findings under this topic.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d open issue"
+msgid_plural "%d open issues"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:1
+msgid "View issues"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9745,6 +9591,22 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Log in with your VuloCloud account to unlock this."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Password"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Two-factor authentication code"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enter the two-factor authentication code for your VuloCloud account."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9946,10 +9808,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Answer Readiness"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Needs Attention"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10285,10 +10143,6 @@ msgid "Search by URL or source page…"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "All issues"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Broken links"
 msgstr ""
 
@@ -10439,7 +10293,7 @@ msgid "Never"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Delete"
+msgid "Edit"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10538,6 +10392,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "https://example.com/new-page/"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Save"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11642,92 +11500,6 @@ msgid "Check one specific page’s real structured data — its detected schema,
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Passed"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not analyze this page. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Page Analysis"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "A single page's real SEO/GEO signals, checked live."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Something went wrong"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No meta description set."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "What should I fix first?"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "These issues have the biggest impact on your search visibility."
-msgstr ""
-
-#. translators: 1: real number of affected pages, 2: real issue type label, e.g. "Canonical URL".
-#: assets/js/index.js:1
-#, js-format
-msgid "%1$d page has %2$s"
-msgid_plural "%1$d pages have %2$s"
-msgstr[0] ""
-msgstr[1] ""
-
-#: assets/js/index.js:1
-msgid "No open SEO issues right now — nice work."
-msgstr ""
-
-#. translators: %d: total real open SEO issue count.
-#: assets/js/index.js:1
-#, js-format
-msgid "View all %d issues"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No change"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages that need attention"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Real published pages with the most open SEO issues."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not load these pages"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "SEO Score"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Viewing"
-msgstr ""
-
-#. translators: %d: number of open issues on this page.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d Issue"
-msgid_plural "%d Issues"
-msgstr[0] ""
-msgstr[1] ""
-
-#: assets/js/index.js:1
-msgid "No published page or post currently has an open SEO issue — nice work."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "SEO progress"
 msgstr ""
 
@@ -11741,12 +11513,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "SEO Score Over Time"
-msgstr ""
-
-#. translators: %d: current real SEO score, 0-100.
-#: assets/js/index.js:1
-#, js-format
-msgid "Latest: %d"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11770,23 +11536,61 @@ msgid "Pages Improved"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Your real, site-wide SEO score and open issue counts."
+msgid "Passed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not analyze this page. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Page Analysis"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A single page's real SEO/GEO signals, checked live."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Something went wrong"
+msgstr ""
+
+#. translators: %s: this site's own Settings → General → Date Format, e.g. "10/09/2026".
+#: assets/js/index.js:1
+#, js-format
+msgid "Analyzed %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No meta description set."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your site is performing well. Keep optimizing to reach the next level."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your site could use some improvement — a few real issues need attention."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your site needs attention — several real SEO issues are open."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SEO Health"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your real, site-wide SEO score, open issue counts, and progress over time."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Overall SEO Score"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Issues found"
-msgstr ""
-
-#. translators: %d is the number of days this delta covers.
-#: assets/js/index.js:1
-#, js-format
-msgid "No change in the last %d days"
-msgstr ""
-
-#. translators: 1: "+" or "-", 2: how much it changed by, 3: number of days this delta covers.
-#: assets/js/index.js:1
-#, js-format
-msgid "%1$s%2$d in the last %3$d days"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11795,30 +11599,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "High priority issues"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "SEO areas"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Overview of where your SEO health is by area — click one to jump to its issues."
-msgstr ""
-
-#. translators: %d: number of affected pages.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d pages affected"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "All Areas"
-msgstr ""
-
-#. translators: %d: total real published pages checked.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d pages checked"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -12806,6 +12586,214 @@ msgid "View automation history"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Monday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Tuesday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Wednesday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Thursday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Friday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Saturday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Sunday"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable this automation"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "When should this automation run?"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run on"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "1st day of every month"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Running…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run now"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automatically scan your website and refresh your VuloPilot insights."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manual only"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every day"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every week"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every month"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Receive a summary of your website's visibility, issues, and opportunities."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manual"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "External (REST)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Monthly"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Post published"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Post updated"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Page published"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Page updated"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Product created"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Product updated"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Order completed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "User registered"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Low stock"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "GEO score drop"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Security score drop"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Visibility score drop"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "New finding detected"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Send email"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Resolve finding"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run AI action"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Create notification"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Apply built-in fix"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Regenerate llms.txt"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Run a scan"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Monitoring"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Reporting"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No actions configured yet."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Drafts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Paused"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your automations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "React to scan findings automatically — enable, pause, or run an automation, and see when it last ran."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Search automations…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automation"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No automations yet — create one to react to scan findings automatically."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Website health scan"
 msgstr ""
 
@@ -12851,182 +12839,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Build a custom automation"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Manual"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "External (REST)"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Monthly"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Page published"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Product created"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Product updated"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Order completed"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "User registered"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Low stock"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Send email"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Resolve finding"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Run AI action"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Create notification"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Monitoring"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Reporting"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No actions configured yet."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Paused"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Draft"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Suggested automations"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Common automations you can turn on in one click."
-msgstr ""
-
-#. translators: %s is the real trigger label, e.g. "Every day".
-#: assets/js/index.js:1
-#, js-format
-msgid "Runs: %s"
-msgstr ""
-
-#. translators: %s is the real next scheduled run date/time.
-#: assets/js/index.js:1
-#, js-format
-msgid "Next check: %s"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Runs when triggered"
-msgstr ""
-
-#. translators: %s is the real outcome of this automation's own last run.
-#: assets/js/index.js:1
-#, js-format
-msgid "Last check: %s"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Not activated yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Run failed"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "1 change made"
-msgstr ""
-
-#. translators: %d is the real number of changes this automation's own last run made.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d changes made"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No changes needed"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Never run yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "View results →"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Manage →"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "When:"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Then:"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Use this automation"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Drafts"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Your automations"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "React to scan findings automatically — enable, pause, or run an automation, and see when it last ran."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Search automations…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Automation"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Run now"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No automations yet — create one to react to scan findings automatically."
 msgstr ""
 
 #. translators: 1: start date, 2: end date.
@@ -13698,6 +13510,10 @@ msgid "After"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Where"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Undo this change"
 msgstr ""
 
@@ -14014,10 +13830,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "When on, VuloPilot applies a fix itself and still asks you to approve it before it goes live — nothing changes on your site without your say."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Issues"
 msgstr ""
 
 #. translators: %d is the number of open security findings.
@@ -14399,10 +14211,6 @@ msgid "Restore"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Deleting…"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "No backups yet"
 msgstr ""
 
@@ -14564,6 +14372,10 @@ msgstr ""
 #: assets/js/index.js:1
 #, js-format
 msgid "View All %d Findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What should I fix first?"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -14887,6 +14699,70 @@ msgid "Time Saved"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Your content reads well and is easy to follow — nice work."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your content is decent, with a few issues to fix for better SEO performance and readability."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Your content needs work — readability and on-page checks both need attention."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content Quality"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "A single page's real content-quality signals, checked live."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Real AI-assessed quality signals for the selected page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Page being analyzed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Changing the page updates all results below."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "No content yet"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Publish a post or page to see its content quality here."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Showing analysis for:"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Analysis updates automatically when you select a different page."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Checks passed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Issues Found"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content Assessment"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Structure"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Blog Post"
 msgstr ""
 
@@ -14911,22 +14787,6 @@ msgid "Other"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Show ignored"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Also count and show findings you’ve already dismissed with \"Ignore\" in the list below."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "1 word"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "words"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Recent Content"
 msgstr ""
 
@@ -14935,95 +14795,11 @@ msgid "Your most recently published or updated content."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Content Issues"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "View All"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Search by title or source page…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Words"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Open Issues"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Issue Details"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No content matches these filters."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No content found yet."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Move to Trash"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Move this to trash? You can restore it from Trash afterward."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Moved to trash."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not delete this item. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Your content reads well and is easy to follow — nice work."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Your content is decent, with a few issues to fix for better SEO performance and readability."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Your content needs work — readability and on-page checks both need attention."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Content Quality"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Real AI-assessed quality signals for this piece of content."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "No content yet"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Publish a post or page to see its content quality here."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Overall Content Quality"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Checks passed"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Issues Found"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Content Assessment"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Structure"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -15217,6 +14993,14 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Create Automation"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Browse Templates"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Need custom triggers, conditions, actions or notifications? Available with VuloPilot Pro."
 msgstr ""
 
 #: assets/js/index.js:1

@@ -6,6 +6,7 @@ import { CardComponent, ChartComponent, InformationItemComponent, ModuleGuardCom
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
+import { formatWpDate } from '../../services/formatWpDate';
 import { ratingColor } from './seoRating';
 import {
 	FindingSeverity,
@@ -500,7 +501,7 @@ const SeoIssuesByPageTable = ({
 												{
 													icon: 'calendar',
 													label: __('Updated', 'vulopilot'),
-													value: new Date(row.date).toLocaleDateString(),
+													value: formatWpDate(row.date),
 												},
 												...(undefined !== row.wordCount
 													? [

@@ -725,6 +725,13 @@ class BackupManager {
                 }
             }
 
+            // Real remote-copy cleanup (S3/Google Drive) — same real
+            // no-op-for-local/never-uploaded posture
+            // Controllers\Backups::delete_item() already uses. See
+            // Services\BackupStorageManager::delete_remote_copy()'s own
+            // docblock.
+            VuloPilot()->backup_storage_manager->delete_remote_copy( $row );
+
             $repository->delete( (int) $row['id'] );
         }
     }

@@ -194,6 +194,43 @@ class GoogleDriveClient {
     }
 
     /**
+     * Real `DELETE /files/{fileId}` — used to remove a backup's remote copy
+     * once its local file + row are deleted
+     * (`BackupStorageManager::delete_remote_copy()`), so a deleted/
+     * retention-purged backup doesn't leave an orphaned file in Drive
+     * forever. A 404 (file already gone — deleted by hand in Drive, or a
+     * prior delete that succeeded but never got recorded) is treated the
+     * same as a 204: either way the end state this caller wants — no such
+     * file — already holds.
+     *
+     * @param string $access_token Real, currently-valid OAuth access token.
+     * @param string $file_id      Real Drive file id (`upload_file()`'s own real return value).
+     * @return true|\WP_Error
+     */
+    public function delete_file( string $access_token, string $file_id ) {
+        $response = wp_remote_request(
+            self::API_BASE . '/files/' . rawurlencode( $file_id ),
+            array(
+                'method'  => 'DELETE',
+                'timeout' => 15,
+                'headers' => array( 'Authorization' => 'Bearer ' . $access_token ),
+            )
+        );
+
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
+        $code = (int) wp_remote_retrieve_response_code( $response );
+
+        if ( 404 === $code || ( $code >= 200 && $code < 300 ) ) {
+            return true;
+        }
+
+        return new \WP_Error( 'vulopilot_gdrive_delete_failed', $this->extract_drive_error( $response, $code ), array( 'status' => 502 ) );
+    }
+
+    /**
      * Drive API errors are JSON (`{"error":{"message": "..."}}`) — a small
      * real extraction instead of a bare status code.
      *

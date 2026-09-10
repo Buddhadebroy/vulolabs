@@ -236,6 +236,12 @@ final class VuloPilot {
         $this->container['robots_txt_manager']    = new Services\RobotsTxtManager();
         $this->container['html_sitemap_renderer'] = new Services\HtmlSitemapRenderer();
 
+        // Scanning → SEO & Content → Tag Manager — real Google Tag Manager
+        // `<script>`/`<noscript>` output (wp_head/wp_body_open), same
+        // unconditional-construction/settings-gate-output shape as
+        // WebmasterToolsManager immediately below.
+        $this->container['tag_manager_service'] = new Services\TagManagerService();
+
         // Scanning → Webmaster Tools — real `wp_head` verification `<meta>`
         // tag output, same unconditional-construction/settings-gate-output
         // shape as CanonicalUrlManager/SocialMetaTagsManager below.
