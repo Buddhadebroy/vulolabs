@@ -91,6 +91,22 @@ const AUTOSAVE_DEBOUNCE_MS = 1200;
  * a Secret Access Key the instant it's typed, before Bucket has a value, would
  * either silently fail or (worse) save a real secret paired with an empty/
  * stale bucket.
+ *
+ * `panelKey`/`expandedMethodId` below work around a real limitation in
+ * zyra's own `ExpandablePanelInput` (confirmed by reading its installed
+ * build): it only ever reads its `methods` prop once, into a `useReducer`
+ * initializer, on mount — a later render passing a new `methods` array
+ * (e.g. once `status.google_drive.client_configured` flips true right
+ * after a save) has no effect on what's actually displayed; only field
+ * *values* stay live (those flow through the separate `value`/`onChange`
+ * contract). Confirmed live: without this, saving a Google OAuth Client
+ * shows the real "saved" toast and a real 200 response, but the panel
+ * keeps showing the empty Client ID/Secret form — the real "Connect Google
+ * Drive" button only ever appeared after a manual page reload. The fix is
+ * a forced remount (`key`) whenever anything that should change what's
+ * displayed changes, with `expandedMethodId` fed back in as `openForm` so
+ * the remount doesn't also collapse whichever panel the user was just
+ * looking at.
  */
 const BackupStoragePanel = () => {
 	const [status, setStatus] = useState<BackupStorageStatus | null>(null);
@@ -106,6 +122,9 @@ const BackupStoragePanel = () => {
 	const [isTestingGoogleDrive, setIsTestingGoogleDrive] = useState(false);
 	const [googleTestResult, setGoogleTestResult] = useState<TestResult | null>(null);
 	const [isDisconnectingGoogleDrive, setIsDisconnectingGoogleDrive] = useState(false);
+
+	/** Which provider's panel to keep expanded across a forced remount (see this file's own top docblock) — set wherever the user actually interacts with one provider's fields/buttons, never guessed. */
+	const [expandedMethodId, setExpandedMethodId] = useState<'s3' | 'google_drive' | null>(null);
 
 	/** Real debounce timers — one per provider, so typing across both S3 and Google Drive fields in one sitting debounces each independently rather than one resetting the other's. */
 	const s3SaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -202,6 +221,24 @@ const BackupStoragePanel = () => {
 	) => {
 		setPanelValues(newValues);
 
+		// zyra's own `handleChange()` spreads its `value` PROP (our own
+		// `mergedValues`, a brand new object every render regardless of
+		// which field changed) into `newValues` — so a reference check
+		// against either `panelValues` or `mergedValues` would always
+		// "detect" both providers as changed. Comparing actual field
+		// values against `mergedValues` (this render's "before" state)
+		// finds the one provider whose values genuinely differ.
+		const changedMethodId = (['s3', 'google_drive'] as const).find((id) => {
+			const nextFields = newValues[id] ?? {};
+			const previousFields = mergedValues[id] ?? {};
+			return Object.keys(nextFields).some(
+				(key) => nextFields[key] !== previousFields[key]
+			);
+		});
+		if (changedMethodId) {
+			setExpandedMethodId(changedMethodId);
+		}
+
 		const s3Values = {
 			access_key: (newValues.s3?.access_key as string) ?? '',
 			secret_key: (newValues.s3?.secret_key as string) ?? '',
@@ -277,6 +314,7 @@ const BackupStoragePanel = () => {
 	};
 
 	const handleTestS3 = () => {
+		setExpandedMethodId('s3');
 		setIsTestingS3(true);
 		setS3TestResult(null);
 
@@ -325,6 +363,7 @@ const BackupStoragePanel = () => {
 	};
 
 	const handleTestGoogleDrive = () => {
+		setExpandedMethodId('google_drive');
 		setIsTestingGoogleDrive(true);
 		setGoogleTestResult(null);
 
@@ -338,6 +377,7 @@ const BackupStoragePanel = () => {
 	};
 
 	const handleDisconnectGoogleDrive = () => {
+		setExpandedMethodId('google_drive');
 		setIsDisconnectingGoogleDrive(true);
 
 		sendApiResponse<GoogleDriveStatus>(
@@ -363,6 +403,7 @@ const BackupStoragePanel = () => {
 				desc: __('Store backups in an Amazon S3 bucket.', 'vulopilot'),
 				isCustom: true,
 				hideDeleteBtn: true,
+				openForm: 's3' === expandedMethodId,
 				badgeColor: status.s3.configured ? 'green' : 'red',
 				badgeText: status.s3.configured
 					? __('Configured', 'vulopilot')
@@ -450,6 +491,7 @@ const BackupStoragePanel = () => {
 				desc: __('Store backups in a Google Drive folder.', 'vulopilot'),
 				isCustom: true,
 				hideDeleteBtn: true,
+				openForm: 'google_drive' === expandedMethodId,
 				badgeColor: status.google_drive.connected ? 'green' : 'red',
 				badgeText: status.google_drive.connected
 					? __('Connected', 'vulopilot')
@@ -572,6 +614,25 @@ const BackupStoragePanel = () => {
 		]
 		: [];
 
+	// Forces `ExpandablePanelInput` to remount (see this file's own top
+	// docblock for why that's necessary) whenever anything that should
+	// change what's actually displayed changes — every other piece of
+	// `methods` above is derived from exactly these values.
+	const panelKey = status
+		? [
+			status.s3.configured ? '1' : '0',
+			status.google_drive.client_configured ? '1' : '0',
+			status.google_drive.connected ? '1' : '0',
+			isSavingS3 ? '1' : '0',
+			isTestingS3 ? '1' : '0',
+			s3TestResult ? `${s3TestResult.success}:${s3TestResult.message}` : '',
+			isSavingGoogleClient ? '1' : '0',
+			isTestingGoogleDrive ? '1' : '0',
+			googleTestResult ? `${googleTestResult.success}:${googleTestResult.message}` : '',
+			isDisconnectingGoogleDrive ? '1' : '0',
+		].join('|')
+		: '';
+
 	return (
 		<div className="settings-section-group">
 			<div className="settings-left-section">
@@ -590,6 +651,7 @@ const BackupStoragePanel = () => {
 					<FormGroupComponent>
 						{!isLoading && status && (
 							<ExpandablePanelInput
+								key={panelKey}
 								name="backup-storage-destinations"
 								methods={methods}
 								value={mergedValues}

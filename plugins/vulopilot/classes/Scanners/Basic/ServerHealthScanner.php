@@ -107,13 +107,45 @@ class ServerHealthScanner extends AbstractBasicScanner {
             return null;
         }
 
+        $description = (string) ( $result['description'] ?? '' );
+        $paragraphs  = $this->split_into_paragraphs( $description );
+
         return new Finding(
             wp_strip_all_tags( (string) ( $result['label'] ?? __( 'Server health check', 'vulopilot' ) ) ),
             'critical' === $status ? Severity::HIGH : Severity::MEDIUM,
             $this->get_category(),
-            wp_strip_all_tags( (string) ( $result['description'] ?? '' ) ),
+            wp_strip_all_tags( $description ),
             'site_health_test',
-            (string) ( $result['test'] ?? '' )
+            (string) ( $result['test'] ?? '' ),
+            count( $paragraphs ) >= 2
+                ? array(
+                    'why_it_matters' => $paragraphs[0],
+                    'what_happened'  => implode( ' ', array_slice( $paragraphs, 1 ) ),
+                )
+                : array()
+        );
+    }
+
+    /**
+     * Same real paragraph-recovery `WordPressHealthScanner`'s own
+     * `split_into_paragraphs()` documents — duplicated here rather than
+     * shared, same restraint this class's own top docblock already
+     * explains for `finding_from_test_result()` itself.
+     *
+     * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
+     * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.
+     */
+    private function split_into_paragraphs( string $html_description ): array {
+        $chunks = preg_split( '/<\/p>\s*/i', $html_description ) ?: array();
+
+        return array_values(
+            array_filter(
+                array_map(
+                    static fn( string $chunk ): string => trim( wp_strip_all_tags( $chunk ) ),
+                    $chunks
+                ),
+                static fn( string $paragraph ): bool => '' !== $paragraph
+            )
         );
     }
 }

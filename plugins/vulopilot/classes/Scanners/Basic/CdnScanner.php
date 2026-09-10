@@ -77,7 +77,15 @@ class CdnScanner extends AbstractBasicScanner {
                 $this->get_category(),
                 __( 'Every asset on the homepage is served directly from this server. A CDN serves images, CSS, and JavaScript from servers closer to each visitor, reducing load times worldwide.', 'vulopilot' ),
                 'url',
-                home_url( '/' )
+                home_url( '/' ),
+                array(
+                    'recommended_fix' => array(
+                        __( 'Sign up for a CDN (e.g. Cloudflare, BunnyCDN, StackPath) and point your DNS or media library through it.', 'vulopilot' ),
+                        __( 'Alternatively, use a WordPress plugin that integrates a CDN with your media library automatically.', 'vulopilot' ),
+                        __( 'Confirm static assets (images, CSS, JS) now resolve to a different host than your own site.', 'vulopilot' ),
+                        __( 'Re-run this scan to confirm at least one asset is now served through the CDN.', 'vulopilot' ),
+                    ),
+                )
             ),
         );
     }

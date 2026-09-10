@@ -103,7 +103,15 @@ class LargeImagesScanner extends AbstractBasicScanner {
                 __( 'Large images slow down page loads, especially on mobile connections — consider compressing or resizing.', 'vulopilot' ),
                 'attachment',
                 (string) $attachment_id,
-                array( 'file_size_bytes' => $file_size )
+                array(
+                    'file_size_bytes' => $file_size,
+                    'recommended_fix' => array(
+                        __( 'Compress oversized images with a plugin (e.g. ShortPixel, Imagify) or before uploading.', 'vulopilot' ),
+                        __( 'Convert large images to a modern format like WebP or AVIF.', 'vulopilot' ),
+                        __( 'Resize images to the maximum dimension actually needed — avoid uploading full-resolution originals.', 'vulopilot' ),
+                        __( 'Re-run this scan after optimizing to confirm the file size has dropped.', 'vulopilot' ),
+                    ),
+                )
             );
         }
 

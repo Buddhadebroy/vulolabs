@@ -84,7 +84,15 @@ class JavaScriptOptimizationScanner extends AbstractAssetOptimizationScanner {
                 __( 'These scripts aren\'t minified and no minification plugin is active. Minifying JavaScript reduces file size and speeds up page rendering.', 'vulopilot' ),
                 'url',
                 home_url( '/' ),
-                array( 'scripts' => $unminified ),
+                array(
+                    'scripts'         => $unminified,
+                    'recommended_fix' => array(
+                        __( 'Enable JavaScript minification in your caching/optimization plugin.', 'vulopilot' ),
+                        __( 'Defer or async-load non-critical scripts so they don\'t block page rendering.', 'vulopilot' ),
+                        __( 'Remove unused scripts from themes/plugins you don\'t need.', 'vulopilot' ),
+                        __( 'Re-run this scan after minifying to confirm these scripts are no longer flagged.', 'vulopilot' ),
+                    ),
+                ),
                 'unminified-scripts'
             ),
         );
