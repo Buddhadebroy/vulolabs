@@ -140,6 +140,30 @@ const CATEGORY_TO_TAB: Record<string, string> = {
 };
 const categoryToTab = (category: string): string => CATEGORY_TO_TAB[category] ?? 'seo';
 
+/**
+ * 4 scanners whose PHP `get_category()` is `'geo'` (GeoTrustSignalsScanner/
+ * GeoEeatSignalsScanner/GeoAuthorInfoScanner/GeoEntityNamingConsistencyScanner)
+ * but whose findings are actually surfaced on the Brand Visibility tab —
+ * `BrandVisibilityTab.tsx`'s own `BRAND_SECTIONS` already lists these exact
+ * 4 ids ('geo-trust-signals'/'geo-eeat-signals' under "Trust
+ * Signals"/"Authority Signals", 'geo-author-info' also under "Authority
+ * Signals", 'geo-entity-naming-consistency' under "Entity Consistency"). A
+ * plain `categoryToTab(group.category)` would send these to the GEO tab
+ * instead (confirmed live: clicking "View" on the "Trust Signals" row here
+ * landed on GEO, not Brand Visibility) — this scanner-id override takes
+ * priority over the category-based default for exactly these 4, leaving
+ * every other `geo`-category scanner (llms-txt-missing/stale-content/etc.)
+ * on the GEO tab as before.
+ */
+const BRAND_SCANNER_IDS = new Set([
+	'geo-trust-signals',
+	'geo-eeat-signals',
+	'geo-author-info',
+	'geo-entity-naming-consistency',
+]);
+const groupToTab = (group: FindingGroup): string =>
+	BRAND_SCANNER_IDS.has(group.scanner_id) ? 'brand-visibility' : categoryToTab(group.category);
+
 // Same real "icon name" + trailing color modifier convention `SeoTab.tsx`'s
 // own `CATEGORY_CARDS` already establishes (e.g. `'search blue'`) — a
 // distinct identity color per real destination tab, independent of any
@@ -458,12 +482,12 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					isLoading={isLoadingOpportunities}
 					onViewAll={() =>
 						onNavigateTab(
-							opportunityGroups.length ? categoryToTab(opportunityGroups[0].category) : 'seo'
+							opportunityGroups.length ? groupToTab(opportunityGroups[0]) : 'seo'
 						)
 					}
 					onSelectScanner={(scannerId) => {
 						const group = opportunityGroups.find((g) => g.scanner_id === scannerId);
-						onNavigateTab(group ? categoryToTab(group.category) : 'seo');
+						onNavigateTab(group ? groupToTab(group) : 'seo');
 					}}
 				/>
 				<CardComponent
