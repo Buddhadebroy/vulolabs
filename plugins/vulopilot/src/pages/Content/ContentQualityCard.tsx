@@ -15,6 +15,7 @@ import {
 } from '@zyra/components';
 import type { NoticeType } from '@zyra/components';
 import { SelectInput, ButtonInput } from '@zyra/inputs';
+import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
 
 interface ContentOption {
 	id: number;
@@ -101,6 +102,24 @@ const STATUS_BADGE: Record<OnPageCheck['status'], { color: string; label: string
 };
 
 /**
+ * OnPageAnalyzer's own check ids (`title_length`, `description_length`,
+ * `content_length`, `has_subheadings`) already match the `target` values
+ * `seoIssueEditorTarget.ts`'s `SEO_ISSUE_EDITOR_TARGETS` declares for the
+ * post-editor sidebar's General tab — this maps each id back to the
+ * scanner id that map is actually keyed by, so a click on one of this
+ * card's rows can reuse the exact same deep-link/highlight contract
+ * `SeoIssuesByPageTable.tsx`'s "Fix with AI" links and
+ * `GEO/PageAnalysisPanel.tsx`'s own checklist already use, instead of
+ * inventing a second one.
+ */
+const CHECK_ID_TO_SCANNER_ID: Record<string, string> = {
+	title_length: 'seo',
+	description_length: 'meta-description',
+	content_length: 'thin-content',
+	has_subheadings: 'heading-structure',
+};
+
+/**
  * One real on-page check — zyra's own `ListComponent`, one item per check,
  * status badge in `tags` (same "mini-card"-style `tags` usage
  * KnowledgePanelCard.tsx's own results list already establishes). Used
@@ -109,7 +128,10 @@ const STATUS_BADGE: Record<OnPageCheck['status'], { color: string; label: string
  * drift into two different visual treatments for the same real data type.
  * `onClick` (when given) wires into `ListComponent`'s own real `action`/
  * `onItemClick` — the whole row becomes a genuine click target rather
- * than needing its own wrapping button.
+ * than needing its own wrapping button. Every row here is given one
+ * (`goToCheckInEditor`, below): clicking a check jumps straight to this
+ * post's real editor, deep-linked and highlighted, same as a row in
+ * `SeoIssuesByPageTable.tsx`'s own table.
  */
 const CheckRow: React.FC<{ check: OnPageCheck; onClick?: () => void }> = ({
 	check,
@@ -292,15 +314,32 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 		(data.structure && 'pass' !== data.structure.status ? 1 : 0)
 		: 0;
 
+	// Local `const` (not a repeated `data.structure` property access) so
+	// TypeScript's null-narrowing survives into the `onClick` closure below.
+	const structureCheck = data?.structure ?? null;
+
 	const scrollToAssessment = () =>
 		document
 			.getElementById('content-quality-assessment')
 			?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-	const goToPostEditor = () => {
-		if (editLink) {
-			window.location.href = editLink;
+	/**
+	 * Same `post.php?post={id}&action=edit&vulopilot_seo_issue={scannerId}`
+	 * shape `SeoIssuesByPageTable.tsx`/`GEO/PageAnalysisPanel.tsx` build —
+	 * the block-editor's own `post-editor/index.tsx` reads that query param
+	 * to open the right sidebar tab and scroll-and-pulse-highlight the
+	 * matching field/checklist row. Falls back to a plain edit link (no
+	 * highlight) for a check id with no scanner-id equivalent.
+	 */
+	const goToCheckInEditor = (checkId: string) => {
+		if (!editLink) {
+			return;
 		}
+
+		const scannerId = CHECK_ID_TO_SCANNER_ID[checkId];
+		window.location.href = scannerId
+			? `${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(scannerId)}`
+			: editLink;
 	};
 
 	const selectedOption = options.find((option: ContentOption) => option.id === selectedId);
@@ -431,14 +470,21 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 						title={__('Content Assessment', 'vulopilot')}
 					/>
 					{data.completeness.checks.map((check: OnPageCheck) => (
-						<CheckRow key={check.id} check={check} />
+						<CheckRow
+							key={check.id}
+							check={check}
+							onClick={() => goToCheckInEditor(check.id)}
+						/>
 					))}
-					{data.structure && (
+					{structureCheck && (
 						<>
 							<SectionComponent icon='blocks'
 								title={__('Structure', 'vulopilot')}
 							/>
-							<CheckRow check={data.structure} onClick={goToPostEditor} />
+							<CheckRow
+								check={structureCheck}
+								onClick={() => goToCheckInEditor(structureCheck.id)}
+							/>
 						</>
 					)}
 				</div>

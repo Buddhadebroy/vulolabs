@@ -206,6 +206,49 @@ class S3Client {
     }
 
     /**
+     * Real `DELETE {bucket}/{key}` — used to remove a backup's remote copy
+     * once its local file + row are deleted (`BackupStorageManager::delete_remote_copy()`),
+     * so a deleted/retention-purged backup doesn't leave an orphaned object
+     * in the bucket forever. S3 returns 204 for both "deleted" and "key
+     * never existed" — both are treated as success here, since either way
+     * the end state (no such object) is what the caller wants.
+     *
+     * @param string $object_key Real S3 object key (no leading slash).
+     * @return true|\WP_Error
+     */
+    public function delete_object( string $object_key ) {
+        $uri_path     = '/' . ltrim( $object_key, '/' );
+        $payload_hash = hash( 'sha256', '' );
+
+        $headers = $this->build_signed_headers( 'DELETE', $uri_path, $payload_hash );
+
+        $response = wp_remote_request(
+            'https://' . $this->host() . $uri_path,
+            array(
+                'method'  => 'DELETE',
+                'timeout' => 30,
+                'headers' => $headers,
+            )
+        );
+
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
+        $code = (int) wp_remote_retrieve_response_code( $response );
+
+        if ( $code < 200 || $code >= 300 ) {
+            return new \WP_Error(
+                'vulopilot_s3_delete_failed',
+                $this->extract_s3_error( $response, $code ),
+                array( 'status' => 502 )
+            );
+        }
+
+        return true;
+    }
+
+    /**
      * Real `HEAD {bucket}/` — the lightest real request that proves both
      * the credentials and the bucket/region are correct (a bad bucket name
      * or wrong region 404s/redirects; bad credentials 403s), used by

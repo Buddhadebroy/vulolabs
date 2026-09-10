@@ -527,6 +527,16 @@ class Utill {
         // there is no separate meta box "SEO title" distinct from the
         // social/OG title), falling back to the normal title when empty.
         'html_sitemap_item_titles'              => 'post_title',
+        // Scanning > SEO & Content > Tag Manager. Read by
+        // Services\TagManagerService — real Google Tag Manager `<script>`
+        // (wp_head) + `<noscript><iframe>` (wp_body_open) output, same
+        // self-registers-own-hook/setting-gates-output shape as
+        // WebmasterToolsManager/CanonicalUrlManager. Same `array('key')`
+        // on/off toggle convention as `ga_install_tracking_code` below —
+        // an empty container id (or the toggle off) means nothing is
+        // output at all.
+        'tag_manager_enabled'                   => array(),
+        'tag_manager_container_id'              => '',
         // Scanning > Webmaster Tools. Read by Services\WebmasterToolsManager —
         // outputs each configured verification `<meta>` tag on `wp_head`,
         // same self-registers-own-hook/setting-gates-output shape as

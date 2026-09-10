@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
@@ -38,6 +38,9 @@ interface TestResult {
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
+/** Real "stop typing, then save" delay — long enough that pasting/typing a full Access Key + Secret Key + Bucket in sequence doesn't fire a save after each one, short enough that it still feels immediate once you actually stop. */
+const AUTOSAVE_DEBOUNCE_MS = 1200;
+
 /**
  * Settings → Backups' own "Cloud Storage" section — real Amazon S3
  * credentials (Access Key ID/Secret Access Key/bucket/region, a real signed
@@ -74,6 +77,20 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * from a real REST call to Controllers\BackupStorage, which itself only
  * ever reports what S3Client/GoogleDriveClient's own real HTTP calls
  * actually returned.
+ *
+ * Autosaves (per direct instruction, matching every other field on this
+ * page instead of standing out with its own explicit "Save" click) —
+ * `handlePanelValuesChange()` below debounces a real save to the same
+ * secrets-safe `backup-storage/*` endpoints once all of a provider's
+ * required fields are non-empty, same "debounce, don't save every
+ * keystroke" posture every other autosaving field in this plugin already
+ * uses, just hand-rolled here rather than InputRenderer's own built-in
+ * debounce (this panel was never InputRenderer-driven in the first place —
+ * see this docblock's own opening paragraph for why). Deliberately still
+ * gated on "all required fields present," not "any field changed": autosaving
+ * a Secret Access Key the instant it's typed, before Bucket has a value, would
+ * either silently fail or (worse) save a real secret paired with an empty/
+ * stale bucket.
  */
 const BackupStoragePanel = () => {
 	const [status, setStatus] = useState<BackupStorageStatus | null>(null);
@@ -89,6 +106,22 @@ const BackupStoragePanel = () => {
 	const [isTestingGoogleDrive, setIsTestingGoogleDrive] = useState(false);
 	const [googleTestResult, setGoogleTestResult] = useState<TestResult | null>(null);
 	const [isDisconnectingGoogleDrive, setIsDisconnectingGoogleDrive] = useState(false);
+
+	/** Real debounce timers — one per provider, so typing across both S3 and Google Drive fields in one sitting debounces each independently rather than one resetting the other's. */
+	const s3SaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const googleClientSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	useEffect(
+		() => () => {
+			if (s3SaveTimer.current) {
+				clearTimeout(s3SaveTimer.current);
+			}
+			if (googleClientSaveTimer.current) {
+				clearTimeout(googleClientSaveTimer.current);
+			}
+		},
+		[]
+	);
 
 	const refreshStatus = () =>
 		getApiResponse<BackupStorageStatus>(
@@ -153,13 +186,63 @@ const BackupStoragePanel = () => {
 		},
 	};
 
-	const handleSaveS3 = () => {
-		const { access_key, secret_key, bucket, region } = mergedValues.s3 as {
-			access_key: string;
-			secret_key: string;
-			bucket: string;
-			region: string;
+	/**
+	 * `ExpandablePanelInput`'s own `onChange` — fires with the full,
+	 * already-merged-by-key `newValues` object on every keystroke in any
+	 * field of either provider (same shape `panelValues` itself holds).
+	 * Updates local state as before, then — per provider, independently —
+	 * (re)starts that provider's own debounce timer once its required
+	 * fields are all non-empty in `newValues` itself (not the possibly one-
+	 * keystroke-stale `mergedValues` from this render), same real "only
+	 * autosave a complete, submittable set of fields" gate the removed
+	 * Save button's own `disabled` condition used to enforce by hand.
+	 */
+	const handlePanelValuesChange = (
+		newValues: Record<string, Record<string, unknown>>
+	) => {
+		setPanelValues(newValues);
+
+		const s3Values = {
+			access_key: (newValues.s3?.access_key as string) ?? '',
+			secret_key: (newValues.s3?.secret_key as string) ?? '',
+			bucket: (newValues.s3?.bucket as string) ?? status?.s3.bucket ?? '',
+			region:
+				(newValues.s3?.region as string) ?? status?.s3.region ?? 'us-east-1',
 		};
+
+		if (s3Values.access_key && s3Values.secret_key && s3Values.bucket) {
+			if (s3SaveTimer.current) {
+				clearTimeout(s3SaveTimer.current);
+			}
+			s3SaveTimer.current = setTimeout(
+				() => handleSaveS3(s3Values),
+				AUTOSAVE_DEBOUNCE_MS
+			);
+		}
+
+		const googleClientValues = {
+			client_id: (newValues.google_drive?.client_id as string) ?? '',
+			client_secret: (newValues.google_drive?.client_secret as string) ?? '',
+		};
+
+		if (googleClientValues.client_id && googleClientValues.client_secret) {
+			if (googleClientSaveTimer.current) {
+				clearTimeout(googleClientSaveTimer.current);
+			}
+			googleClientSaveTimer.current = setTimeout(
+				() => handleSaveGoogleClient(googleClientValues),
+				AUTOSAVE_DEBOUNCE_MS
+			);
+		}
+	};
+
+	const handleSaveS3 = (values: {
+		access_key: string;
+		secret_key: string;
+		bucket: string;
+		region: string;
+	}) => {
+		const { access_key, secret_key, bucket, region } = values;
 
 		setIsSavingS3(true);
 		setS3TestResult(null);
@@ -206,11 +289,11 @@ const BackupStoragePanel = () => {
 			.finally(() => setIsTestingS3(false));
 	};
 
-	const handleSaveGoogleClient = () => {
-		const { client_id, client_secret } = mergedValues.google_drive as {
-			client_id: string;
-			client_secret: string;
-		};
+	const handleSaveGoogleClient = (values: {
+		client_id: string;
+		client_secret: string;
+	}) => {
+		const { client_id, client_secret } = values;
 
 		setIsSavingGoogleClient(true);
 		setGoogleTestResult(null);
@@ -347,22 +430,17 @@ const BackupStoragePanel = () => {
 						label: __('Region', 'vulopilot'),
 						placeholder: 'us-east-1',
 					},
-					{
-						key: 'save_s3',
-						type: 'button',
-						label: '',
-						text: isSavingS3
-							? __('Saving…', 'vulopilot')
-							: status.s3.configured
-								? __('Update', 'vulopilot')
-								: __('Save', 'vulopilot'),
-						onClick: handleSaveS3,
-						disabled:
-							isSavingS3 ||
-							!mergedValues.s3.access_key ||
-							!mergedValues.s3.secret_key ||
-							!mergedValues.s3.bucket,
-					},
+					...(isSavingS3
+						? [
+							{
+								key: 'saving_s3',
+								type: 'notice',
+								label: '',
+								noticeType: 'info',
+								message: __('Saving…', 'vulopilot'),
+							},
+						]
+						: []),
 				],
 			},
 			{
@@ -478,19 +556,17 @@ const BackupStoragePanel = () => {
 								label: __('Client Secret', 'vulopilot'),
 								placeholder: '••••••••••••••••••••',
 							},
-							{
-								key: 'save_gdrive_client',
-								type: 'button',
-								label: '',
-								text: isSavingGoogleClient
-									? __('Saving…', 'vulopilot')
-									: __('Save', 'vulopilot'),
-								onClick: handleSaveGoogleClient,
-								disabled:
-									isSavingGoogleClient ||
-									!mergedValues.google_drive.client_id ||
-									!mergedValues.google_drive.client_secret,
-							},
+							...(isSavingGoogleClient
+								? [
+									{
+										key: 'saving_gdrive_client',
+										type: 'notice',
+										label: '',
+										noticeType: 'info',
+										message: __('Saving…', 'vulopilot'),
+									},
+								]
+								: []),
 						],
 			},
 		]
@@ -517,7 +593,7 @@ const BackupStoragePanel = () => {
 								name="backup-storage-destinations"
 								methods={methods}
 								value={mergedValues}
-								onChange={setPanelValues}
+								onChange={handlePanelValuesChange}
 								canAccess
 							/>
 						)}

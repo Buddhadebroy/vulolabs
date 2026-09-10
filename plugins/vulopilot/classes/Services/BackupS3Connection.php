@@ -125,6 +125,24 @@ class BackupS3Connection {
     }
 
     /**
+     * Real `DeleteObject` — `BackupStorageManager::delete_remote_copy()`'s
+     * own S3 branch, run when a backup that was uploaded here gets deleted
+     * or retention-purged locally, so its remote copy doesn't outlive it.
+     *
+     * @param string $object_key Real S3 object key (`upload_to_s3()`'s own stored `remote_path`).
+     * @return true|\WP_Error
+     */
+    public function delete_object( string $object_key ) {
+        $client = $this->build_client();
+
+        if ( ! $client ) {
+            return new \WP_Error( 'vulopilot_s3_not_configured', __( 'Amazon S3 isn’t configured yet.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        return $client->delete_object( $object_key );
+    }
+
+    /**
      * Never includes the real secret key, and only the last 4 characters
      * of the Access Key ID — same "prove it's saved without exposing the
      * value" posture `AiProviders::prepare_config_for_response()`'s own

@@ -1,7 +1,117 @@
 @use '../../components/config' as *;
 
+// The top "Priority/Category/Affected/Detected" stat-tile row — real
+// group.severity/category/count/detected-date, just laid out as 4 tiles
+// (per direct instruction, matching a reference design) instead of the
+// stacked label/value rows this panel used before.
+.issue-detail-stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+	gap: 0.75rem;
+	margin-bottom: 1.25rem;
+}
 
+.issue-detail-stat-tile {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.375rem;
+	padding: 0.75rem;
+	border: $border-light-small;
+	border-radius: $border-radius-small;
+	background: $theme-background-color;
+}
 
+.issue-detail-stat-icon {
+	color: $sub-text-color;
+	font-size: 1rem;
+}
+
+.issue-detail-stat-label {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+}
+
+.issue-detail-stat-value {
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+// "Example finding"/"Affected items" — each its own bordered, icon-headed
+// box (per direct instruction, matching that same reference design)
+// instead of a bare FormGroupComponent row; `.issue-detail-pro-gate*`
+// below still handles the actual blur/overlay/dummy-content mechanics
+// inside each one, unchanged.
+.issue-detail-section {
+	border: $border-light-small;
+	border-radius: $border-radius-small;
+	padding: 0.875rem 1rem;
+	margin-bottom: 1rem;
+}
+
+.issue-detail-section-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.issue-detail-section-lock {
+	color: $theme-color;
+	font-size: 0.875rem;
+}
+
+.issue-detail-section-title {
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+// Docks inline with the title, next to it in the header's own flex row,
+// rather than in its own absolute-positioned corner the way
+// `.issue-detail-pro-gate-tag .pro-tag` below sits. `!important` because
+// zyra's own real `.admin-tag.pro-tag` rule (theme/src/common.scss) ties
+// this selector on specificity (both 2 classes) — confirmed live: without
+// `!important` here, zyra's rule wins the cascade regardless of source
+// order (its own runtime style injection loads after this file's static
+// CSS), leaving the tag absolutely positioned against the nearest
+// `position: relative` ancestor up the tree (`.issue-detail-panel` itself)
+// instead of docking inline here — which visually landed it on top of the
+// stat-tile row above, not next to this section's own title.
+.issue-detail-section-header .pro-tag {
+	position: static !important;
+	transform: none !important;
+}
+
+.issue-detail-example-title {
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+.issue-detail-example-where {
+	margin-top: 0.5rem;
+}
+
+// The locked-state info line above the footer's own "Upgrade to Pro"/
+// "Unlock fix details" buttons (per direct instruction, matching that same
+// reference design's own footer banner) — same light-blue informational
+// convention `NoticeComponent`'s own `info` variant uses elsewhere in this
+// plugin, hand-rolled here since this is one plain inline line, not a
+// dismissible notice.
+.issue-detail-upgrade-banner {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	margin-bottom: 1rem;
+	border-radius: $border-radius-small;
+	background: color-mix(in srgb, $theme-color 8%, transparent);
+	color: $theme-color;
+	font-size: 0.8125rem;
+
+	i {
+		margin-top: 0.125rem;
+	}
+}
 
 // IssueDetailPanel.tsx's own Pro lock for its "Example finding"/"Affected
 // endpoints"/action-row sections — a generic dummy preview + "Pro" tag,

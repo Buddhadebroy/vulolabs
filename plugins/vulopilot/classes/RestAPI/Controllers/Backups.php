@@ -182,6 +182,12 @@ class Backups extends \WP_REST_Controller {
             }
         }
 
+        // Real remote-copy cleanup (S3/Google Drive) — a no-op for a
+        // 'local'-only backup or one whose upload never finished. See
+        // Services\BackupStorageManager::delete_remote_copy()'s own
+        // docblock.
+        VuloPilot()->backup_storage_manager->delete_remote_copy( $backup );
+
         $repository->delete( $id );
 
         return rest_ensure_response( array( 'success' => true ) );
