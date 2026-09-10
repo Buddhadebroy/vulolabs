@@ -357,6 +357,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 												id: card.key,
 												icon: card.icon,
 												title: card.title,
+												desc: '2 issue',
 												tags: (
 													<TypographyComponent
 														variant="h5"
