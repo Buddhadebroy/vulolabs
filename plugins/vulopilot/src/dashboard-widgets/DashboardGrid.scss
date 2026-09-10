@@ -410,6 +410,30 @@ $score-card-colors: (
 	color: $sub-text-color;
 }
 
+// "Vital Pulse"'s own real per-bucket row list (`OverallScoreWidget.tsx`,
+// converted to match `SeoTab.tsx`'s own "SEO Health" row shape) — same
+// class names that component's own `SeoVisibility.scss` defines, not
+// reachable from this widget's own bundle, so duplicated locally per this
+// codebase's own "duplicate small per-file logic" convention rather than
+// importing that page-scoped stylesheet wholesale here.
+.seo-health-score-row-delta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.125rem;
+	margin-right: 0.75rem;
+	font-size: 0.8125rem;
+}
+
+.seo-health-score-row-value {
+	font-weight: 700;
+}
+
+.seo-health-score-row-suffix {
+	font-weight: 400;
+	color: $sub-text-color;
+	margin-left: 0.125rem;
+}
+
 .ai-suggestion-fix-btn {
 	display: inline-flex;
 	align-items: center;
