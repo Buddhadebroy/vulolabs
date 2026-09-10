@@ -75,7 +75,15 @@ class HeavyPluginsScanner extends AbstractBasicScanner {
                 __( 'A large number of active plugins increases the odds of conflicts and can slow down every admin and frontend request.', 'vulopilot' ),
                 'table',
                 'active_plugins',
-                array( 'plugin_count' => $plugin_count ),
+                array(
+                    'plugin_count'    => $plugin_count,
+                    'recommended_fix' => array(
+                        __( 'Audit your active plugins and deactivate any that are unused or redundant.', 'vulopilot' ),
+                        __( 'Look for plugins that duplicate functionality (e.g. two SEO plugins) and keep only one.', 'vulopilot' ),
+                        __( 'Check each plugin\'s own performance impact with Query Monitor before deciding to keep it.', 'vulopilot' ),
+                        __( 'Consider a multi-feature plugin instead of several single-purpose ones where it makes sense.', 'vulopilot' ),
+                    ),
+                ),
                 'active-plugin-count'
             ),
         );

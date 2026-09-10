@@ -132,6 +132,37 @@ interface IssueDetailPanelProps {
  * `ShowProPopup` lightbox, same real destination the section overlays
  * below already open) — per direct instruction, matching that mockup's
  * own real footer functionality instead of showing 3 dead buttons.
+ *
+ * Performance findings are one exception to "no scanner writes that copy"
+ * above: every `classes/Scanners/Basic/*Scanner.php` under the
+ * `performance` category now writes a real, scanner-specific
+ * `recommended_fix` step list into `Finding::get_meta()` (e.g. CdnScanner's
+ * own "sign up for a CDN"/"confirm assets resolve through it"/… steps) —
+ * genuine, accurate remediation guidance, not fabricated data. When a
+ * performance finding's sample carries that list, this panel swaps
+ * "Example finding" for "Recommended fix" (a numbered step list, per
+ * direct instruction matching a reference design) instead of the generic
+ * title/description/page example.
+ *
+ * `WordPressHealthScanner`/`ServerHealthScanner` (categories `wordpress`/
+ * `server`) are the other exception — both wrap `WP_Site_Health`, whose own
+ * test descriptions are genuinely built from separate HTML paragraphs (a
+ * "why this matters" explanation, then a "what was actually found" detail)
+ * before WordPress core hands them back as one flattened string; those two
+ * scanners now recover that real split (`split_into_paragraphs()`, never
+ * fabricated) into `meta.why_it_matters`/`meta.what_happened`. When
+ * present, `why_it_matters` renders as its own always-visible section (not
+ * Pro-gated — general educational content, not per-site data) and
+ * `what_happened` takes over the swappable section in place of "Example
+ * finding", the same way `recommended_fix` does for Performance. Every
+ * other category (20 of 22) still shows "Example finding" as before, since
+ * no other scanner writes either of these fields.
+ *
+ * The header's own `desc` deliberately shows the sample's `title` (short)
+ * rather than its `description` (long) — the latter is already shown once,
+ * in full, by whichever of the three sections above ends up rendering; an
+ * earlier version of this panel showed the same long description in both
+ * places.
  */
 const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	group,
@@ -234,6 +265,66 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	 * ever reached.
 	 */
 	const isProActive = !!appLocalizer.khali_dabba;
+
+	/**
+	 * `group.sample.meta` is the raw `wp_json_encode()`-d `Finding::get_meta()`
+	 * column (AbstractRepository::find_all() is a plain `SELECT *`, no
+	 * server-side decode — see issuesTypes.ts's own `FindingSample.meta`
+	 * docblock) — parsed once here rather than trusting its shape, since a
+	 * finding scanned before a given scanner started writing this data (or
+	 * any scanner category that never will) simply won't have it.
+	 */
+	const sampleMeta: Record<string, unknown> | null = (() => {
+		if (!group.sample?.meta) {
+			return null;
+		}
+
+		try {
+			const parsed = JSON.parse(group.sample.meta);
+
+			return parsed && 'object' === typeof parsed ? parsed : null;
+		} catch {
+			return null;
+		}
+	})();
+
+	/**
+	 * Real, scanner-specific remediation steps — see this file's own top
+	 * docblock. An empty array means "fall back to Example finding" below,
+	 * never a fabricated step list.
+	 */
+	const recommendedFixSteps: string[] = Array.isArray(
+		sampleMeta?.recommended_fix
+	)
+		? (sampleMeta?.recommended_fix as unknown[]).filter(
+				(step: unknown): step is string => 'string' === typeof step
+			)
+		: [];
+
+	const showRecommendedFix =
+		'performance' === group.category && recommendedFixSteps.length > 0;
+
+	/**
+	 * `why_it_matters`/`what_happened` — WordPressHealthScanner.php/
+	 * ServerHealthScanner.php's own real split of `WP_Site_Health`'s
+	 * already-separate description paragraphs (see those files' own
+	 * `split_into_paragraphs()` docblock) — never fabricated, and only ever
+	 * present for those two scanner categories' findings. `whyItMatters`
+	 * renders unconditionally when present (general educational content,
+	 * not per-site data — no reason to Pro-gate it); `whatHappened` takes
+	 * over the swappable Pro-gated section below in place of "Example
+	 * finding" when present, same as `showRecommendedFix` does for
+	 * Performance.
+	 */
+	const whyItMatters =
+		'string' === typeof sampleMeta?.why_it_matters
+			? sampleMeta.why_it_matters
+			: '';
+	const whatHappened =
+		'string' === typeof sampleMeta?.what_happened
+			? sampleMeta.what_happened
+			: '';
+	const showWhatHappened = !showRecommendedFix && '' !== whatHappened;
 
 	/**
 	 * Same "never render the real thing while locked, not even faded"
@@ -478,7 +569,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				className="issue-detail-panel"
 				title={group.label}
 				titleIcon="error"
-				desc={group.sample?.description}
+				desc={group.sample?.title}
 				action={
 					<i
 						className="adminfont-close"
@@ -495,29 +586,18 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					/>
 				}
 			>
+				<div className="issue-detail-badges-row">
+					<BadgeComponent
+						color={getSeverityClass(group.severity)}
+						text={SEVERITY_LABEL[group.severity]}
+					/>
+					<BadgeComponent
+						color="blue"
+						text={CATEGORY_LABELS[group.category] ?? group.category}
+					/>
+				</div>
+
 				<div className="issue-detail-stats-grid">
-					<div className="issue-detail-stat-tile">
-						<i className="adminfont-error issue-detail-stat-icon" />
-						<span className="issue-detail-stat-label">
-							{__('Priority', 'vulopilot')}
-						</span>
-						<BadgeComponent
-							color={getSeverityClass(group.severity)}
-							text={SEVERITY_LABEL[group.severity]}
-						/>
-					</div>
-					<div className="issue-detail-stat-tile">
-						<i
-							className={`adminfont-${CATEGORY_ICONS[group.category] ?? 'category'} issue-detail-stat-icon`}
-						/>
-						<span className="issue-detail-stat-label">
-							{__('Category', 'vulopilot')}
-						</span>
-						<BadgeComponent
-							color="blue"
-							text={CATEGORY_LABELS[group.category] ?? group.category}
-						/>
-					</div>
 					<div className="issue-detail-stat-tile">
 						<i className="adminfont-global-community issue-detail-stat-icon" />
 						<span className="issue-detail-stat-label">
@@ -540,7 +620,30 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								: '—'}
 						</span>
 					</div>
+					<div className="issue-detail-stat-tile">
+						<i className="adminfont-location issue-detail-stat-icon" />
+						<span className="issue-detail-stat-label">
+							{__('Scope', 'vulopilot')}
+						</span>
+						<span className="issue-detail-stat-value">
+							{group.sample?.page || __('Site-wide', 'vulopilot')}
+						</span>
+					</div>
 				</div>
+
+				{whyItMatters && (
+					<div className="issue-detail-why-it-matters">
+						<div className="issue-detail-why-it-matters-icon">
+							<i className="adminfont-info" />
+						</div>
+						<div>
+							<div className="issue-detail-why-it-matters-title">
+								{__('Why it matters', 'vulopilot')}
+							</div>
+							<div className="desc">{whyItMatters}</div>
+						</div>
+					</div>
+				)}
 
 				{group.sample && (
 					<div className="issue-detail-section">
@@ -549,7 +652,11 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								<i className="adminfont-lock issue-detail-section-lock" />
 							)}
 							<span className="issue-detail-section-title">
-								{__('Example finding', 'vulopilot')}
+								{showRecommendedFix
+									? __('Recommended fix', 'vulopilot')
+									: showWhatHappened
+										? __('What happened?', 'vulopilot')
+										: __('Example finding', 'vulopilot')}
 							</span>
 							{!isProActive && (
 								<span className="admin-tag pro-tag">
@@ -558,29 +665,76 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								</span>
 							)}
 						</div>
-						{renderProGatedSection(
-							<>
-								<div className="issue-detail-example-title">
-									{group.sample.title}
-								</div>
-								<div className="desc">{group.sample.description}</div>
-								<div className="issue-detail-example-where">
-									<ClipboardComponent
-										text={group.sample.page || __('Site-wide', 'vulopilot')}
-										variant="code"
-										copyButtonLabel={__('Copy', 'vulopilot')}
-										copiedLabel={__('Copied!', 'vulopilot')}
-									/>
-								</div>
-							</>,
-							<span className="desc">
-								{__(
-									'A real, representative finding from this group — its title, description, and where it was found — appears here once Pro is active.',
-									'vulopilot'
+						{showRecommendedFix
+							? renderProGatedSection(
+									<ol className="issue-detail-fix-steps">
+										{recommendedFixSteps.map((step, index) => (
+											<li key={index} className="issue-detail-fix-step">
+												<span className="issue-detail-fix-step-number">
+													{index + 1}
+												</span>
+												<span className="issue-detail-fix-step-text">
+													{step}
+												</span>
+											</li>
+										))}
+									</ol>,
+									<span className="desc">
+										{__(
+											'Step-by-step guidance for fixing this specific issue appears here once Pro is active.',
+											'vulopilot'
+										)}
+									</span>,
+									false
+								)
+							: showWhatHappened
+								? renderProGatedSection(
+										<>
+											<div className="desc">{whatHappened}</div>
+											<div className="issue-detail-example-where">
+												<ClipboardComponent
+													text={
+														group.sample.page || __('Site-wide', 'vulopilot')
+													}
+													variant="code"
+													copyButtonLabel={__('Copy', 'vulopilot')}
+													copiedLabel={__('Copied!', 'vulopilot')}
+												/>
+											</div>
+										</>,
+										<span className="desc">
+											{__(
+												'What this specific check actually found appears here once Pro is active.',
+												'vulopilot'
+											)}
+										</span>,
+										false
+									)
+								: renderProGatedSection(
+									<>
+										<div className="issue-detail-example-title">
+											{group.sample.title}
+										</div>
+										<div className="desc">{group.sample.description}</div>
+										<div className="issue-detail-example-where">
+											<ClipboardComponent
+												text={
+													group.sample.page || __('Site-wide', 'vulopilot')
+												}
+												variant="code"
+												copyButtonLabel={__('Copy', 'vulopilot')}
+												copiedLabel={__('Copied!', 'vulopilot')}
+											/>
+										</div>
+									</>,
+									<span className="desc">
+										{__(
+											'A real, representative finding from this group — its title, description, and where it was found — appears here once Pro is active.',
+											'vulopilot'
+										)}
+									</span>,
+									false
 								)}
-							</span>,
-							false
-						)}
 					</div>
 				)}
 
@@ -656,10 +810,15 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					<div className="issue-detail-upgrade-banner">
 						<i className="adminfont-info" />
 						<span>
-							{__(
-								'Detailed examples, the full affected list, and AI-assisted fixes are included in Pro.',
-								'vulopilot'
-							)}
+							{showRecommendedFix
+								? __(
+										'Detailed recommendations, setup guidance, and AI fixes are included in Pro.',
+										'vulopilot'
+									)
+								: __(
+										'Detailed examples, the full affected list, and AI-assisted fixes are included in Pro.',
+										'vulopilot'
+									)}
 						</span>
 					</div>
 				)}

@@ -79,7 +79,15 @@ class FontsScanner extends AbstractBasicScanner {
                         $this->get_category(),
                         __( 'The homepage loads fonts from Google Fonts\' own servers. Self-hosting web fonts (or adding font-display: swap) avoids an extra third-party connection and can prevent invisible-text flashes while fonts load.', 'vulopilot' ),
                         'url',
-                        home_url( '/' )
+                        home_url( '/' ),
+                        array(
+                            'recommended_fix' => array(
+                                __( 'Host Google Fonts locally instead of loading them from fonts.googleapis.com/fonts.gstatic.com.', 'vulopilot' ),
+                                __( 'Use a plugin (e.g. OMGF) to automatically download and self-host your fonts.', 'vulopilot' ),
+                                __( 'Limit the number of font weights/styles you load to only what\'s actually used.', 'vulopilot' ),
+                                __( 'Add font-display: swap so text stays visible while fonts load.', 'vulopilot' ),
+                            ),
+                        )
                     ),
                 );
             }

@@ -76,7 +76,15 @@ class CacheDetectionScanner extends AbstractBasicScanner {
                 $this->get_category(),
                 __( 'No known caching plugin is active and the homepage response has no caching headers. A caching layer significantly reduces load time and server load.', 'vulopilot' ),
                 'url',
-                home_url( '/' )
+                home_url( '/' ),
+                array(
+                    'recommended_fix' => array(
+                        __( 'Install and activate a caching plugin (e.g. WP Super Cache, W3 Total Cache, WP Rocket).', 'vulopilot' ),
+                        __( 'If your host provides server-level caching, enable it in your hosting dashboard.', 'vulopilot' ),
+                        __( 'Confirm caching is active by checking response headers for Cache-Control/ETag.', 'vulopilot' ),
+                        __( 'Set a reasonable cache expiry so returning visitors get fast repeat page loads.', 'vulopilot' ),
+                    ),
+                )
             ),
         );
     }

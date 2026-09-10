@@ -91,6 +91,12 @@ class ImageCleanupScanner extends AbstractBasicScanner {
                 array(
                     'orphaned_image_count' => $count,
                     'bytes'                => $bytes,
+                    'recommended_fix'      => array(
+                        __( 'Review the Media Library for images no longer attached to any post or page.', 'vulopilot' ),
+                        __( 'Delete confirmed-unused images to free up storage and reduce backup size.', 'vulopilot' ),
+                        __( 'Use a plugin (e.g. Media Cleaner) to help identify safely-removable files.', 'vulopilot' ),
+                        __( 'Re-run this scan after cleanup to confirm the orphaned count has dropped.', 'vulopilot' ),
+                    ),
                 ),
                 'unused-images'
             ),

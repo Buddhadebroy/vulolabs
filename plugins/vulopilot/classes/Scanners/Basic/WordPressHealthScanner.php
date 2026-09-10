@@ -109,13 +109,53 @@ class WordPressHealthScanner extends AbstractBasicScanner {
             return null;
         }
 
+        $description = (string) ( $result['description'] ?? '' );
+        $paragraphs  = $this->split_into_paragraphs( $description );
+
         return new Finding(
             wp_strip_all_tags( (string) ( $result['label'] ?? __( 'WordPress health check', 'vulopilot' ) ) ),
             'critical' === $status ? Severity::HIGH : Severity::MEDIUM,
             $this->get_category(),
-            wp_strip_all_tags( (string) ( $result['description'] ?? '' ) ),
+            wp_strip_all_tags( $description ),
             'site_health_test',
-            (string) ( $result['test'] ?? '' )
+            (string) ( $result['test'] ?? '' ),
+            count( $paragraphs ) >= 2
+                ? array(
+                    'why_it_matters' => $paragraphs[0],
+                    'what_happened'  => implode( ' ', array_slice( $paragraphs, 1 ) ),
+                )
+                : array()
+        );
+    }
+
+    /**
+     * `WP_Site_Health`'s own test descriptions are built from separate real
+     * HTML `<p>` blocks (confirmed by reading `WP_Site_Health`'s own core
+     * source) — a first paragraph explaining why the check matters, then
+     * one or more further paragraphs describing what this specific test
+     * actually found — flattened into one plain-text blob by the time
+     * `finding_from_test_result()` above stores it as `Finding`'s own
+     * `description`. Splitting on `</p>` recovers that real, already-
+     * existing structure (never fabricated) so the frontend can show a
+     * genuine "Why it matters"/"What happened" split; a description with
+     * only one real paragraph returns a single-element array, and the
+     * caller above then omits `meta` entirely rather than splitting
+     * nothing into two boxes.
+     *
+     * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
+     * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.
+     */
+    private function split_into_paragraphs( string $html_description ): array {
+        $chunks = preg_split( '/<\/p>\s*/i', $html_description ) ?: array();
+
+        return array_values(
+            array_filter(
+                array_map(
+                    static fn( string $chunk ): string => trim( wp_strip_all_tags( $chunk ) ),
+                    $chunks
+                ),
+                static fn( string $paragraph ): bool => '' !== $paragraph
+            )
         );
     }
 }

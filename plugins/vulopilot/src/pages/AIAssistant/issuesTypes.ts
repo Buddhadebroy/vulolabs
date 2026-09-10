@@ -9,6 +9,8 @@ export interface FindingSample {
 	last_seen_at?: string;
 	/** Resolved page path or 'Site-wide' — added server-side by Findings.php's add_page_field(). */
 	page?: string;
+	/** Raw `wp_json_encode()`-d `Finding::get_meta()` column, unparsed (AbstractRepository::find_all() is a plain `SELECT *`, no server-side decode) — e.g. Performance scanners' own `recommended_fix` step list. Parse with `JSON.parse()` before use. */
+	meta?: string | null;
 }
 
 export interface FindingGroup {

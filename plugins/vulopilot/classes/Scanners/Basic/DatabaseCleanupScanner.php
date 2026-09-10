@@ -89,6 +89,12 @@ class DatabaseCleanupScanner extends AbstractBasicScanner {
                 array(
                     'expired_transients' => $expired_transients,
                     'excess_revisions'   => $excess_revisions,
+                    'recommended_fix'    => array(
+                        __( 'Delete expired transients with a database-cleanup plugin (e.g. WP-Optimize, Advanced Database Cleaner).', 'vulopilot' ),
+                        __( 'Limit future post revisions by adding define(\'WP_POST_REVISIONS\', 5); to wp-config.php.', 'vulopilot' ),
+                        __( 'Run a one-time cleanup to remove existing excess revisions.', 'vulopilot' ),
+                        __( 'Schedule periodic database optimization to keep this from building up again.', 'vulopilot' ),
+                    ),
                 ),
                 'db-cleanup'
             ),
