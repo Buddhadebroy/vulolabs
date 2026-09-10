@@ -162,7 +162,12 @@ interface IssueDetailPanelProps {
  * rather than its `description` (long) — the latter is already shown once,
  * in full, by whichever of the three sections above ends up rendering; an
  * earlier version of this panel showed the same long description in both
- * places.
+ * places. "Affected items" below has the same care taken: `group.sample`
+ * is normally also the first row that list's own fetch would return (both
+ * read the same scanner_id ordered by id desc), so `otherAffectedItems`
+ * filters that one row out — this list only ever shows open findings
+ * genuinely NOT already covered by "Recommended fix"/"What happened"/
+ * "Example finding" above.
  */
 const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	group,
@@ -325,6 +330,21 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 			? sampleMeta.what_happened
 			: '';
 	const showWhatHappened = !showRecommendedFix && '' !== whatHappened;
+
+	/**
+	 * `group.sample` is always the same finding "Recommended fix"/"What
+	 * happened"/"Example finding" above already shows in full — and since
+	 * it's also the group's own most-recently-detected finding, it's
+	 * normally the very first row `affectedItems` itself fetches (same
+	 * `orderby=id&order=desc` as `group.sample`, see this file's own
+	 * `useEffect` above). Left in, "Affected items" would repeat that exact
+	 * same title/page/date a second time right below content that already
+	 * covered it. Filtered out here so this list only ever shows OTHER open
+	 * findings in the group — real data either way, just not shown twice.
+	 */
+	const otherAffectedItems = (affectedItems ?? []).filter(
+		(row) => row.id !== group.sample?.id
+	);
 
 	/**
 	 * Same "never render the real thing while locked, not even faded"
@@ -759,7 +779,7 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 							<ListComponent
 								className="mini-card report"
 								loading={isLoadingAffected}
-								items={(affectedItems ?? []).map((row) => ({
+								items={otherAffectedItems.map((row) => ({
 									id: row.id,
 									icon: CATEGORY_ICONS[group.category] ?? 'ai',
 									title: row.title,
@@ -777,6 +797,17 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 									<span className="desc">
 										{__(
 											'No individual findings could be loaded for this group right now.',
+											'vulopilot'
+										)}
+									</span>
+								)}
+							{!isLoadingAffected &&
+								affectedItems &&
+								affectedItems.length > 0 &&
+								0 === otherAffectedItems.length && (
+									<span className="desc">
+										{__(
+											'This group\'s only other open finding is already shown above.',
 											'vulopilot'
 										)}
 									</span>
