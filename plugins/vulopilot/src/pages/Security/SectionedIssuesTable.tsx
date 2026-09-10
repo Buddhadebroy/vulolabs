@@ -1,13 +1,13 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
-	TabsComponent,
+	SectionComponent
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
@@ -420,37 +420,28 @@ const SectionedIssuesTable = ({
 		</>
 	);
 
-	// Same real `CardComponent` title/titleIcon/desc + `TabsComponent` +
-	// content-below-the-tabs structure `IssuesSection.tsx`'s own "All
-	// Issues" table already uses (SEO/AEO/GEO), per direct instruction —
-	// replaces the old bespoke `SectionComponent` header + per-tab
-	// `content` swap. `tabs[].content` is dropped since `sectionContent`
-	// is already the same reactive tree for every tab (state-driven off
-	// `activeTab`/`activeScannerIds`, not which tab object it's attached
-	// to) — same real content, just rendered once below the tab bar
-	// instead of once per tab.
+	// Same real `CardComponent` title/titleIcon/desc `IssuesSection.tsx`'s
+	// own "All Issues" table already uses (SEO/AEO/GEO), per direct
+	// instruction — no own `TabsComponent` pill bar any more: every real
+	// caller (SecurityTab.tsx's own `SecurityMetricsGrid` tiles,
+	// Accessibility.tsx's own equivalent) already drives this component's
+	// `activeTab`/`onTabChange` from its own external click target, so
+	// this bar was a real 2nd, redundant way to do the same real tab
+	// switch. `activeTab`/`onTabChange`/`tabs` (the count/label/icon
+	// computation) are unchanged — only their own pill-bar UI is gone;
+	// switching tabs from outside this component still works exactly as
+	// before.
 	return (
-		<div id={id}>
-			<CardComponent
-				className="sectioned-issues-table"
-				title={title}
-				titleIcon={activeTabMeta?.icon}
-				desc={activeTabMeta?.description}
-			>
-				<TabsComponent
-					className="seo-issues-filter-tabs"
-					activeIndex={Math.max(
-						tabs.findIndex((tab) => tab.id === activeTab),
-						0
-					)}
-					onTabChange={(index) => onTabChange(tabs[index].id)}
-					tabs={tabs.map((tab) => ({
-						label: sprintf('%1$s (%2$d)', tab.label, tab.count),
-					}))}
-				/>
-				<ContainerComponent>{sectionContent}</ContainerComponent>
-			</CardComponent>
-		</div>
+		<ContainerComponent>
+			<ColumnComponent >
+				<SectionComponent
+						wrapperClass="without-settings"
+						title={__('Issues', 'vulopilot')}
+						desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
+					/>
+			</ColumnComponent>
+			{sectionContent}
+		</ContainerComponent>
 	);
 };
 

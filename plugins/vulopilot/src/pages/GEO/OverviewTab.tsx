@@ -140,46 +140,50 @@ const CATEGORY_TO_TAB: Record<string, string> = {
 };
 const categoryToTab = (category: string): string => CATEGORY_TO_TAB[category] ?? 'seo';
 
+// Same real "icon name" + trailing color modifier convention `SeoTab.tsx`'s
+// own `CATEGORY_CARDS` already establishes (e.g. `'search blue'`) — a
+// distinct identity color per real destination tab, independent of any
+// score/status this card doesn't have one of.
 const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] = [
 	{
 		tab: 'brand-visibility',
-		icon: 'person',
+		icon: 'person purple',
 		title: __('Brand Visibility', 'vulopilot'),
 		desc: __('Check how AI understands your brand.', 'vulopilot'),
 	},
 	{
 		tab: 'seo',
-		icon: 'search',
+		icon: 'search blue',
 		title: __('SEO', 'vulopilot'),
 		desc: __('Optimize for search engines.', 'vulopilot'),
 	},
 	{
 		tab: 'geo',
-		icon: 'search-discovery',
+		icon: 'search-discovery green',
 		title: __('GEO (AI Visibility)', 'vulopilot'),
 		desc: __('Improve visibility in AI answers.', 'vulopilot'),
 	},
 	{
 		tab: 'aeo',
-		icon: 'ai',
+		icon: 'ai orange',
 		title: __('AEO', 'vulopilot'),
 		desc: __('Answer-engine readiness checks.', 'vulopilot'),
 	},
 	{
 		tab: 'keywords',
-		icon: 'vpn-key',
+		icon: 'vpn-key yellow',
 		title: __('Keywords', 'vulopilot'),
 		desc: __('Track your keyword rankings.', 'vulopilot'),
 	},
 	{
 		tab: 'crawl-urls',
-		icon: 'link',
+		icon: 'link teal',
 		title: __('Crawl & URLs', 'vulopilot'),
 		desc: __('robots.txt, sitemaps, redirects & more.', 'vulopilot'),
 	},
 	{
 		tab: 'schema-knowledge',
-		icon: 'identity-verification',
+		icon: 'identity-verification red',
 		title: __('Business Identity & Schema', 'vulopilot'),
 		desc: __('Manage structured data & entities.', 'vulopilot'),
 	},
@@ -406,7 +410,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-
 			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Visibility Trend', 'vulopilot')}
@@ -444,10 +447,9 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-			<ColumnComponent grid={6} fullHeight>
+
+			<ColumnComponent grid={8} fullHeight>
 				<VisibilityBySourceCard />
-			</ColumnComponent>
-			<ColumnComponent grid={6} fullHeight>
 				<GeoFixTheseFirstCard
 					title={__('Top Opportunities', 'vulopilot')}
 					emptyMessage={__('No open findings right now — nothing to fix.', 'vulopilot')}
@@ -464,8 +466,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 						onNavigateTab(group ? categoryToTab(group.category) : 'seo');
 					}}
 				/>
-			</ColumnComponent>
-			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Recent Activity', 'vulopilot')}
 					titleIcon="clock"
@@ -511,22 +511,23 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-
-			<ColumnComponent grid={6} fullHeight>
+			<ColumnComponent grid={4}>
 				<CardComponent
 					title={__('Quick Links', 'vulopilot')}
 					titleIcon="link"
 					desc={__('Jump straight to any SEO & Visibility section.', 'vulopilot')}
 				>
-					{/* Same real `className: 'mini-card documentation'` + `border` variant zyra's own Storybook documents (ListComponent--documentation-card) — icon + title + desc per item, real navigation via `action` instead of the old hand-rolled `<button>` grid. Same real 7 tabs/icons/copy `QUICK_LINKS` already had; only the markup changed. */}
+					{/* Same real `mini-card report hover` row shape the "SEO Health"/"Visibility Score" cards above already use — icon + title + desc per item, real navigation via `action`. Trailing `tags` arrow is the same real "there's more, go here" affordance those other `mini-card report` rows (`PageAnalysisPanel.tsx`/`GeoAeoPageAnalysisPanel.tsx`) already render on every row. */}
 					<ListComponent
-						className="mini-card documentation hover"
-						border
+						className="mini-card report hover"
 						items={QUICK_LINKS.map((link) => ({
 							id: link.tab,
 							icon: link.icon,
 							title: link.title,
 							desc: link.desc,
+							tags: (
+								<i className="adminfont-pagination-right-arrow ai-copilot-row-arrow" />
+							),
 							action: () => onNavigateTab(link.tab),
 						}))}
 					/>
