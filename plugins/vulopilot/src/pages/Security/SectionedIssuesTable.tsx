@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
+	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
 	TabsComponent,
-	SectionComponent
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
@@ -420,26 +420,37 @@ const SectionedIssuesTable = ({
 		</>
 	);
 
+	// Same real `CardComponent` title/titleIcon/desc + `TabsComponent` +
+	// content-below-the-tabs structure `IssuesSection.tsx`'s own "All
+	// Issues" table already uses (SEO/AEO/GEO), per direct instruction —
+	// replaces the old bespoke `SectionComponent` header + per-tab
+	// `content` swap. `tabs[].content` is dropped since `sectionContent`
+	// is already the same reactive tree for every tab (state-driven off
+	// `activeTab`/`activeScannerIds`, not which tab object it's attached
+	// to) — same real content, just rendered once below the tab bar
+	// instead of once per tab.
 	return (
-		<ContainerComponent id={id} className="sectioned-issues-table">
-			<SectionComponent
+		<div id={id}>
+			<CardComponent
+				className="sectioned-issues-table"
 				title={title}
+				titleIcon={activeTabMeta?.icon}
 				desc={activeTabMeta?.description}
-				icon={activeTabMeta?.icon}
-			/>
-
-			<TabsComponent
-				activeIndex={Math.max(
-					tabs.findIndex((tab) => tab.id === activeTab),
-					0
-				)}
-				onTabChange={(index) => onTabChange(tabs[index].id)}
-				tabs={tabs.map((tab) => ({
-					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
-					content: sectionContent,
-				}))}
-			/>
-		</ContainerComponent>
+			>
+				<TabsComponent
+					className="seo-issues-filter-tabs"
+					activeIndex={Math.max(
+						tabs.findIndex((tab) => tab.id === activeTab),
+						0
+					)}
+					onTabChange={(index) => onTabChange(tabs[index].id)}
+					tabs={tabs.map((tab) => ({
+						label: sprintf('%1$s (%2$d)', tab.label, tab.count),
+					}))}
+				/>
+				<ContainerComponent>{sectionContent}</ContainerComponent>
+			</CardComponent>
+		</div>
 	);
 };
 

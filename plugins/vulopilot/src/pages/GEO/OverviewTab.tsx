@@ -3,21 +3,21 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
-	ActivityListComponent,
 	BadgeComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
-	MetricTileComponent,
+	IconComponent,
+	ListComponent,
 	ModuleGuardComponent,
-	type MetricTileItem,
+	TypographyComponent,
 } from '@zyra/components';
-import { ButtonInput, SelectInput } from '@zyra/inputs';
+import { ButtonInput, ChoiceToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { useVisibilityScore } from './useVisibilityScore';
-import type { VisibilityArea } from './useVisibilityScore';
+import type { VisibilityScoreResponse } from './useVisibilityScore';
 import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
 import VisibilityBySourceCard from './VisibilityBySourceCard';
 import './SeoVisibility.scss';
@@ -46,67 +46,42 @@ const ratingClass = (score: number): string => {
 	return 'red';
 };
 
-const ScoreDelta = ({ change }: { change: number }) => (
-	<span className={`crawler-change ${change >= 0 ? 'is-up' : 'is-down'}`}>
-		{change >= 0 ? '↑' : '↓'}{' '}
-		{sprintf(
-			/* translators: %d: real point change vs 7 days ago. */
-			__('%d pts vs last week', 'vulopilot'),
-			Math.abs(change)
-		)}
-	</span>
-);
+/** Real CSS hex per `ratingClass()` tier — `ChartComponent`'s own ring `data[].color` takes a real CSS color, not a palette name the way `TypographyComponent`'s own `color` prop does, so this small map exists just for the ring fill (same "duplicate per file" convention `SeoTab.tsx`'s own `COLOR_PALETTE` lookup covers there with a shared constant this file doesn't import). */
+const RATING_RING_COLOR: Record<string, string> = {
+	green: '#16a34a',
+	blue: '#2563eb',
+	red: '#dc2626',
+};
 
-/**
- * One `MetricTileItem` per real score area — `number` (the real 0-100
- * score), `status` (the same real `ratingClass()`/`getRating()` pairing
- * `BadgeComponent` used to render directly, now via `MetricTileComponent`'s
- * own identical `admin-badge {color}` construction), and `stat` (the real
- * `ScoreDelta` "↑/↓ N pts vs last week" line, reused as-is — `stat` accepts
- * any `ReactNode`, so this is the same component, not a re-implementation).
- * `area` is `null` while loading or before this score area has real data —
- * that tile then renders header-only (icon/title), same as the old
- * `ScoreStatCard`'s own empty body.
- *
- * `trend`, when given, becomes the tile's own `chart` (a real sparkline —
- * MetricTileComponent's `chart.type: 'sparkline'`). Real data only: the
- * combined "Visibility Score" tile gets `progress.trend`'s own multi-point
- * daily history (already fetched for the "Visibility Trend" chart below,
- * reused here rather than a second endpoint); Brand/SEO/GEO have no
- * per-area history endpoint of their own, so each gets its own real
- * `[previous_score, score]` 2-point line instead of a fabricated longer
- * series — still genuinely the real direction/shape of that area's last
- * change, just not a daily-resolution one. Omitted (no `chart` at all)
- * whenever fewer than 2 real points exist, same "never render a single dot
- * as if it were a trend" reasoning `trendUplift` below already applies to
- * the bigger chart.
- */
-const scoreTile = (
-	id: string,
-	title: string,
-	icon: string,
-	area: VisibilityArea | { score: number; change: number } | null,
-	trend?: number[]
-): MetricTileItem => ({
-	id,
-	icon,
-	title,
-	number: area ? `${area.score}/100` : undefined,
-	status: area
-		? { text: getRating(area.score), color: ratingClass(area.score) }
-		: undefined,
-	stat: area ? <ScoreDelta change={area.change} /> : undefined,
-	chart:
-		trend && trend.length > 1
-			? { type: 'sparkline', data: trend }
-			: undefined,
-});
+/** Real per-area tab id `QUICK_LINKS` below already uses for the same 4 areas — reused here so clicking an area row in the new score list navigates to the exact same real tab its own Quick Links card links to. */
+const AREA_TABS: Record<keyof VisibilityScoreResponse['areas'], string> = {
+	brand: 'brand-visibility',
+	seo: 'seo',
+	geo: 'geo',
+	crawl: 'crawl-urls',
+};
+
+const AREA_TILES: Record<
+	keyof VisibilityScoreResponse['areas'],
+	{ title: string; icon: string }
+> = {
+	brand: { title: __('Brand Visibility Score', 'vulopilot'), icon: 'person' },
+	seo: { title: __('SEO Health Score', 'vulopilot'), icon: 'search' },
+	geo: { title: __('GEO Visibility Score', 'vulopilot'), icon: 'search-discovery' },
+	crawl: { title: __('Crawl & URLs Score', 'vulopilot'), icon: 'link' },
+};
 
 type PeriodDays = '7' | '30' | '90';
+// Same real `key` field `GeoScoreSection.tsx`'s own identical
+// `ChoiceToggleInput` usage already includes — `ToggleInput`'s own options
+// use `option.key` for both React's own list `key` and each real radio's
+// `id`/`htmlFor` pair (`SelectInput`, this used to feed, never needed one).
+// Without it every option here shared the same `undefined` key/id, so only
+// one really rendered/toggled correctly.
 const PERIOD_OPTIONS = [
-	{ value: '7', label: __('Last 7 days', 'vulopilot') },
-	{ value: '30', label: __('Last 30 days', 'vulopilot') },
-	{ value: '90', label: __('Last 90 days', 'vulopilot') },
+	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
+	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
+	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
 ];
 
 interface ProgressResponse {
@@ -318,63 +293,118 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent>
-				<MetricTileComponent
-					cols={5}
+			<ColumnComponent grid={6} fullHeight>
+				{/*
+				 * Same real ring + `ListComponent` "mini-card report" row
+				 * shape `SeoTab.tsx`'s own "SEO Health" card already uses,
+				 * per direct instruction ("convert this... like this") —
+				 * replaces the old 5-tile `MetricTileComponent` grid. The
+				 * ring plots the real combined `visibility_score`
+				 * (`GET /visibility/score`); each row below is one of its 4
+				 * real areas (Brand/SEO/GEO/Crawl & URLs), same real score +
+				 * week-over-week change those tiles already showed, just as
+				 * a row's own trailing value/delta instead of a tile —
+				 * clicking a row still navigates to that area's own real
+				 * tab (`onNavigateTab`), same as the old tile's implicit
+				 * click target never actually was (tiles here had no
+				 * `onClick` before; this is a real new capability, not a
+				 * behavior change to anything that already worked). No
+				 * sparkline survives the move — `ListComponent`'s own
+				 * `progress-list`/`report` variants don't render one the
+				 * way `MetricTileComponent`'s `chart` prop did; the real
+				 * score/change numbers themselves are unchanged.
+				 */}
+				<CardComponent
+					title={__('Visibility Score', 'vulopilot')}
+					titleIcon="bar-chart"
+					desc={__('Your real, combined score across Brand, SEO, GEO, and Crawl & URLs.', 'vulopilot')}
 					isLoading={isLoading}
-					data={[
-						scoreTile(
-							'visibility',
-							__('Overall Score', 'vulopilot'),
-							'bar-chart red',
-							score
-								? { score: score.visibility_score, change: score.change }
-								: null,
-							progress
-								? progress.trend.map(
-										(point: { date: string; score: number }) =>
-											point.score
-									)
-								: undefined
-						),
-						scoreTile(
-							'brand',
-							__('Brand Visibility Score', 'vulopilot'),
-							'person green',
-							areas?.brand ?? null,
-							areas?.brand
-								? [areas.brand.previous_score, areas.brand.score]
-								: undefined
-						),
-						scoreTile(
-							'seo ',
-							__('SEO Health Score', 'vulopilot'),
-							'search yellow',
-							areas?.seo ?? null,
-							areas?.seo
-								? [areas.seo.previous_score, areas.seo.score]
-								: undefined
-						),
-						scoreTile(
-							'geo ',
-							__('GEO Visibility Score', 'vulopilot'),
-							'search-discovery blue',
-							areas?.geo ?? null,
-							areas?.geo
-								? [areas.geo.previous_score, areas.geo.score]
-								: undefined
-						),
-						scoreTile(
-							'crawl',
-							__('Crawl & URLs Score', 'vulopilot'),
-							'link purple',
-							areas?.crawl ?? null,
-							areas?.crawl
-								? [areas.crawl.previous_score, areas.crawl.score]
-								: undefined
-						),
-					]}
-				/>
+				>
+					{score && (
+						<div className="seo-health-score-layout">
+							<div className="seo-health-score-ring-block">
+								<div className="seo-health-score-ring">
+									<ChartComponent
+										type="ring"
+										height={200}
+										centerLabel={
+											<>
+												<span className="score-ring-number">
+													{score.visibility_score}
+												</span>
+												<span
+													className={`score-ring-label geo-overall-rating ${ratingClass(score.visibility_score)}`}
+												>
+													{getRating(score.visibility_score)}
+												</span>
+											</>
+										}
+										data={[
+											{
+												label: __('Score', 'vulopilot'),
+												value: score.visibility_score,
+												color: RATING_RING_COLOR[ratingClass(score.visibility_score)],
+											},
+											{
+												label: __('Remaining', 'vulopilot'),
+												value: 100 - score.visibility_score,
+												color: '#e5e7eb',
+											},
+										]}
+									/>
+								</div>
+							</div>
+							<ListComponent
+								className="mini-card report hover seo-health-score-category-list"
+								loading={isLoading}
+								items={(
+									Object.keys(AREA_TILES) as (keyof VisibilityScoreResponse['areas'])[]
+								).map((key) => {
+									const area = areas?.[key];
+									const tile = AREA_TILES[key];
+
+									return {
+										id: key,
+										icon: tile.icon,
+										title: tile.title,
+										tags: area ? (
+											<>
+												<TypographyComponent
+													as="span"
+													variant="body-md"
+													weight="bold"
+													color={area.change >= 0 ? 'green' : 'red'}
+													className="seo-health-score-row-delta"
+												>
+													<IconComponent
+														name={area.change >= 0 ? 'arrow-up' : 'arrow-down'}
+													/>
+													{Math.abs(area.change)}
+												</TypographyComponent>
+												<TypographyComponent
+													variant="h5"
+													weight="bold"
+													color={ratingClass(area.score)}
+													className="seo-health-score-row-value"
+												>
+													{area.score}
+													<TypographyComponent
+														as="span"
+														variant="body-md"
+														className="seo-health-score-row-suffix"
+													>
+														/100
+													</TypographyComponent>
+												</TypographyComponent>
+											</>
+										) : null,
+										action: () => onNavigateTab(AREA_TABS[key]),
+									};
+								})}
+							/>
+						</div>
+					)}
+				</CardComponent>
 			</ColumnComponent>
 
 			<ColumnComponent grid={6} fullHeight>
@@ -384,22 +414,20 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					desc={
 						null !== trendUplift
 							? sprintf(
-									/* translators: 1: signed real point change, 2: real number of days the chart covers. */
-									__('%1$s points vs %2$d days ago', 'vulopilot'),
-									trendUplift >= 0 ? `+${trendUplift}` : `${trendUplift}`,
-									progress?.days ?? 30
-								)
+								/* translators: 1: signed real point change, 2: real number of days the chart covers. */
+								__('%1$s points vs %2$d days ago', 'vulopilot'),
+								trendUplift >= 0 ? `+${trendUplift}` : `${trendUplift}`,
+								progress?.days ?? 30
+							)
 							: __('Combined score across Brand, SEO, GEO, and Crawl & URLs.', 'vulopilot')
 					}
 					isLoading={isLoadingProgress}
 					action={
-						<SelectInput
-							type="single-select"
-							name="visibility-progress-period"
+						<ChoiceToggleInput
+							options={PERIOD_OPTIONS}
 							value={period}
 							onChange={(value) => setPeriod(value as PeriodDays)}
-							options={PERIOD_OPTIONS}
-							isClearable={false}
+							modules={[]}
 						/>
 					}
 				>
@@ -416,10 +444,10 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-			<ColumnComponent grid={6}>
+			<ColumnComponent grid={6} fullHeight>
 				<VisibilityBySourceCard />
 			</ColumnComponent>
-			<ColumnComponent grid={8}>
+			<ColumnComponent grid={6} fullHeight>
 				<GeoFixTheseFirstCard
 					title={__('Top Opportunities', 'vulopilot')}
 					emptyMessage={__('No open findings right now — nothing to fix.', 'vulopilot')}
@@ -436,6 +464,8 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 						onNavigateTab(group ? categoryToTab(group.category) : 'seo');
 					}}
 				/>
+			</ColumnComponent>
+			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Recent Activity', 'vulopilot')}
 					titleIcon="clock"
@@ -443,15 +473,15 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					isLoading={isLoadingActivity}
 					action={
 						<ButtonInput
-						buttons={{
-							text: __('View all activity', 'vulopilot'),
-							rightIcon: 'pagination-right-arrow',
-							color: 'text-purple',
-							onClick: () => {
-								window.location.href = `${appLocalizer.admin_url}#&tab=reports&subtab=activity`;
-							},
-						}}
-					/>
+							buttons={{
+								text: __('View all activity', 'vulopilot'),
+								rightIcon: 'pagination-right-arrow',
+								color: 'text-purple',
+								onClick: () => {
+									window.location.href = `${appLocalizer.admin_url}#&tab=reports&subtab=activity`;
+								},
+							}}
+						/>
 					}
 				>
 					{!isLoadingActivity && 0 === activity.length ? (
@@ -461,41 +491,45 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							desc={__('Scans, alerts, and applied fixes will appear here as they happen.', 'vulopilot')}
 						/>
 					) : (
-						<ActivityListComponent
-							cols={1}
-							items={activity.map((row) => ({
-								id: String(row.id),
-								icon: 'clock',
-								title: row.message,
-								timestamp: timeAgo(row.created_at),
-							}))}
-						/>
+						// Hand-rolled per direct instruction (reverts this
+						// card specifically off `ActivityListComponent`,
+						// back to the same real vertical-timeline
+						// `.activity-log`/`.activity` markup/SCSS this tab
+						// used before — see the matching rules in
+						// `SeoVisibility.scss`, already imported here).
+						// Same real `activity` rows either way, just this
+						// card's own layout now instead of that shared
+						// component's.
+						<ul className="activity-log">
+							{activity.map((row) => (
+								<li className="activity" key={row.id}>
+									<span>{timeAgo(row.created_at)}</span>
+									<div className="title">{row.message}</div>
+								</li>
+							))}
+						</ul>
 					)}
 				</CardComponent>
 			</ColumnComponent>
 
-			<ColumnComponent grid={4} fullHeight>
+			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Quick Links', 'vulopilot')}
 					titleIcon="link"
 					desc={__('Jump straight to any SEO & Visibility section.', 'vulopilot')}
 				>
-					<div className="visibility-quick-links">
-						{QUICK_LINKS.map((link) => (
-							<button
-								key={link.tab}
-								type="button"
-								className="visibility-quick-link"
-								onClick={() => onNavigateTab(link.tab)}
-							>
-								<i className={`adminfont-${link.icon}`} />
-								<span className="visibility-quick-link-text">
-									<span className="visibility-quick-link-title">{link.title}</span>
-									<span className="visibility-quick-link-desc">{link.desc}</span>
-								</span>
-							</button>
-						))}
-					</div>
+					{/* Same real `className: 'mini-card documentation'` + `border` variant zyra's own Storybook documents (ListComponent--documentation-card) — icon + title + desc per item, real navigation via `action` instead of the old hand-rolled `<button>` grid. Same real 7 tabs/icons/copy `QUICK_LINKS` already had; only the markup changed. */}
+					<ListComponent
+						className="mini-card documentation hover"
+						border
+						items={QUICK_LINKS.map((link) => ({
+							id: link.tab,
+							icon: link.icon,
+							title: link.title,
+							desc: link.desc,
+							action: () => onNavigateTab(link.tab),
+						}))}
+					/>
 				</CardComponent>
 			</ColumnComponent>
 		</ContainerComponent>

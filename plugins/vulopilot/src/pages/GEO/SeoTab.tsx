@@ -350,7 +350,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 							 * below) it always did.
 							 */}
 								<ListComponent
-									className="mini-card report hover seo-health-score-category-list"
+									className="mini-card report hover without-border seo-health-score-category-list"
 									loading={isLoadingScore}
 									items={CATEGORY_CARDS.map((card) => {
 										const category = score.category_scores[card.key];
