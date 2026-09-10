@@ -1,12 +1,12 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
+	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
-	TabsComponent,
 	SectionComponent
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
@@ -420,25 +420,27 @@ const SectionedIssuesTable = ({
 		</>
 	);
 
+	// Same real `CardComponent` title/titleIcon/desc `IssuesSection.tsx`'s
+	// own "All Issues" table already uses (SEO/AEO/GEO), per direct
+	// instruction — no own `TabsComponent` pill bar any more: every real
+	// caller (SecurityTab.tsx's own `SecurityMetricsGrid` tiles,
+	// Accessibility.tsx's own equivalent) already drives this component's
+	// `activeTab`/`onTabChange` from its own external click target, so
+	// this bar was a real 2nd, redundant way to do the same real tab
+	// switch. `activeTab`/`onTabChange`/`tabs` (the count/label/icon
+	// computation) are unchanged — only their own pill-bar UI is gone;
+	// switching tabs from outside this component still works exactly as
+	// before.
 	return (
-		<ContainerComponent id={id} className="sectioned-issues-table">
-			<SectionComponent
-				title={title}
-				desc={activeTabMeta?.description}
-				icon={activeTabMeta?.icon}
-			/>
-
-			<TabsComponent
-				activeIndex={Math.max(
-					tabs.findIndex((tab) => tab.id === activeTab),
-					0
-				)}
-				onTabChange={(index) => onTabChange(tabs[index].id)}
-				tabs={tabs.map((tab) => ({
-					label: sprintf('%1$s (%2$d)', tab.label, tab.count),
-					content: sectionContent,
-				}))}
-			/>
+		<ContainerComponent>
+			<ColumnComponent >
+				<SectionComponent
+						wrapperClass="without-settings"
+						title={__('Issues', 'vulopilot')}
+						desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
+					/>
+			</ColumnComponent>
+			{sectionContent}
 		</ContainerComponent>
 	);
 };

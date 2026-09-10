@@ -15,7 +15,6 @@ import {
 	PageRow,
 	VisibilityCell,
 	worstFinding,
-	worstSeverity,
 } from './seoIssuesShared';
 
 /**
@@ -125,24 +124,6 @@ const formatStatusLabel = (value: string): string =>
 		.split(/[-_]/)
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
-
-/**
- * Same "N issue(s)"/"No issues" badge the old standalone "Issues" column
- * used to build for a page row — extracted for the same reason as
- * formatStatusLabel above.
- */
-const buildIssuesBadge = (
-	rowFindings: PageRow['findings']
-): { text: string; className: string } =>
-	0 === rowFindings.length
-		? { text: __('No issues', 'vulopilot'), className: 'badge-publish' }
-		: {
-				text: sprintf(
-					_n('%d issue', '%d issues', rowFindings.length, 'vulopilot'),
-					rowFindings.length
-				),
-				className: `badge-${worstSeverity(rowFindings)}`,
-			};
 
 interface SeoIssuesByPageTableProps {
 	rows: PageRow[];
@@ -450,7 +431,7 @@ const SeoIssuesByPageTable = ({
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
-							width: '65%',
+							width: '75%',
 							/**
 							 * Status and Issues used to be their own columns —
 							 * consolidated here as InformationItemComponent's own
@@ -492,17 +473,15 @@ const SeoIssuesByPageTable = ({
 													text: formatStatusLabel(row.status),
 													className: `badge-${String(row.status).toLowerCase()}`,
 												},
-												buildIssuesBadge(getRowFindings(row)),
+												{
+													text: formatWpDate(row.date),
+													className: `yellow`,
+												},
 												...(row.categoryLabel
 													? [{ text: row.categoryLabel, className: 'badge-info' }]
 													: []),
 											]}
 											descriptions={[
-												{
-													icon: 'calendar',
-													label: __('Updated', 'vulopilot'),
-													value: formatWpDate(row.date),
-												},
 												...(undefined !== row.wordCount
 													? [
 															{
@@ -522,20 +501,42 @@ const SeoIssuesByPageTable = ({
 												...(getRowFindings(row).length > 0
 													? [
 															{
-																icon: 'category',
-																label: __('Issues', 'vulopilot'),
-																value: Array.from(
-																	new Set(
-																		getRowFindings(row).map(
-																			(finding) => finding.scanner_id
+																value: ((): string => {
+																	const total = getRowFindings(row).length;
+																	const labels = Array.from(
+																		new Set(
+																			getRowFindings(row).map(
+																				(finding) => finding.scanner_id
+																			)
 																		)
-																	)
-																)
-																	.map(
+																	).map(
 																		(scannerId) =>
 																			scannerLabelMap.get(scannerId) || scannerId
-																	)
-																	.join(', '),
+																	);
+																	const shown = labels.slice(0, 2).join(', ');
+																	const remaining = labels.length - 2;
+																	const labelsText =
+																		remaining > 0
+																			? sprintf(
+																					/* translators: 1: first 2 real scanner labels that flagged this page, comma-joined; 2: how many more real ones beyond those. */
+																					__('%1$s +%2$d', 'vulopilot'),
+																					shown,
+																					remaining
+																				)
+																			: shown;
+
+																	return sprintf(
+																		/* translators: 1: real total number of open findings on this page; 2: real scanner labels (capped, "+N" suffixed) that flagged them. */
+																		_n(
+																			'%1$d issue: %2$s',
+																			'%1$d issues: %2$s',
+																			total,
+																			'vulopilot'
+																		),
+																		total,
+																		labelsText
+																	);
+																})(),
 															},
 														]
 													: []),
@@ -550,15 +551,42 @@ const SeoIssuesByPageTable = ({
 										label: visibilityColumnLabel,
 										width: '3rem',
 										isSortable: true,
+										// Same real ring `showScoreChange`'s own
+										// `seo_score` column below renders —
+										// GeoTab.tsx's/AeoTab.tsx's own real
+										// `visibility_score` (`geo-analysis/pages`)
+										// just fed into the same ring look instead
+										// of `VisibilityCell`'s bar, per direct
+										// instruction ("same [as] seo tab"). No
+										// week-over-week change exists for this
+										// real number the way `seo_score_change`
+										// does for SEO's own score, so there's no
+										// matching "Change" column here — just the
+										// ring. A page this endpoint hasn't scored
+										// yet (`null`) still falls back to
+										// `VisibilityCell`'s own real "—" empty
+										// state rather than a ring around nothing.
 										render: (row: TableRow) =>
 											isFindingRow(row) ? null : (
 												<span
 													className="seo-issues-row-expand-trigger"
 													onClick={toggleRowExpansion}
 												>
-													<VisibilityCell
-														score={row.visibilityScore}
-													/>
+													{null === row.visibilityScore ||
+													undefined === row.visibilityScore ? (
+														<VisibilityCell
+															score={row.visibilityScore}
+														/>
+													) : (
+														<ChartComponent
+															type="ring"
+															height={40}
+															color={ratingColor(row.visibilityScore)}
+															dataKey="score"
+															data={[{ score: row.visibilityScore }]}
+															centerLabel={row.visibilityScore}
+														/>
+													)}
 												</span>
 											),
 									},

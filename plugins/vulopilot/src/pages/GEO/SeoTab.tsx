@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	AnalyticsComponent,
@@ -12,7 +12,8 @@ import {
 	ModuleGuardComponent,
 	NoticeComponent,
 	TypographyComponent,
-	SectionComponent
+	SectionComponent,
+	IconComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
@@ -111,6 +112,17 @@ const scoreSummary = (score: number): string => {
 		'vulopilot'
 	);
 };
+
+/**
+ * Real per-category score change — this category's current `score` minus
+ * the oldest point in its own real `trend` array (`Seo.php`'s own
+ * `get_category_trend()`, oldest-first — same real series
+ * `overallCategoryTrend()` above already folds into the "All Areas" tile).
+ * `null` when there's no real 2nd point to diff against yet, so the row's
+ * own arrow/number renders nothing rather than a fabricated "+0".
+ */
+const categoryScoreDelta = (category: SeoScoreResponse['category_scores'][keyof SeoScoreResponse['category_scores']]): number | null =>
+	category.trend.length > 0 ? category.score - category.trend[0] : null;
 
 /**
  * Unlike the 'geo' module (whose own scanners run regardless of its
@@ -280,7 +292,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 									<div className="seo-health-score-ring">
 										<ChartComponent
 											type="ring"
-											height={140}
+											height={200}
 											centerLabel={
 												<>
 													<span className="score-ring-number">
@@ -318,14 +330,6 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 											]}
 										/>
 									</div>
-									<div className="seo-health-score-ring-copy">
-										<div className="typography-h4">
-											{__('Overall SEO Score', 'vulopilot')}
-										</div>
-										<div className="typography-caption desc">
-											{scoreSummary(score.seo_score)}
-										</div>
-									</div>
 								</div>
 								{/*
 							 * Same 6 real per-category scores the old
@@ -345,18 +349,38 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 							 * `categoryFocus` drill-down (`SeoIssuesSection`
 							 * below) it always did.
 							 */}
-								<div className="seo-health-score-category-list">
-									<ListComponent
-										className="mini-card report without-border"
-										loading={isLoadingScore}
-										items={CATEGORY_CARDS.map((card) => {
-											const category = score.category_scores[card.key];
+								<ListComponent
+									className="mini-card report hover without-border seo-health-score-category-list"
+									loading={isLoadingScore}
+									items={CATEGORY_CARDS.map((card) => {
+										const category = score.category_scores[card.key];
+										const delta = categoryScoreDelta(category);
 
-											return {
-												id: card.key,
-												icon: card.icon,
-												title: card.title,
-												tags: (
+										return {
+											id: card.key,
+											icon: card.icon,
+											title: card.title,
+											desc: sprintf(
+												/* translators: %d: real number of open findings in this category. */
+												__('%d issues', 'vulopilot'),
+												category.open_count
+											),
+											tags: (
+												<>
+												{null !== delta && (
+														<TypographyComponent
+															as="span"
+															variant="body-md"
+															weight="bold"
+															color={delta >= 0 ? 'green' : 'red'}
+															className="seo-health-score-row-delta"
+														>
+															<IconComponent
+																name={delta >= 0 ? 'arrow-up' : 'arrow-down'}
+															/>
+															{Math.abs(delta)}
+														</TypographyComponent>
+													)}
 													<TypographyComponent
 														variant="h5"
 														weight="bold"
@@ -372,16 +396,16 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 															/100
 														</TypographyComponent>
 													</TypographyComponent>
-												),
-												action: () =>
-													setCategoryFocus({
-														key: card.key,
-														token: Date.now(),
-													}),
-											};
-										})}
-									/>
-								</div>
+												</>
+											),
+											action: () =>
+												setCategoryFocus({
+													key: card.key,
+													token: Date.now(),
+												}),
+										};
+									})}
+								/>
 							</div>
 						)}
 						{score && (

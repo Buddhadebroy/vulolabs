@@ -196,7 +196,7 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 					</div>
 
 					<ListComponent
-						className="mini-card report"
+						className="mini-card report hover"
 						items={sortByStatus(data.checks).map((template) => ({
 							id: template.key,
 							icon: STATUS_ICON[template.status],

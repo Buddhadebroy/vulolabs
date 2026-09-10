@@ -122,6 +122,17 @@ class Geo extends \WP_REST_Controller {
     private const DELTA_LOOKBACK_DAYS = 7;
 
     /**
+     * Real per-signal daily score trend length for `get_score()`'s own
+     * `signals[*].trend` — same `Controllers\Seo::PROGRESS_TREND_DAYS`
+     * value/purpose, feeding SeoTab.tsx's own `categoryScoreDelta()` (score
+     * now minus the oldest point) for each row's real up/down delta arrow,
+     * now real for this card's own rows too instead of only SEO's.
+     *
+     * @var int
+     */
+    private const PROGRESS_TREND_DAYS = 7;
+
+    /**
      * Real day-range options "Score Snapshot"'s own period dropdown offers
      * — same trio Pro's `GeoInsights\Rest::get_history()` already accepts
      * on `/geo-visibility-history?days=N` (min 7, max 365), narrowed to a
@@ -186,6 +197,7 @@ class Geo extends \WP_REST_Controller {
                 'open_count'     => array_sum( $breakdown ),
                 'affected_pages' => $findings->get_affected_object_count_for_scanner_ids( $scanner_ids ),
                 'main_problem'   => $this->get_main_problem( $findings, $scanner_ids ),
+                'trend'          => $this->get_signal_trend( $findings, $scanner_ids ),
             );
         }
 
@@ -243,6 +255,36 @@ class Geo extends \WP_REST_Controller {
     }
 
     /**
+     * Real `PROGRESS_TREND_DAYS`-point daily score trend for one of this
+     * card's own finding-based signals — same real `..._as_of()`
+     * reconstruction technique `Controllers\Seo::get_category_trend()`
+     * already established for SEO's own "SEO areas" rows, applied here so
+     * `SeoTab.tsx`'s own `categoryScoreDelta()` (this endpoint's real
+     * `signal.trend[0]` vs the current `signal.score`) has a real number to
+     * diff for this card's rows too, not just SEO's. No new stored
+     * snapshot table — every point is a fresh reconstruction of real
+     * `vulopilot_scan_findings` rows as of that day.
+     *
+     * @param FindingRepository $findings    Shared repository instance, reused across every signal's own call rather than re-instantiated per signal.
+     * @param string[]          $scanner_ids This one signal's own scanner ids (one value of `self::SIGNAL_SCANNER_IDS`).
+     * @return int[] `PROGRESS_TREND_DAYS` real scores, oldest first.
+     */
+    private function get_signal_trend( FindingRepository $findings, array $scanner_ids ): array {
+        $trend = array();
+
+        for ( $days_ago = self::PROGRESS_TREND_DAYS - 1; $days_ago >= 0; $days_ago-- ) {
+            $breakdown = $findings->get_severity_breakdown_for_scanner_ids_as_of(
+                $scanner_ids,
+                gmdate( 'Y-m-d 23:59:59', strtotime( "-{$days_ago} days" ) )
+            );
+
+            $trend[] = $this->calculate_score( $breakdown );
+        }
+
+        return $trend;
+    }
+
+    /**
      * Real most-severe, most-recent still-open finding's own stored
      * `title` across a set of scanner ids — the "Main Problem" column of
      * this card's own GEO Score Breakdown table. `find_all()` has no
@@ -288,7 +330,13 @@ class Geo extends \WP_REST_Controller {
      * one SQL pass over every real published post/page's own real
      * `post_modified_gmt` rather than looping `WP_Post` objects in PHP.
      *
-     * @return array{score: int, open_count: null, affected_pages: int, main_problem: string|null}
+     * `trend` is always `null` here (not just an empty array) — deliberately
+     * distinct from a finding-based signal's real `trend`, since (per this
+     * method's own docblock) there's no historical reconstruction to offer
+     * for this one, same reasoning `get_progress()`'s own docblock already
+     * gives for excluding this signal from the sitewide trend entirely.
+     *
+     * @return array{score: int|null, open_count: null, affected_pages: int, main_problem: string|null, trend: null}
      */
     private function get_content_freshness(): array {
         global $wpdb;
@@ -308,6 +356,7 @@ class Geo extends \WP_REST_Controller {
                 'open_count'     => null,
                 'affected_pages' => 0,
                 'main_problem'   => null,
+                'trend'          => null,
             );
         }
 
@@ -352,6 +401,7 @@ class Geo extends \WP_REST_Controller {
             'open_count'     => null,
             'affected_pages' => $stale_count,
             'main_problem'   => $main_problem,
+            'trend'          => null,
         );
     }
 

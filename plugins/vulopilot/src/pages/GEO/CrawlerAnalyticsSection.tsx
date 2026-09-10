@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { COLOR_PALETTE, getApiLink, getApiResponse } from '@zyra/core';
 import {
 	AnalyticsComponent,
 	CardComponent,
@@ -46,6 +46,17 @@ const ratingClass = (score: number): string => {
 		return 'is-attention';
 	}
 	return 'is-poor';
+};
+
+/** Same 3-tier band as `ratingClass()` above, as one of zyra's own `$color-palette` names — for the ring's own `COLOR_PALETTE`-resolved segment color, same convention SeoTab.tsx's own identical ring already established (`seoRating.ts`'s own `ratingColor()`). */
+const ratingColor = (score: number): string => {
+	if (score >= 70) {
+		return 'green';
+	}
+	if (score >= 40) {
+		return 'yellow';
+	}
+	return 'red';
 };
 
 const pctChange = (current: number, previous: number): number | null => {
@@ -204,7 +215,7 @@ const CrawlerAnalyticsSection = ({
 	return (
 		<>
 			<ContainerComponent>
-				<ColumnComponent grid={4}>
+				<ColumnComponent grid={6}>
 					<CardComponent
 						title={__('Overall Crawl Health', 'vulopilot')}
 						titleIcon="search-discovery"
@@ -218,61 +229,140 @@ const CrawlerAnalyticsSection = ({
 								)}
 							</div>
 						) : (
-							<div className="crawl-health-ring">
-								<ChartComponent
-									type="ring"
-									height={150}
-									centerLabel={
-										<>
-											<span className="score-ring-number">
-												{analytics.crawl_health_score}
-											</span>
-											<span className="score-ring-label">/100</span>
-											<span
-												className={`score-ring-label geo-overall-rating ${ratingClass(analytics.crawl_health_score)}`}
-											>
-												{getRating(analytics.crawl_health_score)}
-											</span>
-										</>
-									}
-									data={[
-										{
-											label: __('Score', 'vulopilot'),
-											value: analytics.crawl_health_score,
-											color: '#16a34a',
-										},
-										{
-											label: __('Remaining', 'vulopilot'),
-											value: 100 - analytics.crawl_health_score,
-											color: '#e5e7eb',
-										},
-									]}
+							<>
+								<div className="seo-health-score-layout">
+									<div className="seo-health-score-ring-block">
+										<div className="seo-health-score-ring">
+											<ChartComponent
+												type="ring"
+												height={200}
+												centerLabel={
+													<>
+														<span className="score-ring-number">
+															{analytics.crawl_health_score}
+														</span>
+														<span
+															className={`score-ring-label geo-overall-rating ${ratingClass(analytics.crawl_health_score)}`}
+														>
+															{getRating(analytics.crawl_health_score)}
+														</span>
+													</>
+												}
+												data={[
+													{
+														label: __('Score', 'vulopilot'),
+														value: analytics.crawl_health_score,
+														// Same real rating color the ring's
+														// own "Needs Attention"/"Good"/"Poor"
+														// label above already uses
+														// (`ratingClass()`/`getRating()`) —
+														// resolved through `COLOR_PALETTE`
+														// for the real hex `ratingColor()`'s
+														// own palette name stands for, same
+														// convention SeoTab.tsx's own
+														// identical ring already established.
+														color: COLOR_PALETTE[
+															ratingColor(analytics.crawl_health_score) as keyof typeof COLOR_PALETTE
+														],
+													},
+													{
+														label: __('Remaining', 'vulopilot'),
+														value: 100 - analytics.crawl_health_score,
+														color: '#e5e7eb',
+													},
+												]}
+											/>
+										</div>
+									</div>
+									{/*
+									 * The 3 real robots.txt/sitemap/AI-bot
+									 * checks — merged in from what used to
+									 * be a separate standalone "Crawl Health
+									 * Checklist" card further down this
+									 * section, now the same real
+									 * `ListComponent` "mini-card report" row
+									 * shape SeoTab.tsx's own "SEO Health"
+									 * card rows use. No per-row score/delta
+									 * (unlike SEO's rows): each of these is a
+									 * real pass/fail check, not a 0-100
+									 * score, so the row's own trailing tag
+									 * is the same real Good/Warning/Checking…
+									 * `BadgeComponent` the old standalone
+									 * card already used, not a fabricated
+									 * number.
+									 */}
+									<ListComponent
+										className="mini-card report hover seo-health-score-category-list"
+										items={checklist.map((item) => ({
+											id: item.key,
+											icon:
+												null === item.isGood
+													? 'info'
+													: item.isGood
+														? 'check'
+														: 'error',
+											title: item.label,
+											desc: sprintf(
+												/* translators: %d: real number of open findings for this check. */
+												__('%d issues', 'vulopilot'),
+												openCount(item.scannerIds)
+											),
+											tags: (
+												<BadgeComponent
+													color={
+														null === item.isGood
+															? ''
+															: item.isGood
+																? 'green'
+																: 'yellow'
+													}
+													text={
+														null === item.isGood
+															? __('Checking…', 'vulopilot')
+															: item.isGood
+																? __('Good', 'vulopilot')
+																: __('Warning', 'vulopilot')
+													}
+												/>
+											),
+										}))}
+									/>
+								</div>
+								{/*
+								 * Same "bottom stat tile row" shape
+								 * SeoTab.tsx's own "SEO Health" card
+								 * closes with, kept on `variant="dashboard"`
+								 * rather than that card's own
+								 * `"with-out-boxshadow"` — `AnalyticsComponent`
+								 * only renders an item's own `extra` node
+								 * under `variant="dashboard"` (confirmed
+								 * reading its own source), and each real
+								 * `%-change` `ChangeBadge` here already was
+								 * visible before this restructure — silently
+								 * dropping it to match SEO's variant name
+								 * exactly would lose real, already-shown
+								 * data for the sake of a cosmetic match.
+								 */}
+								<AnalyticsComponent
+									variant="dashboard"
+									cols={4}
+									data={statCards.map((stat) => ({
+										number: stat.value,
+										text: stat.label,
+										colorClass: stat.colorClass,
+										extra: (
+											<ChangeBadge
+												current={stat.value}
+												previous={stat.previous}
+											/>
+										),
+									}))}
 								/>
-							</div>
+							</>
 						)}
 					</CardComponent>
 				</ColumnComponent>
-				<ColumnComponent grid={8}>
-					<AnalyticsComponent
-						variant="small-card"
-						cols={4}
-						data={statCards.map((stat) => ({
-							number: stat.value,
-							text: stat.label,
-							colorClass: stat.colorClass,
-							extra: (
-								<ChangeBadge
-									current={stat.value}
-									previous={stat.previous}
-								/>
-							),
-						}))}
-					/>
-				</ColumnComponent>
-			</ContainerComponent>
-
-			<ContainerComponent>
-				<ColumnComponent grid={7}>
+				<ColumnComponent grid={6}>
 					<CardComponent
 						title={__('Crawl Requests Over Time', 'vulopilot')}
 						titleIcon="analytics"
@@ -298,7 +388,11 @@ const CrawlerAnalyticsSection = ({
 							</ResponsiveContainer>
 						</div>
 					</CardComponent>
+
 				</ColumnComponent>
+			</ContainerComponent>
+
+			<ContainerComponent>
 				<ColumnComponent grid={5} fullHeight>
 					<CardComponent
 						title={__('Crawler Traffic by AI Lab', 'vulopilot')}
@@ -495,46 +589,6 @@ const CrawlerAnalyticsSection = ({
 					</CardComponent>
 				</ColumnComponent>
 			</ContainerComponent>
-
-			{checklist.length > 0 && (
-				<CardComponent
-					title={__('Crawl Health Checklist', 'vulopilot')}
-					titleIcon="check"
-					desc={__('Real robots.txt/sitemap crawl-health checks, at a glance.', 'vulopilot')}
-				>
-					<ListComponent
-						className="crawler-checklist-row"
-						items={checklist.map((item) => ({
-							id: item.key,
-							icon:
-								null === item.isGood
-									? 'info'
-									: item.isGood
-										? 'check'
-										: 'error',
-							title: item.label,
-							tags: (
-								<BadgeComponent
-									color={
-										null === item.isGood
-											? ''
-											: item.isGood
-												? 'green'
-												: 'yellow'
-									}
-									text={
-										null === item.isGood
-											? __('Checking…', 'vulopilot')
-											: item.isGood
-												? __('Good', 'vulopilot')
-												: __('Warning', 'vulopilot')
-									}
-								/>
-							),
-						}))}
-					/>
-				</CardComponent>
-			)}
 		</>
 	);
 };

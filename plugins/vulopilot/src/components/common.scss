@@ -198,11 +198,38 @@
     border-radius: $border-radius-small;
     background: #f5f5f5a6;
 
-    .details-wrapper{
+    .details-wrapper {
         width: 20%;
     }
 
-    .analytics-container{
+    .analytics-container {
         width: 80%;
     }
+}
+
+
+// seo start
+.seo-health-score-category-list {
+    .item {
+        // #dc2626 is a literal mirror of zyra's own real global color
+        // palette ($color-palette's "red" entry, theme/src/global.scss) —
+        // not an invented value. Plain hex rather than a Sass variable
+        // reference since that palette map is zyra's own internal source;
+        // `@multivendorx/zyra`'s published package ships only compiled
+        // build output (no .scss source), so this plugin's SCSS has no
+        // `@use`-able map or CSS custom property to point at instead —
+        // same reasoning documented in Reports.scss's own top comment.
+        .details .typography-desc{
+            color: #dc2626;
+        }
+    }
+
+    .tags {
+        gap: 2rem !important; // for overwrite default style
+    }
+}
+
+.without-settings{
+    padding: 0;
+    background: transparent;
 }
