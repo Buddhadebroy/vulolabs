@@ -29,6 +29,7 @@ interface SeoIssuesSectionProps {
  */
 const SeoIssuesSection = ({ categoryFocus, onAnalyze, activePostId }: SeoIssuesSectionProps) => (
 	<IssuesSection
+		id="seo-all-issues-table"
 		scannerIds={ALL_SEO_SCANNER_IDS}
 		categories={SEO_SECTIONS}
 		categoryFocus={categoryFocus}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { NoticeComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
 import IssuesSection from './IssuesSection';
+import GeoAeoPageAnalysisPanel from './GeoAeoPageAnalysisPanel';
 import { useGeoFindingGroups } from './useGeoFindingGroups';
 import { useGeoTopicAffectedPages } from './useGeoTopicAffectedPages';
 import GeoScoreSection from './GeoScoreSection';
@@ -166,6 +167,9 @@ const GeoTab = () => {
 	const { affectedPagesByScanner, isLoading: isLoadingAffectedPages } =
 		useGeoTopicAffectedPages(allGeoScannerIds);
 
+	/** Set by a real "Analyze" click in the "Pages & Posts" table below — opens `GeoAeoPageAnalysisPanel` as a real sidebar, same real "Analyze"/"Viewing" toggle + side panel SeoTab.tsx's own SEO table already has (see that panel's own docblock for why it shows real findings instead of a fabricated pass/fail checklist). */
+	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
+
 	/**
 	 * Sets a fresh `categoryFocus` (a new `token` even for the same `key`
 	 * twice in a row) — `IssuesSection.tsx`'s own effect both switches its
@@ -180,7 +184,7 @@ const GeoTab = () => {
 
 	return (
 		<ContainerComponent>
-			<GeoScoreSection />
+			<GeoScoreSection onSelectSignal={goToIssuesTable} />
 			<NoticeComponent
 				displayPosition="inline-notice"
 				message={sprintf(
@@ -193,17 +197,35 @@ const GeoTab = () => {
 				)}
 			/>
 
-			<IssuesSection
-				id="geo-all-issues-table"
-				scannerIds={allGeoScannerIds}
-				categories={GEO_TOPICS}
-				categoryFocus={categoryFocus}
-				issuesColumnLabel={__('GEO Issues', 'vulopilot')}
-				pageAnalysis={{
-					scoreColumnLabel: __('AI Visibility', 'vulopilot'),
-					exportFilename: 'geo-page-analysis.csv',
-				}}
-			/>
+			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
+				<IssuesSection
+					id="geo-all-issues-table"
+					scannerIds={allGeoScannerIds}
+					categories={GEO_TOPICS}
+					categoryFocus={categoryFocus}
+					issuesColumnLabel={__('GEO Issues', 'vulopilot')}
+					pageAnalysis={{
+						scoreColumnLabel: __('AI Visibility', 'vulopilot'),
+						exportFilename: 'geo-page-analysis.csv',
+					}}
+					onAnalyze={setAnalyzingPostId}
+					activePostId={analyzingPostId}
+				/>
+			</ColumnComponent>
+			{analyzingPostId && (
+				<ColumnComponent grid={4}>
+					<GeoAeoPageAnalysisPanel
+						postId={analyzingPostId}
+						scannerIds={allGeoScannerIds}
+						title={__('Page Analysis', 'vulopilot')}
+						desc={__(
+							'A single page’s real GEO signals from your most recent scan.',
+							'vulopilot'
+						)}
+						onClose={() => setAnalyzingPostId(null)}
+					/>
+				</ColumnComponent>
+			)}
 		</ContainerComponent>
 	);
 };

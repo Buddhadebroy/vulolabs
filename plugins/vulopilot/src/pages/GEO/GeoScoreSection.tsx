@@ -3,8 +3,8 @@ import { useEffect, useState } from '@wordpress/element';
 import { JSX } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { BadgeComponent, CardComponent, ChartComponent, ColumnComponent, ContainerComponent, ListComponent, TypographyComponent } from '@zyra/components';
-import { SelectInput } from '@zyra/inputs';
+import { AnalyticsComponent, BadgeComponent, CardComponent, ChartComponent, ColumnComponent, ContainerComponent, IconComponent, ListComponent, TypographyComponent } from '@zyra/components';
+import { ChoiceToggleInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import ProLockedCard from '../../components/ProLockedCard';
 import { useGeoScore } from './useGeoScore';
@@ -38,6 +38,26 @@ const ratingClass = (score: number): string => {
  */
 const isGeoInsightsActive = () =>
 	appLocalizer.active_modules?.includes('geo-insights') ?? false;
+
+/**
+ * This card's own 7 `SIGNAL_META` keys → GeoTab.tsx's own 5 real
+ * `GEO_TOPICS` keys — not 1:1 (see `Geo.php`'s own `SIGNAL_SCANNER_IDS`
+ * docblock: `entity-clarity`/`content-freshness`/`other-geo-signals` are
+ * split out of `GEO_TOPICS`' single "Other Signals" catch-all here, and
+ * `question-coverage` is `GEO_TOPICS`' own differently-named
+ * "faq-questions"), so a signal row's own click-through to the real
+ * "All GEO Issues" table below needs this real mapping rather than
+ * assuming the two keyspaces line up.
+ */
+const SIGNAL_TO_TOPIC_KEY: Record<string, string> = {
+	'ai-summary': 'ai-summary',
+	'question-coverage': 'faq-questions',
+	'evidence-citations': 'evidence-citations',
+	'ai-readable-structure': 'ai-readable-structure',
+	'entity-clarity': 'other-signals',
+	'content-freshness': 'other-signals',
+	'other-geo-signals': 'other-signals',
+};
 
 /**
  * The 7 real signals `Geo.php`'s own `SIGNAL_SCANNER_IDS` (+ the separately
@@ -113,15 +133,37 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
-	{ value: '7', label: __('Last 7 days', 'vulopilot') },
-	{ value: '30', label: __('Last 30 days', 'vulopilot') },
-	{ value: '90', label: __('Last 90 days', 'vulopilot') },
+	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
+	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
+	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
 ];
 
 interface ProgressResponse {
 	days: number;
 	trend: { date: string; score: number }[];
 }
+
+/** Same real `document.getElementById(...).scrollIntoView()` convention `QuickActionsCard.tsx`'s own `scrollTo()` already establishes — a signal row's own click target here, since (unlike SEO's per-category `categoryFocus` filter) the "GEO Score Breakdown" table below has no real per-signal filtering to drive, just the same `SIGNAL_META` rows to scroll down to. */
+const scrollToBreakdown = () => {
+	document
+		.getElementById('geo-score-breakdown-table')
+		?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+/**
+ * Real per-signal score change — same real "current score minus the
+ * oldest point in this signal's own real `trend`" shape `SeoTab.tsx`'s own
+ * `categoryScoreDelta()` already established, now backed by `Geo.php`'s
+ * own real `signal.trend` (added alongside this). `null` when there's no
+ * real trend to diff (a `content-freshness` signal, or a signal with a
+ * `null` score) — the row's own delta arrow renders nothing rather than a
+ * fabricated "+0" in either case, same convention `categoryScoreDelta()`
+ * already follows.
+ */
+const signalScoreDelta = (signal: GeoSignalScore): number | null =>
+	null !== signal.score && signal.trend && signal.trend.length > 0
+		? signal.score - signal.trend[0]
+		: null;
 
 const mainProblemText = (key: string, signal: GeoSignalScore): string => {
 	if (signal.main_problem) {
@@ -163,7 +205,19 @@ const mainProblemText = (key: string, signal: GeoSignalScore): string => {
  * table — Signal, Score, Status, Main Problem (bottom left) / Competitor
  * Comparison (bottom right, Pro-gated, same as before).
  */
-const GeoScoreSection = () => {
+interface GeoScoreSectionProps {
+	/**
+	 * GeoTab.tsx's own real `goToIssuesTable()` (its `setCategoryFocus`
+	 * wrapper) — same real click-through SeoTab.tsx's own category rows
+	 * already give `SeoIssuesSection`'s `categoryFocus`, now wired here too
+	 * so a signal row filters + scrolls to the real "All GEO Issues" table
+	 * below (`GeoTab.tsx`'s own `IssuesSection`) instead of just scrolling
+	 * to this card's own static breakdown table.
+	 */
+	onSelectSignal?: (topicKey: string) => void;
+}
+
+const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 	const { score, isLoading } = useGeoScore();
 	const [period, setPeriod] = useState<PeriodDays>('30');
 	const [progress, setProgress] = useState<ProgressResponse | null>(null);
@@ -198,40 +252,146 @@ const GeoScoreSection = () => {
 					)}
 					isLoading={isLoading}
 				>
-					<div className="geo-score-card-layout">
-						<div className="geo-score-ring-col">
-							<ChartComponent
-								type="ring"
-								height={140}
-								centerLabel={
-									<>
-										<span className="score-ring-number">{overall}</span>
-										<span className="score-ring-label">/100</span>
-										<span className={`score-ring-label geo-overall-rating ${ratingClass(overall)}`}>
-											{getRating(overall)}
-										</span>
-									</>
-								}
-								data={[
-									{ label: __('Score', 'vulopilot'), value: overall, color: '#7c3aed' },
-									{ label: __('Remaining', 'vulopilot'), value: 100 - overall, color: '#e5e7eb' },
-								]}
-							/>
+					<div className="seo-health-score-layout">
+						<div className="seo-health-score-ring-block">
+							<div className="seo-health-score-ring">
+								<ChartComponent
+									type="ring"
+									height={200}
+									centerLabel={
+										<>
+											<span className="score-ring-number">{overall}</span>
+											<span className={`score-ring-label geo-overall-rating ${ratingClass(overall)}`}>
+												{getRating(overall)}
+											</span>
+										</>
+									}
+									data={[
+										{ label: __('Score', 'vulopilot'), value: overall, color: '#7c3aed' },
+										{ label: __('Remaining', 'vulopilot'), value: 100 - overall, color: '#e5e7eb' },
+									]}
+								/>
+							</div>
 						</div>
-						<div className="geo-score-calc-col">
-							<TypographyComponent variant="title">
-								{__('How this score is calculated', 'vulopilot')}
-							</TypographyComponent>
-							<ListComponent
-								className="mini-card without-border report"
-								items={SIGNAL_META.map((meta) => ({
+						{/*
+						 * Same real `ListComponent` "mini-card report" row
+						 * shape SeoTab.tsx's own "SEO Health" card uses for
+						 * its 6 category rows — reused here for this card's
+						 * own real 7 signals (`SIGNAL_META`/`score.signals`).
+						 * No per-row delta arrow (unlike SEO's rows): this
+						 * endpoint's own `GeoScoreResponse` has no
+						 * per-signal `trend` to diff against, only a single
+						 * sitewide `deltas.total_open` (the "Issues found"
+						 * tile below), so nothing is fabricated here to fill
+						 * that slot. A row's own real open-issue count
+						 * becomes its `desc` the same way SEO's does; a
+						 * `null` score (not enough content yet) reuses this
+						 * file's own real `mainProblemText()` copy instead
+						 * of a fake number. Clicking a row scrolls to the
+						 * real "GEO Score Breakdown" table below (this
+						 * card's own SIGNAL_META rows again, just as a real
+						 * table) since there's no per-signal filtered table
+						 * here to open the way SEO's `categoryFocus` does.
+						 */}
+						<ListComponent
+							className="mini-card report hover without-border seo-health-score-category-list"
+							loading={isLoading}
+							items={SIGNAL_META.map((meta) => {
+								const signal = score?.signals[meta.key];
+								const signalScore = signal?.score ?? null;
+								const delta = signal ? signalScoreDelta(signal) : null;
+
+								return {
 									id: meta.key,
 									icon: meta.icon,
 									title: meta.label,
-								}))}
-							/>
-						</div>
+									desc:
+										null === signalScore
+											? mainProblemText(meta.key, signal ?? {
+													score: null,
+													open_count: null,
+													affected_pages: 0,
+													main_problem: null,
+													trend: null,
+												})
+											: sprintf(
+													/* translators: %d: real number of open findings for this signal. */
+													__('%d issues', 'vulopilot'),
+													signal?.open_count ?? 0
+												),
+									tags: (
+										<>
+											{null !== delta && (
+												<TypographyComponent
+													as="span"
+													variant="body-md"
+													weight="bold"
+													color={delta >= 0 ? 'green' : 'red'}
+													className="seo-health-score-row-delta"
+												>
+													<IconComponent
+														name={delta >= 0 ? 'arrow-up' : 'arrow-down'}
+													/>
+													{Math.abs(delta)}
+												</TypographyComponent>
+											)}
+											{null !== signalScore && (
+												<TypographyComponent
+													variant="h5"
+													weight="bold"
+													color={ratingClass(signalScore)}
+													className="seo-health-score-row-value"
+												>
+													{signalScore}
+													<TypographyComponent
+														as="span"
+														variant="body-md"
+														className="seo-health-score-row-suffix"
+													>
+														/100
+													</TypographyComponent>
+												</TypographyComponent>
+											)}
+										</>
+									),
+									action: () =>
+										onSelectSignal
+											? onSelectSignal(SIGNAL_TO_TOPIC_KEY[meta.key])
+											: scrollToBreakdown(),
+								};
+							})}
+						/>
 					</div>
+					{score && (
+						<AnalyticsComponent
+							variant="with-out-boxshadow"
+							cols={2}
+							isLoading={isLoading}
+							data={[
+								{
+									number: score.pages_checked,
+									text: __('Pages checked', 'vulopilot'),
+									iconClass: 'admin-bg-color2',
+								},
+								{
+									// Real sum of every signal's own real
+									// `open_count` — `GeoScoreResponse` has
+									// no single "total open" field the way
+									// `SeoScoreResponse.total_open` does,
+									// only the week-over-week `deltas.total_open`,
+									// so this is computed from the same real
+									// per-signal counts the rows above
+									// already show, not a separate fetch.
+									number: Object.values(score.signals).reduce(
+										(sum, signal) => sum + (signal.open_count ?? 0),
+										0
+									),
+									text: __('Issues found', 'vulopilot'),
+									iconClass: 'admin-bg-color3',
+								},
+							]}
+						/>
+					)}
 				</CardComponent>
 			</ColumnComponent>
 			<ColumnComponent grid={6} fullHeight>
@@ -241,13 +401,11 @@ const GeoScoreSection = () => {
 					titleIcon='tools'
 					isLoading={isLoadingProgress}
 					action={
-						<SelectInput
-							type="single-select"
-							name="geo-score-progress-period"
+						<ChoiceToggleInput
+							options={PERIOD_OPTIONS}
 							value={period}
 							onChange={(value) => setPeriod(value as PeriodDays)}
-							options={PERIOD_OPTIONS}
-							isClearable={false}
+							modules={[]}
 						/>
 					}
 				>
@@ -264,44 +422,6 @@ const GeoScoreSection = () => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-			<CardComponent
-				title={__('GEO Score Breakdown', 'vulopilot')}
-				desc={__('See how your site performs across the signals that matter most for AI engines.', 'vulopilot')}
-				isLoading={isLoading}
-				titleIcon='tools'
-			>
-				<table className="geo-score-breakdown-table">
-					<thead>
-						<tr>
-							<th>{__('Signal', 'vulopilot')}</th>
-							<th>{__('Score', 'vulopilot')}</th>
-							<th>{__('Status', 'vulopilot')}</th>
-							<th>{__('Main Problem', 'vulopilot')}</th>
-						</tr>
-					</thead>
-					<tbody>
-						{SIGNAL_META.map((meta) => {
-							const signal = score?.signals[meta.key];
-							const rowScore = signal?.score ?? null;
-
-							return (
-								<tr key={meta.key}>
-									<td>{meta.label}</td>
-									<td>{null === rowScore ? __('—', 'vulopilot') : `${rowScore}/100`}</td>
-									<td>
-										{null !== rowScore && (
-											<BadgeComponent color={ratingClass(rowScore)} text={getRating(rowScore)} />
-										)}
-									</td>
-									<td className="geo-score-breakdown-problem">
-										{signal ? mainProblemText(meta.key, signal) : __('—', 'vulopilot')}
-									</td>
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-			</CardComponent>
 
 			{isGeoInsightsActive() && GeoCompetitorVisibility ? (
 				<GeoCompetitorVisibility yourScore={score?.geo_score ?? null} />

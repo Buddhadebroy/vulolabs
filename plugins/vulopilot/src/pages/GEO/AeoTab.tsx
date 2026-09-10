@@ -8,6 +8,7 @@ import { computeTrendChange } from './GeoTrendCompactCard';
 import AeoCitationCoverageCard from './AeoCitationCoverageCard';
 import AeoEngineTestingCard from './AeoEngineTestingCard';
 import IssuesSection from './IssuesSection';
+import GeoAeoPageAnalysisPanel from './GeoAeoPageAnalysisPanel';
 import { useAllFindingGroups } from './useAllFindingGroups';
 import { sumGroupCounts } from './useGeoFindingGroups';
 import {
@@ -139,26 +140,6 @@ const AEO_SECTIONS: {
 ];
 
 const ALL_AEO_SCANNER_IDS = AEO_SECTIONS.flatMap((section) => section.scannerIds);
-
-const getRating = (score: number): string => {
-	if (score >= 70) {
-		return __('Good', 'vulopilot');
-	}
-	if (score >= 40) {
-		return __('Needs Work', 'vulopilot');
-	}
-	return __('Poor', 'vulopilot');
-};
-
-const ratingClass = (score: number): string => {
-	if (score >= 70) {
-		return 'is-good';
-	}
-	if (score >= 40) {
-		return 'is-attention';
-	}
-	return 'is-poor';
-};
 
 const average = (values: number[]): number =>
 	values.length
@@ -319,9 +300,11 @@ const AeoTab = () => {
 		key: string;
 		token: number;
 	} | null>(null);
+	/** Set by a real "Analyze" click in the "Pages & Posts" table below — opens `GeoAeoPageAnalysisPanel` as a real sidebar, same real "Analyze"/"Viewing" toggle + side panel SeoTab.tsx's own SEO table already has (see that panel's own docblock for why it shows real findings instead of a fabricated pass/fail checklist). */
+	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
 	const { modules } = useModules();
 	const { groups, isLoading: isLoadingGroups } = useAllFindingGroups();
-	const { snapshot, history, isLoading: isLoadingSnapshot } = useGeoVisibilitySnapshot();
+	const { history, isLoading: isLoadingSnapshot } = useGeoVisibilitySnapshot();
 	const { pages: aeoPages, total: totalPages, isLoading: isLoadingPages } =
 		useAeoPageAnalysis(ALL_AEO_SCANNER_IDS);
 
@@ -354,36 +337,20 @@ const AeoTab = () => {
 		setCategoryFocus({ key, token: Date.now() });
 	};
 
-	const hasSnapshot = snapshot && snapshot.ai_scores && snapshot.sub_scores;
-	const aeoScore = hasSnapshot
-		? average([
-				snapshot!.ai_scores!.answer_first_structure,
-				snapshot!.ai_scores!.question_coverage,
-				snapshot!.sub_scores!.citation_readiness,
-			])
-		: 0;
 	const aeoTrend = computeTrendChange(history, getAeoTrendScore);
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent>
-				<GeoByTopicGrid
-					topics={AEO_SECTIONS}
-					groups={groups}
-					isLoading={isLoadingGroups}
-					onViewTopic={(key) => goToIssuesTable(key)}
-				/>
-			</ColumnComponent>
 			<ColumnComponent grid={6}>
 				<AeoScoreSummaryCard
 					isLoading={isLoadingSnapshot || isLoadingGroups || isLoadingPages}
-					aeoScore={aeoScore}
-					ratingLabel={getRating(aeoScore)}
-					ratingClassName={ratingClass(aeoScore)}
 					questionsAnswered={questionsAnswered}
 					totalPages={totalPages}
 					pagesReady={pagesReady}
 					trend={aeoTrend}
+					topics={AEO_SECTIONS}
+					groups={groups}
+					onSelectTopic={goToIssuesTable}
 				/>
 				<NoticeComponent
 					// type="banner"
@@ -399,17 +366,35 @@ const AeoTab = () => {
 	
 
 			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) — replaces the differently-shaped SectionedFindingsTab this used before, per direct instruction. `pageAnalysis` merges the former standalone "Page-by-Page Answer Readiness" table into the "Pages & Posts" table below. */}
-			<IssuesSection
-				id="aeo-all-issues-table"
-				scannerIds={ALL_AEO_SCANNER_IDS}
-				categories={AEO_SECTIONS}
-				categoryFocus={categoryFocus}
-				issuesColumnLabel={__('AEO Issues', 'vulopilot')}
-				pageAnalysis={{
-					scoreColumnLabel: __('Answer Readiness', 'vulopilot'),
-					exportFilename: 'aeo-page-analysis.csv',
-				}}
-			/>
+			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
+				<IssuesSection
+					id="aeo-all-issues-table"
+					scannerIds={ALL_AEO_SCANNER_IDS}
+					categories={AEO_SECTIONS}
+					categoryFocus={categoryFocus}
+					issuesColumnLabel={__('AEO Issues', 'vulopilot')}
+					pageAnalysis={{
+						scoreColumnLabel: __('Answer Readiness', 'vulopilot'),
+						exportFilename: 'aeo-page-analysis.csv',
+					}}
+					onAnalyze={setAnalyzingPostId}
+					activePostId={analyzingPostId}
+				/>
+			</ColumnComponent>
+			{analyzingPostId && (
+				<ColumnComponent grid={4}>
+					<GeoAeoPageAnalysisPanel
+						postId={analyzingPostId}
+						scannerIds={ALL_AEO_SCANNER_IDS}
+						title={__('Page Analysis', 'vulopilot')}
+						desc={__(
+							'A single page’s real AEO signals from your most recent scan.',
+							'vulopilot'
+						)}
+						onClose={() => setAnalyzingPostId(null)}
+					/>
+				</ColumnComponent>
+			)}
 		</ContainerComponent>
 	);
 };
