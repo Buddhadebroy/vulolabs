@@ -15,6 +15,8 @@ const GROUP_LABELS: Record< AnalysisResult[ 'group' ], string > = {
 interface GeneralTabProps {
 	/** "All SEO Issues" table's "Fix with AI" deep link — an OnPageAnalyzer check id (e.g. 'description_length') to scroll to and highlight once the checklist below has (re-)computed it. */
 	highlightTarget?: string;
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — accepted for prop-shape parity with every other tab (`PostSeoPanel.tsx` passes it uniformly to whichever tab is active), unused here since this tab is never itself the target of `PageAnalysisTab.tsx`'s own row clicks. */
+	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
 /**

@@ -10,6 +10,8 @@ type MediaFrame = any;
 interface SocialTabProps {
 	/** "All SEO Issues" table's "Fix with AI" deep link — both 'open-graph' and 'twitter-card' scanner ids resolve to 'social_title' here (see seoIssueEditorTarget.ts), since this tab's 3 fields aren't split per-network. */
 	highlightTarget?: string;
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — accepted for prop-shape parity with every other tab, unused here. */
+	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
 /**

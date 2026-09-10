@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE } from '@zyra/core';
-import { AnalyticsComponent, CardComponent, ChartComponent, IconComponent, ListComponent, TypographyComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, IconComponent, ListComponent, MetricTileComponent, TypographyComponent } from '@zyra/components';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import type { TrendChange } from './GeoTrendCompactCard';
 
@@ -300,37 +300,41 @@ const AeoScoreSummaryCard = ({
 					/>
 				</div>
 			</div>
-			<AnalyticsComponent
-				variant="with-out-boxshadow"
-				cols={4}
+			<MetricTileComponent
+				cols={3}
 				isLoading={isLoading}
 				data={[
 					{
-						number: questionsAnswered,
-						text: sprintf(
-							/* translators: %d: real total published pages checked. */
-							__('Questions Answered (of %d)', 'vulopilot'),
+						id: 'questions-answered',
+						icon: 'question blue',
+						title: __('Questions Answered', 'vulopilot'),
+						number: sprintf(
+							/* translators: 1: real questions-answered count, 2: real total published pages checked. */
+							__('%1$d / %2$d', 'vulopilot'),
+							questionsAnswered,
 							totalPages
 						),
-						iconClass: 'admin-bg-color2',
 					},
 					{
-						number: pagesReady,
-						text: sprintf(
-							/* translators: %d: real total published pages checked. */
-							__('Pages Ready (of %d)', 'vulopilot'),
+						id: 'pages-ready',
+						icon: 'check pink',
+						title: __('Pages Ready', 'vulopilot'),
+						number: sprintf(
+							/* translators: 1: real pages-ready count, 2: real total published pages checked. */
+							__('%1$d / %2$d', 'vulopilot'),
+							pagesReady,
 							totalPages
 						),
-						iconClass: 'admin-bg-color3',
 					},
 					{
+						id: 'content-change',
+						icon: 'edit green',
+						title: __('Content Change (last 30 days)', 'vulopilot'),
 						number: (
 							<span className={trend && trend.change < 0 ? 'is-attention' : 'is-good'}>
 								{changeValue}
 							</span>
 						),
-						text: __('Content Change (last 30 days)', 'vulopilot'),
-						iconClass: 'admin-bg-color4',
 					},
 				]}
 			/>

@@ -2,10 +2,11 @@ import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	ChartComponent,
-	AnalyticsComponent,
 	ColumnComponent,
 	ContainerComponent,
-	TrendIndicatorComponent,
+	ListComponent,
+	IconComponent,
+	TypographyComponent,
 	BadgeComponent,
 } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
@@ -20,17 +21,14 @@ import { WidgetProps } from './types';
  * in the /dashboard payload, since nothing else needs this specific 4-way
  * grouping.
  *
- * The mockup's stat-boxes below the donut show a week-over-week delta per
- * bucket — there's no historical per-category data to compute that from
- * (only overall_score gets a daily snapshot, and only when Pro's
- * AdvancedReports module is active), so this widget omits that row rather
- * than fabricate a number, same call as CategoryScoreWidget.tsx's own
- * omitted sparkline/delta. `AnalyticsComponent` renders its `data` array in
- * a plain row-major grid, so `cols={3}` (rather than the old `cols={2}`) is
- * what gives Visibility/Health/Commerce a first row of 3 and
- * Performance/Content/Brand a second, matching the mockup's own two-row
- * rhythm — all 6 are the same real numbers either way, just laid out
- * differently.
+ * Right-side rows restructured to match `SeoTab.tsx`'s own "SEO Health"
+ * card exactly (direct instruction: "convert [this] to [that] structure")
+ * — the old 6-tile `AnalyticsComponent` progress grid + separate
+ * `score-trend-row` delta strip below it are now one real
+ * `ListComponent` "mini-card report" row per bucket, each row's own real
+ * week-over-week delta folded in next to its score (same real
+ * `category_scores_7d_ago` diff the old `trendItems` array already
+ * computed — merged into the same row instead of a second block).
  */
 const average = (nums: number[]): number =>
 	Math.round(nums.reduce((sum, n) => sum + n, 0) / nums.length);
@@ -54,6 +52,20 @@ const getRating = (score: number): string => {
  * value gets a human-readable label" convention `getRating()` itself
  * already establishes, not a second, independent judgment.
  */
+/** Same real 4-tier `getRating()` bands above, mapped to `TypographyComponent`'s own real palette color names (`SeoTab.tsx`'s own `seo-health-score-row-value` rows use the same "score → palette color" convention via `ratingColor()`) — feeds each row's own score number color below. */
+const ratingColorFor = (score: number): string => {
+	if (score >= 90) {
+		return 'green';
+	}
+	if (score >= 70) {
+		return 'blue';
+	}
+	if (score >= 50) {
+		return 'yellow';
+	}
+	return 'red';
+};
+
 const getRatingSummary = (score: number): string => {
 	if (score >= 90) {
 		return __('Your site is in excellent shape.', 'vulopilot');
@@ -88,62 +100,11 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	const netChange =
 		summary.fixed_findings_this_week - summary.new_findings_this_week;
 
-	const scoreItems = [
-		{
-			key: 'visibility',
-			label: __('Visibility Score', 'vulopilot'),
-			count: visibility,
-			progress: visibility,
-			icon: 'tax-compliance',
-			colorClass: 'red-yellow'
-		},
-		{
-			key: 'health',
-			label: __('Health Score', 'vulopilot'),
-			count: health,
-			progress: health,
-			icon: 'order',
-			colorClass: 'red-blue'
-		},
-		{
-			key: 'commerce',
-			label: __('Commerce Score', 'vulopilot'),
-			count: commerce,
-			progress: commerce,
-			icon: 'shipping',
-			colorClass: 'red-green'
-		},
-		{
-			key: 'performance',
-			label: __('Performance Score', 'vulopilot'),
-			count: performance,
-			progress: 50,
-			icon: 'shipping',
-			colorClass: 'red-color'
-		},
-		{
-			key: 'content',
-			label: __('Content Score', 'vulopilot'),
-			count: cs.content,
-			progress: cs.content,
-			icon: 'text-fields',
-			colorClass: 'red-yellow'
-		},
-		{
-			key: 'brand',
-			label: __('Brand Score', 'vulopilot'),
-			count: cs.brand,
-			progress: cs.brand,
-			icon: 'person',
-			colorClass: 'red-blue'
-		},
-	];
-
 	// Real week-over-week deltas per bucket, diffed against
 	// category_scores_7d_ago (Dashboard controller's
 	// build_category_scores_as_of() — a genuine reconstruction from
 	// findings' own created_at/resolved_at timestamps, not a fabricated
-	// number). Same 4-way grouping as the donut/scoreItems above, just
+	// number). Same 4-way grouping as the donut/scoreRows below, just
 	// applied to last week's snapshot too.
 	const cs7 = summary.category_scores_7d_ago;
 	const visibility7d = average([cs7.seo, cs7.geo, cs7.content, cs7.brand]);
@@ -151,36 +112,53 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	const commerce7d = cs7.woocommerce ?? 0;
 	const performance7d = cs7.performance;
 
-	const trendItems = [
+	// One real row per bucket — same real score `AnalyticsComponent`'s
+	// own tiles used to show, plus that same bucket's own real
+	// week-over-week delta (the old, separate `trendItems` array) folded
+	// into the same row, matching `SeoTab.tsx`'s own "SEO Health" row
+	// shape (score + delta arrow together, not a 2nd block below).
+	const scoreRows = [
 		{
 			key: 'visibility',
-			label: __('Visibility', 'vulopilot'),
+			label: __('Visibility Score', 'vulopilot'),
+			score: visibility,
 			delta: visibility - visibility7d,
+			icon: 'tax-compliance',
 		},
 		{
 			key: 'health',
-			label: __('Health', 'vulopilot'),
+			label: __('Health Score', 'vulopilot'),
+			score: health,
 			delta: health - health7d,
+			icon: 'order',
 		},
 		{
 			key: 'commerce',
-			label: __('Commerce', 'vulopilot'),
+			label: __('Commerce Score', 'vulopilot'),
+			score: commerce,
 			delta: commerce - commerce7d,
+			icon: 'shipping',
 		},
 		{
 			key: 'performance',
-			label: __('Performance', 'vulopilot'),
+			label: __('Performance Score', 'vulopilot'),
+			score: performance,
 			delta: performance - performance7d,
+			icon: 'shipping',
 		},
 		{
 			key: 'content',
-			label: __('Content', 'vulopilot'),
+			label: __('Content Score', 'vulopilot'),
+			score: cs.content,
 			delta: cs.content - cs7.content,
+			icon: 'text-fields',
 		},
 		{
 			key: 'brand',
-			label: __('Brand', 'vulopilot'),
+			label: __('Brand Score', 'vulopilot'),
+			score: cs.brand,
 			delta: cs.brand - cs7.brand,
+			icon: 'person',
 		},
 	];
 
@@ -306,36 +284,46 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 					</div>
 				</ColumnComponent>
 				<ColumnComponent grid={9}>
-					<AnalyticsComponent
-						cols={3}
-						variant="progress"
-						data={scoreItems.map((item, idx) => ({
-							icon: item.icon,
-							number: `${item.count}%`,
-							text: item.label,
-							colorClass: `admin-color${idx + 2}`,
-							progress: item.progress
+					<ListComponent
+						className="mini-card report hover seo-health-score-category-list"
+						loading={isLoading}
+						items={scoreRows.map((row) => ({
+							id: row.key,
+							icon: row.icon,
+							title: row.label,
+							tags: (
+								<>
+									<TypographyComponent
+										as="span"
+										variant="body-md"
+										weight="bold"
+										color={row.delta >= 0 ? 'green' : 'red'}
+										className="seo-health-score-row-delta"
+									>
+										<IconComponent
+											name={row.delta >= 0 ? 'arrow-up' : 'arrow-down'}
+										/>
+										{Math.abs(row.delta)}
+									</TypographyComponent>
+									<TypographyComponent
+										variant="h5"
+										weight="bold"
+										color={ratingColorFor(row.score)}
+										className="seo-health-score-row-value"
+									>
+										{row.score}
+										<TypographyComponent
+											as="span"
+											variant="body-md"
+											className="seo-health-score-row-suffix"
+										>
+											/100
+										</TypographyComponent>
+									</TypographyComponent>
+								</>
+							),
 						}))}
 					/>
-				</ColumnComponent>
-				<ColumnComponent >
-					<div className="score-trend-row">
-						{trendItems.map((item) => (
-							<div className="score-trend-item" key={item.key}>
-								<TrendIndicatorComponent
-									value={item.delta}
-									decimals={0}
-									suffix=""
-								/>
-								<div className="score-trend-label">
-									{item.label}
-								</div>
-								<div className="score-trend-sub">
-									{__('vs last 7 days', 'vulopilot')}
-								</div>
-							</div>
-						))}
-					</div>
 				</ColumnComponent>
 			</ContainerComponent>
 		</DashboardWidget>

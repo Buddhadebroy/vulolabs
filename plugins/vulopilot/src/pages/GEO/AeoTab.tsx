@@ -366,7 +366,7 @@ const AeoTab = () => {
 	
 
 			{/* Same real "filter pills + Site-wide Issues + Pages & Posts" structure SeoTab.tsx's own issues table already has (IssuesSection.tsx, generalized from what used to be SEO-only) — replaces the differently-shaped SectionedFindingsTab this used before, per direct instruction. `pageAnalysis` merges the former standalone "Page-by-Page Answer Readiness" table into the "Pages & Posts" table below. */}
-			<ColumnComponent grid={analyzingPostId ? 8 : 12}>
+			<ColumnComponent grid={8}>
 				<IssuesSection
 					id="aeo-all-issues-table"
 					scannerIds={ALL_AEO_SCANNER_IDS}

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import { TabPanel } from '@wordpress/components';
 import GeneralTab from './tabs/GeneralTab';
 import AdvancedTab from './tabs/AdvancedTab';
@@ -41,19 +42,46 @@ interface PostSeoPanelProps {
  * own addition, mirroring `GEO/PageAnalysisPanel.tsx`'s real checklist
  * inside the editor itself (see PageAnalysisTab.tsx's own docblock).
  * Rendered inside the PluginSidebar registered by src/post-editor/index.tsx.
+ *
+ * `navTarget` is this panel's own in-sidebar navigation state — lets
+ * `PageAnalysisTab.tsx`'s own checklist rows jump straight to the real
+ * field that fixes them (General/Advanced/Social/Schema, whichever one
+ * `SEO_ISSUE_EDITOR_TARGETS` names for that check), the same real
+ * tab+highlight pair the "All SEO Issues" table's own "Fix with AI" deep
+ * link already lands on from outside the editor — just switched without a
+ * page navigation, since this is already the editor. `@wordpress/components`'
+ * own `TabPanel` only reads `initialTabName` once at mount (confirmed —
+ * it's uncontrolled), so `navigateTo()` forces a fresh mount via `key`
+ * rather than trying to imperatively select a tab on an already-mounted
+ * instance.
  */
 export default function PostSeoPanel( { initialTabName, highlightTarget }: PostSeoPanelProps ) {
+	const [ navTarget, setNavTarget ] = useState< { tab: SeoIssueEditorTab; target?: string } | null >( null );
+
+	const activeTabName = navTarget?.tab ?? initialTabName;
+	const activeHighlight = navTarget ? navTarget.target : highlightTarget;
+
+	const navigateTo = ( tab: SeoIssueEditorTab, target?: string ) => {
+		setNavTarget( { tab, target } );
+	};
+
 	return (
 		<div className="vulopilot-seo-panel">
 			<TabPanel
+				key={ activeTabName ?? 'general' }
 				tabs={ TABS.map( ( { name, title, icon } ) => ( { name, title, icon } ) ) }
-				initialTabName={ initialTabName }
+				initialTabName={ activeTabName }
 			>
 				{ ( tab ) => {
 					const active = TABS.find( ( candidate ) => candidate.name === tab.name );
 					const ActiveComponent = active ? active.Component : GeneralTab;
 
-					return <ActiveComponent highlightTarget={ highlightTarget } />;
+					return (
+						<ActiveComponent
+							highlightTarget={ activeHighlight }
+							onNavigate={ navigateTo }
+						/>
+					);
 				} }
 			</TabPanel>
 		</div>

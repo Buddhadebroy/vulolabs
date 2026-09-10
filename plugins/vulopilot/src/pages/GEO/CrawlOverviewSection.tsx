@@ -1,4 +1,5 @@
 /* global appLocalizer */
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
@@ -69,6 +70,14 @@ interface CrawlerVisitRow extends TableRow {
  * tab rather than bundling everything crawler-related into one
  * "Overview."
  */
+/** Same real 7/30/90-day trio `SeoProgressCard.tsx`'s/`GeoScoreSection.tsx`'s own identical period toggles already use — `crawler-traffic/analytics`'s own `days` param already accepts any real value (`CrawlerTraffic.php::get_analytics()`, defaults to 30), so this is a real, already-working range, not a new backend capability. */
+type PeriodDays = '7' | '30' | '90';
+const PERIOD_OPTIONS = [
+	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
+	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
+	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+];
+
 const CrawlOverviewSection = () => {
 	const botNameOptions = [
 		{ label: __('GPTBot (OpenAI)', 'vulopilot'), value: 'GPTBot (OpenAI)' },
@@ -119,7 +128,10 @@ const CrawlOverviewSection = () => {
 		{},
 		{ key: 'bot_name', options: botNameOptions }
 	);
-	const { analytics, isLoading: isLoadingAnalytics } = useCrawlerAnalytics(30);
+	const [period, setPeriod] = useState<PeriodDays>('30');
+	const { analytics, isLoading: isLoadingAnalytics } = useCrawlerAnalytics(
+		Number(period)
+	);
 
 	return (
 		<ColumnComponent>
@@ -145,6 +157,9 @@ const CrawlOverviewSection = () => {
 					<CrawlerAnalyticsSection
 						analytics={analytics}
 						isLoading={isLoadingAnalytics}
+						period={period}
+						periodOptions={PERIOD_OPTIONS}
+						onPeriodChange={(value) => setPeriod(value as PeriodDays)}
 					/>
 
 					{CrawlerAlertsCard && <CrawlerAlertsCard />}
