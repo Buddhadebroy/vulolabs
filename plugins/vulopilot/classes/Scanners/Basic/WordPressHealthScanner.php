@@ -142,6 +142,15 @@ class WordPressHealthScanner extends AbstractBasicScanner {
      * caller above then omits `meta` entirely rather than splitting
      * nothing into two boxes.
      *
+     * Some tests (e.g. `get_test_rest_availability()`) join two distinct
+     * lines within the SAME paragraph with a real `<br>` rather than a new
+     * `<p>` (e.g. "REST API Endpoint: …" and "REST API Response: …") — a
+     * bare `wp_strip_all_tags()` would silently drop that tag and glue the
+     * two lines together with no separator at all (confirmed live:
+     * "…context=editREST API Response: …"). Replacing `<br>` with a real
+     * separator first keeps both lines readable without fabricating new
+     * wording — still core's own two lines, just not run together.
+     *
      * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
      * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.
      */
@@ -151,7 +160,9 @@ class WordPressHealthScanner extends AbstractBasicScanner {
         return array_values(
             array_filter(
                 array_map(
-                    static fn( string $chunk ): string => trim( wp_strip_all_tags( $chunk ) ),
+                    static fn( string $chunk ): string => trim(
+                        wp_strip_all_tags( preg_replace( '/<br\s*\/?>/i', ' — ', $chunk ) ?? $chunk )
+                    ),
                     $chunks
                 ),
                 static fn( string $paragraph ): bool => '' !== $paragraph
