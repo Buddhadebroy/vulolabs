@@ -511,6 +511,33 @@ const SeoIssuesByPageTable = ({
 															},
 														]
 													: []),
+												// Which real checks actually flagged this page — the
+												// same real scanner labels each expanded finding
+												// sub-row already shows one at a time (`scannerLabel`
+												// below), surfaced here too so a page's own real issue
+												// types (e.g. "Featured Images, Meta Descriptions") are
+												// visible on this row directly, without expanding it
+												// first.
+												...(getRowFindings(row).length > 0
+													? [
+															{
+																icon: 'category',
+																label: __('Issues', 'vulopilot'),
+																value: Array.from(
+																	new Set(
+																		getRowFindings(row).map(
+																			(finding) => finding.scanner_id
+																		)
+																	)
+																)
+																	.map(
+																		(scannerId) =>
+																			scannerLabelMap.get(scannerId) || scannerId
+																	)
+																	.join(', '),
+															},
+														]
+													: []),
 											]}
 										/>
 									</div>
