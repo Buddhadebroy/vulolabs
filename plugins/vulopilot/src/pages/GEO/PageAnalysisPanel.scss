@@ -30,22 +30,17 @@
 	}
 }
 
-.page-analysis-panel-meta {
-	font-weight: 600;
-	margin-bottom: 1rem;
-
-	.desc {
-		display: block;
-		font-weight: 400;
-		margin-top: 0.125rem;
-	}
-}
-
 .page-analysis-search-preview {
 	padding: 0.875rem 1rem;
 	border: $border-light-small;
 	border-radius: $border-radius-small;
 	margin-bottom: 1.25rem;
+}
+
+.page-analysis-search-preview-meta {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+	margin-bottom: 0.5rem;
 }
 
 .page-analysis-search-preview-title {

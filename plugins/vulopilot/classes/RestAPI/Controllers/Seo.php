@@ -585,18 +585,32 @@ class Seo extends \WP_REST_Controller {
                 'permalink'        => $permalink,
                 'meta_description' => $post->post_excerpt,
                 'analyzed_at'      => current_time( 'mysql', true ),
-                'checks'           => array(
-                    $this->check_title_tag( $post ),
-                    $this->check_meta_description( $post ),
-                    $this->check_h1_heading( $post ),
-                    $this->check_headings( $post ),
-                    $this->check_content_length( $post ),
-                    $this->check_images_alt_text( $post ),
-                    $this->check_internal_links( $post_id ),
-                    $this->check_canonical( $body ),
-                    $this->check_indexability( $post ),
-                    $this->check_structured_data( $body ),
-                    $this->check_social_metadata( $body ),
+                // `check_featured_image()`/`check_orphan_page()` return `null`
+                // (filtered out here) when their own real settings toggle
+                // (Settings → Scanning → SEO's "Flag missing featured image"/
+                // "Flag orphan pages") is off — same real on/off
+                // SeoImagesScanner/OrphanPageScanner themselves already
+                // respect, so this panel never complains about a check the
+                // site owner deliberately turned off elsewhere. Every other
+                // check here has no such toggle.
+                'checks'           => array_values(
+                    array_filter(
+                        array(
+                            $this->check_title_tag( $post ),
+                            $this->check_meta_description( $post ),
+                            $this->check_h1_heading( $post ),
+                            $this->check_headings( $post ),
+                            $this->check_content_length( $post ),
+                            $this->check_images_alt_text( $post ),
+                            $this->check_featured_image( $post ),
+                            $this->check_broken_links( $post_id ),
+                            $this->check_orphan_page( $post_id ),
+                            $this->check_canonical( $body ),
+                            $this->check_indexability( $post ),
+                            $this->check_structured_data( $body ),
+                            $this->check_social_metadata( $body ),
+                        )
+                    )
                 ),
             )
         );
@@ -783,19 +797,50 @@ class Seo extends \WP_REST_Controller {
     }
 
     /**
+     * Same real `has_post_thumbnail()` check SeoImagesScanner::scan() already
+     * runs (batch-scoped there to the most recently modified posts; here
+     * scoped live to this one page instead), gated behind that same real
+     * `flag_missing_featured_image` setting (Settings → Scanning → SEO) so
+     * this panel never flags something the site owner already turned off —
+     * `null` (filtered out by `get_page_analysis()`) rather than a fabricated
+     * "pass" when the setting is off.
+     *
+     * @param \WP_Post $post Page being analyzed.
+     * @return array{key: string, label: string, status: string, message: string}|null
+     */
+    private function check_featured_image( \WP_Post $post ): ?array {
+        $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        if ( empty( $settings['flag_missing_featured_image'] ) ) {
+            return null;
+        }
+
+        $label = __( 'Featured Image', 'vulopilot' );
+
+        if ( has_post_thumbnail( $post ) ) {
+            return $this->build_check( 'featured_image', $label, 'pass', __( 'Featured image is set', 'vulopilot' ) );
+        }
+
+        return $this->build_check( 'featured_image', $label, 'fail', __( 'No featured image set', 'vulopilot' ) );
+    }
+
+    /**
      * Real, already-stored `broken-links` findings scoped to this one
      * page (`FindingRepository::find_all()`'s own `object_type`/
      * `object_ref` filters) — the same real per-run coverage
      * BrokenLinksTab.tsx's own "Broken Link Monitoring" table already
      * shows, read here rather than re-checked live so this endpoint's own
      * "broken" count can never disagree with that table for the same
-     * page.
+     * page. Labeled "Broken Links" (not "Internal Links" — that's a
+     * separate, distinct real question: does anything ELSE link *to* this
+     * page, see `check_orphan_page()` below) to match what this check
+     * actually answers: does this page itself contain any broken links.
      *
      * @param int $post_id Page being analyzed.
      * @return array{key: string, label: string, status: string, message: string}
      */
-    private function check_internal_links( int $post_id ): array {
-        $label    = __( 'Internal Links', 'vulopilot' );
+    private function check_broken_links( int $post_id ): array {
+        $label    = __( 'Broken Links', 'vulopilot' );
         $findings = new FindingRepository();
         $broken   = $findings->find_all(
             array(
@@ -811,7 +856,7 @@ class Seo extends \WP_REST_Controller {
 
         if ( $count > 0 ) {
             return $this->build_check(
-                'internal_links',
+                'broken_links',
                 $label,
                 'fail',
                 sprintf(
@@ -822,7 +867,54 @@ class Seo extends \WP_REST_Controller {
             );
         }
 
-        return $this->build_check( 'internal_links', $label, 'pass', __( 'No broken links found', 'vulopilot' ) );
+        return $this->build_check( 'broken_links', $label, 'pass', __( 'No broken links found', 'vulopilot' ) );
+    }
+
+    /**
+     * Real, already-stored `orphan-pages` finding for this one page
+     * (`OrphanPageScanner::scan()`'s own real "does anything among the most
+     * recently modified content link to this page" cross-reference,
+     * batch-computed sitewide and read back here rather than re-run live —
+     * same "trust the stored scan, don't risk disagreeing with it" posture
+     * `check_broken_links()` above already takes for `broken-links`). Gated
+     * behind that scanner's own real `flag_orphan_pages` setting (Settings →
+     * Scanning → SEO) so this panel never reports an orphan verdict that
+     * scanner itself has been told not to compute — `null` (filtered out by
+     * `get_page_analysis()`) rather than a fabricated "pass" when it's off,
+     * same reasoning `check_featured_image()` above already documents.
+     *
+     * @param int $post_id Page being analyzed.
+     * @return array{key: string, label: string, status: string, message: string}|null
+     */
+    private function check_orphan_page( int $post_id ): ?array {
+        $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
+
+        if ( empty( $settings['flag_orphan_pages'] ) ) {
+            return null;
+        }
+
+        $label    = __( 'Orphan Page', 'vulopilot' );
+        $findings = new FindingRepository();
+        $orphan   = $findings->find_all(
+            array(
+                'scanner_id'  => 'orphan-pages',
+                'status'      => 'open',
+                'object_type' => 'post',
+                'object_ref'  => (string) $post_id,
+                'per_page'    => 1,
+            )
+        );
+
+        if ( count( $orphan['data'] ?? array() ) > 0 ) {
+            return $this->build_check(
+                'orphan_page',
+                $label,
+                'fail',
+                __( '0 internal links point to this page — nothing else links to it', 'vulopilot' )
+            );
+        }
+
+        return $this->build_check( 'orphan_page', $label, 'pass', __( 'At least one other page links to this page', 'vulopilot' ) );
     }
 
     /**

@@ -1,11 +1,12 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { buildEditLink } from './seoIssuesShared';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
+import { formatWpDate } from '../../services/formatWpDate';
 import './PageAnalysisPanel.scss';
 
 type CheckStatus = 'pass' | 'warn' | 'fail';
@@ -53,6 +54,16 @@ const STATUS_BADGE: Record<CheckStatus, { text: string; color: string }> = {
 	fail: { text: __('Failed', 'vulopilot'), color: 'red' },
 };
 
+/** Worst-first — same real "what actually needs attention floats to the top" ordering `WhatShouldIFixFirstCard.tsx`/`SEVERITY_RANK` elsewhere in this plugin already use, applied to this endpoint's own real `fail`/`warn`/`pass` 3-way instead of a 4-tier severity: every real Failed check first, then Needs Work, then Passed last — rather than `get_page_analysis()`'s own fixed check order (Title Tag, Meta Description, …), which mixes all 3 together with no regard for which ones actually need fixing. */
+const STATUS_RANK: Record<CheckStatus, number> = {
+	fail: 0,
+	warn: 1,
+	pass: 2,
+};
+
+const sortByStatus = (checks: PageCheck[]): PageCheck[] =>
+	[...checks].sort((a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status]);
+
 /**
  * This endpoint's own real check `key`s (`Seo.php::get_page_analysis()`,
  * e.g. `title_tag`/`h1_heading`) → the scanner id `seoIssueEditorTarget.ts`
@@ -69,7 +80,14 @@ const STATUS_BADGE: Record<CheckStatus, { text: string; color: string }> = {
  * published and not marked noindex" as its own scanner) — omitted here on
  * purpose, same as every other id with no entry in
  * `SEO_ISSUE_EDITOR_TARGETS`: the editor still opens the sidebar, just
- * without pretending to highlight a field that isn't there.
+ * without pretending to highlight a field that isn't there. `broken_links`
+ * maps onto `internal-linking`'s own real `has_links` target for the same
+ * reason `title_tag`/`h1_heading`/`headings` do — neither `broken-links`
+ * nor `orphan-pages` has a dedicated editor-sidebar field of its own
+ * (`seoIssueEditorTarget.ts`'s own docblock lists both as deliberately
+ * omitted), so `broken_links` reuses the closest real one that exists
+ * instead of highlighting nothing; `orphan_page` maps straight onto
+ * `orphan-pages` and gets no highlight, same as `indexability` below.
  */
 const CHECK_KEY_TO_SCANNER_ID: Record<string, string> = {
 	title_tag: 'seo',
@@ -78,7 +96,9 @@ const CHECK_KEY_TO_SCANNER_ID: Record<string, string> = {
 	headings: 'heading-structure',
 	content: 'thin-content',
 	images: 'images',
-	internal_links: 'internal-linking',
+	featured_image: 'seo-images',
+	broken_links: 'internal-linking',
+	orphan_page: 'orphan-pages',
 	canonical: 'canonical-url',
 	structured_data: 'structured-data',
 	social_metadata: 'open-graph',
@@ -97,10 +117,14 @@ const buildCheckEditLink = (postId: number, checkKey: string): string => {
 /**
  * "Page Analysis" (SEO & Visibility → SEO's own "Pages & Posts" table, a new
  * "Analyze" row action) — `GET /seo/analyze-page?post_id=…`
- * (Controllers\Seo::get_page_analysis(), Free). Every one of the 11 checks
- * below is real and computed fresh for THIS one page at request time (see
- * that endpoint's own docblock) — a Title Tag/H1/Images/Indexability check
- * with no existing scanner at all, reused real logic from
+ * (Controllers\Seo::get_page_analysis(), Free). Every one of these checks
+ * (up to 12 — "Featured Image" only appears when Settings → Scanning → SEO's
+ * own "Flag missing featured image" toggle is on, same real gate
+ * SeoImagesScanner itself respects) is real and computed fresh for THIS one
+ * page at request time (see that endpoint's own docblock) — a Title Tag/H1/
+ * Images/Featured Image/Indexability check with no existing scanner at all
+ * (Featured Image reuses SeoImagesScanner's own `has_post_thumbnail()`
+ * check, just scoped live to one page), reused real logic from
  * MetaDescriptionScanner/HeadingStructureScanner/ThinContentScanner/
  * CanonicalUrlScanner/SchemaScanner/OpenGraphScanner for the rest, and the
  * real, already-stored Broken Links findings for this page for "Internal
@@ -187,14 +211,14 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 			)}
 			{data && (
 				<>
-					<div className="page-analysis-panel-meta">
-						{data.title}
-						<span className="desc">
-							{new Date(data.analyzed_at).toLocaleString()}
-						</span>
-					</div>
-
 					<div className="page-analysis-search-preview">
+						<div className="page-analysis-search-preview-meta">
+							{sprintf(
+								/* translators: %s: this site's own Settings → General → Date Format, e.g. "10/09/2026". */
+								__('Analyzed %s', 'vulopilot'),
+								formatWpDate(data.analyzed_at)
+							)}
+						</div>
 						<div className="page-analysis-search-preview-title">
 							{data.title}
 						</div>
@@ -209,7 +233,7 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 
 					<ListComponent
 						className="mini-card report"
-						items={data.checks.map((template) => ({
+						items={sortByStatus(data.checks).map((template) => ({
 							id: template.key,
 							icon: STATUS_ICON[template.status],
 							title: template.label,
