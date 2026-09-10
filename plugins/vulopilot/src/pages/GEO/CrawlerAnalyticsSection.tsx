@@ -297,10 +297,10 @@ const CrawlerAnalyticsSection = ({
 											id: item.key,
 											icon:
 												null === item.isGood
-													? 'info'
+													? 'info blue'
 													: item.isGood
-														? 'check'
-														: 'error',
+														? 'check green'
+														: 'error yellow',
 											title: item.label,
 											desc: sprintf(
 												/* translators: %d: real number of open findings for this check. */
@@ -362,7 +362,7 @@ const CrawlerAnalyticsSection = ({
 						)}
 					</CardComponent>
 				</ColumnComponent>
-				<ColumnComponent grid={6}>
+				<ColumnComponent grid={6} fullHeight>
 					<CardComponent
 						title={__('Crawl Requests Over Time', 'vulopilot')}
 						titleIcon="analytics"
@@ -390,10 +390,8 @@ const CrawlerAnalyticsSection = ({
 					</CardComponent>
 
 				</ColumnComponent>
-			</ContainerComponent>
 
-			<ContainerComponent>
-				<ColumnComponent grid={5} fullHeight>
+				<ColumnComponent grid={6} fullHeight>
 					<CardComponent
 						title={__('Crawler Traffic by AI Lab', 'vulopilot')}
 						titleIcon="global-community"
@@ -461,9 +459,7 @@ const CrawlerAnalyticsSection = ({
 						)}
 					</CardComponent>
 				</ColumnComponent>
-			</ContainerComponent>
 
-			<ContainerComponent>
 				<ColumnComponent grid={6}>
 					<CardComponent
 						title={__('Top Crawlers', 'vulopilot')}
