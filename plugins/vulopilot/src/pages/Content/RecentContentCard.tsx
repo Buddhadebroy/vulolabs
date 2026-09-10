@@ -116,7 +116,7 @@ const RecentContentCard = () => {
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={analyzingId ? 8 : 12}>
+			<ColumnComponent grid={8}>
 				<IssuesSection
 					id="content-audit-section"
 					scannerIds={CONTENT_SCANNER_IDS}

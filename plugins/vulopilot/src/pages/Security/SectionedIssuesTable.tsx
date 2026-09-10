@@ -321,7 +321,7 @@ const SectionedIssuesTable = ({
 										key: 'label',
 										type: 'info',
 										label: __('Issue', 'vulopilot'),
-										width: '65%',
+										width: '55%',
 										descriptionKey: 'descriptionText',
 										badgesKey: 'issueBadges',
 									},

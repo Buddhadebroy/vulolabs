@@ -131,6 +131,18 @@ class Seo extends \WP_REST_Controller {
     private const PROGRESS_TREND_DAYS = 7;
 
     /**
+     * Real day-range options "SEO progress"'s own new period toggle offers
+     * — same real trio `Controllers\Geo::ALLOWED_PROGRESS_DAYS` already
+     * established for its own "Score Snapshot" card's identical toggle
+     * (min 7, max 90; `get_category_trend()`'s own per-category sparklines
+     * stay fixed at `PROGRESS_TREND_DAYS` regardless — this only widens
+     * `get_progress()`'s own "SEO Score Over Time" trend).
+     *
+     * @var int[]
+     */
+    private const ALLOWED_PROGRESS_DAYS = array( 7, 30, 90 );
+
+    /**
      * Below this real character count, a set meta description is flagged
      * "Too short" rather than passed outright — short enough that a
      * search engine is likely to still append its own auto-generated
@@ -413,16 +425,29 @@ class Seo extends \WP_REST_Controller {
      * ReportsOverview's own period-over-period reporting) or a real
      * before/after comparison over that same reconstruction
      * (`get_open_findings_for_scanner_ids_by_post()`, "Pages that need
-     * attention"'s own new helper, for "Pages Improved").
+     * attention"'s own new helper, for "Pages Improved"). Both the trend's
+     * own length AND the 3 counters' own comparison window are now
+     * real-selectable (`days`, one of `ALLOWED_PROGRESS_DAYS` — same real
+     * toggle `Controllers\Geo::get_progress()` already supports), rather
+     * than fixed at `PROGRESS_TREND_DAYS`/`DELTA_LOOKBACK_DAYS` regardless
+     * of what the toggle is set to — the `this_week` field names are
+     * historical (kept so the frontend response shape doesn't change) but
+     * now genuinely mean "in the selected period."
      *
+     * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
      */
-    public function get_progress() {
+    public function get_progress( \WP_REST_Request $request ) {
+        $days = (int) $request->get_param( 'days' );
+        if ( ! in_array( $days, self::ALLOWED_PROGRESS_DAYS, true ) ) {
+            $days = self::PROGRESS_TREND_DAYS;
+        }
+
         $findings        = new FindingRepository();
         $all_scanner_ids = array_merge( ...array_values( self::CATEGORY_SCANNER_IDS ) );
 
         $trend = array();
-        for ( $days_ago = self::PROGRESS_TREND_DAYS - 1; $days_ago >= 0; $days_ago-- ) {
+        for ( $days_ago = $days - 1; $days_ago >= 0; $days_ago-- ) {
             $breakdown = $findings->get_severity_breakdown_for_scanner_ids_as_of(
                 $all_scanner_ids,
                 gmdate( 'Y-m-d 23:59:59', strtotime( "-{$days_ago} days" ) )
@@ -434,41 +459,51 @@ class Seo extends \WP_REST_Controller {
             );
         }
 
-        $now           = gmdate( 'Y-m-d H:i:s' );
-        $one_week_ago  = gmdate( 'Y-m-d H:i:s', strtotime( '-' . self::DELTA_LOOKBACK_DAYS . ' days' ) );
-        $two_weeks_ago = gmdate( 'Y-m-d H:i:s', strtotime( '-' . ( self::DELTA_LOOKBACK_DAYS * 2 ) . ' days' ) );
+        // The 3 week-over-week counters below now scale with the same real
+        // `$days` the trend above just widened to (7/30/90 — the "SEO
+        // progress" card's own new period toggle), two clean back-to-back
+        // `$days`-length windows rather than a window fixed at
+        // `DELTA_LOOKBACK_DAYS` regardless of what the toggle is set to
+        // (the earlier, narrower version of this real-selectable-trend
+        // change). `get_score()`'s own separate sitewide-score delta still
+        // uses `DELTA_LOOKBACK_DAYS` fixed at 7 — that one is unrelated to
+        // this card's own toggle and untouched.
+        $now            = gmdate( 'Y-m-d H:i:s' );
+        $period_ago     = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+        $two_periods_ago = gmdate( 'Y-m-d H:i:s', strtotime( '-' . ( $days * 2 ) . ' days' ) );
 
-        $issues_fixed_this_week = $findings->count_resolved_between( $one_week_ago, $now, null, $all_scanner_ids );
-        $issues_fixed_last_week = $findings->count_resolved_between( $two_weeks_ago, $one_week_ago, null, $all_scanner_ids );
+        $issues_fixed_this_week = $findings->count_resolved_between( $period_ago, $now, null, $all_scanner_ids );
+        $issues_fixed_last_week = $findings->count_resolved_between( $two_periods_ago, $period_ago, null, $all_scanner_ids );
 
-        // Two clean, equal-length, back-to-back 7-day calendar windows — same
-        // span count_resolved_between()'s own datetime pair above uses, just
-        // expressed as whole dates for get_stats_for_period()'s own
-        // `DATE(created_at) BETWEEN` scope.
+        // Two clean, equal-length, back-to-back `$days`-length calendar
+        // windows — same span count_resolved_between()'s own datetime pair
+        // above uses, just expressed as whole dates for
+        // get_stats_for_period()'s own `DATE(created_at) BETWEEN` scope.
         $new_issues_this_week = $findings->get_stats_for_period(
-            gmdate( 'Y-m-d', strtotime( '-' . ( self::DELTA_LOOKBACK_DAYS - 1 ) . ' days' ) ),
+            gmdate( 'Y-m-d', strtotime( '-' . ( $days - 1 ) . ' days' ) ),
             gmdate( 'Y-m-d' ),
             null,
             $all_scanner_ids
         )['total'];
         $new_issues_last_week = $findings->get_stats_for_period(
-            gmdate( 'Y-m-d', strtotime( '-' . ( ( self::DELTA_LOOKBACK_DAYS * 2 ) - 1 ) . ' days' ) ),
-            gmdate( 'Y-m-d', strtotime( '-' . self::DELTA_LOOKBACK_DAYS . ' days' ) ),
+            gmdate( 'Y-m-d', strtotime( '-' . ( ( $days * 2 ) - 1 ) . ' days' ) ),
+            gmdate( 'Y-m-d', strtotime( "-{$days} days" ) ),
             null,
             $all_scanner_ids
         )['total'];
 
         $pages_improved_this_week = $this->count_pages_with_improved_score(
             $findings->get_open_findings_for_scanner_ids_by_post( $all_scanner_ids ),
-            $findings->get_open_findings_for_scanner_ids_by_post( $all_scanner_ids, $one_week_ago )
+            $findings->get_open_findings_for_scanner_ids_by_post( $all_scanner_ids, $period_ago )
         );
         $pages_improved_last_week = $this->count_pages_with_improved_score(
-            $findings->get_open_findings_for_scanner_ids_by_post( $all_scanner_ids, $one_week_ago ),
-            $findings->get_open_findings_for_scanner_ids_by_post( $all_scanner_ids, $two_weeks_ago )
+            $findings->get_open_findings_for_scanner_ids_by_post( $all_scanner_ids, $period_ago ),
+            $findings->get_open_findings_for_scanner_ids_by_post( $all_scanner_ids, $two_periods_ago )
         );
 
         return rest_ensure_response(
             array(
+                'days'           => $days,
                 'trend'          => $trend,
                 'issues_fixed'   => array(
                     'this_week' => $issues_fixed_this_week,

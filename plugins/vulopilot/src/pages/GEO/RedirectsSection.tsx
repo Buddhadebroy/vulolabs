@@ -770,9 +770,7 @@ const RedirectsSection = () => {
 					setIsFormOpen(false);
 					resetForm();
 				}}
-				width={28}
-				height="auto"
-				
+				width={28}				
 				header={{
 					title: editingId
 						? __('Edit redirect', 'vulopilot')

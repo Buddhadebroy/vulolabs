@@ -15,6 +15,21 @@ const SEVERITY_RANK: Record<FindingGroup['severity'], number> = {
 
 const MAX_ROWS = 4;
 
+/**
+ * Same real "zyra's icon font only ever ships `check`/`error`/`close`/
+ * `close-delete` glyphs" constraint `GeoAeoPageAnalysisPanel.tsx`'s own
+ * identical `SEVERITY_ICON` already established — `close red`/`close red`
+ * for critical/high, `error orange` for medium/low, since every row here is
+ * already a real open finding (no "passed" state to reuse `check` for).
+ */
+const SEVERITY_ICON: Record<FindingGroup['severity'], string> = {
+	critical: 'close red',
+	high: 'close red',
+	medium: 'error orange',
+	low: 'error orange',
+	info: 'error',
+};
+
 interface GeoFixTheseFirstCardProps {
 	groups: FindingGroup[];
 	isLoading: boolean;
@@ -85,6 +100,7 @@ const GeoFixTheseFirstCard = ({
 					className="mini-card report geo-fix-first-list"
 					items={topRows.map((group) => ({
 						id: group.scanner_id,
+						icon: SEVERITY_ICON[group.severity],
 						title: group.label,
 						desc: group.sample?.description || '',
 						action: () => onSelectScanner(group.scanner_id),

@@ -12,6 +12,7 @@ import {
 	ListComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
+import { ToggleInput } from '@zyra/inputs';
 import {
 	Area,
 	AreaChart,
@@ -111,6 +112,10 @@ const isSeoModuleActive = () =>
 interface CrawlerAnalyticsSectionProps {
 	analytics: CrawlerAnalytics | null;
 	isLoading: boolean;
+	/** CrawlOverviewSection.tsx's own real period state — same real `days` `useCrawlerAnalytics()` already fetches with, now real-selectable via this card's own "Crawl Requests Over Time" toggle instead of hardcoded to 30. */
+	period: string;
+	periodOptions: { key: string; value: string; label: string }[];
+	onPeriodChange: (value: string) => void;
 }
 
 /**
@@ -135,6 +140,9 @@ interface CrawlerAnalyticsSectionProps {
 const CrawlerAnalyticsSection = ({
 	analytics,
 	isLoading,
+	period,
+	periodOptions,
+	onPeriodChange,
 }: CrawlerAnalyticsSectionProps) => {
 	const [checklistGroups, setChecklistGroups] = useState<FindingGroup[] | null>(
 		null
@@ -370,6 +378,14 @@ const CrawlerAnalyticsSection = ({
 							'Number of requests your site received from AI crawlers.',
 							'vulopilot'
 						)}
+						action={
+							<ToggleInput
+								options={periodOptions}
+								value={period}
+								onChange={(value) => onPeriodChange(value as string)}
+								modules={[]}
+							/>
+						}
 					>
 						<div className="dashboard-trend-chart">
 							<ResponsiveContainer width="100%" height="100%">

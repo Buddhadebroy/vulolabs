@@ -120,7 +120,7 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
         $links         = $this->extract_links_from_recent_content();
         $healthy_count = 0;
 
-        foreach ( $links as $url => $post_id ) {
+        foreach ( $links as $url => $link ) {
             $result = $this->check_link( $url );
 
             if ( null === $result ) {
@@ -142,7 +142,7 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
                     $result['detail']
                 ),
                 'post',
-                (string) $post_id,
+                (string) $link['post_id'],
                 array(
                     'url'    => $url,
                     // 'unverified' — a network/timeout/DNS failure
@@ -153,6 +153,15 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
                     // "Broken links" vs "Couldn't verify" tiles are this
                     // field, not a guess.
                     'reason' => $result['reason'],
+                    // Real visible anchor text for this real `<a>` tag
+                    // (stripped of any nested markup, e.g. a wrapped
+                    // `<strong>`/`<span>`) — empty string when the link
+                    // wraps only an image or other non-text content (an
+                    // honest "no text", not a fabricated placeholder; the
+                    // frontend shows its own real fallback copy for that
+                    // case). The first real occurrence wins when the same
+                    // URL is linked more than once with different text.
+                    'text'   => $link['text'],
                 )
             );
         }
@@ -173,9 +182,13 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
 
     /**
      * Pulls every http(s) link out of the most recently published
-     * content, deduped, capped at MAX_LINKS_PER_RUN.
+     * content, deduped, capped at MAX_LINKS_PER_RUN. Each real `<a>` tag's
+     * own real visible text is captured alongside its `href` (stripped of
+     * any nested markup via `wp_strip_all_tags()`) — real, not derived —
+     * so "which text is broken" is a genuine answer rather than left for
+     * the frontend to guess from the URL alone.
      *
-     * @return array<string, int> URL => the post ID it was found in.
+     * @return array<string, array{post_id: int, text: string}> URL => the real post ID it was found in + its real anchor text.
      */
     private function extract_links_from_recent_content(): array {
         $posts = get_posts(
@@ -197,21 +210,26 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
                 break;
             }
 
-            if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\']/i', $post->post_content, $matches ) ) {
+            if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', $post->post_content, $matches, PREG_SET_ORDER ) ) {
                 continue;
             }
 
-            foreach ( $matches[1] as $url ) {
+            foreach ( $matches as $match ) {
                 if ( count( $links ) >= self::MAX_LINKS_PER_RUN ) {
                     break;
                 }
+
+                $url = $match[1];
 
                 if ( 0 !== strpos( $url, 'http://' ) && 0 !== strpos( $url, 'https://' ) ) {
                     continue;
                 }
 
                 if ( ! isset( $links[ $url ] ) ) {
-                    $links[ $url ] = $post->ID;
+                    $links[ $url ] = array(
+                        'post_id' => $post->ID,
+                        'text'    => trim( wp_strip_all_tags( $match[2] ) ),
+                    );
                 }
             }
         }

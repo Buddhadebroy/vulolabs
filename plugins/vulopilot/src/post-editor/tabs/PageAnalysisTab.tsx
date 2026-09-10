@@ -2,11 +2,47 @@ import { __ } from '@wordpress/i18n';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { usePostData } from '../usePostData';
 import { analyzePage, PageAnalysisCheck, PageAnalysisResponse } from '../api';
+import { SEO_ISSUE_EDITOR_TARGETS, SeoIssueEditorTab, SeoIssueEditorTarget } from '../../services/seoIssueEditorTarget';
 
 interface PageAnalysisTabProps {
 	/** "Page Analysis" panel's own deep link (`GEO/PageAnalysisPanel.tsx`) — a check `key` (e.g. 'broken_links') to scroll to and pulse-highlight once this tab's own real checklist has loaded. */
 	highlightTarget?: string;
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — lets a row here jump straight to the real General/Advanced/Social/Schema field that fixes it, instead of only scrolling within this same tab. */
+	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
 }
+
+/**
+ * This tab's own check `key`s (`Controllers\Seo::get_page_analysis()`) →
+ * the scanner id `SEO_ISSUE_EDITOR_TARGETS` already understands — the same
+ * translation `GEO/PageAnalysisPanel.tsx`'s own `CHECK_KEY_TO_SCANNER_ID`
+ * already establishes for its "Edit"/"Fix with AI" row actions, duplicated
+ * here per this codebase's own "duplicate small per-file logic" convention
+ * rather than exporting that file's own local map. `title_tag`/`h1_heading`/
+ * `headings` have no dedicated scanner of their own but map onto the
+ * closest real equivalent scanner's own editor target. `featured_image`/
+ * `broken_links`/`orphan_page`/`indexability` have no real editor-sidebar
+ * field anywhere in this codebase (confirmed — same gap
+ * `SEO_ISSUE_EDITOR_TARGETS`'s own docblock lists) — omitted on purpose,
+ * so those rows simply aren't clickable rather than pretending to jump
+ * somewhere that doesn't exist.
+ */
+const CHECK_KEY_TO_SCANNER_ID: Record< string, string > = {
+	title_tag: 'seo',
+	meta_description: 'meta-description',
+	h1_heading: 'heading-structure',
+	headings: 'heading-structure',
+	content: 'thin-content',
+	images: 'images',
+	canonical: 'canonical-url',
+	structured_data: 'structured-data',
+	social_metadata: 'open-graph',
+};
+
+const editorTargetForCheck = ( checkKey: string ): SeoIssueEditorTarget | null => {
+	const scannerId = CHECK_KEY_TO_SCANNER_ID[ checkKey ];
+
+	return scannerId ? SEO_ISSUE_EDITOR_TARGETS[ scannerId ] ?? null : null;
+};
 
 const STATUS_ICON: Record< PageAnalysisCheck[ 'status' ], string > = {
 	pass: 'yes-alt',
@@ -44,7 +80,7 @@ const STATUS_MODIFIER: Record< PageAnalysisCheck[ 'status' ], string > = {
  * published/noindex state). Fetched once per postId rather than on every
  * keystroke — it isn't live the way General's checklist is.
  */
-export default function PageAnalysisTab( { highlightTarget }: PageAnalysisTabProps ) {
+export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAnalysisTabProps ) {
 	const { postId } = usePostData();
 
 	const [ data, setData ] = useState< PageAnalysisResponse | null >( null );
@@ -126,20 +162,51 @@ export default function PageAnalysisTab( { highlightTarget }: PageAnalysisTabPro
 
 			<div className="vulopilot-seo-checklist">
 				<ul className="vulopilot-seo-checklist__list">
-					{ data.checks.map( ( check ) => (
-						<li
-							key={ check.key }
-							id={ `vulopilot-page-analysis-check-${ check.key }` }
-							className={ `vulopilot-seo-checklist__item vulopilot-seo-checklist__item--${ STATUS_MODIFIER[ check.status ] }${ pulsingKey === check.key ? ' vulopilot-seo-highlight-pulse' : '' }` }
-						>
-							<i className={ `dashicons dashicons-${ STATUS_ICON[ check.status ] } vulopilot-seo-checklist__icon` } />
-							<span className="vulopilot-seo-checklist__message">
-								<strong>{ check.label }</strong>
-								{ ' — ' }
-								{ check.message }
-							</span>
-						</li>
-					) ) }
+					{ data.checks.map( ( check ) => {
+						// Real "go fix this" destination — resolves to null
+						// (row stays inert) for the 4 checks with no real
+						// editor-sidebar field anywhere in this codebase
+						// (Featured Image/Broken Links/Orphan Page/
+						// Indexability — see `editorTargetForCheck()`'s own
+						// docblock).
+						const target = editorTargetForCheck( check.key );
+						const isClickable = Boolean( target && onNavigate );
+
+						return (
+							<li
+								key={ check.key }
+								id={ `vulopilot-page-analysis-check-${ check.key }` }
+								className={ `vulopilot-seo-checklist__item vulopilot-seo-checklist__item--${ STATUS_MODIFIER[ check.status ] }${ pulsingKey === check.key ? ' vulopilot-seo-highlight-pulse' : '' }${ isClickable ? ' vulopilot-seo-checklist__item--clickable' : '' }` }
+								role={ isClickable ? 'button' : undefined }
+								tabIndex={ isClickable ? 0 : undefined }
+								onClick={
+									isClickable
+										? () => onNavigate?.( ( target as SeoIssueEditorTarget ).tab, ( target as SeoIssueEditorTarget ).target )
+										: undefined
+								}
+								onKeyDown={
+									isClickable
+										? ( event ) => {
+												if ( 'Enter' === event.key || ' ' === event.key ) {
+													event.preventDefault();
+													onNavigate?.( ( target as SeoIssueEditorTarget ).tab, ( target as SeoIssueEditorTarget ).target );
+												}
+											}
+										: undefined
+								}
+							>
+								<i className={ `dashicons dashicons-${ STATUS_ICON[ check.status ] } vulopilot-seo-checklist__icon` } />
+								<span className="vulopilot-seo-checklist__message">
+									<strong>{ check.label }</strong>
+									{ ' — ' }
+									{ check.message }
+								</span>
+								{ isClickable && (
+									<i className="dashicons dashicons-arrow-right-alt2 vulopilot-seo-checklist__arrow" />
+								) }
+							</li>
+						);
+					} ) }
 				</ul>
 			</div>
 		</div>

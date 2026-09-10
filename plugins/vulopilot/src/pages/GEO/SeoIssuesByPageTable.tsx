@@ -681,7 +681,7 @@ const SeoIssuesByPageTable = ({
 									label: (row: Record<string, unknown>) =>
 										(row as unknown as PageRow).id === activePostId
 											? __('Viewing', 'vulopilot')
-											: __('Analyze', 'vulopilot'),
+											: __('More Details', 'vulopilot'),
 									color: (row: Record<string, unknown>) =>
 										(row as unknown as PageRow).id === activePostId
 											? 'text-green'
@@ -689,7 +689,7 @@ const SeoIssuesByPageTable = ({
 									icon: (row: Record<string, unknown>) =>
 										(row as unknown as PageRow).id === activePostId
 											? 'eye'
-											: 'search',
+											: 'pagination-next-arrow',
 									hidden: (row) =>
 										!onAnalyze ||
 										isFindingRow(row as unknown as TableRow),

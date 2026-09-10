@@ -230,6 +230,31 @@
 		&--fail .vulopilot-seo-checklist__icon {
 			color: #cc1818;
 		}
+
+		// A real "go fix this" click target — General/Advanced/Social/
+		// Schema, whichever tab actually has the field this check reads
+		// (PageAnalysisTab.tsx's own `editorTargetForCheck()`). Not every
+		// row gets this — Featured Image/Broken Links/Orphan Page/
+		// Indexability have no real editor-sidebar field anywhere in this
+		// codebase, so those stay plain, unclickable rows.
+		&--clickable {
+			cursor: pointer;
+			border-radius: 4px;
+
+			&:hover,
+			&:focus-visible {
+				background-color: #f6f7f7;
+			}
+		}
+	}
+
+	&__arrow {
+		width: 16px;
+		height: 16px;
+		font-size: 16px;
+		flex-shrink: 0;
+		color: #757575;
+		align-self: center;
 	}
 
 	&__icon {

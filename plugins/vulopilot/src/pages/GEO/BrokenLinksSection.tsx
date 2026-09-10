@@ -11,13 +11,13 @@ import {
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
-	TooltipComponent,
+	TypographyComponent,
+	ContainerComponent
 } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { Finding, getFindingFixHandler } from '../../services/useFindingsTable';
 import { formatWpDate } from '../../services/formatWpDate';
-import { RowAction, RowActionsMenu } from './seoIssuesShared';
 import ShowProPopup from '../../components/Popup/Popup';
 import './SeoVisibility.scss';
 
@@ -94,16 +94,37 @@ const isSeoModuleActive = () =>
  * Scanners\Basic\BrokenLinksScanner/BrokenImagesScanner::scan() both
  * store `{"url": "...", "reason": "broken"|"unverified"}` in the
  * finding's own `meta` column — this reads that JSON defensively since
- * `meta` is free-form per scanner.
+ * `meta` is free-form per scanner. `text` (the real, stripped-of-markup
+ * anchor text for that exact `<a>` tag) only exists on `broken-links`
+ * findings — `BrokenImagesScanner` has no anchor text to capture, so it's
+ * simply absent there rather than a fabricated empty string.
  */
 const getFindingMeta = (
 	finding: Pick<BrokenLinkFinding, 'meta'>
-): { url?: string; reason?: string } => {
+): { url?: string; reason?: string; text?: string } => {
 	try {
 		return JSON.parse(finding.meta || '{}');
 	} catch {
 		return {};
 	}
+};
+
+/**
+ * The real broken `<a>` tag's own visible text, for the "Link Text"
+ * column — `undefined`/empty distinguished from each other and both
+ * handled honestly: `undefined` means this finding's own scanner never
+ * captures anchor text at all (a `broken-images` row), while `''` means a
+ * real `broken-links` finding whose real `<a>` tag wrapped only an image
+ * or other non-text content — genuinely no visible text, not missing data.
+ */
+const getLinkText = (finding: BrokenLinkFinding): string => {
+	const { text } = getFindingMeta(finding);
+
+	if (undefined === text) {
+		return __('—', 'vulopilot');
+	}
+
+	return text || __('(no visible text)', 'vulopilot');
 };
 
 const getBrokenUrl = (finding: BrokenLinkFinding): string =>
@@ -241,6 +262,7 @@ const downloadBrokenLinksCsv = (rows: BrokenLinkFinding[]) => {
 	const header = [
 		__('Source page', 'vulopilot'),
 		__('Target URL', 'vulopilot'),
+		__('Link Text', 'vulopilot'),
 		__('Type', 'vulopilot'),
 		__('Link type', 'vulopilot'),
 		__('Status', 'vulopilot'),
@@ -252,6 +274,7 @@ const downloadBrokenLinksCsv = (rows: BrokenLinkFinding[]) => {
 		[
 			row.page ?? '',
 			getBrokenUrl(row),
+			getLinkText(row),
 			'broken-images' === row.scanner_id
 				? __('Image', 'vulopilot')
 				: __('Link', 'vulopilot'),
@@ -727,41 +750,6 @@ const BrokenLinksSection = () => {
 		downloadBrokenLinksCsv(visibleFindings);
 	};
 
-	const buildFindingMoreActions = (finding: BrokenLinkFinding): RowAction[] => [
-		{
-			label:
-				'resolved' === finding.status
-					? __('Reopen', 'vulopilot')
-					: __('Mark resolved', 'vulopilot'),
-			icon: 'resolved' === finding.status ? 'toggle' : 'check',
-			onClick: () =>
-				'resolved' === finding.status
-					? handleReopen(finding)
-					: handleResolve(finding),
-		},
-		{
-			label:
-				'ignored' === finding.status
-					? __('Unignore', 'vulopilot')
-					: __('Ignore', 'vulopilot'),
-			icon: 'eye-blocked',
-			onClick: () =>
-				'ignored' === finding.status
-					? handleReopen(finding)
-					: handleIgnore(finding),
-		},
-		{
-			label: __('Snooze', 'vulopilot'),
-			icon: 'clock',
-			onClick: () => handleSnooze(finding),
-		},
-		{
-			label: __('Fix', 'vulopilot'),
-			icon: 'tools',
-			onClick: () => handleFix(finding),
-		},
-	];
-
 	const headers = {
 		page: {
 			label: __('Source page', 'vulopilot'),
@@ -822,12 +810,16 @@ const BrokenLinksSection = () => {
 				);
 			},
 		},
+		link_text: {
+			label: __('Link Text', 'vulopilot'),
+			render: (row: BrokenLinkFinding) => (
+					getLinkText(row)
+			),
+		},
 		first_found: {
 			label: __('First Found', 'vulopilot'),
 			render: (row: BrokenLinkFinding) => (
-				<span className="typography-body-xs">
-					{formatWpDate(row.created_at)}
-				</span>
+					formatWpDate(row.created_at)
 			),
 		},
 		last_checked: {
@@ -838,54 +830,87 @@ const BrokenLinksSection = () => {
 				</span>
 			),
 		},
-		actions: {
+		// Same real `type: 'action'` header shape SeoIssuesByPageTable.tsx's
+		// own row actions already use — `TableRowActions.tsx`'s own real
+		// inline-vs-overflow split (first 2 plain icon actions stay inline,
+		// the rest collapse into its own `more-vertical` dropdown) replaces
+		// the hand-rolled `broken-link-row-actions` div + separate
+		// `RowActionsMenu` this used to be. One real trade-off from that:
+		// "Create redirect" used to stay visible-but-disabled (with an
+		// explanatory tooltip) for an external link — `ActionItem` only has
+		// `hidden`, not a disabled state, so it's `hidden` for external
+		// rows instead now (the action simply isn't offered, rather than
+		// shown disabled).
+		action: {
 			label: __('Actions', 'vulopilot'),
-			render: (row: BrokenLinkFinding) => {
-				const url = getBrokenUrl(row);
-				const external = isExternalFinding(row);
-
-				return (
-					<div className="broken-link-row-actions">
-						<TooltipComponent text={__('Open URL', 'vulopilot')}>
-							<button
-								type="button"
-								className="broken-link-icon-btn"
-								onClick={() =>
-									window.open(url, '_blank', 'noopener,noreferrer')
-								}
-							>
-								<i className="adminfont-eye" />
-							</button>
-						</TooltipComponent>
-						<TooltipComponent
-							text={
-								external
-									? __(
-										"External links can't be redirected from this site",
-										'vulopilot'
-									)
-									: __('Create redirect', 'vulopilot')
-							}
-						>
-							<button
-								type="button"
-								className="broken-link-icon-btn"
-								disabled={external}
-								onClick={() => openRedirectPopup(row)}
-							>
-								<i className="adminfont-link" />
-							</button>
-						</TooltipComponent>
-						<RowActionsMenu actions={buildFindingMoreActions(row)} />
-					</div>
-				);
-			},
+			type: 'action',
+			actions: [
+				{
+					label: __('Open URL', 'vulopilot'),
+					icon: 'eye',
+					onClick: (row: Record<string, unknown>) =>
+						window.open(
+							getBrokenUrl(row as unknown as BrokenLinkFinding),
+							'_blank',
+							'noopener,noreferrer'
+						),
+				},
+				{
+					label: __('Create redirect', 'vulopilot'),
+					icon: 'link',
+					hidden: (row: Record<string, unknown>) =>
+						isExternalFinding(row as unknown as BrokenLinkFinding),
+					onClick: (row: Record<string, unknown>) =>
+						openRedirectPopup(row as unknown as BrokenLinkFinding),
+				},
+				{
+					label: (row: Record<string, unknown>) =>
+						'ignored' === (row as unknown as BrokenLinkFinding).status
+							? __('Unignore', 'vulopilot')
+							: __('Ignore', 'vulopilot'),
+					icon: 'eye-blocked',
+					onClick: (row: Record<string, unknown>) => {
+						const finding = row as unknown as BrokenLinkFinding;
+						return 'ignored' === finding.status
+							? handleReopen(finding)
+							: handleIgnore(finding);
+					},
+				},
+				{
+					label: __('Fix', 'vulopilot'),
+					icon: 'tools',
+					onClick: (row: Record<string, unknown>) =>
+						handleFix(row as unknown as BrokenLinkFinding),
+				},
+				{
+					label: (row: Record<string, unknown>) =>
+						'resolved' === (row as unknown as BrokenLinkFinding).status
+							? __('Reopen', 'vulopilot')
+							: __('Mark resolved', 'vulopilot'),
+					icon: (row: Record<string, unknown>) =>
+						'resolved' === (row as unknown as BrokenLinkFinding).status
+							? 'toggle'
+							: 'check',
+					onClick: (row: Record<string, unknown>) => {
+						const finding = row as unknown as BrokenLinkFinding;
+						return 'resolved' === finding.status
+							? handleReopen(finding)
+							: handleResolve(finding);
+					},
+				},
+				{
+					label: __('Snooze', 'vulopilot'),
+					icon: 'clock',
+					onClick: (row: Record<string, unknown>) =>
+						handleSnooze(row as unknown as BrokenLinkFinding),
+				},
+			],
 		},
 	};
 
 	return (
 		<>
-			<ColumnComponent>
+			<ContainerComponent General>
 				{!isSeoModuleActive() ? (
 					<CardComponent
 						title={__('Broken Links', 'vulopilot')}
@@ -903,110 +928,164 @@ const BrokenLinksSection = () => {
 					</CardComponent>
 				) : (
 					<>
-						<AnalyticsComponent
-							cols={4}
-							variant="with-out-boxshadow"
-							isLoading={isLoadingFindings}
-							data={[
-								{
-									icon: 'link',
-									iconClass: 'admin-bg-color2',
-									number: summary.brokenLinks,
-									text: __('Broken Links', 'vulopilot'),
-								},
-								{
-									icon: 'attachment',
-									iconClass: 'admin-bg-color3',
-									number: summary.brokenImages,
-									text: __('Broken Images', 'vulopilot'),
-								},
-								{
-									icon: 'info',
-									iconClass: 'admin-bg-color4',
-									number: summary.couldntVerify,
-									text: __("Couldn't Verify", 'vulopilot'),
-								},
-								{
-									icon: 'eye-blocked',
-									iconClass: 'admin-bg-color5',
-									number: summary.ignored,
-									text: __('Ignored', 'vulopilot'),
-								},
-							]}
-						/>
-						<CardComponent className='broken-link-scan-summary-row'>
-							<>
-								<div className="broken-link-section left">
-									<i className="adminfont-form-checkboxes green" />
-									<div className='broken-link-details'>
+						{/*
+						 * Same real `ListComponent` "mini-card report" row
+						 * shape SeoTab.tsx's own "SEO Health" card/
+						 * GeoScoreSection.tsx's own "GEO Score" card rows
+						 * use — the real count goes in `tags` (a trailing,
+						 * right-aligned `TypographyComponent`), not `value`
+						 * (which renders stacked directly under the title
+						 * instead of trailing the row, the wrong shape
+						 * here).
+						 */}
+						<ColumnComponent grid={6}>
+							<CardComponent
+								title={__('Broken Link Monitoring', 'vulopilot')}
+								titleIcon="link"
+								desc={__(
+									'Real links and images found on your published posts/pages that returned a broken (non-2xx/3xx) response the last time they were checked. Use the "Run scan" button above to check again.',
+									'vulopilot'
+								)}
+							>
+								<ListComponent
+									className="mini-card report hover seo-health-score-category-list"
+									loading={isLoadingFindings}
+									items={[
+										{
+											id: 'broken-links',
+											icon: 'link red',
+											title: __('Broken Links', 'vulopilot'),
+											tags: (
+												<TypographyComponent
+													variant="h5"
+													weight="bold"
+													className="seo-health-score-row-value"
+												>
+													{summary.brokenLinks}
+												</TypographyComponent>
+											),
+										},
+										{
+											id: 'broken-images',
+											icon: 'attachment red',
+											title: __('Broken Images', 'vulopilot'),
+											tags: (
+												<TypographyComponent
+													variant="h5"
+													weight="bold"
+													className="seo-health-score-row-value"
+												>
+													{summary.brokenImages}
+												</TypographyComponent>
+											),
+										},
+										{
+											id: 'couldnt-verify',
+											icon: 'info yellow',
+											title: __("Couldn't Verify", 'vulopilot'),
+											tags: (
+												<TypographyComponent
+													variant="h5"
+													weight="bold"
+													className="seo-health-score-row-value"
+												>
+													{summary.couldntVerify}
+												</TypographyComponent>
+											),
+										},
+										{
+											id: 'ignored',
+											icon: 'eye-blocked gray',
+											title: __('Ignored', 'vulopilot'),
+											tags: (
+												<TypographyComponent
+													variant="h5"
+													weight="bold"
+													className="seo-health-score-row-value"
+												>
+													{summary.ignored}
+												</TypographyComponent>
+											),
+										},
+									]}
+								/>
+							</CardComponent>
+						</ColumnComponent>
+						<ColumnComponent grid={6}>
+							<CardComponent className='broken-link-scan-summary-row'>
+								<>
+									<div className="broken-link-section left">
+										<i className="adminfont-form-checkboxes green" />
+										<div className='broken-link-details'>
+											<div className="title">
+												{__('Last scan completed', 'vulopilot')}
+											</div>
+											<div className="desc">
+												{stats?.last_run
+													? sprintf(
+														/* translators: 1: formatted date/time, 2: duration as hh:mm:ss */
+														__('%1$s · Duration %2$s', 'vulopilot'),
+														formatWpDate(
+															new Date(
+																stats.last_run.finished_at * 1000
+															).toISOString()
+														),
+														formatDurationMs(stats.last_run.duration_ms)
+													)
+													: __(
+														'No scan has completed yet — use "Run scan" above to start one.',
+														'vulopilot'
+													)}
+											</div>
+											{stats && (stats.links.checked_at || stats.images.checked_at) && (
+												<AnalyticsComponent
+													cols={2}
+													variant="background-color"
+													data={[
+														{
+															number: `${stats.links.healthy_count}/${stats.links.links_checked}`,
+															text: __('Links healthy', 'vulopilot'),
+															colorClass: 'admin-bg-color2',
+														},
+														{
+															number: `${stats.images.healthy_count}/${stats.images.links_checked}`,
+															text: __('Images healthy', 'vulopilot'),
+															colorClass: 'admin-bg-color2',
+														},
+													]}
+												/>
+											)}
+										</div>
+									</div>
+									<div className="broken-link-section right">
 										<div className="title">
-											{__('Last scan completed', 'vulopilot')}
+											<i className="adminfont-info" />
+											{__('Why fix broken links?', 'vulopilot')}
 										</div>
-										<div className="desc">
-											{stats?.last_run
-												? sprintf(
-													/* translators: 1: formatted date/time, 2: duration as hh:mm:ss */
-													__('%1$s · Duration %2$s', 'vulopilot'),
-													formatWpDate(
-														new Date(
-															stats.last_run.finished_at * 1000
-														).toISOString()
-													),
-													formatDurationMs(stats.last_run.duration_ms)
-												)
-												: __(
-													'No scan has completed yet — use "Run scan" above to start one.',
-													'vulopilot'
-												)}
-										</div>
-										{stats && (stats.links.checked_at || stats.images.checked_at) && (
-											<AnalyticsComponent
-												cols={2}
-												variant="background-color"
-												data={[
-													{
-														number: `${stats.links.healthy_count}/${stats.links.links_checked}`,
-														text: __('Links healthy', 'vulopilot'),
-														colorClass: 'admin-bg-color2',
-													},
-													{
-														number: `${stats.images.healthy_count}/${stats.images.links_checked}`,
-														text: __('Images healthy', 'vulopilot'),
-														colorClass: 'admin-bg-color2',
-													},
-												]}
-											/>
-										)}
+										<ListComponent
+											className="checklist"
+											items={[
+												{
+													id: 'ux',
+													icon: 'check green-color',
+													title: __('Better user experience', 'vulopilot'),
+												},
+												{
+													id: 'seo',
+													icon: 'check green-color',
+													title: __('Improved SEO rankings', 'vulopilot'),
+												},
+												{
+													id: 'crawlable',
+													icon: 'check green-color',
+													title: __('More crawlable pages', 'vulopilot'),
+												},
+											]}
+										/>
 									</div>
-								</div>
-								<div className="broken-link-section right">
-									<div className="title">
-										<i className="adminfont-info" />
-										{__('Why fix broken links?', 'vulopilot')}
-									</div>
-									<ListComponent
-										className="checklist"
-										items={[
-											{
-												id: 'ux',
-												icon: 'check green-color',
-												title: __('Better user experience', 'vulopilot'),
-											},
-											{
-												id: 'seo',
-												icon: 'check green-color',
-												title: __('Improved SEO rankings', 'vulopilot'),
-											},
-											{
-												id: 'crawlable',
-												icon: 'check green-color',
-												title: __('More crawlable pages', 'vulopilot'),
-											},
-										]}
-									/>
-								</div>
-							</>
-						</CardComponent>
+								</>
+							</CardComponent>
+						</ColumnComponent>
 						<CardComponent
 							title={__('Broken Link Monitoring', 'vulopilot')}
 							titleIcon="link"
@@ -1029,7 +1108,7 @@ const BrokenLinksSection = () => {
 									className="transparent-table"
 									headers={headers}
 									rows={pageRows}
-									ids={pageRows.map((row) => row.id)}
+									ids={pageRows.map((row: BrokenLinkFinding) => row.id)}
 									totalRows={visibleFindings.length}
 									isLoading={isLoadingFindings}
 									search={{
@@ -1125,7 +1204,7 @@ const BrokenLinksSection = () => {
 						</CardComponent>
 					</>
 				)}
-			</ColumnComponent>
+			</ContainerComponent>
 
 			<PopupComponent
 				open={!!redirectFinding}
