@@ -2,10 +2,11 @@ import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	ChartComponent,
-	AnalyticsComponent,
 	ColumnComponent,
 	ContainerComponent,
-	TrendIndicatorComponent,
+	ListComponent,
+	IconComponent,
+	TypographyComponent,
 	BadgeComponent,
 } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
@@ -20,17 +21,14 @@ import { WidgetProps } from './types';
  * in the /dashboard payload, since nothing else needs this specific 4-way
  * grouping.
  *
- * The mockup's stat-boxes below the donut show a week-over-week delta per
- * bucket — there's no historical per-category data to compute that from
- * (only overall_score gets a daily snapshot, and only when Pro's
- * AdvancedReports module is active), so this widget omits that row rather
- * than fabricate a number, same call as CategoryScoreWidget.tsx's own
- * omitted sparkline/delta. `AnalyticsComponent` renders its `data` array in
- * a plain row-major grid, so `cols={3}` (rather than the old `cols={2}`) is
- * what gives Visibility/Health/Commerce a first row of 3 and
- * Performance/Content/Brand a second, matching the mockup's own two-row
- * rhythm — all 6 are the same real numbers either way, just laid out
- * differently.
+ * Right-side rows restructured to match `SeoTab.tsx`'s own "SEO Health"
+ * card exactly (direct instruction: "convert [this] to [that] structure")
+ * — the old 6-tile `AnalyticsComponent` progress grid + separate
+ * `score-trend-row` delta strip below it are now one real
+ * `ListComponent` "mini-card report" row per bucket, each row's own real
+ * week-over-week delta folded in next to its score (same real
+ * `category_scores_7d_ago` diff the old `trendItems` array already
+ * computed — merged into the same row instead of a second block).
  */
 const average = (nums: number[]): number =>
 	Math.round(nums.reduce((sum, n) => sum + n, 0) / nums.length);
@@ -54,6 +52,20 @@ const getRating = (score: number): string => {
  * value gets a human-readable label" convention `getRating()` itself
  * already establishes, not a second, independent judgment.
  */
+/** Same real 4-tier `getRating()` bands above, mapped to `TypographyComponent`'s own real palette color names (`SeoTab.tsx`'s own `seo-health-score-row-value` rows use the same "score → palette color" convention via `ratingColor()`) — feeds each row's own score number color below. */
+const ratingColorFor = (score: number): string => {
+	if (score >= 90) {
+		return 'green';
+	}
+	if (score >= 70) {
+		return 'blue';
+	}
+	if (score >= 50) {
+		return 'yellow';
+	}
+	return 'red';
+};
+
 const getRatingSummary = (score: number): string => {
 	if (score >= 90) {
 		return __('Your site is in excellent shape.', 'vulopilot');
