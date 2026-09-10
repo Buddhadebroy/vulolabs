@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { TabsComponent, CardComponent } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';

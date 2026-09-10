@@ -397,6 +397,25 @@ class BackupGoogleDriveConnection {
     }
 
     /**
+     * Real `files.delete` — `BackupStorageManager::delete_remote_copy()`'s
+     * own Google Drive branch, run when a backup that was uploaded here
+     * gets deleted or retention-purged locally, so its remote copy doesn't
+     * outlive it.
+     *
+     * @param string $file_id Real Drive file id (`upload_backup_file()`'s own stored `remote_path`).
+     * @return true|\WP_Error
+     */
+    public function delete_backup_file( string $file_id ) {
+        $token = $this->get_valid_access_token();
+
+        if ( ! $token ) {
+            return new \WP_Error( 'vulopilot_backup_gdrive_not_connected', __( 'Not connected to Google Drive.', 'vulopilot' ), array( 'status' => 400 ) );
+        }
+
+        return ( new GoogleDriveClient() )->delete_file( $token, $file_id );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function get_status(): array {

@@ -41,6 +41,11 @@ import { __ } from '@wordpress/i18n';
  *   this codebase yet. That's a separate, larger feature; these three
  *   toggles round-trip through Settings correctly but nothing reads them
  *   yet (Utill.php's own defaults list this same caveat).
+ * - Tag Manager (sits directly above Webmaster Tools): `tag_manager_enabled`/
+ *   `tag_manager_container_id` gate Services\TagManagerService's own real
+ *   `<script>` (wp_head) + `<noscript><iframe>` (wp_body_open) Google Tag
+ *   Manager output — same real "gate output, not construction" shape
+ *   WebmasterToolsManager below already uses for its own verification codes.
  */
 export default {
 	id: 'seo-content',
@@ -347,16 +352,6 @@ export default {
 			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
 		},
 		{
-			key: 'sitemap-section-images',
-			type: 'section',
-			icon: 'image',
-			title: __('Images in sitemap', 'vulopilot'),
-			desc: __(
-				'Not yet implemented — WordPress core\'s native XML sitemap has no image entry support to hook into. These round-trip through Settings but have no effect on the sitemap output yet.',
-				'vulopilot'
-			),
-		},
-		{
 			key: 'sitemap_include_images',
 			type: 'checkbox',
 			look: 'toggle',
@@ -529,6 +524,45 @@ export default {
 				{ label: __('SEO Titles', 'vulopilot'), value: 'seo_title' },
 			],
 			dependent: { key: 'html_sitemap_enabled', value: 'html_sitemap_enabled', set: true },
+		},
+		{
+			key: 'tag-manager-section',
+			type: 'section',
+			icon: 'shortcode',
+			title: __('Tag Manager', 'vulopilot'),
+			desc: __(
+				'Adds Google Tag Manager to every page — its own <script> in the page head and a <noscript> fallback right after <body>.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'tag_manager_enabled',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Enable Google Tag Manager', 'vulopilot'),
+			settingDescription: __(
+				'Loads your Tag Manager container on every page.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'tag_manager_enabled', label: '', value: 'tag_manager_enabled' },
+			],
+		},
+		{
+			key: 'tag_manager_container_id',
+			type: 'text',
+			size: 25,
+			label: __('Container ID', 'vulopilot'),
+			settingDescription: __(
+				'Your Google Tag Manager container ID, e.g. GTM-XXXXXXX.',
+				'vulopilot'
+			),
+			dependent: {
+				key: 'tag_manager_enabled',
+				value: 'tag_manager_enabled',
+				set: true,
+			},
 		},
 		{
 			key: 'webmaster-section-verification',

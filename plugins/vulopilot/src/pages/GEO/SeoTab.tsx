@@ -23,7 +23,6 @@ import { getRating, ratingClass, ratingColor } from './seoRating';
 import SeoIssuesSection from './SeoIssuesSection';
 import SeoProgressCard from './SeoProgressCard';
 import PageAnalysisPanel from './PageAnalysisPanel';
-import WhatShouldIFixFirstCard from './WhatShouldIFixFirstCard';
 
 const CATEGORY_CARDS: {
 	key: keyof SeoScoreResponse['category_scores'];
@@ -431,20 +430,6 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 			<ColumnComponent grid={6} fullHeight>
 				<SeoProgressCard />
 			</ColumnComponent>
-			{/* <ColumnComponent>
-				<WhatShouldIFixFirstCard
-					severityBreakdown={
-						score?.severity_breakdown ?? {
-							critical: 0,
-							high: 0,
-							medium: 0,
-							low: 0,
-						}
-					}
-					totalOpen={score?.total_open ?? 0}
-					isLoadingScore={isLoadingScore}
-				/>
-			</ColumnComponent> */}
 			<ColumnComponent grid={8}>
 				<SeoIssuesSection
 					categoryFocus={categoryFocus}

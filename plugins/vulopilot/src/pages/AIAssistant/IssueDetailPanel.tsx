@@ -9,8 +9,6 @@ import {
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
-	FormGroupWrapperComponent,
-	FormGroupComponent,
 	ClipboardComponent,
 	BadgeComponent
 } from '@zyra/components';
@@ -122,11 +120,18 @@ interface IssueDetailPanelProps {
  * scanner anywhere writes that copy (ScannerInterface only ever produces
  * title/severity/category/description — see FindingRepository::get_finding_groups()'s
  * own docblock), so this only ever shows real fields: the group's real
- * severity/category/count, one real representative finding's own title/
- * description/page ("Example finding" — clearly framed as one instance,
- * not a fabricated summary of the whole group), and real bulk actions
- * (Fix/Resolve all/Ignore all) scoped to every open finding in the group,
- * not just the one example shown.
+ * severity/category/count/detected-date (a top stat-tile row, same real
+ * "Priority/Category/Affected/Detected" shape that mockup's own header
+ * used), one real representative finding's own title/description/page
+ * ("Example finding" — clearly framed as one instance, not a fabricated
+ * summary of the whole group), and real bulk actions (Fix/Resolve all/
+ * Ignore all) scoped to every open finding in the group, not just the one
+ * example shown. While Pro is inactive, the footer swaps those 3 real
+ * (but locked/disabled) actions for 2 real, clickable upgrade actions
+ * ("Upgrade to Pro"/"Unlock fix details" — both just open the existing
+ * `ShowProPopup` lightbox, same real destination the section overlays
+ * below already open) — per direct instruction, matching that mockup's
+ * own real footer functionality instead of showing 3 dead buttons.
  */
 const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 	group,
@@ -490,124 +495,176 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					/>
 				}
 			>
-				<FormGroupWrapperComponent>
-					<FormGroupComponent   row label={__('Priority', 'vulopilot')}>
+				<div className="issue-detail-stats-grid">
+					<div className="issue-detail-stat-tile">
+						<i className="adminfont-error issue-detail-stat-icon" />
+						<span className="issue-detail-stat-label">
+							{__('Priority', 'vulopilot')}
+						</span>
 						<BadgeComponent
 							color={getSeverityClass(group.severity)}
 							text={SEVERITY_LABEL[group.severity]}
 						/>
-					</FormGroupComponent>
-					<FormGroupComponent   row label={__('Category', 'vulopilot')}>
+					</div>
+					<div className="issue-detail-stat-tile">
+						<i
+							className={`adminfont-${CATEGORY_ICONS[group.category] ?? 'category'} issue-detail-stat-icon`}
+						/>
+						<span className="issue-detail-stat-label">
+							{__('Category', 'vulopilot')}
+						</span>
 						<BadgeComponent
 							color="blue"
 							text={CATEGORY_LABELS[group.category] ?? group.category}
 						/>
-					</FormGroupComponent>
-					<FormGroupComponent   row label={__('Affected', 'vulopilot')}>
-						{formatAffected(group.count, group.object_type)}
-					</FormGroupComponent>
-					{group.sample && (
-						<FormGroupComponent   row label={__('Example finding', 'vulopilot')}>
-							{renderProGatedSection(
-								<>
-									<span className="desc">
-										{group.sample.title}
-									</span>
-									<span className="desc">
-										{group.sample.description}
-									</span>
-								</>,
-								<span className="desc">
-									{__(
-										'A real, representative finding from this group appears here once Pro is active.',
-										'vulopilot'
-									)}
+					</div>
+					<div className="issue-detail-stat-tile">
+						<i className="adminfont-global-community issue-detail-stat-icon" />
+						<span className="issue-detail-stat-label">
+							{__('Affected', 'vulopilot')}
+						</span>
+						<span className="issue-detail-stat-value">
+							{formatAffected(group.count, group.object_type)}
+						</span>
+					</div>
+					<div className="issue-detail-stat-tile">
+						<i className="adminfont-calendar issue-detail-stat-icon" />
+						<span className="issue-detail-stat-label">
+							{__('Detected', 'vulopilot')}
+						</span>
+						<span className="issue-detail-stat-value">
+							{group.sample
+								? formatWpDate(
+										group.sample.last_seen_at ?? group.sample.created_at
+									)
+								: '—'}
+						</span>
+					</div>
+				</div>
+
+				{group.sample && (
+					<div className="issue-detail-section">
+						<div className="issue-detail-section-header">
+							{!isProActive && (
+								<i className="adminfont-lock issue-detail-section-lock" />
+							)}
+							<span className="issue-detail-section-title">
+								{__('Example finding', 'vulopilot')}
+							</span>
+							{!isProActive && (
+								<span className="admin-tag pro-tag">
+									<i className="adminfont-pro-tag" />
+									{__('Pro', 'vulopilot')}
 								</span>
 							)}
-						</FormGroupComponent>
-					)}
-
-					{group.sample && (
-						<FormGroupComponent  row label={__('Where', 'vulopilot')}>
-							<ClipboardComponent
-								text={group.sample.page || __('Site-wide', 'vulopilot')}
-								variant="code"
-								copyButtonLabel={__('Copy', 'vulopilot')}
-								copiedLabel={__('Copied!', 'vulopilot')}
-							/>
-							<div className="small desc">
-								{sprintf(
-									/* translators: %s: formatted date this finding was detected */
-									__('Detected %s', 'vulopilot'),
-									formatWpDate(group.sample.last_seen_at ?? group.sample.created_at)
-								)}
-							</div>
-						</FormGroupComponent>
-					)}
-					{/* No `row` here unlike the fields above — this holds a
-					whole list, not one short value, so squeezing it into
-					the same narrow side-by-side layout as Priority/
-					Category/Affected forced every row to wrap badly. The
-					label sits above the list instead, full width. */}
-					<FormGroupComponent
-						label={
-							AFFECTED_ITEMS_LABEL[group.object_type ?? ''] ??
-							__('Affected items', 'vulopilot')
-						}
-					>
+						</div>
 						{renderProGatedSection(
 							<>
-								<ListComponent
-									className="mini-card report"
-									loading={isLoadingAffected}
-									items={(affectedItems ?? []).map((row) => ({
-										id: row.id,
-										icon: CATEGORY_ICONS[group.category] ?? 'ai',
-										title: row.title,
-										desc: sprintf(
-											/* translators: 1: affected page/location, 2: formatted detection date */
-											__('%1$s • Detected %2$s', 'vulopilot'),
-											row.page || __('Site-wide', 'vulopilot'),
-											formatWpDate(row.last_seen_at ?? row.created_at)
-										),
-									}))}
-								/>
-								{!isLoadingAffected &&
-									affectedItems &&
-									0 === affectedItems.length && (
-										<span className="desc">
-											{__(
-												'No individual findings could be loaded for this group right now.',
-												'vulopilot'
-											)}
-										</span>
-									)}
-								{!isLoadingAffected &&
-									affectedItems &&
-									group.count > affectedItems.length && (
-										<span className="small desc">
-											{sprintf(
-												/* translators: %d: how many further open findings exist beyond the list shown above */
-												__(
-													'+%d more not shown here — use Resolve all/Ignore all below, or open the Issues table to see every one.',
-													'vulopilot'
-												),
-												group.count - affectedItems.length
-											)}
-										</span>
-									)}
+								<div className="issue-detail-example-title">
+									{group.sample.title}
+								</div>
+								<div className="desc">{group.sample.description}</div>
+								<div className="issue-detail-example-where">
+									<ClipboardComponent
+										text={group.sample.page || __('Site-wide', 'vulopilot')}
+										variant="code"
+										copyButtonLabel={__('Copy', 'vulopilot')}
+										copiedLabel={__('Copied!', 'vulopilot')}
+									/>
+								</div>
 							</>,
 							<span className="desc">
 								{__(
-									'The specific accounts/pages/etc. this group affects appear here once Pro is active.',
+									'A real, representative finding from this group — its title, description, and where it was found — appears here once Pro is active.',
 									'vulopilot'
 								)}
+							</span>,
+							false
+						)}
+					</div>
+				)}
+
+				<div className="issue-detail-section">
+					<div className="issue-detail-section-header">
+						{!isProActive && (
+							<i className="adminfont-lock issue-detail-section-lock" />
+						)}
+						<span className="issue-detail-section-title">
+							{AFFECTED_ITEMS_LABEL[group.object_type ?? ''] ??
+								__('Affected items', 'vulopilot')}
+						</span>
+						{!isProActive && (
+							<span className="admin-tag pro-tag">
+								<i className="adminfont-pro-tag" />
+								{__('Pro', 'vulopilot')}
 							</span>
 						)}
-					</FormGroupComponent>
-				</FormGroupWrapperComponent>
+					</div>
+					{renderProGatedSection(
+						<>
+							<ListComponent
+								className="mini-card report"
+								loading={isLoadingAffected}
+								items={(affectedItems ?? []).map((row) => ({
+									id: row.id,
+									icon: CATEGORY_ICONS[group.category] ?? 'ai',
+									title: row.title,
+									desc: sprintf(
+										/* translators: 1: affected page/location, 2: formatted detection date */
+										__('%1$s • Detected %2$s', 'vulopilot'),
+										row.page || __('Site-wide', 'vulopilot'),
+										formatWpDate(row.last_seen_at ?? row.created_at)
+									),
+								}))}
+							/>
+							{!isLoadingAffected &&
+								affectedItems &&
+								0 === affectedItems.length && (
+									<span className="desc">
+										{__(
+											'No individual findings could be loaded for this group right now.',
+											'vulopilot'
+										)}
+									</span>
+								)}
+							{!isLoadingAffected &&
+								affectedItems &&
+								group.count > affectedItems.length && (
+									<span className="small desc">
+										{sprintf(
+											/* translators: %d: how many further open findings exist beyond the list shown above */
+											__(
+												'+%d more not shown here — use Resolve all/Ignore all below, or open the Issues table to see every one.',
+												'vulopilot'
+											),
+											group.count - affectedItems.length
+										)}
+									</span>
+								)}
+						</>,
+						<span className="desc">
+							{__(
+								'The specific accounts/pages/etc. this group affects appear here once Pro is active.',
+								'vulopilot'
+							)}
+						</span>,
+						false
+					)}
+				</div>
 
-				{renderProGatedSection(
+				{!isProActive && (
+					<div className="issue-detail-upgrade-banner">
+						<i className="adminfont-info" />
+						<span>
+							{__(
+								'Detailed examples, the full affected list, and AI-assisted fixes are included in Pro.',
+								'vulopilot'
+							)}
+						</span>
+					</div>
+				)}
+
+				{isProActive ? (
 					<ButtonInput
 						position="full-width"
 						buttons={[
@@ -645,32 +702,25 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 								disabled: isBusy,
 							},
 						]}
-					/>,
+					/>
+				) : (
 					<ButtonInput
 						position="full-width"
 						buttons={[
 							{
-								text: __('Fix with AI', 'vulopilot'),
-								icon: 'ai',
+								text: __('Upgrade to Pro', 'vulopilot'),
+								icon: 'pro-tag',
 								color: 'orange-bg',
-								disabled: true,
-								onClick: () => {},
+								onClick: () => setIsDetailProPopupOpen(true),
 							},
 							{
-								text: __('Resolve all', 'vulopilot'),
+								text: __('Unlock fix details', 'vulopilot'),
+								icon: 'lock',
 								color: 'border-purple',
-								disabled: true,
-								onClick: () => {},
-							},
-							{
-								text: __('Ignore all', 'vulopilot'),
-								color: 'border-red',
-								disabled: true,
-								onClick: () => {},
+								onClick: () => setIsProPopupOpen(true),
 							},
 						]}
-					/>,
-					false
+					/>
 				)}
 			</CardComponent>
 			<PopupComponent
