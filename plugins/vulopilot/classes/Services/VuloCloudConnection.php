@@ -230,6 +230,11 @@ class VuloCloudConnection {
 			)
 		);
 
+		// Immediate first report — see SiteTelemetryReporter's own doc
+		// comment and AiCreditsConnection::exchange_broker_code()'s
+		// identical call for why this can't just wait for the daily cron.
+		( new SiteTelemetryReporter() )->report( $result['siteId'], $result['siteSecret'] );
+
 		return $this->get_status();
 	}
 

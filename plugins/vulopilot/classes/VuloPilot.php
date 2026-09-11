@@ -274,6 +274,14 @@ final class VuloPilot {
         // construction reasoning.
         $this->container['vulocloud_connect_callback_handler'] = new Services\VuloCloudConnectCallbackHandler();
 
+        // Connections → real WordPress/PHP/theme/plugin telemetry for
+        // whichever of the two connections above is actually live —
+        // registers its own daily cron (self-registers-its-own-cron-hook,
+        // same reasoning) on top of the immediate, connect-time report
+        // each connection's own exchange_broker_code() already triggers
+        // directly.
+        $this->container['site_telemetry_reporter'] = new Services\SiteTelemetryReporter();
+
         // SEO & Visibility → Keywords' real rank-tracking sync (daily cron
         // + Controllers\KeywordRankings::sync()'s own "Sync now") — same
         // unconditional-construction/self-registers-its-own-cron-hook
