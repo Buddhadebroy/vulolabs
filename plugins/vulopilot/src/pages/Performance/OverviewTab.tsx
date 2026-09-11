@@ -5,7 +5,8 @@ import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import LiveSiteInsightsCard from '../Security/LiveSiteInsightsCard';
 import PerformanceScoreCard from './PerformanceScoreCard';
 import MetricsGrid from './MetricsGrid';
-import SpeedHistoryCard from './SpeedHistoryCard';
+import CoreWebVitalsCard from './CoreWebVitalsCard';
+import RealTimeMonitoringCard from './RealTimeMonitoringCard';
 import QuickActionsCard from './QuickActionsCard';
 import BiggestSpeedOpportunityCard from './BiggestSpeedOpportunityCard';
 import PhpAccelerationCard from './PhpAccelerationCard';
@@ -17,23 +18,32 @@ import './Performance.scss';
  * per-section real-data mapping (PerformanceScoreCard, MetricsGrid,
  * SpeedHistoryCard, BiggestSpeedOpportunityCard — each documents its own
  * data source and, where the mockup shows something with no real backend,
- * its honest fallback). RealTimeMonitoringCard is rendered from inside
- * PerformanceScoreCard.tsx's own 1st-fold row, not imported here directly —
- * QuickActionsCard used to be as well, but now renders here instead, first
- * in the 2nd fold's right-hand column, ahead of BiggestSpeedOpportunityCard.
+ * its honest fallback). QuickActionsCard renders here, first in the 2nd
+ * fold's right-hand column, ahead of BiggestSpeedOpportunityCard.
  * AiSpeedAssistantCard.tsx is unused — its one
  * call site below is commented out per direct instruction (a second CTA
  * for the exact same action BiggestSpeedOpportunityCard's own button
  * already covers); the file itself is left in place rather than deleted.
+ *
+ * CoreWebVitalsCard/RealTimeMonitoringCard render in the 2nd fold now, not
+ * the 1st — per direct instruction, PerformanceScoreCard.tsx's own 1st-fold
+ * row was rebuilt to match a newer reference mockup ("Overall Performance"
+ * checklist / "Performance Trend" (SpeedHistoryCard, moved up into that
+ * row) / "Key Insights"), which freed up 2 of that row's own 3 slots for
+ * something else — these 2 real cards moved down here rather than being
+ * dropped, same real data either way (CoreWebVitalsCard now owns its own
+ * `GET /core-web-vitals` fetch instead of reading state
+ * PerformanceScoreCard.tsx used to pass it implicitly by co-location, same
+ * "each card fetches its own slice" precedent RealTimeMonitoringCard.tsx's
+ * own independent 2nd read of that same endpoint already established).
  *
  * Used to also have a "Speed Boost Available" card (SpeedBoostCard.tsx,
  * now deleted) paired 50/50 with SpeedHistoryCard right below MetricsGrid
  * — removed per direct instruction: it was a second CTA for the exact
  * same action AiSpeedAssistantCard.tsx's own "Optimize with AI"/"Review
  * First" pair already covers (same underlying open-finding count, same
- * honestly-disabled bulk-fix button). SpeedHistoryCard now renders alone,
- * full-width in this column, rather than re-pairing it with something
- * else.
+ * honestly-disabled bulk-fix button). SpeedHistoryCard itself has since
+ * moved up into PerformanceScoreCard.tsx's own 1st-fold row (see above).
  *
  * The full, unified category-'performance' issues table (PerformanceTab.tsx,
  * titled "Top Issues" — same sectioned-table shape "Protect My Site"'s
@@ -120,7 +130,10 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 				/>
 			</ColumnComponent>
 			<ColumnComponent grid={4} fullHeight>
-				<SpeedHistoryCard />
+				<CoreWebVitalsCard />
+			</ColumnComponent>
+			<ColumnComponent grid={4} fullHeight>
+				<RealTimeMonitoringCard />
 			</ColumnComponent>
 			<ColumnComponent grid={4} fullHeight >
 				<LiveSiteInsightsCard />
