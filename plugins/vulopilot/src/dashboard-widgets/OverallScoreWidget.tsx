@@ -1,39 +1,28 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import {
-	ChartComponent,
-	ColumnComponent,
-	ContainerComponent,
-	ListComponent,
-	IconComponent,
-	TypographyComponent,
-	BadgeComponent,
-} from '@zyra/components';
+import { COLOR_PALETTE } from '@zyra/core';
+import { ChartComponent, BadgeComponent, TypographyComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
+import { useLastScanTime } from '../services/useLastScanTime';
+import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 
 /**
- * "Vital Pulse" (renamed from "Overall Site Score" to match the newer
- * Dashboard mockup) groups the 8 real category_scores into the 4 buckets
- * it shows as legend items — Visibility (seo/geo/content/brand), Health
- * (security/accessibility), Commerce (woocommerce as-is), Performance
- * (performance as-is). This is a simple average, computed here rather than
- * in the /dashboard payload, since nothing else needs this specific 4-way
- * grouping.
+ * "Vital Pulse" — the Dashboard's hero status ring: one real 0-100
+ * `overall_score`, colored by its own real rating band via
+ * `ratingColorFor()`, with a single real critical-findings badge ("No
+ * critical issues" / "N critical issues") and a real "Last scanned"
+ * timestamp (`useLastScanTime()`'s own most-recently-completed scan,
+ * called with no category filter since this score is a sitewide rollup)
+ * below it — per a newer reference mockup.
  *
- * Right-side rows restructured to match `SeoTab.tsx`'s own "SEO Health"
- * card exactly (direct instruction: "convert [this] to [that] structure")
- * — the old 6-tile `AnalyticsComponent` progress grid + separate
- * `score-trend-row` delta strip below it are now one real
- * `ListComponent` "mini-card report" row per bucket, each row's own real
- * week-over-week delta folded in next to its score (same real
- * `category_scores_7d_ago` diff the old `trendItems` array already
- * computed — merged into the same row instead of a second block).
+ * Split out from the per-category score breakdown (now `ScoreBreakdownWidget.tsx`,
+ * its own separate widget) per direct instruction ("separate this with 2
+ * DashboardWidget") — the two used to share one `ContainerComponent` row
+ * inside a single widget; each is now independently
+ * hideable/reorderable via "Customize dashboard" instead.
  */
-const average = (nums: number[]): number =>
-	Math.round(nums.reduce((sum, n) => sum + n, 0) / nums.length);
-
-const getRating = (score: number): string => {
+export const getRating = (score: number): string => {
 	if (score >= 90) {
 		return __('Excellent', 'vulopilot');
 	}
@@ -46,14 +35,8 @@ const getRating = (score: number): string => {
 	return __('Needs work', 'vulopilot');
 };
 
-/**
- * Presentation copy per real rating band (getRating()'s own thresholds) —
- * describes the same `overall_score` number in words, same "a real computed
- * value gets a human-readable label" convention `getRating()` itself
- * already establishes, not a second, independent judgment.
- */
-/** Same real 4-tier `getRating()` bands above, mapped to `TypographyComponent`'s own real palette color names (`SeoTab.tsx`'s own `seo-health-score-row-value` rows use the same "score → palette color" convention via `ratingColor()`) — feeds each row's own score number color below. */
-const ratingColorFor = (score: number): string => {
+/** Same real 4-tier `getRating()` bands above, mapped to real palette color names — feeds the ring's own stroke color and (duplicated in `ScoreBreakdownWidget.tsx`, same "duplicate small logic across scopes" precedent this codebase already uses elsewhere, e.g. EntityExtractor.php's own `CONTACT_SLUGS`/`ABOUT_SLUGS`) each row's own score number color there. */
+export const ratingColorFor = (score: number): string => {
 	if (score >= 90) {
 		return 'green';
 	}
@@ -88,244 +71,80 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
-	const cs = summary.category_scores;
-	const visibility = average([cs.seo, cs.geo, cs.content, cs.brand]);
-	const health = average([cs.security, cs.accessibility]);
-	const commerce = cs.woocommerce ?? 0;
-	const performance = cs.performance;
-
-	// Real net change in open findings this week (fixed minus new) — what
-	// the hero's "+N this week" badge shows, replacing what used to be a
-	// hardcoded "+5 this week" string.
-	const netChange =
-		summary.fixed_findings_this_week - summary.new_findings_this_week;
-
-	// Real week-over-week deltas per bucket, diffed against
-	// category_scores_7d_ago (Dashboard controller's
-	// build_category_scores_as_of() — a genuine reconstruction from
-	// findings' own created_at/resolved_at timestamps, not a fabricated
-	// number). Same 4-way grouping as the donut/scoreRows below, just
-	// applied to last week's snapshot too.
-	const cs7 = summary.category_scores_7d_ago;
-	const visibility7d = average([cs7.seo, cs7.geo, cs7.content, cs7.brand]);
-	const health7d = average([cs7.security, cs7.accessibility]);
-	const commerce7d = cs7.woocommerce ?? 0;
-	const performance7d = cs7.performance;
-
-	// One real row per bucket — same real score `AnalyticsComponent`'s
-	// own tiles used to show, plus that same bucket's own real
-	// week-over-week delta (the old, separate `trendItems` array) folded
-	// into the same row, matching `SeoTab.tsx`'s own "SEO Health" row
-	// shape (score + delta arrow together, not a 2nd block below).
-	const scoreRows = [
-		{
-			key: 'visibility',
-			label: __('Visibility Score', 'vulopilot'),
-			score: visibility,
-			delta: visibility - visibility7d,
-			icon: 'tax-compliance',
-		},
-		{
-			key: 'health',
-			label: __('Health Score', 'vulopilot'),
-			score: health,
-			delta: health - health7d,
-			icon: 'order',
-		},
-		{
-			key: 'commerce',
-			label: __('Commerce Score', 'vulopilot'),
-			score: commerce,
-			delta: commerce - commerce7d,
-			icon: 'shipping',
-		},
-		{
-			key: 'performance',
-			label: __('Performance Score', 'vulopilot'),
-			score: performance,
-			delta: performance - performance7d,
-			icon: 'shipping',
-		},
-		{
-			key: 'content',
-			label: __('Content Score', 'vulopilot'),
-			score: cs.content,
-			delta: cs.content - cs7.content,
-			icon: 'text-fields',
-		},
-		{
-			key: 'brand',
-			label: __('Brand Score', 'vulopilot'),
-			score: cs.brand,
-			delta: cs.brand - cs7.brand,
-			icon: 'person',
-		},
-	];
+	// Real most-recent completed scan across every category — same real
+	// `useLastScanTime()` hook CrawlRobotsSitemapSection.tsx's own "Last
+	// Checked" tile already uses, called here with no category filter
+	// since this widget's own score is a sitewide rollup, not scoped to
+	// one category.
+	const { lastScanAt } = useLastScanTime();
 
 	return (
 		<DashboardWidget
-			title={__('Vital Pulse', 'vulopilot')}
-			icon="analytics"
+			// title={__('Vital Pulse', 'vulopilot')}
+			// icon="analytics"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
-			headerAction={
-				<a href="?page=vulopilot#&tab=reports" className="vital-pulse-full-report-link">
-					{__('View full report ›', 'vulopilot')}
-				</a>
-			}
 		>
-			<ContainerComponent>
-				<ColumnComponent grid={3}>
-					<ChartComponent
-						type="pie"
-						isLoading={isLoading}
-						legendLabels
-						legendPosition="side"
-						height={180}
-						centerLabel={
-							<>
-								<span className="score-ring-number">
-									{summary.overall_score}
-								</span>
-								<span className="score-ring-label">/100</span>
-								<span className="score-ring-label">
-									{getRating(summary.overall_score)}
-								</span>
-							</>
-						}
-						data={[
-							{
-								label: __('Visibility', 'vulopilot'),
-								value: visibility,
-								color: '#2563eb',
-							},
-							{
-								label: __('Health', 'vulopilot'),
-								value: health,
-								color: '#16a34a',
-							},
-							{
-								label: __('Commerce', 'vulopilot'),
-								value: commerce,
-								color: '#f97316',
-							},
-							{
-								label: __('Performance', 'vulopilot'),
-								value: performance,
-								color: '#7c3aed',
-							},
-						]}
-					/>
-					<div className="overall-score-summary overall-score-summary--divider">
-						<div className="title">
-							{getRating(summary.overall_score)}
-						</div>
-						<div className="desc">
-							{getRatingSummary(summary.overall_score)}
-						</div>
-						<div className="vital-pulse-issue-counts">
-							<span>
-								{sprintf(
-									/* translators: %d: number of real open findings sitewide. */
-									__('%d issues found', 'vulopilot'),
-									summary.open_findings
-								)}
+			<div className='overall-score-summary'>
+				<ChartComponent
+					type="ring"
+					isLoading={isLoading}
+					height={240}
+					color={
+						COLOR_PALETTE[
+						ratingColorFor(summary.overall_score) as keyof typeof COLOR_PALETTE
+						]
+					}
+					centerLabel={
+						<>
+							<span className="score-ring-number">
+								{summary.overall_score}
 							</span>
-							{summary.critical_findings > 0 && (
-								<span className="vital-pulse-critical-count">
-									{sprintf(
-										/* translators: %d: number of those open findings that are critical severity. */
-										__('%d critical', 'vulopilot'),
-										summary.critical_findings
-									)}
-								</span>
-							)}
-						</div>
-						{(netChange !== 0 ||
-							summary.new_findings_this_week > 0 ||
-							summary.fixed_findings_this_week > 0) && (
-							<div className="buttons-wrapper">
-								{netChange !== 0 && (
-									<BadgeComponent
-										color={netChange > 0 ? 'green' : 'red'}
-										icon={`arrow-${netChange > 0 ? 'up' : 'down'}`}
-										text={sprintf(
-											/* translators: %+d: signed net change in open findings this week */
-											__('%+d this week', 'vulopilot'),
-											netChange
-										)}
-									/>
-								)}
-								{summary.new_findings_this_week > 0 && (
-									<BadgeComponent
-										color="red"
-										icon="error"
-										text={sprintf(
-											/* translators: %d: number of findings first detected this week */
-											__('%d new issues', 'vulopilot'),
-											summary.new_findings_this_week
-										)}
-									/>
-								)}
-								{summary.fixed_findings_this_week > 0 && (
-									<BadgeComponent
-										color="yellow"
-										icon="check"
-										text={sprintf(
-											/* translators: %d: number of findings resolved this week */
-											__('%d fixed', 'vulopilot'),
-											summary.fixed_findings_this_week
-										)}
-									/>
-								)}
-							</div>
-						)}
-					</div>
-				</ColumnComponent>
-				<ColumnComponent grid={9}>
-					<ListComponent
-						className="mini-card report hover seo-health-score-category-list"
-						loading={isLoading}
-						items={scoreRows.map((row) => ({
-							id: row.key,
-							icon: row.icon,
-							title: row.label,
-							tags: (
-								<>
-									<TypographyComponent
-										as="span"
-										variant="body-md"
-										weight="bold"
-										color={row.delta >= 0 ? 'green' : 'red'}
-										className="seo-health-score-row-delta"
-									>
-										<IconComponent
-											name={row.delta >= 0 ? 'arrow-up' : 'arrow-down'}
-										/>
-										{Math.abs(row.delta)}
-									</TypographyComponent>
-									<TypographyComponent
-										variant="h5"
-										weight="bold"
-										color={ratingColorFor(row.score)}
-										className="seo-health-score-row-value"
-									>
-										{row.score}
-										<TypographyComponent
-											as="span"
-											variant="body-md"
-											className="seo-health-score-row-suffix"
-										>
-											/100
-										</TypographyComponent>
-									</TypographyComponent>
-								</>
-							),
-						}))}
+							<span className="score-ring-label">
+								{getRating(summary.overall_score)}
+							</span>
+						</>
+					}
+					data={[{ label: __('Score', 'vulopilot'), value: summary.overall_score }]}
+				/>
+
+				<TypographyComponent variant={"h3"} color="text-green">
+					{__('Overall Score', 'vulopilot')}
+				</TypographyComponent>
+				<div className="desc">
+					{getRatingSummary(summary.overall_score)}
+				</div>
+				<div className="buttons-wrapper">
+					<BadgeComponent
+						color={0 === summary.critical_findings ? 'green' : 'red'}
+						icon={0 === summary.critical_findings ? 'check' : 'error'}
+						text={
+							0 === summary.critical_findings
+								? __('No critical issues', 'vulopilot')
+								: sprintf(
+									/* translators: %d: number of open critical-severity findings. */
+									__('%d critical issues', 'vulopilot'),
+									summary.critical_findings
+								)
+						}
 					/>
-				</ColumnComponent>
-			</ContainerComponent>
+				</div>
+				{lastScanAt && (
+					<p className="desc overall-score-last-scanned">
+						{sprintf(
+							/* translators: %s: real formatted date+time of the most recent completed scan. */
+							__('Last scanned: %s', 'vulopilot'),
+							`${formatWpDate(lastScanAt)}, ${new Date(
+								lastScanAt
+							).toLocaleTimeString(undefined, {
+								hour: 'numeric',
+								minute: '2-digit',
+							})}`
+						)}
+					</p>
+				)}
+			</div>
 		</DashboardWidget>
 	);
 };

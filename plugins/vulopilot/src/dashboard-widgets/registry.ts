@@ -9,6 +9,7 @@ import KnowledgeGraphWidget from './KnowledgeGraphWidget';
 import NeedsAttentionWidget from './NeedsAttentionWidget';
 import BrandBreakdownWidget from './BrandBreakdownWidget';
 import OverallScoreWidget from './OverallScoreWidget';
+import ScoreBreakdownWidget from './ScoreBreakdownWidget';
 import RunAuditWidget from './RunAuditWidget';
 import RecentChangesWidget from './RecentChangesWidget';
 import KeyPagesWidget from './KeyPagesWidget';
@@ -57,8 +58,15 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		id: 'overall-score',
 		title: __('Vital Pulse', 'vulopilot'),
 		icon: 'analytics',
-		grid: 12,
+		grid: 3,
 		component: OverallScoreWidget,
+	},
+	{
+		id: 'score-breakdown',
+		title: __('Website Health Scores', 'vulopilot'),
+		icon: 'analytics',
+		grid: 9,
+		component: ScoreBreakdownWidget,
 	},
 	{
 		id: 'vulopilot-activity',

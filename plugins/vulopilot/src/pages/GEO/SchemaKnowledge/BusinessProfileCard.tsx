@@ -7,6 +7,7 @@ import { ButtonInput } from '@zyra/inputs';
 import type { EntitiesResponse } from './KnowledgeGraphSection';
 import { ENTITY_SETTINGS_URL } from './KnowledgeGraphSection';
 import BusinessNameDetailsPanel from './BusinessNameDetailsPanel';
+import ProductDetailsPanel from './ProductDetailsPanel';
 import { ratingColor } from '../seoRating';
 import { useFilterSlot } from '../../../services/useFilterSlot';
 import { KnowledgeGraphDiagram } from './KnowledgeGraphDiagramCard';
@@ -230,6 +231,10 @@ const BusinessProfileCard = () => {
 	// see that file's own docblock for why the other rows don't get an
 	// equivalent panel.
 	const [isNamePanelOpen, setIsNamePanelOpen] = useState(false);
+	// The real "Product Details" side panel (ProductDetailsPanel.tsx) —
+	// same reasoning as `isNamePanelOpen` above, just for the "Products"
+	// row instead of "Business name".
+	const [isProductsPanelOpen, setIsProductsPanelOpen] = useState(false);
 
 	// Called unconditionally, before the early return below, per the rules
 	// of hooks — same reasoning KnowledgeGraphSection.tsx's own identical
@@ -275,6 +280,19 @@ const BusinessProfileCard = () => {
 	// those aren't a real, fixable gap, so counting them here would
 	// overstate how much is actually missing.
 	const missingCount = rows.filter((row) => !row.found && !row.notApplicable).length;
+	// The "Products" row's own real "View" action opens `ProductDetailsPanel`,
+	// which has nothing real to show without at least 1 real product — so
+	// the row itself is dropped from this table entirely (not shown as a
+	// dead "Not found"/"Not applicable" line) whenever there's no real
+	// product to report on, whether that's WooCommerce being off
+	// (`notApplicable`) or WooCommerce being on with zero published
+	// products (`!found`). `missingCount` above still counts a real "0
+	// products" gap toward the donut's own overall completeness caption —
+	// hiding the row here is about this table having nothing real to show,
+	// not about that gap ceasing to be real.
+	const visibleRows = rows.filter(
+		(row) => 'products' !== row.key || row.found
+	);
 
 	if (!isLoading && null === entityScore && null === entities) {
 		return (
@@ -424,7 +442,7 @@ const BusinessProfileCard = () => {
 					) : (
 						<ListComponent
 							className="mini-card report business-profile-list"
-							items={rows.map((row) => ({
+							items={visibleRows.map((row) => ({
 								id: row.key,
 								icon: ROW_ICON[row.key],
 								title: row.label,
@@ -445,6 +463,14 @@ const BusinessProfileCard = () => {
 													text: __('View', 'vulopilot'),
 													color: 'border-purple',
 													onClick: () => setIsNamePanelOpen(true),
+												}}
+											/>
+										) : 'products' === row.key && row.found ? (
+											<ButtonInput
+												buttons={{
+													text: __('View', 'vulopilot'),
+													color: 'border-purple',
+													onClick: () => setIsProductsPanelOpen(true),
 												}}
 											/>
 										) : (
@@ -468,6 +494,10 @@ const BusinessProfileCard = () => {
 				<BusinessNameDetailsPanel
 					open={isNamePanelOpen}
 					onClose={() => setIsNamePanelOpen(false)}
+				/>
+				<ProductDetailsPanel
+					open={isProductsPanelOpen}
+					onClose={() => setIsProductsPanelOpen(false)}
 				/>
 			</ColumnComponent>
 		</>

@@ -855,8 +855,11 @@ class Utill {
      */
     const DASHBOARD_WIDGET_IDS = array(
         // The newer Dashboard mockup's own top section (registry.ts's
-        // MOCKUP_WIDGETS), in its order.
+        // MOCKUP_WIDGETS), in its order. `overall-score`/`score-breakdown`
+        // were 1 combined widget until split into 2 (registry.ts's own
+        // docblock on `score-breakdown` has the real reasoning).
         'overall-score',
+        'score-breakdown',
         'vulopilot-activity',
         'needs-attention',
         'key-pages',

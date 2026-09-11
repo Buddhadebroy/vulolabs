@@ -120,6 +120,49 @@ export const AnalyticsComponent = ( {
 	</dl>
 );
 
+interface BadgeItem {
+	text?: ReactNode;
+	children?: ReactNode;
+}
+
+export const BadgeComponent = ( {
+	text,
+	children,
+	badges,
+}: {
+	text?: ReactNode;
+	children?: ReactNode;
+	color?: string;
+	icon?: string;
+	variant?: string;
+	badges?: BadgeItem[];
+} ) =>
+	badges && badges.length > 0 ? (
+		<div>
+			{ badges.map( ( badge, index ) => (
+				<span key={ index }>{ badge.text ?? badge.children }</span>
+			) ) }
+		</div>
+	) : (
+		<span>{ text ?? children }</span>
+	);
+
+export const IconComponent = ( { name }: { name?: string } ) => (
+	<i className={ name ? `adminfont-${ name }` : undefined } />
+);
+
+export const TypographyComponent = ( {
+	as: Tag = 'div',
+	children,
+}: {
+	as?: React.ElementType;
+	variant?: string;
+	weight?: string;
+	color?: string;
+	className?: string;
+	children?: ReactNode;
+} ) => <Tag>{ children }</Tag>;
+
 export const NoticeManager = {
 	add: jest.fn(),
 };

@@ -179,7 +179,7 @@ class EntityExtractor {
      * second opinion that could disagree with it.
      *
      * @param bool $refresh Bust EntityExtractor's own 1-hour cache first — real "Scan Again" semantics (re-reads every real source now), not a second, separate cache of its own.
-     * @return array{business_name: string, confidence: string, sources: array<int, array{key: string, label: string, value: string|null, found: bool}>, sources_checked: int, is_consistent: bool, consistent_count: int}
+     * @return array{business_name: string, confidence: string, sources: array<int, array{key: string, label: string, value: string|null, found: bool, url: string|null}>, sources_checked: int, is_consistent: bool, consistent_count: int}
      */
     public function get_business_name_sources( bool $refresh = false ): array {
         if ( $refresh ) {
@@ -192,7 +192,12 @@ class EntityExtractor {
         $site_name     = trim( (string) get_bloginfo( 'name' ) );
         $homepage_name = $this->get_homepage_display_name();
         $schema_name   = $this->get_homepage_publisher()['name'] ?? null;
-        $about_match   = $this->find_about_page_name_match( $business_name );
+        $about         = $this->find_about_page_name_match( $business_name );
+        // Real, deterministic homepage URL — where the homepage title, the
+        // site title `<title>` tag, and any Organization schema JSON-LD are
+        // all actually rendered, so "View" on any of those 3 real sources
+        // sends someone to look at the same real page.
+        $homepage_url  = home_url( '/' );
 
         $sources = array(
             array(
@@ -200,24 +205,28 @@ class EntityExtractor {
                 'label' => __( 'Homepage', 'vulopilot' ),
                 'value' => $homepage_name,
                 'found' => null !== $homepage_name,
+                'url'   => $homepage_url,
             ),
             array(
                 'key'   => 'website_title',
                 'label' => __( 'Website title', 'vulopilot' ),
                 'value' => '' !== $site_name ? $site_name : null,
                 'found' => '' !== $site_name,
+                'url'   => $homepage_url,
             ),
             array(
                 'key'   => 'organization_schema',
                 'label' => __( 'Organization schema', 'vulopilot' ),
                 'value' => $schema_name,
                 'found' => null !== $schema_name,
+                'url'   => $homepage_url,
             ),
             array(
                 'key'   => 'about_page',
                 'label' => __( 'About page', 'vulopilot' ),
-                'value' => $about_match,
-                'found' => null !== $about_match,
+                'value' => $about['value'],
+                'found' => null !== $about['value'],
+                'url'   => $about['url'],
             ),
         );
 
@@ -278,13 +287,9 @@ class EntityExtractor {
      * "a page happens to exist at that slug."
      *
      * @param string $business_name The real, already-resolved business name to check for.
-     * @return string|null The real business name, if a published About page's content actually contains it; null otherwise (no About page, or one that doesn't mention it).
+     * @return array{value: string|null, url: string|null} `value` is the real business name when a published About page's content actually contains it, null otherwise (no About page, or one that doesn't mention it). `url` is that page's own real permalink whenever a published About page exists at all — even when its content doesn't mention the name, so "View" can still send someone to the real page to check for themselves.
      */
-    private function find_about_page_name_match( string $business_name ): ?string {
-        if ( '' === trim( $business_name ) ) {
-            return null;
-        }
-
+    private function find_about_page_name_match( string $business_name ): array {
         foreach ( self::ABOUT_SLUGS as $slug ) {
             $page = get_page_by_path( $slug, OBJECT, 'page' );
 
@@ -292,12 +297,20 @@ class EntityExtractor {
                 continue;
             }
 
+            $url     = get_permalink( $page->ID ) ?: null;
             $content = wp_strip_all_tags( (string) $page->post_content );
+            $matched = '' !== trim( $business_name ) && false !== stripos( $content, $business_name );
 
-            return false !== stripos( $content, $business_name ) ? $business_name : null;
+            return array(
+                'value' => $matched ? $business_name : null,
+                'url'   => $url,
+            );
         }
 
-        return null;
+        return array(
+            'value' => null,
+            'url'   => null,
+        );
     }
 
     /**
@@ -502,6 +515,75 @@ class EntityExtractor {
         }
 
         return $entities;
+    }
+
+    /**
+     * "Product Details" panel data — real published WooCommerce products,
+     * each with a real, deterministic set of completeness issues computed
+     * from the exact same fields WooCommerce core's own Product schema
+     * output (`WC_Structured_Data::generate_product_data()`) actually
+     * reads: no featured image, no SKU, no description (short or long), no
+     * price set. Not a second, independent schema validator running
+     * against the live page — these are the real gaps that would leave
+     * that same core-generated Product JSON-LD incomplete, computed
+     * directly from each product's own real data (the same real
+     * `wc_get_products()` call `extract_products()` already makes, so this
+     * costs nothing extra beyond that).
+     *
+     * @return array<int, array{id: int, name: string, url: string, edit_url: string|null, issues: array<int, string>, issue_count: int}>
+     */
+    public function get_product_schema_details(): array {
+        if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_products' ) ) {
+            return array();
+        }
+
+        $products = wc_get_products(
+            array(
+                'status' => 'publish',
+                'limit'  => self::PRODUCT_BATCH_SIZE,
+                'return' => 'objects',
+            )
+        );
+
+        $rows = array();
+
+        foreach ( (array) $products as $product ) {
+            if ( ! $product instanceof \WC_Product ) {
+                continue;
+            }
+
+            $issues = array();
+
+            if ( ! $product->get_image_id() ) {
+                $issues[] = __( 'Missing product image', 'vulopilot' );
+            }
+
+            if ( '' === trim( (string) $product->get_sku() ) ) {
+                $issues[] = __( 'Missing SKU', 'vulopilot' );
+            }
+
+            $has_description = '' !== trim( wp_strip_all_tags( (string) $product->get_short_description() ) )
+                || '' !== trim( wp_strip_all_tags( (string) $product->get_description() ) );
+
+            if ( ! $has_description ) {
+                $issues[] = __( 'Missing product description', 'vulopilot' );
+            }
+
+            if ( '' === (string) $product->get_price() ) {
+                $issues[] = __( 'Missing price', 'vulopilot' );
+            }
+
+            $rows[] = array(
+                'id'          => $product->get_id(),
+                'name'        => $product->get_name(),
+                'url'         => (string) get_permalink( $product->get_id() ),
+                'edit_url'    => get_edit_post_link( $product->get_id(), 'raw' ) ?: null,
+                'issues'      => $issues,
+                'issue_count' => count( $issues ),
+            );
+        }
+
+        return $rows;
     }
 
     /**

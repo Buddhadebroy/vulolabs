@@ -74,6 +74,22 @@ class EntityExtraction extends \WP_REST_Controller {
                 ),
             )
         );
+
+        // Backs BusinessProfileCard.tsx's own "Product Details" side panel
+        // — see EntityExtractor::get_product_schema_details()'s own
+        // docblock for what these real per-product completeness issues
+        // actually are.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/product-details',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_product_schema_details' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                ),
+            )
+        );
     }
 
     /**
@@ -98,5 +114,13 @@ class EntityExtraction extends \WP_REST_Controller {
         return rest_ensure_response(
             $this->extractor->get_business_name_sources( (bool) $request->get_param( 'refresh' ) )
         );
+    }
+
+    /**
+     * @param \WP_REST_Request $request
+     * @return \WP_REST_Response
+     */
+    public function get_product_schema_details( $request ) {
+        return rest_ensure_response( $this->extractor->get_product_schema_details() );
     }
 }

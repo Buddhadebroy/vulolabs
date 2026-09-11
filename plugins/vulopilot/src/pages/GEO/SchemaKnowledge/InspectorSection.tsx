@@ -3,12 +3,34 @@ import { __, sprintf } from '@wordpress/i18n';
 import {
 	CardComponent,
 	ColumnComponent,
+	ModuleGuardComponent,
 	NoticeComponent,
 } from '@zyra/components';
-import { ButtonInput, SelectInput } from '@zyra/inputs';
+import { ButtonInput } from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import { useEffect, useState } from 'react';
 import { useSchemaInspector } from './useSchemaInspector';
+
+/**
+ * Real per-`type` color + icon — the exact same 3 real post types
+ * `GET /schema/inspectable-pages` ever actually queries (Schema.php's own
+ * `list_inspectable_pages()`: `post_type => ['post', 'page', 'product']`).
+ * `''`/`'document'` is the honest fallback for any other real post type
+ * that query's own `TYPE_LABELS[$post_type] ?? ucfirst($post_type)` guard
+ * could in principle return, even though none of the 3 it actually
+ * queries ever hits that branch today.
+ */
+const TYPE_COLOR: Record<string, string> = {
+	post: 'blue',
+	page: 'indigo',
+	product: 'green',
+};
+const TYPE_ICON: Record<string, string> = {
+	post: 'document',
+	page: 'document',
+	product: 'product',
+};
 
 interface InspectablePage {
 	id: number;
@@ -127,72 +149,158 @@ const InspectorSection = () => {
 		);
 
 	return (
-		<ColumnComponent>
-			<CardComponent
-				id="schema-inspector-picker"
-				title={__('Inspect a specific page', 'vulopilot')}
-				titleIcon="search"
-				desc={__(
-					'See exactly what structured information search engines receive from any page or product.',
-					'vulopilot'
-				)}
-			>
-				<SelectInput
-					type="single-select"
-					name="schema_inspect_page"
-					value={selectedUrl}
-					onChange={(newValue) => handleSelectPage(newValue as string)}
-					placeholder={
-						isLoadingPages
-							? __('Loading…', 'vulopilot')
-							: __('Select a page or product…', 'vulopilot')
-					}
-					options={pages.map((page) => ({
-						value: page.url,
-						label: `${page.title} (${page.type_label})`,
-					}))}
-					isClearable={false}
-					disabled={isLoadingPages || isInspecting}
-				/>
-				{selectedUrl && (
-					<p className="desc schema-inspector-selected-path">
-						{pathOf(selectedUrl)}
-					</p>
-				)}
-
-				{error && (
-					<NoticeComponent
-						uniqueKey="vulopilot-schema-inspect-error"
-						type="error"
-						displayPosition="inline-notice"
-						message={error}
+		<>
+			<ColumnComponent grid={8}>
+				<CardComponent
+					id="schema-knowledge-inspector"
+					title={__('Inspect a specific page', 'vulopilot')}
+					titleIcon="search"
+					desc={__(
+						'See exactly what structured information search engines receive from any page or product.',
+						'vulopilot'
+					)}
+				>
+					<TableCard
+						showMenu={false}
+						hideHeader={true}
+						className="transparent-table"
+						// Highlights the row whose inspection result is showing
+						// in the side panel — same real `activeRowId`/action-
+						// toggle pairing IssuesSection.tsx's own table+detail-
+						// panel split already uses.
+						activeRowId={selectedUrl}
+						onRowClick={(row: Record<string, unknown>) =>
+							handleSelectPage((row as unknown as InspectablePage).url)
+						}
+						headers={{
+							page: {
+								key: 'title',
+								type: 'info',
+								label: __('Page', 'vulopilot'),
+								width: '70%',
+								iconKey: 'typeIcon',
+								badgesKey: 'typeBadges',
+							},
+							action: {
+								label: __('Action', 'vulopilot'),
+								type: 'action',
+								actions: [
+									{
+										type: 'button',
+										label: (row) =>
+											(row as unknown as InspectablePage).url ===
+											selectedUrl
+												? __('Inspecting', 'vulopilot')
+												: __('Inspect', 'vulopilot'),
+										color: (row) =>
+											(row as unknown as InspectablePage).url ===
+											selectedUrl
+												? 'text-green'
+												: 'text-purple',
+										icon: (row) =>
+											(row as unknown as InspectablePage).url ===
+											selectedUrl
+												? 'eye'
+												: 'pagination-next-arrow',
+										onClick: (row) =>
+											handleSelectPage(
+												(row as unknown as InspectablePage).url
+											),
+									},
+								],
+							},
+						}}
+						rows={pages.map((page) => ({
+							...page,
+							id: page.url,
+							// Real page/post/product type this row's own real
+							// `type_label` already carries — shown as a plain,
+							// uncolored badge next to the title (same real
+							// `color: ''` convention useFindingsTable.tsx's own
+							// compact-layout category tag already uses) instead
+							// of a description line, colored per real type
+							// (post/page/product) instead of one flat color.
+							typeBadges: [
+								{
+									text: page.type_label,
+									color: TYPE_COLOR[page.type] ?? '',
+								},
+							],
+							typeIcon: TYPE_ICON[page.type] ?? 'document',
+						}))}
+						ids={pages.map((page) => page.url)}
+						totalRows={pages.length}
+						isLoading={isLoadingPages}
+						emptyMessage={__(
+							'No inspectable pages/products found on this site yet.',
+							'vulopilot'
+						)}
 					/>
-				)}
+				</CardComponent>
+			</ColumnComponent>
 
-				{!result && (
-					<div className="schema-inspector-validator-hint">
-						<span className="desc">
-							{__(
-								'Or check this site’s homepage right now, without picking a page:',
+			<ColumnComponent grid={4}>
+				{!selectedUrl ? (
+					<CardComponent
+						title={__('Inspection result', 'vulopilot')}
+						titleIcon="search"
+						desc={__(
+							'More detail on the page you select from the table.',
+							'vulopilot'
+						)}
+					>
+						<ModuleGuardComponent
+							icon="search"
+							title={__('Select a page', 'vulopilot')}
+							desc={__(
+								'Choose a row from the table to inspect its real structured data here.',
 								'vulopilot'
 							)}
-						</span>
-						<ButtonInput
-							position="left"
-							buttons={{
-								text: __(
-									'Validate homepage with Google →',
-									'vulopilot'
-								),
-								color: 'text-purple',
-								onClick: openRichResultsTest,
-							}}
 						/>
-					</div>
-				)}
+					</CardComponent>
+				) : (
+					<CardComponent
+						title={pathOf(selectedUrl)}
+						titleIcon="search"
+						desc={__(
+							'What search engines actually receive from this page.',
+							'vulopilot'
+						)}
+						isLoading={isInspecting}
+					>
+						{error && (
+							<NoticeComponent
+								uniqueKey="vulopilot-schema-inspect-error"
+								type="error"
+								displayPosition="inline-notice"
+								message={error}
+							/>
+						)}
 
-				{result && (
-					<div className="schema-inspector-result">
+						{!result && !isInspecting && (
+							<div className="schema-inspector-validator-hint">
+								<span className="desc">
+									{__(
+										'Or check this site’s homepage right now, without picking a page:',
+										'vulopilot'
+									)}
+								</span>
+								<ButtonInput
+									position="left"
+									buttons={{
+										text: __(
+											'Validate homepage with Google →',
+											'vulopilot'
+										),
+										color: 'text-purple',
+										onClick: openRichResultsTest,
+									}}
+								/>
+							</div>
+						)}
+
+						{result && (
+							<div className="schema-inspector-result">
 							<ColumnComponent grid={6}>
 								<div className="schema-inspector-result-heading">
 									{__('Detected schema', 'vulopilot')}
@@ -383,8 +491,10 @@ const InspectorSection = () => {
 						))}
 					</div>
 				)}
-			</CardComponent>
-		</ColumnComponent>
+					</CardComponent>
+				)}
+			</ColumnComponent>
+		</>
 	);
 };
 

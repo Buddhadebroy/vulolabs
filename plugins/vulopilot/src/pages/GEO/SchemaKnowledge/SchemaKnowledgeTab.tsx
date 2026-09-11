@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
-import { ColumnComponent, NoticeComponent, SectionComponent, ContainerComponent } from '@zyra/components';
+import { ColumnComponent, NoticeComponent, CardComponent, SectionComponent, ContainerComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import '../SeoVisibility.scss';
 import BusinessProfileCard from './BusinessProfileCard';
 import CriticalIssuesCard from './CriticalIssuesCard';
@@ -114,29 +115,30 @@ const SchemaKnowledgeTab = ({
 
 			<KnowledgeGraphSection />
 
-			<SectionComponent
-				title={__('All Business Identity Issues', 'vulopilot')}
-				desc={__(
-					'Every open schema/entity finding behind the preview above, filterable by priority.',
-					'vulopilot'
-				)}
-			/>
-			<IssuesSection />
-
 			<div id="schema-knowledge-structured-data">
 				<TechnicalDetailsSection />
 			</div>
 
-			<div id="schema-knowledge-inspector">
-				<SectionComponent
-					title={__('Page Inspector', 'vulopilot')}
+			<InspectorSection />
+			<ColumnComponent fullHeight>
+				<CardComponent
+					title={__('Not seeing a schema type you need?', 'vulopilot')}
+					titleIcon="plus"
 					desc={__(
-						'Check one specific page’s real structured data — its detected schema, problems, JSON-LD, and conflicts.',
+						'Custom schema is added per page or post — open any post’s editor, then its SEO panel’s Schema tab.',
 						'vulopilot'
 					)}
-				/>
-				<InspectorSection />
-			</div>
+				>
+					<ButtonInput
+						buttons={{
+							text: __('Add custom schema', 'vulopilot'),
+							onClick: () => {
+								window.location.href = 'edit.php';
+							},
+						}}
+					/>
+				</CardComponent>
+			</ColumnComponent>
 		</ContainerComponent>
 	);
 };

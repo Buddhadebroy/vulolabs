@@ -8,25 +8,22 @@ import {
 	ContainerComponent,
 	ColumnComponent,
 	ModuleGuardComponent,
+	TypographyComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import './Performance.scss';
-import SpeedHistoryCard from './SpeedHistoryCard';
+import RealTimeMonitoringCard from './RealTimeMonitoringCard';
 
-/** Real "Health" tab route (`routes.ts`'s own `tab: 'health'`) — where the "Key Insights" card's own "View Full Insights" button below actually sends someone: the real overview page that already combines the same Security/Performance/GEO/AEO category scores this card's tiles read individually here. */
-const HEALTH_OVERVIEW_URL = '?page=vulopilot#&tab=health';
+/** `id: 'pagespeed-insights'` (Settings/Connections/PageSpeedInsights.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; moved from the old Settings → Scanning → Performance tab, same "moved into Connections" precedent GoogleServices.ts's own docblock documents. */
+const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=pagespeed-insights';
 
 interface DashboardSummary {
-	category_scores: { performance: number; security: number };
+	category_scores: { performance: number };
 	psi_speed_scores: {
 		mobile: number | null;
 		desktop: number | null;
 		checked_at: string | null;
 	};
-}
-
-interface CrawlerAnalyticsResponse {
-	current_total: number;
 }
 
 interface CoreWebVitalsSummary {
@@ -93,6 +90,59 @@ const getVitalRating = (
 	return { label: __('Poor', 'vulopilot'), className: 'poor' };
 };
 
+interface VitalRowProps {
+	label: string;
+	displayValue: string;
+	value: number;
+	thresholds: { good: number; needsImprovement: number };
+	goodCaption: string;
+}
+
+/**
+ * Same small "status row" ring gauge zyra's own ChartComponent Storybook
+ * `RingRow` story establishes (independent per-metric rings, custom
+ * per-item color, no shared axis) — replacing this row's own linear
+ * fill bar, which plotted the exact same proportional read (`fillPercent`
+ * below, unchanged) just as a bar instead of a ring.
+ */
+const VitalRow = ({ label, displayValue, value, thresholds, goodCaption }: VitalRowProps) => {
+	const rating = getVitalRating(value, thresholds);
+	// How far this value sits toward 1.3x the "needs improvement" ceiling,
+	// capped at 100 — a real proportional read of where this value sits,
+	// not a literal percentile-of-all-sites (no such dataset exists here).
+	const fillPercent = Math.min(100, (value / (thresholds.needsImprovement * 1.3)) * 100);
+
+	return (
+		<div className="core-web-vital-row">
+			<ChartComponent
+				type="ring"
+				height={90}
+				color={RATING_COLOR[rating.className]}
+				data={[{ value: fillPercent }]}
+				centerLabel={
+					<span className={`core-web-vital-row-value ${rating.className}`}>
+						{displayValue}
+					</span>
+				}
+			/>
+			<TypographyComponent variant="body-sm" className="core-web-vital-row-label">
+				{label}
+			</TypographyComponent>
+			<TypographyComponent
+				variant="body-sm"
+				weight="semibold"
+				className={`core-web-vital-row-rating ${rating.className}`}
+			>
+				<span className="core-web-vital-row-dot" />
+				{rating.label}
+			</TypographyComponent>
+			<TypographyComponent variant="desc" className="core-web-vital-row-caption">
+				{goodCaption}
+			</TypographyComponent>
+		</div>
+	);
+};
+
 interface ScoreTileProps {
 	label: string;
 	score: number;
@@ -136,9 +186,9 @@ const ScoreTile = ({ label, score, single = false }: ScoreTileProps) => {
 };
 
 /**
- * 1st-fold row — rebuilt to match a newer reference mockup, 3 real cards:
+ * "Performance Score" — now two real cards:
  *
- * "Overall Performance" reads `psi_speed_scores` from `GET /dashboard`
+ * "Overall Speed Score" reads `psi_speed_scores` from `GET /dashboard`
  * (`classes/RestAPI/Controllers/Dashboard.php`, populated by
  * `Services\PageSpeedInsightsFetcher` only when a real `psi_api_key` is
  * configured in Settings → Scanning → Performance). With a key configured,
@@ -146,42 +196,22 @@ const ScoreTile = ({ label, score, single = false }: ScoreTileProps) => {
  * against Lighthouse's own real Good/Needs Improvement/Poor bands, plus a
  * real one-line comparison only when the two scores actually differ by
  * ≥10 points. Without a key, falls back to the single real unified
- * `category_scores.performance` number (no fabricated device split). Also
- * shows a real 3-item checklist (see `checklist` below for exactly what
- * each real check is) — the mockup's own 4th item, "Server is healthy",
- * is deliberately dropped: no uptime-monitoring mechanism exists anywhere
- * in this codebase to back it (confirmed — RealTimeMonitoringCard.tsx's
- * own real metrics are Server Response Time/Page Views/Page Load Time/
- * Bandwidth, none of which is an uptime percentage), so showing it would
- * mean fabricating a number this plugin has no way to actually measure.
+ * `category_scores.performance` number (no fabricated device split).
  *
- * "Performance Trend" is SpeedHistoryCard.tsx, moved up into this row from
- * its own former standalone spot in OverviewTab.tsx's 2nd fold — same real
- * `GET /performance-score-snapshots` daily trend, unchanged.
- *
- * "Key Insights" is 3 real, already-available-elsewhere numbers rather
- * than a new data source: `category_scores.security` (the same real value
- * already on this same `GET /dashboard` response), the real
- * `GET /crawler-traffic/analytics?days=30` `current_total`
- * (VuloPilotActivityWidget.tsx's own "AI crawler visits" tile reads the
- * identical real endpoint), and a compact real LCP summary from the same
- * `GET /core-web-vitals` read below (full CWV detail now lives in its own
- * CoreWebVitalsCard.tsx, moved down to OverviewTab.tsx's 2nd fold —
- * genuine client-side RUM either way, `public/js/performance-vitals-
- * beacon.js`/`Services\CoreWebVitalsBeacon`).
+ * "Core Web Vitals" reads `GET /core-web-vitals`
+ * (`classes/RestAPI/Controllers/CoreWebVitals.php`), a real p75 of LCP/INP/
+ * CLS collected from actual visitors by `public/js/performance-vitals-
+ * beacon.js` (Services\CoreWebVitalsBeacon) — genuine client-side RUM, no
+ * external API. FCP is deliberately dropped: INP replaced FID as Google's
+ * third official Core Web Vital in March 2024, so LCP/INP/CLS is the
+ * current real set. Below `MIN_SAMPLES` real samples, shows an honest
+ * "still collecting" state instead of a p75 computed from too few points.
  */
 const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
 	const [vitals, setVitals] = useState<CoreWebVitalsSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
-	// "Key Insights" card's own 2 extra real reads — same real
-	// `category=performance` critical(+high)-priority open-finding count
-	// CriticalIssuesCard.tsx's own pattern already uses elsewhere, and the
-	// same real `GET /crawler-traffic/analytics` VuloPilotActivityWidget.tsx
-	// already reads for its own "AI crawler visits" tile.
-	const [criticalCount, setCriticalCount] = useState(0);
-	const [crawlerTotal, setCrawlerTotal] = useState(0);
 
 	/**
 	 * Real objects only — `getApiResponse` (zyra) hands back whatever axios
@@ -227,18 +257,6 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 			})
 			.catch(() => setHasError(true))
 			.finally(() => setIsLoading(false));
-
-		getApiResponse<{ total: number }>(
-			getApiLink(appLocalizer, 'findings?category=performance&status=open&priority=high&per_page=1'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		).then((response: { total: number } | undefined) => setCriticalCount(response?.total ?? 0));
-
-		getApiResponse<CrawlerAnalyticsResponse>(
-			getApiLink(appLocalizer, 'crawler-traffic/analytics?days=30'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		).then((response: CrawlerAnalyticsResponse | undefined) =>
-			setCrawlerTotal(response?.current_total ?? 0)
-		);
 	}, []);
 
 	const psi = dashboard?.psi_speed_scores ?? null;
@@ -280,57 +298,6 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 		return __('Mobile and desktop performance are similar.', 'vulopilot');
 	};
 
-	/**
-	 * "Overall Performance" card's own real checklist — 3 real, independent
-	 * pass/fail checks, not a decorative always-green list:
-	 * - "Fast loading speed": the same real Lighthouse-band rating the
-	 *   score ring itself shows (`getScoreRating()`) — the real
-	 *   `category_scores.performance` (or, with a PSI key configured, the
-	 *   real Mobile score, the more conservative of the two real device
-	 *   scores) rated "Good".
-	 * - "Good Core Web Vitals": every real vital that has enough real RUM
-	 *   samples to rate is rated "Good" — `false` (not silently skipped)
-	 *   while still collecting samples, since there's no real vital-quality
-	 *   claim to make yet either way.
-	 * - "No critical issues": the same real `category=performance`,
-	 *   `priority=high` (critical+high) open-finding count
-	 *   CriticalIssuesCard.tsx's own pattern already uses elsewhere is 0.
-	 */
-	const overallScoreForChecklist = hasPsi && psi
-		? Math.min(psi.mobile as number, psi.desktop as number)
-		: dashboard?.category_scores.performance ?? 0;
-	const hasEnoughVitalSamples = (vitals?.sample_count ?? 0) >= MIN_SAMPLES;
-	const vitalChecks: (number | null)[] = vitals
-		? [vitals.lcp_ms, vitals.inp_ms, vitals.cls]
-		: [];
-	const checklist = [
-		{
-			key: 'fast-loading',
-			label: __('Fast loading speed', 'vulopilot'),
-			pass: 'good' === getScoreRating(overallScoreForChecklist).className,
-		},
-		{
-			key: 'good-cwv',
-			label: __('Good Core Web Vitals', 'vulopilot'),
-			pass:
-				hasEnoughVitalSamples &&
-				vitalChecks.every(
-					(value, index) =>
-						null === value ||
-						'good' ===
-							getVitalRating(
-								value,
-								CWV_THRESHOLDS[(['lcp', 'inp', 'cls'] as const)[index]]
-							).className
-				),
-		},
-		{
-			key: 'no-critical-issues',
-			label: __('No critical issues', 'vulopilot'),
-			pass: 0 === criticalCount,
-		},
-	];
-
 	return (
 		<ContainerComponent>
 			<ColumnComponent grid={4} row fullHeight>
@@ -368,15 +335,6 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 									)}
 							</div>
 
-							<ul className="performance-overall-checklist">
-								{checklist.map((item) => (
-									<li key={item.key} className={item.pass ? 'is-good' : 'is-poor'}>
-										<i className={`adminfont-${item.pass ? 'check' : 'close'}`} />
-										{item.label}
-									</li>
-								))}
-							</ul>
-
 							<ButtonInput
 								position="full-width"
 								buttons={{
@@ -391,24 +349,12 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 				</CardComponent>
 			</ColumnComponent>
 			<ColumnComponent grid={4} row fullHeight>
-				<SpeedHistoryCard />
-			</ColumnComponent>
-			<ColumnComponent grid={4} row fullHeight>
 				<CardComponent
-					title={__('Key Insights', 'vulopilot')}
-					titleIcon="idea"
-					desc={__('Important metrics from your site, without duplication.', 'vulopilot')}
+					id="performance-core-web-vitals-card"
+					title={__('Core Web Vitals', 'vulopilot')}
+					titleIcon="analytics"
+					desc={__('Real Google Core Web Vitals for this site.', 'vulopilot')}
 					isLoading={isLoading}
-					action={
-						<ButtonInput
-							buttons={{
-								text: __('View Full Insights', 'vulopilot'),
-								rightIcon: 'arrow-right',
-								color: 'text-purple',
-								onClick: () => window.open(HEALTH_OVERVIEW_URL, '_self'),
-							}}
-						/>
-					}
 				>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
@@ -417,93 +363,71 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 							desc={__('Please refresh the page to try again.', 'vulopilot')}
 						/>
 					)}
-					{!isLoading && !hasError && vitals && dashboard && (
-						<ul className="performance-key-insights">
-							<li>
-								<i className="adminfont-security performance-key-insight-icon" />
-								<div className="performance-key-insight-body">
-									<div className="performance-key-insight-label">
-										{__('Security score', 'vulopilot')}
-									</div>
-									<div className="desc">
-										{__('From your open security findings', 'vulopilot')}
-									</div>
-								</div>
-								<span className="performance-key-insight-value">
-									{sprintf('%d/100', dashboard.category_scores.security)}
-								</span>
-							</li>
-							<li>
-								<i className="adminfont-ai performance-key-insight-icon" />
-								<div className="performance-key-insight-body">
-									<div className="performance-key-insight-label">
-										{sprintf(
-											/* translators: %d: real number of days the crawler-traffic total below covers. */
-											__('AI crawler traffic (%d days)', 'vulopilot'),
-											30
-										)}
-									</div>
-									<div className="desc">
-										{__('Real bot visits over the last 30 days', 'vulopilot')}
-									</div>
-								</div>
-								<span className="performance-key-insight-value">{crawlerTotal}</span>
-							</li>
-							<li className="performance-key-insight-cwv">
-								<i className="adminfont-analytics performance-key-insight-icon" />
-								<div className="performance-key-insight-body">
-									<div className="performance-key-insight-label">
-										{__('Core Web Vitals', 'vulopilot')}
-									</div>
-									<div className="desc">
-										{__(
-											'How fast and smoothly your site feels to real visitors.',
+					{!isLoading && !hasError && vitals && (
+						<>
+							{vitals.sample_count < MIN_SAMPLES ? (
+								<div className="desc">
+									{sprintf(
+										/* translators: 1: real samples collected so far, 2: how many are needed. */
+										__(
+											'Still collecting real visitor data — %1$d of %2$d samples so far.',
 											'vulopilot'
-										)}
-									</div>
-									{vitals.sample_count < MIN_SAMPLES || null === vitals.lcp_ms ? (
-										<div className="desc">
-											{sprintf(
-												/* translators: 1: real samples collected so far, 2: how many are needed. */
-												__(
-													'Still collecting real visitor data — %1$d of %2$d samples so far.',
-													'vulopilot'
-												),
-												vitals.sample_count,
-												MIN_SAMPLES
-											)}
-										</div>
-									) : (
-										<div className="performance-key-insight-cwv-detail">
-											<span
-												className={`performance-key-insight-cwv-value ${getVitalRating(vitals.lcp_ms, CWV_THRESHOLDS.lcp).className}`}
-											>
-												{(vitals.lcp_ms / 1000).toFixed(2)}
-												{__('sec', 'vulopilot')}
-											</span>
-											<span
-												className={`performance-key-insight-cwv-badge ${getVitalRating(vitals.lcp_ms, CWV_THRESHOLDS.lcp).className}`}
-											>
-												{getVitalRating(vitals.lcp_ms, CWV_THRESHOLDS.lcp).label}
-											</span>
-											<div className="desc">
-												{sprintf(
-													/* translators: 1: real real-visitor sample count, 2: real LCP p75 in ms. */
-													__(
-														'Based on %1$d real visits, LCP (p75): %2$dms',
-														'vulopilot'
-													),
-													vitals.sample_count,
-													vitals.lcp_ms
-												)}
-											</div>
-										</div>
+										),
+										vitals.sample_count,
+										MIN_SAMPLES
 									)}
 								</div>
-							</li>
-						</ul>
+							) : (
+								<div className="core-web-vitals-ring-row">
+									{'number' === typeof vitals.lcp_ms && (
+										<VitalRow
+											label={__('Largest Contentful Paint (LCP)', 'vulopilot')}
+											displayValue={`${(vitals.lcp_ms / 1000).toFixed(1)}s`}
+											value={vitals.lcp_ms}
+											thresholds={CWV_THRESHOLDS.lcp}
+											goodCaption={__('Good: ≤ 2.5s', 'vulopilot')}
+										/>
+									)}
+									{'number' === typeof vitals.inp_ms && (
+										<VitalRow
+											label={__('Interaction to Next Paint (INP)', 'vulopilot')}
+											displayValue={`${vitals.inp_ms}ms`}
+											value={vitals.inp_ms}
+											thresholds={CWV_THRESHOLDS.inp}
+											goodCaption={__('Good: ≤ 200ms', 'vulopilot')}
+										/>
+									)}
+									{'number' === typeof vitals.cls && (
+										<VitalRow
+											label={__('Cumulative Layout Shift (CLS)', 'vulopilot')}
+											displayValue={vitals.cls.toFixed(2)}
+											value={vitals.cls}
+											thresholds={CWV_THRESHOLDS.cls}
+											goodCaption={__('Good: ≤ 0.1', 'vulopilot')}
+										/>
+									)}
+								</div>
+							)}
+							<ButtonInput
+								position='full-width'
+								buttons={{
+									text: `${__('About Core Web Vitals', 'vulopilot')}`,
+									rightIcon: 'external',
+									color: 'border-purple',
+									onClick: () =>
+										window.open(
+											'https://web.dev/articles/vitals',
+											'_blank',
+											'noopener,noreferrer'
+										),
+								}}
+							/>
+						</>
 					)}
 				</CardComponent>
+			</ColumnComponent>
+			<ColumnComponent grid={4} row fullHeight>
+				<RealTimeMonitoringCard />
 			</ColumnComponent>
 		</ContainerComponent>
 	);

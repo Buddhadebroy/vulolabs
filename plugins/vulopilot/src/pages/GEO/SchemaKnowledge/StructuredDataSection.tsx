@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
+	AnalyticsComponent,
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
 	ModuleGuardComponent,
 	BadgeComponent,
+	ListComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../../services/formatWpDate';
 import { useSchemaCoverage } from './useSchemaCoverage';
-import type { SchemaCoverageRow } from './useSchemaCoverage';
+import type { SchemaCoverageRow, SchemaCoveragePage } from './useSchemaCoverage';
 
 /**
  * Per real schema.org @type icon — purely cosmetic, every value here is a
@@ -151,284 +153,245 @@ const StructuredDataSection = () => {
 
 	return (
 		<ContainerComponent>
-		<ColumnComponent grid={8}>
-			<CardComponent
-				title={__('Schema Coverage', 'vulopilot')}
-				titleIcon="attachment"
-				desc={__(
-					'VuloPilot checked how your website describes its pages, products, articles and business to search engines — see what structured information is there and where something is missing or incorrect, a real sample from its own live pages.',
-					'vulopilot'
-				)}
-				isLoading={isLoading}
-				action={
-					<ButtonInput
-						buttons={{
-							text: isAnalyzing
-								? __('Analyzing…', 'vulopilot')
-								: snapshot
-									? __('Re-analyze', 'vulopilot')
-									: __('Run Schema Check', 'vulopilot'),
-							onClick: analyze,
-							disabled: isAnalyzing,
-						}}
-					/>
-				}
-			>
-				{!isLoading && !snapshot && !isAnalyzing && (
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Not analyzed yet', 'vulopilot')}
+			<ColumnComponent grid={8}>
+				<CardComponent
+					title={__('Schema Coverage', 'vulopilot')}
+					titleIcon="attachment"
+					desc={__(
+						'VuloPilot checked how your website describes its pages, products, articles and business to search engines — see what structured information is there and where something is missing or incorrect, a real sample from its own live pages.',
+						'vulopilot'
+					)}
+					isLoading={isLoading}
+				>
+					{!isLoading && !snapshot && !isAnalyzing && (
+						<ModuleGuardComponent
+							icon="info"
+							title={__('Not analyzed yet', 'vulopilot')}
+							desc={__(
+								'Click "Run Schema Check" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask.',
+								'vulopilot'
+							)}
+						/>
+					)}
+
+					{snapshot && (
+						<>
+							<AnalyticsComponent
+								variant="small-card"
+								cols={4}
+								data={[
+									{
+										icon: 'attachment',
+										iconClass: 'purple',
+										colorClass: 'purple',
+										number: snapshot.pages_checked,
+										text: __('Pages checked', 'vulopilot'),
+									},
+									{
+										icon: 'check',
+										iconClass: 'green',
+										colorClass: 'green',
+										number: snapshot.pages_with_valid_schema,
+										text: __('Pages with valid schema', 'vulopilot'),
+									},
+									{
+										icon: 'alarm',
+										iconClass: 'orange',
+										colorClass: 'orange',
+										number: snapshot.pages_needing_attention,
+										text: __('Need attention', 'vulopilot'),
+									},
+									{
+										icon: 'category',
+										iconClass: 'blue',
+										colorClass: 'blue',
+										number: snapshot.coverage.length,
+										text: __('Schema types detected', 'vulopilot'),
+									},
+								]}
+							/>
+
+							{0 === snapshot.coverage.length ? (
+								<div className="desc">
+									{__(
+										'No structured data (JSON-LD) was found on any sampled page.',
+										'vulopilot'
+									)}
+								</div>
+							) : (
+								<TableCard
+									showMenu={false}
+									hideHeader={true}
+									className="transparent-table"
+									headers={{
+										type: {
+											key: 'type',
+											type: 'info',
+											label: __('Schema type', 'vulopilot'),
+											width: '65%',
+											iconKey: 'typeIcon',
+											descriptionKey: 'meaning',
+											badgesKey: 'statusBadges',
+										},
+										found_on: {
+											label: __('Found on', 'vulopilot'),
+											render: (row: SchemaCoverageRow) =>
+												sprintf(
+													/* translators: %d is how many of the real sampled pages carried this schema type. */
+													__('%d pages', 'vulopilot'),
+													row.found_on
+												),
+										},
+										action: {
+											label: __('Action', 'vulopilot'),
+											// `type: 'more-action'` no longer exists in
+											// @zyra/table — `type: 'action'` now covers
+											// that same single-toggle-button case via a
+											// `type: 'button'` action whose label/icon
+											// are functions of `row` (see that type's
+											// own docblock, TableRowActions.tsx).
+											type: 'action',
+											actions: [
+												{
+													type: 'button',
+													label: (row: SchemaCoverageRow) =>
+														row.type === selectedRow?.type
+															? __('Showing', 'vulopilot')
+															: __('More Details', 'vulopilot'),
+													color: (row: SchemaCoverageRow) =>
+														row.type === selectedRow?.type
+															? 'text-green'
+															: 'text-purple',
+													icon: (row: SchemaCoverageRow) =>
+														row.type === selectedRow?.type
+															? 'eye'
+															: 'pagination-next-arrow',
+													onClick: (row: SchemaCoverageRow) => {
+														setSelectedRow(
+															row.type === selectedRow?.type ? null : row
+														);
+													},
+												},
+											],
+										},
+									}}
+									rows={snapshot.coverage.map((row) => ({
+										...row,
+										typeIcon: getTypeIcon(row.type),
+										statusBadges: [
+											{
+												text: STATUS_CONFIG[getRowStatus(row)].label,
+												color: `badge-${STATUS_SEVERITY_CLASS[getRowStatus(row)]}`,
+											},
+										],
+									}))}
+									ids={snapshot.coverage.map((row) => row.type)}
+									totalRows={snapshot.coverage.length}
+									isLoading={isLoading}
+									emptyMessage={__(
+										'No structured data (JSON-LD) was found on any sampled page.',
+										'vulopilot'
+									)}
+								/>
+							)}
+
+							{totalProblems > 0 && (
+								<p className="desc schema-see-seo-tab">
+									{__(
+										'The real findings behind these numbers already live in the "Critical Issues"/"All Business Identity Issues" sections above.',
+										'vulopilot'
+									)}
+								</p>
+							)}
+						</>
+					)}
+				</CardComponent>
+			</ColumnComponent>
+
+			<ColumnComponent grid={4}>
+				{!selectedRow ? (
+					<CardComponent
+						title={__('Schema details', 'vulopilot')}
+						titleIcon="attachment"
 						desc={__(
-							'Click "Run Schema Check" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask.',
+							'Real detail for whichever schema type you select from the Schema Coverage table.',
 							'vulopilot'
 						)}
-					/>
-				)}
-
-				{snapshot && (
-					<>
-						<div className="schema-status-grid">
-							<div className="schema-status-item">
-								<div className="schema-status-icon schema-status-icon--purple">
-									<i className="adminfont-attachment" />
-								</div>
-								<div>
-									<div className="schema-status-value">
-										{snapshot.pages_checked}
-									</div>
-									<div className="schema-status-label">
-										{__('Pages checked', 'vulopilot')}
-									</div>
-								</div>
-							</div>
-							<div className="schema-status-item">
-								<div className="schema-status-icon schema-status-icon--green">
-									<i className="adminfont-check" />
-								</div>
-								<div>
-									<div className="schema-status-value">
-										{snapshot.pages_with_valid_schema}
-									</div>
-									<div className="schema-status-label">
-										{__('Pages with valid schema', 'vulopilot')}
-									</div>
-								</div>
-							</div>
-							<div className="schema-status-item">
-								<div className="schema-status-icon schema-status-icon--orange">
-									<i className="adminfont-alarm" />
-								</div>
-								<div>
-									<div className="schema-status-value">
-										{snapshot.pages_needing_attention}
-									</div>
-									<div className="schema-status-label">
-										{__('Need attention', 'vulopilot')}
-									</div>
-								</div>
-							</div>
-							<div className="schema-status-item">
-								<div className="schema-status-icon schema-status-icon--blue">
-									<i className="adminfont-category" />
-								</div>
-								<div>
-									<div className="schema-status-value">
-										{snapshot.coverage.length}
-									</div>
-									<div className="schema-status-label">
-										{__('Schema types detected', 'vulopilot')}
-									</div>
-								</div>
-							</div>
+					>
+						<ModuleGuardComponent
+							icon="info"
+							title={__('Select a schema type', 'vulopilot')}
+							desc={__(
+								'Click "View" on a row in the Schema Coverage table to see its real detail here.',
+								'vulopilot'
+							)}
+						/>
+					</CardComponent>
+				) : (
+					<CardComponent
+						title={selectedRow.type}
+						titleIcon={getTypeIcon(selectedRow.type)}
+						desc={selectedRow.meaning}
+					>
+						<div className="schema-detail-stats">
+							<BadgeComponent
+								color={STATUS_CONFIG[getRowStatus(selectedRow)].color}
+								icon={STATUS_CONFIG[getRowStatus(selectedRow)].icon}
+								text={STATUS_CONFIG[getRowStatus(selectedRow)].label}
+							/>
+							<span className="desc">
+								{sprintf(
+									/* translators: 1: how many of the real sampled pages carried this schema type, 2: how many of those had a real problem. */
+									__('Found on %1$d pages · %2$d problems', 'vulopilot'),
+									selectedRow.found_on,
+									selectedRow.problems
+								)}
+							</span>
 						</div>
 
-						<p className="desc schema-generated-at">
+						<div className="schema-detail-pages-heading">
 							{sprintf(
-								/* translators: %s is when this real schema sample was generated. */
-								__('Last analyzed %s', 'vulopilot'),
-								formatWpDate(snapshot.generated_at)
+								/* translators: %s is a real schema.org @type, e.g. "Product". */
+								__('Pages with %s schema', 'vulopilot'),
+								selectedRow.type
 							)}
-						</p>
+						</div>
 
-						{0 === snapshot.coverage.length ? (
+						{0 === selectedRow.pages.length ? (
 							<div className="desc">
 								{__(
-									'No structured data (JSON-LD) was found on any sampled page.',
+									'No individual pages recorded for this type.',
 									'vulopilot'
 								)}
 							</div>
 						) : (
-							<TableCard
-								showMenu={false}
-								hideHeader={true}
-								className="transparent-table"
-								headers={{
-									type: {
-										key: 'type',
-										type: 'info',
-										label: __('Schema type', 'vulopilot'),
-										width: '65%',
-										iconKey: 'typeIcon',
-										descriptionKey: 'meaning',
-										badgesKey: 'statusBadges',
-									},
-									found_on: {
-										label: __('Found on', 'vulopilot'),
-										render: (row: SchemaCoverageRow) =>
-											sprintf(
-												/* translators: %d is how many of the real sampled pages carried this schema type. */
-												__('%d pages', 'vulopilot'),
-												row.found_on
-											),
-									},
-									action: {
-										type: 'action',
-										label: __('Action', 'vulopilot'),
-										actions: [
-											{
-												label: __('View', 'vulopilot'),
-												icon: 'eye',
-												onClick: (row: SchemaCoverageRow) =>
-													setSelectedRow(row),
-											},
-										],
-									},
-								}}
-								rows={snapshot.coverage.map((row) => ({
-									...row,
-									typeIcon: getTypeIcon(row.type),
-									statusBadges: [
-										{
-											text: STATUS_CONFIG[getRowStatus(row)].label,
-											color: `badge-${STATUS_SEVERITY_CLASS[getRowStatus(row)]}`,
-										},
-									],
+							<ListComponent
+								className="mini-card report"
+								items={selectedRow.pages.map((page: SchemaCoveragePage) => ({
+									id: String(page.id),
+									title: page.title,
+									tags: (
+										<div className="schema-view-pages-actions">
+											<a href={page.url} target="_blank" rel="noreferrer">
+												{__('View', 'vulopilot')}
+											</a>
+											{page.edit_url && (
+												<a
+													href={page.edit_url}
+													target="_blank"
+													rel="noreferrer"
+												>
+													{__('Edit', 'vulopilot')}
+												</a>
+											)}
+										</div>
+									),
 								}))}
-								ids={snapshot.coverage.map((row) => row.type)}
-								totalRows={snapshot.coverage.length}
-								isLoading={isLoading}
-								emptyMessage={__(
-									'No structured data (JSON-LD) was found on any sampled page.',
-									'vulopilot'
-								)}
 							/>
 						)}
-
-						{totalProblems > 0 && (
-							<p className="desc schema-see-seo-tab">
-								{__(
-									'The real findings behind these numbers already live in the "Critical Issues"/"All Business Identity Issues" sections above.',
-									'vulopilot'
-								)}
-							</p>
-						)}
-					</>
+					</CardComponent>
 				)}
-			</CardComponent>
-
-			<CardComponent
-				title={__('Not seeing a schema type you need?', 'vulopilot')}
-				titleIcon="plus"
-				desc={__(
-					'Custom schema is added per page or post — open any post’s editor, then its SEO panel’s Schema tab.',
-					'vulopilot'
-				)}
-			>
-				<ButtonInput
-					buttons={{
-						text: __('Add custom schema', 'vulopilot'),
-						onClick: () => {
-							window.location.href = 'edit.php';
-						},
-					}}
-				/>
-			</CardComponent>
-		</ColumnComponent>
-
-		<ColumnComponent grid={4}>
-			{!selectedRow ? (
-				<CardComponent
-					title={__('Schema details', 'vulopilot')}
-					titleIcon="attachment"
-					desc={__(
-						'Real detail for whichever schema type you select from the Schema Coverage table.',
-						'vulopilot'
-					)}
-				>
-					<ModuleGuardComponent
-						icon="info"
-						title={__('Select a schema type', 'vulopilot')}
-						desc={__(
-							'Click "View" on a row in the Schema Coverage table to see its real detail here.',
-							'vulopilot'
-						)}
-					/>
-				</CardComponent>
-			) : (
-				<CardComponent
-					title={selectedRow.type}
-					titleIcon={getTypeIcon(selectedRow.type)}
-					desc={selectedRow.meaning}
-				>
-					<div className="schema-detail-stats">
-						<BadgeComponent
-							color={STATUS_CONFIG[getRowStatus(selectedRow)].color}
-							icon={STATUS_CONFIG[getRowStatus(selectedRow)].icon}
-							text={STATUS_CONFIG[getRowStatus(selectedRow)].label}
-						/>
-						<span className="desc">
-							{sprintf(
-								/* translators: 1: how many of the real sampled pages carried this schema type, 2: how many of those had a real problem. */
-								__('Found on %1$d pages · %2$d problems', 'vulopilot'),
-								selectedRow.found_on,
-								selectedRow.problems
-							)}
-						</span>
-					</div>
-
-					<div className="schema-detail-pages-heading">
-						{sprintf(
-							/* translators: %s is a real schema.org @type, e.g. "Product". */
-							__('Pages with %s schema', 'vulopilot'),
-							selectedRow.type
-						)}
-					</div>
-
-					{0 === selectedRow.pages.length ? (
-						<div className="desc">
-							{__(
-								'No individual pages recorded for this type.',
-								'vulopilot'
-							)}
-						</div>
-					) : (
-						<ul className="schema-view-pages-list">
-							{selectedRow.pages.map((page) => (
-								<li key={page.id} className="schema-view-pages-row">
-									<div className="schema-view-pages-title">
-										{page.title}
-									</div>
-									<div className="schema-view-pages-actions">
-										<a href={page.url} target="_blank" rel="noreferrer">
-											{__('View', 'vulopilot')}
-										</a>
-										{page.edit_url && (
-											<a
-												href={page.edit_url}
-												target="_blank"
-												rel="noreferrer"
-											>
-												{__('Edit', 'vulopilot')}
-											</a>
-										)}
-									</div>
-								</li>
-							))}
-						</ul>
-					)}
-				</CardComponent>
-			)}
-		</ColumnComponent>
+			</ColumnComponent>			
 		</ContainerComponent>
 	);
 };
