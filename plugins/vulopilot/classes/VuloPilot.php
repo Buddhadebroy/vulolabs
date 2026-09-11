@@ -226,13 +226,19 @@ final class VuloPilot {
         // same shape as llms_txt_generator above.
         $this->container['crawler_traffic_logger'] = new Services\CrawlerTrafficLogger();
 
-        // Scanning → Sitemap/Robots.txt cards — both wrap WordPress core's
+        // Scanning → Sitemap/Robots.txt cards — all wrap WordPress core's
         // own native sitemap/robots.txt rather than building either from
         // scratch; self-register their own hooks, same unconditional-
-        // construction shape as the two services above. HtmlSitemapRenderer
-        // is the one genuinely new (non-core-wrapping) piece — a real
-        // `[vulopilot_html_sitemap]` shortcode.
+        // construction shape as the two services above. SitemapStylesheet
+        // restyles core's own real `/wp-sitemap.xml` browser view (brand
+        // colors + a real "Last Modified" column on the index page) —
+        // still real core data, just a real CSS/XSL restyle, not a second
+        // renderer. HtmlSitemapRenderer is the one genuinely new
+        // (non-core-wrapping) piece — a real `[vulopilot_html_sitemap]`
+        // shortcode.
         $this->container['sitemap_manager']       = new Services\SitemapManager();
+        $this->container['sitemap_stylesheet']    = new Services\SitemapStylesheet();
+        $this->container['sitemap_url_rewriter']  = new Services\SitemapUrlRewriter();
         $this->container['robots_txt_manager']    = new Services\RobotsTxtManager();
         $this->container['html_sitemap_renderer'] = new Services\HtmlSitemapRenderer();
 

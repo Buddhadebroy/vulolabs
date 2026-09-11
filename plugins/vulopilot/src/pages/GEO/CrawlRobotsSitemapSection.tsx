@@ -3,18 +3,19 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
-	AnalyticsComponent,
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
+	IconComponent,
 	ListComponent,
 	MetricTileComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
+	SectionComponent
 } from '@zyra/components';
-import { ButtonInput, TextAreaInput } from '@zyra/inputs';
+import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import TypographyComponent from '../../components/TypographyComponent';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -86,6 +87,118 @@ const summarizeList = (values: string[]): string => {
 			values.length - 1
 		)
 		: values[0];
+};
+
+/**
+ * Real sitemap `loc` URL, stripped down to just its own path/name for
+ * display — no scheme/host (`http://localhost:8888/wp-sitemap-posts-post.xml`
+ * reads as `/wp-sitemap-posts-post`), and no real trailing page-number
+ * suffix (`-1`/`-2`/…) or `.xml` extension either. Falls back to the raw
+ * `loc` string on a malformed URL rather than throwing.
+ */
+const getSitemapDisplayName = (loc: string): string => {
+	try {
+		const { pathname } = new URL(loc);
+
+		const name = pathname
+			.replace(/-\d+(?=\.xml$)/i, '')
+			.replace(/\.xml$/i, '')
+			.replace(/^\/+|\/+$/g, '')
+			.replace(/-/g, ' ');
+
+		if (!name) {
+			return 'Sitemap';
+		}
+
+		return name.charAt(0).toUpperCase() + name.slice(1);
+	} catch {
+		return loc;
+	}
+};
+
+const escapeHtml = (text: string): string =>
+	text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/**
+ * Real, per-line syntax highlight for the robots.txt editor below — a
+ * small regex tokenizer (directive name / value / `#` comment), not a
+ * general syntax-highlighting library: robots.txt's own real grammar is
+ * just those 2 line shapes, so a full editor dependency isn't warranted
+ * for coloring them. Escapes its own output — this HTML only ever backs
+ * the read-only highlight layer, never what the user actually types (the
+ * real `<textarea>` underneath stays plain text either way).
+ */
+const highlightRobotsLine = (line: string): string => {
+	if (/^\s*#/.test(line)) {
+		return `<span class="rt-comment">${escapeHtml(line)}</span>`;
+	}
+
+	const match = line.match(/^(\s*)([A-Za-z][\w-]*)(\s*:\s*)(.*)$/);
+
+	if (!match) {
+		return escapeHtml(line);
+	}
+
+	const [, leadingSpace, directive, colon, value] = match;
+
+	return (
+		escapeHtml(leadingSpace) +
+		`<span class="rt-directive">${escapeHtml(directive)}</span>` +
+		escapeHtml(colon) +
+		(value ? `<span class="rt-value">${escapeHtml(value)}</span>` : '')
+	);
+};
+
+/**
+ * Line-numbered, syntax-highlighted robots.txt editor — matches the
+ * reference mockup's code-editor look (directive names/values/comments
+ * colored, a real line-number gutter) via the classic transparent-
+ * `<textarea>`-over-a-highlighted-`<pre>` overlay technique (both share
+ * the exact same font/line-height/padding, so they line up pixel for
+ * pixel) rather than pulling in a code-editor dependency — see
+ * `highlightRobotsLine`'s own docblock above for why. The real edit
+ * target is always the plain `<textarea>` on top; the `<pre>` underneath
+ * is purely decorative (`aria-hidden`) and never receives focus/input.
+ */
+interface RobotsTxtEditorProps {
+	value: string;
+	onChange: (next: string) => void;
+	placeholder?: string;
+}
+
+const RobotsTxtEditor = ({ value, onChange, placeholder }: RobotsTxtEditorProps) => {
+	// Gutter/height track the real placeholder's own line count while
+	// empty, so the box doesn't visually collapse to 1 line before any
+	// real content has loaded/been typed.
+	const lineCount = Math.max((value || placeholder || '').split('\n').length, 6);
+	const highlighted = value ? value.split('\n').map(highlightRobotsLine).join('\n') : '';
+
+	return (
+		<div className="rt-editor">
+			<div className="rt-gutter" aria-hidden="true">
+				{Array.from({ length: lineCount }).map((_, i) => (
+					<span key={i}>{i + 1}</span>
+				))}
+			</div>
+			<div className="rt-code-wrap">
+				<pre
+					className="rt-highlight"
+					aria-hidden="true"
+					// Real highlight markup built entirely from `escapeHtml`'d
+					// content above — never raw user input.
+					dangerouslySetInnerHTML={{ __html: highlighted || '&nbsp;' }}
+				/>
+				<textarea
+					className="rt-textarea"
+					value={value}
+					rows={lineCount}
+					spellCheck={false}
+					placeholder={placeholder}
+					onChange={(e) => onChange(e.target.value)}
+				/>
+			</div>
+		</div>
+	);
 };
 
 /**
@@ -448,213 +561,197 @@ const CrawlRobotsSitemapSection = () => {
 	return (
 		<>
 			<ContainerComponent>
-				<MetricTileComponent
-					cols={4}
-					isLoading={isLoadingRobots || isLoadingSitemap}
-					data={[
-						{
-							id: 'robots',
-							icon: 'valid' === robotsStatus ? 'check' : 'error',
-							iconColor: 'valid' === robotsStatus ? '#16a34a' : 'unreachable' === robotsStatus ? '#dc2626' : '#b45309',
-							title: __('Robots.txt Status', 'vulopilot'),
-							number: (
-								<span className="redirect-stat-value">
-									{'valid' === robotsStatus
-										? __('Valid', 'vulopilot')
-										: 'unreachable' === robotsStatus
-											? __('Not reachable', 'vulopilot')
-											: __('Needs attention', 'vulopilot')}
-								</span>
-							),
-							desc: 'valid' === robotsStatus
-								? __('Reachable and valid', 'vulopilot')
-								: 'unreachable' === robotsStatus
-									? __('robots.txt did not respond', 'vulopilot')
-									: sprintf(
-										/* translators: %d: number of open robots.txt findings. */
-										__('%d open finding(s)', 'vulopilot'),
-										robotsOpenCount
-									),
-							footer: (
-								<a href={robots?.url ?? `${appLocalizer.site_url}/robots.txt`} target="_blank" rel="noreferrer">
-									{__('View robots.txt', 'vulopilot')}
-								</a>
-							),
-							footerAlign: 'start' as const,
-						},
-						{
-							id: 'sitemap',
-							icon: 'valid' === sitemapStatus ? 'check' : 'error',
-							iconColor: 'valid' === sitemapStatus ? '#16a34a' : 'unreachable' === sitemapStatus ? '#dc2626' : '#b45309',
-							title: __('XML Sitemap Status', 'vulopilot'),
-							number: (
-								<span className="redirect-stat-value">
-									{'valid' === sitemapStatus
-										? __('Valid', 'vulopilot')
-										: 'unreachable' === sitemapStatus
-											? __('Not reachable', 'vulopilot')
-											: __('Needs attention', 'vulopilot')}
-								</span>
-							),
-							desc: 'valid' === sitemapStatus
-								? __('Sitemap index is reachable', 'vulopilot')
-								: __('No usable sitemap found', 'vulopilot'),
-							footer: (
-								<a href={sitemap?.index_url ?? `${appLocalizer.site_url}/wp-sitemap.xml`} target="_blank" rel="noreferrer">
-									{__('View sitemap index', 'vulopilot')}
-								</a>
-							),
-							footerAlign: 'start' as const,
-						},
-						{
-							id: 'search-console',
-							icon: 'search',
-							iconColor: gscStatus?.search_console_site ? '#16a34a' : undefined,
-							title: __('Search Console', 'vulopilot'),
-							number: (
-								<span className="redirect-stat-value is-muted">
-									{gscStatus?.search_console_site || __('Not connected', 'vulopilot')}
-								</span>
-							),
-							desc: __(
-								'This plugin doesn’t pull an indexed-page count from Search Console yet — only keyword rankings.',
-								'vulopilot'
-							),
-							footer: (
-								<a href={searchConsoleUrl} target="_blank" rel="noreferrer">
-									{gscStatus?.search_console_site
-										? __('Open Search Console', 'vulopilot')
-										: __('Connect Google Services', 'vulopilot')}
-								</a>
-							),
-							footerAlign: 'start' as const,
-						},
-						{
-							id: 'last-checked',
-							icon: 'calendar',
-							title: __('Last Checked', 'vulopilot'),
-							number: (
-								<span className="redirect-stat-value is-muted">
-									{lastScanAt ? formatWpDate(lastScanAt) : __('Never scanned', 'vulopilot')}
-								</span>
-							),
-							desc: __('From the most recent robots.txt/sitemap scan run.', 'vulopilot'),
-						},
-					]}
-				/>
 
 				<CardComponent
 					title={__('Robots.txt Analysis', 'vulopilot')}
 					titleIcon="link"
-					desc={__(
-						'Your live robots.txt file (fetched right now, not a cached copy) — edit it directly below. Saving takes effect immediately, not a preview: the next request to /robots.txt serves this. Other active plugins (e.g. WooCommerce) may still add their own rules on top, same as they would with WordPress’s own default file.',
-						'vulopilot'
-					)}
-					isLoading={isLoadingRobots}
-					action={
-						<div className="robots-analysis-actions">
-							{robots?.reachable && (
-								<BadgeComponent
-									color={0 === robotsOpenCount ? 'green' : 'red'}
-									text={
+					badges={[
+						...(robots?.reachable
+							? [
+								{
+									text:
 										0 === robotsOpenCount
 											? __('No violations found', 'vulopilot')
 											: sprintf(
 												/* translators: %d: number of open robots.txt violations. */
 												__('%d violation(s) found', 'vulopilot'),
 												robotsOpenCount
-											)
-									}
-								/>
-							)}
-							{robots?.is_custom && (
-								<BadgeComponent color="purple" text={__('Custom', 'vulopilot')} />
-							)}
-							<ButtonInput
-								buttons={{
-									text: __('Test robots.txt', 'vulopilot'),
-									icon: 'update',
-									onClick: loadRobots,
-								}}
-							/>
-						</div>
+											),
+									color: 0 === robotsOpenCount ? 'green' : 'red',
+								},
+							]
+							: []),
+						...(robots?.is_custom
+							? [{ text: __('Custom', 'vulopilot'), color: 'purple' }]
+							: []),
+					]}
+					desc={__(
+						'Your live robots.txt file (fetched right now, not a cached copy) — edit it directly below. Saving takes effect immediately, not a preview: the next request to /robots.txt serves this. Other active plugins (e.g. WooCommerce) may still add their own rules on top, same as they would with WordPress’s own default file.',
+						'vulopilot'
+					)}
+					isLoading={isLoadingRobots}
+					action={
+						<ButtonInput
+							buttons={{
+								text: __('Test robots.txt', 'vulopilot'),
+								icon: 'update',
+								onClick: loadRobots,
+							}}
+						/>
 					}
 				>
 					{robots?.reachable ? (
 						<>
-							<AnalyticsComponent
-								cols={4}
-								variant="with-out-boxshadow"
-								data={[
-									{
-										number: robots.rules.total,
-										iconClass: 'admin-bg-color2',
-										icon: 'single-product',
-										text: __('Total Rules', 'vulopilot'),
-									},
-									{
-										number: robots.rules.allowed,
-										text: __('Allowed', 'vulopilot'),
-										icon: 'single-product',
-										iconClass: 'admin-bg-color3',
-									},
-									{
-										number: robots.rules.disallowed,
-										text: __('Disallowed', 'vulopilot'),
-										icon: 'single-product',
-										iconClass: 'admin-bg-color4',
-									},
-									{
-										number: robots.rules.sitemaps,
-										text: __('Sitemaps', 'vulopilot'),
-										icon: 'single-product',
-										iconClass: 'admin-bg-color5',
-									},
-								]}
-							/>
-							<div className="llms-txt-card-field">
-								<TextAreaInput
-									value={robotsEditContent}
-									onChange={(value: unknown) =>
-										handleRobotsContentChange(value as string)
-									}
-									rowNumber={10}
-									usePlainText
-									placeholder={__(
-										'User-agent: *\nDisallow: /wp-admin/',
-										'vulopilot'
-									)}
-							/>
-								{/* <div className="llms-txt-live-link">
-									{'saving' === robotsSaveState && (
-										<span className="llms-txt-save-status">
-											{__('Saving…', 'vulopilot')}
-										</span>
-									)}
-									{'saved' === robotsSaveState && (
-										<span className="llms-txt-save-status is-good">
-											{__('Saved', 'vulopilot')}
-										</span>
-									)}
-									{'error' === robotsSaveState && (
-										<span className="llms-txt-save-status is-attention">
-											{__('Could not save', 'vulopilot')}
-										</span>
-									)}
-								</div> */}
-								{robots.is_custom && (
-									<ButtonInput
-										buttons={{
-											text: __(
-												'Reset to WordPress default',
+							{/*
+							 * Same real `ListComponent` "mini-card report"
+							 * row shape SeoTab.tsx's own "SEO Health" card
+							 * rows use — these 4 real counts have no
+							 * individual 0-100 score/delta the way SEO's
+							 * category rows do, so each row's own trailing
+							 * value is just its real number, and there's no
+							 * per-row `action` (no drill-down table these
+							 * 4 counts could filter into).
+							 */}
+							<div className='robots-wraper'>
+								<div className='broken-link-section left-side'>
+									<div className="rt-editor-wrap">
+										<RobotsTxtEditor
+											value={robotsEditContent}
+											onChange={handleRobotsContentChange}
+											placeholder={__(
+												'User-agent: *\nDisallow: /wp-admin/',
 												'vulopilot'
-											),
-											icon: 'refresh',
-											color: 'border-purple',
-											onClick: handleResetRobotsToDefault,
-										}}
+											)}
+										/>
+										{robots.is_custom && (
+											<ButtonInput
+												buttons={{
+													text: __(
+														'Reset to WordPress default',
+														'vulopilot'
+													),
+													icon: 'refresh',
+													color: 'border-purple',
+													onClick: handleResetRobotsToDefault,
+												}}
+											/>
+										)}
+									</div>
+									<div className='list-wrapper'>
+										<ListComponent
+											className="mini-card report"
+											items={[
+												{
+													id: 'total',
+													desc: __('Total Rules', 'vulopilot'),
+													tags: (
+														<TypographyComponent
+															variant="h5"
+															weight="bold"
+															className="seo-health-score-row-value"
+														>
+															{robots.rules.total}
+														</TypographyComponent>
+													),
+												},
+												{
+													id: 'allowed',
+													desc: __('Allowed', 'vulopilot'),
+													tags: (
+														<TypographyComponent
+															variant="h5"
+															weight="bold"
+															className="seo-health-score-row-value"
+														>
+															{robots.rules.allowed}
+														</TypographyComponent>
+													),
+												},
+												{
+													id: 'disallowed',
+													desc: __('Disallowed', 'vulopilot'),
+													tags: (
+														<TypographyComponent
+															variant="h5"
+															weight="bold"
+															className="seo-health-score-row-value"
+														>
+															{robots.rules.disallowed}
+														</TypographyComponent>
+													),
+												},
+											]}
+										/>
+										<ListComponent
+											className="mini-card report"
+											cols={2}
+											items={[
+
+												{
+													id: 'sitemaps',
+													desc: __('Sitemaps', 'vulopilot'),
+													tags: (
+														<TypographyComponent
+															variant="h5"
+															weight="bold"
+															className="seo-health-score-row-value"
+														>
+															{robots.rules.sitemaps}
+														</TypographyComponent>
+													),
+												},
+												{
+													id: 'user-agent',
+													desc: __('User-agent', 'vulopilot'),
+													tags: (
+														<>
+															<TypographyComponent
+																variant="h5"
+																weight="bold"
+																className="seo-health-score-row-value"
+															>
+																{String(robots.directives.user_agents.length)}
+															</TypographyComponent>
+														</>
+													),
+												},
+												{
+													id: 'crawl-delay',
+													desc: __('Crawl-delay', 'vulopilot'),
+													tags: (
+														<>
+															<div className='small'>{robots.directives.crawl_delay ??
+																__('Not set', 'vulopilot')}</div>
+														</>
+													),
+												},
+											]}
+										/>
+									</div>
+								</div>
+								<div className='broken-link-section right-side'>
+									<SectionComponent
+										icon="security"
+										title={__('Robots.txt Issues', 'vulopilot')}
+										desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
 									/>
-								)}
+									{robotsTxtError ? (
+										<ModuleGuardComponent
+											icon="error"
+											title={__('Could not load findings', 'vulopilot')}
+											desc={robotsTxtError}
+											buttonText={__('Retry', 'vulopilot')}
+											onButtonClick={refetchRobotsTxt}
+										/>
+									) : (
+										// `bulkActions={[]}` overrides the hook's own real
+										// Resolve/Ignore/Fix-selected bulk actions — this
+										// narrow, single-scanner sub-table doesn't need its
+										// own row-select checkboxes on top of the per-row
+										// action icons it already has.
+										<TableCard {...robotsTxtProps} bulkActions={[]} />
+									)}
+								</div>
 							</div>
 						</>
 					) : (
@@ -665,7 +762,6 @@ const CrawlRobotsSitemapSection = () => {
 						/>
 					)}
 				</CardComponent>
-
 				<CardComponent
 					title={__('XML Sitemap Overview', 'vulopilot')}
 					titleIcon="link"
@@ -684,115 +780,77 @@ const CrawlRobotsSitemapSection = () => {
 						)
 					}
 				>
+
 					{sitemap?.reachable && sitemap.valid ? (
 						<>
-							<AnalyticsComponent
-								cols={3}
-								variant="with-out-boxshadow"
-								data={[
-									{
-										number: sitemap.total_sitemaps,
-										iconClass: 'admin-bg-color2',
-										text: __('Total Sitemaps', 'vulopilot'),
-										icon: 'single-product',
-									},
-									{
-										number: sitemapRows.filter(
-											(row) => 'ok' === row.status
-										).length,
-										iconClass: 'admin-bg-color3',
-										text: __('Valid', 'vulopilot'),
-										icon: 'single-product',
-									},
-									{
-										number: sitemap.total_urls,
-										iconClass: 'admin-bg-color4',
-										text: __('Total URLs', 'vulopilot'),
-										icon: 'single-product',
-									},
-								]}
-							/>
-							<TableCard
-								showMenu={false}
-								hideHeader={true}
-								className="transparent-table"
-								headers={{
-									loc: {
-										key: 'loc',
-										type: 'info',
-										label: __('Sitemap', 'vulopilot'),
-										titleLinkKey: 'loc',
-										descriptionKey: 'descriptionItems',
-										badgesKey: 'typeBadges',
-									},
-									actions: {
-										label: __('Actions', 'vulopilot'),
-										// Real `type: 'action'` icon action
-										// (TableRowActions.tsx) — same real
-										// "open this sitemap URL" behavior,
-										// through the native action mechanism
-										// instead of a hand-rolled `<a>`.
-										type: 'action',
-										actions: [
-											{
-												type: 'button',
-												label: __('View sitemap', 'vulopilot'),
-												icon: 'pagination-right-arrow',
-												onClick: (row: Record<string, unknown>) =>
-													window.open(
-														(row as unknown as SitemapRow).loc,
-														'_blank'
-													),
-											},
-										],
-									},
-								}}
-								rows={sitemapRows.map((row) => ({
-									...row,
-									descriptionItems: [
-										{
-											icon: 'link',
-											value:
-												null === row.url_count
-													? __('— URLs', 'vulopilot')
-													: sprintf(
-														/* translators: %d: real number of URLs this sitemap lists. */
-														_n(
-															'%d URL',
-															'%d URLs',
-															row.url_count,
-															'vulopilot'
-														),
-														row.url_count
-													),
-										},
-										{
-											icon: 'clock',
-											value: row.lastmod
-												? sprintf(
-													/* translators: %s: real date this sitemap was last read. */
-													__('Last read %s', 'vulopilot'),
-													formatWpDate(row.lastmod)
-												)
-												: __('Last read: unknown', 'vulopilot'),
-										},
-									],
-									typeBadges: [
-										{ text: row.type, color: 'indigo' },
-										{
-											text:
-												'ok' === row.status
-													? __('OK', 'vulopilot')
-													: __('Error', 'vulopilot'),
-											color: 'ok' === row.status ? 'green' : 'red',
-										},
-									],
-								}))}
-								ids={sitemapRows.map((row) => row.id)}
-								totalRows={sitemapRows.length}
-								isLoading={isLoadingSitemap}
-								emptyMessage={__('No child sitemaps found in the index.', 'vulopilot')}
-							/>
+							{/*
+							 * Same real `ListComponent` "mini-card report"
+							 * row shape the robots.txt rule counts above
+							 * (and SeoTab.tsx's own "SEO Health" rows) use —
+							 * no per-row score/delta/action here either,
+							 * same reasoning as that conversion.
+							 */}
+							<div className='broken-link-wrapper'>
+								<div className='broken-link-section left-side'>
+									{sitemapRows.length > 0 ? (
+										<ListComponent
+											className="mini-card report sitemap-overview-list"
+											loading={isLoadingSitemap}
+											items={sitemapRows.map((row) => ({
+												id: row.id,
+												icon: 'link blue',
+												title: getSitemapDisplayName(row.loc),
+												desc: row.loc,
+												tags: (
+													<>
+														<BadgeComponent
+															color="indigo"
+															text={
+																null === row.url_count
+																	? __('— URLs', 'vulopilot')
+																	: sprintf(
+																		/* translators: %d: real number of URLs this sitemap lists. */
+																		_n('%d URL', '%d URLs', row.url_count, 'vulopilot'),
+																		row.url_count
+																	)
+															}
+														/>
+
+														<a href={row.loc} target="_blank" rel="noreferrer">
+															{__('View sitemap', 'vulopilot')}
+															<IconComponent name="pagination-right-arrow" />
+														</a>
+													</>
+												),
+											}))}
+										/>
+									) : (
+										<ModuleGuardComponent
+											icon="info"
+											title={__('No child sitemaps found', 'vulopilot')}
+											desc={__('No child sitemaps found in the index.', 'vulopilot')}
+										/>
+									)}
+								</div>
+								<div className='broken-link-section right-side'>
+									<SectionComponent
+										icon="security"
+										title={__('Robots.txt Issues', 'vulopilot')}
+										desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
+									/>
+									{sitemapFindingsError ? (
+										<ModuleGuardComponent
+											icon="error"
+											title={__('Could not load findings', 'vulopilot')}
+											desc={sitemapFindingsError}
+											buttonText={__('Retry', 'vulopilot')}
+											onButtonClick={refetchSitemapFindings}
+										/>
+									) : (
+										<TableCard {...sitemapFindingsProps} bulkActions={[]} />
+									)}
+								</div>
+							</div>
 						</>
 					) : (
 						<ModuleGuardComponent
@@ -804,7 +862,9 @@ const CrawlRobotsSitemapSection = () => {
 							)}
 						/>
 					)}
+
 				</CardComponent>
+
 
 				<ColumnComponent grid={6}>
 					<CardComponent
@@ -818,14 +878,15 @@ const CrawlRobotsSitemapSection = () => {
 					>
 						{isLlmsTxtEnabled ? (
 							<div className="llms-txt-card-field">
-								<TextAreaInput
-									value={llmsTxtContent}
-									onChange={(value: unknown) =>
-										handleLlmsTxtChange(value as string)
-									}
-									rowNumber={10}
-									usePlainText
-								/>
+								<div className="rt-editor-wrap">
+									<RobotsTxtEditor
+										value={llmsTxtContent}
+										onChange={handleLlmsTxtChange}
+										placeholder={__(
+											'# Site Name\n\n> A short summary of the site.',
+											'vulopilot'
+										)}
+									/>
 									<ButtonInput
 										buttons={{
 											text: isRegeneratingLlmsTxt
@@ -837,6 +898,7 @@ const CrawlRobotsSitemapSection = () => {
 											disabled: isRegeneratingLlmsTxt,
 										}}
 									/>
+								</div>
 							</div>
 						) : (
 							<ModuleGuardComponent
@@ -857,7 +919,7 @@ const CrawlRobotsSitemapSection = () => {
 
 				<ColumnComponent grid={6} fullHeight>
 					<CardComponent
-						title={__('Blocked by Robots.txt', 'vulopilot')}
+						title={__('Blocked pages', 'vulopilot')}
 						titleIcon="eye-blocked"
 						desc={__('Real pages an AI bot is blocked from crawling right now.', 'vulopilot')}
 					>
@@ -883,205 +945,11 @@ const CrawlRobotsSitemapSection = () => {
 										)}
 									</TypographyComponent>
 								</div>
-								<a
-									href="#blocked-pages-table"
-									onClick={(event) => {
-										event.preventDefault();
-										document
-											.getElementById('blocked-pages-table')
-											?.scrollIntoView({ behavior: 'smooth' });
-									}}
-									className='admin-btn btn-text-purple'
-								>
-									{__('View blocked pages', 'vulopilot')}
-								</a>
+								<TableCard {...blockedPagesProps} />
 							</>
 						)}
 					</CardComponent>
 				</ColumnComponent>
-
-				<ColumnComponent grid={4} fullHeight>
-					<CardComponent
-						title={__('Important Crawl Directives', 'vulopilot')}
-						titleIcon="menu"
-						desc={__('The real user-agent/allow/disallow/sitemap rules robots.txt currently sets.', 'vulopilot')}
-						isLoading={isLoadingRobots}
-					>
-						{robots?.reachable ? (
-							<ListComponent
-								className="mini-card report list"
-								items={[
-									{
-										id: 'user-agent',
-										icon: 'person',
-										title: __('User-agent', 'vulopilot'),
-										tags: (
-											<>
-												<div className='small'>{summarizeList(robots.directives.user_agents)}</div>
-											</>
-										),
-									},
-									{
-										id: 'allow',
-										icon: 'check',
-										title: __('Allow', 'vulopilot'),
-										tags: (
-											<>
-												<div className='small'>{summarizeList(robots.directives.allow)}</div>
-											</>
-										),
-									},
-									{
-										id: 'disallow',
-										icon: 'error',
-										title: __('Disallow', 'vulopilot'),
-										tags: (
-											<>
-												<div className='small'>{summarizeList(robots.directives.disallow)}</div>
-											</>
-										),
-									},
-									{
-										id: 'sitemaps',
-										icon: 'link',
-										title: __('Sitemaps', 'vulopilot'),
-										tags: (
-											<>
-												<div className='small'>{String(robots.directives.sitemaps.length)}</div>
-											</>
-										),
-									},
-									{
-										id: 'crawl-delay',
-										icon: 'clock',
-										title: __('Crawl-delay', 'vulopilot'),
-										tags: (
-											<>
-												<div className='small'>{robots.directives.crawl_delay ??
-													__('Not set', 'vulopilot')}</div>
-											</>
-										),
-									},
-								]}
-							/>
-						) : (
-							<ModuleGuardComponent
-								icon="info"
-								title={__('Not available', 'vulopilot')}
-								desc={__('robots.txt is not reachable right now.', 'vulopilot')}
-							/>
-						)}
-					</CardComponent>
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<CardComponent
-						title={__('Quick Actions', 'vulopilot')}
-						titleIcon="tools"
-						desc={__('Shortcuts to the tools you use most on this page.', 'vulopilot')}
-					>
-						<ListComponent
-							className="mini-card report"
-							items={[
-								{
-									id: 'open-robots',
-									icon: 'link',
-									title: __('Open robots.txt', 'vulopilot'),
-									link: robots?.url ?? `${appLocalizer.site_url}/robots.txt`,
-									targetBlank: true,
-								},
-								{
-									id: 'open-sitemap',
-									icon: 'link',
-									title: __('Open sitemap index', 'vulopilot'),
-									link:
-										sitemap?.index_url ??
-										`${appLocalizer.site_url}/wp-sitemap.xml`,
-									targetBlank: true,
-								},
-								{
-									id: 'resubmit-sitemap',
-									icon: 'link',
-									title: __('Resubmit sitemap', 'vulopilot'),
-									targetBlank: true
-								},
-								{
-									id: 'test-robots',
-									icon: 'check',
-									title: __('Test robots.txt', 'vulopilot'),
-									action: () => loadRobots(),
-								},
-								{
-									id: 'search-console',
-									icon: 'search',
-									title: __('Check in Search Console', 'vulopilot'),
-									link: searchConsoleUrl,
-									targetBlank: true,
-								},
-							]}
-						/>
-					</CardComponent>
-				</ColumnComponent>
-				<ColumnComponent grid={4} fullHeight>
-					<CardComponent
-						id="blocked-pages-table"
-						title={__('Blocked pages', 'vulopilot')}
-						titleIcon="eye-blocked"
-						desc={__('Real pages robots.txt disallows for one specific AI bot.', 'vulopilot')}
-					>
-						{blockedPagesError ? (
-							<ModuleGuardComponent
-								icon="error"
-								title={__('Could not load findings', 'vulopilot')}
-								desc={blockedPagesError}
-								buttonText={__('Retry', 'vulopilot')}
-								onButtonClick={refetchBlockedPages}
-							/>
-						) : (
-							<TableCard {...blockedPagesProps} />
-						)}
-					</CardComponent>
-				</ColumnComponent>
-
-				<CardComponent
-					title={__('Robots.txt Issues', 'vulopilot')}
-					titleIcon="link"
-					desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
-				>
-					{robotsTxtError ? (
-						<ModuleGuardComponent
-							icon="error"
-							title={__('Could not load findings', 'vulopilot')}
-							desc={robotsTxtError}
-							buttonText={__('Retry', 'vulopilot')}
-							onButtonClick={refetchRobotsTxt}
-						/>
-					) : (
-						// `bulkActions={[]}` overrides the hook's own real
-						// Resolve/Ignore/Fix-selected bulk actions — this
-						// narrow, single-scanner sub-table doesn't need its
-						// own row-select checkboxes on top of the per-row
-						// action icons it already has.
-						<TableCard {...robotsTxtProps} bulkActions={[]} />
-					)}
-				</CardComponent>
-
-				<CardComponent
-					title={__('XML Sitemap Issues', 'vulopilot')}
-					titleIcon="link"
-					desc={__('Whether /wp-sitemap.xml is reachable and valid.', 'vulopilot')}
-				>
-					{sitemapFindingsError ? (
-						<ModuleGuardComponent
-							icon="error"
-							title={__('Could not load findings', 'vulopilot')}
-							desc={sitemapFindingsError}
-							buttonText={__('Retry', 'vulopilot')}
-							onButtonClick={refetchSitemapFindings}
-						/>
-					) : (
-						<TableCard {...sitemapFindingsProps} bulkActions={[]} />
-					)}
-				</CardComponent>
 			</ContainerComponent>
 
 			<PopupComponent open={isProPopupOpen} onClose={closeProPopup} width={31.25} height="auto" >

@@ -183,6 +183,7 @@ const CrawlOverviewSection = () => {
 										'vulopilot'
 									),
 								}}
+								hideHeader={true}
 								format={appLocalizer.date_format_js}
 								headers={{
 									bot_name: {

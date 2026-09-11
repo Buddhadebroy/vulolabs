@@ -2507,3 +2507,17 @@
 }
 
 // actively log end
+
+// BrokenLinksSection.tsx's own "Fix" popup — real read-only "Link Text"/
+// "Current URL" values (a `FormGroupComponent` label with plain text under
+// it, not a disabled `TextInput`, since neither is ever meant to be
+// editable here).
+.broken-link-fix-static-value {
+	margin: 0;
+	padding: 0.5rem 0.75rem;
+	border-radius: $border-radius-small;
+	background: $theme-background-color;
+	color: $text-color;
+	font-size: 0.875rem;
+	word-break: break-all;
+}

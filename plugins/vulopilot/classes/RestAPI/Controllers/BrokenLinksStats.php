@@ -25,6 +25,15 @@ defined( 'ABSPATH' ) || exit;
  * numbers that scanner never persisted anywhere before this pass — no
  * separate table, no new fabricated aggregate.
  *
+ * `POST /broken-links/replace-url` — BrokenLinksSection.tsx's own real
+ * "Fix" popup: a genuine search-and-replace of one broken `href`/`src`
+ * value for a real new URL the user typed, straight in that page's own
+ * `post_content`. Scoped to the exact attribute value
+ * BrokenLinksScanner::extract_links_from_recent_content()/
+ * BrokenImagesScanner's own equivalent already matched (not a blind
+ * site-wide string replace), so it can't touch an unrelated occurrence of
+ * the same URL used as visible text elsewhere on the page.
+ *
  * @class       BrokenLinksStats controller
  * @version     1.0.0
  * @author      VuloLabs
@@ -51,6 +60,33 @@ class BrokenLinksStats extends \WP_REST_Controller {
                 ),
             )
         );
+
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/replace-url',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'replace_url' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                    'args'                => array(
+                        'post_id'  => array(
+                            'required'          => true,
+                            'validate_callback' => static fn( $value ): bool => is_numeric( $value ),
+                        ),
+                        'old_url'  => array(
+                            'required' => true,
+                        ),
+                        'new_url'  => array(
+                            'required' => true,
+                        ),
+                        'is_image' => array(
+                            'required' => false,
+                        ),
+                    ),
+                ),
+            )
+        );
     }
 
     /**
@@ -72,6 +108,78 @@ class BrokenLinksStats extends \WP_REST_Controller {
                 'links'    => $this->read_stats( BrokenLinksScanner::STATS_OPTION ),
                 'images'   => $this->read_stats( BrokenImagesScanner::STATS_OPTION ),
                 'last_run' => ( new ScanRepository() )->get_latest_completed( array( 'broken-links', 'broken-images' ) ),
+            )
+        );
+    }
+
+    /**
+     * A real search-and-replace of one broken link's/image's own real
+     * `href`/`src` attribute value for a real new URL, straight in that
+     * page's own `post_content` — BrokenLinksSection.tsx's own "Fix"
+     * popup. Scoped to the exact attribute (not a blind site-wide string
+     * replace) so a broken URL that also happens to appear as this page's
+     * own visible text elsewhere is left alone. Returns a real
+     * `WP_Error` (404/400), never a bare fabricated "false", when the
+     * page doesn't exist, the new URL doesn't validate, or the old URL
+     * genuinely isn't found in this page's own current content anymore
+     * (e.g. already edited since this finding was last detected).
+     *
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function replace_url( \WP_REST_Request $request ) {
+        $post_id  = (int) $request->get_param( 'post_id' );
+        $old_url  = (string) $request->get_param( 'old_url' );
+        $new_url  = esc_url_raw( (string) $request->get_param( 'new_url' ) );
+        $is_image = (bool) $request->get_param( 'is_image' );
+
+        $post = get_post( $post_id );
+
+        if ( ! $post ) {
+            return new \WP_Error(
+                'vulopilot_broken_link_post_not_found',
+                __( 'That page could not be found.', 'vulopilot' ),
+                array( 'status' => 404 )
+            );
+        }
+
+        if ( '' === $new_url ) {
+            return new \WP_Error(
+                'vulopilot_broken_link_invalid_url',
+                __( 'Please enter a valid URL.', 'vulopilot' ),
+                array( 'status' => 400 )
+            );
+        }
+
+        $attribute = $is_image ? 'src' : 'href';
+        $pattern   = '/(' . preg_quote( $attribute, '/' ) . '=["\'])' . preg_quote( $old_url, '/' ) . '(["\'])/i';
+
+        $updated_content = preg_replace( $pattern, '${1}' . $new_url . '${2}', $post->post_content, -1, $count );
+
+        if ( 0 === $count ) {
+            return new \WP_Error(
+                'vulopilot_broken_link_not_found_in_content',
+                __( 'That URL could not be found in this page’s current content — it may have already been changed.', 'vulopilot' ),
+                array( 'status' => 404 )
+            );
+        }
+
+        $result = wp_update_post(
+            array(
+                'ID'           => $post_id,
+                'post_content' => $updated_content,
+            ),
+            true
+        );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        return rest_ensure_response(
+            array(
+                'success'  => true,
+                'replaced' => $count,
             )
         );
     }

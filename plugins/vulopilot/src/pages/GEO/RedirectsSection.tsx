@@ -1,22 +1,25 @@
 /* global appLocalizer */
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { COLOR_PALETTE, getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
-	BadgeComponent,
 	CardComponent,
+	ChartComponent,
 	ColumnComponent,
-	MetricTileComponent,
+	FormGroupComponent,
+	FormGroupWrapperComponent,
+	InformationItemComponent,
+	ListComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
 	TooltipComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
 import ShowProPopup from '../../components/Popup/Popup';
-import { RowAction, RowActionsMenu } from './seoIssuesShared';
 import './SeoVisibility.scss';
 
 interface RedirectRow extends TableRow {
@@ -50,11 +53,54 @@ const DEFAULT_PER_PAGE = 10;
 /** Real HEAD-check cadence — Controllers/Redirects.php's own `HEALTH_CACHE_SECONDS` (an hour); kept in sync so the "Recheck in ~Xm" line here reflects the same real cache window the backend actually enforces, not a guess. */
 const HEALTH_CACHE_SECONDS = 60 * 60;
 
-/** Palette color per real redirect type — matches the legend swatches; 307 gets its own color rather than reusing 302's, since it's a genuinely distinct HTTP status a visitor's browser treats differently (redirect_type is real, never fabricated — Controllers/Redirects.php only ever persists 301/302/307). */
-const TYPE_COLOR: Record<number, string> = {
-	301: 'green',
-	302: 'yellow',
-	307: 'purple',
+/**
+ * Real per-type badge color for the "From" column's own type badge (301
+ * green/302 yellow/307 purple — 307 gets its own color rather than
+ * reusing 302's, since it's a genuinely distinct HTTP status a visitor's
+ * browser treats differently; redirect_type is real, never fabricated —
+ * Controllers/Redirects.php only ever persists 301/302/307), as one of
+ * zyra's own real `BadgeComponent.scss` semantic classes instead of a raw
+ * palette name — that stylesheet has no `badge-green`/`badge-yellow`/
+ * `badge-purple` classes by color name, only status-word classes that
+ * happen to resolve to those colors (`badge-active` → green,
+ * `badge-pending` → yellow, `badge-locked` → purple), so this maps to the
+ * real classes rather than inventing unstyled ones.
+ */
+const TYPE_BADGE_CLASS: Record<number, string> = {
+	301: 'badge-active',
+	302: 'badge-pending',
+	307: 'badge-locked',
+};
+
+/** Same real 3-tier 0-100 band SeoTab.tsx's own `getRating()`/`ratingClass()`/`ratingColor()` already establish — duplicated locally per this codebase's own "duplicate small per-file logic" convention. Used for the "Redirect Health" ring's own real `activeCount/totalCount` percentage below. */
+const getRating = (score: number): string => {
+	if (score >= 70) {
+		return __('Good', 'vulopilot');
+	}
+	if (score >= 40) {
+		return __('Needs Attention', 'vulopilot');
+	}
+	return __('Poor', 'vulopilot');
+};
+
+const ratingClass = (score: number): string => {
+	if (score >= 70) {
+		return 'is-good';
+	}
+	if (score >= 40) {
+		return 'is-attention';
+	}
+	return 'is-poor';
+};
+
+const ratingColor = (score: number): string => {
+	if (score >= 70) {
+		return 'green';
+	}
+	if (score >= 40) {
+		return 'yellow';
+	}
+	return 'red';
 };
 
 /**
@@ -427,134 +473,107 @@ const RedirectsSection = () => {
 		URL.revokeObjectURL(url);
 	};
 
-	const buildMoreActions = (row: RedirectRow): RowAction[] => [
-		{
-			label: row.is_active
-				? __('Deactivate', 'vulopilot')
-				: __('Activate', 'vulopilot'),
-			icon: 'toggle',
-			onClick: () => handleToggleActive(row),
-		},
-	];
-
 	const headers = {
+		// Same real `InformationItemComponent` "title + badges" shape
+		// BrokenLinksSection.tsx's own row cell already uses — folds the
+		// old separate "Type"/"Status" columns into this one row's own
+		// real badges (redirect_type/is_active/isBroken(), all real
+		// values already read elsewhere on this row) instead of 2 extra
+		// columns.
 		source_path: {
 			label: __('From (Old URL)', 'vulopilot'),
+			width: "65%",
 			render: (row: RedirectRow) => {
 				const pageUrl = `${appLocalizer.site_url}${row.source_path}`;
+
 				return (
-					<div className="redirect-url-cell">
-						<a href={pageUrl} target="_blank" rel="noreferrer">
-							{row.source_path}
-						</a>
-						<span className="typography-body-xs redirect-url-sub">{pageUrl}</span>
-					</div>
+					<InformationItemComponent
+						title={row.source_path}
+						titleLink={pageUrl}
+						badges={[
+							{
+								text: String(row.redirect_type),
+								className: TYPE_BADGE_CLASS[row.redirect_type] ?? 'badge-info',
+							},
+							isBroken(row)
+								? { text: __('Broken', 'vulopilot'), className: 'badge-failed' }
+								: {
+									text: row.is_active
+										? __('Active', 'vulopilot')
+										: __('Inactive', 'vulopilot'),
+									className: row.is_active ? 'badge-active' : 'badge-inactive',
+								},
+							{
+								text: `${row.hit_count} Hits`,
+								className: 'blue',
+							},
+							
+						]}
+						descriptions={[
+							{
+								icon: 'link',
+								label: __('Old URL', 'vulopilot'),
+								value: row.source_path,
+							},
+							{
+								icon: 'link',
+								label: __('New URL', 'vulopilot'),
+								value: row.target_url,
+							},
+							{
+								icon: 'text-fields',
+								label: __('Last Accessed', 'vulopilot'),
+								value: row.last_accessed_at ? formatWpDate(row.last_accessed_at) : __('Never', 'vulopilot'),
+							},
+						]}
+					/>
 				);
 			},
-		},
-		target_url: {
-			label: __('To (New URL)', 'vulopilot'),
-			render: (row: RedirectRow) => {
-				const nextHop = chains.get(row.id);
-				return (
-					<div className="redirect-url-cell">
-						<a href={row.target_url} target="_blank" rel="noreferrer" title={row.target_url}>
-							{row.target_url}
-						</a>
-						{nextHop && (
-							<TooltipComponent
-								text={sprintf(
-									/* translators: %s: the path this redirect chains into. */
-									__('Chains into another redirect: %s', 'vulopilot'),
-									nextHop.source_path
-								)}
-							>
-								<span className="redirect-chain-flag">
-									<i className="adminfont-link" />
-									{__('Chains further', 'vulopilot')}
-								</span>
-							</TooltipComponent>
-						)}
-					</div>
-				);
-			},
-		},
-		redirect_type: {
-			label: __('Type', 'vulopilot'),
-			render: (row: RedirectRow) => (
-				<BadgeComponent
-					color={TYPE_COLOR[row.redirect_type] ?? 'grey'}
-					text={String(row.redirect_type)}
-				/>
-			),
-		},
-		hit_count: {
-			label: __('Hits', 'vulopilot'),
-			render: (row: RedirectRow) => (
-				<span className="redirect-hits-cell">
-					{row.hit_count}
-					<TooltipComponent
-						text={__(
-							'How many times a real visitor has actually been sent through this redirect.',
-							'vulopilot'
-						)}
-					>
-						<i className="adminfont-info redirect-hits-info" />
-					</TooltipComponent>
-				</span>
-			),
 		},
 		created_at: {
 			label: __('Created', 'vulopilot'),
 			render: (row: RedirectRow) => (
-				<span className="typography-body-xs">{formatWpDate(row.created_at)}</span>
+				formatWpDate(row.created_at)
 			),
-		},
-		last_accessed_at: {
-			label: __('Last Accessed', 'vulopilot'),
-			render: (row: RedirectRow) => (
-				<span className="typography-body-xs">
-					{row.last_accessed_at ? formatWpDate(row.last_accessed_at) : __('Never', 'vulopilot')}
-				</span>
-			),
-		},
-		status: {
-			label: __('Status', 'vulopilot'),
-			render: (row: RedirectRow) =>
-				isBroken(row) ? (
-					<BadgeComponent color="red" text={__('Broken', 'vulopilot')} />
-				) : (
-					<BadgeComponent
-						color={row.is_active ? 'green' : 'grey'}
-						text={row.is_active ? __('Active', 'vulopilot') : __('Inactive', 'vulopilot')}
-					/>
-				),
 		},
 		actions: {
 			label: __('Actions', 'vulopilot'),
-			render: (row: RedirectRow) => (
-				<div className="redirect-row-actions">
-					<TooltipComponent text={__('Edit', 'vulopilot')}>
-						<button
-							type="button"
-							className="redirect-icon-btn"
-							onClick={() => openEditForm(row)}
-						>
-							<i className="adminfont-edit" />
-						</button>
-					</TooltipComponent>
-					<TooltipComponent text={__('Delete', 'vulopilot')}>
-						<button
-							type="button"
-							className="redirect-icon-btn"
-							onClick={() => handleDeleteRedirect(row)}
-						>
-							<i className="adminfont-delete" />
-						</button>
-					</TooltipComponent>
-					<RowActionsMenu actions={buildMoreActions(row)} />
-				</div>
-			),
+			type: 'action',
+			actions: [
+				{
+					label: __('Edit', 'vulopilot'),
+					icon: 'edit',
+					type: 'button',
+					color: 'text-blue',
+					onClick: (row: Record<string, unknown>) => {
+						openEditForm(row as unknown as RedirectRow);
+					},
+				},
+				{
+					label: __('Delete', 'vulopilot'),
+					icon: 'delete',
+					type: 'button',
+					color: 'text-red',
+					onClick: (row: Record<string, unknown>) => {
+						handleDeleteRedirect(row as unknown as RedirectRow);
+					},
+				},
+				{
+					label: (row: Record<string, unknown>) =>
+						(row as unknown as RedirectRow).is_active
+							? __('Deactivate', 'vulopilot')
+							: __('Activate', 'vulopilot'),
+							color: (row: Record<string, unknown>) =>
+						(row as unknown as RedirectRow).is_active
+							? __('text-pink', 'vulopilot')
+							: __('text-green', 'vulopilot'),
+					icon: 'toggle',
+					type: 'button',
+					onClick: (row: Record<string, unknown>) => {
+						handleToggleActive(row as unknown as RedirectRow);
+					},
+				},
+			],
 		},
 	};
 
@@ -595,92 +614,182 @@ const RedirectsSection = () => {
 		)
 		: null;
 
+	// Real percentage of redirects that are active — the one real 0-100
+	// figure these 5 stats naturally produce (the other 4 are plain counts
+	// or a date), so it's the only honest candidate for this card's own
+	// ring; matching SeoTab.tsx's/GeoScoreSection.tsx's real ring shape
+	// rather than fabricating a synthetic "redirect score" no real
+	// weighting exists for.
+	const activePercent = totalCount
+		? Math.round((activeCount / totalCount) * 100)
+		: 0;
+
 	return (
 		<ColumnComponent>
-			<MetricTileComponent
-				cols={5}
-				className="redirect-stat-grid"
-				// Grid-wide, not per-tile — `MetricTileComponent`'s own `isLoading`
-				// is one flag for the whole grid (see its own docblock), unlike
-				// the old local `MetricTile`'s per-tile prop this replaces, which
-				// let the last 2 tiles (their own separate `GET /redirects/health`
-				// fetch) skeleton independently of the first 3 (`allRedirects`).
-				// Both real fetches start together in the same effect below and
-				// neither is Pro-gated, so combining them is the honest read
-				// here — not the same "exclude one slow Pro-gated tile" trade-off
-				// CommerceCategoryGrid.tsx's own docblock makes for its Revenue
-				// tile.
+			<CardComponent
+				title={__('Redirect Health', 'vulopilot')}
+				titleIcon="link"
+				desc={__('How many of your redirects are active and working.', 'vulopilot')}
+				// Grid-wide, not per-tile — same real "both real fetches start
+				// together" reasoning the old `MetricTileComponent`'s own
+				// combined `isLoading` docblock already gave; unchanged by
+				// this restructure.
 				isLoading={isLoading || isCheckingHealth}
-				data={[
-					{
-						id: 'total',
-						icon: 'plus red',
-						title: __('Total Redirects', 'vulopilot'),
-						number: totalCount,
-						desc: __('All redirects found', 'vulopilot'),
-					},
-					{
-						id: 'active',
-						icon: 'check green',
-						title: __('Active', 'vulopilot'),
-						number: (
-							<span className="redirect-stat-value is-good">
-								{activeCount}
-							</span>
-						),
-						desc: sprintf(
-							/* translators: %d: percentage of redirects that are active. */
-							__('Working correctly · %d%% of total', 'vulopilot'),
-							totalCount ? Math.round((activeCount / totalCount) * 100) : 0
-						),
-					},
-					{
-						id: 'chains',
-						icon: 'link yellow',
-						title: __('Redirect Chains', 'vulopilot'),
-						number: (
-							<span className="redirect-stat-value is-attention">
-								{chainCount}
-							</span>
-						),
-						desc: chainCount
-							? sprintf(
-								/* translators: %d: number of chains detected. */
-								_n('%d chain detected — needs review', '%d chains detected — needs review', chainCount, 'vulopilot'),
-								chainCount
-							)
-							: __('No chains detected', 'vulopilot'),
-					},
-					{
-						id: 'broken',
-						icon: 'error pink',
-						title: __('Broken Redirects', 'vulopilot'),
-						number: brokenCount,
-						desc: sprintf(
-							/* translators: %d: percentage of redirects that are broken. */
-							__('Needs attention · %d%% of total', 'vulopilot'),
-							totalCount ? Math.round((brokenCount / totalCount) * 100) : 0
-						),
-					},
-					{
-						id: 'last-checked',
-						icon: 'calendar blue',
-						title: __('Last Checked', 'vulopilot'),
-						number: (
-							<span className="redirect-stat-value is-muted">
-								{health ? formatWpDate(new Date(health.checked_at * 1000).toISOString()) : __('Never', 'vulopilot')}
-							</span>
-						),
-						desc: nextCheckLabel
-							? sprintf(
-								/* translators: %s: formatted date/time of the next automatic health check. */
-								__('Next automatic check: %s', 'vulopilot'),
-								nextCheckLabel
-							)
-							: __('Broken-redirect check has not run yet.', 'vulopilot'),
-					},
-				]}
-			/>
+			>
+				<div className="seo-health-score-layout">
+					<div className="seo-health-score-ring-block">
+						<div className="seo-health-score-ring">
+							<ChartComponent
+								type="ring"
+								height={200}
+								centerLabel={
+									<>
+										<span className="score-ring-number">
+											{activePercent}
+										</span>
+										<span
+											className={`score-ring-label geo-overall-rating ${ratingClass(activePercent)}`}
+										>
+											{getRating(activePercent)}
+										</span>
+									</>
+								}
+								data={[
+									{
+										label: __('Active', 'vulopilot'),
+										value: activePercent,
+										color: COLOR_PALETTE[
+											ratingColor(activePercent) as keyof typeof COLOR_PALETTE
+										],
+									},
+									{
+										label: __('Remaining', 'vulopilot'),
+										value: 100 - activePercent,
+										color: '#e5e7eb',
+									},
+								]}
+							/>
+						</div>
+					</div>
+					{/*
+					 * Same real `ListComponent` "mini-card report" row
+					 * shape SeoTab.tsx's/BrokenLinksSection.tsx's own
+					 * stat rows already use — these 5 real values (a
+					 * count, a count, a count, a count, and a date)
+					 * don't each have their own 0-100 score the way
+					 * SEO's/GEO's category rows do, so each row's own
+					 * trailing value is just its real number/date, not a
+					 * fabricated "/100".
+					 */}
+					<ListComponent
+						className="mini-card report hover seo-health-score-category-list"
+						loading={isLoading || isCheckingHealth}
+						items={[
+							{
+								id: 'total',
+								icon: 'plus red',
+								title: __('Total Redirects', 'vulopilot'),
+								// desc: __('All redirects found', 'vulopilot'),
+								tags: (
+									<TypographyComponent
+										variant="h5"
+										weight="bold"
+										className="seo-health-score-row-value"
+									>
+										{totalCount}
+									</TypographyComponent>
+								),
+							},
+							{
+								id: 'active',
+								icon: 'check green',
+								title: __('Active', 'vulopilot'),
+								// desc: sprintf(
+								// 	/* translators: %d: percentage of redirects that are active. */
+								// 	__('Working correctly · %d%% of total', 'vulopilot'),
+								// 	activePercent
+								// ),
+								tags: (
+									<TypographyComponent
+										variant="h5"
+										weight="bold"
+										color="green"
+										className="seo-health-score-row-value"
+									>
+										{activeCount}
+									</TypographyComponent>
+								),
+							},
+							{
+								id: 'chains',
+								icon: 'link yellow',
+								title: __('Redirect Chains', 'vulopilot'),
+								// desc: chainCount
+								// 	? sprintf(
+								// 		/* translators: %d: number of chains detected. */
+								// 		_n('%d chain detected — needs review', '%d chains detected — needs review', chainCount, 'vulopilot'),
+								// 		chainCount
+								// 	)
+								// 	: __('No chains detected', 'vulopilot'),
+								tags: (
+									<TypographyComponent
+										variant="h5"
+										weight="bold"
+										color="yellow"
+										className="seo-health-score-row-value"
+									>
+										{chainCount}
+									</TypographyComponent>
+								),
+							},
+							{
+								id: 'broken',
+								icon: 'error pink',
+								title: __('Broken Redirects', 'vulopilot'),
+								// desc: sprintf(
+								// 	/* translators: %d: percentage of redirects that are broken. */
+								// 	__('Needs attention · %d%% of total', 'vulopilot'),
+								// 	totalCount ? Math.round((brokenCount / totalCount) * 100) : 0
+								// ),
+								tags: (
+									<TypographyComponent
+										variant="h5"
+										weight="bold"
+										color="red"
+										className="seo-health-score-row-value"
+									>
+										{brokenCount}
+									</TypographyComponent>
+								),
+							},
+							{
+								id: 'last-checked',
+								icon: 'calendar blue',
+								title: __('Last Checked', 'vulopilot'),
+								// desc: nextCheckLabel
+								// 	? sprintf(
+								// 		/* translators: %s: formatted date/time of the next automatic health check. */
+								// 		__('Next automatic check: %s', 'vulopilot'),
+								// 		nextCheckLabel
+								// 	)
+								// 	: __('Broken-redirect check has not run yet.', 'vulopilot'),
+								tags: (
+									<TypographyComponent
+										as="span"
+										variant="body-md"
+										weight="bold"
+										className="seo-health-score-row-value"
+									>
+										{health
+											? formatWpDate(new Date(health.checked_at * 1000).toISOString())
+											: __('Never', 'vulopilot')}
+									</TypographyComponent>
+								),
+							},
+						]}
+					/>
+				</div>
+			</CardComponent>
 
 			<CardComponent
 				title={__('Redirects', 'vulopilot')}
@@ -690,6 +799,7 @@ const RedirectsSection = () => {
 				<TableCard
 					showMenu={false}
 					className="transparent-table redirect-table"
+					hideHeader={true}
 					headers={headers}
 					rows={pageRows}
 					ids={pageRows.map((row) => row.id)}
@@ -770,41 +880,13 @@ const RedirectsSection = () => {
 					setIsFormOpen(false);
 					resetForm();
 				}}
-				width={28}				
+				width={28}
 				header={{
 					title: editingId
 						? __('Edit redirect', 'vulopilot')
 						: __('Add redirect', 'vulopilot'),
 				}}
-			>
-				<div className="vulopilot-redirect-form">
-					<TextInput
-						name="source_path"
-						inputLabel={__('From (path)', 'vulopilot')}
-						placeholder={__('/old-page/', 'vulopilot')}
-						value={sourcePath}
-						disabled={!!editingId}
-						onChange={(newValue) => setSourcePath(newValue as string)}
-					/>
-					<TextInput
-						name="target_url"
-						inputLabel={__('To', 'vulopilot')}
-						placeholder={__('https://example.com/new-page/', 'vulopilot')}
-						value={targetUrl}
-						onChange={(newValue) => setTargetUrl(newValue as string)}
-					/>
-					<SelectInput
-						name="redirect_type"
-						inputLabel={__('Type', 'vulopilot')}
-						value={redirectType}
-						options={[
-							{ label: '301 (Permanent)', value: '301' },
-							{ label: '302 (Temporary)', value: '302' },
-							{ label: '307 (Temporary, method-preserving)', value: '307' },
-						]}
-						onChange={(newValue) => setRedirectType(newValue as string)}
-						size="16rem"
-					/>
+				footer={
 					<ButtonInput
 						buttons={{
 							text: isSaving ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
@@ -812,7 +894,43 @@ const RedirectsSection = () => {
 							disabled: isSaving,
 						}}
 					/>
-				</div>
+				}
+			>
+				<FormGroupWrapperComponent>
+					<FormGroupComponent label={__('Old page url', 'vulopilot')}>
+						<TextInput
+							name="source_path"
+							inputLabel={__('From (path)', 'vulopilot')}
+							placeholder={__('/old-page/', 'vulopilot')}
+							value={sourcePath}
+							disabled={!!editingId}
+							onChange={(newValue) => setSourcePath(newValue as string)}
+						/>
+					</FormGroupComponent>
+					<FormGroupComponent label={__('New page url', 'vulopilot')}>
+						<TextInput
+							name="target_url"
+							inputLabel={__('To', 'vulopilot')}
+							placeholder={__('https://example.com/new-page/', 'vulopilot')}
+							value={targetUrl}
+							onChange={(newValue) => setTargetUrl(newValue as string)}
+						/>
+					</FormGroupComponent>
+					<FormGroupComponent label={__('Type', 'vulopilot')}>
+						<SelectInput
+							name="redirect_type"
+							inputLabel={__('Type', 'vulopilot')}
+							value={redirectType}
+							options={[
+								{ label: '301 (Permanent)', value: '301' },
+								{ label: '302 (Temporary)', value: '302' },
+								{ label: '307 (Temporary, method-preserving)', value: '307' },
+							]}
+							onChange={(newValue) => setRedirectType(newValue as string)}
+							size="16rem"
+						/>
+					</FormGroupComponent>
+				</FormGroupWrapperComponent>
 			</PopupComponent>
 
 			<PopupComponent
