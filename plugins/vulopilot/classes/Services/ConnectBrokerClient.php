@@ -44,11 +44,29 @@ class ConnectBrokerClient {
 	 * empty — VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID's own docblock: the
 	 * "solo site owner" choice is simply unavailable on a build that hasn't
 	 * set it, and the hosted page only offers that choice when this param
-	 * is actually present.
+	 * is actually present. `AiCreditsConnection` is the one caller of
+	 * this legacy shape and never passes the three new params below.
 	 *
+	 * `$plugin_id`/`$organization_id`/`$brand_id` are the generic "connect
+	 * to a pre-known Organization + Brand" shape (VuloCloudConnection's
+	 * own caller) — all three optional here purely so this one method can
+	 * serve both shapes; `$plugin_id`+`$organization_id` are required
+	 * together server-side (see ConnectBrokerAuthorizeQueryDto's own
+	 * doc comment on the vulocloud side), `$brand_id` independently
+	 * optional. Omitted from the query entirely when empty, same
+	 * "unavailable, not silently blank" treatment `$solo_organization_id`
+	 * already gets.
+	 *
+	 * @param string $domain               This site's own home_url().
+	 * @param string $return_uri            This site's own admin-post.php callback.
+	 * @param string $state                 This site's own opaque CSRF nonce.
+	 * @param string $solo_organization_id  Legacy shape — VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID, or ''.
+	 * @param string $plugin_id             Generic shape — this plugin's own identity, or ''.
+	 * @param string $organization_id       Generic shape — the pre-known Organization to connect to, or ''.
+	 * @param string $brand_id              Generic shape — the pre-known Brand to connect to, or ''.
 	 * @return string
 	 */
-	public function get_authorize_url( string $domain, string $return_uri, string $state, string $solo_organization_id ): string {
+	public function get_authorize_url( string $domain, string $return_uri, string $state, string $solo_organization_id, string $plugin_id = '', string $organization_id = '', string $brand_id = '' ): string {
 		$params = array(
 			'domain'    => $domain,
 			'returnUri' => $return_uri,
@@ -57,6 +75,18 @@ class ConnectBrokerClient {
 
 		if ( '' !== $solo_organization_id ) {
 			$params['soloOrganizationId'] = $solo_organization_id;
+		}
+
+		if ( '' !== $plugin_id ) {
+			$params['pluginId'] = $plugin_id;
+		}
+
+		if ( '' !== $organization_id ) {
+			$params['organizationId'] = $organization_id;
+		}
+
+		if ( '' !== $brand_id ) {
+			$params['brandId'] = $brand_id;
 		}
 
 		return $this->broker_url . '/plugin/connect/authorize?' . http_build_query( $params );
