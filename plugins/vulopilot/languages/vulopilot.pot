@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-10T07:32:07+00:00\n"
+"POT-Creation-Date: 2026-09-10T13:18:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -1343,7 +1343,7 @@ msgid "No findings selected."
 msgstr ""
 
 #. translators: 1: real number of pages not updated since the "stale after" window, 2: real total published pages checked.
-#: classes/RestAPI/Controllers/Geo.php:339
+#: classes/RestAPI/Controllers/Geo.php:388
 #, php-format
 msgid "%1$d of %2$d pages haven’t been updated in a while"
 msgid_plural "%1$d of %2$d pages haven’t been updated in a while"
@@ -2452,6 +2452,22 @@ msgstr ""
 msgid "No known caching plugin is active and the homepage response has no caching headers. A caching layer significantly reduces load time and server load."
 msgstr ""
 
+#: classes/Scanners/Basic/CacheDetectionScanner.php:82
+msgid "Install and activate a caching plugin (e.g. WP Super Cache, W3 Total Cache, WP Rocket)."
+msgstr ""
+
+#: classes/Scanners/Basic/CacheDetectionScanner.php:83
+msgid "If your host provides server-level caching, enable it in your hosting dashboard."
+msgstr ""
+
+#: classes/Scanners/Basic/CacheDetectionScanner.php:84
+msgid "Confirm caching is active by checking response headers for Cache-Control/ETag."
+msgstr ""
+
+#: classes/Scanners/Basic/CacheDetectionScanner.php:85
+msgid "Set a reasonable cache expiry so returning visitors get fast repeat page loads."
+msgstr ""
+
 #: classes/Scanners/Basic/CanonicalUrlScanner.php:53
 msgid "Canonical URLs"
 msgstr ""
@@ -2477,6 +2493,22 @@ msgstr ""
 
 #: classes/Scanners/Basic/CdnScanner.php:78
 msgid "Every asset on the homepage is served directly from this server. A CDN serves images, CSS, and JavaScript from servers closer to each visitor, reducing load times worldwide."
+msgstr ""
+
+#: classes/Scanners/Basic/CdnScanner.php:83
+msgid "Sign up for a CDN (e.g. Cloudflare, BunnyCDN, StackPath) and point your DNS or media library through it."
+msgstr ""
+
+#: classes/Scanners/Basic/CdnScanner.php:84
+msgid "Alternatively, use a WordPress plugin that integrates a CDN with your media library automatically."
+msgstr ""
+
+#: classes/Scanners/Basic/CdnScanner.php:85
+msgid "Confirm static assets (images, CSS, JS) now resolve to a different host than your own site."
+msgstr ""
+
+#: classes/Scanners/Basic/CdnScanner.php:86
+msgid "Re-run this scan to confirm at least one asset is now served through the CDN."
 msgstr ""
 
 #: classes/Scanners/Basic/CoreFileIntegrityScanner.php:50
@@ -2536,6 +2568,22 @@ msgstr[1] ""
 msgid "These stylesheets aren't minified and no minification plugin is active. Minifying CSS reduces file size and speeds up page rendering."
 msgstr ""
 
+#: classes/Scanners/Basic/CssOptimizationScanner.php:90
+msgid "Enable CSS minification in your caching/optimization plugin, or use a dedicated asset-optimization plugin."
+msgstr ""
+
+#: classes/Scanners/Basic/CssOptimizationScanner.php:91
+msgid "Combine multiple small stylesheets into fewer files where possible to reduce requests."
+msgstr ""
+
+#: classes/Scanners/Basic/CssOptimizationScanner.php:92
+msgid "Remove unused CSS rules from themes/plugins you don't need."
+msgstr ""
+
+#: classes/Scanners/Basic/CssOptimizationScanner.php:93
+msgid "Re-run this scan after minifying to confirm these stylesheets are no longer flagged."
+msgstr ""
+
 #: classes/Scanners/Basic/DatabaseCleanupScanner.php:54
 #: assets/js/index.js:1
 msgid "Database Cleanup"
@@ -2549,6 +2597,22 @@ msgstr ""
 
 #: classes/Scanners/Basic/DatabaseCleanupScanner.php:86
 msgid "Expired transients and old post revisions accumulate in the database over time, slowing down queries. Use the \"Database Cleanup\" quick action to remove them."
+msgstr ""
+
+#: classes/Scanners/Basic/DatabaseCleanupScanner.php:93
+msgid "Delete expired transients with a database-cleanup plugin (e.g. WP-Optimize, Advanced Database Cleaner)."
+msgstr ""
+
+#: classes/Scanners/Basic/DatabaseCleanupScanner.php:94
+msgid "Limit future post revisions by adding define('WP_POST_REVISIONS', 5); to wp-config.php."
+msgstr ""
+
+#: classes/Scanners/Basic/DatabaseCleanupScanner.php:95
+msgid "Run a one-time cleanup to remove existing excess revisions."
+msgstr ""
+
+#: classes/Scanners/Basic/DatabaseCleanupScanner.php:96
+msgid "Schedule periodic database optimization to keep this from building up again."
 msgstr ""
 
 #: classes/Scanners/Basic/DatabaseScanner.php:44
@@ -2617,6 +2681,22 @@ msgstr ""
 
 #: classes/Scanners/Basic/FontsScanner.php:80
 msgid "The homepage loads fonts from Google Fonts' own servers. Self-hosting web fonts (or adding font-display: swap) avoids an extra third-party connection and can prevent invisible-text flashes while fonts load."
+msgstr ""
+
+#: classes/Scanners/Basic/FontsScanner.php:85
+msgid "Host Google Fonts locally instead of loading them from fonts.googleapis.com/fonts.gstatic.com."
+msgstr ""
+
+#: classes/Scanners/Basic/FontsScanner.php:86
+msgid "Use a plugin (e.g. OMGF) to automatically download and self-host your fonts."
+msgstr ""
+
+#: classes/Scanners/Basic/FontsScanner.php:87
+msgid "Limit the number of font weights/styles you load to only what's actually used."
+msgstr ""
+
+#: classes/Scanners/Basic/FontsScanner.php:88
+msgid "Add font-display: swap so text stays visible while fonts load."
 msgstr ""
 
 #: classes/Scanners/Basic/FormLabelsScanner.php:47
@@ -2798,6 +2878,22 @@ msgstr ""
 msgid "A large number of active plugins increases the odds of conflicts and can slow down every admin and frontend request."
 msgstr ""
 
+#: classes/Scanners/Basic/HeavyPluginsScanner.php:81
+msgid "Audit your active plugins and deactivate any that are unused or redundant."
+msgstr ""
+
+#: classes/Scanners/Basic/HeavyPluginsScanner.php:82
+msgid "Look for plugins that duplicate functionality (e.g. two SEO plugins) and keep only one."
+msgstr ""
+
+#: classes/Scanners/Basic/HeavyPluginsScanner.php:83
+msgid "Check each plugin's own performance impact with Query Monitor before deciding to keep it."
+msgstr ""
+
+#: classes/Scanners/Basic/HeavyPluginsScanner.php:84
+msgid "Consider a multi-feature plugin instead of several single-purpose ones where it makes sense."
+msgstr ""
+
 #: classes/Scanners/Basic/ImageCleanupScanner.php:55
 #: assets/js/index.js:1
 msgid "Image Cleanup"
@@ -2811,6 +2907,22 @@ msgstr ""
 
 #: classes/Scanners/Basic/ImageCleanupScanner.php:88
 msgid "These images are not attached to any post or page, are not used as a featured image, site icon, or logo, and were uploaded more than 30 days ago. Use the \"Image Cleanup\" quick action to remove them and reclaim disk space."
+msgstr ""
+
+#: classes/Scanners/Basic/ImageCleanupScanner.php:95
+msgid "Review the Media Library for images no longer attached to any post or page."
+msgstr ""
+
+#: classes/Scanners/Basic/ImageCleanupScanner.php:96
+msgid "Delete confirmed-unused images to free up storage and reduce backup size."
+msgstr ""
+
+#: classes/Scanners/Basic/ImageCleanupScanner.php:97
+msgid "Use a plugin (e.g. Media Cleaner) to help identify safely-removable files."
+msgstr ""
+
+#: classes/Scanners/Basic/ImageCleanupScanner.php:98
+msgid "Re-run this scan after cleanup to confirm the orphaned count has dropped."
 msgstr ""
 
 #. translators: %s is the image filename.
@@ -2855,6 +2967,22 @@ msgstr[1] ""
 msgid "These scripts aren't minified and no minification plugin is active. Minifying JavaScript reduces file size and speeds up page rendering."
 msgstr ""
 
+#: classes/Scanners/Basic/JavaScriptOptimizationScanner.php:90
+msgid "Enable JavaScript minification in your caching/optimization plugin."
+msgstr ""
+
+#: classes/Scanners/Basic/JavaScriptOptimizationScanner.php:91
+msgid "Defer or async-load non-critical scripts so they don't block page rendering."
+msgstr ""
+
+#: classes/Scanners/Basic/JavaScriptOptimizationScanner.php:92
+msgid "Remove unused scripts from themes/plugins you don't need."
+msgstr ""
+
+#: classes/Scanners/Basic/JavaScriptOptimizationScanner.php:93
+msgid "Re-run this scan after minifying to confirm these scripts are no longer flagged."
+msgstr ""
+
 #: classes/Scanners/Basic/KeyboardAccessibilityScanner.php:59
 msgid "Keyboard Accessibility"
 msgstr ""
@@ -2883,6 +3011,22 @@ msgstr ""
 msgid "Large images slow down page loads, especially on mobile connections — consider compressing or resizing."
 msgstr ""
 
+#: classes/Scanners/Basic/LargeImagesScanner.php:109
+msgid "Compress oversized images with a plugin (e.g. ShortPixel, Imagify) or before uploading."
+msgstr ""
+
+#: classes/Scanners/Basic/LargeImagesScanner.php:110
+msgid "Convert large images to a modern format like WebP or AVIF."
+msgstr ""
+
+#: classes/Scanners/Basic/LargeImagesScanner.php:111
+msgid "Resize images to the maximum dimension actually needed — avoid uploading full-resolution originals."
+msgstr ""
+
+#: classes/Scanners/Basic/LargeImagesScanner.php:112
+msgid "Re-run this scan after optimizing to confirm the file size has dropped."
+msgstr ""
+
 #: classes/Scanners/Basic/LazyLoadingScanner.php:38
 #: assets/js/index.js:1
 msgid "Lazy Loading"
@@ -2894,6 +3038,22 @@ msgstr ""
 
 #: classes/Scanners/Basic/LazyLoadingScanner.php:61
 msgid "A theme or plugin has disabled WordPress's built-in lazy-loading for images, so all images now load immediately instead of only as visitors scroll to them."
+msgstr ""
+
+#: classes/Scanners/Basic/LazyLoadingScanner.php:66
+msgid "Check whether a theme or plugin is filtering wp_lazy_loading_enabled to false, and remove that filter if it isn't intentional."
+msgstr ""
+
+#: classes/Scanners/Basic/LazyLoadingScanner.php:67
+msgid "Enable lazy loading in your caching/optimization plugin if it offers the option."
+msgstr ""
+
+#: classes/Scanners/Basic/LazyLoadingScanner.php:68
+msgid "Confirm below-the-fold images include loading=\"lazy\" after re-enabling."
+msgstr ""
+
+#: classes/Scanners/Basic/LazyLoadingScanner.php:69
+msgid "Re-run this scan to confirm lazy loading is active again."
 msgstr ""
 
 #: classes/Scanners/Basic/LoginProtectionScanner.php:53
@@ -3015,6 +3175,22 @@ msgstr ""
 
 #: classes/Scanners/Basic/PerformanceScanner.php:78
 msgid "Autoloaded options are loaded into memory on every page request. A large autoload footprint slows down every request site-wide."
+msgstr ""
+
+#: classes/Scanners/Basic/PerformanceScanner.php:84
+msgid "Identify large autoloaded options with a query monitor or plugin (e.g. Query Monitor)."
+msgstr ""
+
+#: classes/Scanners/Basic/PerformanceScanner.php:85
+msgid "Set autoload to \"no\" for large, non-critical options in the wp_options table."
+msgstr ""
+
+#: classes/Scanners/Basic/PerformanceScanner.php:86
+msgid "Remove leftover options from plugins you've since deactivated or deleted."
+msgstr ""
+
+#: classes/Scanners/Basic/PerformanceScanner.php:87
+msgid "Re-run this scan to confirm the autoloaded size has dropped."
 msgstr ""
 
 #: classes/Scanners/Basic/PhpWarningScanner.php:46
@@ -3357,7 +3533,7 @@ msgstr ""
 msgid "Server"
 msgstr ""
 
-#: classes/Scanners/Basic/ServerHealthScanner.php:111
+#: classes/Scanners/Basic/ServerHealthScanner.php:114
 msgid "Server health check"
 msgstr ""
 
@@ -3421,6 +3597,22 @@ msgstr ""
 
 #: classes/Scanners/Basic/SlowPageScanner.php:87
 msgid "A slow homepage response affects every visit and is one of the biggest levers on perceived site speed."
+msgstr ""
+
+#: classes/Scanners/Basic/SlowPageScanner.php:93
+msgid "Enable a page caching plugin (e.g. WP Super Cache, WP Rocket) if none is active."
+msgstr ""
+
+#: classes/Scanners/Basic/SlowPageScanner.php:94
+msgid "Check your hosting plan's server resources — shared hosting is a common bottleneck."
+msgstr ""
+
+#: classes/Scanners/Basic/SlowPageScanner.php:95
+msgid "Reduce the number of active plugins that run on the homepage."
+msgstr ""
+
+#: classes/Scanners/Basic/SlowPageScanner.php:96
+msgid "Consider a persistent object cache (Redis/Memcached) for database-heavy pages."
 msgstr ""
 
 #: classes/Scanners/Basic/SslMonitoringScanner.php:51
@@ -3691,7 +3883,7 @@ msgstr ""
 msgid "WordPress"
 msgstr ""
 
-#: classes/Scanners/Basic/WordPressHealthScanner.php:113
+#: classes/Scanners/Basic/WordPressHealthScanner.php:116
 msgid "WordPress health check"
 msgstr ""
 
@@ -7581,6 +7773,10 @@ msgid "1 issue"
 msgstr ""
 
 #. translators: %d: number of real open findings, any category.
+#. translators: %d: real number of open findings for this signal.
+#. translators: %d: real number of open findings for this topic.
+#. translators: %d: real number of open findings for this check.
+#. translators: %d: real number of open findings in this category.
 #: assets/js/index.js:1
 #, js-format
 msgid "%d issues"
@@ -8473,19 +8669,35 @@ msgid "Close"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Priority"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Category"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Affected"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Scope"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Why it matters"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Recommended fix"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What happened?"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Example finding"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Step-by-step guidance for fixing this specific issue appears here once Pro is active."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "What this specific check actually found appears here once Pro is active."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8506,6 +8718,10 @@ msgstr ""
 msgid "No individual findings could be loaded for this group right now."
 msgstr ""
 
+#: assets/js/index.js:1
+msgid "This group's only other open finding is already shown above."
+msgstr ""
+
 #. translators: %d: how many further open findings exist beyond the list shown above
 #: assets/js/index.js:1
 #, js-format
@@ -8514,6 +8730,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "The specific accounts/pages/etc. this group affects appear here once Pro is active."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Detailed recommendations, setup guidance, and AI fixes are included in Pro."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8593,6 +8813,14 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Nothing here right now"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Issues"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Findings from your most recent scans, grouped by check."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9033,14 +9261,24 @@ msgstr ""
 msgid "Keep optimizing to grow even more."
 msgstr ""
 
-#. translators: %d: real point change vs 7 days ago.
 #: assets/js/index.js:1
-#, js-format
-msgid "%d pts vs last week"
+msgid "Needs Work"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Needs Work"
+msgid "Brand Visibility Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "SEO Health Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "GEO Visibility Score"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Crawl & URLs Score"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9088,23 +9326,11 @@ msgid "Manage structured data & entities."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Overall Score"
+msgid "Your real, combined score across Brand, SEO, GEO, and Crawl & URLs."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Brand Visibility Score"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "SEO Health Score"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "GEO Visibility Score"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Crawl & URLs Score"
+msgid "Remaining"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9270,32 +9496,26 @@ msgid "Could not load these issues"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Findings from your most recent scans, grouped by check."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Export CSV"
-msgstr ""
-
-#. translators: %d is the number of open findings.
-#: assets/js/index.js:1
-#, js-format
-msgid "%d issue"
-msgid_plural "%d issues"
-msgstr[0] ""
-msgstr[1] ""
-
-#: assets/js/index.js:1
-msgid "Updated"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Words"
 msgstr ""
 
+#. translators: 1: first 2 real scanner labels that flagged this page, comma-joined; 2: how many more real ones beyond those.
 #: assets/js/index.js:1
-msgid "Issues"
+#, js-format
+msgid "%1$s +%2$d"
 msgstr ""
+
+#. translators: 1: real total number of open findings on this page; 2: real scanner labels (capped, "+N" suffixed) that flagged them.
+#: assets/js/index.js:1
+#, js-format
+msgid "%1$d issue: %2$s"
+msgid_plural "%1$d issues: %2$s"
+msgstr[0] ""
+msgstr[1] ""
 
 #: assets/js/index.js:1
 msgid "SEO Score"
@@ -9350,6 +9570,10 @@ msgid "Every open SEO finding, filterable by priority."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Category"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Open Issues"
 msgstr ""
 
@@ -9363,6 +9587,29 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Show ignored"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/post-editor.js:1
+msgid "Could not analyze this page. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Something went wrong"
+msgstr ""
+
+#. translators: %s: this site's own Settings → General → Date Format, e.g. "10/09/2026".
+#: assets/js/index.js:1
+#, js-format
+msgid "Last scanned %s"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "This page has no open findings for this tab’s own checks right now."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Edit"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9444,11 +9691,11 @@ msgid "Based on %d published pages."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Remaining"
+msgid "Pages checked"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "How this score is calculated"
+msgid "Issues found"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9460,27 +9707,11 @@ msgid "Score Snapshot Score Snapshot Score Snapshot"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "GEO Score Breakdown"
+msgid "Competitor Comparison"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "See how your site performs across the signals that matter most for AI engines."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Signal"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Main Problem"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "—"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Competitor Comparison"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9527,48 +9758,13 @@ msgstr ""
 msgid "GEO Issues"
 msgstr ""
 
-#. translators: %d is the number of real open GEO findings under this topic.
 #: assets/js/index.js:1
-#, js-format
-msgid "%d open issue"
-msgid_plural "%d open issues"
-msgstr[0] ""
-msgstr[1] ""
-
-#: assets/js/index.js:1
-msgid "View issues"
+#: assets/js/post-editor.js:1
+msgid "Page Analysis"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Out of 100"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Current AEO Score"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Questions Answered"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Published pages with adequate FAQ/Q&A"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages Ready"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Ready for AI answer engine"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Content Change"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Score movement (last 30 days)"
+msgid "A single page’s real GEO signals from your most recent scan."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9587,6 +9783,22 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Improve content structure and clarity to be more discoverable by AI engines."
+msgstr ""
+
+#. translators: %d: real total published pages checked.
+#: assets/js/index.js:1
+#, js-format
+msgid "Questions Answered (of %d)"
+msgstr ""
+
+#. translators: %d: real total published pages checked.
+#: assets/js/index.js:1
+#, js-format
+msgid "Pages Ready (of %d)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Content Change (last 30 days)"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9811,6 +10023,10 @@ msgid "Answer Readiness"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "A single page’s real AEO signals from your most recent scan."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Robots.txt is accessible"
 msgstr ""
 
@@ -9848,6 +10064,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Turn on the SEO module to see robots.txt/sitemap crawl-health checks here."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Warning"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9902,18 +10122,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Pages that crawlers visited most often."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Crawl Health Checklist"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Real robots.txt/sitemap crawl-health checks, at a glance."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Warning"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10290,10 +10498,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Never"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Edit"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11055,10 +11259,6 @@ msgid "No business locations configured yet."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Why it matters"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Adding your business location helps customers and search engines understand where you operate."
 msgstr ""
 
@@ -11295,10 +11495,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Click \"Run Schema Check\" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Pages checked"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11540,19 +11736,7 @@ msgid "Passed"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not analyze this page. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Page Analysis"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "A single page's real SEO/GEO signals, checked live."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Something went wrong"
 msgstr ""
 
 #. translators: %s: this site's own Settings → General → Date Format, e.g. "10/09/2026".
@@ -11566,31 +11750,11 @@ msgid "No meta description set."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Your site is performing well. Keep optimizing to reach the next level."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Your site could use some improvement — a few real issues need attention."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Your site needs attention — several real SEO issues are open."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "SEO Health"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Your real, site-wide SEO score, open issue counts, and progress over time."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Overall SEO Score"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Issues found"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11764,6 +11928,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "CTR"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Updated"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -12465,6 +12633,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "All set"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "—"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -13474,6 +13646,14 @@ msgstr ""
 #: assets/js/index.js:1
 msgid "Pages & posts"
 msgstr ""
+
+#. translators: %d is the number of open findings.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d issue"
+msgid_plural "%d issues"
+msgstr[0] ""
+msgstr[1] ""
 
 #. translators: %d: number of pages/posts scanned
 #: assets/js/index.js:1
@@ -15261,6 +15441,10 @@ msgstr ""
 
 #: assets/js/post-editor.js:1
 msgid "This is not valid JSON — it will be cleared on save."
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "This page's real SEO/GEO signals, last checked live."
 msgstr ""
 
 #: assets/js/post-editor.js:1

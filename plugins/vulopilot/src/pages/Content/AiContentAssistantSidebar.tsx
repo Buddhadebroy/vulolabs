@@ -5,6 +5,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
+import ConnectVuloCloudPopup from '../../components/AiCredits/ConnectVuloCloudPopup';
+import { useAiCredits } from '../../services/useAiCredits';
 
 interface ChatLink {
 	url: string;
@@ -112,10 +114,16 @@ const PROMPT_CHIPS: PromptChip[] = [
  * conversation through the same real AI-provider chain
  * (AIProviders\Support\SafeRequestSender) AI Actions/GEO scoring already
  * use. Whichever provider is configured under Settings → AI Providers
- * answers for real; when none is configured, the controller's own honest
- * error ("No AI provider is configured. Add one in Settings → AI
- * Providers.") is shown via NoticeManager rather than silently doing
- * nothing. The running conversation (`turns`) is kept client-side and
+ * (or a connected VuloCloud account, ProviderRegistry's own real fallback-
+ * chain entry once `AiCreditsConnection::is_connected()`) answers for
+ * real; when neither exists, `sendToAi()` below recognizes that exact
+ * real "No AI provider is configured." condition and opens
+ * ConnectVuloCloudPopup — the same real free "Connect to VuloCloud/Claim
+ * free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already
+ * offers — instead of a dead-end NoticeManager error toast. Every other
+ * real error (a safety-validator rejection, a provider's own failure)
+ * still shows as that toast. The running conversation (`turns`) is kept
+ * client-side and
  * sent back as `history` on every call — there's no conversation entity
  * in this codebase to persist it against; every real call is still
  * recorded to `vulopilot_ai_history` server-side regardless (Reports'
@@ -138,6 +146,9 @@ const AiContentAssistantSidebar = () => {
 	// Set the moment a chip is picked; cleared once the user's next message
 	// has been folded into that chip's own build() and sent for real.
 	const [pendingChip, setPendingChip] = useState<PromptChip | null>(null);
+	/** True right after a real send failed specifically because no AI provider (BYOK or VuloCloud) is configured, OR a chip/send was blocked up front because `creditsStatus` already showed nobody's connected (see `handleChipClick()`/`handleSend()` below) — shows ConnectVuloCloudPopup, the same real free "Connect to VuloCloud"/"Claim free AI Credits" flow AiCreditsIndicator.tsx's own dropdown already offers, instead of a dead-end error notice. */
+	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
+	const { status: creditsStatus } = useAiCredits();
 
 	const sendToAi = (realMessage: string, displayedTurns: ChatTurn[]) => {
 		setIsSending(true);
@@ -159,13 +170,24 @@ const AiContentAssistantSidebar = () => {
 				]);
 			})
 			.catch((error) => {
+				const message = (error?.response?.data as WpRestErrorBody | undefined)?.message;
+
+				// SafeRequestSender's own real "No AI provider is
+				// configured." (see ContentAssistant.php's own docblock)
+				// — this exact condition has a real, free fix (connect
+				// VuloCloud), so it gets its own popup instead of just
+				// another error toast.
+				if (message?.includes('No AI provider is configured')) {
+					setIsCloudConnectPromptOpen(true);
+					return;
+				}
+
 				NoticeManager.add({
 					uniqueKey: 'vulopilot-content-assistant-error',
 					type: 'error',
 					position: 'float',
 					message:
-						(error?.response?.data as WpRestErrorBody | undefined)
-							?.message ??
+						message ??
 						__(
 							'Could not reach the AI Content Assistant. Please try again.',
 							'vulopilot'
@@ -193,9 +215,21 @@ const AiContentAssistantSidebar = () => {
 	 * of "What should the blog be about?" in the chat. One open question
 	 * at a time is the real, correct behavior; the user must answer (or
 	 * the request must finish) before another chip can ask a new one.
+	 *
+	 * Checked up front, before even asking the clarifying question — per
+	 * direct instruction ("when click work on description then the
+	 * connect popup show, not functionality work until the account is
+	 * connected"): picking a chip with no AI provider connected opens
+	 * ConnectVuloCloudPopup immediately, rather than walking through a
+	 * question the eventual real send would just fail on anyway.
 	 */
 	const handleChipClick = (chip: PromptChip) => {
 		if (isSending || pendingChip) {
+			return;
+		}
+
+		if (creditsStatus && !creditsStatus.connected) {
+			setIsCloudConnectPromptOpen(true);
 			return;
 		}
 
@@ -211,6 +245,14 @@ const AiContentAssistantSidebar = () => {
 		const trimmed = message.trim();
 
 		if ('' === trimmed || isSending) {
+			return;
+		}
+
+		// Same up-front check `handleChipClick()` already makes — this is
+		// the one still needed for a message typed directly into "Ask
+		// Anything…" without going through a chip first.
+		if (creditsStatus && !creditsStatus.connected) {
+			setIsCloudConnectPromptOpen(true);
 			return;
 		}
 
@@ -266,39 +308,45 @@ const AiContentAssistantSidebar = () => {
 	};
 
 	return (
-		<AiChatCard
-			emptyDesc={sprintf(
-				/* translators: %s: the real logged-in WP user's own display name */
-				__(
-					'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
-					'vulopilot'
-				),
-				appLocalizer.current_user_display_name
-			)}
-			prompts={PROMPT_CHIPS}
-			onSelectPrompt={handleSelectPrompt}
-			onNewChat={handleNewChat}
-			onOpenHistoryPopup={handleOpenHistory}
-			turns={turns}
-			renderTurn={(turn, index) => (
-				<CopilotTurnBubble key={index} turn={turn} />
-			)}
-			isSending={isSending}
-			sendingSpinnerClassName="content-assistant-spinner"
-			composer={
-				<ChatInput
-					value={message}
-					onChange={setMessage}
-					onSend={handleSend}
-					disabled={isSending}
-					placeholder={
-						pendingChip
-							? __('Type your answer…', 'vulopilot')
-							: __('Ask Anything…', 'vulopilot')
-					}
-				/>
-			}
-		/>
+		<>
+			<AiChatCard
+				emptyDesc={sprintf(
+					/* translators: %s: the real logged-in WP user's own display name */
+					__(
+						'Hi %s! I can help you create amazing content. Try one of these prompt ideas or ask your own.',
+						'vulopilot'
+					),
+					appLocalizer.current_user_display_name
+				)}
+				prompts={PROMPT_CHIPS}
+				onSelectPrompt={handleSelectPrompt}
+				onNewChat={handleNewChat}
+				onOpenHistoryPopup={handleOpenHistory}
+				turns={turns}
+				renderTurn={(turn, index) => (
+					<CopilotTurnBubble key={index} turn={turn} />
+				)}
+				isSending={isSending}
+				sendingSpinnerClassName="content-assistant-spinner"
+				composer={
+					<ChatInput
+						value={message}
+						onChange={setMessage}
+						onSend={handleSend}
+						disabled={isSending}
+						placeholder={
+							pendingChip
+								? __('Type your answer…', 'vulopilot')
+								: __('Ask Anything…', 'vulopilot')
+						}
+					/>
+				}
+			/>
+			<ConnectVuloCloudPopup
+				open={isCloudConnectPromptOpen}
+				onClose={() => setIsCloudConnectPromptOpen(false)}
+			/>
+		</>
 	);
 };
 

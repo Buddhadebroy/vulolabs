@@ -1,10 +1,10 @@
 /* global appLocalizer */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
-import { NoticeComponent, NoticeManager, PopupComponent } from '@zyra/components';
+import { NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useAiCredits } from '../../services/useAiCredits';
+import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
 import './AiCreditsIndicator.scss';
 
 /**
@@ -36,41 +36,17 @@ import './AiCreditsIndicator.scss';
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
 	const [isOpen, setIsOpen] = useState(false);
-	const [isConnecting, setIsConnecting] = useState(false);
-
-	if (isLoading || !status) {
-		return null;
-	}
-
 	/** Same `GET /ai-providers/broker-authorize-url` redirect
 	 * AiProvidersPanel.tsx's own "Connect to VuloCloud" button uses — the
 	 * broker's own return redirect lands back on that Settings tab
 	 * regardless of where this button was clicked from, so there's no
 	 * separate "connected" callback to wire up here; navigating away
 	 * makes this popup's own open/loading state moot. */
-	const handleConnectToVulocloud = () => {
-		setIsConnecting(true);
+	const { isConnecting, handleConnect: handleConnectToVulocloud } = useConnectVuloCloud();
 
-		getApiResponse<{ url: string }>(
-			getApiLink(appLocalizer, 'ai-providers/broker-authorize-url'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		)
-			.then((response) => {
-				if (response?.url) {
-					window.location.href = response.url;
-					return;
-				}
-
-				setIsConnecting(false);
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-connect-broker-unavailable',
-					type: 'error',
-					position: 'float',
-					message: __('VuloCloud isn’t configured for this build yet.', 'vulopilot'),
-				});
-			})
-			.catch(() => setIsConnecting(false));
-	};
+	if (isLoading || !status) {
+		return null;
+	}
 
 	return (
 		<div className="ai-credits-indicator">

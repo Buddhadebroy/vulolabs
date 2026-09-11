@@ -109,6 +109,25 @@ class BackupS3Connection {
     }
 
     /**
+     * BackupStorage's own "Disconnect" button — unlike
+     * `BackupGoogleDriveConnection::disconnect()` (which clears only the
+     * OAuth tokens and keeps the app-level Client ID/Secret so reconnecting
+     * doesn't require re-registering it), S3 has no such "app vs instance"
+     * split: Access Key/Secret/Bucket/Region are one single credential set,
+     * so disconnecting removes the whole saved row. Reconnecting means
+     * entering all 4 fields again, same as configuring it the first time.
+     *
+     * @return void
+     */
+    public function disconnect(): void {
+        $row = ( new BackupStorageConfigRepository() )->find_by_provider( self::PROVIDER );
+
+        if ( $row ) {
+            ( new BackupStorageConfigRepository() )->delete( (int) $row['id'] );
+        }
+    }
+
+    /**
      * Real `HeadBucket` round-trip — BackupStorage's own "Test connection"
      * button.
      *
