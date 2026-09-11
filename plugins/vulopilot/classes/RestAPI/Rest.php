@@ -140,6 +140,7 @@ class Rest {
             'keyword_rankings'            => new Controllers\KeywordRankings(),
             'vulocloud_account'           => new Controllers\VuloCloudAccount(),
             'ai_credits'                  => new Controllers\AiCredits(),
+            'vulocloud_connect'           => new Controllers\VuloCloudConnect(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

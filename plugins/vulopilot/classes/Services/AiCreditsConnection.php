@@ -591,6 +591,13 @@ class AiCreditsConnection {
             )
         );
 
+        // Immediate first report — without this, the Connected Sites
+        // detail page shows "Syncing…"/blank telemetry until the daily
+        // cron eventually fires (Services\SiteTelemetryReporter's own
+        // doc comment). Best-effort: a failure here doesn't affect the
+        // connection itself, which already fully succeeded above.
+        ( new SiteTelemetryReporter() )->report( $result['siteId'], $result['siteSecret'] );
+
         return $this->get_status();
     }
 

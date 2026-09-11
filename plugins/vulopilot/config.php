@@ -10,6 +10,12 @@ defined( 'ABSPATH' ) || exit;
 define( 'VULOPILOT_PLUGIN_TEXTDOMAIN', 'vulopilot' );
 define( 'VULOPILOT_PLUGIN_VERSION', '1.0.0' );
 define( 'VULOPILOT_PLUGIN_SLUG', 'vulopilot' );
+// The one place this plugin's own human-readable name lives — read by
+// Services\SiteTelemetryReporter for the "Plugin" field it reports to
+// VuloCloud, so that field is this plugin's own real name (whatever a
+// fork/rebrand sets it to here), never a hardcoded literal naming a
+// different, unrelated plugin.
+define( 'VULOPILOT_PLUGIN_NAME', 'VuloPilot' );
 // Defined free-side (not by vulopilot-pro) — same "where to buy Pro"
 // pattern as MULTIVENDORX_PRO_SHOP_URL in vulolabs/plugins/vulolabs/
 // config.php: the default `manage_plan_url` fallback for the "Pro not
@@ -182,4 +188,56 @@ if ( ! defined( 'VULOPILOT_VULOCLOUD_PUBLIC_URL' ) ) {
  */
 if ( ! defined( 'VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID' ) ) {
 	define( 'VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID', '' );
+}
+
+/**
+ * Generic "connect this plugin to a pre-known VuloCloud Organization +
+ * Brand" config — VuloCloudConnection's own config source (a plain
+ * sibling to AiCreditsConnection above, not a modification of it: that
+ * class's connection is unconditionally AI-Credits-shaped — credit
+ * balance fields baked into its stored option — and this one carries
+ * none of that).
+ *
+ * Deliberately array-shaped rather than four more flat constants like
+ * every other value in this file: this is the one config block meant to
+ * be copy/pasted into another plugin's own config.php basically
+ * unchanged (only the values differ, never the shape) — see
+ * VuloCloudConnection's own class docblock for why nothing downstream of
+ * this array ever hardcodes 'vulopilot' anywhere.
+ *
+ * `plugin_id` becomes ConnectedSite.pluginSlug on the VuloCloud side.
+ * `organization_id`/`brand_id` are the one Organization + (optional)
+ * Brand this build's Connect button always connects to — never a
+ * site-owner choice, unlike VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID's
+ * own "solo site owner" picker above.
+ *
+ * `domain` is that Organization's own public storefront/custom domain
+ * (e.g. a real store's own "store.example.com") — reference/display
+ * data only, NOT the VuloCloud platform's own API base URL. The actual
+ * broker/API calls this connection makes still go to the existing
+ * VULOPILOT_VULOCLOUD_URL/VULOPILOT_VULOCLOUD_PUBLIC_URL constants
+ * above, exactly like AiCreditsConnection's own calls do — see
+ * VuloCloudConnection::get_broker_authorize_url()'s own doc comment for
+ * why these must not be conflated.
+ *
+ * `offering_id` is intentionally NOT part of this shape yet — a
+ * connection can serve multiple Offerings (fetched later for the
+ * pricing page), so it isn't fixed config the way Organization/Brand
+ * are.
+ *
+ * Empty by default, same "safe to ship/commit" reasoning every other
+ * constant in this file follows — VuloCloudConnection::get_broker_authorize_url()
+ * honestly returns null (Connect button hidden) until a real deploy sets
+ * both this array's own organization_id AND VULOPILOT_VULOCLOUD_URL.
+ */
+if ( ! defined( 'VULOPILOT_VULOCLOUD_CONFIG' ) ) {
+	define(
+		'VULOPILOT_VULOCLOUD_CONFIG',
+		array(
+			'plugin_id'       => 'vulopilot',
+			'organization_id' => '',
+			'brand_id'        => '',
+			'domain'          => '',
+		)
+	);
 }
