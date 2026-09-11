@@ -15,6 +15,7 @@ import {
 	PopupComponent,
 	TooltipComponent,
 	TypographyComponent,
+	ContainerComponent
 } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
@@ -507,7 +508,7 @@ const RedirectsSection = () => {
 								text: `${row.hit_count} Hits`,
 								className: 'blue',
 							},
-							
+
 						]}
 						descriptions={[
 							{
@@ -563,7 +564,7 @@ const RedirectsSection = () => {
 						(row as unknown as RedirectRow).is_active
 							? __('Deactivate', 'vulopilot')
 							: __('Activate', 'vulopilot'),
-							color: (row: Record<string, unknown>) =>
+					color: (row: Record<string, unknown>) =>
 						(row as unknown as RedirectRow).is_active
 							? __('text-pink', 'vulopilot')
 							: __('text-green', 'vulopilot'),
@@ -625,53 +626,54 @@ const RedirectsSection = () => {
 		: 0;
 
 	return (
-		<ColumnComponent>
-			<CardComponent
-				title={__('Redirect Health', 'vulopilot')}
-				titleIcon="link"
-				desc={__('How many of your redirects are active and working.', 'vulopilot')}
-				// Grid-wide, not per-tile — same real "both real fetches start
-				// together" reasoning the old `MetricTileComponent`'s own
-				// combined `isLoading` docblock already gave; unchanged by
-				// this restructure.
-				isLoading={isLoading || isCheckingHealth}
-			>
-				<div className="seo-health-score-layout">
-					<div className="seo-health-score-ring-block">
-						<div className="seo-health-score-ring">
-							<ChartComponent
-								type="ring"
-								height={200}
-								centerLabel={
-									<>
-										<span className="score-ring-number">
-											{activePercent}
-										</span>
-										<span
-											className={`score-ring-label geo-overall-rating ${ratingClass(activePercent)}`}
-										>
-											{getRating(activePercent)}
-										</span>
-									</>
-								}
-								data={[
-									{
-										label: __('Active', 'vulopilot'),
-										value: activePercent,
-										color: COLOR_PALETTE[
-											ratingColor(activePercent) as keyof typeof COLOR_PALETTE
-										],
-									},
-									{
-										label: __('Remaining', 'vulopilot'),
-										value: 100 - activePercent,
-										color: '#e5e7eb',
-									},
-								]}
-							/>
+		<ContainerComponent>
+			<ColumnComponent grid={6}>
+				<CardComponent
+					title={__('Redirect Health', 'vulopilot')}
+					titleIcon="link"
+					desc={__('How many of your redirects are active and working.', 'vulopilot')}
+					// Grid-wide, not per-tile — same real "both real fetches start
+					// together" reasoning the old `MetricTileComponent`'s own
+					// combined `isLoading` docblock already gave; unchanged by
+					// this restructure.
+					isLoading={isLoading || isCheckingHealth}
+				>
+					<div className="seo-health-score-layout">
+						<div className="seo-health-score-ring-block">
+							<div className="seo-health-score-ring">
+								<ChartComponent
+									type="ring"
+									height={200}
+									centerLabel={
+										<>
+											<span className="score-ring-number">
+												{activePercent}
+											</span>
+											<span
+												className={`score-ring-label geo-overall-rating ${ratingClass(activePercent)}`}
+											>
+												{getRating(activePercent)}
+											</span>
+										</>
+									}
+									data={[
+										{
+											label: __('Active', 'vulopilot'),
+											value: activePercent,
+											color: COLOR_PALETTE[
+												ratingColor(activePercent) as keyof typeof COLOR_PALETTE
+											],
+										},
+										{
+											label: __('Remaining', 'vulopilot'),
+											value: 100 - activePercent,
+											color: '#e5e7eb',
+										},
+									]}
+								/>
+							</div>
 						</div>
-					</div>
-					{/*
+						{/*
 					 * Same real `ListComponent` "mini-card report" row
 					 * shape SeoTab.tsx's/BrokenLinksSection.tsx's own
 					 * stat rows already use — these 5 real values (a
@@ -681,276 +683,278 @@ const RedirectsSection = () => {
 					 * trailing value is just its real number/date, not a
 					 * fabricated "/100".
 					 */}
-					<ListComponent
-						className="mini-card report hover seo-health-score-category-list"
-						loading={isLoading || isCheckingHealth}
-						items={[
+						<ListComponent
+							className="mini-card report hover seo-health-score-category-list"
+							loading={isLoading || isCheckingHealth}
+							items={[
+								{
+									id: 'total',
+									icon: 'plus red',
+									title: __('Total Redirects', 'vulopilot'),
+									// desc: __('All redirects found', 'vulopilot'),
+									tags: (
+										<TypographyComponent
+											variant="h5"
+											weight="bold"
+											className="seo-health-score-row-value"
+										>
+											{totalCount}
+										</TypographyComponent>
+									),
+								},
+								{
+									id: 'active',
+									icon: 'check green',
+									title: __('Active', 'vulopilot'),
+									// desc: sprintf(
+									// 	/* translators: %d: percentage of redirects that are active. */
+									// 	__('Working correctly · %d%% of total', 'vulopilot'),
+									// 	activePercent
+									// ),
+									tags: (
+										<TypographyComponent
+											variant="h5"
+											weight="bold"
+											color="green"
+											className="seo-health-score-row-value"
+										>
+											{activeCount}
+										</TypographyComponent>
+									),
+								},
+								{
+									id: 'chains',
+									icon: 'link yellow',
+									title: __('Redirect Chains', 'vulopilot'),
+									// desc: chainCount
+									// 	? sprintf(
+									// 		/* translators: %d: number of chains detected. */
+									// 		_n('%d chain detected — needs review', '%d chains detected — needs review', chainCount, 'vulopilot'),
+									// 		chainCount
+									// 	)
+									// 	: __('No chains detected', 'vulopilot'),
+									tags: (
+										<TypographyComponent
+											variant="h5"
+											weight="bold"
+											color="yellow"
+											className="seo-health-score-row-value"
+										>
+											{chainCount}
+										</TypographyComponent>
+									),
+								},
+								{
+									id: 'broken',
+									icon: 'error pink',
+									title: __('Broken Redirects', 'vulopilot'),
+									// desc: sprintf(
+									// 	/* translators: %d: percentage of redirects that are broken. */
+									// 	__('Needs attention · %d%% of total', 'vulopilot'),
+									// 	totalCount ? Math.round((brokenCount / totalCount) * 100) : 0
+									// ),
+									tags: (
+										<TypographyComponent
+											variant="h5"
+											weight="bold"
+											color="red"
+											className="seo-health-score-row-value"
+										>
+											{brokenCount}
+										</TypographyComponent>
+									),
+								},
+								{
+									id: 'last-checked',
+									icon: 'calendar blue',
+									title: __('Last Checked', 'vulopilot'),
+									// desc: nextCheckLabel
+									// 	? sprintf(
+									// 		/* translators: %s: formatted date/time of the next automatic health check. */
+									// 		__('Next automatic check: %s', 'vulopilot'),
+									// 		nextCheckLabel
+									// 	)
+									// 	: __('Broken-redirect check has not run yet.', 'vulopilot'),
+									tags: (
+										<TypographyComponent
+											as="span"
+											variant="body-md"
+											weight="bold"
+											className="seo-health-score-row-value"
+										>
+											{health
+												? formatWpDate(new Date(health.checked_at * 1000).toISOString())
+												: __('Never', 'vulopilot')}
+										</TypographyComponent>
+									),
+								},
+							]}
+						/>
+					</div>
+				</CardComponent>
+			</ColumnComponent>
+			<ColumnComponent>
+				<CardComponent
+					title={__('Redirects', 'vulopilot')}
+					titleIcon="link"
+					desc={__('Every real redirect rule you\'ve set up, searchable and filterable.', 'vulopilot')}
+				>
+					<TableCard
+						showMenu={false}
+						className="transparent-table redirect-table"
+						hideHeader={true}
+						headers={headers}
+						rows={pageRows}
+						ids={pageRows.map((row) => row.id)}
+						totalRows={visibleRedirects.length}
+						isLoading={isLoading}
+						search={{
+							placeholder: __('Search by URL or redirect…', 'vulopilot'),
+						}}
+						filters={[
 							{
-								id: 'total',
-								icon: 'plus red',
-								title: __('Total Redirects', 'vulopilot'),
-								// desc: __('All redirects found', 'vulopilot'),
-								tags: (
-									<TypographyComponent
-										variant="h5"
-										weight="bold"
-										className="seo-health-score-row-value"
-									>
-										{totalCount}
-									</TypographyComponent>
-								),
+								key: 'type',
+								label: __('Type', 'vulopilot'),
+								type: 'select',
+								size: 9,
+								options: [
+									{ label: __('All types', 'vulopilot'), value: 'all' },
+									{ label: '301', value: '301' },
+									{ label: '302', value: '302' },
+									{ label: '307', value: '307' },
+								],
 							},
 							{
-								id: 'active',
-								icon: 'check green',
-								title: __('Active', 'vulopilot'),
-								// desc: sprintf(
-								// 	/* translators: %d: percentage of redirects that are active. */
-								// 	__('Working correctly · %d%% of total', 'vulopilot'),
-								// 	activePercent
-								// ),
-								tags: (
-									<TypographyComponent
-										variant="h5"
-										weight="bold"
-										color="green"
-										className="seo-health-score-row-value"
-									>
-										{activeCount}
-									</TypographyComponent>
-								),
-							},
-							{
-								id: 'chains',
-								icon: 'link yellow',
-								title: __('Redirect Chains', 'vulopilot'),
-								// desc: chainCount
-								// 	? sprintf(
-								// 		/* translators: %d: number of chains detected. */
-								// 		_n('%d chain detected — needs review', '%d chains detected — needs review', chainCount, 'vulopilot'),
-								// 		chainCount
-								// 	)
-								// 	: __('No chains detected', 'vulopilot'),
-								tags: (
-									<TypographyComponent
-										variant="h5"
-										weight="bold"
-										color="yellow"
-										className="seo-health-score-row-value"
-									>
-										{chainCount}
-									</TypographyComponent>
-								),
-							},
-							{
-								id: 'broken',
-								icon: 'error pink',
-								title: __('Broken Redirects', 'vulopilot'),
-								// desc: sprintf(
-								// 	/* translators: %d: percentage of redirects that are broken. */
-								// 	__('Needs attention · %d%% of total', 'vulopilot'),
-								// 	totalCount ? Math.round((brokenCount / totalCount) * 100) : 0
-								// ),
-								tags: (
-									<TypographyComponent
-										variant="h5"
-										weight="bold"
-										color="red"
-										className="seo-health-score-row-value"
-									>
-										{brokenCount}
-									</TypographyComponent>
-								),
-							},
-							{
-								id: 'last-checked',
-								icon: 'calendar blue',
-								title: __('Last Checked', 'vulopilot'),
-								// desc: nextCheckLabel
-								// 	? sprintf(
-								// 		/* translators: %s: formatted date/time of the next automatic health check. */
-								// 		__('Next automatic check: %s', 'vulopilot'),
-								// 		nextCheckLabel
-								// 	)
-								// 	: __('Broken-redirect check has not run yet.', 'vulopilot'),
-								tags: (
-									<TypographyComponent
-										as="span"
-										variant="body-md"
-										weight="bold"
-										className="seo-health-score-row-value"
-									>
-										{health
-											? formatWpDate(new Date(health.checked_at * 1000).toISOString())
-											: __('Never', 'vulopilot')}
-									</TypographyComponent>
-								),
+								key: 'status',
+								label: __('Status', 'vulopilot'),
+								type: 'select',
+								size: 9,
+								options: [
+									{ label: __('All status', 'vulopilot'), value: 'all' },
+									{ label: __('Active', 'vulopilot'), value: 'active' },
+									{ label: __('Inactive', 'vulopilot'), value: 'inactive' },
+									{ label: __('Broken', 'vulopilot'), value: 'broken' },
+								],
 							},
 						]}
-					/>
-				</div>
-			</CardComponent>
-
-			<CardComponent
-				title={__('Redirects', 'vulopilot')}
-				titleIcon="link"
-				desc={__('Every real redirect rule you\'ve set up, searchable and filterable.', 'vulopilot')}
-			>
-				<TableCard
-					showMenu={false}
-					className="transparent-table redirect-table"
-					hideHeader={true}
-					headers={headers}
-					rows={pageRows}
-					ids={pageRows.map((row) => row.id)}
-					totalRows={visibleRedirects.length}
-					isLoading={isLoading}
-					search={{
-						placeholder: __('Search by URL or redirect…', 'vulopilot'),
-					}}
-					filters={[
-						{
-							key: 'type',
-							label: __('Type', 'vulopilot'),
-							type: 'select',
-							size: 9,
-							options: [
-								{ label: __('All types', 'vulopilot'), value: 'all' },
-								{ label: '301', value: '301' },
-								{ label: '302', value: '302' },
-								{ label: '307', value: '307' },
-							],
-						},
-						{
-							key: 'status',
-							label: __('Status', 'vulopilot'),
-							type: 'select',
-							size: 9,
-							options: [
-								{ label: __('All status', 'vulopilot'), value: 'all' },
-								{ label: __('Active', 'vulopilot'), value: 'active' },
-								{ label: __('Inactive', 'vulopilot'), value: 'inactive' },
-								{ label: __('Broken', 'vulopilot'), value: 'broken' },
-							],
-						},
-					]}
-					buttonActions={[
-						{
-							label: __('Export CSV', 'vulopilot'),
-							icon: 'export',
-							color: 'border-purple',
-							onClick: handleExportCsv,
-						},
-						{
-							label: __('Add redirect', 'vulopilot'),
-							icon: 'plus',
-							onClick: openAddForm,
-						},
-					]}
-					headerHide={true}
-					onQueryUpdate={(query: {
-						paged?: number | string;
-						per_page?: number | string;
-						searchValue?: string;
-						filter?: Record<string, string>;
-					}) => {
-						setPaged(Number(query.paged) || 1);
-						setPerPage(Number(query.per_page) || DEFAULT_PER_PAGE);
-						setSearchTerm(query.searchValue ?? '');
-						const typeValue = query.filter?.type;
-						setTypeFilter(
-							!typeValue || 'all' === typeValue
-								? 'all'
-								: (Number(typeValue) as TypeFilter)
-						);
-						setStatusFilter(
-							(query.filter?.status as StatusFilter) ?? 'all'
-						);
-					}}
-					emptyMessage={__(
-						'No redirects yet — add one, or convert an entry from the 404s tab.',
-						'vulopilot'
-					)}
-				/>
-			</CardComponent>
-
-			<PopupComponent
-				open={isFormOpen}
-				onClose={() => {
-					setIsFormOpen(false);
-					resetForm();
-				}}
-				width={28}
-				header={{
-					title: editingId
-						? __('Edit redirect', 'vulopilot')
-						: __('Add redirect', 'vulopilot'),
-				}}
-				footer={
-					<ButtonInput
-						buttons={{
-							text: isSaving ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
-							onClick: handleSaveRedirect,
-							disabled: isSaving,
+						buttonActions={[
+							{
+								label: __('Export CSV', 'vulopilot'),
+								icon: 'export',
+								color: 'border-purple',
+								onClick: handleExportCsv,
+							},
+							{
+								label: __('Add redirect', 'vulopilot'),
+								icon: 'plus',
+								onClick: openAddForm,
+							},
+						]}
+						headerHide={true}
+						onQueryUpdate={(query: {
+							paged?: number | string;
+							per_page?: number | string;
+							searchValue?: string;
+							filter?: Record<string, string>;
+						}) => {
+							setPaged(Number(query.paged) || 1);
+							setPerPage(Number(query.per_page) || DEFAULT_PER_PAGE);
+							setSearchTerm(query.searchValue ?? '');
+							const typeValue = query.filter?.type;
+							setTypeFilter(
+								!typeValue || 'all' === typeValue
+									? 'all'
+									: (Number(typeValue) as TypeFilter)
+							);
+							setStatusFilter(
+								(query.filter?.status as StatusFilter) ?? 'all'
+							);
 						}}
+						emptyMessage={__(
+							'No redirects yet — add one, or convert an entry from the 404s tab.',
+							'vulopilot'
+						)}
 					/>
-				}
-			>
-				<FormGroupWrapperComponent>
-					<FormGroupComponent label={__('Old page url', 'vulopilot')}>
-						<TextInput
-							name="source_path"
-							inputLabel={__('From (path)', 'vulopilot')}
-							placeholder={__('/old-page/', 'vulopilot')}
-							value={sourcePath}
-							disabled={!!editingId}
-							onChange={(newValue) => setSourcePath(newValue as string)}
-						/>
-					</FormGroupComponent>
-					<FormGroupComponent label={__('New page url', 'vulopilot')}>
-						<TextInput
-							name="target_url"
-							inputLabel={__('To', 'vulopilot')}
-							placeholder={__('https://example.com/new-page/', 'vulopilot')}
-							value={targetUrl}
-							onChange={(newValue) => setTargetUrl(newValue as string)}
-						/>
-					</FormGroupComponent>
-					<FormGroupComponent label={__('Type', 'vulopilot')}>
-						<SelectInput
-							name="redirect_type"
-							inputLabel={__('Type', 'vulopilot')}
-							value={redirectType}
-							options={[
-								{ label: '301 (Permanent)', value: '301' },
-								{ label: '302 (Temporary)', value: '302' },
-								{ label: '307 (Temporary, method-preserving)', value: '307' },
-							]}
-							onChange={(newValue) => setRedirectType(newValue as string)}
-							size="16rem"
-						/>
-					</FormGroupComponent>
-				</FormGroupWrapperComponent>
-			</PopupComponent>
+				</CardComponent>
 
-			<PopupComponent
-				position="lightbox"
-				open={!!deleteTarget}
-				onClose={() => setDeleteTarget(null)}
-				width={31.25}
-				height="auto"
-			>
-				<ShowProPopup
-					confirmMode
-					title={__('Delete Redirect', 'vulopilot')}
-					confirmMessage={__('Delete this redirect? This cannot be undone.', 'vulopilot')}
-					confirmYesText={__('Delete', 'vulopilot')}
-					confirmNoText={__('Cancel', 'vulopilot')}
-					onConfirm={handleConfirmDeleteRedirect}
-					onCancel={() => setDeleteTarget(null)}
-				/>
-			</PopupComponent>
-		</ColumnComponent>
+				<PopupComponent
+					open={isFormOpen}
+					onClose={() => {
+						setIsFormOpen(false);
+						resetForm();
+					}}
+					width={28}
+					header={{
+						title: editingId
+							? __('Edit redirect', 'vulopilot')
+							: __('Add redirect', 'vulopilot'),
+					}}
+					footer={
+						<ButtonInput
+							buttons={{
+								text: isSaving ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
+								onClick: handleSaveRedirect,
+								disabled: isSaving,
+							}}
+						/>
+					}
+				>
+					<FormGroupWrapperComponent>
+						<FormGroupComponent label={__('Old page url', 'vulopilot')}>
+							<TextInput
+								name="source_path"
+								inputLabel={__('From (path)', 'vulopilot')}
+								placeholder={__('/old-page/', 'vulopilot')}
+								value={sourcePath}
+								disabled={!!editingId}
+								onChange={(newValue) => setSourcePath(newValue as string)}
+							/>
+						</FormGroupComponent>
+						<FormGroupComponent label={__('New page url', 'vulopilot')}>
+							<TextInput
+								name="target_url"
+								inputLabel={__('To', 'vulopilot')}
+								placeholder={__('https://example.com/new-page/', 'vulopilot')}
+								value={targetUrl}
+								onChange={(newValue) => setTargetUrl(newValue as string)}
+							/>
+						</FormGroupComponent>
+						<FormGroupComponent label={__('Type', 'vulopilot')}>
+							<SelectInput
+								name="redirect_type"
+								inputLabel={__('Type', 'vulopilot')}
+								value={redirectType}
+								options={[
+									{ label: '301 (Permanent)', value: '301' },
+									{ label: '302 (Temporary)', value: '302' },
+									{ label: '307 (Temporary, method-preserving)', value: '307' },
+								]}
+								onChange={(newValue) => setRedirectType(newValue as string)}
+								size="16rem"
+							/>
+						</FormGroupComponent>
+					</FormGroupWrapperComponent>
+				</PopupComponent>
+
+				<PopupComponent
+					position="lightbox"
+					open={!!deleteTarget}
+					onClose={() => setDeleteTarget(null)}
+					width={31.25}
+					height="auto"
+				>
+					<ShowProPopup
+						confirmMode
+						title={__('Delete Redirect', 'vulopilot')}
+						confirmMessage={__('Delete this redirect? This cannot be undone.', 'vulopilot')}
+						confirmYesText={__('Delete', 'vulopilot')}
+						confirmNoText={__('Cancel', 'vulopilot')}
+						onConfirm={handleConfirmDeleteRedirect}
+						onCancel={() => setDeleteTarget(null)}
+					/>
+				</PopupComponent>
+			</ColumnComponent>
+		</ContainerComponent>
 	);
 };
 

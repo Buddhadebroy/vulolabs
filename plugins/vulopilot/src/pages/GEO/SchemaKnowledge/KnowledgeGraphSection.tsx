@@ -12,7 +12,6 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../../services/useFilterSlot';
-import { KnowledgeGraphDiagram } from './KnowledgeGraphDiagramCard';
 
 /** Real Settings → Scanning → AI Visibility subtab id (Settings.tsx's own `currentTab === 'ai-visibility'` branch) — where the `entity_business_type`/`entity_service_pages`/`entity_business_locations` fields this section (and BusinessProfileCard.tsx/KnowledgeGraphDiagramCard.tsx, which import this same constant) read actually live. */
 export const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=ai-visibility';
@@ -260,20 +259,16 @@ const EntityDetailContent = ({
  * via `EntityDetailContent`) in its own panel, inside this same card.
  * Defaults to the "Organization" tab so that panel never starts blank.
  *
- * Count list, Graph Visualization, and the active tab's detail panel sit
- * side by side as 3 columns in one row (`.kg-understand-grid`) rather than
- * the detail panel dropping to a full-width row underneath — per direct
+ * Count list and the active tab's detail panel sit side by side inside
+ * this one real `grid={12}` card (`.kg-understand-grid`) rather than the
+ * detail panel dropping to a full-width row underneath — per direct
  * instruction ("make the 3 sections side by side instead of organization
- * list in the 2nd row"). The Graph Visualization pane itself is otherwise
- * untouched — still always visible regardless of which tab is active. It
- * renders vulopilot-pro's own richer `vulopilot_knowledge_graph_visualization_card`
- * slot when that module is active; otherwise it now renders the real,
- * free `KnowledgeGraphDiagram` (imported from KnowledgeGraphDiagramCard.tsx
- * — that file's own former standalone card wrapping this same diagram was
- * removed per direct instruction, this is its only remaining render site
- * now), reusing `entities` already fetched here rather than a 2nd fetch —
- * instead of the former "Graph visualization is a Pro feature" upgrade
- * placeholder.
+ * list in the 2nd row"), back when Graph Visualization was still this
+ * card's own 3rd column here too. Graph Visualization itself has since
+ * moved to BusinessProfileCard.tsx (per direct instruction), so this card
+ * widened from `grid={8}` to fill the row on its own — see that file's
+ * own docblock for the real `vulopilot_knowledge_graph_visualization_card`
+ * Pro slot / free `KnowledgeGraphDiagram` fallback it now renders instead.
  */
 const KnowledgeGraphSection = () => {
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
@@ -285,9 +280,10 @@ const KnowledgeGraphSection = () => {
 	// rules of hooks — same reasoning BrandVisibilityTab.tsx's own 4
 	// useFilterSlot() calls already document (a Pro slot resolving is
 	// irrelevant on the "module off"/error branches anyway).
-	const KnowledgeGraphVisualizationCard = useFilterSlot(
-		'vulopilot_knowledge_graph_visualization_card'
-	);
+	// `vulopilot_knowledge_graph_visualization_card`'s own real render site
+	// moved to BusinessProfileCard.tsx (its own identical `useFilterSlot()`
+	// call there) — the free `KnowledgeGraphDiagram` fallback it decides
+	// between now lives there too.
 	const EntityRecommendationsCard = useFilterSlot(
 		'vulopilot_knowledge_graph_recommendations_card'
 	);
@@ -520,86 +516,6 @@ const KnowledgeGraphSection = () => {
 
 	return (
 		<>
-			<ColumnComponent grid={8} fullHeight>
-				{entities && (
-					<CardComponent
-						title={__('What AI & Search Understand', 'vulopilot')}
-						titleIcon="centralized-connections"
-						desc={__(
-							'These are the main things we detected on your site and how they connect.',
-							'vulopilot'
-						)}
-						badges={[
-							{ text: __('Knowledge Graph view', 'vulopilot'), color: 'purple' },
-						]}
-					>
-						<div className="kg-understand-grid">
-							<ListComponent
-								className="kg-understand-count-list"
-								items={entityTabs.map((tab) => ({
-									id: tab.key,
-									icon: tab.icon,
-									title: tab.label,
-									className:
-										tab.key === activeEntityTab ? 'is-active' : '',
-									tags: (
-										<span className="kg-understand-count-value">
-											{tab.count}
-										</span>
-									),
-									action: () => {
-										setActiveEntityTab(tab.key);
-										scrollToTabContent();
-									},
-								}))}
-							/>
-
-							{activeTab && (
-								<div
-									id="kg-entity-tab-content"
-									className="kg-entity-tab-content"
-								>
-									<div className="kg-entity-tab-content-header">
-										<i className={`adminfont-${activeTab.icon}`} />
-										<span className="kg-entity-tab-content-title">
-											{activeTab.label}
-										</span>
-										<BadgeComponent
-											color={activeTab.count > 0 ? 'green' : 'grey'}
-											text={String(activeTab.count)}
-										/>
-									</div>
-									<EntityDetailContent
-										title={activeTab.label}
-										rows={activeTab.rows}
-										emptyMessage={activeTab.emptyMessage}
-										naMessage={activeTab.naMessage}
-										emptyState={activeTab.emptyState}
-										viewAllHref={activeTab.viewAllHref}
-										settingsUrl={activeTab.settingsUrl}
-										rowBadge={activeTab.rowBadge}
-									/>
-								</div>
-							)}
-						</div>
-					</CardComponent>
-				)}
-			</ColumnComponent>
-			<ColumnComponent grid={4} fullHeight>
-				{KnowledgeGraphVisualizationCard ? (
-					<KnowledgeGraphVisualizationCard />
-				) : (
-					// `entities` is still null for a real, guaranteed-to-happen window
-					// on every load (this state's own initial value, before `GET
-					// /entities` resolves) — KnowledgeGraphDiagram's own props type
-					// requires a real EntitiesResponse and dereferences it immediately
-					// (`entities.organizations[0]`), so rendering it unguarded crashed
-					// this entire tab on every single load whenever Pro's own
-					// KnowledgeGraphVisualizationCard wasn't available. Same `entities
-					// &&` guard the left-hand column above already uses.
-					entities && <KnowledgeGraphDiagram entities={entities} />
-				)}
-			</ColumnComponent>
 			{KnowledgeGraphHealthCard &&
 				<ColumnComponent grid={6} fullHeight>
 					<KnowledgeGraphHealthCard />

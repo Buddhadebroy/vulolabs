@@ -53,6 +53,27 @@ class EntityExtraction extends \WP_REST_Controller {
                 ),
             )
         );
+
+        // Backs BusinessProfileCard.tsx's own "Business Name Details" side
+        // panel — see EntityExtractor::get_business_name_sources()'s own
+        // docblock for what this real 4-source cross-check actually is.
+        register_rest_route(
+            VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/business-name-sources',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_business_name_sources' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                    'args'                => array(
+                        'refresh' => array(
+                            'type'    => 'boolean',
+                            'default' => false,
+                        ),
+                    ),
+                ),
+            )
+        );
     }
 
     /**
@@ -67,5 +88,15 @@ class EntityExtraction extends \WP_REST_Controller {
      */
     public function get_items( $request ) {
         return rest_ensure_response( $this->extractor->extract_all() );
+    }
+
+    /**
+     * @param \WP_REST_Request $request
+     * @return \WP_REST_Response
+     */
+    public function get_business_name_sources( $request ) {
+        return rest_ensure_response(
+            $this->extractor->get_business_name_sources( (bool) $request->get_param( 'refresh' ) )
+        );
     }
 }
