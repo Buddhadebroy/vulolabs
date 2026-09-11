@@ -5,6 +5,7 @@ import { ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import ProLockedCard from '../components/ProLockedCard';
 import { useApiList } from '../services/useApiList';
+import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 
 interface HealthSnapshot {
@@ -68,8 +69,11 @@ const HealthTimelineWidget: React.FC<WidgetProps> = ({
 				/>
 			) : (
 				<ChartComponent
-					type="area"
-					data={snapshots}
+					type="dynamic-line"
+					data={snapshots.map((snapshot) => ({
+						...snapshot,
+						snapshot_date: formatWpDate(snapshot.snapshot_date),
+					}))}
 					dataKey="overall_score"
 					xKey="snapshot_date"
 					height={300}

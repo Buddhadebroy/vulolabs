@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
+import { formatWpDate } from '../../services/formatWpDate';
 
 interface PerformanceScoreSnapshot {
 	snapshot_date: string;
@@ -41,9 +42,12 @@ const SpeedHistoryCard = () => {
 				/>
 			) : (
 				<ChartComponent
-					type="area"
+					type="dynamic-line"
 					isLoading={isLoading}
-					data={snapshots}
+					data={snapshots.map((snapshot) => ({
+						...snapshot,
+						snapshot_date: formatWpDate(snapshot.snapshot_date),
+					}))}
 					dataKey="performance_score"
 					xKey="snapshot_date"
 					height={220}

@@ -15,6 +15,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput, ToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
+import { formatWpDate } from '../../services/formatWpDate';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { useVisibilityScore } from './useVisibilityScore';
 import type { VisibilityScoreResponse } from './useVisibilityScore';
@@ -460,13 +461,15 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 				>
 					{progress && (
 						<ChartComponent
-							type="area"
-							data={progress.trend}
+							type="dynamic-line"
+							data={progress.trend.map((point: { date: string; score: number }) => ({
+								...point,
+								date: formatWpDate(point.date),
+							}))}
 							dataKey="score"
 							xKey="date"
 							height={220}
 							yDomain={[0, 100]}
-							color="#7C3AED"
 						/>
 					)}
 				</CardComponent>

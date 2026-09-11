@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
+import { formatWpDate } from '../../services/formatWpDate';
 import { nonceHeaders } from './seoIssuesShared';
 import './WhatShouldIFixFirst.scss';
 
@@ -123,13 +124,15 @@ const SeoProgressCard = () => {
 							{__('SEO Score Over Time', 'vulopilot')}
 						</div>
 						<ChartComponent
-							type="area"
-							data={data.trend}
+							type="dynamic-line"
+							data={data.trend.map((point: TrendPoint) => ({
+								...point,
+								date: formatWpDate(point.date),
+							}))}
 							dataKey="score"
 							xKey="date"
 							height={220}
 							yDomain={[0, 100]}
-							color="#7C3AED"
 						/>
 					</div>
 
