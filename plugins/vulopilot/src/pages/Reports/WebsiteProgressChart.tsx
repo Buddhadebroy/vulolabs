@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ChartComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
+import { formatWpDate } from '../../services/formatWpDate';
 
 interface HealthSnapshot {
 	snapshot_date: string;
@@ -65,9 +66,12 @@ const WebsiteProgressChart = () => {
 				/>
 			) : (
 				<ChartComponent
-					type="area"
+					type="dynamic-line"
 					isLoading={isLoading}
-					data={snapshots}
+					data={snapshots.map((snapshot) => ({
+						...snapshot,
+						snapshot_date: formatWpDate(snapshot.snapshot_date),
+					}))}
 					dataKey="overall_score"
 					xKey="snapshot_date"
 					height={280}

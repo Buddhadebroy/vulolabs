@@ -75,7 +75,7 @@ const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
 
 	return (
 		<TabsComponent
-			className="crawl-urls-tabs"
+			className="sub-tabs"
 			activeIndex={SECTION_IDS.indexOf(activeSection)}
 			onTabChange={(index) => setActiveSection(SECTION_IDS[index])}
 			tabs={[

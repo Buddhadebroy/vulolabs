@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
+import { formatWpDate } from '../../services/formatWpDate';
 
 interface SecurityScoreSnapshot {
 	snapshot_date: string;
@@ -46,9 +47,12 @@ const SecurityTrendCard = () => {
 				/>
 			) : (
 				<ChartComponent
-					type="area"
+					type="dynamic-line"
 					isLoading={isLoading}
-					data={snapshots}
+					data={snapshots.map((snapshot) => ({
+						...snapshot,
+						snapshot_date: formatWpDate(snapshot.snapshot_date),
+					}))}
 					dataKey="security_score"
 					xKey="snapshot_date"
 					height={220}

@@ -6,6 +6,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, BadgeComponent, CardComponent, ChartComponent, ColumnComponent, ContainerComponent, IconComponent, ListComponent, TypographyComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../services/useFilterSlot';
+import { formatWpDate } from '../../services/formatWpDate';
 import ProLockedCard from '../../components/ProLockedCard';
 import { useGeoScore } from './useGeoScore';
 import type { GeoSignalScore } from './useGeoScore';
@@ -411,13 +412,15 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 				>
 					{progress && (
 						<ChartComponent
-							type="area"
-							data={progress.trend}
+							type="dynamic-line"
+							data={progress.trend.map((point) => ({
+								...point,
+								date: formatWpDate(point.date),
+							}))}
 							dataKey="score"
 							xKey="date"
-							height={220}
+							height={300}
 							yDomain={[0, 100]}
-							color="#7C3AED"
 						/>
 					)}
 				</CardComponent>

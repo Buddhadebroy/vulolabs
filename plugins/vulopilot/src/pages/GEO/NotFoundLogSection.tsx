@@ -187,12 +187,22 @@ const NotFoundLogSection = () => {
 									// the plain icon-only look.
 									type: 'action',
 									actions: [
+										
 										{
-											// type: 'button',
+											type: 'button',
+											color: 'text-red',
+											label: __('Dismiss', 'vulopilot'),
+											icon: 'cross',
+											onClick: (row: Record<string, unknown>) =>
+												handleDismissLog(row as unknown as NotFoundLogRow),
+										},
+										{
+											type: 'button',
+											color: 'purple',
 											label: (row: Record<string, unknown>) =>
 												isSystemLog(row as unknown as NotFoundLogRow)
 													? __(
-															"System file — no redirect needed",
+															"no redirect needed",
 															'vulopilot'
 														)
 													: __('Create redirect', 'vulopilot'),
@@ -207,13 +217,6 @@ const NotFoundLogSection = () => {
 													openConvertPopup(logRow);
 												}
 											},
-										},
-										{
-											// type: 'button',
-											label: __('Dismiss', 'vulopilot'),
-											icon: 'cross',
-											onClick: (row: Record<string, unknown>) =>
-												handleDismissLog(row as unknown as NotFoundLogRow),
 										},
 									],
 								},

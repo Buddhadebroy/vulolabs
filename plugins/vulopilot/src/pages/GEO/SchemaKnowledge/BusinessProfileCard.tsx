@@ -1,11 +1,15 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, ChartComponent, ColumnComponent, ModuleGuardComponent } from '@zyra/components';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
+import { CardComponent, ChartComponent, ColumnComponent, ListComponent, ModuleGuardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { EntitiesResponse } from './KnowledgeGraphSection';
 import { ENTITY_SETTINGS_URL } from './KnowledgeGraphSection';
+import BusinessNameDetailsPanel from './BusinessNameDetailsPanel';
+import { ratingColor } from '../seoRating';
+import { useFilterSlot } from '../../../services/useFilterSlot';
+import { KnowledgeGraphDiagram } from './KnowledgeGraphDiagramCard';
 
 const isBrandModuleActive = () =>
 	appLocalizer.active_modules?.includes('brand-intelligence') ?? false;
@@ -68,6 +72,10 @@ interface ProfileRow {
  *   (same settings tab), a deliberate confirmation, not an inference.
  * - Products: "medium" — real WooCommerce data, but auto-detected, not
  *   explicitly confirmed as public-facing "what we sell" copy.
+ * - Categories: "high" once present — real taxonomy terms already
+ *   attached to at least one published post/product, same deterministic
+ *   `hide_empty` read `Services\EntityExtractor::extract_categories()`
+ *   already uses.
  * - Contact details: "high" — a real, deterministic published-page check
  *   (Services\EntityExtractor::find_contact_page()).
  */
@@ -96,9 +104,9 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 			value:
 				entities.people.length > 0
 					? sprintf(
-							_n('%d person', '%d people', entities.people.length, 'vulopilot'),
-							entities.people.length
-						)
+						_n('%d person', '%d people', entities.people.length, 'vulopilot'),
+						entities.people.length
+					)
 					: __('Not found', 'vulopilot'),
 			confidence: entities.people.length > 0 ? 'medium' : 'n/a',
 		},
@@ -109,9 +117,9 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 			value:
 				entities.services.length > 0
 					? sprintf(
-							_n('%d service', '%d services', entities.services.length, 'vulopilot'),
-							entities.services.length
-						)
+						_n('%d service', '%d services', entities.services.length, 'vulopilot'),
+						entities.services.length
+					)
 					: __('Not found', 'vulopilot'),
 			confidence: entities.services.length > 0 ? 'high' : 'n/a',
 		},
@@ -125,11 +133,24 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 					? __('Not applicable', 'vulopilot')
 					: entities.products.length > 0
 						? sprintf(
-								_n('%d product', '%d products', entities.products.length, 'vulopilot'),
-								entities.products.length
-							)
+							_n('%d product', '%d products', entities.products.length, 'vulopilot'),
+							entities.products.length
+						)
 						: __('Not found', 'vulopilot'),
 			confidence: null !== entities.products && entities.products.length > 0 ? 'medium' : 'n/a',
+		},
+		{
+			key: 'categories',
+			label: __('Categories', 'vulopilot'),
+			found: entities.categories.length > 0,
+			value:
+				entities.categories.length > 0
+					? sprintf(
+						_n('%d category', '%d categories', entities.categories.length, 'vulopilot'),
+						entities.categories.length
+					)
+					: __('Not found', 'vulopilot'),
+			confidence: entities.categories.length > 0 ? 'high' : 'n/a',
 		},
 		{
 			key: 'locations',
@@ -138,9 +159,9 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 			value:
 				entities.locations.length > 0
 					? sprintf(
-							_n('%d location', '%d locations', entities.locations.length, 'vulopilot'),
-							entities.locations.length
-						)
+						_n('%d location', '%d locations', entities.locations.length, 'vulopilot'),
+						entities.locations.length
+					)
 					: __('Not found', 'vulopilot'),
 			confidence: entities.locations.length > 0 ? 'high' : 'n/a',
 		},
@@ -162,23 +183,61 @@ const CONFIDENCE_LABEL: Record<ProfileRow['confidence'], string> = {
 	'n/a': '—',
 };
 
+/** Same real per-entity-type icon KnowledgeGraphSection.tsx's own "What AI & Search Understand" card already uses for `organizations`/`categories`/`people`/`locations`/`services`/`products` — reused here so the same real entity type reads with the same icon everywhere on this tab, not a second, different icon choice for the identical real data. `business_type`/`contact_details` have no equivalent row there (not one of that card's 6 entity-type groups), so those 2 get their own real closest-fit icon instead. */
+const ROW_ICON: Record<string, string> = {
+	business_name: 'global-community blue',
+	business_type: 'module green',
+	people: 'person pink',
+	services: 'customer-service yellow',
+	products: 'product lime',
+	categories: 'category orange',
+	locations: 'location cyan',
+	contact_details: 'mail indigo',
+};
+
 /**
- * "Business Profile" — replaces the former, narrower
- * `BusinessUnderstandingCard.tsx` (a score gauge alone) with the reference
- * mockup's own wider 3-up layout: the same real `entity_score` gauge
- * (`GET /brand-intelligence/score`, unchanged), a real per-field table of
- * what Services\EntityExtractor actually found (`GET /entities`, the same
- * real endpoint KnowledgeGraphSection.tsx already uses), and a real "Update
- * Information" deep link to where every owner-curated field on that table
- * (`entity_business_type`/`entity_service_pages`/`entity_business_locations`)
- * actually lives. Nothing here is fabricated — a "Not found" row is a real
- * absence of data, not a placeholder; see `buildRows()`'s own docblock for
- * exactly what each row's "confidence" is based on.
+ * "Business Information" / "Key Information Found by AI" — 2 real cards
+ * (grid 4 + grid 8, one row) matching a newer reference mockup: the same
+ * real `entity_score` gauge (`GET /brand-intelligence/score`, unchanged)
+ * on its own now, beside a real per-field table of what
+ * Services\EntityExtractor actually found (`GET /entities`, the same real
+ * endpoint KnowledgeGraphSection.tsx already uses) with a real per-row
+ * action — "View" opens `ENTITY_SETTINGS_URL` for every row except
+ * "Business name" (which opens `BusinessNameDetailsPanel.tsx`'s own real
+ * multi-source cross-check instead — see that file's own docblock for why
+ * only this one row gets that), "Add Details" for a genuinely missing
+ * field. Formerly one combined card (`BusinessProfileCard`'s own former
+ * 3-up layout) — split into 2 to match the mockup's own visual weighting,
+ * same real data either way. Nothing here is fabricated — a "Not found"
+ * row is a real absence of data, not a placeholder; see `buildRows()`'s
+ * own docblock for exactly what each row's "confidence" is based on.
+ *
+ * The "Business Information" card also now renders the real Graph
+ * Visualization pane below its own score ring — moved here from
+ * KnowledgeGraphSection.tsx per direct instruction (that file's own
+ * docblock has the real reasoning for why it moved and why that card
+ * widened to fill its own row afterward). Same real
+ * `vulopilot_knowledge_graph_visualization_card` Pro slot / free
+ * `KnowledgeGraphDiagram` fallback either way, just reusing this card's
+ * own already-fetched `entities` instead of a 2nd fetch.
  */
 const BusinessProfileCard = () => {
 	const [entityScore, setEntityScore] = useState<number | null>(null);
 	const [entities, setEntities] = useState<EntitiesResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	// The real "Business Name Details" side panel (BusinessNameDetailsPanel.tsx)
+	// is the only row here with a real multi-source cross-check behind it —
+	// see that file's own docblock for why the other rows don't get an
+	// equivalent panel.
+	const [isNamePanelOpen, setIsNamePanelOpen] = useState(false);
+
+	// Called unconditionally, before the early return below, per the rules
+	// of hooks — same reasoning KnowledgeGraphSection.tsx's own identical
+	// call already documents (a Pro slot resolving is irrelevant on the
+	// "modules off" branch anyway).
+	const KnowledgeGraphVisualizationCard = useFilterSlot(
+		'vulopilot_knowledge_graph_visualization_card'
+	);
 
 	useEffect(() => {
 		const requests: Promise<unknown>[] = [];
@@ -217,15 +276,14 @@ const BusinessProfileCard = () => {
 	// overstate how much is actually missing.
 	const missingCount = rows.filter((row) => !row.found && !row.notApplicable).length;
 
-	return (
-		<ColumnComponent >
-			<CardComponent
-				title={__('Business Profile', 'vulopilot')}
-				titleIcon="info"
-				desc={__('What VuloPilot understands about your business.', 'vulopilot')}
-				isLoading={isLoading}
-			>
-				{!isLoading && null === entityScore && null === entities ? (
+	if (!isLoading && null === entityScore && null === entities) {
+		return (
+			<ColumnComponent>
+				<CardComponent
+					title={__('Business Information', 'vulopilot')}
+					titleIcon="info"
+					desc={__('Overall completeness and accuracy.', 'vulopilot')}
+				>
 					<ModuleGuardComponent
 						icon="error"
 						title={__('Business Identity modules are turned off', 'vulopilot')}
@@ -234,110 +292,185 @@ const BusinessProfileCard = () => {
 							'vulopilot'
 						)}
 					/>
-				) : (
-					<div className="business-profile-grid">
-						<div className="business-profile-gauge-col">
-							{null === entityScore ? (
-								<ModuleGuardComponent
-									icon="error"
-									title={__('Brand Intelligence is off', 'vulopilot')}
-									desc={__('Turn it back on to see a real score here.', 'vulopilot')}
-								/>
-							) : (
-								<div className="business-score-gauge">
-									<ChartComponent
-										type="pie"
-										height={140}
-										centerLabel={
-											<>
-												<span className="score-ring-number">{entityScore}</span>
-												<span className="score-ring-label">/100</span>
-											</>
-										}
-										data={[
-											{ label: __('Score', 'vulopilot'), value: entityScore, color: '#16a34a' },
-											{ label: __('Remaining', 'vulopilot'), value: 100 - entityScore, color: '#e5e7eb' },
-										]}
-									/>
-									<span className={`business-score-badge ${ratingClass(entityScore)}`}>
-										{getRating(entityScore)}
-									</span>
-									<p className="desc business-score-caption">
-										{missingCount > 0
-											? sprintf(
-													/* translators: %d is how many of the 7 real profile fields below have no real data yet. */
-													_n(
-														'Your business information is mostly complete, but %d important detail is missing.',
-														'Your business information is mostly complete, but %d important details are missing.',
-														missingCount,
-														'vulopilot'
-													),
-													missingCount
-												)
-											: __('Your business information is fully filled in.', 'vulopilot')}
-									</p>
-								</div>
-							)}
-						</div>
+				</CardComponent>
+			</ColumnComponent>
+		);
+	}
 
-						<div className="business-profile-table-col">
-							{null === entities ? (
-								<ModuleGuardComponent
-									icon="error"
-									title={__('Entity Extraction is off', 'vulopilot')}
-									desc={__('Turn it back on to see real detected fields here.', 'vulopilot')}
-								/>
-							) : (
-								<table className="crawler-table business-profile-table">
-									<thead>
-										<tr>
-											<th>{__('Information', 'vulopilot')}</th>
-											<th>{__('VuloPilot Found', 'vulopilot')}</th>
-											<th>{__('Confidence', 'vulopilot')}</th>
-										</tr>
-									</thead>
-									<tbody>
-										{rows.map((row) => (
-											<tr key={row.key}>
-												<td>{row.label}</td>
-												<td>{row.value}</td>
-												<td>
-													<span className="business-profile-confidence">
-														{CONFIDENCE_LABEL[row.confidence]}
-													</span>
-													<i
-														className={`adminfont-${row.notApplicable ? 'info' : row.found ? 'check' : 'close'} business-profile-status-icon ${row.notApplicable ? '' : row.found ? 'is-good' : 'is-poor'}`}
-													/>
-												</td>
-											</tr>
-										))}
-									</tbody>
-								</table>
-							)}
-						</div>
-
-						<div className="business-profile-side-col">
-							<i className="adminfont-security business-profile-side-icon" />
-							<p className="desc">
-								{__(
-									'Clear business information helps AI engines and search engines identify and trust your business.',
-									'vulopilot'
-								)}
-							</p>
-							<ButtonInput
-								position="full-width"
-								buttons={{
-									text: __('Update Information', 'vulopilot'),
-									onClick: () => {
-										window.open(ENTITY_SETTINGS_URL, '_self');
+	return (
+		<>
+			<ColumnComponent grid={5} fullHeight>
+				<CardComponent
+					title={__('Business Information', 'vulopilot')}
+					titleIcon="info"
+					desc={__('Overall completeness and accuracy.', 'vulopilot')}
+					isLoading={isLoading}
+				>
+					{null === entityScore ? (
+						<ModuleGuardComponent
+							icon="error"
+							title={__('Brand Intelligence is off', 'vulopilot')}
+							desc={__('Turn it back on to see a real score here.', 'vulopilot')}
+						/>
+					) : (
+						<div className="business-score-gauge">
+							<ChartComponent
+								type="ring"
+								height={240}
+								color={
+									COLOR_PALETTE[
+									ratingColor(entityScore) as keyof typeof COLOR_PALETTE
+									]
+								}
+								centerLabel={
+									<>
+										<span className="score-ring-number">{entityScore}</span>
+										<span
+											className={`score-ring-label geo-overall-rating ${ratingClass(entityScore)}`}
+										>
+											{getRating(entityScore)}
+										</span>
+									</>
+								}
+								data={[
+									{
+										label: __('Score', 'vulopilot'),
+										value: entityScore,
+										// Same real rating color the ring's own
+										// label above already uses
+										// (`ratingClass()`/`getRating()`) —
+										// resolved through `COLOR_PALETTE` for
+										// the real hex `ratingColor()`'s own
+										// palette name stands for, rather than a
+										// fixed brand purple unrelated to the
+										// actual score. `ChartComponent`'s own
+										// `type="ring"` only ever reads the top-
+										// level `color` prop above for its actual
+										// stroke (not a per-row `color` the way
+										// `type="pie"` does) — kept here too so
+										// this data shape matches the real one
+										// `type="ring"` reads `rows[0][dataKey]`
+										// from either way.
+										color: COLOR_PALETTE[
+											ratingColor(entityScore) as keyof typeof COLOR_PALETTE
+										],
 									},
-								}}
+									{
+										label: __('Remaining', 'vulopilot'),
+										value: 100 - entityScore,
+										color: '#e5e7eb',
+									},
+								]}
 							/>
+							<p className="desc business-score-caption">
+								{missingCount > 0
+									? sprintf(
+										/* translators: %d is how many of the 7 real profile fields below have no real data yet. */
+										_n(
+											'Your business information is mostly complete, but %d important detail is missing.',
+											'Your business information is mostly complete, but %d important details are missing.',
+											missingCount,
+											'vulopilot'
+										),
+										missingCount
+									)
+									: __('Your business information is fully filled in.', 'vulopilot')}
+							</p>
 						</div>
-					</div>
-				)}
-			</CardComponent>
-		</ColumnComponent>
+					)}
+					{KnowledgeGraphVisualizationCard ? (
+						<KnowledgeGraphVisualizationCard />
+					) : (
+						// `entities` is still null for a real, guaranteed-to-happen
+						// window on every load (this state's own initial value, before
+						// `GET /entities` resolves) — KnowledgeGraphDiagram's own props
+						// type requires a real EntitiesResponse and dereferences it
+						// immediately (`entities.organizations[0]`), so rendering it
+						// unguarded would crash this whole card on every single load
+						// whenever Pro's own KnowledgeGraphVisualizationCard isn't
+						// available. Same real `entities &&` guard
+						// KnowledgeGraphSection.tsx's own former render site for this
+						// same diagram already used.
+						entities && <KnowledgeGraphDiagram entities={entities} />
+					)}
+				</CardComponent>
+			</ColumnComponent>
+
+			<ColumnComponent grid={7} fullHeight>
+				<CardComponent
+					title={__('Key Information Found by AI', 'vulopilot')}
+					titleIcon="module"
+					desc={__(
+						'Here’s what we found about your business and what needs attention.',
+						'vulopilot'
+					)}
+					isLoading={isLoading}
+					action={
+						<ButtonInput
+							buttons={{
+								text: __('Update Information', 'vulopilot'),
+								color: 'border-purple',
+								onClick: () => window.open(ENTITY_SETTINGS_URL, '_self'),
+							}}
+						/>
+					}
+				>
+					{null === entities ? (
+						<ModuleGuardComponent
+							icon="error"
+							title={__('Entity Extraction is off', 'vulopilot')}
+							desc={__('Turn it back on to see real detected fields here.', 'vulopilot')}
+						/>
+					) : (
+						<ListComponent
+							className="mini-card report business-profile-list"
+							items={rows.map((row) => ({
+								id: row.key,
+								icon: ROW_ICON[row.key],
+								title: row.label,
+								desc: row.value,
+								tags: (
+									<div className="business-profile-list-tags">
+										{'n/a' !== row.confidence && (
+											<span className={`admin-badge ${row.notApplicable ? 'info' : row.found ? 'green' : 'red'}`}>
+												{CONFIDENCE_LABEL[row.confidence]}
+											</span>
+										)}
+
+										{row.notApplicable ? (
+											<span className="business-profile-na">—</span>
+										) : 'business_name' === row.key ? (
+											<ButtonInput
+												buttons={{
+													text: __('View', 'vulopilot'),
+													color: 'border-purple',
+													onClick: () => setIsNamePanelOpen(true),
+												}}
+											/>
+										) : (
+											<ButtonInput
+												buttons={{
+													text: row.found
+														? __('View', 'vulopilot')
+														: __('Add Details', 'vulopilot'),
+													color: 'border-purple',
+													onClick: () =>
+														window.open(ENTITY_SETTINGS_URL, '_self'),
+												}}
+											/>
+										)}
+									</div>
+								),
+							}))}
+						/>
+					)}
+				</CardComponent>
+				<BusinessNameDetailsPanel
+					open={isNamePanelOpen}
+					onClose={() => setIsNamePanelOpen(false)}
+				/>
+			</ColumnComponent>
+		</>
 	);
 };
 

@@ -2239,48 +2239,18 @@
 // mockup's own layout); stacks to one column on narrow viewports since a
 // 3-way split of the real table's own columns has no sensible narrower
 // layout otherwise.
-.business-profile-grid {
-	display: grid;
-	grid-template-columns: minmax(11rem, 0.8fr) minmax(18rem, 2fr) minmax(11rem, 0.8fr);
-	gap: 1.5rem;
-	align-items: start;
-
-	@media (max-width: 900px) {
-		grid-template-columns: 1fr;
-	}
+// BusinessProfileCard.tsx's own "Key Information Found by AI" row —
+// `.mini-card.report`'s own real `.item`/`.details`/`.tags` shape
+// (ListComponent.tsx), `.business-profile-list-tags` is just this row's
+// own real confidence/status-icon/action group living inside `tags`.
+.business-profile-list-tags {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
 }
 
-.business-profile-gauge-col {
-	// Same real `.business-score-gauge`/`.business-score-badge`/
-	// `.business-score-caption` classes BusinessUnderstandingCard.tsx's
-	// own gauge already used, unchanged — see this stylesheet's own
-	// earlier rules for those.
-	border-right: $border-light-small;
-	padding-right: 1.5rem;
-
-	@media (max-width: 900px) {
-		border-right: none;
-		padding-right: 0;
-		border-bottom: $border-light-small;
-		padding-bottom: 1.5rem;
-	}
-}
-
-.business-profile-table-col {
-	min-width: 0;
-}
-
-.business-profile-table {
-	th:nth-child(2),
-	td:nth-child(2) {
-		color: $sub-text-color;
-	}
-
-	th:nth-child(3),
-	td:nth-child(3) {
-		text-align: right;
-		white-space: nowrap;
-	}
+.business-profile-na {
+	color: $sub-text-color;
 }
 
 .business-profile-confidence {
@@ -2301,17 +2271,30 @@
 	}
 }
 
-.business-profile-side-col {
+// BusinessNameDetailsPanel.tsx's own slide-in panel content.
+.business-name-panel {
 	display: flex;
 	flex-direction: column;
+	gap: 1.25rem;
+}
+
+.business-name-panel-summary {
+	display: flex;
 	align-items: flex-start;
-	gap: 0.75rem;
+	justify-content: space-between;
+	gap: 1rem;
 	background: $theme-background-color;
 	border-radius: 0.5rem;
 	padding: 1rem;
 }
 
-.business-profile-side-icon {
+.business-name-panel-summary-left {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.business-name-panel-summary-icon {
 	width: 2.25rem;
 	height: 2.25rem;
 	display: flex;
@@ -2321,6 +2304,115 @@
 	background: #f3effc;
 	color: $theme-color;
 	font-size: 1rem;
+	flex-shrink: 0;
+}
+
+.business-name-panel-summary-label {
+	color: $sub-text-color;
+	font-size: 0.75rem;
+}
+
+.business-name-panel-summary-value {
+	font-weight: 600;
+}
+
+.business-name-panel-summary-right {
+	text-align: right;
+
+	.desc {
+		margin-top: 0.25rem;
+		font-size: 0.75rem;
+	}
+}
+
+.business-name-panel-section {
+	h4 {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0 0 0.5rem;
+		font-size: 0.875rem;
+	}
+}
+
+.business-name-panel-sources {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	overflow: hidden;
+}
+
+.business-name-panel-source-row {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	padding: 0.625rem 0.75rem;
+
+	&:not(:last-child) {
+		border-bottom: $border-light-small;
+	}
+}
+
+.business-name-panel-source-label {
+	flex: 1;
+}
+
+.business-name-panel-source-value {
+	color: $sub-text-color;
+	font-size: 0.8125rem;
+}
+
+.business-name-panel-source-status {
+	font-size: 0.875rem;
+
+	&.is-good {
+		color: #16a34a;
+	}
+
+	&.is-muted {
+		color: $sub-text-color;
+	}
+}
+
+.business-name-panel-tip,
+.business-name-panel-recommendation {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+	border-radius: 0.5rem;
+	padding: 0.875rem;
+
+	.desc {
+		margin: 0.25rem 0 0;
+	}
+}
+
+.business-name-panel-tip {
+	background: #f3effc;
+	color: $theme-color;
+}
+
+.business-name-panel-recommendation {
+	background: #f4fdf7;
+	color: #16a34a;
+}
+
+.business-name-panel-footer {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	width: 100%;
+}
+
+.business-name-panel-footer-row {
+	display: flex;
+	gap: 0.625rem;
+
+	> * {
+		flex: 1;
+	}
 }
 
 // KnowledgeGraphDiagramCard.tsx's real hub-and-spoke diagram — rendered by
@@ -2507,3 +2599,17 @@
 }
 
 // actively log end
+
+// BrokenLinksSection.tsx's own "Fix" popup — real read-only "Link Text"/
+// "Current URL" values (a `FormGroupComponent` label with plain text under
+// it, not a disabled `TextInput`, since neither is ever meant to be
+// editable here).
+.broken-link-fix-static-value {
+	margin: 0;
+	padding: 0.5rem 0.75rem;
+	border-radius: $border-radius-small;
+	background: $theme-background-color;
+	color: $text-color;
+	font-size: 0.875rem;
+	word-break: break-all;
+}

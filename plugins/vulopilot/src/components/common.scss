@@ -126,41 +126,57 @@
     }
 }
 
-.broken-link-scan-summary-row {
+// BrokenLinksSection.tsx's own "Last scan completed" / "Why fix broken
+// links?" card pair — real `CardComponent`s side by side (`ColumnComponent
+// grid={6}` each), not one card split into bespoke `.left`/`.right` divs
+// like this used to be, so the "Run scan again" button can be a real
+// `CardComponent` header `action` and the two stat tiles a real
+// `AnalyticsComponent variant="progress"` row.
+.broken-link-scan-summary-card {
+    .analytics-container {
+        margin-top: 0.875rem;
+    }
+}
 
-    .card-body {
-        flex-direction: row !important;
+.broken-link-why-fix-card {
+    // Real zyra `<ListComponent className="checklist">` (icon + title +
+    // `desc`), styled as the reference mockup's own 3-column grid instead
+    // of that component's default vertical list — same "target the
+    // component's own classes, don't reinvent its markup" approach
+    // `.crawler-checklist-row.item-list` above already establishes.
+    .checklist.item-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.25rem;
 
-        .broken-link-section {
-            width: 50%;
+        .item {
+            flex: 1 1 10rem;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
 
-            .broken-link-scan-banner-title {
-                font-size: 1.125rem;
-            }
+        .item-icon {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            background: color-mix(in srgb, $theme-color 14%, transparent);
+            color: $theme-color;
+            font-size: 0.875rem;
+        }
 
-            .broken-link-details {
-                width: 100%;
+        .item-title {
+            font-weight: 600;
+        }
 
-                .analytics-container {
-                    margin-top: 0.813rem;
-                }
-            }
-
-            &.left {
-                display: flex;
-                align-items: start;
-                gap: 1rem;
-
-                i {
-                    font-size: 1.5rem;
-                    padding: 0.5rem;
-                    border-radius: 0.313rem;
-                }
-            }
-
-            &.right {
-                background: $theme-background-color;
-            }
+        .typography-desc {
+            margin-top: 0.25rem;
+            color: $sub-text-color;
+            font-size: 0.8125rem;
+            line-height: 1.4;
         }
     }
 }
@@ -232,4 +248,131 @@
 .without-settings{
     padding: 0;
     background: transparent;
+}
+
+.broken-link-wrapper,
+.robots-wraper{
+    display: flex;
+    gap: 2.5rem;
+    
+    .broken-link-section{
+        width: 50%;
+
+        &.left-side{
+        width: 30%;
+    }
+    &.right-side{
+        width: 70%;
+    }
+}
+}
+
+.list-wrapper{
+    display: flex;
+    gap: 1.5rem;
+}
+
+// robots.txt code editor (CrawlRobotsSitemapSection.tsx's own RobotsTxtEditor)
+// — a real line-numbered gutter + syntax-highlighted overlay over a plain
+// `<textarea>`, not a screenshot-only mock: the `<pre>` and `<textarea>`
+// below share this exact same font/line-height/padding so the highlighted
+// text lines up pixel-for-pixel under what's actually being typed.
+.rt-editor-wrap {
+    position: relative;
+}
+
+.rt-editor {
+    display: flex;
+    align-items: flex-start; // keep children at their real content height so overflow (not stretch-to-fit) is what triggers the scrollbar below
+    height: 16rem;
+    border: 0.063rem solid color-mix(in srgb, var(--color-primary) 30%, white);
+    border-radius: 0.5rem;
+    background: var(--color-primary-background);
+    overflow: auto;
+}
+
+.rt-gutter {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 1rem 0.75rem;
+    text-align: right;
+    color: var(--text-secondary, #9ca3af);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    user-select: none;
+    border-right: 0.063rem solid color-mix(in srgb, var(--color-primary) 30%, white);
+    background: rgba(0, 0, 0, 0.02);
+    position: sticky;
+    left: 0;
+}
+
+.rt-code-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.rt-highlight,
+.rt-textarea {
+    margin: 0;
+    padding: 1rem;
+    width: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    white-space: pre;
+    box-sizing: border-box;
+}
+
+.rt-highlight {
+    color: #1f2937;
+    background: #fff;
+    pointer-events: none;
+}
+
+.rt-textarea {
+    position: absolute;
+    inset: 0;
+    border: none;
+    background: transparent;
+    color: transparent;
+    caret-color: #1f2937;
+    resize: none;
+    overflow: hidden;
+
+    &:focus {
+        outline: none;
+    }
+
+    &::placeholder {
+        color: var(--text-secondary, #9ca3af);
+    }
+}
+
+.rt-directive {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.rt-value {
+    color: #16a34a;
+}
+
+.rt-comment {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.rt-editor-wrap > .buttons-wrapper {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+}
+
+.rt-editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
 }

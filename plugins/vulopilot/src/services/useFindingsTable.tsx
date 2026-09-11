@@ -397,13 +397,7 @@ export const useFindingsTable = ({
 			iconKey: 'defaultTitleIcon',
 			descriptionKey: 'descriptionText',
 			badgesKey: 'defaultTitleBadges',
-		},
-		created_at: {
-			label: __('Detected', 'vulopilot'),
-			type: 'date',
-			isSortable: true,
-			defaultSort: true,
-			defaultOrder: 'desc',
+			width: '75%',
 		},
 		actions: {
 			label: __('Actions', 'vulopilot'),
@@ -563,7 +557,13 @@ export const useFindingsTable = ({
 								},
 							]),
 					{ text: row.status, color: `badge-${row.status}` },
-					{ text: row.severity, color: `badge-${row.severity}` },
+					{ text: row.severity, color: `blue` },
+					// Replaces the now-removed standalone "Detected" date
+					// column — same real `created_at` value, just folded
+					// into the title's own badge row instead of its own
+					// column, freeing that column width for `title` itself
+					// (see `defaultHeaders.title`'s own `width: '75%'`).
+					{ text: formatWpDate(row.created_at), color: '' },
 				],
 				// `compactHeaders.title`'s own avatar — same real icon, but
 				// tinted via a real color (`iconColorKey`) instead of a

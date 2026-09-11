@@ -4,9 +4,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	AnalyticsComponent,
-	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
+	FormGroupComponent,
+	FormGroupWrapperComponent,
+	InformationItemComponent,
 	ListComponent,
 	ModuleGuardComponent,
 	NoticeManager,
@@ -16,9 +18,9 @@ import {
 } from '@zyra/components';
 import { ButtonInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
-import { Finding, getFindingFixHandler } from '../../services/useFindingsTable';
+import { Finding } from '../../services/useFindingsTable';
 import { formatWpDate } from '../../services/formatWpDate';
-import ShowProPopup from '../../components/Popup/Popup';
+import { useRunScan } from '../../services/useRunScan';
 import './SeoVisibility.scss';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
@@ -458,10 +460,15 @@ type StatusFilter = 'all' | 'open' | 'resolved' | 'ignored' | 'snoozed';
  * status pills (would need following redirect chains and inspecting the
  * destination's own content/status, which neither scanner does).
  *
- * "Fix" reuses useFindingsTable.tsx's own exported getFindingFixHandler()
- * — same real Pro-gating (vulopilot-pro's OneClickFix module registers
- * the real handler; Free shows the Pro popup when it isn't active) other
- * findings tables get from that hook.
+ * "Fix" no longer reuses useFindingsTable.tsx's own Pro-gated
+ * getFindingFixHandler() (the AI-fix flow other findings tables get) — this
+ * table's own "Fix" is a real, free, manual popup instead: the user types a
+ * real replacement URL, which `POST /broken-links/replace-url`
+ * (BrokenLinksStats.php, added alongside this) swaps straight into the
+ * source page's own real `post_content` (its own `href`/`src`
+ * attribute), then marks the finding resolved. No AI call, no Pro gate —
+ * broken-link/image URLs are a mechanical find-and-replace, not something
+ * that needs a model's judgment the way other scanners' findings do.
  */
 const BrokenLinksSection = () => {
 	const [allFindings, setAllFindings] = useState<BrokenLinkFinding[]>([]);
@@ -475,13 +482,15 @@ const BrokenLinksSection = () => {
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 	const [paged, setPaged] = useState(1);
 	const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-
 	const [redirectFinding, setRedirectFinding] =
 		useState<BrokenLinkFinding | null>(null);
 	const [redirectSourcePath, setRedirectSourcePath] = useState('');
 	const [redirectTargetUrl, setRedirectTargetUrl] = useState('');
 	const [redirectType, setRedirectType] = useState('301');
+	/** "Fix" popup — a real search-and-replace: swaps this exact broken `href`/`src` for a real new URL the user types in, straight in the source page's own real `post_content` (`POST /broken-links/replace-url`, added alongside this). */
+	const [fixFinding, setFixFinding] = useState<BrokenLinkFinding | null>(null);
+	const [fixNewUrl, setFixNewUrl] = useState('');
+	const [isSavingFixUrl, setIsSavingFixUrl] = useState(false);
 	const [isSavingRedirect, setIsSavingRedirect] = useState(false);
 
 	const loadFindings = () => {
@@ -503,15 +512,27 @@ const BrokenLinksSection = () => {
 			.finally(() => setIsLoadingFindings(false));
 	};
 
-	useEffect(() => {
-		loadFindings();
-
+	const loadStats = () => {
 		getApiResponse<BrokenLinksStatsResponse>(
 			getApiLink(appLocalizer, 'broken-links/stats'),
 			nonceHeaders
 		).then((response) => response && setStats(response));
+	};
+
+	useEffect(() => {
+		loadFindings();
+		loadStats();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	/** "Run scan again" on the "Last scan completed" card — same real `POST /scans` call SeoTab.tsx's own header "Run Complete Audit" fires, scoped to `['seo']` since these are both SEO module scanners; refetches both real data sources this section reads (findings + stats) once the new scan completes. */
+	const { isScanning, runScan } = useRunScan({
+		categories: ['seo'],
+		onSuccess: () => {
+			loadFindings();
+			loadStats();
+		},
+	});
 
 	// Any filter/search change can shrink the result set below the
 	// currently-viewed page — reset to page 1 rather than showing an
@@ -591,30 +612,71 @@ const BrokenLinksSection = () => {
 		);
 	};
 
-	const handleFix = (finding: BrokenLinkFinding) => {
-		const findingFixHandler = getFindingFixHandler();
+	/**
+	 * "Fix" — opens a real popup showing this exact finding's own real link
+	 * text + current broken URL, with a field to type a real replacement.
+	 * Saving calls `POST /broken-links/replace-url` (Broken(Links|Images)
+	 * scanners' own regex-captured `href`/`src`, added alongside this),
+	 * which does a real search-and-replace straight in the source page's
+	 * own `post_content` — not a fabricated "fixed" state, a genuine
+	 * content edit. On success the finding is marked resolved (same real
+	 * `POST /findings/{id}` status call handleResolve()/handleCreateRedirect()
+	 * already use), same for a broken image (`is_image: true` tells the
+	 * endpoint to replace `src` instead of `href`).
+	 */
+	const openFixPopup = (finding: BrokenLinkFinding) => {
+		setFixFinding(finding);
+		setFixNewUrl('');
+	};
 
-		if (typeof findingFixHandler === 'function') {
-			Promise.resolve(
-				findingFixHandler(finding) as
-				| Promise<{ success: boolean; message: string }>
-				| undefined
-			).then((outcome) => {
-				if (outcome?.message) {
-					NoticeManager.add({
-						uniqueKey: `broken-link-fix-${finding.id}`,
-						type: outcome.success ? 'success' : 'error',
-						position: 'float',
-						message: outcome.message,
-					});
-				}
+	const closeFixPopup = () => setFixFinding(null);
 
-				loadFindings();
-			});
+	const handleSaveFixUrl = () => {
+		if (!fixFinding || '' === fixNewUrl.trim()) {
 			return;
 		}
 
-		setIsProPopupOpen(true);
+		setIsSavingFixUrl(true);
+
+		sendApiResponse(
+			appLocalizer,
+			getApiLink(appLocalizer, 'broken-links/replace-url'),
+			{
+				post_id: Number(fixFinding.object_ref),
+				old_url: getBrokenUrl(fixFinding),
+				new_url: fixNewUrl.trim(),
+				is_image: 'broken-images' === fixFinding.scanner_id,
+			}
+		)
+			.then((response: { success?: boolean; message?: string } | undefined) => {
+				NoticeManager.add({
+					uniqueKey: `broken-link-fix-${fixFinding.id}`,
+					type: response?.success ? 'success' : 'error',
+					position: 'float',
+					message:
+						response?.message ||
+						(response?.success
+							? __('This page has been updated with the new URL.', 'vulopilot')
+							: __(
+								'Could not update this page. Please try again.',
+								'vulopilot'
+							)),
+				});
+
+				if (response?.success) {
+					// The underlying problem is fixed on the real page now
+					// — same real status-update call handleResolve()/
+					// handleCreateRedirect() already make.
+					sendApiResponse(
+						appLocalizer,
+						getApiLink(appLocalizer, `findings/${fixFinding.id}`),
+						{ status: 'resolved' }
+					).then(() => loadFindings());
+
+					closeFixPopup();
+				}
+			})
+			.finally(() => setIsSavingFixUrl(false));
 	};
 
 	const openRedirectPopup = (finding: BrokenLinkFinding) => {
@@ -751,96 +813,78 @@ const BrokenLinksSection = () => {
 	};
 
 	const headers = {
+		// Same real `InformationItemComponent` "title + descriptions +
+		// badges" shape this codebase's own findings-style tables already
+		// use (SeoIssuesByPageTable.tsx) — folds the previous 6 separate
+		// columns (Source page/Status/Link Type/Target URL/Link Text/Last
+		// Checked; "First Found" dropped, not shown twice) into one row:
+		// title = source page, descriptions = real Target URL + real Link
+		// Text, badges = real status/link-type/last-checked. Every value is
+		// the same real data those old columns already read — folded into
+		// one cell, nothing new fabricated.
 		page: {
 			label: __('Source page', 'vulopilot'),
 			render: (row: BrokenLinkFinding) => {
 				const pageUrl = `${appLocalizer.site_url}${row.page}`;
+				const statusKey = deriveStatusKey(row);
+				const external = isExternalFinding(row);
 
 				return (
-					<div className="broken-link-source-cell">
-						<i
-							className={`adminfont-${'broken-images' === row.scanner_id ? 'attachment' : 'link'} broken-link-source-icon`}
-						/>
-						<a href={pageUrl} target="_blank" rel="noreferrer">
-							{row.page}
-						</a>
-					</div>
-				);
-			},
-		},
-		status: {
-			label: __('Status', 'vulopilot'),
-			render: (row: BrokenLinkFinding) => {
-				const key = deriveStatusKey(row);
-				return (
-					<BadgeComponent
-						color={statusKeyColor(key)}
-						text={statusKeyLabel(key)}
+					<InformationItemComponent
+						title={row.page || __('(no title)', 'vulopilot')}
+						titleLink={pageUrl}
+						icon={'broken-images' === row.scanner_id ? 'attachment' : 'link'}
+						badges={[
+							{
+								text: statusKeyLabel(statusKey),
+								className:
+									'red' === statusKeyColor(statusKey)
+										? 'badge-failed'
+										: 'badge-pending',
+							},
+							{
+								text: external
+									? __('External', 'vulopilot')
+									: __('Internal', 'vulopilot'),
+								className: external ? 'badge-pending' : 'badge-info',
+							},
+							{
+								text: formatWpDate(row.last_seen_at || row.created_at),
+								className: 'badge-info',
+							},
+						]}
+						descriptions={[
+							{
+								icon: 'link',
+								label: __('Target URL', 'vulopilot'),
+								value: getBrokenUrl(row),
+							},
+							{
+								icon: 'text-fields',
+								label: __('Link Text', 'vulopilot'),
+								value: getLinkText(row),
+							},
+						]}
 					/>
 				);
 			},
 		},
-		link_type: {
-			label: __('Link Type', 'vulopilot'),
-			render: (row: BrokenLinkFinding) => (
-				<span
-					className={`broken-link-type-pill ${isExternalFinding(row) ? 'is-external' : 'is-internal'}`}
-				>
-					{isExternalFinding(row)
-						? __('External', 'vulopilot')
-						: __('Internal', 'vulopilot')}
-				</span>
-			),
-		},
-		target_url: {
-			label: __('Target URL', 'vulopilot'),
-			render: (row: BrokenLinkFinding) => {
-				const url = getBrokenUrl(row);
-
-				return (
-					<a
-						href={url}
-						target="_blank"
-						rel="noreferrer"
-						className="broken-link-target-url"
-						title={url}
-					>
-						{url}
-					</a>
-				);
-			},
-		},
-		link_text: {
-			label: __('Link Text', 'vulopilot'),
-			render: (row: BrokenLinkFinding) => (
-					getLinkText(row)
-			),
-		},
-		first_found: {
-			label: __('First Found', 'vulopilot'),
-			render: (row: BrokenLinkFinding) => (
-					formatWpDate(row.created_at)
-			),
-		},
-		last_checked: {
-			label: __('Last Checked', 'vulopilot'),
-			render: (row: BrokenLinkFinding) => (
-				<span className="typography-body-xs">
-					{formatWpDate(row.last_seen_at || row.created_at)}
-				</span>
-			),
-		},
 		// Same real `type: 'action'` header shape SeoIssuesByPageTable.tsx's
-		// own row actions already use — `TableRowActions.tsx`'s own real
-		// inline-vs-overflow split (first 2 plain icon actions stay inline,
-		// the rest collapse into its own `more-vertical` dropdown) replaces
-		// the hand-rolled `broken-link-row-actions` div + separate
-		// `RowActionsMenu` this used to be. One real trade-off from that:
-		// "Create redirect" used to stay visible-but-disabled (with an
-		// explanatory tooltip) for an external link — `ActionItem` only has
-		// `hidden`, not a disabled state, so it's `hidden` for external
-		// rows instead now (the action simply isn't offered, rather than
-		// shown disabled).
+		// own row actions already use. Each action itself is `type: 'button'`
+		// — `TableRowActions.tsx`'s own real button-vs-icon split renders
+		// those as real labeled `ButtonInput`s (all 3 always visible), not
+		// the plain-icon default (which only keeps 2 inline before
+		// collapsing the rest into a `more-vertical` dropdown) — needed here
+		// since only 3 real actions remain (Open URL/Ignore/Fix, per direct
+		// instruction) and all 3 should stay visible with their own text.
+		// "Create redirect"/"Mark resolved"/"Snooze" — real, working
+		// features that used to live in this same row-actions menu — no
+		// longer have a trigger anywhere on this table now that this menu is
+		// scoped down to just these 3; their own handlers/popup
+		// (`openRedirectPopup()`/`handleCreateRedirect()`/`handleResolve()`/
+		// `handleSnooze()`) are left in place rather than deleted, since
+		// removing a real working feature wasn't part of this instruction
+		// either — just flagged here as no longer reachable from the UI.
 		action: {
 			label: __('Actions', 'vulopilot'),
 			type: 'action',
@@ -848,6 +892,8 @@ const BrokenLinksSection = () => {
 				{
 					label: __('Open URL', 'vulopilot'),
 					icon: 'eye',
+					type: 'button',
+					color: 'text-blue',
 					onClick: (row: Record<string, unknown>) =>
 						window.open(
 							getBrokenUrl(row as unknown as BrokenLinkFinding),
@@ -856,19 +902,13 @@ const BrokenLinksSection = () => {
 						),
 				},
 				{
-					label: __('Create redirect', 'vulopilot'),
-					icon: 'link',
-					hidden: (row: Record<string, unknown>) =>
-						isExternalFinding(row as unknown as BrokenLinkFinding),
-					onClick: (row: Record<string, unknown>) =>
-						openRedirectPopup(row as unknown as BrokenLinkFinding),
-				},
-				{
 					label: (row: Record<string, unknown>) =>
 						'ignored' === (row as unknown as BrokenLinkFinding).status
 							? __('Unignore', 'vulopilot')
 							: __('Ignore', 'vulopilot'),
 					icon: 'eye-blocked',
+					color: 'text-red',
+					type: 'button',
 					onClick: (row: Record<string, unknown>) => {
 						const finding = row as unknown as BrokenLinkFinding;
 						return 'ignored' === finding.status
@@ -879,30 +919,10 @@ const BrokenLinksSection = () => {
 				{
 					label: __('Fix', 'vulopilot'),
 					icon: 'tools',
+					color: 'text-yellow',
+					type: 'button',
 					onClick: (row: Record<string, unknown>) =>
-						handleFix(row as unknown as BrokenLinkFinding),
-				},
-				{
-					label: (row: Record<string, unknown>) =>
-						'resolved' === (row as unknown as BrokenLinkFinding).status
-							? __('Reopen', 'vulopilot')
-							: __('Mark resolved', 'vulopilot'),
-					icon: (row: Record<string, unknown>) =>
-						'resolved' === (row as unknown as BrokenLinkFinding).status
-							? 'toggle'
-							: 'check',
-					onClick: (row: Record<string, unknown>) => {
-						const finding = row as unknown as BrokenLinkFinding;
-						return 'resolved' === finding.status
-							? handleReopen(finding)
-							: handleResolve(finding);
-					},
-				},
-				{
-					label: __('Snooze', 'vulopilot'),
-					icon: 'clock',
-					onClick: (row: Record<string, unknown>) =>
-						handleSnooze(row as unknown as BrokenLinkFinding),
+						openFixPopup(row as unknown as BrokenLinkFinding),
 				},
 			],
 		},
@@ -938,7 +958,7 @@ const BrokenLinksSection = () => {
 						 * instead of trailing the row, the wrong shape
 						 * here).
 						 */}
-						<ColumnComponent grid={6}>
+						<ColumnComponent >
 							<CardComponent
 								title={__('Broken Link Monitoring', 'vulopilot')}
 								titleIcon="link"
@@ -947,143 +967,145 @@ const BrokenLinksSection = () => {
 									'vulopilot'
 								)}
 							>
-								<ListComponent
-									className="mini-card report hover seo-health-score-category-list"
-									loading={isLoadingFindings}
-									items={[
-										{
-											id: 'broken-links',
-											icon: 'link red',
-											title: __('Broken Links', 'vulopilot'),
-											tags: (
-												<TypographyComponent
-													variant="h5"
-													weight="bold"
-													className="seo-health-score-row-value"
-												>
-													{summary.brokenLinks}
-												</TypographyComponent>
-											),
-										},
-										{
-											id: 'broken-images',
-											icon: 'attachment red',
-											title: __('Broken Images', 'vulopilot'),
-											tags: (
-												<TypographyComponent
-													variant="h5"
-													weight="bold"
-													className="seo-health-score-row-value"
-												>
-													{summary.brokenImages}
-												</TypographyComponent>
-											),
-										},
-										{
-											id: 'couldnt-verify',
-											icon: 'info yellow',
-											title: __("Couldn't Verify", 'vulopilot'),
-											tags: (
-												<TypographyComponent
-													variant="h5"
-													weight="bold"
-													className="seo-health-score-row-value"
-												>
-													{summary.couldntVerify}
-												</TypographyComponent>
-											),
-										},
-										{
-											id: 'ignored',
-											icon: 'eye-blocked gray',
-											title: __('Ignored', 'vulopilot'),
-											tags: (
-												<TypographyComponent
-													variant="h5"
-													weight="bold"
-													className="seo-health-score-row-value"
-												>
-													{summary.ignored}
-												</TypographyComponent>
-											),
-										},
-									]}
-								/>
-							</CardComponent>
-						</ColumnComponent>
-						<ColumnComponent grid={6}>
-							<CardComponent className='broken-link-scan-summary-row'>
-								<>
-									<div className="broken-link-section left">
-										<i className="adminfont-form-checkboxes green" />
-										<div className='broken-link-details'>
-											<div className="title">
-												{__('Last scan completed', 'vulopilot')}
-											</div>
-											<div className="desc">
-												{stats?.last_run
-													? sprintf(
-														/* translators: 1: formatted date/time, 2: duration as hh:mm:ss */
-														__('%1$s · Duration %2$s', 'vulopilot'),
-														formatWpDate(
-															new Date(
-																stats.last_run.finished_at * 1000
-															).toISOString()
-														),
-														formatDurationMs(stats.last_run.duration_ms)
-													)
-													: __(
-														'No scan has completed yet — use "Run scan" above to start one.',
-														'vulopilot'
-													)}
-											</div>
-											{stats && (stats.links.checked_at || stats.images.checked_at) && (
-												<AnalyticsComponent
-													cols={2}
-													variant="background-color"
-													data={[
-														{
-															number: `${stats.links.healthy_count}/${stats.links.links_checked}`,
-															text: __('Links healthy', 'vulopilot'),
-															colorClass: 'admin-bg-color2',
-														},
-														{
-															number: `${stats.images.healthy_count}/${stats.images.links_checked}`,
-															text: __('Images healthy', 'vulopilot'),
-															colorClass: 'admin-bg-color2',
-														},
-													]}
-												/>
-											)}
-										</div>
-									</div>
-									<div className="broken-link-section right">
-										<div className="title">
-											<i className="adminfont-info" />
-											{__('Why fix broken links?', 'vulopilot')}
-										</div>
+								<div className='broken-link-wrapper'>
+									<div className='broken-link-section'>
+										{stats && (stats.links.checked_at || stats.images.checked_at) && (
+											<AnalyticsComponent
+												cols={2}
+												variant="progress"
+												data={[
+													{
+														icon: 'link',
+														iconClass: 'is-good',
+														number: `${stats.links.healthy_count}/${stats.links.links_checked}`,
+														text: __('Links healthy', 'vulopilot'),
+														progress:
+															stats.links.links_checked > 0
+																? Math.round(
+																	(stats.links.healthy_count /
+																		stats.links.links_checked) *
+																	100
+																)
+																: 0,
+														colorClass: 'green-color',
+													},
+													{
+														icon: 'attachment',
+														iconClass: 'is-primary',
+														number: `${stats.images.healthy_count}/${stats.images.links_checked}`,
+														text: __('Images healthy', 'vulopilot'),
+														progress:
+															stats.images.links_checked > 0
+																? Math.round(
+																	(stats.images.healthy_count /
+																		stats.images.links_checked) *
+																	100
+																)
+																: 0,
+														colorClass: 'blue-color',
+													},
+												]}
+											/>
+										)}
 										<ListComponent
-											className="checklist"
+											className="mini-card documentation"
 											items={[
 												{
 													id: 'ux',
-													icon: 'check green-color',
+													icon: 'check',
 													title: __('Better user experience', 'vulopilot'),
+													desc: __(
+														'Keeps your visitors on track and builds trust.',
+														'vulopilot'
+													),
 												},
 												{
 													id: 'seo',
-													icon: 'check green-color',
+													icon: 'check',
 													title: __('Improved SEO rankings', 'vulopilot'),
+													desc: __(
+														'Helps search engines crawl your site effectively.',
+														'vulopilot'
+													),
 												},
 												{
 													id: 'crawlable',
-													icon: 'check green-color',
+													icon: 'check',
 													title: __('More crawlable pages', 'vulopilot'),
+													desc: __(
+														'Ensures all important content is indexed.',
+														'vulopilot'
+													),
 												},
 											]}
 										/>
 									</div>
-								</>
+									<div className='broken-link-section'>
+										<ListComponent
+											className="mini-card report hover seo-health-score-category-list"
+											loading={isLoadingFindings}
+											items={[
+												{
+													id: 'broken-links',
+													icon: 'link red',
+													title: __('Broken Links', 'vulopilot'),
+													tags: (
+														<TypographyComponent
+															variant="h5"
+															weight="bold"
+															className="seo-health-score-row-value"
+														>
+															{summary.brokenLinks}
+														</TypographyComponent>
+													),
+												},
+												{
+													id: 'broken-images',
+													icon: 'attachment red',
+													title: __('Broken Images', 'vulopilot'),
+													tags: (
+														<TypographyComponent
+															variant="h5"
+															weight="bold"
+															className="seo-health-score-row-value"
+														>
+															{summary.brokenImages}
+														</TypographyComponent>
+													),
+												},
+												{
+													id: 'couldnt-verify',
+													icon: 'info yellow',
+													title: __("Couldn't Verify", 'vulopilot'),
+													tags: (
+														<TypographyComponent
+															variant="h5"
+															weight="bold"
+															className="seo-health-score-row-value"
+														>
+															{summary.couldntVerify}
+														</TypographyComponent>
+													),
+												},
+												{
+													id: 'ignored',
+													icon: 'eye-blocked gray',
+													title: __('Ignored', 'vulopilot'),
+													tags: (
+														<TypographyComponent
+															variant="h5"
+															weight="bold"
+															className="seo-health-score-row-value"
+														>
+															{summary.ignored}
+														</TypographyComponent>
+													),
+												},
+											]}
+										/>
+									</div>
+									
+								</div>
 							</CardComponent>
 						</ColumnComponent>
 						<CardComponent
@@ -1105,6 +1127,7 @@ const BrokenLinksSection = () => {
 							) : (
 								<TableCard
 									showMenu={false}
+									hideHeader={true}
 									className="transparent-table"
 									headers={headers}
 									rows={pageRows}
@@ -1274,16 +1297,74 @@ const BrokenLinksSection = () => {
 			</PopupComponent>
 
 			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-
+				open={!!fixFinding}
+				onClose={closeFixPopup}
+				width={30}
+				height="60%"
+				icon='tools'
+				header={{
+					title:
+						fixFinding && 'broken-images' === fixFinding.scanner_id
+							? __('Fix broken image', 'vulopilot')
+							: __('Fix broken link', 'vulopilot'),
+				}}
+				footer={
+					<div className="broken-link-fix-actions">
+						<ButtonInput
+							buttons={[
+								{
+									text: __('Cancel', 'vulopilot'),
+									color: 'border-red',
+									onClick: closeFixPopup,
+								},
+								{
+									text: isSavingFixUrl
+										? __('Saving…', 'vulopilot')
+										: __('Save', 'vulopilot'),
+									onClick: handleSaveFixUrl,
+									disabled: isSavingFixUrl || '' === fixNewUrl.trim(),
+								},
+							]}
+						/>
+					</div>
+				}
 			>
-				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="one-click-fix" />
-				) : (
-					<ShowProPopup />
+				{fixFinding && (
+					<div className="broken-link-fix-form">
+						<p className="desc">
+							{'broken-images' === fixFinding.scanner_id
+								? __(
+									'Replace this broken image URL with a working one — the source page is updated directly.',
+									'vulopilot'
+								)
+								: __(
+									'Replace this broken link URL with a working one — the source page is updated directly.',
+									'vulopilot'
+								)}
+						</p>
+						<FormGroupWrapperComponent>
+							{'broken-images' !== fixFinding.scanner_id && (
+								<FormGroupComponent row label={__('Link Text', 'vulopilot')}>
+									<p className="broken-link-fix-static-value">
+										{getLinkText(fixFinding)}
+									</p>
+								</FormGroupComponent>
+							)}
+							<FormGroupComponent row label={__('Current URL', 'vulopilot')}>
+								<p className="broken-link-fix-static-value">
+									{getBrokenUrl(fixFinding)}
+								</p>
+							</FormGroupComponent>
+							<FormGroupComponent label={__('New URL', 'vulopilot')}>
+								<TextInput
+									name="fix_new_url"
+									placeholder="https://example.com/new-page/"
+									value={fixNewUrl}
+									onChange={(value: unknown) => setFixNewUrl(value as string)}
+								/>
+							</FormGroupComponent>
+						</FormGroupWrapperComponent>
+					</div>
 				)}
 			</PopupComponent>
 		</>
