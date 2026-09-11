@@ -6,6 +6,7 @@ import {
 	SectionComponent,
 	FormGroupWrapperComponent,
 	FormGroupComponent,
+	NoticeComponent,
 	NoticeManager,
 } from '@zyra/components';
 import { ExpandablePanelInput } from '@zyra/inputs';
@@ -37,6 +38,12 @@ interface TestResult {
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
+
+/** Same real display names BackupsTab.tsx's own `DESTINATION_PROVIDER_LABEL` uses for these 2 remote destinations — not exported there (that file's own module), so kept as a small local copy here rather than reaching across pages for 2 strings. */
+const DESTINATION_PROVIDER_LABEL: Record<string, string> = {
+	s3: __('Amazon S3', 'vulopilot'),
+	google_drive: __('Google Drive', 'vulopilot'),
+};
 
 /** Real "stop typing, then save" delay — long enough that pasting/typing a full Access Key + Secret Key + Bucket in sequence doesn't fire a save after each one, short enough that it still feels immediate once you actually stop. */
 const AUTOSAVE_DEBOUNCE_MS = 1200;
@@ -111,12 +118,15 @@ const AUTOSAVE_DEBOUNCE_MS = 1200;
 const BackupStoragePanel = () => {
 	const [status, setStatus] = useState<BackupStorageStatus | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	/** The real, currently-saved "Storage destination" select value (Backups.ts, `GET /settings`'s own `backup_storage_destination`) — read here only to power the mismatch warning below; this panel never writes it. */
+	const [activeDestination, setActiveDestination] = useState<string | null>(null);
 
 	const [panelValues, setPanelValues] = useState<Record<string, Record<string, unknown>>>({});
 
 	const [isSavingS3, setIsSavingS3] = useState(false);
 	const [isTestingS3, setIsTestingS3] = useState(false);
 	const [s3TestResult, setS3TestResult] = useState<TestResult | null>(null);
+	const [isDisconnectingS3, setIsDisconnectingS3] = useState(false);
 
 	const [isSavingGoogleClient, setIsSavingGoogleClient] = useState(false);
 	const [isTestingGoogleDrive, setIsTestingGoogleDrive] = useState(false);
@@ -156,6 +166,15 @@ const BackupStoragePanel = () => {
 	useEffect(() => {
 		setIsLoading(true);
 		refreshStatus().finally(() => setIsLoading(false));
+
+		getApiResponse<{ backup_storage_destination?: string }>(
+			getApiLink(appLocalizer, 'settings'),
+			nonceHeaders
+		).then((response) => {
+			if (response) {
+				setActiveDestination(response.backup_storage_destination ?? 'local');
+			}
+		});
 
 		// BackupGoogleDriveOAuthCallbackHandler.php's own real redirect
 		// lands back on this exact URL carrying `gdrive_status=connected|error`
@@ -327,6 +346,29 @@ const BackupStoragePanel = () => {
 			.finally(() => setIsTestingS3(false));
 	};
 
+	/** Removes the saved Access Key/Secret/Bucket/Region entirely (`BackupS3Connection::disconnect()`) — unlike Google Drive's disconnect, there's no separate "app-level" credential to keep, so this returns S3 to the same "Not configured" state as before it was ever set up. */
+	const handleDisconnectS3 = () => {
+		setExpandedMethodId('s3');
+		setIsDisconnectingS3(true);
+
+		sendApiResponse<S3Status>(
+			appLocalizer,
+			getApiLink(appLocalizer, 'backup-storage/s3/disconnect'),
+			{}
+		)
+			.then((response) => {
+				if (response) {
+					setStatus((prev) => (prev ? { ...prev, s3: response } : prev));
+					setPanelValues((prev) => ({
+						...prev,
+						s3: { access_key: '', secret_key: '', bucket: '', region: '' },
+					}));
+				}
+				setS3TestResult(null);
+			})
+			.finally(() => setIsDisconnectingS3(false));
+	};
+
 	const handleSaveGoogleClient = (values: {
 		client_id: string;
 		client_secret: string;
@@ -433,6 +475,17 @@ const BackupStoragePanel = () => {
 									: __('Test connection', 'vulopilot'),
 								onClick: handleTestS3,
 								disabled: isTestingS3,
+							},
+							{
+								key: 'disconnect_s3',
+								type: 'button',
+								label: '',
+								text: isDisconnectingS3
+									? __('Disconnecting…', 'vulopilot')
+									: __('Disconnect', 'vulopilot'),
+								icon: 'disconnect',
+								onClick: handleDisconnectS3,
+								disabled: isDisconnectingS3,
 							},
 						]
 						: []),
@@ -625,6 +678,7 @@ const BackupStoragePanel = () => {
 			status.google_drive.connected ? '1' : '0',
 			isSavingS3 ? '1' : '0',
 			isTestingS3 ? '1' : '0',
+			isDisconnectingS3 ? '1' : '0',
 			s3TestResult ? `${s3TestResult.success}:${s3TestResult.message}` : '',
 			isSavingGoogleClient ? '1' : '0',
 			isTestingGoogleDrive ? '1' : '0',
@@ -632,6 +686,23 @@ const BackupStoragePanel = () => {
 			isDisconnectingGoogleDrive ? '1' : '0',
 		].join('|')
 		: '';
+
+	/**
+	 * "Storage destination" (Backups.ts) can be set to 's3'/'google_drive'
+	 * without either actually being configured/connected yet — the select
+	 * itself has no such guard (it's a plain 3-option dropdown, see that
+	 * file's own docblock). Left that way, a completed backup's own
+	 * `destination_status` silently comes back `skipped_not_configured`
+	 * (Services\BackupStorageManager) with nothing on THIS settings page
+	 * explaining why — confirmed live: a backup row showed "Completed"
+	 * next to a "Google Drive Not Configured" destination badge with no
+	 * indication here of what to do about it. This cross-checks the real
+	 * saved destination against this panel's own already-fetched
+	 * connection status so the warning shows up exactly where the fix is.
+	 */
+	const destinationNotReady =
+		('s3' === activeDestination && status && !status.s3.configured) ||
+		('google_drive' === activeDestination && status && !status.google_drive.connected);
 
 	return (
 		<div className="settings-section-group">
@@ -648,6 +719,21 @@ const BackupStoragePanel = () => {
 			</div>
 			<div className="settings-right-section">
 				<FormGroupWrapperComponent>
+					{destinationNotReady && (
+						<NoticeComponent
+							displayPosition="inline-notice"
+							type="warning"
+							title={sprintf(
+								/* translators: %s: 'Amazon S3' or 'Google Drive', the currently-selected but not-yet-connected destination. */
+								__('Storage destination is set to %s, but it isn\'t connected yet', 'vulopilot'),
+								DESTINATION_PROVIDER_LABEL[activeDestination as string] ?? activeDestination
+							)}
+							message={__(
+								'New backups will only be saved on this server until you finish connecting it below.',
+								'vulopilot'
+							)}
+						/>
+					)}
 					<FormGroupComponent>
 						{!isLoading && status && (
 							<ExpandablePanelInput

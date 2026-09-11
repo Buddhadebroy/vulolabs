@@ -78,6 +78,18 @@ class BackupStorage extends \WP_REST_Controller {
 
         register_rest_route(
             VuloPilot()->rest_namespace,
+            '/' . $this->rest_base . '/s3/disconnect',
+            array(
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'disconnect_s3' ),
+                    'permission_callback' => array( $this, 'permissions_check' ),
+                ),
+            )
+        );
+
+        register_rest_route(
+            VuloPilot()->rest_namespace,
             '/' . $this->rest_base . '/google-drive/client',
             array(
                 array(
@@ -170,6 +182,16 @@ class BackupStorage extends \WP_REST_Controller {
                 ? array( 'success' => false, 'message' => $result->get_error_message() )
                 : array( 'success' => true, 'message' => __( 'Connected — this bucket is reachable with these credentials.', 'vulopilot' ) )
         );
+    }
+
+    /**
+     * @param \WP_REST_Request $request Full request object.
+     * @return \WP_REST_Response
+     */
+    public function disconnect_s3( $request ) {
+        ( new BackupS3Connection() )->disconnect();
+
+        return rest_ensure_response( ( new BackupS3Connection() )->get_status() );
     }
 
     /**

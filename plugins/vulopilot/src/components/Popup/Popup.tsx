@@ -80,6 +80,10 @@ const CARDLESS_MODULE_ICONS: Record<string, string> = {
 	// "Chat with VuloPilot" (modules/CopilotChat/Module.php, Pro) — also
 	// cardless, same reasoning.
 	'copilot-chat': 'ai',
+	// 9 of Create Content's own "Content Tools" grid tiles
+	// (modules/ContentTools/Module.php, Pro) — also cardless, same
+	// reasoning.
+	'content-tools': 'tools',
 };
 
 /**

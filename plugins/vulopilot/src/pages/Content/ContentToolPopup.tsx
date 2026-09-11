@@ -10,6 +10,7 @@ import {
 	TextInput,
 } from '@zyra/inputs';
 import { ContentTool, ToolField } from './ContentToolsGrid';
+import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
 
 interface WpRestPost {
 	id: number;
@@ -63,11 +64,20 @@ interface ContentToolPopupProps {
 /**
  * The real propose → preview → approve/reject flow for one Create Content
  * tool tile — collects the one real input its action needs (an existing
- * post, an image, a topic — see ContentToolsGrid.tsx's own `fields`),
- * calls the real `POST /ai-action-runs` (AIActions\ActionRunner::propose()),
- * shows the real AI-generated preview, then really approves/rejects it via
- * the existing `/ai-action-runs/{id}/approve|reject` routes (the same ones
- * NeedsAttentionWidget.tsx's own Pending Approval widget already uses).
+ * post, an image, a topic, a fixed template choice — see ContentToolsGrid.tsx's
+ * own `fields`). Shared verbatim by both ContentToolsGrid.tsx's own 12-tile
+ * grid and QuickActionsCard.tsx's 3 shortcut tools (AI Content Audit,
+ * Keyword Research, Content Templates) — same `ContentTool` shape, same
+ * `tool.pro` free/Pro endpoint split, just a different `tool` prop value.
+ * calls the real propose endpoint, shows the real AI-generated preview,
+ * then really approves/rejects it. Which endpoint (`runsBase` below)
+ * depends on `tool.pro`: a free tile (AI Writer/Blog Generator/Duplicate
+ * Content) still calls Free's own shared `/ai-action-runs`
+ * (AIActions\ActionRunner::propose(), the same real endpoint "Fix with
+ * AI" buttons on individual findings and NeedsAttentionWidget.tsx's own
+ * Pending Approval widget also use); a Pro tile calls vulopilot-pro's own
+ * separate `/content-tools/runs` instead — see ContentToolsGrid.tsx's own
+ * top docblock for the full split and why.
  *
  * Uses a raw `fetch()` for the propose() call specifically rather than
  * zyra's `sendApiResponse()` — that helper always resolves to `null` on
@@ -86,6 +96,15 @@ interface ContentToolPopupProps {
  * generation still runs from whatever's in those two (still-editable)
  * fields, matching GenerateProductDescriptionAction's real input contract
  * exactly (it has no `product_id` concept of its own).
+ *
+ * The one error this popup treats specially: `ActionRunner::propose()`'s
+ * own real "No AI provider is configured." (thrown when neither a BYOK
+ * key nor a connected VuloCloud account exists) shows the same real
+ * "Connect to VuloCloud / Claim free AI Credits" action
+ * AiCreditsIndicator.tsx's own dropdown already offers
+ * (useConnectVuloCloud.ts), instead of a dead-end error notice — every
+ * other real error (a per-field validation message, a provider's own
+ * "Invalid API Key") still shows as plain text.
  */
 const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 	tool,
@@ -109,8 +128,11 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 		null
 	);
 	const [isBusy, setIsBusy] = useState(false);
+	const { isConnecting, handleConnect } = useConnectVuloCloud();
 
 	const hasProductPicker = 'generate-product-description' === tool?.actionId;
+	/** Same real "No AI provider is configured." condition AiContentAssistantSidebar.tsx's own sendToAi() checks for — ActionRunner::propose() throws this exact phrase (Rest.php's own docblock), so this offers the same real "Connect to VuloCloud" fix instead of a dead-end error notice. */
+	const isNoProviderError = errorMessage.includes('No AI provider is configured');
 
 	useEffect(() => {
 		if (!tool) {
@@ -249,6 +271,17 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 		}));
 	};
 
+	// Free tiles (`tool.pro` falsy) still call Free's own shared
+	// `/ai-action-runs` directly — the same real endpoint "Fix with AI"
+	// buttons on individual findings elsewhere use, and several of these
+	// same action ids (e.g. `write-meta-title`) must keep working there.
+	// Pro tiles (`tool.pro === true`) call vulopilot-pro's own SEPARATE
+	// `/content-tools/runs` instead — same underlying engine, real
+	// Pro-license enforcement server-side (ContentTools\Rest.php's own
+	// docblock). See ContentToolsGrid.tsx's own top docblock for the full
+	// split.
+	const runsBase = tool.pro ? 'content-tools/runs' : 'ai-action-runs';
+
 	const handleSubmit = () => {
 		setStep('loading');
 		setErrorMessage('');
@@ -269,7 +302,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			input[field.key] = fieldValues[field.key] ?? '';
 		});
 
-		fetch(getApiLink(appLocalizer, 'ai-action-runs'), {
+		fetch(getApiLink(appLocalizer, runsBase), {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -332,7 +365,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 		setIsBusy(true);
 		sendApiResponse<{ success?: boolean }>(
 			appLocalizer,
-			getApiLink(appLocalizer, `ai-action-runs/${runId}/approve`),
+			getApiLink(appLocalizer, `${runsBase}/${runId}/approve`),
 			{}
 		)
 			.then((response) => {
@@ -363,7 +396,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 		setIsBusy(true);
 		sendApiResponse<{ success?: boolean }>(
 			appLocalizer,
-			getApiLink(appLocalizer, `ai-action-runs/${runId}/reject`),
+			getApiLink(appLocalizer, `${runsBase}/${runId}/reject`),
 			{}
 		)
 			.then(() => {
@@ -406,6 +439,20 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 					usePlainText
 					value={value}
 					onChange={(newValue) => setValue(newValue)}
+				/>
+			);
+		}
+
+		if ('select' === field.type) {
+			return (
+				<SelectInput
+					type="single-select"
+					name={field.key}
+					value={value}
+					onChange={(newValue) => setValue(newValue as string)}
+					placeholder={__('Select…', 'vulopilot')}
+					options={field.options ?? []}
+					isClearable={false}
 				/>
 			);
 		}
@@ -582,11 +629,35 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 				)}
 
 				{'error' === step && (
-					<NoticeComponent
-						displayPosition="inline-notice"
-						type="error"
-						message={errorMessage}
-					/>
+					isNoProviderError ? (
+						<div className="ai-credits-connect-prompt">
+							<NoticeComponent
+								displayPosition="inline-notice"
+								type="info"
+								title={__('No AI provider connected yet', 'vulopilot')}
+								message={__(
+									'Claim 100 Free AI Credits — no credit card required — to use this tool.',
+									'vulopilot'
+								)}
+							/>
+							<ButtonInput
+								position="left"
+								buttons={{
+									text: isConnecting
+										? __('Connecting…', 'vulopilot')
+										: __('Connect to VuloCloud', 'vulopilot'),
+									disabled: isConnecting,
+									onClick: handleConnect,
+								}}
+							/>
+						</div>
+					) : (
+						<NoticeComponent
+							displayPosition="inline-notice"
+							type="error"
+							message={errorMessage}
+						/>
+					)
 				)}
 
 				{'preview' === step && preview && (

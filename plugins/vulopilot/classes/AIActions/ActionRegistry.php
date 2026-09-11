@@ -111,16 +111,23 @@ class ActionRegistry {
             // see ScannerFixMap's own docblock for the rest).
             Actions\AddSubheadingsAction::class,
             Actions\DifferentiateDuplicateTitleAction::class,
-            // Create Content's own tool grid (ContentToolsGrid.tsx) — the
-            // 5 tiles with no existing 1:1 action class (AI Writer,
-            // Landing Pages, Content Optimizer, Content Refresh, Media
-            // Library AI); the grid's other 6 tiles reuse actions already
-            // registered above.
+            // Create Content's own tool grid (ContentToolsGrid.tsx) — of
+            // the 2 tiles with no pre-existing 1:1 action class that stay
+            // free (AI Writer, Landing Pages — the grid's other free tile,
+            // Duplicate Content, reuses DifferentiateDuplicateTitleAction
+            // registered above). Landing Pages stays here (not moved to
+            // Pro) because `generate-landing-page` is also the real action
+            // behind "Chat with VuloPilot" (free) and
+            // ContentIntelligence's own bulk-suggest flow — see
+            // AiContentAssistantSidebar.tsx/ContentCreationOrchestrator.php.
+            // Content Optimizer/Content Refresh/Media Library AI (the
+            // other 3 tiles with no pre-existing action class) are a real
+            // Pro feature with no other consumer, so their action classes
+            // moved wholesale to vulopilot-pro's own
+            // ContentTools\Actions\* (registered through this same filter
+            // from that module's own Module.php) rather than staying here.
             Actions\WritePostContentAction::class,
             Actions\GenerateLandingPageAction::class,
-            Actions\OptimizeContentAction::class,
-            Actions\RefreshContentAction::class,
-            Actions\OptimizeMediaAction::class,
         );
     }
 

@@ -22,11 +22,22 @@ interface UseRunScanOptions {
 	categories?: string[];
 	/**
 	 * Called after a successful scan completes — pages pass their own
-	 * refetch (e.g. FindingsTable's `refetch`, or a page-level reload) so
-	 * results show up without a manual page refresh.
+	 * refetch (e.g. FindingsTable's `refetch`) so results show up without
+	 * a manual page refresh. Defaults to a full `window.location.reload()`
+	 * when omitted (every call site except Dashboard.tsx's own lighter
+	 * `loadDashboard` refetch) — `POST /scans` runs every scanner
+	 * synchronously before responding (Controllers\Scans::create_item()'s
+	 * own docblock), so by the time this fires the new findings are
+	 * already in the database; without this default, 9 of this component's
+	 * 10 real call sites (every category page except Dashboard) left their
+	 * on-screen tables/cards stale until the user manually refreshed the
+	 * browser tab — confirmed missing on Content/SiteHealth/SeoVisibility/
+	 * Accessibility/Reports/Health/Performance/Security/Commerce.
 	 */
 	onSuccess?: () => void;
 }
+
+const defaultOnSuccess = () => window.location.reload();
 
 /**
  * "Run scan" — same `POST /scans` call Dashboard's Run Audit widget
@@ -34,7 +45,7 @@ interface UseRunScanOptions {
  * NavigatorHeaderComponent can get the same button without duplicating
  * the fetch/notice/loading-state wiring.
  */
-export const useRunScan = ({ categories, onSuccess }: UseRunScanOptions = {}) => {
+export const useRunScan = ({ categories, onSuccess = defaultOnSuccess }: UseRunScanOptions = {}) => {
 	const [isScanning, setIsScanning] = useState(false);
 
 	const runScan = () => {
@@ -53,7 +64,7 @@ export const useRunScan = ({ categories, onSuccess }: UseRunScanOptions = {}) =>
 			.then((response) => {
 				if (response) {
 					NoticeManager.add({
-						uniqueKey: 'vulopilot-scan-started',
+						uniqueKey: 'vulopilot-scan-complete',
 						type: 'success',
 						position: 'float',
 						title: __(
@@ -61,11 +72,17 @@ export const useRunScan = ({ categories, onSuccess }: UseRunScanOptions = {}) =>
 							'vulopilot'
 						),
 						message: __(
-							'Scan started — results will appear here shortly.',
+							'Scan complete — refreshing…',
 							'vulopilot'
 						),
 					});
-					onSuccess?.();
+					// Real scan results are already in the database by now
+					// (the request above only just resolved after
+					// `ScanRunner` finished running) — the delay here is
+					// purely so the notice above is actually readable
+					// before the default `onSuccess` reloads the page out
+					// from under it.
+					setTimeout(() => onSuccess(), 900);
 				} else {
 					NoticeManager.add({
 						uniqueKey: 'vulopilot-scan-failed',
