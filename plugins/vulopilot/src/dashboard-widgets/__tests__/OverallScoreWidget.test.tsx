@@ -77,7 +77,7 @@ describe( 'OverallScoreWidget', () => {
 		expect( onHide ).toHaveBeenCalled();
 	} );
 
-	it( 'shows the real overall score and open/critical findings counts', () => {
+	it( 'shows the real overall score and critical findings badge', () => {
 		render(
 			<OverallScoreWidget
 				summary={ summary }
@@ -88,25 +88,25 @@ describe( 'OverallScoreWidget', () => {
 		);
 
 		expect( screen.getByText( '82' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Overall Score' ) ).toBeInTheDocument();
+		// critical_findings: 1
 		expect(
-			screen.getByText( '5 issues found' )
+			screen.getByText( '1 critical issues' )
 		).toBeInTheDocument();
-		expect( screen.getByText( '1 critical' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the real net-change badge (fixed minus new) for this week', () => {
+	it( 'shows "No critical issues" when there are none', () => {
 		render(
 			<OverallScoreWidget
-				summary={ summary }
+				summary={ { ...summary, critical_findings: 0 } }
 				isLoading={ false }
 				onHide={ jest.fn() }
 				isCustomizing={ false }
 			/>
 		);
 
-		// fixed_findings_this_week (5) - new_findings_this_week (3) = +2
-		expect( screen.getByText( /\+2 this week/ ) ).toBeInTheDocument();
-		expect( screen.getByText( /3 new issues/ ) ).toBeInTheDocument();
-		expect( screen.getByText( /5 fixed/ ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'No critical issues' )
+		).toBeInTheDocument();
 	} );
 } );

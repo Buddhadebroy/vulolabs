@@ -272,22 +272,6 @@ final class VuloPilot {
         // lazily instantiated inside a REST controller).
         $this->container['connect_broker_callback_handler'] = new Services\ConnectBrokerCallbackHandler();
 
-        // Connections → the generic "connect to a pre-known Organization +
-        // Brand" broker redirect handler (VULOPILOT_VULOCLOUD_CONFIG) — a
-        // separate, independent connection from the AI Credits one
-        // immediately above, hence its own callback handler/admin-post
-        // action rather than reusing that one. Same unconditional-
-        // construction reasoning.
-        $this->container['vulocloud_connect_callback_handler'] = new Services\VuloCloudConnectCallbackHandler();
-
-        // Connections → real WordPress/PHP/theme/plugin telemetry for
-        // whichever of the two connections above is actually live —
-        // registers its own daily cron (self-registers-its-own-cron-hook,
-        // same reasoning) on top of the immediate, connect-time report
-        // each connection's own exchange_broker_code() already triggers
-        // directly.
-        $this->container['site_telemetry_reporter'] = new Services\SiteTelemetryReporter();
-
         // SEO & Visibility → Keywords' real rank-tracking sync (daily cron
         // + Controllers\KeywordRankings::sync()'s own "Sync now") — same
         // unconditional-construction/self-registers-its-own-cron-hook

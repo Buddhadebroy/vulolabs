@@ -8,6 +8,7 @@ import {
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
+	ContainerComponent
 } from '@zyra/components';
 import { ButtonInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
@@ -146,7 +147,7 @@ const NotFoundLogSection = () => {
 	};
 
 	return (
-		<>
+		<ContainerComponent>
 			<ColumnComponent>
 				<CardComponent
 					title={__('404 Log', 'vulopilot')}
@@ -303,7 +304,7 @@ const NotFoundLogSection = () => {
 					/>
 				</div>
 			</PopupComponent>
-		</>
+		</ContainerComponent>
 	);
 };
 

@@ -11,6 +11,8 @@ interface BusinessNameSource {
 	label: string;
 	value: string | null;
 	found: boolean;
+	/** Real destination "View Details" opens for this source — the site's own real homepage for `homepage`/`website_title`/`organization_schema` (all 3 actually render there), the real published About page's own permalink for `about_page` (even when its content doesn't mention the name, so there's still somewhere real to check), or null when no real page exists to send someone to. */
+	url: string | null;
 }
 
 interface BusinessNameSourcesResponse {
@@ -28,6 +30,23 @@ const SOURCE_ICON: Record<string, string> = {
 	website_title: 'document',
 	organization_schema: 'shortcode',
 	about_page: 'document',
+};
+
+/**
+ * Real per-source identity color for the icon box — same real
+ * `$color-palette` names BadgeComponent's own `color` prop already
+ * resolves elsewhere on this tab (BusinessProfileCard.tsx's own
+ * `ROW_ICON`), just distinguishing each of these 4 real sources from
+ * each other visually instead of every icon box sharing one flat
+ * found/not-found color. Real found/not-found status is still shown
+ * separately, via each row's own dot badge below the label — this color
+ * is purely "which source is this," not a status signal.
+ */
+const SOURCE_COLOR: Record<string, string> = {
+	homepage: 'green',
+	website_title: 'blue',
+	organization_schema: 'indigo',
+	about_page: 'purple',
 };
 
 /**
@@ -169,18 +188,42 @@ const BusinessNameDetailsPanel = ({
 						<div className="business-name-panel-sources">
 							{data.sources.map((source: BusinessNameSource) => (
 								<div key={source.key} className="business-name-panel-source-row">
-									<i className={`adminfont-${SOURCE_ICON[source.key] ?? 'document'}`} />
-									<span className="business-name-panel-source-label">
-										{source.label}
+									<span
+										className={`business-name-panel-source-icon color-${SOURCE_COLOR[source.key] ?? 'purple'}`}
+									>
+										<i className={`adminfont-${SOURCE_ICON[source.key] ?? 'document'}`} />
 									</span>
-									<span className="business-name-panel-source-value">
-										{source.found
-											? source.value
-											: __('Not found', 'vulopilot')}
-									</span>
-									<i
-										className={`adminfont-${source.found ? 'check' : 'setting'} business-name-panel-source-status ${source.found ? 'is-good' : 'is-muted'}`}
-									/>
+									<div className="business-name-panel-source-main">
+										<span className="business-name-panel-source-label">
+											{source.label}
+										</span>
+										<BadgeComponent
+											variant="dot"
+											color={source.found ? 'green' : 'red'}
+											text={
+												source.found
+													? sprintf(
+															/* translators: %s: the real value found at this source. */
+															__('Found: %s', 'vulopilot'),
+															source.value
+														)
+													: __('Not found', 'vulopilot')
+											}
+										/>
+									</div>
+									{source.url && (
+										<>
+											<ButtonInput
+												buttons={{
+													text: __('View Details', 'vulopilot'),
+													color: 'border-purple',
+													onClick: () =>
+														window.open(source.url as string, '_blank'),
+												}}
+											/>
+											<i className="adminfont-arrow-right business-name-panel-source-chevron" />
+										</>
+									)}
 								</div>
 							))}
 						</div>
