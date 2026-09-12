@@ -121,22 +121,15 @@ const Reports = () => {
 
 	return (
 		<>
-			<NavigatorHeaderComponent
-				headerIcon="report"
-				headerTitle={__('Reports', 'vulopilot')}
-				headerDescription={__(
-					"AI-powered insights about your website's performance and growth.",
-					'vulopilot'
-				)}
-				headerCustomContent={
-					<RunScanHeaderExtra settingsSubtab="reports" />
-				}
-			/>
 			<NavigatorComponent
 				className="reports-tabs"
 				settingContent={settingContent}
 				currentSetting={activeTab}
 				getForm={getForm}
+				headerCustomContent={
+					<RunScanHeaderExtra settingsSubtab="reports" />
+				}
+				settingName="Reports"
 				prepareUrl={(subTab: string) =>
 					`?page=vulopilot#&tab=reports&subtab=${subTab}`
 				}

@@ -711,6 +711,66 @@
 	}
 }
 
+// SectionedIssuesTable.tsx's own real "Show ignored" toggle + "Export
+// CSV" row, above the table's own native search/filter bar.
+.sectioned-issues-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.sectioned-issues-show-ignored {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+	font-size: 0.875rem;
+	color: $sub-text-color;
+
+	// A plain, real checkbox styled as an on/off pill switch — same
+	// standard technique every other real toggle switch in this codebase
+	// uses, not a fabricated third-party control.
+	.toggle-switch-input {
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
+
+	.toggle-switch-track {
+		position: relative;
+		display: inline-block;
+		width: 2.25rem;
+		height: 1.25rem;
+		border-radius: 999px;
+		background: #d1d5db;
+		transition: background 0.15s ease;
+		flex-shrink: 0;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 0.125rem;
+			left: 0.125rem;
+			width: 1rem;
+			height: 1rem;
+			border-radius: 50%;
+			background: #fff;
+			transition: transform 0.15s ease;
+		}
+	}
+
+	.toggle-switch-input:checked + .toggle-switch-track {
+		background: $theme-color;
+
+		&::after {
+			transform: translateX(1rem);
+		}
+	}
+}
+
 .sectioned-issues-table-header {
 	display: flex;
 	align-items: center;
