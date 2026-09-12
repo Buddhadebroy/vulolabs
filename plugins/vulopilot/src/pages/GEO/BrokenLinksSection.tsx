@@ -1110,7 +1110,7 @@ const BrokenLinksSection = () => {
 												},
 												{
 													id: 'couldnt-verify',
-													icon: 'info yellow',
+													icon: 'close-delete yellow',
 													title: __("Couldn't Verify", 'vulopilot'),
 													tags: (
 														<TypographyComponent
@@ -1124,7 +1124,7 @@ const BrokenLinksSection = () => {
 												},
 												{
 													id: 'ignored',
-													icon: 'eye-blocked gray',
+													icon: 'rejecte lime',
 													title: __('Ignored', 'vulopilot'),
 													tags: (
 														<TypographyComponent

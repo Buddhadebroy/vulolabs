@@ -4,7 +4,7 @@
 // PopupComponent's own `position="menu-dropdown"` absolute-positions
 // against.
 .ai-credits-indicator {
-	position: fixed;
+	// position: fixed;
 	// WordPress's own #wpadminbar is 32px tall and sits at z-index 99999,
 	// full-width above everything — confirmed live (a first pass at
 	// top: 14px rendered the indicator, but #wpadminbar physically

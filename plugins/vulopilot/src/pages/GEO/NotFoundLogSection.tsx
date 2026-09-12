@@ -154,7 +154,7 @@ const NotFoundLogSection = () => {
 			<ColumnComponent>
 				<CardComponent
 					title={__('404 Log', 'vulopilot')}
-					titleIcon="error"
+					titleIcon="404-page"
 					desc={__(
 						'Every real 404 this site has seen, both missing content pages and theme/plugin/core-file/asset requests (a stale cached bundle, a removed theme asset, a browser probing a well-known path) — told apart by the "Type" column and filterable by the pills above the table. Only a content-page 404 can be turned into a redirect; nobody redirects a broken theme file.',
 						'vulopilot'

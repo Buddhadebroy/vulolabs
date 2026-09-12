@@ -394,27 +394,6 @@ const SectionedIssuesTable = ({
 					/>
 				) : (
 					<>
-						<div className="sectioned-issues-toolbar">
-							<label className="sectioned-issues-show-ignored">
-								<input
-									type="checkbox"
-									className="toggle-switch-input"
-									checked={showIgnored}
-									onChange={(event) =>
-										setShowIgnored(event.target.checked)
-									}
-								/>
-								<span className="toggle-switch-track" />
-								{__('Show ignored', 'vulopilot')}
-							</label>
-							<ButtonInput
-								buttons={{
-									text: __('Export CSV', 'vulopilot'),
-									icon: 'export',
-									onClick: () => downloadIssuesCsv(sortedGroups),
-								}}
-							/>
-						</div>
 						<IssuesSummaryCards
 							priorityCounts={priorityCounts}
 							isLoading={isLoading}

@@ -150,15 +150,11 @@ const App = () => {
 
 	return (
 		<>
-			{
-				// Rendered as HeaderComponent's own sibling, not through
-				// its `utilityList` prop — see AiCreditsIndicator.tsx's
-				// own docblock on why that prop can't show a live number.
-			}
 			<AiCreditsIndicator />
 			<HeaderComponent
 				brandImg={Brand}
 				results={results}
+				beforeSearch={<span style={{ color: 'red' }}>TEST</span>}
 				search={{
 					placeholder: __('Search…', 'vulopilot'),
 					options: [
@@ -185,7 +181,6 @@ const App = () => {
 				free={appLocalizer.version}
 				pro={appLocalizer.pro_data.version}
 			/>
-
 			<Route />
 		</>
 	);
