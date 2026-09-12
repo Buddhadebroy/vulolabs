@@ -17,6 +17,7 @@ import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards'
 import IssueDetailPanel from '../AIAssistant/IssueDetailPanel';
 import ProLockedCard from '../../components/ProLockedCard';
 import type { FindingsSection } from './SectionedFindingsTab';
+import './ProtectMySite.scss';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
