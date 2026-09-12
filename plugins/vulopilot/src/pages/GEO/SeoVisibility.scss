@@ -871,18 +871,7 @@
 // real historical count to diff `pages_checked` against (see
 // SeoScoreResponse's own docblock), so it stays a bare real number rather
 // than a fabricated trend.
-.seo-health-score-layout {
-	display: flex;
-	gap: 1.5rem;
-	align-items: start;
-}
 
-.seo-health-score-ring-block {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 1.5rem;
-}
 
 .seo-health-score-ring {
 	flex: 0 0 auto;

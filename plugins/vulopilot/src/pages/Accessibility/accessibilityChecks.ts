@@ -32,7 +32,7 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 	{
 		key: 'page-structure',
 		title: __('Page Structure', 'vulopilot'),
-		description: __('Some pages may be harder to navigate.', 'vulopilot'),
+		description: __('Some pages harder to use.', 'vulopilot'),
 		scannerIds: ['accessibility'],
 		icon: 'editor-list purple',
 		color: '#7c3aed',
@@ -45,7 +45,7 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 		key: 'images-media',
 		title: __('Images & Media', 'vulopilot'),
 		description: __(
-			'Some images may not be explained to everyone.',
+			'Not all images explained.',
 			'vulopilot'
 		),
 		scannerIds: ['images'],
@@ -75,7 +75,7 @@ const REAL_ACCESSIBILITY_CHECKS: AccessibilityCheck[] = [
 		key: 'keyboard-use',
 		title: __('Keyboard Use', 'vulopilot'),
 		description: __(
-			'Some visitors may have trouble navigating without a mouse.',
+			'Some visitors may have trouble.',
 			'vulopilot'
 		),
 		scannerIds: ['keyboard-accessibility'],

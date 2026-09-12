@@ -253,9 +253,8 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 					)}
 					isLoading={isLoading}
 				>
-					<div className="seo-health-score-layout">
-						<div className="seo-health-score-ring-block">
-							<div className="seo-health-score-ring">
+					<div className="overall-score-wrapper">
+						<div className="overall-score-summary">
 								<ChartComponent
 									type="ring"
 									height={200}
@@ -272,7 +271,6 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 										{ label: __('Remaining', 'vulopilot'), value: 100 - overall, color: '#e5e7eb' },
 									]}
 								/>
-							</div>
 						</div>
 						{/*
 						 * Same real `ListComponent` "mini-card report" row
@@ -294,6 +292,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 						 * table) since there's no per-signal filtered table
 						 * here to open the way SEO's `categoryFocus` does.
 						 */}
+						 <div className="overall-score-summary">
 						<ListComponent
 							className="mini-card report hover without-border seo-health-score-category-list"
 							loading={isLoading}
@@ -362,6 +361,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 								};
 							})}
 						/>
+						</div>
 					</div>
 					{score && (
 						<AnalyticsComponent

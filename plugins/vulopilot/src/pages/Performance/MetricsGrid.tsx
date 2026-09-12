@@ -101,23 +101,27 @@ const METRIC_TILES: MetricTileData[] = [
 			'vulopilot'
 		),
 	},
+	{
+		id: 'php-acceleration',
+		icon: 'coding violet',
+		title: __('PHP acceleration', 'vulopilot'),
+		desc: __('Whether OPcache is enabled and speeding up PHP execution.', 'vulopilot'),
+	},
 ];
 
 /**
  * Tile ids backed by `GET /efficiency-checks` (Controllers\EfficiencyChecks.php)
  * instead of a category-'performance' scanner — used below only to pick
- * `badgeFor()`'s data source. Title/desc/icon above are copied verbatim
- * from that endpoint's own `check_page_caching()`/`check_browser_caching()`/
- * `check_persistent_object_cache()` (real, not fabricated for this grid);
+ * `badgeFor()`'s data source and, for PHP acceleration, its own real
+ * technical-details rows. Title/desc/icon above are copied verbatim
+ * from that endpoint's own checks (real, not fabricated for this grid);
  * the badge is computed fresh per render from the same live payload.
- * Routing-wise these 3 need no special case — `SECTION_KEY_BY_TILE_ID`
- * below sends them to the same "Caching & Delivery" Top Issues section the
- * existing Caching/CDN tiles already use.
  */
 const EFFICIENCY_TILE_IDS = [
 	'page-caching',
 	'browser-caching',
 	'persistent-object-cache',
+	'php-acceleration',
 ];
 
 const NOT_TRACKED_BADGE = { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' };
@@ -148,12 +152,10 @@ const SECTION_KEY_BY_TILE_ID: Record<string, string> = {
 	'database-cleanup': 'plugins-database',
 	'lazy-loading': 'loading-fonts',
 	cdn: 'caching-delivery',
-	// Not scanner findings (no row of their own in the Top Issues table),
-	// but the same real "Caching & Delivery" section Caching/CDN above jump
-	// to is still the right destination conceptually.
 	'page-caching': 'caching-delivery',
 	'browser-caching': 'caching-delivery',
 	'persistent-object-cache': 'caching-delivery',
+	'php-acceleration': 'caching-delivery',
 };
 
 interface CoreWebVitalsSummary {
@@ -162,45 +164,6 @@ interface CoreWebVitalsSummary {
 
 const MIN_CWV_SAMPLES = 10;
 
-/**
- * The mockup's metrics grid — 9 tiles ("Performance Monitor" removed per
- * direct instruction, since it was a pure duplicate of
- * RealTimeMonitoringCard.tsx — literally the same `GET
- * /performance-realtime` endpoint, rendered twice on the same page; that
- * card, further down this page, remains the one real home for this
- * capability), plus 3 more (Page caching/Browser caching/Persistent object
- * cache, appended per direct instruction) for 12 total.
- *
- * 8 of the first 9 tiles map to a real category-'performance' scanner
- * via `useSectionStatus()` (the same real "No open findings"/"N Open"
- * badge `TechnicalVisibilityCard.tsx` already produces): Caching
- * (`cache-detection`), Images (`large-images`), CSS Optimization
- * (`css-optimization`), JavaScript (`javascript-optimization`), Fonts
- * (`fonts`), Lazy Loading (`lazy-loading`), CDN (`cdn`), Database Cleanup
- * (`database-cleanup`) — see each scanner's own file in
- * `classes/Scanners/Basic/`. "Core Web Vitals" is real too — it reads the
- * same `GET /core-web-vitals` real-visitor RUM summary PerformanceScoreCard's
- * own Core Web Vitals card reads, showing "Tracking" once past that
- * card's own `MIN_SAMPLES` floor, or a real "Collecting data (N/10)"
- * count below it — never a static "Not tracked yet" now that a real
- * collection pipeline exists (Services\CoreWebVitalsBeacon).
- *
- * Per direct instruction, the separate "View" button (`ButtonInput`) is
- * gone — each tile's own real status badge (`MetricTileComponent`'s own
- * `badge` prop, `@zyra/components` — `badge.onClick` doubles it as this
- * tile's click target) is the click target now instead. Same destination
- * either way: the 8
- * scanner-backed tiles jump to and select their own section of the "Top
- * Issues" table further down this page (`onViewSection`, via
- * `SECTION_KEY_BY_TILE_ID`); "Core Web Vitals" instead scrolls to its own
- * real detail card higher on this same page (`onViewCoreWebVitals`) — it
- * already shows this exact tile's data, so its badge jumps there rather
- * than to a findings table that has no row for it. The 3 efficiency tiles
- * (`EFFICIENCY_TILE_IDS`) aren't scanner findings either, but they're
- * caching-related the same way Caching/CDN are, so their badge routes into
- * that same "Caching & Delivery" section rather than needing a
- * destination of their own.
- */
 interface MetricsGridProps {
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onViewSection: (sectionKey: string) => void;
@@ -245,6 +208,12 @@ const MetricsGrid = ({
 		'database-cleanup': databaseCleanup,
 	};
 
+	/** Same real lookup `badgeFor()` uses, extracted so `descFor()` can reach the same check without duplicating the flatMap. */
+	const efficiencyCheckFor = (id: string) =>
+		efficiencyData?.sections
+			.flatMap((section) => section.checks)
+			.find((item) => item.id === id);
+
 	const badgeFor = (id: string) => {
 		if (id === 'core-web-vitals') {
 			if (!vitalsSummary) {
@@ -264,9 +233,7 @@ const MetricsGrid = ({
 		}
 
 		if (EFFICIENCY_TILE_IDS.includes(id)) {
-			const check = efficiencyData?.sections
-				.flatMap((section) => section.checks)
-				.find((item) => item.id === id);
+			const check = efficiencyCheckFor(id);
 
 			if (!check) {
 				return NOT_TRACKED_BADGE;
@@ -279,6 +246,43 @@ const MetricsGrid = ({
 		}
 
 		return SECTION_STATUS_BY_TILE[id]?.badge ?? OPEN_FALLBACK_BADGE;
+	};
+
+	/**
+	 * `MetricTileComponent`'s own `desc` accepts any React node, so PHP
+	 * acceleration can show its real `check.technical_details` (OPcache:
+	 * Enabled, Status: Active, …) inline below the plain one-line
+	 * description — the same real key-value rows `PhpAccelerationCard.tsx`
+	 * renders as its own `<ul className="efficiency-check-details">`, just
+	 * compact for a tile. Every other tile's `desc` stays its own plain
+	 * string (or falls through to the one on `METRIC_TILES`).
+	 */
+	const descFor = (id: string, fallback: string) => {
+		if (id !== 'php-acceleration') {
+			return fallback;
+		}
+
+		const check = efficiencyCheckFor(id);
+
+		if (!check || check.technical_details.length === 0) {
+			return fallback;
+		}
+
+		return (
+			<>
+				<div className="accessibility-check-desc">{fallback}</div>
+				<ul className="efficiency-check-details efficiency-check-details--compact">
+					{check.technical_details.map((detail) => (
+						<li key={detail.label} className={`is-${detail.status}`}>
+							<span className="efficiency-check-detail-dot" />
+							<span className="efficiency-check-detail-text">
+								<strong>{detail.label}:</strong> {detail.value}
+							</span>
+						</li>
+					))}
+				</ul>
+			</>
+		);
 	};
 
 	const handleView = (tileId: string) => {
@@ -305,7 +309,7 @@ const MetricsGrid = ({
 					...badgeFor(tile.id),
 					onClick: () => handleView(tile.id),
 				},
-				desc: tile.desc,
+				desc: descFor(tile.id, tile.desc),
 			}))}
 		/>
 	);

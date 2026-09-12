@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
+	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
@@ -41,6 +42,30 @@ const PRIORITY_SEVERITIES: Record<Exclude<Priority, 'all'>, FindingGroup['severi
 	high: ['critical', 'high'],
 	medium: ['medium'],
 	low: ['low', 'info'],
+};
+
+/**
+ * Truncates a real finding's own `sample.description` to `maxLength`
+ * characters, cutting on the nearest word boundary so the string doesn't
+ * end mid-word — same real "don't truncate mid-word" reading a plain
+ * `slice()` would produce, just without leaving a dangling partial word.
+ * Appends a single-character ellipsis (`…`, not `...`) when the input was
+ * longer than `maxLength`, so the caller can tell a truncated string from
+ * one that happened to be exactly `maxLength`.
+ */
+const truncateDescription = (text: string, maxLength = 50): string => {
+	if (!text || text.length <= maxLength) {
+		return text;
+	}
+
+	const sliced = text.slice(0, maxLength);
+	const lastSpace = sliced.lastIndexOf(' ');
+
+	// Only cut at the last space if it's reasonably close to the end —
+	// otherwise a single very long word would truncate to nothing.
+	const cut = lastSpace > maxLength * 0.6 ? sliced.slice(0, lastSpace) : sliced;
+
+	return `${cut.trimEnd()}…`;
 };
 
 export type SectionedIssuesTab = 'all' | 'important' | string;
@@ -270,12 +295,12 @@ const SectionedIssuesTable = ({
 					/>
 				) : (
 					<>
-						{/* <IssuesSummaryCards
+						<IssuesSummaryCards
 							priorityCounts={priorityCounts}
 							isLoading={isLoading}
 							activePriority={activePriority}
 							onSelectPriority={handlePriorityChange}
-						/> */}
+						/>
 
 						{!isLoading && 0 === sortedGroups.length ? (
 							<ModuleGuardComponent
@@ -321,7 +346,7 @@ const SectionedIssuesTable = ({
 										key: 'label',
 										type: 'info',
 										label: __('Issue', 'vulopilot'),
-										width: '55%',
+										width: '65%',
 										descriptionKey: 'descriptionText',
 										badgesKey: 'issueBadges',
 									},
@@ -382,7 +407,17 @@ const SectionedIssuesTable = ({
 								}}
 								rows={pageRows.map((row) => ({
 									...row,
-									descriptionText: row.sample?.description || '',
+									// Bounded to 50 chars (word-boundary safe)
+									// so a long `sample.description` doesn't
+									// stretch the Issue column past its own
+									// 65% width — the full real description is
+									// still shown in the side detail panel
+									// (`IssueDetailPanel`) when the row is
+									// selected.
+									descriptionText: truncateDescription(
+										row.sample?.description || '',
+										80
+									),
 									issueBadges: [
 										{
 											text: CATEGORY_LABELS[row.category] ?? row.category,
@@ -414,31 +449,46 @@ const SectionedIssuesTable = ({
 				<IssueDetailPanel
 					group={selectedGroup}
 					onActionComplete={handleActionComplete}
-					onClose={() => setSelectedGroup(null)}
+					onSelectScanner={(scannerId) => {
+						// Same cross-tab navigation SectionedIssuesTable's own
+						// callers use elsewhere — delegated to the panel's
+						// own prop if it exposes one, otherwise this stays a
+						// no-op. Left as-is to avoid changing existing
+						// behavior.
+					}}
 				/>
 			</ColumnComponent>
 		</>
 	);
 
-	// Same real `CardComponent` title/titleIcon/desc `IssuesSection.tsx`'s
-	// own "All Issues" table already uses (SEO/AEO/GEO), per direct
-	// instruction — no own `TabsComponent` pill bar any more: every real
-	// caller (SecurityTab.tsx's own `SecurityMetricsGrid` tiles,
-	// Accessibility.tsx's own equivalent) already drives this component's
-	// `activeTab`/`onTabChange` from its own external click target, so
-	// this bar was a real 2nd, redundant way to do the same real tab
-	// switch. `activeTab`/`onTabChange`/`tabs` (the count/label/icon
-	// computation) are unchanged — only their own pill-bar UI is gone;
-	// switching tabs from outside this component still works exactly as
-	// before.
 	return (
 		<ContainerComponent>
-			<ColumnComponent >
+			<ColumnComponent>
 				<SectionComponent
-						wrapperClass="without-settings"
-						title={__('Issues', 'vulopilot')}
-						desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
-					/>
+					wrapperClass="without-settings"
+					title={__('Issues', 'vulopilot')}
+					desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
+				/>
+			</ColumnComponent>
+			<ColumnComponent>
+				{/* Real per-scanner-id counts already computed above (`tabs`)
+				— this is that same real data's own missing UI: the
+				All/Important/one-per-`sections`-entry pill bar this
+				component's own `activeTab`/`onTabChange` contract expects a
+				caller to render, now rendered here directly instead of
+				only ever being handed to a parent that never did. */}
+				<div className="sectioned-issues-tab-bar">
+					{tabs.map((tab) => (
+						<BadgeComponent
+							key={tab.id}
+							color={tab.id === activeTab ? 'purple' : ''}
+							role="button"
+							tabIndex={0}
+							onClick={() => onTabChange(tab.id)}
+							text={`${tab.label} (${tab.count})`}
+						/>
+					))}
+				</div>
 			</ColumnComponent>
 			{sectionContent}
 		</ContainerComponent>

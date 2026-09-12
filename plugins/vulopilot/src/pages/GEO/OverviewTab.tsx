@@ -350,9 +350,8 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					isLoading={isLoading}
 				>
 					{score && (
-						<div className="seo-health-score-layout">
-							<div className="seo-health-score-ring-block">
-								<div className="seo-health-score-ring">
+						<div className="overall-score-wrapper">
+							<div className="overall-score-summary">
 									<ChartComponent
 										type="ring"
 										height={200}
@@ -381,8 +380,8 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 											},
 										]}
 									/>
-								</div>
 							</div>
+							<div className="overall-score-summary">
 							<ListComponent
 								className="mini-card report hover seo-health-score-category-list"
 								loading={isLoading}
@@ -431,6 +430,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 									};
 								})}
 							/>
+							</div>
 						</div>
 					)}
 				</CardComponent>

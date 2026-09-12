@@ -238,9 +238,8 @@ const CrawlerAnalyticsSection = ({
 							</div>
 						) : (
 							<>
-								<div className="seo-health-score-layout">
-									<div className="seo-health-score-ring-block">
-										<div className="seo-health-score-ring">
+								<div className="overall-score-wrapper">
+									<div className="overall-score-summary">
 											<ChartComponent
 												type="ring"
 												height={200}
@@ -280,25 +279,8 @@ const CrawlerAnalyticsSection = ({
 													},
 												]}
 											/>
-										</div>
 									</div>
-									{/*
-									 * The 3 real robots.txt/sitemap/AI-bot
-									 * checks — merged in from what used to
-									 * be a separate standalone "Crawl Health
-									 * Checklist" card further down this
-									 * section, now the same real
-									 * `ListComponent` "mini-card report" row
-									 * shape SeoTab.tsx's own "SEO Health"
-									 * card rows use. No per-row score/delta
-									 * (unlike SEO's rows): each of these is a
-									 * real pass/fail check, not a 0-100
-									 * score, so the row's own trailing tag
-									 * is the same real Good/Warning/Checking…
-									 * `BadgeComponent` the old standalone
-									 * card already used, not a fabricated
-									 * number.
-									 */}
+									<div className="overall-score-summary">
 									<ListComponent
 										className="mini-card report hover seo-health-score-category-list"
 										items={checklist.map((item) => ({
@@ -335,6 +317,7 @@ const CrawlerAnalyticsSection = ({
 											),
 										}))}
 									/>
+									</div>
 								</div>
 								{/*
 								 * Same "bottom stat tile row" shape

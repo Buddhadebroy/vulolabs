@@ -287,9 +287,8 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 				>
 					<>
 						{score && (
-							<div className="seo-health-score-layout">
-								<div className="seo-health-score-ring-block">
-									<div className="seo-health-score-ring">
+							<div className="overall-score-wrapper">
+								 <div className="overall-score-summary">
 										<ChartComponent
 											type="ring"
 											height={200}
@@ -329,7 +328,6 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 												},
 											]}
 										/>
-									</div>
 								</div>
 								{/*
 							 * Same 6 real per-category scores the old
@@ -349,6 +347,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 							 * `categoryFocus` drill-down (`SeoIssuesSection`
 							 * below) it always did.
 							 */}
+							  <div className="overall-score-summary">
 								<ListComponent
 									className="mini-card report hover without-border seo-health-score-category-list"
 									loading={isLoadingScore}
@@ -406,6 +405,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 										};
 									})}
 								/>
+								</div>
 							</div>
 						)}
 						{score && (
