@@ -129,8 +129,24 @@ const getLinkText = (finding: BrokenLinkFinding): string => {
 	return text || __('(no visible text)', 'vulopilot');
 };
 
+/**
+ * The real `<a>` tag's own raw visible text — `''` for a genuinely
+ * text-less anchor (an image-only link) or a `broken-images` finding
+ * (which never captures text at all), never `getLinkText()`'s own
+ * display placeholders ('—'/'(no visible text)'). Used for the "Fix"
+ * popup's real editable text field and what it actually sends as
+ * `old_text`/`new_text` — an editable field must show/compare against
+ * this exact real value, not a decorative display label.
+ */
+const getRawLinkText = (finding: BrokenLinkFinding): string =>
+	getFindingMeta(finding).text ?? '';
+
 const getBrokenUrl = (finding: BrokenLinkFinding): string =>
 	getFindingMeta(finding).url || '';
+
+/** Real text, shortened for this table's own compact row display — the full real value is still what's edited in the "Fix" popup and what's exported to CSV, this only shortens what's shown inline next to a row's other details. */
+const truncateText = (text: string, maxLength = 15): string =>
+	text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
 
 /**
  * Resolves a broken URL down to a real, literal path
@@ -490,6 +506,8 @@ const BrokenLinksSection = () => {
 	/** "Fix" popup — a real search-and-replace: swaps this exact broken `href`/`src` for a real new URL the user types in, straight in the source page's own real `post_content` (`POST /broken-links/replace-url`, added alongside this). */
 	const [fixFinding, setFixFinding] = useState<BrokenLinkFinding | null>(null);
 	const [fixNewUrl, setFixNewUrl] = useState('');
+	/** The same real `<a>` tag's own visible text — editable alongside the URL (only meaningful for a `broken-links` finding; a `broken-images` finding has no text field at all). Pre-filled with the real current text (`getLinkText()`), so saving without touching this field is a no-op text-wise, not an accidental blank-out. */
+	const [fixNewText, setFixNewText] = useState('');
 	const [isSavingFixUrl, setIsSavingFixUrl] = useState(false);
 	const [isSavingRedirect, setIsSavingRedirect] = useState(false);
 
@@ -614,19 +632,26 @@ const BrokenLinksSection = () => {
 
 	/**
 	 * "Fix" — opens a real popup showing this exact finding's own real link
-	 * text + current broken URL, with a field to type a real replacement.
-	 * Saving calls `POST /broken-links/replace-url` (Broken(Links|Images)
-	 * scanners' own regex-captured `href`/`src`, added alongside this),
-	 * which does a real search-and-replace straight in the source page's
-	 * own `post_content` — not a fabricated "fixed" state, a genuine
-	 * content edit. On success the finding is marked resolved (same real
-	 * `POST /findings/{id}` status call handleResolve()/handleCreateRedirect()
-	 * already use), same for a broken image (`is_image: true` tells the
-	 * endpoint to replace `src` instead of `href`).
+	 * text + current broken URL, with fields to type a real replacement
+	 * URL and (for a `broken-links` finding, editable — a `broken-images`
+	 * finding has no visible text at all) that same `<a>` tag's own real
+	 * visible text. Saving calls `POST /broken-links/replace-url`
+	 * (Broken(Links|Images) scanners' own regex-captured `href`/`src`,
+	 * added alongside this), which does a real search-and-replace straight
+	 * in the source page's own `post_content` — not a fabricated "fixed"
+	 * state, a genuine content edit, and updates that same anchor's own
+	 * real inner text too whenever it was actually changed. On success the
+	 * finding is marked resolved (same real `POST /findings/{id}` status
+	 * call handleResolve()/handleCreateRedirect() already use), same for a
+	 * broken image (`is_image: true` tells the endpoint to replace `src`
+	 * instead of `href`, and skips the text edit entirely).
 	 */
 	const openFixPopup = (finding: BrokenLinkFinding) => {
 		setFixFinding(finding);
 		setFixNewUrl('');
+		// Real current raw text, pre-filled (never `getLinkText()`'s own
+		// display placeholders — see `getRawLinkText()`'s own docblock).
+		setFixNewText(getRawLinkText(finding));
 	};
 
 	const closeFixPopup = () => setFixFinding(null);
@@ -638,6 +663,8 @@ const BrokenLinksSection = () => {
 
 		setIsSavingFixUrl(true);
 
+		const isImageFix = 'broken-images' === fixFinding.scanner_id;
+
 		sendApiResponse(
 			appLocalizer,
 			getApiLink(appLocalizer, 'broken-links/replace-url'),
@@ -645,7 +672,15 @@ const BrokenLinksSection = () => {
 				post_id: Number(fixFinding.object_ref),
 				old_url: getBrokenUrl(fixFinding),
 				new_url: fixNewUrl.trim(),
-				is_image: 'broken-images' === fixFinding.scanner_id,
+				is_image: isImageFix,
+				// Only meaningful for a real `broken-links` finding — an
+				// image has no visible text of its own to edit.
+				...(isImageFix
+					? {}
+					: {
+							old_text: getRawLinkText(fixFinding),
+							new_text: fixNewText.trim(),
+						}),
 			}
 		)
 			.then((response: { success?: boolean; message?: string } | undefined) => {
@@ -831,7 +866,7 @@ const BrokenLinksSection = () => {
 
 				return (
 					<InformationItemComponent
-						title={row.page || __('(no title)', 'vulopilot')}
+						title={row.page_title || row.page || __('(no title)', 'vulopilot')}
 						titleLink={pageUrl}
 						icon={'broken-images' === row.scanner_id ? 'attachment' : 'link'}
 						badges={[
@@ -862,7 +897,7 @@ const BrokenLinksSection = () => {
 							{
 								icon: 'text-fields',
 								label: __('Link Text', 'vulopilot'),
-								value: getLinkText(row),
+								value: truncateText(getLinkText(row)),
 							},
 						]}
 					/>
@@ -1338,16 +1373,21 @@ const BrokenLinksSection = () => {
 									'vulopilot'
 								)
 								: __(
-									'Replace this broken link URL with a working one — the source page is updated directly.',
+									'Replace this broken link URL with a working one — and edit its link text if you want — the source page is updated directly.',
 									'vulopilot'
 								)}
 						</p>
 						<FormGroupWrapperComponent>
 							{'broken-images' !== fixFinding.scanner_id && (
 								<FormGroupComponent row label={__('Link Text', 'vulopilot')}>
-									<p className="broken-link-fix-static-value">
-										{getLinkText(fixFinding)}
-									</p>
+									<TextInput
+										name="fix_new_text"
+										placeholder={__('(no visible text)', 'vulopilot')}
+										value={fixNewText}
+										onChange={(value: unknown) =>
+											setFixNewText(value as string)
+										}
+									/>
 								</FormGroupComponent>
 							)}
 							<FormGroupComponent row label={__('Current URL', 'vulopilot')}>

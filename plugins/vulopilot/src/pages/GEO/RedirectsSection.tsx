@@ -505,7 +505,16 @@ const RedirectsSection = () => {
 									className: row.is_active ? 'badge-active' : 'badge-inactive',
 								},
 							{
-								text: `${row.hit_count} Hits`,
+								text: sprintf(
+									__('%1$s · %2$s', 'vulopilot'),
+									sprintf(
+										_n('%d Hit', '%d Hits', row.hit_count, 'vulopilot'),
+										row.hit_count
+									),
+									row.last_accessed_at
+										? formatWpDate(row.last_accessed_at)
+										: __('Never', 'vulopilot')
+								),
 								className: 'blue',
 							},
 
@@ -513,18 +522,8 @@ const RedirectsSection = () => {
 						descriptions={[
 							{
 								icon: 'link',
-								label: __('Old URL', 'vulopilot'),
-								value: row.source_path,
-							},
-							{
-								icon: 'link',
 								label: __('New URL', 'vulopilot'),
 								value: row.target_url,
-							},
-							{
-								icon: 'text-fields',
-								label: __('Last Accessed', 'vulopilot'),
-								value: row.last_accessed_at ? formatWpDate(row.last_accessed_at) : __('Never', 'vulopilot'),
 							},
 						]}
 					/>
@@ -534,7 +533,9 @@ const RedirectsSection = () => {
 		created_at: {
 			label: __('Created', 'vulopilot'),
 			render: (row: RedirectRow) => (
-				formatWpDate(row.created_at)
+				<>
+					{__('Created', 'vulopilot')} {formatWpDate(row.created_at)}
+				</>
 			),
 		},
 		actions: {

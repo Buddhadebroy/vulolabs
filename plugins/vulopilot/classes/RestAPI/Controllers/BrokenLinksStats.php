@@ -83,6 +83,16 @@ class BrokenLinksStats extends \WP_REST_Controller {
                         'is_image' => array(
                             'required' => false,
                         ),
+                        // Optional real anchor-text edit, alongside the
+                        // real href fix — only meaningful for a
+                        // `broken-links` finding (an image has no visible
+                        // text of its own to edit).
+                        'old_text' => array(
+                            'required' => false,
+                        ),
+                        'new_text' => array(
+                            'required' => false,
+                        ),
                     ),
                 ),
             )
@@ -124,6 +134,14 @@ class BrokenLinksStats extends \WP_REST_Controller {
      * genuinely isn't found in this page's own current content anymore
      * (e.g. already edited since this finding was last detected).
      *
+     * Also updates that same `<a>` tag's own real visible text, when a
+     * `broken-links` finding's `new_text` differs from its `old_text` —
+     * scoped to the anchor that now carries `new_url` (the one this same
+     * request just fixed), not a blind site-wide text replace, so the
+     * same old text sitting elsewhere on the page is left untouched.
+     * Never attempted for an image fix (`is_image`) — an image has no
+     * real visible text of its own to edit.
+     *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
      */
@@ -132,6 +150,8 @@ class BrokenLinksStats extends \WP_REST_Controller {
         $old_url  = (string) $request->get_param( 'old_url' );
         $new_url  = esc_url_raw( (string) $request->get_param( 'new_url' ) );
         $is_image = (bool) $request->get_param( 'is_image' );
+        $old_text = (string) $request->get_param( 'old_text' );
+        $new_text = (string) $request->get_param( 'new_text' );
 
         $post = get_post( $post_id );
 
@@ -164,6 +184,13 @@ class BrokenLinksStats extends \WP_REST_Controller {
             );
         }
 
+        $text_replaced = 0;
+
+        if ( ! $is_image && '' !== $new_text && $new_text !== $old_text ) {
+            $text_pattern    = '/(<a\s[^>]*href=["\']' . preg_quote( $new_url, '/' ) . '["\'][^>]*>)' . preg_quote( $old_text, '/' ) . '(<\/a>)/i';
+            $updated_content = preg_replace( $text_pattern, '${1}' . esc_html( $new_text ) . '${2}', $updated_content, -1, $text_replaced );
+        }
+
         $result = wp_update_post(
             array(
                 'ID'           => $post_id,
@@ -178,8 +205,9 @@ class BrokenLinksStats extends \WP_REST_Controller {
 
         return rest_ensure_response(
             array(
-                'success'  => true,
-                'replaced' => $count,
+                'success'       => true,
+                'replaced'      => $count,
+                'text_replaced' => $text_replaced > 0,
             )
         );
     }

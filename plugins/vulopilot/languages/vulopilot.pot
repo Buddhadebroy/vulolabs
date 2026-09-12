@@ -15116,7 +15116,7 @@ msgstr ""
 #. translators: %s: the logged-in admin's real display name.
 #: assets/js/index.js:1
 #, js-format
-msgid "%s, %s! 👋"
+msgid "%s, %s!"
 msgstr ""
 
 #: assets/js/index.js:1

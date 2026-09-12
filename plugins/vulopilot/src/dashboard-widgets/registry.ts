@@ -58,22 +58,15 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		id: 'overall-score',
 		title: __('Vital Pulse', 'vulopilot'),
 		icon: 'analytics',
-		grid: 3,
+		grid: 5,
 		component: OverallScoreWidget,
-	},
-	{
-		id: 'score-breakdown',
-		title: __('Website Health Scores', 'vulopilot'),
-		icon: 'analytics',
-		grid: 3,
-		component: ScoreBreakdownWidget,
 	},
 	
 	{
 		id: 'vulopilot-activity',
 		title: __('VuloPilot activity', 'vulopilot'),
 		icon: 'analytics',
-		grid: 6,
+		grid: 7,
 		component: VuloPilotActivityWidget,
 	},
 	{
@@ -104,7 +97,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 6,
 		component: SiteSnapshotWidget,
 	},
-	
+	/**
 	{
 		id: 'recent-changes',
 		title: __('Recent Changes', 'vulopilot'),
@@ -112,6 +105,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 12,
 		component: RecentChangesWidget,
 	},
+	**/
 ];
 
 /**

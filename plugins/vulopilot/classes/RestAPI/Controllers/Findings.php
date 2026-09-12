@@ -407,25 +407,36 @@ class Findings extends \WP_REST_Controller {
         $object_ref  = $row['object_ref'] ?? null;
 
         if ( 'post' === $object_type && is_numeric( $object_ref ) ) {
-            $permalink   = get_permalink( (int) $object_ref );
+            $post_id     = (int) $object_ref;
+            $permalink   = get_permalink( $post_id );
             $row['page'] = $permalink ? wp_make_link_relative( $permalink ) : __( 'Site-wide', 'vulopilot' );
+            // Real post title (`get_the_title()`), for callers that show a
+            // human-readable page name instead of/alongside the real path
+            // above (e.g. BrokenLinksSection.tsx's own "Source page"
+            // column) — null when there's no real post behind this row to
+            // name (falls back to `page` itself either way, never a
+            // fabricated title).
+            $row['page_title'] = $permalink ? ( get_the_title( $post_id ) ?: null ) : null;
 
             return $row;
         }
 
         if ( is_string( $object_ref ) && untrailingslashit( $object_ref ) === untrailingslashit( home_url( '/' ) ) ) {
-            $row['page'] = __( 'Site-wide', 'vulopilot' );
+            $row['page']       = __( 'Site-wide', 'vulopilot' );
+            $row['page_title'] = null;
 
             return $row;
         }
 
         if ( is_string( $object_ref ) && filter_var( $object_ref, FILTER_VALIDATE_URL ) ) {
-            $row['page'] = wp_make_link_relative( $object_ref );
+            $row['page']       = wp_make_link_relative( $object_ref );
+            $row['page_title'] = null;
 
             return $row;
         }
 
-        $row['page'] = __( 'Site-wide', 'vulopilot' );
+        $row['page']       = __( 'Site-wide', 'vulopilot' );
+        $row['page_title'] = null;
 
         return $row;
     }

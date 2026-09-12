@@ -62,6 +62,16 @@ export interface Finding extends TableRow {
 	 */
 	page?: string;
 	/**
+	 * The real post's own title (`get_the_title()`), added alongside
+	 * `page` by the same `add_page_field()` — `null` when this finding
+	 * has no real post behind it (a sitewide check, or an external/raw
+	 * URL object_ref), never a fabricated title. Callers that want a
+	 * human-readable page name instead of the raw path (e.g.
+	 * BrokenLinksSection.tsx's own "Source page" column) fall back to
+	 * `page` itself when this is null.
+	 */
+	page_title?: string | null;
+	/**
 	 * Which AI action can fix this finding, e.g. 'generate-alt' — null/
 	 * undefined when this finding's scanner has no mapped fix, or when
 	 * vulopilot-pro's OneClickFix module isn't active (in which case this

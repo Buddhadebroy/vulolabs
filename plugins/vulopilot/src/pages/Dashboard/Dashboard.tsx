@@ -8,9 +8,9 @@ import {
 	ModuleGuardComponent,
 	NavigatorHeaderComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import GettingStartedCard from './GettingStartedCard';
-import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import { DashboardSummary } from '../../dashboard-widgets/types';
 
 /**
@@ -90,16 +90,6 @@ const getGreeting = (): string => {
  * AiContentAssistantSidebar.tsx) rather than a generic page title.
  * `getGreeting()`'s time-of-day text is a real computed value from the
  * visitor's own clock, not a fabricated one.
- *
- * `headerCustomContent` carries the mockup's "Run complete audit" button +
- * real "Last scan: …" line — the exact same `RunScanHeaderExtra` cluster
- * every other category page's header already uses (site-wide scope here,
- * same as Health.tsx, since Dashboard has no one category of its own),
- * relabeled via its own `label` prop rather than a new component. Refetches
- * this page's own summary on a successful scan via `onSuccess`. Sits
- * alongside (not instead of) the existing Customize/Reset/Save `buttons` —
- * `NavigatorHeaderComponent` renders both as sibling flex children
- * (confirmed reading its source), so Customize-dashboard mode isn't lost.
  */
 const Dashboard = () => {
 	const [summary, setSummary] = useState<DashboardSummary>(EMPTY_SUMMARY);
@@ -143,6 +133,40 @@ const Dashboard = () => {
 
 	useEffect(loadDashboard, []);
 
+	// Build the buttons array based on isCustomizing state.
+	// When not customizing: show "Run complete audit" + "Customize dashboard".
+	// When customizing: show "Reset to default" + "Save changes".
+	const headerButtons = isCustomizing
+		? [
+				{
+					text: __('Reset to default', 'vulopilot'),
+					icon: 'refresh',
+					color: 'border-purple',
+					onClick: () =>
+						setRestoreDefaultSignal((signal) => signal + 1),
+				},
+				{
+					icon: 'form-checkboxes',
+					color: 'text-green',
+					onClick: () => setIsCustomizing(false),
+				},
+		  ]
+		: [
+				{
+					text: __('Run complete audit', 'vulopilot'),
+					icon: 'refresh',
+					color: 'border-purple',
+					onClick: () => {
+						loadDashboard();
+					},
+				},
+				{
+					icon: 'edit',
+					color: 'text-purple',
+					onClick: () => setIsCustomizing(true),
+				},
+		  ];
+
 	const pageHeader = (
 		<NavigatorHeaderComponent
 			headerTitle={sprintf(
@@ -157,39 +181,7 @@ const Dashboard = () => {
 				'vulopilot'
 			)}
 			headerCustomContent={
-				<RunScanHeaderExtra
-					label={__('Run complete audit', 'vulopilot')}
-					settingsSubtab="general"
-					onSuccess={loadDashboard}
-				/>
-			}
-			buttons={
-				isCustomizing
-					? [
-							{
-								label: __('Reset to default', 'vulopilot'),
-								icon: 'refresh',
-								color: 'border-purple',
-								onClick: () =>
-									setRestoreDefaultSignal(
-										(signal) => signal + 1
-									),
-							},
-							{
-								label: __('Save changes', 'vulopilot'),
-								icon: 'form-checkboxes',
-								color: 'border-green',
-								onClick: () => setIsCustomizing(false),
-							},
-					  ]
-					: [
-							{
-								label: __('Customize dashboard', 'vulopilot'),
-								icon: 'edit',
-								color: 'border-purple',
-								onClick: () => setIsCustomizing(true),
-							},
-					  ]
+				<ButtonInput buttons={headerButtons} />
 			}
 		/>
 	);

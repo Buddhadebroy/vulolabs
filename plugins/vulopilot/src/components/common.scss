@@ -379,11 +379,15 @@
 
 
 // dashboard start
+.overall-score-wrapper{
+    display: flex;
+    gap: 0.625rem;
 .overall-score-summary{
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+    width: 50%;
 }
-
+}
 // dashboard end 

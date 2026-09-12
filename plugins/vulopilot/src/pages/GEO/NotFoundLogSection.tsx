@@ -8,7 +8,9 @@ import {
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
-	ContainerComponent
+	ContainerComponent,
+	FormGroupWrapperComponent,
+	FormGroupComponent
 } from '@zyra/components';
 import { ButtonInput, TextInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
@@ -72,6 +74,7 @@ const NotFoundLogSection = () => {
 		{
 			key: 'is_system',
 			options: [
+				{ label: __('All', 'vulopilot'), value: 'all' },
 				{ label: __('Content', 'vulopilot'), value: '0' },
 				{ label: __('System', 'vulopilot'), value: '1' },
 			],
@@ -129,13 +132,13 @@ const NotFoundLogSection = () => {
 					position: 'float',
 					message: response
 						? __(
-								'Redirect created from this log entry.',
-								'vulopilot'
-							)
+							'Redirect created from this log entry.',
+							'vulopilot'
+						)
 						: __(
-								'Could not create a redirect — a redirect for this path may already exist.',
-								'vulopilot'
-							),
+							'Could not create a redirect — a redirect for this path may already exist.',
+							'vulopilot'
+						),
 				});
 
 				if (response) {
@@ -188,7 +191,7 @@ const NotFoundLogSection = () => {
 									// the plain icon-only look.
 									type: 'action',
 									actions: [
-										
+
 										{
 											type: 'button',
 											color: 'text-red',
@@ -203,9 +206,9 @@ const NotFoundLogSection = () => {
 											label: (row: Record<string, unknown>) =>
 												isSystemLog(row as unknown as NotFoundLogRow)
 													? __(
-															"no redirect needed",
-															'vulopilot'
-														)
+														"no redirect needed",
+														'vulopilot'
+													)
 													: __('Create redirect', 'vulopilot'),
 											icon: (row: Record<string, unknown>) =>
 												isSystemLog(row as unknown as NotFoundLogRow)
@@ -227,14 +230,6 @@ const NotFoundLogSection = () => {
 								rowIcon: isSystemLog(row) ? 'lock' : 'link',
 								descriptionItems: [
 									{
-										icon: 'eye',
-										value: sprintf(
-											/* translators: %d: real number of 404 hits on this URL. */
-											_n('%d hit', '%d hits', row.hit_count, 'vulopilot'),
-											row.hit_count
-										),
-									},
-									{
 										icon: 'clock',
 										value: sprintf(
 											/* translators: %s: formatted date/time this URL was last requested. */
@@ -250,11 +245,33 @@ const NotFoundLogSection = () => {
 											: __('Content', 'vulopilot'),
 										color: isSystemLog(row) ? 'yellow' : 'blue',
 									},
+									{
+										text: sprintf(
+											_n('%d hit', '%d hits', row.hit_count, 'vulopilot'),
+											row.hit_count
+										),
+										color: 'blue',
+									},
 								],
 							}))}
 							ids={notFoundLogs.data.map((row) => row.id)}
 							totalRows={notFoundLogs.total}
-							categoryCounts={notFoundLogs.categoryCounts}
+							// `is_system_counts` (NotFoundLogs.php) only ever
+							// reports real per-value buckets (0/1) — 'all'
+							// isn't a real `is_system` value to count rows
+							// by, so the backend has no real count for it and
+							// it comes back as 0, which TableCard's own
+							// `visibleCategories` filter (`count > 0`) then
+							// hides entirely. The real count for "All" is
+							// just every real row regardless of category —
+							// `notFoundLogs.total` already is that, so it's
+							// substituted in here rather than asking the
+							// backend to special-case a non-existent bucket.
+							categoryCounts={notFoundLogs.categoryCounts.map((cat) =>
+								'all' === cat.value
+									? { ...cat, count: notFoundLogs.total }
+									: cat
+							)}
 							isLoading={notFoundLogs.isLoading}
 							onQueryUpdate={notFoundLogs.onQueryUpdate}
 							emptyMessage={__(
@@ -270,30 +287,11 @@ const NotFoundLogSection = () => {
 				open={!!convertingLog}
 				onClose={closeConvertPopup}
 				width={28}
-				height="auto"
-				
+				height="50%"
 				header={{
 					title: __('Create redirect', 'vulopilot'),
 				}}
-			>
-				<div className="vulopilot-redirect-form">
-					<TextInput
-						name="convert_source_path"
-						value={convertingLog?.requested_path ?? ''}
-						disabled
-						onChange={() => {}}
-					/>
-					<TextInput
-						name="convert_target_url"
-						placeholder={__(
-							'https://example.com/new-page/',
-							'vulopilot'
-						)}
-						value={convertTargetUrl}
-						onChange={(newValue) =>
-							setConvertTargetUrl(newValue as string)
-						}
-					/>
+				footer={
 					<ButtonInput
 						buttons={{
 							text: __('Save', 'vulopilot'),
@@ -302,7 +300,39 @@ const NotFoundLogSection = () => {
 								isConverting || '' === convertTargetUrl.trim(),
 						}}
 					/>
-				</div>
+				}
+			>
+				<FormGroupWrapperComponent>
+					<FormGroupComponent
+						label={__('Old page url', 'vulopilot')}
+					>
+						<TextInput
+							name="convert_source_path"
+							inputLabel={__('From (path)', 'vulopilot')}
+							placeholder={__('/old-page/', 'vulopilot')}
+							value={convertingLog?.requested_path ?? ''}
+							disabled
+							onChange={() => { }}
+						/>
+					</FormGroupComponent>
+
+					<FormGroupComponent
+						label={__('New page url', 'vulopilot')}
+					>
+						<TextInput
+							name="convert_target_url"
+							inputLabel={__('To', 'vulopilot')}
+							placeholder={__(
+								'https://example.com/new-page/',
+								'vulopilot'
+							)}
+							value={convertTargetUrl}
+							onChange={(newValue) =>
+								setConvertTargetUrl(newValue as string)
+							}
+						/>
+					</FormGroupComponent>
+				</FormGroupWrapperComponent>
 			</PopupComponent>
 		</ContainerComponent>
 	);
