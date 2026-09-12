@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, AnalyticsComponent } from '@zyra/core';
-import { BadgeComponent, ChartComponent } from '@zyra/components';
+import { ChartComponent } from '@zyra/components';
+import { ToggleInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { useLastScanTime } from '../services/useLastScanTime';
@@ -23,6 +24,18 @@ interface HealthSnapshot {
 	snapshot_date: string;
 	overall_score: number;
 }
+
+type PeriodDays = '7' | '30' | '90';
+
+/** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes — required so React's list key and each radio's real `id`/`htmlFor` pair are unique. */
+const PERIOD_OPTIONS = [
+	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
+	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
+	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+];
+
+/** Same real day-range options the old `BadgeComponent` toggle used, now expressed as the real `PeriodDays` string values `ToggleInput` needs. */
+const HEALTH_TIMELINE_DAY_OPTIONS: PeriodDays[] = ['7', '30', '90'];
 
 /**
  * "VuloPilot activity" — a real 5-tile activity strip. Every tile reads
@@ -90,15 +103,21 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 		useApiList<ReportRow>('reports', { per_page: 1 });
 	const { lastScanAt, isLoading: isLastScanLoading } = useLastScanTime();
 
-	// Same real `/site-health-snapshots` (days: 30) endpoint
+	// Same real `/site-health-snapshots` endpoint
 	// HealthTimelineWidget.tsx's own trend chart already uses — only
 	// registered once vulopilot-pro's AdvancedReports module is active
 	// (real, permanent 404 on a Free-only install otherwise, same reason
 	// that widget checks `active_modules` directly rather than treating
 	// "404'd" and "zero rows" as the same friendly empty state).
+	//
+	// Real "Last 7/30/90 days" toggle, now the same real `ToggleInput`
+	// shape `OverviewTab.tsx`'s own "Visibility Trend" card already uses
+	// for its identical day-range control — replacing the previous
+	// `BadgeComponent`-based toggle per direct instruction.
+	const [healthTimelineDays, setHealthTimelineDays] = useState<PeriodDays>('30');
 	const { data: healthSnapshots } = useApiList<HealthSnapshot>(
 		'site-health-snapshots',
-		{ days: 30 }
+		{ days: Number(healthTimelineDays) }
 	);
 	const isHealthTimelineModuleActive =
 		appLocalizer.active_modules.includes('advanced-reports');
@@ -142,6 +161,14 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
+			headerAction={
+				<ToggleInput
+					options={PERIOD_OPTIONS}
+					value={healthTimelineDays}
+					onChange={(value) => setHealthTimelineDays(value as PeriodDays)}
+					modules={[]}
+				/>
+			}
 		>
 
 			{isHealthTimelineModuleActive && healthSnapshots.length > 0 && (
@@ -171,13 +198,6 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 							icon: 'automation blue',
 							number: summary.automation_status.enabled,
 							text: __('Automations', 'vulopilot'),
-						},
-						{
-							icon: 'clock orange',
-							number: lastScanAt
-								? formatAuditTime(lastScanAt)
-								: '—',
-							text: __('Last audit', 'vulopilot'),
 						},
 						{
 							icon: 'ai purple',

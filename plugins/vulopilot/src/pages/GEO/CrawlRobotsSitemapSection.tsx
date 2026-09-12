@@ -602,16 +602,6 @@ const CrawlRobotsSitemapSection = () => {
 				>
 					{robots?.reachable ? (
 						<>
-							{/*
-							 * Same real `ListComponent` "mini-card report"
-							 * row shape SeoTab.tsx's own "SEO Health" card
-							 * rows use — these 4 real counts have no
-							 * individual 0-100 score/delta the way SEO's
-							 * category rows do, so each row's own trailing
-							 * value is just its real number, and there's no
-							 * per-row `action` (no drill-down table these
-							 * 4 counts could filter into).
-							 */}
 							<div className='robots-wraper'>
 								<div className='broken-link-section left-side'>
 									<div className="rt-editor-wrap">
@@ -744,11 +734,6 @@ const CrawlRobotsSitemapSection = () => {
 											onButtonClick={refetchRobotsTxt}
 										/>
 									) : (
-										// `bulkActions={[]}` overrides the hook's own real
-										// Resolve/Ignore/Fix-selected bulk actions — this
-										// narrow, single-scanner sub-table doesn't need its
-										// own row-select checkboxes on top of the per-row
-										// action icons it already has.
 										<TableCard {...robotsTxtProps} bulkActions={[]} />
 									)}
 								</div>
@@ -783,13 +768,6 @@ const CrawlRobotsSitemapSection = () => {
 
 					{sitemap?.reachable && sitemap.valid ? (
 						<>
-							{/*
-							 * Same real `ListComponent` "mini-card report"
-							 * row shape the robots.txt rule counts above
-							 * (and SeoTab.tsx's own "SEO Health" rows) use —
-							 * no per-row score/delta/action here either,
-							 * same reasoning as that conversion.
-							 */}
 							<div className='broken-link-wrapper'>
 								<div className='broken-link-section left-side'>
 									{sitemapRows.length > 0 ? (

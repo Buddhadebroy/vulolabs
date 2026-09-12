@@ -140,8 +140,8 @@ const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
 
 	return (
 		<NavigatorComponent
-			className="sub-tabs"
-			variant="compact"
+			className="settings-sub-tabs"
+			variant="tabs"
 			settingContent={settingContent}
 			currentSetting={activeSection}
 			getForm={getForm}
