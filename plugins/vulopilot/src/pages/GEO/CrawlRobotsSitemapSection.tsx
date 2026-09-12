@@ -277,13 +277,27 @@ const CrawlRobotsSitemapSection = () => {
 		).then((response) => setBlockedPagesOpenCount(response?.total ?? 0));
 	};
 
-	const loadRobots = () => {
+	/**
+	 * `refreshEditorContent` gates whether this fetch is allowed to
+	 * overwrite the editor's local `value` state. On initial mount and on
+	 * an explicit "Test robots.txt" click, it should (that's the whole
+	 * point of the fetch). On the background refetch `persistRobotsContent`
+	 * fires after every auto-save, it must NOT — otherwise the server's
+	 * round-tripped content (possibly normalized differently, e.g. a
+	 * trailing newline WordPress added) replaces what the user is still
+	 * typing, and the cursor jumps to the end. That was the real bug: the
+	 * auto-save refetch was clobbering in-progress edits, which looked
+	 * like a page reload.
+	 */
+	const loadRobots = (refreshEditorContent = true) => {
 		setIsLoadingRobots(true);
 		getApiResponse<RobotsResponse>(getApiLink(appLocalizer, 'robots-sitemap/robots'), nonceHeaders)
 			.then((response) => {
 				if (response) {
 					setRobots(response);
-					setRobotsEditContent(response.custom_content || response.content || '');
+					if (refreshEditorContent) {
+						setRobotsEditContent(response.custom_content || response.content || '');
+					}
 				}
 			})
 			.finally(() => setIsLoadingRobots(false));
@@ -329,7 +343,11 @@ const CrawlRobotsSitemapSection = () => {
 				}
 
 				if (response) {
-					loadRobots();
+					// Refresh the card's own read-only data (rules/directives
+					// counts, the "Custom" badge) — but explicitly NOT the
+					// editor's own `robotsEditContent`, so the user's cursor
+					// and in-progress text are left untouched mid-save.
+					loadRobots(false);
 				}
 			});
 	};
@@ -595,7 +613,8 @@ const CrawlRobotsSitemapSection = () => {
 							buttons={{
 								text: __('Test robots.txt', 'vulopilot'),
 								icon: 'update',
-								onClick: loadRobots,
+								// Explicit click → refresh the editor content too.
+								onClick: () => loadRobots(true),
 							}}
 						/>
 					}
