@@ -1,5 +1,6 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
+import { ListComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
@@ -79,19 +80,19 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
-			<ul className="site-snapshot-list">
-				{rows.map((row) => (
-					<li key={row.key} className="site-snapshot-row">
-						<span className="site-snapshot-row-label">
-							<i className={`adminfont-${row.icon}`} />
-							{row.label}
-						</span>
+			<ListComponent
+				className="mini-card report site-snapshot-list"
+				items={rows.map((row) => ({
+					id: row.key,
+					icon: row.icon,
+					title: row.label,
+					tags: (
 						<span className="site-snapshot-row-value">
 							{row.value}
 						</span>
-					</li>
-				))}
-			</ul>
+					),
+				}))}
+			/>
 		</DashboardWidget>
 	);
 };

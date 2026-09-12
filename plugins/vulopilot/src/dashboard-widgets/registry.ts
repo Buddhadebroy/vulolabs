@@ -65,22 +65,30 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		id: 'score-breakdown',
 		title: __('Website Health Scores', 'vulopilot'),
 		icon: 'analytics',
-		grid: 9,
+		grid: 3,
 		component: ScoreBreakdownWidget,
 	},
+	
 	{
 		id: 'vulopilot-activity',
 		title: __('VuloPilot activity', 'vulopilot'),
 		icon: 'analytics',
-		grid: 12,
+		grid: 6,
 		component: VuloPilotActivityWidget,
 	},
 	{
 		id: 'needs-attention',
 		title: __('Needs your attention', 'vulopilot'),
 		icon: 'error',
-		grid: 12,
+		grid: 6,
 		component: NeedsAttentionWidget,
+	},
+	{
+		id: 'recent-activity',
+		title: __('Recent activity', 'vulopilot'),
+		icon: 'clock',
+		grid: 6,
+		component: RecentActivityWidget,
 	},
 	{
 		id: 'key-pages',
@@ -96,25 +104,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 6,
 		component: SiteSnapshotWidget,
 	},
-	{
-		id: 'recent-activity',
-		title: __('Recent activity', 'vulopilot'),
-		icon: 'clock',
-		grid: 12,
-		component: RecentActivityWidget,
-	},
-	// Below this point: every widget that predates the new mockup and isn't
-	// depicted in it — kept, unmoved in behavior, just appended rather than
-	// deleted (direct instruction). `run-audit` is grid:12 (was grid:4,
-	// paired with the now-removed ai-suggestions/todays-tasks in the same
-	// row) since it has no row-mate left to share a line with.
-	{
-		id: 'run-audit',
-		title: __('Run Complete Audit', 'vulopilot'),
-		icon: 'search',
-		grid: 12,
-		component: RunAuditWidget,
-	},
+	
 	{
 		id: 'recent-changes',
 		title: __('Recent Changes', 'vulopilot'),
@@ -168,26 +158,6 @@ const STANDALONE_WIDGETS: WidgetDefinition[] = [
 		icon: 'centralized-connections',
 		grid: 4,
 		component: KnowledgeGraphWidget,
-	},
-	// Health timeline / Latest reports / Brand Visibility breakdown are a
-	// deliberate one-row group: each is grid:4 (12/3), and kept adjacent
-	// here so they always share a row in the default layout rather than
-	// relying on some other widget's grid happening to sum to 12 first.
-	// A user can still drag them apart via Customize dashboard — this
-	// only controls the never-customized/"Restore default" order.
-	{
-		id: 'health-timeline',
-		title: __('Health timeline', 'vulopilot'),
-		icon: 'analytics',
-		grid: 4,
-		component: HealthTimelineWidget,
-	},
-	{
-		id: 'brand-breakdown',
-		title: __('Brand Visibility breakdown', 'vulopilot'),
-		icon: 'person',
-		grid: 4,
-		component: BrandBreakdownWidget,
 	},
 	{
 		id: 'latest-reports',

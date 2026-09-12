@@ -109,18 +109,19 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 				</div>
 			)}
 			{!isLoading && data.length > 0 && (
-				<ul className="security-recent-activity-list">
+				<div className="activity-log">
 					{data.map((row) => (
-						<li key={row.id}>
-							<span className="security-recent-activity-message">
+						<div className="activity" key={row.id}>
+							<div className="title">
 								{row.message}
-							</span>
-							<span className="security-recent-activity-time">
+							</div>
+
+							<span>
 								{timeAgo(row.created_at)}
 							</span>
-						</li>
+						</div>
 					))}
-				</ul>
+				</div>
 			)}
 		</DashboardWidget>
 	);

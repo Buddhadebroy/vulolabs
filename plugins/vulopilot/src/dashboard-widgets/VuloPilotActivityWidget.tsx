@@ -19,6 +19,11 @@ interface ReportRow {
 	created_at: string;
 }
 
+interface HealthSnapshot {
+	snapshot_date: string;
+	overall_score: number;
+}
+
 /**
  * "VuloPilot activity" — a real 5-tile activity strip. Every tile reads
  * data that already exists elsewhere on this Dashboard/plugin; this widget
@@ -84,6 +89,19 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	const { data: reportRows, isLoading: isReportsLoading } =
 		useApiList<ReportRow>('reports', { per_page: 1 });
 	const { lastScanAt, isLoading: isLastScanLoading } = useLastScanTime();
+
+	// Same real `/site-health-snapshots` (days: 30) endpoint
+	// HealthTimelineWidget.tsx's own trend chart already uses — only
+	// registered once vulopilot-pro's AdvancedReports module is active
+	// (real, permanent 404 on a Free-only install otherwise, same reason
+	// that widget checks `active_modules` directly rather than treating
+	// "404'd" and "zero rows" as the same friendly empty state).
+	const { data: healthSnapshots } = useApiList<HealthSnapshot>(
+		'site-health-snapshots',
+		{ days: 30 }
+	);
+	const isHealthTimelineModuleActive =
+		appLocalizer.active_modules.includes('advanced-reports');
 
 	const crawlerCurrent = crawlerAnalytics?.current_total ?? 0;
 	const crawlerPrevious = crawlerAnalytics?.previous_total ?? 0;
@@ -243,12 +261,26 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 
 	return (
 		<DashboardWidget
-			title={__('VuloPilot activity', 'vulopilot')}
+			title={__('Health timeline', 'vulopilot')}
 			icon="analytics"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
+			
+			{isHealthTimelineModuleActive && healthSnapshots.length > 0 && (
+				<ChartComponent
+					type="dynamic-line"
+					data={healthSnapshots.map((snapshot) => ({
+						...snapshot,
+						snapshot_date: formatWpDate(snapshot.snapshot_date),
+					}))}
+					dataKey="overall_score"
+					xKey="snapshot_date"
+					height={300}
+					yDomain={[0, 100]}
+				/>
+			)}
 			<div className="vulopilot-activity-row">
 				{tiles.map((tile) => (
 					<div className="vulopilot-activity-tile" key={tile.key}>
