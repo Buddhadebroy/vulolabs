@@ -10,11 +10,10 @@ import {
 } from '@zyra/components';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { useApiList } from '../../services/useApiList';
-import { useCopilotChatEnabled } from '../../services/useCopilotChatEnabled';
 import { ChatMarkdown } from '../../components/ChatMarkdown';
 import { ChatMessage } from '../../components/ChatComposerCard';
 
-/** One row of `GET /copilot/conversations` (vulopilot-pro's own CopilotChat\Rest.php, formerly Free's Controllers\Copilot.php) — a real, reloadable conversation thread, not a single logged AI call. */
+/** One row of `GET /copilot/conversations` (Controllers\Copilot.php) — a real, reloadable conversation thread, not a single logged AI call. */
 interface RecentConversationRow {
 	id: number;
 	title: string;
@@ -87,18 +86,10 @@ interface RecentConversationsCardProps {
 const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 	onSelectConversation,
 }) => {
-	// Called unconditionally either way (Rules of Hooks) even though its
-	// result is ignored below while `copilot-chat` isn't active — this GET
-	// now just 404s in that case: vulopilot-pro's own CopilotChat\Module.php
-	// only ever registers Rest.php's routes when the module itself is
-	// active (same real "route genuinely doesn't exist" posture every
-	// other Pro module in this codebase already has, confirmed live), not
-	// a 403 from an existing-but-denied route.
 	const { data, isLoading, error, refetch } = useApiList<RecentConversationRow>(
 		'copilot/conversations',
 		{ per_page: 5 }
 	);
-	const isCopilotChatEnabled = useCopilotChatEnabled();
 	/** The conversation currently shown in the preview popup — null closes it. `turns` starts empty while the fetch below is in flight. */
 	const [previewConversation, setPreviewConversation] = useState<{
 		id: number;
@@ -165,16 +156,7 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 					/>
 				}
 			>
-				{!isCopilotChatEnabled ? (
-					<ModuleGuardComponent
-						icon="ai"
-						title={__('Chat with VuloPilot is a Pro feature', 'vulopilot')}
-						desc={__(
-							'Upgrade to Pro to chat with VuloPilot and see your real conversation history here.',
-							'vulopilot'
-						)}
-					/>
-				) : error ? (
+				{error ? (
 					<ModuleGuardComponent
 						icon="error"
 						title={__('Could not load recent conversations', 'vulopilot')}

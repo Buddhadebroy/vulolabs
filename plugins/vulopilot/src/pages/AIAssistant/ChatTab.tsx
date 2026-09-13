@@ -12,7 +12,7 @@ import {
 } from '@zyra/components';
 import { FileInput } from '@zyra/inputs';
 import { getApiLink, getApiResponse, scrollToId, sendApiResponse } from '@zyra/core';
-import ShowProPopup from '../../components/Popup/Popup';
+import ConnectVuloCloudPopup from '../../components/AiCredits/ConnectVuloCloudPopup';
 import { SUGGESTED_PROMPTS } from './copilotData';
 import NeedsAttentionCard, {
 	IssuesFilter,
@@ -31,7 +31,7 @@ import {
 } from '../../services/useCopilotChat';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 
-/** Mirrors vulopilot-pro's own Rest.php (modules/CopilotChat/) own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
+/** Mirrors Controllers\Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
 const MAX_CONTEXT_REFS = 5;
 
@@ -97,26 +97,26 @@ interface ChatTabProps {
  * me…" prompt grid, and the composer bar in the main column; a real
  * "Needs your attention" findings summary (`/findings/attention-summary`,
  * NeedsAttentionCard.tsx) + AI Workflows (`/automations`) preview in the
- * sidebar. Sending now really talks to `POST /copilot/chat`
- * (vulopilot-pro's own modules/CopilotChat/Rest.php, shared via
- * useCopilotChat.ts — moved there from Free's own Controllers\Copilot.php
- * when "Chat with VuloPilot" became a real Pro feature, direct
- * instruction; see that hook's own docblock for the real "PRO" badge/
- * locked-popup gate this tab now shows without an active Pro license) —
- * a real reply grounded in this site's own open findings/automation
- * counts, not a canned response. A request like "write a blog about X"
- * really creates and saves a WordPress draft (Rest.php's own
- * ContentCreationOrchestrator hand-off, the same real capability "Create
- * Content"'s own AI Content Assistant sidebar already had) — that turn's
- * `link` is rendered below as a real clickable edit link, right next to a
- * real inline "Undo" (`handleUndo()`, same `POST /ai-action-runs/{id}/rollback`
- * HistoryDetailPanel.tsx's own Undo button already calls) so reverting
- * what was just created doesn't require leaving this tab. Every other kind
- * of request stays advice-only. A page refresh still starts a fresh, empty
- * composer (`turns` itself is still client-side-only React state, cleared
- * on unmount), but every real conversation now really persists server-side
- * too (`vulopilot_ai_conversations`, Rest.php's own
- * persist_conversation()) — "Recent conversations" (RecentConversationsCard.tsx,
+ * sidebar. Sending really talks to `POST /copilot/chat`
+ * (`Controllers\Copilot.php`, shared via useCopilotChat.ts — genuinely
+ * free, gated the same way as every other AI surface (a configured AI
+ * provider, BYOK or a connected VuloCloud account), not a Pro license; see
+ * that hook's own docblock for the real "Connect to VuloCloud" popup this
+ * tab shows on that condition) — a real reply grounded in this site's own
+ * open findings/automation counts, not a canned response. A request like
+ * "write a blog about X" really creates and saves a WordPress draft
+ * (Copilot.php's own ContentCreationOrchestrator hand-off, the same real
+ * capability "Create Content"'s own AI Content Assistant sidebar already
+ * had) — that turn's `link` is rendered below as a real clickable edit
+ * link, right next to a real inline "Undo" (`handleUndo()`, same
+ * `POST /ai-action-runs/{id}/rollback` HistoryDetailPanel.tsx's own Undo
+ * button already calls) so reverting what was just created doesn't require
+ * leaving this tab. Every other kind of request stays advice-only. A page
+ * refresh still starts a fresh, empty composer (`turns` itself is still
+ * client-side-only React state, cleared on unmount), but every real
+ * conversation really persists server-side too (`vulopilot_ai_conversations`,
+ * Copilot.php's own persist_conversation()) — "Recent conversations"
+ * (RecentConversationsCard.tsx,
  * `GET /copilot/conversations`) lists the user's own recent real threads,
  * and clicking one (`handleSelectConversation()` below,
  * useCopilotChat.ts's own loadConversation()) loads that thread's full,
@@ -132,7 +132,7 @@ interface ChatTabProps {
  * finding groups) and this tab's own automation entry points show (active
  * automations). Both are sent as `context_refs`/`attachments` on the next
  * `POST /copilot/chat` and re-resolved against real, current data
- * server-side (Rest.php's build_extra_context()) — this component only
+ * server-side (Copilot.php's build_extra_context()) — this component only
  * carries an id/ref, never the resolved content itself.
  *
  * `message`/`autoApply` are owned by AIAssistant.tsx rather than locally,
@@ -185,9 +185,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
 		markTurnUndone,
 		loadConversation,
 		startNewConversation,
-		isEnabled: isCopilotChatEnabled,
-		isProLocked,
-		dismissProLocked,
+		isCloudConnectPromptOpen,
+		dismissCloudConnectPrompt,
 	} = useCopilotChat('vulopilot-copilot-chat-error');
 	const [undoingRunId, setUndoingRunId] = useState<number | null>(null);
 
@@ -411,16 +410,6 @@ const ChatTab: React.FC<ChatTabProps> = ({
 							'',
 							'vulopilot'
 						)}
-						// "Chat with VuloPilot" is a real, direct-instruction Pro
-						// feature now (see useCopilotChat.ts's own docblock) —
-						// AiChatCard's own `showProBadge` renders the same "PRO"
-						// badge convention StoreIntelligenceSummaryCard.tsx/
-						// AiSalesOptimizerCard.tsx already use for a Pro-gated
-						// card's own header. Section still renders fully in Free
-						// (per that same instruction: "the section show in free
-						// with pro tag but functionality is pro feature") — only
-						// the real send is blocked, in handleSend() below.
-						showProBadge={!isCopilotChatEnabled}
 						onNewChat={startNewConversation}
 						onOpenHistoryPopup={onOpenHistoryPopup}
 						emptyDesc={__(
@@ -672,20 +661,11 @@ const ChatTab: React.FC<ChatTabProps> = ({
 						}}
 					/>
 				</PopupComponent>
-				{/* handleSend()'s own send() call sets this the moment a real send is attempted without an active Pro license — same "Unlock with Pro" popup every other Pro-gated surface in this plugin uses (components/ProLockedCard.tsx's own exact pattern). */}
-				<PopupComponent
-					open={isProLocked}
-					onClose={dismissProLocked}
-					width={31.25}
-					height="auto"
-					position="lightbox"
-				>
-					{appLocalizer.khali_dabba ? (
-						<ShowProPopup moduleName="copilot-chat" />
-					) : (
-						<ShowProPopup />
-					)}
-				</PopupComponent>
+				{/* useCopilotChat.ts's own send() sets this the moment a real send is attempted (or fails) with no AI provider configured — same free "Connect to VuloCloud" popup every other free AI surface in this plugin uses for this exact condition (ConnectVuloCloudPopup.tsx's own docblock). */}
+				<ConnectVuloCloudPopup
+					open={isCloudConnectPromptOpen}
+					onClose={dismissCloudConnectPrompt}
+				/>
 				<RecommendedActionsCard onNavigateTab={onNavigateTab} />
 			</ColumnComponent>
 
