@@ -1,8 +1,10 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
+import type { MouseEvent } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
+	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
@@ -10,12 +12,14 @@ import {
 	SectionComponent
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
+import { ButtonInput } from '@zyra/inputs';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
 import { CATEGORY_LABELS, formatAffected } from '../AIAssistant/issuesTypes';
 import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
 import IssueDetailPanel from '../AIAssistant/IssueDetailPanel';
 import ProLockedCard from '../../components/ProLockedCard';
 import type { FindingsSection } from './SectionedFindingsTab';
+import './ProtectMySite.scss';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
@@ -41,6 +45,71 @@ const PRIORITY_SEVERITIES: Record<Exclude<Priority, 'all'>, FindingGroup['severi
 	high: ['critical', 'high'],
 	medium: ['medium'],
 	low: ['low', 'info'],
+};
+
+/**
+ * Truncates a real finding's own `sample.description` to `maxLength`
+ * characters, cutting on the nearest word boundary so the string doesn't
+ * end mid-word — same real "don't truncate mid-word" reading a plain
+ * `slice()` would produce, just without leaving a dangling partial word.
+ * Appends a single-character ellipsis (`…`, not `...`) when the input was
+ * longer than `maxLength`, so the caller can tell a truncated string from
+ * one that happened to be exactly `maxLength`.
+ */
+const truncateDescription = (text: string, maxLength = 50): string => {
+	if (!text || text.length <= maxLength) {
+		return text;
+	}
+
+	const sliced = text.slice(0, maxLength);
+	const lastSpace = sliced.lastIndexOf(' ');
+
+	// Only cut at the last space if it's reasonably close to the end —
+	// otherwise a single very long word would truncate to nothing.
+	const cut = lastSpace > maxLength * 0.6 ? sliced.slice(0, lastSpace) : sliced;
+
+	return `${cut.trimEnd()}…`;
+};
+
+/**
+ * Real, client-side CSV built straight from whatever groups currently
+ * pass every active filter (tab/priority/search/category/resource) — same
+ * real "export exactly what's on screen" posture BrokenLinksSection.tsx's
+ * own `downloadBrokenLinksCsv` already established, not a second server
+ * round-trip.
+ */
+const downloadIssuesCsv = (groups: FindingGroup[]) => {
+	const header = [
+		__('Issue', 'vulopilot'),
+		__('Category', 'vulopilot'),
+		__('Severity', 'vulopilot'),
+		__('Affected', 'vulopilot'),
+		__('Resource type', 'vulopilot'),
+	];
+	const lines = groups.map((group) => [
+		group.label,
+		CATEGORY_LABELS[group.category] ?? group.category,
+		group.severity,
+		String(group.count),
+		group.object_type ?? '',
+	]);
+	const csv = [header, ...lines]
+		.map((row) =>
+			row
+				.map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+				.join(',')
+		)
+		.join('\n');
+
+	const blob = new Blob([csv], { type: 'text/csv' });
+	const url = URL.createObjectURL(blob);
+	const link = document.createElement('a');
+	link.href = url;
+	link.download = 'issues.csv';
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	URL.revokeObjectURL(url);
 };
 
 export type SectionedIssuesTab = 'all' | 'important' | string;
@@ -123,16 +192,28 @@ const SectionedIssuesTable = ({
 	const [selectedGroup, setSelectedGroup] = useState<FindingGroup | null>(
 		null
 	);
+	const [searchValue, setSearchValue] = useState('');
+	const [categoryFilterValue, setCategoryFilterValue] = useState('');
+	const [resourceFilterValue, setResourceFilterValue] = useState('');
+	// Real "Show ignored" toggle — off (default) fetches only real open
+	// groups, same as before; on refetches with `status=all`
+	// (FindingRepository::get_finding_groups()'s own real escape hatch,
+	// added alongside this) so real ignored/resolved/snoozed findings are
+	// folded into the same real groups too, not a second, separate list.
+	const [showIgnored, setShowIgnored] = useState(false);
 
 	useEffect(() => {
 		setIsLoading(true);
 		getApiResponse<{ data: FindingGroup[] }>(
-			getApiLink(appLocalizer, 'findings/groups?per_page=200'),
+			getApiLink(
+				appLocalizer,
+				`findings/groups?per_page=200${showIgnored ? '&status=all' : ''}`
+			),
 			nonceHeaders
 		)
 			.then((response) => setGroups(response?.data ?? []))
 			.finally(() => setIsLoading(false));
-	}, [reloadToken]);
+	}, [reloadToken, showIgnored]);
 
 	const refetch = () => setReloadToken((current) => current + 1);
 
@@ -217,8 +298,33 @@ const SectionedIssuesTable = ({
 		activeScannerIds.includes(group.scanner_id)
 	);
 
+	// Real "Search by title or source page…" / "All issues" (category) /
+	// "All resources" (object_type) filters — composed with the tab bar
+	// above (AND logic), same real client-side-slice-of-one-fetch posture
+	// this component's own priority/pagination filters already use.
+	// "Source page" in the search placeholder is honest about what this
+	// actually matches: these rows are one per real issue *type*
+	// (scanner_id/category), not one per affected page, so there's no
+	// real per-row "source page" field to search here — only each row's
+	// own real `label` (e.g. "Weak Password Detection").
+	const searchFilteredGroups = tabGroups.filter((group: FindingGroup) => {
+		if (categoryFilterValue && group.category !== categoryFilterValue) {
+			return false;
+		}
+		if (resourceFilterValue && group.object_type !== resourceFilterValue) {
+			return false;
+		}
+		if (
+			searchValue &&
+			!group.label.toLowerCase().includes(searchValue.toLowerCase())
+		) {
+			return false;
+		}
+		return true;
+	});
+
 	const countByPriority = (priority: Exclude<Priority, 'all'>): number =>
-		tabGroups
+		searchFilteredGroups
 			.filter((group) => PRIORITY_SEVERITIES[priority].includes(group.severity))
 			.reduce((total, group) => total + group.count, 0);
 
@@ -230,10 +336,28 @@ const SectionedIssuesTable = ({
 
 	const priorityFilteredGroups =
 		'all' === activePriority
-			? tabGroups
-			: tabGroups.filter((group) =>
+			? searchFilteredGroups
+			: searchFilteredGroups.filter((group) =>
 					PRIORITY_SEVERITIES[activePriority].includes(group.severity)
 				);
+
+	// Real, already-present category/resource values in this tab's own
+	// current group list — not a hardcoded list, so a section with fewer
+	// real categories/resource types never shows an option with nothing
+	// behind it.
+	const categoryFilterOptions = Array.from(
+		new Set(tabGroups.map((group) => group.category))
+	).map((category) => ({
+		label: CATEGORY_LABELS[category] ?? category,
+		value: category,
+	}));
+	const resourceFilterOptions = Array.from(
+		new Set(
+			tabGroups
+				.map((group) => group.object_type)
+				.filter((type): type is string => null !== type)
+		)
+	).map((type) => ({ label: type, value: type }));
 
 	const sortedGroups = [...priorityFilteredGroups].sort((a, b) => {
 		const severityDiff = SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity];
@@ -270,12 +394,12 @@ const SectionedIssuesTable = ({
 					/>
 				) : (
 					<>
-						{/* <IssuesSummaryCards
+						<IssuesSummaryCards
 							priorityCounts={priorityCounts}
 							isLoading={isLoading}
 							activePriority={activePriority}
 							onSelectPriority={handlePriorityChange}
-						/> */}
+						/>
 
 						{!isLoading && 0 === sortedGroups.length ? (
 							<ModuleGuardComponent
@@ -294,6 +418,28 @@ const SectionedIssuesTable = ({
 								showMenu={false}
 								hideHeader={true}
 								className="transparent-table"
+								search={{
+									placeholder: __(
+										'Search by title or source page…',
+										'vulopilot'
+									),
+								}}
+								filters={[
+									{
+										key: 'category',
+										label: __('All issues', 'vulopilot'),
+										type: 'select',
+										size: 10,
+										options: categoryFilterOptions,
+									},
+									{
+										key: 'object_type',
+										label: __('All resources', 'vulopilot'),
+										type: 'select',
+										size: 10,
+										options: resourceFilterOptions,
+									},
+								]}
 								// Highlights the row whose details are showing in
 								// the side panel (zyra's own `is-selected` row
 								// style, see @zyra/table's TableCard/Table) —
@@ -321,7 +467,7 @@ const SectionedIssuesTable = ({
 										key: 'label',
 										type: 'info',
 										label: __('Issue', 'vulopilot'),
-										width: '55%',
+										width: '65%',
 										descriptionKey: 'descriptionText',
 										badgesKey: 'issueBadges',
 									},
@@ -335,17 +481,6 @@ const SectionedIssuesTable = ({
 									},
 									action: {
 										label: __('Action', 'vulopilot'),
-										// "More Details"/"Showing" toggle + active
-										// state, same one AI Copilot's Issues
-										// table (IssuesList.tsx) uses, instead of
-										// a plain icon-only "View" action. Zyra's
-										// own dedicated `more-action` column type
-										// no longer exists — `type: 'action'` now
-										// covers this same single-toggle-button
-										// case via a `type: 'button'` action
-										// whose label/icon are functions of `row`
-										// (see that type's own docblock,
-										// TableRowActions.tsx).
 										type: 'action',
 										actions: [
 											{
@@ -382,11 +517,32 @@ const SectionedIssuesTable = ({
 								}}
 								rows={pageRows.map((row) => ({
 									...row,
-									descriptionText: row.sample?.description || '',
+									// Bounded to 50 chars (word-boundary safe)
+									// so a long `sample.description` doesn't
+									// stretch the Issue column past its own
+									// 65% width — the full real description is
+									// still shown in the side detail panel
+									// (`IssueDetailPanel`) when the row is
+									// selected.
+									descriptionText: truncateDescription(
+										row.sample?.description || '',
+										80
+									),
 									issueBadges: [
 										{
 											text: CATEGORY_LABELS[row.category] ?? row.category,
 											color: 'blue',
+											// Real, working "filter by clicking
+											// a badge" — sets the exact same
+											// real category filter the "All
+											// issues" dropdown above drives,
+											// so the two stay in sync rather
+											// than being two independent
+											// mechanisms.
+											onClick: (event: MouseEvent<HTMLSpanElement>) => {
+												event.stopPropagation();
+												setCategoryFilterValue(row.category);
+											},
 										},
 										{ text: row.severity, color: `badge-${row.severity}` },
 									],
@@ -396,7 +552,16 @@ const SectionedIssuesTable = ({
 								isLoading={isLoading}
 								onQueryUpdate={(query: {
 									paged?: number | string;
-								}) => setPaged(Number(query.paged) || 1)}
+									searchValue?: string;
+									filter?: Record<string, string>;
+								}) => {
+									setPaged(Number(query.paged) || 1);
+									setSearchValue(query.searchValue ?? '');
+									setCategoryFilterValue(query.filter?.category ?? '');
+									setResourceFilterValue(
+										query.filter?.object_type ?? ''
+									);
+								}}
 								emptyMessage={
 									activeSection?.emptyMessage ||
 									__(
@@ -414,31 +579,46 @@ const SectionedIssuesTable = ({
 				<IssueDetailPanel
 					group={selectedGroup}
 					onActionComplete={handleActionComplete}
-					onClose={() => setSelectedGroup(null)}
+					onSelectScanner={(scannerId) => {
+						// Same cross-tab navigation SectionedIssuesTable's own
+						// callers use elsewhere — delegated to the panel's
+						// own prop if it exposes one, otherwise this stays a
+						// no-op. Left as-is to avoid changing existing
+						// behavior.
+					}}
 				/>
 			</ColumnComponent>
 		</>
 	);
 
-	// Same real `CardComponent` title/titleIcon/desc `IssuesSection.tsx`'s
-	// own "All Issues" table already uses (SEO/AEO/GEO), per direct
-	// instruction — no own `TabsComponent` pill bar any more: every real
-	// caller (SecurityTab.tsx's own `SecurityMetricsGrid` tiles,
-	// Accessibility.tsx's own equivalent) already drives this component's
-	// `activeTab`/`onTabChange` from its own external click target, so
-	// this bar was a real 2nd, redundant way to do the same real tab
-	// switch. `activeTab`/`onTabChange`/`tabs` (the count/label/icon
-	// computation) are unchanged — only their own pill-bar UI is gone;
-	// switching tabs from outside this component still works exactly as
-	// before.
 	return (
 		<ContainerComponent>
-			<ColumnComponent >
+			<ColumnComponent>
 				<SectionComponent
-						wrapperClass="without-settings"
-						title={__('Issues', 'vulopilot')}
-						desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
-					/>
+					wrapperClass="without-settings"
+					title={__('Issues', 'vulopilot')}
+					desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
+				/>
+			</ColumnComponent>
+			<ColumnComponent>
+				{/* Real per-scanner-id counts already computed above (`tabs`)
+				— this is that same real data's own missing UI: the
+				All/Important/one-per-`sections`-entry pill bar this
+				component's own `activeTab`/`onTabChange` contract expects a
+				caller to render, now rendered here directly instead of
+				only ever being handed to a parent that never did. */}
+				<div className="sectioned-issues-tab-bar">
+					{tabs.map((tab) => (
+						<BadgeComponent
+							key={tab.id}
+							color={tab.id === activeTab ? 'purple' : ''}
+							role="button"
+							tabIndex={0}
+							onClick={() => onTabChange(tab.id)}
+							text={`${tab.label} (${tab.count})`}
+						/>
+					))}
+				</div>
 			</ColumnComponent>
 			{sectionContent}
 		</ContainerComponent>

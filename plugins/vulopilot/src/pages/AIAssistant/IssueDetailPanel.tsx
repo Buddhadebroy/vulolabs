@@ -10,7 +10,8 @@ import {
 	NoticeManager,
 	PopupComponent,
 	ClipboardComponent,
-	BadgeComponent
+	BadgeComponent,
+	AnalyticsComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -239,11 +240,11 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		return (
 			<CardComponent
 				title={__('Issue details', 'vulopilot')}
-				titleIcon="ai"
+				titleIcon="issue"
 				desc={__('More detail on the issue you select from the table.', 'vulopilot')}
 			>
 				<ModuleGuardComponent
-					icon="ai"
+					icon="issue"
 					title={__('Select an issue', 'vulopilot')}
 					desc={__(
 						'Choose a row from the table to see more detail here.',
@@ -302,8 +303,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		sampleMeta?.recommended_fix
 	)
 		? (sampleMeta?.recommended_fix as unknown[]).filter(
-				(step: unknown): step is string => 'string' === typeof step
-			)
+			(step: unknown): step is string => 'string' === typeof step
+		)
 		: [];
 
 	const showRecommendedFix =
@@ -450,9 +451,9 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						message: response
 							? successMessage
 							: __(
-									'Could not update these findings. Please try again.',
-									'vulopilot'
-								),
+								'Could not update these findings. Please try again.',
+								'vulopilot'
+							),
 					});
 
 					if (response) {
@@ -524,18 +525,18 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					message =
 						succeeded > 0
 							? sprintf(
-									/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
-									__(
-										'Fixed %1$d findings — no automatic fix exists yet for the other %2$d.',
-										'vulopilot'
-									),
-									succeeded,
-									noFixAvailable
-								)
-							: __(
-									'No automatic fix exists yet for these findings.',
+								/* translators: 1: number fixed, 2: how many had no automatic fix available at all. */
+								__(
+									'Fixed %1$d findings — no automatic fix exists yet for the other %2$d.',
 									'vulopilot'
-								);
+								),
+								succeeded,
+								noFixAvailable
+							)
+							: __(
+								'No automatic fix exists yet for these findings.',
+								'vulopilot'
+							);
 				} else {
 					message = sprintf(
 						/* translators: 1: number fixed, 2: total findings attempted. */
@@ -617,40 +618,31 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					/>
 				</div>
 
-				<div className="issue-detail-stats-grid">
-					<div className="issue-detail-stat-tile">
-						<i className="adminfont-global-community issue-detail-stat-icon" />
-						<span className="issue-detail-stat-label">
-							{__('Affected', 'vulopilot')}
-						</span>
-						<span className="issue-detail-stat-value">
-							{formatAffected(group.count, group.object_type)}
-						</span>
-					</div>
-					<div className="issue-detail-stat-tile">
-						<i className="adminfont-calendar issue-detail-stat-icon" />
-						<span className="issue-detail-stat-label">
-							{__('Detected', 'vulopilot')}
-						</span>
-						<span className="issue-detail-stat-value">
-							{group.sample
+				<AnalyticsComponent
+					cols={3}
+					variant="small"
+					data={[
+						{
+							icon: 'global-community blue',
+							number: formatAffected(group.count, group.object_type),
+							text: __('Affected', 'vulopilot'),
+						},
+						{
+							icon: 'calendar orange',
+							number: group.sample
 								? formatWpDate(
-										group.sample.last_seen_at ?? group.sample.created_at
-									)
-								: '—'}
-						</span>
-					</div>
-					<div className="issue-detail-stat-tile">
-						<i className="adminfont-location issue-detail-stat-icon" />
-						<span className="issue-detail-stat-label">
-							{__('Scope', 'vulopilot')}
-						</span>
-						<span className="issue-detail-stat-value">
-							{group.sample?.page || __('Site-wide', 'vulopilot')}
-						</span>
-					</div>
-				</div>
-
+									group.sample.last_seen_at ?? group.sample.created_at
+								)
+								: '—',
+							text: __('Detected', 'vulopilot'),
+						},
+						{
+							icon: 'location purple',
+							number: group.sample?.page || __('Site-wide', 'vulopilot'),
+							text: __('Scope', 'vulopilot'),
+						},
+					]}
+				/>
 				{whyItMatters && (
 					<div className="issue-detail-why-it-matters">
 						<div className="issue-detail-why-it-matters-icon">
@@ -687,49 +679,49 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						</div>
 						{showRecommendedFix
 							? renderProGatedSection(
-									<ol className="issue-detail-fix-steps">
-										{recommendedFixSteps.map((step, index) => (
-											<li key={index} className="issue-detail-fix-step">
-												<span className="issue-detail-fix-step-number">
-													{index + 1}
-												</span>
-												<span className="issue-detail-fix-step-text">
-													{step}
-												</span>
-											</li>
-										))}
-									</ol>,
+								<ol className="issue-detail-fix-steps">
+									{recommendedFixSteps.map((step, index) => (
+										<li key={index} className="issue-detail-fix-step">
+											<span className="issue-detail-fix-step-number">
+												{index + 1}
+											</span>
+											<span className="issue-detail-fix-step-text">
+												{step}
+											</span>
+										</li>
+									))}
+								</ol>,
+								<span className="desc">
+									{__(
+										'Step-by-step guidance for fixing this specific issue appears here once Pro is active.',
+										'vulopilot'
+									)}
+								</span>,
+								false
+							)
+							: showWhatHappened
+								? renderProGatedSection(
+									<>
+										<div className="desc">{whatHappened}</div>
+										<div className="issue-detail-example-where">
+											<ClipboardComponent
+												text={
+													group.sample.page || __('Site-wide', 'vulopilot')
+												}
+												variant="code"
+												copyButtonLabel={__('Copy', 'vulopilot')}
+												copiedLabel={__('Copied!', 'vulopilot')}
+											/>
+										</div>
+									</>,
 									<span className="desc">
 										{__(
-											'Step-by-step guidance for fixing this specific issue appears here once Pro is active.',
+											'What this specific check actually found appears here once Pro is active.',
 											'vulopilot'
 										)}
 									</span>,
 									false
 								)
-							: showWhatHappened
-								? renderProGatedSection(
-										<>
-											<div className="desc">{whatHappened}</div>
-											<div className="issue-detail-example-where">
-												<ClipboardComponent
-													text={
-														group.sample.page || __('Site-wide', 'vulopilot')
-													}
-													variant="code"
-													copyButtonLabel={__('Copy', 'vulopilot')}
-													copiedLabel={__('Copied!', 'vulopilot')}
-												/>
-											</div>
-										</>,
-										<span className="desc">
-											{__(
-												'What this specific check actually found appears here once Pro is active.',
-												'vulopilot'
-											)}
-										</span>,
-										false
-									)
 								: renderProGatedSection(
 									<>
 										<div className="issue-detail-example-title">
@@ -843,13 +835,13 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 						<span>
 							{showRecommendedFix
 								? __(
-										'Detailed recommendations, setup guidance, and AI fixes are included in Pro.',
-										'vulopilot'
-									)
+									'Detailed recommendations, setup guidance, and AI fixes are included in Pro.',
+									'vulopilot'
+								)
 								: __(
-										'Detailed examples, the full affected list, and AI-assisted fixes are included in Pro.',
-										'vulopilot'
-									)}
+									'Detailed examples, the full affected list, and AI-assisted fixes are included in Pro.',
+									'vulopilot'
+								)}
 						</span>
 					</div>
 				)}

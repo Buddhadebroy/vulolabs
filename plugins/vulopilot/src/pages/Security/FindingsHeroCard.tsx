@@ -1,10 +1,16 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE } from '@zyra/core';
-import { CardComponent, ChartComponent, LegendComponent } from '@zyra/components';
+import {
+	CardComponent,
+	ChartComponent,
+	LegendComponent,
+	TypographyComponent,
+} from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { getSeverityColor } from '../../services/getSeverityClass';
 import './ProtectMySite.scss';
+import SiteHealthStatusCard from './SiteHealthStatusCard';
 
 interface FindingRow {
 	id: number;
@@ -22,25 +28,45 @@ interface FindingRow {
 const calculateScore = (high: number, medium: number, low: number): number =>
 	Math.max(0, Math.min(100, 100 - high * 8 - medium * 3 - low * 1));
 
-/** Same 3-tier 0-100 thresholds seoRating.ts's own `getRating()`/`ratingColor()` already establish elsewhere in this codebase — kept local here rather than imported since this component lives outside GEO. */
-const getRating = (score: number): string => {
+/** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses — kept structurally identical so both files' ring colors read from the same kind of map. */
+interface Rating {
+	label: string;
+	className: 'good' | 'needs-improvement' | 'poor';
+}
+
+/**
+ * Same 3-tier 0-100 thresholds seoRating.ts's own `getRating()` already
+ * establishes elsewhere in this codebase — kept local here rather than
+ * imported since this component lives outside GEO. Returns the real
+ * `Rating` object (label + className) rather than just the label string,
+ * matching `PerformanceScoreCard.tsx`'s own `getScoreRating()` shape so
+ * both files' ring colors can read from the same kind of map.
+ */
+const getScoreRating = (score: number): Rating => {
 	if (score >= 70) {
-		return __('Good', 'vulopilot');
+		return { label: __('Good', 'vulopilot'), className: 'good' };
 	}
 	if (score >= 40) {
-		return __('Needs Attention', 'vulopilot');
+		return { label: __('Needs Attention', 'vulopilot'), className: 'needs-improvement' };
 	}
-	return __('Poor', 'vulopilot');
+	return { label: __('Poor', 'vulopilot'), className: 'poor' };
 };
 
-const ratingColorName = (score: number): keyof typeof COLOR_PALETTE => {
-	if (score >= 70) {
-		return 'green';
-	}
-	if (score >= 40) {
-		return 'yellow';
-	}
-	return 'red';
+/**
+ * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — same real
+ * source `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads. The ring's
+ * own `data[].color` needs a literal CSS color, not a palette class name,
+ * so this reads the shared source rather than a second hardcoded copy.
+ */
+const RATING_COLOR: Record<Rating['className'], string> = {
+	good: COLOR_PALETTE.green,
+	'needs-improvement': COLOR_PALETTE.yellow,
+	poor: COLOR_PALETTE.red,
+};
+
+/** Same real bands as `getScoreRating()` above, mapped to the real palette class name the ring color map is keyed by. */
+const ratingClass = (score: number): Rating['className'] => {
+	return getScoreRating(score).className;
 };
 
 interface FindingsHeroCardProps {
@@ -72,6 +98,12 @@ interface FindingsHeroCardProps {
  * most recent open findings for the severity breakdown/chart (same
  * tradeoff AccessibilityHeroCard.tsx's own docblock documents) — `total`
  * itself is the real, uncapped count from the API response.
+ *
+ * The hero gauge is now a real ring (matching `PerformanceScoreCard.tsx`'s
+ * own `ChartComponent type="ring"` structure) — same real 0-100
+ * weighted-severity score, same real Good/Needs Attention/Poor bands, just
+ * one consistent ring shape across every hero card in this plugin instead
+ * of the older gauge variant this file used to render.
  */
 const FindingsHeroCard = ({
 	icon,
@@ -95,84 +127,99 @@ const FindingsHeroCard = ({
 	const score = calculateScore(high, medium, low);
 
 	return (
-		<CardComponent isLoading={isLoading}
+		<CardComponent
+			isLoading={isLoading}
 			titleIcon={icon}
-			title={total > 0
-				? sprintf(
-					/* translators: 1: number of open findings, 2: section label, e.g. "Site Health". */
-					__('I found %1$d %2$s issue(s).', 'vulopilot'),
-					total,
-					label
+			title={
+				total > 0
+					? sprintf(
+						/* translators: 1: number of open findings, 2: section label, e.g. "Site Health". */
+						__('I found %1$d %2$s issue(s).', 'vulopilot'),
+						total,
+						label
+					)
+					: sprintf(
+						/* translators: %s is the section label, e.g. "Site Health". */
+						__(
+							"You're all caught up — no open %s issues.",
+							'vulopilot'
+						),
+						label
+					)
+			}
+			desc={
+				high > 0 && (
+					<>
+						{sprintf(
+							/* translators: %d is the number of high-priority findings. */
+							__('%d should be reviewed first.', 'vulopilot'),
+							high
+						)}
+					</>
 				)
-				: sprintf(
-					/* translators: %s is the section label, e.g. "Site Health". */
-					__(
-						"You're all caught up — no open %s issues.",
-						'vulopilot'
-					),
-					label
-				)}
-			desc={high > 0 && (
-				<>
-					{sprintf(
-						/* translators: %d is the number of high-priority findings. */
-						__('%d should be reviewed first.', 'vulopilot'),
-						high
-					)}
-				</>
-			)}
-			className="findings-hero">
+			}
+			className="findings-hero"
+		>
 			{!isLoading && (
 				<>
-					{total > 0 && (
-						<div className="findings-hero-chart-row">
-							<div className="findings-hero-chart">
+					<div className='overall-score-wrapper'>
+						{total > 0 && (
+							<div className="overall-score-summary">
 								<ChartComponent
-									type="gauge"
-									height={140}
-									color={COLOR_PALETTE[ratingColorName(score)]}
+									type="ring"
+									height={200}
 									centerLabel={
 										<>
-											<span className="findings-hero-chart-number">
-												{sprintf(
-													/* translators: %d: real 0-100 weighted-severity score. */
-													__('%d/100', 'vulopilot'),
-													score
-												)}
-											</span>
-											<span className="findings-hero-chart-label">
-												{getRating(score)}
-											</span>
+											<TypographyComponent variant={'h1'}>
+												{score}
+											</TypographyComponent>
+											<TypographyComponent variant={'h4'}>
+												{getScoreRating(score).label}
+											</TypographyComponent>
 										</>
 									}
-									data={[{ value: score }]}
+									data={[
+										{
+											label: __('Score', 'vulopilot'),
+											value: score,
+											color: RATING_COLOR[ratingClass(score)],
+										},
+										{
+											label: __('Remaining', 'vulopilot'),
+											value: 100 - score,
+											color: '#e5e7eb',
+										},
+									]}
+								/>
+								<LegendComponent
+									className="efficiency-overview-legend"
+									items={[
+										{
+											key: 'high',
+											label: __('High', 'vulopilot'),
+											value: high,
+											color: getSeverityColor('high'),
+										},
+										{
+											key: 'medium',
+											label: __('Medium', 'vulopilot'),
+											value: medium,
+											color: getSeverityColor('medium'),
+										},
+										{
+											key: 'low',
+											label: __('Low', 'vulopilot'),
+											value: low,
+											color: getSeverityColor('low'),
+										},
+									]}
 								/>
 							</div>
-							<LegendComponent
-								className="efficiency-overview-legend"
-								items={[
-									{
-										key: 'high',
-										label: __('High', 'vulopilot'),
-										value: high,
-										color: getSeverityColor('high'),
-									},
-									{
-										key: 'medium',
-										label: __('Medium', 'vulopilot'),
-										value: medium,
-										color: getSeverityColor('medium'),
-									},
-									{
-										key: 'low',
-										label: __('Low', 'vulopilot'),
-										value: low,
-										color: getSeverityColor('low'),
-									},
-								]}
-							/>
+						)}
+						<div className='overall-score-summary'>
+							<SiteHealthStatusCard />
 						</div>
-					)}
+					</div>
 					{total > 0 && (
 						<ButtonInput
 							positive="full-width"

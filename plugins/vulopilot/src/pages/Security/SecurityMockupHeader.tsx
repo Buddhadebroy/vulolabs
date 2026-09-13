@@ -54,14 +54,18 @@ const SecurityMockupHeader = ({
 
 	return (
 		<ContainerComponent>
+			<ColumnComponent grid={6} fullHeight>
+				<SecurityStatusCard />
+			</ColumnComponent>
+			<ColumnComponent grid={6} fullHeight>
+				<SecurityTrendCard />
+			</ColumnComponent>
+
 			<ColumnComponent grid={8}>
-				<VulnerabilityHeroCard onNavigateToSecurityTab={scrollToTarget} />
 				<SecurityMetricsGrid onViewSection={onViewSection} />
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
-				<SecurityStatusCard />
 				<RecentActivityCard />
-				<SecurityTrendCard />
 			</ColumnComponent>
 		</ContainerComponent>
 	);

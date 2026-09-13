@@ -639,9 +639,8 @@ const RedirectsSection = () => {
 					// this restructure.
 					isLoading={isLoading || isCheckingHealth}
 				>
-					<div className="seo-health-score-layout">
-						<div className="seo-health-score-ring-block">
-							<div className="seo-health-score-ring">
+					<div className="overall-score-wrapper">
+						<div className="overall-score-summary">
 								<ChartComponent
 									type="ring"
 									height={200}
@@ -672,7 +671,6 @@ const RedirectsSection = () => {
 										},
 									]}
 								/>
-							</div>
 						</div>
 						{/*
 					 * Same real `ListComponent` "mini-card report" row
@@ -684,6 +682,7 @@ const RedirectsSection = () => {
 					 * trailing value is just its real number/date, not a
 					 * fabricated "/100".
 					 */}
+					 <div className="overall-score-summary">
 						<ListComponent
 							className="mini-card report hover seo-health-score-category-list"
 							loading={isLoading || isCheckingHealth}
@@ -791,6 +790,7 @@ const RedirectsSection = () => {
 								},
 							]}
 						/>
+						</div>
 					</div>
 				</CardComponent>
 			</ColumnComponent>

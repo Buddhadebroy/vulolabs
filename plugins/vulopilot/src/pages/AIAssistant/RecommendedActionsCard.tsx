@@ -2,10 +2,9 @@
 import { useState } from 'react';
 import type { ComponentType, FC } from 'react';
 import { __ } from '@wordpress/i18n';
-import { CardComponent, PopupComponent, SectionComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
-import ShowProPopup from '../../components/Popup/Popup';
-import { useFilterSlot } from '../../services/useFilterSlot';
+import { getApiLink, getApiResponse } from '@zyra/core';
+import { SectionComponent, CardComponent, ButtonInput } from '@zyra/components';
+import { formatAffected } from './issuesTypes';
 import { IssuesFilter } from './NeedsAttentionCard';
 import './AICopilot.scss';
 
@@ -35,45 +34,48 @@ const RecommendedActionsLockedCard = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
 	return (
-		<>
-			<SectionComponent
+			<CardComponent
 				title={__('Recommended by VuloPilot', 'vulopilot')}
 				desc={__('High impact actions suggested by AI', 'vulopilot')}
-			/>
-			<CardComponent
-				title={__('AI-prioritized fixes for your site', 'vulopilot')}
-				titleIcon="lock"
-				badges={[{ text: __('PRO', 'vulopilot'), color: 'purple' }]}
-				desc={__(
-					'Security, performance, and AI-visibility issues — surfaced and ranked by AI the moment Chat with VuloPilot is unlocked.',
-					'vulopilot'
-				)}
 			>
-				<ButtonInput
-					buttons={{
-						text: __('Unlock with Pro', 'vulopilot'),
-						icon: 'lock',
-						onClick: () => setIsProPopupOpen(true),
-					}}
-				/>
+			<div className="recommended-actions-grid">
+				{recommendations.map((rec) => {
+					const meta = BUCKET_META[rec.bucket];
+					const urgent = isUrgent(rec.severity);
+
+					return (
+						<div className={`recommended-actions-card tone-${meta.tone}`} key={rec.bucket}>
+							<div className={`recommended-actions-details ${meta.tone}`}>
+								<div className="recommended-actions-card-eyebrow">
+									<i className={`recommended-actions-card-icon adminfont-${meta.icon}`} />
+									<span>{urgent ? __('Critical', 'vulopilot') : meta.ctaFallback}</span>
+								</div>
+								<div className="recommended-actions-card-title">{rec.label}</div>
+								<div className="recommended-actions-card-detail">
+									{formatAffected(rec.count, rec.object_type)}
+								</div>
+							</div>
+							<ButtonInput
+								position = 'left'
+								buttons={{
+									text: urgent
+										? __('Investigate with AI', 'vulopilot')
+										: __('Improve with AI', 'vulopilot'),
+									rightIcon: 'arrow-right',
+									color: `text-${meta.tone}`,
+									onClick: () =>
+										onNavigateTab('chat', {
+											scannerId: rec.scanner_id,
+											label: rec.label,
+											category: rec.category,
+										}),
+								}}
+							/>
+						</div>
+					);
+				})}
+			</div>
 			</CardComponent>
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{appLocalizer.khali_dabba ? (
-					// Pro is active — this specific module just isn't
-					// toggled on yet, so point at Modules rather than
-					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="copilot-chat" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-		</>
 	);
 };
 

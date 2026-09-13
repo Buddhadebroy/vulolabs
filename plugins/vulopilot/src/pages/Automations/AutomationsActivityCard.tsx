@@ -136,9 +136,9 @@ const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsAc
 						<li key={row.id} className="activity">
 							<div className="title">
 								{`${row.automation_name} ${status.label.toLowerCase()}`}
-								<BadgeComponent color={status.color} text={status.label} />
+								<div className={`admin-badge ${status.color}`}>{status.label} </div>
 							</div>
-							<p className="activity-outcome">{describeOutcome(row)}</p>
+							<div className="desc">{describeOutcome(row)}</div>
 							<span>{formatActivityTime(row.finished_at ?? row.started_at)}</span>
 						</li>
 					);

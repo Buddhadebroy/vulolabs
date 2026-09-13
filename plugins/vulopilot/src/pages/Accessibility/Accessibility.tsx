@@ -228,31 +228,35 @@ const Accessibility = () => {
 				}
 			/>
 			<ContainerComponent general>
-				<ColumnComponent fullHeight grid={4}>
+				<ColumnComponent fullHeight grid={7}>
 					<AccessibilityHeroCard
 						onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
 						onViewAll={() => goToIssuesTable('all')}
 					/>
 				</ColumnComponent>
-				<ColumnComponent fullHeight grid={8}>
-					<AccessibilityChecksGrid onReview={goToIssuesTable} />
+
+				<ColumnComponent fullHeight grid={5}>
+					<AccessibilityManualTestingPanel />
 				</ColumnComponent>
-				<ColumnComponent>
-					{AccessibilityDashboardCard ? (
-						<AccessibilityDashboardCard />
+
+				<ColumnComponent fullHeight grid={5}>
+					<WhyAccessibilityMattersCard />
+
+					<PluginOverlapCard category="accessibility" />
+					{AccessibilityHistoryPanel ? (
+						<AccessibilityHistoryPanel />
 					) : (
-						<AccessibilityDashboardLockedCard />
+						<AccessibilityHistoryLockedCard />
 					)}
 				</ColumnComponent>
 
-				<ColumnComponent>
+				<ColumnComponent fullHeight grid={7}>
 					<AccessibilityPriorityList
 						id={PRIORITY_LIST_ID}
 						onViewAll={() => goToIssuesTable('all')}
 						onReviewCheck={goToIssuesTable}
 					/>
 				</ColumnComponent>
-				<AccessibilityManualTestingPanel />
 				<AccessibilityWcagNotice />
 				<ColumnComponent>
 					<SectionedIssuesTable
@@ -262,20 +266,6 @@ const Accessibility = () => {
 						activeTab={activeTab}
 						onTabChange={setActiveTab}
 					/>
-				</ColumnComponent>
-				<ColumnComponent grid={8}>
-					{AccessibilityHistoryPanel ? (
-						<AccessibilityHistoryPanel />
-					) : (
-						<AccessibilityHistoryLockedCard />
-					)}
-				</ColumnComponent>
-				<ColumnComponent grid={4}>
-					<WhyAccessibilityMattersCard />
-				</ColumnComponent>
-
-				<ColumnComponent>
-					<PluginOverlapCard category="accessibility" />
 				</ColumnComponent>
 			</ContainerComponent>
 		</>

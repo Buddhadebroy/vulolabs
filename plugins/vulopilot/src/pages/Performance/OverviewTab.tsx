@@ -119,16 +119,6 @@ const OverviewTab = ({ onNavigateToSlowPages }: OverviewTabProps) => {
 					onViewFindings={scrollToFindings}
 				/>
 			</ColumnComponent>
-			<ColumnComponent grid={4} fullHeight>
-				<SpeedHistoryCard />
-			</ColumnComponent>
-			<ColumnComponent grid={4} fullHeight >
-				<LiveSiteInsightsCard />
-			</ColumnComponent>
-			<ColumnComponent grid={4} fullHeight>
-				<PhpAccelerationCard />
-			</ColumnComponent>
-
 
 			<ColumnComponent >
 				<div id="performance-section-findings">

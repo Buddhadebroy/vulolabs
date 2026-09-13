@@ -58,7 +58,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		id: 'overall-score',
 		title: __('Vital Pulse', 'vulopilot'),
 		icon: 'analytics',
-		grid: 5,
+		grid: 6,
 		component: OverallScoreWidget,
 	},
 	
@@ -66,7 +66,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		id: 'vulopilot-activity',
 		title: __('VuloPilot activity', 'vulopilot'),
 		icon: 'analytics',
-		grid: 7,
+		grid: 6,
 		component: VuloPilotActivityWidget,
 	},
 	{

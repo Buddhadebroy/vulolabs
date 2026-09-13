@@ -6,7 +6,8 @@ import {
 	CardComponent,
 	ListComponent,
 	ModuleGuardComponent,
-	TypographyComponent
+	TooltipComponent,
+	TypographyComponent,
 } from '@zyra/components';
 
 interface DashboardSummary {
@@ -28,34 +29,34 @@ interface CrawlerSummary {
 	bot_last_seen: { bot_name: string; last_seen_at: string }[];
 }
 
+interface RealtimeStats {
+	avg_response_time_ms: number | null;
+	page_views_last_5_min: number;
+	samples_last_hour: number;
+}
+
 /**
  * "Live Site Insights" card — moved here from AI Copilot Chat's
  * ChatTab.tsx (pages/AIAssistant/) per direct instruction, onto Protect
  * My Site's own Performance tab (PerformanceTab.tsx, this folder), where
  * a live snapshot of security/crawler/vitals signals fits its actual
  * subject better than the AI chat surface it used to sit under. No
- * behavior changed in the move — same 3 real endpoints below, same
+ * behavior changed in the move — same real endpoints below, same
  * component, same props (none).
  *
- * Previously always showed a static "not connected yet" state regardless
- * of what real data actually existed. Two of the four metrics that empty
- * state promised are, in fact, already real and wired elsewhere in this
- * plugin: real-visitor Core Web Vitals (`GET /core-web-vitals`, the same
- * data Performance/PerformanceScoreCard.tsx shows) and AI crawler traffic
- * (`GET /crawler-traffic/summary`, the same data CrawlerTraffic.tsx
- * shows) — this card just never called either endpoint. Security reuses
- * the real, already-computed `category_scores.security` from `GET
- * /dashboard` (the same score every other security surface in this
- * plugin reads). Store metrics has no real backing data source anywhere
- * in this codebase (no orders/revenue pipeline exists) — that row is
- * shown only when WooCommerce is actually active (`category_scores.woocommerce`
- * is non-null), with an honest "not available yet" rather than a
- * fabricated number, and omitted entirely otherwise.
+ * Now also shows a real "Page Views (5 min)" row — moved here from
+ * `RealTimeMonitoringCard.tsx`'s own 4-tile `AnalyticsComponent` per
+ * direct instruction, since it's a live activity signal (like AI crawler
+ * traffic), not a performance metric, so it reads more naturally
+ * alongside this card's other real rows. Same real
+ * `GET /performance-realtime`'s own `page_views_last_5_min` value,
+ * unchanged.
  */
 const LiveSiteInsightsCard: React.FC = () => {
 	const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
 	const [vitals, setVitals] = useState<CoreWebVitalsSummary | null>(null);
 	const [crawler, setCrawler] = useState<CrawlerSummary | null>(null);
+	const [realtime, setRealtime] = useState<RealtimeStats | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
 
@@ -78,28 +79,41 @@ const LiveSiteInsightsCard: React.FC = () => {
 				getApiLink(appLocalizer, 'crawler-traffic/summary?days=30'),
 				{ headers }
 			),
+			getApiResponse<RealtimeStats>(
+				getApiLink(appLocalizer, 'performance-realtime'),
+				{ headers }
+			),
 		])
-			.then(([dashboardResponse, vitalsResponse, crawlerResponse]) => {
-				if (!dashboardResponse || !vitalsResponse || !crawlerResponse) {
-					setHasError(true);
-					return;
-				}
+			.then(
+				([
+					dashboardResponse,
+					vitalsResponse,
+					crawlerResponse,
+					realtimeResponse,
+				]) => {
+					if (
+						!dashboardResponse ||
+						!vitalsResponse ||
+						!crawlerResponse ||
+						!realtimeResponse
+					) {
+						setHasError(true);
+						return;
+					}
 
-				setDashboard(dashboardResponse);
-				setVitals(vitalsResponse);
-				setCrawler(crawlerResponse);
-			})
+					setDashboard(dashboardResponse);
+					setVitals(vitalsResponse);
+					setCrawler(crawlerResponse);
+					setRealtime(realtimeResponse);
+				}
+			)
 			.catch(() => setHasError(true))
 			.finally(() => setIsLoading(false));
 	}, []);
 
 	if (hasError) {
 		return (
-			<CardComponent
-				title={__('Live Site Insights', 'vulopilot')}
-				titleIcon="analytics"
-				desc={__('Real crawler traffic and site metrics, at a glance.', 'vulopilot')}
-			>
+			<>
 				<ModuleGuardComponent
 					icon="error"
 					title={__('Could not load live insights', 'vulopilot')}
@@ -108,7 +122,7 @@ const LiveSiteInsightsCard: React.FC = () => {
 						'vulopilot'
 					)}
 				/>
-			</CardComponent>
+			</>
 		);
 	}
 
@@ -121,14 +135,10 @@ const LiveSiteInsightsCard: React.FC = () => {
 		null !== (dashboard?.category_scores?.woocommerce ?? null);
 
 	return (
-		<CardComponent
-			title={__('Live Site Insights', 'vulopilot')}
-			titleIcon="analytics"
-			desc={__('Real crawler traffic and site metrics, at a glance.', 'vulopilot')}
-		>
+		<>
 			<ListComponent
 				loading={isLoading}
-				skeletonCount={showStoreMetrics ? 4 : 3}
+				skeletonCount={showStoreMetrics ? 5 : 4}
 				className="mini-card report list"
 				items={[
 					{
@@ -136,16 +146,13 @@ const LiveSiteInsightsCard: React.FC = () => {
 						icon: 'security green',
 						title: __('Security score', 'vulopilot'),
 						tags: (
-							<>
-								
-								<TypographyComponent variant="h5">
-									{sprintf(
+							<TypographyComponent variant="h5">
+								{sprintf(
 									/* translators: %d: real 0-100 security score computed from open security findings */
 									__('%d/100', 'vulopilot'),
 									dashboard?.category_scores?.security ?? 0
 								)}
-								</TypographyComponent>
-							</>
+							</TypographyComponent>
 						),
 						desc: __('From your open security findings', 'vulopilot'),
 					},
@@ -194,6 +201,20 @@ const LiveSiteInsightsCard: React.FC = () => {
 									'vulopilot'
 								),
 					},
+					{
+						id: 'page-views',
+						icon: 'global-community yellow',
+						title: __('Page Views', 'vulopilot'),
+						tags: (
+							<TypographyComponent variant="h5">
+								{realtime?.page_views_last_5_min ?? 0}
+							</TypographyComponent>
+						),
+						desc: __(
+							"Real page views in the last 5 minutes",
+							'vulopilot'
+						),
+					},
 					...(showStoreMetrics
 						? [
 							{
@@ -214,7 +235,7 @@ const LiveSiteInsightsCard: React.FC = () => {
 						: []),
 				]}
 			/>
-		</CardComponent>
+		</>
 	);
 };
 

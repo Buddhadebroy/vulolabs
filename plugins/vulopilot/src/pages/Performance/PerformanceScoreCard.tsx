@@ -13,6 +13,9 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import './Performance.scss';
 import RealTimeMonitoringCard from './RealTimeMonitoringCard';
+import SpeedHistoryCard from './SpeedHistoryCard';
+import LiveSiteInsightsCard from '../Security/LiveSiteInsightsCard';
+import PhpAccelerationCard from './PhpAccelerationCard';
 
 /** `id: 'pagespeed-insights'` (Settings/Connections/PageSpeedInsights.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; moved from the old Settings → Scanning → Performance tab, same "moved into Connections" precedent GoogleServices.ts's own docblock documents. */
 const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=pagespeed-insights';
@@ -63,11 +66,23 @@ const getScoreRating = (score: number): Rating => {
  * too. `ChartComponent`'s own `type="ring"` needs a literal CSS color for
  * its stroke, not a class name, so this reads the shared source rather
  * than inventing a 2nd copy of it.
+ *
+ * Single source for every ring color in this file — the hero "Overall
+ * Speed Score" ring, the Mobile/Desktop `ScoreTile` rings, and each
+ * `VitalRow` ring all read from this same map, so they can never drift.
+ * Previously there were two maps (`RATING_COLOR` from `COLOR_PALETTE` and
+ * `RATING_RING_COLOR` with hardcoded hex) that could disagree if
+ * `COLOR_PALETTE` ever changed.
  */
 const RATING_COLOR: Record<Rating['className'], string> = {
 	good: COLOR_PALETTE.green,
 	'needs-improvement': COLOR_PALETTE.orange,
 	poor: COLOR_PALETTE.red,
+};
+
+/** Same real bands as `getScoreRating()` above, mapped to the real palette class name this file's own SCSS and the reference snippet both use — good/needs-improvement/poor. */
+const ratingClass = (score: number): Rating['className'] => {
+	return getScoreRating(score).className;
 };
 
 /** Google's real, public Core Web Vitals thresholds — LCP/INP in ms, CLS unitless. */
@@ -265,6 +280,18 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 		'number' === typeof psi.mobile &&
 		'number' === typeof psi.desktop;
 
+	/**
+	 * Real score the hero ring plots — same number the old `ScoreTile`
+	 * row showed, just picked once here so both the ring and its
+	 * Mobile/Desktop breakdown below can share it. With a real PSI key
+	 * configured this averages the real Mobile/Desktop scores (the mockup's
+	 * own single "overall" ring); without one it's already the single real
+	 * unified `category_scores.performance` number.
+	 */
+	const overallScore = hasPsi && psi
+		? Math.round(((psi.mobile as number) + (psi.desktop as number)) / 2)
+		: dashboard?.category_scores.performance ?? 0;
+
 	const comparisonMessage = (): string | null => {
 		if (
 			!hasPsi ||
@@ -300,8 +327,23 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={4} row fullHeight>
-				<CardComponent>
+			<ColumnComponent grid={6} row fullHeight>
+				<CardComponent
+					title={__('Overall Speed Score', 'vulopilot')}
+					titleIcon="analytics"
+					desc={__('Your real performance score from Google PageSpeed Insights.', 'vulopilot')}
+					isLoading={isLoading}
+					headerAction={
+						<ButtonInput
+							buttons={{
+								text: __('View Slow Pages', 'vulopilot'),
+								rightIcon: 'eye',
+								color: 'text-purple',
+								onClick: onViewDetails,
+							}}
+						/>
+					}
+				>
 					{!isLoading && hasError && (
 						<ModuleGuardComponent
 							icon="error"
@@ -311,44 +353,53 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 					)}
 					{!isLoading && !hasError && dashboard && (
 						<>
-							<div className="speed-score-tiles">
-								{hasPsi && psi ? (
-									<>
-										<ScoreTile label={__('Mobile', 'vulopilot')} score={psi.mobile as number} />
-										<ScoreTile label={__('Desktop', 'vulopilot')} score={psi.desktop as number} />
-									</>
-								) : (
-									<ScoreTile
-										label={__('Overall', 'vulopilot')}
-										score={dashboard.category_scores.performance}
-										single
+							<div className='overall-score-wrapper'>
+								<div className="overall-score-summary">
+									<ChartComponent
+										type="ring"
+										height={200}
+										centerLabel={
+											<>
+												<TypographyComponent variant={'h1'}>
+													{overallScore}
+												</TypographyComponent>
+												<TypographyComponent variant={'h4'}>
+													{getScoreRating(overallScore).label}
+												</TypographyComponent>
+											</>
+										}
+										data={[
+											{
+												label: __('Score', 'vulopilot'),
+												value: overallScore,
+												color: RATING_COLOR[ratingClass(overallScore)],
+											},
+											{
+												label: __('Remaining', 'vulopilot'),
+												value: 100 - overallScore,
+												color: '#e5e7eb',
+											},
+										]}
 									/>
-								)}
+									<div className="desc">
+										{hasPsi
+											? comparisonMessage()
+											: __(
+												'Connect Google PageSpeed Insights for a real Mobile/Desktop breakdown.',
+												'vulopilot'
+											)}
+									</div>
+								</div>
+								<div className="overall-score-summary">
+									<LiveSiteInsightsCard />
+								</div>
 							</div>
-
-							<div className="desc">
-								{hasPsi
-									? comparisonMessage()
-									: __(
-										'Connect Google PageSpeed Insights for a real Mobile/Desktop breakdown.',
-										'vulopilot'
-									)}
-							</div>
-
-							<ButtonInput
-								position="full-width"
-								buttons={{
-									text: __('View Slow Pages', 'vulopilot'),
-									icon: 'eye',
-									color: 'border-purple',
-									onClick: onViewDetails,
-								}}
-							/>
+							{/* <PhpAccelerationCard /> */}
 						</>
 					)}
 				</CardComponent>
 			</ColumnComponent>
-			<ColumnComponent grid={4} row fullHeight>
+			<ColumnComponent grid={6} row fullHeight>
 				<CardComponent
 					id="performance-core-web-vitals-card"
 					title={__('Core Web Vitals', 'vulopilot')}
@@ -356,78 +407,9 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 					desc={__('Real Google Core Web Vitals for this site.', 'vulopilot')}
 					isLoading={isLoading}
 				>
-					{!isLoading && hasError && (
-						<ModuleGuardComponent
-							icon="error"
-							title={__('Could not load Core Web Vitals', 'vulopilot')}
-							desc={__('Please refresh the page to try again.', 'vulopilot')}
-						/>
-					)}
-					{!isLoading && !hasError && vitals && (
-						<>
-							{vitals.sample_count < MIN_SAMPLES ? (
-								<div className="desc">
-									{sprintf(
-										/* translators: 1: real samples collected so far, 2: how many are needed. */
-										__(
-											'Still collecting real visitor data — %1$d of %2$d samples so far.',
-											'vulopilot'
-										),
-										vitals.sample_count,
-										MIN_SAMPLES
-									)}
-								</div>
-							) : (
-								<div className="core-web-vitals-ring-row">
-									{'number' === typeof vitals.lcp_ms && (
-										<VitalRow
-											label={__('Largest Contentful Paint (LCP)', 'vulopilot')}
-											displayValue={`${(vitals.lcp_ms / 1000).toFixed(1)}s`}
-											value={vitals.lcp_ms}
-											thresholds={CWV_THRESHOLDS.lcp}
-											goodCaption={__('Good: ≤ 2.5s', 'vulopilot')}
-										/>
-									)}
-									{'number' === typeof vitals.inp_ms && (
-										<VitalRow
-											label={__('Interaction to Next Paint (INP)', 'vulopilot')}
-											displayValue={`${vitals.inp_ms}ms`}
-											value={vitals.inp_ms}
-											thresholds={CWV_THRESHOLDS.inp}
-											goodCaption={__('Good: ≤ 200ms', 'vulopilot')}
-										/>
-									)}
-									{'number' === typeof vitals.cls && (
-										<VitalRow
-											label={__('Cumulative Layout Shift (CLS)', 'vulopilot')}
-											displayValue={vitals.cls.toFixed(2)}
-											value={vitals.cls}
-											thresholds={CWV_THRESHOLDS.cls}
-											goodCaption={__('Good: ≤ 0.1', 'vulopilot')}
-										/>
-									)}
-								</div>
-							)}
-							<ButtonInput
-								position='full-width'
-								buttons={{
-									text: `${__('About Core Web Vitals', 'vulopilot')}`,
-									rightIcon: 'external',
-									color: 'border-purple',
-									onClick: () =>
-										window.open(
-											'https://web.dev/articles/vitals',
-											'_blank',
-											'noopener,noreferrer'
-										),
-								}}
-							/>
-						</>
-					)}
+					<SpeedHistoryCard />
+					<RealTimeMonitoringCard />
 				</CardComponent>
-			</ColumnComponent>
-			<ColumnComponent grid={4} row fullHeight>
-				<RealTimeMonitoringCard />
 			</ColumnComponent>
 		</ContainerComponent>
 	);

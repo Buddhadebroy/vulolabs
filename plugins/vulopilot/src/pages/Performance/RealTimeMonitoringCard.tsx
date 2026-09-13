@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent, CardComponent, TooltipComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent } from '@zyra/components';
 import './Performance.scss';
 
 interface RealtimeStats {
@@ -36,13 +36,10 @@ const formatBytes = (bytes: number): string => {
 /**
  * "Real-time Monitoring" — all 4 sub-metrics are now real.
  *
- * **Server Response Time** and **Page Views (Last 5 Min)** come from
- * `GET /performance-realtime` (`Services\PerformanceRequestLogger` samples
- * real front-end requests server-side, no client JS, no cookies, no IP
- * logging — see that class's own docblock). "Page Views" is honestly
- * relabeled from the mockup's "Active Users", since a real unique-visitor
- * count would require either IP hashing or a cookie-based session id, both
- * ruled out (privacy posture + page-cache compatibility risk).
+ * **Server Response Time** comes from `GET /performance-realtime`
+ * (`Services\PerformanceRequestLogger` samples real front-end requests
+ * server-side, no client JS, no cookies, no IP logging — see that class's
+ * own docblock).
  *
  * **Page Load Time** and **Bandwidth Usage** come from the same real
  * client-side RUM beacon Core Web Vitals already uses (`GET
@@ -51,6 +48,13 @@ const formatBytes = (bytes: number): string => {
  * `loadEventEnd` and summed `transferSize`, gated behind the same
  * `MIN_SAMPLES` floor the Core Web Vitals ring uses, honestly showing
  * "Collecting data" below that floor rather than a single noisy sample.
+ *
+ * "Page Views (Last 5 Min)" was previously a 4th tile here — moved to
+ * `LiveSiteInsightsCard.tsx`'s own real per-signal row list per direct
+ * instruction, since it's a live activity signal (like AI crawler
+ * traffic) rather than a performance metric, and sits more naturally
+ * alongside that card's other real rows. Real `stats.page_views_last_5_min`
+ * value is unchanged, just rendered as a row there instead of a tile here.
  */
 const RealTimeMonitoringCard = () => {
 	const [stats, setStats] = useState<RealtimeStats | null>(null);
@@ -84,82 +88,40 @@ const RealTimeMonitoringCard = () => {
 	const transferBytes = vitals?.transfer_bytes ?? null;
 
 	return (
-		<CardComponent
-			id="performance-realtime-monitoring-card"
-			title={__('Real-time Monitoring', 'vulopilot')}
-			titleIcon="bar-chart"
-			desc={__('Real, live page-load metrics from your actual visitors.', 'vulopilot')}
-			isLoading={isLoading}
-		>
+		<>
 			{stats && (
 				<AnalyticsComponent
-					cols={2}
-					variant="background-color"
+					cols={3}
+					variant="small"
 					data={[
 						{
 							number:
 								null !== stats.avg_response_time_ms
 									? `${stats.avg_response_time_ms} ms`
 									: '—',
-							colorClass: 'admin-bg-color2',
-							text: __('Server Response Time', 'vulopilot')
-						},
-						{
-							number: stats.page_views_last_5_min,
-							colorClass: 'admin-bg-color3',
-							text: (
-								<TooltipComponent
-									text={__(
-										'A raw count of real page views in the last 5 minutes — not a unique-visitor count, which this plugin deliberately doesn\'t track (no IP logging, no tracking cookies).',
-										'vulopilot'
-									)}
-								>
-									{__('Page Views (Last 5 Min)', 'vulopilot')}
-								</TooltipComponent>
-							),
+							icon: 'global-community green',
+							text: __('Server Response Time', 'vulopilot'),
 						},
 						{
 							number:
 								hasEnoughSamples && null !== pageLoadMs
 									? `${(pageLoadMs / 1000).toFixed(1)} s`
 									: '—',
-							colorClass: 'admin-bg-color4',
-							text: (
-								<>
-									{__('Page Load Time', 'vulopilot')}
-									{(!hasEnoughSamples || null === pageLoadMs) && (
-										<span className="realtime-monitoring-tile-untracked">
-											{hasEnoughSamples
-												? __('Not tracked yet', 'vulopilot')
-												: __('Collecting data', 'vulopilot')}
-										</span>
-									)}
-								</>
-							),
+							icon: 'global-community blue',
+							text: __('Page Load Time', 'vulopilot'),
 						},
 						{
 							number:
 								hasEnoughSamples && null !== transferBytes
 									? formatBytes(transferBytes)
 									: '—',
-							colorClass: 'admin-bg-color6',
-							text: (
-								<>
-									{__('Bandwidth Usage', 'vulopilot')}
-									{(!hasEnoughSamples || null === transferBytes) && (
-										<span className="realtime-monitoring-tile-untracked">
-											{hasEnoughSamples
-												? __('Not tracked yet', 'vulopilot')
-												: __('Collecting data', 'vulopilot')}
-										</span>
-									)}
-								</>
-							),
+							icon: 'global-community red',
+							text: __('Bandwidth Usage', 'vulopilot'),
 						},
 					]}
 				/>
 			)}
-		</CardComponent>
+		</>
 	);
 };
 

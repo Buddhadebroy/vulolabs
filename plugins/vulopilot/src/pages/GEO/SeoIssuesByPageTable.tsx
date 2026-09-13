@@ -431,7 +431,7 @@ const SeoIssuesByPageTable = ({
 					headers={{
 						title: {
 							label: __('Page', 'vulopilot'),
-							width: '75%',
+							width: '65%',
 							/**
 							 * Status and Issues used to be their own columns —
 							 * consolidated here as InformationItemComponent's own

@@ -220,20 +220,6 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 							}
 						/>
 					</div>
-					{lastScanAt && (
-						<p className="desc overall-score-last-scanned">
-							{sprintf(
-								/* translators: %s: real formatted date+time of the most recent completed scan. */
-								__('Last scanned: %s', 'vulopilot'),
-								`${formatWpDate(lastScanAt)}, ${new Date(
-									lastScanAt
-								).toLocaleTimeString(undefined, {
-									hour: 'numeric',
-									minute: '2-digit',
-								})}`
-							)}
-						</p>
-					)}
 				</div>
 				{/* Category score breakdown list, moved here from ScoreBreakdownWidget.tsx */}
 				<div className='overall-score-summary'>

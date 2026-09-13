@@ -139,6 +139,7 @@
 }
 
 .broken-link-why-fix-card {
+
     // Real zyra `<ListComponent className="checklist">` (icon + title +
     // `desc`), styled as the reference mockup's own 3-column grid instead
     // of that component's default vertical list — same "target the
@@ -227,6 +228,7 @@
 // seo start
 .seo-health-score-category-list {
     .item {
+
         // #dc2626 is a literal mirror of zyra's own real global color
         // palette ($color-palette's "red" entry, theme/src/global.scss) —
         // not an invented value. Plain hex rather than a Sass variable
@@ -235,7 +237,7 @@
         // build output (no .scss source), so this plugin's SCSS has no
         // `@use`-able map or CSS custom property to point at instead —
         // same reasoning documented in Reports.scss's own top comment.
-        .details .typography-desc{
+        .details .typography-desc {
             color: #dc2626;
         }
     }
@@ -245,29 +247,30 @@
     }
 }
 
-.without-settings{
+.without-settings {
     padding: 0;
     background: transparent;
 }
 
 .broken-link-wrapper,
-.robots-wraper{
+.robots-wraper {
     display: flex;
     gap: 2.5rem;
-    
-    .broken-link-section{
+
+    .broken-link-section {
         width: 50%;
 
-        &.left-side{
-        width: 30%;
+        &.left-side {
+            width: 30%;
+        }
+
+        &.right-side {
+            width: 70%;
+        }
     }
-    &.right-side{
-        width: 70%;
-    }
-}
 }
 
-.list-wrapper{
+.list-wrapper {
     display: flex;
     gap: 1.5rem;
 }
@@ -365,7 +368,7 @@
     font-style: italic;
 }
 
-.rt-editor-wrap > .buttons-wrapper {
+.rt-editor-wrap>.buttons-wrapper {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
@@ -379,15 +382,17 @@
 
 
 // dashboard start
-.overall-score-wrapper{
+.overall-score-wrapper {
     display: flex;
     gap: 0.625rem;
-.overall-score-summary{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    width: 50%;
+
+    .overall-score-summary {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        width: 50%;
+    }
 }
-}
+
 // dashboard end 

@@ -55,7 +55,7 @@ const SecurityTrendCard = () => {
 					}))}
 					dataKey="security_score"
 					xKey="snapshot_date"
-					height={220}
+					height={250}
 					yDomain={[0, 100]}
 				/>
 			)}

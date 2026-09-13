@@ -1,11 +1,17 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent, CardComponent, ChartComponent } from '@zyra/components';
+import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
+import {
+	AnalyticsComponent,
+	CardComponent,
+	ChartComponent,
+	TypographyComponent,
+} from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { ACCESSIBILITY_SCANNER_IDS } from './accessibilityChecks';
+import AccessibilityChecksGrid from './AccessibilityChecksGrid';
 
 interface AccessibilityFinding {
 	id: number;
@@ -22,6 +28,40 @@ interface AccessibilityHeroCardProps {
 	onReviewIssues: () => void;
 	onViewAll: () => void;
 }
+
+/** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses — kept structurally identical so both files' ring colors read from the same kind of map. */
+interface Rating {
+	label: string;
+	className: 'good' | 'needs-improvement' | 'poor';
+}
+
+/** Lighthouse-style real 0-100 bands, matching `PerformanceScoreCard.tsx`'s own `getScoreRating()` so a "good" accessibility score and a "good" performance score mean the same thing. */
+const getScoreRating = (score: number): Rating => {
+	if (score >= 90) {
+		return { label: __('Good', 'vulopilot'), className: 'good' };
+	}
+	if (score >= 50) {
+		return { label: __('Needs Improvement', 'vulopilot'), className: 'needs-improvement' };
+	}
+	return { label: __('Poor', 'vulopilot'), className: 'poor' };
+};
+
+/**
+ * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — same real
+ * source `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads. The ring's
+ * own `data[].color` needs a literal CSS color, not a palette class name,
+ * so this reads the shared source rather than a second hardcoded copy.
+ */
+const RATING_COLOR: Record<Rating['className'], string> = {
+	good: COLOR_PALETTE.green,
+	'needs-improvement': COLOR_PALETTE.orange,
+	poor: COLOR_PALETTE.red,
+};
+
+/** Same real bands as `getScoreRating()` above, mapped to the real palette class name the ring color map is keyed by. */
+const ratingClass = (score: number): Rating['className'] => {
+	return getScoreRating(score).className;
+};
 
 /**
  * `category_scores.accessibility` (GET /dashboard, same endpoint
@@ -111,119 +151,104 @@ const AccessibilityHeroCard = ({
 	).size;
 
 	const isReady = !isLoading && score !== null;
+	const overallScore = (score as number) ?? 0;
 
 	return (
 		<CardComponent isLoading={!isReady} className="accessibility-hero">
-			{isReady && (
-				<>
-					<ChartComponent
-						type="ring"
-						height={150}
-						centerLabel={
-							<>
-								<span className="score-ring-number">{score}</span>
-								<span className="score-ring-label">/100</span>
-							</>
-						}
-						data={[
-							{
-								label: __('Score', 'vulopilot'),
-								value: score as number,
-								color: '#7c3aed',
-							},
-							{
-								label: __('Remaining', 'vulopilot'),
-								value: 100 - (score as number),
-								color: '#f97316',
-							},
-						]}
-					/>
-					<div className="title">
-						{getRating(score as number)}
-						{null !== scoreDelta && (
-							<span
-								className={`accessibility-hero-delta ${scoreDelta > 0 ? 'is-up' : 'is-down'
-									}`}
-							>
-								{sprintf(
-									/* translators: 1: "↑" or "↓", 2: how many points the accessibility score changed by since last week. */
-									__('%1$s %2$d pts vs last week', 'vulopilot'),
-									scoreDelta > 0 ? '↑' : '↓',
-									Math.abs(scoreDelta)
-								)}
-							</span>
-						)}
-					</div>
-					<div className="desc">
-						{total > 0
-							? sprintf(
-								/* translators: 1: number of open accessibility findings, 2: number of distinct pages affected. */
-								__(
-									'%1$d accessibility issue(s) found across %2$d page(s). Most visitors can use your site, but some areas could be improved.',
-									'vulopilot'
-								),
-								total,
-								pagesAffected
-							)
-							: __(
-								"You're all caught up — no open accessibility issues right now.",
-								'vulopilot'
-							)}
-					</div>
-					{total > 0 && (
+			<div className='overall-score-wrapper'>
+				<div className='overall-score-summary'>
+					{isReady && (
 						<>
-							<AnalyticsComponent
-								variant="background-color"
+							<ChartComponent
+								type="ring"
+								height={200}
+								centerLabel={
+									<>
+										<TypographyComponent variant={'h1'}>
+											{overallScore}
+										</TypographyComponent>
+										<TypographyComponent variant={'h4'}>
+											{getScoreRating(overallScore).label}
+										</TypographyComponent>
+									</>
+								}
 								data={[
 									{
-										number: total,
-										text: __('Issues found', 'vulopilot'),
-										colorClass: 'red',
+										label: __('Score', 'vulopilot'),
+										value: overallScore,
+										color: RATING_COLOR[ratingClass(overallScore)],
 									},
 									{
-										number: highCount,
-										text: __(
-											'Should review first',
+										label: __('Remaining', 'vulopilot'),
+										value: 100 - overallScore,
+										color: '#e5e7eb',
+									},
+								]}
+							/>
+							<div className="title">
+								{getRating(score as number)}
+								{null !== scoreDelta && (
+									<span
+										className={`accessibility-hero-delta ${scoreDelta > 0 ? 'is-up' : 'is-down'
+											}`}
+									>
+										{sprintf(
+											/* translators: 1: "↑" or "↓", 2: how many points the accessibility score changed by since last week. */
+											__('%1$s %2$d pts vs last week', 'vulopilot'),
+											scoreDelta > 0 ? '↑' : '↓',
+											Math.abs(scoreDelta)
+										)}
+									</span>
+								)}
+							</div>
+							<div className="desc">
+								{total > 0
+									? sprintf(
+										/* translators: 1: number of open accessibility findings, 2: number of distinct pages affected. */
+										__(
+											'%1$d accessibility issue(s) found across %2$d page(s). Most visitors can use your site, but some areas could be improved.',
 											'vulopilot'
 										),
-										colorClass: 'green',
-									},
+										total,
+										pagesAffected
+									)
+									: __(
+										"You're all caught up — no open accessibility issues right now.",
+										'vulopilot'
+									)}
+							</div>
+							<ButtonInput
+								position="left"
+								buttons={[
 									{
-										number: pagesAffected,
-										text: __('Pages affected', 'vulopilot'),
-										colorClass: ' blue',	
+										text: __('Review Important Issues', 'vulopilot'),
+										rightIcon: 'pagination-right-arrow',
+										color: 'border-purple',
+										onClick: onReviewIssues,
 									},
+									...(total > 0
+										? [
+											{
+												text: sprintf(
+													/* translators: %d is the number of open findings. */
+													__('View All %d Findings', 'vulopilot'),
+													total
+												),
+												rightIcon: 'pagination-right-arrow',
+												color: 'border-purple',
+												onClick: onViewAll,
+											},
+										]
+										: []),
 								]}
 							/>
 						</>
 					)}
-					<ButtonInput
-						position="left"
-						buttons={[
-							{
-								text: __('Review Important Issues', 'vulopilot'),
-								rightIcon: 'pagination-right-arrow',
-								color: 'border-purple',
-								onClick: onReviewIssues,
-							},
-							...(total > 0
-								? [
-									{
-										text: sprintf(
-											/* translators: %d is the number of open findings. */
-											__('View All %d Findings', 'vulopilot'),
-											total
-										),
-										rightIcon: 'pagination-right-arrow',
-										color: 'border-purple',
-										onClick: onViewAll,
-									},
-								]
-								: []),
-						]}
-					/>
-				</>
-			)}
+				</div>
+				<div className='overall-score-summary'>
+					<AccessibilityChecksGrid />
+				</div>
+			</div>
 		</CardComponent>
 	);
 };

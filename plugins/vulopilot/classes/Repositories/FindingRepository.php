@@ -461,8 +461,17 @@ class FindingRepository extends AbstractRepository {
         $per_page       = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
         $offset         = ( $page - 1 ) * $per_page;
 
-        $where  = 'WHERE status = %s';
-        $values = array( $status );
+        // 'all' is a real, deliberate escape hatch — not a real status
+        // value any row ever has — for a caller that wants every real row
+        // regardless of status (e.g. a "Show ignored" toggle: real open
+        // findings AND real ignored ones together, not one or the other).
+        if ( 'all' === $status ) {
+            $where  = 'WHERE 1=1';
+            $values = array();
+        } else {
+            $where  = 'WHERE status = %s';
+            $values = array( $status );
+        }
 
         if ( is_array( $category ) && $category ) {
             $placeholders = implode( ', ', array_fill( 0, count( $category ), '%s' ) );
@@ -495,9 +504,20 @@ class FindingRepository extends AbstractRepository {
             $having            = " WHERE severity_rank IN ({$rank_placeholders})";
         }
 
-        $total_groups = (int) $wpdb->get_var(
-            $wpdb->prepare( "SELECT COUNT(*) FROM ( {$group_sql} ) grouped{$having}", ...array_merge( $values, $priority_ranks ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's/$having's placeholder count matches $values'/$priority_ranks' combined size at runtime.
-        );
+        $count_values = array_merge( $values, $priority_ranks );
+        $count_sql    = "SELECT COUNT(*) FROM ( {$group_sql} ) grouped{$having}";
+        // `$count_values` is genuinely empty only when `$status` is the
+        // real 'all' escape hatch above with no category/priority filter
+        // either — `$wpdb->prepare()` itself requires at least one real
+        // value to bind, so this real no-placeholders-left case runs the
+        // query directly instead (every piece of `$count_sql` at that
+        // point is code-controlled — `$table`/`$where`/`$having` — not
+        // user input, same real precedent this file's own
+        // `get_category_group_counts()` already established for a
+        // likewise placeholder-free query).
+        $total_groups = (int) ( $count_values
+            ? $wpdb->get_var( $wpdb->prepare( $count_sql, ...$count_values ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's/$having's placeholder count matches $values'/$priority_ranks' combined size at runtime.
+            : $wpdb->get_var( $count_sql ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.NotPrepared -- no real placeholders left to bind in this branch; see comment above.
 
         if ( 0 === $total_groups ) {
             return array(

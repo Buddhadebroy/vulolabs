@@ -72,10 +72,22 @@ const AiCreditsIndicator = () => {
 			</button>
 
 			<PopupComponent
-				position="menu-dropdown"
-				width={20}
+				width={30}
+				height="60%"
 				open={isOpen}
 				onClose={() => setIsOpen(false)}
+				footer={
+					<ButtonInput
+							position="left"
+							buttons={{
+								text: isConnecting
+									? __('Connecting…', 'vulopilot')
+									: __('Connect to VuloCloud', 'vulopilot'),
+								disabled: isConnecting,
+								onClick: handleConnectToVulocloud,
+							}}
+						/>
+				}
 			>
 				{status.connected ? (
 					<AiCreditsBalancePanel
@@ -91,16 +103,6 @@ const AiCreditsIndicator = () => {
 								'Claim 100 Free AI Credits — no credit card required.',
 								'vulopilot'
 							)}
-						/>
-						<ButtonInput
-							position="left"
-							buttons={{
-								text: isConnecting
-									? __('Connecting…', 'vulopilot')
-									: __('Connect to VuloCloud', 'vulopilot'),
-								disabled: isConnecting,
-								onClick: handleConnectToVulocloud,
-							}}
 						/>
 					</div>
 				)}

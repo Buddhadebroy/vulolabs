@@ -837,7 +837,7 @@ const IssuesSection = ({
 						onClick={() => setToolbarShowIgnored(!toolbarShowIgnored)}
 					>
 						{__('Show ignored', 'vulopilot')}
-					</span>
+					</span>                                                                                                                                                       
 					<MultiCheckboxInput
 						look="toggle"
 						modules={[]}
@@ -899,11 +899,6 @@ const IssuesSection = ({
 				onRetry={refetch}
 				issuesColumnLabel={issuesColumnLabel}
 				visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
-				// This table's own Export CSV button would otherwise
-				// duplicate `content.toolbarFilters`'s own copy in the
-				// toolbar above — only ever this table's own for
-				// `pageAnalysis` mode (GeoTab.tsx/AeoTab.tsx), which has
-				// no toolbar of its own.
 				onExportCsv={content?.toolbarFilters ? undefined : exportCsv}
 				hideSearch={Boolean(content?.toolbarFilters)}
 				onAnalyze={onAnalyze}
