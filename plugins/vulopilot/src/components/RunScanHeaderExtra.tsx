@@ -76,7 +76,7 @@ const RunScanHeaderExtra = ({
 												? label
 												: runScanButton.label,
 										icon: runScanButton.icon,
-										color: runScanButton.color,
+										color: 'purple-bg',
 										onClick: runScanButton.onClick,
 									},
 								]),

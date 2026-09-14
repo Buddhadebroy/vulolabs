@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { ComponentType, FC } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { PopupComponent, SectionComponent } from '@zyra/components';
+import { PopupComponent, CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
@@ -81,74 +81,75 @@ const RecommendedActionsFreeCard: FC<RecommendedActionsCardProps> = () => {
 
 	return (
 		<>
-			<SectionComponent
+			<CardComponent
 				title={__('Recommended by VuloPilot', 'vulopilot')}
 				desc={__('High impact actions suggested by AI', 'vulopilot')}
-			/>
-			<div className="recommended-actions-grid">
-				{recommendations.map((rec) => {
-					const meta = BUCKET_META[rec.bucket];
-					const urgent = isUrgent(rec.severity);
-
-					return (
-						<div
-							className={`recommended-actions-card tone-${meta.tone}`}
-							key={rec.bucket}
-							role="button"
-							tabIndex={0}
-							onClick={() => setIsProPopupOpen(true)}
-							onKeyDown={(e) => {
-								if ('Enter' === e.key || ' ' === e.key) {
-									e.preventDefault();
-									setIsProPopupOpen(true);
-								}
-							}}
-						>
-							<div className={`recommended-actions-details ${meta.tone}`}>
-								<div className="recommended-actions-card-eyebrow">
-									<i className={`recommended-actions-card-icon adminfont-${meta.icon}`} />
-									<span>{urgent ? __('Critical', 'vulopilot') : meta.ctaFallback}</span>
-									<span className="admin-tag pro-tag pro-tag-inline">
-										<i className="adminfont-pro-tag" />
-										{__('Pro', 'vulopilot')}
-									</span>
-								</div>
-								<div className="recommended-actions-card-title">{rec.label}</div>
-								<div className="recommended-actions-card-detail">
-									{formatAffected(rec.count, rec.object_type)}
-								</div>
-							</div>
-							<ButtonInput
-								position="left"
-								buttons={{
-									text: urgent
-										? __('Investigate with AI', 'vulopilot')
-										: __('Improve with AI', 'vulopilot'),
-									rightIcon: 'arrow-right',
-									color: `text-${meta.tone}`,
-									onClick: () => setIsProPopupOpen(true),
-								}}
-							/>
-						</div>
-					);
-				})}
-			</div>
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
-					// Pro is active — this specific module just isn't
-					// toggled on yet, so point at Modules rather than
-					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="copilot-chat" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
+				<div className="recommended-actions-grid">
+					{recommendations.map((rec) => {
+						const meta = BUCKET_META[rec.bucket];
+						const urgent = isUrgent(rec.severity);
+
+						return (
+							<div
+								className={`recommended-actions-card tone-${meta.tone}`}
+								key={rec.bucket}
+								role="button"
+								tabIndex={0}
+								onClick={() => setIsProPopupOpen(true)}
+								onKeyDown={(e) => {
+									if ('Enter' === e.key || ' ' === e.key) {
+										e.preventDefault();
+										setIsProPopupOpen(true);
+									}
+								}}
+							>
+								<div className={`recommended-actions-details ${meta.tone}`}>
+									<div className="recommended-actions-card-eyebrow">
+										<i className={`recommended-actions-card-icon adminfont-${meta.icon}`} />
+										<span>{urgent ? __('Critical', 'vulopilot') : meta.ctaFallback}</span>
+										<span className="admin-tag pro-tag pro-tag-inline">
+											<i className="adminfont-pro-tag" />
+											{__('Pro', 'vulopilot')}
+										</span>
+									</div>
+									<div className="recommended-actions-card-title">{rec.label}</div>
+									<div className="recommended-actions-card-detail">
+										{formatAffected(rec.count, rec.object_type)}
+									</div>
+								</div>
+								<ButtonInput
+									position="left"
+									buttons={{
+										text: urgent
+											? __('Investigate with AI', 'vulopilot')
+											: __('Improve with AI', 'vulopilot'),
+										rightIcon: 'arrow-right',
+										color: `text-${meta.tone}`,
+										onClick: () => setIsProPopupOpen(true),
+									}}
+								/>
+							</div>
+						);
+					})}
+				</div>
+				<PopupComponent
+					open={isProPopupOpen}
+					onClose={() => setIsProPopupOpen(false)}
+					width={31.25}
+					height="auto"
+					position="lightbox"
+				>
+					{appLocalizer.khali_dabba ? (
+						// Pro is active — this specific module just isn't
+						// toggled on yet, so point at Modules rather than
+						// pitching an upgrade the user already has.
+						<ShowProPopup moduleName="copilot-chat" />
+					) : (
+						<ShowProPopup />
+					)}
+				</PopupComponent>
+			</CardComponent>
 		</>
 	);
 };

@@ -1,9 +1,8 @@
 import React from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { COLOR_PALETTE } from '@zyra/core';
 import {
 	ChartComponent,
-	BadgeComponent,
 	TypographyComponent,
 	ListComponent,
 	IconComponent,
@@ -16,11 +15,16 @@ import { WidgetProps } from './types';
 /**
  * "Vital Pulse" — the Dashboard's hero status ring: one real 0-100
  * `overall_score`, colored by its own real rating band via
- * `ratingColorFor()`, with a single real critical-findings badge ("No
- * critical issues" / "N critical issues") and a real "Last scanned"
- * timestamp (`useLastScanTime()`'s own most-recently-completed scan,
- * called with no category filter since this score is a sitewide rollup)
- * below it — per a newer reference mockup.
+ * `ratingColorFor()`, with a real "Last scanned" timestamp
+ * (`useLastScanTime()`'s own most-recently-completed scan, called with no
+ * category filter since this score is a sitewide rollup) below it — per a
+ * newer reference mockup.
+ *
+ * The critical-findings badge that used to sit here ("No critical issues" /
+ * "N critical issues") was removed per direct instruction — that count is
+ * real findings data, not a Vital Pulse-specific rollup, so it's now a
+ * plain link straight to NeedsAttentionWidget's own "Needs your attention"
+ * card instead of being duplicated here as a second badge.
  *
  * Now also includes the category score breakdown list (previously
  * ScoreBreakdownWidget.tsx) and a "View full report ›" header link.
@@ -198,28 +202,6 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 					</TypographyComponent>
 					<div className="desc">
 						{getRatingSummary(summary.overall_score)}
-					</div>
-					<div className="buttons-wrapper">
-						<BadgeComponent
-							color={
-								0 === summary.critical_findings ? 'green' : 'red'
-							}
-							icon={
-								0 === summary.critical_findings ? 'check' : 'error'
-							}
-							text={
-								0 === summary.critical_findings
-									? __('No critical issues', 'vulopilot')
-									: sprintf(
-										/* translators: %d: number of open critical-severity findings. */
-										__(
-											'%d critical issues',
-											'vulopilot'
-										),
-										summary.critical_findings
-									)
-							}
-						/>
 					</div>
 				</div>
 				{/* Category score breakdown list, moved here from ScoreBreakdownWidget.tsx */}

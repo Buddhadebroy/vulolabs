@@ -18,6 +18,18 @@ const TAB_META: Record<
 	{ headerTitle: string; headerIcon: string }
 > = {
 	overview: { headerTitle: __('Overview', 'vulopilot'), headerIcon: 'bar-chart' },
+	// Restored — this whole tab (ReportTab.tsx: report generation, CSV/PDF
+	// export, Pro's scheduled-report management) had been dropped from
+	// TAB_IDS/TAB_META/getForm below with no "per direct instruction" trail
+	// (unlike every other real removal this file's own docblock documents),
+	// while this file's own docblock still fully describes it as a current
+	// tab and several other real buttons still link to
+	// `#&tab=reports&subtab=report` (OverviewTab.tsx's "Create Report",
+	// ScheduledReportsTable.tsx's "Manage Schedules", RecentReportsCard.tsx) —
+	// all of which pointed at a dead tab. Confirmed live: navigating there
+	// rendered the header/breadcrumb (a stale cached build) but no tab body
+	// at all once the dev build caught up, since 'report' no longer matched
+	// any real `settingContent` entry.
 	report: { headerTitle: __('Report Builder', 'vulopilot'), headerIcon: 'report' },
 	activity: { headerTitle: __('Activity', 'vulopilot'), headerIcon: 'clock' },
 	// Moved here from AI Copilot — a real, day-grouped scan/change/
@@ -108,6 +120,8 @@ const Reports = () => {
 		switch (tabId) {
 			case 'overview':
 				return <OverviewTab />;
+			case 'report':
+				return <ReportTab />;
 			case 'activity':
 				return <ActivityTab />;
 			case 'history':

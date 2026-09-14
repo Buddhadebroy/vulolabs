@@ -13,6 +13,8 @@ import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import GettingStartedCard from './GettingStartedCard';
 import { DashboardSummary } from '../../dashboard-widgets/types';
+import { useLastScanTime } from '../../services/useLastScanTime';
+import { formatWpDate } from '../../services/formatWpDate';
 
 /**
  * Zero-filled shape so DashboardGrid always has a real DashboardSummary
@@ -107,9 +109,32 @@ const Dashboard = () => {
 	// effect there even if a previous click already left it at the same
 	// value.
 	const [restoreDefaultSignal, setRestoreDefaultSignal] = useState(0);
+	// Same real site-wide (no `categories`) last-scan read
+	// RunScanHeaderExtra's own instance below already uses — called again
+	// here so the hand-rolled "Reset to default" row while customizing can
+	// show the same real caption in its own `.run-scan-header-extra-last-scan`
+	// slot (RunScanHeaderExtra's own copy is still there too, but its "Run
+	// scan" button — not its caption — is what `hideRunScanButton` hides).
+	const { lastScanAt } = useLastScanTime();
 
-	const loadDashboard = () => {
-		setIsLoading(true);
+	/**
+	 * `silent` skips the `isLoading` flip — `isLoading` here is the one
+	 * flag every widget's own `WidgetProps.isLoading` reads (DashboardGrid.tsx),
+	 * so a normal (non-silent) call blanks the *entire* dashboard into
+	 * loading skeletons at once, real and appropriate for the initial
+	 * mount/"Run scan" success/"Retry" click below, but not for a single
+	 * widget's own real background mutation needing the shared `summary`
+	 * to catch up (e.g. AutomationStatusWidget.tsx's own enable/disable
+	 * toggle, via `onRefreshSummary` → DashboardGrid.tsx) — that widget
+	 * already shows its own real per-row toggle state instantly; flashing
+	 * every *other* widget on the page too read as the whole page
+	 * reloading (confirmed live) for a change that only needed this one
+	 * summary refetch to happen quietly underneath.
+	 */
+	const loadDashboard = (silent = false) => {
+		if (!silent) {
+			setIsLoading(true);
+		}
 		setError(null);
 
 		getApiResponse<DashboardSummary>(
@@ -129,7 +154,11 @@ const Dashboard = () => {
 
 				setSummary(response);
 			})
-			.finally(() => setIsLoading(false));
+			.finally(() => {
+				if (!silent) {
+					setIsLoading(false);
+				}
+			});
 	};
 
 	useEffect(loadDashboard, []);
@@ -159,26 +188,41 @@ const Dashboard = () => {
 	const headerCustomContent = (
 		<>
 			{isCustomizing && (
-				<ButtonInput
-					buttons={[
-						{
-							text: __('Reset to default', 'vulopilot'),
-							icon: 'refresh',
-							color: 'border-purple',
-							onClick: () => {
-								setRestoreDefaultSignal((signal) => signal + 1);
-								// Same exit-customizing-mode step the
-								// checkmark ("Save changes") button already
-								// does — resetting is itself a completed
-								// change, so this leaves the header showing
-								// "Run scan"/edit again instead of leaving
-								// the user stuck in customize mode after the
-								// one action they came here for.
-								setIsCustomizing(false);
+				<div className="run-scan-header-extra">
+					<ButtonInput
+						buttons={[
+							{
+								text: __('Reset to default', 'vulopilot'),
+								icon: 'refresh',
+								color: 'border-purple',
+								onClick: () => {
+									setRestoreDefaultSignal((signal) => signal + 1);
+									// Same exit-customizing-mode step the
+									// checkmark ("Save changes") button already
+									// does — resetting is itself a completed
+									// change, so this leaves the header showing
+									// "Run scan"/edit again instead of leaving
+									// the user stuck in customize mode after the
+									// one action they came here for.
+									setIsCustomizing(false);
+								},
 							},
-						},
-					]}
-				/>
+						]}
+					/>
+					{lastScanAt && (
+						<div className="run-scan-header-extra-last-scan desc">
+							{sprintf(
+								/* translators: 1: formatted date, 2: formatted time. */
+								__('Last scan: %1$s • %2$s', 'vulopilot'),
+								formatWpDate(lastScanAt),
+								new Date(lastScanAt).toLocaleTimeString(undefined, {
+									hour: 'numeric',
+									minute: '2-digit',
+								})
+							)}
+						</div>
+					)}
+				</div>
 			)}
 			<RunScanHeaderExtra
 				settingsSubtab="general"
@@ -249,7 +293,7 @@ const Dashboard = () => {
 					isLoading={isLoading}
 					isCustomizing={isCustomizing}
 					restoreDefaultSignal={restoreDefaultSignal}
-					onRefreshSummary={loadDashboard}
+					onRefreshSummary={() => loadDashboard(true)}
 				/>
 			</ContainerComponent>
 		</>
