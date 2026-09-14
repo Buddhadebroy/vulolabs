@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import type { AutomationRow } from './ManageAutomationsSection';
+import type { AutomationRow } from './automationRow';
 
 interface AutomationsAttentionCardProps {
 	onViewAll: () => void;
@@ -23,8 +23,8 @@ interface AutomationsAttentionCardProps {
  * every site has) — there is no real "nothing configured anywhere"
  * condition to detect, so surfacing that example here would be a fabricated
  * alert with nothing behind it. "Try Again" re-runs the real automation
- * (`POST /automations/{id}/run`, the same action `ManageAutomationsSection.tsx`'s
- * own row-level "Run now" already performs).
+ * (`POST /automations/{id}/run`, the same action vulopilot-pro's own
+ * ManageAutomationsSection.tsx row-level "Run now" already performs).
  */
 const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAttentionCardProps) => {
 	const [failing, setFailing] = useState<AutomationRow[]>([]);

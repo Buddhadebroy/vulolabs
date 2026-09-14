@@ -63,8 +63,13 @@ const MODULE_CATALOG_BY_ID = new Map(
  * ("Activate Workflow Autopilot — Automation Engine") — two different
  * names for the same module, depending on which part of the app you saw
  * it locked from.
+ *
+ * Exported so a caller rendering its own module-lock tag (e.g.
+ * AutomationsTemplatesCard.tsx's per-row "module" badge) can show the exact
+ * same name this popup's own "Activate {name}" heading uses, rather than a
+ * second, separately-typed label that could drift from it.
  */
-const resolveModuleDisplayName = (moduleId: string): string =>
+export const resolveModuleDisplayName = (moduleId: string): string =>
 	MODULE_CATALOG_BY_ID.get(moduleId)?.name ?? formatModuleName(moduleId);
 
 /**
@@ -84,6 +89,10 @@ const CARDLESS_MODULE_ICONS: Record<string, string> = {
 	// (modules/ContentTools/Module.php, Pro) — also cardless, same
 	// reasoning.
 	'content-tools': 'tools',
+	// 'commerce' used to be listed here (cardless) — it now has a real
+	// Modules/index.ts catalog entry with its own `icon: 'cart'` field, so
+	// `resolveModuleIcon()` below finds it there first; kept out of this
+	// map to avoid a second, now-unreachable definition of the same icon.
 };
 
 /**

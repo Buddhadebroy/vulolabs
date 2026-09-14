@@ -40,12 +40,18 @@ export const isModuleCatalogEntry = (
 ): item is ModuleCatalogEntry => !('type' in item);
 
 /**
- * Exactly the 13 modules from the user's own mockup (ModulesPanel.jsx),
- * same names/descriptions/free-pro copy verbatim — WooCommerce
- * (woo-commerce-ai/woo-commerce-intelligence), Reports (advanced-reports),
- * MCP Server, and the standalone "One-Click AI Fixes" Pro card that
- * previously existed here are all deliberately dropped to match the
- * mockup's own 13-card, 5-category list exactly, per explicit request.
+ * Started as exactly the 13 modules from the user's own mockup
+ * (ModulesPanel.jsx), same names/descriptions/free-pro copy verbatim —
+ * Reports (advanced-reports), MCP Server, WooCommerce AI/Intelligence
+ * (woo-commerce-ai/woo-commerce-intelligence, still cardless below), and
+ * the standalone "One-Click AI Fixes" Pro card that previously existed
+ * here were all deliberately dropped to match the mockup's own 13-card,
+ * 5-category list exactly, per that earlier explicit request. A 14th
+ * card, Commerce (the real `commerce` module — see its own docblock
+ * below), was added on top of that fixed list per a later, separate
+ * direct instruction ("add module in this page so use can active and
+ * deactive it") — the two WooCommerce modules it sits alongside on the
+ * Commerce tab (woo-commerce-ai/woo-commerce-intelligence) stay cardless.
  *
  * Every `id` is still a real backend module id wherever one exists (see
  * Modules.php::camel_to_kebab()) — the mockup's own ids (`geo`, `aeo`,
@@ -406,6 +412,38 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
                 __('Custom triggers & conditions', 'vulopilot'),
                 __('Scheduled workflows', 'vulopilot'),
                 __('Auto-react to scan findings', 'vulopilot')
+            ]
+        },
+
+		// Commerce Section
+		{ type: 'separator', id: 'commerce', label: __('Commerce', 'vulopilot') },
+		{
+            /**
+             * Must be the real backend module id — Commerce's folder name
+             * kebab-cased. Added a real card here per direct instruction
+             * ("add module in this page so use can active and deactive
+             * it") — this module used to be cardless (license alone
+             * activated it, same treatment 'woo-commerce-ai'/
+             * 'woo-commerce-intelligence' still get below) until this
+             * change; see VuloPilotPro::CARDLESS_MODULE_IDS, which no
+             * longer lists 'commerce' now that it has its own toggle here.
+             * `freeFeatures` is empty since the entire Commerce tab body
+             * moved to Pro (CommercePanel.tsx's own docblock) — there's no
+             * free tier of this module's own content to list, same shape
+             * 'automations' above already has for the same reason.
+             */
+            id: 'commerce',
+            icon: 'cart',
+            name: __('Commerce Copilot — WooCommerce Intelligence', 'vulopilot'),
+            desc: __('Store health, product/checkout/order insights, revenue reports, and AI-powered sales optimization for WooCommerce.', 'vulopilot'),
+            proModule: true,
+            category: 'commerce',
+            miniModule: true,
+            freeFeatures: [],
+            proFeatures: [
+                __('Store health & category breakdowns', 'vulopilot'),
+                __('Revenue reports & sales trends', 'vulopilot'),
+                __('AI-powered cross-sell/upsell suggestions', 'vulopilot')
             ]
         }
 	],

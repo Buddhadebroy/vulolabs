@@ -186,6 +186,23 @@ class Admin {
             )
         );
 
+        // "Commerce" (StoreOverviewCards.tsx and friends) is entirely
+        // WooCommerce-scoped — same `class_exists( 'WooCommerce' )` check
+        // every WooCommerce-dependent scanner/REST controller in this
+        // plugin already uses (WooCommerceScanner.php, StoreReadiness.php,
+        // etc.), just applied to the submenu's own visibility instead of a
+        // per-request data check. Hidden entirely rather than shown-but-
+        // empty when WooCommerce isn't installed/active; reappears the
+        // moment it is, with no other change needed. Deliberately NOT also
+        // gated on the `commerce` module's own active state (tried once,
+        // reverted per direct instruction) — the menu item stays reachable
+        // regardless of Pro/module state, same as every other Pro-gated
+        // tab in this plugin (Automations, etc.), so its own "Unlock with
+        // Pro" screen (CommercePanel.tsx) stays discoverable from the menu.
+        if ( ! class_exists( 'WooCommerce' ) ) {
+            unset( $submenus['commerce'] );
+        }
+
         uasort(
             $submenus,
             function ( $a, $b ) {

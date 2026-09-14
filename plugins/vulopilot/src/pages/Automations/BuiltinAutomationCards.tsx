@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { CardComponent, FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput } from '@zyra/inputs';
-import type { AutomationRow } from './ManageAutomationsSection';
+import type { AutomationRow } from './automationRow';
 import './BuiltinAutomationCards.scss';
 
 /** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants — the only trigger_type values this component ever renders a card for. */

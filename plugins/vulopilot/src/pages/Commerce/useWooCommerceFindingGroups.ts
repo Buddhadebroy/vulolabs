@@ -6,13 +6,11 @@ import type { FindingGroup } from '../AIAssistant/issuesTypes';
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
- * Shared `GET /findings/groups?category=woocommerce` fetch — one real
- * call, reused by CommerceCategoryGrid.tsx (per-card counts, summed
- * per scanner_id bucket — see CommerceTab.constants.ts) and
- * CommerceIssuesTable.tsx (its "Important" tab's scanner_ids, computed
- * from whichever groups are currently critical/high severity). 200 is
- * comfortably above the real number of 'woocommerce'-category scanners
- * that exist today (~19), so every group always lands on page 1.
+ * Shared `GET /findings/groups?category=woocommerce` fetch. The real
+ * fetch itself now only runs from vulopilot-pro's own (moved) CommerceTab.tsx
+ * — this Free-side copy stays only for `sumGroupCounts()` below, which
+ * Free's own CommerceIssuesTable.tsx (kept here — see that module's own
+ * Module.php docblock for why) still needs for its tab bar's counts.
  */
 export const useWooCommerceFindingGroups = (): {
 	groups: FindingGroup[];

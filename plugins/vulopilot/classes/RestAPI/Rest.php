@@ -66,6 +66,16 @@ class Rest {
             'activity_logs'               => new Controllers\ActivityLogs(),
             'history'                     => new Controllers\History(),
             'automations'                 => new Controllers\Automations(),
+            // Deliberately NOT keyed 'automation_runs' — that data only ever
+            // backed AutomationsActivityCard.tsx's own "Recent automation
+            // activity" feed, which moved to vulopilot-pro's own
+            // Automations module wholesale per direct instruction (Free now
+            // shows AutomationsActivityDummy.tsx in its place). Registering
+            // a Free-side fallback here would let that feed keep working
+            // even without a licensed Pro Automations module, undermining
+            // the gate — vulopilot-pro's own AutomationsRunsRest.php (same
+            // `automation_runs` key) is this route's only real owner.
+            'automation_dashboard'        => new Controllers\AutomationDashboardStats(),
             'settings'                    => new Controllers\Settings(),
             'llms_txt'                    => new Controllers\LlmsTxt(),
             'crawler_traffic'             => new Controllers\CrawlerTraffic(),

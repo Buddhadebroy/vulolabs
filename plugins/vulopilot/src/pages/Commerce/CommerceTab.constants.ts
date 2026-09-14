@@ -1,9 +1,12 @@
 /**
  * Real scanner_id → mockup-category bucket mapping for "Commerce"'s
- * WooCommerce tab — shared by CommerceCategoryGrid.tsx (per-card
- * counts) and CommerceIssuesTable.tsx (its tab bar's `scannerIds`
- * filters), so both read the exact same real `GET /findings/groups`
- * data bucketed the same way rather than drifting apart.
+ * WooCommerce tab. The real category grid itself now lives in
+ * vulopilot-pro's own (moved) CommerceCategoryGrid.tsx — this Free-side
+ * copy stays only because Free's own CommerceIssuesTable.tsx (kept here
+ * — see modules/Commerce/Module.php's own docblock, Pro side, for why)
+ * still needs the same bucket vocabulary for its tab bar's `scannerIds`
+ * filters, so both read the exact same real `GET /findings/groups` data
+ * bucketed the same way rather than drifting apart.
  */
 
 /** The 11 existing free-tier Product* scanners that aren't about stock. */
