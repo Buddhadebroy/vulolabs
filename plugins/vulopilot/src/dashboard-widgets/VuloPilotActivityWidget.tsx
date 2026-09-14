@@ -199,29 +199,27 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 					yDomain={[0, 100]}
 				/>
 			)}
-			<div className="vulopilot-activity-row">
-				<AnalyticsComponent
-					variant="small"
-					cols={3}
-					data={[
-						{
-							icon: 'global-community green',
-							number: crawlerCurrent,
-							text: __('AI crawler visits', 'vulopilot'),
-						},
-						{
-							icon: 'automation blue',
-							number: summary.automation_status.enabled,
-							text: __('Automations', 'vulopilot'),
-						},
-						{
-							icon: 'ai purple',
-							number: summary.pending_approvals,
-							text: __('Pending approvals', 'vulopilot'),
-						}
-					]}
-				/>
-			</div>
+			<AnalyticsComponent
+				variant="small"
+				cols={3}
+				data={[
+					{
+						icon: 'global-community green',
+						number: crawlerCurrent,
+						text: __('AI crawler visits', 'vulopilot'),
+					},
+					{
+						icon: 'automation blue',
+						number: summary.automation_status.enabled,
+						text: __('Automations', 'vulopilot'),
+					},
+					{
+						icon: 'ai purple',
+						number: summary.pending_approvals,
+						text: __('Pending approvals', 'vulopilot'),
+					}
+				]}
+			/>
 		</DashboardWidget>
 	);
 };

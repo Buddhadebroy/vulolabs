@@ -77,6 +77,17 @@ export interface WidgetProps {
 	onHide: () => void;
 	/** Whether Dashboard.tsx's "Customize dashboard" mode is on — forwarded through to DashboardWidget.tsx, which only renders the drag handle/hide button while this is true. */
 	isCustomizing: boolean;
+	/**
+	 * Re-fetches `summary` (Dashboard.tsx's own `loadDashboard`) — for a
+	 * widget whose own real mutation (e.g. AutomationStatusWidget.tsx's
+	 * enable/disable toggle) changes a number `summary` itself carries
+	 * (`automation_status.enabled`/`.disabled`); that widget's own
+	 * `useApiList` `refetch` only re-fetches its own row list, not this
+	 * sibling top-level payload, so without also calling this the
+	 * summary-derived count would only ever catch up on the next full
+	 * page load.
+	 */
+	onRefreshSummary: () => void;
 }
 
 /**

@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useEffect, useRef, useState } from 'react';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { ComponentType } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -10,20 +10,15 @@ import {
 	ModuleGuardComponent,
 	PopupComponent,
 	ContainerComponent,
-	BadgeComponent
 } from '@zyra/components';
 import { ButtonInput, TextInput, SelectInput } from '@zyra/inputs'; 
 import ShowProPopup from '../../components/Popup/Popup';
 import HistoryDetailPanel from './HistoryDetailPanel';
+import HistoryTimeline from './HistoryTimeline';
 import {
 	FILTER_TABS,
-	groupByDay,
 	HistoryFilter,
 	HistoryRow,
-	rowIcon,
-	rowStatusBadge,
-	rowTag,
-	rowTime,
 	rowTitle,
 } from '../AIAssistant/historyTypes';
 // Reports' own page moved here from AI Copilot (History is a general
@@ -347,8 +342,6 @@ const HistoryTab = () => {
 		URL.revokeObjectURL(url);
 	};
 
-	const dayGroups = groupByDay(rows);
-
 	// Format options for SelectInput
 	const dateRangeSelectOptions = DATE_RANGE_OPTIONS.map(opt => ({
 		value: opt.value,
@@ -465,122 +458,14 @@ const HistoryTab = () => {
 						}
 					/>
 				) : (
-					<div className="history-timeline">
-						{dayGroups.map((group) => (
-							<div
-								className="history-day-group"
-								key={group.rows[0]?.id ?? group.label}
-							>
-								<div className="history-day title">
-									{group.label}
-								</div>
-								{group.rows.map((row) => {
-									const tag = rowTag(row);
-									const statusBadge = rowStatusBadge(row);
-									const showBeforeAfter =
-										row.change &&
-										null !== row.change.after &&
-										row.change.after.length <= 40 &&
-										(null === row.change.before ||
-											row.change.before.length <= 40);
-
-									return (
-										<div
-											key={row.id}
-											className={`history-row ${selectedRow?.id === row.id ? 'selected' : ''}`}
-											role="button"
-											tabIndex={0}
-											onClick={() =>
-												setSelectedRow(row)
-											}
-										>
-											<span className="history-row-time">
-												{rowTime(row.created_at)}
-											</span>
-
-											<div className='history-details'>
-												<i
-													className={`history-row-icon adminfont-${rowIcon(row)}`}
-												/>
-												<div className="history-row-text">
-													<div className="history-row-title title">
-														{rowTitle(row)}
-														<BadgeComponent
-															color={tag.className}
-															text={tag.text}
-														/>
-													</div>
-													<div className="desc">
-														{row.message}
-													</div>
-												</div>
-												<div className="history-row-meta">
-													{row.scan && (
-														<span className="history-row-meta-value">
-															{sprintf(
-																_n(
-																	'%d issue found',
-																	'%d issues found',
-																	row.scan.total,
-																	'vulopilot'
-																),
-																row.scan.total
-															)}
-														</span>
-													)}
-													{showBeforeAfter && (
-														<span className="history-row-meta-value">
-															{sprintf(
-																__(
-																	'Before: %1$s · After: %2$s',
-																	'vulopilot'
-																),
-																row.change?.before ||
-																	__(
-																		'(new content)',
-																		'vulopilot'
-																	),
-																row.change?.after
-															)}
-														</span>
-													)}
-													{statusBadge && (
-														<BadgeComponent
-															color={statusBadge.className}
-															text={statusBadge.text}
-														/>
-													)}
-												</div>
-												<i
-													className="adminfont-arrow-right history-row-arrow"
-													role="button"
-													tabIndex={0}
-													onClick={(event) => {
-														event.stopPropagation();
-														setSelectedRow(row);
-													}}
-												/>
-											</div>
-										</div>
-									);
-								})}
-							</div>
-						))}
-
-						{rows.length < total && (
-							<ButtonInput
-								position="center"
-								buttons={{
-									text: isLoadingMore
-										? __('Loading…', 'vulopilot')
-										: __('Load more', 'vulopilot'),
-									color: 'purple-bg',
-									onClick: handleLoadMore,
-									disabled: isLoadingMore,
-								}}
-							/>
-						)}
-					</div>
+					<HistoryTimeline
+						rows={rows}
+						total={total}
+						selectedRow={selectedRow}
+						onSelectRow={setSelectedRow}
+						isLoadingMore={isLoadingMore}
+						onLoadMore={handleLoadMore}
+					/>
 				)}
 			</CardComponent>
 			{AiAnalyticsPanel ? (

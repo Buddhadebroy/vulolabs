@@ -9,10 +9,74 @@
 	margin-bottom: 0.875rem;
 }
 
-// The "Affected/Detected/Scope" stat-tile row — real group.count/
-// object_type, group.sample's own detected date, and group.sample.page
-// (per direct instruction, matching a reference design) instead of the
-// stacked label/value rows this panel used before.
+// The "Affected/Detected/Scope" stat tiles are now zyra's own
+// `<AnalyticsComponent variant="priority-card">` (per direct
+// instruction — /components-analyticscomponent--priority-card), not
+// the hand-rolled `.issue-detail-stats-grid`/`.issue-detail-stat-tile`
+// markup below (now dead — kept only so this rule's own "instead of"
+// comment still makes sense; nothing in IssueDetailPanel.tsx renders
+// those classes any more).
+//
+// That shared variant's own `.number` is sized for a short digit like
+// "4" (AnalyticsComponent.scss: 2rem, single line, an absolutely-
+// positioned icon pinned over the top-right corner) — this panel's own
+// real values run much longer (a full date, "1 endpoint", a page path)
+// and, at this panel's own narrow 3-column width, both overflowed their
+// tile and visibly collided with the icon (confirmed live). Scoped to
+// `.issue-detail-panel` only, rather than changing the shared
+// component's own default size for every other real `priority-card`
+// caller (Storybook's own PriorityCard story).
+//
+// `!important` throughout — same real reason `.accessibility-hero-score`
+// below needs it for zyra's own pie-legend rule: zyra's own base
+// `.analytics-container[data-template="priority-card"] .number` rule is
+// injected into a runtime `<style>` tag (styleInject), not this
+// stylesheet — equal selector specificity, but it lands later in the
+// cascade, so it silently won the tie (confirmed live) without this.
+.issue-detail-panel .analytics-container[data-template='priority-card'] {
+	// Reclaims width for 3 tiles this narrow — the shared default (1rem)
+	// leaves too little room for real text at this panel's own width.
+	gap: 0.5rem !important;
+
+	.analytics-item {
+		padding: 0.625rem !important;
+	}
+
+	.analytics-icon {
+		top: 0.5rem !important;
+		right: 0.5rem !important;
+
+		i {
+			width: 1.375rem !important;
+			height: 1.375rem !important;
+			font-size: 0.6875rem !important;
+		}
+	}
+
+	.details {
+		// Reserves room so `.number` never runs under the icon circle
+		// above it.
+		padding-right: 1.5rem !important;
+		width: 100% !important;
+
+		.number {
+			font-size: 0.75rem !important;
+			font-weight: 700 !important;
+			line-height: 1.3 !important;
+			// These real values can run longer than a short digit (a
+			// full date, "1 endpoint", a page path) — wrap at real word
+			// boundaries onto as many lines as needed (the tile grows
+			// taller) rather than breaking mid-word.
+			overflow-wrap: normal !important;
+		}
+
+		.text {
+			font-size: 0.6875rem !important;
+			padding-top: 0.25rem !important;
+		}
+	}
+}
+
 .issue-detail-stats-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));

@@ -1,11 +1,26 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent, PopupComponent } from '@zyra/components';
+import { CardComponent, NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
 
 interface ConnectVuloCloudPopupProps {
 	open: boolean;
 	onClose: () => void;
+}
+
+interface ConnectVuloCloudPromptContentProps {
+	/**
+	 * `'card'` (default) — a full `CardComponent` with its own title row,
+	 * for a bare popup with no header chrome of its own (`ConnectVuloCloudPopup`
+	 * below). `'inline-notice'` — the same real title/desc/action, as a
+	 * `NoticeComponent` instead, for a caller embedding this inside a popup
+	 * that already has its own header (ContentToolPopup.tsx's own
+	 * `PopupComponent` `header={{title, icon, description}}`,
+	 * AiCreditsIndicator.tsx's own credit-balance popup) — a second full
+	 * card title there would duplicate that chrome rather than reading as
+	 * one real message.
+	 */
+	variant?: 'card' | 'inline-notice';
 }
 
 /**
@@ -28,8 +43,30 @@ interface ConnectVuloCloudPopupProps {
  * checking a different, unrelated "VuloCloud account login" flag this
  * flow never touches.
  */
-export const ConnectVuloCloudPromptContent = () => {
+export const ConnectVuloCloudPromptContent = ({
+	variant = 'card',
+}: ConnectVuloCloudPromptContentProps) => {
 	const { isConnecting, handleConnect } = useConnectVuloCloud();
+
+	if ('inline-notice' === variant) {
+		return (
+			<NoticeComponent
+				displayPosition="inline-notice"
+				type="info"
+				title={__('Connect to VuloCloud', 'vulopilot')}
+				message={__(
+					'Claim 100 Free AI Credits — no credit card required — to use this feature.',
+					'vulopilot'
+				)}
+				actionLabel={
+					isConnecting
+						? __('Connecting…', 'vulopilot')
+						: __('Connect to VuloCloud', 'vulopilot')
+				}
+				onAction={handleConnect}
+			/>
+		);
+	}
 
 	return (
 		<CardComponent
@@ -59,7 +96,13 @@ export const ConnectVuloCloudPromptContent = () => {
  * — the shape every other call site of this component already expects
  * (ChatTab.tsx, ContentToolsGrid.tsx, AiContentAssistantSidebar.tsx: a
  * plain `open`/`onClose`-controlled popup, no external `PopupComponent` of
- * their own to nest it in).
+ * their own to nest it in). Uses the default `'card'` variant — this popup
+ * has no header chrome of its own for the content to duplicate — and no
+ * separate `footer` of its own: the card variant already renders its own
+ * "Connect to VuloCloud" button in its body, so a second one here would
+ * just be a duplicate (and, since `isConnecting`/`handleConnect` live
+ * inside `ConnectVuloCloudPromptContent`'s own `useConnectVuloCloud()`
+ * call, not this wrapper, weren't actually reachable from here anyway).
  */
 const ConnectVuloCloudPopup = ({ open, onClose }: ConnectVuloCloudPopupProps) => (
 	<PopupComponent

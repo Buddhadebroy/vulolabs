@@ -249,6 +249,7 @@ const Dashboard = () => {
 					isLoading={isLoading}
 					isCustomizing={isCustomizing}
 					restoreDefaultSignal={restoreDefaultSignal}
+					onRefreshSummary={loadDashboard}
 				/>
 			</ContainerComponent>
 		</>

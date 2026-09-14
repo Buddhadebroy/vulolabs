@@ -619,25 +619,28 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				</div>
 
 				<AnalyticsComponent
+					variant="priority-card"
 					cols={3}
-					variant="small"
 					data={[
 						{
-							icon: 'global-community blue',
-							number: formatAffected(group.count, group.object_type),
-							text: __('Affected', 'vulopilot'),
+							icon: 'global-community',
+							colorClass: 'blue',
+							text: formatAffected(group.count, group.object_type),
+							number: __('Affected', 'vulopilot'),
 						},
 						{
-							icon: 'calendar orange',
-							number: group.sample
+							icon: 'calendar',
+							colorClass: 'orange',
+							text: group.sample
 								? formatWpDate(
 									group.sample.last_seen_at ?? group.sample.created_at
 								)
 								: '—',
-							text: __('Detected', 'vulopilot'),
+							number: __('Detected', 'vulopilot'),
 						},
 						{
-							icon: 'location purple',
+							icon: 'location',
+							colorClass: 'purple',
 							number: group.sample?.page || __('Site-wide', 'vulopilot'),
 							text: __('Scope', 'vulopilot'),
 						},
