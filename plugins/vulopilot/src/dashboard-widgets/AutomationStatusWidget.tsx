@@ -56,6 +56,7 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Automation status', 'vulopilot')}
+			desc={__('Which of your automations are enabled and running.', 'vulopilot')}
 			icon="toggle"
 			isLoading={isLoading}
 			onHide={onHide}

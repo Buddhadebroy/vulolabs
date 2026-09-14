@@ -62,6 +62,7 @@ const KnowledgeGraphWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Knowledge Graph', 'vulopilot')}
+			desc={__('Entities extracted from your content and how they connect.', 'vulopilot')}
 			icon="centralized-connections"
 			isLoading={isLoading}
 			onHide={onHide}

@@ -148,6 +148,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Website Health Scores', 'vulopilot')}
+			desc={__('Your overall score across visibility, health, commerce, performance, content, and brand.', 'vulopilot')}
 			icon="analytics"
 			isLoading={isLoading}
 			onHide={onHide}

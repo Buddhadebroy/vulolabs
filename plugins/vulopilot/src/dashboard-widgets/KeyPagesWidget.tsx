@@ -52,6 +52,7 @@ const KeyPagesWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Key pages at a glance', 'vulopilot')}
+			desc={__('Your top pages and any open issues found on them.', 'vulopilot')}
 			icon="pages"
 			isLoading={parentLoading || isLoading}
 			onHide={onHide}

@@ -44,9 +44,12 @@ const AiCopilotGuard = ({ title, desc, children }: AiCopilotGuardProps) => {
 				// Same admin_url-hash + '_self' navigation Popup.tsx's own
 				// "Enable Now" button already uses for a Pro module's
 				// locked-state popup — see that component's own comment for
-				// why '_self' (not the omitted-target default) is required.
+				// why '_self' (not the omitted-target default) is required,
+				// and why `tab=settings&subtab=modules` (matching this
+				// component's own `desc` copy above, "Settings → Modules"),
+				// not the old standalone `tab=modules` route.
 				window.open(
-					`${appLocalizer.admin_url}#&tab=modules&module=ai-copilot`,
+					`${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=ai-copilot`,
 					'_self'
 				);
 			}}

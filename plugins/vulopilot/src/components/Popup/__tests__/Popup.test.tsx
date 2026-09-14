@@ -22,7 +22,9 @@ describe( 'ShowProPopup', () => {
 		);
 
 		expect( openSpy ).toHaveBeenCalledWith(
-			expect.stringContaining( '#&tab=modules&module=advanced-reports' ),
+			expect.stringContaining(
+				'#&tab=settings&subtab=modules&module=advanced-reports'
+			),
 			'_self'
 		);
 

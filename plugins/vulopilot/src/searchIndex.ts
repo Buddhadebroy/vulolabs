@@ -202,6 +202,169 @@ const PAGE_SECTIONS: SearchItem[] = [
 		sectionId: 'create-new-automation-card',
 		icon: 'analytics',
 	},
+	// The rest of this list — every real `<CardComponent id="…">`/
+	// `<SectionComponent>`/`<div id="…">`-wrapped section this codebase's
+	// pages actually carry a real DOM id for, so `handleResultClick`'s own
+	// scroll-and-highlight has somewhere real to land. `name` is each
+	// section's own real, on-screen title (IssuesSection.tsx's own SEO/
+	// AEO/GEO tabs all really do render the identical literal title "All
+	// SEO Findings" — its own `title` prop defaults to that and none of
+	// the 3 callers override it — kept faithful to what's actually on
+	// screen rather than inventing 3 different titles that don't exist).
+	// Not exhaustive: several other real cards/sections have no `id` of
+	// their own yet (nothing for this search index, or a "scroll to and
+	// highlight" button elsewhere, to target), so they aren't listed —
+	// same "kept in sync by hand" posture this file's own docblock above
+	// already documents; add a new row here plus a matching real `id` on
+	// that section's own wrapper as more become worth searching for.
+	{
+		id: 'page-section-seo-findings',
+		tab: 'seo-visibility',
+		category: 'sections',
+		name: __('All SEO Findings', 'vulopilot'),
+		desc: __('Every real SEO finding, filterable by category — SEO tab.', 'vulopilot'),
+		link: '#&tab=seo-visibility&subtab=seo',
+		sectionId: 'seo-all-issues-table',
+		icon: 'search',
+	},
+	{
+		id: 'page-section-aeo-findings',
+		tab: 'seo-visibility',
+		category: 'sections',
+		name: __('All SEO Findings', 'vulopilot'),
+		desc: __('Every real AEO finding, filterable by category — AEO tab.', 'vulopilot'),
+		link: '#&tab=seo-visibility&subtab=aeo',
+		sectionId: 'aeo-all-issues-table',
+		icon: 'search',
+	},
+	{
+		id: 'page-section-geo-findings',
+		tab: 'seo-visibility',
+		category: 'sections',
+		name: __('All SEO Findings', 'vulopilot'),
+		desc: __('Every real GEO finding, filterable by category — GEO tab.', 'vulopilot'),
+		link: '#&tab=seo-visibility&subtab=geo',
+		sectionId: 'geo-all-issues-table',
+		icon: 'search',
+	},
+	{
+		id: 'page-section-schema-inspector',
+		tab: 'seo-visibility',
+		category: 'sections',
+		name: __('Inspect a specific page', 'vulopilot'),
+		desc: __(
+			'See exactly what structured information search engines receive from any page or product.',
+			'vulopilot'
+		),
+		link: '#&tab=seo-visibility&subtab=schema-knowledge',
+		sectionId: 'schema-knowledge-inspector',
+		icon: 'search',
+	},
+	{
+		id: 'page-section-recent-crawl-requests',
+		tab: 'seo-visibility',
+		category: 'sections',
+		name: __('Recent Crawl Requests', 'vulopilot'),
+		desc: __('Every real crawler visit to your site, searchable and filterable.', 'vulopilot'),
+		link: '#&tab=seo-visibility&subtab=crawl-urls',
+		sectionId: 'recent-crawl-requests',
+		icon: 'search-discovery',
+	},
+	{
+		id: 'page-section-woocommerce-issues',
+		tab: 'commerce',
+		category: 'sections',
+		name: __('All WooCommerce Issues', 'vulopilot'),
+		link: '#&tab=commerce',
+		sectionId: 'woocommerce-issues-table',
+		icon: 'cart',
+	},
+	{
+		id: 'page-section-recent-content',
+		tab: 'content',
+		category: 'sections',
+		name: __('Recent Content', 'vulopilot'),
+		desc: __('Your most recently published or updated content.', 'vulopilot'),
+		link: '#&tab=content',
+		sectionId: 'content-audit-section',
+		icon: 'edit',
+	},
+	{
+		id: 'page-section-content-tools',
+		tab: 'content',
+		category: 'sections',
+		name: __('Content Tools', 'vulopilot'),
+		desc: __('AI tools to help you create and improve content.', 'vulopilot'),
+		link: '#&tab=content',
+		sectionId: 'content-tools-grid',
+		icon: 'tools',
+	},
+	{
+		id: 'page-section-core-web-vitals',
+		tab: 'performance',
+		category: 'sections',
+		name: __('Core Web Vitals', 'vulopilot'),
+		desc: __('Real Google Core Web Vitals for this site.', 'vulopilot'),
+		link: '#&tab=performance',
+		sectionId: 'performance-core-web-vitals-card',
+		icon: 'analytics',
+	},
+	{
+		id: 'page-section-performance-top-issues',
+		tab: 'performance',
+		category: 'sections',
+		name: __('Top Issues', 'vulopilot'),
+		desc: __('Findings from your most recent scans, grouped by check.', 'vulopilot'),
+		link: '#&tab=performance',
+		sectionId: 'performance-section-findings',
+		icon: 'security',
+	},
+	{
+		id: 'page-section-automation-manage',
+		tab: 'automations',
+		category: 'sections',
+		name: __('Your automations', 'vulopilot'),
+		desc: __(
+			'React to scan findings automatically — enable, pause, or run an automation, and see when it last ran.',
+			'vulopilot'
+		),
+		link: '#&tab=automations',
+		sectionId: 'automation-manage',
+		icon: 'automation',
+	},
+	{
+		id: 'page-section-report-builder',
+		tab: 'reports',
+		category: 'sections',
+		name: __('Report Builder', 'vulopilot'),
+		desc: __('Generate and download reports for this site.', 'vulopilot'),
+		link: '#&tab=reports&subtab=report',
+		sectionId: 'reports-generate',
+		icon: 'report',
+	},
+	{
+		id: 'page-section-report-history',
+		tab: 'reports',
+		category: 'sections',
+		name: __('Report History', 'vulopilot'),
+		desc: __('A complete log of all generated reports.', 'vulopilot'),
+		link: '#&tab=reports&subtab=overview',
+		sectionId: 'reports-history',
+		icon: 'history',
+	},
+	{
+		id: 'page-section-scheduled-reports',
+		tab: 'reports',
+		category: 'sections',
+		name: __('Scheduled Reports', 'vulopilot'),
+		desc: __(
+			'Automate report generation and delivery to keep your team and clients updated.',
+			'vulopilot'
+		),
+		link: '#&tab=reports&subtab=overview',
+		sectionId: 'reports-schedules',
+		icon: 'calendar',
+	},
 ];
 
 export const searchIndex: SearchItem[] = [

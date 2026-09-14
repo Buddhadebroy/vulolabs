@@ -112,7 +112,7 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 				<ButtonInput
 					buttons={{
 						text: __('View All Reports', 'vulopilot'),
-						icon: 'arrow-right',
+						rightIcon: 'arrow-right',
 						color: 'text-purple',
 						onClick: () => scrollToId('reports-history'),
 					}}
@@ -141,6 +141,7 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 							iconKey: 'reportIcon',
 							descriptionKey: 'reportDesc',
 							badgesKey: 'reportBadges',
+							width: '60%'
 						},
 						period: {
 							label: __('Period', 'vulopilot'),
@@ -169,12 +170,14 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 											: __('Not ready yet', 'vulopilot'),
 									icon: 'eye',
 									onClick: handleView,
+									color: 'text-yellow'
 								},
 								{
 									type: 'button',
 									label: __('Download PDF', 'vulopilot'),
 									icon: 'download',
 									onClick: handleView,
+									color: 'text-blue'
 								},
 							],
 						},

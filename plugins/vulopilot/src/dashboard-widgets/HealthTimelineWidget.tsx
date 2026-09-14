@@ -51,6 +51,7 @@ const HealthTimelineWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Health timeline', 'vulopilot')}
+			desc={__('How your health scores have trended over time.', 'vulopilot')}
 			icon="analytics"
 			isLoading={isLoading}
 			onHide={onHide}

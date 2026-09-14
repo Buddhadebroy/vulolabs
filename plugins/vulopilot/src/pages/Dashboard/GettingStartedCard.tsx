@@ -84,8 +84,11 @@ const GettingStartedCard: React.FC = () => {
 						icon: 'cart',
 						color: 'purple',
 						onClick: () => {
+							// `tab=settings&subtab=modules`, not the old
+							// standalone `tab=modules` route — see
+							// Popup.tsx's own "Enable Now" comment for why.
 							window.location.href =
-								'?page=vulopilot#&tab=modules';
+								'?page=vulopilot#&tab=settings&subtab=modules';
 						},
 					},
 				]}

@@ -109,6 +109,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Needs your attention', 'vulopilot')}
+			desc={__('Open issues, quick fixes, and changes waiting on your approval.', 'vulopilot')}
 			icon="error"
 			isLoading={isLoading}
 			onHide={onHide}

@@ -9,16 +9,20 @@ import { __ } from '@wordpress/i18n';
  * edited, not new settings. Two real changes from the previous plain
  * select/number-input shape:
  *
- * - Format narrows from PDF/CSV/JSON to PDF/CSV, matching the mockup —
+ * - Format narrows from PDF/CSV/JSON to PDF/CSV/Both, matching the mockup —
  *   `Reports\ReportExporterRegistry` registers csv/json in Free; pdf only
  *   exists once vulopilot-pro's AdvancedReports module registers
  *   `PdfExporter` via the `vulopilot_report_exporter_sources` filter. The
- *   PDF option is `moduleEnabled: 'advanced-reports'` so a free site sees
- *   the real lock/Pro-module badge instead of silently picking a default
- *   that `create_item()` would just fall back to CSV for anyway. JSON stays
- *   a fully real, working export format (unchanged, still selectable by
- *   name when generating a report) — just not offered as a *default*
- *   choice here, per the mockup.
+ *   PDF and Both options are `moduleEnabled: 'advanced-reports'` so a free
+ *   site sees the real lock/Pro-module badge instead of silently picking a
+ *   default that `create_item()` would just fall back to CSV for anyway.
+ *   "Both" isn't a real export format `ReportExporterRegistry` registers —
+ *   it's a frontend-only value ReportsOverviewHeader.tsx's own "Download"
+ *   button reads to decide whether to ask which format each time, rather
+ *   than a raw format string ever sent to the server. JSON stays a fully
+ *   real, working export format (unchanged, still selectable by name when
+ *   generating a report) — just not offered as a *default* choice here,
+ *   per the mockup.
  * - Period becomes a real `type: 'choice-toggle'` card row (7/30/90 days,
  *   6/12 months) bound to `default_report_period_days` directly — no
  *   separate free-text field duplicating the same key (zyra's InputRenderer
@@ -71,7 +75,6 @@ export default {
 					badgeColor: 'green', badgeText: __('Recommended', 'vulopilot') ,
 					desc: __('Great for sharing and printing.', 'vulopilot'),
 					icon: 'pdf blue',
-					moduleEnabled: 'advanced-reports',
 				},
 				{
 					key: 'csv',
@@ -79,6 +82,13 @@ export default {
 					label: __('CSV', 'vulopilot'),
 					desc: __('Best for data analysis in spreadsheets.', 'vulopilot'),
 					icon: 'csv green',
+				},
+				{
+					key: 'both',
+					value: 'both',
+					label: __('Both', 'vulopilot'),
+					desc: __('Choose PDF or CSV each time you download.', 'vulopilot'),
+					icon: 'document orange',
 				},
 			],
 		},

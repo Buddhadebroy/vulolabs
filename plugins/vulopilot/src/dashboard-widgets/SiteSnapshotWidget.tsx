@@ -213,6 +213,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Site snapshot', 'vulopilot')}
+			desc={__('A quick overview of your brand, content, and site details.', 'vulopilot')}
 			icon="info"
 			isLoading={isLoading}
 			onHide={onHide}

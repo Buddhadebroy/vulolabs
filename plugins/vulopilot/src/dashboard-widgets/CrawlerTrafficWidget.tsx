@@ -58,6 +58,7 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('AI crawler traffic', 'vulopilot')}
+			desc={__('Visits from GPTBot, ClaudeBot, PerplexityBot, and other AI crawlers.', 'vulopilot')}
 			icon="global-community"
 			isLoading={isLoading}
 			onHide={onHide}

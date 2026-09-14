@@ -47,6 +47,7 @@ const TodaysTasksWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__("Today's Tasks", 'vulopilot')}
+			desc={__('What happened on your site today.', 'vulopilot')}
 			icon="clock"
 			isLoading={isLoading}
 			onHide={onHide}

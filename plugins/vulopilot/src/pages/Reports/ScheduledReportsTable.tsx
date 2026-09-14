@@ -125,7 +125,7 @@ const ScheduledReportsTable = () => {
 				<ButtonInput
 					buttons={{
 						text: __('Manage Schedules', 'vulopilot'),
-						icon: 'arrow-right',
+						rightIcon: 'arrow-right',
 						color: 'text-purple',
 						onClick: () => {
 							window.location.href = REPORT_BUILDER_URL;

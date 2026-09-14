@@ -164,6 +164,17 @@
 	cursor: not-allowed;
 }
 
+// ReportsOverviewHeader.tsx's own "Default report format: Both" popup —
+// a plain 2-button PDF/CSV choice.
+.reports-download-format-choice {
+	display: flex;
+	gap: 0.625rem;
+
+	> * {
+		flex: 1 1 0;
+	}
+}
+
 // ReportsHeroCard.tsx.
 .reports-hero-icon {
 	display: flex;

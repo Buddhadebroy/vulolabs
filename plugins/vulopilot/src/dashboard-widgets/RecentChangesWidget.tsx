@@ -46,6 +46,7 @@ const RecentChangesWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Recent Changes', 'vulopilot')}
+			desc={__('Changes your automations have made recently.', 'vulopilot')}
 			icon="update"
 			isLoading={isLoading}
 			onHide={onHide}
