@@ -1,0 +1,80 @@
+@use '../../config' as *;
+
+// Layout, form fields, and status pills are all real zyra components now
+// (CardComponent/ContainerComponent/ColumnComponent/ListComponent/
+// FormGroupComponent/BadgeComponent) — this file only styles the bits
+// those components leave to the caller: overall page spacing, the Live
+// Title Preview rows' own 3-line url/title/description block, and the
+// Available Variables list's monospace token + click-to-copy cue.
+.site-identity-title-formats {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+// ListComponent's own `.item` row (icon + details{title/desc} + tags) —
+// this only adds spacing between the Live Title Preview's own BadgeComponent
+// pills and its "View" button inside that row's `tags` slot.
+.site-identity-preview-list {
+	.tags {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		flex-wrap: wrap;
+	}
+}
+
+.site-identity-preview-desc-block {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.site-identity-preview-url {
+	font-size: 0.8rem;
+	color: $sub-text-color;
+	overflow-wrap: anywhere;
+}
+
+.site-identity-preview-title {
+	font-size: 0.95rem;
+	font-weight: 500;
+	color: $theme-color;
+}
+
+.site-identity-preview-desc {
+	font-size: 0.85rem;
+	color: $sub-text-color;
+}
+
+.site-identity-preview-desc-tags {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.125rem;
+}
+
+// Available Variables — ListComponent's own `item.action` already makes
+// each row clickable (copy-to-clipboard); this just gives the token its
+// monospace treatment and a hover cue.
+.site-identity-variables-list {
+	.item {
+		cursor: pointer;
+
+		&:hover {
+			background: color-mix(in srgb, $theme-color 6%, transparent);
+		}
+	}
+
+	.item-title {
+		font-family: monospace;
+		color: $theme-color;
+	}
+}
+
+.site-identity-tips-list {
+	.item-title {
+		font-size: 0.85rem;
+		color: $text-color;
+	}
+}

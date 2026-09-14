@@ -305,6 +305,11 @@ final class VuloPilot {
         // above.
         $this->container['canonical_url_manager']    = new Services\CanonicalUrlManager();
         $this->container['social_meta_tags_manager'] = new Services\SocialMetaTagsManager();
+        // Settings → Site Identity → Title Formats' real backing —
+        // filters `pre_get_document_title`. Same unconditional-
+        // construction, settings-gate-the-output shape as the two managers
+        // above.
+        $this->container['title_formatter']          = new Services\TitleFormatter();
         $this->container['schema_json_ld_renderer']  = new Services\SchemaJsonLdRenderer();
         // Sitewide counterpart to schema_json_ld_renderer, for
         // SchemaScanner's homepage-level check — populated by

@@ -44,12 +44,22 @@ const DUMMY_ROWS: { title: string; desc: string; time: string }[] = [
 ];
 
 const AutomationsActivityDummy = ({ badgeText, onClick }: AutomationsActivityDummyProps) => (
-	<CardComponent
-		title={__('Recent automation activity', 'vulopilot')}
-		titleIcon="clock"
-		desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
-		badges={[{ text: badgeText, color: 'purple' }]}
-	>
+	<>
+		{/* Docks against `.card-wrapper` (ColumnComponent's own root div,
+		 * always `position: relative` in zyra) rather than a wrapper div of
+		 * its own — CardComponent's `badges` prop can't be used here since it
+		 * only forwards `color`/`text` into its own internal `BadgeComponent`
+		 * call, dropping any custom class, so the real "admin-tag pro-tag"
+		 * markup has to render as a sibling instead. */}
+		<span className="admin-tag pro-tag">
+			<i className="adminfont-pro-tag" />
+			{badgeText}
+		</span>
+		<CardComponent
+			title={__('Recent automation activity', 'vulopilot')}
+			titleIcon="clock"
+			desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
+		>
 		<ul
 			className="activity-log automations-activity-dummy"
 			role="button"
@@ -73,6 +83,7 @@ const AutomationsActivityDummy = ({ badgeText, onClick }: AutomationsActivityDum
 			))}
 		</ul>
 	</CardComponent>
+	</>
 );
 
 export default AutomationsActivityDummy;

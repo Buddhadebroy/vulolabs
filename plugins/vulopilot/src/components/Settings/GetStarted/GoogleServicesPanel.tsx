@@ -171,7 +171,7 @@ const GoogleServiceCard = ( {
  *
  * Moved from the old Settings → Scanning → Google Services tab per direct
  * instruction, alongside AI Providers/Webhooks/External Services — same
- * "folder of sub-tab files" shape Settings/Connections/'s own AiProviders.ts
+ * "folder of sub-tab files" shape Settings/GetStarted/'s own AiProviders.ts
  * establishes. Redesigned to match a mockup: one summary card per service
  * (Search Console/Analytics/AdSense) instead of the previous always-open
  * stacked cards — "Manage Connection" expands the exact same real

@@ -118,7 +118,7 @@ const Automations = () => {
 	const isProInstalled = Boolean(appLocalizer.khali_dabba);
 	const manageBadge = isProInstalled
 		? resolveModuleDisplayName(AUTOMATIONS_MODULE_ID)
-		: __('PRO', 'vulopilot');
+		: __('Pro', 'vulopilot');
 
 	const [wizardOpenSignal, setWizardOpenSignal] = useState(0);
 	const [generateOpenSignal, setGenerateOpenSignal] = useState(0);

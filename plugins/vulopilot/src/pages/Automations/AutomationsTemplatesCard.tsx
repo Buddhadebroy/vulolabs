@@ -142,7 +142,10 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 						tags: (
 							<>
 								{template.pro && !isProInstalled && (
-									<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
+									<span className="admin-tag pro-tag pro-tag-inline">
+										<i className="adminfont-pro-tag" />
+										{__('Pro', 'vulopilot')}
+									</span>
 								)}
 								{template.pro && isProInstalled && !isAutomationsActive && (
 									<BadgeComponent color="purple" text={moduleDisplayName} />
