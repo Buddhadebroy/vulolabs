@@ -178,7 +178,7 @@ const CWV_DOT_CLASS: Record<string, string> = {
 	SLOW: 'poor',
 };
 
-/** `ratingFor()`'s own className → the closest `admin-badge` color name — TrendStatComponent's own `Item.badge.color` contract (a real admin-badge modifier), not a raw hex, unlike the fixed `$vulopilot-rating-*` hex values the old summary tiles painted directly. No badge color exists for "very poor" specifically, so it shares 'red' with "poor". */
+/** `ratingFor()`'s own className → the closest `admin-badge` color name — same `BadgeComponent`'s own `color` contract (a real admin-badge modifier) the summary `ListComponent` row tags below use, not a raw hex, unlike the fixed `$vulopilot-rating-*` hex values the old summary tiles painted directly. No badge color exists for "very poor" specifically, so it shares 'red' with "poor". */
 const RATING_BADGE_COLOR: Record<string, string> = {
 	good: 'green',
 	'needs-improvement': 'orange',
@@ -502,62 +502,59 @@ const SlowPagesTab = () => {
 							icon: 'error orange',
 							title: __('Slow Pages', 'vulopilot'),
 							tags: (
-								<TypographyComponent variant="h5">
-									{summary?.slow ?? 0}
-								</TypographyComponent>
+								<>
+									<TypographyComponent variant="h5">
+										{summary?.slow ?? 0}
+									</TypographyComponent>
+									<BadgeComponent
+										color="orange"
+										text={__('Needs Improvement', 'vulopilot')}
+									/>
+								</>
 							),
-							desc: (
-								<BadgeComponent
-									color="orange"
-									text={__('Needs Improvement', 'vulopilot')}
-								/>
-							) as unknown as string,
 						},
 						{
 							id: 'very-slow-pages',
 							icon: 'error red',
 							title: __('Very Slow Pages', 'vulopilot'),
 							tags: (
-								<TypographyComponent variant="h5">
-									{summary?.very_slow ?? 0}
-								</TypographyComponent>
+								<>
+									<TypographyComponent variant="h5">
+										{summary?.very_slow ?? 0}
+									</TypographyComponent>
+									<BadgeComponent color="red" text={__('Poor', 'vulopilot')} />
+								</>
 							),
-							desc: (
-								<BadgeComponent
-									color="red"
-									text={__('Poor', 'vulopilot')}
-								/>
-							) as unknown as string,
 						},
 						{
 							id: 'average-load-time',
 							icon: 'form-phone blue',
 							title: __('Average Load Time', 'vulopilot'),
 							tags: (
-								<TypographyComponent variant="h5">
-									{avgLoadTimeMs !== null
-										? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
-										: '—'}
-								</TypographyComponent>
+								<>
+									<TypographyComponent variant="h5">
+										{avgLoadTimeMs !== null
+											? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
+											: '—'}
+									</TypographyComponent>
+									<BadgeComponent
+										color={
+											null !== avgScore
+												? RATING_BADGE_COLOR[avgScoreRating.className]
+												: 'gray'
+										}
+										text={
+											null !== avgScore
+												? sprintf(
+													/* translators: %s is a rating word like "Good"/"Poor". */
+													__('%s score', 'vulopilot'),
+													avgScoreRating.label
+												)
+												: __('Not scored yet', 'vulopilot')
+										}
+									/>
+								</>
 							),
-							desc: (
-								<BadgeComponent
-									color={
-										null !== avgScore
-											? RATING_BADGE_COLOR[avgScoreRating.className]
-											: 'gray'
-									}
-									text={
-										null !== avgScore
-											? sprintf(
-												/* translators: %s is a rating word like "Good"/"Poor". */
-												__('%s score', 'vulopilot'),
-												avgScoreRating.label
-											)
-											: __('Not scored yet', 'vulopilot')
-									}
-								/>
-							) as unknown as string,
 						},
 						{
 							id: 'performance-trend',
@@ -567,15 +564,13 @@ const SlowPagesTab = () => {
 									? __('Performance Trend', 'vulopilot')
 									: __('Not enough trend data yet', 'vulopilot'),
 							tags: (
-								<TypographyComponent variant="h5">
-									{null !== trendDelta
-										? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
-										: '—'}
-								</TypographyComponent>
-							),
-							desc:
-								null !== trendDelta
-									? ((
+								<>
+									<TypographyComponent variant="h5">
+										{null !== trendDelta
+											? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
+											: '—'}
+									</TypographyComponent>
+									{null !== trendDelta && (
 										<BadgeComponent
 											color={isTrendImproving ? 'green' : 'red'}
 											text={
@@ -584,8 +579,9 @@ const SlowPagesTab = () => {
 													: __('Declining', 'vulopilot')
 											}
 										/>
-									) as unknown as string)
-									: undefined,
+									)}
+								</>
+							),
 						},
 					]}
 				/>
