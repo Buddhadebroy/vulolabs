@@ -103,6 +103,48 @@ export const CATEGORY_ICONS: Record<string, string> = {
 	'php-warnings': 'coding lime',
 };
 
+/**
+ * Real per-`scanner_id` icon, for the handful of categories (Performance in
+ * particular — CDN/JavaScript/CSS Optimization/Cache Issues/… all share the
+ * single real `category: 'performance'`) where `CATEGORY_ICONS` above
+ * collapses several genuinely different real checks onto one identical
+ * icon (confirmed live: every row in Performance's own "Top Issues" table
+ * rendered the same bar-chart glyph regardless of which real scanner it
+ * came from). Checked first in `issueIconFor()` below — `CATEGORY_ICONS`
+ * remains the fallback for every scanner_id not listed here, so this only
+ * ever narrows, never replaces, that map.
+ *
+ * Reuses the exact same icon+color each id's own tile already shows on
+ * MetricsGrid.tsx's Performance overview grid, so a row here and its tile
+ * above read as the same real check rather than two different glyphs for
+ * one thing.
+ */
+export const SCANNER_ICONS: Record<string, string> = {
+	'cache-detection': 'refresh-bold blue',
+	cdn: 'global-community indigo',
+	'css-optimization': 'coding sky',
+	'javascript-optimization': 'shortcode yellow',
+	'large-images': 'image green',
+	fonts: 'text-fields red',
+	'lazy-loading': 'eye teal',
+	'database-cleanup': 'database orange',
+	'heavy-plugins': 'module orange',
+	'slow-pages': 'analytics violet',
+};
+
+/**
+ * `SCANNER_ICONS[scanner_id]` first (several real scanners inside one real
+ * category otherwise all render the same glyph — see that map's own
+ * docblock), `CATEGORY_ICONS[category]` as the fallback every scanner_id
+ * not explicitly listed already had. Named `issueIconFor` rather than
+ * `rowIcon` to stay clearly distinct from `historyTypes.ts`'s own
+ * `rowIcon(row: HistoryRow)` — same concept, different real row shape.
+ */
+export const issueIconFor = (
+	category: string,
+	scannerId: string
+): string => SCANNER_ICONS[scannerId] ?? CATEGORY_ICONS[category] ?? 'issue';
+
 /** count + a real object_type field → a display noun for the "Affected" column, e.g. "8 images"/"1 endpoint". */
 const OBJECT_TYPE_NOUNS: Record<string, [string, string]> = {
 	post: ['page', 'pages'],

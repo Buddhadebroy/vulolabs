@@ -59,6 +59,7 @@ const RunAuditWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Run Complete Audit', 'vulopilot')}
+			desc={__('Kick off a full scan of your site to refresh every score.', 'vulopilot')}
 			icon="search"
 			isLoading={isLoading}
 			onHide={onHide}

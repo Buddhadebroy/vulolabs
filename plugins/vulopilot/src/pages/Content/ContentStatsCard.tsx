@@ -129,6 +129,7 @@ const ContentStatsCard = () => {
 
 	return (
 		<CardComponent
+			id="content-stats-card"
 			className="content-stats-card"
 			title={__('Content Stats', 'vulopilot')}
 			titleIcon='ai'

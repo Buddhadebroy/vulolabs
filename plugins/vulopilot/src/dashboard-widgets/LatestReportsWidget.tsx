@@ -30,6 +30,7 @@ const LatestReportsWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Latest reports', 'vulopilot')}
+			desc={__('Your most recently generated scan and audit reports.', 'vulopilot')}
 			icon="report"
 			isLoading={isLoading}
 			onHide={onHide}

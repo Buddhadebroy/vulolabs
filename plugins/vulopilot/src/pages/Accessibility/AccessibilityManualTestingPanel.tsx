@@ -49,6 +49,7 @@ const MANUAL_CHECKS: ManualCheck[] = [
  */
 const AccessibilityManualTestingPanel = () => (
 	<CardComponent
+		id="accessibility-manual-testing-card"
 		title={__('Some accessibility checks need a person', 'vulopilot')}
 		titleIcon="person"
 		desc={__(

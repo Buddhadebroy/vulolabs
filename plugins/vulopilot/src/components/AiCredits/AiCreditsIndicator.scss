@@ -13,32 +13,16 @@
 	align-items: center;
 }
 
+// The trigger's `⚡ …` label is now one plain string on a real
+// `ButtonInput` (`className: 'ai-credits-indicator-trigger'`, added
+// alongside its own `admin-btn` base class) rather than a hand-rolled
+// `<button>` wrapping separate bolt/count `<span>`s — no more nested
+// elements for those two former rules (`.ai-credits-indicator-bolt`/
+// `.ai-credits-indicator-count`) to target, so they're gone; this rule
+// only needs `white-space` now; `admin-btn`'s own base styling covers
+// padding/border/radius/color/hover, this just keeps the label from
+// wrapping.
 .ai-credits-indicator-trigger {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	padding: 6px 12px;
-	border: 1px solid #e0e0e0;
-	border-radius: 20px;
-	background: #fff;
-	cursor: pointer;
-	font-size: 13px;
-	font-weight: 600;
-	color: #1e1e1e;
-	transition: border-color 0.15s ease, box-shadow 0.15s ease;
-
-	&:hover {
-		border-color: #7c3aed;
-		box-shadow: 0 0.125rem 0.375rem rgb(124 58 237 / 12%);
-	}
-}
-
-.ai-credits-indicator-bolt {
-	font-size: 14px;
-	line-height: 1;
-}
-
-.ai-credits-indicator-count {
 	white-space: nowrap;
 }
 

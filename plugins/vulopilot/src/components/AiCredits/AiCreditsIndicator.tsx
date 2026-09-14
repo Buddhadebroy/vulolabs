@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useAiCredits } from '../../services/useAiCredits';
-import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
+import { ConnectVuloCloudPromptContent } from './ConnectVuloCloudPopup';
 import './AiCreditsIndicator.scss';
 
 /**
@@ -38,13 +38,6 @@ import './AiCreditsIndicator.scss';
 const AiCreditsIndicator = () => {
 	const { status, isLoading, refresh } = useAiCredits();
 	const [isOpen, setIsOpen] = useState(false);
-	/** Same `GET /ai-providers/broker-authorize-url` redirect
-	 * AiProvidersPanel.tsx's own "Connect to VuloCloud" button uses — the
-	 * broker's own return redirect lands back on that Settings tab
-	 * regardless of where this button was clicked from, so there's no
-	 * separate "connected" callback to wire up here; navigating away
-	 * makes this popup's own open/loading state moot. */
-	const { isConnecting, handleConnect: handleConnectToVulocloud } = useConnectVuloCloud();
 
 	if (isLoading || !status) {
 		return null;
@@ -52,44 +45,27 @@ const AiCreditsIndicator = () => {
 
 	return (
 		<div className="ai-credits-indicator">
-			<button
-				type="button"
-				className="ai-credits-indicator-trigger"
-				onClick={() => setIsOpen(!isOpen)}
-			>
-				<span className="ai-credits-indicator-bolt">⚡</span>
-				{status.connected ? (
-					<span className="ai-credits-indicator-count">
-						{sprintf(
-							/* translators: %d: real remaining AI Credit balance. */
-							__('%d AI Credits', 'vulopilot'),
-							status.credits
-						)}
-					</span>
-				) : (
-					<span className="ai-credits-indicator-count">
-						{__('Claim free AI Credits', 'vulopilot')}
-					</span>
-				)}
-			</button>
+			<ButtonInput
+				buttons={{
+					text: `⚡ ${
+						status.connected
+							? sprintf(
+								/* translators: %d: real remaining AI Credit balance. */
+								__('%d AI Credits', 'vulopilot'),
+								status.credits
+							)
+							: __('Claim free AI Credits', 'vulopilot')
+					}`,
+					color: 'orange-bg',
+					onClick: () => setIsOpen(!isOpen),
+				}}
+			/>
 
 			<PopupComponent
 				width={30}
 				height="60%"
 				open={isOpen}
 				onClose={() => setIsOpen(false)}
-				footer={
-					<ButtonInput
-							position="left"
-							buttons={{
-								text: isConnecting
-									? __('Connecting…', 'vulopilot')
-									: __('Connect to VuloCloud', 'vulopilot'),
-								disabled: isConnecting,
-								onClick: handleConnectToVulocloud,
-							}}
-						/>
-				}
 			>
 				{status.connected ? (
 					<AiCreditsBalancePanel
@@ -97,16 +73,16 @@ const AiCreditsIndicator = () => {
 						onRefresh={refresh}
 					/>
 				) : (
-					<div className="ai-credits-connect-prompt">
-						<NoticeComponent
-							displayPosition="inline"
-							type="info"
-							message={__(
-								'Claim 100 Free AI Credits — no credit card required.',
-								'vulopilot'
-							)}
-						/>
-					</div>
+					// Same one real "Connect to VuloCloud" component every
+					// other real caller of this flow now shares
+					// (ConnectVuloCloudPopup.tsx's own docblock) — this
+					// already renders its own title/desc/button, so there's
+					// no separate footer button to duplicate here anymore
+					// (the previous footer button rendered unconditionally,
+					// even in the `status.connected` branch above, where a
+					// "Connect to VuloCloud" action made no sense — a real
+					// bug this consolidation also fixes).
+					<ConnectVuloCloudPromptContent variant="inline-notice" />
 				)}
 			</PopupComponent>
 		</div>

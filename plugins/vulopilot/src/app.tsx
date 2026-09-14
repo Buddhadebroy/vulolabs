@@ -70,10 +70,16 @@ const App = () => {
 		const lower = searchValue.toLowerCase();
 
 		const filtered = searchIndex.filter((item) => {
+			// Real dropdown category ('modules'/'settings'/'sections') —
+			// not `item.tab`, each result's own real (and varied)
+			// destination tab, which searchIndex.ts's own `SearchItem.category`
+			// docblock explains was the actual bug here: picking "Settings"/
+			// "Modules" filtered on a field that was never literally
+			// 'settings'/'modules', so it silently matched nothing.
 			if (
 				searchAction &&
 				searchAction !== 'all' &&
-				item.tab !== searchAction
+				item.category !== searchAction
 			) {
 				return false;
 			}
@@ -159,7 +165,7 @@ const App = () => {
 					options: [
 						{
 							value: 'all',
-							label: __('Modules & Settings', 'vulopilot'),
+							label: __('All', 'vulopilot'),
 						},
 						{
 							value: 'modules',

@@ -159,6 +159,7 @@ const QuickActionsCard = () => {
 
 	return (
 		<CardComponent
+			id="content-quick-actions-card"
 			title={__('Quick Actions', 'vulopilot')}
 			titleIcon="ai"
 			desc={__('Jump straight to your most common content tasks.', 'vulopilot')}

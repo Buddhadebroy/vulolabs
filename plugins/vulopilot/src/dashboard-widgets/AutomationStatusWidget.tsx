@@ -1,6 +1,9 @@
+/* global appLocalizer */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
+import { getApiLink, sendApiResponse } from '@zyra/core';
 import { ListComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
+import { MultiCheckboxInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
 import { WidgetProps } from './types';
@@ -23,6 +26,7 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 	isLoading,
 	onHide,
 	isCustomizing,
+	onRefreshSummary,
 }) => {
 	const {
 		data,
@@ -31,9 +35,28 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 		refetch,
 	} = useApiList<AutomationRow>('automations', { per_page: 5 });
 
+	// Same real `PATCH /automations/{id}` toggle
+	// BuiltinAutomationCards.tsx's own `handleToggle` already uses —
+	// reused here rather than a second, separate enable/disable path.
+	const handleToggle = (row: AutomationRow) => {
+		sendApiResponse(
+			appLocalizer,
+			getApiLink(appLocalizer, `automations/${row.id}`),
+			{ status: 'enabled' === row.status ? 'disabled' : 'enabled' }
+		).then(() => {
+			refetch();
+			// `summary.automation_status.enabled`/`.disabled` (the
+			// "N Enabled"/"N Disabled" badges above) is a sibling payload
+			// this row list's own `refetch` never touches — see
+			// `onRefreshSummary`'s own docblock (types.ts).
+			onRefreshSummary();
+		});
+	};
+
 	return (
 		<DashboardWidget
 			title={__('Automation status', 'vulopilot')}
+			desc={__('Which of your automations are enabled and running.', 'vulopilot')}
 			icon="toggle"
 			isLoading={isLoading}
 			onHide={onHide}
@@ -69,14 +92,24 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 				/>
 			) : (
 				<ListComponent
+					className='mini-card report'
 					items={data.map((row) => ({
 						id: String(row.id),
 						title: row.name,
-						className: `status-${row.status}`,
 						tags: (
-							<BadgeComponent
-								color={`status-${row.status}`}
-								text={row.status}
+							<MultiCheckboxInput
+								look="toggle"
+								options={[
+									{
+										key: `automation-${row.id}-enabled`,
+										value: 'enabled',
+										label: '',
+									},
+								]}
+								value={
+									'enabled' === row.status ? ['enabled'] : []
+								}
+								onChange={() => handleToggle(row)}
 							/>
 						),
 					}))}

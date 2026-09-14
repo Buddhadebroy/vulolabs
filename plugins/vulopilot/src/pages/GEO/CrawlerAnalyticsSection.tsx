@@ -11,6 +11,7 @@ import {
 	BadgeComponent,
 	ListComponent,
 	ModuleGuardComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
 import {
@@ -243,16 +244,28 @@ const CrawlerAnalyticsSection = ({
 											<ChartComponent
 												type="ring"
 												height={200}
+												// Top-level `color` — `type="ring"` only ever
+												// paints its stroke from this prop, never
+												// from `data[].color` below (see SeoTab.tsx's
+												// own identical fix) — without it the ring
+												// stayed `ChartComponent`'s default brand
+												// purple regardless of score.
+												color={
+													COLOR_PALETTE[
+														ratingColor(analytics.crawl_health_score) as keyof typeof COLOR_PALETTE
+													]
+												}
 												centerLabel={
 													<>
-														<span className="score-ring-number">
-															{analytics.crawl_health_score}
-														</span>
-														<span
-															className={`score-ring-label geo-overall-rating ${ratingClass(analytics.crawl_health_score)}`}
+														<TypographyComponent
+															variant={'h1'}
+															color={ratingColor(analytics.crawl_health_score)}
 														>
+															{analytics.crawl_health_score}
+														</TypographyComponent>
+														<TypographyComponent variant={'h4'}>
 															{getRating(analytics.crawl_health_score)}
-														</span>
+														</TypographyComponent>
 													</>
 												}
 												data={[
@@ -279,6 +292,12 @@ const CrawlerAnalyticsSection = ({
 													},
 												]}
 											/>
+											<TypographyComponent variant={'h3'} color="text-green">
+												{__('Overall Crawl Health', 'vulopilot')}
+											</TypographyComponent>
+											<div className="desc">
+												{__('How many robots.txt/sitemap crawl-health checks currently pass.', 'vulopilot')}
+											</div>
 									</div>
 									<div className="overall-score-summary">
 									<ListComponent

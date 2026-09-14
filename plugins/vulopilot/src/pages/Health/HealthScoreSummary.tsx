@@ -123,6 +123,7 @@ const HealthScoreSummary = () => {
 	return (
 		<>
 			<CardComponent
+				id="health-website-score-card"
 				title={__('Website health score', 'vulopilot')}
 				titleIcon="home"
 				desc={__('Your overall score plus open and critical findings site-wide.', 'vulopilot')}
@@ -151,6 +152,7 @@ const HealthScoreSummary = () => {
 			</CardComponent>
 
 			<CardComponent
+				id="health-score-by-pillar-card"
 				title={__('Score by pillar', 'vulopilot')}
 				titleIcon="category"
 				desc={__('Your score broken down by scanner area.', 'vulopilot')}
@@ -163,6 +165,7 @@ const HealthScoreSummary = () => {
 			</CardComponent>
 
 			<CardComponent
+				id="health-score-trend-card"
 				title={__('Health score trend, last 30 days', 'vulopilot')}
 				titleIcon="analytics"
 				desc={__('Your real overall health score, tracked daily.', 'vulopilot')}

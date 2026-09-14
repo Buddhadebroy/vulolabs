@@ -886,6 +886,7 @@ const SlowPagesTab = () => {
 				</CardComponent>
 
 				<CardComponent
+					id="slow-pages-why-card"
 					title={__('Why these pages are slow?', 'vulopilot')}
 					titleIcon="info"
 					desc={__('The most common issues dragging your pages down.', 'vulopilot')}

@@ -37,6 +37,7 @@ const AiSalesOptimizerCard = ({
 				{__('Pro', 'vulopilot')}
 			</span>
 			<CardComponent
+				id="ai-sales-optimizer-card"
 				className="ai-sales-optimizer-card"
 				titleIcon="ai"
 				title={__('AI Sales Optimizer', 'vulopilot')}

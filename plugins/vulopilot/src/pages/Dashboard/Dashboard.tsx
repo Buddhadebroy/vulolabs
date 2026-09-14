@@ -8,7 +8,7 @@ import {
 	ModuleGuardComponent,
 	NavigatorHeaderComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import GettingStartedCard from './GettingStartedCard';
 import { DashboardSummary } from '../../dashboard-widgets/types';
@@ -106,9 +106,24 @@ const Dashboard = () => {
 	// effect there even if a previous click already left it at the same
 	// value.
 	const [restoreDefaultSignal, setRestoreDefaultSignal] = useState(0);
-
-	const loadDashboard = () => {
-		setIsLoading(true);
+	/**
+	 * `silent` skips the `isLoading` flip — `isLoading` here is the one
+	 * flag every widget's own `WidgetProps.isLoading` reads (DashboardGrid.tsx),
+	 * so a normal (non-silent) call blanks the *entire* dashboard into
+	 * loading skeletons at once, real and appropriate for the initial
+	 * mount/"Run scan" success/"Retry" click below, but not for a single
+	 * widget's own real background mutation needing the shared `summary`
+	 * to catch up (e.g. AutomationStatusWidget.tsx's own enable/disable
+	 * toggle, via `onRefreshSummary` → DashboardGrid.tsx) — that widget
+	 * already shows its own real per-row toggle state instantly; flashing
+	 * every *other* widget on the page too read as the whole page
+	 * reloading (confirmed live) for a change that only needed this one
+	 * summary refetch to happen quietly underneath.
+	 */
+	const loadDashboard = (silent = false) => {
+		if (!silent) {
+			setIsLoading(true);
+		}
 		setError(null);
 
 		getApiResponse<DashboardSummary>(
@@ -128,44 +143,80 @@ const Dashboard = () => {
 
 				setSummary(response);
 			})
-			.finally(() => setIsLoading(false));
+			.finally(() => {
+				if (!silent) {
+					setIsLoading(false);
+				}
+			});
 	};
 
 	useEffect(loadDashboard, []);
 
-	// Build the buttons array based on isCustomizing state.
-	// When not customizing: show "Run complete audit" + "Customize dashboard".
-	// When customizing: show "Reset to default" + "Save changes".
-	const headerButtons = isCustomizing
-		? [
-				{
-					text: __('Reset to default', 'vulopilot'),
-					icon: 'refresh',
-					color: 'border-purple',
-					onClick: () =>
-						setRestoreDefaultSignal((signal) => signal + 1),
-				},
-				{
-					icon: 'form-checkboxes',
-					color: 'text-green',
-					onClick: () => setIsCustomizing(false),
-				},
-		  ]
-		: [
-				{
-					text: __('Run complete audit', 'vulopilot'),
-					icon: 'refresh',
-					color: 'border-purple',
-					onClick: () => {
-						loadDashboard();
+	// The shared RunScanHeaderExtra cluster (Run scan/gear/"Last scan: …",
+	// same real `POST /scans` trigger + settings link every other category
+	// page's own header already uses — RunScanHeaderExtra.tsx's own
+	// docblock) replaces the old "Run complete audit" button, which only
+	// ever refetched the already-loaded summary (`loadDashboard()`) rather
+	// than actually running a real scan; `onSuccess={loadDashboard}`
+	// refetches the summary once that real scan completes. `settingsSubtab`
+	// is "general" — same site-wide (no `categories`) choice Health.tsx's
+	// own identical whole-site header already uses.
+	//
+	// The edit/"Customize dashboard" toggle and its "Save changes" checkmark
+	// counterpart are RunScanHeaderExtra's own `trailingButtons`, per direct
+	// instruction, rather than a second `ButtonInput` this page renders
+	// beside it. "Reset to default" (unrelated to scanning, only shown
+	// while customizing) used to be a second, separate
+	// `run-scan-header-extra` box rendered before this component — two
+	// competing button clusters that visibly broke the row's layout
+	// (confirmed live) instead of reading as one continuous header row.
+	// It now takes "Run scan"'s own slot instead, via
+	// `replaceRunScanButton` — RunScanHeaderExtra's own "Run scan" button
+	// is still hidden while customizing (`hideRunScanButton`), starting a
+	// real scan mid-layout-edit doesn't make sense there, but that slot is
+	// no longer just left empty; the "Last scan: …" caption and settings
+	// gear are unaffected (gear already hidden on this page regardless).
+	const headerCustomContent = (
+		<RunScanHeaderExtra
+			settingsSubtab="general"
+			hideSettingsButton
+			hideRunScanButton={isCustomizing}
+			replaceRunScanButton={
+				isCustomizing
+					? {
+						text: __('Reset to default', 'vulopilot'),
+						icon: 'refresh',
+						color: 'border-purple',
+						onClick: () => {
+							setRestoreDefaultSignal((signal) => signal + 1);
+							// Same exit-customizing-mode step the checkmark
+							// ("Save changes") button already does —
+							// resetting is itself a completed change, so
+							// this leaves the header showing "Run scan"/edit
+							// again instead of leaving the user stuck in
+							// customize mode after the one action they came
+							// here for.
+							setIsCustomizing(false);
+						},
+					}
+					: undefined
+			}
+			onSuccess={loadDashboard}
+			trailingButtons={[
+				isCustomizing
+					? {
+						icon: 'form-checkboxes',
+						color: 'text-green',
+						onClick: () => setIsCustomizing(false),
+					}
+					: {
+						icon: 'edit',
+						color: 'text-purple',
+						onClick: () => setIsCustomizing(true),
 					},
-				},
-				{
-					icon: 'edit',
-					color: 'text-purple',
-					onClick: () => setIsCustomizing(true),
-				},
-		  ];
+			]}
+		/>
+	);
 
 	const pageHeader = (
 		<NavigatorHeaderComponent
@@ -180,9 +231,7 @@ const Dashboard = () => {
 				"Here's how your site is doing.",
 				'vulopilot'
 			)}
-			headerCustomContent={
-				<ButtonInput buttons={headerButtons} />
-			}
+			headerCustomContent={headerCustomContent}
 		/>
 	);
 
@@ -216,6 +265,7 @@ const Dashboard = () => {
 					isLoading={isLoading}
 					isCustomizing={isCustomizing}
 					restoreDefaultSignal={restoreDefaultSignal}
+					onRefreshSummary={() => loadDashboard(true)}
 				/>
 			</ContainerComponent>
 		</>

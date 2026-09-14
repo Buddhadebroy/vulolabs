@@ -57,14 +57,16 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 	{
 		id: 'overall-score',
 		title: __('Vital Pulse', 'vulopilot'),
+		desc: __('Your real sitewide health score, critical-issue count, and last scan time.', 'vulopilot'),
 		icon: 'analytics',
 		grid: 6,
 		component: OverallScoreWidget,
 	},
-	
+
 	{
 		id: 'vulopilot-activity',
 		title: __('VuloPilot activity', 'vulopilot'),
+		desc: __('Real AI crawler visits, automation runs, and pending approvals over time.', 'vulopilot'),
 		icon: 'analytics',
 		grid: 6,
 		component: VuloPilotActivityWidget,
@@ -72,6 +74,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 	{
 		id: 'needs-attention',
 		title: __('Needs your attention', 'vulopilot'),
+		desc: __('Real open issues, quick fixes, and pending approvals that need action.', 'vulopilot'),
 		icon: 'error',
 		grid: 6,
 		component: NeedsAttentionWidget,
@@ -79,33 +82,52 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 	{
 		id: 'recent-activity',
 		title: __('Recent activity', 'vulopilot'),
+		desc: __('A real feed of meaningful site events — scans, fixes, and changes.', 'vulopilot'),
 		icon: 'clock',
 		grid: 6,
 		component: RecentActivityWidget,
 	},
 	{
-		id: 'key-pages',
-		title: __('Key pages at a glance', 'vulopilot'),
-		icon: 'pages',
-		grid: 6,
-		component: KeyPagesWidget,
-	},
-	{
 		id: 'site-snapshot',
 		title: __('Site snapshot', 'vulopilot'),
+		desc: __('Real WordPress core counts — posts, pages, comments, users, and active plugins.', 'vulopilot'),
 		icon: 'info',
-		grid: 6,
+		grid: 8,
 		component: SiteSnapshotWidget,
 	},
-	/**
 	{
-		id: 'recent-changes',
-		title: __('Recent Changes', 'vulopilot'),
-		icon: 'update',
-		grid: 12,
-		component: RecentChangesWidget,
+		id: 'automation-status',
+		title: __('Automation status', 'vulopilot'),
+		desc: __('How many automations are enabled vs disabled, and their most recent runs.', 'vulopilot'),
+		icon: 'automation',
+		grid: 4,
+		component: AutomationStatusWidget,
 	},
-	**/
+	{
+		id: 'key-pages',
+		title: __('Key pages at a glance', 'vulopilot'),
+		desc: __('Your published pages ranked by their own real open-finding count.', 'vulopilot'),
+		icon: 'pages',
+		grid: 4,
+		component: KeyPagesWidget,
+	},
+
+	{
+		id: 'crawler-traffic',
+		title: __('AI crawler traffic', 'vulopilot'),
+		desc: __('A quick look at real AI crawler visits, with a link to the full report.', 'vulopilot'),
+		icon: 'global-community',
+		grid: 4,
+		component: CrawlerTrafficWidget,
+	},
+	// {
+	// 	id: 'latest-reports',
+	// 	title: __('Latest reports', 'vulopilot'),
+	// 	desc: __('Your most recently generated reports.', 'vulopilot'),
+	// 	icon: 'report',
+	// 	grid: 4,
+	// 	component: LatestReportsWidget,
+	// },
 ];
 
 /**
@@ -126,42 +148,6 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
  */
 
 const STAT_WIDGET_CONFIGS: StatWidgetConfig[] = [];
-
-
-/**
- * Widgets with custom layouts
- */
-const STANDALONE_WIDGETS: WidgetDefinition[] = [
-	{
-		id: 'automation-status',
-		title: __('Automation status', 'vulopilot'),
-		icon: 'automation',
-		grid: 4,
-		component: AutomationStatusWidget,
-	},
-	{
-		id: 'crawler-traffic',
-		title: __('AI crawler traffic', 'vulopilot'),
-		icon: 'global-community',
-		grid: 4,
-		component: CrawlerTrafficWidget,
-	},
-	{
-		id: 'knowledge-graph',
-		title: __('Knowledge Graph', 'vulopilot'),
-		icon: 'centralized-connections',
-		grid: 4,
-		component: KnowledgeGraphWidget,
-	},
-	{
-		id: 'latest-reports',
-		title: __('Latest reports', 'vulopilot'),
-		icon: 'report',
-		grid: 4,
-		component: LatestReportsWidget,
-	},
-];
-
 
 const STAT_WIDGETS: WidgetDefinition[] = STAT_WIDGET_CONFIGS.map(
 	(config) => ({
@@ -193,7 +179,6 @@ export const DEFAULT_DASHBOARD_WIDGETS: WidgetDefinition[] = applyFilters(
 	// order (DashboardLayout.php persists that separately from this array).
 		[
 			...MOCKUP_WIDGETS,
-			...STANDALONE_WIDGETS,
 			...STAT_WIDGETS,
 		]
 	) as WidgetDefinition[];

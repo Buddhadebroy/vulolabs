@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { __ } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
-import { BadgeComponent, CardComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard, TableRow } from '@zyra/table';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -61,90 +61,102 @@ const ReportHistoryTable = () => {
 	};
 
 	return (
-		<div id="reports-history">
-			<CardComponent
-				title={__('Report History', 'vulopilot')}
-				titleIcon="history"
-				desc={__('A complete log of all generated reports.', 'vulopilot')}
-			>
-				{error ? (
-					<ModuleGuardComponent
-						icon="error"
-						title={__('Could not load reports', 'vulopilot')}
-						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={refetch}
-					/>
-				) : (
-					<TableCard
-						format={appLocalizer.date_format_js}
-						headers={{
-							report_type: {
-								label: __('Report Name', 'vulopilot'),
-								render: (row: ReportRow) =>
-									typeLabels[row.report_type] ||
-									getReportTypeMeta(row.report_type).shortLabel,
-							},
-							type: {
-								label: __('Type', 'vulopilot'),
-								render: (row: ReportRow) => {
-									const meta = getReportTypeMeta(row.report_type);
-									return (
-										<BadgeComponent
-											color={meta.badgeColor}
-											text={meta.shortLabel}
-										/>
-									);
+		<CardComponent
+			id="reports-history"
+			title={__('Report History', 'vulopilot')}
+			titleIcon="history"
+			desc={__('A complete log of all generated reports.', 'vulopilot')}
+		>
+			{error ? (
+				<ModuleGuardComponent
+					icon="error"
+					title={__('Could not load reports', 'vulopilot')}
+					desc={error}
+					buttonText={__('Retry', 'vulopilot')}
+					onButtonClick={refetch}
+				/>
+			) : (
+				<TableCard
+					hideHeader={true}
+					format={appLocalizer.date_format_js}
+					headers={{
+						report_type: {
+							label: __('Report Name', 'vulopilot'),
+							type: 'info',
+							key: 'reportName',
+							descriptionKey: 'reportDesc',
+							badgesKey: 'reportBadges',
+						},
+						actions: {
+							label: __('Actions', 'vulopilot'),
+							type: 'action',
+							actions: [
+								{
+									type: 'button',
+									color: 'text-blue',
+									label: (row?: Record<string, unknown>) =>
+										row?.status === 'ready'
+											? __('View', 'vulopilot')
+											: __('Not ready yet', 'vulopilot'),
+									icon: 'eye',
+									onClick: handleDownload,
 								},
-							},
-							period: {
-								label: __('Period', 'vulopilot'),
-								render: (row: ReportRow) =>
-									row.period_start && row.period_end
-										? `${formatWpDate(row.period_start)} – ${formatWpDate(row.period_end)}`
-										: '—',
-							},
-							status: {
-								label: __('Status', 'vulopilot'),
-								type: 'badge',
-								statusClass: (row: ReportRow) => `status-${row.status}`,
-							},
-							created_at: {
-								label: __('Date', 'vulopilot'),
-								type: 'date',
-								isSortable: true,
-								defaultSort: true,
-								defaultOrder: 'desc',
-							},
-							actions: {
-								label: __('Actions', 'vulopilot'),
-								type: 'action',
-								actions: [
-									{
-										label: (row?: Record<string, unknown>) =>
-											row?.status === 'ready'
-												? __('View', 'vulopilot')
-												: __('Not ready yet', 'vulopilot'),
-										icon: 'eye',
-										onClick: handleDownload,
-									},
-								],
-							},
-						}}
-						rows={data}
-						ids={data.map((row) => row.id)}
-						totalRows={total}
-						categoryCounts={categoryCounts}
-						isLoading={isLoading}
-						onQueryUpdate={onQueryUpdate}
-						emptyMessage={__(
-							'No reports yet — generate your first report from the Report Builder tab.',
-							'vulopilot'
-						)}
-					/>
-				)}
-			</CardComponent>
-		</div>
+							],
+						},
+					}}
+					rows={data.map((row: ReportRow) => {
+						const meta = getReportTypeMeta(row.report_type);
+
+						return {
+							...row,
+							reportName:
+								typeLabels[row.report_type] || meta.shortLabel,
+							// Real "Period" range, folded into this row's own
+							// description with a real label prefix
+							// (InformationItemComponent's own `desc.label`)
+							// instead of a separate column — per direct
+							// instruction.
+							reportDesc: [
+								{
+									label: __('Period', 'vulopilot'),
+									value:
+										row.period_start && row.period_end
+											? `${formatWpDate(row.period_start)} – ${formatWpDate(row.period_end)}`
+											: '—',
+								},
+							],
+							// Real status + type + "Date" badges, folded into
+							// this same info column instead of 3 separate
+							// columns — per direct instruction.
+							reportBadges: [
+								{
+									text: statusOptions.find(
+										(option) => option.value === row.status
+									)?.label ?? row.status,
+									color:
+										'ready' === row.status
+											? 'green'
+											: 'generating' === row.status
+												? 'orange'
+												: 'red',
+								},
+								{ text: meta.shortLabel, color: meta.badgeColor },
+								{ text: formatWpDate(row.created_at), color: 'indigo' },
+							],
+						};
+					})}
+					ids={data.map((row) => row.id)}
+					totalRows={total}
+					categoryCounts={categoryCounts}
+					isLoading={isLoading}
+					onQueryUpdate={onQueryUpdate}
+					emptyMessage={__(
+						'No reports yet — generate your first report from the Report Builder tab.',
+						'vulopilot'
+					)}
+				/>
+			)}
+		</CardComponent>
 	);
 };
 

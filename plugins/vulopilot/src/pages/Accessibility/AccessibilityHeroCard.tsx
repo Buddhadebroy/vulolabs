@@ -58,6 +58,13 @@ const RATING_COLOR: Record<Rating['className'], string> = {
 	poor: COLOR_PALETTE.red,
 };
 
+/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex — for the ring's center number, which (unlike the ring itself) reads a class name through that prop, not a CSS color. */
+const TEXT_COLOR: Record<Rating['className'], string> = {
+	good: 'green',
+	'needs-improvement': 'orange',
+	poor: 'red',
+};
+
 /** Same real bands as `getScoreRating()` above, mapped to the real palette class name the ring color map is keyed by. */
 const ratingClass = (score: number): Rating['className'] => {
 	return getScoreRating(score).className;
@@ -162,9 +169,19 @@ const AccessibilityHeroCard = ({
 							<ChartComponent
 								type="ring"
 								height={200}
+								// Top-level `color` — see SecurityStatusCard.tsx's
+								// own identical fix: `type="ring"` only ever paints
+								// its stroke from this prop, never from
+								// `data[].color`, so without it the ring stayed
+								// `ChartComponent`'s default brand purple regardless
+								// of score.
+								color={RATING_COLOR[ratingClass(overallScore)]}
 								centerLabel={
 									<>
-										<TypographyComponent variant={'h1'}>
+										<TypographyComponent
+											variant={'h1'}
+											color={TEXT_COLOR[ratingClass(overallScore)]}
+										>
 											{overallScore}
 										</TypographyComponent>
 										<TypographyComponent variant={'h4'}>

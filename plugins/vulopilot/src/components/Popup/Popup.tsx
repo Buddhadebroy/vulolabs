@@ -247,8 +247,19 @@ const ShowProPopup: React.FC<PopupProps> = (props) => {
 									// '_self'), which silently left the
 									// user looking at the still-locked
 									// widget with no visible feedback.
+									//
+									// `tab=settings&subtab=modules`, not the
+									// old standalone `tab=modules` route —
+									// the real Modules UI moved there per
+									// direct instruction (Modules.ts's own
+									// docblock); that old route is still
+									// registered and renders the same real
+									// page, but it's no longer in the WP
+									// sidebar, so a deep-link landing there
+									// left the admin with no breadcrumb/
+									// highlighted-menu-item back out.
 									window.open(
-										`${appLocalizer.admin_url}#&tab=modules&module=${props.moduleName}`,
+										`${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=${props.moduleName}`,
 										'_self'
 									);
 								},

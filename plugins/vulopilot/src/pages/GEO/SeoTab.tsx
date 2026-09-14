@@ -292,16 +292,31 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 										<ChartComponent
 											type="ring"
 											height={200}
+											// Top-level `color` — `type="ring"` only ever
+											// paints its stroke from this prop, never from
+											// `data[].color` below (that's `type="pie"`'s
+											// own read — see OverviewTab.tsx's/
+											// BusinessProfileCard.tsx's identical fix/
+											// docblock) — without it the ring always
+											// rendered in `ChartComponent`'s default brand
+											// purple regardless of score, disagreeing with
+											// the center number's own real rating color.
+											color={
+												COLOR_PALETTE[
+													ratingColor(score.seo_score) as keyof typeof COLOR_PALETTE
+												]
+											}
 											centerLabel={
 												<>
-													<span className="score-ring-number">
-														{score.seo_score}
-													</span>
-													<span
-														className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
+													<TypographyComponent
+														variant={'h1'}
+														color={ratingColor(score.seo_score)}
 													>
+														{score.seo_score}
+													</TypographyComponent>
+													<TypographyComponent variant={'h4'}>
 														{getRating(score.seo_score)}
-													</span>
+													</TypographyComponent>
 												</>
 											}
 											data={[
@@ -328,6 +343,24 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 												},
 											]}
 										/>
+										{/*
+										 * "Overall Score" — was a verbatim repeat of
+										 * this card's own header title ("SEO Health")
+										 * right above it, with the caption below it
+										 * repeating the header's own `desc` too. Matched
+										 * to OverallScoreWidget.tsx's/OverviewTab.tsx's
+										 * own real shape instead: a distinct inner
+										 * label, and `scoreSummary()` (already defined
+										 * in this file, used elsewhere) for a real
+										 * dynamic per-tier caption rather than a static
+										 * repeat.
+										 */}
+										<TypographyComponent variant={'h3'} color="text-green">
+											{__('Overall Score', 'vulopilot')}
+										</TypographyComponent>
+										<div className="desc">
+											{scoreSummary(score.seo_score)}
+										</div>
 								</div>
 								{/*
 							 * Same 6 real per-category scores the old

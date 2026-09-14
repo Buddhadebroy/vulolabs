@@ -234,6 +234,8 @@ const IssuesSection = ({
 	const [hasError, setHasError] = useState(false);
 	const [reloadToken, setReloadToken] = useState(0);
 	const sectionRef = useRef<HTMLDivElement>(null);
+	/** Guards the auto-open effect below so it only ever fires once per mount, not every time `rows` gets a new array reference (e.g. after a refetch) — otherwise re-opening the panel would silently undo a real "close" click. */
+	const hasAutoOpenedRef = useRef(false);
 
 	// `content.toolbarFilters`'s own real state — `RecentContentCard.tsx`'s
 	// original bespoke toolbar, restored in place of the usual
@@ -503,6 +505,21 @@ const IssuesSection = ({
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- `scannerIds` is a fresh array every render from every real call site (inline `.flatMap()`/literal); re-running on its own reference would refetch every render. Callers never change which scanner ids a given tab covers at runtime, so `reloadToken` (Retry) / `reloadSignal` (a parent-triggered reload, e.g. `RecentContentCard.tsx`'s own real Delete) are the only real triggers this needs.
 	}, [reloadToken, reloadSignal]);
+
+	// Default-opens the first row's "More Details" panel (SeoTab.tsx's own
+	// PageAnalysisPanel sidebar) once real rows load, same as a click on
+	// that first row's own "More Details" action — only for SeoTab.tsx's
+	// SEO usage (the only real caller that passes `onAnalyze`), and only
+	// once per mount (`hasAutoOpenedRef`), so closing the panel afterward
+	// doesn't immediately reopen it.
+	useEffect(() => {
+		if (!onAnalyze || hasAutoOpenedRef.current || 0 === rows.length) {
+			return;
+		}
+
+		hasAutoOpenedRef.current = true;
+		onAnalyze(rows[0].id);
+	}, [rows, onAnalyze]);
 
 	useEffect(() => {
 		getApiResponse<{ data: FindingGroupRow[] }>(

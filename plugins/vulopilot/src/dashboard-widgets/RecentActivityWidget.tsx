@@ -1,7 +1,9 @@
 /* global appLocalizer */
-import React from 'react';
+import React, { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useApiList } from '../services/useApiList';
+import { toHistoryRow } from '../pages/AIAssistant/historyTypes';
+import HistoryTimeline from '../pages/Reports/HistoryTimeline';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';
 
@@ -9,6 +11,8 @@ interface ActivityLogRow {
 	id: number;
 	message: string;
 	created_at: string;
+	/** Real column on every `activity-logs` row (a plain `SELECT *`) — this local interface just didn't type it before, since nothing here read it. */
+	event_type: string;
 }
 
 /**
@@ -26,39 +30,6 @@ const ACTIVITY_EVENT_TYPES = [
 	'ai_action.executed',
 	'ai_action.failed',
 ].join(',');
-
-const timeAgo = (dateString: string): string => {
-	const seconds = Math.max(
-		0,
-		Math.floor((Date.now() - new Date(dateString).getTime()) / 1000)
-	);
-
-	if (seconds < 60) {
-		return __('just now', 'vulopilot');
-	}
-	const minutes = Math.floor(seconds / 60);
-	if (minutes < 60) {
-		return sprintf(
-			/* translators: %d: minutes since this real event happened. */
-			__('%dm ago', 'vulopilot'),
-			minutes
-		);
-	}
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) {
-		return sprintf(
-			/* translators: %d: hours since this real event happened. */
-			__('%dh ago', 'vulopilot'),
-			hours
-		);
-	}
-	const days = Math.floor(hours / 24);
-	return sprintf(
-		/* translators: %d: days since this real event happened. */
-		__('%dd ago', 'vulopilot'),
-		days
-	);
-};
 
 /**
  * "Recent activity" — `GET /activity-logs`, the same real, generic
@@ -78,6 +49,14 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 		'activity-logs',
 		{ event_type: ACTIVITY_EVENT_TYPES, per_page: 6 }
 	);
+	// Purely local UI state — this compact widget shows no side detail
+	// panel for a selected row, so nothing else reads it; still real and
+	// working (a clicked row visibly highlights via HistoryTimeline's own
+	// real `.selected` class), not a fabricated no-op.
+	const [selectedRow, setSelectedRow] = useState<ReturnType<
+		typeof toHistoryRow
+	> | null>(null);
+	const historyRows = data.map(toHistoryRow);
 
 	return (
 		<DashboardWidget
@@ -94,7 +73,7 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 			headerAction={
 				<a
 					href={`${appLocalizer.admin_url}#&tab=reports&subtab=activity`}
-					className="vital-pulse-full-report-link"
+					className="link-item"
 				>
 					{__('View all activity ›', 'vulopilot')}
 				</a>
@@ -109,19 +88,23 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 				</div>
 			)}
 			{!isLoading && data.length > 0 && (
-				<div className="activity-log">
-					{data.map((row) => (
-						<div className="activity" key={row.id}>
-							<div className="title">
-								{row.message}
-							</div>
-
-							<span>
-								{timeAgo(row.created_at)}
-							</span>
-						</div>
-					))}
-				</div>
+				<HistoryTimeline
+					rows={historyRows}
+					total={historyRows.length}
+					selectedRow={selectedRow}
+					onSelectRow={setSelectedRow}
+					isLoadingMore={false}
+					onLoadMore={() => {}}
+					// Real navigation to the full History tab (Reports →
+					// History) — this widget has no side detail panel of
+					// its own for the arrow to open a row into.
+					onArrowClick={() => {
+						window.open(
+							`${appLocalizer.admin_url}#&tab=reports&subtab=history`,
+							'_self'
+						);
+					}}
+				/>
 			)}
 		</DashboardWidget>
 	);

@@ -644,16 +644,29 @@ const RedirectsSection = () => {
 								<ChartComponent
 									type="ring"
 									height={200}
+									// Top-level `color` — `type="ring"` only ever
+									// paints its stroke from this prop, never from
+									// `data[].color` below (see SeoTab.tsx's own
+									// identical fix) — without it the ring stayed
+									// `ChartComponent`'s default brand purple
+									// regardless of the real active-redirect
+									// percentage.
+									color={
+										COLOR_PALETTE[
+											ratingColor(activePercent) as keyof typeof COLOR_PALETTE
+										]
+									}
 									centerLabel={
 										<>
-											<span className="score-ring-number">
-												{activePercent}
-											</span>
-											<span
-												className={`score-ring-label geo-overall-rating ${ratingClass(activePercent)}`}
+											<TypographyComponent
+												variant={'h1'}
+												color={ratingColor(activePercent)}
 											>
+												{activePercent}
+											</TypographyComponent>
+											<TypographyComponent variant={'h4'}>
 												{getRating(activePercent)}
-											</span>
+											</TypographyComponent>
 										</>
 									}
 									data={[
@@ -671,6 +684,12 @@ const RedirectsSection = () => {
 										},
 									]}
 								/>
+								<TypographyComponent variant={'h3'} color="text-green">
+									{__('Redirect Health', 'vulopilot')}
+								</TypographyComponent>
+								<div className="desc">
+									{__('How many of your redirects are active and working.', 'vulopilot')}
+								</div>
 						</div>
 						{/*
 					 * Same real `ListComponent` "mini-card report" row

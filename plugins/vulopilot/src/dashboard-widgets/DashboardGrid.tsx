@@ -21,6 +21,8 @@ interface DashboardGridProps {
 	 * between them).
 	 */
 	restoreDefaultSignal?: number;
+	/** Forwarded straight through to every widget's own `onRefreshSummary` (WidgetProps' own docblock) — Dashboard.tsx's own `loadDashboard`. */
+	onRefreshSummary: () => void;
 }
 
 /** What ReactSortable actually needs on every list item — see react-sortablejs's own usage in PanelEditor.tsx (Zyra's builders package) for this exact `list`/`setList` shape. */
@@ -58,6 +60,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 	isLoading,
 	isCustomizing,
 	restoreDefaultSignal,
+	onRefreshSummary,
 }) => {
 	const [layout, setLayout] = useState<WidgetLayoutEntry[]>([]);
 	const [isLayoutLoading, setIsLayoutLoading] = useState(true);
@@ -195,6 +198,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 					isLoading={isLoading}
 					onHide={() => handleHide(widget.id)}
 					isCustomizing={isCustomizing}
+					onRefreshSummary={onRefreshSummary}
 				/>
 			</ColumnComponent>
 		);

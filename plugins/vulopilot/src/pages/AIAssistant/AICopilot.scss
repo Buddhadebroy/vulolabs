@@ -483,39 +483,27 @@
 }
 
 // "Site Overview" card (NeedsAttentionCard.tsx) — a real health-score
-// breakdown read from `GET /dashboard`: a ring for `overall_score` beside
-// its own "Overall Health"/rating text, the 4 real category_scores as
-// plain icon+label+score rows, and a footer count + "View all issues"
-// link. Same green/orange/red 3 split (getScoreTone()) colors both
-// the ring's own rating text and each row's score number, so a row's
-// color never disagrees with the headline rating it rolls up into.
+// breakdown read from `GET /dashboard`: zyra's own real, shared
+// `ScoreRingComponent` for `overall_score` (its own "Overall Health"/
+// rating text now inside the ring's own `label` slot, not a separate text
+// column beside it — matching the same ring structure GeoVisibilitySummaryCard.tsx
+// and friends already use), the 4 real category_scores as plain
+// icon+label+score rows, and a footer count + "View all issues" link.
+// Same green/orange/red 3 split (getScoreTone()) colors both the ring's
+// own rating text and each row's score number, so a row's color never
+// disagrees with the headline rating it rolls up into.
 .site-overview-health {
 	display: flex;
-	align-items: center;
-	gap: 1rem;
+	justify-content: center;
 	margin-bottom: 1rem;
-
-	// zyra's own `.zyra-chart { width: 100%; }` fills this flex row
-	// entirely when only `flex-shrink: 0` is set (confirmed live: the
-	// ring claimed the full card width, squeezing site-overview-health-text
-	// down to ~60px and overflowing it past the card) — a fixed width
-	// matching the ring's own `height={100}` prop (NeedsAttentionCard.tsx)
-	// keeps it square instead.
-	.zyra-chart {
-		flex: 0 0 6.25rem;
-		width: 6.25rem;
-	}
 }
 
-.site-overview-health-text {
-	flex: 1;
-	min-width: 0;
-}
-
-.site-overview-ring-number {
-	font-size: 1.5rem;
-	font-weight: 700;
-	color: $text-color;
+// `label` (ScoreRingComponent.tsx) renders inside one real `.score-ring-label`
+// span — these 2 stack inside it as their own block-level lines rather
+// than running together inline.
+.site-overview-health-title,
+.site-overview-health-rating {
+	display: block;
 }
 
 .site-overview-health-title {

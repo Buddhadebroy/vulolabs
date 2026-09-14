@@ -176,13 +176,15 @@ class Admin {
                 // settings after general tab"): its real content
                 // (ModuleGridComponent) now renders as Settings' own
                 // "Modules" tab instead (src/components/Settings/Modules.ts,
-                // priority 1.5, right after "General"). The `tab=modules`
-                // React route (src/routes.ts) is still registered and
-                // fully working, reachable directly via
-                // `admin.php?page=vulopilot#&tab=modules` — only this
-                // native submenu row was removed, same "route stays real,
-                // just not in the native submenu list" treatment every
-                // entry in legacy_submenus() below already gets.
+                // priority 1.5, right after "General"). The old `tab=modules`
+                // React route (src/routes.ts) stayed registered for a
+                // while as a reachable-but-unlinked fallback, same "route
+                // stays real, just not in the native submenu list"
+                // treatment every entry in legacy_submenus() below still
+                // gets — but was later removed outright too, per direct
+                // instruction, once every real deep-link to it had been
+                // repointed at `admin.php?page=vulopilot#&tab=settings&subtab=modules`
+                // instead.
             )
         );
 

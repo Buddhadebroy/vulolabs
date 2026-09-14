@@ -92,6 +92,13 @@ const ratingClass = (score: number): Rating['className'] => {
 	return getScoreRating(score).className;
 };
 
+/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex — for the hero ring's center number below, which (unlike `ScoreTile`/`VitalRow`'s own `className`-driven `<span>`s) reads a class name through this prop, not a CSS color. */
+const TEXT_COLOR: Record<Rating['className'], string> = {
+	good: 'green',
+	'needs-improvement': 'orange',
+	poor: 'red',
+};
+
 /** Google's real, public Core Web Vitals thresholds — LCP/INP in ms, CLS unitless. */
 const CWV_THRESHOLDS: Record<'lcp' | 'inp' | 'cls', { good: number; needsImprovement: number }> = {
 	lcp: { good: 2500, needsImprovement: 4000 },
@@ -338,6 +345,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 		<ContainerComponent>
 			<ColumnComponent grid={6} row fullHeight>
 				<CardComponent
+					id="performance-overall-speed-score-card"
 					title={__('Overall Speed Score', 'vulopilot')}
 					titleIcon="analytics"
 					desc={__('Your real performance score from Google PageSpeed Insights.', 'vulopilot')}
@@ -367,9 +375,21 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 									<ChartComponent
 										type="ring"
 										height={200}
+										// Top-level `color` — same prop this file's own
+										// `ScoreTile`/`VitalRow` rings already set
+										// correctly (`type="ring"` only ever paints its
+										// stroke from this prop, never from
+										// `data[].color`); this hero ring was the one
+										// place in the file that still lacked it, so it
+										// alone stayed `ChartComponent`'s default brand
+										// purple regardless of score.
+										color={RATING_COLOR[ratingClass(overallScore)]}
 										centerLabel={
 											<>
-												<TypographyComponent variant={'h1'}>
+												<TypographyComponent
+													variant={'h1'}
+													color={TEXT_COLOR[ratingClass(overallScore)]}
+												>
 													{overallScore}
 												</TypographyComponent>
 												<TypographyComponent variant={'h4'}>

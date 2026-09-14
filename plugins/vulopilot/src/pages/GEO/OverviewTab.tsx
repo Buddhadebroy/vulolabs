@@ -17,6 +17,8 @@ import { ButtonInput, ToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import { toHistoryRow } from '../AIAssistant/historyTypes';
+import HistoryTimeline from '../Reports/HistoryTimeline';
 import { useVisibilityScore } from './useVisibilityScore';
 import type { VisibilityScoreResponse } from './useVisibilityScore';
 import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
@@ -45,6 +47,17 @@ const ratingClass = (score: number): string => {
 		return 'blue';
 	}
 	return 'red';
+};
+
+/** Dynamic caption under the ring's own "Overall Score" label — same real per-tier wording shape OverallScoreWidget.tsx's own `getRatingSummary()` uses on the Dashboard, ported here rather than shared since the two use different score thresholds (this tab's own `getRating()` 70/40 split, not the Dashboard's 90/70/50). Replaces what used to be a plain repeat of this card's own header `desc` text right below it. */
+const getRatingSummary = (score: number): string => {
+	if (score >= 70) {
+		return __('Your visibility is in good shape across the board.', 'vulopilot');
+	}
+	if (score >= 40) {
+		return __('Your visibility could use some improvement.', 'vulopilot');
+	}
+	return __('Your visibility needs attention in several areas.', 'vulopilot');
 };
 
 /** Real CSS hex per `ratingClass()` tier — `ChartComponent`'s own ring `data[].color` takes a real CSS color, not a palette name the way `TypographyComponent`'s own `color` prop does, so this small map exists just for the ring fill (same "duplicate per file" convention `SeoTab.tsx`'s own `COLOR_PALETTE` lookup covers there with a shared constant this file doesn't import). */
@@ -94,6 +107,8 @@ interface ActivityLogRow {
 	id: number;
 	message: string;
 	created_at: string;
+	/** Real column on every `activity-logs` row (a plain `SELECT *`) — this local interface just didn't type it before, since nothing here read it. */
+	event_type: string;
 }
 
 /**
@@ -114,23 +129,6 @@ const ACTIVITY_EVENT_TYPES = [
 	'ai_action.executed',
 	'ai_action.failed',
 ].join(',');
-
-const timeAgo = (dateString: string): string => {
-	const seconds = Math.max(0, Math.floor((Date.now() - new Date(dateString).getTime()) / 1000));
-	if (seconds < 60) {
-		return __('just now', 'vulopilot');
-	}
-	const minutes = Math.floor(seconds / 60);
-	if (minutes < 60) {
-		return sprintf(__('%dm ago', 'vulopilot'), minutes);
-	}
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) {
-		return sprintf(__('%dh ago', 'vulopilot'), hours);
-	}
-	const days = Math.floor(hours / 24);
-	return sprintf(__('%dd ago', 'vulopilot'), days);
-};
 
 /** Real `FindingGroup.category` values → the real SEO & Visibility subtab that owns that category's findings — kept in sync manually with each area's own scanner-id list, same posture Visibility.php's own `AREA_SCANNER_IDS` already documents. Defaults to 'seo', this plugin's own largest real issues surface. */
 const CATEGORY_TO_TAB: Record<string, string> = {
@@ -312,6 +310,14 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 		'activity-logs',
 		{ event_type: ACTIVITY_EVENT_TYPES, per_page: 5 }
 	);
+	// Purely local UI state — this card shows no side detail panel for a
+	// selected row, so nothing else reads it; still real and working (a
+	// clicked row visibly highlights via HistoryTimeline's own real
+	// `.selected` class), not a fabricated no-op.
+	const [selectedActivityRow, setSelectedActivityRow] = useState<ReturnType<
+		typeof toHistoryRow
+	> | null>(null);
+	const activityHistoryRows = activity.map(toHistoryRow);
 
 	const areas = score?.areas;
 
@@ -355,16 +361,30 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 									<ChartComponent
 										type="ring"
 										height={200}
+										// Top-level `color` — same prop `OverallScoreWidget.tsx`'s
+										// own identical ring reads for its actual stroke
+										// (`type="ring"` never reads a per-row `data[].color`
+										// the way `type="pie"` does — see BusinessProfileCard.tsx's
+										// own docblock on this same point). Without it the ring
+										// always rendered in `ChartComponent`'s own default brand
+										// color regardless of score, while the center number above
+										// already colored itself correctly via `ratingClass()` — so
+										// the two visibly disagreed (a purple ring around a green
+										// "88"). `data[].color` below is now purely the pie/legend
+										// fallback shape `ChartComponent` still expects, not what
+										// actually paints this ring.
+										color={RATING_RING_COLOR[ratingClass(score.visibility_score)]}
 										centerLabel={
 											<>
-												<span className="score-ring-number">
-													{score.visibility_score}
-												</span>
-												<span
-													className={`score-ring-label geo-overall-rating ${ratingClass(score.visibility_score)}`}
+												<TypographyComponent
+													variant={'h1'}
+													color={ratingClass(score.visibility_score)}
 												>
+													{score.visibility_score}
+												</TypographyComponent>
+												<TypographyComponent variant={'h4'}>
 													{getRating(score.visibility_score)}
-												</span>
+												</TypographyComponent>
 											</>
 										}
 										data={[
@@ -380,6 +400,22 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 											},
 										]}
 									/>
+									{/*
+									 * "Overall Score" — was a verbatim repeat of this card's
+									 * own header title ("Visibility Score") right above it, with
+									 * the caption below it repeating the header's own `desc` too
+									 * (same real duplication OverallScoreWidget.tsx's own
+									 * identical ring never has: its inner label reads "Overall
+									 * Score" against a "Website Health Scores" header, and its
+									 * caption is a real dynamic rating summary, not a static
+									 * repeat). Matched to that same real shape here instead.
+									 */}
+									<TypographyComponent variant={'h3'} color="text-green">
+										{__('Overall Score', 'vulopilot')}
+									</TypographyComponent>
+									<div className="desc">
+										{getRatingSummary(score.visibility_score)}
+									</div>
 							</div>
 							<div className="overall-score-summary">
 							<ListComponent
@@ -518,23 +554,28 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							desc={__('Scans, alerts, and applied fixes will appear here as they happen.', 'vulopilot')}
 						/>
 					) : (
-						// Hand-rolled per direct instruction (reverts this
-						// card specifically off `ActivityListComponent`,
-						// back to the same real vertical-timeline
-						// `.activity-log`/`.activity` markup/SCSS this tab
-						// used before — see the matching rules in
-						// `SeoVisibility.scss`, already imported here).
-						// Same real `activity` rows either way, just this
-						// card's own layout now instead of that shared
-						// component's.
-						<ul className="activity-log">
-							{activity.map((row) => (
-								<li className="activity" key={row.id}>
-									<span>{timeAgo(row.created_at)}</span>
-									<div className="title">{row.message}</div>
-								</li>
-							))}
-						</ul>
+						// This card's own hand-rolled `.activity-log`
+						// markup was previously reverted off a shared
+						// component per an earlier direct instruction — now
+						// switched to HistoryTimeline (Reports/HistoryTimeline.tsx),
+						// the current shared component every real "recent
+						// activity" surface in this plugin uses, per a
+						// newer direct instruction superseding that one.
+						<HistoryTimeline
+							rows={activityHistoryRows}
+							total={activityHistoryRows.length}
+							selectedRow={selectedActivityRow}
+							onSelectRow={setSelectedActivityRow}
+							isLoadingMore={false}
+							onLoadMore={() => {}}
+							// Real navigation to the full History tab
+							// (Reports → History) — this card has no side
+							// detail panel of its own for the arrow to
+							// open a row into.
+							onArrowClick={() => {
+								window.location.href = `${appLocalizer.admin_url}#&tab=reports&subtab=history`;
+							}}
+						/>
 					)}
 				</CardComponent>
 			</ColumnComponent>

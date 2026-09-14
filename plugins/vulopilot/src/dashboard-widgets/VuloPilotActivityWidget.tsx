@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, AnalyticsComponent } from '@zyra/core';
-import { ChartComponent } from '@zyra/components';
+import { ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
+import ProLockedCard from '../components/ProLockedCard';
 import { useApiList } from '../services/useApiList';
 import { useLastScanTime } from '../services/useLastScanTime';
 import { formatWpDate } from '../services/formatWpDate';
@@ -157,6 +158,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Health timeline', 'vulopilot')}
+			desc={__('How your health scores have trended over time.', 'vulopilot')}
 			icon="analytics"
 			isLoading={isLoading}
 			onHide={onHide}
@@ -171,7 +173,21 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 			}
 		>
 
-			{isHealthTimelineModuleActive && healthSnapshots.length > 0 && (
+			{!isHealthTimelineModuleActive ? (
+				<ProLockedCard
+					moduleName="advanced-reports"
+					buttonText={__('Unlock health timeline with Pro', 'vulopilot')}
+				/>
+			) : 0 === healthSnapshots.length ? (
+				<ModuleGuardComponent
+					icon="analytics"
+					title={__('No trend data yet', 'vulopilot')}
+					desc={__(
+						'Health timeline builds up once daily snapshots start recording — check back after today.',
+						'vulopilot'
+					)}
+				/>
+			) : (
 				<ChartComponent
 					type="dynamic-line"
 					data={healthSnapshots.map((snapshot) => ({
@@ -184,37 +200,27 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 					yDomain={[0, 100]}
 				/>
 			)}
-			<div className="vulopilot-activity-row">
-				<AnalyticsComponent
-					variant="small"
-					cols={3}
-					data={[
-						{
-							icon: 'global-community green',
-							number: crawlerCurrent,
-							text: __('AI crawler visits', 'vulopilot'),
-						},
-						{
-							icon: 'automation blue',
-							number: summary.automation_status.enabled,
-							text: __('Automations', 'vulopilot'),
-						},
-						{
-							icon: 'ai purple',
-							number: summary.pending_approvals,
-							text: __('Pending approvals', 'vulopilot'),
-						},
-						{
-							icon: 'report blue',
-							number:
-								reportRows.length > 0
-									? formatWpDate(reportRows[0].created_at)
-									: '—',
-							text: __('Latest report', 'vulopilot'),
-						},
-					]}
-				/>
-			</div>
+			<AnalyticsComponent
+				variant="small"
+				cols={3}
+				data={[
+					{
+						icon: 'global-community green',
+						number: crawlerCurrent,
+						text: __('AI crawler visits', 'vulopilot'),
+					},
+					{
+						icon: 'automation blue',
+						number: summary.automation_status.enabled,
+						text: __('Automations', 'vulopilot'),
+					},
+					{
+						icon: 'ai purple',
+						number: summary.pending_approvals,
+						text: __('Pending approvals', 'vulopilot'),
+					}
+				]}
+			/>
 		</DashboardWidget>
 	);
 };

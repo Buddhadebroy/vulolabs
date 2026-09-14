@@ -1,35 +1,19 @@
 /* global appLocalizer */
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
+import { toHistoryRow } from '../AIAssistant/historyTypes';
+import HistoryTimeline from '../Reports/HistoryTimeline';
 
 interface ActivityLogRow {
 	id: number;
 	message: string;
 	created_at: string;
+	/** Real column on every `activity-logs` row (a plain `SELECT *`) — this local interface just didn't type it before, since nothing here read it. */
+	event_type: string;
 }
-
-const timeAgo = (dateString: string): string => {
-	const seconds = Math.max(
-		0,
-		Math.floor((Date.now() - new Date(dateString).getTime()) / 1000)
-	);
-
-	if (seconds < 60) {
-		return __('just now', 'vulopilot');
-	}
-	const minutes = Math.floor(seconds / 60);
-	if (minutes < 60) {
-		return `${minutes}m ago`;
-	}
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) {
-		return `${hours}h ago`;
-	}
-	const days = Math.floor(hours / 24);
-	return `${days}d ago`;
-};
 
 /**
  * Every real, security-scoped `event_type` this table actually carries.
@@ -74,9 +58,19 @@ const RecentActivityCard = () => {
 		event_type: SECURITY_ACTIVITY_EVENT_TYPES,
 		per_page: 4,
 	});
+	// Purely local UI state — this card shows no side detail panel for a
+	// selected row (unlike HistoryTab.tsx's own real use of this same
+	// selection), so nothing else reads it; still real and working (a
+	// clicked row visibly highlights via HistoryTimeline's own real
+	// `.selected` class), not a fabricated no-op.
+	const [selectedRow, setSelectedRow] = useState<ReturnType<
+		typeof toHistoryRow
+	> | null>(null);
+	const historyRows = data.map(toHistoryRow);
 
 	return (
 		<CardComponent
+			id="security-recent-activity-card"
 			title={__('Recent Activity', 'vulopilot')}
 			titleIcon="clock"
 			desc={__('Your last 4 real security-related events.', 'vulopilot')}
@@ -107,18 +101,24 @@ const RecentActivityCard = () => {
 				/>
 			)}
 			{!isLoading && data.length > 0 && (
-				<ul className="activity-log">
-					{data.map((row) => (
-						<li key={row.id} className='activity'>
-							<div className="title">
-								{row.message}
-							</div>
-							<span>
-								{timeAgo(row.created_at)}
-							</span>
-						</li>
-					))}
-				</ul>
+				<HistoryTimeline
+					rows={historyRows}
+					total={historyRows.length}
+					selectedRow={selectedRow}
+					onSelectRow={setSelectedRow}
+					isLoadingMore={false}
+					onLoadMore={() => {}}
+					// Real navigation to the full History tab (Reports →
+					// History) — this card has no side detail panel of its
+					// own for the arrow to open a row into, unlike
+					// HistoryTab.tsx's own real use of it.
+					onArrowClick={() => {
+						window.open(
+							`${appLocalizer.admin_url}#&tab=reports&subtab=history`,
+							'_self'
+						);
+					}}
+				/>
 			)}
 		</CardComponent>
 	);

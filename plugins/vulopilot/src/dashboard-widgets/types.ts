@@ -77,6 +77,17 @@ export interface WidgetProps {
 	onHide: () => void;
 	/** Whether Dashboard.tsx's "Customize dashboard" mode is on — forwarded through to DashboardWidget.tsx, which only renders the drag handle/hide button while this is true. */
 	isCustomizing: boolean;
+	/**
+	 * Re-fetches `summary` (Dashboard.tsx's own `loadDashboard`) — for a
+	 * widget whose own real mutation (e.g. AutomationStatusWidget.tsx's
+	 * enable/disable toggle) changes a number `summary` itself carries
+	 * (`automation_status.enabled`/`.disabled`); that widget's own
+	 * `useApiList` `refetch` only re-fetches its own row list, not this
+	 * sibling top-level payload, so without also calling this the
+	 * summary-derived count would only ever catch up on the next full
+	 * page load.
+	 */
+	onRefreshSummary: () => void;
 }
 
 /**
@@ -89,6 +100,8 @@ export interface WidgetProps {
 export interface WidgetDefinition {
 	id: string;
 	title: string;
+	/** One real line on what this widget actually shows — e.g. a future "Customize dashboard" widget picker's own subtitle (registry.ts's own MOCKUP_WIDGETS is the only real source of these today; not yet read anywhere). Optional since a widget registered elsewhere (a Pro module via the `vulopilot_dashboard_widgets` filter, or `STAT_WIDGETS`' generated entries) may not supply one. */
+	desc?: string;
 	icon: string;
 	grid: number;
 	component: React.ComponentType<WidgetProps>;

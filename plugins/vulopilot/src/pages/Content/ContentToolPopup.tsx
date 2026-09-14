@@ -10,7 +10,7 @@ import {
 	TextInput,
 } from '@zyra/inputs';
 import { ContentTool, ToolField } from './ContentToolsGrid';
-import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
+import { ConnectVuloCloudPromptContent } from '../../components/AiCredits/ConnectVuloCloudPopup';
 
 interface WpRestPost {
 	id: number;
@@ -128,7 +128,6 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 		null
 	);
 	const [isBusy, setIsBusy] = useState(false);
-	const { isConnecting, handleConnect } = useConnectVuloCloud();
 
 	const hasProductPicker = 'generate-product-description' === tool?.actionId;
 	/** Same real "No AI provider is configured." condition AiContentAssistantSidebar.tsx's own sendToAi() checks for — ActionRunner::propose() throws this exact phrase (Rest.php's own docblock), so this offers the same real "Connect to VuloCloud" fix instead of a dead-end error notice. */
@@ -539,28 +538,20 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 						/>
 					)}
 
-					{'error' === step && (
-						isNoProviderError ? (
-							<ButtonInput
-								buttons={{
-									text: isConnecting
-										? __('Connecting…', 'vulopilot')
-										: __('Connect to VuloCloud', 'vulopilot'),
-									icon: 'ai',
-									color: 'orange-bg',
-									disabled: isConnecting,
-									onClick: handleConnect,
-								}}
-							/>
-						) : (
-							<ButtonInput
-								buttons={{
-									text: __('Try again', 'vulopilot'),
-									color: 'border-red',
-									onClick: () => setStep('input'),
-								}}
-							/>
-						)
+					{/* No footer button for the no-provider-error case — the
+					real `ConnectVuloCloudPromptContent` shown in the body
+					below already carries its own "Connect to VuloCloud"
+					button (ConnectVuloCloudPopup.tsx's own docblock),
+					same one real component every other caller of this
+					flow now shares. */}
+					{'error' === step && !isNoProviderError && (
+						<ButtonInput
+							buttons={{
+								text: __('Try again', 'vulopilot'),
+								color: 'border-red',
+								onClick: () => setStep('input'),
+							}}
+						/>
 					)}
 
 					{'preview' === step && preview && (
@@ -641,15 +632,7 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 
 				{'error' === step && (
 					isNoProviderError ? (
-						<NoticeComponent
-							displayPosition="inline-notice"
-							type="info"
-							title={__('No AI provider connected yet', 'vulopilot')}
-							message={__(
-								'Claim 100 Free AI Credits — no credit card required — to use this tool.',
-								'vulopilot'
-							)}
-						/>
+						<ConnectVuloCloudPromptContent variant="inline-notice" />
 					) : (
 						<NoticeComponent
 							displayPosition="inline-notice"

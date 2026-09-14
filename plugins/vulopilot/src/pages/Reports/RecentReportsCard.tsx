@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
-import { BadgeComponent, CardComponent, IconComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -112,7 +112,7 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 				<ButtonInput
 					buttons={{
 						text: __('View All Reports', 'vulopilot'),
-						icon: 'arrow-right',
+						rightIcon: 'arrow-right',
 						color: 'text-purple',
 						onClick: () => scrollToId('reports-history'),
 					}}
@@ -131,66 +131,31 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 			) : (
 				<TableCard
 					showMenu={false}
+					hideHeader={true}
 					format={appLocalizer.date_format_js}
 					headers={{
 						name: {
 							label: __('Name', 'vulopilot'),
-							render: (row: ReportRow) => {
-								const meta = getReportTypeMeta(row.report_type);
-								const name =
-									typeLabels[row.report_type] || meta.shortLabel;
-
-								return (
-									<div className="recent-reports-row-name">
-										<IconComponent name={meta.icon} />
-										<div>
-											<p className="recent-reports-row-title">
-												{name}
-											</p>
-											<p className="recent-reports-row-desc">
-												{meta.desc}
-											</p>
-										</div>
-									</div>
-								);
-							},
-						},
-						type: {
-							label: __('Type', 'vulopilot'),
-							render: (row: ReportRow) => {
-								const meta = getReportTypeMeta(row.report_type);
-								return (
-									<BadgeComponent
-										color={meta.badgeColor}
-										text={meta.shortLabel}
-									/>
-								);
-							},
-						},
-						created_at: {
-							label: __('Generated On', 'vulopilot'),
-							type: 'date',
+							type: 'info',
+							key: 'reportName',
+							iconKey: 'reportIcon',
+							descriptionKey: 'reportDesc',
+							badgesKey: 'reportBadges',
+							width: '60%'
 						},
 						period: {
 							label: __('Period', 'vulopilot'),
-							render: (row: ReportRow) =>
-								row.period_start && row.period_end
-									? `${formatWpDate(row.period_start)} – ${formatWpDate(row.period_end)}`
-									: '—',
-						},
-						status: {
-							label: __('Status', 'vulopilot'),
 							render: (row: ReportRow) => (
-								<BadgeComponent
-									color={
-										row.status === 'ready'
-											? 'green'
-											: row.status === 'generating'
-												? 'orange'
-												: 'red'
-									}
-									text={STATUS_LABEL[row.status]}
-								/>
+								<div className="recent-reports-row-period">
+									<p className="recent-reports-row-period-label">
+										{__('Period', 'vulopilot')}
+									</p>
+									<p className="recent-reports-row-period-value">
+										{row.period_start && row.period_end
+											? `${formatWpDate(row.period_start)} – ${formatWpDate(row.period_end)}`
+											: '—'}
+									</p>
+								</div>
 							),
 						},
 						actions: {
@@ -198,22 +163,55 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 							type: 'action',
 							actions: [
 								{
+									type: 'button',
 									label: (row?: Record<string, unknown>) =>
 										row?.status === 'ready'
 											? __('View', 'vulopilot')
 											: __('Not ready yet', 'vulopilot'),
 									icon: 'eye',
 									onClick: handleView,
+									color: 'text-yellow'
 								},
 								{
+									type: 'button',
 									label: __('Download PDF', 'vulopilot'),
 									icon: 'download',
 									onClick: handleView,
+									color: 'text-blue'
 								},
 							],
 						},
 					}}
-					rows={rows}
+					rows={rows.map((row: ReportRow) => {
+						const meta = getReportTypeMeta(row.report_type);
+
+						return {
+							...row,
+							reportName: typeLabels[row.report_type] || meta.shortLabel,
+							reportIcon: meta.icon,
+							reportDesc: meta.desc,
+							// Real type + status + "Generated On" date, all
+							// folded into this row's own info-column badges
+							// instead of 3 separate columns — per direct
+							// instruction.
+							reportBadges: [
+								{ text: meta.shortLabel, color: meta.badgeColor },
+								{
+									text: STATUS_LABEL[row.status],
+									color:
+										'ready' === row.status
+											? 'green'
+											: 'generating' === row.status
+												? 'orange'
+												: 'red',
+								},
+								{
+									text: formatWpDate(row.created_at),
+									color: 'indigo',
+								},
+							],
+						};
+					})}
 					ids={rows.map((row) => row.id)}
 					totalRows={rows.length}
 					isLoading={isLoading}

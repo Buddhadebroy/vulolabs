@@ -69,6 +69,13 @@ const ratingClass = (score: number): Rating['className'] => {
 	return getScoreRating(score).className;
 };
 
+/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex — for the ring's center number, which (unlike the ring itself) reads a class name through that prop, not a CSS color. */
+const TEXT_COLOR: Record<Rating['className'], string> = {
+	good: 'green',
+	'needs-improvement': 'yellow',
+	poor: 'red',
+};
+
 interface FindingsHeroCardProps {
 	/** adminfont- icon name for the hero's own icon circle. */
 	icon: string;
@@ -168,9 +175,17 @@ const FindingsHeroCard = ({
 								<ChartComponent
 									type="ring"
 									height={250}
+									// Top-level `color` — see SecurityStatusCard.tsx's/
+									// PerformanceScoreCard.tsx's own identical fix:
+									// `type="ring"` only ever paints its stroke from
+									// this prop, never from `data[].color`.
+									color={RATING_COLOR[ratingClass(score)]}
 									centerLabel={
 										<>
-											<TypographyComponent variant={'h1'}>
+											<TypographyComponent
+												variant={'h1'}
+												color={TEXT_COLOR[ratingClass(score)]}
+											>
 												{score}
 											</TypographyComponent>
 											<TypographyComponent variant={'h4'}>

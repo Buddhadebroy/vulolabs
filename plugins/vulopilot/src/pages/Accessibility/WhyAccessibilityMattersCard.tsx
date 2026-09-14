@@ -19,6 +19,7 @@ const WHY_IT_MATTERS_POINTS = [
 
 const WhyAccessibilityMattersCard = () => (
 	<CardComponent
+		id="why-accessibility-matters-card"
 		className="why-accessibility-matters-card"
 		title={__('Why accessibility matters', 'vulopilot')}
 		titleIcon="question"

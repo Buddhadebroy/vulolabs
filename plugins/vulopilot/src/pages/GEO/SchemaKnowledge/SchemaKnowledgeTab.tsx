@@ -120,25 +120,6 @@ const SchemaKnowledgeTab = ({
 			</div>
 
 			<InspectorSection />
-			<ColumnComponent fullHeight>
-				<CardComponent
-					title={__('Not seeing a schema type you need?', 'vulopilot')}
-					titleIcon="plus"
-					desc={__(
-						'Custom schema is added per page or post — open any post’s editor, then its SEO panel’s Schema tab.',
-						'vulopilot'
-					)}
-				>
-					<ButtonInput
-						buttons={{
-							text: __('Add custom schema', 'vulopilot'),
-							onClick: () => {
-								window.location.href = 'edit.php';
-							},
-						}}
-					/>
-				</CardComponent>
-			</ColumnComponent>
 		</ContainerComponent>
 	);
 };

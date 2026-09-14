@@ -105,8 +105,21 @@ const InspectorSection = () => {
 			getApiLink(appLocalizer, 'schema/inspectable-pages'),
 			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
 		)
-			.then((response) => setPages(response ?? []))
+			.then((response) => {
+				const list = response ?? [];
+				setPages(list);
+
+				// Opens the first real row by default rather than leaving
+				// the result panel on its "Select a page" placeholder —
+				// same real `inspect()` call a manual row click already
+				// triggers, just fired once for the list's own first entry
+				// as soon as it's known.
+				if (list.length > 0) {
+					handleSelectPage(list[0].url);
+				}
+			})
 			.finally(() => setIsLoadingPages(false));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleSelectPage = (url: string) => {
@@ -180,6 +193,14 @@ const InspectorSection = () => {
 								width: '70%',
 								iconKey: 'typeIcon',
 								badgesKey: 'typeBadges',
+								// Real URL path under the title — the one
+								// honest per-row detail already available
+								// here (`InspectablePage` carries no
+								// excerpt/summary field to show instead),
+								// same real "info column gets a description
+								// line" shape most other tables in this
+								// plugin already use.
+								descriptionKey: 'pageDesc',
 							},
 							action: {
 								label: __('Action', 'vulopilot'),
@@ -217,9 +238,9 @@ const InspectorSection = () => {
 							// `type_label` already carries — shown as a plain,
 							// uncolored badge next to the title (same real
 							// `color: ''` convention useFindingsTable.tsx's own
-							// compact-layout category tag already uses) instead
-							// of a description line, colored per real type
-							// (post/page/product) instead of one flat color.
+							// compact-layout category tag already uses),
+							// colored per real type (post/page/product)
+							// instead of one flat color.
 							typeBadges: [
 								{
 									text: page.type_label,
@@ -227,6 +248,9 @@ const InspectorSection = () => {
 								},
 							],
 							typeIcon: TYPE_ICON[page.type] ?? 'document',
+							// Real URL path — the info column's own
+							// description line under the title.
+							pageDesc: pathOf(page.url),
 						}))}
 						ids={pages.map((page) => page.url)}
 						totalRows={pages.length}

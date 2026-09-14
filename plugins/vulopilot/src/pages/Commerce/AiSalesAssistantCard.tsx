@@ -49,6 +49,7 @@ const AiSalesAssistantCard = ({
 	return (
 		<ColumnComponent fullHeight grid={4}>
 			<CardComponent
+				id="ai-sales-assistant-card"
 				title={__('AI Sales Assistant', 'vulopilot')}
 				titleIcon="ai"
 				desc={__('Real open WooCommerce findings, summarized.', 'vulopilot')}
