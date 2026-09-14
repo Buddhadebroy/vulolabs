@@ -53,7 +53,7 @@ interface AccessibilityPriorityListProps {
  * (`onReviewCheck`) rather than the finding itself — there's no
  * single-finding detail view on this page.
  *
- * A real zyra `TableCard` (`transparent-table`, same borderless in-card
+ * A real zyra `TableCard` (`variant="transparent"`, same borderless in-card
  * look `SeoIssuesByPageTable.tsx` uses) rather than a hand-rolled flex-row
  * list — `totalRows` is deliberately left at its default 0 so no
  * pagination footer renders under a list that's always exactly 3 rows.
@@ -121,7 +121,7 @@ const AccessibilityPriorityList = ({
 			)}
 			{!isLoading && topFindings.length > 0 && (
 				<TableCard
-					className="transparent-table"
+					variant="transparent"
 					hideHeader={true}
 					showMenu={false}
 					headers={{

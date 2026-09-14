@@ -9,6 +9,7 @@ import {
 	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
+	TypographyComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
@@ -251,6 +252,60 @@ const BackupsTab = () => {
 	/** Row pending deletion, shown via the `confirmMode` popup below instead of `window.confirm()`. */
 	const [deleteTarget, setDeleteTarget] = useState<BackupRow | null>(null);
 
+	// Real "All triggers"/"All statuses"/"All destinations" filters + search
+	// (mockup's own filter row) — same real client-side-slice-of-one-fetch
+	// posture SectionedIssuesTable.tsx's own filters already use, since
+	// this tab's own `useApiList` call above already fetches every row
+	// (`per_page: 20`) rather than paging server-side per filter.
+	const [searchValue, setSearchValue] = useState('');
+	const [triggerFilter, setTriggerFilter] = useState('');
+	const [statusFilter, setStatusFilter] = useState('');
+	const [destinationFilter, setDestinationFilter] = useState('');
+
+	const filteredData = data.filter((row) => {
+		if (triggerFilter && row.trigger_type !== triggerFilter) {
+			return false;
+		}
+		if (statusFilter && row.status !== statusFilter) {
+			return false;
+		}
+		if (destinationFilter && row.destination !== destinationFilter) {
+			return false;
+		}
+		if (
+			searchValue &&
+			!(TRIGGER_LABEL[row.trigger_type] ?? row.trigger_type)
+				.toLowerCase()
+				.includes(searchValue.toLowerCase()) &&
+			!formatWpDate(row.created_at)
+				.toLowerCase()
+				.includes(searchValue.toLowerCase())
+		) {
+			return false;
+		}
+		return true;
+	});
+
+	// Real, already-present values in this tab's own current backup list —
+	// not a hardcoded list, so an option never shows with nothing behind
+	// it (same principle SectionedIssuesTable.tsx's own filter options
+	// already follow).
+	const triggerFilterOptions = Array.from(
+		new Set(data.map((row) => row.trigger_type))
+	).map((value) => ({ label: TRIGGER_LABEL[value] ?? value, value }));
+	const statusFilterOptions = Array.from(
+		new Set(data.map((row) => row.status))
+	).map((value) => ({ label: STATUS_BADGE[value]?.text ?? value, value }));
+	const destinationFilterOptions = Array.from(
+		new Set(data.map((row) => row.destination))
+	).map((value) => ({
+		label:
+			'local' === value
+				? __('Local', 'vulopilot')
+				: (DESTINATION_PROVIDER_LABEL[value] ?? value),
+		value,
+	}));
+
 	const hasPendingBackup = data.some(
 		(row) => 'queued' === row.status || 'running' === row.status
 	);
@@ -452,48 +507,53 @@ const BackupsTab = () => {
 				) : (
 					<TableCard
 						showMenu={false}
-						className="transparent-table"
+						hideHeader={true}
+						variant="transparent"
+						search={{
+							placeholder: __('Search backups…', 'vulopilot'),
+						}}
+						filtersBeforeSearch
+						filters={[
+							{
+								key: 'trigger_type',
+								label: __('All triggers', 'vulopilot'),
+								type: 'select',
+								size: 10,
+								options: triggerFilterOptions,
+							},
+							{
+								key: 'status',
+								label: __('All statuses', 'vulopilot'),
+								type: 'select',
+								size: 10,
+								options: statusFilterOptions,
+							},
+							{
+								key: 'destination',
+								label: __('All destinations', 'vulopilot'),
+								type: 'select',
+								size: 10,
+								options: destinationFilterOptions,
+							},
+						]}
+						onQueryUpdate={(query: {
+							searchValue?: string;
+							filter?: Record<string, string>;
+						}) => {
+							setSearchValue(query.searchValue ?? '');
+							setTriggerFilter(query.filter?.trigger_type ?? '');
+							setStatusFilter(query.filter?.status ?? '');
+							setDestinationFilter(query.filter?.destination ?? '');
+						}}
 						headers={{
-							created_at: {
+							date: {
 								label: __('Date', 'vulopilot'),
-								render: (row: BackupRow) => formatWpDate(row.created_at),
-							},
-							trigger_type: {
-								label: __('Trigger', 'vulopilot'),
-								render: (row: BackupRow) =>
-									TRIGGER_LABEL[row.trigger_type] ?? row.trigger_type,
-							},
-							status: {
-								label: __('Status', 'vulopilot'),
-								render: (row: BackupRow) => {
-									const badge =
-										STATUS_BADGE[row.status] ?? STATUS_BADGE.queued;
-									const destinationCaveat =
-										statusDestinationCaveat(row);
-
-									return (
-										<div className="backups-status-cell">
-											<BadgeComponent
-												icon={STATUS_ICON[row.status] ?? 'clock'}
-												color={badge.className}
-												text={badge.text}
-											/>
-											{destinationCaveat && (
-												<span className="backups-status-subtext">
-													{destinationCaveat}
-												</span>
-											)}
-											{'failed' === row.status &&
-												row.error_message && (
-													<NoticeComponent
-														type="error"
-														displayPosition="inline"
-														message={row.error_message}
-													/>
-												)}
-										</div>
-									);
-								},
+								type: 'info',
+								key: 'formattedDate',
+								descriptionKey: 'rowDescriptions',
+								iconKey: 'rowIcon',
+								badgesKey: 'rowBadges',
+								width: "60%",
 							},
 							destination: {
 								label: __('Destination', 'vulopilot'),
@@ -502,10 +562,12 @@ const BackupsTab = () => {
 
 									return destBadge ? (
 										<>
+										<span className="file-size">
 											<BadgeComponent
 												color={destBadge.className}
 												text={destBadge.text}
 											/>
+											{formatFileSize(row.file_size)}
 											{'failed' === row.destination_status &&
 												row.destination_error && (
 													<NoticeComponent
@@ -514,17 +576,15 @@ const BackupsTab = () => {
 														message={row.destination_error}
 													/>
 												)}
+												</span>
 										</>
 									) : (
-										<span className="desc">
-											{__('Local', 'vulopilot')}
+										<span className="file-size-wrapper">
+											<TypographyComponent variant={'h6'} >{__('Local', 'vulopilot')}</TypographyComponent>
+											<div className='file-size'>{formatFileSize(row.file_size)}</div>
 										</span>
 									);
 								},
-							},
-							file_size: {
-								label: __('Size', 'vulopilot'),
-								render: (row: BackupRow) => formatFileSize(row.file_size),
 							},
 							action: {
 								label: __('Action', 'vulopilot'),
@@ -541,6 +601,7 @@ const BackupsTab = () => {
 										label: __('Download', 'vulopilot'),
 										type: 'button',
 										icon: 'download',
+										color: 'text-green',
 										hidden: (row) =>
 											!(
 												'completed' ===
@@ -553,6 +614,7 @@ const BackupsTab = () => {
 									{
 										label: __('Restore', 'vulopilot'),
 										type: 'button',
+										color: 'text-blue',
 										icon: 'undo',
 										hidden: (row) =>
 											!(
@@ -568,6 +630,7 @@ const BackupsTab = () => {
 											busyId === (row as unknown as BackupRow)?.id
 												? __('Deleting…', 'vulopilot')
 												: __('Delete', 'vulopilot'),
+										color: 'text-red',
 										type: 'button',
 										icon: (row) =>
 											busyId === (row as unknown as BackupRow)?.id
@@ -584,10 +647,61 @@ const BackupsTab = () => {
 								],
 							},
 						}}
-						rows={data}
-						ids={data.map((row) => row.id)}
-						totalRows={data.length}
+						rows={filteredData.map((row) => {
+							// Real trigger/status badges + the same real
+							// "Finished in/Failed after/Elapsed" subtext
+							// `statusSubtext()` already computes — plus,
+							// for a real failure, the real error message as
+							// a second description line — feeding the
+							// merged Date `type: 'info'` column above
+							// (icon+title+badges+description) instead of
+							// the 3 separate Date/Trigger/Status columns
+							// this table used to render.
+							const statusBadge =
+								STATUS_BADGE[row.status] ?? STATUS_BADGE.queued;
+							const subtext = statusSubtext(row);
+							const rowDescriptions: {
+								value: string;
+								icon?: string;
+							}[] = [];
+
+							if (subtext) {
+								rowDescriptions.push({ value: subtext });
+							}
+							if ('failed' === row.status && row.error_message) {
+								rowDescriptions.push({
+									icon: 'error',
+									value: row.error_message,
+								});
+							}
+
+							return {
+								...row,
+								formattedDate: formatWpDate(row.created_at),
+								rowIcon: 'calendar',
+								rowDescriptions,
+								rowBadges: [
+									{
+										text:
+											TRIGGER_LABEL[row.trigger_type] ??
+											row.trigger_type,
+										color: 'indigo',
+									},
+									{
+										text: statusBadge.text,
+										color: statusBadge.className,
+										icon: STATUS_ICON[row.status] ?? 'clock',
+									},
+								],
+							};
+						})}
+						ids={filteredData.map((row) => row.id)}
+						totalRows={filteredData.length}
 						isLoading={isLoading}
+						emptyMessage={__(
+							'No backups match these filters.',
+							'vulopilot'
+						)}
 					/>
 				)}
 			</CardComponent>

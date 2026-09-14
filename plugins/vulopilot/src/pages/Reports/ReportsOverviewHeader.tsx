@@ -1,41 +1,59 @@
 /* global appLocalizer */
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, TooltipComponent, BadgeComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
-import { getApiLink, sendApiResponse } from '@zyra/core';
+import { CardComponent, TooltipComponent } from '@zyra/components';
+import { ButtonInput, SelectInput } from '@zyra/inputs';
+import { getApiLink, scrollToId, sendApiResponse } from '@zyra/core';
 import { useState } from 'react';
 import { formatWpDate } from '../../services/formatWpDate';
-import { DAY_OPTIONS, type ReportsPeriod } from './reportsOverview';
+import { DAY_OPTIONS } from './reportsOverview';
 
 interface ReportsOverviewHeaderProps {
 	days: number;
 	onDaysChange: (days: number) => void;
-	period: ReportsPeriod | null;
 }
 
 const REPORT_BUILDER_URL = '?page=vulopilot#&tab=reports&subtab=report';
 
 /**
- * The mockup's date-range + action row. No arbitrary calendar range
- * picker — `days` is one of DAY_OPTIONS (same 3-preset shape
- * WebsiteProgressChart.tsx already uses on this same page), shown as real
- * `period.start`–`period.end` dates once the fetch resolves. "Create
- * Report" is a real cross-tab link to the Report Builder tab's own real
- * generate-report control (ReportTab.tsx) rather than duplicating that
- * flow here. "Download PDF" is honestly gated: PDF export is a Pro-only
- * exporter (`vulopilot_report_exporter_sources`, ReportTab.tsx's own
- * docblock) — disabled with a tooltip when that module isn't active,
- * otherwise triggers a real `scan_summary` PDF generation + download.
- * The mockup's "..." overflow menu is dropped — nothing real maps to it.
+ * The reference mockup's page-header row: "Reports" title + description on
+ * the left, a "Last N days" range dropdown plus Create Report/Schedule
+ * Report/Download PDF actions on the right — same title/desc/action shape
+ * every other card header in this codebase uses (`CardComponent`'s own
+ * `title`/`desc`/`action` props), rather than hand-rolled markup.
+ *
+ * `days` is one of DAY_OPTIONS (7/30/90 — same 3-preset shape
+ * WebsiteProgressChart.tsx already uses on this page) rather than an
+ * arbitrary calendar range picker; shown as a real dropdown here instead of
+ * the badge-toggle row this header used before, to match the mockup. It
+ * only scopes the Recent Reports preview below it — Report History stays a
+ * real, unfiltered, paginated list of every report, same as it always was.
+ *
+ * "Create Report" is a real cross-tab link to the Report Builder tab's own
+ * real generate-report control (ReportTab.tsx) rather than duplicating that
+ * flow here — this page deliberately drops the mockup's own inline "Build a
+ * New Report"/"Report Templates" sections per direct instruction. "Schedule
+ * Report" scrolls to this same tab's own real Scheduled Reports table
+ * below (ScheduledReportsTable.tsx) rather than opening a second flow.
+ * "Download PDF" is honestly gated: PDF export is a Pro-only exporter
+ * (`vulopilot_report_exporter_sources`, ReportTab.tsx's own docblock) —
+ * disabled with a tooltip when that module isn't active, otherwise triggers
+ * a real `scan_summary` PDF generation + download. The mockup's "..."
+ * overflow menu is dropped — nothing real maps to it.
  */
 const ReportsOverviewHeader = ({
 	days,
 	onDaysChange,
-	period,
 }: ReportsOverviewHeaderProps) => {
 	const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 	const pdfAvailable =
 		appLocalizer.active_modules?.includes('advanced-reports');
+
+	// Plain client-side date math (today, and `days` ago) rather than a
+	// second `/reports-overview` fetch just to echo back the same two
+	// dates this dropdown already implies — real, just not server-round-tripped.
+	const rangeEnd = new Date();
+	const rangeStart = new Date();
+	rangeStart.setDate(rangeStart.getDate() - (days - 1));
 
 	const handleDownloadPdf = () => {
 		setIsGeneratingPdf(true);
@@ -63,75 +81,90 @@ const ReportsOverviewHeader = ({
 	};
 
 	return (
-		<CardComponent className="reports-overview-header">
-			<div className="reports-overview-range">
-				<i className="adminfont-calendar" />
-				{period
-					? sprintf(
-							/* translators: 1: start date, 2: end date. */
-							__('Last %1$d days (%2$s – %3$s)', 'vulopilot'),
-							days,
-							formatWpDate(period.start),
-							formatWpDate(period.end)
-						)
-					: __('Loading…', 'vulopilot')}
-				<div className="reports-overview-day-toggle">
-					{DAY_OPTIONS.map((option) => (
-						<BadgeComponent
-							key={option}
-							color={option === days ? 'purple' : ''}
-							role="button"
-							tabIndex={0}
-							onClick={() => onDaysChange(option)}
-							text={sprintf(
+		<CardComponent
+			className="reports-overview-header"
+			titleIcon="bar-chart"
+			title={__('Reports', 'vulopilot')}
+			desc={__(
+				"Create, view, and manage detailed reports about your website's performance.",
+				'vulopilot'
+			)}
+			action={
+				<div className="reports-overview-actions">
+					<SelectInput
+						name="reports_days_range"
+						value={String(days)}
+						options={DAY_OPTIONS.map((option) => ({
+							label: sprintf(
 								/* translators: %d is the number of days. */
-								__('%d Days', 'vulopilot'),
+								__('Last %d days', 'vulopilot'),
 								option
-							)}
-						/>
-					))}
-				</div>
-			</div>
-			<div className="reports-overview-actions">
-				<ButtonInput
-					buttons={{
-						text: __('Create Report', 'vulopilot'),
-						icon: 'document',
-						color: 'purple-bg',
-						onClick: () => {
-							window.location.href = REPORT_BUILDER_URL;
-						},
-					}}
-				/>
-				{pdfAvailable ? (
+							),
+							value: String(option),
+						}))}
+						onChange={(newValue) =>
+							onDaysChange(Number(newValue))
+						}
+						size="10rem"
+					/>
 					<ButtonInput
 						buttons={{
-							text: isGeneratingPdf
-								? __('Generating…', 'vulopilot')
-								: __('Download PDF', 'vulopilot'),
-							icon: 'download',
-							color: 'border-purple',
-							onClick: handleDownloadPdf,
+							text: __('Create Report', 'vulopilot'),
+							icon: 'document',
+							color: 'purple-bg',
+							onClick: () => {
+								window.location.href = REPORT_BUILDER_URL;
+							},
 						}}
 					/>
-				) : (
-					<TooltipComponent
-						text={__(
-							'PDF export is a Pro feature (Advanced Reports module).',
-							'vulopilot'
-						)}
-					>
+					<ButtonInput
+						buttons={{
+							text: __('Schedule Report', 'vulopilot'),
+							icon: 'calendar',
+							color: 'border-purple',
+							onClick: () => scrollToId('reports-schedules'),
+						}}
+					/>
+					{pdfAvailable ? (
 						<ButtonInput
 							buttons={{
-								text: __('Download PDF', 'vulopilot'),
+								text: isGeneratingPdf
+									? __('Generating…', 'vulopilot')
+									: __('Download PDF', 'vulopilot'),
 								icon: 'download',
-								disabled: true,
-								onClick: () => {},
+								color: 'border-purple',
+								onClick: handleDownloadPdf,
 							}}
 						/>
-					</TooltipComponent>
+					) : (
+						<TooltipComponent
+							text={__(
+								'PDF export is a Pro feature (Advanced Reports module).',
+								'vulopilot'
+							)}
+						>
+							<ButtonInput
+								buttons={{
+									text: __('Download PDF', 'vulopilot'),
+									icon: 'download',
+									disabled: true,
+									onClick: () => {},
+								}}
+							/>
+						</TooltipComponent>
+					)}
+				</div>
+			}
+		>
+			<p className="reports-overview-range-note">
+				{sprintf(
+					/* translators: 1: start date, 2: end date. */
+					__('Showing the last %1$d days (%2$s – %3$s)', 'vulopilot'),
+					days,
+					formatWpDate(rangeStart.toISOString()),
+					formatWpDate(rangeEnd.toISOString())
 				)}
-			</div>
+			</p>
 		</CardComponent>
 	);
 };

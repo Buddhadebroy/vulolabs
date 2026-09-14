@@ -288,9 +288,22 @@ const CrawlRobotsSitemapSection = () => {
 	 * typing, and the cursor jumps to the end. That was the real bug: the
 	 * auto-save refetch was clobbering in-progress edits, which looked
 	 * like a page reload.
+	 *
+	 * `showLoadingState` is the companion fix for a second, related
+	 * symptom: this card's own `isLoading` prop (below) is driven by
+	 * `isLoadingRobots`, so toggling that on every call — including the
+	 * silent post-autosave refetch — flashed the whole card into its
+	 * loading/skeleton state 800ms after every keystroke pause. That
+	 * read as the page re-rendering/refreshing on every edit, when only
+	 * the small `robotsSaveState` indicator next to the editor should
+	 * visibly change. Only the initial mount and an explicit "Test
+	 * robots.txt" click are real "loading" moments; the autosave
+	 * refetch stays silent.
 	 */
-	const loadRobots = (refreshEditorContent = true) => {
-		setIsLoadingRobots(true);
+	const loadRobots = (refreshEditorContent = true, showLoadingState = true) => {
+		if (showLoadingState) {
+			setIsLoadingRobots(true);
+		}
 		getApiResponse<RobotsResponse>(getApiLink(appLocalizer, 'robots-sitemap/robots'), nonceHeaders)
 			.then((response) => {
 				if (response) {
@@ -300,7 +313,11 @@ const CrawlRobotsSitemapSection = () => {
 					}
 				}
 			})
-			.finally(() => setIsLoadingRobots(false));
+			.finally(() => {
+				if (showLoadingState) {
+					setIsLoadingRobots(false);
+				}
+			});
 	};
 
 	const loadSitemap = () => {
@@ -346,8 +363,10 @@ const CrawlRobotsSitemapSection = () => {
 					// Refresh the card's own read-only data (rules/directives
 					// counts, the "Custom" badge) — but explicitly NOT the
 					// editor's own `robotsEditContent`, so the user's cursor
-					// and in-progress text are left untouched mid-save.
-					loadRobots(false);
+					// and in-progress text are left untouched mid-save. Also
+					// silent (no card-level loading state): only the small
+					// `robotsSaveState` indicator should visibly change here.
+					loadRobots(false, false);
 				}
 			});
 	};

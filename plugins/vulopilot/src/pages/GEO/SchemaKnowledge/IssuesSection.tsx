@@ -200,7 +200,7 @@ const IssuesSection = () => {
 						<TableCard
 							showMenu={false}
 							hideHeader={true}
-							className="transparent-table"
+							variant="transparent"
 							// Highlights the row whose details are showing in
 							// the side panel — same real `activeRowId`/action-
 							// toggle pairing IssuesList.tsx's own Issue/Affected/

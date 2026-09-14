@@ -68,6 +68,14 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 		},
 	];
 
+	// Real controlled active tile — this component's own `activePriority`
+	// prop, translated to `data`'s own matching index (`-1` for 'all', no
+	// tile active). Without this, AnalyticsComponent's own uncontrolled
+	// active-tile state resets back to the first clickable tile (High)
+	// every render, since `data` above is a fresh array literal each
+	// time — see that component's own `activeIndex` prop docblock.
+	const activeIndex = data.findIndex((tile) => tile.priority === activePriority);
+
 	return (
 		<div className="issues-summary-cards">
 			<div className="details-wrapper">
@@ -76,7 +84,7 @@ const IssuesSummaryCards: React.FC<IssuesSummaryCardsProps> = ({
 			</div>
 			<AnalyticsComponent
 				data={data}
-				className={`active-priority-${activePriority}`}
+				activeIndex={activeIndex}
 				variant="small-card"
 				cols={3}
 				isLoading={isLoading}

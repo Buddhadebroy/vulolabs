@@ -150,11 +150,10 @@ const App = () => {
 
 	return (
 		<>
-			<AiCreditsIndicator />
 			<HeaderComponent
 				brandImg={Brand}
 				results={results}
-				beforeSearch={<span style={{ color: 'red' }}>TEST</span>}
+				beforeSearch={<AiCreditsIndicator />}
 				search={{
 					placeholder: __('Search…', 'vulopilot'),
 					options: [
