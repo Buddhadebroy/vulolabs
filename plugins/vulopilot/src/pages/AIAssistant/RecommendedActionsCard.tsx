@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { ComponentType, FC } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { BadgeComponent, PopupComponent, SectionComponent } from '@zyra/components';
+import { PopupComponent, SectionComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
@@ -108,7 +108,10 @@ const RecommendedActionsFreeCard: FC<RecommendedActionsCardProps> = () => {
 								<div className="recommended-actions-card-eyebrow">
 									<i className={`recommended-actions-card-icon adminfont-${meta.icon}`} />
 									<span>{urgent ? __('Critical', 'vulopilot') : meta.ctaFallback}</span>
-									<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
+									<span className="admin-tag pro-tag pro-tag-inline">
+										<i className="adminfont-pro-tag" />
+										{__('Pro', 'vulopilot')}
+									</span>
 								</div>
 								<div className="recommended-actions-card-title">{rec.label}</div>
 								<div className="recommended-actions-card-detail">

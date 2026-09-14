@@ -149,7 +149,10 @@ const QuickActionsCard = () => {
 
 	const proBadge = (tool: ContentTool) =>
 		tool.pro && !isContentToolsEnabled ? (
-			<span className="admin-badge purple">{__('PRO', 'vulopilot')}</span>
+			<span className="admin-tag pro-tag pro-tag-inline">
+				<i className="adminfont-pro-tag" />
+				{__('Pro', 'vulopilot')}
+			</span>
 		) : (
 			<i className="adminfont-arrow-right" />
 		);

@@ -371,6 +371,36 @@ const SectionedIssuesTable = ({
 		paged * PER_PAGE
 	);
 
+	// Same "keep the current selection if it's still on screen, otherwise
+	// fall back to the first visible row" reconciliation IssuesSection.tsx
+	// (GEO/SchemaKnowledge) and IssuesList.tsx (AI Copilot) already do
+	// inside their own fetch response handlers — replicated here as its own
+	// effect instead, since this component derives `pageRows` client-side
+	// (one `findings/groups` fetch, filtered/sorted/paged on every render)
+	// rather than re-fetching per filter change. Runs whenever anything
+	// that can change which rows are visible changes, so the side panel
+	// always shows real detail for the first row instead of the empty
+	// "Select an issue" placeholder — including right after
+	// `handleActionComplete` clears the selection following a fix/ignore
+	// action.
+	useEffect(() => {
+		setSelectedGroup((current) => {
+			if (
+				current &&
+				pageRows.some((group) => group.scanner_id === current.scanner_id)
+			) {
+				return (
+					pageRows.find(
+						(group) => group.scanner_id === current.scanner_id
+					) ?? current
+				);
+			}
+
+			return pageRows[0] ?? null;
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [groups, activeTab, activePriority, searchValue, resourceFilterValue, paged]);
+
 	const handlePriorityChange = (priority: Priority) => {
 		setActivePriority(priority);
 		setPaged(1);

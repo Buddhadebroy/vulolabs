@@ -6,7 +6,7 @@ import GoogleServicesPanel from './GoogleServicesPanel';
  *
  * Previously Settings → Scanning → Google Services — moved into this
  * Connections folder per direct instruction, alongside AI Providers/
- * Webhooks/External Services, mirroring Settings/Connections/AiProviders.ts's
+ * Webhooks/External Services, mirroring Settings/GetStarted/AiProviders.ts's
  * own "one folder, several sub-tab files" shape. `id` is unchanged
  * ('google-services'), so KeywordsTab.tsx's own
  * `?page=vulopilot#&tab=settings&subtab=google-services` deep link still
@@ -14,7 +14,7 @@ import GoogleServicesPanel from './GoogleServicesPanel';
  * folder path.
  *
  * `PanelComponent` is the same generic escape hatch Settings.tsx's own
- * GetForm() already uses for Connections/AiProviders.ts and
+ * GetForm() already uses for GetStarted/AiProviders.ts and
  * vulopilot-pro's Licensing tab — a real OAuth connect/disconnect flow
  * with live per-service pickers doesn't fit the per-field auto-save model
  * at all.

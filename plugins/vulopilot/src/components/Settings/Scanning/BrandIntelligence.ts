@@ -36,6 +36,28 @@ export default {
 	),
 		},
 		{
+			// `title` (the competitor's own real name/brand, editable
+			// inline via `editableFields`) plus a real `url` field per
+			// competitor (`addNewTemplate.formFields`, the same
+			// declarative-field escape hatch BackupStoragePanel.tsx's own
+			// `ExpandablePanelInput` methods use for their own per-method
+			// fields — confirmed by reading the installed zyra bundle:
+			// `buildMethodFromTemplate()` seeds `init[field.key] = ''` for
+			// every `formFields` entry, and each renders through the same
+			// field-type registry every other `modal` field here does, so
+			// `type: 'text'` is a real, editable text input, not a
+			// label-only display) — per direct instruction ("pass the url
+			// also not only title"). Not yet read by any real PHP consumer
+			// (unlike Scanning → AI Visibility's own `geo_competitor_urls`,
+			// which vulopilot-pro's BrandCompetitorAnalyzer/
+			// ContentGapAnalyzer/CompetitorVisibilityAnalyzer already read)
+			// — BrandCompetitorAnalyzer's own docblock explicitly flags
+			// needing "each competitor's own real brand name as a search
+			// term, not just their URL" as a distinct, still-open gap for
+			// real off-site Share of Voice tracking; this field now
+			// captures exactly that pairing (name + URL) so a future pass
+			// can wire it in, without duplicating `geo_competitor_urls`'s
+			// own bare-URL shape.
 			key: 'tracked_competitors',
 			type: 'expandable-panel',
 			className: 'full-width',
@@ -47,6 +69,14 @@ export default {
 					title: true,
 					description: false,
 				},
+				formFields: [
+					{
+						key: 'url',
+						type: 'text',
+						label: __('Competitor URL', 'vulopilot'),
+						placeholder: 'https://example.com/',
+					},
+				],
 				disableBtn: false,
 			}
 		},

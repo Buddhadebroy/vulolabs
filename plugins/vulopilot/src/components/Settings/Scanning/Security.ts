@@ -8,8 +8,8 @@ import SecurityRestoreDefaultsHeader from './SecurityRestoreDefaultsHeader';
  *
  * Fully hand-rendered by SecurityPanel.tsx (the `PanelComponent` escape
  * hatch Settings.tsx's own generic `settingModal?.PanelComponent` branch
- * uses — same mechanism Connections/AiProviders.ts and
- * Connections/GoogleServices.ts already carry) rather than InputRenderer,
+ * uses — same mechanism GetStarted/AiProviders.ts and
+ * GetStarted/GoogleServices.ts already carry) rather than InputRenderer,
  * so every field below stays listed here purely so SettingContext still
  * seeds their real current values — none of them render through this
  * `modal` array directly. See SecurityPanel.tsx's own docblock for the

@@ -22,9 +22,12 @@ import { __ } from '@wordpress/i18n';
  * submenu list" treatment Admin.php's own `legacy_submenus()` already
  * documents for every other tab folded into a new home.
  *
- * Priority 1.5 — right after "General" (priority 1), before every other
- * tab (Notifications is 2, the "Scanning" folder's own `folderPriority` is
- * 3), per that same direct instruction.
+ * Sorts last in the top-level bar (priority 8 — Get Started 1, Site
+ * Identity 2, Scanning 3, Automation 4, Reports 5, Notifications 6,
+ * Developer Tools 7). Originally placed right after "General" per the
+ * direct instruction quoted above, but has since moved to the end;
+ * "General" itself has since been removed entirely (every field it ever
+ * had moved to other tabs), so this is now the last tab regardless.
  */
 export default {
 	id: 'modules',

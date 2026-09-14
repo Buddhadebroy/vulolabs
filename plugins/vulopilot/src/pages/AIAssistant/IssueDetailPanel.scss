@@ -124,6 +124,28 @@
 	transform: none !important;
 }
 
+// Same fix as `.issue-detail-section-header .pro-tag` above, generalized
+// into a reusable class instead of one scoped selector per call site — the
+// real "admin-tag pro-tag" markup (zyra's own theme/src/common.scss) is
+// now the one shared class every inline "Pro" tag across the app uses
+// (ContentToolsGrid.tsx, QuickActionsCard.tsx, RecommendedActionsCard.tsx,
+// AiChatCard.tsx, AutomationsTemplatesCard.tsx, vulopilot-pro's
+// CommerceCategoryGrid.tsx, per direct instruction), and every one of
+// those needs this exact same reset to dock inline (next to a title, in a
+// row's own tags slot, in a card header) instead of zyra's own default
+// absolute-positioned corner. Colocated here (this file is loaded on
+// nearly every findings-table page already) rather than duplicated across
+// each of those files' own SCSS. Deliberately NOT applied to the small
+// number of real corner-ribbon usages (CommercePanel.tsx's locked
+// overlay, useContentGate.tsx's `.content-gate-tag`, this file's own
+// `.issue-detail-pro-gate-tag`) — those keep the default absolute
+// positioning (or their own already-existing scoped reset) since a
+// whole-section lock genuinely wants a corner ribbon, not an inline tag.
+.pro-tag-inline {
+	position: static !important;
+	transform: none !important;
+}
+
 .issue-detail-example-title {
 	font-weight: 600;
 	margin-bottom: 0.25rem;

@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { BadgeComponent, CardComponent, ListComponent, PopupComponent } from '@zyra/components';
+import { CardComponent, ListComponent, PopupComponent } from '@zyra/components';
 import ContentToolPopup from './ContentToolPopup';
 import ConnectVuloCloudPopup from '../../components/AiCredits/ConnectVuloCloudPopup';
 import ShowProPopup from '../../components/Popup/Popup';
@@ -335,7 +335,10 @@ const ContentToolsGrid = () => {
 						tags: (
 							<>
 								{tool.pro && !isContentToolsEnabled && (
-									<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
+									<span className="admin-tag pro-tag pro-tag-inline">
+										<i className="adminfont-pro-tag" />
+										{__('Pro', 'vulopilot')}
+									</span>
 								)}
 								<i className="adminfont-arrow-right" />
 							</>

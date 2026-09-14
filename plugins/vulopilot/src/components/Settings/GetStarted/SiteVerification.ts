@@ -5,7 +5,7 @@ import SiteVerificationPanel from './SiteVerificationPanel';
  * Settings → Connections → Site Verification.
  *
  * `PanelComponent` escape hatch (Settings.tsx's own GetForm(), same
- * mechanism Connections/AiProviders.ts/GoogleServices.ts already use) —
+ * mechanism this folder's own AiProviders.ts/GoogleServices.ts already use) —
  * SiteVerificationPanel.tsx manages its own per-provider "Verify" action
  * and honest status pills, which don't fit InputRenderer's static
  * declarative fields. `modal` still lists the real underlying keys purely

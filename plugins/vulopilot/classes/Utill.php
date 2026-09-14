@@ -632,6 +632,42 @@ class Utill {
         // turn on for Scanners\Basic\OpenGraphScanner/TwitterCardScanner's
         // findings.
         'social_meta_tags_enabled'              => array(),
+        // Settings → Site Identity → Title Formats, read by
+        // Services\TitleFormatter (`pre_get_document_title`). Same
+        // "setting gates OUTPUT, not construction" posture as
+        // CanonicalUrlManager/SocialMetaTagsManager above — 'enabled' by
+        // default since a title format is a strict improvement over
+        // whatever the active theme's own document-title logic already
+        // produces (WordPress core always has one; this only replaces it
+        // once a real, non-empty template exists for the current context).
+        // Each `title_format_*` is a free-text template using
+        // TitleFormatter::VARIABLES (`%site_title%`, `%post_title%`, ...,
+        // `%sep%`); `title_separator` is what `%sep%` itself resolves to.
+        'site_identity_enabled'                 => 'enabled',
+        'title_separator'                       => '|',
+        'title_format_home'                     => '%site_title% %sep% %site_description%',
+        'title_format_post'                     => '%post_title% %sep% %site_title%',
+        'title_format_page'                     => '%page_title% %sep% %site_title%',
+        'title_format_category'                 => '%category_title% %sep% %site_title%',
+        'title_format_tag'                      => '%tag_title% %sep% %site_title%',
+        'title_format_search'                   => 'Search results for "%search_term%" %sep% %site_title%',
+        'title_format_archive'                  => '%archive_title% %sep% %site_title%',
+        // Same feature, same `TitleFormatter::resolve()`/`%variable%` engine
+        // as `title_format_*` above, just feeding a real `<meta name="description">`
+        // tag (`wp_head`, TitleFormatter::maybe_output_description()) instead
+        // of the document title. For `post`/`page`, this is only ever a
+        // FALLBACK — a real, non-empty `post_excerpt` (this codebase's
+        // already-established "meta description" field, see
+        // Scanners\Basic\MetaDescriptionScanner's own docblock) always wins
+        // when one exists; these templates only render when there's no
+        // excerpt to use instead.
+        'description_format_home'               => '%site_description%',
+        'description_format_post'               => '%post_title% %sep% %site_description%',
+        'description_format_page'               => '%page_title% %sep% %site_description%',
+        'description_format_category'           => '%category_title% %sep% %site_description%',
+        'description_format_tag'                => '%tag_title% %sep% %site_description%',
+        'description_format_search'             => 'Search results for "%search_term%" %sep% %site_description%',
+        'description_format_archive'            => '%archive_title% %sep% %site_description%',
         // Read by Services\RedirectManager (the first two) and
         // Services\NotFoundLogger (the third) — a real 301 redirect
         // manager (a user-managed old-path -> new-path table, applied at
@@ -733,6 +769,17 @@ class Utill {
         // substantive rather than a placeholder, not a claim about ideal
         // About-page length.
         'brand_about_page_min_words'            => 80,
+        // Scanning > Brand Intelligence's own "Tracked competitors" —
+        // real zyra `expandable-panel` field (BrandIntelligence.ts), same
+        // `{ [methodId]: { title, url, ... } }` value shape
+        // 'crawler_alerts' above already establishes for this field type,
+        // just user-added (via "+ Add New") rather than a fixed set of
+        // rows, so it starts genuinely empty rather than pre-seeded. Not
+        // yet read by any PHP consumer — see that field's own docblock for
+        // the real gap (off-site Share of Voice tracking needing each
+        // competitor's own name, not just Scanning → AI Visibility's
+        // separate `geo_competitor_urls`) this captures data toward.
+        'tracked_competitors'                   => array(),
         // AI Crawler Traffic Monitoring.
         'enable_crawler_tracking'               => array( 'enable_crawler_tracking' ),
         // Read by Services\CrawlerTrafficLogger::run_cleanup() as the base

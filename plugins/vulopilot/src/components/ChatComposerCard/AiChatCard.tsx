@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
-import { BadgeComponent, ListComponent } from '@zyra/components';
+import { ListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ChatComposerCard from './ChatComposerCard';
 import aiImage from '../../assets/images/ai.png';
@@ -109,7 +109,10 @@ const AiChatCard = <TTurn,>({
 			(showProBadge || onNewChat || onOpenHistoryPopup) && (
 				<>
 					{showProBadge && (
-						<BadgeComponent color="purple" text={__('PRO', 'vulopilot')} />
+						<span className="admin-tag pro-tag pro-tag-inline">
+								<i className="adminfont-pro-tag" />
+								{__('Pro', 'vulopilot')}
+							</span>
 					)}
 					{onNewChat && (
 						<ButtonInput
