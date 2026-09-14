@@ -150,10 +150,10 @@ const App = () => {
 
 	return (
 		<>
-			<AiCreditsIndicator />
 			<HeaderComponent
 				brandImg={Brand}
 				results={results}
+				beforeSearch={<AiCreditsIndicator />}
 				search={{
 					placeholder: __('Search…', 'vulopilot'),
 					options: [

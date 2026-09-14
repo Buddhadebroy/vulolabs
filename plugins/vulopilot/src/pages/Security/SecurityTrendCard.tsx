@@ -1,5 +1,7 @@
-import { __ } from '@wordpress/i18n';
+import { useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
+import { ToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 
@@ -8,9 +10,16 @@ interface SecurityScoreSnapshot {
 	security_score: number;
 }
 
+type PeriodDays = '7' | '30' | '90';
+const PERIOD_OPTIONS = [
+	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
+	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
+	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+];
+
 /**
  * "Security Trend" — real daily `security_score` snapshots from
- * `GET /security-score-snapshots?days=30`
+ * `GET /security-score-snapshots?days=N`
  * (`classes/Repositories/SecurityScoreSnapshotRepository.php`, written by
  * `Services\SecurityScoreSnapshotRecorder` after every scan plus once
  * daily via cron — the same real weighting `GET /dashboard`'s
@@ -23,18 +32,37 @@ interface SecurityScoreSnapshot {
  * uses, including its graceful "no trend data yet" empty state for a
  * freshly-installed site or one that hasn't run a scan/waited for the
  * daily cron yet.
+ *
+ * `days` is a real 7/30/90 toggle now (same `PERIOD_OPTIONS`/`ToggleInput`
+ * shape GeoScoreSection.tsx's own card action already uses) rather than a
+ * fixed 30 — `useApiList`'s own `params` are re-read on every render, so
+ * changing `period` here refetches the same real endpoint with a
+ * different `days` value, no new request-plumbing needed.
  */
 const SecurityTrendCard = () => {
+	const [period, setPeriod] = useState<PeriodDays>('30');
 	const { data: snapshots, isLoading } = useApiList<SecurityScoreSnapshot>(
 		'security-score-snapshots',
-		{ days: 30 }
+		{ days: Number(period) }
 	);
 
 	return (
 		<CardComponent
 			title={__('Security Trend', 'vulopilot')}
 			titleIcon="security"
-			desc={__('Your daily security score over the last 30 days.', 'vulopilot')}
+			desc={sprintf(
+				/* translators: %d: number of days the trend below covers. */
+				__('Your daily security score over the last %d days.', 'vulopilot'),
+				Number(period)
+			)}
+			action={
+				<ToggleInput
+					options={PERIOD_OPTIONS}
+					value={period}
+					onChange={(value) => setPeriod(value as PeriodDays)}
+					modules={[]}
+				/>
+			}
 		>
 			{!isLoading && snapshots.length === 0 ? (
 				<ModuleGuardComponent

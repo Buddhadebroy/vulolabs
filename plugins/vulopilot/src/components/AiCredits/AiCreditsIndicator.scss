@@ -1,26 +1,16 @@
-// Mounted as a sibling of zyra's own HeaderComponent (see
-// AiCreditsIndicator.tsx's own docblock on why it isn't routed through
-// that component's utilityList prop) — position:relative here is what
-// PopupComponent's own `position="menu-dropdown"` absolute-positions
-// against.
+// Mounted via zyra's own HeaderComponent `beforeSearch` prop (app.tsx) —
+// that prop renders its content directly inside the header's real
+// `.right-section` flex row, immediately before the search box
+// (HeaderComponent.tsx's own docblock names this exact "live credit-count
+// indicator" case as what it's for), so this no longer needs the
+// fixed/absolute-positioned offset it previously used to fake that same
+// position from outside the header entirely — position:relative here is
+// only what PopupComponent's own `position="menu-dropdown"` absolute-
+// positions its dropdown against.
 .ai-credits-indicator {
-	// position: fixed;
-	// WordPress's own #wpadminbar is 32px tall and sits at z-index 99999,
-	// full-width above everything — confirmed live (a first pass at
-	// top: 14px rendered the indicator, but #wpadminbar physically
-	// covered it and intercepted every click, regardless of this
-	// element's own z-index). 46px clears it with the same ~14px breathing
-	// room the original offset intended; z-index only needs to beat
-	// zyra's own header content underneath it, not the admin bar itself,
-	// but is kept comfortably below 99999 so it can never re-cover it if
-	// WordPress ever changes the admin bar's own stacking.
-	top: 46px;
-	// Left of zyra's own search/utility icons in the header's right
-	// section — a fixed offset rather than trying to compute zyra's own
-	// layout width, same pragmatic approach this codebase already takes
-	// for a handful of other fixed-position admin overlays.
-	right: 320px;
-	z-index: 9999;
+	position: relative;
+	display: flex;
+	align-items: center;
 }
 
 .ai-credits-indicator-trigger {

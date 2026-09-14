@@ -540,13 +540,27 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 					)}
 
 					{'error' === step && (
-						<ButtonInput
-							buttons={{
-								text: __('Try again', 'vulopilot'),
-								color: 'border-red',
-								onClick: () => setStep('input'),
-							}}
-						/>
+						isNoProviderError ? (
+							<ButtonInput
+								buttons={{
+									text: isConnecting
+										? __('Connecting…', 'vulopilot')
+										: __('Connect to VuloCloud', 'vulopilot'),
+									icon: 'ai',
+									color: 'orange-bg',
+									disabled: isConnecting,
+									onClick: handleConnect,
+								}}
+							/>
+						) : (
+							<ButtonInput
+								buttons={{
+									text: __('Try again', 'vulopilot'),
+									color: 'border-red',
+									onClick: () => setStep('input'),
+								}}
+							/>
+						)
 					)}
 
 					{'preview' === step && preview && (
@@ -575,46 +589,43 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 			<>
 				{'input' === step && (
 					<>
-						{hasProductPicker && (
-							<div className="content-tool-field content-tool-product-picker">
-								<label htmlFor="_product_picker">
-									{__(
-										'Or pick an existing product (optional)',
-										'vulopilot'
-									)}
-								</label>
-								<SelectInput
-									type="single-select"
-									name="_product_picker"
-									value={selectedProductId}
-									onChange={(value) =>
-										handlePickProduct(value as string)
-									}
-									placeholder={
-										products.length > 0
-											? __(
-												'Select a product…',
-												'vulopilot'
-											)
-											: __(
-												'No products found',
-												'vulopilot'
-											)
-									}
-									options={products.map((product) => ({
-										value: String(product.id),
-										label: product.name,
-									}))}
-									isClearable={false}
-								/>
-							</div>
-						)}
 						<FormGroupWrapperComponent>
-						{tool.fields.map((field) => (
-							<FormGroupComponent label={field.label}>
-								{renderField(field)}
-							</FormGroupComponent >
-						))}
+							{hasProductPicker && (
+								<FormGroupComponent label={__(
+									'Pick an existing product (optional)',
+									'vulopilot'
+								)}>
+									<SelectInput
+										type="single-select"
+										name="_product_picker"
+										value={selectedProductId}
+										onChange={(value) =>
+											handlePickProduct(value as string)
+										}
+										placeholder={
+											products.length > 0
+												? __(
+													'Select a product…',
+													'vulopilot'
+												)
+												: __(
+													'No products found',
+													'vulopilot'
+												)
+										}
+										options={products.map((product) => ({
+											value: String(product.id),
+											label: product.name,
+										}))}
+										isClearable={false}
+									/>
+								</FormGroupComponent>
+							)}
+							{tool.fields.map((field) => (
+								<FormGroupComponent label={field.label}>
+									{renderField(field)}
+								</FormGroupComponent >
+							))}
 						</FormGroupWrapperComponent>
 					</>
 				)}
@@ -630,27 +641,15 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 
 				{'error' === step && (
 					isNoProviderError ? (
-						<div className="ai-credits-connect-prompt">
-							<NoticeComponent
-								displayPosition="inline-notice"
-								type="info"
-								title={__('No AI provider connected yet', 'vulopilot')}
-								message={__(
-									'Claim 100 Free AI Credits — no credit card required — to use this tool.',
-									'vulopilot'
-								)}
-							/>
-							<ButtonInput
-								position="left"
-								buttons={{
-									text: isConnecting
-										? __('Connecting…', 'vulopilot')
-										: __('Connect to VuloCloud', 'vulopilot'),
-									disabled: isConnecting,
-									onClick: handleConnect,
-								}}
-							/>
-						</div>
+						<NoticeComponent
+							displayPosition="inline-notice"
+							type="info"
+							title={__('No AI provider connected yet', 'vulopilot')}
+							message={__(
+								'Claim 100 Free AI Credits — no credit card required — to use this tool.',
+								'vulopilot'
+							)}
+						/>
 					) : (
 						<NoticeComponent
 							displayPosition="inline-notice"

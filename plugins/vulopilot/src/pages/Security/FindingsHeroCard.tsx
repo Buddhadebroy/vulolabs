@@ -167,7 +167,7 @@ const FindingsHeroCard = ({
 							<div className="overall-score-summary">
 								<ChartComponent
 									type="ring"
-									height={200}
+									height={250}
 									centerLabel={
 										<>
 											<TypographyComponent variant={'h1'}>
@@ -188,29 +188,6 @@ const FindingsHeroCard = ({
 											label: __('Remaining', 'vulopilot'),
 											value: 100 - score,
 											color: '#e5e7eb',
-										},
-									]}
-								/>
-								<LegendComponent
-									className="efficiency-overview-legend"
-									items={[
-										{
-											key: 'high',
-											label: __('High', 'vulopilot'),
-											value: high,
-											color: getSeverityColor('high'),
-										},
-										{
-											key: 'medium',
-											label: __('Medium', 'vulopilot'),
-											value: medium,
-											color: getSeverityColor('medium'),
-										},
-										{
-											key: 'low',
-											label: __('Low', 'vulopilot'),
-											value: low,
-											color: getSeverityColor('low'),
 										},
 									]}
 								/>

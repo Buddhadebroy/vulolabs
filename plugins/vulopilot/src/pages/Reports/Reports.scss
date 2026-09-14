@@ -691,3 +691,72 @@
 	margin: 0 0 1rem;
 	color: $sub-text-color;
 }
+
+// ReportsOverviewHeader.tsx's own real date-range note below the title/
+// desc/action row.
+.reports-overview-range-note {
+	margin: 0.5rem 0 0;
+	font-size: 0.8125rem;
+	color: $sub-text-color;
+}
+
+// RecentReportsCard.tsx — the "Name" column's own icon+title+subtitle cell,
+// rendered inside a real TableCard row now (see that file's own docblock)
+// rather than a hand-rolled row/list layout.
+.recent-reports-row-name {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+	min-width: 0;
+}
+
+.recent-reports-row-title {
+	margin: 0;
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+.recent-reports-row-desc {
+	margin: 0.125rem 0 0;
+	font-size: 0.75rem;
+	color: $sub-text-color;
+}
+
+// ScheduledReportsTable.tsx.
+.reports-schedules-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.reports-schedules-row {
+	display: grid;
+	grid-template-columns: minmax(9rem, 1.5fr) auto auto auto minmax(9rem, 1.5fr) auto auto;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 0.75rem 0;
+	border-bottom: $border-light-small;
+
+	&:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	@media (max-width: 782px) {
+		grid-template-columns: 1fr;
+		justify-items: flex-start;
+	}
+}
+
+.reports-schedules-row-name {
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+.reports-schedules-row-recipients {
+	font-size: 0.8125rem;
+	color: $sub-text-color;
+	max-width: 12rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

@@ -9,13 +9,15 @@ import './AiCreditsIndicator.scss';
 
 /**
  * The persistent "⚡ N AI Credits" indicator (architecture plan §21) —
- * mounted once, as a sibling of zyra's own `HeaderComponent` in app.tsx
- * (not through that component's own `utilityList` prop: that prop's
- * `toggleIcon` only ever renders a plain icon-font glyph — see
- * PopupComponent's own real toggle-icon behavior — so it has nowhere to
- * put the live number itself; this component drives its own
- * `PopupComponent` in fully-controlled mode instead, with the credit
- * count as its own custom, always-visible trigger).
+ * mounted once, via zyra's own `HeaderComponent`'s `beforeSearch` prop in
+ * app.tsx, which renders it inline in the header's right-section row,
+ * immediately before the "Modules & Settings" search box (not through
+ * that component's own `utilityList` prop: that prop's `toggleIcon` only
+ * ever renders a plain icon-font glyph — see PopupComponent's own real
+ * toggle-icon behavior — so it has nowhere to put the live number itself;
+ * this component drives its own `PopupComponent` in fully-controlled mode
+ * instead, with the credit count as its own custom, always-visible
+ * trigger).
  *
  * Three real states, all driven by useAiCredits()'s own live
  * `GET /ai-credits/status` read — never a fabricated number:
