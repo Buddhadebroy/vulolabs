@@ -261,3 +261,56 @@
 	align-items: center;
 	gap: 0.5rem;
 }
+
+// CommercePanel.tsx — the Pro-then-module-gated stand-in for
+// vulopilot-pro's own real Commerce module content (CommerceTab.tsx and
+// most of its children). Fabricated preview tiles, blurred and inert;
+// `.commerce-locked-overlay` is the real click target covering the whole
+// preview, same "one overlay, not per-row handlers" shape
+// AutomationsManageDummy.tsx's own dummy list already uses.
+.commerce-locked {
+	position: relative;
+}
+
+.commerce-locked-tag {
+	margin-bottom: 0.75rem;
+}
+
+.commerce-locked-preview {
+	display: grid;
+	// Matches the real, unlocked CommerceCategoryGrid.tsx's own
+	// `minTileWidth={16}` (rem) so this preview reads at the same visual
+	// density as the real page instead of a handful of small tiles lost
+	// in a mostly-empty column.
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 1rem;
+	filter: blur(2px);
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.commerce-locked-tile {
+	border: $border-light-small;
+	border-radius: 0.5rem;
+	padding: 1rem;
+
+	.commerce-locked-tile-title {
+		font-weight: 600;
+		margin-top: 0.5rem;
+	}
+
+	.commerce-locked-tile-desc {
+		color: $sub-text-color;
+		font-size: 0.8125rem;
+		margin-top: 0.25rem;
+	}
+}
+
+.commerce-locked-overlay {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}

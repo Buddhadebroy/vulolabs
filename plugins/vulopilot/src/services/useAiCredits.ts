@@ -26,11 +26,10 @@ export interface AiCreditsStatus {
  * The shape WP_REST_Server::error_to_response() gives a WP_Error —
  * AiCredits::connect()'s own error codes (`vulopilot_ai_credits_*`, see
  * AiCreditsConnection.php's own docblocks) arrive here as `code`. Raw
- * axios rather than @zyra/core's sendApiResponse(), same reasoning
- * useVuloCloudAccountLogin.ts's own VuloCloudConnectErrorBody already
- * documents: sendApiResponse() swallows the response body on error, and
- * the connect form needs the real `code`/`message` to decide whether to
- * prompt for a 2FA code or just show the error.
+ * axios rather than @zyra/core's sendApiResponse(), since that helper
+ * swallows the response body on error, and the connect form needs the
+ * real `code`/`message` to decide whether to prompt for a 2FA code or just
+ * show the error.
  */
 export interface AiCreditsErrorBody {
 	code?: string;

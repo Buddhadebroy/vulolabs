@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { NoticeComponent, PopupComponent } from '@zyra/components';
+import { CardComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
 
@@ -9,57 +9,68 @@ interface ConnectVuloCloudPopupProps {
 }
 
 /**
- * "Connect to VuloCloud / claim free AI credits" — the same real
- * passwordless broker redirect AiCreditsIndicator.tsx's own dropdown and
- * Settings → AI Providers' "Connect to VuloCloud" button already use
- * (useConnectVuloCloud.ts), pulled out into a shared popup so any page
- * that hits a real "No AI provider is configured." error can offer this
- * exact same real fix in place, rather than only a dead-end error notice.
- * Per direct instruction: sections whose real AI call can fail this way
- * (Create Content's "Chat with VuloPilot"/"Content Tools") show this
- * instead of blocking on a Pro license — both stay genuinely free, this is
- * the same free 100-credit VuloCloud connection every other "Claim free
- * AI Credits" entry point in this plugin already offers.
+ * "Connect to VuloCloud / claim free AI credits" — the real content shown
+ * for this popup, split out from the self-contained `ConnectVuloCloudPopup`
+ * below so `useContentGate.tsx` can render it directly inside its own
+ * existing `PopupComponent` (the same "bare content component" convention
+ * `ShowProPopup` already follows there), rather than nesting two popups.
  *
- * Deliberately NOT the generic Pro-upsell `ShowProPopup` — connecting to
- * VuloCloud here doesn't require a license, and clicking through doesn't
- * cost anything either (VuloCloud's free tier is exactly what this
- * connects to).
+ * Same real passwordless broker redirect (`useConnectVuloCloud.ts`)
+ * AiCreditsIndicator.tsx's own dropdown and Settings → AI Providers'
+ * "Connect to VuloCloud" button already use. This replaces the former
+ * `VuloCloudConnectPopup.tsx` (a real embedded email/password + 2FA login
+ * form) everywhere that component used to render, per direct instruction
+ * ("remove the image 2 popup ... replace all image 2 popup to image 1") —
+ * one real "Connect to VuloCloud" flow/design now, not two different ones.
+ * `useContentGate.tsx`'s own lock condition was switched to match (real AI
+ * credits `connected` status, the same flag this broker redirect sets) so
+ * completing this flow actually clears that gate, rather than leaving it
+ * checking a different, unrelated "VuloCloud account login" flag this
+ * flow never touches.
  */
-const ConnectVuloCloudPopup = ({ open, onClose }: ConnectVuloCloudPopupProps) => {
+export const ConnectVuloCloudPromptContent = () => {
 	const { isConnecting, handleConnect } = useConnectVuloCloud();
 
 	return (
-		<PopupComponent
-			open={open}
-			onClose={onClose}
-			width={22}
-			height="auto"
-			position="lightbox"
+		<CardComponent
+			title={__('Connect to VuloCloud', 'vulopilot')}
+			titleIcon="lock"
+			desc={__(
+				'Claim 100 Free AI Credits — no credit card required — to use this feature.',
+				'vulopilot'
+			)}
 		>
-			<div className="ai-credits-connect-prompt">
-				<NoticeComponent
-					displayPosition="inline-notice"
-					type="info"
-					title={__('No AI provider connected yet', 'vulopilot')}
-					message={__(
-						'Claim 100 Free AI Credits — no credit card required — to use this feature.',
-						'vulopilot'
-					)}
-				/>
-				<ButtonInput
-					position="left"
-					buttons={{
-						text: isConnecting
-							? __('Connecting…', 'vulopilot')
-							: __('Connect to VuloCloud', 'vulopilot'),
-						disabled: isConnecting,
-						onClick: handleConnect,
-					}}
-				/>
-			</div>
-		</PopupComponent>
+			<ButtonInput
+				position="left"
+				buttons={{
+					text: isConnecting
+						? __('Connecting…', 'vulopilot')
+						: __('Connect to VuloCloud', 'vulopilot'),
+					disabled: isConnecting,
+					onClick: handleConnect,
+				}}
+			/>
+		</CardComponent>
 	);
 };
+
+/**
+ * Self-contained popup wrapper around `ConnectVuloCloudPromptContent` above
+ * — the shape every other call site of this component already expects
+ * (ChatTab.tsx, ContentToolsGrid.tsx, AiContentAssistantSidebar.tsx: a
+ * plain `open`/`onClose`-controlled popup, no external `PopupComponent` of
+ * their own to nest it in).
+ */
+const ConnectVuloCloudPopup = ({ open, onClose }: ConnectVuloCloudPopupProps) => (
+	<PopupComponent
+		open={open}
+		onClose={onClose}
+		width={22}
+		height="auto"
+		position="lightbox"
+	>
+		<ConnectVuloCloudPromptContent />
+	</PopupComponent>
+);
 
 export default ConnectVuloCloudPopup;

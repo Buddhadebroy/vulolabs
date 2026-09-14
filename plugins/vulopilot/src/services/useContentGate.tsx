@@ -4,9 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../components/Popup/Popup';
-import VuloCloudConnectPopup from '../components/Popup/VuloCloudConnectPopup';
+import { ConnectVuloCloudPromptContent } from '../components/AiCredits/ConnectVuloCloudPopup';
 import MODULES_CATALOG, { isModuleCatalogEntry } from '../components/Modules';
-import { useVuloCloudAccountLogin } from './useVuloCloudAccountLogin';
+import { useAiCredits } from './useAiCredits';
 import './useContentGate.scss';
 
 const MODULE_CATALOG_BY_ID = new Map(
@@ -63,16 +63,18 @@ const DEFAULT_DUMMY_CONTENT = (
  * not-logged-in-VuloCloud site sees the blurred content even if Pro and
  * its module are also off:
  *
- * 1. **VuloCloud account** (`useVuloCloudAccountLogin()`) — a real,
- *    clickable label (VuloCloudAccountConnection.php's own
- *    `POST /auth/login` proxy — the flow this label's own text used to
- *    say didn't exist yet), with `realContent` itself blurred underneath
+ * 1. **VuloCloud connection** (`useAiCredits()`'s own `status.connected`) —
+ *    a real, clickable label, with `realContent` itself blurred underneath
  *    instead of `dummyContent` — its real shape stays visible, just
  *    unreadable/non-interactive, rather than being replaced by a mock
- *    preview. Clicking it opens `VuloCloudConnectPopup` (a real email/
- *    password — and, when the account has it enabled, two-factor code —
- *    form); a successful connect reloads the page (see that popup's own
- *    docblock for why) rather than updating this hook's own state.
+ *    preview. Clicking it opens `ConnectVuloCloudPromptContent` (the same
+ *    real "Connect to VuloCloud" passwordless broker redirect every other
+ *    free AI surface in this plugin uses) — previously a real embedded
+ *    email/password + 2FA login form (`VuloCloudConnectPopup`, a *different*
+ *    stored connection, `VuloCloudAccountConnection.php`'s own person-level
+ *    login) — unified onto this one flow per direct instruction ("remove
+ *    the image 2 popup ... replace all image 2 popup to image 1"), so
+ *    there's one real "connect" design/flow, not two.
  * 2. **Pro** (`appLocalizer.khali_dabba` false) — a "Pro" tag on top,
  *    `dummyContent` below it — a caller's own mock preview of its real
  *    shape (e.g. AiSpeedAssistantCard.tsx passes a fake count line plus
@@ -107,9 +109,14 @@ export const useContentGate = (
 	isModuleActive?: boolean
 ) => {
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
-	const { isLoggedIn: isVuloCloudLoggedIn } = useVuloCloudAccountLogin();
+	const { status: creditsStatus } = useAiCredits();
 
-	const isVuloCloudLocked = !isVuloCloudLoggedIn;
+	// `creditsStatus` starts null while the first `ai-credits/status` fetch
+	// is in flight — treated as locked (same fail-closed default every
+	// other real-data gate in this codebase already applies) rather than
+	// briefly unlocking, since this drives whether `realContent` itself
+	// gets blurred.
+	const isVuloCloudLocked = !creditsStatus?.connected;
 	const isProLocked = !isVuloCloudLocked && !appLocalizer.khali_dabba;
 	const isModuleLocked =
 		!isVuloCloudLocked &&
@@ -161,7 +168,7 @@ export const useContentGate = (
 		return (
 			<span className="content-gate-vulocloud-label">
 				<i className="adminfont-lock" />
-				{__('Log in to your VuloCloud account to use this', 'vulopilot')}
+				{__('Connect to VuloCloud to use this', 'vulopilot')}
 			</span>
 		);
 	};
@@ -195,7 +202,7 @@ export const useContentGate = (
 					tabIndex={0}
 					aria-label={
 						isVuloCloud
-							? __('Log in to VuloCloud', 'vulopilot')
+							? __('Connect to VuloCloud', 'vulopilot')
 							: 'pro' === gateReason
 								? __('Upgrade to Pro', 'vulopilot')
 								: sprintf(
@@ -215,7 +222,7 @@ export const useContentGate = (
 					position="lightbox"
 				>
 					{isVuloCloud ? (
-						<VuloCloudConnectPopup />
+						<ConnectVuloCloudPromptContent />
 					) : 'pro' === gateReason ? (
 						<ShowProPopup />
 					) : (

@@ -66,6 +66,16 @@ class Rest {
             'activity_logs'               => new Controllers\ActivityLogs(),
             'history'                     => new Controllers\History(),
             'automations'                 => new Controllers\Automations(),
+            // Deliberately NOT keyed 'automation_runs' — that data only ever
+            // backed AutomationsActivityCard.tsx's own "Recent automation
+            // activity" feed, which moved to vulopilot-pro's own
+            // Automations module wholesale per direct instruction (Free now
+            // shows AutomationsActivityDummy.tsx in its place). Registering
+            // a Free-side fallback here would let that feed keep working
+            // even without a licensed Pro Automations module, undermining
+            // the gate — vulopilot-pro's own AutomationsRunsRest.php (same
+            // `automation_runs` key) is this route's only real owner.
+            'automation_dashboard'        => new Controllers\AutomationDashboardStats(),
             'settings'                    => new Controllers\Settings(),
             'llms_txt'                    => new Controllers\LlmsTxt(),
             'crawler_traffic'             => new Controllers\CrawlerTraffic(),
@@ -85,16 +95,12 @@ class Rest {
             'backups'                     => new Controllers\Backups(),
             'backup_storage'              => new Controllers\BackupStorage(),
             'content_assistant'           => new Controllers\ContentAssistant(),
-            // Deliberately NOT registered here any more — "Chat with
-            // VuloPilot" (the real /copilot/chat + /copilot/conversations
-            // backend, formerly Controllers\Copilot) is now a genuine Pro
-            // feature; vulopilot-pro's own CopilotChat module registers
-            // its own Rest.php under this same 'copilot' REST base via
-            // the 'vulopilot_rest_controllers' filter below, key
-            // 'copilot_chat_pro' (same different-key-same-base convention
-            // as 'geo_top_pages'/'content_score'/'brand_score' above).
-            // Free's own ChatTab.tsx still renders the section, gated by
-            // useCopilotChatEnabled() — see that hook's own docblock.
+            // "Chat with VuloPilot" (/copilot/chat + /copilot/conversations)
+            // — briefly a Pro-only feature (vulopilot-pro's own CopilotChat
+            // module); moved back here, genuinely free again, gated the
+            // same way as every other AI surface (Controllers\Copilot's
+            // own create_item_permissions_check()) rather than a license.
+            'copilot'                     => new Controllers\Copilot(),
             'store_readiness'             => new Controllers\StoreReadiness(),
             'efficiency_checks'           => new Controllers\EfficiencyChecks(),
             'plugin_overlap'              => new Controllers\PluginOverlap(),

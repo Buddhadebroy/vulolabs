@@ -584,3 +584,52 @@
 	margin-top: 0.75rem;
 }
 
+// AutomationsManageDummy.tsx — the Pro-tag-gated stand-in for
+// vulopilot-pro's own real "Your automations" list. Rows are fabricated
+// examples, `pointer-events: none` so a click always reaches the wrapping
+// `.automations-manage-dummy` overlay (the real click target) rather than
+// the inert toggle inside each row.
+.automations-manage-dummy {
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+}
+
+.automations-manage-dummy-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-top: $border-light-small;
+	pointer-events: none;
+
+	&:first-child {
+		border-top: none;
+	}
+
+	.title {
+		font-weight: 600;
+		font-size: 0.875rem;
+	}
+
+	.desc {
+		color: $sub-text-color;
+		font-size: 0.8125rem;
+	}
+}
+
+.automations-manage-dummy-info {
+	min-width: 0;
+}
+
+// AutomationsActivityDummy.tsx — the Pro-tag-gated stand-in for
+// vulopilot-pro's own real "Recent automation activity" feed. Reuses the
+// real `.activity-log`/`.activity` row markup/styling (AutomationsActivityCard.tsx's
+// own, still shared since the real component uses the same classes), just
+// makes the whole list one clickable overlay instead of a real
+// "View automation history" action.
+.automations-activity-dummy {
+	cursor: pointer;
+}
+

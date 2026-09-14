@@ -16,14 +16,15 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
  * Shared `GET /sales-insights` fetch (Pro's WooCommerceIntelligence
- * module, SalesInsightsRest.php) — used by AiSalesOptimizerCard.tsx,
- * StoreIntelligenceSummaryCard.tsx, and ProductsToLookAtCard.tsx (its own
- * "No sales" row, from `stale_products_sample`), which all read the same
- * real cross-sell/upsell/bundle/at-risk data. Pro-only route with no
+ * module, SalesInsightsRest.php) — used by Free's own
+ * pages/Commerce/AiSalesOptimizerCard.tsx (kept in Free — see
+ * modules/Commerce/Module.php's own docblock, Pro side, for why), plus a
+ * duplicate copy in vulopilot-pro's own Commerce module for
+ * StoreIntelligenceSummaryCard.tsx/ProductsToLookAtCard.tsx (moved there
+ * — Pro can't import Free's src/ tree). Pro-only route with no
  * filter-slot wrapper — same graceful-404-to-null handling every other
- * Pro-only REST probe in this codebase already uses (TopSellingProductsCard.tsx's
- * own docblock), so Pro/module inactive renders the same honest locked
- * state as "no data yet."
+ * Pro-only REST probe in this codebase already uses, so Pro/module
+ * inactive renders the same honest locked state as "no data yet."
  */
 export const useSalesInsights = (): {
 	data: SalesInsights | null;

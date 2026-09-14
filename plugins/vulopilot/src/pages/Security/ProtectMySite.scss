@@ -907,14 +907,13 @@
 // `displayPosition="inline"`) instead of that local class — all styling
 // comes from those shared components now.
 
-// Status column (reference mockup) — the real badge (icon+label) plus a
-// real "Finished in/Failed after/Elapsed" sub-line built from this row's
-// own `started_at`/`finished_at` timestamps (`statusSubtext()`). The
-// mockup's own "Running" row also shows a numeric progress %, a progress
-// bar, and an "Est: …" remaining-time estimate — deliberately not
-// reproduced (see that function's own docblock: nothing in this codebase
-// tracks or returns a real completion percentage/estimate for an
-// in-progress backup).
+// Status column — the real badge (icon+label) plus, when relevant, a real
+// small sub-line underneath it. Currently used for
+// `statusDestinationCaveat()` (BackupsTab.tsx) — clarifies that a green
+// "Completed" badge only ever covers the LOCAL archive when this row's
+// separately-tracked remote upload failed or was never configured, so it
+// doesn't read as contradicting a red/yellow Destination badge in the same
+// row.
 .backups-status-cell {
 	display: flex;
 	flex-direction: column;

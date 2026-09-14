@@ -8,16 +8,28 @@ import {
 	NoticeComponent,
 	PopupComponent,
 } from '@zyra/components';
-import ShowProPopup from '../../components/Popup/Popup';
+import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import AutomationsStatsRow from './AutomationsStatsRow';
 import AutomationsAttentionCard from './AutomationsAttentionCard';
 import AutomationsPeriodStatsCard from './AutomationsPeriodStatsCard';
-import AutomationsActivityCard from './AutomationsActivityCard';
 import BuiltinAutomationCards from './BuiltinAutomationCards';
-import ManageAutomationsSection, { AutomationRow } from './ManageAutomationsSection';
+import AutomationsManageDummy from './AutomationsManageDummy';
+import AutomationsActivityDummy from './AutomationsActivityDummy';
+import { AutomationRow } from './automationRow';
 import { AutomationTemplate, getAutomationTemplateById } from './automationsTemplates';
 import './Automations.scss';
+
+const AUTOMATIONS_MODULE_ID = 'automations';
+
+/** Mirrors vulopilot-pro's own ManageAutomationsSection.tsx props exactly (that file's own real definition) — Free can't import Pro's src/ tree, same small-matching-copy convention every other cross-plugin component prop type in this file already uses. */
+interface ManageAutomationsSectionComponentProps {
+	hasWizard: boolean;
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	onOpenRow: (row: AutomationRow) => void;
+	onRequireProUpsell: () => void;
+	refetchSignal: number;
+}
 
 /** Mirrors vulopilot-pro's own `AutomationWizardProps` — Free can't import Pro's src/ tree, same small-matching-copy convention `automationLabels.ts` already establishes for its label sets. */
 interface AutomationWizardComponentProps {
@@ -37,32 +49,62 @@ interface AutomationGenerateComponentProps {
 	onSaved?: () => void;
 }
 
+/** Mirrors vulopilot-pro's own AutomationsActivityCard.tsx props exactly — Free can't import Pro's src/ tree, same small-matching-copy convention every other cross-plugin component prop type in this file already uses. */
+interface AutomationsActivityCardComponentProps {
+	onViewHistory: () => void;
+	refetchSignal: number;
+}
+
 interface AutomationSlotValue {
 	Wizard: ComponentType<AutomationWizardComponentProps>;
 	Generate: ComponentType<AutomationGenerateComponentProps>;
 	Templates: ComponentType<AutomationGenerateComponentProps>;
+	/** Real "Your automations" list (vulopilot-pro's own ManageAutomationsSection.tsx) — see AutomationsManageDummy.tsx's own docblock for the Free-side stand-in shown when this hasn't resolved. */
+	Manage: ComponentType<ManageAutomationsSectionComponentProps>;
+	/** Real "Recent automation activity" feed (vulopilot-pro's own AutomationsActivityCard.tsx) — see AutomationsActivityDummy.tsx's own docblock for the Free-side stand-in shown when this hasn't resolved. */
+	Activity: ComponentType<AutomationsActivityCardComponentProps>;
 }
 
 /**
- * "Automate Work" — VuloPilot Free vs Pro Automation Builder Prompt.md's own
- * split: Free gets exactly 2 fixed, schedule-only automations
+ * "Automate Work" — Free gets exactly 2 fixed, schedule-only automations
  * (`BuiltinAutomationCards.tsx` — "Run Full Site Scan"/"Send Visibility
- * Report", no template picker, no wizard) always shown at the top; the full
- * trigger→condition→action→notification wizard, "Build with AI", and the
- * "Create Automation" header button only render when Pro's own
- * `vulopilot_automations_panel` filter slot resolves (`Wizard`/`Generate`
- * below) — a Free site simply doesn't see those entry points at all, rather
- * than seeing them fail into an upsell popup ("Do NOT make Free look like a
- * disabled Pro interface," same prompt). `ManageAutomationsSection.tsx`'s
- * table still renders underneath either way — it's Pro users' own list of
- * any *additional* automations they've built beyond the 2 built-in ones
- * (it already excludes those 2 rows, see that file's own docblock).
+ * Report", no template picker, no wizard) always shown at the top.
+ *
+ * Per direct instruction, the header's 3 buttons ("Build with AI", "Create
+ * Automation", "Browse Templates") always render, in Free too — a real
+ * 2-tier Pro-then-module gate on click rather than being absent from the
+ * DOM entirely: `openProPopup()` below opens the plain `<ShowProPopup />`
+ * upgrade pitch when Pro isn't installed (`!appLocalizer.khali_dabba`), or
+ * the real module-specific `<ShowProPopup moduleName="automations" />`
+ * ("Activate {name}") when Pro is installed but this page's own
+ * `vulopilot_automations_panel` filter slot hasn't resolved (`Wizard`/
+ * `Generate`/`Templates` below) — same order/shape
+ * AutomationsTemplatesCard.tsx's own `handleItemClick` uses for its 3 Pro
+ * rows. Each button's own click handler
+ * (`openCreateWizard`/`openGenerate`/`openTemplatesLibrary`) already had
+ * this exact guard-then-popup logic; only the header's own `buttons` prop
+ * used to also hide the buttons outright whenever `Wizard` was missing,
+ * short-circuiting that logic before it ever ran.
+ *
+ * Same real 2-tier treatment for the "Your automations" section
+ * (vulopilot-pro's own ManageAutomationsSection.tsx — Pro users' own list
+ * of any *additional* automations they've built beyond the 2 built-in
+ * ones, already excluding those 2 rows, see that file's own docblock) and
+ * for "Recent automation activity" (vulopilot-pro's own
+ * AutomationsActivityCard.tsx — the last 5 runs across every automation):
+ * when their own `Manage`/`Activity` filter-slot members haven't resolved,
+ * `manageBadge` below picks "PRO" or the real module's own display name (same
+ * `isProInstalled` order every other gate on this page uses) and
+ * `AutomationsManageDummy` renders in its place — fabricated example rows,
+ * same PRO-badge-plus-immediate-popup shape as the header buttons above,
+ * instead of the section being entirely absent from the DOM the way it
+ * used to be.
  *
  * Owns the real wizard/"Build with AI" popups' open-signal state and the
  * `vulopilot_automations_panel` filter-slot resolution directly (rather than
  * `ManageAutomationsSection.tsx`, their previous host) since the header's
- * own two buttons need to open them too, not just the table's row actions —
- * a single shared instance of each popup, not two independently-triggered
+ * own buttons need to open them too, not just the table's row actions — a
+ * single shared instance of each popup, not two independently-triggered
  * ones.
  */
 const Automations = () => {
@@ -70,6 +112,13 @@ const Automations = () => {
 	const Wizard = slot?.Wizard;
 	const Generate = slot?.Generate;
 	const Templates = slot?.Templates;
+	const Manage = slot?.Manage;
+	const Activity = slot?.Activity;
+
+	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const manageBadge = isProInstalled
+		? resolveModuleDisplayName(AUTOMATIONS_MODULE_ID)
+		: __('PRO', 'vulopilot');
 
 	const [wizardOpenSignal, setWizardOpenSignal] = useState(0);
 	const [generateOpenSignal, setGenerateOpenSignal] = useState(0);
@@ -177,35 +226,31 @@ const Automations = () => {
 					'Create workflows that automatically handle repetitive work and keep you informed.',
 					'vulopilot'
 				)}
-				buttons={
-					Wizard
-						? [
-								{
-									label: __('Build with AI', 'vulopilot'),
-									icon: 'automation',
-									color: 'border-purple',
-									onClick: openGenerate,
-								},
-								{
-									// Secondary — VuloPilot Free vs Pro Automation Builder Prompt.md's own
-									// "Make templates the preferred starting point in Pro. Allow 'Create
-									// from scratch' as a secondary Pro option" — this button keeps working
-									// exactly as before, just no longer the rightmost/most prominent one.
-									label: __('Create Automation', 'vulopilot'),
-									icon: 'plus',
-									color: 'border-purple',
-									onClick: openCreateWizard,
-								},
-								{
-									// Preferred/rightmost — same "templates first, from-scratch second"
-									// ordering as above.
-									label: __('Browse Templates', 'vulopilot'),
-									icon: 'search',
-									onClick: openTemplatesLibrary,
-								},
-						  ]
-						: []
-				}
+				buttons={[
+					{
+						label: __('Build with AI', 'vulopilot'),
+						icon: 'automation',
+						color: 'border-purple',
+						onClick: openGenerate,
+					},
+					{
+						// Secondary — "Make templates the preferred starting point in
+						// Pro. Allow 'Create from scratch' as a secondary Pro option" —
+						// this button keeps working exactly as before, just no longer
+						// the rightmost/most prominent one.
+						label: __('Create Automation', 'vulopilot'),
+						icon: 'plus',
+						color: 'border-purple',
+						onClick: openCreateWizard,
+					},
+					{
+						// Preferred/rightmost — same "templates first, from-scratch
+						// second" ordering as above.
+						label: __('Browse Templates', 'vulopilot'),
+						icon: 'search',
+						onClick: openTemplatesLibrary,
+					},
+				]}
 			/>
 
 			<ContainerComponent general>
@@ -231,18 +276,24 @@ const Automations = () => {
 					<AutomationsAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
 				</ColumnComponent>
 
-				{Wizard && (
-					<ColumnComponent grid={7} fullHeight>
-						<ManageAutomationsSection
+				<ColumnComponent grid={7} fullHeight>
+					{Manage ? (
+						<Manage
 							hasWizard={Boolean(Wizard)}
 							onOpenRow={openRow}
 							onRequireProUpsell={openProPopup}
 							refetchSignal={refetchSignal}
 						/>
-					</ColumnComponent>
-				)}
-				<ColumnComponent grid={Wizard ? 5 : 12} fullHeight>
-					<AutomationsActivityCard onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
+					) : (
+						<AutomationsManageDummy badgeText={manageBadge} onClick={openProPopup} />
+					)}
+				</ColumnComponent>
+				<ColumnComponent grid={5} fullHeight>
+					{Activity ? (
+						<Activity onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
+					) : (
+						<AutomationsActivityDummy badgeText={manageBadge} onClick={openProPopup} />
+					)}
 				</ColumnComponent>
 				{Wizard && (
 					<Wizard

@@ -128,6 +128,14 @@ class ActionRegistry {
             // from that module's own Module.php) rather than staying here.
             Actions\WritePostContentAction::class,
             Actions\GenerateLandingPageAction::class,
+            // QuickActionsCard.tsx's own "AI Content Audit" shortcut — a
+            // real, standalone AI action (an overall score/summary/
+            // suggestions verdict, saved as postmeta) rather than the
+            // in-page scroll to RecentContentCard's rule-based scanner
+            // findings this row used to be. Stays free, same
+            // AI-provider-connected gate as the free Content Tools tiles
+            // above, not a Pro license.
+            Actions\AuditContentAction::class,
         );
     }
 

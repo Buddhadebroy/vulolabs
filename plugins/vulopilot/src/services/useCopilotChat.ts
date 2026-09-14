@@ -4,7 +4,7 @@ import axios from 'axios';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
-import { useCopilotChatEnabled } from './useCopilotChatEnabled';
+import { useAiCredits } from './useAiCredits';
 
 /** A real, clickable edit link for content the AI just created and saved — see CopilotChatResponse's own docblock. */
 export interface CopilotChatLink {
@@ -93,26 +93,27 @@ interface WpRestErrorBody {
 }
 
 /**
- * `POST /copilot/chat` (vulopilot-pro's own modules/CopilotChat/Rest.php —
- * moved there from Free's own Controllers\Copilot.php when "Chat with
- * VuloPilot" became a genuine Pro feature, direct instruction) — the real
- * chat backend for AI Copilot's Chat tab (ChatTab.tsx), the one real
- * remaining consumer of this hook (GEO/OverviewTab.tsx used to have its
- * own "How would you like to grow today?" composer built on this same
- * hook too, but that layout was replaced in an earlier session — see that
- * file's own docblock). The running conversation (`turns`) is still kept
- * here, client-side, and sent back as `history` on every call — but every
- * real call now also really persists to `vulopilot_ai_conversations`
- * server-side (Rest.php's own persist_conversation()), keyed by
- * `conversationId` below, which is what lets loadConversation() reload a
- * real, full past thread (not just an excerpt) after a refresh or a
- * brand-new session. Every real call is *separately* still recorded to
- * `vulopilot_ai_history` too, unchanged — that table stays a permanent,
- * excerpt-only audit trail (UsageTrackingProvider::record_success()), not
- * the source this hook reloads from.
+ * `POST /copilot/chat` (`Controllers\Copilot.php` — briefly moved to
+ * vulopilot-pro as a Pro-only feature, moved back per direct instruction:
+ * "make this section login popup dependency not pro also code in free for
+ * this section not pro dependency with login popup") — the real chat
+ * backend for AI Copilot's Chat tab (ChatTab.tsx), the one real remaining
+ * consumer of this hook (GEO/OverviewTab.tsx used to have its own "How
+ * would you like to grow today?" composer built on this same hook too, but
+ * that layout was replaced in an earlier session — see that file's own
+ * docblock). The running conversation (`turns`) is still kept here,
+ * client-side, and sent back as `history` on every call — but every real
+ * call also really persists to `vulopilot_ai_conversations` server-side
+ * (Copilot.php's own persist_conversation()), keyed by `conversationId`
+ * below, which is what lets loadConversation() reload a real, full past
+ * thread (not just an excerpt) after a refresh or a brand-new session.
+ * Every real call is *separately* still recorded to `vulopilot_ai_history`
+ * too, unchanged — that table stays a permanent, excerpt-only audit trail
+ * (UsageTrackingProvider::record_success()), not the source this hook
+ * reloads from.
  *
- * A message like "write a blog about X" now really creates and saves a
- * WordPress draft (Rest.php's own ContentCreationOrchestrator hand-off,
+ * A message like "write a blog about X" really creates and saves a
+ * WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off,
  * shared with the separate "Create Content" page) — that reply's `link`
  * carries the real edit URL, which ChatTab.tsx renders as a real clickable
  * link, same as AiContentAssistantSidebar.tsx already does for its own
@@ -122,23 +123,25 @@ interface WpRestErrorBody {
  * `send()`'s own `autoApply` (from ChatTab.tsx's "Auto-applies (with
  * approval)" toggle) is sent as `auto_apply` and is what actually gates
  * the one real content-creation capability above — previously local UI
- * state with no server effect at all. When off, Rest.php describes what
+ * state with no server effect at all. When off, Copilot.php describes what
  * it would create instead of creating it, same "advice-only" shape every
  * other kind of request already gets.
  *
- * `send()` itself is gated on useCopilotChatEnabled() — the real,
- * client-side mirror of the fact that Rest.php's own routes aren't even
- * registered without an active Pro license (CopilotChat\Module.php only
- * registers them when its own module is active) — BEFORE ever calling
- * the API: without an active Pro license, this sets `isProLocked`
- * instead of making a request that would just 404. ChatTab.tsx reads
- * that flag to show the same real "Unlock with Pro"
- * popup every other Pro-gated surface in this plugin uses
- * (components/Popup/Popup.tsx's own ShowProPopup, `moduleName="copilot-chat"`)
- * — the section itself (welcome screen, prompt chips, composer) still
- * renders in Free, per direct instruction ("the section show in free
- * with pro tag but functionality is pro feature"); only the real send is
- * blocked.
+ * Genuinely free, not Pro-gated: `send()` only needs a real AI provider
+ * configured (BYOK under Settings → AI Providers, or a connected VuloCloud
+ * account) — the same gate ContentAssistant.php's own chat and
+ * ContentToolsGrid.tsx's free tiles already use. `useAiCredits()`'s
+ * `status.connected` is checked up front, before ever calling the API
+ * (per the same "check before sending, don't wait for a real failure"
+ * posture AiContentAssistantSidebar.tsx's own handleChipClick() already
+ * documents), setting `isCloudConnectPromptOpen` instead of making a
+ * request that would just fail. As defense-in-depth, a real send that
+ * still comes back with Copilot.php's own "No AI provider is configured."
+ * error (e.g. `creditsStatus` hadn't loaded yet, or the connection dropped
+ * between the check and the request) opens the same popup instead of a
+ * dead-end error toast. ChatTab.tsx reads `isCloudConnectPromptOpen` to
+ * show the same real `ConnectVuloCloudPopup` every other free AI surface
+ * in this plugin uses for this exact condition.
  *
  * @param noticeKey Unique NoticeManager key for this composer's error banner, so two composers on the same page (if that ever happens) don't clobber each other's notice.
  */
@@ -148,11 +151,11 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	/** The real `vulopilot_ai_conversations.id` this session is saving to — null until the first successful reply of a fresh conversation, or until loadConversation() below hydrates it from a past one. */
 	const [ conversationId, setConversationId ] = useState< number | null >( null );
 	const [ isLoadingConversation, setIsLoadingConversation ] = useState( false );
-	/** True right after a real send attempt was blocked because `copilot-chat` isn't active — see this hook's own docblock. Reset via `dismissProLocked()`. */
-	const [ isProLocked, setIsProLocked ] = useState( false );
-	const isEnabled = useCopilotChatEnabled();
+	/** True right after a real send was blocked (or failed) because no AI provider is configured — see this hook's own docblock. Reset via `dismissCloudConnectPrompt()`. */
+	const [ isCloudConnectPromptOpen, setIsCloudConnectPromptOpen ] = useState( false );
+	const { status: creditsStatus } = useAiCredits();
 
-	const dismissProLocked = () => setIsProLocked( false );
+	const dismissCloudConnectPrompt = () => setIsCloudConnectPromptOpen( false );
 
 	const send = (
 		message: string,
@@ -166,8 +169,8 @@ export const useCopilotChat = ( noticeKey: string ) => {
 			return;
 		}
 
-		if ( ! isEnabled ) {
-			setIsProLocked( true );
+		if ( creditsStatus && ! creditsStatus.connected ) {
+			setIsCloudConnectPromptOpen( true );
 			return;
 		}
 
@@ -215,13 +218,28 @@ export const useCopilotChat = ( noticeKey: string ) => {
 				setConversationId( response.data.conversation_id );
 			} )
 			.catch( ( error ) => {
+				const message = ( error?.response?.data as WpRestErrorBody | undefined )
+					?.message;
+
+				// Copilot.php's own real "No AI provider is configured."
+				// (SafeRequestSender) — defense-in-depth for the same
+				// condition the up-front `creditsStatus` check above
+				// normally already catches (e.g. that status hadn't
+				// loaded yet, or the connection dropped since); same
+				// real fix, so it gets the same popup instead of just
+				// another error toast (AiContentAssistantSidebar.tsx's
+				// own sendToAi() applies this identical check).
+				if ( message?.includes( 'No AI provider is configured' ) ) {
+					setIsCloudConnectPromptOpen( true );
+					return;
+				}
+
 				NoticeManager.add( {
 					uniqueKey: noticeKey,
 					type: 'error',
 					position: 'float',
 					message:
-						( error?.response?.data as WpRestErrorBody | undefined )
-							?.message ??
+						message ??
 						__(
 							'Could not reach VuloPilot. Please try again.',
 							'vulopilot'
@@ -248,22 +266,16 @@ export const useCopilotChat = ( noticeKey: string ) => {
 
 	/**
 	 * Loads a real, past conversation's full turns back into this composer
-	 * (`GET /copilot/conversations/{id}`, Rest.php's own get_conversation())
+	 * (`GET /copilot/conversations/{id}`, Copilot.php's own get_conversation())
 	 * — RecentConversationsCard.tsx's "click to load full history" feature.
 	 * Replaces `turns` entirely and adopts `id` as the active
 	 * `conversationId`, so sending a new message afterward appends to this
-	 * same thread server-side instead of starting a new one. Guarded the
-	 * same way `send()` is — RecentConversationsCard.tsx already doesn't
-	 * render this list at all without an active Pro license (see that
-	 * file's own docblock), so this is defense-in-depth, not the primary
-	 * gate.
+	 * same thread server-side instead of starting a new one. No gate here —
+	 * a past conversation only exists if it was already sent for real, which
+	 * already required a connected AI provider; reading it back doesn't
+	 * make a new AI call of its own.
 	 */
 	const loadConversation = ( id: number ) => {
-		if ( ! isEnabled ) {
-			setIsProLocked( true );
-			return;
-		}
-
 		setIsLoadingConversation( true );
 
 		getApiResponse< StoredConversation >(
@@ -292,8 +304,8 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	/**
 	 * "New Chat" — clears `turns` and drops `conversationId` so the next
 	 * `send()` starts a genuinely new `vulopilot_ai_conversations` row
-	 * server-side (Rest.php's own persist_conversation() only appends to an
-	 * existing conversation when `conversation_id` is sent) instead of
+	 * server-side (Copilot.php's own persist_conversation() only appends to
+	 * an existing conversation when `conversation_id` is sent) instead of
 	 * appending onto whatever thread was active. Purely client-side reset —
 	 * the conversation just left doesn't need a corresponding request:
 	 * it's already been saved turn-by-turn as it happened.
@@ -312,8 +324,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 		startNewConversation,
 		isLoadingConversation,
 		conversationId,
-		isEnabled,
-		isProLocked,
-		dismissProLocked,
+		isCloudConnectPromptOpen,
+		dismissCloudConnectPrompt,
 	};
 };
