@@ -1,119 +1,49 @@
 import { useState } from 'react';
-import { ColumnComponent } from '@zyra/components';
 import ReportsOverviewHeader from './ReportsOverviewHeader';
-import ReportsHeroCard from './ReportsHeroCard';
-import ReportsCategoryStatusGrid from './ReportsCategoryStatusGrid';
-import {
-	SearchPerformancePanel,
-	AiVisibilityPanel,
-	SpeedPerformancePanel,
-} from './ReportsInsightPanels';
-import {
-	SecurityPerformancePanel,
-	ContentProgressPanel,
-	StorePerformancePanel,
-} from './ReportsCategoryPanels';
-import WhatHappenedThisMonth from './WhatHappenedThisMonth';
-import NextPrioritiesList from './NextPrioritiesList';
-import ScheduleReportBanner from './ScheduleReportBanner';
-import WebsiteProgressChart from './WebsiteProgressChart';
-import ReportTypeCards from './ReportTypeCards';
-import RecentAchievementsCard from './RecentAchievementsCard';
-import AiAnalystCard from './AiAnalystCard';
-import { useReportsOverview, DAY_OPTIONS } from './reportsOverview';
+import RecentReportsCard from './RecentReportsCard';
+import ScheduledReportsTable from './ScheduledReportsTable';
+import ReportHistoryTable from './ReportHistoryTable';
+import { DAY_OPTIONS } from './reportsOverview';
 import './Reports.scss';
 
 /**
- * "Reports"'s Overview tab — rebuilt to match the reference mockup: a
- * date-range + action header, a real "Fixed/New/Still need attention"
- * hero with real highlight rows, a 7-tile per-category status grid, two
- * 3-column insight rows (Search Performance/AI Visibility/Website Speed,
- * then Security/Content Progress/Store Performance), a real activity
- * timeline, a real "next priorities" list, and a closing schedule-a-report
- * banner. Every number comes from one shared fetch,
- * `GET /reports-overview?days=N` (Controllers\ReportsOverview.php) — see
- * that controller's own docblock for exactly how each section's real data
- * is computed and which mockup numbers (Search Console-style search
- * metrics) have no real backing anywhere in this codebase and were
- * honestly substituted rather than fabricated.
+ * "Reports"'s Overview tab — rebuilt to match the reference mockup exactly:
+ * a title/desc/date-range/action header (ReportsOverviewHeader.tsx),
+ * "Recent Reports" (RecentReportsCard.tsx), "Scheduled Reports"
+ * (ScheduledReportsTable.tsx), and "Report History" (ReportHistoryTable.tsx)
+ * — in that order, same as the mockup. The mockup's own "Build a New
+ * Report" and "Report Templates" sections are deliberately omitted per
+ * direct instruction; Report Builder tab (ReportTab.tsx, unchanged) still
+ * carries that real generate-report flow, and both this tab's "Create
+ * Report" header button and every table's empty state link there.
  *
- * The previous version of this tab's own real, but structurally
- * different, cards (WebsiteProgressChart's overall_score trend,
- * ReportTypeCards' per-report-type mini cards, RecentAchievementsCard,
- * AiAnalystCard) aren't part of the new mockup's own layout, but their
- * data is still real and otherwise unrepresented here — kept, appended
- * below the new mockup-matched sections, rather than deleted. The old
- * ReportsHeroCard.tsx/CategoryScoresGrid.tsx *are* fully superseded by
- * this pass's own hero/category-grid (same underlying `category_scores`
- * concept, now with real deltas/status) — those two were rewritten in
- * place rather than kept alongside a near-duplicate.
+ * This replaces this tab's previous content wholesale — the earlier
+ * `GET /reports-overview`-driven dashboard (hero "Fixed/New/Still open"
+ * card, 7-tile category status grid, the 6 Search/AI Visibility/Speed/
+ * Security/Content/Store insight panels, activity timeline, next-priorities
+ * list, schedule-a-report banner) and, before that, the even earlier
+ * WebsiteProgressChart/ReportTypeCards/RecentAchievementsCard/AiAnalystCard
+ * row, don't appear anywhere in this mockup and are no longer rendered
+ * here. Their own files (ReportsHeroCard.tsx, ReportsCategoryStatusGrid.tsx,
+ * ReportsInsightPanels.tsx, ReportsCategoryPanels.tsx,
+ * WhatHappenedThisMonth.tsx, NextPrioritiesList.tsx, ScheduleReportBanner.tsx,
+ * WebsiteProgressChart.tsx, ReportTypeCards.tsx, RecentAchievementsCard.tsx,
+ * AiAnalystCard.tsx, and `reportsOverview.ts`'s own `useReportsOverview`
+ * hook/`GET /reports-overview` consumer) are left in place, unused, rather
+ * than deleted — same "supersede the render call, don't delete real,
+ * working code without an explicit instruction to" posture
+ * AiSpeedAssistantCard.tsx's own docblock already establishes elsewhere on
+ * this page.
  */
 const OverviewTab = () => {
 	const [days, setDays] = useState<number>(DAY_OPTIONS[1]);
-	const { data, isLoading } = useReportsOverview(days);
 
 	return (
 		<>
-			<AiAnalystCard />
-
-			<ReportsOverviewHeader
-				days={days}
-				onDaysChange={setDays}
-				period={data?.period ?? null}
-			/>
-			<ReportsHeroCard
-				summary={data?.summary ?? null}
-				highlights={data?.highlights ?? []}
-				isLoading={isLoading}
-			/>
-			<ReportsCategoryStatusGrid
-				categories={data?.categories ?? []}
-				isLoading={isLoading}
-			/>
-			<div className="reports-panel-row">
-				<SearchPerformancePanel
-					panel={data?.seo_summary ?? null}
-					isLoading={isLoading}
-				/>
-				<AiVisibilityPanel
-					checks={data?.ai_visibility_summary?.checks ?? []}
-					isLoading={isLoading}
-				/>
-				<SpeedPerformancePanel
-					speed={data?.speed_summary ?? null}
-					isLoading={isLoading}
-				/>
-			</div>
-			<div className="reports-panel-row">
-				<SecurityPerformancePanel
-					panel={data?.security_summary ?? null}
-					isLoading={isLoading}
-				/>
-				<ContentProgressPanel
-					content={data?.content_summary ?? null}
-					isLoading={isLoading}
-				/>
-				<StorePerformancePanel
-					store={data?.store_summary ?? null}
-					isLoading={isLoading}
-				/>
-			</div>
-			<WhatHappenedThisMonth />
-			<NextPrioritiesList
-				priorities={data?.next_priorities ?? []}
-				isLoading={isLoading}
-			/>
-			<ScheduleReportBanner />
-
-			<WebsiteProgressChart />
-			<ReportTypeCards />
-			<div className="reports-legacy-row">
-				<ColumnComponent grid={6}>
-					<RecentAchievementsCard />
-				</ColumnComponent>
-				<ColumnComponent grid={6}>
-				</ColumnComponent>
-			</div>
+			<ReportsOverviewHeader days={days} onDaysChange={setDays} />
+			<RecentReportsCard days={days} />
+			<ScheduledReportsTable />
+			<ReportHistoryTable />
 		</>
 	);
 };

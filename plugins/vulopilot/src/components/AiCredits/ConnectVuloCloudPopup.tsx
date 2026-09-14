@@ -39,7 +39,7 @@ const ConnectVuloCloudPopup = ({ open, onClose }: ConnectVuloCloudPopupProps) =>
 		>
 			<div className="ai-credits-connect-prompt">
 				<NoticeComponent
-					displayPosition="inline"
+					displayPosition="inline-notice"
 					type="info"
 					title={__('No AI provider connected yet', 'vulopilot')}
 					message={__(

@@ -523,7 +523,7 @@ export const useFindingsTable = ({
 		hideHeader: true,
 		format: appLocalizer.date_format_js,
 		showMenu: false,
-		className: 'transparent-table',
+		variant: 'transparent',
 		rows: data.map((row) => {
 			const descriptionText =
 				row.description ||

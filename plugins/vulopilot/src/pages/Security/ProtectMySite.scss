@@ -695,22 +695,6 @@
 	margin-top: 1.5rem;
 }
 
-// SectionedIssuesTable.tsx's own real All/Important/per-section pill bar
-// (real counts, `tabs.map()`) — same flex-row-of-badges shape
-// WebsiteProgressChart.tsx's own `.website-progress-day-toggle` already
-// establishes for an identical "one active, several plain" toggle.
-.sectioned-issues-tab-bar {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.5rem;
-	margin-bottom: 1rem;
-
-	.admin-badge {
-		cursor: pointer;
-	}
-}
-
 // SectionedIssuesTable.tsx's own real "Show ignored" toggle + "Export
 // CSV" row, above the table's own native search/filter bar.
 .sectioned-issues-toolbar {

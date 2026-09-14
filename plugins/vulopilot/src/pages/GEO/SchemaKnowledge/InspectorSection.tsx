@@ -163,7 +163,7 @@ const InspectorSection = () => {
 					<TableCard
 						showMenu={false}
 						hideHeader={true}
-						className="transparent-table"
+						variant="transparent"
 						// Highlights the row whose inspection result is showing
 						// in the side panel — same real `activeRowId`/action-
 						// toggle pairing IssuesSection.tsx's own table+detail-

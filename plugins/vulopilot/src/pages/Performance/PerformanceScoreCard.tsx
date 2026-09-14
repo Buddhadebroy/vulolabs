@@ -10,7 +10,7 @@ import {
 	ModuleGuardComponent,
 	TypographyComponent
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import { ButtonInput, ToggleInput } from '@zyra/inputs';
 import './Performance.scss';
 import RealTimeMonitoringCard from './RealTimeMonitoringCard';
 import SpeedHistoryCard from './SpeedHistoryCard';
@@ -35,6 +35,13 @@ interface CoreWebVitalsSummary {
 	inp_ms: number | null;
 	sample_count: number;
 }
+
+type PeriodDays = '7' | '30' | '90';
+const PERIOD_OPTIONS = [
+	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
+	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
+	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+];
 
 interface PerformanceScoreCardProps {
 	/** Scrolls to the "Top Issues" FindingsTable further down this Overview tab. */
@@ -227,6 +234,8 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	const [vitals, setVitals] = useState<CoreWebVitalsSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
+	/** Drives SpeedHistoryCard's own real `days` param below — same `PERIOD_OPTIONS`/`ToggleInput` shape SecurityTrendCard.tsx's own card action already uses. RealTimeMonitoringCard isn't affected — its own metrics are real-time, not a day-range trend. */
+	const [period, setPeriod] = useState<PeriodDays>('30');
 
 	/**
 	 * Real objects only — `getApiResponse` (zyra) hands back whatever axios
@@ -406,8 +415,16 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 					titleIcon="analytics"
 					desc={__('Real Google Core Web Vitals for this site.', 'vulopilot')}
 					isLoading={isLoading}
+					action={
+						<ToggleInput
+							options={PERIOD_OPTIONS}
+							value={period}
+							onChange={(value) => setPeriod(value as PeriodDays)}
+							modules={[]}
+						/>
+					}
 				>
-					<SpeedHistoryCard />
+					<SpeedHistoryCard days={Number(period)} />
 					<RealTimeMonitoringCard />
 				</CardComponent>
 			</ColumnComponent>

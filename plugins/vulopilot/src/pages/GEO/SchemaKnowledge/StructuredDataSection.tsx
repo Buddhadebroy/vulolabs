@@ -222,7 +222,7 @@ const StructuredDataSection = () => {
 								<TableCard
 									showMenu={false}
 									hideHeader={true}
-									className="transparent-table"
+									variant="transparent"
 									headers={{
 										type: {
 											key: 'type',

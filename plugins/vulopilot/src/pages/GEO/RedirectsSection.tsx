@@ -802,7 +802,8 @@ const RedirectsSection = () => {
 				>
 					<TableCard
 						showMenu={false}
-						className="transparent-table redirect-table"
+						variant="transparent"
+						className="redirect-table"
 						hideHeader={true}
 						headers={headers}
 						rows={pageRows}

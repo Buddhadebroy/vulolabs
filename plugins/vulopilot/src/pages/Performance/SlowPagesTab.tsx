@@ -4,6 +4,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	AnalyticsComponent,
+	BadgeComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
@@ -14,7 +15,7 @@ import {
 	ModuleGuardComponent,
 	NoticeComponent,
 	TooltipComponent,
-	TrendStatComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import { SelectInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
@@ -177,7 +178,7 @@ const CWV_DOT_CLASS: Record<string, string> = {
 	SLOW: 'poor',
 };
 
-/** `ratingFor()`'s own className → the closest `admin-badge` color name — TrendStatComponent's own `Item.badge.color` contract (a real admin-badge modifier), not a raw hex, unlike the fixed `$vulopilot-rating-*` hex values the old summary tiles painted directly. No badge color exists for "very poor" specifically, so it shares 'red' with "poor". */
+/** `ratingFor()`'s own className → the closest `admin-badge` color name — same `BadgeComponent`'s own `color` contract (a real admin-badge modifier) the summary `ListComponent` row tags below use, not a raw hex, unlike the fixed `$vulopilot-rating-*` hex values the old summary tiles painted directly. No badge color exists for "very poor" specifically, so it shares 'red' with "poor". */
 const RATING_BADGE_COLOR: Record<string, string> = {
 	good: 'green',
 	'needs-improvement': 'orange',
@@ -491,63 +492,96 @@ const SlowPagesTab = () => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent>
-				<TrendStatComponent
-					cols={4}
-					isLoading={isLoading || isTrendLoading}
+				<ListComponent
+					loading={isLoading || isTrendLoading}
+					skeletonCount={4}
+					className="mini-card report list"
 					items={[
 						{
-							icon: 'error',
-							label: __('Slow Pages', 'vulopilot'),
-							value: summary?.slow ?? 0,
-							badge: { text: __('Needs Improvement', 'vulopilot'), color: 'orange' },
-							color: COLOR_PALETTE.orange,
+							id: 'slow-pages',
+							icon: 'error orange',
+							title: __('Slow Pages', 'vulopilot'),
+							tags: (
+								<>
+									<TypographyComponent variant="h5">
+										{summary?.slow ?? 0}
+									</TypographyComponent>
+									<BadgeComponent
+										color="orange"
+										text={__('Needs Improvement', 'vulopilot')}
+									/>
+								</>
+							),
 						},
 						{
-							icon: 'error',
-							label: __('Very Slow Pages', 'vulopilot'),
-							value: summary?.very_slow ?? 0,
-							badge: { text: __('Poor', 'vulopilot'), color: 'red' },
-							color: COLOR_PALETTE.red,
+							id: 'very-slow-pages',
+							icon: 'error red',
+							title: __('Very Slow Pages', 'vulopilot'),
+							tags: (
+								<>
+									<TypographyComponent variant="h5">
+										{summary?.very_slow ?? 0}
+									</TypographyComponent>
+									<BadgeComponent color="red" text={__('Poor', 'vulopilot')} />
+								</>
+							),
 						},
 						{
-							icon: 'form-phone',
-							label: __('Average Load Time', 'vulopilot'),
-							value:
-								avgLoadTimeMs !== null
-									? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
-									: '—',
-							badge:
-								null !== avgScore
-									? {
-										text: sprintf(
-											/* translators: %s is a rating word like "Good"/"Poor". */
-											__('%s score', 'vulopilot'),
-											avgScoreRating.label
-										),
-										color: RATING_BADGE_COLOR[avgScoreRating.className],
-									}
-									: { text: __('Not scored yet', 'vulopilot'), color: 'gray' },
-							color: RATING_RING_COLOR[avgScoreRating.className],
+							id: 'average-load-time',
+							icon: 'form-phone blue',
+							title: __('Average Load Time', 'vulopilot'),
+							tags: (
+								<>
+									<TypographyComponent variant="h5">
+										{avgLoadTimeMs !== null
+											? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
+											: '—'}
+									</TypographyComponent>
+									<BadgeComponent
+										color={
+											null !== avgScore
+												? RATING_BADGE_COLOR[avgScoreRating.className]
+												: 'gray'
+										}
+										text={
+											null !== avgScore
+												? sprintf(
+													/* translators: %s is a rating word like "Good"/"Poor". */
+													__('%s score', 'vulopilot'),
+													avgScoreRating.label
+												)
+												: __('Not scored yet', 'vulopilot')
+										}
+									/>
+								</>
+							),
 						},
 						{
-							icon: 'check',
-							label:
+							id: 'performance-trend',
+							icon: 'check green',
+							title:
 								null !== trendDelta
 									? __('Performance Trend', 'vulopilot')
 									: __('Not enough trend data yet', 'vulopilot'),
-							value:
-								null !== trendDelta
-									? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
-									: '—',
-							badge: null !== trendDelta
-								? {
-									text: isTrendImproving
-										? __('Improving', 'vulopilot')
-										: __('Declining', 'vulopilot'),
-									color: isTrendImproving ? 'green' : 'red',
-								}
-								: undefined,
-							color: isTrendImproving ? COLOR_PALETTE.green : COLOR_PALETTE.red,
+							tags: (
+								<>
+									<TypographyComponent variant="h5">
+										{null !== trendDelta
+											? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
+											: '—'}
+									</TypographyComponent>
+									{null !== trendDelta && (
+										<BadgeComponent
+											color={isTrendImproving ? 'green' : 'red'}
+											text={
+												isTrendImproving
+													? __('Improving', 'vulopilot')
+													: __('Declining', 'vulopilot')
+											}
+										/>
+									)}
+								</>
+							),
 						},
 					]}
 				/>

@@ -1163,7 +1163,7 @@ const BrokenLinksSection = () => {
 								<TableCard
 									showMenu={false}
 									hideHeader={true}
-									className="transparent-table"
+									variant="transparent"
 									headers={headers}
 									rows={pageRows}
 									ids={pageRows.map((row: BrokenLinkFinding) => row.id)}
@@ -1379,7 +1379,7 @@ const BrokenLinksSection = () => {
 						</p>
 						<FormGroupWrapperComponent>
 							{'broken-images' !== fixFinding.scanner_id && (
-								<FormGroupComponent row label={__('Link Text', 'vulopilot')}>
+								<FormGroupComponent label={__('Link Text', 'vulopilot')}>
 									<TextInput
 										name="fix_new_text"
 										placeholder={__('(no visible text)', 'vulopilot')}
@@ -1390,7 +1390,7 @@ const BrokenLinksSection = () => {
 									/>
 								</FormGroupComponent>
 							)}
-							<FormGroupComponent row label={__('Current URL', 'vulopilot')}>
+							<FormGroupComponent label={__('Current URL', 'vulopilot')}>
 								<p className="broken-link-fix-static-value">
 									{getBrokenUrl(fixFinding)}
 								</p>

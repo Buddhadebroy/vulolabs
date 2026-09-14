@@ -77,7 +77,7 @@ const BackupProtectionNotice = ({
 			uniqueKey="backup-protection-notice"
 			type={isEnabled ? 'success' : 'info'}
 			displayPosition="inline-notice"
-			message={
+			title={
 				isEnabled
 					? __('Backup protection: Enabled', 'vulopilot')
 					: __('Backup protection: Not enabled', 'vulopilot')
