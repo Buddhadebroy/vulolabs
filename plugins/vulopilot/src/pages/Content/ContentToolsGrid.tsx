@@ -335,7 +335,7 @@ const ContentToolsGrid = () => {
 						tags: (
 							<>
 								{tool.pro && !isContentToolsEnabled && (
-									<span className="admin-tag pro-tag pro-tag-inline">
+									<span className="admin-tag pro-tag">
 										<i className="adminfont-pro-tag" />
 										{__('Pro', 'vulopilot')}
 									</span>

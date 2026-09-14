@@ -6,7 +6,7 @@ import {
 	CardComponent,
 	InformationItemComponent,
 	ModuleGuardComponent,
-	ChartComponent,
+	ScoreRingComponent,
 	ListComponent,
 	TypographyComponent,
 } from '@zyra/components';
@@ -181,34 +181,29 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 			) : (
 				<>
 					<div className="site-overview-health">
-						<ChartComponent
-							type="ring"
-							height={100}
+						{/* zyra's own real, shared ScoreRingComponent — same
+						SVG ring/number/label structure every other real
+						score ring in this app now uses, instead of a
+						bespoke ChartComponent + hand-rolled centerLabel
+						markup for this one card. */}
+						<ScoreRingComponent
+							score={summary.overall_score}
+							size={6.25}
 							isLoading={false}
 							color={TONE_COLOR[overallTone]}
-							centerLabel={
-								<span className="site-overview-ring-number">
-									{summary.overall_score}
-								</span>
+							label={
+								<>
+									<span className="site-overview-health-title">
+										{__('Overall Health', 'vulopilot')}
+									</span>
+									<span
+										className={`site-overview-health-rating tone-${overallTone}`}
+									>
+										{TONE_RATING_LABEL[overallTone]}
+									</span>
+								</>
 							}
-							data={[{ value: summary.overall_score }]}
 						/>
-						<div className="site-overview-health-text">
-							<TypographyComponent
-								variant="body-md"
-								weight="semibold"
-								className="site-overview-health-title"
-							>
-								{__('Overall Health', 'vulopilot')}
-							</TypographyComponent>
-							<TypographyComponent
-								variant="h5"
-								weight="semibold"
-								color={overallTone}
-							>
-								{TONE_RATING_LABEL[overallTone]}
-							</TypographyComponent>
-						</div>
 					</div>
 
 					{/* Same `ListComponent` + "mini-card report" variant this card's own

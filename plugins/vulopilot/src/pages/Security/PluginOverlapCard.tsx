@@ -66,6 +66,7 @@ const PluginOverlapCard = ({ category }: PluginOverlapCardProps) => {
 
 	return (
 		<CardComponent
+			id="plugin-overlap-card"
 			title={__('VuloPilot already covers this', 'vulopilot')}
 			titleIcon="module"
 			desc={__(

@@ -258,6 +258,17 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 								<ChartComponent
 									type="ring"
 									height={200}
+									// Top-level `color` — `type="ring"` only ever
+									// paints its stroke from this prop, never from
+									// `data[].color` below (see SeoTab.tsx's own
+									// identical fix) — without it the ring stayed
+									// `ChartComponent`'s default brand purple
+									// regardless of score.
+									color={
+										COLOR_PALETTE[
+											ratingClass(overall) as keyof typeof COLOR_PALETTE
+										]
+									}
 									centerLabel={
 										<>
 											<TypographyComponent variant={'h1'} color={ratingClass(overall)}>

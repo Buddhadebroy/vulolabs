@@ -8,13 +8,10 @@ import {
 	ModuleGuardComponent,
 	NavigatorHeaderComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import GettingStartedCard from './GettingStartedCard';
 import { DashboardSummary } from '../../dashboard-widgets/types';
-import { useLastScanTime } from '../../services/useLastScanTime';
-import { formatWpDate } from '../../services/formatWpDate';
 
 /**
  * Zero-filled shape so DashboardGrid always has a real DashboardSummary
@@ -109,14 +106,6 @@ const Dashboard = () => {
 	// effect there even if a previous click already left it at the same
 	// value.
 	const [restoreDefaultSignal, setRestoreDefaultSignal] = useState(0);
-	// Same real site-wide (no `categories`) last-scan read
-	// RunScanHeaderExtra's own instance below already uses — called again
-	// here so the hand-rolled "Reset to default" row while customizing can
-	// show the same real caption in its own `.run-scan-header-extra-last-scan`
-	// slot (RunScanHeaderExtra's own copy is still there too, but its "Run
-	// scan" button — not its caption — is what `hideRunScanButton` hides).
-	const { lastScanAt } = useLastScanTime();
-
 	/**
 	 * `silent` skips the `isLoading` flip — `isLoading` here is the one
 	 * flag every widget's own `WidgetProps.isLoading` reads (DashboardGrid.tsx),
@@ -174,76 +163,59 @@ const Dashboard = () => {
 	// own identical whole-site header already uses.
 	//
 	// The edit/"Customize dashboard" toggle and its "Save changes" checkmark
-	// counterpart are now RunScanHeaderExtra's own `trailingButtons`, per
-	// direct instruction, rather than a second `ButtonInput` this page used
-	// to render beside it — same row either way, one fewer sibling to lay
-	// out. "Reset to default" stays a separate button (unrelated to
-	// scanning, only shown while customizing), rendered before
-	// RunScanHeaderExtra so it still reads left-to-right as "Reset to
-	// default" → save. RunScanHeaderExtra's own "Run scan" button is
-	// hidden while customizing (`hideRunScanButton`) — starting a real
-	// scan mid-layout-edit doesn't make sense there, per direct
-	// instruction; the "Last scan: …" caption and settings gear are
-	// unaffected (gear already hidden on this page regardless).
+	// counterpart are RunScanHeaderExtra's own `trailingButtons`, per direct
+	// instruction, rather than a second `ButtonInput` this page renders
+	// beside it. "Reset to default" (unrelated to scanning, only shown
+	// while customizing) used to be a second, separate
+	// `run-scan-header-extra` box rendered before this component — two
+	// competing button clusters that visibly broke the row's layout
+	// (confirmed live) instead of reading as one continuous header row.
+	// It now takes "Run scan"'s own slot instead, via
+	// `replaceRunScanButton` — RunScanHeaderExtra's own "Run scan" button
+	// is still hidden while customizing (`hideRunScanButton`), starting a
+	// real scan mid-layout-edit doesn't make sense there, but that slot is
+	// no longer just left empty; the "Last scan: …" caption and settings
+	// gear are unaffected (gear already hidden on this page regardless).
 	const headerCustomContent = (
-		<>
-			{isCustomizing && (
-				<div className="run-scan-header-extra">
-					<ButtonInput
-						buttons={[
-							{
-								text: __('Reset to default', 'vulopilot'),
-								icon: 'refresh',
-								color: 'border-purple',
-								onClick: () => {
-									setRestoreDefaultSignal((signal) => signal + 1);
-									// Same exit-customizing-mode step the
-									// checkmark ("Save changes") button already
-									// does — resetting is itself a completed
-									// change, so this leaves the header showing
-									// "Run scan"/edit again instead of leaving
-									// the user stuck in customize mode after the
-									// one action they came here for.
-									setIsCustomizing(false);
-								},
-							},
-						]}
-					/>
-					{lastScanAt && (
-						<div className="run-scan-header-extra-last-scan desc">
-							{sprintf(
-								/* translators: 1: formatted date, 2: formatted time. */
-								__('Last scan: %1$s • %2$s', 'vulopilot'),
-								formatWpDate(lastScanAt),
-								new Date(lastScanAt).toLocaleTimeString(undefined, {
-									hour: 'numeric',
-									minute: '2-digit',
-								})
-							)}
-						</div>
-					)}
-				</div>
-			)}
-			<RunScanHeaderExtra
-				settingsSubtab="general"
-				hideSettingsButton
-				hideRunScanButton={isCustomizing}
-				onSuccess={loadDashboard}
-				trailingButtons={[
-					isCustomizing
-						? {
-							icon: 'form-checkboxes',
-							color: 'text-green',
-							onClick: () => setIsCustomizing(false),
-						}
-						: {
-							icon: 'edit',
-							color: 'text-purple',
-							onClick: () => setIsCustomizing(true),
+		<RunScanHeaderExtra
+			settingsSubtab="general"
+			hideSettingsButton
+			hideRunScanButton={isCustomizing}
+			replaceRunScanButton={
+				isCustomizing
+					? {
+						text: __('Reset to default', 'vulopilot'),
+						icon: 'refresh',
+						color: 'border-purple',
+						onClick: () => {
+							setRestoreDefaultSignal((signal) => signal + 1);
+							// Same exit-customizing-mode step the checkmark
+							// ("Save changes") button already does —
+							// resetting is itself a completed change, so
+							// this leaves the header showing "Run scan"/edit
+							// again instead of leaving the user stuck in
+							// customize mode after the one action they came
+							// here for.
+							setIsCustomizing(false);
 						},
-				]}
-			/>
-		</>
+					}
+					: undefined
+			}
+			onSuccess={loadDashboard}
+			trailingButtons={[
+				isCustomizing
+					? {
+						icon: 'form-checkboxes',
+						color: 'text-green',
+						onClick: () => setIsCustomizing(false),
+					}
+					: {
+						icon: 'edit',
+						color: 'text-purple',
+						onClick: () => setIsCustomizing(true),
+					},
+			]}
+		/>
 	);
 
 	const pageHeader = (

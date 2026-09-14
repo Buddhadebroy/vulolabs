@@ -49,6 +49,17 @@ const ratingClass = (score: number): string => {
 	return 'red';
 };
 
+/** Dynamic caption under the ring's own "Overall Score" label — same real per-tier wording shape OverallScoreWidget.tsx's own `getRatingSummary()` uses on the Dashboard, ported here rather than shared since the two use different score thresholds (this tab's own `getRating()` 70/40 split, not the Dashboard's 90/70/50). Replaces what used to be a plain repeat of this card's own header `desc` text right below it. */
+const getRatingSummary = (score: number): string => {
+	if (score >= 70) {
+		return __('Your visibility is in good shape across the board.', 'vulopilot');
+	}
+	if (score >= 40) {
+		return __('Your visibility could use some improvement.', 'vulopilot');
+	}
+	return __('Your visibility needs attention in several areas.', 'vulopilot');
+};
+
 /** Real CSS hex per `ratingClass()` tier — `ChartComponent`'s own ring `data[].color` takes a real CSS color, not a palette name the way `TypographyComponent`'s own `color` prop does, so this small map exists just for the ring fill (same "duplicate per file" convention `SeoTab.tsx`'s own `COLOR_PALETTE` lookup covers there with a shared constant this file doesn't import). */
 const RATING_RING_COLOR: Record<string, string> = {
 	green: '#16a34a',
@@ -350,6 +361,19 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 									<ChartComponent
 										type="ring"
 										height={200}
+										// Top-level `color` — same prop `OverallScoreWidget.tsx`'s
+										// own identical ring reads for its actual stroke
+										// (`type="ring"` never reads a per-row `data[].color`
+										// the way `type="pie"` does — see BusinessProfileCard.tsx's
+										// own docblock on this same point). Without it the ring
+										// always rendered in `ChartComponent`'s own default brand
+										// color regardless of score, while the center number above
+										// already colored itself correctly via `ratingClass()` — so
+										// the two visibly disagreed (a purple ring around a green
+										// "88"). `data[].color` below is now purely the pie/legend
+										// fallback shape `ChartComponent` still expects, not what
+										// actually paints this ring.
+										color={RATING_RING_COLOR[ratingClass(score.visibility_score)]}
 										centerLabel={
 											<>
 												<TypographyComponent
@@ -376,11 +400,21 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 											},
 										]}
 									/>
+									{/*
+									 * "Overall Score" — was a verbatim repeat of this card's
+									 * own header title ("Visibility Score") right above it, with
+									 * the caption below it repeating the header's own `desc` too
+									 * (same real duplication OverallScoreWidget.tsx's own
+									 * identical ring never has: its inner label reads "Overall
+									 * Score" against a "Website Health Scores" header, and its
+									 * caption is a real dynamic rating summary, not a static
+									 * repeat). Matched to that same real shape here instead.
+									 */}
 									<TypographyComponent variant={'h3'} color="text-green">
-										{__('Visibility Score', 'vulopilot')}
+										{__('Overall Score', 'vulopilot')}
 									</TypographyComponent>
 									<div className="desc">
-										{__('Your real, combined score across Brand, SEO, GEO, and Crawl & URLs.', 'vulopilot')}
+										{getRatingSummary(score.visibility_score)}
 									</div>
 							</div>
 							<div className="overall-score-summary">

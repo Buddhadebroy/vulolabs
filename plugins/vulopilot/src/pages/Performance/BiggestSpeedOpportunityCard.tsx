@@ -121,6 +121,7 @@ const BiggestSpeedOpportunityCard = ({
 
 	return (
 		<CardComponent
+			id="biggest-speed-opportunity-card"
 			title={__('Biggest Speed Opportunity', 'vulopilot')}
 			titleIcon="light"
 			desc={__('The single fix with the biggest real impact on your speed score.', 'vulopilot')}

@@ -77,6 +77,13 @@ const RATING_COLOR: Record<Rating['className'], string> = {
 	poor: COLOR_PALETTE.red,
 };
 
+/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex — for the ring's center number, which (unlike the ring itself) reads a class name through that prop, not a CSS color. */
+const TEXT_COLOR: Record<Rating['className'], string> = {
+	good: 'green',
+	'needs-improvement': 'orange',
+	poor: 'red',
+};
+
 /** Same real bands as `getScoreRating()` above, mapped to the real palette class name the ring color map is keyed by. */
 const ratingClass = (score: number): Rating['className'] => {
 	return getScoreRating(score).className;
@@ -233,9 +240,24 @@ const SecurityStatusCard = ({
 							<ChartComponent
 								type="ring"
 								height={200}
+								// Top-level `color` — same prop this ring's own
+								// sibling rings elsewhere in this plugin
+								// (OverallScoreWidget.tsx/PerformanceScoreCard.tsx's
+								// own ScoreTile/VitalRow) already set; `type="ring"`
+								// only ever paints its stroke from this prop, never
+								// from `data[].color` (that's `type="pie"`'s own
+								// read) — without it the ring always rendered in
+								// `ChartComponent`'s default brand purple regardless
+								// of score, while the center number above stayed
+								// plain black instead of matching its own real
+								// rating tier.
+								color={RATING_COLOR[ratingClass(overallScore)]}
 								centerLabel={
 									<>
-										<TypographyComponent variant={'h1'}>
+										<TypographyComponent
+											variant={'h1'}
+											color={TEXT_COLOR[ratingClass(overallScore)]}
+										>
 											{overallScore}
 										</TypographyComponent>
 										<TypographyComponent variant={'desc'}>

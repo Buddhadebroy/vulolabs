@@ -120,14 +120,14 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 4,
 		component: CrawlerTrafficWidget,
 	},
-	{
-		id: 'latest-reports',
-		title: __('Latest reports', 'vulopilot'),
-		desc: __('Your most recently generated reports.', 'vulopilot'),
-		icon: 'report',
-		grid: 4,
-		component: LatestReportsWidget,
-	},
+	// {
+	// 	id: 'latest-reports',
+	// 	title: __('Latest reports', 'vulopilot'),
+	// 	desc: __('Your most recently generated reports.', 'vulopilot'),
+	// 	icon: 'report',
+	// 	grid: 4,
+	// 	component: LatestReportsWidget,
+	// },
 ];
 
 /**

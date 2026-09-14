@@ -644,6 +644,18 @@ const RedirectsSection = () => {
 								<ChartComponent
 									type="ring"
 									height={200}
+									// Top-level `color` — `type="ring"` only ever
+									// paints its stroke from this prop, never from
+									// `data[].color` below (see SeoTab.tsx's own
+									// identical fix) — without it the ring stayed
+									// `ChartComponent`'s default brand purple
+									// regardless of the real active-redirect
+									// percentage.
+									color={
+										COLOR_PALETTE[
+											ratingColor(activePercent) as keyof typeof COLOR_PALETTE
+										]
+									}
 									centerLabel={
 										<>
 											<TypographyComponent

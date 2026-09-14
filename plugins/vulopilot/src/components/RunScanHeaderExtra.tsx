@@ -14,6 +14,22 @@ interface RunScanHeaderExtraProps {
 	hideSettingsButton?: boolean;
 	/** Drops the "Run scan" button itself (the settings gear, "Last scan: …" caption, and any `trailingButtons` stay) — Dashboard.tsx's own header while "Customize dashboard" mode is on, per direct instruction: starting a real scan mid-layout-edit doesn't make sense there, and the row already has "Reset to default"/the save checkmark to act on instead. Every other call site keeps the button (default false). */
 	hideRunScanButton?: boolean;
+	/**
+	 * Renders in "Run scan"'s own place — same slot in this component's
+	 * single button row — instead of leaving it empty when
+	 * `hideRunScanButton` is set. Dashboard.tsx's own "Reset to default"
+	 * while customizing: it used to render as a second, separate
+	 * `run-scan-header-extra` box before this component, which visibly
+	 * broke the row's layout (two competing button clusters fighting for
+	 * the same space) rather than reading as one continuous header row.
+	 * Ignored while `hideRunScanButton` is false.
+	 */
+	replaceRunScanButton?: {
+		text: string;
+		icon: string;
+		color?: string;
+		onClick: () => void;
+	};
 	/** Overrides the button's own idle-state label (Performance.tsx's "Run Speed Test") — "Scanning…" while a scan is in progress is unaffected either way. */
 	label?: string;
 	/** Same real `onSuccess` `useRunScan` already supports — a page's own refetch after a scan completes. */
@@ -56,6 +72,7 @@ const RunScanHeaderExtra = ({
 	settingsSubtab,
 	hideSettingsButton = false,
 	hideRunScanButton = false,
+	replaceRunScanButton,
 	label,
 	onSuccess,
 	trailingButtons = [],
@@ -68,7 +85,16 @@ const RunScanHeaderExtra = ({
 				<ButtonInput
 					buttons={[
 						...(hideRunScanButton
-							? []
+							? replaceRunScanButton
+								? [
+										{
+											text: replaceRunScanButton.text,
+											icon: replaceRunScanButton.icon,
+											color: replaceRunScanButton.color ?? 'purple-bg',
+											onClick: replaceRunScanButton.onClick,
+										},
+									]
+								: []
 							: [
 									{
 										text:

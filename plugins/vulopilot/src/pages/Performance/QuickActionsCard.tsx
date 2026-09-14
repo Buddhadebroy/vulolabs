@@ -89,6 +89,7 @@ const QuickActionsCard = () => {
 
 	return (
 		<CardComponent
+			id="performance-quick-actions-card"
 			title={__('Quick Actions', 'vulopilot')}
 			titleIcon="ai"
 			desc={__('Common performance fixes you can run in one click.', 'vulopilot')}

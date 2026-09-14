@@ -48,6 +48,7 @@ const SecurityTrendCard = () => {
 
 	return (
 		<CardComponent
+			id="security-trend-card"
 			title={__('Security Trend', 'vulopilot')}
 			titleIcon="security"
 			desc={sprintf(

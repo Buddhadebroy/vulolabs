@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
-import { CardComponent, ChartComponent, ColumnComponent, ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, ColumnComponent, ListComponent, ModuleGuardComponent, TypographyComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { EntitiesResponse } from './KnowledgeGraphSection';
 import { ENTITY_SETTINGS_URL } from './KnowledgeGraphSection';
@@ -38,16 +38,6 @@ const getRating = (score: number): string => {
 		return __('Partially understood', 'vulopilot');
 	}
 	return __('Poorly understood', 'vulopilot');
-};
-
-const ratingClass = (score: number): string => {
-	if (score >= 70) {
-		return 'is-good';
-	}
-	if (score >= 40) {
-		return 'is-attention';
-	}
-	return 'is-poor';
 };
 
 interface ProfileRow {
@@ -340,14 +330,27 @@ const BusinessProfileCard = () => {
 									ratingColor(entityScore) as keyof typeof COLOR_PALETTE
 									]
 								}
+								// Same `TypographyComponent` h1/h4 centerLabel shape
+								// every other real score ring in this plugin uses
+								// (OverallScoreWidget.tsx/SeoTab.tsx/
+								// GeoScoreSection.tsx/etc.) — replacing this ring's
+								// own raw `<span>` pair, which read its number/
+								// label colors from `.score-ring-number`/
+								// `.geo-overall-rating.is-*` (SeoVisibility.scss)
+								// instead of the real `ratingColor()` palette name
+								// `TypographyComponent`'s own `color` prop already
+								// resolves everywhere else.
 								centerLabel={
 									<>
-										<span className="score-ring-number">{entityScore}</span>
-										<span
-											className={`score-ring-label geo-overall-rating ${ratingClass(entityScore)}`}
+										<TypographyComponent
+											variant={'h1'}
+											color={ratingColor(entityScore)}
 										>
+											{entityScore}
+										</TypographyComponent>
+										<TypographyComponent variant={'h4'}>
 											{getRating(entityScore)}
-										</span>
+										</TypographyComponent>
 									</>
 								}
 								data={[
@@ -356,7 +359,7 @@ const BusinessProfileCard = () => {
 										value: entityScore,
 										// Same real rating color the ring's own
 										// label above already uses
-										// (`ratingClass()`/`getRating()`) —
+										// (`ratingColor()`/`getRating()`) —
 										// resolved through `COLOR_PALETTE` for
 										// the real hex `ratingColor()`'s own
 										// palette name stands for, rather than a

@@ -70,6 +70,7 @@ const RecentActivityCard = () => {
 
 	return (
 		<CardComponent
+			id="security-recent-activity-card"
 			title={__('Recent Activity', 'vulopilot')}
 			titleIcon="clock"
 			desc={__('Your last 4 real security-related events.', 'vulopilot')}

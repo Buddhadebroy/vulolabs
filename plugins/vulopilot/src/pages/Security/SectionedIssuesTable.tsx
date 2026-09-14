@@ -14,7 +14,7 @@ import {
 import { TableCard } from '@zyra/table';
 import { ButtonInput } from '@zyra/inputs';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
-import { CATEGORY_ICONS, CATEGORY_LABELS, formatAffected } from '../AIAssistant/issuesTypes';
+import { CATEGORY_LABELS, formatAffected, issueIconFor } from '../AIAssistant/issuesTypes';
 import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
 import IssueDetailPanel from '../AIAssistant/IssueDetailPanel';
 import ProLockedCard from '../../components/ProLockedCard';
@@ -570,16 +570,21 @@ const SectionedIssuesTable = ({
 										row.sample?.description || '',
 										80
 									),
-									// Real, per-row category icon — same
-									// `CATEGORY_ICONS[category]` map (icon
-									// name + palette color class, e.g.
-									// "security lime") IssuesList.tsx's own
-									// row icons already use, same fallback
-									// too, for a `category` value not in
-									// that map.
-									issueIcon:
-										CATEGORY_ICONS[row.category] ??
-										'search-discovery pink',
+									// Real per-row icon — `SCANNER_ICONS[scanner_id]`
+									// first, so e.g. Performance's own CDN/
+									// JavaScript/CSS Optimization/Cache Issues
+									// rows (all real `category: 'performance'`)
+									// each get their own real distinct icon
+									// instead of every row in that category
+									// sharing one identical glyph (confirmed
+									// live) — `CATEGORY_ICONS[category]`
+									// (same map IssuesList.tsx's own row icons
+									// already use) stays the fallback for any
+									// scanner_id not explicitly listed.
+									issueIcon: issueIconFor(
+										row.category,
+										row.scanner_id
+									),
 									issueBadges: [
 										{
 											text: CATEGORY_LABELS[row.category] ?? row.category,

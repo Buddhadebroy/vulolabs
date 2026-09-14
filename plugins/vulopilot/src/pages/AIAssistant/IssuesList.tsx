@@ -8,12 +8,12 @@ import './AICopilot.scss';
 import IssuesSummaryCards, { Priority } from './IssuesSummaryCards';
 import IssueDetailPanel from './IssueDetailPanel';
 import {
-	CATEGORY_ICONS,
 	CATEGORY_LABELS,
 	CATEGORY_TABS,
 	FindingGroup,
 	findTabIdForCategory,
 	formatAffected,
+	issueIconFor,
 } from './issuesTypes';
 import { COLOR_PANEL } from 'recharts/types/util/Constants';
 
@@ -319,8 +319,20 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							}}
 							rows={data.map((row) => ({
 								...row,
-								categoryIcon:
-									CATEGORY_ICONS[row.category] ?? 'search-discovery pink',
+								// Real `SCANNER_ICONS[scanner_id]` first, so
+								// e.g. Performance's own CDN/JavaScript/CSS
+								// Optimization/Cache Issues rows (all real
+								// `category: 'performance'`) each get their
+								// own real distinct icon instead of every
+								// row in that category sharing one identical
+								// glyph — `CATEGORY_ICONS[category]` stays
+								// the fallback for any scanner_id not
+								// explicitly listed (issuesTypes.ts's own
+								// `issueIconFor()` docblock).
+								categoryIcon: issueIconFor(
+									row.category,
+									row.scanner_id
+								),
 								descriptionText:
 									(row.sample?.description?.length ?? 0) > 80
 										? `${row.sample?.description?.slice(0, 80)}...`

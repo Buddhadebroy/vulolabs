@@ -235,6 +235,16 @@ const AeoScoreSummaryCard = ({
 						<ChartComponent
 							type="ring"
 							height={200}
+							// Top-level `color` — `type="ring"` only ever paints
+							// its stroke from this prop, never from `data[].color`
+							// below (see SeoTab.tsx's own identical fix) — without
+							// it the ring stayed `ChartComponent`'s default brand
+							// purple regardless of score.
+							color={
+								COLOR_PALETTE[
+									ratingColorFor(overallScore) as keyof typeof COLOR_PALETTE
+								]
+							}
 							centerLabel={
 								<>
 									<TypographyComponent
