@@ -4,6 +4,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	AnalyticsComponent,
+	BadgeComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
@@ -14,7 +15,7 @@ import {
 	ModuleGuardComponent,
 	NoticeComponent,
 	TooltipComponent,
-	TrendStatComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import { SelectInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
@@ -491,63 +492,100 @@ const SlowPagesTab = () => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent>
-				<TrendStatComponent
-					cols={4}
-					isLoading={isLoading || isTrendLoading}
+				<ListComponent
+					loading={isLoading || isTrendLoading}
+					skeletonCount={4}
+					className="mini-card report list"
 					items={[
 						{
-							icon: 'error',
-							label: __('Slow Pages', 'vulopilot'),
-							value: summary?.slow ?? 0,
-							badge: { text: __('Needs Improvement', 'vulopilot'), color: 'orange' },
-							color: COLOR_PALETTE.orange,
+							id: 'slow-pages',
+							icon: 'error orange',
+							title: __('Slow Pages', 'vulopilot'),
+							tags: (
+								<TypographyComponent variant="h5">
+									{summary?.slow ?? 0}
+								</TypographyComponent>
+							),
+							desc: (
+								<BadgeComponent
+									color="orange"
+									text={__('Needs Improvement', 'vulopilot')}
+								/>
+							) as unknown as string,
 						},
 						{
-							icon: 'error',
-							label: __('Very Slow Pages', 'vulopilot'),
-							value: summary?.very_slow ?? 0,
-							badge: { text: __('Poor', 'vulopilot'), color: 'red' },
-							color: COLOR_PALETTE.red,
+							id: 'very-slow-pages',
+							icon: 'error red',
+							title: __('Very Slow Pages', 'vulopilot'),
+							tags: (
+								<TypographyComponent variant="h5">
+									{summary?.very_slow ?? 0}
+								</TypographyComponent>
+							),
+							desc: (
+								<BadgeComponent
+									color="red"
+									text={__('Poor', 'vulopilot')}
+								/>
+							) as unknown as string,
 						},
 						{
-							icon: 'form-phone',
-							label: __('Average Load Time', 'vulopilot'),
-							value:
-								avgLoadTimeMs !== null
-									? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
-									: '—',
-							badge:
-								null !== avgScore
-									? {
-										text: sprintf(
-											/* translators: %s is a rating word like "Good"/"Poor". */
-											__('%s score', 'vulopilot'),
-											avgScoreRating.label
-										),
-										color: RATING_BADGE_COLOR[avgScoreRating.className],
+							id: 'average-load-time',
+							icon: 'form-phone blue',
+							title: __('Average Load Time', 'vulopilot'),
+							tags: (
+								<TypographyComponent variant="h5">
+									{avgLoadTimeMs !== null
+										? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
+										: '—'}
+								</TypographyComponent>
+							),
+							desc: (
+								<BadgeComponent
+									color={
+										null !== avgScore
+											? RATING_BADGE_COLOR[avgScoreRating.className]
+											: 'gray'
 									}
-									: { text: __('Not scored yet', 'vulopilot'), color: 'gray' },
-							color: RATING_RING_COLOR[avgScoreRating.className],
+									text={
+										null !== avgScore
+											? sprintf(
+												/* translators: %s is a rating word like "Good"/"Poor". */
+												__('%s score', 'vulopilot'),
+												avgScoreRating.label
+											)
+											: __('Not scored yet', 'vulopilot')
+									}
+								/>
+							) as unknown as string,
 						},
 						{
-							icon: 'check',
-							label:
+							id: 'performance-trend',
+							icon: 'check green',
+							title:
 								null !== trendDelta
 									? __('Performance Trend', 'vulopilot')
 									: __('Not enough trend data yet', 'vulopilot'),
-							value:
+							tags: (
+								<TypographyComponent variant="h5">
+									{null !== trendDelta
+										? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
+										: '—'}
+								</TypographyComponent>
+							),
+							desc:
 								null !== trendDelta
-									? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
-									: '—',
-							badge: null !== trendDelta
-								? {
-									text: isTrendImproving
-										? __('Improving', 'vulopilot')
-										: __('Declining', 'vulopilot'),
-									color: isTrendImproving ? 'green' : 'red',
-								}
-								: undefined,
-							color: isTrendImproving ? COLOR_PALETTE.green : COLOR_PALETTE.red,
+									? ((
+										<BadgeComponent
+											color={isTrendImproving ? 'green' : 'red'}
+											text={
+												isTrendImproving
+													? __('Improving', 'vulopilot')
+													: __('Declining', 'vulopilot')
+											}
+										/>
+									) as unknown as string)
+									: undefined,
 						},
 					]}
 				/>

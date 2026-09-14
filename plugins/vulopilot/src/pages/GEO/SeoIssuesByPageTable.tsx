@@ -2,7 +2,7 @@
 import React from 'react';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CardComponent, ChartComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager, SectionComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, ContainerComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager, SectionComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
@@ -369,7 +369,7 @@ const SeoIssuesByPageTable = ({
 	}
 
 	return (
-		<>
+		<ContainerComponent>
 			<SectionComponent
 				title={__('Pages & Posts', 'vulopilot')}
 				desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
@@ -739,7 +739,7 @@ const SeoIssuesByPageTable = ({
 					}
 				/>
 			)}
-		</>
+		</ContainerComponent>
 	);
 };
 
