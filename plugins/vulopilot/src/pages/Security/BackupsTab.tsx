@@ -417,7 +417,7 @@ const BackupsTab = () => {
 				) : (
 					<TableCard
 						showMenu={false}
-						className="transparent-table"
+						variant="transparent"
 						headers={{
 							created_at: {
 								label: __('Date', 'vulopilot'),

@@ -202,7 +202,7 @@ const SeoSiteWideIssuesTable = ({
 			/>
 			<TableCard
 				showMenu={false}
-				className="transparent-table"
+				variant="transparent"
 				hideHeader={true}
 				headers={{
 					title: {

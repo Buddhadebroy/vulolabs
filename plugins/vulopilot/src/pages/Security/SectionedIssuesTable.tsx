@@ -4,7 +4,6 @@ import type { MouseEvent } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
-	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
@@ -153,19 +152,20 @@ interface SectionedIssuesTableProps {
  * page — per-group bulk actions in the side panel already cover the same
  * ground (act on every open finding in a group at once).
  *
- * The scanner_id-based category tab bar above the table (All/Important/
- * one per `sections` entry) stays this component's own existing,
- * already-correct `activeTab`/`onTabChange` wiring rather than switching
- * to TableCard's native `categoryCounts` click mechanism — IssuesList.tsx's
- * own version of that mechanism is wired up cosmetically
- * (`activeCategory`/`categoryCounts` render the pill bar) but its
- * `onQueryUpdate` handler never actually reads the `categoryFilter` field
- * TableCard would hand back on a click, so category-switching there
- * doesn't reliably drive a real refetch. Reproducing that same disconnect
- * here would trade a working interaction for a broken-looking one just to
- * match a pill shape, so this keeps its own controlled state instead
- * (still needed anyway for cross-component deep-links like
- * VulnerabilitiesFoundCard's row clicks).
+ * The scanner_id-based category scope (All/Important/one per `sections`
+ * entry) that used to render as its own pill bar above the table is now
+ * one of the table's own real filters instead (the "All issues" `select`
+ * in `filters` below, per direct instruction) — still this component's
+ * own existing, already-correct `activeTab`/`onTabChange` wiring
+ * underneath, not TableCard's native `categoryCounts` click mechanism
+ * (IssuesList.tsx's own version of that mechanism is wired up cosmetically
+ * but its `onQueryUpdate` handler never actually reads the
+ * `categoryFilter` field TableCard would hand back on a click, so
+ * category-switching there doesn't reliably drive a real refetch —
+ * reproducing that same disconnect here would trade a working interaction
+ * for a broken-looking one). `activeTab`/`onTabChange` stay controlled
+ * props either way (still needed anyway for cross-component deep-links
+ * like VulnerabilitiesFoundCard's row clicks).
  *
  * Deliberately fetches `GET /findings/groups` once, with no `category`
  * filter, and does every category/priority/pagination slice client-side
@@ -193,7 +193,6 @@ const SectionedIssuesTable = ({
 		null
 	);
 	const [searchValue, setSearchValue] = useState('');
-	const [categoryFilterValue, setCategoryFilterValue] = useState('');
 	const [resourceFilterValue, setResourceFilterValue] = useState('');
 	// Real "Show ignored" toggle — off (default) fetches only real open
 	// groups, same as before; on refetches with `status=all`
@@ -289,6 +288,17 @@ const SectionedIssuesTable = ({
 		scannerIdsForTab[section.key] = section.scannerIds;
 	});
 
+	// This component's own real section a given scanner_id belongs to —
+	// not the unrelated, page-wide `CATEGORY_TABS` (issuesTypes.ts's own
+	// `findTabIdForCategory`), since `sections` here is each caller's own
+	// narrower set (e.g. SecurityTab.tsx's 4 named sections, not every
+	// real category site-wide). Falls back to 'all' for a scanner_id no
+	// named section claims (e.g. `core-file-integrity`, same real gap
+	// `allScannerIds`'s own docblock already documents).
+	const findSectionIdForScanner = (scannerId: string): SectionedIssuesTab =>
+		sections.find((section) => section.scannerIds.includes(scannerId))
+			?.key ?? 'all';
+
 	const activeSection = sections.find((section) => section.key === activeTab);
 	const isActiveSectionLocked = Boolean(
 		activeSection?.locked && activeSection?.proModule
@@ -298,19 +308,17 @@ const SectionedIssuesTable = ({
 		activeScannerIds.includes(group.scanner_id)
 	);
 
-	// Real "Search by title or source page…" / "All issues" (category) /
-	// "All resources" (object_type) filters — composed with the tab bar
-	// above (AND logic), same real client-side-slice-of-one-fetch posture
-	// this component's own priority/pagination filters already use.
-	// "Source page" in the search placeholder is honest about what this
-	// actually matches: these rows are one per real issue *type*
-	// (scanner_id/category), not one per affected page, so there's no
-	// real per-row "source page" field to search here — only each row's
-	// own real `label` (e.g. "Weak Password Detection").
+	// Real "Search by title or source page…" / "All resources" (object_type)
+	// filters — composed with the "All issues" section filter above (AND
+	// logic, that one already scopes `tabGroups` via `activeTab`/
+	// `onTabChange`), same real client-side-slice-of-one-fetch posture this
+	// component's own priority/pagination filters already use. "Source
+	// page" in the search placeholder is honest about what this actually
+	// matches: these rows are one per real issue *type* (scanner_id/
+	// category), not one per affected page, so there's no real per-row
+	// "source page" field to search here — only each row's own real
+	// `label` (e.g. "Weak Password Detection").
 	const searchFilteredGroups = tabGroups.filter((group: FindingGroup) => {
-		if (categoryFilterValue && group.category !== categoryFilterValue) {
-			return false;
-		}
 		if (resourceFilterValue && group.object_type !== resourceFilterValue) {
 			return false;
 		}
@@ -341,16 +349,9 @@ const SectionedIssuesTable = ({
 					PRIORITY_SEVERITIES[activePriority].includes(group.severity)
 				);
 
-	// Real, already-present category/resource values in this tab's own
-	// current group list — not a hardcoded list, so a section with fewer
-	// real categories/resource types never shows an option with nothing
-	// behind it.
-	const categoryFilterOptions = Array.from(
-		new Set(tabGroups.map((group) => group.category))
-	).map((category) => ({
-		label: CATEGORY_LABELS[category] ?? category,
-		value: category,
-	}));
+	// Real, already-present resource-type values in this tab's own current
+	// group list — not a hardcoded list, so a section with fewer real
+	// resource types never shows an option with nothing behind it.
 	const resourceFilterOptions = Array.from(
 		new Set(
 			tabGroups
@@ -417,7 +418,14 @@ const SectionedIssuesTable = ({
 							<TableCard
 								showMenu={false}
 								hideHeader={true}
-								className="transparent-table"
+								variant="transparent"
+								// Real "All issues"/"All resources" filters
+								// rendered in the table's own action row,
+								// before the search field, per direct
+								// instruction — rather than this component's
+								// own long-standing default (filters below
+								// the table, in its own `filter-wrapper`).
+								filtersBeforeSearch
 								search={{
 									placeholder: __(
 										'Search by title or source page…',
@@ -426,11 +434,19 @@ const SectionedIssuesTable = ({
 								}}
 								filters={[
 									{
-										key: 'category',
+										// Same real All/Important/one-per-`sections`
+										// scope the removed pill bar drove via
+										// `onTabChange` — now a real table filter
+										// instead of a separate row of its own,
+										// per direct instruction.
+										key: 'section',
 										label: __('All issues', 'vulopilot'),
 										type: 'select',
 										size: 10,
-										options: categoryFilterOptions,
+										options: tabs.map((tab) => ({
+											label: `${tab.label} (${tab.count})`,
+											value: tab.id,
+										})),
 									},
 									{
 										key: 'object_type',
@@ -533,15 +549,17 @@ const SectionedIssuesTable = ({
 											text: CATEGORY_LABELS[row.category] ?? row.category,
 											color: 'blue',
 											// Real, working "filter by clicking
-											// a badge" — sets the exact same
-											// real category filter the "All
-											// issues" dropdown above drives,
+											// a badge" — jumps to the exact same
+											// real section the "All issues"
+											// filter above drives (`onTabChange`),
 											// so the two stay in sync rather
 											// than being two independent
 											// mechanisms.
 											onClick: (event: MouseEvent<HTMLSpanElement>) => {
 												event.stopPropagation();
-												setCategoryFilterValue(row.category);
+												onTabChange(
+													findSectionIdForScanner(row.scanner_id)
+												);
 											},
 										},
 										{ text: row.severity, color: `badge-${row.severity}` },
@@ -557,10 +575,24 @@ const SectionedIssuesTable = ({
 								}) => {
 									setPaged(Number(query.paged) || 1);
 									setSearchValue(query.searchValue ?? '');
-									setCategoryFilterValue(query.filter?.category ?? '');
 									setResourceFilterValue(
 										query.filter?.object_type ?? ''
 									);
+
+									// Real, same All/Important/section scope the
+									// removed pill bar drove — this filter's
+									// own value IS a real `SectionedIssuesTab`
+									// id ('all' included, via `tabs.map()`'s
+									// own `value: tab.id` above), forwarded
+									// only on an actual pick so a query update
+									// from search/pagination/the other filter
+									// (whose own `filter.section` is simply
+									// still unset) never silently snaps a
+									// deep-linked `activeTab` back to 'all'.
+									const section = query.filter?.section;
+									if (section && section !== activeTab) {
+										onTabChange(section);
+									}
 								}}
 								emptyMessage={
 									activeSection?.emptyMessage ||
@@ -599,26 +631,6 @@ const SectionedIssuesTable = ({
 					title={__('Issues', 'vulopilot')}
 					desc={__('Findings from your most recent scans, grouped by check.', 'vulopilot')}
 				/>
-			</ColumnComponent>
-			<ColumnComponent>
-				{/* Real per-scanner-id counts already computed above (`tabs`)
-				— this is that same real data's own missing UI: the
-				All/Important/one-per-`sections`-entry pill bar this
-				component's own `activeTab`/`onTabChange` contract expects a
-				caller to render, now rendered here directly instead of
-				only ever being handed to a parent that never did. */}
-				<div className="sectioned-issues-tab-bar">
-					{tabs.map((tab) => (
-						<BadgeComponent
-							key={tab.id}
-							color={tab.id === activeTab ? 'purple' : ''}
-							role="button"
-							tabIndex={0}
-							onClick={() => onTabChange(tab.id)}
-							text={`${tab.label} (${tab.count})`}
-						/>
-					))}
-				</div>
 			</ColumnComponent>
 			{sectionContent}
 		</ContainerComponent>

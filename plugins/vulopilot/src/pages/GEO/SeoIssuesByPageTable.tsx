@@ -409,7 +409,7 @@ const SeoIssuesByPageTable = ({
 				<TableCard
 					showMenu={false}
 					hideHeader
-					className="transparent-table"
+					variant="transparent"
 					activeRowId={activePostId ?? undefined}
 					search={hideSearch ? undefined : { placeholder: __('Search pages…', 'vulopilot') }}
 					buttonActions={

@@ -183,7 +183,7 @@ const ManageAutomationsSection = ({
 				) : (
 					<TableCard
 						hideHeader={true}
-						className="transparent-table"
+						variant="transparent"
 						search={{ placeholder: __('Search automations…', 'vulopilot') }}
 						format={appLocalizer.date_format_js}
 						headers={{
