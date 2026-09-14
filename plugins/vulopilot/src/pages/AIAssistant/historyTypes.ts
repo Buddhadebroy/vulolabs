@@ -1,4 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { formatWpTime } from '../../services/formatWpDate';
 
 export type HistoryFilter = 'all' | 'conversation' | 'scan' | 'change' | 'automations';
 
@@ -216,6 +217,12 @@ const CHANGE_ICON_BY_EVENT: Record<string, string> = {
 	'ai_action.failed': 'error red',
 	'ai_action.rejected': 'close red',
 	'ai_action.rolled_back': 'undo pink',
+	// Synthesized by `toHistoryRow()` below for a real `GET /automation-runs`
+	// row (AutomationsActivityCard.tsx) — that endpoint's own real `status`
+	// column, not a fabricated event type.
+	'automation.completed': 'check green',
+	'automation.failed': 'error red',
+	'automation.running': 'clock gray',
 };
 
 export const rowIcon = (row: HistoryRow): string => {
@@ -255,6 +262,9 @@ const CHANGE_STATUS_BADGE_BY_EVENT: Record<string, string> = {
 	'ai_action.failed': __('Failed', 'vulopilot'),
 	'ai_action.rejected': __('Rejected', 'vulopilot'),
 	'ai_action.rolled_back': __('Rolled back', 'vulopilot'),
+	'automation.completed': __('Completed', 'vulopilot'),
+	'automation.failed': __('Failed', 'vulopilot'),
+	'automation.running': __('Running', 'vulopilot'),
 };
 
 /**
@@ -281,21 +291,21 @@ export const rowStatusBadge = (
 		'ai_action.failed': 'red',
 		'ai_action.rejected': 'grey',
 		'ai_action.rolled_back': 'grey',
+		'automation.completed': 'green',
+		'automation.failed': 'red',
+		'automation.running': 'grey',
 	};
 
 	return { text, className: classByEvent[row.event_type] ?? 'grey' };
 };
 
 /**
- * Real time-of-day, matching the mockup's own "10:24 AM" per-row display
- * — the day heading already carries the date, so the row itself only
- * needs the time.
+ * Real time-of-day, in this site's own real Settings → General → Time
+ * Format (`formatWpTime()`, previously a hardcoded `toLocaleTimeString()`
+ * that ignored that setting) — the day heading already carries the date,
+ * so the row itself only needs the time.
  */
-export const rowTime = (createdAt: string): string =>
-	new Date(createdAt).toLocaleTimeString(undefined, {
-		hour: 'numeric',
-		minute: '2-digit',
-	});
+export const rowTime = (createdAt: string): string => formatWpTime(createdAt);
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -361,3 +371,42 @@ export const groupByDay = (
 
 	return groups;
 };
+
+/**
+ * Adapts a plain, real activity-style row (`GET /activity-logs`'s own
+ * `ActivityLogRow`, `GET /automation-runs`'s own `AutomationRunRow`, …)
+ * into a real `HistoryRow` HistoryTimeline.tsx can render — used by the
+ * several real "recent activity" widgets that share that component now
+ * (RecentActivityCard.tsx, RecentActivityWidget.tsx, AutomationsActivityCard.tsx,
+ * GEO's OverviewTab.tsx) rather than each re-deriving this mapping.
+ *
+ * `category` is inferred from the row's own real `event_type` prefix —
+ * `scan.*` → 'scan', everything else → 'change' (the same fallback
+ * `rowTag`/`rowIcon` above already apply to any change-category row whose
+ * specific `event_type` isn't one of the few they special-case, e.g.
+ * `critical_alert`). None of these source endpoints joins back to a real
+ * scan/change detail row the way `GET /history` does, so `scan`/`change`
+ * are honestly `null` here — `rowTitle()` already falls back to
+ * `row.message` for that case, and the "N issues found"/before-after meta
+ * lines already only render when `row.scan`/`row.change` are actually
+ * present, so nothing here is fabricated to fill a gap that doesn't exist.
+ * `severity` is a required `HistoryRow` field with nothing real to read
+ * from these rows either — set to 'info' but never actually rendered
+ * (confirmed: no function in this file reads `HistoryRow.severity`).
+ */
+export const toHistoryRow = (row: {
+	id: number | string;
+	message: string;
+	created_at: string;
+	/** Real event type this row's own source table already carries (`activity-logs`), or a caller-synthesized one built from a real status field it does carry instead (`automation-runs` has no `event_type` of its own — see AutomationsActivityCard.tsx's own mapping). */
+	event_type?: string;
+}): HistoryRow => ({
+	id: row.id,
+	event_type: row.event_type ?? '',
+	category: row.event_type?.startsWith('scan.') ? 'scan' : 'change',
+	message: row.message,
+	severity: 'info',
+	created_at: row.created_at,
+	scan: null,
+	change: null,
+});

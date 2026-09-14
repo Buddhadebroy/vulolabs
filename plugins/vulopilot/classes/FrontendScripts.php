@@ -177,6 +177,17 @@ class FrontendScripts {
                 // dates show the way this site is actually configured
                 // rather than zyra's hardcoded "YYYY-MM-DD" default.
                 'date_format_js'            => self::convert_date_format_to_js( get_option( 'date_format' ) ),
+                // Settings → General → Time Format, same real token
+                // conversion as 'date_format_js' above (same static
+                // helper — its own docblock's "date_format never contains
+                // time tokens" caveat is exactly why this needed its own
+                // separate call, real `time_format` was never actually
+                // converted before). zyra's own token syntax has no am/pm
+                // token, so a 12-hour 'g:i a'-style format still renders
+                // without the AM/PM suffix — the same already-accepted
+                // limitation 'date_format_js' itself already carries for
+                // any date format containing 'a'/'A'.
+                'time_format_js'            => self::convert_date_format_to_js( get_option( 'time_format' ) ),
                 // Feeds zyra's configureZyra()/ZyraVariable.khali_dabba (a
                 // proSetting field's Pro-tag/lock in InputRenderer) and
                 // vulopilot-pro's src/index.tsx (which module JS entries

@@ -108,8 +108,6 @@ const Reports = () => {
 		switch (tabId) {
 			case 'overview':
 				return <OverviewTab />;
-			case 'report':
-				return <ReportTab />;
 			case 'activity':
 				return <ActivityTab />;
 			case 'history':

@@ -15,11 +15,11 @@
  * @param value Raw date string (e.g. a MySQL datetime), or null/undefined.
  * @return Formatted date string, or '' if value is empty/unparseable.
  */
-export const formatWpDate = (value?: string | null): string => {
-	if (!value) {
-		return '';
-	}
-
+/** Shared by `formatWpDate`/`formatWpTime` below — same token-replace algorithm either way, just a different real format string (Settings → General → Date Format vs. Time Format) and fallback. */
+const formatWithTokens = (
+	value: string,
+	format: string
+): string => {
 	const dateObj = new Date(value);
 
 	if (isNaN(dateObj.getTime())) {
@@ -39,10 +39,32 @@ export const formatWpDate = (value?: string | null): string => {
 		ss: String(dateObj.getSeconds()).padStart(2, '0'),
 	};
 
-	const format = appLocalizer.date_format_js || 'YYYY-MM-DD';
-
 	return format.replace(
 		/YYYY|YY|MMMM|MMM|MM|DD|D|HH|mm|ss/g,
 		(token) => map[token] ?? token
 	);
+};
+
+export const formatWpDate = (value?: string | null): string => {
+	if (!value) {
+		return '';
+	}
+
+	return formatWithTokens(value, appLocalizer.date_format_js || 'YYYY-MM-DD');
+};
+
+/**
+ * Real Settings → General → Time Format (`appLocalizer.time_format_js`,
+ * converted server-side by the same `FrontendScripts::convert_date_format_to_js()`
+ * `date_format_js` already uses) — for anywhere a row needs just the real
+ * configured time, not the full date (HistoryTimeline.tsx's own per-row
+ * `rowTime()`, previously a hardcoded `toLocaleTimeString()` that ignored
+ * this site's own Time Format setting entirely).
+ */
+export const formatWpTime = (value?: string | null): string => {
+	if (!value) {
+		return '';
+	}
+
+	return formatWithTokens(value, appLocalizer.time_format_js || 'HH:mm');
 };

@@ -21,7 +21,19 @@ const contextModules = require.context('./components/Modules', true, /\.ts$/);
 
 export type SearchItem = {
 	id: string;
+	/** Real destination tab this result navigates to (`link`'s own `#&tab=…`) — e.g. `'security'`, `'performance'`. Not what app.tsx's search dropdown filters on; see `category` below for that. */
 	tab: string;
+	/**
+	 * Which of app.tsx's own search dropdown options (`'modules'`/
+	 * `'settings'`/`'sections'`) this result belongs to — a fixed, small
+	 * set of buckets, deliberately kept separate from `tab` above. Before
+	 * this field existed, `handleQueryUpdate` filtered on `tab` itself,
+	 * but `tab` is each result's own real, varied destination page (e.g.
+	 * `'security'`/`'performance'`/…), never literally `'modules'` or
+	 * `'settings'` — so picking "Settings" or "Modules" in the dropdown
+	 * matched nothing and silently emptied the results (confirmed live).
+	 */
+	category: 'modules' | 'settings' | 'sections';
 	name: string;
 	desc?: string;
 	link: string;
@@ -69,7 +81,10 @@ interface ModuleConfig extends BaseConfig {
 // Matches templateService.ts's own `Record<string, any>` require.context
 // typing in this same plugin — @types/webpack-env (which would supply
 // __WebpackModuleApi.RequireContext) isn't a dependency here.
-function buildIndexFromContext(context: any): SearchItem[] {
+function buildIndexFromContext(
+	context: any,
+	category: 'modules' | 'settings'
+): SearchItem[] {
 	return context
 		.keys()
 		.map((key) => context(key).default as ModuleConfig)
@@ -96,6 +111,7 @@ function buildIndexFromContext(context: any): SearchItem[] {
 					.map((mod) => ({
 						id: mod.id,
 						tab: baseTab,
+						category,
 						name: mod.name,
 						desc: mod.desc,
 						link: `#&tab=${baseTab}&module=${mod.id}`,
@@ -114,6 +130,7 @@ function buildIndexFromContext(context: any): SearchItem[] {
 					{
 						id: cfg.id,
 						tab: baseTab,
+						category,
 						name: cfg.headerTitle || '',
 						link: baseLink,
 						icon: cfg.headerIcon,
@@ -129,6 +146,7 @@ function buildIndexFromContext(context: any): SearchItem[] {
 						items.push({
 							id: `${cfg.id}_${field.key}`,
 							tab: baseTab,
+							category,
 							name: field.label,
 							desc: field.desc,
 							link: `${baseLink}&field=${field.key}`,
@@ -148,24 +166,20 @@ function buildIndexFromContext(context: any): SearchItem[] {
  * Real dashboard cards worth deep-linking to by title/content — each
  * `sectionId` must match a real DOM id that card's own component actually
  * renders (see NeedsAttentionCard.tsx / AutomationsTemplatesCard.tsx).
- * `tab` is deliberately the literal category `'sections'`, not the real
- * page tab each card lives on — same "category literal, not a real
- * per-item destination" convention `buildIndexFromContext()` already
- * establishes above (every Settings entry's own `tab` is the literal
- * `'settings'` too, never that entry's own specific settings tab); this is
- * what lets app.tsx's search dropdown filter on it. The real destination
- * lives in `link` instead (read by `handleResultClick`, unrelated to
- * `tab`), so changing `tab` here doesn't affect navigation. Kept in sync
- * by hand, same "kept in sync manually" convention this codebase already
- * uses for other cross-file duplication (e.g. Controllers\Seo's own
- * scanner-id docblock) — add a new row here plus a matching `id` on that
- * card's own wrapper element as this plugin grows more dashboard sections
- * worth searching for.
+ * `tab` is each entry's own real destination (`'ai-assistant'`, matching
+ * `link` below) — `category: 'sections'` is what app.tsx's search dropdown
+ * actually filters on (see `SearchItem.category`'s own docblock for why
+ * these two are kept separate). Kept in sync by hand, same "kept in sync
+ * manually" convention this codebase already uses for other cross-file
+ * duplication (e.g. Controllers\Seo's own scanner-id docblock) — add a new
+ * row here plus a matching `id` on that card's own wrapper element as this
+ * plugin grows more dashboard sections worth searching for.
  */
 const PAGE_SECTIONS: SearchItem[] = [
 	{
 		id: 'page-section-site-overview',
-		tab: 'sections',
+		tab: 'ai-assistant',
+		category: 'sections',
 		name: __('Site Overview', 'vulopilot'),
 		desc: __(
 			'Your overall health score, broken down by SEO & Visibility, Performance, Security, and Content.',
@@ -177,7 +191,8 @@ const PAGE_SECTIONS: SearchItem[] = [
 	},
 	{
 		id: 'page-section-create-new-automation',
-		tab: 'sections',
+		tab: 'ai-assistant',
+		category: 'sections',
 		name: __('Create new automation', 'vulopilot'),
 		desc: __(
 			'Quick-start templates for a website health scan, security monitoring, SEO optimization, WooCommerce monitor, or content optimizer automation.',
@@ -190,7 +205,7 @@ const PAGE_SECTIONS: SearchItem[] = [
 ];
 
 export const searchIndex: SearchItem[] = [
-	...buildIndexFromContext(contextSettings),
-	...buildIndexFromContext(contextModules),
+	...buildIndexFromContext(contextSettings, 'settings'),
+	...buildIndexFromContext(contextModules, 'modules'),
 	...PAGE_SECTIONS,
 ];

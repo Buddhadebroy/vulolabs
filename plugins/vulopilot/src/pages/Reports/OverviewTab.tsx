@@ -3,6 +3,7 @@ import ReportsOverviewHeader from './ReportsOverviewHeader';
 import RecentReportsCard from './RecentReportsCard';
 import ScheduledReportsTable from './ScheduledReportsTable';
 import ReportHistoryTable from './ReportHistoryTable';
+import { ContainerComponent} from '@zyra/components';
 import { DAY_OPTIONS } from './reportsOverview';
 import './Reports.scss';
 
@@ -39,12 +40,12 @@ const OverviewTab = () => {
 	const [days, setDays] = useState<number>(DAY_OPTIONS[1]);
 
 	return (
-		<>
+		<ContainerComponent>
 			<ReportsOverviewHeader days={days} onDaysChange={setDays} />
 			<RecentReportsCard days={days} />
 			<ScheduledReportsTable />
 			<ReportHistoryTable />
-		</>
+		</ContainerComponent>
 	);
 };
 

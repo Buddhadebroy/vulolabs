@@ -61,90 +61,89 @@ const ReportHistoryTable = () => {
 	};
 
 	return (
-		<div id="reports-history">
-			<CardComponent
-				title={__('Report History', 'vulopilot')}
-				titleIcon="history"
-				desc={__('A complete log of all generated reports.', 'vulopilot')}
-			>
-				{error ? (
-					<ModuleGuardComponent
-						icon="error"
-						title={__('Could not load reports', 'vulopilot')}
-						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={refetch}
-					/>
-				) : (
-					<TableCard
-						format={appLocalizer.date_format_js}
-						headers={{
-							report_type: {
-								label: __('Report Name', 'vulopilot'),
-								render: (row: ReportRow) =>
-									typeLabels[row.report_type] ||
-									getReportTypeMeta(row.report_type).shortLabel,
+		<CardComponent
+			id="reports-history"
+			title={__('Report History', 'vulopilot')}
+			titleIcon="history"
+			desc={__('A complete log of all generated reports.', 'vulopilot')}
+		>
+			{error ? (
+				<ModuleGuardComponent
+					icon="error"
+					title={__('Could not load reports', 'vulopilot')}
+					desc={error}
+					buttonText={__('Retry', 'vulopilot')}
+					onButtonClick={refetch}
+				/>
+			) : (
+				<TableCard
+					format={appLocalizer.date_format_js}
+					headers={{
+						report_type: {
+							label: __('Report Name', 'vulopilot'),
+							render: (row: ReportRow) =>
+								typeLabels[row.report_type] ||
+								getReportTypeMeta(row.report_type).shortLabel,
+						},
+						type: {
+							label: __('Type', 'vulopilot'),
+							render: (row: ReportRow) => {
+								const meta = getReportTypeMeta(row.report_type);
+								return (
+									<BadgeComponent
+										color={meta.badgeColor}
+										text={meta.shortLabel}
+									/>
+								);
 							},
-							type: {
-								label: __('Type', 'vulopilot'),
-								render: (row: ReportRow) => {
-									const meta = getReportTypeMeta(row.report_type);
-									return (
-										<BadgeComponent
-											color={meta.badgeColor}
-											text={meta.shortLabel}
-										/>
-									);
+						},
+						period: {
+							label: __('Period', 'vulopilot'),
+							render: (row: ReportRow) =>
+								row.period_start && row.period_end
+									? `${formatWpDate(row.period_start)} – ${formatWpDate(row.period_end)}`
+									: '—',
+						},
+						status: {
+							label: __('Status', 'vulopilot'),
+							type: 'badge',
+							statusClass: (row: ReportRow) => `status-${row.status}`,
+						},
+						created_at: {
+							label: __('Date', 'vulopilot'),
+							type: 'date',
+							isSortable: true,
+							defaultSort: true,
+							defaultOrder: 'desc',
+						},
+						actions: {
+							label: __('Actions', 'vulopilot'),
+							type: 'action',
+							actions: [
+								{
+									label: (row?: Record<string, unknown>) =>
+										row?.status === 'ready'
+											? __('View', 'vulopilot')
+											: __('Not ready yet', 'vulopilot'),
+									icon: 'eye',
+									onClick: handleDownload,
 								},
-							},
-							period: {
-								label: __('Period', 'vulopilot'),
-								render: (row: ReportRow) =>
-									row.period_start && row.period_end
-										? `${formatWpDate(row.period_start)} – ${formatWpDate(row.period_end)}`
-										: '—',
-							},
-							status: {
-								label: __('Status', 'vulopilot'),
-								type: 'badge',
-								statusClass: (row: ReportRow) => `status-${row.status}`,
-							},
-							created_at: {
-								label: __('Date', 'vulopilot'),
-								type: 'date',
-								isSortable: true,
-								defaultSort: true,
-								defaultOrder: 'desc',
-							},
-							actions: {
-								label: __('Actions', 'vulopilot'),
-								type: 'action',
-								actions: [
-									{
-										label: (row?: Record<string, unknown>) =>
-											row?.status === 'ready'
-												? __('View', 'vulopilot')
-												: __('Not ready yet', 'vulopilot'),
-										icon: 'eye',
-										onClick: handleDownload,
-									},
-								],
-							},
-						}}
-						rows={data}
-						ids={data.map((row) => row.id)}
-						totalRows={total}
-						categoryCounts={categoryCounts}
-						isLoading={isLoading}
-						onQueryUpdate={onQueryUpdate}
-						emptyMessage={__(
-							'No reports yet — generate your first report from the Report Builder tab.',
-							'vulopilot'
-						)}
-					/>
-				)}
-			</CardComponent>
-		</div>
+							],
+						},
+					}}
+					rows={data}
+					ids={data.map((row) => row.id)}
+					totalRows={total}
+					categoryCounts={categoryCounts}
+					isLoading={isLoading}
+					onQueryUpdate={onQueryUpdate}
+					emptyMessage={__(
+						'No reports yet — generate your first report from the Report Builder tab.',
+						'vulopilot'
+					)}
+				/>
+			)}
+		</CardComponent>
 	);
 };
 

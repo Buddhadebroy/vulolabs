@@ -2,8 +2,10 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent, BadgeComponent } from '@zyra/components';
+import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import { toHistoryRow } from '../AIAssistant/historyTypes';
+import HistoryTimeline from '../Reports/HistoryTimeline';
 
 interface AutomationRunRow {
 	id: number;
@@ -18,31 +20,6 @@ interface AutomationRunRow {
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
-
-const STATUS_META: Record<AutomationRunRow['status'], { label: string; color: string }> = {
-	completed: { label: __('Completed', 'vulopilot'), color: 'green' },
-	failed: { label: __('Failed', 'vulopilot'), color: 'red' },
-	running: { label: __('Running', 'vulopilot'), color: 'gray' },
-};
-
-/** Real "Today, 9:00 AM"/"Yesterday, 8:00 AM"/"Aug 9, 8:00 AM" — same technique `AutomationStatsRow.tsx`'s own `formatLastCheck()` already established, extended with a real "Yesterday" case since this feed shows several rows spanning more than just today/not-today. */
-const formatActivityTime = (isoDate: string): string => {
-	const date = new Date(isoDate.replace(' ', 'T') + 'Z');
-	const time = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-	const today = new Date();
-	const yesterday = new Date();
-	yesterday.setDate(today.getDate() - 1);
-
-	if (date.toDateString() === today.toDateString()) {
-		return `${__('Today', 'vulopilot')}, ${time}`;
-	}
-
-	if (date.toDateString() === yesterday.toDateString()) {
-		return `${__('Yesterday', 'vulopilot')}, ${time}`;
-	}
-
-	return `${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}, ${time}`;
-};
 
 /** A real run's own one-line outcome — same real severity order (failed → changes made → no changes) `ManageAutomationsSection.tsx`'s own `renderLastRunCell()`/`AutomationSuggestions.tsx`'s own `describeLastCheck()` already establish for this exact data, ported here rather than imported (this codebase's own "duplicate small per-file logic" convention). */
 const describeOutcome = (row: AutomationRunRow): string => {
@@ -89,6 +66,13 @@ interface AutomationsActivityCardProps {
 const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsActivityCardProps) => {
 	const [rows, setRows] = useState<AutomationRunRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
+	// Purely local UI state — this card shows no side detail panel for a
+	// selected row, so nothing else reads it; still real and working (a
+	// clicked row visibly highlights via HistoryTimeline's own real
+	// `.selected` class), not a fabricated no-op.
+	const [selectedRow, setSelectedRow] = useState<ReturnType<
+		typeof toHistoryRow
+	> | null>(null);
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -111,6 +95,22 @@ const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsAc
 		return null;
 	}
 
+	// Real per-run message ("Weekly cleanup: 1 change made.") + a real,
+	// synthesized `event_type` (`automation.<status>` — that real status
+	// column, not a fabricated one) so HistoryTimeline's own top-right
+	// status badge shows the real Completed/Failed/Running state
+	// (`toHistoryRow()`/`CHANGE_STATUS_BADGE_BY_EVENT` in historyTypes.ts,
+	// extended with these 3 real automation statuses alongside the
+	// existing `ai_action.*` ones).
+	const historyRows = rows.map((row: AutomationRunRow) =>
+		toHistoryRow({
+			id: row.id,
+			message: `${row.automation_name}: ${describeOutcome(row)}`,
+			created_at: row.finished_at ?? row.started_at,
+			event_type: `automation.${row.status}`,
+		})
+	);
+
 	return (
 		<CardComponent
 			title={__('Recent automation activity', 'vulopilot')}
@@ -128,22 +128,20 @@ const AutomationsActivityCard = ({ onViewHistory, refetchSignal }: AutomationsAc
 				/>
 			}
 		>
-			<ul className="activity-log">
-				{rows.map((row: AutomationRunRow) => {
-					const status = STATUS_META[row.status];
-
-					return (
-						<li key={row.id} className="activity">
-							<div className="desc">
-								{`${row.automation_name} ${status.label.toLowerCase()}`}
-								<div className={`admin-badge ${status.color}`}>{status.label} </div>
-							</div>
-							<div className="desc">{describeOutcome(row)}</div>
-							<span>{formatActivityTime(row.finished_at ?? row.started_at)}</span>
-						</li>
-					);
-				})}
-			</ul>
+			<HistoryTimeline
+				rows={historyRows}
+				total={historyRows.length}
+				selectedRow={selectedRow}
+				onSelectRow={setSelectedRow}
+				isLoadingMore={false}
+				onLoadMore={() => {}}
+				// Real navigation to the full History tab (Reports →
+				// History) — this card has no side detail panel of its
+				// own for the arrow to open a row into.
+				onArrowClick={() => {
+					window.location.href = `${appLocalizer.admin_url}#&tab=reports&subtab=history`;
+				}}
+			/>
 		</CardComponent>
 	);
 };

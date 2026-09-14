@@ -82,7 +82,6 @@ const ReportsOverviewHeader = ({
 
 	return (
 		<CardComponent
-			className="reports-overview-header"
 			titleIcon="bar-chart"
 			title={__('Reports', 'vulopilot')}
 			desc={__(

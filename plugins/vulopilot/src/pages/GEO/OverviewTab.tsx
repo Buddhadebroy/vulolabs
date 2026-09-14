@@ -17,6 +17,8 @@ import { ButtonInput, ToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import { toHistoryRow } from '../AIAssistant/historyTypes';
+import HistoryTimeline from '../Reports/HistoryTimeline';
 import { useVisibilityScore } from './useVisibilityScore';
 import type { VisibilityScoreResponse } from './useVisibilityScore';
 import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
@@ -94,6 +96,8 @@ interface ActivityLogRow {
 	id: number;
 	message: string;
 	created_at: string;
+	/** Real column on every `activity-logs` row (a plain `SELECT *`) — this local interface just didn't type it before, since nothing here read it. */
+	event_type: string;
 }
 
 /**
@@ -114,23 +118,6 @@ const ACTIVITY_EVENT_TYPES = [
 	'ai_action.executed',
 	'ai_action.failed',
 ].join(',');
-
-const timeAgo = (dateString: string): string => {
-	const seconds = Math.max(0, Math.floor((Date.now() - new Date(dateString).getTime()) / 1000));
-	if (seconds < 60) {
-		return __('just now', 'vulopilot');
-	}
-	const minutes = Math.floor(seconds / 60);
-	if (minutes < 60) {
-		return sprintf(__('%dm ago', 'vulopilot'), minutes);
-	}
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) {
-		return sprintf(__('%dh ago', 'vulopilot'), hours);
-	}
-	const days = Math.floor(hours / 24);
-	return sprintf(__('%dd ago', 'vulopilot'), days);
-};
 
 /** Real `FindingGroup.category` values → the real SEO & Visibility subtab that owns that category's findings — kept in sync manually with each area's own scanner-id list, same posture Visibility.php's own `AREA_SCANNER_IDS` already documents. Defaults to 'seo', this plugin's own largest real issues surface. */
 const CATEGORY_TO_TAB: Record<string, string> = {
@@ -312,6 +299,14 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 		'activity-logs',
 		{ event_type: ACTIVITY_EVENT_TYPES, per_page: 5 }
 	);
+	// Purely local UI state — this card shows no side detail panel for a
+	// selected row, so nothing else reads it; still real and working (a
+	// clicked row visibly highlights via HistoryTimeline's own real
+	// `.selected` class), not a fabricated no-op.
+	const [selectedActivityRow, setSelectedActivityRow] = useState<ReturnType<
+		typeof toHistoryRow
+	> | null>(null);
+	const activityHistoryRows = activity.map(toHistoryRow);
 
 	const areas = score?.areas;
 
@@ -518,23 +513,28 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							desc={__('Scans, alerts, and applied fixes will appear here as they happen.', 'vulopilot')}
 						/>
 					) : (
-						// Hand-rolled per direct instruction (reverts this
-						// card specifically off `ActivityListComponent`,
-						// back to the same real vertical-timeline
-						// `.activity-log`/`.activity` markup/SCSS this tab
-						// used before — see the matching rules in
-						// `SeoVisibility.scss`, already imported here).
-						// Same real `activity` rows either way, just this
-						// card's own layout now instead of that shared
-						// component's.
-						<ul className="activity-log">
-							{activity.map((row) => (
-								<li className="activity" key={row.id}>
-									<span>{timeAgo(row.created_at)}</span>
-									<div className="desc">{row.message}</div>
-								</li>
-							))}
-						</ul>
+						// This card's own hand-rolled `.activity-log`
+						// markup was previously reverted off a shared
+						// component per an earlier direct instruction — now
+						// switched to HistoryTimeline (Reports/HistoryTimeline.tsx),
+						// the current shared component every real "recent
+						// activity" surface in this plugin uses, per a
+						// newer direct instruction superseding that one.
+						<HistoryTimeline
+							rows={activityHistoryRows}
+							total={activityHistoryRows.length}
+							selectedRow={selectedActivityRow}
+							onSelectRow={setSelectedActivityRow}
+							isLoadingMore={false}
+							onLoadMore={() => {}}
+							// Real navigation to the full History tab
+							// (Reports → History) — this card has no side
+							// detail panel of its own for the arrow to
+							// open a row into.
+							onArrowClick={() => {
+								window.location.href = `${appLocalizer.admin_url}#&tab=reports&subtab=history`;
+							}}
+						/>
 					)}
 				</CardComponent>
 			</ColumnComponent>

@@ -700,26 +700,23 @@
 	color: $sub-text-color;
 }
 
-// RecentReportsCard.tsx — the "Name" column's own icon+title+subtitle cell,
-// rendered inside a real TableCard row now (see that file's own docblock)
-// rather than a hand-rolled row/list layout.
-.recent-reports-row-name {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.625rem;
-	min-width: 0;
-}
-
-.recent-reports-row-title {
+// RecentReportsCard.tsx — the "Name" column's own icon+title+subtitle+badges
+// cell is now a real TableCard `type: 'info'` column (InformationItemComponent),
+// so the hand-rolled `.recent-reports-row-name`/`-title`/`-desc` markup that
+// used to back it is gone — only the "Period" column's own real stacked
+// label/value block (per direct instruction) still needs a scoped rule here.
+.recent-reports-row-period-label {
 	margin: 0;
+	font-size: 0.6875rem;
 	font-weight: 600;
-	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: $sub-text-color;
 }
 
-.recent-reports-row-desc {
+.recent-reports-row-period-value {
 	margin: 0.125rem 0 0;
-	font-size: 0.75rem;
-	color: $sub-text-color;
+	font-size: 0.8125rem;
 }
 
 // ScheduledReportsTable.tsx.
