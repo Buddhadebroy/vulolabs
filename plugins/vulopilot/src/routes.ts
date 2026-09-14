@@ -10,7 +10,6 @@ import Reports from './pages/Reports/Reports';
 import AIAssistant from './pages/AIAssistant/AIAssistant';
 import Settings from './pages/Settings/Settings';
 import StatusAndTools from './pages/StatusAndTools/StatusAndTools';
-import Modules from './components/Modules/Modules';
 import Security from './pages/Security/Security';
 import SiteHealth from './pages/SiteHealth/SiteHealth';
 import Accessibility from './pages/Accessibility/Accessibility';
@@ -24,7 +23,13 @@ registerVuloPilotRoute({ tab: 'commerce', component: Commerce });
 registerVuloPilotRoute({ tab: 'automations', component: Automations });
 registerVuloPilotRoute({ tab: 'reports', component: Reports });
 registerVuloPilotRoute({ tab: 'ai-assistant', component: AIAssistant });
-registerVuloPilotRoute({ tab: 'modules', component: Modules });
+// No standalone `tab: 'modules'` route any more — the real Modules UI
+// moved to Settings → Modules (`tab=settings&subtab=modules`, see
+// components/Settings/Modules.ts's own docblock); every real deep-link
+// to it now points there directly (Popup.tsx/AiCopilotGuard.tsx/
+// GettingStartedCard.tsx), so the old standalone page
+// (components/Modules/Modules.tsx) has no real caller left — removed
+// per direct instruction rather than kept reachable-but-unlinked.
 registerVuloPilotRoute({ tab: 'settings', component: Settings });
 registerVuloPilotRoute({ tab: 'status-tools', component: StatusAndTools });
 registerVuloPilotRoute({ tab: 'security', component: Security });
