@@ -159,6 +159,12 @@ class FrontendScripts {
                 'plugin_url'                => VuloPilot()->plugin_url,
                 'admin_url'                 => admin_url( 'admin.php?page=vulopilot' ),
                 'site_url'                  => site_url(),
+                // Settings → Site Identity → Title Formats' own Live Title
+                // Preview reads these directly rather than round-tripping a
+                // REST call for two read-only WP-core values Services\TitleFormatter
+                // itself resolves the exact same way (get_bloginfo()).
+                'site_title'                => get_bloginfo( 'name' ),
+                'site_description'          => get_bloginfo( 'description' ),
                 // The real logged-in user's own display name — e.g. the
                 // AI Content Assistant's greeting (AiContentAssistantSidebar.tsx)
                 // reads this to say "Hi {name}!" instead of a generic

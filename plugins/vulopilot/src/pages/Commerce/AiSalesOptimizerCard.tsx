@@ -25,70 +25,81 @@ const AiSalesOptimizerCard = ({
 	const { data, isLoading } = useSalesInsights();
 
 	return (
-		<CardComponent
-			className="ai-sales-optimizer-card"
-			titleIcon="ai"
-			title={__('AI Sales Optimizer', 'vulopilot')}
-			desc={__('Real cross-sell, upsell, and bundle opportunities across your store.', 'vulopilot')}
-			badges={[{ text: __('PRO', 'vulopilot'), color: 'purple' }]}
-			isLoading={isLoading}
-		>
-			<AiCopilotGuard>
-				{!isLoading && !data && (
-					<ModuleGuardComponent
-						icon="lock"
-						title={__('Unlock AI Sales Optimizer', 'vulopilot')}
-						desc={__(
-							'Enable the WooCommerce Intelligence module to find real cross-sell, upsell, and bundle opportunities across your catalog.',
-							'vulopilot'
-						)}
-						buttonText={__('Learn more', 'vulopilot')}
-						onButtonClick={onFindOpportunities}
-					/>
-				)}
-				{!isLoading && data && (
-					<>
-						<div className="desc">
-							{__(
-								'Find cross-sell, upsell, and bundle opportunities across your store.',
+		<>
+			{/* Docks against `.card-wrapper` (ColumnComponent's own root div,
+			 * always `position: relative` in zyra) rather than a wrapper div
+			 * of its own — CardComponent's `badges` prop can't be used here
+			 * since it only forwards `color`/`text` into its own internal
+			 * `BadgeComponent` call, dropping any custom class, so the real
+			 * "admin-tag pro-tag" markup has to render as a sibling instead. */}
+			<span className="admin-tag pro-tag">
+				<i className="adminfont-pro-tag" />
+				{__('Pro', 'vulopilot')}
+			</span>
+			<CardComponent
+				className="ai-sales-optimizer-card"
+				titleIcon="ai"
+				title={__('AI Sales Optimizer', 'vulopilot')}
+				desc={__('Real cross-sell, upsell, and bundle opportunities across your store.', 'vulopilot')}
+				isLoading={isLoading}
+			>
+				<AiCopilotGuard>
+					{!isLoading && !data && (
+						<ModuleGuardComponent
+							icon="lock"
+							title={__('Unlock AI Sales Optimizer', 'vulopilot')}
+							desc={__(
+								'Enable the WooCommerce Intelligence module to find real cross-sell, upsell, and bundle opportunities across your catalog.',
 								'vulopilot'
 							)}
-						</div>
-						<AnalyticsComponent
-							variant="background-color"
-							cols={3}
-							data={[
-								{
-									icon: 'link',
-									number: data.cross_sell_count,
-									text: __('Cross-sell opportunities', 'vulopilot'),
-									colorClass: 'admin-bg-color2',
-								},
-								{
-									icon: 'bar-chart',
-									number: data.upsell_count,
-									text: __('Upsell opportunities', 'vulopilot'),
-									colorClass: 'admin-bg-color3',
-								},
-								{
-									icon: 'refresh',
-									number: data.bundle_count,
-									text: __('Bundle opportunities', 'vulopilot'),
-									colorClass: 'admin-bg-color4',
-								},
-							]}
+							buttonText={__('Learn more', 'vulopilot')}
+							onButtonClick={onFindOpportunities}
 						/>
-						<ButtonInput
-							buttons={{
-								text: __('Find Sales Opportunities →', 'vulopilot'),
-								color: 'border-purple',
-								onClick: onFindOpportunities,
-							}}
-						/>
-					</>
-				)}
-			</AiCopilotGuard>
-		</CardComponent>
+					)}
+					{!isLoading && data && (
+						<>
+							<div className="desc">
+								{__(
+									'Find cross-sell, upsell, and bundle opportunities across your store.',
+									'vulopilot'
+								)}
+							</div>
+							<AnalyticsComponent
+								variant="background-color"
+								cols={3}
+								data={[
+									{
+										icon: 'link',
+										number: data.cross_sell_count,
+										text: __('Cross-sell opportunities', 'vulopilot'),
+										colorClass: 'admin-bg-color2',
+									},
+									{
+										icon: 'bar-chart',
+										number: data.upsell_count,
+										text: __('Upsell opportunities', 'vulopilot'),
+										colorClass: 'admin-bg-color3',
+									},
+									{
+										icon: 'refresh',
+										number: data.bundle_count,
+										text: __('Bundle opportunities', 'vulopilot'),
+										colorClass: 'admin-bg-color4',
+									},
+								]}
+							/>
+							<ButtonInput
+								buttons={{
+									text: __('Find Sales Opportunities →', 'vulopilot'),
+									color: 'border-purple',
+									onClick: onFindOpportunities,
+								}}
+							/>
+						</>
+					)}
+				</AiCopilotGuard>
+			</CardComponent>
+		</>
 	);
 };
 

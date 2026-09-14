@@ -12,7 +12,7 @@ import getTemplateData from '../../services/templateService';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
-import PageSpeedStatusPanel from '../../components/Settings/Connections/PageSpeedStatusPanel';
+import PageSpeedStatusPanel from '../../components/Settings/GetStarted/PageSpeedStatusPanel';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
@@ -133,8 +133,8 @@ const Settings = () => {
 			return <DeveloperToolsPanel />;
 		}
 
-		// Generic version of the three escape hatches above — Connections/
-		// AiProviders.ts and Connections/GoogleServices.ts (real OAuth/
+		// Generic version of the three escape hatches above — GetStarted/
+		// AiProviders.ts and GetStarted/GoogleServices.ts (real OAuth/
 		// credential flows, same reasoning as 'indexnow' above) carry
 		// their own `PanelComponent` this way instead of a hardcoded
 		// `currentTab === '...'` case, the same mechanism vulopilot-pro's

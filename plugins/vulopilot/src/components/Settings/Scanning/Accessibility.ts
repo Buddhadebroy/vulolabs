@@ -8,7 +8,7 @@ import AccessibilityRestoreDefaultsHeader from './AccessibilityRestoreDefaultsHe
  * New tab pulling together 3 fields that previously lived inside Scanning
  * → Security's own shared "Accessibility" section (`enable_wcag_scanner`,
  * `accessibility_audit_frequency`, `target_wcag_level` — moved, not
- * duplicated, same precedent Connections/GoogleServices.ts's own docblock
+ * duplicated, same precedent GetStarted/GoogleServices.ts's own docblock
  * documents for its move out of Scanning), plus one real setting that had
  * no settings-UI exposure anywhere until now:
  *
