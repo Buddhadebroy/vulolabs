@@ -67,7 +67,14 @@ export const isModuleCatalogEntry = (
  */
 const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogItem[] } = {
 	category: true,
-	tab: 'modules',
+	// Not read by `ModuleGridComponent` (zyra) itself — only
+	// `searchIndex.ts` used to read this as a real per-module search-result
+	// link's own `tab`, before that now hardcodes the one real, correct
+	// Settings → Modules destination directly (`tab=settings&subtab=modules`)
+	// regardless of this field, since every real module now lives at that
+	// one same place — kept only for whatever future reader expects this
+	// shape to carry its own real destination tab.
+	tab: 'settings',
 	modules: [
 		// AI Visibility Section
 		{ type: 'separator', id: 'ai-visibility', label: __('AI Visibility', 'vulopilot') },

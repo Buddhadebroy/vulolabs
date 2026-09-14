@@ -16,11 +16,12 @@ import { __ } from '@wordpress/i18n';
  * a separate, standalone top-level "Modules" page
  * (components/Modules/Modules.tsx) — moved here per direct instruction
  * ("move the modules tab in settings after general tab"). That standalone
- * page's own route (`tab=modules`, src/routes.ts) is left registered and
- * still directly reachable, and its WP submenu row was removed rather than
- * the page itself deleted — same "route stays real, just not in the native
- * submenu list" treatment Admin.php's own `legacy_submenus()` already
- * documents for every other tab folded into a new home.
+ * page's own route (`tab=modules`) stayed registered for a while as a
+ * reachable-but-unlinked fallback, but every real deep-link to it (Popup.tsx's
+ * "Enable Now", AiCopilotGuard.tsx, GettingStartedCard.tsx, searchIndex.ts's
+ * own module search results) already pointed here instead — the old route
+ * itself was later removed from src/routes.ts too, per direct instruction,
+ * once nothing real linked to it any more.
  *
  * Sorts last in the top-level bar (priority 8 — Get Started 1, Site
  * Identity 2, Scanning 3, Automation 4, Reports 5, Notifications 6,

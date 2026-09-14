@@ -104,17 +104,22 @@ function buildIndexFromContext(
 
 			const baseTab = cfg.tab || cfg.submitUrl || 'modules';
 
-			// Modules catalog — cfg.modules holds the real, searchable items.
+			// Modules catalog — cfg.modules holds the real, searchable
+			// items. Every real module now lives at the one same
+			// Settings → Modules destination (`tab=settings&subtab=modules`,
+			// see routes.ts's own docblock on why the old standalone
+			// `tab=modules` route is gone) regardless of `cfg.tab` — not
+			// `baseTab`, which would build a dead link here.
 			if (cfg.modules && Array.isArray(cfg.modules)) {
 				return cfg.modules
 					.filter((mod) => mod.id && mod.name)
 					.map((mod) => ({
 						id: mod.id,
-						tab: baseTab,
+						tab: 'settings',
 						category,
 						name: mod.name,
 						desc: mod.desc,
-						link: `#&tab=${baseTab}&module=${mod.id}`,
+						link: `#&tab=settings&subtab=modules&module=${mod.id}`,
 						icon: mod.icon || '',
 					}));
 			}
