@@ -123,6 +123,30 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 			label: __('Content gaps', 'vulopilot'),
 			value: formatCount(geoScore?.signals['question-coverage'].open_count ?? null),
 		},
+		{
+			key: 'entity-products',
+			icon: 'product orange',
+			label: __('Products', 'vulopilot'),
+			value: entities ? (entities.products?.length ?? 0) : NOT_SET,
+		},
+		{
+			key: 'entity-services',
+			icon: 'customer-service cyan',
+			label: __('Services', 'vulopilot'),
+			value: entities ? entities.services.length : NOT_SET,
+		},
+		{
+			key: 'entity-locations',
+			icon: 'location red',
+			label: __('Locations', 'vulopilot'),
+			value: entities ? entities.locations.length : NOT_SET,
+		},
+		{
+			key: 'entity-categories',
+			icon: 'category yellow',
+			label: __('Categories', 'vulopilot'),
+			value: entities ? entities.categories.length : NOT_SET,
+		},
 	];
 	const rows2 = [
 		{
@@ -171,6 +195,18 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 			icon: 'coding purple',
 			label: __('PHP', 'vulopilot'),
 			value: snapshot.php_version || '—',
+		},
+		{
+			key: 'entity-people',
+			icon: 'person blue',
+			label: __('People', 'vulopilot'),
+			value: entities ? entities.people.length : NOT_SET,
+		},
+		{
+			key: 'entity-organizations',
+			icon: 'global-community pink',
+			label: __('Organizations', 'vulopilot'),
+			value: entities ? entities.organizations.length : NOT_SET,
 		},
 	];
 

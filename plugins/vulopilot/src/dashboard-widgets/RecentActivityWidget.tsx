@@ -94,7 +94,7 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 			headerAction={
 				<a
 					href={`${appLocalizer.admin_url}#&tab=reports&subtab=activity`}
-					className="vital-pulse-full-report-link"
+					className="link-item"
 				>
 					{__('View all activity ›', 'vulopilot')}
 				</a>
@@ -112,7 +112,7 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 				<div className="activity-log">
 					{data.map((row) => (
 						<div className="activity" key={row.id}>
-							<div className="title">
+							<div className="desc">
 								{row.message}
 							</div>
 

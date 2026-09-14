@@ -9,6 +9,7 @@ import {
 	NavigatorHeaderComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import DashboardGrid from '../../dashboard-widgets/DashboardGrid';
 import GettingStartedCard from './GettingStartedCard';
 import { DashboardSummary } from '../../dashboard-widgets/types';
@@ -133,39 +134,73 @@ const Dashboard = () => {
 
 	useEffect(loadDashboard, []);
 
-	// Build the buttons array based on isCustomizing state.
-	// When not customizing: show "Run complete audit" + "Customize dashboard".
-	// When customizing: show "Reset to default" + "Save changes".
-	const headerButtons = isCustomizing
-		? [
-				{
-					text: __('Reset to default', 'vulopilot'),
-					icon: 'refresh',
-					color: 'border-purple',
-					onClick: () =>
-						setRestoreDefaultSignal((signal) => signal + 1),
-				},
-				{
-					icon: 'form-checkboxes',
-					color: 'text-green',
-					onClick: () => setIsCustomizing(false),
-				},
-		  ]
-		: [
-				{
-					text: __('Run complete audit', 'vulopilot'),
-					icon: 'refresh',
-					color: 'border-purple',
-					onClick: () => {
-						loadDashboard();
-					},
-				},
-				{
-					icon: 'edit',
-					color: 'text-purple',
-					onClick: () => setIsCustomizing(true),
-				},
-		  ];
+	// The shared RunScanHeaderExtra cluster (Run scan/gear/"Last scan: …",
+	// same real `POST /scans` trigger + settings link every other category
+	// page's own header already uses — RunScanHeaderExtra.tsx's own
+	// docblock) replaces the old "Run complete audit" button, which only
+	// ever refetched the already-loaded summary (`loadDashboard()`) rather
+	// than actually running a real scan; `onSuccess={loadDashboard}`
+	// refetches the summary once that real scan completes. `settingsSubtab`
+	// is "general" — same site-wide (no `categories`) choice Health.tsx's
+	// own identical whole-site header already uses.
+	//
+	// The edit/"Customize dashboard" toggle and its "Save changes" checkmark
+	// counterpart are now RunScanHeaderExtra's own `trailingButtons`, per
+	// direct instruction, rather than a second `ButtonInput` this page used
+	// to render beside it — same row either way, one fewer sibling to lay
+	// out. "Reset to default" stays a separate button (unrelated to
+	// scanning, only shown while customizing), rendered before
+	// RunScanHeaderExtra so it still reads left-to-right as "Reset to
+	// default" → save. RunScanHeaderExtra's own "Run scan" button is
+	// hidden while customizing (`hideRunScanButton`) — starting a real
+	// scan mid-layout-edit doesn't make sense there, per direct
+	// instruction; the "Last scan: …" caption and settings gear are
+	// unaffected (gear already hidden on this page regardless).
+	const headerCustomContent = (
+		<>
+			{isCustomizing && (
+				<ButtonInput
+					buttons={[
+						{
+							text: __('Reset to default', 'vulopilot'),
+							icon: 'refresh',
+							color: 'border-purple',
+							onClick: () => {
+								setRestoreDefaultSignal((signal) => signal + 1);
+								// Same exit-customizing-mode step the
+								// checkmark ("Save changes") button already
+								// does — resetting is itself a completed
+								// change, so this leaves the header showing
+								// "Run scan"/edit again instead of leaving
+								// the user stuck in customize mode after the
+								// one action they came here for.
+								setIsCustomizing(false);
+							},
+						},
+					]}
+				/>
+			)}
+			<RunScanHeaderExtra
+				settingsSubtab="general"
+				hideSettingsButton
+				hideRunScanButton={isCustomizing}
+				onSuccess={loadDashboard}
+				trailingButtons={[
+					isCustomizing
+						? {
+							icon: 'form-checkboxes',
+							color: 'text-green',
+							onClick: () => setIsCustomizing(false),
+						}
+						: {
+							icon: 'edit',
+							color: 'text-purple',
+							onClick: () => setIsCustomizing(true),
+						},
+				]}
+			/>
+		</>
+	);
 
 	const pageHeader = (
 		<NavigatorHeaderComponent
@@ -180,9 +215,7 @@ const Dashboard = () => {
 				"Here's how your site is doing.",
 				'vulopilot'
 			)}
-			headerCustomContent={
-				<ButtonInput buttons={headerButtons} />
-			}
+			headerCustomContent={headerCustomContent}
 		/>
 	);
 

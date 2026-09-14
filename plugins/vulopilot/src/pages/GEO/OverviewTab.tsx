@@ -531,7 +531,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							{activity.map((row) => (
 								<li className="activity" key={row.id}>
 									<span>{timeAgo(row.created_at)}</span>
-									<div className="title">{row.message}</div>
+									<div className="desc">{row.message}</div>
 								</li>
 							))}
 						</ul>

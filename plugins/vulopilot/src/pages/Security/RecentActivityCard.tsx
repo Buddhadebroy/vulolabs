@@ -110,7 +110,7 @@ const RecentActivityCard = () => {
 				<ul className="activity-log">
 					{data.map((row) => (
 						<li key={row.id} className='activity'>
-							<div className="title">
+							<div className="desc">
 								{row.message}
 							</div>
 							<span>

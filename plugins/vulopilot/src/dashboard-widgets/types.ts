@@ -89,6 +89,8 @@ export interface WidgetProps {
 export interface WidgetDefinition {
 	id: string;
 	title: string;
+	/** One real line on what this widget actually shows — e.g. a future "Customize dashboard" widget picker's own subtitle (registry.ts's own MOCKUP_WIDGETS is the only real source of these today; not yet read anywhere). Optional since a widget registered elsewhere (a Pro module via the `vulopilot_dashboard_widgets` filter, or `STAT_WIDGETS`' generated entries) may not supply one. */
+	desc?: string;
 	icon: string;
 	grid: number;
 	component: React.ComponentType<WidgetProps>;
