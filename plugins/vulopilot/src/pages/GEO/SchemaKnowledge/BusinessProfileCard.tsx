@@ -426,9 +426,10 @@ const BusinessProfileCard = () => {
 					action={
 						<ButtonInput
 							buttons={{
-								text: __('Update Information', 'vulopilot'),
-								color: 'border-purple',
-								onClick: () => window.open(ENTITY_SETTINGS_URL, '_self'),
+								text: __('Add custom schema', 'vulopilot'),
+								onClick: () => {
+									window.location.href = 'edit.php';
+								},
 							}}
 						/>
 					}

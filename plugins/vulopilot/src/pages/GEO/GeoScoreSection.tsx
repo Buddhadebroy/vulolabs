@@ -2,7 +2,7 @@
 import { useEffect, useState } from '@wordpress/element';
 import { JSX } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { COLOR_PALETTE, getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, BadgeComponent, CardComponent, ChartComponent, ColumnComponent, ContainerComponent, IconComponent, ListComponent, TypographyComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../services/useFilterSlot';
@@ -260,17 +260,43 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 									height={200}
 									centerLabel={
 										<>
-											<span className="score-ring-number">{overall}</span>
-											<span className={`score-ring-label geo-overall-rating ${ratingClass(overall)}`}>
+											<TypographyComponent variant={'h1'} color={ratingClass(overall)}>
+												{overall}
+											</TypographyComponent>
+											<TypographyComponent variant={'h4'}>
 												{getRating(overall)}
-											</span>
+											</TypographyComponent>
 										</>
 									}
 									data={[
-										{ label: __('Score', 'vulopilot'), value: overall, color: '#7c3aed' },
+										{
+											label: __('Score', 'vulopilot'),
+											value: overall,
+											// Same real rating color the ring's own
+											// Good/Needs Work/Poor label above already
+											// uses (`ratingClass()`/`getRating()`) —
+											// resolved through `COLOR_PALETTE`, same
+											// convention SeoTab.tsx's own identical ring
+											// already established, rather than the fixed
+											// brand purple this used before (unrelated to
+											// the actual score).
+											color: COLOR_PALETTE[
+												ratingClass(overall) as keyof typeof COLOR_PALETTE
+											],
+										},
 										{ label: __('Remaining', 'vulopilot'), value: 100 - overall, color: '#e5e7eb' },
 									]}
 								/>
+								<TypographyComponent variant={'h3'} color="text-green">
+									{__('GEO Score', 'vulopilot')}
+								</TypographyComponent>
+								<div className="desc">
+									{sprintf(
+										/* translators: %d: real number of published pages/posts every GEO scanner scans. */
+										__('Based on %d published pages.', 'vulopilot'),
+										score?.pages_checked ?? 0
+									)}
+								</div>
 						</div>
 						{/*
 						 * Same real `ListComponent` "mini-card report" row

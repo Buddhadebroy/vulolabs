@@ -11,6 +11,7 @@ import {
 	BadgeComponent,
 	ListComponent,
 	ModuleGuardComponent,
+	TypographyComponent,
 } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
 import {
@@ -245,14 +246,15 @@ const CrawlerAnalyticsSection = ({
 												height={200}
 												centerLabel={
 													<>
-														<span className="score-ring-number">
-															{analytics.crawl_health_score}
-														</span>
-														<span
-															className={`score-ring-label geo-overall-rating ${ratingClass(analytics.crawl_health_score)}`}
+														<TypographyComponent
+															variant={'h1'}
+															color={ratingColor(analytics.crawl_health_score)}
 														>
+															{analytics.crawl_health_score}
+														</TypographyComponent>
+														<TypographyComponent variant={'h4'}>
 															{getRating(analytics.crawl_health_score)}
-														</span>
+														</TypographyComponent>
 													</>
 												}
 												data={[
@@ -279,6 +281,12 @@ const CrawlerAnalyticsSection = ({
 													},
 												]}
 											/>
+											<TypographyComponent variant={'h3'} color="text-green">
+												{__('Overall Crawl Health', 'vulopilot')}
+											</TypographyComponent>
+											<div className="desc">
+												{__('How many robots.txt/sitemap crawl-health checks currently pass.', 'vulopilot')}
+											</div>
 									</div>
 									<div className="overall-score-summary">
 									<ListComponent

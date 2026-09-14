@@ -294,14 +294,15 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 											height={200}
 											centerLabel={
 												<>
-													<span className="score-ring-number">
-														{score.seo_score}
-													</span>
-													<span
-														className={`score-ring-label geo-overall-rating ${ratingClass(score.seo_score)}`}
+													<TypographyComponent
+														variant={'h1'}
+														color={ratingColor(score.seo_score)}
 													>
+														{score.seo_score}
+													</TypographyComponent>
+													<TypographyComponent variant={'h4'}>
 														{getRating(score.seo_score)}
-													</span>
+													</TypographyComponent>
 												</>
 											}
 											data={[
@@ -328,6 +329,12 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 												},
 											]}
 										/>
+										<TypographyComponent variant={'h3'} color="text-green">
+											{__('SEO Health', 'vulopilot')}
+										</TypographyComponent>
+										<div className="desc">
+											{__('Your real, site-wide SEO score, open issue counts, and progress over time.', 'vulopilot')}
+										</div>
 								</div>
 								{/*
 							 * Same 6 real per-category scores the old

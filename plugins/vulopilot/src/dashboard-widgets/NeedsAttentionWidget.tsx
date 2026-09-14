@@ -107,9 +107,6 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 		quickFixes.isLoading || openIssues.isLoading || pendingApproval.isLoading;
 
 	return (
-		// id target for OverallScoreWidget's "Needs your attention ›" link
-		// (same-page anchor, both cards live on the one Dashboard grid).
-		<div id="needs-attention">
 		<DashboardWidget
 			title={__('Needs your attention', 'vulopilot')}
 			desc={__('Open issues, quick fixes, and changes waiting on your approval.', 'vulopilot')}
@@ -117,6 +114,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
+			id="needs-attention"
 		>
 			<TabsComponent
 				className="dashboard-attention-tabs"
@@ -221,7 +219,6 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 				]}
 			/>
 		</DashboardWidget>
-		</div>
 	);
 };
 

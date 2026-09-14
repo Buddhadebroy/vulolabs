@@ -646,14 +646,15 @@ const RedirectsSection = () => {
 									height={200}
 									centerLabel={
 										<>
-											<span className="score-ring-number">
-												{activePercent}
-											</span>
-											<span
-												className={`score-ring-label geo-overall-rating ${ratingClass(activePercent)}`}
+											<TypographyComponent
+												variant={'h1'}
+												color={ratingColor(activePercent)}
 											>
+												{activePercent}
+											</TypographyComponent>
+											<TypographyComponent variant={'h4'}>
 												{getRating(activePercent)}
-											</span>
+											</TypographyComponent>
 										</>
 									}
 									data={[
@@ -671,6 +672,12 @@ const RedirectsSection = () => {
 										},
 									]}
 								/>
+								<TypographyComponent variant={'h3'} color="text-green">
+									{__('Redirect Health', 'vulopilot')}
+								</TypographyComponent>
+								<div className="desc">
+									{__('How many of your redirects are active and working.', 'vulopilot')}
+								</div>
 						</div>
 						{/*
 					 * Same real `ListComponent` "mini-card report" row

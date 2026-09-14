@@ -237,14 +237,15 @@ const AeoScoreSummaryCard = ({
 							height={200}
 							centerLabel={
 								<>
-									<span className="score-ring-number">
-										{overallScore}
-									</span>
-									<span
-										className={`score-ring-label geo-overall-rating ${overallRatingClass(overallScore)}`}
+									<TypographyComponent
+										variant={'h1'}
+										color={ratingColorFor(overallScore)}
 									>
+										{overallScore}
+									</TypographyComponent>
+									<TypographyComponent variant={'h4'}>
 										{overallRatingLabel(overallScore)}
-									</span>
+									</TypographyComponent>
 								</>
 							}
 							data={[
@@ -272,6 +273,15 @@ const AeoScoreSummaryCard = ({
 								},
 							]}
 						/>
+						<TypographyComponent variant={'h3'} color="text-green">
+							{__('AEO Score', 'vulopilot')}
+						</TypographyComponent>
+						<div className="desc">
+							{__(
+								'How ready your content is to be extracted and quoted directly by AI answer engines.',
+								'vulopilot'
+							)}
+						</div>
 					</div>
 					<div className="aeo-score-goal-box">
 						<i className="adminfont-light" />

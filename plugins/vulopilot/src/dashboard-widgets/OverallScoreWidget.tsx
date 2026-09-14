@@ -181,7 +181,10 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 						}
 						centerLabel={
 							<>
-								<TypographyComponent variant={'h1'}>
+								<TypographyComponent
+									variant={'h1'}
+									color={ratingColorFor(summary.overall_score)}
+								>
 									{summary.overall_score}
 								</TypographyComponent>
 								<TypographyComponent variant={'h4'}>

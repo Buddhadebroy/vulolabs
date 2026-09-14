@@ -352,14 +352,15 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 										height={200}
 										centerLabel={
 											<>
-												<span className="score-ring-number">
-													{score.visibility_score}
-												</span>
-												<span
-													className={`score-ring-label geo-overall-rating ${ratingClass(score.visibility_score)}`}
+												<TypographyComponent
+													variant={'h1'}
+													color={ratingClass(score.visibility_score)}
 												>
+													{score.visibility_score}
+												</TypographyComponent>
+												<TypographyComponent variant={'h4'}>
 													{getRating(score.visibility_score)}
-												</span>
+												</TypographyComponent>
 											</>
 										}
 										data={[
@@ -375,6 +376,12 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 											},
 										]}
 									/>
+									<TypographyComponent variant={'h3'} color="text-green">
+										{__('Visibility Score', 'vulopilot')}
+									</TypographyComponent>
+									<div className="desc">
+										{__('Your real, combined score across Brand, SEO, GEO, and Crawl & URLs.', 'vulopilot')}
+									</div>
 							</div>
 							<div className="overall-score-summary">
 							<ListComponent
