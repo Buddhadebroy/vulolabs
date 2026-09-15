@@ -29,9 +29,9 @@ interface SeoProgressResponse {
 /** Same real 7/30/90-day trio `GeoScoreSection.tsx`'s own identical "Score Snapshot" period toggle already established (`Controllers\Geo::ALLOWED_PROGRESS_DAYS`) — now real for `Seo.php`'s own `get_progress()` too (`ALLOWED_PROGRESS_DAYS`, added alongside this). */
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
-	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
-	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
-	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
+	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
+	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
 /** Same signed "+N"/"-N" convention `deltaLabel()` (SeoTab.tsx) already established for the sitewide score's own week-over-week delta — reused here for all 3 progress counters' own real week-over-week change. */
@@ -103,6 +103,7 @@ const SeoProgressCard = () => {
 					value={period}
 					onChange={(value) => setPeriod(value as PeriodDays)}
 					modules={[]}
+					variant="pill"
 				/>
 			}
 		>

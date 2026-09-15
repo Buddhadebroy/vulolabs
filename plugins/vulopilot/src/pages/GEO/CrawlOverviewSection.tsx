@@ -73,9 +73,9 @@ interface CrawlerVisitRow extends TableRow {
 /** Same real 7/30/90-day trio `SeoProgressCard.tsx`'s/`GeoScoreSection.tsx`'s own identical period toggles already use — `crawler-traffic/analytics`'s own `days` param already accepts any real value (`CrawlerTraffic.php::get_analytics()`, defaults to 30), so this is a real, already-working range, not a new backend capability. */
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
-	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
-	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
-	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
+	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
+	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
 const CrawlOverviewSection = () => {

@@ -30,9 +30,9 @@ type PeriodDays = '7' | '30' | '90';
 
 /** Same real `key` field convention `OverviewTab.tsx`'s own identical `ToggleInput` usage already establishes — required so React's list key and each radio's real `id`/`htmlFor` pair are unique. */
 const PERIOD_OPTIONS = [
-	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
-	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
-	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
+	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
+	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
 /** Same real day-range options the old `BadgeComponent` toggle used, now expressed as the real `PeriodDays` string values `ToggleInput` needs. */
@@ -169,6 +169,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 					value={healthTimelineDays}
 					onChange={(value) => setHealthTimelineDays(value as PeriodDays)}
 					modules={[]}
+					variant="pill"
 				/>
 			}
 		>

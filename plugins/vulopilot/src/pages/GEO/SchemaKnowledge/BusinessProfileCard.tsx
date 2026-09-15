@@ -324,7 +324,7 @@ const BusinessProfileCard = () => {
 						<div className="business-score-gauge">
 							<ChartComponent
 								type="ring"
-								height={240}
+								height={200}
 								color={
 									COLOR_PALETTE[
 									ratingColor(entityScore) as keyof typeof COLOR_PALETTE

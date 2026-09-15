@@ -38,9 +38,9 @@ interface CoreWebVitalsSummary {
 
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
-	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
-	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
-	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
+	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
+	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
 interface PerformanceScoreCardProps {
@@ -441,6 +441,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 							value={period}
 							onChange={(value) => setPeriod(value as PeriodDays)}
 							modules={[]}
+							variant="pill"
 						/>
 					}
 				>

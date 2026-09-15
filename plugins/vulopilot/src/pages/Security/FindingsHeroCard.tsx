@@ -174,7 +174,7 @@ const FindingsHeroCard = ({
 							<div className="overall-score-summary">
 								<ChartComponent
 									type="ring"
-									height={250}
+									height={200}
 									// Top-level `color` — see SecurityStatusCard.tsx's/
 									// PerformanceScoreCard.tsx's own identical fix:
 									// `type="ring"` only ever paints its stroke from
