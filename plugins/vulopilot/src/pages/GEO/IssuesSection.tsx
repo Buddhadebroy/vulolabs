@@ -896,16 +896,6 @@ const IssuesSection = ({
 					/> */}
 				</>
 			)}
-			{!content && (
-				<SeoSiteWideIssuesTable
-					findings={siteWideFindings}
-					activeScannerIds={activeScannerIds}
-					activePriority={activePriority}
-					isLoading={isLoading}
-					hasError={hasError}
-					onRetry={refetch}
-				/>
-			)}
 			<SeoIssuesByPageTable
 				rows={content?.toolbarFilters ? toolbarRows : content ? contentRows : rows}
 				activeScannerIds={activeScannerIds}
@@ -925,6 +915,16 @@ const IssuesSection = ({
 				onDelete={content?.onDelete}
 				deletingId={content?.deletingId}
 			/>
+			{!content && (
+				<SeoSiteWideIssuesTable
+					findings={siteWideFindings}
+					activeScannerIds={activeScannerIds}
+					activePriority={activePriority}
+					isLoading={isLoading}
+					hasError={hasError}
+					onRetry={refetch}
+				/>
+			)}
 		</CardComponent>
 		</div>
 	);

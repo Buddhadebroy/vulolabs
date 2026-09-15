@@ -6,13 +6,21 @@ import {
 	ColumnComponent,
 	ModuleGuardComponent,
 	NoticeComponent,
-	ContainerComponent
+	ContainerComponent,
+	PopupComponent
 } from '@zyra/components';
 import BrandScoreCard from './BrandScoreCard';
 import SectionedFindingsTab from '../Security/SectionedFindingsTab';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import { useFilterSlot } from '../../services/useFilterSlot';
+import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
+import AuthorityTrendsDummy from './AuthorityTrendsDummy';
+import KnowledgePanelDummy from './KnowledgePanelDummy';
+import OffSiteMentionsDummy from './OffSiteMentionsDummy';
+
+/** Real backend module id (Settings → Modules) — same id `isBrandModuleActive()` below checks and `MODULE_CATALOG_BY_ID` (Popup.tsx) resolves to a real display name/icon for. */
+const BRAND_MODULE_ID = 'brand-intelligence';
 
 /**
  * Section → scanner_id grouping for Brand Intelligence's 7 scanners
@@ -73,7 +81,7 @@ const BRAND_SECTIONS: FindingsSection[] = [
  * this module's own 3 scanners only run while it's active.
  */
 const isBrandModuleActive = () =>
-	appLocalizer.active_modules?.includes('brand-intelligence') ?? false;
+	appLocalizer.active_modules?.includes(BRAND_MODULE_ID) ?? false;
 
 /**
  * "Brand Visibility" tab of "SEO & Visibility" — on-site Brand/Trust/
@@ -91,6 +99,17 @@ const isBrandModuleActive = () =>
  * side-by-side sidebar column next to the section list — now sits below the
  * table as `footer` content instead, since a single-column table no longer
  * has a natural second column to pair it with.
+ *
+ * Authority Trends/Knowledge Panel Optimization (both real vulopilot-pro's
+ * own BrandIntelligence module cards, see AuthorityTrendsCard.tsx/
+ * KnowledgePanelCard.tsx there) now get the same "still show the section,
+ * PRO-tagged, with fabricated content behind a click-through popup" treatment
+ * OffSiteMentionsCard already had here and Automations.tsx's own
+ * AutomationsManageDummy.tsx/AutomationsActivityDummy.tsx established —
+ * AuthorityTrendsDummy.tsx/KnowledgePanelDummy.tsx render whenever their own
+ * filter slot hasn't resolved (Pro not installed, or installed but this
+ * module not active), instead of the previous `{Card && <Card />}` which
+ * silently rendered nothing in that case.
  */
 const BrandVisibilityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
@@ -117,6 +136,21 @@ const BrandVisibilityTab = () => {
 		'vulopilot_brand_offsite_mentions_card'
 	);
 
+	/**
+	 * Same real 2-tier "PRO" vs. the module's own display name badge
+	 * Automations.tsx's own `manageBadge` already establishes for its Pro
+	 * dummy cards — generic "Pro" when Pro isn't installed at all, or the
+	 * real Brand Intelligence display name (Settings → Modules) when Pro is
+	 * installed but this specific module just isn't toggled on there yet.
+	 */
+	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const brandProBadge = isProInstalled
+		? resolveModuleDisplayName(BRAND_MODULE_ID)
+		: __('Pro', 'vulopilot');
+
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const openProPopup = () => setIsProPopupOpen(true);
+
 	if (!isBrandModuleActive()) {
 		return (
 			<ColumnComponent general>
@@ -142,53 +176,78 @@ const BrandVisibilityTab = () => {
 	}
 
 	return (
-		<SectionedFindingsTab
-			title={__('All Brand Visibility Issues', 'vulopilot')}
-			sections={BRAND_SECTIONS}
-			activeTab={activeTab}
-			onTabChange={setActiveTab}
-			header={
-				<>
-					<BrandScoreCard />
-					<ContainerComponent>
-						<ColumnComponent grid={6} fullHeight>
-							{AuthorityTrendsCard && <AuthorityTrendsCard />}
-						</ColumnComponent>
-						<ColumnComponent grid={6} fullHeight>
-							{KnowledgePanelCard && <KnowledgePanelCard />}
-						</ColumnComponent>
-					</ContainerComponent>
-					{CompetitorComparisonCard && <CompetitorComparisonCard />}
+		<>
+			<SectionedFindingsTab
+				title={__('All Brand Visibility Issues', 'vulopilot')}
+				sections={BRAND_SECTIONS}
+				activeTab={activeTab}
+				onTabChange={setActiveTab}
+				header={
+					<>
+						<BrandScoreCard />
+						<ContainerComponent>
+							<ColumnComponent grid={6} fullHeight>
+								{AuthorityTrendsCard ? (
+									<AuthorityTrendsCard />
+								) : (
+									<AuthorityTrendsDummy
+										badgeText={brandProBadge}
+										onClick={openProPopup}
+									/>
+								)}
+							</ColumnComponent>
+							<ColumnComponent grid={6} fullHeight>
+								{KnowledgePanelCard ? (
+									<KnowledgePanelCard />
+								) : (
+									<KnowledgePanelDummy
+										badgeText={brandProBadge}
+										onClick={openProPopup}
+									/>
+								)}
+							</ColumnComponent>
+						</ContainerComponent>
+						{CompetitorComparisonCard && <CompetitorComparisonCard />}
 
-				</>
-			}
-			footer={
-				<>
-					{/* <NoticeComponent
-						type="info"
-						displayPosition="inline-notice"
-						title={__('Why this matters more than backlinks:', 'vulopilot')}
-						message={__(
-							'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
-							'vulopilot'
-						)}
-
-					/> */}
-					{OffSiteMentionsCard ? (
-						<OffSiteMentionsCard />
-					) : (
-						<ModuleGuardComponent
-							icon="lock"
-							title={__('Off-site mention tracking: not connected yet', 'vulopilot')}
-							desc={__(
-								'Turn on the Brand Intelligence module (Settings → Modules) to start tracking real off-site news mentions and citing domains here — no account or API key needed.',
+					</>
+				}
+				footer={
+					<>
+						{/* <NoticeComponent
+							type="info"
+							displayPosition="inline-notice"
+							title={__('Why this matters more than backlinks:', 'vulopilot')}
+							message={__(
+								'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
 								'vulopilot'
 							)}
-						/>
-					)}
-				</>
-			}
-		/>
+
+						/> */}
+						{OffSiteMentionsCard ? (
+							<OffSiteMentionsCard />
+						) : (
+							<OffSiteMentionsDummy
+								badgeText={brandProBadge}
+								onClick={openProPopup}
+							/>
+						)}
+					</>
+				}
+			/>
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={() => setIsProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{isProInstalled ? (
+					<ShowProPopup moduleName={BRAND_MODULE_ID} />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
+		</>
 	);
 };
 

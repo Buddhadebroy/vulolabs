@@ -507,8 +507,9 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * change; see VuloPilotPro::CARDLESS_MODULE_IDS, which no
              * longer lists 'commerce' now that it has its own toggle here.
              * `freeFeatures` is empty since the entire Commerce tab body
-             * moved to Pro (CommercePanel.tsx's own docblock) — there's no
-             * free tier of this module's own content to list, same shape
+             * moved to Pro (pages/Commerce/Commerce.tsx's own `CommercePanel`
+             * docblock) — there's no free tier of this module's own content
+             * to list, same shape
              * 'automations' above already has for the same reason.
              */
             id: 'commerce',

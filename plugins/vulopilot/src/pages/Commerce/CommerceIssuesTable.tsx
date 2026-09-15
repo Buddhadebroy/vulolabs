@@ -11,12 +11,29 @@ import { TableCard } from '@zyra/table';
 import { useFindingsTable } from '../../services/useFindingsTable';
 import ShowProPopup from '../../components/Popup/Popup';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
-import { sumGroupCounts } from './useWooCommerceFindingGroups';
 import {
 	PRODUCT_SCANNER_IDS,
 	CHECKOUT_SCANNER_IDS,
 	STORE_SCANNER_IDS,
 } from './CommerceTab.constants';
+
+/**
+ * Real sum of `.count` across every group whose scanner_id is in
+ * `scannerIds` — the individual-finding-level total for a bucket (not a
+ * group count), matching how "8 images are missing alt text" already
+ * represents 8 real findings in one group elsewhere in this app. Was
+ * previously its own useWooCommerceFindingGroups.ts file alongside a
+ * `useWooCommerceFindingGroups()` hook that fetched this tab's real finding
+ * groups — that hook's own real fetch moved to vulopilot-pro's own (moved)
+ * CommerceTab.tsx and was never called from Free again, so only this real
+ * helper (still needed for this table's own tab-count math, fed real groups
+ * via its `groups` prop instead) survived; inlined here, its one remaining
+ * real caller, rather than keeping a whole file for one small function.
+ */
+const sumGroupCounts = (groups: FindingGroup[], scannerIds: string[]): number =>
+	groups
+		.filter((group) => scannerIds.includes(group.scanner_id))
+		.reduce((total, group) => total + group.count, 0);
 
 export type CommerceIssueTab =
 	| 'all'
@@ -90,6 +107,7 @@ const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps)
 interface CommerceIssuesTableProps {
 	groups: FindingGroup[];
 	activeTab: CommerceIssueTab;
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onTabChange: (tab: CommerceIssueTab) => void;
 }
 
