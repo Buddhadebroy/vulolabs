@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { NoticeComponent } from '@zyra/components';
+import InfoBanner from '../../components/InfoBanner';
 
 /** `?page=vulopilot#&tab=site-health&subtab=backups` — Site Health's own real "Backups" tab (BackupsTab.tsx) this notice links to when it's not already rendered there itself (see `onNavigateToBackups`). */
 const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health&subtab=backups';
@@ -25,17 +25,11 @@ const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health&subtab=backups';
  * whether a backup has ever actually run — that's Backups tab's own job
  * (real row list), not this one-line summary's.
  *
- * `uniqueKey` on the `NoticeComponent` below is required, not decorative:
- * a `displayPosition="notice"` NoticeComponent doesn't render inline — it
- * calls zyra's own `NoticeManager.add()` once on mount and lets a separate,
- * globally-mounted receiver render it (confirmed reading zyra's source),
- * with `'lifetime'` validity (no auto-expiry) for this non-`'float'`
- * position. `NoticeManager.add()` only dedupes an entry against one
- * already in its queue with the exact same `uniqueKey`; without one, it
- * defaults to `Date.now().toString()` per mount, so remounting this
- * component (e.g. navigating away from Site Health and back) pushed a
- * second, differently-keyed, equally-non-expiring entry instead of
- * replacing the first — the real cause of the notice visibly doubling.
+ * Rendered as the shared `InfoBanner` (real `info-banner-bg.png`/
+ * `info-banner.png` illustration pair), not zyra's own `NoticeComponent` —
+ * this is an always-visible inline status line, not a dismissible
+ * `NoticeManager` queue entry, so the render is a plain inline component
+ * instead.
  */
 interface BackupProtectionNoticeProps {
 	/**
@@ -73,14 +67,17 @@ const BackupProtectionNotice = ({
 	}
 
 	return (
-		<NoticeComponent
-			uniqueKey="backup-protection-notice"
-			type={isEnabled ? 'success' : 'info'}
-			displayPosition="inline-notice"
+		<InfoBanner
+			icon={isEnabled ? 'check' : 'info'}
 			title={
 				isEnabled
 					? __('Backup protection: Enabled', 'vulopilot')
 					: __('Backup protection: Not enabled', 'vulopilot')
+			}
+			desc={
+				isEnabled
+					? __('Your site is being backed up automatically.', 'vulopilot')
+					: __('Your site is not currently backed up. Enable backup protection to keep your data safe.', 'vulopilot')
 			}
 			actionLabel={__('View Backups', 'vulopilot')}
 			onAction={

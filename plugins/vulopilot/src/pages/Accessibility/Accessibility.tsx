@@ -257,7 +257,7 @@ const Accessibility = () => {
 						onReviewCheck={goToIssuesTable}
 					/>
 				</ColumnComponent>
-				<AccessibilityWcagNotice />
+				{/* <AccessibilityWcagNotice /> */}
 				<ColumnComponent>
 					<SectionedIssuesTable
 						id={ISSUES_TABLE_ID}

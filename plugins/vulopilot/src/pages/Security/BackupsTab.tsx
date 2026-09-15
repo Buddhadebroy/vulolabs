@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
@@ -9,7 +9,8 @@ import {
 	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
-	TypographyComponent
+	TypographyComponent,
+	ContainerComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
@@ -17,9 +18,6 @@ import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import ShowProPopup from '../../components/Popup/Popup';
 import './ProtectMySite.scss';
-
-/** `id: 'backups'` (Settings/Scanning/Backups.ts) — where the real "schedule automatic backups" toggle/frequency this card's own empty state used to describe in text actually lives. */
-const BACKUPS_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=backups';
 
 interface BackupRow {
 	id: number;
@@ -217,6 +215,16 @@ const formatFileSize = (bytes: number | null): string => {
 /** Typed-confirmation gate — Recovery's second safety net (the first is BackupManager::restore()'s own automatic pre-restore snapshot; the third is its real activity-log audit entry). */
 const RESTORE_CONFIRM_PHRASE = 'RESTORE';
 
+export interface BackupsTabHandle {
+	/** Same real `handleCreate` the card's own header button used to call directly — exposed so SiteHealth.tsx's page-level header can trigger it too, now that "Create Backup Now" lives in RunScanHeaderExtra's own "Run scan" slot instead of being duplicated here. */
+	createBackup: () => void;
+}
+
+interface BackupsTabProps {
+	/** Notified around the real `handleCreate` request below — SiteHealth.tsx's own header button (which now owns the "Create Backup Now" action, see `BackupsTabHandle`) uses this to show its real "Starting…" state, since this file's own action row no longer shows that button (or tracks that state) itself. */
+	onCreatingChange?: (isCreating: boolean) => void;
+}
+
 /**
  * "Backups" tab of "Protect My Site" — real backup creation, listing,
  * download, delete, and Recovery's real restore (RestAPI\Controllers\Backups,
@@ -238,13 +246,14 @@ const RESTORE_CONFIRM_PHRASE = 'RESTORE';
  * in Settings → Backups' own "Cloud Storage" section
  * (BackupStoragePanel.tsx), not on this tab.
  */
-const BackupsTab = () => {
+const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
+	onCreatingChange,
+}, ref) => {
 	const { data, isLoading, error, refetch } = useApiList<BackupRow>(
 		'backups',
 		{ per_page: 20, orderby: 'id', order: 'desc' }
 	);
 
-	const [isCreating, setIsCreating] = useState(false);
 	const [busyId, setBusyId] = useState<number | null>(null);
 	const [restoreTarget, setRestoreTarget] = useState<BackupRow | null>(null);
 	const [confirmText, setConfirmText] = useState('');
@@ -330,7 +339,7 @@ const BackupsTab = () => {
 	}, [hasPendingBackup, refetch]);
 
 	const handleCreate = () => {
-		setIsCreating(true);
+		onCreatingChange?.(true);
 
 		sendApiResponse<{ success: boolean }>(
 			appLocalizer,
@@ -354,8 +363,12 @@ const BackupsTab = () => {
 				});
 				refetch();
 			})
-			.finally(() => setIsCreating(false));
+			.finally(() => {
+				onCreatingChange?.(false);
+			});
 	};
+
+	useImperativeHandle(ref, () => ({ createBackup: handleCreate }));
 
 	const handleDownload = (row: BackupRow) => {
 		// Real browser navigation, not an XHR — the nonce travels as a query
@@ -461,6 +474,7 @@ const BackupsTab = () => {
 
 	return (
 		<>
+		<ContainerComponent>
 			<CardComponent
 				title={__('Backups', 'vulopilot')}
 				titleIcon="cloud-upload"
@@ -468,31 +482,6 @@ const BackupsTab = () => {
 					'Real database + file archives, always stored on this server — also uploaded to Amazon S3/Google Drive if you set a remote destination in Settings.',
 					'vulopilot'
 				)}
-				action={
-					<>
-						<ButtonInput
-							buttons={{
-								text: isCreating
-									? __('Starting…', 'vulopilot')
-									: __('Create Backup Now', 'vulopilot'),
-								icon: 'cloud-upload',
-								color: 'border-purple',
-								onClick: handleCreate,
-								disabled: isCreating,
-							}}
-						/>
-						<ButtonInput
-							buttons={{
-								text: '',
-								icon: 'setting',
-								color: 'text-purple',
-								onClick: () => {
-									window.location.href = BACKUPS_SETTINGS_URL;
-								},
-							}}
-						/>
-					</>
-				}
 				isLoading={isLoading}
 			>
 				{!isLoading && 0 === data.length ? (
@@ -781,8 +770,11 @@ const BackupsTab = () => {
 					onCancel={() => setDeleteTarget(null)}
 				/>
 			</PopupComponent>
+		</ContainerComponent>
 		</>
 	);
-};
+});
+
+BackupsTab.displayName = 'BackupsTab';
 
 export default BackupsTab;
