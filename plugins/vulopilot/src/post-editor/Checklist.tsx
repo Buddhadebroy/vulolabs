@@ -29,9 +29,9 @@ const STATUS_ICON: Record< AnalysisResult[ 'status' ], string > = {
  * section header.
  */
 const GROUP_STATUS: Record< 'good' | 'ok' | 'bad', { label: string; className: string; icon: string } > = {
-	good: { label: __( 'All Good', 'vulopilot' ), className: 'good', icon: 'yes-alt' },
-	ok: { label: __( 'Could Be Better', 'vulopilot' ), className: 'ok', icon: 'warning' },
-	bad: { label: __( 'Needs Improvement', 'vulopilot' ), className: 'bad', icon: 'dismiss' },
+	good: { label: __( 'All Good', 'vulopilot' ), className: 'good', icon: 'check' },
+	ok: { label: __( 'Could Be Better', 'vulopilot' ), className: 'ok', icon: 'error' },
+	bad: { label: __( 'Needs Improvement', 'vulopilot' ), className: 'bad', icon: 'close' },
 };
 
 const summarizeGroup = ( results: AnalysisResult[] ): keyof typeof GROUP_STATUS => {

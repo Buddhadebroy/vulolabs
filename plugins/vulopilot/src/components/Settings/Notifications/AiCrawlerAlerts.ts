@@ -2,12 +2,6 @@ import { createElement, Fragment, type ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import CrawlerAlertTestPanel from '../CrawlerAlertTestPanel';
 
-// Shared by every field below the master "Enabled" toggle — same
-// `dependent` shape Scanning/SeoContent.ts's own html-sitemap-shortcode-notice
-// already uses, factored out here since this one condition is reused by
-// several fields rather than one.
-const MASTER_ENABLED_DEPENDENT = { key: 'email_on_crawler_alerts', value: 'email_on_crawler_alerts', set: true };
-
 // ── "Notify me about" rows (type: 'setting-row') ────────────────────────
 //
 // Inlined here rather than in a separate file (per direct instruction) —
@@ -167,12 +161,12 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * Real backend: vulopilot-pro's CrawlerAlertMonitor runs 5 checks once
  * daily (CrawlerAlertScheduler) — see that class's own docblock for the
  * full detail on each. Every row below toggles a real, independently-gated
- * setting that class reads; nothing here is decorative. `email_on_crawler_alerts`
- * is the existing master switch (already used by Free's own copy under
- * this same key before this tab existed) — every field below it is
- * `dependent` on it (the tab shows just the master switch until it's
- * turned on, matching CrawlerAlertMonitor::run_daily_check()'s own real
- * effect: it returns before any per-row check fires while that's off).
+ * setting that class reads; nothing here is decorative. The old
+ * `email_on_crawler_alerts` master switch (and every field's own `dependent`
+ * gate on it) was removed per direct instruction — it had no real duplicate
+ * control anywhere else in this codebase, so every row below is now always
+ * visible/active instead of hidden behind a switch with no other way to
+ * turn it on.
  *
  * "Notify me about" is a real zyra `type: 'setting-row'` field
  * (`components-settingrowcomponent--with-select-and-toggle`, per direct
@@ -237,24 +231,9 @@ export default {
 	settingAction: createElement(CrawlerAlertTestPanel),
 	modal: [
 		{
-			key: 'email_on_crawler_alerts',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __('Enabled', 'vulopilot'),
-			settingDescription: __(
-				'Master switch for every AI Crawler Alert below — turn this off to silence all of them at once.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'email_on_crawler_alerts', label: '', value: 'email_on_crawler_alerts' },
-			],
-			toggleStatusLabel: { on: 'Enabled', off: 'Disabled' }
-		},
-		{
 			label: __('Notify me about', 'vulopilot'),
 			key: 'crawler_alerts',
 			type: 'setting-row',
-			dependent: MASTER_ENABLED_DEPENDENT,
 			rows: CRAWLER_ALERT_ROWS,
 		},
 		{
@@ -267,7 +246,6 @@ export default {
 			key: 'crawler_alert_channels',
 			type: 'checkbox',
 			label: __('Notification channels', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
 			options: [
 				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
 				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
@@ -284,7 +262,6 @@ export default {
 				'AI crawlers help your content appear in AI search results. These alerts help you make sure they can still access and index your website. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
 				'vulopilot'
 			),
-			dependent: MASTER_ENABLED_DEPENDENT,
 		},
 	],
 };

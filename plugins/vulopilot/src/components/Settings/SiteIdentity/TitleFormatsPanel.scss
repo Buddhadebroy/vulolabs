@@ -12,6 +12,30 @@
 	gap: 1rem;
 }
 
+// Sits just above the collapsed context-row list, marking which row's own
+// edit panel (right column) is the one currently open.
+.site-identity-showing-badge {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 0.5rem;
+}
+
+// "Title & Description Format Templates" card's own header `action` — a
+// real `<label>` beside the Separator `SelectInput`, since CardComponent's
+// `action` slot has no label of its own the way a `FormGroupComponent` row
+// does.
+.site-identity-separator-action {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	label {
+		font-size: 0.85rem;
+		color: $sub-text-color;
+		white-space: nowrap;
+	}
+}
+
 // ListComponent's own `.item` row (icon + details{title/desc} + tags) —
 // this only adds spacing between the Live Title Preview's own BadgeComponent
 // pills and its "View" button inside that row's `tags` slot.

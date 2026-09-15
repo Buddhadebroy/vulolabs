@@ -29,6 +29,7 @@ export default {
 		'Configure how your page titles and descriptions are formatted across your website.',
 		'vulopilot'
 	),
+	hideSettingHeader: true,
 	headerIcon: 'document',
 	submitUrl: 'settings',
 	modal: [

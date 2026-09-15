@@ -209,10 +209,13 @@ const SiteVerificationPanel = () => {
 
 	return (
 		<>
-			{PROVIDERS.map((row) => (
-				<ProviderRow key={row.provider} {...row} />
-			))}
+
 			<FormGroupWrapperComponent>
+				<FormGroupComponent>
+					{PROVIDERS.map((row) => (
+						<ProviderRow key={row.provider} {...row} />
+					))}
+				</FormGroupComponent>
 				<FormGroupComponent>
 					<CardHeader
 						className='compact'

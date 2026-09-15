@@ -360,7 +360,7 @@ const SeoIssuesByPageTable = ({
 				<ButtonInput
 					buttons={{
 						text: __('Retry', 'vulopilot'),
-						icon: 'update',
+						icon: 'refresh',
 						onClick: onRetry,
 					}}
 				/>

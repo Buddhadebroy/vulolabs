@@ -1,10 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
 
-// Shared by every field below the master "Enabled" toggle — same
-// `dependent` shape AiCrawlerAlerts.ts's own MASTER_ENABLED_DEPENDENT
-// already uses, this tab's own master switch key instead.
-const MASTER_ENABLED_DEPENDENT = { key: 'email_on_visibility_alerts', value: 'email_on_visibility_alerts', set: true };
-
 // Shared by all 3 panel items' own threshold select — same real
 // point-drop values GeoAnalyzer/VisibilityMonitor/BrandMonitor/
 // KnowledgeGraphHealthMonitor's own `absint($alert['threshold'] ?? 5)`
@@ -30,9 +25,12 @@ const TOGGLE_STATUS_LABEL = { on: __('On', 'vulopilot'), off: __('Off', 'vulopil
  * separate category from GEO's own), vulopilot-pro's
  * BrandIntelligence\BrandMonitor reads 'brand', and vulopilot-pro's
  * KnowledgeGraph\KnowledgeGraphHealthMonitor reads 'kg' — each already sent
- * a real email on its own before this tab existed. `email_on_visibility_alerts`
- * (this tab's own master switch) additionally gates all three without
- * touching any of their own stored `enable`/`threshold` values.
+ * a real email on its own before this tab existed. The old
+ * `email_on_visibility_alerts` master switch (and every field's own
+ * `dependent` gate on it) was removed per direct instruction — it had no
+ * real duplicate control anywhere else in this codebase, so all three rows
+ * below are now always visible/active instead of hidden behind a switch
+ * with no other way to turn it on.
  *
  * "Notify me when" is a real zyra `type: 'setting-row'` field (per direct
  * instruction — same field type 'crawler_alerts' in AiCrawlerAlerts.ts
@@ -70,19 +68,6 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'email_on_visibility_alerts',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __('Enabled', 'vulopilot'),
-			settingDescription: __(
-				'Master switch for every Visibility Alert below — turn this off to silence all of them at once.',
-				'vulopilot'
-			),
-			options: [
-				{ key: 'email_on_visibility_alerts', label: '', value: 'email_on_visibility_alerts' },
-			],
-		},
-		{
 			// zyra's real `type: 'setting-row'` field (per direct
 			// instruction) — one flat row per score type, each with its own
 			// threshold select and on/off toggle both visible at once, no
@@ -93,7 +78,6 @@ export default {
 			label: __('Notify me when', 'vulopilot'),
 			key: 'visibility_alerts',
 			type: 'setting-row',
-			dependent: MASTER_ENABLED_DEPENDENT,
 			rows: [
 				{
 					valueKey: 'geo',
@@ -155,7 +139,6 @@ export default {
 			key: 'visibility_alert_channels',
 			type: 'checkbox',
 			label: __('Notification channels', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
 			options: [
 				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
 				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
@@ -170,7 +153,6 @@ export default {
 				'These alerts help you catch issues early before they impact your traffic, rankings, and AI visibility. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
 				'vulopilot'
 			),
-			dependent: MASTER_ENABLED_DEPENDENT,
 		},
 	],
 };

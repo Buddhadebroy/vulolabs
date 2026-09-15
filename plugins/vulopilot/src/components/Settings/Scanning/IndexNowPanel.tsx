@@ -183,10 +183,82 @@ const IndexNowPanel = () => {
 	return (
 		<>
 			<FormGroupWrapperComponent>
+				<FormGroupComponent cols={6}
+					label={__('Auto-submit post types', 'vulopilot')}
+					desc={__(
+						'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
+						'vulopilot'
+					)}
+				>
+					<MultiCheckboxInput
+						options={POST_TYPE_OPTIONS}
+						value={postTypes}
+						modules={[]}
+						onChange={handlePostTypesChange}
+						selectDeselect={true}
+					/>
+				</FormGroupComponent>
+				<FormGroupComponent cols={6}
+					className='api-key-form'
+				>
+					<FormGroupWrapperComponent>
+						<SectionComponent
+							title={__('IndexNow is ready', 'vulopilot-pro')}
+							icon='plus green'
+							desc={__('High impact actions suggested by AI', 'vulopilot-pro')}
+						/>
+						<FormGroupComponent
+							label={__('API key', 'vulopilot')}
+							desc={__(
+								'Open this link to verify the key file is reachable by search engines — it should show the key.',
+								'vulopilot'
+							)}
+						>
+							<div className='api-key-wrapper'>
+								{apiKey && (
+									<ClipboardComponent
+										text={apiKey}
+										variant="code"
+										copyButtonLabel={__('Copy', 'vulopilot')}
+										copiedLabel={__('Copied!', 'vulopilot')}
+									/>
+								)}
+								<ButtonInput
+									position="left"
+									buttons={{
+										text: isChangingKey
+											? __('Changing…', 'vulopilot')
+											: __('Change key', 'vulopilot'),
+										onClick: handleChangeKey,
+										disabled: isChangingKey,
+									}}
+								/>
+							</div>
+						</FormGroupComponent>
+						{apiKey && (
+							<FormGroupComponent
+								label={__('API key location', 'vulopilot')}
+								desc={__(
+									'Open this link to verify the key file is reachable by search engines — it should show the key.',
+									'vulopilot'
+								)}
+								cols={6}
+							>
+								<a
+									href={`${appLocalizer.site_url}/${apiKey}.txt`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{`${appLocalizer.site_url}/${apiKey}.txt`}
+								</a>
+							</FormGroupComponent>
+						)}
+					</FormGroupWrapperComponent>
+				</FormGroupComponent>
 				<FormGroupComponent
 					label={__('URLs to submit', 'vulopilot')}
 					desc={__('One per line, up to 10,000.', 'vulopilot')}
-					row
+					cols={6}
 				>
 					<TextAreaInput
 						name="indexnow_urls"
@@ -196,8 +268,6 @@ const IndexNowPanel = () => {
 						usePlainText
 						onChange={(newValue) => setUrlsText(newValue as string)}
 					/>
-				</FormGroupComponent>
-				<FormGroupComponent label="">
 					<ButtonInput
 						buttons={{
 							text: isSubmitting
@@ -208,7 +278,8 @@ const IndexNowPanel = () => {
 						}}
 					/>
 				</FormGroupComponent>
-				{submitResults.length > 0 && (
+
+				{/* {submitResults.length > 0 && (
 					<FormGroupComponent label={__('Just submitted', 'vulopilot')}>
 						<div>
 							{submitResults.map((result, index) => (
@@ -221,89 +292,9 @@ const IndexNowPanel = () => {
 							))}
 						</div>
 					</FormGroupComponent>
-				)}
+				)} */}
 			</FormGroupWrapperComponent>
 
-			{/*
-			 * `.settings-section-group` > `.settings-left-section` (the
-			 * section header) + `.settings-right-section` (a nested
-			 * `FormGroupWrapperComponent` holding that group's own fields)
-			 * — same markup/classes as SecurityPanel.tsx's own hand-built
-			 * section groups (see that file's own docblock for why:
-			 * InputRenderer.tsx's own `renderForm()` generates this
-			 * automatically for a declarative `modal` array grouped by
-			 * `type: 'section'` fields, but this tab is hand-built).
-			 */}
-			<div className="settings-section-group">
-				<div className="settings-left-section">
-					<SectionComponent
-						icon="setting"
-						title={__('Settings', 'vulopilot')}
-					/>
-				</div>
-				<div className="settings-right-section">
-					<FormGroupWrapperComponent>
-						<FormGroupComponent
-							label={__('Auto-submit post types', 'vulopilot')}
-							row
-							desc={__(
-								'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
-								'vulopilot'
-							)}
-						>
-							<MultiCheckboxInput
-								options={POST_TYPE_OPTIONS}
-								value={postTypes}
-								modules={[]}
-								onChange={handlePostTypesChange}
-							/>
-						</FormGroupComponent>
-						<FormGroupComponent row
-							label={__('API key', 'vulopilot')}
-							desc={__(
-								"The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties.",
-								'vulopilot'
-							)}
-						>
-							{apiKey && (
-								<ClipboardComponent
-									text={apiKey}
-									variant="code"
-									copyButtonLabel={__('Copy', 'vulopilot')}
-									copiedLabel={__('Copied!', 'vulopilot')}
-								/>
-							)}
-							<ButtonInput
-								position="left"
-								buttons={{
-									text: isChangingKey
-										? __('Changing…', 'vulopilot')
-										: __('Change key', 'vulopilot'),
-									onClick: handleChangeKey,
-									disabled: isChangingKey,
-								}}
-							/>
-						</FormGroupComponent>
-						{apiKey && (
-							<FormGroupComponent row
-								label={__('API key location', 'vulopilot')}
-								desc={__(
-									'Open this link to verify the key file is reachable by search engines — it should show the key.',
-									'vulopilot'
-								)}
-							>
-								<a
-									href={`${appLocalizer.site_url}/${apiKey}.txt`}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{`${appLocalizer.site_url}/${apiKey}.txt`}
-								</a>
-							</FormGroupComponent>
-						)}
-					</FormGroupWrapperComponent>
-				</div>
-			</div>
 
 			<SectionComponent
 				icon="clock"

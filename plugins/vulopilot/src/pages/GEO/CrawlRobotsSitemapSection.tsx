@@ -631,7 +631,7 @@ const CrawlRobotsSitemapSection = () => {
 						<ButtonInput
 							buttons={{
 								text: __('Test robots.txt', 'vulopilot'),
-								icon: 'update',
+								icon: 'refresh',
 								// Explicit click → refresh the editor content too.
 								onClick: () => loadRobots(true),
 							}}

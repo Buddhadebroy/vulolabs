@@ -133,8 +133,8 @@ const DeveloperToolsPanel = () => {
 					value={keepDataUninstall}
 					modules={[]}
 					options={[
-						{ label: __('Keep data', 'vulopilot'), value: 'keep_data' },
-						{ label: __('Delete everything', 'vulopilot'), value: 'delete_everything' },
+						{ key: 'keep_data', label: __('Keep data', 'vulopilot'), value: 'keep_data' },
+						{ key: 'delete_everything', label: __('Delete everything', 'vulopilot'), value: 'delete_everything' },
 					]}
 					onChange={(value) =>
 						handleSettingChange('keep_data_uninstall', value as string)
@@ -153,8 +153,8 @@ const DeveloperToolsPanel = () => {
 					value={anonymousUsageData}
 					modules={[]}
 					options={[
-						{ label: __('Enabled', 'vulopilot'), value: 'enabled' },
-						{ label: __('Disabled', 'vulopilot'), value: 'disabled' },
+						{ key: 'enabled', label: __('Enabled', 'vulopilot'), value: 'enabled' },
+						{ key: 'disabled', label: __('Disabled', 'vulopilot'), value: 'disabled' },
 					]}
 					onChange={(value) =>
 						handleSettingChange('anonymous_usage_data', value as string)

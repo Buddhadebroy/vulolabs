@@ -483,7 +483,7 @@ const BackupStoragePanel = () => {
 								text: isDisconnectingS3
 									? __('Disconnecting…', 'vulopilot')
 									: __('Disconnect', 'vulopilot'),
-								icon: 'disconnect',
+								icon: 'sign-out',
 								onClick: handleDisconnectS3,
 								disabled: isDisconnectingS3,
 							},
@@ -577,7 +577,7 @@ const BackupStoragePanel = () => {
 							text: isDisconnectingGoogleDrive
 								? __('Disconnecting…', 'vulopilot')
 								: __('Disconnect', 'vulopilot'),
-							icon: 'disconnect',
+							icon: 'sign-out',
 							onClick: handleDisconnectGoogleDrive,
 							disabled: isDisconnectingGoogleDrive,
 						},
@@ -610,7 +610,7 @@ const BackupStoragePanel = () => {
 								type: 'button',
 								label: '',
 								text: __('Connect Google Drive', 'vulopilot'),
-								icon: 'admin-links',
+								icon: 'link',
 								onClick: () => {
 									if (status.google_drive.authorize_url) {
 										window.location.href = status.google_drive.authorize_url;
@@ -719,21 +719,23 @@ const BackupStoragePanel = () => {
 			</div>
 			<div className="settings-right-section">
 				<FormGroupWrapperComponent>
-					{destinationNotReady && (
-						<NoticeComponent
-							displayPosition="inline-notice"
-							type="warning"
-							title={sprintf(
-								/* translators: %s: 'Amazon S3' or 'Google Drive', the currently-selected but not-yet-connected destination. */
-								__('Storage destination is set to %s, but it isn\'t connected yet', 'vulopilot'),
-								DESTINATION_PROVIDER_LABEL[activeDestination as string] ?? activeDestination
-							)}
-							message={__(
-								'New backups will only be saved on this server until you finish connecting it below.',
-								'vulopilot'
-							)}
-						/>
-					)}
+					<FormGroupComponent>
+						{destinationNotReady && (
+							<NoticeComponent
+								displayPosition="inline-notice"
+								type="warning"
+								title={sprintf(
+									/* translators: %s: 'Amazon S3' or 'Google Drive', the currently-selected but not-yet-connected destination. */
+									__('Storage destination is set to %s, but it isn\'t connected yet', 'vulopilot'),
+									DESTINATION_PROVIDER_LABEL[activeDestination as string] ?? activeDestination
+								)}
+								message={__(
+									'New backups will only be saved on this server until you finish connecting it below.',
+									'vulopilot'
+								)}
+							/>
+						)}
+					</FormGroupComponent>
 					<FormGroupComponent>
 						{!isLoading && status && (
 							<ExpandablePanelInput

@@ -355,7 +355,7 @@ const PAGE_SECTIONS: SearchItem[] = [
 		desc: __('A complete log of all generated reports.', 'vulopilot'),
 		link: '#&tab=reports&subtab=overview',
 		sectionId: 'reports-history',
-		icon: 'history',
+		icon: 'clock',
 	},
 	{
 		id: 'page-section-scheduled-reports',
@@ -423,7 +423,7 @@ const PAGE_SECTIONS: SearchItem[] = [
 		),
 		link: '#&tab=security',
 		sectionId: 'plugin-overlap-card',
-		icon: 'plugins',
+		icon: 'module',
 	},
 	{
 		id: 'page-section-performance-overall-speed-score',

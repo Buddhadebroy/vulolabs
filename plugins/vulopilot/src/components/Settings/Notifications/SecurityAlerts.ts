@@ -1,25 +1,19 @@
 import { __ } from '@wordpress/i18n';
 
-// Shared by every field below the master "Enabled" toggle — same
-// `dependent` shape AiCrawlerAlerts.ts's own MASTER_ENABLED_DEPENDENT
-// already uses, this tab's own master switch key instead.
-const MASTER_ENABLED_DEPENDENT = { key: 'security_alerts_enabled', value: 'security_alerts_enabled', set: true };
-
 /**
  * Settings → Notifications → Security Alerts.
  *
  * Real backend: vulopilot-pro's SecurityMonitoring\AlertDispatcher, hooked
  * on `vulopilot_scan_completed` (every row below except "New user created")
  * and a real `user_register` hook (that one — a genuine WP event, not a
- * scan finding). `security_alerts_enabled` is the existing master switch —
- * already a real field on Settings → Scanning → Security ("Email me on new
- * security alerts") before this tab existed, same "master switch lives on
- * both its scanning-behavior tab and its own Notifications tab" shape
- * AiCrawlerAlerts.ts's own `email_on_crawler_alerts` already established
- * (that key is Alert Preferences' summary toggle *and* that tab's own
- * master switch). This tab intentionally doesn't duplicate that other
- * tab's `security_alert_email`/`security_alert_min_severity` fields — the
- * notice at the bottom links there instead of a second copy of the same
+ * scan finding). The old `security_alerts_enabled` master switch (and every
+ * field's own `dependent` gate on it) was removed per direct instruction —
+ * Settings → Scanning → Security only ever had a hidden seed stub for that
+ * key (`label: ''`), never a real visible duplicate toggle, so every row
+ * below is now always visible/active instead of hidden behind a switch with
+ * no real way to turn it on. This tab intentionally doesn't duplicate that
+ * other tab's `security_alert_email`/`security_alert_min_severity` fields —
+ * the notice at the bottom links there instead of a second copy of the same
  * controls.
  *
  * "Notify me about" is a real zyra `type: 'setting-row'` field
@@ -57,34 +51,9 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'security_alerts_enabled',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __('Enabled', 'vulopilot'),
-			settingDescription: __(
-				'Master switch for every Security Alert below — turn this off to silence all of them at once.',
-				'vulopilot'
-			),
-			toggleStatusLabel: { on: 'Enabled', off: 'Disabled' },
-			options: [
-				{ key: 'security_alerts_enabled', label: '', value: 'security_alerts_enabled' },
-			],
-		},
-		{
-			// zyra's real `type: 'setting-row'` field
-			// (`components-settingrowcomponent--with-checkbox`, per direct
-			// instruction) — see this file's own docblock for why
-			// `control: { checkbox: true }` fits this flat multi-select
-			// array field, unlike AiCrawlerAlerts.ts's per-type
-			// toggle/select rows. `label` now renders for real (fixed at
-			// the source — see AiCrawlerAlerts.ts's own `crawler_alerts`
-			// field docblock), so the old
-			// `security-alerts-notify-section` SectionComponent field
-			// that used to fake this heading is gone.
 			label: __('Notify me about', 'vulopilot'),
 			key: 'security_alert_types',
 			type: 'setting-row',
-			dependent: MASTER_ENABLED_DEPENDENT,
 			rows: [
 				{
 					valueKey: 'vulnerabilities',
@@ -152,7 +121,6 @@ export default {
 			key: 'security_alert_channels',
 			type: 'checkbox',
 			label: __('Notification channels', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
 			options: [
 				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
 				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
@@ -167,7 +135,6 @@ export default {
 				'You\'ll receive an alert as soon as a qualifying issue is found. The minimum severity and where alert emails are sent are configured under <a href="?page=vulopilot#&tab=settings&subtab=security-scanning">Settings → Security</a>. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
 				'vulopilot'
 			),
-			dependent: MASTER_ENABLED_DEPENDENT,
 		},
 	],
 };

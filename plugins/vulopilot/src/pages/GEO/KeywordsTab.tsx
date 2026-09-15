@@ -225,7 +225,7 @@ const KeywordsTab = () => {
 											text: isConnecting
 												? __('Redirecting…', 'vulopilot')
 												: __('Connect Google Services', 'vulopilot'),
-											icon: 'admin-links',
+											icon: 'link',
 											onClick: connect,
 											disabled: isConnecting,
 										}}
@@ -300,7 +300,7 @@ const KeywordsTab = () => {
 				},
 				{
 					key: 'top_3',
-					icon: 'star-filled',
+					icon: 'star',
 					label: __('Top 3 Rankings', 'vulopilot'),
 					value: formatNumber(stats.top_3.value),
 					delta: pctDelta(stats.top_3.value ?? 0, stats.top_3.previous),
@@ -308,7 +308,7 @@ const KeywordsTab = () => {
 				},
 				{
 					key: 'top_10',
-					icon: 'chart-bar',
+					icon: 'bar-chart',
 					label: __('Top 10 Rankings', 'vulopilot'),
 					value: formatNumber(stats.top_10.value),
 					delta: pctDelta(stats.top_10.value ?? 0, stats.top_10.previous),
@@ -316,7 +316,7 @@ const KeywordsTab = () => {
 				},
 				{
 					key: 'avg_position',
-					icon: 'chart-line',
+					icon: 'bar-chart',
 					label: __('Avg. Position', 'vulopilot'),
 					value: formatPosition(stats.avg_position.value),
 					// Raw point delta, already "positive = improvement" (a
@@ -331,7 +331,7 @@ const KeywordsTab = () => {
 				},
 				{
 					key: 'estimated_traffic',
-					icon: 'car',
+					icon: 'analytics',
 					label: __('Estimated Traffic', 'vulopilot'),
 					value: formatNumber(stats.estimated_traffic.value),
 					delta: pctDelta(stats.estimated_traffic.value ?? 0, stats.estimated_traffic.previous),
@@ -343,7 +343,7 @@ const KeywordsTab = () => {
 				},
 				{
 					key: 'impressions',
-					icon: 'visibility',
+					icon: 'eye',
 					label: __('Impressions', 'vulopilot'),
 					value: formatNumber(stats.impressions.value),
 					delta: pctDelta(stats.impressions.value ?? 0, stats.impressions.previous),
@@ -380,7 +380,7 @@ const KeywordsTab = () => {
 					<ButtonInput
 						buttons={{
 							text: isSyncing ? __('Syncing…', 'vulopilot') : __('Sync now', 'vulopilot'),
-							icon: 'update',
+							icon: 'refresh',
 							onClick: handleSync,
 							disabled: isSyncing,
 						}}
@@ -536,7 +536,7 @@ const KeywordsTab = () => {
 
 					<CardComponent
 						title={__('Keyword Groups', 'vulopilot')}
-						titleIcon="pages"
+						titleIcon="web-page-website"
 						desc={__(
 							'Your real ranking keywords, grouped by the real page Search Console matched each one to — there’s no third-party keyword-topic database connected here, so this is the one real grouping dimension on hand.',
 							'vulopilot'

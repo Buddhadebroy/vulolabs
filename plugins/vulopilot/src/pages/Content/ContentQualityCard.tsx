@@ -366,7 +366,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 		>
 			{!isExternal && !isLoadingOptions && 0 === options.length && (
 				<ModuleGuardComponent
-					icon="doc"
+					icon="document"
 					title={__('No content yet', 'vulopilot')}
 					desc={__(
 						'Publish a post or page to see its content quality here.',
