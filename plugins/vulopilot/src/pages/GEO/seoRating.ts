@@ -39,7 +39,7 @@ export const ratingColor = (score: number): string => {
 		return 'green';
 	}
 	if (score >= 40) {
-		return 'yellow';
+		return 'purple';
 	}
 	return 'red';
 };

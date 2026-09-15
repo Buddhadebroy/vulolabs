@@ -393,6 +393,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    .desc{
+        text-align: center;
+    }
 }
 
 .site-snapshot-last-updated {
@@ -401,6 +405,65 @@
     white-space: nowrap;
 }
 
+
+// GettingStartedCard.tsx's own "finish setup" banner — real
+// `dashboard-banner.png` illustration as a right-anchored background image
+// on a purple gradient, matching the mockup's own full-width banner
+// (no CardComponent border/header here, so the layout is hand-built).
+.getting-started-banner {
+    position: relative;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    background-color: #efe9ff;
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: cover;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+
+    @media (max-width: 782px) {
+        padding-inline-end: 1.75rem;
+    }
+
+    .details-wrapper{
+        width: 75%;
+    }
+    img{
+        width: 12rem;
+    }
+}
+
+.getting-started-banner-close {
+    position: absolute;
+    top: 0.875rem;
+    right: 0.875rem;
+    cursor: pointer;
+    color: var(--text-secondary, #6b7280);
+
+    &:hover {
+        color: #000;
+    }
+}
+
+.getting-started-banner-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.getting-started-banner-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #6b7280);
+    margin-bottom: 1rem;
+}
+
+.getting-started-banner-buttons {
+    flex-wrap: wrap;
+}
 
 // dashboard end
 

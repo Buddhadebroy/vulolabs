@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, CardComponent } from '@zyra/components';
-import { SelectInput } from '@zyra/inputs';
+import { ToggleInput } from '@zyra/inputs';
 
-type StatsPeriod = 'this_month' | 'last_month' | 'last_7_days' | 'last_30_days';
+type StatsPeriod = '7' | '30' | '90';
 
 interface StatMetric {
 	current: number;
@@ -18,39 +18,19 @@ interface StatsResponse {
 	words_generated: StatMetric;
 }
 
-const PERIOD_OPTIONS: { value: StatsPeriod; label: string }[] = [
-	{ value: 'this_month', label: __('This Month', 'vulopilot') },
-	{ value: 'last_month', label: __('Last Month', 'vulopilot') },
-	{ value: 'last_7_days', label: __('Last 7 Days', 'vulopilot') },
-	{ value: 'last_30_days', label: __('Last 30 Days', 'vulopilot') },
+const PERIOD_OPTIONS: { key: StatsPeriod; value: StatsPeriod; label: string }[] = [
+	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
+	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
+	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
 const toYmd = (date: Date): string => date.toISOString().slice(0, 10);
 
-/** Real `date_from`/`date_to` (Y-m-d) for the selected period — same client-side computation style HistoryTab.tsx's own `resolveDateFrom()` already uses, extended to also resolve a real end boundary ("Last Month" isn't "today", unlike that page's own presets). */
+/** Real `date_from`/`date_to` (Y-m-d) for the selected period — same client-side computation style HistoryTab.tsx's own `resolveDateFrom()` already uses, and the same real 7/30/90-day trio every other period toggle in this app now uses (e.g. GeoScoreSection.tsx's own `PERIOD_OPTIONS`). */
 const resolvePeriod = (period: StatsPeriod): { dateFrom: string; dateTo: string } => {
 	const now = new Date();
-
-	if ('this_month' === period) {
-		return {
-			dateFrom: toYmd(new Date(now.getFullYear(), now.getMonth(), 1)),
-			dateTo: toYmd(now),
-		};
-	}
-
-	if ('last_month' === period) {
-		const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-		const lastMonthStart = new Date(
-			lastMonthEnd.getFullYear(),
-			lastMonthEnd.getMonth(),
-			1
-		);
-		return { dateFrom: toYmd(lastMonthStart), dateTo: toYmd(lastMonthEnd) };
-	}
-
-	const days = 'last_7_days' === period ? 6 : 29;
 	const from = new Date(now);
-	from.setDate(from.getDate() - days);
+	from.setDate(from.getDate() - (Number(period) - 1));
 
 	return { dateFrom: toYmd(from), dateTo: toYmd(now) };
 };
@@ -85,7 +65,7 @@ const formatAbbreviated = (count: number): string =>
  * all 4 staying placeholders.
  */
 const ContentStatsCard = () => {
-	const [period, setPeriod] = useState<StatsPeriod>('this_month');
+	const [period, setPeriod] = useState<StatsPeriod>('30');
 	const [stats, setStats] = useState<StatsResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -136,13 +116,12 @@ const ContentStatsCard = () => {
 			desc={__('Your real content numbers for the selected period.', 'vulopilot')}
 			isLoading={isLoading}
 			action={
-				<SelectInput
-					type="single-select"
-					name="content-stats-period"
+				<ToggleInput
+					options={PERIOD_OPTIONS}
 					value={period}
 					onChange={(value) => setPeriod(value as StatsPeriod)}
-					options={PERIOD_OPTIONS}
-					isClearable={false}
+					modules={[]}
+					variant="pill"
 				/>
 			}
 		>

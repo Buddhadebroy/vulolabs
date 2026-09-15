@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
-import { CardComponent } from '@zyra/components';
+import dashboardBannerBackground from '../../assets/images/dashboard-banner.png';
+import dashboardBanner from '../../assets/images/banner.png';
+
 
 /**
- * Compact, collapsible, dismissible "finish setup" banner — replaces the
- * old WelcomeSection's much larger welcome banner + Modules grid + Extend
- * your website + Need help getting started cards, none of which exist in
- * the Dashboard mockup this page is modeled on. Same-publisher quick
- * links the old WelcomeSection used (VuloLabs/dualcube docs, consultation,
- * Discord — no confirmed VuloPilot-specific URLs exist anywhere in this
- * codebase), plus a shortcut into Modules for CatalogX/Notifima instead of
- * duplicating their real install/activate flow, which still lives on the
- * Modules page itself.
+ * Compact, dismissible "finish setup" banner — replaces the old
+ * WelcomeSection's much larger welcome banner + Modules grid + Extend your
+ * website + Need help getting started cards, none of which exist in the
+ * Dashboard mockup this page is modeled on. Same-publisher quick links the
+ * old WelcomeSection used (VuloLabs/dualcube docs, consultation, Discord —
+ * no confirmed VuloPilot-specific URLs exist anywhere in this codebase),
+ * plus a shortcut into Modules for CatalogX/Notifima instead of duplicating
+ * their real install/activate flow, which still lives on the Modules page
+ * itself.
+ *
+ * Rendered as its own banner (real `dashboard-banner.png` illustration as
+ * background) rather than a plain `CardComponent`, matching the mockup's
+ * own full-width purple banner — that asset has no title/toggle/border
+ * affordances of its own, so the header row and dismiss control are
+ * hand-built here instead of borrowed from `CardComponent`.
  */
 const GettingStartedCard: React.FC = () => {
 	const [dismissed, setDismissed] = useState(false);
@@ -22,34 +30,38 @@ const GettingStartedCard: React.FC = () => {
 	}
 
 	return (
-		<CardComponent
-			title={__('Welcome to VuloPilot — finish setup', 'vulopilot')}
-			titleIcon="ai purple-color"
-			desc={__('Docs, help, and modules to get the most out of VuloPilot.', 'vulopilot')}
-			borderColor="purple"
-			toggle
-			action={
-				<i
-					className="adminfont-close"
-					role="button"
-					tabIndex={0}
-					onClick={() => setDismissed(true)}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							e.preventDefault();
-							setDismissed(true);
-						}
-					}}
-				/>
-			}
+		<div
+			className="getting-started-banner"
+			style={{ backgroundImage: `url(${dashboardBannerBackground})` }}
 		>
+			<i
+				className="adminfont-close getting-started-banner-close"
+				role="button"
+				tabIndex={0}
+				onClick={() => setDismissed(true)}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						setDismissed(true);
+					}
+				}}
+			/>
+			<div className="details-wrapper">
+			<div className="getting-started-banner-title">
+				{__('Welcome to VuloPilot — finish setup', 'vulopilot')}
+			</div>
+			<div className="getting-started-banner-desc">
+				{__('Docs, help, and modules to get the most out of VuloPilot.', 'vulopilot')}
+			</div>
+
 			<ButtonInput
 				position="left"
+				wrapperClass="getting-started-banner-buttons"
 				buttons={[
 					{
 						text: __('Explore docs', 'vulopilot'),
 						icon: 'document',
-						color: 'purple',
+						color: 'purple-bg',
 						onClick: () =>
 							window.open(
 								'https://vulolabs.com/docs/knowledgebase/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
@@ -60,7 +72,7 @@ const GettingStartedCard: React.FC = () => {
 					{
 						text: __('Book a consultation', 'vulopilot'),
 						icon: 'live-chat',
-						color: 'purple',
+						color: 'white',
 						onClick: () =>
 							window.open(
 								'https://vulolabs.com/custom-development/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
@@ -71,7 +83,7 @@ const GettingStartedCard: React.FC = () => {
 					{
 						text: __('Join Discord', 'vulopilot'),
 						icon: 'global-community',
-						color: 'purple',
+						color: 'white',
 						onClick: () =>
 							window.open(
 								'https://discord.com/channels/1376811097134469191/1376811102020829258',
@@ -82,7 +94,7 @@ const GettingStartedCard: React.FC = () => {
 					{
 						text: __('Extend: CatalogX, Notifima', 'vulopilot'),
 						icon: 'cart',
-						color: 'purple',
+						color: 'white',
 						onClick: () => {
 							// `tab=settings&subtab=modules`, not the old
 							// standalone `tab=modules` route — see
@@ -93,7 +105,9 @@ const GettingStartedCard: React.FC = () => {
 					},
 				]}
 			/>
-		</CardComponent>
+</div>
+			<img src={ dashboardBanner } alt=""/>
+		</div>
 	);
 };
 

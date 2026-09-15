@@ -165,7 +165,7 @@ const App = () => {
 					options: [
 						{
 							value: 'all',
-							label: __('All', 'vulopilot'),
+							label: __('Every Where', 'vulopilot'),
 						},
 						{
 							value: 'modules',
@@ -185,6 +185,7 @@ const App = () => {
 				onResultClick={handleResultClick}
 				free={appLocalizer.version}
 				pro={appLocalizer.pro_data.version}
+				searchSize={7}
 			/>
 			<Route />
 		</>

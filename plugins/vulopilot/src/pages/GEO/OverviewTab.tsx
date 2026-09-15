@@ -434,18 +434,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 										tags: area ? (
 											<>
 												<TypographyComponent
-													as="span"
-													variant="body-md"
-													weight="bold"
-													color={area.change >= 0 ? 'green' : 'red'}
-													className="seo-health-score-row-delta"
-												>
-													<IconComponent
-														name={area.change >= 0 ? 'arrow-up' : 'arrow-down'}
-													/>
-													{Math.abs(area.change)}
-												</TypographyComponent>
-												<TypographyComponent
 													variant="h5"
 													weight="bold"
 													color={ratingClass(area.score)}
@@ -459,6 +447,18 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 													>
 														/100
 													</TypographyComponent>
+												</TypographyComponent>
+												<TypographyComponent
+													as="span"
+													variant="body-md"
+													weight="bold"
+													color={area.change >= 0 ? 'green' : 'red'}
+													className="seo-health-score-row-delta"
+												>
+													<IconComponent
+														name={area.change >= 0 ? 'arrow-up' : 'arrow-down'}
+													/>
+													{Math.abs(area.change)}
 												</TypographyComponent>
 											</>
 										) : null,

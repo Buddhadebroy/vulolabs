@@ -358,20 +358,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 												),
 									tags: (
 										<>
-											{null !== delta && (
-												<TypographyComponent
-													as="span"
-													variant="body-md"
-													weight="bold"
-													color={delta >= 0 ? 'green' : 'red'}
-													className="seo-health-score-row-delta"
-												>
-													<IconComponent
-														name={delta >= 0 ? 'arrow-up' : 'arrow-down'}
-													/>
-													{Math.abs(delta)}
-												</TypographyComponent>
-											)}
+											
 											{null !== signalScore && (
 												<TypographyComponent
 													variant="h5"
@@ -387,6 +374,20 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 													>
 														/100
 													</TypographyComponent>
+												</TypographyComponent>
+											)}
+											{null !== delta && (
+												<TypographyComponent
+													as="span"
+													variant="body-md"
+													weight="bold"
+													color={delta >= 0 ? 'green' : 'red'}
+													className="seo-health-score-row-delta"
+												>
+													<IconComponent
+														name={delta >= 0 ? 'arrow-up' : 'arrow-down'}
+													/>
+													{Math.abs(delta)}
 												</TypographyComponent>
 											)}
 										</>
@@ -435,7 +436,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Score Snapshot', 'vulopilot')}
-					desc={__('Score Snapshot Score Snapshot Score Snapshot', 'vulopilot')}
+					desc={__('How your GEO score has trended over the selected period.', 'vulopilot')}
 					titleIcon='tools'
 					isLoading={isLoadingProgress}
 					action={
