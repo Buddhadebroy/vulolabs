@@ -19,7 +19,7 @@ const COMMERCE_MODULE_ID = 'commerce';
  * small, half-empty placeholder next to a mostly-blank page.
  */
 const DUMMY_TILES: { icon: string; title: string; desc: string }[] = [
-	{ icon: 'security', title: __('Store Readiness', 'vulopilot'), desc: __('Shop, cart, checkout & my account pages.', 'vulopilot') },
+	{ icon: 'shield', title: __('Store Readiness', 'vulopilot'), desc: __('Shop, cart, checkout & my account pages.', 'vulopilot') },
 	{ icon: 'cash', title: __('Checkout & Payments', 'vulopilot'), desc: __('Payment methods & failed orders.', 'vulopilot') },
 	{ icon: 'cart', title: __('Products', 'vulopilot'), desc: __('Pricing, stock, images & product info.', 'vulopilot') },
 	{ icon: 'database', title: __('Inventory', 'vulopilot'), desc: __('Out of stock & running low.', 'vulopilot') },
