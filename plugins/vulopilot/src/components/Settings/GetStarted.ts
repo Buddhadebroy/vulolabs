@@ -48,6 +48,8 @@ export default {
 		'Connect VuloPilot to AI providers, Google services, PageSpeed Insights, and verify your site ownership.',
 		'vulopilot'
 	),
+	hideSettingHeader: true,
+	groupBySections: true,
 	headerIcon: 'link',
 	submitUrl: 'settings',
 	modal: [
