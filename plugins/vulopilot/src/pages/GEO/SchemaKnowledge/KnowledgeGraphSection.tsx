@@ -13,8 +13,8 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../../services/useFilterSlot';
 
-/** Real Settings → Scanning → AI Visibility subtab id (Settings.tsx's own `currentTab === 'ai-visibility'` branch) — where the `entity_business_type`/`entity_service_pages`/`entity_business_locations` fields this section (and BusinessProfileCard.tsx/KnowledgeGraphDiagramCard.tsx, which import this same constant) read actually live. */
-export const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=ai-visibility';
+/** Real Settings → Site Identity → Business Information subtab id (Settings.tsx's own `currentTab === 'business-information'` branch) — where the `entity_business_type`/`entity_service_pages`/`entity_business_locations` fields this section (and BusinessProfileCard.tsx/KnowledgeGraphDiagramCard.tsx, which import this same constant) read actually live. Moved out of Scanning → AI Visibility per direct instruction — see SiteIdentity/BusinessInformation.ts's own docblock. */
+export const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=business-information';
 
 
 export interface Entity {
@@ -34,7 +34,7 @@ export interface EntitiesResponse {
 	services: Entity[];
 	locations: Entity[];
 	categories: Entity[];
-	/** Real, owner-provided `entity_business_type` setting (Settings → Scanning → AI Visibility) — empty string until set, never guessed. */
+	/** Real, owner-provided `entity_business_type` setting (Settings → Site Identity → Business Information) — empty string until set, never guessed. */
 	business_type: string;
 	/** Real, deterministic check — a published page at `/contact/` or `/contact-us/` (Services\EntityExtractor::find_contact_page(), same slug list Scanners\Basic\GeoTrustSignalsScanner's own "missing Contact page" finding already checks). */
 	has_contact_page: boolean;

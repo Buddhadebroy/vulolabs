@@ -18,8 +18,8 @@ import SecurityRestoreDefaultsHeader from './SecurityRestoreDefaultsHeader';
  *
  * "Restore Defaults" is SecurityRestoreDefaultsHeader.tsx — extracted out
  * of SecurityPanel.tsx's own body (per direct instruction, same extraction
- * AiVisibilityScansHeader.tsx/ContentSearchScansHeader.tsx already are)
- * into this tab's own top-level `settingAction` instead of being rendered
+ * AiVisibilityScansHeader.tsx already got) into this tab's own top-level
+ * `settingAction` instead of being rendered
  * inline at the top of that panel. `settingAction` is
  * NavigatorComponent.tsx's own per-tab header action slot
  * (`renderSettingHeaderInfo()`'s `<SectionComponent

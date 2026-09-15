@@ -1,11 +1,12 @@
 /* global appLocalizer */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { ButtonInput } from '@zyra/inputs';
-import { FormGroupComponent, FormGroupWrapperComponent, NoticeManager } from '@zyra/components';
+import { ButtonInput, TextInput } from '@zyra/inputs';
+import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent, NoticeManager } from '@zyra/components';
 import CardHeader from '../../CardHeader';
 import { formatWpDate } from '../../../services/formatWpDate';
+import { useSetting } from '../../../contexts/SettingContext';
 
 interface PsiStatus {
 	connected: boolean;
@@ -26,13 +27,15 @@ interface TestResult {
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
- * Settings → Connections → PageSpeed Insights' own status header — the
- * mockup's "Connection Status" pill, "Daily API Usage" bar, and
- * "Test Connection" button. Rendered BEFORE this tab's own `modal` fields
- * (Settings.tsx's own GetForm(), same interleaving `isGeoTabSplit` already
- * does for llms.txt) since the mockup places this row above the API Key
- * field, not after it like CrawlerAlertTestPanel/BackupStoragePanel's own
- * "appended after" escape hatches.
+ * Settings → Connections' own PageSpeed Insights section — the mockup's
+ * "Connection Status" pill, "Daily API Usage" bar, "Test Connection"
+ * button, and (per direct instruction, when this folder's 5 separate
+ * sub-tabs were merged into one "Connections" tab) the real "API Key"/
+ * "Daily API Limit" fields and the "how this data is used" notice that
+ * used to be rendered separately by InputRenderer against this tab's own
+ * `modal` array — now fully self-contained, same "one real component per
+ * section" shape ConnectionsPanel.tsx composes GoogleServicesPanel.tsx/
+ * SiteVerificationPanel.tsx/AiProvidersPanel.tsx from.
  *
  * Reads real state from `GET /settings/test-pagespeed`
  * (Services\PageSpeedInsightsFetcher::get_status() — no live API call) on
@@ -49,9 +52,37 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * claim). Same "no real backend, don't build a fake control" posture
  * Reports.ts's own docblock already documents for "Report Branding".
  */
+const AUTOSAVE_DEBOUNCE_MS = 1000;
+
 const PageSpeedStatusPanel = () => {
+	const { setting, updateSetting } = useSetting();
 	const [status, setStatus] = useState<PsiStatus | null>(null);
 	const [isTesting, setIsTesting] = useState(false);
+	const [apiKey, setApiKey] = useState((setting.psi_api_key as string) || '');
+	const [dailyLimit, setDailyLimit] = useState((setting.psi_daily_limit as string) || '');
+	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const scheduleSave = (key: string, value: string) => {
+		if (saveTimerRef.current) {
+			clearTimeout(saveTimerRef.current);
+		}
+		saveTimerRef.current = setTimeout(() => {
+			updateSetting(key, value);
+			sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+				setting: { [key]: value },
+			});
+		}, AUTOSAVE_DEBOUNCE_MS);
+	};
+
+	const handleApiKeyChange = (value: string) => {
+		setApiKey(value);
+		scheduleSave('psi_api_key', value);
+	};
+
+	const handleDailyLimitChange = (value: string) => {
+		setDailyLimit(value);
+		scheduleSave('psi_daily_limit', value);
+	};
 
 	const loadStatus = () => {
 		getApiResponse<PsiStatus>(getApiLink(appLocalizer, 'settings/test-pagespeed'), nonceHeaders).then(
@@ -172,6 +203,30 @@ const PageSpeedStatusPanel = () => {
 					</div>
 				</CardHeader>
 			</FormGroupComponent>
+			<FormGroupComponent cols={6} label={__('API Key', 'vulopilot')} htmlFor="psi-api-key-input">
+				<TextInput
+					id="psi-api-key-input"
+					type="password"
+					value={apiKey}
+					onChange={(value) => handleApiKeyChange(String(value))}
+				/>
+			</FormGroupComponent>
+			<FormGroupComponent cols={6} label={__('Daily API Limit', 'vulopilot')} htmlFor="psi-daily-limit-input">
+				<TextInput
+					id="psi-daily-limit-input"
+					type="number"
+					value={dailyLimit}
+					onChange={(value) => handleDailyLimitChange(String(value))}
+				/>
+			</FormGroupComponent>
+			<NoticeComponent
+				displayPosition="inline-notice"
+				type="info"
+				message={__(
+					'VuloPilot uses PageSpeed Insights API data to show speed reports under Improve My Speed. We only read performance data and never make changes to your site.',
+					'vulopilot'
+				)}
+			/>
 		</FormGroupWrapperComponent>
 	);
 };

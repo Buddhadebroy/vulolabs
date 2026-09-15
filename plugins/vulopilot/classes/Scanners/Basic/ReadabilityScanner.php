@@ -50,8 +50,9 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
     private const MIN_WORDS_TO_SCORE = 100;
 
     /**
-     * Fallback only — the real threshold is Scanning → Content & Search's
-     * `content_search_scans.readability.min_score` setting.
+     * Fallback only — the real threshold is Scanning → SEO & Content's
+     * flat `content_readability_min_score` setting (see that key's own
+     * docblock in Utill::VULOPILOT_SETTINGS_DEFAULTS).
      */
     private const DEFAULT_MIN_SCORE = 50;
 
@@ -86,8 +87,8 @@ class ReadabilityScanner extends AbstractBasicScanner implements TracksScannedOb
             return array();
         }
 
-        $min_score = is_numeric( $settings['content_search_scans']['readability']['min_score'] ?? null )
-            ? (int) $settings['content_search_scans']['readability']['min_score']
+        $min_score = is_numeric( $settings['content_readability_min_score'] ?? null )
+            ? (int) $settings['content_readability_min_score']
             : self::DEFAULT_MIN_SCORE;
 
         $findings = array();

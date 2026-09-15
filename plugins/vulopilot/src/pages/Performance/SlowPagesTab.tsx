@@ -23,8 +23,8 @@ import { formatWpDate } from '../../services/formatWpDate';
 import RecommendedFixesCard from './RecommendedFixesCard';
 import './Performance.scss';
 
-/** `id: 'pagespeed-insights'` (Settings/GetStarted/PageSpeedInsights.ts) — where the real PageSpeed Insights API key field this notice's own "no PSI connected" message used to describe in text actually lives. */
-const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=pagespeed-insights';
+/** `id: 'connections'` (Settings/GetStarted/Connections.ts) — where the real PageSpeed Insights API key field this notice's own "no PSI connected" message used to describe in text actually lives (merged in from the old standalone `pagespeed-insights` tab per direct instruction). */
+const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=connections';
 
 interface PageSpeedRow {
 	id: number;

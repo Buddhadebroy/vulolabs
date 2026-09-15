@@ -8,8 +8,8 @@ import { useSetting } from '../../../contexts/SettingContext';
 /**
  * Settings → Scanning → Security's own "Restore Defaults" button — moved
  * out of SecurityPanel.tsx (per direct instruction, same extraction
- * AiVisibilityScansHeader.tsx/ContentSearchScansHeader.tsx already are)
- * into Security.ts's own top-level `settingAction` instead of being
+ * AiVisibilityScansHeader.tsx already got) into Security.ts's own
+ * top-level `settingAction` instead of being
  * rendered inline at the top of that panel's own body. `DEFAULTS` moved
  * here with it — it was only ever read by this button's own reset call,
  * nowhere else in SecurityPanel.tsx.

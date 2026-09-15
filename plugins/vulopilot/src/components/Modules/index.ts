@@ -24,6 +24,23 @@ export interface ModuleCatalogEntry {
 	 * one.
 	 */
 	icon?: string;
+	/**
+	 * Real zyra `ModuleGridComponent` slot (`module2.settingsLink && <a
+	 * href={module2.settingsLink}><IconComponent name="setting" /></a>`,
+	 * rendered in `.module-footer .buttons`, left of the enable/disable
+	 * toggle — confirmed via the compiled `@multivendorx/zyra` bundle,
+	 * unused by every card until now) — a plain hash link to this module's
+	 * own corresponding destination, same `?page=vulopilot#&tab=…` shape
+	 * GettingStartedCard.tsx already uses, so clicking it is a same-page
+	 * hash change (no reload) whether this card is on the standalone
+	 * Modules page or the Settings → Modules tab. Usually a Settings tab
+	 * (`?page=vulopilot#&tab=settings&subtab=<id>`) but not always — a
+	 * handful of cards point at that module's own real standalone
+	 * top-level menu page instead (`?page=vulopilot#&tab=<id>`, no
+	 * `settings&subtab=`), per direct instruction — see every entry below
+	 * for its own real destination.
+	 */
+	settingsLink?: string;
 }
 
 /** A category-pill-bar heading, not a real module — `type: 'separator'` is how ModuleGridComponent (zyra) tells the two apart in one flat array. */
@@ -64,6 +81,27 @@ export const isModuleCatalogEntry = (
  * `Services/*.php` classes) — toggling those two is inert, same as before
  * this session touched this file, kept only because the mockup includes
  * them by name.
+ *
+ * Every card sets `settingsLink` (see `ModuleCatalogEntry`'s own docblock
+ * above) — a real gear icon, left of the enable/disable toggle in zyra's
+ * own `ModuleGridComponent` footer. Most point at that module's own real
+ * Settings tab (geo-insights/aeo-insights/ai-crawler-analytics share the
+ * one Scanning → AI Visibility tab that actually holds their scan toggles,
+ * same way redirect-manager shares SEO & Content's own "Redirects & 404s"
+ * section rather than having a dedicated tab of its own; knowledge-graph
+ * instead points at Site Identity → Business Information, where its own
+ * Business/Services/Locations fields moved per direct instruction).
+ * content-intelligence/performance-monitoring/automations/commerce instead
+ * point at that module's own real standalone top-level menu page
+ * (routes.ts's own `tab: 'content'`/`'performance'`/`'automations'`/
+ * `'commerce'`) rather than a Settings subtab — per a later, separate
+ * direct instruction giving the exact destination for every card on this
+ * page ("geo -> scanning ai visibility tab", … "commerce -> commerce
+ * menu"); `performance-monitoring` in particular has no real Settings tab
+ * to link to at all (no `Performance.ts` exists — same "inert toggle, no
+ * real `modules/` folder" caveat as its own docblock above), so its own
+ * top-level Performance page is the only real destination for it either
+ * way.
  */
 const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogItem[] } = {
 	category: true,
@@ -88,6 +126,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'geo-insights',
             icon: 'global-community',
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('GEO Radar — AI Understanding', 'vulopilot'),
             desc: __('Scans structure, entities, and machine-readability so AI models can understand your pages.', 'vulopilot'),
             proModule: true,
@@ -132,6 +171,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'aeo-insights',
             icon: 'answer',
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('AEO Autopilot — Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage — then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
             proModule: true,
@@ -152,6 +192,11 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         {
             id: 'knowledge-graph',
             icon: 'intelligence',
+            // Points at Business Information, not AI Visibility — the
+            // Business/Services/Locations fields that actually feed this
+            // module's own entity extraction moved there per direct
+            // instruction (SiteIdentity/BusinessInformation.ts).
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=business-information',
             name: __('Knowledge Graph — Entity Intelligence', 'vulopilot'),
             desc: __('Reads real people, organizations, products, services, and categories from your site and turns them into structured entities.', 'vulopilot'),
             proModule: true,
@@ -176,6 +221,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'ai-crawler-analytics',
             icon: 'analytics',
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('Bot Watch — AI Crawler Intelligence', 'vulopilot'),
             desc: __('Tracks which AI bots — GPTBot, ClaudeBot, PerplexityBot, and others — are visiting your site, and what they\'re reading.', 'vulopilot'),
             proModule: true,
@@ -206,6 +252,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'brand-intelligence',
             icon: 'announcement',
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=brand-intelligence',
             name: __('Brand Radar — Off-Site Visibility', 'vulopilot'),
             desc: __('Organization & author schema, About-page completeness, and off-site mentions across the web.', 'vulopilot'),
             proModule: true,
@@ -235,6 +282,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'advanced-seo',
             icon: 'search',
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=seo-content',
             name: __('SEO Copilot — Technical SEO', 'vulopilot'),
             desc: __('Titles, meta, canonical, schema, internal links, sitemap, and robots.txt checks.', 'vulopilot'),
             proModule: true,
@@ -255,6 +303,13 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         {
             id: 'content-intelligence',
             icon: 'document',
+            // Points at the real standalone Content menu page (`tab:
+            // 'content'`, routes.ts), not a Settings subtab — per direct
+            // instruction ("content copilot -> content menu"). This
+            // module's own scan-behavior settings still live under
+            // Settings → Scanning → SEO & Content (SeoContent.ts), same as
+            // before; only where this card's gear icon points changed.
+            settingsLink: '?page=vulopilot#&tab=content',
             name: __('Content Copilot — Readability & Freshness', 'vulopilot'),
             desc: __('Readability, thin/duplicate content, and freshness flags — plus AI-assisted rewriting.', 'vulopilot'),
             proModule: true,
@@ -283,6 +338,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'redirect-manager',
             icon: 'link',
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=seo-content',
             name: __('Redirect Autopilot — 301s & 404 Log', 'vulopilot'),
             desc: __('301 redirects and 404 tracking, with automatic redirects on slug change.', 'vulopilot'),
             proModule: false,
@@ -305,6 +361,12 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'performance-monitoring',
             icon: 'bar-chart',
+            // No real Settings tab exists for this one (see this card's own
+            // docblock above — core, always-on Performance services, not a
+            // module) — points at the real standalone Performance menu
+            // page instead (`tab: 'performance'`, routes.ts) per direct
+            // instruction ("Speed Radar -> performance menu").
+            settingsLink: '?page=vulopilot#&tab=performance',
             name: __('Speed Radar — Core Web Vitals', 'vulopilot'),
             desc: __('Core Web Vitals, database health, and autoload size checks.', 'vulopilot'),
             proModule: true,
@@ -329,6 +391,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'accessibility-audits',
             icon: 'eye',
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=accessibility',
             name: __('Accessibility Guard — WCAG Compliance', 'vulopilot'),
             desc: __('WCAG checks — alt text, headings, ARIA, and form labels.', 'vulopilot'),
             proModule: true,
@@ -348,6 +411,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         {
             id: 'security-monitoring',
             icon: 'security',
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=security-scanning',
             name: __('Security Watchtower — Site Protection', 'vulopilot'),
             desc: __('Weak passwords, basic vulnerabilities, core file integrity, and update checks.', 'vulopilot'),
             proModule: true,
@@ -386,6 +450,9 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'ai-copilot',
             icon: 'ai',
+            // 'ai-providers' tab merged into 'connections' per direct
+            // instruction — see GetStarted/Connections.ts's own docblock.
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=connections',
             name: __('AI Copilot', 'vulopilot'),
             desc: __('Explainable AI recommendations for any finding across every module.', 'vulopilot'),
             proModule: false,
@@ -409,6 +476,11 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'automations',
             icon: 'automation',
+            // Points at the real standalone Automations menu page (`tab:
+            // 'automations'`, routes.ts), not the Settings → Automation →
+            // Advanced subtab — per direct instruction ("automation ->
+            // automation tab").
+            settingsLink: '?page=vulopilot#&tab=automations',
             name: __('Workflow Autopilot — Automation Engine', 'vulopilot'),
             desc: __('Triggers, conditions, schedules, and workflows that react to scan findings automatically.', 'vulopilot'),
             proModule: true,
@@ -441,6 +513,11 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'commerce',
             icon: 'cart',
+            // Points at the real standalone Commerce menu page (`tab:
+            // 'commerce'`, routes.ts), not the Settings → Scanning →
+            // WooCommerce subtab — per direct instruction ("commerce ->
+            // commerce menu").
+            settingsLink: '?page=vulopilot#&tab=commerce',
             name: __('Commerce Copilot — WooCommerce Intelligence', 'vulopilot'),
             desc: __('Store health, product/checkout/order insights, revenue reports, and AI-powered sales optimization for WooCommerce.', 'vulopilot'),
             proModule: true,

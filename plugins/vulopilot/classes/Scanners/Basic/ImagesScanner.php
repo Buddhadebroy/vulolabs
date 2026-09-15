@@ -57,7 +57,11 @@ class ImagesScanner extends AbstractBasicScanner {
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['content_search_scans']['images']['enable'] ) || empty( $settings['content_search_scans']['images']['missing_alt_text'] ) ) {
+        // Flat, standalone key — Settings → Scanning → SEO & Content →
+        // "Images" (SeoContent.ts). See Utill::VULOPILOT_SETTINGS_DEFAULTS's
+        // own docblock on this key for why it's no longer nested under
+        // content_search_scans.images.
+        if ( empty( $settings['flag_missing_alt_text'] ) ) {
             return array();
         }
 
