@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import {
@@ -13,7 +13,8 @@ import {
 	NoticeComponent,
 	NoticeManager,
 } from '@zyra/components';
-import { ButtonInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
+import { ButtonInput, TextInput, ToggleInput } from '@zyra/inputs';
+import { TableCard } from '@zyra/table';
 import { useSetting } from '../../../contexts/SettingContext';
 import './TitleFormatsPanel.scss';
 
@@ -119,6 +120,14 @@ const TITLE_MIN_LENGTH = 30;
 const DESCRIPTION_MIN_LENGTH = 120;
 const DESCRIPTION_MAX_LENGTH = 160;
 
+/** Same real `urlExample` every row already carries, reformatted as a plain "domain › path › segments" breadcrumb (Google's own real search-result URL styling) instead of a raw `http://…` string — matches the search-result-snippet look the rest of this row's preview block (resolved title/desc) is already going for. */
+const toBreadcrumb = (urlExample: string): string =>
+	urlExample
+		.replace(/^https?:\/\//, '')
+		.split('/')
+		.filter(Boolean)
+		.join(' › ');
+
 /**
  * Settings → Site Identity → Title Formats.
  *
@@ -184,7 +193,8 @@ const TitleFormatsPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
 	const [separator, setSeparator] = useState<string>('|');
-	const [typeFilter, setTypeFilter] = useState('all');
+	/** Which real context row's own Edit action opened the right-side edit panel — `null` shows the default Available Variables/Preview in Google/SEO Tips sidebar instead (same "table + detail panel" structure IssueDetailPanel.tsx's own Issues table already establishes). */
+	const [editingKey, setEditingKey] = useState<string | null>(null);
 
 	const contexts = useMemo<ContextConfig[]>(() => {
 		const siteTitle = appLocalizer.site_title || __('Your Site', 'vulopilot');
@@ -356,6 +366,12 @@ const TitleFormatsPanel = () => {
 		scheduleSave(templateValues, value);
 	};
 
+	/** Appends a real `%token%` to whichever field's own pill row was clicked — the edit panel's own "click a variable to insert it" affordance, in place of the old sidebar's plain click-to-copy-to-clipboard behavior (still real for the non-editing sidebar below). */
+	const insertToken = (key: string, token: string) => {
+		const current = templateValues[key] ?? '';
+		handleTemplateChange(key, current ? `${current} ${token}` : token);
+	};
+
 	const previewRows = useMemo<PreviewRow[]>(
 		() =>
 			contexts.map((ctx) => {
@@ -374,11 +390,6 @@ const TitleFormatsPanel = () => {
 				};
 			}),
 		[contexts, templateValues, separator]
-	);
-
-	const filteredPreviewRows = useMemo(
-		() => ('all' === typeFilter ? previewRows : previewRows.filter((row) => row.key === typeFilter)),
-		[previewRows, typeFilter]
 	);
 
 	const handleValidate = () => {
@@ -455,41 +466,42 @@ const TitleFormatsPanel = () => {
 		__('Use a consistent separator across your site.', 'vulopilot'),
 	].map((tip, index) => ({ id: String(index), title: tip }));
 
-	const previewListItems = filteredPreviewRows.map((row) => ({
-		id: row.key,
-		icon: row.icon,
-		title: row.label,
-		tags: (
-			<>
-				<BadgeComponent color={row.titleScore.cls} text={row.titleScore.label} />
-				<BadgeComponent color="indigo" text={`${row.titleScore.length}/${row.titleScore.max}`} />
-				{row.hasRealUrl && (
-					<ButtonInput
-						buttons={{
-							text: __('View', 'vulopilot'),
-							color: 'border-purple',
-							onClick: () => window.open(appLocalizer.site_url, '_blank', 'noopener'),
-						}}
+	const editingRow = previewRows.find((row) => row.key === editingKey) ?? null;
+
+	/**
+	 * One real `%token%` field + its own "click to insert" pill row + a real
+	 * length `BadgeComponent` — reused for both Title format and Description
+	 * format below, the two fields the edit panel's own docblock ("image 5
+	 * like variables") describes.
+	 */
+	const renderTemplateField = (
+		label: string,
+		key: string,
+		score: LengthScore
+	) => (
+		<FormGroupComponent label={label} htmlFor={`${key}-edit-input`}>
+			<TextInput
+				id={`${key}-edit-input`}
+				value={templateValues[key] ?? ''}
+				onChange={(value) => handleTemplateChange(key, String(value))}
+			/>
+			<div className="site-identity-edit-variable-pills">
+				{VARIABLES.map((item) => (
+					<BadgeComponent
+						key={item.token}
+						color="purple"
+						text={sprintf(
+							/* translators: %s: a real template variable's own short label, e.g. "Post title". */
+							__('+ %s', 'vulopilot'),
+							item.label
+						)}
+						onClick={() => insertToken(key, item.token)}
 					/>
-				)}
-			</>
-		),
-		desc: (
-			<div className="site-identity-preview-desc-block">
-				<div className="site-identity-preview-url">{row.urlExample}</div>
-				<div className="site-identity-preview-title">
-					{row.resolvedTitle || __('(Empty — add a title format above)', 'vulopilot')}
-				</div>
-				<div className="site-identity-preview-desc">
-					{row.resolvedDescription || __('(Empty — add a description format below)', 'vulopilot')}
-				</div>
-				<div className="site-identity-preview-desc-tags">
-					<BadgeComponent color={row.descriptionScore.cls} text={row.descriptionScore.label} />
-					<BadgeComponent color="indigo" text={`${row.descriptionScore.length}/${row.descriptionScore.max}`} />
-				</div>
+				))}
 			</div>
-		),
-	}));
+			<BadgeComponent color={score.cls} text={`${score.length}/${score.max}`} />
+		</FormGroupComponent>
+	);
 
 	return (
 		<div className="site-identity-title-formats">
@@ -528,44 +540,8 @@ const TitleFormatsPanel = () => {
 							'Customize title and description formats using dynamic variables like %site_title%, %post_title%, %site_description%, etc.',
 							'vulopilot'
 						)}
-						toggle
-						defaultExpanded={false}
 					>
 						<FormGroupWrapperComponent>
-							{contexts.map((ctx) => (
-								<Fragment key={ctx.key}>
-									<FormGroupComponent
-										cols={6}
-										label={sprintf(
-											/* translators: %s is the content type, e.g. "Homepage". */
-											__('%s — Title format', 'vulopilot'),
-											ctx.label
-										)}
-										htmlFor={`${ctx.templateKey}-input`}
-									>
-										<TextInput
-											id={`${ctx.templateKey}-input`}
-											value={templateValues[ctx.templateKey] ?? ''}
-											onChange={(value) => handleTemplateChange(ctx.templateKey, String(value))}
-										/>
-									</FormGroupComponent>
-									<FormGroupComponent
-										cols={6}
-										label={sprintf(
-											/* translators: %s is the content type, e.g. "Homepage". */
-											__('%s — Description format', 'vulopilot'),
-											ctx.label
-										)}
-										htmlFor={`${ctx.descriptionTemplateKey}-input`}
-									>
-										<TextInput
-											id={`${ctx.descriptionTemplateKey}-input`}
-											value={templateValues[ctx.descriptionTemplateKey] ?? ''}
-											onChange={(value) => handleTemplateChange(ctx.descriptionTemplateKey, String(value))}
-										/>
-									</FormGroupComponent>
-								</Fragment>
-							))}
 							<FormGroupComponent label={__('Separator', 'vulopilot')} htmlFor="title-separator-input">
 								<TextInput
 									id="title-separator-input"
@@ -575,48 +551,140 @@ const TitleFormatsPanel = () => {
 								/>
 							</FormGroupComponent>
 						</FormGroupWrapperComponent>
-					</CardComponent>
 
-					<CardComponent
-						title={__('Live Title Preview', 'vulopilot')}
-						desc={__('See how your titles and descriptions will appear in Google search results.', 'vulopilot')}
-						action={
-							<SelectInput
-								value={typeFilter}
-								size={15}
-								onChange={(value) => setTypeFilter(value as string)}
-								options={[
-									{ label: __('All Types', 'vulopilot'), value: 'all' },
-									...contexts.map((ctx) => ({ label: ctx.label, value: ctx.key })),
-								]}
-							/>
-						}
-					>
-						<ListComponent className="site-identity-preview-list" items={previewListItems} />
+						{/* One real row per context — real Google-snippet-style
+						preview (breadcrumb/title/desc, same values the old
+						separate "Live Title Preview" card computed) + a real
+						content-type badge + this row's own real raw template
+						string, with a real "Edit" action opening the right-side
+						panel below instead of every field being hand-edited
+						inline in one big 16-field grid. */}
+						<TableCard
+							showMenu={false}
+							hideHeader={true}
+							variant="transparent"
+							headers={{
+								preview: {
+									label: __('Format', 'vulopilot'),
+									width: '80%',
+									render: (row: PreviewRow) => (
+										<div className="site-identity-row-preview">
+											<BadgeComponent color="indigo" text={row.label} />
+											<div className="site-identity-row-breadcrumb">
+												{toBreadcrumb(row.urlExample)}
+											</div>
+											<div className="site-identity-row-title">
+												{row.resolvedTitle || __('(Empty — add a title format)', 'vulopilot')}
+											</div>
+											<div className="site-identity-row-desc">
+												{row.resolvedDescription || __('(Empty — add a description format)', 'vulopilot')}
+											</div>
+											<div className="site-identity-row-raw">
+												{templateValues[row.templateKey] || ''}
+											</div>
+											<div className="site-identity-row-tags">
+												<BadgeComponent color={row.titleScore.cls} text={row.titleScore.label} />
+												<BadgeComponent color="indigo" text={`${row.titleScore.length}/${row.titleScore.max}`} />
+												<BadgeComponent color={row.descriptionScore.cls} text={row.descriptionScore.label} />
+												<BadgeComponent color="indigo" text={`${row.descriptionScore.length}/${row.descriptionScore.max}`} />
+												{row.hasRealUrl && (
+													<ButtonInput
+														buttons={{
+															text: __('View', 'vulopilot'),
+															color: 'border-purple',
+															onClick: () => window.open(appLocalizer.site_url, '_blank', 'noopener'),
+														}}
+													/>
+												)}
+											</div>
+										</div>
+									),
+								},
+								action: {
+									label: __('Action', 'vulopilot'),
+									type: 'action',
+									actions: [
+										{
+											label: __('Edit', 'vulopilot'),
+											type: 'button',
+											icon: 'edit',
+											color: 'text-purple',
+											onClick: (row) =>
+												setEditingKey((row as unknown as PreviewRow).key),
+										},
+									],
+								},
+							}}
+							rows={previewRows}
+							ids={previewRows.map((row) => row.key)}
+							totalRows={previewRows.length}
+							isLoading={false}
+							activeRowId={editingKey ?? undefined}
+						/>
 					</CardComponent>
 				</ColumnComponent>
 
 				<ColumnComponent grid={4}>
-					<CardComponent
-						title={__('Available Variables', 'vulopilot')}
-						desc={__('Click to copy and use in your title formats.', 'vulopilot')}
-					>
-						<ListComponent className="site-identity-variables-list" items={variableListItems} />
-					</CardComponent>
+					{editingRow ? (
+						<CardComponent
+							title={sprintf(
+								/* translators: %s: the real content type being edited, e.g. "Homepage". */
+								__('%s Format', 'vulopilot'),
+								editingRow.label
+							)}
+							titleIcon={editingRow.icon}
+							action={
+								<i
+									className="adminfont-close"
+									role="button"
+									tabIndex={0}
+									onClick={() => setEditingKey(null)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											setEditingKey(null);
+										}
+									}}
+								/>
+							}
+						>
+							<FormGroupWrapperComponent>
+								{renderTemplateField(
+									__('Title format', 'vulopilot'),
+									editingRow.templateKey,
+									editingRow.titleScore
+								)}
+								{renderTemplateField(
+									__('Description format', 'vulopilot'),
+									editingRow.descriptionTemplateKey,
+									editingRow.descriptionScore
+								)}
+							</FormGroupWrapperComponent>
+						</CardComponent>
+					) : (
+						<>
+							<CardComponent
+								title={__('Available Variables', 'vulopilot')}
+								desc={__('Click to copy and use in your title formats.', 'vulopilot')}
+							>
+								<ListComponent className="site-identity-variables-list" items={variableListItems} />
+							</CardComponent>
 
-					<NoticeComponent
-						displayPosition="inline-notice"
-						type="info"
-						title={__('Preview in Google', 'vulopilot')}
-						message={__(
-							'These previews show an estimate of how your titles may appear in Google search results. Actual display can vary by device and search context.',
-							'vulopilot'
-						)}
-					/>
+							<NoticeComponent
+								displayPosition="inline-notice"
+								type="info"
+								title={__('Preview in Google', 'vulopilot')}
+								message={__(
+									'These previews show an estimate of how your titles may appear in Google search results. Actual display can vary by device and search context.',
+									'vulopilot'
+								)}
+							/>
 
-					<CardComponent title={__('SEO Tips', 'vulopilot')}>
-						<ListComponent className="site-identity-tips-list" items={seoTipsItems} />
-					</CardComponent>
+							<CardComponent title={__('SEO Tips', 'vulopilot')}>
+								<ListComponent className="site-identity-tips-list" items={seoTipsItems} />
+							</CardComponent>
+						</>
+					)}
 				</ColumnComponent>
 			</ContainerComponent>
 		</div>
