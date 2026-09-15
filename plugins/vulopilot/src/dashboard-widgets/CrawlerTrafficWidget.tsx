@@ -77,7 +77,6 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 				<>
 					<div className="desc">
 						{sprintf(
-							/* translators: %d is the number of AI crawler visits. */
 							__('%d visits, last 30 days', 'vulopilot'),
 							totalVisits
 						)}

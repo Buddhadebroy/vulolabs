@@ -167,7 +167,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			}
 		>
 			<div className="overall-score-wrapper">
-				<div className="overall-score-summary">
+				<div className="overall-score-summary chart">
 					<ChartComponent
 						type="ring"
 						isLoading={isLoading}
@@ -219,6 +219,21 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 							tags: (
 								<>
 									<TypographyComponent
+										variant="h5"
+										weight="bold"
+										color={ratingColorFor(row.score)}
+										className="seo-health-score-row-value"
+									>
+										{row.score}
+										<TypographyComponent
+											as="span"
+											variant="body-md"
+											className="seo-health-score-row-suffix"
+										>
+											/100
+										</TypographyComponent>
+									</TypographyComponent>
+									<TypographyComponent
 										as="span"
 										variant="body-md"
 										weight="bold"
@@ -233,21 +248,6 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 											}
 										/>
 										{Math.abs(row.delta)}
-									</TypographyComponent>
-									<TypographyComponent
-										variant="h5"
-										weight="bold"
-										color={ratingColorFor(row.score)}
-										className="seo-health-score-row-value"
-									>
-										{row.score}
-										<TypographyComponent
-											as="span"
-											variant="body-md"
-											className="seo-health-score-row-suffix"
-										>
-											/100
-										</TypographyComponent>
 									</TypographyComponent>
 								</>
 							),
