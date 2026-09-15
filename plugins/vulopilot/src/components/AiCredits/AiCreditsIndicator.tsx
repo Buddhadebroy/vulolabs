@@ -63,7 +63,7 @@ const AiCreditsIndicator = () => {
 
 			<PopupComponent
 				width={30}
-				height="60%"
+				height="fit-content"
 				open={isOpen}
 				onClose={() => setIsOpen(false)}
 			>
@@ -97,14 +97,34 @@ const AiCreditsBalancePanel = ({
 	onRefresh: () => void;
 }) => {
 	const exhausted = 0 === status.credits;
+	// Depletion meter — how much of what's ever been earned is still
+	// available, not how much has been used (an all-time-earned account
+	// with nothing spent yet reads as "full", same intuition as "remaining"
+	// being this panel's own headline number). Earned starts at 0 for a
+	// brand-new connection, so this guards the same divide-by-zero every
+	// other real percentage in this codebase already does.
+	const remainingPercent =
+		status.lifetime_earned > 0
+			? Math.min(100, Math.round((status.credits / status.lifetime_earned) * 100))
+			: 0;
 
 	return (
 		<div className="ai-credits-balance-panel">
+			<div className="ai-credits-balance-panel-icon">
+				<i className="adminfont-wallet" />
+			</div>
 			<div className="ai-credits-balance-panel-count">
 				{status.credits}
 			</div>
 			<div className="ai-credits-balance-panel-label">
 				{__('AI Credits remaining', 'vulopilot')}
+			</div>
+
+			<div className="ai-credits-balance-panel-progress">
+				<div
+					className="ai-credits-balance-panel-progress-fill"
+					style={{ width: `${remainingPercent}%` }}
+				/>
 			</div>
 			<div className="ai-credits-balance-panel-stats">
 				<span>
@@ -123,7 +143,7 @@ const AiCreditsBalancePanel = ({
 				</span>
 			</div>
 
-			{exhausted && (
+			{exhausted ? (
 				<NoticeComponent
 					displayPosition="inline-notice"
 					type="warning"
@@ -136,6 +156,26 @@ const AiCreditsBalancePanel = ({
 						'vulopilot'
 					)}
 				/>
+			) : (
+				<div className="ai-credits-balance-panel-tip">
+					<div className="ai-credits-balance-panel-tip-icon">
+						<i className="adminfont-ai" />
+					</div>
+					<div className="ai-credits-balance-panel-tip-text">
+						<div className="ai-credits-balance-panel-tip-title">
+							{__(
+								'Use AI credits to generate content, improve text, create titles, and more.',
+								'vulopilot'
+							)}
+						</div>
+						<div className="ai-credits-balance-panel-tip-desc">
+							{__(
+								'Get the most out of VuloPilot with AI.',
+								'vulopilot'
+							)}
+						</div>
+					</div>
+				</div>
 			)}
 
 			<div className="ai-credits-balance-panel-actions">
@@ -145,7 +185,9 @@ const AiCreditsBalancePanel = ({
 					target="_blank"
 					rel="noreferrer"
 				>
+					<i className="adminfont-cart" />
 					{__('Buy More Credits', 'vulopilot')}
+					<i className="adminfont-arrow-right" />
 				</a>
 				<a
 					className="ai-credits-balance-panel-secondary-link"
@@ -153,7 +195,9 @@ const AiCreditsBalancePanel = ({
 					target="_blank"
 					rel="noreferrer"
 				>
+					<i className="adminfont-pro-tag" />
 					{__('Explore VuloPilot Pro', 'vulopilot')}
+					<i className="adminfont-arrow-right" />
 				</a>
 			</div>
 
@@ -162,6 +206,7 @@ const AiCreditsBalancePanel = ({
 				className="ai-credits-balance-panel-refresh"
 				onClick={onRefresh}
 			>
+				<i className="adminfont-refresh" />
 				{__('Refresh balance', 'vulopilot')}
 			</button>
 		</div>
