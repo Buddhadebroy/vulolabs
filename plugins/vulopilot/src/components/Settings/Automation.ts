@@ -61,7 +61,7 @@ export default {
 		'Fine-tune how VuloPilot runs automated actions in the background.',
 		'vulopilot'
 	),
-	headerIcon: 'settings',
+	headerIcon: 'setting',
 	submitUrl: 'settings',
 	settingAction: createElement( EnableAutomationModuleAction ),
 	modal: [

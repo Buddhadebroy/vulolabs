@@ -179,7 +179,7 @@ const SeoSiteWideIssuesTable = ({
 					)}
 				/>
 				<ButtonInput
-					buttons={{ text: __('Retry', 'vulopilot'), icon: 'update', onClick: onRetry }}
+					buttons={{ text: __('Retry', 'vulopilot'), icon: 'refresh', onClick: onRetry }}
 				/>
 			</CardComponent>
 		);

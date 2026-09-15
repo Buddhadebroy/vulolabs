@@ -141,7 +141,7 @@ const GoogleServiceCard = ( {
 						onClick={ onToggleMenu }
 						aria-label={ __( 'More actions', 'vulopilot' ) }
 					>
-						<i className="adminfont-more" />
+						<i className="adminfont-more-vertical" />
 					</button>
 					{ isMenuOpen && (
 						<div className="gsc-service-menu-dropdown">
@@ -392,7 +392,7 @@ const GoogleServicesPanel = () => {
 						<ButtonInput
 							buttons={ {
 								text: isConnecting ? __( 'Redirecting…', 'vulopilot' ) : __( 'Connect Google Services', 'vulopilot' ),
-								icon: 'admin-links',
+								icon: 'link',
 								onClick: handleConnect,
 								disabled: isConnecting,
 							} }
@@ -483,7 +483,7 @@ const GoogleServicesPanel = () => {
 			</GoogleServiceCard>
 
 			<GoogleServiceCard
-				icon="chart-bar"
+				icon="bar-chart"
 				title={ __( 'Analytics', 'vulopilot' ) }
 				desc={ __( 'Track visitor behavior and understand how users engage with your site.', 'vulopilot' ) }
 				isConnected={ !! status.ga4_measurement_id }
@@ -597,7 +597,7 @@ const GoogleServicesPanel = () => {
 			</GoogleServiceCard>
 
 			<GoogleServiceCard
-				icon="money"
+				icon="dollar"
 				title={ __( 'AdSense', 'vulopilot' ) }
 				desc={ __( 'Connect your AdSense account inside VuloPilot.', 'vulopilot' ) }
 				isConnected={ !! status.adsense_account_name }

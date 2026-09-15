@@ -38,7 +38,7 @@ const TAB_META: Record<
 	// alongside Activity rather than merged into it — different source/
 	// shape (GET /history's 3-way scan+change+conversation join vs
 	// Activity's flat GET /activity-logs), per direct instruction.
-	history: { headerTitle: __('History', 'vulopilot'), headerIcon: 'history' },
+	history: { headerTitle: __('History', 'vulopilot'), headerIcon: 'clock' },
 };
 
 /**

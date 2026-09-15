@@ -240,11 +240,11 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 		return (
 			<CardComponent
 				title={__('Issue details', 'vulopilot')}
-				titleIcon="issue"
+				titleIcon="error"
 				desc={__('More detail on the issue you select from the table.', 'vulopilot')}
 			>
 				<ModuleGuardComponent
-					icon="issue"
+					icon="error"
 					title={__('Select an issue', 'vulopilot')}
 					desc={__(
 						'Choose a row from the table to see more detail here.',

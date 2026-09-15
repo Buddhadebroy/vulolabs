@@ -64,7 +64,7 @@ const ReportHistoryTable = () => {
 		<CardComponent
 			id="reports-history"
 			title={__('Report History', 'vulopilot')}
-			titleIcon="history"
+			titleIcon="clock"
 			desc={__('A complete log of all generated reports.', 'vulopilot')}
 		>
 			{error ? (

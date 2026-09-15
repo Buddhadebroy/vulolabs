@@ -151,7 +151,7 @@ const PageSpeedStatusPanel = () => {
 								wrapperClass="psi-test-connection-button"
 								buttons={{
 									text: isTesting ? __('Testing…', 'vulopilot') : __('Test Connection', 'vulopilot'),
-									icon: 'update',
+									icon: 'refresh',
 									disabled: isTesting,
 									onClick: testConnection,
 								}}

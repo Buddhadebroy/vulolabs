@@ -47,7 +47,7 @@ export default {
 		'Get notified immediately when critical issues are found on your website.',
 		'vulopilot'
 	),
-	headerIcon: 'warning',
+	headerIcon: 'error',
 	submitUrl: 'settings',
 	modal: [
 		{

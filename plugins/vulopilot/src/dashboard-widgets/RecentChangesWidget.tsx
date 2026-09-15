@@ -47,7 +47,7 @@ const RecentChangesWidget: React.FC<WidgetProps> = ({
 		<DashboardWidget
 			title={__('Recent Changes', 'vulopilot')}
 			desc={__('Changes your automations have made recently.', 'vulopilot')}
-			icon="update"
+			icon="refresh"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
@@ -62,7 +62,7 @@ const RecentChangesWidget: React.FC<WidgetProps> = ({
 				/>
 			) : data.length === 0 ? (
 				<ModuleGuardComponent
-					icon="update"
+					icon="refresh"
 					title={__('No AI changes yet', 'vulopilot')}
 					desc={__(
 						'Changes VuloPilot makes automatically will show up here.',

@@ -483,7 +483,7 @@ const BackupStoragePanel = () => {
 								text: isDisconnectingS3
 									? __('Disconnecting…', 'vulopilot')
 									: __('Disconnect', 'vulopilot'),
-								icon: 'disconnect',
+								icon: 'sign-out',
 								onClick: handleDisconnectS3,
 								disabled: isDisconnectingS3,
 							},
@@ -577,7 +577,7 @@ const BackupStoragePanel = () => {
 							text: isDisconnectingGoogleDrive
 								? __('Disconnecting…', 'vulopilot')
 								: __('Disconnect', 'vulopilot'),
-							icon: 'disconnect',
+							icon: 'sign-out',
 							onClick: handleDisconnectGoogleDrive,
 							disabled: isDisconnectingGoogleDrive,
 						},
@@ -610,7 +610,7 @@ const BackupStoragePanel = () => {
 								type: 'button',
 								label: '',
 								text: __('Connect Google Drive', 'vulopilot'),
-								icon: 'admin-links',
+								icon: 'link',
 								onClick: () => {
 									if (status.google_drive.authorize_url) {
 										window.location.href = status.google_drive.authorize_url;

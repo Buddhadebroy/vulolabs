@@ -84,7 +84,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 			<div className="automation-attention-list">
 				{failing.map((row) => (
 					<div className="automation-attention-row" key={row.id}>
-						<i className="adminfont-warning" />
+						<i className="adminfont-error" />
 						<div className="automation-attention-body">
 							<strong>
 								{sprintf(

@@ -576,7 +576,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
 																	className={
 																		selected
 																			? 'adminfont-check'
-																			: 'adminfont-update'
+																			: 'adminfont-refresh'
 																	}
 																/>
 																<span>
