@@ -1,3 +1,15 @@
+/**
+ * Shared `FindingGroup`/`Finding` types and helpers (`formatAffected()`,
+ * `issueIconFor()`, `CATEGORY_LABELS`, `CATEGORY_TABS`, …) behind every
+ * "Issues" table in this plugin — AI Copilot's own IssuesList.tsx
+ * (`pages/AIAssistant/`), GEO's several finding-group cards, Security's
+ * SectionedIssuesTable.tsx, and Commerce's CommerceIssuesTable.tsx all read
+ * from here. Moved out of `pages/AIAssistant/` into this shared
+ * `components/Issues/` folder alongside IssuesSummaryCards.tsx/
+ * IssueDetailPanel.tsx (its own real UI, same real reuse across those same
+ * pages) per direct instruction — this was never actually AI-Copilot-
+ * specific, just historically created there.
+ */
 export interface FindingSample {
 	id: number;
 	title: string;

@@ -60,7 +60,7 @@ const timeAgo = (dateString: string): string => {
 };
 
 interface RecentConversationsCardProps {
-	/** Called with a row's real `vulopilot_ai_conversations.id` when clicked — ChatTab.tsx's own onSelectConversation loads that thread's full history straight into the composer (useCopilotChat.ts's loadConversation()), no navigation involved since this card already lives on the same tab as the composer. */
+	/** Called with a row's real `vulopilot_ai_conversations.id` when clicked — AIAssistant.tsx's own handleSelectConversation() loads that thread's full history straight into the composer (useCopilotChat.ts's loadConversation()), no navigation involved since this card already lives on the same page as the composer. */
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onSelectConversation: (id: number) => void;
 }

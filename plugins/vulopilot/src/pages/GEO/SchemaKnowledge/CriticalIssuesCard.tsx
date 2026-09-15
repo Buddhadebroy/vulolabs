@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import { CardComponent, ColumnComponent, ModuleGuardComponent } from '@zyra/components';
-import type { FindingGroup } from '../../AIAssistant/issuesTypes';
+import type { FindingGroup } from '../../../components/Issues/issuesTypes';
 
 /** Same real 5 scanner ids IssuesSection.tsx's own SCHEMA_ISSUE_SCANNER_IDS already uses — one real fetch, scoped here to this card's own compact preview. */
 const SCHEMA_ISSUE_SCANNER_IDS = [

@@ -2,8 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import AiCopilotGuard from '../../components/AiCopilotGuard';
-import { formatAffected } from '../AIAssistant/issuesTypes';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import { formatAffected } from '../../components/Issues/issuesTypes';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
 
 const SEVERITY_RANK: Record<FindingGroup['severity'], number> = {
 	critical: 0,

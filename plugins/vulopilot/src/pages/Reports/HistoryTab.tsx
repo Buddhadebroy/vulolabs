@@ -20,7 +20,7 @@ import {
 	HistoryFilter,
 	HistoryRow,
 	rowTitle,
-} from '../AIAssistant/historyTypes';
+} from '../../services/historyTypes';
 // Reports' own page moved here from AI Copilot (History is a general
 // activity timeline, not specific to that page's own conversational
 // surface); the `.history-*`/`.filter-wrapper`/`.category-*` rules this

@@ -4,7 +4,7 @@ import type { MetricTileItem } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { sumGroupCounts } from './useGeoFindingGroups';
 import { countDistinctAffectedPages } from './useGeoTopicAffectedPages';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 
 interface GeoTopicDefinition extends FindingsSection {

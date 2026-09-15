@@ -5,7 +5,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { TabsComponent, CardComponent } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
-import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
+import IssuesSummaryCards, { Priority } from '../../components/Issues/IssuesSummaryCards';
 import {
 	FindingSeverity,
 	PRIORITY_SEVERITIES,

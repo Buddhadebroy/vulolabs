@@ -10,7 +10,7 @@ import {
 import { TableCard } from '@zyra/table';
 import { useFindingsTable } from '../../services/useFindingsTable';
 import ShowProPopup from '../../components/Popup/Popup';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import { sumGroupCounts } from './useWooCommerceFindingGroups';
 import {
 	PRODUCT_SCANNER_IDS,

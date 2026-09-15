@@ -4,10 +4,10 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
-import type { FindingGroup } from '../../AIAssistant/issuesTypes';
-import { CATEGORY_LABELS, formatAffected } from '../../AIAssistant/issuesTypes';
-import IssuesSummaryCards, { Priority } from '../../AIAssistant/IssuesSummaryCards';
-import IssueDetailPanel from '../../AIAssistant/IssueDetailPanel';
+import type { FindingGroup } from '../../../components/Issues/issuesTypes';
+import { CATEGORY_LABELS, formatAffected } from '../../../components/Issues/issuesTypes';
+import IssuesSummaryCards, { Priority } from '../../../components/Issues/IssuesSummaryCards';
+import IssueDetailPanel from '../../../components/Issues/IssueDetailPanel';
 
 /**
  * Real scanner ids behind every schema/entity-adjacent finding this

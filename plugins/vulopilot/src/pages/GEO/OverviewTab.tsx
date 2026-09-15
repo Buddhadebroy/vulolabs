@@ -16,8 +16,8 @@ import {
 import { ButtonInput, ToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
-import { toHistoryRow } from '../AIAssistant/historyTypes';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
+import { toHistoryRow } from '../../services/historyTypes';
 import HistoryTimeline from '../Reports/HistoryTimeline';
 import { useVisibilityScore } from './useVisibilityScore';
 import type { VisibilityScoreResponse } from './useVisibilityScore';
