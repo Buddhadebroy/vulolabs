@@ -25,7 +25,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 const PER_PAGE = 10;
 
-/** Real sum of `.count` across every group whose scanner_id is in `scannerIds` — same technique useWooCommerceFindingGroups.ts's own `sumGroupCounts()` already established. */
+/** Real sum of `.count` across every group whose scanner_id is in `scannerIds` — same technique Commerce/CommerceIssuesTable.tsx's own `sumGroupCounts()` already established. */
 const sumGroupCounts = (groups: FindingGroup[], scannerIds: string[]): number =>
 	groups
 		.filter((group) => scannerIds.includes(group.scanner_id))

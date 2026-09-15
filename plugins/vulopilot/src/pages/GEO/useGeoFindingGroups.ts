@@ -8,7 +8,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 /**
  * Shared `GET /findings/groups?category=geo` fetch — same "one real call,
  * reused by every card that needs a per-scanner-id breakdown" pattern
- * WooCommerce's own useWooCommerceFindingGroups.ts already establishes.
+ * vulopilot-pro's own (moved) Commerce/CommerceTab.tsx already establishes.
  * Used by GeoFixTheseFirstCard.tsx and GeoByTopicGrid.tsx so the GEO tab's
  * "Fix These First" and "A Closer Look, By Topic" sections don't each run
  * their own independent copy of the same fetch. 200 is comfortably above
@@ -37,7 +37,7 @@ export const useGeoFindingGroups = (): {
 	return { groups, isLoading };
 };
 
-/** Real sum of `.count` across every group whose scanner_id is in `scannerIds` — same technique useWooCommerceFindingGroups.ts's own `sumGroupCounts()` already establishes. */
+/** Real sum of `.count` across every group whose scanner_id is in `scannerIds` — same technique Commerce/CommerceIssuesTable.tsx's own `sumGroupCounts()` already establishes. */
 export const sumGroupCounts = (
 	groups: FindingGroup[],
 	scannerIds: string[]

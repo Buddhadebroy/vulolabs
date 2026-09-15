@@ -20,7 +20,7 @@ import RecentConversationsCard from './RecentConversationsCard';
 import RecommendedActionsCard from './RecommendedActionsCard';
 import IssuesList from './IssuesList';
 import AutomationTemplatesCard from '../Automations/AutomationsTemplatesCard';
-import { AutomationTemplate } from '../Automations/automationsTemplates';
+import { AutomationTemplate } from '../Automations/automationsTypes';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import {
 	useCopilotChat,

@@ -4,8 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { CardComponent, FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput } from '@zyra/inputs';
-import type { AutomationRow } from './automationRow';
-import './BuiltinAutomationCards.scss';
+import type { AutomationRow } from './automationsTypes';
 
 /** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants — the only trigger_type values this component ever renders a card for. */
 const FULL_SITE_SCAN_TRIGGER = 'free_full_site_scan';
@@ -34,7 +33,7 @@ const parseTriggerConfig = ( row: BuiltinRow ): BuiltinTriggerConfig => {
 	try {
 		const parsed = JSON.parse( row.trigger_config || '{}' );
 		return { frequency: 'disabled', ...parsed };
-	} catch ( error ) {
+	} catch {
 		return { frequency: 'disabled' };
 	}
 };

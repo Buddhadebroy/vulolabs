@@ -2648,3 +2648,131 @@
 	font-size: 0.875rem;
 	word-break: break-all;
 }
+
+// AuthorityTrendsDummy.tsx — the Pro-tag-gated stand-in for
+// vulopilot-pro's own BrandIntelligence AuthorityTrendsCard.tsx. The
+// plotted series is fabricated; `pointer-events: none` on the chart itself
+// so a click always reaches the wrapping `.brand-authority-trends-dummy`
+// overlay (the real click target), same convention Automations.scss's own
+// `.automations-manage-dummy-row` uses.
+.brand-authority-trends-dummy {
+	cursor: pointer;
+
+	.recharts-wrapper {
+		pointer-events: none;
+	}
+}
+
+// KnowledgePanelDummy.tsx — the Pro-tag-gated stand-in for
+// vulopilot-pro's own BrandIntelligence KnowledgePanelCard.tsx. Rows are
+// fabricated examples (same list-item shape as the real card's own
+// `.knowledge-panel-list*`, kept as a separate `brand-knowledge-panel-
+// dummy-*` set of classes here since that pro-only stylesheet never ships
+// in Free's bundle); the list is `pointer-events: none` so a click always
+// reaches the wrapping `.brand-knowledge-panel-dummy` overlay instead.
+.brand-knowledge-panel-dummy {
+	cursor: pointer;
+}
+
+.brand-knowledge-panel-dummy-list {
+	list-style: none;
+	margin: 0.75rem 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	pointer-events: none;
+}
+
+.brand-knowledge-panel-dummy-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.625rem 0.75rem;
+	border: $border-light-small;
+	border-radius: $border-radius-small;
+	background: $background-white;
+}
+
+.brand-knowledge-panel-dummy-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 50%;
+	background: color-mix(in srgb, #d97706 14%, transparent);
+	color: #d97706;
+
+	i {
+		font-size: 1rem;
+	}
+}
+
+.brand-knowledge-panel-dummy-title {
+	flex: 1;
+	min-width: 0;
+	font-weight: 600;
+	font-size: 0.8125rem;
+	color: $text-color;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// OffSiteMentionsDummy.tsx — the Pro-tag-gated stand-in for
+// vulopilot-pro's own BrandIntelligence OffSiteMentionsCard.tsx. Same
+// summary-stats-plus-list shape as the real card's own
+// `.brand-mentions-*` classes (that pro-only stylesheet never ships in
+// Free's bundle, so this is its own `brand-offsite-mentions-dummy-*` set);
+// the list is `pointer-events: none` so a click always reaches the
+// wrapping `.brand-offsite-mentions-dummy` overlay instead.
+.brand-offsite-mentions-dummy {
+	cursor: pointer;
+}
+
+.brand-offsite-mentions-dummy-summary {
+	display: flex;
+	gap: 2rem;
+	margin-bottom: 1rem;
+}
+
+.brand-offsite-mentions-dummy-stat {
+	display: flex;
+	flex-direction: column;
+}
+
+.brand-offsite-mentions-dummy-value {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: $text-color;
+}
+
+.brand-offsite-mentions-dummy-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	pointer-events: none;
+}
+
+.brand-offsite-mentions-dummy-item {
+	padding: 0.625rem 0;
+	border-top: $border-light-small;
+
+	&:first-child {
+		border-top: none;
+	}
+}
+
+.brand-offsite-mentions-dummy-title {
+	font-weight: 600;
+	font-size: 0.875rem;
+	color: $text-color;
+}
+
+.brand-offsite-mentions-dummy-meta {
+	margin-top: 0.125rem;
+}

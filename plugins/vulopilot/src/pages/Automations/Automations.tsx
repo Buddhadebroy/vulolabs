@@ -14,10 +14,8 @@ import AutomationsStatsRow from './AutomationsStatsRow';
 import AutomationsAttentionCard from './AutomationsAttentionCard';
 import AutomationsPeriodStatsCard from './AutomationsPeriodStatsCard';
 import BuiltinAutomationCards from './BuiltinAutomationCards';
-import AutomationsManageDummy from './AutomationsManageDummy';
-import AutomationsActivityDummy from './AutomationsActivityDummy';
-import { AutomationRow } from './automationRow';
-import { AutomationTemplate, getAutomationTemplateById } from './automationsTemplates';
+import { AutomationsManageDummy, AutomationsActivityDummy } from './AutomationsProDummies';
+import { AutomationRow, AutomationTemplate, getAutomationTemplateById } from './automationsTypes';
 import './Automations.scss';
 
 const AUTOMATIONS_MODULE_ID = 'automations';

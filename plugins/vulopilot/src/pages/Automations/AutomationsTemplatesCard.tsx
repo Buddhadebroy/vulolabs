@@ -1,9 +1,9 @@
 /* global appLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { BadgeComponent, CardComponent, ListComponent, PopupComponent } from '@zyra/components';
-import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
-import { getAutomationTemplates, AutomationTemplate } from './automationsTemplates';
+import { CardComponent, ListComponent, PopupComponent } from '@zyra/components';
+import ShowProPopup from '../../components/Popup/Popup';
+import { getAutomationTemplates, AutomationTemplate } from './automationsTypes';
 
 const AUTOMATIONS_MODULE_ID = 'automations';
 
@@ -55,12 +55,11 @@ interface AutomationsTemplatesCardProps {
  * provider): `appLocalizer.khali_dabba` (Pro plugin installed at all) is
  * checked first — not installed shows the generic "PRO" badge and opens
  * the plain `<ShowProPopup />` upgrade pitch; installed-but-this-module-off
- * is a DIFFERENT, second state — shows the real module's own name as the
- * badge (`resolveModuleDisplayName('automations')`, the exact same name
- * `<ShowProPopup moduleName="automations" />`'s own "Activate {name}"
- * heading uses) rather than a second, generic "PRO" tag that would read
- * the same for two genuinely different problems (no Pro vs. Pro-but-this-
- * one-module-off).
+ * is a DIFFERENT, second state — the popup that opens shows the real
+ * module's own name instead (`<ShowProPopup moduleName="automations" />`
+ * resolves and renders it internally, its own "Activate {name}" heading)
+ * rather than a second, generic "PRO" tag that would read the same for two
+ * genuinely different problems (no Pro vs. Pro-but-this-one-module-off).
  *
  * The 3 Pro rows' real recipe values (`category`/`triggerType`/
  * `actionTypes`) come from vulopilot-pro's own filter callback, not this
@@ -89,7 +88,6 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 	}, []);
 
 	const isProInstalled = Boolean(appLocalizer.khali_dabba);
-	const moduleDisplayName = resolveModuleDisplayName(AUTOMATIONS_MODULE_ID);
 
 	/**
 	 * Which lock a Pro row's click just hit — `null` means unlocked.

@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import type { AutomationRow } from './automationRow';
+import type { AutomationRow } from './automationsTypes';
 
 interface AutomationsAttentionCardProps {
 	onViewAll: () => void;
