@@ -1,7 +1,6 @@
 /* global appLocalizer */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	ContainerComponent,
 	NavigatorHeaderComponent,
@@ -9,27 +8,6 @@ import {
 } from '@zyra/components';
 import ChatTab from './ChatTab';
 import { IssuesFilter } from './NeedsAttentionCard';
-
-interface ConfiguredProviderRow {
-	is_active: boolean;
-	/**
-	 * Whether the stored credential can actually still be decrypted
-	 * (Controllers\AiProviders::prepare_config_for_response()) — `is_active`
-	 * alone isn't enough: a site that rotates its auth salts/keys after
-	 * a credential was saved leaves it undecryptable forever, and
-	 * ProviderRegistry::build_fallback_chain() (the real request path)
-	 * already skips exactly that case. Checking both here is what keeps
-	 * this badge from claiming "Online" while a real AI call would fail.
-	 */
-	credential_ok: boolean;
-}
-
-interface VuloCloudStatus {
-	/** Is this site connected to a VuloCloud account at all (a real site secret exists)? */
-	connected: boolean;
-	/** Does an Organization's own (or an allowed Customer backup) AI provider key actually resolve for this site right now? */
-	configured: boolean;
-}
 
 /**
  * "AI Copilot" — used to be a tab shell over Chat/History; History has
@@ -60,42 +38,15 @@ const AIAssistant = () => {
 	// scroll-into-view effect keys off this instead of `issuesFilter` so a
 	// same-value React state bailout doesn't silently swallow the scroll.
 	const [issuesNavToken, setIssuesNavToken] = useState(0);
-	// Real, not decorative — "Online" only means something once AI is
-	// actually usable one of two ways: a site connected to VuloCloud with a
-	// real provider key resolving (`vulocloud_status.connected &&
-	// .configured` — the only path a fresh site has, now that AI Providers
-	// no longer offers any local credential of its own, see
-	// AiProvidersPanel.tsx's own docblock), or a legacy local `configured`
-	// row (`is_active` AND `credential_ok` — same two things
-	// ProviderRegistry::build_fallback_chain() itself checks before trying
-	// a provider) surviving from before that change. `is_active` alone
-	// isn't enough: see ConfiguredProviderRow's own docblock on
-	// `credential_ok`. Starts `null` (unknown) rather than defaulting to
-	// either state, so there's a moment before the fetch resolves where no
-	// badge is shown instead of briefly claiming a status that hasn't been
-	// confirmed yet.
-	const [hasActiveAiProvider, setHasActiveAiProvider] = useState<
-		boolean | null
-	>(null);
-
-	useEffect(() => {
-		getApiResponse<{
-			configured?: ConfiguredProviderRow[];
-			vulocloud_status?: VuloCloudStatus;
-		}>(
-			getApiLink(appLocalizer, 'ai-providers'),
-			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-		).then((response) => {
-			const vulocloudReady = Boolean(
-				response?.vulocloud_status?.connected && response?.vulocloud_status?.configured
-			);
-			const legacyProviderReady = (response?.configured ?? []).some(
-				(row) => row.is_active && row.credential_ok
-			);
-
-			setHasActiveAiProvider(vulocloudReady || legacyProviderReady);
-		});
-	}, []);
+	// Real, not decorative — "Online" means this WP admin has a personal
+	// VuloCloud account connected (`appLocalizer.vulocloud_connected`,
+	// localized by VuloCloudAccountConnection::get_status() via
+	// FrontendScripts.php — the same flag the header's "Connect VuloCloud"
+	// surfaces read elsewhere), not whether any particular AI provider key
+	// currently resolves. Already known at mount (server-localized), so no
+	// fetch/loading state is needed the way the old ai-providers-based
+	// check required.
+	const vulocloudConnected = Boolean(appLocalizer.vulocloud_connected);
 
 	/**
 	 * The Issues table lives inline on Chat (appended below the composer)
@@ -138,19 +89,15 @@ const AIAssistant = () => {
 				)}
 				showPremiumLink={false}
 				badges={[
-					...(null === hasActiveAiProvider
-						? []
-						: [
-								hasActiveAiProvider
-									? {
-											text: `● ${__('Online', 'vulopilot')}`,
-											color: 'green',
-										}
-									: {
-											text: `● ${__('Offline', 'vulopilot')}`,
-											color: 'red',
-										},
-							]),
+					vulocloudConnected
+						? {
+								text: `● ${__('Online', 'vulopilot')}`,
+								color: 'green',
+							}
+						: {
+								text: `● ${__('Offline', 'vulopilot')}`,
+								color: 'red',
+							},
 				]}
 			/>
 			<ContainerComponent general>

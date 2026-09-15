@@ -56,7 +56,7 @@ interface ProfileRow {
  * - Business name: always "high" — Services\EntityExtractor::extract_organizations()
  *   always returns a real value (the site's own title, at minimum).
  * - Business type: "high" once set — a real, owner-typed value (Settings →
- *   Scanning → AI Visibility), never guessed.
+ *   Site Identity → Business Information), never guessed.
  * - People: "medium" — real, but auto-detected from post authorship, not
  *   an explicit "these are our team" declaration.
  * - Services/Locations: "high" once set — real, owner-curated lists

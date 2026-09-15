@@ -6,9 +6,13 @@ import { __ } from '@wordpress/i18n';
  * — `brand_about_page_min_words`, read by this module's own
  * AboutPageAnalysisScanner. `flag_missing_schema` (read by this module's
  * OrganizationSchemaScanner too) already lives under Scanning → SEO and
- * isn't duplicated here; `geo_competitor_urls` (read by vulopilot-pro's
- * BrandCompetitorAnalyzer) already lives under Scanning → GEO. The alert
- * threshold for Brand Score drops follows Scanning → GEO's own
+ * isn't duplicated here. `geo_competitor_urls` (read by vulopilot-pro's
+ * BrandIntelligence\BrandCompetitorAnalyzer, ContentIntelligence\
+ * ContentGapAnalyzer, and GeoInsights\CompetitorVisibilityAnalyzer) used
+ * to live under Scanning → AI Visibility — moved here, right below
+ * "Tracked competitors," per direct instruction; see that field's own
+ * docblock below for why its `moduleEnabled` gate didn't move to match.
+ * The alert threshold for Brand Score drops follows Scanning → GEO's own
  * `geo_drop_threshold` placement convention below.
  */
 export default {
@@ -36,49 +40,31 @@ export default {
 	),
 		},
 		{
-			// `title` (the competitor's own real name/brand, editable
-			// inline via `editableFields`) plus a real `url` field per
-			// competitor (`addNewTemplate.formFields`, the same
-			// declarative-field escape hatch BackupStoragePanel.tsx's own
-			// `ExpandablePanelInput` methods use for their own per-method
-			// fields — confirmed by reading the installed zyra bundle:
-			// `buildMethodFromTemplate()` seeds `init[field.key] = ''` for
-			// every `formFields` entry, and each renders through the same
-			// field-type registry every other `modal` field here does, so
-			// `type: 'text'` is a real, editable text input, not a
-			// label-only display) — per direct instruction ("pass the url
-			// also not only title"). Not yet read by any real PHP consumer
-			// (unlike Scanning → AI Visibility's own `geo_competitor_urls`,
-			// which vulopilot-pro's BrandCompetitorAnalyzer/
-			// ContentGapAnalyzer/CompetitorVisibilityAnalyzer already read)
-			// — BrandCompetitorAnalyzer's own docblock explicitly flags
-			// needing "each competitor's own real brand name as a search
-			// term, not just their URL" as a distinct, still-open gap for
-			// real off-site Share of Voice tracking; this field now
-			// captures exactly that pairing (name + URL) so a future pass
-			// can wire it in, without duplicating `geo_competitor_urls`'s
-			// own bare-URL shape.
-			key: 'tracked_competitors',
-			type: 'expandable-panel',
-			className: 'full-width',
-			label: __('', 'vulopilot'),
-			addNewBtn: true,
-			addNewTemplate: {
-				label: 'New competitors',
-				editableFields: {
-					title: true,
-					description: false,
-				},
-				formFields: [
-					{
-						key: 'url',
-						type: 'text',
-						label: __('Competitor URL', 'vulopilot'),
-						placeholder: 'https://example.com/',
-					},
-				],
-				disableBtn: false,
-			}
+			// Moved here from Settings → Scanning → AI Visibility
+			// (`geo_competitor_urls`, same key, same real backend — this is
+			// a pure UI relocation) per direct instruction. Still gated
+			// `moduleEnabled: 'geo'` (the free, always-active GEO module,
+			// not a Pro one) rather than `brand-intelligence` — this field
+			// is shared by three different Pro modules'
+			// analyzers (BrandIntelligence\BrandCompetitorAnalyzer,
+			// ContentIntelligence\ContentGapAnalyzer, GeoInsights\
+			// CompetitorVisibilityAnalyzer, per this file's own top
+			// docblock), so gating it to just one of them would be wrong.
+			//
+			// The name+URL `tracked_competitors` `ExpandablePanelInput`
+			// that used to sit here (right below the "Tracked competitors"
+			// section header, above this field) was removed entirely per a
+			// later, separate direct instruction — it was never read by
+			// any real PHP consumer (see this file's own git history), so
+			// this bare-URL field is now the section's only real setting.
+			key: 'geo_competitor_urls',
+			type: 'textarea',
+			label: __('Competitor URLs', 'vulopilot'),
+			settingDescription: __(
+				'One competitor URL per line. Powers the GEO page\'s Competitor Visibility comparison (VuloPilot Pro).',
+				'vulopilot'
+			),
+			moduleEnabled: 'geo',
 		},
 		{
 			key: 'brand-section-about-page',

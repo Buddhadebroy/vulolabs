@@ -28,7 +28,9 @@ defined( 'ABSPATH' ) || exit;
  * - Products: real WooCommerce products, same `class_exists('WooCommerce')`
  *   + `wc_get_products()` guard every other Free WooCommerce scanner uses.
  * - Services/Locations: real data the site owner explicitly provides via
- *   two new settings (Scanning → Entity Extraction) — this codebase has no
+ *   two new settings (Settings → Site Identity → Business Information,
+ *   moved there from Scanning → AI Visibility per direct instruction) —
+ *   this codebase has no
  *   existing Service/LocalBusiness concept to derive these from
  *   automatically (confirmed absent everywhere), so rather than fabricate
  *   a data source that doesn't exist, these two types are owner-curated
@@ -587,8 +589,8 @@ class EntityExtractor {
     }
 
     /**
-     * Owner-curated, newline-separated page URLs/ids (Scanning → Entity
-     * Extraction's `entity_service_pages` setting) — each resolved to a
+     * Owner-curated, newline-separated page URLs/ids (Site Identity →
+     * Business Information's `entity_service_pages` setting) — each resolved to a
      * real published page; anything that doesn't resolve is silently
      * skipped rather than fabricated as an entity.
      *
@@ -631,8 +633,8 @@ class EntityExtractor {
     }
 
     /**
-     * Owner-curated, newline-separated `Name | Address` lines (Scanning →
-     * Entity Extraction's `entity_business_locations` setting) — real data
+     * Owner-curated, newline-separated `Name | Address` lines (Site
+     * Identity → Business Information's `entity_business_locations` setting) — real data
      * the site owner provides, since no LocalBusiness address/geo field is
      * ever written anywhere in this codebase to derive it from
      * automatically.

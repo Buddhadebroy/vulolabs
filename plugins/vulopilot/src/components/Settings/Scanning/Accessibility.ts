@@ -33,8 +33,8 @@ import AccessibilityRestoreDefaultsHeader from './AccessibilityRestoreDefaultsHe
  *   out in its own settingDescription below.
  *
  * "Restore Defaults" is AccessibilityRestoreDefaultsHeader.tsx, wired via
- * this config's own `settingAction` (same migration ContentSearch.ts/
- * AiVisibility.ts/Security.ts already went through — rendered by
+ * this config's own `settingAction` (same migration AiVisibility.ts/
+ * Security.ts already went through — rendered by
  * NavigatorComponent.tsx's renderSettingHeaderInfo(), not Settings.tsx's
  * own currentTab special-case anymore).
  */

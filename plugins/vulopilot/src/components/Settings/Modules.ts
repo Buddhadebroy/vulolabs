@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
  * NavigatorComponent reads these to list the tab and route to it, but
  * Settings.tsx's GetForm() special-cases `currentTab === 'modules'` to
  * render ModulesPanel.tsx instead of InputRenderer (the same escape hatch
- * 'ai-providers'/'indexnow'/'google-services' already use), so `modal`
+ * 'connections'/'indexnow' already use), so `modal`
  * below is never read. Module enable/disable state isn't a field in this
  * plugin's flat settings option row either — it's its own dedicated
  * endpoint (Controllers\Settings::set_modules()/get_modules()), which is

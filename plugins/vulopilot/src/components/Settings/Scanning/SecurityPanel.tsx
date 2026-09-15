@@ -4,7 +4,8 @@ import { getApiLink, sendApiResponse, useModules } from '@zyra/core';
 import {
 	ExpandablePanelInput,
 	SelectInput,
-	SectionComponent
+	SectionComponent,
+	SettingRowComponent
 } from '@zyra/inputs';
 import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent } from '@zyra/components';
 import { useSetting } from '../../../contexts/SettingContext';
@@ -231,18 +232,19 @@ const isChecked = (value: unknown): boolean => Array.isArray(value) && value.len
  * `PanelComponent`) — every field it renders is a genuinely real,
  * already-working setting with its own real PHP consumer; this is a pure
  * UI reshape into the mockup's card style, not new backend work. Three
- * groups, each its own `ExpandablePanelInput` (the same real zyra
- * component Scanning/ContentSearch.ts's own `content_search_scans` field
- * and Scanning/AiVisibility.ts's own `ai_visibility_scans` field already
- * use for visually identical card lists):
+ * groups:
  *
- * - "Security scans" — the mockup's own 5 cards, unchanged since the
- *   previous pass (see this file's own git history / SecurityScansPanel.tsx,
- *   which this file replaces).
- * - "Protection" — login protection and the request firewall, each now a
- *   card whose own nested settings (lockout threshold/window, active
- *   blocking) expand via the card's own real chevron/"Settings" control,
- *   instead of always-visible flat fields.
+ * - "Security scans" — a real zyra `SettingRowComponent` checkbox list
+ *   (per direct instruction, "make this like Notifications → Security
+ *   Alerts' own checkbox rows, not Active/Inactive + a "..." menu" — see
+ *   `buildScanRows()`'s own docblock below), not `ExpandablePanelInput`.
+ *   None of these 5 rows has any nested/expandable settings of its own,
+ *   so a plain checkbox per row is a strict simplification, not a loss
+ *   of any real control.
+ * - "Protection" — login protection and the request firewall, still each
+ *   an `ExpandablePanelInput` card whose own nested settings (lockout
+ *   threshold/window, active blocking) expand via the card's own real
+ *   chevron/"Settings" control, instead of always-visible flat fields.
  * - "Security Monitoring" (Pro) — alerts and file-integrity monitoring,
  *   same card treatment; `security_scan_frequency` is left as a plain
  *   select (hand-rendered below, not a card) since it isn't boolean-shaped
@@ -251,20 +253,20 @@ const isChecked = (value: unknown): boolean => Array.isArray(value) && value.len
  *   own `enable` toggle would either duplicate that meaning or invent a
  *   setting that doesn't exist.
  *
- * Unlike `ExpandablePanelInput`'s usual declarative usage (one field key
- * → one nested settings object), every row here is wired by hand
- * (`useSetting()` directly) because these are independent flat settings,
- * not one nested object — see Security.ts's own docblock for why they
- * aren't migrated into a nested shape.
+ * Unlike `ExpandablePanelInput`'s/`SettingRowComponent`'s own usual
+ * declarative usage (one field key → one nested settings object or one
+ * shared array), every row on this tab is wired by hand (`useSetting()`
+ * directly via `handleChange`) because these are independent flat
+ * settings, not one nested object or array — see Security.ts's own
+ * docblock for why they aren't migrated into a nested shape.
  *
- * Every Pro row (`pro: true`) reproduces InputRenderer's own
- * `moduleEnabled` lock treatment by hand — a lock badge appended to the
- * row's own `desc` (real HTML, the same `dangerouslySetInnerHTML`-backed
- * desc every row already supports) when vulopilot-pro's Security
- * Monitoring module isn't active, and `handleChange` silently ignores a
- * toggle/edit on that row in that case rather than writing a setting
- * nothing will ever read — `ExpandablePanelInput` has no per-row Pro gate
- * of its own the way InputRenderer's top-level fields do.
+ * Every Pro row (`pro: true`, currently just "User exposure") is locked
+ * by hand when vulopilot-pro's Security Monitoring module isn't active —
+ * its checkbox renders `disabled` (`buildScanRows()`) and `handleChange`
+ * silently ignores a toggle/edit on that row in that case rather than
+ * writing a setting nothing will ever read — neither `ExpandablePanelInput`
+ * nor `SettingRowComponent` has a per-row Pro gate of its own the way
+ * InputRenderer's top-level fields do.
  */
 const SecurityPanel = () => {
 	const { setting, updateSetting } = useSetting();
@@ -292,6 +294,46 @@ const SecurityPanel = () => {
 				options: field.options,
 			})),
 		}));
+
+	// "Security scans" own rows — per direct instruction ("shift the active
+	// deactive to checkbox use our zyra components"), styled like
+	// Notifications/SecurityAlerts.ts's own "Notify me about" list
+	// (zyra's real `SettingRowComponent`, `control: { checkbox: true }`)
+	// instead of `ExpandablePanelInput`'s Active/Inactive badge + "..."
+	// menu. Unlike that list — one flat array setting, each row a member
+	// of it — these 5 rows are independent flat booleans
+	// (`enable_weak_password_scanner` etc., same shape `isChecked()`
+	// already reads), so `resolveControl()`'s own array-membership
+	// checkbox logic doesn't apply here; passing a real `<input>` element
+	// as `control` bypasses that resolution entirely (SettingRowComponent's
+	// own `resolveControl()` returns a valid React element as-is), reusing
+	// the exact same `setting-row-checkbox` markup/CSS class that built-in
+	// path renders, wired to `handleChange` (below) instead — same
+	// save/patch/Pro-gating logic every other row on this tab already
+	// goes through, just a different control element. Protection/Security
+	// Monitoring stay `ExpandablePanelInput` cards — unlike Security
+	// scans, every one of those rows has its own real expandable
+	// `fields` (lockout thresholds, active blocking, alert email/severity,
+	// file limit), which a plain checkbox list can't show.
+	const buildScanRows = () =>
+		SCAN_ROWS.map((row) => {
+			const locked = Boolean(row.pro) && !hasSecurityMonitoring;
+			return {
+				valueKey: row.id,
+				icon: row.icon,
+				title: row.label,
+				desc: row.desc,
+				control: (
+					<input
+						type="checkbox"
+						className="setting-row-checkbox"
+						checked={isChecked(setting[row.flatKey])}
+						disabled={locked}
+						onChange={(e) => handleChange({ [row.id]: { enable: e.target.checked } })}
+					/>
+				),
+			};
+		});
 
 	const buildValue = (rows: Row[]) =>
 		Object.fromEntries(
@@ -350,13 +392,7 @@ const SecurityPanel = () => {
 				<div className="settings-right-section">
 					<FormGroupWrapperComponent>
 						<FormGroupComponent>
-							<ExpandablePanelInput
-								name="security_scans_cards"
-								methods={buildMethods(SCAN_ROWS)}
-								value={buildValue(SCAN_ROWS)}
-								onChange={handleChange}
-								canAccess
-							/>
+							<SettingRowComponent rows={buildScanRows()} />
 						</FormGroupComponent>
 						<FormGroupComponent className="full-width" label="">
 							<NoticeComponent

@@ -12,7 +12,6 @@ import getTemplateData from '../../services/templateService';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
-import PageSpeedStatusPanel from '../../components/Settings/GetStarted/PageSpeedStatusPanel';
 import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
@@ -90,13 +89,31 @@ const Settings = () => {
 			(field: { key: string }) => field.key
 		);
 
-		if (currentTab && settingName !== currentTab) {
-			const tabFields: Record<string, unknown> = {};
-			fieldKeys.forEach((key) => {
-				tabFields[key] = settingsRef.current[key];
-			});
-			setSetting(currentTab, tabFields);
-		}
+		// Was a synchronous `setSetting()` call made straight in the render
+		// body — React flags that as "Cannot update a component while
+		// rendering a different component" (confirmed live, every tab
+		// switch) since it's a real setState-during-render of a DIFFERENT
+		// component's context (SettingProvider) triggered from inside
+		// NavigatorComponent's (zyra) own render. Usually tolerated by
+		// React's batching, but not guaranteed — real, unhurried click
+		// timing (unlike a fast synthetic click) can let a stale render
+		// win, which is the likely cause of a reported bug where a module
+		// card's settings-gear link stopped navigating after an earlier
+		// tab switch. Moved into an effect, keyed on the same
+		// `currentTab`/`settingName` mismatch, so it only ever runs as a
+		// committed update, never mid-render. The existing `settingName
+		// === currentTab ? … : 'Loading…'` branch further down already
+		// treats this one-render gap as an expected, handled state.
+		useEffect(() => {
+			if (currentTab && settingName !== currentTab) {
+				const tabFields: Record<string, unknown> = {};
+				fieldKeys.forEach((key) => {
+					tabFields[key] = settingsRef.current[key];
+				});
+				setSetting(currentTab, tabFields);
+			}
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, [currentTab, settingName]);
 
 		useEffect(() => {
 			if (currentTab && settingName === currentTab) {
@@ -134,9 +151,9 @@ const Settings = () => {
 		}
 
 		// Generic version of the three escape hatches above — GetStarted/
-		// AiProviders.ts and GetStarted/GoogleServices.ts (real OAuth/
-		// credential flows, same reasoning as 'indexnow' above) carry
-		// their own `PanelComponent` this way instead of a hardcoded
+		// Connections.ts (real OAuth/credential flows, same reasoning as
+		// 'indexnow' above) carries its own `PanelComponent` this way
+		// instead of a hardcoded
 		// `currentTab === '...'` case, the same mechanism vulopilot-pro's
 		// Licensing tab already relies on since it's registered into
 		// settingsArray via the `vulopilot_settings_context` filter
@@ -156,7 +173,6 @@ const Settings = () => {
 			<>
 				{settingName === currentTab ? (
 					<>
-						{'pagespeed-insights' === currentTab && <PageSpeedStatusPanel />}
 						{/* `settingModal` is `getSettingById(settingsArray, currentTab)`
 						 * (line ~93) — real `null` for a `currentTab` that doesn't
 						 * match any entry in `settingsArray` (a stale/unknown

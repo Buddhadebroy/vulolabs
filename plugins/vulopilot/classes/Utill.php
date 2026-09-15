@@ -409,6 +409,40 @@ class Utill {
         // count instead of a hardcoded constant.
         'thin_content_word_threshold'           => 300,
         'flag_missing_featured_image'           => array( 'flag_missing_featured_image' ),
+        // Moved back OUT of the nested `content_search_scans.seo` row (see
+        // that setting's own docblock below) and into flat, standalone
+        // keys — same shape as flag_orphan_pages/flag_missing_featured_image
+        // right above — per direct instruction to relocate these two
+        // toggles' own UI from Scanning → Content & Search's "SEO checks"
+        // card into Scanning → SEO & Content's "Titles & meta" section
+        // (SeoContent.ts), which only ever renders flat top-level fields,
+        // not `content_search_scans`' nested-by-id shape. Read directly by
+        // MetaDescriptionScanner/DuplicateContentScanner now — no longer
+        // ANDed with `content_search_scans.seo.enable` (the "SEO checks"
+        // card's own master switch stays behind in Content & Search and no
+        // longer covers these two; SeoScanner/HeadingStructureScanner,
+        // which have no granular flag of their own, are still the only
+        // scanners that master switch gates).
+        'flag_missing_meta_description'         => array( 'flag_missing_meta_description' ),
+        'flag_duplicate_titles'                  => array( 'flag_duplicate_titles' ),
+        // Same "moved back out to a flat key" story as the two directly
+        // above, for the 'images' row's own two granular flags —
+        // Scanners\Basic\ImagesScanner/BrokenImagesScanner now read these
+        // directly; Scanning → SEO & Content's own "Images" section
+        // (SeoContent.ts) is where they live now, not Content & Search's
+        // "Image checks" card (`content_search_scans.images.enable` there
+        // stays LargeImagesScanner's own master switch only).
+        'flag_missing_alt_text'                  => array( 'flag_missing_alt_text' ),
+        'flag_broken_images'                     => array( 'flag_broken_images' ),
+        // Same "moved back out to a flat key" story again, for the
+        // 'links' row's own one granular flag — Scanners\Basic\
+        // BrokenLinksScanner now reads this directly; Scanning → SEO &
+        // Content's own "Links & schema" section (SeoContent.ts) is where
+        // it lives now, not Content & Search's "Broken link checks" card
+        // (`content_search_scans.links.enable` there stays
+        // RedirectAnalysisScanner/NotFoundScanner's own master switch
+        // only).
+        'flag_broken_links'                      => array( 'flag_broken_links' ),
         // Scanning > Content & Search — Settings → Scanning →
         // "Content & Search" tab's own 5 toggle-card rows (seo/images/
         // links/schema/readability), same nested-object-keyed-by-id shape
@@ -425,21 +459,23 @@ class Utill {
         // on/off setting of their own at all), layered on top of the
         // pre-existing granular flags (now nested) rather than replacing
         // them, so a scanner with its own flag only runs when BOTH its
-        // row's `enable` and that flag are true.
+        // row's `enable` and that flag are true. `missing_meta_description`/
+        // `duplicate_titles` themselves moved back out to their own flat
+        // keys above — the 'seo' row below now only carries its own
+        // `enable` master switch, same shape the 'schema' row already had
+        // (no formFields of its own). `missing_alt_text`/`broken_images`
+        // made the same trip back out to their own flat keys below, per a
+        // later, separate direct instruction — the 'images' row now only
+        // carries its own `enable` master switch too.
         'content_search_scans'                  => array(
             'seo'         => array(
                 'enable'                   => true,
-                'missing_meta_description' => true,
-                'duplicate_titles'         => true,
             ),
             'images'      => array(
                 'enable'           => true,
-                'missing_alt_text' => true,
-                'broken_images'    => true,
             ),
             'links'       => array(
                 'enable'       => true,
-                'broken_links' => true,
             ),
             // Covers both SchemaScanner (presence) and
             // StructuredDataValidationScanner (validity) — the mockup
@@ -450,12 +486,19 @@ class Utill {
             ),
             'readability' => array(
                 'enable'    => true,
-                // 50 is the Flesch Reading Ease scale's own published
-                // "Fairly Difficult" boundary, not an arbitrary
-                // VuloPilot-specific number.
-                'min_score' => 50,
             ),
         ),
+        // Same "moved back out to a flat key" story again, for the
+        // 'readability' row's own one granular field — this time a
+        // number, not a boolean, but the same relocation: Scanners\Basic\
+        // ReadabilityScanner now reads this directly; a new "Readability"
+        // section on Scanning → SEO & Content (SeoContent.ts) is where it
+        // lives now, not Content & Search's "Readability" card
+        // (`content_search_scans.readability.enable` there stays that
+        // scanner's own master switch). 50 is the Flesch Reading Ease
+        // scale's own published "Fairly Difficult" boundary, not an
+        // arbitrary VuloPilot-specific number.
+        'content_readability_min_score'         => 50,
         // Read by Scanners\Basic\BrokenLinksScanner to self-rate-limit —
         // 'daily'/'weekly', since this codebase's scan scheduling is one
         // global cadence (`scan_frequency` above), not a per-scanner cron;
@@ -706,9 +749,11 @@ class Utill {
         // new opt-in alerts, so "on" is the non-surprising default that
         // changes no existing install's findings.
         'ai_visibility_scans'                   => array(
-            // Read by Scanners\Basic\GeoSemanticStructureScanner — its own
-            // on/off switch, same granular-toggle posture the other 4
-            // rows below share.
+            // Read by Scanners\Basic\GeoSemanticStructureScanner. Its own
+            // "AI-readable structure" row on the AI Visibility settings
+            // panel was removed per direct instruction — always `true` now
+            // with no UI control left to turn it off, so the scanner just
+            // always runs (Free and Pro alike).
             'structure'    => array(
                 'enable' => true,
             ),
@@ -769,17 +814,6 @@ class Utill {
         // substantive rather than a placeholder, not a claim about ideal
         // About-page length.
         'brand_about_page_min_words'            => 80,
-        // Scanning > Brand Intelligence's own "Tracked competitors" —
-        // real zyra `expandable-panel` field (BrandIntelligence.ts), same
-        // `{ [methodId]: { title, url, ... } }` value shape
-        // 'crawler_alerts' above already establishes for this field type,
-        // just user-added (via "+ Add New") rather than a fixed set of
-        // rows, so it starts genuinely empty rather than pre-seeded. Not
-        // yet read by any PHP consumer — see that field's own docblock for
-        // the real gap (off-site Share of Voice tracking needing each
-        // competitor's own name, not just Scanning → AI Visibility's
-        // separate `geo_competitor_urls`) this captures data toward.
-        'tracked_competitors'                   => array(),
         // AI Crawler Traffic Monitoring.
         'enable_crawler_tracking'               => array( 'enable_crawler_tracking' ),
         // Read by Services\CrawlerTrafficLogger::run_cleanup() as the base

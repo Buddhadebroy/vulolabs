@@ -12,7 +12,10 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * Notifications/VisibilityAlerts.ts's own `visibility_alerts` field
  * already uses for its 3 rows — each row a real, honest scan-category
  * toggle, followed by the tab's pre-existing fields appended below
- * (Competitor URLs, llms.txt, entity Services/Locations, Crawler Traffic).
+ * (llms.txt, Crawler Traffic — "Competitor URLs" and "Business"/
+ * "Services"/"Locations" used to live here too, moved out to Settings →
+ * Scanning → Brand Intelligence and Settings → Site Identity → Business
+ * Information respectively, both per direct instruction).
  *
  * Real backend: 7 previously-flat settings (`flag_missing_semantic`,
  * `flag_weak_entity`, `minimum_entity_mentions`, `flag_missing_ai_summary`,
@@ -21,7 +24,12 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * (Utill::VULOPILOT_SETTINGS_DEFAULTS's own docblock has the full
  * migration list) — each row's `enable` is a REAL on/off switch its own
  * PHP scanner now checks:
- *   - 'structure'    → Scanners\Basic\GeoSemanticStructureScanner
+ *   - 'structure'    → Scanners\Basic\GeoSemanticStructureScanner — row
+ *     removed from this panel per direct instruction ("remove this
+ *     settings ... default active"); `ai_visibility_scans.structure.enable`
+ *     itself is untouched in Utill::VULOPILOT_SETTINGS_DEFAULTS (still
+ *     `true`), so with no UI control left to turn it off, the scanner now
+ *     just always runs, in both Free and Pro.
  *   - 'entity'       → GeoAnalysis\GeoAnalyzer (entity_coverage AI dimension)
  *   - 'freshness'    → vulopilot-pro's GeoInsights\Scanners\StaleContentScanner
  *     (a genuinely NEW gate — this scanner always ran before)
@@ -36,9 +44,8 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * reset (`POST /settings/reset-ai-visibility-scans`), not a UI-only
  * component field, since it needs to persist server-side and refresh
  * SettingContext in place. Set as this tab's own top-level `settingAction`
- * (per direct instruction, same as ContentSearch.ts's own "Restore
- * Defaults" and AiCrawlerAlerts.ts's own "Send Test Alert" — see either
- * file's own docblock), not Settings.tsx's GetForm() special-casing this
+ * (per direct instruction, same as AiCrawlerAlerts.ts's own "Send Test
+ * Alert" — see that file's own docblock), not Settings.tsx's GetForm() special-casing this
  * tab id anymore: `settingAction` is NavigatorComponent.tsx's own per-tab
  * header action slot (`renderSettingHeaderInfo()`'s `<SectionComponent
  * rightContent={activeFile.settingAction} />`, rendered once above every
@@ -74,18 +81,6 @@ export default {
 			className: 'full-width',
 			row: false,
 			modal: [
-				{
-					id: 'structure',
-					icon: 'editor-list blue',
-					label: __('AI-readable structure', 'vulopilot'),
-					desc: __(
-						'Check if your pages use clear structure that AI systems can easily read and understand.',
-						'vulopilot'
-					),
-					disableBtn: true,
-					statusLabels: STATUS_LABELS,
-					formFields: [],
-				},
 				{
 					id: 'entity',
 					icon: 'centralized-connections yellow',
@@ -190,16 +185,10 @@ export default {
 				'vulopilot'
 			),
 		},
-		{
-			key: 'geo_competitor_urls',
-			type: 'textarea',
-			label: __('Competitor URLs', 'vulopilot'),
-			settingDescription: __(
-				'One competitor URL per line. Powers the GEO page\'s Competitor Visibility comparison (VuloPilot Pro).',
-				'vulopilot'
-			),
-			moduleEnabled: 'geo',
-		},
+		// "Competitor URLs" (`geo_competitor_urls`) moved out to Settings →
+		// Scanning → Brand Intelligence, right below "Tracked competitors"
+		// per direct instruction — see BrandIntelligence.ts's own
+		// docblock.
 		{
 			key: 'aeo-section-llms-txt',
 			type: 'section',
@@ -273,89 +262,12 @@ export default {
 			),
 			moduleEnabled: 'geo',
 		},
-		{
-			// Business Identity & Schema's own "Business Profile" card
-			// (BusinessProfileCard.tsx) shows this back as-is under
-			// "Business type" — real, owner-provided, same "no existing
-			// concept to derive this automatically, so it's an
-			// owner-curated field, empty (not fabricated) until set"
-			// posture Services\EntityExtractor's own docblock already
-			// establishes for `entity_service_pages`/`entity_business_locations`
-			// below. A free-text field, not a fixed schema.org @type
-			// picker — this only ever reaches the client as plain display
-			// text (`Controllers\EntityExtraction::get_items()`), it
-			// isn't written into any real Organization/LocalBusiness
-			// JSON-LD anywhere in this codebase.
-			key: 'entity-section-business',
-			type: 'section',
-			icon: 'category',
-			title: __('Business', 'vulopilot'),
-			desc: __(
-				'What kind of business this is — shown on the Business Profile card, not written into any structured data.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity_business_type',
-			type: 'text',
-			label: __('Business type', 'vulopilot'),
-			settingDescription: __(
-				'e.g. Software Company, Online Store, Consulting Agency.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity-section-services',
-			type: 'section',
-			icon: 'link',
-			title: __('Services', 'vulopilot'),
-			desc: __(
-				'One published page per line — a URL or a numeric page ID. Pages that don\'t resolve are skipped.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity_service_pages',
-			type: 'textarea',
-			label: __('Service pages', 'vulopilot'),
-			settingDescription: __(
-				'e.g. https://example.com/consulting/ or just the page ID.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity-section-locations',
-			type: 'section',
-			icon: 'location',
-			title: __('Locations', 'vulopilot'),
-			desc: __(
-				'One location per line, as "Name | Address".',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity_business_locations',
-			type: 'textarea',
-			label: __('Business locations', 'vulopilot'),
-			settingDescription: __(
-				'e.g. Downtown Store | 123 Main St, Springfield.',
-				'vulopilot'
-			),
-		},
-		{
-			// Not a real, independently-writable field here — see this
-			// file's own `aeo-drop-threshold-note` above for the full
-			// reasoning; same treatment, scoped to `visibility_alerts.kg`
-			// instead of `.geo`.
-			key: 'kg-health-drop-threshold-note',
-			type: 'notice',
-			noticeType: 'info',
-			label: '',
-			message: __(
-				'Knowledge Graph Health drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
-				'vulopilot'
-			),
-		},
+		// "Business"/"Services"/"Locations" (entity_business_type/
+		// entity_service_pages/entity_business_locations, plus the
+		// Knowledge Graph Health drop-threshold notice that followed them)
+		// moved out to Settings → Site Identity → Business Information per
+		// direct instruction — see SiteIdentity/BusinessInformation.ts's
+		// own docblock.
 		{
 			key: 'crawler-traffic',
 			type: 'section',

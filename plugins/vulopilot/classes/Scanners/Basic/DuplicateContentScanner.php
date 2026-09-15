@@ -67,7 +67,11 @@ class DuplicateContentScanner extends AbstractBasicScanner {
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['content_search_scans']['seo']['enable'] ) || empty( $settings['content_search_scans']['seo']['duplicate_titles'] ) ) {
+        // Flat, standalone key — Settings → Scanning → SEO & Content →
+        // "Titles & meta" (SeoContent.ts). See Utill::VULOPILOT_SETTINGS_DEFAULTS's
+        // own docblock on this key for why it's no longer nested under
+        // content_search_scans.seo.
+        if ( empty( $settings['flag_duplicate_titles'] ) ) {
             return array();
         }
 

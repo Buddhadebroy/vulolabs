@@ -85,15 +85,22 @@ const DEFAULT_DUMMY_CONTENT = (
  *    popup (`ShowProPopup`, no `moduleName`) Settings' own locked Pro
  *    fields already use.
  * 3. **Module** (`moduleId` missing from `appLocalizer.active_modules`) —
- *    same `dummyContent` + whole-section-clickable treatment as Pro above,
- *    but the tag shows that module's own real display name (looked up
- *    from Modules/index.ts's own catalog, the same data Settings →
- *    Modules itself renders from); clicking opens `ShowProPopup` with
- *    `moduleName` set, which points an already-Pro user at "Activate
- *    {name}" instead of re-pitching an upgrade they already have — same
- *    branch ProLockedCard.tsx already relies on. Pass `null` as `moduleId`
- *    to skip this check for a section with no module dependency of its
- *    own. `isModuleActive` is an escape hatch for a caller whose own real
+ *    same `dummyContent` treatment as Pro above, but the tag shows that
+ *    module's own real display name (looked up from Modules/index.ts's own
+ *    catalog, the same data Settings → Modules itself renders from).
+ *    Clicking, per direct instruction ("when click on module tag then
+ *    redirect to modules and highlight the module"), skips the popup step
+ *    entirely and navigates straight to `?page=vulopilot#&tab=settings&
+ *    subtab=modules&module=<id>` — the exact same URL shape Popup.tsx's own
+ *    "Enable Now" button already used, which zyra's compiled
+ *    `ModuleGridComponent` already knows how to consume on its own (reads
+ *    that `module` hash param, `document.getElementById(moduleId)` — every
+ *    card already renders with `id={module.id}` — then scrolls to and
+ *    highlights it; confirmed via the compiled bundle, no zyra-side change
+ *    needed). Pro/VuloCloud above still open the popup, since neither has a
+ *    real module card to jump to. Pass `null` as `moduleId` to skip this
+ *    check for a section with no module dependency of its own.
+ *    `isModuleActive` is an escape hatch for a caller whose own real
  *    "active" check isn't a single module id lookup — e.g.
  *    AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx are unlocked by
  *    *either* of two real modules (`geo-insights` OR `aeo-insights`, both
@@ -101,8 +108,8 @@ const DEFAULT_DUMMY_CONTENT = (
  *    `isCitationCheckActive()`), so they pass that already-correct boolean
  *    straight through instead of this hook re-deriving a single-id check
  *    that would only ever look at one of the two and get it wrong for the
- *    other. `moduleId` is still used for the tag's own display name/popup
- *    target either way.
+ *    other. `moduleId` is still used for the tag's own display name/
+ *    redirect target either way.
  */
 export const useContentGate = (
 	moduleId: string | null,
@@ -132,10 +139,21 @@ export const useContentGate = (
 				? 'module'
 				: null;
 
+	// Module: no popup step — straight to Settings → Modules, highlighted.
+	// Pro/VuloCloud: still open the popup (upgrade pitch / connect flow),
+	// same as before. See this hook's own docblock, gate 3.
+	const handleActivate = () => {
+		if ('module' === gateReason && moduleId) {
+			window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=${moduleId}`;
+			return;
+		}
+		setIsPopupOpen(true);
+	};
+
 	const handleSectionKeyDown = (event: KeyboardEvent) => {
 		if ('Enter' === event.key || ' ' === event.key) {
 			event.preventDefault();
-			setIsPopupOpen(true);
+			handleActivate();
 		}
 	};
 
@@ -194,8 +212,10 @@ export const useContentGate = (
 					dummyContent
 				)}
 				{/* Covers the whole section (tag + dummy/blurred content) so
-				 * a click anywhere within it opens the popup — not just on
-				 * the tag itself. */}
+				 * a click anywhere within it activates — not just on the tag
+				 * itself. VuloCloud/Pro open the popup; Module navigates
+				 * straight to Settings → Modules, highlighted (handleActivate
+				 * above). */}
 				<div
 					className="content-gate-click-overlay"
 					role="button"
@@ -211,9 +231,11 @@ export const useContentGate = (
 										MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
 									)
 					}
-					onClick={() => setIsPopupOpen(true)}
+					onClick={handleActivate}
 					onKeyDown={handleSectionKeyDown}
 				/>
+				{/* Only 'vulocloud'/'pro' ever set isPopupOpen now — 'module'
+				 * navigates directly instead (handleActivate above). */}
 				<PopupComponent
 					open={isPopupOpen}
 					onClose={() => setIsPopupOpen(false)}
@@ -221,13 +243,7 @@ export const useContentGate = (
 					height="auto"
 					position="lightbox"
 				>
-					{isVuloCloud ? (
-						<ConnectVuloCloudPromptContent />
-					) : 'pro' === gateReason ? (
-						<ShowProPopup />
-					) : (
-						<ShowProPopup moduleName={moduleId ?? ''} />
-					)}
+					{isVuloCloud ? <ConnectVuloCloudPromptContent /> : <ShowProPopup />}
 				</PopupComponent>
 			</div>
 		);

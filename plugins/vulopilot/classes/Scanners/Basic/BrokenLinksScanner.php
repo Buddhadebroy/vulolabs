@@ -108,7 +108,11 @@ class BrokenLinksScanner extends AbstractBasicScanner implements TracksScannedOb
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['content_search_scans']['links']['enable'] ) || empty( $settings['content_search_scans']['links']['broken_links'] ) ) {
+        // Flat, standalone key — Settings → Scanning → SEO & Content →
+        // "Links & schema" (SeoContent.ts). See Utill::VULOPILOT_SETTINGS_DEFAULTS's
+        // own docblock on this key for why it's no longer nested under
+        // content_search_scans.links.
+        if ( empty( $settings['flag_broken_links'] ) ) {
             return array();
         }
 

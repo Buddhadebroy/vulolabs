@@ -1,25 +1,50 @@
 import { __ } from '@wordpress/i18n';
 
 /**
+ * Settings → Scanning → SEO & Content — first tab under Scanning (see
+ * `priority: 0` below) per direct instruction, now that the sibling
+ * "Content & Search" tab (id `content-search`, ContentSearch.ts) has been
+ * removed entirely, also per direct instruction. That tab used to hold a
+ * `content_search_scans` nested-setting panel (5 scan-category rows:
+ * seo/images/links/schema/readability); over several direct instructions
+ * every one of its real per-check settings (`flag_missing_meta_description`/
+ * `flag_duplicate_titles`, `flag_missing_alt_text`/`flag_broken_images`,
+ * `flag_broken_links`, `content_readability_min_score`) was moved out into
+ * this tab as flat standalone keys, leaving only each row's own bare
+ * `enable` master switch behind — with no settings left of its own to
+ * show, that tab (and its "Restore Defaults" header,
+ * ContentSearchScansHeader.tsx, also deleted) was removed outright rather
+ * than kept around empty.
+ *
+ * `content_search_scans.{seo,images,links,schema,readability}.enable`
+ * (Utill::VULOPILOT_SETTINGS_DEFAULTS) are themselves still real and still
+ * read by their own PHP scanners — SeoScanner/HeadingStructureScanner,
+ * LargeImagesScanner, RedirectAnalysisScanner/NotFoundScanner,
+ * SchemaScanner/StructuredDataValidationScanner, ReadabilityScanner's own
+ * on/off switch respectively — just with no admin UI left to toggle them
+ * (they stay at their own `true` default). `broken_link_check_frequency`/
+ * `broken_image_check_frequency` are the same story, flat settings with
+ * no UI of their own, read directly by BrokenLinksScanner/
+ * BrokenImagesScanner as a rate-limit, not an on/off switch.
+ *
  * Granular, per-check toggles replacing the old whole-category
  * `enable_seo_scanning` switch — same "no blanket kill switch, only
  * granular ones" posture Scanning → GEO already uses. Each checkbox's
  * option key/value is the field's own settings key (not a shared
  * 'enabled' literal), matching every other settings tab in this plugin.
  *
- * `flag_missing_meta_description`/`flag_duplicate_titles`,
- * `flag_missing_alt_text`, `flag_broken_links`/`broken_link_check_frequency`/
- * `flag_broken_images`/`broken_image_check_frequency`, `flag_missing_schema`,
- * and `content_readability_min_score` moved out — into their own
- * Settings → Scanning → "Content & Search" tab (`content_search_scans`
- * nested setting, ContentSearch.ts) — not duplicated. See that file's own
- * docblock.
- *
  * Real backing per card:
  * - Titles & meta / Images: `flag_orphan_pages`/`thin_content_word_threshold`
- *   gate ThinContentScanner/OrphanPageScanner (not one of Content &
- *   Search's own 5 cards); `flag_missing_featured_image` gates
- *   SeoImagesScanner.
+ *   gate ThinContentScanner/OrphanPageScanner; `flag_missing_meta_description`
+ *   gates MetaDescriptionScanner, `flag_duplicate_titles` gates
+ *   DuplicateContentScanner; `flag_missing_alt_text` gates ImagesScanner,
+ *   `flag_broken_images` gates BrokenImagesScanner; `flag_missing_featured_image`
+ *   gates SeoImagesScanner.
+ * - Links & schema: `flag_broken_links` gates BrokenLinksScanner.
+ * - Readability: `content_readability_min_score` gates ReadabilityScanner's
+ *   own threshold (that scanner's separate on/off switch,
+ *   `content_search_scans.readability.enable`, has no admin UI of its own
+ *   any more — see this file's own top docblock).
  * - Robots.txt: a real toggle over WordPress core's own virtual
  *   robots.txt (via Services\RobotsTxtManager) — not a from-scratch
  *   generator, plus `flag_ai_crawler_blocked_pages`
@@ -49,7 +74,10 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'seo-content',
-	priority: 2,
+	// First tab under Scanning per direct instruction, now that Content &
+	// Search (previously priority 0) was removed entirely and this tab
+	// absorbed its real settings.
+	priority: 0,
 	headerTitle: __('SEO & Content', 'vulopilot'),
 	settingTitle: __('Titles & meta', 'vulopilot'),
 	headerDescription: __(
@@ -93,6 +121,31 @@ export default {
 			),
 		},
 		{
+			key: 'flag_missing_meta_description',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Flag missing meta descriptions', 'vulopilot'),
+			settingDescription: __('Pages and posts with no meta description set.', 'vulopilot'),
+			options: [
+				{ key: 'flag_missing_meta_description', label: '', value: 'flag_missing_meta_description' },
+			],
+		},
+		{
+			key: 'flag_duplicate_titles',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Flag duplicate title tags', 'vulopilot'),
+			settingDescription: __(
+				'Two or more published pages sharing the exact same title.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'flag_duplicate_titles', label: '', value: 'flag_duplicate_titles' },
+			],
+		},
+		{
 			key: 'seo-section-images',
 			type: 'section',
 			icon: 'image',
@@ -101,6 +154,31 @@ export default {
 				'Controls the "Images" findings group on the SEO page.',
 				'vulopilot'
 			),
+		},
+		{
+			key: 'flag_missing_alt_text',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Flag missing alt text', 'vulopilot'),
+			settingDescription: __('Content images with no alt attribute.', 'vulopilot'),
+			options: [
+				{ key: 'flag_missing_alt_text', label: '', value: 'flag_missing_alt_text' },
+			],
+		},
+		{
+			key: 'flag_broken_images',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Flag broken images', 'vulopilot'),
+			settingDescription: __(
+				'Image tags pointing to a source URL that returns a broken (non-2xx/3xx) response.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'flag_broken_images', label: '', value: 'flag_broken_images' },
+			],
 		},
 		{
 			key: 'flag_missing_featured_image',
@@ -126,9 +204,23 @@ export default {
 			icon: 'link',
 			title: __('Links & schema', 'vulopilot'),
 			desc: __(
-				'Controls the "Links & Indexability" findings group. Broken links/images and structured data moved to Settings → Scanning → Content & Search.',
+				'Controls the "Links & Indexability" findings group.',
 				'vulopilot'
 			),
+		},
+		{
+			key: 'flag_broken_links',
+			type: 'checkbox',
+			look: 'toggle',
+
+			label: __('Flag broken internal links', 'vulopilot'),
+			settingDescription: __(
+				'Internal links pointing to a 404 or removed page.',
+				'vulopilot'
+			),
+			options: [
+				{ key: 'flag_broken_links', label: '', value: 'flag_broken_links' },
+			],
 		},
 		{
 			key: 'canonical_url_enabled',
@@ -269,8 +361,26 @@ export default {
 		// 	type: 'section',
 		// 	title: __('Content Intelligence', 'vulopilot'),
 		// },
-		// Readability moved to Settings → Scanning → Content & Search
-		// (content_search_scans.readability — ContentSearch.ts).
+		{
+			key: 'seo-section-readability',
+			type: 'section',
+			icon: 'text',
+			title: __('Readability', 'vulopilot'),
+			desc: __(
+				"Analyze content readability to ensure it's easy for your visitors to read and understand.",
+				'vulopilot'
+			),
+		},
+		{
+			key: 'content_readability_min_score',
+			type: 'number',
+			size: 5,
+			label: __('Minimum readability score', 'vulopilot'),
+			settingDescription: __(
+				'Posts scoring below this on the Flesch Reading Ease scale (0-100, higher is easier to read) are flagged. 50 is that scale\'s own "Fairly Difficult" boundary.',
+				'vulopilot'
+			),
+		},
 		// {
 		// 	key: 'sitemap-section',
 		// 	type: 'section',
