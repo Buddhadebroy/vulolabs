@@ -133,6 +133,7 @@ class SiteTelemetryReporter {
 	 * @return array<string, mixed>
 	 */
 	private function build_payload(): array {
+		global $wpdb;
 		$theme = wp_get_theme();
 
 		return array(
@@ -152,6 +153,60 @@ class SiteTelemetryReporter {
 			'Theme'          => $theme->get( 'Name' ),
 			'Theme Version'  => $theme->get( 'Version' ),
 			'Platform'       => 'WordPress',
+			// $wpdb->db_version() is the server's raw MySQL/MariaDB protocol
+			// version (e.g. "5.7.44-log") — real and always available,
+			// unlike Commerce/LMS Platform below.
+			'Database'       => $wpdb->db_version(),
+			// Core since WP 5.5 ('production' unless the host/wp-config.php
+			// explicitly sets WP_ENVIRONMENT_TYPE otherwise) — real, not a
+			// guess, so worth sending even though most sites report the
+			// same default value.
+			'Environment'    => wp_get_environment_type(),
+			'Hosting Type'   => $this->detect_hosting_type(),
+			// Commerce/LMS Platform, Framework Version and Site Type are
+			// deliberately omitted — this plugin has no generic, honest way
+			// to determine "does this site run a commerce/LMS platform" or
+			// "what's its cart-framework version" (that was MultiVendorX's
+			// own tracker reporting on itself, not something a generic
+			// tracker for a security/management plugin can infer). Sending
+			// a guess here would be worse than leaving the console's own
+			// "—" placeholder. Country is likewise left for the VuloCloud
+			// side to resolve from the request's own IP at ingest time,
+			// not something this site can determine about itself.
 		);
+	}
+
+	/**
+	 * Best-effort recognition of a handful of hosts that identify
+	 * themselves via a well-known constant/function in wp-config.php or
+	 * an mu-plugin — never a network call, and '' (shown as "—") rather
+	 * than a guess when none match, same honesty posture the rest of this
+	 * payload follows.
+	 *
+	 * @return string
+	 */
+	private function detect_hosting_type(): string {
+		if ( defined( 'WPE_APIKEY' ) ) {
+			return 'WP Engine';
+		}
+		if ( defined( 'KINSTAMYSQLTUNNEL' ) || function_exists( 'kinsta_cache_purge' ) ) {
+			return 'Kinsta';
+		}
+		if ( defined( 'PANTHEON_ENVIRONMENT' ) ) {
+			return 'Pantheon';
+		}
+		if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+			return 'Pressable';
+		}
+		if ( defined( 'FLYWHEEL_CONFIG_DIR' ) ) {
+			return 'Flywheel';
+		}
+		if ( defined( 'GD_SYSTEM_PLUGIN_DIR' ) ) {
+			return 'GoDaddy';
+		}
+		if ( defined( 'WPCOMSH__FILE__' ) ) {
+			return 'WordPress.com';
+		}
+		return '';
 	}
 }
