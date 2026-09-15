@@ -9,7 +9,7 @@ import {
 	rowTag,
 	rowTime,
 	rowTitle,
-} from '../AIAssistant/historyTypes';
+} from '../../services/historyTypes';
 
 interface HistoryTimelineProps {
 	rows: HistoryRow[];

@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE } from '@zyra/core';
 import { CardComponent, ChartComponent, IconComponent, ListComponent, MetricTileComponent, TypographyComponent } from '@zyra/components';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import type { TrendChange } from './GeoTrendCompactCard';
 
 /**

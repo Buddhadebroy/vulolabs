@@ -16,7 +16,7 @@ import {
 	IconComponent
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import { useSeoScore, SeoScoreResponse } from './useSeoScore';
 import { useSeoProgress } from './useSeoProgress';
 import { useRunScan } from '../../services/useRunScan';

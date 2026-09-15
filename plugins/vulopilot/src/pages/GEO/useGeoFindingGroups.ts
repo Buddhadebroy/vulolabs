@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 

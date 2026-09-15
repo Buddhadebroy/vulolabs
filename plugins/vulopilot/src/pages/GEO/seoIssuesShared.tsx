@@ -26,7 +26,7 @@ const MAX_FINDINGS = 1000;
 
 export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
-export type { Priority } from '../AIAssistant/IssuesSummaryCards';
+export type { Priority } from '../../components/Issues/IssuesSummaryCards';
 
 /** Same 3-tier critical→high/info→low fold `SectionedIssuesTable.tsx`'s own local copy (Security/Accessibility/WooCommerce's shared issues table) and Findings.php's own `PRIORITY_SEVERITY_RANKS` use — kept here too so `IssuesSection.tsx`'s own priority stat cards (reusing `IssuesSummaryCards.tsx` as-is, per direct instruction to match that same real filter bar) and its two tables filter findings the exact same way that component already does. */
 export const PRIORITY_SEVERITIES: Record<'high' | 'medium' | 'low', FindingSeverity[]> = {

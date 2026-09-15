@@ -13,10 +13,10 @@ import {
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import { ButtonInput } from '@zyra/inputs';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
-import { CATEGORY_LABELS, formatAffected, issueIconFor } from '../AIAssistant/issuesTypes';
-import IssuesSummaryCards, { Priority } from '../AIAssistant/IssuesSummaryCards';
-import IssueDetailPanel from '../AIAssistant/IssueDetailPanel';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
+import { CATEGORY_LABELS, formatAffected, issueIconFor } from '../../components/Issues/issuesTypes';
+import IssuesSummaryCards, { Priority } from '../../components/Issues/IssuesSummaryCards';
+import IssueDetailPanel from '../../components/Issues/IssueDetailPanel';
 import ProLockedCard from '../../components/ProLockedCard';
 import type { FindingsSection } from './SectionedFindingsTab';
 import './ProtectMySite.scss';

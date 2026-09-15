@@ -1,12 +1,11 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
+import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	BadgeComponent,
 	ModuleGuardComponent,
-	ChartComponent,
 	TypographyComponent,
 	IconComponent,
 	AnalyticsComponent,
@@ -14,7 +13,7 @@ import {
 	SectionComponent
 } from '@zyra/components';
 import type { NoticeType } from '@zyra/components';
-import { SelectInput, ButtonInput } from '@zyra/inputs';
+import { SelectInput } from '@zyra/inputs';
 import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
 
 interface ContentOption {
@@ -54,37 +53,6 @@ const getScoreTone = (percent: number): ScoreTone => {
 		return 'orange';
 	}
 	return 'red';
-};
-
-// Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — same colors
-// NeedsAttentionCard.tsx's own ring uses for this exact tone split.
-const TONE_COLOR: Record<ScoreTone, string> = {
-	green: COLOR_PALETTE.green,
-	orange: COLOR_PALETTE.orange,
-	red: COLOR_PALETTE.red,
-};
-
-/** A smiley reads fine for "Fairly Easy"/"Very Easy" — misleading for a genuinely poor score, so the red band gets an alert icon instead rather than always smiling at bad news. */
-const TONE_BADGE_ICON: Record<ScoreTone, string> = {
-	green: 'smile-o',
-	orange: 'smile-o',
-	red: 'error',
-};
-
-/** One real sentence per band, about the one real per-post signal this banner actually plots (readability) — not a fabricated second "overall" metric, see the ring's own comment below. */
-const QUALITY_BAND_DESCRIPTION: Record<ScoreTone, string> = {
-	green: __(
-		'Your content reads well and is easy to follow — nice work.',
-		'vulopilot'
-	),
-	orange: __(
-		'Your content is decent, with a few issues to fix for better SEO performance and readability.',
-		'vulopilot'
-	),
-	red: __(
-		'Your content needs work — readability and on-page checks both need attention.',
-		'vulopilot'
-	),
 };
 
 /** Real `OnPageCheck.status` → NoticeComponent's own `NoticeType` — `warning` maps to `'warning'` itself rather than the `'info'` workaround this used before NoticeComponent took over rendering the icon/color (NoticeComponent.scss already ships real `type-warning` coloring; only the bare, uncomposed `icon: 'warning'` this card built by hand was ever missing a real glyph — moot now that NoticeComponent owns the icon). */

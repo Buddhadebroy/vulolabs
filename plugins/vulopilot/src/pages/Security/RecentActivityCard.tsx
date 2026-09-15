@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
-import { toHistoryRow } from '../AIAssistant/historyTypes';
+import { toHistoryRow } from '../../services/historyTypes';
 import HistoryTimeline from '../Reports/HistoryTimeline';
 
 interface ActivityLogRow {

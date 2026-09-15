@@ -23,7 +23,7 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
-import type { FindingGroup } from '../AIAssistant/issuesTypes';
+import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import type { CrawlerAnalytics } from './useCrawlerAnalytics';
 import { formatWpDate } from '../../services/formatWpDate';
 

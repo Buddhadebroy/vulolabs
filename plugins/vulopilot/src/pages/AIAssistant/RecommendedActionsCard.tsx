@@ -7,7 +7,7 @@ import { PopupComponent, CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
-import { formatAffected } from './issuesTypes';
+import { formatAffected } from '../../components/Issues/issuesTypes';
 import { IssuesFilter } from './NeedsAttentionCard';
 import './AICopilot.scss';
 

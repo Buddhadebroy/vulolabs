@@ -425,10 +425,12 @@ class Copilot extends \WP_REST_Controller {
     /**
      * `GET /copilot/conversations` — RecentConversationsCard.tsx's own list
      * of this admin's most recent real conversation threads.
-     * RecentConversationsSection.tsx's inline variant passes
-     * `?with_excerpt=1` for the same rows plus a real one-line excerpt (see
-     * AiConversationRepository::get_recent_with_excerpt()'s own docblock
-     * for why that's a separate repository method, not the default here).
+     * `?with_excerpt=1` returns the same rows plus a real one-line excerpt
+     * (AiConversationRepository::get_recent_with_excerpt()) — was read by
+     * an inline "Recent conversations" section on AI Copilot's Chat tab,
+     * removed as dead code (never actually rendered); left here rather
+     * than removed too, since it's a real, harmless, independently useful
+     * response shape a future caller could still opt into.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response

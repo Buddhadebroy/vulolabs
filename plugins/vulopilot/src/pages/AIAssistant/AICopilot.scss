@@ -27,7 +27,7 @@
 	vertical-align: middle;
 }
 
-// ChatTab.tsx's own "Chat with VuloPilot" card — the icon-badge title
+// AIAssistant.tsx's own "Chat with VuloPilot" card — the icon-badge title
 // treatment and pill-shaped/chevron chip-grid are now shared by every
 // ChatComposerCard (`.ai-card` in ChatComposerCard.scss); only this one
 // Copilot-specific whitespace tweak stays local.
@@ -35,7 +35,7 @@
 	white-space: nowrap;
 }
 
-// ChatTab.tsx's own "Issues" section heading, above the Issues table now
+// AIAssistant.tsx's own "Issues" section heading, above the Issues table now
 // appended inline below the composer (former standalone "Issues" nav tab).
 .ai-copilot-inline-section-heading {
 	display: flex;
@@ -727,7 +727,7 @@
 	white-space: nowrap;
 }
 
-// ChatTab.tsx's "Thinking…" bubble, shown while a real POST /copilot/chat
+// AIAssistant.tsx's "Thinking…" bubble, shown while a real POST /copilot/chat
 // request is in flight.
 .chat-thinking-spinner {
 	display: inline-block;
@@ -740,7 +740,7 @@
 	}
 }
 
-// The composer's real "Attach"/"Add context" picks (ChatTab.tsx) — a chip
+// The composer's real "Attach"/"Add context" picks (AIAssistant.tsx) — a chip
 // row above ChatInput, and the two toggleable picker panels
 // (file upload / finding-group+automation list) that fill it.
 .chat-composer-chips {
@@ -771,7 +771,7 @@
 	}
 }
 
-// A sent user turn's own attachments (ChatTab.tsx's renderTurn) — shown
+// A sent user turn's own attachments (AIAssistant.tsx's renderTurn) — shown
 // inside the chat bubble itself, since the composer's own chip row
 // (.chat-composer-chips above) clears on send and would otherwise be the
 // only record that anything was attached at all.
@@ -841,7 +841,7 @@
 // CopilotTurnBubble.tsx's real "View/Edit …" link, shown when a chat
 // message actually created and saved a new post (generate-blog/
 // generate-landing-page/generate-product-description) — shared by every
-// real `CopilotTurnBubble` consumer (ChatTab.tsx, GEO's own composer,
+// real `CopilotTurnBubble` consumer (AIAssistant.tsx, GEO's own composer,
 // AiContentAssistantSidebar.tsx), so this is the only place these rules
 // need to live.
 .copilot-created-link {
@@ -879,7 +879,7 @@
 }
 
 // Recent Conversations now renders as a narrow sidebar next to the composer
-// (ChatTab.tsx), not the wide row it used to be — zyra's default
+// (AIAssistant.tsx), not the wide row it used to be — zyra's default
 // `.mini-card.report .item .tags` is `position: absolute` (fine on a wide
 // row, where it has room to sit at the far right of a single-line title),
 // which instead overlaps a wrapped 2-line title once the column is this

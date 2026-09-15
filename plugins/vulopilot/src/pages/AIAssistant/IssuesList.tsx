@@ -5,8 +5,8 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import './AICopilot.scss';
-import IssuesSummaryCards, { Priority } from './IssuesSummaryCards';
-import IssueDetailPanel from './IssueDetailPanel';
+import IssuesSummaryCards, { Priority } from '../../components/Issues/IssuesSummaryCards';
+import IssueDetailPanel from '../../components/Issues/IssueDetailPanel';
 import {
 	CATEGORY_LABELS,
 	CATEGORY_TABS,
@@ -14,8 +14,7 @@ import {
 	findTabIdForCategory,
 	formatAffected,
 	issueIconFor,
-} from './issuesTypes';
-import { COLOR_PANEL } from 'recharts/types/util/Constants';
+} from '../../components/Issues/issuesTypes';
 
 interface GroupsResponse {
 	data: FindingGroup[];
@@ -206,7 +205,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 	return (
 		<>
-			{/* Real scroll target for ChatTab.tsx's own "View all issues"/
+			{/* Real scroll target for AIAssistant.tsx's own "View all issues"/
 			group-row clicks (NeedsAttentionCard.tsx →
 			`scrollToId('ai-copilot-issues-section')`) — kept INSIDE this
 			grid={8} column rather than as a wrapping element around both of
@@ -218,12 +217,12 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			docblock). */}
 			<ColumnComponent grid={8}>
 				<div id="ai-copilot-issues-section">
-					{/* <IssuesSummaryCards
+					<IssuesSummaryCards
 						priorityCounts={priorityCounts}
 						isLoading={isLoading}
 						activePriority={activePriority}
 						onSelectPriority={handlePriorityChange}
-					/> */}
+					/>
 
 					{!isLoading && data.length === 0 ? (
 						<ModuleGuardComponent

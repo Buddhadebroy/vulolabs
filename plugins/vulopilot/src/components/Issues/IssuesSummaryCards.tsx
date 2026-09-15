@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ColumnComponent, AnalyticsComponent } from '@zyra/components';
+import { AnalyticsComponent } from '@zyra/components';
 
 // `'all'` no longer has its own tile (removed) — it's kept as a real
 // state value only, meaning "no priority filter selected" (the initial

@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { toHistoryRow } from '../AIAssistant/historyTypes';
+import { toHistoryRow } from '../../services/historyTypes';
 import HistoryTimeline from '../Reports/HistoryTimeline';
 
 interface AutomationRunRow {

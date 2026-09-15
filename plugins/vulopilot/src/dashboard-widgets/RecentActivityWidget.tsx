@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useApiList } from '../services/useApiList';
-import { toHistoryRow } from '../pages/AIAssistant/historyTypes';
+import { toHistoryRow } from '../services/historyTypes';
 import HistoryTimeline from '../pages/Reports/HistoryTimeline';
 import DashboardWidget from './DashboardWidget';
 import { WidgetProps } from './types';

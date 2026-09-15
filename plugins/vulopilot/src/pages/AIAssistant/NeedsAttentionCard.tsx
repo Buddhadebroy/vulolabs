@@ -119,11 +119,11 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 
 	useEffect(load, []);
 
-	// The Issues table is inline on the Chat tab now (appended below the
+	// The Issues table is inline on the page now (appended below the
 	// composer), not a separate 'issues' nav tab — this card is only ever
-	// rendered on the Chat tab itself (ChatTab.tsx), so 'chat' just updates
-	// AIAssistant.tsx's own issuesFilter state and its scroll-into-view
-	// effect, rather than actually switching tabs.
+	// rendered directly on AIAssistant.tsx, so 'chat' just updates that
+	// page's own issuesFilter state and its scroll-into-view effect,
+	// rather than actually switching tabs.
 	const goToAllIssues = () => onNavigateTab('chat');
 
 	const overallTone = summary ? getScoreTone(summary.overall_score) : 'green';

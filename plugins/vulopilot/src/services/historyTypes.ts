@@ -1,6 +1,18 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { formatWpTime } from '../../services/formatWpDate';
+import { formatWpTime } from './formatWpDate';
 
+/**
+ * Shared `HistoryRow`/`toHistoryRow()` (a `vulopilot_ai_history` row →
+ * this shared day-grouped-timeline row shape) behind every real History
+ * surface in this plugin: Reports' own History tab (HistoryTab.tsx/
+ * HistoryTimeline.tsx/HistoryDetailPanel.tsx), GEO's OverviewTab.tsx,
+ * Security's RecentActivityCard.tsx, Automations' AutomationsActivityCard.tsx,
+ * and the Dashboard's RecentActivityWidget.tsx. Moved out of
+ * `pages/AIAssistant/` into this plain-utility `services/` folder (same
+ * home `formatWpDate.ts`/`getSeverityClass.ts` already have) per direct
+ * instruction — it was never actually AI-Copilot-specific, just
+ * historically created there.
+ */
 export type HistoryFilter = 'all' | 'conversation' | 'scan' | 'change' | 'automations';
 
 export interface RelatedAction {
