@@ -147,9 +147,6 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 										{__('Pro', 'vulopilot')}
 									</span>
 								)}
-								{template.pro && isProInstalled && !isAutomationsActive && (
-									<BadgeComponent color="purple" text={moduleDisplayName} />
-								)}
 								<i className="adminfont-plus ai-copilot-row-arrow" />
 							</>
 						),

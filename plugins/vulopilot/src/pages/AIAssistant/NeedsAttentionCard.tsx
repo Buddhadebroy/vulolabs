@@ -4,9 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	CardComponent,
+	ChartComponent,
 	InformationItemComponent,
 	ModuleGuardComponent,
-	ScoreRingComponent,
 	ListComponent,
 	TypographyComponent,
 } from '@zyra/components';
@@ -180,30 +180,49 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 				</>
 			) : (
 				<>
-					<div className="site-overview-health">
-						{/* zyra's own real, shared ScoreRingComponent — same
-						SVG ring/number/label structure every other real
-						score ring in this app now uses, instead of a
-						bespoke ChartComponent + hand-rolled centerLabel
-						markup for this one card. */}
-						<ScoreRingComponent
-							score={summary.overall_score}
-							size={6.25}
-							isLoading={false}
+					<div className="overall-score-summary">
+						{/* Same `type="ring"` ChartComponent + TypographyComponent
+						centerLabel structure every other real score ring in this
+						app now uses (OverallScoreWidget.tsx/SeoTab.tsx/
+						CrawlerAnalyticsSection.tsx/etc.), instead of this card's
+						own now-removed ScoreRingComponent usage. */}
+						<ChartComponent
+							type="ring"
+							height={200}
+							// Top-level `color` — `type="ring"` only ever paints
+							// its stroke from this prop, never from `data[].color`
+							// below (same real fix every other converted ring
+							// already carries).
 							color={TONE_COLOR[overallTone]}
-							label={
+							centerLabel={
 								<>
-									<span className="site-overview-health-title">
-										{__('Overall Health', 'vulopilot')}
-									</span>
-									<span
-										className={`site-overview-health-rating tone-${overallTone}`}
-									>
+									<TypographyComponent variant={'h1'} color={overallTone}>
+										{summary.overall_score}
+									</TypographyComponent>
+									<TypographyComponent variant={'h4'}>
 										{TONE_RATING_LABEL[overallTone]}
-									</span>
+									</TypographyComponent>
 								</>
 							}
+							data={[
+								{
+									label: __('Score', 'vulopilot'),
+									value: summary.overall_score,
+									color: TONE_COLOR[overallTone],
+								},
+								{
+									label: __('Remaining', 'vulopilot'),
+									value: 100 - summary.overall_score,
+									color: '#e5e7eb',
+								},
+							]}
 						/>
+						<TypographyComponent variant={'h3'} color="text-green">
+							{__('Overall Health', 'vulopilot')}
+						</TypographyComponent>
+						<div className="desc">
+							{__('Your open issues, broken down by category.', 'vulopilot')}
+						</div>
 					</div>
 
 					{/* Same `ListComponent` + "mini-card report" variant this card's own

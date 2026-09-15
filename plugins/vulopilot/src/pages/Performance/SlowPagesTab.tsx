@@ -79,9 +79,9 @@ interface ScoreSnapshot {
 }
 
 const TREND_DAY_OPTIONS = [
-	{ label: __('Last 7 days', 'vulopilot'), value: '7' },
-	{ label: __('Last 30 days', 'vulopilot'), value: '30' },
-	{ label: __('Last 90 days', 'vulopilot'), value: '90' },
+	{ label: __('7D', 'vulopilot'), value: '7' },
+	{ label: __('30D', 'vulopilot'), value: '30' },
+	{ label: __('90D', 'vulopilot'), value: '90' },
 ];
 
 const PAGE_TYPE_ICONS: Record<string, string> = {

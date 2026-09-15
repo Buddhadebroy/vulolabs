@@ -101,236 +101,253 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 		icon: string;
 		rows: { key: string; icon: string; label: string; value: React.ReactNode }[];
 	}[] = [
-		{
-			id: 'company',
-			title: __('Company Details', 'vulopilot'),
-			icon: 'global-community',
-			rows: [
-				{
-					key: 'brand',
-					icon: 'global-community pink',
-					label: __('Brand', 'vulopilot'),
-					value: brandName,
-				},
-				{
-					key: 'entity',
-					icon: 'module indigo',
-					label: __('Entity', 'vulopilot'),
-					value: entityType,
-				},
-				{
-					key: 'entity-organizations',
-					icon: 'global-community pink',
-					label: __('Organizations', 'vulopilot'),
-					value: entities ? entities.organizations.length : NOT_SET,
-				},
-				{
-					key: 'entity-locations',
-					icon: 'location red',
-					label: __('Locations', 'vulopilot'),
-					value: entities ? entities.locations.length : NOT_SET,
-				},
-				{
-					key: 'entity-categories',
-					icon: 'category yellow',
-					label: __('Categories', 'vulopilot'),
-					value: entities ? entities.categories.length : NOT_SET,
-				},
-			],
-		},
-		{
-			id: 'content',
-			title: __('Content', 'vulopilot'),
-			icon: 'editor-list',
-			rows: [
-				{
-					key: 'posts',
-					icon: 'editor-list blue',
-					label: __('Posts', 'vulopilot'),
-					value: snapshot.posts,
-				},
-				{
-					key: 'pages',
-					icon: 'document purple',
-					label: __('Pages', 'vulopilot'),
-					value: snapshot.pages,
-				},
-				{
-					key: 'comments',
-					icon: 'submission-message teal',
-					label: __('Comments', 'vulopilot'),
-					value: snapshot.comments,
-				},
-			],
-		},
-		{
-			id: 'seo',
-			title: __('SEO & Visibility', 'vulopilot'),
-			icon: 'search-discovery',
-			rows: [
-				{
-					key: 'primary-topics',
-					icon: 'customer-service cyan',
-					label: __('Primary topics', 'vulopilot'),
-					value: primaryTopics,
-				},
-				{
-					key: 'expertise-signals',
-					icon: 'module violet',
-					label: __('Expertise signals', 'vulopilot'),
-					value: formatScore(geoScore?.signals['other-geo-signals'].score ?? null),
-				},
-				{
-					key: 'entity-confidence',
-					icon: 'security green',
-					label: __('Entity confidence', 'vulopilot'),
-					value: formatScore(geoScore?.signals['entity-clarity'].score ?? null),
-				},
-				{
-					key: 'citation-opportunities',
-					icon: 'report orange',
-					label: __('Citation opportunities', 'vulopilot'),
-					value: formatCount(geoScore?.signals['evidence-citations'].open_count ?? null),
-				},
-				{
-					key: 'content-gaps',
-					icon: 'question yellow',
-					label: __('Content gaps', 'vulopilot'),
-					value: formatCount(geoScore?.signals['question-coverage'].open_count ?? null),
-				},
-			],
-		},
-		{
-			id: 'users',
-			title: __('Users & Audience', 'vulopilot'),
-			icon: 'person',
-			rows: [
-				{
-					key: 'users',
-					icon: 'person green',
-					label: __('Users', 'vulopilot'),
-					value: snapshot.users,
-				},
-			],
-		},
-		{
-			id: 'technology',
-			title: __('Technology', 'vulopilot'),
-			icon: 'coding',
-			rows: [
-				{
-					key: 'plugins',
-					icon: 'module orange',
-					label: __('Plugins', 'vulopilot'),
-					value: sprintf(
-						/* translators: 1: active plugin count, 2: total installed plugin count. */
-						__('%1$d / %2$d active', 'vulopilot'),
-						snapshot.plugins_active,
-						snapshot.plugins_total
-					),
-				},
-				{
-					key: 'wp-version',
-					icon: 'wordpress blue',
-					label: __('WordPress', 'vulopilot'),
-					value: snapshot.wp_version || '—',
-				},
-				{
-					key: 'php-version',
-					icon: 'coding purple',
-					label: __('PHP', 'vulopilot'),
-					value: snapshot.php_version || '—',
-				},
-			],
-		},
-		{
-			id: 'products',
-			title: __('Products & Services', 'vulopilot'),
-			icon: 'product',
-			rows: [
-				{
-					key: 'entity-products',
-					icon: 'product orange',
-					label: __('Products', 'vulopilot'),
-					value: entities ? (entities.products?.length ?? 0) : NOT_SET,
-				},
-				{
-					key: 'entity-services',
-					icon: 'customer-service cyan',
-					label: __('Services', 'vulopilot'),
-					value: entities ? entities.services.length : NOT_SET,
-				},
-			],
-		},
-		{
-			id: 'additional',
-			title: __('Additional', 'vulopilot'),
-			icon: 'person',
-			rows: [
-				{
-					key: 'entity-people',
-					icon: 'person blue',
-					label: __('People', 'vulopilot'),
-					value: entities ? entities.people.length : NOT_SET,
-				},
-			],
-		},
-	];
+			{
+				id: 'company',
+				title: __('Company Details', 'vulopilot'),
+				icon: 'global-community',
+				rows: [
+					{
+						key: 'brand',
+						icon: 'global-community pink',
+						label: __('Brand', 'vulopilot'),
+						value: brandName,
+					},
+					{
+						key: 'entity',
+						icon: 'module indigo',
+						label: __('Entity', 'vulopilot'),
+						value: entityType,
+					},
+					{
+						key: 'entity-organizations',
+						icon: 'global-community pink',
+						label: __('Organizations', 'vulopilot'),
+						value: entities ? entities.organizations.length : NOT_SET,
+					},
+					{
+						key: 'entity-locations',
+						icon: 'location red',
+						label: __('Locations', 'vulopilot'),
+						value: entities ? entities.locations.length : NOT_SET,
+					},
+					{
+						key: 'entity-categories',
+						icon: 'category yellow',
+						label: __('Categories', 'vulopilot'),
+						value: entities ? entities.categories.length : NOT_SET,
+					},
+				],
+			},
+			{
+				id: 'users',
+				title: __('Users & Audience', 'vulopilot'),
+				icon: 'person',
+				rows: [
+					{
+						key: 'users',
+						icon: 'person green',
+						label: __('Users', 'vulopilot'),
+						value: snapshot.users,
+					},
+				],
+			},
+			{
+				id: 'products',
+				title: __('Products & Services', 'vulopilot'),
+				icon: 'product',
+				rows: [
+					{
+						key: 'entity-products',
+						icon: 'product orange',
+						label: __('Products', 'vulopilot'),
+						value: entities ? (entities.products?.length ?? 0) : NOT_SET,
+					},
+					{
+						key: 'entity-services',
+						icon: 'customer-service cyan',
+						label: __('Services', 'vulopilot'),
+						value: entities ? entities.services.length : NOT_SET,
+					},
+				],
+			},
+			{
+				id: 'additional',
+				title: __('Additional', 'vulopilot'),
+				icon: 'person',
+				rows: [
+					{
+						key: 'entity-people',
+						icon: 'person blue',
+						label: __('People', 'vulopilot'),
+						value: entities ? entities.people.length : NOT_SET,
+					},
+				],
+			},
+		];
+	const groups2: {
+		id: string;
+		title: string;
+		icon: string;
+		rows: { key: string; icon: string; label: string; value: React.ReactNode }[];
+	}[] = [
+			{
+				id: 'content',
+				title: __('Content', 'vulopilot'),
+				icon: 'editor-list',
+				rows: [
+					{
+						key: 'posts',
+						icon: 'editor-list blue',
+						label: __('Posts', 'vulopilot'),
+						value: snapshot.posts,
+					},
+					{
+						key: 'pages',
+						icon: 'document purple',
+						label: __('Pages', 'vulopilot'),
+						value: snapshot.pages,
+					},
+					{
+						key: 'comments',
+						icon: 'submission-message teal',
+						label: __('Comments', 'vulopilot'),
+						value: snapshot.comments,
+					},
+				],
+			},
+			{
+				id: 'technology',
+				title: __('Technology', 'vulopilot'),
+				icon: 'coding',
+				rows: [
+					{
+						key: 'plugins',
+						icon: 'module orange',
+						label: __('Plugins', 'vulopilot'),
+						value: sprintf(
+							/* translators: 1: active plugin count, 2: total installed plugin count. */
+							__('%1$d / %2$d active', 'vulopilot'),
+							snapshot.plugins_active,
+							snapshot.plugins_total
+						),
+					},
+					{
+						key: 'wp-version',
+						icon: 'wordpress blue',
+						label: __('WordPress', 'vulopilot'),
+						value: snapshot.wp_version || '—',
+					},
+					{
+						key: 'php-version',
+						icon: 'coding purple',
+						label: __('PHP', 'vulopilot'),
+						value: snapshot.php_version || '—',
+					},
+				],
+			},
+			{
+				id: 'seo',
+				title: __('SEO & Visibility', 'vulopilot'),
+				icon: 'search-discovery',
+				rows: [
+					{
+						key: 'primary-topics',
+						icon: 'customer-service cyan',
+						label: __('Primary topics', 'vulopilot'),
+						value: primaryTopics,
+					},
+					{
+						key: 'expertise-signals',
+						icon: 'module violet',
+						label: __('Expertise signals', 'vulopilot'),
+						value: formatScore(geoScore?.signals['other-geo-signals'].score ?? null),
+					},
+					{
+						key: 'entity-confidence',
+						icon: 'security green',
+						label: __('Entity confidence', 'vulopilot'),
+						value: formatScore(geoScore?.signals['entity-clarity'].score ?? null),
+					},
+					{
+						key: 'citation-opportunities',
+						icon: 'report orange',
+						label: __('Citation opportunities', 'vulopilot'),
+						value: formatCount(geoScore?.signals['evidence-citations'].open_count ?? null),
+					},
+					{
+						key: 'content-gaps',
+						icon: 'question yellow',
+						label: __('Content gaps', 'vulopilot'),
+						value: formatCount(geoScore?.signals['question-coverage'].open_count ?? null),
+					},
+				],
+			},
+			
+		];
 
 	return (
 		<DashboardWidget
 			title={__('Site snapshot', 'vulopilot')}
+			desc={__('Which of your automations are enabled and running.', 'vulopilot')}
 			icon="info"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 		>
-			<SectionComponent
-				withoutBorder
-				title={__('Site snapshot', 'vulopilot')}
-				desc={__(
-					'Key information about your website, content, technology, and organization.',
-					'vulopilot'
-				)}
-				rightContent={
-					lastScanAt && (
-						<span className="site-snapshot-last-updated">
-							{sprintf(
-								/* translators: %s: real last-completed-scan date, this site's own Settings → General date format. */
-								__('Last updated: %s', 'vulopilot'),
-								formatWpDate(lastScanAt)
-							)}
-						</span>
-					)
-				}
-			/>
-			<div className="site-snapshot-groups">
-				{groups.map((group) => (
-					<div key={group.id} className="site-snapshot-group-card">
-						<SectionComponent
-							withoutBorder
-							title={group.title}
-							icon={group.icon}
-						/>
-						<ListComponent
-							className="mini-card report without-border site-snapshot-list"
-							items={group.rows.map((row) => ({
-								id: row.key,
-								icon: row.icon,
-								title: row.label,
-								tags: (
-									<>
-										<span className="site-snapshot-row-value">
-											{row.value}
-										</span>
-										<i className="adminfont-pagination-right-arrow site-snapshot-row-arrow" />
-									</>
-								),
-							}))}
-						/>
+			<>
+				<div className='group-wrapper'>
+					<div className="group">
+						{groups.map((group) => (
+							<div key={group.id} className="site-snapshot-group-card">
+								<SectionComponent
+									title={group.title}
+									icon={group.icon}
+								/>
+								<ListComponent
+									className="mini-card report without-border site-snapshot-list"
+									items={group.rows.map((row) => ({
+										id: row.key,
+										icon: row.icon,
+										title: row.label,
+										tags: (
+											<>
+												<span className="desc">
+													{row.value}
+												</span>
+											</>
+										),
+									}))}
+								/>
+							</div>
+						))}
 					</div>
-				))}
-			</div>
+					<div className="group">
+						{groups2.map((group) => (
+							<div key={group.id} className="site-snapshot-group-card">
+								<SectionComponent
+									title={group.title}
+									icon={group.icon}
+								/>
+								<ListComponent
+									className="mini-card report without-border site-snapshot-list"
+									items={group.rows.map((row) => ({
+										id: row.key,
+										icon: row.icon,
+										title: row.label,
+										tags: (
+											<>
+												<span className="desc">
+													{row.value}
+												</span>
+											</>
+										),
+									}))}
+								/>
+							</div>
+						))}
+					</div>
+				</div>
+			</>
 		</DashboardWidget>
 	);
 };

@@ -93,9 +93,9 @@ type PeriodDays = '7' | '30' | '90';
 // Without it every option here shared the same `undefined` key/id, so only
 // one really rendered/toggled correctly.
 const PERIOD_OPTIONS = [
-	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
-	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
-	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
+	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
+	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
 interface ProgressResponse {
@@ -434,18 +434,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 										tags: area ? (
 											<>
 												<TypographyComponent
-													as="span"
-													variant="body-md"
-													weight="bold"
-													color={area.change >= 0 ? 'green' : 'red'}
-													className="seo-health-score-row-delta"
-												>
-													<IconComponent
-														name={area.change >= 0 ? 'arrow-up' : 'arrow-down'}
-													/>
-													{Math.abs(area.change)}
-												</TypographyComponent>
-												<TypographyComponent
 													variant="h5"
 													weight="bold"
 													color={ratingClass(area.score)}
@@ -459,6 +447,18 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 													>
 														/100
 													</TypographyComponent>
+												</TypographyComponent>
+												<TypographyComponent
+													as="span"
+													variant="body-md"
+													weight="bold"
+													color={area.change >= 0 ? 'green' : 'red'}
+													className="seo-health-score-row-delta"
+												>
+													<IconComponent
+														name={area.change >= 0 ? 'arrow-up' : 'arrow-down'}
+													/>
+													{Math.abs(area.change)}
 												</TypographyComponent>
 											</>
 										) : null,
@@ -492,6 +492,7 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 							value={period}
 							onChange={(value) => setPeriod(value as PeriodDays)}
 							modules={[]}
+							variant="pill"
 						/>
 					}
 				>

@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation, Link } from 'react-router-dom';
 import { NavigatorComponent } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import SiteHealthTab from '../Security/SiteHealthTab';
-import BackupsTab from '../Security/BackupsTab';
+import BackupsTab, { BackupsTabHandle } from '../Security/BackupsTab';
 
 const TAB_IDS = ['site-health', 'backups'] as const;
 
@@ -80,6 +80,15 @@ const SiteHealth = () => {
 		initialTab
 	);
 
+	// "Create Backup Now" lives in the page header's own "Run scan" slot
+	// while the Backups tab is active (replacing "Run scan" entirely, per
+	// direct instruction — a backup isn't a scan, so this tab never showed
+	// a real "Run scan" action of its own to begin with), driven through
+	// BackupsTab's own real `handleCreate` via `BackupsTabHandle` rather
+	// than duplicating that request/notice logic here.
+	const backupsTabRef = useRef<BackupsTabHandle>(null);
+	const [isCreatingBackup, setIsCreatingBackup] = useState(false);
+
 	const prepareUrl = (subTab: string) =>
 		`?page=vulopilot#&tab=site-health&subtab=${subTab}`;
 
@@ -103,7 +112,12 @@ const SiteHealth = () => {
 			case 'site-health':
 				return <SiteHealthTab onNavigateToBackups={goToBackups} />;
 			case 'backups':
-				return <BackupsTab />;
+				return (
+					<BackupsTab
+						ref={backupsTabRef}
+						onCreatingChange={setIsCreatingBackup}
+					/>
+				);
 			default:
 				return <div></div>;
 		}
@@ -113,10 +127,6 @@ const SiteHealth = () => {
 		<NavigatorComponent
 			headerIcon="active"
 			headerTitle={__('Site Health', 'vulopilot')}
-			headerDescription={__(
-				'A real-time check of your WordPress core, server, database, and backup protection.',
-				'vulopilot'
-			)}
 			headerCustomContent={
 				<RunScanHeaderExtra
 					categories={[
@@ -126,7 +136,20 @@ const SiteHealth = () => {
 						'database',
 						'updates',
 					]}
-					settingsSubtab="general"
+					settingsSubtab={'backups' === activeTab ? 'backups' : 'general'}
+					hideRunScanButton={'backups' === activeTab}
+					replaceRunScanButton={
+						'backups' === activeTab
+							? {
+									text: isCreatingBackup
+										? __('Starting…', 'vulopilot')
+										: __('Create Backup Now', 'vulopilot'),
+									icon: 'cloud-upload',
+									onClick: () =>
+										backupsTabRef.current?.createBackup(),
+								}
+							: undefined
+					}
 				/>
 			}
 			className="site-health-tabs"

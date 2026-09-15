@@ -40,6 +40,8 @@
             display: flex;
             gap: 0.625rem;
             align-items: center;
+            font-size: 1.125rem;
+            line-height: 1.063rem;
         }
 
         .history-row-text {
@@ -382,11 +384,18 @@
     gap: 0.625rem;
 
     .overall-score-summary {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         gap: 0.5rem;
         width: 50%;
+    }
+}
+
+.overall-score-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .desc{
+        text-align: center;
     }
 }
 
@@ -396,45 +405,82 @@
     white-space: nowrap;
 }
 
-.site-snapshot-groups {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+
+// GettingStartedCard.tsx's own "finish setup" banner — real
+// `dashboard-banner.png` illustration as a right-anchored background image
+// on a purple gradient, matching the mockup's own full-width banner
+// (no CardComponent border/header here, so the layout is hand-built).
+.getting-started-banner {
+    position: relative;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    background-color: #efe9ff;
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: cover;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
 
     @media (max-width: 782px) {
-        grid-template-columns: 1fr;
+        padding-inline-end: 1.75rem;
     }
 
-    .site-snapshot-group-card {
-        margin: 0;
-        padding: 1rem;
-        border: 1px solid var(--border-color, #e5e7eb);
-        border-radius: 0.5rem;
-        background: var(--background-white, #fff);
-
-        .divider-section {
-            padding-bottom: 0.5rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color, #e5e7eb);
-        }
+    .details-wrapper{
+        width: 75%;
     }
-
-    .site-snapshot-row-value {
-        color: var(--text-secondary, #6b7280);
+    img{
+        width: 12rem;
     }
+}
 
-    .site-snapshot-row-arrow {
-        margin-inline-start: 0.375rem;
-        font-size: 0.75rem;
-        color: var(--text-secondary, #6b7280);
+.getting-started-banner-close {
+    position: absolute;
+    top: 0.875rem;
+    right: 0.875rem;
+    cursor: pointer;
+    color: var(--text-secondary, #6b7280);
+
+    &:hover {
+        color: #000;
     }
+}
+
+.getting-started-banner-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.getting-started-banner-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #6b7280);
+    margin-bottom: 1rem;
+}
+
+.getting-started-banner-buttons {
+    flex-wrap: wrap;
 }
 
 // dashboard end
 
 
-.file-size-wrapper{
+.file-size-wrapper {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+}
+
+
+// ai copilot
+.group-wrapper {
+    display: flex;
+    gap: 2rem;
+
+    .site-snapshot-group-card {
+        margin-bottom: 2rem;
+    }
 }

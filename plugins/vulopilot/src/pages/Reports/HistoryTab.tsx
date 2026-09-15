@@ -42,8 +42,8 @@ type DateRangePreset = 'all' | 'today' | '7d' | '30d';
 const DATE_RANGE_OPTIONS = [
 	{ value: 'all', label: __('All time', 'vulopilot') },
 	{ value: 'today', label: __('Today', 'vulopilot') },
-	{ value: '7d', label: __('Last 7 days', 'vulopilot') },
-	{ value: '30d', label: __('Last 30 days', 'vulopilot') },
+	{ value: '7d', label: __('7D', 'vulopilot') },
+	{ value: '30d', label: __('30D', 'vulopilot') },
 ];
 
 /**

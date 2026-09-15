@@ -12,7 +12,7 @@ interface ManualCheck {
 const MANUAL_CHECKS: ManualCheck[] = [
 	{
 		key: 'keyboard-navigation',
-		icon: 'coding',
+		icon: 'coding lime',
 		title: __('Keyboard navigation', 'vulopilot'),
 		description: __(
 			'Can you reach and use everything without a mouse?',
@@ -21,7 +21,7 @@ const MANUAL_CHECKS: ManualCheck[] = [
 	},
 	{
 		key: 'screen-reader',
-		icon: 'person',
+		icon: 'person pink',
 		title: __('Screen-reader experience', 'vulopilot'),
 		description: __(
 			'Does the content make sense when read aloud?',
@@ -30,7 +30,7 @@ const MANUAL_CHECKS: ManualCheck[] = [
 	},
 	{
 		key: 'zoom-resizing',
-		icon: 'text-fields',
+		icon: 'text-fields blue',
 		title: __('Zoom & text resizing', 'vulopilot'),
 		description: __(
 			'Does the page still work when text is enlarged?',

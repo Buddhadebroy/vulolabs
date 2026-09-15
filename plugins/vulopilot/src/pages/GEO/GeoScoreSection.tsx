@@ -134,9 +134,9 @@ const SIGNAL_META: { key: keyof import('./useGeoScore').GeoScoreResponse['signal
 
 type PeriodDays = '7' | '30' | '90';
 const PERIOD_OPTIONS = [
-	{ key: '7', value: '7', label: __('Last 7 days', 'vulopilot') },
-	{ key: '30', value: '30', label: __('Last 30 days', 'vulopilot') },
-	{ key: '90', value: '90', label: __('Last 90 days', 'vulopilot') },
+	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
+	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
+	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
 
 interface ProgressResponse {
@@ -358,20 +358,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 												),
 									tags: (
 										<>
-											{null !== delta && (
-												<TypographyComponent
-													as="span"
-													variant="body-md"
-													weight="bold"
-													color={delta >= 0 ? 'green' : 'red'}
-													className="seo-health-score-row-delta"
-												>
-													<IconComponent
-														name={delta >= 0 ? 'arrow-up' : 'arrow-down'}
-													/>
-													{Math.abs(delta)}
-												</TypographyComponent>
-											)}
+											
 											{null !== signalScore && (
 												<TypographyComponent
 													variant="h5"
@@ -387,6 +374,20 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 													>
 														/100
 													</TypographyComponent>
+												</TypographyComponent>
+											)}
+											{null !== delta && (
+												<TypographyComponent
+													as="span"
+													variant="body-md"
+													weight="bold"
+													color={delta >= 0 ? 'green' : 'red'}
+													className="seo-health-score-row-delta"
+												>
+													<IconComponent
+														name={delta >= 0 ? 'arrow-up' : 'arrow-down'}
+													/>
+													{Math.abs(delta)}
 												</TypographyComponent>
 											)}
 										</>
@@ -435,7 +436,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 			<ColumnComponent grid={6} fullHeight>
 				<CardComponent
 					title={__('Score Snapshot', 'vulopilot')}
-					desc={__('Score Snapshot Score Snapshot Score Snapshot', 'vulopilot')}
+					desc={__('How your GEO score has trended over the selected period.', 'vulopilot')}
 					titleIcon='tools'
 					isLoading={isLoadingProgress}
 					action={
@@ -444,6 +445,7 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 							value={period}
 							onChange={(value) => setPeriod(value as PeriodDays)}
 							modules={[]}
+							variant="pill"
 						/>
 					}
 				>

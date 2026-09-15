@@ -399,20 +399,6 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 											),
 											tags: (
 												<>
-												{null !== delta && (
-														<TypographyComponent
-															as="span"
-															variant="body-md"
-															weight="bold"
-															color={delta >= 0 ? 'green' : 'red'}
-															className="seo-health-score-row-delta"
-														>
-															<IconComponent
-																name={delta >= 0 ? 'arrow-up' : 'arrow-down'}
-															/>
-															{Math.abs(delta)}
-														</TypographyComponent>
-													)}
 													<TypographyComponent
 														variant="h5"
 														weight="bold"
@@ -428,6 +414,20 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 															/100
 														</TypographyComponent>
 													</TypographyComponent>
+													{null !== delta && (
+														<TypographyComponent
+															as="span"
+															variant="body-md"
+															weight="bold"
+															color={delta >= 0 ? 'green' : 'red'}
+															className="seo-health-score-row-delta"
+														>
+															<IconComponent
+																name={delta >= 0 ? 'arrow-up' : 'arrow-down'}
+															/>
+															{Math.abs(delta)}
+														</TypographyComponent>
+													)}
 												</>
 											),
 											action: () =>
