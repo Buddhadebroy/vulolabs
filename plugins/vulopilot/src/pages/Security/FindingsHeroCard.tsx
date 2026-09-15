@@ -76,6 +76,36 @@ const TEXT_COLOR: Record<Rating['className'], string> = {
 	poor: 'red',
 };
 
+/** Same real score-tier summary line `OverallScoreWidget.tsx`'s own `getRatingSummary()` establishes for this exact ring pattern — a fixed "in good shape" string regardless of the real score would misrepresent a genuinely poor one, so this reads the same real `score`/`label` this ring already computes instead of a static sentence. */
+const getRatingSummary = (score: number, label: string): string => {
+	if (score >= 90) {
+		return sprintf(
+			/* translators: %s: this hero's own real section label, e.g. "Site Health". */
+			__('Your %s is in excellent shape.', 'vulopilot'),
+			label
+		);
+	}
+	if (score >= 70) {
+		return sprintf(
+			/* translators: %s: this hero's own real section label, e.g. "Site Health". */
+			__('Your %s is healthy and needs minimal work.', 'vulopilot'),
+			label
+		);
+	}
+	if (score >= 50) {
+		return sprintf(
+			/* translators: %s: this hero's own real section label, e.g. "Site Health". */
+			__('Your %s could use some improvement.', 'vulopilot'),
+			label
+		);
+	}
+	return sprintf(
+		/* translators: %s: this hero's own real section label, e.g. "Site Health". */
+		__('Your %s needs attention in several areas.', 'vulopilot'),
+		label
+	);
+};
+
 interface FindingsHeroCardProps {
 	/** adminfont- icon name for the hero's own icon circle. */
 	icon: string;
@@ -206,6 +236,12 @@ const FindingsHeroCard = ({
 										},
 									]}
 								/>
+								<TypographyComponent variant={'h3'} color="text-green">
+									{__('Overall Score', 'vulopilot')}
+								</TypographyComponent>
+								<div className="desc">
+									{getRatingSummary(score, label)}
+								</div>
 							</div>
 						)}
 						<div className='overall-score-summary'>

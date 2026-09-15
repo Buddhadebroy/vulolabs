@@ -83,7 +83,7 @@ const ratingClass = (score: number): Rating['className'] => {
 const getRating = (score: number): string => {
 	if (score >= 90) {
 		return __(
-			'Great job — accessibility is in excellent shape.',
+			'Great job',
 			'vulopilot'
 		);
 	}
@@ -202,32 +202,16 @@ const AccessibilityHeroCard = ({
 									},
 								]}
 							/>
-							<div className="title">
+							<TypographyComponent variant={'h3'} color="text-green">
 								{getRating(score as number)}
-								{null !== scoreDelta && (
-									<span
-										className={`accessibility-hero-delta ${scoreDelta > 0 ? 'is-up' : 'is-down'
-											}`}
-									>
-										{sprintf(
-											/* translators: 1: "↑" or "↓", 2: how many points the accessibility score changed by since last week. */
-											__('%1$s %2$d pts vs last week', 'vulopilot'),
-											scoreDelta > 0 ? '↑' : '↓',
-											Math.abs(scoreDelta)
-										)}
-									</span>
-								)}
-							</div>
+								
+							</TypographyComponent>
 							<div className="desc">
 								{total > 0
-									? sprintf(
-										/* translators: 1: number of open accessibility findings, 2: number of distinct pages affected. */
-										__(
-											'%1$d accessibility issue(s) found across %2$d page(s). Most visitors can use your site, but some areas could be improved.',
+									? sprintf(__(
+											'Most visitors can use your site, but some areas could be improved.',
 											'vulopilot'
 										),
-										total,
-										pagesAffected
 									)
 									: __(
 										"You're all caught up — no open accessibility issues right now.",
