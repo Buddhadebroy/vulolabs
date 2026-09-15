@@ -1,4 +1,6 @@
+import { createElement } from 'react';
 import { __ } from '@wordpress/i18n';
+import SendTestReportButton from './SendTestReportButton';
 
 /**
  * Settings → Reports.
@@ -56,6 +58,13 @@ export default {
 	),
 	headerIcon: 'document',
 	submitUrl: 'settings',
+	// SendTestReportButton.tsx's own "Send Test Report" button + persisted
+	// "Last test report sent on ..." line — moved here (per direct
+	// instruction) from a declarative `type: 'button'` field, same real
+	// `settingAction` header-action slot CrawlerAlertTestPanel.tsx/
+	// SecurityRestoreDefaultsHeader.tsx already use, rather than sitting at
+	// the bottom of this tab's own field list.
+	settingAction: createElement(SendTestReportButton),
 	modal: [
 		{
 			key: 'default_report_format',
@@ -65,6 +74,10 @@ export default {
 			label: 'Default report format',
 			settingDescription: __(
 				'Select the file format VuloPilot will use when you download or schedule reports.',
+				'vulopilot'
+			),
+			desc:  __(
+				'You can change the format each time while generating a report.',
 				'vulopilot'
 			),
 			options: [
@@ -93,22 +106,16 @@ export default {
 			],
 		},
 		{
-			key: 'reports-format-notice',
-			type: 'notice',
-			noticeType: 'info',
-			label: '',
-			message: __(
-				'You can change the format each time while generating a report.',
-				'vulopilot'
-			),
-		},
-		{
 			key: 'default_report_period_days',
 			type: 'choice-toggle',
 			defaultValue: '30',
 			label: __('Default reporting period', 'vulopilot'),
 			settingDescription: __(
 				'Choose the time period VuloPilot will use by default when generating reports.',
+				'vulopilot'
+			),
+			desc: __(
+				'You can change the period anytime while generating a report.',
 				'vulopilot'
 			),
 			options: [
@@ -118,23 +125,6 @@ export default {
 				{ key: '180', value: '180', label: __('6 months', 'vulopilot'), width: '100%' },
 				{ key: '365', value: '365', label: __('12 months', 'vulopilot'), width: '100%' },
 			],
-		},
-		{
-			key: 'reports-period-notice',
-			type: 'notice',
-			noticeType: 'info',
-			label: '',
-			message: __(
-				'You can change the period anytime while generating a report.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'send_test_report',
-			type: 'button',
-			name: __('Send Test Report', 'vulopilot'),
-			apilink: 'settings/test-report',
-			method: 'POST',
 		},
 	],
 };

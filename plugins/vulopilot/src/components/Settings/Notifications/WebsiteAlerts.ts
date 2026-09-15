@@ -1,20 +1,21 @@
 import { __ } from '@wordpress/i18n';
 
-// Shared by every field below the master "Enabled" toggle — same
-// `dependent` shape AiCrawlerAlerts.ts's own MASTER_ENABLED_DEPENDENT
-// already uses, this tab's own master switch key instead.
-const MASTER_ENABLED_DEPENDENT = { key: 'notify_on_critical_findings', value: 'notify_on_critical_findings', set: true };
-
 /**
  * Settings → Notifications → Website Alerts ("Critical issue alerts").
  *
  * Real backend: Services\ScanPersistenceListener::maybe_notify_critical_findings() —
  * already emailed on any critical-severity finding, any category, before
- * this tab existed (Alert Preferences' own "Email me on critical findings"
- * is this same key's summary toggle, same "master switch lives on both its
- * own tab and a shorter summary elsewhere" shape `email_on_crawler_alerts`
- * already established). `notify_on_critical_findings` stays this tab's own
- * master switch — no new key invented for it.
+ * this tab existed.
+ *
+ * This tab used to open with its own `notify_on_critical_findings` master
+ * "Enabled" toggle above "Notify me about" — removed per direct
+ * instruction. That was the only real UI control for that backend option
+ * anywhere in this codebase (confirmed: no other Settings tab reads or
+ * writes it), so removing it means critical-issue notifications now always
+ * follow whatever `notify_on_critical_findings` defaults to server-side
+ * (Utill::VULOPILOT_SETTINGS_DEFAULTS) — there's no way left to turn the
+ * whole category off from the UI, only to adjust which types/channels it
+ * uses below.
  *
  * "Notify me about" is a real zyra `type: 'setting-row'` field (per direct
  * instruction — same field type SecurityAlerts.ts's own
@@ -50,20 +51,6 @@ export default {
 	submitUrl: 'settings',
 	modal: [
 		{
-			key: 'notify_on_critical_findings',
-			type: 'checkbox',
-			look: 'toggle',
-			label: __('Enabled', 'vulopilot'),
-			settingDescription: __(
-				'Master switch for every critical issue alert below — turn this off to silence all of them at once.',
-				'vulopilot'
-			),
-			toggleStatusLabel: { on: 'Enabled', off: 'Disabled' },
-			options: [
-				{ key: 'notify_on_critical_findings', label: '', value: 'notify_on_critical_findings' },
-			],
-		},
-		{
 			// zyra's real `type: 'setting-row'` field (per direct
 			// instruction) — see this file's own docblock for why
 			// `control: { checkbox: true }` fits this flat multi-select
@@ -76,7 +63,6 @@ export default {
 			label: __('Notify me about', 'vulopilot'),
 			key: 'critical_alert_types',
 			type: 'setting-row',
-			dependent: MASTER_ENABLED_DEPENDENT,
 			rows: [
 				{
 					valueKey: 'security',
@@ -134,7 +120,6 @@ export default {
 			key: 'critical_alert_channels',
 			type: 'checkbox',
 			label: __('Notification channel', 'vulopilot'),
-			dependent: MASTER_ENABLED_DEPENDENT,
 			options: [
 				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
 				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
@@ -149,7 +134,6 @@ export default {
 				'You\'ll be notified instantly when any critical issue is detected. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
 				'vulopilot'
 			),
-			dependent: MASTER_ENABLED_DEPENDENT,
 		},
 	],
 };

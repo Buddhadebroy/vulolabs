@@ -9,11 +9,10 @@ import {
 	ContainerComponent,
 	FormGroupComponent,
 	FormGroupWrapperComponent,
-	ListComponent,
-	NoticeComponent,
 	NoticeManager,
+	SectionComponent,
 } from '@zyra/components';
-import { ButtonInput, TextInput, ToggleInput } from '@zyra/inputs';
+import { ButtonInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { useSetting } from '../../../contexts/SettingContext';
 import './TitleFormatsPanel.scss';
@@ -26,6 +25,10 @@ interface ContextConfig {
 	descriptionTemplateKey: string;
 	icon: string;
 	label: string;
+	/** Real zyra palette color name for this row's own content-type badge — a distinct color per context so the 7 rows read apart at a glance instead of all sharing the same "indigo" pill. */
+	badgeColor: string;
+	/** Real, one-line explanation of which real frontend pages this template applies to — shown under the edit panel's own title (e.g. "Search Results Format"). */
+	description: string;
 	urlExample: string;
 	vars: Record<string, string>;
 	hasRealUrl: boolean;
@@ -56,6 +59,16 @@ const VARIABLES: Array<{ token: string; label: string }> = [
 	{ token: '%search_term%', label: __('Search term', 'vulopilot') },
 	{ token: '%archive_title%', label: __('Archive title', 'vulopilot') },
 	{ token: '%sep%', label: __('Separator (e.g. | – -)', 'vulopilot') },
+];
+
+/** Real, fixed separator characters this field offers — a `SelectInput` instead of a free-text field, per direct instruction. `title_separator` still stores the literal character (e.g. `'|'`), same as every already-saved site's own value, so this is a closed but backward-compatible set rather than a new stored shape. */
+const SEPARATOR_OPTIONS: Array<{ value: string; label: string; char: string }> = [
+	{ value: 'pipe', label: __('| (Pipe)', 'vulopilot'), char: '|' },
+	{ value: 'dash', label: __('- (Dash)', 'vulopilot'), char: '-' },
+	{ value: 'bullet', label: __('• (Bullet)', 'vulopilot'), char: '•' },
+	{ value: 'colon', label: __(': (Colon)', 'vulopilot'), char: ':' },
+	{ value: 'greater', label: __('> (Greater Than)', 'vulopilot'), char: '>' },
+	{ value: 'tilde', label: __('~ (Tilde)', 'vulopilot'), char: '~' },
 ];
 
 /**
@@ -159,19 +172,16 @@ const toBreadcrumb = (urlExample: string): string =>
  * keystroke, and rather than requiring an explicit "Save Changes" click.
  *
  * Built entirely from real `@zyra/components`/`@zyra/inputs` exports
- * rather than hand-rolled markup — `CardComponent`'s own real `toggle`/
- * `defaultExpanded` props (confirmed by reading the installed zyra bundle)
- * are what actually drive "Title & Description Format Templates"' expand/
- * collapse, not locally-tracked state; `ListComponent`'s real
- * `items[].tags`/`.desc` slots (both accept arbitrary ReactNode, same as
- * CrawlRobotsSitemapSection.tsx's own sitemap list already relies on)
- * carry the Live Title Preview rows' badge/length/View-button and
- * url/title/description block, and the Available Variables/SEO Tips
- * sidebar cards are `ListComponent` too (`items[].action` for
- * click-to-copy). `ContainerComponent`/`ColumnComponent grid={8|4}` is the
- * same 12-column layout primitive used throughout GEO's own tabs, in
- * place of a hand-rolled 2-column flex div. The 14 template fields +
- * separator are `FormGroupWrapperComponent`/`FormGroupComponent` (the same
+ * rather than hand-rolled markup. `ContainerComponent`/`ColumnComponent
+ * grid={8|4}` is the same 12-column layout primitive used throughout GEO's
+ * own tabs. Every real context row (Homepage/Blog Post/Page/…) is one real
+ * `TableCard` row (its own real Google-snippet-style preview + content-type
+ * badge + real length-score badges) instead of a flat 16-field grid — its
+ * "Edit" action opens that row's own Title format/Description format
+ * fields (each a real `%token%`-insertion pill row + a real length
+ * `BadgeComponent`) in the right column, always showing the first real
+ * context ('home') on load rather than an empty/placeholder sidebar. The
+ * separator field is `FormGroupWrapperComponent`/`FormGroupComponent` (the same
  * label+field row SiteVerificationPanel.tsx's own code fields already
  * use), not a hand-rolled label/div pair, and every status pill (Good/Too
  * short/Too long/"N/max") is a real `BadgeComponent` (`color`+`text`), not
@@ -193,8 +203,8 @@ const TitleFormatsPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
 	const [separator, setSeparator] = useState<string>('|');
-	/** Which real context row's own Edit action opened the right-side edit panel — `null` shows the default Available Variables/Preview in Google/SEO Tips sidebar instead (same "table + detail panel" structure IssueDetailPanel.tsx's own Issues table already establishes). */
-	const [editingKey, setEditingKey] = useState<string | null>(null);
+	/** Which real context row's own Edit action opened the right-side edit panel — defaults to the first real context ('home') so the edit panel is open on load instead of an empty state, since this panel has no fallback sidebar to show otherwise. */
+	const [editingKey, setEditingKey] = useState<string | null>('home');
 
 	const contexts = useMemo<ContextConfig[]>(() => {
 		const siteTitle = appLocalizer.site_title || __('Your Site', 'vulopilot');
@@ -209,8 +219,10 @@ const TitleFormatsPanel = () => {
 				key: 'home',
 				templateKey: 'title_format_home',
 				descriptionTemplateKey: 'description_format_home',
-				icon: 'web-page-website',
+				icon: 'web-page-website pink',
 				label: __('Homepage', 'vulopilot'),
+				badgeColor: 'pink',
+				description: __('Used on your site\'s front page.', 'vulopilot'),
 				urlExample: `${siteUrl}/`,
 				vars: { site_title: siteTitle, site_description: siteDescription },
 				hasRealUrl: true,
@@ -219,8 +231,10 @@ const TitleFormatsPanel = () => {
 				key: 'post',
 				templateKey: 'title_format_post',
 				descriptionTemplateKey: 'description_format_post',
-				icon: 'document',
+				icon: 'document blue',
 				label: __('Blog Post', 'vulopilot'),
+				badgeColor: 'blue',
+				description: __('Used on individual blog post pages.', 'vulopilot'),
 				urlExample: `${siteUrl}/blog/sample-post`,
 				vars: { site_title: siteTitle, site_description: siteDescription, post_title: __('Sample Post Title', 'vulopilot') },
 				hasRealUrl: false,
@@ -229,8 +243,10 @@ const TitleFormatsPanel = () => {
 				key: 'page',
 				templateKey: 'title_format_page',
 				descriptionTemplateKey: 'description_format_page',
-				icon: 'document',
+				icon: 'document violet',
 				label: __('Page', 'vulopilot'),
+				badgeColor: 'violet',
+				description: __('Used on standard (non-post) pages.', 'vulopilot'),
 				urlExample: `${siteUrl}/sample-page`,
 				vars: { site_title: siteTitle, site_description: siteDescription, page_title: __('Sample Page Title', 'vulopilot') },
 				hasRealUrl: false,
@@ -239,8 +255,10 @@ const TitleFormatsPanel = () => {
 				key: 'category',
 				templateKey: 'title_format_category',
 				descriptionTemplateKey: 'description_format_category',
-				icon: 'module',
+				icon: 'module orange',
 				label: __('Category', 'vulopilot'),
+				badgeColor: 'orange',
+				description: __('Used on category archive pages.', 'vulopilot'),
 				urlExample: `${siteUrl}/category/sample`,
 				vars: { site_title: siteTitle, site_description: siteDescription, category_title: __('Sample Category', 'vulopilot') },
 				hasRealUrl: false,
@@ -249,8 +267,10 @@ const TitleFormatsPanel = () => {
 				key: 'tag',
 				templateKey: 'title_format_tag',
 				descriptionTemplateKey: 'description_format_tag',
-				icon: 'link',
+				icon: 'link teal',
 				label: __('Tag', 'vulopilot'),
+				badgeColor: 'teal',
+				description: __('Used on tag archive pages.', 'vulopilot'),
 				urlExample: `${siteUrl}/tag/sample`,
 				vars: { site_title: siteTitle, site_description: siteDescription, tag_title: __('Sample Tag', 'vulopilot') },
 				hasRealUrl: false,
@@ -259,8 +279,10 @@ const TitleFormatsPanel = () => {
 				key: 'search',
 				templateKey: 'title_format_search',
 				descriptionTemplateKey: 'description_format_search',
-				icon: 'search',
+				icon: 'search cyan',
 				label: __('Search Results', 'vulopilot'),
+				badgeColor: 'cyan',
+				description: __('Used on internal site search results pages.', 'vulopilot'),
 				urlExample: `${siteUrl}/?s=sample+search`,
 				vars: { site_title: siteTitle, site_description: siteDescription, search_term: __('sample search', 'vulopilot') },
 				hasRealUrl: false,
@@ -269,8 +291,10 @@ const TitleFormatsPanel = () => {
 				key: 'archive',
 				templateKey: 'title_format_archive',
 				descriptionTemplateKey: 'description_format_archive',
-				icon: 'analytics',
+				icon: 'analytics green',
 				label: __('Archive', 'vulopilot'),
+				badgeColor: 'green',
+				description: __('Used on date-based and other archive pages.', 'vulopilot'),
 				urlExample: `${siteUrl}/${archiveDatePath}`,
 				vars: { site_title: siteTitle, site_description: siteDescription, archive_title: archiveLabel },
 				hasRealUrl: false,
@@ -412,59 +436,14 @@ const TitleFormatsPanel = () => {
 			message:
 				needsAttention > 0
 					? sprintf(
-							/* translators: 1: number of titles/descriptions that could use improvement, 2: total number of titles and descriptions previewed. */
-							__('%1$d of %2$d titles/descriptions could use improvement — check the highlighted rows below.', 'vulopilot'),
-							needsAttention,
-							totalChecked
-						)
+						/* translators: 1: number of titles/descriptions that could use improvement, 2: total number of titles and descriptions previewed. */
+						__('%1$d of %2$d titles/descriptions could use improvement — check the highlighted rows below.', 'vulopilot'),
+						needsAttention,
+						totalChecked
+					)
 					: __('All title and description formats look good.', 'vulopilot'),
 		});
 	};
-
-	const handleCopyVariable = (token: string) => {
-		if (!navigator.clipboard) {
-			return;
-		}
-
-		navigator.clipboard
-			.writeText(token)
-			.then(() => {
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-title-formats-copy',
-					type: 'success',
-					position: 'float',
-					message: sprintf(
-						/* translators: %s is the variable token, e.g. %post_title%. */
-						__('Copied %s to clipboard.', 'vulopilot'),
-						token
-					),
-				});
-			})
-			.catch(() => {
-				NoticeManager.add({
-					uniqueKey: 'vulopilot-title-formats-copy',
-					type: 'error',
-					position: 'float',
-					message: __('Could not copy to clipboard.', 'vulopilot'),
-				});
-			});
-	};
-
-	const variableListItems = VARIABLES.map((item) => ({
-		id: item.token,
-		title: item.token,
-		desc: item.label,
-		className: 'site-identity-variable-item',
-		action: () => handleCopyVariable(item.token),
-	}));
-
-	const seoTipsItems = [
-		__('Keep titles between 30–60 characters for optimal SEO.', 'vulopilot'),
-		__('Keep descriptions between 120–160 characters — Google truncates longer ones.', 'vulopilot'),
-		__('Include your target keyword near the beginning.', 'vulopilot'),
-		__('Make titles and descriptions descriptive and compelling for users.', 'vulopilot'),
-		__('Use a consistent separator across your site.', 'vulopilot'),
-	].map((tip, index) => ({ id: String(index), title: tip }));
 
 	const editingRow = previewRows.find((row) => row.key === editingKey) ?? null;
 
@@ -505,29 +484,19 @@ const TitleFormatsPanel = () => {
 
 	return (
 		<div className="site-identity-title-formats">
-			<CardComponent
+			<SectionComponent
 				title={__('Enable Site Identity', 'vulopilot')}
 				desc={__('Use the configured title and description formats across your site.', 'vulopilot')}
-				action={
-					<>
-						<ToggleInput
-							value={enabled}
-							modules={[]}
-							options={[
-								{ label: __('Enabled', 'vulopilot'), value: 'enabled' },
-								{ label: __('Disabled', 'vulopilot'), value: 'disabled' },
-							]}
-							onChange={(value) => handleSettingChange('site_identity_enabled', value as string)}
-						/>
-						<ButtonInput
-							buttons={{
-								text: __('Validate Titles & Descriptions', 'vulopilot'),
-								color: 'border-purple',
-								icon: 'check',
-								onClick: handleValidate,
-							}}
-						/>
-					</>
+				rightContent={
+					<ToggleInput
+						value={enabled}
+						modules={[]}
+						options={[
+							{ key: 'enabled', label: __('Enabled', 'vulopilot'), value: 'enabled' },
+							{ key: 'disabled', label: __('Disabled', 'vulopilot'), value: 'disabled' },
+						]}
+						onChange={(value) => handleSettingChange('site_identity_enabled', value as string)}
+					/>
 				}
 			/>
 
@@ -540,25 +509,38 @@ const TitleFormatsPanel = () => {
 							'Customize title and description formats using dynamic variables like %site_title%, %post_title%, %site_description%, etc.',
 							'vulopilot'
 						)}
-					>
-						<FormGroupWrapperComponent>
-							<FormGroupComponent label={__('Separator', 'vulopilot')} htmlFor="title-separator-input">
-								<TextInput
-									id="title-separator-input"
-									value={separator}
-									onChange={(value) => handleSeparatorChange(String(value))}
-									placeholder="|"
+						action={
+							<div className="site-identity-separator-action">
+								<label htmlFor="title-separator-input">
+									{__('Separator', 'vulopilot')}
+								</label>
+								<SelectInput
+									name="title-separator-input"
+									value={
+										SEPARATOR_OPTIONS.find((option) => option.char === separator)?.value ??
+										'pipe'
+									}
+									size={15}
+									options={SEPARATOR_OPTIONS}
+									isClearable={false}
+									onChange={(value) => {
+										const char =
+											SEPARATOR_OPTIONS.find((option) => option.value === value)?.char ??
+											separator;
+										handleSeparatorChange(char);
+									}}
 								/>
-							</FormGroupComponent>
-						</FormGroupWrapperComponent>
-
-						{/* One real row per context — real Google-snippet-style
-						preview (breadcrumb/title/desc, same values the old
-						separate "Live Title Preview" card computed) + a real
-						content-type badge + this row's own real raw template
-						string, with a real "Edit" action opening the right-side
-						panel below instead of every field being hand-edited
-						inline in one big 16-field grid. */}
+							</div>
+						}
+					>
+						{/* One real row per context — just this row's own
+						content-type icon/label, with a real "More Details"/
+						"Showing" disclosure action (same shape
+						SeoIssuesByPageTable.tsx's own identical
+						PageAnalysisPanel toggle already establishes) opening
+						the right-side edit panel below, instead of every
+						row also repeating its own resolved-title/breadcrumb/
+						raw-template preview inline. */}
 						<TableCard
 							showMenu={false}
 							hideHeader={true}
@@ -568,34 +550,23 @@ const TitleFormatsPanel = () => {
 									label: __('Format', 'vulopilot'),
 									width: '80%',
 									render: (row: PreviewRow) => (
-										<div className="site-identity-row-preview">
-											<BadgeComponent color="indigo" text={row.label} />
-											<div className="site-identity-row-breadcrumb">
-												{toBreadcrumb(row.urlExample)}
-											</div>
-											<div className="site-identity-row-title">
-												{row.resolvedTitle || __('(Empty — add a title format)', 'vulopilot')}
-											</div>
-											<div className="site-identity-row-desc">
-												{row.resolvedDescription || __('(Empty — add a description format)', 'vulopilot')}
-											</div>
-											<div className="site-identity-row-raw">
-												{templateValues[row.templateKey] || ''}
-											</div>
-											<div className="site-identity-row-tags">
-												<BadgeComponent color={row.titleScore.cls} text={row.titleScore.label} />
-												<BadgeComponent color="indigo" text={`${row.titleScore.length}/${row.titleScore.max}`} />
-												<BadgeComponent color={row.descriptionScore.cls} text={row.descriptionScore.label} />
-												<BadgeComponent color="indigo" text={`${row.descriptionScore.length}/${row.descriptionScore.max}`} />
-												{row.hasRealUrl && (
-													<ButtonInput
-														buttons={{
-															text: __('View', 'vulopilot'),
-															color: 'border-purple',
-															onClick: () => window.open(appLocalizer.site_url, '_blank', 'noopener'),
-														}}
-													/>
-												)}
+										<div className="info-item-wrapper">
+											<div className='info-item '>
+												<div className="details-wrapper">
+													<div className="avatar"><i className={`adminfont-${row.icon}`}></i></div>
+													<div className='details'>
+														<div className='name'>
+															{toBreadcrumb(row.urlExample)}
+															<BadgeComponent color={row.badgeColor} text={row.label} />
+														</div>
+														<div className="desc">
+															{row.resolvedTitle || __('(Empty — add a title format)', 'vulopilot')}
+														</div>
+														<div className="desc">
+															{templateValues[row.templateKey] || ''}
+														</div>
+													</div>
+												</div>
 											</div>
 										</div>
 									),
@@ -605,10 +576,19 @@ const TitleFormatsPanel = () => {
 									type: 'action',
 									actions: [
 										{
-											label: __('Edit', 'vulopilot'),
 											type: 'button',
-											icon: 'edit',
-											color: 'text-purple',
+											label: (row: Record<string, unknown>) =>
+												(row as unknown as PreviewRow).key === editingKey
+													? __('Editing', 'vulopilot')
+													: __('Edit', 'vulopilot'),
+											color: (row: Record<string, unknown>) =>
+												(row as unknown as PreviewRow).key === editingKey
+													? 'text-green'
+													: 'text-purple',
+											icon: (row: Record<string, unknown>) =>
+												(row as unknown as PreviewRow).key === editingKey
+													? 'eye'
+													: 'edit',
 											onClick: (row) =>
 												setEditingKey((row as unknown as PreviewRow).key),
 										},
@@ -625,7 +605,7 @@ const TitleFormatsPanel = () => {
 				</ColumnComponent>
 
 				<ColumnComponent grid={4}>
-					{editingRow ? (
+					{editingRow && (
 						<CardComponent
 							title={sprintf(
 								/* translators: %s: the real content type being edited, e.g. "Homepage". */
@@ -633,6 +613,7 @@ const TitleFormatsPanel = () => {
 								editingRow.label
 							)}
 							titleIcon={editingRow.icon}
+							desc={editingRow.description}
 							action={
 								<i
 									className="adminfont-close"
@@ -654,36 +635,8 @@ const TitleFormatsPanel = () => {
 									editingRow.templateKey,
 									editingRow.titleScore
 								)}
-								{renderTemplateField(
-									__('Description format', 'vulopilot'),
-									editingRow.descriptionTemplateKey,
-									editingRow.descriptionScore
-								)}
 							</FormGroupWrapperComponent>
 						</CardComponent>
-					) : (
-						<>
-							<CardComponent
-								title={__('Available Variables', 'vulopilot')}
-								desc={__('Click to copy and use in your title formats.', 'vulopilot')}
-							>
-								<ListComponent className="site-identity-variables-list" items={variableListItems} />
-							</CardComponent>
-
-							<NoticeComponent
-								displayPosition="inline-notice"
-								type="info"
-								title={__('Preview in Google', 'vulopilot')}
-								message={__(
-									'These previews show an estimate of how your titles may appear in Google search results. Actual display can vary by device and search context.',
-									'vulopilot'
-								)}
-							/>
-
-							<CardComponent title={__('SEO Tips', 'vulopilot')}>
-								<ListComponent className="site-identity-tips-list" items={seoTipsItems} />
-							</CardComponent>
-						</>
 					)}
 				</ColumnComponent>
 			</ContainerComponent>

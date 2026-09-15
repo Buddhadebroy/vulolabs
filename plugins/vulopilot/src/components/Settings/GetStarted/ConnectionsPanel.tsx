@@ -138,16 +138,6 @@ const ConnectionsPanel = () => {
 				<GoogleServicesPanel />
 			</SectionRow>
 			<SectionRow
-				icon="analytics"
-				title={__('PageSpeed Insights', 'vulopilot')}
-				desc={__(
-					'Connect PageSpeed Insights API to analyze your site speed, Core Web Vitals, and get actionable optimization suggestions.',
-					'vulopilot'
-				)}
-			>
-				<PageSpeedStatusPanel />
-			</SectionRow>
-			<SectionRow
 				icon="check"
 				title={__('Site Verification', 'vulopilot')}
 				desc={__(
@@ -167,6 +157,7 @@ const ConnectionsPanel = () => {
 			>
 				<PreferencesSection />
 			</SectionRow>
+			<PageSpeedStatusPanel />
 		</>
 	);
 };
