@@ -56,31 +56,11 @@ export default {
 			),
 		},
 		{
-			key: 'entity-section-services',
-			type: 'section',
-			icon: 'link',
-			title: __('Services', 'vulopilot'),
-			desc: __(
-				'One published page per line — a URL or a numeric page ID. Pages that don\'t resolve are skipped.',
-				'vulopilot'
-			),
-		},
-		{
 			key: 'entity_service_pages',
 			type: 'textarea',
 			label: __('Service pages', 'vulopilot'),
 			settingDescription: __(
 				'e.g. https://example.com/consulting/ or just the page ID.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity-section-locations',
-			type: 'section',
-			icon: 'location',
-			title: __('Locations', 'vulopilot'),
-			desc: __(
-				'One location per line, as "Name | Address".',
 				'vulopilot'
 			),
 		},

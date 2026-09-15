@@ -184,6 +184,64 @@ const IndexNowPanel = () => {
 		<>
 			<FormGroupWrapperComponent>
 				<FormGroupComponent
+					label={__('Auto-submit post types', 'vulopilot')}
+					row
+					desc={__(
+						'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
+						'vulopilot'
+					)}
+				>
+					<MultiCheckboxInput
+						options={POST_TYPE_OPTIONS}
+						value={postTypes}
+						modules={[]}
+						onChange={handlePostTypesChange}
+					/>
+				</FormGroupComponent>
+				<FormGroupComponent row
+					label={__('API key', 'vulopilot')}
+					desc={__(
+						"The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties.",
+						'vulopilot'
+					)}
+				>
+					{apiKey && (
+						<ClipboardComponent
+							text={apiKey}
+							variant="code"
+							copyButtonLabel={__('Copy', 'vulopilot')}
+							copiedLabel={__('Copied!', 'vulopilot')}
+						/>
+					)}
+					<ButtonInput
+						position="left"
+						buttons={{
+							text: isChangingKey
+								? __('Changing…', 'vulopilot')
+								: __('Change key', 'vulopilot'),
+							onClick: handleChangeKey,
+							disabled: isChangingKey,
+						}}
+					/>
+				</FormGroupComponent>
+				{apiKey && (
+					<FormGroupComponent row
+						label={__('API key location', 'vulopilot')}
+						desc={__(
+							'Open this link to verify the key file is reachable by search engines — it should show the key.',
+							'vulopilot'
+						)}
+					>
+						<a
+							href={`${appLocalizer.site_url}/${apiKey}.txt`}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{`${appLocalizer.site_url}/${apiKey}.txt`}
+						</a>
+					</FormGroupComponent>
+				)}
+				<FormGroupComponent
 					label={__('URLs to submit', 'vulopilot')}
 					desc={__('One per line, up to 10,000.', 'vulopilot')}
 					row
@@ -224,6 +282,8 @@ const IndexNowPanel = () => {
 				)}
 			</FormGroupWrapperComponent>
 
+			
+
 			{/*
 			 * `.settings-section-group` > `.settings-left-section` (the
 			 * section header) + `.settings-right-section` (a nested
@@ -243,64 +303,8 @@ const IndexNowPanel = () => {
 				</div>
 				<div className="settings-right-section">
 					<FormGroupWrapperComponent>
-						<FormGroupComponent
-							label={__('Auto-submit post types', 'vulopilot')}
-							row
-							desc={__(
-								'Submit posts from these post types automatically to the IndexNow API when a post is published, updated, or trashed.',
-								'vulopilot'
-							)}
-						>
-							<MultiCheckboxInput
-								options={POST_TYPE_OPTIONS}
-								value={postTypes}
-								modules={[]}
-								onChange={handlePostTypesChange}
-							/>
-						</FormGroupComponent>
-						<FormGroupComponent row
-							label={__('API key', 'vulopilot')}
-							desc={__(
-								"The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties.",
-								'vulopilot'
-							)}
-						>
-							{apiKey && (
-								<ClipboardComponent
-									text={apiKey}
-									variant="code"
-									copyButtonLabel={__('Copy', 'vulopilot')}
-									copiedLabel={__('Copied!', 'vulopilot')}
-								/>
-							)}
-							<ButtonInput
-								position="left"
-								buttons={{
-									text: isChangingKey
-										? __('Changing…', 'vulopilot')
-										: __('Change key', 'vulopilot'),
-									onClick: handleChangeKey,
-									disabled: isChangingKey,
-								}}
-							/>
-						</FormGroupComponent>
-						{apiKey && (
-							<FormGroupComponent row
-								label={__('API key location', 'vulopilot')}
-								desc={__(
-									'Open this link to verify the key file is reachable by search engines — it should show the key.',
-									'vulopilot'
-								)}
-							>
-								<a
-									href={`${appLocalizer.site_url}/${apiKey}.txt`}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{`${appLocalizer.site_url}/${apiKey}.txt`}
-								</a>
-							</FormGroupComponent>
-						)}
+
+
 					</FormGroupWrapperComponent>
 				</div>
 			</div>
