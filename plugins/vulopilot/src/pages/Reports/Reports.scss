@@ -768,3 +768,22 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
+// HistoryTab.tsx's own search/date-range/Export row — same real one-row
+// toolbar shape CreateContent.scss's own `.recent-content-toolbar` already
+// establishes, given its own class here rather than reusing that one
+// directly since this row's real content (a date-range `SelectInput`, not
+// a severity/resource pair + "Show ignored" toggle) doesn't match closely
+// enough to share it outright.
+.history-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.625rem;
+	width: 100%;
+}
+
+.category-filter{
+	margin-bottom: 1rem;
+}

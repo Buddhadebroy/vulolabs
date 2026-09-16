@@ -272,13 +272,6 @@ const Accessibility = () => {
 					)}
 				</ColumnComponent>
 
-				<ColumnComponent fullHeight grid={7}>
-					<AccessibilityPriorityList
-						id={PRIORITY_LIST_ID}
-						onViewAll={() => goToIssuesTable('all')}
-						onReviewCheck={goToIssuesTable}
-					/>
-				</ColumnComponent>
 				<ColumnComponent>
 					<SectionedIssuesTable
 						id={ISSUES_TABLE_ID}

@@ -374,7 +374,6 @@ const SlowPagesTab = () => {
 			? response.summary.avg_mobile_score
 			: response.summary.avg_score)
 		: null;
-	const avgScoreRating = ratingFor(avgScore);
 	const avgLoadTimeMs = response?.summary?.avg_load_time_ms ?? null;
 
 	/**
@@ -673,8 +672,8 @@ const SlowPagesTab = () => {
 													: '—'}
 											</TypographyComponent>
 											<div className="page-speed-summary-row-sub">
-												{null !== avgScore
-													? avgScoreRating.label
+												{null !== displayScore
+													? displayScoreRating.label
 													: __('Not scored yet', 'vulopilot')}
 											</div>
 										</div>

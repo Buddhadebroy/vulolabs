@@ -90,6 +90,13 @@ export interface HistoryRow {
 }
 
 export const FILTER_TABS: { id: HistoryFilter; label: string }[] = [
+	// `HistoryFilter`/`activeFilter`'s own default state, and every real
+	// consumer's own fetch (e.g. HistoryTab.tsx's own `fetchPage()`:
+	// `'all' !== activeFilter && params.set('type', activeFilter)`),
+	// already treat `'all'` as the real no-filter sentinel — this was just
+	// the missing pill for it, same gap SlowPagesTab.tsx's own
+	// `statusCategoryCounts` had.
+	{ id: 'all', label: __('All', 'vulopilot') },
 	{ id: 'conversation', label: __('Conversations', 'vulopilot') },
 	{ id: 'scan', label: __('Scans', 'vulopilot') },
 	{ id: 'change', label: __('Changes', 'vulopilot') },
