@@ -8,7 +8,6 @@ import {
 	NavigatorHeaderComponent,
 	PopupComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import {
 	CartesianGrid,
 	Line,
@@ -28,15 +27,10 @@ import SectionedIssuesTable, {
 } from '../Security/SectionedIssuesTable';
 import PluginOverlapCard from '../Security/PluginOverlapCard';
 import AccessibilityHeroCard from './AccessibilityHeroCard';
-import AccessibilityChecksGrid from './AccessibilityChecksGrid';
-import AccessibilityPriorityList from './AccessibilityPriorityList';
 import AccessibilityManualTestingPanel from './AccessibilityManualTestingPanel';
-import AccessibilityWcagNotice from './AccessibilityWcagNotice';
 import WhyAccessibilityMattersCard from './WhyAccessibilityMattersCard';
 import { ACCESSIBILITY_CHECKS } from './accessibilityChecks';
 
-/** Anchor id "Review Important Issues"/the empty state scroll to. */
-const PRIORITY_LIST_ID = 'accessibility-a11y-priority';
 /** DOM anchor id the merged issues table below carries. */
 const ISSUES_TABLE_ID = 'accessibility-a11y-issues-table';
 /** Real backend module id (Settings → Modules) — same id `vulopilot-pro`'s `modules/AccessibilityAudits` own directory name resolves to, used both for the "which module to deep-link to" popup and for resolving its real display name for the dummy card's badge below. */
@@ -63,63 +57,6 @@ const DUMMY_ACCESSIBILITY_HISTORY = [
 const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 	(check) => 'all' !== check.key
 );
-
-const scrollTo = (id: string) => () =>
-	document
-		.getElementById(id)
-		?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-/**
- * Visible teaser for the dashboard-stats slot above — shown instead of it
- * when `AccessibilityDashboardCard` isn't registered (the real
- * `accessibility-audits` module inactive), so the feature is discoverable
- * rather than simply absent. Previously both this and
- * AccessibilityHistoryDummy rendered `{Slot && <Slot />}` with no
- * fallback at all — the exact "Pro content silently invisible" bug class
- * already fixed this session for WooCommerce's Bulk AI/Store Intelligence
- * panels and the Automation panel. Unlike those two WooCommerce modules,
- * `accessibility-audits` has a real, normal toggle card on the Modules
- * page (src/components/Modules/index.ts), so — same pattern
- * FindingsTable.tsx's own Pro popup already uses — "Enable Now" can safely
- * deep-link to it by real module id when Pro is active.
- */
-const AccessibilityDashboardLockedCard = () => {
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-
-	return (
-		<>
-			<CardComponent
-				title={__('Accessibility Dashboard', 'vulopilot')}
-				titleIcon="lock"
-				desc={__(
-					'A real severity breakdown, your last scan time, and your scheduled scan frequency.',
-					'vulopilot'
-				)}
-			>
-				<ButtonInput
-					buttons={{
-						text: __('Unlock with Pro', 'vulopilot'),
-						icon: 'lock',
-						onClick: () => setIsProPopupOpen(true),
-					}}
-				/>
-			</CardComponent>
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="accessibility-audits" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-		</>
-	);
-};
 
 /**
  * Visible teaser for the history-trend slot above — same real "still show
@@ -206,11 +143,10 @@ const AccessibilityHistoryDummy = () => {
  * `accessibility`, `classes/Admin.php`'s `$submenus` entry), matching the
  * reference mockup: hero card (real score + real open-issue/high-
  * priority/pages-affected counts) side by side (grid={8}/grid={4}, per
- * direct instruction) with the "Accessibility Checks" 5-tile grid, then
- * "What should I fix first?" (the 3 highest-risk open findings), a
- * Pro dashboard-stats slot, the "Some accessibility checks need a person"
- * manual-testing panel, a WCAG scope notice, then one real, unified
- * issues table (SectionedIssuesTable.tsx, imported from `../Security/` —
+ * direct instruction) with the "Accessibility Checks" 5-tile grid, the
+ * "Some accessibility checks need a person" manual-testing panel, then one
+ * real, unified issues table (SectionedIssuesTable.tsx, imported from
+ * `../Security/` —
  * a generic component several top-level pages share, same merge pattern
  * WooCommerce's own "All WooCommerce Issues" already established) —
  * replacing what used to be 5 separate `layout="compact"` FindingsTable
@@ -218,6 +154,18 @@ const AccessibilityHistoryDummy = () => {
  * rendered "All Accessibility Findings" combined section: that combined
  * section is now just the merged table's own built-in "All" tab, so it no
  * longer needs its own card.
+ *
+ * "What should I fix first?" (formerly AccessibilityPriorityList.tsx) —
+ * removed per direct instruction; the issues table below already covers
+ * the same ground, and the file itself is deleted (no other importer). The
+ * hero card's own "Review Important Issues" button now scrolls to that
+ * table (`goToIssuesTable('all')`) instead of the removed panel's own
+ * now-gone anchor.
+ *
+ * The closing WCAG scope notice (formerly AccessibilityWcagNotice.tsx) was
+ * already commented out of this render and had no other importer either —
+ * deleted as part of the same dead-file cleanup rather than left as an
+ * unused import + a permanently-commented-out JSX line.
  *
  * Was a 4th tab inside "Protect My Site" (`pages/Security/AccessibilityTab.tsx`)
  * until moved out per direct instruction — its checks (page structure,
@@ -231,38 +179,53 @@ const AccessibilityHistoryDummy = () => {
  * `modules/Accessibility/Module.php` exists, and none of the other core
  * pages go through that loader either).
  *
- * The two Pro slots (dashboard-stats, history-trend) render a real
- * fallback teaser (AccessibilityDashboardLockedCard/
- * AccessibilityHistoryDummy) instead of nothing when `accessibility-audits`
- * isn't active — previously `{Slot && <Slot />}` left this page's richest
- * content silently invisible with no way to discover it existed at all.
- * AccessibilityHistoryDummy now matches BrandVisibilityProDummies.tsx's own
- * "still show the section, PRO/module-name-tagged, with fabricated content
- * behind a click-through popup" convention rather than a plain lock-icon/
- * button teaser — AccessibilityDashboardLockedCard is still the older,
- * simpler button-only teaser (out of scope here; not asked). Both slots are
- * read via `useFilterSlot()`, not a one-time module-scope `applyFilters()`
- * call — Pro's own `addFilter()` registration always runs strictly after
- * this component's first render on a fresh page load (a script-loading
- * race, not a logic bug — see useFilterSlot.ts's own docblock), so a
- * one-time read would permanently miss it and show the fallback teaser
- * even with the module genuinely active.
+ * The history-trend slot (`vulopilot_accessibility_history_panel`) renders
+ * a real fallback teaser (AccessibilityHistoryDummy) instead of nothing
+ * when `accessibility-audits` isn't active — previously `{Slot && <Slot
+ * />}` left this page's richest content silently invisible with no way to
+ * discover it existed at all. AccessibilityHistoryDummy matches
+ * BrandVisibilityProDummies.tsx's own "still show the section, PRO/
+ * module-name-tagged, with fabricated content behind a click-through
+ * popup" convention. Read via `useFilterSlot()`, not a one-time
+ * module-scope `applyFilters()` call — Pro's own `addFilter()`
+ * registration always runs strictly after this component's first render
+ * on a fresh page load (a script-loading race, not a logic bug — see
+ * useFilterSlot.ts's own docblock), so a one-time read would permanently
+ * miss it and show the fallback teaser even with the module genuinely
+ * active.
  *
- * The history-trend slot is paired grid={8}/grid={4} with
- * WhyAccessibilityMattersCard (per reference mockup) — static explainer
- * copy, not license-gated like the chart beside it, since there's no real
- * data behind those 4 points to withhold.
+ * There used to be a 2nd Pro slot here (`vulopilot_accessibility_dashboard_card`,
+ * a severity-breakdown/last-scan/schedule card) with its own
+ * AccessibilityDashboardLockedCard teaser — both were dead code (defined,
+ * never actually rendered in this component's own return) and have been
+ * removed rather than wired up, per direct instruction.
+ * vulopilot-pro's own AccessibilityDashboardCard.tsx (modules/
+ * AccessibilityAudits) still registers that filter; nothing in Free reads
+ * it anymore.
  *
- * Closes with PluginOverlapCard (`../Security/`) filtered to
- * `category="accessibility"` — real cross-sell (e.g. WP Accessibility
- * active → VuloPilot's own Accessibility Guard) surfaced in the page a
- * user reading about accessibility is already on.
+ * The history-trend slot is paired grid={6}/grid={6} (50/50, per direct
+ * instruction) with WhyAccessibilityMattersCard — static explainer copy,
+ * not license-gated like the chart beside it, since there's no real data
+ * behind those 4 points to withhold. Each now sits in its own
+ * `ColumnComponent`, not stacked together in one shared column as before —
+ * `.admin-tag.pro-tag` (zyra's own theme/src/common.scss) is `position:
+ * absolute`, anchoring to its nearest `position: relative` ancestor
+ * (`ColumnComponent`'s own `.card-wrapper` root div) as a corner ribbon; 3
+ * cards sharing one column meant that ribbon anchored to the *column's*
+ * bounding box — i.e. visually pinned to the first card
+ * (WhyAccessibilityMattersCard) even though AccessibilityHistoryDummy was
+ * the one rendering it. Splitting them into 2 columns fixes the badge back
+ * onto the real card it belongs to, same reasoning KeywordsTab.tsx's own
+ * `.keywords-locked` docblock documents for the identical anchor issue.
+ *
+ * PluginOverlapCard (`../Security/`) — real cross-sell (e.g. WP
+ * Accessibility active → VuloPilot's own Accessibility Guard) — moved to
+ * its own full-width row below the 2 columns above (previously stacked
+ * between them in the same shared column) so it isn't caught inside either
+ * column's own `position: relative` anchor.
  */
 const Accessibility = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
-	const AccessibilityDashboardCard = useFilterSlot(
-		'vulopilot_accessibility_dashboard_card'
-	);
 	const AccessibilityHistoryPanel = useFilterSlot(
 		'vulopilot_accessibility_history_panel'
 	);
@@ -296,8 +259,7 @@ const Accessibility = () => {
 			<ContainerComponent general>
 				<ColumnComponent fullHeight grid={7}>
 					<AccessibilityHeroCard
-						onReviewIssues={scrollTo(PRIORITY_LIST_ID)}
-						onViewAll={() => goToIssuesTable('all')}
+						onReviewIssues={() => goToIssuesTable('all')}
 					/>
 				</ColumnComponent>
 
@@ -305,10 +267,11 @@ const Accessibility = () => {
 					<AccessibilityManualTestingPanel />
 				</ColumnComponent>
 
-				<ColumnComponent fullHeight grid={5}>
+				<ColumnComponent fullHeight grid={6}>
 					<WhyAccessibilityMattersCard />
+				</ColumnComponent>
 
-					<PluginOverlapCard category="accessibility" />
+				<ColumnComponent fullHeight grid={6}>
 					{AccessibilityHistoryPanel ? (
 						<AccessibilityHistoryPanel />
 					) : (
@@ -316,14 +279,9 @@ const Accessibility = () => {
 					)}
 				</ColumnComponent>
 
-				<ColumnComponent fullHeight grid={7}>
-					<AccessibilityPriorityList
-						id={PRIORITY_LIST_ID}
-						onViewAll={() => goToIssuesTable('all')}
-						onReviewCheck={goToIssuesTable}
-					/>
+				<ColumnComponent>
+					<PluginOverlapCard category="accessibility" />
 				</ColumnComponent>
-				{/* <AccessibilityWcagNotice /> */}
 				<ColumnComponent>
 					<SectionedIssuesTable
 						id={ISSUES_TABLE_ID}
