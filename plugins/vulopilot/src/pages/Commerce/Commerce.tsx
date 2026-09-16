@@ -5,6 +5,7 @@ import { addFilter } from '@wordpress/hooks';
 import { ColumnComponent, ContainerComponent, NavigatorHeaderComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
+import DummyDataNotice from '../../components/DummyDataNotice';
 import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import CommerceIssuesTable from './CommerceIssuesTable';
@@ -129,6 +130,7 @@ const CommercePanel = () => {
 						</div>
 					))}
 				</div>
+				<DummyDataNotice />
 				<div
 					className="commerce-locked-overlay"
 					role="button"

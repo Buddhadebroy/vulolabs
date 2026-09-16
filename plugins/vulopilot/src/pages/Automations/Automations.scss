@@ -647,3 +647,16 @@
 	color: $sub-text-color;
 }
 
+// BuiltinAutomationCards.tsx's own scroll-to-and-flash — the real target
+// of AI Copilot's "Create new automation" card's 2 free rows
+// (AutomationsTemplatesCard.tsx's own `automation_template=<id>` deep
+// link), briefly highlighted so the click's own real landing spot is
+// obvious, not just a bare, unhighlighted Automations tab. Fades back to
+// normal after BuiltinAutomationCards.tsx's own HIGHLIGHT_DURATION_MS via
+// the transition below, not an abrupt class removal.
+.builtin-automation-card-highlighted {
+	border-radius: $border-radius-small;
+	box-shadow: 0 0 0 0.125rem $theme-color;
+	transition: box-shadow 0.4s ease;
+}
+

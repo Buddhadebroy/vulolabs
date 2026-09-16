@@ -15,6 +15,7 @@ import {
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../components/Popup/Popup';
+import DummyDataNotice from '../../components/DummyDataNotice';
 import { formatWpDate } from '../../services/formatWpDate';
 import { getSeverityClass } from '../../services/getSeverityClass';
 import {
@@ -388,6 +389,12 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 				<div className="issue-detail-pro-gate-dummy" aria-hidden="true">
 					{dummyContent}
 				</div>
+				{/* Same reasoning as `showTag` above — the action row's own
+				 * call (showTag=false) sits directly under "Affected items"'
+				 * own gated section, which already shows this notice; a
+				 * second copy immediately below would just be duplicate
+				 * clutter, not a second distinct locked thing. */}
+				{showTag && <DummyDataNotice />}
 				<div
 					className="issue-detail-pro-gate-overlay"
 					role="button"

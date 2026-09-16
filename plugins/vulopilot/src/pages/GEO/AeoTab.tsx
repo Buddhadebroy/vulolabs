@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useModules } from '@zyra/core';
-import { ColumnComponent, ContainerComponent, NoticeComponent } from '@zyra/components';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import AeoScoreSummaryCard from './AeoScoreSummaryCard';
 import { computeTrendChange } from './geoTrendChange';
 import AeoCitationCoverageCard from './AeoCitationCoverageCard';
@@ -353,14 +353,6 @@ const AeoTab = () => {
 					topics={AEO_SECTIONS}
 					groups={groups}
 					onSelectTopic={goToIssuesTable}
-				/>
-				<NoticeComponent
-					// type="banner"
-					displayPosition="inline-notice"
-					message={__(
-						'AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results.',
-						'vulopilot'
-					)}
 				/>
 			</ColumnComponent>
 			<AeoCitationCoverageCard isActive={isCitationCheckActive(modules)} />

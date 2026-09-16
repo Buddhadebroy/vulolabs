@@ -102,7 +102,13 @@ const AutomationsTemplatesCard: React.FC<AutomationsTemplatesCardProps> = ({
 
 	const handleItemClick = (template: AutomationTemplate) => {
 		if (template.linkOnly) {
-			window.location.href = `${appLocalizer.admin_url}#&tab=automations`;
+			// Same `automation_template=<id>` deep-link param the Pro rows'
+			// own `onSelectTemplate` path already carries — Automations.tsx's
+			// own mount effect resolves it back to this exact template and
+			// scrolls to/highlights its real BuiltinAutomationCards.tsx card
+			// (per direct instruction: clicking a row here should land on
+			// the real card, not just the bare Automations tab).
+			window.location.href = `${appLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;
 			return;
 		}
 

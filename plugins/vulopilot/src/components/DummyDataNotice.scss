@@ -1,0 +1,29 @@
+@use './config' as *;
+
+// DummyDataNotice.tsx — icon + vertical divider + text, matching the
+// reference design's own exact shape. Shared across every "PRO tag +
+// fabricated content" spot in this plugin.
+.dummy-data-notice {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	margin-top: 1rem;
+	padding: 0.625rem 0.875rem;
+	border-radius: $border-radius-small;
+	background: rgba(245, 158, 11, 0.08);
+	color: $sub-text-color;
+	font-size: 0.8125rem;
+
+	> i {
+		flex-shrink: 0;
+		font-size: 1rem;
+		color: $sub-text-color;
+	}
+}
+
+.dummy-data-notice-divider {
+	flex-shrink: 0;
+	align-self: stretch;
+	width: 0.063rem;
+	background: rgba($sub-text-color, 0.3);
+}

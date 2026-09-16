@@ -9,15 +9,11 @@ import {
 	ContainerComponent,
 	IconComponent,
 	ListComponent,
-	ModuleGuardComponent,
 	TypographyComponent,
 } from '@zyra/components';
 import { ButtonInput, ToggleInput } from '@zyra/inputs';
-import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
-import { toHistoryRow } from '../../services/historyTypes';
-import HistoryTimeline from '../Reports/HistoryTimeline';
 import { useVisibilityScore } from './useVisibilityScore';
 import type { VisibilityScoreResponse } from './useVisibilityScore';
 import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
@@ -101,33 +97,6 @@ interface ProgressResponse {
 	days: number;
 	trend: { date: string; score: number }[];
 }
-
-interface ActivityLogRow {
-	id: number;
-	message: string;
-	created_at: string;
-	/** Real column on every `activity-logs` row (a plain `SELECT *`) — this local interface just didn't type it before, since nothing here read it. */
-	event_type: string;
-}
-
-/**
- * Every real event type `Services/ScanPersistenceListener.php`/
- * `AIActions/ActionRunner.php` actually write that plausibly belongs on a
- * sitewide "Recent Activity" feed (not `RecentActivityCard.tsx`'s own
- * security-only subset) — `scan.completed`/`scan.completed.security` (a
- * real scan finished), `critical_alert` (a real new-critical-findings
- * alert), `ai_action.executed`/`ai_action.failed` (a real AI-proposed fix
- * actually applied or attempted). No "score improved"/"AI answer
- * opportunity found" event type exists anywhere in this codebase — rather
- * than fabricate one, this just shows what's real.
- */
-const ACTIVITY_EVENT_TYPES = [
-	'scan.completed',
-	'scan.completed.security',
-	'critical_alert',
-	'ai_action.executed',
-	'ai_action.failed',
-].join(',');
 
 /** Real `FindingGroup.category` values → the real SEO & Visibility subtab that owns that category's findings — kept in sync manually with each area's own scanner-id list, same posture Visibility.php's own `AREA_SCANNER_IDS` already documents. Defaults to 'seo', this plugin's own largest real issues surface. */
 const CATEGORY_TO_TAB: Record<string, string> = {
@@ -253,11 +222,6 @@ const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] 
  *   this same component, this one intentionally spans every real scanner
  *   category), reusing `GeoFixTheseFirstCard.tsx` (confirmed unused
  *   elsewhere) with its title overridden.
- * - "Recent Activity": real `GET /activity-logs`, scoped to
- *   `ACTIVITY_EVENT_TYPES` below — only event types this codebase actually
- *   writes; there is no "score improved"/"AI answer opportunity found"
- *   event anywhere, so those mockup rows are honestly omitted rather than
- *   invented.
  * - "Quick Links": real in-SPA tab navigation (`onNavigateTab`, the same
  *   `goToTab` `SeoVisibility.tsx` already passes down) — no full page
  *   reload.
@@ -304,19 +268,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 			})
 			.finally(() => setIsLoadingOpportunities(false));
 	}, []);
-
-	const { data: activity, isLoading: isLoadingActivity } = useApiList<ActivityLogRow>(
-		'activity-logs',
-		{ event_type: ACTIVITY_EVENT_TYPES, per_page: 5 }
-	);
-	// Purely local UI state — this card shows no side detail panel for a
-	// selected row, so nothing else reads it; still real and working (a
-	// clicked row visibly highlights via HistoryTimeline's own real
-	// `.selected` class), not a fabricated no-op.
-	const [selectedActivityRow, setSelectedActivityRow] = useState<ReturnType<
-		typeof toHistoryRow
-	> | null>(null);
-	const activityHistoryRows = activity.map(toHistoryRow);
 
 	const areas = score?.areas;
 
@@ -529,43 +480,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 						onNavigateTab(group ? groupToTab(group) : 'seo');
 					}}
 				/>
-				<CardComponent
-					title={__('Recent Activity', 'vulopilot')}
-					titleIcon="clock"
-					desc={__('Scans, alerts, and applied fixes across your site.', 'vulopilot')}
-					isLoading={isLoadingActivity}
-				>
-					{!isLoadingActivity && 0 === activity.length ? (
-						<ModuleGuardComponent
-							icon="info"
-							title={__('No recent activity', 'vulopilot')}
-							desc={__('Scans, alerts, and applied fixes will appear here as they happen.', 'vulopilot')}
-						/>
-					) : (
-						// This card's own hand-rolled `.activity-log`
-						// markup was previously reverted off a shared
-						// component per an earlier direct instruction — now
-						// switched to HistoryTimeline (Reports/HistoryTimeline.tsx),
-						// the current shared component every real "recent
-						// activity" surface in this plugin uses, per a
-						// newer direct instruction superseding that one.
-						<HistoryTimeline
-							rows={activityHistoryRows}
-							total={activityHistoryRows.length}
-							selectedRow={selectedActivityRow}
-							onSelectRow={setSelectedActivityRow}
-							isLoadingMore={false}
-							onLoadMore={() => {}}
-							// Real navigation to the full History tab
-							// (Reports → History) — this card has no side
-							// detail panel of its own for the arrow to
-							// open a row into.
-							onArrowClick={() => {
-								window.location.href = `${appLocalizer.admin_url}#&tab=reports&subtab=history`;
-							}}
-						/>
-					)}
-				</CardComponent>
 			</ColumnComponent>
 			<ColumnComponent grid={4}>
 				<CardComponent

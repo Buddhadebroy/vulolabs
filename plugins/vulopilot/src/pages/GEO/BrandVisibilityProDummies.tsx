@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import { AnalyticsComponent, BadgeComponent, CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
@@ -10,6 +11,7 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
+import DummyDataNotice from '../../components/DummyDataNotice';
 import './SeoVisibility.scss';
 
 interface DummyCardProps {
@@ -32,6 +34,42 @@ interface DummyCardProps {
  * wrapping overlay, which opens the same Pro popup either way.
  */
 
+/**
+ * Wraps a dummy card's own `.admin-tag.pro-tag` (zyra's own compiled CSS —
+ * `position: absolute; right: 1rem; top: 0.813rem;`, needing a real
+ * `position: relative` ancestor to anchor to) in a real positioned
+ * container of its own, rather than depending on the caller to wrap each
+ * dummy in its own `<ColumnComponent>` (zyra's `.card-wrapper` root div is
+ * always `position: relative` — the original docking mechanism this file's
+ * own `ProBadge`-less version relied on). AuthorityTrendsDummy/
+ * KnowledgePanelDummy happened to get that for free in
+ * BrandVisibilityTab.tsx (each sits inside its own `<ColumnComponent
+ * grid={6}>`), but CompetitorComparisonDummy/OffSiteMentionsDummy don't —
+ * both render as bare fragment children there (no `<ColumnComponent>` of
+ * their own), so their badge had no real positioned ancestor nearby and
+ * escaped to whatever ancestor *was* positioned — confirmed live: the tag
+ * meant for "Competitor Comparison" rendered nowhere near it (visually
+ * landing over the unrelated Authority Score tile instead), while
+ * "Competitor Comparison" itself showed no tag at all. Making every dummy
+ * self-contained here fixes both symptoms at once, regardless of how a
+ * future call site lays it out.
+ */
+const ProDummyCard = ({
+	badgeText,
+	children,
+}: {
+	badgeText: string;
+	children: ReactNode;
+}) => (
+	<div className="brand-pro-dummy-wrapper">
+		<span className="admin-tag pro-tag">
+			<i className="adminfont-pro-tag" />
+			{badgeText}
+		</span>
+		{children}
+	</div>
+);
+
 const DUMMY_AUTHORITY_HISTORY = [
 	{ day: __('Day 1', 'vulopilot'), brand: 92, trust: 96, authority: 88, entity: 85 },
 	{ day: __('Day 2', 'vulopilot'), brand: 90, trust: 96, authority: 86, entity: 85 },
@@ -48,15 +86,7 @@ const DUMMY_AUTHORITY_HISTORY = [
  * history chart).
  */
 export const AuthorityTrendsDummy = ({ badgeText, onClick }: DummyCardProps) => (
-	<>
-		{/* Docks against `.card-wrapper` (ColumnComponent's own root div,
-		 * always `position: relative` in zyra) rather than a wrapper div of
-		 * its own — CardComponent's own `badges` prop drops any custom
-		 * class. */}
-		<span className="admin-tag pro-tag">
-			<i className="adminfont-pro-tag" />
-			{badgeText}
-		</span>
+	<ProDummyCard badgeText={badgeText}>
 		<CardComponent
 			title={__('Authority Trends', 'vulopilot')}
 			titleIcon="identity-verification"
@@ -113,8 +143,9 @@ export const AuthorityTrendsDummy = ({ badgeText, onClick }: DummyCardProps) => 
 					</LineChart>
 				</ResponsiveContainer>
 			</div>
+			<DummyDataNotice />
 		</CardComponent>
-	</>
+	</ProDummyCard>
 );
 
 /**
@@ -140,11 +171,7 @@ const DUMMY_KNOWLEDGE_PANEL_FINDINGS: { title: string }[] = [
  * one-click optimizer).
  */
 export const KnowledgePanelDummy = ({ badgeText, onClick }: DummyCardProps) => (
-	<>
-		<span className="admin-tag pro-tag">
-			<i className="adminfont-pro-tag" />
-			{badgeText}
-		</span>
+	<ProDummyCard badgeText={badgeText}>
 		<CardComponent
 			title={__('Knowledge Panel Optimization', 'vulopilot')}
 			titleIcon="identity-verification"
@@ -211,8 +238,9 @@ export const KnowledgePanelDummy = ({ badgeText, onClick }: DummyCardProps) => (
 					))}
 				</ul>
 			</div>
+			<DummyDataNotice />
 		</CardComponent>
-	</>
+	</ProDummyCard>
 );
 
 const DUMMY_MENTIONS: { title: string; source: string }[] = [
@@ -228,11 +256,7 @@ const DUMMY_MENTIONS: { title: string; source: string }[] = [
  * tracker).
  */
 export const OffSiteMentionsDummy = ({ badgeText, onClick }: DummyCardProps) => (
-	<>
-		<span className="admin-tag pro-tag">
-			<i className="adminfont-pro-tag" />
-			{badgeText}
-		</span>
+	<ProDummyCard badgeText={badgeText}>
 		<CardComponent
 			title={__('Off-site mentions', 'vulopilot')}
 			titleIcon="web-page-website"
@@ -286,8 +310,9 @@ export const OffSiteMentionsDummy = ({ badgeText, onClick }: DummyCardProps) => 
 					))}
 				</ul>
 			</div>
+			<DummyDataNotice />
 		</CardComponent>
-	</>
+	</ProDummyCard>
 );
 
 const COMPETITOR_SIGNAL_COLUMNS: string[] = [
@@ -325,11 +350,7 @@ const DUMMY_COMPETITOR_ROWS: { label: string; score: string; isSelf: boolean; si
  * competitor URLs" table).
  */
 export const CompetitorComparisonDummy = ({ badgeText, onClick }: DummyCardProps) => (
-	<>
-		<span className="admin-tag pro-tag">
-			<i className="adminfont-pro-tag" />
-			{badgeText}
-		</span>
+	<ProDummyCard badgeText={badgeText}>
 		<CardComponent
 			title={__('Competitor Comparison', 'vulopilot')}
 			titleIcon="tools"
@@ -402,6 +423,7 @@ export const CompetitorComparisonDummy = ({ badgeText, onClick }: DummyCardProps
 					</table>
 				</div>
 			</div>
+			<DummyDataNotice />
 		</CardComponent>
-	</>
+	</ProDummyCard>
 );
