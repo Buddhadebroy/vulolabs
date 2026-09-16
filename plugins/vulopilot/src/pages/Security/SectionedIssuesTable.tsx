@@ -650,7 +650,7 @@ const SectionedIssuesTable = ({
 	);
 
 	return (
-		<ContainerComponent>
+		<ContainerComponent id={id}>
 			<ColumnComponent>
 				<SectionComponent
 					wrapperClass="without-settings"

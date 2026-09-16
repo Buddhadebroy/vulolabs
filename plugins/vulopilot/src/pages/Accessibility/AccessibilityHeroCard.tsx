@@ -26,7 +26,6 @@ interface DashboardSummary {
 
 interface AccessibilityHeroCardProps {
 	onReviewIssues: () => void;
-	onViewAll: () => void;
 }
 
 /** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses — kept structurally identical so both files' ring colors read from the same kind of map. */
@@ -110,7 +109,6 @@ const getRating = (score: number): string => {
  */
 const AccessibilityHeroCard = ({
 	onReviewIssues,
-	onViewAll,
 }: AccessibilityHeroCardProps) => {
 	const [score, setScore] = useState<number | null>(null);
 	const [previousScore, setPreviousScore] = useState<number | null>(null);
@@ -227,20 +225,6 @@ const AccessibilityHeroCard = ({
 										color: 'border-purple',
 										onClick: onReviewIssues,
 									},
-									...(total > 0
-										? [
-											{
-												text: sprintf(
-													/* translators: %d is the number of open findings. */
-													__('View All %d Findings', 'vulopilot'),
-													total
-												),
-												rightIcon: 'pagination-right-arrow',
-												color: 'border-purple',
-												onClick: onViewAll,
-											},
-										]
-										: []),
 								]}
 							/>
 						</>
