@@ -13,7 +13,6 @@ import {
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
-	TooltipComponent,
 	TypographyComponent,
 	ContainerComponent
 } from '@zyra/components';
@@ -73,7 +72,7 @@ const TYPE_BADGE_CLASS: Record<number, string> = {
 	307: 'badge-locked',
 };
 
-/** Same real 3-tier 0-100 band SeoTab.tsx's own `getRating()`/`ratingClass()`/`ratingColor()` already establish — duplicated locally per this codebase's own "duplicate small per-file logic" convention. Used for the "Redirect Health" ring's own real `activeCount/totalCount` percentage below. */
+/** Same real 3-tier 0-100 band SeoTab.tsx's own `getRating()`/`ratingColor()` already establish — duplicated locally per this codebase's own "duplicate small per-file logic" convention. Used for the "Redirect Health" ring's own real `activeCount/totalCount` percentage below. */
 const getRating = (score: number): string => {
 	if (score >= 70) {
 		return __('Good', 'vulopilot');
@@ -82,16 +81,6 @@ const getRating = (score: number): string => {
 		return __('Needs Attention', 'vulopilot');
 	}
 	return __('Poor', 'vulopilot');
-};
-
-const ratingClass = (score: number): string => {
-	if (score >= 70) {
-		return 'is-good';
-	}
-	if (score >= 40) {
-		return 'is-attention';
-	}
-	return 'is-poor';
 };
 
 const ratingColor = (score: number): string => {

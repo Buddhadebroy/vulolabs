@@ -9,9 +9,20 @@ import {
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
+import {
+	CartesianGrid,
+	Line,
+	LineChart,
+	ResponsiveContainer,
+	XAxis,
+	YAxis,
+} from 'recharts';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
-import ShowProPopup from '../../components/Popup/Popup';
+import ShowProPopup, {
+	resolveModuleDisplayName,
+} from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
+import './Accessibility.scss';
 import SectionedIssuesTable, {
 	SectionedIssuesTab,
 } from '../Security/SectionedIssuesTable';
@@ -28,6 +39,19 @@ import { ACCESSIBILITY_CHECKS } from './accessibilityChecks';
 const PRIORITY_LIST_ID = 'accessibility-a11y-priority';
 /** DOM anchor id the merged issues table below carries. */
 const ISSUES_TABLE_ID = 'accessibility-a11y-issues-table';
+/** Real backend module id (Settings → Modules) — same id `vulopilot-pro`'s `modules/AccessibilityAudits` own directory name resolves to, used both for the "which module to deep-link to" popup and for resolving its real display name for the dummy card's badge below. */
+const ACCESSIBILITY_MODULE_ID = 'accessibility-audits';
+
+/** Fabricated 7-day score trend — same "obviously fake, never mistaken for a real scan result" reasoning BrandVisibilityProDummies.tsx's own `DUMMY_AUTHORITY_HISTORY` documents; no real fetch behind this, ever. */
+const DUMMY_ACCESSIBILITY_HISTORY = [
+	{ day: __('Day 1', 'vulopilot'), score: 62 },
+	{ day: __('Day 2', 'vulopilot'), score: 66 },
+	{ day: __('Day 3', 'vulopilot'), score: 65 },
+	{ day: __('Day 4', 'vulopilot'), score: 71 },
+	{ day: __('Day 5', 'vulopilot'), score: 74 },
+	{ day: __('Day 6', 'vulopilot'), score: 78 },
+	{ day: __('Day 7', 'vulopilot'), score: 82 },
+];
 
 /**
  * `ACCESSIBILITY_CHECKS` minus its synthetic `'all'` tile (AccessibilityChecksGrid.tsx's
@@ -50,7 +74,7 @@ const scrollTo = (id: string) => () =>
  * when `AccessibilityDashboardCard` isn't registered (the real
  * `accessibility-audits` module inactive), so the feature is discoverable
  * rather than simply absent. Previously both this and
- * AccessibilityHistoryLockedCard rendered `{Slot && <Slot />}` with no
+ * AccessibilityHistoryDummy rendered `{Slot && <Slot />}` with no
  * fallback at all — the exact "Pro content silently invisible" bug class
  * already fixed this session for WooCommerce's Bulk AI/Store Intelligence
  * panels and the Automation panel. Unlike those two WooCommerce modules,
@@ -98,29 +122,67 @@ const AccessibilityDashboardLockedCard = () => {
 };
 
 /**
- * Visible teaser for the history-trend slot above — same fix as
- * AccessibilityDashboardLockedCard above.
+ * Visible teaser for the history-trend slot above — same real "still show
+ * the section, PRO-tagged, with fabricated content behind a click-through
+ * popup" treatment BrandVisibilityProDummies.tsx's own 4 dummy cards
+ * already use, replacing this card's former lock-icon/"Unlock with Pro"
+ * button-only teaser (which looked identical whether Pro wasn't installed
+ * at all or was installed with this module just not toggled on yet — the
+ * badge text and popup below now tell those 2 states apart, same
+ * `isProInstalled`/`resolveModuleDisplayName()` 2-tier badge
+ * BrandVisibilityTab.tsx's own `brandProBadge` already establishes).
  */
-const AccessibilityHistoryLockedCard = () => {
+const AccessibilityHistoryDummy = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const isProInstalled = Boolean(appLocalizer.khali_dabba);
+	const badgeText = isProInstalled
+		? resolveModuleDisplayName(ACCESSIBILITY_MODULE_ID)
+		: __('Pro', 'vulopilot');
 
 	return (
 		<>
+			{/* Docks against `.card-wrapper` (ColumnComponent's own root div,
+			 * always `position: relative` in zyra) rather than a wrapper div of
+			 * its own — CardComponent's own `badges` prop drops any custom
+			 * class. Same convention AuthorityTrendsDummy etc. already use. */}
+			<span className="admin-tag pro-tag">
+				<i className="adminfont-pro-tag" />
+				{badgeText}
+			</span>
 			<CardComponent
 				title={__('Accessibility Score History', 'vulopilot')}
-				titleIcon="lock"
+				titleIcon="analytics"
 				desc={__(
 					'Real historical accessibility score trend over time, so you can see whether things are actually improving.',
 					'vulopilot'
 				)}
 			>
-				<ButtonInput
-					buttons={{
-						text: __('Unlock with Pro', 'vulopilot'),
-						icon: 'lock',
-						onClick: () => setIsProPopupOpen(true),
+				<div
+					className="accessibility-history-dummy"
+					role="button"
+					tabIndex={0}
+					onClick={() => setIsProPopupOpen(true)}
+					onKeyDown={(event) => {
+						if ('Enter' === event.key || ' ' === event.key) {
+							setIsProPopupOpen(true);
+						}
 					}}
-				/>
+				>
+					<ResponsiveContainer width="100%" height={200}>
+						<LineChart data={DUMMY_ACCESSIBILITY_HISTORY}>
+							<CartesianGrid strokeDasharray="3 3" />
+							<XAxis dataKey="day" />
+							<YAxis domain={[0, 100]} />
+							<Line
+								type="monotone"
+								dataKey="score"
+								name={__('Score', 'vulopilot')}
+								stroke="#7C3AED"
+								dot={false}
+							/>
+						</LineChart>
+					</ResponsiveContainer>
+				</div>
 			</CardComponent>
 			<PopupComponent
 				open={isProPopupOpen}
@@ -129,8 +191,8 @@ const AccessibilityHistoryLockedCard = () => {
 				height="auto"
 				position="lightbox"
 			>
-				{appLocalizer.khali_dabba ? (
-					<ShowProPopup moduleName="accessibility-audits" />
+				{isProInstalled ? (
+					<ShowProPopup moduleName={ACCESSIBILITY_MODULE_ID} />
 				) : (
 					<ShowProPopup />
 				)}
@@ -170,17 +232,21 @@ const AccessibilityHistoryLockedCard = () => {
  * pages go through that loader either).
  *
  * The two Pro slots (dashboard-stats, history-trend) render a real
- * locked-state teaser (AccessibilityDashboardLockedCard/
- * AccessibilityHistoryLockedCard) instead of nothing when
- * `accessibility-audits` isn't active — previously `{Slot && <Slot />}`
- * left this page's richest content silently invisible with no way to
- * discover it existed at all. Both slots are read via `useFilterSlot()`,
- * not a one-time module-scope `applyFilters()` call — Pro's own
- * `addFilter()` registration always runs strictly after this component's
- * first render on a fresh page load (a script-loading race, not a logic
- * bug — see useFilterSlot.ts's own docblock), so a one-time read would
- * permanently miss it and show the locked teaser even with the module
- * genuinely active.
+ * fallback teaser (AccessibilityDashboardLockedCard/
+ * AccessibilityHistoryDummy) instead of nothing when `accessibility-audits`
+ * isn't active — previously `{Slot && <Slot />}` left this page's richest
+ * content silently invisible with no way to discover it existed at all.
+ * AccessibilityHistoryDummy now matches BrandVisibilityProDummies.tsx's own
+ * "still show the section, PRO/module-name-tagged, with fabricated content
+ * behind a click-through popup" convention rather than a plain lock-icon/
+ * button teaser — AccessibilityDashboardLockedCard is still the older,
+ * simpler button-only teaser (out of scope here; not asked). Both slots are
+ * read via `useFilterSlot()`, not a one-time module-scope `applyFilters()`
+ * call — Pro's own `addFilter()` registration always runs strictly after
+ * this component's first render on a fresh page load (a script-loading
+ * race, not a logic bug — see useFilterSlot.ts's own docblock), so a
+ * one-time read would permanently miss it and show the fallback teaser
+ * even with the module genuinely active.
  *
  * The history-trend slot is paired grid={8}/grid={4} with
  * WhyAccessibilityMattersCard (per reference mockup) — static explainer
@@ -246,7 +312,7 @@ const Accessibility = () => {
 					{AccessibilityHistoryPanel ? (
 						<AccessibilityHistoryPanel />
 					) : (
-						<AccessibilityHistoryLockedCard />
+						<AccessibilityHistoryDummy />
 					)}
 				</ColumnComponent>
 

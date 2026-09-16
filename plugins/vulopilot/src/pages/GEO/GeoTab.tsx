@@ -3,10 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { NoticeComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
 import IssuesSection from './IssuesSection';
 import GeoAeoPageAnalysisPanel from './GeoAeoPageAnalysisPanel';
-import { useGeoFindingGroups } from './useGeoFindingGroups';
-import { useGeoTopicAffectedPages } from './useGeoTopicAffectedPages';
 import GeoScoreSection from './GeoScoreSection';
-import GeoByTopicGrid from './GeoByTopicGrid';
 
 /**
  * Which GEO_SECTIONS/GEO_TOPICS card each scanner's findings live under.
@@ -127,25 +124,38 @@ const GEO_TOPICS: {
  *    "How You Compare to Similar Sites" row — see GeoScoreSection.tsx's own
  *    docblock). Replaces `GeoVisibilitySummaryCard`'s former "Overall AI
  *    Visibility" slot here, whose own real number came from Pro-only routes
- *    and silently read `0/100 Poor` with vulopilot-pro inactive —
- *    `GeoVisibilitySummaryCard.tsx`/`useGeoVisibilitySnapshot.ts`/
- *    `GeoTrendCompactCard.tsx` are left in place, still real, valid code,
- *    just no longer rendered on this tab (see GeoScoreSection.tsx's own
- *    docblock for the full reasoning).
- * 3. "Fix These First" (GeoFixTheseFirstCard.tsx) and "Your Best & Worst
- *    Pages" (TopPagesCard.tsx) — removed from this tab per direct
- *    instruction (this tab has now gone back and forth on both a couple of
- *    times this session; this is the current, standing state). AeoTab.tsx
- *    used to render both too (its own "What Needs Your Attention" and "Top
- *    Pages by Answer Readiness" cards) — both since removed from there as
- *    well per direct instruction, so neither component is currently
- *    rendered anywhere; both are still real, just dead code for now.
- * 4. "A Closer Look, By Topic" (GeoByTopicGrid.tsx) — 5 tiles over the
- *    same `groups`/`GEO_TOPICS` the unified table below uses, so both
- *    always agree. Each tile also shows a real "Affected pages" stat
- *    (`useGeoTopicAffectedPages.ts`, a distinct-page count — deliberately
- *    NOT `groups`' own raw finding-row count, which can over-count a page
- *    hit by two scanners in the same topic) alongside "Open issues".
+ *    and silently read `0/100 Poor` with vulopilot-pro inactive.
+ *    `GeoVisibilitySummaryCard.tsx` and `TopPagesCard.tsx` (this tab's own
+ *    former "Your Best & Worst Pages") used to be kept in place as
+ *    unrendered-but-real dead code once removed from this tab; both were
+ *    later actually deleted in a file-count reduction pass, confirmed
+ *    to have zero remaining consumers anywhere in the codebase first
+ *    (`useGeoVisibilitySnapshot`/`useGeoFindingGroups`/etc. live on in
+ *    `useGeoTabData.ts`, still in active use — only the dead components
+ *    themselves are gone). `GeoTrendCompactCard.tsx`'s own dead component
+ *    was trimmed the same way; its still-used `computeTrendChange()`
+ *    export moved to `geoTrendChange.ts`.
+ * 3. "Fix These First" (GeoFixTheseFirstCard.tsx) — removed from this tab's
+ *    render per direct instruction (this tab has now gone back and forth on
+ *    this a couple of times this session; this is the current, standing
+ *    state), but the component itself is still real, active code —
+ *    OverviewTab.tsx renders it. AeoTab.tsx used to render its own "What
+ *    Needs Your Attention"/"Top Pages by Answer Readiness" cards too — both
+ *    since removed from there as well per direct instruction; those two
+ *    specific components had no other consumer anywhere, so — unlike
+ *    GeoFixTheseFirstCard.tsx — they were deleted rather than kept dead.
+ * 4. "A Closer Look, By Topic" (GeoByTopicGrid.tsx) — not currently
+ *    rendered on this tab, same standing state as item 3's two cards; its
+ *    own supporting `useGeoFindingGroups()`/`useGeoTopicAffectedPages()`
+ *    calls were removed from here too (a real, live fetch whose result was
+ *    otherwise discarded on every page load) rather than kept computing
+ *    for nothing. The component itself is unchanged and still real —
+ *    5 tiles over the same `groups`/`GEO_TOPICS` the unified table below
+ *    uses, each also showing a real "Affected pages" distinct-page-count
+ *    stat (deliberately NOT `groups`' own raw finding-row count, which can
+ *    over-count a page hit by two scanners in the same topic) alongside
+ *    "Open issues" — just needs both hooks called again if it's ever
+ *    reintroduced here.
  * 5. "All GEO Findings" — `IssuesSection.tsx` (SeoTab.tsx's own real
  *    Site-wide Issues + Pages & Posts structure, generalized so this tab
  *    and AeoTab.tsx can reuse it too), kept at the bottom same as before.
@@ -168,11 +178,8 @@ const GeoTab = () => {
 		key: string;
 		token: number;
 	} | null>(null);
-	const { groups, isLoading: isLoadingGroups } = useGeoFindingGroups();
 
 	const allGeoScannerIds = GEO_TOPICS.flatMap((topic) => topic.scannerIds);
-	const { affectedPagesByScanner, isLoading: isLoadingAffectedPages } =
-		useGeoTopicAffectedPages(allGeoScannerIds);
 
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below — opens `GeoAeoPageAnalysisPanel` as a real sidebar, same real "Analyze"/"Viewing" toggle + side panel SeoTab.tsx's own SEO table already has (see that panel's own docblock for why it shows real findings instead of a fabricated pass/fail checklist). */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);

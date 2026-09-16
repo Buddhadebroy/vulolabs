@@ -45,7 +45,7 @@ interface GeoFixTheseFirstCardProps {
  * "Fix These First" — the real, worst-severity-first (ties broken by real
  * affected count) findings, same ranking SectionedIssuesTable.tsx's own
  * `sortedGroups` already uses for its own unified table. Reuses whatever
- * `groups` the caller already fetched (GeoTab.tsx's own useGeoFindingGroups.ts,
+ * `groups` the caller already fetched (GeoTab.tsx's own useGeoFindingGroups hook, useGeoTabData.ts,
  * shared with GeoByTopicGrid.tsx; AeoTab.tsx's own AEO-scanner-scoped groups)
  * rather than fetching its own copy. "View pages" switches the unified
  * table's own active tab to that scanner's section (`onSelectScanner`,

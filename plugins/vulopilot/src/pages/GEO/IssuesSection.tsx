@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { TabsComponent, CardComponent } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
@@ -111,7 +111,7 @@ interface IssuesSectionProps {
 	 * showing the same pages twice: every published page/post (not just
 	 * ones with an open finding right now) via `GET /geo-analysis/pages`,
 	 * with a real deterministic visibility % column and an Export CSV
-	 * action. Omitted entirely by `SeoIssuesSection.tsx`'s own SEO usage,
+	 * action. Omitted entirely by `SeoTab.tsx`'s own SEO usage,
 	 * which keeps its original findings-only scope (only pages that
 	 * actually have an open SEO finding, no visibility column, no export).
 	 */
@@ -132,15 +132,15 @@ interface IssuesSectionProps {
 	 * the actual flex-item instead, and — having no sizing of its own —
 	 * only claims its content's natural width, leaving the rest of that row
 	 * empty. SeoTab.tsx's own usage never had this problem since it renders
-	 * `<SeoIssuesSection>` with no such wrapper.
+	 * `<IssuesSection>` directly with no such wrapper.
 	 */
 	id?: string;
-	/** Only passed by `SeoIssuesSection.tsx`'s own SEO usage — see `SeoIssuesByPageTable.tsx`'s own `onAnalyze` prop docblock. */
+	/** Only passed by `SeoTab.tsx`'s own SEO usage — see `SeoIssuesByPageTable.tsx`'s own `onAnalyze` prop docblock. */
 	onAnalyze?: (postId: number) => void;
 	/** `SeoTab.tsx`'s own `analyzingPostId` — which row's `PageAnalysisPanel` (if any) is currently open, threaded straight through to `SeoIssuesByPageTable.tsx`'s own identical prop so its "Analyze" action can read "Viewing" instead. */
 	activePostId?: number | null;
 	/**
-	 * Only set by `SeoIssuesSection.tsx`'s own SEO usage — additionally
+	 * Only set by `SeoTab.tsx`'s own SEO usage — additionally
 	 * fetches `GET /seo/pages-needing-attention` (real per-page SEO score +
 	 * week-over-week change, `Seo.php`) and joins it onto each row by `id`,
 	 * so `SeoIssuesByPageTable.tsx` can render a real Score ring + Change
@@ -163,8 +163,9 @@ interface IssuesSectionProps {
 }
 
 /**
- * Generalized from `SeoIssuesSection.tsx` (now a thin SEO-defaults wrapper
- * around this) per direct instruction — AEO's and GEO's own "All Issues"
+ * Generalized from what used to be `SeoIssuesSection.tsx` (now inlined as
+ * a thin SEO-defaults usage directly in SeoTab.tsx, its only consumer) per
+ * direct instruction — AEO's and GEO's own "All Issues"
  * tables should have the exact same real structure SEO's already has, not
  * the differently-shaped `SectionedFindingsTab.tsx` those two tabs used
  * before — see AeoTab.tsx's/GeoTab.tsx's own docblocks for exactly what

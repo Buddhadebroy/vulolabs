@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
@@ -33,9 +33,6 @@ const PERIOD_OPTIONS = [
 	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
 	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
 ];
-
-/** Same signed "+N"/"-N" convention `deltaLabel()` (SeoTab.tsx) already established for the sitewide score's own week-over-week delta — reused here for all 3 progress counters' own real week-over-week change. */
-const signedDelta = (delta: number): string => (delta > 0 ? `+${delta}` : `${delta}`);
 
 /**
  * "SEO progress" — a new, additive card (direct instruction: sits above the
@@ -88,8 +85,6 @@ const SeoProgressCard = () => {
 			cancelled = true;
 		};
 	}, [period]);
-
-	const latestScore = data && data.trend.length > 0 ? data.trend[data.trend.length - 1].score : null;
 
 	return (
 		<CardComponent
