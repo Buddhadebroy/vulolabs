@@ -258,11 +258,6 @@ const Accessibility = () => {
 				</ColumnComponent>
 
 				<ColumnComponent fullHeight grid={5}>
-					<AccessibilityManualTestingPanel />
-				</ColumnComponent>
-
-				<ColumnComponent fullHeight grid={5}>
-					<WhyAccessibilityMattersCard />
 
 					<PluginOverlapCard category="accessibility" />
 					{AccessibilityHistoryPanel ? (
@@ -272,6 +267,13 @@ const Accessibility = () => {
 					)}
 				</ColumnComponent>
 
+				<ColumnComponent fullHeight grid={6}>
+					<WhyAccessibilityMattersCard />
+
+				</ColumnComponent>
+				<ColumnComponent fullHeight grid={6}>
+					<AccessibilityManualTestingPanel />
+				</ColumnComponent>
 				<ColumnComponent>
 					<SectionedIssuesTable
 						id={ISSUES_TABLE_ID}

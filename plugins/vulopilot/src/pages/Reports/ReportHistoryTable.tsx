@@ -151,7 +151,7 @@ const ReportHistoryTable = () => {
 					isLoading={isLoading}
 					onQueryUpdate={onQueryUpdate}
 					emptyMessage={__(
-						'No reports yet — generate your first report from the Report Builder tab.',
+						'No reports yet — use the Download PDF/CSV button above to generate your first report.',
 						'vulopilot'
 					)}
 				/>

@@ -15,70 +15,24 @@ import PageSpeedStatusPanel from './PageSpeedStatusPanel';
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 
 /**
- * Settings → Get Started → Business Information's own "Preferences"
- * section — the one real field (`site_tone`) that used to render on the
- * Connections sub-tab (ConnectionsPanel.tsx's own former docblock), moved
- * here per direct instruction ("move image 1 settings before image 2
- * settings" — the Preferences/PageSpeed Insights sections, onto this tab,
- * above its own "Business" section). Same debounced-autosave idiom as
- * PageSpeedStatusPanel.tsx's own API Key/Daily Limit fields (and
- * TitleFormatsPanel.tsx before it) — "stop typing, then save," not an
- * explicit Save button.
- */
-const PreferencesSection = () => {
-	const { setting, updateSetting } = useSetting();
-	const [siteTone, setSiteTone] = useState((setting.site_tone as string) || '');
-	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-	const handleSiteToneChange = (value: string) => {
-		setSiteTone(value);
-
-		if (saveTimerRef.current) {
-			clearTimeout(saveTimerRef.current);
-		}
-		saveTimerRef.current = setTimeout(() => {
-			updateSetting('site_tone', value);
-			sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
-				setting: { site_tone: value },
-			});
-		}, AUTOSAVE_DEBOUNCE_MS);
-	};
-
-	return (
-		<FormGroupWrapperComponent>
-			<FormGroupComponent
-				label={__('Site tone', 'vulopilot')}
-				desc={__(
-					'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") — included with every AI request.',
-					'vulopilot'
-				)}
-				htmlFor="site-tone-input"
-			>
-				<TextInput
-					id="site-tone-input"
-					size={30}
-					value={siteTone}
-					placeholder={__('e.g. Friendly and casual', 'vulopilot')}
-					onChange={(value) => handleSiteToneChange(String(value))}
-				/>
-			</FormGroupComponent>
-		</FormGroupWrapperComponent>
-	);
-};
-
-/**
  * Settings → Get Started → Business Information's own "Business" section
  * — a hand-built `SectionRow` (same real fields the old declarative
  * `BusinessInformation.ts` `modal` array rendered via InputRenderer)
  * rather than a `type: 'section'`/`type: 'text'`/`type: 'textarea'`
- * config, since a tab's `PanelComponent` (needed for Preferences/PageSpeed
- * above) renders in place of InputRenderer entirely, not alongside it
- * (Settings.tsx's own `GetForm()`) — same debounced-autosave idiom as
- * `PreferencesSection` above, one real key per field, no separate "Save"
- * button.
+ * config, since a tab's `PanelComponent` (needed for PageSpeed below)
+ * renders in place of InputRenderer entirely, not alongside it
+ * (Settings.tsx's own `GetForm()`) — one real key per field, debounced
+ * autosave, no separate "Save" button.
+ *
+ * Leads with "Site tone" (`site_tone`) — this section's own former
+ * standalone "Preferences" `SectionRow` above it, folded in here per
+ * direct instruction rather than kept as its own separate section; same
+ * real field, same debounced-autosave idiom, just one fewer `SectionRow`
+ * on this tab.
  */
 const BusinessSection = () => {
 	const { setting, updateSetting } = useSetting();
+	const [siteTone, setSiteTone] = useState((setting.site_tone as string) || '');
 	const [businessType, setBusinessType] = useState(
 		(setting.entity_business_type as string) || ''
 	);
@@ -104,6 +58,25 @@ const BusinessSection = () => {
 
 	return (
 		<FormGroupWrapperComponent>
+			<FormGroupComponent
+				label={__('Site tone', 'vulopilot')}
+				desc={__(
+					'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") — included with every AI request.',
+					'vulopilot'
+				)}
+				htmlFor="site-tone-input"
+			>
+				<TextInput
+					id="site-tone-input"
+					size={30}
+					value={siteTone}
+					placeholder={__('e.g. Friendly and casual', 'vulopilot')}
+					onChange={(value) => {
+						setSiteTone(String(value));
+						scheduleSave('site_tone', String(value));
+					}}
+				/>
+			</FormGroupComponent>
 			<FormGroupComponent
 				label={__('Business type', 'vulopilot')}
 				desc={__(
@@ -177,13 +150,17 @@ const BusinessSection = () => {
  * Settings → Get Started → Business Information.
  *
  * A real, hand-built `PanelComponent` (like ConnectionsPanel.tsx) rather
- * than InputRenderer's own declarative `modal`, so "Preferences"
- * (`site_tone`) and "PageSpeed Insights" (PageSpeedStatusPanel.tsx) — both
- * moved here from the Connections sub-tab per direct instruction ("move
- * image 1 settings before image 2 settings") — can render above this
- * tab's own real "Business" section (`BusinessSection` above), a
- * `PanelComponent` and InputRenderer's own `modal` never render together
- * (Settings.tsx's own `GetForm()`).
+ * than InputRenderer's own declarative `modal`, so "PageSpeed Insights"
+ * (PageSpeedStatusPanel.tsx) — moved here from the Connections sub-tab per
+ * direct instruction ("move image 1 settings before image 2 settings") —
+ * can render above this tab's own real "Business" section (`BusinessSection`
+ * above), a `PanelComponent` and InputRenderer's own `modal` never render
+ * together (Settings.tsx's own `GetForm()`).
+ *
+ * "Preferences" (`site_tone`) used to be its own separate `SectionRow`
+ * here, above PageSpeed Insights — folded into "Business" as its own
+ * `BusinessSection` (leading field) instead, per direct instruction,
+ * rather than kept as a standalone section.
  *
  * `BusinessInformation.ts`'s own `modal` array still lists every real flat
  * key every section below reads/writes (`site_tone`, `psi_api_key`/
@@ -197,16 +174,6 @@ const BusinessSection = () => {
 const BusinessInformationPanel = () => {
 	return (
 		<>
-			<SectionRow
-				icon="ai"
-				title={__('Preferences', 'vulopilot')}
-				desc={__(
-					'Controls how VuloPilot’s AI features sound when writing or rewriting your content.',
-					'vulopilot'
-				)}
-			>
-				<PreferencesSection />
-			</SectionRow>
 			<PageSpeedStatusPanel />
 			<SectionRow
 				icon="category"

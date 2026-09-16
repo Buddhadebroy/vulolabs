@@ -114,6 +114,14 @@ const Reports = () => {
 					`?page=vulopilot#&tab=reports&subtab=${subTab}`
 				}
 				Link={Link}
+				// Each tab's own real `headerIcon` (TAB_META above) was already
+				// being passed through `settingContent`, but
+				// NavigatorComponent.tsx only ever renders a tab-bar icon when
+				// this `menuIcon` prop is set (confirmed by reading zyra's own
+				// source) — every sibling tab shell that shows icons
+				// (SeoVisibility.tsx/Performance.tsx/SiteHealth.tsx) already
+				// sets it; this page was the one missing it.
+				menuIcon
 			/>
 		</>
 	);
