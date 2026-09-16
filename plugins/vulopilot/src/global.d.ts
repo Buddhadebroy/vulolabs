@@ -29,6 +29,8 @@ declare global {
 		date_format_js: string;
 		/** Settings → General → Time Format, same real token conversion as `date_format_js` above — use through services/formatWpDate.ts's own `formatWpTime()`. No am/pm token exists in zyra's syntax, so a 12-hour format renders without the AM/PM suffix, same already-accepted limitation `date_format_js` itself carries. */
 		time_format_js: string;
+		/** Settings → General → Timezone, as this site's current UTC offset in minutes (`wp_timezone()`, DST-aware for a real `timezone_string`) — every raw timestamp this plugin's REST layer returns is UTC, so services/formatWpDate.ts's own `formatWpDate()`/`formatWpTime()` add this before reading date/time parts, rather than leaving the browser to guess (and silently apply its own local zone instead of this site's configured one). */
+		gmt_offset_minutes: number;
 		/** Whether VuloPilot Pro is installed, active, and license-active — feeds zyra's configureZyra()/ZyraVariable.khali_dabba. */
 		khali_dabba: boolean;
 		/** Kebab-case ids of every currently-active module (Free's own + any active vulopilot-pro modules) — feeds zyra's `moduleEnabled` settings-field gate and vulopilot-pro/src/index.tsx's per-module JS loading. */

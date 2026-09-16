@@ -8,7 +8,7 @@ import DashboardWidget from './DashboardWidget';
 import ProLockedCard from '../components/ProLockedCard';
 import { useApiList } from '../services/useApiList';
 import { useLastScanTime } from '../services/useLastScanTime';
-import { formatWpDate } from '../services/formatWpDate';
+import { formatWpDate, formatWpTime, isWpToday } from '../services/formatWpDate';
 import { WidgetProps } from './types';
 
 interface CrawlerAnalyticsResponse {
@@ -140,17 +140,11 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	);
 
 	const formatAuditTime = (dateString: string): string => {
-		const date = new Date(dateString);
-		const isToday = date.toDateString() === new Date().toDateString();
-
-		return isToday
+		return isWpToday(dateString)
 			? sprintf(
 				/* translators: %s: real completion time, e.g. "9:26 AM". */
 				__('Today, %s', 'vulopilot'),
-				date.toLocaleTimeString(undefined, {
-					hour: 'numeric',
-					minute: '2-digit',
-				})
+				formatWpTime(dateString)
 			)
 			: formatWpDate(dateString);
 	};

@@ -391,6 +391,15 @@ class EntityExtractor {
     }
 
     /**
+     * Real site "People" — every published post/page's author (as before)
+     * plus every real WordPress Administrator, even one who's never
+     * authored anything. An Administrator who's only ever configured the
+     * site (never written a post) is still real "who runs this business"
+     * information an AI/search crawler would want, so listing them by
+     * post-authorship alone would under-report — same real
+     * `get_userdata()`-backed shape either way, just a second, real
+     * `role='administrator'` user query unioned in by ID.
+     *
      * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string, source_object_ref: string, meta: array}>
      */
     private function extract_people(): array {
@@ -404,10 +413,19 @@ class EntityExtractor {
             )
         );
 
+        $admin_ids = get_users(
+            array(
+                'role'   => 'administrator',
+                'fields' => 'ID',
+            )
+        );
+
+        $user_ids = array_unique( array_map( 'intval', array_merge( (array) $author_ids, (array) $admin_ids ) ) );
+
         $people = array();
 
-        foreach ( (array) $author_ids as $author_id ) {
-            $user = get_userdata( (int) $author_id );
+        foreach ( $user_ids as $user_id ) {
+            $user = get_userdata( $user_id );
 
             if ( ! $user ) {
                 continue;
@@ -421,12 +439,30 @@ class EntityExtractor {
                 'source_object_type' => 'user',
                 'source_object_ref'  => (string) $user->ID,
                 'meta'               => array(
-                    'bio' => get_the_author_meta( 'description', $user->ID ),
+                    'bio'        => get_the_author_meta( 'description', $user->ID ),
+                    'role'       => $user->roles[0] ?? '',
+                    'role_label' => $this->get_role_label( $user ),
                 ),
             );
         }
 
         return $people;
+    }
+
+    /**
+     * @param \WP_User $user Real WordPress user — may hold more than one role, in which case only the first (WordPress's own "primary" convention, e.g. `current_user_can()`'s own precedent) is labeled.
+     * @return string Real, translated role display name (e.g. "Administrator"), or the raw role slug if WordPress has no matching entry (a custom role a 3rd-party plugin registered without a display name) — empty string only for a real roleless user.
+     */
+    private function get_role_label( \WP_User $user ): string {
+        $role = $user->roles[0] ?? '';
+
+        if ( '' === $role ) {
+            return '';
+        }
+
+        $role_names = wp_roles()->role_names;
+
+        return isset( $role_names[ $role ] ) ? translate_user_role( $role_names[ $role ] ) : $role;
     }
 
     /**

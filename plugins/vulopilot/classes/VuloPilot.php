@@ -272,13 +272,6 @@ final class VuloPilot {
         // lazily instantiated inside a REST controller).
         $this->container['connect_broker_callback_handler'] = new Services\ConnectBrokerCallbackHandler();
 
-        // SEO & Visibility → Keywords' real rank-tracking sync (daily cron
-        // + Controllers\KeywordRankings::sync()'s own "Sync now") — same
-        // unconditional-construction/self-registers-its-own-cron-hook
-        // shape as performance_score_snapshot_recorder below, just against
-        // a real Search Console property instead of local findings.
-        $this->container['keyword_rankings_sync_service'] = new Services\KeywordRankingsSyncService();
-
         // Scanning → Instant Indexing (IndexNow) — real key-file serving
         // (self-registers its own rewrite-rule/template_redirect hooks,
         // same shape as llms_txt_generator above) and automatic submission
