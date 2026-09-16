@@ -25,19 +25,18 @@ const TAB_META: Record<
 /**
  * "Reports" — a tab shell, now just Overview/History per direct
  * instruction ("only two tab here one overview and history"). "Report
- * Builder" (ReportTab.tsx) and "Activity" (ActivityTab.tsx) were both
- * removed from TAB_IDS/TAB_META/getForm below — neither component file
- * was deleted (still real, valid code, just unreached from here now,
- * same "supersede, don't delete" posture this codebase already applies
- * elsewhere), so restoring either tab later is a one-line revert of this
- * change rather than a rebuild. Several real buttons still deep-link to
- * `#&tab=reports&subtab=report`/`subtab=activity` (OverviewTab.tsx's
- * "Create Report", ScheduledReportsTable.tsx's "Manage Schedules",
- * RecentReportsCard.tsx, RecentActivityCard.tsx/RecentActivityWidget.tsx,
- * TodaysTasksWidget.tsx, LiveThreatMonitorCard.tsx, searchIndex.ts) — with
- * neither id in `TAB_IDS` any more, `initialTab`'s own fallback below now
- * lands those clicks on Overview instead of a dead tab, not left
- * unhandled; those callers weren't touched as part of this change.
+ * Builder" (ReportTab.tsx) and "Activity" (ActivityTab.tsx) were fully
+ * deleted, per direct instruction, along with every real button/link
+ * elsewhere that deep-linked to them (`#&tab=reports&subtab=report`/
+ * `subtab=activity`) — see those call sites' own docblocks
+ * (OverviewTab.tsx/RecentActivityCard.tsx/LiveThreatMonitorCard.tsx/
+ * RecentActivityWidget.tsx/TodaysTasksWidget.tsx/ReportsOverviewHeader.tsx/
+ * ScheduledReportsTable.tsx/searchIndex.ts) for what each one used to do.
+ * `ReportTab.tsx`'s own second section (ReportSchedulesSummary.tsx, the
+ * real create-schedule form) went with it — `ScheduledReportsTable.tsx`
+ * (still real, still on Overview) can no longer deep-link admins to a
+ * "create a new schedule" flow as a result; flagged rather than silently
+ * left half-working, since nothing here rebuilds that flow elsewhere.
  *
  * "History" (HistoryTab.tsx) was moved here from AI Copilot's own tab
  * shell, which used to render it alongside Chat; AI Copilot now renders
