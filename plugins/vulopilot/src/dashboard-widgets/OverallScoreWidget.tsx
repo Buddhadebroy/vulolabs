@@ -210,7 +210,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 				{/* Category score breakdown list, moved here from ScoreBreakdownWidget.tsx */}
 				<div className='overall-score-summary'>
 					<ListComponent
-						className="mini-card report hover seo-health-score-category-list"
+						className="mini-card report seo-health-score-category-list"
 						loading={isLoading}
 						items={scoreRows.map((row) => ({
 							id: row.key,

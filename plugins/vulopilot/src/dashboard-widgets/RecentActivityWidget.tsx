@@ -70,14 +70,6 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 				__('%d total events', 'vulopilot'),
 				total
 			)}
-			headerAction={
-				<a
-					href={`${appLocalizer.admin_url}#&tab=reports&subtab=activity`}
-					className="link-item"
-				>
-					{__('View all activity ›', 'vulopilot')}
-				</a>
-			}
 		>
 			{!isLoading && data.length === 0 && (
 				<div className="desc">

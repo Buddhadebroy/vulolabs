@@ -30,6 +30,7 @@ import {
 // consumers.
 import '../AIAssistant/AICopilot.scss';
 import '../../components/common.scss';
+import './Reports.scss';
 
 interface HistoryResponse {
 	data: HistoryRow[];
@@ -386,35 +387,45 @@ const HistoryTab = () => {
 						))}
 					</div>
 
-					<TextInput
-						type="text"
-						name="history-search"
-						placeholder={__('Search history…', 'vulopilot')}
-						value={search}
-						size={20}
-						onChange={handleSearchChange}
-						inputClass="history-search-input"
-						wrapperClass="history-search-wrapper"
-					/>
+					{/* Same real one-row toolbar shape RecentContentCard.tsx's own
+					`.recent-content-toolbar` already establishes (search, filter
+					select(s), action button, wrapped+right-aligned) — search/date
+					range/Export used to each fall onto their own line here since
+					`.filter-wrapper`'s own real style only applies inside a
+					TableCard's `.table-container` (Table.scss's own nested
+					selector), so outside that context it was an unstyled `<div>`
+					and every child fell back to plain block-level stacking. */}
+					<div className="history-toolbar">
+						<TextInput
+							type="text"
+							name="history-search"
+							placeholder={__('Search history…', 'vulopilot')}
+							value={search}
+							size={20}
+							onChange={handleSearchChange}
+							inputClass="history-search-input"
+							wrapperClass="history-search-wrapper"
+						/>
 
-					<SelectInput
-						type="single-select"
-						options={dateRangeSelectOptions}
-						size={15}
-						value={dateRange}
-						onChange={handleDateRangeChange}
-						placeholder={__('Select date range', 'vulopilot')}
-						isClearable={false}
-					/>
+						<SelectInput
+							type="single-select"
+							options={dateRangeSelectOptions}
+							size={15}
+							value={dateRange}
+							onChange={handleDateRangeChange}
+							placeholder={__('Select date range', 'vulopilot')}
+							isClearable={false}
+						/>
 
-					<ButtonInput
-						buttons={{
-							text: __('Export', 'vulopilot'),
-							icon: 'download',
-							onClick: handleExport,
-							disabled: 0 === rows.length,
-						}}
-					/>
+						<ButtonInput
+							buttons={{
+								text: __('Export', 'vulopilot'),
+								icon: 'download',
+								onClick: handleExport,
+								disabled: 0 === rows.length,
+							}}
+						/>
+					</div>
 				</div>
 				{error ? (
 					<ModuleGuardComponent

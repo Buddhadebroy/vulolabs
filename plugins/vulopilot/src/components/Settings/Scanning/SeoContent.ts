@@ -66,11 +66,20 @@ import { __ } from '@wordpress/i18n';
  *   this codebase yet. That's a separate, larger feature; these three
  *   toggles round-trip through Settings correctly but nothing reads them
  *   yet (Utill.php's own defaults list this same caveat).
- * - Tag Manager (sits directly above Webmaster Tools): `tag_manager_enabled`/
+ * - Tag Manager (the last section on this tab): `tag_manager_enabled`/
  *   `tag_manager_container_id` gate Services\TagManagerService's own real
  *   `<script>` (wp_head) + `<noscript><iframe>` (wp_body_open) Google Tag
- *   Manager output — same real "gate output, not construction" shape
- *   WebmasterToolsManager below already uses for its own verification codes.
+ *   Manager output.
+ *
+ * "Webmaster Tools"/"Custom Webmaster Tags" (all 6 `webmaster_*_verification`
+ * codes + `webmaster_custom_tags`, all still real
+ * Services\WebmasterToolsManager-backed `<meta>` output) moved out of this
+ * tab entirely, merged into Settings → Connections → Site Verification
+ * (SiteVerificationPanel.tsx) per direct instruction — that panel already
+ * owned Google/Bing/Pinterest with a real "Verify" self-check; Baidu/
+ * Yandex/Norton/Custom Tags now live there too as plain fields (no fake
+ * Verify button — this plugin has no real self-check for those), so
+ * there's one editor for all 6 instead of two.
  */
 export default {
 	id: 'seo-content',
@@ -673,91 +682,6 @@ export default {
 				value: 'tag_manager_enabled',
 				set: true,
 			},
-		},
-		{
-			key: 'webmaster-section-verification',
-			type: 'section',
-			icon: 'identity-verification',
-			title: __('Webmaster Tools', 'vulopilot'),
-			desc: __(
-				'Enter verification codes for third-party webmaster tools. Each one is rendered as its own <meta> tag on every page.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'webmaster_google_verification',
-			type: 'text',
-			size: 25,
-			label: __('Google Search Console', 'vulopilot'),
-			settingDescription: __(
-				'Enter your Google Search Console verification ID. Rendered as <meta name="google-site-verification" content="...">.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'webmaster_bing_verification',
-			type: 'text',
-			size: 25,
-			label: __('Bing Webmaster Tools', 'vulopilot'),
-			settingDescription: __(
-				'Enter your Bing Webmaster Tools verification ID. Rendered as <meta name="msvalidate.01" content="...">.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'webmaster_baidu_verification',
-			type: 'text',
-			size: 25,
-			label: __('Baidu Webmaster Tools', 'vulopilot'),
-			settingDescription: __(
-				'Enter your Baidu Webmaster Tools verification ID. Rendered as <meta name="baidu-site-verification" content="...">.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'webmaster_yandex_verification',
-			type: 'text',
-			size: 25,			
-			label: __('Yandex Verification ID', 'vulopilot'),
-			settingDescription: __(
-				'Enter your Yandex.Webmaster verification ID. Rendered as <meta name="yandex-verification" content="...">.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'webmaster_pinterest_verification',
-			type: 'text',
-			size: 25,
-			label: __('Pinterest Verification ID', 'vulopilot'),
-			settingDescription: __(
-				'Enter your Pinterest account verification ID. Rendered as <meta property="p:domain_verify" content="...">.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'webmaster_norton_verification',
-			type: 'text',
-			size: 25,
-			label: __('Norton Safe Web Verification ID', 'vulopilot'),
-			settingDescription: __(
-				'Enter your Norton Safe Web ownership verification ID. Rendered as <meta name="norton-safeweb-site-verification" content="...">.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'webmaster-section-custom',
-			type: 'section',
-			icon: 'shortcode',
-			title: __('Custom Webmaster Tags', 'vulopilot'),
-		},
-		{
-			key: 'webmaster_custom_tags',
-			type: 'textarea',
-			label: __('Custom webmaster tags', 'vulopilot'),
-			settingDescription: __(
-				'Enter your own custom webmaster tags. Only <meta> tags are allowed — anything else is stripped out before being added to the page.',
-				'vulopilot'
-			),
 		},
 	],
 };

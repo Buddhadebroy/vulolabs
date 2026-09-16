@@ -89,7 +89,7 @@ export const isModuleCatalogEntry = (
  * one Scanning → AI Visibility tab that actually holds their scan toggles,
  * same way redirect-manager shares SEO & Content's own "Redirects & 404s"
  * section rather than having a dedicated tab of its own; knowledge-graph
- * instead points at Site Identity → Business Information, where its own
+ * instead points at Get Started → Business Information, where its own
  * Business/Services/Locations fields moved per direct instruction).
  * content-intelligence/performance-monitoring/automations/commerce instead
  * point at that module's own real standalone top-level menu page
@@ -195,7 +195,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
             // Points at Business Information, not AI Visibility — the
             // Business/Services/Locations fields that actually feed this
             // module's own entity extraction moved there per direct
-            // instruction (SiteIdentity/BusinessInformation.ts).
+            // instruction (GetStarted/BusinessInformation.ts).
             settingsLink: '?page=vulopilot#&tab=settings&subtab=business-information',
             name: __('Knowledge Graph — Entity Intelligence', 'vulopilot'),
             desc: __('Reads real people, organizations, products, services, and categories from your site and turns them into structured entities.', 'vulopilot'),

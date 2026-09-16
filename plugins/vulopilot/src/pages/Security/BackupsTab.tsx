@@ -216,12 +216,22 @@ const formatFileSize = (bytes: number | null): string => {
 const RESTORE_CONFIRM_PHRASE = 'RESTORE';
 
 export interface BackupsTabHandle {
-	/** Same real `handleCreate` the card's own header button used to call directly — exposed so SiteHealth.tsx's page-level header can trigger it too, now that "Create Backup Now" lives in RunScanHeaderExtra's own "Run scan" slot instead of being duplicated here. */
+	/**
+	 * Same real `handleCreate` this card's own "Create Backup Now" header
+	 * button (`action`, below) calls directly — still exposed so a parent
+	 * (SiteHealth.tsx's own page-level header intended to also trigger it
+	 * via RunScanHeaderExtra's "Run scan" slot) can fire the same real
+	 * request, if it ever actually wires that up. Restored per direct
+	 * instruction (screenshot showed no create-backup button anywhere on
+	 * the page — SiteHealth.tsx declares the plumbing for a page-header
+	 * button, `backupsTabRef`/`isCreatingBackup`, but never actually renders
+	 * one, so the action had no real entry point at all before this).
+	 */
 	createBackup: () => void;
 }
 
 interface BackupsTabProps {
-	/** Notified around the real `handleCreate` request below — SiteHealth.tsx's own header button (which now owns the "Create Backup Now" action, see `BackupsTabHandle`) uses this to show its real "Starting…" state, since this file's own action row no longer shows that button (or tracks that state) itself. */
+	/** Mirrors this card's own real `isCreating` state (driving its header button's label/disabled state) out to a parent, if one wants to show the same real state elsewhere too — SiteHealth.tsx declares `isCreatingBackup` for this but doesn't currently render anything with it. */
 	onCreatingChange?: (isCreating: boolean) => void;
 }
 
@@ -254,6 +264,12 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 		{ per_page: 20, orderby: 'id', order: 'desc' }
 	);
 
+	// Real "Create Backup Now" state for this card's own header button below —
+	// separate from the `onCreatingChange` prop callback (which only exists
+	// for a parent, e.g. SiteHealth.tsx's own page header, to mirror this
+	// same real request state elsewhere; nothing here depends on a parent
+	// actually consuming it).
+	const [isCreating, setIsCreating] = useState(false);
 	const [busyId, setBusyId] = useState<number | null>(null);
 	const [restoreTarget, setRestoreTarget] = useState<BackupRow | null>(null);
 	const [confirmText, setConfirmText] = useState('');
@@ -339,6 +355,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 	}, [hasPendingBackup, refetch]);
 
 	const handleCreate = () => {
+		setIsCreating(true);
 		onCreatingChange?.(true);
 
 		sendApiResponse<{ success: boolean }>(
@@ -364,6 +381,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 				refetch();
 			})
 			.finally(() => {
+				setIsCreating(false);
 				onCreatingChange?.(false);
 			});
 	};
@@ -492,6 +510,12 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 							'Create one to get started.',
 							'vulopilot'
 						)}
+						buttonText={
+							isCreating
+								? __('Starting…', 'vulopilot')
+								: __('Create Backup Now', 'vulopilot')
+						}
+						onButtonClick={isCreating ? undefined : handleCreate}
 					/>
 				) : (
 					<TableCard
@@ -502,6 +526,28 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 							placeholder: __('Search backups…', 'vulopilot'),
 						}}
 						filtersBeforeSearch
+						// Real toolbar order (TableCard.tsx: filters →
+						// search → buttonActions, per direct instruction —
+						// "after search field") — puts "Create Backup Now"
+						// after the search box instead of up in the card's
+						// own header, where it used to sit. zyra's own
+						// `ButtonAction` type has no `disabled` field (only
+						// `label`/`icon`/`onClick`/`color`), so the
+						// in-flight guard lives in `onClick` itself instead.
+						buttonActions={[
+							{
+								label: isCreating
+									? __('Starting…', 'vulopilot')
+									: __('Create Backup Now', 'vulopilot'),
+								icon: isCreating ? 'update' : 'cloud-upload',
+								color: 'purple-bg',
+								onClick: () => {
+									if (!isCreating) {
+										handleCreate();
+									}
+								},
+							},
+						]}
 						filters={[
 							{
 								key: 'trigger_type',

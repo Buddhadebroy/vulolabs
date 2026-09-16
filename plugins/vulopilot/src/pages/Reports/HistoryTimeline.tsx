@@ -110,8 +110,8 @@ const HistoryTimeline = ({
 										className={`history-row-icon adminfont-${rowIcon(row)}`}
 									/>
 									<div className="history-row-text">
-										<div className="history-row-title">
-											{title}
+										<div className="history-row-title-wrapper">
+											<span className='history-row-title'>{title}</span>
 											<BadgeComponent
 												color={tag.className}
 												text={tag.text}

@@ -67,7 +67,8 @@ const TAB_META: Record<
  * `SiteHealthStatusCard`) rather than above the tab bar here.
  */
 const SiteHealth = () => {
-	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
+	const location = useLocation();
+	const subtab = new URLSearchParams(location.hash.substring(1)).get(
 		'subtab'
 	);
 	const initialTab = (
@@ -95,6 +96,35 @@ const SiteHealth = () => {
 	const goToBackups = () => {
 		setActiveTab('backups');
 		window.history.pushState(null, '', prepareUrl('backups'));
+	};
+
+	// A real tab-pill click doesn't go through react-router at all —
+	// confirmed by reading the installed zyra bundle: NavigatorComponent's
+	// own `navigate()` calls `window.history.pushState()` directly (only
+	// routed through a real `onNavigate` prop when one is given), which
+	// updates the visible URL without ever touching react-router's own
+	// history object or firing a native `hashchange` event — so this
+	// component's own `activeTab` (and every real prop derived from it
+	// below: `hideRunScanButton`/`replaceRunScanButton`/`settingsSubtab`)
+	// silently went stale the moment someone clicked "Site Health" after
+	// being on "Backups" (or the reverse): the header kept showing "Create
+	// Backup Now" pointed at the Backups-only settings link even though the
+	// real panel content underneath had already switched to Site Health.
+	// Supplying this real `onNavigate` handler (NavigatorComponent's own
+	// escape hatch for exactly this — see that component's own `navigate()`)
+	// keeps `activeTab` in sync with every real navigation, not just the
+	// initial page load.
+	const handleNavigate = (url: string) => {
+		window.history.pushState(null, '', url);
+
+		const hashIndex = url.indexOf('#');
+		const nextSubtab = new URLSearchParams(
+			hashIndex >= 0 ? url.slice(hashIndex + 1) : ''
+		).get('subtab');
+
+		if (nextSubtab && (TAB_IDS as readonly string[]).includes(nextSubtab)) {
+			setActiveTab(nextSubtab as (typeof TAB_IDS)[number]);
+		}
 	};
 
 	const settingContent = TAB_IDS.map((tabId) => ({
@@ -127,36 +157,12 @@ const SiteHealth = () => {
 		<NavigatorComponent
 			headerIcon="active"
 			headerTitle={__('Site Health', 'vulopilot')}
-			headerCustomContent={
-				<RunScanHeaderExtra
-					categories={[
-						'wordpress',
-						'server',
-						'cron',
-						'database',
-						'updates',
-					]}
-					settingsSubtab={'backups' === activeTab ? 'backups' : 'general'}
-					hideRunScanButton={'backups' === activeTab}
-					replaceRunScanButton={
-						'backups' === activeTab
-							? {
-									text: isCreatingBackup
-										? __('Starting…', 'vulopilot')
-										: __('Create Backup Now', 'vulopilot'),
-									icon: 'cloud-upload',
-									onClick: () =>
-										backupsTabRef.current?.createBackup(),
-								}
-							: undefined
-					}
-				/>
-			}
 			className="site-health-tabs"
 			settingContent={settingContent}
 			currentSetting={activeTab}
 			getForm={getForm}
 			prepareUrl={prepareUrl}
+			onNavigate={handleNavigate}
 			Link={Link}
 			settingName="Site Health"
 			menuIcon

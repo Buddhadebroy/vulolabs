@@ -29,7 +29,7 @@ const FREQUENCY_LABEL: Record<ScheduleRow['schedule'], string> = {
 	monthly: __('Monthly', 'vulopilot'),
 };
 
-const REPORT_BUILDER_URL = '?page=vulopilot#&tab=reports&subtab=report';
+const MODULES_TAB_URL = '?page=vulopilot#&tab=settings&subtab=modules';
 
 const parseConfig = (raw: string): ScheduleConfig => {
 	try {
@@ -49,17 +49,16 @@ const parseConfig = (raw: string): ScheduleConfig => {
  *
  * That REST route only exists once vulopilot-pro's AdvancedReports module
  * is active — a request while it's inactive 404s, which `getApiResponse`
- * already surfaces as `null` rather than throwing (same "404 here means
- * the module isn't active, not a transient failure" reasoning
- * ReportSchedulesSummary.tsx's own docblock already covers), so that case
- * gets its own honest empty state instead of an error banner. Creating a
- * new schedule still isn't built into this card (this page deliberately
- * drops the mockup's own inline "Build a New Report" section per direct
- * instruction) — both empty states link to the Report Builder tab, which
- * already renders the real create-schedule form
- * (`vulopilot_reports_advanced_panel`, ReportTab.tsx). Enable/Disable and
- * Delete are wired here directly though, since they're one real call each
- * and this table already has to render the row.
+ * already surfaces as `null` rather than throwing, so that case gets its
+ * own honest empty state (linking to Settings → Modules to turn the
+ * module on) instead of an error banner. There is no real create-schedule
+ * UI anywhere in this codebase — it used to live in the Report Builder tab
+ * (ReportTab.tsx), removed per direct instruction ("only two tab here one
+ * overview and history") — so the module-active-but-empty state no longer
+ * links anywhere; new schedules only ever appear here once created some
+ * other way (`vulopilot_reports_advanced_panel`/the REST route directly).
+ * Enable/Disable and Delete are wired here directly though, since they're
+ * one real call each and this table already has to render the row.
  */
 const ScheduledReportsTable = () => {
 	const [rows, setRows] = useState<ScheduleRow[] | null>(null);
@@ -121,18 +120,6 @@ const ScheduledReportsTable = () => {
 				'vulopilot'
 			)}
 			isLoading={isLoading}
-			action={
-				<ButtonInput
-					buttons={{
-						text: __('Manage Schedules', 'vulopilot'),
-						rightIcon: 'arrow-right',
-						color: 'text-purple',
-						onClick: () => {
-							window.location.href = REPORT_BUILDER_URL;
-						},
-					}}
-				/>
-			}
 		>
 			{!advancedReportsActive ? (
 				<ModuleGuardComponent
@@ -142,9 +129,9 @@ const ScheduledReportsTable = () => {
 						'Turn on the Advanced Reports module to automatically generate and email reports on a recurring basis.',
 						'vulopilot'
 					)}
-					buttonText={__('Open Report Builder', 'vulopilot')}
+					buttonText={__('Open Modules', 'vulopilot')}
 					onButtonClick={() => {
-						window.location.href = REPORT_BUILDER_URL;
+						window.location.href = MODULES_TAB_URL;
 					}}
 				/>
 			) : !rows || rows.length === 0 ? (
@@ -152,13 +139,9 @@ const ScheduledReportsTable = () => {
 					icon="calendar"
 					title={__('No scheduled reports yet', 'vulopilot')}
 					desc={__(
-						'Set up a recurring schedule from the Report Builder tab.',
+						'Scheduled reports created via the Advanced Reports module will appear here.',
 						'vulopilot'
 					)}
-					buttonText={__('Open Report Builder', 'vulopilot')}
-					onButtonClick={() => {
-						window.location.href = REPORT_BUILDER_URL;
-					}}
 				/>
 			) : (
 				<div className="reports-schedules-list">

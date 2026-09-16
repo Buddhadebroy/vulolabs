@@ -1,8 +1,8 @@
 /* global appLocalizer */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { ButtonInput, TextInput } from '@zyra/inputs';
+import { ButtonInput, TextInput, TextAreaInput } from '@zyra/inputs';
 import { NoticeComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
 import CardHeader from '../../CardHeader';
 import { useSetting } from '../../../contexts/SettingContext';
@@ -44,8 +44,241 @@ const PROVIDERS: ProviderRowConfig[] = [
 	},
 ];
 
-/** Free's own real per-tab `?page=vulopilot#&tab=settings&subtab=...` deep-link shape. */
-const SEO_CONTENT_URL = '?page=vulopilot#&tab=settings&subtab=seo-content';
+/** "Stop typing, then save" debounce — same shape TitleFormatsPanel.tsx's own `scheduleSave()` already uses for a hand-built (non-InputRenderer) panel's plain text fields, rather than saving every keystroke. */
+const AUTOSAVE_DEBOUNCE_MS = 1000;
+
+interface PlainCodeFieldConfig {
+	key: 'webmaster_baidu_verification' | 'webmaster_yandex_verification' | 'webmaster_norton_verification';
+	icon: string;
+	title: string;
+	fieldLabel: string;
+	desc: string;
+}
+
+/**
+ * Baidu/Yandex/Norton — real `<meta>`-tag verification codes
+ * (Services\WebmasterToolsManager, same as the 3 `ProviderRow`s above),
+ * merged in from Scanning → SEO & Content's own now-removed "Webmaster
+ * Tools" section per direct instruction ("can i marge that 2 settings"),
+ * restyled to match `ProviderRow`'s own icon/title/badge/desc/code-field/
+ * button row per direct instruction ("change image 1 look and structure
+ * to image 2"). Badge reads "Added"/"Not Added" rather than
+ * `ProviderRow`'s "Verified"/"Not Verified", and the button is a real,
+ * honest "Save" (an immediate save, not a debounce-only field) rather
+ * than "Verify" — this plugin has no real self-check
+ * (`POST /settings/verify-webmaster`) for these 3 providers the way it
+ * does for Google/Bing/Pinterest, so claiming a "Verify" action here
+ * would either no-op or falsely claim a check that never ran.
+ */
+const PLAIN_CODE_FIELDS: PlainCodeFieldConfig[] = [
+	{
+		key: 'webmaster_baidu_verification',
+		icon: 'search-discovery red',
+		title: __('Baidu', 'vulopilot'),
+		fieldLabel: __('Baidu Webmaster Tools verification ID', 'vulopilot'),
+		desc: __(
+			'Enter your Baidu Webmaster Tools verification ID. Rendered as <meta name="baidu-site-verification" content="...">.',
+			'vulopilot'
+		),
+	},
+	{
+		key: 'webmaster_yandex_verification',
+		icon: 'search yellow',
+		title: __('Yandex', 'vulopilot'),
+		fieldLabel: __('Yandex verification ID', 'vulopilot'),
+		desc: __(
+			'Enter your Yandex.Webmaster verification ID. Rendered as <meta name="yandex-verification" content="...">.',
+			'vulopilot'
+		),
+	},
+	{
+		key: 'webmaster_norton_verification',
+		icon: 'security green',
+		title: __('Norton Safe Web', 'vulopilot'),
+		fieldLabel: __('Norton Safe Web verification ID', 'vulopilot'),
+		desc: __(
+			'Enter your Norton Safe Web ownership verification ID. Rendered as <meta name="norton-safeweb-site-verification" content="...">.',
+			'vulopilot'
+		),
+	},
+];
+
+/** One `ProviderRow`-shaped row for a plain (no-Verify) code field — its own local `value`/debounce timer, same "type, then save 1s later" autosave every field in this panel shares, plus a real immediate "Save" button for the same explicit-action affordance `ProviderRow`'s own "Verify" button gives. */
+const PlainCodeField = ({ field }: { field: PlainCodeFieldConfig }) => {
+	const { setting, updateSetting } = useSetting();
+	const [value, setValue] = useState<string>(
+		(setting[field.key] as string | undefined) ?? ''
+	);
+	const [isSaving, setIsSaving] = useState(false);
+	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const persist = (nextValue: string) => {
+		updateSetting(field.key, nextValue);
+		return sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+			setting: { [field.key]: nextValue },
+		});
+	};
+
+	const scheduleSave = (nextValue: string) => {
+		if (saveTimerRef.current) {
+			clearTimeout(saveTimerRef.current);
+		}
+		saveTimerRef.current = setTimeout(() => persist(nextValue), AUTOSAVE_DEBOUNCE_MS);
+	};
+
+	const handleSaveClick = () => {
+		if (saveTimerRef.current) {
+			clearTimeout(saveTimerRef.current);
+		}
+		setIsSaving(true);
+		persist(value)
+			.then((response) => {
+				NoticeManager.add({
+					message: response
+						? __('Saved.', 'vulopilot')
+						: __('Could not save. Please try again.', 'vulopilot'),
+					type: response ? 'success' : 'error',
+					position: 'float',
+				});
+			})
+			.finally(() => setIsSaving(false));
+	};
+
+	const isAdded = '' !== value.trim();
+
+	return (
+		<CardHeader
+			className='compact'
+			icon={field.icon}
+			title={field.title}
+			desc={field.desc}
+			badge={
+				<span className={`admin-badge ${isAdded ? 'green' : 'red'}`}>
+					{isAdded ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
+				</span>
+			}
+			action={
+				<ButtonInput
+					buttons={{
+						text: isSaving ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
+						color: 'purple-bg',
+						icon: 'setting',
+						disabled: isSaving,
+						onClick: handleSaveClick,
+					}}
+				/>
+			}
+		>
+			<div className="ai-provider-card-body gsc-service-body">
+				<div className="ai-provider-field site-verification-code-field">
+					<label htmlFor={`${field.key}-input`}>{field.fieldLabel}</label>
+					<TextInput
+						id={`${field.key}-input`}
+						type="text"
+						value={value}
+						onChange={(next) => {
+							const nextValue = String(next);
+							setValue(nextValue);
+							scheduleSave(nextValue);
+						}}
+						placeholder={__('Paste the verification code from your provider', 'vulopilot')}
+					/>
+				</div>
+			</div>
+		</CardHeader>
+	);
+};
+
+/**
+ * "Custom webmaster tags" — the same real free-text `<meta>`-tag textarea
+ * (Services\WebmasterToolsManager strips anything that isn't a `<meta>`
+ * tag before output), merged in alongside the 3 `PlainCodeField`s above,
+ * same restyle to `ProviderRow`'s own row shape.
+ */
+const CustomTagsField = () => {
+	const { setting, updateSetting } = useSetting();
+	const [value, setValue] = useState<string>(
+		(setting.webmaster_custom_tags as string | undefined) ?? ''
+	);
+	const [isSaving, setIsSaving] = useState(false);
+	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const persist = (nextValue: string) => {
+		updateSetting('webmaster_custom_tags', nextValue);
+		return sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+			setting: { webmaster_custom_tags: nextValue },
+		});
+	};
+
+	const scheduleSave = (nextValue: string) => {
+		if (saveTimerRef.current) {
+			clearTimeout(saveTimerRef.current);
+		}
+		saveTimerRef.current = setTimeout(() => persist(nextValue), AUTOSAVE_DEBOUNCE_MS);
+	};
+
+	const handleSaveClick = () => {
+		if (saveTimerRef.current) {
+			clearTimeout(saveTimerRef.current);
+		}
+		setIsSaving(true);
+		persist(value)
+			.then((response) => {
+				NoticeManager.add({
+					message: response
+						? __('Saved.', 'vulopilot')
+						: __('Could not save. Please try again.', 'vulopilot'),
+					type: response ? 'success' : 'error',
+					position: 'float',
+				});
+			})
+			.finally(() => setIsSaving(false));
+	};
+
+	const isAdded = '' !== value.trim();
+
+	return (
+		<CardHeader
+			className='compact'
+			icon="shortcode"
+			title={__('Custom webmaster tags', 'vulopilot')}
+			desc={__(
+				'Enter your own custom webmaster tags. Only <meta> tags are allowed — anything else is stripped out before being added to the page.',
+				'vulopilot'
+			)}
+			badge={
+				<span className={`admin-badge ${isAdded ? 'green' : 'red'}`}>
+					{isAdded ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
+				</span>
+			}
+			action={
+				<ButtonInput
+					buttons={{
+						text: isSaving ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
+						color: 'purple-bg',
+						icon: 'setting',
+						disabled: isSaving,
+						onClick: handleSaveClick,
+					}}
+				/>
+			}
+		>
+			<div className="ai-provider-card-body gsc-service-body">
+				<div className="ai-provider-field site-verification-code-field">
+					<TextAreaInput
+						id="webmaster_custom_tags-input"
+						value={value}
+						onChange={(next) => {
+							const nextValue = String(next);
+							setValue(nextValue);
+							scheduleSave(nextValue);
+						}}
+					/>
+				</div>
+			</div>
+		</CardHeader>
+	);
+};
 
 /**
  * One Google/Bing/Pinterest row — code field, real "Verify" action, and an
@@ -176,37 +409,28 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
  * Settings → Connections → Site Verification.
  *
  * Real backing: Services\WebmasterToolsManager already outputs one
- * `<meta>` tag per provider on `wp_head` from
- * `webmaster_{google,bing,pinterest}_verification` (Utill::VULOPILOT_SETTINGS_DEFAULTS)
- * — this tab is a restyle of how those 3 codes are edited (they previously
- * lived as plain text fields inside the much bigger Scanning → SEO &
- * Content tab, SeoContent.ts, which still owns Baidu/Yandex/Norton/Custom
- * Tags — see "Other verification" below for why those aren't duplicated
- * here). "Verify" is a real, honest self-check (Controllers\Settings::verify_webmaster_tool())
- * — this plugin fetches its OWN homepage and confirms the tag actually
+ * `<meta>` tag per provider on `wp_head` from `webmaster_*_verification`
+ * (Utill::VULOPILOT_SETTINGS_DEFAULTS) — Google/Bing/Pinterest get a real
+ * "Verify" self-check (Controllers\Settings::verify_webmaster_tool()) —
+ * this plugin fetches its OWN homepage and confirms the tag actually
  * renders there; it never calls Google/Bing/Pinterest's own APIs, so
  * "Verified" means "the tag is live," not "your account is confirmed" —
  * see `webmaster_google_verified_at`'s own docblock (Utill.php).
  *
- * "Other verification" doesn't get its own live-verify flow: the mockup's
- * own copy for it ("Not Added"/"Add Verification") is honest about this
- * already — it's a status summary, not a claim of live verification.
- * Rather than rebuilding Baidu/Yandex/Norton/Custom Tags editing a second
- * time on this tab, it deep-links to the real, already-working fields on
- * Scanning → SEO & Content (same "point at the real existing feature
- * instead of duplicating it" reasoning Reports.ts's own "Report Delivery"
- * section documents).
+ * Baidu/Yandex/Norton/Custom Tags (`PlainCodeField`/`CustomTagsField`
+ * above) used to live as plain text fields on Scanning → SEO & Content
+ * (SeoContent.ts) instead of here, with this panel only deep-linking over
+ * to them via an "Other verification" summary card. Merged into this one
+ * panel per direct instruction ("can i marge that 2 settings") — SeoContent.ts's
+ * own "Webmaster Tools"/"Custom Webmaster Tags" sections were removed
+ * entirely, so there's now exactly one editor for all 6 real verification
+ * codes instead of two. These 3 stay plain autosaving fields, no "Verify"
+ * button — this plugin has no real self-check for Baidu/Yandex/Norton the
+ * way it does for Google/Bing/Pinterest, and a Verify button with nothing
+ * real behind it would either no-op or falsely claim a check that never
+ * ran.
  */
 const SiteVerificationPanel = () => {
-	const { setting } = useSetting();
-
-	const hasOtherVerification = Boolean(
-		(setting.webmaster_baidu_verification as string | undefined) ||
-		(setting.webmaster_yandex_verification as string | undefined) ||
-		(setting.webmaster_norton_verification as string | undefined) ||
-		(setting.webmaster_custom_tags as string | undefined)
-	);
-
 	return (
 		<>
 
@@ -217,42 +441,10 @@ const SiteVerificationPanel = () => {
 					))}
 				</FormGroupComponent>
 				<FormGroupComponent>
-					<CardHeader
-						className='compact'
-						icon="link"
-						title={__('Other verification', 'vulopilot')}
-						desc={__(
-							'Add custom verification for other platforms like Yandex, Baidu, and more.',
-							'vulopilot'
-						)}
-						badge={
-							<span className={`admin-badge ${hasOtherVerification ? 'green' : 'red'}`}>
-								{hasOtherVerification ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
-							</span>
-						}
-						action={
-							<>
-								<ButtonInput
-									buttons={{
-										text: __('Add Verification', 'vulopilot'),
-										icon: 'plus',
-										color: 'border-purple',
-										onClick: () => {
-											window.location.href = SEO_CONTENT_URL;
-										},
-									}}
-								/>
-							</>
-						}
-					>
-						<div className="ai-provider-card-body gsc-service-body">
-							<div className="gsc-service-info">
-								<div className="desc">
-									{__('Add meta tags or file verification for other platforms.', 'vulopilot')}
-								</div>
-							</div>
-						</div>
-					</CardHeader>
+					{PLAIN_CODE_FIELDS.map((field) => (
+						<PlainCodeField key={field.key} field={field} />
+					))}
+					<CustomTagsField />
 				</FormGroupComponent>
 				<FormGroupComponent>
 					<NoticeComponent

@@ -3,23 +3,15 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	CardComponent,
+	ChartComponent,
 	ColumnComponent,
 	ContainerComponent,
 	NavigatorHeaderComponent,
 	PopupComponent,
 } from '@zyra/components';
-import {
-	CartesianGrid,
-	Line,
-	LineChart,
-	ResponsiveContainer,
-	XAxis,
-	YAxis,
-} from 'recharts';
+import { ToggleInput } from '@zyra/inputs';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
-import ShowProPopup, {
-	resolveModuleDisplayName,
-} from '../../components/Popup/Popup';
+import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import './Accessibility.scss';
 import SectionedIssuesTable, {
@@ -47,6 +39,14 @@ const DUMMY_ACCESSIBILITY_HISTORY = [
 	{ day: __('Day 7', 'vulopilot'), score: 82 },
 ];
 
+/** Purely decorative on this dummy card (no real per-period fetch behind it, ever — see `DUMMY_ACCESSIBILITY_HISTORY`'s own docblock) — same real `PERIOD_OPTIONS`/`ToggleInput` "pill" shape SecurityTrendCard.tsx's own real trend chart uses, kept here only so this teaser reads as a faithful preview of what the real, unlocked card looks like. */
+type PeriodDays = '7' | '30' | '90';
+const PERIOD_OPTIONS = [
+	{ key: '7', value: '7', label: __('7D', 'vulopilot') },
+	{ key: '30', value: '30', label: __('30D', 'vulopilot') },
+	{ key: '90', value: '90', label: __('90D', 'vulopilot') },
+];
+
 /**
  * `ACCESSIBILITY_CHECKS` minus its synthetic `'all'` tile (AccessibilityChecksGrid.tsx's
  * own 6th grid tile, not a real per-scanner bucket) — SectionedIssuesTable.tsx
@@ -60,32 +60,23 @@ const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 
 /**
  * Visible teaser for the history-trend slot above — same real "still show
- * the section, PRO-tagged, with fabricated content behind a click-through
- * popup" treatment BrandVisibilityProDummies.tsx's own 4 dummy cards
- * already use, replacing this card's former lock-icon/"Unlock with Pro"
- * button-only teaser (which looked identical whether Pro wasn't installed
- * at all or was installed with this module just not toggled on yet — the
- * badge text and popup below now tell those 2 states apart, same
- * `isProInstalled`/`resolveModuleDisplayName()` 2-tier badge
- * BrandVisibilityTab.tsx's own `brandProBadge` already establishes).
+ * the section, with fabricated content behind a click-through popup"
+ * treatment BrandVisibilityProDummies.tsx's own 4 dummy cards already use,
+ * replacing this card's former lock-icon/"Unlock with Pro" button-only
+ * teaser. The PRO/module-name badge that used to sit above this card
+ * (distinguishing "Pro not installed" from "installed, module just not
+ * toggled on yet") was removed per direct instruction — `isProInstalled`
+ * still gates which of those 2 real states the popup below opens to
+ * (`ShowProPopup`'s own `moduleName` prop vs none), just with no badge
+ * surfacing that distinction visually above the card anymore.
  */
 const AccessibilityHistoryDummy = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const [period, setPeriod] = useState<PeriodDays>('30');
 	const isProInstalled = Boolean(appLocalizer.khali_dabba);
-	const badgeText = isProInstalled
-		? resolveModuleDisplayName(ACCESSIBILITY_MODULE_ID)
-		: __('Pro', 'vulopilot');
 
 	return (
 		<>
-			{/* Docks against `.card-wrapper` (ColumnComponent's own root div,
-			 * always `position: relative` in zyra) rather than a wrapper div of
-			 * its own — CardComponent's own `badges` prop drops any custom
-			 * class. Same convention AuthorityTrendsDummy etc. already use. */}
-			<span className="admin-tag pro-tag">
-				<i className="adminfont-pro-tag" />
-				{badgeText}
-			</span>
 			<CardComponent
 				title={__('Accessibility Score History', 'vulopilot')}
 				titleIcon="analytics"
@@ -93,6 +84,15 @@ const AccessibilityHistoryDummy = () => {
 					'Real historical accessibility score trend over time, so you can see whether things are actually improving.',
 					'vulopilot'
 				)}
+				action={
+					<ToggleInput
+						options={PERIOD_OPTIONS}
+						value={period}
+						onChange={(value) => setPeriod(value as PeriodDays)}
+						modules={[]}
+						variant="pill"
+					/>
+				}
 			>
 				<div
 					className="accessibility-history-dummy"
@@ -105,20 +105,14 @@ const AccessibilityHistoryDummy = () => {
 						}
 					}}
 				>
-					<ResponsiveContainer width="100%" height={200}>
-						<LineChart data={DUMMY_ACCESSIBILITY_HISTORY}>
-							<CartesianGrid strokeDasharray="3 3" />
-							<XAxis dataKey="day" />
-							<YAxis domain={[0, 100]} />
-							<Line
-								type="monotone"
-								dataKey="score"
-								name={__('Score', 'vulopilot')}
-								stroke="#7C3AED"
-								dot={false}
-							/>
-						</LineChart>
-					</ResponsiveContainer>
+					<ChartComponent
+						type="dynamic-line"
+						data={DUMMY_ACCESSIBILITY_HISTORY}
+						dataKey="score"
+						xKey="day"
+						height={220}
+						yDomain={[0, 100]}
+					/>
 				</div>
 			</CardComponent>
 			<PopupComponent
@@ -264,14 +258,8 @@ const Accessibility = () => {
 				</ColumnComponent>
 
 				<ColumnComponent fullHeight grid={5}>
-					<AccessibilityManualTestingPanel />
-				</ColumnComponent>
 
-				<ColumnComponent fullHeight grid={6}>
-					<WhyAccessibilityMattersCard />
-				</ColumnComponent>
-
-				<ColumnComponent fullHeight grid={6}>
+					<PluginOverlapCard category="accessibility" />
 					{AccessibilityHistoryPanel ? (
 						<AccessibilityHistoryPanel />
 					) : (
@@ -279,8 +267,12 @@ const Accessibility = () => {
 					)}
 				</ColumnComponent>
 
-				<ColumnComponent>
-					<PluginOverlapCard category="accessibility" />
+				<ColumnComponent fullHeight grid={6}>
+					<WhyAccessibilityMattersCard />
+
+				</ColumnComponent>
+				<ColumnComponent fullHeight grid={6}>
+					<AccessibilityManualTestingPanel />
 				</ColumnComponent>
 				<ColumnComponent>
 					<SectionedIssuesTable

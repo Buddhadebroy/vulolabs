@@ -592,50 +592,49 @@ const CrawlRobotsSitemapSection = () => {
 	return (
 		<>
 			<ContainerComponent>
-
-				<CardComponent
-					title={__('Robots.txt Analysis', 'vulopilot')}
-					titleIcon="link"
-					badges={[
-						...(robots?.reachable
-							? [
-								{
-									text:
-										0 === robotsOpenCount
-											? __('No violations found', 'vulopilot')
-											: sprintf(
-												/* translators: %d: number of open robots.txt violations. */
-												__('%d violation(s) found', 'vulopilot'),
-												robotsOpenCount
-											),
-									color: 0 === robotsOpenCount ? 'green' : 'red',
-								},
-							]
-							: []),
-						...(robots?.is_custom
-							? [{ text: __('Custom', 'vulopilot'), color: 'purple' }]
-							: []),
-					]}
-					desc={__(
-						'Your live robots.txt file (fetched right now, not a cached copy) — edit it directly below. Saving takes effect immediately, not a preview: the next request to /robots.txt serves this. Other active plugins (e.g. WooCommerce) may still add their own rules on top, same as they would with WordPress’s own default file.',
-						'vulopilot'
-					)}
-					isLoading={isLoadingRobots}
-					action={
-						<ButtonInput
-							buttons={{
-								text: __('Test robots.txt', 'vulopilot'),
-								icon: 'refresh',
-								// Explicit click → refresh the editor content too.
-								onClick: () => loadRobots(true),
-							}}
-						/>
-					}
-				>
-					{robots?.reachable ? (
-						<>
-							<div className='robots-wraper'>
-								<div className='broken-link-section left-side'>
+				<ColumnComponent grid={4}>
+					<CardComponent
+						title={__('Robots.txt Analysis', 'vulopilot')}
+						titleIcon="link"
+						// badges={[
+						// 	...(robots?.reachable
+						// 		? [
+						// 			{
+						// 				text:
+						// 					0 === robotsOpenCount
+						// 						? __('No violations found', 'vulopilot')
+						// 						: sprintf(
+						// 							/* translators: %d: number of open robots.txt violations. */
+						// 							__('%d violation(s) found', 'vulopilot'),
+						// 							robotsOpenCount
+						// 						),
+						// 				color: 0 === robotsOpenCount ? 'green' : 'red',
+						// 			},
+						// 		]
+						// 		: []),
+						// 	...(robots?.is_custom
+						// 		? [{ text: __('Custom', 'vulopilot'), color: 'purple' }]
+						// 		: []),
+						// ]}
+						desc={__(
+							'Your live robots.txt file (fetched right now, not a cached copy) — edit it directly below. Saving takes effect immediately, not a preview: the next request to /robots.txt serves this. Other active plugins (e.g. WooCommerce) may still add their own rules on top, same as they would with WordPress’s own default file.',
+							'vulopilot'
+						)}
+						isLoading={isLoadingRobots}
+						action={
+							<ButtonInput
+								buttons={{
+									text: __('Test robots.txt', 'vulopilot'),
+									icon: 'refresh',
+									// Explicit click → refresh the editor content too.
+									onClick: () => loadRobots(true),
+								}}
+							/>
+						}
+					>
+						{robots?.reachable ? (
+							<>
+								<div className='broken-link-section'>
 									<div className="rt-editor-wrap">
 										<RobotsTxtEditor
 											value={robotsEditContent}
@@ -751,130 +750,134 @@ const CrawlRobotsSitemapSection = () => {
 										/>
 									</div>
 								</div>
-								<div className='broken-link-section right-side'>
-									<SectionComponent
-										icon="security"
-										title={__('Robots.txt Issues', 'vulopilot')}
-										desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
-									/>
-									{robotsTxtError ? (
-										<ModuleGuardComponent
-											icon="error"
-											title={__('Could not load findings', 'vulopilot')}
-											desc={robotsTxtError}
-											buttonText={__('Retry', 'vulopilot')}
-											onButtonClick={refetchRobotsTxt}
-										/>
-									) : (
-										<TableCard {...robotsTxtProps} bulkActions={[]} />
-									)}
-								</div>
-							</div>
-						</>
-					) : (
-						<ModuleGuardComponent
-							icon="error"
-							title={__('robots.txt is not reachable', 'vulopilot')}
-							desc={__('This site did not return a working /robots.txt just now.', 'vulopilot')}
-						/>
-					)}
-				</CardComponent>
-				<CardComponent
-					title={__('XML Sitemap Overview', 'vulopilot')}
-					titleIcon="link"
-					desc={__('Check your live sitemap (fetched right now, not a cached copy).', 'vulopilot')}
-					isLoading={isLoadingSitemap}
-					action={
-						sitemap?.reachable && (
-							<ButtonInput
-								buttons={{
-									text: __('View sitemap index', 'vulopilot'),
-									color: 'text-purple',
-									onClick: () =>
-										window.open(sitemap.index_url, '_blank'),
-								}}
+							</>
+						) : (
+							<ModuleGuardComponent
+								icon="error"
+								title={__('robots.txt is not reachable', 'vulopilot')}
+								desc={__('This site did not return a working /robots.txt just now.', 'vulopilot')}
 							/>
-						)
-					}
-				>
+						)}
+					</CardComponent>
+				</ColumnComponent>
+				<ColumnComponent grid={8} fullHeight>
+					<CardComponent
+						grid={6}
+						title={__('Robots.txt Issues', 'vulopilot')}
+						titleIcon="security"
+						desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
+					>
+						{robotsTxtError ? (
+							<ModuleGuardComponent
+								icon="error"
+								title={__('Could not load findings', 'vulopilot')}
+								desc={robotsTxtError}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetchRobotsTxt}
+							/>
+						) : (
+							<TableCard {...robotsTxtProps} bulkActions={[]} />
+						)}
+					</CardComponent>
+				</ColumnComponent>
 
-					{sitemap?.reachable && sitemap.valid ? (
-						<>
-							<div className='broken-link-wrapper'>
-								<div className='broken-link-section left-side'>
-									{sitemapRows.length > 0 ? (
-										<ListComponent
-											className="mini-card report sitemap-overview-list"
-											loading={isLoadingSitemap}
-											items={sitemapRows.map((row) => ({
-												id: row.id,
-												icon: 'link blue',
-												title: getSitemapDisplayName(row.loc),
-												desc: row.loc,
-												tags: (
-													<>
-														<BadgeComponent
-															color="indigo"
-															text={
-																null === row.url_count
-																	? __('— URLs', 'vulopilot')
-																	: sprintf(
-																		/* translators: %d: real number of URLs this sitemap lists. */
-																		_n('%d URL', '%d URLs', row.url_count, 'vulopilot'),
-																		row.url_count
-																	)
-															}
-														/>
+				<ColumnComponent grid={4}>
+					<CardComponent
+						title={__('XML Sitemap Overview', 'vulopilot')}
+						titleIcon="link"
+						desc={__('Check your live sitemap (fetched right now, not a cached copy).', 'vulopilot')}
+						isLoading={isLoadingSitemap}
+						action={
+							sitemap?.reachable && (
+								<ButtonInput
+									buttons={{
+										text: __('View sitemap index', 'vulopilot'),
+										color: 'text-purple',
+										onClick: () =>
+											window.open(sitemap.index_url, '_blank'),
+									}}
+								/>
+							)
+						}
+					>
 
-														<a href={row.loc} target="_blank" rel="noreferrer">
-															{__('View sitemap', 'vulopilot')}
-															<IconComponent name="pagination-right-arrow" />
-														</a>
-													</>
-												),
-											}))}
-										/>
-									) : (
-										<ModuleGuardComponent
-											icon="info"
-											title={__('No child sitemaps found', 'vulopilot')}
-											desc={__('No child sitemaps found in the index.', 'vulopilot')}
-										/>
-									)}
-								</div>
-								<div className='broken-link-section right-side'>
-									<SectionComponent
-										icon="security"
-										title={__('Robots.txt Issues', 'vulopilot')}
-										desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
+						{sitemap?.reachable && sitemap.valid ? (
+							<div className='broken-link-section left-side'>
+								{sitemapRows.length > 0 ? (
+									<ListComponent
+										className="mini-card report sitemap-overview-list"
+										loading={isLoadingSitemap}
+										items={sitemapRows.map((row) => ({
+											id: row.id,
+											icon: 'link blue',
+											title: getSitemapDisplayName(row.loc),
+											desc: row.loc,
+											tags: (
+												<>
+													<BadgeComponent
+														color="indigo"
+														text={
+															null === row.url_count
+																? __('— URLs', 'vulopilot')
+																: sprintf(
+																	/* translators: %d: real number of URLs this sitemap lists. */
+																	_n('%d URL', '%d URLs', row.url_count, 'vulopilot'),
+																	row.url_count
+																)
+														}
+													/>
+
+													<a href={row.loc} target="_blank" rel="noreferrer">
+														{__('View sitemap', 'vulopilot')}
+														<IconComponent name="pagination-right-arrow" />
+													</a>
+												</>
+											),
+										}))}
 									/>
-									{sitemapFindingsError ? (
-										<ModuleGuardComponent
-											icon="error"
-											title={__('Could not load findings', 'vulopilot')}
-											desc={sitemapFindingsError}
-											buttonText={__('Retry', 'vulopilot')}
-											onButtonClick={refetchSitemapFindings}
-										/>
-									) : (
-										<TableCard {...sitemapFindingsProps} bulkActions={[]} />
-									)}
-								</div>
+								) : (
+									<ModuleGuardComponent
+										icon="info"
+										title={__('No child sitemaps found', 'vulopilot')}
+										desc={__('No child sitemaps found in the index.', 'vulopilot')}
+									/>
+								)}
 							</div>
-						</>
-					) : (
-						<ModuleGuardComponent
-							icon="error"
-							title={__('No usable sitemap found', 'vulopilot')}
-							desc={__(
-								'Neither /wp-sitemap.xml nor /sitemap.xml returned valid, parseable XML just now.',
-								'vulopilot'
-							)}
-						/>
-					)}
+						) : (
+							<ModuleGuardComponent
+								icon="error"
+								title={__('No usable sitemap found', 'vulopilot')}
+								desc={__(
+									'Neither /wp-sitemap.xml nor /sitemap.xml returned valid, parseable XML just now.',
+									'vulopilot'
+								)}
+							/>
+						)}
 
-				</CardComponent>
+					</CardComponent>
+				</ColumnComponent>
 
+				<ColumnComponent grid={8} fullHeight>
+					<CardComponent
+						title={__('Robots.txt Issues', 'vulopilot')}
+						titleIcon="security"
+						desc={__(
+							'Whether robots.txt is reachable and not accidentally blocking every crawler.',
+							'vulopilot'
+						)}>
+						{sitemapFindingsError ? (
+							<ModuleGuardComponent
+								icon="error"
+								title={__('Could not load findings', 'vulopilot')}
+								desc={sitemapFindingsError}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetchSitemapFindings}
+							/>
+						) : (
+							<TableCard {...sitemapFindingsProps} bulkActions={[]} />
+						)}
+					</CardComponent>
+				</ColumnComponent>
 
 				<ColumnComponent grid={6}>
 					<CardComponent

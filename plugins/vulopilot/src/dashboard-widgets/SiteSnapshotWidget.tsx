@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ListComponent, SectionComponent } from '@zyra/components';
+import { ListComponent, SectionComponent, CardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import { useGeoScore } from '../pages/GEO/useGeoScore';
 import { useLastScanTime } from '../services/useLastScanTime';
@@ -286,7 +286,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 		];
 
 	return (
-		<DashboardWidget
+		<CardComponent
 			title={__('Site snapshot', 'vulopilot')}
 			desc={__('Which of your automations are enabled and running.', 'vulopilot')}
 			icon="info"
@@ -348,7 +348,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 					</div>
 				</div>
 			</>
-		</DashboardWidget>
+		</CardComponent>
 	);
 };
 
