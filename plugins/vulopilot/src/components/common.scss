@@ -36,12 +36,16 @@
             color: $theme-color;
         }
 
-        .history-row-title {
-            display: flex;
-            gap: 0.625rem;
-            align-items: center;
+        .history-row-title-wrapper {
+            // display: flex;
+            // gap: 0.625rem;
+            // align-items: center;
             font-size: 1.125rem;
             line-height: 1.063rem;
+
+            .admin-badge{
+                margin-left: 0.45rem;
+            }
         }
 
         .history-row-text {
@@ -475,11 +479,12 @@
 // ai copilot
 .group-wrapper {
     display: flex;
-    gap: 2rem;
+    flex-direction: column;
+    // gap: 2rem;
 
-    .group {
-        width: 50%;
-    }
+    // .group {
+    //     width: 50%;
+    // }
 
     .site-snapshot-group-card {
         margin-bottom: 2rem;

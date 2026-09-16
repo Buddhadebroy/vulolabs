@@ -1,7 +1,9 @@
+/* global appLocalizer */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation, Link } from 'react-router-dom';
-import { NavigatorComponent } from '@zyra/components';
+import { getApiLink, sendApiResponse } from '@zyra/core';
+import { NavigatorComponent, NoticeManager } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import OverviewTab from './OverviewTab';
 import SlowPagesTab from './SlowPagesTab';
@@ -68,6 +70,40 @@ const Performance = () => {
 	);
 	const goToSlowPages = () => setActiveTab('slow-pages');
 
+	const [isSlowPagesScanning, setIsSlowPagesScanning] = useState(false);
+
+	// The real per-page speed scan (`POST /page-speed`, PageSpeedScanner) —
+	// a separate job from the generic `categories: ['performance']` scan
+	// the header's own "Run Speed Test" button triggers everywhere else on
+	// this page (that one never runs PageSpeedScanner: it isn't registered
+	// in ScannerRegistry). Runs entirely in the background via WP-Cron
+	// batches (see that class's own docblock for why), so this only
+	// reports that the scan started, same "Scan started — results will
+	// appear here shortly" shape RunAuditWidget.tsx's own "Run AI Audit"
+	// already uses for the same kind of async, no-immediate-result action.
+	const handleSlowPagesScan = () => {
+		setIsSlowPagesScanning(true);
+
+		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'page-speed'), {})
+			.then((response) => {
+				NoticeManager.add({
+					uniqueKey: 'vulopilot-slow-pages-scan',
+					type: response ? 'success' : 'error',
+					position: 'float',
+					message: response
+						? __(
+								'Scan started — results will appear here shortly.',
+								'vulopilot'
+							)
+						: __(
+								'Could not start the scan. Please try again.',
+								'vulopilot'
+							),
+				});
+			})
+			.finally(() => setIsSlowPagesScanning(false));
+	};
+
 	const settingContent = TAB_IDS.map((tabId) => ({
 		type: 'file' as const,
 		content: {
@@ -99,11 +135,25 @@ const Performance = () => {
 				// 	'vulopilot'
 				// )}
 				headerCustomContent={
-					<RunScanHeaderExtra
-						categories={['performance']}
-						settingsSubtab="performance"
-						label={__('Run Speed Test', 'vulopilot')}
-					/>
+					'slow-pages' === activeTab ? (
+						<RunScanHeaderExtra
+							settingsSubtab="performance"
+							hideRunScanButton
+							replaceRunScanButton={{
+								text: isSlowPagesScanning
+									? __('Scanning…', 'vulopilot')
+									: __('Scan Again', 'vulopilot'),
+								icon: 'refresh',
+								onClick: handleSlowPagesScan,
+							}}
+						/>
+					) : (
+						<RunScanHeaderExtra
+							categories={['performance']}
+							settingsSubtab="performance"
+							label={__('Run Speed Test', 'vulopilot')}
+						/>
+					)
 				}
 				className="tabs"
 				settingContent={settingContent}

@@ -47,7 +47,7 @@ export default {
 	priority: 1,
 	headerTitle: __('Get Started', 'vulopilot'),
 	headerDescription: __(
-		'Connect VuloPilot to AI providers, Google services, PageSpeed Insights, and verify your site ownership.',
+		'Connect VuloPilot to AI providers, Google services, and verify your site ownership.',
 		'vulopilot'
 	),
 	hideSettingHeader: true,
@@ -60,9 +60,6 @@ export default {
 		{ key: 'ga_anonymize_ip', type: 'checkbox', label: '', options: [] },
 		{ key: 'ga_self_hosted_js', type: 'checkbox', label: '', options: [] },
 		{ key: 'ga_exclude_logged_in_users', type: 'checkbox', label: '', options: [] },
-		// PageSpeed Insights.
-		{ key: 'psi_api_key', type: 'text', label: '' },
-		{ key: 'psi_daily_limit', type: 'text', label: '' },
 		// Site Verification.
 		{ key: 'webmaster_google_verification', type: 'text', label: '' },
 		{ key: 'webmaster_google_verified_at', type: 'text', label: '' },
@@ -74,8 +71,6 @@ export default {
 		{ key: 'webmaster_yandex_verification', type: 'text', label: '' },
 		{ key: 'webmaster_norton_verification', type: 'text', label: '' },
 		{ key: 'webmaster_custom_tags', type: 'textarea', label: '' },
-		// Preferences.
-		{ key: 'site_tone', type: 'text', label: '' },
 	],
 	PanelComponent: ConnectionsPanel,
 };

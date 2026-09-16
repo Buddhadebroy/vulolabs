@@ -87,14 +87,14 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 6,
 		component: RecentActivityWidget,
 	},
-	{
-		id: 'site-snapshot',
-		title: __('Site snapshot', 'vulopilot'),
-		desc: __('Real WordPress core counts — posts, pages, comments, users, and active plugins.', 'vulopilot'),
-		icon: 'info',
-		grid: 8,
-		component: SiteSnapshotWidget,
-	},
+	// {
+	// 	id: 'site-snapshot',
+	// 	title: __('Site snapshot', 'vulopilot'),
+	// 	desc: __('Real WordPress core counts — posts, pages, comments, users, and active plugins.', 'vulopilot'),
+	// 	icon: 'info',
+	// 	grid: 8,
+	// 	component: SiteSnapshotWidget,
+	// },
 	{
 		id: 'automation-status',
 		title: __('Automation status', 'vulopilot'),

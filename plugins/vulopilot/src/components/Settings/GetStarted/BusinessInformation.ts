@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import BusinessInformationPanel from './BusinessInformationPanel';
 
 /**
  * Settings → Get Started → Business Information.
@@ -13,17 +14,19 @@ import { __ } from '@wordpress/i18n';
  * Modules/index.ts's own `settingsLink`) still resolves (`getSettingById()`
  * recurses by id alone, with no concept of which folder a tab lives in).
  *
- * Before that, this had already moved here once from Settings → Scanning
- * → AI Visibility — the "Business"/"Services"/"Locations" cards (and the
- * Knowledge Graph Health drop-threshold notice that followed them) used
- * to live at the bottom of that tab (AiVisibility.ts), appended after
- * Competitor URLs/llms.txt/Crawler Traffic. Same real settings, same
- * keys, just relocated: no Utill.php default or backend consumer
- * (Services\EntityExtractor, BusinessProfileCard.tsx/
- * KnowledgeGraphSection.tsx's own `ENTITY_SETTINGS_URL`) needed to change
- * shape, since these were already flat top-level keys, not nested under
- * an expandable-panel row the way several Scanning → SEO & Content fields
- * were in earlier relocations.
+ * Now a real `PanelComponent` (BusinessInformationPanel.tsx) rather than
+ * InputRenderer's own declarative `modal`, per direct instruction ("move
+ * image 1 settings before image 2 settings") — "Preferences"
+ * (`site_tone`) and "PageSpeed Insights" moved here from the Connections
+ * sub-tab, rendered above this tab's own "Business" fields; see that
+ * component's own docblock for why a `PanelComponent` was needed (a
+ * `PanelComponent` replaces InputRenderer entirely rather than composing
+ * with it — a `type: 'section'`/`type: 'text'` `modal` couldn't add
+ * PageSpeedStatusPanel.tsx, a real hand-built component, alongside its
+ * own declarative fields). `modal` below still lists every real flat key
+ * so Settings.tsx's own per-tab seeding logic (`fieldKeys` from
+ * `modal[].key`) populates SettingContext with their current values
+ * first.
  *
  * `entity_business_type`: free-text, owner-provided — shown as-is on the
  * Business Profile card, never written into any real Organization/
@@ -41,64 +44,16 @@ export default {
 		'Tell VuloPilot about your business so it can build a more complete Knowledge Graph and Business Profile.',
 		'vulopilot'
 	),
-	groupBySections: true,
 	hideSettingHeader: true,
 	headerIcon: 'category',
 	submitUrl: 'settings',
 	modal: [
-		{
-			key: 'entity-section-business',
-			type: 'section',
-			icon: 'category',
-			title: __('Business', 'vulopilot'),
-			desc: __(
-				'What kind of business this is — shown on the Business Profile card, not written into any structured data.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity_business_type',
-			type: 'text',
-			label: __('Business type', 'vulopilot'),
-			settingDescription: __(
-				'e.g. Software Company, Online Store, Consulting Agency.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity_service_pages',
-			type: 'textarea',
-			label: __('Service pages', 'vulopilot'),
-			settingDescription: __(
-				'e.g. https://example.com/consulting/ or just the page ID.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'entity_business_locations',
-			type: 'textarea',
-			label: __('Business locations', 'vulopilot'),
-			settingDescription: __(
-				'e.g. Downtown Store | 123 Main St, Springfield.',
-				'vulopilot'
-			),
-		},
-		{
-			// Not a real, independently-writable field here — the actual
-			// enable/threshold live in the real, single nested
-			// `visibility_alerts.kg` setting (Utill::VULOPILOT_SETTINGS_DEFAULTS),
-			// edited on its own dedicated Notifications tab instead. Same
-			// "real `type: 'notice'` pointing elsewhere rather than a
-			// second control duplicating the same setting" reasoning
-			// AiVisibility.ts's own `aeo-drop-threshold-note` documents.
-			key: 'kg-health-drop-threshold-note',
-			type: 'notice',
-			noticeType: 'info',
-			label: '',
-			message: __(
-				'Knowledge Graph Health drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
-				'vulopilot'
-			),
-		},
+		{ key: 'site_tone', type: 'text', label: '' },
+		{ key: 'psi_api_key', type: 'text', label: '' },
+		{ key: 'psi_daily_limit', type: 'text', label: '' },
+		{ key: 'entity_business_type', type: 'text', label: '' },
+		{ key: 'entity_service_pages', type: 'textarea', label: '' },
+		{ key: 'entity_business_locations', type: 'textarea', label: '' },
 	],
+	PanelComponent: BusinessInformationPanel,
 };

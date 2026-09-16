@@ -4,7 +4,6 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
 import {
 	AnalyticsComponent,
-	BadgeComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
@@ -17,7 +16,7 @@ import {
 	TooltipComponent,
 	TypographyComponent,
 } from '@zyra/components';
-import { SelectInput } from '@zyra/inputs';
+import { SelectInput, ToggleInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { formatWpDate } from '../../services/formatWpDate';
 import RecommendedFixesCard from './RecommendedFixesCard';
@@ -104,6 +103,23 @@ const PAGE_TYPE_LABELS: Record<string, string> = {
 	checkout: __('Checkout Page', 'vulopilot'),
 	product: __('Product Page', 'vulopilot'),
 	category: __('Category Page', 'vulopilot'),
+};
+
+/** Same real 80/50/25 score bands `PageSpeedRepository::get_summary()` itself uses (`SCORE_GOOD`/`SCORE_NEEDS_IMPROVEMENT`/`SCORE_VERY_SLOW`) — a real, score-tier summary line for the average-score ring, not a fixed "in good shape" sentence regardless of score (same convention OverallScoreWidget.tsx's own `getRatingSummary()` establishes). */
+const avgScoreSummary = (score: number | null): string => {
+	if (null === score) {
+		return __('Not enough scanned pages yet to compute an average score.', 'vulopilot');
+	}
+	if (score >= 90) {
+		return __('Your pages are loading excellently.', 'vulopilot');
+	}
+	if (score >= 80) {
+		return __('Your pages are loading well, but there are still a few pages that can be improved.', 'vulopilot');
+	}
+	if (score >= 50) {
+		return __('Several pages could use performance improvements.', 'vulopilot');
+	}
+	return __('Many of your pages need performance attention.', 'vulopilot');
 };
 
 const ratingFor = (score: number | null): { label: string; className: 'good' | 'needs-improvement' | 'poor' | 'unknown' } => {
@@ -262,6 +278,13 @@ const SlowPagesTab = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [detailRow, setDetailRow] = useState<PageSpeedRow | null>(null);
 	const [trendDays, setTrendDays] = useState('30');
+	// Real "which real PSI device's own scores to show" toggle for the
+	// "Slow Pages Score" summary card's header — mobile first, same real
+	// "mobile is the default device" convention PageSpeedScanner.php's own
+	// docblock already documents for which PSI response feeds every other
+	// mobile-first field on this page. Only meaningful once a PSI key is
+	// configured (`hasDeviceScores`); nothing reads this otherwise.
+	const [scoreDevice, setScoreDevice] = useState<'mobile' | 'desktop'>('mobile');
 	const [trend, setTrend] = useState<ScoreSnapshot[]>([]);
 	const [isTrendLoading, setIsTrendLoading] = useState(true);
 	// This table's own rows are all fetched once (per_page=200) and
@@ -354,6 +377,28 @@ const SlowPagesTab = () => {
 	const avgScoreRating = ratingFor(avgScore);
 	const avgLoadTimeMs = response?.summary?.avg_load_time_ms ?? null;
 
+	/**
+	 * Real average mobile/desktop PSI scores, computed client-side from this
+	 * same `rows` fetch — `PageSpeedRepository::get_summary()` only returns
+	 * an aggregate `avg_mobile_score` (no `avg_desktop_score` field exists
+	 * server-side), but every row here already carries its own real
+	 * `mobile_score`/`desktop_score` (`PageSpeedScanner`'s own real PSI
+	 * fetch), so this reduces those same real per-row values the table
+	 * itself already renders rather than a second, invented number.
+	 */
+	const avgDeviceScore = (key: 'mobile_score' | 'desktop_score'): number | null => {
+		const scores = rows
+			.map((row) => row[key])
+			.filter((score): score is number => null !== score);
+
+		return scores.length
+			? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+			: null;
+	};
+
+	const avgMobileScore = hasDeviceScores ? avgDeviceScore('mobile_score') : null;
+	const avgDesktopScore = hasDeviceScores ? avgDeviceScore('desktop_score') : null;
+
 	const trendDelta =
 		trend.length >= 2
 			? trend[trend.length - 1].performance_score - trend[0].performance_score
@@ -403,6 +448,37 @@ const SlowPagesTab = () => {
 
 	const statusCounts = response?.status_counts ?? {};
 	const summary = response?.summary ?? null;
+
+	/**
+	 * The whole "Slow Pages Score" summary card's own real data for
+	 * whichever device the header toggle has selected — the ring's score
+	 * itself (`avgMobileScore`/`avgDesktopScore` above) plus a real
+	 * Slow/Good page count recomputed from this same real per-row
+	 * `mobile_score`/`desktop_score` (same `ratingFor()` 80/50 bands the
+	 * rest of this page already uses), not the server's own device-agnostic
+	 * `summary.slow`/`summary.good` (those count by the real server-response
+	 * `score`/`status`, which has no device concept at all). Falls back to
+	 * that device-agnostic summary when no PSI key is configured — there's
+	 * no real per-device score to switch between yet.
+	 */
+	const deviceScoreKey = 'mobile' === scoreDevice ? 'mobile_score' : 'desktop_score';
+	const displayScore = hasDeviceScores
+		? ('mobile' === scoreDevice ? avgMobileScore : avgDesktopScore)
+		: avgScore;
+	const displayScoreRating = ratingFor(displayScore);
+
+	const deviceScoredRows = hasDeviceScores
+		? rows.filter((row) => null !== row[deviceScoreKey])
+		: [];
+	const deviceSlowCount = hasDeviceScores
+		? deviceScoredRows.filter((row) => (row[deviceScoreKey] as number) < 50).length
+		: (summary?.slow ?? 0);
+	const deviceGoodCount = hasDeviceScores
+		? deviceScoredRows.filter((row) => (row[deviceScoreKey] as number) >= 80).length
+		: (summary?.good ?? 0);
+	const deviceTotalScored = hasDeviceScores
+		? deviceScoredRows.length
+		: (summary?.total ?? 0);
 	const topIssues = response?.top_issues ?? [];
 
 
@@ -411,6 +487,16 @@ const SlowPagesTab = () => {
 	// instead of hand-rolled `<button>`s, same convention IssuesList.tsx's own
 	// TableCard already uses.
 	const statusCategoryCounts = [
+		// Same "All" pill shape IssuesList.tsx's own `tableCategoryCounts`
+		// already establishes for this same `TableCard`/`categoryCounts`
+		// prop — `statusFilter`'s own initial state and filter check
+		// (`'all' !== statusFilter`) already treat `'all'` as the real
+		// no-filter sentinel; this was just the missing pill for it. Real
+		// `rows.length`, not a sum of the 3 named tiers below — a page
+		// whose `status` came back `null` (not yet scored) still counts
+		// toward the real total here, even though it can't match any of
+		// those 3 named filters.
+		{ value: 'all', label: __('All', 'vulopilot'), count: rows.length },
 		{ value: 'slow', label: __('Slow', 'vulopilot'), count: statusCounts.slow ?? 0 },
 		{
 			value: 'needs_improvement',
@@ -492,117 +578,167 @@ const SlowPagesTab = () => {
 	return (
 		<ContainerComponent>
 			<ColumnComponent>
-				<ListComponent
-					loading={isLoading || isTrendLoading}
-					skeletonCount={4}
-					className="mini-card report list"
-					items={[
-						{
-							id: 'slow-pages',
-							icon: 'error orange',
-							title: __('Slow Pages', 'vulopilot'),
-							tags: (
-								<>
-									<TypographyComponent variant="h5">
-										{summary?.slow ?? 0}
-									</TypographyComponent>
-									<BadgeComponent
-										color="orange"
-										text={__('Needs Improvement', 'vulopilot')}
-									/>
-								</>
-							),
-						},
-						{
-							id: 'very-slow-pages',
-							icon: 'error red',
-							title: __('Very Slow Pages', 'vulopilot'),
-							tags: (
-								<>
-									<TypographyComponent variant="h5">
-										{summary?.very_slow ?? 0}
-									</TypographyComponent>
-									<BadgeComponent color="red" text={__('Poor', 'vulopilot')} />
-								</>
-							),
-						},
-						{
-							id: 'average-load-time',
-							icon: 'form-phone blue',
-							title: __('Average Load Time', 'vulopilot'),
-							tags: (
-								<>
-									<TypographyComponent variant="h5">
-										{avgLoadTimeMs !== null
-											? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
-											: '—'}
-									</TypographyComponent>
-									<BadgeComponent
-										color={
-											null !== avgScore
-												? RATING_BADGE_COLOR[avgScoreRating.className]
-												: 'gray'
-										}
-										text={
-											null !== avgScore
-												? sprintf(
-													/* translators: %s is a rating word like "Good"/"Poor". */
-													__('%s score', 'vulopilot'),
-													avgScoreRating.label
-												)
-												: __('Not scored yet', 'vulopilot')
-										}
-									/>
-								</>
-							),
-						},
-						{
-							id: 'performance-trend',
-							icon: 'check green',
-							title:
-								null !== trendDelta
-									? __('Performance Trend', 'vulopilot')
-									: __('Not enough trend data yet', 'vulopilot'),
-							tags: (
-								<>
-									<TypographyComponent variant="h5">
-										{null !== trendDelta
-											? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
-											: '—'}
-									</TypographyComponent>
-									{null !== trendDelta && (
-										<BadgeComponent
-											color={isTrendImproving ? 'green' : 'red'}
-											text={
-												isTrendImproving
-													? __('Improving', 'vulopilot')
-													: __('Declining', 'vulopilot')
-											}
-										/>
-									)}
-								</>
-							),
-						},
-					]}
-				/>
-			</ColumnComponent>
-			<ColumnComponent grid={8}>
-				<NoticeComponent
-					type="info"
-					displayPosition="inline-notice"
-					title={__(
-						'Slow pages can hurt user experience and search rankings. Focus on the pages with the lowest scores first for the biggest impact.',
-						'vulopilot'
-					)}
-					actionLabel={`${__('Learn more', 'vulopilot')} ↗`}
-					onAction={() =>
-						window.open(
-							'https://web.dev/articles/vitals',
-							'_blank',
-							'noopener,noreferrer'
+				<CardComponent
+					isLoading={isLoading || isTrendLoading}
+					action={
+						hasDeviceScores && (
+							<ToggleInput
+								value={scoreDevice}
+								modules={[]}
+								variant="pill"
+								options={[
+									{ key: 'desktop', value: 'desktop', label: __('Desktop', 'vulopilot') },
+									{ key: 'mobile', value: 'mobile', label: __('Mobile', 'vulopilot') },
+								]}
+								onChange={(value) => setScoreDevice(value as 'mobile' | 'desktop')}
+							/>
 						)
 					}
-				/>
+				>
+					<div className="overall-score-wrapper">
+						<div className="overall-score-summary">
+							<ChartComponent
+								type="ring"
+								height={200}
+								color={RATING_RING_COLOR[displayScoreRating.className]}
+								centerLabel={
+									<>
+										<TypographyComponent
+											variant={'h1'}
+											color={RATING_BADGE_COLOR[displayScoreRating.className] || 'gray'}
+										>
+											{null === displayScore ? '—' : displayScore}
+										</TypographyComponent>
+										<TypographyComponent variant={'h4'}>
+											{displayScoreRating.label}
+										</TypographyComponent>
+									</>
+								}
+								data={[
+									{
+										label: __('Score', 'vulopilot'),
+										value: displayScore ?? 0,
+										color: RATING_RING_COLOR[displayScoreRating.className],
+									},
+									{
+										label: __('Remaining', 'vulopilot'),
+										value: 100 - (displayScore ?? 0),
+										color: '#e5e7eb',
+									},
+								]}
+							/>
+							<TypographyComponent variant={'h3'} color="text-green">
+								{__('Slow Pages Score', 'vulopilot')}
+							</TypographyComponent>
+							<div className="desc">{avgScoreSummary(displayScore)}</div>
+						</div>
+
+						<ListComponent
+							className="mini-card report list"
+							items={[
+								{
+									id: 'slow-pages',
+									icon: 'error red',
+									title: __('Slow Pages', 'vulopilot'),
+									desc: sprintf(
+										/* translators: %d: real PageSpeed score threshold below which a page counts as "slow" (PageSpeedRepository::SCORE_NEEDS_IMPROVEMENT). */
+										__('Pages with a performance score below %d', 'vulopilot'),
+										50
+									),
+									tags: (
+										<div className="page-speed-summary-row-value">
+											<TypographyComponent variant="h5">
+												{deviceSlowCount}
+											</TypographyComponent>
+											<div className="page-speed-summary-row-sub">
+												{sprintf(
+													/* translators: %d: real total scanned page count. */
+													__('of %d pages', 'vulopilot'),
+													deviceTotalScored
+												)}
+											</div>
+										</div>
+									),
+								},
+								{
+									id: 'average-load-time',
+									icon: 'clock orange',
+									title: __('Average Load Time', 'vulopilot'),
+									desc: __('Across all scanned pages', 'vulopilot'),
+									tags: (
+										<div className="page-speed-summary-row-value">
+											<TypographyComponent variant="h5">
+												{avgLoadTimeMs !== null
+													? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
+													: '—'}
+											</TypographyComponent>
+											<div className="page-speed-summary-row-sub">
+												{null !== avgScore
+													? avgScoreRating.label
+													: __('Not scored yet', 'vulopilot')}
+											</div>
+										</div>
+									),
+								},
+								{
+									id: 'good-pages',
+									icon: 'check green',
+									title: __('Good Pages', 'vulopilot'),
+									desc: sprintf(
+										/* translators: %d: real PageSpeed score threshold at/above which a page counts as "good" (PageSpeedRepository::SCORE_GOOD). */
+										__('Pages with a performance score of %d or higher', 'vulopilot'),
+										80
+									),
+									tags: (
+										<div className="page-speed-summary-row-value">
+											<TypographyComponent variant="h5">
+												{deviceGoodCount}
+											</TypographyComponent>
+											<div className="page-speed-summary-row-sub">
+												{sprintf(
+													/* translators: %d: real total scanned page count. */
+													__('of %d pages', 'vulopilot'),
+													deviceTotalScored
+												)}
+											</div>
+										</div>
+									),
+								},
+								{
+									id: 'performance-trend',
+									icon: 'bar-chart violet',
+									title: __('Performance Trend', 'vulopilot'),
+									desc: __('Compared to the start of the selected period', 'vulopilot'),
+									tags: (
+										<div className="page-speed-summary-row-value">
+											<TypographyComponent variant="h5">
+												{null !== trendDelta
+													? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
+													: '—'}
+											</TypographyComponent>
+											<div className="page-speed-summary-row-sub">
+												{null !== trendDelta ? (
+													<span className={isTrendImproving ? 'up' : 'down'}>
+														<i
+															className={`adminfont-arrow-${isTrendImproving ? 'up' : 'down'}`}
+														/>
+														{isTrendImproving
+															? __('Improving', 'vulopilot')
+															: __('Declining', 'vulopilot')}
+													</span>
+												) : (
+													__('Not enough trend data yet', 'vulopilot')
+												)}
+											</div>
+										</div>
+									),
+								},
+							]}
+						/>
+					</div>
+				</CardComponent>
+			</ColumnComponent>
+			<ColumnComponent grid={8}>
 
 				{0 === filteredRows.length ? (
 					<ModuleGuardComponent

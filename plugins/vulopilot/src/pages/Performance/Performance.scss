@@ -357,6 +357,35 @@ $vulopilot-rating-very-poor: #991b1b;
 	color: $sub-text-color;
 }
 
+// Slow Pages tab's own "Slow Pages Score" ring + real per-metric list —
+// each row's own right-aligned value/subtext block (`ListComponent`'s
+// `tags` slot), the real "Improving"/"Declining" arrow only real where a
+// real trend delta exists (Performance Trend row).
+.page-speed-summary-row-value {
+	text-align: right;
+
+	.page-speed-summary-row-sub {
+		font-size: 0.75rem;
+		color: $sub-text-color;
+		margin-top: 0.125rem;
+
+		.up,
+		.down {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.188rem;
+		}
+
+		.up {
+			color: $vulopilot-rating-good;
+		}
+
+		.down {
+			color: $vulopilot-rating-poor;
+		}
+	}
+}
+
 // `.page-speed-disclaimer`'s own plain-text CSS used to live here — removed
 // now that this is a real Zyra `<NoticeComponent type="info"
 // displayPosition="inline-notice">` (SlowPagesTab.tsx), which supplies its

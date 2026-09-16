@@ -437,6 +437,7 @@ const BusinessProfileCard = () => {
 						<ButtonInput
 							buttons={{
 								text: __('Add custom schema', 'vulopilot'),
+								icon: 'plus',
 								onClick: () => setIsCustomSchemaProPopupOpen(true),
 							}}
 						/>
@@ -520,6 +521,7 @@ const BusinessProfileCard = () => {
 					open={isPeopleDropdownOpen}
 					onClose={() => setIsPeopleDropdownOpen(false)}
 					width={28}
+					height={"65%"}
 					header={{
 						title: __('People', 'vulopilot'),
 						description: __(
@@ -528,43 +530,56 @@ const BusinessProfileCard = () => {
 						),
 					}}
 				>
-					{entities && 0 === entities.people.length ? (
-						<p className="desc">{__('No people detected yet.', 'vulopilot')}</p>
-					) : (
-						<ul className="business-profile-popup-list">
-							{entities?.people.map((person) => {
-								const roleLabel =
-									'string' === typeof person.meta?.role_label
-										? person.meta.role_label
-										: '';
-								const editUrl =
-									'string' === typeof person.meta?.edit_url
-										? person.meta.edit_url
-										: null;
 
-								return (
-									<li key={person.id} className="business-profile-popup-row">
-										<span className="business-profile-popup-name">
-											{person.name}
-										</span>
-										{roleLabel && (
-											<span className="admin-badge">{roleLabel}</span>
-										)}
-										{editUrl && (
-											<a className="business-profile-popup-edit" href={editUrl}>
-												{__('Edit', 'vulopilot')}
-											</a>
-										)}
-									</li>
-								);
-							})}
-						</ul>
+					{entities && 0 === entities.people.length ? (
+						<p className="desc">
+							{__('No people detected yet.', 'vulopilot')}
+						</p>
+					) : (
+						<ListComponent
+							className="mini-card report"
+							items={
+								entities?.people.map((person) => {
+									const roleLabel =
+										'string' === typeof person.meta?.role_label
+											? person.meta.role_label
+											: '';
+
+									const editUrl =
+										'string' === typeof person.meta?.edit_url
+											? person.meta.edit_url
+											: null;
+
+									return {
+										id: String(person.id),
+										title: person.name,
+										icon: 'person green',
+										tags: (
+											<>
+												{editUrl && (
+													<ButtonInput
+														buttons={{
+															text: __('Edit', 'vulopilot'),
+															rightIcon: 'edit',
+															color: 'text-purple',
+															onClick: () =>
+																window.open(editUrl, '_self'),
+														}}
+													/>
+												)}
+											</>
+										),
+									};
+								}) || []
+							}
+						/>
 					)}
 				</PopupComponent>
 				<PopupComponent
 					open={isCategoriesPopupOpen}
 					onClose={() => setIsCategoriesPopupOpen(false)}
 					width={28}
+					height={"65%"}
 					header={{
 						title: __('Categories', 'vulopilot'),
 						description: __(
@@ -573,35 +588,42 @@ const BusinessProfileCard = () => {
 						),
 					}}
 				>
-					{entities && 0 === entities.categories.length ? (
-						<p className="desc">{__('No categories detected yet.', 'vulopilot')}</p>
-					) : (
-						<ul className="business-profile-popup-list">
-							{entities?.categories.map((category) => {
-								const taxonomyLabel =
-									'product_cat' === category.meta?.taxonomy
-										? __('Product category', 'vulopilot')
-										: __('Category', 'vulopilot');
-								const editUrl =
-									'string' === typeof category.meta?.edit_url
-										? category.meta.edit_url
-										: null;
 
-								return (
-									<li key={category.id} className="business-profile-popup-row">
-										<span className="business-profile-popup-name">
-											{category.name}
-										</span>
-										<span className="admin-badge">{taxonomyLabel}</span>
-										{editUrl && (
-											<a className="business-profile-popup-edit" href={editUrl}>
-												{__('Edit', 'vulopilot')}
-											</a>
-										)}
-									</li>
-								);
-							})}
-						</ul>
+					{entities && 0 === entities.categories.length ? (
+						<p className="desc">
+							{__('No categories detected yet.', 'vulopilot')}
+						</p>
+					) : (
+						<ListComponent
+							className="mini-card report"
+							items={
+								entities?.categories.map((category) => {
+									const editUrl =
+										'string' === typeof category.meta?.edit_url
+											? category.meta.edit_url
+											: null;
+
+									return {
+										id: String(category.id),
+										title: category.name,
+										tags: (
+											<>
+												{editUrl && (
+													<ButtonInput
+														buttons={{
+															text: __('Edit', 'vulopilot'),
+															rightIcon: 'edit',
+															color: 'text-purple',
+															onClick: () => window.open(editUrl, '_self'),
+														}}
+													/>
+												)}
+											</>
+										),
+									};
+								}) || []
+							}
+						/>
 					)}
 				</PopupComponent>
 				<BusinessNameDetailsPanel

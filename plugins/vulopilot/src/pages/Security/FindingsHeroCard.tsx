@@ -244,21 +244,8 @@ const FindingsHeroCard = ({
 								</div>
 							</div>
 						)}
-						<div className='overall-score-summary'>
-							<SiteHealthStatusCard />
-						</div>
+						<SiteHealthStatusCard />
 					</div>
-					{total > 0 && (
-						<ButtonInput
-							positive="full-width"
-							buttons={{
-								text: __('Review Issues', 'vulopilot'),
-								rightIcon: 'pagination-right-arrow',
-								color: 'border-purple',
-								onClick: onReviewFirst,
-							}}
-						/>
-					)}
 				</>
 			)}
 		</CardComponent>
