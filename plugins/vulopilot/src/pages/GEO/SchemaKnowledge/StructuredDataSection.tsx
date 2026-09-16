@@ -9,9 +9,7 @@ import {
 	BadgeComponent,
 	ListComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
-import { formatWpDate } from '../../../services/formatWpDate';
 import { useSchemaCoverage } from './useSchemaCoverage';
 import type { SchemaCoverageRow, SchemaCoveragePage } from './useSchemaCoverage';
 
@@ -171,6 +169,8 @@ const StructuredDataSection = () => {
 								'Click "Run Schema Check" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask.',
 								'vulopilot'
 							)}
+							buttonText={__('Run Schema Check', 'vulopilot')}
+							onButtonClick={analyze}
 						/>
 					)}
 

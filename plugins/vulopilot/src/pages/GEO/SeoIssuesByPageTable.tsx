@@ -1,4 +1,3 @@
-/* global appLocalizer */
 import React from 'react';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -136,15 +135,15 @@ interface SeoIssuesByPageTableProps {
 	onRetry: () => void;
 	/** "SEO Issues" by default — IssuesSection.tsx's own AEO/GEO callers pass "AEO Issues"/"GEO Issues" so this column reads correctly for whichever real check set is showing. */
 	issuesColumnLabel?: string;
-	/** Only set when `IssuesSection.tsx` itself got a `pageAnalysis` prop (GeoTab.tsx/AeoTab.tsx) — adds the real deterministic visibility-% column, merging what used to be the standalone "Page-by-page analysis" table's own scope into this one. Undefined for SeoIssuesSection.tsx's own SEO usage, which never shows this column. */
+	/** Only set when `IssuesSection.tsx` itself got a `pageAnalysis` prop (GeoTab.tsx/AeoTab.tsx) — adds the real deterministic visibility-% column, merging what used to be the standalone "Page-by-page analysis" table's own scope into this one. Undefined for SeoTab.tsx's own SEO usage, which never shows this column. */
 	visibilityColumnLabel?: string;
 	/** Only set alongside `visibilityColumnLabel` — shows a real "Export CSV" action in this card's header, same shape the old standalone table's own button used. */
 	onExportCsv?: () => void;
-	/** Only set by `SeoIssuesSection.tsx`'s own SEO usage — adds a real "Analyze" row action opening SeoTab.tsx's own PageAnalysisPanel for that page. `undefined` for AeoTab.tsx's/GeoTab.tsx's own `pageAnalysis` usage, which has no such panel. */
+	/** Only set by SeoTab.tsx's own SEO usage — adds a real "Analyze" row action opening its own PageAnalysisPanel for that page. `undefined` for AeoTab.tsx's/GeoTab.tsx's own `pageAnalysis` usage, which has no such panel. */
 	onAnalyze?: (postId: number) => void;
 	/** SeoTab.tsx's own `analyzingPostId` — which row's panel (if any) is currently open, so this row's own "Analyze" action can read "Viewing" instead, same real toggle `PagesNeedingAttentionTable.tsx`'s own identical action used to establish. */
 	activePostId?: number | null;
-	/** Only set by `SeoIssuesSection.tsx`'s own SEO usage (`IssuesSection.tsx`'s own `pageScore` prop) — adds a real Score ring + Change column per page, reading `row.seoScore`/`row.seoScoreChange`. This was `PagesNeedingAttentionTable.tsx`'s own standalone table before being folded into this one per direct instruction. */
+	/** Only set by SeoTab.tsx's own SEO usage (`IssuesSection.tsx`'s own `pageScore` prop) — adds a real Score ring + Change column per page, reading `row.seoScore`/`row.seoScoreChange`. This was `PagesNeedingAttentionTable.tsx`'s own standalone table before being folded into this one per direct instruction. */
 	showScoreChange?: boolean;
 	/** Only set by `IssuesSection.tsx`'s own `content` mode — a real Score-only ring column (no Change column: there's no real "previous score" to diff a per-page readability score against), reading `row.contentQualityScore`. */
 	showContentScore?: boolean;
@@ -160,7 +159,7 @@ interface SeoIssuesByPageTableProps {
  * Page/post-wise table — the other of the two real tables that replace the
  * old combined "All SEO Issues" card, split apart per direct instruction.
  * Purely presentational for its data: `rows` comes from
- * `SeoIssuesSection.tsx`'s own single fetch (client-side-joined onto real
+ * SeoTab.tsx's own single fetch (client-side-joined onto real
  * `wp/v2/posts`/`pages` rows there, same technique `RecentContentCard.tsx`
  * already established for "Content → Recent Content") — this table only
  * renders it, filtered by `activeScannerIds`. No local mutation happens
@@ -315,6 +314,13 @@ const SeoIssuesByPageTable = ({
 	 * with an empty Action column on every row (no `onAnalyze` there means
 	 * "Analyze" — the one action left — was always `hidden`, and it was
 	 * the only entry).
+	 *
+	 * Confirmed still unreachable below: this function itself is real and
+	 * correct, but the `action.actions` array further down only has
+	 * "More Details"/"Viewing" and "Delete" entries — no "Fix with AI"
+	 * button was ever added back to call it. Same "real, working, just
+	 * flagged here rather than deleted" status BrokenLinksSection.tsx's
+	 * own docblocks document for their own unwired pieces.
 	 */
 	const handleFixWithAi = (row: PageRow) => {
 		const rowFindings = getRowFindings(row);

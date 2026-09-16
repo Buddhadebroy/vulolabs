@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useLocation, Link } from 'react-router-dom';
-import { NavigatorHeaderComponent, NavigatorComponent, ContainerComponent } from '@zyra/components';
+import { NavigatorComponent } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import OverviewTab from './OverviewTab';
 import GeoTab from './GeoTab';

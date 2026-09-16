@@ -1,4 +1,3 @@
-/* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent, ListComponent, BadgeComponent } from '@zyra/components';

@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-15T13:31:34+00:00\n"
+"POT-Creation-Date: 2026-09-16T09:36:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -115,7 +115,6 @@ msgid "Reports"
 msgstr ""
 
 #: classes/Admin.php:168
-#: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Settings"
 msgstr ""
@@ -945,26 +944,6 @@ msgstr ""
 msgid "Deleted automation"
 msgstr ""
 
-#: classes/Repositories/KeywordRankingRepository.php:222
-msgid "Top 3"
-msgstr ""
-
-#: classes/Repositories/KeywordRankingRepository.php:223
-msgid "4-10"
-msgstr ""
-
-#: classes/Repositories/KeywordRankingRepository.php:224
-msgid "11-20"
-msgstr ""
-
-#: classes/Repositories/KeywordRankingRepository.php:225
-msgid "21-50"
-msgstr ""
-
-#: classes/Repositories/KeywordRankingRepository.php:226
-msgid "51+"
-msgstr ""
-
 #: classes/RestAPI/Controllers/AiActionRuns.php:134
 msgid "Enable the AI Copilot module to use AI actions."
 msgstr ""
@@ -1056,19 +1035,6 @@ msgstr ""
 
 #: classes/RestAPI/Controllers/BackupStorage.php:241
 msgid "Connected — Google Drive is reachable with this account."
-msgstr ""
-
-#: classes/RestAPI/Controllers/BrokenLinksStats.php:161
-#: classes/RestAPI/Controllers/Seo.php:608
-msgid "That page could not be found."
-msgstr ""
-
-#: classes/RestAPI/Controllers/BrokenLinksStats.php:169
-msgid "Please enter a valid URL."
-msgstr ""
-
-#: classes/RestAPI/Controllers/BrokenLinksStats.php:182
-msgid "That URL could not be found in this page’s current content — it may have already been changed."
 msgstr ""
 
 #: classes/RestAPI/Controllers/ContentAssistant.php:123
@@ -1802,6 +1768,10 @@ msgstr ""
 #: classes/RestAPI/Controllers/Schema.php:171
 #: assets/js/index.js:9
 msgid "Could not fetch that page. Check the URL and try again."
+msgstr ""
+
+#: classes/RestAPI/Controllers/Seo.php:608
+msgid "That page could not be found."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Seo.php:665
@@ -4206,6 +4176,7 @@ msgid "Website title"
 msgstr ""
 
 #: classes/Services/EntityExtractor.php:221
+#: assets/js/index.js:9
 msgid "Organization schema"
 msgstr ""
 
@@ -4227,19 +4198,19 @@ msgstr ""
 msgid "%1$s publishes content about %2$s"
 msgstr ""
 
-#: classes/Services/EntityExtractor.php:560
+#: classes/Services/EntityExtractor.php:596
 msgid "Missing product image"
 msgstr ""
 
-#: classes/Services/EntityExtractor.php:564
+#: classes/Services/EntityExtractor.php:600
 msgid "Missing SKU"
 msgstr ""
 
-#: classes/Services/EntityExtractor.php:571
+#: classes/Services/EntityExtractor.php:607
 msgid "Missing product description"
 msgstr ""
 
-#: classes/Services/EntityExtractor.php:575
+#: classes/Services/EntityExtractor.php:611
 msgid "Missing price"
 msgstr ""
 
@@ -4257,7 +4228,6 @@ msgstr ""
 #: classes/Services/GoogleAnalyticsClient.php:122
 #: classes/Services/GoogleAnalyticsClient.php:183
 #: classes/Services/GoogleAnalyticsClient.php:262
-#: classes/Services/GoogleSearchConsoleAnalyticsClient.php:81
 #: classes/Services/GoogleServicesConnection.php:525
 msgid "Not connected to Google."
 msgstr ""
@@ -4294,10 +4264,6 @@ msgstr ""
 #: classes/Services/GoogleOAuthBrokerClient.php:174
 #, php-format
 msgid "Google connect broker returned a non-JSON response (HTTP %d)."
-msgstr ""
-
-#: classes/Services/GoogleSearchConsoleAnalyticsClient.php:109
-msgid "Could not fetch keyword data from Search Console."
 msgstr ""
 
 #: classes/Services/GoogleServicesConnection.php:541
@@ -4342,10 +4308,6 @@ msgstr ""
 #: classes/Services/IndexNowClient.php:150
 #, php-format
 msgid "Unexpected response (%d)."
-msgstr ""
-
-#: classes/Services/KeywordRankingsSyncService.php:118
-msgid "Connect Google Services and pick a Search Console property first."
 msgstr ""
 
 #. translators: %d is how many minutes until this IP can try again.
@@ -4898,15 +4860,11 @@ msgid "robots.txt checks"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Keyword rank tracking"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Keyword cannibalization detection"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Google Search Console integration"
+msgid "Site-wide structured data validation"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -4959,6 +4917,26 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Automatic redirect on slug change"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keywords Copilot — Rank Tracking"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Real, synced Google Search Console rank tracking — positions, impressions, clicks, and keyword groups, tracked over time."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Synced Search Console rank tracking"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Keyword position history & trends"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Top opportunities & keyword groups"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5187,8 +5165,8 @@ msgid "What Pro adds"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/post-editor.js:1
-msgid "Advanced"
+#: assets/js/index.js:9
+msgid "Automation"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5229,6 +5207,22 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Advanced automation settings help control how VuloPilot performs actions safely and efficiently. We recommend keeping the default values unless you have a specific reason to change them."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enabling…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Go to Automations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Enable Automation Module"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not enable the Automation module. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5276,12 +5270,10 @@ msgid "Test connection"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Disconnecting…"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Disconnect"
 msgstr ""
 
@@ -5311,7 +5303,6 @@ msgid "Store backups in a Google Drive folder."
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Connected"
 msgstr ""
 
@@ -5475,6 +5466,14 @@ msgid "Could not reset settings. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Get Started"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect VuloPilot to AI providers, Google services, PageSpeed Insights, and verify your site ownership."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Connected to VuloCloud."
 msgstr ""
 
@@ -5524,14 +5523,6 @@ msgid "Could not disconnect from VuloCloud."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Connections"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connect VuloPilot to AI providers, Google services, PageSpeed Insights, and verify your site ownership."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Site tone"
 msgstr ""
 
@@ -5557,14 +5548,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Connect your Google account to allow VuloPilot to fetch real data from Google services."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "PageSpeed Insights"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connect PageSpeed Insights API to analyze your site speed, Core Web Vitals, and get actionable optimization suggestions."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5600,7 +5583,6 @@ msgid "Read your real AdSense account, if this site has one."
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Search Console"
 msgstr ""
 
@@ -5641,7 +5623,6 @@ msgid "This service isn’t responding — try reconnecting."
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Redirecting…"
 msgstr ""
 
@@ -5661,12 +5642,10 @@ msgid "We don’t store any of your Google account’s data on our servers — e
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Google Connect isn’t available yet"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "This build doesn’t have a Google Cloud OAuth Client configured yet — that’s a one-time setup VuloLabs does, not something you configure. Flag if you’re seeing this on a real release."
 msgstr ""
 
@@ -5695,12 +5674,10 @@ msgid "Already connected. Disconnect and reconnect to choose a different propert
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Choose which verified property to use:"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "No verified Search Console properties found on this Google account."
 msgstr ""
 
@@ -5791,6 +5768,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Disconnect your Google account? This affects Search Console, Analytics, and AdSense all at once — they share one connection."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "PageSpeed Insights"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6026,10 +6007,6 @@ msgid "Get notified when AI crawlers are blocked, limited, or stop visiting your
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Master switch for every AI Crawler Alert below — turn this off to silence all of them at once."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Notify me about"
 msgstr ""
 
@@ -6118,10 +6095,6 @@ msgid "Get notified about security risks and suspicious activity on your website
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Master switch for every Security Alert below — turn this off to silence all of them at once."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Security vulnerabilities"
 msgstr ""
 
@@ -6187,10 +6160,6 @@ msgid "Get notified when your visibility scores drop so you can take action earl
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Master switch for every Visibility Alert below — turn this off to silence all of them at once."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Notify me when"
 msgstr ""
 
@@ -6236,10 +6205,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Get notified immediately when critical issues are found on your website."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Master switch for every critical issue alert below — turn this off to silence all of them at once."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6295,6 +6260,10 @@ msgid "Select the file format VuloPilot will use when you download or schedule r
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "You can change the format each time while generating a report."
+msgstr ""
+
+#: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "PDF"
 msgstr ""
@@ -6321,15 +6290,15 @@ msgid "Choose PDF or CSV each time you download."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "You can change the format each time while generating a report."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Default reporting period"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Choose the time period VuloPilot will use by default when generating reports."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "You can change the period anytime while generating a report."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6342,14 +6311,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "12 months"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "You can change the period anytime while generating a report."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Send Test Report"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6674,34 +6635,6 @@ msgid "Mega Menu"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "URLs to submit"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "One per line, up to 10,000."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Submitting…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Submit URLs"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not submit these URLs. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Just submitted"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "error"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Auto-submit post types"
 msgstr ""
 
@@ -6714,7 +6647,7 @@ msgid "API key"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "The IndexNow API key proves ownership of the site. It's generated automatically — change it if it becomes known to third parties."
+msgid "Open this link to verify the key file is reachable by search engines — it should show the key."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6738,7 +6671,23 @@ msgid "API key location"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Open this link to verify the key file is reachable by search engines — it should show the key."
+msgid "URLs to submit"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "One per line, up to 10,000."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submitting…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Submit URLs"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not submit these URLs. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6763,11 +6712,16 @@ msgid "Time"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "URL"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Response"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "error"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7373,6 +7327,14 @@ msgid "Products without valid Product structured data."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Send Test Report"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Last test report sent on"
+msgstr ""
+
+#: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Business Information"
 msgstr ""
@@ -7399,29 +7361,11 @@ msgid "e.g. Software Company, Online Store, Consulting Agency."
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Services"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "One published page per line — a URL or a numeric page ID. Pages that don't resolve are skipped."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Service pages"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "e.g. https://example.com/consulting/ or just the page ID."
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Locations"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "One location per line, as \"Name | Address\"."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7481,6 +7425,30 @@ msgid "Separator (e.g. | – -)"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "| (Pipe)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "- (Dash)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "• (Bullet)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid ": (Colon)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "> (Greater Than)"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "~ (Tilde)"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Empty"
 msgstr ""
 
@@ -7493,6 +7461,7 @@ msgid "Too long"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Your Site"
 msgstr ""
 
@@ -7501,8 +7470,16 @@ msgid "A short description of your website."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Used on your site's front page."
+msgstr ""
+
+#: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Blog Post"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used on individual blog post pages."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7515,12 +7492,20 @@ msgid "Page"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Used on standard (non-post) pages."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Sample Page Title"
 msgstr ""
 
 #: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Category"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used on category archive pages."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7532,11 +7517,19 @@ msgid "Tag"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Used on tag archive pages."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Sample Tag"
 msgstr ""
 
 #: assets/js/index.js:1
 msgid "Search Results"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Used on internal site search results pages."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7548,51 +7541,11 @@ msgid "Archive"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Used on date-based and other archive pages."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Could not save title and description formats. Please try again."
-msgstr ""
-
-#. translators: %s is the variable token, e.g. %post_title%.
-#: assets/js/index.js:1
-#, js-format
-msgid "Copied %s to clipboard."
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Could not copy to clipboard."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Keep titles between 30–60 characters for optimal SEO."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Keep descriptions between 120–160 characters — Google truncates longer ones."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Include your target keyword near the beginning."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Make titles and descriptions descriptive and compelling for users."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Use a consistent separator across your site."
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "View"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "(Empty — add a title format above)"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "(Empty — add a description format below)"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7604,20 +7557,6 @@ msgid "Use the configured title and description formats across your site."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Validate Titles & Descriptions"
-msgstr ""
-
-#. translators: 1: number of titles/descriptions that could use improvement, 2: total number of titles and descriptions previewed.
-#: assets/js/index.js:1
-#, js-format
-msgid "%1$d of %2$d titles/descriptions could use improvement — check the highlighted rows below."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "All title and description formats look good."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Title & Description Format Templates"
 msgstr ""
 
@@ -7626,52 +7565,47 @@ msgstr ""
 msgid "Customize title and description formats using dynamic variables like %site_title%, %post_title%, %site_description%, etc."
 msgstr ""
 
-#. translators: %s is the content type, e.g. "Homepage".
-#: assets/js/index.js:1
-#, js-format
-msgid "%s — Title format"
-msgstr ""
-
-#. translators: %s is the content type, e.g. "Homepage".
-#: assets/js/index.js:1
-#, js-format
-msgid "%s — Description format"
-msgstr ""
-
 #: assets/js/index.js:1
 msgid "Separator"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Live Title Preview"
+#: assets/js/index.js:9
+msgid "Format"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "See how your titles and descriptions will appear in Google search results."
+msgid "(Empty — add a title format)"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "All Types"
+#: assets/js/index.js:9
+msgid "Action"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Available Variables"
+msgid "Editing"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Click to copy and use in your title formats."
+#: assets/js/index.js:9
+msgid "Edit"
+msgstr ""
+
+#. translators: %s: the real content type being edited, e.g. "Homepage".
+#: assets/js/index.js:1
+#, js-format
+msgid "%s Format"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Preview in Google"
+msgid "Title format"
 msgstr ""
 
+#. translators: %s: a real template variable's own short label, e.g. "Post title".
 #: assets/js/index.js:1
-msgid "These previews show an estimate of how your titles may appear in Google search results. Actual display can vary by device and search context."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "SEO Tips"
+#, js-format
+msgid "+ %s"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8038,6 +7972,14 @@ msgid "Free AI: use your credits for manual AI assistance. Pro: unlock automatio
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Use AI credits to generate content, improve text, create titles, and more."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Get the most out of VuloPilot with AI."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Buy More Credits"
 msgstr ""
 
@@ -8213,7 +8155,6 @@ msgid "Conversation"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Change"
 msgstr ""
 
@@ -8465,6 +8406,11 @@ msgid "Organizations"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Locations"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Users & Audience"
 msgstr ""
 
@@ -8474,6 +8420,11 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Products & Services"
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Services"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8743,11 +8694,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "issue"
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Action"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -9726,6 +9672,11 @@ msgid "View all"
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "View"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "No open GEO findings right now — nothing to fix."
 msgstr ""
 
@@ -9882,7 +9833,6 @@ msgid "Combined score across Brand, SEO, GEO, and Crawl & URLs."
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "Top Opportunities"
 msgstr ""
 
@@ -10137,11 +10087,6 @@ msgid "This page has no open findings for this tab’s own checks right now."
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Edit"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "AI Summary"
 msgstr ""
 
@@ -10238,6 +10183,7 @@ msgid "How your GEO score has trended over the selected period."
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
 msgid "Competitor Comparison"
 msgstr ""
 
@@ -10283,6 +10229,14 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Learn more about this page"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All GEO Findings"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Every open GEO finding, filterable by priority."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -10523,6 +10477,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "All AEO Findings"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11558,6 +11516,42 @@ msgid "today"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "Author schema"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "FAQ schema"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Meta description"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Open Graph tags"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "(Example competitor 1)"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "(Example competitor 2)"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Compares your own site against competitor pages across 11 real signals — Organization/Author/FAQ/Breadcrumb/Review schema, meta description, Open Graph, Twitter Card, an About/Contact link, a Privacy Policy link, and real visible contact info. Real page fetches, no AI involved."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Add competitors"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Analyze competitors"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Whether this site has the baseline pages (About/Contact) AI engines expect before treating it as citable, and whether those pages have real substance."
 msgstr ""
 
@@ -11970,6 +11964,26 @@ msgid "Add Details"
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "Every real Administrator and post author detected on your site."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "No people detected yet."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Every real category (and product category, when WooCommerce is active) detected on your site."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "No categories detected yet."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Product category"
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Business Identity modules are turned off"
 msgstr ""
 
@@ -12216,6 +12230,10 @@ msgid "JSON-LD copied to clipboard."
 msgstr ""
 
 #: assets/js/index.js:9
+msgid "Could not copy to clipboard."
+msgstr ""
+
+#: assets/js/index.js:9
 msgid "Inspection result"
 msgstr ""
 
@@ -12322,7 +12340,7 @@ msgid "Real ranking positions, impressions, and clicks — synced from Search Co
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "New"
+msgid "PRO"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -12331,151 +12349,6 @@ msgstr ""
 
 #: assets/js/index.js:9
 msgid "Connect Google Search Console to see your real keyword rankings."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Total Keywords"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Top 3 Rankings"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Top 10 Rankings"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Avg. Position"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Estimated Traffic"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Google Analytics sessions"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Search Console clicks"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Impressions"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Your connected Google Search Console property."
-msgstr ""
-
-#: assets/js/index.js:9
-#, js-format
-msgid "Last synced %s"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Syncing…"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Sync now"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Keyword rankings pulled from Google Search Console."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Not synced yet"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Click \"Sync now\" above to pull your first real snapshot of keyword rankings from Search Console. Search Console data has a real ~3 day reporting delay, so the very first sync may look sparse until a few more days of data are captured."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Keyword Position Distribution"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Where your ranking keywords fall across Google's result pages."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Real keywords already ranking on page 1-2 (position 4-20) with real impressions — the closest, real path to a Top 3 result."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Keyword"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Position"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "No opportunities yet"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "None of your real ranking keywords are currently in the 4-20 position range."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Keyword Groups"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Your real ranking keywords, grouped by the real page Search Console matched each one to — there’s no third-party keyword-topic database connected here, so this is the one real grouping dimension on hand."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Traffic"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "(no matched page)"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "No groups yet"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Groups will appear here once real keyword data has synced."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Every real keyword Search Console has data for, searchable."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Search keywords…"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Previous"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Best Position"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "CTR"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Updated"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "View ranking page"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "No ranking keywords found."
 msgstr ""
 
 #: assets/js/index.js:9
@@ -12616,10 +12489,6 @@ msgstr ""
 
 #: assets/js/index.js:9
 msgid "Today, this week, and this month."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "PRO"
 msgstr ""
 
 #. translators: %s is the real time of this site's most recent automation run today.
@@ -13187,10 +13056,6 @@ msgid "Report type"
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "Format"
-msgstr ""
-
-#: assets/js/index.js:9
 msgid "Generated"
 msgstr ""
 
@@ -13204,10 +13069,6 @@ msgstr ""
 
 #: assets/js/index.js:9
 msgid "User"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Automation"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -13807,6 +13668,30 @@ msgstr ""
 msgid "PHP version, extensions, and server-side warnings."
 msgstr ""
 
+#. translators: %s: this hero's own real section label, e.g. "Site Health".
+#: assets/js/index.js:9
+#, js-format
+msgid "Your %s is in excellent shape."
+msgstr ""
+
+#. translators: %s: this hero's own real section label, e.g. "Site Health".
+#: assets/js/index.js:9
+#, js-format
+msgid "Your %s is healthy and needs minimal work."
+msgstr ""
+
+#. translators: %s: this hero's own real section label, e.g. "Site Health".
+#: assets/js/index.js:9
+#, js-format
+msgid "Your %s could use some improvement."
+msgstr ""
+
+#. translators: %s: this hero's own real section label, e.g. "Site Health".
+#: assets/js/index.js:9
+#, js-format
+msgid "Your %s needs attention in several areas."
+msgstr ""
+
 #. translators: 1: number of open findings, 2: section label, e.g. "Site Health".
 #: assets/js/index.js:9
 #, js-format
@@ -14112,7 +13997,7 @@ msgid "No accessibility findings yet — run a scan to check everything at once.
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "Great job — accessibility is in excellent shape."
+msgid "Great job"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -14127,16 +14012,8 @@ msgstr ""
 msgid "Accessibility needs urgent attention."
 msgstr ""
 
-#. translators: 1: "↑" or "↓", 2: how many points the accessibility score changed by since last week.
 #: assets/js/index.js:9
-#, js-format
-msgid "%1$s %2$d pts vs last week"
-msgstr ""
-
-#. translators: 1: number of open accessibility findings, 2: number of distinct pages affected.
-#: assets/js/index.js:9
-#, js-format
-msgid "%1$d accessibility issue(s) found across %2$d page(s). Most visitors can use your site, but some areas could be improved."
+msgid "Most visitors can use your site, but some areas could be improved."
 msgstr ""
 
 #: assets/js/index.js:9
@@ -14940,6 +14817,10 @@ msgstr ""
 
 #: assets/js/post-editor.js:1
 msgid "Analyzing…"
+msgstr ""
+
+#: assets/js/post-editor.js:1
+msgid "Advanced"
 msgstr ""
 
 #: assets/js/post-editor.js:1

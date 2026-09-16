@@ -3,7 +3,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { JSX } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE, getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent, BadgeComponent, CardComponent, ChartComponent, ColumnComponent, ContainerComponent, IconComponent, ListComponent, TypographyComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent, ChartComponent, ColumnComponent, IconComponent, ListComponent, TypographyComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -183,16 +183,18 @@ const mainProblemText = (key: string, signal: GeoSignalScore): string => {
  * scorecard (`GET /geo/score`/`GET /geo/progress`, Geo.php), replacing
  * `GeoVisibilitySummaryCard`'s former "Overall AI Visibility" slot on this
  * tab. That card's own real number came from Pro-only routes
- * (`useGeoVisibilitySnapshot.ts` → `/geo-visibility-summary`/
+ * (`useGeoTabData.ts`'s own `useGeoVisibilitySnapshot` → `/geo-visibility-summary`/
  * `/geo-visibility-history`, both registered only by vulopilot-pro's
  * GeoInsights module) and silently read `0/100 Poor` with Pro inactive —
  * this card's own `geo_score` is real and populated on every install,
  * matching the reference mockup's own 4-part layout while fixing that
- * free-tier gap. `GeoVisibilitySummaryCard.tsx`/`useGeoVisibilitySnapshot.ts`/
- * `GeoTrendCompactCard.tsx` are left in place, still real, valid code — just
- * no longer rendered anywhere on this tab, same "supersede, don't delete"
- * precedent that file's own docblock already documents for
- * `GeoVisibilityOverviewRow.tsx`.
+ * free-tier gap. `GeoVisibilitySummaryCard.tsx` was initially kept in
+ * place as unrendered dead code once superseded here, then actually
+ * deleted in a later file-count reduction pass once confirmed to have
+ * zero remaining consumers anywhere — its own real data-fetching hook
+ * (`useGeoVisibilitySnapshot`) is still real, active code, just relocated
+ * into `useGeoTabData.ts` (still used by AeoTab.tsx's own "AEO Score Over
+ * Time").
  *
  * Also absorbs GeoTab.tsx's former standalone "How You Compare to Similar
  * Sites" row (the exact same Pro-slot-or-ProLockedCard rendering, just
@@ -210,7 +212,7 @@ interface GeoScoreSectionProps {
 	/**
 	 * GeoTab.tsx's own real `goToIssuesTable()` (its `setCategoryFocus`
 	 * wrapper) — same real click-through SeoTab.tsx's own category rows
-	 * already give `SeoIssuesSection`'s `categoryFocus`, now wired here too
+	 * already give SeoTab.tsx's own `categoryFocus`, now wired here too
 	 * so a signal row filters + scrolls to the real "All GEO Issues" table
 	 * below (`GeoTab.tsx`'s own `IssuesSection`) instead of just scrolling
 	 * to this card's own static breakdown table.

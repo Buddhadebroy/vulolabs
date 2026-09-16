@@ -1,20 +1,19 @@
 import { useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useModules } from '@zyra/core';
 import { ColumnComponent, ContainerComponent, NoticeComponent } from '@zyra/components';
-import GeoByTopicGrid from './GeoByTopicGrid';
 import AeoScoreSummaryCard from './AeoScoreSummaryCard';
-import { computeTrendChange } from './GeoTrendCompactCard';
+import { computeTrendChange } from './geoTrendChange';
 import AeoCitationCoverageCard from './AeoCitationCoverageCard';
 import AeoEngineTestingCard from './AeoEngineTestingCard';
 import IssuesSection from './IssuesSection';
 import GeoAeoPageAnalysisPanel from './GeoAeoPageAnalysisPanel';
-import { useAllFindingGroups } from './useAllFindingGroups';
-import { sumGroupCounts } from './useGeoFindingGroups';
 import {
+	useAllFindingGroups,
+	sumGroupCounts,
 	useGeoVisibilitySnapshot,
 	type GeoVisibilityHistoryRow,
-} from './useGeoVisibilitySnapshot';
+} from './useGeoTabData';
 import { useAeoPageAnalysis } from './useAeoPageAnalysis';
 
 /**
@@ -150,9 +149,9 @@ const average = (values: number[]): number =>
  * The same 3-dimension average the "AEO Score" ring below computes for
  * "today" (`answer_first_structure`/`question_coverage`/`citation_readiness`),
  * applied to one historical `history` row instead — passed as
- * GeoTrendCompactCard.tsx's own `getScore` prop so "AEO Score Over Time"
- * trends this scoped average rather than that card's default sitewide
- * `overall_score`. Returns null for a day the sample batch found nothing
+ * `computeTrendChange()`'s (geoTrendChange.ts) own `getScore` param so
+ * "AEO Score Over Time" trends this scoped average rather than its
+ * default sitewide `overall_score`. Returns null for a day the sample batch found nothing
  * to average (same meaning `overall_score: null` already carries).
  */
 const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
@@ -212,10 +211,11 @@ const isCitationCheckActive = (modules: string[]): boolean =>
  *    for where their numbers come from — these used to be 2 separate
  *    standalone tiles beside the score card, now folded into this card's
  *    own row list), and "Content Change" — the real first-vs-latest score
- *    delta over the last 30 days, via GeoTrendCompactCard.tsx's own
- *    exported `computeTrendChange()` (extracted from that component so
- *    this card could reuse the exact same real number without its own
- *    sparkline chart, which this mockup doesn't show — "not enough history
+ *    delta over the last 30 days, via geoTrendChange.ts's own
+ *    `computeTrendChange()` (extracted from the old GeoTrendCompactCard.tsx
+ *    component so this card could reuse the exact same real number
+ *    without a sparkline chart, which this mockup doesn't show — "not
+ *    enough history
  *    yet" renders an em dash there rather than a fabricated number).
  *    `VisibilitySnapshotBuilder` had been writing a real per-day
  *    `ai_scores`/`sub_scores` breakdown into `vulopilot_geo_visibility_history`
@@ -243,10 +243,12 @@ const isCitationCheckActive = (modules: string[]): boolean =>
  *    instruction (GeoTab.tsx's own "Fix These First" usage of that same
  *    component was removed earlier this session too). Both components are
  *    still real, just not currently rendered by either GEO or AEO.
- * 4. "AEO Checks at a Glance" (GeoByTopicGrid.tsx, reused) — now 6 real
- *    topics instead of 5, see AEO_SECTIONS's own docblock. Sits on the
- *    left of item 2's own grid 6/6 row, "AEO Score" on the right — see
- *    that item's own docblock for the ordering.
+ * 4. "AEO Checks at a Glance" (GeoByTopicGrid.tsx, reused) — not currently
+ *    rendered on this tab (same standing state item 3 documents for its
+ *    own two cards); the component itself is unchanged and still real —
+ *    6 real topics (AEO_SECTIONS) instead of the 5 GeoTab.tsx's own usage
+ *    shows. Its unused import was removed from here rather than kept
+ *    around for a component that isn't rendered.
  * 5. "Need Help Improving?" briefly existed here (3 shortcuts: Ask AI
  *    Copilot, Fix Automatically, Learn More) — removed per direct
  *    instruction. Its own `scrollToId('aeo-top-banner')` target

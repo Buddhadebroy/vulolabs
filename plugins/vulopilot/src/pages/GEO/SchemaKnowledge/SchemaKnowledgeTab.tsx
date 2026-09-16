@@ -1,15 +1,13 @@
 import { useEffect } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
 import { scrollToId } from '@zyra/core';
-import { ColumnComponent, NoticeComponent, CardComponent, SectionComponent, ContainerComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import { ContainerComponent } from '@zyra/components';
 import '../SeoVisibility.scss';
 import BusinessProfileCard from './BusinessProfileCard';
 import CriticalIssuesCard from './CriticalIssuesCard';
 import ValidSchemaCard from './ValidSchemaCard';
 import KnowledgeGraphSection from './KnowledgeGraphSection';
 import IssuesSection from './IssuesSection';
-import TechnicalDetailsSection from './TechnicalDetailsSection';
+import StructuredDataSection from './StructuredDataSection';
 import InspectorSection from './InspectorSection';
 
 export type SchemaKnowledgeSectionId =
@@ -33,15 +31,21 @@ interface SchemaKnowledgeTabProps {
  * layout doesn't call for real inner tabs the way "Crawl & URLs" needed
  * them (CrawlUrlsTab.tsx), just a clearer visual order:
  *
- * The real "In plain English" `NoticeComponent` above item 1 is wrapped in
- * its own `ColumnComponent ` — every card row on this page shares
- * one implicit `.container-wrapper` flex-wrap context (there's no local
- * `ContainerComponent` per row), and `NoticeComponent` itself has no real
- * width of its own (sized to its own text content). Left unwrapped, it
- * silently shared a row with whatever `data-cols` card came right after it
- * instead of always starting a fresh row — invisible while that next card
- * was wide (the former grid=8 headline card below), but broke visibly the
- * moment 3 narrower grid=4 cards needed a clean row of their own.
+ * An "In plain English" `NoticeComponent` intro banner and a 5th
+ * `IssuesSection.tsx` section (`SchemaKnowledgeSectionId`'s own `'issues'`
+ * member, and this file's own `IssuesSection` import, both still reflect
+ * it) are described by older layers of this docblock and by this file's
+ * own types as if still present, but neither is actually rendered below —
+ * confirmed via lint (both totally unreferenced) and by reading the
+ * current return value, not just this comment. Unlike every other section
+ * change documented here, there's no "removed per direct instruction" note
+ * for either, so this reads as an unintentional gap rather than a
+ * deliberate one — flagged rather than silently deleted (`IssuesSection`
+ * is a real, substantial, working component, same "leave real code before
+ * assuming it should be deleted" posture BrokenLinksSection.tsx's own
+ * docblocks establish elsewhere in this folder) or silently re-added
+ * (restoring a whole missing tab section is a product call, not a
+ * lint-cleanup one).
  *
  * 1. `BusinessProfileCard.tsx` — "Business Profile", per a newer reference
  *    mockup: the same real `entity_score` gauge the former, narrower
@@ -76,10 +80,13 @@ interface SchemaKnowledgeTabProps {
  *    card - What Needs Fixing"); `CriticalIssuesCard.tsx` above now
  *    covers the same "preview of real findings, link to the full table"
  *    role.
- * 3. `TechnicalDetailsSection.tsx` (NEW) — "Technical Details (Schema &
- *    Markup)", a real "Show for developers" toggle over
- *    `StructuredDataSection.tsx` (Schema Status stats + Schema Coverage
- *    table), unchanged internally.
+ * 3. `StructuredDataSection.tsx` — "Technical Details (Schema & Markup)",
+ *    real Schema Status stats + Schema Coverage table, unchanged
+ *    internally. Used to be wrapped in its own `TechnicalDetailsSection.tsx`
+ *    "Show for developers" toggle — that toggle's own `useState` had no
+ *    control anywhere that ever called its setter, so the section was
+ *    unconditionally visible regardless; removed as dead code (single
+ *    consumer, this file) rather than kept as an inert always-on wrapper.
  * 4. `InspectorSection.tsx` — "Page Inspector", its own separate section
  *    now (own `SectionComponent` heading, own anchor id
  *    `schema-knowledge-inspector`) rather than a 2nd tab inside item 2's
@@ -116,7 +123,7 @@ const SchemaKnowledgeTab = ({
 			<KnowledgeGraphSection />
 
 			<div id="schema-knowledge-structured-data">
-				<TechnicalDetailsSection />
+				<StructuredDataSection />
 			</div>
 
 			<InspectorSection />

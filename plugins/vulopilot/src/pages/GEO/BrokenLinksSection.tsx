@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import React, { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
@@ -298,7 +298,16 @@ const statusKeyLabel = (key: string): string => {
 const statusKeyColor = (key: string): string =>
 	/^\d+$/.test(key) || 'dns' === key ? 'red' : 'yellow';
 
-/** mm:ss (or hh:mm:ss past an hour) — real `vulopilot_scans.duration_ms` for the scan's own "Last scan completed" banner. */
+/**
+ * mm:ss (or hh:mm:ss past an hour) — real `vulopilot_scans.duration_ms` for
+ * a "Last scan completed" banner this docblock's own history describes as
+ * "added alongside this pass", but no such banner is actually rendered
+ * anywhere below — same "real, working, just no longer reachable from the
+ * UI" status the row-actions `action` column's own docblock documents for
+ * `openRedirectPopup()`/`handleResolve()`/`handleSnooze()` (kept rather
+ * than deleted for the same reason: removing a real feature wasn't asked
+ * for, just flagging it here as unused).
+ */
 const formatDurationMs = (ms: number): string => {
 	const totalSeconds = Math.max(0, Math.round(ms / 1000));
 	const hours = Math.floor(totalSeconds / 3600);
@@ -589,7 +598,7 @@ const BrokenLinksSection = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	/** "Run scan again" on the "Last scan completed" card — same real `POST /scans` call SeoTab.tsx's own header "Run Complete Audit" fires, scoped to `['seo']` since these are both SEO module scanners; refetches both real data sources this section reads (findings + stats) once the new scan completes. */
+	/** "Run scan again" on the "Last scan completed" card — same real `POST /scans` call SeoTab.tsx's own header "Run Complete Audit" fires, scoped to `['seo']` since these are both SEO module scanners; refetches both real data sources this section reads (findings + stats) once the new scan completes. Real, working, just no longer reachable from the UI — same standing status `formatDurationMs()`'s own docblock above and the row-actions `action` column's own docblock document for their unreachable pieces. */
 	const { isScanning, runScan } = useRunScan({
 		categories: ['seo'],
 		onSuccess: () => {
@@ -606,8 +615,6 @@ const BrokenLinksSection = () => {
 	}, [searchTerm, issueFilter, linkTypeFilter, pageFilter, statusFilter]);
 
 	const summary = summarizeBrokenFindings(allFindings);
-	const needAttentionTotal =
-		summary.brokenLinks + summary.brokenImages + summary.couldntVerify;
 
 	const handleSetStatus = (
 		finding: BrokenLinkFinding,

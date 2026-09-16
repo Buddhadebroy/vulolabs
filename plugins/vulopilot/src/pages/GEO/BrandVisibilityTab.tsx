@@ -1,11 +1,10 @@
 /* global appLocalizer */
 import { useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import {
 	CardComponent,
 	ColumnComponent,
 	ModuleGuardComponent,
-	NoticeComponent,
 	ContainerComponent,
 	PopupComponent
 } from '@zyra/components';
@@ -15,10 +14,12 @@ import type { FindingsSection } from '../Security/SectionedFindingsTab';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
-import AuthorityTrendsDummy from './AuthorityTrendsDummy';
-import KnowledgePanelDummy from './KnowledgePanelDummy';
-import OffSiteMentionsDummy from './OffSiteMentionsDummy';
-import CompetitorComparisonDummy from './CompetitorComparisonDummy';
+import {
+	AuthorityTrendsDummy,
+	KnowledgePanelDummy,
+	OffSiteMentionsDummy,
+	CompetitorComparisonDummy,
+} from './BrandVisibilityProDummies';
 
 /** Real backend module id (Settings → Modules) — same id `isBrandModuleActive()` below checks and `MODULE_CATALOG_BY_ID` (Popup.tsx) resolves to a real display name/icon for. */
 const BRAND_MODULE_ID = 'brand-intelligence';
@@ -103,14 +104,15 @@ const isBrandModuleActive = () =>
  *
  * Authority Trends/Knowledge Panel Optimization (both real vulopilot-pro's
  * own BrandIntelligence module cards, see AuthorityTrendsCard.tsx/
- * KnowledgePanelCard.tsx there) now get the same "still show the section,
+ * KnowledgePanelCard.tsx there) get the same "still show the section,
  * PRO-tagged, with fabricated content behind a click-through popup" treatment
- * OffSiteMentionsCard already had here and Automations.tsx's own
- * AutomationsManageDummy.tsx/AutomationsActivityDummy.tsx established —
- * AuthorityTrendsDummy.tsx/KnowledgePanelDummy.tsx render whenever their own
- * filter slot hasn't resolved (Pro not installed, or installed but this
- * module not active), instead of the previous `{Card && <Card />}` which
- * silently rendered nothing in that case.
+ * OffSiteMentionsCard/CompetitorComparisonCard already had here — all 4
+ * dummy stand-ins (BrandVisibilityProDummies.tsx, same one-file-per-tab
+ * consolidation AutomationsProDummies.tsx established for Automations.tsx's
+ * own Pro dummy cards) render whenever their own filter slot hasn't
+ * resolved (Pro not installed, or installed but this module not active),
+ * instead of the previous `{Card && <Card />}` which silently rendered
+ * nothing in that case.
  */
 const BrandVisibilityTab = () => {
 	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
@@ -220,16 +222,6 @@ const BrandVisibilityTab = () => {
 				}
 				footer={
 					<>
-						{/* <NoticeComponent
-							type="info"
-							displayPosition="inline-notice"
-							title={__('Why this matters more than backlinks:', 'vulopilot')}
-							message={__(
-								'Branded web mentions correlate with AI citation roughly 3x more strongly than backlinks. AI engines look for consensus across third-party sources, not just links pointing at your site.',
-								'vulopilot'
-							)}
-
-						/> */}
 						{OffSiteMentionsCard ? (
 							<OffSiteMentionsCard />
 						) : (
