@@ -15,28 +15,67 @@
  * @param value Raw date string (e.g. a MySQL datetime), or null/undefined.
  * @return Formatted date string, or '' if value is empty/unparseable.
  */
-/** Shared by `formatWpDate`/`formatWpTime` below — same token-replace algorithm either way, just a different real format string (Settings → General → Date Format vs. Time Format) and fallback. */
+/**
+ * A raw value with no explicit UTC/offset marker (a plain MySQL
+ * `Y-m-d H:i:s`, or the same with a `T` separator) — every such value this
+ * plugin's own REST layer ever returns is UTC (`current_time( 'mysql', true )`,
+ * confirmed across ScanPersistenceListener.php/BackupManager.php/
+ * AutomationScheduler.php), so it's parsed explicitly as UTC here rather
+ * than left to the browser's own `Date` parser, which treats a
+ * space-separated "Y-m-d H:i:s" string as *local* time instead (silently
+ * disagreeing with this site's own Settings → General → Timezone for any
+ * admin not physically in that same zone). A value that already carries
+ * its own explicit marker (`Z`, or a `+HH:MM`/`-HH:MM` offset) is trusted
+ * as-is — already an unambiguous absolute instant.
+ */
+const UTC_MARKER = /(?:[Zz]|[+-]\d{2}:?\d{2})$/;
+
+const parseAsUtc = (value: string): Date => {
+	const trimmed = value.trim();
+
+	if (UTC_MARKER.test(trimmed)) {
+		return new Date(trimmed);
+	}
+
+	return new Date(`${trimmed.replace(' ', 'T')}Z`);
+};
+
+/**
+ * Shared by `formatWpDate`/`formatWpTime` below — same token-replace
+ * algorithm either way, just a different real format string (Settings →
+ * General → Date Format vs. Time Format) and fallback. Shifts the parsed
+ * UTC instant by this site's own configured Settings → General → Timezone
+ * offset (`appLocalizer.gmt_offset_minutes`) and reads every token off
+ * that shifted instant's *UTC* fields — not its local ones — so the
+ * result reflects this site's configured timezone specifically, never the
+ * viewing browser's own local zone (which is what plain `Date` getters/
+ * `toLocaleString()` would otherwise silently substitute).
+ */
 const formatWithTokens = (
 	value: string,
 	format: string
 ): string => {
-	const dateObj = new Date(value);
+	const utcDate = parseAsUtc(value);
 
-	if (isNaN(dateObj.getTime())) {
+	if (isNaN(utcDate.getTime())) {
 		return value;
 	}
 
+	const siteLocal = new Date(
+		utcDate.getTime() + (appLocalizer.gmt_offset_minutes ?? 0) * 60000
+	);
+
 	const map: Record<string, string> = {
-		YYYY: String(dateObj.getFullYear()),
-		YY: String(dateObj.getFullYear()).slice(-2),
-		MMMM: dateObj.toLocaleString(undefined, { month: 'long' }),
-		MMM: dateObj.toLocaleString(undefined, { month: 'short' }),
-		MM: String(dateObj.getMonth() + 1).padStart(2, '0'),
-		DD: String(dateObj.getDate()).padStart(2, '0'),
-		D: String(dateObj.getDate()),
-		HH: String(dateObj.getHours()).padStart(2, '0'),
-		mm: String(dateObj.getMinutes()).padStart(2, '0'),
-		ss: String(dateObj.getSeconds()).padStart(2, '0'),
+		YYYY: String(siteLocal.getUTCFullYear()),
+		YY: String(siteLocal.getUTCFullYear()).slice(-2),
+		MMMM: siteLocal.toLocaleString(undefined, { month: 'long', timeZone: 'UTC' }),
+		MMM: siteLocal.toLocaleString(undefined, { month: 'short', timeZone: 'UTC' }),
+		MM: String(siteLocal.getUTCMonth() + 1).padStart(2, '0'),
+		DD: String(siteLocal.getUTCDate()).padStart(2, '0'),
+		D: String(siteLocal.getUTCDate()),
+		HH: String(siteLocal.getUTCHours()).padStart(2, '0'),
+		mm: String(siteLocal.getUTCMinutes()).padStart(2, '0'),
+		ss: String(siteLocal.getUTCSeconds()).padStart(2, '0'),
 	};
 
 	return format.replace(
@@ -67,4 +106,40 @@ export const formatWpTime = (value?: string | null): string => {
 	}
 
 	return formatWithTokens(value, appLocalizer.time_format_js || 'HH:mm');
+};
+
+/**
+ * This site's own current wall-clock date/time (Settings → General →
+ * Timezone), for comparisons like "is this timestamp today" — plain
+ * `new Date()` reads the *browser's* local date, which can genuinely be a
+ * different calendar day than this site's configured timezone right around
+ * midnight in either zone.
+ */
+export const wpNow = (): Date =>
+	new Date(Date.now() + (appLocalizer.gmt_offset_minutes ?? 0) * 60000);
+
+/**
+ * Same-day comparison against `wpNow()` above, both read via UTC getters —
+ * `toDateString()` (used by every "Today, …" call site before this) reads
+ * the browser's own local calendar date instead, which can disagree with
+ * this site's configured timezone the same way raw `Date` getters do
+ * elsewhere in this file.
+ */
+export const isWpToday = (value: string): boolean => {
+	const utcDate = parseAsUtc(value);
+
+	if (isNaN(utcDate.getTime())) {
+		return false;
+	}
+
+	const siteLocal = new Date(
+		utcDate.getTime() + (appLocalizer.gmt_offset_minutes ?? 0) * 60000
+	);
+	const now = wpNow();
+
+	return (
+		siteLocal.getUTCFullYear() === now.getUTCFullYear() &&
+		siteLocal.getUTCMonth() === now.getUTCMonth() &&
+		siteLocal.getUTCDate() === now.getUTCDate()
+	);
 };

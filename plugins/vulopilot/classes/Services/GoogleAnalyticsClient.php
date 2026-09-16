@@ -161,8 +161,8 @@ class GoogleAnalyticsClient {
      * Real `POST .../v1beta/{property}:runReport` — real daily GA4
      * `sessions` counts for a real, already-connected property, one row
      * per real calendar day GA4 has data for. Backs Keywords' own
-     * "Estimated Traffic" card (Controllers\KeywordRankings::get_summary())
-     * when a GA4 property has actually been selected
+     * "Estimated Traffic" card (vulopilot-pro's own Keywords module,
+     * Rest::get_summary()) when a GA4 property has actually been selected
      * (GoogleServicesConnection's own `ga4_property_id`) — that card falls
      * back to real Search Console click totals otherwise, never a
      * fabricated number either way. A single `date`-dimensioned call

@@ -2,7 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { MetricTileComponent } from '@zyra/components';
 import { useSectionStatus } from '../../services/useSectionStatus';
 import { useLastScanTime } from '../../services/useLastScanTime';
-import { formatWpDate } from '../../services/formatWpDate';
+import { formatWpDate, formatWpTime } from '../../services/formatWpDate';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 import type { SectionedIssuesTab } from './SectionedIssuesTable';
 import './ProtectMySite.scss';
@@ -49,16 +49,13 @@ const SCANNER_IDS_BY_TILE_ID: Record<string, string[]> = {
 	ssl: ['ssl-monitoring'],
 };
 
-/** Real "last scan: {date} at {time}" line — WP's own configured date format for the date, a plain locale clock time (same technique historyTypes.ts's own rowTime() uses) for the time. */
+/** Real "last scan: {date} at {time}" line — WP's own configured date/time format for both (`formatWpDate()`/`formatWpTime()`, same technique historyTypes.ts's own rowTime() uses), not a plain browser-locale clock time. */
 const formatLastScan = (isoDate: string): string =>
 	sprintf(
 		/* translators: 1: formatted date, 2: formatted time. */
 		__('Last scan: %1$s at %2$s', 'vulopilot'),
 		formatWpDate(isoDate),
-		new Date(isoDate).toLocaleTimeString(undefined, {
-			hour: 'numeric',
-			minute: '2-digit',
-		})
+		formatWpTime(isoDate)
 	);
 
 interface MetricTileData {

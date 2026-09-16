@@ -295,9 +295,8 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
                 __('robots.txt checks', 'vulopilot')
             ],
             proFeatures: [
-                __('Keyword rank tracking', 'vulopilot'),
                 __('Keyword cannibalization detection', 'vulopilot'),
-                __('Google Search Console integration', 'vulopilot')
+                __('Site-wide structured data validation', 'vulopilot')
             ]
         },
         {
@@ -348,6 +347,36 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
                 __('Unlimited 301 redirects', 'vulopilot'),
                 __('404 log with hit counts', 'vulopilot'),
                 __('Automatic redirect on slug change', 'vulopilot')
+            ]
+        },
+        {
+            /**
+             * Must be the real backend module id — Keywords' folder name
+             * kebab-cased. SEO & Visibility → Keywords' whole real
+             * rank-tracking dashboard moved to Pro wholesale per direct
+             * instruction ("make this section pro and shift the code to
+             * pro and in free add pro tag when click popup") —
+             * `freeFeatures` is empty since there's no free tier of this
+             * module's own content left to list, same shape 'commerce'/
+             * 'automations' above already have for the same reason.
+             */
+            id: 'keywords',
+            icon: 'search',
+            // Points at the real SEO & Visibility → Keywords subtab
+            // (routes.ts's own 'seo-visibility' tab), not a Settings
+            // subtab — same "point at the real tab this card unlocks"
+            // posture 'commerce' above already uses.
+            settingsLink: '?page=vulopilot#&tab=seo-visibility&subtab=keywords',
+            name: __('Keywords Copilot — Rank Tracking', 'vulopilot'),
+            desc: __('Real, synced Google Search Console rank tracking — positions, impressions, clicks, and keyword groups, tracked over time.', 'vulopilot'),
+            proModule: true,
+            category: 'seo-content',
+            miniModule: true,
+            freeFeatures: [],
+            proFeatures: [
+                __('Synced Search Console rank tracking', 'vulopilot'),
+                __('Keyword position history & trends', 'vulopilot'),
+                __('Top opportunities & keyword groups', 'vulopilot')
             ]
         },
 

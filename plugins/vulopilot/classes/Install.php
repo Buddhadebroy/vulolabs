@@ -410,8 +410,13 @@ class Install {
 
     /**
      * Creates `vulopilot_keyword_rankings` — SEO & Visibility → Keywords'
-     * real Search Console rank-tracking history (Services\KeywordRankingsSyncService).
-     * Own method, same shape as create_indexnow_log_table() above.
+     * real Search Console rank-tracking history. Own method, same shape as
+     * create_indexnow_log_table() above. Schema/creation stays owned here
+     * even though the sync service/REST controller/UI are now Pro
+     * (vulopilot-pro's own Keywords module, moved wholesale per direct
+     * instruction) — same "Free owns the table, Pro owns the only code
+     * that reads/writes it" split Utill::TABLES's own `keyword_ranking`
+     * entry documents (mirrors `brand_mention`'s identical precedent).
      *
      * One row per (`query`, `page`, `snapshot_date`) — NOT upserted-in-place
      * the way `vulopilot_not_found_logs` is, deliberately: every real sync
@@ -419,9 +424,9 @@ class Install {
      * rather than overwriting the previous one, because "Previous"/
      * "Change"/"Best Position" and the trend sparklines KeywordsTab.tsx
      * shows are all computed by comparing/aggregating across these real
-     * historical rows (Repositories\KeywordRankingRepository) — there would
-     * be nothing to compare against if only the latest value were ever
-     * kept. `synced_at` is separate from `snapshot_date` (date-only, the
+     * historical rows (vulopilot-pro's own KeywordRankingRepository) —
+     * there would be nothing to compare against if only the latest value
+     * were ever kept. `synced_at` is separate from `snapshot_date` (date-only, the
      * calendar day this row's sync ran) purely so a repeat manual sync on
      * the same day can still be told apart in `synced_at` while still
      * upserting into that same day's row (KeywordRankingRepository's own

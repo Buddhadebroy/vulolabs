@@ -146,11 +146,18 @@ const GEO_TOPICS: {
  *    (`useGeoTopicAffectedPages.ts`, a distinct-page count — deliberately
  *    NOT `groups`' own raw finding-row count, which can over-count a page
  *    hit by two scanners in the same topic) alongside "Open issues".
- * 5. "All GEO Issues" — `IssuesSection.tsx` (SeoTab.tsx's own real
+ * 5. "All GEO Findings" — `IssuesSection.tsx` (SeoTab.tsx's own real
  *    Site-wide Issues + Pages & Posts structure, generalized so this tab
  *    and AeoTab.tsx can reuse it too), kept at the bottom same as before.
- *    Its own filter bar is a real `TabsComponent` All/Important/per-category
- *    row + `IssuesSummaryCards.tsx`'s own priority stat cards, matching
+ *    `title`/`desc`/`titleIcon` are overridden here (this tab's own real GEO
+ *    findings, not `IssuesSection.tsx`'s own SEO-flavored defaults, which
+ *    this tab was silently showing verbatim — "All SEO Findings"/"Every open
+ *    SEO finding…"/the `search` icon — until this pass; `titleIcon="tools"`
+ *    specifically matches the real icon every other card on this same tab
+ *    already uses, GeoScoreSection.tsx's own "GEO Score"/"Score Snapshot"/
+ *    "Competitor Comparison"). Its own filter bar is a real
+ *    `TabsComponent` All/Important/per-category row +
+ *    `IssuesSummaryCards.tsx`'s own priority stat cards, matching
  *    `SectionedIssuesTable.tsx`'s established real filter bar — see that
  *    component's own docblock for why. Its own `pageAnalysis` prop merges
  *    what used to be a separate standalone "Page-by-page analysis" table
@@ -203,6 +210,9 @@ const GeoTab = () => {
 					scannerIds={allGeoScannerIds}
 					categories={GEO_TOPICS}
 					categoryFocus={categoryFocus}
+					title={__('All GEO Findings', 'vulopilot')}
+					titleIcon="tools"
+					desc={__('Every open GEO finding, filterable by priority.', 'vulopilot')}
 					issuesColumnLabel={__('GEO Issues', 'vulopilot')}
 					pageAnalysis={{
 						scoreColumnLabel: __('AI Visibility', 'vulopilot'),

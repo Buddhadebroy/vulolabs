@@ -143,7 +143,6 @@ class Rest {
             'visibility_score'            => new Controllers\Visibility(),
             'schema_coverage'             => new Controllers\Schema(),
             'google_services'             => new Controllers\GoogleServices(),
-            'keyword_rankings'            => new Controllers\KeywordRankings(),
             'vulocloud_account'           => new Controllers\VuloCloudAccount(),
             'ai_credits'                  => new Controllers\AiCredits(),
             'vulocloud_connect'           => new Controllers\VuloCloudConnect(),

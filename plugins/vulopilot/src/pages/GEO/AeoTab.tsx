@@ -369,6 +369,7 @@ const AeoTab = () => {
 			<ColumnComponent grid={8}>
 				<IssuesSection
 					id="aeo-all-issues-table"
+					title={__('All AEO Findings', 'vulopilot')}
 					scannerIds={ALL_AEO_SCANNER_IDS}
 					categories={AEO_SECTIONS}
 					categoryFocus={categoryFocus}

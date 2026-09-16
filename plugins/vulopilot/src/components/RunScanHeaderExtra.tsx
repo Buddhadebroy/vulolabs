@@ -2,7 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { ButtonInput } from '@zyra/inputs';
 import { useRunScan } from '../services/useRunScan';
 import { useLastScanTime } from '../services/useLastScanTime';
-import { formatWpDate } from '../services/formatWpDate';
+import { formatWpDate, formatWpTime } from '../services/formatWpDate';
 import './RunScanHeaderExtra.scss';
 
 interface RunScanHeaderExtraProps {
@@ -134,10 +134,7 @@ const RunScanHeaderExtra = ({
 						/* translators: 1: formatted date, 2: formatted time. */
 						__('Last scan: %1$s • %2$s', 'vulopilot'),
 						formatWpDate(lastScanAt),
-						new Date(lastScanAt).toLocaleTimeString(undefined, {
-							hour: 'numeric',
-							minute: '2-digit',
-						})
+						formatWpTime(lastScanAt)
 					)}
 				</div>
 			)}
