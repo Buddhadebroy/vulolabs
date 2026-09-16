@@ -12,7 +12,7 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../../services/useFilterSlot';
 
-/** Real Settings → Site Identity → Business Information subtab id (Settings.tsx's own `currentTab === 'business-information'` branch) — where the `entity_business_type`/`entity_service_pages`/`entity_business_locations` fields this section (and BusinessProfileCard.tsx/KnowledgeGraphDiagramCard.tsx, which import this same constant) read actually live. Moved out of Scanning → AI Visibility per direct instruction — see SiteIdentity/BusinessInformation.ts's own docblock. */
+/** Real Settings → Get Started → Business Information subtab id (Settings.tsx's own `currentTab === 'business-information'` branch) — where the `entity_business_type`/`entity_service_pages`/`entity_business_locations` fields this section (and BusinessProfileCard.tsx/KnowledgeGraphDiagramCard.tsx, which import this same constant) read actually live. Moved out of Scanning → AI Visibility per direct instruction — see GetStarted/BusinessInformation.ts's own docblock. */
 export const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=business-information';
 
 

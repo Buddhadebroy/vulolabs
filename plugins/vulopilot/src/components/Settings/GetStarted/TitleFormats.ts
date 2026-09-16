@@ -2,7 +2,16 @@ import { __ } from '@wordpress/i18n';
 import TitleFormatsPanel from './TitleFormatsPanel';
 
 /**
- * Settings → Site Identity → Title Formats.
+ * Settings → Get Started → Title Formats.
+ *
+ * Moved here from the old Site Identity folder per direct instruction
+ * ("move this 2 sub tab in Get Started" / "Get Started have 3 tab 1 his
+ * own and two tab from Site Identity") — Site Identity had only these 2
+ * sub-tabs (this one and Business Information), so that top-level folder
+ * is gone now that both live here instead. Same real `id: 'title-formats'`
+ * as before, so every existing `?...&subtab=title-formats` deep link
+ * still resolves (`getSettingById()` recurses by id alone, with no
+ * concept of which folder a tab lives in).
  *
  * `PanelComponent` escape hatch (Settings.tsx's own GetForm(), same
  * mechanism GetStarted/AiProviders.ts and GetStarted/GoogleServices.ts
@@ -23,7 +32,7 @@ import TitleFormatsPanel from './TitleFormatsPanel';
  */
 export default {
 	id: 'title-formats',
-	priority: 1,
+	priority: 2,
 	headerTitle: __('Title Formats', 'vulopilot'),
 	headerDescription: __(
 		'Configure how your page titles and descriptions are formatted across your website.',

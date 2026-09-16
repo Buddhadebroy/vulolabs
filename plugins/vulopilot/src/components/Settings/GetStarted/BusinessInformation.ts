@@ -1,10 +1,20 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Site Identity → Business Information.
+ * Settings → Get Started → Business Information.
  *
- * Moved here from Settings → Scanning → AI Visibility per direct
- * instruction — the "Business"/"Services"/"Locations" cards (and the
+ * Moved here from the old Site Identity folder per direct instruction
+ * ("move this 2 sub tab in Get Started" / "Get Started have 3 tab 1 his
+ * own and two tab from Site Identity") — Site Identity had only these 2
+ * sub-tabs (this one and Title Formats), so that top-level folder is gone
+ * now that both live here instead. Same real `id: 'business-information'`
+ * as before, so every existing `?...&subtab=business-information` deep
+ * link (KnowledgeGraphSection.tsx's own `ENTITY_SETTINGS_URL`,
+ * Modules/index.ts's own `settingsLink`) still resolves (`getSettingById()`
+ * recurses by id alone, with no concept of which folder a tab lives in).
+ *
+ * Before that, this had already moved here once from Settings → Scanning
+ * → AI Visibility — the "Business"/"Services"/"Locations" cards (and the
  * Knowledge Graph Health drop-threshold notice that followed them) used
  * to live at the bottom of that tab (AiVisibility.ts), appended after
  * Competitor URLs/llms.txt/Crawler Traffic. Same real settings, same
@@ -25,7 +35,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'business-information',
-	priority: 2,
+	priority: 3,
 	headerTitle: __('Business Information', 'vulopilot'),
 	headerDescription: __(
 		'Tell VuloPilot about your business so it can build a more complete Knowledge Graph and Business Profile.',

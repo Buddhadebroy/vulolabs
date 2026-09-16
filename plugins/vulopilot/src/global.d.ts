@@ -15,7 +15,7 @@ declare global {
 		plugin_url: string;
 		admin_url: string;
 		site_url: string;
-		/** `get_bloginfo('name')` — Settings → Site Identity → Title Formats' own Live Title Preview reads this directly rather than round-tripping a REST call. */
+		/** `get_bloginfo('name')` — Settings → Get Started → Title Formats' own Live Title Preview reads this directly rather than round-tripping a REST call. */
 		site_title: string;
 		/** `get_bloginfo('description')` — see `site_title` above. */
 		site_description: string;

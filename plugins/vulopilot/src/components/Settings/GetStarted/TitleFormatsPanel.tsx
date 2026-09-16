@@ -142,7 +142,7 @@ const toBreadcrumb = (urlExample: string): string =>
 		.join(' › ');
 
 /**
- * Settings → Site Identity → Title Formats.
+ * Settings → Get Started → Title Formats.
  *
  * Real backend: Services\TitleFormatter filters `pre_get_document_title`
  * with whichever `title_format_*` template matches the current frontend

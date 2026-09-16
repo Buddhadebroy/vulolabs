@@ -14,7 +14,7 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * toggle, followed by the tab's pre-existing fields appended below
  * (llms.txt, Crawler Traffic — "Competitor URLs" and "Business"/
  * "Services"/"Locations" used to live here too, moved out to Settings →
- * Scanning → Brand Intelligence and Settings → Site Identity → Business
+ * Scanning → Brand Intelligence and Settings → Get Started → Business
  * Information respectively, both per direct instruction).
  *
  * Real backend: 7 previously-flat settings (`flag_missing_semantic`,
@@ -265,8 +265,8 @@ export default {
 		// "Business"/"Services"/"Locations" (entity_business_type/
 		// entity_service_pages/entity_business_locations, plus the
 		// Knowledge Graph Health drop-threshold notice that followed them)
-		// moved out to Settings → Site Identity → Business Information per
-		// direct instruction — see SiteIdentity/BusinessInformation.ts's
+		// moved out to Settings → Get Started → Business Information per
+		// direct instruction — see GetStarted/BusinessInformation.ts's
 		// own docblock.
 		{
 			key: 'crawler-traffic',
