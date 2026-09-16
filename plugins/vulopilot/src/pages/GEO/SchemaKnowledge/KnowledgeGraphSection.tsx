@@ -7,7 +7,6 @@ import {
 	BadgeComponent,
 	CardComponent,
 	ColumnComponent,
-	ListComponent,
 	ModuleGuardComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
@@ -130,11 +129,23 @@ interface EntityDetailContentProps {
  * more" toggle that expands the same already-fetched list in place rather
  * than a modal (no modal component is otherwise used on this tab shell,
  * see GeoTab.tsx's own precedent of plain in-page navigation/scroll
- * instead of dialogs). Content only, no card chrome of its own — rendered
- * inside "What AI & Search Understand"'s own tab content area
+ * instead of dialogs). Content only, no card chrome of its own — meant to
+ * render inside "What AI & Search Understand"'s own tab content area
  * (KnowledgeGraphSection's own render, below), not as a separate card, per
  * direct instruction to consolidate what used to be 5 standalone cards
  * (Products/Categories/People/Locations/Services) into that one card.
+ *
+ * Confirmed unreachable from the UI (never actually instantiated below,
+ * despite this and other docblocks in this file describing it as if it
+ * renders) — same "real, working, just flagged here rather than deleted"
+ * status BrokenLinksSection.tsx's own docblocks document for their own
+ * unwired pieces: this component, its own `activeTab`/`scrollToTabContent`
+ * derivations below, and `setActiveEntityTab` (the entity-type tab
+ * selector this content is meant to switch on — `activeEntityTab` itself
+ * IS read to pick the "organizations" default, just nothing ever calls
+ * its own setter to change it) are all real and left as-is rather than
+ * deleted or force-wired without knowing what tab-switcher UI was
+ * originally meant to call `setActiveEntityTab`.
  */
 const EntityDetailContent = ({
 	title,

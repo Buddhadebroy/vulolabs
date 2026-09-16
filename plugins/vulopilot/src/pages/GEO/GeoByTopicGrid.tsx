@@ -2,8 +2,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { MetricTileComponent, SectionComponent } from '@zyra/components';
 import type { MetricTileItem } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { sumGroupCounts } from './useGeoFindingGroups';
-import { countDistinctAffectedPages } from './useGeoTopicAffectedPages';
+import { sumGroupCounts, countDistinctAffectedPages } from './useGeoTabData';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 
@@ -16,11 +15,11 @@ interface GeoByTopicGridProps {
 	groups: FindingGroup[];
 	isLoading: boolean;
 	onViewTopic: (key: string) => void;
-	/** Defaults to "A Closer Look, By Topic" (GEO tab) — AeoTab.tsx passes "AEO Checks at a Glance" instead, reusing this same real per-section grid rather than a second copy of it. */
+	/** Rendered as this grid's own `SectionComponent` heading — defaults to "A Closer Look, By Topic" (GEO tab); AeoTab.tsx passes "AEO Checks at a Glance" instead, reusing this same real per-section grid rather than a second copy of it. Confirmed unwired until this pass (accepted but never actually rendered) — fixed alongside `SectionComponent` itself being an unused import for the same reason. */
 	title?: string;
 	desc?: string;
 	/**
-	 * Real distinct-page-count-per-scanner map (useGeoTopicAffectedPages.ts)
+	 * Real distinct-page-count-per-scanner map (useGeoTabData.ts's own useGeoTopicAffectedPages)
 	 * — when passed, each tile also shows a real "Affected pages" stat next
 	 * to "Open issues" (matching the reference mockup's own two-stat tile
 	 * layout). Optional so a caller that hasn't wired this fetch up yet
@@ -53,7 +52,7 @@ const GeoByTopicGrid = ({
 	groups,
 	isLoading,
 	onViewTopic,
-	title,
+	title = __('A Closer Look, By Topic', 'vulopilot'),
 	desc,
 	affectedPagesByScanner,
 }: GeoByTopicGridProps) => {
@@ -108,6 +107,7 @@ const GeoByTopicGrid = ({
 
 	return (
 		<>
+			<SectionComponent title={title} desc={desc} />
 			<MetricTileComponent autoFit minTileWidth={13} compact isLoading={isLoading} data={tiles} />
 		</>
 	);

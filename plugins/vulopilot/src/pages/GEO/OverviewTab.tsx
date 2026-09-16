@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
-	BadgeComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,

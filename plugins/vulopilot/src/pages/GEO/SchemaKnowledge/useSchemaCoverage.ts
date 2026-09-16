@@ -37,7 +37,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * back whatever was last generated (or `null`); `analyze()` triggers a
  * fresh real sample and updates local state with the result, same
  * "loading a page never silently spends real work" posture
- * useGeoVisibilitySnapshot.ts's own summary/history split already
+ * GEO's own useGeoTabData.ts (`useGeoVisibilitySnapshot`) summary/history split already
  * documents for GEO.
  *
  * Moved here unchanged from GEO/useSchemaCoverage.ts as part of merging

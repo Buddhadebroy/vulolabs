@@ -72,7 +72,7 @@ interface SeoSiteWideIssuesTableProps {
  * RobotsTxtScanner's own `object_type: 'url'`, plus anything with an
  * unresolvable `object_ref`) — `SeoIssuesByPageTable.tsx` owns everything
  * page/post-scoped. Purely presentational for its data: `findings` comes
- * from `SeoIssuesSection.tsx`'s own single fetch (so this table's counts
+ * from SeoTab.tsx's own single fetch (so this table's counts
  * always agree with the shared filter pills above it) — this component
  * only mirrors that prop into local state so Resolve/Ignore/Fix can
  * optimistically remove a row without waiting on a full section refetch.

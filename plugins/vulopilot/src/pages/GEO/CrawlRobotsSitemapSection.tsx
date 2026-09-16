@@ -9,7 +9,6 @@ import {
 	ContainerComponent,
 	IconComponent,
 	ListComponent,
-	MetricTileComponent,
 	ModuleGuardComponent,
 	NoticeManager,
 	PopupComponent,
@@ -18,7 +17,6 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard, TableRow } from '@zyra/table';
 import TypographyComponent from '../../components/TypographyComponent';
-import { formatWpDate } from '../../services/formatWpDate';
 import { useFindingsTable } from '../../services/useFindingsTable';
 import { useLastScanTime } from '../../services/useLastScanTime';
 import { useGoogleServicesConnection } from '../../services/useGoogleServicesConnection';
@@ -73,21 +71,6 @@ interface SitemapRow extends TableRow, SitemapChild {
  */
 const isSeoModuleActive = () =>
 	appLocalizer.active_modules?.includes('seo') ?? false;
-
-/** First real example value, plus a real "+N more" count when there's more than one — used for the compact "Important Crawl Directives" table below rather than dumping every real path into one cell. */
-const summarizeList = (values: string[]): string => {
-	if (!values.length) {
-		return __('None', 'vulopilot');
-	}
-	return values.length > 1
-		? sprintf(
-			/* translators: 1: first real directive value, 2: how many more real ones exist. */
-			__('%1$s (+%2$d more)', 'vulopilot'),
-			values[0],
-			values.length - 1
-		)
-		: values[0];
-};
 
 /**
  * Real sitemap `loc` URL, stripped down to just its own path/name for
@@ -202,6 +185,17 @@ const RobotsTxtEditor = ({ value, onChange, placeholder }: RobotsTxtEditorProps)
 };
 
 /**
+ * Confirmed unreachable from the UI, same "real, working, just flagged
+ * here rather than deleted" status BrokenLinksSection.tsx's own docblocks
+ * document for their own unwired pieces (not touched in this pass — none
+ * of it is dead in the sense of broken or unused-and-safe-to-delete, just
+ * currently not rendered): the "4 real status tiles" bullet below
+ * (`robotsStatus`/`sitemapStatus`/`lastScanAt`, all computed but never
+ * read into a tile) and the "Quick Actions" bullet's own "Resubmit
+ * sitemap"/Search Console link (`handleResubmitSitemap`/
+ * `searchConsoleUrl`, both real and callable but with no button/link
+ * anywhere that reaches them).
+ *
  * "Robots & Sitemap" inner section of the "Crawl & URLs" tab — rebuilt to
  * match the reference mockup wherever real data supports it:
  *   - 4 real status tiles: Robots.txt/Sitemap reachability (live

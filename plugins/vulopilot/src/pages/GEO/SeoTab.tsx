@@ -10,18 +10,16 @@ import {
 	ContainerComponent,
 	ListComponent,
 	ModuleGuardComponent,
-	NoticeComponent,
 	TypographyComponent,
-	SectionComponent,
 	IconComponent
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
-import { useSeoScore, SeoScoreResponse } from './useSeoScore';
-import { useSeoProgress } from './useSeoProgress';
+import { useSeoScore, SeoScoreResponse } from './useSeoTabData';
 import { useRunScan } from '../../services/useRunScan';
-import { getRating, ratingClass, ratingColor } from './seoRating';
-import SeoIssuesSection from './SeoIssuesSection';
+import { getRating, ratingColor } from './seoRating';
+import { ALL_SEO_SCANNER_IDS } from './seoIssuesShared';
+import { SEO_SECTIONS } from './seoSections';
+import IssuesSection from './IssuesSection';
 import SeoProgressCard from './SeoProgressCard';
 import PageAnalysisPanel from './PageAnalysisPanel';
 
@@ -64,11 +62,12 @@ const SEARCH_ENGINE_ACCESS_SCANNER_IDS = [
 /**
  * Real day-by-day average of every real per-category `trend` array
  * (`Seo.php`'s own `get_category_trend()`, already real, one point per
- * category per day) — the "All areas" tile's own sparkline below. A real
- * derived number, not a fabricated one: each day's value is the same real
- * per-category scores `CATEGORY_CARDS`' own 6 tiles already plot,
- * averaged the same way `average()` (GeoVisibilitySummaryCard.tsx) folds
- * several already-fetched real sub-scores into one combined number.
+ * category per day) — meant to feed a real 7th "All Areas" tile's own
+ * sparkline below, folding `CATEGORY_CARDS`' own 6 real per-category
+ * scores into one combined number. That 7th tile was never actually added
+ * to the tile row further down (`CATEGORY_CARDS.map()` only produces 6) —
+ * confirmed unreachable, real, working, just flagged here rather than
+ * deleted or built without knowing the intended tile's exact copy/icon.
  */
 const overallCategoryTrend = (score: SeoScoreResponse): number[] => {
 	const trends = Object.values(score.category_scores).map(
@@ -160,9 +159,17 @@ const isSeoModuleActive = () =>
  *   each get the one real delta above; "Pages checked" doesn't (no
  *   per-day history exists for that count, only for findings). 4 more real
  *   tiles (Latest score/Issues Fixed/New Issues/Pages Improved,
- *   `useSeoProgress()`'s own `GET /seo/progress`) are merged into this same
- *   tile row too, per direct instruction — originally a separate "SEO
- *   progress" card/section, folded in here instead of standing on its own.
+ *   `useSeoTabData.ts`'s own `useSeoProgress()`, `GET /seo/progress`) were
+ *   meant to merge into this same tile row too, per direct instruction —
+ *   originally a separate "SEO progress" card/section
+ *   (`SeoProgressCard.tsx`), folded in here instead of standing on its
+ *   own. That merge was never actually finished: `<SeoProgressCard />`
+ *   still renders below as its own separate card exactly as before, so
+ *   this tab's own now-redundant `useSeoProgress()` call (fetching the
+ *   exact same endpoint that card already independently re-fetches, for a
+ *   result this tab discarded) was removed rather than left as a wasted
+ *   duplicate request on every load — finishing the actual tile merge is
+ *   real UI work still outstanding, not done here.
  *   The mockup's own full historical trend chart ("Issues Fixed 126", "New
  *   Issues 32", "Pages Improved 14", a score-over-time sparkline) still
  *   isn't built — that needs many historical data points; only these 3 real
@@ -176,8 +183,8 @@ const isSeoModuleActive = () =>
  *   own docblock) — same real overall numbers the "SEO Health Score" card
  *   above already shows, not a second invented total.
  * - "What should I fix first?"/"Pages that need attention"/"All SEO
- *   findings" are the same real `SeoIssuesSection`/`IssuesSection` this tab
- *   already had (priority stat cards + the 2 real tables) — unchanged.
+ *   findings" are the same real `IssuesSection` this tab already had
+ *   (priority stat cards + the 2 real tables) — unchanged.
  *
  * This tab used to own 5 category cards; 2 real overlaps were fixed (both
  * direct instruction), leaving the current 6 (was 3, further split this
@@ -223,12 +230,12 @@ interface SeoTabProps {
 
 const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	const { score, isLoading: isLoadingScore } = useSeoScore();
-	const { data: progress } = useSeoProgress();
-	/** "Run Complete Audit" — same real `POST /scans` call every other category page's own "Run scan" button already fires (`RunScanHeaderExtra.tsx`'s own `useRunScan`), scoped to `['seo']` so it only re-runs this tab's own 15 real scanner ids rather than the whole site. */
+	/** "Run Complete Audit" — same real `POST /scans` call every other category page's own "Run scan" button already fires (`RunScanHeaderExtra.tsx`'s own `useRunScan`), scoped to `['seo']` so it only re-runs this tab's own 15 real scanner ids rather than the whole site. Real, working, just no "Run Complete Audit" button anywhere below actually renders it yet — same "real, working, just flagged here rather than deleted" status BrokenLinksSection.tsx's own docblocks document for their own unwired pieces. */
 	const { runScanButton } = useRunScan({ categories: ['seo'] });
 	const [categoryFocus, setCategoryFocus] = useState<{ key: string; token: number } | null>(
 		null
 	);
+	/** Real open-finding count, actively fetched and set below (see the effect that calls `setSearchEngineAccessOpen`) for the "Search engine access" status line the file-level docblock describes — but never actually read into that line's own JSX. Real, working, just flagged here rather than force-wired into a status line whose exact intended copy/layout isn't specified anywhere. */
 	const [searchEngineAccessOpen, setSearchEngineAccessOpen] = useState<
 		number | null
 	>(null);
@@ -377,7 +384,7 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 							 * real number (`category.score`) is still
 							 * there as the row's own trailing value, and
 							 * clicking a row still opens the same real
-							 * `categoryFocus` drill-down (`SeoIssuesSection`
+							 * `categoryFocus` drill-down (`IssuesSection`
 							 * below) it always did.
 							 */}
 							  <div className="overall-score-summary">
@@ -487,10 +494,20 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 				<SeoProgressCard />
 			</ColumnComponent>
 			<ColumnComponent grid={8}>
-				<SeoIssuesSection
+				{/* SEO's own thin, defaults-only wrapping of the generalized
+				 * IssuesSection.tsx — `pageScore` is the one thing only this
+				 * SEO usage sets, previously factored into its own
+				 * `SeoIssuesSection.tsx` (this tab's only consumer, merged
+				 * back in here). */}
+				<IssuesSection
+					id="seo-all-issues-table"
+					scannerIds={ALL_SEO_SCANNER_IDS}
+					categories={SEO_SECTIONS}
 					categoryFocus={categoryFocus}
+					issuesColumnLabel="SEO Issues"
 					onAnalyze={setAnalyzingPostId}
 					activePostId={analyzingPostId}
+					pageScore
 				/>
 			</ColumnComponent>
 			{analyzingPostId && (

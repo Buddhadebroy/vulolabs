@@ -21,7 +21,7 @@ const CATEGORY_TAB_LINKS: Record<string, string> = {
 	// category 'links' (confirmed: no other scanner returns this
 	// category), so this can point straight at its own dedicated tab
 	// rather than the general SEO tab's "Links & schema" section, which
-	// still separately shows the same findings too (SeoIssuesSection.tsx
+	// still separately shows the same findings too (SeoTab.tsx
 	// wasn't changed).
 	links: 'seo-visibility&subtab=broken-links',
 	// SEO & Visibility tab, "GEO" subtab.

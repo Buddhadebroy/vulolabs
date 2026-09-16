@@ -40,17 +40,7 @@ const getRating = (score: number): string => {
 	return __('Poor', 'vulopilot');
 };
 
-const ratingClass = (score: number): string => {
-	if (score >= 70) {
-		return 'is-good';
-	}
-	if (score >= 40) {
-		return 'is-attention';
-	}
-	return 'is-poor';
-};
-
-/** Same 3-tier band as `ratingClass()` above, as one of zyra's own `$color-palette` names — for the ring's own `COLOR_PALETTE`-resolved segment color, same convention SeoTab.tsx's own identical ring already established (`seoRating.ts`'s own `ratingColor()`). */
+/** Same 3-tier band as `getRating()` above, as one of zyra's own `$color-palette` names — for the ring's own `COLOR_PALETTE`-resolved segment color, same convention SeoTab.tsx's own identical ring already established (`seoRating.ts`'s own `ratingColor()`). */
 const ratingColor = (score: number): string => {
 	if (score >= 70) {
 		return 'green';
@@ -275,12 +265,12 @@ const CrawlerAnalyticsSection = ({
 														// Same real rating color the ring's
 														// own "Needs Attention"/"Good"/"Poor"
 														// label above already uses
-														// (`ratingClass()`/`getRating()`) —
-														// resolved through `COLOR_PALETTE`
-														// for the real hex `ratingColor()`'s
-														// own palette name stands for, same
-														// convention SeoTab.tsx's own
-														// identical ring already established.
+														// (`getRating()`) — resolved through
+														// `COLOR_PALETTE` for the real hex
+														// `ratingColor()`'s own palette name
+														// stands for, same convention
+														// SeoTab.tsx's own identical ring
+														// already established.
 														color: COLOR_PALETTE[
 															ratingColor(analytics.crawl_health_score) as keyof typeof COLOR_PALETTE
 														],
