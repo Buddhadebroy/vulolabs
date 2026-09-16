@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
-import { CardComponent, ChartComponent, ColumnComponent, ListComponent, ModuleGuardComponent, TypographyComponent } from '@zyra/components';
+import { CardComponent, ChartComponent, ColumnComponent, ListComponent, ModuleGuardComponent, PopupComponent, TypographyComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { EntitiesResponse } from './KnowledgeGraphSection';
 import { ENTITY_SETTINGS_URL } from './KnowledgeGraphSection';
@@ -11,6 +11,7 @@ import ProductDetailsPanel from './ProductDetailsPanel';
 import { ratingColor } from '../seoRating';
 import { useFilterSlot } from '../../../services/useFilterSlot';
 import { KnowledgeGraphDiagram } from './KnowledgeGraphDiagramCard';
+import ShowProPopup from '../../../components/Popup/Popup';
 
 const isBrandModuleActive = () =>
 	appLocalizer.active_modules?.includes('brand-intelligence') ?? false;
@@ -225,6 +226,12 @@ const BusinessProfileCard = () => {
 	// same reasoning as `isNamePanelOpen` above, just for the "Products"
 	// row instead of "Business name".
 	const [isProductsPanelOpen, setIsProductsPanelOpen] = useState(false);
+	/** "Add custom schema" — real Pro popup instead of a real editor (nothing implemented yet, Free or Pro, to gate here); opens in place of the button's own previous `window.location.href = 'edit.php'` dead-end. */
+	const [isCustomSchemaProPopupOpen, setIsCustomSchemaProPopupOpen] = useState(false);
+	/** The "People" row's own real popup — same `PopupComponent` pattern `business_name`/`products` already use, listing every real Administrator + post author (Services\EntityExtractor::extract_people()), each with its own real role and, for whoever the viewing admin can actually edit, a real `get_edit_user_link()` destination. */
+	const [isPeopleDropdownOpen, setIsPeopleDropdownOpen] = useState(false);
+	/** The "Categories" row's own real popup — same pattern as `isPeopleDropdownOpen` above, listing every real `category` + (when WooCommerce is active) `product_cat` term (Services\EntityExtractor::extract_categories()), each with its own real taxonomy and, for whoever the viewing admin can actually edit, a real `get_edit_term_link()` destination. */
+	const [isCategoriesPopupOpen, setIsCategoriesPopupOpen] = useState(false);
 
 	// Called unconditionally, before the early return below, per the rules
 	// of hooks — same reasoning KnowledgeGraphSection.tsx's own identical
@@ -430,9 +437,7 @@ const BusinessProfileCard = () => {
 						<ButtonInput
 							buttons={{
 								text: __('Add custom schema', 'vulopilot'),
-								onClick: () => {
-									window.location.href = 'edit.php';
-								},
+								onClick: () => setIsCustomSchemaProPopupOpen(true),
 							}}
 						/>
 					}
@@ -477,6 +482,22 @@ const BusinessProfileCard = () => {
 													onClick: () => setIsProductsPanelOpen(true),
 												}}
 											/>
+										) : 'people' === row.key && row.found ? (
+											<ButtonInput
+												buttons={{
+													text: __('View', 'vulopilot'),
+													color: 'border-purple',
+													onClick: () => setIsPeopleDropdownOpen(true),
+												}}
+											/>
+										) : 'categories' === row.key && row.found ? (
+											<ButtonInput
+												buttons={{
+													text: __('View', 'vulopilot'),
+													color: 'border-purple',
+													onClick: () => setIsCategoriesPopupOpen(true),
+												}}
+											/>
 										) : (
 											<ButtonInput
 												buttons={{
@@ -495,6 +516,94 @@ const BusinessProfileCard = () => {
 						/>
 					)}
 				</CardComponent>
+				<PopupComponent
+					open={isPeopleDropdownOpen}
+					onClose={() => setIsPeopleDropdownOpen(false)}
+					width={28}
+					header={{
+						title: __('People', 'vulopilot'),
+						description: __(
+							'Every real Administrator and post author detected on your site.',
+							'vulopilot'
+						),
+					}}
+				>
+					{entities && 0 === entities.people.length ? (
+						<p className="desc">{__('No people detected yet.', 'vulopilot')}</p>
+					) : (
+						<ul className="business-profile-popup-list">
+							{entities?.people.map((person) => {
+								const roleLabel =
+									'string' === typeof person.meta?.role_label
+										? person.meta.role_label
+										: '';
+								const editUrl =
+									'string' === typeof person.meta?.edit_url
+										? person.meta.edit_url
+										: null;
+
+								return (
+									<li key={person.id} className="business-profile-popup-row">
+										<span className="business-profile-popup-name">
+											{person.name}
+										</span>
+										{roleLabel && (
+											<span className="admin-badge">{roleLabel}</span>
+										)}
+										{editUrl && (
+											<a className="business-profile-popup-edit" href={editUrl}>
+												{__('Edit', 'vulopilot')}
+											</a>
+										)}
+									</li>
+								);
+							})}
+						</ul>
+					)}
+				</PopupComponent>
+				<PopupComponent
+					open={isCategoriesPopupOpen}
+					onClose={() => setIsCategoriesPopupOpen(false)}
+					width={28}
+					header={{
+						title: __('Categories', 'vulopilot'),
+						description: __(
+							'Every real category (and product category, when WooCommerce is active) detected on your site.',
+							'vulopilot'
+						),
+					}}
+				>
+					{entities && 0 === entities.categories.length ? (
+						<p className="desc">{__('No categories detected yet.', 'vulopilot')}</p>
+					) : (
+						<ul className="business-profile-popup-list">
+							{entities?.categories.map((category) => {
+								const taxonomyLabel =
+									'product_cat' === category.meta?.taxonomy
+										? __('Product category', 'vulopilot')
+										: __('Category', 'vulopilot');
+								const editUrl =
+									'string' === typeof category.meta?.edit_url
+										? category.meta.edit_url
+										: null;
+
+								return (
+									<li key={category.id} className="business-profile-popup-row">
+										<span className="business-profile-popup-name">
+											{category.name}
+										</span>
+										<span className="admin-badge">{taxonomyLabel}</span>
+										{editUrl && (
+											<a className="business-profile-popup-edit" href={editUrl}>
+												{__('Edit', 'vulopilot')}
+											</a>
+										)}
+									</li>
+								);
+							})}
+						</ul>
+					)}
+				</PopupComponent>
 				<BusinessNameDetailsPanel
 					open={isNamePanelOpen}
 					onClose={() => setIsNamePanelOpen(false)}
@@ -503,6 +612,15 @@ const BusinessProfileCard = () => {
 					open={isProductsPanelOpen}
 					onClose={() => setIsProductsPanelOpen(false)}
 				/>
+				<PopupComponent
+					open={isCustomSchemaProPopupOpen}
+					onClose={() => setIsCustomSchemaProPopupOpen(false)}
+					width={31.25}
+					height="auto"
+					position="lightbox"
+				>
+					<ShowProPopup />
+				</PopupComponent>
 			</ColumnComponent>
 		</>
 	);

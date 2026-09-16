@@ -1924,11 +1924,15 @@
 	}
 }
 
-// KeywordsTab.tsx's real 6-stat-card row (Total Keywords/Top 3/Top 10/Avg.
-// Position/Estimated Traffic/Impressions) — each card's own real trend
-// sparkline is zyra ChartComponent's `type="area" sparkline` mode, fed real
-// `vulopilot_keyword_rankings` history (Controllers\KeywordRankings::get_summary()'s
-// own `trend` block), not a decorative shape.
+// vulopilot-pro's own (moved) KeywordsTab.tsx's real 6-stat-card row (Total
+// Keywords/Top 3/Top 10/Avg. Position/Estimated Traffic/Impressions) — each
+// card's own real trend sparkline is zyra ChartComponent's `type="area"
+// sparkline` mode, fed real `vulopilot_keyword_rankings` history
+// (Rest::get_summary()'s own `trend` block), not a decorative shape. Kept
+// here (not moved into Pro's own stylesheet) because this page's
+// SeoVisibility.scss is always loaded regardless of which plugin's JS
+// renders the card — same reasoning every other Free/Pro split card style
+// on this page already follows.
 .keyword-stat-card {
 	display: flex;
 	flex-direction: column;
@@ -2257,6 +2261,40 @@
 
 	&.is-poor {
 		color: #dc2626;
+	}
+}
+
+// BusinessProfileCard.tsx's own "People"/"Categories" row popups — a shared
+// generic name/badge/edit-link list shape (real Administrators + post
+// authors, or real category/product_cat terms) since both are the same
+// real "flat list of real WordPress objects with a real edit link" shape.
+.business-profile-popup-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.business-profile-popup-row {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+}
+
+.business-profile-popup-name {
+	flex: 1;
+	font-weight: 500;
+}
+
+.business-profile-popup-edit {
+	color: $theme-color;
+	font-size: 0.8125rem;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
 	}
 }
 
@@ -2775,4 +2813,62 @@
 
 .brand-offsite-mentions-dummy-meta {
 	margin-top: 0.125rem;
+}
+
+// CompetitorComparisonDummy.tsx — the Pro-tag-gated stand-in for
+// vulopilot-pro's own BrandIntelligence CompetitorComparisonCard.tsx. Same
+// table shape as the real card's own `.brand-competitor-comparison__*`
+// classes (that pro-only stylesheet never ships in Free's bundle, so this
+// is its own `brand-competitor-comparison-dummy-*` set); the table is
+// `pointer-events: none` so a click always reaches the wrapping
+// `.brand-competitor-comparison-dummy` overlay instead.
+.brand-competitor-comparison-dummy {
+	cursor: pointer;
+}
+
+.brand-competitor-comparison-dummy-table-wrapper {
+	overflow-x: auto;
+	pointer-events: none;
+}
+
+.brand-competitor-comparison-dummy-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.8125rem;
+
+	th,
+	td {
+		padding: 0.5rem 0.75rem;
+		border: $border-light-small;
+		text-align: left;
+		white-space: nowrap;
+	}
+
+	th {
+		color: $sub-text-color;
+		font-weight: 600;
+	}
+}
+
+.brand-competitor-comparison-dummy-row-self {
+	background: $theme-background-color;
+	font-weight: 600;
+}
+
+// KeywordsTab.tsx (Free) — the real Pro/module tag shown in this section
+// itself, above the real "Connect Google Search Console" hero card (the
+// tag is NOT hidden inside the upgrade popup — same
+// "one tag, docked above the real/preview content" shape
+// Commerce.scss's own `.commerce-locked`/`.commerce-locked-tag` rules
+// already establish for the identical Commerce.tsx gate). `.keywords-locked`
+// needs its own `position: relative` because zyra's own `.admin-tag.pro-tag`
+// rule (theme/src/common.scss) is `position: absolute`, anchoring to the
+// nearest `position: relative` ancestor as a corner ribbon — without this,
+// that ancestor would be some far larger positioned ancestor up the tree.
+.keywords-locked {
+	position: relative;
+}
+
+.keywords-locked-tag {
+	margin-bottom: 0.75rem;
 }

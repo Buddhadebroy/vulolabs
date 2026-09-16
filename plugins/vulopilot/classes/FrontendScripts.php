@@ -194,6 +194,25 @@ class FrontendScripts {
                 // limitation 'date_format_js' itself already carries for
                 // any date format containing 'a'/'A'.
                 'time_format_js'            => self::convert_date_format_to_js( get_option( 'time_format' ) ),
+                // Settings → General → Timezone, as a plain minute offset
+                // from UTC (`wp_timezone()` already resolves both a real
+                // `timezone_string` like 'Asia/Kolkata' and a plain
+                // `gmt_offset` fallback into one DateTimeZone, DST included
+                // for the former) — every raw timestamp this plugin's own
+                // REST layer returns is UTC (`current_time( 'mysql', true )`,
+                // confirmed across ScanPersistenceListener.php/
+                // BackupManager.php/AutomationScheduler.php), so formatWpDate.ts/
+                // formatWpTime() need this to shift a raw UTC value to this
+                // site's own configured local time before reading its
+                // date/time parts — without it, a JS `new Date()` on that
+                // same naive "Y-m-d H:i:s" string (no 'Z'/offset) gets
+                // parsed as the *visiting browser's* local time instead,
+                // which silently disagrees with this site's own Settings →
+                // General → Timezone for any admin not physically in that
+                // same zone.
+                'gmt_offset_minutes'        => (int) round(
+                    wp_timezone()->getOffset( new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) ) / 60
+                ),
                 // Feeds zyra's configureZyra()/ZyraVariable.khali_dabba (a
                 // proSetting field's Pro-tag/lock in InputRenderer) and
                 // vulopilot-pro's src/index.tsx (which module JS entries

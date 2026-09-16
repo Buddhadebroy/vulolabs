@@ -18,6 +18,7 @@ import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/P
 import AuthorityTrendsDummy from './AuthorityTrendsDummy';
 import KnowledgePanelDummy from './KnowledgePanelDummy';
 import OffSiteMentionsDummy from './OffSiteMentionsDummy';
+import CompetitorComparisonDummy from './CompetitorComparisonDummy';
 
 /** Real backend module id (Settings → Modules) — same id `isBrandModuleActive()` below checks and `MODULE_CATALOG_BY_ID` (Popup.tsx) resolves to a real display name/icon for. */
 const BRAND_MODULE_ID = 'brand-intelligence';
@@ -207,8 +208,14 @@ const BrandVisibilityTab = () => {
 								)}
 							</ColumnComponent>
 						</ContainerComponent>
-						{CompetitorComparisonCard && <CompetitorComparisonCard />}
-
+						{CompetitorComparisonCard ? (
+							<CompetitorComparisonCard />
+						) : (
+							<CompetitorComparisonDummy
+								badgeText={brandProBadge}
+								onClick={openProPopup}
+							/>
+						)}
 					</>
 				}
 				footer={

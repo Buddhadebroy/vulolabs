@@ -103,7 +103,50 @@ class EntityExtraction extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function get_items( $request ) {
-        return rest_ensure_response( $this->extractor->extract_all() );
+        $data = $this->extractor->extract_all();
+
+        // `edit_url` is a real, per-viewer capability check
+        // (`current_user_can( 'edit_user', ... )`) — computed fresh on
+        // every request rather than inside EntityExtractor::extract_all()
+        // itself, since that method's own result is cached in one
+        // site-wide transient shared by every admin who views this tab;
+        // baking a single viewer's own edit capability into that shared
+        // cache would leak whichever admin happened to trigger the cache
+        // fill.
+        $data['people'] = array_map(
+            function ( array $person ): array {
+                $user_id = (int) $person['source_object_ref'];
+
+                $person['meta']['edit_url'] = current_user_can( 'edit_user', $user_id )
+                    ? get_edit_user_link( $user_id )
+                    : null;
+
+                return $person;
+            },
+            $data['people']
+        );
+
+        // Same real, per-viewer `edit_url` reasoning as `people` above —
+        // `current_user_can( 'edit_term', ... )` respects each taxonomy's
+        // own real capability mapping (e.g. WooCommerce's own
+        // `manage_product_terms` for `product_cat`, not just the default
+        // `category` taxonomy's `manage_categories`), so this can't be
+        // baked into EntityExtractor::extract_all()'s own shared cache
+        // either.
+        $data['categories'] = array_map(
+            function ( array $category ): array {
+                $term_id  = (int) $category['source_object_ref'];
+                $taxonomy = is_string( $category['meta']['taxonomy'] ?? null ) ? $category['meta']['taxonomy'] : '';
+                $edit_url = current_user_can( 'edit_term', $term_id ) ? get_edit_term_link( $term_id, $taxonomy ) : null;
+
+                $category['meta']['edit_url'] = is_string( $edit_url ) ? $edit_url : null;
+
+                return $category;
+            },
+            $data['categories']
+        );
+
+        return rest_ensure_response( $data );
     }
 
     /**

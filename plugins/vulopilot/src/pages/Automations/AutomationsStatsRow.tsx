@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { formatWpDate } from '../../services/formatWpDate';
+import { formatWpDate, formatWpTime, isWpToday } from '../../services/formatWpDate';
 
 interface StatusCounts {
 	enabled: number;
@@ -13,15 +13,11 @@ interface DashboardStats {
 	last_check_at: string | null;
 }
 
-/** Real "Today, 3:42 PM"/"August 18, 2026, 3:42 PM" — same technique SecurityMetricsGrid.tsx's own formatLastScan() already established, just with a real "Today" short-circuit for the common case (matches the mockup's own wording) instead of always spelling out the date. */
+/** Real "Today, 3:42 PM"/"August 18, 2026, 3:42 PM" — same technique SecurityMetricsGrid.tsx's own formatLastScan() already established, just with a real "Today" short-circuit for the common case (matches the mockup's own wording) instead of always spelling out the date. `formatWpTime()`/`isWpToday()` (Settings → General → Time Format/Timezone), not a raw `toLocaleTimeString()`/`toDateString()` — those read the *visiting browser's* own local zone instead of this site's configured one. */
 const formatLastCheck = (isoDate: string): string => {
-	const date = new Date(isoDate.replace(' ', 'T') + 'Z');
-	const time = date.toLocaleTimeString(undefined, {
-		hour: 'numeric',
-		minute: '2-digit',
-	});
+	const time = formatWpTime(isoDate);
 
-	if (date.toDateString() === new Date().toDateString()) {
+	if (isWpToday(isoDate)) {
 		return sprintf(
 			/* translators: %s is the real time of this site's most recent automation run today. */
 			__('Today, %s', 'vulopilot'),

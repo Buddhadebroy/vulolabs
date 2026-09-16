@@ -83,12 +83,15 @@ class Utill {
         // 'brand_score_history' above already sets.
         'brand_mention'              => 'vulopilot_brand_mentions',
         // Real Search Console `searchAnalytics.query` snapshots (SEO &
-        // Visibility → Keywords) — one row per (query, page, snapshot_date)
-        // captured on each real sync (Services\KeywordRankingsSyncService),
+        // Visibility → Keywords) — one row per (query, page, snapshot_date),
         // never one row per query overwritten in place: the whole point is
         // a real day-over-day history so "Previous"/"Change"/"Best
         // Position" and the trend sparklines are computed from actual past
-        // snapshots, not invented. See that service's own docblock.
+        // snapshots, not invented. Owned here per this file's own
+        // schema-ownership rule even though the sync service/REST
+        // controller/UI are now Pro (vulopilot-pro's own Keywords module,
+        // moved wholesale per direct instruction), same precedent
+        // 'brand_mention' above already sets.
         'keyword_ranking'            => 'vulopilot_keyword_rankings',
     );
 
