@@ -7,69 +7,42 @@ import {
 } from '@zyra/components';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import OverviewTab from './OverviewTab';
-import ReportTab from './ReportTab';
-import ActivityTab from './ActivityTab';
 import HistoryTab from './HistoryTab';
 
-const TAB_IDS = ['overview', 'report', 'activity', 'history'] as const;
+const TAB_IDS = ['overview', 'history'] as const;
 
 const TAB_META: Record<
 	(typeof TAB_IDS)[number],
 	{ headerTitle: string; headerIcon: string }
 > = {
 	overview: { headerTitle: __('Overview', 'vulopilot'), headerIcon: 'bar-chart' },
-	// Restored — this whole tab (ReportTab.tsx: report generation, CSV/PDF
-	// export, Pro's scheduled-report management) had been dropped from
-	// TAB_IDS/TAB_META/getForm below with no "per direct instruction" trail
-	// (unlike every other real removal this file's own docblock documents),
-	// while this file's own docblock still fully describes it as a current
-	// tab and several other real buttons still link to
-	// `#&tab=reports&subtab=report` (OverviewTab.tsx's "Create Report",
-	// ScheduledReportsTable.tsx's "Manage Schedules", RecentReportsCard.tsx) —
-	// all of which pointed at a dead tab. Confirmed live: navigating there
-	// rendered the header/breadcrumb (a stale cached build) but no tab body
-	// at all once the dev build caught up, since 'report' no longer matched
-	// any real `settingContent` entry.
-	report: { headerTitle: __('Report Builder', 'vulopilot'), headerIcon: 'report' },
-	activity: { headerTitle: __('Activity', 'vulopilot'), headerIcon: 'clock' },
 	// Moved here from AI Copilot — a real, day-grouped scan/change/
 	// conversation timeline (HistoryTab.tsx's own docblock), never
-	// specific to that page's own chat surface. Kept as its own tab
-	// alongside Activity rather than merged into it — different source/
-	// shape (GET /history's 3-way scan+change+conversation join vs
-	// Activity's flat GET /activity-logs), per direct instruction.
+	// specific to that page's own chat surface.
 	history: { headerTitle: __('History', 'vulopilot'), headerIcon: 'clock' },
 };
 
 /**
- * "Reports" — a tab shell. A 4th tab, "History" (HistoryTab.tsx), was
- * added later — moved here from AI Copilot's own tab shell, which used
- * to render it alongside Chat; AI Copilot now renders Chat directly
- * (AIAssistant.tsx), same "drop to one real section, no tab bar" pattern
- * Commerce.tsx/Security.tsx already established. The reference mockup
- * originally showed 3 tabs (Overview/Report Builder/Scheduled Reports);
- * "Scheduled Reports" has
- * since been merged into "Report Builder" per direct instruction (its
- * content — ReportSchedulesSummary.tsx plus the Pro schedule-management
- * panel — now lives inside ReportTab.tsx's own second section; see that
- * file's own docblock), leaving Overview/Report Builder/Activity
- * (ActivityTab.tsx, folded in from its own now-removed native WP submenu
- * row, per classes/Admin.php's legacy_submenus() docblock), same "match
- * the mockup's own visible tabs, don't delete real functionality the
- * mockup doesn't happen to show" move Protect My Site's own
- * Performance-tab addition already made for Site Health/Files & Plugins.
- * There was also briefly a flat "Security" tab here (Reports/SecurityTab.tsx,
- * `category="security"` FindingsTable) — removed per direct instruction;
- * Protect My Site's own Security tab (SecurityTab.tsx) is the real,
- * complete home for security findings now (it scopes to a full
- * 14-scanner-id list rather than the narrower `category="security"` this
- * deleted tab used, so nothing here was lost — the deleted tab actually
- * undercounted relative to it).
+ * "Reports" — a tab shell, now just Overview/History per direct
+ * instruction ("only two tab here one overview and history"). "Report
+ * Builder" (ReportTab.tsx) and "Activity" (ActivityTab.tsx) were both
+ * removed from TAB_IDS/TAB_META/getForm below — neither component file
+ * was deleted (still real, valid code, just unreached from here now,
+ * same "supersede, don't delete" posture this codebase already applies
+ * elsewhere), so restoring either tab later is a one-line revert of this
+ * change rather than a rebuild. Several real buttons still deep-link to
+ * `#&tab=reports&subtab=report`/`subtab=activity` (OverviewTab.tsx's
+ * "Create Report", ScheduledReportsTable.tsx's "Manage Schedules",
+ * RecentReportsCard.tsx, RecentActivityCard.tsx/RecentActivityWidget.tsx,
+ * TodaysTasksWidget.tsx, LiveThreatMonitorCard.tsx, searchIndex.ts) — with
+ * neither id in `TAB_IDS` any more, `initialTab`'s own fallback below now
+ * lands those clicks on Overview instead of a dead tab, not left
+ * unhandled; those callers weren't touched as part of this change.
  *
- * - Overview (OverviewTab.tsx) — the redesigned mockup's own dashboard.
- * - "Report" is relabeled "Report Builder" here (ReportTab.tsx —
- *   today's real report-generation/list page, now also the real home for
- *   scheduled reports).
+ * "History" (HistoryTab.tsx) was moved here from AI Copilot's own tab
+ * shell, which used to render it alongside Chat; AI Copilot now renders
+ * Chat directly (AIAssistant.tsx), same "drop to one real section, no tab
+ * bar" pattern Commerce.tsx/Security.tsx already established.
  *
  * Same `subtab` deep-link convention as every other tab shell
  * (`?page=vulopilot#&tab=reports&subtab=<inner-tab>`). Tab bar/body are
@@ -86,8 +59,8 @@ const TAB_META: Record<
  * left padding every other tab shell's own `ContainerComponent` already
  * gave it — there's no separate wrapper needed around it now. Each tab's
  * `hideSettingHeader: true` suppresses `NavigatorComponent`'s own per-tab
- * title/description section, since `OverviewTab`/`ReportTab`/`ActivityTab`
- * already render their own.
+ * title/description section, since `OverviewTab`/`HistoryTab` already
+ * render their own.
  */
 const Reports = () => {
 	const subtab = new URLSearchParams(useLocation().hash.substring(1)).get(
@@ -120,10 +93,6 @@ const Reports = () => {
 		switch (tabId) {
 			case 'overview':
 				return <OverviewTab />;
-			case 'report':
-				return <ReportTab />;
-			case 'activity':
-				return <ActivityTab />;
 			case 'history':
 				return <HistoryTab />;
 			default:

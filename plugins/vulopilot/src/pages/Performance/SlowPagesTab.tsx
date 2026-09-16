@@ -954,34 +954,6 @@ const SlowPagesTab = () => {
 						]}
 					/>
 				</CardComponent>
-
-				<NoticeComponent
-					type="info"
-					displayPosition="inline-notice"
-					message={
-						hasDeviceScores
-							? __(
-								'Scores are real per-page Google PageSpeed Insights results. Page size, requests, and Core Web Vitals are real Lighthouse/Chrome UX Report data from that same response.',
-								'vulopilot'
-							)
-							: __(
-								'Scores are derived from real measured page response times. Configure a Google PageSpeed Insights API key for real Mobile/Desktop scores, page size, requests, and Core Web Vitals instead.',
-								'vulopilot'
-							)
-					}
-					actionLabel={
-						hasDeviceScores
-							? undefined
-							: __('Go to Settings', 'vulopilot')
-					}
-					onAction={
-						hasDeviceScores
-							? undefined
-							: () => {
-								window.location.href = PERFORMANCE_SETTINGS_URL;
-							}
-					}
-				/>
 			</ColumnComponent>
 		</ContainerComponent>
 	);

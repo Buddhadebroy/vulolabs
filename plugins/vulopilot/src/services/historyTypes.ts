@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { formatWpTime } from './formatWpDate';
+import { formatWpDate, formatWpTime } from './formatWpDate';
 
 /**
  * Shared `HistoryRow`/`toHistoryRow()` (a `vulopilot_ai_history` row →
@@ -322,9 +322,12 @@ export const rowTime = (createdAt: string): string => formatWpTime(createdAt);
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
- * "Today"/"Yesterday"/a real formatted date — same local-time-from-a-
- * MySQL-datetime-string handling formatWpDate.ts already relies on
- * (`new Date('2026-08-10 07:40:56')` parses as local time, no 'T'/'Z').
+ * "Today"/"Yesterday"/this site's own real Settings → General → Date
+ * Format (`formatWpDate()`, previously a hardcoded `toLocaleDateString()`
+ * that ignored that setting — same real fix `rowTime()` above already
+ * applies for the time half). Same local-time-from-a-MySQL-datetime-string
+ * handling formatWpDate.ts already relies on (`new Date('2026-08-10
+ * 07:40:56')` parses as local time, no 'T'/'Z').
  */
 export const dayLabel = (createdAt: string): string => {
 	const date = new Date(createdAt);
@@ -351,12 +354,7 @@ export const dayLabel = (createdAt: string): string => {
 		return __('Yesterday', 'vulopilot');
 	}
 
-	return date.toLocaleDateString(undefined, {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-	});
+	return formatWpDate(createdAt);
 };
 
 /**
