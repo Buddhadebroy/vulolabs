@@ -124,7 +124,7 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 					icon="document"
 					title={__('No reports yet', 'vulopilot')}
 					desc={__(
-						'Generate your first report from the Report Builder tab.',
+						'Use the Download PDF/CSV button above to generate your first report.',
 						'vulopilot'
 					)}
 				/>

@@ -1,7 +1,5 @@
-/* global appLocalizer */
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ListComponent, BadgeComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import { useSectionStatus } from '../../services/useSectionStatus';
 
 const NOT_TRACKED_BADGE = {
@@ -64,19 +62,6 @@ const LiveThreatMonitorCard = () => {
 			title={__('Live Threat Monitor', 'vulopilot')}
 			titleIcon="security"
 			desc={__('Real-time status for each real security check.', 'vulopilot')}
-			action={
-				<ButtonInput
-					buttons={{
-						text: __('View full logs', 'vulopilot'),
-						onClick: () => {
-							window.open(
-								`${appLocalizer.admin_url}#&tab=reports&subtab=activity`,
-								'_self'
-							);
-						},
-					}}
-				/>
-			}
 		>
 			<ListComponent
 				className="mini-card list"

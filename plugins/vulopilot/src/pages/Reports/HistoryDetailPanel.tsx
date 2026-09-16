@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent, BadgeComponent } from '@zyra/components';
+import { CardComponent, ModuleGuardComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent, BadgeComponent, ListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
 import {
@@ -522,41 +522,22 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 									'vulopilot'
 								)}
 							</h4>
-							<ul className="history-related-actions">
-								{row.conversation.related_actions.map(
-									(action) => (
-										<li key={action.id}>
-											<span
-												className="history-related-action-link"
-												role="button"
-												tabIndex={0}
-												onClick={() =>
-													onSelectRelatedAction(
-														action.id
-													)
-												}
-												onKeyDown={(event) => {
-													if (
-														'Enter' ===
-															event.key ||
-														' ' === event.key
-													) {
-														event.preventDefault();
-														onSelectRelatedAction(
-															action.id
-														);
-													}
-												}}
-											>
-												{action.label}
-											</span>
+							<ListComponent
+								className="history-related-actions-list"
+								items={row.conversation.related_actions.map(
+									(action) => ({
+										id: String(action.id),
+										title: action.label,
+										tags: (
 											<span className="history-related-action-time">
 												{rowTime(action.created_at)}
 											</span>
-										</li>
-									)
+										),
+										action: () =>
+											onSelectRelatedAction(action.id),
+									})
 								)}
-							</ul>
+							/>
 						</div>
 					)}
 				</>

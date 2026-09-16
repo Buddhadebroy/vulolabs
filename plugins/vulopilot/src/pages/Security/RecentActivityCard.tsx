@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { toHistoryRow } from '../../services/historyTypes';
 import HistoryTimeline from '../Reports/HistoryTimeline';
@@ -43,15 +42,11 @@ const SECURITY_ACTIVITY_EVENT_TYPES = [
  * so this stays genuinely security-scoped rather than showing every SEO/
  * accessibility/performance scan too. Honest empty state when nothing's
  * logged yet, rather than silently falling back to an unfiltered generic
- * feed that would misrepresent this section's "security" framing. "View
- * all activity" links to the real, unfiltered Activity page — a *subtab*
- * of "Reports" (`?page=vulopilot#&tab=reports&subtab=activity`,
- * ActivityTab.tsx inside Reports.tsx), not its own top-level `#&tab=activity`
- * route — that flat route was fully removed when Activity got folded into
- * Reports as a subtab; `#&tab=activity` alone matches nothing in
- * `routes.ts` and silently renders a blank page (confirmed live). Same
- * `#&tab=reports&subtab=activity` shape TodaysTasksWidget.tsx's own
- * "View all" link already uses correctly.
+ * feed that would misrepresent this section's "security" framing. No
+ * "View all activity" action any more — it used to deep-link to Reports'
+ * own Activity subtab, removed per direct instruction ("only two tab here
+ * one overview and history"); there's no unfiltered Activity page left to
+ * send admins to.
  */
 const RecentActivityCard = () => {
 	const { data, isLoading } = useApiList<ActivityLogRow>('activity-logs', {
@@ -75,20 +70,6 @@ const RecentActivityCard = () => {
 			titleIcon="clock"
 			desc={__('Your last 4 real security-related events.', 'vulopilot')}
 			isLoading={isLoading}
-			action={
-				<ButtonInput
-					buttons={{
-						text: __('View all activity', 'vulopilot'),
-						color: 'text-purple',
-						onClick: () => {
-							window.open(
-								`${appLocalizer.admin_url}#&tab=reports&subtab=activity`,
-								'_self'
-							);
-						},
-					}}
-				/>
-			}
 		>
 			{!isLoading && data.length === 0 && (
 				<ModuleGuardComponent

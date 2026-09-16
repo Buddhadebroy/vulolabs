@@ -12,12 +12,10 @@ interface ReportsOverviewHeaderProps {
 	onDaysChange: (days: number) => void;
 }
 
-const REPORT_BUILDER_URL = '?page=vulopilot#&tab=reports&subtab=report';
-
 /**
  * The reference mockup's page-header row: "Reports" title + description on
- * the left, a "Last N days" range dropdown plus Create Report/Schedule
- * Report/Download PDF actions on the right — a `SectionComponent` (its own
+ * the left, a "Last N days" range dropdown plus Schedule Report/Download
+ * PDF actions on the right — a `SectionComponent` (its own
  * `title`/`desc`/`rightContent` props, same plain page-header shape
  * SectionedIssuesTable.tsx's own "Issues" heading already uses), not a
  * `CardComponent` — no card border/background here, just a real section
@@ -32,15 +30,11 @@ const REPORT_BUILDER_URL = '?page=vulopilot#&tab=reports&subtab=report';
  * only scopes the Recent Reports preview below it — Report History stays a
  * real, unfiltered, paginated list of every report, same as it always was.
  *
- * "Create Report" is a real cross-tab link to the Report Builder tab's own
- * real generate-report control (ReportTab.tsx) rather than duplicating that
- * flow here — this page deliberately drops the mockup's own inline "Build a
- * New Report"/"Report Templates" sections per direct instruction. "Schedule
- * Report" scrolls to this same tab's own real Scheduled Reports table
- * below (ScheduledReportsTable.tsx) rather than opening a second flow.
- * "Download" is honestly gated: PDF export is a Pro-only exporter
- * (`vulopilot_report_exporter_sources`, ReportTab.tsx's own docblock) —
- * disabled with a tooltip when that module isn't active. Its own label and
+ * "Schedule Report" scrolls to this same tab's own real Scheduled Reports
+ * table below (ScheduledReportsTable.tsx) rather than opening a second
+ * flow. "Download" is honestly gated: PDF export is a Pro-only exporter
+ * (`vulopilot_report_exporter_sources`) — disabled with a tooltip when
+ * that module isn't active. Its own label and
  * behavior follow the real Settings → Reports → "Default report format"
  * setting (`default_report_format`, Reports.ts): 'pdf' → "Download PDF",
  * downloads a PDF directly (unchanged); 'both' → plain "Download", opens a
@@ -50,9 +44,10 @@ const REPORT_BUILDER_URL = '?page=vulopilot#&tab=reports&subtab=report';
  * value (currently only 'csv') keeps the PDF-download button as its own
  * fallback, same as before this setting existed, since this header's own
  * "Download" action has always specifically meant "get me a PDF of this
- * site's report" — CSV export already has its own real control
- * (ReportTab.tsx's "Generate report" toolbar). The mockup's "..." overflow
- * menu is dropped — nothing real maps to it.
+ * site's report". The mockup's own "Create Report"/"..." overflow
+ * controls are dropped — "Create Report" used to deep-link to the now-
+ * removed Report Builder tab (per direct instruction, "only two tab here
+ * one overview and history"), and nothing real maps to "...".
  */
 const ReportsOverviewHeader = ({
 	days,
@@ -144,16 +139,6 @@ const ReportsOverviewHeader = ({
 								onDaysChange(Number(newValue))
 							}
 							size="10rem"
-						/>
-						<ButtonInput
-							buttons={{
-								text: __('Create Report', 'vulopilot'),
-								icon: 'document',
-								color: 'purple-bg',
-								onClick: () => {
-									window.location.href = REPORT_BUILDER_URL;
-								},
-							}}
 						/>
 						<ButtonInput
 							buttons={{

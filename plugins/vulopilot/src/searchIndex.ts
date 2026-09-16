@@ -338,16 +338,6 @@ const PAGE_SECTIONS: SearchItem[] = [
 		icon: 'automation',
 	},
 	{
-		id: 'page-section-report-builder',
-		tab: 'reports',
-		category: 'sections',
-		name: __('Report Builder', 'vulopilot'),
-		desc: __('Generate and download reports for this site.', 'vulopilot'),
-		link: '#&tab=reports&subtab=report',
-		sectionId: 'reports-generate',
-		icon: 'report',
-	},
-	{
 		id: 'page-section-report-history',
 		tab: 'reports',
 		category: 'sections',

@@ -534,18 +534,6 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					titleIcon="clock"
 					desc={__('Scans, alerts, and applied fixes across your site.', 'vulopilot')}
 					isLoading={isLoadingActivity}
-					action={
-						<ButtonInput
-							buttons={{
-								text: __('View all activity', 'vulopilot'),
-								rightIcon: 'pagination-right-arrow',
-								color: 'text-purple',
-								onClick: () => {
-									window.location.href = `${appLocalizer.admin_url}#&tab=reports&subtab=activity`;
-								},
-							}}
-						/>
-					}
 				>
 					{!isLoadingActivity && 0 === activity.length ? (
 						<ModuleGuardComponent

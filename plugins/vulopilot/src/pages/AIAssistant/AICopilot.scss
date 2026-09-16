@@ -640,7 +640,7 @@
 // }
 
 // HistoryDetailPanel.tsx's "Pages & posts" list (scan rows) — real per-page
-// finding counts, same list shape .history-related-actions below uses.
+// finding counts.
 .history-affected-pages {
 	list-style: none;
 	margin: 0;
@@ -692,35 +692,9 @@
 }
 
 // HistoryDetailPanel.tsx's "Related actions (from this conversation)" list
-// — same list shape .history-severity-breakdown above uses, one real
-// 'change' row per line rather than a fabricated summary.
-.history-related-actions {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-
-	li {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
-	}
-}
-
-.history-related-action-link {
-	color: $theme-color;
-	cursor: pointer;
-	text-decoration: none;
-
-	&:hover,
-	&:focus-visible {
-		text-decoration: underline;
-	}
-}
-
+// — now a real `ListComponent` (its own `.item-list`/`.item` own the
+// row layout/hover/focus styling), this only styles the per-row `tags`
+// slot's timestamp.
 .history-related-action-time {
 	color: $sub-text-color;
 	font-size: 0.75rem;
