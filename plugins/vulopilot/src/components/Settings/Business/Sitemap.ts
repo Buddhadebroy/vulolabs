@@ -68,6 +68,40 @@ export default {
 			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
 		},
 		{
+			key: 'sitemap-section-post-types',
+			type: 'section',
+			icon: 'category',
+			title: __('Post types & taxonomies in sitemap', 'vulopilot'),
+			desc: __(
+				'Which real post types/taxonomies are included — shared by both the XML sitemap and the [vulopilot_html_sitemap] shortcode below. "Products"/"Product categories"/"Product tags" only take effect when WooCommerce is active.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'sitemap_xml_post_types',
+			type: 'choice-toggle',
+
+			label: __('Post types in sitemap', 'vulopilot'),
+			options: [
+				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
+				{ key: 'page', label: __('Pages', 'vulopilot'), value: 'page' },
+				{ key: 'attachment', label: __('Media', 'vulopilot'), value: 'attachment' },
+				{ key: 'product', label: __('Products', 'vulopilot'), value: 'product' },
+			],
+		},
+		{
+			key: 'sitemap_xml_taxonomies',
+			type: 'choice-toggle',
+
+			label: __('Taxonomies in sitemap', 'vulopilot'),
+			options: [
+				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },
+				{ key: 'post_tag', label: __('Tags', 'vulopilot'), value: 'post_tag' },
+				{ key: 'product_cat', label: __('Product Categories', 'vulopilot'), value: 'product_cat' },
+				{ key: 'product_tag', label: __('Product Tags', 'vulopilot'), value: 'product_tag' },
+			],
+		},
+		{
 			key: 'advance-section',
 			type: 'section',
 			icon: 'editor-list',
@@ -132,40 +166,6 @@ export default {
 				},
 			],
 			dependent: { key: 'sitemap_include_images', value: 'sitemap_include_images', set: true },
-		},
-		{
-			key: 'sitemap-section-post-types',
-			type: 'section',
-			icon: 'category',
-			title: __('Post types & taxonomies in sitemap', 'vulopilot'),
-			desc: __(
-				'Which real post types/taxonomies are included — shared by both the XML sitemap and the [vulopilot_html_sitemap] shortcode below. "Products"/"Product categories"/"Product tags" only take effect when WooCommerce is active.',
-				'vulopilot'
-			),
-		},
-		{
-			key: 'sitemap_xml_post_types',
-			type: 'choice-toggle',
-
-			label: __('Post types in sitemap', 'vulopilot'),
-			options: [
-				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
-				{ key: 'page', label: __('Pages', 'vulopilot'), value: 'page' },
-				{ key: 'attachment', label: __('Media', 'vulopilot'), value: 'attachment' },
-				{ key: 'product', label: __('Products', 'vulopilot'), value: 'product' },
-			],
-		},
-		{
-			key: 'sitemap_xml_taxonomies',
-			type: 'choice-toggle',
-
-			label: __('Taxonomies in sitemap', 'vulopilot'),
-			options: [
-				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },
-				{ key: 'post_tag', label: __('Tags', 'vulopilot'), value: 'post_tag' },
-				{ key: 'product_cat', label: __('Product Categories', 'vulopilot'), value: 'product_cat' },
-				{ key: 'product_tag', label: __('Product Tags', 'vulopilot'), value: 'product_tag' },
-			],
 		},
 		{
 			key: 'sitemap-section-html',
