@@ -18,10 +18,14 @@ defined( 'ABSPATH' ) || exit;
  * a from-scratch sitemap generator: `sitemap_enabled` gates core's own
  * `wp_sitemaps_enabled`, `sitemap_links_per_page` overrides core's own
  * `wp_sitemaps_max_urls`, `sitemap_xml_post_types`/`sitemap_xml_taxonomies`
- * subtract from core's own `wp_sitemaps_post_types`/`wp_sitemaps_taxonomies`,
- * and `sitemap_exclude_posts`/`sitemap_exclude_terms` add `post__not_in`/
- * `exclude` onto core's own per-provider query args. All real, all just
- * wrapping/narrowing what core already builds.
+ * subtract from core's own `wp_sitemaps_post_types`/`wp_sitemaps_taxonomies`
+ * (these 2 settings are also read directly by
+ * Services\HtmlSitemapRenderer for the `[vulopilot_html_sitemap]`
+ * shortcode — one real shared control each in Settings →
+ * GetStarted\Sitemap.ts, not a separate XML/HTML pair, per direct
+ * instruction), and `sitemap_exclude_posts`/`sitemap_exclude_terms` add
+ * `post__not_in`/`exclude` onto core's own per-provider query args. All
+ * real, all just wrapping/narrowing what core already builds.
  *
  * `sitemap_enabled` alone also gates pinging Bing's still-supported sitemap
  * ping endpoint whenever published content is saved (the UI's own separate
