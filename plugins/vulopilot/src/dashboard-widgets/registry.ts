@@ -3,7 +3,6 @@ import { applyFilters } from '@wordpress/hooks';
 import { createStatWidgetComponent, StatWidgetConfig } from './StatWidget';
 import HealthTimelineWidget from './HealthTimelineWidget';
 import LatestReportsWidget from './LatestReportsWidget';
-import AutomationStatusWidget from './AutomationStatusWidget';
 import CrawlerTrafficWidget from './CrawlerTrafficWidget';
 import KnowledgeGraphWidget from './KnowledgeGraphWidget';
 import NeedsAttentionWidget from './NeedsAttentionWidget';
@@ -28,7 +27,12 @@ import { WidgetDefinition } from './types';
  * with its own cell), Needs your attention (moved up
  * from STANDALONE_WIDGETS below to sit right under Vital Pulse, matching
  * the mockup), Key pages at a glance + Site snapshot (a new side-by-side
- * pair), Recent activity. Every pre-existing widget this mockup doesn't
+ * pair — `site-snapshot`'s own entry below likewise renders
+ * `AutomationStatusWidget` as a sibling card right after its own, both in
+ * that one `ColumnComponent`, per the same direct instruction as Vital
+ * Pulse/Health timeline above; `automation-status` removed as its own
+ * top-level entry accordingly — see SiteSnapshotWidget.tsx's own
+ * docblock), Recent activity. Every pre-existing widget this mockup doesn't
  * show as its own card (Run Complete Audit, Recent Changes) is NOT removed —
  * per direct instruction, anything already on this Dashboard that isn't
  * depicted in the new mockup stays, appended immediately after this list
@@ -86,14 +90,6 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		icon: 'clock',
 		grid: 6,
 		component: RecentActivityWidget,
-	},
-	{
-		id: 'automation-status',
-		title: __('Automation status', 'vulopilot'),
-		desc: __('How many automations are enabled vs disabled, and their most recent runs.', 'vulopilot'),
-		icon: 'automation',
-		grid: 4,
-		component: AutomationStatusWidget,
 	},
 	{
 		id: 'key-pages',

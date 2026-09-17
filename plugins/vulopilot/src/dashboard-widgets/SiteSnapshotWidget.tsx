@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { ListComponent, SectionComponent, CardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
+import AutomationStatusWidget from './AutomationStatusWidget';
 import { useGeoScore } from '../pages/GEO/useGeoScore';
 import { useLastScanTime } from '../services/useLastScanTime';
 import { formatWpDate } from '../services/formatWpDate';
@@ -48,12 +49,24 @@ const formatCount = (count: number | null): string =>
  * same real count for `question-coverage` (`geo-faq-opportunity`) — every
  * value here is a genuine existing scanner/setting, not a second,
  * invented metric.
+ *
+ * Renders `AutomationStatusWidget` as a sibling card right after its own
+ * `<CardComponent>`, both inside the same `<>...</>` this component
+ * returns — registry.ts's own `site-snapshot` entry is the only one
+ * DashboardGrid.tsx wraps in a `ColumnComponent` for either, per direct
+ * instruction to put them in the same column instead of two
+ * separately-registered, independently-draggable cells
+ * (`automation-status` removed from registry.ts's own `MOCKUP_WIDGETS`
+ * accordingly). Same pairing pattern OverallScoreWidget.tsx already
+ * established for Vital Pulse/Health timeline — see that file's own
+ * docblock.
  */
 const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	summary,
 	isLoading,
 	onHide,
 	isCustomizing,
+	onRefreshSummary,
 }) => {
 	const snapshot = summary.site_snapshot;
 
@@ -286,6 +299,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 		];
 
 	return (
+		<>
 		<CardComponent
 			title={__('Site snapshot', 'vulopilot')}
 			desc={__('Which of your automations are enabled and running.', 'vulopilot')}
@@ -349,6 +363,14 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 				</div>
 			</>
 		</CardComponent>
+		<AutomationStatusWidget
+			summary={summary}
+			isLoading={isLoading}
+			onHide={onHide}
+			isCustomizing={isCustomizing}
+			onRefreshSummary={onRefreshSummary}
+		/>
+		</>
 	);
 };
 
