@@ -542,12 +542,17 @@ class Utill {
         // `wp_sitemaps_taxonomies_query_args` (`post__not_in`/`exclude`).
         'sitemap_exclude_posts'                 => '',
         'sitemap_exclude_terms'                 => '',
-        // Which real post types/taxonomies are included in the XML sitemap
-        // (`wp_sitemaps_post_types`/`wp_sitemaps_taxonomies`) vs the HTML
-        // sitemap (Services\HtmlSitemapRenderer's `[vulopilot_html_sitemap]`
-        // shortcode). Real WP post_type/taxonomy slugs, not the mockup's
-        // fictional "knowledgebase"/"megamenu" entries (this codebase
-        // registers no custom post types of its own — confirmed via grep).
+        // Which real post types/taxonomies are included — shared by both
+        // the XML sitemap (`wp_sitemaps_post_types`/`wp_sitemaps_taxonomies`)
+        // and the HTML sitemap (Services\HtmlSitemapRenderer's
+        // `[vulopilot_html_sitemap]` shortcode, which reads these same 2
+        // keys directly). One real control each in Settings →
+        // GetStarted\Sitemap.ts now, not a separate XML/HTML pair — the
+        // former `sitemap_html_post_types`/`sitemap_html_taxonomies` are
+        // gone, merged into these per direct instruction. Real WP
+        // post_type/taxonomy slugs, not the mockup's fictional
+        // "knowledgebase"/"megamenu" entries (this codebase registers no
+        // custom post types of its own — confirmed via grep).
         // `product`/`product_cat`/`product_tag` are only ever effective
         // when WooCommerce is active (`post_type_exists( 'product' )`),
         // same conditional-effectiveness pattern
@@ -556,9 +561,7 @@ class Utill {
         // the PHP consumer is what actually gates on WooCommerce, not this
         // default.
         'sitemap_xml_post_types'                => array( 'post', 'page', 'attachment', 'product' ),
-        'sitemap_html_post_types'               => array( 'post', 'page', 'product' ),
         'sitemap_xml_taxonomies'                => array( 'category', 'post_tag', 'product_cat', 'product_tag' ),
-        'sitemap_html_taxonomies'               => array( 'category', 'product_cat' ),
         // Read by Services\HtmlSitemapRenderer — a real, human-readable
         // `[vulopilot_html_sitemap]` shortcode (mockup's own "Shortcode"
         // settings row), not a dedicated page/template.

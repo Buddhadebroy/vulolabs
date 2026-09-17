@@ -18,12 +18,14 @@ defined( 'ABSPATH' ) || exit;
  * core's own native sitemap with. Queries live post/term data at render
  * time (same "generate on request, don't cache a stale copy" posture
  * GeoAnalysis\LlmsTxtGenerator's own docblock documents for the same
- * reason), gated by `sitemap_html_post_types`/`sitemap_html_taxonomies`
- * (distinct from the XML sitemap's own `sitemap_xml_post_types`/
- * `sitemap_xml_taxonomies` — a type can be in one, both, or neither) and
- * `sitemap_exclude_posts`/`sitemap_exclude_terms` (shared with the XML
- * sitemap, since an explicitly excluded post/term shouldn't reappear here
- * either).
+ * reason), gated by the XML sitemap's own `sitemap_xml_post_types`/
+ * `sitemap_xml_taxonomies` (formerly its own separate
+ * `sitemap_html_post_types`/`sitemap_html_taxonomies` pair — merged into
+ * one real shared control each per direct instruction, Settings →
+ * GetStarted\Sitemap.ts's own docblock has the reasoning) and
+ * `sitemap_exclude_posts`/`sitemap_exclude_terms` (already shared with the
+ * XML sitemap, since an explicitly excluded post/term shouldn't reappear
+ * here either).
  *
  * Self-registers its own hook in the constructor (php-wordpress.md) and is
  * constructed unconditionally in VuloPilot::init_classes() — the
@@ -110,7 +112,7 @@ class HtmlSitemapRenderer {
      * @return string[] One rendered `<section>` per included, non-empty post type.
      */
     private function render_post_type_sections( array $settings ): array {
-        $included_types = (array) ( $settings['sitemap_html_post_types'] ?? array() );
+        $included_types = (array) ( $settings['sitemap_xml_post_types'] ?? array() );
         $excluded_posts = $this->parse_id_list( (string) ( $settings['sitemap_exclude_posts'] ?? '' ) );
         $sections       = array();
 
@@ -154,7 +156,7 @@ class HtmlSitemapRenderer {
      * @return string[] One rendered `<section>` per included, non-empty taxonomy.
      */
     private function render_taxonomy_sections( array $settings ): array {
-        $included_taxonomies = (array) ( $settings['sitemap_html_taxonomies'] ?? array() );
+        $included_taxonomies = (array) ( $settings['sitemap_xml_taxonomies'] ?? array() );
         $excluded_terms      = $this->parse_id_list( (string) ( $settings['sitemap_exclude_terms'] ?? '' ) );
         $sections            = array();
 

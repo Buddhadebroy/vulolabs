@@ -16,6 +16,16 @@ import { __ } from '@wordpress/i18n';
  * needed, every field here is a real `type: 'section'`/`'checkbox'`/
  * `'text'`/`'number'`/`'select'`/`'choice-toggle'`/`'notice'` InputRenderer
  * already supports natively, same as it did on the old tab.
+ *
+ * "Post types in sitemap"/"Taxonomies in sitemap" — one real control each,
+ * not the former separate XML/HTML pair (`sitemap_html_post_types`/
+ * `sitemap_html_taxonomies`, both removed) per direct instruction: the two
+ * controls always had to be set to look the same to avoid a confusing
+ * "included in one but not the other" state, so `sitemap_xml_post_types`/
+ * `sitemap_xml_taxonomies` (kept, same real stored option keys — no
+ * migration needed) now drive the HTML sitemap shortcode too —
+ * HtmlSitemapRenderer.php reads them directly instead of its own former
+ * separate keys.
  */
 export default {
 	id: 'sitemap',
@@ -37,19 +47,13 @@ export default {
 			title: __('XML Sitemap', 'vulopilot'),
 		},
 		{
-			key: 'sitemap-notice',
-			type: 'notice',
-			noticeType: 'info',
-			message: `${__('Your sitemap index can be found at', 'vulopilot')} ${appLocalizer.site_url}/wp-sitemap.xml`,
-		},
-		{
 			key: 'sitemap_enabled',
 			type: 'checkbox',
 			look: 'toggle',
 
-			label: __('Generate XML sitemap', 'vulopilot'),
+			label: __('Enable sitemap', 'vulopilot'),
 			settingDescription: __(
-				'Available at yoursite.com/wp-sitemap.xml once enabled. Search engines are notified automatically when new content is published.',
+				'Available at yoursite.com/sitemap.xml once enabled. Search engines are notified automatically when new content is published.',
 				'vulopilot'
 			),
 			options: [
@@ -57,12 +61,24 @@ export default {
 			],
 		},
 		{
+			key: 'sitemap-notice',
+			type: 'notice',
+			noticeType: 'info',
+			message: `${__('Active & up to date', 'vulopilot')} ${appLocalizer.site_url}/sitemap.xml`,
+			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
+		},
+		{
+			key: 'advance-section',
+			type: 'section',
+			icon: 'editor-list',
+			title: __('Advance Settings', 'vulopilot'),
+		},
+		{
 			key: 'sitemap_links_per_page',
 			type: 'number',
 			size: 10,
 			label: __('Links per sitemap', 'vulopilot'),
 			settingDescription: __('Max number of links on each sitemap page.', 'vulopilot'),
-			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
 		},
 		{
 			key: 'sitemap_exclude_posts',
@@ -73,7 +89,6 @@ export default {
 				'Post IDs to exclude from the sitemap, separated by commas. Applies across all included post types.',
 				'vulopilot'
 			),
-			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
 		},
 		{
 			key: 'sitemap_exclude_terms',
@@ -84,7 +99,6 @@ export default {
 				'Term IDs to exclude, separated by commas. Applies across all included taxonomies.',
 				'vulopilot'
 			),
-			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
 		},
 		{
 			key: 'sitemap_include_images',
@@ -125,7 +139,7 @@ export default {
 			icon: 'category',
 			title: __('Post types & taxonomies in sitemap', 'vulopilot'),
 			desc: __(
-				'Which real post types/taxonomies are included in the XML sitemap vs. the [vulopilot_html_sitemap] shortcode below — a type can be in one, both, or neither. "Products"/"Product categories"/"Product tags" only take effect when WooCommerce is active.',
+				'Which real post types/taxonomies are included — shared by both the XML sitemap and the [vulopilot_html_sitemap] shortcode below. "Products"/"Product categories"/"Product tags" only take effect when WooCommerce is active.',
 				'vulopilot'
 			),
 		},
@@ -133,19 +147,7 @@ export default {
 			key: 'sitemap_xml_post_types',
 			type: 'choice-toggle',
 
-			label: __('Post types in XML sitemap', 'vulopilot'),
-			options: [
-				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
-				{ key: 'page', label: __('Pages', 'vulopilot'), value: 'page' },
-				{ key: 'attachment', label: __('Media', 'vulopilot'), value: 'attachment' },
-				{ key: 'product', label: __('Products', 'vulopilot'), value: 'product' },
-			],
-		},
-		{
-			key: 'sitemap_html_post_types',
-			type: 'choice-toggle',
-
-			label: __('Post types in HTML sitemap', 'vulopilot'),
+			label: __('Post types in sitemap', 'vulopilot'),
 			options: [
 				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
 				{ key: 'page', label: __('Pages', 'vulopilot'), value: 'page' },
@@ -157,19 +159,7 @@ export default {
 			key: 'sitemap_xml_taxonomies',
 			type: 'choice-toggle',
 
-			label: __('Taxonomies in XML sitemap', 'vulopilot'),
-			options: [
-				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },
-				{ key: 'post_tag', label: __('Tags', 'vulopilot'), value: 'post_tag' },
-				{ key: 'product_cat', label: __('Product Categories', 'vulopilot'), value: 'product_cat' },
-				{ key: 'product_tag', label: __('Product Tags', 'vulopilot'), value: 'product_tag' },
-			],
-		},
-		{
-			key: 'sitemap_html_taxonomies',
-			type: 'choice-toggle',
-
-			label: __('Taxonomies in HTML sitemap', 'vulopilot'),
+			label: __('Taxonomies in sitemap', 'vulopilot'),
 			options: [
 				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },
 				{ key: 'post_tag', label: __('Tags', 'vulopilot'), value: 'post_tag' },

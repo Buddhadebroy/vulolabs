@@ -8,7 +8,7 @@ import { useSetting } from '../../../contexts/SettingContext';
  * of InputRenderer's own existing generic "Settings saved" float toast
  * (see that component's `sendApiResponse().then()` — it already reads
  * the update-settings response's own `message` field and floats it), the
- * moment "Generate XML sitemap" (`sitemap_enabled`) transitions off→on.
+ * moment "Enable sitemap" (`sitemap_enabled`) transitions off→on.
  *
  * NOT wired via Sitemap.ts's own `settingAction` — that only ever renders
  * through NavigatorComponent's `renderSettingHeaderInfo()`, which
