@@ -56,7 +56,7 @@ export default {
 			look: 'toggle',
 			label: __('Accessibility checks', 'vulopilot'),
 			settingDescription: __(
-				'Scan your website for accessibility issues that impact users with disabilities. <br> <a href="?page=vulopilot#&tab=accessibility">View checklist of accessibility tests</a>',
+				'Checks your website for accessibility issues and reports affected pages so you can improve usability for people with disabilities. <br> <a href="?page=vulopilot#&tab=accessibility">View checklist of accessibility tests</a>',
 				'vulopilot'
 			),
 			options: [
@@ -67,7 +67,7 @@ export default {
 			key: 'accessibility_audit_frequency',
 			label:__('Scan frequency', 'vulopilot'),
 			settingDescription: __(
-				'Choose how often VuloPilot should scan your website for accessibility issues.',
+				'Automatically checks your website at the selected interval to catch new accessibility issues.',
 				'vulopilot'
 			),
 			type: 'choice-toggle',
@@ -85,7 +85,7 @@ export default {
 			type: 'choice-toggle',
 			label:__('WCAG level', 'vulopilot'),
 			settingDescription: __(
-				'Choose how often VuloPilot should scan your website for accessibility issues.',
+				'Choose which accessibility standards VuloPilot checks your website against.',
 				'vulopilot'
 			),
 			defaultValue: '2.1_aa',
@@ -101,7 +101,7 @@ export default {
 			look: 'toggle',
 			label: __('Check for generic, out-of-context link text', 'vulopilot'),
 			settingDescription: __(
-				'Select the Web Content Accessibility Guidelines (WCAG) level for scanning.',
+				'Flags links such as "Click here" or "Read more" when their purpose is unclear without surrounding text, helping screen-reader users navigate.',
 				'vulopilot'
 			),
 			options: [
