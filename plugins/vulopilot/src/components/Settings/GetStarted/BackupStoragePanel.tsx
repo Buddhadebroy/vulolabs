@@ -10,7 +10,7 @@ import {
 	NoticeManager,
 } from '@zyra/components';
 import { ExpandablePanelInput } from '@zyra/inputs';
-import { formatWpDate } from '../../services/formatWpDate';
+import { formatWpDate } from '../../../services/formatWpDate';
 
 interface S3Status {
 	configured: boolean;

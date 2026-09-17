@@ -105,8 +105,8 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 	},
 	{
 		id: 'key-pages',
-		title: __('Key pages at a glance', 'vulopilot'),
-		desc: __('Your published pages ranked by their own real open-finding count.', 'vulopilot'),
+		title: __('Issues at a glance', 'vulopilot'),
+		desc: __('Real open-finding counts for SEO, GEO, and AEO.', 'vulopilot'),
 		icon: 'web-page-website',
 		grid: 4,
 		component: KeyPagesWidget,

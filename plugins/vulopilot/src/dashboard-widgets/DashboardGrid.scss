@@ -447,3 +447,16 @@ $score-card-colors: (
 	font-weight: 700;
 	white-space: nowrap;
 }
+
+// VuloPilotActivityWidget.tsx's own "Health timeline" dummy chart — fabricated,
+// inert; `.recharts-wrapper` is `pointer-events: none` so a click always
+// reaches the wrapping `.health-timeline-dummy` overlay (the real click
+// target), same convention Accessibility.scss's own
+// `.accessibility-history-dummy` uses.
+.health-timeline-dummy {
+	cursor: pointer;
+
+	.recharts-wrapper {
+		pointer-events: none;
+	}
+}

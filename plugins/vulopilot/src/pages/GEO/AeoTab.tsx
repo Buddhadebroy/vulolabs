@@ -138,7 +138,8 @@ const AEO_SECTIONS: {
 	},
 ];
 
-const ALL_AEO_SCANNER_IDS = AEO_SECTIONS.flatMap((section) => section.scannerIds);
+/** Exported so KeyPagesWidget.tsx's own Dashboard-tab "Issues at a glance" row can count real open AEO findings the same way this tab itself does, rather than duplicating this scanner-id union a 2nd time. */
+export const ALL_AEO_SCANNER_IDS = AEO_SECTIONS.flatMap((section) => section.scannerIds);
 
 const average = (values: number[]): number =>
 	values.length

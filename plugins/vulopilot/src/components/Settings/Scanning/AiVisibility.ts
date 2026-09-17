@@ -13,9 +13,11 @@ const STATUS_LABELS = { active: __('Active', 'vulopilot'), inactive: __('Inactiv
  * already uses for its 3 rows — each row a real, honest scan-category
  * toggle, followed by the tab's pre-existing fields appended below
  * (llms.txt, Crawler Traffic — "Competitor URLs" and "Business"/
- * "Services"/"Locations" used to live here too, moved out to Settings →
- * Scanning → Brand Intelligence and Settings → Get Started → Business
- * Information respectively, both per direct instruction).
+ * "Services"/"Locations" used to live here too, both moved out to
+ * Settings → Get Started → Business Information per direct
+ * instruction — "Competitor URLs" by way of the now-deleted Settings →
+ * Scanning → Brand Intelligence tab, which it moved through before
+ * landing there for good).
  *
  * Real backend: 7 previously-flat settings (`flag_missing_semantic`,
  * `flag_weak_entity`, `minimum_entity_mentions`, `flag_missing_ai_summary`,
@@ -186,9 +188,10 @@ export default {
 			),
 		},
 		// "Competitor URLs" (`geo_competitor_urls`) moved out to Settings →
-		// Scanning → Brand Intelligence, right below "Tracked competitors"
-		// per direct instruction — see BrandIntelligence.ts's own
-		// docblock.
+		// Get Started → Business Information, right below "Tracked
+		// competitors" per direct instruction — see that file's own
+		// docblock (moved there from the now-deleted Settings → Scanning →
+		// Brand Intelligence tab, which it moved through first).
 		{
 			key: 'aeo-section-llms-txt',
 			type: 'section',
