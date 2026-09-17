@@ -44,8 +44,8 @@ export interface ChatComposerCardProps<TTurn = unknown> {
 	/**
 	 * The fully-built `<ChatInput />` element. Left to the caller rather
 	 * than genericized — each site's composer props diverge too much
-	 * (`sendDisabledReason` vs `onAttach`/`onAddContext`/`autoApply`) to be
-	 * worth forcing through one shared prop shape.
+	 * (`sendDisabledReason` vs `onAttach`/`autoApply`) to be worth forcing
+	 * through one shared prop shape.
 	 */
 	composer: ReactNode;
 	/** Whether `composer` renders before or after the welcome/turns block. */

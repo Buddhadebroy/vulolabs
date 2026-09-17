@@ -44,8 +44,8 @@ import ConnectionsPanel from './ConnectionsPanel';
  */
 export default {
 	id: 'connections',
-	priority: 1,
-	headerTitle: __('Get Started', 'vulopilot'),
+	priority: 6,
+	headerTitle: __('Connections', 'vulopilot'),
 	headerDescription: __(
 		'Connect VuloPilot to AI providers, Google services, and verify your site ownership.',
 		'vulopilot'

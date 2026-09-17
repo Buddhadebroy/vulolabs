@@ -32,8 +32,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'backups',
-	// After Instant Indexing (priority 5).
-	priority: 6,
+	priority: 5,
 	headerTitle: __('Backups', 'vulopilot'),
 	settingTitle: __('Backups', 'vulopilot'),
 	headerDescription: __(
