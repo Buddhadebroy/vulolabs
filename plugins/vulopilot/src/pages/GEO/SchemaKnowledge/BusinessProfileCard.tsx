@@ -30,15 +30,18 @@ const isEntityExtractionModuleActive = () =>
  */
 const getRating = (score: number): string => {
 	if (score >= 90) {
-		return __('Fully understood', 'vulopilot');
+		return __('Excellent', 'vulopilot');
 	}
+
 	if (score >= 70) {
-		return __('Mostly understood', 'vulopilot');
+		return __('Good', 'vulopilot');
 	}
+
 	if (score >= 40) {
-		return __('Partially understood', 'vulopilot');
+		return __('Needs work', 'vulopilot');
 	}
-	return __('Poorly understood', 'vulopilot');
+
+	return __('Incomplete', 'vulopilot');
 };
 
 interface ProfileRow {
@@ -390,7 +393,7 @@ const BusinessProfileCard = () => {
 									},
 								]}
 							/>
-							<p className="desc business-score-caption">
+							<div className="desc">
 								{missingCount > 0
 									? sprintf(
 										/* translators: %d is how many of the 7 real profile fields below have no real data yet. */
@@ -403,7 +406,7 @@ const BusinessProfileCard = () => {
 										missingCount
 									)
 									: __('Your business information is fully filled in.', 'vulopilot')}
-							</p>
+							</div>
 						</div>
 					)}
 					{KnowledgeGraphVisualizationCard ? (
@@ -471,7 +474,8 @@ const BusinessProfileCard = () => {
 											<ButtonInput
 												buttons={{
 													text: __('View', 'vulopilot'),
-													color: 'border-purple',
+													color: 'text-blue',
+													icon: 'eye',
 													onClick: () => setIsNamePanelOpen(true),
 												}}
 											/>
@@ -479,7 +483,8 @@ const BusinessProfileCard = () => {
 											<ButtonInput
 												buttons={{
 													text: __('View', 'vulopilot'),
-													color: 'border-purple',
+													color: 'text-blue',
+													icon: 'eye',
 													onClick: () => setIsProductsPanelOpen(true),
 												}}
 											/>
@@ -487,7 +492,8 @@ const BusinessProfileCard = () => {
 											<ButtonInput
 												buttons={{
 													text: __('View', 'vulopilot'),
-													color: 'border-purple',
+													color: 'text-blue',
+													icon: 'eye',
 													onClick: () => setIsPeopleDropdownOpen(true),
 												}}
 											/>
@@ -495,7 +501,8 @@ const BusinessProfileCard = () => {
 											<ButtonInput
 												buttons={{
 													text: __('View', 'vulopilot'),
-													color: 'border-purple',
+													icon: 'eye',
+													color: 'text-blue',
 													onClick: () => setIsCategoriesPopupOpen(true),
 												}}
 											/>
@@ -505,7 +512,10 @@ const BusinessProfileCard = () => {
 													text: row.found
 														? __('View', 'vulopilot')
 														: __('Add Details', 'vulopilot'),
-													color: 'border-purple',
+													icon: row.found
+														? __('eye', 'vulopilot')
+														: __('plus', 'vulopilot'),
+													color: 'text-purple',
 													onClick: () =>
 														window.open(ENTITY_SETTINGS_URL, '_self'),
 												}}

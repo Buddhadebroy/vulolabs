@@ -400,7 +400,7 @@ const CrawlerAnalyticsSection = ({
 
 				</ColumnComponent>
 
-				<ColumnComponent grid={6} fullHeight>
+				<ColumnComponent grid={4} fullHeight>
 					<CardComponent
 						title={__('Crawler Traffic by AI Lab', 'vulopilot')}
 						titleIcon="global-community"
@@ -469,7 +469,7 @@ const CrawlerAnalyticsSection = ({
 					</CardComponent>
 				</ColumnComponent>
 
-				<ColumnComponent grid={6}>
+				<ColumnComponent grid={4}>
 					<CardComponent
 						title={__('Top Crawlers', 'vulopilot')}
 						titleIcon="search-discovery"
@@ -535,7 +535,7 @@ const CrawlerAnalyticsSection = ({
 						)}
 					</CardComponent>
 				</ColumnComponent>
-				<ColumnComponent grid={6}>
+				<ColumnComponent grid={4}>
 					<CardComponent
 						title={__('Most Crawled Pages', 'vulopilot')}
 						titleIcon="document"

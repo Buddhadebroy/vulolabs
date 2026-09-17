@@ -783,6 +783,78 @@ const CrawlRobotsSitemapSection = () => {
 
 				<ColumnComponent grid={4}>
 					<CardComponent
+						title={__('llms.txt content', 'vulopilot')}
+						titleIcon="menu"
+						desc={__(
+							'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
+							'vulopilot'
+						)}
+						isLoading={isLoadingLlmsTxt}
+					>
+						{isLlmsTxtEnabled ? (
+							<div className="llms-txt-card-field">
+								<div className="rt-editor-wrap">
+									<RobotsTxtEditor
+										value={llmsTxtContent}
+										onChange={handleLlmsTxtChange}
+										placeholder={__(
+											'# Site Name\n\n> A short summary of the site.',
+											'vulopilot'
+										)}
+									/>
+									<ButtonInput
+										buttons={{
+											text: isRegeneratingLlmsTxt
+												? __('Regenerating…', 'vulopilot')
+												: __('Regenerate', 'vulopilot'),
+											icon: 'refresh',
+											color: 'border-purple',
+											onClick: handleRegenerateLlmsTxt,
+											disabled: isRegeneratingLlmsTxt,
+										}}
+									/>
+								</div>
+							</div>
+						) : (
+							<ModuleGuardComponent
+								icon="info"
+								title={__('llms.txt generation is turned off', 'vulopilot')}
+								desc={__(
+									'Turn on "Generate llms.txt" under Settings → AI Visibility to edit its content here.',
+									'vulopilot'
+								)}
+								buttonText={__('Open Settings', 'vulopilot')}
+								onButtonClick={() => {
+									window.location.href = `${appLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=ai-visibility`;
+								}}
+							/>
+						)}
+					</CardComponent>
+				</ColumnComponent>
+
+				<ColumnComponent grid={8} fullHeight>
+					<CardComponent
+						title={__('llms.txt Issues', 'vulopilot')}
+						titleIcon="security"
+						desc={__(
+							'Whether robots.txt is reachable and not accidentally blocking every crawler.',
+							'vulopilot'
+						)}>
+						{sitemapFindingsError ? (
+							<ModuleGuardComponent
+								icon="error"
+								title={__('Could not load findings', 'vulopilot')}
+								desc={sitemapFindingsError}
+								buttonText={__('Retry', 'vulopilot')}
+								onButtonClick={refetchSitemapFindings}
+							/>
+						) : (
+							<TableCard {...sitemapFindingsProps} bulkActions={[]} />
+						)}
+					</CardComponent>
+				</ColumnComponent>
+				<ColumnComponent grid={6}>
+					<CardComponent
 						title={__('XML Sitemap Overview', 'vulopilot')}
 						titleIcon="link"
 						desc={__('Check your live sitemap (fetched right now, not a cached copy).', 'vulopilot')}
@@ -857,78 +929,6 @@ const CrawlRobotsSitemapSection = () => {
 					</CardComponent>
 				</ColumnComponent>
 
-				<ColumnComponent grid={8} fullHeight>
-					<CardComponent
-						title={__('Robots.txt Issues', 'vulopilot')}
-						titleIcon="security"
-						desc={__(
-							'Whether robots.txt is reachable and not accidentally blocking every crawler.',
-							'vulopilot'
-						)}>
-						{sitemapFindingsError ? (
-							<ModuleGuardComponent
-								icon="error"
-								title={__('Could not load findings', 'vulopilot')}
-								desc={sitemapFindingsError}
-								buttonText={__('Retry', 'vulopilot')}
-								onButtonClick={refetchSitemapFindings}
-							/>
-						) : (
-							<TableCard {...sitemapFindingsProps} bulkActions={[]} />
-						)}
-					</CardComponent>
-				</ColumnComponent>
-
-				<ColumnComponent grid={6}>
-					<CardComponent
-						title={__('llms.txt content', 'vulopilot')}
-						titleIcon="menu"
-						desc={__(
-							'Pre-filled with an auto-generated index of your published pages and posts — edit and it saves automatically, just like every other setting here, and is written straight to the live /llms.txt file.',
-							'vulopilot'
-						)}
-						isLoading={isLoadingLlmsTxt}
-					>
-						{isLlmsTxtEnabled ? (
-							<div className="llms-txt-card-field">
-								<div className="rt-editor-wrap">
-									<RobotsTxtEditor
-										value={llmsTxtContent}
-										onChange={handleLlmsTxtChange}
-										placeholder={__(
-											'# Site Name\n\n> A short summary of the site.',
-											'vulopilot'
-										)}
-									/>
-									<ButtonInput
-										buttons={{
-											text: isRegeneratingLlmsTxt
-												? __('Regenerating…', 'vulopilot')
-												: __('Regenerate', 'vulopilot'),
-											icon: 'refresh',
-											color: 'border-purple',
-											onClick: handleRegenerateLlmsTxt,
-											disabled: isRegeneratingLlmsTxt,
-										}}
-									/>
-								</div>
-							</div>
-						) : (
-							<ModuleGuardComponent
-								icon="info"
-								title={__('llms.txt generation is turned off', 'vulopilot')}
-								desc={__(
-									'Turn on "Generate llms.txt" under Settings → AI Visibility to edit its content here.',
-									'vulopilot'
-								)}
-								buttonText={__('Open Settings', 'vulopilot')}
-								onButtonClick={() => {
-									window.location.href = `${appLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=ai-visibility`;
-								}}
-							/>
-						)}
-					</CardComponent>
-				</ColumnComponent>
 
 				<ColumnComponent grid={6} fullHeight>
 					<CardComponent
