@@ -27,14 +27,16 @@
 }
 
 .ai-credits-balance-panel {
-	padding: 32px 28px 24px;
+	padding: 1rem;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
 	gap: 4px;
 }
-
+.credits-button{
+	margin-top: 0.813rem;
+}
 .ai-credits-balance-panel-icon {
 	width: 64px;
 	height: 64px;

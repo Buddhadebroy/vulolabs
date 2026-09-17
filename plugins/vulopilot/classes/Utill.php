@@ -522,7 +522,6 @@ class Utill {
         // `wp_sitemaps_posts_query_args`, `wp_sitemaps_taxonomies_query_args`),
         // not a from-scratch sitemap generator; see that class's own docblock.
         'sitemap_enabled'                       => array( 'sitemap_enabled' ),
-        'sitemap_ping_search_engines'           => array( 'sitemap_ping_search_engines' ),
         // Max URLs per sitemap page — core's own default is 2000; this
         // overrides `wp_sitemaps_max_urls` when set.
         'sitemap_links_per_page'                => 200,

@@ -23,8 +23,10 @@ defined( 'ABSPATH' ) || exit;
  * `exclude` onto core's own per-provider query args. All real, all just
  * wrapping/narrowing what core already builds.
  *
- * `sitemap_ping_search_engines` pings Bing's still-supported sitemap ping
- * endpoint whenever published content is saved. Google deprecated its own
+ * `sitemap_enabled` alone also gates pinging Bing's still-supported sitemap
+ * ping endpoint whenever published content is saved (the UI's own separate
+ * "Ping search engines on update" toggle was folded into "Generate XML
+ * sitemap" — one real setting instead of two). Google deprecated its own
  * sitemap ping endpoint in June 2023 (Search Console / robots.txt
  * discovery are the only supported paths now) — this deliberately does
  * NOT call it: silently hitting a dead endpoint and reporting success
@@ -206,7 +208,7 @@ class SitemapManager {
 
         $settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        if ( empty( $settings['sitemap_enabled'] ) || empty( $settings['sitemap_ping_search_engines'] ) ) {
+        if ( empty( $settings['sitemap_enabled'] ) ) {
             return;
         }
 

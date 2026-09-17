@@ -13,6 +13,7 @@ import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import BackupStoragePanel from '../../components/Settings/GetStarted/BackupStoragePanel';
 import IndexNowPanel from '../../components/Settings/GetStarted/IndexNowPanel';
+import SitemapPingWatcher from '../../components/Settings/GetStarted/SitemapPingWatcher';
 import ShowProPopup from '../../components/Popup/Popup';
 
 /**
@@ -217,6 +218,15 @@ const Settings = () => {
 						 * credentials themselves can't just be more
 						 * fields in that same array. */}
 						{'backups' === currentTab && <BackupStoragePanel />}
+						{/* SitemapPingWatcher.tsx — same unconditional-append
+						 * escape hatch as BackupStoragePanel above, needed for
+						 * the same reason: Sitemap.ts's own `settingAction`
+						 * would never actually render (NavigatorComponent's
+						 * `renderSettingHeaderInfo()` bails out whenever
+						 * `hideSettingHeader` is set, which every GetStarted
+						 * sub-tab, including this one, sets). See that
+						 * component's own docblock. */}
+						{'sitemap' === currentTab && <SitemapPingWatcher />}
 						{/* AI Crawler Alerts' own "Send Test Alert" button
 						 * (CrawlerAlertTestPanel.tsx) is NOT appended here
 						 * — unlike Backups above, it's wired straight into
