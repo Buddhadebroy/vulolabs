@@ -208,7 +208,7 @@ export default {
 			look: 'toggle',
 			label: __('Generate llms.txt', 'vulopilot'),
 			settingDescription: __(
-				"Available at your site's /llms.txt once enabled.",
+				"Creates a Markdown index at /llms.txt, giving AI systems a structured list of your selected content.",
 				'vulopilot'
 			),
 			options: [
@@ -221,7 +221,7 @@ export default {
 			look: 'toggle',
 			label: __('Auto-regenerate on publish', 'vulopilot'),
 			settingDescription: __(
-				'Rebuild llms.txt whenever a page, post, or product is published or updated — requires the GEO module (Modules page) to be active.',
+				'Rebuild llms.txt whenever a page, post, or product is published or updated - requires the GEO module (Modules page) to be active.',
 				'vulopilot'
 			),
 			options: [
@@ -276,7 +276,7 @@ export default {
 			type: 'section',
 			icon: 'setting',
 			title: __('Crawler Traffic', 'vulopilot'),
-			desc: __('', 'vulopilot'),
+			desc: __('Monitor visits from recognized AI crawlers to understand their activity on your website and spot unusual drops.', 'vulopilot'),
 		},
 		{
 			key: 'enable_crawler_tracking',
@@ -284,7 +284,7 @@ export default {
 			look: 'toggle',
 			label: __('Log AI crawler visits', 'vulopilot'),
 			settingDescription: __(
-				'No human visitor data is collected — only known AI bot user agents (GPTBot, ClaudeBot, PerplexityBot, and others).',
+				'Records visits from recognized AI bot (GPTBot, ClaudeBot, PerplexityBot, and others), helping you track which crawlers access your website.',
 				'vulopilot'
 			),
 			options: [
