@@ -1,13 +1,10 @@
 /* global appLocalizer */
 import { useEffect, useState } from '@wordpress/element';
-import { JSX } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE, getApiLink, getApiResponse } from '@zyra/core';
 import { AnalyticsComponent, CardComponent, ChartComponent, ColumnComponent, IconComponent, ListComponent, TypographyComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
-import { useFilterSlot } from '../../services/useFilterSlot';
 import { formatWpDate } from '../../services/formatWpDate';
-import ProLockedCard from '../../components/ProLockedCard';
 import { useGeoScore } from './useGeoScore';
 import type { GeoSignalScore } from './useGeoScore';
 import './SeoVisibility.scss';
@@ -31,14 +28,6 @@ const ratingClass = (score: number): string => {
 	}
 	return 'red';
 };
-
-/**
- * Same `active_modules` gate GeoTab.tsx's own former `isGeoInsightsActive()`
- * used — duplicated here rather than imported since GeoTab.tsx no longer
- * needs its own copy (see this file's own top-of-module docblock).
- */
-const isGeoInsightsActive = () =>
-	appLocalizer.active_modules?.includes('geo-insights') ?? false;
 
 /**
  * This card's own 7 `SIGNAL_META` keys → GeoTab.tsx's own 5 real
@@ -196,17 +185,14 @@ const mainProblemText = (key: string, signal: GeoSignalScore): string => {
  * into `useGeoTabData.ts` (still used by AeoTab.tsx's own "AEO Score Over
  * Time").
  *
- * Also absorbs GeoTab.tsx's former standalone "How You Compare to Similar
- * Sites" row (the exact same Pro-slot-or-ProLockedCard rendering, just
- * retitled "Competitor Comparison" to match this card's own reference
- * mockup and placed in this section instead) — GeoTab.tsx used to render it
- * a second time separately, which would now duplicate this section's own
- * bottom-right card.
+ * Previously also absorbed GeoTab.tsx's former standalone "How You Compare
+ * to Similar Sites" row, retitled "Competitor Comparison" — removed
+ * entirely per direct instruction (the real `GeoCompetitorVisibility` Pro
+ * slot and its own `ProLockedCard` fallback both gone, not just hidden).
  *
  * Layout: GEO Score ring + "How this score is calculated" signal list (top
  * left) / Score Snapshot real day trend (top right) / GEO Score Breakdown
- * table — Signal, Score, Status, Main Problem (bottom left) / Competitor
- * Comparison (bottom right, Pro-gated, same as before).
+ * table — Signal, Score, Status, Main Problem (bottom left).
  */
 interface GeoScoreSectionProps {
 	/**
@@ -235,10 +221,6 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 			.then((response) => response && setProgress(response))
 			.finally(() => setIsLoadingProgress(false));
 	}, [period]);
-
-	const GeoCompetitorVisibility = useFilterSlot<
-		(props: { yourScore?: number | null }) => JSX.Element
-	>('vulopilot_geo_competitor_visibility');
 
 	const overall = score?.geo_score ?? 0;
 
@@ -466,15 +448,6 @@ const GeoScoreSection = ({ onSelectSignal }: GeoScoreSectionProps) => {
 					)}
 				</CardComponent>
 			</ColumnComponent>
-
-			{isGeoInsightsActive() && GeoCompetitorVisibility ? (
-				<GeoCompetitorVisibility yourScore={score?.geo_score ?? null} />
-			) : (
-				<CardComponent title={__('Competitor Comparison', 'vulopilot')} desc={__('See how your site performs across the signals that matter most for AI engines.', 'vulopilot')}
-				titleIcon='tools'>
-					<ProLockedCard moduleName="geo-insights" />
-				</CardComponent>
-			)}
 		</>
 	);
 };

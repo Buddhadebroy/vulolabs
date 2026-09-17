@@ -2,7 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { COLOR_PALETTE } from '@zyra/core';
 import { CardComponent, ChartComponent, IconComponent, ListComponent, MetricTileComponent, TypographyComponent } from '@zyra/components';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
-import type { TrendChange } from './geoTrendChange';
+import type { TrendChange } from './GeoTrendCompactCard';
 
 /**
  * Same real severity-weighted 0-100 formula `Controllers\Seo::calculate_score()`/
@@ -55,6 +55,23 @@ const overallRatingLabel = (score: number): string => {
 	return __('Poor', 'vulopilot');
 };
 
+/**
+ * `.geo-overall-rating`'s own real `is-good`/`is-attention`/`is-poor`
+ * classes (`SeoVisibility.scss`) — NOT `ratingColorFor()` above's
+ * `green`/`yellow`/`red` (that one feeds `TypographyComponent`'s own
+ * `color` prop for the per-topic row values instead, a different consumer
+ * with a different real class contract).
+ */
+const overallRatingClass = (score: number): string => {
+	if (score >= 70) {
+		return 'is-good';
+	}
+	if (score >= 40) {
+		return 'is-attention';
+	}
+	return 'is-poor';
+};
+
 interface AeoTopic {
 	key: string;
 	title: string;
@@ -76,7 +93,7 @@ interface AeoScoreSummaryCardProps {
 	questionsAnswered: number;
 	totalPages: number;
 	pagesReady: number;
-	/** `null` when there isn't at least 2 real sampled days to compare yet (geoTrendChange.ts's own `computeTrendChange()`) — the bottom "Content Change" tile shows an em dash rather than a fabricated number in that case. */
+	/** `null` when there isn't at least 2 real sampled days to compare yet (GeoTrendCompactCard.tsx's own `computeTrendChange()`) — the bottom "Content Change" tile shows an em dash rather than a fabricated number in that case. */
 	trend: TrendChange | null;
 	/** AeoTab.tsx's own real `AEO_SECTIONS` — this card's own row breakdown, same shape `GeoScoreSection.tsx`'s own `SIGNAL_META` feeds its 7 rows. */
 	topics: AeoTopic[];
@@ -247,7 +264,8 @@ const AeoScoreSummaryCard = ({
 									value: overallScore,
 									// Same real rating color the ring's own
 									// Needs Work/Good/Poor label above already
-									// uses (`overallRatingLabel()`) — resolved
+									// uses (`overallRatingClass()`/
+									// `overallRatingLabel()`) — resolved
 									// through `COLOR_PALETTE` for the real hex
 									// `ratingColorFor()`'s own palette name
 									// stands for, same convention SeoTab.tsx's

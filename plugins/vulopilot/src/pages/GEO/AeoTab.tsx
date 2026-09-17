@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useModules } from '@zyra/core';
-import { ColumnComponent, ContainerComponent, NoticeComponent } from '@zyra/components';
+import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import AeoScoreSummaryCard from './AeoScoreSummaryCard';
 import { computeTrendChange } from './geoTrendChange';
 import AeoCitationCoverageCard from './AeoCitationCoverageCard';
@@ -138,7 +138,8 @@ const AEO_SECTIONS: {
 	},
 ];
 
-const ALL_AEO_SCANNER_IDS = AEO_SECTIONS.flatMap((section) => section.scannerIds);
+/** Exported so KeyPagesWidget.tsx's own Dashboard-tab "Issues at a glance" row can count real open AEO findings the same way this tab itself does, rather than duplicating this scanner-id union a 2nd time. */
+export const ALL_AEO_SCANNER_IDS = AEO_SECTIONS.flatMap((section) => section.scannerIds);
 
 const average = (values: number[]): number =>
 	values.length
@@ -353,14 +354,6 @@ const AeoTab = () => {
 					topics={AEO_SECTIONS}
 					groups={groups}
 					onSelectTopic={goToIssuesTable}
-				/>
-				<NoticeComponent
-					// type="banner"
-					displayPosition="inline-notice"
-					message={__(
-						'AEO helps answer engines find clear, accurate answers on your website. Better answers means more visibility in AI-generated results.',
-						'vulopilot'
-					)}
 				/>
 			</ColumnComponent>
 			<AeoCitationCoverageCard isActive={isCitationCheckActive(modules)} />

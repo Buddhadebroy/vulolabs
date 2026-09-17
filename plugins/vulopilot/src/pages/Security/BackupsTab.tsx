@@ -239,7 +239,7 @@ interface BackupsTabProps {
  * "Backups" tab of "Protect My Site" — real backup creation, listing,
  * download, delete, and Recovery's real restore (RestAPI\Controllers\Backups,
  * Services\BackupManager). Every row is a real `vulopilot_backups` run —
- * manual, scheduled (Settings → Scanning → Backups), or a
+ * manual, scheduled (Settings → Get Started → Backups), or a
  * `pre_restore_safety` snapshot Recovery takes automatically before every
  * real restore. Restore is real and destructive (overwrites the live
  * database + files) — gated here by a typed confirmation phrase, on top of

@@ -1,12 +1,22 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Protect My Site's "Backups"/"Recovery" tiles — real, always-on core
- * settings (no `moduleEnabled` gate anywhere here; this isn't a Modules-page
- * module). Read by classes/Services/BackupManager.php/BackupScheduler.php.
+ * Settings → Get Started → Backups. Moved here from Scanning per direct
+ * instruction ("shift this two tabs in get started section after
+ * sitemap") — same real `id: 'backups'`, so the existing
+ * `?...&subtab=backups` deep link still resolves (`getSettingById()`
+ * recurses by id alone, with no concept of which folder a tab lives in).
+ * `BackupStoragePanel.tsx` moved alongside this file into `GetStarted/`
+ * too (its own pairing is keyed off `currentTab === 'backups'` in
+ * Settings.tsx, not this file's folder, so the move needed no logic
+ * change there beyond the import path).
+ *
+ * Real, always-on core settings (no `moduleEnabled` gate anywhere here;
+ * this isn't a Modules-page module). Read by
+ * classes/Services/BackupManager.php/BackupScheduler.php.
  * Auto-discovered by templateService.ts's `require.context` over every
  * `.ts` file under `src/components/Settings/` — no manual registration
- * needed, same as every sibling Scanning/*.ts tab.
+ * needed, same as every sibling `GetStarted/*.ts` tab.
  *
  * `backup_storage_destination` (real, plain — 'local'/'s3'/'google_drive',
  * read by Services\BackupStorageManager) is the one field here that's
@@ -22,7 +32,8 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'backups',
-	priority: 3.6,
+	// After Instant Indexing (priority 5).
+	priority: 6,
 	headerTitle: __('Backups', 'vulopilot'),
 	settingTitle: __('Backups', 'vulopilot'),
 	headerDescription: __(

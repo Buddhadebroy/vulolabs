@@ -252,7 +252,10 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'brand-intelligence',
             icon: 'announcement',
-            settingsLink: '?page=vulopilot#&tab=settings&subtab=brand-intelligence',
+            // Was '...&subtab=brand-intelligence' — that settings tab is
+            // deleted (its real fields merged into Business Information)
+            // per direct instruction; same real fields, new home.
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=business-information',
             name: __('Brand Radar — Off-Site Visibility', 'vulopilot'),
             desc: __('Organization & author schema, About-page completeness, and off-site mentions across the web.', 'vulopilot'),
             proModule: true,

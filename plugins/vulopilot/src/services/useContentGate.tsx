@@ -5,6 +5,7 @@ import { PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../components/Popup/Popup';
 import { ConnectVuloCloudPromptContent } from '../components/AiCredits/ConnectVuloCloudPopup';
+import DummyDataNotice from '../components/DummyDataNotice';
 import MODULES_CATALOG, { isModuleCatalogEntry } from '../components/Modules';
 import { useAiCredits } from './useAiCredits';
 import './useContentGate.scss';
@@ -76,10 +77,13 @@ const DEFAULT_DUMMY_CONTENT = (
  *    the image 2 popup ... replace all image 2 popup to image 1"), so
  *    there's one real "connect" design/flow, not two.
  * 2. **Pro** (`appLocalizer.khali_dabba` false) — a "Pro" tag on top,
- *    `dummyContent` below it — a caller's own mock preview of its real
- *    shape (e.g. AiSpeedAssistantCard.tsx passes a fake count line plus
- *    disabled versions of its own two real buttons), or
- *    `DEFAULT_DUMMY_CONTENT` above if omitted; never `realContent` itself.
+ *    `dummyContent` below it (a caller's own mock preview of its real
+ *    shape — e.g. AiSpeedAssistantCard.tsx passes a fake count line plus
+ *    disabled versions of its own two real buttons — or
+ *    `DEFAULT_DUMMY_CONTENT` above if omitted; never `realContent` itself),
+ *    plus the shared `DummyDataNotice` ("This is dummy data for
+ *    visualization purposes only.") right below it — same notice every
+ *    other Pro-tagged fabricated-content section in this plugin shows.
  *    Clicking anywhere in the section (not just the tag itself — see
  *    `.content-gate-click-overlay` below) opens the same generic upgrade
  *    popup (`ShowProPopup`, no `moduleName`) Settings' own locked Pro
@@ -202,14 +206,20 @@ export const useContentGate = (
 			<div className="content-gate">
 				<div className="content-gate-tag">{renderTag()}</div>
 				{/* VuloCloud: the real content itself, blurred in place.
-				 * Pro/module: the caller's own dummy preview. See this
-				 * hook's own docblock for why the two look different. */}
+				 * Pro/module: the caller's own dummy preview, plus the
+				 * shared "This is dummy data" notice (DummyDataNotice) —
+				 * per direct instruction, every Pro/module-gated section
+				 * showing fabricated content gets this same notice. See
+				 * this hook's own docblock for why the two look different. */}
 				{isVuloCloud ? (
 					<div className="content-gate-blur-content" aria-hidden="true">
 						{realContent}
 					</div>
 				) : (
-					dummyContent
+					<>
+						{dummyContent}
+						<DummyDataNotice />
+					</>
 				)}
 				{/* Covers the whole section (tag + dummy/blurred content) so
 				 * a click anywhere within it activates — not just on the tag

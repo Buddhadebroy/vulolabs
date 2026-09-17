@@ -2687,6 +2687,16 @@
 	word-break: break-all;
 }
 
+// BrandVisibilityProDummies.tsx's own `ProDummyCard` — a real
+// `position: relative` anchor for its own `.admin-tag.pro-tag` (zyra's own
+// compiled CSS: `position: absolute; right: 1rem; top: 0.813rem;`), so the
+// badge always docks to its own card instead of escaping to whichever
+// ancestor happens to be positioned (confirmed live: without this, the tag
+// meant for "Competitor Comparison" rendered nowhere near it).
+.brand-pro-dummy-wrapper {
+	position: relative;
+}
+
 // AuthorityTrendsDummy.tsx — the Pro-tag-gated stand-in for
 // vulopilot-pro's own BrandIntelligence AuthorityTrendsCard.tsx. The
 // plotted series is fabricated; `pointer-events: none` on the chart itself

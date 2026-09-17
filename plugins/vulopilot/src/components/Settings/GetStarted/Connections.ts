@@ -60,6 +60,10 @@ export default {
 		{ key: 'ga_anonymize_ip', type: 'checkbox', label: '', options: [] },
 		{ key: 'ga_self_hosted_js', type: 'checkbox', label: '', options: [] },
 		{ key: 'ga_exclude_logged_in_users', type: 'checkbox', label: '', options: [] },
+		// Tag Manager (TagManagerPanel.tsx) — moved in from Scanning → SEO
+		// & Content per direct instruction, rendered above Webmaster Tools.
+		{ key: 'tag_manager_enabled', type: 'checkbox', label: '', options: [] },
+		{ key: 'tag_manager_container_id', type: 'text', label: '' },
 		// Site Verification.
 		{ key: 'webmaster_google_verification', type: 'text', label: '' },
 		{ key: 'webmaster_google_verified_at', type: 'text', label: '' },
@@ -71,6 +75,10 @@ export default {
 		{ key: 'webmaster_yandex_verification', type: 'text', label: '' },
 		{ key: 'webmaster_norton_verification', type: 'text', label: '' },
 		{ key: 'webmaster_custom_tags', type: 'textarea', label: '' },
+		// PageSpeed Insights (PageSpeedStatusPanel.tsx) — moved here per
+		// direct instruction, rendered after Webmaster Tools above.
+		{ key: 'psi_api_key', type: 'text', label: '' },
+		{ key: 'psi_daily_limit', type: 'text', label: '' },
 	],
 	PanelComponent: ConnectionsPanel,
 };

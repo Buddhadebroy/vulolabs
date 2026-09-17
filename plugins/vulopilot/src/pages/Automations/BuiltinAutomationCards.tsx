@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { CardComponent, FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
@@ -9,6 +9,19 @@ import type { AutomationRow } from './automationsTypes';
 /** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants — the only trigger_type values this component ever renders a card for. */
 const FULL_SITE_SCAN_TRIGGER = 'free_full_site_scan';
 const VISIBILITY_REPORT_TRIGGER = 'free_visibility_report';
+
+/**
+ * Same ids `automationsTypes.ts`'s own `FREE_TEMPLATES` uses
+ * ('run-full-site-scan'/'send-visibility-report') — kept as a local
+ * trigger_type → template id map rather than importing that file's own
+ * `AutomationTemplate` list, since this component only ever needs the 2 id
+ * strings themselves (to match `highlightTemplateId` below against a real
+ * row's own `trigger_type`), not the full template shape.
+ */
+const TRIGGER_TYPE_TO_TEMPLATE_ID: Record<string, string> = {
+	[FULL_SITE_SCAN_TRIGGER]: 'run-full-site-scan',
+	[VISIBILITY_REPORT_TRIGGER]: 'send-visibility-report',
+};
 
 interface BuiltinTriggerConfig {
 	frequency: string;
@@ -151,7 +164,21 @@ interface BuiltinAutomationCardsProps {
 	refetchSignal: number;
 	/** Called after this component's own mutations (toggle/frequency/run now) so sibling cards (stats, attention, activity) refetch too. */
 	onChanged: () => void;
+	/**
+	 * Automations.tsx's own `automation_template=<id>` deep-link param
+	 * (AI Copilot's "Create new automation" card, AutomationsTemplatesCard.tsx's
+	 * own `handleItemClick` — see that file's own docblock), resolved to a
+	 * real template id ('run-full-site-scan'/'send-visibility-report') only
+	 * when it's one of these 2 free built-ins, `null` otherwise (a Pro
+	 * template id, or no deep link at all). Scrolls to and briefly
+	 * highlights the matching card below once it's real DOM has rendered,
+	 * rather than leaving the click land on a bare, unhighlighted tab.
+	 */
+	highlightTemplateId?: string | null;
 }
+
+/** How long the matched card's own highlight flash stays visible before fading back to normal — long enough to register as "this is the one you clicked", short enough not to linger as visual noise on a page the user keeps working on. */
+const HIGHLIGHT_DURATION_MS = 2500;
 
 /**
  * The real UX the spec calls for — "Automation → Choose frequency → Save"
@@ -164,9 +191,11 @@ interface BuiltinAutomationCardsProps {
  * Controllers\Automations::validate_builtin_trigger_config()'s own
  * docblock).
  */
-const BuiltinAutomationCards = ( { refetchSignal, onChanged }: BuiltinAutomationCardsProps ) => {
+const BuiltinAutomationCards = ( { refetchSignal, onChanged, highlightTemplateId }: BuiltinAutomationCardsProps ) => {
 	const [ rows, setRows ] = useState<BuiltinRow[]>( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
+	/** Which card (by real template id) is currently showing the highlight flash — `null` once `HIGHLIGHT_DURATION_MS` has elapsed, or if nothing was ever deep-linked. */
+	const [ flashedTemplateId, setFlashedTemplateId ] = useState<string | null>( null );
 
 	const fetchRows = () => {
 		setIsLoading( true );
@@ -189,6 +218,33 @@ const BuiltinAutomationCards = ( { refetchSignal, onChanged }: BuiltinAutomation
 	// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-fetches only on mount and when refetchSignal bumps; fetchRows is redefined every render.
 	useEffect( fetchRows, [ refetchSignal ] );
 
+	// Scrolls to and flashes the deep-linked card once these 2 rows have
+	// really loaded (their own real DOM ids below only exist post-render) —
+	// `hasHighlighted` guards this to the first successful match only, so a
+	// later refetch (e.g. toggling the row itself, which bumps
+	// `refetchSignal` and cycles `isLoading` again) never re-triggers the
+	// scroll/flash a second time.
+	const hasHighlightedRef = useRef( false );
+
+	useEffect( () => {
+		if ( hasHighlightedRef.current || isLoading || ! highlightTemplateId ) {
+			return;
+		}
+
+		const target = document.getElementById( `builtin-automation-${ highlightTemplateId }` );
+
+		if ( ! target ) {
+			return;
+		}
+
+		hasHighlightedRef.current = true;
+		target.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+		setFlashedTemplateId( highlightTemplateId );
+
+		const timeout = window.setTimeout( () => setFlashedTemplateId( null ), HIGHLIGHT_DURATION_MS );
+		return () => window.clearTimeout( timeout );
+	}, [ isLoading, highlightTemplateId ] );
+
 	if ( isLoading ) {
 		return null;
 	}
@@ -204,36 +260,54 @@ const BuiltinAutomationCards = ( { refetchSignal, onChanged }: BuiltinAutomation
 	return (
 		<div className="builtin-automation-cards">
 			{ scanRow && (
-				<BuiltinAutomationCard
-					row={ scanRow }
-					title={ __( 'Run Full Site Scan', 'vulopilot' ) }
-					description={ __(
-						'Automatically scan your website and refresh your VuloPilot insights.',
-						'vulopilot'
-					) }
-					frequencyOptions={ [
-						{ label: __( 'Manual only', 'vulopilot' ), value: 'manual' },
-						{ label: __( 'Every day', 'vulopilot' ), value: 'daily' },
-						{ label: __( 'Every week', 'vulopilot' ), value: 'weekly' },
-						{ label: __( 'Every month', 'vulopilot' ), value: 'monthly' },
-					] }
-					onChanged={ handleChanged }
-				/>
+				<div
+					id={ `builtin-automation-${ TRIGGER_TYPE_TO_TEMPLATE_ID[ FULL_SITE_SCAN_TRIGGER ] }` }
+					className={
+						flashedTemplateId === TRIGGER_TYPE_TO_TEMPLATE_ID[ FULL_SITE_SCAN_TRIGGER ]
+							? 'builtin-automation-card-highlighted'
+							: undefined
+					}
+				>
+					<BuiltinAutomationCard
+						row={ scanRow }
+						title={ __( 'Run Full Site Scan', 'vulopilot' ) }
+						description={ __(
+							'Automatically scan your website and refresh your VuloPilot insights.',
+							'vulopilot'
+						) }
+						frequencyOptions={ [
+							{ label: __( 'Manual only', 'vulopilot' ), value: 'manual' },
+							{ label: __( 'Every day', 'vulopilot' ), value: 'daily' },
+							{ label: __( 'Every week', 'vulopilot' ), value: 'weekly' },
+							{ label: __( 'Every month', 'vulopilot' ), value: 'monthly' },
+						] }
+						onChanged={ handleChanged }
+					/>
+				</div>
 			) }
 			{ reportRow && (
-				<BuiltinAutomationCard
-					row={ reportRow }
-					title={ __( 'Send Visibility Report', 'vulopilot' ) }
-					description={ __(
-						"Receive a summary of your website's visibility, issues, and opportunities.",
-						'vulopilot'
-					) }
-					frequencyOptions={ [
-						{ label: __( 'Every week', 'vulopilot' ), value: 'weekly' },
-						{ label: __( 'Every month', 'vulopilot' ), value: 'monthly' },
-					] }
-					onChanged={ handleChanged }
-				/>
+				<div
+					id={ `builtin-automation-${ TRIGGER_TYPE_TO_TEMPLATE_ID[ VISIBILITY_REPORT_TRIGGER ] }` }
+					className={
+						flashedTemplateId === TRIGGER_TYPE_TO_TEMPLATE_ID[ VISIBILITY_REPORT_TRIGGER ]
+							? 'builtin-automation-card-highlighted'
+							: undefined
+					}
+				>
+					<BuiltinAutomationCard
+						row={ reportRow }
+						title={ __( 'Send Visibility Report', 'vulopilot' ) }
+						description={ __(
+							"Receive a summary of your website's visibility, issues, and opportunities.",
+							'vulopilot'
+						) }
+						frequencyOptions={ [
+							{ label: __( 'Every week', 'vulopilot' ), value: 'weekly' },
+							{ label: __( 'Every month', 'vulopilot' ), value: 'monthly' },
+						] }
+						onChanged={ handleChanged }
+					/>
+				</div>
 			) }
 		</div>
 	);

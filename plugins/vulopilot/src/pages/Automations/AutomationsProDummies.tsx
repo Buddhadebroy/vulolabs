@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
 import { MultiCheckboxInput } from '@zyra/inputs';
+import DummyDataNotice from '../../components/DummyDataNotice';
 
 interface AutomationsDummyProps {
 	badgeText: string;
@@ -97,6 +98,7 @@ export const AutomationsManageDummy = ({ badgeText, onClick }: AutomationsDummyP
 				</div>
 			))}
 		</div>
+		<DummyDataNotice />
 	</CardComponent>
 	</>
 );
@@ -150,6 +152,7 @@ export const AutomationsActivityDummy = ({ badgeText, onClick }: AutomationsDumm
 				</li>
 			))}
 		</ul>
+		<DummyDataNotice />
 	</CardComponent>
 	</>
 );

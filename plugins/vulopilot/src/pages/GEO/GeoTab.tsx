@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
-import { NoticeComponent, ContainerComponent, ColumnComponent } from '@zyra/components';
+import { __ } from '@wordpress/i18n';
+import { ContainerComponent, ColumnComponent } from '@zyra/components';
 import IssuesSection from './IssuesSection';
 import GeoAeoPageAnalysisPanel from './GeoAeoPageAnalysisPanel';
 import GeoScoreSection from './GeoScoreSection';
@@ -199,17 +199,6 @@ const GeoTab = () => {
 	return (
 		<ContainerComponent>
 			<GeoScoreSection onSelectSignal={goToIssuesTable} />
-			<NoticeComponent
-				displayPosition="inline-notice"
-				message={sprintf(
-					'%1$s <a href="#geo-top-banner">%2$s ›</a>',
-					__(
-						'This page shows how easy it is for AI tools to find, understand, and recommend your website. Fixing the issues above helps you show up when people ask AI a question you could answer.',
-						'vulopilot'
-					),
-					__('Learn more about this page', 'vulopilot')
-				)}
-			/>
 
 			<ColumnComponent grid={8}>
 				<IssuesSection

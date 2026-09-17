@@ -181,29 +181,49 @@ const Automations = () => {
 		setWizardOpenSignal((n) => n + 1);
 	};
 
-	// AI Copilot's Chat tab (ChatTab.tsx's own AutomationsTemplatesCard
+	// AI Copilot's Chat tab (AIAssistant.tsx's own AutomationsTemplatesCard
 	// preview) deep-links here as `?...#tab=automations&automation_template=<id>`
-	// — read once on mount, same as this page's previous tab-shell version.
+	// — the id itself is read once on mount (URL param, never changes for
+	// the life of this page load), same as this page's previous tab-shell
+	// version.
+	const [initialTemplateId] = useState<string | null>(() =>
+		new URLSearchParams(window.location.hash.substring(1)).get('automation_template')
+	);
+	/** Set only when `initialTemplateId` resolves to one of the 2 real free built-ins ('run-full-site-scan'/'send-visibility-report') — passed down to BuiltinAutomationCards.tsx, which scrolls to and flashes the matching card once its own real DOM exists. `null` for a Pro template id (handled below via `openTemplate` instead) or no deep link at all. */
+	const [highlightTemplateId, setHighlightTemplateId] = useState<string | null>(null);
 	const firedInitialTemplateRef = useRef(false);
 
 	useEffect(() => {
-		if (firedInitialTemplateRef.current || !Wizard) {
+		if (firedInitialTemplateRef.current || !initialTemplateId) {
 			return;
 		}
 
-		const templateId = new URLSearchParams(window.location.hash.substring(1)).get(
-			'automation_template'
-		);
-		const template = templateId ? getAutomationTemplateById(templateId) : null;
+		const template = getAutomationTemplateById(initialTemplateId);
 
 		if (!template) {
 			return;
 		}
 
+		// The 2 free built-ins need no Pro Wizard at all — they already
+		// live on this page as real, always-rendered BuiltinAutomationCards.tsx
+		// cards, so this fires immediately rather than waiting on `Wizard`
+		// (which a linkOnly template would then wait on forever whenever
+		// Pro isn't installed — the exact "redirect works, nothing
+		// highlighted" bug this deep link exists to fix).
+		if (template.linkOnly) {
+			firedInitialTemplateRef.current = true;
+			setHighlightTemplateId(template.id);
+			return;
+		}
+
+		if (!Wizard) {
+			return;
+		}
+
 		firedInitialTemplateRef.current = true;
 		openTemplate(template);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race — see that hook's docblock); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
-	}, [Wizard]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-checks only when Wizard itself resolves (useFilterSlot's own real script-load-order race — see that hook's docblock) or initialTemplateId (set once, stable); openTemplate is redefined every render and the ref guard already makes this safely re-runnable.
+	}, [Wizard, initialTemplateId]);
 
 	// "View all issues →" (AutomationAttentionCard) and "View automation
 	// history →" (AutomationActivityCard) both jump to the same real
@@ -253,7 +273,11 @@ const Automations = () => {
 
 			<ContainerComponent general>
 				<ColumnComponent grid={12}>
-					<BuiltinAutomationCards refetchSignal={refetchSignal} onChanged={handleSaved} />
+					<BuiltinAutomationCards
+						refetchSignal={refetchSignal}
+						onChanged={handleSaved}
+						highlightTemplateId={highlightTemplateId}
+					/>
 					{!Wizard && (
 						<NoticeComponent
 							displayPosition="inline"

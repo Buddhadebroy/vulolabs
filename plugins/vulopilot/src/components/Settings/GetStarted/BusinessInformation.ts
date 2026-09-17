@@ -1,59 +1,158 @@
 import { __ } from '@wordpress/i18n';
-import BusinessInformationPanel from './BusinessInformationPanel';
 
 /**
- * Settings → Get Started → Business Information.
+ * Settings → Get Started → Business Information — a plain declarative
+ * `modal` (InputRenderer), replacing the former hand-built `PanelComponent`
+ * (BusinessInformation.ts/BusinessInformationPanel.tsx, deleted) now that
+ * PageSpeed Insights has moved to ConnectionsPanel.tsx and no longer needs
+ * a real component composed in above this tab's own "Business" fields.
  *
- * Moved here from the old Site Identity folder per direct instruction
- * ("move this 2 sub tab in Get Started" / "Get Started have 3 tab 1 his
- * own and two tab from Site Identity") — Site Identity had only these 2
- * sub-tabs (this one and Title Formats), so that top-level folder is gone
- * now that both live here instead. Same real `id: 'business-information'`
- * as before, so every existing `?...&subtab=business-information` deep
- * link (KnowledgeGraphSection.tsx's own `ENTITY_SETTINGS_URL`,
- * Modules/index.ts's own `settingsLink`) still resolves (`getSettingById()`
- * recurses by id alone, with no concept of which folder a tab lives in).
+ * `id: 'business-information'` (this file used to carry a typo'd
+ * `'business-informa'`, which briefly duplicated this tab under 2 ids at
+ * once) — kept as the one real id 2 existing deep links already point to
+ * (`KnowledgeGraphSection.tsx`'s own `ENTITY_SETTINGS_URL`, `Modules/index.ts`'s
+ * own `settingsLink`), same `getSettingById()` recurse-by-id-alone
+ * reasoning the deleted file's own docblock already documented.
  *
- * Now a real `PanelComponent` (BusinessInformationPanel.tsx) rather than
- * InputRenderer's own declarative `modal`, per direct instruction ("move
- * image 1 settings before image 2 settings") — "Preferences"
- * (`site_tone`) and "PageSpeed Insights" moved here from the Connections
- * sub-tab, rendered above this tab's own "Business" fields; see that
- * component's own docblock for why a `PanelComponent` was needed (a
- * `PanelComponent` replaces InputRenderer entirely rather than composing
- * with it — a `type: 'section'`/`type: 'text'` `modal` couldn't add
- * PageSpeedStatusPanel.tsx, a real hand-built component, alongside its
- * own declarative fields). `modal` below still lists every real flat key
- * so Settings.tsx's own per-tab seeding logic (`fieldKeys` from
- * `modal[].key`) populates SettingContext with their current values
- * first.
- *
- * `entity_business_type`: free-text, owner-provided — shown as-is on the
- * Business Profile card, never written into any real Organization/
- * LocalBusiness JSON-LD anywhere in this codebase (Services\EntityExtractor's
- * own docblock). `entity_service_pages`/`entity_business_locations`:
- * newline-separated owner-curated lists (page URL/ID; "Name | Address"),
- * since this codebase has no existing Service/LocalBusiness concept to
- * derive these from automatically.
+ * "Tracked competitors"/"About Page" (all real fields: `geo_competitor_urls`,
+ * `brand_about_page_min_words`, plus `brand-drop-threshold-note`) merged in
+ * from the former Settings → Scanning → Brand Intelligence tab per direct
+ * instruction — that tab (`Scanning/BrandIntelligence.ts`, `id:
+ * 'brand-intelligence'`) is deleted entirely, not just emptied. Same real
+ * keys/backend (BRAND-INTELLIGENCE-MODULE.md's own AboutPageAnalysisScanner
+ * etc.), only where the UI for them lives moved.
  */
 export default {
-	id: 'business-information',
-	priority: 3,
-	headerTitle: __('Business Information', 'vulopilot'),
-	headerDescription: __(
-		'Tell VuloPilot about your business so it can build a more complete Knowledge Graph and Business Profile.',
-		'vulopilot'
-	),
-	hideSettingHeader: true,
-	headerIcon: 'category',
-	submitUrl: 'settings',
-	modal: [
-		{ key: 'site_tone', type: 'text', label: '' },
-		{ key: 'psi_api_key', type: 'text', label: '' },
-		{ key: 'psi_daily_limit', type: 'text', label: '' },
-		{ key: 'entity_business_type', type: 'text', label: '' },
-		{ key: 'entity_service_pages', type: 'textarea', label: '' },
-		{ key: 'entity_business_locations', type: 'textarea', label: '' },
-	],
-	PanelComponent: BusinessInformationPanel,
+    id: 'business-information',
+    priority: 3,
+    headerTitle: __('Business Information', 'vulopilot'),
+    headerDescription: __(
+        'Tell VuloPilot about your business so it can build a more complete Knowledge Graph and Business Profile.',
+        'vulopilot'
+    ),
+    groupBySections: true,
+    hideSettingHeader: true,
+    headerIcon: 'category',
+    submitUrl: 'settings',
+    modal: [
+        {
+            key: 'entity-section-business',
+            type: 'section',
+            icon: 'category',
+            title: __('Business', 'vulopilot'),
+            desc: __(
+                'What kind of business this is — shown on the Business Profile card, not written into any structured data.',
+                'vulopilot'
+            ),
+        },
+        {
+            key: 'site_tone',
+            type: 'text',
+            label: __('Site tone', 'vulopilot'),
+            settingDescription: __(
+                'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") — included with every AI request.',
+                'vulopilot'
+            ),
+        },
+        {
+            key: 'entity_business_type',
+            type: 'text',
+            label: __('Business type', 'vulopilot'),
+            settingDescription: __(
+                'e.g. Software Company, Online Store, Consulting Agency.',
+                'vulopilot'
+            ),
+        },
+        {
+            key: 'entity_service_pages',
+            type: 'textarea',
+            label: __('Service pages', 'vulopilot'),
+            settingDescription: __(
+                'e.g. https://example.com/consulting/ or just the page ID.',
+                'vulopilot'
+            ),
+        },
+        {
+            key: 'entity_business_locations',
+            type: 'textarea',
+            label: __('Business locations', 'vulopilot'),
+            settingDescription: __(
+                'e.g. Downtown Store | 123 Main St, Springfield.',
+                'vulopilot'
+            ),
+        },
+        {
+            key: 'kg-health-drop-threshold-note',
+            type: 'notice',
+            noticeType: 'info',
+            label: '',
+            message: __(
+                'Knowledge Graph Health drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
+                'vulopilot'
+            ),
+        },
+        {
+            key: 'general_settings',
+            type: 'section',
+            icon: 'person',
+            title: __('Tracked competitors', 'vulopilot'),
+            desc: __(
+                'Used to calculate Share of Voice on the Brand Visibility page.',
+                'vulopilot'
+            ),
+        },
+        {
+            // Moved here from Settings → Scanning → Brand Intelligence
+            // (`geo_competitor_urls`, same key, same real backend — this is
+            // a pure UI relocation) per direct instruction. Still gated
+            // `moduleEnabled: 'geo'` (the free, always-active GEO module,
+            // not a Pro one) rather than `brand-intelligence` — this field
+            // is shared by three different Pro modules' analyzers
+            // (BrandIntelligence\BrandCompetitorAnalyzer,
+            // ContentIntelligence\ContentGapAnalyzer, GeoInsights\
+            // CompetitorVisibilityAnalyzer), so gating it to just one of
+            // them would be wrong.
+            key: 'geo_competitor_urls',
+            type: 'textarea',
+            label: __('Competitor URLs', 'vulopilot'),
+            settingDescription: __(
+                'One competitor URL per line. Powers the GEO page\'s Competitor Visibility comparison (VuloPilot Pro).',
+                'vulopilot'
+            ),
+            moduleEnabled: 'geo',
+        },
+        {
+            key: 'brand-section-about-page',
+            type: 'section',
+            title: __('About Page', 'vulopilot'),
+            icon: 'web-page-website',
+            desc: __(
+                'Controls the Brand page\'s About Page Analysis finding — evaluated only for sites that already have an About-shaped page.',
+                'vulopilot'
+            ),
+        },
+        {
+            key: 'brand_about_page_min_words',
+            type: 'number',
+            size: 10,
+            label: __('Minimum About page word count', 'vulopilot'),
+            settingDescription: __(
+                'An About page under this word count is flagged as too thin to be a genuine trust signal.',
+                'vulopilot'
+            ),
+        },
+        {
+            // Not a real, independently-writable field here — same
+            // treatment as `kg-health-drop-threshold-note` above, scoped to
+            // `visibility_alerts.brand` instead of `.knowledge_graph`.
+            key: 'brand-drop-threshold-note',
+            type: 'notice',
+            noticeType: 'info',
+            label: '',
+            message: __(
+                'Brand score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
+                'vulopilot'
+            ),
+        },
+    ],
 };

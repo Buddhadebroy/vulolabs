@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, AnalyticsComponent } from '@zyra/core';
-import { ChartComponent, ModuleGuardComponent } from '@zyra/components';
+import { ChartComponent, ModuleGuardComponent, PopupComponent } from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
-import ProLockedCard from '../components/ProLockedCard';
+import DummyDataNotice from '../components/DummyDataNotice';
+import ShowProPopup from '../components/Popup/Popup';
 import { useApiList } from '../services/useApiList';
 import { useLastScanTime } from '../services/useLastScanTime';
 import { formatWpDate, formatWpTime, isWpToday } from '../services/formatWpDate';
@@ -37,6 +38,20 @@ const PERIOD_OPTIONS = [
 
 /** Same real day-range options the old `BadgeComponent` toggle used, now expressed as the real `PeriodDays` string values `ToggleInput` needs. */
 const HEALTH_TIMELINE_DAY_OPTIONS: PeriodDays[] = ['7', '30', '90'];
+
+/** Real backend module id (Settings → Modules) — `vulopilot-pro`'s `modules/AdvancedReports` own directory, which registers the real `GET /site-health-snapshots` endpoint this widget reads once active. */
+const HEALTH_TIMELINE_MODULE_ID = 'advanced-reports';
+
+/** Fabricated 7-day score trend — same "obviously fake, never mistaken for a real scan result" reasoning Accessibility.tsx's own `DUMMY_ACCESSIBILITY_HISTORY` documents; no real fetch behind this, ever. */
+const DUMMY_HEALTH_TIMELINE = [
+	{ day: __('Day 1', 'vulopilot'), score: 58 },
+	{ day: __('Day 2', 'vulopilot'), score: 63 },
+	{ day: __('Day 3', 'vulopilot'), score: 61 },
+	{ day: __('Day 4', 'vulopilot'), score: 68 },
+	{ day: __('Day 5', 'vulopilot'), score: 72 },
+	{ day: __('Day 6', 'vulopilot'), score: 75 },
+	{ day: __('Day 7', 'vulopilot'), score: 79 },
+];
 
 /**
  * "VuloPilot activity" — a real 5-tile activity strip. Every tile reads
@@ -121,7 +136,8 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 		{ days: Number(healthTimelineDays) }
 	);
 	const isHealthTimelineModuleActive =
-		appLocalizer.active_modules.includes('advanced-reports');
+		appLocalizer.active_modules.includes(HEALTH_TIMELINE_MODULE_ID);
+	const [isHealthTimelineProPopupOpen, setIsHealthTimelineProPopupOpen] = useState(false);
 
 	const crawlerCurrent = crawlerAnalytics?.current_total ?? 0;
 	const crawlerPrevious = crawlerAnalytics?.previous_total ?? 0;
@@ -150,73 +166,122 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 	};
 
 	return (
-		<DashboardWidget
-			title={__('Health timeline', 'vulopilot')}
-			desc={__('How your health scores have trended over time.', 'vulopilot')}
-			icon="analytics"
-			isLoading={isLoading}
-			onHide={onHide}
-			isCustomizing={isCustomizing}
-			headerAction={
-				<ToggleInput
-					options={PERIOD_OPTIONS}
-					value={healthTimelineDays}
-					onChange={(value) => setHealthTimelineDays(value as PeriodDays)}
-					modules={[]}
-					variant="pill"
-				/>
-			}
-		>
-
-			{!isHealthTimelineModuleActive ? (
-				<ProLockedCard
-					moduleName="advanced-reports"
-					buttonText={__('Unlock health timeline with Pro', 'vulopilot')}
-				/>
-			) : 0 === healthSnapshots.length ? (
-				<ModuleGuardComponent
-					icon="analytics"
-					title={__('No trend data yet', 'vulopilot')}
-					desc={__(
-						'Health timeline builds up once daily snapshots start recording — check back after today.',
-						'vulopilot'
-					)}
-				/>
-			) : (
-				<ChartComponent
-					type="dynamic-line"
-					data={healthSnapshots.map((snapshot) => ({
-						...snapshot,
-						snapshot_date: formatWpDate(snapshot.snapshot_date),
-					}))}
-					dataKey="overall_score"
-					xKey="snapshot_date"
-					height={300}
-					yDomain={[0, 100]}
-				/>
+		<>
+			{!isHealthTimelineModuleActive && (
+				// Docks against `.card-wrapper` (ColumnComponent's own root
+				// div, always `position: relative` in zyra — DashboardGrid.tsx
+				// renders this whole widget inside its own dedicated
+				// ColumnComponent cell) rather than a wrapper div of its own —
+				// CardComponent's own `badges` prop drops any custom class.
+				// Same convention Accessibility.tsx's own dummy cards
+				// established before this one's own PRO badge was later
+				// removed per direct instruction there — this one keeps it,
+				// per direct instruction here.
+				<span className="admin-tag pro-tag">
+					<i className="adminfont-pro-tag" />
+					{__('Pro', 'vulopilot')}
+				</span>
 			)}
-			<AnalyticsComponent
-				variant="small"
-				cols={3}
-				data={[
-					{
-						icon: 'global-community green',
-						number: crawlerCurrent,
-						text: __('AI crawler visits', 'vulopilot'),
-					},
-					{
-						icon: 'automation blue',
-						number: summary.automation_status.enabled,
-						text: __('Automations', 'vulopilot'),
-					},
-					{
-						icon: 'ai purple',
-						number: summary.pending_approvals,
-						text: __('Pending approvals', 'vulopilot'),
-					}
-				]}
-			/>
-		</DashboardWidget>
+			<DashboardWidget
+				title={__('Health timeline', 'vulopilot')}
+				desc={__('How your health scores have trended over time.', 'vulopilot')}
+				icon="analytics"
+				isLoading={isLoading}
+				onHide={onHide}
+				isCustomizing={isCustomizing}
+				headerAction={
+					<ToggleInput
+						options={PERIOD_OPTIONS}
+						value={healthTimelineDays}
+						onChange={(value) => setHealthTimelineDays(value as PeriodDays)}
+						modules={[]}
+						variant="pill"
+					/>
+				}
+			>
+
+				{!isHealthTimelineModuleActive ? (
+					<>
+						<div
+							className="health-timeline-dummy"
+							role="button"
+							tabIndex={0}
+							onClick={() => setIsHealthTimelineProPopupOpen(true)}
+							onKeyDown={(event) => {
+								if ('Enter' === event.key || ' ' === event.key) {
+									setIsHealthTimelineProPopupOpen(true);
+								}
+							}}
+						>
+							<ChartComponent
+								type="dynamic-line"
+								data={DUMMY_HEALTH_TIMELINE}
+								dataKey="score"
+								xKey="day"
+								height={300}
+								yDomain={[0, 100]}
+							/>
+						</div>
+						<DummyDataNotice />
+					</>
+				) : 0 === healthSnapshots.length ? (
+					<ModuleGuardComponent
+						icon="analytics"
+						title={__('No trend data yet', 'vulopilot')}
+						desc={__(
+							'Health timeline builds up once daily snapshots start recording — check back after today.',
+							'vulopilot'
+						)}
+					/>
+				) : (
+					<ChartComponent
+						type="dynamic-line"
+						data={healthSnapshots.map((snapshot) => ({
+							...snapshot,
+							snapshot_date: formatWpDate(snapshot.snapshot_date),
+						}))}
+						dataKey="overall_score"
+						xKey="snapshot_date"
+						height={300}
+						yDomain={[0, 100]}
+					/>
+				)}
+				<AnalyticsComponent
+					variant="small"
+					cols={3}
+					data={[
+						{
+							icon: 'global-community green',
+							number: crawlerCurrent,
+							text: __('AI crawler visits', 'vulopilot'),
+						},
+						{
+							icon: 'automation blue',
+							number: summary.automation_status.enabled,
+							text: __('Automations', 'vulopilot'),
+						},
+						{
+							icon: 'ai purple',
+							number: summary.pending_approvals,
+							text: __('Pending approvals', 'vulopilot'),
+						}
+					]}
+				/>
+			</DashboardWidget>
+			<PopupComponent
+				open={isHealthTimelineProPopupOpen}
+				onClose={() => setIsHealthTimelineProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{appLocalizer.khali_dabba ? (
+					<ShowProPopup moduleName={HEALTH_TIMELINE_MODULE_ID} />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
+		</>
 	);
 };
 

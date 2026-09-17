@@ -11,8 +11,8 @@ import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
-import BackupStoragePanel from '../../components/Settings/BackupStoragePanel';
-import IndexNowPanel from '../../components/Settings/Scanning/IndexNowPanel';
+import BackupStoragePanel from '../../components/Settings/GetStarted/BackupStoragePanel';
+import IndexNowPanel from '../../components/Settings/GetStarted/IndexNowPanel';
 import ShowProPopup from '../../components/Popup/Popup';
 
 /**
