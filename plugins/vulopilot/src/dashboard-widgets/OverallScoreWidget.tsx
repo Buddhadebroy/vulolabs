@@ -11,6 +11,7 @@ import DashboardWidget from './DashboardWidget';
 import { useLastScanTime } from '../services/useLastScanTime';
 import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
+import VuloPilotActivityWidget from './VuloPilotActivityWidget';
 
 /**
  * "Vital Pulse" — the Dashboard's hero status ring: one real 0-100
@@ -28,6 +29,16 @@ import { WidgetProps } from './types';
  *
  * Now also includes the category score breakdown list (previously
  * ScoreBreakdownWidget.tsx) and a "View full report ›" header link.
+ *
+ * Renders `VuloPilotActivityWidget` ("Health timeline") as a sibling card
+ * right after its own `<DashboardWidget>`, both inside the same `<>...</>`
+ * this component returns — registry.ts's own `overall-score` entry is the
+ * only one DashboardGrid.tsx wraps in a `ColumnComponent` for either, per
+ * direct instruction to put them in the same column instead of two
+ * separately-registered, independently-draggable cells (`vulopilot-activity`
+ * removed from registry.ts's own `MOCKUP_WIDGETS` accordingly). Each keeps
+ * its own full `<DashboardWidget>` card chrome — genuine siblings, not one
+ * nested inside the other's card body.
  */
 export const getRating = (score: number): string => {
 	if (score >= 90) {
@@ -81,6 +92,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	isLoading,
 	onHide,
 	isCustomizing,
+	onRefreshSummary,
 }) => {
 	// Real most-recent completed scan across every category — same real
 	// `useLastScanTime()` hook CrawlRobotsSitemapSection.tsx's own "Last
@@ -150,6 +162,7 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 	];
 
 	return (
+		<>
 		<DashboardWidget
 			title={__('Website Health Scores', 'vulopilot')}
 			desc={__('Your overall score across visibility, health, commerce, performance, content, and brand.', 'vulopilot')}
@@ -256,6 +269,14 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 				</div>
 			</div>
 		</DashboardWidget>
+		<VuloPilotActivityWidget
+			summary={summary}
+			isLoading={isLoading}
+			onHide={onHide}
+			isCustomizing={isCustomizing}
+			onRefreshSummary={onRefreshSummary}
+		/>
+		</>
 	);
 };
 

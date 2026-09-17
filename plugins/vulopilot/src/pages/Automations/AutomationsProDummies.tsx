@@ -2,9 +2,9 @@ import { __ } from '@wordpress/i18n';
 import { CardComponent } from '@zyra/components';
 import { MultiCheckboxInput } from '@zyra/inputs';
 import DummyDataNotice from '../../components/DummyDataNotice';
+import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 
 interface AutomationsDummyProps {
-	badgeText: string;
 	onClick: () => void;
 }
 
@@ -14,35 +14,26 @@ interface AutomationsDummyProps {
  * — `AutomationsManageDummy` (real "Your automations" list,
  * ManageAutomationsSection.tsx) and `AutomationsActivityDummy` (real
  * "Recent automation activity" feed, AutomationsActivityCard.tsx). Same
- * PRO-tag-plus-immediate-popup treatment ContentToolsGrid.tsx/
- * AutomationsTemplatesCard.tsx already use for their own Pro-only tiles/
- * rows, per direct instruction, rather than either section being entirely
- * absent from the DOM the way it used to be (Automations.tsx used to gate
- * its whole `<ColumnComponent>` on `{Wizard && (...)}`).
+ * blurred-content-behind-an-"Upgrade to Pro"-overlay treatment every other
+ * Pro-gated dummy card in this plugin uses
+ * (../../components/UpgradeToProOverlay.tsx — shared, not reimplemented
+ * per file), rather than either section being entirely absent from the DOM
+ * the way it used to be (Automations.tsx used to gate its whole
+ * `<ColumnComponent>` on `{Wizard && (...)}`).
  *
- * `badgeText`/`onClick` both come from the host (Automations.tsx) so these
- * stay plain, stateless presentational components — the real 2-tier
- * Pro-then-module distinction (generic "PRO" vs. the real module's own
- * display name) lives once, alongside `openProPopup`'s own matching popup
- * content, not duplicated here.
+ * The separate `.admin-tag.pro-tag` badge this file used to float over
+ * each card (its own local `ProBadge`, picking "PRO" or the real module's
+ * display name) was removed per direct instruction, same reasoning
+ * BrandVisibilityProDummies.tsx's own docblock gives: the shared overlay's
+ * `<UpgradeToProOverlay />` already says "Upgrade to Pro" the moment the
+ * blurred content renders, so the badge was a second copy of the same
+ * message on the same card. `onClick` alone is all either dummy needs
+ * from the host now.
  *
- * Merged into one file since both are the same small "PRO badge +
- * fabricated example rows + click-through overlay" shape for the same
- * page, not two genuinely different concerns.
+ * Merged into one file since both are the same small "fabricated example
+ * rows behind a blurred click-through overlay" shape for the same page,
+ * not two genuinely different concerns.
  */
-const ProBadge = ({ badgeText }: { badgeText: string }) => (
-	// Docks against `.card-wrapper` (ColumnComponent's own root div, always
-	// `position: relative` in zyra) rather than a wrapper div of its own —
-	// CardComponent's `badges` prop can't be used here since it only
-	// forwards `color`/`text` into its own internal `BadgeComponent` call,
-	// dropping any custom class, so the real "admin-tag pro-tag" markup has
-	// to render as a sibling instead.
-	<span className="admin-tag pro-tag">
-		<i className="adminfont-pro-tag" />
-		{badgeText}
-	</span>
-);
-
 const MANAGE_DUMMY_ROWS: { title: string; desc: string }[] = [
 	{
 		title: __('Security Monitoring', 'vulopilot'),
@@ -59,29 +50,17 @@ const MANAGE_DUMMY_ROWS: { title: string; desc: string }[] = [
 ];
 
 /** Rows are entirely fabricated examples (plausible-looking category/cadence text, but no real row behind any of them) — inert (`aria-hidden`, disabled toggles, no click handler of their own): the click-through lives on the wrapping overlay instead, so clicking anywhere in the dummy list opens the same popup. */
-export const AutomationsManageDummy = ({ badgeText, onClick }: AutomationsDummyProps) => (
-	<>
-		<ProBadge badgeText={badgeText} />
-		<CardComponent
-			id="automation-manage"
-			title={__('Your automations', 'vulopilot')}
-			titleIcon="automation"
-			desc={__(
-				'React to scan findings automatically — enable, pause, or run an automation, and see when it last ran.',
-				'vulopilot'
-			)}
-		>
-		<div
-			className="automations-manage-dummy"
-			role="button"
-			tabIndex={0}
-			onClick={onClick}
-			onKeyDown={(event) => {
-				if ('Enter' === event.key || ' ' === event.key) {
-					onClick();
-				}
-			}}
-		>
+export const AutomationsManageDummy = ({ onClick }: AutomationsDummyProps) => (
+	<CardComponent
+		id="automation-manage"
+		title={__('Your automations', 'vulopilot')}
+		titleIcon="automation"
+		desc={__(
+			'React to scan findings automatically — enable, pause, or run an automation, and see when it last ran.',
+			'vulopilot'
+		)}
+	>
+		<BlurredProContent contentClassName="automations-manage-dummy" onClick={onClick}>
 			{MANAGE_DUMMY_ROWS.map((row) => (
 				<div className="automations-manage-dummy-row" key={row.title} aria-hidden="true">
 					<div className="automations-manage-dummy-info">
@@ -97,10 +76,9 @@ export const AutomationsManageDummy = ({ badgeText, onClick }: AutomationsDummyP
 					/>
 				</div>
 			))}
-		</div>
+		</BlurredProContent>
 		<DummyDataNotice />
 	</CardComponent>
-	</>
 );
 
 const ACTIVITY_DUMMY_ROWS: { title: string; desc: string; time: string }[] = [
@@ -122,37 +100,26 @@ const ACTIVITY_DUMMY_ROWS: { title: string; desc: string; time: string }[] = [
 ];
 
 /** Rows are entirely fabricated examples (real completed/status wording from vulopilot-pro's own AutomationsActivityCard.tsx, but no real run behind any of them) — inert (`aria-hidden`, no click handler of their own): the click-through lives on the wrapping overlay instead, so clicking anywhere in the dummy list opens the same popup. */
-export const AutomationsActivityDummy = ({ badgeText, onClick }: AutomationsDummyProps) => (
-	<>
-		<ProBadge badgeText={badgeText} />
-		<CardComponent
-			title={__('Recent automation activity', 'vulopilot')}
-			titleIcon="clock"
-			desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
-		>
-		<ul
-			className="activity-log automations-activity-dummy"
-			role="button"
-			tabIndex={0}
-			onClick={onClick}
-			onKeyDown={(event) => {
-				if ('Enter' === event.key || ' ' === event.key) {
-					onClick();
-				}
-			}}
-		>
-			{ACTIVITY_DUMMY_ROWS.map((row) => (
-				<li key={row.title} className="activity" aria-hidden="true">
-					<div className="title">
-						{row.title}
-						<div className="admin-badge green">{__('Completed', 'vulopilot')} </div>
-					</div>
-					<div className="desc">{row.desc}</div>
-					<span>{row.time}</span>
-				</li>
-			))}
-		</ul>
+export const AutomationsActivityDummy = ({ onClick }: AutomationsDummyProps) => (
+	<CardComponent
+		title={__('Recent automation activity', 'vulopilot')}
+		titleIcon="clock"
+		desc={__('The last 5 automation runs and what they did.', 'vulopilot')}
+	>
+		<BlurredProContent contentClassName="automations-activity-dummy" onClick={onClick}>
+			<ul className="activity-log">
+				{ACTIVITY_DUMMY_ROWS.map((row) => (
+					<li key={row.title} className="activity" aria-hidden="true">
+						<div className="title">
+							{row.title}
+							<div className="admin-badge green">{__('Completed', 'vulopilot')} </div>
+						</div>
+						<div className="desc">{row.desc}</div>
+						<span>{row.time}</span>
+					</li>
+				))}
+			</ul>
+		</BlurredProContent>
 		<DummyDataNotice />
 	</CardComponent>
-	</>
 );

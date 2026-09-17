@@ -280,33 +280,17 @@ const Dashboard = () => {
 			<ContainerComponent general>
 				{/* Getting started */}
 				<GettingStartedCard />
-
-				{/* Main dashboard widgets */}
-				<ColumnComponent grid={9}>
-					<ContainerComponent>
-						<DashboardGrid
-							summary={summary}
-							isLoading={isLoading}
-							isCustomizing={isCustomizing}
-							restoreDefaultSignal={
-								restoreDefaultSignal
-							}
-							onRefreshSummary={() =>
-								loadDashboard(true)
-							}
-						/>
-					</ContainerComponent>
-				</ColumnComponent>
-
-				{/* Right sidebar */}
-				<ColumnComponent grid={3}>
-					<SiteSnapshotWidget
-						summary={summary}
-						isLoading={isLoading}
-						isCustomizing={isCustomizing}
-						onHide={() => { }}
-					/>
-				</ColumnComponent>
+				<DashboardGrid
+					summary={summary}
+					isLoading={isLoading}
+					isCustomizing={isCustomizing}
+					restoreDefaultSignal={
+						restoreDefaultSignal
+					}
+					onRefreshSummary={() =>
+						loadDashboard(true)
+					}
+				/>
 			</ContainerComponent>
 		</>
 	);

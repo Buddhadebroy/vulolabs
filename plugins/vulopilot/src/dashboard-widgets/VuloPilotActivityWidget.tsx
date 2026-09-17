@@ -6,6 +6,7 @@ import { ChartComponent, ModuleGuardComponent, PopupComponent } from '@zyra/comp
 import { ToggleInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import DummyDataNotice from '../components/DummyDataNotice';
+import { BlurredProContent } from '../components/UpgradeToProOverlay';
 import ShowProPopup from '../components/Popup/Popup';
 import { useApiList } from '../services/useApiList';
 import { useLastScanTime } from '../services/useLastScanTime';
@@ -167,21 +168,6 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 
 	return (
 		<>
-			{!isHealthTimelineModuleActive && (
-				// Docks against `.card-wrapper` (ColumnComponent's own root
-				// div, always `position: relative` in zyra — DashboardGrid.tsx
-				// renders this whole widget inside its own dedicated
-				// ColumnComponent cell) rather than a wrapper div of its own —
-				// CardComponent's own `badges` prop drops any custom class.
-				// Same convention Accessibility.tsx's own dummy cards
-				// established before this one's own PRO badge was later
-				// removed per direct instruction there — this one keeps it,
-				// per direct instruction here.
-				<span className="admin-tag pro-tag">
-					<i className="adminfont-pro-tag" />
-					{__('Pro', 'vulopilot')}
-				</span>
-			)}
 			<DashboardWidget
 				title={__('Health timeline', 'vulopilot')}
 				desc={__('How your health scores have trended over time.', 'vulopilot')}
@@ -202,16 +188,9 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 
 				{!isHealthTimelineModuleActive ? (
 					<>
-						<div
-							className="health-timeline-dummy"
-							role="button"
-							tabIndex={0}
+						<BlurredProContent
+							contentClassName="health-timeline-dummy"
 							onClick={() => setIsHealthTimelineProPopupOpen(true)}
-							onKeyDown={(event) => {
-								if ('Enter' === event.key || ' ' === event.key) {
-									setIsHealthTimelineProPopupOpen(true);
-								}
-							}}
 						>
 							<ChartComponent
 								type="dynamic-line"
@@ -221,7 +200,7 @@ const VuloPilotActivityWidget: React.FC<WidgetProps> = ({
 								height={300}
 								yDomain={[0, 100]}
 							/>
-						</div>
+						</BlurredProContent>
 						<DummyDataNotice />
 					</>
 				) : 0 === healthSnapshots.length ? (

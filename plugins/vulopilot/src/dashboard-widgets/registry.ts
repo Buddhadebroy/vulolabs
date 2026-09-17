@@ -15,16 +15,17 @@ import RecentChangesWidget from './RecentChangesWidget';
 import KeyPagesWidget from './KeyPagesWidget';
 import SiteSnapshotWidget from './SiteSnapshotWidget';
 import RecentActivityWidget from './RecentActivityWidget';
-import VuloPilotActivityWidget from './VuloPilotActivityWidget';
 import { WidgetDefinition } from './types';
 
 /**
  * The newer "Good morning" Dashboard mockup's own top section, in its exact
  * order — Vital Pulse (full-width now that "Run complete audit" lives in
- * the page header instead, see Dashboard.tsx), VuloPilot activity (a
- * separate mockup screenshot — 5 real tiles, see VuloPilotActivityWidget.tsx's
- * own docblock for which real endpoint backs each one and why its mockup's
- * 6th tile, "Next audit", isn't included), Needs your attention (moved up
+ * the page header instead, see Dashboard.tsx; its own `overall-score` entry
+ * below renders `VuloPilotActivityWidget`'s "Health timeline" card as a
+ * sibling right underneath its score card, both inside this one
+ * `ColumnComponent` — see OverallScoreWidget.tsx's own docblock — rather
+ * than `vulopilot-activity` staying a separate top-level registry entry
+ * with its own cell), Needs your attention (moved up
  * from STANDALONE_WIDGETS below to sit right under Vital Pulse, matching
  * the mockup), Key pages at a glance + Site snapshot (a new side-by-side
  * pair), Recent activity. Every pre-existing widget this mockup doesn't
@@ -62,14 +63,13 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 6,
 		component: OverallScoreWidget,
 	},
-
 	{
-		id: 'vulopilot-activity',
-		title: __('VuloPilot activity', 'vulopilot'),
-		desc: __('Real AI crawler visits, automation runs, and pending approvals over time.', 'vulopilot'),
-		icon: 'analytics',
+		id: 'site-snapshot',
+		title: __('Site snapshot', 'vulopilot'),
+		desc: __('Real WordPress core counts — posts, pages, comments, users, and active plugins.', 'vulopilot'),
+		icon: 'info',
 		grid: 6,
-		component: VuloPilotActivityWidget,
+		component: SiteSnapshotWidget,
 	},
 	{
 		id: 'needs-attention',
@@ -87,14 +87,6 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 6,
 		component: RecentActivityWidget,
 	},
-	// {
-	// 	id: 'site-snapshot',
-	// 	title: __('Site snapshot', 'vulopilot'),
-	// 	desc: __('Real WordPress core counts — posts, pages, comments, users, and active plugins.', 'vulopilot'),
-	// 	icon: 'info',
-	// 	grid: 8,
-	// 	component: SiteSnapshotWidget,
-	// },
 	{
 		id: 'automation-status',
 		title: __('Automation status', 'vulopilot'),

@@ -8,7 +8,7 @@ import {
 	NoticeComponent,
 	PopupComponent,
 } from '@zyra/components';
-import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
+import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import AutomationsStatsRow from './AutomationsStatsRow';
 import AutomationsAttentionCard from './AutomationsAttentionCard';
@@ -17,8 +17,6 @@ import BuiltinAutomationCards from './BuiltinAutomationCards';
 import { AutomationsManageDummy, AutomationsActivityDummy } from './AutomationsProDummies';
 import { AutomationRow, AutomationTemplate, getAutomationTemplateById } from './automationsTypes';
 import './Automations.scss';
-
-const AUTOMATIONS_MODULE_ID = 'automations';
 
 /** Mirrors vulopilot-pro's own ManageAutomationsSection.tsx props exactly (that file's own real definition) — Free can't import Pro's src/ tree, same small-matching-copy convention every other cross-plugin component prop type in this file already uses. */
 interface ManageAutomationsSectionComponentProps {
@@ -91,12 +89,11 @@ interface AutomationSlotValue {
  * for "Recent automation activity" (vulopilot-pro's own
  * AutomationsActivityCard.tsx — the last 5 runs across every automation):
  * when their own `Manage`/`Activity` filter-slot members haven't resolved,
- * `manageBadge` below picks "PRO" or the real module's own display name (same
- * `isProInstalled` order every other gate on this page uses) and
- * `AutomationsManageDummy` renders in its place — fabricated example rows,
- * same PRO-badge-plus-immediate-popup shape as the header buttons above,
- * instead of the section being entirely absent from the DOM the way it
- * used to be.
+ * `AutomationsManageDummy`/`AutomationsActivityDummy` render in their
+ * place instead — fabricated example rows behind the same blurred
+ * "Upgrade to Pro" overlay every other Pro-gated dummy card in this
+ * plugin uses (../../components/UpgradeToProOverlay.tsx), instead of the
+ * section being entirely absent from the DOM the way it used to be.
  *
  * Owns the real wizard/"Build with AI" popups' open-signal state and the
  * `vulopilot_automations_panel` filter-slot resolution directly (rather than
@@ -112,11 +109,6 @@ const Automations = () => {
 	const Templates = slot?.Templates;
 	const Manage = slot?.Manage;
 	const Activity = slot?.Activity;
-
-	const isProInstalled = Boolean(appLocalizer.khali_dabba);
-	const manageBadge = isProInstalled
-		? resolveModuleDisplayName(AUTOMATIONS_MODULE_ID)
-		: __('Pro', 'vulopilot');
 
 	const [wizardOpenSignal, setWizardOpenSignal] = useState(0);
 	const [generateOpenSignal, setGenerateOpenSignal] = useState(0);
@@ -307,14 +299,14 @@ const Automations = () => {
 							refetchSignal={refetchSignal}
 						/>
 					) : (
-						<AutomationsManageDummy badgeText={manageBadge} onClick={openProPopup} />
+						<AutomationsManageDummy onClick={openProPopup} />
 					)}
 				</ColumnComponent>
 				<ColumnComponent grid={5} fullHeight>
 					{Activity ? (
 						<Activity onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
 					) : (
-						<AutomationsActivityDummy badgeText={manageBadge} onClick={openProPopup} />
+						<AutomationsActivityDummy onClick={openProPopup} />
 					)}
 				</ColumnComponent>
 				{Wizard && (
