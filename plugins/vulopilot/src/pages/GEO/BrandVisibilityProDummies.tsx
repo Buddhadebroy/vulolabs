@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
-import { AnalyticsComponent, BadgeComponent, CardComponent } from '@zyra/components';
+import { AnalyticsComponent, BadgeComponent, CardComponent, ListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import {
 	CartesianGrid,
@@ -12,10 +12,10 @@ import {
 	YAxis,
 } from 'recharts';
 import DummyDataNotice from '../../components/DummyDataNotice';
+import upgradeToProBackground from '../../assets/images/upgrade-to-pro.png';
 import './SeoVisibility.scss';
 
 interface DummyCardProps {
-	badgeText: string;
 	onClick: () => void;
 }
 
@@ -35,39 +35,85 @@ interface DummyCardProps {
  */
 
 /**
- * Wraps a dummy card's own `.admin-tag.pro-tag` (zyra's own compiled CSS —
- * `position: absolute; right: 1rem; top: 0.813rem;`, needing a real
- * `position: relative` ancestor to anchor to) in a real positioned
- * container of its own, rather than depending on the caller to wrap each
- * dummy in its own `<ColumnComponent>` (zyra's `.card-wrapper` root div is
- * always `position: relative` — the original docking mechanism this file's
- * own `ProBadge`-less version relied on). AuthorityTrendsDummy/
- * KnowledgePanelDummy happened to get that for free in
- * BrandVisibilityTab.tsx (each sits inside its own `<ColumnComponent
- * grid={6}>`), but CompetitorComparisonDummy/OffSiteMentionsDummy don't —
- * both render as bare fragment children there (no `<ColumnComponent>` of
- * their own), so their badge had no real positioned ancestor nearby and
- * escaped to whatever ancestor *was* positioned — confirmed live: the tag
- * meant for "Competitor Comparison" rendered nowhere near it (visually
- * landing over the unrelated Authority Score tile instead), while
- * "Competitor Comparison" itself showed no tag at all. Making every dummy
- * self-contained here fixes both symptoms at once, regardless of how a
- * future call site lays it out.
+ * The "Upgrade to Pro" card floating over every dummy's own blurred
+ * content — used to be one-off markup only `KnowledgePanelDummy` carried;
+ * pulled out here and reused by all 4 dummy cards below so the same
+ * overlay (icon/title/desc/button, `upgrade-to-pro.png` background) shows
+ * consistently regardless of which one a user clicks past.
  */
-const ProDummyCard = ({
-	badgeText,
+const UpgradeToProOverlay = () => (
+	<div className="pro-section-wrapper">
+		<div
+			className="pro-section"
+			>
+			<i className="adminfont-lock purple"></i>
+			<div className="title">{__('Upgrade to Pro', 'vulopilot')}</div>
+			<span>{__('Unlock the full VuloPilot toolkit', 'vulopilot')}</span>
+			<div className="admin-btn btn-purple-bg">
+				{__('Upgrade to pro', 'vulopilot')}
+			</div>
+		</div>
+	</div>
+);
+
+/**
+ * The one real shell every dummy card below renders through — merges what
+ * used to be two separate wrappers each of the 4 dummies had to nest by
+ * hand (`ProDummyCard`, the outer `.admin-tag.pro-tag` badge wrapper, and
+ * a `BlurredDummyContent` sitting *inside* its `CardComponent` for the
+ * `.blur-wrapper`/`<UpgradeToProOverlay />`/click-through shell) into one
+ * local component. Owns the `CardComponent` itself (title/titleIcon/desc/
+ * action passed straight through) so a caller no longer hand-assembles
+ * `CardComponent > BlurredDummyContent` itself; `DummyDataNotice` (real on
+ * every one of the 4) is included unconditionally for the same reason.
+ *
+ * The `.admin-tag.pro-tag` badge that used to float over every card here
+ * (`ProDummyCard`'s own job) was removed per direct instruction — every
+ * one of these cards already shows the real "Upgrade to Pro" overlay
+ * (`<UpgradeToProOverlay />` below) the moment its blurred content
+ * renders, so the badge was the same "this is Pro" message a second time
+ * on the same card. `.brand-pro-dummy-wrapper` (the outer `position:
+ * relative` div that badge needed as its own anchor) went with it — see
+ * SeoVisibility.scss's own removed rule.
+ */
+const BlurredDummyContent = ({
+	title,
+	titleIcon,
+	desc,
+	action,
+	contentClassName,
+	onClick,
 	children,
 }: {
-	badgeText: string;
+	title: string;
+	titleIcon: string;
+	desc: string;
+	/** `CardComponent`'s own header `action` slot — the "Optimize Knowledge Panel"/"Add competitors"+"Analyze competitors" buttons 2 of the 4 dummies pass; `undefined` for the other 2, which have none. */
+	action?: ReactNode;
+	/** This dummy's own content class (e.g. `brand-authority-trends-dummy`) — `blur-wrapper-content` is appended automatically. */
+	contentClassName: string;
+	onClick: () => void;
 	children: ReactNode;
 }) => (
-	<div className="brand-pro-dummy-wrapper">
-		<span className="admin-tag pro-tag">
-			<i className="adminfont-pro-tag" />
-			{badgeText}
-		</span>
-		{children}
-	</div>
+	<CardComponent title={title} titleIcon={titleIcon} desc={desc} action={action}>
+		<div className="blur-wrapper">
+			<UpgradeToProOverlay />
+			<div
+				className={`${contentClassName} blur-wrapper-content`}
+				role="button"
+				tabIndex={0}
+				onClick={onClick}
+				onKeyDown={(event) => {
+					if ('Enter' === event.key || ' ' === event.key) {
+						onClick();
+					}
+				}}
+			>
+				{children}
+			</div>
+		</div>
+		<DummyDataNotice />
+	</CardComponent>
 );
 
 const DUMMY_AUTHORITY_HISTORY = [
@@ -85,67 +131,54 @@ const DUMMY_AUTHORITY_HISTORY = [
  * AuthorityTrendsCard.tsx (the real Brand/Trust/Authority/Entity score
  * history chart).
  */
-export const AuthorityTrendsDummy = ({ badgeText, onClick }: DummyCardProps) => (
-	<ProDummyCard badgeText={badgeText}>
-		<CardComponent
-			title={__('Authority Trends', 'vulopilot')}
-			titleIcon="identity-verification"
-			desc={__(
-				'Brand, Trust, Authority, and Entity scores over time, one point per day the snapshot schedule ran.',
-				'vulopilot'
-			)}
-		>
-			<div
-				className="brand-authority-trends-dummy"
-				role="button"
-				tabIndex={0}
-				onClick={onClick}
-				onKeyDown={(event) => {
-					if ('Enter' === event.key || ' ' === event.key) {
-						onClick();
-					}
-				}}
-			>
-				<ResponsiveContainer width="100%" height={240}>
-					<LineChart data={DUMMY_AUTHORITY_HISTORY}>
-						<CartesianGrid strokeDasharray="3 3" />
-						<XAxis dataKey="day" />
-						<YAxis domain={[0, 100]} />
-						<Legend />
-						<Line
-							type="monotone"
-							dataKey="authority"
-							name={__('Authority', 'vulopilot')}
-							stroke="#F59E0B"
-							dot={false}
-						/>
-						<Line
-							type="monotone"
-							dataKey="brand"
-							name={__('Brand', 'vulopilot')}
-							stroke="#4B227A"
-							dot={false}
-						/>
-						<Line
-							type="monotone"
-							dataKey="entity"
-							name={__('Entity', 'vulopilot')}
-							stroke="#EF4444"
-							dot={false}
-						/>
-						<Line
-							type="monotone"
-							dataKey="trust"
-							name={__('Trust', 'vulopilot')}
-							stroke="#00EED0"
-							dot={false}
-						/>
-					</LineChart>
-				</ResponsiveContainer>
-			</div>
-			<DummyDataNotice />
-		</CardComponent>
-	</ProDummyCard>
+export const AuthorityTrendsDummy = ({ onClick }: DummyCardProps) => (
+	<BlurredDummyContent
+		title={__('Authority Trends', 'vulopilot')}
+		titleIcon="identity-verification"
+		desc={__(
+			'Brand, Trust, Authority, and Entity scores over time, one point per day the snapshot schedule ran.',
+			'vulopilot'
+		)}
+		contentClassName="brand-authority-trends-dummy"
+		onClick={onClick}
+	>
+		<ResponsiveContainer width="100%" height={240}>
+			<LineChart data={DUMMY_AUTHORITY_HISTORY}>
+				<CartesianGrid strokeDasharray="3 3" />
+				<XAxis dataKey="day" />
+				<YAxis domain={[0, 100]} />
+				<Legend />
+				<Line
+					type="monotone"
+					dataKey="authority"
+					name={__('Authority', 'vulopilot')}
+					stroke="#F59E0B"
+					dot={false}
+				/>
+				<Line
+					type="monotone"
+					dataKey="brand"
+					name={__('Brand', 'vulopilot')}
+					stroke="#4B227A"
+					dot={false}
+				/>
+				<Line
+					type="monotone"
+					dataKey="entity"
+					name={__('Entity', 'vulopilot')}
+					stroke="#EF4444"
+					dot={false}
+				/>
+				<Line
+					type="monotone"
+					dataKey="trust"
+					name={__('Trust', 'vulopilot')}
+					stroke="#00EED0"
+					dot={false}
+				/>
+			</LineChart>
+		</ResponsiveContainer>
+	</BlurredDummyContent>
 );
 
 /**
@@ -170,77 +203,64 @@ const DUMMY_KNOWLEDGE_PANEL_FINDINGS: { title: string }[] = [
  * KnowledgePanelCard.tsx (the real Organization/author Person schema
  * one-click optimizer).
  */
-export const KnowledgePanelDummy = ({ badgeText, onClick }: DummyCardProps) => (
-	<ProDummyCard badgeText={badgeText}>
-		<CardComponent
-			title={__('Knowledge Panel Optimization', 'vulopilot')}
-			titleIcon="identity-verification"
-			desc={__(
-				'Adds Organization schema (homepage) and author Person schema (posts/pages) wherever missing — the structured data Google Knowledge Panels and AI answer engines read. Deterministic, no AI cost.',
-				'vulopilot'
-			)}
-			action={
-				<ButtonInput
-					buttons={{
-						text: __('Optimize Knowledge Panel', 'vulopilot'),
-						rightIcon: 'pagination-right-arrow',
-						color: 'text-purple',
-						onClick,
-					}}
-				/>
-			}
-		>
-			<div
-				className="brand-knowledge-panel-dummy"
-				role="button"
-				tabIndex={0}
-				onClick={onClick}
-				onKeyDown={(event) => {
-					if ('Enter' === event.key || ' ' === event.key) {
-						onClick();
-					}
+export const KnowledgePanelDummy = ({ onClick }: DummyCardProps) => (
+	<BlurredDummyContent
+		title={__('Knowledge Panel Optimization', 'vulopilot')}
+		titleIcon="identity-verification"
+		desc={__(
+			'Adds Organization schema (homepage) and author Person schema (posts/pages) wherever missing — the structured data Google Knowledge Panels and AI answer engines read. Deterministic, no AI cost.',
+			'vulopilot'
+		)}
+		action={
+			<ButtonInput
+				buttons={{
+					text: __('Optimize Knowledge Panel', 'vulopilot'),
+					rightIcon: 'pagination-right-arrow',
+					color: 'text-purple',
+					onClick,
 				}}
-			>
-				<AnalyticsComponent
-					variant="small-card"
-					cols={3}
-					data={[
-						{
-							icon: 'person',
-							colorClass: 'yellow',
-							number: 4,
-							text: __(
-								'pages missing an author schema',
-								'vulopilot'
-							),
-						},
-					]}
-				/>
-				<ul className="brand-knowledge-panel-dummy-list">
-					{DUMMY_KNOWLEDGE_PANEL_FINDINGS.map((finding) => (
-						<li
-							key={finding.title}
-							className="brand-knowledge-panel-dummy-item"
-							aria-hidden="true"
-						>
-							<span className="brand-knowledge-panel-dummy-icon">
-								<i className="adminfont-error" />
-							</span>
-							<div className="brand-knowledge-panel-dummy-title">
-								{finding.title}
-							</div>
-							<BadgeComponent
-								text={__('Author Schema', 'vulopilot')}
-								color="purple"
-								variant="dot"
-							/>
-						</li>
-					))}
-				</ul>
-			</div>
-			<DummyDataNotice />
-		</CardComponent>
-	</ProDummyCard>
+			/>
+		}
+		contentClassName="brand-knowledge-panel-dummy"
+		onClick={onClick}
+	>
+		<AnalyticsComponent
+			variant="small-card"
+			cols={3}
+			data={[
+				{
+					icon: 'person',
+					colorClass: 'yellow',
+					number: 4,
+					text: __(
+						'pages missing an author schema',
+						'vulopilot'
+					),
+				},
+			]}
+		/>
+		<ul className="brand-knowledge-panel-dummy-list">
+			{DUMMY_KNOWLEDGE_PANEL_FINDINGS.map((finding) => (
+				<li
+					key={finding.title}
+					className="brand-knowledge-panel-dummy-item"
+					aria-hidden="true"
+				>
+					<span className="brand-knowledge-panel-dummy-icon">
+						<i className="adminfont-error" />
+					</span>
+					<div className="brand-knowledge-panel-dummy-title">
+						{finding.title}
+					</div>
+					<BadgeComponent
+						text={__('Author Schema', 'vulopilot')}
+						color="purple"
+						variant="dot"
+					/>
+				</li>
+			))}
+		</ul>
+	</BlurredDummyContent>
 );
 
 const DUMMY_MENTIONS: { title: string; source: string }[] = [
@@ -255,64 +275,45 @@ const DUMMY_MENTIONS: { title: string; source: string }[] = [
  * OffSiteMentionsCard.tsx (the real Google News/Bing News/Reddit mention
  * tracker).
  */
-export const OffSiteMentionsDummy = ({ badgeText, onClick }: DummyCardProps) => (
-	<ProDummyCard badgeText={badgeText}>
-		<CardComponent
-			title={__('Off-site mentions', 'vulopilot')}
-			titleIcon="web-page-website"
-			desc={__(
-				'Real mentions of your site, found via Google News, Bing News, and Reddit — 3 free, keyless sources. This covers what those 3 indexes surface, not the full web (blogs, other forums, other social platforms, review sites), so treat counts as a real but partial signal, not a comprehensive total the way a paid tool like Ahrefs Brand Radar would be.',
-				'vulopilot'
-			)}
-		>
-			<div
-				className="brand-offsite-mentions-dummy"
-				role="button"
-				tabIndex={0}
-				onClick={onClick}
-				onKeyDown={(event) => {
-					if ('Enter' === event.key || ' ' === event.key) {
-						onClick();
-					}
-				}}
-			>
-				<div className="brand-offsite-mentions-dummy-summary">
-					<div className="brand-offsite-mentions-dummy-stat">
-						<span className="brand-offsite-mentions-dummy-value">
-							12
-						</span>
-						<span className="desc">{__('mentions', 'vulopilot')}</span>
-					</div>
-					<div className="brand-offsite-mentions-dummy-stat">
-						<span className="brand-offsite-mentions-dummy-value">
-							5
-						</span>
-						<span className="desc">
-							{__('citing domains', 'vulopilot')}
-						</span>
-					</div>
-				</div>
-
-				<ul className="brand-offsite-mentions-dummy-list">
-					{DUMMY_MENTIONS.map((mention) => (
-						<li
-							key={mention.title}
-							className="brand-offsite-mentions-dummy-item"
-							aria-hidden="true"
-						>
-							<div className="brand-offsite-mentions-dummy-title">
-								{mention.title}
-							</div>
-							<div className="desc brand-offsite-mentions-dummy-meta">
-								{mention.source} · {__('today', 'vulopilot')}
-							</div>
-						</li>
-					))}
-				</ul>
+export const OffSiteMentionsDummy = ({ onClick }: DummyCardProps) => (
+	<BlurredDummyContent
+		title={__('Off-site mentions', 'vulopilot')}
+		titleIcon="web-page-website"
+		desc={__(
+			'Real mentions of your site, found via Google News, Bing News, and Reddit — 3 free, keyless sources. This covers what those 3 indexes surface, not the full web (blogs, other forums, other social platforms, review sites), so treat counts as a real but partial signal, not a comprehensive total the way a paid tool like Ahrefs Brand Radar would be.',
+			'vulopilot'
+		)}
+		contentClassName="brand-offsite-mentions-dummy"
+		onClick={onClick}
+	>
+		<div className="brand-offsite-mentions-dummy-summary">
+			<div className="brand-offsite-mentions-dummy-stat">
+				<span className="brand-offsite-mentions-dummy-value">
+					12
+				</span>
+				<span className="desc">{__('mentions', 'vulopilot')}</span>
 			</div>
-			<DummyDataNotice />
-		</CardComponent>
-	</ProDummyCard>
+			<div className="brand-offsite-mentions-dummy-stat">
+				<span className="brand-offsite-mentions-dummy-value">
+					5
+				</span>
+				<span className="desc">
+					{__('citing domains', 'vulopilot')}
+				</span>
+			</div>
+		</div>
+
+		<div className="brand-offsite-mentions-dummy-list" aria-hidden="true">
+			<ListComponent
+				className="mini-card report"
+				items={DUMMY_MENTIONS.map((mention) => ({
+					id: mention.title,
+					title: mention.title,
+					desc: `${mention.source} · ${__('today', 'vulopilot')}`,
+				}))}
+			/>
+		</div>
+	</BlurredDummyContent>
 );
 
 const COMPETITOR_SIGNAL_COLUMNS: string[] = [
@@ -349,81 +350,68 @@ const DUMMY_COMPETITOR_ROWS: { label: string; score: string; isSelf: boolean; si
  * CompetitorComparisonCard.tsx (the real 11-signal "your site vs.
  * competitor URLs" table).
  */
-export const CompetitorComparisonDummy = ({ badgeText, onClick }: DummyCardProps) => (
-	<ProDummyCard badgeText={badgeText}>
-		<CardComponent
-			title={__('Competitor Comparison', 'vulopilot')}
-			titleIcon="tools"
-			desc={__(
-				'Compares your own site against competitor pages across 11 real signals — Organization/Author/FAQ/Breadcrumb/Review schema, meta description, Open Graph, Twitter Card, an About/Contact link, a Privacy Policy link, and real visible contact info. Real page fetches, no AI involved.',
-				'vulopilot'
-			)}
-			action={
-				<ButtonInput
-					buttons={[
-						{
-							text: __('Add competitors', 'vulopilot'),
-							onClick,
-							icon: 'plus',
-							color: 'border-purple',
-						},
-						{
-							text: __('Analyze competitors', 'vulopilot'),
-							onClick,
-						},
-					]}
-				/>
-			}
-		>
-			<div
-				className="brand-competitor-comparison-dummy"
-				role="button"
-				tabIndex={0}
-				onClick={onClick}
-				onKeyDown={(event) => {
-					if ('Enter' === event.key || ' ' === event.key) {
-						onClick();
-					}
-				}}
+export const CompetitorComparisonDummy = ({ onClick }: DummyCardProps) => (
+	<BlurredDummyContent
+		title={__('Competitor Comparison', 'vulopilot')}
+		titleIcon="tools"
+		desc={__(
+			'Compares your own site against competitor pages across 11 real signals — Organization/Author/FAQ/Breadcrumb/Review schema, meta description, Open Graph, Twitter Card, an About/Contact link, a Privacy Policy link, and real visible contact info. Real page fetches, no AI involved.',
+			'vulopilot'
+		)}
+		action={
+			<ButtonInput
+				buttons={[
+					{
+						text: __('Add competitors', 'vulopilot'),
+						onClick,
+						icon: 'plus',
+						color: 'border-purple',
+					},
+					{
+						text: __('Analyze competitors', 'vulopilot'),
+						onClick,
+					},
+				]}
+			/>
+		}
+		contentClassName="brand-competitor-comparison-dummy"
+		onClick={onClick}
+	>
+		<div className="brand-competitor-comparison-dummy-table-wrapper">
+			<table
+				className="brand-competitor-comparison-dummy-table"
+				aria-hidden="true"
 			>
-				<div className="brand-competitor-comparison-dummy-table-wrapper">
-					<table
-						className="brand-competitor-comparison-dummy-table"
-						aria-hidden="true"
-					>
-						<thead>
-							<tr>
-								<th>{__('URL', 'vulopilot')}</th>
-								<th>{__('Score', 'vulopilot')}</th>
-								{COMPETITOR_SIGNAL_COLUMNS.map((label) => (
-									<th key={label}>{label}</th>
-								))}
-							</tr>
-						</thead>
-						<tbody>
-							{DUMMY_COMPETITOR_ROWS.map((row) => (
-								<tr
-									key={row.label}
-									className={
-										row.isSelf
-											? 'brand-competitor-comparison-dummy-row-self'
-											: undefined
-									}
-								>
-									<td>{row.label}</td>
-									<td>{row.score}</td>
-									{row.signals.map((hasSignal, index) => (
-										<td key={COMPETITOR_SIGNAL_COLUMNS[index]}>
-											{hasSignal ? '✓' : '—'}
-										</td>
-									))}
-								</tr>
+				<thead>
+					<tr>
+						<th>{__('URL', 'vulopilot')}</th>
+						<th>{__('Score', 'vulopilot')}</th>
+						{COMPETITOR_SIGNAL_COLUMNS.map((label) => (
+							<th key={label}>{label}</th>
+						))}
+					</tr>
+				</thead>
+				<tbody>
+					{DUMMY_COMPETITOR_ROWS.map((row) => (
+						<tr
+							key={row.label}
+							className={
+								row.isSelf
+									? 'brand-competitor-comparison-dummy-row-self'
+									: undefined
+							}
+						>
+							<td>{row.label}</td>
+							<td>{row.score}</td>
+							{row.signals.map((hasSignal, index) => (
+								<td key={COMPETITOR_SIGNAL_COLUMNS[index]}>
+									{hasSignal ? '✓' : '—'}
+								</td>
 							))}
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<DummyDataNotice />
-		</CardComponent>
-	</ProDummyCard>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	</BlurredDummyContent>
 );

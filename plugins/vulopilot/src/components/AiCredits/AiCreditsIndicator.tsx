@@ -47,22 +47,21 @@ const AiCreditsIndicator = () => {
 		<div className="ai-credits-indicator">
 			<ButtonInput
 				buttons={{
-					text: `⚡ ${
-						status.connected
+					text: `⚡ ${status.connected
 							? sprintf(
 								/* translators: %d: real remaining AI Credit balance. */
 								__('%d AI Credits', 'vulopilot'),
 								status.credits
 							)
 							: __('Claim free AI Credits', 'vulopilot')
-					}`,
+						}`,
 					color: 'orange-bg',
 					onClick: () => setIsOpen(!isOpen),
 				}}
 			/>
 
 			<PopupComponent
-				width={30}
+				width={35}
 				height="fit-content"
 				open={isOpen}
 				onClose={() => setIsOpen(false)}
@@ -178,28 +177,31 @@ const AiCreditsBalancePanel = ({
 				</div>
 			)}
 
-			<div className="ai-credits-balance-panel-actions">
-				<a
-					className="ai-credits-balance-panel-primary-link"
-					href={appLocalizer.shop_url}
-					target="_blank"
-					rel="noreferrer"
-				>
-					<i className="adminfont-cart" />
-					{__('Buy More Credits', 'vulopilot')}
-					<i className="adminfont-arrow-right" />
-				</a>
-				<a
-					className="ai-credits-balance-panel-secondary-link"
-					href={appLocalizer.shop_url}
-					target="_blank"
-					rel="noreferrer"
-				>
-					<i className="adminfont-pro-tag" />
-					{__('Explore VuloPilot Pro', 'vulopilot')}
-					<i className="adminfont-arrow-right" />
-				</a>
-			</div>
+
+			<ButtonInput
+				wrapperClass="credits-button"
+				position="left"
+				buttons={[
+					{
+						text: __('Buy More Credits', 'vulopilot'),
+						leftIcon: 'cart',
+						rightIcon: 'arrow-right',
+						color: 'purple-bg',
+						onClick: () => {
+							window.open(appLocalizer.shop_url, '_blank', 'noopener,noreferrer');
+						},
+					},
+					{
+						text: __('Explore VuloPilot Pro', 'vulopilot'),
+						leftIcon: 'pro-tag',
+						rightIcon: 'arrow-right',
+						color: 'border-purple',
+						onClick: () => {
+							window.open(appLocalizer.shop_url, '_blank', 'noopener,noreferrer');
+						},
+					},
+				]}
+			/>
 
 			<button
 				type="button"

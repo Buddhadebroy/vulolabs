@@ -49,31 +49,12 @@ export default {
 
 			label: __('Generate XML sitemap', 'vulopilot'),
 			settingDescription: __(
-				'Available at yoursite.com/wp-sitemap.xml once enabled.',
+				'Available at yoursite.com/wp-sitemap.xml once enabled. Search engines are notified automatically when new content is published.',
 				'vulopilot'
 			),
 			options: [
 				{ key: 'sitemap_enabled', label: '', value: 'sitemap_enabled' },
 			],
-		},
-		{
-			key: 'sitemap_ping_search_engines',
-			type: 'checkbox',
-			look: 'toggle',
-
-			label: __('Ping search engines on update', 'vulopilot'),
-			settingDescription: __(
-				'Notifies Bing automatically when new content is published.',
-				'vulopilot'
-			),
-			options: [
-				{
-					key: 'sitemap_ping_search_engines',
-					label: '',
-					value: 'sitemap_ping_search_engines',
-				},
-			],
-			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
 		},
 		{
 			key: 'sitemap_links_per_page',

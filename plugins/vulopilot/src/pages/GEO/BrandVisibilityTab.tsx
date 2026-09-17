@@ -13,7 +13,7 @@ import SectionedFindingsTab from '../Security/SectionedFindingsTab';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import { useFilterSlot } from '../../services/useFilterSlot';
-import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
+import ShowProPopup from '../../components/Popup/Popup';
 import {
 	AuthorityTrendsDummy,
 	KnowledgePanelDummy,
@@ -139,17 +139,7 @@ const BrandVisibilityTab = () => {
 		'vulopilot_brand_offsite_mentions_card'
 	);
 
-	/**
-	 * Same real 2-tier "PRO" vs. the module's own display name badge
-	 * Automations.tsx's own `manageBadge` already establishes for its Pro
-	 * dummy cards — generic "Pro" when Pro isn't installed at all, or the
-	 * real Brand Intelligence display name (Settings → Modules) when Pro is
-	 * installed but this specific module just isn't toggled on there yet.
-	 */
 	const isProInstalled = Boolean(appLocalizer.khali_dabba);
-	const brandProBadge = isProInstalled
-		? resolveModuleDisplayName(BRAND_MODULE_ID)
-		: __('Pro', 'vulopilot');
 
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 	const openProPopup = () => setIsProPopupOpen(true);
@@ -194,7 +184,6 @@ const BrandVisibilityTab = () => {
 									<AuthorityTrendsCard />
 								) : (
 									<AuthorityTrendsDummy
-										badgeText={brandProBadge}
 										onClick={openProPopup}
 									/>
 								)}
@@ -204,7 +193,6 @@ const BrandVisibilityTab = () => {
 									<KnowledgePanelCard />
 								) : (
 									<KnowledgePanelDummy
-										badgeText={brandProBadge}
 										onClick={openProPopup}
 									/>
 								)}
@@ -214,7 +202,6 @@ const BrandVisibilityTab = () => {
 							<CompetitorComparisonCard />
 						) : (
 							<CompetitorComparisonDummy
-								badgeText={brandProBadge}
 								onClick={openProPopup}
 							/>
 						)}
@@ -226,7 +213,6 @@ const BrandVisibilityTab = () => {
 							<OffSiteMentionsCard />
 						) : (
 							<OffSiteMentionsDummy
-								badgeText={brandProBadge}
 								onClick={openProPopup}
 							/>
 						)}
