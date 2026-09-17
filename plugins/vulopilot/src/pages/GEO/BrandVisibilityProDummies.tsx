@@ -12,7 +12,7 @@ import {
 	YAxis,
 } from 'recharts';
 import DummyDataNotice from '../../components/DummyDataNotice';
-import upgradeToProBackground from '../../assets/images/upgrade-to-pro.png';
+import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 import './SeoVisibility.scss';
 
 interface DummyCardProps {
@@ -35,46 +35,26 @@ interface DummyCardProps {
  */
 
 /**
- * The "Upgrade to Pro" card floating over every dummy's own blurred
- * content — used to be one-off markup only `KnowledgePanelDummy` carried;
- * pulled out here and reused by all 4 dummy cards below so the same
- * overlay (icon/title/desc/button, `upgrade-to-pro.png` background) shows
- * consistently regardless of which one a user clicks past.
- */
-const UpgradeToProOverlay = () => (
-	<div className="pro-section-wrapper">
-		<div
-			className="pro-section"
-			>
-			<i className="adminfont-lock purple"></i>
-			<div className="title">{__('Upgrade to Pro', 'vulopilot')}</div>
-			<span>{__('Unlock the full VuloPilot toolkit', 'vulopilot')}</span>
-			<div className="admin-btn btn-purple-bg">
-				{__('Upgrade to pro', 'vulopilot')}
-			</div>
-		</div>
-	</div>
-);
-
-/**
  * The one real shell every dummy card below renders through — merges what
  * used to be two separate wrappers each of the 4 dummies had to nest by
  * hand (`ProDummyCard`, the outer `.admin-tag.pro-tag` badge wrapper, and
- * a `BlurredDummyContent` sitting *inside* its `CardComponent` for the
- * `.blur-wrapper`/`<UpgradeToProOverlay />`/click-through shell) into one
- * local component. Owns the `CardComponent` itself (title/titleIcon/desc/
- * action passed straight through) so a caller no longer hand-assembles
- * `CardComponent > BlurredDummyContent` itself; `DummyDataNotice` (real on
- * every one of the 4) is included unconditionally for the same reason.
+ * the `<BlurredProContent>` shell — ../../components/UpgradeToProOverlay.tsx,
+ * shared across the plugin, not just this file — for the
+ * `.blur-wrapper`/`<UpgradeToProOverlay />`/click-through content) into
+ * one local component. Owns the `CardComponent` itself (title/titleIcon/
+ * desc/action passed straight through) so a caller no longer
+ * hand-assembles `CardComponent > BlurredProContent` itself;
+ * `DummyDataNotice` (real on every one of the 4) is included
+ * unconditionally for the same reason.
  *
  * The `.admin-tag.pro-tag` badge that used to float over every card here
  * (`ProDummyCard`'s own job) was removed per direct instruction — every
  * one of these cards already shows the real "Upgrade to Pro" overlay
- * (`<UpgradeToProOverlay />` below) the moment its blurred content
- * renders, so the badge was the same "this is Pro" message a second time
- * on the same card. `.brand-pro-dummy-wrapper` (the outer `position:
- * relative` div that badge needed as its own anchor) went with it — see
- * SeoVisibility.scss's own removed rule.
+ * (`<BlurredProContent>`'s own `<UpgradeToProOverlay />`) the moment its
+ * blurred content renders, so the badge was the same "this is Pro"
+ * message a second time on the same card. `.brand-pro-dummy-wrapper` (the
+ * outer `position: relative` div that badge needed as its own anchor)
+ * went with it — see SeoVisibility.scss's own removed rule.
  */
 const BlurredDummyContent = ({
 	title,
@@ -96,22 +76,9 @@ const BlurredDummyContent = ({
 	children: ReactNode;
 }) => (
 	<CardComponent title={title} titleIcon={titleIcon} desc={desc} action={action}>
-		<div className="blur-wrapper">
-			<UpgradeToProOverlay />
-			<div
-				className={`${contentClassName} blur-wrapper-content`}
-				role="button"
-				tabIndex={0}
-				onClick={onClick}
-				onKeyDown={(event) => {
-					if ('Enter' === event.key || ' ' === event.key) {
-						onClick();
-					}
-				}}
-			>
-				{children}
-			</div>
-		</div>
+		<BlurredProContent contentClassName={contentClassName} onClick={onClick}>
+			{children}
+		</BlurredProContent>
 		<DummyDataNotice />
 	</CardComponent>
 );

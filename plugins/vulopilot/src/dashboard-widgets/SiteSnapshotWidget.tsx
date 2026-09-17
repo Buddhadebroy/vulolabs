@@ -289,7 +289,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 		<CardComponent
 			title={__('Site snapshot', 'vulopilot')}
 			desc={__('Which of your automations are enabled and running.', 'vulopilot')}
-			icon="info"
+			icon="plus"
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}

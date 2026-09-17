@@ -479,12 +479,11 @@
 // ai copilot
 .group-wrapper {
     display: flex;
-    flex-direction: column;
-    // gap: 2rem;
+    gap: 2rem;
 
-    // .group {
-    //     width: 50%;
-    // }
+    .group {
+        width: 50%;
+    }
 
     .site-snapshot-group-card {
         margin-bottom: 2rem;
