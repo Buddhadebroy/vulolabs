@@ -748,7 +748,7 @@ class Seo extends \WP_REST_Controller {
      * @return array{key: string, label: string, status: string, message: string}
      */
     private function check_headings( \WP_Post $post ): array {
-        $label = __( 'Headings', 'vulopilot' );
+        $label = __( 'Subheadings', 'vulopilot' );
 
         if ( preg_match( '/<h[2-6][\s>]/i', $post->post_content ) ) {
             return $this->build_check( 'headings', $label, 'pass', __( 'H2, H3+ tags found', 'vulopilot' ) );
