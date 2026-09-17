@@ -102,7 +102,7 @@ const ConnectionsPanel = () => {
 				icon="shortcode"
 				title={__('Tag Manager', 'vulopilot')}
 				desc={__(
-					'Adds Google Tag Manager to every page — its own <script> in the page head and a <noscript> fallback right after <body>.',
+					'Connect your Google account to access search performance, indexing information, and website traffic. Set up Google Analytics (https://support.google.com/analytics/answer/9304153)',
 					'vulopilot'
 				)}
 			>

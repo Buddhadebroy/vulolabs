@@ -118,7 +118,7 @@ export default {
 			look: 'toggle',
 			
 			label: __('Flag orphan pages', 'vulopilot'),
-			settingDescription: __('Pages with no internal links pointing to them.', 'vulopilot'),
+			settingDescription: __('Pages with no incoming internal links, making them harder for visitors and search engines to discover.', 'vulopilot'),
 			options: [
 				{ key: 'flag_orphan_pages', label: '', value: 'flag_orphan_pages' },
 			],
@@ -129,7 +129,7 @@ export default {
 			size: 15,
 			label: __('Thin content threshold (words)', 'vulopilot'),
 			settingDescription: __(
-				'Pages below this word count are flagged as thin content.',
+				'Set the minimum word count for a page. Pages below this limit will be flagged for review.',
 				'vulopilot'
 			),
 		},
@@ -139,7 +139,7 @@ export default {
 			look: 'toggle',
 
 			label: __('Flag missing meta descriptions', 'vulopilot'),
-			settingDescription: __('Pages and posts with no meta description set.', 'vulopilot'),
+			settingDescription: __('Pages without a meta description that summarizes their content for search engines.', 'vulopilot'),
 			options: [
 				{ key: 'flag_missing_meta_description', label: '', value: 'flag_missing_meta_description' },
 			],
@@ -151,7 +151,7 @@ export default {
 
 			label: __('Flag duplicate title tags', 'vulopilot'),
 			settingDescription: __(
-				'Two or more published pages sharing the exact same title.',
+				'Pages sharing the same SEO title, so you can give each page a distinct title.',
 				'vulopilot'
 			),
 			options: [
@@ -174,7 +174,7 @@ export default {
 			look: 'toggle',
 
 			label: __('Flag missing alt text', 'vulopilot'),
-			settingDescription: __('Content images with no alt attribute.', 'vulopilot'),
+			settingDescription: __('Images without alternative text that describes their content for screen readers and search engines.', 'vulopilot'),
 			options: [
 				{ key: 'flag_missing_alt_text', label: '', value: 'flag_missing_alt_text' },
 			],
@@ -186,7 +186,7 @@ export default {
 
 			label: __('Flag broken images', 'vulopilot'),
 			settingDescription: __(
-				'Image tags pointing to a source URL that returns a broken (non-2xx/3xx) response.',
+				'Image that fail to load because their source URL returns an error.',
 				'vulopilot'
 			),
 			options: [
@@ -228,7 +228,7 @@ export default {
 
 			label: __('Flag broken internal links', 'vulopilot'),
 			settingDescription: __(
-				'Internal links pointing to a 404 or removed page.',
+				'Find links pointing to missing or unavailable pages on your website.',
 				'vulopilot'
 			),
 			options: [
@@ -242,7 +242,7 @@ export default {
 			
 			label: __('Add canonical URL tags', 'vulopilot'),
 			settingDescription: __(
-				'WordPress already adds these by default — only turn this on if the "Canonical URLs" finding shows them missing (usually a theme or caching plugin stripping them).',
+				'canonical tags to indicate the preferred URL for pages with duplicate or similar content. WordPress already adds these by default — only turn this on if the "Canonical URLs" finding shows them missing.',
 				'vulopilot'
 			),
 			options: [
@@ -260,7 +260,7 @@ export default {
 			
 			label: __('Add Open Graph & Twitter Card tags', 'vulopilot'),
 			settingDescription: __(
-				'Adds preview tags (title, description, image) for Facebook, LinkedIn, and X/Twitter. Turn on only if the "Open Graph"/"Twitter Cards" findings show them missing.',
+				'Social sharing metadata so supported platforms can display page titles, descriptions, and images.',
 				'vulopilot'
 			),
 			options: [
@@ -284,7 +284,7 @@ export default {
 			
 			label: __('Auto-generate robots.txt', 'vulopilot'),
 			settingDescription: __(
-				'Adds a sitemap reference to your robots.txt. Turn off if you maintain a custom robots.txt file yourself.',
+				'Add a sitemap reference to your robots.txt file to help search engines discover your sitemap.',
 				'vulopilot'
 			),
 			options: [
@@ -298,7 +298,7 @@ export default {
 			
 			label: __('Flag pages blocked for specific AI crawlers', 'vulopilot'),
 			settingDescription: __(
-				'Published pages/posts that robots.txt disallows for one named AI bot (GPTBot, ClaudeBot, etc.), separate from the sitewide check above.',
+				'Find published pages affected by robots.txt rules for selected AI crawlers, such as GPTBot and ClaudeBot.',
 				'vulopilot'
 			),
 			options: [
@@ -323,7 +323,7 @@ export default {
 			
 			label: __('Enable redirect manager', 'vulopilot'),
 			settingDescription: __(
-				'Create and manage 301 redirects from the Redirects page.',
+				'Create and manage 301 redirects to send visitors from old URLs to new pages.',
 				'vulopilot'
 			),
 			options: [
@@ -341,7 +341,7 @@ export default {
 			
 			label: __('Auto-create redirect on slug change', 'vulopilot'),
 			settingDescription: __(
-				'When a published page or post URL changes, redirect the old URL automatically.',
+				'Automatically redirect the previous URL when you change a published post or page slug.',
 				'vulopilot'
 			),
 			options: [
@@ -364,7 +364,7 @@ export default {
 			
 			label: __('Log 404s', 'vulopilot'),
 			settingDescription: __(
-				'Track visits to missing pages so you can turn them into redirect suggestions.',
+				'Record visits to missing pages so you can identify broken URLs and create redirects where needed.',
 				'vulopilot'
 			),
 			options: [{ key: 'log_404s', label: '', value: 'log_404s' }],
