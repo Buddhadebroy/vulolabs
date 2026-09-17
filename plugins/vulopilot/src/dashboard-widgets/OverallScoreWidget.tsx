@@ -7,6 +7,7 @@ import {
 	ListComponent,
 	IconComponent,
 } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import { useLastScanTime } from '../services/useLastScanTime';
 import { formatWpDate } from '../services/formatWpDate';
@@ -171,12 +172,17 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			onHide={onHide}
 			isCustomizing={isCustomizing}
 			headerAction={
-				<a
-					href="?page=vulopilot#&tab=reports"
-					className="vital-pulse-full-report-link"
-				>
-					{__('View full report ›', 'vulopilot')}
-				</a>
+				<ButtonInput
+					wrapperClass="vital-pulse-full-report-link"
+					buttons={{
+						text: __('View full report', 'vulopilot'),
+						rightIcon: 'pagination-right-arrow',
+						color: 'text-purple',
+						onClick: () => {
+							window.location.href = '?page=vulopilot#&tab=reports';
+						},
+					}}
+				/>
 			}
 		>
 			<div className="overall-score-wrapper">

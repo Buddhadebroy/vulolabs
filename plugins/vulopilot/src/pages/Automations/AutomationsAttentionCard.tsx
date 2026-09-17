@@ -110,7 +110,7 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 			</div>
 			{failing.length > 0 && (
 				<span className="automation-attention-view-all" onClick={onViewAll}>
-					{__('View all issues →', 'vulopilot')}
+					{__('View all issues ', 'vulopilot')}
 				</span>
 			)}
 		</CardComponent>

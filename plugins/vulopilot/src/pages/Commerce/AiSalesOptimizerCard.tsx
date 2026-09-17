@@ -91,7 +91,7 @@ const AiSalesOptimizerCard = ({
 							/>
 							<ButtonInput
 								buttons={{
-									text: __('Find Sales Opportunities →', 'vulopilot'),
+									text: __('Find Sales Opportunities ', 'vulopilot'),
 									color: 'border-purple',
 									onClick: onFindOpportunities,
 								}}

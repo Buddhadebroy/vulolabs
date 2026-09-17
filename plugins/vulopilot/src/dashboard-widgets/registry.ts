@@ -96,7 +96,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		title: __('Issues at a glance', 'vulopilot'),
 		desc: __('Real open-finding counts for SEO, GEO, and AEO.', 'vulopilot'),
 		icon: 'web-page-website',
-		grid: 4,
+		grid: 6,
 		component: KeyPagesWidget,
 	},
 
@@ -105,17 +105,9 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		title: __('AI crawler traffic', 'vulopilot'),
 		desc: __('A quick look at real AI crawler visits, with a link to the full report.', 'vulopilot'),
 		icon: 'global-community',
-		grid: 4,
+		grid: 6,
 		component: CrawlerTrafficWidget,
 	},
-	// {
-	// 	id: 'latest-reports',
-	// 	title: __('Latest reports', 'vulopilot'),
-	// 	desc: __('Your most recently generated reports.', 'vulopilot'),
-	// 	icon: 'report',
-	// 	grid: 4,
-	// 	component: LatestReportsWidget,
-	// },
 ];
 
 /**

@@ -313,7 +313,7 @@ const InspectorSection = () => {
 									position="left"
 									buttons={{
 										text: __(
-											'Validate homepage with Google →',
+											'Validate homepage with Google ',
 											'vulopilot'
 										),
 										color: 'text-purple',
