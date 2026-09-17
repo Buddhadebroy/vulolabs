@@ -267,7 +267,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 									key: 'label',
 									type: 'info',
 									label: __('Issue', 'vulopilot'),
-									width: '75%',
+									width: '60%',
 									iconKey: 'categoryIcon',
 									descriptionKey: 'descriptionText',
 									badgesKey: 'issueBadges',
