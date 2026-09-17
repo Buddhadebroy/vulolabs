@@ -276,6 +276,10 @@ export default {
 			type: 'section',
 			icon: 'search-discovery',
 			title: __('Robots.txt', 'vulopilot'),
+			desc: __(
+				'Manage sitemap discovery and identify crawler restrictions that may prevent search engines and AI bots from accessing your content.',
+				'vulopilot'
+			),
 		},
 		{
 			key: 'robots_auto_generate',
@@ -315,6 +319,10 @@ export default {
 			type: 'section',
 			icon: 'external',
 			title: __('Redirects', 'vulopilot'),
+			desc: __(
+				'Keep visitors on the right pages when URLs change and identify broken links that need attention.',
+				'vulopilot'
+			),
 		},
 		{
 			key: 'enable_redirect_manager',
