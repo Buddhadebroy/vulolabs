@@ -25,8 +25,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'indexnow',
-	// After Sitemap (priority 4).
-	priority: 5,
+	priority: 4,
 	headerTitle: __('Instant Indexing', 'vulopilot'),
 	headerDescription: __(
 		'Submit new and updated URLs to search engines the moment they\'re published.',

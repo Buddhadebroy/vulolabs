@@ -29,7 +29,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'sitemap',
-	priority: 4,
+	priority: 3,
 	headerTitle: __('Sitemap', 'vulopilot'),
 	headerDescription: __(
 		'Configure your XML sitemap (for search engines) and HTML sitemap (for visitors).',

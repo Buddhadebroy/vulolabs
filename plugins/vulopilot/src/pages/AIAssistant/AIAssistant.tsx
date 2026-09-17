@@ -12,7 +12,7 @@ import {
 	TooltipComponent,
 } from '@zyra/components';
 import { FileInput } from '@zyra/inputs';
-import { getApiLink, getApiResponse, scrollToId, sendApiResponse } from '@zyra/core';
+import { getApiLink, scrollToId, sendApiResponse } from '@zyra/core';
 import ConnectVuloCloudPopup from '../../components/AiCredits/ConnectVuloCloudPopup';
 import { useAiCredits } from '../../services/useAiCredits';
 import NeedsAttentionCard, { IssuesFilter } from './NeedsAttentionCard';
@@ -24,14 +24,12 @@ import { AutomationTemplate } from '../Automations/automationsTypes';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import {
 	useCopilotChat,
-	CopilotContextRef,
 	CopilotAttachment,
 } from '../../services/useCopilotChat';
 import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatComposerCard';
 
-/** Mirrors Controllers\Copilot.php's own MAX_ATTACHMENTS/MAX_CONTEXT_REFS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
+/** Mirrors Controllers\Copilot.php's own MAX_ATTACHMENTS — capped client-side too so the composer never offers to add more than the server would actually resolve. */
 const MAX_ATTACHMENTS = 3;
-const MAX_CONTEXT_REFS = 5;
 
 /**
  * The types vulopilot-pro's own Rest.php actually does something real with: text/csv files
@@ -58,32 +56,6 @@ const SUGGESTED_PROMPTS = [
 	{ id: 'security', icon: 'security', title: __('Find security issues', 'vulopilot') },
 	{ id: 'geo', icon: 'geo-location', title: __('Make my site GEO ready', 'vulopilot') },
 ];
-
-interface FindingGroupOption {
-	scanner_id: string;
-	category: string;
-	severity: string;
-	count: number;
-	label: string;
-}
-
-interface AttentionSummaryResponse {
-	groups: FindingGroupOption[];
-}
-
-interface AutomationOption {
-	id: number;
-	name: string;
-	status: string;
-	trigger_type: string;
-}
-
-interface AutomationsResponse {
-	data: AutomationOption[];
-}
-
-const contextRefKey = (ref: CopilotContextRef): string =>
-	'finding_group' === ref.type ? `finding_group:${ref.scannerId}` : `automations:${ref.id}`;
 
 /**
  * "AI Copilot" — a real, single-view page (Chat/History used to be a tab
@@ -126,16 +98,19 @@ const contextRefKey = (ref: CopilotContextRef): string =>
  * back into this composer, ready to keep chatting from — not just a
  * read-only excerpt. The prompt grid still prefills the composer.
  *
- * "Attach" and "Add context" are real: Attach opens zyra's FileInput,
- * which — on this admin screen, now that Admin.php calls
- * wp_enqueue_media() — hands back a real WP Media Library attachment
- * {id, url} via wp.media(), never a client-only blob preview. Add context
- * opens a picker over the same real data NeedsAttentionCard.tsx (open
- * finding groups) and this page's own automation entry points show (active
- * automations). Both are sent as `context_refs`/`attachments` on the next
+ * "Attach" is real: it opens zyra's FileInput, which — on this admin
+ * screen, now that Admin.php calls wp_enqueue_media() — hands back a real
+ * WP Media Library attachment {id, url} via wp.media(), never a
+ * client-only blob preview. Sent as `attachments` on the next
  * `POST /copilot/chat` and re-resolved against real, current data
  * server-side (Copilot.php's build_extra_context()) — this component only
- * carries an id/ref, never the resolved content itself.
+ * carries an id, never the resolved content itself.
+ *
+ * "Add context" (a picker over open finding groups/active automations) was
+ * removed from this composer per direct instruction — Copilot.php's own
+ * `build_extra_context()`/`context_refs` handling stays as-is server-side
+ * (untouched, real, still reachable by any future caller), only this page's
+ * own button/panel/state for it is gone.
  *
  * The header's "Online"/"Offline" badge is real, not decorative — but NOT
  * `appLocalizer.vulocloud_connected` (VuloCloudAccountConnection, the
@@ -238,28 +213,16 @@ const AIAssistant = () => {
 	};
 
 	const [attachments, setAttachments] = useState<CopilotAttachment[]>([]);
-	const [contextRefs, setContextRefs] = useState<CopilotContextRef[]>([]);
 	const [isAttachPanelOpen, setIsAttachPanelOpen] = useState(false);
-	const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
-	const [isLoadingContextOptions, setIsLoadingContextOptions] =
-		useState(false);
-	const [findingGroupOptions, setFindingGroupOptions] = useState<
-		FindingGroupOption[] | null
-	>(null);
-	const [automationOptions, setAutomationOptions] = useState<
-		AutomationOption[] | null
-	>(null);
 
 	const handleSend = () => {
-		send(chatMessage, contextRefs, attachments, autoApply);
+		send(chatMessage, [], attachments, autoApply);
 		setChatMessage('');
 		setAttachments([]);
-		setContextRefs([]);
-		// Close the Attach/Add context panels on send — otherwise they stay
-		// open and revert to their own empty "Drag and drop"/list state,
-		// which reads as if nothing was actually sent.
+		// Close the Attach panel on send — otherwise it stays open and
+		// reverts to its own empty "Drag and drop" state, which reads as if
+		// nothing was actually sent.
 		setIsAttachPanelOpen(false);
-		setIsContextPanelOpen(false);
 	};
 
 	/**
@@ -297,40 +260,7 @@ const AIAssistant = () => {
 	};
 
 	const toggleAttachPanel = () => {
-		setIsContextPanelOpen(false);
 		setIsAttachPanelOpen((open) => !open);
-	};
-
-	const toggleContextPanel = () => {
-		setIsAttachPanelOpen(false);
-		setIsContextPanelOpen((open) => {
-			const opening = !open;
-
-			if (opening && null === findingGroupOptions && null === automationOptions) {
-				setIsLoadingContextOptions(true);
-
-				Promise.all([
-					getApiResponse<AttentionSummaryResponse>(
-						getApiLink(appLocalizer, 'findings/attention-summary'),
-						{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-					),
-					getApiResponse<AutomationsResponse>(
-						getApiLink(
-							appLocalizer,
-							'automations?status=enabled&per_page=10'
-						),
-						{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
-					),
-				])
-					.then(([attentionResponse, automationsResponse]) => {
-						setFindingGroupOptions(attentionResponse?.groups ?? []);
-						setAutomationOptions(automationsResponse?.data ?? []);
-					})
-					.finally(() => setIsLoadingContextOptions(false));
-			}
-
-			return opening;
-		});
 	};
 
 	const handleFileInputChange = (
@@ -364,24 +294,6 @@ const AIAssistant = () => {
 				name: file.url.split('#').pop()?.split('/').pop() || file.url,
 			}))
 		);
-	};
-
-	const toggleContextRef = (ref: CopilotContextRef) => {
-		const key = contextRefKey(ref);
-
-		setContextRefs((current) => {
-			if (current.some((existing) => contextRefKey(existing) === key)) {
-				return current.filter(
-					(existing) => contextRefKey(existing) !== key
-				);
-			}
-
-			if (current.length >= MAX_CONTEXT_REFS) {
-				return current;
-			}
-
-			return [...current, ref];
-		});
 	};
 
 	const removeAttachment = (id: number) =>
@@ -496,7 +408,7 @@ const AIAssistant = () => {
 								isSending={isSending}
 								beforeComposer={
 									<>
-										{(attachments.length > 0 || contextRefs.length > 0) && (
+										{attachments.length > 0 && (
 											<div className="chat-composer-chips">
 												{attachments.map((attachment) => (
 													<span
@@ -510,21 +422,6 @@ const AIAssistant = () => {
 															onClick={() =>
 																removeAttachment(attachment.id)
 															}
-														/>
-													</span>
-												))}
-												{contextRefs.map((ref) => (
-													<span
-														className="chat-composer-chip"
-														key={contextRefKey(ref)}
-													>
-														<i className="adminfont-plus-circle" />
-														{'finding_group' === ref.type
-															? ref.label
-															: ref.name}
-														<i
-															className="adminfont-close"
-															onClick={() => toggleContextRef(ref)}
 														/>
 													</span>
 												))}
@@ -552,123 +449,6 @@ const AIAssistant = () => {
 												/>
 											</div>
 										)}
-
-										{isContextPanelOpen && (
-											<div className="chat-composer-panel">
-												<p className="chat-composer-panel-label">
-													{__(
-														'Pick real open issues or automations to ground this message with.',
-														'vulopilot'
-													)}
-												</p>
-												{isLoadingContextOptions ? (
-													<p>{__('Loading…', 'vulopilot')}</p>
-												) : (
-													<>
-														{(findingGroupOptions ?? []).map(
-															(group) => {
-																const ref: CopilotContextRef = {
-																	type: 'finding_group',
-																	scannerId: group.scanner_id,
-																	label: group.label,
-																	category: group.category,
-																	count: group.count,
-																	severity: group.severity,
-																};
-																const selected = contextRefs.some(
-																	(existing) =>
-																		contextRefKey(existing) ===
-																		contextRefKey(ref)
-																);
-
-																return (
-																	<div
-																		key={contextRefKey(ref)}
-																		className={`chat-context-option${
-																			selected
-																				? ' selected'
-																				: ''
-																		}`}
-																		onClick={() =>
-																			toggleContextRef(ref)
-																		}
-																	>
-																		<i
-																			className={
-																				selected
-																					? 'adminfont-check'
-																					: 'adminfont-error'
-																			}
-																		/>
-																		<span>
-																			{group.label} —{' '}
-																			{group.count}{' '}
-																			{__(
-																				'open',
-																				'vulopilot'
-																			)}{' '}
-																			({group.severity})
-																		</span>
-																	</div>
-																);
-															}
-														)}
-														{(automationOptions ?? []).map(
-															(automation) => {
-																const ref: CopilotContextRef = {
-																	type: 'automations',
-																	id: automation.id,
-																	name: automation.name,
-																};
-																const selected = contextRefs.some(
-																	(existing) =>
-																		contextRefKey(existing) ===
-																		contextRefKey(ref)
-																);
-
-																return (
-																	<div
-																		key={contextRefKey(ref)}
-																		className={`chat-context-option${
-																			selected
-																				? ' selected'
-																				: ''
-																		}`}
-																		onClick={() =>
-																			toggleContextRef(ref)
-																		}
-																	>
-																		<i
-																			className={
-																				selected
-																					? 'adminfont-check'
-																					: 'adminfont-update'
-																			}
-																		/>
-																		<span>
-																			{automation.name} (
-																			{automation.status})
-																		</span>
-																	</div>
-																);
-															}
-														)}
-														{0 ===
-															(findingGroupOptions ?? []).length &&
-															0 ===
-																(automationOptions ?? [])
-																	.length && (
-																<p>
-																	{__(
-																		'Nothing to add context from yet.',
-																		'vulopilot'
-																	)}
-																</p>
-															)}
-													</>
-												)}
-											</div>
-										)}
 									</>
 								}
 								composer={
@@ -687,8 +467,6 @@ const AIAssistant = () => {
 										)}
 										onAttach={toggleAttachPanel}
 										attachLabel={__('Attach', 'vulopilot')}
-										onAddContext={toggleContextPanel}
-										addContextLabel={__('Add context', 'vulopilot')}
 										autoApply={{
 											checked: autoApply,
 											onChange: setAutoApply,

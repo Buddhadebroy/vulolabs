@@ -24,7 +24,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
     id: 'business-information',
-    priority: 3,
+    priority: 1,
     headerTitle: __('Business Information', 'vulopilot'),
     headerDescription: __(
         'Tell VuloPilot about your business so it can build a more complete Knowledge Graph and Business Profile.',

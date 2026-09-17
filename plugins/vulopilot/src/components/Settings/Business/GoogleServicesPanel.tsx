@@ -183,10 +183,16 @@ const GoogleServiceCard = ( {
  * One click, nothing to configure: VuloPilot ships with its own shared
  * Google Cloud OAuth Client (VULOPILOT_GOOGLE_CLIENT_ID/SECRET, see
  * config.php's own docblock) — a site owner never sees or enters a
- * Client ID/Secret. If VuloLabs hasn't configured a real shared Client
- * ID/Secret for this build yet (`status.has_client_credentials` false),
- * the button is replaced with an honest "not available yet" state rather
- * than a button that would silently fail.
+ * Client ID/Secret. `GoogleServicesConnection::get_authorization_url()`
+ * (PHP) actually has 2 real ways to complete this: the embedded shared
+ * Client above, OR routing through VuloLabs' own VuloCloud OAuth broker
+ * (`status.has_broker` — needs no embedded Client ID/Secret at all, tried
+ * FIRST server-side). The button below is only replaced with the honest
+ * "not available yet" state when NEITHER is configured for this build
+ * (`!status.has_client_credentials && !status.has_broker`) — checking
+ * `has_client_credentials` alone was a real bug (fixed per direct report):
+ * it showed "not available yet" even on a working broker-only build,
+ * since `has_broker` was never read here at all.
  */
 const GoogleServicesPanel = () => {
 	const { setting, updateSetting } = useSetting();
@@ -378,7 +384,7 @@ const GoogleServicesPanel = () => {
 	if ( ! status.connected ) {
 		return (
 			<>
-				{ ! status.has_client_credentials ? (
+				{ ! status.has_client_credentials && ! status.has_broker ? (
 					<ModuleGuardComponent
 						icon="info"
 						title={ __( 'Google Connect isn’t available yet', 'vulopilot' ) }
