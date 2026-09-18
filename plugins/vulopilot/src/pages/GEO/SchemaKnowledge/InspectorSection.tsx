@@ -11,6 +11,7 @@ import { TableCard } from '@zyra/table';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import { useEffect, useState } from 'react';
 import { useSchemaInspector } from './useSchemaInspector';
+import { RobotsTxtEditor } from '../CrawlRobotsSitemapSection';
 
 /**
  * Real per-`type` color + icon — the exact same 3 real post types
@@ -509,9 +510,12 @@ const InspectorSection = () => {
 							/>
 						</div>
 						{result.blocks.map((block) => (
-							<pre key={block.index} className="schema-inspector-jsonld-block">
-								{prettyPrint(block.raw)}
-							</pre>
+							<div key={block.index} className="schema-inspector-jsonld-block">
+								<RobotsTxtEditor
+									value={prettyPrint(block.raw)}
+									readOnly
+								/>
+							</div>
 						))}
 					</div>
 				)}

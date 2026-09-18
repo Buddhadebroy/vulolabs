@@ -34,8 +34,6 @@
 // stylesheet — equal selector specificity, but it lands later in the
 // cascade, so it silently won the tie (confirmed live) without this.
 .issue-detail-panel .analytics-container[data-template='priority-card'] {
-	// Reclaims width for 3 tiles this narrow — the shared default (1rem)
-	// leaves too little room for real text at this panel's own width.
 	gap: 0.5rem !important;
 
 	.analytics-item {

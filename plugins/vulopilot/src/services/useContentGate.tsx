@@ -6,6 +6,7 @@ import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../components/Popup/Popup';
 import { ConnectVuloCloudPromptContent } from '../components/AiCredits/ConnectVuloCloudPopup';
 import DummyDataNotice from '../components/DummyDataNotice';
+import { BlurredProContent } from '../components/UpgradeToProOverlay';
 import MODULES_CATALOG, { isModuleCatalogEntry } from '../components/Modules';
 import { useAiCredits } from './useAiCredits';
 import './useContentGate.scss';
@@ -76,18 +77,22 @@ const DEFAULT_DUMMY_CONTENT = (
  *    login) — unified onto this one flow per direct instruction ("remove
  *    the image 2 popup ... replace all image 2 popup to image 1"), so
  *    there's one real "connect" design/flow, not two.
- * 2. **Pro** (`appLocalizer.khali_dabba` false) — a "Pro" tag on top,
- *    `dummyContent` below it (a caller's own mock preview of its real
- *    shape — e.g. AiSpeedAssistantCard.tsx passes a fake count line plus
- *    disabled versions of its own two real buttons — or
- *    `DEFAULT_DUMMY_CONTENT` above if omitted; never `realContent` itself),
- *    plus the shared `DummyDataNotice` ("This is dummy data for
- *    visualization purposes only.") right below it — same notice every
- *    other Pro-tagged fabricated-content section in this plugin shows.
- *    Clicking anywhere in the section (not just the tag itself — see
- *    `.content-gate-click-overlay` below) opens the same generic upgrade
- *    popup (`ShowProPopup`, no `moduleName`) Settings' own locked Pro
- *    fields already use.
+ * 2. **Pro** (`appLocalizer.khali_dabba` false) — `dummyContent` (a
+ *    caller's own mock preview of its real shape — e.g.
+ *    AiSpeedAssistantCard.tsx passes a fake count line plus disabled
+ *    versions of its own two real buttons — or `DEFAULT_DUMMY_CONTENT`
+ *    above if omitted; never `realContent` itself) rendered behind the
+ *    same blurred "Upgrade to Pro" overlay every other Pro-gated
+ *    fabricated-content card in this plugin uses
+ *    (`BlurredProContent`/`UpgradeToProOverlay`,
+ *    ../components/UpgradeToProOverlay.tsx), plus the shared
+ *    `DummyDataNotice` ("This is dummy data for visualization purposes
+ *    only.") right below it. No separate `.admin-tag.pro-tag` here —
+ *    same reasoning BrandVisibilityProDummies.tsx's own docblock gives:
+ *    the overlay itself already says "Upgrade to Pro", so a second badge
+ *    on the same card would just repeat it. Clicking anywhere in the
+ *    blurred content opens the same generic upgrade popup (`ShowProPopup`,
+ *    no `moduleName`) Settings' own locked Pro fields already use.
  * 3. **Module** (`moduleId` missing from `appLocalizer.active_modules`) —
  *    same `dummyContent` treatment as Pro above, but the tag shows that
  *    module's own real display name (looked up from Modules/index.ts's own
@@ -165,17 +170,10 @@ export const useContentGate = (
 	// a real `<button disabled>` inside `dummyContent` (AiSpeedAssistantCard.tsx's
 	// own mock preview) never dispatches a click at all, so this tag can't
 	// rely on bubbling from there either; it needs one click target
-	// covering the entire section, not just this tag.
+	// covering the entire section, not just this tag. Not called for
+	// 'pro' at all anymore — `BlurredProContent`'s own overlay already
+	// says "Upgrade to Pro" (see this hook's own docblock, gate 2).
 	const renderTag = (): ReactNode => {
-		if ('pro' === gateReason) {
-			return (
-				<span className="admin-tag pro-tag">
-					<i className="adminfont-pro-tag" />
-					{__('Pro', 'vulopilot')}
-				</span>
-			);
-		}
-
 		if ('module' === gateReason && moduleId) {
 			const moduleName = MODULE_CATALOG_BY_ID.get(moduleId)?.name ?? moduleId;
 
@@ -201,16 +199,50 @@ export const useContentGate = (
 		}
 
 		const isVuloCloud = 'vulocloud' === gateReason;
+		const isPro = 'pro' === gateReason;
+
+		// 'pro' renders through `BlurredProContent` instead of this hook's
+		// own tag+click-overlay markup — that component owns its own
+		// blur-wrapper, "Upgrade to Pro" overlay, and whole-content click
+		// target already (see its own docblock), so duplicating
+		// `.content-gate-tag`/`.content-gate-click-overlay` around it here
+		// would just be a second, redundant click surface. 'vulocloud'/
+		// 'module' keep the original shape — genuinely different CTAs
+		// (blurred real content + "Connect to VuloCloud", vs. a straight
+		// navigate to Settings → Modules) that `BlurredProContent`'s own
+		// fixed "Upgrade to Pro" copy doesn't fit.
+		if (isPro) {
+			return (
+				<div className="content-gate">
+					<BlurredProContent
+						contentClassName="content-gate-dummy-content"
+						onClick={handleActivate}
+					>
+						{dummyContent}
+					</BlurredProContent>
+					<DummyDataNotice />
+					<PopupComponent
+						open={isPopupOpen}
+						onClose={() => setIsPopupOpen(false)}
+						width={31.25}
+						height="auto"
+						position="lightbox"
+					>
+						<ShowProPopup />
+					</PopupComponent>
+				</div>
+			);
+		}
 
 		return (
 			<div className="content-gate">
 				<div className="content-gate-tag">{renderTag()}</div>
 				{/* VuloCloud: the real content itself, blurred in place.
-				 * Pro/module: the caller's own dummy preview, plus the
-				 * shared "This is dummy data" notice (DummyDataNotice) —
-				 * per direct instruction, every Pro/module-gated section
-				 * showing fabricated content gets this same notice. See
-				 * this hook's own docblock for why the two look different. */}
+				 * Module: the caller's own dummy preview, plus the shared
+				 * "This is dummy data" notice (DummyDataNotice) — per direct
+				 * instruction, every module-gated section showing fabricated
+				 * content gets this same notice. See this hook's own
+				 * docblock for why the two look different. */}
 				{isVuloCloud ? (
 					<div className="content-gate-blur-content" aria-hidden="true">
 						{realContent}
@@ -223,7 +255,7 @@ export const useContentGate = (
 				)}
 				{/* Covers the whole section (tag + dummy/blurred content) so
 				 * a click anywhere within it activates — not just on the tag
-				 * itself. VuloCloud/Pro open the popup; Module navigates
+				 * itself. VuloCloud opens the popup; Module navigates
 				 * straight to Settings → Modules, highlighted (handleActivate
 				 * above). */}
 				<div
@@ -233,19 +265,18 @@ export const useContentGate = (
 					aria-label={
 						isVuloCloud
 							? __('Connect to VuloCloud', 'vulopilot')
-							: 'pro' === gateReason
-								? __('Upgrade to Pro', 'vulopilot')
-								: sprintf(
-										/* translators: %s is the real module's own display name. */
-										__('Activate %s', 'vulopilot'),
-										MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
-									)
+							: sprintf(
+									/* translators: %s is the real module's own display name. */
+									__('Activate %s', 'vulopilot'),
+									MODULE_CATALOG_BY_ID.get(moduleId ?? '')?.name ?? moduleId ?? ''
+								)
 					}
 					onClick={handleActivate}
 					onKeyDown={handleSectionKeyDown}
 				/>
-				{/* Only 'vulocloud'/'pro' ever set isPopupOpen now — 'module'
-				 * navigates directly instead (handleActivate above). */}
+				{/* Only 'vulocloud' ever sets isPopupOpen here — 'module'
+				 * navigates directly instead (handleActivate above). 'pro'
+				 * has its own PopupComponent above. */}
 				<PopupComponent
 					open={isPopupOpen}
 					onClose={() => setIsPopupOpen(false)}

@@ -142,22 +142,34 @@ const highlightRobotsLine = (line: string): string => {
  * `highlightRobotsLine`'s own docblock above for why. The real edit
  * target is always the plain `<textarea>` on top; the `<pre>` underneath
  * is purely decorative (`aria-hidden`) and never receives focus/input.
+ *
+ * Exported (and `readOnly` added) so InspectorSection.tsx's own JSON-LD
+ * blocks can reuse this exact same gutter/box look for real, live schema
+ * content — not a new, second code-viewer component. `readOnly` just
+ * drops the `<textarea>` overlay entirely (nothing to type into, nothing
+ * to overlay) and adds `.rt-editor-readonly` (common.scss) so the box
+ * sizes to its own real content instead of the fixed 16rem editable
+ * height. `highlightRobotsLine`'s own robots.txt-specific tokenizer still
+ * runs either way — a JSON line doesn't match its `directive: value`
+ * pattern (JSON keys start with `"`, not a bare letter), so it simply
+ * renders unhighlighted rather than mis-colored.
  */
 interface RobotsTxtEditorProps {
 	value: string;
-	onChange: (next: string) => void;
+	onChange?: (next: string) => void;
 	placeholder?: string;
+	readOnly?: boolean;
 }
 
-const RobotsTxtEditor = ({ value, onChange, placeholder }: RobotsTxtEditorProps) => {
+export const RobotsTxtEditor = ({ value, onChange, placeholder, readOnly = false }: RobotsTxtEditorProps) => {
 	// Gutter/height track the real placeholder's own line count while
 	// empty, so the box doesn't visually collapse to 1 line before any
 	// real content has loaded/been typed.
-	const lineCount = Math.max((value || placeholder || '').split('\n').length, 6);
+	const lineCount = Math.max((value || placeholder || '').split('\n').length, readOnly ? 1 : 6);
 	const highlighted = value ? value.split('\n').map(highlightRobotsLine).join('\n') : '';
 
 	return (
-		<div className="rt-editor">
+		<div className={`rt-editor${readOnly ? ' rt-editor-readonly' : ''}`}>
 			<div className="rt-gutter" aria-hidden="true">
 				{Array.from({ length: lineCount }).map((_, i) => (
 					<span key={i}>{i + 1}</span>
@@ -171,14 +183,16 @@ const RobotsTxtEditor = ({ value, onChange, placeholder }: RobotsTxtEditorProps)
 					// content above — never raw user input.
 					dangerouslySetInnerHTML={{ __html: highlighted || '&nbsp;' }}
 				/>
-				<textarea
-					className="rt-textarea"
-					value={value}
-					rows={lineCount}
-					spellCheck={false}
-					placeholder={placeholder}
-					onChange={(e) => onChange(e.target.value)}
-				/>
+				{!readOnly && (
+					<textarea
+						className="rt-textarea"
+						value={value}
+						rows={lineCount}
+						spellCheck={false}
+						placeholder={placeholder}
+						onChange={(e) => onChange?.(e.target.value)}
+					/>
+				)}
 			</div>
 		</div>
 	);
@@ -596,26 +610,6 @@ const CrawlRobotsSitemapSection = () => {
 					<CardComponent
 						title={__('Robots.txt Analysis', 'vulopilot')}
 						titleIcon="link"
-						// badges={[
-						// 	...(robots?.reachable
-						// 		? [
-						// 			{
-						// 				text:
-						// 					0 === robotsOpenCount
-						// 						? __('No violations found', 'vulopilot')
-						// 						: sprintf(
-						// 							/* translators: %d: number of open robots.txt violations. */
-						// 							__('%d violation(s) found', 'vulopilot'),
-						// 							robotsOpenCount
-						// 						),
-						// 				color: 0 === robotsOpenCount ? 'green' : 'red',
-						// 			},
-						// 		]
-						// 		: []),
-						// 	...(robots?.is_custom
-						// 		? [{ text: __('Custom', 'vulopilot'), color: 'purple' }]
-						// 		: []),
-						// ]}
 						desc={__(
 							'Your live robots.txt file (fetched right now, not a cached copy) — edit it directly below. Saving takes effect immediately, not a preview: the next request to /robots.txt serves this. Other active plugins (e.g. WooCommerce) may still add their own rules on top, same as they would with WordPress’s own default file.',
 							'vulopilot'

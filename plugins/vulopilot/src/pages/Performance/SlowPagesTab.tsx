@@ -443,6 +443,25 @@ const SlowPagesTab = () => {
 		setPaged(1);
 	}, [statusFilter, pageTypeFilter, searchTerm]);
 
+	// Auto-open the first row's details whenever the filtered set changes
+	// and nothing valid is currently selected — "always open 1st table of
+	// details" on load, and keeps a real detail panel visible after
+	// filters/search narrow or reorder rows, rather than leaving a stale
+	// row's panel (or an empty one) on screen.
+	useEffect(() => {
+		if (0 === filteredRows.length) {
+			setDetailRow(null);
+			return;
+		}
+
+		const stillVisible = filteredRows.some((row) => row.id === detailRow?.id);
+
+		if (!stillVisible) {
+			setDetailRow(filteredRows[0]);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [filteredRows]);
+
 	const pageRows = filteredRows.slice((paged - 1) * perPage, paged * perPage);
 
 	const statusCounts = response?.status_counts ?? {};
@@ -932,129 +951,136 @@ const SlowPagesTab = () => {
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
-				{/* Same "More Details" toggle → side panel pattern as
-				IssuesList.tsx's own IssueDetailPanel.tsx, instead of a
-				lightbox popup — `activeRowId`/table `more-action` toggle
-				above keep the selected row's own "Showing" state and this
-				panel in sync. */}
-				<CardComponent
-					title={detailRow?.title ?? __('Page details', 'vulopilot')}
-					titleIcon="info"
-					desc={detailRow?.url}
-					action={
-						detailRow && (
-							<i
-								className="adminfont-close"
-								role="button"
-								tabIndex={0}
-								aria-label={__('Close', 'vulopilot')}
-								onClick={() => setDetailRow(null)}
-								onKeyDown={(e) => {
-									if ('Enter' === e.key || ' ' === e.key) {
-										e.preventDefault();
-										setDetailRow(null);
-									}
-								}}
-							/>
-						)
-					}
-				>
-					{!detailRow ? (
-						<ModuleGuardComponent
-							icon="document"
-							title={__('Select a page', 'vulopilot')}
-							desc={__(
-								'Click "More Details" on a row to see it here.',
-								'vulopilot'
-							)}
-						/>
-					) : (
-						<FormGroupWrapperComponent>
-							<FormGroupComponent row label={__('URL', 'vulopilot')}>
-								<a href={detailRow.url} target="_blank" rel="noopener noreferrer">
-									{detailRow.url}
-								</a>
-							</FormGroupComponent>
-							<FormGroupComponent row label={__('Type', 'vulopilot')}>
-								{PAGE_TYPE_LABELS[detailRow.page_type] ?? detailRow.page_type}
-							</FormGroupComponent>
-							<FormGroupComponent row label={__('Load Time', 'vulopilot')}>
-								{null !== detailRow.load_time_ms
-									? sprintf(__('%s s', 'vulopilot'), (detailRow.load_time_ms / 1000).toFixed(2))
-									: '—'}
-							</FormGroupComponent>
-							{hasDeviceScores ? (
-								<>
-									<FormGroupComponent row label={__('Mobile Score', 'vulopilot')}>
-										<ScorePill score={detailRow.mobile_score} />
-									</FormGroupComponent>
-									<FormGroupComponent row label={__('Desktop Score', 'vulopilot')}>
-										<ScorePill score={detailRow.desktop_score} />
-									</FormGroupComponent>
-								</>
-							) : (
-								<FormGroupComponent row label={__('Score', 'vulopilot')}>
-									<ScorePill score={detailRow.score} />
-								</FormGroupComponent>
-							)}
-							{hasPsiDetail && (
-								<>
-									<FormGroupComponent row label={__('Page Size', 'vulopilot')}>
-										{formatBytes(detailRow.page_size_bytes)}
-									</FormGroupComponent>
-									<FormGroupComponent row label={__('Requests', 'vulopilot')}>
-										{null !== detailRow.requests_count ? detailRow.requests_count : '—'}
-									</FormGroupComponent>
-									<FormGroupComponent row label={__('Core Web Vitals', 'vulopilot')}>
-										<CoreWebVitalsDots row={detailRow} />
-									</FormGroupComponent>
-								</>
-							)}
-							<FormGroupComponent row label={__('Main Issue', 'vulopilot')}>
-								{detailRow.main_issue ?? __('None detected', 'vulopilot')}
-							</FormGroupComponent>
-							<FormGroupComponent row label={__('Last Scanned', 'vulopilot')}>
-								{formatWpDate(detailRow.scanned_at)}
-							</FormGroupComponent>
-						</FormGroupWrapperComponent>
-					)}
-				</CardComponent>
-
-				<CardComponent
-					id="slow-pages-why-card"
-					title={__('Why these pages are slow?', 'vulopilot')}
-					titleIcon="info"
-					desc={__('The most common issues dragging your pages down.', 'vulopilot')}
-				>
-					{0 === topIssues.length ? (
-						<ModuleGuardComponent
-							icon="check"
-							title={__('No issues detected', 'vulopilot')}
-							desc={__(
-								'Run a scan to check your real pages for common slowdown causes.',
-								'vulopilot'
-							)}
-						/>
-					) : (
-						<ListComponent
-							className="mini-card report"
-							items={topIssues.slice(0, 5).map((item) => ({
-								id: item.issue,
-								title: item.issue,
-								desc: sprintf(
-									/* translators: %d is the number of real pages this real issue affects. */
-									_n(
-										'%d page affected',
-										'%d pages affected',
-										item.affected_pages,
+				{/* "Page details" card only renders when there are real rows
+				 * to select from — same `filteredRows.length` check the
+				 * table's own empty-state (`ModuleGuardComponent`) already
+				 * uses on the left, so the two columns agree on when the
+				 * table actually has content. Without this, an empty scan
+				 * rendered a "Select a page" placeholder pointing at a
+				 * table that had nothing to click. The four cards below
+				 * stay unconditional — they're still meaningful with zero
+				 * rows. */}
+				{0 < filteredRows.length && (
+					<>
+						<CardComponent
+							title={detailRow?.title ?? __('Page details', 'vulopilot')}
+							titleIcon="info"
+							desc={detailRow?.url}
+							action={
+								detailRow && (
+									<i
+										className="adminfont-close"
+										role="button"
+										tabIndex={0}
+										aria-label={__('Close', 'vulopilot')}
+										onClick={() => setDetailRow(null)}
+										onKeyDown={(e) => {
+											if ('Enter' === e.key || ' ' === e.key) {
+												e.preventDefault();
+												setDetailRow(null);
+											}
+										}}
+									/>
+								)
+							}
+						>
+							{!detailRow ? (
+								<ModuleGuardComponent
+									icon="document"
+									title={__('Select a page', 'vulopilot')}
+									desc={__(
+										'Click "More Details" on a row to see it here.',
 										'vulopilot'
-									),
-									item.affected_pages
-								),
-							}))}
-						/>
-					)}
-				</CardComponent>
+									)}
+								/>
+							) : (
+								<FormGroupWrapperComponent>
+									<FormGroupComponent row label={__('URL', 'vulopilot')}>
+										<a href={detailRow.url} target="_blank" rel="noopener noreferrer">
+											{detailRow.url}
+										</a>
+									</FormGroupComponent>
+									<FormGroupComponent row label={__('Type', 'vulopilot')}>
+										{PAGE_TYPE_LABELS[detailRow.page_type] ?? detailRow.page_type}
+									</FormGroupComponent>
+									<FormGroupComponent row label={__('Load Time', 'vulopilot')}>
+										{null !== detailRow.load_time_ms
+											? sprintf(__('%s s', 'vulopilot'), (detailRow.load_time_ms / 1000).toFixed(2))
+											: '—'}
+									</FormGroupComponent>
+									{hasDeviceScores ? (
+										<>
+											<FormGroupComponent row label={__('Mobile Score', 'vulopilot')}>
+												<ScorePill score={detailRow.mobile_score} />
+											</FormGroupComponent>
+											<FormGroupComponent row label={__('Desktop Score', 'vulopilot')}>
+												<ScorePill score={detailRow.desktop_score} />
+											</FormGroupComponent>
+										</>
+									) : (
+										<FormGroupComponent row label={__('Score', 'vulopilot')}>
+											<ScorePill score={detailRow.score} />
+										</FormGroupComponent>
+									)}
+									{hasPsiDetail && (
+										<>
+											<FormGroupComponent row label={__('Page Size', 'vulopilot')}>
+												{formatBytes(detailRow.page_size_bytes)}
+											</FormGroupComponent>
+											<FormGroupComponent row label={__('Requests', 'vulopilot')}>
+												{null !== detailRow.requests_count ? detailRow.requests_count : '—'}
+											</FormGroupComponent>
+											<FormGroupComponent row label={__('Core Web Vitals', 'vulopilot')}>
+												<CoreWebVitalsDots row={detailRow} />
+											</FormGroupComponent>
+										</>
+									)}
+									<FormGroupComponent row label={__('Main Issue', 'vulopilot')}>
+										{detailRow.main_issue ?? __('None detected', 'vulopilot')}
+									</FormGroupComponent>
+									<FormGroupComponent row label={__('Last Scanned', 'vulopilot')}>
+										{formatWpDate(detailRow.scanned_at)}
+									</FormGroupComponent>
+								</FormGroupWrapperComponent>
+							)}
+						</CardComponent>
+						<CardComponent
+							id="slow-pages-why-card"
+							title={__('Why these pages are slow?', 'vulopilot')}
+							titleIcon="info"
+							desc={__('The most common issues dragging your pages down.', 'vulopilot')}
+						>
+							{0 === topIssues.length ? (
+								<ModuleGuardComponent
+									icon="check"
+									title={__('No issues detected', 'vulopilot')}
+									desc={__(
+										'Run a scan to check your real pages for common slowdown causes.',
+										'vulopilot'
+									)}
+								/>
+							) : (
+								<ListComponent
+									className="mini-card report"
+									items={topIssues.slice(0, 5).map((item) => ({
+										id: item.issue,
+										title: item.issue,
+										desc: sprintf(
+											/* translators: %d is the number of real pages this real issue affects. */
+											_n(
+												'%d page affected',
+												'%d pages affected',
+												item.affected_pages,
+												'vulopilot'
+											),
+											item.affected_pages
+										),
+									}))}
+								/>
+							)}
+						</CardComponent>
+					</>
+				)}
 
 				<RecommendedFixesCard topIssues={topIssues} />
 

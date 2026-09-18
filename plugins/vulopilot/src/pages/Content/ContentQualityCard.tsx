@@ -399,38 +399,31 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 			{!isLoading && data && (
 				<div className="content-quality-body">
 					<AnalyticsComponent
-						variant="progress"
+						variant="small-priority-card"
 						cols={3}
 						data={[
 							{
 								icon: 'knowledgebase',
-								number: sprintf(
+								colorClass: readabilityTone,
+								text: sprintf(
 									/* translators: %d: real Flesch Reading Ease score, 0-100. */
 									__('%d/100', 'vulopilot'),
 									data.readability.score
 								),
-								text: __('Readability', 'vulopilot'),
-								progress: data.readability.score,
-								colorClass: `${readabilityTone}-color`,
+								number: __('Readability', 'vulopilot'),
 							},
 							{
 								icon: 'search',
-								number: `${data.completeness.passed}/${data.completeness.total}`,
-								text: __('Checks passed', 'vulopilot'),
-								progress: completenessPercent,
-								colorClass: `${completenessTone}-color`,
+								colorClass: completenessTone,
+								text: `${data.completeness.passed}/${data.completeness.total}`,
+								number: __('Checks passed', 'vulopilot'),
 							},
 							{
 								icon: 'document',
-								number: issuesFound,
-								progress: issuesFound,
-								colorClass: `${completenessTone}-color`,
-								text: __('Issues Found', 'vulopilot'),
-								// A real count, not a percentage — no
-								// `progress`/`colorClass` here rather than
-								// fabricating a ratio just to fill the bar.
-								onClick:
-									issuesFound > 0 ? scrollToAssessment : undefined,
+								colorClass: completenessTone,
+								text: issuesFound,
+								number: __('Issues Found', 'vulopilot'),
+								onClick: issuesFound > 0 ? scrollToAssessment : undefined,
 							},
 						]}
 					/>
