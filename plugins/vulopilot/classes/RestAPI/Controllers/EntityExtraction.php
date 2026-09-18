@@ -154,6 +154,50 @@ class EntityExtraction extends \WP_REST_Controller {
             $data['categories']
         );
 
+        // "Contact details" row (BusinessProfileCard.tsx, "Key Information
+        // Found by AI") — deliberately checks the real site admin's account
+        // email, not `has_contact_page`/`contact_page_url` above (those
+        // stay as-is; still real signals used elsewhere on this same
+        // response, per direct instruction only this row's own check
+        // changes). Same real, per-viewer `edit_url` reasoning as
+        // `people`/`categories` above, so this is computed here rather
+        // than inside EntityExtractor::extract_all()'s own shared cache.
+        // `get_option( 'admin_email' )` is this codebase's own established
+        // "the site's admin email" primitive (VisibilityReportMailer.php,
+        // SiteTelemetryReporter.php, etc. all read it the same way); the
+        // matching \WP_User (falling back to the first real Administrator
+        // account when no user's own `user_email` matches it) is who the
+        // "View" action below actually opens, with `?highlight=email` so
+        // Admin::enqueue_user_edit_highlight_script() can jump straight to
+        // that one field on WP core's own user-edit.php screen.
+        $admin_email = get_option( 'admin_email' );
+        $admin_user  = $admin_email ? get_user_by( 'email', $admin_email ) : false;
+
+        if ( ! $admin_user ) {
+            $admins     = get_users(
+                array(
+                    'role__in' => array( 'administrator' ),
+                    'number'   => 1,
+                    'orderby'  => 'ID',
+                    'order'    => 'ASC',
+                )
+            );
+            $admin_user = $admins[0] ?? null;
+        }
+
+        $data['contact_email'] = array(
+            'found'    => (bool) $admin_email,
+            'edit_url' => ( $admin_user && current_user_can( 'edit_user', $admin_user->ID ) )
+                ? add_query_arg(
+                    array(
+                        'user_id'   => $admin_user->ID,
+                        'highlight' => 'email',
+                    ),
+                    admin_url( 'user-edit.php' )
+                )
+                : null,
+        );
+
         return rest_ensure_response( $data );
     }
 

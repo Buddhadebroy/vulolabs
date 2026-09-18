@@ -17,8 +17,20 @@ import { useSectionStatus } from '../../services/useSectionStatus';
  * elsewhere this session. `useApiList`'s own `mergedParams` already drops
  * an empty-string param, so this falls back to scanner_id-only filtering
  * — a real, existing escape hatch, not a new mechanism.
+ *
+ * Row `id`s (`wordpress`/`updates`/`background-tasks`/`database`/`server`)
+ * are the same keys as SiteHealthTab.tsx's own `SECTIONS[].key` — clicking
+ * a row, when `onSectionClick` is passed, jumps straight to that section's
+ * tab in the sectioned issues table below (SiteHealthTab.tsx's own
+ * `goToIssuesTable()`), same `action` wiring OpenIssuesGlimpse.tsx's own
+ * `ListComponent` rows already use for the same "row click scrolls to a
+ * filtered section" behavior elsewhere in this plugin.
  */
-const SiteHealthStatusCard = () => {
+interface SiteHealthStatusCardProps {
+	onSectionClick?: (key: string) => void;
+}
+
+const SiteHealthStatusCard = ({ onSectionClick }: SiteHealthStatusCardProps) => {
 	const wordpress = useSectionStatus('wordpress', ['wordpress-health']);
 	const updates = useSectionStatus('updates', ['updates']);
 	const backgroundTasks = useSectionStatus('cron', ['cron']);
@@ -83,6 +95,7 @@ const SiteHealthStatusCard = () => {
 					icon: row.icon,
 					title: row.label,
 					desc: row.desc,
+					action: onSectionClick ? () => onSectionClick(row.id) : undefined,
 					// 2 real separate badges (total open + top-severity
 					// breakdown), not 1 merged "N Open · N {Severity}
 					// Severity" pill — `useSectionStatus()`'s own `badges`

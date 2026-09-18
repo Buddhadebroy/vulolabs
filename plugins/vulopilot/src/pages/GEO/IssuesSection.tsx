@@ -247,7 +247,6 @@ const IssuesSection = ({
 	// the tab bar itself never renders.
 	const [toolbarSearch, setToolbarSearch] = useState('');
 	const [toolbarSeverity, setToolbarSeverity] = useState<'all' | FindingSeverity>('all');
-	const [toolbarShowIgnored, setToolbarShowIgnored] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -759,7 +758,7 @@ const IssuesSection = ({
 		row.findings.filter(
 			(finding) =>
 				('open' === finding.status ||
-					(toolbarShowIgnored && 'ignored' === finding.status)) &&
+					('ignored' === finding.status)) &&
 				('all' === toolbarSeverity || finding.severity === toolbarSeverity)
 		);
 
@@ -789,22 +788,6 @@ const IssuesSection = ({
 					return 'all' === toolbarSeverity || row.findings.length > 0;
 				})
 		: contentRows;
-
-	const tabGroups = groups.filter(
-		(group) => 'all' === activeScannerIds || activeScannerIds.includes(group.scanner_id)
-	);
-
-	const countByPriority = (priority: Exclude<Priority, 'all'>): number =>
-		tabGroups
-			.filter((group) => PRIORITY_SEVERITIES[priority].includes(group.severity))
-			.reduce((total, group) => total + group.count, 0);
-
-	const priorityCounts = {
-		high: countByPriority('high'),
-		medium: countByPriority('medium'),
-		low: countByPriority('low'),
-	};
-	const activeTabTotal = tabGroups.reduce((total, group) => total + group.count, 0);
 
 	return (
 		<div ref={sectionRef} id={id}>
@@ -849,22 +832,6 @@ const IssuesSection = ({
 						}))}
 						isClearable={false}
 					/>
-					{/* Own onClick (not a real <label htmlFor>, since MultiCheckboxInput generates its input's id internally) so clicking the visible text toggles the switch too, same as clicking any other checkbox's label would. */}
-					<span
-						className="recent-content-show-ignored-label"
-						onClick={() => setToolbarShowIgnored(!toolbarShowIgnored)}
-					>
-						{__('Show ignored', 'vulopilot')}
-					</span>                                                                                                                                                       
-					<MultiCheckboxInput
-						look="toggle"
-						modules={[]}
-						options={[{ key: 'show-ignored', value: 'show-ignored', label: '' }]}
-						value={toolbarShowIgnored ? ['show-ignored'] : []}
-						onChange={(value: string[]) =>
-							setToolbarShowIgnored(value.includes('show-ignored'))
-						}
-					/>
 					{exportCsv && (
 						<ButtonInput
 							buttons={{
@@ -889,12 +856,6 @@ const IssuesSection = ({
 							label: sprintf('%1$s (%2$d)', tab.label, tab.count),
 						}))}
 					/>
-					{/* <IssuesSummaryCards
-						priorityCounts={priorityCounts}
-						isLoading={isLoading}
-						activePriority={activePriority}
-						onSelectPriority={setActivePriority}
-					/> */}
 				</>
 			)}
 			<SeoIssuesByPageTable

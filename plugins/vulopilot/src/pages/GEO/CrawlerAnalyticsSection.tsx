@@ -83,12 +83,12 @@ const CHECKLIST_ITEMS: { key: string; scannerIds: string[]; label: string }[] = 
 	{
 		key: 'robots',
 		scannerIds: ['robots-txt'],
-		label: __('Robots.txt is accessible', 'vulopilot'),
+		label: __('Robots.txt is not reachable', 'vulopilot'),
 	},
 	{
 		key: 'sitemap',
 		scannerIds: ['sitemap', 'sitemap-validation'],
-		label: __('XML sitemap is accessible', 'vulopilot'),
+		label: __('No XML sitemap found', 'vulopilot'),
 	},
 	{
 		key: 'ai-blocks',

@@ -20,6 +20,8 @@ interface HistoryTimelineProps {
 	onLoadMore: () => void;
 	/** Overrides what the trailing arrow does — HistoryTab.tsx's own real use (select the row, open the side detail panel) is the default when this is omitted. The compact "recent activity" widgets that share this component (RecentActivityCard.tsx and friends) have no such panel, so they pass a real navigation instead — e.g. jumping to the full History tab. */
 	onArrowClick?: (row: HistoryRow) => void;
+	/** A real `HistoryRow['id']` (as a string, matching every other `pulsingId`/`pulsingKey` convention already in this codebase) to scroll to and briefly pulse-highlight once it renders — HistoryTab.tsx's own real `?vulopilot_history_id=` deep link from RecentActivityWidget.tsx/RecentActivityCard.tsx/AutomationsActivityCard.tsx. `undefined` for every caller that isn't handling that deep link. */
+	pulsingRowId?: string | null;
 }
 
 /**
@@ -62,6 +64,7 @@ const HistoryTimeline = ({
 	isLoadingMore,
 	onLoadMore,
 	onArrowClick,
+	pulsingRowId,
 }: HistoryTimelineProps) => {
 	const dayGroups = groupByDay(rows);
 
@@ -93,10 +96,13 @@ const HistoryTimeline = ({
 							(null === row.change.before ||
 								row.change.before.length <= 40);
 
+						const isPulsing = pulsingRowId === String(row.id);
+
 						return (
 							<div
 								key={row.id}
-								className={`history-row ${selectedRow?.id === row.id ? 'selected' : ''}`}
+								id={`vulopilot-history-row-${row.id}`}
+								className={`history-row ${selectedRow?.id === row.id ? 'selected' : ''}${isPulsing ? ' vulopilot-history-row-highlight-pulse' : ''}`}
 								role="button"
 								tabIndex={0}
 								onClick={() => onSelectRow(row)}

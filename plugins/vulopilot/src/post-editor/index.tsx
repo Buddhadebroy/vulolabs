@@ -8,6 +8,7 @@ import {
 	getEditorTargetForScanner,
 	SEO_ISSUE_QUERY_PARAM,
 	PAGE_ANALYSIS_CHECK_QUERY_PARAM,
+	FINDING_ID_QUERY_PARAM,
 	SeoIssueEditorTab,
 } from '../services/seoIssueEditorTarget';
 import './style.scss';
@@ -39,6 +40,16 @@ interface DeepLinkTarget {
  *   (see `PAGE_ANALYSIS_CHECK_QUERY_PARAM`'s own docblock for why this one
  *   doesn't go through the scanner-id map at all).
  *
+ * A 3rd source lands here too, same posture as the 2nd: GEO's/AEO's own
+ * real open-findings tables (`GeoAeoPageAnalysisPanel.tsx`,
+ * `SeoIssuesByPageTable.tsx`), as `?vulopilot_finding_id={findingId}` —
+ * used instead of `?vulopilot_seo_issue=` whenever that finding's own
+ * `scanner_id` has no `SEO_ISSUE_EDITOR_TARGETS` entry (most real GEO/AEO
+ * scanner ids), always resolving straight to "Page Analysis" too, where
+ * `PageAnalysisTab.tsx`'s own "GEO Issues"/"AEO Issues" sections match it
+ * against their own real findings by id (see `FINDING_ID_QUERY_PARAM`'s
+ * own docblock).
+ *
  * `wasPresent` is tracked separately from the resolved tab/target — the
  * first source's query param can be present but resolve to nothing (a
  * scanner id with no editor-sidebar equivalent); the sidebar should still
@@ -49,13 +60,15 @@ const readDeepLinkTarget = (): DeepLinkTarget => {
 	const params = new URLSearchParams( window.location.search );
 	const scannerId = params.get( SEO_ISSUE_QUERY_PARAM );
 	const pageAnalysisCheckKey = params.get( PAGE_ANALYSIS_CHECK_QUERY_PARAM );
+	const findingId = params.get( FINDING_ID_QUERY_PARAM );
 
-	if ( ! scannerId && ! pageAnalysisCheckKey ) {
+	if ( ! scannerId && ! pageAnalysisCheckKey && ! findingId ) {
 		return { wasPresent: false };
 	}
 
 	params.delete( SEO_ISSUE_QUERY_PARAM );
 	params.delete( PAGE_ANALYSIS_CHECK_QUERY_PARAM );
+	params.delete( FINDING_ID_QUERY_PARAM );
 	const query = params.toString();
 	window.history.replaceState(
 		{},
@@ -65,6 +78,10 @@ const readDeepLinkTarget = (): DeepLinkTarget => {
 
 	if ( pageAnalysisCheckKey ) {
 		return { wasPresent: true, tab: 'page-analysis', target: pageAnalysisCheckKey };
+	}
+
+	if ( findingId ) {
+		return { wasPresent: true, tab: 'page-analysis', target: findingId };
 	}
 
 	const resolved = getEditorTargetForScanner( scannerId as string );
