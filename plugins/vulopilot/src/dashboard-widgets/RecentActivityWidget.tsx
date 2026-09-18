@@ -89,10 +89,16 @@ const RecentActivityWidget: React.FC<WidgetProps> = ({
 					onLoadMore={() => {}}
 					// Real navigation to the full History tab (Reports →
 					// History) — this widget has no side detail panel of
-					// its own for the arrow to open a row into.
-					onArrowClick={() => {
+					// its own for the arrow to open a row into. Carries
+					// this exact row's own real id (the same
+					// `vulopilot_activity_logs.id` HistoryTab.tsx's own
+					// `GET /history` rows are keyed by — confirmed against
+					// Controllers/History.php) so that tab can select and
+					// scroll to the SAME row, not just land on the tab with
+					// whatever it auto-selects by default.
+					onArrowClick={(row) => {
 						window.open(
-							`${appLocalizer.admin_url}#&tab=reports&subtab=history`,
+							`${appLocalizer.admin_url}#&tab=reports&subtab=history&vulopilot_history_id=${row.id}`,
 							'_self'
 						);
 					}}

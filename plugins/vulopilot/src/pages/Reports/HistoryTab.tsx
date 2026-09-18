@@ -127,6 +127,26 @@ const AiAnalyticsLockedCard = () => {
 	);
 };
 
+/**
+ * RecentActivityWidget.tsx's (Dashboard tab) own "Recent activity" arrow
+ * lands here with a real `?vulopilot_history_id=` — the same
+ * `vulopilot_activity_logs.id` this tab's own `GET /history` rows are
+ * keyed by (confirmed against Controllers/History.php: `'id' => (int)
+ * $row['id']` off that same source table). Same real
+ * `window.location.hash.split('?')[1] || window.location.hash.substring(1)`
+ * parsing every other in-app deep link already uses
+ * (AiProvidersPanel.tsx/useGoogleServicesConnection.ts).
+ */
+const getDeepLinkHistoryId = (): number | null => {
+	const params = new URLSearchParams(
+		window.location.hash.split('?')[1] || window.location.hash.substring(1)
+	);
+	const idParam = params.get('vulopilot_history_id');
+	const parsed = idParam ? Number(idParam) : NaN;
+
+	return Number.isFinite(parsed) ? parsed : null;
+};
+
 const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
 	all: 0,
 	conversation: 0,
@@ -155,6 +175,22 @@ const EMPTY_TYPE_COUNTS: Record<HistoryFilter, number> = {
  * (ActivityTab.tsx's own flat `vulopilot_activity_logs` table is a
  * different, narrower view, kept as its own separate tab rather than
  * merged with this one).
+ *
+ * `?vulopilot_history_id=` (RecentActivityWidget.tsx's own "Recent
+ * activity" deep link, `getDeepLinkHistoryId()` above) seeds both
+ * `pendingSelectId` (below — same real mechanism
+ * `handleSelectRelatedAction()` already established for jumping to a
+ * related row from within this tab, just triggered by a URL on mount
+ * instead) and the initial `dateRange` (forced to 'all' rather than the
+ * default 30-day window, so a deep-linked row older than 30 days is still
+ * actually in the first fetch that could find it) — then the real
+ * "deep-link arrival" effect further down scrolls to and briefly
+ * pulse-highlights that exact row in the timeline on the left, once it
+ * actually appears in `rows`. Before this, the row picked by
+ * `pendingSelectId` only ever changed the right-side detail panel
+ * (`HistoryDetailPanel.tsx`) — nothing in the timeline list itself showed
+ * *which* row that was (`.history-row.selected` had no real CSS anywhere
+ * in this codebase until this pass — confirmed via a full grep).
  */
 const HistoryTab = () => {
 	const [activeFilter, setActiveFilter] = useState<HistoryFilter>('all');
@@ -164,7 +200,11 @@ const HistoryTab = () => {
 	// mostly-irrelevant old rows; older history is still one dropdown
 	// change away, never actually deleted (vulopilot_ai_history's own
 	// DATABASE.md docblock calls it a "permanent ledger" on purpose).
-	const [dateRange, setDateRange] = useState<DateRangePreset>('30d');
+	// Forced to 'all' instead when arriving via `?vulopilot_history_id=` —
+	// see this file's own top docblock.
+	const [dateRange, setDateRange] = useState<DateRangePreset>(() =>
+		getDeepLinkHistoryId() ? 'all' : '30d'
+	);
 
 	const [rows, setRows] = useState<HistoryRow[]>([]);
 	const [total, setTotal] = useState(0);
@@ -175,8 +215,12 @@ const HistoryTab = () => {
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [selectedRow, setSelectedRow] = useState<HistoryRow | null>(null);
-	/** Set post-mount only, by handleSelectRelatedAction() below — jumping to a related "change" row from within the panel is the only thing that still needs to pre-seed which row gets auto-selected once the next fetch resolves. */
-	const pendingSelectId = useRef<number | null>(null);
+	/** Set post-mount by handleSelectRelatedAction() below (jumping to a related "change" row from within the panel), OR seeded straight from `?vulopilot_history_id=` at mount (this file's own top docblock) — either way, the next fetch that resolves consumes it. */
+	const pendingSelectId = useRef<number | null>(getDeepLinkHistoryId());
+	/** The real deep-linked id itself, kept separately from `pendingSelectId` (which gets consumed/cleared by `fetchPage()`) since the scroll+pulse effect below needs to keep matching against it across re-renders until it actually finds the row. */
+	const deepLinkRowId = useRef<number | null>(getDeepLinkHistoryId());
+	const hasScrolledToDeepLinkRef = useRef(false);
+	const [pulsingRowId, setPulsingRowId] = useState<string | null>(null);
 
 	// Debounced search using useEffect
 	useEffect(() => {
@@ -265,6 +309,34 @@ const HistoryTab = () => {
 		fetchPage(1, false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeFilter, dateRange]);
+
+	// `?vulopilot_history_id=` deep-link arrival (this file's own top
+	// docblock) — scrolls to and briefly pulse-highlights the matching row
+	// in the timeline on the left, exactly once, the first time it actually
+	// appears in `rows` (mirrors PageAnalysisTab.tsx's/Checklist.tsx's own
+	// identical `hasScrolledRef` idiom for the same "deep link into a list
+	// that loads asynchronously" case).
+	useEffect(() => {
+		if (!deepLinkRowId.current || hasScrolledToDeepLinkRef.current) {
+			return;
+		}
+
+		const match = rows.find((row) => row.id === deepLinkRowId.current);
+
+		if (!match) {
+			return;
+		}
+
+		hasScrolledToDeepLinkRef.current = true;
+		const element = document.getElementById(
+			`vulopilot-history-row-${match.id}`
+		);
+		element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		setPulsingRowId(String(match.id));
+
+		const timeout = window.setTimeout(() => setPulsingRowId(null), 3000);
+		return () => window.clearTimeout(timeout);
+	}, [rows]);
 
 	// Separate effect for search to handle debouncing
 	useEffect(() => {
@@ -476,6 +548,7 @@ const HistoryTab = () => {
 						onSelectRow={setSelectedRow}
 						isLoadingMore={isLoadingMore}
 						onLoadMore={handleLoadMore}
+						pulsingRowId={pulsingRowId}
 					/>
 				)}
 			</CardComponent>

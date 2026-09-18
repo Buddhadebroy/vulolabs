@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { CardComponent, ModuleGuardComponent, ListComponent, BadgeComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
+import { SEO_ISSUE_QUERY_PARAM, FINDING_ID_QUERY_PARAM, getEditorTargetForScanner } from '../../services/seoIssueEditorTarget';
 import { formatWpDate } from '../../services/formatWpDate';
 import {
 	fetchAllPagesWithScores,
@@ -43,9 +43,29 @@ const SEVERITY_ICON: Record<FindingSeverity, string> = {
 	info: 'error',
 };
 
-/** Same real navigate-and-highlight deep link `SeoIssuesByPageTable.tsx`'s own `buildFixWithAiLink()` already establishes — duplicated locally per this codebase's own "duplicate small per-file logic" convention rather than exporting that file's own local helper. */
-const buildFixWithAiLink = (editLink: string, scannerId: string): string =>
-	`${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(scannerId)}`;
+/**
+ * Same real navigate-and-highlight deep link `SeoIssuesByPageTable.tsx`'s
+ * own `buildFixWithAiLink()` already establishes — duplicated locally per
+ * this codebase's own "duplicate small per-file logic" convention rather
+ * than exporting that file's own local helper.
+ *
+ * Most real GEO/AEO scanner ids have no `SEO_ISSUE_EDITOR_TARGETS` entry
+ * (they're content-body concerns with no dedicated editor-sidebar field —
+ * that map's own docblock lists why) — `?vulopilot_seo_issue={scannerId}`
+ * would resolve to nothing there and land the user in the editor with
+ * nothing highlighted, the real bug this fixes. `?vulopilot_finding_id={id}`
+ * instead carries the finding's own real numeric id straight through,
+ * matched by `PageAnalysisTab.tsx`'s own "GEO Issues"/"AEO Issues" sections
+ * against their own real findings — see `FINDING_ID_QUERY_PARAM`'s own
+ * docblock. Scanner ids that DO have a real mapped target (currently just
+ * `aeo-schema` → Schema tab) keep using the scanner-id param, unchanged —
+ * that one already works and gets to jump straight to the real field
+ * instead of just Page Analysis.
+ */
+const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
+	getEditorTargetForScanner(finding.scanner_id)
+		? `${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(finding.scanner_id)}`
+		: `${editLink}&${FINDING_ID_QUERY_PARAM}=${finding.id}`;
 
 /**
  * "Page Analysis" for GEO's/AEO's own "Pages & Posts" table — the same real
@@ -197,7 +217,7 @@ const GeoAeoPageAnalysisPanel = ({
 								action: () => {
 									window.location.href = buildFixWithAiLink(
 										page.edit_link,
-										finding.scanner_id
+										finding
 									);
 								},
 								tags: (

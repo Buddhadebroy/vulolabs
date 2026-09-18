@@ -5,7 +5,7 @@ import { analyzePage, fetchOpenFindings, PageAnalysisCheck, PageAnalysisResponse
 import { SEO_ISSUE_EDITOR_TARGETS, SeoIssueEditorTab, SeoIssueEditorTarget } from '../../services/seoIssueEditorTarget';
 
 interface PageAnalysisTabProps {
-	/** "Page Analysis" panel's own deep link (`GEO/PageAnalysisPanel.tsx`) — a check `key` (e.g. 'broken_links') to scroll to and pulse-highlight once this tab's own real checklist has loaded. */
+	/** Either of 2 real deep-link vocabularies this tab now understands: `GEO/PageAnalysisPanel.tsx`'s own SEO check `key` (e.g. 'broken_links', `PAGE_ANALYSIS_CHECK_QUERY_PARAM`), or a GEO/AEO finding's own real numeric id as a string (`GeoAeoPageAnalysisPanel.tsx`/`SeoIssuesByPageTable.tsx`, `FINDING_ID_QUERY_PARAM`) — resolved against whichever of `data.checks`/`geoFindings`/`aeoFindings` actually contains a match, then scrolled to and pulse-highlighted once that section's own fetch has loaded. */
 	highlightTarget?: string;
 	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — lets a row here jump straight to the real General/Advanced/Social/Schema field that fixes it, instead of only scrolling within this same tab. */
 	onNavigate?: ( tab: SeoIssueEditorTab, target?: string ) => void;
@@ -263,6 +263,14 @@ function IssueSection( { heading, idPrefix, rows, isLoading, error, emptyMessage
  * does — there's no server-side per-post filter for this endpoint. A
  * finding has no "pass" state, so a page with none currently open for that
  * tab shows a real "nothing open" message rather than an empty list.
+ *
+ * GEO/AEO rows are also now externally deep-linkable, same as SEO's own —
+ * `GeoAeoPageAnalysisPanel.tsx`/`SeoIssuesByPageTable.tsx` link here with
+ * `?vulopilot_finding_id={id}` (the finding's own real numeric id) for any
+ * row whose `scanner_id` has no `SEO_ISSUE_EDITOR_TARGETS` entry (most real
+ * GEO/AEO scanner ids), resolved by the deep-link effect further down
+ * against `geoFindings`/`aeoFindings` once loaded — see
+ * `FINDING_ID_QUERY_PARAM`'s own docblock.
  */
 export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAnalysisTabProps ) {
 	const { postId } = usePostData();
@@ -366,30 +374,48 @@ export default function PageAnalysisTab( { highlightTarget, onNavigate }: PageAn
 		};
 	}, [ postId ] );
 
-	// Deep-link highlighting stays scoped to the SEO section only — the
-	// same real behavior this tab had before this pass
-	// (`PAGE_ANALYSIS_CHECK_QUERY_PARAM` only ever carries one of
-	// `data.checks`'s own real `key`s). GEO/AEO findings have no equivalent
-	// external deep link into this tab yet.
+	// Deep-link highlighting — SEO's own `data.checks` (matched by real
+	// `key`, `PAGE_ANALYSIS_CHECK_QUERY_PARAM`) is tried first, same real
+	// behavior this tab had before GEO/AEO Issues existed; GEO's/AEO's own
+	// findings (matched by real numeric id, `FINDING_ID_QUERY_PARAM` — see
+	// that constant's own docblock) are tried next, once each section's
+	// own independent fetch has actually resolved. A target that's really
+	// a GEO/AEO finding simply doesn't match on an earlier render where
+	// `isLoadingGeo`/`isLoadingAeo` is still true — this effect re-runs as
+	// those settle (see the dependency array) rather than giving up.
 	useEffect( () => {
-		if ( ! highlightTarget || hasScrolledRef.current || ! data ) {
+		if ( ! highlightTarget || hasScrolledRef.current ) {
 			return;
 		}
 
-		const match = data.checks.find( ( check ) => check.key === highlightTarget );
+		let elementId: string | null = null;
 
-		if ( ! match ) {
+		if ( data?.checks.some( ( check ) => check.key === highlightTarget ) ) {
+			elementId = `vulopilot-page-analysis-check-${ highlightTarget }`;
+		} else if (
+			! isLoadingGeo &&
+			geoFindings.some( ( finding ) => String( finding.id ) === highlightTarget )
+		) {
+			elementId = `vulopilot-page-analysis-geo-${ highlightTarget }`;
+		} else if (
+			! isLoadingAeo &&
+			aeoFindings.some( ( finding ) => String( finding.id ) === highlightTarget )
+		) {
+			elementId = `vulopilot-page-analysis-aeo-${ highlightTarget }`;
+		}
+
+		if ( ! elementId ) {
 			return;
 		}
 
 		hasScrolledRef.current = true;
-		const element = document.getElementById( `vulopilot-page-analysis-check-${ highlightTarget }` );
+		const element = document.getElementById( elementId );
 		element?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
 		setPulsingKey( highlightTarget );
 
 		const timeout = setTimeout( () => setPulsingKey( null ), 4000 );
 		return () => clearTimeout( timeout );
-	}, [ highlightTarget, data ] );
+	}, [ highlightTarget, data, geoFindings, aeoFindings, isLoadingGeo, isLoadingAeo ] );
 
 	if ( isLoading ) {
 		return (

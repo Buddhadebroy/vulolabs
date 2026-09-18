@@ -23,6 +23,28 @@
             background: $theme-background-color;
         }
 
+        // The real, currently-selected row (HistoryTimeline.tsx's own
+        // `selectedRow?.id === row.id` check) — previously computed but
+        // never actually styled anywhere in this codebase (confirmed via a
+        // full grep for `.history-row` + `.selected`), so a click here or a
+        // "Recent activity" deep link from RecentActivityWidget.tsx/
+        // RecentActivityCard.tsx/AutomationsActivityCard.tsx picked the
+        // right row in HistoryDetailPanel.tsx's own side panel with no
+        // visible sign of *which* row in this list that was.
+        &.selected {
+            background: $color-primary-background;
+        }
+
+        // A row just landed on via a real deep link (RecentActivityWidget.tsx's
+        // "Recent activity" arrow → `?vulopilot_history_id=`, HistoryTab.tsx's
+        // own `pendingSelectId`) — same real "scroll to it, then let a brief
+        // pulse fade" idiom this codebase's own `vulopilot-seo-highlight-pulse`
+        // (post-editor bundle) already establishes, duplicated here since
+        // that one lives in a separate webpack entry this bundle doesn't share.
+        &.vulopilot-history-row-highlight-pulse {
+            animation: vulopilot-history-row-highlight-pulse 1.3s ease-in-out 2;
+        }
+
         .history-row-icon {
             display: flex;
             align-items: center;
@@ -129,6 +151,18 @@
                 color: $theme-color;
             }
         }
+    }
+}
+
+@keyframes vulopilot-history-row-highlight-pulse {
+    0%,
+    100% {
+        background-color: transparent;
+    }
+
+    20%,
+    60% {
+        background-color: rgba(124, 58, 237, 0.12);
     }
 }
 
