@@ -12,6 +12,8 @@ import {
 import { ToggleInput } from '@zyra/inputs';
 import RunScanHeaderExtra from '../../components/RunScanHeaderExtra';
 import ShowProPopup from '../../components/Popup/Popup';
+import { BlurredProContent } from '../../components/UpgradeToProOverlay';
+import DummyDataNotice from '../../components/DummyDataNotice';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import './Accessibility.scss';
 import SectionedIssuesTable, {
@@ -59,16 +61,20 @@ const ISSUES_TABLE_SECTIONS = ACCESSIBILITY_CHECKS.filter(
 );
 
 /**
- * Visible teaser for the history-trend slot above — same real "still show
- * the section, with fabricated content behind a click-through popup"
- * treatment BrandVisibilityProDummies.tsx's own 4 dummy cards already use,
- * replacing this card's former lock-icon/"Unlock with Pro" button-only
- * teaser. The PRO/module-name badge that used to sit above this card
+ * Visible teaser for the history-trend slot above — same real blurred
+ * "Upgrade to Pro" overlay every other Pro-gated fabricated-content card
+ * in this plugin uses (`BlurredProContent`/`UpgradeToProOverlay`,
+ * ../../components/UpgradeToProOverlay.tsx — shared, not reimplemented
+ * per file), replacing this card's former lock-icon/"Unlock with Pro"
+ * button-only teaser, then a later plain click-through-div-with-no-blur
+ * version. The PRO/module-name badge that used to sit above this card
  * (distinguishing "Pro not installed" from "installed, module just not
  * toggled on yet") was removed per direct instruction — `isProInstalled`
  * still gates which of those 2 real states the popup below opens to
  * (`ShowProPopup`'s own `moduleName` prop vs none), just with no badge
- * surfacing that distinction visually above the card anymore.
+ * surfacing that distinction visually above the card anymore; the shared
+ * overlay's own fixed "Upgrade to Pro" copy doesn't distinguish the two
+ * either, same as it doesn't anywhere else it's used.
  */
 const AccessibilityHistoryDummy = () => {
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
@@ -94,16 +100,9 @@ const AccessibilityHistoryDummy = () => {
 					/>
 				}
 			>
-				<div
-					className="accessibility-history-dummy"
-					role="button"
-					tabIndex={0}
+				<BlurredProContent
+					contentClassName="accessibility-history-dummy"
 					onClick={() => setIsProPopupOpen(true)}
-					onKeyDown={(event) => {
-						if ('Enter' === event.key || ' ' === event.key) {
-							setIsProPopupOpen(true);
-						}
-					}}
 				>
 					<ChartComponent
 						type="dynamic-line"
@@ -113,7 +112,8 @@ const AccessibilityHistoryDummy = () => {
 						height={220}
 						yDomain={[0, 100]}
 					/>
-				</div>
+				</BlurredProContent>
+				<DummyDataNotice />
 			</CardComponent>
 			<PopupComponent
 				open={isProPopupOpen}

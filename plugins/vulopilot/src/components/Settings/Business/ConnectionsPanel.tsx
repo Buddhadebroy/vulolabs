@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
-import { SectionComponent } from '@zyra/components';
+import { SectionComponent, FormGroupComponent } from '@zyra/components';
 import AiProvidersPanel from './AiProvidersPanel';
 import GoogleServicesPanel from './GoogleServicesPanel';
 import SiteVerificationPanel from './SiteVerificationPanel';
@@ -118,7 +118,16 @@ const ConnectionsPanel = () => {
 			>
 				<SiteVerificationPanel />
 			</SectionRow>
-			<PageSpeedStatusPanel />
+			<SectionRow
+				icon="check"
+				title={__('PageSpeed Insights', 'vulopilot')}
+				desc={__(
+					'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',
+					'vulopilot'
+				)}
+			>
+				<PageSpeedStatusPanel />
+			</SectionRow>
 		</>
 	);
 };

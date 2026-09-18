@@ -625,8 +625,8 @@ const IssueDetailPanel: React.FC<IssueDetailPanelProps> = ({
 					/>
 				</div>
 
-				<AnalyticsComponent
-					variant="priority-card"
+				<AnalyticsComponent	
+					variant="small-priority-card"
 					cols={3}
 					data={[
 						{

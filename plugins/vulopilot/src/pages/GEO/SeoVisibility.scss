@@ -1865,13 +1865,9 @@
 }
 
 .schema-inspector-jsonld-block {
-	background: $theme-background-color;
-	border: $border-light-small;
-	border-radius: 0.5rem;
-	padding: 0.875rem;
-	font-size: 0.75rem;
-	overflow-x: auto;
-	white-space: pre;
+	// Own box (border/background/gutter) now comes from CodeBlock.tsx's
+	// own `.rt-editor` shell (common.scss) — this class is just spacing
+	// between multiple blocks now, not a second box around it.
 	margin: 0 0 0.75rem;
 
 	&:last-child {

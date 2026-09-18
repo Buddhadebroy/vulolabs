@@ -17,7 +17,7 @@
         display: flex;
         align-items: flex-start;
         border-radius: 0.5rem;
-        cursor: pointer;
+        // cursor: pointer;
 
         &:hover {
             background: $theme-background-color;
@@ -332,7 +332,6 @@
     padding: 1rem 0.75rem;
     text-align: right;
     color: var(--text-secondary, #9ca3af);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.8125rem;
     line-height: 1.6;
     user-select: none;
@@ -353,7 +352,6 @@
     margin: 0;
     padding: 1rem;
     width: 100%;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.8125rem;
     line-height: 1.6;
     white-space: pre;
@@ -397,6 +395,15 @@
 .rt-comment {
     color: #9ca3af;
     font-style: italic;
+}
+
+// Read-only usage (InspectorSection.tsx's own JSON-LD blocks, via
+// RobotsTxtEditor's own `readOnly` prop) — no `<textarea>` overlay to
+// size against, so the gutter/box only ever needs to be as tall as its
+// own real content, unlike the fixed 16rem editable `.rt-editor` above.
+.rt-editor-readonly {
+    height: auto;
+    max-height: 24rem;
 }
 
 .rt-editor-wrap>.buttons-wrapper {

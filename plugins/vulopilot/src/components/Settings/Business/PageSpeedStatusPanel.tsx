@@ -131,7 +131,7 @@ const PageSpeedStatusPanel = () => {
 
 	return (
 		<FormGroupWrapperComponent>
-			<FormGroupComponent>
+			{/* <FormGroupComponent>
 				<CardHeader
 					icon="analytics green"
 					className='compact'
@@ -171,7 +171,6 @@ const PageSpeedStatusPanel = () => {
 								</div>
 								<div className="desc">
 									{sprintf(
-										/* translators: 1: requests made today, 2: the site's own configured daily limit. */
 										__('%1$s / %2$s requests used', 'vulopilot'),
 										status.requests_today.toLocaleString(),
 										status.daily_limit.toLocaleString()
@@ -183,7 +182,7 @@ const PageSpeedStatusPanel = () => {
 						{status?.connected && status.checked_at && (
 							<div className="desc psi-last-checked">
 								{sprintf(
-									/* translators: %s is a formatted date/time. */
+									
 									__('Last checked on %s.', 'vulopilot'),
 									formatWpDate(status.checked_at)
 								)}
@@ -191,7 +190,6 @@ const PageSpeedStatusPanel = () => {
 									<>
 										{' '}
 										{sprintf(
-											/* translators: 1: mobile score, 2: desktop score, both 0-100. */
 											__('Mobile %1$d/100, Desktop %2$d/100.', 'vulopilot'),
 											status.mobile,
 											status.desktop
@@ -202,8 +200,21 @@ const PageSpeedStatusPanel = () => {
 						)}
 					</div>
 				</CardHeader>
+			</FormGroupComponent> */}
+			<FormGroupComponent cols={8} row label={__('Google API key', 'vulopilot')} htmlFor="psi-daily-limit-input">
+				<TextInput
+					id="psi-daily-limit-input"
+					type="number"
+					value={dailyLimit}
+					onChange={(value) => handleDailyLimitChange(String(value))}
+				/>
 			</FormGroupComponent>
-			<FormGroupComponent cols={6} label={__('API Key', 'vulopilot')} htmlFor="psi-api-key-input">
+			<FormGroupComponent cols={4} label={__('', 'vulopilot')} htmlFor="psi-daily-limit-input">
+				<ButtonInput
+					buttons={{ text: __('Connect PageSpeed Insights', 'vulopilot-pro'), position: 'left', icon: 'link' }}
+				/>
+			</FormGroupComponent>
+			{/* <FormGroupComponent cols={6} label={__('API Key', 'vulopilot')} htmlFor="psi-api-key-input">
 				<TextInput
 					id="psi-api-key-input"
 					type="password"
@@ -218,15 +229,17 @@ const PageSpeedStatusPanel = () => {
 					value={dailyLimit}
 					onChange={(value) => handleDailyLimitChange(String(value))}
 				/>
+			</FormGroupComponent> */}
+			<FormGroupComponent>
+				<NoticeComponent
+					displayPosition="inline-notice"
+					type="info"
+					message={__(
+						'VuloPilot uses PageSpeed Insights API data to show speed reports under Improve My Speed. We only read performance data and never make changes to your site.',
+						'vulopilot'
+					)}
+				/>
 			</FormGroupComponent>
-			<NoticeComponent
-				displayPosition="inline-notice"
-				type="info"
-				message={__(
-					'VuloPilot uses PageSpeed Insights API data to show speed reports under Improve My Speed. We only read performance data and never make changes to your site.',
-					'vulopilot'
-				)}
-			/>
 		</FormGroupWrapperComponent>
 	);
 };

@@ -1,7 +1,10 @@
 import { createElement, Fragment, type ReactNode } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import CrawlerAlertTestPanel from '../CrawlerAlertTestPanel';
-
+const THRESHOLD_OPTIONS = [5, 10, 20, 30].map((points) => ({
+	label: sprintf(__('%d%% or more', 'vulopilot'), points),
+	value: String(points),
+}));
 // ── "Notify me about" rows (type: 'setting-row') ────────────────────────
 //
 // Inlined here rather than in a separate file (per direct instruction) —
@@ -210,9 +213,9 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * See CrawlerAlertTestPanel.tsx's own docblock.
  */
 export default {
-	id: 'ai-crawler-alerts',
+	id: 'alerts-settings',
 	priority: 2,
-	headerTitle: __('AI Crawler Alerts', 'vulopilot'),
+	headerTitle: __('Alerts Settings', 'vulopilot'),
 	headerDescription: __(
 		'Get notified when AI crawlers are blocked, limited, or stop visiting your website.',
 		'vulopilot'
@@ -228,10 +231,23 @@ export default {
 	// rendered once above every tab's own fields), so this now sits next
 	// to the tab's own "AI Crawler Alerts" title instead of down by the
 	// channels it tests.
+	hideSettingHeader: true,
+	groupBySections: true,
 	settingAction: createElement(CrawlerAlertTestPanel),
 	modal: [
 		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'setting',
+			title: __('AI Crawler Alerts', 'vulopilot'),
+			desc: __(
+				'Get notified when AI crawlers are blocked, limited, or stop visiting your website.',
+				'vulopilot'
+			),
+		},
+		{
 			label: __('Notify me about', 'vulopilot'),
+			row: false,
 			key: 'crawler_alerts',
 			type: 'setting-row',
 			rows: CRAWLER_ALERT_ROWS,
@@ -260,6 +276,298 @@ export default {
 			title: __('Why track AI crawlers?', 'vulopilot'),
 			message: __(
 				'AI crawlers help your content appear in AI search results. These alerts help you make sure they can still access and index your website. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
+				'vulopilot'
+			),
+		},
+
+		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'setting',
+			title: __('Security Alerts', 'vulopilot'),
+			desc: __(
+				'Get notified about security risks and suspicious activity on your website.',
+				'vulopilot'
+			),
+		},
+		{
+			label: __('Notify me about', 'vulopilot'),
+			key: 'security_alert_types',
+			row: false,
+			type: 'setting-row',
+			rows: [
+				{
+					valueKey: 'vulnerabilities',
+					icon: 'security blue',
+					title: __('Security vulnerabilities', 'vulopilot'),
+					desc: __(
+						'Critical WordPress core, theme, or plugin vulnerabilities.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'malware',
+					icon: 'error red',
+					title: __('Malware detected', 'vulopilot'),
+					desc: __(
+						'When malware, suspicious files, or malicious code is detected.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'failed_login',
+					icon: 'lock lime',
+					title: __('Failed login attempts', 'vulopilot'),
+					desc: __(
+						'Multiple failed login attempts or brute-force login activity.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'new_user',
+					icon: 'profile yellow',
+					title: __('New user created', 'vulopilot'),
+					desc: __(
+						'When a new administrator or user account is created.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'file_changes',
+					icon: 'file-submission pink',
+					title: __('File changes', 'vulopilot'),
+					desc: __(
+						'When core, plugin, or theme files are modified.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'ssl_certificate',
+					icon: 'web-page-website red',
+					title: __('SSL / Certificate issues', 'vulopilot'),
+					desc: __(
+						'When your SSL certificate is about to expire or has issues.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+			],
+		},
+		{
+			key: 'security_alert_channels',
+			type: 'checkbox',
+			label: __('Notification channels', 'vulopilot'),
+			options: [
+				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
+				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
+			],
+		},
+		{
+			key: 'security-alerts-notice',
+			type: 'notice',
+			noticeType: 'info',
+			label: '',
+			message: __(
+				'You\'ll receive an alert as soon as a qualifying issue is found. The minimum severity and where alert emails are sent are configured under <a href="?page=vulopilot#&tab=settings&subtab=security-scanning">Settings → Security</a>. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'bar-chart',
+			title: __('Visibility Alerts', 'vulopilot'),
+			desc: __(
+				'Get notified when your visibility scores drop so you can take action early.',
+				'vulopilot'
+			),
+		},
+
+		{
+			// zyra's real `type: 'setting-row'` field (per direct
+			// instruction) — one flat row per score type, each with its own
+			// threshold select and on/off toggle both visible at once, no
+			// expand/collapse step — same field type 'crawler_alerts' in
+			// AiCrawlerAlerts.ts already uses. See this file's own docblock
+			// for the value shape (unchanged from the old expandable-panel
+			// field).
+			label: __('Notify me when', 'vulopilot'),
+			key: 'visibility_alerts',
+			type: 'setting-row',
+			rows: [
+				{
+					valueKey: 'geo',
+					icon: 'ai green',
+					title: __('AI visibility score drop', 'vulopilot'),
+					desc: __(
+						'When your overall AI visibility score drops by the selected percentage.',
+						'vulopilot'
+					),
+					control: {
+						toggle: true,
+						toggleStatusLabel: TOGGLE_STATUS_LABEL,
+						select: {
+							key: 'threshold',
+							label: __('Notify me if score drops by', 'vulopilot'),
+							options: THRESHOLD_OPTIONS,
+						},
+					},
+				},
+				{
+					valueKey: 'brand',
+					icon: 'announcement red',
+					title: __('Brand score drop', 'vulopilot'),
+					desc: __(
+						'When your brand visibility score drops by the selected percentage.',
+						'vulopilot'
+					),
+					control: {
+						toggle: true,
+						toggleStatusLabel: TOGGLE_STATUS_LABEL,
+						select: {
+							key: 'threshold',
+							label: __('Notify me if score drops by', 'vulopilot'),
+							options: THRESHOLD_OPTIONS,
+						},
+					},
+				},
+				{
+					valueKey: 'kg',
+					icon: 'intelligence yellow',
+					title: __('Knowledge Graph score drop', 'vulopilot'),
+					desc: __(
+						'When your Knowledge Graph score drops by the selected percentage.',
+						'vulopilot'
+					),
+					control: {
+						toggle: true,
+						toggleStatusLabel: TOGGLE_STATUS_LABEL,
+						select: {
+							key: 'threshold',
+							label: __('Notify me if score drops by', 'vulopilot'),
+							options: THRESHOLD_OPTIONS,
+						},
+					},
+				},
+			],
+		},
+		{
+			key: 'visibility_alert_channels',
+			type: 'checkbox',
+			label: __('Notification channels', 'vulopilot'),
+			options: [
+				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
+				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
+			],
+		},
+		{
+			key: 'visibility-alerts-notice',
+			type: 'notice',
+			noticeType: 'info',
+			title: __('Stay ahead of visibility drops', 'vulopilot'),
+			message: __(
+				'These alerts help you catch issues early before they impact your traffic, rankings, and AI visibility. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
+				'vulopilot'
+			),
+		},
+		{
+			key: 'general_settings',
+			type: 'section',
+			icon: 'error',
+			title: __('Critical issue alerts', 'vulopilot'),
+			desc: __(
+				'Get notified immediately when critical issues are found on your website.',
+				'vulopilot'
+			),
+		},
+		{
+			// zyra's real `type: 'setting-row'` field (per direct
+			// instruction) — see this file's own docblock for why
+			// `control: { checkbox: true }` fits this flat multi-select
+			// array field, same shape SecurityAlerts.ts's own
+			// `security_alert_types` already uses. `label` now renders for
+			// real (fixed at the source — see AiCrawlerAlerts.ts's own
+			// `crawler_alerts` field docblock), so the old
+			// "website-alerts-notify-section" SectionComponent field that
+			// used to fake this heading is gone.
+			label: __('Notify me about', 'vulopilot'),
+			key: 'critical_alert_types',
+			row: false,
+			type: 'setting-row',
+			rows: [
+				{
+					valueKey: 'security',
+					icon: 'security red',
+					title: __('Security vulnerabilities', 'vulopilot'),
+					desc: __(
+						'High-risk security vulnerabilities and malware infections.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'availability',
+					icon: 'error red',
+					title: __('Website down', 'vulopilot'),
+					desc: __(
+						'Your website is not accessible or is returning errors.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'performance',
+					icon: 'bar-chart orange',
+					title: __('Critical performance issues', 'vulopilot'),
+					desc: __(
+						'Severe performance problems affecting your site speed or Core Web Vitals.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'seo',
+					icon: 'search blue',
+					title: __('SEO indexing problems', 'vulopilot'),
+					desc: __(
+						'Pages blocked from indexing or major crawling issues.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+				{
+					valueKey: 'other',
+					icon: 'database gray',
+					title: __('Data or functionality issues', 'vulopilot'),
+					desc: __(
+						'Problems affecting important site data or core functionality.',
+						'vulopilot'
+					),
+					control: { checkbox: true },
+				},
+			],
+		},
+		{
+			key: 'critical_alert_channels',
+			type: 'checkbox',
+			label: __('Notification channel', 'vulopilot'),
+			options: [
+				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
+				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
+			],
+		},
+		{
+			key: 'website-alerts-notice',
+			type: 'notice',
+			noticeType: 'info',
+			label: '',
+			message: __(
+				'You\'ll be notified instantly when any critical issue is detected. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
 				'vulopilot'
 			),
 		},
