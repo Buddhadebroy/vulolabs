@@ -135,6 +135,7 @@ const SiteHealthTab = ({ onNavigateToBackups }: SiteHealthTabProps) => {
 							label={__('Site Health', 'vulopilot')}
 							scannerIds={ALL_SCANNER_IDS}
 							onReviewFirst={() => goToIssuesTable('important')}
+							onSectionClick={goToIssuesTable}
 						/>
 					</ColumnComponent>
 				</ContainerComponent>

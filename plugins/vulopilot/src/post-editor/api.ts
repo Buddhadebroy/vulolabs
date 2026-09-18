@@ -46,6 +46,63 @@ export interface FixResponse {
 	};
 }
 
+/** Same real shape `seoIssuesShared.tsx`'s own `RawFinding` (dashboard bundle) already establishes — duplicated here per this file's own top docblock reasoning (a separate, small Block Editor bundle, not pulling in that bundle's zyra-based helpers). */
+export interface RawFinding {
+	id: number;
+	title: string;
+	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
+	status: 'open' | 'resolved' | 'ignored' | 'snoozed';
+	scanner_id: string;
+	object_type: string;
+	object_ref: string;
+}
+
+interface FindingsResponse {
+	data: RawFinding[];
+	total: number;
+}
+
+const FINDINGS_PAGE_SIZE = 100;
+/** Same safety ceiling `seoIssuesShared.tsx`'s own `fetchOpenFindingsFor()` uses. */
+const MAX_FINDINGS = 1000;
+
+/**
+ * Same real `GET /findings` pagination loop `seoIssuesShared.tsx`'s own
+ * `fetchOpenFindingsFor()` already establishes for the dashboard bundle —
+ * duplicated here (see this file's own top docblock) so `PageAnalysisTab.tsx`'s
+ * own "GEO Issues"/"AEO Issues" sections can fetch real open findings for
+ * this tab's own scanner ids without importing that dashboard-only helper.
+ * There's no server-side "just this post" filter (`object_ref` isn't a
+ * registered query arg — confirmed against `Controllers\Findings`), so
+ * callers filter the result to one post client-side, same as
+ * `GeoAeoPageAnalysisPanel.tsx`'s own identical fetch-then-filter.
+ */
+export async function fetchOpenFindings( scannerIds: string[] ): Promise< RawFinding[] > {
+	const scannerParam = scannerIds.join( ',' );
+	let page = 1;
+	let all: RawFinding[] = [];
+
+	// eslint-disable-next-line no-constant-condition
+	while ( true ) {
+		const response = await request< FindingsResponse >(
+			`findings?scanner_id=${ scannerParam }&status=open&per_page=${ FINDINGS_PAGE_SIZE }&page=${ page }&orderby=id&order=desc`
+		);
+
+		all = all.concat( response.data ?? [] );
+
+		const gotFullPage = ( response.data ?? [] ).length === FINDINGS_PAGE_SIZE;
+		const moreRemain = all.length < ( response.total ?? 0 );
+
+		if ( ! gotFullPage || ! moreRemain || all.length >= MAX_FINDINGS ) {
+			break;
+		}
+
+		page += 1;
+	}
+
+	return all;
+}
+
 async function request< T >( path: string, options: NonNullable< Parameters< typeof fetch >[ 1 ] > = {} ): Promise< T > {
 	const config = window.vulopilotPostSeo;
 

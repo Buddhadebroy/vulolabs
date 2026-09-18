@@ -36,6 +36,8 @@ export const SEO_ISSUE_EDITOR_TARGETS: Record<string, SeoIssueEditorTarget> = {
 	schema: { tab: 'schema' },
 	'structured-data': { tab: 'schema' },
 	'sitewide-structured-data': { tab: 'schema' },
+	/** AEO's own "Schema Markup" section (AeoTab.tsx) — same real Schema tab every other schema-flavored scanner id above already resolves to; no separate sub-target, same as those. */
+	'aeo-schema': { tab: 'schema' },
 };
 
 export const getEditorTargetForScanner = (

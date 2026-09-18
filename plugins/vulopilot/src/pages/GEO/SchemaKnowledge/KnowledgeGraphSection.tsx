@@ -35,9 +35,14 @@ export interface EntitiesResponse {
 	categories: Entity[];
 	/** Real, owner-provided `entity_business_type` setting (Settings → Site Identity → Business Information) — empty string until set, never guessed. */
 	business_type: string;
-	/** Real, deterministic check — a published page at `/contact/` or `/contact-us/` (Services\EntityExtractor::find_contact_page(), same slug list Scanners\Basic\GeoTrustSignalsScanner's own "missing Contact page" finding already checks). */
+	/** Real, deterministic check — a published page at `/contact/` or `/contact-us/` (Services\EntityExtractor::find_contact_page(), same slug list Scanners\Basic\GeoTrustSignalsScanner's own "missing Contact page" finding already checks). Kept for whatever else still reads it; BusinessProfileCard.tsx's own "Contact details" row reads `contact_email` below instead. */
 	has_contact_page: boolean;
 	contact_page_url: string | null;
+	/** The site admin's real account email (`get_option('admin_email')`, matched to a real \WP_User) — BusinessProfileCard.tsx's own "Contact details" row. `edit_url` (computed per-viewer in EntityExtraction::get_items(), same as `people[].meta.edit_url`) is `user-edit.php?...&highlight=email`, real regardless of `found` so a missing email can be added on the same screen it'd be reviewed on. */
+	contact_email: {
+		found: boolean;
+		edit_url: string | null;
+	};
 	/** Real, template-built (never AI-generated) candidate relationships — see Services\EntityExtractor::build_suggested_relationships()'s own docblock for why these are "suggested," not "confirmed." */
 	suggested_relationships: string[];
 }

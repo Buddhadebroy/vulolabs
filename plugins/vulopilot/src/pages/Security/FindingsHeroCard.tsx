@@ -115,6 +115,8 @@ interface FindingsHeroCardProps {
 	scannerIds: string[];
 	/** Scrolls to the tab's own first section. */
 	onReviewFirst: () => void;
+	/** Forwarded straight to SiteHealthStatusCard's own `onSectionClick` — see that file's docblock. Optional since VulnerabilityHeroCard/other callers of this shared hero don't have a per-section status card to wire up. */
+	onSectionClick?: (key: string) => void;
 }
 
 /**
@@ -147,6 +149,7 @@ const FindingsHeroCard = ({
 	label,
 	scannerIds,
 	onReviewFirst,
+	onSectionClick,
 }: FindingsHeroCardProps) => {
 	const { data, total, isLoading } = useApiList<FindingRow>('findings', {
 		scanner_id: scannerIds.join(','),
@@ -244,7 +247,7 @@ const FindingsHeroCard = ({
 								</div>
 							</div>
 						)}
-						<SiteHealthStatusCard />
+						<SiteHealthStatusCard onSectionClick={onSectionClick} />
 					</div>
 				</>
 			)}

@@ -71,8 +71,10 @@ interface ProfileRow {
  *   attached to at least one published post/product, same deterministic
  *   `hide_empty` read `Services\EntityExtractor::extract_categories()`
  *   already uses.
- * - Contact details: "high" — a real, deterministic published-page check
- *   (Services\EntityExtractor::find_contact_page()).
+ * - Contact details: "high" once set — a real, deterministic check of the
+ *   site admin's own account email (`get_option('admin_email')`, matched
+ *   to a real \WP_User), not the published-page check
+ *   (Services\EntityExtractor::find_contact_page()) this row used to read.
  */
 const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 	const businessName = entities.organizations[0]?.name ?? '';
@@ -163,11 +165,11 @@ const buildRows = (entities: EntitiesResponse): ProfileRow[] => {
 		{
 			key: 'contact_details',
 			label: __('Contact details', 'vulopilot'),
-			found: entities.has_contact_page,
-			value: entities.has_contact_page
+			found: entities.contact_email.found,
+			value: entities.contact_email.found
 				? __('Found', 'vulopilot')
 				: __('Not found', 'vulopilot'),
-			confidence: entities.has_contact_page ? 'high' : 'n/a',
+			confidence: entities.contact_email.found ? 'high' : 'n/a',
 		},
 	];
 };
@@ -506,6 +508,26 @@ const BusinessProfileCard = () => {
 													onClick: () => setIsCategoriesPopupOpen(true),
 												}}
 											/>
+										) : 'contact_details' === row.key ? (
+											// Always "View" (never "Add Details") regardless
+											// of `row.found` — same real admin edit-user
+											// screen either way, so a missing email is added
+											// right where it'd otherwise just be reviewed,
+											// per direct instruction for this one row.
+											entities.contact_email.edit_url && (
+												<ButtonInput
+													buttons={{
+														text: __('View', 'vulopilot'),
+														color: 'text-blue',
+														icon: 'eye',
+														onClick: () =>
+															window.open(
+																entities.contact_email.edit_url as string,
+																'_self'
+															),
+													}}
+												/>
+											)
 										) : (
 											<ButtonInput
 												buttons={{

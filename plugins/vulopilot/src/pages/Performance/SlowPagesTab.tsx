@@ -746,7 +746,7 @@ const SlowPagesTab = () => {
 						desc={
 							0 === rows.length
 								? __(
-									'No pages scanned yet — click "Scan Again" to check your real pages\' load times.',
+									'No pages scanned yet — click "Run Speed Test" to check your real pages\' load times.',
 									'vulopilot'
 								)
 								: __(

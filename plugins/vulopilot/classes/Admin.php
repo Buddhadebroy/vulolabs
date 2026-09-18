@@ -54,6 +54,7 @@ class Admin {
         add_action( 'admin_menu', array( $this, 'add_menus' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_script' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_menu_grouping_assets' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_user_edit_highlight_script' ) );
     }
 
     /**
@@ -362,6 +363,45 @@ class Admin {
         FrontendScripts::enqueue_script( 'vulopilot-admin-script' );
         FrontendScripts::enqueue_style( 'vulopilot-admin-style' );
         FrontendScripts::localize_scripts( 'vulopilot-admin-script' );
+    }
+
+    /**
+     * Scrolls to and briefly highlights WP core's own "Email" field on its
+     * native user-edit.php screen when linked here with `?highlight=email`
+     * — BusinessProfileCard.tsx's "Contact details" row (Key Information
+     * Found by AI) links an admin here this way, whether their account
+     * email is present or missing, so they land straight on the one field
+     * that matters instead of a bare user-edit.php with several unrelated
+     * sections to hunt through. WP core has no built-in way to deep-link a
+     * single profile field, so this is a small first-party addition —
+     * `id="email"` is WP core's own stable field id on this screen
+     * (wp-admin/user-edit.php), not something this plugin controls.
+     */
+    public function enqueue_user_edit_highlight_script() {
+        $screen = get_current_screen();
+
+        if ( ! $screen || 'user-edit' !== $screen->id ) {
+            return;
+        }
+
+        $highlight = isset( $_GET['highlight'] ) ? sanitize_key( wp_unslash( $_GET['highlight'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display affordance (scrolls/outlines a field), no state changes; only 'email' is ever acted on.
+
+        if ( 'email' !== $highlight ) {
+            return;
+        }
+
+        wp_add_inline_script(
+            'jquery-core',
+            "document.addEventListener( 'DOMContentLoaded', function () {"
+            . "var field = document.getElementById( 'email' );"
+            . 'if ( ! field ) { return; }'
+            . "field.scrollIntoView( { behavior: 'smooth', block: 'center' } );"
+            . "field.style.outline = '2px solid #7c3aed';"
+            . "field.style.transition = 'outline 0.2s ease';"
+            . 'field.focus();'
+            . 'setTimeout( function () { field.style.outline = ""; }, 4000 );'
+            . '} );'
+        );
     }
 
     /**
