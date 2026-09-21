@@ -200,6 +200,7 @@ const HistoryTimeline = ({
 				<ButtonInput
 					position="center"
 					buttons={{
+						rightIcon:  'arrow-right',
 						text: isLoadingMore
 							? __('Loading…', 'vulopilot')
 							: __('Load more', 'vulopilot'),

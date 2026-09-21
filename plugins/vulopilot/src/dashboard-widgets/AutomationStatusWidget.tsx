@@ -93,8 +93,8 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 				<ButtonInput
 					buttons={{
 						text: __('Manage', 'vulopilot'),
-						icon: 'setting',
-						color: 'border-purple',
+						rightIcon: 'pagination-right-arrow',
+						color: 'text-purple',
 						onClick: () => {
 							window.location.href = '?page=vulopilot#&tab=automations';
 						},

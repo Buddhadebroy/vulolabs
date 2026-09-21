@@ -342,7 +342,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	};
 
 	return (
-		<ContainerComponent>
+		<>
 			<ColumnComponent grid={6} row fullHeight>
 				<CardComponent
 					id="performance-overall-speed-score-card"
@@ -449,7 +449,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 					<RealTimeMonitoringCard />
 				</CardComponent>
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 
