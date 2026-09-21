@@ -231,7 +231,6 @@ const OverallScoreWidget: React.FC<WidgetProps> = ({
 			isCustomizing={isCustomizing}
 			headerAction={
 				<ButtonInput
-					wrapperClass="vital-pulse-full-report-link"
 					buttons={{
 						text: __('View full report', 'vulopilot'),
 						rightIcon: 'pagination-right-arrow',

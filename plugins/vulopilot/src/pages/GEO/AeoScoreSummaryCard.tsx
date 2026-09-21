@@ -52,7 +52,7 @@ const overallRatingLabel = (score: number): string => {
 	if (score >= 40) {
 		return __('Needs Work', 'vulopilot');
 	}
-	return __('Poor', 'vulopilot');
+	return __('At Risk', 'vulopilot');
 };
 
 /**

@@ -167,16 +167,6 @@
 	}
 }
 
-.vital-pulse-full-report-link {
-	font-size: 0.8125rem;
-	font-weight: 600;
-	color: $theme-color;
-	text-decoration: none;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
 
 // "VuloPilot activity" — 5 real tiles in one row (VuloPilotActivityWidget.tsx),
 // separated by a hairline rather than individual card borders per tile.

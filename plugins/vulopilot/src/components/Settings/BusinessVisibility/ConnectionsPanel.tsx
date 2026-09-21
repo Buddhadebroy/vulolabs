@@ -89,7 +89,7 @@ const ConnectionsPanel = () => {
 				<AiProvidersPanel />
 			</SectionRow>
 			<SectionRow
-				icon="search-discovery"
+				icon="google"
 				title={__('Google Services', 'vulopilot')}
 				desc={__(
 					'Connect your Google account to allow VuloPilot to fetch real data from Google services.',
@@ -109,7 +109,7 @@ const ConnectionsPanel = () => {
 				<TagManagerPanel />
 			</SectionRow>
 			<SectionRow
-				icon="check"
+				icon="web-page-website"
 				title={__('PageSpeed Insights', 'vulopilot')}
 				desc={__(
 					'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',

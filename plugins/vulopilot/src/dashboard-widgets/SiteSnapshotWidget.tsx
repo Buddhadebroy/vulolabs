@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ListComponent, SectionComponent } from '@zyra/components';
+import { AnalyticsComponent, ListComponent, SectionComponent, CardComponent, TypographyComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import { useGeoScore } from '../pages/GEO/useGeoScore';
@@ -24,6 +25,29 @@ const formatScore = (score: number | null): string =>
 
 const formatCount = (count: number | null): string =>
 	null === count ? NOT_SET : String(count);
+
+/**
+ * A public site's homepage screenshot from WordPress.com's mShots service
+ * (the same one WP.org uses for plugin/theme previews). It can only reach
+ * publicly-reachable sites, so localhost, `.local`/`.test` hosts and private
+ * IPs get no screenshot URL at all.
+ */
+const getHomeScreenshotUrl = (siteUrl: string): string => {
+	try {
+		const { hostname } = new URL(siteUrl);
+		const isPrivate =
+			'localhost' === hostname ||
+			/\.(local|localhost|test|invalid|example)$/i.test(hostname) ||
+			/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname) ||
+			!hostname.includes('.');
+
+		return isPrivate
+			? ''
+			: `https://s0.wp.com/mshots/v1/${encodeURIComponent(siteUrl)}?w=560&h=350`;
+	} catch {
+		return '';
+	}
+};
 
 /**
  * "Site snapshot" — real WordPress core counts (`summary.site_snapshot`,
@@ -291,70 +315,138 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 
 		];
 
+	const byId = Object.fromEntries(
+		[...groups, ...groups2].map((group) => [group.id, group])
+	);
+
+	/** Mockup order, two per row — each header's arrow jumps to that area's real page. */
+	const sections = [
+		{ ...byId.content, link: '?page=vulopilot#&tab=content' },
+
+		{
+			...byId.products,
+			title: __('Commerce', 'vulopilot'),
+			link: '?page=vulopilot#&tab=commerce',
+		},
+		{
+			...byId.users,
+			rows: [...byId.users.rows, ...byId.additional.rows],
+			link: null as string | null,
+		},
+	];
+	const sections2 = [
+		{ ...byId.seo, link: '?page=vulopilot#&tab=seo-visibility' },
+		{
+			...byId.company,
+			title: __('Organization', 'vulopilot'),
+			link: '?page=vulopilot#&tab=settings&subtab=business-information',
+		},
+	];
+
+	const siteUrl = appLocalizer.site_url as string;
+	const screenshotUrl = getHomeScreenshotUrl(siteUrl);
+	const [screenshotFailed, setScreenshotFailed] = useState(false);
+	const previewImage =
+		screenshotUrl && !screenshotFailed
+			? screenshotUrl
+			: appLocalizer.home_preview_image;
+
 	return (
 		<>
 			<DashboardWidget
-				title={brandName}
-				desc={__('Which of your automations are enabled and running.', 'vulopilot')}
-				icon="plus"
+				title={__('Site overview', 'vulopilot')}
+				desc={__("Key details about your site's content, technology and audience.", 'vulopilot')}
+				icon="global-community"
 				isLoading={isLoading}
 				onHide={onHide}
 				isCustomizing={isCustomizing}
 			>
-				<>
-					<div className='group-wrapper'>
-						<div className="group">
-							{groups.map((group) => (
-								<div key={group.id} className="site-snapshot-group-card">
-									<SectionComponent
-										title={group.title}
-										icon={group.icon}
-									/>
-									<ListComponent
-										className="mini-card report without-border site-snapshot-list"
-										items={group.rows.map((row) => ({
-											id: row.key,
-											icon: row.icon,
-											title: row.label,
-											tags: (
-												<>
-													<span className="desc">
-														{row.value}
-													</span>
-												</>
-											),
-										}))}
-									/>
-								</div>
-							))}
+				<div className="site-overview-intro">
+					<div className="site-overview-identity-row">
+						<div className="site-overview-preview">
+							{previewImage ? (
+								<img
+									src={previewImage}
+									alt={__('Your homepage', 'vulopilot')}
+									onError={() => setScreenshotFailed(true)}
+								/>
+							) : (
+								<i className="adminfont-global-community site-overview-preview-empty" />
+							)}
 						</div>
-						<div className="group">
-							{groups2.map((group) => (
-								<div key={group.id} className="site-snapshot-group-card">
-									<SectionComponent
-										title={group.title}
-										icon={group.icon}
-									/>
-									<ListComponent
-										className="mini-card report without-border site-snapshot-list"
-										items={group.rows.map((row) => ({
-											id: row.key,
-											icon: row.icon,
-											title: row.label,
-											tags: (
-												<>
-													<span className="desc">
-														{row.value}
-													</span>
-												</>
-											),
-										}))}
-									/>
-								</div>
-							))}
+						<div className="site-overview-identity">
+							<TypographyComponent variant="h4">
+								{appLocalizer.site_title || brandName}
+							</TypographyComponent>
+							<a href={siteUrl} target="_blank" rel="noreferrer" className="site-overview-url">
+								<TypographyComponent variant="desc" color="purple">
+									{siteUrl.replace(/^https?:\/\//, '')}
+								</TypographyComponent>
+								<i className='adminfont-external'/>
+							</a>
+							{appLocalizer.site_description && (
+								<div className="desc">{appLocalizer.site_description}</div>
+							)}
+							
 						</div>
 					</div>
-				</>
+					<AnalyticsComponent
+						variant="small"
+						cols={3}
+						data={[
+							{ icon: 'wordpress blue', number: snapshot.wp_version || NOT_SET, text: __('WordPress', 'vulopilot') },
+							{ icon: 'coding purple', number: snapshot.php_version || NOT_SET, text: __('PHP', 'vulopilot') },
+							{
+								icon: 'module orange',
+								number: `${snapshot.plugins_active} / ${snapshot.plugins_total}`,
+								text: __('Plugins active', 'vulopilot'),
+							},
+						]}
+					/>
+				</div>
+				<div className="site-overview-groups">
+					<div className="group">
+						{sections.map((group) => (
+							<div key={group.id} className={`site-snapshot-group-card is-${group.id}`}>
+								<CardComponent
+									title={group.title}
+									icon={group.icon}
+								>
+									<ListComponent
+										className="mini-card report without-border site-snapshot-list"
+										items={group.rows.map((row) => ({
+											id: row.key,
+											icon: row.icon,
+											title: row.label,
+											tags: <span className="desc">{row.value}</span>,
+										}))}
+									/>
+								</CardComponent>
+							</div>
+
+						))}
+					</div>
+					<div className="group">
+						{sections2.map((group) => (
+							<div key={group.id} className={`site-snapshot-group-card is-${group.id}`}>
+								<CardComponent
+									title={group.title}
+									icon={group.icon}
+								>
+									<ListComponent
+										className="mini-card report without-border site-snapshot-list"
+										items={group.rows.map((row) => ({
+											id: row.key,
+											icon: row.icon,
+											title: row.label,
+											tags: <span className="desc">{row.value}</span>,
+										}))}
+									/>
+								</CardComponent>
+							</div>
+						))}
+					</div>
+				</div>
 			</DashboardWidget>
 			<AutomationStatusWidget
 				summary={summary}
