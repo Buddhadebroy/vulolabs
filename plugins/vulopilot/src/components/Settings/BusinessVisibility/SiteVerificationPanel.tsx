@@ -434,17 +434,13 @@ const SiteVerificationPanel = () => {
 		<>
 
 			<FormGroupWrapperComponent>
-				<FormGroupComponent>
-					{PROVIDERS.map((row) => (
-						<ProviderRow key={row.provider} {...row} />
-					))}
-				</FormGroupComponent>
-				<FormGroupComponent>
-					{PLAIN_CODE_FIELDS.map((field) => (
-						<PlainCodeField key={field.key} field={field} />
-					))}
-					<CustomTagsField />
-				</FormGroupComponent>
+				{PROVIDERS.map((row) => (
+					<ProviderRow key={row.provider} {...row} />
+				))}
+				{PLAIN_CODE_FIELDS.map((field) => (
+					<PlainCodeField key={field.key} field={field} />
+				))}
+				<CustomTagsField />
 				<FormGroupComponent>
 					<NoticeComponent
 						displayPosition="inline-notice"

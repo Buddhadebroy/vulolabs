@@ -83,3 +83,15 @@
 	margin-left: 0.5rem;
 	vertical-align: middle;
 }
+
+// A bare header used as a section's left column (Settings → Connections'
+// SectionRow, ConnectionsPanel.tsx) — full width of that column, no row
+// divider/padding of its own (the section group already draws those).
+.settings-left-section .common-card.compact {
+	border-bottom: 0;
+	padding: 0;
+
+	.common-card-header {
+		width: 100%;
+	}
+}
