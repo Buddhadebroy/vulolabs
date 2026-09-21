@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ListComponent, SectionComponent, CardComponent } from '@zyra/components';
+import { ListComponent, SectionComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import { useGeoScore } from '../pages/GEO/useGeoScore';
@@ -293,10 +293,10 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 
 	return (
 		<>
-			<CardComponent
+			<DashboardWidget
 				title={brandName}
 				desc={__('Which of your automations are enabled and running.', 'vulopilot')}
-				titleIcon="plus"
+				icon="plus"
 				isLoading={isLoading}
 				onHide={onHide}
 				isCustomizing={isCustomizing}
@@ -355,7 +355,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 						</div>
 					</div>
 				</>
-			</CardComponent>
+			</DashboardWidget>
 			<AutomationStatusWidget
 				summary={summary}
 				isLoading={isLoading}

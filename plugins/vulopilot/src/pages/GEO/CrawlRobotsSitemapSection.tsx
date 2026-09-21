@@ -606,7 +606,7 @@ const CrawlRobotsSitemapSection = () => {
 	return (
 		<>
 			<ContainerComponent>
-				<ColumnComponent grid={4}>
+				<ColumnComponent>
 					<CardComponent
 						title={__('Robots.txt Analysis', 'vulopilot')}
 						titleIcon="link"
@@ -616,160 +616,171 @@ const CrawlRobotsSitemapSection = () => {
 						)}
 						isLoading={isLoadingRobots}
 					>
-						{robots?.reachable ? (
-							<>
-								<ButtonInput
-									buttons={{
-										text: __('Test robots.txt', 'vulopilot'),
-										icon: 'refresh',
-										// Explicit click → refresh the editor content too.
-										onClick: () => loadRobots(true),
-									}}
-								/>
-								<div className='broken-link-section'>
-									<div className="rt-editor-wrap">
-										<RobotsTxtEditor
-											value={robotsEditContent}
-											onChange={handleRobotsContentChange}
-											placeholder={__(
-												'User-agent: *\nDisallow: /wp-admin/',
-												'vulopilot'
-											)}
+						<div className="robots-overview-wrapper">
+							<div className="left-section">
+								{robots?.reachable ? (
+									<>
+										<ButtonInput
+											buttons={{
+												text: __('Test robots.txt', 'vulopilot'),
+												icon: 'refresh',
+												// Explicit click → refresh the editor content too.
+												onClick: () => loadRobots(true),
+											}}
 										/>
-										{robots.is_custom && (
-											<ButtonInput
-												buttons={{
-													text: __(
-														'Reset to WordPress default',
+										<div className='broken-link-section'>
+											<div className="rt-editor-wrap">
+												<RobotsTxtEditor
+													value={robotsEditContent}
+													onChange={handleRobotsContentChange}
+													placeholder={__(
+														'User-agent: *\nDisallow: /wp-admin/',
 														'vulopilot'
-													),
-													icon: 'refresh',
-													color: 'border-purple',
-													onClick: handleResetRobotsToDefault,
-												}}
-											/>
-										)}
-									</div>
-									<div className='list-wrapper'>
-										<ListComponent
-											className="mini-card report"
-											items={[
-												{
-													id: 'total',
-													desc: __('Total Rules', 'vulopilot'),
-													tags: (
-														<TypographyComponent
-															variant="h5"
-															weight="bold"
-															className="seo-health-score-row-value"
-														>
-															{robots.rules.total}
-														</TypographyComponent>
-													),
-												},
-												{
-													id: 'allowed',
-													desc: __('Allowed', 'vulopilot'),
-													tags: (
-														<TypographyComponent
-															variant="h5"
-															weight="bold"
-															className="seo-health-score-row-value"
-														>
-															{robots.rules.allowed}
-														</TypographyComponent>
-													),
-												},
-												{
-													id: 'disallowed',
-													desc: __('Disallowed', 'vulopilot'),
-													tags: (
-														<TypographyComponent
-															variant="h5"
-															weight="bold"
-															className="seo-health-score-row-value"
-														>
-															{robots.rules.disallowed}
-														</TypographyComponent>
-													),
-												},
-											]}
-										/>
-										<ListComponent
-											className="mini-card report"
-											cols={2}
-											items={[
+													)}
+												/>
+												{robots.is_custom && (
+													<ButtonInput
+														buttons={{
+															text: __(
+																'Reset to WordPress default',
+																'vulopilot'
+															),
+															icon: 'refresh',
+															color: 'border-purple',
+															onClick: handleResetRobotsToDefault,
+														}}
+													/>
+												)}
+											</div>
+											<div className='list-wrapper'>
+												<ListComponent
+													className="mini-card report"
+													items={[
+														{
+															id: 'total',
+															desc: __('Total Rules', 'vulopilot'),
+															tags: (
+																<TypographyComponent
+																	variant="h5"
+																	weight="bold"
+																	className="seo-health-score-row-value"
+																>
+																	{robots.rules.total}
+																</TypographyComponent>
+															),
+														},
+														{
+															id: 'allowed',
+															desc: __('Allowed', 'vulopilot'),
+															tags: (
+																<TypographyComponent
+																	variant="h5"
+																	weight="bold"
+																	className="seo-health-score-row-value"
+																>
+																	{robots.rules.allowed}
+																</TypographyComponent>
+															),
+														},
+														{
+															id: 'disallowed',
+															desc: __('Disallowed', 'vulopilot'),
+															tags: (
+																<TypographyComponent
+																	variant="h5"
+																	weight="bold"
+																	className="seo-health-score-row-value"
+																>
+																	{robots.rules.disallowed}
+																</TypographyComponent>
+															),
+														},
+													]}
+												/>
+												<ListComponent
+													className="mini-card report"
+													cols={2}
+													items={[
 
-												{
-													id: 'sitemaps',
-													desc: __('Sitemaps', 'vulopilot'),
-													tags: (
-														<TypographyComponent
-															variant="h5"
-															weight="bold"
-															className="seo-health-score-row-value"
-														>
-															{robots.rules.sitemaps}
-														</TypographyComponent>
-													),
-												},
-												{
-													id: 'user-agent',
-													desc: __('User-agent', 'vulopilot'),
-													tags: (
-														<>
-															<TypographyComponent
-																variant="h5"
-																weight="bold"
-																className="seo-health-score-row-value"
-															>
-																{String(robots.directives.user_agents.length)}
-															</TypographyComponent>
-														</>
-													),
-												},
-												{
-													id: 'crawl-delay',
-													desc: __('Crawl-delay', 'vulopilot'),
-													tags: (
-														<>
-															<div className='small'>{robots.directives.crawl_delay ??
-																__('Not set', 'vulopilot')}</div>
-														</>
-													),
-												},
-											]}
+														{
+															id: 'sitemaps',
+															desc: __('Sitemaps', 'vulopilot'),
+															tags: (
+																<TypographyComponent
+																	variant="h5"
+																	weight="bold"
+																	className="seo-health-score-row-value"
+																>
+																	{robots.rules.sitemaps}
+																</TypographyComponent>
+															),
+														},
+														{
+															id: 'user-agent',
+															desc: __('User-agent', 'vulopilot'),
+															tags: (
+																<>
+																	<TypographyComponent
+																		variant="h5"
+																		weight="bold"
+																		className="seo-health-score-row-value"
+																	>
+																		{String(robots.directives.user_agents.length)}
+																	</TypographyComponent>
+																</>
+															),
+														},
+														{
+															id: 'crawl-delay',
+															desc: __('Crawl-delay', 'vulopilot'),
+															tags: (
+																<>
+																	<div className='small'>{robots.directives.crawl_delay ??
+																		__('Not set', 'vulopilot')}</div>
+																</>
+															),
+														},
+													]}
+												/>
+											</div>
+										</div>
+									</>
+								) : (
+									<ModuleGuardComponent
+										icon="error"
+										title={__('robots.txt is not reachable', 'vulopilot')}
+										desc={__('This site did not return a working /robots.txt just now.', 'vulopilot')}
+									/>
+								)}
+							</div>
+							<div className="right-section">
+								{robotsTxtError ? (
+									<ModuleGuardComponent
+										icon="error"
+										title={__('Could not load findings', 'vulopilot')}
+										desc={robotsTxtError}
+										buttonText={__('Retry', 'vulopilot')}
+										onButtonClick={refetchRobotsTxt}
+									/>
+								) : (
+									<>
+										<SectionComponent
+											title={__('Robots.txt Issues', 'vulopilot')}
+											titleIcon="security"
+											desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
 										/>
-									</div>
-								</div>
-							</>
-						) : (
-							<ModuleGuardComponent
-								icon="error"
-								title={__('robots.txt is not reachable', 'vulopilot')}
-								desc={__('This site did not return a working /robots.txt just now.', 'vulopilot')}
-							/>
-						)}
+										<TableCard {...robotsTxtProps} bulkActions={[]} />
+									</>
+								)}
+							</div>
+						</div>
 					</CardComponent>
-				</ColumnComponent>
-				<ColumnComponent grid={8} fullHeight>
 					<CardComponent
-						grid={6}
 						title={__('Robots.txt Issues', 'vulopilot')}
 						titleIcon="security"
 						desc={__('Whether robots.txt is reachable and not accidentally blocking every crawler.', 'vulopilot')}
 					>
-						{robotsTxtError ? (
-							<ModuleGuardComponent
-								icon="error"
-								title={__('Could not load findings', 'vulopilot')}
-								desc={robotsTxtError}
-								buttonText={__('Retry', 'vulopilot')}
-								onButtonClick={refetchRobotsTxt}
-							/>
-						) : (
-							<TableCard {...robotsTxtProps} bulkActions={[]} />
-						)}
+
 					</CardComponent>
 				</ColumnComponent>
 

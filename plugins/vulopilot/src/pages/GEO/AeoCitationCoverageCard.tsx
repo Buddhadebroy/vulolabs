@@ -116,7 +116,7 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 	);
 
 	return (
-		<ColumnComponent grid={6}>
+		<ColumnComponent grid={6} fullHeight>
 			<CardComponent
 				title={__('Answer Engine Coverage', 'vulopilot')}
 				titleIcon="global-community"
