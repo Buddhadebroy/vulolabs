@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ListComponent, SectionComponent, CardComponent, AnalyticsComponent } from '@zyra/components';
+import { ListComponent, SectionComponent, CardComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import { useGeoScore } from '../pages/GEO/useGeoScore';
@@ -10,46 +10,12 @@ import { useLastScanTime } from '../services/useLastScanTime';
 import { formatWpDate } from '../services/formatWpDate';
 import type { EntitiesResponse, Entity } from '../pages/GEO/SchemaKnowledge/KnowledgeGraphSection';
 import { WidgetProps } from './types';
-import { useApiList } from '../services/useApiList';
-import { SEO_SECTIONS } from '../pages/GEO/seoSections';
-import { ALL_AEO_SCANNER_IDS } from '../pages/GEO/AeoTab';
 
 /** Same real gate BusinessProfileCard.tsx's own identical check already uses — EntityExtractor returns empty groups when this module is inactive, so a real `''`/`[]` here is a genuine "not set" state, not a broken fetch. */
 const isEntityExtractionModuleActive = () =>
 	appLocalizer.active_modules?.includes('entity-extraction') ?? false;
 
 const NOT_SET = '—';
-type GlanceRow = {
-	key: 'seo' | 'geo' | 'aeo';
-	label: string;
-	subtab: string;
-	/** `scanner_id`/`category` REST params to count real open findings with — see each row's own definition below for why GEO uses `category` while SEO/AEO use an explicit `scanner_id` list. */
-	params: Record<string, string>;
-};
-const SEO_SCANNER_IDS = SEO_SECTIONS.flatMap((section) => section.scannerIds);
-
-/** Same 3 real "Issues at a glance" rows KeyPagesWidget.tsx used — GEO filters by `category`, SEO/AEO by an explicit `scanner_id` allowlist (see KeyPagesWidget.tsx's own docblock for why). */
-const GLANCE_ROWS: GlanceRow[] = [
-	{
-		key: 'seo',
-		label: __('SEO', 'vulopilot'),
-		subtab: 'seo',
-		params: { scanner_id: SEO_SCANNER_IDS.join(',') },
-	},
-	{
-		key: 'geo',
-		label: __('GEO', 'vulopilot'),
-		subtab: 'geo',
-		params: { category: 'geo' },
-	},
-	{
-		key: 'aeo',
-		label: __('AEO', 'vulopilot'),
-		subtab: 'aeo',
-		params: { scanner_id: ALL_AEO_SCANNER_IDS.join(',') },
-	},
-];
-
 /** `score`/`open_count` are `null` for a signal with no real data to compute from yet (GeoSignalScore's own docblock) — shown honestly as "—", never a fabricated 0. */
 const formatScore = (score: number | null): string =>
 	null === score
@@ -121,29 +87,6 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 
 	const { score: geoScore } = useGeoScore();
 
-	// Fixed cardinality (always exactly 3 rows), so one real `useApiList`
-	// call each rather than a loop — `per_page: 1` since only `total` is used.
-	const seoFindings = useApiList<{ id: number }>('findings', {
-		...GLANCE_ROWS[0].params,
-		status: 'open',
-		per_page: 1,
-	});
-	const geoFindings = useApiList<{ id: number }>('findings', {
-		...GLANCE_ROWS[1].params,
-		status: 'open',
-		per_page: 1,
-	});
-	const aeoFindings = useApiList<{ id: number }>('findings', {
-		...GLANCE_ROWS[2].params,
-		status: 'open',
-		per_page: 1,
-	});
-	const totals: Record<GlanceRow['key'], number> = {
-		seo: seoFindings.total,
-		geo: geoFindings.total,
-		aeo: aeoFindings.total,
-	};
-
 	// Real most recent completed scan, site-wide (same source
 	// RunScanHeaderExtra's own "Last scan" caption already reads) — the
 	// "Last updated" badge in the mockup header, not a fabricated
@@ -175,12 +118,6 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 				title: __('Company Details', 'vulopilot'),
 				icon: 'global-community',
 				rows: [
-					{
-						key: 'brand',
-						icon: 'global-community pink',
-						label: __('Brand', 'vulopilot'),
-						value: brandName,
-					},
 					{
 						key: 'entity',
 						icon: 'module indigo',
@@ -357,7 +294,7 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	return (
 		<>
 			<CardComponent
-				title={__('Site snapshot', 'vulopilot')}
+				title={brandName}
 				desc={__('Which of your automations are enabled and running.', 'vulopilot')}
 				titleIcon="plus"
 				isLoading={isLoading}
@@ -417,20 +354,6 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 							))}
 						</div>
 					</div>
-					<AnalyticsComponent
-						variant="background-color"
-						cols={3}
-						data={GLANCE_ROWS.map((row, index) => ({
-							colorClass: `admin-bg-color${index + 2}`,
-							number: totals[row.key],
-							text: sprintf(
-								/* translators: %s: sub-tab name, e.g. "SEO". */
-								__('%s issues', 'vulopilot'),
-								row.label
-							),
-							link: `?page=vulopilot#&tab=seo-visibility&subtab=${row.subtab}`,
-						}))}
-					/>
 				</>
 			</CardComponent>
 			<AutomationStatusWidget

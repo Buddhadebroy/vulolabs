@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { CardComponent, TooltipComponent } from '@zyra/components';
 
 interface DashboardWidgetProps {
-	title: string;
+	title: React.ReactNode;
 	icon: string;
 	isLoading?: boolean;
 	onHide: () => void;

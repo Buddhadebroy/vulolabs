@@ -115,19 +115,6 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 					}))}
 				/>
 			)}
-
-			{/* Free ships exactly 2 built-in automations; custom ones are Pro. Hidden once Pro is active. */}
-			{!appLocalizer.khali_dabba && (
-				<NoticeComponent
-					displayPosition="inline"
-					type="info"
-					message={__('Want to add more automations?', 'vulopilot')}
-					actionLabel={__('Upgrade to Pro', 'vulopilot')}
-					onAction={() =>
-						window.open(appLocalizer.shop_url, '_blank', 'noopener,noreferrer')
-					}
-				/>
-			)}
 		</DashboardWidget>
 	);
 };
