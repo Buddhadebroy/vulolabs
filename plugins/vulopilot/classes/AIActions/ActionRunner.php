@@ -64,10 +64,14 @@ class ActionRunner {
      * restructuring propose() itself.
      */
     private const CREDIT_FEATURE_MAP = array(
-        'write-meta-title'       => array( 'seo_title', 'generate' ),
-        'write-meta-description' => array( 'meta_description', 'generate' ),
-        'improve-readability'    => array( 'content_improvement', 'rewrite' ),
+        'write-meta-title'              => array( 'seo_title', 'generate' ),
+        'write-meta-description'        => array( 'meta_description', 'generate' ),
+        'improve-readability'           => array( 'content_improvement', 'rewrite' ),
+        'write-post-content'            => array( 'post_content', 'write' ),
+        'generate-blog'                 => array( 'blog_post', 'generate' ),
+        'differentiate-duplicate-title' => array( 'duplicate_title', 'differentiate' ),
     );
+
 
     /**
      * @param ActionRegistry             $registry           Registry to resolve action ids from.
@@ -189,9 +193,9 @@ class ActionRunner {
      * redundant network round trip for the exact same answer the real
      * attempt already gives, and would risk a stale answer if a key was
      * just added/removed moments earlier. Falling through only ever
-     * happens for the three action ids in CREDIT_FEATURE_MAP (VuloPilot
+     * happens for the action ids in CREDIT_FEATURE_MAP (VuloPilot
      * brief §9's structured-request contract only has a real feature-
-     * catalog entry for those three today); every other action id's
+     * catalog entry for those today); every other action id's
      * "not configured" is a final, honest error, exactly as it always was.
      *
      * @param string                             $action_id Real, registered action id.
@@ -267,6 +271,24 @@ class ActionRunner {
                 return array(
                     'content' => $input['original_content'],
                     'goal'    => 'improve readability',
+                );
+            case 'write-post-content':
+                return array(
+                    'title'   => $input['post_title'],
+                    'brief'   => $input['brief'],
+                    'content' => $input['previous_content'],
+                );
+            case 'generate-blog':
+                return array(
+                    'topic'      => $input['topic'],
+                    'word_count' => $input['word_count'],
+                    'tone'       => $input['tone'],
+                );
+            case 'differentiate-duplicate-title':
+                return array(
+                    'title'         => $input['previous_title'],
+                    'content'       => $input['content'],
+                    'sibling_count' => count( $input['sibling_titles'] ),
                 );
             default:
                 return array();
