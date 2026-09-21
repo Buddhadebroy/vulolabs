@@ -4,13 +4,12 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import {
 	FormGroupWrapperComponent,
-	FormGroupComponent,
-	NoticeComponent,
 	NoticeManager,
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from '../../Popup/Popup';
+import CardHeader from '../../CardHeader';
 
 interface VuloCloudStatus {
 	/** Is this site connected to a VuloCloud account at all (a real site secret exists)? */
@@ -153,19 +152,41 @@ const AiProvidersPanel = () => {
 				{isLoading ? (
 					<div className="desc">{__('Loading…', 'vulopilot')}</div>
 				) : (
-					<FormGroupComponent label={__('VuloCloud AI', 'vulopilot')}>
-						{!vulocloudStatus.connected ? (
-							<>
-								<NoticeComponent
-									displayPosition="inline"
-									type="info"
-									message={__(
+					<CardHeader
+						icon="ai"
+						title={__('VuloCloud AI', 'vulopilot')}
+						desc={
+							!vulocloudStatus.connected
+								? __(
 										'Connect this site to VuloCloud to use an AI provider key managed by your Organization.',
 										'vulopilot'
-									)}
-								/>
+									)
+								: vulocloudStatus.configured
+									? __(
+											'Connected — an AI provider key is configured for this site by your Organization (or an allowed personal backup key).',
+											'vulopilot'
+										)
+									: __(
+											'Connected to VuloCloud, but no AI provider key is configured yet for this site. Add one from your VuloCloud account, or ask your agency to.',
+											'vulopilot'
+										)
+						}
+						badge={
+							<span
+								className={`admin-badge ${
+									!vulocloudStatus.connected ? 'red' : vulocloudStatus.configured ? 'green' : 'orange'
+								}`}
+							>
+								{!vulocloudStatus.connected
+									? __('Not Connected', 'vulopilot')
+									: vulocloudStatus.configured
+										? __('Connected', 'vulopilot')
+										: __('Key needed', 'vulopilot')}
+							</span>
+						}
+						action={
+							!vulocloudStatus.connected ? (
 								<ButtonInput
-									position="left"
 									buttons={{
 										text: isConnectingToVulocloud
 											? __('Connecting…', 'vulopilot')
@@ -174,30 +195,8 @@ const AiProvidersPanel = () => {
 										onClick: handleConnectToVulocloud,
 									}}
 								/>
-							</>
-						) : (
-							<>
-								{vulocloudStatus.configured ? (
-									<NoticeComponent
-										displayPosition="inline"
-										type="success"
-										message={__(
-											'Connected — an AI provider key is configured for this site by your Organization (or an allowed personal backup key).',
-											'vulopilot'
-										)}
-									/>
-								) : (
-									<NoticeComponent
-										displayPosition="inline"
-										type="warning"
-										message={__(
-											'Connected to VuloCloud, but no AI provider key is configured yet for this site. Add one from your VuloCloud account, or ask your agency to.',
-											'vulopilot'
-										)}
-									/>
-								)}
+							) : (
 								<ButtonInput
-									position="left"
 									buttons={{
 										text: isDisconnectingFromVulocloud
 											? __('Disconnecting…', 'vulopilot')
@@ -206,9 +205,9 @@ const AiProvidersPanel = () => {
 										onClick: handleDisconnectFromVulocloud,
 									}}
 								/>
-							</>
-						)}
-					</FormGroupComponent>
+							)
+						}
+					/>
 				)}
 			</FormGroupWrapperComponent>
 			<PopupComponent
