@@ -62,9 +62,9 @@ const getScoreRating = (score: number): Rating => {
 		return { label: __('Good', 'vulopilot'), className: 'good' };
 	}
 	if (score >= 50) {
-		return { label: __('Needs Improvement', 'vulopilot'), className: 'needs-improvement' };
+		return { label: __('Needs Work', 'vulopilot'), className: 'needs-improvement' };
 	}
-	return { label: __('Poor', 'vulopilot'), className: 'poor' };
+	return { label: __('At Risk', 'vulopilot'), className: 'poor' };
 };
 
 /**
@@ -114,9 +114,9 @@ const getVitalRating = (
 		return { label: __('Good', 'vulopilot'), className: 'good' };
 	}
 	if (value <= thresholds.needsImprovement) {
-		return { label: __('Needs Improvement', 'vulopilot'), className: 'needs-improvement' };
+		return { label: __('Needs Work', 'vulopilot'), className: 'needs-improvement' };
 	}
-	return { label: __('Poor', 'vulopilot'), className: 'poor' };
+	return { label: __('At Risk', 'vulopilot'), className: 'poor' };
 };
 
 interface VitalRowProps {
