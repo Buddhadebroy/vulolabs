@@ -50,7 +50,6 @@ class UsageTrackingProvider implements AIProviderInterface {
         'gemini'     => array( 0.00125, 0.005 ),
         'openrouter' => array( 0.003, 0.015 ),
         'groq'       => array( 0.00059, 0.00079 ),
-        'ollama'     => array( 0.0, 0.0 ),
     );
 
     /**

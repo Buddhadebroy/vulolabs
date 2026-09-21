@@ -29,10 +29,8 @@ class Utill {
     const TABLES = array(
         'scan'                       => 'vulopilot_scans',
         'scan_finding'               => 'vulopilot_scan_findings',
-        'rule'                       => 'vulopilot_rules',
         'automations'                => 'vulopilot_automations',
         'automations_run'            => 'vulopilot_automations_runs',
-        'ai_job'                     => 'vulopilot_ai_jobs',
         'ai_history'                 => 'vulopilot_ai_history',
         // Full, untruncated AI Copilot chat threads (RecentConversationsCard.tsx's
         // "click to load full history" feature) — deliberately separate
@@ -40,59 +38,22 @@ class Utill {
         // trail by design (see that table's own DATABASE.md entry) and was
         // never meant to store full text or group rows into threads.
         'ai_conversation'            => 'vulopilot_ai_conversations',
-        'ai_provider_config'         => 'vulopilot_ai_provider_configs',
         'report'                     => 'vulopilot_reports',
-        'scheduled_job'              => 'vulopilot_scheduled_jobs',
         'activity_log'               => 'vulopilot_activity_logs',
-        'site_health_snapshot'       => 'vulopilot_site_health_snapshots',
         'ai_action_run'              => 'vulopilot_ai_action_runs',
         'crawler_visit'              => 'vulopilot_crawler_visits',
         'redirect'                   => 'vulopilot_redirects',
         'not_found_log'              => 'vulopilot_not_found_logs',
-        'indexnow_log'               => 'vulopilot_indexnow_log',
-        'geo_visibility_history'     => 'vulopilot_geo_visibility_history',
-        'brand_score_history'        => 'vulopilot_brand_score_history',
-        'entity_relationship'        => 'vulopilot_entity_relationships',
-        'kg_health_history'          => 'vulopilot_kg_health_history',
-        'file_baseline'              => 'vulopilot_file_baselines',
-        'accessibility_snapshot'     => 'vulopilot_accessibility_snapshots',
-        'store_trends_snapshot'      => 'vulopilot_store_trends_snapshots',
-        'performance_score_snapshot' => 'vulopilot_performance_score_snapshots',
-        'security_score_snapshot'    => 'vulopilot_security_score_snapshots',
-        'performance_request'        => 'vulopilot_performance_requests',
-        'core_web_vital'             => 'vulopilot_core_web_vitals',
+        'snapshot'                   => 'vulopilot_snapshots',
+        'performance_sample'         => 'vulopilot_performance_samples',
         'page_speed'                 => 'vulopilot_page_speed',
         // Protect My Site's Malware/Firewall/Login Protection/Backups/
         // Recovery tiles — real, always-on core features, not a Modules-page
         // module. Malware has no table of its own (its Finding rows are the
         // whole persisted record, same as every other scanner); these three
         // back the always-on guards/manager that actually enforce/archive.
-        'login_attempt'              => 'vulopilot_login_attempts',
-        'firewall_block'             => 'vulopilot_firewall_blocks',
+        'security_event'             => 'vulopilot_security_events',
         'backup'                     => 'vulopilot_backups',
-        // Amazon S3/Google Drive credentials for Backups' own real remote
-        // storage destination (Services\BackupStorageManager) — same
-        // encrypted-credentials-per-provider-row shape as
-        // 'ai_provider_config' above, reused here rather than a new
-        // pattern (Repositories\BackupStorageConfigRepository).
-        'backup_storage_config'      => 'vulopilot_backup_storage_configs',
-        // Real off-site brand mentions (SEO & Visibility → Brand Visibility's
-        // former "not connected yet" card) — owned here per this file's own
-        // schema-ownership rule even though the fetcher/UI are Pro
-        // (vulopilot-pro's BrandIntelligence module), same precedent
-        // 'brand_score_history' above already sets.
-        'brand_mention'              => 'vulopilot_brand_mentions',
-        // Real Search Console `searchAnalytics.query` snapshots (SEO &
-        // Visibility → Keywords) — one row per (query, page, snapshot_date),
-        // never one row per query overwritten in place: the whole point is
-        // a real day-over-day history so "Previous"/"Change"/"Best
-        // Position" and the trend sparklines are computed from actual past
-        // snapshots, not invented. Owned here per this file's own
-        // schema-ownership rule even though the sync service/REST
-        // controller/UI are now Pro (vulopilot-pro's own Keywords module,
-        // moved wholesale per direct instruction), same precedent
-        // 'brand_mention' above already sets.
-        'keyword_ranking'            => 'vulopilot_keyword_rankings',
     );
 
     /**
@@ -387,7 +348,7 @@ class Utill {
         // 'local' is a real, meaningful default (no destination configured
         // yet), not a placeholder — every backup already stores locally
         // regardless of this setting. Credentials for 's3'/'google_drive'
-        // live in their own encrypted 'backup_storage_config' table, never
+        // live in their own encrypted 'vulopilot_backup_storage_credentials' option, never
         // this flat option (see that table's own docblock in Utill::TABLES).
         'backup_storage_destination'             => 'local',
         // Scanner-category kill switches — each gates every scanner

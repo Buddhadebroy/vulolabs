@@ -8,9 +8,7 @@
 namespace VuloPilot\AIProviders;
 
 use VuloPilot\Contracts\AI\AIProviderInterface;
-use VuloPilot\Repositories\AiProviderConfigRepository;
 use VuloPilot\Services\AiCreditsConnection;
-use VuloPilot\Services\CredentialEncryption;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,10 +17,9 @@ defined( 'ABSPATH' ) || exit;
  * filter-based discovery as Scanners\ScannerRegistry and
  * RuleEngine\RuleRegistry — see either's docblock for why this codebase
  * doesn't use Modules.php's folder-scan mechanism for a single-class
- * extension point) and is the one place that turns a stored, encrypted
- * `vulopilot_ai_provider_configs` row into a fully usable, decorated
- * AIProviderInterface — the only point in this codebase a provider
- * credential is ever decrypted.
+ * extension point) and is the one place that turns a registered adapter into
+ * a fully usable, decorated AIProviderInterface. No provider credential is
+ * stored locally — VuloCloud (server-side) holds every key.
  *
  * Every provider built here comes back wrapped
  * RateLimitedProvider → RetryingProvider → UsageTrackingProvider (that
@@ -42,15 +39,12 @@ class ProviderRegistry {
      */
     private array $adapter_classes = array();
 
-    private AiProviderConfigRepository $configs;
-
     private AiCreditsConnection $credits_connection;
 
     /**
      * ProviderRegistry constructor.
      */
     public function __construct() {
-        $this->configs            = new AiProviderConfigRepository();
         $this->credits_connection = new AiCreditsConnection();
 
         add_action( 'init', array( $this, 'register_providers' ), 20 );
@@ -68,16 +62,12 @@ class ProviderRegistry {
      * cloud provider ids (openai/anthropic/gemini/openrouter/groq) into
      * one entry — none of them hold a local credential or build a
      * vendor-specific request anymore (VuloCloudProxyProvider's own
-     * docblock). 'ollama' is the one adapter that stays real, local, and
-     * individually configured, since it's the site's own infrastructure,
-     * not a vendor account VuloCloud could reach.
      *
      * @return array<string, class-string<AIProviderInterface>>
      */
     private function get_default_adapter_classes(): array {
         return array(
             'vulocloud' => Providers\VuloCloudProxyProvider::class,
-            'ollama'    => Providers\OllamaProvider::class,
         );
     }
 
@@ -138,33 +128,15 @@ class ProviderRegistry {
             );
         }
 
-        $config = $this->configs->find_by_provider( $provider_id );
-
-        if ( ! $config || empty( $config['is_active'] ) ) {
-            return null;
-        }
-
-        $credential = CredentialEncryption::decrypt( (string) $config['credentials'] );
-
-        if ( null === $credential ) {
-            return null;
-        }
-
-        $adapter = new $class( $credential );
-
-        return new Decorators\UsageTrackingProvider(
-            new Decorators\RetryingProvider(
-                new Decorators\RateLimitedProvider( $adapter )
-            )
-        );
+        // No other provider has a locally stored credential — VuloCloud is
+        // the only supported way to get a provider key.
+        return null;
     }
 
     /**
      * Builds a fallback chain across every currently active, configured
      * provider — what AIActions\ActionRunner sends every request through by default.
-     * Order follows insertion order in `vulopilot_ai_provider_configs`; a
-     * future settings screen letting a site owner reorder providers only
-     * needs to change that stored order, not this method.
+     * Order follows registration order.
      *
      * @return AIProviderInterface|null Null if no provider is configured at all.
      */
@@ -180,28 +152,6 @@ class ProviderRegistry {
         }
 
         return $providers ? new Decorators\ProviderFallbackChain( $providers, $this ) : null;
-    }
-
-    /**
-     * The site owner's own configured default model for one provider, if
-     * they set one — Settings → AI Providers' model dropdown writes this
-     * to `vulopilot_ai_provider_configs.default_model`. Callers building a
-     * request (SafeRequestSender) should prefer this over blindly picking
-     * a provider's get_available_models()[0]: an adapter's static model
-     * catalog is a list of models the API *supports*, not a guarantee
-     * every one of them is available to every API key. Today this only
-     * ever has a real row for 'ollama' — 'vulocloud' has no local config
-     * at all, let alone a chosen default model, since model choice for it
-     * happens entirely server-side now.
-     *
-     * @param string $provider_id e.g. 'ollama'.
-     * @return string|null Null if unconfigured or no default was ever chosen.
-     */
-    public function get_default_model( string $provider_id ): ?string {
-        $config = $this->configs->find_by_provider( $provider_id );
-        $model  = (string) ( $config['default_model'] ?? '' );
-
-        return '' !== $model ? $model : null;
     }
 
     /**
@@ -222,7 +172,7 @@ class ProviderRegistry {
      * @return string Real model id, or '' if this provider has neither a configured default nor any known models.
      */
     public function resolve_model_for( AIProviderInterface $provider ): string {
-        return $this->get_default_model( $provider->get_id() ) ?? ( $provider->get_available_models()[0] ?? '' );
+        return $provider->get_available_models()[0] ?? '';
     }
 
     /**
