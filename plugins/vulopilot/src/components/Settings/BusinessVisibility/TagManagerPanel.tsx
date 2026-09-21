@@ -2,9 +2,10 @@
 import { useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
+import { FormGroupWrapperComponent } from '@zyra/components';
 import { TextInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
+import CardHeader from '../../CardHeader';
 
 /** "Stop typing, then save" debounce — same shape SiteVerificationPanel.tsx's own `PlainCodeField`/`CustomTagsField` already use for a hand-built (non-InputRenderer) panel's plain text field. */
 const AUTOSAVE_DEBOUNCE_MS = 1000;
@@ -57,13 +58,13 @@ const TagManagerPanel = () => {
 
 	return (
 		<FormGroupWrapperComponent>
-			<FormGroupComponent
-				label={__('Container ID', 'vulopilot')}
+			<CardHeader
+				icon="shortcode"
+				title={__('Container ID', 'vulopilot')}
 				desc={__(
 					'Your Google Tag Manager container ID, e.g. GTM-XXXXXXX.',
 					'vulopilot'
 				)}
-				htmlFor="tag-manager-container-id-input"
 			>
 				<TextInput
 					id="tag-manager-container-id-input"
@@ -71,7 +72,7 @@ const TagManagerPanel = () => {
 					value={containerId}
 					onChange={(value) => handleContainerIdChange(String(value))}
 				/>
-			</FormGroupComponent>
+			</CardHeader>
 		</FormGroupWrapperComponent>
 	);
 };

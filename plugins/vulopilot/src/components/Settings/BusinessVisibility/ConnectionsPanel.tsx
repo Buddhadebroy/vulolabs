@@ -1,14 +1,13 @@
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
-import { FormGroupComponent } from '@zyra/components';
-import CardHeader from '../../CardHeader';
+import { SectionComponent, FormGroupComponent } from '@zyra/components';
 import AiProvidersPanel from './AiProvidersPanel';
 import GoogleServicesPanel from './GoogleServicesPanel';
 import SiteVerificationPanel from './SiteVerificationPanel';
 import PageSpeedStatusPanel from './PageSpeedStatusPanel';
 import TagManagerPanel from './TagManagerPanel';
 
-/** One `CardHeader` (left, the shared compact icon/title/desc header — same one SiteVerificationPanel.tsx's own rows use) + arbitrary content (right) row — the same real `.settings-section-group`/`.settings-left-section`/`.settings-right-section` markup/CSS InputRenderer's own `groupBySections: true` layout uses (NavigatorComponent.scss), and that BackupStoragePanel.tsx/SecurityPanel.tsx already hand-replicate for their own `PanelComponent` tabs — "section, then content," left-to-right, not a title stacked directly on top of its own fields. */
+/** One `SectionComponent` (left) + arbitrary content (right) row — the same real `.settings-section-group`/`.settings-left-section`/`.settings-right-section` markup/CSS InputRenderer's own `groupBySections: true` layout uses (NavigatorComponent.scss), and that BackupStoragePanel.tsx/SecurityPanel.tsx already hand-replicate for their own `PanelComponent` tabs — "section, then content," left-to-right, not a title stacked directly on top of its own fields. */
 const SectionRow = ({
 	icon,
 	title,
@@ -22,7 +21,7 @@ const SectionRow = ({
 }) => (
 	<div className="settings-section-group">
 		<div className="settings-left-section">
-			<CardHeader className="compact" icon={icon} title={title} desc={desc} />
+			<SectionComponent icon={icon} title={title} desc={desc} />
 		</div>
 		<div className="settings-right-section">{children}</div>
 	</div>
