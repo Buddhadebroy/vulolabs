@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	AnalyticsComponent,
+	BadgeComponent,
 	CardComponent,
 	ChartComponent,
 	ColumnComponent,
@@ -191,7 +192,7 @@ const CommerceProDummies = ({ onClick }: CommerceProDummiesProps) => (
 			</DummyCard>
 		</ColumnComponent>
 
-		<ColumnComponent>
+		<ColumnComponent grid={6}>
 			<DummyCard
 				title={__('All WooCommerce Issues', 'vulopilot')}
 				titleIcon="error"
@@ -210,7 +211,7 @@ const CommerceProDummies = ({ onClick }: CommerceProDummiesProps) => (
 			</DummyCard>
 		</ColumnComponent>
 
-		<ColumnComponent>
+		<ColumnComponent grid={6}>
 			<DummyCard
 				title={__('Stockout risk', 'vulopilot')}
 				titleIcon="database"
@@ -221,9 +222,9 @@ const CommerceProDummies = ({ onClick }: CommerceProDummiesProps) => (
 				<ListComponent
 					className="mini-card report"
 					items={[
-						{ id: 's1', icon: 'cart', title: __('(Example product 1)', 'vulopilot'), value: __('3 days left', 'vulopilot') },
-						{ id: 's2', icon: 'cart', title: __('(Example product 2)', 'vulopilot'), value: __('6 days left', 'vulopilot') },
-						{ id: 's3', icon: 'cart', title: __('(Example product 3)', 'vulopilot'), value: __('9 days left', 'vulopilot') },
+						{ id: 's1', icon: 'cart purple', title: __('(Example product 1)', 'vulopilot'), tags: <BadgeComponent color="red" text={__('3 days left', 'vulopilot')} /> },
+						{ id: 's2', icon: 'cart purple', title: __('(Example product 2)', 'vulopilot'), tags: <BadgeComponent color="orange" text={__('6 days left', 'vulopilot')} /> },
+						{ id: 's3', icon: 'cart purple', title: __('(Example product 3)', 'vulopilot'), tags: <BadgeComponent color="green" text={__('9 days left', 'vulopilot')} /> },
 					]}
 				/>
 			</DummyCard>

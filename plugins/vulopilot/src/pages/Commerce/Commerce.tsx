@@ -71,14 +71,14 @@ addFilter('vulopilot_banner_card', 'vulopilot/commerce', () => BannerCard);
  * shift to pro the all code come from pro"). Reads the real content back
  * via the `vulopilot_commerce_panel` filter slot (same `useFilterSlot()`
  * shape `vulopilot_automations_panel` already establishes for
- * Automations); when it hasn't resolved, renders a blurred/fabricated
- * preview with a Pro/module tag and an "Unlock with Pro" overlay —
- * clicking anywhere opens the upgrade popup — same real 2-tier
- * Pro-then-module order (`isProInstalled` checked first, then the
- * module's own active state) every other gate in this plugin already
- * uses: generic "PRO" tag + plain upgrade pitch when Pro isn't installed
- * at all, vs. this module's own real display name + "Activate {name}"
- * popup when Pro is installed but this specific module isn't active yet.
+ * Automations); when it hasn't resolved, renders CommerceProDummies — a
+ * fabricated card-per-section preview of the real page, each behind the
+ * shared blurred "Upgrade to Pro" overlay. Clicking anywhere opens the
+ * upgrade popup — same real 2-tier Pro-then-module order
+ * (`isProInstalled` checked first) every other gate in this plugin uses:
+ * plain upgrade pitch when Pro isn't installed at all, vs. this module's
+ * own "Activate {name}" popup when Pro is installed but this module isn't
+ * active yet.
  *
  * Was previously its own CommercePanel.tsx file, imported only here —
  * merged into this route's own entry point (its one real consumer), same

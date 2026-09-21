@@ -270,7 +270,7 @@ const Automations = () => {
 						onChanged={handleSaved}
 						highlightTemplateId={highlightTemplateId}
 					/>
-					{!Wizard && (
+					{/* {!Wizard && (
 						<NoticeComponent
 							displayPosition="inline"
 							type="info"
@@ -279,7 +279,7 @@ const Automations = () => {
 								'vulopilot'
 							)}
 						/>
-					)}
+					)} */}
 				</ColumnComponent>
 
 				<ColumnComponent grid={6}>
