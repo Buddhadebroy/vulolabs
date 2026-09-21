@@ -52,9 +52,11 @@ const STATUS_LABEL: Record<ReportRow['status'], string> = {
  */
 interface RecentReportsCardProps {
 	days: number;
+	/** Bumped by OverviewTab.tsx once CreateReportModal.tsx generates a new report — refetches this card's own list rather than requiring a full page reload to show it. */
+	refreshSignal?: number;
 }
 
-const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
+const RecentReportsCard = ({ days, refreshSignal }: RecentReportsCardProps) => {
 	const [reports, setReports] = useState<ReportRow[] | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const typeLabels = useReportTypeLabels();
@@ -72,7 +74,7 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 				setReports(list);
 			})
 			.finally(() => setIsLoading(false));
-	}, []);
+	}, [refreshSignal]);
 
 	const cutoff = new Date();
 	cutoff.setDate(cutoff.getDate() - (days - 1));
@@ -174,7 +176,17 @@ const RecentReportsCard = ({ days }: RecentReportsCardProps) => {
 								},
 								{
 									type: 'button',
-									label: __('Download PDF', 'vulopilot'),
+									// This report's own real `format` (RecentReportsCard.tsx's own
+									// `ReportRow`) — not a hardcoded "Download PDF" that used to
+									// show that label even on a real CSV/JSON row (whenever the
+									// AdvancedReports module is inactive, `POST /reports` never
+									// produces a PDF at all, so most rows here are exactly that
+									// case). Same real "PDF" vs generic "Download" wording
+									// ReportsOverviewHeader.tsx's own Download button already uses.
+									label: (row?: Record<string, unknown>) =>
+										'pdf' === row?.format
+											? __('Download PDF', 'vulopilot')
+											: __('Download', 'vulopilot'),
 									icon: 'download',
 									onClick: handleView,
 									color: 'text-blue'

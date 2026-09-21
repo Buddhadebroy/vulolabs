@@ -1,4 +1,5 @@
 /* global appLocalizer */
+import { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink } from '@zyra/core';
 import { CardComponent, ModuleGuardComponent } from '@zyra/components';
@@ -35,10 +36,22 @@ const statusOptions = [
  * direct instruction, so its own table keeps its own independent fetch/
  * pagination state.
  */
-const ReportHistoryTable = () => {
+interface ReportHistoryTableProps {
+	/** Bumped by OverviewTab.tsx once CreateReportModal.tsx generates a new report - forces this table's own useApiList refetch via its existing refetch(). */
+	refreshSignal?: number;
+}
+
+const ReportHistoryTable = ({ refreshSignal }: ReportHistoryTableProps) => {
 	const { data, total, categoryCounts, isLoading, error, refetch, onQueryUpdate } =
 		useApiList<ReportRow>('reports', {}, { key: 'status', options: statusOptions });
 	const typeLabels = useReportTypeLabels();
+
+	useEffect(() => {
+		if (undefined !== refreshSignal) {
+			refetch();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run on refreshSignal; refetch's identity isn't stable across useApiList's re-renders.
+	}, [refreshSignal]);
 
 	const handleDownload = (row?: Record<string, unknown>) => {
 		if (!row || row.status !== 'ready' || !row.has_file) {

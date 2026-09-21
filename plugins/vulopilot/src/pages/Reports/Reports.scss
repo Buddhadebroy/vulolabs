@@ -738,7 +738,7 @@
 
 .reports-schedules-row {
 	display: grid;
-	grid-template-columns: minmax(9rem, 1.5fr) auto auto auto minmax(9rem, 1.5fr) auto auto;
+	grid-template-columns: minmax(9rem, 1.5fr) auto auto auto minmax(9rem, 1.5fr) auto minmax(16rem, 2fr);
 	align-items: center;
 	gap: 0.875rem;
 	padding: 0.75rem 0;
@@ -752,6 +752,20 @@
 	@media (max-width: 782px) {
 		grid-template-columns: 1fr;
 		justify-items: flex-start;
+	}
+}
+
+// Send Now/Edit/Pause-Resume/View Reports/Delete — 5 real row actions,
+// wrapping rather than a fixed-width `auto` grid column (`.reports-schedules-row`
+// above) since they no longer fit one action button's worth of space.
+.reports-schedules-row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	justify-content: flex-end;
+
+	@media (max-width: 782px) {
+		justify-content: flex-start;
 	}
 }
 
@@ -786,4 +800,105 @@
 
 .category-filter{
 	margin-bottom: 1rem;
+}
+
+// CreateReportModal.tsx's own progress/success stages — PopupComponent's
+// own `children` slot has no built-in shape for either, so both are plain
+// markup styled here, same "zyra has no component for this exact shape"
+// posture `.reports-schedules-row` above already established.
+.create-report-progress-title {
+	margin: 0 0 0.875rem;
+	font-weight: 700;
+	font-size: 1rem;
+}
+
+.create-report-progress-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+}
+
+.create-report-progress-step {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	font-size: 0.8125rem;
+	color: $sub-text-color;
+
+	&.is-done {
+		color: $text-color;
+
+		i {
+			color: #16a34a;
+		}
+	}
+
+	&.is-active {
+		color: $text-color;
+		font-weight: 600;
+
+		i {
+			color: $theme-color;
+		}
+	}
+}
+
+.create-report-success-message {
+	margin: 0 0 1rem;
+	color: $sub-text-color;
+}
+
+.create-report-success-details {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+
+	> div {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.875rem;
+		padding: 0.5rem 0;
+		border-bottom: $border-light-small;
+		font-size: 0.8125rem;
+	}
+
+	> div:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+}
+
+.create-report-success-label {
+	color: $sub-text-color;
+}
+
+.create-report-success-value {
+	text-align: right;
+}
+
+// Real bug in zyra's own PopupComponent.scss, worked around here rather
+// than patched at the source (real @multivendorx/zyra source lives
+// outside this repo — zyra-local-source.md): its `[data-position="lightbox"]`
+// rule's own `.popup-footer` is `position: fixed` with no equivalent
+// bottom-space reservation the `[data-position^="slide-"]` variant already
+// gets (`&:has(.popup-footer) { .popup-body { margin-bottom: 4.5rem; } }`).
+// Once a lightbox popup's own content grows tall enough, its last field(s)
+// render underneath that fixed, opaque footer bar — real in the DOM, just
+// visually covered. Confirmed live via getBoundingClientRect():
+// ScheduleReportModal.tsx's own real footer (Cancel/Schedule Report) is
+// ~96px tall, taller than the slide-* variant's own 4.5rem (72px)
+// reservation — that 72px was tried first here and still left the
+// "Recipients" field's own input overlapping the footer's top ~30px, so
+// this uses 7rem instead, comfortably clearing a two-button footer's real
+// height with margin to spare. Scoped to just these two modals rather than
+// every lightbox popup in the admin.
+.create-report-popup,
+.schedule-report-popup {
+	.popup-content[data-position="lightbox"] .popup-body {
+		padding-bottom: 7rem;
+	}
 }
