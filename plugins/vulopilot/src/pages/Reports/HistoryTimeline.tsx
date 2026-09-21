@@ -189,7 +189,7 @@ const HistoryTimeline = ({
 						text: isLoadingMore
 							? __('Loading…', 'vulopilot')
 							: __('Load more', 'vulopilot'),
-						color: 'purple-bg',
+						color: 'text-purple',
 						onClick: onLoadMore,
 						disabled: isLoadingMore,
 					}}

@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ListComponent, SectionComponent } from '@zyra/components';
+import { AnalyticsComponent, ListComponent, SectionComponent } from '@zyra/components';
+import { ButtonInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
 import { useGeoScore } from '../pages/GEO/useGeoScore';
@@ -291,70 +292,113 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 
 		];
 
+	const byId = Object.fromEntries(
+		[...groups, ...groups2].map((group) => [group.id, group])
+	);
+
+	/** Mockup order, two per row — each header's arrow jumps to that area's real page. */
+	const sections = [
+		{ ...byId.content, link: '?page=vulopilot#&tab=content' },
+		{
+			...byId.company,
+			title: __('Organization', 'vulopilot'),
+			link: '?page=vulopilot#&tab=settings&subtab=business-information',
+		},
+		{
+			...byId.products,
+			title: __('Commerce', 'vulopilot'),
+			link: '?page=vulopilot#&tab=commerce',
+		},
+		{
+			...byId.users,
+			rows: [...byId.users.rows, ...byId.additional.rows],
+			link: null as string | null,
+		},
+		{ ...byId.seo, link: '?page=vulopilot#&tab=seo-visibility' },
+		{ ...byId.technology, link: '?page=vulopilot#&tab=site-health' },
+	];
+
+	const siteUrl = appLocalizer.site_url as string;
+
 	return (
 		<>
 			<DashboardWidget
-				title={brandName}
-				desc={__('Which of your automations are enabled and running.', 'vulopilot')}
-				icon="plus"
+				title={__('Site overview', 'vulopilot')}
+				desc={__("Key details about your site's content, technology and audience.", 'vulopilot')}
+				icon="global-community"
 				isLoading={isLoading}
 				onHide={onHide}
 				isCustomizing={isCustomizing}
 			>
-				<>
-					<div className='group-wrapper'>
-						<div className="group">
-							{groups.map((group) => (
-								<div key={group.id} className="site-snapshot-group-card">
-									<SectionComponent
-										title={group.title}
-										icon={group.icon}
-									/>
-									<ListComponent
-										className="mini-card report without-border site-snapshot-list"
-										items={group.rows.map((row) => ({
-											id: row.key,
-											icon: row.icon,
-											title: row.label,
-											tags: (
-												<>
-													<span className="desc">
-														{row.value}
-													</span>
-												</>
-											),
-										}))}
-									/>
-								</div>
-							))}
+				<div className="site-overview-intro">
+					<div className="site-overview-identity">
+						<div className="site-overview-name">
+							{appLocalizer.site_title || brandName}
 						</div>
-						<div className="group">
-							{groups2.map((group) => (
-								<div key={group.id} className="site-snapshot-group-card">
-									<SectionComponent
-										title={group.title}
-										icon={group.icon}
-									/>
-									<ListComponent
-										className="mini-card report without-border site-snapshot-list"
-										items={group.rows.map((row) => ({
-											id: row.key,
-											icon: row.icon,
-											title: row.label,
-											tags: (
-												<>
-													<span className="desc">
-														{row.value}
-													</span>
-												</>
-											),
-										}))}
-									/>
-								</div>
-							))}
-						</div>
+						<a href={siteUrl} target="_blank" rel="noreferrer" className="site-overview-url">
+							{siteUrl.replace(/^https?:\/\//, '')}
+						</a>
+						{appLocalizer.site_description && (
+							<div className="desc">{appLocalizer.site_description}</div>
+						)}
+						<ButtonInput
+							position="left"
+							buttons={{
+								text: __('View site', 'vulopilot'),
+								rightIcon: 'arrow-right',
+								color: 'border-purple',
+								onClick: () => window.open(siteUrl, '_blank', 'noopener,noreferrer'),
+							}}
+						/>
 					</div>
-				</>
+					<AnalyticsComponent
+						variant="small"
+						cols={3}
+						data={[
+							{ icon: 'wordpress blue', number: snapshot.wp_version || NOT_SET, text: __('WordPress', 'vulopilot') },
+							{ icon: 'coding purple', number: snapshot.php_version || NOT_SET, text: __('PHP', 'vulopilot') },
+							{
+								icon: 'module orange',
+								number: `${snapshot.plugins_active} / ${snapshot.plugins_total}`,
+								text: __('Plugins active', 'vulopilot'),
+							},
+						]}
+					/>
+				</div>
+				<div className="site-overview-groups">
+					{sections.map((group) => (
+						<div key={group.id} className="site-snapshot-group-card">
+							<SectionComponent
+								title={group.title}
+								icon={group.icon}
+								rightContent={
+									group.link ? (
+										<ButtonInput
+											buttons={{
+												text: '',
+												rightIcon: 'pagination-right-arrow',
+												color: 'text-purple',
+												tooltip: __('Open', 'vulopilot'),
+												onClick: () => {
+													window.location.href = group.link as string;
+												},
+											}}
+										/>
+									) : undefined
+								}
+							/>
+							<ListComponent
+								className="mini-card report without-border site-snapshot-list"
+								items={group.rows.map((row) => ({
+									id: row.key,
+									icon: row.icon,
+									title: row.label,
+									tags: <span className="desc">{row.value}</span>,
+								}))}
+							/>
+						</div>
+					))}
+				</div>
 			</DashboardWidget>
 			<AutomationStatusWidget
 				summary={summary}
