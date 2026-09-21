@@ -22,8 +22,6 @@ interface StructuredDataSectionProps {
 	coverage: {
 		snapshot: SchemaCoverageSnapshot | null;
 		isLoading: boolean;
-		isAnalyzing: boolean;
-		analyze: () => void;
 	};
 }
 
@@ -145,7 +143,7 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
  * `selectedGroup` already establishes.
  */
 const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
-	const { snapshot, isLoading, isAnalyzing, analyze } = coverage;
+	const { snapshot, isLoading } = coverage;
 	// The real row the side detail panel is showing — SchemaCoverageAnalyzer
 	// records exactly which sampled post(s)/the homepage actually carried
 	// each @type (`row.pages`), so the panel shows a real list scoped to
@@ -205,7 +203,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={8}>
+			<ColumnComponent grid={selectedRow ? 8 : 12}>
 				<CardComponent
 					title={__('Schema Coverage', 'vulopilot')}
 					titleIcon="attachment"
@@ -215,16 +213,14 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 					)}
 					isLoading={isLoading}
 				>
-					{!isLoading && !snapshot && !isAnalyzing && (
+					{!isLoading && !snapshot && (
 						<ModuleGuardComponent
 							icon="info"
 							title={__('Not analyzed yet', 'vulopilot')}
 							desc={__(
-								'Click "Run Schema Check" to sample this site’s real pages and see what structured data they actually output. This makes real HTTP requests to your own site, so it only runs when you ask.',
+								'Run a scan (the “Run scan” button at the top of the page) and this table fills in with what structured data your real pages output.',
 								'vulopilot'
 							)}
-							buttonText={__('Run Schema Check', 'vulopilot')}
-							onButtonClick={analyze}
 						/>
 					)}
 
@@ -285,10 +281,10 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 														row.type === selectedRow?.type
 															? 'eye'
 															: 'pagination-next-arrow',
+													// The panel is never closed — clicking the
+													// row already showing just keeps it open.
 													onClick: (row: SchemaCoverageRow) => {
-														setSelectedRow(
-															row.type === selectedRow?.type ? null : row
-														);
+														setSelectedRow(row);
 													},
 												},
 											],
@@ -320,25 +316,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
-				{!selectedRow ? (
-					<CardComponent
-						title={__('Schema details', 'vulopilot')}
-						titleIcon="attachment"
-						desc={__(
-							'Real detail for whichever schema type you select from the Schema Coverage table.',
-							'vulopilot'
-						)}
-					>
-						<ModuleGuardComponent
-							icon="info"
-							title={__('Select a schema type', 'vulopilot')}
-							desc={__(
-								'Click "View" on a row in the Schema Coverage table to see its real detail here.',
-								'vulopilot'
-							)}
-						/>
-					</CardComponent>
-				) : (
+				{selectedRow && (
 					<CardComponent
 						title={selectedRow.type}
 						titleIcon={getTypeIcon(selectedRow.type)}

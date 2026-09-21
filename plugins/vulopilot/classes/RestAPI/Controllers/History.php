@@ -61,7 +61,7 @@ class History extends \WP_REST_Controller {
      * @var array<string, string[]>
      */
     private const EVENT_TYPES_BY_CATEGORY = array(
-        'scan'   => array( 'scan.completed' ),
+        'scan'   => array( 'scan.completed', 'scan.completed.security' ),
         'change' => array(
             'ai_action.proposed',
             'ai_action.executed',

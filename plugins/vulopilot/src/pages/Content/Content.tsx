@@ -57,6 +57,7 @@ const Content = () => {
 				headerCustomContent={
 					<RunScanHeaderExtra
 						categories={['content']}
+						label={__('Run Content Audit', 'vulopilot')}
 						settingsSubtab="seo-content"
 					/>
 				}

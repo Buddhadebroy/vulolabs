@@ -215,6 +215,19 @@ const AIAssistant = () => {
 	const [attachments, setAttachments] = useState<CopilotAttachment[]>([]);
 	const [isAttachPanelOpen, setIsAttachPanelOpen] = useState(false);
 
+	/**
+	 * A starter chip starts the chat straight away — its title is sent as
+	 * the first message, no separate Send click needed.
+	 */
+	const handleSelectPrompt = (title: string) => {
+		if (isSending) {
+			return;
+		}
+
+		send(title, [], [], autoApply);
+		setChatMessage('');
+	};
+
 	const handleSend = () => {
 		send(chatMessage, [], attachments, autoApply);
 		setChatMessage('');
@@ -399,7 +412,7 @@ const AIAssistant = () => {
 									'vulopilot'
 								)}
 								prompts={SUGGESTED_PROMPTS}
-								onSelectPrompt={setChatMessage}
+								onSelectPrompt={handleSelectPrompt}
 								turns={turns}
 								renderTurn={(turn, index) => (
 									<CopilotTurnBubble

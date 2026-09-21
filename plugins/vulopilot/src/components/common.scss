@@ -32,7 +32,8 @@
         // right row in HistoryDetailPanel.tsx's own side panel with no
         // visible sign of *which* row in this list that was.
         &.selected {
-            background: $color-primary-background;
+            background: rgba(124, 58, 237, 0.08);
+            box-shadow: inset 0.25rem 0 0 #7c3aed;
         }
 
         // A row just landed on via a real deep link (RecentActivityWidget.tsx's
@@ -42,7 +43,7 @@
         // (post-editor bundle) already establishes, duplicated here since
         // that one lives in a separate webpack entry this bundle doesn't share.
         &.vulopilot-history-row-highlight-pulse {
-            animation: vulopilot-history-row-highlight-pulse 1.3s ease-in-out 2;
+            animation: vulopilot-history-row-highlight-pulse 1.3s ease-in-out 4;
         }
 
         .history-row-icon {
@@ -162,7 +163,7 @@
 
     20%,
     60% {
-        background-color: rgba(124, 58, 237, 0.12);
+        background-color: rgba(124, 58, 237, 0.3);
     }
 }
 
