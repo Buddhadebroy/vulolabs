@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import axios from 'axios';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -156,6 +156,8 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	const { status: creditsStatus } = useAiCredits();
 
 	const dismissCloudConnectPrompt = () => setIsCloudConnectPromptOpen( false );
+	/** Bumped by `startNewConversation()` — a reply still in flight from before that reset belongs to the abandoned thread and must not land in the fresh one. */
+	const chatGeneration = useRef( 0 );
 
 	const send = (
 		message: string,
@@ -185,6 +187,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 			},
 		] );
 		setIsSending( true );
+		const generation = chatGeneration.current;
 
 		axios
 			.post< CopilotChatResponse >(
@@ -206,6 +209,10 @@ export const useCopilotChat = ( noticeKey: string ) => {
 				{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
 			)
 			.then( ( response ) => {
+				if ( generation !== chatGeneration.current ) {
+					return;
+				}
+
 				setTurns( ( current ) => [
 					...current,
 					{
@@ -218,6 +225,10 @@ export const useCopilotChat = ( noticeKey: string ) => {
 				setConversationId( response.data.conversation_id );
 			} )
 			.catch( ( error ) => {
+				if ( generation !== chatGeneration.current ) {
+					return;
+				}
+
 				const message = ( error?.response?.data as WpRestErrorBody | undefined )
 					?.message;
 
@@ -229,7 +240,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 				// real fix, so it gets the same popup instead of just
 				// another error toast (AiContentAssistantSidebar.tsx's
 				// own sendToAi() applies this identical check).
-				if ( message?.includes( 'No AI provider is configured' ) ) {
+				if ( message?.includes( 'No AI provider is configured' ) && ! creditsStatus?.connected ) {
 					setIsCloudConnectPromptOpen( true );
 					return;
 				}
@@ -246,7 +257,11 @@ export const useCopilotChat = ( noticeKey: string ) => {
 						),
 				} );
 			} )
-			.finally( () => setIsSending( false ) );
+			.finally( () => {
+				if ( generation === chatGeneration.current ) {
+					setIsSending( false );
+				}
+			} );
 	};
 
 	/**
@@ -311,8 +326,10 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	 * it's already been saved turn-by-turn as it happened.
 	 */
 	const startNewConversation = () => {
+		chatGeneration.current += 1;
 		setTurns( [] );
 		setConversationId( null );
+		setIsSending( false );
 	};
 
 	return {

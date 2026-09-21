@@ -2,7 +2,7 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { ListComponent, ModuleGuardComponent, BadgeComponent } from '@zyra/components';
+import { ListComponent, ModuleGuardComponent, BadgeComponent, NoticeComponent } from '@zyra/components';
 import { MultiCheckboxInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import { useApiList } from '../services/useApiList';
@@ -113,6 +113,19 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 							/>
 						),
 					}))}
+				/>
+			)}
+
+			{/* Free ships exactly 2 built-in automations; custom ones are Pro. Hidden once Pro is active. */}
+			{!appLocalizer.khali_dabba && (
+				<NoticeComponent
+					displayPosition="inline"
+					type="info"
+					message={__('Want to add more automations?', 'vulopilot')}
+					actionLabel={__('Upgrade to Pro', 'vulopilot')}
+					onAction={() =>
+						window.open(appLocalizer.shop_url, '_blank', 'noopener,noreferrer')
+					}
 				/>
 			)}
 		</DashboardWidget>

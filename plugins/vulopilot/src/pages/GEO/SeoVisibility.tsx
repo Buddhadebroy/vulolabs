@@ -187,16 +187,24 @@ const SeoVisibility = () => {
 	// `initialInnerSection` already has.
 	const [crawlUrlsJumpSection, setCrawlUrlsJumpSection] =
 		useState<CrawlUrlsSectionId>(initialCrawlUrlsSection);
+	// Scanner whose findings the destination tab should pre-select and scroll to (Overview's "Top Opportunities" View buttons); read once at mount by BrandVisibilityTab.
+	const [jumpScannerId, setJumpScannerId] = useState<string | undefined>();
 	/**
 	 * `crawlUrlsSection` is only meaningful when `tab` is `'crawl-urls'` —
 	 * every other caller (OverviewTab.tsx's own `'geo' | 'aeo'`-typed
 	 * `onNavigateTab`) never passes it, so `<CrawlUrlsTab>` just keeps
 	 * whatever section it last had.
 	 */
-	const goToTab = (tab: string, crawlUrlsSection?: CrawlUrlsSectionId) => {
+	const goToTab = (
+		tab: string,
+		crawlUrlsSection?: CrawlUrlsSectionId,
+		scannerId?: string
+	) => {
 		if (!(TAB_IDS as readonly string[]).includes(tab)) {
 			return;
 		}
+
+		setJumpScannerId(scannerId);
 
 		if (crawlUrlsSection) {
 			setCrawlUrlsJumpSection(crawlUrlsSection);
@@ -223,7 +231,7 @@ const SeoVisibility = () => {
 			case 'overview':
 				return <OverviewTab onNavigateTab={goToTab} />;
 			case 'brand-visibility':
-				return <BrandVisibilityTab />;
+				return <BrandVisibilityTab initialScannerId={jumpScannerId} />;
 			case 'seo':
 				return <SeoTab onNavigateTab={goToTab} />;
 			case 'geo':

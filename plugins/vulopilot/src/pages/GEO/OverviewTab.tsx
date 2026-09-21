@@ -16,12 +16,17 @@ import { formatWpDate } from '../../services/formatWpDate';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import { useVisibilityScore } from './useVisibilityScore';
 import type { VisibilityScoreResponse } from './useVisibilityScore';
+import type { CrawlUrlsSectionId } from './CrawlUrlsTab';
 import GeoFixTheseFirstCard from './GeoFixTheseFirstCard';
 import VisibilityBySourceCard from './VisibilityBySourceCard';
 import './SeoVisibility.scss';
 
 interface OverviewTabProps {
-	onNavigateTab: (tab: string) => void;
+	onNavigateTab: (
+		tab: string,
+		crawlUrlsSection?: CrawlUrlsSectionId,
+		scannerId?: string
+	) => void;
 }
 
 const getRating = (score: number): string => {
@@ -108,28 +113,52 @@ const CATEGORY_TO_TAB: Record<string, string> = {
 const categoryToTab = (category: string): string => CATEGORY_TO_TAB[category] ?? 'seo';
 
 /**
- * 4 scanners whose PHP `get_category()` is `'geo'` (GeoTrustSignalsScanner/
- * GeoEeatSignalsScanner/GeoAuthorInfoScanner/GeoEntityNamingConsistencyScanner)
- * but whose findings are actually surfaced on the Brand Visibility tab —
- * `BrandVisibilityTab.tsx`'s own `BRAND_SECTIONS` already lists these exact
- * 4 ids ('geo-trust-signals'/'geo-eeat-signals' under "Trust
- * Signals"/"Authority Signals", 'geo-author-info' also under "Authority
- * Signals", 'geo-entity-naming-consistency' under "Entity Consistency"). A
- * plain `categoryToTab(group.category)` would send these to the GEO tab
- * instead (confirmed live: clicking "View" on the "Trust Signals" row here
- * landed on GEO, not Brand Visibility) — this scanner-id override takes
- * priority over the category-based default for exactly these 4, leaving
- * every other `geo`-category scanner (llms-txt-missing/stale-content/etc.)
- * on the GEO tab as before.
+ * Scanner id → the SEO & Visibility subtab that actually surfaces that
+ * scanner's findings, where that differs from what its PHP `get_category()`
+ * implies (e.g. `geo-trust-signals` is category `geo` but lives on Brand
+ * Visibility; `sitemap`/`robots-txt` are category `seo` but live on Crawl &
+ * URLs). Mirrors each tab's own scanner-id lists (BrandVisibilityTab.tsx,
+ * CrawlRobotsSitemapSection.tsx, SchemaKnowledge/IssuesSection.tsx,
+ * AeoTab.tsx). Anything not listed falls back to `categoryToTab()`.
  */
-const BRAND_SCANNER_IDS = new Set([
-	'geo-trust-signals',
-	'geo-eeat-signals',
-	'geo-author-info',
-	'geo-entity-naming-consistency',
-]);
+const SCANNER_TAB_OVERRIDES: Record<string, string> = {
+	'geo-trust-signals': 'brand-visibility',
+	'geo-eeat-signals': 'brand-visibility',
+	'geo-author-info': 'brand-visibility',
+	'geo-entity-naming-consistency': 'brand-visibility',
+	'about-page-analysis': 'brand-visibility',
+	'author-schema': 'brand-visibility',
+	'organization-schema': 'brand-visibility',
+	'aeo-schema': 'aeo',
+	'geo-summary-block': 'aeo',
+	'geo-faq-opportunity': 'aeo',
+	'geo-chunking': 'geo',
+	'geo-semantic-structure': 'geo',
+	// Crawl & URLs' own Robots/Sitemap/AI-crawler and Broken Links sections.
+	sitemap: 'crawl-urls',
+	'sitemap-validation': 'crawl-urls',
+	'robots-txt': 'crawl-urls',
+	'ai-crawler-blocked-pages': 'crawl-urls',
+	'broken-links': 'crawl-urls',
+	'not-found': 'crawl-urls',
+	'redirect-analysis': 'crawl-urls',
+	// Business Identity & Schema's own issues list.
+	schema: 'schema-knowledge',
+	'structured-data': 'schema-knowledge',
+	'sitewide-structured-data': 'schema-knowledge',
+};
+/** Which Crawl & URLs inner tab owns each of those scanners. */
+const CRAWL_SECTION_BY_SCANNER: Record<string, CrawlUrlsSectionId> = {
+	sitemap: 'robots-sitemap',
+	'sitemap-validation': 'robots-sitemap',
+	'robots-txt': 'robots-sitemap',
+	'ai-crawler-blocked-pages': 'robots-sitemap',
+	'broken-links': 'broken-links',
+	'not-found': '404s',
+	'redirect-analysis': 'redirects',
+};
 const groupToTab = (group: FindingGroup): string =>
-	BRAND_SCANNER_IDS.has(group.scanner_id) ? 'brand-visibility' : categoryToTab(group.category);
+	SCANNER_TAB_OVERRIDES[group.scanner_id] ?? categoryToTab(group.category);
 
 // Same real "icon name" + trailing color modifier convention `SeoTab.tsx`'s
 // own `CATEGORY_CARDS` already establishes (e.g. `'search blue'`) — a
@@ -471,13 +500,17 @@ const OverviewTab = ({ onNavigateTab }: OverviewTabProps) => {
 					total={opportunityTotal}
 					isLoading={isLoadingOpportunities}
 					onViewAll={() =>
-						onNavigateTab(
-							opportunityGroups.length ? groupToTab(opportunityGroups[0]) : 'seo'
-						)
+						opportunityGroups.length
+							? onNavigateTab(
+									groupToTab(opportunityGroups[0]),
+									CRAWL_SECTION_BY_SCANNER[opportunityGroups[0].scanner_id],
+									opportunityGroups[0].scanner_id
+								)
+							: onNavigateTab('seo')
 					}
 					onSelectScanner={(scannerId) => {
 						const group = opportunityGroups.find((g) => g.scanner_id === scannerId);
-						onNavigateTab(group ? groupToTab(group) : 'seo');
+						onNavigateTab(group ? groupToTab(group) : 'seo', CRAWL_SECTION_BY_SCANNER[scannerId], scannerId);
 					}}
 				/>
 			</ColumnComponent>

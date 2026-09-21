@@ -18,7 +18,7 @@ export type SeoIssueEditorTab = 'general' | 'advanced' | 'social' | 'schema' | '
 
 export interface SeoIssueEditorTarget {
 	tab: SeoIssueEditorTab;
-	/** OnPageAnalyzer check id (General tab) or field key (Advanced/Social) — absent for Schema, which has no sub-target. */
+	/** OnPageAnalyzer check id (General tab) or field key (Advanced/Social/Schema). */
 	target?: string;
 }
 
@@ -33,11 +33,14 @@ export const SEO_ISSUE_EDITOR_TARGETS: Record<string, SeoIssueEditorTarget> = {
 	'canonical-url': { tab: 'advanced', target: 'canonical_url' },
 	'open-graph': { tab: 'social', target: 'social_title' },
 	'twitter-card': { tab: 'social', target: 'social_title' },
-	schema: { tab: 'schema' },
-	'structured-data': { tab: 'schema' },
-	'sitewide-structured-data': { tab: 'schema' },
+	schema: { tab: 'schema', target: 'schema_json' },
+	'structured-data': { tab: 'schema', target: 'schema_json' },
+	'sitewide-structured-data': { tab: 'schema', target: 'schema_json' },
+	/** Brand Intelligence's Person/Organization schema checks — the fix is the same JSON-LD the Schema tab generates/edits (Generate with AI adds the missing author/organization data), so they land there too. */
+	'author-schema': { tab: 'schema', target: 'schema_json' },
+	'organization-schema': { tab: 'schema', target: 'schema_json' },
 	/** AEO's own "Schema Markup" section (AeoTab.tsx) — same real Schema tab every other schema-flavored scanner id above already resolves to; no separate sub-target, same as those. */
-	'aeo-schema': { tab: 'schema' },
+	'aeo-schema': { tab: 'schema', target: 'schema_json' },
 };
 
 export const getEditorTargetForScanner = (

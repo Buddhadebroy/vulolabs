@@ -39,7 +39,7 @@ const SCANNER_IDS_BY_TILE_ID: Record<string, string[]> = {
 	'security-scan': SECURITY_FINDINGS_SCANNER_IDS,
 	malware: ['malware'],
 	firewall: ['firewall'],
-	'login-protection': ['login-protection'],
+	'login-protection': ['weak-passwords', 'login-protection'],
 	'plugin-vulnerabilities': [
 		'basic-vulnerabilities',
 		'advanced-vulnerabilities',
@@ -151,7 +151,8 @@ const SecurityMetricsGrid = ({
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }) => {
-	const securityScan = useSectionStatus('security', []);
+	// No category filter: "All" in the issues table also includes SSL (category 'ssl'), so this tile must too or the two counts disagree.
+	const securityScan = useSectionStatus('', SECURITY_FINDINGS_SCANNER_IDS);
 	const pluginVulnerabilities = useSectionStatus('security', [
 		'basic-vulnerabilities',
 		'advanced-vulnerabilities',
@@ -164,7 +165,11 @@ const SecurityMetricsGrid = ({
 	const ssl = useSectionStatus('ssl', ['ssl-monitoring']);
 	const malware = useSectionStatus('security', ['malware']);
 	const firewall = useSectionStatus('security', ['firewall']);
-	const loginProtection = useSectionStatus('security', ['login-protection']);
+	// Same 2 scanners the issues table's "Login & Accounts" section counts.
+	const loginProtection = useSectionStatus('security', [
+		'weak-passwords',
+		'login-protection',
+	]);
 
 	const securityScanLastScan = useLastScanTime(
 		SCANNER_IDS_BY_TILE_ID['security-scan']

@@ -109,6 +109,10 @@ class SchemaCoverageAnalyzer {
         // distinct from `coverage`'s own per-TYPE `found_on`/`problems`
         // figures below.
         $pages_with_schema = 0;
+        // Every checked page (with or without schema) — what clicking the
+        // "Pages checked"/"Pages with valid schema"/"Need attention" stat
+        // cards lists.
+        $checked_pages = array();
 
         foreach ( $post_ids as $post_id ) {
             $permalink = get_permalink( $post_id );
@@ -133,6 +137,8 @@ class SchemaCoverageAnalyzer {
                 'url'      => $permalink,
                 'edit_url' => current_user_can( 'edit_post', $post_id ) ? get_edit_post_link( $post_id, 'raw' ) : null,
             );
+
+            $checked_pages[] = $page_entry + array( 'types' => array_values( array_unique( $types ) ) );
 
             foreach ( array_unique( $types ) as $type ) {
                 $type_counts[ $type ]  = ( $type_counts[ $type ] ?? 0 ) + 1;
@@ -162,6 +168,8 @@ class SchemaCoverageAnalyzer {
                 'url'      => home_url( '/' ),
                 'edit_url' => null,
             );
+
+            $checked_pages[] = $homepage_entry + array( 'types' => array_values( array_unique( $homepage_types ) ) );
 
             foreach ( array_unique( $homepage_types ) as $type ) {
                 $type_counts[ $type ]  = ( $type_counts[ $type ] ?? 0 ) + 1;
@@ -202,6 +210,7 @@ class SchemaCoverageAnalyzer {
             'pages_with_valid_schema' => $pages_with_schema,
             'pages_needing_attention' => $pages_checked - $pages_with_schema,
             'coverage'                => $coverage,
+            'pages'                   => $checked_pages,
         );
 
         set_transient( self::CACHE_KEY, $snapshot, self::CACHE_TTL );

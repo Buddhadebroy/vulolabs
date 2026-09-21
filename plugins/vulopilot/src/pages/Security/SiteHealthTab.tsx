@@ -108,13 +108,17 @@ const SiteHealthTab = ({ onNavigateToBackups }: SiteHealthTabProps) => {
 
 	const goToIssuesTable = (tab: SectionedIssuesTab) => {
 		setActiveTab(tab);
-		setTimeout(
-			() =>
-				document
-					.getElementById(SECTIONED_FINDINGS_TABLE_ID)
-					?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-			50
-		);
+		setTimeout(() => {
+			const table = document.getElementById(SECTIONED_FINDINGS_TABLE_ID);
+			table?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			table?.classList.remove('vulopilot-issues-table-pulse');
+			void table?.offsetWidth;
+			table?.classList.add('vulopilot-issues-table-pulse');
+			setTimeout(
+				() => table?.classList.remove('vulopilot-issues-table-pulse'),
+				3000
+			);
+		}, 50);
 	};
 
 	return (

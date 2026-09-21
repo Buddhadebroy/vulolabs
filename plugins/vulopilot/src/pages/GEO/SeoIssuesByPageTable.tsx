@@ -4,7 +4,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { CardComponent, ChartComponent, ContainerComponent, InformationItemComponent, ModuleGuardComponent, NoticeManager, SectionComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
-import { SEO_ISSUE_QUERY_PARAM } from '../../services/seoIssueEditorTarget';
+import { SEO_ISSUE_QUERY_PARAM, FINDING_ID_QUERY_PARAM, getEditorTargetForScanner } from '../../services/seoIssueEditorTarget';
 import { formatWpDate } from '../../services/formatWpDate';
 import { ratingColor } from './seoRating';
 import {
@@ -12,6 +12,7 @@ import {
 	PRIORITY_SEVERITIES,
 	Priority,
 	PageRow,
+	RawFinding,
 	VisibilityCell,
 	worstFinding,
 } from './seoIssuesShared';
@@ -64,8 +65,13 @@ interface TableCardQuery {
 }
 
 /** Same navigate-and-highlight deep link `post-editor/index.tsx` reads — deliberately NOT the existing in-place "Fix with AI" (RecentContentCard.tsx/FindingsTable.tsx/IssueDetailPanel.tsx's immediate AI-apply, which `SeoSiteWideIssuesTable.tsx` uses instead since its findings have no page to navigate to). This one takes the user to the editor, opens the "VuloPilot SEO" sidebar, and — where a mapping exists (seoIssueEditorTarget.ts) — switches to the right tab and highlights the specific field/checklist row, so they see exactly what to fix before anything is changed. */
-const buildFixWithAiLink = (editLink: string, scannerId: string): string =>
-	`${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(scannerId)}`;
+const buildFixWithAiLink = (editLink: string, finding: RawFinding): string =>
+	// Scanner ids with no `SEO_ISSUE_EDITOR_TARGETS` entry (most GEO/AEO
+	// ones) fall back to the finding's own id so the editor's Page Analysis
+	// tab can still highlight it — see `FINDING_ID_QUERY_PARAM`.
+	getEditorTargetForScanner(finding.scanner_id)
+		? `${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(finding.scanner_id)}`
+		: `${editLink}&${FINDING_ID_QUERY_PARAM}=${finding.id}`;
 
 /**
  * Same real "no real number, no arrow" honesty `PagesNeedingAttentionTable.tsx`'s
@@ -255,7 +261,7 @@ const SeoIssuesByPageTable = ({
 			scanner_id: finding.scanner_id,
 			scannerLabel: scannerLabelMap.get(finding.scanner_id) || finding.scanner_id,
 			editLink: row.editLink,
-			fixWithAiLink: buildFixWithAiLink(row.editLink, finding.scanner_id),
+			fixWithAiLink: buildFixWithAiLink(row.editLink, finding),
 			viewLink: row.viewLink,
 		}));
 
@@ -345,7 +351,7 @@ const SeoIssuesByPageTable = ({
 			});
 		}
 
-		window.location.href = buildFixWithAiLink(row.editLink, primary.scanner_id);
+		window.location.href = buildFixWithAiLink(row.editLink, primary);
 	};
 
 	if (hasError) {

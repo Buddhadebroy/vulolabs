@@ -388,7 +388,11 @@ const AIAssistant = () => {
 								cardClassName="ai-copilot-main-chat"
 								cardTitle={__('Chat with VuloPilot', 'vulopilot')}
 								cardDesc={__('', 'vulopilot')}
-								onNewChat={startNewConversation}
+								onNewChat={
+									turns.length > 0 || isSending
+										? startNewConversation
+										: undefined
+								}
 								onOpenHistoryPopup={() => setIsHistoryPopupOpen(true)}
 								emptyDesc={__(
 									'Ask me anything about your website, performance, security, content and more.',
@@ -492,8 +496,8 @@ const AIAssistant = () => {
 							open={isHistoryPopupOpen}
 							onClose={() => setIsHistoryPopupOpen(false)}
 							width={25}
-							height="auto"
-							position="lightbox"
+							height="70%"
+							position="slide-right-to-left"
 						>
 							<RecentConversationsCard
 								onSelectConversation={(id: number) => {

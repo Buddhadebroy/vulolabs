@@ -50,17 +50,12 @@ const editorTargetForCheck = ( checkKey: string ): SeoIssueEditorTarget | null =
  * for the same reason `CHECK_KEY_TO_SCANNER_ID` above is local: those are
  * big dashboard-page files with their own heavy zyra-based imports, and
  * this tab lives in the separate, small post-editor webpack entry (see
- * `../api.ts`'s own top docblock). GEO's and AEO's own scanner-id sets
- * overlap heavily by design (both tabs already show largely the same real
- * site-wide findings under different framing, confirmed against those
- * files directly) — kept as two separate fetches/sections here rather than
- * force-deduplicating between them, matching that same existing site-wide
- * behavior rather than inventing a new "GEO vs AEO" split this codebase
- * doesn't otherwise draw.
+ * `../api.ts`'s own top docblock). Each scanner belongs to exactly one of
+ * the two sets, matching GeoTab.tsx/AeoTab.tsx's own split: AEO owns the
+ * answer-shaped checks (FAQ, AI summary block, FAQ/HowTo schema), GEO owns
+ * citation, structure and the remaining authority/freshness signals.
  */
 const GEO_SCANNER_IDS = [
-	'geo-summary-block',
-	'geo-faq-opportunity',
 	'geo-citation-opportunities',
 	'geo-chunking',
 	'geo-semantic-structure',
@@ -75,16 +70,7 @@ const GEO_SCANNER_IDS = [
 const AEO_SCANNER_IDS = [
 	'geo-faq-opportunity',
 	'geo-summary-block',
-	'geo-chunking',
-	'geo-semantic-structure',
 	'aeo-schema',
-	'geo-citation-opportunities',
-	'geo-author-info',
-	'geo-eeat-signals',
-	'geo-entity-naming-consistency',
-	'geo-trust-signals',
-	'llms-txt-missing',
-	'stale-content',
 ];
 
 /** A finding's own `scanner_id` already IS the id `SEO_ISSUE_EDITOR_TARGETS` is keyed by — no `key`-to-scanner-id translation needed here the way `editorTargetForCheck()` above needs one for Page Analysis's own different check-key vocabulary. */

@@ -82,7 +82,6 @@ const SECTIONS: FindingsSection[] = [
 			'exposed-files',
 			'debug-mode',
 			'file-editor',
-			'basic-vulnerabilities',
 		],
 		icon: 'eye',
 	},
@@ -136,7 +135,11 @@ const SECTIONS: FindingsSection[] = [
 			'No vulnerability findings yet — run a scan to check.',
 			'vulopilot'
 		),
-		scannerIds: ['advanced-vulnerabilities', 'theme-vulnerabilities'],
+		scannerIds: [
+			'basic-vulnerabilities',
+			'advanced-vulnerabilities',
+			'theme-vulnerabilities',
+		],
 		icon: 'report',
 	},
 	{
@@ -204,13 +207,18 @@ const SecurityTab = () => {
 	/** SecurityMetricsGrid's own scanner-backed tiles ("Security Scan"/"SSL") — switches the merged issues table below to that tile's own section and scrolls to it, same "controlled activeTab passed down" shape MetricsGrid.tsx's own View buttons use on Performance. */
 	const goToIssuesTab = (tab: SectionedIssuesTab) => {
 		setActiveTab(tab);
-		setTimeout(
-			() =>
-				document
-					.getElementById(ISSUES_TABLE_ID)
-					?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-			50
-		);
+		setTimeout(() => {
+			const table = document.getElementById(ISSUES_TABLE_ID);
+			table?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			// Restart the pulse even when the same tile is clicked twice.
+			table?.classList.remove('vulopilot-issues-table-pulse');
+			void table?.offsetWidth;
+			table?.classList.add('vulopilot-issues-table-pulse');
+			setTimeout(
+				() => table?.classList.remove('vulopilot-issues-table-pulse'),
+				3000
+			);
+		}, 50);
 	};
 
 	return (

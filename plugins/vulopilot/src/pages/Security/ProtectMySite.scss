@@ -953,3 +953,23 @@
 	justify-content: flex-end;
 	gap: 0.625rem;
 }
+
+
+// Brief attention pulse on the issues table when a status tile's "View"
+// jumps to it (SecurityTab.tsx / SiteHealthTab.tsx) — scroll alone isn't
+// enough of a cue when the table is already partly on screen.
+.vulopilot-issues-table-pulse {
+	border-radius: 0.75rem;
+	animation: vulopilot-issues-table-pulse 1.3s ease-in-out 2;
+}
+
+@keyframes vulopilot-issues-table-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+	}
+
+	40% {
+		box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.35);
+	}
+}

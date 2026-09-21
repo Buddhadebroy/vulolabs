@@ -151,8 +151,7 @@ const CheckRow: React.FC<{ check: OnPageCheck; onClick?: () => void }> = ({
  * `.label` the Readability tile below shows, just given the headline
  * treatment, since it's the only real 0-100 signal this endpoint returns
  * (same anti-fabrication reasoning as the "only 3 dimensions" paragraph
- * above — see also `Issues Found` below, which is a real count, not a
- * new score).
+ * above).
  *
  * The picker (real `wp/v2/posts`/`pages`, newest first) defaults to the
  * most recently modified piece of content rather than requiring a click
@@ -273,23 +272,9 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 			: 0;
 	const completenessTone = getScoreTone(completenessPercent);
 
-	// Real open issues — every completeness check that isn't passing, plus
-	// the structure check when it isn't either. Not `completeness.total`
-	// (every check, including the ones already passing): "Issues Found"
-	// means what it says.
-	const issuesFound = data
-		? data.completeness.checks.filter((check) => 'pass' !== check.status).length +
-		(data.structure && 'pass' !== data.structure.status ? 1 : 0)
-		: 0;
-
 	// Local `const` (not a repeated `data.structure` property access) so
 	// TypeScript's null-narrowing survives into the `onClick` closure below.
 	const structureCheck = data?.structure ?? null;
-
-	const scrollToAssessment = () =>
-		document
-			.getElementById('content-quality-assessment')
-			?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 	/**
 	 * Same `post.php?post={id}&action=edit&vulopilot_seo_issue={scannerId}`
@@ -400,7 +385,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 				<div className="content-quality-body">
 					<AnalyticsComponent
 						variant="small-priority-card"
-						cols={3}
+						cols={2}
 						data={[
 							{
 								icon: 'knowledgebase',
@@ -417,13 +402,6 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 								colorClass: completenessTone,
 								text: `${data.completeness.passed}/${data.completeness.total}`,
 								number: __('Checks passed', 'vulopilot'),
-							},
-							{
-								icon: 'document',
-								colorClass: completenessTone,
-								text: issuesFound,
-								number: __('Issues Found', 'vulopilot'),
-								onClick: issuesFound > 0 ? scrollToAssessment : undefined,
 							},
 						]}
 					/>

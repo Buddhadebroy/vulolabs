@@ -349,7 +349,7 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 			return;
 		}
 
-		const intervalId = window.setInterval(() => refetch(), 5000);
+		const intervalId = window.setInterval(() => refetch({ silent: true }), 5000);
 
 		return () => window.clearInterval(intervalId);
 	}, [hasPendingBackup, refetch]);

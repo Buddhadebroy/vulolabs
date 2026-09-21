@@ -25,7 +25,7 @@ import {
 } from 'recharts';
 import type { FindingGroup } from '../../components/Issues/issuesTypes';
 import type { CrawlerAnalytics } from './useCrawlerAnalytics';
-import { formatWpDate } from '../../services/formatWpDate';
+import { formatWpDate, formatWpDay } from '../../services/formatWpDate';
 
 const PIE_COLORS = ['#7C3AED', '#2563EB', '#0D9488', '#EA580C', '#DB2777', '#65A30D'];
 
@@ -393,9 +393,9 @@ const CrawlerAnalyticsSection = ({
 									}))}
 								>
 									<CartesianGrid strokeDasharray="3 3" />
-									<XAxis dataKey="date" />
+									<XAxis dataKey="date" tickFormatter={formatWpDay} />
 									<YAxis allowDecimals={false} />
-									<Tooltip />
+									<Tooltip labelFormatter={formatWpDay} />
 									<Area
 										type="monotone"
 										dataKey="total"

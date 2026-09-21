@@ -17,9 +17,11 @@ use VuloPilot\ValueObjects\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Create Content's "AI Writer" tool (ContentToolsGrid.tsx) — given an
- * existing post/page and a short brief of what to write, replaces its
- * `post_content` with AI-written body copy. Same "edit an existing
+ * Create Content's "AI Writer" tool (ContentToolsGrid.tsx) — given a short
+ * brief of what to write, creates a new draft post with AI-written body
+ * copy. When an existing `post_id` is supplied instead (automations, which
+ * act on a specific finding's post), it replaces that post's
+ * `post_content` in place. Same "edit an existing
  * object's real field" shape as WriteMetaTitleAction, just on
  * `post_content` instead of `post_title`, and with a user-supplied brief
  * as extra input (there's no existing "current content" to rewrite from
@@ -63,7 +65,10 @@ class WritePostContentAction extends AbstractBasicAction {
         $post_id = absint( $input['post_id'] ?? 0 );
         $post    = $post_id ? get_post( $post_id ) : null;
 
-        if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
+        // No post_id = the AI Writer tool's own "write something new" case
+        // (a draft is created in execute()). A post_id that's supplied must
+        // still be a real post/page.
+        if ( $post_id && ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) ) {
             throw new InvalidActionInputException( __( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
         }
 
@@ -75,8 +80,8 @@ class WritePostContentAction extends AbstractBasicAction {
 
         return array(
             'post_id'          => $post_id,
-            'post_title'       => $post->post_title,
-            'previous_content' => $post->post_content,
+            'post_title'       => $post ? $post->post_title : wp_trim_words( $brief, 8, '' ),
+            'previous_content' => $post ? $post->post_content : '',
             'brief'            => $brief,
         );
     }
@@ -142,6 +147,24 @@ class WritePostContentAction extends AbstractBasicAction {
      * @inheritDoc
      */
     public function execute( array $output, array $input ): ActionExecutionResult {
+        if ( ! $input['post_id'] ) {
+            $new_id = wp_insert_post(
+                array(
+                    'post_title'   => $input['post_title'],
+                    'post_content' => $output['content'],
+                    'post_status'  => 'draft',
+                    'post_type'    => 'post',
+                ),
+                true
+            );
+
+            if ( is_wp_error( $new_id ) ) {
+                return new ActionExecutionResult( false, null, null, array(), $new_id->get_error_message() );
+            }
+
+            return new ActionExecutionResult( true, 'post', (string) $new_id, array( 'created_post_id' => $new_id ) );
+        }
+
         $result = wp_update_post(
             array(
                 'ID'           => $input['post_id'],
@@ -169,6 +192,11 @@ class WritePostContentAction extends AbstractBasicAction {
      * @inheritDoc
      */
     public function rollback( array $snapshot ): void {
+        if ( ! empty( $snapshot['created_post_id'] ) ) {
+            wp_trash_post( $snapshot['created_post_id'] );
+            return;
+        }
+
         wp_update_post(
             array(
                 'ID'           => $snapshot['post_id'],
