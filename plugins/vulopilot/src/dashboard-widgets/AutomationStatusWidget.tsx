@@ -115,7 +115,6 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 					}))}
 				/>
 			)}
-
 			{/* Free ships exactly 2 built-in automations; custom ones are Pro. Hidden once Pro is active. */}
 			{!appLocalizer.khali_dabba && (
 				<NoticeComponent

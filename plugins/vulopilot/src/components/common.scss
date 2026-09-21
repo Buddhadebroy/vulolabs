@@ -66,7 +66,7 @@
             font-size: 1.125rem;
             line-height: 1.063rem;
 
-            .admin-badge{
+            .admin-badge {
                 margin-left: 0.45rem;
             }
         }
@@ -156,6 +156,7 @@
 }
 
 @keyframes vulopilot-history-row-highlight-pulse {
+
     0%,
     100% {
         background-color: transparent;
@@ -431,6 +432,20 @@
     }
 }
 
+.dashboard-widget {
+    height: 100%;
+
+    .dashboard-widget-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    &.is-customizing{
+        border: 0.125rem dashed $theme-color;
+    }
+}
+
+
 .overall-score-summary {
     display: flex;
     flex-direction: column;
@@ -561,3 +576,15 @@
 }
 
 // settings end
+
+.robots-overview-wrapper{
+    display: flex;
+    gap: 1rem;
+
+    .left-section,
+    .right-section{ 
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+}

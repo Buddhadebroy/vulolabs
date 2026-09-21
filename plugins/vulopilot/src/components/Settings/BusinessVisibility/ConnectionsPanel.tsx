@@ -110,16 +110,6 @@ const ConnectionsPanel = () => {
 			</SectionRow>
 			<SectionRow
 				icon="check"
-				title={__('Webmaster Tools', 'vulopilot')}
-				desc={__(
-					'Enter verification codes for third-party webmaster tools. Each one is rendered as its own <meta> tag on every page.',
-					'vulopilot'
-				)}
-			>
-				<SiteVerificationPanel />
-			</SectionRow>
-			<SectionRow
-				icon="check"
 				title={__('PageSpeed Insights', 'vulopilot')}
 				desc={__(
 					'Get real-performance data and optimization insights directly from Google PageSpeed Insights.',
@@ -127,6 +117,16 @@ const ConnectionsPanel = () => {
 				)}
 			>
 				<PageSpeedStatusPanel />
+			</SectionRow>
+			<SectionRow
+				icon="check"
+				title={__('Webmaster Tools', 'vulopilot')}
+				desc={__(
+					'Enter verification codes for third-party webmaster tools. Each one is rendered as its own <meta> tag on every page.',
+					'vulopilot'
+				)}
+			>
+				<SiteVerificationPanel />
 			</SectionRow>
 		</>
 	);

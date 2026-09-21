@@ -1011,7 +1011,7 @@ const BrokenLinksSection = () => {
 					label: (row: Record<string, unknown>) =>
 						'ignored' === (row as unknown as BrokenLinkFinding).status
 							? __('Unignore', 'vulopilot')
-							: __('Ignore', 'vulopilot'),
+							: __('Ignore Issue', 'vulopilot'),
 					icon: 'eye-blocked',
 					color: 'text-red',
 					type: 'button',
