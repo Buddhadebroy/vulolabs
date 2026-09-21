@@ -128,7 +128,7 @@ export default function Checklist( { title, results, postId, isPro, shopUrl, onF
 			>
 				<span className="title vulopilot-seo-checklist__title">{ title }</span>
 				<span className={ `vulopilot-seo-checklist__summary vulopilot-seo-checklist__summary--${ summary.className }` }>
-					<i className={ `dashicons dashicons-${ summary.icon }` } />
+					{/* <i className={ `dashicons dashicons-${ summary.icon }` } /> */}
 					{ summary.label }
 				</span>
 				<i className={ `dashicons dashicons-arrow-${ isOpen ? 'up' : 'down' }-alt2 vulopilot-seo-checklist__chevron` } />

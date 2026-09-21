@@ -84,23 +84,6 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		component: NeedsAttentionWidget,
 	},
 	{
-		id: 'recent-activity',
-		title: __('Recent activity', 'vulopilot'),
-		desc: __('A real feed of meaningful site events — scans, fixes, and changes.', 'vulopilot'),
-		icon: 'clock',
-		grid: 6,
-		component: RecentActivityWidget,
-	},
-	{
-		id: 'key-pages',
-		title: __('Issues at a glance', 'vulopilot'),
-		desc: __('Real open-finding counts for SEO, GEO, and AEO.', 'vulopilot'),
-		icon: 'web-page-website',
-		grid: 6,
-		component: KeyPagesWidget,
-	},
-
-	{
 		id: 'crawler-traffic',
 		title: __('AI crawler traffic', 'vulopilot'),
 		desc: __('A quick look at real AI crawler visits, with a link to the full report.', 'vulopilot'),
@@ -108,6 +91,15 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		grid: 6,
 		component: CrawlerTrafficWidget,
 	},
+	{
+		id: 'recent-activity',
+		title: __('Recent activity', 'vulopilot'),
+		desc: __('A real feed of meaningful site events — scans, fixes, and changes.', 'vulopilot'),
+		icon: 'clock',
+		grid: 12,
+		component: RecentActivityWidget,
+	},
+	
 ];
 
 /**

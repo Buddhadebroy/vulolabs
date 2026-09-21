@@ -136,7 +136,6 @@ const SeoProgressCard = () => {
 						cols={3}
 						data={[
 							{
-								icon: 'check',
 								colorClass: 'green',
 								number: String(data.issues_fixed.this_week),
 								text: (
@@ -148,7 +147,6 @@ const SeoProgressCard = () => {
 								),
 							},
 							{
-								icon: 'error',
 								colorClass: 'yellow',
 								number: String(data.new_issues.this_week),
 								text: (
@@ -160,7 +158,6 @@ const SeoProgressCard = () => {
 								),
 							},
 							{
-								icon: 'document',
 								colorClass: 'blue',
 								number: String(data.pages_improved.this_week),
 								text: (

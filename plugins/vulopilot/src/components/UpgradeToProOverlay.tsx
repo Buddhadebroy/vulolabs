@@ -12,15 +12,32 @@ import './UpgradeToProOverlay.scss';
  * overlay (icon/title/desc/button, `upgrade-to-pro.png` background)
  * instead of each hand-rolling its own copy.
  */
-export const UpgradeToProOverlay = () => (
-	<div className="pro-section-wrapper">
+export const UpgradeToProOverlay = ({ onClick }: { onClick?: () => void }) => (
+	// The overlay is absolutely positioned above the blurred content
+	// (UpgradeToProOverlay.scss, z-index 2), so clicks on it never reach that
+	// content's own handler — it needs its own `onClick`.
+	<div
+		className="pro-section-wrapper"
+		onClick={onClick}
+		style={onClick ? { cursor: 'pointer' } : undefined}
+	>
 		<div
 			className="pro-section"
 		>
 			<i className="adminfont-lock purple"></i>
 			<div className="title">{__('Upgrade to Pro', 'vulopilot')}</div>
 			<span>{__('Unlock the full VuloPilot toolkit', 'vulopilot')}</span>
-			<div className="admin-btn btn-purple-bg">
+			<div
+				className="admin-btn btn-purple-bg"
+				role={onClick ? 'button' : undefined}
+				tabIndex={onClick ? 0 : undefined}
+				onKeyDown={(event) => {
+					if (onClick && ('Enter' === event.key || ' ' === event.key)) {
+						event.preventDefault();
+						onClick();
+					}
+				}}
+			>
 				{__('Upgrade to pro', 'vulopilot')}
 			</div>
 		</div>
@@ -49,7 +66,7 @@ export const BlurredProContent = ({
 	children: ReactNode;
 }) => (
 	<div className="blur-wrapper">
-		<UpgradeToProOverlay />
+		<UpgradeToProOverlay onClick={onClick} />
 		<div
 			className={`${contentClassName} blur-wrapper-content`}
 			role="button"

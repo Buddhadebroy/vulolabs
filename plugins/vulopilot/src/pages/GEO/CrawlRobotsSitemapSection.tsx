@@ -615,19 +615,17 @@ const CrawlRobotsSitemapSection = () => {
 							'vulopilot'
 						)}
 						isLoading={isLoadingRobots}
-						action={
-							<ButtonInput
-								buttons={{
-									text: __('Test robots.txt', 'vulopilot'),
-									icon: 'refresh',
-									// Explicit click → refresh the editor content too.
-									onClick: () => loadRobots(true),
-								}}
-							/>
-						}
 					>
 						{robots?.reachable ? (
 							<>
+								<ButtonInput
+									buttons={{
+										text: __('Test robots.txt', 'vulopilot'),
+										icon: 'refresh',
+										// Explicit click → refresh the editor content too.
+										onClick: () => loadRobots(true),
+									}}
+								/>
 								<div className='broken-link-section'>
 									<div className="rt-editor-wrap">
 										<RobotsTxtEditor
