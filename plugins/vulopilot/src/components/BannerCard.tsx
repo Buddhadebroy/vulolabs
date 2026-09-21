@@ -11,6 +11,8 @@ export interface BannerCardProps {
 	buttons?: ComponentProps<typeof ButtonInput>['buttons'];
 	/** Shows the top-right close control; the banner hides itself once clicked. */
 	dismissible?: boolean;
+	/** With `dismissible`, remembers the dismissal in this browser's localStorage under this key so the banner stays hidden on later visits. */
+	dismissKey?: string;
 	/** Extra class on the root, for a caller's own sizing/color rules. */
 	className?: string;
 	/** Right-hand illustration; pass `null` to omit it. */
@@ -33,10 +35,31 @@ const BannerCard = ({
 	meta,
 	buttons,
 	dismissible = false,
+	dismissKey,
 	className = '',
 	image = bannerIllustration,
 }: BannerCardProps) => {
-	const [dismissed, setDismissed] = useState(false);
+	const [dismissed, setDismissedState] = useState(() => {
+		if (!dismissKey) {
+			return false;
+		}
+		try {
+			return '1' === window.localStorage.getItem(dismissKey);
+		} catch {
+			return false;
+		}
+	});
+
+	const setDismissed = (value: boolean) => {
+		setDismissedState(value);
+		if (dismissKey && value) {
+			try {
+				window.localStorage.setItem(dismissKey, '1');
+			} catch {
+				// Storage blocked (private mode etc.) — stays dismissed for this page load only.
+			}
+		}
+	};
 
 	if (dismissed) {
 		return null;

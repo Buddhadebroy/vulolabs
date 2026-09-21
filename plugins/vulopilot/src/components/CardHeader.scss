@@ -22,10 +22,16 @@
 		.common-card-header,
 		.ai-provider-card-body,
 		.common-card-action{
-			width: 30%;
+			// width: 30%;
 		}
 		.buttons-wrapper{
 			width: 100%;
+		}
+		.common-card-header{
+			width: 50%;
+		}
+		.common-card-action{
+			width: 20%;
 		}
 	}
 }
@@ -40,7 +46,7 @@
 	}
 }
 .ai-provider-card-body{
-	width: 25%;
+	width: 30%;
 }
 .common-card-icon {
 	display: flex !important;

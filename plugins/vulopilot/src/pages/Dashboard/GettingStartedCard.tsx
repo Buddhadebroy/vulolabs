@@ -22,6 +22,7 @@ import BannerCard from '../../components/BannerCard';
 const GettingStartedCard: React.FC = () => (
 	<BannerCard
 		dismissible
+		dismissKey="vulopilot_getting_started_dismissed"
 		title={__('Welcome to VuloPilot — finish setup', 'vulopilot')}
 		desc={__('Docs, help, and modules to get the most out of VuloPilot.', 'vulopilot')}
 			buttons={[
