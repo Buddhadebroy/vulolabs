@@ -17,10 +17,10 @@ import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
-import BackupStoragePanel from '../../components/Settings/Business/BackupStoragePanel';
-import IndexNowPanel from '../../components/Settings/Business/IndexNowPanel';
-import SitemapPingWatcher from '../../components/Settings/Business/SitemapPingWatcher';
-import SitemapHowItWorksCard from '../../components/Settings/Business/SitemapHowItWorksCard';
+import BackupStoragePanel from '../../components/Settings/BusinessVisibility/BackupStoragePanel';
+import IndexNowPanel from '../../components/Settings/BusinessVisibility/IndexNowPanel';
+import SitemapPingWatcher from '../../components/Settings/BusinessVisibility/SitemapPingWatcher';
+import SitemapHowItWorksCard from '../../components/Settings/BusinessVisibility/SitemapHowItWorksCard';
 import ShowProPopup from '../../components/Popup/Popup';
 
 /**

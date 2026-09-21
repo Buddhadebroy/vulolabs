@@ -226,10 +226,22 @@ const HistoryTab = () => {
 					pendingSelectId.current = null;
 
 					const wantedRow = wantedId
-						? nextRows.find((row) => row.id === wantedId)
+						? nextRows.find((row) => String(row.id) === String(wantedId))
 						: undefined;
 
-					setSelectedRow(wantedRow ?? nextRows[0] ?? null);
+					// A refetch with nothing pending (this tab fires a few on
+					// mount — filter change, then the debounced search effect)
+					// keeps whatever row is already open instead of snapping
+					// back to the first one, which is what used to undo a
+					// deep-linked "Recent activity" selection ~400ms after it
+					// landed.
+					setSelectedRow(
+						(current) =>
+							wantedRow ??
+							nextRows.find((row) => row.id === current?.id) ??
+							nextRows[0] ??
+							null
+					);
 				}
 			})
 			.finally(() => {
@@ -255,7 +267,10 @@ const HistoryTab = () => {
 			return;
 		}
 
-		const match = rows.find((row) => row.id === deepLinkRowId.current);
+		// `GET /history` returns `id` as a string (raw DB row), the deep link's is a number — compare as strings.
+		const match = rows.find(
+			(row) => String(row.id) === String(deepLinkRowId.current)
+		);
 
 		if (!match) {
 			return;
@@ -268,7 +283,7 @@ const HistoryTab = () => {
 		element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 		setPulsingRowId(String(match.id));
 
-		const timeout = window.setTimeout(() => setPulsingRowId(null), 3000);
+		const timeout = window.setTimeout(() => setPulsingRowId(null), 6000);
 		return () => window.clearTimeout(timeout);
 	}, [rows]);
 

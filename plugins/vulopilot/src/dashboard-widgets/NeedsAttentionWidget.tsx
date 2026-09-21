@@ -14,14 +14,23 @@ import { useApiList } from '../services/useApiList';
 import { formatWpDate } from '../services/formatWpDate';
 import { getSeverityClass } from '../services/getSeverityClass';
 import { getCategoryTabLink } from '../services/getCategoryTabLink';
+import { formatAffected } from '../components/Issues/issuesTypes';
+import type { FindingGroup } from '../components/Issues/issuesTypes';
 import { WidgetProps } from './types';
 
-interface FindingRow {
-	id: number;
-	title: string;
-	severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
-	category?: string;
-}
+/** `write-meta-title` → "Write meta title" — the action ids the approval queue carries are internal slugs. */
+const humanizeActionId = (actionId: string): string => {
+	const words = actionId.replace(/[-_]+/g, ' ').trim();
+
+	return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
+/** First sentence of a finding's own description, capped — the "what's wrong" line under each issue type. */
+const summarize = (text?: string | null): string => {
+	const first = (text ?? '').split(/(?<=[.!?])\s/)[0].trim();
+
+	return first.length > 110 ? `${first.slice(0, 107)}…` : first;
+};
 
 interface ActionRunRow {
 	id: number;
@@ -49,16 +58,37 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
-	const quickFixes = useApiList<FindingRow>('findings', {
+	// Issue *types*, worst severity first (`GET /findings/groups`) rather
+	// than the 5 newest raw findings: each row reads "what kind of problem,
+	// how many places, how bad" instead of one arbitrary page's own title.
+	const quickFixes = useApiList<FindingGroup>('findings/groups', {
 		category: 'images',
 		status: 'open',
 		per_page: 5,
 	});
-	const openIssues = useApiList<FindingRow>('findings', {
+	const openIssues = useApiList<FindingGroup>('findings/groups', {
 		status: 'open',
 		per_page: 5,
-		orderby: 'id',
-		order: 'desc',
+	});
+	const toIssueItem = (group: FindingGroup, link: string) => ({
+		id: `${group.scanner_id}-${group.category}`,
+		title: group.label,
+		desc: summarize(group.sample?.description),
+		action: () => {
+			window.location.href = link;
+		},
+		tags: (
+			<>
+				<BadgeComponent
+					color="blue"
+					text={formatAffected(group.count, group.object_type)}
+				/>
+				<BadgeComponent
+					color={`badge-${group.severity}`}
+					text={group.severity}
+				/>
+			</>
+		),
 	});
 	const pendingApproval = useApiList<ActionRunRow>('ai-action-runs', {
 		status: 'pending_approval',
@@ -134,20 +164,9 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 							) : (
 								<ListComponent
 									className= "mini-card report"
-									items={openIssues.data.map((finding) => ({
-										id: String(finding.id),
-										title: finding.title,
-										action: () => {
-											window.location.href =
-												getCategoryTabLink(finding.category);
-										},
-										tags: (
-											<BadgeComponent
-												color={`badge-${finding.severity}`}
-												text={finding.severity}
-											/>
-										),
-									}))}
+									items={openIssues.data.map((group) =>
+										toIssueItem(group, getCategoryTabLink(group.category))
+									)}
 								/>
 							),
 					},
@@ -169,20 +188,12 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 							) : (
 								<ListComponent
 									className="mini-card report"
-									items={quickFixes.data.map((finding) => ({
-										id: String(finding.id),
-										title: finding.title,
-										action: () => {
-											window.location.href =
-												'?page=vulopilot#&tab=seo-visibility&subtab=seo';
-										},
-										tags: (
-											<BadgeComponent
-												color={`badge-${finding.severity}`}
-												text={finding.severity}
-											/>
-										),
-									}))}
+									items={quickFixes.data.map((group) =>
+										toIssueItem(
+											group,
+											'?page=vulopilot#&tab=seo-visibility&subtab=seo'
+										)
+									)}
 								/>
 							),
 					},
@@ -206,7 +217,7 @@ const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 									className="notification"
 									items={pendingApproval.data.map((row) => ({
 										id: String(row.id),
-										title: row.action_id,
+										title: humanizeActionId(row.action_id),
 										value: formatWpDate(row.created_at),
 										onApprove: () =>
 											handleDecision(row, 'approve'),

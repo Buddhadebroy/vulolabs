@@ -254,6 +254,7 @@ const Accessibility = () => {
 				headerCustomContent={
 					<RunScanHeaderExtra
 						categories={['accessibility']}
+						label={__('Run Accessibility Audit', 'vulopilot')}
 						settingsSubtab="modules"
 					/>
 				}
