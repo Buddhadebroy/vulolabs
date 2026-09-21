@@ -18,6 +18,13 @@ import './Reports.scss';
  * carries that real generate-report flow, and both this tab's "Create
  * Report" header button and every table's empty state link there.
  *
+ * `refreshKey` (bumped by ReportsOverviewHeader.tsx's own `onDataChanged`,
+ * fired once CreateReportModal.tsx/ScheduleReportModal.tsx actually create
+ * something) is passed down to every list below as `refreshSignal` — the
+ * same "lift shared state up to this shell, pass it back down" shape this
+ * file already used for `days`/`onDaysChange`, not a second, parallel
+ * refresh mechanism.
+ *
  * This replaces this tab's previous content wholesale — the earlier
  * `GET /reports-overview`-driven dashboard (hero "Fixed/New/Still open"
  * card, 7-tile category status grid, the 6 Search/AI Visibility/Speed/
@@ -38,13 +45,18 @@ import './Reports.scss';
  */
 const OverviewTab = () => {
 	const [days, setDays] = useState<number>(DAY_OPTIONS[1]);
+	const [refreshKey, setRefreshKey] = useState(0);
 
 	return (
 		<ContainerComponent>
-			<ReportsOverviewHeader days={days} onDaysChange={setDays} />
-			<RecentReportsCard days={days} />
-			<ScheduledReportsTable />
-			<ReportHistoryTable />
+			<ReportsOverviewHeader
+				days={days}
+				onDaysChange={setDays}
+				onDataChanged={() => setRefreshKey((key) => key + 1)}
+			/>
+			<RecentReportsCard days={days} refreshSignal={refreshKey} />
+			<ScheduledReportsTable refreshSignal={refreshKey} />
+			<ReportHistoryTable refreshSignal={refreshKey} />
 		</ContainerComponent>
 	);
 };

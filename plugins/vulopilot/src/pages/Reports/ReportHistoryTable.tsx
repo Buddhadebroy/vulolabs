@@ -1,64 +1,43 @@
 /* global appLocalizer */
+import { useState } from 'react';
+import type { ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink } from '@zyra/core';
-import { CardComponent, ModuleGuardComponent } from '@zyra/components';
-import { TableCard, TableRow } from '@zyra/table';
-import { useApiList } from '../../services/useApiList';
-import { formatWpDate } from '../../services/formatWpDate';
-import { getReportTypeMeta, useReportTypeLabels } from './reportTypeMeta';
-
-interface ReportRow extends TableRow {
-	id: number;
-	report_type: string;
-	format: string;
-	status: 'generating' | 'ready' | 'failed';
-	period_start: string | null;
-	period_end: string | null;
-	created_at: string;
-	has_file: boolean;
-}
-
-const statusOptions = [
-	{ label: __('Generating', 'vulopilot'), value: 'generating' },
-	{ label: __('Ready', 'vulopilot'), value: 'ready' },
-	{ label: __('Failed', 'vulopilot'), value: 'failed' },
-];
+import { CardComponent, PopupComponent } from '@zyra/components';
+import { BlurredProContent } from '../../components/UpgradeToProOverlay';
+import DummyDataNotice from '../../components/DummyDataNotice';
+import ShowProPopup from '../../components/Popup/Popup';
+import { ADVANCED_REPORTS_MODULE_ID } from './reportsOverview';
+import ReportsDummyRows from './ReportsDummyRows';
+import { useFilterSlot } from '../../services/useFilterSlot';
 
 /**
- * The mockup's "Report History" table — the same real, complete, paginated
- * `GET /reports` list ReportTab.tsx's own table already renders (unfiltered
- * by this page's own `days` range, unlike RecentReportsCard.tsx's preview
- * above it), just under this tab's own heading/id so
- * RecentReportsCard/ReportsOverviewHeader's "View All Reports" actions have
- * somewhere real to scroll to. Deliberately its own `useApiList` call
- * rather than sharing ReportTab.tsx's — that tab stays fully intact per
- * direct instruction, so its own table keeps its own independent fetch/
- * pagination state.
+ * The mockup's "Report History" table. Per direct instruction ("the
+ * section is in free and the functionality code is in pro" — no duplicate
+ * code), this component owns only the "section": the `CardComponent`
+ * wrapper (`id="reports-history"`, title/description) — the real,
+ * complete, paginated `GET /reports` list moved wholesale to
+ * vulopilot-pro's own `AdvancedReports/src/ReportHistoryPanel.tsx` (that
+ * logic no longer exists here at all, not duplicated), registered back in
+ * via the `vulopilot_report_history_panel` filter slot (`useFilterSlot`,
+ * same shape Commerce.tsx/KeywordsTab.tsx's own whole-panel Pro gates
+ * already use).
+ *
+ * Free's own fallback below — `ReportsDummyRows` + `DummyDataNotice`
+ * behind `BlurredProContent` — only renders when that slot resolves to
+ * nothing, i.e. vulopilot-pro's AdvancedReports module isn't active; it
+ * never fetches real report data itself.
  */
-const ReportHistoryTable = () => {
-	const { data, total, categoryCounts, isLoading, error, refetch, onQueryUpdate } =
-		useApiList<ReportRow>('reports', {}, { key: 'status', options: statusOptions });
-	const typeLabels = useReportTypeLabels();
+interface ReportHistoryTableProps {
+	/** Bumped by OverviewTab.tsx once the real Pro actions generate a new report — passed straight through to ReportHistoryPanel's own refetch. */
+	refreshSignal?: number;
+}
 
-	const handleDownload = (row?: Record<string, unknown>) => {
-		if (!row || row.status !== 'ready' || !row.has_file) {
-			return;
-		}
-
-		if (
-			row.format === 'pdf' &&
-			!appLocalizer.active_modules.includes('advanced-reports')
-		) {
-			return;
-		}
-
-		const baseUrl = getApiLink(appLocalizer, `reports/${row.id}/download`);
-		const separator = baseUrl.includes('?') ? '&' : '?';
-		window.open(
-			`${baseUrl}${separator}_wpnonce=${appLocalizer.nonce}`,
-			'_blank'
-		);
-	};
+const ReportHistoryTable = ({ refreshSignal }: ReportHistoryTableProps) => {
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
+	const RealPanel = useFilterSlot<
+		ComponentType<{ refreshSignal?: number }>
+	>('vulopilot_report_history_panel');
+	const isProInstalled = Boolean(appLocalizer.khali_dabba);
 
 	return (
 		<CardComponent
@@ -67,94 +46,31 @@ const ReportHistoryTable = () => {
 			titleIcon="clock"
 			desc={__('A complete log of all generated reports.', 'vulopilot')}
 		>
-			{error ? (
-				<ModuleGuardComponent
-					icon="error"
-					title={__('Could not load reports', 'vulopilot')}
-					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
-				/>
+			{RealPanel ? (
+				<RealPanel refreshSignal={refreshSignal} />
 			) : (
-				<TableCard
-					hideHeader={true}
-					format={appLocalizer.date_format_js}
-					headers={{
-						report_type: {
-							label: __('Report Name', 'vulopilot'),
-							type: 'info',
-							key: 'reportName',
-							descriptionKey: 'reportDesc',
-							badgesKey: 'reportBadges',
-						},
-						actions: {
-							label: __('Actions', 'vulopilot'),
-							type: 'action',
-							actions: [
-								{
-									type: 'button',
-									color: 'text-blue',
-									label: (row?: Record<string, unknown>) =>
-										row?.status === 'ready'
-											? __('View', 'vulopilot')
-											: __('Not ready yet', 'vulopilot'),
-									icon: 'eye',
-									onClick: handleDownload,
-								},
-							],
-						},
-					}}
-					rows={data.map((row: ReportRow) => {
-						const meta = getReportTypeMeta(row.report_type);
-
-						return {
-							...row,
-							reportName:
-								typeLabels[row.report_type] || meta.shortLabel,
-							// Real "Period" range, folded into this row's own
-							// description with a real label prefix
-							// (InformationItemComponent's own `desc.label`)
-							// instead of a separate column — per direct
-							// instruction.
-							reportDesc: [
-								{
-									label: __('Period', 'vulopilot'),
-									value:
-										row.period_start && row.period_end
-											? `${formatWpDate(row.period_start)} – ${formatWpDate(row.period_end)}`
-											: '—',
-								},
-							],
-							// Real status + type + "Date" badges, folded into
-							// this same info column instead of 3 separate
-							// columns — per direct instruction.
-							reportBadges: [
-								{
-									text: statusOptions.find(
-										(option) => option.value === row.status
-									)?.label ?? row.status,
-									color:
-										'ready' === row.status
-											? 'green'
-											: 'generating' === row.status
-												? 'orange'
-												: 'red',
-								},
-								{ text: meta.shortLabel, color: meta.badgeColor },
-								{ text: formatWpDate(row.created_at), color: 'indigo' },
-							],
-						};
-					})}
-					ids={data.map((row) => row.id)}
-					totalRows={total}
-					categoryCounts={categoryCounts}
-					isLoading={isLoading}
-					onQueryUpdate={onQueryUpdate}
-					emptyMessage={__(
-						'No reports yet — use the Download PDF/CSV button above to generate your first report.',
-						'vulopilot'
-					)}
-				/>
+				<>
+					<BlurredProContent
+						contentClassName="reports-dummy-content"
+						onClick={() => setIsProPopupOpen(true)}
+					>
+						<ReportsDummyRows />
+					</BlurredProContent>
+					<DummyDataNotice />
+					<PopupComponent
+						open={isProPopupOpen}
+						onClose={() => setIsProPopupOpen(false)}
+						width={31.25}
+						height="auto"
+						position="lightbox"
+					>
+						{isProInstalled ? (
+							<ShowProPopup moduleName={ADVANCED_REPORTS_MODULE_ID} />
+						) : (
+							<ShowProPopup />
+						)}
+					</PopupComponent>
+				</>
 			)}
 		</CardComponent>
 	);

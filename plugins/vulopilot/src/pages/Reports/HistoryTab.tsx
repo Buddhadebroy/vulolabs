@@ -1,18 +1,14 @@
 /* global appLocalizer */
 import { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { applyFilters } from '@wordpress/hooks';
-import type { ComponentType } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
 	ModuleGuardComponent,
-	PopupComponent,
 	ContainerComponent,
 } from '@zyra/components';
-import { ButtonInput, TextInput, SelectInput } from '@zyra/inputs'; 
-import ShowProPopup from '../../components/Popup/Popup';
+import { ButtonInput, TextInput, SelectInput } from '@zyra/inputs';
 import HistoryDetailPanel from './HistoryDetailPanel';
 import HistoryTimeline from './HistoryTimeline';
 import {
@@ -63,68 +59,6 @@ const resolveDateFrom = (preset: DateRangePreset): string | undefined => {
 	date.setDate(date.getDate() - days);
 
 	return date.toISOString().slice(0, 10);
-};
-
-/**
- * Slot for vulopilot-pro's AdvancedReports module — a per-provider cost/
- * token/success-rate breakdown of this same history table. History logging
- * itself stays free (Free's own 9 built-in AI actions write here too, via
- * UsageTrackingProvider, regardless of Pro), so only this extra analytics
- * panel is Pro-gated, not the table above it. Same "register a source,
- * don't modify the host" pattern already used for
- * `vulopilot_reports_advanced_panel`. Shows a locked placeholder (below,
- * `AiAnalyticsLockedCard`) that opens the Pro popup on click when Pro/that
- * module isn't active, rather than rendering nothing.
- */
-const AiAnalyticsPanel = applyFilters(
-	'vulopilot_ai_assistant_pro_panel',
-	null
-) as ComponentType | null;
-
-/**
- * Visible teaser for the analytics panel above — shown instead of it when
- * `AiAnalyticsPanel` isn't registered, so the feature is discoverable
- * rather than simply absent.
- */
-const AiAnalyticsLockedCard = () => {
-	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
-
-	return (
-		<>
-			<CardComponent
-				title={__('AI cost & provider breakdown', 'vulopilot')}
-				titleIcon="lock"
-				desc={__(
-					'A per-provider cost, token, and success-rate breakdown of the history above.',
-					'vulopilot'
-				)}
-			>
-				<ButtonInput
-					buttons={{
-						text: __('Unlock with Pro', 'vulopilot'),
-						icon: 'lock',
-						onClick: () => setIsProPopupOpen(true),
-					}}
-				/>
-			</CardComponent>
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				{appLocalizer.khali_dabba ? (
-					// Pro is active — this specific module just isn't
-					// toggled on yet, so point at Modules rather than
-					// pitching an upgrade the user already has.
-					<ShowProPopup moduleName="advanced-reports" />
-				) : (
-					<ShowProPopup />
-				)}
-			</PopupComponent>
-		</>
-	);
 };
 
 /**
@@ -552,11 +486,6 @@ const HistoryTab = () => {
 					/>
 				)}
 			</CardComponent>
-			{AiAnalyticsPanel ? (
-				<AiAnalyticsPanel />
-			) : (
-				<AiAnalyticsLockedCard />
-			)}
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>

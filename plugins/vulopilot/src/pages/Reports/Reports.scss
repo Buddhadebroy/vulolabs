@@ -153,6 +153,18 @@
 	gap: 0.625rem;
 }
 
+// Wraps "Create Report"/"Schedule Report" so their own `.pro-tag-inline`
+// badge (common.scss's shared "admin-tag pro-tag pro-tag-inline" class —
+// see IssueDetailPanel.scss's own docblock for why that reset class exists)
+// docks right next to the button instead of floating off to this row's own
+// far edge — `position: relative` isn't needed here since `.pro-tag-inline`
+// already resets zyra's own default absolute positioning to static.
+.reports-overview-action-with-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+}
+
 .reports-download-pdf-disabled {
 	display: inline-flex;
 	align-items: center;
@@ -738,7 +750,7 @@
 
 .reports-schedules-row {
 	display: grid;
-	grid-template-columns: minmax(9rem, 1.5fr) auto auto auto minmax(9rem, 1.5fr) auto auto;
+	grid-template-columns: minmax(9rem, 1.5fr) auto auto auto minmax(9rem, 1.5fr) auto minmax(16rem, 2fr);
 	align-items: center;
 	gap: 0.875rem;
 	padding: 0.75rem 0;
@@ -755,6 +767,20 @@
 	}
 }
 
+// Send Now/Edit/Pause-Resume/View Reports/Delete — 5 real row actions,
+// wrapping rather than a fixed-width `auto` grid column (`.reports-schedules-row`
+// above) since they no longer fit one action button's worth of space.
+.reports-schedules-row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	justify-content: flex-end;
+
+	@media (max-width: 782px) {
+		justify-content: flex-start;
+	}
+}
+
 .reports-schedules-row-name {
 	font-weight: 600;
 	font-size: 0.875rem;
@@ -767,6 +793,63 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+// ReportsDummyRows.tsx (RecentReportsCard.tsx/ReportHistoryTable.tsx) and
+// ScheduledReportsTable.tsx's own inline `DUMMY_SCHEDULE_ROWS` markup —
+// fabricated, non-interactive preview rows shown behind `BlurredProContent`
+// (UpgradeToProOverlay.scss's own `.blur-wrapper-content` already applies
+// the blur itself; this only lays the rows out). Loosely mirrors
+// `.reports-schedules-row`'s own grid rhythm rather than sharing it exactly
+// — these rows have one fewer column (no real per-row action buttons).
+.reports-dummy-content {
+	pointer-events: none;
+}
+
+.reports-dummy-rows {
+	display: flex;
+	flex-direction: column;
+}
+
+.reports-dummy-row {
+	display: grid;
+	grid-template-columns: 1.5rem minmax(10rem, 2fr) auto auto minmax(6rem, 1fr) auto;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 0.75rem 0;
+	border-bottom: $border-light-small;
+
+	&:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	@media (max-width: 782px) {
+		grid-template-columns: 1fr;
+		justify-items: flex-start;
+	}
+}
+
+.reports-dummy-row-icon {
+	color: $sub-text-color;
+}
+
+.reports-dummy-row-main {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.reports-dummy-row-name {
+	font-weight: 600;
+	font-size: 0.875rem;
+}
+
+.reports-dummy-row-period,
+.reports-dummy-row-date,
+.reports-dummy-row-actions {
+	font-size: 0.8125rem;
+	color: $sub-text-color;
 }
 
 // HistoryTab.tsx's own search/date-range/Export row — same real one-row
@@ -786,4 +869,105 @@
 
 .category-filter{
 	margin-bottom: 1rem;
+}
+
+// CreateReportModal.tsx's own progress/success stages — PopupComponent's
+// own `children` slot has no built-in shape for either, so both are plain
+// markup styled here, same "zyra has no component for this exact shape"
+// posture `.reports-schedules-row` above already established.
+.create-report-progress-title {
+	margin: 0 0 0.875rem;
+	font-weight: 700;
+	font-size: 1rem;
+}
+
+.create-report-progress-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+}
+
+.create-report-progress-step {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	font-size: 0.8125rem;
+	color: $sub-text-color;
+
+	&.is-done {
+		color: $text-color;
+
+		i {
+			color: #16a34a;
+		}
+	}
+
+	&.is-active {
+		color: $text-color;
+		font-weight: 600;
+
+		i {
+			color: $theme-color;
+		}
+	}
+}
+
+.create-report-success-message {
+	margin: 0 0 1rem;
+	color: $sub-text-color;
+}
+
+.create-report-success-details {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+
+	> div {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.875rem;
+		padding: 0.5rem 0;
+		border-bottom: $border-light-small;
+		font-size: 0.8125rem;
+	}
+
+	> div:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+}
+
+.create-report-success-label {
+	color: $sub-text-color;
+}
+
+.create-report-success-value {
+	text-align: right;
+}
+
+// Real bug in zyra's own PopupComponent.scss, worked around here rather
+// than patched at the source (real @multivendorx/zyra source lives
+// outside this repo — zyra-local-source.md): its `[data-position="lightbox"]`
+// rule's own `.popup-footer` is `position: fixed` with no equivalent
+// bottom-space reservation the `[data-position^="slide-"]` variant already
+// gets (`&:has(.popup-footer) { .popup-body { margin-bottom: 4.5rem; } }`).
+// Once a lightbox popup's own content grows tall enough, its last field(s)
+// render underneath that fixed, opaque footer bar — real in the DOM, just
+// visually covered. Confirmed live via getBoundingClientRect():
+// ScheduleReportModal.tsx's own real footer (Cancel/Schedule Report) is
+// ~96px tall, taller than the slide-* variant's own 4.5rem (72px)
+// reservation — that 72px was tried first here and still left the
+// "Recipients" field's own input overlapping the footer's top ~30px, so
+// this uses 7rem instead, comfortably clearing a two-button footer's real
+// height with margin to spare. Scoped to just these two modals rather than
+// every lightbox popup in the admin.
+.create-report-popup,
+.schedule-report-popup {
+	.popup-content[data-position="lightbox"] .popup-body {
+		padding-bottom: 7rem;
+	}
 }

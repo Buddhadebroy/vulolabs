@@ -26,6 +26,20 @@ defined( 'ABSPATH' ) || exit;
  * own docblock), so this is a real generation, not the earlier `generating`-
  * status stub with no engine behind it.
  *
+ * `vulopilot_report_creation_extra` fires after generation with the
+ * request and the just-generated report row — a generic, Pro-agnostic
+ * extension point (empty array by default) rather than this controller
+ * knowing anything about what a caller might want to happen next.
+ * vulopilot-pro's AdvancedReports module is the one real consumer today
+ * (Module::maybe_email_created_report()): the Reports → Overview "Create
+ * Report" modal is itself gated behind that module (Free has no working
+ * "Create Report" UI at all without it — ReportsOverviewHeader.tsx's own
+ * docblock), so its "Email this report after generation" checkbox's
+ * `email`/`recipients` params only ever reach a real listener when Pro's
+ * module is active; every other free entry point that posts here (this
+ * page's own header Download action, Report Builder tab) never sends
+ * them, so `$extra` is always `array()` for those.
+ *
  * @class       Reports controller
  * @version     1.0.0
  * @author      VuloLabs
@@ -195,11 +209,36 @@ class Reports extends \WP_REST_Controller {
         $repository = new ReportRepository();
         $report     = $repository->find( $id );
 
+        // Same "never expose file_path to the client" posture get_items()
+        // already applies — the modal's own success state only needs
+        // has_file to know whether "View"/"Download PDF" are valid yet.
+        if ( $report ) {
+            $report['has_file'] = ! empty( $report['file_path'] );
+            unset( $report['file_path'] );
+        }
+
+        /**
+         * Fires after a report is generated through this endpoint, filtered
+         * through whatever extra response fields a listener wants to
+         * contribute — see this class's own docblock for why this exists
+         * (vulopilot-pro's AdvancedReports module is the one real consumer,
+         * for its Pro-gated "Create Report" modal's optional email step).
+         *
+         * @param array<string, mixed>      $extra   Extra fields to merge into the response. Empty by default.
+         * @param array<string, mixed>|null $report  The just-generated report row (file_path already stripped), or null.
+         * @param \WP_REST_Request          $request Full details about the request.
+         */
+        $extra = apply_filters( 'vulopilot_report_creation_extra', array(), $report, $request );
+
         return rest_ensure_response(
-            array(
-                'success' => 'failed' !== ( $report['status'] ?? 'failed' ),
-                'id'      => $id,
-                'status'  => $report['status'] ?? 'failed',
+            array_merge(
+                (array) $report,
+                array(
+                    'success' => 'failed' !== ( $report['status'] ?? 'failed' ),
+                    'id'      => $id,
+                    'status'  => $report['status'] ?? 'failed',
+                ),
+                $extra
             )
         );
     }
