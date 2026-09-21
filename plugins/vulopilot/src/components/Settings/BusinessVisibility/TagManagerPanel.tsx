@@ -62,12 +62,13 @@ const TagManagerPanel = () => {
 				icon="shortcode"
 				title={__('Container ID', 'vulopilot')}
 				desc={__(
-					'Your Google Tag Manager container ID, e.g. GTM-XXXXXXX.',
+					'Your Google Tag Manager container ID',
 					'vulopilot'
 				)}
 			>
 				<TextInput
 					id="tag-manager-container-id-input"
+					placeholder={__('GTM-XXXXXXX', 'vulopilot')}
 					size={25}
 					value={containerId}
 					onChange={(value) => handleContainerIdChange(String(value))}

@@ -191,6 +191,7 @@ const AiProvidersPanel = () => {
 										text: isConnectingToVulocloud
 											? __('Connecting…', 'vulopilot')
 											: __('Connect to VuloCloud', 'vulopilot'),
+											color: 'orange-bg',
 										disabled: isConnectingToVulocloud,
 										onClick: handleConnectToVulocloud,
 									}}
@@ -201,6 +202,7 @@ const AiProvidersPanel = () => {
 										text: isDisconnectingFromVulocloud
 											? __('Disconnecting…', 'vulopilot')
 											: __('Disconnect', 'vulopilot'),
+											color: 'red',
 										disabled: isDisconnectingFromVulocloud,
 										onClick: handleDisconnectFromVulocloud,
 									}}
