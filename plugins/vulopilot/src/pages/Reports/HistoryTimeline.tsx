@@ -129,7 +129,7 @@ const HistoryTimeline = ({
 											</div>
 										)}
 									</div>
-									<div className="history-row-meta">
+									<div className="history-row-issue-details">
 										{row.scan && (
 											<span className="history-row-meta-value">
 												{sprintf(

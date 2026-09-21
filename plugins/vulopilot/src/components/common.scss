@@ -102,6 +102,7 @@
             position: relative;
             padding: 0.625rem 1rem;
             border-bottom: 0.063rem solid #00000021;
+            align-items: center;
 
             &::after {
                 position: absolute;
@@ -126,21 +127,10 @@
             }
         }
 
-        .history-row-meta {
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 0.25rem;
-            text-align: right;
-            padding-top: 0.125rem;
+        .history-row-issue-details {}
 
-            .history-row-meta-value {
-                font-size: 0.75rem;
-                font-weight: 600;
-                color: $theme-color;
-                white-space: nowrap;
-            }
+        span.history-row-action {
+            min-width: 8rem;
         }
 
         .history-row-arrow {
@@ -153,9 +143,13 @@
                 color: $theme-color;
             }
         }
+
     }
 }
 
+.history-severity-breakdown {
+    margin: 0 !important;
+}
 
 // BrokenLinksSection.tsx's own "Last scan completed" / "Why fix broken
 // links?" card pair — real `CardComponent`s side by side (`ColumnComponent
@@ -700,6 +694,7 @@
         gap: 0.625rem;
     }
 }
+
 // AutomationStatusWidget.tsx's "Unlock more automations" banner.
 .automation-upgrade-banner {
     display: flex;

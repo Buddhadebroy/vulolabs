@@ -278,8 +278,6 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 			<FormGroupWrapperComponent>
 			{row.scan && (
 				<>
-				<FormGroupComponent row label={__('Status', 'vulopilot')}>
-					<span className='buttons-wrapper'>
 						<BadgeComponent
 							color="green"
 							text={
@@ -292,8 +290,6 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							color="yellow"
 							text={__('Manually triggered', 'vulopilot')}
 						/>
-					</span>
-				</FormGroupComponent>
 				<FormGroupComponent row label={__('Findings', 'vulopilot')}>
 					{row.scan.total > 0 ? (
 						<ul className="history-severity-breakdown">
@@ -302,10 +298,8 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 									<li key={severity}>
 										<BadgeComponent
 											color={`badge-${severity}`}
-											text={SEVERITY_LABEL[severity] ??
-												severity}
+											text={`${SEVERITY_LABEL[severity] ?? severity} ${Number(count)}`}
 										/>
-										{Number(count)}
 									</li>
 								)
 							)}
@@ -339,7 +333,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 								action: page.edit_link
 									? () => window.open(page.edit_link, '_blank', 'noopener,noreferrer')
 									: undefined,
-								tags: (
+								titleTag: (
 									<BadgeComponent
 										color="red"
 										text={sprintf(
@@ -348,6 +342,15 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 										)}
 									/>
 								),
+								tags: page.edit_link ? (
+									<ButtonInput
+										buttons={{
+											text: __('View', 'vulopilot'),
+											color: 'text-purple',
+											onClick: () => window.open(page.edit_link, '_blank', 'noopener,noreferrer'),
+										}}
+									/>
+								) : undefined,
 							}))}
 						/>
 					</div>
@@ -374,7 +377,16 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 									action: page.edit_link
 										? () => window.open(page.edit_link, '_blank', 'noopener,noreferrer')
 										: undefined,
-									tags: <BadgeComponent color="green" text={__('Clean', 'vulopilot')} />,
+									titleTag: <BadgeComponent color="green" text={__('Clean', 'vulopilot')} />,
+									tags: page.edit_link ? (
+										<ButtonInput
+											buttons={{
+												text: __('View', 'vulopilot'),
+												color: 'text-purple',
+												onClick: () => window.open(page.edit_link, '_blank', 'noopener,noreferrer'),
+											}}
+										/>
+									) : undefined,
 								}))}
 							/>
 						</div>
