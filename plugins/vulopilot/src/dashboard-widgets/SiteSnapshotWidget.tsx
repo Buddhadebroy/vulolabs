@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent, ListComponent, SectionComponent } from '@zyra/components';
+import { AnalyticsComponent, ListComponent, SectionComponent, CardComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
@@ -25,6 +25,29 @@ const formatScore = (score: number | null): string =>
 
 const formatCount = (count: number | null): string =>
 	null === count ? NOT_SET : String(count);
+
+/**
+ * A public site's homepage screenshot from WordPress.com's mShots service
+ * (the same one WP.org uses for plugin/theme previews). It can only reach
+ * publicly-reachable sites, so localhost, `.local`/`.test` hosts and private
+ * IPs get no screenshot URL at all.
+ */
+const getHomeScreenshotUrl = (siteUrl: string): string => {
+	try {
+		const { hostname } = new URL(siteUrl);
+		const isPrivate =
+			'localhost' === hostname ||
+			/\.(local|localhost|test|invalid|example)$/i.test(hostname) ||
+			/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname) ||
+			!hostname.includes('.');
+
+		return isPrivate
+			? ''
+			: `https://s0.wp.com/mshots/v1/${encodeURIComponent(siteUrl)}?w=560&h=350`;
+	} catch {
+		return '';
+	}
+};
 
 /**
  * "Site snapshot" — real WordPress core counts (`summary.site_snapshot`,
@@ -319,6 +342,12 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 	];
 
 	const siteUrl = appLocalizer.site_url as string;
+	const screenshotUrl = getHomeScreenshotUrl(siteUrl);
+	const [screenshotFailed, setScreenshotFailed] = useState(false);
+	const previewImage =
+		screenshotUrl && !screenshotFailed
+			? screenshotUrl
+			: appLocalizer.home_preview_image;
 
 	return (
 		<>
@@ -331,25 +360,38 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 				isCustomizing={isCustomizing}
 			>
 				<div className="site-overview-intro">
-					<div className="site-overview-identity">
-						<div className="site-overview-name">
-							{appLocalizer.site_title || brandName}
+					<div className="site-overview-identity-row">
+						<div className="site-overview-preview">
+							{previewImage ? (
+								<img
+									src={previewImage}
+									alt={__('Your homepage', 'vulopilot')}
+									onError={() => setScreenshotFailed(true)}
+								/>
+							) : (
+								<i className="adminfont-global-community site-overview-preview-empty" />
+							)}
 						</div>
-						<a href={siteUrl} target="_blank" rel="noreferrer" className="site-overview-url">
-							{siteUrl.replace(/^https?:\/\//, '')}
-						</a>
-						{appLocalizer.site_description && (
-							<div className="desc">{appLocalizer.site_description}</div>
-						)}
-						<ButtonInput
-							position="left"
-							buttons={{
-								text: __('View site', 'vulopilot'),
-								rightIcon: 'arrow-right',
-								color: 'border-purple',
-								onClick: () => window.open(siteUrl, '_blank', 'noopener,noreferrer'),
-							}}
-						/>
+						<div className="site-overview-identity">
+							<div className="site-overview-name">
+								{appLocalizer.site_title || brandName}
+							</div>
+							<a href={siteUrl} target="_blank" rel="noreferrer" className="site-overview-url">
+								{siteUrl.replace(/^https?:\/\//, '')}
+							</a>
+							{appLocalizer.site_description && (
+								<div className="desc">{appLocalizer.site_description}</div>
+							)}
+							<ButtonInput
+								position="left"
+								buttons={{
+									text: __('View site', 'vulopilot'),
+									rightIcon: 'arrow-right',
+									color: 'border-purple',
+									onClick: () => window.open(siteUrl, '_blank', 'noopener,noreferrer'),
+								}}
+							/>
+						</div>
 					</div>
 					<AnalyticsComponent
 						variant="small"
@@ -368,35 +410,22 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 				<div className="site-overview-groups">
 					{sections.map((group) => (
 						<div key={group.id} className="site-snapshot-group-card">
-							<SectionComponent
+							<CardComponent
 								title={group.title}
 								icon={group.icon}
-								rightContent={
-									group.link ? (
-										<ButtonInput
-											buttons={{
-												text: '',
-												rightIcon: 'pagination-right-arrow',
-												color: 'text-purple',
-												tooltip: __('Open', 'vulopilot'),
-												onClick: () => {
-													window.location.href = group.link as string;
-												},
-											}}
-										/>
-									) : undefined
-								}
-							/>
-							<ListComponent
-								className="mini-card report without-border site-snapshot-list"
-								items={group.rows.map((row) => ({
-									id: row.key,
-									icon: row.icon,
-									title: row.label,
-									tags: <span className="desc">{row.value}</span>,
-								}))}
-							/>
+							>
+								<ListComponent
+									className="mini-card report without-border site-snapshot-list"
+									items={group.rows.map((row) => ({
+										id: row.key,
+										icon: row.icon,
+										title: row.label,
+										tags: <span className="desc">{row.value}</span>,
+									}))}
+								/>
+							</CardComponent>
 						</div>
+
 					))}
 				</div>
 			</DashboardWidget>
