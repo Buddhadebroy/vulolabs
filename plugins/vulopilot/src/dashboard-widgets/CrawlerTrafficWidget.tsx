@@ -2,10 +2,21 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { ListComponent, ModuleGuardComponent } from '@zyra/components';
+import { BadgeComponent, ListComponent } from '@zyra/components';
 import DashboardWidget from './DashboardWidget';
+import DummyDataNotice from '../components/DummyDataNotice';
 import { formatWpDate } from '../services/formatWpDate';
 import { WidgetProps } from './types';
+
+const DAY_MS = 86400000;
+
+/** Fabricated example rows shown only while there are zero real crawler visits — always paired with `DummyDataNotice`, never mistakable for a real result. */
+const DUMMY_TOTAL_VISITS = 128;
+const buildDummyBots = (): BotLastSeen[] => [
+	{ bot_name: 'GPTBot', last_seen_at: new Date(Date.now() - DAY_MS).toISOString() },
+	{ bot_name: 'ClaudeBot', last_seen_at: new Date(Date.now() - 2 * DAY_MS).toISOString() },
+	{ bot_name: 'PerplexityBot', last_seen_at: new Date(Date.now() - 4 * DAY_MS).toISOString() },
+];
 
 interface BotLastSeen {
 	bot_name: string;
@@ -51,9 +62,12 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 			.finally(() => setIsLoading(false));
 	}, []);
 
-	const totalVisits =
+	const realVisits =
 		summary?.daily_volume?.reduce((sum, day) => sum + day.total, 0) ?? 0;
-	const topBots = (summary?.bot_last_seen ?? []).slice(0, 3);
+	const realBots = (summary?.bot_last_seen ?? []).slice(0, 3);
+	const isDummy = !isLoading && realBots.length === 0;
+	const totalVisits = isDummy ? DUMMY_TOTAL_VISITS : realVisits;
+	const topBots = isDummy ? buildDummyBots() : realBots;
 
 	return (
 		<DashboardWidget
@@ -63,33 +77,31 @@ const CrawlerTrafficWidget: React.FC<WidgetProps> = ({
 			isLoading={isLoading}
 			onHide={onHide}
 			isCustomizing={isCustomizing}
-		>
-			{!isLoading && topBots.length === 0 ? (
-				<ModuleGuardComponent
-					icon="global-community"
-					title={__('No AI crawler visits yet', 'vulopilot')}
-					desc={__(
-						'GPTBot, ClaudeBot, PerplexityBot and other AI crawlers will show up here once they visit your site.',
-						'vulopilot'
+			headerAction={
+				<BadgeComponent
+					color="purple"
+					text={sprintf(
+						/* translators: %d: AI crawler visit count. */
+						__('%d visits, last 30 days', 'vulopilot'),
+						totalVisits
 					)}
 				/>
-			) : (
-				<>
-					<div className="desc">
-						{sprintf(
-							__('%d visits, last 30 days', 'vulopilot'),
-							totalVisits
-						)}
-					</div>
-					<ListComponent
-						items={topBots.map((bot) => ({
-							id: bot.bot_name,
-							title: bot.bot_name,
-							value: formatWpDate(bot.last_seen_at),
-						}))}
-					/>
-				</>
-			)}
+			}
+		>
+			<>
+				<ListComponent
+					className="mini-card report"
+					items={topBots.map((bot) => ({
+						id: bot.bot_name,
+						title: bot.bot_name,
+						tags: (
+							<span className="desc">
+								{formatWpDate(bot.last_seen_at)}
+							</span>
+						),
+					}))}
+				/>
+			</>
 		</DashboardWidget>
 	);
 };

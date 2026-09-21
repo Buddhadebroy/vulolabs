@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { CardComponent, ColumnComponent, NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import ShowProPopup, { resolveModuleDisplayName } from '../../components/Popup/Popup';
+import ShowProPopup from '../../components/Popup/Popup';
+import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import './SeoVisibility.scss';
 
@@ -40,11 +41,11 @@ const BENEFITS = [
  * slot; when it hasn't resolved, this shows the same real "Connect Google
  * Search Console" hero the tab always has — genuine copy, not a fabricated
  * data preview — per direct instruction ("do not show dummy data show the
- * real content in free"), with the real Pro/module tag docked in this
- * section itself (not hidden inside the popup) — generic "PRO" when Pro
- * isn't installed at all, this module's own real display name when Pro is
- * installed but Keywords isn't active yet. Clicking "Connect Google
- * Services" doesn't run the real OAuth handshake itself (that would hand
+ * real content in free"), now blurred behind the shared "Upgrade to Pro"
+ * overlay (BlurredProContent, components/UpgradeToProOverlay.tsx) instead
+ * of a separate Pro/module tag; no DummyDataNotice since nothing here is
+ * fabricated. Clicking anywhere (or "Connect Google
+ * Services") doesn't run the real OAuth handshake itself (that would hand
  * a Free install a working on-ramp into a Pro-only dashboard); it opens
  * the same Pro/module upgrade popup every other gate in this plugin uses.
  */
@@ -57,65 +58,56 @@ const KeywordsTab = () => {
 		return <RealPanel />;
 	}
 
-	const badgeText = isProInstalled
-		? resolveModuleDisplayName(KEYWORDS_MODULE_ID)
-		: __('PRO', 'vulopilot');
-
 	return (
 		<ColumnComponent>
-			<div className="keywords-locked">
-				<div className="keywords-locked-tag">
-					<span className="admin-tag pro-tag">
-						<i className="adminfont-lock" />
-						{badgeText}
-					</span>
-				</div>
-				<CardComponent
-					title={__('Ranking Keywords', 'vulopilot')}
-					titleIcon="search"
-					desc={__('Connect Google Search Console to see your real keyword rankings.', 'vulopilot')}
+			<CardComponent
+				title={__('Ranking Keywords', 'vulopilot')}
+				titleIcon="search"
+				desc={__('Connect Google Search Console to see your real keyword rankings.', 'vulopilot')}
+			>
+				<BlurredProContent
+					contentClassName="gsc-connect-hero"
+					onClick={() => setIsPopupOpen(true)}
 				>
-					<div className="gsc-connect-hero">
-						<ButtonInput
-							buttons={{
-								text: __('Connect Google Services', 'vulopilot'),
-								icon: 'link',
-								onClick: () => setIsPopupOpen(true),
-							}}
-						/>
-						<div className="gsc-benefits-title">
-							{__('Benefits of connecting your Google account', 'vulopilot')}
-						</div>
-						<ul className="gsc-benefits-list">
-							{BENEFITS.map((benefit) => (
-								<li key={benefit}>
-									<i className="adminfont-check" /> {benefit}
-								</li>
-							))}
-						</ul>
-						<NoticeComponent
-							displayPosition="inline"
-							message={__(
-								'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site. Tokens are encrypted at rest the same way every other API key in VuloPilot is.',
-								'vulopilot'
-							)}
-						/>
+					<ButtonInput
+						buttons={{
+							text: __('Connect Google Services', 'vulopilot'),
+							icon: 'link',
+							onClick: () => setIsPopupOpen(true),
+						}}
+					/>
+					<div className="gsc-benefits-title">
+						{__('Benefits of connecting your Google account', 'vulopilot')}
 					</div>
-				</CardComponent>
-				<PopupComponent
-					open={isPopupOpen}
-					onClose={() => setIsPopupOpen(false)}
-					width={31.25}
-					height="auto"
-					position="lightbox"
-				>
-					{isProInstalled ? (
-						<ShowProPopup moduleName={KEYWORDS_MODULE_ID} />
-					) : (
-						<ShowProPopup />
-					)}
-				</PopupComponent>
-			</div>
+					<ul className="gsc-benefits-list">
+						{BENEFITS.map((benefit) => (
+							<li key={benefit}>
+								<i className="adminfont-check" /> {benefit}
+							</li>
+						))}
+					</ul>
+					<NoticeComponent
+						displayPosition="inline"
+						message={__(
+							'We don’t store any of your Google account’s data on our servers — everything is processed and stored on your own site. Tokens are encrypted at rest the same way every other API key in VuloPilot is.',
+							'vulopilot'
+						)}
+					/>
+				</BlurredProContent>
+			</CardComponent>
+			<PopupComponent
+				open={isPopupOpen}
+				onClose={() => setIsPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				{isProInstalled ? (
+					<ShowProPopup moduleName={KEYWORDS_MODULE_ID} />
+				) : (
+					<ShowProPopup />
+				)}
+			</PopupComponent>
 		</ColumnComponent>
 	);
 };

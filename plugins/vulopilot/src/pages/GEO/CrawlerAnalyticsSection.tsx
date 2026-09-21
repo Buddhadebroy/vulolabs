@@ -382,7 +382,16 @@ const CrawlerAnalyticsSection = ({
 					>
 						<div className="dashboard-trend-chart">
 							<ResponsiveContainer width="100%" height="100%">
-								<AreaChart data={analytics.daily_volume}>
+								<AreaChart
+									// `date` is a plain calendar day (Y-m-d); pinned to midday so
+									// formatWpDate's timezone shift can't roll it to the
+									// neighbouring day. Formatted with Settings → General → Date
+									// Format like every other date in this plugin.
+									data={analytics.daily_volume.map((day) => ({
+										...day,
+										date: formatWpDate(`${day.date} 12:00:00`),
+									}))}
+								>
 									<CartesianGrid strokeDasharray="3 3" />
 									<XAxis dataKey="date" tickFormatter={formatWpDay} />
 									<YAxis allowDecimals={false} />

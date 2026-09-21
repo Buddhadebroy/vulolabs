@@ -15,6 +15,7 @@ import ShowProPopup from '../../components/Popup/Popup';
 import { BlurredProContent } from '../../components/UpgradeToProOverlay';
 import DummyDataNotice from '../../components/DummyDataNotice';
 import { useFilterSlot } from '../../services/useFilterSlot';
+import { formatWpDate } from '../../services/formatWpDate';
 import './Accessibility.scss';
 import SectionedIssuesTable, {
 	SectionedIssuesTab,
@@ -31,15 +32,22 @@ const ISSUES_TABLE_ID = 'accessibility-a11y-issues-table';
 const ACCESSIBILITY_MODULE_ID = 'accessibility-audits';
 
 /** Fabricated 7-day score trend — same "obviously fake, never mistaken for a real scan result" reasoning BrandVisibilityProDummies.tsx's own `DUMMY_AUTHORITY_HISTORY` documents; no real fetch behind this, ever. */
-const DUMMY_ACCESSIBILITY_HISTORY = [
-	{ day: __('Day 1', 'vulopilot'), score: 62 },
-	{ day: __('Day 2', 'vulopilot'), score: 66 },
-	{ day: __('Day 3', 'vulopilot'), score: 65 },
-	{ day: __('Day 4', 'vulopilot'), score: 71 },
-	{ day: __('Day 5', 'vulopilot'), score: 74 },
-	{ day: __('Day 6', 'vulopilot'), score: 78 },
-	{ day: __('Day 7', 'vulopilot'), score: 82 },
-];
+const DUMMY_ACCESSIBILITY_SCORES = [62, 66, 65, 71, 74, 78, 82];
+
+/** Last 7 days ending today, labeled with the site's own date format ("August 26, 2026") — same `formatWpDate()` every real trend chart's x-axis uses — instead of a generic "Day N". Noon UTC so the site-timezone shift inside `formatWpDate()` can't push a label onto the neighboring day. */
+const DUMMY_ACCESSIBILITY_HISTORY = DUMMY_ACCESSIBILITY_SCORES.map(
+	(score, index) => {
+		const date = new Date();
+		date.setDate(
+			date.getDate() - (DUMMY_ACCESSIBILITY_SCORES.length - 1 - index)
+		);
+
+		return {
+			date: formatWpDate(`${date.toISOString().slice(0, 10)} 12:00:00`),
+			score,
+		};
+	}
+);
 
 /** Purely decorative on this dummy card (no real per-period fetch behind it, ever — see `DUMMY_ACCESSIBILITY_HISTORY`'s own docblock) — same real `PERIOD_OPTIONS`/`ToggleInput` "pill" shape SecurityTrendCard.tsx's own real trend chart uses, kept here only so this teaser reads as a faithful preview of what the real, unlocked card looks like. */
 type PeriodDays = '7' | '30' | '90';
@@ -108,7 +116,7 @@ const AccessibilityHistoryDummy = () => {
 						type="dynamic-line"
 						data={DUMMY_ACCESSIBILITY_HISTORY}
 						dataKey="score"
-						xKey="day"
+						xKey="date"
 						height={220}
 						yDomain={[0, 100]}
 					/>

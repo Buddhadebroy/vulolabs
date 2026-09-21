@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { ButtonInput } from '@zyra/inputs';
-import dashboardBannerBackground from '../../assets/images/dashboard-banner.png';
-import dashboardBanner from '../../assets/images/banner.png';
-
+import BannerCard from '../../components/BannerCard';
 
 /**
  * Compact, dismissible "finish setup" banner — replaces the old
@@ -22,93 +19,59 @@ import dashboardBanner from '../../assets/images/banner.png';
  * affordances of its own, so the header row and dismiss control are
  * hand-built here instead of borrowed from `CardComponent`.
  */
-const GettingStartedCard: React.FC = () => {
-	const [dismissed, setDismissed] = useState(false);
-
-	if (dismissed) {
-		return null;
-	}
-
-	return (
-		<div
-			className="getting-started-banner"
-			style={{ backgroundImage: `url(${dashboardBannerBackground})` }}
-		>
-			<i
-				className="adminfont-close getting-started-banner-close"
-				role="button"
-				tabIndex={0}
-				onClick={() => setDismissed(true)}
-				onKeyDown={(e) => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						e.preventDefault();
-						setDismissed(true);
-					}
-				}}
-			/>
-			<div className="details-wrapper">
-			<div className="getting-started-banner-title">
-				{__('Welcome to VuloPilot — finish setup', 'vulopilot')}
-			</div>
-			<div className="getting-started-banner-desc">
-				{__('Docs, help, and modules to get the most out of VuloPilot.', 'vulopilot')}
-			</div>
-
-			<ButtonInput
-				position="left"
-				wrapperClass="getting-started-banner-buttons"
-				buttons={[
-					{
-						text: __('Explore docs', 'vulopilot'),
-						icon: 'document',
-						color: 'purple-bg',
-						onClick: () =>
-							window.open(
-								'https://vulolabs.com/docs/knowledgebase/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
-								'_blank',
-								'noopener,noreferrer'
-							),
+const GettingStartedCard: React.FC = () => (
+	<BannerCard
+		dismissible
+		title={__('Welcome to VuloPilot — finish setup', 'vulopilot')}
+		desc={__('Docs, help, and modules to get the most out of VuloPilot.', 'vulopilot')}
+			buttons={[
+				{
+					text: __('Explore docs', 'vulopilot'),
+					icon: 'document',
+					color: 'purple-bg',
+					onClick: () =>
+						window.open(
+							'https://vulolabs.com/docs/knowledgebase/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
+							'_blank',
+							'noopener,noreferrer'
+						),
+				},
+				{
+					text: __('Book a consultation', 'vulopilot'),
+					icon: 'live-chat',
+					color: 'white',
+					onClick: () =>
+						window.open(
+							'https://vulolabs.com/custom-development/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
+							'_blank',
+							'noopener,noreferrer'
+						),
+				},
+				{
+					text: __('Join Discord', 'vulopilot'),
+					icon: 'global-community',
+					color: 'white',
+					onClick: () =>
+						window.open(
+							'https://discord.com/channels/1376811097134469191/1376811102020829258',
+							'_blank',
+							'noopener,noreferrer'
+						),
+				},
+				{
+					text: __('Extend: CatalogX, Notifima', 'vulopilot'),
+					icon: 'cart',
+					color: 'white',
+					onClick: () => {
+						// `tab=settings&subtab=modules`, not the old
+						// standalone `tab=modules` route — see
+						// Popup.tsx's own "Enable Now" comment for why.
+						window.location.href =
+							'?page=vulopilot#&tab=settings&subtab=modules';
 					},
-					{
-						text: __('Book a consultation', 'vulopilot'),
-						icon: 'live-chat',
-						color: 'white',
-						onClick: () =>
-							window.open(
-								'https://vulolabs.com/custom-development/?utm_source=wpadmin&utm_medium=pluginsettings&utm_campaign=vulopilot',
-								'_blank',
-								'noopener,noreferrer'
-							),
-					},
-					{
-						text: __('Join Discord', 'vulopilot'),
-						icon: 'global-community',
-						color: 'white',
-						onClick: () =>
-							window.open(
-								'https://discord.com/channels/1376811097134469191/1376811102020829258',
-								'_blank',
-								'noopener,noreferrer'
-							),
-					},
-					{
-						text: __('Extend: CatalogX, Notifima', 'vulopilot'),
-						icon: 'cart',
-						color: 'white',
-						onClick: () => {
-							// `tab=settings&subtab=modules`, not the old
-							// standalone `tab=modules` route — see
-							// Popup.tsx's own "Enable Now" comment for why.
-							window.location.href =
-								'?page=vulopilot#&tab=settings&subtab=modules';
-						},
-					},
-				]}
-			/>
-</div>
-			<img src={ dashboardBanner } alt=""/>
-		</div>
-	);
-};
+				},
+			]}
+	/>
+);
 
 export default GettingStartedCard;

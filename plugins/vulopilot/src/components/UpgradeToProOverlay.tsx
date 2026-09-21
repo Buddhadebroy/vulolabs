@@ -38,7 +38,17 @@ export const UpgradeToProOverlay = ({ onClick }: { onClick?: () => void }) => (
 			<i className="adminfont-lock purple"></i>
 			<div className="title">{__('Upgrade to Pro', 'vulopilot')}</div>
 			<span>{__('Unlock the full VuloPilot toolkit', 'vulopilot')}</span>
-			<div className="admin-btn btn-purple-bg">
+			<div
+				className="admin-btn btn-purple-bg"
+				role={onClick ? 'button' : undefined}
+				tabIndex={onClick ? 0 : undefined}
+				onKeyDown={(event) => {
+					if (onClick && ('Enter' === event.key || ' ' === event.key)) {
+						event.preventDefault();
+						onClick();
+					}
+				}}
+			>
 				{__('Upgrade to pro', 'vulopilot')}
 			</div>
 		</div>
