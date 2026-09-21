@@ -321,24 +321,39 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 
 	/** Mockup order, two per row — each header's arrow jumps to that area's real page. */
 	const sections = [
-		{ ...byId.content, link: '?page=vulopilot#&tab=content' },
+		{
+			...byId.content,
+			desc: __('Posts, pages and comments on your site.', 'vulopilot'),
+			link: '?page=vulopilot#&tab=content',
+		},
 		{
 			...byId.company,
 			title: __('Organization', 'vulopilot'),
+			desc: __('Your business entity, locations and categories.', 'vulopilot'),
 			link: '?page=vulopilot#&tab=settings&subtab=business-information',
 		},
 		{
 			...byId.products,
 			title: __('Commerce', 'vulopilot'),
+			desc: __('The products and services you offer.', 'vulopilot'),
 			link: '?page=vulopilot#&tab=commerce',
 		},
 		{
 			...byId.users,
+			desc: __('The people who use and visit your site.', 'vulopilot'),
 			rows: [...byId.users.rows, ...byId.additional.rows],
 			link: null as string | null,
 		},
-		{ ...byId.seo, link: '?page=vulopilot#&tab=seo-visibility' },
-		{ ...byId.technology, link: '?page=vulopilot#&tab=site-health' },
+		{
+			...byId.seo,
+			desc: __('How well your site is set up to be found.', 'vulopilot'),
+			link: '?page=vulopilot#&tab=seo-visibility',
+		},
+		{
+			...byId.technology,
+			desc: __('Your WordPress, PHP and plugin setup.', 'vulopilot'),
+			link: '?page=vulopilot#&tab=site-health',
+		},
 	];
 
 	const siteUrl = appLocalizer.site_url as string;
@@ -409,10 +424,11 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 				</div>
 				<div className="site-overview-groups">
 					{sections.map((group) => (
-						<div key={group.id} className="site-snapshot-group-card">
+						<div key={group.id} className={`site-snapshot-group-card is-${group.id}`}>
 							<CardComponent
 								title={group.title}
-								icon={group.icon}
+								titleIcon={group.icon}
+								desc={group.desc}
 							>
 								<ListComponent
 									className="mini-card report without-border site-snapshot-list"

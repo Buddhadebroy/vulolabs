@@ -588,6 +588,33 @@
 }
 
 .site-overview-groups {
+    // Group card headers ("Content", "Organization", …) get a tinted bar.
+    .site-snapshot-group-card .divider-section,
+    .site-snapshot-group-card .card-header {
+        border-radius: $border-radius-small;
+        padding: 0.625rem 0.875rem;
+        border-bottom: 0;
+        margin-bottom: 0.5rem;
+        // Fallback tint; each card overrides it below.
+        background: $theme-background-color;
+    }
+
+    // A different tint per group (header bar + its icon), matched to that
+    // group's row icon colours.
+    .site-snapshot-group-card.is-content .divider-section,
+    .site-snapshot-group-card.is-content .card-header { background: #eaf3ff; }
+    .site-snapshot-group-card.is-company .divider-section,
+    .site-snapshot-group-card.is-company .card-header { background: #fdeaf3; }
+    .site-snapshot-group-card.is-products .divider-section,
+    .site-snapshot-group-card.is-products .card-header { background: #fff1e3; }
+    .site-snapshot-group-card.is-users .divider-section,
+    .site-snapshot-group-card.is-users .card-header { background: #e7f7ee; }
+    .site-snapshot-group-card.is-seo .divider-section,
+    .site-snapshot-group-card.is-seo .card-header { background: #f0eaff; }
+    .site-snapshot-group-card.is-technology .divider-section,
+    .site-snapshot-group-card.is-technology .card-header { background: #e3f6fa; }
+
+
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0 2rem;
