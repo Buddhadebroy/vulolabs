@@ -212,6 +212,21 @@ class Schema extends \WP_REST_Controller {
             $post_ids
         );
 
+        // The homepage isn't a post, so the query above never returns it —
+        // but SchemaCoverageAnalyzer::analyze() checks it as a page in its
+        // own right, so it's listed first here too. Keeps this list in step
+        // with the coverage sample's "Pages checked" count.
+        array_unshift(
+            $pages,
+            array(
+                'id'         => 0,
+                'title'      => __( 'Homepage', 'vulopilot' ),
+                'type'       => 'homepage',
+                'type_label' => __( 'Homepage', 'vulopilot' ),
+                'url'        => home_url( '/' ),
+            )
+        );
+
         return rest_ensure_response( $pages );
     }
 }

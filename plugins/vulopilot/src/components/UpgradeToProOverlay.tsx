@@ -12,8 +12,26 @@ import './UpgradeToProOverlay.scss';
  * overlay (icon/title/desc/button, `upgrade-to-pro.png` background)
  * instead of each hand-rolling its own copy.
  */
-export const UpgradeToProOverlay = () => (
-	<div className="pro-section-wrapper">
+export const UpgradeToProOverlay = ({ onClick }: { onClick?: () => void }) => (
+	// The overlay sits on top of (z-index above) the blurred content, so a
+	// click on it never reaches that content's own onClick — it has to
+	// carry the same handler itself, or the "Upgrade to Pro" card is inert.
+	<div
+		className="pro-section-wrapper"
+		style={onClick ? { cursor: 'pointer' } : undefined}
+		role={onClick ? 'button' : undefined}
+		tabIndex={onClick ? 0 : undefined}
+		onClick={onClick}
+		onKeyDown={
+			onClick
+				? (event) => {
+						if ('Enter' === event.key || ' ' === event.key) {
+							onClick();
+						}
+					}
+				: undefined
+		}
+	>
 		<div
 			className="pro-section"
 		>
@@ -49,7 +67,7 @@ export const BlurredProContent = ({
 	children: ReactNode;
 }) => (
 	<div className="blur-wrapper">
-		<UpgradeToProOverlay />
+		<UpgradeToProOverlay onClick={onClick} />
 		<div
 			className={`${contentClassName} blur-wrapper-content`}
 			role="button"

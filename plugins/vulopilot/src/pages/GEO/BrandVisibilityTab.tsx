@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	CardComponent,
@@ -9,7 +9,7 @@ import {
 	PopupComponent
 } from '@zyra/components';
 import BrandScoreCard from './BrandScoreCard';
-import SectionedFindingsTab from '../Security/SectionedFindingsTab';
+import SectionedFindingsTab, { SECTIONED_FINDINGS_TABLE_ID } from '../Security/SectionedFindingsTab';
 import type { FindingsSection } from '../Security/SectionedFindingsTab';
 import type { SectionedIssuesTab } from '../Security/SectionedIssuesTable';
 import { useFilterSlot } from '../../services/useFilterSlot';
@@ -114,8 +114,36 @@ const isBrandModuleActive = () =>
  * instead of the previous `{Card && <Card />}` which silently rendered
  * nothing in that case.
  */
-const BrandVisibilityTab = () => {
-	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>('all');
+interface BrandVisibilityTabProps {
+	/** Scanner to pre-select (its section's tab) and scroll to on mount — set by Overview's "Top Opportunities" View buttons. */
+	initialScannerId?: string;
+}
+
+const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
+	const initialSection = initialScannerId
+		? BRAND_SECTIONS.find((section) =>
+				section.scannerIds.includes(initialScannerId)
+			)
+		: undefined;
+	const [activeTab, setActiveTab] = useState<SectionedIssuesTab>(
+		initialSection?.key ?? 'all'
+	);
+
+	useEffect(() => {
+		if (!initialSection) {
+			return;
+		}
+		const timer = setTimeout(
+			() =>
+				document
+					.getElementById(SECTIONED_FINDINGS_TABLE_ID)
+					?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+			300
+		);
+		return () => clearTimeout(timer);
+		// Mount-time value only.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	// useFilterSlot(), not a plain top-level applyFilters() read — that
 	// pattern is a real, measured-live race (useFilterSlot.ts's own

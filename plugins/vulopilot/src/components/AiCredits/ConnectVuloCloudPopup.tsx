@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { CardComponent, NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useConnectVuloCloud } from '../../services/useConnectVuloCloud';
+import { useAiCredits } from '../../services/useAiCredits';
 
 interface ConnectVuloCloudPopupProps {
 	open: boolean;
@@ -104,9 +105,14 @@ export const ConnectVuloCloudPromptContent = ({
  * inside `ConnectVuloCloudPromptContent`'s own `useConnectVuloCloud()`
  * call, not this wrapper, weren't actually reachable from here anyway).
  */
-const ConnectVuloCloudPopup = ({ open, onClose }: ConnectVuloCloudPopupProps) => (
+const ConnectVuloCloudPopup = ({ open, onClose }: ConnectVuloCloudPopupProps) => {
+	// Already connected (has credits) — this prompt has nothing to offer,
+	// so no caller can ever surface it in that state, whatever error it hit.
+	const { status } = useAiCredits();
+
+	return (
 	<PopupComponent
-		open={open}
+		open={open && !status?.connected}
 		onClose={onClose}
 		width={22}
 		height="auto"
@@ -114,6 +120,7 @@ const ConnectVuloCloudPopup = ({ open, onClose }: ConnectVuloCloudPopupProps) =>
 	>
 		<ConnectVuloCloudPromptContent />
 	</PopupComponent>
-);
+	);
+};
 
 export default ConnectVuloCloudPopup;

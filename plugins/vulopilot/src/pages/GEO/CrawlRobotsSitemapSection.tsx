@@ -611,7 +611,7 @@ const CrawlRobotsSitemapSection = () => {
 						title={__('Robots.txt Analysis', 'vulopilot')}
 						titleIcon="link"
 						desc={__(
-							'Your live robots.txt file (fetched right now, not a cached copy) — edit it directly below. Saving takes effect immediately, not a preview: the next request to /robots.txt serves this. Other active plugins (e.g. WooCommerce) may still add their own rules on top, same as they would with WordPress’s own default file.',
+							'Your live robots.txt, fetched right now (not a cached copy). Edit it below — saving takes effect immediately, and /robots.txt serves your version from the next request. Other active plugins (e.g. WooCommerce) may still add their own rules on top. If a physical robots.txt file exists in your site’s root folder, the web server serves that file instead and these edits won’t apply.',
 							'vulopilot'
 						)}
 						isLoading={isLoadingRobots}

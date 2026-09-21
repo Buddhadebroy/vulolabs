@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import {
-	AnalyticsComponent,
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
@@ -10,8 +9,23 @@ import {
 	ListComponent,
 } from '@zyra/components';
 import { TableCard } from '@zyra/table';
-import { useSchemaCoverage } from './useSchemaCoverage';
-import type { SchemaCoverageRow, SchemaCoveragePage } from './useSchemaCoverage';
+import { fetchOpenFindingsFor, buildEditLink } from '../seoIssuesShared';
+import { SEO_ISSUE_QUERY_PARAM, getEditorTargetForScanner } from '../../../services/seoIssueEditorTarget';
+import type { RawFinding } from '../seoIssuesShared';
+import type {
+	SchemaCoverageRow,
+	SchemaCoveragePage,
+	SchemaCoverageSnapshot,
+} from './useSchemaCoverage';
+
+interface StructuredDataSectionProps {
+	coverage: {
+		snapshot: SchemaCoverageSnapshot | null;
+		isLoading: boolean;
+		isAnalyzing: boolean;
+		analyze: () => void;
+	};
+}
 
 /**
  * Per real schema.org @type icon — purely cosmetic, every value here is a
@@ -23,6 +37,28 @@ import type { SchemaCoverageRow, SchemaCoveragePage } from './useSchemaCoverage'
  * specific real-world icon (a theme/plugin can emit a @type not in this
  * list at all — the fallback keeps that row rendering, not blank).
  */
+/** Same 5 schema-related scanners IssuesSection.tsx's own "Schema Problems" table reads — these are the real open problems shown per type below. */
+const SCHEMA_ISSUE_SCANNER_IDS = [
+	'schema',
+	'structured-data',
+	'sitewide-structured-data',
+	'organization-schema',
+	'author-schema',
+];
+
+/** Where a row's click goes: that page's editor (with the scanner's own field highlighted when one is mapped), or the live page for the homepage. */
+const getIssueLink = (page: SchemaCoveragePage, finding: RawFinding): string => {
+	if (!page.id) {
+		return page.url;
+	}
+	const editLink = buildEditLink(page.id);
+	return getEditorTargetForScanner(finding.scanner_id)
+		? `${editLink}&${SEO_ISSUE_QUERY_PARAM}=${encodeURIComponent(finding.scanner_id)}`
+		: editLink;
+};
+
+const normalizeUrl = (url: string): string => url.replace(/\/+$/, '');
+
 const TYPE_ICONS: Record<string, string> = {
 	Organization: 'shield',
 	WebSite: 'link',
@@ -63,17 +99,15 @@ const STATUS_CONFIG: Record<
  * Maps this table's own 3-tier status to the real `badge-{severity}` CSS
  * classes zyra's Table.scss actually defines — 'good'/'check'/'problems'
  * aren't themselves real severity values anywhere else in this codebase,
- * so a literal `badge-good` class would render unstyled. Confirmed against
- * zyra's own source (`packages/table/src/Table.scss`): `badge-high` is the
- * green bucket, `badge-medium` is yellow, `badge-critical`/`badge-low` are
- * both red — an existing quirk of that vocabulary (bucketed alongside
- * unrelated status words like "active"/"paid" for green, "cancelled" for
- * red) not something introduced here, and not this table's place to fix.
- * The row's own real label text (`STATUS_CONFIG` above) still reads
- * "Good"/"Check"/"Problems" either way — only the *color* is borrowed.
+ * so a literal `badge-good` class would render unstyled. In zyra's
+ * Table.scss `badge-resolved` is the green bucket (used for "Good"),
+ * `badge-medium` orange and `badge-critical` dark red — `badge-high` is
+ * red there, not green, so it isn't used for "Good". The row's own real
+ * label text (`STATUS_CONFIG` above) still reads "Good"/"Check"/"Problems"
+ * — only the *color* is borrowed.
  */
 const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
-	good: 'high',
+	good: 'resolved',
 	check: 'medium',
 	problems: 'critical',
 };
@@ -110,8 +144,8 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
  * until a first click" convention IssuesSection.tsx's own
  * `selectedGroup` already establishes.
  */
-const StructuredDataSection = () => {
-	const { snapshot, isLoading, isAnalyzing, analyze } = useSchemaCoverage();
+const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
+	const { snapshot, isLoading, isAnalyzing, analyze } = coverage;
 	// The real row the side detail panel is showing — SchemaCoverageAnalyzer
 	// records exactly which sampled post(s)/the homepage actually carried
 	// each @type (`row.pages`), so the panel shows a real list scoped to
@@ -145,9 +179,29 @@ const StructuredDataSection = () => {
 		});
 	}, [snapshot]);
 
-	const totalProblems = snapshot
-		? snapshot.coverage.reduce((sum, row) => sum + row.problems, 0)
-		: 0;
+	// Real open schema findings, fetched once — matched to each selected
+	// type's own pages below (a finding is scoped to a page, not a @type).
+	const [schemaFindings, setSchemaFindings] = useState<RawFinding[]>([]);
+	useEffect(() => {
+		fetchOpenFindingsFor(SCHEMA_ISSUE_SCANNER_IDS)
+			.then(setSchemaFindings)
+			.catch(() => setSchemaFindings([]));
+	}, [snapshot]);
+
+	const selectedIssues = useMemo(() => {
+		if (!selectedRow) {
+			return [];
+		}
+		return selectedRow.pages.flatMap((page) =>
+			schemaFindings
+				.filter(
+					(finding) =>
+						finding.object_ref === String(page.id) ||
+						normalizeUrl(finding.object_ref) === normalizeUrl(page.url)
+				)
+				.map((finding) => ({ finding, page }))
+		);
+	}, [selectedRow, schemaFindings]);
 
 	return (
 		<ContainerComponent>
@@ -176,41 +230,6 @@ const StructuredDataSection = () => {
 
 					{snapshot && (
 						<>
-							<AnalyticsComponent
-								variant="small-card"
-								cols={4}
-								data={[
-									{
-										icon: 'attachment',
-										iconClass: 'purple',
-										colorClass: 'purple',
-										number: snapshot.pages_checked,
-										text: __('Pages checked', 'vulopilot'),
-									},
-									{
-										icon: 'check',
-										iconClass: 'green',
-										colorClass: 'green',
-										number: snapshot.pages_with_valid_schema,
-										text: __('Pages with valid schema', 'vulopilot'),
-									},
-									{
-										icon: 'alarm',
-										iconClass: 'orange',
-										colorClass: 'orange',
-										number: snapshot.pages_needing_attention,
-										text: __('Need attention', 'vulopilot'),
-									},
-									{
-										icon: 'category',
-										iconClass: 'blue',
-										colorClass: 'blue',
-										number: snapshot.coverage.length,
-										text: __('Schema types detected', 'vulopilot'),
-									},
-								]}
-							/>
-
 							{0 === snapshot.coverage.length ? (
 								<div className="desc">
 									{__(
@@ -295,14 +314,6 @@ const StructuredDataSection = () => {
 								/>
 							)}
 
-							{totalProblems > 0 && (
-								<p className="desc schema-see-seo-tab">
-									{__(
-										'The real findings behind these numbers already live in the "Critical Issues"/"All Business Identity Issues" sections above.',
-										'vulopilot'
-									)}
-								</p>
-							)}
 						</>
 					)}
 				</CardComponent>
@@ -385,6 +396,43 @@ const StructuredDataSection = () => {
 												</a>
 											)}
 										</div>
+									),
+								}))}
+							/>
+						)}
+
+						<div className="schema-detail-pages-heading">
+							{__('Issues on these pages', 'vulopilot')}
+						</div>
+
+						{0 === selectedIssues.length ? (
+							<div className="desc">
+								{__(
+									'No open schema issues on the pages carrying this type.',
+									'vulopilot'
+								)}
+							</div>
+						) : (
+							<ListComponent
+								className="mini-card report"
+								items={selectedIssues.map(({ finding, page }) => ({
+									id: String(finding.id),
+									title: finding.title,
+									desc: page.title,
+									// Same "click the row → open that page's editor" behaviour as
+									// the GEO/AEO issue tables; the homepage isn't a post, so it
+									// opens the live page instead.
+									action: () => {
+										window.location.href = getIssueLink(page, finding);
+									},
+									tags: (
+										<>
+											<BadgeComponent
+												color={`badge-${finding.severity}`}
+												text={finding.severity}
+											/>
+											<i className="adminfont-pagination-right-arrow ai-copilot-row-arrow" />
+										</>
 									),
 								}))}
 							/>

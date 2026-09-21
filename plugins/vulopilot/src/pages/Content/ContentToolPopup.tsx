@@ -11,6 +11,7 @@ import {
 } from '@zyra/inputs';
 import { ContentTool, ToolField } from './ContentToolsGrid';
 import { ConnectVuloCloudPromptContent } from '../../components/AiCredits/ConnectVuloCloudPopup';
+import { useAiCredits } from '../../services/useAiCredits';
 
 interface WpRestPost {
 	id: number;
@@ -131,7 +132,10 @@ const ContentToolPopup: React.FC<ContentToolPopupProps> = ({
 
 	const hasProductPicker = 'generate-product-description' === tool?.actionId;
 	/** Same real "No AI provider is configured." condition AiContentAssistantSidebar.tsx's own sendToAi() checks for — ActionRunner::propose() throws this exact phrase (Rest.php's own docblock), so this offers the same real "Connect to VuloCloud" fix instead of a dead-end error notice. */
-	const isNoProviderError = errorMessage.includes('No AI provider is configured');
+	const { status: creditsStatus } = useAiCredits();
+	// Only offer "Connect" when not already connected — otherwise show the real server error.
+	const isNoProviderError =
+		errorMessage.includes('No AI provider is configured') && !creditsStatus?.connected;
 
 	useEffect(() => {
 		if (!tool) {

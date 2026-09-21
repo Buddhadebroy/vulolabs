@@ -77,11 +77,6 @@ export const CONTENT_TOOLS: ContentTool[] = [
 		actionId: 'write-post-content',
 		fields: [
 			{
-				key: 'post_id',
-				label: __('Post or page', 'vulopilot'),
-				type: 'post-picker',
-			},
-			{
 				key: 'brief',
 				label: __('What should it write about?', 'vulopilot'),
 				type: 'textarea',

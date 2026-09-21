@@ -74,20 +74,6 @@ const AEO_SECTIONS: {
 		scannerIds: ['geo-summary-block'],
 	},
 	{
-		key: 'readability',
-		title: __('Content Structure', 'vulopilot'),
-		titleIcon: 'blocks lime',
-		description: __(
-			'Paragraph length and heading hierarchy — how easily an AI system can pull out one clean, self-contained chunk to answer a question with.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No structure findings yet — run a scan to check paragraph length and heading hierarchy.',
-			'vulopilot'
-		),
-		scannerIds: ['geo-chunking', 'geo-semantic-structure'],
-	},
-	{
 		key: 'schema',
 		title: __('Schema Markup', 'vulopilot'),
 		titleIcon: 'shortcode teal',
@@ -100,41 +86,6 @@ const AEO_SECTIONS: {
 			'vulopilot'
 		),
 		scannerIds: ['aeo-schema'],
-	},
-	{
-		key: 'citation',
-		title: __('Evidence & Sources', 'vulopilot'),
-		titleIcon: 'attachment cyan',
-		description: __(
-			'Statistic-shaped claims with no citation or outbound link backing them up — the evidence an AI system needs before it will cite this site as a source.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No citation-readiness findings yet — run a scan to check for uncited claims.',
-			'vulopilot'
-		),
-		scannerIds: ['geo-citation-opportunities'],
-	},
-	{
-		key: 'other',
-		title: __('Other Signals', 'vulopilot'),
-		titleIcon: 'person green',
-		description: __(
-			'Author credentials, naming consistency, trust pages, llms.txt, and content freshness — signals that shape whether an AI system trusts an answer enough to cite it.',
-			'vulopilot'
-		),
-		emptyMessage: __(
-			'No other findings yet — run a scan to check author info, naming consistency, and freshness.',
-			'vulopilot'
-		),
-		scannerIds: [
-			'geo-author-info',
-			'geo-eeat-signals',
-			'geo-entity-naming-consistency',
-			'geo-trust-signals',
-			'llms-txt-missing',
-			'stale-content',
-		],
 	},
 ];
 

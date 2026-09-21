@@ -31,34 +31,6 @@ const GEO_TOPICS: {
 	scannerIds: string[];
 }[] = [
 		{
-			key: 'ai-summary',
-			title: __('AI Summary', 'vulopilot'),
-			titleIcon: 'ai violet',
-			description: __(
-				'Whether pages have an extractable AI summary block an AI system can lift directly.',
-				'vulopilot'
-			),
-			emptyMessage: __(
-				'No AI summary findings yet — run a scan to check for summary blocks.',
-				'vulopilot'
-			),
-			scannerIds: ['geo-summary-block'],
-		},
-		{
-			key: 'faq-questions',
-			title: __('FAQ-style Questions', 'vulopilot'),
-			titleIcon: 'question green',
-			description: __(
-				'Commonly-asked questions a page plausibly answers, but with no FAQ or Q&A block making that answer easy to extract.',
-				'vulopilot'
-			),
-			emptyMessage: __(
-				'No question-coverage findings yet — run a scan to check for FAQ opportunities.',
-				'vulopilot'
-			),
-			scannerIds: ['geo-faq-opportunity'],
-		},
-		{
 			key: 'evidence-citations',
 			title: __('Evidence & Citations', 'vulopilot'),
 			titleIcon: 'report rose',

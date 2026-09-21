@@ -177,7 +177,7 @@ const AiContentAssistantSidebar = () => {
 				// — this exact condition has a real, free fix (connect
 				// VuloCloud), so it gets its own popup instead of just
 				// another error toast.
-				if (message?.includes('No AI provider is configured')) {
+				if (message?.includes('No AI provider is configured') && !creditsStatus?.connected) {
 					setIsCloudConnectPromptOpen(true);
 					return;
 				}
@@ -320,7 +320,7 @@ const AiContentAssistantSidebar = () => {
 				)}
 				prompts={PROMPT_CHIPS}
 				onSelectPrompt={handleSelectPrompt}
-				onNewChat={handleNewChat}
+				onNewChat={turns.length > 0 || isSending ? handleNewChat : undefined}
 				onOpenHistoryPopup={handleOpenHistory}
 				turns={turns}
 				renderTurn={(turn, index) => (

@@ -6,11 +6,12 @@ import {
 	ModuleGuardComponent,
 	NoticeComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
+import { ButtonInput, ToggleInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import { useEffect, useState } from 'react';
 import { useSchemaInspector } from './useSchemaInspector';
+import type { SchemaCoverageSnapshot, SchemaPageFilter } from './useSchemaCoverage';
 import { RobotsTxtEditor } from '../CrawlRobotsSitemapSection';
 
 /**
@@ -26,11 +27,13 @@ const TYPE_COLOR: Record<string, string> = {
 	post: 'blue',
 	page: 'indigo',
 	product: 'green',
+	homepage: 'orange',
 };
 const TYPE_ICON: Record<string, string> = {
 	post: 'document',
 	page: 'document',
 	product: 'product',
+	homepage: 'home',
 };
 
 interface InspectablePage {
@@ -94,7 +97,20 @@ const pathOf = (url: string): string => {
  * site's own homepage), and automatically re-targets to the actually-
  * inspected page's own URL once one is selected.
  */
-const InspectorSection = () => {
+interface InspectorSectionProps {
+	/** Latest schema coverage sample — tells which inspectable pages have structured data and which don't. */
+	snapshot: SchemaCoverageSnapshot | null;
+	pageFilter: SchemaPageFilter;
+	onPageFilterChange: (filter: SchemaPageFilter) => void;
+}
+
+const normalizeUrl = (url: string): string => url.replace(/\/+$/, '');
+
+const InspectorSection = ({
+	snapshot,
+	pageFilter,
+	onPageFilterChange,
+}: InspectorSectionProps) => {
 	const [pages, setPages] = useState<InspectablePage[]>([]);
 	const [isLoadingPages, setIsLoadingPages] = useState(true);
 	const [selectedUrl, setSelectedUrl] = useState('');
@@ -122,6 +138,43 @@ const InspectorSection = () => {
 			.finally(() => setIsLoadingPages(false));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	// Pages the last coverage sample found schema on (or not) — keyed by
+	// URL; a page outside that sample matches only the "All" filter.
+	const schemaByUrl = new Map(
+		(snapshot?.pages ?? []).map((page) => [
+			normalizeUrl(page.url),
+			page.types.length > 0,
+		])
+	);
+	const visiblePages = pages.filter((page) => {
+		if ('all' === pageFilter) {
+			return true;
+		}
+		const hasSchema = schemaByUrl.get(normalizeUrl(page.url));
+		return 'valid' === pageFilter ? true === hasSchema : false === hasSchema;
+	});
+	const validCount = [...schemaByUrl.values()].filter(Boolean).length;
+	const filterOptions = [
+		{
+			key: 'all',
+			value: 'all',
+			label: sprintf(__('All (%d)', 'vulopilot'), pages.length),
+		},
+		{
+			key: 'valid',
+			value: 'valid',
+			label: sprintf(__('With schema (%d)', 'vulopilot'), validCount),
+		},
+		{
+			key: 'attention',
+			value: 'attention',
+			label: sprintf(
+				__('Need attention (%d)', 'vulopilot'),
+				schemaByUrl.size - validCount
+			),
+		},
+	];
 
 	const handleSelectPage = (url: string) => {
 		setSelectedUrl(url);
@@ -174,6 +227,17 @@ const InspectorSection = () => {
 						'vulopilot'
 					)}
 				>
+					{snapshot?.pages && (
+						<ToggleInput
+							options={filterOptions}
+							value={pageFilter}
+							onChange={(value) =>
+								onPageFilterChange(value as SchemaPageFilter)
+							}
+							modules={[]}
+							variant="pill"
+						/>
+					)}
 					<TableCard
 						showMenu={false}
 						hideHeader={true}
@@ -232,7 +296,7 @@ const InspectorSection = () => {
 								],
 							},
 						}}
-						rows={pages.map((page) => ({
+						rows={visiblePages.map((page) => ({
 							...page,
 							id: page.url,
 							// Real page/post/product type this row's own real
@@ -253,8 +317,8 @@ const InspectorSection = () => {
 							// description line under the title.
 							pageDesc: pathOf(page.url),
 						}))}
-						ids={pages.map((page) => page.url)}
-						totalRows={pages.length}
+						ids={visiblePages.map((page) => page.url)}
+						totalRows={visiblePages.length}
 						isLoading={isLoadingPages}
 						emptyMessage={__(
 							'No inspectable pages/products found on this site yet.',

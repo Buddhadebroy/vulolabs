@@ -3,6 +3,7 @@ import { SelectControl, TextareaControl, Button, Notice } from '@wordpress/compo
 import { useState } from '@wordpress/element';
 import { usePostData } from '../usePostData';
 import { fixWithAi } from '../api';
+import { useFieldHighlight } from '../useFieldHighlight';
 
 const SCHEMA_TYPES = [ 'Article', 'Product', 'FAQPage', 'Recipe', 'Event', 'JobPosting', 'Organization', 'LocalBusiness', 'Review' ];
 
@@ -20,21 +21,19 @@ const SCHEMA_TYPES = [ 'Article', 'Product', 'FAQPage', 'Recipe', 'Event', 'JobP
  */
 interface SchemaTabProps {
 	/**
-	 * "All SEO Issues" table's "Fix with AI" deep link — unused here.
-	 * schema/structured-data/sitewide-structured-data scanner ids resolve
-	 * to `{tab: 'schema'}` with no sub-target (seoIssueEditorTarget.ts):
-	 * landing on this tab at all (via PostSeoPanel's `initialTabName`) is
-	 * the whole highlight, since there's only the one generate button +
-	 * textarea here, nothing to distinguish between.
+	 * Deep link's resolved target — every schema-flavored scanner id
+	 * (schema/structured-data/author-schema/organization-schema/aeo-schema,
+	 * seoIssueEditorTarget.ts) resolves to 'schema_json', which scrolls to
+	 * and pulses the Generate button + JSON-LD field: the actual fix.
 	 */
-	// eslint-disable-next-line no-unused-vars
 	highlightTarget?: string;
 	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — accepted for prop-shape parity with every other tab, unused here. */
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
-export default function SchemaTab( _props: SchemaTabProps ) {
+export default function SchemaTab( { highlightTarget }: SchemaTabProps ) {
+	const isHighlighted = useFieldHighlight( highlightTarget, 'schema_json' );
 	const { postId, meta, setMeta } = usePostData();
 	const { metaKeys, isPro, shopUrl } = window.vulopilotPostSeo;
 
@@ -73,7 +72,10 @@ export default function SchemaTab( _props: SchemaTabProps ) {
 	};
 
 	return (
-		<div className="vulopilot-seo-tab vulopilot-seo-tab--schema">
+		<div
+			id="vulopilot-seo-field-schema_json"
+			className={ `vulopilot-seo-tab vulopilot-seo-tab--schema${ isHighlighted ? ' vulopilot-seo-highlight-pulse' : '' }` }
+		>
 			<SelectControl
 				label={ __( 'Schema Type', 'vulopilot' ) }
 				help={ __( 'A label for your own reference — VuloPilot\'s AI generator picks the right type automatically based on the content.', 'vulopilot' ) }

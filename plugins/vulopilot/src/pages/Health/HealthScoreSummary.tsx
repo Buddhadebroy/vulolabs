@@ -13,6 +13,7 @@ import {
 	YAxis,
 } from 'recharts';
 import { useApiList } from '../../services/useApiList';
+import { formatWpDay } from '../../services/formatWpDate';
 
 interface CategoryScores {
 	seo: number;
@@ -184,9 +185,9 @@ const HealthScoreSummary = () => {
 						<ResponsiveContainer width="100%" height="100%">
 							<AreaChart data={snapshots}>
 								<CartesianGrid strokeDasharray="3 3" />
-								<XAxis dataKey="snapshot_date" />
+								<XAxis dataKey="snapshot_date" tickFormatter={formatWpDay} />
 								<YAxis domain={[0, 100]} />
-								<Tooltip />
+								<Tooltip labelFormatter={formatWpDay} />
 								<Area
 									type="monotone"
 									dataKey="overall_score"

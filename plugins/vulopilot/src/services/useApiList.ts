@@ -1,5 +1,5 @@
 /* global appLocalizer */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getApiResponse, getApiLink } from '@zyra/core';
 import { __ } from '@wordpress/i18n';
 import type { CategoryCount } from '@zyra/table';
@@ -17,7 +17,9 @@ export interface ApiListResult<T> {
 	categoryCounts: CategoryCount[];
 	isLoading: boolean;
 	error: string | null;
-	refetch: () => void;
+	/** `{ silent: true }` reloads in the background — rows stay on screen and no loading state shows (used by live-status polling). */
+	// eslint-disable-next-line no-unused-vars
+	refetch: (options?: { silent?: boolean }) => void;
 	/**
 	 * Pass straight through to TableCard's `onQueryUpdate` prop — TableCard
 	 * owns its own `{ paged, per_page, filter, ... }` state internally
@@ -93,6 +95,8 @@ export const useApiList = <T = Record<string, unknown>>(
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [reloadToken, setReloadToken] = useState(0);
+	// Set by a `refetch({ silent: true })` call, consumed by the next fetch.
+	const silentRef = useRef(false);
 	// Matches TableCard's own initial `{ paged: 1, per_page: 10 }` state
 	// (zyra's TableCard.tsx) — TableCard doesn't accept an initial per_page
 	// override from props, so seeding anything else here would just cause
@@ -136,7 +140,12 @@ export const useApiList = <T = Record<string, unknown>>(
 
 	useEffect(() => {
 		let cancelled = false;
-		setIsLoading(true);
+		const isSilent = silentRef.current;
+		silentRef.current = false;
+
+		if (!isSilent) {
+			setIsLoading(true);
+		}
 		setError(null);
 
 		// getApiLink() already returns a URL containing its own `?` on
@@ -209,7 +218,10 @@ export const useApiList = <T = Record<string, unknown>>(
 		};
 	}, [endpoint, query, reloadToken]);
 
-	const refetch = useCallback(() => setReloadToken((n) => n + 1), []);
+	const refetch = useCallback((options?: { silent?: boolean }) => {
+		silentRef.current = Boolean(options?.silent);
+		setReloadToken((n) => n + 1);
+	}, []);
 
 	return {
 		data,

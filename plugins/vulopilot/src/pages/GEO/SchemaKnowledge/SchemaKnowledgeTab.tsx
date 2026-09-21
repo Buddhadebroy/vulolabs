@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { scrollToId } from '@zyra/core';
 import { ContainerComponent } from '@zyra/components';
 import '../SeoVisibility.scss';
 import BusinessProfileCard from './BusinessProfileCard';
-import CriticalIssuesCard from './CriticalIssuesCard';
-import ValidSchemaCard from './ValidSchemaCard';
 import KnowledgeGraphSection from './KnowledgeGraphSection';
 import IssuesSection from './IssuesSection';
 import StructuredDataSection from './StructuredDataSection';
 import InspectorSection from './InspectorSection';
+import { useSchemaCoverage } from './useSchemaCoverage';
+import type { SchemaPageFilter } from './useSchemaCoverage';
 
 export type SchemaKnowledgeSectionId =
 	| 'overview'
@@ -53,10 +53,9 @@ interface SchemaKnowledgeTabProps {
  *    replaces it), beside a real per-field table of exactly what
  *    Services\EntityExtractor detected (business name/type, people,
  *    services, products, locations, contact details) and a real "Update
- *    Information" deep link. `CriticalIssuesCard.tsx`/`ValidSchemaCard.tsx`
- *    still render beside it, unchanged — real top-severity findings and
- *    real schema-coverage stats. See those 3 files' own docblocks for
- *    exactly which real data each shows.
+ *    Information" deep link.
+ *    (The "Critical Issues" and "Pages with Valid Schema" cards that used
+ *    to sit beside it were removed per direct instruction.)
  * 2. `KnowledgeGraphSection.tsx` — "What AI & Search Understand" (all 6
  *    real entity-type counts + a real hub-and-spoke diagram in the middle
  *    pane, moved up from that section's own sidebar to sit beside the
@@ -77,9 +76,7 @@ interface SchemaKnowledgeTabProps {
  *    such card — `WhatNeedsFixingCard.tsx`'s own top-3 findings preview,
  *    which used to render here between this section and the Issues
  *    table — was removed outright per direct instruction ("remove the
- *    card - What Needs Fixing"); `CriticalIssuesCard.tsx` above now
- *    covers the same "preview of real findings, link to the full table"
- *    role.
+ *    card - What Needs Fixing").
  * 3. `StructuredDataSection.tsx` — "Technical Details (Schema & Markup)",
  *    real Schema Status stats + Schema Coverage table, unchanged
  *    internally. Used to be wrapped in its own `TechnicalDetailsSection.tsx`
@@ -105,6 +102,9 @@ interface SchemaKnowledgeTabProps {
 const SchemaKnowledgeTab = ({
 	initialSection = 'overview',
 }: SchemaKnowledgeTabProps) => {
+	const coverage = useSchemaCoverage();
+	const [pageFilter, setPageFilter] = useState<SchemaPageFilter>('all');
+
 	useEffect(() => {
 		if ('overview' !== initialSection) {
 			scrollToId(`schema-knowledge-${initialSection}`);
@@ -117,16 +117,18 @@ const SchemaKnowledgeTab = ({
 	return (
 		<ContainerComponent>
 			<BusinessProfileCard />
-			<CriticalIssuesCard />
-			<ValidSchemaCard />
 
 			<KnowledgeGraphSection />
 
 			<div id="schema-knowledge-structured-data">
-				<StructuredDataSection />
+				<StructuredDataSection coverage={coverage} />
 			</div>
 
-			<InspectorSection />
+			<InspectorSection
+				snapshot={coverage.snapshot}
+				pageFilter={pageFilter}
+				onPageFilterChange={setPageFilter}
+			/>
 		</ContainerComponent>
 	);
 };

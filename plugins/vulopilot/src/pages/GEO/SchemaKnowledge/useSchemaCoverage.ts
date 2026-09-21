@@ -9,6 +9,14 @@ export interface SchemaCoveragePage {
 	edit_url: string | null;
 }
 
+/** Which group of checked pages the Inspector's table is narrowed to. */
+export type SchemaPageFilter = 'all' | 'valid' | 'attention';
+
+export interface SchemaCoverageCheckedPage extends SchemaCoveragePage {
+	/** Every real `@type` found on this page — empty when it has no structured data. */
+	types: string[];
+}
+
 export interface SchemaCoverageRow {
 	type: string;
 	meaning: string;
@@ -27,6 +35,8 @@ export interface SchemaCoverageSnapshot {
 	/** `pages_checked - pages_with_valid_schema` — pages where the real sample found zero structured data at all. */
 	pages_needing_attention: number;
 	coverage: SchemaCoverageRow[];
+	/** Every checked page with its own found types. Absent on a snapshot cached before this field existed — re-analyze to populate. */
+	pages?: SchemaCoverageCheckedPage[];
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };

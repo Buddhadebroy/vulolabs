@@ -53,7 +53,8 @@ const parseAsUtc = (value: string): Date => {
  */
 const formatWithTokens = (
 	value: string,
-	format: string
+	format: string,
+	offsetMinutes: number = appLocalizer.gmt_offset_minutes ?? 0
 ): string => {
 	const utcDate = parseAsUtc(value);
 
@@ -61,9 +62,7 @@ const formatWithTokens = (
 		return value;
 	}
 
-	const siteLocal = new Date(
-		utcDate.getTime() + (appLocalizer.gmt_offset_minutes ?? 0) * 60000
-	);
+	const siteLocal = new Date(utcDate.getTime() + offsetMinutes * 60000);
 
 	const map: Record<string, string> = {
 		YYYY: String(siteLocal.getUTCFullYear()),
@@ -90,6 +89,25 @@ export const formatWpDate = (value?: string | null): string => {
 	}
 
 	return formatWithTokens(value, appLocalizer.date_format_js || 'YYYY-MM-DD');
+};
+
+/**
+ * Same Settings → General → Date Format, for a calendar-day-only value
+ * (`Y-m-d`, e.g. a daily snapshot's `snapshot_date` or a chart's x-axis
+ * `date`). Unlike `formatWpDate`, no timezone shift is applied: a date with
+ * no time is already the site's own calendar day, and shifting it by the
+ * site's offset could land it on the neighbouring day.
+ */
+export const formatWpDay = (value?: string | null): string => {
+	if (!value) {
+		return '';
+	}
+
+	return formatWithTokens(
+		value.slice(0, 10),
+		appLocalizer.date_format_js || 'YYYY-MM-DD',
+		0
+	);
 };
 
 /**

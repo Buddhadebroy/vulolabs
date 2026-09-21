@@ -273,7 +273,7 @@ const GeoAeoPageAnalysisPanel = ({
 									if (primaryFinding) {
 										window.location.href = buildFixWithAiLink(
 											page.edit_link,
-											primaryFinding.scanner_id
+											primaryFinding
 										);
 									}
 								},
