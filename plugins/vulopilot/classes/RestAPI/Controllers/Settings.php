@@ -9,7 +9,7 @@ namespace VuloPilot\RestAPI\Controllers;
 
 use VuloPilot\Utill;
 use VuloPilot\Repositories\ReportRepository;
-use VuloPilot\Services\EntityExtractor;
+use VuloPilot\EntityExtraction\EntityExtractor;
 use VuloPilot\Services\SchemaCoverageAnalyzer;
 use VuloPilot\Services\RobotsTxtBotAccess;
 use VuloPilot\Services\WebmasterToolsManager;
@@ -439,8 +439,8 @@ class Settings extends \WP_REST_Controller {
      * computes: Knowledge Graph's own extracted entities, the Schema
      * Coverage snapshot, and the AI-crawler-analytics robots.txt bot-group
      * parse. Deliberately scoped to real content caches only, not every
-     * transient this plugin owns — the AI-provider per-minute rate-limit
-     * counters (AIProviders\Decorators\RateLimitedProvider) and the Core
+     * transient this plugin owns — the AI per-minute rate-limit
+     * counters (AI\AiRequestSender) and the Core
      * Web Vitals beacon's own rate-limit transient aren't "stale data,"
      * clearing them would just reset a rate limit early, a different
      * (and unwanted here) effect.

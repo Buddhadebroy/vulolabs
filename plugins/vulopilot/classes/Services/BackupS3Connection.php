@@ -27,7 +27,7 @@ class BackupS3Connection {
     private const PROVIDER = 's3';
 
     /**
-     * @return array{access_key: string, secret_key: string, bucket: string, region: string}|null Null if never configured, or the stored blob can no longer be decrypted (a rotated wp_salt(), same failure mode CredentialEncryption's own docblock already describes for AI provider keys).
+     * @return array{access_key: string, secret_key: string, bucket: string, region: string}|null Null if never configured, or the stored blob can no longer be decrypted (a rotated wp_salt(), same failure mode CredentialEncryption's own docblock already describes for AI service keys).
      */
     public function get_credentials(): ?array {
         $stored = ( new BackupCredentialStore() )->get( self::PROVIDER );

@@ -144,8 +144,8 @@ class Dashboard extends \WP_REST_Controller {
 
     /**
      * Real AI usage for the current calendar month, read from
-     * `vulopilot_ai_history` — the ledger `UsageTrackingProvider` writes a
-     * row to on every real AI provider call (see its own docblock), already
+     * `vulopilot_ai_history` — the ledger `AI\AiRequestSender` writes a
+     * row to on every real AI call, already
      * consumed by the AI Usage Report and Recent Conversations. `ai_jobs_used`
      * is real; `ai_jobs_quota` stays honestly 0 (meaning "no cap configured"),
      * since no quota cap exists anywhere yet (AI-ARCHITECTURE.md's "What's not here yet" —

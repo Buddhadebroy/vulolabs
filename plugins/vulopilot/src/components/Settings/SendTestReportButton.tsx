@@ -2,9 +2,10 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { NoticeComponent } from '@zyra/components';
+import { NoticeComponent, PopupComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { formatWpDate } from '../../services/formatWpDate';
+import ShowProPopup from '../Popup/Popup';
 
 interface TestReportResult {
 	success: boolean;
@@ -38,11 +39,19 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * CrawlerAlertTestPanel.tsx's own docblock gives: this key is system-set,
  * never user-edited, so it's never one of Reports.ts's own `modal[].key`
  * fields SettingContext would otherwise seed.
+ *
+ * The whole Reports tab is a Pro feature (see Reports.ts's own docblock).
+ * Reports.ts's declarative fields get zyra's Pro tag + popup from
+ * `proSetting: true`; this button isn't a declarative field, so without Pro
+ * it shows the same "Pro" tag itself and opens `ShowProPopup` on click
+ * instead of calling the API.
  */
 const SendTestReportButton = () => {
+	const isPro = Boolean(appLocalizer.khali_dabba);
 	const [lastSentAt, setLastSentAt] = useState<string | null>(null);
 	const [isSending, setIsSending] = useState(false);
 	const [result, setResult] = useState<TestReportResult | null>(null);
+	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
 	useEffect(() => {
 		getApiResponse<StoredSettings>(getApiLink(appLocalizer, 'settings'), nonceHeaders).then(
@@ -77,17 +86,35 @@ const SendTestReportButton = () => {
 
 	return (
 		<div className="send-test-report-button">
-			<ButtonInput
-				wrapperClass="send-test-report-button-input"
-				position="left"
-				buttons={{
-					text: isSending
-						? __('Sending…', 'vulopilot')
-						: __('Send Test Report', 'vulopilot'),
-					disabled: isSending,
-					onClick: sendTestReport,
-				}}
-			/>
+			<div className="send-test-report-actions">
+				{!isPro && (
+					<span className="admin-tag pro-tag pro-tag-inline">
+						<i className="adminfont-pro-tag" />
+						{__('Pro', 'vulopilot')}
+					</span>
+				)}
+				<ButtonInput
+					wrapperClass="send-test-report-button-input"
+					position="left"
+					buttons={{
+						text: isSending
+							? __('Sending…', 'vulopilot')
+							: __('Send Test Report', 'vulopilot'),
+						disabled: isSending,
+						onClick: isPro ? sendTestReport : () => setIsProPopupOpen(true),
+					}}
+				/>
+			</div>
+
+			<PopupComponent
+				open={isProPopupOpen}
+				onClose={() => setIsProPopupOpen(false)}
+				width={31.25}
+				height="auto"
+				position="lightbox"
+			>
+				<ShowProPopup />
+			</PopupComponent>
 
 			{result && (
 				<NoticeComponent

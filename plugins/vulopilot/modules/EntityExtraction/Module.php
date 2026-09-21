@@ -7,7 +7,7 @@
 
 namespace VuloPilot\EntityExtraction;
 
-use VuloPilot\Services\EntityExtractor;
+use VuloPilot\EntityExtraction\EntityExtractor;
 
 defined( 'ABSPATH' ) || exit;
 
