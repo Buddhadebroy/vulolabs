@@ -102,7 +102,7 @@ const HistoryTimeline = ({
 							<div
 								key={row.id}
 								id={`vulopilot-history-row-${row.id}`}
-								className={`history-row ${selectedRow?.id === row.id ? 'selected' : ''}${isPulsing ? ' vulopilot-history-row-highlight-pulse' : ''}`}
+								className={`history-row ${selectedRow?.id === row.id ? 'selected' : ''}`}
 								role="button"
 								tabIndex={0}
 								onClick={() => onSelectRow(row)}

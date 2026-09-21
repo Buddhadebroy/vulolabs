@@ -156,18 +156,6 @@
     }
 }
 
-@keyframes vulopilot-history-row-highlight-pulse {
-
-    0%,
-    100% {
-        background-color: transparent;
-    }
-
-    20%,
-    60% {
-        background-color: rgba(124, 58, 237, 0.3);
-    }
-}
 
 // BrokenLinksSection.tsx's own "Last scan completed" / "Why fix broken
 // links?" card pair — real `CardComponent`s side by side (`ColumnComponent
@@ -710,5 +698,40 @@
         display: flex;
         flex-direction: column;
         gap: 0.625rem;
+    }
+}
+// AutomationStatusWidget.tsx's "Unlock more automations" banner.
+.automation-upgrade-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, $theme-color 8%, white);
+
+    .automation-upgrade-banner-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 0.625rem;
+        background: color-mix(in srgb, $theme-color 14%, white);
+        color: $theme-color;
+        font-size: 1.375rem;
+    }
+
+    .automation-upgrade-banner-text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .automation-upgrade-banner-title {
+        font-weight: 600;
+        color: $theme-color;
+        font-size: 1.063rem;
+        margin-bottom: 0.25rem;
     }
 }
