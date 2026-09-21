@@ -148,8 +148,7 @@ class Dashboard extends \WP_REST_Controller {
      * row to on every real AI provider call (see its own docblock), already
      * consumed by the AI Usage Report and Recent Conversations. `ai_jobs_used`
      * is real; `ai_jobs_quota` stays honestly 0 (meaning "no cap configured"),
-     * since `vulopilot_ai_provider_configs.quota_limit` is schema-only and
-     * nothing sets it yet (AI-ARCHITECTURE.md's "What's not here yet" —
+     * since no quota cap exists anywhere yet (AI-ARCHITECTURE.md's "What's not here yet" —
      * quota enforcement). No widget on the Dashboard/AI Copilot pages reads
      * these two fields today (the AI Copilot page's own usage widget was
      * replaced by RecommendedActionsCard — a real-findings summary, not a

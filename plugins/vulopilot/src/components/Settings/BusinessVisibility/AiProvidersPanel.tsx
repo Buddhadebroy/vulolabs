@@ -32,7 +32,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * individually configure with their own credentials are gone by direct
  * instruction: VuloCloud is now the only supported way to get an AI
  * provider key, so this panel is just the "Connect to VuloCloud"/
- * "Disconnect" section — no local `vulopilot_ai_provider_configs` UI at
+ * "Disconnect" section — no local provider-config UI at
  * all anymore. See Controllers\AiProviders' own docblock (GET-only now)
  * and AIAssistant.tsx's own "Online" badge (now checks `vulocloud_status`
  * too, not just a local provider row that can no longer exist for a new

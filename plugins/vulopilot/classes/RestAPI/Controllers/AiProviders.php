@@ -7,7 +7,6 @@
 
 namespace VuloPilot\RestAPI\Controllers;
 
-use VuloPilot\Repositories\AiProviderConfigRepository;
 use VuloPilot\Services\AiByokGatewayClient;
 use VuloPilot\Services\AiCreditsConnection;
 use VuloPilot\Services\CredentialEncryption;
@@ -93,9 +92,6 @@ class AiProviders extends \WP_REST_Controller {
      * @inheritDoc
      */
     public function get_items( $request ) {
-        $repository = new AiProviderConfigRepository();
-        $result     = $repository->find_all( array( 'per_page' => 100 ) );
-
         // A cheap connection-status check (AiByokGatewayClient::status(),
         // never a key/prompt) — the real, current answer to "does AI work
         // for this site," now that VuloCloud is the only supported way to
@@ -104,7 +100,6 @@ class AiProviders extends \WP_REST_Controller {
 
         return rest_ensure_response(
             array(
-                'configured'       => array_map( array( $this, 'prepare_config_for_response' ), $result['data'] ),
                 'vulocloud_status' => is_wp_error( $vulocloud_status )
                     ? array( 'connected' => false, 'configured' => false )
                     : $vulocloud_status,
@@ -127,43 +122,5 @@ class AiProviders extends \WP_REST_Controller {
         }
 
         return rest_ensure_response( array( 'url' => $url ) );
-    }
-
-    /**
-     * Strips the encrypted `credentials` column out of a stored row before
-     * it ever reaches a response, replacing it with two booleans — no
-     * reason to hand back even the encrypted form over the wire.
-     *
-     * `credential_ok` is real, not a copy of `has_credential`: it actually
-     * runs `CredentialEncryption::decrypt()` (cheap, local, no network
-     * call — the same check ProviderRegistry::build_provider() itself
-     * makes before ever using a stored credential for a real request).
-     * A site that rotates its auth salts/keys after a credential was
-     * saved (wp-config.php regenerated, a database copied to a fresh
-     * environment, ...) leaves decrypt() returning null forever after —
-     * before this field existed, `has_credential`/`is_active` alone told
-     * every consumer (this panel, AI Copilot's "Online" badge) a provider
-     * was fine right up until an actual AI call tried to use it and
-     * failed with "No AI provider is configured," with nothing in
-     * between honestly saying why. Now both surfaces can show the real
-     * state instead of silently disagreeing with each other.
-     *
-     * @param array<string, mixed> $config A vulopilot_ai_provider_configs row.
-     * @return array<string, mixed>
-     */
-    private function prepare_config_for_response( array $config ): array {
-        $has_credential = ! empty( $config['credentials'] );
-
-        return array(
-            'id'             => (int) $config['id'],
-            'provider'       => $config['provider'],
-            'label'          => $config['label'],
-            'default_model'  => $config['default_model'],
-            'is_active'      => (bool) $config['is_active'],
-            'has_credential' => $has_credential,
-            'credential_ok'  => $has_credential
-                && null !== CredentialEncryption::decrypt( (string) $config['credentials'] ),
-            'created_at'     => $config['created_at'],
-        );
     }
 }
