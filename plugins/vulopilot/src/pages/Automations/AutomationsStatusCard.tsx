@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { CardComponent } from '@zyra/components';
+import { AnalyticsComponent, CardComponent } from '@zyra/components';
 import type { AutomationRow } from './automationsTypes';
 
 interface StatusCounts {
@@ -15,23 +15,12 @@ const BUILTIN_TRIGGERS = [ 'free_full_site_scan', 'free_visibility_report' ];
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
-interface StatusTileProps {
-	tone: 'green' | 'gray' | 'blue' | 'purple';
-	icon: string;
-	value: number | string;
-	label: string;
-	sub: string;
-}
-
-const StatusTile = ( { tone, icon, value, label, sub }: StatusTileProps ) => (
-	<div className={ `automation-status-tile is-${ tone }` }>
-		<span className="automation-status-tile-icon">
-			<i className={ `adminfont-${ icon }` } />
-		</span>
-		<strong className="automation-status-tile-value">{ value }</strong>
-		<div className="automation-status-tile-label">{ label }</div>
-		<small className="automation-status-tile-sub">{ sub }</small>
-	</div>
+/** Label with its smaller caption underneath — `AnalyticsComponent`'s `text` slot takes any node. */
+const tileText = ( label: string, sub: string ) => (
+	<>
+		{ label }
+		{ sub && <div className="desc">{ sub }</div> }
+	</>
 );
 
 /**
@@ -95,44 +84,41 @@ const AutomationsStatusCard = ( { refetchSignal }: { refetchSignal: number } ) =
 			titleIcon="ai"
 			desc={ __( 'A quick overview of your automation health.', 'vulopilot' ) }
 		>
-			<div className="automation-status-tiles">
-				<StatusTile
-					tone="green"
-					icon="check"
-					value={ isLoading ? dash : counts.enabled }
-					label={ __( 'Active', 'vulopilot' ) }
-					sub={
-						isLoading
-							? ''
-							: sprintf(
-									/* translators: %d is the total number of automations (built-in + custom). */
-									_n( 'out of %d automation', 'out of %d automations', total, 'vulopilot' ),
-									total
-								)
-					}
-				/>
-				<StatusTile
-					tone="gray"
-					icon="clock"
-					value={ isLoading ? dash : counts.disabled }
-					label={ __( 'Not active', 'vulopilot' ) }
-					sub={ __( 'needs setup', 'vulopilot' ) }
-				/>
-				<StatusTile
-					tone="blue"
-					icon="error"
-					value={ isLoading ? dash : errors }
-					label={ __( 'Errors', 'vulopilot' ) }
-					sub={ __( 'in the last 30 days', 'vulopilot' ) }
-				/>
-				<StatusTile
-					tone="purple"
-					icon="ai"
-					value={ isLoading ? dash : custom }
-					label={ __( 'Custom automations', 'vulopilot' ) }
-					sub={ __( 'created', 'vulopilot' ) }
-				/>
-			</div>
+			<AnalyticsComponent
+				variant="small"
+				cols={ 2 }
+				data={ [
+					{
+						icon: 'check green',
+						number: isLoading ? dash : counts.enabled,
+						text: tileText(
+							__( 'Active', 'vulopilot' ),
+							isLoading
+								? ''
+								: sprintf(
+										/* translators: %d is the total number of automations (built-in + custom). */
+										_n( 'out of %d automation', 'out of %d automations', total, 'vulopilot' ),
+										total
+									)
+						),
+					},
+					{
+						icon: 'clock orange',
+						number: isLoading ? dash : counts.disabled,
+						text: tileText( __( 'Not active', 'vulopilot' ), __( 'needs setup', 'vulopilot' ) ),
+					},
+					{
+						icon: 'error red',
+						number: isLoading ? dash : errors,
+						text: tileText( __( 'Errors', 'vulopilot' ), __( 'in the last 30 days', 'vulopilot' ) ),
+					},
+					{
+						icon: 'ai purple',
+						number: isLoading ? dash : custom,
+						text: tileText( __( 'Custom automations', 'vulopilot' ), __( 'created', 'vulopilot' ) ),
+					},
+				] }
+			/>
 		</CardComponent>
 	);
 };

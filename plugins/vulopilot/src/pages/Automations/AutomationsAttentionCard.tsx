@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { CardComponent } from '@zyra/components';
+import { CardComponent, ListComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import type { AutomationRow } from './automationsTypes';
 
@@ -66,14 +66,25 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 			title={
 				<>
 					{__('Needs your attention', 'vulopilot')}
-					{failing.length > 0 && (
+					{/* {failing.length > 0 && (
 						<span className="automation-attention-count">{failing.length}</span>
-					)}
+					)} */}
 				</>
 			}
 			titleIcon="error"
 			desc={__('Automations that failed and may need a retry.', 'vulopilot')}
 			isLoading={isLoading}
+			action={
+				failing.length > 0 ? (
+					<ButtonInput
+						buttons={{
+							color: 'text-purple',
+							text: __('View all issues', 'vulopilot'),
+							onClick: onViewAll,
+						}}
+					/>
+				) : undefined
+			}
 		>
 			{!isLoading && 0 === failing.length && (
 				<div className="automation-attention-empty">
@@ -81,42 +92,36 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 						<i className="adminfont-check" />
 						<p>{__("You're all caught up — nothing needs attention right now.", 'vulopilot')}</p>
 					</div>
-					<span className="automation-attention-celebrate" aria-hidden="true">🎉</span>
 					<strong>{__('Great job!', 'vulopilot')}</strong>
 					<small>{__('Your automations are running smoothly.', 'vulopilot')}</small>
 				</div>
 			)}
-			<div className="automation-attention-list">
-				{failing.map((row) => (
-					<div className="automation-attention-row" key={row.id}>
-						<i className="adminfont-error" />
-						<div className="automation-attention-body">
-							<strong>
-								{sprintf(
-									/* translators: %s is the real automation's own name whose last run failed. */
-									__('%s couldn\'t finish', 'vulopilot'),
-									row.name
-								)}
-							</strong>
-							<p>{__('The last scheduled run didn\'t complete successfully.', 'vulopilot')}</p>
-						</div>
-						<ButtonInput
-							buttons={{
-								text:
-									retryingId === row.id
-										? __('Retrying…', 'vulopilot')
-										: __('Try Again', 'vulopilot'),
-								onClick: () => handleRetry(row),
-								disabled: null !== retryingId,
-							}}
-						/>
-					</div>
-				))}
-			</div>
 			{failing.length > 0 && (
-				<span className="automation-attention-view-all" onClick={onViewAll}>
-					{__('View all issues ', 'vulopilot')}
-				</span>
+				<ListComponent
+					className="mini-card report"
+					items={failing.map((row) => ({
+						id: String(row.id),
+						icon: 'error red',
+						title: sprintf(
+							/* translators: %s is the real automation's own name whose last run failed. */
+							__('%s couldn\'t finish', 'vulopilot'),
+							row.name
+						),
+						desc: __('The last scheduled run didn\'t complete successfully.', 'vulopilot'),
+						tags: (
+							<ButtonInput
+								buttons={{
+									text:
+										retryingId === row.id
+											? __('Retrying…', 'vulopilot')
+											: __('Try Again', 'vulopilot'),
+									onClick: () => handleRetry(row),
+									disabled: null !== retryingId,
+								}}
+							/>
+						),
+					}))}
+				/>
 			)}
 		</CardComponent>
 	);
