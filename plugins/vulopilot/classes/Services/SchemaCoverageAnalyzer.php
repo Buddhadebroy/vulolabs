@@ -9,6 +9,7 @@ namespace VuloPilot\Services;
 
 use VuloPilot\Repositories\FindingRepository;
 use VuloPilot\Scanners\Basic\StructuredDataValidationScanner;
+use VuloPilot\ValueObjects\ScanResult;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -64,6 +65,24 @@ class SchemaCoverageAnalyzer {
         'Review'          => 'A customer review',
         'AggregateRating' => 'A rolled-up rating',
     );
+
+    /**
+     * Regenerates the coverage snapshot whenever the schema scanner
+     * finishes — i.e. as part of any "Run scan" that includes schema — so
+     * the Schema Coverage table fills itself in without a separate button.
+     * Hooked on `vulopilot_scan_completed` (fires once per scanner) and
+     * keyed to the one `schema` scanner so it runs once per scan.
+     *
+     * @param ScanResult $result The completed scanner result.
+     * @return void
+     */
+    public function refresh_after_scan( ScanResult $result ): void {
+        if ( 'schema' !== $result->get_scanner_id() ) {
+            return;
+        }
+
+        $this->analyze();
+    }
 
     /**
      * Settings → Developer Tools' "Clear cache" — same public

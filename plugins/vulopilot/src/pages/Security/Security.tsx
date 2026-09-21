@@ -33,6 +33,7 @@ const Security = () => {
 				headerCustomContent={
 					<RunScanHeaderExtra
 						categories={['security']}
+						label={__('Run Security Scan', 'vulopilot')}
 						settingsSubtab="security-scanning"
 					/>
 				}

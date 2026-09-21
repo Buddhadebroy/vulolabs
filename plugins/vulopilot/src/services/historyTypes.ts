@@ -203,6 +203,51 @@ export const humanizeConversationExcerpt = (
 	return trimmed;
 };
 
+const SCANNER_ACRONYMS: Record<string, string> = {
+	ssl: 'SSL',
+	seo: 'SEO',
+	geo: 'GEO',
+	aeo: 'AEO',
+	cdn: 'CDN',
+	css: 'CSS',
+	php: 'PHP',
+	ai: 'AI',
+	llms: 'LLMs',
+	txt: 'txt',
+	wcag: 'WCAG',
+	aria: 'ARIA',
+};
+
+/**
+ * The compact "Recent activity" lists (dashboard widget, Security, …) feed
+ * rows with no scan join, so a scan row would otherwise be titled with its
+ * raw log message (`Scan "about-page-analysis" completed with 0
+ * finding(s).`). Recovers a readable scanner name from that message so
+ * these rows read like the full History tab's: "About Page Analysis" as
+ * the title, the message as the description. Returns null when the message
+ * isn't in that shape.
+ */
+const scannerTitleFromMessage = (row: HistoryRow): string | null => {
+	if (!row.event_type.startsWith('scan.')) {
+		return null;
+	}
+
+	const slug = /^Scan "([^"]+)"/.exec(row.message)?.[1];
+
+	if (!slug) {
+		return null;
+	}
+
+	return slug
+		.split(/[-_]/)
+		.map(
+			(word) =>
+				SCANNER_ACRONYMS[word] ??
+				word.charAt(0).toUpperCase() + word.slice(1)
+		)
+		.join(' ');
+};
+
 /**
  * Every real row title comes straight from its real scan/change/
  * conversation label — never invented copy. `scan` rows always carry a
@@ -227,7 +272,7 @@ export const rowTitle = (row: HistoryRow): string => {
 		);
 	}
 
-	return row.message;
+	return scannerTitleFromMessage(row) ?? row.message;
 };
 
 const CHANGE_ICON_BY_EVENT: Record<string, string> = {

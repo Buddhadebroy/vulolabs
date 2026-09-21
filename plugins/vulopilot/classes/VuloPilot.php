@@ -352,6 +352,10 @@ final class VuloPilot {
         // shape as every Services\* class above.
         $this->container['performance_score_snapshot_recorder'] = new Services\PerformanceScoreSnapshotRecorder();
         $this->container['security_score_snapshot_recorder']    = new Services\SecurityScoreSnapshotRecorder();
+        // Schema Coverage table (Schema & Knowledge tab) refreshes itself
+        // whenever a scan that includes the schema scanner completes.
+        $this->container['schema_coverage_analyzer']            = new Services\SchemaCoverageAnalyzer();
+        add_action( 'vulopilot_scan_completed', array( $this->container['schema_coverage_analyzer'], 'refresh_after_scan' ), 30 );
         $this->container['performance_request_logger']          = new Services\PerformanceRequestLogger();
         $this->container['performance_optimizations']           = new Services\PerformanceOptimizations();
 

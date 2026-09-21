@@ -1,6 +1,6 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
-import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse } from '@zyra/core';
 
 export interface SchemaCoveragePage {
 	id: number;
@@ -58,14 +58,11 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 export const useSchemaCoverage = (): {
 	snapshot: SchemaCoverageSnapshot | null;
 	isLoading: boolean;
-	isAnalyzing: boolean;
-	analyze: () => void;
 } => {
 	const [snapshot, setSnapshot] = useState<SchemaCoverageSnapshot | null>(
 		null
 	);
 	const [isLoading, setIsLoading] = useState(true);
-	const [isAnalyzing, setIsAnalyzing] = useState(false);
 
 	useEffect(() => {
 		getApiResponse<SchemaCoverageSnapshot | null>(
@@ -76,20 +73,5 @@ export const useSchemaCoverage = (): {
 			.finally(() => setIsLoading(false));
 	}, []);
 
-	const analyze = () => {
-		setIsAnalyzing(true);
-		sendApiResponse<SchemaCoverageSnapshot>(
-			appLocalizer,
-			getApiLink(appLocalizer, 'schema/coverage'),
-			{}
-		)
-			.then((response) => {
-				if (response) {
-					setSnapshot(response);
-				}
-			})
-			.finally(() => setIsAnalyzing(false));
-	};
-
-	return { snapshot, isLoading, isAnalyzing, analyze };
+	return { snapshot, isLoading };
 };

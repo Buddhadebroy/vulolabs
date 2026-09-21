@@ -263,6 +263,7 @@ const SeoVisibility = () => {
 				headerCustomContent={
 					<RunScanHeaderExtra
 						categories={['geo', 'seo', 'images', 'schema', 'links']}
+						label={__('Run Visibility Scan', 'vulopilot')}
 						settingsSubtab="seo-content"
 					/>
 				}
