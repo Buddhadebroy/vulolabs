@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
-import { AnalyticsComponent, ListComponent, SectionComponent, CardComponent } from '@zyra/components';
+import { AnalyticsComponent, ListComponent, SectionComponent, CardComponent, TypographyComponent } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import DashboardWidget from './DashboardWidget';
 import AutomationStatusWidget from './AutomationStatusWidget';
@@ -321,38 +321,25 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 
 	/** Mockup order, two per row — each header's arrow jumps to that area's real page. */
 	const sections = [
-		{
-			...byId.content,
-			desc: __('Posts, pages and comments on your site.', 'vulopilot'),
-			link: '?page=vulopilot#&tab=content',
-		},
-		{
-			...byId.company,
-			title: __('Organization', 'vulopilot'),
-			desc: __('Your business entity, locations and categories.', 'vulopilot'),
-			link: '?page=vulopilot#&tab=settings&subtab=business-information',
-		},
+		{ ...byId.content, link: '?page=vulopilot#&tab=content' },
+
 		{
 			...byId.products,
 			title: __('Commerce', 'vulopilot'),
-			desc: __('The products and services you offer.', 'vulopilot'),
 			link: '?page=vulopilot#&tab=commerce',
 		},
 		{
 			...byId.users,
-			desc: __('The people who use and visit your site.', 'vulopilot'),
 			rows: [...byId.users.rows, ...byId.additional.rows],
 			link: null as string | null,
 		},
+	];
+	const sections2 = [
+		{ ...byId.seo, link: '?page=vulopilot#&tab=seo-visibility' },
 		{
-			...byId.seo,
-			desc: __('How well your site is set up to be found.', 'vulopilot'),
-			link: '?page=vulopilot#&tab=seo-visibility',
-		},
-		{
-			...byId.technology,
-			desc: __('Your WordPress, PHP and plugin setup.', 'vulopilot'),
-			link: '?page=vulopilot#&tab=site-health',
+			...byId.company,
+			title: __('Organization', 'vulopilot'),
+			link: '?page=vulopilot#&tab=settings&subtab=business-information',
 		},
 	];
 
@@ -388,24 +375,19 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 							)}
 						</div>
 						<div className="site-overview-identity">
-							<div className="site-overview-name">
+							<TypographyComponent variant="h4">
 								{appLocalizer.site_title || brandName}
-							</div>
+							</TypographyComponent>
 							<a href={siteUrl} target="_blank" rel="noreferrer" className="site-overview-url">
-								{siteUrl.replace(/^https?:\/\//, '')}
+								<TypographyComponent variant="desc" color="purple">
+									{siteUrl.replace(/^https?:\/\//, '')}
+								</TypographyComponent>
+								<i className='adminfont-external'/>
 							</a>
 							{appLocalizer.site_description && (
 								<div className="desc">{appLocalizer.site_description}</div>
 							)}
-							<ButtonInput
-								position="left"
-								buttons={{
-									text: __('View site', 'vulopilot'),
-									rightIcon: 'arrow-right',
-									color: 'border-purple',
-									onClick: () => window.open(siteUrl, '_blank', 'noopener,noreferrer'),
-								}}
-							/>
+							
 						</div>
 					</div>
 					<AnalyticsComponent
@@ -423,26 +405,47 @@ const SiteSnapshotWidget: React.FC<WidgetProps> = ({
 					/>
 				</div>
 				<div className="site-overview-groups">
-					{sections.map((group) => (
-						<div key={group.id} className={`site-snapshot-group-card is-${group.id}`}>
-							<CardComponent
-								title={group.title}
-								titleIcon={group.icon}
-								desc={group.desc}
-							>
-								<ListComponent
-									className="mini-card report without-border site-snapshot-list"
-									items={group.rows.map((row) => ({
-										id: row.key,
-										icon: row.icon,
-										title: row.label,
-										tags: <span className="desc">{row.value}</span>,
-									}))}
-								/>
-							</CardComponent>
-						</div>
+					<div className="group">
+						{sections.map((group) => (
+							<div key={group.id} className={`site-snapshot-group-card is-${group.id}`}>
+								<CardComponent
+									title={group.title}
+									icon={group.icon}
+								>
+									<ListComponent
+										className="mini-card report without-border site-snapshot-list"
+										items={group.rows.map((row) => ({
+											id: row.key,
+											icon: row.icon,
+											title: row.label,
+											tags: <span className="desc">{row.value}</span>,
+										}))}
+									/>
+								</CardComponent>
+							</div>
 
-					))}
+						))}
+					</div>
+					<div className="group">
+						{sections2.map((group) => (
+							<div key={group.id} className={`site-snapshot-group-card is-${group.id}`}>
+								<CardComponent
+									title={group.title}
+									icon={group.icon}
+								>
+									<ListComponent
+										className="mini-card report without-border site-snapshot-list"
+										items={group.rows.map((row) => ({
+											id: row.key,
+											icon: row.icon,
+											title: row.label,
+											tags: <span className="desc">{row.value}</span>,
+										}))}
+									/>
+								</CardComponent>
+							</div>
+						))}
+					</div>
 				</div>
 			</DashboardWidget>
 			<AutomationStatusWidget
