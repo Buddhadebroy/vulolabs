@@ -582,7 +582,9 @@
     gap: 1rem;
 
     .left-section,
-    .right-section{
-        
+    .right-section{ 
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
     }
 }
