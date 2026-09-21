@@ -166,15 +166,29 @@ const HistoryTimeline = ({
 											/>
 										)}
 									</div>
-									<i
-										className="adminfont-arrow-right history-row-arrow"
-										role="button"
-										tabIndex={0}
-										onClick={(event) => {
-											event.stopPropagation();
-											(onArrowClick ?? onSelectRow)(row);
-										}}
-									/>
+									{/* Same "More Details" / "Viewing" toggle the issues tables use for their row action; the click still selects the row (or runs `onArrowClick`). */}
+									<span
+										className="history-row-action"
+										onClick={(event) => event.stopPropagation()}
+									>
+										<ButtonInput
+											buttons={
+												selectedRow?.id === row.id
+													? {
+															text: __('Viewing', 'vulopilot'),
+															icon: 'eye',
+															color: 'text-green',
+															onClick: () => (onArrowClick ?? onSelectRow)(row),
+														}
+													: {
+															text: __('More Details', 'vulopilot'),
+															rightIcon: 'pagination-next-arrow',
+															color: 'text-purple',
+															onClick: () => (onArrowClick ?? onSelectRow)(row),
+													}
+											}
+										/>
+									</span>
 								</div>
 							</div>
 						);
