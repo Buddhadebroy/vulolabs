@@ -10,11 +10,11 @@ import {
 } from '@zyra/components';
 import ShowProPopup from '../../components/Popup/Popup';
 import { useFilterSlot } from '../../services/useFilterSlot';
-import AutomationsStatsRow from './AutomationsStatsRow';
+import AutomationsStatusCard from './AutomationsStatusCard';
+import AutomationsResourcesCard from './AutomationsResourcesCard';
 import AutomationsAttentionCard from './AutomationsAttentionCard';
-import AutomationsPeriodStatsCard from './AutomationsPeriodStatsCard';
 import BuiltinAutomationCards from './BuiltinAutomationCards';
-import { AutomationsManageDummy, AutomationsActivityDummy } from './AutomationsProDummies';
+import { AutomationsActivityDummy } from './AutomationsProDummies';
 import { AutomationRow, AutomationTemplate, getAutomationTemplateById } from './automationsTypes';
 import './Automations.scss';
 
@@ -282,33 +282,38 @@ const Automations = () => {
 					)} */}
 				</ColumnComponent>
 
-				<ColumnComponent grid={6}>
-					<AutomationsStatsRow />
+				<ColumnComponent grid={7} fullHeight>
+					<AutomationsStatusCard refetchSignal={refetchSignal} />
 				</ColumnComponent>
-				<ColumnComponent grid={6}>
-					<AutomationsPeriodStatsCard />
+				<ColumnComponent grid={5} fullHeight>
 					<AutomationsAttentionCard onViewAll={scrollToTable} refetchSignal={refetchSignal} />
 				</ColumnComponent>
 
 				<ColumnComponent grid={7} fullHeight>
-					{Manage ? (
-						<Manage
-							hasWizard={Boolean(Wizard)}
-							onOpenRow={openRow}
-							onRequireProUpsell={openProPopup}
-							refetchSignal={refetchSignal}
-						/>
-					) : (
-						<AutomationsManageDummy onClick={openProPopup} />
-					)}
-				</ColumnComponent>
-				<ColumnComponent grid={5} fullHeight>
 					{Activity ? (
 						<Activity onViewHistory={scrollToTable} refetchSignal={refetchSignal} />
 					) : (
 						<AutomationsActivityDummy onClick={openProPopup} />
 					)}
 				</ColumnComponent>
+				<ColumnComponent grid={5} fullHeight>
+					<AutomationsResourcesCard onCreateCustom={openCreateWizard} />
+				</ColumnComponent>
+
+				{/* Pro's own "Your automations" list — the redesigned page no longer
+				shows Free's fabricated `AutomationsManageDummy` preview here (the
+				mockup has no such card), but real Pro users still need to manage
+				their custom automations, so the real slot member stays. */}
+				{Manage && (
+					<ColumnComponent grid={12}>
+						<Manage
+							hasWizard={Boolean(Wizard)}
+							onOpenRow={openRow}
+							onRequireProUpsell={openProPopup}
+							refetchSignal={refetchSignal}
+						/>
+					</ColumnComponent>
+				)}
 				{Wizard && (
 					<Wizard
 						openSignal={wizardOpenSignal}

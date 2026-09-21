@@ -31,9 +31,9 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 	const [isLoading, setIsLoading] = useState(true);
 	const [retryingId, setRetryingId] = useState<number | null>(null);
 
+	// `isLoading` is only true for the first load — a refetch (after a toggle
+	// elsewhere on the page) shouldn't flash this card back into its skeleton.
 	useEffect(() => {
-		setIsLoading(true);
-
 		getApiResponse<{ data: AutomationRow[] } | AutomationRow[]>(
 			`${getApiLink(appLocalizer, 'automations')}?per_page=100`,
 			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
@@ -77,8 +77,13 @@ const AutomationsAttentionCard = ({ onViewAll, refetchSignal }: AutomationsAtten
 		>
 			{!isLoading && 0 === failing.length && (
 				<div className="automation-attention-empty">
-					<i className="adminfont-check" />
-					<p>{__("You're all caught up — nothing needs attention right now.", 'vulopilot')}</p>
+					<div className="automation-attention-empty-pill">
+						<i className="adminfont-check" />
+						<p>{__("You're all caught up — nothing needs attention right now.", 'vulopilot')}</p>
+					</div>
+					<span className="automation-attention-celebrate" aria-hidden="true">🎉</span>
+					<strong>{__('Great job!', 'vulopilot')}</strong>
+					<small>{__('Your automations are running smoothly.', 'vulopilot')}</small>
 				</div>
 			)}
 			<div className="automation-attention-list">

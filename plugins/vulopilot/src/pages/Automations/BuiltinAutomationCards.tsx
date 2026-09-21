@@ -1,9 +1,10 @@
 /* global appLocalizer */
 import { useEffect, useRef, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { CardComponent, FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput } from '@zyra/inputs';
+import { formatWpDate, formatWpTime, isWpToday } from '../../services/formatWpDate';
 import type { AutomationRow } from './automationsTypes';
 
 /** Automations\BuiltinAutomationSeeder's own two TRIGGER_* constants — the only trigger_type values this component ever renders a card for. */
@@ -51,8 +52,64 @@ const parseTriggerConfig = ( row: BuiltinRow ): BuiltinTriggerConfig => {
 	}
 };
 
+/** Same day list `DAY_OPTIONS` above uses, keyed by number — for the "Every Monday" wording on the report card's frequency tile. */
+const dayLabel = ( day: number ): string =>
+	DAY_OPTIONS.find( ( option ) => option.value === String( day ) )?.label ?? '';
+
+/** Human wording for a row's real `trigger_config.frequency` (+ `day_of_week`) — the mockup's own "Every day"/"Every Monday". */
+const frequencyLabel = ( config: BuiltinTriggerConfig ): string => {
+	switch ( config.frequency ) {
+		case 'daily':
+			return __( 'Every day', 'vulopilot' );
+		case 'weekly':
+			return sprintf(
+				/* translators: %s is a weekday name, e.g. "Monday". */
+				__( 'Every %s', 'vulopilot' ),
+				dayLabel( config.day_of_week ?? 1 )
+			);
+		case 'monthly':
+			return __( 'Every month', 'vulopilot' );
+		case 'manual':
+			return __( 'Manual only', 'vulopilot' );
+		default:
+			return __( 'Not scheduled', 'vulopilot' );
+	}
+};
+
+/** "Today, 9:00 AM" / "September 17, 2026" + time — same real site-timezone formatting helpers the rest of this page already uses. */
+const formatRunTime = ( isoDate: string ): { primary: string; secondary: string } => {
+	const time = formatWpTime( isoDate );
+
+	if ( isWpToday( isoDate ) ) {
+		return { primary: __( 'Today', 'vulopilot' ), secondary: time };
+	}
+
+	return { primary: formatWpDate( isoDate ), secondary: time };
+};
+
+interface InfoTileProps {
+	icon: string;
+	label: string;
+	value: string;
+	sub?: string;
+}
+
+const InfoTile = ( { icon, label, value, sub }: InfoTileProps ) => (
+	<div className="builtin-automation-tile">
+		<span className="builtin-automation-tile-icon">
+			<i className={ `adminfont-${ icon }` } />
+		</span>
+		<div>
+			<div className="builtin-automation-tile-label">{ label }</div>
+			<strong className="builtin-automation-tile-value">{ value }</strong>
+			{ sub && <div className="builtin-automation-tile-sub">{ sub }</div> }
+		</div>
+	</div>
+);
+
 interface BuiltinAutomationCardProps {
 	row: BuiltinRow;
+	kind: 'scan' | 'report';
 	title: string;
 	description: string;
 	frequencyOptions: { label: string; value: string }[];
@@ -61,13 +118,16 @@ interface BuiltinAutomationCardProps {
 
 const BuiltinAutomationCard = ( {
 	row,
+	kind,
 	title,
 	description,
 	frequencyOptions,
 	onChanged,
 }: BuiltinAutomationCardProps ) => {
 	const [ isRunning, setIsRunning ] = useState( false );
+	const [ isEditing, setIsEditing ] = useState( false );
 	const config = parseTriggerConfig( row );
+	const isEnabled = 'enabled' === row.status;
 
 	const patch = ( data: Record<string, unknown> ) => {
 		sendApiResponse( appLocalizer, getApiLink( appLocalizer, `automations/${ row.id }` ), data ).then(
@@ -80,7 +140,7 @@ const BuiltinAutomationCard = ( {
 	};
 
 	const handleToggle = () => {
-		patch( { status: 'enabled' === row.status ? 'disabled' : 'enabled' } );
+		patch( { status: isEnabled ? 'disabled' : 'enabled' } );
 	};
 
 	const handleFrequencyChange = ( value: string ) => {
@@ -109,52 +169,132 @@ const BuiltinAutomationCard = ( {
 			.finally( () => setIsRunning( false ) );
 	};
 
+	const nextRun = row.next_run_at ? formatRunTime( row.next_run_at ) : null;
+	const lastRun = row.last_run_finished_at ? formatRunTime( row.last_run_finished_at ) : null;
+
+	// The report card's primary button is "Enable report" while it's off (the
+	// mockup's own wording) and only becomes a real "send now" once enabled;
+	// the scan card's is always "Run scan now".
+	const isEnableAction = 'report' === kind && ! isEnabled;
+	let primaryText = 'scan' === kind ? __( 'Run scan now', 'vulopilot' ) : __( 'Send report now', 'vulopilot' );
+
+	if ( isEnableAction ) {
+		primaryText = __( 'Enable report', 'vulopilot' );
+	} else if ( isRunning ) {
+		primaryText = __( 'Running…', 'vulopilot' );
+	}
+
 	return (
-		<CardComponent title={ title } titleIcon="automation" desc={ description }>
-			<FormGroupWrapperComponent>
-				<FormGroupComponent row label={ __( 'Enable this automation', 'vulopilot' ) }>
-					<MultiCheckboxInput
-						look="toggle"
-						options={ [ { key: `automation-${ row.id }-enabled`, value: 'enabled', label: '' } ] }
-						value={ 'enabled' === row.status ? [ 'enabled' ] : [] }
-						onChange={ handleToggle }
-						modules={ [] }
-					/>
-				</FormGroupComponent>
-				<FormGroupComponent row label={ __( 'When should this automation run?', 'vulopilot' ) }>
-					<SelectInput
-						value={ config.frequency }
-						size={ 15 }
-						onChange={ ( value ) => handleFrequencyChange( value as string ) }
-						options={ frequencyOptions }
-					/>
-				</FormGroupComponent>
-				{ 'weekly' === config.frequency && (
-					<FormGroupComponent row label={ __( 'Run on', 'vulopilot' ) }>
+		<CardComponent
+			className="builtin-automation-card"
+			title={
+				<>
+					{ title }
+					<span className={ `admin-badge ${ isEnabled ? 'green' : 'gray' }` }>
+						{ isEnabled ? __( 'Active', 'vulopilot' ) : __( 'Not active', 'vulopilot' ) }
+					</span>
+				</>
+			}
+			titleIcon={ 'scan' === kind ? 'search' : 'mail' }
+			desc={ description }
+			action={
+				<MultiCheckboxInput
+					look="toggle"
+					options={ [ { key: `automation-${ row.id }-enabled`, value: 'enabled', label: '' } ] }
+					value={ isEnabled ? [ 'enabled' ] : [] }
+					onChange={ handleToggle }
+					modules={ [] }
+				/>
+			}
+		>
+			<div className="builtin-automation-tiles">
+				<InfoTile
+					icon="mail"
+					label={ 'scan' === kind ? __( 'Scan frequency', 'vulopilot' ) : __( 'Report frequency', 'vulopilot' ) }
+					value={ frequencyLabel( config ) }
+				/>
+				{ 'scan' === kind ? (
+					nextRun ? (
+						<InfoTile
+							icon="clock"
+							label={ __( 'Next scan', 'vulopilot' ) }
+							value={ nextRun.primary }
+							sub={ nextRun.secondary }
+						/>
+					) : (
+						<InfoTile
+							icon="clock"
+							label={ __( 'Last scan', 'vulopilot' ) }
+							value={ lastRun ? lastRun.primary : '—' }
+							sub={ lastRun ? lastRun.secondary : __( 'Not run yet', 'vulopilot' ) }
+						/>
+					)
+				) : (
+					<>
+						<InfoTile
+							icon="mail"
+							label={ __( 'Recipients', 'vulopilot' ) }
+							value={ __( 'Admin email', 'vulopilot' ) }
+							sub={ __( 'Set in Settings → Notifications', 'vulopilot' ) }
+						/>
+						<InfoTile
+							icon="document"
+							label={ __( 'Last sent', 'vulopilot' ) }
+							value={ lastRun ? lastRun.primary : '—' }
+							sub={ lastRun ? lastRun.secondary : __( 'Not sent yet', 'vulopilot' ) }
+						/>
+					</>
+				) }
+			</div>
+
+			{ isEditing && (
+				<FormGroupWrapperComponent>
+					<FormGroupComponent row label={ __( 'When should this automation run?', 'vulopilot' ) }>
 						<SelectInput
-							value={ String( config.day_of_week ?? 1 ) }
+							value={ config.frequency }
 							size={ 15 }
-							onChange={ ( value ) => handleDayChange( value as string ) }
-							options={ DAY_OPTIONS }
+							onChange={ ( value ) => handleFrequencyChange( value as string ) }
+							options={ frequencyOptions }
 						/>
 					</FormGroupComponent>
-				) }
-				{ 'monthly' === config.frequency && (
-					<FormGroupComponent row label={ __( 'Run on', 'vulopilot' ) }>
-						<span className="builtin-automation-fixed-day">
-							{ __( '1st day of every month', 'vulopilot' ) }
-						</span>
-					</FormGroupComponent>
-				) }
-			</FormGroupWrapperComponent>
-			<ButtonInput
-				position="left"
-				buttons={ {
-					text: isRunning ? __( 'Running…', 'vulopilot' ) : __( 'Run now', 'vulopilot' ),
-					disabled: isRunning,
-					onClick: handleRunNow,
-				} }
-			/>
+					{ 'weekly' === config.frequency && (
+						<FormGroupComponent row label={ __( 'Run on', 'vulopilot' ) }>
+							<SelectInput
+								value={ String( config.day_of_week ?? 1 ) }
+								size={ 15 }
+								onChange={ ( value ) => handleDayChange( value as string ) }
+								options={ DAY_OPTIONS }
+							/>
+						</FormGroupComponent>
+					) }
+					{ 'monthly' === config.frequency && (
+						<FormGroupComponent row label={ __( 'Run on', 'vulopilot' ) }>
+							<span className="builtin-automation-fixed-day">
+								{ __( '1st day of every month', 'vulopilot' ) }
+							</span>
+						</FormGroupComponent>
+					) }
+				</FormGroupWrapperComponent>
+			) }
+
+			<div className="builtin-automation-actions">
+				<ButtonInput
+					buttons={ [
+						{
+							text: 'scan' === kind ? __( 'Edit schedule', 'vulopilot' ) : __( 'Edit settings', 'vulopilot' ),
+							icon: 'setting',
+							color: 'border-purple',
+							onClick: () => setIsEditing( ( current ) => ! current ),
+						},
+						{
+							text: primaryText,
+							icon: isEnableAction ? undefined : 'play-arrow',
+							disabled: isRunning,
+							onClick: isEnableAction ? handleToggle : handleRunNow,
+						},
+					] }
+				/>
+			</div>
 		</CardComponent>
 	);
 };
@@ -270,9 +410,10 @@ const BuiltinAutomationCards = ( { refetchSignal, onChanged, highlightTemplateId
 				>
 					<BuiltinAutomationCard
 						row={ scanRow }
-						title={ __( 'Run Full Site Scan', 'vulopilot' ) }
+						kind="scan"
+						title={ __( 'Automatic website scan', 'vulopilot' ) }
 						description={ __(
-							'Automatically scan your website and refresh your VuloPilot insights.',
+							'VuloPilot automatically scans your website and updates your insights.',
 							'vulopilot'
 						) }
 						frequencyOptions={ [
@@ -296,9 +437,10 @@ const BuiltinAutomationCards = ( { refetchSignal, onChanged, highlightTemplateId
 				>
 					<BuiltinAutomationCard
 						row={ reportRow }
-						title={ __( 'Send Visibility Report', 'vulopilot' ) }
+						kind="report"
+						title={ __( 'Email visibility report', 'vulopilot' ) }
 						description={ __(
-							"Receive a summary of your website's visibility, issues, and opportunities.",
+							"Get a summary of your website's visibility, issues, and opportunities.",
 							'vulopilot'
 						) }
 						frequencyOptions={ [
