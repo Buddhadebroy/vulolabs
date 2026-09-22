@@ -321,7 +321,30 @@ const SecurityPanel = () => {
 			return {
 				valueKey: row.id,
 				icon: row.icon,
-				title: row.label,
+				title: locked ? (
+					<>
+						{row.label}
+						<span
+							className="admin-tag module-tag"
+							role="button"
+							tabIndex={0}
+							onClick={() => {
+								window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+							}}
+							onKeyDown={(event) => {
+								if ('Enter' === event.key || ' ' === event.key) {
+									event.preventDefault();
+									window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+								}
+							}}
+						>
+							<i className="adminfont-lock" />
+							{__('Website Security', 'vulopilot')}
+						</span>
+					</>
+				) : (
+					row.label
+				),
 				desc: row.desc,
 				control: (
 					<input
@@ -468,7 +491,30 @@ const SecurityPanel = () => {
 					<FormGroupWrapperComponent>
 						<FormGroupComponent
 							row
-							label={__('Scheduled security monitoring', 'vulopilot')}
+							label={
+								<>
+									{__('Scheduled security monitoring', 'vulopilot')}
+									{!hasSecurityMonitoring && (
+										<span
+											className="admin-tag module-tag"
+											role="button"
+											tabIndex={0}
+											onClick={() => {
+												window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+											}}
+											onKeyDown={(event) => {
+												if ('Enter' === event.key || ' ' === event.key) {
+													event.preventDefault();
+													window.location.href = `${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=website-security`;
+												}
+											}}
+										>
+											<i className="adminfont-lock" />
+											{__('Website Security', 'vulopilot')}
+										</span>
+									)}
+								</>
+							}
 							desc={__(
 								'Runs only the security-category scanners on this cadence, independent of the general Scan frequency setting under General.',
 								'vulopilot'

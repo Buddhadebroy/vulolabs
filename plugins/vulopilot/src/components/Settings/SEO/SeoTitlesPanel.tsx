@@ -206,6 +206,12 @@ const SeoTitlesPanel = () => {
 	/** Which real context row's own Edit action opened the right-side edit panel - defaults to the first real context ('home') so the edit panel is open on load instead of an empty state, since this panel has no fallback sidebar to show otherwise. */
 	const [editingKey, setEditingKey] = useState<string | null>('home');
 
+	/** Shared by the row click and the action cell's own "Edit"/"Editing" button - same real toggle SeoIssuesByPageTable.tsx's own identical row-select pattern already establishes, now also scrolling the edit panel into view (`scrollToId`, not `window.scrollTo` - WP admin's own scrollable wrapper isn't the document) on a real select. */
+	const handleEditRow = (key: string) => {
+		setEditingKey(key);
+		scrollToId('site-identity-edit-panel');
+	};
+
 	const contexts = useMemo<ContextConfig[]>(() => {
 		const siteTitle = appLocalizer.site_title || __('Your Site', 'vulopilot');
 		const siteDescription = appLocalizer.site_description || __('A short description of your website.', 'vulopilot');
@@ -597,7 +603,7 @@ const SeoTitlesPanel = () => {
 													? 'eye'
 													: 'edit',
 											onClick: (row) =>
-												setEditingKey((row as unknown as PreviewRow).key),
+												handleEditRow((row as unknown as PreviewRow).key),
 										},
 									],
 								},
@@ -607,11 +613,15 @@ const SeoTitlesPanel = () => {
 							totalRows={previewRows.length}
 							isLoading={false}
 							activeRowId={editingKey ?? undefined}
+							onRowClick={(row: Record<string, unknown>) =>
+								handleEditRow((row as unknown as PreviewRow).key)
+							}
 						/>
 					</CardComponent>
 				</ColumnComponent>
 
 				<ColumnComponent grid={4}>
+					<div id="site-identity-edit-panel">
 					{editingRow && (
 						<CardComponent
 							title={sprintf(
@@ -630,6 +640,7 @@ const SeoTitlesPanel = () => {
 							</FormGroupWrapperComponent>
 						</CardComponent>
 					)}
+					</div>
 				</ColumnComponent>
 			</ContainerComponent>
 			)}
