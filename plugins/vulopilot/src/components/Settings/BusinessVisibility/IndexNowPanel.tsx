@@ -7,13 +7,13 @@ import {
 	CardComponent,
 	FormGroupComponent,
 	FormGroupWrapperComponent,
-	NoticeManager,
-	ClipboardComponent,
-	SectionComponent
+	NoticeComponent,
+	NoticeManager
 } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, TextAreaInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
 import { formatWpDate } from '../../../services/formatWpDate';
+import './IndexNowPanel.scss';
 
 interface HistoryRow {
 	id: number;
@@ -201,59 +201,73 @@ const IndexNowPanel = () => {
 				<FormGroupComponent cols={6}
 					className='api-key-form'
 				>
-					<FormGroupWrapperComponent>
-						<SectionComponent
-							title={__('IndexNow is ready', 'vulopilot-pro')}
-							icon='plus green'
-							desc={__('High impact actions suggested by AI', 'vulopilot-pro')}
-						/>
-						<FormGroupComponent
-							label={__('API key', 'vulopilot')}
-							desc={__(
-								'Open this link to verify the key file is reachable by search engines — it should show the key.',
+					<>
+						<CardComponent
+							title={
+								apiKey
+									? __('IndexNow is connected', 'vulopilot')
+									: __('IndexNow needs a key', 'vulopilot')
+							}
+							titleIcon="check"
+							desc={
+								apiKey
+									? __(
+											'Search engines can confirm this site owns the content it submits.',
+											'vulopilot'
+										)
+									: __(
+											'Generate a key below to activate IndexNow for this site.',
+											'vulopilot'
+										)
+							}
+							// Real zyra palette green, same literal hex this
+							// codebase's own other `.is-good`/success-state
+							// rules already mirror it with (no `.scss` source
+							// to `@use` a real token from — see
+							// BrandVisibilityProDummies.tsx's own identical
+							// docblock on this).
+							borderColor={apiKey ? '#16a34a' : undefined}
+							action={
+								<span className={`admin-badge ${apiKey ? 'green' : 'gray'}`}>
+									{apiKey ? __('Active', 'vulopilot') : __('Inactive', 'vulopilot')}
+								</span>
+							}
+						>
+							<div className="indexnow-verification-row">
+								<div>
+									<strong>{__('Site verification', 'vulopilot')}</strong>
+									<p className="desc">
+										{__(
+											'Proves to search engines that submissions are really coming from your site. Generated and renewed automatically — nothing for you to manage.',
+											'vulopilot'
+										)}
+									</p>
+								</div>
+								<span className={`admin-badge ${apiKey ? 'green' : 'gray'}`}>
+									{apiKey
+										? __('✓ Verified', 'vulopilot')
+										: __('Not set up', 'vulopilot')}
+								</span>
+							</div>
+						</CardComponent>
+						<NoticeComponent
+							displayPosition="inline-notice"
+							type="info"
+							title={__('Why this matters', 'vulopilot')}
+							message={__(
+								'Without IndexNow, search engines find changes by revisiting your site on their own schedule — which can take days. This tells them immediately, so new and updated pages can appear in results sooner.',
 								'vulopilot'
 							)}
-						>
-							<div className='api-key-wrapper'>
-								{apiKey && (
-									<ClipboardComponent
-										text={apiKey}
-										variant="code"
-										copyButtonLabel={__('Copy', 'vulopilot')}
-										copiedLabel={__('Copied!', 'vulopilot')}
-									/>
-								)}
-								<ButtonInput
-									position="left"
-									buttons={{
-										text: isChangingKey
-											? __('Changing…', 'vulopilot')
-											: __('Change key', 'vulopilot'),
-										onClick: handleChangeKey,
-										disabled: isChangingKey,
-									}}
-								/>
-							</div>
-						</FormGroupComponent>
-						{apiKey && (
-							<FormGroupComponent
-								label={__('API key location', 'vulopilot')}
-								desc={__(
-									'Open this link to verify the key file is reachable by search engines — it should show the key.',
-									'vulopilot'
-								)}
-								cols={6}
-							>
-								<a
-									href={`${appLocalizer.site_url}/${apiKey}.txt`}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{`${appLocalizer.site_url}/${apiKey}.txt`}
-								</a>
-							</FormGroupComponent>
-						)}
-					</FormGroupWrapperComponent>
+							actionLabel={`${__('Learn more', 'vulopilot')} ↗`}
+							onAction={() =>
+								window.open(
+									'https://www.indexnow.org/',
+									'_blank',
+									'noopener,noreferrer'
+								)
+							}
+						/>
+					</>
 				</FormGroupComponent>
 				<FormGroupComponent
 					label={__('URLs to submit', 'vulopilot')}
@@ -295,14 +309,6 @@ const IndexNowPanel = () => {
 				)} */}
 			</FormGroupWrapperComponent>
 
-
-			<SectionComponent
-				icon="clock"
-				title={__('History', 'vulopilot')}
-				desc={__('The last 100 IndexNow API requests.', 'vulopilot')}
-			/>
-
-
 			<CardComponent
 				title={__('History', 'vulopilot')}
 				titleIcon="clock"
@@ -312,12 +318,13 @@ const IndexNowPanel = () => {
 					<ButtonInput
 						buttons={{
 							text: __('Response code help', 'vulopilot'),
+							color: 'text-purple',
 							onClick: () => setShowResponseHelp(!showResponseHelp),
 						}}
 					/>
 				}
 			>
-				{showResponseHelp && (
+				{/* {showResponseHelp && (
 					<div className="vulopilot-indexnow-help">
 						{RESPONSE_CODE_HELP.map((row) => (
 							<div key={row.code} className={`vulopilot-indexnow-help__${row.type}`}>
@@ -325,7 +332,7 @@ const IndexNowPanel = () => {
 							</div>
 						))}
 					</div>
-				)}
+				)} */}
 
 				{history.length === 0 ? (
 					<div className="desc">{__('No submissions yet.', 'vulopilot')}</div>

@@ -14,8 +14,8 @@ import { __ } from '@wordpress/i18n';
  * A plain declarative `modal` (InputRenderer), same shape
  * `BusinessInformation.ts` uses now — no hand-built `PanelComponent`
  * needed, every field here is a real `type: 'section'`/`'checkbox'`/
- * `'text'`/`'number'`/`'select'`/`'choice-toggle'`/`'notice'` InputRenderer
- * already supports natively, same as it did on the old tab.
+ * `'text'`/`'number'`/`'select'`/`'notice'` InputRenderer already supports
+ * natively, same as it did on the old tab.
  *
  * "Post types in sitemap"/"Taxonomies in sitemap" — one real control each,
  * not the former separate XML/HTML pair (`sitemap_html_post_types`/
@@ -45,6 +45,10 @@ export default {
 			type: 'section',
 			icon: 'editor-list',
 			title: __('XML Sitemap', 'vulopilot'),
+			desc: __(
+				'Turns on your machine-readable sitemap and pings search engines whenever it changes.',
+				'vulopilot'
+			),
 		},
 		{
 			key: 'sitemap_enabled',
@@ -52,10 +56,6 @@ export default {
 			look: 'toggle',
 
 			label: __('Enable sitemap', 'vulopilot'),
-			settingDescription: __(
-				'Available at yoursite.com/sitemap.xml once enabled. Search engines are notified automatically when new content is published.',
-				'vulopilot'
-			),
 			options: [
 				{ key: 'sitemap_enabled', label: '', value: 'sitemap_enabled' },
 			],
@@ -73,26 +73,40 @@ export default {
 			icon: 'category',
 			title: __('Post types & taxonomies in sitemap', 'vulopilot'),
 			desc: __(
-				'Which real post types/taxonomies are included — shared by both the XML sitemap and the [vulopilot_html_sitemap] shortcode below. "Products"/"Product categories"/"Product tags" only take effect when WooCommerce is active.',
+				'Shared by the XML sitemap and the [vulopilot_html_sitemap] shortcode below. Products, Product Categories, and Product Tags only apply once WooCommerce is active.',
 				'vulopilot'
 			),
 		},
 		{
 			key: 'sitemap_xml_post_types',
-			type: 'choice-toggle',
-
+			type: 'checkbox',
+			selectDeselect:true,
 			label: __('Post types in sitemap', 'vulopilot'),
+			// The 4 real post types every site has, plus — per direct
+			// instruction — any real custom post type this site actually
+			// has registered (`appLocalizer.sitemap_custom_post_types`,
+			// FrontendScripts::get_sitemap_custom_post_types()), so a site
+			// running a theme/plugin that registers its own post type
+			// (e.g. "Portfolio Items") can include it in the sitemap from
+			// this same list instead of it being impossible to check on
+			// from the UI. Empty array on a site with no custom post
+			// types, same as before.
 			options: [
 				{ key: 'post', label: __('Posts', 'vulopilot'), value: 'post' },
 				{ key: 'page', label: __('Pages', 'vulopilot'), value: 'page' },
 				{ key: 'attachment', label: __('Media', 'vulopilot'), value: 'attachment' },
 				{ key: 'product', label: __('Products', 'vulopilot'), value: 'product' },
+				...(appLocalizer.sitemap_custom_post_types ?? []).map((postType) => ({
+					key: postType.value,
+					label: postType.label,
+					value: postType.value,
+				})),
 			],
 		},
 		{
 			key: 'sitemap_xml_taxonomies',
-			type: 'choice-toggle',
-
+			type: 'checkbox',
+			selectDeselect:true,
 			label: __('Taxonomies in sitemap', 'vulopilot'),
 			options: [
 				{ key: 'category', label: __('Categories', 'vulopilot'), value: 'category' },
@@ -105,7 +119,11 @@ export default {
 			key: 'advance-section',
 			type: 'section',
 			icon: 'editor-list',
-			title: __('Advance Settings', 'vulopilot'),
+			title: __('Advanced settings Typo fixed', 'vulopilot'),
+			desc: __(
+				'Fine-tune size, exclusions, and images for large or complex sites.',
+				'vulopilot'
+			),
 		},
 		{
 			key: 'sitemap_links_per_page',
@@ -172,6 +190,10 @@ export default {
 			type: 'section',
 			icon: 'web-page-website',
 			title: __('HTML Sitemap', 'vulopilot'),
+			desc: __(
+				'A human-readable page listing every included post, page, and taxonomy term.',
+				'vulopilot'
+			),
 		},
 		{
 			key: 'html_sitemap_enabled',

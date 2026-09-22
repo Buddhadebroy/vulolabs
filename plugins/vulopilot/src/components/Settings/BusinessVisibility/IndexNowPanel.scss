@@ -1,0 +1,26 @@
+@use '../../config' as *;
+
+// IndexNowPanel.tsx's own "IndexNow is connected"/"IndexNow needs a key"
+// status card — the "Site verification" row inside it.
+.indexnow-verification-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	padding-top: 0.875rem;
+	margin-top: 0.875rem;
+	border-top: $border-light-small;
+
+	strong {
+		display: block;
+		margin-bottom: 0.25rem;
+	}
+
+	.desc {
+		margin: 0;
+	}
+
+	.admin-badge {
+		flex-shrink: 0;
+	}
+}
