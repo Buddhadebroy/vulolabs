@@ -135,8 +135,8 @@ const EnableAutomationModuleAction: React.FC = () => {
 				// use it for (e.g. Sitemap.ts's "Enable sitemap"
 				// field).
 				toggleStatusLabel={{
-					on: __('Enabled module', 'vulopilot'),
-					off: __('Disabled module' , 'vulopilot'),
+					on: __('Enabled', 'vulopilot'),
+					off: __('Disabled' , 'vulopilot'),
 				}}
 				modules={[]}
 			/>

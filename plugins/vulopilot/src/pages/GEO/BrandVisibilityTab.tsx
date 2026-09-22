@@ -190,6 +190,8 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 							'Turn the Brand Intelligence module back on from Settings → Modules to resume trust/authority/entity scanning and see its findings again here. Findings already found before it was turned off aren’t deleted - they still show up on the Health page.',
 							'vulopilot'
 						)}
+						buttonText={__('Go to Settings → Modules', 'vulopilot')}
+						buttonLink={`${appLocalizer.admin_url}#&tab=settings&subtab=modules&module=${BRAND_MODULE_ID}`}
 					/>
 				</CardComponent>
 			</ColumnComponent>

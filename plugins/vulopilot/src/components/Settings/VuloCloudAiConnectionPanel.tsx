@@ -153,7 +153,7 @@ const VuloCloudAiConnectionPanel = () => {
 					<div className="desc">{__('Loading…', 'vulopilot')}</div>
 				) : (
 					<CardHeader
-						icon="ai"
+						icon="ai orange"
 						title={__('VuloCloud AI', 'vulopilot')}
 						desc={
 							!vulocloudStatus.connected

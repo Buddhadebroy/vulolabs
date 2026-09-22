@@ -111,6 +111,7 @@ export default {
                         key: 'url',
                         type: 'text',
                         label: __('URL', 'vulopilot'),
+                        size: '20rem',
                         placeholder: __('https://competitor.com', 'vulopilot'),
                     },
                 ],
