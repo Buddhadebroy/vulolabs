@@ -12,7 +12,7 @@ import {
 	NoticeManager,
 	SectionComponent,
 } from '@zyra/components';
-import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
+import { ToggleInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { useSetting } from '../../../contexts/SettingContext';
 import './TitleFormatsPanel.scss';
