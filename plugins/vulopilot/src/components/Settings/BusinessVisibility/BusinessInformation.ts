@@ -92,24 +92,27 @@ export default {
             ),
         },
         {
-            // Moved here from Settings → Scanning → Brand Intelligence
-            // (`geo_competitor_urls`, same key, same real backend — this is
-            // a pure UI relocation) per direct instruction. Still gated
-            // `moduleEnabled: 'geo'` (the free, always-active GEO module,
-            // not a Pro one) rather than `brand-intelligence` — this field
-            // is shared by three different Pro modules' analyzers
-            // (BrandIntelligence\BrandCompetitorAnalyzer,
-            // ContentIntelligence\ContentGapAnalyzer, GeoInsights\
-            // CompetitorVisibilityAnalyzer), so gating it to just one of
-            // them would be wrong.
             key: 'geo_competitor_urls',
-            type: 'textarea',
-            label: __('Competitor URLs', 'vulopilot'),
-            settingDescription: __(
-                'One competitor URL per line. Powers the GEO page\'s Competitor Visibility comparison (VuloPilot Pro).',
-                'vulopilot'
-            ),
+            type: 'dynamic-row',
             moduleEnabled: 'geo',
+            addLabel: __('Add competitor', 'vulopilot'),
+            emptyText: __('No competitors added yet.', 'vulopilot'),
+            template: {
+                fields: [
+                    {
+                        key: 'name',
+                        type: 'text',
+                        label: __('Name', 'vulopilot'),
+                        placeholder: __('Competitor name', 'vulopilot'),
+                    },
+                    {
+                        key: 'url',
+                        type: 'text',
+                        label: __('URL', 'vulopilot'),
+                        placeholder: __('https://competitor.com', 'vulopilot'),
+                    },
+                ],
+            },
         },
     ],
 };

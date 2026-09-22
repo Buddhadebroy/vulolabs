@@ -22,7 +22,12 @@ import CardHeader from '../CardHeader';
  * CardHeader's own `desc` slot renders as a plain ReactNode child, not
  * `dangerouslySetInnerHTML` the way InputRenderer's field `desc` is, so an
  * embedded `<br />` string would show up as literal text instead of a line
- * break.
+ * break. "Keep VuloPilot data after uninstall" specifically sits in its own
+ * "Danger Zone" `FormGroupWrapperComponent` (`.danger-zone`, styled in
+ * Settings.scss) below the main one — it's the field whose "Delete
+ * everything" option is actually destructive (wipes settings/scan
+ * history/reports on uninstall), unlike "Anonymous usage data" or
+ * "Reset VuloPilot" (which explicitly preserves scan reports/history).
  *
  * "Clear cache" (`POST /settings/clear-cache`, Controllers\Settings::clear_cache())
  * clears every real content cache both this plugin and vulopilot-pro (if
@@ -129,84 +134,89 @@ const DeveloperToolsPanel = () => {
 	};
 
 	return (
-		<FormGroupWrapperComponent>
-			<CardHeader
-				icon="setting pink"
-				title={__('Keep VuloPilot data after uninstall', 'vulopilot')}
-				desc={__(
-					"Choose what happens to VuloPilot's settings and saved data if the plugin is removed. 1. Keep data — Your settings, scan history, and reports remain available if you reinstall VuloPilot. 2. Delete everything — Permanently removes VuloPilot settings and stored data when the plugin is uninstalled.",
-					'vulopilot'
-				)}
-			>
-				<ToggleInput
-					value={keepDataUninstall}
-					modules={[]}
-					options={[
-						{ key: 'keep_data', label: __('Keep data', 'vulopilot'), value: 'keep_data' },
-						{ key: 'delete_everything', label: __('Delete everything', 'vulopilot'), value: 'delete_everything' },
-					]}
-					onChange={(value) =>
-						handleSettingChange('keep_data_uninstall', value as string)
-					}
-				/>
-			</CardHeader>
-			<CardHeader
-				icon="setting pink"
-				title={__('Anonymous usage data', 'vulopilot')}
-				desc={__(
-					'Help improve VuloPilot by sharing anonymous information about how its features are used. Not yet collected — this stores your preference for when usage reporting ships. No website content, passwords, customer information, or personal data is collected.',
-					'vulopilot'
-				)}
-			>
-				<ToggleInput
-					value={anonymousUsageData}
-					modules={[]}
-					options={[
-						{ key: 'enabled', label: __('Enabled', 'vulopilot'), value: 'enabled' },
-						{ key: 'disabled', label: __('Disabled', 'vulopilot'), value: 'disabled' },
-					]}
-					onChange={(value) =>
-						handleSettingChange('anonymous_usage_data', value as string)
-					}
-				/>
-			</CardHeader>
-			<CardHeader
-				icon="refresh pink"
-				title={__('Cache', 'vulopilot')}
-				desc={__(
-					'Clears every real cached result VuloPilot computes — the Knowledge Graph’s extracted entities, the Schema Coverage snapshot, the robots.txt bot-access parse, and (if active) vulopilot-pro’s own Knowledge Graph recommendations. Everything is rebuilt fresh automatically the next time it’s needed — nothing is deleted permanently.',
-					'vulopilot'
-				)}
-			>
-				<ButtonInput
-					buttons={{
-						text: isClearing
-							? __('Clearing…', 'vulopilot')
-							: __('Clear cache', 'vulopilot'),
-						onClick: handleClearCache,
-						disabled: isClearing,
-					}}
-				/>
-			</CardHeader>
-			<CardHeader
-				icon="refresh pink"
-				title={__('Reset VuloPilot', 'vulopilot')}
-				desc={__(
-					'Restore VuloPilot settings to their original defaults. Your existing scan reports and history will not be deleted.',
-					'vulopilot'
-				)}
-			>
-				<ButtonInput
-					buttons={{
-						text: isResetting
-							? __('Resetting…', 'vulopilot')
-							: __('Reset settings', 'vulopilot'),
-						onClick: handleResetSettings,
-						disabled: isResetting,
-					}}
-				/>
-			</CardHeader>
-		</FormGroupWrapperComponent>
+		<>
+			<FormGroupWrapperComponent>
+				<CardHeader
+					icon="setting pink"
+					title={__('Anonymous usage data', 'vulopilot')}
+					desc={__(
+						'Help improve VuloPilot by sharing anonymous information about how its features are used. Not yet collected — this stores your preference for when usage reporting ships. No website content, passwords, customer information, or personal data is collected.',
+						'vulopilot'
+					)}
+				>
+					<ToggleInput
+						value={anonymousUsageData}
+						modules={[]}
+						options={[
+							{ key: 'enabled', label: __('Enabled', 'vulopilot'), value: 'enabled' },
+							{ key: 'disabled', label: __('Disabled', 'vulopilot'), value: 'disabled' },
+						]}
+						onChange={(value) =>
+							handleSettingChange('anonymous_usage_data', value as string)
+						}
+					/>
+				</CardHeader>
+				<CardHeader
+					icon="refresh pink"
+					title={__('Cache', 'vulopilot')}
+					desc={__(
+						'Clears every real cached result VuloPilot computes — the Knowledge Graph’s extracted entities, the Schema Coverage snapshot, the robots.txt bot-access parse, and (if active) vulopilot-pro’s own Knowledge Graph recommendations. Everything is rebuilt fresh automatically the next time it’s needed — nothing is deleted permanently.',
+						'vulopilot'
+					)}
+				>
+					<ButtonInput
+						buttons={{
+							text: isClearing
+								? __('Clearing…', 'vulopilot')
+								: __('Clear cache', 'vulopilot'),
+							onClick: handleClearCache,
+							disabled: isClearing,
+						}}
+					/>
+				</CardHeader>
+				<CardHeader
+					icon="refresh pink"
+					title={__('Reset VuloPilot', 'vulopilot')}
+					desc={__(
+						'Restore VuloPilot settings to their original defaults. Your existing scan reports and history will not be deleted.',
+						'vulopilot'
+					)}
+				>
+					<ButtonInput
+						buttons={{
+							text: isResetting
+								? __('Resetting…', 'vulopilot')
+								: __('Reset settings', 'vulopilot'),
+							onClick: handleResetSettings,
+							disabled: isResetting,
+						}}
+					/>
+				</CardHeader>
+			</FormGroupWrapperComponent>
+			<FormGroupWrapperComponent className="danger-zone">
+				<h3 className="danger-zone-title">{__('Danger Zone', 'vulopilot')}</h3>
+				<CardHeader
+					icon="setting pink"
+					title={__('Keep VuloPilot data after uninstall', 'vulopilot')}
+					desc={__(
+						"Choose what happens to VuloPilot's settings and saved data if the plugin is removed. 1. Keep data — Your settings, scan history, and reports remain available if you reinstall VuloPilot. 2. Delete everything — Permanently removes VuloPilot settings and stored data when the plugin is uninstalled.",
+						'vulopilot'
+					)}
+				>
+					<ToggleInput
+						value={keepDataUninstall}
+						modules={[]}
+						options={[
+							{ key: 'keep_data', label: __('Keep data', 'vulopilot'), value: 'keep_data' },
+							{ key: 'delete_everything', label: __('Delete everything', 'vulopilot'), value: 'delete_everything' },
+						]}
+						onChange={(value) =>
+							handleSettingChange('keep_data_uninstall', value as string)
+						}
+					/>
+				</CardHeader>
+			</FormGroupWrapperComponent>
+		</>
 	);
 };
 

@@ -5,23 +5,29 @@ import './Settings.scss';
 import { useLocation, Link } from 'react-router-dom';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import { getAvailableSettings, getSettingById } from '@zyra/core';
-import { InputRenderer } from '@zyra/inputs';
+import { ExpandablePanelInput, InputRenderer } from '@zyra/inputs';
 import {
 	CardComponent,
 	ColumnComponent,
 	ContainerComponent,
+	FormGroupComponent,
+	FormGroupWrapperComponent,
 	ModuleGuardComponent,
 	NavigatorComponent,
+	PopupComponent,
+	SectionComponent,
 } from '@zyra/components';
 import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
-import BackupStoragePanel from '../../components/Settings/BusinessVisibility/BackupStoragePanel';
 import IndexNowPanel from '../../components/Settings/BusinessVisibility/IndexNowPanel';
 import SitemapPingWatcher from '../../components/Settings/BusinessVisibility/SitemapPingWatcher';
 import SitemapHowItWorksCard from '../../components/Settings/BusinessVisibility/SitemapHowItWorksCard';
 import ShowProPopup from '../../components/Popup/Popup';
+import { CLOUD_STORAGE_LOCKED_METHODS } from '../../components/Settings/BusinessVisibility/Backups';
+import { useFilterSlot } from '../../services/useFilterSlot';
+import type { ComponentType } from 'react';
 
 /**
  * Built on zyra's real settings framework (`InputRenderer`/
@@ -53,6 +59,7 @@ import ShowProPopup from '../../components/Popup/Popup';
  * ModulesPanel.tsx instead; see Modules.ts's own docblock for where its
  * content used to live.
  */
+
 const Settings = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -91,6 +98,26 @@ const Settings = () => {
 		// (currentTab === null) and the one right after it does, which is
 		// exactly React error #310 ("rendered fewer hooks than expected").
 		const { setting, settingName, setSetting, updateSetting } = useSetting();
+
+		// Settings → Backups' own "Cloud Storage" section
+		// (BackupStoragePanel.tsx) is now Pro-gated — moved to
+		// vulopilot-pro's own BackupCloudStorage module, which registers
+		// its real UI into this slot (see that module's own src/index.tsx).
+		// That module is cardless (VuloPilotPro::CARDLESS_MODULE_IDS) — an
+		// active Pro license alone activates it, no separate Settings →
+		// Modules toggle — so this slot resolves purely on "is Pro
+		// licensed", not a second module-enable step. Falls back to the
+		// real layout + a "Pro" tag below whenever it hasn't resolved —
+		// row config (`CLOUD_STORAGE_LOCKED_METHODS`) lives in Backups.ts
+		// itself (that tab's own config file), imported here rather than
+		// hand-typed in this shared function, per direct instruction; not
+		// fabricated content either way. Must run on every call regardless
+		// of $currentTab, same reasoning this function's own top comment
+		// gives for every other hook here.
+		const CloudStoragePanel = useFilterSlot<ComponentType>(
+			'vulopilot_backup_cloud_storage_panel'
+		);
+		const [isCloudStoragePopupOpen, setIsCloudStoragePopupOpen] = useState(false);
 
 		const settingModal = currentTab ? getSettingById(settingsArray, currentTab) : null;
 		const fieldKeys: string[] = (settingModal?.modal ?? []).map(
@@ -238,15 +265,88 @@ const Settings = () => {
 								)}
 							/>
 						)}
-						{/* BackupStoragePanel.tsx — appended AFTER this
+						{/* Cloud Storage section — appended AFTER this
 						 * tab's own fields, since S3/Google Drive credentials
 						 * only make sense once `backup_storage_destination`
 						 * itself has already been picked, the last
 						 * field this tab's own `modal` renders. See
 						 * Backups.ts's own docblock for why the
 						 * credentials themselves can't just be more
-						 * fields in that same array. */}
-						{'backups' === currentTab && <BackupStoragePanel />}
+						 * fields in that same array. Now Pro-gated — see
+						 * this function's own `CloudStoragePanel` slot
+						 * resolution above. */}
+						{'backups' === currentTab &&
+							(CloudStoragePanel ? (
+								<CloudStoragePanel />
+							) : (
+								<div className="settings-section-group cloud-storage-section-group">
+									{/* `.admin-tag.pro-tag` is an absolute-positioned
+									 * corner ribbon (zyra's own theme/src/common.scss
+									 * — see Accessibility.tsx's own docblock), so it
+									 * needs a `position: relative` ancestor rather
+									 * than being passed into SectionComponent's own
+									 * `title` (a plain string everywhere else this
+									 * component is used). */}
+									<div className="settings-left-section" style={{ position: 'relative' }}>
+										<span className="admin-tag pro-tag">
+											<i className="adminfont-pro-tag" />
+											{__('Pro', 'vulopilot')}
+										</span>
+										<SectionComponent
+											icon="cloud-upload"
+											title={__('Cloud Storage', 'vulopilot')}
+											desc={__(
+												'Credentials for the remote destinations "Storage destination" above can upload completed backups to. Every backup always saves to this server first regardless.',
+												'vulopilot'
+											)}
+										/>
+									</div>
+									<div className="settings-right-section">
+										<FormGroupWrapperComponent>
+											<FormGroupComponent>
+												{/* Real layout, real row config (see
+												 * `CLOUD_STORAGE_LOCKED_METHODS` above) —
+												 * gate the interaction, not the content:
+												 * `onClickCapture` intercepts every click
+												 * before `ExpandablePanelInput`'s own
+												 * internal row-toggle handler ever sees it
+												 * (that component has no `canAccess`-gated
+												 * header click of its own to hook into —
+												 * its header always dispatches its own
+												 * "expand" action directly), redirecting to
+												 * the Pro popup below instead. */}
+												<div
+													className="cloud-storage-locked"
+													onClickCapture={(event) => {
+														event.preventDefault();
+														event.stopPropagation();
+														setIsCloudStoragePopupOpen(true);
+													}}
+												>
+													<ExpandablePanelInput
+														name="backup-storage-destinations-locked"
+														methods={CLOUD_STORAGE_LOCKED_METHODS}
+														value={{}}
+														onChange={() => {}}
+														canAccess={false}
+													/>
+												</div>
+											</FormGroupComponent>
+										</FormGroupWrapperComponent>
+									</div>
+								</div>
+							))}
+						{'backups' === currentTab && (
+							<PopupComponent
+								open={isCloudStoragePopupOpen}
+								onClose={() => setIsCloudStoragePopupOpen(false)}
+								width={31.25}
+								height="auto"
+								position="lightbox"
+							>
+								<ShowProPopup />
+							</PopupComponent>
+						)}
 						{/* SitemapPingWatcher.tsx — same unconditional-append
 						 * escape hatch as BackupStoragePanel above, needed for
 						 * the same reason: Sitemap.ts's own `settingAction`

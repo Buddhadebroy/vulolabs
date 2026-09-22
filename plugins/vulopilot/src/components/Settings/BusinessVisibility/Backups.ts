@@ -30,6 +30,47 @@ import { __ } from '@wordpress/i18n';
  * bit, dedicated credential storage for the secret bit" split
  * VuloCloudAiConnectionPanel.tsx/Controllers\VuloCloudAiConnection already established.
  */
+/**
+ * Settings → Backups' own "Cloud Storage" section — closed-state row
+ * config for the real `ExpandablePanelInput` vulopilot-pro's own
+ * modules/BackupCloudStorage/src/BackupStoragePanel.tsx renders
+ * (`isCustom: true`, no `formFields`, so there's never anything real to
+ * expand into here). Lives here (this tab's own config file) rather than
+ * hand-typed inside Settings.tsx's shared `GetForm()`, per direct
+ * instruction — Settings.tsx just imports this and wires the click-gate
+ * (Pro tag + popup) around it, the same "tab's own file owns its own
+ * content, Settings.tsx just renders it" split every other per-tab
+ * escape-hatch component (BackupStoragePanel.tsx before it moved to Pro,
+ * SitemapPingWatcher.tsx, IndexNowPanel.tsx, …) already follows. Not a
+ * fabricated-data placeholder: "Not configured"/"Not connected" is
+ * exactly what an unconnected real panel already shows, so there's no
+ * real-vs-shown divergence.
+ */
+export const CLOUD_STORAGE_LOCKED_METHODS = [
+	{
+		id: 's3',
+		icon: 'cloud-upload red',
+		label: __('Amazon S3', 'vulopilot'),
+		desc: __('Store backups in an Amazon S3 bucket.', 'vulopilot'),
+		settingDescription: '',
+		isCustom: true,
+		hideDeleteBtn: true,
+		badgeColor: 'red',
+		badgeText: __('Not configured', 'vulopilot'),
+	},
+	{
+		id: 'google_drive',
+		icon: 'google yellow',
+		label: __('Google Drive', 'vulopilot'),
+		desc: __('Store backups in a Google Drive folder.', 'vulopilot'),
+		settingDescription: '',
+		isCustom: true,
+		hideDeleteBtn: true,
+		badgeColor: 'red',
+		badgeText: __('Not connected', 'vulopilot'),
+	},
+];
+
 export default {
 	id: 'backups',
 	priority: 5,
@@ -94,17 +135,29 @@ export default {
 		},
 		{
 			key: 'backup_storage_destination',
-			type: 'select',
-			size: 20,
+			// `type: 'choice-toggle'` (ToggleInputFieldComponent, real
+			// zyra field type) replaces the former `type: 'select'`
+			// dropdown per direct instruction. Per-option `proSetting:
+			// true` on the s3/google_drive options is zyra's own real
+			// mechanism for this (ToggleInput.tsx: an option with
+			// `proSetting` renders its own `.admin-tag.pro-tag` badge and,
+			// without an active license, blocks the click and fires
+			// `onBlocked('pro')` instead of selecting it — InputRenderer
+			// already wires that straight to the same real Pro upsell
+			// popup every other Pro-gated field in this plugin uses), so
+			// no custom Settings.tsx code is needed the way Cloud
+			// Storage's own locked section below needed — this field
+			// stays entirely declarative.
+			type: 'choice-toggle',
 			label: __('Storage destination', 'vulopilot'),
 			settingDescription: __(
 				'Every backup always saves to this server first. Pick a remote destination below to also upload each completed backup there — configure its credentials in the Cloud Storage section below.',
 				'vulopilot'
 			),
 			options: [
-				{ label: __('This server only (Local)', 'vulopilot'), value: 'local' },
-				{ label: __('Amazon S3', 'vulopilot'), value: 's3' },
-				{ label: __('Google Drive', 'vulopilot'), value: 'google_drive' },
+				{ key: 'local', label: __('This server only (Local)', 'vulopilot'), value: 'local' },
+				{ key: 's3', label: __('Amazon S3', 'vulopilot'), value: 's3', proSetting: true },
+				{ key: 'google_drive', label: __('Google Drive', 'vulopilot'), value: 'google_drive', proSetting: true },
 			],
 		},
 	],
