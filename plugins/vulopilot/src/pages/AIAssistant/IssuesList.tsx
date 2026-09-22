@@ -200,8 +200,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 				icon="error"
 				title={__('Could not load issues', 'vulopilot')}
 				desc={error}
-				buttonText={__('Retry', 'vulopilot')}
-				onButtonClick={refetch}
 			/>
 		);
 	}
@@ -382,15 +380,23 @@ const IssuesList: React.FC<IssuesListProps> = ({
 				</div>
 			</ColumnComponent>
 
-			<ColumnComponent grid={4}>
-				<div id="ai-copilot-issue-detail-panel">
-					<IssueDetailPanel
-						group={selectedGroup}
-						onActionComplete={refetch}
-						onClose={() => setSelectedGroup(null)}
-					/>
-				</div>
-			</ColumnComponent>
+			{/* No right-side detail panel at all while there's genuinely
+			nothing to show detail for - not even the empty "Select an
+			issue" placeholder - same real `isLoading || data.length > 0`
+			check the left column's own "Nothing to suggest right now"
+			branch above already uses, so both columns agree on whether
+			there's real data. */}
+			{(isLoading || data.length > 0) && (
+				<ColumnComponent grid={4}>
+					<div id="ai-copilot-issue-detail-panel">
+						<IssueDetailPanel
+							group={selectedGroup}
+							onActionComplete={refetch}
+							onClose={() => setSelectedGroup(null)}
+						/>
+					</div>
+				</ColumnComponent>
+			)}
 		</>
 	);
 };

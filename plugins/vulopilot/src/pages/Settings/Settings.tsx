@@ -8,8 +8,6 @@ import { getAvailableSettings, getSettingById } from '@zyra/core';
 import { ExpandablePanelInput, InputRenderer } from '@zyra/inputs';
 import {
 	CardComponent,
-	ColumnComponent,
-	ContainerComponent,
 	FormGroupComponent,
 	FormGroupWrapperComponent,
 	ModuleGuardComponent,
@@ -23,7 +21,6 @@ import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
 import IndexNowPanel from '../../components/Settings/SEO/IndexNowPanel';
 import SitemapPingWatcher from '../../components/Settings/SEO/SitemapPingWatcher';
-import SitemapHowItWorksCard from '../../components/Settings/SEO/SitemapHowItWorksCard';
 import ShowProPopup from '../../components/Popup/Popup';
 import { CLOUD_STORAGE_LOCKED_METHODS } from '../../components/Settings/Backups';
 import { useFilterSlot } from '../../services/useFilterSlot';
@@ -218,43 +215,21 @@ const Settings = () => {
 						 * page rather than degrading, so this has to stay guarded
 						 * here rather than just passing `settingModal` through. */}
 						{settingModal ? (
-							// Sitemap tab's own right-side "How it works" card
-							// (SitemapHowItWorksCard.tsx) - per direct instruction, a
-							// real 2-column layout only for this one tab id rather than
-							// a new generic per-tab "sidebar" config field every other
-							// declarative tab would need to opt out of.
-							'sitemap' === currentTab ? (
-								<ContainerComponent>
-									<ColumnComponent grid={8}>
-										<InputRenderer
-											settings={settingModal}
-											setting={setting}
-											updateSetting={updateSetting}
-											Popup={ShowProPopup}
-											groupBySections={settingModal.groupBySections}
-										/>
-									</ColumnComponent>
-									<ColumnComponent grid={4}>
-										<SitemapHowItWorksCard />
-									</ColumnComponent>
-								</ContainerComponent>
-							) : (
-								<InputRenderer
-									settings={settingModal}
-									setting={setting}
-									updateSetting={updateSetting}
-									Popup={ShowProPopup}
-									// Per-tab opt-in (General.ts's own `groupBySections: true`
-									// is the first) into InputRenderer's card-grouped layout -
-									// same `.settings-section-group` real CSS
-									// NavigatorComponent.scss already ships, matching
-									// NavigatorComponent's own "Default" Storybook story.
-									// `hideSettingHeader` is deliberately NOT forwarded here:
-									// it only ever gates NavigatorComponent's own outer header
-									// (see that story's own docblock), not this grouping.
-									groupBySections={settingModal.groupBySections}
-								/>
-							)
+							<InputRenderer
+								settings={settingModal}
+								setting={setting}
+								updateSetting={updateSetting}
+								Popup={ShowProPopup}
+								// Per-tab opt-in (General.ts's own `groupBySections: true`
+								// is the first) into InputRenderer's card-grouped layout -
+								// same `.settings-section-group` real CSS
+								// NavigatorComponent.scss already ships, matching
+								// NavigatorComponent's own "Default" Storybook story.
+								// `hideSettingHeader` is deliberately NOT forwarded here:
+								// it only ever gates NavigatorComponent's own outer header
+								// (see that story's own docblock), not this grouping.
+								groupBySections={settingModal.groupBySections}
+							/>
 						) : (
 							<ModuleGuardComponent
 								icon="error"
@@ -383,8 +358,6 @@ const Settings = () => {
 					icon="error"
 					title={__('Could not load settings', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={loadSettings}
 				/>
 			</CardComponent>
 		);

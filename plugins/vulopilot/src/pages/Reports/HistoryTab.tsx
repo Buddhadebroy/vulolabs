@@ -453,8 +453,6 @@ const HistoryTab = () => {
 						icon="error"
 						title={__('Could not load history', 'vulopilot')}
 						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={() => fetchPage(1, false)}
 					/>
 				) : !isLoading && rows.length === 0 ? (
 					<ModuleGuardComponent

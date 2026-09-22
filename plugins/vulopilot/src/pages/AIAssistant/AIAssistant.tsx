@@ -11,7 +11,7 @@ import {
 	SectionComponent,
 	TooltipComponent,
 } from '@zyra/components';
-import { FileInput } from '@zyra/inputs';
+import { ButtonInput, FileInput } from '@zyra/inputs';
 import { getApiLink, scrollToId, sendApiResponse } from '@zyra/core';
 import ConnectVuloCloudPopup from '../../components/AiCredits/ConnectVuloCloudPopup';
 import { useAiCredits } from '../../services/useAiCredits';
@@ -453,7 +453,28 @@ const AIAssistant = () => {
 							onClose={() => setIsHistoryPopupOpen(false)}
 							width={25}
 							height="70%"
-							position="slide-right-to-left"
+							header={{
+								icon: 'live-chat',
+								title: __('Recent conversations', 'vulopilot'),
+								description: __(
+									'Your past conversations with AI Copilot.',
+									'vulopilot'
+								),
+							}}
+							footer={
+								<ButtonInput
+									buttons={{
+										text: __('View all history', 'vulopilot'),
+										rightIcon: 'arrow-right',
+										color: 'text-purple',
+										onClick: (e) => {
+											e.preventDefault();
+											window.location.href =
+												'?page=vulopilot#&tab=reports&subtab=history';
+										},
+									}}
+								/>
+							}
 						>
 							<RecentConversationsCard
 								onSelectConversation={(id: number) => {

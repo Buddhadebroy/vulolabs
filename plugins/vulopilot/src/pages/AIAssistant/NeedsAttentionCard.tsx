@@ -169,8 +169,6 @@ const NeedsAttentionCard: React.FC<NeedsAttentionCardProps> = ({
 					icon="error"
 					title={__('Could not load issues', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={load}
 				/>
 			) : isLoading || !summary ? (
 				<>

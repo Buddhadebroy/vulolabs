@@ -1227,8 +1227,6 @@ const BrokenLinksSection = () => {
 									icon="error"
 									title={__('Could not load findings', 'vulopilot')}
 									desc={findingsError}
-									buttonText={__('Retry', 'vulopilot')}
-									onButtonClick={loadFindings}
 								/>
 							) : (
 								<TableCard

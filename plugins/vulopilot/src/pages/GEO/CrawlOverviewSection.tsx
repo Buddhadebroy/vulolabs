@@ -121,7 +121,6 @@ const CrawlOverviewSection = () => {
 		categoryCounts,
 		isLoading,
 		error,
-		refetch,
 		onQueryUpdate,
 	} = useApiList<CrawlerVisitRow>(
 		'crawler-traffic',
@@ -148,8 +147,6 @@ const CrawlOverviewSection = () => {
 							'vulopilot'
 						)}
 						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={refetch}
 					/>
 				</CardComponent>
 			) : (
@@ -173,7 +170,7 @@ const CrawlOverviewSection = () => {
 					<div id="recent-crawl-requests">
 						<CardComponent
 							title={__('Recent Crawl Requests', 'vulopilot')}
-							titleIcon="search-discovery"
+							titleIcon="request-send"
 							desc={__('Every real crawler visit to your site, searchable and filterable.', 'vulopilot')}
 						>
 							<TableCard

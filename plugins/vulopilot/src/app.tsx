@@ -1,7 +1,8 @@
 /* global appLocalizer */
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
+import { Spinner } from '@wordpress/components';
 import { HeaderComponent } from '@zyra/components';
 import { scrollToId } from '@zyra/core';
 import Brand from './assets/images/brand-logo.png';
@@ -48,7 +49,11 @@ const Route = () => {
 		return null;
 	}
 
-	return <Component />;
+	return (
+		<Suspense fallback={<Spinner />}>
+			<Component />
+		</Suspense>
+	);
 };
 
 const App = () => {

@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, sendApiResponse } from '@zyra/core';
+import { getApiLink, scrollToId, sendApiResponse } from '@zyra/core';
 import {
 	BadgeComponent,
 	CardComponent,
@@ -205,6 +205,12 @@ const SeoTitlesPanel = () => {
 	const [separator, setSeparator] = useState<string>('|');
 	/** Which real context row's own Edit action opened the right-side edit panel - defaults to the first real context ('home') so the edit panel is open on load instead of an empty state, since this panel has no fallback sidebar to show otherwise. */
 	const [editingKey, setEditingKey] = useState<string | null>('home');
+
+	/** Shared by the row click and the action cell's own "Edit"/"Editing" button - same real toggle SeoIssuesByPageTable.tsx's own identical row-select pattern already establishes, now also scrolling the edit panel into view (`scrollToId`, not `window.scrollTo` - WP admin's own scrollable wrapper isn't the document) on a real select. */
+	const handleEditRow = (key: string) => {
+		setEditingKey(key);
+		scrollToId('site-identity-edit-panel');
+	};
 
 	const contexts = useMemo<ContextConfig[]>(() => {
 		const siteTitle = appLocalizer.site_title || __('Your Site', 'vulopilot');
@@ -454,11 +460,11 @@ const SeoTitlesPanel = () => {
 	 * like variables") describes.
 	 */
 	const renderTemplateField = (
-		label: string,
 		key: string,
 		score: LengthScore
 	) => (
-		<FormGroupComponent label={label} htmlFor={`${key}-edit-input`}>
+		<>
+		<FormGroupComponent label={__('Title format', 'vulopilot')} htmlFor={`${key}-edit-input`}>
 			<TextInput
 				id={`${key}-edit-input`}
 				value={templateValues[key] ?? ''}
@@ -478,8 +484,11 @@ const SeoTitlesPanel = () => {
 					/>
 				))}
 			</div>
+		</FormGroupComponent>
+		<FormGroupComponent row label={__('Title length', 'vulopilot')} htmlFor={`${key}-edit-input`}>
 			<BadgeComponent color={score.cls} text={`${score.length}/${score.max}`} />
 		</FormGroupComponent>
+		</>
 	);
 
 	return (
@@ -594,7 +603,7 @@ const SeoTitlesPanel = () => {
 													? 'eye'
 													: 'edit',
 											onClick: (row) =>
-												setEditingKey((row as unknown as PreviewRow).key),
+												handleEditRow((row as unknown as PreviewRow).key),
 										},
 									],
 								},
@@ -604,11 +613,15 @@ const SeoTitlesPanel = () => {
 							totalRows={previewRows.length}
 							isLoading={false}
 							activeRowId={editingKey ?? undefined}
+							onRowClick={(row: Record<string, unknown>) =>
+								handleEditRow((row as unknown as PreviewRow).key)
+							}
 						/>
 					</CardComponent>
 				</ColumnComponent>
 
 				<ColumnComponent grid={4}>
+					<div id="site-identity-edit-panel">
 					{editingRow && (
 						<CardComponent
 							title={sprintf(
@@ -621,13 +634,13 @@ const SeoTitlesPanel = () => {
 						>
 							<FormGroupWrapperComponent>
 								{renderTemplateField(
-									__('Title format', 'vulopilot'),
 									editingRow.templateKey,
 									editingRow.titleScore
 								)}
 							</FormGroupWrapperComponent>
 						</CardComponent>
 					)}
+					</div>
 				</ColumnComponent>
 			</ContainerComponent>
 			)}

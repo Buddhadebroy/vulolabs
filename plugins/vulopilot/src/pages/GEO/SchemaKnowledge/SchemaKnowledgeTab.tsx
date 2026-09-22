@@ -120,9 +120,7 @@ const SchemaKnowledgeTab = ({
 
 			<KnowledgeGraphSection />
 
-			<div id="schema-knowledge-structured-data">
-				<StructuredDataSection coverage={coverage} />
-			</div>
+			<StructuredDataSection coverage={coverage} />
 
 			<InspectorSection
 				snapshot={coverage.snapshot}

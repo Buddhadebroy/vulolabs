@@ -170,8 +170,6 @@ const IssuesSection = () => {
 				icon="error"
 				title={__('Could not load findings', 'vulopilot')}
 				desc={error}
-				buttonText={__('Retry', 'vulopilot')}
-				onButtonClick={refetch}
 			/>
 		);
 	}
@@ -321,15 +319,23 @@ const IssuesSection = () => {
 				</div>
 			</ColumnComponent>
 
-			<ColumnComponent grid={4}>
-				<div id="schema-knowledge-issue-detail-panel">
-				<IssueDetailPanel
-					group={selectedGroup}
-					onActionComplete={refetch}
-					onClose={() => setSelectedGroup(null)}
-				/>
-				</div>
-			</ColumnComponent>
+			{/* No right-side detail panel at all while there's genuinely
+			nothing to show detail for - not even the empty "Select an
+			issue" placeholder - same real `isLoading || data.length > 0`
+			check the left column's own "No schema issues right now"
+			branch above already uses, so both columns agree on whether
+			there's real data. */}
+			{(isLoading || data.length > 0) && (
+				<ColumnComponent grid={4}>
+					<div id="schema-knowledge-issue-detail-panel">
+					<IssueDetailPanel
+						group={selectedGroup}
+						onActionComplete={refetch}
+						onClose={() => setSelectedGroup(null)}
+					/>
+					</div>
+				</ColumnComponent>
+			)}
 		</>
 	);
 };

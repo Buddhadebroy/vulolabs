@@ -165,8 +165,6 @@ const NotFoundLogSection = () => {
 							icon="error"
 							title={__('Could not load the 404 log', 'vulopilot')}
 							desc={notFoundLogs.error}
-							buttonText={__('Retry', 'vulopilot')}
-							onButtonClick={notFoundLogs.refetch}
 						/>
 					) : (
 						<TableCard

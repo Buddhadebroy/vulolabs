@@ -138,7 +138,6 @@ interface SeoIssuesByPageTableProps {
 	scannerLabelMap: Map<string, string>;
 	isLoading: boolean;
 	hasError: boolean;
-	onRetry: () => void;
 	/** "SEO Issues" by default - IssuesSection.tsx's own AEO/GEO callers pass "AEO Issues"/"GEO Issues" so this column reads correctly for whichever real check set is showing. */
 	issuesColumnLabel?: string;
 	/** Only set when `IssuesSection.tsx` itself got a `pageAnalysis` prop (GeoTab.tsx/AeoTab.tsx) - adds the real deterministic visibility-% column, merging what used to be the standalone "Page-by-page analysis" table's own scope into this one. Undefined for SeoTab.tsx's own SEO usage, which never shows this column. */
@@ -205,7 +204,6 @@ const SeoIssuesByPageTable = ({
 	scannerLabelMap,
 	isLoading,
 	hasError,
-	onRetry,
 	issuesColumnLabel = __('SEO Issues', 'vulopilot'),
 	visibilityColumnLabel,
 	onExportCsv,
@@ -368,13 +366,6 @@ const SeoIssuesByPageTable = ({
 						'Something went wrong fetching this data. Please try again.',
 						'vulopilot'
 					)}
-				/>
-				<ButtonInput
-					buttons={{
-						text: __('Retry', 'vulopilot'),
-						icon: 'refresh',
-						onClick: onRetry,
-					}}
 				/>
 			</CardComponent>
 		);

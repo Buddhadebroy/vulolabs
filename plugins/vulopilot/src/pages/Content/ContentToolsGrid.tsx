@@ -149,7 +149,7 @@ export const CONTENT_TOOLS: ContentTool[] = [
 	},
 	{
 		id: 'schema-generator',
-		icon: 'shortcode',
+		icon: 'Shortcode',
 		color: 'indigo',
 		title: __('Schema Generator', 'vulopilot'),
 		desc: __('Create structured data schema markup.', 'vulopilot'),

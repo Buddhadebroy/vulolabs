@@ -22,7 +22,7 @@ const LatestReportsWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
-	const { data, isLoading, error, refetch } = useApiList<ReportRow>(
+	const { data, isLoading, error } = useApiList<ReportRow>(
 		'reports',
 		{ per_page: 5 }
 	);
@@ -41,8 +41,6 @@ const LatestReportsWidget: React.FC<WidgetProps> = ({
 					icon="error"
 					title={__('Could not load reports', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
 				/>
 			) : data.length === 0 ? (
 				<ModuleGuardComponent

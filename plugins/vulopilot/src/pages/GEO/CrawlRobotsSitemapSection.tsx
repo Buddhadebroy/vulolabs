@@ -498,7 +498,6 @@ const CrawlRobotsSitemapSection = () => {
 	const {
 		tableCardProps: blockedPagesProps,
 		error: blockedPagesError,
-		refetch: refetchBlockedPages,
 		isProPopupOpen,
 		closeProPopup,
 	} = useFindingsTable({
@@ -512,7 +511,6 @@ const CrawlRobotsSitemapSection = () => {
 	const {
 		tableCardProps: robotsTxtProps,
 		error: robotsTxtError,
-		refetch: refetchRobotsTxt,
 		isProPopupOpen: isRobotsTxtProPopupOpen,
 		closeProPopup: closeRobotsTxtProPopup,
 	} = useFindingsTable({
@@ -526,7 +524,6 @@ const CrawlRobotsSitemapSection = () => {
 	const {
 		tableCardProps: sitemapFindingsProps,
 		error: sitemapFindingsError,
-		refetch: refetchSitemapFindings,
 		isProPopupOpen: isSitemapProPopupOpen,
 		closeProPopup: closeSitemapProPopup,
 	} = useFindingsTable({
@@ -609,7 +606,7 @@ const CrawlRobotsSitemapSection = () => {
 				<ColumnComponent>
 					<CardComponent
 						title={__('Robots.txt Analysis', 'vulopilot')}
-						titleIcon="link"
+						titleIcon="txt"
 						desc={__(
 							'Your live robots.txt, fetched right now (not a cached copy). Edit it below - saving takes effect immediately, and /robots.txt serves your version from the next request. Other active plugins (e.g. WooCommerce) may still add their own rules on top. If a physical robots.txt file exists in your site’s root folder, the web server serves that file instead and these edits won’t apply.',
 							'vulopilot'
@@ -759,8 +756,6 @@ const CrawlRobotsSitemapSection = () => {
 										icon="error"
 										title={__('Could not load findings', 'vulopilot')}
 										desc={robotsTxtError}
-										buttonText={__('Retry', 'vulopilot')}
-										onButtonClick={refetchRobotsTxt}
 									/>
 								) : (
 									<>
@@ -841,8 +836,6 @@ const CrawlRobotsSitemapSection = () => {
 										icon="error"
 										title={__('Could not load findings', 'vulopilot')}
 										desc={sitemapFindingsError}
-										buttonText={__('Retry', 'vulopilot')}
-										onButtonClick={refetchSitemapFindings}
 									/>
 								) : (
 									<TableCard {...sitemapFindingsProps} bulkActions={[]} />
@@ -948,8 +941,6 @@ const CrawlRobotsSitemapSection = () => {
 								icon="error"
 								title={__('Could not load findings', 'vulopilot')}
 								desc={blockedPagesError}
-								buttonText={__('Retry', 'vulopilot')}
-								onButtonClick={refetchBlockedPages}
 							/>
 						) : (
 							<>

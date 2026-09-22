@@ -125,7 +125,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * gets in this file when the two don't share an id.
              */
             id: 'geo-analysis',
-            icon: 'global-community',
+            icon: 'geo',
             settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('GEO Analysis', 'vulopilot'),
             desc: __('Scans structure, entities, and machine-readability so AI models can understand your pages.', 'vulopilot'),
@@ -170,7 +170,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * fixes both bugs at once.
              */
             id: 'answer-engine-optimization',
-            icon: 'answer',
+            icon: 'aeo',
             settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('Answer Engine Optimization', 'vulopilot'),
             desc: __('Detects FAQs, direct-answer structure, and question coverage - then helps you get cited by ChatGPT, Perplexity, Gemini, and Copilot.', 'vulopilot'),
@@ -191,7 +191,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         },
         {
             id: 'knowledge-graph',
-            icon: 'intelligence',
+            icon: 'knowledge-graph',
             // Points at Business Information, not AI Visibility - the
             // Business/Services/Locations fields that actually feed this
             // module's own entity extraction moved there per direct
@@ -220,7 +220,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * matches no real module.
              */
             id: 'ai-crawler-tracking',
-            icon: 'analytics',
+            icon: 'url',
             settingsLink: '?page=vulopilot#&tab=settings&subtab=ai-visibility',
             name: __('AI Crawler Tracking', 'vulopilot'),
             desc: __('Tracks which AI bots - GPTBot, ClaudeBot, PerplexityBot, and others - are visiting your site, and what they\'re reading.', 'vulopilot'),
@@ -251,7 +251,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * no real module.
              */
             id: 'brand-visibility',
-            icon: 'announcement',
+            icon: 'brand-visibility',
             // Was '...&subtab=brand-intelligence' - that settings tab is
             // deleted (its real fields merged into Business Information)
             // per direct instruction; same real fields, new home.
@@ -284,7 +284,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * matches no real module.
              */
             id: 'technical-seo',
-            icon: 'search',
+            icon: 'seo',
             settingsLink: '?page=vulopilot#&tab=settings&subtab=seo-content',
             name: __('Technical SEO', 'vulopilot'),
             desc: __('Titles, meta, canonical, schema, internal links, sitemap, and robots.txt checks.', 'vulopilot'),
@@ -339,7 +339,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * separate change) or dropping this card entirely.
              */
             id: 'redirect-manager',
-            icon: 'link',
+            icon: 'redirect-url',
             settingsLink: '?page=vulopilot#&tab=settings&subtab=seo-content',
             name: __('Redirect Manager', 'vulopilot'),
             desc: __('301 redirects and 404 tracking, with automatic redirects on slug change.', 'vulopilot'),
@@ -364,7 +364,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * 'automations' above already have for the same reason.
              */
             id: 'keyword-rank-tracking',
-            icon: 'search',
+            icon: 'keyword',
             // Points at the real SEO & Visibility → Keywords subtab
             // (routes.ts's own 'seo-visibility' tab), not a Settings
             // subtab - same "point at the real tab this card unlocks"
@@ -392,7 +392,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * Performance services, not a module).
              */
             id: 'performance-monitoring',
-            icon: 'bar-chart',
+            icon: 'speed',
             // No real Settings tab exists for this one (see this card's own
             // docblock above - core, always-on Performance services, not a
             // module) - points at the real standalone Performance menu
@@ -422,7 +422,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * ('accessibility-scanner') matches no real module.
              */
             id: 'accessibility-checks',
-            icon: 'eye',
+            icon: 'accessibility',
             settingsLink: '?page=vulopilot#&tab=settings&subtab=accessibility',
             name: __('Accessibility Checks', 'vulopilot'),
             desc: __('WCAG checks - alt text, headings, ARIA, and form labels.', 'vulopilot'),

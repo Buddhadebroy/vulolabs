@@ -38,7 +38,7 @@ const RecentChangesWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
-	const { data, isLoading, error, refetch } = useApiList<ActivityLogRow>(
+	const { data, isLoading, error } = useApiList<ActivityLogRow>(
 		'activity-logs',
 		{ actor_type: 'automation', per_page: 4 }
 	);
@@ -57,8 +57,6 @@ const RecentChangesWidget: React.FC<WidgetProps> = ({
 					icon="error"
 					title={__('Could not load recent changes', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
 				/>
 			) : data.length === 0 ? (
 				<ModuleGuardComponent

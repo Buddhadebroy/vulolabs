@@ -99,7 +99,7 @@ const IntegrationsPanel = () => {
 				<GoogleServicesPanel />
 			</SectionRow>
 			<SectionRow
-				icon="shortcode"
+				icon="Shortcode"
 				title={__('Tag Manager', 'vulopilot')}
 				desc={__(
 					'Connect your Google account to access search performance, indexing information, and website traffic. Set up Google Analytics (https://support.google.com/analytics/answer/9304153)',

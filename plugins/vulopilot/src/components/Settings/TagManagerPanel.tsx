@@ -68,7 +68,7 @@ const TagManagerPanel = () => {
 	return (
 		<FormGroupWrapperComponent>
 			<CardHeader
-				icon="shortcode"
+				icon="module"
 				title={__('Container ID', 'vulopilot')}
 				desc={__(
 					'Your Google Tag Manager container ID',

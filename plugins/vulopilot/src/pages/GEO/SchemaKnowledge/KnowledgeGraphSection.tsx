@@ -376,8 +376,6 @@ const KnowledgeGraphSection = () => {
 							'vulopilot'
 						)}
 						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={fetchEntities}
 					/>
 				</CardComponent>
 			</ColumnComponent>
