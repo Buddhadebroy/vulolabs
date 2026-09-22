@@ -82,7 +82,7 @@ class GeoAnalyzer {
         $post = get_post( $post_id );
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) || 'publish' !== $post->post_status ) {
-            throw new \InvalidArgumentException( __( 'post_id must refer to a published post or page.', 'vulopilot' ) );
+            throw new \InvalidArgumentException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ) );
         }
 
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -484,7 +484,7 @@ class GeoAnalyzer {
         $decoded = json_decode( trim( (string) $content ), true );
 
         if ( ! is_array( $decoded ) ) {
-            throw new \RuntimeException( __( 'The AI did not return a usable GEO analysis.', 'vulopilot' ) );
+            throw new \RuntimeException( esc_html__( 'The AI did not return a usable GEO analysis.', 'vulopilot' ) );
         }
 
         $ai_scores = array();
@@ -496,8 +496,8 @@ class GeoAnalyzer {
                 throw new \RuntimeException(
                     sprintf(
                         /* translators: %s is the missing/invalid score dimension. */
-                        __( 'The AI response is missing a valid "%s" score.', 'vulopilot' ),
-                        $key
+                        esc_html__( 'The AI response is missing a valid "%s" score.', 'vulopilot' ),
+                        esc_html( $key )
                     )
                 );
             }
@@ -513,7 +513,7 @@ class GeoAnalyzer {
         );
 
         if ( empty( $suggestions ) ) {
-            throw new \RuntimeException( __( 'The AI did not return any suggestions.', 'vulopilot' ) );
+            throw new \RuntimeException( esc_html__( 'The AI did not return any suggestions.', 'vulopilot' ) );
         }
 
         return array(

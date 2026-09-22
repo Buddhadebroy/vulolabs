@@ -59,11 +59,11 @@ class GenerateFaqAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
         }
 
         if ( '' === trim( wp_strip_all_tags( $post->post_content ) ) ) {
-            throw new InvalidActionInputException( __( 'This post has no content to generate FAQs from.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'This post has no content to generate FAQs from.', 'vulopilot' ) );
         }
 
         return array(
@@ -117,12 +117,12 @@ class GenerateFaqAction extends AbstractBasicAction {
         $pairs = $output['faq_pairs'] ?? array();
 
         if ( empty( $pairs ) || ! is_array( $pairs ) ) {
-            throw new InvalidActionOutputException( __( 'The AI did not return any FAQ questions.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI did not return any FAQ questions.', 'vulopilot' ) );
         }
 
         foreach ( $pairs as $pair ) {
             if ( ! is_array( $pair ) || empty( $pair['question'] ) || empty( $pair['answer'] ) ) {
-                throw new InvalidActionOutputException( __( 'The AI returned an incomplete FAQ question/answer pair.', 'vulopilot' ) );
+                throw new InvalidActionOutputException( esc_html__( 'The AI returned an incomplete FAQ question/answer pair.', 'vulopilot' ) );
             }
         }
     }

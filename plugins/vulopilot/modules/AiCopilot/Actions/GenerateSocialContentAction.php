@@ -66,7 +66,7 @@ class GenerateSocialContentAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || 'publish' !== $post->post_status ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to a published post or page.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ) );
         }
 
         return array(
@@ -121,12 +121,12 @@ class GenerateSocialContentAction extends AbstractBasicAction {
         $captions = $output['captions'] ?? array();
 
         if ( empty( $captions ) || ! is_array( $captions ) ) {
-            throw new InvalidActionOutputException( __( 'The AI did not return any caption variants.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI did not return any caption variants.', 'vulopilot' ) );
         }
 
         foreach ( $captions as $caption ) {
             if ( ! is_string( $caption ) || '' === trim( $caption ) ) {
-                throw new InvalidActionOutputException( __( 'The AI returned an empty caption variant.', 'vulopilot' ) );
+                throw new InvalidActionOutputException( esc_html__( 'The AI returned an empty caption variant.', 'vulopilot' ) );
             }
         }
     }

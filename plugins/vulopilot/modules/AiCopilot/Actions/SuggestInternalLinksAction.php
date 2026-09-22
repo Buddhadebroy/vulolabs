@@ -63,13 +63,13 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || 'publish' !== $post->post_status ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to a published post or page.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ) );
         }
 
         $candidates = $this->find_candidate_posts( $post );
 
         if ( empty( $candidates ) ) {
-            throw new InvalidActionInputException( __( 'No other published posts share a category or tag with this one to link to.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'No other published posts share a category or tag with this one to link to.', 'vulopilot' ) );
         }
 
         return array(
@@ -193,18 +193,18 @@ class SuggestInternalLinksAction extends AbstractBasicAction {
         $suggestions = $output['suggestions'] ?? array();
 
         if ( empty( $suggestions ) || ! is_array( $suggestions ) ) {
-            throw new InvalidActionOutputException( __( 'The AI did not return any link suggestions.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI did not return any link suggestions.', 'vulopilot' ) );
         }
 
         $candidate_urls = wp_list_pluck( $input['candidates'], 'url' );
 
         foreach ( $suggestions as $suggestion ) {
             if ( ! is_array( $suggestion ) || empty( $suggestion['url'] ) || empty( $suggestion['anchor_text'] ) ) {
-                throw new InvalidActionOutputException( __( 'The AI returned an incomplete link suggestion.', 'vulopilot' ) );
+                throw new InvalidActionOutputException( esc_html__( 'The AI returned an incomplete link suggestion.', 'vulopilot' ) );
             }
 
             if ( ! in_array( $suggestion['url'], $candidate_urls, true ) ) {
-                throw new InvalidActionOutputException( __( 'The AI suggested a URL that was not in the candidate list.', 'vulopilot' ) );
+                throw new InvalidActionOutputException( esc_html__( 'The AI suggested a URL that was not in the candidate list.', 'vulopilot' ) );
             }
         }
     }

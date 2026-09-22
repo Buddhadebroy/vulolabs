@@ -80,7 +80,7 @@ class GenerateSchemaAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || 'publish' !== $post->post_status ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to a published post or page.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ) );
         }
 
         return array( 'post_id' => $post_id );
@@ -130,7 +130,7 @@ class GenerateSchemaAction extends AbstractBasicAction {
 
         if ( ! is_array( $decoded ) || ! isset( $decoded['@context'], $decoded['@type'] ) ) {
             throw new InvalidActionOutputException(
-                __( 'The AI did not return valid schema.org JSON-LD (missing @context/@type).', 'vulopilot' )
+                esc_html__( 'The AI did not return valid schema.org JSON-LD (missing @context/@type).', 'vulopilot' )
             );
         }
     }

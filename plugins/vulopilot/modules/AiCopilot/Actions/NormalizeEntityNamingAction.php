@@ -59,13 +59,13 @@ class NormalizeEntityNamingAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
         }
 
         $site_name = trim( (string) get_bloginfo( 'name' ) );
 
         if ( strlen( $site_name ) < 3 ) {
-            throw new InvalidActionInputException( __( 'The site name is too short to normalize reliably.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'The site name is too short to normalize reliably.', 'vulopilot' ) );
         }
 
         return array(
@@ -111,7 +111,7 @@ class NormalizeEntityNamingAction extends AbstractBasicAction {
         $rewritten = $output['rewritten_content'] ?? '';
 
         if ( '' === trim( wp_strip_all_tags( $rewritten ) ) ) {
-            throw new InvalidActionOutputException( __( 'The AI returned empty content.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned empty content.', 'vulopilot' ) );
         }
 
         $original_length  = mb_strlen( wp_strip_all_tags( $input['original_content'] ) );
@@ -119,12 +119,12 @@ class NormalizeEntityNamingAction extends AbstractBasicAction {
 
         if ( $original_length > 0 && ( $rewritten_length / $original_length ) < self::MIN_LENGTH_RATIO ) {
             throw new InvalidActionOutputException(
-                __( 'The AI returned content that looks truncated rather than a targeted rewrite - rejected for safety.', 'vulopilot' )
+                esc_html__( 'The AI returned content that looks truncated rather than a targeted rewrite - rejected for safety.', 'vulopilot' )
             );
         }
 
         if ( $this->count_naming_variants( wp_strip_all_tags( $rewritten ), $input['site_name'] ) > 1 ) {
-            throw new InvalidActionOutputException( __( 'The AI did not normalize every spelling variant - rejected.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI did not normalize every spelling variant - rejected.', 'vulopilot' ) );
         }
     }
 

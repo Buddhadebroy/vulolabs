@@ -541,8 +541,8 @@ class FindingRepository extends AbstractRepository {
         // `get_category_group_counts()` already established for a
         // likewise placeholder-free query).
         $total_groups = (int) ( $count_values
-            ? $wpdb->get_var( $wpdb->prepare( $count_sql, ...$count_values ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's/$having's placeholder count matches $values'/$priority_ranks' combined size at runtime.
-            : $wpdb->get_var( $count_sql ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.NotPrepared -- no real placeholders left to bind in this branch; see comment above.
+            ? $wpdb->get_var( $wpdb->prepare( $count_sql, ...$count_values ) ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where's/$having's placeholder count matches $values'/$priority_ranks' combined size at runtime.
+            : $wpdb->get_var( $count_sql ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.NotPrepared -- no real placeholders left to bind in this branch; see comment above.
 
         if ( 0 === $total_groups ) {
             return array(

@@ -63,11 +63,11 @@ class GenerateAltAction extends AbstractBasicAction {
         $attachment_id = absint( $input['attachment_id'] ?? 0 );
 
         if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
-            throw new InvalidActionInputException( __( 'attachment_id must refer to an existing media attachment.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'attachment_id must refer to an existing media attachment.', 'vulopilot' ) );
         }
 
         if ( ! wp_attachment_is_image( $attachment_id ) ) {
-            throw new InvalidActionInputException( __( 'This attachment is not an image.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'This attachment is not an image.', 'vulopilot' ) );
         }
 
         return array( 'attachment_id' => $attachment_id );
@@ -112,11 +112,11 @@ class GenerateAltAction extends AbstractBasicAction {
         $alt_text = $output['alt_text'] ?? '';
 
         if ( '' === $alt_text ) {
-            throw new InvalidActionOutputException( __( 'The AI returned empty alt text.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned empty alt text.', 'vulopilot' ) );
         }
 
         if ( mb_strlen( $alt_text ) > 250 ) {
-            throw new InvalidActionOutputException( __( 'The AI returned alt text that is too long.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned alt text that is too long.', 'vulopilot' ) );
         }
     }
 

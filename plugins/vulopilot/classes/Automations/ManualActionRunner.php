@@ -74,13 +74,13 @@ class ManualActionRunner {
         $finding_row = $this->findings->find( $finding_id );
 
         if ( ! $finding_row ) {
-            throw new \InvalidArgumentException( sprintf( 'No finding found for id %d.', $finding_id ) );
+            throw new \InvalidArgumentException( sprintf( 'No finding found for id %d.', absint( $finding_id ) ) );
         }
 
         $action = $this->actions->get_action( $action_id );
 
         if ( ! $action ) {
-            throw new \InvalidArgumentException( sprintf( 'No manual action found for id %s.', $action_id ) );
+            throw new \InvalidArgumentException( sprintf( 'No manual action found for id %s.', esc_html( $action_id ) ) );
         }
 
         return $action->execute( $this->build_recommendation( $finding_row ), array() );

@@ -53,8 +53,8 @@ class AISafetyValidator {
             throw new UnsafePromptException(
                 sprintf(
                     /* translators: %d is the maximum allowed prompt length in characters. */
-                    __( 'This request is too long to send to the AI service (limit: %d characters).', 'vulopilot' ),
-                    self::MAX_PROMPT_LENGTH
+                    esc_html__( 'This request is too long to send to the AI service (limit: %d characters).', 'vulopilot' ),
+                    absint( self::MAX_PROMPT_LENGTH )
                 )
             );
         }
@@ -62,7 +62,7 @@ class AISafetyValidator {
         foreach ( self::SECRET_PATTERNS as $pattern ) {
             if ( preg_match( $pattern, $combined ) ) {
                 throw new UnsafePromptException(
-                    __( 'This request appears to contain a credential and was blocked before sending.', 'vulopilot' )
+                    esc_html__( 'This request appears to contain a credential and was blocked before sending.', 'vulopilot' )
                 );
             }
         }

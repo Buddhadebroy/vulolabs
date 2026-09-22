@@ -72,11 +72,11 @@ class GenerateExcerptAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
         }
 
         if ( '' === trim( wp_strip_all_tags( $post->post_content ) ) ) {
-            throw new InvalidActionInputException( __( 'This post has no content to summarize.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'This post has no content to summarize.', 'vulopilot' ) );
         }
 
         return array(
@@ -127,11 +127,11 @@ class GenerateExcerptAction extends AbstractBasicAction {
         $excerpt = $output['excerpt'] ?? '';
 
         if ( '' === $excerpt ) {
-            throw new InvalidActionOutputException( __( 'The AI returned an empty excerpt.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned an empty excerpt.', 'vulopilot' ) );
         }
 
         if ( mb_strlen( $excerpt ) > self::MAX_LENGTH * 2 ) {
-            throw new InvalidActionOutputException( __( 'The AI returned an excerpt that is too long.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned an excerpt that is too long.', 'vulopilot' ) );
         }
     }
 
