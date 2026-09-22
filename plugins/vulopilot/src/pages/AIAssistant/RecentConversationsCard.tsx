@@ -2,10 +2,8 @@
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import {
-	CardComponent,
 	ListComponent,
 	ModuleGuardComponent,
-	ButtonInput,
 	PopupComponent,
 } from '@zyra/components';
 import { getApiLink, getApiResponse } from '@zyra/core';
@@ -136,69 +134,53 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 
 	return (
 		<>
-			<CardComponent
-				className="recent-conversations-card"
-				title={__('Recent conversations', 'vulopilot')}
-				titleIcon="live-chat"
-				desc={__('Your past conversations with AI Copilot.', 'vulopilot')}
-				action={
-					<ButtonInput
-						buttons={{
-							text: __('View all history', 'vulopilot'),
-							rightIcon: 'arrow-right',
-							color: 'text-purple',
-							onClick: (e) => {
-								e.preventDefault();
-								window.location.href =
-									'?page=vulopilot#&tab=reports&subtab=history';
-							},
-						}}
-					/>
-				}
-			>
-				{error ? (
-					<ModuleGuardComponent
-						icon="error"
-						title={__('Could not load recent conversations', 'vulopilot')}
-						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={refetch}
-					/>
-				) : !isLoading && data.length === 0 ? (
-					<ModuleGuardComponent
-						icon="live-chat"
-						title={__('No AI activity yet', 'vulopilot')}
-						desc={__(
-							'VuloPilot will log every AI-assisted action here.',
-							'vulopilot'
-						)}
-					/>
-				) : (
-					<ListComponent
-						className="mini-card report"
-						isLoading={isLoading}
-						items={data.map((row) => ({
-							id: row.id,
-							icon: 'live-chat',
-							title: row.title,
-							tags: (
-								<>
-									<div className="small desc">
-										{timeAgo(row.updated_at)}
-									</div>
-									<i
-										className="adminfont-eye recent-conversation-preview-icon"
-										title={__('Preview', 'vulopilot')}
-										onClick={(e) => handlePreview(row, e)}
-									/>
-								</>
-							),
-							action: () =>
-								onSelectConversation(Number(row.id)),
-						}))}
-					/>
-				)}
-			</CardComponent>
+			{/* No own CardComponent wrapper - its title/desc/"View all
+			history" action moved to AIAssistant.tsx's own PopupComponent
+			header/footer (this card's only real caller, already inside a
+			popup of its own), so the two don't double up their own
+			separate header/action chrome. */}
+			{error ? (
+				<ModuleGuardComponent
+					icon="error"
+					title={__('Could not load recent conversations', 'vulopilot')}
+					desc={error}
+					buttonText={__('Retry', 'vulopilot')}
+					onButtonClick={refetch}
+				/>
+			) : !isLoading && data.length === 0 ? (
+				<ModuleGuardComponent
+					icon="live-chat"
+					title={__('No AI activity yet', 'vulopilot')}
+					desc={__(
+						'VuloPilot will log every AI-assisted action here.',
+						'vulopilot'
+					)}
+				/>
+			) : (
+				<ListComponent
+					className="mini-card report"
+					isLoading={isLoading}
+					items={data.map((row) => ({
+						id: row.id,
+						icon: 'live-chat',
+						title: row.title,
+						tags: (
+							<>
+								<div className="small desc">
+									{timeAgo(row.updated_at)}
+								</div>
+								<i
+									className="adminfont-eye recent-conversation-preview-icon"
+									title={__('Preview', 'vulopilot')}
+									onClick={(e) => handlePreview(row, e)}
+								/>
+							</>
+						),
+						action: () =>
+							onSelectConversation(Number(row.id)),
+					}))}
+				/>
+			)}
 
 			<PopupComponent
 				open={null !== previewConversation}

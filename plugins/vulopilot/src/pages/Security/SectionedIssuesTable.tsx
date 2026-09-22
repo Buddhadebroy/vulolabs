@@ -641,21 +641,23 @@ const SectionedIssuesTable = ({
 				)}
 			</ColumnComponent>
 
-			<ColumnComponent grid={4}>
-				<div id={`${id}-detail-panel`}>
-				<IssueDetailPanel
-					group={selectedGroup}
-					onActionComplete={handleActionComplete}
-					onSelectScanner={(scannerId) => {
-						// Same cross-tab navigation SectionedIssuesTable's own
-						// callers use elsewhere - delegated to the panel's
-						// own prop if it exposes one, otherwise this stays a
-						// no-op. Left as-is to avoid changing existing
-						// behavior.
-					}}
-				/>
-				</div>
-			</ColumnComponent>
+			{/* No right-side detail panel at all while there's genuinely
+			nothing to show detail for (a locked section, or a real empty
+			tab) - not even the empty "Select an issue" placeholder - same
+			real `isLoading || sortedGroups.length > 0` check the left
+			column's own "Nothing here right now" branch above already
+			uses, so both columns agree on whether there's real data. */}
+			{!isActiveSectionLocked && (isLoading || sortedGroups.length > 0) && (
+				<ColumnComponent grid={4}>
+					<div id={`${id}-detail-panel`}>
+					<IssueDetailPanel
+						group={selectedGroup}
+						onActionComplete={handleActionComplete}
+						onClose={() => setSelectedGroup(null)}
+					/>
+					</div>
+				</ColumnComponent>
+			)}
 		</>
 	);
 
