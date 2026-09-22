@@ -8,7 +8,7 @@
 namespace VuloPilot\ContentIntelligence;
 
 use VuloPilot\AI\AiRequestSender;
-use VuloPilot\ValueObjects\ContentScore;
+use VuloPilot\ContentIntelligence\ValueObjects\ContentScore;
 use VuloPilot\Repositories\FindingRepository;
 
 defined( 'ABSPATH' ) || exit;

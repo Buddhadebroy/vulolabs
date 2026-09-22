@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\AIResponse;
 use VuloPilot\AI\AiRequestSender;
 use VuloPilot\Repositories\ActionRunRepository;
 use VuloPilot\Repositories\ActivityLogRepository;
-use VuloPilot\Services\AiCreditGatewayClient;
+use VuloPilot\AiCopilot\Services\AiCreditGatewayClient;
 use VuloPilot\Services\AiCreditsConnection;
 use VuloPilot\Exceptions\AiByokNotConfiguredException;
 use VuloPilot\Exceptions\InsufficientCreditsException;

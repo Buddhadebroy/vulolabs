@@ -153,9 +153,7 @@ class Rest {
             'visibility_score'            => new Controllers\Visibility(),
             'schema_coverage'             => new Controllers\Schema(),
             'google_services'             => new Controllers\GoogleServices(),
-            'vulocloud_account'           => new Controllers\VuloCloudAccount(),
             'ai_credits'                  => new Controllers\AiCredits(),
-            'vulocloud_connect'           => new Controllers\VuloCloudConnect(),
         );
 
         $extra_controllers = apply_filters( 'vulopilot_rest_controllers', array() );

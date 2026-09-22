@@ -46,15 +46,13 @@ import type { ComponentType } from 'react';
  * `update_item()` merges that subset into the stored option rather than
  * replacing it wholesale.
  *
- * The 'import-export' tab is a "special component" escape hatch (same
- * one vulolabs's Settings.tsx uses for StoreStatus/Invoice/etc.) -
- * file download/upload and a destructive reset don't fit the per-field
- * auto-save model, so that one tab id renders ImportExportPanel instead
- * of InputRenderer. 'modules' is the same escape hatch, added per direct
- * instruction ("move the modules tab in settings after general tab") -
- * real enable/disable toggles, not persisted fields, so it renders
- * ModulesPanel.tsx instead; see Modules.ts's own docblock for where its
- * content used to live.
+ * 'modules' is the same "special component" escape hatch (same one
+ * vulolabs's Settings.tsx uses for StoreStatus/Invoice/etc.) - real
+ * enable/disable toggles, not persisted fields, don't fit the per-field
+ * auto-save model, so that one tab id renders ModulesPanel.tsx instead of
+ * InputRenderer, added per direct instruction ("move the modules tab in
+ * settings after general tab"); see Modules.ts's own docblock for where
+ * its content used to live.
  */
 
 const Settings = () => {

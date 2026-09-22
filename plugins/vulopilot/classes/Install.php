@@ -318,7 +318,7 @@ class Install {
      * without decoding the full `turns` blob for every row.
      *
      * `turns` is `longtext`, `wp_json_encode()`d/`json_decode()`d in
-     * Repositories\AiConversationRepository - same convention
+     * AiCopilot\Repositories\AiConversationRepository - same convention
      * `vulopilot_ai_action_runs`' own `input`/`output`/`preview` columns
      * already use for structured data (no native MySQL JSON column type is
      * used anywhere in this codebase).

@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 use VuloPilot\Repositories\FindingRepository;
 use VuloPilot\Repositories\AutomationsRepository;
 use VuloPilot\Repositories\ActionRunRepository;
-use VuloPilot\Repositories\AiConversationRepository;
+use VuloPilot\AiCopilot\Repositories\AiConversationRepository;
 
 defined( 'ABSPATH' ) || exit;
 

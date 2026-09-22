@@ -8,7 +8,7 @@
 namespace VuloPilot\Geo;
 
 use VuloPilot\AI\AiRequestSender;
-use VuloPilot\ValueObjects\GeoScore;
+use VuloPilot\Geo\ValueObjects\GeoScore;
 use VuloPilot\Repositories\ActivityLogRepository;
 use VuloPilot\Repositories\FindingRepository;
 use VuloPilot\Geo\Scanners\GeoCitationOpportunityScanner;
