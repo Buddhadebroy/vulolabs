@@ -8,12 +8,10 @@ interface SnippetPreviewProps {
 }
 
 /**
- * A Google-results-style preview - RankMath's own snippet editor is the
- * direct model (rankmath.com/kb/on-page-seo/). Title/description are
- * truncated with the same thresholds Services\OnPageAnalyzer/
- * AIActions\Actions\WriteMetaTitleAction/WriteMetaDescriptionAction already
- * use server-side (60/160 chars) so what's shown here matches what those
- * checks are actually grading against.
+ * A Google-results-style preview. Title/description are truncated with
+ * the same thresholds Services\OnPageAnalyzer/WriteMetaTitleAction/
+ * WriteMetaDescriptionAction use server-side (60/160 chars) so this
+ * matches what those checks actually grade against.
  */
 export default function SnippetPreview( { title, description, url, siteName }: SnippetPreviewProps ) {
 	const displayTitle = title || __( '(No title yet)', 'vulopilot' );

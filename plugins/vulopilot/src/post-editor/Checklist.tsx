@@ -22,11 +22,9 @@ const STATUS_ICON: Record< AnalysisResult[ 'status' ], string > = {
 };
 
 /**
- * Worst-to-best across a group's own results - same 3-state severity order
+ * Worst-to-best across a group's results - same 3-state severity order
  * every other status rollup in this codebase uses (fail beats warning
- * beats pass). Drives the group header's own summary pill, mirroring
- * RankMath's own "All Good"/otherwise pill next to each collapsible
- * section header.
+ * beats pass). Drives the group header's summary pill.
  */
 const GROUP_STATUS: Record< 'good' | 'ok' | 'bad', { label: string; className: string; icon: string } > = {
 	good: { label: __( 'All Good', 'vulopilot' ), className: 'good', icon: 'check' },
@@ -48,16 +46,13 @@ const summarizeGroup = ( results: AnalysisResult[] ): keyof typeof GROUP_STATUS 
 
 /**
  * Renders one of Services\OnPageAnalyzer::analyze()'s check groups
- * ('basic'/'additional'/'title_readability' - mirrors RankMath's own
- * "Basic SEO"/"Additional"/"Title Readability" grouping) as a collapsible
- * section with a status-summary pill in its header - RankMath's own
- * "Basic SEO ✓ All Good ⌄" shape, per direct screenshot comparison. Starts
- * expanded (matches that same screenshot's default state); collapsing is
- * purely a local UI convenience, every check is still computed either way.
- * Every row that's `fixable` gets a "Fix with AI" button wired to
+ * ('basic'/'additional'/'title_readability') as a collapsible section
+ * with a status-summary pill in its header. Starts expanded; collapsing
+ * is a local UI convenience only, every check is still computed either
+ * way. Every `fixable` row gets a "Fix with AI" button wired to
  * vulopilot-pro's `POST /post-seo/{id}/fix` (Pro-only - free users see an
- * upgrade prompt instead, same posture the SEO tab's FindingsTable "Fix"
- * row action already takes for Free installs).
+ * upgrade prompt, same posture as the SEO tab's FindingsTable "Fix" row
+ * action).
  */
 export default function Checklist( { title, results, postId, isPro, shopUrl, onFixed, highlightId }: ChecklistProps ) {
 	const [ fixingId, setFixingId ] = useState< string | null >( null );

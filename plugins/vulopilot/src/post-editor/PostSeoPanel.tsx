@@ -10,15 +10,11 @@ import PageAnalysisTab from './tabs/PageAnalysisTab';
 import type { SeoIssueEditorTab } from '../services/seoIssueEditorTarget';
 
 /**
- * `icon` (a Dashicon slug - always available in wp-admin, no extra
- * dependency needed) is what actually gives these RankMath-style
- * icon-only tabs: TabPanel's own rendering is `children: !tab.icon &&
- * tab.title` - supplying `icon` here suppresses the visible text label
- * entirely and shows the icon instead, with `title` surviving only as the
- * button's accessible name/tooltip (`label: tab.icon && tab.title`,
- * `showTooltip: !!tab.icon` - both confirmed straight from the installed
- * `@wordpress/components` build, not undocumented behavior this relies on
- * by accident).
+ * `icon` (a Dashicon slug) is what gives icon-only tabs: TabPanel renders
+ * `children: !tab.icon && tab.title`, so supplying `icon` suppresses the
+ * text label and shows the icon instead, with `title` surviving as the
+ * button's accessible name/tooltip (`label`/`showTooltip` in
+ * `@wordpress/components`).
  */
 const TABS = [
 	{ name: 'general', title: __( 'General', 'vulopilot' ), icon: 'admin-generic', Component: GeneralTab },
@@ -36,12 +32,10 @@ interface PostSeoPanelProps {
 }
 
 /**
- * The metabox's own tab shell - General/Advanced/Social/Schema mirror
- * RankMath's own meta box structure (rankmath.com/kb/on-page-seo/) as
- * researched for the readme rewrite pass; "Page Analysis" is VuloPilot's
- * own addition, mirroring `GEO/PageAnalysisPanel.tsx`'s real checklist
- * inside the editor itself (see PageAnalysisTab.tsx's own docblock).
- * Rendered inside the PluginSidebar registered by src/post-editor/index.tsx.
+ * The metabox's tab shell. "Page Analysis" is VuloPilot's own addition,
+ * mirroring `GEO/PageAnalysisPanel.tsx`'s checklist inside the editor
+ * itself (see PageAnalysisTab.tsx). Rendered inside the PluginSidebar
+ * registered by src/post-editor/index.tsx.
  *
  * `navTarget` is this panel's own in-sidebar navigation state - lets
  * `PageAnalysisTab.tsx`'s own checklist rows jump straight to the real

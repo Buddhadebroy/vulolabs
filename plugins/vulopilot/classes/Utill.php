@@ -475,14 +475,10 @@ class Utill {
         // overrides `wp_sitemaps_max_urls` when set.
         'sitemap_links_per_page'                => 200,
         // Neither of these has a real backing implementation - WordPress
-        // core's native XML sitemaps (unlike Yoast/RankMath's own
-        // from-scratch generators) have no `<image:image>` sitemap
-        // extension support at all, and SitemapManager.php's own docblock
-        // deliberately rejects building a second, competing sitemap
-        // implementation just to add one. Persisted only, same honest
-        // "round-trips through Settings but nothing reads it yet" posture
-        // Seo.ts's own Redirects & 404s section documents for the same
-        // reason (a real from-scratch generator is a separate, larger
+        // core's native XML sitemaps have no `<image:image>` extension
+        // support, and SitemapManager.php deliberately doesn't build a
+        // second sitemap system just to add one. Persisted only, not
+        // read yet (a real from-scratch generator is a separate, larger
         // feature this codebase hasn't taken on).
         'sitemap_include_images'                => array(),
         'sitemap_include_featured_images'       => array(),

@@ -23,26 +23,15 @@ interface GeneralTabProps {
  * The metabox's General tab - focus keyword, SEO title (native
  * `post_title`), meta description (native `post_excerpt`), a live snippet
  * preview, and Services\OnPageAnalyzer's checklist. Analysis re-runs on a
- * short debounce as the editor's title/excerpt/content/focus keyword
- * change - it has to run against LIVE, possibly-unsaved editor state
- * (this class's own PHP counterpart's docblock explains why that's a
- * POST-with-body rather than reading the stored post).
+ * short debounce against LIVE, possibly-unsaved editor state (see
+ * PostSeo.php for why that's a POST-with-body, not a stored-post read).
  *
- * Section order/shape mirrors RankMath's own General tab (per direct
- * screenshot comparison): Preview first with the title/description fields
- * tucked behind an "Edit Snippet" toggle rather than always visible, then
- * Focus Keyword as a removable pill rather than a plain text field, then
- * the grouped checklist. Deliberately NOT cloned 1:1 though - RankMath's
- * own focus keyword is a genuine multi-keyword field (several independent
- * pills, each separately graded) and has a "This post is Pillar Content"
- * checkbox; VuloPilot's Services\OnPageAnalyzer only ever grades ONE
- * `_vulopilot_focus_keyword` string end to end (title/description/content
- * checks below all read a single value), and there's no pillar-content
- * concept anywhere in this codebase (RankMath's own version feeds its
- * internal-linking suggestions, which VuloPilot has no equivalent of) - so
- * this keeps the single-keyword pill honestly wired to that one real
- * field instead of building a multi-pill input with no backing analysis,
- * and leaves the checkbox out rather than adding a control that would do
+ * Preview sits first with title/description tucked behind an "Edit
+ * Snippet" toggle; Focus Keyword is a single removable pill, not a
+ * multi-keyword field - Services\OnPageAnalyzer only ever grades ONE
+ * `_vulopilot_focus_keyword` string end to end, and there's no
+ * pillar-content concept in this codebase, so a multi-pill input or a
+ * "Pillar Content" checkbox would have nothing real backing it, doing
  * nothing.
  */
 export default function GeneralTab( { highlightTarget }: GeneralTabProps ) {
