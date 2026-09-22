@@ -1,37 +1,22 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Scanning → SEO & Content - first tab under Scanning (see
- * `priority: 0` below) per direct instruction, now that the sibling
- * "Content & Search" tab (id `content-search`, ContentSearch.ts) has been
- * removed entirely, also per direct instruction. That tab used to hold a
- * `content_search_scans` nested-setting panel (5 scan-category rows:
- * seo/images/links/schema/readability); over several direct instructions
- * every one of its real per-check settings (`flag_missing_meta_description`/
- * `flag_duplicate_titles`, `flag_missing_alt_text`/`flag_broken_images`,
- * `flag_broken_links`, `content_readability_min_score`) was moved out into
- * this tab as flat standalone keys, leaving only each row's own bare
- * `enable` master switch behind - with no settings left of its own to
- * show, that tab (and its "Restore Defaults" header,
- * ContentSearchScansHeader.tsx, also deleted) was removed outright rather
- * than kept around empty.
+ * Settings → Scanning → SEO & Content - first tab under Scanning
+ * (`priority: 0` below).
  *
  * `content_search_scans.{seo,images,links,schema,readability}.enable`
- * (Utill::VULOPILOT_SETTINGS_DEFAULTS) are themselves still real and still
- * read by their own PHP scanners - SeoScanner/HeadingStructureScanner,
- * LargeImagesScanner, RedirectAnalysisScanner/NotFoundScanner,
- * SchemaScanner/StructuredDataValidationScanner, ReadabilityScanner's own
- * on/off switch respectively - just with no admin UI left to toggle them
- * (they stay at their own `true` default). `broken_link_check_frequency`/
- * `broken_image_check_frequency` are the same story, flat settings with
- * no UI of their own, read directly by BrokenLinksScanner/
- * BrokenImagesScanner as a rate-limit, not an on/off switch.
+ * (Utill::VULOPILOT_SETTINGS_DEFAULTS) are still real and read by their
+ * PHP scanners (SeoScanner/HeadingStructureScanner, LargeImagesScanner,
+ * RedirectAnalysisScanner/NotFoundScanner,
+ * SchemaScanner/StructuredDataValidationScanner, ReadabilityScanner) but
+ * have no admin UI to toggle them - they stay at their `true` default.
+ * `broken_link_check_frequency`/`broken_image_check_frequency` are flat
+ * rate-limit settings with no UI, read directly by
+ * BrokenLinksScanner/BrokenImagesScanner.
  *
- * Granular, per-check toggles replacing the old whole-category
- * `enable_seo_scanning` switch - same "no blanket kill switch, only
- * granular ones" posture Scanning → GEO already uses. Each checkbox's
- * option key/value is the field's own settings key (not a shared
- * 'enabled' literal), matching every other settings tab in this plugin.
+ * Granular per-check toggles, no blanket kill switch - same posture
+ * Scanning → GEO uses. Each checkbox's option key/value is the field's
+ * own settings key, not a shared 'enabled' literal.
  *
  * Real backing per card:
  * - Titles & meta / Images: `flag_orphan_pages`/`thin_content_word_threshold`
@@ -51,10 +36,9 @@ import { __ } from '@wordpress/i18n';
  *   (Scanners\Basic\AiCrawlerBlockedPagesScanner,
  *   AI-CRAWLER-ANALYTICS-MODULE.md).
  *
- * "XML Sitemap"/"Post types & taxonomies in sitemap"/"HTML Sitemap" (all
- * real `sitemap_*`/`html_sitemap_*` keys) moved out entirely, into their
- * own new sub-tab, Settings → Get Started → Sitemap (`GetStarted/Sitemap.ts`)
- * - same real backend, only where the UI for it lives moved.
+ * "XML Sitemap"/"Post types & taxonomies in sitemap"/"HTML Sitemap"
+ * (`sitemap_*`/`html_sitemap_*` keys) live in Settings → Get Started →
+ * Sitemap (`GetStarted/Sitemap.ts`).
  * - "Add canonical URL tags" / "Add Open Graph & Twitter Card tags"
  *   (Links & schema): real, independent tag output via
  *   Services\CanonicalUrlManager/SocialMetaTagsManager - the mechanical
@@ -69,21 +53,15 @@ import { __ } from '@wordpress/i18n';
  *   this codebase yet. That's a separate, larger feature; these three
  *   toggles round-trip through Settings correctly but nothing reads them
  *   yet (Utill.php's own defaults list this same caveat).
- * "Tag Manager" (`tag_manager_enabled`/`tag_manager_container_id`, real
- * Services\TagManagerService `<script>`/`<noscript><iframe>` output - used
- * to be this tab's own last section) moved out to Settings → Connections
- * (TagManagerPanel.tsx), rendered above "Webmaster Tools" there, per direct
- * instruction - same real keys, nothing server-side changed.
+ * "Tag Manager" (`tag_manager_enabled`/`tag_manager_container_id`,
+ * Services\TagManagerService `<script>`/`<noscript><iframe>` output)
+ * lives in Settings → Connections (TagManagerPanel.tsx).
  *
- * "Webmaster Tools"/"Custom Webmaster Tags" (all 6 `webmaster_*_verification`
- * codes + `webmaster_custom_tags`, all still real
- * Services\WebmasterToolsManager-backed `<meta>` output) moved out of this
- * tab entirely, merged into Settings → Connections → Site Verification
- * (SiteVerificationPanel.tsx) per direct instruction - that panel already
- * owned Google/Bing/Pinterest with a real "Verify" self-check; Baidu/
- * Yandex/Norton/Custom Tags now live there too as plain fields (no fake
- * Verify button - this plugin has no real self-check for those), so
- * there's one editor for all 6 instead of two.
+ * "Webmaster Tools"/"Custom Webmaster Tags" (6 `webmaster_*_verification`
+ * codes + `webmaster_custom_tags`, Services\WebmasterToolsManager-backed
+ * `<meta>` output) live in Settings → Connections → Site Verification
+ * (SiteVerificationPanel.tsx) - Baidu/Yandex/Norton/Custom Tags are plain
+ * fields there (no "Verify" self-check; only Google/Bing/Pinterest have one).
  */
 export default {
 	id: 'seo-content',

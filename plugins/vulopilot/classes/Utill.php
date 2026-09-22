@@ -475,14 +475,10 @@ class Utill {
         // overrides `wp_sitemaps_max_urls` when set.
         'sitemap_links_per_page'                => 200,
         // Neither of these has a real backing implementation - WordPress
-        // core's native XML sitemaps (unlike Yoast/RankMath's own
-        // from-scratch generators) have no `<image:image>` sitemap
-        // extension support at all, and SitemapManager.php's own docblock
-        // deliberately rejects building a second, competing sitemap
-        // implementation just to add one. Persisted only, same honest
-        // "round-trips through Settings but nothing reads it yet" posture
-        // Seo.ts's own Redirects & 404s section documents for the same
-        // reason (a real from-scratch generator is a separate, larger
+        // core's native XML sitemaps have no `<image:image>` extension
+        // support, and SitemapManager.php deliberately doesn't build a
+        // second sitemap system just to add one. Persisted only, not
+        // read yet (a real from-scratch generator is a separate, larger
         // feature this codebase hasn't taken on).
         'sitemap_include_images'                => array(),
         'sitemap_include_featured_images'       => array(),
@@ -897,46 +893,57 @@ class Utill {
      * @var string[]
      */
     const DASHBOARD_WIDGET_IDS = array(
-        // The newer Dashboard mockup's own top section (registry.ts's
-        // MOCKUP_WIDGETS), in its order. `overall-score`/`score-breakdown`
-        // were 1 combined widget until split into 2 (registry.ts's own
-        // docblock on `score-breakdown` has the real reasoning).
+        // registry.ts's own current MOCKUP_WIDGETS array order, exactly -
+        // this is what a never-customized user's layout actually
+        // reconciles against (DashboardLayout.php::get_reconciled_layout()),
+        // so a mismatch here silently produced a first-load order different
+        // from the one "Restore default" (registry.ts's own
+        // DEFAULT_DASHBOARD_WIDGETS, read directly by DashboardGrid.tsx)
+        // writes back - confirmed live: before this fix, a fresh install's
+        // very first dashboard render used the old order below (this array
+        // had drifted out of sync with a since-reordered registry.ts) until
+        // the user clicked "Restore default", which persisted registry.ts's
+        // own real order and only then looked right.
         'overall-score',
-        'score-breakdown',
-        'vulopilot-activity',
-        'needs-attention',
-        'key-pages',
         'site-snapshot',
-        'recent-activity',
-        // Pre-existing widgets the newer mockup doesn't depict as their own
-        // card - kept real and selectable, just appended after the above in
-        // registry.ts's own default order (see that file's own docblock).
-        // `ai-suggestions`/`todays-tasks` are deliberately NOT here anymore -
-        // both were retired as real content duplicates of `needs-attention`/
-        // `recent-activity` respectively (registry.ts's own docblock has the
-        // full reasoning); removing them from this whitelist means a saved
-        // layout's now-meaningless entry for either is dropped on its next
-        // reconciliation, and neither can be re-added via "Customize
-        // dashboard".
-        'run-audit',
-        'recent-changes',
-        'automation-status',
+        'needs-attention',
         'crawler-traffic',
+        'recent-activity',
         // Registered by vulopilot-pro's AiCrawlerAnalytics module via
         // `vulopilot_dashboard_widgets` (AI-CRAWLER-ANALYTICS-MODULE.md).
         'ai-monitoring',
-        'knowledge-graph',
         // Registered by vulopilot-pro's KnowledgeGraph module via
         // `vulopilot_dashboard_widgets` (KNOWLEDGE-GRAPH-MODULE.md).
         'knowledge-graph-health',
         // Registered by vulopilot-pro's McpServer module via
         // `vulopilot_dashboard_widgets` (MCP-SERVER-MODULE.md).
         'mcp-server-status',
-        // Health timeline / Latest reports / Brand Visibility breakdown
-        // are a deliberate one-row group in registry.ts (each grid:4) -
-        // kept adjacent here too, since this array (not registry.ts's
-        // order) is what a never-customized user's layout actually
-        // reconciles against (DashboardLayout.php::get_reconciled_layout()).
+        // Known gap, not fixed here (out of scope for the ordering bug
+        // above): none of these ids has its own top-level
+        // DEFAULT_DASHBOARD_WIDGETS entry in registry.ts any more, so
+        // `DashboardGrid.tsx`'s own `WIDGETS_BY_ID.has(entry.id)` check
+        // silently drops every one of them from render regardless of
+        // where they sit in this list - order among them is moot.
+        // `vulopilot-activity`/`automation-status` specifically are real,
+        // just rendered as a nested sibling card inside `overall-score`'s/
+        // `site-snapshot`'s own widget component instead
+        // (OverallScoreWidget.tsx/SiteSnapshotWidget.tsx), not as their own
+        // grid cell - registry.ts's own MOCKUP_WIDGETS docblock documents
+        // that merge. The rest (`score-breakdown`, `key-pages`,
+        // `run-audit`, `recent-changes`, `knowledge-graph`,
+        // `health-timeline`, `latest-reports`, `brand-breakdown`) still
+        // have real components (registry.ts's own imports) but no current
+        // call site rendering them anywhere on the Dashboard. Kept here
+        // rather than removed so a pre-existing saved layout with one of
+        // these ids doesn't get treated as unknown-and-dropped by
+        // `update_item()`'s own validation.
+        'vulopilot-activity',
+        'automation-status',
+        'score-breakdown',
+        'key-pages',
+        'run-audit',
+        'recent-changes',
+        'knowledge-graph',
         'health-timeline',
         'latest-reports',
         'brand-breakdown',

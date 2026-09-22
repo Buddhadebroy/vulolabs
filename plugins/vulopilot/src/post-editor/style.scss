@@ -6,11 +6,7 @@
 	}
 }
 
-/**
- * "Preview"/"Focus Keyword" - the small uppercase section headings
- * RankMath's own General tab uses above each block, per direct screenshot
- * comparison.
- */
+/** Small uppercase section headings above each block ("Preview"/"Focus Keyword"). */
 .vulopilot-seo-section-label {
 	font-size: 11px;
 	font-weight: 600;
@@ -43,10 +39,8 @@
 
 /**
  * The focus-keyword "pill" - a single, removable tag rather than a plain
- * text field, matching RankMath's own colored-pill focus keyword input.
- * Only ever holds the one real `_vulopilot_focus_keyword` value
- * (GeneralTab.tsx's own docblock explains why this isn't a genuine
- * multi-keyword input like RankMath's).
+ * text field. Only ever holds the one `_vulopilot_focus_keyword` value
+ * (see GeneralTab.tsx for why this isn't a multi-keyword input).
  */
 .vulopilot-seo-focus-keyword {
 	display: flex;

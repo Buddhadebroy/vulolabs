@@ -407,7 +407,7 @@ class BackupManager {
         $offset = 0;
 
         while ( true ) {
-            $rows = $wpdb->get_results( "SELECT * FROM `{$table}` LIMIT {$offset}, " . self::DB_CHUNK_SIZE, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is always a real name read from SHOW TABLES above; $offset/DB_CHUNK_SIZE are internal ints, never client input.
+            $rows = $wpdb->get_results( "SELECT * FROM `{$table}` LIMIT {$offset}, " . self::DB_CHUNK_SIZE, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is always a real name read from SHOW TABLES above; $offset/DB_CHUNK_SIZE are internal ints, never client input.
 
             if ( empty( $rows ) ) {
                 break;
@@ -461,7 +461,7 @@ class BackupManager {
         }
 
         if ( file_exists( $queue['sql_path'] ) ) {
-            // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink -- deleting VuloPilot's own controlled temp backup file, not arbitrary user input.
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- deleting VuloPilot's own controlled temp backup file, not arbitrary user input.
             unlink( $queue['sql_path'] );
         }
 
@@ -695,7 +695,7 @@ class BackupManager {
         }
 
         foreach ( $iterator as $file ) {
-            // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- cleaning up VuloPilot's own plugin-controlled temp restore directory, not arbitrary user input.
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- cleaning up VuloPilot's own plugin-controlled temp restore directory, not arbitrary user input.
             $file->isDir() ? rmdir( $file->getPathname() ) : unlink( $file->getPathname() );
         }
 
@@ -720,7 +720,7 @@ class BackupManager {
                 $path = $this->resolve_file_path( (string) $row['file_path'] );
 
                 if ( file_exists( $path ) ) {
-                    // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink -- deleting VuloPilot's own controlled backup file, not arbitrary user input.
+                    // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- deleting VuloPilot's own controlled backup file, not arbitrary user input.
                     unlink( $path );
                 }
             }

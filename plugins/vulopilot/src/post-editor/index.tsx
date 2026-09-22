@@ -94,16 +94,11 @@ const readDeepLinkTarget = (): DeepLinkTarget => {
 const { wasPresent: shouldOpenSidebar, tab: deepLinkTab, target: deepLinkHighlight } = readDeepLinkTarget();
 
 /**
- * "Meta Box Appearing in Single Posts & Pages" - VuloPilot's first Block
- * Editor integration (react-frontend.md's mounting rules cover the
- * dashboard app at `#admin-main-wrapper`/`#vulolabs-store-dashboard`,
- * a different surface entirely). Registered as a `PluginSidebar` rather
- * than a classic `add_meta_box()` panel - RankMath's own primary,
- * most-recognized surface (the icon in the editor's top toolbar opening
- * this same sidebar), not its secondary below-content metabox. (This
- * briefly moved to that below-content metabox instead, on the theory that
- * it avoids the sidebar's own internal scroll on a long panel - reverted
- * per direct instruction; see PostEditorAssets.php's own class docblock.)
+ * The post-editor SEO metabox - VuloPilot's first Block Editor
+ * integration (react-frontend.md's mounting rules cover the dashboard
+ * app at `#admin-main-wrapper`/`#vulolabs-store-dashboard`, a different
+ * surface). Registered as a `PluginSidebar`, not a classic
+ * `add_meta_box()` panel - see PostEditorAssets.php for why.
  *
  * Only enqueued for post/page/product screens
  * (Services\PostEditorAssets::enqueue_assets()), so this module never runs

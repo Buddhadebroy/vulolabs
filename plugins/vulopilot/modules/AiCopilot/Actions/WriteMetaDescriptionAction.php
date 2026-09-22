@@ -74,11 +74,11 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
         // own "Fix with AI" description button (Checklist.tsx) is the one
         // real caller that can hand this a product id.
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ) );
         }
 
         if ( '' === trim( wp_strip_all_tags( $post->post_content ) ) ) {
-            throw new InvalidActionInputException( __( 'This post has no content to summarize.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'This post has no content to summarize.', 'vulopilot' ) );
         }
 
         return array(
@@ -128,11 +128,11 @@ class WriteMetaDescriptionAction extends AbstractBasicAction {
         $description = $output['description'] ?? '';
 
         if ( '' === $description ) {
-            throw new InvalidActionOutputException( __( 'The AI returned an empty description.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned an empty description.', 'vulopilot' ) );
         }
 
         if ( mb_strlen( $description ) > self::MAX_LENGTH * 2 ) {
-            throw new InvalidActionOutputException( __( 'The AI returned a description that is too long.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned a description that is too long.', 'vulopilot' ) );
         }
     }
 

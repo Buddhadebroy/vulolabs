@@ -105,7 +105,7 @@ class AiRequestSender {
         $this->safety_validator->validate_prompt( $messages );
 
         if ( ! $this->credits_connection->is_connected() ) {
-            throw new \RuntimeException( __( 'No AI connection is configured.', 'vulopilot' ) );
+            throw new \RuntimeException( esc_html__( 'No AI connection is configured.', 'vulopilot' ) );
         }
 
         $request = new AIRequest( '', $messages, null, null, $image, $surface );
@@ -168,8 +168,8 @@ class AiRequestSender {
             throw new RateLimitExceededException(
                 sprintf(
                     /* translators: %d: requests-per-minute limit. */
-                    __( 'AI rate limit reached (%d requests/minute).', 'vulopilot' ),
-                    self::MAX_REQUESTS_PER_MINUTE
+                    esc_html__( 'AI rate limit reached (%d requests/minute).', 'vulopilot' ),
+                    absint( self::MAX_REQUESTS_PER_MINUTE )
                 )
             );
         }
@@ -204,10 +204,10 @@ class AiRequestSender {
 
         if ( is_wp_error( $result ) ) {
             if ( 'vulopilot_ai_byok_not_configured' === $result->get_error_code() ) {
-                throw new AiByokNotConfiguredException( $result->get_error_message() );
+                throw new AiByokNotConfiguredException( esc_html( $result->get_error_message() ) );
             }
 
-            throw new GatewayRequestException( $result->get_error_message() );
+            throw new GatewayRequestException( esc_html( $result->get_error_message() ) );
         }
 
         return new AIResponse( $result['response'], 'vulocloud', 'hosted', 0, 0, 'stop' );

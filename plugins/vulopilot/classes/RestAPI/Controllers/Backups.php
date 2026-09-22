@@ -177,7 +177,7 @@ class Backups extends \WP_REST_Controller {
             $file_path = VuloPilot()->backup_manager->resolve_file_path( (string) $backup['file_path'] );
 
             if ( file_exists( $file_path ) ) {
-                // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink -- deleting VuloPilot's own controlled backup file, not arbitrary user input.
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- deleting VuloPilot's own controlled backup file, not arbitrary user input.
                 unlink( $file_path );
             }
         }
@@ -225,7 +225,7 @@ class Backups extends \WP_REST_Controller {
         header( 'Content-Disposition: attachment; filename="' . basename( $file_path ) . '"' );
         header( 'Content-Length: ' . filesize( $file_path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_filesize -- reading the size of VuloPilot's own controlled backup file, not an arbitrary path.
 
-        readfile( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_readfile -- streaming VuloPilot's own controlled backup file to an already permission-checked request; not arbitrary user input.
+        readfile( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- streaming VuloPilot's own controlled backup file to an already permission-checked request; not arbitrary user input.
         exit;
     }
 

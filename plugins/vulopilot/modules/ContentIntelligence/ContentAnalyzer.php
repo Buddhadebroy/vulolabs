@@ -73,7 +73,7 @@ class ContentAnalyzer {
         $post = get_post( $post_id );
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) || 'publish' !== $post->post_status ) {
-            throw new \InvalidArgumentException( __( 'post_id must refer to a published post or page.', 'vulopilot' ) );
+            throw new \InvalidArgumentException( esc_html__( 'post_id must refer to a published post or page.', 'vulopilot' ) );
         }
 
         $deterministic_score = $this->calculate_deterministic_score( $post_id );
@@ -193,13 +193,13 @@ class ContentAnalyzer {
         $decoded = json_decode( trim( (string) $content ), true );
 
         if ( ! is_array( $decoded ) ) {
-            throw new \RuntimeException( __( 'The AI did not return a usable Content Intelligence analysis.', 'vulopilot' ) );
+            throw new \RuntimeException( esc_html__( 'The AI did not return a usable Content Intelligence analysis.', 'vulopilot' ) );
         }
 
         $value = $decoded['topic_authority'] ?? null;
 
         if ( ! is_int( $value ) && ! ( is_numeric( $value ) && (string) (int) $value === (string) $value ) ) {
-            throw new \RuntimeException( __( 'The AI response is missing a valid "topic_authority" score.', 'vulopilot' ) );
+            throw new \RuntimeException( esc_html__( 'The AI response is missing a valid "topic_authority" score.', 'vulopilot' ) );
         }
 
         $suggestions = array_values(
@@ -210,7 +210,7 @@ class ContentAnalyzer {
         );
 
         if ( empty( $suggestions ) ) {
-            throw new \RuntimeException( __( 'The AI did not return any suggestions.', 'vulopilot' ) );
+            throw new \RuntimeException( esc_html__( 'The AI did not return any suggestions.', 'vulopilot' ) );
         }
 
         return array(

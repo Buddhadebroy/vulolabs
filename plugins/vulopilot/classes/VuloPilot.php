@@ -305,9 +305,7 @@ final class VuloPilot {
         // vulopilot-pro's OneClickFix `generate-homepage-schema` fix.
         $this->container['homepage_schema_renderer'] = new Services\HomepageSchemaRenderer();
 
-        // Post-editor SEO metabox ("Meta Box Appearing in Single Posts &
-        // Pages" - readme's research into rankmath.com/kb/on-page-seo/):
-        // Advanced tab's noindex/nofollow output (PostRobotsMetaManager)
+        // Post-editor SEO metabox: Advanced tab's noindex/nofollow output (PostRobotsMetaManager)
         // and the Block Editor sidebar's asset loader (PostEditorAssets).
         // Both unconditional construction, same shape as every Services\*
         // above - nothing to gate behind a setting, only per-post data.

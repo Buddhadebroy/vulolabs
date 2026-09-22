@@ -211,7 +211,7 @@ class ActionRunner {
             return $this->request_sender->send( $action->build_prompt( $input ), null, 'ai_action' );
         } catch ( AiByokNotConfiguredException $exception ) {
             if ( ! isset( self::CREDIT_FEATURE_MAP[ $action_id ] ) || ! $this->credits_connection->is_connected() ) {
-                throw new \RuntimeException( __( 'No AI connection is configured. Add a key in your VuloCloud account, or ask your agency to.', 'vulopilot' ) );
+                throw new \RuntimeException( esc_html__( 'No AI connection is configured. Add a key in your VuloCloud account, or ask your agency to.', 'vulopilot' ) );
             }
         }
 
@@ -221,12 +221,12 @@ class ActionRunner {
         $result = $this->credit_gateway->execute( $feature_id, $credit_action, $context );
 
         if ( $result instanceof \WP_Error ) {
-            throw new \RuntimeException( $result->get_error_message() );
+            throw new \RuntimeException( esc_html( $result->get_error_message() ) );
         }
 
         if ( empty( $result['success'] ) ) {
             throw new InsufficientCreditsException(
-                __( 'You’ve used all your AI Credits.', 'vulopilot' ),
+                esc_html__( 'You’ve used all your AI Credits.', 'vulopilot' ),
                 (int) ( $result['credits_remaining'] ?? 0 ),
                 (bool) ( $result['can_buy_credits'] ?? false ),
                 (bool) ( $result['can_upgrade'] ?? false )
@@ -432,7 +432,7 @@ class ActionRunner {
         $run = $this->runs->find( $run_id );
 
         if ( ! $run || 'executed' !== $run['status'] ) {
-            throw new \RuntimeException( __( 'This action run cannot be rolled back.', 'vulopilot' ) );
+            throw new \RuntimeException( esc_html__( 'This action run cannot be rolled back.', 'vulopilot' ) );
         }
 
         $action = $this->get_action_or_fail( $run['action_id'] );
@@ -460,7 +460,7 @@ class ActionRunner {
         $action = $this->registry->get_action( $action_id );
 
         if ( ! $action ) {
-            throw new \InvalidArgumentException( sprintf( 'No AI action registered for "%s".', $action_id ) );
+            throw new \InvalidArgumentException( sprintf( 'No AI action registered for "%s".', esc_html( $action_id ) ) );
         }
 
         return $action;
@@ -476,7 +476,7 @@ class ActionRunner {
         $run = $this->runs->find( $run_id );
 
         if ( ! $run || 'pending_approval' !== $run['status'] ) {
-            throw new \RuntimeException( __( 'This action run is not awaiting approval.', 'vulopilot' ) );
+            throw new \RuntimeException( esc_html__( 'This action run is not awaiting approval.', 'vulopilot' ) );
         }
 
         return $run;

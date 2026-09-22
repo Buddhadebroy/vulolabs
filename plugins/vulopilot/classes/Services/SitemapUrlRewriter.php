@@ -10,39 +10,23 @@ namespace VuloPilot\Services;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Renames WordPress core's own native sitemap URLs from its default
- * `/wp-sitemap.xml`/`/wp-sitemap-{provider}-{subtype}-{page}.xml` shape to
- * the more familiar `/sitemap_index.xml`/`/{subtype}-sitemap{page}.xml`
- * shape (Yoast/RankMath's own real convention) - real core content served
- * at a different real URL, not a second sitemap system: every new pretty
- * URL rewrites to the exact same real `sitemap`/`sitemap-subtype`/`paged`
- * query vars `WP_Sitemaps::register_rewrites()` already uses, so core's
- * own unmodified `render_sitemaps()` renders it, same real data either
- * way (SitemapStylesheet.php's own restyle still applies too, since that
- * hooks the shared renderer/stylesheet classes, not a URL).
+ * Rewrites WordPress core's native sitemap URLs from
+ * `/wp-sitemap.xml`/`/wp-sitemap-{provider}-{subtype}-{page}.xml` to the
+ * more familiar `/sitemap_index.xml`/`/{subtype}-sitemap{page}.xml`. Not a
+ * second sitemap system: every new URL maps to the same
+ * `sitemap`/`sitemap-subtype`/`paged` query vars core already uses, so
+ * core's unmodified `render_sitemaps()` renders it.
  *
- * The real per-type "name" (`page`, `post`, `category`, …) always comes
- * from `wp_get_sitemap_providers()`'s own real `get_object_subtypes()` -
- * read once, on the real `wp_sitemaps_init` hook core itself fires
- * specifically for extending its own registry (sitemaps.php's own
- * docblock: "Additional sitemaps should be registered on this hook"), so
- * this works for any real registered post type/taxonomy, not a hardcoded
- * list. A provider with no real subtypes (`users`) falls back to its own
- * provider name (`users-sitemap.xml`) since there's no real per-subtype
- * name to use instead.
+ * Per-type name (`page`, `post`, `category`, …) is read once from
+ * `wp_get_sitemap_providers()`'s `get_object_subtypes()` on
+ * `wp_sitemaps_init`, so this works for any registered post
+ * type/taxonomy without a hardcoded list. A provider with no subtypes
+ * (`users`) falls back to its provider name (`users-sitemap.xml`).
  *
- * Old URLs keep working - real per-instruction requirement, not
- * optional: every old-shape URL still real-rewrites to the same real
- * query vars core always used, then `redirect_legacy_url()` (hooked on
- * `template_redirect` at priority 5, before core's own render at its
- * default priority 10) issues a real 301 to the new pretty URL before
- * core ever renders anything at the old one - a site already indexed by
- * search engines, or with the old sitemap URL saved in Search Console,
- * keeps resolving correctly rather than 404ing.
- *
- * Self-registers its own hooks in the constructor (php-wordpress.md) and
- * is constructed unconditionally in VuloPilot::init_classes(), same shape
- * as SitemapManager.php/SitemapStylesheet.php right next to it.
+ * Old URLs must keep working: `redirect_legacy_url()` (on
+ * `template_redirect`, priority 5 - before core's render at 10) 301s the
+ * old-shape URL to the new one before core renders anything, so sites
+ * already indexed or with the old URL in Search Console don't 404.
  *
  * @class       SitemapUrlRewriter class
  * @version     1.0.0

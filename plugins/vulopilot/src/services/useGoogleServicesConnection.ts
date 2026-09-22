@@ -42,12 +42,11 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * anything: every call here hits the same real routes
  * Controllers\GoogleServices registers.
  *
- * `returnTo` picks which real, allow-listed SPA tab Google's own redirect
+ * `returnTo` picks which allow-listed SPA tab Google's redirect
  * (GoogleSearchConsoleOAuthCallbackHandler.php, via
  * GoogleServicesConnection::get_return_to_from_state()) lands back on
  * once the handshake completes - so a connect started from Keywords
- * finishes on Keywords, not Settings, the same "stay where you started"
- * behavior the reference RankMath connect flow itself has.
+ * finishes on Keywords, not Settings.
  */
 export const useGoogleServicesConnection = (
 	returnTo: GoogleConnectReturnTo = 'settings'

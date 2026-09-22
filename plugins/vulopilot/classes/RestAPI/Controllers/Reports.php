@@ -282,7 +282,7 @@ class Reports extends \WP_REST_Controller {
         header( 'Content-Disposition: attachment; filename="' . basename( $file_path ) . '"' );
         header( 'Content-Length: ' . filesize( $file_path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_filesize -- reading the size of VuloPilot's own controlled reports file, not an arbitrary path.
 
-        readfile( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_readfile -- streaming VuloPilot's own controlled reports file to an already permission-checked, already-authenticated request; not arbitrary user input.
+        readfile( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- streaming VuloPilot's own controlled reports file to an already permission-checked, already-authenticated request; not arbitrary user input.
         exit;
     }
 }

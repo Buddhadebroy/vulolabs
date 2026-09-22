@@ -32,13 +32,13 @@ import { ChatInput, AiChatCard, CopilotTurnBubble } from '../../components/ChatC
 const MAX_ATTACHMENTS = 3;
 
 /**
- * The types vulopilot-pro's own Rest.php actually does something real with: text/csv files
- * are read as text (ATTACHMENT_TEXT_MIME_TYPES); anything else, images included, gets
- * an honest "can't be read" note since the VuloCloud gateway carries text only. Only
- * restricts the drag-and-drop/native-picker validation path - the
- * "Upload File" button's wp.media() library picker ignores `accept`
- * entirely and can select anything already in the Media Library, which
- * Rest.php still resolves honestly either way.
+ * Types vulopilot-pro's Rest.php actually reads: text/csv files are read
+ * as text (ATTACHMENT_TEXT_MIME_TYPES); anything else, images included,
+ * gets a "can't be read" note since the VuloCloud gateway carries text
+ * only. Only restricts drag-and-drop/native-picker validation - the
+ * "Upload File" button's wp.media() picker ignores `accept` and can
+ * select anything in the Media Library, which Rest.php still resolves
+ * honestly either way.
  */
 const ATTACHMENT_ACCEPT =
 	'.txt,.csv,text/plain,text/csv,.jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp';
@@ -57,84 +57,46 @@ const SUGGESTED_PROMPTS = [
 ];
 
 /**
- * "AI Copilot" - a real, single-view page (Chat/History used to be a tab
- * shell; History moved to Reports' own "History" tab, and the former
- * ChatTab.tsx was folded directly in here per direct instruction ("this
- * file i do not think required, directly call from AIAssistant.tsx,
- * remove all this type of files") - it was only ever rendered by this one
- * component, so the separate file/prop-passing layer added nothing.
- * NeedsAttentionCard.tsx/RecentConversationsCard.tsx/
- * RecommendedActionsCard.tsx/IssuesList.tsx stay as their own files: each
- * is a real, self-contained concern with its own state and API calls, not
- * a thin pass-through.
+ * "AI Copilot" - a single-view page. NeedsAttentionCard.tsx/
+ * RecentConversationsCard.tsx/RecommendedActionsCard.tsx/IssuesList.tsx
+ * stay as their own files: each is a self-contained concern with its own
+ * state and API calls, not a thin pass-through.
  *
- * A welcome message, the "Try asking me…" prompt grid, and the composer
- * bar in the main column; a real "Site Overview" findings summary
- * (`/dashboard`, NeedsAttentionCard.tsx) + AI Workflows (`/automations`)
- * preview in the sidebar. Sending really talks to `POST /copilot/chat`
- * (`Controllers\Copilot.php`, shared via useCopilotChat.ts - genuinely
- * free, gated the same way as every other AI surface (a configured AI
- * provider, BYOK or a connected VuloCloud account), not a Pro license; see
- * that hook's own docblock for the real "Connect to VuloCloud" popup this
- * page shows on that condition) - a real reply grounded in this site's own
- * open findings/automation counts, not a canned response. A request like
- * "write a blog about X" really creates and saves a WordPress draft
- * (Copilot.php's own ContentCreationOrchestrator hand-off, the same real
- * capability "Create Content"'s own AI Content Assistant sidebar already
- * had) - that turn's `link` is rendered below as a real clickable edit
- * link, right next to a real inline "Undo" (`handleUndo()`, same
- * `POST /ai-action-runs/{id}/rollback` HistoryDetailPanel.tsx's own Undo
- * button already calls) so reverting what was just created doesn't require
- * leaving this page. Every other kind of request stays advice-only. A page
- * refresh still starts a fresh, empty composer (`turns` itself is still
- * client-side-only React state, cleared on unmount), but every real
- * conversation really persists server-side too (`vulopilot_ai_conversations`,
- * Copilot.php's own persist_conversation()) - "Recent conversations"
- * (RecentConversationsCard.tsx, `GET /copilot/conversations`) lists the
- * user's own recent real threads, and clicking one
- * (`handleSelectConversation()` below, useCopilotChat.ts's own
- * loadConversation()) loads that thread's full, untruncated turns straight
- * back into this composer, ready to keep chatting from - not just a
- * read-only excerpt. The prompt grid still prefills the composer.
+ * Welcome message, "Try asking me…" prompt grid, and composer bar in the
+ * main column; "Site Overview" findings summary (`/dashboard`,
+ * NeedsAttentionCard.tsx) + AI Workflows (`/automations`) preview in the
+ * sidebar. Sending talks to `POST /copilot/chat` (`Controllers\Copilot.php`,
+ * via useCopilotChat.ts) - free, gated the same way as every other AI
+ * surface (a configured AI provider, BYOK or a connected VuloCloud
+ * account), not a Pro license. A request like "write a blog about X"
+ * creates and saves a WordPress draft (Copilot.php's
+ * ContentCreationOrchestrator) - that turn's `link` renders as a
+ * clickable edit link next to an inline "Undo" (`handleUndo()`, the same
+ * `POST /ai-action-runs/{id}/rollback` HistoryDetailPanel.tsx's Undo
+ * button calls). Every other request stays advice-only. `turns` is
+ * client-side React state (cleared on unmount/refresh), but each
+ * conversation persists server-side too (`vulopilot_ai_conversations`,
+ * Copilot.php's persist_conversation()) - "Recent conversations"
+ * (RecentConversationsCard.tsx, `GET /copilot/conversations`) lists past
+ * threads, and clicking one (`handleSelectConversation()`,
+ * useCopilotChat.ts's loadConversation()) loads its full turns back into
+ * the composer.
  *
- * "Attach" is real: it opens zyra's FileInput, which - on this admin
- * screen, now that Admin.php calls wp_enqueue_media() - hands back a real
- * WP Media Library attachment {id, url} via wp.media(), never a
- * client-only blob preview. Sent as `attachments` on the next
- * `POST /copilot/chat` and re-resolved against real, current data
- * server-side (Copilot.php's build_extra_context()) - this component only
- * carries an id, never the resolved content itself.
+ * "Attach" opens zyra's FileInput, which - now that Admin.php calls
+ * wp_enqueue_media() - hands back a WP Media Library attachment {id, url}
+ * via wp.media(), never a client-only blob. Sent as `attachments` on the
+ * next `POST /copilot/chat` and re-resolved server-side
+ * (Copilot.php's build_extra_context()); this component only carries an id.
  *
- * "Add context" (a picker over open finding groups/active automations) was
- * removed from this composer per direct instruction - Copilot.php's own
- * `build_extra_context()`/`context_refs` handling stays as-is server-side
- * (untouched, real, still reachable by any future caller), only this page's
- * own button/panel/state for it is gone.
- *
- * The header's "Online"/"Offline" badge is real, not decorative - but NOT
- * `appLocalizer.vulocloud_connected` (VuloCloudAccountConnection, the
- * *personal* VuloCloud login) as an earlier pass here had it. That flag
- * turned out to be the wrong one: confirmed live that
- * AI\AiRequestSender::send() - the real gate every
- * chat send actually goes through - checks `AiCreditsConnection::
- * is_connected()` instead (a separate, site-scoped credential; see that
- * class's own docblock for how it layers on top of, but doesn't require
- * still having, the personal login). A site can easily have credits
- * connected with no personal account connected (confirmed live in this
- * exact dev environment: 100 AI Credits, chat fully working, yet
- * `vulocloud_connected` false) - showing "Offline" there was actively
- * misleading, telling the admin chat wouldn't work when it would. Now
- * reads the SAME live `connected` field the header's own "N AI Credits"
- * indicator already fetches (`useAiCredits()`, `GET /ai-credits/status`
- * → AiCreditsConnection::get_status()) - the two badges can no longer
- * disagree about whether AI is actually usable. Loading state
- * fail-closed (`status?.connected` false-y default), same "unknown =
- * locked" convention useContentGate.tsx's own `isVuloCloudLocked` uses.
- * The old "How it works" popup button is now a hover tooltip on the title
- * itself instead (`headerTitle` cast through JSX - NavigatorHeaderComponent's
- * own type only declares it as `string`, but it just renders
- * `{headerTitle}` as children, so a real element works at runtime the same
- * way `field.component`'s escape hatch does elsewhere).
+ * The header's "Online"/"Offline" badge reads `AiCreditsConnection::
+ * is_connected()` via `useAiCredits()` (`GET /ai-credits/status`), the
+ * same gate `AI\AiRequestSender::send()` actually checks - not
+ * `appLocalizer.vulocloud_connected` (the personal VuloCloud login),
+ * which is a separate, unrelated credential: a site can have AI credits
+ * connected with no personal login connected, so that flag would show a
+ * misleading "Offline" while chat still works. Loading state fails
+ * closed (`status?.connected` false-y default), same convention
+ * useContentGate.tsx's `isVuloCloudLocked` uses.
  */
 const AIAssistant = () => {
 	const [chatMessage, setChatMessage] = useState('');
@@ -312,22 +274,13 @@ const AIAssistant = () => {
 		setAttachments((current) => current.filter((file) => file.id !== id));
 
 	/**
-	 * Same real `vulopilot_automations_panel` Pro filter slot
-	 * Automations.tsx itself reads - its own `Wizard`/`Generate` come from
-	 * there, and `!Wizard` is the exact same "Automations Pro module isn't
-	 * active" check that page's own openTemplate()/openCreateWizard()/etc.
-	 * already gate every action on. Passed to AutomationTemplatesCard.tsx's
-	 * own `isAutomationsActive` prop - that card's own useContentGate.tsx
-	 * call (login → Pro → this module, per direct instruction) now decides
-	 * whether a template row is even real/clickable, so a locked click on
-	 * *that card* shows the real "Unlock with Pro" popup immediately from
-	 * inside it, right where it was clicked - direct instruction ("when
-	 * click popup open if pro is deactivate"). Before this, a locked click
-	 * fell through to plain navigation below, landing on Automate Work
-	 * first and only *then* showing a popup there (Automations.tsx's own
-	 * `automation_template` URL-param effect) - a real, jarring two-step
-	 * "page changes, then something pops up" flow for what should be one
-	 * click, one popup.
+	 * Same `vulopilot_automations_panel` Pro filter slot Automations.tsx
+	 * reads - `!Wizard` is the same "Automations Pro module isn't active"
+	 * check that page gates every action on. Passed to
+	 * AutomationTemplatesCard.tsx's `isAutomationsActive` prop so a locked
+	 * click shows the "Unlock with Pro" popup immediately from inside that
+	 * card, instead of first navigating to Automate Work and popping up
+	 * there.
 	 */
 	const automationsPanelSlot = useFilterSlot<{ Wizard?: unknown }>(
 		'vulopilot_automations_panel'
@@ -335,20 +288,11 @@ const AIAssistant = () => {
 
 	/**
 	 * AutomationTemplatesCard's real home is Automate Work
-	 * (`ManageAutomationsSection.tsx`, via `Automations.tsx`) - this preview
-	 * on Chat navigates there rather than trying to open a create form that
-	 * lives in a different top-level page's own React tree, carrying the
-	 * picked template through the `automation_template` URL param.
-	 * `Automations.tsx` reads it on mount and forwards it down so the real
-	 * wizard opens already seeded, not a bare redirect to a blank page.
-	 * Automate Work has no `subtab=` of its own since its own redesign
-	 * flattened its previous Overview/Automations two-tab shell into one
-	 * page - nothing left to route to but the page itself. Only ever
-	 * called for a real, unlocked row now - AutomationTemplatesCard.tsx's
-	 * own content gate replaces its real, clickable list with an inert
-	 * dummy one (and its own popup) whenever this same
-	 * `automationsPanelSlot.Wizard` check (or the login/Pro tiers above it)
-	 * is locked, so this function is never reached in that case.
+	 * (`ManageAutomationsSection.tsx`, via `Automations.tsx`) - this
+	 * preview navigates there, carrying the picked template through the
+	 * `automation_template` URL param so the wizard opens already seeded.
+	 * Only reached for an unlocked row - a locked one is replaced by
+	 * AutomationTemplatesCard.tsx's own content-gate popup instead.
 	 */
 	const handleSelectAutomationTemplate = (template: AutomationTemplate) => {
 		window.location.href = `${appLocalizer.admin_url}#&tab=automations&automation_template=${template.id}`;

@@ -37,7 +37,7 @@ class GoogleAnalyticsTracker {
     private const CACHE_FILENAME = 'vulopilot-ga-gtag.js';
 
     public function __construct() {
-        add_action( 'wp_head', array( $this, 'maybe_output_tracking_code' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'maybe_output_tracking_code' ) );
     }
 
     /**
@@ -75,11 +75,26 @@ class GoogleAnalyticsTracker {
             $config_options['anonymize_ip'] = true;
         }
 
-        printf(
-            "<script async src=\"%s\"></script>\n<script>\nwindow.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', '%s'%s);\n</script>\n",
-            esc_url( $script_src ),
-            esc_js( $measurement_id ),
-            $config_options ? ', ' . wp_json_encode( $config_options ) : ''
+        // Registered/enqueued via the real WP script APIs (async, per the
+        // 'strategy' arg WP 6.3+ supports - Requires at least: 6.5) rather
+        // than a raw `<script>` tag printed straight into `wp_head`, same
+        // as every other real script this plugin's own admin bundle already
+        // goes through `wp_enqueue_script()`/`wp_add_inline_script()` for.
+        wp_enqueue_script(
+            'vulopilot-ga-gtag',
+            $script_src,
+            array(),
+            null,
+            array( 'strategy' => 'async' )
+        );
+
+        wp_add_inline_script(
+            'vulopilot-ga-gtag',
+            sprintf(
+                "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', '%s'%s);",
+                esc_js( $measurement_id ),
+                $config_options ? ', ' . wp_json_encode( $config_options ) : ''
+            )
         );
     }
 
