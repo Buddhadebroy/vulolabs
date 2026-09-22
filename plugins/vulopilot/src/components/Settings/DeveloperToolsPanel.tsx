@@ -59,6 +59,15 @@ const DeveloperToolsPanel = () => {
 		updateSetting(key, value);
 		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
 			setting: { [key]: value },
+		}).then((response) => {
+			NoticeManager.add({
+				uniqueKey: 'vulopilot-developer-tools-saved',
+				type: response ? 'success' : 'error',
+				position: 'float',
+				message: response
+					? __('Settings saved.', 'vulopilot')
+					: __('Could not save settings. Please try again.', 'vulopilot'),
+			});
 		});
 	};
 

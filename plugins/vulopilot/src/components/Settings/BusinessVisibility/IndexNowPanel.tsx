@@ -115,6 +115,15 @@ const IndexNowPanel = () => {
 		updateSetting('indexnow_post_types', values);
 		sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
 			setting: { indexnow_post_types: values },
+		}).then((response) => {
+			NoticeManager.add({
+				uniqueKey: 'vulopilot-indexnow-post-types-saved',
+				type: response ? 'success' : 'error',
+				position: 'float',
+				message: response
+					? __('Settings saved.', 'vulopilot')
+					: __('Could not save settings. Please try again.', 'vulopilot'),
+			});
 		});
 	};
 
