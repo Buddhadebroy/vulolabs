@@ -584,8 +584,6 @@ const SlowPagesTab = () => {
 							icon="error"
 							title={__('Could not load Slow Pages', 'vulopilot')}
 							desc={error}
-							buttonText={__('Retry', 'vulopilot')}
-							onButtonClick={load}
 						/>
 					</CardComponent>
 				</ColumnComponent>

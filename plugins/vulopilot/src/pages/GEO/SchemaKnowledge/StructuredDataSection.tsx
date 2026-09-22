@@ -203,11 +203,12 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 	}, [selectedRow, schemaFindings]);
 
 	return (
-		<ContainerComponent>
-			<ColumnComponent grid={selectedRow ? 8 : 12}>
+		<>
+			<ColumnComponent grid={8}>
 				<CardComponent
 					title={__('Schema Coverage', 'vulopilot')}
 					titleIcon="attachment"
+					id="schema-knowledge-structured-data"
 					desc={__(
 						'VuloPilot checked how your website describes its pages, products, articles and business to search engines - see what structured information is there and where something is missing or incorrect, a real sample from its own live pages.',
 						'vulopilot'
@@ -427,7 +428,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 				)}
 				</div>
 			</ColumnComponent>
-		</ContainerComponent>
+		</>
 	);
 };
 

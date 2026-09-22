@@ -84,7 +84,7 @@ interface RecentConversationsCardProps {
 const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 	onSelectConversation,
 }) => {
-	const { data, isLoading, error, refetch } = useApiList<RecentConversationRow>(
+	const { data, isLoading, error } = useApiList<RecentConversationRow>(
 		'copilot/conversations',
 		{ per_page: 5 }
 	);
@@ -144,8 +144,6 @@ const RecentConversationsCard: React.FC<RecentConversationsCardProps> = ({
 					icon="error"
 					title={__('Could not load recent conversations', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
 				/>
 			) : !isLoading && data.length === 0 ? (
 				<ModuleGuardComponent

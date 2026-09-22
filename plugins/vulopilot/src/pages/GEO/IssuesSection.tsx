@@ -612,8 +612,6 @@ const IssuesSection = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
 
-	const refetch = () => setReloadToken((current) => current + 1);
-
 	/** Same CSV shape the old standalone `GeoPageAnalysisTable.tsx` exported - kept identical (header row + escaping) so nothing about the exported file itself changes for anyone already relying on it, just where the button now lives. Also covers `content` mode now (`RecentContentCard.tsx`'s own real client-side export, same real "export exactly what's currently on screen" pattern, just a Title/Category/Status/Words/Open Issues header row instead of Page/Status/Open Issues/Score). `undefined` (not called) unless `pageAnalysis` or `content` is set. */
 	const exportCsv =
 		pageAnalysis || content
@@ -865,7 +863,6 @@ const IssuesSection = ({
 				scannerLabelMap={scannerLabelMap}
 				isLoading={isLoading}
 				hasError={hasError}
-				onRetry={refetch}
 				issuesColumnLabel={issuesColumnLabel}
 				visibilityColumnLabel={pageAnalysis?.scoreColumnLabel || (pageAnalysis ? __('AI Visibility', 'vulopilot') : undefined)}
 				onExportCsv={content?.toolbarFilters ? undefined : exportCsv}
@@ -884,7 +881,6 @@ const IssuesSection = ({
 					activePriority={activePriority}
 					isLoading={isLoading}
 					hasError={hasError}
-					onRetry={refetch}
 				/>
 			)}
 		</CardComponent>

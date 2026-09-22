@@ -58,7 +58,7 @@ interface WooCommerceFindingsTableProps {
  * being a real `<TableCard />`.
  */
 const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps) => {
-	const { tableCardProps, error, refetch, isProPopupOpen, closeProPopup } =
+	const { tableCardProps, error, isProPopupOpen, closeProPopup } =
 		useFindingsTable({
 			category: 'woocommerce',
 			scannerIds,
@@ -80,8 +80,6 @@ const WooCommerceFindingsTable = ({ scannerIds }: WooCommerceFindingsTableProps)
 						icon="error"
 						title={__('Could not load findings', 'vulopilot')}
 						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={refetch}
 					/>
 				</CardComponent>
 			) : (

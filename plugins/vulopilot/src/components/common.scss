@@ -699,6 +699,12 @@
         flex-direction: column;
         gap: 0.625rem;
     }
+     .left-section{
+        width: 30%;
+     }
+     .right-section{
+        width: 70%;
+     }
 }
 
 // AutomationStatusWidget.tsx's "Unlock more automations" banner.

@@ -383,8 +383,6 @@ const Settings = () => {
 					icon="error"
 					title={__('Could not load settings', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={loadSettings}
 				/>
 			</CardComponent>
 		);

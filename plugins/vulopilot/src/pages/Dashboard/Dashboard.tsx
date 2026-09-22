@@ -257,13 +257,6 @@ const Dashboard = () => {
 							'vulopilot'
 						)}
 						desc={error}
-						buttonText={__(
-							'Retry',
-							'vulopilot'
-						)}
-						onButtonClick={() =>
-							loadDashboard()
-						}
 					/>
 				</ColumnComponent>
 			</>

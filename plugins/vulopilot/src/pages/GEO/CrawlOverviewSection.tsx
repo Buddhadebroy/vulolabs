@@ -121,7 +121,6 @@ const CrawlOverviewSection = () => {
 		categoryCounts,
 		isLoading,
 		error,
-		refetch,
 		onQueryUpdate,
 	} = useApiList<CrawlerVisitRow>(
 		'crawler-traffic',
@@ -148,8 +147,6 @@ const CrawlOverviewSection = () => {
 							'vulopilot'
 						)}
 						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={refetch}
 					/>
 				</CardComponent>
 			) : (

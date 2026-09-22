@@ -200,8 +200,6 @@ const IssuesList: React.FC<IssuesListProps> = ({
 				icon="error"
 				title={__('Could not load issues', 'vulopilot')}
 				desc={error}
-				buttonText={__('Retry', 'vulopilot')}
-				onButtonClick={refetch}
 			/>
 		);
 	}

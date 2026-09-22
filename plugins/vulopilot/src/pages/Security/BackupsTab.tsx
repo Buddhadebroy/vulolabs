@@ -483,8 +483,6 @@ const BackupsTab = forwardRef<BackupsTabHandle, BackupsTabProps>(({
 					icon="error"
 					title={__('Could not load backups', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
 				/>
 			</CardComponent>
 		);

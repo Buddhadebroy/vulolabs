@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, sendApiResponse } from '@zyra/core';
+import { getApiLink, scrollToId, sendApiResponse } from '@zyra/core';
 import {
 	BadgeComponent,
 	CardComponent,
@@ -454,11 +454,11 @@ const SeoTitlesPanel = () => {
 	 * like variables") describes.
 	 */
 	const renderTemplateField = (
-		label: string,
 		key: string,
 		score: LengthScore
 	) => (
-		<FormGroupComponent label={label} htmlFor={`${key}-edit-input`}>
+		<>
+		<FormGroupComponent label={__('Title format', 'vulopilot')} htmlFor={`${key}-edit-input`}>
 			<TextInput
 				id={`${key}-edit-input`}
 				value={templateValues[key] ?? ''}
@@ -478,8 +478,11 @@ const SeoTitlesPanel = () => {
 					/>
 				))}
 			</div>
+		</FormGroupComponent>
+		<FormGroupComponent row label={__('Title length', 'vulopilot')} htmlFor={`${key}-edit-input`}>
 			<BadgeComponent color={score.cls} text={`${score.length}/${score.max}`} />
 		</FormGroupComponent>
+		</>
 	);
 
 	return (
@@ -621,7 +624,6 @@ const SeoTitlesPanel = () => {
 						>
 							<FormGroupWrapperComponent>
 								{renderTemplateField(
-									__('Title format', 'vulopilot'),
 									editingRow.templateKey,
 									editingRow.titleScore
 								)}

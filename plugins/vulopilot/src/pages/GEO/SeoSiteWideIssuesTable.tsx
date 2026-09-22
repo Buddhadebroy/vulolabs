@@ -62,7 +62,6 @@ interface SeoSiteWideIssuesTableProps {
 	activePriority: Priority;
 	isLoading: boolean;
 	hasError: boolean;
-	onRetry: () => void;
 }
 
 /**
@@ -83,7 +82,6 @@ const SeoSiteWideIssuesTable = ({
 	activePriority,
 	isLoading,
 	hasError,
-	onRetry,
 }: SeoSiteWideIssuesTableProps) => {
 	const [localFindings, setLocalFindings] = useState<RawFinding[]>(findings);
 	const [fixingFindingId, setFixingFindingId] = useState<number | null>(null);
@@ -177,9 +175,6 @@ const SeoSiteWideIssuesTable = ({
 						'Something went wrong fetching this data. Please try again.',
 						'vulopilot'
 					)}
-				/>
-				<ButtonInput
-					buttons={{ text: __('Retry', 'vulopilot'), icon: 'refresh', onClick: onRetry }}
 				/>
 			</CardComponent>
 		);

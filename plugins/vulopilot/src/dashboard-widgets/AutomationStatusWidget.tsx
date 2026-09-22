@@ -107,8 +107,6 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 					icon="error"
 					title={__('Could not load automations', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
 				/>
 			) : !isListLoading && 0 === rows.length ? (
 				<ModuleGuardComponent

@@ -40,7 +40,7 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
-	const { data, isLoading, error, refetch } = useApiList<FindingRow>(
+	const { data, isLoading, error } = useApiList<FindingRow>(
 		'findings',
 		{ status: 'open', per_page: 4, orderby: 'id', order: 'desc' }
 	);
@@ -60,8 +60,6 @@ const AISuggestionsWidget: React.FC<WidgetProps> = ({
 						icon="error"
 						title={__('Could not load suggestions', 'vulopilot')}
 						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={refetch}
 					/>
 				) : data.length === 0 ? (
 					<ModuleGuardComponent

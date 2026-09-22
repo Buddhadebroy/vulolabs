@@ -39,7 +39,7 @@ const TodaysTasksWidget: React.FC<WidgetProps> = ({
 	onHide,
 	isCustomizing,
 }) => {
-	const { data, isLoading, error, refetch } = useApiList<ActivityLogRow>(
+	const { data, isLoading, error } = useApiList<ActivityLogRow>(
 		'activity-logs',
 		{ per_page: 4 }
 	);
@@ -58,8 +58,6 @@ const TodaysTasksWidget: React.FC<WidgetProps> = ({
 					icon="error"
 					title={__('Could not load tasks', 'vulopilot')}
 					desc={error}
-					buttonText={__('Retry', 'vulopilot')}
-					onButtonClick={refetch}
 				/>
 			) : data.length === 0 ? (
 				<ModuleGuardComponent

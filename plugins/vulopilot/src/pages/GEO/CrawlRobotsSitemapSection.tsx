@@ -498,7 +498,6 @@ const CrawlRobotsSitemapSection = () => {
 	const {
 		tableCardProps: blockedPagesProps,
 		error: blockedPagesError,
-		refetch: refetchBlockedPages,
 		isProPopupOpen,
 		closeProPopup,
 	} = useFindingsTable({
@@ -512,7 +511,6 @@ const CrawlRobotsSitemapSection = () => {
 	const {
 		tableCardProps: robotsTxtProps,
 		error: robotsTxtError,
-		refetch: refetchRobotsTxt,
 		isProPopupOpen: isRobotsTxtProPopupOpen,
 		closeProPopup: closeRobotsTxtProPopup,
 	} = useFindingsTable({
@@ -526,7 +524,6 @@ const CrawlRobotsSitemapSection = () => {
 	const {
 		tableCardProps: sitemapFindingsProps,
 		error: sitemapFindingsError,
-		refetch: refetchSitemapFindings,
 		isProPopupOpen: isSitemapProPopupOpen,
 		closeProPopup: closeSitemapProPopup,
 	} = useFindingsTable({
@@ -759,8 +756,6 @@ const CrawlRobotsSitemapSection = () => {
 										icon="error"
 										title={__('Could not load findings', 'vulopilot')}
 										desc={robotsTxtError}
-										buttonText={__('Retry', 'vulopilot')}
-										onButtonClick={refetchRobotsTxt}
 									/>
 								) : (
 									<>
@@ -841,8 +836,6 @@ const CrawlRobotsSitemapSection = () => {
 										icon="error"
 										title={__('Could not load findings', 'vulopilot')}
 										desc={sitemapFindingsError}
-										buttonText={__('Retry', 'vulopilot')}
-										onButtonClick={refetchSitemapFindings}
 									/>
 								) : (
 									<TableCard {...sitemapFindingsProps} bulkActions={[]} />
@@ -948,8 +941,6 @@ const CrawlRobotsSitemapSection = () => {
 								icon="error"
 								title={__('Could not load findings', 'vulopilot')}
 								desc={blockedPagesError}
-								buttonText={__('Retry', 'vulopilot')}
-								onButtonClick={refetchBlockedPages}
 							/>
 						) : (
 							<>

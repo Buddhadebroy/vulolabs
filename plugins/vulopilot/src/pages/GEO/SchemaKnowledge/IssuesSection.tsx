@@ -170,8 +170,6 @@ const IssuesSection = () => {
 				icon="error"
 				title={__('Could not load findings', 'vulopilot')}
 				desc={error}
-				buttonText={__('Retry', 'vulopilot')}
-				onButtonClick={refetch}
 			/>
 		);
 	}

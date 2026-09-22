@@ -591,8 +591,6 @@ const RedirectsSection = () => {
 						icon="error"
 						title={__('Could not load redirects', 'vulopilot')}
 						desc={error}
-						buttonText={__('Retry', 'vulopilot')}
-						onButtonClick={loadRedirects}
 					/>
 				</CardComponent>
 			</ColumnComponent>
