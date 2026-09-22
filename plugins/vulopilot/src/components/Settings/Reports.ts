@@ -65,12 +65,6 @@ export default {
 	),
 	headerIcon: 'document',
 	submitUrl: 'settings',
-	// SendTestReportButton.tsx's own "Send Test Report" button + persisted
-	// "Last test report sent on ..." line — moved here (per direct
-	// instruction) from a declarative `type: 'button'` field, same real
-	// `settingAction` header-action slot CrawlerAlertTestPanel.tsx/
-	// SecurityRestoreDefaultsHeader.tsx already use, rather than sitting at
-	// the bottom of this tab's own field list.
 	settingAction: createElement(SendTestReportButton),
 	modal: [
 		{

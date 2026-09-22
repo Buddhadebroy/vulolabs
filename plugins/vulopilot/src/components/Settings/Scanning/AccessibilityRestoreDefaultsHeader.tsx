@@ -61,8 +61,8 @@ const AccessibilityRestoreDefaultsHeader = () => {
 				wrapperClass="ai-visibility-restore-defaults"
 				buttons={{
 					text: isResetting ? __('Restoring…', 'vulopilot') : __('Restore Defaults', 'vulopilot'),
-					icon: 'refresh',
-					color: 'border-purple',
+					rightIcon: 'refresh',
+					color: 'text-purple',
 					disabled: isResetting,
 					onClick: restoreDefaults,
 				}}

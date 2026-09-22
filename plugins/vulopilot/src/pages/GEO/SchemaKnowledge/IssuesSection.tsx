@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import type { FindingGroup } from '../../../components/Issues/issuesTypes';
@@ -153,6 +153,17 @@ const IssuesSection = () => {
 		setPaged(1);
 	};
 
+	/** Shared by the row click and the action cell's own "More Details"/"Showing" button below — same real toggle IssuesList.tsx's own identical `selectGroup` already establishes, now also scrolling the detail panel into view (`scrollToId`, not `window.scrollTo` — WP admin's own scrollable wrapper isn't the document) on a real select, never on deselect. */
+	const handleSelectGroup = (group: FindingGroup) => {
+		const isDeselecting = group.scanner_id === selectedGroup?.scanner_id;
+
+		setSelectedGroup(isDeselecting ? null : group);
+
+		if (!isDeselecting) {
+			scrollToId('schema-knowledge-issue-detail-panel');
+		}
+	};
+
 	if (error) {
 		return (
 			<ModuleGuardComponent
@@ -212,12 +223,7 @@ const IssuesSection = () => {
 							// details panel too, not just that one small
 							// button.
 							onRowClick={(row: Record<string, unknown>) => {
-								const group = row as unknown as FindingGroup;
-								setSelectedGroup(
-									group.scanner_id === selectedGroup?.scanner_id
-										? null
-										: group
-								);
+								handleSelectGroup(row as unknown as FindingGroup);
 							}}
 							headers={{
 								issue: {
@@ -276,12 +282,7 @@ const IssuesSection = () => {
 														? 'eye'
 														: 'pagination-next-arrow',
 											onClick: (row) => {
-												const group = row as unknown as FindingGroup;
-												setSelectedGroup(
-													group.scanner_id === selectedGroup?.scanner_id
-														? null
-														: group
-												);
+												handleSelectGroup(row as unknown as FindingGroup);
 											},
 										},
 									],
@@ -321,11 +322,13 @@ const IssuesSection = () => {
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
+				<div id="schema-knowledge-issue-detail-panel">
 				<IssueDetailPanel
 					group={selectedGroup}
 					onActionComplete={refetch}
 					onClose={() => setSelectedGroup(null)}
 				/>
+				</div>
 			</ColumnComponent>
 		</>
 	);

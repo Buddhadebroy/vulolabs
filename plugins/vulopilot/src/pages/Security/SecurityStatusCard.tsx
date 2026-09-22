@@ -11,11 +11,12 @@ import {
 import {
 	CardComponent,
 	ChartComponent,
-	ListComponent,
 	TypographyComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
+import SecurityMetricsGrid from './SecurityMetricsGrid';
+import type { SectionedIssuesTab } from './SectionedIssuesTable';
 
 interface DashboardSummary {
 	category_scores: { security: number };
@@ -92,6 +93,9 @@ const ratingClass = (score: number): Rating['className'] => {
 interface SecurityStatusCardProps {
 	/** Navigates to the Security tab — same handler `VulnerabilityHeroCard`'s own "Review Issues First" button already called. */
 	onNavigateToSecurityTab?: () => void;
+	/** Forwarded to `SecurityMetricsGrid`'s own row clicks — switches the merged issues table below to that row's own section. */
+	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
+	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
 /**
@@ -118,6 +122,7 @@ interface SecurityStatusCardProps {
  */
 const SecurityStatusCard = ({
 	onNavigateToSecurityTab,
+	onViewSection,
 }: SecurityStatusCardProps) => {
 	const [score, setScore] = useState<number | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -170,42 +175,8 @@ const SecurityStatusCard = ({
 
 	const overallScore = score ?? 0;
 	const total = summary?.total ?? 0;
-	const { high = 0, medium = 0, low = 0 } = summary?.priority_counts ?? {};
+	const { high = 0 } = summary?.priority_counts ?? {};
 	const isReady = !isLoading && !isLoadingSummary;
-
-	/**
-	 * Real severity-breakdown rows — same real `high`/`medium`/`low`/`total`
-	 * counts the old `AnalyticsComponent` showed, rendered as real
-	 * `ListComponent` rows. `icon` uses the same `'<icon-name> <color>'`
-	 * suffix convention every other list in this plugin already uses, and
-	 * each row's own trailing `tags` cell shows the real count.
-	 */
-	const severityRows = [
-		{
-			id: 'high',
-			icon: 'error red',
-			label: __('High', 'vulopilot'),
-			count: high,
-		},
-		{
-			id: 'medium',
-			icon: 'question orange',
-			label: __('Medium', 'vulopilot'),
-			count: medium,
-		},
-		{
-			id: 'low',
-			icon: 'info blue',
-			label: __('Low', 'vulopilot'),
-			count: low,
-		},
-		{
-			id: 'total',
-			icon: 'report green',
-			label: __('Total findings', 'vulopilot'),
-			count: total,
-		},
-	];
 
 	return (
 		<CardComponent
@@ -285,26 +256,7 @@ const SecurityStatusCard = ({
 							</TypographyComponent>
 						</div>
 						<div className="overall-score-summary">
-							{isReady && total > 0 && (
-								<ListComponent
-									className="mini-card report list"
-									loading={!isReady}
-									items={severityRows.map((row) => ({
-										id: row.id,
-										icon: row.icon,
-										title: row.label,
-										tags: (
-											<TypographyComponent
-												as="span"
-												variant="h5"
-												weight="bold"
-											>
-												{row.count}
-											</TypographyComponent>
-										),
-									}))}
-								/>
-							)}
+							<SecurityMetricsGrid onViewSection={onViewSection} />
 						</div>
 					</div>
 				</>

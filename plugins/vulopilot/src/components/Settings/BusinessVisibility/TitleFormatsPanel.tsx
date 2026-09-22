@@ -12,7 +12,7 @@ import {
 	NoticeManager,
 	SectionComponent,
 } from '@zyra/components';
-import { ButtonInput, SelectInput, TextInput, ToggleInput } from '@zyra/inputs';
+import { ButtonInput, MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { useSetting } from '../../../contexts/SettingContext';
 import './TitleFormatsPanel.scss';
@@ -161,9 +161,9 @@ const toBreadcrumb = (urlExample: string): string =>
  *
  * "Enable Site Identity" autosaves immediately on change (same
  * `handleSettingChange` shape DeveloperToolsPanel.tsx's own two toggles
- * use) — a real `ToggleInput` two-button switch (Enabled/Disabled), not a
- * `SelectInput` dropdown, matching every other on/off setting in this
- * codebase. The 14 template fields + separator autosave too, per direct
+ * use) — a real `MultiCheckboxInput look="toggle"` switch, same single-item
+ * on/off shape `BuiltinAutomationCards.tsx`'s own enable switch already
+ * uses, rather than a `SelectInput` dropdown. The 14 template fields + separator autosave too, per direct
  * instruction ("remove the save changes button this is autosave") —
  * `scheduleTemplateSave()` debounces 1000ms after the last keystroke
  * (same "stop typing, then save" shape BackupStoragePanel.tsx's own
@@ -488,18 +488,28 @@ const TitleFormatsPanel = () => {
 				title={__('Enable Site Identity', 'vulopilot')}
 				desc={__('Use the configured title and description formats across your site.', 'vulopilot')}
 				rightContent={
-					<ToggleInput
-						value={enabled}
-						modules={[]}
+					<MultiCheckboxInput
+						look="toggle"
 						options={[
-							{ key: 'enabled', label: __('Enabled', 'vulopilot'), value: 'enabled' },
-							{ key: 'disabled', label: __('Disabled', 'vulopilot'), value: 'disabled' },
+							{ key: 'site_identity_enabled', value: 'enabled', label: '' },
 						]}
-						onChange={(value) => handleSettingChange('site_identity_enabled', value as string)}
+						value={'enabled' === enabled ? ['enabled'] : []}
+						modules={[]}
+						onChange={() =>
+							handleSettingChange(
+								'site_identity_enabled',
+								'enabled' === enabled ? 'disabled' : 'enabled'
+							)
+						}
 					/>
 				}
 			/>
 
+			{/* Real "off means off" gate, per direct instruction — this whole
+			section (Title & Description Format Templates + Homepage Format)
+			only means anything while `site_identity_enabled` is actually on;
+			it used to always render regardless of the toggle above. */}
+			{'enabled' === enabled && (
 			<ContainerComponent>
 				<ColumnComponent grid={8}>
 					<CardComponent
@@ -614,20 +624,20 @@ const TitleFormatsPanel = () => {
 							)}
 							titleIcon={editingRow.icon}
 							desc={editingRow.description}
-							action={
-								<i
-									className="adminfont-close"
-									role="button"
-									tabIndex={0}
-									onClick={() => setEditingKey(null)}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											e.preventDefault();
-											setEditingKey(null);
-										}
-									}}
-								/>
-							}
+							// action={
+							// 	<i
+							// 		className="adminfont-close"
+							// 		role="button"
+							// 		tabIndex={0}
+							// 		onClick={() => setEditingKey(null)}
+							// 		onKeyDown={(e) => {
+							// 			if (e.key === 'Enter' || e.key === ' ') {
+							// 				e.preventDefault();
+							// 				setEditingKey(null);
+							// 			}
+							// 		}}
+							// 	/>
+							// }
 						>
 							<FormGroupWrapperComponent>
 								{renderTemplateField(
@@ -640,6 +650,7 @@ const TitleFormatsPanel = () => {
 					)}
 				</ColumnComponent>
 			</ContainerComponent>
+			)}
 		</div>
 	);
 };

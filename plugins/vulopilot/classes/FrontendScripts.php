@@ -245,8 +245,53 @@ class FrontendScripts {
                         'manage_plan_url' => VULOPILOT_PRO_SHOP_URL,
                     )
                 ),
+                // Settings → Sitemap's own "Post types in sitemap"
+                // checkbox list (BusinessVisibility/Sitemap.ts) — its 4
+                // real options (post/page/attachment/product) are
+                // hardcoded there since every site has them; this is
+                // every *other* real public post type this site actually
+                // has registered (a custom post type from a theme/another
+                // plugin), so a site with one still sees it as a real,
+                // checkable option instead of it being silently
+                // impossible to ever include in the sitemap from the UI —
+                // `SitemapManager::filter_post_types()` already narrows
+                // WP core's own real sitemap post-type list down to
+                // whatever's checked here, custom post types included; the
+                // UI just never offered a way to check one on.
+                'sitemap_custom_post_types' => self::get_sitemap_custom_post_types(),
             )
         );
+    }
+
+    /**
+     * Real, currently-registered public post types beyond the 4 this
+     * plugin's own Sitemap settings tab already hardcodes as fixed
+     * checkboxes — same `'public' => true` real-post-type read
+     * `EntityExtractor.php`'s own `get_page_by_path()` call already uses
+     * elsewhere in this plugin, just listed rather than searched. Each
+     * post type's own real, translated label (`labels->name`, e.g.
+     * "Products"/"Portfolio Items"), not its raw slug.
+     *
+     * @return array<int, array{value: string, label: string}>
+     */
+    private static function get_sitemap_custom_post_types() {
+        $builtin        = array( 'post', 'page', 'attachment', 'product' );
+        $post_type_objs = get_post_types( array( 'public' => true ), 'objects' );
+
+        $custom = array();
+
+        foreach ( $post_type_objs as $slug => $post_type_obj ) {
+            if ( in_array( $slug, $builtin, true ) ) {
+                continue;
+            }
+
+            $custom[] = array(
+                'value' => $slug,
+                'label' => $post_type_obj->labels->name,
+            );
+        }
+
+        return $custom;
     }
 
     /**

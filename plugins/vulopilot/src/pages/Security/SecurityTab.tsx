@@ -146,7 +146,7 @@ const SECTIONS: FindingsSection[] = [
 		key: 'suspicious-file-changes',
 		title: __('Suspicious File Changes', 'vulopilot'),
 		description: __(
-			'Unexpected changes to core/theme/plugin files.',
+			'Unexpected changes files.',
 			'vulopilot'
 		),
 		emptyMessage: __(

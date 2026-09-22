@@ -394,9 +394,9 @@ const GoogleServicesPanel = () => {
 						action={
 							<ButtonInput
 								buttons={ {
-									text: __( 'Connect Google Services', 'vulopilot' ),
+									text: __( 'Connect', 'vulopilot' ),
 									icon: 'link',
-									disabled: true,
+									color: 'text-purple',
 									onClick: () => {},
 								} }
 							/>

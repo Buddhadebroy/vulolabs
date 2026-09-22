@@ -264,23 +264,11 @@ const Automations = () => {
 			/>
 
 			<ContainerComponent general>
-				<ColumnComponent grid={12}>
-					<BuiltinAutomationCards
-						refetchSignal={refetchSignal}
-						onChanged={handleSaved}
-						highlightTemplateId={highlightTemplateId}
-					/>
-					{/* {!Wizard && (
-						<NoticeComponent
-							displayPosition="inline"
-							type="info"
-							message={__(
-								'Need custom triggers, conditions, actions or notifications? Available with VuloPilot Pro.',
-								'vulopilot'
-							)}
-						/>
-					)} */}
-				</ColumnComponent>
+				<BuiltinAutomationCards
+					refetchSignal={refetchSignal}
+					onChanged={handleSaved}
+					highlightTemplateId={highlightTemplateId}
+				/>
 
 				<ColumnComponent grid={7} fullHeight>
 					<AutomationsStatusCard refetchSignal={refetchSignal} />

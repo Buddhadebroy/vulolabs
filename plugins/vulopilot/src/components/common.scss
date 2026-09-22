@@ -92,7 +92,7 @@
             flex-shrink: 0;
             width: 3.5rem;
             color: $sub-text-color;
-            padding-top: 0.625rem;
+            padding-top: 1.25rem;
         }
 
         .history-details {
@@ -101,7 +101,7 @@
             gap: 0.813rem;
             position: relative;
             padding: 0.625rem 1rem;
-            border-bottom: 0.063rem solid #00000021;
+            border-bottom: $border-light-small;
             align-items: center;
 
             &::after {
@@ -658,6 +658,12 @@
     background: $theme-background-color !important;
     margin-top: 1.5rem;
     border-radius: $border-light-small;
+
+    .settings-input-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
 
     .divider-section {
         background: transparent !important;

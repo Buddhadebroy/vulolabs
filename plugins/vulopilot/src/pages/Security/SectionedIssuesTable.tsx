@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
@@ -406,6 +406,26 @@ const SectionedIssuesTable = ({
 		setPaged(1);
 	};
 
+	/**
+	 * Shared by the row click and the action cell's own "More Details"/
+	 * "Showing" button below — same toggle either way, now also scrolling
+	 * to the detail panel itself (`scrollToId`, the same real scroll-into-
+	 * view helper IssuesList.tsx's own identical `selectGroup` already
+	 * uses) on a real select, never on deselect (closing the panel
+	 * shouldn't jump the page). A plain `window.scrollTo()` only moves the
+	 * document, not WP admin's own scrollable wrapper — `scrollToId`
+	 * scrolls whichever ancestor is actually the scrollable one.
+	 */
+	const handleSelectGroup = (group: FindingGroup) => {
+		const isDeselecting = group.scanner_id === selectedGroup?.scanner_id;
+
+		setSelectedGroup(isDeselecting ? null : group);
+
+		if (!isDeselecting) {
+			scrollToId(`${id}-detail-panel`);
+		}
+	};
+
 	const handleActionComplete = () => {
 		refetch();
 		setSelectedGroup(null);
@@ -489,12 +509,7 @@ const SectionedIssuesTable = ({
 								// the details panel too, not just that one
 								// small button.
 								onRowClick={(row: Record<string, unknown>) => {
-									const group = row as unknown as FindingGroup;
-									setSelectedGroup(
-										group.scanner_id === selectedGroup?.scanner_id
-											? null
-											: group
-									);
+									handleSelectGroup(row as unknown as FindingGroup);
 								}}
 								headers={{
 									issue: {
@@ -546,12 +561,7 @@ const SectionedIssuesTable = ({
 														? 'eye'
 														: 'pagination-next-arrow',
 												onClick: (row) => {
-													const group = row as unknown as FindingGroup;
-													setSelectedGroup(
-														group.scanner_id === selectedGroup?.scanner_id
-															? null
-															: group
-													);
+													handleSelectGroup(row as unknown as FindingGroup);
 												},
 											},
 										],
@@ -634,6 +644,7 @@ const SectionedIssuesTable = ({
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
+				<div id={`${id}-detail-panel`}>
 				<IssueDetailPanel
 					group={selectedGroup}
 					onActionComplete={handleActionComplete}
@@ -645,6 +656,7 @@ const SectionedIssuesTable = ({
 						// behavior.
 					}}
 				/>
+				</div>
 			</ColumnComponent>
 		</>
 	);

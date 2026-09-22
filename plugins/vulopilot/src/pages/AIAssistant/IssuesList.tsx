@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { getApiLink, getApiResponse } from '@zyra/core';
+import { getApiLink, getApiResponse, scrollToId } from '@zyra/core';
 import { ColumnComponent, ModuleGuardComponent } from '@zyra/components';
 import { TableCard } from '@zyra/table';
 import './AICopilot.scss';
@@ -167,6 +167,28 @@ const IssuesList: React.FC<IssuesListProps> = ({
 
 	const refetch = () => setReloadToken((n) => n + 1);
 
+	/**
+	 * Same toggle both "More Details" triggers below already did (row click,
+	 * action-cell button) — now also scrolls to the detail panel itself
+	 * (`scrollToId`, the same real scroll-into-view helper
+	 * NeedsAttentionCard.tsx's own `scrollToId('ai-copilot-issues-section')`
+	 * already uses) when a group is actually selected, so the panel opens
+	 * fully visible regardless of which ancestor is actually the scrollable
+	 * one — a plain `window.scrollTo()` only moves the document, not WP
+	 * admin's own scrollable wrapper. No scroll on deselect (closing the
+	 * panel shouldn't jump the page).
+	 */
+	const selectGroup = (group: FindingGroup) => {
+		setSelectedGroup((current) => {
+			if (group.scanner_id === current?.scanner_id) {
+				return null;
+			}
+
+			scrollToId('ai-copilot-issue-detail-panel');
+			return group;
+		});
+	};
+
 	const handlePriorityChange = (priority: Priority) => {
 		setActivePriority(priority);
 		setPaged(1);
@@ -255,12 +277,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 							// `stopPropagation`, so this doesn't double-fire
 							// alongside a real button click).
 							onRowClick={(row: Record<string, unknown>) => {
-								const group = row as unknown as FindingGroup;
-								setSelectedGroup(
-									group.scanner_id === selectedGroup?.scanner_id
-										? null
-										: group
-								);
+								selectGroup(row as unknown as FindingGroup);
 							}}
 							headers={{
 								issue: {
@@ -305,12 +322,7 @@ const IssuesList: React.FC<IssuesListProps> = ({
 													? 'eye'
 													: 'pagination-next-arrow',
 											onClick: (row) => {
-												const group = row as unknown as FindingGroup;
-												setSelectedGroup(
-													group.scanner_id === selectedGroup?.scanner_id
-														? null
-														: group
-												);
+												selectGroup(row as unknown as FindingGroup);
 											},
 										},
 									],
@@ -371,11 +383,13 @@ const IssuesList: React.FC<IssuesListProps> = ({
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
-				<IssueDetailPanel
-					group={selectedGroup}
-					onActionComplete={refetch}
-					onClose={() => setSelectedGroup(null)}
-				/>
+				<div id="ai-copilot-issue-detail-panel">
+					<IssueDetailPanel
+						group={selectedGroup}
+						onActionComplete={refetch}
+						onClose={() => setSelectedGroup(null)}
+					/>
+				</div>
 			</ColumnComponent>
 		</>
 	);

@@ -1,6 +1,13 @@
-import { useState } from 'react';
+/* global appLocalizer */
+import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
+import { getApiLink, getApiResponse } from '@zyra/core';
+import {
+	AnalyticsComponent,
+	CardComponent,
+	ChartComponent,
+	ModuleGuardComponent,
+} from '@zyra/components';
 import { ToggleInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
@@ -8,6 +15,11 @@ import { formatWpDate } from '../../services/formatWpDate';
 interface SecurityScoreSnapshot {
 	snapshot_date: string;
 	security_score: number;
+}
+
+interface AttentionSummary {
+	total: number;
+	priority_counts: { high: number; medium: number; low: number };
 }
 
 type PeriodDays = '7' | '30' | '90';
@@ -45,6 +57,25 @@ const SecurityTrendCard = () => {
 		'security-score-snapshots',
 		{ days: Number(period) }
 	);
+
+	// Same real `GET /findings/attention-summary` `high`/`medium`/`low`/
+	// `total` counts SecurityStatusCard.tsx's own hero card reads — moved
+	// here (per direct instruction) as a real `AnalyticsComponent` tile row
+	// under the trend chart, replacing the `ListComponent` rows that used
+	// to sit under SecurityStatusCard's own metrics list.
+	const [summary, setSummary] = useState<AttentionSummary | null>(null);
+	useEffect(() => {
+		getApiResponse<AttentionSummary>(
+			getApiLink(appLocalizer, 'findings/attention-summary'),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		).then((response) => {
+			if (response) {
+				setSummary(response);
+			}
+		});
+	}, []);
+	const { high = 0, medium = 0, low = 0 } = summary?.priority_counts ?? {};
+	const total = summary?.total ?? 0;
 
 	return (
 		<CardComponent
@@ -89,6 +120,32 @@ const SecurityTrendCard = () => {
 					yDomain={[0, 100]}
 				/>
 			)}
+			<AnalyticsComponent
+				variant="background-color"
+				cols={4}
+				data={[
+					{
+						colorClass: 'admin-bg-color2',
+						number: high,
+						text: __('High', 'vulopilot'),
+					},
+					{
+						colorClass: 'admin-bg-color3',
+						number: medium,
+						text: __('Medium', 'vulopilot'),
+					},
+					{
+						colorClass: 'admin-bg-color4',
+						number: low,
+						text: __('Low', 'vulopilot'),
+					},
+					{
+						colorClass: 'admin-bg-color5',
+						number: total,
+						text: __('Total findings', 'vulopilot'),
+					},
+				]}
+			/>
 		</CardComponent>
 	);
 };

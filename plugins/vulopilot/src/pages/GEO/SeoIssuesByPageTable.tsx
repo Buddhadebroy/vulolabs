@@ -147,7 +147,7 @@ interface SeoIssuesByPageTableProps {
 	onExportCsv?: () => void;
 	/** Only set by SeoTab.tsx's own SEO usage — adds a real "Analyze" row action opening its own PageAnalysisPanel for that page. `undefined` for AeoTab.tsx's/GeoTab.tsx's own `pageAnalysis` usage, which has no such panel. */
 	onAnalyze?: (postId: number) => void;
-	/** SeoTab.tsx's own `analyzingPostId` — which row's panel (if any) is currently open, so this row's own "Analyze" action can read "Viewing" instead, same real toggle `PagesNeedingAttentionTable.tsx`'s own identical action used to establish. */
+	/** SeoTab.tsx's own `analyzingPostId` — which row's panel (if any) is currently open, so this row's own "More Details" action can read "Showing" instead, same real toggle every other issues table in this plugin uses. */
 	activePostId?: number | null;
 	/** Only set by SeoTab.tsx's own SEO usage (`IssuesSection.tsx`'s own `pageScore` prop) — adds a real Score ring + Change column per page, reading `row.seoScore`/`row.seoScoreChange`. This was `PagesNeedingAttentionTable.tsx`'s own standalone table before being folded into this one per direct instruction. */
 	showScoreChange?: boolean;
@@ -323,7 +323,7 @@ const SeoIssuesByPageTable = ({
 	 *
 	 * Confirmed still unreachable below: this function itself is real and
 	 * correct, but the `action.actions` array further down only has
-	 * "More Details"/"Viewing" and "Delete" entries — no "Fix with AI"
+	 * "More Details"/"Showing" and "Delete" entries — no "Fix with AI"
 	 * button was ever added back to call it. Same "real, working, just
 	 * flagged here rather than deleted" status BrokenLinksSection.tsx's
 	 * own docblocks document for their own unwired pieces.
@@ -684,15 +684,17 @@ const SeoIssuesByPageTable = ({
 							actions: [
 								{
 									type: 'button',
-									// Same real "More Details"/"Showing" toggle shape
-									// `PagesNeedingAttentionTable.tsx`'s own identical
-									// action already establishes for this same
-									// PageAnalysisPanel — "Viewing" (not "Analyze")
-									// once this row's own panel is the one currently
-									// open.
+									// Same real "More Details"/"Showing" toggle every
+									// other issues table in this plugin uses
+									// (SectionedIssuesTable.tsx/IssuesList.tsx/
+									// SlowPagesTab.tsx/SchemaKnowledge's
+									// IssuesSection.tsx+StructuredDataSection.tsx) —
+									// this row's own action used to say "Viewing"
+									// instead, the one table with different wording
+									// for the identical toggle.
 									label: (row: Record<string, unknown>) =>
 										(row as unknown as PageRow).id === activePostId
-											? __('Viewing', 'vulopilot')
+											? __('Showing', 'vulopilot')
 											: __('More Details', 'vulopilot'),
 									color: (row: Record<string, unknown>) =>
 										(row as unknown as PageRow).id === activePostId

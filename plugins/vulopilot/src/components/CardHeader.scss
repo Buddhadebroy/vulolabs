@@ -11,27 +11,31 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-    padding-bottom: 0.625rem;
+	padding-bottom: 0.625rem;
 	padding: 0.75rem;
 	width: 100%;
 	box-sizing: border-box;
-	.common-card-header{
+
+	.common-card-header {
 		width: 70%;
 	}
 
-	&.compact{		
+	&.compact {
 		.common-card-header,
 		.ai-provider-card-body,
-		.common-card-action{
+		.common-card-action {
 			// width: 30%;
 		}
-		.buttons-wrapper{
+
+		.buttons-wrapper {
 			width: 100%;
 		}
-		.common-card-header{
+
+		.common-card-header {
 			width: 50%;
 		}
-		.common-card-action{
+
+		.common-card-action {
 			width: 20%;
 		}
 	}
@@ -39,16 +43,17 @@
 
 .common-card-header {
 	display: flex;
-	align-items: center;
 	gap: 1.5rem;
 
 	&.is-clickable {
 		cursor: pointer;
 	}
 }
-.ai-provider-card-body{
-	width: 30%;
+
+.ai-provider-card-body {
+	width: 40%;
 }
+
 .common-card-icon {
 	display: flex !important;
 	align-items: center;
@@ -71,7 +76,8 @@
 	.title {
 		font-size: 1.125rem;
 	}
-	.desc{
+
+	.desc {
 		font-size: 0.95rem;
 	}
 }
@@ -94,5 +100,11 @@
 
 	.common-card-header {
 		width: 100%;
+	}
+}
+
+.form-group-wrapper {
+    > .common-card:not(:has(~ .common-card)) {
+		border-bottom: none !important;
 	}
 }

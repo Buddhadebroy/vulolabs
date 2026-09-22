@@ -1,7 +1,7 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { getApiLink, getApiResponse, COLOR_PALETTE } from '@zyra/core';
+import { getApiLink, getApiResponse, COLOR_PALETTE, scrollToId } from '@zyra/core';
 import {
 	AnalyticsComponent,
 	CardComponent,
@@ -241,6 +241,12 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 	>(null);
 	/** Set by a real "Analyze" click in the "Pages & Posts" table below — opens PageAnalysisPanel as a real sidebar alongside this tab's own existing content, rather than replacing it. */
 	const [analyzingPostId, setAnalyzingPostId] = useState<number | null>(null);
+
+	/** Same real "scroll the just-opened detail panel into view" fix the other issues tables' own `handleSelectGroup` already establishes (`scrollToId`, not `window.scrollTo` — WP admin's own scrollable wrapper isn't the document). */
+	const handleAnalyze = (postId: number) => {
+		setAnalyzingPostId(postId);
+		scrollToId('seo-page-analysis-panel');
+	};
 
 	useEffect(() => {
 		if (!isSeoModuleActive()) {
@@ -505,17 +511,19 @@ const SeoTab = ({ onNavigateTab }: SeoTabProps) => {
 					categories={SEO_SECTIONS}
 					categoryFocus={categoryFocus}
 					issuesColumnLabel="SEO Issues"
-					onAnalyze={setAnalyzingPostId}
+					onAnalyze={handleAnalyze}
 					activePostId={analyzingPostId}
 					pageScore
 				/>
 			</ColumnComponent>
 			{analyzingPostId && (
 				<ColumnComponent grid={4}>
+					<div id="seo-page-analysis-panel">
 					<PageAnalysisPanel
 						postId={analyzingPostId}
 						onClose={() => setAnalyzingPostId(null)}
 					/>
+					</div>
 				</ColumnComponent>
 			)}
 		</ContainerComponent>

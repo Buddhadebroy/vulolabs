@@ -48,6 +48,8 @@ declare global {
 			version: string | false;
 			manage_plan_url: string;
 		};
+		/** Every real public post type this site has registered beyond the 4 Settings → Sitemap's own "Post types in sitemap" checkbox list already hardcodes (post/page/attachment/product) — a theme/plugin-registered custom post type, so it shows up there as a real, checkable option (`FrontendScripts::get_sitemap_custom_post_types()`). Empty array on a site with no custom post types. */
+		sitemap_custom_post_types: { value: string; label: string }[];
 	}
 
 

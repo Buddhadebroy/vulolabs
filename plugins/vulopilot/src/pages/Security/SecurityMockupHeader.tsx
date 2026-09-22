@@ -2,7 +2,6 @@ import { ColumnComponent, ContainerComponent } from '@zyra/components';
 import type { SectionedIssuesTab } from './SectionedIssuesTable';
 import VulnerabilityHeroCard from './VulnerabilityHeroCard';
 import SecurityStatusCard from './SecurityStatusCard';
-import SecurityMetricsGrid from './SecurityMetricsGrid';
 import RecentActivityCard from './RecentActivityCard';
 import SecurityTrendCard from './SecurityTrendCard';
 
@@ -54,17 +53,14 @@ const SecurityMockupHeader = ({
 
 	return (
 		<ContainerComponent>
-			<ColumnComponent grid={6} fullHeight>
-				<SecurityStatusCard />
+			<ColumnComponent grid={7} fullHeight>
+				<SecurityStatusCard onViewSection={onViewSection} />
 			</ColumnComponent>
-			<ColumnComponent grid={6} fullHeight>
+			<ColumnComponent grid={5} fullHeight>
 				<SecurityTrendCard />
 			</ColumnComponent>
 
-			<ColumnComponent grid={8}>
-				<SecurityMetricsGrid onViewSection={onViewSection} />
-			</ColumnComponent>
-			<ColumnComponent grid={4}>
+			<ColumnComponent fullHeight>
 				<RecentActivityCard />
 			</ColumnComponent>
 		</ContainerComponent>

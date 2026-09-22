@@ -1,7 +1,6 @@
 import { createElement, Fragment, type ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import CrawlerAlertTestPanel from './CrawlerAlertTestPanel';
-import SendTestEmailButton from './SendTestEmailButton';
 
 const THRESHOLD_OPTIONS = [5, 10, 20, 30].map((points) => ({
 	label: sprintf(__('%d%% or more', 'vulopilot'), points),
@@ -235,16 +234,32 @@ export default {
 				'The email address where you want to receive VuloPilot notifications, and the sender details they\'re sent from.',
 				'vulopilot'
 			),
-			// "Send Test Email" — same real zyra `field.rightContent` slot
-			// (SectionComponent's own `right-content`) CrawlerAlertTestPanel.tsx
-			// used to sit in before it got promoted to this whole tab's
-			// `settingAction` — reused here instead for a section-scoped
-			// action, since that page-level slot is now this tab's own
-			// "Send Test Alert" button (per direct instruction: same
-			// hand-built button + persisted "Last test … sent on …" design
-			// as SendTestReportButton.tsx, replacing the old declarative
-			// `type: 'button'` field below).
-			rightContent: createElement(SendTestEmailButton),
+		},
+		{
+			// "Send Test Email" — back to a real declarative `type: 'button'`
+			// field, per direct instruction, in place of the hand-built
+			// SendTestEmailButton.tsx (its own docblock's "in place of the
+			// old declarative `type: 'button'` field" now reversed). Real
+			// `POST /settings/test-email` (Controllers\Settings::send_test_email(),
+			// same recipient/From-header logic every other notification
+			// email here already uses) — zyra's own `ButtonInput` field
+			// component (`field.apilink`/`field.method`) makes this same
+			// request itself and renders whatever real `message` the
+			// response carries inline, no separate component needed. Loses
+			// SendTestEmailButton.tsx's own persisted "Last test email sent
+			// on …" line (that needs real component state to survive a
+			// page refresh, which a plain declarative field has no room
+			// for) — same real tradeoff Migration.ts's own "Reset All
+			// Settings" `type: 'button'` field already accepts.
+			key: 'send_test_email',
+			type: 'button',
+			name: __('Send Test Email', 'vulopilot'),
+			label: __(' ', 'vulopilot'),
+			position: 'right',
+			rightIcon: 'send',
+			color: 'text-purple',
+			apilink: 'settings/test-email',
+			method: 'POST',
 		},
 		{
 			key: 'notification_email',

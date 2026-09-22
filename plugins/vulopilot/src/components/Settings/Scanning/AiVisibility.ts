@@ -231,7 +231,14 @@ export default {
 		},
 		{
 			key: 'llms_include_types',
-			type: 'choice-toggle',
+			// `type: 'checkbox'` + `selectDeselect: true` — real
+			// InputRenderer-native multicheckbox rendering (a real checkbox
+			// per option, each independently on/off) instead of the former
+			// `choice-toggle` segmented-pill look, same conversion
+			// Sitemap.ts's own "Post types in sitemap"/"Taxonomies in
+			// sitemap" fields already got.
+			type: 'checkbox',
+			selectDeselect: true,
 			label: __('Included content types', 'vulopilot'),
 			settingDescription: __(
 				'Which content types are listed in llms.txt.',
