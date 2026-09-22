@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
-import { FormGroupWrapperComponent } from '@zyra/components';
+import { FormGroupWrapperComponent, NoticeManager } from '@zyra/components';
 import { TextInput } from '@zyra/inputs';
 import { useSetting } from '../../../contexts/SettingContext';
 import CardHeader from '../../CardHeader';
@@ -45,6 +45,15 @@ const TagManagerPanel = () => {
 				tag_manager_container_id: nextContainerId,
 				tag_manager_enabled: nextEnabled,
 			},
+		}).then((response) => {
+			NoticeManager.add({
+				uniqueKey: 'vulopilot-tag-manager-saved',
+				type: response ? 'success' : 'error',
+				position: 'float',
+				message: response
+					? __('Settings saved.', 'vulopilot')
+					: __('Could not save settings. Please try again.', 'vulopilot'),
+			});
 		});
 	};
 
