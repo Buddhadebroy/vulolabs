@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { FormGroupWrapperComponent, NoticeManager } from '@zyra/components';
-import { ButtonInput, ToggleInput } from '@zyra/inputs';
+import { ButtonInput, MultiCheckboxInput, ToggleInput } from '@zyra/inputs';
 import { useSetting } from '../../contexts/SettingContext';
 import CardHeader from '../CardHeader';
 
@@ -144,16 +144,25 @@ const DeveloperToolsPanel = () => {
 						'vulopilot'
 					)}
 				>
-					<ToggleInput
-						value={anonymousUsageData}
-						modules={[]}
+					<MultiCheckboxInput
+						look="toggle"
 						options={[
-							{ key: 'enabled', label: __('Enabled', 'vulopilot'), value: 'enabled' },
-							{ key: 'disabled', label: __('Disabled', 'vulopilot'), value: 'disabled' },
+							{ key: 'enabled', value: 'enabled', label: '' },
 						]}
+						value={'enabled' === anonymousUsageData ? ['enabled'] : []}
 						onChange={(value) =>
-							handleSettingChange('anonymous_usage_data', value as string)
+							handleSettingChange(
+								'anonymous_usage_data',
+								(value as string[]).includes('enabled')
+									? 'enabled'
+									: 'disabled'
+							)
 						}
+						toggleStatusLabel={{
+							on: __('Enabled', 'vulopilot'),
+							off: __('Disabled', 'vulopilot'),
+						}}
+						modules={[]}
 					/>
 				</CardHeader>
 				<CardHeader
