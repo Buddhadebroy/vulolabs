@@ -15,15 +15,15 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Terms REST controller.
  *
- * Registers the same CRUD route shape once per ROUTE_TAXONOMIES entry —
- * `/categories`, `/brands`, `/collections`, `/tags` — each bound to one
+ * Registers the same CRUD route shape once per ROUTE_TAXONOMIES entry -
+ * `/categories`, `/brands`, `/collections`, `/tags` - each bound to one
  * Domain\Term\Taxonomy constant, backing the Offerings menu's
  * "Categories"/"Brands"/"Collections"/"Tags" admin pages (`src/pages/Terms/`).
  * One controller class rather than four near-identical ones, mirroring
  * Domain\Term\Taxonomy's own "one shape, one table" reasoning.
  *
  * Listing/reading is public (categories/brands/collections/tags are
- * harmless reference data, same posture as Offerings' own public GET —
+ * harmless reference data, same posture as Offerings' own public GET -
  * rest-api.md); every mutation is `manage_options`-gated.
  *
  * @class       Terms class
@@ -45,7 +45,7 @@ class Terms extends \WP_REST_Controller {
     );
 
     /**
-     * Registers this controller's REST routes — one set per entry in
+     * Registers this controller's REST routes - one set per entry in
      * self::ROUTE_TAXONOMIES.
      *
      * @return void
@@ -263,7 +263,7 @@ class Terms extends \WP_REST_Controller {
     }
 
     /**
-     * Whitelist-sanitizes a term's `meta` bag — today just a brand's
+     * Whitelist-sanitizes a term's `meta` bag - today just a brand's
      * optional logo media reference, same `{id,url}` shape
      * Offerings' own `sanitize_media_item()` validates.
      *

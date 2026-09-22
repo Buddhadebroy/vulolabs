@@ -10,7 +10,7 @@ namespace VuloPilot\RestAPI\Controllers;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /robots-sitemap/robots` and `GET /robots-sitemap/sitemap` — real,
+ * `GET /robots-sitemap/robots` and `GET /robots-sitemap/sitemap` - real,
  * live fetch-and-parse of this site's OWN actual `/robots.txt` and
  * sitemap index, backing RobotsSitemapSection.tsx's "Robots.txt
  * Analysis"/"XML Sitemap Overview" cards.
@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * Neither existing scanner (Seo\Scanners\RobotsTxtScanner/SitemapScanner)
  * does this: they only check reachability (and one narrow "blocks every
  * crawler" case for robots.txt) for the findings feed, never return file
- * content or a structured rules/child-sitemap breakdown to the frontend —
+ * content or a structured rules/child-sitemap breakdown to the frontend -
  * confirmed by reading both before writing this controller. This is
  * genuinely new, real parsing, not a re-exposure of something that
  * already existed.
@@ -38,7 +38,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 
     /**
      * Real bound on how many child sitemaps get their own real HEAD-count
-     * request — same "don't turn one page load into unbounded serial HTTP
+     * request - same "don't turn one page load into unbounded serial HTTP
      * requests" reasoning BrokenLinksScanner (MAX_LINKS_PER_RUN) and
      * Controllers\Redirects::get_health() (MAX_HEALTH_CHECKS) already
      * apply for the same real reason.
@@ -91,7 +91,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 
     /**
      * Live-fetches this site's own `/robots.txt` and parses every real
-     * `User-agent`/`Allow`/`Disallow`/`Sitemap`/`Crawl-delay` line — the
+     * `User-agent`/`Allow`/`Disallow`/`Sitemap`/`Crawl-delay` line - the
      * exact raw content is returned too (RobotsSitemapSection.tsx's own
      * code-view), so nothing here is a summary standing in for the real
      * file; it's the real file, plus real counts of its own real lines.
@@ -155,7 +155,7 @@ class RobotsSitemap extends \WP_REST_Controller {
     }
 
     /**
-     * The Robots.txt Analysis card's own "Edit" action — saves a real,
+     * The Robots.txt Analysis card's own "Edit" action - saves a real,
      * persisted override of this site's own robots.txt output
      * (RobotsTxtManager::save_custom_content(), which replaces WordPress
      * core's own virtual `robots_txt` filter output outright). An empty
@@ -181,7 +181,7 @@ class RobotsSitemap extends \WP_REST_Controller {
     }
 
     /**
-     * Plain line-by-line real robots.txt directive parser — the RFC-ish
+     * Plain line-by-line real robots.txt directive parser - the RFC-ish
      * format is just `Directive: value` lines, blank lines, and `#`
      * comments, so a full parser/library is unnecessary; this reads every
      * real line exactly once.
@@ -246,16 +246,16 @@ class RobotsSitemap extends \WP_REST_Controller {
     }
 
     /**
-     * Live-fetches this site's own sitemap index — real `/wp-sitemap.xml`
+     * Live-fetches this site's own sitemap index - real `/wp-sitemap.xml`
      * (WordPress core's own native sitemap since 5.5) first, falling back
      * to `/sitemap.xml`, same discovery order Seo\Scanners\SitemapScanner
      * already uses. Enumerates every real `<sitemap>` child entry (a real
-     * index) or treats a flat `<url>` set as one real sitemap — for each
+     * index) or treats a flat `<url>` set as one real sitemap - for each
      * real child, a second real request counts its own real `<url>`
      * entries (bounded, see MAX_CHILD_SITEMAPS's own docblock).
      *
      * Parses via `local-name()` XPath rather than SimpleXML's magic
-     * `->sitemap`/`->url` property access — the same choice
+     * `->sitemap`/`->url` property access - the same choice
      * VuloPilotPro\AdvancedSeo\Scanners\SitemapValidationScanner already
      * makes, since core's sitemap XML declares a default namespace that
      * magic property access doesn't reliably traverse.
@@ -325,7 +325,7 @@ class RobotsSitemap extends \WP_REST_Controller {
                 );
             }
         } elseif ( $url_nodes ) {
-            // A flat urlset, not an index — the fetched URL IS the one real sitemap.
+            // A flat urlset, not an index - the fetched URL IS the one real sitemap.
             $children[] = array(
                 'loc'       => $index_url,
                 'type'      => $this->infer_sitemap_type( $index_url ),
@@ -384,7 +384,7 @@ class RobotsSitemap extends \WP_REST_Controller {
 
     /**
      * A real, honest categorization derived from the sitemap's own real
-     * filename — never a guess about content that wasn't actually
+     * filename - never a guess about content that wasn't actually
      * fetched, just a readable label for a real URL already shown in
      * full right next to it.
      *

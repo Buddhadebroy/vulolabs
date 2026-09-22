@@ -21,18 +21,18 @@ defined( 'ABSPATH' ) || exit;
  * The content-append pattern: unlike ImproveReadabilityAction rewriting
  * `post_content` itself, this adds a new, independent piece of data
  * (JSON-LD structured data) alongside a post without touching its
- * existing content at all — stored in VuloPilot's own postmeta key, not
+ * existing content at all - stored in VuloPilot's own postmeta key, not
  * written into `post_content` or any SEO plugin's own meta key.
  *
  * Pairs conceptually with Seo\Scanners\SchemaScanner, which flags pages
  * with no structured data at all, and is the mapped one-click fix for
- * vulopilot-pro's sitewide-structured-data scanner (OneClickFix\ScannerFixMap) —
+ * vulopilot-pro's sitewide-structured-data scanner (OneClickFix\ScannerFixMap) -
  * a per-post JSON-LD presence check this action's post_id input matches
  * directly.
  *
  * Actually *outputting* this JSON-LD on the frontend is
  * Services\SchemaJsonLdRenderer's job (a `wp_head` hook reading
- * `_vulopilot_schema_json`) — this action's own job ends at saving valid
+ * `_vulopilot_schema_json`) - this action's own job ends at saving valid
  * schema data.
  *
  * @class       GenerateSchemaAction class
@@ -44,7 +44,7 @@ class GenerateSchemaAction extends AbstractBasicAction {
     /**
      * Public (not private) since RestAPI\Controllers\PostSeo also reads/
      * writes this exact key for the post-editor metabox's Schema tab's
-     * manual JSON field — one source of truth for the literal string
+     * manual JSON field - one source of truth for the literal string
      * rather than a second copy of it drifting out of sync.
      */
     public const META_KEY = '_vulopilot_schema_json';
@@ -64,7 +64,7 @@ class GenerateSchemaAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::LOW — Writes structured-data JSON to a single postmeta value — invisible to visitors, never touches `post_content`.
+     * Impact::LOW - Writes structured-data JSON to a single postmeta value - invisible to visitors, never touches `post_content`.
      *
      * @inheritDoc
      */
@@ -96,7 +96,7 @@ class GenerateSchemaAction extends AbstractBasicAction {
             array(
                 'role'    => 'system',
                 'content' => 'You write valid schema.org JSON-LD structured data for web pages. '
-                    . 'Respond with ONLY the raw JSON — no markdown code fences, no commentary. '
+                    . 'Respond with ONLY the raw JSON - no markdown code fences, no commentary. '
                     . 'Use the "Article" type unless the content clearly describes a product, recipe, or event.',
             ),
             array(
@@ -116,7 +116,7 @@ class GenerateSchemaAction extends AbstractBasicAction {
      */
     public function parse_response( AIResponse $response ): array {
         // Models frequently wrap JSON in ```json fences despite being
-        // asked not to — strip that before attempting to decode.
+        // asked not to - strip that before attempting to decode.
         $content = preg_replace( '/^```(?:json)?\s*|\s*```$/', '', trim( $response->get_content() ) );
 
         return array( 'schema_json' => trim( $content ) );

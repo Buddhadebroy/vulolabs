@@ -7,7 +7,7 @@ import { NoticeManager } from '@zyra/components';
 export interface GoogleServicesStatus {
 	connected: boolean;
 	has_client_credentials: boolean;
-	/** Whether "Connect Google Services" will route through the VuloCloud OAuth broker instead — GoogleServicesConnection::get_authorization_url() (PHP) already tries this FIRST, so a build can be broker-only (`has_client_credentials` false) and still have a real, working connect flow. */
+	/** Whether "Connect Google Services" will route through the VuloCloud OAuth broker instead - GoogleServicesConnection::get_authorization_url() (PHP) already tries this FIRST, so a build can be broker-only (`has_client_credentials` false) and still have a real, working connect flow. */
 	has_broker: boolean;
 	search_console_site: string;
 	ga4_account_id: string;
@@ -22,7 +22,7 @@ export interface GoogleServicesStatus {
 
 /**
  * Same real, allow-listed set GoogleServicesConnection.php's own
- * `RETURN_TARGETS` enforces server-side — kept in sync by hand since
+ * `RETURN_TARGETS` enforces server-side - kept in sync by hand since
  * there's no shared PHP/TS constant here, same as every other route-id
  * string literal this codebase already duplicates across the two sides.
  */
@@ -31,13 +31,13 @@ export type GoogleConnectReturnTo = 'settings' | 'keywords';
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
- * Shared real Google OAuth 2.0 status/connect/disconnect logic —
+ * Shared real Google OAuth 2.0 status/connect/disconnect logic -
  * GoogleServicesConnection.php's own frontend counterpart, extracted out
  * of GoogleServicesPanel.tsx (Settings → Connections → Google Services, the
  * full Search Console + Analytics + AdSense picker) so KeywordsTab.tsx's
  * own inline "Connect Google Services" flow (SEO & Visibility → Keywords)
- * can reuse the exact same real handshake — same status shape, same REST
- * routes, same `gsc_status` redirect-flag handling — instead of a second,
+ * can reuse the exact same real handshake - same status shape, same REST
+ * routes, same `gsc_status` redirect-flag handling - instead of a second,
  * hand-duplicated copy of this state machine. Neither caller fabricates
  * anything: every call here hits the same real routes
  * Controllers\GoogleServices registers.
@@ -45,7 +45,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * `returnTo` picks which real, allow-listed SPA tab Google's own redirect
  * (GoogleSearchConsoleOAuthCallbackHandler.php, via
  * GoogleServicesConnection::get_return_to_from_state()) lands back on
- * once the handshake completes — so a connect started from Keywords
+ * once the handshake completes - so a connect started from Keywords
  * finishes on Keywords, not Settings, the same "stay where you started"
  * behavior the reference RankMath connect flow itself has.
  */
@@ -118,7 +118,7 @@ export const useGoogleServicesConnection = (
 			.then((response) => {
 				if (response?.url) {
 					// Real top-level handoff to Google's own consent
-					// screen — not an XHR, so there's nothing to await
+					// screen - not an XHR, so there's nothing to await
 					// past this point; the redirect back through
 					// admin-post.php replaces this page entirely.
 					window.location.href = response.url;

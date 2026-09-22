@@ -4,7 +4,7 @@ import { DUMMY_REPORT_ROWS } from './reportsOverview';
 
 /**
  * Fabricated row list shared by RecentReportsCard.tsx/ReportHistoryTable.tsx
- * for their own Pro-locked state — plain, non-interactive markup (no real
+ * for their own Pro-locked state - plain, non-interactive markup (no real
  * `TableCard`/row actions) rather than feeding `DUMMY_REPORT_ROWS` into the
  * real table component both use for genuine data, since none of these rows
  * has a real id/file behind it for a "View"/"Download" action to open. One

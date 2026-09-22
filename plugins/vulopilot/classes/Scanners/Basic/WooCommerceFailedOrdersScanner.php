@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Orders" — one real finding per order WooCommerce itself marked
+ * "Orders" - one real finding per order WooCommerce itself marked
  * `wc-failed` (a real payment attempt that didn't complete) in the last
  * LOOKBACK_DAYS. Bounded to a recent window, same
  * performance-bounding convention Pro's own
@@ -85,7 +85,7 @@ class WooCommerceFailedOrdersScanner extends AbstractBasicScanner {
 				),
 				Severity::HIGH,
 				$this->get_category(),
-				__( 'This order\'s payment attempt failed — the customer never completed checkout. Follow up or the sale is lost.', 'vulopilot' ),
+				__( 'This order\'s payment attempt failed - the customer never completed checkout. Follow up or the sale is lost.', 'vulopilot' ),
 				'order',
 				(string) $order_id
 			);

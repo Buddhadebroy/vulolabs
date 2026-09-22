@@ -30,13 +30,13 @@ const PERIOD_OPTIONS = [
 ];
 
 /**
- * "Security Trend" — real daily `security_score` snapshots from
+ * "Security Trend" - real daily `security_score` snapshots from
  * `GET /security-score-snapshots?days=N`
  * (`classes/Repositories/SecurityScoreSnapshotRepository.php`, written by
  * `Services\SecurityScoreSnapshotRecorder` after every scan plus once
- * daily via cron — the same real weighting `GET /dashboard`'s
+ * daily via cron - the same real weighting `GET /dashboard`'s
  * `category_scores.security` already uses). Not a reuse of
- * `vulopilot_site_health_snapshots.security_score` — that column exists
+ * `vulopilot_site_health_snapshots.security_score` - that column exists
  * but is only ever written by Pro's AdvancedReports module, so this Free
  * tab needed its own dedicated table, same reasoning Performance's own
  * "Speed History" already established for `performance_score`. Same
@@ -47,7 +47,7 @@ const PERIOD_OPTIONS = [
  *
  * `days` is a real 7/30/90 toggle now (same `PERIOD_OPTIONS`/`ToggleInput`
  * shape GeoScoreSection.tsx's own card action already uses) rather than a
- * fixed 30 — `useApiList`'s own `params` are re-read on every render, so
+ * fixed 30 - `useApiList`'s own `params` are re-read on every render, so
  * changing `period` here refetches the same real endpoint with a
  * different `days` value, no new request-plumbing needed.
  */
@@ -59,7 +59,7 @@ const SecurityTrendCard = () => {
 	);
 
 	// Same real `GET /findings/attention-summary` `high`/`medium`/`low`/
-	// `total` counts SecurityStatusCard.tsx's own hero card reads — moved
+	// `total` counts SecurityStatusCard.tsx's own hero card reads - moved
 	// here (per direct instruction) as a real `AnalyticsComponent` tile row
 	// under the trend chart, replacing the `ListComponent` rows that used
 	// to sit under SecurityStatusCard's own metrics list.
@@ -102,7 +102,7 @@ const SecurityTrendCard = () => {
 					icon="analytics"
 					title={__('No trend data yet', 'vulopilot')}
 					desc={__(
-						'Security trend builds up after your first scan — run a scan, or check back after today.',
+						'Security trend builds up after your first scan - run a scan, or check back after today.',
 						'vulopilot'
 					)}
 				/>

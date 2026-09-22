@@ -4,7 +4,7 @@ import IntegrationsPanel from './IntegrationsPanel';
 /**
  * Settings → Integrations. Standalone top-level tab (moved out of the old
  * "Get Started"/Business Visibility folder, which is gone now that every
- * one of its sub-tabs moved elsewhere) — renamed from "Connections"
+ * one of its sub-tabs moved elsewhere) - renamed from "Connections"
  * (`id: 'connections'`) to "Integrations" (`id: 'integrations'`) as part
  * of that same restructure.
  *
@@ -12,7 +12,7 @@ import IntegrationsPanel from './IntegrationsPanel';
  * composes (`VuloCloudAiConnectionPanel.tsx`/`GoogleServicesPanel.tsx`/
  * `PageSpeedStatusPanel.tsx`/`SiteVerificationPanel.tsx`/
  * `TagManagerPanel.tsx`) moved alongside this file into `Settings/`
- * directly — they're plain `.tsx` components, not settings-tab configs
+ * directly - they're plain `.tsx` components, not settings-tab configs
  * (`templateService.ts`'s own `require.context` only scans `.ts$` files),
  * so this file moving changes nothing about how those resolve; the
  * relative import above is `./IntegrationsPanel` (same folder).
@@ -21,12 +21,12 @@ import IntegrationsPanel from './IntegrationsPanel';
  * (`VisibilityBySourceCard.tsx`, `CrawlRobotsSitemapSection.tsx`,
  * `PerformanceScoreCard.tsx`, `SlowPagesTab.tsx`, `Modules/index.ts`'s own
  * `settingsLink`) has been updated to `subtab=integrations` alongside this
- * rename — `getSettingById()` (`@zyra/core`) resolves a `subtab` by real
+ * rename - `getSettingById()` (`@zyra/core`) resolves a `subtab` by real
  * `id` alone, recursing through folders, so those links only work once
  * they carry the new id.
  *
  * `modal` below is the same union of real flat setting keys the old
- * Connections.ts carried — still needed even though `PanelComponent`
+ * Connections.ts carried - still needed even though `PanelComponent`
  * bypasses InputRenderer entirely, purely so Settings.tsx's own per-tab
  * seeding logic (`fieldKeys` from `modal[].key`) populates SettingContext
  * with their current values before IntegrationsPanel.tsx's own components
@@ -50,7 +50,7 @@ export default {
 		{ key: 'ga_anonymize_ip', type: 'checkbox', label: '', options: [] },
 		{ key: 'ga_self_hosted_js', type: 'checkbox', label: '', options: [] },
 		{ key: 'ga_exclude_logged_in_users', type: 'checkbox', label: '', options: [] },
-		// Tag Manager (TagManagerPanel.tsx) — moved in from Scanning → SEO
+		// Tag Manager (TagManagerPanel.tsx) - moved in from Scanning → SEO
 		// & Content per direct instruction, rendered above Webmaster Tools.
 		{ key: 'tag_manager_enabled', type: 'checkbox', label: '', options: [] },
 		{ key: 'tag_manager_container_id', type: 'text', label: '' },
@@ -65,7 +65,7 @@ export default {
 		{ key: 'webmaster_yandex_verification', type: 'text', label: '' },
 		{ key: 'webmaster_norton_verification', type: 'text', label: '' },
 		{ key: 'webmaster_custom_tags', type: 'textarea', label: '' },
-		// PageSpeed Insights (PageSpeedStatusPanel.tsx) — moved here per
+		// PageSpeed Insights (PageSpeedStatusPanel.tsx) - moved here per
 		// direct instruction, rendered after Webmaster Tools above.
 		{ key: 'psi_api_key', type: 'text', label: '' },
 		{ key: 'psi_daily_limit', type: 'text', label: '' },

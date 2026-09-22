@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Backed by `Utill::SETTINGS_DEFAULTS`'s Shipping section — a
+ * Backed by `Utill::SETTINGS_DEFAULTS`'s Shipping section - a
  * marketplace-wide flat rate, distinct from OfferingEdit.tsx's per-offering
  * shipping fields (weight/dimensions/shipping class), which are a separate,
  * real concept. Read by the Shipping module's own

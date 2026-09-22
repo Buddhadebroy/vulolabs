@@ -17,9 +17,9 @@ interface PluginOverlapCardProps {
 	/**
 	 * Restricts this instance to one `PluginOverlap::KNOWN_OVERLAPS`
 	 * category (`seo`/`security`/`accessibility`/`automation`/`caching`)
-	 * so the card can be promoted into each theme's own tab — e.g. only
+	 * so the card can be promoted into each theme's own tab - e.g. only
 	 * `security` matches on the Security tab. Omit to show every category
-	 * — no current call site does this; the one that used to
+	 * - no current call site does this; the one that used to
 	 * (Files & Plugins' own unfiltered "what plugins do I have" complete
 	 * list) was removed along with that tab per direct instruction, and
 	 * this prop was left as-is rather than deleted in case a future tab
@@ -29,11 +29,11 @@ interface PluginOverlapCardProps {
 }
 
 /**
- * "VuloPilot already covers this" — real, currently-*active* plugins
+ * "VuloPilot already covers this" - real, currently-*active* plugins
  * (checked server-side via `is_plugin_active()`, `GET /plugin-overlap`,
  * PluginOverlap.php) whose category (SEO/security/accessibility/
  * automation/caching) overlaps with a real VuloPilot feature. Deliberately
- * NOT tied to any vulnerability finding or claim — this repo's own
+ * NOT tied to any vulnerability finding or claim - this repo's own
  * documented policy (LocalSeedVulnerabilityFeed.php's docblock) is to
  * never name a real, currently-maintained third-party plugin as
  * vulnerable, so this card only ever says "you have two tools doing the
@@ -41,17 +41,17 @@ interface PluginOverlapCardProps {
  * Modules page (a real Pro module toggle, `module_id`) or the Performance
  * tab (the caching category, which isn't gated behind a module toggle).
  * Renders nothing at all when no known plugin is active (or none match
- * this instance's `category`) — same "don't show an empty teaser for a
+ * this instance's `category`) - same "don't show an empty teaser for a
  * comparison that found nothing" posture as this page's other real-data
  * cards.
  *
- * Promoted into every page whose category has real matches — SecurityTab
+ * Promoted into every page whose category has real matches - SecurityTab
  * (`category="security"`), Accessibility.tsx (`category="accessibility"`,
  * its own top-level page, `../Security/PluginOverlapCard` imported
- * cross-folder), PerformanceTab (`category="caching"`) — so the
+ * cross-folder), PerformanceTab (`category="caching"`) - so the
  * cross-sell surfaces in the context a user is already reading about
  * that exact category. No current instance covers the `seo`/`automation`
- * categories — those matches went unsurfaced once FilesPluginsTab.tsx's
+ * categories - those matches went unsurfaced once FilesPluginsTab.tsx's
  * own unfiltered, complete-list instance was removed along with that tab.
  */
 const PluginOverlapCard = ({ category }: PluginOverlapCardProps) => {
@@ -70,7 +70,7 @@ const PluginOverlapCard = ({ category }: PluginOverlapCardProps) => {
 			title={__('VuloPilot already covers this', 'vulopilot')}
 			titleIcon="module"
 			desc={__(
-				'These active plugins overlap with a feature already built into VuloPilot — you may be able to simplify your plugin list.',
+				'These active plugins overlap with a feature already built into VuloPilot - you may be able to simplify your plugin list.',
 				'vulopilot'
 			)}
 		>

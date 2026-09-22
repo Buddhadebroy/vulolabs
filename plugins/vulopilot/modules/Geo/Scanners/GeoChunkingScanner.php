@@ -19,12 +19,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags published posts/pages containing a single paragraph over
  * MAX_PARAGRAPH_WORD_COUNT words. AI answer engines retrieve and quote
- * content in small chunks (often paragraph-sized) — a wall-of-text
+ * content in small chunks (often paragraph-sized) - a wall-of-text
  * paragraph is harder to cleanly extract a single relevant chunk from
  * than the same information broken into several shorter paragraphs, even
  * though the total content length is identical. Distinct from
  * HeadingStructureScanner's separate SEO check (whether *any* subheading
- * exists at all) — this checks paragraph-level granularity within
+ * exists at all) - this checks paragraph-level granularity within
  * whatever sections already exist.
  *
  * @class       GeoChunkingScanner class

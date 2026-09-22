@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * Extracted so a second chat surface (Controllers\Copilot.php's own AI
  * Copilot Chat tab) can offer the exact same real "write a blog"/"create a
  * landing page"/"create a product description" capability without a second,
- * drifting copy of this logic — both controllers still build their own
+ * drifting copy of this logic - both controllers still build their own
  * system prompt/AI request (their personas and grounding differ), they only
  * share what happens *after* the AI replies with a decision.
  *
@@ -33,11 +33,11 @@ class ContentCreationOrchestrator {
 
     /**
      * The only 3 AIActions a free-text chat message alone can legitimately
-     * trigger — the ones that create a brand-new post from scratch
+     * trigger - the ones that create a brand-new post from scratch
      * (`GenerateBlogAction`/`GenerateLandingPageAction`/
      * `GenerateProductDescriptionAction`), never one that mutates an
      * *existing* post/attachment neither chat surface has a picker for.
-     * Also described (fields and all) in each caller's own system prompt —
+     * Also described (fields and all) in each caller's own system prompt -
      * keep the two in sync by hand, the same way GeoAnalysis\GeoAnalyzer's
      * prompt and its own parse_response() stay in sync. `action_id` here is
      * the whitelist itself: an `action_id` the AI returns that isn't a key
@@ -62,11 +62,11 @@ class ContentCreationOrchestrator {
      * Parses an orchestrator's JSON reply into a decision a caller can
      * safely act on. `action_id` is checked against
      * CONTENT_CREATION_ACTIONS's own whitelist rather than trusted
-     * verbatim — the AI is never allowed to pick an action outside the 3
+     * verbatim - the AI is never allowed to pick an action outside the 3
      * safe, no-existing-post-required ones this orchestrator is scoped to.
      * Anything unparseable (not JSON, missing status, an unrecognized
      * action_id) degrades to a plain "respond" using whatever text the
-     * model actually returned, rather than failing the whole turn — the
+     * model actually returned, rather than failing the whole turn - the
      * same "don't lose a usable reply over a formatting slip" posture
      * GeoAnalyzer's own parse_response() takes.
      *
@@ -81,7 +81,7 @@ class ContentCreationOrchestrator {
         if ( ! is_array( $decoded ) || empty( $decoded['status'] ) ) {
             return array(
                 'status'  => 'respond',
-                'message' => '' !== $raw ? $raw : __( "Sorry, I didn't quite catch that — could you rephrase?", 'vulopilot' ),
+                'message' => '' !== $raw ? $raw : __( "Sorry, I didn't quite catch that - could you rephrase?", 'vulopilot' ),
             );
         }
 
@@ -97,11 +97,11 @@ class ContentCreationOrchestrator {
             }
 
             // An action_id outside the whitelist (hallucinated, or one of
-            // the existing-post-only actions) is never executed — ask for
+            // the existing-post-only actions) is never executed - ask for
             // more detail instead of guessing what was meant.
             return array(
                 'status'  => 'respond',
-                'message' => __( "I couldn't quite tell what to create — could you tell me a bit more about what you'd like?", 'vulopilot' ),
+                'message' => __( "I couldn't quite tell what to create - could you tell me a bit more about what you'd like?", 'vulopilot' ),
             );
         }
 
@@ -115,14 +115,14 @@ class ContentCreationOrchestrator {
 
     /**
      * Runs a whitelisted CONTENT_CREATION_ACTIONS entry through the real
-     * AIAction lifecycle end to end — propose() (AI call, exactly like
+     * AIAction lifecycle end to end - propose() (AI call, exactly like
      * ContentToolsGrid.tsx's own tiles trigger) immediately followed by
      * approve() (auto-approving since the conversation itself IS the
      * user's approval, the same way clicking a tool tile and submitting
-     * its form is) — and turns the result into a real, generic chat-reply
+     * its form is) - and turns the result into a real, generic chat-reply
      * shape: a short success line plus a real, clickable edit link, never
      * the raw generated body text. $decision['input'] is AI-supplied, so it
-     * is not trusted directly — the target action's own validate_input()
+     * is not trusted directly - the target action's own validate_input()
      * (already sanitizing/validating every field) is what actually decides
      * whether it's usable, the same safety net a human-submitted
      * ContentToolsGrid.tsx form goes through.

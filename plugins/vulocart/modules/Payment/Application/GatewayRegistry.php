@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Payment module GatewayRegistry.
  *
  * Where every `PaymentGatewayInterface` implementation becomes known to
- * `PaymentService` — collected via the `vulocart_payment_gateways` filter
+ * `PaymentService` - collected via the `vulocart_payment_gateways` filter
  * (fired once, lazily, on first use), the exact same "module contributes
  * an array entry to a filter this plugin's own core collects" shape
  * `vulocart_checkout_steps` already establishes for checkout wizard
@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
 class GatewayRegistry {
 
     /**
-     * Every registered gateway, keyed by id — null until first resolved.
+     * Every registered gateway, keyed by id - null until first resolved.
      *
      * @var array<string, PaymentGatewayInterface>|null
      */
@@ -62,7 +62,7 @@ class GatewayRegistry {
     }
 
     /**
-     * Every registered gateway, regardless of configuration state —
+     * Every registered gateway, regardless of configuration state -
      * backs the admin Payments settings tab (which needs to show an
      * unconfigured gateway's own credential fields, not just active
      * ones).
@@ -74,7 +74,7 @@ class GatewayRegistry {
     }
 
     /**
-     * Every registered gateway that's actually usable right now — backs
+     * Every registered gateway that's actually usable right now - backs
      * `GET /payment/methods`, the checkout wizard's own Payment step.
      *
      * @return PaymentGatewayInterface[]
@@ -84,7 +84,7 @@ class GatewayRegistry {
     }
 
     /**
-     * Resolves one gateway by id, regardless of configuration state —
+     * Resolves one gateway by id, regardless of configuration state -
      * `PaymentService` itself re-checks `is_configured()` before actually
      * charging anything.
      *

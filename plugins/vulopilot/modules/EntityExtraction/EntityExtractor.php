@@ -12,16 +12,16 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Entity Extraction" (KNOWLEDGE-GRAPH-MODULE.md) — the Free half of
+ * "Entity Extraction" (KNOWLEDGE-GRAPH-MODULE.md) - the Free half of
  * Phase 05's Knowledge Graph. Every entity type is read from real,
  * already-existing WordPress data; nothing here is NLP/NER-style text
- * mining (this codebase has no such capability and none is introduced —
+ * mining (this codebase has no such capability and none is introduced -
  * every other "entity" scanner audited for this feature turned out to be a
  * boolean regex presence check, not a parser, so there was no existing
  * extraction mechanism to build on regardless):
  *
  * - People: real WP users who have authored at least one published post/page.
- * - Organizations: the site's own real Organization entity — Services\HomepageSchemaRenderer's
+ * - Organizations: the site's own real Organization entity - Services\HomepageSchemaRenderer's
  *   `vulopilot_homepage_schema_json` option's `publisher` sub-object when a
  *   site owner has run that Pro mechanical fix, falling back to the site's
  *   own title/URL (always real, never fabricated) when it hasn't.
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
  *   + `wc_get_products()` guard every other Free WooCommerce scanner uses.
  * - Services/Locations: real data the site owner explicitly provides via
  *   two new settings (Settings → Site Identity → Business Information,
- *   moved there from Scanning → AI Visibility per direct instruction) —
+ *   moved there from Scanning → AI Visibility per direct instruction) -
  *   this codebase has no
  *   existing Service/LocalBusiness concept to derive these from
  *   automatically (confirmed absent everywhere), so rather than fabricate
@@ -41,7 +41,7 @@ defined( 'ABSPATH' ) || exit;
  *   published post/product (`hide_empty` => true).
  *
  * Gated on the `entity-extraction` module being active
- * (`VuloPilot()->modules->get_active_modules()`) — same "deactivating a
+ * (`VuloPilot()->modules->get_active_modules()`) - same "deactivating a
  * module really changes behavior" posture `modules/Seo/Module.php`'s own
  * docblock documents, since this service has no scanner/finding of its own
  * to gate through the usual `ScannerRegistry` category mechanism.
@@ -64,7 +64,7 @@ class EntityExtractor {
 
     /**
      * Same real slug list Geo\Scanners\GeoTrustSignalsScanner already
-     * checks for its own "site is missing a Contact page" finding —
+     * checks for its own "site is missing a Contact page" finding -
      * duplicated here rather than shared (same "duplicate small logic
      * across scopes" precedent this codebase already uses elsewhere, e.g.
      * ContentIntelligence.php's category-score weighting) since that
@@ -75,14 +75,14 @@ class EntityExtractor {
 
     /**
      * Real slug list checked for `get_business_name_sources()`'s own
-     * "About page" source — same `get_page_by_path()` pattern
+     * "About page" source - same `get_page_by_path()` pattern
      * CONTACT_SLUGS already uses, just the about-page equivalent.
      */
     private const ABOUT_SLUGS = array( 'about', 'about-us' );
 
     /**
      * Real relationship sentences the "Knowledge Graph" section's own
-     * "Suggested relationships" panel shows — capped so a site with many
+     * "Suggested relationships" panel shows - capped so a site with many
      * real services/products doesn't produce an unbounded list.
      */
     private const MAX_SUGGESTED_RELATIONSHIPS = 6;
@@ -142,7 +142,7 @@ class EntityExtractor {
     }
 
     /**
-     * @return string Real, owner-provided `entity_business_type` setting — empty until set, never guessed.
+     * @return string Real, owner-provided `entity_business_type` setting - empty until set, never guessed.
      */
     private function get_business_type_setting(): string {
         $settings = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -166,7 +166,7 @@ class EntityExtractor {
     }
 
     /**
-     * "Business Name Details" side panel data — the real business name
+     * "Business Name Details" side panel data - the real business name
      * `extract_organizations()` already resolves, cross-checked against 4
      * real, independently-readable WordPress data points instead of just
      * asserting it: whether that same name shows up as the site's real
@@ -175,12 +175,12 @@ class EntityExtractor {
      * setting, the real Organization schema `publisher.name` (when Pro's
      * mechanical fix has run), and the real published About page's own
      * content. Nothing here is a second, independent name-detection
-     * mechanism — every source is checked against this one already-
+     * mechanism - every source is checked against this one already-
      * resolved name, so "consistent" means "these real, independent
      * places all agree with the name VuloPilot already reports," not a
      * second opinion that could disagree with it.
      *
-     * @param bool $refresh Bust EntityExtractor's own 1-hour cache first — real "Scan Again" semantics (re-reads every real source now), not a second, separate cache of its own.
+     * @param bool $refresh Bust EntityExtractor's own 1-hour cache first - real "Scan Again" semantics (re-reads every real source now), not a second, separate cache of its own.
      * @return array{business_name: string, confidence: string, sources: array<int, array{key: string, label: string, value: string|null, found: bool, url: string|null}>, sources_checked: int, is_consistent: bool, consistent_count: int}
      */
     public function get_business_name_sources( bool $refresh = false ): array {
@@ -195,7 +195,7 @@ class EntityExtractor {
         $homepage_name = $this->get_homepage_display_name();
         $schema_name   = $this->get_homepage_publisher()['name'] ?? null;
         $about         = $this->find_about_page_name_match( $business_name );
-        // Real, deterministic homepage URL — where the homepage title, the
+        // Real, deterministic homepage URL - where the homepage title, the
         // site title `<title>` tag, and any Organization schema JSON-LD are
         // all actually rendered, so "View" on any of those 3 real sources
         // sends someone to look at the same real page.
@@ -245,7 +245,7 @@ class EntityExtractor {
             'confidence'       => '' !== $business_name ? 'high' : 'n/a',
             'sources'          => $sources,
             'sources_checked'  => count( $sources ),
-            // A single found source (or none) is trivially "consistent" —
+            // A single found source (or none) is trivially "consistent" -
             // there's nothing real to disagree with it yet.
             'is_consistent'    => count( $unique_values ) <= 1,
             'consistent_count' => count( $found_values ),
@@ -257,7 +257,7 @@ class EntityExtractor {
      * title: a real static front page's own real post title when one is
      * configured (Settings → Reading), falling back to the real site
      * title setting for a "latest posts" homepage (which has no singular
-     * page of its own to name) — same real fallback `extract_organizations()`
+     * page of its own to name) - same real fallback `extract_organizations()`
      * already uses when there's no Organization schema.
      *
      * @return string|null
@@ -282,14 +282,14 @@ class EntityExtractor {
 
     /**
      * Whether the real business name shows up in a real, published About
-     * page's own content — same `get_page_by_path()` slug-matching
+     * page's own content - same `get_page_by_path()` slug-matching
      * `find_contact_page()` already uses, extended to actually check the
      * page's real content rather than just its existence, since "About
      * page" here means "a real source that confirms this name," not just
      * "a page happens to exist at that slug."
      *
      * @param string $business_name The real, already-resolved business name to check for.
-     * @return array{value: string|null, url: string|null} `value` is the real business name when a published About page's content actually contains it, null otherwise (no About page, or one that doesn't mention it). `url` is that page's own real permalink whenever a published About page exists at all — even when its content doesn't mention the name, so "View" can still send someone to the real page to check for themselves.
+     * @return array{value: string|null, url: string|null} `value` is the real business name when a published About page's content actually contains it, null otherwise (no About page, or one that doesn't mention it). `url` is that page's own real permalink whenever a published About page exists at all - even when its content doesn't mention the name, so "View" can still send someone to the real page to check for themselves.
      */
     private function find_about_page_name_match( string $business_name ): array {
         foreach ( self::ABOUT_SLUGS as $slug ) {
@@ -316,14 +316,14 @@ class EntityExtractor {
     }
 
     /**
-     * Real, deterministic, template-built candidate relationships — never
-     * AI-generated (no AI call, no cost) — each sentence names a
+     * Real, deterministic, template-built candidate relationships - never
+     * AI-generated (no AI call, no cost) - each sentence names a
      * real entity this site already has (a real service page's own title,
      * a real published product's own title, a real, non-"messy" category
      * with real published content in it). Labeled "suggested" rather than
      * "confirmed" on purpose: none of these are actually encoded as real
      * schema.org relationship markup (`Organization.makesOffer`/
-     * `hasOfferCatalog`) anywhere on this site yet — that's the real gap
+     * `hasOfferCatalog`) anywhere on this site yet - that's the real gap
      * this panel is pointing at, not a claim that structured data already
      * exists.
      *
@@ -356,7 +356,7 @@ class EntityExtractor {
 
         // Only real categories with real published content in them
         // (`extract_categories()` already filters to `hide_empty`) and
-        // only the taxonomy WordPress core itself calls "categories" —
+        // only the taxonomy WordPress core itself calls "categories" -
         // `product_cat` terms are already covered by the real product
         // rows above, so including them here too would double up the
         // same real relationship under two different sentences.
@@ -391,12 +391,12 @@ class EntityExtractor {
     }
 
     /**
-     * Real site "People" — every published post/page's author (as before)
+     * Real site "People" - every published post/page's author (as before)
      * plus every real WordPress Administrator, even one who's never
      * authored anything. An Administrator who's only ever configured the
      * site (never written a post) is still real "who runs this business"
      * information an AI/search crawler would want, so listing them by
-     * post-authorship alone would under-report — same real
+     * post-authorship alone would under-report - same real
      * `get_userdata()`-backed shape either way, just a second, real
      * `role='administrator'` user query unioned in by ID.
      *
@@ -450,8 +450,8 @@ class EntityExtractor {
     }
 
     /**
-     * @param \WP_User $user Real WordPress user — may hold more than one role, in which case only the first (WordPress's own "primary" convention, e.g. `current_user_can()`'s own precedent) is labeled.
-     * @return string Real, translated role display name (e.g. "Administrator"), or the raw role slug if WordPress has no matching entry (a custom role a 3rd-party plugin registered without a display name) — empty string only for a real roleless user.
+     * @param \WP_User $user Real WordPress user - may hold more than one role, in which case only the first (WordPress's own "primary" convention, e.g. `current_user_can()`'s own precedent) is labeled.
+     * @return string Real, translated role display name (e.g. "Administrator"), or the raw role slug if WordPress has no matching entry (a custom role a 3rd-party plugin registered without a display name) - empty string only for a real roleless user.
      */
     private function get_role_label( \WP_User $user ): string {
         $role = $user->roles[0] ?? '';
@@ -493,7 +493,7 @@ class EntityExtractor {
      * Reads the real Organization sub-object Pro's own
      * MechanicalFixRunner::generate_organization_schema() nests into
      * `vulopilot_homepage_schema_json` as `publisher`, if a site owner has
-     * ever run that fix — the one place in this codebase with a real,
+     * ever run that fix - the one place in this codebase with a real,
      * structured, deterministically-built Organization entity.
      *
      * @return array{name?: string, url?: string, logo?: string}|null
@@ -515,7 +515,7 @@ class EntityExtractor {
     }
 
     /**
-     * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string, source_object_ref: string, meta: array}>|null Null when WooCommerce isn't active — same "not applicable to this site" signal Dashboard's own category_scores.woocommerce already uses.
+     * @return array<int, array{id: string, type: string, name: string, url: string|null, source_object_type: string, source_object_ref: string, meta: array}>|null Null when WooCommerce isn't active - same "not applicable to this site" signal Dashboard's own category_scores.woocommerce already uses.
      */
     private function extract_products(): ?array {
         if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_products' ) ) {
@@ -556,13 +556,13 @@ class EntityExtractor {
     }
 
     /**
-     * "Product Details" panel data — real published WooCommerce products,
+     * "Product Details" panel data - real published WooCommerce products,
      * each with a real, deterministic set of completeness issues computed
      * from the exact same fields WooCommerce core's own Product schema
      * output (`WC_Structured_Data::generate_product_data()`) actually
      * reads: no featured image, no SKU, no description (short or long), no
      * price set. Not a second, independent schema validator running
-     * against the live page — these are the real gaps that would leave
+     * against the live page - these are the real gaps that would leave
      * that same core-generated Product JSON-LD incomplete, computed
      * directly from each product's own real data (the same real
      * `wc_get_products()` call `extract_products()` already makes, so this
@@ -626,7 +626,7 @@ class EntityExtractor {
 
     /**
      * Owner-curated, newline-separated page URLs/ids (Site Identity →
-     * Business Information's `entity_service_pages` setting) — each resolved to a
+     * Business Information's `entity_service_pages` setting) - each resolved to a
      * real published page; anything that doesn't resolve is silently
      * skipped rather than fabricated as an entity.
      *
@@ -672,22 +672,22 @@ class EntityExtractor {
      * `url_to_postid()` alone (this method's only resolution path until
      * this fix) silently fails for a real, live, published page whenever
      * some other rewrite rule shadows its slug before WordPress's own
-     * page-rewrite fallback gets a chance to match it — confirmed live: a
+     * page-rewrite fallback gets a chance to match it - confirmed live: a
      * genuinely published WooCommerce "Shop" page's own real permalink
      * (`get_permalink()`'s own output for it) round-tripped through
      * `url_to_postid()` came back `0`, because the `product` CPT's own
      * archive rewrite rule matches that same path first. The site owner
      * pasting that exact real URL into "Service pages" then saw a
      * permanent, silent "Not found"/"Add Details" here with no way to
-     * tell why — same URL, same site, just resolved through a function
+     * tell why - same URL, same site, just resolved through a function
      * that isn't the only way WordPress can turn a path back into a post.
      *
      * Falls back to `get_page_by_path()` (matched against every public
-     * post type, not just `page` — a "service" could just as easily be a
+     * post type, not just `page` - a "service" could just as easily be a
      * `post` or a product) against the URL's own path once `url_to_postid()`
      * comes back empty, before finally giving up on that line.
      *
-     * @param string $line One raw line from the setting — either a numeric post ID or a URL.
+     * @param string $line One raw line from the setting - either a numeric post ID or a URL.
      * @return int 0 if nothing resolves.
      */
     private function resolve_post_id_from_setting_line( string $line ): int {
@@ -714,7 +714,7 @@ class EntityExtractor {
 
     /**
      * Owner-curated, newline-separated `Name | Address` lines (Site
-     * Identity → Business Information's `entity_business_locations` setting) — real data
+     * Identity → Business Information's `entity_business_locations` setting) - real data
      * the site owner provides, since no LocalBusiness address/geo field is
      * ever written anywhere in this codebase to derive it from
      * automatically.

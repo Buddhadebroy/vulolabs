@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart WPDBOfferingRepository.
  *
  * The only class in this codebase that runs SQL against
- * `vulocart_offerings` — implements Domain\Offering\OfferingRepositoryInterface,
+ * `vulocart_offerings` - implements Domain\Offering\OfferingRepositoryInterface,
  * bound in VuloCart::init_classes(). Every query goes through
  * `$wpdb->prepare()` (database.md); a static in-request cache-by-id
  * follows the same pattern `database.md` already documents (Store.php's
@@ -152,7 +152,7 @@ class WPDBOfferingRepository implements OfferingRepositoryInterface {
         // text rather than a real join/index. Good enough for the
         // "filter this list" use case at admin-catalog scale; a slug
         // that happens to be a substring of another slug (e.g.
-        // "electronics" inside "electronics-2") can over-match — a known,
+        // "electronics" inside "electronics-2") can over-match - a known,
         // documented limitation, not a silent bug.
         if ( ! empty( $args['category'] ) ) {
             $where_clauses[] = 'meta LIKE %s';

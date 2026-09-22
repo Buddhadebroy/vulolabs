@@ -10,7 +10,7 @@ export interface CitationCheckResult {
 	post_id: number;
 	title: string;
 	question: string;
-	/** Whether `question` was extracted verbatim from a real question-phrased heading on this post, or built from the post's own title (CitationCoverageChecker.php's own `build_question()`) — shown so the two are never blurred together as if both were "real content questions." */
+	/** Whether `question` was extracted verbatim from a real question-phrased heading on this post, or built from the post's own title (CitationCoverageChecker.php's own `build_question()`) - shown so the two are never blurred together as if both were "real content questions." */
 	from_content: boolean;
 	cited: boolean;
 	provider: string;
@@ -27,16 +27,16 @@ export interface CitationCoverage {
 }
 
 interface AeoCitationCoverageCardProps {
-	/** Whether GeoInsights' own Rest.php class is registered at all (either 'geo-insights' or 'aeo-insights' active — both register the same class, so either is enough) — same real gate GeoTab.tsx's own `isGeoInsightsActive()` already uses for its sibling Competitor Visibility card, checked directly rather than inferred from an unrelated snapshot's own load state. */
+	/** Whether GeoInsights' own Rest.php class is registered at all (either 'geo-insights' or 'aeo-insights' active - both register the same class, so either is enough) - same real gate GeoTab.tsx's own `isGeoInsightsActive()` already uses for its sibling Competitor Visibility card, checked directly rather than inferred from an unrelated snapshot's own load state. */
 	isActive: boolean;
 }
 
 /**
- * "Answer Engine Coverage" — real, disclosed "Simulated Citation Check"
+ * "Answer Engine Coverage" - real, disclosed "Simulated Citation Check"
  * (CitationCoverageChecker.php's own docblock explains exactly what this
  * can and can't honestly measure). Action-driven, not loaded on mount by
  * default the way GeoScoreCard's own "Generate" button already is for its
- * own real-cost action — except the *last stored* result IS read on mount
+ * own real-cost action - except the *last stored* result IS read on mount
  * (one real GET, no AI spend) so a result from an earlier click, or from
  * VisibilitySnapshotScheduler-adjacent tooling, isn't lost on a page
  * refresh.
@@ -92,12 +92,12 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 
 	// Both 'geo-insights' and 'aeo-insights' are real, independent Pro
 	// modules that unlock this same card (`isActive` above is already
-	// their real OR — see AeoTab.tsx's own `isCitationCheckActive()`), so
+	// their real OR - see AeoTab.tsx's own `isCitationCheckActive()`), so
 	// this hook's own single-id module check is overridden with that
 	// already-correct boolean; 'aeo-insights' is still what the tag names/
 	// the popup deep-links to, same single target ProLockedCard used here
 	// before.
-	const { wrap } = useContentGate('aeo-insights', isActive);
+	const { wrap } = useContentGate('answer-engine-optimization', isActive);
 
 	const dummyContent = (
 		<>
@@ -121,7 +121,7 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 				title={__('Answer Engine Coverage', 'vulopilot')}
 				titleIcon="global-community"
 				desc={__(
-					"Asks your own configured AI service real questions from your content — without ever naming your site — and checks whether it already recognizes you as a source. A real, disclosed simulation of what that model already knows, not a live ChatGPT/Perplexity search.",
+					"Asks your own configured AI service real questions from your content - without ever naming your site - and checks whether it already recognizes you as a source. A real, disclosed simulation of what that model already knows, not a live ChatGPT/Perplexity search.",
 					'vulopilot'
 				)}
 				badges={badges}
@@ -193,7 +193,7 @@ const AeoCitationCoverageCard = ({ isActive }: AeoCitationCoverageCardProps) => 
 														? __('From your content', 'vulopilot')
 														: __('From page title', 'vulopilot')}
 												</td>
-												<td>{row.cited ? '✓' : '—'}</td>
+												<td>{row.cited ? '✓' : '-'}</td>
 											</tr>
 										))}
 									</tbody>

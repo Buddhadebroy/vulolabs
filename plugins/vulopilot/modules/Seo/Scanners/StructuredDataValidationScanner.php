@@ -107,7 +107,7 @@ class StructuredDataValidationScanner extends AbstractBasicScanner {
      * Public + static so Services\SchemaCoverageAnalyzer (the restyled
      * Schema tab's own real per-page JSON-LD sampler) can reuse the exact
      * same extraction regex rather than a second, potentially-drifting
-     * copy of it — this scanner's own homepage-only check and that
+     * copy of it - this scanner's own homepage-only check and that
      * analyzer's own multi-page sample both need to answer the identical
      * "what JSON-LD blocks are actually on this page" question.
      *

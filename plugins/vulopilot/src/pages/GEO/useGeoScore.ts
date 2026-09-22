@@ -9,7 +9,7 @@ export interface GeoSignalScore {
 	main_problem: string | null;
 	/**
 	 * Real `PROGRESS_TREND_DAYS`-point daily score trend, oldest first
-	 * (`Geo.php`'s own `get_signal_trend()`) — `null` for `content-freshness`
+	 * (`Geo.php`'s own `get_signal_trend()`) - `null` for `content-freshness`
 	 * only (not finding-based, no real history to reconstruct; see that
 	 * endpoint's own docblock), a real array for every other signal.
 	 */
@@ -18,7 +18,7 @@ export interface GeoSignalScore {
 
 export interface GeoScoreResponse {
 	geo_score: number;
-	/** Real published post+page count — the same real scope every GEO scanner itself scans. */
+	/** Real published post+page count - the same real scope every GEO scanner itself scans. */
 	pages_checked: number;
 	signals: {
 		'ai-summary': GeoSignalScore;
@@ -37,10 +37,10 @@ export interface GeoScoreResponse {
 }
 
 /**
- * `GET /geo/score` — Geo.php's own real, deterministic GEO Score (same
+ * `GET /geo/score` - Geo.php's own real, deterministic GEO Score (same
  * weighted-severity formula `useSeoScore.ts`'s own `/seo/score` uses for 6
  * of the 7 signals, plus a real sitewide Content Freshness computed
- * straight from `post_modified_gmt` — see Geo.php's own docblock). No AI
+ * straight from `post_modified_gmt` - see Geo.php's own docblock). No AI
  * call, no cost, works identically whether vulopilot-pro is active or not.
  */
 export const useGeoScore = (): {

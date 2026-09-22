@@ -9,14 +9,14 @@ import type { CitationCheckResult } from './AeoCitationCoverageCard';
 import type { AeoPageRow } from './useAeoPageAnalysis';
 
 interface AeoEngineTestingCardProps {
-	/** Same real "is GeoInsights' Rest.php class even registered" gate AeoCitationCoverageCard.tsx uses — see that prop's own docblock. */
+	/** Same real "is GeoInsights' Rest.php class even registered" gate AeoCitationCoverageCard.tsx uses - see that prop's own docblock. */
 	isActive: boolean;
-	/** The same real published-pages list AeoTab.tsx already fetched for "Pages Ready"/"Questions Answered" (useAeoPageAnalysis.ts) — reused here as this card's own page picker rather than a third fetch of the same data. */
+	/** The same real published-pages list AeoTab.tsx already fetched for "Pages Ready"/"Questions Answered" (useAeoPageAnalysis.ts) - reused here as this card's own page picker rather than a third fetch of the same data. */
 	pages: AeoPageRow[];
 }
 
 /**
- * "Engine Testing" — the exact same real check
+ * "Engine Testing" - the exact same real check
  * AeoCitationCoverageCard.tsx's "Answer Engine Coverage" runs, scoped to
  * one already-published page picked from the dropdown below: `POST
  * /aeo-citation-coverage/{post_id}` (CitationCoverageChecker::check_one_post()).
@@ -26,12 +26,12 @@ interface AeoEngineTestingCardProps {
  * own result change.
  *
  * No longer carries the "Not tracked yet" badge this card's own
- * placeholder predecessor had — that badge described a card that didn't
+ * placeholder predecessor had - that badge described a card that didn't
  * run anything yet, and was mistakenly carried over unchanged when this
  * card became real and functional, so it kept telling users the exact
  * opposite of what was actually true. (It would still be an honest label
  * for one real, narrower gap this card actually has: a single-post
- * result here is never persisted anywhere — unlike AeoCitationCoverageCard.tsx's
+ * result here is never persisted anywhere - unlike AeoCitationCoverageCard.tsx's
  * own sitewide result, `check_one_post()` doesn't call `update_option()`,
  * so refreshing the page loses it. That's a real, disclosed limitation,
  * just not what "Not tracked yet" was actually communicating here.)
@@ -57,12 +57,12 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 			{}
 		)
 			.then((response) => {
-				// 'question' — not 'cited' — is what actually distinguishes
+				// 'question' - not 'cited' - is what actually distinguishes
 				// this endpoint's real flat single-result shape from
 				// check_sitewide()'s wrapped {generated_at, tested, cited,
 				// results} shape (that wrapper also has its own top-level
 				// `cited`, just a count instead of this one question's
-				// boolean — see CitationCoverageChecker::check_one_post()'s
+				// boolean - see CitationCoverageChecker::check_one_post()'s
 				// own docblock for the real bug this guard used to let
 				// through silently).
 				if (response && 'object' === typeof response && 'question' in response) {
@@ -70,7 +70,7 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 				} else {
 					setError(
 						__(
-							'Could not test this page — make sure this site is connected to VuloCloud under Settings → Connections.',
+							'Could not test this page - make sure this site is connected to VuloCloud under Settings → Connections.',
 							'vulopilot'
 						)
 					);
@@ -79,11 +79,11 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 			.finally(() => setIsRunning(false));
 	};
 
-	// Same real OR-of-two-modules override as AeoCitationCoverageCard.tsx —
+	// Same real OR-of-two-modules override as AeoCitationCoverageCard.tsx -
 	// see that card's own comment and useContentGate.tsx's own docblock for
 	// why `isActive` (not this hook's default single-id check) drives the
 	// module gate here.
-	const { wrap } = useContentGate('aeo-insights', isActive);
+	const { wrap } = useContentGate('answer-engine-optimization', isActive);
 
 	const dummyContent = (
 		<div className="aeo-engine-testing-controls">
@@ -177,7 +177,7 @@ const AeoEngineTestingCard = ({ isActive, pages }: AeoEngineTestingCardProps) =>
 									? __('Your configured AI service already recognizes this site for this question.', 'vulopilot')
 									: __('Your configured AI service does not yet recognize this site for this question.', 'vulopilot')}
 							</p>
-							{/* The real generated text the judgment above was made from —
+							{/* The real generated text the judgment above was made from -
 							shown so this doesn't read as a static verdict: every run
 							re-asks the model live and this answer changes accordingly,
 							even when the cited/not-cited outcome itself doesn't. */}

@@ -82,7 +82,7 @@ export function renderAddressFields( value: AddressFields, onChange: ( next: Add
 }
 
 /**
- * The Address step — billing address, optional separate shipping address,
+ * The Address step - billing address, optional separate shipping address,
  * and terms acceptance (grouped here rather than a 7th registered step:
  * it's a single checkbox gating "may I proceed", not independently
  * pluggable content in its own right).
@@ -134,7 +134,7 @@ function AddressStepView( props: Props ) {
 	return (
 		<div className="vulocart-checkout-step vulocart-checkout-step-address">
 			<h4>{ __( 'Billing address', 'vulocart' ) }</h4>
-			{ /* Address Autocomplete (vulocart-pro) injects a lookup field here — registerCheckoutStepExtension()'s own docblock in registry.ts. */ }
+			{ /* Address Autocomplete (vulocart-pro) injects a lookup field here - registerCheckoutStepExtension()'s own docblock in registry.ts. */ }
 			{ getCheckoutStepExtensions( 'address' ).map( ( extension, index ) => (
 				<div key={ index } className="vulocart-checkout-step-extension">
 					{ extension( props ) }

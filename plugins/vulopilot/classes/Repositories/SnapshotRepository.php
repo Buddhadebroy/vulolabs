@@ -10,7 +10,7 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Daily-snapshot storage shared by every "score history" feature — one row
+ * Daily-snapshot storage shared by every "score history" feature - one row
  * per (`snapshot_type`, `snapshot_date`) in `vulopilot_snapshots`, with the
  * day's values kept together as JSON in `data`. Replaces what used to be
  * eight near-identical per-feature tables (performance/security score,
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Each feature keeps its own thin repository (its own type and its own
  * `upsert_today()` signature) so callers and REST response shapes are
- * unchanged — rows still come back flat: `id`, `snapshot_date`,
+ * unchanged - rows still come back flat: `id`, `snapshot_date`,
  * `created_at`, plus every stored value as its own key.
  *
  * @class       SnapshotRepository class

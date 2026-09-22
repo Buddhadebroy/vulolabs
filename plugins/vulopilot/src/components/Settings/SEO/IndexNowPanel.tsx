@@ -68,13 +68,13 @@ const RESPONSE_CODE_HELP: { code: string; type: string; desc: string }[] = [
 ];
 
 /**
- * Hand-built rather than InputRenderer-driven — same escape hatch
+ * Hand-built rather than InputRenderer-driven - same escape hatch
  * VuloCloudAiConnectionPanel.tsx/ImportExportPanel.tsx already use (Settings.tsx's
  * GetForm() special-cases `currentTab === 'indexnow'`). Unlike those two,
  * this tab DOES have two real flat settings fields
- * (`indexnow_api_key`/`indexnow_post_types`) — read via `useSetting()`
+ * (`indexnow_api_key`/`indexnow_post_types`) - read via `useSetting()`
  * (LlmsTxtCard.tsx's own precedent for a hand-built component reading/
- * writing the shared SettingContext) — alongside two real actions/logs
+ * writing the shared SettingContext) - alongside two real actions/logs
  * that don't fit the per-field model at all: manual URL submission
  * (`POST /indexnow/submit`) and submission history (`GET /indexnow/history`),
  * both backed by RestAPI\Controllers\IndexNow.
@@ -232,7 +232,7 @@ const IndexNowPanel = () => {
 							// Real zyra palette green, same literal hex this
 							// codebase's own other `.is-good`/success-state
 							// rules already mirror it with (no `.scss` source
-							// to `@use` a real token from — see
+							// to `@use` a real token from - see
 							// BrandVisibilityProDummies.tsx's own identical
 							// docblock on this).
 							borderColor={apiKey ? '#16a34a' : undefined}
@@ -247,7 +247,7 @@ const IndexNowPanel = () => {
 									<strong>{__('Site verification', 'vulopilot')}</strong>
 									<p className="desc">
 										{__(
-											'Proves to search engines that submissions are really coming from your site. Generated and renewed automatically — nothing for you to manage.',
+											'Proves to search engines that submissions are really coming from your site. Generated and renewed automatically - nothing for you to manage.',
 											'vulopilot'
 										)}
 									</p>
@@ -264,7 +264,7 @@ const IndexNowPanel = () => {
 							type="info"
 							title={__('Why this matters', 'vulopilot')}
 							message={__(
-								'Without IndexNow, search engines find changes by revisiting your site on their own schedule — which can take days. This tells them immediately, so new and updated pages can appear in results sooner.',
+								'Without IndexNow, search engines find changes by revisiting your site on their own schedule - which can take days. This tells them immediately, so new and updated pages can appear in results sooner.',
 								'vulopilot'
 							)}
 							actionLabel={`${__('Learn more', 'vulopilot')} ↗`}
@@ -308,7 +308,7 @@ const IndexNowPanel = () => {
 							{submitResults.map((result, index) => (
 								<div key={index}>
 									<code>{result.url}</code>
-									{' — '}
+									{' - '}
 									{result.status_code ?? __('error', 'vulopilot')}{' '}
 									{result.message}
 								</div>
@@ -337,7 +337,7 @@ const IndexNowPanel = () => {
 					<div className="vulopilot-indexnow-help">
 						{RESPONSE_CODE_HELP.map((row) => (
 							<div key={row.code} className={`vulopilot-indexnow-help__${row.type}`}>
-								<strong>{row.code}</strong> — {row.desc}
+								<strong>{row.code}</strong> - {row.desc}
 							</div>
 						))}
 					</div>

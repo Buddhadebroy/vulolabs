@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { client, getOrCreateCartToken } from '../shared/cart';
 import type { CartResponse } from '../shared/cart';
 import { CheckoutEngine } from '../checkout-engine/CheckoutEngine';
-import '../checkout-engine/mount'; // side-effect only — registers Free's 5 interactive steps AND patches window.vulocartCheckoutEngine.mount()/unmount() (see mount.tsx).
+import '../checkout-engine/mount'; // side-effect only - registers Free's 5 interactive steps AND patches window.vulocartCheckoutEngine.mount()/unmount() (see mount.tsx).
 import './checkout.scss';
 
 interface OfferingSummary {
@@ -23,16 +23,16 @@ interface ShippingMethod {
 }
 
 /**
- * The Checkout block — cart browsing/editing (unchanged from before), then
+ * The Checkout block - cart browsing/editing (unchanged from before), then
  * hands off to `CheckoutEngine` (`../checkout-engine/`) for everything
  * checkout itself. This file used to hardcode the entire step sequence
  * and every field's markup inline; now it owns only what's genuinely
  * block-specific (rendering the offerings list, mounting into this
  * Gutenberg block's DOM node) and nothing about WHICH checkout steps
- * exist or how they're laid out — that's `CheckoutEngine`'s job, and it
+ * exist or how they're laid out - that's `CheckoutEngine`'s job, and it
  * has no idea this block exists. `checkoutMode` (single_page/multi_step)
  * is a block/plugin setting (`vulocartFrontendData.checkoutMode`), not
- * hardcoded — a merchant can switch it without any code change, and a
+ * hardcoded - a merchant can switch it without any code change, and a
  * future vulocart-pro delivery mode (Popup/Embedded/Hosted) mounts the
  * exact same `CheckoutEngine` component this file does, just from a
  * different entry point with no WordPress page underneath it at all.
@@ -67,10 +67,10 @@ export function Checkout() {
 	}, [] );
 
 	/**
-	 * Shipping Estimation — a real capability, not a stub: the same
+	 * Shipping Estimation - a real capability, not a stub: the same
 	 * `/shipping/methods` endpoint the Shipping step itself later calls
 	 * (Shipping\Rest::get_methods(), public, no address required since
-	 * this plugin's shipping model is flat-rate — ShippingService's own
+	 * this plugin's shipping model is flat-rate - ShippingService's own
 	 * docblock), surfaced here on the cart view so a shopper sees what
 	 * shipping will roughly cost before committing to checkout at all,
 	 * the actual point of "estimate before you commit" rather than a

@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Closes AiCopilot\Actions\GenerateSchemaAction's own documented gap:
  * that action only ever saved AI-generated JSON-LD to a postmeta key
- * (`_vulopilot_schema_json`) and said so itself — "Actually outputting
+ * (`_vulopilot_schema_json`) and said so itself - "Actually outputting
  * this JSON-LD on the frontend ... isn't built yet. This action's job
  * ends at saving valid schema data; rendering it is a separate, still-
  * needed piece." This class is that piece: it outputs whatever's saved
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * scanner) actually resolves what a scanner checks for, not just writes
  * data nothing ever reads.
  *
- * No settings gate — unlike SitemapManager/RobotsTxtManager (which decide
+ * No settings gate - unlike SitemapManager/RobotsTxtManager (which decide
  * whether to generate something site-wide), this only ever outputs
  * something a site owner (or an approved AI action) already explicitly
  * created for one specific post; there's nothing to output until that
@@ -66,7 +66,7 @@ class SchemaJsonLdRenderer {
         $decoded = json_decode( $schema_json, true );
 
         if ( ! is_array( $decoded ) ) {
-            return; // Malformed/edited-outside-the-action value — don't output invalid JSON-LD.
+            return; // Malformed/edited-outside-the-action value - don't output invalid JSON-LD.
         }
 
         echo '<script type="application/ld+json">' . wp_json_encode( $decoded ) . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() output of a decoded structure, not raw user input.

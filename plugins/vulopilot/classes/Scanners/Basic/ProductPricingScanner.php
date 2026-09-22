@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * regular price set at all (it cannot legally be added to cart in this
  * state), and a sale price that is greater than or equal to the regular
  * price (a discount that isn't actually a discount). Variable products
- * are skipped — their variations each carry their own price, checked at
+ * are skipped - their variations each carry their own price, checked at
  * the variation level, not the parent product level.
  *
  * @class       ProductPricingScanner class

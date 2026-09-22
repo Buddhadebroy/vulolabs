@@ -181,7 +181,7 @@ function generateModuleEntries(rootDir) {
 }
 
 /**
- * Optional Block Editor sidebar entry — `src/post-editor/index.tsx`, not
+ * Optional Block Editor sidebar entry - `src/post-editor/index.tsx`, not
  * every plugin's own admin dashboard mount (`src/index.tsx`, always
  * present). Guarded by existence, same "skip if the file doesn't exist"
  * posture as the block/module entry generators above, so plugins without
@@ -200,12 +200,12 @@ function generatePostEditorEntry(rootDir) {
 }
 
 /**
- * Optional storefront bundle entry — `src/storefront/index.tsx`, a
+ * Optional storefront bundle entry - `src/storefront/index.tsx`, a
  * plugin's own script for the PUBLIC-facing side of a page (as opposed to
  * `src/index.tsx`, always wp-admin-only). Same guarded-by-existence
  * posture as generatePostEditorEntry() above, so plugins with no
  * storefront bundle of their own (every plugin except vulocart-pro,
- * today — its Order Notes/Coupons/Gift Cards checkout-step extensions
+ * today - its Order Notes/Coupons/Gift Cards checkout-step extensions
  * need to run on the free `vulocart` plugin's own storefront checkout
  * page, which has no wp-admin context to inject an admin bundle's
  * `@wordpress/hooks` filters into) are unaffected.
@@ -310,7 +310,7 @@ module.exports = function createWebpackConfig(
 			// own path by default, and that path's own mtime never changes
 			// just because what it points to did. `followSymlinks` makes
 			// webpack resolve through the link and watch the real file
-			// instead — the same real resolved path `resolve.symlinks`
+			// instead - the same real resolved path `resolve.symlinks`
 			// (default `true`) already uses to build the module in the
 			// first place, so this just makes watching match resolution.
 			followSymlinks: true,
@@ -496,7 +496,7 @@ module.exports = function createWebpackConfig(
 				// let source files import from the more specific
 				// '@zyra/components', '@zyra/inputs', etc. names for
 				// readability without needing each sub-package installed
-				// separately — everything resolves to the one real
+				// separately - everything resolves to the one real
 				// dependency below.
 				zyra: '@multivendorx/zyra',
 				'@zyra/core': '@multivendorx/zyra',
@@ -506,11 +506,11 @@ module.exports = function createWebpackConfig(
 				// (RecaptchaUI, Recaptcha, CustomRecaptcha), the settings
 				// navigation/module list (Modules, SettingsNavigator), and
 				// MapProvider/GuidedTourProvider (formerly @zyra/providers,
-				// now removed — don't re-add an alias for it;
+				// now removed - don't re-add an alias for it;
 				// useModules/SettingProvider/ThemeProvider moved to
 				// @zyra/core instead). It has also now fully absorbed
 				// @zyra/admin (HeaderComponent/HeaderSearchComponent,
-				// formerly AdminHeader/AdminHeaderSearch) — @zyra/admin no
+				// formerly AdminHeader/AdminHeaderSearch) - @zyra/admin no
 				// longer exists as a package, so don't re-add an alias for
 				// it either.
 				'@zyra/components': '@multivendorx/zyra',
@@ -518,7 +518,7 @@ module.exports = function createWebpackConfig(
 				'@zyra/table': '@multivendorx/zyra',
 				// @zyra/builders covers what used to be the separate
 				// @zyra/editor and @zyra/formbuilder packages (merged
-				// upstream in the zyra repo) — BlockBuilder, CanvasEditor,
+				// upstream in the zyra repo) - BlockBuilder, CanvasEditor,
 				// SettingMetaBox, FormViewer, FreeFormCustomizer, FIELD_REGISTRY.
 				'@zyra/builders': '@multivendorx/zyra',
 			},
@@ -536,9 +536,9 @@ module.exports = function createWebpackConfig(
 			'@wordpress/blocks': ['wp', 'blocks'],
 			'@wordpress/block-editor': ['wp', 'blockEditor'],
 			// Only imported by vulopilot's src/post-editor/* (the
-			// PluginSidebar-based "Meta Box" — react-frontend.md doesn't
+			// PluginSidebar-based "Meta Box" - react-frontend.md doesn't
 			// cover this since it's this codebase's first Block Editor
-			// integration) — maps to the same `wp-edit-post` script handle
+			// integration) - maps to the same `wp-edit-post` script handle
 			// every other @wordpress/edit-post consumer in WP core uses.
 			'@wordpress/edit-post': ['wp', 'editPost'],
 		},

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * content with no `<h2>`-`<h6>` tag anywhere in it. Distinct from
  * FixHeadingHierarchyAction, which fixes a different condition (a heading
  * level SKIP, e.g. h2 straight to h4) on content that already HAS
- * subheadings — mapping HeadingStructureScanner's findings to that action
+ * subheadings - mapping HeadingStructureScanner's findings to that action
  * instead would reject nearly every real one, since "no headings at all"
  * never has a skip to detect in the first place.
  *
@@ -41,7 +41,7 @@ class AddSubheadingsAction extends AbstractBasicAction {
 
     /**
      * A rewrite shorter than this fraction of the original is treated as
-     * more than subheadings being inserted and rejected — inserting a
+     * more than subheadings being inserted and rejected - inserting a
      * handful of short `<h2>text</h2>` tags should barely change the
      * total length, unlike FixHeadingHierarchyAction's pure renumbering
      * pass, so this is intentionally a slightly looser ratio than that
@@ -75,7 +75,7 @@ class AddSubheadingsAction extends AbstractBasicAction {
         }
 
         if ( $this->has_subheading( $post->post_content ) ) {
-            throw new InvalidActionInputException( __( 'This post already has subheadings — there is nothing to fix.', 'vulopilot' ) );
+            throw new InvalidActionInputException( __( 'This post already has subheadings - there is nothing to fix.', 'vulopilot' ) );
         }
 
         return array(
@@ -93,10 +93,10 @@ class AddSubheadingsAction extends AbstractBasicAction {
                 'role'    => 'system',
                 'content' => 'This content has no subheadings (no <h2> through <h6> tags anywhere), which makes long '
                     . 'content harder for both readers and search engines to scan. Break it into logical sections by '
-                    . 'inserting <h2> subheadings at natural topic breaks — write the heading text yourself, based on '
-                    . 'what each section actually covers. Do NOT change, remove, or add to the existing wording — every '
+                    . 'inserting <h2> subheadings at natural topic breaks - write the heading text yourself, based on '
+                    . 'what each section actually covers. Do NOT change, remove, or add to the existing wording - every '
                     . 'sentence of the original body text must appear unchanged, just organized under new <h2> headings. '
-                    . 'Do not change any other tag. Respond with ONLY the full rewritten HTML content — no commentary.',
+                    . 'Do not change any other tag. Respond with ONLY the full rewritten HTML content - no commentary.',
             ),
             array(
                 'role'    => 'user',
@@ -127,12 +127,12 @@ class AddSubheadingsAction extends AbstractBasicAction {
 
         if ( $original_length > 0 && ( $rewritten_length / $original_length ) < self::MIN_LENGTH_RATIO ) {
             throw new InvalidActionOutputException(
-                __( 'The AI returned content that looks truncated rather than the original text with headings added — rejected for safety.', 'vulopilot' )
+                __( 'The AI returned content that looks truncated rather than the original text with headings added - rejected for safety.', 'vulopilot' )
             );
         }
 
         if ( ! $this->has_subheading( $rewritten ) ) {
-            throw new InvalidActionOutputException( __( 'The AI did not add any subheadings — rejected.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( __( 'The AI did not add any subheadings - rejected.', 'vulopilot' ) );
         }
     }
 
@@ -189,7 +189,7 @@ class AddSubheadingsAction extends AbstractBasicAction {
 
     /**
      * Same "no h2-h6 tag anywhere" definition as
-     * HeadingStructureScanner::scan()'s own inline check — duplicated here
+     * HeadingStructureScanner::scan()'s own inline check - duplicated here
      * to re-verify the AI's rewrite actually added one before accepting it.
      *
      * @param string $content Post content (raw HTML).

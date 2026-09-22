@@ -42,19 +42,19 @@ interface BrokenLinkFixOutcome {
 }
 
 /**
- * Broken Links' own real "Fix" popup behavior — registered by
+ * Broken Links' own real "Fix" popup behavior - registered by
  * vulopilot-pro's OneClickFix module (modules/OneClickFix/src/index.tsx)
  * via this filter, same real "always show the entry point, supply the
  * actual behavior only when Pro's module is active" shape
  * `vulopilot_finding_fix_handler` already establishes for every other
  * finding's "Fix" action (useFindingsTable.tsx's own
- * `getFindingFixHandler()`) — Broken Links used to be the one exception
+ * `getFindingFixHandler()`) - Broken Links used to be the one exception
  * that worked without Pro at all (a real, free `POST
  * /broken-links/replace-url`, `BrokenLinksStats.php`); that endpoint now
  * lives in Pro's own BrokenLinkFixRest.php instead, so this is the last
  * piece bringing it in line with every other "Fix" action's real gate.
  *
- * Read fresh on every click, not cached — same reasoning
+ * Read fresh on every click, not cached - same reasoning
  * `getFindingFixHandler()`'s own docblock documents (Pro's script is a
  * separate, later `<script>` tag that may not have registered its
  * `addFilter()` yet at the moment this module first evaluates).
@@ -64,7 +64,7 @@ interface BrokenLinkFixOutcome {
 const getBrokenLinkFixHandler = () =>
 	applyFilters('vulopilot_broken_link_fix_handler', null);
 
-/** Scanners\Basic\BrokenLinksScanner + Scanners\Basic\BrokenImagesScanner — this tab's own two real data sources. */
+/** Scanners\Basic\BrokenLinksScanner + Scanners\Basic\BrokenImagesScanner - this tab's own two real data sources. */
 const BROKEN_SCANNER_IDS = ['broken-links', 'broken-images'];
 
 /**
@@ -74,11 +74,11 @@ const BROKEN_SCANNER_IDS = ['broken-links', 'broken-images'];
  * (useFindingsTable.tsx) only declares the fields every OTHER
  * findings-backed tab has needed so far. `object_ref` is a single real
  * post id string for both these scanners (never the comma-joined list
- * DuplicateContentScanner's own multi-page findings use — see each
+ * DuplicateContentScanner's own multi-page findings use - see each
  * scanner's own `scan()`). `last_seen_at` is real, distinct from
  * `created_at`: ScanPersistenceListener bumps it every time a rescan
  * still finds the same broken URL, while `created_at` stays frozen at
- * first detection — the "First Found"/"Last Checked" columns below read
+ * first detection - the "First Found"/"Last Checked" columns below read
  * these two real columns directly, nothing derived/fabricated.
  */
 interface BrokenLinkFinding extends Finding {
@@ -95,7 +95,7 @@ interface RunStats {
 	checked_at: number | null;
 }
 
-/** `ScanRepository::get_latest_completed()` — the most recent genuinely-finished run of either scanner, real `vulopilot_scans` columns. Null when neither has ever completed one. */
+/** `ScanRepository::get_latest_completed()` - the most recent genuinely-finished run of either scanner, real `vulopilot_scans` columns. Null when neither has ever completed one. */
 interface LastRunStats {
 	duration_ms: number;
 	finished_at: number;
@@ -123,7 +123,7 @@ const EMPTY_SUMMARY: BrokenFindingsSummary = {
 
 /**
  * Same real "seo module gates its own scanners" check SeoTab.tsx and
- * CrawlerTrafficTab.tsx already use — both BrokenLinksScanner and
+ * CrawlerTrafficTab.tsx already use - both BrokenLinksScanner and
  * BrokenImagesScanner are registered by modules/Seo/Module.php, not
  * unconditionally like GeoInsights' own scanners, so their findings
  * simply don't exist while SEO is off.
@@ -134,10 +134,10 @@ const isSeoModuleActive = () =>
 /**
  * Scanners\Basic\BrokenLinksScanner/BrokenImagesScanner::scan() both
  * store `{"url": "...", "reason": "broken"|"unverified"}` in the
- * finding's own `meta` column — this reads that JSON defensively since
+ * finding's own `meta` column - this reads that JSON defensively since
  * `meta` is free-form per scanner. `text` (the real, stripped-of-markup
  * anchor text for that exact `<a>` tag) only exists on `broken-links`
- * findings — `BrokenImagesScanner` has no anchor text to capture, so it's
+ * findings - `BrokenImagesScanner` has no anchor text to capture, so it's
  * simply absent there rather than a fabricated empty string.
  */
 const getFindingMeta = (
@@ -152,29 +152,29 @@ const getFindingMeta = (
 
 /**
  * The real broken `<a>` tag's own visible text, for the "Link Text"
- * column — `undefined`/empty distinguished from each other and both
+ * column - `undefined`/empty distinguished from each other and both
  * handled honestly: `undefined` means this finding's own scanner never
  * captures anchor text at all (a `broken-images` row), while `''` means a
  * real `broken-links` finding whose real `<a>` tag wrapped only an image
- * or other non-text content — genuinely no visible text, not missing data.
+ * or other non-text content - genuinely no visible text, not missing data.
  */
 const getLinkText = (finding: BrokenLinkFinding): string => {
 	const { text } = getFindingMeta(finding);
 
 	if (undefined === text) {
-		return __('—', 'vulopilot');
+		return __('-', 'vulopilot');
 	}
 
 	return text || __('(no visible text)', 'vulopilot');
 };
 
 /**
- * The real `<a>` tag's own raw visible text — `''` for a genuinely
+ * The real `<a>` tag's own raw visible text - `''` for a genuinely
  * text-less anchor (an image-only link) or a `broken-images` finding
  * (which never captures text at all), never `getLinkText()`'s own
- * display placeholders ('—'/'(no visible text)'). Used for the "Fix"
+ * display placeholders ('-'/'(no visible text)'). Used for the "Fix"
  * popup's real editable text field and what it actually sends as
- * `old_text`/`new_text` — an editable field must show/compare against
+ * `old_text`/`new_text` - an editable field must show/compare against
  * this exact real value, not a decorative display label.
  */
 const getRawLinkText = (finding: BrokenLinkFinding): string =>
@@ -183,17 +183,17 @@ const getRawLinkText = (finding: BrokenLinkFinding): string =>
 const getBrokenUrl = (finding: BrokenLinkFinding): string =>
 	getFindingMeta(finding).url || '';
 
-/** Real text, shortened for this table's own compact row display — the full real value is still what's edited in the "Fix" popup and what's exported to CSV, this only shortens what's shown inline next to a row's other details. */
+/** Real text, shortened for this table's own compact row display - the full real value is still what's edited in the "Fix" popup and what's exported to CSV, this only shortens what's shown inline next to a row's other details. */
 const truncateText = (text: string, maxLength = 15): string =>
 	text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
 
 /**
  * Resolves a broken URL down to a real, literal path
- * `RedirectManager::maybe_apply_redirect()` can actually intercept — that
+ * `RedirectManager::maybe_apply_redirect()` can actually intercept - that
  * class matches on an exact `source_path` string, not a regex, so this
  * has to be a real path on THIS site. Returns null for an external dead
  * link (a different domain entirely), which has no path on this site to
- * redirect from — creating a same-site redirect rule for someone else's
+ * redirect from - creating a same-site redirect rule for someone else's
  * broken URL wouldn't do anything.
  */
 const deriveSourcePath = (url: string): string | null => {
@@ -216,7 +216,7 @@ const deriveSourcePath = (url: string): string | null => {
 };
 
 /**
- * True when a finding's broken URL points at a different site entirely —
+ * True when a finding's broken URL points at a different site entirely -
  * i.e. deriveSourcePath() above returns null for it. Backs both the
  * "Link Type" column (Internal/External) and the "Create redirect"
  * action's disabled state: RedirectManager.php can never intercept a
@@ -225,7 +225,7 @@ const deriveSourcePath = (url: string): string | null => {
 const isExternalFinding = (finding: BrokenLinkFinding): boolean =>
 	!deriveSourcePath(getBrokenUrl(finding));
 
-/** Real HTTP reason phrases for the status codes these two scanners actually see in practice — anything not listed here still shows the real numeric code alone rather than a guessed phrase. */
+/** Real HTTP reason phrases for the status codes these two scanners actually see in practice - anything not listed here still shows the real numeric code alone rather than a guessed phrase. */
 const HTTP_STATUS_PHRASES: Record<string, string> = {
 	'400': __('Bad Request', 'vulopilot'),
 	'401': __('Unauthorized', 'vulopilot'),
@@ -241,16 +241,16 @@ const HTTP_STATUS_PHRASES: Record<string, string> = {
 
 /**
  * A short, real status key derived from the scanner's own real
- * `meta.reason` + `description` — a 'broken' finding always carries a
+ * `meta.reason` + `description` - a 'broken' finding always carries a
  * real `HTTP %d` in its description (BrokenLinksScanner::check_link()'s
  * own sprintf), so that code IS the key; an 'unverified' finding carries
  * a real cURL error message, narrowed to 'dns' when it says "resolve"
- * (covers both "Could not resolve host" and "Resolving timed out" — cURL
+ * (covers both "Could not resolve host" and "Resolving timed out" - cURL
  * error 6 and the DNS-phase flavor of error 28) or 'timeout' for any
  * other "timed out", falling back to a generic 'unverified'.
  *
  * Deliberately does NOT invent categories neither scanner has any way to
- * actually detect — a "Soft 404" or a redirect "Chain" would need
+ * actually detect - a "Soft 404" or a redirect "Chain" would need
  * following redirects and inspecting the destination page's own content/
  * status, which check_link()/check_image() don't do (a single HEAD
  * request; wp_remote_head() already follows up to 5 redirects
@@ -276,7 +276,7 @@ const deriveStatusKey = (finding: BrokenLinkFinding): string => {
 	return 'unverified';
 };
 
-/** Human label for a deriveStatusKey() result — a real numeric HTTP code gets its real reason phrase appended when known (HTTP_STATUS_PHRASES); otherwise the code is shown alone rather than guessing. */
+/** Human label for a deriveStatusKey() result - a real numeric HTTP code gets its real reason phrase appended when known (HTTP_STATUS_PHRASES); otherwise the code is shown alone rather than guessing. */
 const statusKeyLabel = (key: string): string => {
 	switch (key) {
 		case 'broken':
@@ -299,10 +299,10 @@ const statusKeyColor = (key: string): string =>
 	/^\d+$/.test(key) || 'dns' === key ? 'red' : 'yellow';
 
 /**
- * mm:ss (or hh:mm:ss past an hour) — real `vulopilot_scans.duration_ms` for
+ * mm:ss (or hh:mm:ss past an hour) - real `vulopilot_scans.duration_ms` for
  * a "Last scan completed" banner this docblock's own history describes as
  * "added alongside this pass", but no such banner is actually rendered
- * anywhere below — same "real, working, just no longer reachable from the
+ * anywhere below - same "real, working, just no longer reachable from the
  * UI" status the row-actions `action` column's own docblock documents for
  * `openRedirectPopup()`/`handleResolve()`/`handleSnooze()` (kept rather
  * than deleted for the same reason: removing a real feature wasn't asked
@@ -320,7 +320,7 @@ const formatDurationMs = (ms: number): string => {
 
 /**
  * Real, client-side CSV built straight from whatever findings currently
- * pass every active filter (search/issue/link-type/page/status) — not
+ * pass every active filter (search/issue/link-type/page/status) - not
  * just one page's worth, since the endpoint itself returns every
  * matching row unpaginated and this tab slices client-side.
  */
@@ -369,13 +369,13 @@ const downloadBrokenLinksCsv = (rows: BrokenLinkFinding[]) => {
 };
 
 const FINDINGS_PAGE_SIZE = 100;
-/** Safety ceiling for the pagination loop below — both scanners are bounded to ~40 checks/run by design, so a real site needs a long history of distinct broken URLs to ever approach this. */
+/** Safety ceiling for the pagination loop below - both scanners are bounded to ~40 checks/run by design, so a real site needs a long history of distinct broken URLs to ever approach this. */
 const MAX_FINDINGS = 500;
 /** This table's own client-side page size (rows already fetched in full above; TableCard's footer/page-size selector just slices them, same pattern PagesNeedingAttentionTable.tsx/SlowPagesTab.tsx use). */
 const DEFAULT_PER_PAGE = 10;
 
 /**
- * Fetches every real broken-link/broken-image finding, any status —
+ * Fetches every real broken-link/broken-image finding, any status -
  * bounded pagination loop, same real shape seoIssuesShared.tsx's own
  * fetchAllOpenSeoFindings uses, just not status-filtered up front (the
  * stat tiles AND the "All status" filter both need `status === 'ignored'`/
@@ -420,13 +420,13 @@ const fetchAllBrokenFindings = async (): Promise<BrokenLinkFinding[]> => {
 
 /**
  * Collapses duplicate findings for the exact same broken URL on the exact
- * same page/scanner/status down to just the newest one — a scan re-run
+ * same page/scanner/status down to just the newest one - a scan re-run
  * that finds a link is STILL broken now bumps that same row's own
  * `last_seen_at` (ScanPersistenceListener's dedup-on-rescan) rather than
  * inserting a fresh one, but this still cleans up any legacy duplicate
  * rows created before that fix shipped. Scoped to (scanner_id,
  * object_ref, url, status) rather than just (scanner_id, object_ref,
- * url) — an old *resolved* finding and a newly-detected *open* one for
+ * url) - an old *resolved* finding and a newly-detected *open* one for
  * the same URL are two genuinely different, both-worth-showing rows, not
  * a duplicate. Relies on `findings` already being newest-first
  * (`orderby=id&order=desc`), so the first occurrence of a key is already
@@ -497,22 +497,22 @@ type StatusFilter = 'all' | 'open' | 'resolved' | 'ignored' | 'snoozed';
  *
  * Rebuilt to match the reference mockup 1:1 wherever the underlying data
  * genuinely supports it (see this repo's own investigation before this
- * pass — `classes/Install.php`'s `vulopilot_scan_findings`/`vulopilot_scans`
+ * pass - `classes/Install.php`'s `vulopilot_scan_findings`/`vulopilot_scans`
  * schemas):
  *   - 4 standalone stat tiles (Broken links/Broken images/Couldn't
- *     verify/Ignored) — real counts from summarizeBrokenFindings(), no
+ *     verify/Ignored) - real counts from summarizeBrokenFindings(), no
  *     fabricated "since last scan" delta (STATS_OPTION is overwritten,
- *     not accumulated, each run — there is no real previous-run snapshot
+ *     not accumulated, each run - there is no real previous-run snapshot
  *     to diff against).
  *   - A real "Last scan completed" banner: `vulopilot_scans.duration_ms`/
  *     `finished_at` for the latest genuinely-completed run of either
  *     scanner (ScanRepository::get_latest_completed(), added alongside
- *     this pass — BrokenLinksStats controller didn't expose this before).
- *   - A flat table, one row per real finding (no page-grouping) —
+ *     this pass - BrokenLinksStats controller didn't expose this before).
+ *   - A flat table, one row per real finding (no page-grouping) -
  *     Source page / Status / Link Type (Internal/External,
  *     isExternalFinding) / Target URL (`meta.url`) / First Found
  *     (`created_at`) / Last Checked (`last_seen_at`, a real, distinct,
- *     rescan-refreshed column — confirmed via ScanPersistenceListener,
+ *     rescan-refreshed column - confirmed via ScanPersistenceListener,
  *     not derived/guessed) / Actions.
  *   - Real "All issues"/"All link types"/"All pages"/"All status"
  *     filters alongside search + Export CSV, all client-side over the one
@@ -529,12 +529,12 @@ type StatusFilter = 'all' | 'open' | 'resolved' | 'ignored' | 'snoozed';
  * useFindingsTable.tsx's own `getFindingFixHandler()`): clicking it always
  * opens *something* (register a source, don't modify the host), but only
  * opens the real manual URL/text popup when vulopilot-pro's OneClickFix
- * module is active — otherwise it opens the Pro popup instead. When
+ * module is active - otherwise it opens the Pro popup instead. When
  * unlocked, the popup still works exactly as before: the user types a
  * real replacement URL, which the handler's own `POST
  * /broken-links/replace-url` (now BrokenLinkFixRest.php, Pro) swaps
  * straight into the source page's own real `post_content` (its own
- * `href`/`src` attribute), then marks the finding resolved. No AI call —
+ * `href`/`src` attribute), then marks the finding resolved. No AI call -
  * broken-link/image URLs are a mechanical find-and-replace, not something
  * that needs a model's judgment the way other scanners' findings do; the
  * gate here is licensing, not a missing AI service.
@@ -556,14 +556,14 @@ const BrokenLinksSection = () => {
 	const [redirectSourcePath, setRedirectSourcePath] = useState('');
 	const [redirectTargetUrl, setRedirectTargetUrl] = useState('');
 	const [redirectType, setRedirectType] = useState('301');
-	/** "Fix" popup — a real search-and-replace: swaps this exact broken `href`/`src` for a real new URL the user types in, straight in the source page's own real `post_content` (`POST /broken-links/replace-url`, added alongside this). */
+	/** "Fix" popup - a real search-and-replace: swaps this exact broken `href`/`src` for a real new URL the user types in, straight in the source page's own real `post_content` (`POST /broken-links/replace-url`, added alongside this). */
 	const [fixFinding, setFixFinding] = useState<BrokenLinkFinding | null>(null);
 	const [fixNewUrl, setFixNewUrl] = useState('');
-	/** The same real `<a>` tag's own visible text — editable alongside the URL (only meaningful for a `broken-links` finding; a `broken-images` finding has no text field at all). Pre-filled with the real current text (`getLinkText()`), so saving without touching this field is a no-op text-wise, not an accidental blank-out. */
+	/** The same real `<a>` tag's own visible text - editable alongside the URL (only meaningful for a `broken-links` finding; a `broken-images` finding has no text field at all). Pre-filled with the real current text (`getLinkText()`), so saving without touching this field is a no-op text-wise, not an accidental blank-out. */
 	const [fixNewText, setFixNewText] = useState('');
 	const [isSavingFixUrl, setIsSavingFixUrl] = useState(false);
 	const [isSavingRedirect, setIsSavingRedirect] = useState(false);
-	/** "Fix isn't available" Pro popup — opens instead of the real fix popup when `getBrokenLinkFixHandler()` resolves null (Pro not installed, or installed but OneClickFix isn't active). */
+	/** "Fix isn't available" Pro popup - opens instead of the real fix popup when `getBrokenLinkFixHandler()` resolves null (Pro not installed, or installed but OneClickFix isn't active). */
 	const [isProPopupOpen, setIsProPopupOpen] = useState(false);
 
 	const loadFindings = () => {
@@ -598,7 +598,7 @@ const BrokenLinksSection = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	/** "Run scan again" on the "Last scan completed" card — same real `POST /scans` call SeoTab.tsx's own header "Run Complete Audit" fires, scoped to `['seo']` since these are both SEO module scanners; refetches both real data sources this section reads (findings + stats) once the new scan completes. Real, working, just no longer reachable from the UI — same standing status `formatDurationMs()`'s own docblock above and the row-actions `action` column's own docblock document for their unreachable pieces. */
+	/** "Run scan again" on the "Last scan completed" card - same real `POST /scans` call SeoTab.tsx's own header "Run Complete Audit" fires, scoped to `['seo']` since these are both SEO module scanners; refetches both real data sources this section reads (findings + stats) once the new scan completes. Real, working, just no longer reachable from the UI - same standing status `formatDurationMs()`'s own docblock above and the row-actions `action` column's own docblock document for their unreachable pieces. */
 	const { isScanning, runScan } = useRunScan({
 		categories: ['seo'],
 		onSuccess: () => {
@@ -608,7 +608,7 @@ const BrokenLinksSection = () => {
 	});
 
 	// Any filter/search change can shrink the result set below the
-	// currently-viewed page — reset to page 1 rather than showing an
+	// currently-viewed page - reset to page 1 rather than showing an
 	// empty table stuck on e.g. page 3.
 	useEffect(() => {
 		setPaged(1);
@@ -684,12 +684,12 @@ const BrokenLinksSection = () => {
 	};
 
 	/**
-	 * "Fix" — always visible (register a source, don't modify the host,
+	 * "Fix" - always visible (register a source, don't modify the host,
 	 * same as every other findings table's "Fix" action). Opens the real
 	 * popup showing this exact finding's own real link text + current
 	 * broken URL, with fields to type a real replacement URL and (for a
-	 * `broken-links` finding, editable — a `broken-images` finding has no
-	 * visible text at all) that same `<a>` tag's own real visible text —
+	 * `broken-links` finding, editable - a `broken-images` finding has no
+	 * visible text at all) that same `<a>` tag's own real visible text -
 	 * but only when `getBrokenLinkFixHandler()` resolves a real handler
 	 * (Pro's OneClickFix module active); otherwise opens the Pro popup
 	 * instead, same 2-tier gate every other "Fix" action already has.
@@ -703,7 +703,7 @@ const BrokenLinksSection = () => {
 		setFixFinding(finding);
 		setFixNewUrl('');
 		// Real current raw text, pre-filled (never `getLinkText()`'s own
-		// display placeholders — see `getRawLinkText()`'s own docblock).
+		// display placeholders - see `getRawLinkText()`'s own docblock).
 		setFixNewText(getRawLinkText(finding));
 	};
 
@@ -711,10 +711,10 @@ const BrokenLinksSection = () => {
 
 	/**
 	 * Saving calls the real handler Pro's OneClickFix module registered
-	 * (`getBrokenLinkFixHandler()`) — its own `POST
+	 * (`getBrokenLinkFixHandler()`) - its own `POST
 	 * /broken-links/replace-url` (BrokenLinkFixRest.php) does a real
 	 * search-and-replace straight in the source page's own `post_content`
-	 * — not a fabricated "fixed" state, a genuine content edit, and
+	 * - not a fabricated "fixed" state, a genuine content edit, and
 	 * updates that same anchor's own real inner text too whenever it was
 	 * actually changed. On success the finding is marked resolved (same
 	 * real `POST /findings/{id}` status call handleResolve()/
@@ -741,7 +741,7 @@ const BrokenLinksSection = () => {
 			old_url: getBrokenUrl(fixFinding),
 			new_url: fixNewUrl.trim(),
 			is_image: isImageFix,
-			// Only meaningful for a real `broken-links` finding — an
+			// Only meaningful for a real `broken-links` finding - an
 			// image has no visible text of its own to edit.
 			...(isImageFix
 				? {}
@@ -771,7 +771,7 @@ const BrokenLinksSection = () => {
 
 				if (response?.success) {
 					// The underlying problem is fixed on the real page now
-					// — same real status-update call handleResolve()/
+					// - same real status-update call handleResolve()/
 					// handleCreateRedirect() already make.
 					sendApiResponse(
 						appLocalizer,
@@ -795,7 +795,7 @@ const BrokenLinksSection = () => {
 				type: 'error',
 				position: 'float',
 				message: __(
-					'This broken URL points to a different site — a redirect can only be created for a path on this site.',
+					'This broken URL points to a different site - a redirect can only be created for a path on this site.',
 					'vulopilot'
 				),
 			});
@@ -830,14 +830,14 @@ const BrokenLinksSection = () => {
 					message: response
 						? __('Redirect created.', 'vulopilot')
 						: __(
-							'Could not create this redirect — a redirect for this path may already exist.',
+							'Could not create this redirect - a redirect for this path may already exist.',
 							'vulopilot'
 						),
 				});
 
 				if (response && redirectFinding) {
 					// The underlying problem is fixed from a visitor's
-					// perspective now that a real redirect exists — same
+					// perspective now that a real redirect exists - same
 					// real `POST /findings/{id}` status-update call
 					// handleResolve() above makes.
 					sendApiResponse(
@@ -853,7 +853,7 @@ const BrokenLinksSection = () => {
 	};
 
 	// Real client-side filters over the one full fetch this tab already
-	// makes (loadFindings(), above) — search/issue/link-type/page/status
+	// makes (loadFindings(), above) - search/issue/link-type/page/status
 	// all compose, matching the mockup's own toolbar of independent
 	// dropdowns.
 	const visibleFindings = allFindings
@@ -921,12 +921,12 @@ const BrokenLinksSection = () => {
 	const headers = {
 		// Same real `InformationItemComponent` "title + descriptions +
 		// badges" shape this codebase's own findings-style tables already
-		// use (SeoIssuesByPageTable.tsx) — folds the previous 6 separate
+		// use (SeoIssuesByPageTable.tsx) - folds the previous 6 separate
 		// columns (Source page/Status/Link Type/Target URL/Link Text/Last
 		// Checked; "First Found" dropped, not shown twice) into one row:
 		// title = source page, descriptions = real Target URL + real Link
 		// Text, badges = real status/link-type/last-checked. Every value is
-		// the same real data those old columns already read — folded into
+		// the same real data those old columns already read - folded into
 		// one cell, nothing new fabricated.
 		page: {
 			label: __('Source page', 'vulopilot'),
@@ -977,20 +977,20 @@ const BrokenLinksSection = () => {
 		},
 		// Same real `type: 'action'` header shape SeoIssuesByPageTable.tsx's
 		// own row actions already use. Each action itself is `type: 'button'`
-		// — `TableRowActions.tsx`'s own real button-vs-icon split renders
+		// - `TableRowActions.tsx`'s own real button-vs-icon split renders
 		// those as real labeled `ButtonInput`s (all 3 always visible), not
 		// the plain-icon default (which only keeps 2 inline before
-		// collapsing the rest into a `more-vertical` dropdown) — needed here
+		// collapsing the rest into a `more-vertical` dropdown) - needed here
 		// since only 3 real actions remain (Open URL/Ignore/Fix, per direct
 		// instruction) and all 3 should stay visible with their own text.
-		// "Create redirect"/"Mark resolved"/"Snooze" — real, working
-		// features that used to live in this same row-actions menu — no
+		// "Create redirect"/"Mark resolved"/"Snooze" - real, working
+		// features that used to live in this same row-actions menu - no
 		// longer have a trigger anywhere on this table now that this menu is
 		// scoped down to just these 3; their own handlers/popup
 		// (`openRedirectPopup()`/`handleCreateRedirect()`/`handleResolve()`/
 		// `handleSnooze()`) are left in place rather than deleted, since
 		// removing a real working feature wasn't part of this instruction
-		// either — just flagged here as no longer reachable from the UI.
+		// either - just flagged here as no longer reachable from the UI.
 		action: {
 			label: __('Actions', 'vulopilot'),
 			type: 'action',
@@ -1047,7 +1047,7 @@ const BrokenLinksSection = () => {
 							icon="error"
 							title={__('SEO module is turned off', 'vulopilot')}
 							desc={__(
-								'Turn the SEO module back on from Settings → Modules to resume broken-link/image scanning and see findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page, which lists every category.',
+								'Turn the SEO module back on from Settings → Modules to resume broken-link/image scanning and see findings again here. Findings already found before it was turned off aren’t deleted - they still show up on the Health page, which lists every category.',
 								'vulopilot'
 							)}
 						/>
@@ -1058,7 +1058,7 @@ const BrokenLinksSection = () => {
 						 * Same real `ListComponent` "mini-card report" row
 						 * shape SeoTab.tsx's own "SEO Health" card/
 						 * GeoScoreSection.tsx's own "GEO Score" card rows
-						 * use — the real count goes in `tags` (a trailing,
+						 * use - the real count goes in `tags` (a trailing,
 						 * right-aligned `TypographyComponent`), not `value`
 						 * (which renders stacked directly under the title
 						 * instead of trailing the row, the wrong shape
@@ -1440,11 +1440,11 @@ const BrokenLinksSection = () => {
 						<p className="desc">
 							{'broken-images' === fixFinding.scanner_id
 								? __(
-									'Replace this broken image URL with a working one — the source page is updated directly.',
+									'Replace this broken image URL with a working one - the source page is updated directly.',
 									'vulopilot'
 								)
 								: __(
-									'Replace this broken link URL with a working one — and edit its link text if you want — the source page is updated directly.',
+									'Replace this broken link URL with a working one - and edit its link text if you want - the source page is updated directly.',
 									'vulopilot'
 								)}
 						</p>

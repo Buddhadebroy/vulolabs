@@ -3,12 +3,12 @@ import axios from 'axios';
 
 /**
  * Shared across every public storefront block (`src/blocks/checkout/`,
- * `src/blocks/offerings/`) — extracted so "add to cart" from the
+ * `src/blocks/offerings/`) - extracted so "add to cart" from the
  * Offerings detail page and the Checkout block's own cart review use the
  * exact same client-held cart identity, not two independently-generated
  * tokens that would each see an empty cart. Not under `src/blocks/{name}/`
  * itself, so `tools/webpack/create-config.js`'s block-entry scanner
- * (which only looks for `index.js`/`view.js`) skips this folder — it's a
+ * (which only looks for `index.js`/`view.js`) skips this folder - it's a
  * plain shared module, not a block.
  */
 export const CART_TOKEN_STORAGE_KEY = 'vulocart_cart_token';

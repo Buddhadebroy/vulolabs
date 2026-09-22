@@ -61,7 +61,7 @@ interface ReviewRepositoryInterface {
     public function delete( int $id ): bool;
 
     /**
-     * Counts reviews in each ReviewStatus bucket — backs the admin
+     * Counts reviews in each ReviewStatus bucket - backs the admin
      * grid's "saved view" tabs, same pattern Order's own
      * `count_by_fulfillment_status()` establishes.
      *

@@ -18,14 +18,14 @@ import { formatAffected } from '../components/Issues/issuesTypes';
 import type { FindingGroup } from '../components/Issues/issuesTypes';
 import { WidgetProps } from './types';
 
-/** `write-meta-title` → "Write meta title" — the action ids the approval queue carries are internal slugs. */
+/** `write-meta-title` → "Write meta title" - the action ids the approval queue carries are internal slugs. */
 const humanizeActionId = (actionId: string): string => {
 	const words = actionId.replace(/[-_]+/g, ' ').trim();
 
 	return words.charAt(0).toUpperCase() + words.slice(1);
 };
 
-/** First sentence of a finding's own description, capped — the "what's wrong" line under each issue type. */
+/** First sentence of a finding's own description, capped - the "what's wrong" line under each issue type. */
 const summarize = (text?: string | null): string => {
 	const first = (text ?? '').split(/(?<=[.!?])\s/)[0].trim();
 
@@ -39,20 +39,20 @@ interface ActionRunRow {
 }
 
 /**
- * "Needs your attention" — the three real, honest data sources that used
+ * "Needs your attention" - the three real, honest data sources that used
  * to be three separate cards (Quick fixes, Recent open issues, Pending
  * approval), combined into one tabbed widget instead. Mirrors the
  * Dashboard mockup's own tabbed "Needs your attention" panel rather than
  * three near-duplicate list cards competing for space in the grid.
  *
  * "Open issues" leads (default-active tab, `TabsComponent` has no separate
- * `defaultActiveKey` — whichever entry is first in `tabs` starts active) —
+ * `defaultActiveKey` - whichever entry is first in `tabs` starts active) -
  * the newer "Good morning" Dashboard mockup shows this panel as one flat,
  * mixed-category list of real open findings with severity badges, which is
  * exactly what "Open issues" already is; "Quick fixes" (images-only) moved
  * to 2nd since it's a narrower slice a user reaches for less by default.
  * Both tabs, and "Pending approval", stay real and one click away either
- * way — this only changes which loads pre-selected.
+ * way - this only changes which loads pre-selected.
  */
 const NeedsAttentionWidget: React.FC<WidgetProps> = ({
 	onHide,

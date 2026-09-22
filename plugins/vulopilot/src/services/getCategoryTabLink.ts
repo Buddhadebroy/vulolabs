@@ -1,22 +1,22 @@
 /**
  * A finding's `category` (scanner get_category(), e.g. 'seo', 'images',
  * 'schema', 'links', 'accessibility') isn't always the same string as the
- * tab it actually lives on — some categories are grouped under a shared
+ * tab it actually lives on - some categories are grouped under a shared
  * tab's subtab rather than getting a same-named top-level route of their
  * own (routes.ts has no 'seo' route; those findings live under
  * SEO & Visibility → SEO). The three places that used to build this link
  * (AISuggestionsWidget, NeedsAttentionWidget, IssuesList) each hand-rolled
  * their own `category: 'seo'` copy of this mapping, so all three sent
- * users to `?tab=seo` — a route that doesn't exist.
+ * users to `?tab=seo` - a route that doesn't exist.
  */
 const CATEGORY_TAB_LINKS: Record<string, string> = {
-	// SEO & Visibility tab, "SEO" subtab — SeoTab.tsx's own SEO_SECTIONS
+	// SEO & Visibility tab, "SEO" subtab - SeoTab.tsx's own SEO_SECTIONS
 	// groups the 'seo'/'images'/'schema'/'links' categories into one tab
 	// already.
 	seo: 'seo-visibility&subtab=seo',
 	images: 'seo-visibility&subtab=seo',
 	schema: 'seo-visibility&subtab=seo',
-	// SEO & Visibility tab, "Broken Links" subtab (BrokenLinksTab.tsx) —
+	// SEO & Visibility tab, "Broken Links" subtab (BrokenLinksTab.tsx) -
 	// Scanners\Basic\BrokenLinksScanner is the ONLY real scanner with
 	// category 'links' (confirmed: no other scanner returns this
 	// category), so this can point straight at its own dedicated tab
@@ -29,17 +29,17 @@ const CATEGORY_TAB_LINKS: Record<string, string> = {
 	// Reports Overview's "AI Visibility" category tile (ReportsCategoryStatusGrid.tsx)
 	// is `ai_visibility_now`/`ai_visibility_then`, an average of the same
 	// 'geo' category score and BRAND_SCANNER_IDS this tab's own "GEO"
-	// subtab covers (Controllers\ReportsOverview::build_categories()) — not
+	// subtab covers (Controllers\ReportsOverview::build_categories()) - not
 	// a real top-level 'ai_visibility' category any finding actually has.
 	ai_visibility: 'seo-visibility&subtab=geo',
 	brand: 'seo-visibility&subtab=brand-visibility',
-	// Its own top-level route (Accessibility.tsx, pages/Accessibility/) —
+	// Its own top-level route (Accessibility.tsx, pages/Accessibility/) -
 	// used to be "Protect My Site" → "Accessibility" subtab, moved out per
 	// direct instruction.
 	accessibility: 'accessibility',
 	security: 'security',
 	// Site Health's own 5 real sections (SiteHealthTab.tsx, merged with
-	// Backups into one page, no inner subtabs) — same categories
+	// Backups into one page, no inner subtabs) - same categories
 	// WordPressHealthScanner/ServerHealthScanner/CronScanner/
 	// DatabaseScanner/UpdatesScanner each return.
 	wordpress: 'site-health',
@@ -54,7 +54,7 @@ const CATEGORY_TAB_LINKS: Record<string, string> = {
 
 /**
  * @param category A finding's `category` field. Unrecognized/empty
- * categories fall back to the Health page — the one real page that lists
+ * categories fall back to the Health page - the one real page that lists
  * every category's open findings unfiltered, so the link always lands
  * somewhere the finding genuinely appears.
  */

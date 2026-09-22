@@ -14,18 +14,18 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * `GET /schema/coverage` reads back a previously generated Schema
- * Coverage snapshot (transient, no real work) — what the "Schema &
+ * Coverage snapshot (transient, no real work) - what the "Schema &
  * Knowledge" tab's Overview/Structured Data sections load on mount.
  * `POST /schema/coverage` runs a fresh real sample
  * (SchemaCoverageAnalyzer::analyze(), real outbound HTTP + JSON-LD parsing
- * per sampled page) and persists it — separated into two routes/verbs for
+ * per sampled page) and persists it - separated into two routes/verbs for
  * the identical reason Controllers\GeoAnalysis (Free) and
  * GeoInsights\Rest::analyze_competitor_visibility() (Pro) already split
  * their own real-work endpoints this way: loading a page should never
  * silently re-spend real work a site owner didn't ask for.
  *
  * `POST /schema/inspect` backs the Inspector section's real single-page
- * checker (SchemaPageInspector) — POST, not GET, same "real outbound HTTP
+ * checker (SchemaPageInspector) - POST, not GET, same "real outbound HTTP
  * only on explicit request" reasoning as `/schema/coverage`.
  *
  * @class       Schema controller
@@ -41,7 +41,7 @@ class Schema extends \WP_REST_Controller {
 
     /**
      * Real post_type => human label map for the Inspector's own page-picker
-     * dropdown option text, e.g. "T-Shirt with Logo (Product)" — same 3
+     * dropdown option text, e.g. "T-Shirt with Logo (Product)" - same 3
      * real post types SchemaCoverageAnalyzer::analyze() already samples
      * from.
      *
@@ -143,7 +143,7 @@ class Schema extends \WP_REST_Controller {
     }
 
     /**
-     * Inspector section's "Inspect a specific page" — resolves either a
+     * Inspector section's "Inspect a specific page" - resolves either a
      * given `url` or a `post_id`'s real permalink, runs a real
      * `wp_remote_get()` + JSON-LD extraction against it
      * (SchemaPageInspector), and returns the real result. Real outbound
@@ -176,10 +176,10 @@ class Schema extends \WP_REST_Controller {
 
     /**
      * Real posts/pages/products the Inspector's own page-picker dropdown
-     * offers (InspectorSection.tsx) — same post_type scope
+     * offers (InspectorSection.tsx) - same post_type scope
      * SchemaCoverageAnalyzer::analyze() already samples from, most-recently-
      * modified first, capped to a real usable dropdown length. No outbound
-     * HTTP here (unlike inspect_page() itself) — just this site's own
+     * HTTP here (unlike inspect_page() itself) - just this site's own
      * already-stored post data, so this is safe to call on every mount
      * rather than gated behind an explicit action.
      *
@@ -212,7 +212,7 @@ class Schema extends \WP_REST_Controller {
             $post_ids
         );
 
-        // The homepage isn't a post, so the query above never returns it —
+        // The homepage isn't a post, so the query above never returns it -
         // but SchemaCoverageAnalyzer::analyze() checks it as a page in its
         // own right, so it's listed first here too. Keeps this list in step
         // with the coverage sample's "Pages checked" count.

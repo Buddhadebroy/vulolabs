@@ -10,13 +10,13 @@ namespace VuloPilot\Services;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Discovers and registers every Gutenberg block VuloPilot ships —
+ * Discovers and registers every Gutenberg block VuloPilot ships -
  * `tools/webpack/create-config.js` builds each `src/blocks/{name}/` folder
  * into `assets/js/block/{name}/` (block.json + render.php, if present,
  * copied alongside the built JS via `CopyWebpackPlugin`), and this class
  * `glob()`s that BUILT directory at runtime rather than hardcoding a block
  * list, so a new block folder under `src/blocks/` is picked up
- * automatically after a build with no PHP change needed here — same
+ * automatically after a build with no PHP change needed here - same
  * pattern as the sibling free plugin vulocart's own `VuloCart\Block` class,
  * ported here since vulopilot had no block infrastructure at all before
  * `vulopilot/table-of-contents` and `vulopilot/faq`.
@@ -79,7 +79,7 @@ class BlockRegistrar {
      * Registers every discovered block. Passing a directory path (rather
      * than a bare block name) lets `register_block_type()` read that
      * block's own `block.json` and auto-wire its `render` callback file if
-     * one is declared — no custom render-dispatch glue needed here.
+     * one is declared - no custom render-dispatch glue needed here.
      *
      * @return void
      */
@@ -101,7 +101,7 @@ class BlockRegistrar {
     }
 
     /**
-     * Unconditional in the editor — the block inserter needs the same
+     * Unconditional in the editor - the block inserter needs the same
      * `.vulopilot-toc`/`.vulopilot-faq` rules to preview correctly
      * regardless of whether either block has been inserted into THIS
      * particular post yet.
@@ -115,7 +115,7 @@ class BlockRegistrar {
     /**
      * Same `public/*.scss` → `assets/styles/public/vulopilot-*.min.css`
      * pipeline (`tools/scripts/minify.mjs`, part of `build:project:bundle`)
-     * already used for e.g. `admin-menu-groups.scss` — deliberately NOT a
+     * already used for e.g. `admin-menu-groups.scss` - deliberately NOT a
      * webpack-bundled block.json `style`/`editorStyle` field, since that
      * mechanism's actual frontend wiring couldn't be confirmed anywhere in
      * this monorepo's existing block (vulocart's own `checkout.scss` has

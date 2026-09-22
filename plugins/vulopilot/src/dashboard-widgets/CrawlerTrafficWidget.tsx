@@ -10,7 +10,7 @@ import { WidgetProps } from './types';
 
 const DAY_MS = 86400000;
 
-/** Fabricated example rows shown only while there are zero real crawler visits — always paired with `DummyDataNotice`, never mistakable for a real result. */
+/** Fabricated example rows shown only while there are zero real crawler visits - always paired with `DummyDataNotice`, never mistakable for a real result. */
 const DUMMY_TOTAL_VISITS = 128;
 const buildDummyBots = (): BotLastSeen[] => [
 	{ bot_name: 'GPTBot', last_seen_at: new Date(Date.now() - DAY_MS).toISOString() },
@@ -30,11 +30,11 @@ interface CrawlerSummaryResponse {
 }
 
 /**
- * A Dashboard-level teaser for the Crawler Traffic page — readme.txt's "AI
+ * A Dashboard-level teaser for the Crawler Traffic page - readme.txt's "AI
  * Crawler Traffic Monitoring" had its own dedicated page (CrawlerTraffic.tsx)
  * and REST summary (`GET /crawler-traffic/summary`,
  * Controllers/CrawlerTraffic.php) since Phase 2, but no presence anywhere
- * on the Dashboard itself — a user had to already know to click the
+ * on the Dashboard itself - a user had to already know to click the
  * sidebar link to see it. Reuses the same summary endpoint
  * CrawlerSummaryCard.tsx fetches, just condensed to the top 3 bots by
  * last-seen, matching this widget system's existing "small independently

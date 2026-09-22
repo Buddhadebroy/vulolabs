@@ -17,9 +17,9 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Cart module WPDBCartRepository.
  *
  * The only class in this codebase that runs SQL against `vulocart_carts`/
- * `vulocart_cart_items` — implements Domain\CartRepositoryInterface, bound
+ * `vulocart_cart_items` - implements Domain\CartRepositoryInterface, bound
  * in Module::init_classes(). Table names are hardcoded here rather than
- * added to the free plugin's `Utill::TABLES` — same "module owns its own
+ * added to the free plugin's `Utill::TABLES` - same "module owns its own
  * table names" convention `vulocart-pro`'s Passport module already
  * establishes (`Passport\Util::get_table()`), since this data belongs to
  * this module, not the core plugin's shared registry.
@@ -275,7 +275,7 @@ class WPDBCartRepository implements CartRepositoryInterface {
 
     /**
      * Deletes carts (and their items) whose `updated_at` is older than
-     * $days, in bounded batches — see the interface docblock for why.
+     * $days, in bounded batches - see the interface docblock for why.
      *
      * @param int $days Age threshold, in days.
      * @return int Total number of carts deleted.

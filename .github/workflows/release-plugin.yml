@@ -104,7 +104,7 @@ jobs:
           sudo mv wp-cli.phar /usr/local/bin/wp
 
       # zyra is consumed as the published '@multivendorx/zyra' npm package,
-      # not a local workspace package — no "Build Zyra" step needed here.
+      # not a local workspace package - no "Build Zyra" step needed here.
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile
 

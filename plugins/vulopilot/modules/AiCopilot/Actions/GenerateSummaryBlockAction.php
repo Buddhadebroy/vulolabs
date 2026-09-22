@@ -19,9 +19,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GEO-MODULE.md's one-click fix for
  * RuleEngine\Rules\MissingSummaryBlockRule's recommendations. A
- * content-*prepend* pattern — the one shape none of the other built-in
+ * content-*prepend* pattern - the one shape none of the other built-in
  * actions use yet (GenerateFaqAction appends to the end,
- * ImproveReadabilityAction replaces the whole body) — because
+ * ImproveReadabilityAction replaces the whole body) - because
  * Geo\Scanners\GeoSummaryBlockScanner specifically checks the first
  * SUMMARY_WINDOW_CHARS of the content for a summary, so the generated
  * block has to land at the top to actually fix that finding.
@@ -81,7 +81,7 @@ class GenerateSummaryBlockAction extends AbstractBasicAction {
                 'content' => sprintf(
                     'You write "key takeaways" summaries for web articles. Read the article and produce %d-%d short bullet '
                         . 'points capturing its main points, each one sentence. '
-                        . 'Respond with ONLY a raw JSON array of strings like ["...", "..."] — no markdown fences, no commentary.',
+                        . 'Respond with ONLY a raw JSON array of strings like ["...", "..."] - no markdown fences, no commentary.',
                     self::MIN_TAKEAWAYS,
                     self::MAX_TAKEAWAYS
                 ),

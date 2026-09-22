@@ -13,11 +13,11 @@ use VuloCart\AI\ValueObjects\AIRequest;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The one entrypoint every AI feature (free or Pro) actually calls —
+ * The one entrypoint every AI feature (free or Pro) actually calls -
  * `VuloCart()->ai_client`. Resolves the merchant's own active provider from
  * ProviderRegistry, applies it to every request without each caller
  * re-deriving which provider/model is active, and logs every real attempt
- * (successful or not) via AiUsageLogUtil — same "record failures too, not
+ * (successful or not) via AiUsageLogUtil - same "record failures too, not
  * just successes" reasoning vulopilot's own UsageTrackingProvider docblock
  * documents, since a string of failures is exactly what a merchant needs
  * to see to know their key/quota is broken.
@@ -55,7 +55,7 @@ class AiClient {
 	}
 
 	/**
-	 * A simple prompt+system helper over send() — most Catalog/Checkout/
+	 * A simple prompt+system helper over send() - most Catalog/Checkout/
 	 * Support AI callers just want "system instructions + one user
 	 * message back", not to build an AIRequest by hand.
 	 *
@@ -122,11 +122,11 @@ class AiClient {
 
 	/**
 	 * Same as prompt(), but asks the model to answer as strict JSON and
-	 * decodes it — every Catalog AI "generate ___" action uses this so the
+	 * decodes it - every Catalog AI "generate ___" action uses this so the
 	 * caller gets structured fields back rather than parsing prose.
 	 *
 	 * @param string $feature      Short dotted usage tag.
-	 * @param string $system       System prompt — caller is responsible for instructing the model to answer as JSON matching a described shape.
+	 * @param string $system       System prompt - caller is responsible for instructing the model to answer as JSON matching a described shape.
 	 * @param string $user_message User message.
 	 * @return array<string, mixed>
 	 * @throws AIProviderException When no provider is configured, the call fails, or the response isn't valid JSON.

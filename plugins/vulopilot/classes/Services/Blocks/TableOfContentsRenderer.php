@@ -11,12 +11,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real render logic for the `vulopilot/table-of-contents` block
- * (`src/blocks/table-of-contents/render.php` calls straight into this —
+ * (`src/blocks/table-of-contents/render.php` calls straight into this -
  * kept out of render.php itself since WP loads a block's render.php via
  * `require`, not `require_once`, so any top-level declaration in that file
  * would fatal the moment the same block appears twice on one page).
  *
- * Always reflects the post's CURRENT real heading structure —
+ * Always reflects the post's CURRENT real heading structure -
  * HeadingAnchorResolver::collect() re-parses the post's raw content on
  * every render, so nothing here can go stale the way a save()-time
  * snapshot would the moment an editor adds/removes/reorders headings

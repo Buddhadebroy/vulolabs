@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real, independent-cadence cron tick for automatic backups — Protect My
+ * Real, independent-cadence cron tick for automatic backups - Protect My
  * Site's "Backups" tile. Unconditionally constructed in
  * VuloPilot::init_classes() (not a Modules-page module). Its own small
  * scheduler, separate from any global scan cadence, same posture
@@ -44,7 +44,7 @@ class BackupScheduler {
     }
 
     /**
-     * Adds a real 'weekly' cron schedule if nothing else already has —
+     * Adds a real 'weekly' cron schedule if nothing else already has -
      * same pattern vulopilot-pro's `SecurityScanScheduler` already uses for
      * its own independent cadence.
      *
@@ -64,7 +64,7 @@ class BackupScheduler {
 
     /**
      * Reconciles the real scheduled cron event against the real, current
-     * `enable_automatic_backups`/`backup_frequency` settings — both are
+     * `enable_automatic_backups`/`backup_frequency` settings - both are
      * required, matching Backups.ts's own `backup_frequency` field
      * description ("How often an automatic backup runs, when enabled
      * above"): the checkbox is the master switch, the dropdown only
@@ -99,7 +99,7 @@ class BackupScheduler {
     }
 
     /**
-     * The real cron tick — starts a real, scheduled-trigger backup job.
+     * The real cron tick - starts a real, scheduled-trigger backup job.
      *
      * @return void
      */

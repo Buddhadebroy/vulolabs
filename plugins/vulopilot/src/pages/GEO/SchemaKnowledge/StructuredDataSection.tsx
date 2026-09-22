@@ -27,16 +27,16 @@ interface StructuredDataSectionProps {
 }
 
 /**
- * Per real schema.org @type icon — purely cosmetic, every value here is a
+ * Per real schema.org @type icon - purely cosmetic, every value here is a
  * real, already-used-elsewhere-in-this-codebase adminfont- icon class
  * (confirmed live: search/attachment/error/check/product/location/
  * category/shield/link), not a guessed/invented icon name. Falls back to
  * the same generic 'attachment' icon the rest of this codebase already
  * uses for "content/document" schema types when a @type has no more
  * specific real-world icon (a theme/plugin can emit a @type not in this
- * list at all — the fallback keeps that row rendering, not blank).
+ * list at all - the fallback keeps that row rendering, not blank).
  */
-/** Same 5 schema-related scanners IssuesSection.tsx's own "Schema Problems" table reads — these are the real open problems shown per type below. */
+/** Same 5 schema-related scanners IssuesSection.tsx's own "Schema Problems" table reads - these are the real open problems shown per type below. */
 const SCHEMA_ISSUE_SCANNER_IDS = [
 	'schema',
 	'structured-data',
@@ -69,8 +69,8 @@ const getTypeIcon = (type: string): string => TYPE_ICONS[type] ?? 'attachment';
 
 /**
  * Real 3-tier status per row, computed from the same two real numbers the
- * table already shows (`found_on`, `problems` — SchemaCoverageAnalyzer's
- * own honest proportional estimate, see this file's own docblock) — no
+ * table already shows (`found_on`, `problems` - SchemaCoverageAnalyzer's
+ * own honest proportional estimate, see this file's own docblock) - no
  * new/fabricated signal. 0 problems is unambiguous ("Good"); otherwise
  * the tier is the real share of sampled pages of this type the estimate
  * says are affected: under half → "Check", half or more → "Problems".
@@ -96,14 +96,14 @@ const STATUS_CONFIG: Record<
 
 /**
  * Maps this table's own 3-tier status to the real `badge-{severity}` CSS
- * classes zyra's Table.scss actually defines — 'good'/'check'/'problems'
+ * classes zyra's Table.scss actually defines - 'good'/'check'/'problems'
  * aren't themselves real severity values anywhere else in this codebase,
  * so a literal `badge-good` class would render unstyled. In zyra's
  * Table.scss `badge-resolved` is the green bucket (used for "Good"),
- * `badge-medium` orange and `badge-critical` dark red — `badge-high` is
+ * `badge-medium` orange and `badge-critical` dark red - `badge-high` is
  * red there, not green, so it isn't used for "Good". The row's own real
  * label text (`STATUS_CONFIG` above) still reads "Good"/"Check"/"Problems"
- * — only the *color* is borrowed.
+ * - only the *color* is borrowed.
  */
 const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
 	good: 'resolved',
@@ -112,15 +112,15 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
 };
 
 /**
- * "Structured Data" section of the merged "Schema & Knowledge" tab — the
+ * "Structured Data" section of the merged "Schema & Knowledge" tab - the
  * real "Schema Coverage" table moved here unchanged from the standalone
  * Schema tab (`GET`/`POST /schema/coverage`, SchemaCoverageAnalyzer, Free):
  * samples up to 15 recently-modified real pages (plus the real homepage),
  * fetches each one's actual rendered HTML, and extracts real `@type`
- * values from whatever `application/ld+json` blocks are actually there —
+ * values from whatever `application/ld+json` blocks are actually there -
  * no AI, no fabricated types or counts. The per-type "problems" figure is
  * an honest proportional estimate (this plugin's own finding data is
- * scoped per-post, not per-schema-@type — see
+ * scoped per-post, not per-schema-@type - see
  * SchemaCoverageAnalyzer::analyze()'s own docblock), labelled as such
  * rather than presented as an exact count.
  *
@@ -128,13 +128,13 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
  * (now real, see that file's own docblock) rather than staying here as
  * "not built yet" stubs.
  *
- * Schema Coverage's own row "View" action shows real detail — exactly
+ * Schema Coverage's own row "View" action shows real detail - exactly
  * which real sampled page(s)/the homepage carried that row's specific
  * @type (SchemaCoverageAnalyzer::analyze() records `pages` per row, not
- * just a count) — in a persistent side panel (grid 8/4, table left / detail
+ * just a count) - in a persistent side panel (grid 8/4, table left / detail
  * right) rather than a popup lightbox, per direct instruction ("the action
  * i want like above table when click inside details show but look intact
- * in Schema Coverage table" — "above table" being IssuesSection.tsx's own
+ * in Schema Coverage table" - "above table" being IssuesSection.tsx's own
  * table+`IssueDetailPanel` split immediately above this section on the
  * page): the table itself stays fully visible/unscrolled while a row's
  * detail is open, same real interaction shape, instead of a modal
@@ -145,7 +145,7 @@ const STATUS_SEVERITY_CLASS: Record<CoverageStatus, string> = {
  */
 const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 	const { snapshot, isLoading } = coverage;
-	// The real row the side detail panel is showing — SchemaCoverageAnalyzer
+	// The real row the side detail panel is showing - SchemaCoverageAnalyzer
 	// records exactly which sampled post(s)/the homepage actually carried
 	// each @type (`row.pages`), so the panel shows a real list scoped to
 	// that specific type, not a generic, undifferentiated redirect.
@@ -155,10 +155,10 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 
 	// Auto-selects the first real row once a snapshot loads (or after a
 	// re-analyze), so the detail panel always has something real to show
-	// rather than sitting empty until a first click — same convention
+	// rather than sitting empty until a first click - same convention
 	// IssuesSection.tsx's own `selectedGroup` effect already establishes.
 	// Only runs when the currently-selected type is no longer present
-	// (a fresh snapshot, or the selected type disappeared) — a plain click
+	// (a fresh snapshot, or the selected type disappeared) - a plain click
 	// selection is left alone across re-renders.
 	useEffect(() => {
 		if (!snapshot) {
@@ -178,7 +178,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 		});
 	}, [snapshot]);
 
-	// Real open schema findings, fetched once — matched to each selected
+	// Real open schema findings, fetched once - matched to each selected
 	// type's own pages below (a finding is scoped to a page, not a @type).
 	const [schemaFindings, setSchemaFindings] = useState<RawFinding[]>([]);
 	useEffect(() => {
@@ -209,7 +209,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 					title={__('Schema Coverage', 'vulopilot')}
 					titleIcon="attachment"
 					desc={__(
-						'VuloPilot checked how your website describes its pages, products, articles and business to search engines — see what structured information is there and where something is missing or incorrect, a real sample from its own live pages.',
+						'VuloPilot checked how your website describes its pages, products, articles and business to search engines - see what structured information is there and where something is missing or incorrect, a real sample from its own live pages.',
 						'vulopilot'
 					)}
 					isLoading={isLoading}
@@ -261,7 +261,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 										action: {
 											label: __('Action', 'vulopilot'),
 											// `type: 'more-action'` no longer exists in
-											// @zyra/table — `type: 'action'` now covers
+											// @zyra/table - `type: 'action'` now covers
 											// that same single-toggle-button case via a
 											// `type: 'button'` action whose label/icon
 											// are functions of `row` (see that type's
@@ -282,12 +282,12 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 														row.type === selectedRow?.type
 															? 'eye'
 															: 'pagination-next-arrow',
-													// The panel is never closed — clicking the
+													// The panel is never closed - clicking the
 													// row already showing just keeps it open.
 													// Scrolls the panel into view on every click
 													// (`scrollToId`, same real helper
 													// IssuesList.tsx's own identical toggle
-													// uses) — harmless when it's already open,
+													// uses) - harmless when it's already open,
 													// necessary when it isn't yet visible.
 													onClick: (row: SchemaCoverageRow) => {
 														setSelectedRow(row);

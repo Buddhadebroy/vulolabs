@@ -9,7 +9,7 @@ namespace VuloPilot\ValueObjects;
 
 /**
  * The output of a single Contracts\Report\ReportTypeInterface::generate()
- * call — what Reports\ReportGenerator hands to a
+ * call - what Reports\ReportGenerator hands to a
  * Contracts\Report\ReportExporterInterface to render into a file, and what
  * gets JSON-encoded into `vulopilot_reports.meta` for provenance.
  *

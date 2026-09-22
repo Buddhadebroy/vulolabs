@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Same filter-based discovery shape as Scanners\ScannerRegistry and
- * RuleEngine\RuleRegistry — see either of their docblocks for why this codebase doesn't use Modules.php's
+ * RuleEngine\RuleRegistry - see either of their docblocks for why this codebase doesn't use Modules.php's
  * folder-scan mechanism for a single-class extension point. Free's own 4
  * built-in actions always run; a Pro module or third party adds more via
  * `vulopilot_ai_action_sources`.
@@ -58,11 +58,11 @@ class ActionRegistry {
     }
 
     /**
-     * Free's own always-available actions — the readme's "AI SEO
+     * Free's own always-available actions - the readme's "AI SEO
      * Assistant"/"AI Content Assistant" (BYOK) feature set. The
      * product-specific AI actions (rewrite/generate for WooCommerce
      * products) are Pro business logic ("WooCommerce AI"/"AI Product
-     * Optimization" per the readme) — they moved to vulopilot-pro's
+     * Optimization" per the readme) - they moved to vulopilot-pro's
      * WooCommerceAi module and register through this same filter.
      *
      * @return string[]
@@ -73,13 +73,13 @@ class ActionRegistry {
             Actions\ImproveReadabilityAction::class,
             Actions\GenerateSchemaAction::class,
             Actions\GenerateBlogAction::class,
-            // SEO module (SEO-MODULE.md) — closes MissingMetaDescriptionRule's fix loop.
+            // SEO module (SEO-MODULE.md) - closes MissingMetaDescriptionRule's fix loop.
             Actions\WriteMetaDescriptionAction::class,
-            // GEO module (GEO-MODULE.md) — closes FaqOpportunityRule's and
+            // GEO module (GEO-MODULE.md) - closes FaqOpportunityRule's and
             // MissingSummaryBlockRule's fix loops.
             Actions\GenerateFaqAction::class,
             Actions\GenerateSummaryBlockAction::class,
-            // GEO module, second pass — closes the remaining 7 GEO
+            // GEO module, second pass - closes the remaining 7 GEO
             // scanners' fix loops (ScannerFixMap previously left these
             // unmapped entirely; see that class's own docblock for why
             // each one is now mapped).
@@ -89,35 +89,35 @@ class ActionRegistry {
             Actions\SplitLongParagraphsAction::class,
             Actions\FixHeadingHierarchyAction::class,
             Actions\NormalizeEntityNamingAction::class,
-            // AI SEO Assistant / AI Content Assistant (readme) — closes
+            // AI SEO Assistant / AI Content Assistant (readme) - closes
             // SeoTitleRewriteRule's fix loop (write-meta-title) and adds
             // the two content-generation actions with no matching scanner/
             // rule (suggest-internal-links, generate-social-content).
             Actions\WriteMetaTitleAction::class,
             Actions\SuggestInternalLinksAction::class,
             Actions\GenerateSocialContentAction::class,
-            // AI Content Assistant (readme) — the 3 remaining generation
+            // AI Content Assistant (readme) - the 3 remaining generation
             // types with no existing action: product descriptions,
             // listing-page excerpts, and comparison pages.
             Actions\GenerateProductDescriptionAction::class,
             Actions\GenerateExcerptAction::class,
             Actions\GenerateComparisonPageAction::class,
             // One-Click Fix coverage pass for the SEO category (Pro's
-            // OneClickFix\ScannerFixMap) — closes HeadingStructureScanner's
+            // OneClickFix\ScannerFixMap) - closes HeadingStructureScanner's
             // and DuplicateContentScanner's fix loops, the two remaining
             // SEO findings with a genuine, safely-automatable single-post
-            // content fix (as opposed to a site-config/structural issue —
+            // content fix (as opposed to a site-config/structural issue -
             // see ScannerFixMap's own docblock for the rest).
             Actions\AddSubheadingsAction::class,
             Actions\DifferentiateDuplicateTitleAction::class,
-            // Create Content's own tool grid (ContentToolsGrid.tsx) — of
+            // Create Content's own tool grid (ContentToolsGrid.tsx) - of
             // the 2 tiles with no pre-existing 1:1 action class that stay
-            // free (AI Writer, Landing Pages — the grid's other free tile,
+            // free (AI Writer, Landing Pages - the grid's other free tile,
             // Duplicate Content, reuses DifferentiateDuplicateTitleAction
             // registered above). Landing Pages stays here (not moved to
             // Pro) because `generate-landing-page` is also the real action
             // behind "Chat with VuloPilot" (free) and
-            // ContentIntelligence's own bulk-suggest flow — see
+            // ContentIntelligence's own bulk-suggest flow - see
             // AiContentAssistantSidebar.tsx/ContentCreationOrchestrator.php.
             // Content Optimizer/Content Refresh/Media Library AI (the
             // other 3 tiles with no pre-existing action class) are a real
@@ -127,7 +127,7 @@ class ActionRegistry {
             // from that module's own Module.php) rather than staying here.
             Actions\WritePostContentAction::class,
             Actions\GenerateLandingPageAction::class,
-            // QuickActionsCard.tsx's own "AI Content Audit" shortcut — a
+            // QuickActionsCard.tsx's own "AI Content Audit" shortcut - a
             // real, standalone AI action (an overall score/summary/
             // suggestions verdict, saved as postmeta) rather than the
             // in-page scroll to RecentContentCard's rule-based scanner

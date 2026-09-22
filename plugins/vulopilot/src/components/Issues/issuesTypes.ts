@@ -1,13 +1,13 @@
 /**
  * Shared `FindingGroup`/`Finding` types and helpers (`formatAffected()`,
  * `issueIconFor()`, `CATEGORY_LABELS`, `CATEGORY_TABS`, …) behind every
- * "Issues" table in this plugin — AI Copilot's own IssuesList.tsx
+ * "Issues" table in this plugin - AI Copilot's own IssuesList.tsx
  * (`pages/AIAssistant/`), GEO's several finding-group cards, Security's
  * SectionedIssuesTable.tsx, and Commerce's CommerceIssuesTable.tsx all read
  * from here. Moved out of `pages/AIAssistant/` into this shared
  * `components/Issues/` folder alongside IssuesSummaryCards.tsx/
  * IssueDetailPanel.tsx (its own real UI, same real reuse across those same
- * pages) per direct instruction — this was never actually AI-Copilot-
+ * pages) per direct instruction - this was never actually AI-Copilot-
  * specific, just historically created there.
  */
 export interface FindingSample {
@@ -17,11 +17,11 @@ export interface FindingSample {
 	object_type: string | null;
 	object_ref: string | null;
 	created_at: string;
-	/** Same "last reconfirmed by a scan" field IssueDetailPanel.tsx's own FindingRow carries — see that interface's own docblock. */
+	/** Same "last reconfirmed by a scan" field IssueDetailPanel.tsx's own FindingRow carries - see that interface's own docblock. */
 	last_seen_at?: string;
-	/** Resolved page path or 'Site-wide' — added server-side by Findings.php's add_page_field(). */
+	/** Resolved page path or 'Site-wide' - added server-side by Findings.php's add_page_field(). */
 	page?: string;
-	/** Raw `wp_json_encode()`-d `Finding::get_meta()` column, unparsed (AbstractRepository::find_all() is a plain `SELECT *`, no server-side decode) — e.g. Performance scanners' own `recommended_fix` step list. Parse with `JSON.parse()` before use. */
+	/** Raw `wp_json_encode()`-d `Finding::get_meta()` column, unparsed (AbstractRepository::find_all() is a plain `SELECT *`, no server-side decode) - e.g. Performance scanners' own `recommended_fix` step list. Parse with `JSON.parse()` before use. */
 	meta?: string | null;
 }
 
@@ -34,10 +34,10 @@ export interface FindingGroup {
 	/** Scanner's real get_label(), e.g. "Weak Password Detection". */
 	label: string;
 	/**
-	 * One real, most-recent open finding from this group — GET /findings/groups
+	 * One real, most-recent open finding from this group - GET /findings/groups
 	 * always includes this so the detail panel can show real title/
 	 * description/page text instead of fabricating "why it matters"/
-	 * "how to fix" copy no scanner actually writes (see ScannerInterface —
+	 * "how to fix" copy no scanner actually writes (see ScannerInterface -
 	 * no such fields exist server-side).
 	 */
 	sample: FindingSample | null;
@@ -45,7 +45,7 @@ export interface FindingGroup {
 
 /**
  * Real category strings (Scanners/*::get_category()) mapped to display
- * labels — 'seo'/'images'/'schema'/'links' fold into "SEO & Visibility"
+ * labels - 'seo'/'images'/'schema'/'links' fold into "SEO & Visibility"
  * (GEO.tsx's own SEO subtab groups them the same way already, see
  * getCategoryTabLink.ts), 'geo'/'brand' fold into "AI Visibility" (GeoTab.tsx
  * already calls this same feature area "AI Visibility Score"), and
@@ -72,7 +72,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
 };
 
 /**
- * The Issues table's category tab bar — each tab folds one or more real
+ * The Issues table's category tab bar - each tab folds one or more real
  * `category` DB values into one mockup-matching tab (e.g. "SEO &
  * Visibility" covers 'seo'/'images'/'schema'/'links', the same grouping
  * getCategoryTabLink.ts's own CATEGORY_TAB_LINKS already uses for
@@ -92,7 +92,7 @@ export const CATEGORY_TABS: { id: string; label: string; categories: string[] }[
 	{ id: 'site-health', label: 'Site Health', categories: ['plugins', 'themes', 'php-warnings'] },
 ];
 
-/** Which CATEGORY_TABS entry a real `category` value belongs to — used to preset the active tab when arriving with a specific group already known (NeedsAttentionCard.tsx's own group rows). */
+/** Which CATEGORY_TABS entry a real `category` value belongs to - used to preset the active tab when arriving with a specific group already known (NeedsAttentionCard.tsx's own group rows). */
 export const findTabIdForCategory = (category: string): string =>
 	CATEGORY_TABS.find((tab) => tab.categories.includes(category))?.id ?? 'all';
 
@@ -117,12 +117,12 @@ export const CATEGORY_ICONS: Record<string, string> = {
 
 /**
  * Real per-`scanner_id` icon, for the handful of categories (Performance in
- * particular — CDN/JavaScript/CSS Optimization/Cache Issues/… all share the
+ * particular - CDN/JavaScript/CSS Optimization/Cache Issues/… all share the
  * single real `category: 'performance'`) where `CATEGORY_ICONS` above
  * collapses several genuinely different real checks onto one identical
  * icon (confirmed live: every row in Performance's own "Top Issues" table
  * rendered the same bar-chart glyph regardless of which real scanner it
- * came from). Checked first in `issueIconFor()` below — `CATEGORY_ICONS`
+ * came from). Checked first in `issueIconFor()` below - `CATEGORY_ICONS`
  * remains the fallback for every scanner_id not listed here, so this only
  * ever narrows, never replaces, that map.
  *
@@ -146,11 +146,11 @@ export const SCANNER_ICONS: Record<string, string> = {
 
 /**
  * `SCANNER_ICONS[scanner_id]` first (several real scanners inside one real
- * category otherwise all render the same glyph — see that map's own
+ * category otherwise all render the same glyph - see that map's own
  * docblock), `CATEGORY_ICONS[category]` as the fallback every scanner_id
  * not explicitly listed already had. Named `issueIconFor` rather than
  * `rowIcon` to stay clearly distinct from `historyTypes.ts`'s own
- * `rowIcon(row: HistoryRow)` — same concept, different real row shape.
+ * `rowIcon(row: HistoryRow)` - same concept, different real row shape.
  */
 export const issueIconFor = (
 	category: string,
@@ -171,7 +171,7 @@ const OBJECT_TYPE_NOUNS: Record<string, [string, string]> = {
 	site: ['site-wide check', 'site-wide checks'],
 };
 
-/** Just the noun half of `formatAffected` (no count prefix) — for a caller that renders the count and noun as two separate pieces. */
+/** Just the noun half of `formatAffected` (no count prefix) - for a caller that renders the count and noun as two separate pieces. */
 export const getObjectTypeNoun = (count: number, objectType: string | null): string => {
 	const [singular, plural] = OBJECT_TYPE_NOUNS[objectType ?? ''] ?? ['issue', 'issues'];
 

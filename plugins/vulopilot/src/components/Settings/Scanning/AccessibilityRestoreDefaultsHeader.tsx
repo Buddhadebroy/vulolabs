@@ -12,7 +12,7 @@ import { useSetting } from '../../../contexts/SettingContext';
  * Unlike AiVisibilityScansHeader.tsx's own scoped
  * `POST /settings/reset-ai-visibility-scans` route, this tab's 4 real
  * fields are all plain flat settings (not one nested object), so no new
- * REST route is needed — this just saves the same real default values
+ * REST route is needed - this just saves the same real default values
  * Utill::VULOPILOT_SETTINGS_DEFAULTS already declares for them, through
  * the exact same `{ setting, settingName }` shape InputRenderer's own
  * auto-save already POSTs to `settings` (this class's own docblock), then

@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags published posts/pages that mention the site's own name (the brand
- * entity) in more than one distinct casing/spacing variant — e.g.
+ * entity) in more than one distinct casing/spacing variant - e.g.
  * "VuloPilot" in one paragraph and "Vulopilot"/"Vulo Pilot" in another. AI
  * answer engines resolve entities partly by exact-string consistency, so
  * a brand name that isn't written the same way throughout a piece of
@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  * scanner in this file already takes (see GeoCitationOpportunityScanner's
  * own docblock for the same reasoning).
  *
- * Skips sites with a very short name (under 3 characters) — a short site
+ * Skips sites with a very short name (under 3 characters) - a short site
  * name is too likely to substring-collide with unrelated words, the same
  * defensive narrowing GeoEeatSignalsScanner applies to its own two-signal
  * check.

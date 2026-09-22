@@ -2,14 +2,14 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * Backed by `Utill::SETTINGS_DEFAULTS`'s MCP section. No MCP (Model
- * Context Protocol) server exists in this codebase yet — this tab exists
+ * Context Protocol) server exists in this codebase yet - this tab exists
  * so VuloCart's "AI Commerce OS" positioning has a real, saved home for
  * this config once that server is built, rather than a settings gap.
  *
  * Deliberately no "Enable MCP server" toggle here: MCP is its own addon
- * module now (`modules/Mcp/Module.php`, module-architecture.md — same
+ * module now (`modules/Mcp/Module.php`, module-architecture.md - same
  * shape as the Passport module), not a Settings-tab checkbox. Activating/
- * deactivating it on the Modules page *is* the on/off switch — enforced
+ * deactivating it on the Modules page *is* the on/off switch - enforced
  * below via `moduleEnabled: 'mcp'`, zyra's InputRenderer field-lock
  * mechanism (same one `vulopilot/src/components/Settings/Automation.ts`'s
  * `automation_cooldown_minutes` uses for its own module gate): the field
@@ -21,7 +21,7 @@ import { __ } from '@wordpress/i18n';
  * core plugin.
  *
  * `mcp_api_key` uses `type: 'password'` (masked input, same
- * TextInputFieldComponent as `text`/`number` — @zyra/builders'
+ * TextInputFieldComponent as `text`/`number` - @zyra/builders'
  * fieldUtils.ts registry) since it's credential-shaped even though
  * nothing validates it yet.
  */

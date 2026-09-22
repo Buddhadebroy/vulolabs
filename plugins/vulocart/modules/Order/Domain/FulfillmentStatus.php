@@ -12,11 +12,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order module FulfillmentStatus.
  *
- * The other of the two independent dimensions an Order now tracks — see
+ * The other of the two independent dimensions an Order now tracks - see
  * PaymentStatus's own docblock for why this replaced the old single flat
  * `OrderStatus` enum. `DRAFT` is new: an order an admin created manually
  * (`Application\OrderService::create_manual_order()`) that hasn't been
- * placed/sent to the customer yet — the admin-UX brief's "Draft Orders"
+ * placed/sent to the customer yet - the admin-UX brief's "Draft Orders"
  * submenu filters on this value (`classes/Admin/Menu.php`'s
  * `add_orders_menu()`).
  *
@@ -48,7 +48,7 @@ class FulfillmentStatus {
     const PROCESSING = 'processing';
 
     /**
-     * Shipped/handed off for delivery — meaningful for shippable
+     * Shipped/handed off for delivery - meaningful for shippable
      * offerings; a purely digital order can skip straight to
      * `COMPLETED`.
      *

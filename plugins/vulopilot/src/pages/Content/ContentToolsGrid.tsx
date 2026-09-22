@@ -20,9 +20,9 @@ export interface ToolField {
 	key: string;
 	label: string;
 	type: ToolFieldType;
-	/** Only for 'post-picker' — restricts which real post types are offered. */
+	/** Only for 'post-picker' - restricts which real post types are offered. */
 	postTypes?: ('post' | 'page')[];
-	/** Only for 'select' — a fixed, static option list rendered directly (no network fetch), unlike the other picker types. */
+	/** Only for 'select' - a fixed, static option list rendered directly (no network fetch), unlike the other picker types. */
 	options?: { value: string; label: string }[];
 }
 
@@ -35,33 +35,33 @@ export interface ContentTool {
 	/** The real AIActionInterface id this tool runs (classes/AIActions/Actions/*.php). */
 	actionId: string;
 	fields: ToolField[];
-	/** True for the 9 tiles that are a real, Pro-only feature (vulopilot-pro's own modules/ContentTools/Rest.php) — see this file's own top docblock for the exact split and why. Omitted (falsy) for the 3 that stay free. */
+	/** True for the 9 tiles that are a real, Pro-only feature (vulopilot-pro's own modules/ContentTools/Rest.php) - see this file's own top docblock for the exact split and why. Omitted (falsy) for the 3 that stay free. */
 	pro?: boolean;
 }
 
 /**
  * The 12 tool tiles each run a real AI action end-to-end: pick the real
- * input it needs (an existing post, an image, a topic — see `fields`),
+ * input it needs (an existing post, an image, a topic - see `fields`),
  * propose it for real, show the real AI-generated preview, then
- * approve/reject it for real — see ContentToolPopup.tsx for the full
+ * approve/reject it for real - see ContentToolPopup.tsx for the full
  * flow. 6 of these actions already existed (GenerateBlogAction,
  * GenerateProductDescriptionAction, GenerateFaqAction, GenerateSchemaAction,
  * GenerateAltAction, WriteMetaTitleAction) but had no route to trigger
  * them; the other 6 (WritePostContentAction, GenerateLandingPageAction,
  * OptimizeContentAction, RefreshContentAction, DifferentiateDuplicateTitleAction,
- * OptimizeMediaAction) are new, purpose-built for these tiles — see each
+ * OptimizeMediaAction) are new, purpose-built for these tiles - see each
  * class's own docblock.
  *
  * Per direct instruction, this grid is a real split, not one uniform
  * gate: AI Writer/Blog Generator/Duplicate Content (`pro` omitted) stay
- * free — `POST /ai-action-runs` (Free's own shared
+ * free - `POST /ai-action-runs` (Free's own shared
  * AIActions\ActionRunner::propose(), still there, still free for "Fix
  * with AI" buttons elsewhere too), gated only on `useAiCredits()`'s own
  * real AI-connected check (ConnectVuloCloudPopup opens
  * immediately on click if not). The other 9 (`pro: true`) are a real
- * Pro feature — `POST /content-tools/runs` (vulopilot-pro's own
+ * Pro feature - `POST /content-tools/runs` (vulopilot-pro's own
  * ContentTools\Rest.php, a SEPARATE route forwarding to that exact same
- * engine, gated behind the real `content-tools` Pro module) — a tile
+ * engine, gated behind the real `content-tools` Pro module) - a tile
  * click with Pro inactive opens ShowProPopup immediately instead
  * (`handleToolClick()` below), and shows a small "PRO" badge in its own
  * row so which tiles need Pro is visible before clicking, not just
@@ -265,21 +265,21 @@ const ContentToolsGrid = () => {
 	const { status: creditsStatus } = useAiCredits();
 	const isContentToolsEnabled = useContentToolsEnabled();
 	const [isCloudConnectPromptOpen, setIsCloudConnectPromptOpen] = useState(false);
-	/** True right after a Pro-only tile was clicked without an active Pro license — opens ShowProPopup below. Reset via `dismissProLocked()`. */
+	/** True right after a Pro-only tile was clicked without an active Pro license - opens ShowProPopup below. Reset via `dismissProLocked()`. */
 	const [isProLocked, setIsProLocked] = useState(false);
 	const dismissProLocked = () => setIsProLocked(false);
 
 	/**
-	 * Checked up front, before a tool even opens — per direct instruction.
+	 * Checked up front, before a tool even opens - per direct instruction.
 	 * A `pro` tile with `content-tools` inactive opens ShowProPopup
 	 * immediately; a free tile with no AI service connected opens
-	 * ConnectVuloCloudPopup immediately — either way, instead of letting
+	 * ConnectVuloCloudPopup immediately - either way, instead of letting
 	 * the tool's own form open first and only discovering a real failure
-	 * at Generate time (both still real fallbacks too — see
-	 * ContentToolPopup.tsx's own `isNoProviderError` handling — for the
+	 * at Generate time (both still real fallbacks too - see
+	 * ContentToolPopup.tsx's own `isNoProviderError` handling - for the
 	 * rare case either state changes between this check and that click).
 	 * `creditsStatus` starts `null` while `useAiCredits()`'s own first
-	 * fetch is in flight — deliberately NOT blocked on that (a tile click
+	 * fetch is in flight - deliberately NOT blocked on that (a tile click
 	 * in the first instant after page load falls through to the tool's own
 	 * normal open), only once it's positively known the site isn't
 	 * connected.
@@ -311,7 +311,7 @@ const ContentToolsGrid = () => {
 					className="tool-grid"
 					items={CONTENT_TOOLS.map((tool) => ({
 						id: tool.id,
-						// "<adminfont name> <$color-palette key>" — same
+						// "<adminfont name> <$color-palette key>" - same
 						// icon-name-plus-palette-key convention MetricsGrid.tsx/
 						// SecurityMetricsGrid.tsx already use: the extra word
 						// isn't part of the icon name, it's zyra's own real,
@@ -319,7 +319,7 @@ const ContentToolsGrid = () => {
 						// (theme/src/common.scss's `@each $name, $style in
 						// $color-palette` loop) tacked on via IconComponent's
 						// className string. Replaces a custom `icon-${tool.color}`
-						// class this card used to set — that class landed on the
+						// class this card used to set - that class landed on the
 						// whole list-item row (ListComponent's own `item.className`
 						// slot), not the icon, and had no matching CSS rule
 						// anywhere in this codebase either way, so it never

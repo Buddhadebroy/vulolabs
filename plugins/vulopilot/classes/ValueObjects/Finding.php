@@ -8,7 +8,7 @@
 namespace VuloPilot\ValueObjects;
 
 /**
- * A single issue surfaced by a Scanner. Immutable — every field is set at
+ * A single issue surfaced by a Scanner. Immutable - every field is set at
  * construction time by the scanner that produced it.
  *
  * @class       Finding class
@@ -73,7 +73,7 @@ final class Finding {
      *                                 (a word count, a score, a byte size, a
      *                                 count) that would otherwise defeat
      *                                 FindingRepository::find_open_duplicate()'s
-     *                                 exact-`title`-match fallback — see
+     *                                 exact-`title`-match fallback - see
      *                                 that method's own docblock. Left
      *                                 `null` (the default) for every scanner
      *                                 whose title is already a stable

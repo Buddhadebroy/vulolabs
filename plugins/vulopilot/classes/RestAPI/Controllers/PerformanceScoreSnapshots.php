@@ -12,7 +12,7 @@ use VuloPilot\Repositories\ScoreSnapshotRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /performance-score-snapshots?days=N` — backs SpeedHistoryCard.tsx's
+ * `GET /performance-score-snapshots?days=N` - backs SpeedHistoryCard.tsx's
  * trend chart. Read-only, same shape as the AdvancedReports module's own
  * `/site-health-snapshots?days=N` (WebsiteProgressChart.tsx's data source).
  *

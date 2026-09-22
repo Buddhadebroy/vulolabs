@@ -10,7 +10,7 @@ namespace VuloPilot\Services;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The real "AI Credits" site connection — a genuine `ConnectedSite`
+ * The real "AI Credits" site connection - a genuine `ConnectedSite`
  * credential (siteId + secret) minted by VuloCloud's own
  * `contexts/vulopilot/ai-credits` bounded context, layered on TOP of
  * VuloCloudAccountConnection's own person-level login rather than
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * account" orchestration this collapses into one call).
  *
  * `get_broker_authorize_url()`/`exchange_broker_code()` are a second,
- * passwordless front door to this exact same stored connection — the
+ * passwordless front door to this exact same stored connection - the
  * site owner authenticates on a VuloCloud-hosted page instead of typing a
  * VuloCloud password into this plugin at all (ConnectBrokerClient/
  * ConnectBrokerCallbackHandler), landing on the identical `save_connection()`
@@ -34,10 +34,10 @@ defined( 'ABSPATH' ) || exit;
  * Storage is one dedicated `vulopilot_ai_credits_connection` option, same
  * "never round-trips the secret to the browser, encrypted at rest"
  * posture GoogleServicesConnection.php/VuloCloudAccountConnection.php
- * already establish — `get_status()` below never returns the raw secret,
+ * already establish - `get_status()` below never returns the raw secret,
  * only the cached balance fields a site owner should actually see.
  *
- * The credit balance itself is a CACHE — VuloCloud's own wallet is always
+ * The credit balance itself is a CACHE - VuloCloud's own wallet is always
  * the source of truth (VuloPilot brief §3: "WordPress may cache/display
  * the balance, but it must never be considered the source of truth").
  * `refresh_balance()` is the one method that re-syncs it from a real
@@ -97,7 +97,7 @@ class AiCreditsConnection {
     }
 
     /**
-     * Never the secret — see this class's own docblock.
+     * Never the secret - see this class's own docblock.
      *
      * @return array<string, mixed>
      */
@@ -113,7 +113,7 @@ class AiCreditsConnection {
             'last_synced_at'              => $connection['last_synced_at'],
             // Composed in so a single GET /ai-credits/status gives the
             // React side everything the credit indicator/claim CTA needs
-            // (VuloPilot brief §21) without a second round trip — this
+            // (VuloPilot brief §21) without a second round trip - this
             // class's own connect flow needs a VuloCloud account
             // connected first, so its own state is directly relevant here.
             'vulocloud_account_connected' => ( new VuloCloudAccountConnection() )->is_connected(),
@@ -146,36 +146,36 @@ class AiCreditsConnection {
      * VuloCloud Account → ... → AI features become available" flow
      * (VuloPilot brief §4), collapsed into one call:
      *
-     * 1. Establish a human VuloCloud session — register+login (a brand-new
+     * 1. Establish a human VuloCloud session - register+login (a brand-new
      *    account) or just login (an existing one), whichever `$create_account`
      *    says. Skipped entirely if a VuloCloud account is already connected
-     *    (e.g. from an earlier, unrelated useContentGate.tsx popup use) —
+     *    (e.g. from an earlier, unrelated useContentGate.tsx popup use) -
      *    reuses that session's own stored token rather than asking the site
      *    owner to sign in twice.
-     * 2. Resolve which Organization this site's wallet lives under —
+     * 2. Resolve which Organization this site's wallet lives under -
      *    the account's first Organization if it already has one, or a
      *    brand-new one (self-service `POST /organizations`, named after
      *    this site) if not. Deliberately does NOT let a site owner pick
-     *    among several existing Organizations in this first pass — out of
+     *    among several existing Organizations in this first pass - out of
      *    scope, see the architecture plan's own "Explicitly out of scope."
-     * 3. `POST /plugin/ai-credits/connect-site` — real ConnectedSite
+     * 3. `POST /plugin/ai-credits/connect-site` - real ConnectedSite
      *    credential + the one-time free grant, both minted server-side.
      *
      * Every step is safe to call again (a repeat call reuses the existing
      * VuloCloud session, reuses the existing Organization instead of
      * creating a second one, and connect-site's own grant is idempotent
-     * per-Organization — see AiCreditWalletService.grantInitial's own
+     * per-Organization - see AiCreditWalletService.grantInitial's own
      * docblock on the vulocloud side).
      *
      * @param string $email           VuloCloud account email.
      * @param string $password        VuloCloud account password.
-     * @param string $two_factor_code Only used when the account has 2FA enabled — ignored otherwise.
+     * @param string $two_factor_code Only used when the account has 2FA enabled - ignored otherwise.
      * @param bool   $create_account Whether to register a brand-new VuloCloud account rather than log into an existing one.
-     * @param bool   $as_customer    "I'm a solo site owner" (architecture plan §F) — registers/logs in against the
+     * @param bool   $as_customer    "I'm a solo site owner" (architecture plan §F) - registers/logs in against the
      *                               Customer Portal under VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID instead of creating
      *                               a personal Organization. See connect_and_claim_as_customer()'s own docblock.
-     * @param string $first_name     Customer Portal registration only — ignored otherwise.
-     * @param string $last_name      Customer Portal registration only — ignored otherwise.
+     * @param string $first_name     Customer Portal registration only - ignored otherwise.
+     * @param string $last_name      Customer Portal registration only - ignored otherwise.
      * @return array<string, mixed>|\WP_Error Same shape as get_status().
      */
     public function connect_and_claim( string $email, string $password, string $two_factor_code, bool $create_account, bool $as_customer = false, string $first_name = '', string $last_name = '' ) {
@@ -261,7 +261,7 @@ class AiCreditsConnection {
 
     /**
      * The account's first existing Organization, or a brand-new one if it
-     * has none yet — see connect_and_claim()'s own docblock, step 2.
+     * has none yet - see connect_and_claim()'s own docblock, step 2.
      *
      * @param AiCreditsApiClient $client       Used to create the new Organization if one doesn't exist yet.
      * @param string             $access_token The site owner's own VuloCloud access token.
@@ -319,23 +319,23 @@ class AiCreditsConnection {
 
     /**
      * The "I'm a solo site owner" half of connect_and_claim() (architecture
-     * plan §F) — a genuinely different identity from the agency path's
+     * plan §F) - a genuinely different identity from the agency path's
      * personal Organization: registers/logs into VuloCloud's Customer
      * Portal (`contexts/customer`) under the one fixed
      * VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID, then calls the same
      * dual-mode `connect-site` endpoint with that Customer's own access
      * token instead of a staff token. No `resolve_organization_id()` step
-     * is needed here — the host Organization is already fixed, unlike the
+     * is needed here - the host Organization is already fixed, unlike the
      * agency path where each account gets its own.
      *
-     * No 2FA branch — VuloCloud's Customer auth doesn't have one (unlike
+     * No 2FA branch - VuloCloud's Customer auth doesn't have one (unlike
      * the staff/Organization login this class's agency path uses).
      *
      * @param string $email          VuloCloud Customer account email.
      * @param string $password       VuloCloud Customer account password.
      * @param bool   $create_account Whether to register a brand-new Customer rather than log into an existing one.
-     * @param string $first_name     Registration only — required by the Customer Portal's own register DTO.
-     * @param string $last_name      Registration only — required by the Customer Portal's own register DTO.
+     * @param string $first_name     Registration only - required by the Customer Portal's own register DTO.
+     * @param string $last_name      Registration only - required by the Customer Portal's own register DTO.
      * @return array<string, mixed>|\WP_Error Same shape as get_status().
      */
     private function connect_and_claim_as_customer( string $email, string $password, bool $create_account, string $first_name, string $last_name ) {
@@ -455,7 +455,7 @@ class AiCreditsConnection {
     }
 
     /**
-     * Real `POST /plugin/ai-credits/balance` — the one method that
+     * Real `POST /plugin/ai-credits/balance` - the one method that
      * re-syncs the cached balance from VuloCloud's own authoritative
      * wallet (VuloPilot brief §3). Called on demand (Settings/credit
      * indicator "refresh" action), not on every page load.
@@ -472,7 +472,7 @@ class AiCreditsConnection {
         $result = ( new AiCreditsApiClient( VULOPILOT_VULOCLOUD_URL ) )->get_balance( $credential['site_id'], $credential['secret'] );
 
         if ( is_wp_error( $result ) ) {
-            // Offline/unreachable — VuloPilot brief §27: never destroy the
+            // Offline/unreachable - VuloPilot brief §27: never destroy the
             // cached balance on a failed sync, just report the real error.
             return new \WP_Error(
                 'vulopilot_ai_credits_unreachable',
@@ -509,7 +509,7 @@ class AiCreditsConnection {
 
     /**
      * The redirect_uri VuloCloud's own `/plugin/connect/exchange` redirect
-     * must land back on — `admin-post.php` (not a REST route), same
+     * must land back on - `admin-post.php` (not a REST route), same
      * reasoning GoogleServicesConnection::get_redirect_uri() documents:
      * this browser redirect carries no `X-WP-Nonce` header for a REST
      * nonce check, and `admin-post.php` already authenticates via the same
@@ -522,14 +522,14 @@ class AiCreditsConnection {
     }
 
     /**
-     * The passwordless "Connect to VuloCloud" URL — Settings →
+     * The passwordless "Connect to VuloCloud" URL - Settings →
      * Connections' own Connect button 302s the browser here instead of
      * rendering a login/signup form itself (see this repo's
      * ConnectBrokerClient/ConnectBrokerCallbackHandler for the rest of the
      * sequence). `state` is a real WP nonce (verified in
      * `verify_broker_state()` on the way back, guarding the callback
      * against CSRF the same way every other WordPress admin-post handler's
-     * own `check_admin_referer()` would) — VuloCloud itself never inspects
+     * own `check_admin_referer()` would) - VuloCloud itself never inspects
      * it, only echoes it back verbatim.
      *
      * @return string|null Null if this build isn't configured to reach VuloCloud at all yet.
@@ -543,7 +543,7 @@ class AiCreditsConnection {
 
         // Browser-facing: must be reachable from the site owner's own
         // browser, which is not always true of VULOPILOT_VULOCLOUD_URL
-        // itself (e.g. `host.docker.internal` in local Docker dev) — see
+        // itself (e.g. `host.docker.internal` in local Docker dev) - see
         // VULOPILOT_VULOCLOUD_PUBLIC_URL's own docblock in config.php.
         $browser_url = '' !== trim( VULOPILOT_VULOCLOUD_PUBLIC_URL ) ? VULOPILOT_VULOCLOUD_PUBLIC_URL : VULOPILOT_VULOCLOUD_URL;
 
@@ -567,7 +567,7 @@ class AiCreditsConnection {
      * Redeems the broker's own single-use exchange `code`
      * (ConnectBrokerCallbackHandler's own caller) and, on success, stores
      * the real ConnectedSite credential exactly like connect_and_claim()'s
-     * own legacy password-based flow does — this is simply a different
+     * own legacy password-based flow does - this is simply a different
      * front door to the same stored connection, not a parallel one.
      *
      * @param string $code The single-use exchange code from the broker's own return redirect.
@@ -591,7 +591,7 @@ class AiCreditsConnection {
             )
         );
 
-        // Immediate first report — without this, the Connected Sites
+        // Immediate first report - without this, the Connected Sites
         // detail page shows "Syncing…"/blank telemetry until the daily
         // cron eventually fires (Services\SiteTelemetryReporter's own
         // doc comment). Best-effort: a failure here doesn't affect the
@@ -604,11 +604,11 @@ class AiCreditsConnection {
     /**
      * Records a real, successful AI Gateway spend against the LOCAL cache
      * immediately (rather than waiting for the next refresh_balance() call)
-     * — called by AiCreditGatewayClient right after a real
+     * - called by AiCreditGatewayClient right after a real
      * `/plugin/ai/execute` success, whose own response already carries the
      * authoritative post-spend balance. This is still a cache write, not
      * an independent deduction (VuloPilot brief §3: "do not allow the
-     * WordPress plugin to simply set its own credit balance") — the number
+     * WordPress plugin to simply set its own credit balance") - the number
      * stored here is exactly what VuloCloud's own response just said the
      * balance now is, never locally computed.
      *
@@ -627,13 +627,13 @@ class AiCreditsConnection {
     /**
      * Real self-service revoke on VuloCloud's own side
      * (`POST /plugin/ai-credits/disconnect`, ConnectedSiteService::revokeBySite())
-     * — an earlier version of this method only ever cleared the local
+     * - an earlier version of this method only ever cleared the local
      * option, since no revoke-site endpoint existed yet; that gap is
      * closed now. The remote call is best-effort: this always clears the
      * local option regardless of its outcome (an already-revoked/unknown
      * site, or VuloCloud being briefly unreachable, shouldn't leave this
      * site stuck showing "Connected" when the site owner explicitly
-     * asked to disconnect) — see the loud `error_log()` below for the one
+     * asked to disconnect) - see the loud `error_log()` below for the one
      * case worth a site owner's admin knowing about: the remote secret
      * living on past a local disconnect, still usable by nothing since
      * this site no longer holds it, but not actually revoked either.

@@ -10,15 +10,15 @@ namespace VuloPilot\RestAPI\Controllers;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /efficiency-checks — backs "Protect My Site" → Performance tab.
+ * GET /efficiency-checks - backs "Protect My Site" → Performance tab.
  *
  * Unlike every other tab on this page, this data isn't findings read back
  * out of `vulopilot_scan_findings` (that table only ever stores problems,
- * never a "this passed" record — Basic\PerformanceScanner/
+ * never a "this passed" record - Basic\PerformanceScanner/
  * Basic\CacheDetectionScanner still work that way for the *separate*
  * "Improve My Speed" page's own category-'performance' findings list).
  * The Performance tab's own mockup needs every check's live state,
- * good or bad, on every load — the same shape WordPress core's own
+ * good or bad, on every load - the same shape WordPress core's own
  * Tools → Site Health screen already solves for by running its
  * `WP_Site_Health::get_test_*()` methods synchronously per request rather
  * than persisting results. This controller does the same: 4 checks,
@@ -129,7 +129,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
                         'checks'   => array( $checks[3] ),
                     ),
                 ),
-                // Only the checks actually needing attention — same
+                // Only the checks actually needing attention - same
                 // "Things to review" list the mockup shows below the tile
                 // sections.
                 'review_items' => array_values(
@@ -145,10 +145,10 @@ class EfficiencyChecks extends \WP_REST_Controller {
     }
 
     /**
-     * "Page caching" — is anything full-page-caching the homepage at all?
+     * "Page caching" - is anything full-page-caching the homepage at all?
      * Same two signals CacheDetectionScanner already checks (a known
      * caching plugin, or the homepage's own response carrying a caching
-     * header) — reported here as two separate technical-detail lines
+     * header) - reported here as two separate technical-detail lines
      * instead of collapsed into one pass/fail Finding, since this tile
      * needs to show its own reasoning even when it passes.
      *
@@ -158,7 +158,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
         $known_plugin_active = $this->has_known_caching_plugin();
         // WP core itself sets this constant true the moment a page-cache
         // plugin's own advanced-cache.php drop-in is present and loaded
-        // (wp-settings.php) — the same "advanced_cache_present" signal
+        // (wp-settings.php) - the same "advanced_cache_present" signal
         // WP_Site_Health::get_test_page_cache() reads, without needing
         // that method's own private helpers.
         $advanced_cache_present = defined( 'WP_CACHE' ) && WP_CACHE;
@@ -174,7 +174,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
             'description' => __( 'WordPress may be rebuilding pages that could otherwise be served from a saved copy.', 'vulopilot' ),
             // Same icon MetricsGrid.tsx already uses for its own
             // 'cache-detection' tile on the separate "Improve My Speed"
-            // page — kept consistent rather than picking a new one for
+            // page - kept consistent rather than picking a new one for
             // the same underlying concept.
             'icon'        => 'refresh-bold',
             'status'      => $status,
@@ -197,9 +197,9 @@ class EfficiencyChecks extends \WP_REST_Controller {
     }
 
     /**
-     * "Browser caching" — a genuinely different signal from page caching
+     * "Browser caching" - a genuinely different signal from page caching
      * above: whether a static asset (one every WordPress install serves,
-     * `wp-embed.min.js` — no plugin/theme dependency) carries the
+     * `wp-embed.min.js` - no plugin/theme dependency) carries the
      * response headers that let a visitor's *browser* reuse it on repeat
      * views, rather than whether the HTML page itself is cached
      * server-side.
@@ -241,12 +241,12 @@ class EfficiencyChecks extends \WP_REST_Controller {
     }
 
     /**
-     * "Persistent object cache" — wraps `wp_using_ext_object_cache()`
+     * "Persistent object cache" - wraps `wp_using_ext_object_cache()`
      * (real core function; true only once a real backend like Redis/
      * Memcached is wired up via a real `object-cache.php` drop-in, not
      * WordPress's own in-request-only default object cache) plus
      * `WP_Site_Health::should_suggest_persistent_object_cache()` (core's
-     * own multisite/table-size thresholds — reused rather than
+     * own multisite/table-size thresholds - reused rather than
      * re-derived, so a small single-site install correctly reports "not
      * required" instead of "recommended").
      *
@@ -289,10 +289,10 @@ class EfficiencyChecks extends \WP_REST_Controller {
     }
 
     /**
-     * "PHP acceleration" — Zend OPcache. `opcache_get_status()` reports
+     * "PHP acceleration" - Zend OPcache. `opcache_get_status()` reports
      * whether the extension is actually running for *this* request;
      * `ini_get('opcache.enable')` is the separate php.ini toggle that
-     * controls whether it's allowed to at all — real, independent
+     * controls whether it's allowed to at all - real, independent
      * signals, not one value shown twice.
      *
      * @return array
@@ -343,7 +343,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
         }
 
         // Same list Basic\CacheDetectionScanner already maintains for its
-        // own (coarser, single-signal) check — duplicated here rather
+        // own (coarser, single-signal) check - duplicated here rather
         // than made a shared constant since the two live in different
         // classes with otherwise no shared base; if that list changes,
         // update it in both places.
@@ -368,7 +368,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
     /**
      * @param string $url URL to request.
      * @return array|null The raw `wp_remote_get()` response, or null on
-     *                     request failure — read with
+     *                     request failure - read with
      *                     `wp_remote_retrieve_header()` rather than cast
      *                     to an array, since the header bag WordPress
      *                     returns (`WpOrg\Requests\Utility\
@@ -398,7 +398,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
         $response = $this->probe( $url );
 
         if ( ! $response ) {
-            // Can't tell either way — same "don't flag on an
+            // Can't tell either way - same "don't flag on an
             // inconclusive request" posture CacheDetectionScanner
             // already takes for this exact case.
             return true;
@@ -415,7 +415,7 @@ class EfficiencyChecks extends \WP_REST_Controller {
     }
 
     /**
-     * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()` —
+     * Wraps `WP_Site_Health::should_suggest_persistent_object_cache()` -
      * core's own real thresholds (multisite, or option/comment/post/user
      * table row counts) for whether a persistent object cache is even
      * worth recommending on this specific site, same "wrap core, don't

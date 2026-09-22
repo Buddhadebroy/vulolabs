@@ -17,7 +17,7 @@ use VuloPilot\ValueObjects\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GEO-MODULE.md's fix for GeoTrustSignalsScanner's finding — the odd one
+ * GEO-MODULE.md's fix for GeoTrustSignalsScanner's finding - the odd one
  * out among every Geo* fix action: that scanner is site-wide (its Finding
  * has object_type 'url', not 'post'), and the fix is a page *creation*
  * (like GenerateBlogAction), not an edit to something that already exists.
@@ -27,12 +27,12 @@ defined( 'ABSPATH' ) || exit;
  * page types is actually missing.
  *
  * Unlike GenerateBlogAction's "always draft" rule, this publishes
- * immediately — a draft page does nothing for the scanner's own check
+ * immediately - a draft page does nothing for the scanner's own check
  * (`has_published_page_matching_slug()` requires `post_status = publish`),
  * and this action is only ever reachable through
  * VuloPilotPro\OneClickFix\FindingFixRest's already-deliberate
  * propose()-then-immediately-approve() exception (see that class's own
- * docblock) — never through the propose()-only Automation pathway.
+ * docblock) - never through the propose()-only Automation pathway.
  * rollback() trashes whatever it created, same safety net GenerateBlogAction
  * relies on.
  *
@@ -67,7 +67,7 @@ class CreateTrustPageAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::HIGH — `wp_insert_post()`s a brand-new page with `post_status => publish` — creates and immediately publishes new content outright.
+     * Impact::HIGH - `wp_insert_post()`s a brand-new page with `post_status => publish` - creates and immediately publishes new content outright.
      *
      * @inheritDoc
      */
@@ -90,7 +90,7 @@ class CreateTrustPageAction extends AbstractBasicAction {
         }
 
         if ( empty( $missing ) ) {
-            throw new InvalidActionInputException( __( 'This site already has both an About and a Contact page — there is nothing to fix.', 'vulopilot' ) );
+            throw new InvalidActionInputException( __( 'This site already has both an About and a Contact page - there is nothing to fix.', 'vulopilot' ) );
         }
 
         return array(
@@ -109,12 +109,12 @@ class CreateTrustPageAction extends AbstractBasicAction {
                 'role'    => 'system',
                 'content' => sprintf(
                     'You write short WordPress page content for a site\'s trust pages. For each of the following page '
-                        . 'types requested — %s — write a short (2-4 paragraph) page written from the site\'s own '
+                        . 'types requested - %s - write a short (2-4 paragraph) page written from the site\'s own '
                         . 'perspective. An "about" page introduces who runs the site and what it\'s for. A "contact" page '
                         . 'explains how a reader can get in touch, without inventing a specific email address, phone '
                         . 'number, or physical address (say the reader can use the site\'s contact form instead). Respond '
                         . 'with ONLY a raw JSON object like {"about": {"title": "...", "content": "..."}, "contact": '
-                        . '{"title": "...", "content": "..."}} — only include the keys that were requested, no markdown '
+                        . '{"title": "...", "content": "..."}} - only include the keys that were requested, no markdown '
                         . 'fences, no commentary.',
                     implode( ' and ', $input['missing_pages'] )
                 ),

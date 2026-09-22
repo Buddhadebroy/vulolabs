@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Shared homepage-asset-inspection helpers for CssOptimizationScanner and
- * JavaScriptOptimizationScanner — both need the exact same "fetch the
+ * JavaScriptOptimizationScanner - both need the exact same "fetch the
  * homepage, find same-host `<link>`/`<script>` tags, check for a known
  * minification plugin" logic, differing only in which HTML tag/attribute
  * they look for and their own finding copy. Factored out here rather than
@@ -27,7 +27,7 @@ abstract class AbstractAssetOptimizationScanner extends AbstractBasicScanner {
 
     /**
      * Main plugin files of well-known minification-capable plugins. Several
-     * overlap with CacheDetectionScanner's own caching-plugin list — those
+     * overlap with CacheDetectionScanner's own caching-plugin list - those
      * plugins bundle minification alongside caching.
      */
     private const KNOWN_MINIFIER_PLUGINS = array(
@@ -80,7 +80,7 @@ abstract class AbstractAssetOptimizationScanner extends AbstractBasicScanner {
 
     /**
      * Extracts same-host asset URLs matching a regex (one capture group for
-     * the URL) that don't already look minified (no `.min.` in the path) —
+     * the URL) that don't already look minified (no `.min.` in the path) -
      * a cheap filename heuristic rather than fetching every asset's own
      * bytes to check.
      *

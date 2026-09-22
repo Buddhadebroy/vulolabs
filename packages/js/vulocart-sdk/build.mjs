@@ -4,7 +4,7 @@ const watch = process.argv.includes( '--watch' );
 
 /** @type {esbuild.BuildOptions[]} */
 const configs = [
-	// `import "@vulocart/sdk"` — explicit `VuloCart.init()` call required,
+	// `import "@vulocart/sdk"` - explicit `VuloCart.init()` call required,
 	// standard library ergonomics (index.ts's own docblock).
 	{
 		entryPoints: [ 'src/index.ts' ],
@@ -25,7 +25,7 @@ const configs = [
 		target: 'es2020',
 		platform: 'node',
 	},
-	// `<script src="vulocart-sdk.js"></script>` — self-initializes and
+	// `<script src="vulocart-sdk.js"></script>` - self-initializes and
 	// attaches `window.VuloCart`, zero config (auto.ts's own docblock).
 	// No `globalName` needed: auto.ts itself assigns `window.VuloCart`, the
 	// IIFE's own return value is unused.
@@ -36,7 +36,7 @@ const configs = [
 		bundle: true,
 		minify: true,
 		sourcemap: true,
-		target: 'es2018', // Broader than the other two builds — this one runs on arbitrary third-party pages this codebase doesn't control the browser target for.
+		target: 'es2018', // Broader than the other two builds - this one runs on arbitrary third-party pages this codebase doesn't control the browser target for.
 	},
 ];
 

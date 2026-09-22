@@ -17,14 +17,14 @@ defined( 'ABSPATH' ) || exit;
  * `GET`/`POST /vulocart/v1/settings` backs src/pages/Settings/Settings.tsx,
  * built on zyra's real settings framework (`InputRenderer`/
  * `NavigatorComponent`, `getAvailableSettings`/`getSettingById` from
- * `@zyra/core`) — mirrors `VuloPilot\RestAPI\Controllers\Settings`'s
+ * `@zyra/core`) - mirrors `VuloPilot\RestAPI\Controllers\Settings`'s
  * flat-option shape (a single `wp_options` row, `Utill::SETTINGS_KEY`),
  * not a per-tab-namespaced `admin_settings` variant, since
  * VuloCart has exactly one settings tab so far.
  *
  * `update_item()` **merges** the `{ setting, settingName }` subset
  * `InputRenderer` actually auto-saves into the existing option rather
- * than replacing it wholesale — with only one tab today a wholesale
+ * than replacing it wholesale - with only one tab today a wholesale
  * replace would happen to be equivalent, but merging is what stays
  * correct the moment a second tab exists, and matches every sibling
  * Settings controller's own documented reasoning for doing the same.
@@ -97,7 +97,7 @@ class Settings extends \WP_REST_Controller {
 
         // Fall back to treating the whole body as the field set when no
         // `setting` wrapper is present (a direct API call rather than
-        // InputRenderer's own auto-save) — still merged, never a
+        // InputRenderer's own auto-save) - still merged, never a
         // wholesale replace either way.
         if ( ! is_array( $fields ) ) {
             $fields = $request->get_json_params();
@@ -129,12 +129,12 @@ class Settings extends \WP_REST_Controller {
      * Sanitizes one posted field value, array-aware.
      *
      * `type: 'checkbox', look: 'toggle'` fields (src/settings/*.ts) post an
-     * array (zyra's MultiCheckboxInput — the selected option's own value
+     * array (zyra's MultiCheckboxInput - the selected option's own value
      * when on, `[]` when off; Utill::SETTINGS_DEFAULTS' docblock explains
      * why this isn't a literal bool). Casting an array straight to string
      * (the previous, scalar-only version of this method) silently
      * corrupted every toggle field into the literal string `"Array"` on
-     * first save — caught live via a real save/reload round trip on the
+     * first save - caught live via a real save/reload round trip on the
      * Email/MCP tabs.
      *
      * @param mixed $value Raw posted value for one field.

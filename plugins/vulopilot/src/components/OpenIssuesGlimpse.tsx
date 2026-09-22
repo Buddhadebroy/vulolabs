@@ -16,14 +16,14 @@ interface OpenIssuesGlimpseProps {
 	/**
 	 * Finding category to fetch, e.g. 'geo'. Omit when the calling page's
 	 * scanners don't all share one category (AI Content's `thin-content` is
-	 * category 'seo' while `readability` is category 'content' — filtering
+	 * category 'seo' while `readability` is category 'content' - filtering
 	 * by category here would AND against `scannerIds` server-side and wrongly
 	 * exclude the 'seo'-category ones), and rely on `scannerIds` alone.
 	 */
 	category?: string;
 	/**
 	 * Further restricts the glimpse to a specific set of scanner ids within
-	 * `category` — same comma-joined shape FindingsTable's own `scannerIds`
+	 * `category` - same comma-joined shape FindingsTable's own `scannerIds`
 	 * prop uses. Omit to show every open finding in `category` (GEO's own
 	 * usage covers every GEO scanner; a narrower page like AEO scopes this
 	 * to just its own scanners so it doesn't glimpse unrelated GEO findings).
@@ -31,11 +31,11 @@ interface OpenIssuesGlimpseProps {
 	scannerIds?: string[];
 	/**
 	 * Which section card (below, on the calling page) each scanner's
-	 * findings live under — a glimpse row only has a scanner_id, not a
+	 * findings live under - a glimpse row only has a scanner_id, not a
 	 * section key, so the calling page supplies this lookup. Falls back to
 	 * `fallbackSection` for a scanner id this map hasn't been extended for.
 	 * Only meaningful for the default same-page scroll-and-highlight
-	 * behavior — omit all three (`sectionMap`/`fallbackSection`/
+	 * behavior - omit all three (`sectionMap`/`fallbackSection`/
 	 * `anchorPrefix`) when passing `onItemClick` instead.
 	 */
 	sectionMap?: Record<string, string>;
@@ -43,7 +43,7 @@ interface OpenIssuesGlimpseProps {
 	/** DOM id prefix each section card carries, e.g. 'geo-section-' → `#geo-section-{key}`. */
 	anchorPrefix?: string;
 	/**
-	 * Overrides the default same-page scroll-and-highlight entirely — e.g.
+	 * Overrides the default same-page scroll-and-highlight entirely - e.g.
 	 * the Overview tab's own glimpse card needs to switch to a different
 	 * tab first (its section anchors don't exist in Overview's own DOM),
 	 * which this component has no way to know how to do itself.
@@ -57,13 +57,13 @@ interface OpenIssuesGlimpseProps {
 	title?: string;
 	/** Rendered below the list, e.g. a "Fix Everything with AI" action. */
 	footer?: React.ReactNode;
-	/** Forwarded to the underlying `CardComponent` — e.g. `"ai-card"`, the class real AI-credit cards in this plugin carry (AiRecommendationsSidebar.tsx's "Recent AI Wins", CommerceTab.tsx's "Bulk AI optimization"). None of the current `OpenIssuesGlimpse` callers pass one — every real "Fix with AI" affordance on this glimpse is still a disabled stub (no bulk-fix backend yet, see AiOpportunitiesCard.tsx's own docblock) — kept as an optional slot for whichever caller earns it once one does. */
+	/** Forwarded to the underlying `CardComponent` - e.g. `"ai-card"`, the class real AI-credit cards in this plugin carry (AiRecommendationsSidebar.tsx's "Recent AI Wins", CommerceTab.tsx's "Bulk AI optimization"). None of the current `OpenIssuesGlimpse` callers pass one - every real "Fix with AI" affordance on this glimpse is still a disabled stub (no bulk-fix backend yet, see AiOpportunitiesCard.tsx's own docblock) - kept as an optional slot for whichever caller earns it once one does. */
 	className?: string;
 }
 
 /**
  * A short "what's open right now" preview above a findings-table page's own
- * full findings tables — the 5 most recent open findings, same fetch shape
+ * full findings tables - the 5 most recent open findings, same fetch shape
  * NeedsAttentionWidget's own "Open issues" tab already uses (most-recent-
  * first; no true worst-severity-first ordering exists on the live
  * `/findings` list endpoint today, only in Reports' own

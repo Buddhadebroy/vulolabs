@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags the site not being served over HTTPS at all, and — when it is —
+ * Flags the site not being served over HTTPS at all, and - when it is -
  * connects to the site's own host to read its live certificate and flags
  * an already-expired or soon-to-expire one. No existing scanner does any
  * TLS/certificate inspection; this is genuinely new ground for this
@@ -105,7 +105,7 @@ class SslMonitoringScanner extends AbstractBasicScanner {
         );
 
         // stream_socket_client() emits a PHP warning on connection failure
-        // in addition to returning false — the boolean return value below
+        // in addition to returning false - the boolean return value below
         // is already how this method detects and handles that failure, so
         // the warning itself is expected noise, not something masking a
         // real bug.

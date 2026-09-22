@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Persistence for vulopilot_crawler_visits (AI Crawler Traffic Monitoring,
  * readme.txt). `find_all()`/pagination is entirely inherited from
- * AbstractRepository — this only adds the aggregate reads the Crawler
+ * AbstractRepository - this only adds the aggregate reads the Crawler
  * Traffic page's summary section needs (bot counts, last-seen timestamps,
  * most-crawled pages, daily volume), the same "repository adds its own
  * query methods beyond the generic CRUD base" pattern
@@ -42,7 +42,7 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * Records one detected bot visit — no IP address, user id, or any
+     * Records one detected bot visit - no IP address, user id, or any
      * other visitor-identifying data is ever stored (readme.txt's FAQ:
      * "It does not track human visitors, IP addresses, or personal data.").
      *
@@ -50,7 +50,7 @@ class CrawlerVisitRepository extends AbstractRepository {
      * @param string $user_agent    The raw User-Agent header that matched.
      * @param string $requested_url The requested path.
      * @param bool   $is_404        Whether WordPress resolved this exact request to a 404 (`is_404()` at
-     *                              `template_redirect` time, the same hook this is logged from) — AI Crawler
+     *                              `template_redirect` time, the same hook this is logged from) - AI Crawler
      *                              Alerts' "access limited" check reads this back via get_404_rate_for_bot().
      * @return int Inserted row id.
      */
@@ -66,7 +66,7 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * Visit counts per bot — backs the Crawler Traffic page's filter-pill
+     * Visit counts per bot - backs the Crawler Traffic page's filter-pill
      * bar, same "reuse count_by_column()" pattern
      * ActivityLogRepository::get_actor_type_counts() already uses.
      *
@@ -77,7 +77,7 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * Most recent visit timestamp per bot — readme.txt's "Last-Seen
+     * Most recent visit timestamp per bot - readme.txt's "Last-Seen
      * Timestamps." Still backs `GET /crawler-traffic/summary`, and
      * `get_period_comparison()` above also folds this same real value into
      * each of its own `top_crawlers` rows (that table's own "Last seen"
@@ -97,7 +97,7 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * Most-requested URLs across every bot — readme.txt's "Most-Crawled
+     * Most-requested URLs across every bot - readme.txt's "Most-Crawled
      * Pages."
      *
      * @param int $limit Max rows to return.
@@ -119,7 +119,7 @@ class CrawlerVisitRepository extends AbstractRepository {
 
     /**
      * Visit counts per calendar day over a trailing window, zero-filled for
-     * days with no visits — readme.txt's "Crawl Volume Trend Over Time."
+     * days with no visits - readme.txt's "Crawl Volume Trend Over Time."
      * Zero-filling follows the same care FindingRepository::get_status_counts()
      * already takes, so a trend chart never shows a misleading gap.
      *
@@ -158,7 +158,7 @@ class CrawlerVisitRepository extends AbstractRepository {
 
     /**
      * Per-bot visit counts per calendar day over a trailing window, zero-
-     * filled the same way get_daily_volume() already is — backs
+     * filled the same way get_daily_volume() already is - backs
      * vulopilot-pro's "Historical Crawl Trends" (AI-CRAWLER-ANALYTICS-MODULE.md),
      * which needs a per-bot breakdown get_daily_volume() itself doesn't
      * return. Lives here (Free's own repository) rather than in Pro, same
@@ -204,7 +204,7 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * Aggregate stats for a fixed date range — backs vulopilot-pro's "Crawl
+     * Aggregate stats for a fixed date range - backs vulopilot-pro's "Crawl
      * Reports" (Reports\Types\CrawlReport there), same "generate() only
      * ever reads plain SQL, never calls out to anything" rule
      * AiVisibilityReport's own docblock documents, applied to crawler-visit
@@ -256,12 +256,12 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * Current-vs-previous-period comparison — backs the Crawler Traffic
+     * Current-vs-previous-period comparison - backs the Crawler Traffic
      * tab's own restyled "at a glance" stat row (total requests, unique
-     * crawlers, blocked-pages count lives in the finding table instead —
+     * crawlers, blocked-pages count lives in the finding table instead -
      * see CrawlerTraffic.php's own `get_analytics()`), "Top Crawlers"
      * table, and "Most-Crawled Pages" table, each with a real %-change
-     * figure against the immediately preceding period of equal length —
+     * figure against the immediately preceding period of equal length -
      * same real-comparison shape `get_stats_for_period()` already provides
      * for one period, computed twice here (current window, then the window
      * immediately before it) so every number on screen is a real count, not
@@ -290,7 +290,7 @@ class CrawlerVisitRepository extends AbstractRepository {
         $previous = $this->get_stats_for_period( $previous_start, $previous_end );
 
         // Same real `MAX(created_at)` per bot get_bot_last_seen() already
-        // computes for the summary endpoint's own "Last seen" tiles — reused
+        // computes for the summary endpoint's own "Last seen" tiles - reused
         // here (not a second query shape) so Top Crawlers' own "Last seen"
         // column (direct instruction: "merge top crawlers and last seen
         // section add a column in top crawlers last seen") is the exact same
@@ -348,11 +348,11 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * 404 rate for one bot's most recent visits — AI Crawler Alerts'
+     * 404 rate for one bot's most recent visits - AI Crawler Alerts'
      * "access limited" check. Scoped to the last $recent_n visits (not a
      * time window) so a bot that visits rarely doesn't get judged on a
      * single stale hit from weeks ago, and returns null (not 0) when there
-     * aren't yet $min_sample visits to judge from — same "don't flag on
+     * aren't yet $min_sample visits to judge from - same "don't flag on
      * too little data" restraint CrawlerAlertMonitor::calculate_volume_drop_percent()
      * already applies (requires 8 full days before computing a drop %).
      *
@@ -388,7 +388,7 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * Every bot name that has ever logged at least one visit — AI Crawler
+     * Every bot name that has ever logged at least one visit - AI Crawler
      * Alerts' "new crawler detected" check diffs this against a stored
      * "already known" list (CrawlerAlertMonitor::find_newly_detected_bots())
      * rather than a time-windowed query, since a bot's very first visit
@@ -405,7 +405,7 @@ class CrawlerVisitRepository extends AbstractRepository {
     }
 
     /**
-     * Deletes rows older than $days — the retention/cleanup half of
+     * Deletes rows older than $days - the retention/cleanup half of
      * readme.txt's Pro "Historical Logs" line (Services\CrawlerTrafficLogger's
      * daily cron calls this with `apply_filters('vulopilot_crawler_log_retention_days', 30)`).
      *

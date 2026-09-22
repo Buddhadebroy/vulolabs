@@ -6,7 +6,7 @@ export interface CrawlerRow {
 	bot_name: string;
 	total: number;
 	previous_total: number;
-	/** Real `MAX(created_at)` for this bot (CrawlerVisitRepository::get_bot_last_seen(), merged into this same row server-side) — null if this bot has never actually visited (only ever appears when it has a real previous-period count but none in the current window). */
+	/** Real `MAX(created_at)` for this bot (CrawlerVisitRepository::get_bot_last_seen(), merged into this same row server-side) - null if this bot has never actually visited (only ever appears when it has a real previous-period count but none in the current window). */
 	last_seen_at: string | null;
 }
 
@@ -26,14 +26,14 @@ export interface CrawlerAnalytics {
 	by_vendor: Record<string, number>;
 	blocked_pages_total: number;
 	daily_volume: { date: string; total: number }[];
-	/** Real weighted-severity score (0-100, CrawlerTraffic.php's own `calculate_score()`) over the same 4 real scanner ids the Crawl Health Checklist below already groups into — meaningful only while the SEO module is active, same gate the checklist itself already requires. */
+	/** Real weighted-severity score (0-100, CrawlerTraffic.php's own `calculate_score()`) over the same 4 real scanner ids the Crawl Health Checklist below already groups into - meaningful only while the SEO module is active, same gate the checklist itself already requires. */
 	crawl_health_score: number;
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
- * Shared `GET /crawler-traffic/analytics` fetch — real current-vs-previous
+ * Shared `GET /crawler-traffic/analytics` fetch - real current-vs-previous
  * period comparison (CrawlerTraffic.php's own `get_analytics()`), reused by
  * every restyled Crawler Traffic tab card (stat row, trend chart, vendor
  * breakdown, Top Crawlers, Most Crawled Pages) so the tab makes one real

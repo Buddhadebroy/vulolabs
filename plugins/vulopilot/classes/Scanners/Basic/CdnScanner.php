@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags a site with no detectable CDN/asset-offloading — checks whether
+ * Flags a site with no detectable CDN/asset-offloading - checks whether
  * any same-page asset (`<link href>`/`<script src>`/`<img src>`) resolves
  * to a host other than the site's own (a real signal that assets are
  * already being served from a CDN or offload service), and falls back to
@@ -103,7 +103,7 @@ class CdnScanner extends AbstractBasicScanner {
         );
 
         if ( is_wp_error( $response ) ) {
-            // Can't tell either way — don't flag on an inconclusive request.
+            // Can't tell either way - don't flag on an inconclusive request.
             return true;
         }
 

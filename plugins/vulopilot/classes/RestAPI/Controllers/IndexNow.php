@@ -16,11 +16,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Backs the Instant Indexing tab's two action-driven cards that don't fit
  * Controllers\Settings' per-field auto-save model (Settings.tsx's own
- * "special component" escape hatch — see that class's docblock): the
+ * "special component" escape hatch - see that class's docblock): the
  * "Submit URLs" textarea/button (`POST /indexnow/submit`) and the
  * "History" table (`GET /indexnow/history`). The "auto-submit post types"/
  * "API key" fields still round-trip through the normal `/settings` GET/POST
- * endpoint like every other setting — only the parts of this tab that are
+ * endpoint like every other setting - only the parts of this tab that are
  * genuinely actions (not persisted fields) live here.
  *
  * @class       IndexNow controller
@@ -64,7 +64,7 @@ class IndexNow extends \WP_REST_Controller {
     }
 
     /**
-     * Shared permission check for both routes in this controller — same
+     * Shared permission check for both routes in this controller - same
      * `manage_options` gate every other VuloPilot settings-adjacent
      * controller uses.
      *
@@ -76,7 +76,7 @@ class IndexNow extends \WP_REST_Controller {
     }
 
     /**
-     * Manually submits one or more URLs — the mockup's own "Submit URLs"
+     * Manually submits one or more URLs - the mockup's own "Submit URLs"
      * textarea/button. Each URL is logged and reported individually so the
      * UI can render per-URL results the same instant, without a second
      * `/history` fetch.
@@ -97,7 +97,7 @@ class IndexNow extends \WP_REST_Controller {
         $api_key  = (string) ( $settings['indexnow_api_key'] ?? '' );
 
         if ( '' === $api_key ) {
-            return new \WP_Error( 'vulopilot_no_key', __( 'No IndexNow API key yet — reload the Instant Indexing tab once to generate one.', 'vulopilot' ), array( 'status' => 400 ) );
+            return new \WP_Error( 'vulopilot_no_key', __( 'No IndexNow API key yet - reload the Instant Indexing tab once to generate one.', 'vulopilot' ), array( 'status' => 400 ) );
         }
 
         $client     = new IndexNowClient( $api_key );
@@ -106,7 +106,7 @@ class IndexNow extends \WP_REST_Controller {
 
         // IndexNow's own protocol accepts a batch in one request, but this
         // codebase logs per-URL rows (History is a per-URL list, matching
-        // the mockup's own per-row table) — one client call per URL keeps
+        // the mockup's own per-row table) - one client call per URL keeps
         // each row's own real, individual response code, rather than one
         // batch response applied identically to every URL regardless of
         // which of them actually succeeded.

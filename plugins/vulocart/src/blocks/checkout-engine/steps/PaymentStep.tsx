@@ -41,7 +41,7 @@ function PaymentStepView( props: Props ) {
 	}, [] );
 
 	// A gateway with its own storefront widget (vulocart-pro's Stripe/
-	// PayPal/Razorpay) registers a renderer keyed by its method id — once
+	// PayPal/Razorpay) registers a renderer keyed by its method id - once
 	// picked, that widget takes over confirming payment, in place of this
 	// step's own generic "Continue" button. Switching away from that
 	// method clears any half-confirmed intent from a previous selection.

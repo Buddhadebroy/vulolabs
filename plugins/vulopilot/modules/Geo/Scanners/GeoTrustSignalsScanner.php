@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * A sitewide (not per-post) check: does this site have a published page
  * whose slug identifies it as an About or Contact page. AI answer
  * engines and human readers alike use "who is behind this site" pages as
- * a baseline trust signal before treating a site as citable — their
+ * a baseline trust signal before treating a site as citable - their
  * complete absence is a real, checkable gap distinct from
  * GeoEeatSignalsScanner's per-post authorship/freshness check.
  *
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
 class GeoTrustSignalsScanner extends AbstractBasicScanner {
 
     /**
-     * Common slugs for these two page types — a real, bounded check
+     * Common slugs for these two page types - a real, bounded check
      * against the conventional naming almost every site uses, not a
      * content-based guess.
      */

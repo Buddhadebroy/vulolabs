@@ -18,19 +18,19 @@ defined( 'ABSPATH' ) || exit;
  * access token this class never keeps around itself).
  *
  * Same `wp_remote_post()` + "completed round trip vs genuine network
- * failure" split as License\LicenseApiClient.php (vulopilot-pro) — ported
+ * failure" split as License\LicenseApiClient.php (vulopilot-pro) - ported
  * here rather than reused directly since that class lives in a different
  * plugin's own namespace and this feature has nothing to do with a
  * license (see this plugin's own config.php docblock on
  * VULOPILOT_VULOCLOUD_URL for why this is a separate constant/client).
  *
  * Also implements `/auth/register`, `/auth/refresh`, `GET /auth/organizations`,
- * and `POST /organizations` — added for AI Credits (Services\AiCreditsConnection),
+ * and `POST /organizations` - added for AI Credits (Services\AiCreditsConnection),
  * the first real caller that needs to actually act on VuloCloud with the
  * stored token rather than just proving login succeeded. `/auth/refresh`
  * specifically closes the gap this class's docblock used to flag ("nothing
  * downstream actually calls VuloCloud with the stored access token today")
- * — a real access token is short-lived (VuloCloud's own default: 15
+ * - a real access token is short-lived (VuloCloud's own default: 15
  * minutes), so anything that wants to make an authenticated call later
  * needs a way to mint a fresh one from the stored refresh token.
  *
@@ -48,7 +48,7 @@ class VuloCloudAccountApiClient {
     }
 
     /**
-     * `POST /auth/login` — `email`/`password` required, `twoFactorCode`
+     * `POST /auth/login` - `email`/`password` required, `twoFactorCode`
      * only sent at all when non-empty (an empty string in the body would
      * still be a defined property, and the account might not even have
      * 2FA enabled).
@@ -58,10 +58,10 @@ class VuloCloudAccountApiClient {
      * @param string $two_factor_code
      * @return array|\WP_Error {
      *   On any completed HTTP round trip (2xx OR a business 4xx, e.g.
-     *   INVALID_CREDENTIALS/TWO_FACTOR_REQUIRED/ACCOUNT_LOCKED — see
+     *   INVALID_CREDENTIALS/TWO_FACTOR_REQUIRED/ACCOUNT_LOCKED - see
      *   identity.errors.ts in the vulocloud repo): array{ http_status: int, body: array }
      *   On a genuine network/connectivity failure, or a non-JSON
-     *   response: WP_Error — same split LicenseApiClient::validate()
+     *   response: WP_Error - same split LicenseApiClient::validate()
      *   already documents, for the same reason.
      * }
      */
@@ -79,10 +79,10 @@ class VuloCloudAccountApiClient {
     }
 
     /**
-     * `POST /auth/register` — creates a bare VuloCloud User with no
+     * `POST /auth/register` - creates a bare VuloCloud User with no
      * Organization membership yet (confirmed live against the real
      * vulocloud dev API: the response is just a safe user view, no
-     * tokens) — the caller must still call `login()` afterward to get a
+     * tokens) - the caller must still call `login()` afterward to get a
      * real access/refresh token pair.
      *
      * @param string $email
@@ -94,7 +94,7 @@ class VuloCloudAccountApiClient {
     }
 
     /**
-     * `POST /auth/refresh` — mints a fresh access/refresh token pair from
+     * `POST /auth/refresh` - mints a fresh access/refresh token pair from
      * a stored refresh token, no Authorization header required (`@Public()`
      * on the vulocloud side). VuloCloud rotates the refresh token on every
      * call, so the caller must persist the NEW `refreshToken` this returns,
@@ -108,10 +108,10 @@ class VuloCloudAccountApiClient {
     }
 
     /**
-     * `GET /auth/organizations` — every Organization the authenticated
+     * `GET /auth/organizations` - every Organization the authenticated
      * user is a member of. Implemented as a POST-shaped `request()` call
      * with no body since this class's own `request()` helper is
-     * POST-only (matches every other call site here) — the vulocloud
+     * POST-only (matches every other call site here) - the vulocloud
      * route itself only accepts GET, so this uses wp_remote_get() directly
      * rather than forcing `request()` to support a second HTTP verb for
      * this one caller.
@@ -132,7 +132,7 @@ class VuloCloudAccountApiClient {
     }
 
     /**
-     * `POST /organizations` — self-service Organization creation
+     * `POST /organizations` - self-service Organization creation
      * (confirmed live: any authenticated user can create one and becomes
      * its OWNER in the same call). Used by AiCreditsConnection to give a
      * brand-new VuloCloud user somewhere for their AI credit wallet to
@@ -147,7 +147,7 @@ class VuloCloudAccountApiClient {
     }
 
     /**
-     * Best-effort — VuloCloudAccountConnection::disconnect() clears the
+     * Best-effort - VuloCloudAccountConnection::disconnect() clears the
      * local connection either way, so a failure here (expired token,
      * network error, VuloCloud already invalidated the session) never
      * blocks disconnecting on this site's own side.
@@ -186,7 +186,7 @@ class VuloCloudAccountApiClient {
     }
 
     /**
-     * Shared "completed round trip vs genuine network failure" decoding —
+     * Shared "completed round trip vs genuine network failure" decoding -
      * extracted out of request() so list_organizations()'s own
      * wp_remote_get() call (the one GET in this otherwise POST-only
      * client) doesn't have to duplicate it.

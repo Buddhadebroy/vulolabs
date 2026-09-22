@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Cart module CartRepositoryInterface.
  *
- * The contract Application\CartService depends on — bound to a concrete
+ * The contract Application\CartService depends on - bound to a concrete
  * implementation only in Module::init_classes() (via VuloCart's own
  * ServiceContainer), same seam VuloCart\Domain\Offering\OfferingRepositoryInterface
  * already establishes for the storage-engine-is-replaceable principle.
@@ -40,7 +40,7 @@ interface CartRepositoryInterface {
     public function insert( Cart $cart ): Cart;
 
     /**
-     * Finds the line item for a given offering already in a cart, if any —
+     * Finds the line item for a given offering already in a cart, if any -
      * lets Application\CartService increment quantity instead of inserting
      * a duplicate row for the same offering.
      *
@@ -76,7 +76,7 @@ interface CartRepositoryInterface {
     public function delete_item( int $cart_id, int $item_id ): bool;
 
     /**
-     * Deletes every line item from a cart — used by "clear cart".
+     * Deletes every line item from a cart - used by "clear cart".
      *
      * @param int $cart_id Owning cart id.
      * @return void
@@ -84,7 +84,7 @@ interface CartRepositoryInterface {
     public function delete_items( int $cart_id ): void;
 
     /**
-     * Bumps a cart's `updated_at` — called after any item mutation so a
+     * Bumps a cart's `updated_at` - called after any item mutation so a
      * cart's own timestamp reflects its contents changing, without every
      * caller needing to re-fetch and re-save the whole Cart entity just to
      * touch one column.
@@ -96,11 +96,11 @@ interface CartRepositoryInterface {
 
     /**
      * Deletes carts (and their items) whose `updated_at` is older than
-     * $days — backs the Settings screen's `cart_expiry_days`
+     * $days - backs the Settings screen's `cart_expiry_days`
      * (Application\CartCleanupScheduler). Batched (a bounded `LIMIT` per
      * call, looped until nothing more matches) rather than one unbounded
      * `DELETE`, per performance.md's migration/backfill batching guidance
-     * — a store with a very large abandoned-cart backlog shouldn't be
+     * - a store with a very large abandoned-cart backlog shouldn't be
      * able to time out a single cron run.
      *
      * @param int $days Age threshold, in days.

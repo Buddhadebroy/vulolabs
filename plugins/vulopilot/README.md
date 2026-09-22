@@ -13,13 +13,13 @@
 
 ## Description ##
 
-**VuloPilot is the AI Website Operations Platform for WordPress** — one intelligent dashboard that continuously monitors, audits, and improves every layer of your site, instead of asking you to run and configure five separate tools.
+**VuloPilot is the AI Website Operations Platform for WordPress** - one intelligent dashboard that continuously monitors, audits, and improves every layer of your site, instead of asking you to run and configure five separate tools.
 
-Most WordPress site owners end up assembling their own patchwork: an SEO plugin, a performance plugin, an accessibility checker, a separate maintenance/monitoring service, and a standalone AI writing tool — each with its own dashboard and no shared view of how the site is doing. VuloPilot replaces that patchwork with a single platform built around one idea: **Website Optimization** is one ongoing discipline, not five unrelated jobs. SEO, Site Health, Performance, Accessibility, WooCommerce, and AI Visibility are all scanned, scored, and tracked from the same dashboard.
+Most WordPress site owners end up assembling their own patchwork: an SEO plugin, a performance plugin, an accessibility checker, a separate maintenance/monitoring service, and a standalone AI writing tool - each with its own dashboard and no shared view of how the site is doing. VuloPilot replaces that patchwork with a single platform built around one idea: **Website Optimization** is one ongoing discipline, not five unrelated jobs. SEO, Site Health, Performance, Accessibility, WooCommerce, and AI Visibility are all scanned, scored, and tracked from the same dashboard.
 
 VuloPilot is built for business websites, WooCommerce stores, blogs, membership sites, LMS platforms, agencies, and developers who want real **Website Monitoring** and **Website Maintenance** without stitching it together by hand. It runs full **SEO Optimization** and **WordPress Optimization** scans, **Performance Optimization** checks aligned to **Core Web Vitals**, a full **Accessibility** audit, and a live **Site Health** score that tracks updates, broken links, and database health over time.
 
-What sets VuloPilot apart is that it doesn't stop at Google. As AI assistants like ChatGPT, Claude, Gemini, and Perplexity increasingly answer questions directly instead of linking out, VuloPilot also scores your **AI Visibility** — how discoverable, understandable, and citable your content is for **AI Search** — so your website is optimized for how people find information today, not just how they found it five years ago.
+What sets VuloPilot apart is that it doesn't stop at Google. As AI assistants like ChatGPT, Claude, Gemini, and Perplexity increasingly answer questions directly instead of linking out, VuloPilot also scores your **AI Visibility** - how discoverable, understandable, and citable your content is for **AI Search** - so your website is optimized for how people find information today, not just how they found it five years ago.
 
 ### Why VuloPilot?
 
@@ -42,17 +42,17 @@ What sets VuloPilot apart is that it doesn't stop at Google. As AI assistants li
 
 ## Why Choose VuloPilot?
 
-Every category above is normally its own plugin — meaning its own settings screen, its own update schedule, its own performance overhead, and its own version-compatibility risk to manage over time.
+Every category above is normally its own plugin - meaning its own settings screen, its own update schedule, its own performance overhead, and its own version-compatibility risk to manage over time.
 
 With VuloPilot, you get one intelligent platform instead:
 
 * **One dashboard** instead of switching between an SEO plugin, a performance plugin, an accessibility checker, a monitoring service, and a separate AI writing tool.
-* **One scoring system** — Website Health, SEO, Performance, Accessibility, WooCommerce, and AI Visibility are all measured the same way, so you can see at a glance what actually needs attention.
+* **One scoring system** - Website Health, SEO, Performance, Accessibility, WooCommerce, and AI Visibility are all measured the same way, so you can see at a glance what actually needs attention.
 * **One set of updates** to keep current, instead of five-plus plugins that can quietly conflict with each other.
-* **One connected view** of how a change in one area affects another — for example, optimizing images improves Performance and Accessibility at the same time.
+* **One connected view** of how a change in one area affects another - for example, optimizing images improves Performance and Accessibility at the same time.
 * **Built-in AI**, using your own API key, instead of paying for a separate AI content subscription.
 
-The result is a lighter, more coherent WordPress Dashboard — and a website that's genuinely easier to keep healthy, because everything that affects it lives in one place.
+The result is a lighter, more coherent WordPress Dashboard - and a website that's genuinely easier to keep healthy, because everything that affects it lives in one place.
 
 ---
 
@@ -60,14 +60,14 @@ The result is a lighter, more coherent WordPress Dashboard — and a website tha
 
 VuloPilot is designed to reduce plugin bloat, not add to it. It combines the functionality commonly split across:
 
-* **SEO Plugins** — titles, meta descriptions, schema markup, sitemaps, and on-page SEO Audit
-* **Website Audit Plugins** — Technical SEO audit and full-site health checks
-* **Performance Plugins** — Page Speed, Core Web Vitals, and Performance Monitor checks
-* **Accessibility Plugins** — WCAG-aligned Accessibility Audit and recommendations
-* **Maintenance Plugins** — update monitoring, broken link detection, and Database Optimization insight
-* **AI Plugins** — AI-generated content, recommendations, and optimization suggestions
-* **Monitoring Plugins** — Website Analytics, activity logs, and AI crawler traffic monitoring
-* **WooCommerce Optimization Plugins** — Product SEO, inventory health, and Store Performance
+* **SEO Plugins** - titles, meta descriptions, schema markup, sitemaps, and on-page SEO Audit
+* **Website Audit Plugins** - Technical SEO audit and full-site health checks
+* **Performance Plugins** - Page Speed, Core Web Vitals, and Performance Monitor checks
+* **Accessibility Plugins** - WCAG-aligned Accessibility Audit and recommendations
+* **Maintenance Plugins** - update monitoring, broken link detection, and Database Optimization insight
+* **AI Plugins** - AI-generated content, recommendations, and optimization suggestions
+* **Monitoring Plugins** - Website Analytics, activity logs, and AI crawler traffic monitoring
+* **WooCommerce Optimization Plugins** - Product SEO, inventory health, and Store Performance
 
 Instead of eight separate tools competing for server resources and admin-menu space, VuloPilot gives you one platform doing all eight jobs, from one codebase, with one shared understanding of your site.
 
@@ -121,7 +121,7 @@ Analyze and improve:
 
 ## AI Visibility & AEO/GEO Optimization
 
-Traditional SEO plugins stop at search engines. VuloPilot also scores how well AI assistants can find, understand, and cite your content — Content Optimization for the disciplines known as Answer Engine Optimization (AEO) and Generative Engine Optimization (GEO), the foundation of AI Search visibility.
+Traditional SEO plugins stop at search engines. VuloPilot also scores how well AI assistants can find, understand, and cite your content - Content Optimization for the disciplines known as Answer Engine Optimization (AEO) and Generative Engine Optimization (GEO), the foundation of AI Search visibility.
 
 Score and improve:
 
@@ -177,7 +177,7 @@ Monitor:
 
 ## AI SEO Assistant
 
-VuloPilot works fully without AI — every scan, score, and report above runs on deterministic checks. When you're ready for extra help, connect an AI provider to generate recommendations for **Content Optimization** and **AI SEO** — using your own API key, never a shared or metered one.
+VuloPilot works fully without AI - every scan, score, and report above runs on deterministic checks. When you're ready for extra help, connect an AI provider to generate recommendations for **Content Optimization** and **AI SEO** - using your own API key, never a shared or metered one.
 
 Supports:
 
@@ -200,7 +200,7 @@ Compatible with:
 * Ollama
 * Groq
 
-Bring your own API key (BYOK) — no VuloPilot subscription or token metering required, even on the free version.
+Bring your own API key (BYOK) - no VuloPilot subscription or token metering required, even on the free version.
 
 ---
 
@@ -215,14 +215,14 @@ Detect:
 * Heavy Plugins
 * Cache Issues
 * Database Bloat
-* Core Web Vitals Opportunities — Largest Contentful Paint (LCP), Cumulative Layout Shift (CLS), and Interaction to Next Paint (INP)
+* Core Web Vitals Opportunities - Largest Contentful Paint (LCP), Cumulative Layout Shift (CLS), and Interaction to Next Paint (INP)
 * Performance Bottlenecks
 
 ---
 
 ## Accessibility Scanner
 
-Run an ongoing **Accessibility Audit** aligned to **WCAG** guidelines, so your site works better for **Screen Readers** and every visitor — not just search engines.
+Run an ongoing **Accessibility Audit** aligned to **WCAG** guidelines, so your site works better for **Screen Readers** and every visitor - not just search engines.
 
 Checks include:
 
@@ -255,7 +255,7 @@ Analyze:
 
 ## AI Content Assistant
 
-Create better content with AI — every item below is generated on request through your own connected AI provider; nothing is generated or published automatically without your review.
+Create better content with AI - every item below is generated on request through your own connected AI provider; nothing is generated or published automatically without your review.
 
 Generate:
 
@@ -333,7 +333,7 @@ VuloPilot is built to work alongside the page builders, themes, and plugins you 
 * Polylang
 * Multisite
 
-Whatever you've built your site with, VuloPilot scans the rendered page — so its SEO, Performance, Accessibility, and AI Visibility checks reflect what your visitors and AI crawlers actually see.
+Whatever you've built your site with, VuloPilot scans the rendered page - so its SEO, Performance, Accessibility, and AI Visibility checks reflect what your visitors and AI crawlers actually see.
 
 ---
 
@@ -347,11 +347,11 @@ Everything described above is available in the free version, no credit card requ
 * Website Performance monitoring
 * Accessibility Scanner (WCAG-aligned)
 * WooCommerce Optimization
-* AI Content Assistant and AI SEO Assistant — bring your own API key (BYOK), no subscription required
+* AI Content Assistant and AI SEO Assistant - bring your own API key (BYOK), no subscription required
 * Reports & Activity Timeline
 * Modern, React-powered WordPress Dashboard
 
-VuloPilot's free version is a complete website optimization platform on its own — Pro adds automation, historical depth, and agency-scale features on top of it.
+VuloPilot's free version is a complete website optimization platform on its own - Pro adds automation, historical depth, and agency-scale features on top of it.
 
 ---
 
@@ -359,22 +359,22 @@ VuloPilot's free version is a complete website optimization platform on its own 
 
 VuloPilot Pro turns the free version's insights into automation, and adds the depth larger sites and agencies need:
 
-* **One-Click AI Fixes** — approve a recommendation and let VuloPilot apply the fix directly, instead of making every change by hand.
-* **AI Automation Workflows & Scheduled Website Scans** — set trigger-based automations and recurring scans, so your site keeps improving without you opening the dashboard every day.
-* **Advanced SEO Optimization & GEO Optimization** — deeper technical SEO checks and stronger AI Visibility scoring for competitive niches.
-* **Brand Visibility & Share of Voice Tracking (Ahrefs-powered)** — see how often your brand is mentioned and cited across the web, the off-site signal research shows matters most for AI citations.
-* **AI Crawler Traffic Analytics & Historical Logs** — go beyond live traffic to trend and historical AI crawler analytics.
-* **WooCommerce AI & AI Product Optimization** — AI-generated product content and optimization at full catalog scale.
-* **AI Blog Generation & Bulk AI Optimization** — generate and optimize content across many pages or products at once, instead of one at a time.
-* **Security Monitoring** — additional security checks on top of the free version's SSL and update monitoring.
-* **Historical Reports** — trend data over time, not just a point-in-time snapshot.
-* **Email Notifications** — get alerted the moment something needs attention, instead of checking the dashboard yourself.
+* **One-Click AI Fixes** - approve a recommendation and let VuloPilot apply the fix directly, instead of making every change by hand.
+* **AI Automation Workflows & Scheduled Website Scans** - set trigger-based automations and recurring scans, so your site keeps improving without you opening the dashboard every day.
+* **Advanced SEO Optimization & GEO Optimization** - deeper technical SEO checks and stronger AI Visibility scoring for competitive niches.
+* **Brand Visibility & Share of Voice Tracking (Ahrefs-powered)** - see how often your brand is mentioned and cited across the web, the off-site signal research shows matters most for AI citations.
+* **AI Crawler Traffic Analytics & Historical Logs** - go beyond live traffic to trend and historical AI crawler analytics.
+* **WooCommerce AI & AI Product Optimization** - AI-generated product content and optimization at full catalog scale.
+* **AI Blog Generation & Bulk AI Optimization** - generate and optimize content across many pages or products at once, instead of one at a time.
+* **Security Monitoring** - additional security checks on top of the free version's SSL and update monitoring.
+* **Historical Reports** - trend data over time, not just a point-in-time snapshot.
+* **Email Notifications** - get alerted the moment something needs attention, instead of checking the dashboard yourself.
 
-Pro is built for agencies and larger sites that need automation and historical depth — the free version remains a fully capable website optimization platform without it.
+Pro is built for agencies and larger sites that need automation and historical depth - the free version remains a fully capable website optimization platform without it.
 
 ---
 
-Most WordPress sites don't have an SEO problem, or a performance problem, or an accessibility problem — they have all of them, quietly, at the same time, spread across plugins that don't talk to each other. VuloPilot brings SEO, Site Health, Performance, Accessibility, WooCommerce, and AI Visibility into one intelligent platform, so you can manage, optimize, and grow your WordPress website from a single dashboard — instead of five.
+Most WordPress sites don't have an SEO problem, or a performance problem, or an accessibility problem - they have all of them, quietly, at the same time, spread across plugins that don't talk to each other. VuloPilot brings SEO, Site Health, Performance, Accessibility, WooCommerce, and AI Visibility into one intelligent platform, so you can manage, optimize, and grow your WordPress website from a single dashboard - instead of five.
 
 ## Installation ##
 
@@ -389,11 +389,11 @@ Most WordPress sites don't have an SEO problem, or a performance problem, or an 
 
 ### Does VuloPilot replace my SEO plugin? ###
 
-For most sites, yes. VuloPilot includes a full SEO Optimization suite — titles, meta descriptions, schema markup, sitemaps, robots.txt, and internal linking — so it can run as your only SEO plugin. If you already have a heavily customized SEO setup, VuloPilot's Website Health, Performance, Accessibility, and AI Visibility scoring still add real value running alongside it.
+For most sites, yes. VuloPilot includes a full SEO Optimization suite - titles, meta descriptions, schema markup, sitemaps, robots.txt, and internal linking - so it can run as your only SEO plugin. If you already have a heavily customized SEO setup, VuloPilot's Website Health, Performance, Accessibility, and AI Visibility scoring still add real value running alongside it.
 
 ### Can it improve Google rankings? ###
 
-VuloPilot identifies and helps you fix the technical and content-level issues search engines evaluate — page titles, meta descriptions, structured data, internal linking, thin and duplicate content, broken links, and Core Web Vitals-related performance issues. Like any SEO tool, it can't guarantee a specific ranking, but it directly targets the factors that influence one.
+VuloPilot identifies and helps you fix the technical and content-level issues search engines evaluate - page titles, meta descriptions, structured data, internal linking, thin and duplicate content, broken links, and Core Web Vitals-related performance issues. Like any SEO tool, it can't guarantee a specific ranking, but it directly targets the factors that influence one.
 
 ### Does VuloPilot require AI? ###
 
@@ -401,15 +401,15 @@ No.
 
 Website scanning, SEO analysis, performance monitoring, accessibility checks, maintenance tools, and reports all work fully without AI.
 
-AI is used only for advanced recommendations, AI Visibility scoring assistance, and content generation — as an enhancement, never a requirement.
+AI is used only for advanced recommendations, AI Visibility scoring assistance, and content generation - as an enhancement, never a requirement.
 
 ### Does it work without AI? ###
 
-Yes. Every scanning, monitoring, and reporting feature described above works fully without connecting an AI provider. AI is purely additive — used only when you choose to enable it, for recommendations, content generation, and automation.
+Yes. Every scanning, monitoring, and reporting feature described above works fully without connecting an AI provider. AI is purely additive - used only when you choose to enable it, for recommendations, content generation, and automation.
 
 ### Does it support AI Search Optimization? ###
 
-Yes. VuloPilot's AI Visibility (AEO/GEO) scoring is built specifically for AI Search Optimization — how well ChatGPT, Claude, Gemini, and Perplexity can find, understand, and cite your content, not just how Google ranks it.
+Yes. VuloPilot's AI Visibility (AEO/GEO) scoring is built specifically for AI Search Optimization - how well ChatGPT, Claude, Gemini, and Perplexity can find, understand, and cite your content, not just how Google ranks it.
 
 ### Which AI providers are supported? ###
 
@@ -430,11 +430,11 @@ The free version supports Bring Your Own API Key (BYOK) for any of the providers
 
 ### Can I use my own OpenAI API key? ###
 
-Yes. Connect your own OpenAI API key directly — VuloPilot never proxies your requests through a shared or metered key, on either the free or Pro version.
+Yes. Connect your own OpenAI API key directly - VuloPilot never proxies your requests through a shared or metered key, on either the free or Pro version.
 
 ### What's the difference between AI Visibility and Brand Visibility? ###
 
-AI Visibility scores your own site's content and structure — the on-page signals that help AI assistants find, understand, and cite you (AEO/GEO). Brand Visibility tracks off-site signals — how often your brand is mentioned and cited across the rest of the web, which research shows is a stronger predictor of AI citations than on-page work alone. VuloPilot reports both.
+AI Visibility scores your own site's content and structure - the on-page signals that help AI assistants find, understand, and cite you (AEO/GEO). Brand Visibility tracks off-site signals - how often your brand is mentioned and cited across the rest of the web, which research shows is a stronger predictor of AI citations than on-page work alone. VuloPilot reports both.
 
 ### Does Brand Visibility require Ahrefs? ###
 
@@ -448,7 +448,7 @@ No. It only logs known AI bot user agents (such as GPTBot, ClaudeBot, and Perple
 
 Yes.
 
-WooCommerce Optimization — Product SEO, Product Schema, inventory health, and Store Performance — is available in the free version, with additional AI-powered capabilities in VuloPilot Pro.
+WooCommerce Optimization - Product SEO, Product Schema, inventory health, and Store Performance - is available in the free version, with additional AI-powered capabilities in VuloPilot Pro.
 
 ### Can agencies manage multiple websites? ###
 
@@ -456,7 +456,7 @@ Yes. VuloPilot runs independently on each website, so agencies can install it pe
 
 ### Does it monitor Core Web Vitals? ###
 
-Yes. Website Performance monitoring includes Core Web Vitals-related checks — Largest Contentful Paint (LCP), Cumulative Layout Shift (CLS), and Interaction to Next Paint (INP) opportunities — alongside slow page, large image, and heavy plugin detection.
+Yes. Website Performance monitoring includes Core Web Vitals-related checks - Largest Contentful Paint (LCP), Cumulative Layout Shift (CLS), and Interaction to Next Paint (INP) opportunities - alongside slow page, large image, and heavy plugin detection.
 
 ### Does VuloPilot automatically modify my website? ###
 
@@ -504,6 +504,6 @@ By default, VuloPilot provides recommendations and requires your approval before
 
 ### 1.0.0 ###
 
-Welcome to VuloPilot — the AI Website Operations Platform for WordPress.
+Welcome to VuloPilot - the AI Website Operations Platform for WordPress.
 
 Start monitoring, optimizing, and improving your WordPress website from one intelligent dashboard.

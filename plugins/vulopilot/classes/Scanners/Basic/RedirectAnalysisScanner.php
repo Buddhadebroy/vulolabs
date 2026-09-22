@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Walks the homepage's own redirect chain (if any), manually following
  * `Location` headers rather than letting wp_remote_get()'s own
- * `redirection` option silently follow them — the same
+ * `redirection` option silently follow them - the same
  * `wp_remote_get( home_url() )` idiom RobotsTxtScanner/SitemapScanner
  * already use for hitting the site's own front end, just with redirects
  * disabled so each hop can be inspected. Flags a chain longer than
@@ -36,7 +36,7 @@ class RedirectAnalysisScanner extends AbstractBasicScanner {
 
     /**
      * Hard cap on hops followed before giving up and treating the chain
-     * as a likely loop — bounds the request count this scanner can make.
+     * as a likely loop - bounds the request count this scanner can make.
      */
     private const MAX_HOPS_CHECKED = 5;
 

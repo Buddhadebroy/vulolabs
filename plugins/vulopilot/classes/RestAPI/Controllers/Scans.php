@@ -14,10 +14,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * GET /scans lists past scan runs; POST /scans triggers one synchronously
- * via VuloPilot()->scan_runner (Scanners\ScanRunner — already wired in
+ * via VuloPilot()->scan_runner (Scanners\ScanRunner - already wired in
  * VuloPilot::init_classes()). Persistence of the result happens via
  * Services\ScanPersistenceListener's `vulopilot_scan_completed` hook, not
- * anything in this controller — it only asks the runner to run.
+ * anything in this controller - it only asks the runner to run.
  *
  * @class       Scans controller
  * @version     1.0.0
@@ -70,7 +70,7 @@ class Scans extends \WP_REST_Controller {
      * @inheritDoc
      *
      * `scanner_id` (comma-separated, e.g. `ssl-monitoring` or
-     * `core-file-integrity,integrity-monitoring`) plus `orderby`/`order` —
+     * `core-file-integrity,integrity-monitoring`) plus `orderby`/`order` -
      * same `parse_comma_separated_list()` shape `create_item()` already uses
      * for `category` below, added so a tile that only cares about one
      * scanner group's own most recent run (e.g. "last scan time" on a
@@ -78,7 +78,7 @@ class Scans extends \WP_REST_Controller {
      * per_page=1&orderby=finished_at&order=desc` instead of paging through
      * every scan run to find it client-side.
      *
-     * `category` (comma-separated, e.g. `security,accessibility`) — the
+     * `category` (comma-separated, e.g. `security,accessibility`) - the
      * same real category → scanner-ids mapping `create_item()`'s own
      * `ScanRunner::run_category()` already resolves via
      * `ScannerRegistry::get_scanners_by_category()`, resolved here instead
@@ -121,7 +121,7 @@ class Scans extends \WP_REST_Controller {
      * @inheritDoc
      *
      * `category` (comma-separated, e.g. `security,accessibility`) scopes
-     * the run to just those categories via ScanRunner::run_category() —
+     * the run to just those categories via ScanRunner::run_category() -
      * a category page's own header "Run scan" button passes its own
      * category set here instead of always running every registered
      * scanner, same `parse_comma_separated_list` shape
@@ -133,7 +133,7 @@ class Scans extends \WP_REST_Controller {
      *
      * Every call into this endpoint is treated as a real, user-initiated
      * "Run scan" click (`$force = true` passed to the runner) unless the
-     * caller explicitly marks itself `trigger_type=scheduled` — this repo
+     * caller explicitly marks itself `trigger_type=scheduled` - this repo
      * has no cron path in Free that calls this REST route at all today
      * (see ScanRunner's own docblock), so the default matches every
      * existing caller (useRunScan.ts always sends `trigger_type: 'manual'`)
@@ -141,7 +141,7 @@ class Scans extends \WP_REST_Controller {
      * self-rate-limits independently of the shared scan cadence
      * (BrokenLinksScanner/BrokenImagesScanner's own `due_to_run()`) would
      * silently no-op on a manual click that happened to land inside its
-     * own configured "daily"/"weekly" window — exactly the "scan starts
+     * own configured "daily"/"weekly" window - exactly the "scan starts
      * but doesn't detect anything new" bug this fixes.
      */
     public function create_item( $request ) {
@@ -186,7 +186,7 @@ class Scans extends \WP_REST_Controller {
     }
 
     /**
-     * Same shape as Findings::parse_comma_separated_list() — a single
+     * Same shape as Findings::parse_comma_separated_list() - a single
      * value (no comma) still round-trips correctly as a one-element array.
      *
      * @param mixed $raw_param Raw comma-separated request param.

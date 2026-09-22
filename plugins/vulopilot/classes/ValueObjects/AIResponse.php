@@ -8,7 +8,7 @@
 namespace VuloPilot\ValueObjects;
 
 /**
- * The response to an AIRequest. Immutable — sanitizing
+ * The response to an AIRequest. Immutable - sanitizing
  * the content (AISafetyValidator::sanitize_response()) produces a new
  * instance via with_content() rather than mutating this one.
  *
@@ -115,7 +115,7 @@ final class AIResponse {
     }
 
     /**
-     * Returns a copy of this response with different content — used to
+     * Returns a copy of this response with different content - used to
      * apply sanitization without mutating the original.
      *
      * @param string $new_content Replacement content.

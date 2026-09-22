@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags plugins that are installed but not active. A dormant plugin still
  * carries its full code (and any known vulnerabilities in it) on disk and
- * is easy to lose track of — it just isn't loaded on every request, which
+ * is easy to lose track of - it just isn't loaded on every request, which
  * is a smaller, different concern from an active-but-outdated plugin
  * (that's UpdatesScanner's job).
  *

@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags un-minified same-host JavaScript on the homepage when no known
- * minification-capable plugin is active — see
+ * minification-capable plugin is active - see
  * AbstractAssetOptimizationScanner for the shared fetch/detection logic
  * this and CssOptimizationScanner both build on.
  *

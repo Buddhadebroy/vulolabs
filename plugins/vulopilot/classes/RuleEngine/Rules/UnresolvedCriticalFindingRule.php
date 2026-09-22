@@ -19,9 +19,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The one cross-cutting rule in this set: applies to any Finding with
  * Severity::CRITICAL regardless of category (get_categories() returns an
- * empty array — see RuleInterface's docblock for what that means), and
+ * empty array - see RuleInterface's docblock for what that means), and
  * always produces the engine's highest-priority recommendation. Not
- * marked fixable — a critical finding could come from any scanner
+ * marked fixable - a critical finding could come from any scanner
  * (WooCommerceScanner's missing checkout page, RestApiScanner's exposed
  * user data, …) and there's no single generic fix to offer; a
  * category-specific rule with a real fix (like CoreUpdateAvailableRule)

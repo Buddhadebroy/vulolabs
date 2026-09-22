@@ -14,8 +14,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Base class for every free-tier scanner under Scanners/Basic/.
  *
- * Every scanner in this namespace is, by definition, free-tier — that's
- * what "Basic" means here (ARCHITECTURE.md) — so get_tier() is genuinely
+ * Every scanner in this namespace is, by definition, free-tier - that's
+ * what "Basic" means here (ARCHITECTURE.md) - so get_tier() is genuinely
  * shared behavior, not per-scanner boilerplate being prematurely
  * abstracted. get_id()/get_label()/get_category()/scan() stay abstract
  * since those are what actually differ between scanners.

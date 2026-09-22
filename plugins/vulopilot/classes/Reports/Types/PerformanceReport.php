@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Readme.txt's "Reports" → "Performance" pillar. Category `performance`
- * findings for one period — the same category Scanners\Basic\PerformanceScanner
+ * findings for one period - the same category Scanners\Basic\PerformanceScanner
  * raises into (e.g. an oversized autoloaded `wp_options` table).
  *
  * @class       PerformanceReport class

@@ -15,21 +15,21 @@ interface AiSalesAssistantCardProps {
 }
 
 /**
- * "AI Sales Assistant" — moved here from the Overview tab (OverviewTab.tsx)
+ * "AI Sales Assistant" - moved here from the Overview tab (OverviewTab.tsx)
  * so its two actions point at destinations that actually live on this same
  * tab. The mockup's own copy claimed 4 specific insights (18% conversion
  * increase, $2,420 cart recovery, 15 product pages, 42 products missing
- * schema) with no real backing anywhere in this codebase — replaced with a
+ * schema) with no real backing anywhere in this codebase - replaced with a
  * real, dynamic open-finding count for category 'woocommerce' (same
  * `useApiList('findings', ...)` real-count pattern AiInsightBanner.tsx/
  * StoreHealthBanner.tsx already use). "Let AI Optimize My Store" used to
- * be permanently disabled ("bulk auto-optimize isn't connected yet") — it
+ * be permanently disabled ("bulk auto-optimize isn't connected yet") - it
  * wasn't, then: WooCommerceAi's own `BulkOptimizePanel.tsx`
  * (`#woocommerce-bulk-ai`, real product search + 9 AI actions + real
  * `POST /woocommerce-ai/bulk-optimize`) already existed. Now a real,
  * functional scroll-to-panel action, same `onOptimizeStore` destination
  * AiSalesOptimizerCard.tsx's "Find Sales Opportunities →" and
- * StoreIntelligenceSummaryCard.tsx's "Create cross-sell →" already use —
+ * StoreIntelligenceSummaryCard.tsx's "Create cross-sell →" already use -
  * that panel's own honest locked/unlicensed state (WooCommerceAiLockedCard)
  * still applies for sites where it isn't reachable. "Review Suggestions
  * First" now scrolls to this tab's own Issues table rather than
@@ -70,7 +70,7 @@ const AiSalesAssistantCard = ({
 										total
 									)
 								: __(
-										"You're all caught up — no open findings need your attention right now. I can still help you optimize a batch of products with AI.",
+										"You're all caught up - no open findings need your attention right now. I can still help you optimize a batch of products with AI.",
 										'vulopilot'
 									)}
 						</ChatMessage>

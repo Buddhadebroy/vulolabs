@@ -45,7 +45,7 @@
 15. ./vendor/bin/phpunit   (or: pnpm run test)
 ```
 
-This covers only the Composer/PHPUnit side. Wiring the new plugin into `pnpm-workspace.yaml` (already covered — it's `plugins/*`), the release workflow's choice list, and the `package.json` script set is easiest by copying an existing plugin's `package.json`/`webpack.config.js`/`.wp-env.json` as a template rather than hand-rolling it.
+This covers only the Composer/PHPUnit side. Wiring the new plugin into `pnpm-workspace.yaml` (already covered - it's `plugins/*`), the release workflow's choice list, and the `package.json` script set is easiest by copying an existing plugin's `package.json`/`webpack.config.js`/`.wp-env.json` as a template rather than hand-rolling it.
 
 ## PHPUnit bootstrap template
 

@@ -1,5 +1,5 @@
 export default {
-	// "SEO" — a new top-level group folder holding SEO Titles, Sitemap, and
+	// "SEO" - a new top-level group folder holding SEO Titles, Sitemap, and
 	// Instant Indexing (all three moved out of the old "Get Started"/
 	// Business Visibility folder, which is gone now that Business
 	// Information and Backups/Connections moved to standalone top-level

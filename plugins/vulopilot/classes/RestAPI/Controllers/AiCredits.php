@@ -12,7 +12,7 @@ use VuloPilot\Services\AiCreditsConnection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Backs the AI Credits indicator/claim CTA (VuloPilot brief §4/§21) — a
+ * Backs the AI Credits indicator/claim CTA (VuloPilot brief §4/§21) - a
  * real `GET .../status` (composes AiCreditsConnection + the underlying
  * VuloCloudAccountConnection's own status, see that class's own
  * get_status() docblock), a real `POST .../connect` (the full
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * authoritative wallet).
  *
  * Same "never let a raw secret reach the client" boundary
- * GoogleServices.php/VuloCloudAccount.php's own docblocks document —
+ * GoogleServices.php/VuloCloudAccount.php's own docblocks document -
  * every method here only ever returns AiCreditsConnection::get_status()'s
  * shape.
  *

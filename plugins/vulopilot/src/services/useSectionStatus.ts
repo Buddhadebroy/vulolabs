@@ -29,11 +29,11 @@ export interface SectionStatusBadge {
 
 /**
  * Same real total-open / top-severity numbers `badge` below already
- * combines into one "N Open · N {Severity} Severity" string — as 2
+ * combines into one "N Open · N {Severity} Severity" string - as 2
  * separate badges instead, for a caller that wants them shown as 2 real
  * pills (e.g. SiteHealthStatusCard.tsx's own `ListComponent` row) rather
  * than one merged one. Always either `null` (still loading) or exactly the
- * same real entries `badge`'s own text would have combined — 1 entry for
+ * same real entries `badge`'s own text would have combined - 1 entry for
  * "No open findings"/plain "N Open" (nothing to split), 2 for the
  * "N Open · N {Severity} Severity" case.
  */
@@ -41,17 +41,17 @@ export type SectionStatusBadges = SectionStatusBadge[] | null;
 
 /**
  * "3 Open · 1 High Severity"-style summary for a section card's title
- * (CardComponent's own `badges` prop — same `admin-badge` tag styling
+ * (CardComponent's own `badges` prop - same `admin-badge` tag styling
  * every other badge in this app already uses). A section's own
  * FindingsTable already fetches this same scannerIds group internally,
  * but that fetch is paginated/searchable table state, not a stable
- * sitewide summary — same reasoning OpenIssuesGlimpse's own independent
+ * sitewide summary - same reasoning OpenIssuesGlimpse's own independent
  * summary fetch already documents for the identical tradeoff (a second,
  * small request instead of reaching into FindingsTable's own state).
  *
  * `per_page: 100` bounds the client-side severity tally to the 100 most
  * recent open findings rather than the true total when a section has
- * more open findings than that — total itself (open count) is always
+ * more open findings than that - total itself (open count) is always
  * exact, only the "N {severity} Severity" breakdown could undercount on
  * a section with 100+ open findings, a scale this app's per-scanner-group
  * sections aren't expected to reach.

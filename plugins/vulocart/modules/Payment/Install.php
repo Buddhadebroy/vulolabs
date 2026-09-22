@@ -12,11 +12,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Payment module Install class.
  *
- * Owns `vulocart_payment_transactions` — the Payment Framework's own
+ * Owns `vulocart_payment_transactions` - the Payment Framework's own
  * audit ledger, one row per gateway call (intent/authorize/capture/
  * refund/cancel/webhook), independent of `vulocart_orders` (a row can
  * exist before an order does, while a payment intent is still
- * cart-scoped — `order_id` is nullable and gets linked once one exists).
+ * cart-scoped - `order_id` is nullable and gets linked once one exists).
  * Same version-gated activation-hook pattern `Order\Install`/`Cart\Install`
  * already establish.
  *
@@ -48,7 +48,7 @@ class Install {
     }
 
     /**
-     * Creates `vulocart_payment_transactions` — only when
+     * Creates `vulocart_payment_transactions` - only when
      * TABLE_SCHEMA_VERSION_OPTION is behind TABLE_SCHEMA_VERSION.
      *
      * @return void
@@ -67,7 +67,7 @@ class Install {
         $collate = $wpdb->get_charset_collate();
 
         // `type` is one of 'intent'/'authorize'/'capture'/'refund'/
-        // 'cancel'/'webhook' — a log entry, not a state machine row (a
+        // 'cancel'/'webhook' - a log entry, not a state machine row (a
         // single payment naturally has several rows: authorize, capture,
         // a later partial refund). `gateway_transaction_id` is how
         // `handle_webhook()`'s own result gets reconciled back to the

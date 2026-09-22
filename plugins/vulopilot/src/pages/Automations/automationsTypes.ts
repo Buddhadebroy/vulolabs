@@ -3,19 +3,19 @@ import { applyFilters } from '@wordpress/hooks';
 import { TableRow } from '@zyra/table';
 
 /**
- * One row of the shared `vulopilot_automations` table — used by
+ * One row of the shared `vulopilot_automations` table - used by
  * BuiltinAutomationCards.tsx (the 2 free built-in rows), Automations.tsx
  * (the wizard's `viewAutomation` prop), AutomationsAttentionCard.tsx, and
  * vulopilot-pro's own ManageAutomationsSection.tsx (the real "Your
  * automations" list of everything else, registered into
  * Automations.tsx via the `vulopilot_automations_panel` filter slot's
- * `Manage` member — see that file's own docblock for why this real table's
+ * `Manage` member - see that file's own docblock for why this real table's
  * management UI lives in Pro while this plain row shape stays here, free
  * for every one of the free-side call sites above to keep using).
  *
  * Pulled out of the now-Pro ManageAutomationsSection.tsx (its previous
  * home) into its own type here, merged into this shared automationsTypes.ts
- * (alongside AutomationTemplate below — same folder, same real "small data
+ * (alongside AutomationTemplate below - same folder, same real "small data
  * shape backing this feature" concern, no reason to keep them in two files).
  */
 export interface AutomationRow extends TableRow {
@@ -31,7 +31,7 @@ export interface AutomationRow extends TableRow {
 	last_run_actions_executed: number | null;
 	last_run_actions_failed: number | null;
 	last_run_changes_made: number | null;
-	/** Real for the 4 cron-based trigger types only (see `AutomationsRest::with_next_run()`'s own docblock) — null for event/manual/webhook triggers, which have no "next scheduled" concept at all. */
+	/** Real for the 4 cron-based trigger types only (see `AutomationsRest::with_next_run()`'s own docblock) - null for event/manual/webhook triggers, which have no "next scheduled" concept at all. */
 	next_run_at: string | null;
 	last_run_finished_at: string | null;
 }
@@ -41,17 +41,17 @@ export interface AutomationTemplate {
 	icon: string;
 	label: string;
 	description: string;
-	/** null = "Create from scratch" — no prefill, opens today's blank form. */
+	/** null = "Create from scratch" - no prefill, opens today's blank form. */
 	category: 'monitoring' | 'security' | 'content' | 'commerce' | 'reporting' | 'custom' | null;
 	triggerType: string | null;
 	actionTypes: ('create-notification' | 'run-ai-action')[] | null;
-	/** True for the 3 templates that prefill Pro's own full trigger/condition/action wizard — same `pro?: boolean` shape ContentToolsGrid.tsx's own `ContentTool` uses. Omitted (falsy) for the 2 real free built-in automations at the top of this list. */
+	/** True for the 3 templates that prefill Pro's own full trigger/condition/action wizard - same `pro?: boolean` shape ContentToolsGrid.tsx's own `ContentTool` uses. Omitted (falsy) for the 2 real free built-in automations at the top of this list. */
 	pro?: boolean;
 	/**
 	 * True only for the 2 real free built-in automations
 	 * (BuiltinAutomationSeeder.php's own `free_full_site_scan`/
 	 * `free_visibility_report` rows, rendered by
-	 * BuiltinAutomationCards.tsx on the Automations page) — these aren't
+	 * BuiltinAutomationCards.tsx on the Automations page) - these aren't
 	 * Pro wizard templates at all (no category/trigger/actionTypes to
 	 * prefill, hence all three `null` below), so a click just links
 	 * straight to where they already live rather than opening any wizard.
@@ -62,7 +62,7 @@ export interface AutomationTemplate {
 
 /**
  * The 2 real free built-in automations, per direct instruction shown first
- * — see `AutomationTemplate.linkOnly`'s own docblock.
+ * - see `AutomationTemplate.linkOnly`'s own docblock.
  */
 const FREE_TEMPLATES: AutomationTemplate[] = [
 	{
@@ -89,7 +89,7 @@ const FREE_TEMPLATES: AutomationTemplate[] = [
 
 /**
  * Display-only shells for Pro's own 3 templates (per direct instruction,
- * trimmed down from the previous 6) — id/icon/label/desc only, deliberately
+ * trimmed down from the previous 6) - id/icon/label/desc only, deliberately
  * WITHOUT the real `category`/`triggerType`/`actionTypes` "recipe" each one
  * actually prefills Automate Work's wizard with. That recipe is genuine Pro
  * business knowledge (which trigger/condition/action combination actually
@@ -97,10 +97,10 @@ const FREE_TEMPLATES: AutomationTemplate[] = [
  * automation), so it lives in vulopilot-pro's own
  * modules/Automations/src/automationTemplates.ts and is merged onto these
  * same ids at runtime via the `vulopilot_automation_templates` filter below
- * — same "register a source, don't duplicate the registry" shape
+ * - same "register a source, don't duplicate the registry" shape
  * `vulopilot_dashboard_widgets` already uses
  * (dashboard-widgets/registry.ts). These shells exist so the row itself
- * (icon, label, PRO badge) still renders — locked, inert — even on a site
+ * (icon, label, PRO badge) still renders - locked, inert - even on a site
  * with no Pro plugin installed at all, the same "tile always visible, only
  * the backing logic moves to Pro" shape ContentToolsGrid.tsx's own 9 Pro
  * tiles use; only the recipe values are genuinely absent until Pro's own
@@ -141,11 +141,11 @@ const PRO_TEMPLATE_SHELLS: AutomationTemplate[] = [
 
 /**
  * Resolves "Create new automation"'s real template list fresh on every
- * call — deliberately NOT a precomputed module-scope constant. Free's
+ * call - deliberately NOT a precomputed module-scope constant. Free's
  * bundle can finish evaluating this module before Pro's own script (a
  * second, separately-fetched `<script>` tag) has run its `addFilter()`
- * call — the exact same real race `useFilterSlot.ts`'s own docblock
- * documents — so a one-time `applyFilters()` read at import time would
+ * call - the exact same real race `useFilterSlot.ts`'s own docblock
+ * documents - so a one-time `applyFilters()` read at import time would
  * often permanently miss Pro's 3 real template recipes. Callers that
  * render live (AutomationsTemplatesCard.tsx) re-call this on the same
  * `vulopilot_pro_modules_loaded` event `useFilterSlot` re-checks on;

@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags <input>/<textarea>/<select> elements in published content with no
- * associated label — no <label for="...">, aria-label, or
+ * associated label - no <label for="...">, aria-label, or
  * aria-labelledby. Screen readers can't announce what an unlabeled field
  * is for. Same bounded recent-posts batch and regex-over-post_content
  * approach as AccessibilityScanner, just checking a different pattern.

@@ -14,19 +14,19 @@ defined( 'ABSPATH' ) || exit;
  *
  * The persistent profile this module previously deliberately didn't have
  * (Module.php's own pre-existing docblock explained why a snapshot-only
- * model was enough until now) — every downstream feature this plugin
+ * model was enough until now) - every downstream feature this plugin
  * pair's own Customer Management pass adds (Addresses/Wishlist/Saved
  * Carts/Groups/Segments/Loyalty/Wallet/Communication History/Notes/
  * Analytics/Timeline) needs a stable id to attach to, which an
  * Order-row snapshot alone can't provide. Keyed by `email` (`UNIQUE KEY`,
- * `Install.php`) — not `wp_user_id` — since guest checkout is this app's
+ * `Install.php`) - not `wp_user_id` - since guest checkout is this app's
  * own default posture (`guest_checkout_enabled` setting) and a guest
  * still deserves a real Wishlist/order history; `wp_user_id` is an
  * optional, nullable upgrade once/if that same email logs in or
  * registers, resolved by `CustomerService::find_or_create_by_email()`.
  * `total_orders`/`total_spent`/`last_order_at` are maintained running
  * totals (updated on every `vulocart_order_created`), not computed live
- * on every read — the same "cache the aggregate, don't recompute it"
+ * on every read - the same "cache the aggregate, don't recompute it"
  * tradeoff `Order\Domain\Order`'s own docblocks never needed to make
  * (an Order's own totals are fixed at creation) but a Customer's own
  * totals, summed across a potentially large and growing order history,
@@ -53,7 +53,7 @@ class Customer {
     public $email;
 
     /**
-     * The WP user id this email currently belongs to, if any — resolved
+     * The WP user id this email currently belongs to, if any - resolved
      * opportunistically (an order/registration under this email while
      * logged in), never required.
      *
@@ -62,7 +62,7 @@ class Customer {
     public $wp_user_id;
 
     /**
-     * Display name — most-recently-seen value, not locked to the first
+     * Display name - most-recently-seen value, not locked to the first
      * order's own name (a buyer's name can legitimately change).
      *
      * @var string|null
@@ -70,14 +70,14 @@ class Customer {
     public $name;
 
     /**
-     * Phone number — same "most-recently-seen" freshness as `$name`.
+     * Phone number - same "most-recently-seen" freshness as `$name`.
      *
      * @var string|null
      */
     public $phone;
 
     /**
-     * Running count of orders placed under this email — maintained by
+     * Running count of orders placed under this email - maintained by
      * `CustomerService::record_order()`, not recomputed on read.
      *
      * @var int
@@ -85,7 +85,7 @@ class Customer {
     public $total_orders;
 
     /**
-     * Running sum of every associated order's own `$total` — same
+     * Running sum of every associated order's own `$total` - same
      * maintained-not-computed reasoning as `$total_orders`.
      *
      * @var float
@@ -102,7 +102,7 @@ class Customer {
     public $last_order_at;
 
     /**
-     * First-seen timestamp — set once, at creation.
+     * First-seen timestamp - set once, at creation.
      *
      * @var string|null MySQL datetime string, once persisted.
      */

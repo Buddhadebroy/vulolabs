@@ -12,18 +12,18 @@ use VuloPilot\Repositories\CoreWebVitalsRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /performance-vitals-beacon` — this codebase's first public,
+ * `POST /performance-vitals-beacon` - this codebase's first public,
  * anonymous REST route (confirmed via a full audit: every other
  * `permission_callback` in this plugin is `current_user_can('manage_options')`).
  * Called by real visitors' browsers (public/js/performance-vitals-beacon.js,
  * enqueued by Services\CoreWebVitalsBeacon), so it can't use a nonce the
- * way every logged-in-admin route here does — every value is sanitized
+ * way every logged-in-admin route here does - every value is sanitized
  * and range-clamped rather than trusted (including `page_load_ms`/
- * `transfer_bytes` — real Navigation/Resource Timing reads, same
+ * `transfer_bytes` - real Navigation/Resource Timing reads, same
  * clamp-don't-trust treatment as the 3 Core Web Vitals), and the whole
  * endpoint is
  * rate-limited by a single global rolling-window counter (deliberately
- * **not** keyed on the visitor's IP — this codebase has twice already
+ * **not** keyed on the visitor's IP - this codebase has twice already
  * promised never to log or key anything on IP, see
  * Services\CrawlerTrafficLogger's and Services\PerformanceRequestLogger's
  * own docblocks).
@@ -49,17 +49,17 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
 
     /**
      * A metric outside this range (ms) is treated as unmeasured rather
-     * than trusted — a real LCP/INP is never a full minute.
+     * than trusted - a real LCP/INP is never a full minute.
      */
     private const MAX_MS = 60000;
 
     /**
-     * CLS ×1000 — a real CLS is essentially never above 10.0.
+     * CLS ×1000 - a real CLS is essentially never above 10.0.
      */
     private const MAX_CLS_THOUSANDTHS = 10000;
 
     /**
-     * A real page transfer is never above 500MB — anything past this is
+     * A real page transfer is never above 500MB - anything past this is
      * treated as unmeasured rather than trusted, same "clamp, don't trust"
      * posture as MAX_MS/MAX_CLS_THOUSANDTHS above.
      */
@@ -137,7 +137,7 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
     }
 
     /**
-     * @param mixed $value Raw request value — real summed Navigation+Resource Timing `transferSize`, in bytes.
+     * @param mixed $value Raw request value - real summed Navigation+Resource Timing `transferSize`, in bytes.
      * @return int|null
      */
     private function sanitize_bytes( $value ): ?int {
@@ -151,7 +151,7 @@ class CoreWebVitalsBeaconRest extends \WP_REST_Controller {
     }
 
     /**
-     * A single sitewide rolling-window counter — global rather than
+     * A single sitewide rolling-window counter - global rather than
      * per-visitor since this endpoint deliberately has no visitor
      * identifier of any kind to key a per-visitor limit on.
      *

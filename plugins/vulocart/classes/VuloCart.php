@@ -12,9 +12,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Class.
  *
- * Plugin bootstrap singleton — same plain-array-container + magic
+ * Plugin bootstrap singleton - same plain-array-container + magic
  * __get/__set shape as VuloPilot\VuloPilot.
- * VuloCart is not WooCommerce-bound (a deliberate design choice — see
+ * VuloCart is not WooCommerce-bound (a deliberate design choice - see
  * the vision's "own tables, don't rely on WooCommerce's data model"
  * principle), so it boots on 'plugins_loaded'
  * directly, the same as VuloPilot\VuloPilot.
@@ -71,9 +71,9 @@ final class VuloCart {
 
     /**
      * Runs on plugin activation. Sets a flag rather than creating tables
-     * directly — register_activation_hook() fires before 'plugins_loaded',
+     * directly - register_activation_hook() fires before 'plugins_loaded',
      * earlier than dbDelta()'s upgrade.php include is guaranteed available,
-     * so table creation is deferred to init_plugin() — same reasoning as
+     * so table creation is deferred to init_plugin() - same reasoning as
      * VuloPilot\VuloPilot::activate().
      *
      * @return void
@@ -108,7 +108,7 @@ final class VuloCart {
 
     /**
      * Initializes VuloCart classes and fires 'vulocart_loaded', the hook
-     * VuloCart Pro (and any third-party extension) gates its own boot on —
+     * VuloCart Pro (and any third-party extension) gates its own boot on -
      * the same per-product boot-order-gate pattern as vulopilot_loaded, just
      * scoped to this product line.
      *
@@ -118,7 +118,7 @@ final class VuloCart {
         $this->container['util'] = new Utill();
 
         // Dependency-injection seam (vision principle: "storage engine is
-        // replaceable") — OfferingRepositoryInterface is bound to a concrete
+        // replaceable") - OfferingRepositoryInterface is bound to a concrete
         // WPDBOfferingRepository here, and only here; every other class asks
         // the container for the interface instead of `new`ing the concrete
         // class directly, so swapping storage engines later is a one-line
@@ -163,7 +163,7 @@ final class VuloCart {
         );
 
         // Categories/Brands/Collections/Attributes/Reviews (Offerings menu)
-        // — core, always-loaded infrastructure the same way Offering is, not
+        // - core, always-loaded infrastructure the same way Offering is, not
         // a toggleable module (Install.php's own docblock).
         $this->container['term_service']      = new Application\TermService(
             $this->container['service_container']->make( Domain\Term\TermRepositoryInterface::class ),
@@ -180,7 +180,7 @@ final class VuloCart {
         );
 
         // The Checkout Engine's own orchestration core (Application\
-        // CheckoutService's own docblock) — core infrastructure like
+        // CheckoutService's own docblock) - core infrastructure like
         // Offering/Term/Attribute/Review above, not a toggleable module:
         // every checkout delivery mode (the free block, vulocart-pro's
         // Popup/Embedded/Hosted modes) needs session tracking to exist
@@ -190,7 +190,7 @@ final class VuloCart {
             $this->container['event_dispatcher']
         );
 
-        // Module loader (module-architecture.md) — loaded before the REST
+        // Module loader (module-architecture.md) - loaded before the REST
         // dispatcher so a module's own constructor (e.g. registering a
         // route via `vulocart_rest_controllers`, or reacting to
         // `vulocart_activated_module_{id}`) runs before those registries'
@@ -198,27 +198,27 @@ final class VuloCart {
         $this->container['modules'] = new Modules();
 
         // Cart and Order are real toggleable modules (modules/Cart,
-        // modules/Order — module-architecture.md), not core services wired
-        // here — VuloCart()->cart_service/order_service only exist once
+        // modules/Order - module-architecture.md), not core services wired
+        // here - VuloCart()->cart_service/order_service only exist once
         // their own Module.php has run. A brand-new install (or this exact
         // site, the very first time it boots after Cart/Order became
         // modules) gets both pre-activated exactly once, via
         // Modules::activate_modules() (which merges into whatever's
-        // already active, unlike add_option() — the stored active-module
+        // already active, unlike add_option() - the stored active-module
         // list may already exist with unrelated entries, e.g. this site
         // already had 'passport' active from before Cart/Order existed as
         // toggleable concepts), so cart/checkout keeps working out of the
         // box. The one-time flag means turning either off afterward is
-        // fully respected — this never re-seeds them back on.
+        // fully respected - this never re-seeds them back on.
         // Same one-time pre-activation as above, for the Customer/Address/
-        // Shipping/Taxes/Payment/Review/Confirmation checkout modules —
+        // Shipping/Taxes/Payment/Review/Confirmation checkout modules -
         // a *second*, independent seed flag (not folded into
         // 'vulocart_cart_order_modules_seeded') since that flag is already
         // `true` on every existing install by the time these modules were
         // added; reusing it would silently skip seeding them on any site
         // that already had cart/order active. `$modules_activated_now`
         // guards load_active_modules() below from running a second time in
-        // the same request — activate_modules() already calls it
+        // the same request - activate_modules() already calls it
         // internally, and calling it twice would reconstruct (not just
         // re-fetch) every already-active module.
         $modules_activated_now = false;

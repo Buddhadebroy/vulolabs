@@ -17,12 +17,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags published posts/pages that share an identical title with at
  * least one other post. Detecting true duplicate/near-duplicate *content*
- * would need a text-similarity algorithm run pairwise across every post —
+ * would need a text-similarity algorithm run pairwise across every post -
  * an unbounded, expensive operation performance.md warns against for a
  * scanner that runs on demand. An exact title match is a real, cheap,
  * SQL-aggregable signal that two pages are likely competing for the same
  * search intent (a common, genuine cause of search engines picking the
- * "wrong" one, or splitting ranking signal between both) — an honest,
+ * "wrong" one, or splitting ranking signal between both) - an honest,
  * bounded proxy, not a full duplicate-content detector.
  *
  * @class       DuplicateContentScanner class
@@ -33,7 +33,7 @@ class DuplicateContentScanner extends AbstractBasicScanner {
 
     /**
      * How many of the most recently modified posts/pages to consider.
-     * Deliberately larger than the other content scanners' 50-post batch —
+     * Deliberately larger than the other content scanners' 50-post batch -
      * a duplicate pair could span an older post, and this query is a
      * single indexed aggregate, not a per-post loop, so a larger window
      * doesn't cost N times more (performance.md: prefer one query over a
@@ -68,7 +68,7 @@ class DuplicateContentScanner extends AbstractBasicScanner {
     public function scan(): array {
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
-        // Flat, standalone key — Settings → Scanning → SEO & Content →
+        // Flat, standalone key - Settings → Scanning → SEO & Content →
         // "Titles & meta" (SeoContent.ts). See Utill::VULOPILOT_SETTINGS_DEFAULTS's
         // own docblock on this key for why it's no longer nested under
         // content_search_scans.seo.

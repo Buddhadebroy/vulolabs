@@ -14,18 +14,18 @@ use VuloPilot\Scanners\Basic\AbstractBasicScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Brand Intelligence's own new check (BRAND-INTELLIGENCE-MODULE.md) —
+ * Brand Intelligence's own new check (BRAND-INTELLIGENCE-MODULE.md) -
  * narrower than SchemaScanner/StructuredDataValidationScanner's own
  * homepage checks (presence and validity of *any* JSON-LD), this fetches
  * the real, live homepage the same way (`wp_remote_get(home_url('/'))`,
  * same settings gate) and checks specifically for an `Organization` or
- * `LocalBusiness` schema.org type — the structured data Google Knowledge
+ * `LocalBusiness` schema.org type - the structured data Google Knowledge
  * Panels and AI answer engines actually read to resolve "who runs this
  * site" as an entity, not just "does some schema exist somewhere."
  *
  * Checks the real rendered page (not just this site's own
  * `vulopilot_homepage_schema_json` option) so a theme or another plugin's
- * own Organization schema counts too — the same reasoning
+ * own Organization schema counts too - the same reasoning
  * StructuredDataValidationScanner's own fetch-based check already takes
  * over trusting local state alone.
  *
@@ -97,7 +97,7 @@ class OrganizationSchemaScanner extends AbstractBasicScanner {
     }
 
     /**
-     * Simple raw-string presence check (nested-safe — an Organization
+     * Simple raw-string presence check (nested-safe - an Organization
      * reference commonly lives as a "publisher" sub-object of a WebSite
      * block rather than a standalone top-level type), same posture
      * vulopilot-pro's CompetitorVisibilityAnalyzer::has_author_byline()

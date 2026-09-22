@@ -1,6 +1,6 @@
 {
     "name": "vulolabs/vulopilot",
-    "description": "VuloPilot — AI Operating System for WordPress",
+    "description": "VuloPilot - AI Operating System for WordPress",
     "type": "wordpress-plugin",
     "homepage": "https://vulolabs.com/vulopilot/",
     "license": "GPL-2.0-or-later",

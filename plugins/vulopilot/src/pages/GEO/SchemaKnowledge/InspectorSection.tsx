@@ -15,7 +15,7 @@ import type { SchemaCoverageSnapshot, SchemaPageFilter } from './useSchemaCovera
 import { RobotsTxtEditor } from '../CrawlRobotsSitemapSection';
 
 /**
- * Real per-`type` color + icon — the exact same 3 real post types
+ * Real per-`type` color + icon - the exact same 3 real post types
  * `GET /schema/inspectable-pages` ever actually queries (Schema.php's own
  * `list_inspectable_pages()`: `post_type => ['post', 'page', 'product']`).
  * `''`/`'document'` is the honest fallback for any other real post type
@@ -64,7 +64,7 @@ const prettyPrint = (raw: string): string => {
 	}
 };
 
-/** The real path portion of a real, already-known-good site URL — falls back to the full URL on anything unparseable rather than throwing. */
+/** The real path portion of a real, already-known-good site URL - falls back to the full URL on anything unparseable rather than throwing. */
 const pathOf = (url: string): string => {
 	try {
 		return new URL(url).pathname;
@@ -74,31 +74,31 @@ const pathOf = (url: string): string => {
 };
 
 /**
- * "Inspector" section of the merged "Schema & Knowledge" tab — a real
+ * "Inspector" section of the merged "Schema & Knowledge" tab - a real
  * single-page JSON-LD checker (`POST /schema/inspect`, SchemaPageInspector,
  * real outbound HTTP + extraction, no AI). The page to inspect is picked
  * from a real dropdown of this site's own recent posts/pages/products
- * (`GET /schema/inspectable-pages`) rather than typed in as a raw URL —
+ * (`GET /schema/inspectable-pages`) rather than typed in as a raw URL -
  * selecting one runs the real inspection immediately, no separate "Inspect"
  * button.
  *
- * One card, not three — this used to be "Inspect a specific page" + a
+ * One card, not three - this used to be "Inspect a specific page" + a
  * separate "JSON-LD Viewer" card + a separate "Developer Tools" card
  * holding a 4-tile grid, per direct instruction to merge them into
  * something "compact yet meaningful" instead. Two of those four tiles
  * (Schema Inspector, JSON-LD Viewer) were already just scroll-jumps to
- * content that's now simply the next thing down in this same card — not a
+ * content that's now simply the next thing down in this same card - not a
  * real second action, just navigation to itself. A third (Conflict
  * Detection) jumped to the Conflicts section below, likewise now just
  * "scroll down a bit" once everything lives in one place. Only Schema
  * Validator (a real link-out to Google's own public Rich Results Test) was
  * a genuinely distinct action, so that's the one thing kept as its own
- * button — real and useful even before a page is picked (defaults to this
+ * button - real and useful even before a page is picked (defaults to this
  * site's own homepage), and automatically re-targets to the actually-
  * inspected page's own URL once one is selected.
  */
 interface InspectorSectionProps {
-	/** Latest schema coverage sample — tells which inspectable pages have structured data and which don't. */
+	/** Latest schema coverage sample - tells which inspectable pages have structured data and which don't. */
 	snapshot: SchemaCoverageSnapshot | null;
 	pageFilter: SchemaPageFilter;
 	onPageFilterChange: (filter: SchemaPageFilter) => void;
@@ -127,7 +127,7 @@ const InspectorSection = ({
 				setPages(list);
 
 				// Opens the first real row by default rather than leaving
-				// the result panel on its "Select a page" placeholder —
+				// the result panel on its "Select a page" placeholder -
 				// same real `inspect()` call a manual row click already
 				// triggers, just fired once for the list's own first entry
 				// as soon as it's known.
@@ -139,7 +139,7 @@ const InspectorSection = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Pages the last coverage sample found schema on (or not) — keyed by
+	// Pages the last coverage sample found schema on (or not) - keyed by
 	// URL; a page outside that sample matches only the "All" filter.
 	const schemaByUrl = new Map(
 		(snapshot?.pages ?? []).map((page) => [
@@ -243,7 +243,7 @@ const InspectorSection = ({
 						hideHeader={true}
 						variant="transparent"
 						// Highlights the row whose inspection result is showing
-						// in the side panel — same real `activeRowId`/action-
+						// in the side panel - same real `activeRowId`/action-
 						// toggle pairing IssuesSection.tsx's own table+detail-
 						// panel split already uses.
 						activeRowId={selectedUrl}
@@ -258,7 +258,7 @@ const InspectorSection = ({
 								width: '70%',
 								iconKey: 'typeIcon',
 								badgesKey: 'typeBadges',
-								// Real URL path under the title — the one
+								// Real URL path under the title - the one
 								// honest per-row detail already available
 								// here (`InspectablePage` carries no
 								// excerpt/summary field to show instead),
@@ -300,7 +300,7 @@ const InspectorSection = ({
 							...page,
 							id: page.url,
 							// Real page/post/product type this row's own real
-							// `type_label` already carries — shown as a plain,
+							// `type_label` already carries - shown as a plain,
 							// uncolored badge next to the title (same real
 							// `color: ''` convention useFindingsTable.tsx's own
 							// compact-layout category tag already uses),
@@ -313,7 +313,7 @@ const InspectorSection = ({
 								},
 							],
 							typeIcon: TYPE_ICON[page.type] ?? 'document',
-							// Real URL path — the info column's own
+							// Real URL path - the info column's own
 							// description line under the title.
 							pageDesc: pathOf(page.url),
 						}))}
@@ -474,7 +474,7 @@ const InspectorSection = ({
 											{sprintf(
 												/* translators: 1: schema.org @type, e.g. "Product", 2: number of JSON-LD blocks on this page sharing that type. */
 												__(
-													'%1$d separate "%2$s" blocks were found on this page — search engines may only use one.',
+													'%1$d separate "%2$s" blocks were found on this page - search engines may only use one.',
 													'vulopilot'
 												),
 												conflict.block_indexes.length,

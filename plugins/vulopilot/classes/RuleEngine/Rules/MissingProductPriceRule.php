@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The most urgent WooCommerce recommendation this pass produces — a
+ * The most urgent WooCommerce recommendation this pass produces - a
  * published product with no price literally cannot be bought. Not
  * fixable/AI-assisted: setting a real price is a business decision this
  * codebase should never guess at.

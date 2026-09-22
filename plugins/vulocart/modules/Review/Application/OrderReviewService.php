@@ -13,8 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Review module OrderReviewService.
  *
  * Recomputes exactly what `Order\Application\OrderService::
- * create_from_cart()` would charge — same subtotal-from-cart, same
- * Shipping/Taxes cost resolution — without persisting anything, so the
+ * create_from_cart()` would charge - same subtotal-from-cart, same
+ * Shipping/Taxes cost resolution - without persisting anything, so the
  * checkout wizard's Review step shows the real final total before the
  * buyer commits. Depends on the Cart module (a review with no cart makes
  * no sense) the same hard-dependency way Order\Module depends on Cart,
@@ -30,7 +30,7 @@ class OrderReviewService {
 
     /**
      * Resolves an optional sibling module's own service off the main
-     * plugin container — same pattern Order\Application\OrderService::
+     * plugin container - same pattern Order\Application\OrderService::
      * resolve_optional_service() uses.
      *
      * @param string $key Container key, e.g. 'shipping_service'.
@@ -46,7 +46,7 @@ class OrderReviewService {
 
     /**
      * Builds a full order preview for a cart plus in-progress checkout
-     * selections — everything the wizard's Review step needs to render,
+     * selections - everything the wizard's Review step needs to render,
      * matching `Order\Rest`'s own response shape closely enough that the
      * UI can reuse most of its rendering.
      *
@@ -108,13 +108,13 @@ class OrderReviewService {
         $total = round( $totals['subtotal'] + $shipping_cost + $tax_amount, 2 );
 
         /**
-         * `vulocart_order_total` — the one place a cart's final total gets
+         * `vulocart_order_total` - the one place a cart's final total gets
          * computed, shared by this preview and Order\Application\
          * OrderService::create_from_cart()'s own real computation (same
          * filter, same $context shape, called from both places so a
          * discount always matches between what Review showed and what the
          * order actually charges). vulocart-pro's Coupons/Gift Cards
-         * modules hook this — the applied code itself isn't a parameter
+         * modules hook this - the applied code itself isn't a parameter
          * here; a handler resolves it from the checkout session's own
          * `meta` (`VuloCart()->checkout_service->get_session( $cart_token )`,
          * set via `PATCH /checkout/sessions/{token}` when the shopper

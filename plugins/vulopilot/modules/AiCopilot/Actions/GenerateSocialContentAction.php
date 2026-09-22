@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * dedicated-postmeta pattern: stores the generated captions in
  * `_vulopilot_social_captions` without touching the post's visible
  * content at all. Same known, acceptable limitation GenerateSchemaAction
- * already has — nothing on the site surfaces this meta key yet; this
+ * already has - nothing on the site surfaces this meta key yet; this
  * action's job ends at generating and saving good captions.
  *
  * @class       GenerateSocialContentAction class
@@ -50,7 +50,7 @@ class GenerateSocialContentAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::LOW — Writes a social-share caption to postmeta — never published to the page itself, never touches `post_content`.
+     * Impact::LOW - Writes a social-share caption to postmeta - never published to the page itself, never touches `post_content`.
      *
      * @inheritDoc
      */
@@ -87,7 +87,7 @@ class GenerateSocialContentAction extends AbstractBasicAction {
                 'content' => sprintf(
                     'You write short social media captions promoting a piece of web content. Produce %1$d-%2$d distinct '
                         . 'caption variants, each under 280 characters, that make someone want to click through and read. '
-                        . 'Respond with ONLY a raw JSON array of strings like ["...", "..."] — no markdown fences, no commentary.',
+                        . 'Respond with ONLY a raw JSON array of strings like ["...", "..."] - no markdown fences, no commentary.',
                     self::MIN_VARIANTS,
                     self::MAX_VARIANTS
                 ),

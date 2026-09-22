@@ -4,14 +4,14 @@ import { usePostData } from '../usePostData';
 import { useFieldHighlight } from '../useFieldHighlight';
 
 interface AdvancedTabProps {
-	/** "All SEO Issues" table's "Fix with AI" deep link — currently only ever resolves to 'canonical_url' on this tab (see seoIssueEditorTarget.ts). */
+	/** "All SEO Issues" table's "Fix with AI" deep link - currently only ever resolves to 'canonical_url' on this tab (see seoIssueEditorTarget.ts). */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — accepted for prop-shape parity with every other tab, unused here. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
 
 /**
- * The metabox's Advanced tab — a per-post canonical URL override
+ * The metabox's Advanced tab - a per-post canonical URL override
  * (Services\CanonicalUrlManager::maybe_override_canonical(), which filters
  * WP core's own `get_canonical_url` directly, so it takes effect
  * regardless of the sitewide "Add canonical URL tags" setting) and

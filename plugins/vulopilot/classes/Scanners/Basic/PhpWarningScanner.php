@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * Tails WordPress's own debug.log (when WP_DEBUG_LOG is enabled) for
  * recent PHP warnings/notices/deprecated/fatal messages, deduped by
  * message text. This scanner has no way to detect what isn't being
- * logged — if WP_DEBUG_LOG is off, it returns no findings rather than
+ * logged - if WP_DEBUG_LOG is off, it returns no findings rather than
  * guessing; that's a correct, honest "nothing to report" result, not a
  * failure. Bounded to the last MAX_BYTES_READ of the file (never reads
  * the whole log) and the last MAX_LINES_CHECKED lines within that, same
@@ -73,7 +73,7 @@ class PhpWarningScanner extends AbstractBasicScanner {
                 continue;
             }
 
-            // Dedupe by message text — the same warning firing on every
+            // Dedupe by message text - the same warning firing on every
             // page load would otherwise flood findings with near-identical
             // rows.
             $messages[ $parsed['message'] ] = $parsed;
@@ -102,7 +102,7 @@ class PhpWarningScanner extends AbstractBasicScanner {
     }
 
     /**
-     * Resolves WP_DEBUG_LOG's effective log file path — it's either a
+     * Resolves WP_DEBUG_LOG's effective log file path - it's either a
      * boolean (defaulting to WP_CONTENT_DIR . '/debug.log') or a custom
      * path string.
      *

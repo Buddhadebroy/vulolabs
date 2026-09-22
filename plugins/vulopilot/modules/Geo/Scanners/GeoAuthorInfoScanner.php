@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * (`get_the_author_meta('description')`). AI answer engines weigh
  * visible author expertise/identity signals when deciding whether to
  * cite a source (part of what Google's own EEAT framework calls
- * "Experience/Expertise") — content with no identifiable author bio
+ * "Experience/Expertise") - content with no identifiable author bio
  * gives an AI crawler nothing to evaluate that signal from.
  *
  * @class       GeoAuthorInfoScanner class

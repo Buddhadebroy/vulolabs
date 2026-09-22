@@ -18,7 +18,7 @@ const SEVERITY_LABEL: Record<string, string> = {
 };
 
 /**
- * "Your next priorities" — the 3 real highest-severity currently-open
+ * "Your next priorities" - the 3 real highest-severity currently-open
  * findings site-wide (`GET /reports-overview`'s `next_priorities`,
  * FindingRepository::get_top_open_findings()). "Review" navigates to that
  * finding's own category page, same real `getCategoryTabLink.ts` mapping

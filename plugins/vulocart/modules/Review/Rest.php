@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Review module Rest class.
  *
- * Module-level REST controller, public — same reasoning as Cart\Rest's own
+ * Module-level REST controller, public - same reasoning as Cart\Rest's own
  * docblock. `POST /review/summary` backs the checkout wizard's final
  * Review step.
  *
@@ -47,7 +47,7 @@ class Rest {
     }
 
     /**
-     * Resolves the cart token for a request — same convention Cart\Rest's
+     * Resolves the cart token for a request - same convention Cart\Rest's
      * own `resolve_token()` uses.
      *
      * @param \WP_REST_Request $request Full request object.

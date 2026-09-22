@@ -14,34 +14,34 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real DB + file backups — Protect My Site's "Backups"/"Recovery" tiles.
+ * Real DB + file backups - Protect My Site's "Backups"/"Recovery" tiles.
  * Unconditionally constructed in VuloPilot::init_classes() (not a
  * Modules-page module). Modeled directly on Services\PageSpeedScanner's own
  * queue + self-reschedule shape (never runs synchronously on a REST
- * request — a full DB dump + file archive can't reliably finish inside
+ * request - a full DB dump + file archive can't reliably finish inside
  * `max_execution_time`):
  *
  * `start_backup()` inserts a `vulopilot_backups` row, enumerates every real
  * step up front (one per `$wpdb` table, one per real file under
  * `wp-content/uploads/` (excluding this plugin's own backups directory),
- * the active theme, and every active plugin — capped at `MAX_BACKUP_FILES`
+ * the active theme, and every active plugin - capped at `MAX_BACKUP_FILES`
  * total files so a very large site still finishes in bounded time), and
  * kicks off `process_batch()` via `wp_schedule_single_event()`.
  *
  * `process_batch()` works through the step queue for a real elapsed-time
- * budget per tick (not a fixed step count — a `db_table` step's own cost
+ * budget per tick (not a fixed step count - a `db_table` step's own cost
  * varies enormously by table size), writing table dumps into a shared temp
  * `.sql` file and adding real files into an open `ZipArchive` (opened and
- * closed once per tick — a real, documented-safe way to build one archive
+ * closed once per tick - a real, documented-safe way to build one archive
  * incrementally across multiple PHP requests), then self-reschedules while
  * steps remain. On the last tick, the accumulated `.sql` file is added into
  * the same archive as `database.sql`, the row is marked `completed` with
  * its real `file_size`, and `backup_retention_count` cleanup runs.
  *
  * Storage: `wp_upload_dir()['basedir'] . '/vulopilot-backups/'`, guarded by
- * a plain `index.php` stub — the same convention WP core itself uses in
+ * a plain `index.php` stub - the same convention WP core itself uses in
  * sensitive upload subdirectories. `file_path` is always stored (and
- * returned to the client) as a basename only — the real path is always
+ * returned to the client) as a basename only - the real path is always
  * re-derived server-side via `resolve_file_path()`, same
  * "never trust a client-supplied path" posture `Reports.php`'s own
  * `download_item()`/`ReportGenerator::resolve_file_path()` already
@@ -58,7 +58,7 @@ class BackupManager {
     private const BATCH_HOOK = 'vulopilot_backup_process_batch';
 
     /**
-     * Real elapsed-time budget per batch tick, in seconds — table sizes
+     * Real elapsed-time budget per batch tick, in seconds - table sizes
      * vary too much for a fixed step count the way PageSpeedScanner's own
      * `BATCH_SIZE = 3` pages can safely be.
      */
@@ -66,14 +66,14 @@ class BackupManager {
 
     /**
      * Real files enumerated across uploads/theme/plugins combined, per
-     * backup — bounds the whole job to a reasonable size on a very large
+     * backup - bounds the whole job to a reasonable size on a very large
      * site, same conservative-budget precedent as MalwareScanner's own
      * `MAX_FILES`.
      */
     private const MAX_BACKUP_FILES = 5000;
 
     /**
-     * Real rows read per table dump chunk — bounds peak memory for a large
+     * Real rows read per table dump chunk - bounds peak memory for a large
      * table.
      */
     private const DB_CHUNK_SIZE = 500;
@@ -86,7 +86,7 @@ class BackupManager {
     }
 
     /**
-     * Real, plugin-owned backups storage directory — created and
+     * Real, plugin-owned backups storage directory - created and
      * index-protected on first use.
      *
      * @return string Trailing-slashed absolute path.
@@ -110,7 +110,7 @@ class BackupManager {
     }
 
     /**
-     * Real absolute path for a stored backup's basename — never trusts a
+     * Real absolute path for a stored backup's basename - never trusts a
      * client-supplied path, same posture Reports\ReportGenerator's own
      * `resolve_file_path()` already established.
      *
@@ -123,7 +123,7 @@ class BackupManager {
 
     /**
      * Seeds a fresh backup job and kicks off its first batch tick. Safe to
-     * call again while a previous job is still running — its own queue
+     * call again while a previous job is still running - its own queue
      * option is simply replaced (matches PageSpeedScanner::start_scan()'s
      * own "safe to call again mid-scan" posture); the previous job's own
      * `vulopilot_backups` row is left as whatever status it was last at.
@@ -167,7 +167,7 @@ class BackupManager {
     }
 
     /**
-     * Every real step this backup needs to perform, enumerated up front —
+     * Every real step this backup needs to perform, enumerated up front -
      * one per real `$wpdb`-prefixed table, then real files under uploads/
      * theme/active-plugins, bounded by `MAX_BACKUP_FILES` combined.
      *
@@ -289,7 +289,7 @@ class BackupManager {
      * Processes as many queued steps as fit in `BATCH_SECONDS_BUDGET`,
      * then either self-reschedules (steps remain) or finalizes the
      * archive (queue drained). Registered on `self::BATCH_HOOK`, run via
-     * WP-Cron only — never called synchronously from a REST request, same
+     * WP-Cron only - never called synchronously from a REST request, same
      * posture PageSpeedScanner::process_batch() documents.
      *
      * @return void
@@ -486,11 +486,11 @@ class BackupManager {
 
     /**
      * Drains the current batch queue synchronously, within this same
-     * request — used only for the automatic pre-restore safety snapshot
+     * request - used only for the automatic pre-restore safety snapshot
      * (Recovery's first safety net), where a real, fully-completed backup
      * must exist *before* the destructive restore below it proceeds, not
      * "hopefully finished by the next WP-Cron tick." `$max_iterations`
-     * bounds worst-case request time on a very large site — restore is
+     * bounds worst-case request time on a very large site - restore is
      * already a deliberate, rare, explicitly-confirmed admin action, so a
      * slower request here is the right trade for a real safety net instead
      * of a skipped or merely-queued one.
@@ -511,11 +511,11 @@ class BackupManager {
     }
 
     /**
-     * Real restore — Recovery's own destructive core. Always preceded by a
+     * Real restore - Recovery's own destructive core. Always preceded by a
      * real, synchronously-completed pre-restore safety snapshot (called by
      * the REST controller before this, per its own docblock) and a real
      * typed-confirmation gate in the UI. On any failure partway through,
-     * aborts immediately (no partial-apply) and reports the real error —
+     * aborts immediately (no partial-apply) and reports the real error -
      * never guesses how to recover mid-restore.
      *
      * @param int $backup_id Real `vulopilot_backups` row id, must be `status='completed'`.
@@ -605,7 +605,7 @@ class BackupManager {
 
         // The DB rows above were restored via raw `$wpdb->query()`, which
         // never goes through `update_option()`/etc.'s own cache-invalidation
-        // path — on a site with a persistent object cache (Redis/
+        // path - on a site with a persistent object cache (Redis/
         // Memcached), every cached value would otherwise keep serving the
         // pre-restore state until it happened to expire on its own. A
         // non-persistent (default) object cache is per-request anyway, so
@@ -634,7 +634,7 @@ class BackupManager {
     }
 
     /**
-     * Real recursive copy — overwrites files in `$destination` from
+     * Real recursive copy - overwrites files in `$destination` from
      * `$source` in place. Used only by restore(), against VuloPilot's own
      * just-extracted, plugin-controlled temp directory.
      *
@@ -673,7 +673,7 @@ class BackupManager {
     }
 
     /**
-     * Real recursive delete — cleans up restore()'s own temp extraction
+     * Real recursive delete - cleans up restore()'s own temp extraction
      * directory. Used only against VuloPilot's own plugin-controlled temp
      * directory, never arbitrary user input.
      *
@@ -725,7 +725,7 @@ class BackupManager {
                 }
             }
 
-            // Real remote-copy cleanup (S3/Google Drive) — same real
+            // Real remote-copy cleanup (S3/Google Drive) - same real
             // no-op-for-local/never-uploaded posture
             // Controllers\Backups::delete_item() already uses. See
             // Services\BackupStorageManager::delete_remote_copy()'s own

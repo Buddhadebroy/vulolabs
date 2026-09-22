@@ -12,7 +12,7 @@ import {
 import { ButtonInput } from '@zyra/inputs';
 import { useFilterSlot } from '../../../services/useFilterSlot';
 
-/** Real Settings → Get Started → Business Information subtab id (Settings.tsx's own `currentTab === 'business-information'` branch) — where the `entity_business_type`/`entity_service_pages`/`entity_business_locations` fields this section (and BusinessProfileCard.tsx/KnowledgeGraphDiagramCard.tsx, which import this same constant) read actually live. Moved out of Scanning → AI Visibility per direct instruction — see GetStarted/BusinessInformation.ts's own docblock. */
+/** Real Settings → Get Started → Business Information subtab id (Settings.tsx's own `currentTab === 'business-information'` branch) - where the `entity_business_type`/`entity_service_pages`/`entity_business_locations` fields this section (and BusinessProfileCard.tsx/KnowledgeGraphDiagramCard.tsx, which import this same constant) read actually live. Moved out of Scanning → AI Visibility per direct instruction - see GetStarted/BusinessInformation.ts's own docblock. */
 export const ENTITY_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=business-information';
 
 
@@ -33,17 +33,17 @@ export interface EntitiesResponse {
 	services: Entity[];
 	locations: Entity[];
 	categories: Entity[];
-	/** Real, owner-provided `entity_business_type` setting (Settings → Site Identity → Business Information) — empty string until set, never guessed. */
+	/** Real, owner-provided `entity_business_type` setting (Settings → Site Identity → Business Information) - empty string until set, never guessed. */
 	business_type: string;
-	/** Real, deterministic check — a published page at `/contact/` or `/contact-us/` (Services\EntityExtractor::find_contact_page(), same slug list Scanners\Basic\GeoTrustSignalsScanner's own "missing Contact page" finding already checks). Kept for whatever else still reads it; BusinessProfileCard.tsx's own "Contact details" row reads `contact_email` below instead. */
+	/** Real, deterministic check - a published page at `/contact/` or `/contact-us/` (Services\EntityExtractor::find_contact_page(), same slug list Scanners\Basic\GeoTrustSignalsScanner's own "missing Contact page" finding already checks). Kept for whatever else still reads it; BusinessProfileCard.tsx's own "Contact details" row reads `contact_email` below instead. */
 	has_contact_page: boolean;
 	contact_page_url: string | null;
-	/** The site admin's real account email (`get_option('admin_email')`, matched to a real \WP_User) — BusinessProfileCard.tsx's own "Contact details" row. `edit_url` (computed per-viewer in EntityExtraction::get_items(), same as `people[].meta.edit_url`) is `user-edit.php?...&highlight=email`, real regardless of `found` so a missing email can be added on the same screen it'd be reviewed on. */
+	/** The site admin's real account email (`get_option('admin_email')`, matched to a real \WP_User) - BusinessProfileCard.tsx's own "Contact details" row. `edit_url` (computed per-viewer in EntityExtraction::get_items(), same as `people[].meta.edit_url`) is `user-edit.php?...&highlight=email`, real regardless of `found` so a missing email can be added on the same screen it'd be reviewed on. */
 	contact_email: {
 		found: boolean;
 		edit_url: string | null;
 	};
-	/** Real, template-built (never AI-generated) candidate relationships — see Services\EntityExtractor::build_suggested_relationships()'s own docblock for why these are "suggested," not "confirmed." */
+	/** Real, template-built (never AI-generated) candidate relationships - see Services\EntityExtractor::build_suggested_relationships()'s own docblock for why these are "suggested," not "confirmed." */
 	suggested_relationships: string[];
 }
 
@@ -51,7 +51,7 @@ const HIGHLIGHT_MAX_ROWS = 4;
 
 /**
  * Same "genuinely gates the underlying data" posture SeoTab.tsx's own
- * isSeoModuleActive() already documents — EntityExtractor returns empty
+ * isSeoModuleActive() already documents - EntityExtractor returns empty
  * groups when this module is inactive (see its own docblock), so this
  * tab tells the site owner why rather than showing empty lists with no
  * explanation.
@@ -61,9 +61,9 @@ const isEntityExtractionModuleActive = () =>
 
 /**
  * "Graph Visualization"/"Entity Recommendations"/"Knowledge Graph Health"
- * — vulopilot-pro's KnowledgeGraph module's own real Pro card slots.
+ * - vulopilot-pro's KnowledgeGraph module's own real Pro card slots.
  *
- * `useFilterSlot()`, not a plain top-level `applyFilters()` read — this
+ * `useFilterSlot()`, not a plain top-level `applyFilters()` read - this
  * file used the plain-read pattern for all 3 of these slots until now,
  * which is a real, confirmed bug: BrandVisibilityTab.tsx's own docblock
  * already documents that a top-level `applyFilters()` call evaluates
@@ -71,7 +71,7 @@ const isEntityExtractionModuleActive = () =>
  * filters (Free's bundle can finish importing and evaluating this module
  * before Pro's later `<script>` tag runs its `addFilter()` calls), which
  * leaves the slot permanently stuck at `null` regardless of whether the
- * `knowledge-graph` module is actually active — confirmed live: even with
+ * `knowledge-graph` module is actually active - confirmed live: even with
  * that module active, "Graph Visualization" kept showing its own
  * "Graph visualization is a Pro feature" fallback every time, the exact
  * symptom that docblock describes. `useFilterSlot()` re-checks on the
@@ -81,7 +81,7 @@ const isEntityExtractionModuleActive = () =>
  */
 
 /**
- * Real category names flagged as worth cleaning up — either the generic WP
+ * Real category names flagged as worth cleaning up - either the generic WP
  * default "Uncategorized" (a real signal nothing meaningful was ever set),
  * or a name reused by more than one real term (possibly across the
  * `category`/`product_cat` taxonomies EntityExtractor::extract_categories()
@@ -111,17 +111,17 @@ interface EntityDetailContentProps {
 	rows: Entity[] | null;
 	emptyMessage: string;
 	naMessage?: string;
-	/** Replaces the plain `emptyMessage` text with a richer real callout (Locations' own "Why it matters" box) — only rendered when `rows.length === 0`. */
+	/** Replaces the plain `emptyMessage` text with a richer real callout (Locations' own "Why it matters" box) - only rendered when `rows.length === 0`. */
 	emptyState?: ReactNode;
-	/** A real, functional destination for "View all {title} →" — the real WP-admin screen this entity type's own data actually lives on. Omitted entirely when there's nowhere real to send someone (e.g. Locations, whose real data is a plugin setting, not a WP-admin list screen). */
+	/** A real, functional destination for "View all {title} →" - the real WP-admin screen this entity type's own data actually lives on. Omitted entirely when there's nowhere real to send someone (e.g. Locations, whose real data is a plugin setting, not a WP-admin list screen). */
 	viewAllHref?: string;
-	/** A real settings-tab deep link ("Manage in Settings →") — the entity types whose real data lives in a plugin setting rather than a WP-admin screen (Locations, Services). */
+	/** A real settings-tab deep link ("Manage in Settings →") - the entity types whose real data lives in a plugin setting rather than a WP-admin screen (Locations, Services). */
 	settingsUrl?: string;
 	/**
 	 * Per-row status badge (Categories' own real Good/"Needs cleanup" flag,
-	 * from getMessyCategoryNames()) — omitted for entity types with no real
+	 * from getMessyCategoryNames()) - omitted for entity types with no real
 	 * per-row status to report. Base no-unused-vars doesn't understand TS
-	 * function-type parameter positions (no runtime binding to "use") —
+	 * function-type parameter positions (no runtime binding to "use") -
 	 * same known gap useApiList.ts's own onQueryUpdate type already
 	 * documents.
 	 */
@@ -130,11 +130,11 @@ interface EntityDetailContentProps {
 }
 
 /**
- * One entity type's real detail — count, first 4 real names, and a "+N
+ * One entity type's real detail - count, first 4 real names, and a "+N
  * more" toggle that expands the same already-fetched list in place rather
  * than a modal (no modal component is otherwise used on this tab shell,
  * see GeoTab.tsx's own precedent of plain in-page navigation/scroll
- * instead of dialogs). Content only, no card chrome of its own — meant to
+ * instead of dialogs). Content only, no card chrome of its own - meant to
  * render inside "What AI & Search Understand"'s own tab content area
  * (KnowledgeGraphSection's own render, below), not as a separate card, per
  * direct instruction to consolidate what used to be 5 standalone cards
@@ -142,11 +142,11 @@ interface EntityDetailContentProps {
  *
  * Confirmed unreachable from the UI (never actually instantiated below,
  * despite this and other docblocks in this file describing it as if it
- * renders) — same "real, working, just flagged here rather than deleted"
+ * renders) - same "real, working, just flagged here rather than deleted"
  * status BrokenLinksSection.tsx's own docblocks document for their own
  * unwired pieces: this component, its own `activeTab`/`scrollToTabContent`
  * derivations below, and `setActiveEntityTab` (the entity-type tab
- * selector this content is meant to switch on — `activeEntityTab` itself
+ * selector this content is meant to switch on - `activeEntityTab` itself
  * IS read to pick the "organizations" default, just nothing ever calls
  * its own setter to change it) are all real and left as-is rather than
  * deleted or force-wired without knowing what tab-switcher UI was
@@ -259,17 +259,17 @@ const EntityDetailContent = ({
 /**
  * "Knowledge Graph" section of the merged "Business Identity & Schema" tab
  * (moved here unchanged from the standalone KnowledgeGraphTab.tsx as part
- * of the original Schema+Knowledge Graph merge — see SchemaKnowledgeTab.tsx's
+ * of the original Schema+Knowledge Graph merge - see SchemaKnowledgeTab.tsx's
  * own docblock; renamed again since, per direct instruction, to match a
- * newer reference mockup — see that same docblock) — Free's own Entity
+ * newer reference mockup - see that same docblock) - Free's own Entity
  * Extraction (6 real, deterministic entity types, KNOWLEDGE-GRAPH-MODULE.md).
  *
  * "What AI & Search Understand" is now a real tabbed card, not just a
- * count list — per direct instruction ("remove the separate
+ * count list - per direct instruction ("remove the separate
  * Business Locations/Categories/People/Services cards, populate their
  * data inside this card in tabbed format, clicking a row shows that
  * tab"). Each of the 6 count-list rows (Organization/Products/Categories/
- * People/Locations/Services) IS the tab selector — clicking one sets
+ * People/Locations/Services) IS the tab selector - clicking one sets
  * `activeEntityTab` and shows that type's own real detail (the exact same
  * list/empty-state/badge/link content the old standalone cards rendered,
  * via `EntityDetailContent`) in its own panel, inside this same card.
@@ -277,12 +277,12 @@ const EntityDetailContent = ({
  *
  * Count list and the active tab's detail panel sit side by side inside
  * this one real `grid={12}` card (`.kg-understand-grid`) rather than the
- * detail panel dropping to a full-width row underneath — per direct
+ * detail panel dropping to a full-width row underneath - per direct
  * instruction ("make the 3 sections side by side instead of organization
  * list in the 2nd row"), back when Graph Visualization was still this
  * card's own 3rd column here too. Graph Visualization itself has since
  * moved to BusinessProfileCard.tsx (per direct instruction), so this card
- * widened from `grid={8}` to fill the row on its own — see that file's
+ * widened from `grid={8}` to fill the row on its own - see that file's
  * own docblock for the real `vulopilot_knowledge_graph_visualization_card`
  * Pro slot / free `KnowledgeGraphDiagram` fallback it now renders instead.
  */
@@ -293,12 +293,12 @@ const KnowledgeGraphSection = () => {
 		useState<keyof EntitiesResponse>('organizations');
 
 	// Called unconditionally, before the early returns below, per the
-	// rules of hooks — same reasoning BrandVisibilityTab.tsx's own 4
+	// rules of hooks - same reasoning BrandVisibilityTab.tsx's own 4
 	// useFilterSlot() calls already document (a Pro slot resolving is
 	// irrelevant on the "module off"/error branches anyway).
 	// `vulopilot_knowledge_graph_visualization_card`'s own real render site
 	// moved to BusinessProfileCard.tsx (its own identical `useFilterSlot()`
-	// call there) — the free `KnowledgeGraphDiagram` fallback it decides
+	// call there) - the free `KnowledgeGraphDiagram` fallback it decides
 	// between now lives there too.
 	const EntityRecommendationsCard = useFilterSlot(
 		'vulopilot_knowledge_graph_recommendations_card'
@@ -338,7 +338,7 @@ const KnowledgeGraphSection = () => {
 					title={__('Entity Extraction', 'vulopilot')}
 					titleIcon="centralized-connections"
 					desc={__(
-						'What VuloPilot extracts from your site — organizations, products, categories, people, locations, and services — and how they relate.',
+						'What VuloPilot extracts from your site - organizations, products, categories, people, locations, and services - and how they relate.',
 						'vulopilot'
 					)}
 				>
@@ -389,11 +389,11 @@ const KnowledgeGraphSection = () => {
 		: new Set<string>();
 
 	/**
-	 * One entry per real entity type — both the count-list/tab-selector row
+	 * One entry per real entity type - both the count-list/tab-selector row
 	 * data AND (via the rest of the fields) exactly what EntityDetailContent
 	 * needs to render that tab's own real detail, once selected. Replaces
 	 * the old `understandCounts` (count-list-only) and `OTHER_ENTITY_SECTIONS`
-	 * (People/Services-only) arrays — one list now covers all 6 types, since
+	 * (People/Services-only) arrays - one list now covers all 6 types, since
 	 * all 6 are real tabs.
 	 */
 	const entityTabs: {
@@ -433,7 +433,7 @@ const KnowledgeGraphSection = () => {
 						'vulopilot'
 					),
 					naMessage: __(
-						"This site doesn't have an active online store — VuloPilot looks for real WooCommerce products.",
+						"This site doesn't have an active online store - VuloPilot looks for real WooCommerce products.",
 						'vulopilot'
 					),
 					viewAllHref: `${appLocalizer.site_url}/wp-admin/edit.php?post_type=product`,

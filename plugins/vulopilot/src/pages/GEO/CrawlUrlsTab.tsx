@@ -24,7 +24,7 @@ const SECTION_IDS: CrawlUrlsSectionId[] = [
 
 /**
  * `NavigatorComponent`'s own compact icon-over-title tab bar needs a real
- * `headerIcon` per section — same `Record<SectionId, {...}>` shape
+ * `headerIcon` per section - same `Record<SectionId, {...}>` shape
  * SeoVisibility.tsx's own `TAB_META` already establishes one level up for
  * its own outer tabs.
  */
@@ -42,13 +42,13 @@ const SECTION_META: Record<
 interface CrawlUrlsTabProps {
 	/**
 	 * Which inner tab to land on when this whole "Crawl & URLs" tab is
-	 * first mounted — set from GEO.tsx's own `SUBTAB_ALIASES` resolution
+	 * first mounted - set from GEO.tsx's own `SUBTAB_ALIASES` resolution
 	 * (a bookmarked `?subtab=crawler-traffic`/`broken-links`/`redirects`
 	 * link from before this merge) or from a same-session cross-tab jump
 	 * (SeoTab.tsx's own "Search engine access" link, which needs
 	 * 'robots-sitemap' specifically, not just this tab's own default).
 	 * Read once at mount, same "initial value only" contract
-	 * SchemaKnowledgeTab.tsx's own `initialSection` prop already has —
+	 * SchemaKnowledgeTab.tsx's own `initialSection` prop already has -
 	 * this relies on GEO.tsx's outer `TabsComponent` giving this component
 	 * a fresh mount every time its own tab becomes active, not just
 	 * hiding/showing an already-mounted instance.
@@ -57,7 +57,7 @@ interface CrawlUrlsTabProps {
 }
 
 /**
- * "Crawl & URLs" tab of "SEO & Visibility" — merges 3 former standalone
+ * "Crawl & URLs" tab of "SEO & Visibility" - merges 3 former standalone
  * tabs (Crawler Traffic, Broken Links, Redirects) plus the 404 log that
  * used to live bundled inside Broken Links, into one tab with 5 real
  * inner tabs (direct instruction: "Broken Links + Redirects + Crawler
@@ -66,7 +66,7 @@ interface CrawlUrlsTabProps {
  * tabs... one main tab: Crawl & URLs [with] Overview | Broken Links |
  * Redirects | 404s | Robots & Sitemap").
  *
- * Real inner tabs, not one continuous scrolling page — a deliberate
+ * Real inner tabs, not one continuous scrolling page - a deliberate
  * departure from the "Schema & Knowledge" tab's own precedent
  * (SchemaKnowledgeTab.tsx's own docblock: "no inner tab switcher... per
  * direct instruction"), confirmed before building this: each of these 5
@@ -75,7 +75,7 @@ interface CrawlUrlsTabProps {
  * rather than the cleaner navigation this merge is actually meant to
  * deliver.
  *
- * `NavigatorComponent` (`variant="compact"`), not a bare `TabsComponent` —
+ * `NavigatorComponent` (`variant="compact"`), not a bare `TabsComponent` -
  * same real settings-navigator component SeoVisibility.tsx's own outer
  * tab shell already uses one level up, converted here too so this inner
  * tab bar only ever mounts/renders the one real section that's actually
@@ -84,7 +84,7 @@ interface CrawlUrlsTabProps {
  * shape, which meant all 5 of these (each a substantial page of its own)
  * mounted and fetched together on first render. No top-level
  * `headerTitle`/`headerIcon` passed here (unlike SeoVisibility.tsx's own
- * outer `NavigatorComponent`) — this is a nested sub-tab bar inside a tab
+ * outer `NavigatorComponent`) - this is a nested sub-tab bar inside a tab
  * that already has its own real page header one level up; each section's
  * own `hideSettingHeader: true` below suppresses `NavigatorComponent`'s
  * own per-file header row too, since every section already renders its
@@ -96,13 +96,13 @@ interface CrawlUrlsTabProps {
  * CrawlOverviewSection.tsx/CrawlRobotsSitemapSection.tsx; Broken Links was
  * BrokenLinksTab.tsx, trimmed into BrokenLinksSection.tsx once its own
  * 404 log moved to NotFoundLogSection.tsx; Redirects was
- * RedirectsTab.tsx, renamed to RedirectsSection.tsx) — nothing here is a
+ * RedirectsTab.tsx, renamed to RedirectsSection.tsx) - nothing here is a
  * rewrite, only a real reorganization of where each already-real section
  * lives. GEO.tsx no longer renders any of those 3 as sibling top-level
  * tabs; this component is the one place all 5 now live.
  */
 const CrawlUrlsTab = ({ initialSection = 'overview' }: CrawlUrlsTabProps) => {
-	// Read once at mount only — `NavigatorComponent` tracks which of its
+	// Read once at mount only - `NavigatorComponent` tracks which of its
 	// own tabs is active internally (its own `activeSetting` state), only
 	// re-syncing from `currentSetting` when that prop itself changes; a
 	// plain in-shell tab click updates its own state directly, same real

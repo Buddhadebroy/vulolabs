@@ -8,11 +8,11 @@ import { DAY_OPTIONS } from './reportsOverview';
 import './Reports.scss';
 
 /**
- * "Reports"'s Overview tab — rebuilt to match the reference mockup exactly:
+ * "Reports"'s Overview tab - rebuilt to match the reference mockup exactly:
  * a title/desc/date-range/action header (ReportsOverviewHeader.tsx),
  * "Recent Reports" (RecentReportsCard.tsx), "Scheduled Reports"
  * (ScheduledReportsTable.tsx), and "Report History" (ReportHistoryTable.tsx)
- * — in that order, same as the mockup. The mockup's own "Build a New
+ * - in that order, same as the mockup. The mockup's own "Build a New
  * Report" and "Report Templates" sections are deliberately omitted per
  * direct instruction; Report Builder tab (ReportTab.tsx, unchanged) still
  * carries that real generate-report flow, and both this tab's "Create
@@ -20,12 +20,12 @@ import './Reports.scss';
  *
  * `refreshKey` (bumped by ReportsOverviewHeader.tsx's own `onDataChanged`,
  * fired once CreateReportModal.tsx/ScheduleReportModal.tsx actually create
- * something) is passed down to every list below as `refreshSignal` — the
+ * something) is passed down to every list below as `refreshSignal` - the
  * same "lift shared state up to this shell, pass it back down" shape this
  * file already used for `days`/`onDaysChange`, not a second, parallel
  * refresh mechanism.
  *
- * This replaces this tab's previous content wholesale — the earlier
+ * This replaces this tab's previous content wholesale - the earlier
  * `GET /reports-overview`-driven dashboard (hero "Fixed/New/Still open"
  * card, 7-tile category status grid, the 6 Search/AI Visibility/Speed/
  * Security/Content/Store insight panels, activity timeline, next-priorities
@@ -38,7 +38,7 @@ import './Reports.scss';
  * WebsiteProgressChart.tsx, ReportTypeCards.tsx, RecentAchievementsCard.tsx,
  * AiAnalystCard.tsx, and `reportsOverview.ts`'s own `useReportsOverview`
  * hook/`GET /reports-overview` consumer) are left in place, unused, rather
- * than deleted — same "supersede the render call, don't delete real,
+ * than deleted - same "supersede the render call, don't delete real,
  * working code without an explicit instruction to" posture
  * AiSpeedAssistantCard.tsx's own docblock already establishes elsewhere on
  * this page.

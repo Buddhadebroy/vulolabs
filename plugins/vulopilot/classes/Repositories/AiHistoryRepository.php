@@ -20,12 +20,12 @@ class AiHistoryRepository extends AbstractRepository {
 
     /**
      * The only 2 `surface` values that represent a real chat turn a human
-     * had with VuloPilot (Controllers\Copilot.php/ContentAssistant.php) —
+     * had with VuloPilot (Controllers\Copilot.php/ContentAssistant.php) -
      * every other real caller of `ai_request_sender`/`request_sender`
      * (AiCopilot\ActionRunner, GeoAnalysis\GeoAnalyzer,
      * ContentIntelligence\ContentAnalyzer) tags its own rows with its own
      * real feature label instead, so this is the whitelist
-     * get_conversations() scopes to — kept in sync with AIRequest's own
+     * get_conversations() scopes to - kept in sync with AIRequest's own
      * `$surface` values by hand, the same way ContentCreationOrchestrator's
      * CONTENT_CREATION_ACTIONS is kept in sync with each chat controller's
      * own system prompt.
@@ -50,7 +50,7 @@ class AiHistoryRepository extends AbstractRepository {
     }
 
     /**
-     * Success/failure counts, zero-filled — backs the AI Assistant table's
+     * Success/failure counts, zero-filled - backs the AI Assistant table's
      * status-count pill bar (same reasoning as
      * AutomationsRepository::get_status_counts()).
      *
@@ -67,7 +67,7 @@ class AiHistoryRepository extends AbstractRepository {
     }
 
     /**
-     * Call counts, token totals, and cost for one date range — what
+     * Call counts, token totals, and cost for one date range - what
      * Reports\Types\AiUsageReport's headline summary reads.
      *
      * @param string $period_start Y-m-d, inclusive.
@@ -103,7 +103,7 @@ class AiHistoryRepository extends AbstractRepository {
     }
 
     /**
-     * Paginated, searchable, date-ranged real chat turns — scoped to
+     * Paginated, searchable, date-ranged real chat turns - scoped to
      * CHAT_SURFACES so AI Copilot History's "Conversations" filter
      * (Controllers\History.php) shows real chat, not every other feature
      * that shares this same table. Same shape/pagination contract as
@@ -167,7 +167,7 @@ class AiHistoryRepository extends AbstractRepository {
     }
 
     /**
-     * Real conversation count for History's "Conversations" filter pill —
+     * Real conversation count for History's "Conversations" filter pill -
      * same CHAT_SURFACES scope as get_conversations() above.
      *
      * @return int
@@ -183,11 +183,11 @@ class AiHistoryRepository extends AbstractRepository {
     }
 
     /**
-     * Distinct providers actually present in the table, with call counts —
+     * Distinct providers actually present in the table, with call counts -
      * backs the AI Assistant History table's "Provider" filter dropdown
      * with real values (e.g. 'groq') instead of a fixed guess, the same
      * `count_by_column()` pattern get_status_counts() above already uses.
-     * Unlike that method, this has no fixed zero-filled shape — the set of
+     * Unlike that method, this has no fixed zero-filled shape - the set of
      * providers is whatever's actually been called, not a known-in-advance
      * enum.
      *
@@ -198,7 +198,7 @@ class AiHistoryRepository extends AbstractRepository {
     }
 
     /**
-     * Call counts and cost broken down per provider for one date range —
+     * Call counts and cost broken down per provider for one date range -
      * what the report's "by provider" section table reads.
      *
      * @param string $period_start Y-m-d, inclusive.

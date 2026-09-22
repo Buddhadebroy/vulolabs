@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real `gtag.js` output on the public-facing site — the "Analytics"
+ * Real `gtag.js` output on the public-facing site - the "Analytics"
  * settings panel's own "Install analytics code"/"Anonymize IP
  * addresses"/"Self-Hosted Analytics JS File"/"Exclude Logged-in users"
  * toggles (GoogleServicesPanel.tsx) actually do something once a GA4
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  * "Self-Hosted Analytics JS File" fetches Google's own real
  * `https://www.googletagmanager.com/gtag/js` once, caches it as a real
  * file under `wp-content/uploads/vulopilot/`, and serves that local copy
- * instead of linking Google's CDN directly — the same real
+ * instead of linking Google's CDN directly - the same real
  * fetch-and-cache-a-file approach IndexNowKeyFileServer already
  * establishes for a different real file, not a fabricated proxy.
  *
@@ -48,7 +48,7 @@ class GoogleAnalyticsTracker {
 
         // Same `array('key')`-means-on/`array()`-means-off toggle-checkbox
         // convention every other single ToggleInput-driven setting in
-        // this codebase uses — see Utill.php's own defaults for these 4
+        // this codebase uses - see Utill.php's own defaults for these 4
         // keys.
         if ( empty( $settings['ga_install_tracking_code'] ) ) {
             return;
@@ -86,7 +86,7 @@ class GoogleAnalyticsTracker {
     /**
      * Fetches (once, then caches) Google's own real gtag.js for this
      * property and returns the local URL to serve it from. Falls back to
-     * Google's own CDN URL if the fetch/cache write ever fails — a self-
+     * Google's own CDN URL if the fetch/cache write ever fails - a self-
      * hosting toggle that silently breaks tracking entirely on a transient
      * fetch failure would be worse than the one request to Google's CDN
      * it was trying to avoid.
@@ -102,7 +102,7 @@ class GoogleAnalyticsTracker {
         $remote_url = 'https://www.googletagmanager.com/gtag/js?id=' . rawurlencode( $measurement_id );
 
         // Re-fetched once a day (real gtag.js content does change) rather
-        // than only ever once — a stale-forever local copy would silently
+        // than only ever once - a stale-forever local copy would silently
         // drift from what Google actually serves.
         if ( file_exists( $cache_file ) && ( time() - filemtime( $cache_file ) ) < DAY_IN_SECONDS ) {
             return $cache_url;

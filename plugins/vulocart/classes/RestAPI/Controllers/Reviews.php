@@ -17,8 +17,8 @@ defined( 'ABSPATH' ) || exit;
  * Backs the Offerings menu's "Reviews" admin page
  * (`src/pages/Reviews/`) and a future public review-submission form on
  * `src/blocks/offerings/OfferingDetail.tsx`. `POST /reviews` (submit) is
- * public — same "guest-first" posture Cart/Order's own public routes
- * take (Cart\Rest.php's own docblock) — everything else is
+ * public - same "guest-first" posture Cart/Order's own public routes
+ * take (Cart\Rest.php's own docblock) - everything else is
  * `manage_options`-gated moderation, matching Order\Rest's own admin-only
  * listing/update posture.
  *
@@ -110,7 +110,7 @@ class Reviews extends \WP_REST_Controller {
     }
 
     /**
-     * Lists reviews, paginated — admin only.
+     * Lists reviews, paginated - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response
@@ -142,7 +142,7 @@ class Reviews extends \WP_REST_Controller {
     }
 
     /**
-     * Submits a new review. Public — see class docblock.
+     * Submits a new review. Public - see class docblock.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -182,7 +182,7 @@ class Reviews extends \WP_REST_Controller {
     }
 
     /**
-     * Moderates a review (approve/reject) — admin only.
+     * Moderates a review (approve/reject) - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error

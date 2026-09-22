@@ -12,12 +12,12 @@ export interface BuyButtonOptions {
 }
 
 /**
- * Buy Button — always a fresh, throwaway cart (`createEphemeralCartToken()`,
+ * Buy Button - always a fresh, throwaway cart (`createEphemeralCartToken()`,
  * not the visitor's ambient cart token), since clicking "Buy Now" on one
  * specific offering means "I want to buy JUST this," not "add this to
  * whatever else I already have queued up." Deliberately its own overlay
  * implementation, not a reuse of vulocart-pro's licensed "Popup Checkout"
- * module — Buy Button ships in the free tier (Sdk.php's own
+ * module - Buy Button ships in the free tier (Sdk.php's own
  * `features.buyButton: true`, unconditional), so it can't depend on
  * anything gated behind a Pro license.
  *

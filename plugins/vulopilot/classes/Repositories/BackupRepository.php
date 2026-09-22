@@ -10,7 +10,7 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_backups` (DATABASE.md) —
+ * Persistence for `vulopilot_backups` (DATABASE.md) -
  * Services\BackupManager/BackupScheduler's own real backup-run log, backing
  * "Backups"/"Recovery", `RestAPI\Controllers\Backups`, and
  * Scanners\Basic\BackupHealthScanner's Finding rows.
@@ -34,7 +34,7 @@ class BackupRepository extends AbstractRepository {
     }
 
     /**
-     * The single most recent backup row of any status —
+     * The single most recent backup row of any status -
      * Scanners\Basic\BackupHealthScanner's own "is the latest run healthy"
      * check.
      *
@@ -49,7 +49,7 @@ class BackupRepository extends AbstractRepository {
     }
 
     /**
-     * The single most recent successfully-completed backup row —
+     * The single most recent successfully-completed backup row -
      * BackupManager's own "how stale is the last good backup" check and the
      * safety snapshot Recovery always takes before a real restore looks for
      * its own most recent successful predecessor.
@@ -68,7 +68,7 @@ class BackupRepository extends AbstractRepository {
     }
 
     /**
-     * Every completed backup row beyond the newest `$keep_count` —
+     * Every completed backup row beyond the newest `$keep_count` -
      * BackupManager's own retention cleanup after each successful run.
      * Ordered oldest-first so the caller can delete file+row together
      * without a second query.

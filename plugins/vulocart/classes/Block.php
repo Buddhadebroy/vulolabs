@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Discovers and registers every Gutenberg block VuloCart ships:
  * `tools/webpack/create-config.js` builds each `src/blocks/{name}/` folder into
  * `assets/js/block/{name}/` (block.json copied alongside the built JS via
- * `CopyWebpackPlugin` — coding-standards.md's build section), and this
+ * `CopyWebpackPlugin` - coding-standards.md's build section), and this
  * class `glob()`s that *built* directory at runtime rather than hardcoding
  * a block list, so a new block folder under `src/blocks/` is picked up
  * automatically after a build with no PHP change needed here.
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * The vision's "Provide Gutenberg Blocks" list (Catalog, Offering Grid,
  * Checkout, Cart, Search, Buy Button, Recommendations, Collections) will
  * each just be another `src/blocks/{name}/` folder discovered the same
- * way — this class doesn't need to change as more are added.
+ * way - this class doesn't need to change as more are added.
  *
  * @class       Block class
  * @version     1.0.0
@@ -51,13 +51,13 @@ class Block {
 
     /**
      * Prints a tiny inline `vulocartFrontendData` global on every frontend
-     * page load — deliberately not `wp_localize_script()` against a
+     * page load - deliberately not `wp_localize_script()` against a
      * specific block's auto-generated view-script handle (fragile to
      * depend on WordPress's exact handle-naming convention); `wp_head`
      * always runs before any `viewScript` (typically footer-enqueued), so
      * this is guaranteed to exist by the time a block's view.js runs.
      * Cheap and harmless to print unconditionally even on pages with no
-     * VuloCart block — same tradeoff Cart/Order's public REST routes
+     * VuloCart block - same tradeoff Cart/Order's public REST routes
      * already accept (no nonce needed since these routes don't require
      * one, see RestAPI/Controllers/Cart.php's own docblock).
      *
@@ -69,7 +69,7 @@ class Block {
         $config = array(
             'apiUrl'                  => untrailingslashit( esc_url_raw( rest_url() ) ),
             'restUrl'                 => VuloCart()->rest_namespace,
-            // Checkout tab settings (src/settings/Checkout.ts) — real
+            // Checkout tab settings (src/settings/Checkout.ts) - real
             // storefront behavior now, not just saved-and-unread values:
             // src/blocks/checkout/Checkout.tsx enforces both client-side,
             // and Order\Rest::create_item() enforces guestCheckoutEnabled
@@ -79,19 +79,19 @@ class Block {
             'requireTermsAcceptance'  => ! empty( $settings['require_terms_acceptance'] ),
             'requirePhoneNumber'      => ! empty( $settings['require_phone_number'] ),
             'checkoutTermsUrl'        => (string) $settings['checkout_terms_url'],
-            // Domain\Checkout\CheckoutMode::free() — read by
+            // Domain\Checkout\CheckoutMode::free() - read by
             // src/blocks/checkout-engine/CheckoutEngine.tsx to decide
             // single-page vs. multi-step layout; the engine itself has no
             // idea this setting (or WordPress) exists, only Checkout.tsx
             // reads it and passes `mode` down as a prop.
             'checkoutMode'            => (string) $settings['checkout_mode'],
             'isLoggedIn'              => is_user_logged_in(),
-            // Frontend tab (src/settings/General/Frontend.ts) — whether the
+            // Frontend tab (src/settings/General/Frontend.ts) - whether the
             // checkout block shows its catalog-browsing section at all, and
             // whether the block functions at all.
             'offeringsListingEnabled' => ! empty( $settings['enable_offerings_listing'] ),
             'cartCheckoutEnabled'     => ! empty( $settings['enable_cart_checkout'] ),
-            // Cross-links between the storefront blocks — see
+            // Cross-links between the storefront blocks - see
             // find_page_url_with_block()'s own docblock for why this is
             // auto-discovered rather than a settings field the merchant
             // has to fill in by hand.
@@ -103,10 +103,10 @@ class Block {
 
         /**
          * Fires unconditionally on every `wp_head`, same "cheap and
-         * harmless" posture this whole method already has — lets
+         * harmless" posture this whole method already has - lets
          * vulocart-pro enqueue its own storefront bundle (e.g. Order
          * Notes/Coupons/Gift Cards' checkout-step extensions,
-         * `window.vulocartCheckoutEngine`'s own registrants —
+         * `window.vulocartCheckoutEngine`'s own registrants -
          * `src/blocks/checkout-engine/registry.ts`'s own docblock on why
          * a *storefront* Pro bundle, distinct from the wp-admin one
          * `VuloCartPro::enqueue_admin_script()` already handles, is
@@ -121,13 +121,13 @@ class Block {
 
     /**
      * Finds the first published page/post containing a given block,
-     * returning its permalink — backs `checkoutPageUrl`/
+     * returning its permalink - backs `checkoutPageUrl`/
      * `offeringsPageUrl` in `vulocartFrontendData`, so
      * `src/blocks/offerings/OfferingDetail.tsx`'s "Go to checkout" link
      * and any future cross-link between the storefront blocks don't
      * require the merchant to manually configure a page URL in Settings
      * (this plugin's admin-UX brief already asks for "make settings
-     * compact" — a block-editor "which page is checkout?" picker control
+     * compact" - a block-editor "which page is checkout?" picker control
      * would be its own real feature; a merchant only ever needs to add
      * the block to a page once for this to resolve correctly). Cached in
      * a transient, cleared on every `save_post` (clear_block_page_url_cache())
@@ -164,7 +164,7 @@ class Block {
 
     /**
      * Clears find_page_url_with_block()'s cache whenever any post/page is
-     * saved — cheap and broad rather than trying to detect exactly which
+     * saved - cheap and broad rather than trying to detect exactly which
      * save could have added/removed a `vulocart/checkout`/
      * `vulocart/offerings` block, since `save_post` isn't hot enough
      * (admin-only, infrequent) to make that precision worth the
@@ -224,14 +224,14 @@ class Block {
     /**
      * Makes every block's `viewScript` depend on the shared `vendors.js`
      * chunk webpack's `splitChunks` produces (`tools/webpack/
-     * create-config.js`, coding-standards.md's build section) — the same
+     * create-config.js`, coding-standards.md's build section) - the same
      * chunk `classes/Admin/Menu.php` already has to explicitly enqueue
      * ahead of `index.js` for the wp-admin bundle, for the identical
      * reason: any npm dependency a block's view.js imports that isn't a
      * WordPress-provided external (e.g. `axios`, used by
      * `src/blocks/checkout/Checkout.tsx`) lands in `vendors.js`, not the
      * view script itself, and `DependencyExtractionWebpackPlugin`'s
-     * generated `.asset.php` only ever lists WordPress script handles —
+     * generated `.asset.php` only ever lists WordPress script handles -
      * it has no way to know about this internal chunk. Without this,
      * `register_block_type()`'s automatic script registration (which only
      * reads that `.asset.php`) enqueues the view script with a dependency
@@ -270,13 +270,13 @@ class Block {
 
     /**
      * Enqueues `src/storefront/index.tsx`'s built output
-     * (`assets/js/storefront.js`) — see that file's own docblock for why
+     * (`assets/js/storefront.js`) - see that file's own docblock for why
      * this exists as an independent entry from the `vulocart/checkout`
      * block's own view script, and why that independence matters for
      * vulocart-pro's Popup/Embedded delivery modes specifically. Gated on
      * `enable_cart_checkout` (the same "is checkout even usable at all"
      * setting `print_frontend_config()`'s own `cartCheckoutEnabled` flag
-     * already reads) rather than `has_block()` — unlike a block's own
+     * already reads) rather than `has_block()` - unlike a block's own
      * view script, this has nothing to do with which blocks are on THIS
      * page, so a page-content check would be the wrong gate entirely.
      *

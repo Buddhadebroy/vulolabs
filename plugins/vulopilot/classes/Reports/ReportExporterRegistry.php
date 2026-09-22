@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Collects every registered report exporter and instantiates it. Free
  * ships csv/json only; pdf (vulopilot-pro/modules/AdvancedReports/
  * PdfExporter.php) is a Pro premium exporter, registered the same way a
- * premium scanner is per SCANNERS.md's documented extension strategy — via
+ * premium scanner is per SCANNERS.md's documented extension strategy - via
  * the `vulopilot_report_exporter_sources` filter, same discovery-by-filter
  * shape as ReportTypeRegistry. A third-party exporter (e.g. xlsx) uses the
  * exact same filter.

@@ -1,7 +1,7 @@
 /**
  * Every scanner id "Security Findings" rolls up (rather than
  * `category="security"` alone, so it doesn't silently drop
- * RestApiScanner's findings — its own category is `rest-api`, not
+ * RestApiScanner's findings - its own category is `rest-api`, not
  * `security`, see that scanner's own docblock). Its own file (not declared
  * inline in SecurityTab.tsx, where it originally lived) so
  * SecurityMetricsGrid.tsx can reuse it for its own "Security Scan" tile's
@@ -28,7 +28,7 @@ export const SECURITY_FINDINGS_SCANNER_IDS = [
 	'advanced-vulnerabilities',
 	'theme-vulnerabilities',
 	// Malware/Firewall/Login Protection/Backups tiles (SecurityMetricsGrid.tsx)
-	// — real, always-on core features (Services\MalwareScanner et al.), not
+	// - real, always-on core features (Services\MalwareScanner et al.), not
 	// a Modules-page module. Included here so "All Security Issues" doesn't
 	// silently undercount them, same reasoning already documented above for
 	// rest-api.

@@ -16,9 +16,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags two distinct SKU problems in one pass since both require the same
  * full product list to detect: a published, purchasable product with no
- * SKU at all (Severity::LOW — inventory/ops inconvenience, not
+ * SKU at all (Severity::LOW - inventory/ops inconvenience, not
  * customer-facing), and two or more products sharing the same non-empty
- * SKU (Severity::HIGH — breaks inventory tracking, shipping integrations,
+ * SKU (Severity::HIGH - breaks inventory tracking, shipping integrations,
  * and third-party catalog sync that key off SKU as a unique identifier).
  *
  * @class       ProductSkuIssuesScanner class

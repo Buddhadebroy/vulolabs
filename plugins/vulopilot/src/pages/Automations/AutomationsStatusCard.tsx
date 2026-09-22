@@ -10,12 +10,12 @@ interface StatusCounts {
 	disabled: number;
 }
 
-/** The 2 free built-in rows (Automations\BuiltinAutomationSeeder) — everything else in `GET /automations` is a custom automation. */
+/** The 2 free built-in rows (Automations\BuiltinAutomationSeeder) - everything else in `GET /automations` is a custom automation. */
 const BUILTIN_TRIGGERS = [ 'free_full_site_scan', 'free_visibility_report' ];
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
-/** Label with its smaller caption underneath — `AnalyticsComponent`'s `text` slot takes any node. */
+/** Label with its smaller caption underneath - `AnalyticsComponent`'s `text` slot takes any node. */
 const tileText = ( label: string, sub: string ) => (
 	<>
 		{ label }
@@ -24,7 +24,7 @@ const tileText = ( label: string, sub: string ) => (
 );
 
 /**
- * "Automation status" — a quick 4-tile health overview (Active / Not active /
+ * "Automation status" - a quick 4-tile health overview (Active / Not active /
  * Errors / Custom automations), replacing the old "Your website is being
  * watched" and "This month" cards per the redesigned Automations mockup.
  * Every number is real: `GET /automations`' own `status_counts` and rows
@@ -76,7 +76,7 @@ const AutomationsStatusCard = ( { refetchSignal }: { refetchSignal: number } ) =
 	}, [ refetchSignal ] );
 
 	const total = counts.enabled + counts.disabled;
-	const dash = '—';
+	const dash = '-';
 
 	return (
 		<CardComponent

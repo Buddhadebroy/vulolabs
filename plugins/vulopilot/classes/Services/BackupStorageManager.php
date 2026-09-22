@@ -13,7 +13,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real remote-upload orchestration for Backups' own storage destination —
+ * Real remote-upload orchestration for Backups' own storage destination -
  * hooks `vulopilot_backup_completed` (already fired by
  * `BackupManager::finalize_backup()` for every trigger type, manual/
  * scheduled/pre-restore-safety alike) and, when the site's own
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Deliberately does its own real HTTP upload on a freshly-scheduled
  * `wp_schedule_single_event()` tick, not synchronously inside the
- * `vulopilot_backup_completed` action itself — that action fires from
+ * `vulopilot_backup_completed` action itself - that action fires from
  * inside `BackupManager::process_batch()`'s own WP-Cron tick (or, for a
  * pre-restore safety snapshot, from `run_queue_synchronously()` during a
  * live restore REST request), and a slow/large upload shouldn't extend
@@ -31,11 +31,11 @@ defined( 'ABSPATH' ) || exit;
  * `BackupManager`'s own docblock establishes for the backup job itself.
  *
  * A backup's row is updated with real `destination`/`destination_status`/
- * `destination_error`/`remote_path` as this actually runs — see
+ * `destination_error`/`remote_path` as this actually runs - see
  * Install.php's own `create_backups_table()` docblock for what each real
  * status value means. `'local'` backups are left completely untouched
  * (`destination` stays the column's own default, `destination_status`
- * stays NULL) — nothing here runs at all in that case.
+ * stays NULL) - nothing here runs at all in that case.
  *
  * `delete_remote_copy()` below closes what used to be a documented gap
  * here: `Controllers\Backups::delete_item()` and `BackupManager::apply_retention()`
@@ -45,17 +45,17 @@ defined( 'ABSPATH' ) || exit;
  * once it's gone locally.
  *
  * Per "No Pro logic in Free": Amazon S3/Google Drive are now Pro-gated
- * (vulopilot-pro's own BackupCloudStorage module — see that module's own
- * docblock). This class keeps doing its own real job — deciding WHETHER a
+ * (vulopilot-pro's own BackupCloudStorage module - see that module's own
+ * docblock). This class keeps doing its own real job - deciding WHETHER a
  * completed backup should be uploaded, updating the row's real
- * destination/status columns — but the actual HTTP upload/delete against
+ * destination/status columns - but the actual HTTP upload/delete against
  * S3/Google Drive is asked for via the `vulopilot_backup_upload_to_remote`/
  * `vulopilot_backup_delete_remote_copy` actions rather than calling
  * BackupS3Connection/BackupGoogleDriveConnection directly (both moved to
  * Pro). When Pro isn't active/licensed, nothing is registered on either
  * action and both calls below are silent no-ops: the row is marked
  * `'uploading'` and then simply never resolves further, same as any other
- * `'local'` site that never re-checks a stuck row — no fatal, no crash,
+ * `'local'` site that never re-checks a stuck row - no fatal, no crash,
  * Free's own local-disk backup feature keeps working exactly as before.
  *
  * @class       BackupStorageManager class
@@ -77,7 +77,7 @@ class BackupStorageManager {
     }
 
     /**
-     * @return string One of self::VALID_DESTINATIONS — the real, currently-active setting.
+     * @return string One of self::VALID_DESTINATIONS - the real, currently-active setting.
      */
     public function get_active_destination(): string {
         $settings    = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
@@ -87,7 +87,7 @@ class BackupStorageManager {
     }
 
     /**
-     * `vulopilot_backup_completed` callback — marks the row's real
+     * `vulopilot_backup_completed` callback - marks the row's real
      * destination immediately (so BackupsTab.tsx shows "Uploading…"
      * without waiting for the next cron tick) and schedules the actual
      * upload.
@@ -118,7 +118,7 @@ class BackupStorageManager {
      * real upload and writes back the real, final outcome.
      *
      * @param int    $backup_id   Real `vulopilot_backups` row id.
-     * @param string $destination One of self::VALID_DESTINATIONS (never `'local'` — schedule_upload() never schedules this hook for that case).
+     * @param string $destination One of self::VALID_DESTINATIONS (never `'local'` - schedule_upload() never schedules this hook for that case).
      * @return void
      */
     public function upload_to_remote( int $backup_id, string $destination ): void {
@@ -148,12 +148,12 @@ class BackupStorageManager {
         }
 
         // Amazon S3/Google Drive are Pro-gated (vulopilot-pro's own
-        // BackupCloudStorage module) — the real upload itself is asked
+        // BackupCloudStorage module) - the real upload itself is asked
         // for via this action rather than calling BackupS3Connection/
         // BackupGoogleDriveConnection directly, so Free has zero
         // remaining reference to either moved class. When Pro isn't
         // active/licensed nothing is registered here and `$on_result`
-        // simply never runs — the row stays `'uploading'`, a silent
+        // simply never runs - the row stays `'uploading'`, a silent
         // no-op, same as this whole class's own top docblock documents.
         $on_result = function ( string $status, array $data = array() ) use ( $repository, $backup_id ) {
             $update = array( 'destination_status' => $status );
@@ -173,22 +173,22 @@ class BackupStorageManager {
     }
 
     /**
-     * Real remote-copy cleanup — called by `Controllers\Backups::delete_item()`
+     * Real remote-copy cleanup - called by `Controllers\Backups::delete_item()`
      * and `BackupManager::apply_retention()` right alongside their own local
      * unlink()+row-delete, with the real row they already have in hand (no
      * second DB read here). A no-op for a `'local'`-only backup, one that
      * never finished uploading (`destination_status` isn't `'uploaded'`
-     * yet — nothing real exists remotely to clean up), or one with no
+     * yet - nothing real exists remotely to clean up), or one with no
      * `remote_path` recorded.
      *
      * Deliberately best-effort: runs synchronously (a single lightweight
      * DELETE request, not the multi-hundred-KB/MB PUT/upload
      * `upload_to_remote()` above schedules onto its own cron tick) and
-     * never blocks or fails the caller's own local delete — a remote
+     * never blocks or fails the caller's own local delete - a remote
      * provider being briefly unreachable shouldn't prevent someone from
      * deleting a backup row locally. Errors are logged (`Utill::log()`,
      * same real opt-in debug-log posture every other best-effort failure in
-     * this codebase already uses — wrapped in a plain `\Exception` since
+     * this codebase already uses - wrapped in a plain `\Exception` since
      * that method takes a `\Throwable`, not a `\WP_Error`), not surfaced to
      * the REST response.
      *
@@ -208,7 +208,7 @@ class BackupStorageManager {
         }
 
         // Same Pro-gated indirection as schedule_upload()/
-        // upload_to_remote() above — Free never calls BackupS3Connection/
+        // upload_to_remote() above - Free never calls BackupS3Connection/
         // BackupGoogleDriveConnection directly. A silent no-op when Pro
         // isn't active/licensed: the remote copy (if any) is simply left
         // in place, which is the same best-effort posture this method's

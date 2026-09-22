@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Scanning → SEO & Content — first tab under Scanning (see
+ * Settings → Scanning → SEO & Content - first tab under Scanning (see
  * `priority: 0` below) per direct instruction, now that the sibling
  * "Content & Search" tab (id `content-search`, ContentSearch.ts) has been
  * removed entirely, also per direct instruction. That tab used to hold a
@@ -11,24 +11,24 @@ import { __ } from '@wordpress/i18n';
  * `flag_duplicate_titles`, `flag_missing_alt_text`/`flag_broken_images`,
  * `flag_broken_links`, `content_readability_min_score`) was moved out into
  * this tab as flat standalone keys, leaving only each row's own bare
- * `enable` master switch behind — with no settings left of its own to
+ * `enable` master switch behind - with no settings left of its own to
  * show, that tab (and its "Restore Defaults" header,
  * ContentSearchScansHeader.tsx, also deleted) was removed outright rather
  * than kept around empty.
  *
  * `content_search_scans.{seo,images,links,schema,readability}.enable`
  * (Utill::VULOPILOT_SETTINGS_DEFAULTS) are themselves still real and still
- * read by their own PHP scanners — SeoScanner/HeadingStructureScanner,
+ * read by their own PHP scanners - SeoScanner/HeadingStructureScanner,
  * LargeImagesScanner, RedirectAnalysisScanner/NotFoundScanner,
  * SchemaScanner/StructuredDataValidationScanner, ReadabilityScanner's own
- * on/off switch respectively — just with no admin UI left to toggle them
+ * on/off switch respectively - just with no admin UI left to toggle them
  * (they stay at their own `true` default). `broken_link_check_frequency`/
  * `broken_image_check_frequency` are the same story, flat settings with
  * no UI of their own, read directly by BrokenLinksScanner/
  * BrokenImagesScanner as a rate-limit, not an on/off switch.
  *
  * Granular, per-check toggles replacing the old whole-category
- * `enable_seo_scanning` switch — same "no blanket kill switch, only
+ * `enable_seo_scanning` switch - same "no blanket kill switch, only
  * granular ones" posture Scanning → GEO already uses. Each checkbox's
  * option key/value is the field's own settings key (not a shared
  * 'enabled' literal), matching every other settings tab in this plugin.
@@ -44,9 +44,9 @@ import { __ } from '@wordpress/i18n';
  * - Readability: `content_readability_min_score` gates ReadabilityScanner's
  *   own threshold (that scanner's separate on/off switch,
  *   `content_search_scans.readability.enable`, has no admin UI of its own
- *   any more — see this file's own top docblock).
+ *   any more - see this file's own top docblock).
  * - Robots.txt: a real toggle over WordPress core's own virtual
- *   robots.txt (via Services\RobotsTxtManager) — not a from-scratch
+ *   robots.txt (via Services\RobotsTxtManager) - not a from-scratch
  *   generator, plus `flag_ai_crawler_blocked_pages`
  *   (Scanners\Basic\AiCrawlerBlockedPagesScanner,
  *   AI-CRAWLER-ANALYTICS-MODULE.md).
@@ -54,15 +54,15 @@ import { __ } from '@wordpress/i18n';
  * "XML Sitemap"/"Post types & taxonomies in sitemap"/"HTML Sitemap" (all
  * real `sitemap_*`/`html_sitemap_*` keys) moved out entirely, into their
  * own new sub-tab, Settings → Get Started → Sitemap (`GetStarted/Sitemap.ts`)
- * — same real backend, only where the UI for it lives moved.
+ * - same real backend, only where the UI for it lives moved.
  * - "Add canonical URL tags" / "Add Open Graph & Twitter Card tags"
  *   (Links & schema): real, independent tag output via
- *   Services\CanonicalUrlManager/SocialMetaTagsManager — the mechanical
+ *   Services\CanonicalUrlManager/SocialMetaTagsManager - the mechanical
  *   (non-AI) fixes vulopilot-pro's OneClickFix "Fix" action flips on for
  *   CanonicalUrlScanner/OpenGraphScanner/TwitterCardScanner's findings.
  *   Both default off; WordPress core (or another plugin) already covers
  *   most sites.
- * - Redirects & 404s: persisted settings only — a real 301 redirect
+ * - Redirects & 404s: persisted settings only - a real 301 redirect
  *   manager and a real 404-visit log (distinct from
  *   Scanners\Basic\NotFoundScanner, which only checks this site's OWN
  *   published permalinks for 404s, not visitor traffic) don't exist in
@@ -70,19 +70,19 @@ import { __ } from '@wordpress/i18n';
  *   toggles round-trip through Settings correctly but nothing reads them
  *   yet (Utill.php's own defaults list this same caveat).
  * "Tag Manager" (`tag_manager_enabled`/`tag_manager_container_id`, real
- * Services\TagManagerService `<script>`/`<noscript><iframe>` output — used
+ * Services\TagManagerService `<script>`/`<noscript><iframe>` output - used
  * to be this tab's own last section) moved out to Settings → Connections
  * (TagManagerPanel.tsx), rendered above "Webmaster Tools" there, per direct
- * instruction — same real keys, nothing server-side changed.
+ * instruction - same real keys, nothing server-side changed.
  *
  * "Webmaster Tools"/"Custom Webmaster Tags" (all 6 `webmaster_*_verification`
  * codes + `webmaster_custom_tags`, all still real
  * Services\WebmasterToolsManager-backed `<meta>` output) moved out of this
  * tab entirely, merged into Settings → Connections → Site Verification
- * (SiteVerificationPanel.tsx) per direct instruction — that panel already
+ * (SiteVerificationPanel.tsx) per direct instruction - that panel already
  * owned Google/Bing/Pinterest with a real "Verify" self-check; Baidu/
  * Yandex/Norton/Custom Tags now live there too as plain fields (no fake
- * Verify button — this plugin has no real self-check for those), so
+ * Verify button - this plugin has no real self-check for those), so
  * there's one editor for all 6 instead of two.
  */
 export default {
@@ -108,7 +108,7 @@ export default {
             title: __('About Page', 'vulopilot'),
             icon: 'web-page-website',
             desc: __(
-                'Controls the Brand page\'s About Page Analysis finding — evaluated only for sites that already have an About-shaped page.',
+                'Controls the Brand page\'s About Page Analysis finding - evaluated only for sites that already have an About-shaped page.',
                 'vulopilot'
             ),
         },
@@ -123,7 +123,7 @@ export default {
             ),
         },
         {
-            // Not a real, independently-writable field here — same
+            // Not a real, independently-writable field here - same
             // treatment as `kg-health-drop-threshold-note` above, scoped to
             // `visibility_alerts.brand` instead of `.knowledge_graph`.
             key: 'brand-drop-threshold-note',
@@ -275,7 +275,7 @@ export default {
 			
 			label: __('Add canonical URL tags', 'vulopilot'),
 			settingDescription: __(
-				'canonical tags to indicate the preferred URL for pages with duplicate or similar content. WordPress already adds these by default — only turn this on if the "Canonical URLs" finding shows them missing.',
+				'canonical tags to indicate the preferred URL for pages with duplicate or similar content. WordPress already adds these by default - only turn this on if the "Canonical URLs" finding shows them missing.',
 				'vulopilot'
 			),
 			options: [
@@ -345,7 +345,7 @@ export default {
 					value: 'flag_ai_crawler_blocked_pages',
 				},
 			],
-			moduleEnabled: 'ai-crawler-analytics',
+			moduleEnabled: 'ai-crawler-tracking',
 		},
 		{
 			key: 'seo-section-redirects',

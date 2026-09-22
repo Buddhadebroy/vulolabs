@@ -22,7 +22,7 @@ const FULFILLMENT_STATUS_OPTIONS = [
 
 /**
  * Order\Domain\PaymentStatus::all() (modules/Order/Domain/PaymentStatus.php)
- * — deliberately excludes 'refunded' from this dropdown's own options;
+ * - deliberately excludes 'refunded' from this dropdown's own options;
  * refunding goes through the dedicated "Issue refund" action below
  * instead, since a real refund needs an amount, not just a status flip.
  */
@@ -43,7 +43,7 @@ interface OrderItem {
 
 /**
  * Address\Application\AddressService::FIELDS (modules/Address/Application/
- * AddressService.php) — the same open-shape bag snapshotted onto an order,
+ * AddressService.php) - the same open-shape bag snapshotted onto an order,
  * not a reusable address-book entry.
  */
 interface AddressBag {
@@ -86,7 +86,7 @@ interface OrderEditProps {
 
 /**
  * Renders a snapshotted billing/shipping AddressBag as plain read-only
- * text — an order's address is historical (Order::$billing_address's own
+ * text - an order's address is historical (Order::$billing_address's own
  * docblock), never edited from this screen.
  */
 function AddressDisplay( { address }: { address: AddressBag } ) {
@@ -107,7 +107,7 @@ function AddressDisplay( { address }: { address: AddressBag } ) {
 }
 
 /**
- * A dedicated full page for viewing/updating one order — the real
+ * A dedicated full page for viewing/updating one order - the real
  * WooCommerce order-edit-screen pattern (per this plugin's admin-UX
  * brief), replacing the popup this page used to open from the list.
  * Fetches `GET /orders/{id}` (modules/Order/Rest.php's `get_item()`,
@@ -116,10 +116,10 @@ function AddressDisplay( { address }: { address: AddressBag } ) {
  * in-memory row to seed from.
  *
  * Payment Status and Fulfillment Status are two independent fields now
- * (PaymentStatus.php's/FulfillmentStatus.php's own docblocks) — both save
+ * (PaymentStatus.php's/FulfillmentStatus.php's own docblocks) - both save
  * together via one `PATCH /orders/{id}` call. Refunding is a separate
  * action (not just another payment-status option) since a real refund
- * needs an amount recorded (`refunded_amount`), not just a status flip —
+ * needs an amount recorded (`refunded_amount`), not just a status flip -
  * `POST /orders/{id}/refund`.
  *
  * Saving stays on the page and shows an inline "Order updated." notice,
@@ -127,11 +127,11 @@ function AddressDisplay( { address }: { address: AddressBag } ) {
  * away from the order you're looking at).
  *
  * Card-based layout (its own page wrapper rather than the generic
- * `ContainerComponent`/`ColumnComponent` shell — same opt-out
+ * `ContainerComponent`/`ColumnComponent` shell - same opt-out
  * OfferingEdit.tsx makes for the same reason: a custom multi-card layout,
  * not a plain form). Billing/shipping address, shipping method+cost, tax,
  * and payment method (Customer/Address/Shipping/Taxes/Payment modules) are
- * real order fields now and rendered when present — still no shipment
+ * real order fields now and rendered when present - still no shipment
  * tracking, order notes, or commission fields, since none of those exist
  * in the Order domain.
  */

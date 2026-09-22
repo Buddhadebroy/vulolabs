@@ -40,7 +40,7 @@ const MANUAL_CHECKS: ManualCheck[] = [
 ];
 
 /**
- * The mockup's "Some accessibility checks need a person" panel — real,
+ * The mockup's "Some accessibility checks need a person" panel - real,
  * honest framing (automated scanners genuinely can't judge any of these
  * three), not a fabricated internal feature: "Open Manual Checklist"
  * links out to the W3C's own real WCAG 2 Quick Reference checklist

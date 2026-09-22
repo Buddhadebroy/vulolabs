@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real Google OAuth 2.0 connection shared by Search Console, Analytics
- * (GA4), and AdSense — one "Connect Google Services" button/consent
+ * (GA4), and AdSense - one "Connect Google Services" button/consent
  * screen covering all three read scopes at once, matching the reference
  * flow (a single connect step, then per-service pickers) rather than
  * three separate connect buttons. Replaces the earlier
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Unlike a bring-your-own-credential integration (AI Providers' own API
  * keys), the Client ID/Secret here is ONE shared Google Cloud OAuth
- * Client VuloLabs itself registers — `VULOPILOT_GOOGLE_CLIENT_ID`/
+ * Client VuloLabs itself registers - `VULOPILOT_GOOGLE_CLIENT_ID`/
  * `VULOPILOT_GOOGLE_CLIENT_SECRET`, defined once in the plugin's own
  * config.php (see that file's docblock for the real trade-offs this
  * accepts). A site owner never sees or enters a Client ID/Secret; they
@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  * `get_valid_access_token()`.
  *
  * Storage is one dedicated `vulopilot_google_connection` option,
- * deliberately NOT part of `Utill::VULOPILOT_SETTINGS_KEY` — that option
+ * deliberately NOT part of `Utill::VULOPILOT_SETTINGS_KEY` - that option
  * round-trips wholesale to the browser on every `GET /settings` call
  * (Controllers\Settings::get_items()), and a client secret/access/refresh
  * token must never reach the client the way AiProviderConfigRepository's
@@ -48,7 +48,7 @@ class GoogleServicesConnection {
     private const OPTION_KEY = 'vulopilot_google_connection';
 
     /**
-     * One combined consent screen for all three services — matching the
+     * One combined consent screen for all three services - matching the
      * reference flow's own single "Connect Google Services" button
      * rather than three separate authorize round-trips. `analytics.readonly`
      * covers GA4 account/property/data-stream listing (Analytics Admin
@@ -68,7 +68,7 @@ class GoogleServicesConnection {
     private const SITES_URL = 'https://www.googleapis.com/webmasters/v3/sites';
 
     /**
-     * Google access tokens are typically valid ~3600s — refreshed a minute
+     * Google access tokens are typically valid ~3600s - refreshed a minute
      * early so a request never races an in-flight expiry.
      */
     private const EXPIRY_SAFETY_MARGIN = 60;
@@ -76,7 +76,7 @@ class GoogleServicesConnection {
     /**
      * Every real SPA destination Google's own redirect
      * (GoogleSearchConsoleOAuthCallbackHandler::handle_callback()) is
-     * allowed to land back on — 'settings' (Settings → Scanning → Google
+     * allowed to land back on - 'settings' (Settings → Scanning → Google
      * Services, GoogleServicesPanel.tsx's own original, only-ever
      * destination) or 'keywords' (SEO & Visibility → Keywords,
      * KeywordsTab.tsx's own inline connect flow). Kept as a real
@@ -105,7 +105,7 @@ class GoogleServicesConnection {
                 'adsense_account_name' => '',
                 'connected_at'       => '',
                 // 'direct' (embedded shared Client) or 'broker'
-                // (VuloCloud) — which path actually issued the current
+                // (VuloCloud) - which path actually issued the current
                 // tokens, so refresh_access_token() knows which OAuth
                 // Client the stored refresh_token belongs to. Empty
                 // string only pre-first-connect.
@@ -124,7 +124,7 @@ class GoogleServicesConnection {
 
     /**
      * The redirect_uri registered with Google must be EXACTLY this URL
-     * (down to trailing slashes/scheme) — `admin-post.php` (not a REST
+     * (down to trailing slashes/scheme) - `admin-post.php` (not a REST
      * route) because Google's own top-level browser redirect back here
      * carries no `X-WP-Nonce` header for a REST nonce check, and
      * `admin-post.php` already authenticates via the same login cookie
@@ -138,7 +138,7 @@ class GoogleServicesConnection {
 
     /**
      * Whether VuloLabs has actually configured a real shared Client
-     * ID/Secret for this build yet (see config.php's own docblock) —
+     * ID/Secret for this build yet (see config.php's own docblock) -
      * both constants default to empty strings until they are, so this
      * build honestly reports "not available" rather than pretending a
      * shared client exists when it doesn't.
@@ -152,7 +152,7 @@ class GoogleServicesConnection {
 
     /**
      * Whether this build has a VuloCloud Google Connect broker configured
-     * (config.php's own docblock) — when true, `get_authorization_url()`
+     * (config.php's own docblock) - when true, `get_authorization_url()`
      * routes through it instead of the embedded shared Client above, and
      * every customer domain works without being individually registered
      * in Google Cloud Console. Checked ahead of `has_client_credentials()`
@@ -161,7 +161,7 @@ class GoogleServicesConnection {
      * VULOPILOT_GOOGLE_CLIENT_ID/SECRET undefined entirely.
      *
      * Requires VULOPILOT_GOOGLE_APPLICATION_ID too, not just the broker
-     * URL — VuloCloud's `/plugin/google/*` endpoints resolve which
+     * URL - VuloCloud's `/plugin/google/*` endpoints resolve which
      * Organization's Google Cloud OAuth Client to use FROM that id (see
      * config.php's own docblock); a broker URL with no application id
      * configured can never complete a real request, so this honestly
@@ -190,7 +190,7 @@ class GoogleServicesConnection {
     }
 
     /**
-     * Real Google OAuth 2.0 authorization URL — `access_type=offline` +
+     * Real Google OAuth 2.0 authorization URL - `access_type=offline` +
      * `prompt=consent` so Google actually issues a refresh_token (it
      * otherwise only does this on a user's very first consent, silently
      * omitting it on repeat authorizations), `state` carries both a real
@@ -199,7 +199,7 @@ class GoogleServicesConnection {
      * admin-post handler's own `check_admin_referer()` would) and
      * `$return_to`, so the callback can send the browser back to
      * whichever real SPA tab actually started the connection instead of
-     * always landing on Settings — Google itself never inspects `state`,
+     * always landing on Settings - Google itself never inspects `state`,
      * it just echoes whatever opaque value we send back on redirect.
      *
      * @param string $return_to One of self::RETURN_TARGETS; anything else silently falls back to 'settings'.
@@ -238,7 +238,7 @@ class GoogleServicesConnection {
 
     /**
      * @param string $return_to Already validated against self::RETURN_TARGETS by the caller.
-     * @return string Base64'd JSON — a real WP nonce plus the plain, allow-listed return target.
+     * @return string Base64'd JSON - a real WP nonce plus the plain, allow-listed return target.
      */
     private static function encode_state( string $return_to ): string {
         return base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- URL-safe transport encoding for an opaque `state` value, not obfuscation; every field inside is either a real WP nonce (verified below) or an allow-listed plain string.
@@ -276,13 +276,13 @@ class GoogleServicesConnection {
     }
 
     /**
-     * Read independently of `verify_state()` — deliberately NOT gated on
+     * Read independently of `verify_state()` - deliberately NOT gated on
      * nonce validity, so even a failed/expired handshake still redirects
      * the browser back to whichever real tab the site owner started from
      * rather than always falling back to Settings on error. Safe to trust
      * without the nonce check: `decode_state()` itself only ever returns
      * an allow-listed value (self::RETURN_TARGETS), so there's no
-     * open-redirect or injection surface here — worst case is landing on
+     * open-redirect or injection surface here - worst case is landing on
      * the wrong (but still real, internal) SPA tab.
      *
      * @param string $state The `state` query param Google's redirect carried back.
@@ -294,7 +294,7 @@ class GoogleServicesConnection {
 
     /**
      * Real `POST https://oauth2.googleapis.com/token` authorization_code
-     * exchange — the actual OAuth handshake, not a stub. Both tokens are
+     * exchange - the actual OAuth handshake, not a stub. Both tokens are
      * encrypted before being stored; `refresh_token` is only ever present
      * in Google's response on first consent (see `get_authorization_url()`'s
      * own `prompt=consent`), so an existing one is preserved on
@@ -356,7 +356,7 @@ class GoogleServicesConnection {
     }
 
     /**
-     * Broker counterpart of `exchange_code_for_tokens()` — redeems the
+     * Broker counterpart of `exchange_code_for_tokens()` - redeems the
      * broker-issued `code` GoogleSearchConsoleOAuthCallbackHandler
      * received on VuloCloud's own redirect back to this site's
      * admin-post.php callback, via a real server-to-server
@@ -392,7 +392,7 @@ class GoogleServicesConnection {
     }
 
     /**
-     * Real `refresh_token` grant — called by `get_valid_access_token()`
+     * Real `refresh_token` grant - called by `get_valid_access_token()`
      * whenever the stored access token is expired (or about to be).
      * Branches on the stored connection's own `via` flag: a refresh
      * token is only valid against the OAuth Client that issued it, so a
@@ -415,7 +415,7 @@ class GoogleServicesConnection {
         if ( 'broker' === $connection['via'] ) {
             if ( ! $this->has_broker() ) {
                 // Connected via broker, but this build's broker URL was
-                // since unset — nothing left that can legally refresh
+                // since unset - nothing left that can legally refresh
                 // this refresh_token; fail rather than guess.
                 return false;
             }
@@ -498,7 +498,7 @@ class GoogleServicesConnection {
     }
 
     /**
-     * Whether a real refresh token is on file — the one durable signal
+     * Whether a real refresh token is on file - the one durable signal
      * that this site has actually completed the OAuth handshake at least
      * once (an access token alone always eventually expires; the refresh
      * token is what makes the connection long-lived).
@@ -510,7 +510,7 @@ class GoogleServicesConnection {
     }
 
     /**
-     * Real `GET https://www.googleapis.com/webmasters/v3/sites` call —
+     * Real `GET https://www.googleapis.com/webmasters/v3/sites` call -
      * this site's verified Search Console properties, used both to prove
      * the connection actually works end-to-end (not just that a token
      * exchange succeeded) and to let the site owner pick which verified
@@ -592,7 +592,7 @@ class GoogleServicesConnection {
 
     /**
      * Clears tokens/selected properties but keeps the saved Client
-     * ID/Secret — reconnecting shouldn't require re-entering the OAuth
+     * ID/Secret - reconnecting shouldn't require re-entering the OAuth
      * client every time, only re-consenting with Google.
      *
      * @return void
@@ -626,7 +626,7 @@ class GoogleServicesConnection {
         return array(
             'connected'              => $this->is_connected(),
             // Whether VuloLabs' own shared Google Cloud OAuth Client is
-            // configured for this build (config.php) — never a per-site
+            // configured for this build (config.php) - never a per-site
             // value, so there's no client_id to show back here; the
             // panel either shows a working "Connect" button or an honest
             // "not available in this build yet" state based on this flag.
@@ -636,7 +636,7 @@ class GoogleServicesConnection {
             // Cloud Console registration) rather than the embedded
             // shared Client above (only domains manually allowlisted on
             // that Client's own redirect URI list will complete the
-            // handshake) — see config.php's VULOPILOT_GOOGLE_BROKER_URL.
+            // handshake) - see config.php's VULOPILOT_GOOGLE_BROKER_URL.
             'has_broker'              => $this->has_broker(),
             'search_console_site'    => $connection['search_console_site'],
             'ga4_account_id'         => $connection['ga4_account_id'],
@@ -649,7 +649,7 @@ class GoogleServicesConnection {
             'connected_at'           => $connection['connected_at'],
             // The exact URL the site owner must register as an
             // "Authorized redirect URI" on their Google Cloud OAuth
-            // Client — shown in the panel's own setup instructions so
+            // Client - shown in the panel's own setup instructions so
             // this never has to be reverse-engineered or hardcoded twice.
             'redirect_uri'           => $this->get_redirect_uri(),
         );

@@ -15,18 +15,18 @@ use VuloPilot\Repositories\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Marks the specific Finding a Recommendation came from as 'snoozed' —
+ * Marks the specific Finding a Recommendation came from as 'snoozed' -
  * Free's own manual-only counterpart to vulopilot-pro's Automations module
  * (Contracts\Automations\ActionInterface's Pro-side implementations:
  * SendEmailAction/ResolveFindingAction/CreateNotificationAction/
  * RunAiActionAction). 'snoozed' has been a valid Finding status
  * (FindingRepository::get_status_counts(), the FindingsTable status filter)
- * since it was first introduced, but nothing has ever actually set it —
+ * since it was first introduced, but nothing has ever actually set it -
  * Free's own FindingsTable.tsx only ever wires "Mark resolved"/"Ignore"/
  * "Reopen" row actions. This is the first thing that sets it, deliberately
  * distinct from ResolveFindingAction's 'resolved' (a permanent "this is
  * fixed") and CreateNotificationAction's activity-log entry (an FYI with no
- * state change): a temporary "not now, but don't forget it either" — same
+ * state change): a temporary "not now, but don't forget it either" - same
  * lookup-by-object_type/object_ref shape as ResolveFindingAction, since
  * Recommendation carries neither a finding id nor Free's own automation
  * engine to run it through (see ManualActionRunner).
@@ -68,7 +68,7 @@ class SnoozeFindingAction implements ActionInterface {
      */
     public function changes_site_state(): bool {
         // A real UPDATE to the finding's own status column when it succeeds
-        // — same as ResolveFindingAction's own answer, for the same reason.
+        // - same as ResolveFindingAction's own answer, for the same reason.
         return true;
     }
 

@@ -15,11 +15,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Same `WP_Site_Health`-wrapping approach WordPressHealthScanner uses,
  * scoped to the 2 tests that are actually about the hosting environment
- * rather than WordPress itself — PHP version and the SQL server version —
+ * rather than WordPress itself - PHP version and the SQL server version -
  * so "Server" and "WordPress" stay two genuinely distinct categories
  * rather than one grab-bag. See WordPressHealthScanner's own docblock for
  * the full "wrap core, don't reinvent" / status-mapping reasoning, shared
- * here rather than abstracted into a common base class — two ~15-line
+ * here rather than abstracted into a common base class - two ~15-line
  * private methods duplicated once is simpler than a new shared class for
  * two callers, same restraint every other scanner pair in this codebase
  * already shows.
@@ -76,7 +76,7 @@ class ServerHealthScanner extends AbstractBasicScanner {
     }
 
     /**
-     * `WP_Site_Health` itself is only autoloaded in wp-admin — but
+     * `WP_Site_Health` itself is only autoloaded in wp-admin - but
      * `get_test_php_version()` also calls `wp_check_php_version()`, which
      * lives in wp-admin/includes/misc.php, not autoloaded outside
      * wp-admin either. A gap that only shows up when this scanner runs
@@ -129,7 +129,7 @@ class ServerHealthScanner extends AbstractBasicScanner {
     /**
      * Same real paragraph-recovery (and same `<br>`-within-a-paragraph
      * handling) `WordPressHealthScanner`'s own `split_into_paragraphs()`
-     * documents — duplicated here rather than shared, same restraint this
+     * documents - duplicated here rather than shared, same restraint this
      * class's own top docblock already explains for
      * `finding_from_test_result()` itself.
      *
@@ -143,7 +143,7 @@ class ServerHealthScanner extends AbstractBasicScanner {
             array_filter(
                 array_map(
                     static fn( string $chunk ): string => trim(
-                        wp_strip_all_tags( preg_replace( '/<br\s*\/?>/i', ' — ', $chunk ) ?? $chunk )
+                        wp_strip_all_tags( preg_replace( '/<br\s*\/?>/i', ' - ', $chunk ) ?? $chunk )
                     ),
                     $chunks
                 ),

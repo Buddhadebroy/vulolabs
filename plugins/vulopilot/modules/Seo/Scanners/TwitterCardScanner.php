@@ -15,7 +15,7 @@ use VuloPilot\Scanners\Basic\AbstractBasicScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fetches the homepage and flags a missing `twitter:card` meta tag —
+ * Fetches the homepage and flags a missing `twitter:card` meta tag -
  * without it, X/Twitter falls back to a plain link with no preview image
  * or summary when this site's pages are shared there, independent of
  * whether Open Graph tags (a separate protocol X/Twitter only partially

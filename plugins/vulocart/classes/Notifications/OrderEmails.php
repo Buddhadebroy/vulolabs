@@ -15,12 +15,12 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart OrderEmails.
  *
  * A pure listener on the events modules/Order/Application/OrderService.php
- * already broadcasts via Events\EventDispatcher — this class holds no
+ * already broadcasts via Events\EventDispatcher - this class holds no
  * order business logic itself (php-wordpress.md's "hooks are transport,
  * not logic" rule), it only reacts once OrderService has already decided
  * an order was created or changed status. Registered unconditionally from
  * VuloCart::init_classes() rather than gated on the Order module being
- * active — safe either way, since `vulocart_order_created`/
+ * active - safe either way, since `vulocart_order_created`/
  * `vulocart_order_payment_status_changed`/
  * `vulocart_order_fulfillment_status_changed` only ever fire when the
  * Order module itself is active and dispatching them. Order used to have
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
  * The Settings screen's Email tab (src/settings/Email.ts) controls both
  * whether each email actually sends (`send_order_confirmation_email`/
  * `send_status_update_email`) and the From address used
- * (`notification_from_email`) — read fresh on every send rather than
+ * (`notification_from_email`) - read fresh on every send rather than
  * cached, since this class has no other lifecycle hook to invalidate a
  * cached copy on save.
  *
@@ -53,7 +53,7 @@ class OrderEmails {
     }
 
     /**
-     * Reads the stored settings option, defaults filled in — a small,
+     * Reads the stored settings option, defaults filled in - a small,
      * local copy of RestAPI\Controllers\Settings::get_stored_settings()
      * rather than a shared helper, since that method is `private` on a
      * REST controller with a different lifecycle/responsibility.
@@ -66,7 +66,7 @@ class OrderEmails {
 
     /**
      * `wp_mail()`'s optional headers array, carrying a `From:` header when
-     * the Email tab's `notification_from_email` is set — omitted entirely
+     * the Email tab's `notification_from_email` is set - omitted entirely
      * when blank so `wp_mail()` falls back to its own site-default sender
      * rather than this class asserting an empty/invalid From address.
      *
@@ -105,7 +105,7 @@ class OrderEmails {
 
     /**
      * Sends the buyer a confirmation email right after an order is placed.
-     * Silently does nothing for orders with no email on file — a cart
+     * Silently does nothing for orders with no email on file - a cart
      * checked out with no customer_email is a valid, real state
      * (Rest::create_item()'s `customer_email` param is optional), not an
      * error to log.
@@ -153,7 +153,7 @@ class OrderEmails {
     /**
      * Sends the buyer a notice whenever an admin changes their order's
      * fulfillment status (Rest::update_item()/bulk_update_fulfillment_status())
-     * — never fires for the initial pending status, since
+     * - never fires for the initial pending status, since
      * create_from_cart() sets that directly rather than going through
      * update_fulfillment_status().
      *
@@ -172,7 +172,7 @@ class OrderEmails {
     /**
      * Sends the buyer a notice whenever an admin changes their order's
      * payment status (Rest::update_item()/bulk_update_payment_status()/
-     * refund_item()) — never fires for the initial pending status.
+     * refund_item()) - never fires for the initial pending status.
      *
      * @param array{order: object} $payload Order\Domain\Order under the 'order' key.
      * @return void
@@ -188,7 +188,7 @@ class OrderEmails {
 
     /**
      * Shared body for send_fulfillment_status_update()/
-     * send_payment_status_update() — same settings gate, same
+     * send_payment_status_update() - same settings gate, same
      * silent-no-op-without-an-email rule, only the (already fully
      * translated, %1$s/%2$s/%3$s-placeholdered) body sentence and status
      * word differ.

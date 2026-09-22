@@ -4,29 +4,29 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse } from '@zyra/core';
 import InfoBanner from '../../components/InfoBanner';
 
-/** `?page=vulopilot#&tab=site-health&subtab=backups` — Site Health's own real "Backups" tab (BackupsTab.tsx) this notice links to when it's not already rendered there itself (see `onNavigateToBackups`). */
+/** `?page=vulopilot#&tab=site-health&subtab=backups` - Site Health's own real "Backups" tab (BackupsTab.tsx) this notice links to when it's not already rendered there itself (see `onNavigateToBackups`). */
 const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health&subtab=backups';
 
 /**
- * "Backup protection: Enabled/Not enabled" — a single real status line with
+ * "Backup protection: Enabled/Not enabled" - a single real status line with
  * a link, not a duplicate feature card, per direct instruction: this tab
  * used to also carry a full "Backups" tile (SecurityMetricsGrid.tsx, real
  * data, its own "View" button) alongside the real Backups tab
- * (BackupsTab.tsx) and Settings → Get Started → Backups' own configuration —
+ * (BackupsTab.tsx) and Settings → Get Started → Backups' own configuration -
  * three places showing/controlling the same thing. The tile was removed
  * earlier this session; this notice is this tab's own honest replacement
  * for "is backup protection even on," scoped to exactly one fact rather
  * than re-adding a scanner-badge/last-scan-time card.
  *
  * Reads the real `enable_automatic_backups` setting (`GET /settings`,
- * Settings/GetStarted/Backups.ts's own checkbox — a checkbox-*group* field,
+ * Settings/GetStarted/Backups.ts's own checkbox - a checkbox-*group* field,
  * so its stored value is an array, `[]` when off per Utill.php's own
  * default, not a plain boolean) rather than inferring "protected" from
- * whether a backup has ever actually run — that's Backups tab's own job
+ * whether a backup has ever actually run - that's Backups tab's own job
  * (real row list), not this one-line summary's.
  *
  * Rendered as the shared `InfoBanner` (real `info-banner-bg.png`/
- * `info-banner.png` illustration pair), not zyra's own `NoticeComponent` —
+ * `info-banner.png` illustration pair), not zyra's own `NoticeComponent` -
  * this is an always-visible inline status line, not a dismissible
  * `NoticeManager` queue entry, so the render is a plain inline component
  * instead.
@@ -34,7 +34,7 @@ const BACKUPS_TAB_URL = '?page=vulopilot#&tab=site-health&subtab=backups';
 interface BackupProtectionNoticeProps {
 	/**
 	 * Switches this same page's own real "Backups" tab in place instead of
-	 * navigating — passed only by SiteHealth.tsx, the one real page that
+	 * navigating - passed only by SiteHealth.tsx, the one real page that
 	 * now has that tab itself. Omit to navigate to `BACKUPS_TAB_URL`
 	 * instead (a full page load), the only real option for every other
 	 * caller (Security.tsx/SecurityTab.tsx), which don't have a "Backups"

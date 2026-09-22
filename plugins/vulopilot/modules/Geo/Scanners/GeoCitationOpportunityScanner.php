@@ -22,13 +22,13 @@ defined( 'ABSPATH' ) || exit;
  * (a percentage, or a number next to a word like "study"/"survey"/
  * "report"/"research") but link out to zero external sources anywhere in
  * the content. AI answer engines and careful readers both look for a
- * citation next to a factual claim — a real, bounded regex-based
+ * citation next to a factual claim - a real, bounded regex-based
  * heuristic for "this reads like it's citing something but isn't," not a
  * claim to verify whether any specific fact is actually true.
  *
  * `ai_visibility_scans.evidence.enable` (Settings → Scanning → AI
  * Visibility's "Evidence checks" row, Free's Utill::VULOPILOT_SETTINGS_DEFAULTS)
- * is this scanner's own on/off switch — a real gate this scanner didn't
+ * is this scanner's own on/off switch - a real gate this scanner didn't
  * have before (it always ran); added so that row's Active/Inactive pill
  * is honest, same reasoning StaleContentScanner's own new
  * `ai_visibility_scans.freshness.enable` gate documents. This is a

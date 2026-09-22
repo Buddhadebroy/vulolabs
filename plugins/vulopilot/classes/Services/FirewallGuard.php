@@ -13,12 +13,12 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real, always-on request-time pattern blocking — Protect My Site's
+ * Real, always-on request-time pattern blocking - Protect My Site's
  * "Firewall" tile. Unconditionally constructed in VuloPilot::init_classes()
  * (not a Modules-page module), hooks `init` at priority 1 (as early as a
  * plugin can practically run).
  *
- * Checks only the request URI + raw query string — deliberately never
+ * Checks only the request URI + raw query string - deliberately never
  * `$_POST`, since inspecting POST bodies for these same substrings would
  * false-positive on entirely legitimate content (e.g. an admin editing a
  * blog post that happens to discuss SQL injection, or pasting a `../`
@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * On a match, **always** logs a real row (`vulopilot_security_events` (type `firewall_block`)).
  * Only actually blocks (403 + terminate) when `enable_firewall_blocking`
- * is explicitly turned on — off by default, so a false positive can't lock
+ * is explicitly turned on - off by default, so a false positive can't lock
  * out a legitimate request the moment this ships. See
  * Scanners\Basic\FirewallScanner for the real summary Finding built from
  * this same log.
@@ -43,7 +43,7 @@ class FirewallGuard {
 
     /**
      * Pattern => human-readable rule name, checked against the decoded
-     * request URI + raw query string. Kept small and well-known — same
+     * request URI + raw query string. Kept small and well-known - same
      * "hardening check, not a comprehensive WAF" posture MalwareScanner's
      * own signature list uses.
      *
@@ -66,7 +66,7 @@ class FirewallGuard {
     }
 
     /**
-     * Real client IP, `$_SERVER['REMOTE_ADDR']` only — same reasoning as
+     * Real client IP, `$_SERVER['REMOTE_ADDR']` only - same reasoning as
      * LoginProtectionGuard::get_client_ip().
      *
      * @return string
@@ -80,7 +80,7 @@ class FirewallGuard {
     }
 
     /**
-     * `init` callback (priority 1) — checked on every real front-end/admin
+     * `init` callback (priority 1) - checked on every real front-end/admin
      * request.
      *
      * @return void
@@ -127,7 +127,7 @@ class FirewallGuard {
                 );
             }
 
-            // One matched rule is enough to act on — no need to keep
+            // One matched rule is enough to act on - no need to keep
             // checking the remaining rules against this same request.
             return;
         }

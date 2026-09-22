@@ -12,18 +12,18 @@ use VuloPilot\Repositories\PerformanceRequestRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real-time "Performance" telemetry — logs one response-time sample for
+ * Real-time "Performance" telemetry - logs one response-time sample for
  * a real front-end request, the data RealTimeMonitoringCard.tsx's "Server
  * Response Time"/"Page Views (Last 5 Min)" tiles and MetricsGrid.tsx's
  * "Performance Monitor" tile all read via GET /performance-realtime.
  *
- * Deliberately logs **no visitor-identifying data at all** — no IP, no
+ * Deliberately logs **no visitor-identifying data at all** - no IP, no
  * user agent, no cookie-based session id. An earlier design considered
  * hashing IP+UA for a real "active users" count, but that conflicts with
  * this codebase's own stated privacy posture (Services\CrawlerTrafficLogger's
  * own docblock: "never an IP address... per readme.txt's own FAQ
  * promise"), and setting a cookie to track visitors would risk breaking
- * full-page-cache-plugin compatibility (a known page-cache gotcha) — the
+ * full-page-cache-plugin compatibility (a known page-cache gotcha) - the
  * one thing a *speed* feature must never do. "Active Users" is instead
  * honestly relabeled "Page Views (Last 5 Min)", a plain unique-free count.
  *
@@ -32,10 +32,10 @@ defined( 'ABSPATH' ) || exit;
  * captures the full real request lifecycle. Requests served by a
  * full-page-cache plugin's early (pre-WP-bootstrap) drop-in never reach
  * this hook at all, so the resulting average reflects "server time for
- * non-cached requests" — real and useful, just narrower than every single
+ * non-cached requests" - real and useful, just narrower than every single
  * visit. ~20% sampled (`wp_rand()`) purely to bound write volume on
  * high-traffic sites, not for privacy (there's nothing sensitive in a
- * single integer). Daily cron purges rows older than 3 days — only the
+ * single integer). Daily cron purges rows older than 3 days - only the
  * last hour/5 minutes are ever displayed; the long-term trend is a
  * separate concern (Services\PerformanceScoreSnapshotRecorder).
  *
@@ -80,7 +80,7 @@ class PerformanceRequestLogger {
 
         if ( $response_time_ms <= 0 || $response_time_ms > 65535 ) {
             // Out of the column's smallint unsigned range, or clearly
-            // bogus (a clock anomaly) — skip rather than truncate silently.
+            // bogus (a clock anomaly) - skip rather than truncate silently.
             return;
         }
 
@@ -100,7 +100,7 @@ class PerformanceRequestLogger {
     }
 
     /**
-     * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern —
+     * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern -
      * same shape Services\CrawlerTrafficLogger already uses.
      *
      * @return void

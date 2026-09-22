@@ -13,8 +13,8 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Wraps 3 of WordPress core's own `WP_Site_Health` tests — the same class
- * and same cached results Tools → Site Health already computes — rather
+ * Wraps 3 of WordPress core's own `WP_Site_Health` tests - the same class
+ * and same cached results Tools → Site Health already computes - rather
  * than re-implementing core-version/HTTPS/REST-API checks from scratch,
  * same "wrap core, don't reinvent" posture SitemapManager/RobotsTxtManager
  * already establish for their own core-wrapping services. `WP_Site_Health`
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * Severity 1:1 (recommended → medium, critical → high); a `status` of
  * `good` produces no Finding at all, same "only report actual problems"
  * shape every other scanner here already follows. HTML tags are stripped
- * from each test's own `description` — Finding's own field is plain text,
+ * from each test's own `description` - Finding's own field is plain text,
  * not HTML, everywhere else in this codebase.
  *
  * @class       WordPressHealthScanner class
@@ -84,9 +84,9 @@ class WordPressHealthScanner extends AbstractBasicScanner {
     }
 
     /**
-     * Real, own check (not a `WP_Site_Health` wrapper like the 3 above —
+     * Real, own check (not a `WP_Site_Health` wrapper like the 3 above -
      * core's own Site Health only ever *lists* inactive plugins on its
-     * Info tab, it never flags them as a pass/fail test) — installed but
+     * Info tab, it never flags them as a pass/fail test) - installed but
      * deactivated plugins are still real files sitting on disk, still a
      * real attack surface if one of them has a known vulnerability, and
      * still something WordPress keeps auto-updating by default even while
@@ -97,7 +97,7 @@ class WordPressHealthScanner extends AbstractBasicScanner {
      * than letting deactivated plugins accumulate indefinitely.
      *
      * `LOW` severity (recommendation, not a real problem the way a
-     * pending core update or a failing REST API is) — every plugin name
+     * pending core update or a failing REST API is) - every plugin name
      * is real, read straight from `get_plugins()`, the same core function
      * the Plugins admin screen itself uses.
      *
@@ -112,11 +112,11 @@ class WordPressHealthScanner extends AbstractBasicScanner {
         $active_plugins = (array) get_option( 'active_plugins', array() );
         $inactive_names = array();
         // Real basenames (e.g. `hello-dolly/hello.php`) alongside the
-        // display names above — `delete_plugins()`/`deactivate_plugins()`
+        // display names above - `delete_plugins()`/`deactivate_plugins()`
         // both need this exact identifier, not the human-readable Name;
         // stored in `meta` below so vulopilot-pro's own OneClickFix
         // MechanicalFixRunner (Pro-owned; Free never runs the actual
-        // delete itself — see DATABASE.md's Free/Pro schema-vs-logic
+        // delete itself - see DATABASE.md's Free/Pro schema-vs-logic
         // split this codebase already follows elsewhere) can act on
         // exactly the plugins this scan actually found, not guess.
         $inactive_files = array();
@@ -161,7 +161,7 @@ class WordPressHealthScanner extends AbstractBasicScanner {
                 'inactive_plugin_files' => $inactive_files,
             ),
             // The title's own count legitimately fluctuates scan to scan
-            // (a plugin gets deactivated/deleted) — a stable dedupe_key
+            // (a plugin gets deactivated/deleted) - a stable dedupe_key
             // keeps this one finding refreshed in place across rescans
             // instead of find_open_duplicate()'s title-match fallback
             // treating "3 inactive plugins" and "4 inactive plugins" as
@@ -173,10 +173,10 @@ class WordPressHealthScanner extends AbstractBasicScanner {
     }
 
     /**
-     * `WP_Site_Health` itself is only autoloaded in wp-admin — but
+     * `WP_Site_Health` itself is only autoloaded in wp-admin - but
      * `get_test_wordpress_version()` also calls `get_core_updates()`,
      * from update.php, which it doesn't require for you. Same gap
-     * ServerHealthScanner's own `load_dependencies()` documents — only
+     * ServerHealthScanner's own `load_dependencies()` documents - only
      * shows up from a REST request (this plugin's real runtime context),
      * not wp-admin or WP-CLI, which is why manual testing there wouldn't
      * catch it.
@@ -226,9 +226,9 @@ class WordPressHealthScanner extends AbstractBasicScanner {
     /**
      * `WP_Site_Health`'s own test descriptions are built from separate real
      * HTML `<p>` blocks (confirmed by reading `WP_Site_Health`'s own core
-     * source) — a first paragraph explaining why the check matters, then
+     * source) - a first paragraph explaining why the check matters, then
      * one or more further paragraphs describing what this specific test
-     * actually found — flattened into one plain-text blob by the time
+     * actually found - flattened into one plain-text blob by the time
      * `finding_from_test_result()` above stores it as `Finding`'s own
      * `description`. Splitting on `</p>` recovers that real, already-
      * existing structure (never fabricated) so the frontend can show a
@@ -239,12 +239,12 @@ class WordPressHealthScanner extends AbstractBasicScanner {
      *
      * Some tests (e.g. `get_test_rest_availability()`) join two distinct
      * lines within the SAME paragraph with a real `<br>` rather than a new
-     * `<p>` (e.g. "REST API Endpoint: …" and "REST API Response: …") — a
+     * `<p>` (e.g. "REST API Endpoint: …" and "REST API Response: …") - a
      * bare `wp_strip_all_tags()` would silently drop that tag and glue the
      * two lines together with no separator at all (confirmed live:
      * "…context=editREST API Response: …"). Replacing `<br>` with a real
      * separator first keeps both lines readable without fabricating new
-     * wording — still core's own two lines, just not run together.
+     * wording - still core's own two lines, just not run together.
      *
      * @param string $html_description Raw HTML `description` from a `WP_Site_Health` test result.
      * @return array<int, string> Plain-text paragraphs, in order, empty ones dropped.
@@ -256,7 +256,7 @@ class WordPressHealthScanner extends AbstractBasicScanner {
             array_filter(
                 array_map(
                     static fn( string $chunk ): string => trim(
-                        wp_strip_all_tags( preg_replace( '/<br\s*\/?>/i', ' — ', $chunk ) ?? $chunk )
+                        wp_strip_all_tags( preg_replace( '/<br\s*\/?>/i', ' - ', $chunk ) ?? $chunk )
                     ),
                     $chunks
                 ),

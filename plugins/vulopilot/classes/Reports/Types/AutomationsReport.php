@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Automation run/success/failure counts for one period, per-automation
- * breakdown included — what an admin reads to see whether their
+ * breakdown included - what an admin reads to see whether their
  * automations are actually doing anything, and whether they're failing.
  *
  * @class       AutomationsReport class

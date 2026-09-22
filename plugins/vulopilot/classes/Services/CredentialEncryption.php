@@ -12,17 +12,17 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Encrypts/decrypts third-party secrets (Backups' S3/Drive credentials, the
  * VuloCloud site secret, Google tokens) before they're stored. Flagged in DATABASE.md and
- * ARCHITECTURE.md as new ground for this codebase — nothing else here
+ * ARCHITECTURE.md as new ground for this codebase - nothing else here
  * encrypts a secret at rest (the license system validates a license key
  * against VuloLabs's own server; it isn't a third-party credential
  * with direct spend risk the way an OpenAI/Anthropic/etc. key is).
  *
  * The encryption key is derived from wp_salt('auth') rather than stored
- * anywhere in the database — the same site-specific secret WordPress
+ * anywhere in the database - the same site-specific secret WordPress
  * itself relies on for auth cookies, so it moves (or is lost) exactly
  * when the rest of the site's secrets would too. AES-256-CBC with a
  * random IV per call, IV prepended to the ciphertext (standard
- * construction — the IV isn't secret, it just must never repeat with the
+ * construction - the IV isn't secret, it just must never repeat with the
  * same key).
  *
  * @class       CredentialEncryption class

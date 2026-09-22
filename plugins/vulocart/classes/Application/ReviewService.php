@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart ReviewService.
  *
- * Where Review business logic lives — backs
+ * Where Review business logic lives - backs
  * `classes/RestAPI/Controllers/Reviews.php`.
  *
  * @class       ReviewService class
@@ -90,7 +90,7 @@ class ReviewService {
     }
 
     /**
-     * Submits a new review — public, no account required (class docblock).
+     * Submits a new review - public, no account required (class docblock).
      * Always created as `ReviewStatus::PENDING` regardless of what the
      * caller sends, so a review only ever appears on the storefront after
      * an admin explicitly approves it (moderate_review()).

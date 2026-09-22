@@ -14,10 +14,10 @@ use VuloPilot\Scanners\Basic\AbstractBasicScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Brand Intelligence's own new check (BRAND-INTELLIGENCE-MODULE.md) —
+ * Brand Intelligence's own new check (BRAND-INTELLIGENCE-MODULE.md) -
  * deliberately narrower than GeoTrustSignalsScanner's own check (does an
  * About/Contact page exist *at all*): this only ever runs for a site that
- * already has one, and asks whether it actually contains real substance —
+ * already has one, and asks whether it actually contains real substance -
  * enough words to say something meaningful, and a real contact signal
  * (an email address or a link to a Contact page). A same-titled but empty
  * or one-line About page passes GeoTrustSignalsScanner's existence check
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  * establishes for post content generally.
  *
  * Duplicates GeoTrustSignalsScanner's own ABOUT_SLUGS constant rather than
- * depending on that class directly — same "each scanner stays independent,
+ * depending on that class directly - same "each scanner stays independent,
  * a few duplicated lines beats a cross-scanner dependency" reasoning
  * ScannerFixMap's own docblock gives for duplicating OBJECT_TYPE_INPUT_KEYS.
  *
@@ -44,7 +44,7 @@ class AboutPageAnalysisScanner extends AbstractBasicScanner {
     private const ABOUT_SLUGS = array( 'about', 'about-us', 'about-me' );
 
     /**
-     * Fallback only — the real threshold is Scanning → Brand
+     * Fallback only - the real threshold is Scanning → Brand
      * Intelligence's `brand_about_page_min_words` setting.
      */
     private const DEFAULT_MIN_WORDS = 80;
@@ -77,7 +77,7 @@ class AboutPageAnalysisScanner extends AbstractBasicScanner {
         $page = $this->find_about_page();
 
         // No About-shaped page at all is GeoTrustSignalsScanner's own gap
-        // to flag — this scanner only evaluates one that already exists,
+        // to flag - this scanner only evaluates one that already exists,
         // so it doesn't double-flag the same absence a different way.
         if ( ! $page ) {
             return array();
@@ -141,7 +141,7 @@ class AboutPageAnalysisScanner extends AbstractBasicScanner {
 
     /**
      * A real, bounded check: an email address, or the digits of a
-     * phone-shaped number — not a claim to verify either is genuinely
+     * phone-shaped number - not a claim to verify either is genuinely
      * reachable, the same "real, bounded, deterministic proxy" posture
      * ReadabilityScanner's own docblock takes for its syllable heuristic.
      *

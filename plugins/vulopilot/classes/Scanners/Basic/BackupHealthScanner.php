@@ -17,9 +17,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Turns Services\BackupManager/BackupScheduler's own real backup-run log
  * (`vulopilot_backups`) into a real Finding when automatic backups are
- * enabled but something's actually wrong — the most recent run failed, or
+ * enabled but something's actually wrong - the most recent run failed, or
  * nothing has completed in over 2x the configured `backup_frequency`
- * interval. Zero findings when healthy, or — deliberately — when automatic
+ * interval. Zero findings when healthy, or - deliberately - when automatic
  * backups simply aren't turned on at all (no nagging about an opt-in
  * feature nobody enabled; a manual-only backup user isn't "unhealthy").
  *
@@ -125,7 +125,7 @@ class BackupHealthScanner extends AbstractBasicScanner {
                 $this->get_category(),
                 sprintf(
                     /* translators: %s is the real date/time of the last successful backup. */
-                    __( 'The last successful backup completed on %s — longer ago than your configured schedule allows for. Check the Backups tab.', 'vulopilot' ),
+                    __( 'The last successful backup completed on %s - longer ago than your configured schedule allows for. Check the Backups tab.', 'vulopilot' ),
                     get_date_from_gmt( $latest_completed['finished_at'], get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) )
                 ),
                 'backup',

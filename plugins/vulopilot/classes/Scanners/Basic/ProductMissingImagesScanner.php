@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * WooCommerce AI's Product Intelligence pass (ARCHITECTURE.md's Prompt 11):
- * flags published products with no featured image — the single most
+ * flags published products with no featured image - the single most
  * visible product-data gap, since a product with no image renders as a
  * placeholder everywhere it's listed (shop archive, cart, related
  * products). Guards on WooCommerce being active the same way

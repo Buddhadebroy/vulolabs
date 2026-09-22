@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags a site with no detectable caching layer — checks a short list of
+ * Flags a site with no detectable caching layer - checks a short list of
  * well-known caching plugins (the same is_plugin_active() approach
  * PluginsScanner/ThemesScanner already use for plugin detection), and
  * falls back to inspecting the homepage's own response headers for a
@@ -119,7 +119,7 @@ class CacheDetectionScanner extends AbstractBasicScanner {
         );
 
         if ( is_wp_error( $response ) ) {
-            // Can't tell either way — don't flag on an inconclusive request.
+            // Can't tell either way - don't flag on an inconclusive request.
             return true;
         }
 

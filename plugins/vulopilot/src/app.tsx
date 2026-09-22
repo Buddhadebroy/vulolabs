@@ -12,16 +12,16 @@ import './routes';
 
 // Forces initializeModules() (called in index.tsx, right after this module
 // is imported) to actually fetch active modules from the server on every
-// load — without this, useModules()'s zustand store stays at its initial
+// load - without this, useModules()'s zustand store stays at its initial
 // `modules: []` forever and every moduleEnabled-gated field/module card
 // looks permanently locked, matching the vulolabs/catalogx app.tsx
 // pattern.
 localStorage.setItem('force_vulopilot_context_reload', 'true');
 
 /**
- * Reads the active tab from the URL hash (`?page=vulopilot#&tab=health`)
+ * Reads the active tab from the URL hash (`?page=vulopilot#&tab=dashboard`)
  * and renders whichever component registered itself for that tab in
- * routes.ts — the same hash-driven tab system the free vulolabs
+ * routes.ts - the same hash-driven tab system the free vulolabs
  * plugin's admin screen uses (see react-frontend.md), rather than
  * react-router path routes, since every VuloPilot admin URL is really
  * `admin.php?page=vulopilot` with WordPress itself only ever serving that
@@ -70,7 +70,7 @@ const App = () => {
 		const lower = searchValue.toLowerCase();
 
 		const filtered = searchIndex.filter((item) => {
-			// Real dropdown category ('modules'/'settings'/'sections') —
+			// Real dropdown category ('modules'/'settings'/'sections') -
 			// not `item.tab`, each result's own real (and varied)
 			// destination tab, which searchIndex.ts's own `SearchItem.category`
 			// docblock explains was the actual bug here: picking "Settings"/
@@ -95,7 +95,7 @@ const App = () => {
 
 	/**
 	 * A page-section result's target tab may not be mounted yet at click
-	 * time (the hash change above triggers Route's own async re-render) —
+	 * time (the hash change above triggers Route's own async re-render) -
 	 * `scrollToId()` itself is a one-shot `getElementById` + `scrollIntoView`
 	 * with no retry (confirmed reading zyra's source), so it'd silently no-op
 	 * if called synchronously right after switching tabs. Poll briefly for

@@ -10,7 +10,7 @@ interface AutomationsResourcesCardProps {
 }
 
 /**
- * "Helpful resources" — 3 quick links, per the redesigned Automations
+ * "Helpful resources" - 3 quick links, per the redesigned Automations
  * mockup. The 2 docs rows open the plugin's own knowledge base (same URL
  * GettingStartedCard.tsx already links to); "Create custom automations"
  * reuses the page's own real create flow rather than a link.

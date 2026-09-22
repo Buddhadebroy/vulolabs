@@ -12,7 +12,7 @@ use VuloPilot\Repositories\ScoreSnapshotRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /security-score-snapshots?days=N` — backs SecurityTrendCard.tsx's
+ * `GET /security-score-snapshots?days=N` - backs SecurityTrendCard.tsx's
  * trend chart. Read-only, same shape as
  * PerformanceScoreSnapshots.php's own `/performance-score-snapshots?days=N`.
  *

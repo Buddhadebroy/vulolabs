@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags published products whose long description (`post_content`) is
- * empty or too short to be useful — the product-specific counterpart to
+ * empty or too short to be useful - the product-specific counterpart to
  * ThinContentScanner, which only looks at `post`/`page`. Kept as a
  * separate scanner rather than widening ThinContentScanner's post-type
  * list, since the threshold and fix path (WriteProductLongDescriptionAction,

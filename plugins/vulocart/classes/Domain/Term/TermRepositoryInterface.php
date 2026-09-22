@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart TermRepositoryInterface.
  *
- * The contract Application\TermService depends on — bound to a concrete
+ * The contract Application\TermService depends on - bound to a concrete
  * implementation only in VuloCart::init_classes(), same seam
  * Domain\Offering\OfferingRepositoryInterface already establishes.
  *
@@ -31,7 +31,7 @@ interface TermRepositoryInterface {
     public function find( int $id ): ?Term;
 
     /**
-     * Finds one term by taxonomy + slug — used to enforce slug uniqueness
+     * Finds one term by taxonomy + slug - used to enforce slug uniqueness
      * within a taxonomy (two different taxonomies may reuse the same slug).
      *
      * @param string $taxonomy One of Taxonomy's constants.
@@ -75,7 +75,7 @@ interface TermRepositoryInterface {
 
     /**
      * Counts how many offerings currently reference a term's slug in their
-     * own `meta` bag (categories/brand_id/collection_ids — see
+     * own `meta` bag (categories/brand_id/collection_ids - see
      * Application\TermService's own docblock for why this is a live count
      * over Offering.meta rather than a maintained join table).
      *

@@ -9,7 +9,7 @@ interface AccessibilityFinding {
 	page?: string;
 }
 
-/** Real distinct-pages-affected count from one check's own open-findings rows — same `Set` technique this file's own previous `CheckTile` sub-component already used. */
+/** Real distinct-pages-affected count from one check's own open-findings rows - same `Set` technique this file's own previous `CheckTile` sub-component already used. */
 const pagesAffectedIn = (rows: AccessibilityFinding[]): number =>
 	new Set(rows.map((row) => row.page).filter(Boolean)).size;
 
@@ -20,21 +20,21 @@ interface AccessibilityChecksGridProps {
 
 /**
  * The mockup's "Accessibility Checks" 5-tile grid, plus a real 6th "All
- * Checks" tile (direct instruction) combining the other 5 — one real
+ * Checks" tile (direct instruction) combining the other 5 - one real
  * scanner_id-scoped open-findings count + distinct-pages-affected count
  * per tile (ACCESSIBILITY_CHECKS.tsx's own shared definitions), each
  * "Review" switching the merged issues table further down this tab to
  * that check's own tab.
  *
  * Now rendered through `<ListComponent>`'s own real `mini-card report`
- * row shape — one real row per check (icon + title + issue count +
- * description + "Review" action) — matching the same row shape
+ * row shape - one real row per check (icon + title + issue count +
+ * description + "Review" action) - matching the same row shape
  * `LiveSiteInsightsCard.tsx`'s own real per-signal rows already use,
  * rather than `MetricTileComponent`'s grid tiles. Same real per-check
  * numbers, same real `onReview` action, just one shared row layout.
  *
  * `useApiList()` is called once per real check below, unrolled rather
- * than inside `ACCESSIBILITY_CHECKS.map()` — same fixed-list pattern
+ * than inside `ACCESSIBILITY_CHECKS.map()` - same fixed-list pattern
  * SecurityMetricsGrid.tsx's own `useSectionStatus()` calls already use,
  * since a hook call inside a `.map()` callback is a real rules-of-hooks
  * violation regardless of the array being static. This also gives every

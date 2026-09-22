@@ -13,7 +13,7 @@ use VuloCart\Domain\Checkout\CheckoutSession;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Checkout REST controller — the Checkout Engine's own routes.
+ * VuloCart Checkout REST controller - the Checkout Engine's own routes.
  *
  * `GET /checkout/steps` is the pluggability mechanism itself: rather than
  * any client hardcoding a step sequence (the old Checkout.tsx's own
@@ -21,12 +21,12 @@ defined( 'ABSPATH' ) || exit;
  * (Customer/Address/Shipping/Taxes/Payment/Review/Confirmation, and any
  * future vulocart-pro one) registers its own descriptor into the
  * `vulocart_checkout_steps` filter, and this endpoint is the single place
- * that list is assembled and sorted — a checkout UI in ANY delivery mode
+ * that list is assembled and sorted - a checkout UI in ANY delivery mode
  * (block, popup, embedded, hosted) discovers what to render from this one
  * call instead of shipping its own copy of the step list.
  *
  * `/checkout/sessions/*` is Application\CheckoutService's own REST
- * surface — public, cart-token-authenticated the same way Cart's own
+ * surface - public, cart-token-authenticated the same way Cart's own
  * routes are (`X-Cart-Token`, never a nonce), since a guest with no
  * WordPress session at all must be able to use every delivery mode this
  * engine supports.
@@ -102,7 +102,7 @@ class Checkout extends \WP_REST_Controller {
 
     /**
      * Assembles every registered checkout step, sorted by its own
-     * declared `order` (ties broken by registration order — `usort()` is
+     * declared `order` (ties broken by registration order - `usort()` is
      * stable in PHP 8+, this codebase's own testVersion floor is 7.4, but
      * a tie only ever affects display order of two steps declaring the
      * exact same `order` value, which no step here does).
@@ -111,12 +111,12 @@ class Checkout extends \WP_REST_Controller {
      */
     public function get_steps() {
         /**
-         * `vulocart_checkout_steps` — every checkout-step-owning module
+         * `vulocart_checkout_steps` - every checkout-step-owning module
          * appends its own `{id, label, order, rest_base}` descriptor here.
          * Free's own Customer/Address/Shipping/Taxes/Payment/Review/
          * Confirmation modules each self-register (their own Module.php),
          * gated on their own `is_active()` the same way any toggleable
-         * module already is — an inactive module's filter callback never
+         * module already is - an inactive module's filter callback never
          * runs, so it never appears here, no separate active-check needed
          * by this endpoint itself.
          *

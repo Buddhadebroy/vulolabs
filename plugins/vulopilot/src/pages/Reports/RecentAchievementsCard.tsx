@@ -18,9 +18,9 @@ const UNDO_DISABLED_REASON = __(
 );
 
 /**
- * "Recent AI Achievements" — real, via `/activity-logs?actor_type=automation`
+ * "Recent AI Achievements" - real, via `/activity-logs?actor_type=automation`
  * (the same endpoint/filter Free's own Dashboard RecentChangesWidget.tsx
- * already uses). Drops the mockup's fabricated "+N Impact" badge per row —
+ * already uses). Drops the mockup's fabricated "+N Impact" badge per row -
  * confirmed there's no per-action numeric impact score anywhere in this
  * codebase (the only real `Impact` concept is a static qualitative
  * high/medium/low enum baked into rule definitions, never a computed

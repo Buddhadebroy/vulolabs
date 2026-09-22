@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * Every AI provider adapter (Providers\OpenAiProvider, Providers\AnthropicProvider,
  * or a third-party one registered via `vulocart_ai_provider_sources`)
  * implements this so `AI\AiClient`/`AI\ProviderRegistry` never depend on a
- * concrete SDK — same shape as vulopilot's own `Contracts\AI\AIProviderInterface`
+ * concrete SDK - same shape as vulopilot's own `Contracts\AI\AIProviderInterface`
  * (this codebase's own AI provider engine, kept in this free plugin rather
  * than vulocart-pro since AI-ARCHITECTURE.md's equivalent split there is
  * "the engine is free infrastructure, Pro modules are what's built on it").

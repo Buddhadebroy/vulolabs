@@ -15,13 +15,13 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Real per-page JSON-LD sampling for the restyled Schema tab's own "Schema
- * Coverage" table — a deterministic structural check (fetch each sampled
+ * Coverage" table - a deterministic structural check (fetch each sampled
  * page's real rendered HTML, extract `<script type="application/ld+json">`
  * blocks the same way StructuredDataValidationScanner already does for the
  * homepage, decode each block's real `@type`), not an AI call, so there's
  * no per-call cost or rate limit to worry about the way
  * GeoInsights\VisibilitySnapshotBuilder's own AI-scored sample has
- * (Pro, vulopilot-pro) — but it is still real outbound HTTP work per
+ * (Pro, vulopilot-pro) - but it is still real outbound HTTP work per
  * sampled page, so results are cached (transient, `CACHE_TTL`) and only
  * ever (re)computed on an explicit `POST /schema/coverage`, same
  * "loading a page never silently spends real work" posture
@@ -40,7 +40,7 @@ class SchemaCoverageAnalyzer {
     private const REQUEST_TIMEOUT_SECONDS = 8;
 
     /**
-     * Plain-English meaning shown per real schema.org @type found — same
+     * Plain-English meaning shown per real schema.org @type found - same
      * "translate a real technical value into a human sentence" spirit
      * FindingRepository's own Finding value object already applies to scan
      * results, kept here since @type strings aren't findings themselves.
@@ -68,7 +68,7 @@ class SchemaCoverageAnalyzer {
 
     /**
      * Regenerates the coverage snapshot whenever the schema scanner
-     * finishes — i.e. as part of any "Run scan" that includes schema — so
+     * finishes - i.e. as part of any "Run scan" that includes schema - so
      * the Schema Coverage table fills itself in without a separate button.
      * Hooked on `vulopilot_scan_completed` (fires once per scanner) and
      * keyed to the one `schema` scanner so it runs once per scan.
@@ -85,7 +85,7 @@ class SchemaCoverageAnalyzer {
     }
 
     /**
-     * Settings → Developer Tools' "Clear cache" — same public
+     * Settings → Developer Tools' "Clear cache" - same public
      * `clear_cache()` shape `Services\EntityExtractor` already establishes.
      *
      * @return void
@@ -95,7 +95,7 @@ class SchemaCoverageAnalyzer {
     }
 
     /**
-     * Runs a fresh real sample and stores it — the only path that performs
+     * Runs a fresh real sample and stores it - the only path that performs
      * real outbound HTTP requests (see this class's own docblock).
      *
      * @return array{generated_at: string, sample_size: int, coverage: array<int, array{type: string, meaning: string, found_on: int, problems: int, pages: array<int, array{id: int, title: string, url: string, edit_url: string|null}>}>, pages_checked: int, pages_with_valid_schema: int, pages_needing_attention: int}
@@ -113,7 +113,7 @@ class SchemaCoverageAnalyzer {
         );
 
         $type_counts = array();
-        // Real, specific pages behind each type's `found_on` count —
+        // Real, specific pages behind each type's `found_on` count -
         // "View pages" (StructuredDataSection.tsx) shows exactly these,
         // instead of the generic "go check the SEO tab" redirect it used
         // to be: a site owner can now see, per @type, precisely which
@@ -122,13 +122,13 @@ class SchemaCoverageAnalyzer {
         $pages_checked = 0;
         // A checked page "has valid schema" when at least one real
         // `application/ld+json` block with a real `@type` was actually
-        // found on it — the "Schema Status" summary card's own
+        // found on it - the "Schema Status" summary card's own
         // `pages_with_valid_schema`/`pages_needing_attention` tiles
         // (StructuredDataSection.tsx), a real per-PAGE pass/fail count,
         // distinct from `coverage`'s own per-TYPE `found_on`/`problems`
         // figures below.
         $pages_with_schema = 0;
-        // Every checked page (with or without schema) — what clicking the
+        // Every checked page (with or without schema) - what clicking the
         // "Pages checked"/"Pages with valid schema"/"Need attention" stat
         // cards lists.
         $checked_pages = array();
@@ -166,7 +166,7 @@ class SchemaCoverageAnalyzer {
         }
 
         // The homepage's own sitewide Organization/WebSite schema (site
-        // identity, not per-post content) — checked separately from the
+        // identity, not per-post content) - checked separately from the
         // per-post sample above, same "homepage is its own real signal"
         // reasoning SchemaScanner already applies. Counted into
         // `pages_checked`/`pages_with_schema` too now (it wasn't before):
@@ -210,7 +210,7 @@ class SchemaCoverageAnalyzer {
                 'found_on' => $found_on,
                 // A real, coarse split of the site's total open schema-adjacent
                 // findings across each real type found, proportional to how
-                // often that type appears — there's no per-type problem
+                // often that type appears - there's no per-type problem
                 // attribution in the finding data itself (a finding is scoped
                 // to a post, not a schema @type), so this is an honest
                 // estimate labelled as such on the frontend, not a precise
@@ -273,7 +273,7 @@ class SchemaCoverageAnalyzer {
             }
 
             // A single JSON-LD block can be one object, a @graph of several,
-            // or a JSON array of several top-level objects — cover all 3
+            // or a JSON array of several top-level objects - cover all 3
             // real shapes rather than assuming one. array_keys() === range()
             // is the min-PHP-8.0-compatible list check (array_is_list() is
             // 8.1+, this codebase's own composer.json floor is 8.0).

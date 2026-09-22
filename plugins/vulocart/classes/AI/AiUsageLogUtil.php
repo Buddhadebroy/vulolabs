@@ -10,12 +10,12 @@ namespace VuloCart\AI;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Insert-only log of every real AI provider call this site has made —
+ * Insert-only log of every real AI provider call this site has made -
  * `AiClient::send()`/`generate_image()`/`embed()` write one row per
  * attempt (successful or not, `success` distinguishes), what the AI
  * top-level menu's own Usage view reads. `feature` is a short dotted tag
  * the caller supplies (e.g. `'catalog.description'`, `'checkout.fraud'`,
- * `'support.merchant'`) — the only per-feature attribution this table
+ * `'support.merchant'`) - the only per-feature attribution this table
  * carries, since usage isn't split into a table-per-module.
  *
  * @class       AiUsageLogUtil class

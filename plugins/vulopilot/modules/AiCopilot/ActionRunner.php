@@ -22,7 +22,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Orchestrates every AIAction through its full lifecycle — the same
+ * Orchestrates every AIAction through its full lifecycle - the same
  * orchestrator role Scanners\ScanRunner and RuleEngine\RuleEngine play
  * for their own engines, but split across four public methods instead of
  * one `run()`, because "Approval" (AI-ACTIONS.md's 5th lifecycle stage)
@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || exit;
  * rollback() Rollback                                                   [persists: rolled_back]
  * ```
  *
- * Logging (stage 8) isn't a method on AIActionInterface — every
+ * Logging (stage 8) isn't a method on AIActionInterface - every
  * transition above writes to the existing ActivityLogRepository here,
  * once, rather than each action re-implementing its own audit trail.
  *
@@ -57,7 +57,7 @@ class ActionRunner {
     /**
      * Real, structured `{action_id: [feature_id, action]}` mapping onto
      * VuloCloud's own ai-gateway feature catalog (architecture plan §C,
-     * "3 representative features") — every other AI action id (not in this
+     * "3 representative features") - every other AI action id (not in this
      * map) is unaffected and stays exactly on the BYOK path it's always
      * used. Adding a feature to a future migration pass means adding one
      * entry here plus a matching build_credit_context() case, not
@@ -101,16 +101,16 @@ class ActionRunner {
      * Stages 1-4: validates input, builds and safety-checks the prompt,
      * sends it through the AI request sender, validates and
      * previews the result. Persists the outcome as a `pending_approval`
-     * row — nothing about the site's actual content changes yet.
+     * row - nothing about the site's actual content changes yet.
      *
      * Also gates Settings → Automation → Approval Settings' "Ask before
-     * applying AI changes" — after persisting the pending_approval row,
+     * applying AI changes" - after persisting the pending_approval row,
      * immediately self-approve()s it (method 'auto_unattended') when the
      * site's `ai_change_approval_mode` setting says this proposal's own
      * risk level doesn't need a human to look at it first (see
      * should_auto_approve()'s own docblock). This is the one general gate
-     * every propose() call goes through — manual one-click fixes and
-     * automation-triggered ones alike — independent of vulopilot-pro's own
+     * every propose() call goes through - manual one-click fixes and
+     * automation-triggered ones alike - independent of vulopilot-pro's own
      * Automations\Actions\RunAiActionAction, whose narrower 'auto_fix'
      * automation-mode gate (automation runs only, method 'auto_automation')
      * still layers on top of this one; that class checks this method's own
@@ -159,7 +159,7 @@ class ActionRunner {
                 $auto_approved   = true;
                 $approval_method = 'auto_unattended';
             } catch ( \Throwable $exception ) {
-                // Leave it pending_approval — a human can still review and
+                // Leave it pending_approval - a human can still review and
                 // approve it manually; an auto-approve failure shouldn't
                 // lose the proposal itself.
             }
@@ -176,20 +176,20 @@ class ActionRunner {
     /**
      * Chooses between the two ways this codebase can now actually get an
      * AI completion for a proposed action: this site's own configured
-     * BYOK path — an Organization's own key, or (if allowed) a Customer
+     * BYOK path - an Organization's own key, or (if allowed) a Customer
      * backup key, resolved entirely server-side and proxied through
      * VuloCloud (AI\AiRequestSender, contexts/vulopilot/ai-byok on the
-     * VuloCloud side) — or VuloCloud's hosted AI Gateway spending real AI
+     * VuloCloud side) - or VuloCloud's hosted AI Gateway spending real AI
      * Credits (architecture plan §C).
      *
      * Unlike the earlier, pre-BYOK-proxy version of this method, "is BYOK
      * configured" can no longer be answered locally before making a call
-     * — that state lives in VuloCloud now (an Organization's/Customer's
+     * - that state lives in VuloCloud now (an Organization's/Customer's
      * own credential store), not in a local option this site can read for
      * free. So this always ATTEMPTS the BYOK path first (via
      * AiRequestSender, same as before) and only decides whether to fall
      * through to credits by reacting to a real AiByokNotConfiguredException
-     * — a second, separate "is it configured?" pre-check would just be a
+     * - a second, separate "is it configured?" pre-check would just be a
      * redundant network round trip for the exact same answer the real
      * attempt already gives, and would risk a stale answer if a key was
      * just added/removed moments earlier. Falling through only ever
@@ -204,7 +204,7 @@ class ActionRunner {
      * @return \VuloPilot\ValueObjects\AIResponse
      *
      * @throws InsufficientCreditsException If the credits fallback was used and VuloCloud reports an empty balance.
-     * @throws \RuntimeException            If no AI is available at all — neither a BYOK key nor (for an eligible action) AI Credits.
+     * @throws \RuntimeException            If no AI is available at all - neither a BYOK key nor (for an eligible action) AI Credits.
      */
     private function send_prompt_or_credits( string $action_id, $action, array $input ): AIResponse {
         try {
@@ -233,25 +233,25 @@ class ActionRunner {
             );
         }
 
-        // provider/model/token counts are deliberately generic —
+        // provider/model/token counts are deliberately generic -
         // VuloCloud's feature catalog owns which real provider/model
         // actually answered (VuloPilot brief §9), and its own
         // /plugin/ai/execute response never exposes that to this site
-        // (§19) — parse_response()/validate_output()/build_preview() below
+        // (§19) - parse_response()/validate_output()/build_preview() below
         // only ever read get_content() regardless of these other fields.
         return new AIResponse( $result['response'], 'vulocloud', 'hosted', 0, 0, 'stop' );
     }
 
     /**
      * The structured `context` payload for one of CREDIT_FEATURE_MAP's
-     * three action ids — field names translated from each Action class's
+     * three action ids - field names translated from each Action class's
      * own validate_input() output into the exact names VuloCloud's
      * matching feature-catalog entry expects (ai-feature-catalog.ts on the
      * vulocloud side) since they don't always match 1:1 (e.g.
      * WriteMetaTitleAction's own `previous_title` vs. the catalog's
      * `title`).
      *
-     * @param string $action_id Real, registered action id — always one of CREDIT_FEATURE_MAP's own keys.
+     * @param string $action_id Real, registered action id - always one of CREDIT_FEATURE_MAP's own keys.
      * @param array  $input     validate_input()'s own normalized output for that same action.
      * @return array<string, mixed>
      */
@@ -297,22 +297,22 @@ class ActionRunner {
 
     /**
      * `ai_change_approval_mode` (Utill::VULOPILOT_SETTINGS_DEFAULTS, free
-     * plugin, meaningfully acted on right here — unlike automation_mode/
+     * plugin, meaningfully acted on right here - unlike automation_mode/
      * auto_fix_max_impact, which are only ever read by vulopilot-pro):
-     *  - 'always'      — never auto-approves; today's existing, unchanged
+     *  - 'always'      - never auto-approves; today's existing, unchanged
      *                     behavior (every propose() waits for a human).
-     *  - 'risk_based'  — auto-approves only Impact::LOW proposals; anything
+     *  - 'risk_based'  - auto-approves only Impact::LOW proposals; anything
      *                     Impact::MEDIUM/HIGH still waits for a human.
-     *  - 'never'       — auto-approves every proposal regardless of risk.
+     *  - 'never'       - auto-approves every proposal regardless of risk.
      *                     Pro-gated the same way automation_mode's own
      *                     'auto_fix' option is (InputRenderer's own
-     *                     `proSetting` lock icon) — but real-enforced here
+     *                     `proSetting` lock icon) - but real-enforced here
      *                     too via Utill::is_khali_dabba() rather than only
      *                     trusting the stored option value, since nothing
      *                     structurally prevents a free install from having
      *                     'never' already saved (e.g. a lapsed license).
      *
-     * @param string $risk_level One of Impact::LOW/MEDIUM/HIGH — the
+     * @param string $risk_level One of Impact::LOW/MEDIUM/HIGH - the
      *                           proposal's own AIActionInterface::get_risk_level().
      * @return bool
      */
@@ -335,7 +335,7 @@ class ActionRunner {
      * Stage 6: applies a previously proposed, still-pending action.
      *
      * @param int    $run_id A propose()-returned run_id.
-     * @param string $method 'manual' (a human clicked Approve — the only way
+     * @param string $method 'manual' (a human clicked Approve - the only way
      *                       this was ever called before Automate Work's
      *                       Auto-fix mode and Approval Settings' risk-based/
      *                       "Do not ask" modes), 'auto_automation'
@@ -345,7 +345,7 @@ class ActionRunner {
      *                       'auto_unattended' (propose() calling this on
      *                       itself via should_auto_approve(), gated on
      *                       Approval Settings' ai_change_approval_mode
-     *                       setting) — the latter two both mean no human
+     *                       setting) - the latter two both mean no human
      *                       was involved at all: `approved_by` is left null
      *                       rather than attributing it to whichever user id
      *                       happens to own the request context, and
@@ -393,7 +393,7 @@ class ActionRunner {
                     'auto_automation' === $method
                         ? '%s auto-approved and executed by automation.'
                         : ( 'auto_unattended' === $method
-                            ? '%s applied automatically — no approval required by Approval Settings.'
+                            ? '%s applied automatically - no approval required by Approval Settings.'
                             : '%s executed.' ),
                     $action->get_label()
                 )
@@ -404,7 +404,7 @@ class ActionRunner {
     }
 
     /**
-     * Stage 5's negative outcome — declines a pending action without
+     * Stage 5's negative outcome - declines a pending action without
      * ever calling execute().
      *
      * @param int $run_id A propose()-returned run_id.

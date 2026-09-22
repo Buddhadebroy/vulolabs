@@ -12,12 +12,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart OfferingType class.
  *
- * The vision's "Never use Product internally. Instead use Offering." — Offering
+ * The vision's "Never use Product internally. Instead use Offering." - Offering
  * represents Physical Product, Digital Product, Subscription, Course,
  * Service, Membership, Booking, Rental, Bundle, Donation, Gift Card,
  * License, and future offering types. One `vulocart_offerings` table covers all
  * of them (Install.php); this class is only the closed set of known `type`
- * values that column accepts today — per-type *behavior* differences
+ * values that column accepts today - per-type *behavior* differences
  * (e.g. a Booking offering needing calendar availability) are a later,
  * separate layer, not something this constants class tries to encode.
  *

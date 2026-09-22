@@ -9,7 +9,7 @@ interface OrderConfirmation {
 }
 
 /**
- * The terminal "thank you" step — CheckoutEngine.tsx sets `data.confirmation`
+ * The terminal "thank you" step - CheckoutEngine.tsx sets `data.confirmation`
  * once `POST /orders` succeeds and always renders this step alone (not
  * stacked with the others, even in single-page mode) once that happens.
  */
@@ -24,7 +24,7 @@ registerCheckoutStep( {
 
 		return (
 			<div className="vulocart-checkout-confirmation">
-				<h3>{ __( 'Thank you — your order is in!', 'vulocart' ) }</h3>
+				<h3>{ __( 'Thank you - your order is in!', 'vulocart' ) }</h3>
 				<p>
 					{ __( 'Order number:', 'vulocart' ) } <strong>{ confirmation.order_number }</strong>
 				</p>

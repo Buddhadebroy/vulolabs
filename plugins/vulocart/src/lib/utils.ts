@@ -1,7 +1,7 @@
 import clsx, { type ClassValue } from 'clsx';
 
 /**
- * shadcn/ui's usual `cn()` helper is `clsx` + `tailwind-merge` — this repo
+ * shadcn/ui's usual `cn()` helper is `clsx` + `tailwind-merge` - this repo
  * deliberately has no Tailwind toolchain (styles are plain SCSS per
  * component instead), so `tailwind-merge` isn't useful here and is
  * dropped; `clsx` alone is still the right tool for conditionally joining
@@ -12,7 +12,7 @@ export function cn( ...inputs: ClassValue[] ): string {
 }
 
 /**
- * Client-side CSV export for a zyra `TableCard` — a real, working
+ * Client-side CSV export for a zyra `TableCard` - a real, working
  * reference implementation for `TableCard`'s
  * `onSelectCsvDownloadApply`/`buttonActions` props. Ported
  * rather than imported since it's plugin-local, not part of `zyra`'s own

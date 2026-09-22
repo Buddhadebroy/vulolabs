@@ -14,20 +14,20 @@ interface BrandScore {
 
 /**
  * Brand Intelligence's own real, deterministic sub-scores
- * (`GET /brand-intelligence/score` — Controllers/BrandIntelligence.php),
+ * (`GET /brand-intelligence/score` - Controllers/BrandIntelligence.php),
  * shown as a bar chart. No competitor share-of-voice data exists anywhere
  * in this codebase (that would need an external source like Ahrefs, which
- * isn't wired up) — this shows the three real sub-scores VuloPilot itself
+ * isn't wired up) - this shows the three real sub-scores VuloPilot itself
  * computes instead of fabricating a competitive comparison. Fetches its
  * own data rather than reading off the shared /dashboard summary, same
  * reasoning HealthTimelineWidget's own docblock gives for list/breakdown
  * shaped widgets.
  *
- * Overall/Trust/Authority only now, not also Entity — this widget is
+ * Overall/Trust/Authority only now, not also Entity - this widget is
  * titled "Brand Visibility breakdown" and the Brand Visibility tab itself
  * dropped its own Entity Score tile (direct instruction: "Knowledge Graph
  * and Brand Visibility overlap around 'Entity'... Entity Score therefore
- * has a much stronger conceptual home in Knowledge Graph" — see
+ * has a much stronger conceptual home in Knowledge Graph" - see
  * Controllers\BrandIntelligence.php's own docblock), so a bar here would
  * be showing a number this same-named page no longer does.
  */
@@ -65,7 +65,7 @@ const BrandBreakdownWidget: React.FC<WidgetProps> = ({
 	return (
 		<DashboardWidget
 			title={__('Brand Visibility breakdown', 'vulopilot')}
-			desc={__('Off-site mentions & share of voice — predicts AI citations better than backlinks.', 'vulopilot')}
+			desc={__('Off-site mentions & share of voice - predicts AI citations better than backlinks.', 'vulopilot')}
 			icon="person pink-color"
 			isLoading={isLoading}
 			onHide={onHide}

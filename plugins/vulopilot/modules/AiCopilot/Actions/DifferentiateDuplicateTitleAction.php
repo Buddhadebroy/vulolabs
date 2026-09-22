@@ -24,16 +24,16 @@ defined( 'ABSPATH' ) || exit;
  * "12,45,78"), not a single id, because the finding is inherently about a
  * group, not one post. `object_type` is still 'post', so
  * ScannerFixMap/FindingFixRest still resolve a `post_id` input key from it
- * as normal — but naively `absint()`-ing a comma-joined string only ever
+ * as normal - but naively `absint()`-ing a comma-joined string only ever
  * parses its leading numeric prefix, silently operating on the wrong (or
  * an arbitrary) post. This action instead reads the finding's own `meta`
  * column, which DuplicateContentScanner already stores as a real
  * `post_ids` array (merged into this action's raw input by
- * FindingFixRest's generic meta-merge — no ScannerFixMap/FindingFixRest
+ * FindingFixRest's generic meta-merge - no ScannerFixMap/FindingFixRest
  * change needed) and uses THAT, ignoring whatever `post_id` a naive
  * comma-string parse would have produced.
  *
- * Only ONE of the duplicate posts is rewritten — the one with the
+ * Only ONE of the duplicate posts is rewritten - the one with the
  * HIGHEST id in the group (DuplicateContentScanner's own matching-ids
  * query has no explicit ORDER BY, but MySQL returns them in primary-key
  * order for an unordered SELECT on an indexed PK in practice, so the
@@ -68,7 +68,7 @@ class DifferentiateDuplicateTitleAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::LOW — Rewrites `post_title` only — one narrow, easily-reverted field.
+     * Impact::LOW - Rewrites `post_title` only - one narrow, easily-reverted field.
      *
      * @inheritDoc
      */
@@ -87,7 +87,7 @@ class DifferentiateDuplicateTitleAction extends AbstractBasicAction {
         }
 
         sort( $post_ids );
-        $target_id = array_pop( $post_ids ); // Highest id — see this class's own docblock for why.
+        $target_id = array_pop( $post_ids ); // Highest id - see this class's own docblock for why.
         $post      = get_post( $target_id );
 
         if ( ! $post || 'publish' !== $post->post_status ) {
@@ -127,7 +127,7 @@ class DifferentiateDuplicateTitleAction extends AbstractBasicAction {
                     'This page shares its exact title with %d other published page(s) on the same site, which splits '
                         . 'search ranking signal between them. Write ONE new title for THIS page that stays accurate to '
                         . 'its own content but is clearly distinct from the shared title. Respond with ONLY the new '
-                        . 'title — no quotes, no preamble, no explanation.',
+                        . 'title - no quotes, no preamble, no explanation.',
                     count( $input['sibling_titles'] )
                 ),
             ),
@@ -164,12 +164,12 @@ class DifferentiateDuplicateTitleAction extends AbstractBasicAction {
         }
 
         if ( 0 === strcasecmp( trim( $title ), trim( $input['previous_title'] ) ) ) {
-            throw new InvalidActionOutputException( __( 'The AI returned the same title unchanged — rejected.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( __( 'The AI returned the same title unchanged - rejected.', 'vulopilot' ) );
         }
 
         foreach ( $input['sibling_titles'] as $sibling_title ) {
             if ( 0 === strcasecmp( trim( $title ), trim( $sibling_title ) ) ) {
-                throw new InvalidActionOutputException( __( 'The AI returned a title that duplicates another post\'s title — rejected.', 'vulopilot' ) );
+                throw new InvalidActionOutputException( __( 'The AI returned a title that duplicates another post\'s title - rejected.', 'vulopilot' ) );
             }
         }
     }

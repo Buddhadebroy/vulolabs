@@ -14,7 +14,7 @@ interface PageSpeedResponse {
 	top_issues: PageSpeedIssue[];
 }
 
-/** One row of `GET /findings/groups` — only the fields this card actually reads (real scanner label + real open-finding count), same "narrow local slice" posture other cards in this codebase already take rather than importing a shared full `FindingGroup` type. */
+/** One row of `GET /findings/groups` - only the fields this card actually reads (real scanner label + real open-finding count), same "narrow local slice" posture other cards in this codebase already take rather than importing a shared full `FindingGroup` type. */
 interface FindingGroupRow {
 	label: string;
 	count: number;
@@ -29,45 +29,45 @@ type SpeedOpportunity =
 	| { source: 'finding'; label: string; count: number };
 
 interface BiggestSpeedOpportunityCardProps {
-	/** Jumps to the real "Slow Pages" tab — only meaningful for a page_speed-sourced opportunity, where every affected page is a real row there. */
+	/** Jumps to the real "Slow Pages" tab - only meaningful for a page_speed-sourced opportunity, where every affected page is a real row there. */
 	onViewSlowPages: () => void;
-	/** Jumps to the real "Top Issues" findings table on this same tab (`#performance-section-findings`) — where a finding-sourced opportunity's own row actually lives. */
+	/** Jumps to the real "Top Issues" findings table on this same tab (`#performance-section-findings`) - where a finding-sourced opportunity's own row actually lives. */
 	onViewFindings: () => void;
 }
 
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
- * "Biggest Speed Opportunity" — one real, prioritized recommendation
+ * "Biggest Speed Opportunity" - one real, prioritized recommendation
  * instead of a static tip list, per direct instruction: replaces
  * PerformanceTipsCard.tsx (now deleted), which restated the exact same
  * category names MetricsGrid.tsx's own tiles already show ("Use WebP
- * Images"/"Enable Full Page Cache"/"Minify CSS & JavaScript" — the same
+ * Images"/"Enable Full Page Cache"/"Minify CSS & JavaScript" - the same
  * ground as the Images/Caching/CSS tiles above it, just as prose).
  *
  * Primary source: the real, already-built `top_issues` from `GET /page-speed`
- * (Repositories\PageSpeedRepository::get_top_issues() — real Lighthouse
+ * (Repositories\PageSpeedRepository::get_top_issues() - real Lighthouse
  * opportunity-audit titles or plain load-time labels, grouped by how many
  * real pages they affect, ranked highest-impact first; already backs Slow
  * Pages' own "Why these pages are slow?" sidebar, reused here rather than
  * duplicated).
  *
  * Confirmed live: `top_issues` comes back empty on any site that hasn't run
- * a real per-page speed test yet, or whose tested pages all scored "good" —
+ * a real per-page speed test yet, or whose tested pages all scored "good" -
  * which previously showed "Nothing to optimize yet" even while this same
  * Performance tab's own "Top Issues" table (below) listed real, open
  * Performance-category findings (missing caching, unminified CSS/JS, no
  * CDN, ...), reading as "this card isn't wired up" rather than "no
  * PageSpeed data yet." Falls back to that same real data instead
- * (`GET /findings/groups?category=performance`, highest-severity-first —
+ * (`GET /findings/groups?category=performance`, highest-severity-first -
  * the exact query "Top Issues" itself is built from) when `top_issues` is
  * empty, rather than claiming nothing needs attention while real open
  * issues sit lower on this same page. Still deliberately doesn't show a
- * fabricated "~1.2s" time estimate the way the mockup's own copy does — no
+ * fabricated "~1.2s" time estimate the way the mockup's own copy does - no
  * real per-issue millisecond-savings figure is exposed anywhere in this
  * codebase for either source (Google's own Lighthouse `numericValue` is
  * used server-side only to pick which issue ranks highest, never persisted
- * or returned) — a real "affects N page(s)"/"affects N endpoint(s)" count
+ * or returned) - a real "affects N page(s)"/"affects N endpoint(s)" count
  * instead, same "never a fabricated number" posture PageSpeedRepository's
  * own docblock documents.
  */

@@ -38,7 +38,7 @@ final class AIRequest {
 
     /**
      * A single inline image for the current turn, `{mime_type, data}`
-     * (`data` base64-encoded) — additive and optional so every existing
+     * (`data` base64-encoded) - additive and optional so every existing
      * caller building a text-only request is unaffected. The VuloCloud
      * gateway's wire contract carries text only, so nothing reads this today;
      * it stays on the request for when that changes.
@@ -48,14 +48,14 @@ final class AIRequest {
     private ?array $image;
 
     /**
-     * Which real feature/endpoint triggered this call — e.g. 'copilot_chat',
+     * Which real feature/endpoint triggered this call - e.g. 'copilot_chat',
      * 'content_assistant_chat', 'ai_action', 'geo_analysis',
      * 'content_intelligence'. Purely an audit-trail tag: read only by
      * AI\AiRequestSender, written to `vulopilot_ai_history.surface`, so
      * AI Copilot History's "Conversations" filter (and any future
      * per-feature usage breakdown) can tell a real chat turn apart from
      * every other feature that shares the same sender.
-     * Null for any caller that doesn't pass one — no behavior change.
+     * Null for any caller that doesn't pass one - no behavior change.
      *
      * @var string|null
      */
@@ -67,7 +67,7 @@ final class AIRequest {
      * @param float|null                                  $temperature Optional; the gateway applies its own default when null.
      * @param int|null                                    $max_tokens  Optional; the gateway applies its own default when null.
      * @param array{mime_type: string, data: string}|null $image   Optional inline image for the current turn.
-     * @param string|null                                 $surface Optional real feature label — see get_surface()'s own docblock.
+     * @param string|null                                 $surface Optional real feature label - see get_surface()'s own docblock.
      */
     public function __construct(
         string $model,

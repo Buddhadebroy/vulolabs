@@ -15,12 +15,12 @@ interface GeoByTopicGridProps {
 	groups: FindingGroup[];
 	isLoading: boolean;
 	onViewTopic: (key: string) => void;
-	/** Rendered as this grid's own `SectionComponent` heading — defaults to "A Closer Look, By Topic" (GEO tab); AeoTab.tsx passes "AEO Checks at a Glance" instead, reusing this same real per-section grid rather than a second copy of it. Confirmed unwired until this pass (accepted but never actually rendered) — fixed alongside `SectionComponent` itself being an unused import for the same reason. */
+	/** Rendered as this grid's own `SectionComponent` heading - defaults to "A Closer Look, By Topic" (GEO tab); AeoTab.tsx passes "AEO Checks at a Glance" instead, reusing this same real per-section grid rather than a second copy of it. Confirmed unwired until this pass (accepted but never actually rendered) - fixed alongside `SectionComponent` itself being an unused import for the same reason. */
 	title?: string;
 	desc?: string;
 	/**
 	 * Real distinct-page-count-per-scanner map (useGeoTabData.ts's own useGeoTopicAffectedPages)
-	 * — when passed, each tile also shows a real "Affected pages" stat next
+	 * - when passed, each tile also shows a real "Affected pages" stat next
 	 * to "Open issues" (matching the reference mockup's own two-stat tile
 	 * layout). Optional so a caller that hasn't wired this fetch up yet
 	 * still gets the single-stat tile this grid always showed before,
@@ -30,20 +30,20 @@ interface GeoByTopicGridProps {
 }
 
 /**
- * "A Closer Look, By Topic" — one real tile per unified-table section
+ * "A Closer Look, By Topic" - one real tile per unified-table section
  * (`topics`, owned by GeoTab.tsx so this grid and the "All GEO Issues"
  * table below it always agree on the same 5 groupings), each showing the
  * real open-issue count for that topic (`sumGroupCounts`, same `groups`
- * fetch GeoFixTheseFirstCard.tsx already uses — no second fetch). "View
+ * fetch GeoFixTheseFirstCard.tsx already uses - no second fetch). "View
  * issues" switches the unified table's own active tab to that topic
  * instead of duplicating a second findings list here.
  *
- * Tiles are a real `MetricTileComponent` (`@zyra/components`) —
+ * Tiles are a real `MetricTileComponent` (`@zyra/components`) -
  * icon/title/badge/grid shell all come from there now; only this grid's
  * own divergent stat body (the two-stat "Open issues"/"Affected pages"
  * row, or the single-line sublabel fallback) still needs its own markup,
  * passed through that component's own `desc` slot (arbitrary content, not
- * just text) — same "real content lives in `desc`, shell comes from
+ * just text) - same "real content lives in `desc`, shell comes from
  * MetricTileComponent" split CommerceCategoryGrid.tsx's own category tiles
  * already use.
  */

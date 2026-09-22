@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * The one real heading-slug algorithm both the `vulopilot/table-of-contents`
- * block and `HeadingAnchorInjector` build on — kept in exactly one place so
+ * block and `HeadingAnchorInjector` build on - kept in exactly one place so
  * the TOC's own `<a href="#...">` links and the `id="..."` actually injected
  * onto the real `<h2>`-`<h6>` tags can never silently diverge into two
  * different slug sequences.
@@ -25,11 +25,11 @@ class HeadingAnchorResolver {
     /**
      * Every real `core/heading` block in a post's raw content, in document
      * order, at any nesting depth (inside `core/group`/`core/columns`/etc).
-     * Uses `parse_blocks()` against the post's own raw `post_content` —
+     * Uses `parse_blocks()` against the post's own raw `post_content` -
      * NOT `get_the_content()`, which returns rendered/filtered HTML with no
      * block boundaries left to walk.
      *
-     * Deliberately returns the FULL list, unfiltered by level — callers
+     * Deliberately returns the FULL list, unfiltered by level - callers
      * (TableOfContentsRenderer, HeadingAnchorInjector) filter it themselves.
      * Filtering here would be a real correctness bug: both callers must see
      * the identical full sequence, or their anchor ids can drift apart.
@@ -77,7 +77,7 @@ class HeadingAnchorResolver {
     /**
      * `core/heading`'s `content`/`level`/`anchor` attributes are all
      * markup-sourced in core's own block.json (`"source": "rich-text"` /
-     * `"source": "attribute", "attribute": "id"`) — `parse_blocks()` never
+     * `"source": "attribute", "attribute": "id"`) - `parse_blocks()` never
      * puts markup-sourced values into `$block['attrs']` at all, only
      * explicit non-default JSON comment attributes. The real level, text,
      * and any manually-set custom anchor all have to be read straight off
@@ -108,7 +108,7 @@ class HeadingAnchorResolver {
 
         if ( '' !== $existing_id ) {
             // A real, already-present id (a manually-set custom HTML
-            // anchor) — reserve it so an auto-generated slug elsewhere
+            // anchor) - reserve it so an auto-generated slug elsewhere
             // can't collide with it, and HeadingAnchorInjector's own
             // "already has an id" check will correctly leave it alone.
             $anchor          = $existing_id;

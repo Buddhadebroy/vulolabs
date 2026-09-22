@@ -12,7 +12,7 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Serves this site's IndexNow key file at `/{key}.txt` — the IndexNow
+ * Serves this site's IndexNow key file at `/{key}.txt` - the IndexNow
  * protocol's own ownership-proof mechanism (a plain-text file at the site
  * root containing exactly the key, matching `keyLocation` in every
  * IndexNowClient submission). Same virtual-route + physical-file dual
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * The rewrite pattern matches a fixed 32-lowercase-hex-character filename
  * shape (`generate_new_key()`'s own output format) rather than embedding
- * the current key's literal value in the pattern — so the rewrite rule
+ * the current key's literal value in the pattern - so the rewrite rule
  * itself never needs to change (and re-flush) when an admin rotates the
  * key via the Instant Indexing tab's "Change key" button; only the
  * comparison inside maybe_serve() needs the current value.
@@ -43,7 +43,7 @@ class IndexNowKeyFileServer {
     public function __construct() {
         add_action( 'init', array( $this, 'register_rewrite_rule' ) );
         add_filter( 'query_vars', array( $this, 'add_query_var' ) );
-        // Priority 1 — must run before WordPress core's own
+        // Priority 1 - must run before WordPress core's own
         // redirect_canonical() (hooked on this same action at its default
         // priority 10): core's canonical-redirect logic otherwise 301s an
         // unmatched key-file guess (treating it as a page missing a
@@ -81,12 +81,12 @@ class IndexNowKeyFileServer {
         $settings   = wp_parse_args( get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
         $stored_key = (string) ( $settings['indexnow_api_key'] ?? '' );
 
-        // No stored key yet, or it doesn't match what was requested — force
+        // No stored key yet, or it doesn't match what was requested - force
         // a real 404 rather than a bare `return`. A bare return here left
         // WordPress's main query in its default "matched a rewrite rule but
         // found no content" state, which redirect_canonical() then treated
         // as a page missing a trailing slash and 301-redirected to (landing
-        // on the homepage, 200) instead of ever showing a 404 — confirmed
+        // on the homepage, 200) instead of ever showing a 404 - confirmed
         // via a real request to a 32-hex-char URL that isn't this site's
         // key. Explicitly setting 404 here is what a guessed/stale key file
         // URL should actually do, not confirm the existence of a key that
@@ -104,7 +104,7 @@ class IndexNowKeyFileServer {
     }
 
     /**
-     * Writes the key straight to a real `/{key}.txt` at the site root —
+     * Writes the key straight to a real `/{key}.txt` at the site root -
      * same best-effort semantics as LlmsTxtGenerator::write_file(): a
      * locked-down host where ABSPATH isn't writable still has the setting
      * saved and the virtual route above still serves it correctly, it just
@@ -125,7 +125,7 @@ class IndexNowKeyFileServer {
     }
 
     /**
-     * Generates a fresh 32-character lowercase hex key — real
+     * Generates a fresh 32-character lowercase hex key - real
      * cryptographically-suitable randomness (`random_bytes()`), not a
      * client-trusted value; used both by the Instant Indexing tab's
      * `random-input-key-generator` field's own client-side regeneration

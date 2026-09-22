@@ -82,13 +82,13 @@ const SCAN_ROWS: Row[] = [
 		icon: 'person pink',
 		label: __('User exposure', 'vulopilot'),
 		// The mockup's own copy here ("risky roles or unnecessary access")
-		// doesn't describe any real scanner this codebase has — the closest
+		// doesn't describe any real scanner this codebase has - the closest
 		// real check is RestApiScanner's anonymous `GET /wp/v2/users`
 		// probe, which is about username enumeration, not role/capability
 		// auditing. Worded to what it actually does rather than the
 		// mockup's literal text.
 		desc: __(
-			'Check whether your REST API publicly exposes usernames to unauthenticated visitors — a common first step in brute-force login attacks.',
+			'Check whether your REST API publicly exposes usernames to unauthenticated visitors - a common first step in brute-force login attacks.',
 			'vulopilot'
 		),
 		pro: true,
@@ -102,7 +102,7 @@ const PROTECTION_ROWS: Row[] = [
 		icon: 'vpn-key blue',
 		label: __('Block repeated failed login attempts', 'vulopilot'),
 		desc: __(
-			'Real brute-force protection — an IP that fails to log in too many times within the window below is blocked from trying again until it passes.',
+			'Real brute-force protection - an IP that fails to log in too many times within the window below is blocked from trying again until it passes.',
 			'vulopilot'
 		),
 		fields: [
@@ -124,7 +124,7 @@ const PROTECTION_ROWS: Row[] = [
 				minNumber: 1,
 				maxNumber: 1440,
 				settingDescription: __(
-					'How long a blocked IP has to wait — and how far back failed attempts are counted from.',
+					'How long a blocked IP has to wait - and how far back failed attempts are counted from.',
 					'vulopilot'
 				),
 			},
@@ -136,7 +136,7 @@ const PROTECTION_ROWS: Row[] = [
 		icon: 'blocks yellow',
 		label: __('Log requests matching known attack patterns', 'vulopilot'),
 		desc: __(
-			'Checks every request\'s URL against known SQL-injection, path-traversal, and direct-PHP-execution patterns and logs any match — always safe, never blocks anyone on its own.',
+			'Checks every request\'s URL against known SQL-injection, path-traversal, and direct-PHP-execution patterns and logs any match - always safe, never blocks anyone on its own.',
 			'vulopilot'
 		),
 		fields: [
@@ -146,7 +146,7 @@ const PROTECTION_ROWS: Row[] = [
 				look: 'toggle',
 				label: __('Enable active blocking', 'vulopilot'),
 				settingDescription: __(
-					'Turns the logging above into real blocking — a matched request gets a 403 and is stopped immediately instead of only being recorded. Off by default: review the log for a while first to make sure nothing legitimate is being flagged.',
+					'Turns the logging above into real blocking - a matched request gets a 403 and is stopped immediately instead of only being recorded. Off by default: review the log for a while first to make sure nothing legitimate is being flagged.',
 					'vulopilot'
 				),
 				options: [{ key: 'enable_firewall_blocking', label: '', value: 'enable_firewall_blocking' }],
@@ -229,26 +229,26 @@ const isChecked = (value: unknown): boolean => Array.isArray(value) && value.len
  * Settings → Scanning → Security.
  *
  * Full real replacement for InputRenderer on this tab (Security.ts's own
- * `PanelComponent`) — every field it renders is a genuinely real,
+ * `PanelComponent`) - every field it renders is a genuinely real,
  * already-working setting with its own real PHP consumer; this is a pure
  * UI reshape into the mockup's card style, not new backend work. Three
  * groups:
  *
- * - "Security scans" — a real zyra `SettingRowComponent` checkbox list
+ * - "Security scans" - a real zyra `SettingRowComponent` checkbox list
  *   (per direct instruction, "make this like Notifications → Security
- *   Alerts' own checkbox rows, not Active/Inactive + a "..." menu" — see
+ *   Alerts' own checkbox rows, not Active/Inactive + a "..." menu" - see
  *   `buildScanRows()`'s own docblock below), not `ExpandablePanelInput`.
  *   None of these 5 rows has any nested/expandable settings of its own,
  *   so a plain checkbox per row is a strict simplification, not a loss
  *   of any real control.
- * - "Protection" — login protection and the request firewall, still each
+ * - "Protection" - login protection and the request firewall, still each
  *   an `ExpandablePanelInput` card whose own nested settings (lockout
  *   threshold/window, active blocking) expand via the card's own real
  *   chevron/"Settings" control, instead of always-visible flat fields.
- * - "Security Monitoring" (Pro) — alerts and file-integrity monitoring,
+ * - "Security Monitoring" (Pro) - alerts and file-integrity monitoring,
  *   same card treatment; `security_scan_frequency` is left as a plain
  *   select (hand-rendered below, not a card) since it isn't boolean-shaped
- *   — there's no separate on/off flag for it, only the frequency value
+ *   - there's no separate on/off flag for it, only the frequency value
  *   itself (`'disabled'` already means off), so forcing it into a card's
  *   own `enable` toggle would either duplicate that meaning or invent a
  *   setting that doesn't exist.
@@ -257,21 +257,21 @@ const isChecked = (value: unknown): boolean => Array.isArray(value) && value.len
  * declarative usage (one field key → one nested settings object or one
  * shared array), every row on this tab is wired by hand (`useSetting()`
  * directly via `handleChange`) because these are independent flat
- * settings, not one nested object or array — see Security.ts's own
+ * settings, not one nested object or array - see Security.ts's own
  * docblock for why they aren't migrated into a nested shape.
  *
  * Every Pro row (`pro: true`, currently just "User exposure") is locked
- * by hand when vulopilot-pro's Security Monitoring module isn't active —
+ * by hand when vulopilot-pro's Security Monitoring module isn't active -
  * its checkbox renders `disabled` (`buildScanRows()`) and `handleChange`
  * silently ignores a toggle/edit on that row in that case rather than
- * writing a setting nothing will ever read — neither `ExpandablePanelInput`
+ * writing a setting nothing will ever read - neither `ExpandablePanelInput`
  * nor `SettingRowComponent` has a per-row Pro gate of its own the way
  * InputRenderer's top-level fields do.
  */
 const SecurityPanel = () => {
 	const { setting, updateSetting } = useSetting();
 	const { modules } = useModules();
-	const hasSecurityMonitoring = modules.includes('security-monitoring');
+	const hasSecurityMonitoring = modules.includes('website-security');
 
 	const buildMethods = (rows: Row[]) =>
 		rows.map((row) => ({
@@ -295,23 +295,23 @@ const SecurityPanel = () => {
 			})),
 		}));
 
-	// "Security scans" own rows — per direct instruction ("shift the active
+	// "Security scans" own rows - per direct instruction ("shift the active
 	// deactive to checkbox use our zyra components"), styled like
 	// Notifications/SecurityAlerts.ts's own "Notify me about" list
 	// (zyra's real `SettingRowComponent`, `control: { checkbox: true }`)
 	// instead of `ExpandablePanelInput`'s Active/Inactive badge + "..."
-	// menu. Unlike that list — one flat array setting, each row a member
-	// of it — these 5 rows are independent flat booleans
+	// menu. Unlike that list - one flat array setting, each row a member
+	// of it - these 5 rows are independent flat booleans
 	// (`enable_weak_password_scanner` etc., same shape `isChecked()`
 	// already reads), so `resolveControl()`'s own array-membership
 	// checkbox logic doesn't apply here; passing a real `<input>` element
 	// as `control` bypasses that resolution entirely (SettingRowComponent's
 	// own `resolveControl()` returns a valid React element as-is), reusing
 	// the exact same `setting-row-checkbox` markup/CSS class that built-in
-	// path renders, wired to `handleChange` (below) instead — same
+	// path renders, wired to `handleChange` (below) instead - same
 	// save/patch/Pro-gating logic every other row on this tab already
 	// goes through, just a different control element. Protection/Security
-	// Monitoring stay `ExpandablePanelInput` cards — unlike Security
+	// Monitoring stay `ExpandablePanelInput` cards - unlike Security
 	// scans, every one of those rows has its own real expandable
 	// `fields` (lockout thresholds, active blocking, alert email/severity,
 	// file limit), which a plain checkbox list can't show.
@@ -421,11 +421,11 @@ const SecurityPanel = () => {
 			 * `.settings-section-group` > `.settings-left-section` (the
 			 * section header) + `.settings-right-section` (a nested
 			 * `FormGroupWrapperComponent` holding that group's own fields)
-			 * — the exact same markup/classes InputRenderer.tsx's own
+			 * - the exact same markup/classes InputRenderer.tsx's own
 			 * `renderForm()` generates automatically when grouping a
 			 * declarative `modal` array by its `type: 'section'` fields
 			 * (`groupBySections`). This tab is hand-built rather than
-			 * InputRenderer-driven (see this file's own docblock — every
+			 * InputRenderer-driven (see this file's own docblock - every
 			 * "section" here wraps a real `ExpandablePanelInput` wired to
 			 * live handlers, not a flat FIELD_REGISTRY field), so it
 			 * doesn't get that grouping for free; replicated by hand

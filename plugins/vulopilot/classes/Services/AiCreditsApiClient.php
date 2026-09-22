@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Same `wp_remote_post()` + "completed round trip vs genuine network
  * failure" split every other VuloCloud client in this plugin already uses
- * (VuloCloudAccountApiClient, License\LicenseApiClient) — ported here
+ * (VuloCloudAccountApiClient, License\LicenseApiClient) - ported here
  * rather than reused directly since each of those lives in its own
  * bounded-context concern.
  *
@@ -45,15 +45,15 @@ class AiCreditsApiClient {
     }
 
     /**
-     * `POST /plugin/ai-credits/connect-site` — human-authenticated
-     * (the site owner's own VuloCloud access token, staff or Customer —
+     * `POST /plugin/ai-credits/connect-site` - human-authenticated
+     * (the site owner's own VuloCloud access token, staff or Customer -
      * the endpoint resolves either, see the vulocloud side's own
      * ai-credits-plugin.controller.ts docblock). Response, on success:
-     * `{ siteId, siteSecret, credits }` — `siteSecret` is plaintext,
+     * `{ siteId, siteSecret, credits }` - `siteSecret` is plaintext,
      * present in this one response only.
      *
      * @param string      $access_token    The site owner's own VuloCloud access token (staff or Customer).
-     * @param string|null $organization_id Agency path only — omitted (null)
+     * @param string|null $organization_id Agency path only - omitted (null)
      *                                      for a Customer token, whose own
      *                                      parent Organization is already
      *                                      implied server-side.
@@ -75,12 +75,12 @@ class AiCreditsApiClient {
     }
 
     /**
-     * `POST organizations/{host_organization_id}/portal/auth/register` —
+     * `POST organizations/{host_organization_id}/portal/auth/register` -
      * VuloCloud's Customer Portal self-service registration
      * (contexts/customer), used only by the solo-site-owner path
      * (AiCreditsConnection::connect_and_claim(), `$as_customer = true`).
      * Returns no tokens (same as VuloCloudAccountConnection's own agency-side
-     * `/auth/register`) — the caller still calls portal_login() afterward.
+     * `/auth/register`) - the caller still calls portal_login() afterward.
      *
      * @param string $host_organization_id The one fixed Organization solo Customers register under (VULOPILOT_VULOCLOUD_HOST_ORGANIZATION_ID).
      * @param string $email                Customer account email.
@@ -102,9 +102,9 @@ class AiCreditsApiClient {
     }
 
     /**
-     * `POST organizations/{host_organization_id}/portal/auth/login` —
+     * `POST organizations/{host_organization_id}/portal/auth/login` -
      * Response, on success: `{ accessToken, refreshToken, customer }`. The
-     * access token is used once, immediately, to call connect_site() —
+     * access token is used once, immediately, to call connect_site() -
      * never persisted by this client (AiCreditsConnection only ever stores
      * the resulting ConnectedSite credential, same as the agency path).
      *
@@ -124,7 +124,7 @@ class AiCreditsApiClient {
     }
 
     /**
-     * `POST /plugin/ai-credits/balance` — site-secret authenticated
+     * `POST /plugin/ai-credits/balance` - site-secret authenticated
      * (no human token involved). Response, on success:
      * `{ credits, lifetimeEarned, lifetimeUsed }`.
      *
@@ -143,7 +143,7 @@ class AiCreditsApiClient {
     }
 
     /**
-     * `POST /plugin/ai-credits/disconnect` — site-secret authenticated,
+     * `POST /plugin/ai-credits/disconnect` - site-secret authenticated,
      * same shape as get_balance() above (no human token). Real
      * self-service revoke on VuloCloud's own side (ConnectedSiteService::revokeBySite()),
      * not just a local option clear.

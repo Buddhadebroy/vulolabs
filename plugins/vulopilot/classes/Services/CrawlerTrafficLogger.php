@@ -13,21 +13,21 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * AI Crawler Traffic Monitoring (readme.txt) — detects known AI-answer-
+ * AI Crawler Traffic Monitoring (readme.txt) - detects known AI-answer-
  * engine crawlers by User-Agent on every real front-end page load and
- * logs the visit (bot name + user agent + requested URL only — never an
+ * logs the visit (bot name + user agent + requested URL only - never an
  * IP address or any other visitor-identifying data, per readme.txt's own
  * FAQ promise). Self-registers its own hooks in the constructor
  * (php-wordpress.md) and is constructed unconditionally in
  * VuloPilot::init_classes(), the same shape GeoAnalysis\LlmsTxtGenerator
- * already uses for "detect something on every real front-end request" —
+ * already uses for "detect something on every real front-end request" -
  * `template_redirect` fires only for genuine page-template requests, never
  * wp-admin, REST API, or admin-ajax.php, so no extra is_admin()/DOING_AJAX
  * guard is needed beyond what that hook already excludes.
  *
  * The plugin's readme.txt names "Google-Extended (Gemini)" as one of the
  * crawlers to monitor, but Google documents Google-Extended as a robots.txt-only
- * opt-out *token* with no distinguishing User-Agent of its own — content
+ * opt-out *token* with no distinguishing User-Agent of its own - content
  * used for Gemini/AI training is actually fetched under Google's
  * AI-training crawler UA, `Google-CloudVertexBot`. BOT_SIGNATURES maps
  * the readme's label to that real, detectable UA instead of matching a
@@ -36,15 +36,15 @@ defined( 'ABSPATH' ) || exit;
  *
  * One Pro extension point for "AI Crawler Traffic Analytics & Historical
  * Logs" (readme.txt's Pro line) is `vulopilot_crawler_log_retention_days`
- * — Free's daily cleanup cron deletes rows older than Settings → AI
+ * - Free's daily cleanup cron deletes rows older than Settings → AI
  * Visibility's own "Log retention" value (default 30); vulopilot-pro's
  * AdvancedReports module overrides it further via this same filter.
- * No separate Pro table/REST controller is needed — see this feature's
+ * No separate Pro table/REST controller is needed - see this feature's
  * plan doc for why a per-event log doesn't need the snapshot-rollup shape
  * Health Score's historical trend uses.
  *
  * A second extension point, `vulopilot_crawler_bot_signatures`, lets Pro (or
- * any third party) extend BOT_SIGNATURES without editing this class —
+ * any third party) extend BOT_SIGNATURES without editing this class -
  * AI-CRAWLER-ANALYTICS-MODULE.md's "register a source, don't modify the
  * host" reasoning, the same posture every other *_sources filter in this
  * codebase already uses, applied to this one fixed array that previously
@@ -110,7 +110,7 @@ class CrawlerTrafficLogger {
 
             $requested_url = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
-            // is_404() is already reliable here — `template_redirect` fires
+            // is_404() is already reliable here - `template_redirect` fires
             // after WP has resolved the main query, so this is the request's
             // real outcome, not a guess. AI Crawler Alerts' "access limited"
             // check (CrawlerAlertMonitor::find_bots_with_high_404_rate())
@@ -122,7 +122,7 @@ class CrawlerTrafficLogger {
 
     /**
      * User-Agent substring => display name, extensible via
-     * `vulopilot_crawler_bot_signatures` — the shared source of truth for
+     * `vulopilot_crawler_bot_signatures` - the shared source of truth for
      * every place in this codebase that needs to know which AI bots are
      * detectable (Seo\Scanners\AiCrawlerBlockedPagesScanner, and
      * vulopilot-pro's crawler-analytics correlation/alert code).
@@ -135,7 +135,7 @@ class CrawlerTrafficLogger {
 
     /**
      * Schedules the daily cleanup cron once, the standard
-     * wp_next_scheduled()-guarded wp_schedule_event() pattern — no
+     * wp_next_scheduled()-guarded wp_schedule_event() pattern - no
      * existing cron-scheduling helper to reuse in this plugin (Scheduler.php
      * for recurring scans is Pro business logic, a different concern).
      *
@@ -148,7 +148,7 @@ class CrawlerTrafficLogger {
     }
 
     /**
-     * Deletes crawler-visit rows past the retention window — the one
+     * Deletes crawler-visit rows past the retention window - the one
      * mechanism behind readme.txt's Pro "Historical Logs" line, see this
      * class's own docblock.
      *

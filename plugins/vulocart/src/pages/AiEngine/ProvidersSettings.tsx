@@ -25,12 +25,12 @@ interface UsageSummary {
 }
 
 /**
- * The BYOK provider configuration screen — pick a provider, choose a
+ * The BYOK provider configuration screen - pick a provider, choose a
  * model, paste an API key (never re-displayed once saved,
  * `Rest::get_providers()` only ever returns `is_configured`, not the
  * key itself), and toggle it active. Only one provider is meant to be
  * active at a time (`ProviderRegistry::get_active_provider()`'s own
- * docblock) — activating a second one here doesn't deactivate the
+ * docblock) - activating a second one here doesn't deactivate the
  * first automatically, matching that the backend takes whichever active
  * row it finds first rather than enforcing single-select itself.
  */

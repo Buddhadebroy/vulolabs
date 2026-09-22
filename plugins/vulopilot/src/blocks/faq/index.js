@@ -70,7 +70,7 @@ registerBlockType( metadata.name, {
 		);
 	},
 
-	// Dynamic block — render.php builds both the visible <details> markup
+	// Dynamic block - render.php builds both the visible <details> markup
 	// and the real FAQPage JSON-LD from these same attributes, so save()
 	// persists nothing.
 	save: () => null,

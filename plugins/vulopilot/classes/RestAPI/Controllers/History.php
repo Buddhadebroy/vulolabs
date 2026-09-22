@@ -16,30 +16,30 @@ use VuloPilot\Repositories\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /history backs the AI Copilot page's History tab (HistoryTab.tsx) —
+ * GET /history backs the AI Copilot page's History tab (HistoryTab.tsx) -
  * a real, day-groupable activity timeline, distinct from the existing
  * `GET /activity-logs` (ActivityLogs.php, backs Reports > Activity's own
  * flat, unfiltered table): this endpoint scopes to only the event types AI
  * Copilot's own History is about (`scan.completed`/`ai_action.*` from
- * `vulopilot_activity_logs` — never the Pro-only GEO/Brand/KG snapshot
+ * `vulopilot_activity_logs` - never the Pro-only GEO/Brand/KG snapshot
  * events that table also carries), and enriches each row with real detail
  * joined back to its source table (`vulopilot_scans`/`vulopilot_ai_action_runs`)
- * — a scan run's real per-severity finding counts, or an AI action's real
- * `preview.before`/`preview.after` — since `activity_logs.message` alone
+ * - a scan run's real per-severity finding counts, or an AI action's real
+ * `preview.before`/`preview.after` - since `activity_logs.message` alone
  * is only ever a generic one-line summary, never the full detail the
  * mockup's row/detail-panel needs.
  *
  * "Conversations" is a real category too, backed by a THIRD source table
- * (`vulopilot_ai_history`, via AiHistoryRepository::get_conversations()) —
+ * (`vulopilot_ai_history`, via AiHistoryRepository::get_conversations()) -
  * every real chat turn (Controllers\Copilot.php/ContentAssistant.php)
  * writes there, tagged with a real `surface` column so this can tell a
  * genuine chat turn apart from every other feature that shares the same
  * AI\AiRequestSender path (GEO scoring, schema generation, content
- * intelligence — see AiHistoryRepository::CHAT_SURFACES's own docblock).
+ * intelligence - see AiHistoryRepository::CHAT_SURFACES's own docblock).
  *
  * "Automations" stays a real category filter the client always sends but
  * has no backing: `vulopilot_automations_runs` has no writer in this
- * codebase at all (Automations.php's own `run_item()` is a hard 501) — it
+ * codebase at all (Automations.php's own `run_item()` is a hard 501) - it
  * honestly returns zero rows rather than fabricating any.
  *
  * @class       History controller
@@ -54,7 +54,7 @@ class History extends \WP_REST_Controller {
     protected $rest_base = 'history';
 
     /**
-     * The only real event types this table's timeline is ever built from —
+     * The only real event types this table's timeline is ever built from -
      * everything else `vulopilot_activity_logs` carries (Pro's GEO/Brand/KG
      * snapshot events) belongs to those pages' own history, not this one.
      *
@@ -95,8 +95,8 @@ class History extends \WP_REST_Controller {
 
         // Zyra's sendApiResponse() (src/services/useApiList.ts and every
         // other AI Copilot delete/apply action this session) always issues
-        // a plain POST regardless of semantic intent — same reasoning
-        // Findings.php's own class docblock gives for its own sub-routes —
+        // a plain POST regardless of semantic intent - same reasoning
+        // Findings.php's own class docblock gives for its own sub-routes -
         // so this accepts WP_REST_Server::EDITABLE (POST/PUT/PATCH/DELETE)
         // rather than a stricter DELETABLE-only registration that the real
         // client could never actually reach.
@@ -138,7 +138,7 @@ class History extends \WP_REST_Controller {
         $per_page     = absint( $request->get_param( 'per_page' ) );
 
         // 'automations' is a real filter pill the client always sends, but
-        // has no backing (see class docblock) — short-circuit to an
+        // has no backing (see class docblock) - short-circuit to an
         // honest empty page rather than querying for an event_type
         // allow-list that can never match.
         if ( 'automations' === $category ) {
@@ -153,7 +153,7 @@ class History extends \WP_REST_Controller {
 
         // 'conversation' is a real filter pill too now, but a distinct
         // source table (`vulopilot_ai_history`, not `vulopilot_activity_logs`)
-        // — deliberately NOT merged into the 'all'/scan/change timeline
+        // - deliberately NOT merged into the 'all'/scan/change timeline
         // below (that would need a real cross-source merge-sort across two
         // differently-shaped paginated queries); it only ever appears when
         // this exact category is requested, same as the client's own
@@ -215,8 +215,8 @@ class History extends \WP_REST_Controller {
      * into the 2 activity_logs-backed category counts, adds a real
      * conversation count from the separate ai_history source
      * (AiHistoryRepository::get_conversation_count()), and zero-fills
-     * 'automations' — a real pill the client always renders, just always at
-     * 0 today (see class docblock). 'all' is the real sum of the four —
+     * 'automations' - a real pill the client always renders, just always at
+     * 0 today (see class docblock). 'all' is the real sum of the four -
      * HistoryTab.tsx's own "All" filter pill reads this same object
      * (typeCounts.all), and without this key it silently fell back to its
      * client-side zero-default, so "All" never showed a count badge next
@@ -249,12 +249,12 @@ class History extends \WP_REST_Controller {
 
     /**
      * Adds a real `conversation` sub-object to one `vulopilot_ai_history`
-     * row — everything the row already has (provider/model/status/full
+     * row - everything the row already has (provider/model/status/full
      * excerpt); the frontend's own humanizeConversationExcerpt()
      * (historyTypes.ts) turns the raw excerpt into a human-readable title,
      * not this controller (same "PHP passes the real data through,
      * TypeScript owns display formatting" split every other row category
-     * here already follows — see enrich_row()'s own `message` field, which
+     * here already follows - see enrich_row()'s own `message` field, which
      * is likewise the raw activity_logs.message with no server-side
      * rewriting).
      *
@@ -284,7 +284,7 @@ class History extends \WP_REST_Controller {
     }
 
     /**
-     * Real `ai_action.*` rows this conversation turn caused, if any — see
+     * Real `ai_action.*` rows this conversation turn caused, if any - see
      * ActivityLogRepository::find_actions_in_window()'s own docblock for
      * why a tight window plus a same-user cross-check is safe here rather
      * than a fabricated guess. Genuinely empty for the overwhelming
@@ -335,7 +335,7 @@ class History extends \WP_REST_Controller {
 
     /**
      * Adds a real `scan` or `change` sub-object to one activity_logs row,
-     * joined back to its source table by `object_id` — `message` alone is
+     * joined back to its source table by `object_id` - `message` alone is
      * only ever a generic one-line summary (ActionRunner::log()'s own
      * calls are literally `sprintf('%s executed.', ...)`), never the real
      * per-severity finding counts or before/after text the row/detail
@@ -387,7 +387,7 @@ class History extends \WP_REST_Controller {
             'by_severity'    => $summary['by_severity'] ?? array(),
             'total'          => $total,
             'affected_pages' => $this->build_affected_pages( $scan_id ),
-            // Only ever populated for a clean (0-finding) scan — when a
+            // Only ever populated for a clean (0-finding) scan - when a
             // scan DID find something, affected_pages above already shows
             // every page it touched. Real data only: a scan persisted
             // before `scanned_objects` existed (ScanPersistenceListener.php)
@@ -398,17 +398,17 @@ class History extends \WP_REST_Controller {
     }
 
     /**
-     * Real pages/posts a scan considered but found nothing wrong with —
+     * Real pages/posts a scan considered but found nothing wrong with -
      * only meaningful (and only ever called) for a 0-finding scan, since a
      * scan that did find issues already has those pages listed, with their
      * real counts, in build_affected_pages() above. Reads the scanner's own
      * `get_scanned_post_ids()` record (ScanResult::get_scanned_post_ids(),
-     * written to `vulopilot_scans.scanned_objects` at persistence time) —
+     * written to `vulopilot_scans.scanned_objects` at persistence time) -
      * a real per-post record kept independently of any Finding, since a
      * clean post never produces one. Genuinely empty for a scanner that
      * isn't per-post (Contracts\Scanner\TracksScannedObjectsInterface not
      * implemented) or for any scan row persisted before this column
-     * existed — never inferred from the current live post list, which
+     * existed - never inferred from the current live post list, which
      * could easily disagree with what a past scan actually considered.
      *
      * @param array<string, mixed> $scan One vulopilot_scans row.
@@ -447,12 +447,12 @@ class History extends \WP_REST_Controller {
 
     /**
      * Real pages/posts this scan run found an issue on, one entry per
-     * distinct post with its own real finding count — plus one trailing
+     * distinct post with its own real finding count - plus one trailing
      * "Site-wide" entry if any of this scan's findings aren't tied to a
      * specific page (a URL-level finding like a broken sitemap, or a
      * scanner that reports on the whole site). Reads every finding's own
      * `object_type`/`object_ref` via the exact `scan_id` FK
-     * (FindingRepository::get_object_refs_for_scan()) — same
+     * (FindingRepository::get_object_refs_for_scan()) - same
      * `object_ref` shapes (numeric post id, or a comma-joined list for
      * DuplicateContentScanner) History.php's own resolve_page_link() and
      * Findings.php's add_page_field() already handle, but resolved here to
@@ -518,10 +518,10 @@ class History extends \WP_REST_Controller {
 
     /**
      * Real numeric post ids one finding's `object_type`/`object_ref` points
-     * at — empty for anything not page/post-scoped (a URL/site-wide
+     * at - empty for anything not page/post-scoped (a URL/site-wide
      * finding). `object_ref` is usually a single post id, but
      * DuplicateContentScanner writes a comma-joined list (one duplicate-
-     * title finding spans multiple posts) — same split
+     * title finding spans multiple posts) - same split
      * seoIssuesShared.tsx's own bucketFindingsByPage() already does for the
      * SEO tables, applied here too so a scan's affected-pages list doesn't
      * undercount those.
@@ -544,7 +544,7 @@ class History extends \WP_REST_Controller {
 
     /**
      * Real detail for one ai_action.* timeline row, joined back to its
-     * vulopilot_ai_action_runs source row — the real before/after text
+     * vulopilot_ai_action_runs source row - the real before/after text
      * comes from `preview` (set once at propose() time), never fabricated.
      *
      * @param int $run_id vulopilot_ai_action_runs.id.
@@ -572,7 +572,7 @@ class History extends \WP_REST_Controller {
             'error_message'   => $run['error_message'],
             'page'            => $this->resolve_page_link( $run['object_type'] ?? null, $run['object_ref'] ?? null ),
             // 'auto' when Automate Work's Auto-fix mode approved this run
-            // itself (ActionRunner::approve()'s own $method param) — real
+            // itself (ActionRunner::approve()'s own $method param) - real
             // rows created before this column existed fall back to
             // 'manual', the only method that existed then.
             'approval_method' => $run['approval_method'] ?? 'manual',
@@ -581,7 +581,7 @@ class History extends \WP_REST_Controller {
 
     /**
      * Same "post permalink, else site-wide" resolution Findings.php's own
-     * add_page_field() uses — object_type/object_ref are only ever set
+     * add_page_field() uses - object_type/object_ref are only ever set
      * once an action run reaches approve() (ActionRunner::approve()), so
      * this returns null for a still-pending/rejected run rather than
      * guessing a page it was never actually applied to.

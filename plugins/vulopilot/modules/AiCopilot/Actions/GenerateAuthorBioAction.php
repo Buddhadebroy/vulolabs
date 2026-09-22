@@ -18,13 +18,13 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * GEO-MODULE.md's fix for both GeoAuthorInfoScanner's and
- * GeoEeatSignalsScanner's findings — both are only ever raised because the
+ * GeoEeatSignalsScanner's findings - both are only ever raised because the
  * post's author has no bio (`get_the_author_meta('description')`;
  * GeoEeatSignalsScanner's own docblock explains its check only fires when
  * *neither* of two signals is present, so filling in the bio alone is
  * enough to resolve either finding on the next scan). Unlike every other
  * action in this folder, the thing mutated is the *author's user account*,
- * not the post itself — this action's input is only ever a post id, used
+ * not the post itself - this action's input is only ever a post id, used
  * to resolve which author to write a bio for.
  *
  * @class       GenerateAuthorBioAction class
@@ -48,7 +48,7 @@ class GenerateAuthorBioAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::LOW — Writes one isolated postmeta/user-meta value, never touches `post_content`.
+     * Impact::LOW - Writes one isolated postmeta/user-meta value, never touches `post_content`.
      *
      * @inheritDoc
      */
@@ -77,7 +77,7 @@ class GenerateAuthorBioAction extends AbstractBasicAction {
         $existing_bio = (string) get_the_author_meta( 'description', $author_id );
 
         if ( '' !== trim( $existing_bio ) ) {
-            throw new InvalidActionInputException( __( 'This author already has a bio — there is nothing to fix.', 'vulopilot' ) );
+            throw new InvalidActionInputException( __( 'This author already has a bio - there is nothing to fix.', 'vulopilot' ) );
         }
 
         return array(
@@ -99,7 +99,7 @@ class GenerateAuthorBioAction extends AbstractBasicAction {
                 'content' => 'You write short, professional author bios for a website byline. Write 2-3 sentences '
                     . 'establishing the author\'s expertise/relevance to the kind of content they write, based on the '
                     . 'sample article given. Do not invent specific credentials, employers, or affiliations that cannot '
-                    . 'be reasonably inferred from the sample. Respond with ONLY the bio text — no commentary, no quotes.',
+                    . 'be reasonably inferred from the sample. Respond with ONLY the bio text - no commentary, no quotes.',
             ),
             array(
                 'role'    => 'user',

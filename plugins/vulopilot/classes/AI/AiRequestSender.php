@@ -27,8 +27,8 @@ defined( 'ABSPATH' ) || exit;
  * VuloCloud gateway (retrying transient failures), record the attempt in
  * `vulopilot_ai_history`, then sanitize the response.
  *
- * VuloCloud is the only place an AI answer comes from — it holds every key and
- * decides which vendor serves a call — so there is nothing to pick between and
+ * VuloCloud is the only place an AI answer comes from - it holds every key and
+ * decides which vendor serves a call - so there is nothing to pick between and
  * no registry/adapter/fallback layer. The budget, retry and history steps that
  * used to live in decorators around an adapter are plain private steps here,
  * in the same order: budget check on every attempt, retries inside that
@@ -55,7 +55,7 @@ class AiRequestSender {
     private const BASE_RETRY_DELAY_MS = 500;
 
     /**
-     * `response_excerpt`/`prompt_excerpt` are an audit trail, not a cache —
+     * `response_excerpt`/`prompt_excerpt` are an audit trail, not a cache -
      * bounds how much of a real prompt or reply gets persisted per call.
      */
     private const EXCERPT_MAX_LENGTH = 300;
@@ -92,7 +92,7 @@ class AiRequestSender {
     /**
      * @param array<int, array{role: string, content: string}> $messages Chat-style prompt messages.
      * @param array{mime_type: string, data: string}|null      $image    Optional inline image for the current turn. The VuloCloud gateway's wire contract doesn't carry one today, so it is recorded on the request but never sent.
-     * @param string|null                                      $surface  Optional real feature label recorded to `vulopilot_ai_history.surface` — see AIRequest::get_surface()'s own docblock.
+     * @param string|null                                      $surface  Optional real feature label recorded to `vulopilot_ai_history.surface` - see AIRequest::get_surface()'s own docblock.
      * @return AIResponse
      *
      * @throws \VuloPilot\Exceptions\UnsafePromptException If the prompt fails safety validation.
@@ -122,7 +122,7 @@ class AiRequestSender {
     }
 
     /**
-     * Only a TransientGatewayException is retried — a GatewayRequestException
+     * Only a TransientGatewayException is retried - a GatewayRequestException
      * (malformed request), AiByokNotConfiguredException or
      * RateLimitExceededException passes straight through, per those
      * exceptions' own docblocks. Every attempt spends from the budget.
@@ -153,7 +153,7 @@ class AiRequestSender {
     }
 
     /**
-     * A WP transient as a lightweight per-minute counter — the existing WP
+     * A WP transient as a lightweight per-minute counter - the existing WP
      * mechanism for "a value that should expire on its own", not a new cache.
      *
      * @return void
@@ -179,7 +179,7 @@ class AiRequestSender {
 
     /**
      * Sends `{feature, prompt, site_tone}` to VuloCloud and returns finished
-     * text. The prompt is the request's messages flattened in order — VuloCloud
+     * text. The prompt is the request's messages flattened in order - VuloCloud
      * alone turns it back into whatever message shape the serving vendor
      * expects. The response's provider/model/token fields are deliberately
      * generic: this site never learns which vendor or key answered.
@@ -192,7 +192,7 @@ class AiRequestSender {
      */
     private function call_gateway( AIRequest $request ): AIResponse {
         // Lives in the flat `vulopilot_settings` option (General tab's own
-        // "Site tone" field, autosaved) — see Utill::VULOPILOT_SETTINGS_DEFAULTS.
+        // "Site tone" field, autosaved) - see Utill::VULOPILOT_SETTINGS_DEFAULTS.
         $settings = wp_parse_args( (array) get_option( Utill::VULOPILOT_SETTINGS_KEY, array() ), Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
         $result = $this->gateway->execute(
@@ -283,7 +283,7 @@ class AiRequestSender {
     }
 
     /**
-     * The real, human-typed question this call is answering — the last
+     * The real, human-typed question this call is answering - the last
      * `role: 'user'` message in the request (never the system prompt, which is
      * always message[0] and is orchestration instructions, not anything a
      * human asked). History's detail panel ("You asked") reads this.

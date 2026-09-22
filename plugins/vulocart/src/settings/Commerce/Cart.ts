@@ -3,9 +3,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Backed by `Utill::SETTINGS_DEFAULTS`'s Cart section. `cart`
  * (`modules/Cart`) is a real, shipping module (WPDBCartRepository).
- * `cart_expiry_days` is genuinely consumed —
+ * `cart_expiry_days` is genuinely consumed -
  * `Cart\Application\CartCleanupScheduler`'s daily `wp_cron` deletes carts
- * untouched for this many days. `allow_guest_cart` isn't read yet — this
+ * untouched for this many days. `allow_guest_cart` isn't read yet - this
  * plugin has no account/login-gated cart concept to disable in the first
  * place (Cart\Rest.php's token-based access already has no account
  * requirement, unconditionally), so there's nothing for this toggle to
@@ -24,7 +24,7 @@ export default {
 			look: 'toggle',
 			label: __( 'Allow guest carts', 'vulocart' ),
 			desc: __(
-				'Let a shopper add items to a cart before creating an account — matches Cart\\Rest.php\'s existing token-based cart access, which already has no account requirement.',
+				'Let a shopper add items to a cart before creating an account - matches Cart\\Rest.php\'s existing token-based cart access, which already has no account requirement.',
 				'vulocart'
 			),
 			options: [

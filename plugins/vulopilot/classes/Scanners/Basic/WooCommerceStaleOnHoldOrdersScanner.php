@@ -13,10 +13,10 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Orders" — one real finding per order still `wc-on-hold` after
+ * "Orders" - one real finding per order still `wc-on-hold` after
  * STALE_AFTER_DAYS. WooCommerce itself uses on-hold for orders awaiting
  * manual verification (offline payment, manual fraud review, stock
- * awaiting confirmation) — a real order sitting in that state this long
+ * awaiting confirmation) - a real order sitting in that state this long
  * usually means it was never actually reviewed, not that review is still
  * genuinely in progress.
  *
@@ -85,7 +85,7 @@ class WooCommerceStaleOnHoldOrdersScanner extends AbstractBasicScanner {
 				),
 				Severity::MEDIUM,
 				$this->get_category(),
-				__( 'This order has been awaiting manual review (payment verification, stock, or fraud check) longer than usual — it likely needs attention.', 'vulopilot' ),
+				__( 'This order has been awaiting manual review (payment verification, stock, or fraud check) longer than usual - it likely needs attention.', 'vulopilot' ),
 				'order',
 				(string) $order_id
 			);

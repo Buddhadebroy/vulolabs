@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Renames WordPress core's own native sitemap URLs from its default
  * `/wp-sitemap.xml`/`/wp-sitemap-{provider}-{subtype}-{page}.xml` shape to
  * the more familiar `/sitemap_index.xml`/`/{subtype}-sitemap{page}.xml`
- * shape (Yoast/RankMath's own real convention) — real core content served
+ * shape (Yoast/RankMath's own real convention) - real core content served
  * at a different real URL, not a second sitemap system: every new pretty
  * URL rewrites to the exact same real `sitemap`/`sitemap-subtype`/`paged`
  * query vars `WP_Sitemaps::register_rewrites()` already uses, so core's
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * hooks the shared renderer/stylesheet classes, not a URL).
  *
  * The real per-type "name" (`page`, `post`, `category`, …) always comes
- * from `wp_get_sitemap_providers()`'s own real `get_object_subtypes()` —
+ * from `wp_get_sitemap_providers()`'s own real `get_object_subtypes()` -
  * read once, on the real `wp_sitemaps_init` hook core itself fires
  * specifically for extending its own registry (sitemaps.php's own
  * docblock: "Additional sitemaps should be registered on this hook"), so
@@ -31,12 +31,12 @@ defined( 'ABSPATH' ) || exit;
  * provider name (`users-sitemap.xml`) since there's no real per-subtype
  * name to use instead.
  *
- * Old URLs keep working — real per-instruction requirement, not
+ * Old URLs keep working - real per-instruction requirement, not
  * optional: every old-shape URL still real-rewrites to the same real
  * query vars core always used, then `redirect_legacy_url()` (hooked on
  * `template_redirect` at priority 5, before core's own render at its
  * default priority 10) issues a real 301 to the new pretty URL before
- * core ever renders anything at the old one — a site already indexed by
+ * core ever renders anything at the old one - a site already indexed by
  * search engines, or with the old sitemap URL saved in Search Console,
  * keeps resolving correctly rather than 404ing.
  *
@@ -51,7 +51,7 @@ defined( 'ABSPATH' ) || exit;
 class SitemapUrlRewriter {
 
     /**
-     * Bumped whenever this class's own rewrite rules change shape — the
+     * Bumped whenever this class's own rewrite rules change shape - the
      * one real trigger for the one-time `flush_rewrite_rules()` below
      * (retrofitting new rewrite rules into an already-active install
      * needs a real flush; WordPress never does this on its own outside
@@ -82,12 +82,12 @@ class SitemapUrlRewriter {
         // own `redirect_canonical()` (template_redirect, default priority
         // 10) tries to reconstruct "the" canonical pretty URL for that
         // combination and 301s the *new* pretty URL back to whichever
-        // pattern it happens to reverse-match first — undoing this class's
+        // pattern it happens to reverse-match first - undoing this class's
         // own real redirect direction and creating a genuine old↔new
         // redirect loop (confirmed live against this exact install).
         // Sitemap query vars aren't a real post/page/term core's canonical
         // logic actually needs to correct, so this fully opts every real
-        // sitemap request out of that mechanism — `redirect_legacy_url()`
+        // sitemap request out of that mechanism - `redirect_legacy_url()`
         // above is the one real redirect authority for these URLs.
         add_filter( 'redirect_canonical', array( $this, 'bypass_canonical_redirect' ) );
     }
@@ -115,7 +115,7 @@ class SitemapUrlRewriter {
     }
 
     /**
-     * Real per-provider pretty name — the real registered subtype name
+     * Real per-provider pretty name - the real registered subtype name
      * when one exists (`page`, `post`, `category`, a custom post type's
      * own slug, …), falling back to the real provider name itself for a
      * provider with none (`users`).
@@ -131,22 +131,22 @@ class SitemapUrlRewriter {
     /**
      * Rewrites each real child sitemap's own `loc` on the INDEX page
      * (`sitemap_index.xml`) to its real new pretty URL directly, via
-     * core's own real `wp_sitemaps_index_entry` filter — so a crawler
+     * core's own real `wp_sitemaps_index_entry` filter - so a crawler
      * reading the index never has to bounce through this class's own
      * real 301 for every single child sitemap it lists; it reads the
      * pretty URL straight away, same real destination either way.
      *
      * `$object_type` is core's own real *generic* object type
-     * (`post`/`term`/`user` — `WP_Sitemaps_Provider::$object_type`, a
+     * (`post`/`term`/`user` - `WP_Sitemaps_Provider::$object_type`, a
      * different real value than the registry provider name
      * `register_pretty_rewrites()` above keys its own rewrite rules by),
      * only used here as a fallback for the one real core provider with no
      * real subtype at all (`users`, whose own real `$object_type` is
-     * `user`) — every other real entry already carries a real
+     * `user`) - every other real entry already carries a real
      * `$object_subtype` this uses directly instead.
      *
      * Also fills in a real `lastmod` for the index's own listing, which
-     * core itself never does — `WP_Sitemaps_Provider::get_sitemap_entries()`
+     * core itself never does - `WP_Sitemaps_Provider::get_sitemap_entries()`
      * only ever builds `['loc' => …]` for an index entry (confirmed by
      * reading that method directly), so the index page's own "Last
      * Modified" column is always empty under core's default behavior,
@@ -155,7 +155,7 @@ class SitemapUrlRewriter {
      * the same real core helper (`get_lastpostmodified()`) and the same
      * real `DATE_W3C`/GMT formatting core's own posts provider already
      * uses for its per-URL entries, so the value is genuine, not
-     * fabricated. Taxonomies/users are left with no `lastmod` — core
+     * fabricated. Taxonomies/users are left with no `lastmod` - core
      * doesn't track a modified date for terms or users at all (confirmed
      * live: `category-sitemap.xml`/`users-sitemap.xml` carry no
      * `<lastmod>` on their own per-URL entries either), so there is no
@@ -178,7 +178,7 @@ class SitemapUrlRewriter {
         }
 
         // Real `object_type` → real registry provider name, for the one
-        // real core provider with no real subtype (`users`) — every
+        // real core provider with no real subtype (`users`) - every
         // other case already has a real `$object_subtype` to use
         // directly, so this mapping only ever matters for that one case.
         $name = $object_subtype ? $object_subtype : ( 'user' === $object_type ? 'users' : $object_type );
@@ -197,9 +197,9 @@ class SitemapUrlRewriter {
     }
 
     /**
-     * Registers the real new pretty-URL rewrite rules — one pair
+     * Registers the real new pretty-URL rewrite rules - one pair
      * (page-1-implicit + page-N-suffixed) per real registered provider/
-     * subtype combination — plus the real legacy-URL rules that 301
+     * subtype combination - plus the real legacy-URL rules that 301
      * redirect old URLs forward. Hooked on `wp_sitemaps_init`, the real
      * core hook that fires once `wp_get_sitemap_providers()` is fully
      * populated (sitemaps.php's own docblock).
@@ -210,7 +210,7 @@ class SitemapUrlRewriter {
         // Real new index route.
         add_rewrite_rule( '^sitemap_index\.xml$', 'index.php?sitemap=index', 'top' );
 
-        // Real legacy index route — same real pattern core's own
+        // Real legacy index route - same real pattern core's own
         // `WP_Sitemaps::register_rewrites()` already registers for
         // `wp-sitemap.xml`; added again here (after core's own, so it
         // wins) with the extra real `vulopilot_legacy_sitemap` flag this
@@ -221,7 +221,7 @@ class SitemapUrlRewriter {
             'top'
         );
 
-        // Real legacy provider routes — same 2 real patterns core's own
+        // Real legacy provider routes - same 2 real patterns core's own
         // `register_rewrites()` uses (with/without a real subtype), same
         // extra flag.
         add_rewrite_rule(
@@ -235,7 +235,7 @@ class SitemapUrlRewriter {
             'top'
         );
 
-        // Real new pretty provider routes — one pair per real registered
+        // Real new pretty provider routes - one pair per real registered
         // provider/subtype, built from the real registry rather than a
         // hardcoded type list.
         foreach ( wp_get_sitemap_providers() as $provider_name => $provider ) {
@@ -274,7 +274,7 @@ class SitemapUrlRewriter {
     }
 
     /**
-     * Real one-time `flush_rewrite_rules()` — retrofitting new rewrite
+     * Real one-time `flush_rewrite_rules()` - retrofitting new rewrite
      * rules into an already-active install needs a real flush (WordPress
      * only ever flushes automatically on plugin activation/theme switch/
      * permalink-settings save), gated on `REWRITE_VERSION` so this real
@@ -294,7 +294,7 @@ class SitemapUrlRewriter {
 
     /**
      * Real 301 redirect from an old-shape sitemap URL to its real new
-     * pretty equivalent — hooked before core's own `render_sitemaps()`
+     * pretty equivalent - hooked before core's own `render_sitemaps()`
      * (priority 5 vs core's default 10), so an old URL never actually
      * renders core's real sitemap content at its own address anymore,
      * only forwards to where that same real content now lives.

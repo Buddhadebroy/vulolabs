@@ -15,16 +15,16 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Three deterministic, zero-cost-to-verify hardening checks that make a
- * site an easier target once *any* vulnerability is known — distinct from
+ * site an easier target once *any* vulnerability is known - distinct from
  * UpdatesScanner (which flags "a newer version exists", not exposure) and
  * from vulopilot-pro's SecurityMonitoring scanners (admin username,
  * anonymous REST enumeration, file editor, debug mode, xmlrpc, headers,
- * exposed files) — none of those three checks below overlap with any of
+ * exposed files) - none of those three checks below overlap with any of
  * this scanner's checks. "Basic" (readme's Free feature name) because each
  * check is a single anonymous HTTP request or a local option read, same
  * scope as this module's own AbstractBasicScanner siblings; Pro's "Advanced
  * Vulnerabilities" (AdvancedVulnerabilitiesScanner, vulopilot-pro) is what
- * matches installed plugin *versions* against known CVEs — a different,
+ * matches installed plugin *versions* against known CVEs - a different,
  * deeper kind of check this one doesn't attempt.
  *
  * @class       BasicVulnerabilitiesScanner class
@@ -88,7 +88,7 @@ class BasicVulnerabilitiesScanner extends AbstractBasicScanner {
 
     /**
      * The homepage's own `<meta name="generator">` tag advertises the
-     * exact WordPress core version to anyone viewing the page source —
+     * exact WordPress core version to anyone viewing the page source -
      * makes it trivial for automated tooling to target known
      * version-specific vulnerabilities without even needing readme.html.
      *
@@ -128,7 +128,7 @@ class BasicVulnerabilitiesScanner extends AbstractBasicScanner {
     /**
      * The bundled `readme.html` at the site root also reveals the exact
      * core version (its "Version X.Y" line), independent of the generator
-     * meta tag — a site that removed the tag but left this file in place
+     * meta tag - a site that removed the tag but left this file in place
      * is still exposed.
      *
      * @return Finding|null
@@ -180,7 +180,7 @@ class BasicVulnerabilitiesScanner extends AbstractBasicScanner {
             __( 'Database table prefix is the WordPress default ("wp_")', 'vulopilot' ),
             Severity::LOW,
             $this->get_category(),
-            __( 'A non-default table prefix is a small extra hurdle against certain automated SQL-injection attempts. Changing it on an existing site requires a careful, backed-up migration — this is a hardening note, not something to change casually.', 'vulopilot' ),
+            __( 'A non-default table prefix is a small extra hurdle against certain automated SQL-injection attempts. Changing it on an existing site requires a careful, backed-up migration - this is a hardening note, not something to change casually.', 'vulopilot' ),
             'table',
             $wpdb->prefix
         );

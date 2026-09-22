@@ -33,9 +33,9 @@ interface PageAnalysisPanelProps {
 }
 
 /**
- * zyra's own icon font only ever ships glyphs for 4 classes — confirmed by
+ * zyra's own icon font only ever ships glyphs for 4 classes - confirmed by
  * reading its actual runtime-injected CSS (`.adminfont-check`/`-error`/
- * `-close`/`-close-delete`, nothing else) — `adminfont-warning` doesn't
+ * `-close`/`-close-delete`, nothing else) - `adminfont-warning` doesn't
  * exist there and silently renders no glyph at all, same "referenced in
  * this codebase's source but not in the installed zyra package" class of
  * bug `TypographyComponent` was. `adminfont-error` is the closest real
@@ -47,14 +47,14 @@ const STATUS_ICON: Record<CheckStatus, string> = {
 	fail: 'close red',
 };
 
-/** Real per-check status pill (reference mockup) — reuses `BadgeComponent`'s own `border` outline look, same real pass/warn/fail 3-way this row's own `STATUS_ICON` above already keys off. */
+/** Real per-check status pill (reference mockup) - reuses `BadgeComponent`'s own `border` outline look, same real pass/warn/fail 3-way this row's own `STATUS_ICON` above already keys off. */
 const STATUS_BADGE: Record<CheckStatus, { text: string; color: string }> = {
 	pass: { text: __('Passed', 'vulopilot'), color: 'green' },
 	warn: { text: __('Needs work', 'vulopilot'), color: 'orange' },
 	fail: { text: __('Failed', 'vulopilot'), color: 'red' },
 };
 
-/** Worst-first — same real "what actually needs attention floats to the top" ordering `WhatShouldIFixFirstCard.tsx`/`SEVERITY_RANK` elsewhere in this plugin already use, applied to this endpoint's own real `fail`/`warn`/`pass` 3-way instead of a 4-tier severity: every real Failed check first, then Needs Work, then Passed last — rather than `get_page_analysis()`'s own fixed check order (Title Tag, Meta Description, …), which mixes all 3 together with no regard for which ones actually need fixing. */
+/** Worst-first - same real "what actually needs attention floats to the top" ordering `WhatShouldIFixFirstCard.tsx`/`SEVERITY_RANK` elsewhere in this plugin already use, applied to this endpoint's own real `fail`/`warn`/`pass` 3-way instead of a 4-tier severity: every real Failed check first, then Needs Work, then Passed last - rather than `get_page_analysis()`'s own fixed check order (Title Tag, Meta Description, …), which mixes all 3 together with no regard for which ones actually need fixing. */
 const STATUS_RANK: Record<CheckStatus, number> = {
 	fail: 0,
 	warn: 1,
@@ -65,14 +65,14 @@ const sortByStatus = (checks: PageCheck[]): PageCheck[] =>
 	[...checks].sort((a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status]);
 
 /**
- * Real navigate-and-highlight deep link — this endpoint's own check `key`
+ * Real navigate-and-highlight deep link - this endpoint's own check `key`
  * (`Seo.php::get_page_analysis()`, e.g. `broken_links`/`indexability`) goes
  * straight through as `PAGE_ANALYSIS_CHECK_QUERY_PARAM`'s value, which the
  * editor's own "Page Analysis" tab (`post-editor/tabs/PageAnalysisTab.tsx`)
  * renders as the exact same real checklist and highlights by matching
- * `key` — no scanner-id translation layer needed (that only covers a
- * different, smaller vocabulary several of these 13 checks — Featured
- * Image, Broken Links, Orphan Page, Indexability — have no member of at
+ * `key` - no scanner-id translation layer needed (that only covers a
+ * different, smaller vocabulary several of these 13 checks - Featured
+ * Image, Broken Links, Orphan Page, Indexability - have no member of at
  * all; see `PAGE_ANALYSIS_CHECK_QUERY_PARAM`'s own docblock).
  */
 const buildCheckEditLink = (postId: number, checkKey: string): string =>
@@ -80,12 +80,12 @@ const buildCheckEditLink = (postId: number, checkKey: string): string =>
 
 /**
  * "Page Analysis" (SEO & Visibility → SEO's own "Pages & Posts" table, a new
- * "Analyze" row action) — `GET /seo/analyze-page?post_id=…`
+ * "Analyze" row action) - `GET /seo/analyze-page?post_id=…`
  * (Controllers\Seo::get_page_analysis(), Free). Every one of these checks
- * (up to 12 — "Featured Image" only appears when Settings → Scanning → SEO's
+ * (up to 12 - "Featured Image" only appears when Settings → Scanning → SEO's
  * own "Flag missing featured image" toggle is on, same real gate
  * SeoImagesScanner itself respects) is real and computed fresh for THIS one
- * page at request time (see that endpoint's own docblock) — a Title Tag/H1/
+ * page at request time (see that endpoint's own docblock) - a Title Tag/H1/
  * Images/Featured Image/Indexability check with no existing scanner at all
  * (Featured Image reuses SeoImagesScanner's own `has_post_thumbnail()`
  * check, just scoped live to one page), reused real logic from
@@ -126,7 +126,7 @@ const PageAnalysisPanel = ({ postId, onClose }: PageAnalysisPanelProps) => {
 	}, [postId]);
 
 	/**
-	 * "Fix with AI" for this whole page — same real "pick the worst one"
+	 * "Fix with AI" for this whole page - same real "pick the worst one"
 	 * posture `SeoIssuesByPageTable.tsx`'s own now-removed per-row action
 	 * used (`worstFinding()`), just over this endpoint's own real `checks`
 	 * instead of stored findings: the first real `fail`, or the first real

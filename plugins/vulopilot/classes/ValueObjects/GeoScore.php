@@ -9,7 +9,7 @@ namespace VuloPilot\ValueObjects;
 
 /**
  * A single post's GEO (Generative Engine Optimization) score, produced by
- * GeoAnalysis\GeoAnalyzer::analyze() — combines deterministic Scanner
+ * GeoAnalysis\GeoAnalyzer::analyze() - combines deterministic Scanner
  * findings with AI-judged dimensions into one overall score.
  *
  * @class       GeoScore class
@@ -34,7 +34,7 @@ final class GeoScore {
     private array $ai_scores;
 
     /**
-     * @var array{retrieval_score: int, citation_readiness: int, ai_summary_qa_detection: int, entity_naming_consistency: int, content_freshness: int, data_point_evidence_density: int} The 6 readme.txt AI-Visibility sub-metrics computed without an AI call — see GeoAnalysis\GeoAnalyzer::calculate_sub_scores().
+     * @var array{retrieval_score: int, citation_readiness: int, ai_summary_qa_detection: int, entity_naming_consistency: int, content_freshness: int, data_point_evidence_density: int} The 6 readme.txt AI-Visibility sub-metrics computed without an AI call - see GeoAnalysis\GeoAnalyzer::calculate_sub_scores().
      */
     private array $sub_scores;
 

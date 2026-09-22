@@ -12,13 +12,13 @@ use VuloPilot\Repositories\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /brand-intelligence/score` — Brand Intelligence's composite,
+ * `GET /brand-intelligence/score` - Brand Intelligence's composite,
  * deterministic scores (no AI, no cost): an overall "Brand Score" plus
  * three named sub-scores (Trust, Authority, Entity), each scoped to its
  * own `scanner_id` list via
  * FindingRepository::get_severity_breakdown_for_scanner_ids() and the
  * exact same weighting Controllers\Dashboard::calculate_category_score()
- * already uses — same cross-scanner-id-list mechanism
+ * already uses - same cross-scanner-id-list mechanism
  * Controllers\ContentIntelligence's own "Content Score" already
  * establishes, just with 3 named sub-scores instead of 1 flat score
  * (BRAND-INTELLIGENCE-MODULE.md's audit explains the scanner grouping).
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  * `author-schema`, `about-page-analysis`) or an existing `geo`-category
  * scanner reused rather than duplicated/recategorized
  * (`geo-trust-signals`, `geo-eeat-signals`, `geo-author-info`,
- * `geo-entity-naming-consistency`) — the same "spans categories via an
+ * `geo-entity-naming-consistency`) - the same "spans categories via an
  * explicit id list, not a category string" reasoning Content Score's own
  * docblock gives.
  *
@@ -38,7 +38,7 @@ defined( 'ABSPATH' ) || exit;
  * Graph... Brand Visibility: 'Do people and AI trust/recognise my
  * brand?' [vs] Knowledge Graph: 'Does Google/AI understand who and what
  * my business actually is?'"). `entity_score` itself is still computed
- * and returned here, unchanged — KnowledgeGraphSection.tsx's own new
+ * and returned here, unchanged - KnowledgeGraphSection.tsx's own new
  * "Entity Understanding" card reads it straight from this same real
  * endpoint/field rather than a second, duplicate calculation; only
  * BrandScoreCard.tsx stopped rendering it as one of ITS OWN 4 tiles (now
@@ -106,7 +106,7 @@ class BrandIntelligence extends \WP_REST_Controller {
         $trust_breakdown     = $findings->get_severity_breakdown_for_scanner_ids( self::TRUST_SCANNER_IDS );
         $authority_breakdown = $findings->get_severity_breakdown_for_scanner_ids( self::AUTHORITY_SCANNER_IDS );
         $entity_breakdown    = $findings->get_severity_breakdown_for_scanner_ids( self::ENTITY_SCANNER_IDS );
-        // Trust + Authority only — see this class's own docblock for why
+        // Trust + Authority only - see this class's own docblock for why
         // Entity no longer blends into the overall Brand Score.
         $overall_breakdown   = $findings->get_severity_breakdown_for_scanner_ids(
             array_merge( self::TRUST_SCANNER_IDS, self::AUTHORITY_SCANNER_IDS )

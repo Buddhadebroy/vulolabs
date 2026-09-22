@@ -17,14 +17,14 @@ export interface VuloCartProviderProps {
 }
 
 /**
- * Boots `@vulocart/sdk` once for the whole React tree —
+ * Boots `@vulocart/sdk` once for the whole React tree -
  * `skipAutoScan: true` (index.ts's own `InitOptions`) since this adapter
  * never uses `data-vulocart-*` DOM scanning at all; every widget below is
  * a real React component managing its own state/render, not the vanilla
  * core's imperative DOM widgets. Required for a Next.js app, which has no
  * single `<script>` tag for the SDK core to auto-discover its own store
  * from (the vanilla core's `auto.ts` trick, `@vulocart/sdk`'s own
- * README) — `storeUrl` is explicit here for exactly that reason.
+ * README) - `storeUrl` is explicit here for exactly that reason.
  */
 export function VuloCartProvider( { storeUrl, children }: VuloCartProviderProps ) {
 	const [ config, setConfig ] = useState< SdkConfig | null >( null );

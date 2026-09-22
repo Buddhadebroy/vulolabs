@@ -2,19 +2,19 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * Static module metadata for zyra's `ModuleGridComponent`
- * (pages/Modules/Modules.tsx) — the *available* module list (name,
+ * (pages/Modules/Modules.tsx) - the *available* module list (name,
  * description, category) is frontend-only config, not fetched from PHP;
  * only which ids are *active* comes from the REST layer
  * (classes/RestAPI/Controllers/Modules.php). `cart`/`order` and the
  * checkout wizard's own `customer`/`address`/`shipping`/`taxes`/`payment`/
  * `review`/`confirmation` all ship in this free plugin itself
- * (`modules/{Name}` — module-architecture.md); `passport` ships in
+ * (`modules/{Name}` - module-architecture.md); `passport` ships in
  * `vulocart-pro` (`proModule: true` gates it behind
  * `vulocartLocalizer.khali_dabba`, same as every other proModule-flagged
  * entry in the sibling plugins).
  *
  * `mcp`/`ai` also ship in this free plugin (`modules/Mcp`, `modules/Ai`)
- * — deliberately minimal Module.php stubs today (see their own
+ * - deliberately minimal Module.php stubs today (see their own
  * docblocks), whose entire purpose right now is to be a real toggle here
  * and to gate `src/settings/Mcp.ts`'s/`Ai.ts`'s config fields via
  * `moduleEnabled`, replacing the "Enable MCP server"/"Enable AI
@@ -29,7 +29,7 @@ export default {
 			id: 'cart',
 			name: __( 'Cart', 'vulocart' ),
 			desc: __(
-				'The Cart Engine — add/update/remove line items, headless-ready via a client-held cart token.',
+				'The Cart Engine - add/update/remove line items, headless-ready via a client-held cart token.',
 				'vulocart'
 			),
 			proModule: false,
@@ -38,7 +38,7 @@ export default {
 			id: 'order',
 			name: __( 'Order', 'vulocart' ),
 			desc: __(
-				'Turns a Cart into a placed Order — requires the Cart module to be active.',
+				'Turns a Cart into a placed Order - requires the Cart module to be active.',
 				'vulocart'
 			),
 			proModule: false,
@@ -47,7 +47,7 @@ export default {
 			id: 'customer',
 			name: __( 'Customer', 'vulocart' ),
 			desc: __(
-				'Checkout wizard Customer step — prefills name/email/phone for a logged-in buyer.',
+				'Checkout wizard Customer step - prefills name/email/phone for a logged-in buyer.',
 				'vulocart'
 			),
 			proModule: false,
@@ -56,7 +56,7 @@ export default {
 			id: 'address',
 			name: __( 'Address', 'vulocart' ),
 			desc: __(
-				'Checkout wizard Address step — billing/shipping address capture and validation.',
+				'Checkout wizard Address step - billing/shipping address capture and validation.',
 				'vulocart'
 			),
 			proModule: false,
@@ -65,7 +65,7 @@ export default {
 			id: 'shipping',
 			name: __( 'Shipping', 'vulocart' ),
 			desc: __(
-				'Checkout wizard Shipping step — flat-rate shipping cost, configured on the Shipping settings tab.',
+				'Checkout wizard Shipping step - flat-rate shipping cost, configured on the Shipping settings tab.',
 				'vulocart'
 			),
 			proModule: false,
@@ -83,7 +83,7 @@ export default {
 			id: 'payment',
 			name: __( 'Payment', 'vulocart' ),
 			desc: __(
-				'Checkout wizard Payment step — manual/offline payment, configured on the Payments settings tab.',
+				'Checkout wizard Payment step - manual/offline payment, configured on the Payments settings tab.',
 				'vulocart'
 			),
 			proModule: false,
@@ -92,7 +92,7 @@ export default {
 			id: 'review',
 			name: __( 'Review', 'vulocart' ),
 			desc: __(
-				'Checkout wizard Review step — a real preview of the final order total before it\'s placed.',
+				'Checkout wizard Review step - a real preview of the final order total before it\'s placed.',
 				'vulocart'
 			),
 			proModule: false,
@@ -101,7 +101,7 @@ export default {
 			id: 'confirmation',
 			name: __( 'Confirmation', 'vulocart' ),
 			desc: __(
-				'The checkout wizard\'s post-order confirmation step — requires the Order module to be active.',
+				'The checkout wizard\'s post-order confirmation step - requires the Order module to be active.',
 				'vulocart'
 			),
 			proModule: false,
@@ -110,7 +110,7 @@ export default {
 			id: 'passport',
 			name: __( 'Passport', 'vulocart' ),
 			desc: __(
-				'Serialized Digital Product Passports — authenticity verification, warranty, service/owner history, certificates, firmware, and a public passport page with QR/NFC sharing and PDF export.',
+				'Serialized Digital Product Passports - authenticity verification, warranty, service/owner history, certificates, firmware, and a public passport page with QR/NFC sharing and PDF export.',
 				'vulocart'
 			),
 			proModule: true,
@@ -119,7 +119,7 @@ export default {
 			id: 'suppliers',
 			name: __( 'Suppliers', 'vulocart' ),
 			desc: __(
-				'Track who each offering is sourced from — manage suppliers and assign one per offering.',
+				'Track who each offering is sourced from - manage suppliers and assign one per offering.',
 				'vulocart'
 			),
 			proModule: true,
@@ -209,7 +209,7 @@ export default {
 			id: 'hosted-checkout',
 			name: __( 'Hosted Checkout', 'vulocart' ),
 			desc: __(
-				'A dedicated /checkout/hosted/{cart_token}/ URL a shopper can be redirected to — not a WordPress page, no theme involved.',
+				'A dedicated /checkout/hosted/{cart_token}/ URL a shopper can be redirected to - not a WordPress page, no theme involved.',
 				'vulocart'
 			),
 			proModule: true,
@@ -236,7 +236,7 @@ export default {
 			id: 'embedded-checkout',
 			name: __( 'Embedded Checkout', 'vulocart' ),
 			desc: __(
-				'Renders checkout inline into any "data-vulocart-embedded-checkout" container on any page — same-site only, see module docs for cross-domain embedding.',
+				'Renders checkout inline into any "data-vulocart-embedded-checkout" container on any page - same-site only, see module docs for cross-domain embedding.',
 				'vulocart'
 			),
 			proModule: true,
@@ -254,7 +254,7 @@ export default {
 			id: 'checkout-links',
 			name: __( 'Checkout Links & QR Codes', 'vulocart' ),
 			desc: __(
-				'Shareable payment/checkout links for a fixed set of offerings — a dedicated /pay/ URL, embeddable, or shown as a QR code.',
+				'Shareable payment/checkout links for a fixed set of offerings - a dedicated /pay/ URL, embeddable, or shown as a QR code.',
 				'vulocart'
 			),
 			proModule: true,
@@ -263,7 +263,7 @@ export default {
 			id: 'stripe',
 			name: __( 'Stripe', 'vulocart' ),
 			desc: __(
-				'Accept credit/debit cards via Stripe — Payment Intents, saved cards for recurring billing, and partial capture/refund.',
+				'Accept credit/debit cards via Stripe - Payment Intents, saved cards for recurring billing, and partial capture/refund.',
 				'vulocart'
 			),
 			proModule: true,
@@ -284,7 +284,7 @@ export default {
 			id: 'subscriptions',
 			name: __( 'Subscriptions', 'vulocart' ),
 			desc: __(
-				'Recurring billing on top of a recurring-capable payment gateway — automatic renewal charges, dunning retries, and customer self-service.',
+				'Recurring billing on top of a recurring-capable payment gateway - automatic renewal charges, dunning retries, and customer self-service.',
 				'vulocart'
 			),
 			proModule: true,
@@ -302,7 +302,7 @@ export default {
 			id: 'inventory',
 			name: __( 'Inventory Engine', 'vulocart' ),
 			desc: __(
-				'Warehouses/locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full inventory history ledger, and demand forecasting — stock decrements automatically on paid orders and stays synced with each offering\'s own stock field.',
+				'Warehouses/locations, purchase orders, transfers, reservations, low-stock alerts, batch/serial tracking, a full inventory history ledger, and demand forecasting - stock decrements automatically on paid orders and stays synced with each offering\'s own stock field.',
 				'vulocart'
 			),
 			proModule: true,
@@ -320,7 +320,7 @@ export default {
 			id: 'mcp',
 			name: __( 'MCP', 'vulocart' ),
 			desc: __(
-				'Model Context Protocol server — exposes VuloCart\'s catalog/orders to MCP-compatible AI clients.',
+				'Model Context Protocol server - exposes VuloCart\'s catalog/orders to MCP-compatible AI clients.',
 				'vulocart'
 			),
 			proModule: false,

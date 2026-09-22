@@ -12,12 +12,12 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_automations_runs (DATABASE.md) — one row per
+ * Persistence for vulopilot_automations_runs (DATABASE.md) - one row per
  * time AutomationEngine ran (or attempted to run) an automation's actions.
  * `result_log` stores the JSON-encoded array of
  * VuloPilot\ValueObjects\AutomationsRunResult::to_array() entries, one
  * per action executed. `status` is one of 'running'/'completed'/'failed'
- * (AutomationEngine\AutomationEngine::run_automation()) — get_stats_for_period()
+ * (AutomationEngine\AutomationEngine::run_automation()) - get_stats_for_period()
  * groups by whatever's actually there, but get_breakdown_by_automation_for_period()'s
  * own SQL below hardcodes those two exact strings, so a new status value
  * introduced without updating both places would silently undercount here.
@@ -41,7 +41,7 @@ class AutomationsRunRepository extends AbstractRepository {
     }
 
     /**
-     * Run/success/failure counts for one date range — what
+     * Run/success/failure counts for one date range - what
      * Reports\Types\AutomationsReport's headline summary reads.
      *
      * @param string $period_start Y-m-d, inclusive.
@@ -74,10 +74,10 @@ class AutomationsRunRepository extends AbstractRepository {
 
     /**
      * Sum of the already-persisted per-run `actions_executed`/`actions_failed`/
-     * `changes_made` counters over one date range — same shape/reasoning as
+     * `changes_made` counters over one date range - same shape/reasoning as
      * get_stats_for_period() above, backing AutomationDashboardRest.php's
      * `period`-aware response. `changes_made` is always <= `executed` (see
-     * AutomationEngine::execute_actions()) — a real, distinct count of how
+     * AutomationEngine::execute_actions()) - a real, distinct count of how
      * many of those executed actions actually changed something on the
      * site, per ActionInterface::changes_site_state().
      *
@@ -105,15 +105,15 @@ class AutomationsRunRepository extends AbstractRepository {
     }
 
     /**
-     * Real per-action-type success counts for one date range — "N alerts
+     * Real per-action-type success counts for one date range - "N alerts
      * sent" (`create-notification`) / "N reports delivered" (`send-email`)
      * on the "Automate Work" page's own "This month" card. `result_log`
      * (JSON array of `{success, action_id, message}`, this class's own
      * docblock) has no dedicated column per action type, so this reads and
      * decodes it per matching run rather than a single aggregate SQL query
-     * — the same real per-action `action_id` `AutomationLogsPanel.tsx`'s
+     * - the same real per-action `action_id` `AutomationLogsPanel.tsx`'s
      * own "View details" expansion already surfaces, just tallied instead
-     * of listed. Counts successful entries only — a failed send-email
+     * of listed. Counts successful entries only - a failed send-email
      * attempt wasn't actually "delivered".
      *
      * @param string $period_start Y-m-d, inclusive.
@@ -155,7 +155,7 @@ class AutomationsRunRepository extends AbstractRepository {
 
     /**
      * The single most recent run per automation, for however many of
-     * `$automation_ids` actually have one — backs the "Automations" tab's
+     * `$automation_ids` actually have one - backs the "Automations" tab's
      * table ("Last run" column: real finished_at + a real
      * succeeded/failed/actions-taken outcome, not a placeholder). One query
      * (a self-join against each automation's own MAX(started_at)) rather
@@ -195,7 +195,7 @@ class AutomationsRunRepository extends AbstractRepository {
         $by_automation_id = array();
 
         // A tie on started_at (two runs the same second) would return two
-        // rows for one automation_id — keep the first and skip the rest
+        // rows for one automation_id - keep the first and skip the rest
         // rather than letting the later one silently win, same defensive
         // shape a GROUP BY-then-join pattern always needs.
         foreach ( (array) $rows as $row ) {
@@ -220,7 +220,7 @@ class AutomationsRunRepository extends AbstractRepository {
 
     /**
      * Real count of automation runs that failed to complete since a given
-     * timestamp — backs "Commerce"'s "Store Automation" category card
+     * timestamp - backs "Commerce"'s "Store Automation" category card
      * (StoreReadiness.php) and its own "N automatic tasks failed" number.
      * Same single-status-count shape as get_stats_for_period()'s own
      * `by_status['failed']`, just windowed by a timestamp instead of a
@@ -241,7 +241,7 @@ class AutomationsRunRepository extends AbstractRepository {
     }
 
     /**
-     * The single most recent real run across every automation — what the
+     * The single most recent real run across every automation - what the
      * "Automate Work" hero card's own real "Last check" stat reads (see
      * AutomationDashboardRest::get_items()'s own `last_check_at`), not a
      * per-automation lookup like get_latest_by_automation_ids().
@@ -260,7 +260,7 @@ class AutomationsRunRepository extends AbstractRepository {
 
     /**
      * Per-automation run counts for one date range, joined against
-     * `vulopilot_automations` for the display name — what the report's
+     * `vulopilot_automations` for the display name - what the report's
      * "automations" section table reads, one query instead of an N+1 name
      * lookup per row (performance.md).
      *

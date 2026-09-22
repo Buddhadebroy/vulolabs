@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Not fixable/AI-assisted — whether two identically-titled products are a
+ * Not fixable/AI-assisted - whether two identically-titled products are a
  * genuine accidental duplicate (merge/delete one) or intentional (e.g. two
  * different variations sold as separate simple products) is a judgment
  * call for the store owner, not something to resolve automatically.

@@ -1,5 +1,5 @@
 /*
- * Deliberately no color/background/font rules here — every link inserted
+ * Deliberately no color/background/font rules here - every link inserted
  * or touched by admin-menu-groups.js lands inside the same
  * #adminmenu .wp-submenu context as WordPress's own real submenu links,
  * so it already inherits the current admin color scheme's text/hover/
@@ -11,7 +11,7 @@
 
 /*
  * Applied unconditionally (not scoped to :has(.vulopilot-menu-item-icon))
- * to avoid depending on that pseudo-class's support in older browsers —
+ * to avoid depending on that pseudo-class's support in older browsers -
  * flex layout on an <a> with only a text node looks identical to the
  * default block layout, so this is a no-op for any item that ends up
  * without an icon (e.g. a third-party item added outside tabToIcon).

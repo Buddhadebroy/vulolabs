@@ -8,7 +8,7 @@ interface BrandScoreResponse {
 	brand_score: number;
 	trust_score: number;
 	authority_score: number;
-	/** Still real, still returned by this same endpoint — just no longer one of this card's own tiles. KnowledgeGraphSection.tsx's own "Entity Understanding" card reads this same field directly (see BrandIntelligence.php's own docblock for why it moved there). */
+	/** Still real, still returned by this same endpoint - just no longer one of this card's own tiles. KnowledgeGraphSection.tsx's own "Entity Understanding" card reads this same field directly (see BrandIntelligence.php's own docblock for why it moved there). */
 	entity_score: number;
 	severity_breakdown: {
 		critical: number;
@@ -30,7 +30,7 @@ const getRating = (score: number): string => {
 
 /**
  * Same 3-tier thresholds as `getRating()` above, as one of zyra's own
- * `$color-palette` names — `MetricTileComponent`'s own `status.color`
+ * `$color-palette` names - `MetricTileComponent`'s own `status.color`
  * (rendered as a real `admin-badge {color}` pill) resolves this against
  * that same real palette (`packages/theme/src/global.scss`), so the icon
  * tint, the status pill, and the ring all draw from the exact same real
@@ -48,7 +48,7 @@ const ratingColor = (score: number): string => {
 
 /**
  * The same 3 `ratingColor()` names, as the real hex value zyra's own
- * `$color-palette` maps each one to (`packages/theme/src/global.scss`) —
+ * `$color-palette` maps each one to (`packages/theme/src/global.scss`) -
  * `MetricTileComponent`'s own icon tint (`iconColor`, an inline style) and
  * its ring (a `ChartComponent` stroke via `chart.color`) both need a
  * literal CSS color rather than a class name to color themselves.
@@ -98,23 +98,23 @@ const SCORE_TILES: {
 ];
 
 /**
- * Brand Visibility page's own score cards — `GET /brand-intelligence/score`
- * (Controllers\BrandIntelligence, Free — deterministic, no AI call), the
+ * Brand Visibility page's own score cards - `GET /brand-intelligence/score`
+ * (Controllers\BrandIntelligence, Free - deterministic, no AI call), the
  * same real endpoint this card has always used. Real 3-tile
  * `MetricTileComponent` row (`chart: { type: 'ring' }`, direct instruction
- * — see that component's own "ScoreRings" story) matching the reference
- * screenshot's own icon+title/desc/score/status-left, ring-right shape —
+ * - see that component's own "ScoreRings" story) matching the reference
+ * screenshot's own icon+title/desc/score/status-left, ring-right shape -
  * previously the same shape via `AnalyticsComponent`'s own
  * `variant="score-ring"` (still real and in use elsewhere, e.g.
- * SlowPagesTab.tsx's own Slow/Very Slow tiles — just no longer what this
+ * SlowPagesTab.tsx's own Slow/Very Slow tiles - just no longer what this
  * card itself renders).
  *
- * 3 tiles now (Brand/Trust/Authority), not 4 — Entity Score moved to
+ * 3 tiles now (Brand/Trust/Authority), not 4 - Entity Score moved to
  * KnowledgeGraphSection.tsx's own new "Entity Understanding" card (direct
  * instruction: "Knowledge Graph and Brand Visibility overlap around
  * 'Entity'... Entity Score therefore has a much stronger conceptual home
  * in Knowledge Graph"). `brand_score` itself is a real, updated
- * composite now too — BrandIntelligence.php's own `get_score()` no longer
+ * composite now too - BrandIntelligence.php's own `get_score()` no longer
  * blends Entity's severity breakdown into it, so this ring's own number
  * only ever reflects the 2 dimensions still shown alongside it.
  */

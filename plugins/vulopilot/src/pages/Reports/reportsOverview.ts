@@ -3,14 +3,14 @@ import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { getApiLink, getApiResponse } from '@zyra/core';
 
-/** Same 3-preset shape WebsiteProgressChart.tsx already established for this page — no arbitrary calendar range picker. */
+/** Same 3-preset shape WebsiteProgressChart.tsx already established for this page - no arbitrary calendar range picker. */
 export const DAY_OPTIONS = [7, 30, 90] as const;
 
 /**
- * vulopilot-pro's AdvancedReports module id (Settings → Modules — though
+ * vulopilot-pro's AdvancedReports module id (Settings → Modules - though
  * it's actually one of `VuloPilotPro::CARDLESS_MODULE_IDS`, so it has no
  * card there; still the real id `appLocalizer.active_modules`/
- * `resolveModuleDisplayName()` key off) — the single real gate every
+ * `resolveModuleDisplayName()` key off) - the single real gate every
  * section on this whole tab shares now that the entire "Create Report"/
  * "Schedule Report"/"Recent Reports"/"Scheduled Reports"/"Report History"
  * flow is Pro-gated per direct instruction, not just the two create
@@ -21,12 +21,12 @@ export const DAY_OPTIONS = [7, 30, 90] as const;
 export const ADVANCED_REPORTS_MODULE_ID = 'advanced-reports';
 
 /**
- * Fabricated "Recent Reports"/"Report History" rows — same "obviously
+ * Fabricated "Recent Reports"/"Report History" rows - same "obviously
  * fake, never mistaken for this site's own real data" reasoning
  * VuloPilotActivityWidget.tsx's own `DUMMY_HEALTH_TIMELINE` documents.
  * Deliberately its own small, self-contained shape (not the real
  * `ReportRow` interface both tables otherwise use) since these never
- * carry a real id/file/format — no download/view action behind them
+ * carry a real id/file/format - no download/view action behind them
  * could ever be real, so there's nothing to wire up.
  */
 export interface DummyReportRow {
@@ -171,7 +171,7 @@ export interface ReportsOverviewResponse {
 }
 
 /**
- * `GET /reports-overview?days=N` (Controllers\ReportsOverview.php) —
+ * `GET /reports-overview?days=N` (Controllers\ReportsOverview.php) -
  * shared by every section on the redesigned Reports Overview tab, so
  * changing the day-range preset once (ReportsOverviewHeader.tsx) refetches
  * everything together rather than each section owning its own fetch.

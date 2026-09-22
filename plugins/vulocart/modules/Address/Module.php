@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Address Module.
  *
  * Same toggleable-addon pattern as VuloCart\Cart\Module. No hard
- * cross-module dependency, no own table — an address here is a per-order
+ * cross-module dependency, no own table - an address here is a per-order
  * snapshot (`Order::$billing_address`/`$shipping_address`, a plain array
  * like `$meta`), not a reusable address-book entry (vision's
  * lightweight-first scope). This module's whole job is sanitizing and
@@ -59,7 +59,7 @@ class Module {
     }
 
     /**
-     * Registers this module's own step — see Customer/Module.php's own
+     * Registers this module's own step - see Customer/Module.php's own
      * docblock on register_checkout_step() for what this mechanism is.
      *
      * @param array<int, array<string, mixed>> $steps Already-registered step descriptors.

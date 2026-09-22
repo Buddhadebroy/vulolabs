@@ -13,12 +13,12 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * `GET /page-speed` lists real per-page speed results plus a real summary
- * and `top_issues` (PageSpeedRepository::get_top_issues() — the real,
+ * and `top_issues` (PageSpeedRepository::get_top_issues() - the real,
  * deduplicated `main_issue` values grouped by how many pages they affect,
  * backing the "Performance Opportunities" tab and "Why these pages are
  * slow?" sidebar) for "Performance" › Slow Pages; `POST /page-speed`
  * (re)starts a real background scan via VuloPilot()->page_speed_scanner
- * (already wired in VuloPilot::init_classes()) — same "GET lists, POST
+ * (already wired in VuloPilot::init_classes()) - same "GET lists, POST
  * triggers, persistence happens elsewhere" shape Scans.php already uses.
  *
  * @class       PageSpeed controller
@@ -119,7 +119,7 @@ class PageSpeed extends \WP_REST_Controller {
     }
 
     /**
-     * Starts (or restarts) a real background scan — never runs
+     * Starts (or restarts) a real background scan - never runs
      * synchronously; VuloPilot()->page_speed_scanner processes it via
      * WP-Cron in small batches. See Services\PageSpeedScanner's own
      * docblock for why.

@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Turns Seo\Scanners\RobotsTxtScanner's "robots.txt blocks every
  * crawler" HIGH-severity Finding into a critical recommendation.
- * Deliberately NOT fixable — unlike MissingMetaDescriptionRule/
+ * Deliberately NOT fixable - unlike MissingMetaDescriptionRule/
  * MissingFeaturedImageRule, automatically rewriting a site's robots.txt
  * (a single file controlling crawl access to the entire site) is exactly
  * the kind of high-blast-radius change no AIAction here should make
@@ -94,7 +94,7 @@ class RobotsBlockingCrawlersRule extends AbstractBasicRule {
      */
     public function applies_to( Finding $finding ): bool {
         // Matched on the `blocks_all_crawlers` meta key RobotsTxtScanner
-        // attaches only to this specific finding — RobotsTxtScanner's
+        // attaches only to this specific finding - RobotsTxtScanner's
         // other finding (robots.txt unreachable) and every other
         // category-'seo' scanner sharing object_type 'url' (SchemaScanner,
         // SitemapScanner, OpenGraphScanner, …) would otherwise collide.

@@ -16,14 +16,14 @@ use VuloCart\Events\EventDispatcher;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart CheckoutService — the Checkout Engine's orchestration core.
+ * VuloCart CheckoutService - the Checkout Engine's orchestration core.
  *
  * Where session lifecycle logic lives: creating a session the first time
  * a cart enters checkout, recording step progress, marking a session
  * completed once its Order exists, and finding stale ones for the
  * Abandoned Checkout feature. Backs
  * `classes/RestAPI/Controllers/Checkout.php`. Deliberately holds no
- * WordPress-page concept anywhere — every method here is keyed by
+ * WordPress-page concept anywhere - every method here is keyed by
  * `cart_token`/session id, the same page-agnostic identity Cart/Order
  * already use, so this class works identically whether the checkout UI
  * consuming it is the free Gutenberg block or vulocart-pro's Embedded/
@@ -59,7 +59,7 @@ class CheckoutService {
         $this->repository = $repository;
         $this->events     = $events;
 
-        // Marks the session completed the moment its Order exists — the
+        // Marks the session completed the moment its Order exists - the
         // one place session lifecycle reacts to something outside this
         // class's own API, via the same EventDispatcher transport every
         // other cross-module reaction in this codebase already uses
@@ -80,7 +80,7 @@ class CheckoutService {
 
     /**
      * Finds a session by cart token, creating a new ACTIVE one if none
-     * exists yet — the entry point every checkout delivery mode calls the
+     * exists yet - the entry point every checkout delivery mode calls the
      * moment a shopper actually reaches checkout (not on every cart
      * mutation; see CheckoutSession's own docblock for why that
      * distinction matters for Abandoned Checkout).
@@ -104,7 +104,7 @@ class CheckoutService {
     }
 
     /**
-     * Records step progress — called as the shopper moves through
+     * Records step progress - called as the shopper moves through
      * whichever steps Application\CheckoutStepRegistry reports, so
      * `current_step`/`customer_email` (once known) stay current for
      * Abandoned Checkout's own listing.
@@ -128,11 +128,11 @@ class CheckoutService {
     }
 
     /**
-     * `vulocart_order_created` listener — marks the session matching the
+     * `vulocart_order_created` listener - marks the session matching the
      * new Order's `cart_token` COMPLETED, if one exists. A guest who
      * never actually used the checkout UI (e.g. an order created directly
      * via the REST API by a third party) has no session to complete,
-     * which is fine — this is a no-op in that case, not an error.
+     * which is fine - this is a no-op in that case, not an error.
      *
      * @param array{order: \VuloCart\Order\Domain\Order} $payload EventDispatcher's own payload shape.
      * @return void
@@ -157,7 +157,7 @@ class CheckoutService {
     }
 
     /**
-     * Lists active sessions untouched for at least $minutes minutes —
+     * Lists active sessions untouched for at least $minutes minutes -
      * vulocart-pro's Abandoned Checkout feature's own data source.
      *
      * @param int $minutes  How stale (in minutes) a still-ACTIVE session must be to count.

@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Compatibility-check helpers an extension's register() (or anything
- * else — a module, a Pro feature check) can call before doing something
+ * else - a module, a Pro feature check) can call before doing something
  * that depends on a specific core/PHP/WordPress/WooCommerce version being
  * available, rather than each call site hand-rolling its own
  * version_compare() call with its own bug potential (a very easy place to

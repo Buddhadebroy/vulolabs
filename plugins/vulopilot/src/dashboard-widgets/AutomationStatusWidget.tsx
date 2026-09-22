@@ -15,7 +15,7 @@ interface AutomationRow {
 	trigger_type: string;
 }
 
-/** Free ships exactly these 2 built-in automations (Automations\BuiltinAutomationSeeder) — the card lists only them, in this order, with their own icon/description. */
+/** Free ships exactly these 2 built-in automations (Automations\BuiltinAutomationSeeder) - the card lists only them, in this order, with their own icon/description. */
 const BUILTIN_ROWS = [
 	{
 		trigger: 'free_visibility_report',
@@ -33,7 +33,7 @@ const BUILTIN_ROWS = [
  * Lists Free's 2 built-in automations (fetched from the same `/automations`
  * endpoint src/pages/Automations/Automations.tsx uses), each with an
  * Enabled/Not active badge and the real `PATCH /automations/{id}` toggle,
- * plus — until Pro is active — an "Unlock more automations" banner.
+ * plus - until Pro is active - an "Unlock more automations" banner.
  */
 const AutomationStatusWidget: React.FC<WidgetProps> = ({
 	isLoading,
@@ -55,7 +55,7 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 	const enabledCount = rows.filter((item) => 'enabled' === item.row?.status).length;
 
 	// Same real `PATCH /automations/{id}` toggle BuiltinAutomationCards.tsx's
-	// own `handleToggle` already uses — reused here rather than a second path.
+	// own `handleToggle` already uses - reused here rather than a second path.
 	const handleToggle = (row: AutomationRow) => {
 		sendApiResponse(
 			appLocalizer,
@@ -63,7 +63,7 @@ const AutomationStatusWidget: React.FC<WidgetProps> = ({
 			{ status: 'enabled' === row.status ? 'disabled' : 'enabled' }
 		).then(() => {
 			refetch();
-			// Keeps sibling payloads (`summary.automation_status`) in step — see
+			// Keeps sibling payloads (`summary.automation_status`) in step - see
 			// `onRefreshSummary`'s own docblock (types.ts).
 			onRefreshSummary();
 		});

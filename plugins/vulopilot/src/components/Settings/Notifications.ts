@@ -13,7 +13,7 @@ const FREQUENCY_OPTIONS = [
 	{ label: __('Weekly digest', 'vulopilot'), value: 'weekly_digest' },
 ];
 
-// Shared by every row's own `control.toggleStatusLabel` below — "On"/"Off"
+// Shared by every row's own `control.toggleStatusLabel` below - "On"/"Off"
 // per direct instruction, rather than SettingToggle's own default
 // "Enabled"/"Disabled" flip text.
 const TOGGLE_STATUS_LABEL = { on: __('On', 'vulopilot'), off: __('Off', 'vulopilot') };
@@ -26,25 +26,25 @@ const DAYS_OPTIONS = [
 ];
 
 interface CrawlerAlertRow {
-	/** This row's own key within the `crawler_alerts` value object — SettingRowComponent's own `valueKey`. */
+	/** This row's own key within the `crawler_alerts` value object - SettingRowComponent's own `valueKey`. */
 	valueKey: string;
 	icon: string;
 	title: string;
 	desc: ReactNode;
 	/**
 	 * zyra's real declarative `SettingRowControl` shape (`{ toggle?,
-	 * select? }`) — `SettingRowComponent` builds the actual `SettingToggle`/
+	 * select? }`) - `SettingRowComponent` builds the actual `SettingToggle`/
 	 * `SelectInput` pair itself, bound to this row's own `valueKey` slice
 	 * of the field's `value`/`onChange` (wired through by
 	 * `SettingRowFieldComponent`, zyra's `type: 'setting-row'` field type
-	 * — see this file's own docblock). No bespoke API-call component
+	 * - see this file's own docblock). No bespoke API-call component
 	 * needed per row: persisting a row's toggle/select goes through
 	 * InputRenderer's normal auto-save path, the same as every other
 	 * field on this tab.
 	 */
 	control: {
 		toggle: boolean;
-		// zyra's own SettingRowControl.toggleStatusLabel — a real on/off
+		// zyra's own SettingRowControl.toggleStatusLabel - a real on/off
 		// pair for each row's own toggle (SettingToggle's own
 		// `statusLabel`), same shape email_on_crawler_alerts's own master
 		// switch already uses via MultiCheckboxInput's `toggleStatusLabel`.
@@ -54,7 +54,7 @@ interface CrawlerAlertRow {
 }
 
 /**
- * Same 5 alert types the old `type: 'expandable-panel'` field listed —
+ * Same 5 alert types the old `type: 'expandable-panel'` field listed -
  * copy/values ported verbatim. `traffic_drop` alone has no `select` (its
  * old `formFields` entry was always just a `type: 'notice'` linking to
  * Scanning → AI Visibility rather than a functional dropdown; that link
@@ -77,7 +77,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 	},
 	{
 		valueKey: 'access_limited',
-		// Was `icon: 'warning'` in the old expandable-panel item — not a
+		// Was `icon: 'warning'` in the old expandable-panel item - not a
 		// real adminfont icon name (confirmed against fonts.scss); 'error'
 		// is the closest real one.
 		icon: 'error red',
@@ -96,7 +96,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 		valueKey: 'traffic_drop',
 		icon: 'bar-chart blue',
 		title: __('AI crawler traffic drop', 'vulopilot'),
-		// `createElement()` (not JSX) — this is a plain `.ts` file, not
+		// `createElement()` (not JSX) - this is a plain `.ts` file, not
 		// `.tsx`, same as every other settings-schema file in this folder;
 		// TypeScript's default @babel/preset-typescript config (this
 		// workspace's own @wordpress/babel-preset-default, no
@@ -122,7 +122,7 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 		icon: 'clock lime',
 		title: __('AI crawler inactive', 'vulopilot'),
 		desc: __(
-			'When a bot that has visited before goes quiet — only re-notifies if it comes back and then goes quiet again.',
+			'When a bot that has visited before goes quiet - only re-notifies if it comes back and then goes quiet again.',
 			'vulopilot'
 		),
 		control: {
@@ -149,17 +149,17 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
 ];
 
 /**
- * Settings → Notifications — one flat tab (per direct instruction; merges
+ * Settings → Notifications - one flat tab (per direct instruction; merges
  * what used to be two separate inner tabs, `Notifications/EmailSettings.ts`
  * and `Notifications/Alerts.ts`, each its own file inside a
- * `Notifications/` folder — that folder shape is what gave this tab its own
+ * `Notifications/` folder - that folder shape is what gave this tab its own
  * inner "Email Settings"/"Alerts Settings" sub-nav in the first place,
  * templateService.ts's own `importAll()` turning any folder of files into a
  * `type: 'folder'` node with its own child tab bar; a single flat file here
  * instead becomes a `type: 'file'` node with none, the same shape
  * `Automation.ts`/`Reports.ts`/`DeveloperTools.ts`/`Modules.ts` already use
  * for a single-page top-level tab). `Notifications/FolderPriority.ts`
- * (the folder's own top-level ordering — `priority: 6`, then "Get Started
+ * (the folder's own top-level ordering - `priority: 6`, then "Get Started
  * 1, Site Identity 2, Scanning 3, Automation 4, Reports 5, Notifications 6,
  * Developer Tools 7, Modules 8", since restructured to "Business
  * Information 1, SEO 2, Scanning 3, Automation 4, Reports 5, Notifications
@@ -167,25 +167,25 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * too; that same `priority: 6` is set directly on this file below so this
  * tab's own position in the top-level order doesn't shift.
  *
- * Real backend, unchanged either way — only where the UI for it lives
+ * Real backend, unchanged either way - only where the UI for it lives
  * changed:
  *
  * Email fields (`notification_email`/`email_from_name`/`email_from_address`)
- * — same real setting keys the old `EmailSettings.ts` used.
+ * - same real setting keys the old `EmailSettings.ts` used.
  *
  * "AI Crawler Alerts": vulopilot-pro's CrawlerAlertMonitor runs 5 checks
- * once daily (CrawlerAlertScheduler) — see that class's own docblock for
+ * once daily (CrawlerAlertScheduler) - see that class's own docblock for
  * the full detail on each. Every row below toggles a real,
  * independently-gated setting that class reads; nothing here is
  * decorative. "Notify me about" is a real zyra `type: 'setting-row'` field
- * (`components-settingrowcomponent--with-select-and-toggle`) — one flat row
+ * (`components-settingrowcomponent--with-select-and-toggle`) - one flat row
  * per alert type, each with its own frequency/duration select and on/off
  * toggle both visible at once, no expand/collapse step. `rows` is this
  * file's own `CRAWLER_ALERT_ROWS` above, using zyra's declarative
  * `control: { toggle, select }` shape (SettingRowComponent's own
  * `resolveControl()` builds the real `SettingToggle`/`SelectInput` pair and
  * reads/writes each row's own `valueKey` slice of this field's
- * `value`/`onChange` itself) — so persisting a row goes through
+ * `value`/`onChange` itself) - so persisting a row goes through
  * InputRenderer's normal auto-save path, same as every other field here.
  * That field's own value shape is one nested object keyed by alert type
  * (`{ [valueKey]: { enable, frequency? | days_threshold? } }`,
@@ -193,11 +193,11 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * settings.
  *
  * One shared "Notification channels" control applies to every alert
- * section below (AI Crawler/Security/Visibility/Critical issue alerts) —
+ * section below (AI Crawler/Security/Visibility/Critical issue alerts) -
  * shown once, rather than repeating an identical multi-checkbox per
  * section (per direct instruction; replaces four former per-section
  * `*_alert_channels` settings with one `alert_channels` setting read by
- * every alert sender — CrawlerAlertMonitor/AlertDispatcher/
+ * every alert sender - CrawlerAlertMonitor/AlertDispatcher/
  * VisibilityMonitor/BrandMonitor/KnowledgeGraphHealthMonitor/
  * ScanPersistenceListener).
  *
@@ -205,12 +205,12 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * needs live state (an API call, and a value that must survive a page
  * refresh) InputRenderer's own declarative fields can't provide, so it's a
  * hand-built component (CrawlerAlertTestPanel.tsx) rather than another
- * field type — set as this tab's own top-level `settingAction`.
+ * field type - set as this tab's own top-level `settingAction`.
  * `settingAction` is NavigatorComponent.tsx's own per-tab header action
  * slot: its `renderSettingHeaderInfo()` renders one `<SectionComponent
  * rightContent={activeFile.settingAction} />` above every tab's own fields,
  * using this exact settings object's `settingTitle ?? headerTitle`/
- * `settingSubTitle ?? headerDescription` as that header's own title/desc —
+ * `settingSubTitle ?? headerDescription` as that header's own title/desc -
  * so this sits right next to this tab's own header, above every field
  * below (including the "Email Settings" fields this tab now also has).
  */
@@ -239,20 +239,20 @@ export default {
 			),
 		},
 		{
-			// "Send Test Email" — back to a real declarative `type: 'button'`
+			// "Send Test Email" - back to a real declarative `type: 'button'`
 			// field, per direct instruction, in place of the hand-built
 			// SendTestEmailButton.tsx (its own docblock's "in place of the
 			// old declarative `type: 'button'` field" now reversed). Real
 			// `POST /settings/test-email` (Controllers\Settings::send_test_email(),
 			// same recipient/From-header logic every other notification
-			// email here already uses) — zyra's own `ButtonInput` field
+			// email here already uses) - zyra's own `ButtonInput` field
 			// component (`field.apilink`/`field.method`) makes this same
 			// request itself and renders whatever real `message` the
 			// response carries inline, no separate component needed. Loses
 			// SendTestEmailButton.tsx's own persisted "Last test email sent
 			// on …" line (that needs real component state to survive a
 			// page refresh, which a plain declarative field has no room
-			// for) — same real tradeoff Migration.ts's own "Reset All
+			// for) - same real tradeoff Migration.ts's own "Reset All
 			// Settings" `type: 'button'` field already accepts.
 			key: 'send_test_email',
 			type: 'button',
@@ -309,7 +309,7 @@ export default {
 			),
 		},
 		// One shared "Notification channels" control for all four alert
-		// sections below — see this file's own docblock.
+		// sections below - see this file's own docblock.
 		{
 			key: 'notification-settings-section',
 			type: 'section',
@@ -334,7 +334,7 @@ export default {
 			noticeType: 'info',
 			label: '',
 			message: __(
-				'Applies to every alert type below. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
+				'Applies to every alert type below. Mobile push notifications aren\'t available yet - Email and In-dashboard are the two real delivery channels today.',
 				'vulopilot'
 			),
 		},
@@ -446,13 +446,13 @@ export default {
 		},
 
 		{
-			// zyra's real `type: 'setting-row'` field — one flat row per
+			// zyra's real `type: 'setting-row'` field - one flat row per
 			// score type, each with its own threshold select and on/off
-			// toggle both visible at once, no expand/collapse step — same
+			// toggle both visible at once, no expand/collapse step - same
 			// field type/`row: false` shape `crawler_alerts` above uses
 			// (without `row: false` zyra adds a `.row` class to the field
 			// wrapper that overlaps this row's own title/desc with its
-			// select — confirmed live: two-line titles like "AI visibility
+			// select - confirmed live: two-line titles like "AI visibility
 			// score drop" rendered on top of "Notify if score drops
 			// by"/the select).
 			label: __('Notify me when', 'vulopilot'),
@@ -527,7 +527,7 @@ export default {
 			),
 		},
 		{
-			// zyra's real `type: 'setting-row'` field — see this file's own
+			// zyra's real `type: 'setting-row'` field - see this file's own
 			// docblock for why `control: { checkbox: true }` fits this flat
 			// multi-select array field, same shape `security_alert_types`
 			// above already uses.

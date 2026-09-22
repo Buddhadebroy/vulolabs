@@ -15,26 +15,26 @@ interface StepDescriptor {
 interface CheckoutEngineProps {
 	cartToken: string;
 	cart: CartResponse | null;
-	/** `single_page`|`multi_step` — CheckoutMode::free()'s own two values; Pro delivery modes wrap this same component rather than reimplementing it. */
+	/** `single_page`|`multi_step` - CheckoutMode::free()'s own two values; Pro delivery modes wrap this same component rather than reimplementing it. */
 	mode: 'single_page' | 'multi_step';
 	onBackToCart: () => void;
 }
 
 /**
- * The Checkout Engine's renderer — replaces the old Checkout.tsx's own
+ * The Checkout Engine's renderer - replaces the old Checkout.tsx's own
  * hardcoded `CheckoutStep` union/step-by-step JSX entirely. Discovers
  * which steps exist from the server (`GET /checkout/steps`,
  * RestAPI\Controllers\Checkout.php) instead of assuming a fixed list, and
  * resolves each one to a component via registry.ts's client-side
- * registry — a step this file has never heard of (a future vulocart-pro
+ * registry - a step this file has never heard of (a future vulocart-pro
  * one) renders correctly as long as something registered it before this
  * component mounted.
  *
  * `single_page` renders every step's own fields stacked on one page with
  * a single "Place Order" action at the end; `multi_step` shows one at a
- * time with a stepper — the same registered steps and step components
+ * time with a stepper - the same registered steps and step components
  * back both, only the layout differs. Neither mode, nor this component
- * itself, has any WordPress-page concept anywhere in it — Checkout.tsx
+ * itself, has any WordPress-page concept anywhere in it - Checkout.tsx
  * (the Gutenberg block) is just today's one caller; a future Popup/
  * Embedded/Hosted delivery mode mounts this exact component the same way.
  */
@@ -51,7 +51,7 @@ export function CheckoutEngine( { cartToken, cart, mode, onBackToCart }: Checkou
 			client.get< StepDescriptor[] >( '/checkout/steps' ),
 			client
 				.post( '/checkout/sessions', { cart_token: cartToken, mode } )
-				.catch( () => null ), // session tracking is best-effort — a failure here shouldn't block checkout itself.
+				.catch( () => null ), // session tracking is best-effort - a failure here shouldn't block checkout itself.
 		] )
 			.then( ( [ stepsResponse ] ) => setSteps( stepsResponse.data ) )
 			.finally( () => setIsLoading( false ) );
@@ -115,7 +115,7 @@ export function CheckoutEngine( { cartToken, cart, mode, onBackToCart }: Checkou
 				{ headers: { 'X-Cart-Token': cartToken } }
 			)
 			.then( ( response ) => {
-				// Fire-and-forget, in parallel — registerOrderPlacedHandler()'s
+				// Fire-and-forget, in parallel - registerOrderPlacedHandler()'s
 				// own docblock explains why a slow/failing handler
 				// (vulocart-pro's Order Notes/Coupons/Gift Cards
 				// redemption-recording) must never block the shopper from
@@ -143,14 +143,14 @@ export function CheckoutEngine( { cartToken, cart, mode, onBackToCart }: Checkou
 		return (
 			<p>
 				{ __(
-					'Checkout has no active steps — activate Customer, Address, Shipping, and Payment from the Modules admin page.',
+					'Checkout has no active steps - activate Customer, Address, Shipping, and Payment from the Modules admin page.',
 					'vulocart'
 				) }
 			</p>
 		);
 	}
 
-	// Terminal state — an order was placed. Rendered via the SAME registry
+	// Terminal state - an order was placed. Rendered via the SAME registry
 	// mechanism as every other step (Confirmation/Module.php's own
 	// docblock explains why it's a real registered step, not a special
 	// case at the PHP layer) rather than bespoke JSX here, so a future

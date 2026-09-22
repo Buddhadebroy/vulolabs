@@ -8,7 +8,7 @@ import { WidgetProps } from './types';
 import type { EntitiesResponse } from '../pages/GEO/SchemaKnowledge/KnowledgeGraphSection';
 
 /**
- * A Dashboard-level teaser for the Knowledge Graph page — same "small
+ * A Dashboard-level teaser for the Knowledge Graph page - same "small
  * independently fetched summary" pattern CrawlerTrafficWidget.tsx already
  * uses, condensed to a per-type count row.
  */

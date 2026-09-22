@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Offerings REST controller.
  *
  * `GET /vulocart/v1/offerings` (paginated) and `POST /vulocart/v1/offerings`.
- * Calls VuloCart()->offering_service only — never
+ * Calls VuloCart()->offering_service only - never
  * Infrastructure\Database\WPDBOfferingRepository directly (rest-api.md +
  * this plugin's own Application-layer convention).
  *
@@ -35,7 +35,7 @@ class Offerings extends \WP_REST_Controller {
 
     /**
      * The type-specific fields OfferingEdit.tsx's "Type Details" card shows
-     * per offering type — a real, per-type functionality layer on top of
+     * per offering type - a real, per-type functionality layer on top of
      * the generic fields every type already has (title/price/description/
      * etc.), matching how WooCommerce's simple/variable/grouped/external
      * product types each expose different meta-box fields. Keyed by
@@ -44,7 +44,7 @@ class Offerings extends \WP_REST_Controller {
      * nullable), 'float' (nullable), 'bool', or 'key' (sanitize_key,
      * for a small fixed option set the frontend's own SelectInput
      * enumerates). Types with no entry here (physical, license) have no
-     * type-specific fields — physical's "type-specific" behavior is
+     * type-specific fields - physical's "type-specific" behavior is
      * already the existing Stock/Shipping sections, and license has no
      * dedicated fields yet (kept only for backward compatibility with any
      * offering created before this plugin's admin-UX brief specified its own
@@ -144,7 +144,7 @@ class Offerings extends \WP_REST_Controller {
             )
         );
 
-        // Bulk endpoints — the Offerings list screen's bulk-actions bar
+        // Bulk endpoints - the Offerings list screen's bulk-actions bar
         // (src/pages/Offerings/OfferingsList.tsx). Registered as their own
         // routes rather than teaching update_item()/delete_item() to accept
         // an array of ids, matching Order\Rest.php's own
@@ -238,7 +238,7 @@ class Offerings extends \WP_REST_Controller {
     }
 
     /**
-     * Bulk-sets price and/or sale price across several offerings —
+     * Bulk-sets price and/or sale price across several offerings -
      * "Bulk Price Update". At least one of `price`/`sale_price` must be
      * present; either can be sent alone.
      *
@@ -266,7 +266,7 @@ class Offerings extends \WP_REST_Controller {
 
     /**
      * Bulk-sets stock status and/or stock quantity across several
-     * offerings — "Bulk Inventory Update". Same fields Inventory.php's own
+     * offerings - "Bulk Inventory Update". Same fields Inventory.php's own
      * single-item `PATCH /inventory/{id}` already writes into
      * `meta.stock_status`/`meta.stock_quantity`, applied to many offerings
      * at once here instead.
@@ -323,7 +323,7 @@ class Offerings extends \WP_REST_Controller {
     }
 
     /**
-     * Deletes a single offering — the Offerings list screen's per-row
+     * Deletes a single offering - the Offerings list screen's per-row
      * delete action.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -340,12 +340,12 @@ class Offerings extends \WP_REST_Controller {
     }
 
     /**
-     * Whether offering listing is open to everyone — genuinely public read
+     * Whether offering listing is open to everyone - genuinely public read
      * access, same "cart token is the access control, not a nonce"
      * posture RestAPI\Controllers\Cart's docblock explains for a
      * different reason: a storefront checkout page (src/blocks/checkout)
      * has no WordPress session at all and still needs to browse offerings to
-     * add them to a cart. get_items() itself is what keeps this safe —
+     * add them to a cart. get_items() itself is what keeps this safe -
      * it force-scopes results to `status = published` for anyone without
      * `manage_options`, so a logged-out visitor can never see (or infer
      * the existence of) a draft/archived offering just by passing a
@@ -408,7 +408,7 @@ class Offerings extends \WP_REST_Controller {
         $category = sanitize_key( (string) $request->get_param( 'category' ) );
 
         // Anyone without manage_options is a public storefront request
-        // (see get_items_permissions_check()'s docblock) — force
+        // (see get_items_permissions_check()'s docblock) - force
         // `published` regardless of what `status` they passed, so a
         // logged-out visitor can never list/discover draft or archived
         // offerings by guessing a different status value.
@@ -435,14 +435,14 @@ class Offerings extends \WP_REST_Controller {
     }
 
     /**
-     * Fetches one offering by id — backs the dedicated
+     * Fetches one offering by id - backs the dedicated
      * `src/pages/Offerings/OfferingEdit.tsx` page loading its initial data
      * directly from the URL's `id` query param (a real navigation, not a
-     * client-side transition carrying the row already in memory — see
+     * client-side transition carrying the row already in memory - see
      * Menu.php's `add_offerings_menu()` docblock), so a fresh page load
      * needs a single-item lookup rather than only the list endpoint.
      * Same public-with-published-only-for-non-admins posture as
-     * get_items() — see get_items_permissions_check()'s docblock.
+     * get_items() - see get_items_permissions_check()'s docblock.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -522,11 +522,11 @@ class Offerings extends \WP_REST_Controller {
     }
 
     /**
-     * Updates an existing offering — backs the Offerings table's inline cell
+     * Updates an existing offering - backs the Offerings table's inline cell
      * editing (title/sku/status/price) in src/app/routes/OfferingsPage.tsx.
      * Only ever touches the fields actually present on the request, via
      * Application\OfferingService::update_offering()'s own partial-update
-     * semantics — a cell edit for one field never clobbers the others.
+     * semantics - a cell edit for one field never clobbers the others.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -601,25 +601,25 @@ class Offerings extends \WP_REST_Controller {
     }
 
     /**
-     * Sanitizes the offering-detail-page's meta bag — a whitelist rather
+     * Sanitizes the offering-detail-page's meta bag - a whitelist rather
      * than a generic recursive sanitizer, since this meta shape now holds
      * mixed types (bools, nested media objects, string arrays), not just
      * flat strings `map_deep(..., 'sanitize_text_field')` could handle
      * safely. Backs `src/pages/Offerings/OfferingEdit.tsx`'s full
-     * WooCommerce/Shopify-style edit screen — short/full description,
+     * WooCommerce/Shopify-style edit screen - short/full description,
      * sale price, stock management, delivery method, package dimensions,
      * policies, simple related/add-on offering lists (comma-separated ids,
      * no picker UI yet), featured/catalog-visibility flags, category/tag/
-     * brand/collection references (real DB-backed Domain\Term\Term slugs —
-     * classes/RestAPI/Controllers/Terms.php — stored by slug in this meta
+     * brand/collection references (real DB-backed Domain\Term\Term slugs -
+     * classes/RestAPI/Controllers/Terms.php - stored by slug in this meta
      * bag rather than a join table, same tradeoff WPDBTermRepository::
      * count_offerings_for_term()'s own docblock explains), and featured
      * image/gallery (real `wp.media()` attachment id + url pairs, via
-     * zyra's `FileInput`). Unknown keys are silently dropped — this is
+     * zyra's `FileInput`). Unknown keys are silently dropped - this is
      * deliberately whitelist-based, not "sanitize whatever keys show up.".
      *
      * @param array<string, mixed> $meta Raw meta payload from the request.
-     * @param string               $type The offering's type — determines which TYPE_DETAIL_FIELDS entry (if any) governs `meta.type_details`.
+     * @param string               $type The offering's type - determines which TYPE_DETAIL_FIELDS entry (if any) governs `meta.type_details`.
      * @return array<string, mixed>
      */
     private function sanitize_offering_meta( $meta, $type ) {
@@ -629,12 +629,12 @@ class Offerings extends \WP_REST_Controller {
 
         $sanitized = array();
 
-        // `seo_title` alongside `weight`/`length`/etc. — a plain scalar
+        // `seo_title` alongside `weight`/`length`/etc. - a plain scalar
         // field, same "already allowlisted, just unused until now"
         // reasoning `weight`'s own docblock documents. Authored by
         // vulocart-pro's CatalogAi module (`generate_seo()`), but the
         // allowlist itself has to live here regardless of which module
-        // ends up writing to it — the same reason `weight` isn't
+        // ends up writing to it - the same reason `weight` isn't
         // allowlisted only when ShippingEngine happens to be active.
         $text_fields = array( 'weight', 'length', 'width', 'height', 'shipping_class', 'related_offerings', 'addon_offerings', 'seo_title' );
 
@@ -684,7 +684,7 @@ class Offerings extends \WP_REST_Controller {
             $sanitized['categories'] = array_values( array_map( 'sanitize_key', $meta['categories'] ) );
         }
 
-        // Domain\Term\Taxonomy::TAG — same slug-in-meta reference as
+        // Domain\Term\Taxonomy::TAG - same slug-in-meta reference as
         // categories/brand/collections just below (Taxonomy::TAG's own
         // docblock explains the freetext-to-taxonomy promotion and its
         // backward-compat tradeoff).
@@ -692,7 +692,7 @@ class Offerings extends \WP_REST_Controller {
             $sanitized['tags'] = array_values( array_map( 'sanitize_key', $meta['tags'] ) );
         }
 
-        // Brand/Collections — Domain\Term\Taxonomy::BRAND/COLLECTION,
+        // Brand/Collections - Domain\Term\Taxonomy::BRAND/COLLECTION,
         // referenced by slug the same way `categories`/`tags` already are
         // above (WPDBTermRepository::count_offerings_for_term()'s own
         // docblock explains why a slug-in-meta reference, not a join
@@ -718,7 +718,7 @@ class Offerings extends \WP_REST_Controller {
         }
 
         // Catalog AI's own generated fields (vulocart-pro's CatalogAi
-        // module) — allowlisted here for the same reason `seo_title`/
+        // module) - allowlisted here for the same reason `seo_title`/
         // `seo_description` are above: a value CatalogAi wrote via
         // `OfferingService::update_offering()` directly must still
         // survive a later, unrelated save through this REST controller's
@@ -790,7 +790,7 @@ class Offerings extends \WP_REST_Controller {
 
     /**
      * Sanitizes `meta.type_details` against TYPE_DETAIL_FIELDS' whitelist
-     * for this specific offering type — a field the current type doesn't
+     * for this specific offering type - a field the current type doesn't
      * declare (e.g. `download_url` submitted for a `service` offering,
      * which has no such field) is silently dropped rather than stored,
      * same "whitelist, not generic sanitize-whatever-shows-up" posture
@@ -841,7 +841,7 @@ class Offerings extends \WP_REST_Controller {
     }
 
     /**
-     * Sanitizes one `{id, url}` media attachment reference — used for both
+     * Sanitizes one `{id, url}` media attachment reference - used for both
      * `featured_image` (single) and each entry of `gallery` (array).
      *
      * @param mixed $item Raw media item, expected shape `{id?: int, url: string}`.

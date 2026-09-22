@@ -14,9 +14,9 @@ import Popup from '../../components/Popup/Popup';
 /**
  * Ported from `vulopilot/src/pages/Settings/Settings.tsx`'s flat-option
  * structure (not a per-tab-namespaced one, which doesn't
- * apply — VuloCart has one flat `wp_options` row, Utill::SETTINGS_KEY).
+ * apply - VuloCart has one flat `wp_options` row, Utill::SETTINGS_KEY).
  * `getTemplateData()` now comes from `../../services/templateService.ts`,
- * a `require.context` scan of `src/settings/*.ts` — the plugin's admin-UX
+ * a `require.context` scan of `src/settings/*.ts` - the plugin's admin-UX
  * brief calls for 12 real tabs (General/Catalog/Cart/Checkout/Payments/
  * Shipping/Taxes/Email/API/MCP/AI/Advanced), so the one-file direct-import
  * shortcut this page used to take no longer applies.
@@ -52,7 +52,7 @@ const Settings = () => {
 
 	const GetForm = ( currentTab: string | null ): JSX.Element | null => {
 		// Every hook this function uses must run on every call regardless
-		// of currentTab — matches vulopilot's own Settings.tsx docblock on
+		// of currentTab - matches vulopilot's own Settings.tsx docblock on
 		// this exact point (an early return before a hook call would make
 		// the number of hooks React sees differ between renders).
 		const { setting, settingName, setSetting, updateSetting } = useSetting();
@@ -62,10 +62,10 @@ const Settings = () => {
 		// Lets a Pro module (a payment gateway registering its own
 		// credential fields onto the Payments tab, for instance) append
 		// fields to an existing tab without this plugin knowing that
-		// module exists — same "compose-many, filter-context-routed"
+		// module exists - same "compose-many, filter-context-routed"
 		// shape `vulocart_offering_edit_sections` already establishes.
 		// Applied here (at render time), not inside the tab's own static
-		// `src/settings/*.ts` file — those are collected via a
+		// `src/settings/*.ts` file - those are collected via a
 		// `require.context` that runs eagerly on script load, before a
 		// separately-enqueued Pro bundle has necessarily executed its own
 		// `addFilter()` call; by the time this component renders, every

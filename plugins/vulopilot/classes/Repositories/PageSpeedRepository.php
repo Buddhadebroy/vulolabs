@@ -10,7 +10,7 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for `vulopilot_page_speed` — "Performance" › Slow Pages'
+ * Persistence for `vulopilot_page_speed` - "Performance" › Slow Pages'
  * per-page table, written by Services\PageSpeedScanner. One row per real
  * WP page/post/WooCommerce page it has checked; `replace_for_url()` deletes
  * any prior row for that URL before inserting the fresh one, so a page not
@@ -38,7 +38,7 @@ class PageSpeedRepository extends AbstractRepository {
     protected array $searchable_columns = array( 'title', 'url' );
 
     /**
-     * Score, inclusive, at/above which a page counts as "Good" —
+     * Score, inclusive, at/above which a page counts as "Good" -
      * same real band this codebase's own mockup education copy states.
      */
     public const SCORE_GOOD = 80;
@@ -51,7 +51,7 @@ class PageSpeedRepository extends AbstractRepository {
 
     /**
      * Score, exclusive upper bound, below which a "Poor"/'slow' page is
-     * real enough of an outlier to also count as "Very Slow" — a real
+     * real enough of an outlier to also count as "Very Slow" - a real
      * sub-band within the existing 'slow' status (not a 4th backend status
      * value, so every pre-existing status-count consumer keeps working
      * unchanged; see get_summary()'s own docblock).
@@ -68,7 +68,7 @@ class PageSpeedRepository extends AbstractRepository {
     }
 
     /**
-     * Replaces any existing row for this URL with a fresh one — a rescan
+     * Replaces any existing row for this URL with a fresh one - a rescan
      * supersedes, it never accumulates history (Slow Pages shows current
      * state, not a trend).
      *
@@ -84,7 +84,7 @@ class PageSpeedRepository extends AbstractRepository {
     }
 
     /**
-     * Deletes rows whose URL isn't in the given (current) real page list —
+     * Deletes rows whose URL isn't in the given (current) real page list -
      * so a page removed from the site (e.g. a deleted product) doesn't
      * linger in Slow Pages forever.
      *
@@ -110,12 +110,12 @@ class PageSpeedRepository extends AbstractRepository {
 
     /**
      * Real counts by score band, plus real average desktop/mobile scores
-     * across whichever rows have one — `avg_score` (the table's own
+     * across whichever rows have one - `avg_score` (the table's own
      * `score` column, desktop/lab) added for
      * Controllers\ReportsOverview's own "device experience" bars, which
      * need both sides of the same real comparison `avg_mobile_score`
      * alone can't provide. `very_slow` is a real sub-count *within* `slow`
-     * (score < SCORE_VERY_SLOW), not additional to it — `slow` alone still
+     * (score < SCORE_VERY_SLOW), not additional to it - `slow` alone still
      * means the same "Poor" band it always has, so summing
      * good+needs_improvement+slow still equals `total`.
      *
@@ -183,9 +183,9 @@ class PageSpeedRepository extends AbstractRepository {
     /**
      * The real, deduplicated `main_issue` values across every scanned page
      * (each already either a real Google Lighthouse opportunity-audit
-     * title or a plain load-time-based label — see
+     * title or a plain load-time-based label - see
      * Install.php::create_page_speed_table()'s own docblock), grouped and
-     * counted — backs the "Performance Opportunities" tab and the "Why
+     * counted - backs the "Performance Opportunities" tab and the "Why
      * these pages are slow?" sidebar. Never a fabricated issue list: a
      * freshly-scanned site with no `main_issue` at all on any row simply
      * returns an empty array, rendered as an honest "nothing to fix"

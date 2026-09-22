@@ -9,14 +9,14 @@ const config = createWebpackConfig(
 );
 
 /**
- * Phase 4 (Embedded Commerce) — `@vulocart/sdk` (packages/js/vulocart-sdk,
- * this same repo, own esbuild-based build — NOT wp-scripts/webpack, since
+ * Phase 4 (Embedded Commerce) - `@vulocart/sdk` (packages/js/vulocart-sdk,
+ * this same repo, own esbuild-based build - NOT wp-scripts/webpack, since
  * that bundle deliberately has zero `@wordpress/*` externals so it can
  * run on a page with no WordPress scripts loaded at all) already ships a
  * fully bundled, minified `dist/vulocart-sdk.js`. This just copies that
  * existing build output into THIS plugin's own public `assets/js/`
  * directory so `<script src="…/wp-content/plugins/vulocart/assets/js/vulocart-sdk.js">`
- * resolves to a real file — no re-bundling by webpack, `noErrorOnMissing`
+ * resolves to a real file - no re-bundling by webpack, `noErrorOnMissing`
  * so a fresh checkout that hasn't run `pnpm -r run build` yet doesn't
  * fail vulocart's own build over a sibling package's missing output.
  */

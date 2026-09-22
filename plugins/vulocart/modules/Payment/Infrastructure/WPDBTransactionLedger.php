@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart Payment module WPDBTransactionLedger.
  *
  * The only class in this codebase that runs SQL against
- * `vulocart_payment_transactions` — same "one repository owns the raw
+ * `vulocart_payment_transactions` - same "one repository owns the raw
  * SQL for its own table" convention `Order\Infrastructure\
  * WPDBOrderRepository` already establishes, kept plain-array-in/out
  * (no domain entity) since this table is an append-mostly audit log
@@ -37,7 +37,7 @@ class WPDBTransactionLedger {
     }
 
     /**
-     * Records one gateway call — see Install.php's own docblock for what
+     * Records one gateway call - see Install.php's own docblock for what
      * `type` values are expected.
      *
      * @param array{order_id?: int|null, cart_token?: string|null, gateway: string, type: string, gateway_transaction_id?: string|null, status: string, amount?: float, currency?: string|null, raw_response?: array<string, mixed>} $data Transaction fields.
@@ -66,7 +66,7 @@ class WPDBTransactionLedger {
 
     /**
      * The most recent transaction row for a given gateway_transaction_id
-     * — how `PaymentService::finalize_intent_for_order()` and
+     * - how `PaymentService::finalize_intent_for_order()` and
      * `handle_webhook()` both re-find "the row this event is about."
      *
      * @param string $gateway_transaction_id A gateway's own reference.
@@ -87,7 +87,7 @@ class WPDBTransactionLedger {
     }
 
     /**
-     * Every transaction row belonging to an order, oldest first — backs
+     * Every transaction row belonging to an order, oldest first - backs
      * the admin order detail screen's own "payment history" list.
      *
      * @param int $order_id Owning order id.
@@ -109,7 +109,7 @@ class WPDBTransactionLedger {
 
     /**
      * Attaches an order id to a row created while still cart-scoped
-     * (`order_id` was null at intent-creation time) — called once, right
+     * (`order_id` was null at intent-creation time) - called once, right
      * after the order that consumed a payment intent is inserted.
      *
      * @param int $id       Ledger row id.

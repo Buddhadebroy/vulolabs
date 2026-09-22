@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart OfferingService.
  *
- * Where Offering business logic actually lives — per the vision's "business
+ * Where Offering business logic actually lives - per the vision's "business
  * logic must never exist inside React components" and "must never exist
  * inside WordPress hooks", RestAPI\Controllers\Offerings calls only this
  * class, and this class is the only thing that talks to
@@ -141,7 +141,7 @@ class OfferingService {
 
     /**
      * Deletes an offering and broadcasts `offering_deleted`. Does not touch
-     * any order line item that already references this offering's id —
+     * any order line item that already references this offering's id -
      * same "additive, never silently rewrite other records" posture
      * Application\TermService::delete_term()'s own docblock documents for
      * a deleted category/brand/collection/tag.
@@ -166,7 +166,7 @@ class OfferingService {
     }
 
     /**
-     * Bulk-updates status across several offerings — the Offerings list
+     * Bulk-updates status across several offerings - the Offerings list
      * screen's bulk-actions dropdown. Reuses update_offering() per id
      * rather than a dedicated bulk SQL statement: this is an occasional
      * admin action on at most a page of selected rows, not a hot path, and
@@ -190,12 +190,12 @@ class OfferingService {
     }
 
     /**
-     * Bulk-sets price and/or sale price across several offerings —
+     * Bulk-sets price and/or sale price across several offerings -
      * "Bulk Price Update". `$price` writes Offering::$price directly (a
      * real column); `$sale_price` merges into the existing `meta` bag
      * (Offerings.php's own `sanitize_offering_meta()` already stores it
      * there) rather than replacing `meta` wholesale the way
-     * update_offering()'s own `$data['meta']` handling does — a bulk price
+     * update_offering()'s own `$data['meta']` handling does - a bulk price
      * pass must never clobber an offering's other meta (categories,
      * stock, description, ...).
      *
@@ -234,7 +234,7 @@ class OfferingService {
 
     /**
      * Bulk-sets stock status and/or stock quantity across several
-     * offerings — "Bulk Inventory Update". Same meta-merge reasoning as
+     * offerings - "Bulk Inventory Update". Same meta-merge reasoning as
      * bulk_update_price() above: both fields already live in `meta`
      * (`stock_status`/`stock_quantity`, per sanitize_offering_meta()), so
      * this merges into the existing bag rather than replacing it.

@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Stateless on-page SEO checklist for the post-editor metabox
- * (RestAPI\Controllers\PostSeo::analyze_item()) — modeled on RankMath's
+ * (RestAPI\Controllers\PostSeo::analyze_item()) - modeled on RankMath's
  * "Basic SEO"/"Additional"/"Title Readability" grouping, per the readme
  * rewrite pass's research into rankmath.com/kb/on-page-seo/. Deliberately
  * NOT a Scanners\ScannerRegistry scanner: scanners run against already-
  * SAVED posts on a schedule (Scanners\ScanRunner), but this runs against
- * whatever the editor currently holds — unsaved title/content/excerpt
- * edits included — every time the metabox's fields change. Where a check
+ * whatever the editor currently holds - unsaved title/content/excerpt
+ * edits included - every time the metabox's fields change. Where a check
  * mirrors an existing scanner's threshold (title length matches
  * Seo\Scanners\SeoScanner/AiCopilot\Actions\WriteMetaTitleAction; content
  * length matches Seo\Scanners\ThinContentScanner's own setting), the
@@ -27,13 +27,13 @@ defined( 'ABSPATH' ) || exit;
  * copy of the number.
  *
  * Each result also says whether vulopilot-pro's "Fix with AI" can resolve
- * it (`fixable` + `action_id`) — only for checks with a real, already-
+ * it (`fixable` + `action_id`) - only for checks with a real, already-
  * existing AIAction that takes nothing but a post_id (write-meta-title,
  * write-meta-description, improve-readability, add-subheadings). Checks
  * driven by the focus keyword or by simple content structure (links,
- * image alt text) have no matching action — no AIAction here takes a
+ * image alt text) have no matching action - no AIAction here takes a
  * focus keyword as input, and "fix" would mean guessing what the human
- * meant — so those are honestly reported as not fixable rather than
+ * meant - so those are honestly reported as not fixable rather than
  * wired to an action that doesn't actually address the check.
  *
  * @class       OnPageAnalyzer class
@@ -60,7 +60,7 @@ class OnPageAnalyzer {
 
     /**
      * Words from the start of the content the focus keyword should appear
-     * within for the "keyword in first paragraph" check — an editorial
+     * within for the "keyword in first paragraph" check - an editorial
      * analogue of GeoSummaryBlockScanner's `ai_visibility_scans.answer_first.min_words`
      * setting, kept as its own constant since it checks keyword placement,
      * not an AI-summary marker.
@@ -71,7 +71,7 @@ class OnPageAnalyzer {
      * Runs every check against the editor's current (possibly unsaved)
      * field values.
      *
-     * @param array<string, string> $fields Live editor state — 'title', 'content', 'excerpt', 'slug', 'focus_keyword' — not necessarily what's saved in the DB.
+     * @param array<string, string> $fields Live editor state - 'title', 'content', 'excerpt', 'slug', 'focus_keyword' - not necessarily what's saved in the DB.
      * @return array<int, array<string, mixed>> Each entry shaped like result()'s own return value.
      */
     public function analyze( array $fields ): array {
@@ -119,7 +119,7 @@ class OnPageAnalyzer {
         }
 
         if ( $length < self::TITLE_MIN_LENGTH ) {
-            return $this->result( 'title_length', 'basic', 'warning', __( 'SEO title is too short — search engines may show more than this.', 'vulopilot' ), 'write-meta-title' );
+            return $this->result( 'title_length', 'basic', 'warning', __( 'SEO title is too short - search engines may show more than this.', 'vulopilot' ), 'write-meta-title' );
         }
 
         if ( $length > self::TITLE_MAX_LENGTH ) {
@@ -171,7 +171,7 @@ class OnPageAnalyzer {
                 'warning',
                 sprintf(
                     /* translators: 1: current word count, 2: minimum recommended word count. */
-                    __( 'Content is %1$d words — aim for at least %2$d.', 'vulopilot' ),
+                    __( 'Content is %1$d words - aim for at least %2$d.', 'vulopilot' ),
                     $count,
                     $threshold
                 ),
@@ -190,7 +190,7 @@ class OnPageAnalyzer {
      * @return array<string, mixed>
      */
     private function check_keyword_in_title( string $keyword, string $title ): array {
-        // Deliberately not wired to 'write-meta-title' — see this class's
+        // Deliberately not wired to 'write-meta-title' - see this class's
         // own docblock: that action takes no focus_keyword input (only
         // post_id, PostSeoFixRest::ACTION_ALLOWLIST), so running it
         // wouldn't reliably fix THIS check at all, just rewrite the title
@@ -268,7 +268,7 @@ class OnPageAnalyzer {
     private function check_subheadings( string $content_html ): array {
         return (bool) preg_match( '/<h[2-6][\s>]/i', $content_html )
             ? $this->result( 'has_subheadings', 'additional', 'pass', __( 'Content has subheadings.', 'vulopilot' ) )
-            : $this->result( 'has_subheadings', 'additional', 'warning', __( 'Content has no subheadings — breaking it up improves readability and scannability.', 'vulopilot' ), 'add-subheadings' );
+            : $this->result( 'has_subheadings', 'additional', 'warning', __( 'Content has no subheadings - breaking it up improves readability and scannability.', 'vulopilot' ), 'add-subheadings' );
     }
 
     /**
@@ -280,7 +280,7 @@ class OnPageAnalyzer {
     private function check_links( string $content_html ): array {
         return (bool) preg_match( '/<a\s[^>]*href=/i', $content_html )
             ? $this->result( 'has_links', 'additional', 'pass', __( 'Content contains at least one link.', 'vulopilot' ) )
-            : $this->result( 'has_links', 'additional', 'warning', __( 'Content has no links — linking to related content or sources helps both readers and search engines.', 'vulopilot' ) );
+            : $this->result( 'has_links', 'additional', 'warning', __( 'Content has no links - linking to related content or sources helps both readers and search engines.', 'vulopilot' ) );
     }
 
     /**
@@ -315,11 +315,11 @@ class OnPageAnalyzer {
 
         return $this->contains( $keyword, $half )
             ? $this->result( 'keyword_at_title_start', 'title_readability', 'pass', __( 'Focus keyword appears near the beginning of the title.', 'vulopilot' ) )
-            : $this->result( 'keyword_at_title_start', 'title_readability', 'warning', __( 'Focus keyword appears late in the title — titles rank slightly better with it near the start.', 'vulopilot' ) );
+            : $this->result( 'keyword_at_title_start', 'title_readability', 'warning', __( 'Focus keyword appears late in the title - titles rank slightly better with it near the start.', 'vulopilot' ) );
     }
 
     /**
-     * RankMath's own "title contains a number" heuristic — titles with a
+     * RankMath's own "title contains a number" heuristic - titles with a
      * number (a year, a count, "7 ways to…") measurably get more clicks.
      *
      * @param string $title Current post title.
@@ -328,11 +328,11 @@ class OnPageAnalyzer {
     private function check_title_has_number( string $title ): array {
         return (bool) preg_match( '/\d/', $title )
             ? $this->result( 'title_has_number', 'title_readability', 'pass', __( 'Title contains a number.', 'vulopilot' ) )
-            : $this->result( 'title_has_number', 'title_readability', 'warning', __( 'Consider adding a number to the title (e.g. a year or a count) — these tend to attract more clicks.', 'vulopilot' ) );
+            : $this->result( 'title_has_number', 'title_readability', 'warning', __( 'Consider adding a number to the title (e.g. a year or a count) - these tend to attract more clicks.', 'vulopilot' ) );
     }
 
     /**
-     * Case-insensitive substring match — every keyword check in this class
+     * Case-insensitive substring match - every keyword check in this class
      * uses this, not a stricter word-boundary match, since a focus keyword
      * is often a multi-word phrase (RankMath's own behavior).
      *

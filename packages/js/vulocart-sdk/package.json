@@ -2,7 +2,7 @@
   "name": "@vulocart/sdk",
   "version": "1.0.0",
   "private": true,
-  "description": "VuloCart's embeddable commerce SDK — Buy Button, Embedded Cart, Embedded Checkout, and (with vulocart-pro licensed) Popup/Drawer/Checkout Link/Hosted checkout, usable from a plain <script> tag or `import \"@vulocart/sdk\"` on any site, WordPress or not.",
+  "description": "VuloCart's embeddable commerce SDK - Buy Button, Embedded Cart, Embedded Checkout, and (with vulocart-pro licensed) Popup/Drawer/Checkout Link/Hosted checkout, usable from a plain <script> tag or `import \"@vulocart/sdk\"` on any site, WordPress or not.",
   "license": "GPL-2.0-or-later",
   "author": "VuloLabs",
   "type": "module",

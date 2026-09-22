@@ -1,6 +1,6 @@
 # @vulocart/sdk
 
-VuloCart's embeddable commerce SDK. Runs on any site — WordPress or not.
+VuloCart's embeddable commerce SDK. Runs on any site - WordPress or not.
 
 ## Plain HTML / any site
 
@@ -10,7 +10,7 @@ VuloCart's embeddable commerce SDK. Runs on any site — WordPress or not.
 <button data-vulocart-buy-button data-offering-id="123">Buy Now</button>
 ```
 
-No further config — the script's own URL tells the SDK which store to talk to.
+No further config - the script's own URL tells the SDK which store to talk to.
 
 ## React / Next.js
 
@@ -24,7 +24,7 @@ import { init, mountBuyButton } from '@vulocart/sdk';
 init( { storeUrl: 'https://yourstore.com', skipAutoScan: true } );
 ```
 
-For actual React components (`<BuyButton>`, `<EmbeddedCart>`, `<EmbeddedCheckout>`), use `@vulocart/react` instead, which wraps this package. In Next.js, use it from a Client Component (`'use client'`) — this SDK touches `window`/`document` and has no SSR-safe mode.
+For actual React components (`<BuyButton>`, `<EmbeddedCart>`, `<EmbeddedCheckout>`), use `@vulocart/react` instead, which wraps this package. In Next.js, use it from a Client Component (`'use client'`) - this SDK touches `window`/`document` and has no SSR-safe mode.
 
 ## Widgets
 
@@ -37,5 +37,5 @@ For actual React components (`<BuyButton>`, `<EmbeddedCart>`, `<EmbeddedCheckout
 ## Known limitations
 
 - **One store per page.** This package backs a single `window.VuloCart`/`init()` call; it doesn't support talking to two different VuloCart stores from the same page.
-- **Cart tokens are scoped to the embedding page's own origin** (`localStorage`), not the store's. The same store embedded on two different third-party domains won't share a cart between them — there's no cross-origin storage bridge here.
-- **Popup Checkout, Drawer Checkout, Checkout Links, and Hosted Checkout require vulocart-pro**, licensed and active on the target store. `init()` checks `/sdk/config` and lazy-loads vulocart-pro's own bundle only when applicable — on a free-tier install, `data-vulocart-popup-checkout-trigger` etc. simply do nothing.
+- **Cart tokens are scoped to the embedding page's own origin** (`localStorage`), not the store's. The same store embedded on two different third-party domains won't share a cart between them - there's no cross-origin storage bridge here.
+- **Popup Checkout, Drawer Checkout, Checkout Links, and Hosted Checkout require vulocart-pro**, licensed and active on the target store. `init()` checks `/sdk/config` and lazy-loads vulocart-pro's own bundle only when applicable - on a free-tier install, `data-vulocart-popup-checkout-trigger` etc. simply do nothing.

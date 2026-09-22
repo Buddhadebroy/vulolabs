@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
  * `Utill::SETTINGS_DEFAULTS`'s Catalog section. `default_offering_type`/
  * `default_catalog_visibility` are not yet read anywhere else in this
  * codebase (OfferingEdit.tsx still hardcodes its own initial form state)
- * — the same "real setting, not yet consumed" gap already documented on
+ * - the same "real setting, not yet consumed" gap already documented on
  * `default_offering_status` in General.ts/Utill.php.
  */
 export default {
@@ -24,7 +24,7 @@ export default {
 				'vulocart'
 			),
 			// Same raw-type-string-as-label list OfferingType::all() (PHP)
-			// and OfferingEdit.tsx's own OFFERING_TYPE_OPTIONS use — kept as
+			// and OfferingEdit.tsx's own OFFERING_TYPE_OPTIONS use - kept as
 			// a hand-maintained flat list rather than a shared constant
 			// import, matching how OfferingEdit.tsx already duplicates it.
 			options: [

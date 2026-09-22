@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Cart module Install class.
  *
- * Owns `vulocart_carts`/`vulocart_cart_items` — module-owned data, so
+ * Owns `vulocart_carts`/`vulocart_cart_items` - module-owned data, so
  * these tables are created here rather than in the plugin-level
  * `VuloCart\Install` (which only owns `vulocart_offerings`, the plugin's
  * always-on core entity). Same version-gated activation-hook pattern
@@ -25,14 +25,14 @@ defined( 'ABSPATH' ) || exit;
 class Install {
 
     /**
-     * Version-gate option — checked so the dbDelta() calls below only
+     * Version-gate option - checked so the dbDelta() calls below only
      * actually run once (on first activation, or after a future schema
      * bump), not on every request this module happens to be active.
      * `vulocart_activated_module_cart` fires on every
      * Modules::load_active_modules() pass while the module is active, not
      * only the very first one (module-architecture.md), so an unguarded
      * dbDelta() call here would re-run its schema introspection on every
-     * single request — this option is what makes it idempotent instead
+     * single request - this option is what makes it idempotent instead
      * (performance.md).
      *
      * @var string
@@ -40,7 +40,7 @@ class Install {
     const TABLE_SCHEMA_VERSION_OPTION = 'vulocart_cart_table_version';
 
     /**
-     * Current schema version — bump this alongside a new dbDelta() call in
+     * Current schema version - bump this alongside a new dbDelta() call in
      * maybe_create_tables() when the tables need an additive change.
      *
      * @var string
@@ -55,7 +55,7 @@ class Install {
     }
 
     /**
-     * Creates `vulocart_carts`/`vulocart_cart_items` — only when
+     * Creates `vulocart_carts`/`vulocart_cart_items` - only when
      * TABLE_SCHEMA_VERSION_OPTION is behind TABLE_SCHEMA_VERSION, so this
      * is a no-op on every request after the first successful run.
      *
@@ -74,7 +74,7 @@ class Install {
 
         $collate = $wpdb->get_charset_collate();
 
-        // Vision: independent Cart Engine, own tables — not WooCommerce's
+        // Vision: independent Cart Engine, own tables - not WooCommerce's
         // cart/session. `token` is the cart's client-held identity
         // (Domain\Cart's own docblock explains why); items are a separate
         // table rather than a JSON column on the cart row so quantity

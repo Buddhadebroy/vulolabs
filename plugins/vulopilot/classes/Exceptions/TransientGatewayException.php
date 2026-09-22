@@ -8,7 +8,7 @@
 namespace VuloPilot\Exceptions;
 
 /**
- * A retryable gateway failure — network error, HTTP 5xx, or HTTP 429. Caught by
+ * A retryable gateway failure - network error, HTTP 5xx, or HTTP 429. Caught by
  * AI\AiRequestSender, which retries with backoff up to its attempt limit before
  * re-throwing.
  *

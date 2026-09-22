@@ -12,12 +12,12 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → SEO's "Add canonical URL tags" toggle — the mechanical fix
+ * Scanning → SEO's "Add canonical URL tags" toggle - the mechanical fix
  * behind Seo\Scanners\CanonicalUrlScanner's finding. That scanner's own
  * docblock explains WordPress core already outputs a canonical tag by
  * default (`rel_canonical()` on `wp_head`); its absence almost always
  * means a theme has removed `wp_head()` entirely or a caching/
- * optimization plugin is stripping head tags — something this plugin
+ * optimization plugin is stripping head tags - something this plugin
  * can't safely repair in the theme/other-plugin's own code. What it CAN
  * safely do is add its own, independent canonical tag as a backup, so the
  * page has one regardless of what stripped core's. Same "wrap a safety
@@ -25,13 +25,13 @@ defined( 'ABSPATH' ) || exit;
  * just for a tag instead of a route.
  *
  * Defaults OFF (Utill::VULOPILOT_SETTINGS_DEFAULTS) since most sites don't
- * need this — core's own tag already covers them; this exists specifically
+ * need this - core's own tag already covers them; this exists specifically
  * for the site that doesn't, discoverable either from Settings → SEO
  * directly or via vulopilot-pro's OneClickFix "Fix" action on this
  * scanner's finding.
  *
  * Self-registers its own hook in the constructor (php-wordpress.md) and
- * is constructed unconditionally in VuloPilot::init_classes() — the
+ * is constructed unconditionally in VuloPilot::init_classes() - the
  * `canonical_url_enabled` setting gates OUTPUT, not construction, same as
  * SitemapManager/RobotsTxtManager.
  *
@@ -47,7 +47,7 @@ class CanonicalUrlManager {
     public function __construct() {
         add_action( 'wp_head', array( $this, 'maybe_output_canonical' ), 5 );
 
-        // The post-editor metabox's Advanced tab canonical override — this
+        // The post-editor metabox's Advanced tab canonical override - this
         // filters WP core's OWN wp_get_canonical_url()/rel_canonical()
         // output directly, so a per-post override always takes effect
         // regardless of the canonical_url_enabled setting above (that
@@ -107,6 +107,6 @@ class CanonicalUrlManager {
             return home_url( '/' );
         }
 
-        return null; // Archives/search/404 — core's own rel_canonical() already skips these too.
+        return null; // Archives/search/404 - core's own rel_canonical() already skips these too.
     }
 }

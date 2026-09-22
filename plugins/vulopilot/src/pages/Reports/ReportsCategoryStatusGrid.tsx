@@ -22,17 +22,17 @@ const statusClass = (status: string): string => {
 };
 
 /**
- * "How is each part of my website doing?" — 7 tiles, one per real
+ * "How is each part of my website doing?" - 7 tiles, one per real
  * category `GET /reports-overview`'s own `categories` array already
  * scores + labels honestly (Controllers\ReportsOverview::build_categories()
- * — "Not applicable" for Store when WooCommerce is inactive, real deltas
+ * - "Not applicable" for Store when WooCommerce is inactive, real deltas
  * everywhere else). Same category set CategoryScoresGrid.tsx (this tab's
  * previous version) covered, now with a real status word and a real delta
  * arrow per tile instead of just a bare score.
  *
  * Each tile is a real link to that category's own detail page
  * (`getCategoryTabLink.ts`, same mapping ReportsHeroCard.tsx's highlight
- * rows use) — was previously a plain non-interactive CardComponent with
+ * rows use) - was previously a plain non-interactive CardComponent with
  * nowhere to go.
  */
 const ReportsCategoryStatusGrid = ({

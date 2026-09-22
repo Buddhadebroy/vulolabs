@@ -36,7 +36,7 @@ class ActivityLogRepository extends AbstractRepository {
     }
 
     /**
-     * User/system/automation counts, zero-filled — backs the Activity
+     * User/system/automation counts, zero-filled - backs the Activity
      * table's status-count pill bar. Activity has no true lifecycle status
      * column, so actor_type is the closest existing categorical dimension
      * (same reasoning as AutomationsRepository::get_status_counts()).
@@ -56,7 +56,7 @@ class ActivityLogRepository extends AbstractRepository {
 
     /**
      * Paginated, searchable, date-ranged activity log rows scoped to an
-     * explicit `event_type` allow-list — what the AI Copilot History tab's
+     * explicit `event_type` allow-list - what the AI Copilot History tab's
      * timeline reads (Controllers/History.php), which only ever cares
      * about `scan.completed`/`ai_action.*` rows, never the Pro-only
      * snapshot event types (`brand_score_snapshot_built` etc.) this same
@@ -64,9 +64,9 @@ class ActivityLogRepository extends AbstractRepository {
      * find_all(): `event_type` values like 'ai_action.executed' contain a
      * dot, and find_all()'s own filterable-column path has no `sanitize_key()`-
      * safe way to pass an explicit type allow-list alongside a separate
-     * free-text `search` — this needs both at once.
+     * free-text `search` - this needs both at once.
      *
-     * @param array{event_types: string[], search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int} $args `event_types` is required and never empty — an empty allow-list would mean "every event type," which no caller here wants.
+     * @param array{event_types: string[], search?: string, date_from?: string, date_to?: string, page?: int, per_page?: int} $args `event_types` is required and never empty - an empty allow-list would mean "every event type," which no caller here wants.
      * @return array{data: array<int, array<string, mixed>>, total: int}
      */
     public function get_timeline( array $args ): array {
@@ -128,14 +128,14 @@ class ActivityLogRepository extends AbstractRepository {
     }
 
     /**
-     * Real rows created within a short window starting at `$after` — used
+     * Real rows created within a short window starting at `$after` - used
      * only by History's "Related actions" (Controllers/History.php), to
      * find an `ai_action.*` row a content-creation conversation turn
      * caused. Safe as a tight window rather than a same-day heuristic
      * because the causing turn and the resulting action are always written
      * in the same PHP request (Controllers\Copilot.php/ContentAssistant.php
      * call the content-creation orchestrator synchronously right after the
-     * AI call that this row's own `ai_history` row logs) — the caller still
+     * AI call that this row's own `ai_history` row logs) - the caller still
      * cross-checks the real requesting user via the joined
      * `vulopilot_ai_action_runs.requested_by` before treating a candidate
      * as related, since this table's own `actor_id` isn't populated by

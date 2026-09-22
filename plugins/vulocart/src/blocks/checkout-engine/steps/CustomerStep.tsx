@@ -5,12 +5,12 @@ import { client } from '../../shared/cart';
 import { registerCheckoutStep } from '../registry';
 
 /**
- * The Customer step — email/name/phone. Prefills from `/customer/me` for
+ * The Customer step - email/name/phone. Prefills from `/customer/me` for
  * a logged-in buyer (Customer module's own guest-first design still lets
- * this fail silently for a guest — see the `.catch()` below). Registered
+ * this fail silently for a guest - see the `.catch()` below). Registered
  * standalone rather than combined with Address (the pre-rewrite wizard's
  * "Customer & Address" step): `vulocart_checkout_steps` reports them as
- * two independent ids, so they render as two independent steps —
+ * two independent ids, so they render as two independent steps -
  * pluggable means genuinely separable, not a hardcoded pairing.
  */
 registerCheckoutStep( {

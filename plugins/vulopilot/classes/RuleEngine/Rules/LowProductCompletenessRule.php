@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\RuleType;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The one recommendation with requires_ai() true but is_fixable() false —
+ * The one recommendation with requires_ai() true but is_fixable() false -
  * Scanners\Basic\ProductCompletenessScanner's score is a composite across
  * 7 fields, so there is no single AIAction that resolves it directly the
  * way MissingProductDescriptionRule pairs with one action. AI can still

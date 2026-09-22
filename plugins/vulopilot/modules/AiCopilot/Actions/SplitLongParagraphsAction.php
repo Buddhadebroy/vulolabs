@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\AIResponse;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GEO-MODULE.md's fix for GeoChunkingScanner's finding — the same
+ * GEO-MODULE.md's fix for GeoChunkingScanner's finding - the same
  * existing-content-rewrite pattern as ImproveReadabilityAction, scoped to
  * a narrower instruction (split paragraphs over
  * GeoChunkingScanner::MAX_PARAGRAPH_WORD_COUNT words at natural sentence
@@ -32,7 +32,7 @@ class SplitLongParagraphsAction extends AbstractBasicAction {
 
     /**
      * A rewrite shorter than this fraction of the original is treated as
-     * more than a paragraph-break pass and rejected — splitting a
+     * more than a paragraph-break pass and rejected - splitting a
      * paragraph shouldn't meaningfully change the total word count, so
      * this stays tighter than ImproveReadabilityAction's own guard.
      */
@@ -85,7 +85,7 @@ class SplitLongParagraphsAction extends AbstractBasicAction {
                     . 'shorter paragraphs. Find any paragraph over about 150 words and split it into two or more shorter '
                     . 'paragraphs at natural sentence/idea boundaries. Do not change any wording, remove any information, '
                     . 'or touch paragraphs that are already a reasonable length. Preserve every HTML tag exactly. '
-                    . 'Respond with ONLY the full rewritten HTML content — no commentary.',
+                    . 'Respond with ONLY the full rewritten HTML content - no commentary.',
             ),
             array(
                 'role'    => 'user',
@@ -116,7 +116,7 @@ class SplitLongParagraphsAction extends AbstractBasicAction {
 
         if ( $original_length > 0 && ( $rewritten_length / $original_length ) < self::MIN_LENGTH_RATIO ) {
             throw new InvalidActionOutputException(
-                __( 'The AI returned content that looks truncated rather than a targeted rewrite — rejected for safety.', 'vulopilot' )
+                __( 'The AI returned content that looks truncated rather than a targeted rewrite - rejected for safety.', 'vulopilot' )
             );
         }
     }

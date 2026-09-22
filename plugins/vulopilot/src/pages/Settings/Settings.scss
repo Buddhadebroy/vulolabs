@@ -112,7 +112,7 @@
 }
 
 // CrawlerAlertTestPanel.tsx (Settings → Notifications → AI Crawler
-// Alerts' own "Send Test Alert" row) — minimal supporting CSS; the panel's
+// Alerts' own "Send Test Alert" row) - minimal supporting CSS; the panel's
 // own result/status text is a real `NoticeComponent` now, styled by
 // NoticeComponent.scss.
 .crawler-alert-test-panel {
@@ -124,7 +124,7 @@
 }
 
 // CardHeader.tsx's own `.common-card*` rules moved to its co-located
-// CardHeader.scss (imported directly by CardHeader.tsx) — see that file.
+// CardHeader.scss (imported directly by CardHeader.tsx) - see that file.
 
 // VuloCloudAiConnectionPanel.tsx/GoogleServicesPanel.tsx/PageSpeedStatusPanel.tsx/
 // SiteVerificationPanel.tsx's own shared card-body shell.
@@ -183,7 +183,7 @@
 }
 
 // Connections/GoogleServicesPanel.tsx (Settings → Connections → Google
-// Services' own Search Console/Analytics/AdSense summary cards) — reuses
+// Services' own Search Console/Analytics/AdSense summary cards) - reuses
 // the `.ai-provider-card*` shapes above (same visual language), adding
 // only what's genuinely new here: the body's info/actions split and the
 // ⋮ menu.
@@ -262,7 +262,7 @@
 
 // Connections/PageSpeedStatusPanel.tsx (Settings → Connections →
 // PageSpeed Insights' own Connection Status pill/Daily API Usage bar/Test
-// Connection button) — reuses the same `.common-card*`/`.gsc-*` shapes
+// Connection button) - reuses the same `.common-card*`/`.gsc-*` shapes
 // above; only the usage bar itself is genuinely new here.
 .psi-usage {
 	width: 100%;
@@ -294,7 +294,7 @@
 }
 
 // Connections/SiteVerificationPanel.tsx (Settings → Connections → Site
-// Verification's own Google/Bing/Pinterest/Other rows) — reuses the same
+// Verification's own Google/Bing/Pinterest/Other rows) - reuses the same
 // `.ai-provider-card*`/`.gsc-*` shapes above; only the code field's own
 // flex sizing is genuinely new here.
 .site-verification-code-field {
@@ -303,7 +303,7 @@
 	margin-bottom: 0;
 }
 
-// Settings/SendTestReportButton.tsx — Settings → Reports' header "Send Test
+// Settings/SendTestReportButton.tsx - Settings → Reports' header "Send Test
 // Report" button. Without Pro it carries an inline "Pro" tag (a plain
 // `.admin-tag.pro-tag` is an absolute-positioned corner ribbon; `.pro-tag-inline`
 // makes it static) beside the button, so the two share one row.
@@ -313,7 +313,7 @@
 	gap: 0.5rem;
 }
 
-// DeveloperToolsPanel.tsx — "Keep VuloPilot data after uninstall" split out
+// DeveloperToolsPanel.tsx - "Keep VuloPilot data after uninstall" split out
 // into its own visually-separated Danger Zone section below the regular
 // `FormGroupWrapperComponent`, since its "Delete everything" option is the
 // one genuinely destructive setting on this tab.

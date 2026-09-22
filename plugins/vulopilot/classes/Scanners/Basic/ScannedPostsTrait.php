@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Gives a per-post scanner a one-line way to record every post it actually
- * considered during scan() — call mark_post_scanned() inside the loop,
+ * considered during scan() - call mark_post_scanned() inside the loop,
  * before any `continue`, so a post that turned out clean is recorded the
  * same as one that produced a Finding. Pairs with
  * Contracts\Scanner\TracksScannedObjectsInterface, which a scanner using

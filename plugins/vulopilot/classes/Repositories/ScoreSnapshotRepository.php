@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * The free tier's daily category score history behind the Performance
- * "Speed History" and Security "Security Trend" cards — a
+ * "Speed History" and Security "Security Trend" cards - a
  * `performance`/`security` slice of `vulopilot_snapshots`. Rows come back
  * as `[ snapshot_date, {category}_score ]` (`performance_score` /
  * `security_score`), the shape the front-end charts read.

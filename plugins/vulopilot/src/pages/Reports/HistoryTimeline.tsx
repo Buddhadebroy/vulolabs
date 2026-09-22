@@ -18,18 +18,18 @@ interface HistoryTimelineProps {
 	onSelectRow: (row: HistoryRow) => void;
 	isLoadingMore: boolean;
 	onLoadMore: () => void;
-	/** Overrides what the trailing arrow does — HistoryTab.tsx's own real use (select the row, open the side detail panel) is the default when this is omitted. The compact "recent activity" widgets that share this component (RecentActivityCard.tsx and friends) have no such panel, so they pass a real navigation instead — e.g. jumping to the full History tab. */
+	/** Overrides what the trailing arrow does - HistoryTab.tsx's own real use (select the row, open the side detail panel) is the default when this is omitted. The compact "recent activity" widgets that share this component (RecentActivityCard.tsx and friends) have no such panel, so they pass a real navigation instead - e.g. jumping to the full History tab. */
 	onArrowClick?: (row: HistoryRow) => void;
-	/** A real `HistoryRow['id']` (as a string, matching every other `pulsingId`/`pulsingKey` convention already in this codebase) to scroll to and briefly pulse-highlight once it renders — HistoryTab.tsx's own real `?vulopilot_history_id=` deep link from RecentActivityWidget.tsx/RecentActivityCard.tsx/AutomationsActivityCard.tsx. `undefined` for every caller that isn't handling that deep link. */
+	/** A real `HistoryRow['id']` (as a string, matching every other `pulsingId`/`pulsingKey` convention already in this codebase) to scroll to and briefly pulse-highlight once it renders - HistoryTab.tsx's own real `?vulopilot_history_id=` deep link from RecentActivityWidget.tsx/RecentActivityCard.tsx/AutomationsActivityCard.tsx. `undefined` for every caller that isn't handling that deep link. */
 	pulsingRowId?: string | null;
 }
 
 /**
  * The real, day-grouped activity timeline HistoryTab.tsx's own "History"
- * tab renders — extracted here verbatim so it's a real, reusable component
+ * tab renders - extracted here verbatim so it's a real, reusable component
  * rather than markup only that one tab can render, per direct instruction.
- * Still HistoryRow-shaped (`historyTypes.ts`'s own `GET /history` row —
- * scan/change objects, a real `tag`/status per row) — every real per-row
+ * Still HistoryRow-shaped (`historyTypes.ts`'s own `GET /history` row -
+ * scan/change objects, a real `tag`/status per row) - every real per-row
  * field (`rowTag`/`rowStatusBadge`/`rowIcon`/`rowTitle`/`rowTime`,
  * `row.scan`/`row.change`) still comes from that same shape, so this only
  * ever renders `HistoryRow[]`, not an arbitrary activity feed.
@@ -38,7 +38,7 @@ interface HistoryTimelineProps {
  * that used to render their own hand-rolled flat `.activity-log`/`.activity`
  * list instead (RecentActivityCard.tsx, RecentActivityWidget.tsx,
  * AutomationsActivityCard.tsx, GEO's OverviewTab.tsx), per direct
- * instruction — see each of those files' own docblock for the real
+ * instruction - see each of those files' own docblock for the real
  * `ActivityLogRow`/`AutomationRunRow` → `HistoryRow` mapping each uses
  * (`category` inferred from the row's own real `event_type` prefix:
  * `scan.*` → 'scan', everything else → 'change', the same fallback
@@ -46,12 +46,12 @@ interface HistoryTimelineProps {
  * specific `event_type` isn't one of the few they special-case). None of
  * those 4 widgets has a real per-row `scan`/`change` detail object the way
  * `GET /history` rows do (that endpoint doesn't join to those source
- * tables), so every row there renders with `scan: null, change: null` —
+ * tables), so every row there renders with `scan: null, change: null` -
  * an honest, already-supported state (`rowTitle()` already falls back to
  * `row.message`, the "N issues found"/before-after meta lines already
  * only render `row.scan`/`row.change` when actually present) rather than
  * fabricated detail. `ActivityTab.tsx`'s own flat `TableCard` (real
- * search/sort/pagination/actor filter) stays separate — HistoryTab.tsx's
+ * search/sort/pagination/actor filter) stays separate - HistoryTab.tsx's
  * own docblock already documents it as "a different, narrower view, kept
  * as its own separate tab rather than merged with this one", a past
  * direct instruction this file doesn't reverse.
@@ -82,7 +82,7 @@ const HistoryTimeline = ({
 						const title = rowTitle(row);
 						// `rowTitle()` already falls back to `row.message`
 						// when there's no real `scan`/`change` detail to
-						// title itself with — a row in that state (every
+						// title itself with - a row in that state (every
 						// row the "recent activity" widgets feed through
 						// this component, none of which has a real
 						// scan/change join) would otherwise show the exact

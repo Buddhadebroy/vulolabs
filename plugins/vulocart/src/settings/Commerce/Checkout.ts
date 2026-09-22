@@ -2,9 +2,9 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * Backed by `Utill::SETTINGS_DEFAULTS`'s Checkout section. There is no
- * dedicated Checkout module/table in this codebase — a Cart becomes an
+ * dedicated Checkout module/table in this codebase - a Cart becomes an
  * Order directly via `Order\Application\OrderService::create_from_cart()`
- * — but every field here is genuinely enforced: `guest_checkout_enabled`
+ * - but every field here is genuinely enforced: `guest_checkout_enabled`
  * gates order placement both client-side (the checkout wizard's Customer
  * step, via `Block.php`'s `print_frontend_config()`) and server-side
  * (`Order\Rest::create_item()`, so a direct API call can't bypass the
@@ -26,7 +26,7 @@ export default {
 			type: 'select',
 			label: __( 'Checkout layout', 'vulocart' ),
 			desc: __(
-				'Domain\\Checkout\\CheckoutMode — which layout the storefront Checkout Engine renders its registered steps in.',
+				'Domain\\Checkout\\CheckoutMode - which layout the storefront Checkout Engine renders its registered steps in.',
 				'vulocart'
 			),
 			options: [

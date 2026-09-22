@@ -17,10 +17,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Covers both of Scanners\Basic\ProductInventoryHealthScanner's checks
- * ('invalid_stock_quantity' and 'instock_zero_quantity') under one rule —
+ * ('invalid_stock_quantity' and 'instock_zero_quantity') under one rule -
  * both are the same underlying problem (the tracked quantity doesn't
  * reflect reality) and warrant the identical recommendation: go verify and
- * correct the real stock count. Not AI-fixable — the actual quantity is
+ * correct the real stock count. Not AI-fixable - the actual quantity is
  * physical-world information this codebase has no way to know.
  *
  * @class       ProductInventoryIssueRule class

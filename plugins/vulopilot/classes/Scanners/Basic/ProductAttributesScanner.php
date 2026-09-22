@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags variable products with zero attributes defined. A variable
- * product's variations are generated from its attributes — with none set,
+ * product's variations are generated from its attributes - with none set,
  * WooCommerce cannot generate any variation at all, so the product is
  * effectively unpurchasable despite appearing to exist. Simple products
  * are skipped entirely: attributes are optional filtering/display data for

@@ -12,13 +12,13 @@ use VuloPilot\Repositories\AutomationsRunRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET /store-readiness — "Commerce"'s live store-status checklist
+ * GET /store-readiness - "Commerce"'s live store-status checklist
  * (`StoreReadinessCard.tsx`) and the informational (not "problem")
  * numbers its category-card grid needs. Deliberately separate from the
  * Findings/scanner system: these are live facts about the store's
  * *current* configuration (a page either exists and is published right
  * now, or it doesn't), not persistent issues with an open/resolve/ignore
- * lifecycle — recomputed fresh on every request rather than only as-of
+ * lifecycle - recomputed fresh on every request rather than only as-of
  * the last scan run. Real order/checkout *problems* (failed orders,
  * stale orders, gateway test-mode, outdated templates) are genuine
  * scanner findings instead (WooCommerceFailedOrdersScanner and its

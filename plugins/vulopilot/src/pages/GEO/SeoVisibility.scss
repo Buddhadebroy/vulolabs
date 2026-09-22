@@ -1,6 +1,6 @@
 @use '../../components/config' as *;
 
-// SeoSiteWideIssuesTable.tsx's row actions (Resolve/Fix with AI/Ignore) —
+// SeoSiteWideIssuesTable.tsx's row actions (Resolve/Fix with AI/Ignore) -
 // zyra's BadgeComponent only ships specific semantic status classes
 // (badge-resolved, badge-high, …), not generic color names, so these 3
 // get their own scoped rules here rather than reusing an unrelated
@@ -12,10 +12,10 @@
 	background: color-mix(in srgb, #{$color-success} 14%, transparent);
 }
 
-// Orange — same "Fix with AI" convention every other real AI-action
+// Orange - same "Fix with AI" convention every other real AI-action
 // button in this plugin now uses (`color: 'orange-bg'`, e.g.
 // IssueDetailPanel.tsx/RecentContentCard.tsx's own "Fix with AI"
-// ButtonInput) — kept as its own scoped rule rather than switched to
+// ButtonInput) - kept as its own scoped rule rather than switched to
 // zyra's `color: 'orange-bg'` prop since BadgeComponent only ships
 // specific semantic status classes, not that generic palette (see this
 // block's own docblock above).
@@ -95,7 +95,7 @@
 // GeoTab.tsx's own two static explanatory banners, plus every other
 // "In plain English:"/AEO/AI-account-data disclosure banner across GEO
 // (SeoTab.tsx, AeoTab.tsx, KeywordsTab.tsx, BrandVisibilityTab.tsx,
-// GoogleServicesPanel.tsx) — all now render through zyra's own
+// GoogleServicesPanel.tsx) - all now render through zyra's own
 // NoticeComponent (`type="banner"` + `displayPosition="inline"`,
 // NoticeComponent.scss's own `.type-banner`/`.display-inline` rules), so no
 // local styling is needed here anymore.
@@ -109,11 +109,11 @@
 	flex-wrap: wrap;
 
 	// zyra ChartComponent's own pie legend always renders each slice's raw
-	// value under the donut (e.g. "45  55") regardless of `centerLabel` —
+	// value under the donut (e.g. "45  55") regardless of `centerLabel` -
 	// genuine duplicate data next to the real score this component's own
 	// `centerLabel` already shows front and center (direct instruction:
-	// "duplicate data show in the section"). Hidden here — not patched in
-	// zyra itself, a separate external package — for every real score-ring
+	// "duplicate data show in the section"). Hidden here - not patched in
+	// zyra itself, a separate external package - for every real score-ring
 	// gauge that uses this same wrapper class. `!important` for the same
 	// reason ProtectMySite.scss's own identical rule already documents:
 	// zyra's own base `.zyra-chart-pie-legend` rule is injected into a
@@ -164,7 +164,7 @@
 	}
 }
 
-// GeoVisibilityOverviewRow.tsx's "The 4 things AI checks for" card — a real
+// GeoVisibilityOverviewRow.tsx's "The 4 things AI checks for" card - a real
 // Zyra `<AnalyticsComponent>` (`.analytics-container`/`.analytics-item`
 // supply the tile chrome) instead of the hand-rolled tile markup this used
 // to be, same `.analytics-item.is-*` `colorClass` conversion SeoTab.tsx's
@@ -210,7 +210,7 @@
 // BrandScoreCard.tsx's own score-rating pills, passed through as
 // `badgeClassName` on zyra `AnalyticsComponent`'s own `variant="score-ring"`
 // tiles (that component only ships specific semantic status classes, not
-// generic color names — see `BadgeComponent`'s own docblock) — also reused
+// generic color names - see `BadgeComponent`'s own docblock) - also reused
 // as-is by `.geo-four-checks-analytics`'s own tiles above.
 .geo-four-checks-badge {
 	&.is-good {
@@ -232,14 +232,14 @@
 // GeoFixTheseFirstCard.tsx. zyra's own ListComponent positions its
 // `.tags` badge absolutely (`top: 40.5px; right: 0`), sized for the
 // single-line title it's normally paired with (OpenIssuesGlimpse.tsx's own
-// usage never passes `desc`) — this card's own real per-finding description
+// usage never passes `desc`) - this card's own real per-finding description
 // is genuinely 1-3 sentences long, which pushed the row taller than the
 // badge's fixed offset expects and overlapped it. Clamped to one line +
 // ellipsis rather than dropped outright, so the real text is still there
 // (title attribute) without fighting zyra's own absolute positioning.
 // Selector confirmed live against the actual rendered DOM (OverviewTab.tsx's
 // own "Top Opportunities" card, the first real place this component ever
-// got rendered) — zyra's current ListComponent renders the description in
+// got rendered) - zyra's current ListComponent renders the description in
 // `.typography.typography-desc`, not a bare `.desc`; the previous selector
 // silently matched nothing.
 .geo-fix-first-list .typography-desc {
@@ -314,7 +314,7 @@
 	color: $sub-text-color;
 }
 
-// CompetitorVisibilityCard.tsx (Pro, GeoInsights) — its own bundle has no
+// CompetitorVisibilityCard.tsx (Pro, GeoInsights) - its own bundle has no
 // SCSS of its own, so it renders inside this page sharing this
 // stylesheet, same "Pro has no SCSS of its own" pattern established for
 // Automation's own Pro form classes.
@@ -371,7 +371,7 @@
 // GeoByTopicGrid.tsx.
 .geo-by-topic-section {
 	// This tab's content area is a flex row (zyra's own tab-content
-	// wrapper) — without an explicit full-bleed width, a bare block like
+	// wrapper) - without an explicit full-bleed width, a bare block like
 	// this one shrinks to fit its own (narrow) tile content instead of
 	// claiming the row, and packs side-by-side with whatever bare block
 	// happens to follow it (AeoTab.tsx's own "Need Help Improving?" band
@@ -389,7 +389,7 @@
 }
 
 // `.geo-by-topic-grid`/`.geo-by-topic-tile`/`.geo-by-topic-tile-header`/
-// `.geo-by-topic-tile-title` were removed here — that grid shell (auto-fit
+// `.geo-by-topic-tile-title` were removed here - that grid shell (auto-fit
 // columns, icon chip, title, badge) now comes from the real
 // `<MetricTileComponent>` (@zyra/components, MetricTileComponent.scss);
 // only this card's own divergent stat body below (passed through that
@@ -403,7 +403,7 @@
 }
 
 // Two-stat tile layout (real "Open issues" + real distinct "Affected
-// pages") — GeoByTopicGrid.tsx's own `affectedPagesByScanner` prop, wired
+// pages") - GeoByTopicGrid.tsx's own `affectedPagesByScanner` prop, wired
 // up by GeoTab.tsx (useGeoTopicAffectedPages.ts). Falls back to the single
 // `.geo-by-topic-tile-sublabel` line above when that prop isn't passed.
 .geo-by-topic-tile-stats {
@@ -509,7 +509,7 @@
 	font-size: 1.0625rem;
 }
 
-// BusinessUnderstandingCard.tsx's own 4 featured tiles — real found/missing
+// BusinessUnderstandingCard.tsx's own 4 featured tiles - real found/missing
 // state reuses the same is-good/is-attention color language every other
 // rating badge on this tab shell already uses (GeoTab.tsx's own
 // ratingClass(), etc.).
@@ -541,10 +541,10 @@
 	}
 }
 
-// KnowledgeGraphSection.tsx's own "What AI & Search Understand" card — real
+// KnowledgeGraphSection.tsx's own "What AI & Search Understand" card - real
 // entity-type count list, vulopilot-pro's real relationship diagram, and
 // the currently active tab's own real detail panel, all 3 side by side in
-// one row (rather than the 3rd dropping to a full-width row underneath —
+// one row (rather than the 3rd dropping to a full-width row underneath -
 // direct instruction).
 .kg-understand-grid {
 	display: grid;
@@ -554,7 +554,7 @@
 }
 
 // Real `ListComponent` (@zyra/components) now, not a hand-rolled `<ul>/<li>`
-// — `className="kg-understand-count-list"` opts out of every one of that
+// - `className="kg-understand-count-list"` opts out of every one of that
 // component's own built-in variants (mini-card/report/notification/…), so
 // its `.item`/`.item-icon`/`.details`/`.tags` markup gets no default
 // styling of its own; this scopes the exact same look the old `<li>` row
@@ -595,7 +595,7 @@
 			outline: none;
 		}
 
-		// The currently selected tab — same $color-primary-background/$theme-color
+		// The currently selected tab - same $color-primary-background/$theme-color
 		// accent every other "active" state in this stylesheet already uses.
 		&.is-active {
 			background: $color-primary-background;
@@ -615,7 +615,7 @@
 	padding: 0.5rem;
 }
 
-// .kg-understand-grid's own 3rd column — the selected tab's own real
+// .kg-understand-grid's own 3rd column - the selected tab's own real
 // entity detail (EntityDetailContent), consolidating what used to be 5
 // separate cards (Products/Categories/People/Locations/Services) into this
 // one card. Bordered like .kg-understand-graph beside it so all 3 columns
@@ -644,7 +644,7 @@
 	font-size: 0.9375rem;
 }
 
-// BusinessUnderstandingCard.tsx — real score gauge + a real pill badge
+// BusinessUnderstandingCard.tsx - real score gauge + a real pill badge
 // underneath it (separate from the ring's own center label, matching the
 // reference mockup's own "ring, then a standalone Good/Needs Work/Poor
 // pill below it" layout).
@@ -690,7 +690,7 @@
 // }
 
 // Business Locations' own real 0-state (EntityHighlightCard's `emptyState`)
-// — a permanent explainer callout, not a dismissible NoticeComponent (this
+// - a permanent explainer callout, not a dismissible NoticeComponent (this
 // isn't "something just happened," it's always-true context for as long as
 // no locations are configured).
 .kg-why-it-matters {
@@ -736,7 +736,7 @@
 	font-size: 0.8125rem;
 
 	// The real name/link itself truncates when a row also carries its own
-	// status badge (Categories' own real Good/"Needs cleanup" flag) —
+	// status badge (Categories' own real Good/"Needs cleanup" flag) -
 	// applies to both the plain `<span>` (no real url) and `<a>` (real
 	// term link) cases, since either can be this row's first child.
 	> a,
@@ -751,39 +751,39 @@
 	margin-top: 0.5rem;
 }
 
-// SeoTab.tsx's "SEO checks at a glance" — 5 real category tiles, now a real
+// SeoTab.tsx's "SEO checks at a glance" - 5 real category tiles, now a real
 // Zyra `<AnalyticsComponent variant="small-card">` (`.analytics-container`/
 // `.analytics-item` supply the tile chrome, real `$color-palette` border/
 // background tint included) instead of the hand-rolled tile markup this
 // used to be. `colorClass` is one of that same real palette's own names
-// now (`ratingColor()` in SeoTab.tsx — `green`/`yellow`/`red`, same
+// now (`ratingColor()` in SeoTab.tsx - `green`/`yellow`/`red`, same
 // convention `BrandScoreCard.tsx`'s own `MetricTileComponent` score tiles
 // already established), not the bespoke `is-good`/`is-attention`/`is-poor`
-// classes this rule used to key off — those never actually matched
+// classes this rule used to key off - those never actually matched
 // `small-card`'s own compiled `@each $name, $style in $color-palette` tint
 // rule (`.green`/`.yellow`/`.red`, not `.is-good` etc.), so every tile here
 // silently rendered untinted before this fix. Zyra's own rule only colors
-// `.card-graph`/`.details .text`, not the big score number itself — this
+// `.card-graph`/`.details .text`, not the big score number itself - this
 // still supplements that with a real `.number` color per rating so the
 // score reads at a glance the same way the reference mockup's own tiles do.
-// Fixed per-category icon identity colors — independent of `colorClass`'s
+// Fixed per-category icon identity colors - independent of `colorClass`'s
 // real live-status tint above (a `purple` "Titles & Meta" icon can sit next
 // to a `red` status border when that category's real score is Poor).
 // zyra's own `small-card` template hides `.analytics-icon` unconditionally
 // (`display: none` in its own runtime-injected CSS, confirmed by reading
-// its compiled source — a real, deliberate zyra default, not a bug this
-// codebase can patch upstream) — overridden here the same way
+// its compiled source - a real, deliberate zyra default, not a bug this
+// codebase can patch upstream) - overridden here the same way
 // AICopilot.scss's own `.zyra-chart-pie-legend` rule already documents
 // needing `!important` for: that rule is injected into a runtime
 // `<style>` tag, landing later in the cascade than any statically-compiled
 // CSS at equal specificity.
-// "SEO areas" grid — now a real `<MetricTileComponent>` (@zyra/components;
-// takes the whole `data` array and lays out its own grid — no separate
+// "SEO areas" grid - now a real `<MetricTileComponent>` (@zyra/components;
+// takes the whole `data` array and lays out its own grid - no separate
 // grid-wrapper component). The old `.seo-category-grid`/`.analytics-*`/
 // `.seo-area-tile-title`/`.seo-area-tile-pill`/`.seo-area-tile-score`/
 // `.seo-area-tile-issues`/`.seo-area-tile-pages` overrides that used to
 // hand-restyle a raw `<AnalyticsComponent>` for this same grid are gone
-// along with it — `number`/`stat`/`desc` (real 0-100 score/open-issue
+// along with it - `number`/`stat`/`desc` (real 0-100 score/open-issue
 // count/affected-pages line) now render through that component's own
 // `.metric-tile-number`/`.metric-tile-stat`/`.desc` styling instead, and
 // the real click-to-jump-to-issues rating pill is that same component's
@@ -791,16 +791,16 @@
 // affordance now ships with `MetricTileComponent.scss` itself, no local
 // copy needed here any more). `$seo-area-icon-colors` moved to
 // SeoTab.tsx's own `SEO_AREA_ICON_COLORS` (real per-category identity
-// hex, passed straight to `MetricTileItem`'s own `iconColor` — no colored
+// hex, passed straight to `MetricTileItem`'s own `iconColor` - no colored
 // chip behind the icon any more, unlike this grid's old bespoke look).
 
-// SeoTab.tsx's own "SEO Health Score" hero card — the real ring
+// SeoTab.tsx's own "SEO Health Score" hero card - the real ring
 // (`.geo-overall-visibility`, shared with every other score-ring gauge
 // across GEO/AEO/SEO), a real Pages checked/Issues found pair (each with
 // its own real week-over-week delta), a divider, then real Critical/High
-// priority counts — same real numbers `.seo-category-grid` above and the
+// priority counts - same real numbers `.seo-category-grid` above and the
 // rest of this tab already read, just regrouped to match the reference
-// mockup's own layout. No delta shown under "Pages checked" — unlike
+// mockup's own layout. No delta shown under "Pages checked" - unlike
 // Issues found/Critical/High, `Seo.php`'s own `/seo/score` endpoint has no
 // real historical count to diff `pages_checked` against (see
 // SeoScoreResponse's own docblock), so it stays a bare real number rather
@@ -812,7 +812,7 @@
 }
 
 // "Overall SEO Score" title/summary/"Run Complete Audit" copy block,
-// alongside the ring — reference mockup's own left-hand layout.
+// alongside the ring - reference mockup's own left-hand layout.
 .seo-health-score-ring-copy {
 	flex: 1 1 14rem;
 	min-width: 12rem;
@@ -829,7 +829,7 @@
 // this codebase's own "duplicate small per-file logic" convention rather
 // than reaching into another page's scss file. Color itself comes from
 // `TypographyComponent`'s own `color={ratingColor(...)}` prop, not a class
-// here — this only sets weight/spacing.
+// here - this only sets weight/spacing.
 .seo-health-score-row-value {
 	font-weight: 700;
 }
@@ -849,7 +849,7 @@
 
 .seo-health-score-stats-severity {
 	flex: 0 1 16rem;
-	// Critical/High priority stack vertically here (reference mockup) —
+	// Critical/High priority stack vertically here (reference mockup) -
 	// overrides the inherited `.seo-health-score-stats` auto-fit grid,
 	// which side-by-sides Pages checked/Issues found instead.
 	grid-template-columns: 1fr;
@@ -886,13 +886,13 @@
 	}
 }
 
-// SeoIssuesSection.tsx — wraps the shared filter bar and the two real
+// SeoIssuesSection.tsx - wraps the shared filter bar and the two real
 // tables it renders side by side ("Site-wide Issues" +
 // SeoIssuesByPageTable.tsx's page/post-wise table). Filter pills use
-// zyra's real `<TabsComponent>` (`.seo-issues-filter-tabs`) — the same
+// zyra's real `<TabsComponent>` (`.seo-issues-filter-tabs`) - the same
 // component `SectionedIssuesTable.tsx` migrated to, which ships its own
 // tab-bar/underline/active-state styling via NavigatorComponent.scss
-// (global, not scoped to any one page) — no new pill CSS needed here. The
+// (global, not scoped to any one page) - no new pill CSS needed here. The
 // old hand-rolled `.sectioned-issues-tabs`/`.sectioned-issues-tab*` markup
 // this section used before was left unstyled after that CSS was
 // deliberately removed from ProtectMySite.scss for the same reason.
@@ -901,14 +901,14 @@
 	// `#geo-all-issues-table`/AeoTab.tsx's `#aeo-all-issues-table`/
 	// SeoTab.tsx's own equivalent) is a plain, unwrapped `<div>` sitting
 	// directly among that tab's other real children inside the page's
-	// outer `ContainerComponent general` — a `display: flex` row
+	// outer `ContainerComponent general` - a `display: flex` row
 	// container. Without an explicit flex-basis, a bare block child there
 	// only claims its own content's natural width (the two real tables'
 	// own intrinsic size, ~650px) and leaves the rest of that row empty
-	// instead of filling it — a real, confirmed-live layout bug, not a
+	// instead of filling it - a real, confirmed-live layout bug, not a
 	// design choice (every ColumnComponent-wrapped sibling elsewhere on
 	// these tabs gets this exact same full-row sizing via its own
-	// `[data-cols='12']` class, see ContainerComponent.scss — this section
+	// `[data-cols='12']` class, see ContainerComponent.scss - this section
 	// just never had an equivalent). One fix here covers all three tabs at
 	// once.
 	flex: 1 1 100%;
@@ -919,7 +919,7 @@
 	}
 
 	// Real spacing between the two split CardComponents (`.card-content`'s
-	// own bottom margin doesn't apply here — these are direct siblings in
+	// own bottom margin doesn't apply here - these are direct siblings in
 	// this wrapper `<div>`, not children of a ColumnComponent).
 	.seo-sitewide-issues-card {
 		margin-bottom: 1.5rem;
@@ -929,7 +929,7 @@
 .seo-issues-by-page-card {
 	// zyra's own Table.tsx already styles `.admin-row.variation-row`
 	// (transparent background, thin divider) for its native `expandable`
-	// row mechanism — this only adds the muted, slightly denser look that
+	// row mechanism - this only adds the muted, slightly denser look that
 	// distinguishes a single finding from a page row.
 	.admin-row.variation-row {
 		background: $theme-background-color !important;
@@ -938,19 +938,19 @@
 		// A finding sub-row already renders its own title without the
 		// click-to-expand wrapper (SeoIssuesByPageTable.tsx's own
 		// `isFindingRow` branch skips `seo-issues-row-expand-trigger`
-		// entirely) — this only covers the `visibility_score` column,
+		// entirely) - this only covers the `visibility_score` column,
 		// which reuses the same trigger class for its parent-row click
 		// target. Per direct instruction, a finding row has nothing to
 		// expand and no per-finding action either, so both the trigger
 		// and the action column's own `BadgeComponent` array
-		// (`.admin-badges-wrapper` — the title cell's own badges render
+		// (`.admin-badges-wrapper` - the title cell's own badges render
 		// one-at-a-time via `BadgeComponent`'s single-badge mode instead,
 		// a bare `.admin-badge` with no wrapper div, so this never
 		// touches those) stay hidden here rather than showing an inert
 		// click target.
 	}
 
-	// Per direct instruction: no visible chevron — the whole row (title,
+	// Per direct instruction: no visible chevron - the whole row (title,
 	// status, issue count, date) is the click target instead
 	// (`toggleRowExpansion` in SeoIssuesByPageTable.tsx fires a real click
 	// on this same, now-hidden `<i>` so zyra's own internal expand state
@@ -962,7 +962,7 @@
 	// needs elsewhere in this table, but `.geo-page-visibility-bar`'s own
 	// `min-width` (SeoVisibility.scss, shared with what used to be
 	// `GeoPageAnalysisTable.tsx`'s own copy) can end up a few px wider than
-	// this table's auto-sized column — confirmed live, clipping the "N%"
+	// this table's auto-sized column - confirmed live, clipping the "N%"
 	// label into the next column instead of just tightening the bar. This
 	// one cell needs to stay visible instead.
 	td:has(.geo-page-visibility-bar) {
@@ -974,7 +974,7 @@
 	cursor: pointer;
 }
 
-// BrokenLinksSection.tsx — flat, one-row-per-finding table matching the
+// BrokenLinksSection.tsx - flat, one-row-per-finding table matching the
 // reference mockup's own layout (no page-grouping/expand chevron).
 .broken-link-monitoring-table {
 	.admin-row {
@@ -993,7 +993,7 @@
 	font-size: 0.9375rem;
 }
 
-// "Link Type" column — Internal/External (isExternalFinding), a plain
+// "Link Type" column - Internal/External (isExternalFinding), a plain
 // pill rather than reusing BadgeComponent's own semantic red/green
 // classes, which would misread a neutral fact (where the URL points) as
 // a severity signal.
@@ -1021,9 +1021,9 @@
 	vertical-align: bottom;
 }
 
-// Actions column — eye (open target URL)/link (create redirect) as two
+// Actions column - eye (open target URL)/link (create redirect) as two
 // standalone icon buttons, plus RowActionsMenu's own kebab for the
-// remaining actions (Mark resolved/Ignore/Snooze/Fix) — matches the
+// remaining actions (Mark resolved/Ignore/Snooze/Fix) - matches the
 // reference mockup's own 3-icon action row without cramming 6 actions
 // into RowActionsMenu's inline (<=2 actions) mode.
 .broken-link-row-actions {
@@ -1059,7 +1059,7 @@
 	}
 }
 
-// RedirectsSection.tsx — same icon-button/kebab action-row shell as
+// RedirectsSection.tsx - same icon-button/kebab action-row shell as
 // .broken-link-row-actions/.broken-link-icon-btn above, kept as its own
 // `redirect-` prefixed rule per this codebase's own per-feature naming
 // convention rather than a shared generic utility class.
@@ -1166,7 +1166,7 @@
 	}
 }
 
-// CrawlRobotsSitemapSection.tsx — "llms.txt content" card, moved here from
+// CrawlRobotsSitemapSection.tsx - "llms.txt content" card, moved here from
 // Settings → AI Visibility.
 .llms-txt-card-field {
 	.textarea-input {
@@ -1202,7 +1202,7 @@
 }
 
 // Sub-row rendered inline (via zyra TableCard's `expandable`/`variation`
-// mechanism) for a single finding beneath its page's row — a real table
+// mechanism) for a single finding beneath its page's row - a real table
 // row, not a popover.
 .seo-issues-finding-title {
 	display: flex;
@@ -1265,7 +1265,7 @@
 	}
 }
 
-// SeoTab.tsx — "Search engine access" tiny status line, reusing
+// SeoTab.tsx - "Search engine access" tiny status line, reusing
 // .crawler-health-status's own is-good/is-warning colors (same real
 // robots-txt/sitemap/ai-crawler-blocked-pages findings Crawler Traffic's
 // own Overall Crawl Health status reads, just linked out to instead of
@@ -1342,13 +1342,13 @@
 	white-space: nowrap;
 }
 
-// VisibilityBySourceCard.tsx — donut + legend side by side (dot/name/
+// VisibilityBySourceCard.tsx - donut + legend side by side (dot/name/
 // count/% columns), matching the reference mockup's own "Visibility by
 // Source" layout. Deliberately separate from .crawler-vendor-* above (that
 // block is shared with CrawlerAnalyticsSection.tsx's own stacked
 // donut+legend, a different layout this card doesn't use). Was
 // `.visibility-area-*`, styling an earlier version of this same card slot
-// that showed the 4 real area scores instead of real GA4 traffic sources —
+// that showed the 4 real area scores instead of real GA4 traffic sources -
 // renamed along with that swap so the class names describe what's actually
 // rendered; see VisibilityBySourceCard.tsx's own docblock.
 .visibility-source-body {
@@ -1362,7 +1362,7 @@
 	// is required here, not cosmetic: as a flex item of `.visibility-source-body`
 	// with no intrinsic width of its own, recharts' `ResponsiveContainer`
 	// inside it (width:100% of an otherwise indefinite parent) collapses to
-	// 0×0 and never renders — confirmed live, the donut silently
+	// 0×0 and never renders - confirmed live, the donut silently
 	// disappeared until this was added.
 	flex-shrink: 0;
 	width: 10rem;
@@ -1447,7 +1447,7 @@
 	white-space: nowrap;
 }
 
-// CrawlerAnalyticsSection.tsx's "Overall Crawl Health" ring — same 2-slice
+// CrawlerAnalyticsSection.tsx's "Overall Crawl Health" ring - same 2-slice
 // score/remaining `ChartComponent type="pie"` + `centerLabel` shape
 // GeoScoreSection.tsx's own "GEO Score" ring already establishes, reusing
 // its `.score-ring-number`/`.score-ring-label`/`.geo-overall-rating`
@@ -1458,7 +1458,7 @@
 }
 
 // CrawlerAnalyticsSection.tsx's "View all" links under Top Crawlers/Most
-// Crawled Pages — real scroll-anchor jumps to "Recent Crawl Requests"
+// Crawled Pages - real scroll-anchor jumps to "Recent Crawl Requests"
 // (CrawlOverviewSection.tsx's own `#recent-crawl-requests`), same
 // "honest, real anchor rather than a dead link" pattern
 // CrawlRobotsSitemapSection.tsx's own "View blocked pages" link already
@@ -1475,10 +1475,10 @@
 	}
 }
 
-// CrawlerAnalyticsSection.tsx's "Crawl Health Checklist" — a real zyra
+// CrawlerAnalyticsSection.tsx's "Crawl Health Checklist" - a real zyra
 // `<ListComponent>` (icon + label + real Good/Warning/Checking… badge per
 // item, via `tags`) styled as the reference mockup's own horizontal chip
-// row instead of that component's default vertical list — targets its own
+// row instead of that component's default vertical list - targets its own
 // `.item-list`/`.item`/`.item-icon`/`.item-title` classes rather than the
 // bespoke `.crawler-checklist-chip`/`-chip-label` markup this used to be.
 .crawler-checklist-row.item-list {
@@ -1509,7 +1509,7 @@
 	}
 }
 
-// StructuredDataSection.tsx's own "Schema Status" summary card — 4 real
+// StructuredDataSection.tsx's own "Schema Status" summary card - 4 real
 // per-page/per-type counts (Pages checked/Pages with valid schema/Need
 // attention/Schema types detected), each with a distinct colored circular
 // icon rather than the shared single-purple `.kg-glance-icon` tile
@@ -1521,7 +1521,7 @@
 	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
 	gap: 1.5rem;
 	// Schema Status and Schema Coverage now share one card (merged, no
-	// separate section between them) — this bottom margin is what used to
+	// separate section between them) - this bottom margin is what used to
 	// be free spacing between two adjacent cards.
 	margin-bottom: 1.5rem;
 	padding-bottom: 1.5rem;
@@ -1617,10 +1617,10 @@
 }
 
 // StructuredDataSection.tsx's own row detail panel (grid={4} column,
-// "Schema details"/`{selectedRow.type}` card) — real status + real
+// "Schema details"/`{selectedRow.type}` card) - real status + real
 // found-on/problems line, above the "Pages with {type} schema" list below
 // (used to be a popup's own content; same list, now rendered inline in
-// this side panel instead — see this file's own docblock).
+// this side panel instead - see this file's own docblock).
 .schema-detail-stats {
 	display: flex;
 	align-items: center;
@@ -1683,7 +1683,7 @@
 	}
 }
 
-// InspectorSection.tsx's own pre-selection hint — a compact one-line
+// InspectorSection.tsx's own pre-selection hint - a compact one-line
 // alternative to the picker, shown only before any page has been chosen
 // (real Schema Validator link-out, same one the post-selection actions
 // row below also offers, just re-targeted once a real page is picked).
@@ -1696,7 +1696,7 @@
 
 // SchemaKnowledgeTab.tsx's own inline section headings (Structured
 // Data/Knowledge Graph/Inspector/Issues, all on one continuous page per
-// direct instruction — no inner tab switcher) — same shape AI Copilot's
+// direct instruction - no inner tab switcher) - same shape AI Copilot's
 // ChatTab.tsx already uses for its own inline "Issues" section heading.
 .schema-knowledge-inline-section-heading {
 	display: flex;
@@ -1713,7 +1713,7 @@
 }
 
 // The very first section on the page (Structured Data) sits directly
-// under the outer "Schema & Knowledge" tab bar with nothing above it —
+// under the outer "Schema & Knowledge" tab bar with nothing above it -
 // no divider/top-space needed there, only between sections.
 .schema-knowledge-section:first-child .schema-knowledge-inline-section-heading {
 	margin-top: 0;
@@ -1741,7 +1741,7 @@
 	}
 }
 
-// Shared by "Detected schema"/"Problems found"/"Conflicts detected" — same
+// Shared by "Detected schema"/"Problems found"/"Conflicts detected" - same
 // row shape (a status icon + text), just a different icon/color per column,
 // rather than 3 near-identical list rules.
 .schema-inspector-check-list {
@@ -1800,7 +1800,7 @@
 
 .schema-inspector-jsonld-block {
 	// Own box (border/background/gutter) now comes from CodeBlock.tsx's
-	// own `.rt-editor` shell (common.scss) — this class is just spacing
+	// own `.rt-editor` shell (common.scss) - this class is just spacing
 	// between multiple blocks now, not a second box around it.
 	margin: 0 0 0.75rem;
 
@@ -1823,7 +1823,7 @@
 }
 
 // The real, live-generated AI answer AeoEngineTestingCard.tsx's own
-// cited/not-cited judgment was made from — shown so a re-test visibly
+// cited/not-cited judgment was made from - shown so a re-test visibly
 // produces different real text each time instead of only a static
 // verdict.
 .aeo-engine-testing-answer {
@@ -1854,13 +1854,13 @@
 }
 
 // vulopilot-pro's own (moved) KeywordsTab.tsx's real 6-stat-card row (Total
-// Keywords/Top 3/Top 10/Avg. Position/Estimated Traffic/Impressions) — each
+// Keywords/Top 3/Top 10/Avg. Position/Estimated Traffic/Impressions) - each
 // card's own real trend sparkline is zyra ChartComponent's `type="area"
 // sparkline` mode, fed real `vulopilot_keyword_rankings` history
 // (Rest::get_summary()'s own `trend` block), not a decorative shape. Kept
 // here (not moved into Pro's own stylesheet) because this page's
 // SeoVisibility.scss is always loaded regardless of which plugin's JS
-// renders the card — same reasoning every other Free/Pro split card style
+// renders the card - same reasoning every other Free/Pro split card style
 // on this page already follows.
 .keyword-stat-card {
 	display: flex;
@@ -1897,7 +1897,7 @@
 	margin-top: 0.25rem;
 }
 
-// PositionChangeCell (Ranking Keywords table's own "Change" column) — a
+// PositionChangeCell (Ranking Keywords table's own "Change" column) - a
 // real query with no row on the previous real sync date at all, told apart
 // from a real "no change" (.crawler-change.is-neutral, reused as-is).
 .keyword-change-new {
@@ -1936,15 +1936,15 @@
 }
 
 
-// SchemaKnowledgeTab.tsx's own real in-page header — GEO.tsx's shared
-// AeoScoreSummaryCard.tsx — the reference mockup's own "AEO Score" card:
+// SchemaKnowledgeTab.tsx's own real in-page header - GEO.tsx's shared
+// AeoScoreSummaryCard.tsx - the reference mockup's own "AEO Score" card:
 // gauge + real "Goal: 70+" nudge on the left, 4 real stat rows on the
 // right, replacing this tab's previous 3-card row. Also reused as-is by
 // GeoVisibilitySummaryCard.tsx's own "Overall AI Visibility" card (direct
-// instruction: "merge this sections and design like attached image" — the
+// instruction: "merge this sections and design like attached image" - the
 // same gauge-left/stat-rows-right shape, just with a real trend readout in
 // the goal-box slot and 4 real rating badges instead of AEO's own 4 plain
-// values) — the `aeo-score-*` class names predate that 2nd usage and
+// values) - the `aeo-score-*` class names predate that 2nd usage and
 // weren't renamed to something more generic, same "reuse the existing
 // class rather than fork a near-identical one" pattern
 // `.geo-overall-visibility` itself already set for AeoScoreSummaryCard.tsx.
@@ -1956,11 +1956,11 @@
 .aeo-score-summary-gauge {
 	display: flex;
 	flex-direction: column;
-	// Deliberately not `align-items: center` — that would stop
+	// Deliberately not `align-items: center` - that would stop
 	// `.geo-overall-visibility` stretching to this column's own definite
 	// width, and its own child (zyra ChartComponent's `.zyra-chart`, which
 	// sizes itself via `width: 100%`) would then have nothing real to
-	// resolve that percentage against and collapse to 0 width — a real,
+	// resolve that percentage against and collapse to 0 width - a real,
 	// confirmed-live bug (the ring rendered as blank space, text only).
 	// `.geo-overall-visibility`'s own `align-items: center` still centers
 	// the chart vertically against its (nonexistent) sibling meta text, and
@@ -1994,7 +1994,7 @@
 		margin-bottom: 0.25rem;
 
 		// GeoVisibilitySummaryCard.tsx's own real trend readout ("↑/↓ N
-		// points since last scan") in this same box's slot — AeoScoreSummaryCard.tsx's
+		// points since last scan") in this same box's slot - AeoScoreSummaryCard.tsx's
 		// own static "Goal: 70+" copy never needed a color variant.
 		&.is-good {
 			color: #16a34a;
@@ -2014,11 +2014,11 @@
 
 
 // `.aeo-score-stat-row`/`-icon`/`-text`/`-title`/`-desc` were removed here
-// — both real consumers (this file's own rules above, GeoVisibilitySummaryCard.tsx,
+// - both real consumers (this file's own rules above, GeoVisibilitySummaryCard.tsx,
 // and AeoScoreSummaryCard.tsx) now render their 4 rows through a real
 // `ListComponent` (`className="mini-card report"`) instead of that
 // hand-rolled markup, so nothing renders those classes anymore.
-// `.aeo-score-stat-value` stays — AeoScoreSummaryCard.tsx's own rows still
+// `.aeo-score-stat-value` stays - AeoScoreSummaryCard.tsx's own rows still
 // render one directly (in `ListComponent`'s own `tags` slot) as their
 // plain-number trailing value.
 .aeo-score-stat-value {
@@ -2035,11 +2035,11 @@
 	}
 }
 
-// GeoScoreSection.tsx — "GEO Score" card (ring + "How this score is
+// GeoScoreSection.tsx - "GEO Score" card (ring + "How this score is
 // calculated" list). Same 2-column shell `.aeo-score-summary`/
 // `-summary-gauge`/`-summary-stats` above already establish, own
 // `geo-score-*` prefix since this is a different card with different
-// content (a plain signal-name list, not stat rows with values — no
+// content (a plain signal-name list, not stat rows with values - no
 // per-signal weight number exists anywhere in this codebase to honestly
 // print here, see GeoScoreSection.tsx's own docblock).
 .geo-score-card-layout {
@@ -2069,7 +2069,7 @@
 }
 
 
-// GeoScoreSection.tsx — "GEO Score Breakdown" table (Signal/Score/Status/
+// GeoScoreSection.tsx - "GEO Score Breakdown" table (Signal/Score/Status/
 // Main Problem).
 .geo-score-breakdown-table {
 	width: 100%;
@@ -2098,7 +2098,7 @@
 	max-width: 18rem;
 }
 
-// OverviewTab.tsx's own "Quick Links" grid — real in-SPA tab navigation
+// OverviewTab.tsx's own "Quick Links" grid - real in-SPA tab navigation
 // buttons, styled as cards.
 .visibility-quick-links {
 	display: grid;
@@ -2156,12 +2156,12 @@
         }
     }
 
-// BusinessProfileCard.tsx — score gauge / real per-field table / real
+// BusinessProfileCard.tsx - score gauge / real per-field table / real
 // "Update Information" side panel, 3 up in one row (matches the reference
 // mockup's own layout); stacks to one column on narrow viewports since a
 // 3-way split of the real table's own columns has no sensible narrower
 // layout otherwise.
-// BusinessProfileCard.tsx's own "Key Information Found by AI" row —
+// BusinessProfileCard.tsx's own "Key Information Found by AI" row -
 // `.mini-card.report`'s own real `.item`/`.details`/`.tags` shape
 // (ListComponent.tsx), `.business-profile-list-tags` is just this row's
 // own real confidence/status-icon/action group living inside `tags`.
@@ -2193,7 +2193,7 @@
 	}
 }
 
-// BusinessProfileCard.tsx's own "People"/"Categories" row popups — a shared
+// BusinessProfileCard.tsx's own "People"/"Categories" row popups - a shared
 // generic name/badge/edit-link list shape (real Administrators + post
 // authors, or real category/product_cat terms) since both are the same
 // real "flat list of real WordPress objects with a real edit link" shape.
@@ -2323,7 +2323,7 @@
 	color: $theme-color;
 	font-size: 1rem;
 
-	// Real status coloring — ProductDetailsPanel.tsx's own real "does this
+	// Real status coloring - ProductDetailsPanel.tsx's own real "does this
 	// product have any real completeness issues" signal.
 	&.is-good {
 		background: #f4fdf7;
@@ -2335,9 +2335,9 @@
 		color: $sub-text-color;
 	}
 
-	// Real per-source identity coloring — BusinessNameDetailsPanel.tsx's
+	// Real per-source identity coloring - BusinessNameDetailsPanel.tsx's
 	// own "Found on" rows, distinguishing each real source from the others
-	// (not a status signal — see that file's own `SOURCE_COLOR` docblock).
+	// (not a status signal - see that file's own `SOURCE_COLOR` docblock).
 	// Same real `$color-palette` light/color hex pairs this stylesheet's
 	// own badge/status rules already use elsewhere.
 	&.color-green {
@@ -2417,10 +2417,10 @@
 	}
 }
 
-// KnowledgeGraphDiagramCard.tsx's real hub-and-spoke diagram — rendered by
+// KnowledgeGraphDiagramCard.tsx's real hub-and-spoke diagram - rendered by
 // KnowledgeGraphSection.tsx's own "What AI & Search Understand" card, in
 // its `.kg-understand-graph` pane (one of 3 columns sharing that card's
-// own row) — sized for that pane so 5 satellite boxes don't collide in
+// own row) - sized for that pane so 5 satellite boxes don't collide in
 // it, this diagram's only remaining render site.
 .kg-diagram-wrap {
 	position: relative;
@@ -2498,7 +2498,7 @@
 	color: $sub-text-color;
 }
 
-// The real per-node status box — found (plain), missing (a real, fixable
+// The real per-node status box - found (plain), missing (a real, fixable
 // gap, styled as an actionable alert), not-applicable (a real "doesn't
 // apply to this site" state, styled as a neutral note rather than an
 // alert since there's nothing to fix). Same amber #fef3c7/#b45309 pairing
@@ -2557,7 +2557,7 @@
 }
 
 // actively log start
-// OverviewTab.tsx's own "Recent Activity" card — a real vertical-timeline
+// OverviewTab.tsx's own "Recent Activity" card - a real vertical-timeline
 // list (one real `.activity` row per real `GET /activity-logs` entry),
 // hand-rolled per direct instruction rather than `ActivityListComponent`.
 // .activity-log {
@@ -2602,7 +2602,7 @@
 
 // actively log end
 
-// BrokenLinksSection.tsx's own "Fix" popup — real read-only "Link Text"/
+// BrokenLinksSection.tsx's own "Fix" popup - real read-only "Link Text"/
 // "Current URL" values (a `FormGroupComponent` label with plain text under
 // it, not a disabled `TextInput`, since neither is ever meant to be
 // editable here).
@@ -2616,7 +2616,7 @@
 	word-break: break-all;
 }
 
-// AuthorityTrendsDummy.tsx — the Pro-tag-gated stand-in for
+// AuthorityTrendsDummy.tsx - the Pro-tag-gated stand-in for
 // vulopilot-pro's own BrandIntelligence AuthorityTrendsCard.tsx. The
 // plotted series is fabricated; `pointer-events: none` on the chart itself
 // so a click always reaches the wrapping `.brand-authority-trends-dummy`
@@ -2630,7 +2630,7 @@
 	}
 }
 
-// KnowledgePanelDummy.tsx — the Pro-tag-gated stand-in for
+// KnowledgePanelDummy.tsx - the Pro-tag-gated stand-in for
 // vulopilot-pro's own BrandIntelligence KnowledgePanelCard.tsx. Rows are
 // fabricated examples (same list-item shape as the real card's own
 // `.knowledge-panel-list*`, kept as a separate `brand-knowledge-panel-
@@ -2688,7 +2688,7 @@
 	white-space: nowrap;
 }
 
-// OffSiteMentionsDummy.tsx — the Pro-tag-gated stand-in for
+// OffSiteMentionsDummy.tsx - the Pro-tag-gated stand-in for
 // vulopilot-pro's own BrandIntelligence OffSiteMentionsCard.tsx. Same
 // summary-stats-plus-list shape as the real card's own
 // `.brand-mentions-*` classes (that pro-only stylesheet never ships in
@@ -2718,14 +2718,14 @@
 
 // A real zyra `<ListComponent className="mini-card report">` now (icon-less
 // title+desc row, same shape other dummy/real lists across this codebase
-// already use) — this wrapper only keeps the real `pointer-events: none`
+// already use) - this wrapper only keeps the real `pointer-events: none`
 // that makes a click always reach OffSiteMentionsDummy's own wrapping
 // overlay (see that component's own docblock) rather than this inert list.
 .brand-offsite-mentions-dummy-list {
 	pointer-events: none;
 }
 
-// CompetitorComparisonDummy.tsx — the Pro-tag-gated stand-in for
+// CompetitorComparisonDummy.tsx - the Pro-tag-gated stand-in for
 // vulopilot-pro's own BrandIntelligence CompetitorComparisonCard.tsx. Same
 // table shape as the real card's own `.brand-competitor-comparison__*`
 // classes (that pro-only stylesheet never ships in Free's bundle, so this
@@ -2765,15 +2765,15 @@
 	font-weight: 600;
 }
 
-// KeywordsTab.tsx (Free) — the real Pro/module tag shown in this section
+// KeywordsTab.tsx (Free) - the real Pro/module tag shown in this section
 // itself, above the real "Connect Google Search Console" hero card (the
-// tag is NOT hidden inside the upgrade popup — same
+// tag is NOT hidden inside the upgrade popup - same
 // "one tag, docked above the real/preview content" shape
 // Commerce.scss's own `.commerce-locked`/`.commerce-locked-tag` rules
 // already establish for the identical Commerce.tsx gate). `.keywords-locked`
 // needs its own `position: relative` because zyra's own `.admin-tag.pro-tag`
 // rule (theme/src/common.scss) is `position: absolute`, anchoring to the
-// nearest `position: relative` ancestor as a corner ribbon — without this,
+// nearest `position: relative` ancestor as a corner ribbon - without this,
 // that ancestor would be some far larger positioned ancestor up the tree.
 .keywords-locked {
 	position: relative;

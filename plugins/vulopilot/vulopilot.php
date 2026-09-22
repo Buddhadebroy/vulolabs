@@ -2,7 +2,7 @@
 /**
  * Plugin Name: VuloPilot
  * Plugin URI: https://vulolabs.com/vulopilot/
- * Description: An AI Operating System for WordPress — monitor, optimize, secure, and automate your website.
+ * Description: An AI Operating System for WordPress - monitor, optimize, secure, and automate your website.
  * Author: VuloLabs
  * Version: 1.0.0
  * Author URI: https://vulolabs.com/

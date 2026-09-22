@@ -3,13 +3,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Backed by `Utill::SETTINGS_DEFAULTS`'s AI section. No AI integration
  * exists in this codebase yet (no provider client, no recommendation
- * engine) — same "saved, not yet consumed" status as the Payments/
+ * engine) - same "saved, not yet consumed" status as the Payments/
  * Shipping/Taxes tabs, kept honest rather than hidden.
  *
- * Deliberately no "Enable AI recommendations" toggle here — same
+ * Deliberately no "Enable AI recommendations" toggle here - same
  * reasoning as Mcp.ts: AI is its own addon module now
  * (`modules/Ai/Module.php`), and that module's activation on the Modules
- * page is the real on/off switch — enforced below via
+ * page is the real on/off switch - enforced below via
  * `moduleEnabled: 'ai'`. This tab only holds configuration for once that
  * module exists.
  */

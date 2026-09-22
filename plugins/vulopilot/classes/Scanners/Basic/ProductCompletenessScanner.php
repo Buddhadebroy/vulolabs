@@ -15,14 +15,14 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Product Intelligence's "Product Completeness" check (ARCHITECTURE.md's
- * Prompt 11) — a single deterministic score per product across a fixed
+ * Prompt 11) - a single deterministic score per product across a fixed
  * checklist (image, categories, tags, short description, long description,
  * SKU, price), rather than a separate scanner per field the way the other
  * ProductMissing*Scanners already are. Those field-level scanners exist so
  * each gap gets its own precise, individually-fixable Finding; this one
  * exists so the dashboard/reports can show one number per product instead
  * of requiring someone to mentally tally seven separate findings. Not an
- * AI-scored analysis like GeoAnalysis\GeoAnalyzer's GeoScore — that's a
+ * AI-scored analysis like GeoAnalysis\GeoAnalyzer's GeoScore - that's a
  * distinct, larger feature ("AI Product Review") explicitly out of scope
  * for this pass; this is the deterministic half only.
  *
@@ -99,7 +99,7 @@ class ProductCompletenessScanner extends AbstractBasicScanner {
                 ),
                 $score < 30 ? Severity::HIGH : Severity::MEDIUM,
                 $this->get_category(),
-                __( 'Scored against image, categories, tags, short description, long description, SKU, and price — each missing item lowers the score.', 'vulopilot' ),
+                __( 'Scored against image, categories, tags, short description, long description, SKU, and price - each missing item lowers the score.', 'vulopilot' ),
                 'product',
                 (string) $product->get_id(),
                 array(

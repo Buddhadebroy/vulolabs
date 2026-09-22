@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Backed by `Utill::SETTINGS_DEFAULTS`'s Email section — unlike most of
+ * Backed by `Utill::SETTINGS_DEFAULTS`'s Email section - unlike most of
  * this tab set, every field here is genuinely read by
  * Notifications\OrderEmails on every send: `send_order_confirmation_email`/
  * `send_status_update_email` gate whether each email fires at all, and

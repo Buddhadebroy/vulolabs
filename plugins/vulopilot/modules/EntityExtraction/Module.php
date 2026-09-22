@@ -18,21 +18,21 @@ defined( 'ABSPATH' ) || exit;
  * Unlike modules/Seo/Module.php (which genuinely gates scanner
  * registration) or modules/Geo/Module.php (a thin automation layer over
  * always-on core scanning), this module's own job is to make deactivating
- * it actually change EntityExtractor's output — that class has no
+ * it actually change EntityExtractor's output - that class has no
  * scanner/finding to gate through ScannerRegistry's usual category
  * mechanism, so it checks `VuloPilot()->modules->get_active_modules()`
  * directly instead (see its own docblock).
  *
  * This module's real, concrete job: bust EntityExtractor's 1-hour
  * transient cache on the real content-change events that would actually
- * affect its output — a post publishing/unpublishing changes People
+ * affect its output - a post publishing/unpublishing changes People
  * (post authorship); a term being created/edited/deleted changes
- * Categories; and (the fix this docblock is now updated for — a real,
+ * Categories; and (the fix this docblock is now updated for - a real,
  * confirmed bug: saving Settings → Business Information's `entity_business_type`/
  * `entity_service_pages`/`entity_business_locations` fields persisted the
  * new values correctly, but `GET /entities` kept serving the pre-save
  * cached result for up to an hour, because no hook here ever busted the
- * cache on a settings save — only on the post/term hooks above, none of
+ * cache on a settings save - only on the post/term hooks above, none of
  * which fire when only `vulopilot_settings` changes) changing any of
  * those 3 fields now also busts the cache immediately, via WordPress's
  * own `update_option_{option}` hook (fires only when the stored value
@@ -69,7 +69,7 @@ class Module {
 
     /**
      * `update_option_{$option}` fires with the old and new full settings
-     * array whenever `vulopilot_settings` actually changes — busts the
+     * array whenever `vulopilot_settings` actually changes - busts the
      * cache only when one of the 3 fields EntityExtractor itself reads
      * (business type, service pages, business locations) is part of what
      * changed, so a save on an unrelated Settings tab doesn't bust it for

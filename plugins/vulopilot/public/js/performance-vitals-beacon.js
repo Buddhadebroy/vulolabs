@@ -1,5 +1,5 @@
 /**
- * Real Core Web Vitals RUM (Real User Monitoring) — measures this actual
+ * Real Core Web Vitals RUM (Real User Monitoring) - measures this actual
  * page view's LCP/CLS/INP in the visitor's own browser via native
  * PerformanceObserver, plus real page load time and transfer size via the
  * Navigation/Resource Timing APIs, and reports them once, on page-hide, to
@@ -7,19 +7,19 @@
  * (classes/RestAPI/Controllers/CoreWebVitalsBeaconRest.php). See
  * Services\CoreWebVitalsBeacon.php's own docblock for why this exists as
  * hand-written vanilla JS in public/js/ rather than a webpack entry (same
- * reasoning admin-menu-groups.js already documents — plain DOM/Web APIs
+ * reasoning admin-menu-groups.js already documents - plain DOM/Web APIs
  * only, no JSX/TS, no admin bundle dependency).
  *
- * Sends no cookie, no visitor id, no IP, no URL — just five numbers,
+ * Sends no cookie, no visitor id, no IP, no URL - just five numbers,
  * aggregated site-wide rather than broken down per page. INP here is a
  * simplified, honest approximation (the
  * largest single interaction duration observed) rather than the full
  * official percentile-across-all-interactions algorithm, which needs more
- * bookkeeping than a v1 beacon warrants — still a real, measured number,
+ * bookkeeping than a v1 beacon warrants - still a real, measured number,
  * never fabricated. `transferBytes` sums real `transferSize` across every
  * resource this page view actually loaded (0 for a cross-origin resource
- * without a `Timing-Allow-Origin` response header — a real browser
- * security limit, not a bug) — an honest lower bound, never inflated.
+ * without a `Timing-Allow-Origin` response header - a real browser
+ * security limit, not a bug) - an honest lower bound, never inflated.
  * `pageLoadMs` is left `null` (never a fabricated 0) if the visitor
  * navigated away before the `load` event finished.
  *
@@ -51,7 +51,7 @@
 			}
 		} ).observe( { type: 'largest-contentful-paint', buffered: true } );
 	} catch ( e ) {
-		// Not supported in this browser — lcpMs stays null, honestly omitted.
+		// Not supported in this browser - lcpMs stays null, honestly omitted.
 	}
 
 	try {
@@ -77,12 +77,12 @@
 			} );
 		} ).observe( { type: 'event', buffered: true, durationThreshold: 40 } );
 	} catch ( e ) {
-		// Not supported in this browser — inpMs stays null, honestly omitted.
+		// Not supported in this browser - inpMs stays null, honestly omitted.
 	}
 
 	/**
 	 * Read once, at send time, straight from the browser's own Navigation/
-	 * Resource Timing buffers — no PerformanceObserver needed, since both
+	 * Resource Timing buffers - no PerformanceObserver needed, since both
 	 * are already fully populated by the time a real visitor is navigating
 	 * away. `loadEventEnd` is 0 (per spec) until the `load` event actually
 	 * completes, so a visitor who leaves mid-load honestly reports no page
@@ -108,7 +108,7 @@
 				} );
 			}
 		} catch ( e ) {
-			// Navigation/Resource Timing not supported — both stay null, honestly omitted.
+			// Navigation/Resource Timing not supported - both stay null, honestly omitted.
 			pageLoadMs = null;
 			transferBytes = null;
 		}
@@ -149,7 +149,7 @@
 		}
 	} );
 
-	// Safari doesn't always fire visibilitychange on tab close — pagehide
+	// Safari doesn't always fire visibilitychange on tab close - pagehide
 	// catches that case too; sendBeacon()'s own `sent` guard makes a
 	// second call from both firing harmless.
 	window.addEventListener( 'pagehide', sendBeacon );

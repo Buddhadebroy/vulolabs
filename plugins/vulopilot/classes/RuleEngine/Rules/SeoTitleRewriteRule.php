@@ -96,7 +96,7 @@ class SeoTitleRewriteRule extends AbstractBasicRule {
      */
     public function applies_to( Finding $finding ): bool {
         // SEO-MODULE.md added 13 more scanners sharing the 'seo' category
-        // alongside the original SeoScanner this rule was written for —
+        // alongside the original SeoScanner this rule was written for -
         // category alone is no longer specific enough to mean "a title
         // length problem." SeoScanner is the only scanner that attaches a
         // `title_length` meta key, so checking for it is what keeps this

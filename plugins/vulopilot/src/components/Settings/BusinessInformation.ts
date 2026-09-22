@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Business Information — a standalone top-level tab (moved out
+ * Settings → Business Information - a standalone top-level tab (moved out
  * of the old "Get Started"/Business Visibility folder, which is gone now
  * that every one of its sub-tabs moved elsewhere), a plain declarative
  * `modal` (InputRenderer), replacing the former hand-built `PanelComponent`
@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  *
  * `id: 'business-information'` (this file used to carry a typo'd
  * `'business-informa'`, which briefly duplicated this tab under 2 ids at
- * once) — kept as the one real id 2 existing deep links already point to
+ * once) - kept as the one real id 2 existing deep links already point to
  * (`KnowledgeGraphSection.tsx`'s own `ENTITY_SETTINGS_URL`, `Modules/index.ts`'s
  * own `settingsLink`), same `getSettingById()` recurse-by-id-alone
  * reasoning the deleted file's own docblock already documented.
@@ -19,7 +19,7 @@ import { __ } from '@wordpress/i18n';
  * "Tracked competitors"/"About Page" (all real fields: `geo_competitor_urls`,
  * `brand_about_page_min_words`, plus `brand-drop-threshold-note`) merged in
  * from the former Settings → Scanning → Brand Intelligence tab per direct
- * instruction — that tab (`Scanning/BrandIntelligence.ts`, `id:
+ * instruction - that tab (`Scanning/BrandIntelligence.ts`, `id:
  * 'brand-intelligence'`) is deleted entirely, not just emptied. Same real
  * keys/backend (BRAND-INTELLIGENCE-MODULE.md's own AboutPageAnalysisScanner
  * etc.), only where the UI for them lives moved.
@@ -43,7 +43,7 @@ export default {
             icon: 'category',
             title: __('Business', 'vulopilot'),
             desc: __(
-                'What kind of business this is — shown on the Business Profile card, not written into any structured data.',
+                'What kind of business this is - shown on the Business Profile card, not written into any structured data.',
                 'vulopilot'
             ),
         },
@@ -52,7 +52,7 @@ export default {
             type: 'text',
             label: __('Site tone', 'vulopilot'),
             settingDescription: __(
-                'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") — included with every AI request.',
+                'A short description of how this site should sound (e.g. "Friendly and casual" or "Formal and technical") - included with every AI request.',
                 'vulopilot'
             ),
         },

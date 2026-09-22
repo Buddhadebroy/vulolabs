@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Term entity.
  *
- * Plain domain object — same shape/rules as Domain\Offering\Offering. Backs
+ * Plain domain object - same shape/rules as Domain\Offering\Offering. Backs
  * Categories/Brands/Collections (Taxonomy's own docblock explains why
  * one shape covers all three). `$parent_id` is only meaningful for
  * `Taxonomy::CATEGORY` (a brand/collection is always flat); `$meta` is
@@ -55,7 +55,7 @@ class Term {
     public $slug;
 
     /**
-     * Parent term id — `Taxonomy::CATEGORY` only; null for a top-level
+     * Parent term id - `Taxonomy::CATEGORY` only; null for a top-level
      * category or any brand/collection.
      *
      * @var int|null
@@ -97,7 +97,7 @@ class Term {
      * @param string               $taxonomy    One of Taxonomy's constants.
      * @param string               $name        Display name.
      * @param string               $slug        URL-safe slug, unique within its taxonomy.
-     * @param int|null             $parent_id   Parent term id — `Taxonomy::CATEGORY` only.
+     * @param int|null             $parent_id   Parent term id - `Taxonomy::CATEGORY` only.
      * @param string|null          $description Description.
      * @param array<string, mixed> $meta        Taxonomy-specific extras.
      * @param string|null          $created_at  MySQL datetime string, once persisted.

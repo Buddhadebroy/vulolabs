@@ -20,11 +20,11 @@ interface StoredSettings {
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
- * Settings → Reports' own "Send Test Report" button — real
+ * Settings → Reports' own "Send Test Report" button - real
  * `POST /settings/test-report` (Controllers\Settings::send_test_report(),
  * which generates a real report using this tab's own `default_report_format`/
  * `default_report_period_days` and emails it to `notification_email`/the
- * site admin), plus the persisted "Last test report sent on ..." line — same
+ * site admin), plus the persisted "Last test report sent on ..." line - same
  * hand-built pattern CrawlerAlertTestPanel.tsx already establishes for the
  * exact same "real API call + a value that must survive a page refresh"
  * reason, in place of the old declarative `type: 'button'` field (moved
@@ -36,7 +36,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * so it sits next to "Reports" itself instead of at the bottom of the tab.
  *
  * Reads its own `report_last_test_sent` value directly from `GET /settings`
- * on mount rather than through SettingContext — same reasoning
+ * on mount rather than through SettingContext - same reasoning
  * CrawlerAlertTestPanel.tsx's own docblock gives: this key is system-set,
  * never user-edited, so it's never one of Reports.ts's own `modal[].key`
  * fields SettingContext would otherwise seed.
@@ -110,12 +110,12 @@ const SendTestReportButton = () => {
 			</div>
 
 			{/*
-			 * Portaled straight to <body> — this button is rendered as
+			 * Portaled straight to <body> - this button is rendered as
 			 * Reports.ts's `settingAction` (zyra's own `.right-content`
 			 * header slot, `translateY(-50%)`-centered). zyra's
 			 * PopupComponent doesn't portal itself (renders wherever it
 			 * sits in the tree), so left inline here it would mount as a
-			 * DESCENDANT of that `transform`-ed `.right-content` — which
+			 * DESCENDANT of that `transform`-ed `.right-content` - which
 			 * CSS spec makes the containing block for any `position:
 			 * fixed` element inside it, so the popup's fixed backdrop/
 			 * content would size themselves to that small header row

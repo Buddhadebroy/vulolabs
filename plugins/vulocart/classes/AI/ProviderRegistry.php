@@ -14,10 +14,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Discovers registered adapter classes (`vulocart_ai_provider_sources`
- * filter — same third-party-extensible shape every other single-class
+ * filter - same third-party-extensible shape every other single-class
  * extension point in the Pro modules already uses, e.g.
  * `vulocart_shipping_carriers`) and turns a stored, encrypted
- * `vulocart_ai_provider_configs` row into a fully usable adapter — the
+ * `vulocart_ai_provider_configs` row into a fully usable adapter - the
  * only point in this codebase an AI provider credential is ever decrypted.
  *
  * @class       ProviderRegistry class
@@ -71,7 +71,7 @@ class ProviderRegistry {
 	}
 
 	/**
-	 * Metadata for every registered adapter, configured or not — what the
+	 * Metadata for every registered adapter, configured or not - what the
 	 * AI settings panel reads to build its provider dropdown. Instantiating
 	 * with an empty credential is safe: every adapter constructor only
 	 * stores the credential, it never makes a network call.
@@ -137,7 +137,7 @@ class ProviderRegistry {
 	}
 
 	/**
-	 * The site's own single active provider — this codebase supports one
+	 * The site's own single active provider - this codebase supports one
 	 * active BYOK provider at a time (no fallback chain), the merchant
 	 * picks it explicitly in the AI settings panel.
 	 *

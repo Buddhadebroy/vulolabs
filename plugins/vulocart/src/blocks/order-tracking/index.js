@@ -16,7 +16,7 @@ registerBlockType( 'vulocart/order-tracking', {
 		return (
 			<div { ...blockProps }>
 				{ __(
-					'VuloCart Order Tracking — lets a guest look up their order by number + access token.',
+					'VuloCart Order Tracking - lets a guest look up their order by number + access token.',
 					'vulocart'
 				) }
 			</div>

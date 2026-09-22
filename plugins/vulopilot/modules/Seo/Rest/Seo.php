@@ -13,14 +13,14 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /seo/score` — a real, deterministic SEO Score (no AI, no cost) for
+ * `GET /seo/score` - a real, deterministic SEO Score (no AI, no cost) for
  * the restyled SEO tab's own "SEO Health Score" card. Same weighted-severity
  * formula BrandIntelligence::calculate_score()/ContentIntelligence's own
  * "Content Score" already use (`100 - critical*15 - high*8 - medium*3 -
  * low*1`, clamped 0-100) over
  * FindingRepository::get_severity_breakdown_for_scanner_ids(), scoped to the
  * same 15 real scanner ids SeoTab.tsx's own SEO_SECTIONS groups its unified
- * findings table into — this endpoint just also returns that same grouping's
+ * findings table into - this endpoint just also returns that same grouping's
  * own per-category scores, real open/affected-page counts, a real
  * week-over-week delta, and a real per-category N-day sparkline trend
  * (`get_category_trend()`), all computed the identical documented way.
@@ -41,23 +41,23 @@ class Seo extends \WP_REST_Controller {
      * seoSections.ts groups its unified findings table into, kept in sync
      * manually with that file (same "kept in sync manually" posture
      * CrawlerTrafficTab.tsx's own bot-name filter pills already document
-     * for CrawlerTrafficLogger::BOT_SIGNATURES) — 6 categories now (was 3),
+     * for CrawlerTrafficLogger::BOT_SIGNATURES) - 6 categories now (was 3),
      * matching the reference mockup's own "SEO areas" grid exactly, still
      * the same 15 ids overall (no scanner added, none dropped):
      *
      * - `titles-meta`: title/meta-description/duplication/focus-keyword
      *   checks only now (`duplicate-content`/`orphan-pages` moved to
-     *   `indexability-canonicals` below — both are indexing/canonicalization
+     *   `indexability-canonicals` below - both are indexing/canonicalization
      *   concerns, not a title/meta one).
      * - `content-structure` (NEW): heading structure, multiple H1s, thin
-     *   content — split out of the old combined `titles-meta` bucket, since
+     *   content - split out of the old combined `titles-meta` bucket, since
      *   the mockup shows these as their own real "Content Structure" tile.
      * - `images`: unchanged.
      * - `internal-linking`: unchanged.
      * - `indexability-canonicals` (NEW): canonical URLs, duplicate content,
-     *   orphan pages — all 3 are real indexability/canonicalization signals,
+     *   orphan pages - all 3 are real indexability/canonicalization signals,
      *   not title/meta ones.
-     * - `structured-data` (NEW): Open Graph/Twitter Card tags only — real
+     * - `structured-data` (NEW): Open Graph/Twitter Card tags only - real
      *   structured *metadata*, but deliberately NOT the same thing as the
      *   `schema`/`structured-data`/`sitewide-structured-data` scanner ids,
      *   which stay owned entirely by "SEO & Visibility"'s own dedicated
@@ -101,11 +101,11 @@ class Seo extends \WP_REST_Controller {
     );
 
     /**
-     * How far back "since last week" looks for the real deltas below — a
+     * How far back "since last week" looks for the real deltas below - a
      * real, exact reconstruction of that same moment's own open-finding set
      * (FindingRepository::get_severity_breakdown_for_scanner_ids_as_of(),
      * already built for Content/Brand's own score trends), not an estimate
-     * and not a stored snapshot series — so this needed no new table.
+     * and not a stored snapshot series - so this needed no new table.
      *
      * @var int
      */
@@ -113,16 +113,16 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * Real number of daily points "SEO progress"'s own "SEO Score Over
-     * Time" chart plots — one real reconstructed score per day, same exact
+     * Time" chart plots - one real reconstructed score per day, same exact
      * `get_severity_breakdown_for_scanner_ids_as_of()` reconstruction
      * `get_score()`'s own single 7-day-ago delta already uses, just called
-     * once per day instead of once total. No new table — every point is
+     * once per day instead of once total. No new table - every point is
      * computed fresh from `vulopilot_scan_findings`' own real
      * `created_at`/`resolved_at` timestamps.
      *
      * Also reused by `get_category_trend()` below for each "SEO areas"
      * tile's own real sparkline (`MetricTileComponent`'s `chart` slot,
-     * SeoTab.tsx) — same technique, just re-scoped to one category's own
+     * SeoTab.tsx) - same technique, just re-scoped to one category's own
      * scanner ids per call instead of all 15 combined, so both sparklines
      * cover the identical real N-day window.
      *
@@ -132,10 +132,10 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * Real day-range options "SEO progress"'s own new period toggle offers
-     * — same real trio `Controllers\Geo::ALLOWED_PROGRESS_DAYS` already
+     * - same real trio `Controllers\Geo::ALLOWED_PROGRESS_DAYS` already
      * established for its own "Score Snapshot" card's identical toggle
      * (min 7, max 90; `get_category_trend()`'s own per-category sparklines
-     * stay fixed at `PROGRESS_TREND_DAYS` regardless — this only widens
+     * stay fixed at `PROGRESS_TREND_DAYS` regardless - this only widens
      * `get_progress()`'s own "SEO Score Over Time" trend).
      *
      * @var int[]
@@ -144,11 +144,11 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * Below this real character count, a set meta description is flagged
-     * "Too short" rather than passed outright — short enough that a
+     * "Too short" rather than passed outright - short enough that a
      * search engine is likely to still append its own auto-generated
      * text after it. Same real `post_excerpt` field
      * MetaDescriptionScanner::scan() already reads (see that class's own
-     * docblock for why `post_excerpt` specifically) — this endpoint just
+     * docblock for why `post_excerpt` specifically) - this endpoint just
      * additionally checks its length, which that scanner's own
      * empty-or-not check doesn't.
      *
@@ -273,7 +273,7 @@ class Seo extends \WP_REST_Controller {
     }
 
     /**
-     * Real published post/page count — the same real scope
+     * Real published post/page count - the same real scope
      * `SeoScanner::run()` itself scans (`post_type => ['post', 'page'],
      * post_status => 'publish'`), so "Pages checked" always means exactly
      * what the SEO module actually looks at, not a separate invented
@@ -290,12 +290,12 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * Real `PROGRESS_TREND_DAYS`-point daily score trend for one "SEO
-     * areas" category — each `MetricTileComponent` tile's own real
+     * areas" category - each `MetricTileComponent` tile's own real
      * sparkline (`chart: { type: 'sparkline', data: category.trend }`,
      * SeoTab.tsx). Same `get_severity_breakdown_for_scanner_ids_as_of()`
      * reconstruction `get_progress()`'s own sitewide trend already uses,
      * just re-run per category against that category's own scanner ids
-     * rather than all 15 combined — no new stored snapshot table, every
+     * rather than all 15 combined - no new stored snapshot table, every
      * point is a fresh reconstruction of real `vulopilot_scan_findings`
      * rows as of that day.
      *
@@ -337,13 +337,13 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * "Pages that need attention" (SEO & Visibility → SEO's own new
-     * "What should I fix first?" section) — every real published page/post
+     * "What should I fix first?" section) - every real published page/post
      * with at least one currently-open finding among the same 15 real SEO
      * scanner ids `get_score()` scopes to, each with: the same real
      * deterministic `calculate_score()` this endpoint's own sibling already
      * uses, scoped to just that page's own open findings; a real "Change"
      * (that same score minus the identical score reconstructed as of
-     * `DELTA_LOOKBACK_DAYS` ago — same exact reconstruction technique
+     * `DELTA_LOOKBACK_DAYS` ago - same exact reconstruction technique
      * `get_score()`'s own site-wide `deltas` already uses, no stored
      * snapshot needed); and a real "Main Problem" (that page's own
      * worst-severity open finding's actual stored `title`, not a
@@ -415,9 +415,9 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * "SEO progress" (SEO & Visibility → SEO's own new progress-over-time
-     * card) — a real 7-point daily score trend, plus 3 real week-over-week
+     * card) - a real 7-point daily score trend, plus 3 real week-over-week
      * counters. Nothing here is a fabricated/estimated number and nothing
-     * needed a new stored snapshot table — every point/counter is either a
+     * needed a new stored snapshot table - every point/counter is either a
      * fresh reconstruction of real historical `vulopilot_scan_findings`
      * rows (same `..._as_of()` technique `get_score()`'s own single 7-day
      * delta already uses, `count_resolved_between()`/`get_stats_for_period()`
@@ -427,10 +427,10 @@ class Seo extends \WP_REST_Controller {
      * (`get_open_findings_for_scanner_ids_by_post()`, "Pages that need
      * attention"'s own new helper, for "Pages Improved"). Both the trend's
      * own length AND the 3 counters' own comparison window are now
-     * real-selectable (`days`, one of `ALLOWED_PROGRESS_DAYS` — same real
+     * real-selectable (`days`, one of `ALLOWED_PROGRESS_DAYS` - same real
      * toggle `Controllers\Geo::get_progress()` already supports), rather
      * than fixed at `PROGRESS_TREND_DAYS`/`DELTA_LOOKBACK_DAYS` regardless
-     * of what the toggle is set to — the `this_week` field names are
+     * of what the toggle is set to - the `this_week` field names are
      * historical (kept so the frontend response shape doesn't change) but
      * now genuinely mean "in the selected period."
      *
@@ -460,13 +460,13 @@ class Seo extends \WP_REST_Controller {
         }
 
         // The 3 week-over-week counters below now scale with the same real
-        // `$days` the trend above just widened to (7/30/90 — the "SEO
+        // `$days` the trend above just widened to (7/30/90 - the "SEO
         // progress" card's own new period toggle), two clean back-to-back
         // `$days`-length windows rather than a window fixed at
         // `DELTA_LOOKBACK_DAYS` regardless of what the toggle is set to
         // (the earlier, narrower version of this real-selectable-trend
         // change). `get_score()`'s own separate sitewide-score delta still
-        // uses `DELTA_LOOKBACK_DAYS` fixed at 7 — that one is unrelated to
+        // uses `DELTA_LOOKBACK_DAYS` fixed at 7 - that one is unrelated to
         // this card's own toggle and untouched.
         $now            = gmdate( 'Y-m-d H:i:s' );
         $period_ago     = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
@@ -476,7 +476,7 @@ class Seo extends \WP_REST_Controller {
         $issues_fixed_last_week = $findings->count_resolved_between( $two_periods_ago, $period_ago, null, $all_scanner_ids );
 
         // Two clean, equal-length, back-to-back `$days`-length calendar
-        // windows — same span count_resolved_between()'s own datetime pair
+        // windows - same span count_resolved_between()'s own datetime pair
         // above uses, just expressed as whole dates for
         // get_stats_for_period()'s own `DATE(created_at) BETWEEN` scope.
         $new_issues_this_week = $findings->get_stats_for_period(
@@ -523,13 +523,13 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * How many real published pages/posts scored better (a higher real
-     * `calculate_score()` result) in `$current` than in `$previous` — same
+     * `calculate_score()` result) in `$current` than in `$previous` - same
      * "real published content only" scope
      * `get_pages_needing_attention()`'s own `get_post()`/`publish` check
      * already applies, so a page deleted or unpublished since `$previous`
      * was reconstructed doesn't count as "improved" just because its
      * findings vanished along with it. A post id present in one snapshot
-     * but not the other genuinely had zero open findings there — scored a
+     * but not the other genuinely had zero open findings there - scored a
      * real 100, not a missing/estimated value.
      *
      * @param array<int, array<int, array{id: int, title: string, severity: string}>> $current  get_open_findings_for_scanner_ids_by_post()'s own current-state return.
@@ -580,14 +580,14 @@ class Seo extends \WP_REST_Controller {
     }
 
     /**
-     * "Page Analysis" — a real, on-demand, per-page check runner (SEO &
+     * "Page Analysis" - a real, on-demand, per-page check runner (SEO &
      * Visibility → SEO → "Pages & Posts" table's own "Analyze" row
      * action), not a restyle of anything that already existed: every
      * check below is computed fresh against this one specific page at
      * request time, not read from a possibly-stale batch scan of a
      * different, bounded set of posts. Reuses the exact same real
      * detection logic each named sibling scanner already uses (same
-     * regexes, same thresholds, same settings) — just correctly scoped to
+     * regexes, same thresholds, same settings) - just correctly scoped to
      * the one page a site owner clicked "Analyze" on, several of which
      * (H1 presence, per-page image alt text, title uniqueness,
      * indexability) have no existing scanner at all, since every sibling
@@ -623,7 +623,7 @@ class Seo extends \WP_REST_Controller {
                 // `check_featured_image()`/`check_orphan_page()` return `null`
                 // (filtered out here) when their own real settings toggle
                 // (Settings → Scanning → SEO's "Flag missing featured image"/
-                // "Flag orphan pages") is off — same real on/off
+                // "Flag orphan pages") is off - same real on/off
                 // SeoImagesScanner/OrphanPageScanner themselves already
                 // respect, so this panel never complains about a check the
                 // site owner deliberately turned off elsewhere. Every other
@@ -652,7 +652,7 @@ class Seo extends \WP_REST_Controller {
     }
 
     /**
-     * Real, unique-title-in-database check — same exact query shape
+     * Real, unique-title-in-database check - same exact query shape
      * DuplicateContentScanner::scan() already uses to find posts sharing a
      * title, just narrowed to "does at least one OTHER published post
      * share this one's title" for a single page rather than that
@@ -679,7 +679,7 @@ class Seo extends \WP_REST_Controller {
         );
 
         if ( $duplicate_count > 0 ) {
-            return $this->build_check( 'title_tag', $label, 'fail', __( 'Duplicate title — shared with another published page', 'vulopilot' ) );
+            return $this->build_check( 'title_tag', $label, 'fail', __( 'Duplicate title - shared with another published page', 'vulopilot' ) );
         }
 
         return $this->build_check( 'title_tag', $label, 'pass', __( 'Title tag is unique and set', 'vulopilot' ) );
@@ -720,7 +720,7 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * Real presence check for an `<h1>` tag anywhere in this page's own
-     * `post_content` — no existing scanner checks for H1 *presence*
+     * `post_content` - no existing scanner checks for H1 *presence*
      * (AccessibilityScanner's own H1 check flags a *second* one, not a
      * missing first one).
      *
@@ -739,7 +739,7 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * Same real `<h2>`-`<h6>` presence regex HeadingStructureScanner::scan()
-     * already uses — that scanner only checks content over its own
+     * already uses - that scanner only checks content over its own
      * MIN_WORD_COUNT_TO_CHECK threshold; this runs the identical check
      * regardless of length, since a site owner analyzing one specific
      * page already knows which page they're looking at.
@@ -790,7 +790,7 @@ class Seo extends \WP_REST_Controller {
 
     /**
      * Real per-`<img>` alt-text presence check across this page's own
-     * `post_content` — distinct from ImagesScanner's separate, sitewide
+     * `post_content` - distinct from ImagesScanner's separate, sitewide
      * check (missing `_wp_attachment_image_alt` meta across the whole
      * media library, not scoped to any one page).
      *
@@ -836,7 +836,7 @@ class Seo extends \WP_REST_Controller {
      * runs (batch-scoped there to the most recently modified posts; here
      * scoped live to this one page instead), gated behind that same real
      * `flag_missing_featured_image` setting (Settings → Scanning → SEO) so
-     * this panel never flags something the site owner already turned off —
+     * this panel never flags something the site owner already turned off -
      * `null` (filtered out by `get_page_analysis()`) rather than a fabricated
      * "pass" when the setting is off.
      *
@@ -862,11 +862,11 @@ class Seo extends \WP_REST_Controller {
     /**
      * Real, already-stored `broken-links` findings scoped to this one
      * page (`FindingRepository::find_all()`'s own `object_type`/
-     * `object_ref` filters) — the same real per-run coverage
+     * `object_ref` filters) - the same real per-run coverage
      * BrokenLinksTab.tsx's own "Broken Link Monitoring" table already
      * shows, read here rather than re-checked live so this endpoint's own
      * "broken" count can never disagree with that table for the same
-     * page. Labeled "Broken Links" (not "Internal Links" — that's a
+     * page. Labeled "Broken Links" (not "Internal Links" - that's a
      * separate, distinct real question: does anything ELSE link *to* this
      * page, see `check_orphan_page()` below) to match what this check
      * actually answers: does this page itself contain any broken links.
@@ -909,12 +909,12 @@ class Seo extends \WP_REST_Controller {
      * Real, already-stored `orphan-pages` finding for this one page
      * (`OrphanPageScanner::scan()`'s own real "does anything among the most
      * recently modified content link to this page" cross-reference,
-     * batch-computed sitewide and read back here rather than re-run live —
+     * batch-computed sitewide and read back here rather than re-run live -
      * same "trust the stored scan, don't risk disagreeing with it" posture
      * `check_broken_links()` above already takes for `broken-links`). Gated
      * behind that scanner's own real `flag_orphan_pages` setting (Settings →
      * Scanning → SEO) so this panel never reports an orphan verdict that
-     * scanner itself has been told not to compute — `null` (filtered out by
+     * scanner itself has been told not to compute - `null` (filtered out by
      * `get_page_analysis()`) rather than a fabricated "pass" when it's off,
      * same reasoning `check_featured_image()` above already documents.
      *
@@ -945,7 +945,7 @@ class Seo extends \WP_REST_Controller {
                 'orphan_page',
                 $label,
                 'fail',
-                __( '0 internal links point to this page — nothing else links to it', 'vulopilot' )
+                __( '0 internal links point to this page - nothing else links to it', 'vulopilot' )
             );
         }
 
@@ -956,7 +956,7 @@ class Seo extends \WP_REST_Controller {
      * Same real `rel="canonical"` presence check CanonicalUrlScanner::scan()
      * already uses, against this specific page's own freshly-fetched body
      * rather than that scanner's own bounded "homepage + 9 recent posts"
-     * batch — a page outside that batch still gets a real, fresh answer
+     * batch - a page outside that batch still gets a real, fresh answer
      * here instead of silently defaulting to "pass."
      *
      * @param string|null $body This page's real fetched HTML, or null if the fetch failed.
@@ -977,9 +977,9 @@ class Seo extends \WP_REST_Controller {
     }
 
     /**
-     * Real per-page indexability signal — this page's own real
+     * Real per-page indexability signal - this page's own real
      * `post_status`, plus the site-wide "Discourage search engines"
-     * setting (`get_option('blog_public')`, Settings → Reading — a real,
+     * setting (`get_option('blog_public')`, Settings → Reading - a real,
      * always-available WP core option, unlike a per-post noindex flag,
      * which nothing in this codebase stores since that's normally an SEO
      * plugin's own field and no specific one is assumed active here).
@@ -1069,7 +1069,7 @@ class Seo extends \WP_REST_Controller {
      * @param string $key   Stable machine key for this check.
      * @param string $label Human-readable check name.
      * @param string $status One of 'pass'/'warn'/'fail'.
-     * @param string $message Real, specific finding for this page — never a generic placeholder.
+     * @param string $message Real, specific finding for this page - never a generic placeholder.
      * @return array{key: string, label: string, status: string, message: string}
      */
     private function build_check( string $key, string $label, string $status, string $message ): array {
@@ -1084,7 +1084,7 @@ class Seo extends \WP_REST_Controller {
     /**
      * Same real `wp_remote_get()` fetch shape CanonicalUrlScanner/
      * OpenGraphScanner/SchemaScanner already each do independently against
-     * their own narrower scope — fetched once here and shared across
+     * their own narrower scope - fetched once here and shared across
      * check_canonical()/check_structured_data()/check_social_metadata()
      * rather than 3 separate requests for the same page.
      *

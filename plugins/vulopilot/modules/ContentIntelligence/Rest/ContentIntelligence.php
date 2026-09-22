@@ -15,17 +15,17 @@ use VuloPilot\Services\OnPageAnalyzer;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `GET /content-intelligence/score` — the composite, deterministic
+ * `GET /content-intelligence/score` - the composite, deterministic
  * "Content Score" (no AI, no cost). Scoped to a fixed scanner_id list
  * spanning two categories (`content`'s own readability scanner, plus 4
  * existing `seo`-category scanners this module reuses rather than
- * recategorizes — CONTENT-INTELLIGENCE-MODULE.md's audit), using
+ * recategorizes - CONTENT-INTELLIGENCE-MODULE.md's audit), using
  * FindingRepository::get_severity_breakdown_for_scanner_ids() and the
  * exact same weighting Controllers\Dashboard::calculate_category_score()
  * already uses, just scoped to this scanner list instead of one category.
  *
  * Distinct from ContentIntelligence\ContentAnalyzer's own per-post
- * "Topic Authority" AI score — that's a real AI cost, its REST route lives
+ * "Topic Authority" AI score - that's a real AI cost, its REST route lives
  * in vulopilot-pro's own ContentIntelligence module (same Free/Pro split
  * GeoAnalysis\GeoAnalyzer/GeoInsights\Rest.php already establish). This
  * route is the free, always-available, no-cost half.
@@ -42,7 +42,7 @@ class ContentIntelligence extends \WP_REST_Controller {
     protected $rest_base = 'content-intelligence';
 
     /**
-     * Same scanner list ContentAnalyzer::SCANNER_IDS reads — kept in sync
+     * Same scanner list ContentAnalyzer::SCANNER_IDS reads - kept in sync
      * by convention rather than a cross-class constant reference (the same
      * tradeoff ScannerFixMap's own docblock already accepts for a handful
      * of small, stable lists).
@@ -52,13 +52,13 @@ class ContentIntelligence extends \WP_REST_Controller {
     private const SCANNER_IDS = array( 'readability', 'thin-content', 'duplicate-content', 'heading-structure', 'internal-linking', 'orphan-pages' );
 
     /**
-     * Real content-CREATION actions only — same real `{title, body}`
+     * Real content-CREATION actions only - same real `{title, body}`
      * output shape (verified against each action's own
      * parse_response()/execute()), so a real word count is meaningful for
      * all three the same way. `generate-faq` is deliberately excluded:
      * its own execute() appends an FAQ section to an EXISTING post via
      * wp_update_post() rather than creating new content (see that
-     * action's own docblock) — counting it here would misrepresent "how
+     * action's own docblock) - counting it here would misrepresent "how
      * much new content was created."
      *
      * @var string[]
@@ -81,7 +81,7 @@ class ContentIntelligence extends \WP_REST_Controller {
             )
         );
 
-        // "Content Quality" card (ContentQualityCard.tsx) — real, per-post
+        // "Content Quality" card (ContentQualityCard.tsx) - real, per-post
         // readability/completeness/structure for one selected piece of
         // content, not a second site-wide score competing with `/score`
         // above or SEO & Visibility's own SEO Score.
@@ -97,12 +97,12 @@ class ContentIntelligence extends \WP_REST_Controller {
             )
         );
 
-        // "Content Stats" card (ContentStatsCard.tsx) — real
+        // "Content Stats" card (ContentStatsCard.tsx) - real
         // Content-Created/Words-Generated counts for one period, plus a
         // real vs-previous-period percent change, same trend math
         // Reports\AbstractReportType::calculate_change_percent()/
         // get_previous_period() already use for the Reports page
-        // (duplicated here as small local methods rather than shared —
+        // (duplicated here as small local methods rather than shared -
         // this is a REST controller, not a Reports\Types\* report, so it
         // can't extend that abstract class too).
         register_rest_route(
@@ -149,7 +149,7 @@ class ContentIntelligence extends \WP_REST_Controller {
     }
 
     /**
-     * Real Flesch Reading Ease bands — the same scale
+     * Real Flesch Reading Ease bands - the same scale
      * ReadabilityScanner's own docblock already documents (the formula's
      * original published scale, not an invented cutoff).
      *
@@ -166,17 +166,17 @@ class ContentIntelligence extends \WP_REST_Controller {
     );
 
     /**
-     * GET /content-intelligence/quality?post_id={id} — real per-post
+     * GET /content-intelligence/quality?post_id={id} - real per-post
      * signals for exactly one real, already-saved post/page, per direct
      * instruction: "Content Score" used to recompute the same
      * weighted-severity formula site-wide (`get_score()` above), heavily
      * overlapping SEO & Visibility's own SEO Score (5 of 6 shared scanner
      * ids) and inviting "why is my Content Score 87 but SEO Score 67?"
      * confusion. This route instead answers "how good is THIS piece of
-     * content" for whichever post the caller picks — no aggregate number
+     * content" for whichever post the caller picks - no aggregate number
      * that could be compared against SEO Score at all.
      *
-     * Only 3 real dimensions, deliberately — "clarity" and "tone" have no
+     * Only 3 real dimensions, deliberately - "clarity" and "tone" have no
      * genuine computed signal anywhere in this codebase, so rather than
      * inventing one, this route only returns what's real:
      * - readability: ReadabilityScanner::calculate_flesch_reading_ease()
@@ -185,7 +185,7 @@ class ContentIntelligence extends \WP_REST_Controller {
      *   rather than batch-scanned).
      * - completeness: OnPageAnalyzer's own "basic" check group
      *   (title/description/content length) against this post's real
-     *   saved fields — the same live checklist the post editor's own
+     *   saved fields - the same live checklist the post editor's own
      *   Checklist.tsx already runs, just fed this post's saved values
      *   instead of the editor's current unsaved ones. No focus_keyword is
      *   passed (posts don't persist one outside the editor session), so
@@ -270,7 +270,7 @@ class ContentIntelligence extends \WP_REST_Controller {
     }
 
     /**
-     * GET /content-intelligence/stats — real Content Created/Words
+     * GET /content-intelligence/stats - real Content Created/Words
      * Generated counts for one period (`date_from`/`date_to`, both
      * Y-m-d; defaults to the current calendar month when omitted, same
      * period the mockup's own "This Month" default shows), plus each
@@ -311,7 +311,7 @@ class ContentIntelligence extends \WP_REST_Controller {
 
     /**
      * The date range immediately preceding [$period_start, $period_end],
-     * of the same inclusive day length — same real trend math
+     * of the same inclusive day length - same real trend math
      * Reports\AbstractReportType::get_previous_period() already uses for
      * the Reports page (duplicated as a small local method rather than
      * shared, see this class's own register_routes() comment on why).

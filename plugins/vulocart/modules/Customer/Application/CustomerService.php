@@ -17,10 +17,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Customer module CustomerService.
  *
- * Where Customer business logic lives — Rest calls only this class. Now
+ * Where Customer business logic lives - Rest calls only this class. Now
  * backed by a real persistent `Customer` entity (Domain\Customer's own
  * docblock explains the shift from this class's previous snapshot-only
- * design) — `resolve_current()`/`sanitize()`/`remember_phone()` are
+ * design) - `resolve_current()`/`sanitize()`/`remember_phone()` are
  * unchanged and still work exactly as before (existing callers, e.g.
  * `Order\Rest::create_item()`, need no changes); everything below them is
  * new.
@@ -33,7 +33,7 @@ class CustomerService {
 
     /**
      * Usermeta key a logged-in buyer's phone number is remembered under,
-     * once they've given it at checkout — read back by resolve_current()
+     * once they've given it at checkout - read back by resolve_current()
      * so a repeat logged-in buyer doesn't have to retype it.
      *
      * @var string
@@ -78,7 +78,7 @@ class CustomerService {
      * Resolves the checkout wizard's Customer step starting values: a
      * logged-in buyer gets their WP account's name/email (and remembered
      * phone, if any) prefilled; a guest gets an empty shape to fill in
-     * themselves. Never blocks checkout either way — this is prefill data,
+     * themselves. Never blocks checkout either way - this is prefill data,
      * not an authorization check (guest checkout's own gate is the
      * Checkout tab's `guest_checkout_enabled` setting, enforced elsewhere).
      *
@@ -157,7 +157,7 @@ class CustomerService {
     }
 
     /**
-     * A page of customers, optionally searched — backs the admin
+     * A page of customers, optionally searched - backs the admin
      * Customers list screen.
      *
      * @param array{page?: int, per_page?: int, search?: string} $args Pagination/filter args.
@@ -168,19 +168,19 @@ class CustomerService {
     }
 
     /**
-     * Finds the existing customer for an email, or creates a fresh one —
+     * Finds the existing customer for an email, or creates a fresh one -
      * the entrypoint every write path (an order, a future storefront
      * registration) goes through, so an email only ever gets one
      * customer row no matter how many times it's seen.
      *
      * Fires `vulocart_customer_created` the first time an email gets a
-     * customer row at all — vulocart-pro's WorkflowBuilder module's own
+     * customer row at all - vulocart-pro's WorkflowBuilder module's own
      * "Customer Registered" trigger listens for this rather than WP's own
      * `user_register` (checkout is guest-capable, `Checkout.php`'s own
-     * cart-token-based session — a guest's first order genuinely is "a
+     * cart-token-based session - a guest's first order genuinely is "a
      * new customer showed up" even with no WP account ever created).
      *
-     * @param string      $email      An email — the durable identity key.
+     * @param string      $email      An email - the durable identity key.
      * @param string|null $name       Display name, if known.
      * @param string|null $phone      Phone number, if known.
      * @param int|null    $wp_user_id WP user id, if the request is logged in.
@@ -191,7 +191,7 @@ class CustomerService {
 
         if ( $existing ) {
             // Most-recently-seen values win (Domain\Customer's own
-            // docblock) — a buyer's name/phone/account can legitimately
+            // docblock) - a buyer's name/phone/account can legitimately
             // change between orders.
             $existing->name       = $name ? $name : $existing->name;
             $existing->phone      = $phone ? $phone : $existing->phone;
@@ -209,11 +209,11 @@ class CustomerService {
 
     /**
      * `vulocart_order_created`'s own listener (`Module::maybe_record_order()`)
-     * — finds-or-creates the customer and advances their running totals.
+     * - finds-or-creates the customer and advances their running totals.
      * Silently does nothing for an order with no email on file (same
      * "valid, real state" reasoning `Notifications\OrderEmails::
      * send_order_confirmation()`'s own docblock gives for the identical
-     * check) — a customer record needs a durable identity to key on.
+     * check) - a customer record needs a durable identity to key on.
      *
      * @param object $order `Order\Domain\Order`.
      * @return void
@@ -360,7 +360,7 @@ class CustomerService {
     }
 
     /**
-     * A customer's own order history, paginated — resolves Order's own
+     * A customer's own order history, paginated - resolves Order's own
      * repository via the main plugin container's optional-service
      * resolution (same "gracefully absent" pattern `Order\Application\
      * OrderService::resolve_optional_service()`'s own docblock
@@ -390,7 +390,7 @@ class CustomerService {
 
     /**
      * Counts or fetches every customer matching a small set of AND-
-     * combined criteria — see `WPDBCustomerRepository::find_matching()`'s
+     * combined criteria - see `WPDBCustomerRepository::find_matching()`'s
      * own docblock for the full contract; this is a plain pass-through,
      * kept here so Pro's own Segments feature depends on this service
      * (Free's own public API), not the repository/table directly.
@@ -404,10 +404,10 @@ class CustomerService {
     }
 
     /**
-     * Lifetime analytics for one customer — `total_orders`/`total_spent`/
+     * Lifetime analytics for one customer - `total_orders`/`total_spent`/
      * `last_order_at` are already-maintained columns (`record_order()`),
      * `average_order_value` is the one value actually computed on read
-     * (cheap — a single division, not worth its own maintained column).
+     * (cheap - a single division, not worth its own maintained column).
      *
      * @param Customer $customer A customer entity.
      * @return array{total_orders: int, total_spent: float, average_order_value: float, last_order_at: string|null}

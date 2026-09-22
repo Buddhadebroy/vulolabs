@@ -24,7 +24,7 @@
         }
 
         // The real, currently-selected row (HistoryTimeline.tsx's own
-        // `selectedRow?.id === row.id` check) — previously computed but
+        // `selectedRow?.id === row.id` check) - previously computed but
         // never actually styled anywhere in this codebase (confirmed via a
         // full grep for `.history-row` + `.selected`), so a click here or a
         // "Recent activity" deep link from RecentActivityWidget.tsx/
@@ -39,7 +39,7 @@
 
         // A row just landed on via a real deep link (RecentActivityWidget.tsx's
         // "Recent activity" arrow → `?vulopilot_history_id=`, HistoryTab.tsx's
-        // own `pendingSelectId`) — same real "scroll to it, then let a brief
+        // own `pendingSelectId`) - same real "scroll to it, then let a brief
         // pulse fade" idiom this codebase's own `vulopilot-seo-highlight-pulse`
         // (post-editor bundle) already establishes, duplicated here since
         // that one lives in a separate webpack entry this bundle doesn't share.
@@ -152,7 +152,7 @@
 }
 
 // BrokenLinksSection.tsx's own "Last scan completed" / "Why fix broken
-// links?" card pair — real `CardComponent`s side by side (`ColumnComponent
+// links?" card pair - real `CardComponent`s side by side (`ColumnComponent
 // grid={6}` each), not one card split into bespoke `.left`/`.right` divs
 // like this used to be, so the "Run scan again" button can be a real
 // `CardComponent` header `action` and the two stat tiles a real
@@ -167,7 +167,7 @@
 
     // Real zyra `<ListComponent className="checklist">` (icon + title +
     // `desc`), styled as the reference mockup's own 3-column grid instead
-    // of that component's default vertical list — same "target the
+    // of that component's default vertical list - same "target the
     // component's own classes, don't reinvent its markup" approach
     // `.crawler-checklist-row.item-list` above already establishes.
     .checklist.item-list {
@@ -255,12 +255,12 @@
     .item {
 
         // #dc2626 is a literal mirror of zyra's own real global color
-        // palette ($color-palette's "red" entry, theme/src/global.scss) —
+        // palette ($color-palette's "red" entry, theme/src/global.scss) -
         // not an invented value. Plain hex rather than a Sass variable
         // reference since that palette map is zyra's own internal source;
         // `@multivendorx/zyra`'s published package ships only compiled
         // build output (no .scss source), so this plugin's SCSS has no
-        // `@use`-able map or CSS custom property to point at instead —
+        // `@use`-able map or CSS custom property to point at instead -
         // same reasoning documented in Reports.scss's own top comment.
         .details .typography-desc {
             color: #dc2626;
@@ -292,7 +292,7 @@
 }
 
 // robots.txt code editor (CrawlRobotsSitemapSection.tsx's own RobotsTxtEditor)
-// — a real line-numbered gutter + syntax-highlighted overlay over a plain
+// - a real line-numbered gutter + syntax-highlighted overlay over a plain
 // `<textarea>`, not a screenshot-only mock: the `<pre>` and `<textarea>`
 // below share this exact same font/line-height/padding so the highlighted
 // text lines up pixel-for-pixel under what's actually being typed.
@@ -383,7 +383,7 @@
 }
 
 // Read-only usage (InspectorSection.tsx's own JSON-LD blocks, via
-// RobotsTxtEditor's own `readOnly` prop) — no `<textarea>` overlay to
+// RobotsTxtEditor's own `readOnly` prop) - no `<textarea>` overlay to
 // size against, so the gutter/box only ever needs to be as tall as its
 // own real content, unlike the fixed 16rem editable `.rt-editor` above.
 .rt-editor-readonly {
@@ -447,7 +447,7 @@
 }
 
 
-// GettingStartedCard.tsx's own "finish setup" banner — real
+// GettingStartedCard.tsx's own "finish setup" banner - real
 // `dashboard-banner.png` illustration as a right-anchored background image
 // on a purple gradient, matching the mockup's own full-width banner
 // (no CardComponent border/header here, so the layout is hand-built).
@@ -533,7 +533,7 @@
     align-items: flex-start;
     margin-bottom: 1rem;
 
-    // Homepage thumbnail — a plain image, cropped to fit, nothing scrollable.
+    // Homepage thumbnail - a plain image, cropped to fit, nothing scrollable.
     .site-overview-preview {
         position: relative;
         flex: 0 0 14rem;

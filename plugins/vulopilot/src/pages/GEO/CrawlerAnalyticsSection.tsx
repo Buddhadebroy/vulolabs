@@ -40,7 +40,7 @@ const getRating = (score: number): string => {
 	return __('At Risk', 'vulopilot');
 };
 
-/** Same 3-tier band as `getRating()` above, as one of zyra's own `$color-palette` names — for the ring's own `COLOR_PALETTE`-resolved segment color, same convention SeoTab.tsx's own identical ring already established (`seoRating.ts`'s own `ratingColor()`). */
+/** Same 3-tier band as `getRating()` above, as one of zyra's own `$color-palette` names - for the ring's own `COLOR_PALETTE`-resolved segment color, same convention SeoTab.tsx's own identical ring already established (`seoRating.ts`'s own `ratingColor()`). */
 const ratingColor = (score: number): string => {
 	if (score >= 70) {
 		return 'green';
@@ -72,7 +72,7 @@ const ChangeBadge = ({ current, previous }: { current: number; previous: number 
 
 /**
  * Real "Robots.txt is accessible" / "XML sitemap is accessible" / "No
- * critical AI-bot blocks" checklist — reuses the same real `scanner_id`s
+ * critical AI-bot blocks" checklist - reuses the same real `scanner_id`s
  * SeoTab.tsx's own `robots`/`sitemap` sections already report on, fetched
  * once here rather than duplicating SeoTab's own SectionedFindingsTab
  * fetch. Only shown while the SEO module is active, same gate SeoTab.tsx
@@ -103,22 +103,22 @@ const isSeoModuleActive = () =>
 interface CrawlerAnalyticsSectionProps {
 	analytics: CrawlerAnalytics | null;
 	isLoading: boolean;
-	/** CrawlOverviewSection.tsx's own real period state — same real `days` `useCrawlerAnalytics()` already fetches with, now real-selectable via this card's own "Crawl Requests Over Time" toggle instead of hardcoded to 30. */
+	/** CrawlOverviewSection.tsx's own real period state - same real `days` `useCrawlerAnalytics()` already fetches with, now real-selectable via this card's own "Crawl Requests Over Time" toggle instead of hardcoded to 30. */
 	period: string;
 	periodOptions: { key: string; value: string; label: string }[];
 	onPeriodChange: (value: string) => void;
 }
 
 /**
- * The restyled Crawler Traffic tab's real analytics section — an "Overall
+ * The restyled Crawler Traffic tab's real analytics section - an "Overall
  * Crawl Health" summary, 4 real stat cards (each with a real %-change
  * against the immediately preceding period), a real trend chart, a real
- * "by AI lab" breakdown (not "search vs AI" — see CrawlerTraffic.php's own
+ * "by AI lab" breakdown (not "search vs AI" - see CrawlerTraffic.php's own
  * `get_analytics()` docblock on why), a real Top Crawlers table (own real
- * "Last seen" column — the separate "Last seen" tiles card
+ * "Last seen" column - the separate "Last seen" tiles card
  * (CrawlerSummaryCard.tsx) that used to sit below this section was merged
  * into this table instead, per direct instruction ("merge top crawlers
- * and last seen section, add a column in top crawlers last seen") — same
+ * and last seen section, add a column in top crawlers last seen") - same
  * real `MAX(created_at)`-per-bot value, just a column here now instead of
  * its own card; CrawlerSummaryCard.tsx itself was deleted since this was
  * its only real consumer), a real Most Crawled Pages table with real
@@ -126,7 +126,7 @@ interface CrawlerAnalyticsSectionProps {
  * traces back to either `crawler-traffic/analytics`
  * (CrawlerVisitRepository::get_period_comparison(), which now folds
  * get_bot_last_seen()'s own real per-bot timestamp into each `top_crawlers`
- * row) or a real `findings/groups` fetch — nothing here is invented.
+ * row) or a real `findings/groups` fetch - nothing here is invented.
  */
 const CrawlerAnalyticsSection = ({
 	analytics,
@@ -234,10 +234,10 @@ const CrawlerAnalyticsSection = ({
 											<ChartComponent
 												type="ring"
 												height={200}
-												// Top-level `color` — `type="ring"` only ever
+												// Top-level `color` - `type="ring"` only ever
 												// paints its stroke from this prop, never
 												// from `data[].color` below (see SeoTab.tsx's
-												// own identical fix) — without it the ring
+												// own identical fix) - without it the ring
 												// stayed `ChartComponent`'s default brand
 												// purple regardless of score.
 												color={
@@ -265,7 +265,7 @@ const CrawlerAnalyticsSection = ({
 														// Same real rating color the ring's
 														// own "Good"/"Needs Work"/"At Risk"
 														// label above already uses
-														// (`getRating()`) — resolved through
+														// (`getRating()`) - resolved through
 														// `COLOR_PALETTE` for the real hex
 														// `ratingColor()`'s own palette name
 														// stands for, same convention
@@ -333,12 +333,12 @@ const CrawlerAnalyticsSection = ({
 								 * SeoTab.tsx's own "SEO Health" card
 								 * closes with, kept on `variant="dashboard"`
 								 * rather than that card's own
-								 * `"with-out-boxshadow"` — `AnalyticsComponent`
+								 * `"with-out-boxshadow"` - `AnalyticsComponent`
 								 * only renders an item's own `extra` node
 								 * under `variant="dashboard"` (confirmed
 								 * reading its own source), and each real
 								 * `%-change` `ChangeBadge` here already was
-								 * visible before this restructure — silently
+								 * visible before this restructure - silently
 								 * dropping it to match SEO's variant name
 								 * exactly would lose real, already-shown
 								 * data for the sake of a cosmetic match.
@@ -518,7 +518,7 @@ const CrawlerAnalyticsSection = ({
 												<td>
 													{crawler.last_seen_at
 														? formatWpDate(crawler.last_seen_at)
-														: '—'}
+														: '-'}
 												</td>
 											</tr>
 										))}

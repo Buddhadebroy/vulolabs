@@ -6,7 +6,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { NoticeManager } from '@zyra/components';
 import { useAiCredits } from './useAiCredits';
 
-/** A real, clickable edit link for content the AI just created and saved — see CopilotChatResponse's own docblock. */
+/** A real, clickable edit link for content the AI just created and saved - see CopilotChatResponse's own docblock. */
 export interface CopilotChatLink {
 	url: string;
 	label: string;
@@ -16,16 +16,16 @@ export interface CopilotChatTurn {
 	role: 'user' | 'assistant';
 	content: string;
 	link?: CopilotChatLink | null;
-	/** The real `vulopilot_ai_action_runs.id` this turn's content creation executed as — set only alongside `link`, lets ChatTab.tsx offer a real inline "Undo" right next to what it undoes (`POST /ai-action-runs/{id}/rollback`, the same endpoint HistoryDetailPanel.tsx's own Undo button already calls). */
+	/** The real `vulopilot_ai_action_runs.id` this turn's content creation executed as - set only alongside `link`, lets ChatTab.tsx offer a real inline "Undo" right next to what it undoes (`POST /ai-action-runs/{id}/rollback`, the same endpoint HistoryDetailPanel.tsx's own Undo button already calls). */
 	runId?: number | null;
 	/** Set client-side once this turn's own run has been successfully rolled back, so the inline Undo button can honestly show "Undone" instead of staying clickable for an already-reverted run. */
 	undone?: boolean;
-	/** The real files this turn was sent with — user turns only, set from the composer's own `attachments` state at send time so ChatTab.tsx can still show what was attached after the composer clears it. */
+	/** The real files this turn was sent with - user turns only, set from the composer's own `attachments` state at send time so ChatTab.tsx can still show what was attached after the composer clears it. */
 	attachments?: CopilotAttachment[];
 }
 
 /**
- * A user-picked "Add context" item — always re-resolved against real,
+ * A user-picked "Add context" item - always re-resolved against real,
  * current data server-side (Copilot.php's build_context_refs_block());
  * the extra fields here (label/category/count/severity, name) are for
  * rendering the chip client-side only, never trusted as-is by the server.
@@ -45,7 +45,7 @@ export type CopilotContextRef =
 			name: string;
 	  };
 
-/** A user-picked "Attach" file — a real WP Media Library attachment (zyra FileInput's wp.media() picker always returns a real id, never a client-only blob). */
+/** A user-picked "Attach" file - a real WP Media Library attachment (zyra FileInput's wp.media() picker always returns a real id, never a client-only blob). */
 export interface CopilotAttachment {
 	id: number;
 	url: string;
@@ -54,17 +54,17 @@ export interface CopilotAttachment {
 
 interface CopilotChatResponse {
 	content: string;
-	/** Set when this turn really created a WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off) — a real, clickable edit link, never present for an ordinary advisory reply. */
+	/** Set when this turn really created a WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off) - a real, clickable edit link, never present for an ordinary advisory reply. */
 	link: CopilotChatLink | null;
-	/** The real action run id behind that same draft — see CopilotChatTurn's own `runId` docblock. */
+	/** The real action run id behind that same draft - see CopilotChatTurn's own `runId` docblock. */
 	run_id: number | null;
 	provider: string;
 	model: string;
-	/** The real `vulopilot_ai_conversations.id` this turn was just saved under (Copilot.php's own persist_conversation()) — new on the first turn of a session, unchanged on every following turn in the same session. */
+	/** The real `vulopilot_ai_conversations.id` this turn was just saved under (Copilot.php's own persist_conversation()) - new on the first turn of a session, unchanged on every following turn in the same session. */
 	conversation_id: number;
 }
 
-/** One turn as `GET /copilot/conversations/{id}` returns it — see CopilotChatTurn's own docblock for the client-side shape this maps onto. */
+/** One turn as `GET /copilot/conversations/{id}` returns it - see CopilotChatTurn's own docblock for the client-side shape this maps onto. */
 interface StoredConversationTurn {
 	role: 'user' | 'assistant';
 	content: string;
@@ -80,7 +80,7 @@ interface StoredConversation {
 }
 
 /**
- * The shape WP_REST_Server::error_to_response() gives a WP_Error — what
+ * The shape WP_REST_Server::error_to_response() gives a WP_Error - what
  * actually arrives in `error.response.data` when Copilot.php returns one
  * (e.g. "No AI connection is configured…", a safety-validator rejection).
  * Raw axios rather than @zyra/core's sendApiResponse() here on purpose,
@@ -93,28 +93,28 @@ interface WpRestErrorBody {
 }
 
 /**
- * `POST /copilot/chat` (`Controllers\Copilot.php` — briefly moved to
+ * `POST /copilot/chat` (`Controllers\Copilot.php` - briefly moved to
  * vulopilot-pro as a Pro-only feature, moved back per direct instruction:
  * "make this section login popup dependency not pro also code in free for
- * this section not pro dependency with login popup") — the real chat
+ * this section not pro dependency with login popup") - the real chat
  * backend for AI Copilot's Chat tab (ChatTab.tsx), the one real remaining
  * consumer of this hook (GEO/OverviewTab.tsx used to have its own "How
  * would you like to grow today?" composer built on this same hook too, but
- * that layout was replaced in an earlier session — see that file's own
+ * that layout was replaced in an earlier session - see that file's own
  * docblock). The running conversation (`turns`) is still kept here,
- * client-side, and sent back as `history` on every call — but every real
+ * client-side, and sent back as `history` on every call - but every real
  * call also really persists to `vulopilot_ai_conversations` server-side
  * (Copilot.php's own persist_conversation()), keyed by `conversationId`
  * below, which is what lets loadConversation() reload a real, full past
  * thread (not just an excerpt) after a refresh or a brand-new session.
  * Every real call is *separately* still recorded to `vulopilot_ai_history`
- * too, unchanged — that table stays a permanent, excerpt-only audit trail
+ * too, unchanged - that table stays a permanent, excerpt-only audit trail
  * (AiRequestSender::record_success()), not the source this hook
  * reloads from.
  *
  * A message like "write a blog about X" really creates and saves a
  * WordPress draft (Copilot.php's own ContentCreationOrchestrator hand-off,
- * shared with the separate "Create Content" page) — that reply's `link`
+ * shared with the separate "Create Content" page) - that reply's `link`
  * carries the real edit URL, which ChatTab.tsx renders as a real clickable
  * link, same as AiContentAssistantSidebar.tsx already does for its own
  * identical `link` field. Every other kind of request is still advice-only,
@@ -122,14 +122,14 @@ interface WpRestErrorBody {
  *
  * `send()`'s own `autoApply` (from ChatTab.tsx's "Auto-applies (with
  * approval)" toggle) is sent as `auto_apply` and is what actually gates
- * the one real content-creation capability above — previously local UI
+ * the one real content-creation capability above - previously local UI
  * state with no server effect at all. When off, Copilot.php describes what
  * it would create instead of creating it, same "advice-only" shape every
  * other kind of request already gets.
  *
  * Genuinely free, not Pro-gated: `send()` only needs a real AI service
  * configured (BYOK under Settings → Connections, or a connected VuloCloud
- * account) — the same gate ContentAssistant.php's own chat and
+ * account) - the same gate ContentAssistant.php's own chat and
  * ContentToolsGrid.tsx's free tiles already use. `useAiCredits()`'s
  * `status.connected` is checked up front, before ever calling the API
  * (per the same "check before sending, don't wait for a real failure"
@@ -148,15 +148,15 @@ interface WpRestErrorBody {
 export const useCopilotChat = ( noticeKey: string ) => {
 	const [ turns, setTurns ] = useState< CopilotChatTurn[] >( [] );
 	const [ isSending, setIsSending ] = useState( false );
-	/** The real `vulopilot_ai_conversations.id` this session is saving to — null until the first successful reply of a fresh conversation, or until loadConversation() below hydrates it from a past one. */
+	/** The real `vulopilot_ai_conversations.id` this session is saving to - null until the first successful reply of a fresh conversation, or until loadConversation() below hydrates it from a past one. */
 	const [ conversationId, setConversationId ] = useState< number | null >( null );
 	const [ isLoadingConversation, setIsLoadingConversation ] = useState( false );
-	/** True right after a real send was blocked (or failed) because no AI connection is configured — see this hook's own docblock. Reset via `dismissCloudConnectPrompt()`. */
+	/** True right after a real send was blocked (or failed) because no AI connection is configured - see this hook's own docblock. Reset via `dismissCloudConnectPrompt()`. */
 	const [ isCloudConnectPromptOpen, setIsCloudConnectPromptOpen ] = useState( false );
 	const { status: creditsStatus } = useAiCredits();
 
 	const dismissCloudConnectPrompt = () => setIsCloudConnectPromptOpen( false );
-	/** Bumped by `startNewConversation()` — a reply still in flight from before that reset belongs to the abandoned thread and must not land in the fresh one. */
+	/** Bumped by `startNewConversation()` - a reply still in flight from before that reset belongs to the abandoned thread and must not land in the fresh one. */
 	const chatGeneration = useRef( 0 );
 
 	const send = (
@@ -233,7 +233,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 					?.message;
 
 				// Copilot.php's own real "No AI connection is configured."
-				// (AiRequestSender) — defense-in-depth for the same
+				// (AiRequestSender) - defense-in-depth for the same
 				// condition the up-front `creditsStatus` check above
 				// normally already catches (e.g. that status hadn't
 				// loaded yet, or the connection dropped since); same
@@ -265,7 +265,7 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	};
 
 	/**
-	 * Marks one turn's own run as rolled back — called by ChatTab.tsx after
+	 * Marks one turn's own run as rolled back - called by ChatTab.tsx after
 	 * a real, successful `POST /ai-action-runs/{id}/rollback` (same pattern
 	 * HistoryDetailPanel.tsx's own Undo button already uses). Matched by
 	 * `runId` rather than array index, since `turns` can grow between when
@@ -282,10 +282,10 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	/**
 	 * Loads a real, past conversation's full turns back into this composer
 	 * (`GET /copilot/conversations/{id}`, Copilot.php's own get_conversation())
-	 * — RecentConversationsCard.tsx's "click to load full history" feature.
+	 * - RecentConversationsCard.tsx's "click to load full history" feature.
 	 * Replaces `turns` entirely and adopts `id` as the active
 	 * `conversationId`, so sending a new message afterward appends to this
-	 * same thread server-side instead of starting a new one. No gate here —
+	 * same thread server-side instead of starting a new one. No gate here -
 	 * a past conversation only exists if it was already sent for real, which
 	 * already required a connected VuloCloud AI account; reading it back doesn't
 	 * make a new AI call of its own.
@@ -317,11 +317,11 @@ export const useCopilotChat = ( noticeKey: string ) => {
 	};
 
 	/**
-	 * "New Chat" — clears `turns` and drops `conversationId` so the next
+	 * "New Chat" - clears `turns` and drops `conversationId` so the next
 	 * `send()` starts a genuinely new `vulopilot_ai_conversations` row
 	 * server-side (Copilot.php's own persist_conversation() only appends to
 	 * an existing conversation when `conversation_id` is sent) instead of
-	 * appending onto whatever thread was active. Purely client-side reset —
+	 * appending onto whatever thread was active. Purely client-side reset -
 	 * the conversation just left doesn't need a corresponding request:
 	 * it's already been saved turn-by-turn as it happened.
 	 */

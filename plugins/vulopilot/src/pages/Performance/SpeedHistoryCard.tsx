@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { CardComponent, ChartComponent, ModuleGuardComponent } from '@zyra/components';
+import { ChartComponent, ModuleGuardComponent } from '@zyra/components';
 import { useApiList } from '../../services/useApiList';
 import { formatWpDate } from '../../services/formatWpDate';
 
@@ -9,7 +9,7 @@ interface PerformanceScoreSnapshot {
 }
 
 /**
- * "Speed History" — real daily `performance_score` snapshots from
+ * "Speed History" - real daily `performance_score` snapshots from
  * `GET /performance-score-snapshots?days=N`
  * (`classes/Repositories/PerformanceScoreSnapshotRepository.php`, written by
  * `Services\PerformanceScoreSnapshotRecorder` after every scan plus once
@@ -25,7 +25,7 @@ interface PerformanceScoreSnapshot {
  * action already uses.
  */
 interface SpeedHistoryCardProps {
-	/** Real 7/30/90 range, controlled by the parent "Core Web Vitals" card's own period toggle (PerformanceScoreCard.tsx) — defaults to 30 for any other caller that doesn't pass one. */
+	/** Real 7/30/90 range, controlled by the parent "Core Web Vitals" card's own period toggle (PerformanceScoreCard.tsx) - defaults to 30 for any other caller that doesn't pass one. */
 	days?: number;
 }
 
@@ -42,7 +42,7 @@ const SpeedHistoryCard = ({ days = 30 }: SpeedHistoryCardProps) => {
 					icon="analytics"
 					title={__('No trend data yet', 'vulopilot')}
 					desc={__(
-						'Speed history builds up after your first scan — run a scan, or check back after today.',
+						'Speed history builds up after your first scan - run a scan, or check back after today.',
 						'vulopilot'
 					)}
 				/>

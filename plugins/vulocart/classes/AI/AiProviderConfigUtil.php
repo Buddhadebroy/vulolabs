@@ -10,10 +10,10 @@ namespace VuloCart\AI;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Plain `$wpdb` CRUD over `vulocart_ai_provider_configs` — same Util shape
+ * Plain `$wpdb` CRUD over `vulocart_ai_provider_configs` - same Util shape
  * `vulocart-pro`'s own per-table Util classes use (ZoneUtil, RateUtil, ...).
  * `credentials` is always the AES-256-CBC-encrypted form
- * (Services\CredentialEncryption); this class never decrypts — that's
+ * (Services\CredentialEncryption); this class never decrypts - that's
  * ProviderRegistry::build_provider()'s job, the one place a raw key is
  * actually needed.
  *
@@ -54,7 +54,7 @@ class AiProviderConfigUtil {
 
 	/**
 	 * Creates or replaces one provider's own config row (one row per
-	 * provider id — a second save for the same provider overwrites the
+	 * provider id - a second save for the same provider overwrites the
 	 * first rather than accumulating history).
 	 *
 	 * @param string $provider           e.g. 'openai'.

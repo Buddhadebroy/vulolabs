@@ -25,14 +25,14 @@ const STOCK_STATUS_OPTIONS = [
 ];
 
 /**
- * The Offerings menu's "Inventory" page — a specialized view over
+ * The Offerings menu's "Inventory" page - a specialized view over
  * offerings of a stock-trackable type (Inventory.php's own
  * `STOCK_TRACKED_TYPES`), with inline quantity/status editing. A plain
  * HTML table with real `<input>`/`<select>` cells rather than zyra's
- * `TableCard`'s own `onCellEdit`/`isEditable` — confirmed those don't
+ * `TableCard`'s own `onCellEdit`/`isEditable` - confirmed those don't
  * actually work in the current `@zyra/table` build
  * (`Table.tsx` hardcodes `isEditing: false` at the call site, so a cell
- * never actually enters edit mode regardless of config) — no sense
+ * never actually enters edit mode regardless of config) - no sense
  * wiring a prop combination that's a no-op in the shared component.
  */
 export function InventoryPage() {
@@ -139,7 +139,7 @@ export function InventoryPage() {
 											<span className="vulocart-low-stock-badge">{ __( 'Low stock', 'vulocart' ) }</span>
 										) }
 									</td>
-									<td>{ item.sku || '—' }</td>
+									<td>{ item.sku || '-' }</td>
 									<td>
 										<input
 											type="number"

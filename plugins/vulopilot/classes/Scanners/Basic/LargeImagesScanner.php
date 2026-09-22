@@ -13,7 +13,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags oversized image attachments — distinct from ImagesScanner, which
+ * Flags oversized image attachments - distinct from ImagesScanner, which
  * only checks for missing alt text and never inspects file size. Same
  * bounded media-library query shape as ImagesScanner, just checking
  * filesize() instead of the alt-text meta key.
@@ -100,7 +100,7 @@ class LargeImagesScanner extends AbstractBasicScanner {
                 ),
                 Severity::LOW,
                 $this->get_category(),
-                __( 'Large images slow down page loads, especially on mobile connections — consider compressing or resizing.', 'vulopilot' ),
+                __( 'Large images slow down page loads, especially on mobile connections - consider compressing or resizing.', 'vulopilot' ),
                 'attachment',
                 (string) $attachment_id,
                 array(
@@ -108,7 +108,7 @@ class LargeImagesScanner extends AbstractBasicScanner {
                     'recommended_fix' => array(
                         __( 'Compress oversized images with a plugin (e.g. ShortPixel, Imagify) or before uploading.', 'vulopilot' ),
                         __( 'Convert large images to a modern format like WebP or AVIF.', 'vulopilot' ),
-                        __( 'Resize images to the maximum dimension actually needed — avoid uploading full-resolution originals.', 'vulopilot' ),
+                        __( 'Resize images to the maximum dimension actually needed - avoid uploading full-resolution originals.', 'vulopilot' ),
                         __( 'Re-run this scan after optimizing to confirm the file size has dropped.', 'vulopilot' ),
                     ),
                 )

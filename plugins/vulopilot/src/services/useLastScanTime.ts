@@ -8,18 +8,18 @@ interface ScanRow {
 
 /**
  * The real most recent *completed* scan run's own `finished_at`
- * (`vulopilot_scans`, `GET /scans`) for one scanner group — or, when both
+ * (`vulopilot_scans`, `GET /scans`) for one scanner group - or, when both
  * `scannerIds` and `categories` are omitted, the single most recent
  * completed run of any scanner site-wide. `null` while loading or when
  * nothing has ever completed for this scope (never a fabricated date).
  *
  * @param scannerIds Real scanner ids to scope to, or omit for site-wide.
- * @param categories Real category ids to scope to (e.g. `['security']`) —
+ * @param categories Real category ids to scope to (e.g. `['security']`) -
  *                    resolved to their own real scanner ids server-side
  *                    (`Controllers\Scans::get_items()`'s own `category`
  *                    param, the same `ScannerRegistry::get_scanners_by_category()`
  *                    mapping `POST /scans`' own `category` param already
- *                    uses to decide what to run) — lets a category page's
+ *                    uses to decide what to run) - lets a category page's
  *                    own header ask by the same category it scans by,
  *                    rather than every caller having to know and hardcode
  *                    that category's own raw scanner ids. Merges with

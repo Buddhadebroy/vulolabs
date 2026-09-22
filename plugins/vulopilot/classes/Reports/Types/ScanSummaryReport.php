@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Every scanner run plus every finding raised in the period, across every
- * category — the "everything" report, same all-categories posture as the
+ * category - the "everything" report, same all-categories posture as the
  * Health dashboard page (SCANNERS.md).
  *
  * @class       ScanSummaryReport class

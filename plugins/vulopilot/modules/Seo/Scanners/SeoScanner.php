@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags published post/page titles outside the length search engines
- * reliably display in full (roughly 10-60 characters) — a title with no
+ * reliably display in full (roughly 10-60 characters) - a title with no
  * dedicated meta-description field can't be checked generically (that
  * field's meta key varies by whichever SEO plugin, if any, is active),
  * but the title itself is always a plain post field every install has.

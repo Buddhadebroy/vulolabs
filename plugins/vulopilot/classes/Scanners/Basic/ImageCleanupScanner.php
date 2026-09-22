@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
 class ImageCleanupScanner extends AbstractBasicScanner {
 
     /**
-     * How old an unattached image must be before it's flagged — avoids
+     * How old an unattached image must be before it's flagged - avoids
      * catching images uploaded moments ago for a post that isn't saved yet.
      */
     const MIN_AGE_DAYS = 30;
@@ -105,7 +105,7 @@ class ImageCleanupScanner extends AbstractBasicScanner {
 
     /**
      * Unattached image attachments older than MIN_AGE_DAYS, minus anything
-     * currently protected (see get_protected_image_ids()) — the single
+     * currently protected (see get_protected_image_ids()) - the single
      * source of truth both scan() and PerformanceActions::run_image_cleanup()
      * use, so what's counted here is exactly what gets deleted there.
      *

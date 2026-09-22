@@ -13,12 +13,12 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * "Compatibility" — one real finding per theme-overridden WooCommerce
+ * "Compatibility" - one real finding per theme-overridden WooCommerce
  * template file that's older than the version WooCommerce core itself
  * now ships. Not a heuristic: this is the exact same
  * `WC_Admin_Status::scan_template_files()` + `get_file_version()` +
  * `version_compare()` comparison WooCommerce's own System Status page
- * (Tools > Status) already runs to populate its "Templates" section — a
+ * (Tools > Status) already runs to populate its "Templates" section - a
  * theme's own copy of a WC template can silently miss bug fixes/new
  * hooks that shipped in a newer core template, causing subtle checkout/
  * cart/product-page bugs that are hard to trace back to "the theme's
@@ -74,7 +74,7 @@ class WooCommerceCompatibilityScanner extends AbstractBasicScanner {
 		foreach ( $scan_files as $file ) {
 			$located = wc_locate_template( $file, WC()->template_path(), $wc_templates_dir );
 
-			// Not overridden by the active theme — nothing to compare.
+			// Not overridden by the active theme - nothing to compare.
 			if ( 0 === strpos( $located, $wc_templates_dir ) || ! file_exists( $located ) ) {
 				continue;
 			}
@@ -96,7 +96,7 @@ class WooCommerceCompatibilityScanner extends AbstractBasicScanner {
 				$this->get_category(),
 				sprintf(
 					/* translators: 1: the theme's own template version, 2: WooCommerce core's current template version. */
-					__( 'The active theme\'s copy of this template is version %1$s, but WooCommerce core is now on %2$s — the theme\'s override may be missing fixes or hooks from newer versions.', 'vulopilot' ),
+					__( 'The active theme\'s copy of this template is version %1$s, but WooCommerce core is now on %2$s - the theme\'s override may be missing fixes or hooks from newer versions.', 'vulopilot' ),
 					$override_version,
 					$core_version
 				),

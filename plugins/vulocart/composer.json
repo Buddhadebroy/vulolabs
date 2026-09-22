@@ -1,6 +1,6 @@
 {
     "name": "vulolabs/vulocart",
-    "description": "VuloCart — AI-native, API-first commerce engine",
+    "description": "VuloCart - AI-native, API-first commerce engine",
     "type": "wordpress-plugin",
     "homepage": "https://vulolabs.com/vulocart/",
     "license": "GPL-2.0-or-later",

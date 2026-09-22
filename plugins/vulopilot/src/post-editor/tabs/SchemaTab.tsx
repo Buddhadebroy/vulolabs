@@ -8,7 +8,7 @@ import { useFieldHighlight } from '../useFieldHighlight';
 const SCHEMA_TYPES = [ 'Article', 'Product', 'FAQPage', 'Recipe', 'Event', 'JobPosting', 'Organization', 'LocalBusiness', 'Review' ];
 
 /**
- * The metabox's Schema tab — a type hint (`_vulopilot_schema_type`, UI-only:
+ * The metabox's Schema tab - a type hint (`_vulopilot_schema_type`, UI-only:
  * it labels the dropdown, it isn't sent to the AI prompt, since
  * AIActions\Actions\GenerateSchemaAction already infers Article vs
  * Product/Recipe/Event from the content itself) plus the actual JSON-LD,
@@ -17,17 +17,17 @@ const SCHEMA_TYPES = [ 'Article', 'Product', 'FAQPage', 'Recipe', 'Event', 'JobP
  * Services\PostSeoMetaFields so this textarea's edits save through the
  * Block Editor's own native Save button same as everything else here).
  * Services\SchemaJsonLdRenderer outputs whatever ends up in that key on
- * the frontend — manual edits here "just work" with no output-layer change.
+ * the frontend - manual edits here "just work" with no output-layer change.
  */
 interface SchemaTabProps {
 	/**
-	 * Deep link's resolved target — every schema-flavored scanner id
+	 * Deep link's resolved target - every schema-flavored scanner id
 	 * (schema/structured-data/author-schema/organization-schema/aeo-schema,
 	 * seoIssueEditorTarget.ts) resolves to 'schema_json', which scrolls to
 	 * and pulses the Generate button + JSON-LD field: the actual fix.
 	 */
 	highlightTarget?: string;
-	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch — accepted for prop-shape parity with every other tab, unused here. */
+	/** `PostSeoPanel.tsx`'s own in-sidebar tab switch - accepted for prop-shape parity with every other tab, unused here. */
 	// eslint-disable-next-line no-unused-vars
 	onNavigate?: ( tab: string, target?: string ) => void;
 }
@@ -78,7 +78,7 @@ export default function SchemaTab( { highlightTarget }: SchemaTabProps ) {
 		>
 			<SelectControl
 				label={ __( 'Schema Type', 'vulopilot' ) }
-				help={ __( 'A label for your own reference — VuloPilot\'s AI generator picks the right type automatically based on the content.', 'vulopilot' ) }
+				help={ __( 'A label for your own reference - VuloPilot\'s AI generator picks the right type automatically based on the content.', 'vulopilot' ) }
 				value={ schemaType }
 				options={ SCHEMA_TYPES.map( ( type ) => ( { label: type, value: type } ) ) }
 				onChange={ ( value ) => setMeta( { [ metaKeys.schema_type ]: value } ) }
@@ -98,7 +98,7 @@ export default function SchemaTab( { highlightTarget }: SchemaTabProps ) {
 
 			<TextareaControl
 				label={ __( 'Structured Data (JSON-LD)', 'vulopilot' ) }
-				help={ isValidJson( schemaJson ) ? __( 'Advanced — edit the raw JSON-LD directly.', 'vulopilot' ) : __( 'This is not valid JSON — it will be cleared on save.', 'vulopilot' ) }
+				help={ isValidJson( schemaJson ) ? __( 'Advanced - edit the raw JSON-LD directly.', 'vulopilot' ) : __( 'This is not valid JSON - it will be cleared on save.', 'vulopilot' ) }
 				value={ schemaJson }
 				onChange={ ( value ) => setMeta( { [ metaKeys.schema_json ]: value } ) }
 				rows={ 10 }

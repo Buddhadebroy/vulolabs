@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * expired transients (rows WordPress itself considers stale, safe to
  * delete) plus revisions beyond the most recent 5 per post. Distinct from
  * DatabaseScanner (category 'database', revisions-only, feeds the Health
- * category instead) — this one is scoped to category 'performance' and
+ * category instead) - this one is scoped to category 'performance' and
  * combines both signals into a single "Database Cleanup" tile/finding, and
  * its threshold/counts are what PerformanceActions' `database-cleanup`
  * quick action actually deletes.
@@ -118,7 +118,7 @@ class DatabaseCleanupScanner extends AbstractBasicScanner {
 
     /**
      * Counts revisions beyond the most recent KEEP_REVISIONS_PER_POST for
-     * each post that has any — a single aggregate query rather than
+     * each post that has any - a single aggregate query rather than
      * looping every post in PHP.
      *
      * @return int

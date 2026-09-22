@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * freshness/authorship signals: an author bio, or any edit after initial
  * publish (`post_modified` later than `post_date`, i.e. evidence the
  * content has been reviewed/kept current). Deliberately compound and
- * narrower than GeoAuthorInfoScanner's separate bio-only check — this
+ * narrower than GeoAuthorInfoScanner's separate bio-only check - this
  * only fires when *both* signals are absent, since either one alone is a
  * real, if partial, trust signal on its own.
  *
@@ -90,7 +90,7 @@ class GeoEeatSignalsScanner extends AbstractBasicScanner implements TracksScanne
                 ),
                 Severity::LOW,
                 $this->get_category(),
-                __( 'This content has no author bio and has never been updated since it was first published — two of the clearest signals AI engines use to judge expertise and trustworthiness are both missing.', 'vulopilot' ),
+                __( 'This content has no author bio and has never been updated since it was first published - two of the clearest signals AI engines use to judge expertise and trustworthiness are both missing.', 'vulopilot' ),
                 'post',
                 (string) $post->ID
             );

@@ -31,7 +31,7 @@ class ScanRepository extends AbstractRepository {
     }
 
     /**
-     * Scan-run counts by status for one date range — what
+     * Scan-run counts by status for one date range - what
      * Reports\Types\ScanSummaryReport's headline summary reads.
      *
      * @param string $period_start Y-m-d, inclusive.
@@ -64,7 +64,7 @@ class ScanRepository extends AbstractRepository {
 
     /**
      * Most recent successfully-finished `vulopilot_scans` row for any of
-     * the given scanner ids — what BrokenLinksStats::get_stats() reads to
+     * the given scanner ids - what BrokenLinksStats::get_stats() reads to
      * back a real "last scan took Xs" figure. `finished_at`/`duration_ms`
      * only exist for a run ScanRunner actually completed (ScanResult::
      * STATUS_COMPLETED), so a failed or still-running scan is deliberately

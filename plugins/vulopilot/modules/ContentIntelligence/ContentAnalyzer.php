@@ -14,18 +14,18 @@ use VuloPilot\Repositories\FindingRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Generates a ContentScore for one post — "Topic Authority" (the one
+ * Generates a ContentScore for one post - "Topic Authority" (the one
  * Content Intelligence AI capability actually requested), combined with a
  * deterministic score over this module's own 5 real checks. Same shape as
  * GeoAnalysis\GeoAnalyzer (deliberately: this is the second engine to
  * follow that exact "plain concrete orchestrator, reuses AiRequestSender,
  * not an AIAction since nothing is mutated" pattern, not a redesign of it)
- * — see that class's own docblock for why an interface here would have
+ * - see that class's own docblock for why an interface here would have
  * exactly one implementer and add nothing.
  *
  * Constructed unconditionally in Free (VuloPilot::init_classes()) exactly
  * like geo_analyzer; only the REST route that spends real AI money calling
- * analyze() lives in Pro (modules/ContentIntelligence/Rest.php) — same
+ * analyze() lives in Pro (modules/ContentIntelligence/Rest.php) - same
  * Free-owns-the-engine/Pro-owns-the-costed-route split GeoInsights\Rest.php's
  * own docblock documents for the identical reason.
  *
@@ -39,7 +39,7 @@ class ContentAnalyzer {
      * The 5 real Content Intelligence checks a post can have an open
      * finding for: this module's own readability scanner, plus the 4
      * existing `seo`-category scanners this module reuses rather than
-     * duplicates (CONTENT-INTELLIGENCE-MODULE.md's audit) — orphan-pages
+     * duplicates (CONTENT-INTELLIGENCE-MODULE.md's audit) - orphan-pages
      * is sitewide-shaped like GEO's Trust Signals, not per-post, so it's
      * deliberately excluded here the same way GeoAnalyzer excludes
      * per-post-inapplicable checks from its own 9.
@@ -99,7 +99,7 @@ class ContentAnalyzer {
 
     /**
      * Reads back a previously generated score without spending another AI
-     * call — what the REST controller's GET route returns.
+     * call - what the REST controller's GET route returns.
      *
      * @param int $post_id Post to read a score for.
      * @return array<string, mixed>|null
@@ -118,7 +118,7 @@ class ContentAnalyzer {
 
     /**
      * Percentage of SCANNER_IDS's 5 checks with no open finding for this
-     * post — null if this site has no Content Intelligence scan history
+     * post - null if this site has no Content Intelligence scan history
      * at all yet, so an absence of problems is never confused with "never
      * checked" (same posture GeoAnalyzer::calculate_deterministic_score()
      * already takes).
@@ -154,7 +154,7 @@ class ContentAnalyzer {
 
     /**
      * @param \WP_Post $post                Post being analyzed.
-     * @param int|null $deterministic_score Already-known deterministic score, if any — given to the AI as context.
+     * @param int|null $deterministic_score Already-known deterministic score, if any - given to the AI as context.
      * @return array<int, array{role: string, content: string}>
      */
     private function build_prompt( \WP_Post $post, ?int $deterministic_score ): array {
@@ -166,7 +166,7 @@ class ContentAnalyzer {
                     . '(specific facts, named examples, nuance beyond a surface-level summary), rather than reading as '
                     . 'generic or superficial. Also give 3-5 concrete, specific suggestions to make the content more '
                     . 'authoritative on its topic. Respond with ONLY raw JSON like {"topic_authority": 65, '
-                    . '"suggestions": ["...", "..."]} — no markdown fences, no commentary.',
+                    . '"suggestions": ["...", "..."]} - no markdown fences, no commentary.',
             ),
             array(
                 'role'    => 'user',
@@ -175,7 +175,7 @@ class ContentAnalyzer {
                     $post->post_title,
                     wp_trim_words( wp_strip_all_tags( $post->post_content ), 500 ),
                     null !== $deterministic_score
-                        ? sprintf( "\n\n(This content already scores %d/100 on separate structural checks — factor that in.)", $deterministic_score )
+                        ? sprintf( "\n\n(This content already scores %d/100 on separate structural checks - factor that in.)", $deterministic_score )
                         : ''
                 ),
             ),
@@ -220,7 +220,7 @@ class ContentAnalyzer {
     }
 
     /**
-     * Simple, documented average — same "coarse, not scientific" posture
+     * Simple, documented average - same "coarse, not scientific" posture
      * GeoAnalyzer::calculate_overall_score() already takes. Both
      * components are averaged unweighted when both are known; when there's
      * no deterministic history yet, the AI dimension stands alone rather

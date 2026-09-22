@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Turns Geo\Scanners\GeoFaqOpportunityScanner's "no FAQ-style
- * questions" Finding into a recommendation to draft one with AI — good
+ * questions" Finding into a recommendation to draft one with AI - good
  * FAQ questions have to actually anticipate what a reader would ask
  * about this specific content, which needs the content itself, the same
  * reasoning SeoTitleRewriteRule/MissingMetaDescriptionRule already
@@ -105,7 +105,7 @@ class FaqOpportunityRule extends AbstractBasicRule {
      */
     public function applies_to( Finding $finding ): bool {
         // Matched on the `faq_opportunity` meta key GeoFaqOpportunityScanner
-        // attaches specifically for this — category 'geo' alone is shared
+        // attaches specifically for this - category 'geo' alone is shared
         // by 9 scanners now (GEO-MODULE.md), and `word_count` alone would
         // also match GeoSummaryBlockScanner/ThinContentScanner findings,
         // so a scanner-specific key (not the Finding's already-translated

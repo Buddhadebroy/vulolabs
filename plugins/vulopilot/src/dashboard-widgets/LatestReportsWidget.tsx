@@ -15,7 +15,7 @@ interface ReportRow {
 
 /**
  * Compact read of `/reports` (src/pages/Reports/Reports.tsx's own data
- * source) — same reasoning as RecentActivityWidget for using a plain list
+ * source) - same reasoning as RecentActivityWidget for using a plain list
  * instead of TableCard at this size.
  */
 const LatestReportsWidget: React.FC<WidgetProps> = ({

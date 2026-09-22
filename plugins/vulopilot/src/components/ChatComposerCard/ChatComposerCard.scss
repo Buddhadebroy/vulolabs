@@ -74,12 +74,12 @@
 
 
 // Ported from zyra's own ChatMessageComponent.scss/ChatInputComponent.scss
-// (@zyra/components) — every real consumer of those two components lived in
+// (@zyra/components) - every real consumer of those two components lived in
 // this plugin alone, so their styles moved here with the components rather
 // than staying in the shared design system.
 
 // Same "orange" entry zyra's own $color-palette carried (packages/theme/src/global.scss)
-// — inlined here since this plugin's local config.scss doesn't define the
+// - inlined here since this plugin's local config.scss doesn't define the
 // full palette map, only the single-color tokens it actually uses elsewhere.
 $chat-message-bubble-bg: #fff9f4;
 $chat-message-avatar-bg: #e67a2e;
@@ -205,7 +205,7 @@ $chat-message-avatar-bg: #e67a2e;
 	color: $sub-text-color;
 }
 
-// ChatComposerCard's `emptyState` — a centered "nothing sent yet" hero
+// ChatComposerCard's `emptyState` - a centered "nothing sent yet" hero
 // (icon + heading + subtitle) shown in place of `welcome`/`turns` while the
 // conversation is empty, instead of the plain `ChatMessage` bubble every
 // other composer here uses. Bare/generic on purpose: page-specific touches
@@ -241,7 +241,7 @@ $chat-message-avatar-bg: #e67a2e;
 
 // Every ChatComposerCard's own CardComponent carries this class
 // unconditionally (see index.tsx's `className={`${cardClassName} ai-card`}`)
-// — scoping the title-icon badge + pill-shaped/chevron chip-grid here (keyed
+// - scoping the title-icon badge + pill-shaped/chevron chip-grid here (keyed
 // off it, not a per-page class) is what makes this one shared look instead
 // of AI Copilot's Chat tab being the only composer with it. `chip-grid`
 // itself has no other consumer in this plugin outside a ChatComposerCard's

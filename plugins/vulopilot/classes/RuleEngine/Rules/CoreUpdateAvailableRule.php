@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Turns Scanners\Basic\UpdatesScanner's WordPress-core-update Finding
  * (object_type 'core') into a recommendation to update now. Marked
- * fixable — a future automation action can trigger core's own update
- * routine directly — and doesn't require AI, since applying a WordPress
+ * fixable - a future automation action can trigger core's own update
+ * routine directly - and doesn't require AI, since applying a WordPress
  * update is a deterministic operation with no content to generate.
  *
  * @class       CoreUpdateAvailableRule class

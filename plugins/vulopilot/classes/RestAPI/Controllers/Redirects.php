@@ -12,12 +12,12 @@ use VuloPilot\Repositories\RedirectRepository;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET/POST /redirects, POST /redirects/{id}, POST /redirects/{id}/delete —
+ * GET/POST /redirects, POST /redirects/{id}, POST /redirects/{id}/delete -
  * the "Redirects & 404s" feature's own CRUD surface, backing
  * src/pages/Redirects/Redirects.tsx. Same route/verb shape as
  * AiProviders.php (POST rather than PUT/DELETE for update/delete, since the
- * zyra core package's sendApiResponse() helper — what the actual frontend
- * page calls — always issues POST regardless of any `method` override
+ * zyra core package's sendApiResponse() helper - what the actual frontend
+ * page calls - always issues POST regardless of any `method` override
  * passed in).
  *
  * @class       Redirects controller
@@ -34,7 +34,7 @@ class Redirects extends \WP_REST_Controller {
     protected $rest_base = 'redirects';
 
     /**
-     * Real per-check results cache for get_health() — see that method's
+     * Real per-check results cache for get_health() - see that method's
      * own docblock.
      */
     private const HEALTH_OPTION = 'vulopilot_redirect_health';
@@ -189,7 +189,7 @@ class Redirects extends \WP_REST_Controller {
         if ( $repository->find_by_source_path( $source_path ) ) {
             return new \WP_Error(
                 'vulopilot_redirect_already_exists',
-                __( 'A redirect for this path already exists — edit or delete the existing one instead.', 'vulopilot' ),
+                __( 'A redirect for this path already exists - edit or delete the existing one instead.', 'vulopilot' ),
                 array( 'status' => 400 )
             );
         }
@@ -211,7 +211,7 @@ class Redirects extends \WP_REST_Controller {
     }
 
     /**
-     * Partially updates a redirect — only the fields actually present in the request body change.
+     * Partially updates a redirect - only the fields actually present in the request body change.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -272,7 +272,7 @@ class Redirects extends \WP_REST_Controller {
     }
 
     /**
-     * Real "Broken Redirects" data — nothing in this codebase previously
+     * Real "Broken Redirects" data - nothing in this codebase previously
      * checked whether a redirect's own `target_url` actually resolves
      * (BrokenLinksScanner only checks `<a href>`s found in page content,
      * never this table). Same HEAD-request/timeout/reason shape as
@@ -280,10 +280,10 @@ class Redirects extends \WP_REST_Controller {
      * means exactly what a broken link's does elsewhere in this plugin.
      *
      * Cached in a single option for `HEALTH_CACHE_SECONDS` (real, honest
-     * "Last checked" timestamp for RedirectsSection.tsx's own stat tile —
+     * "Last checked" timestamp for RedirectsSection.tsx's own stat tile -
      * there is no scheduler/cron for this, so unlike BrokenLinksScanner
      * there's no "next run" to report) rather than re-checking every
-     * target on every page load — `force=1` bypasses the cache for an
+     * target on every page load - `force=1` bypasses the cache for an
      * explicit "Recheck now" action. Bounded to `MAX_HEALTH_CHECKS`
      * active redirects per call, same reasoning BrokenLinksScanner caps
      * itself per run: a bulk redirect importer creating hundreds of rows

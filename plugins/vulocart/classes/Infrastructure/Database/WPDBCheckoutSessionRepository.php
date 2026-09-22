@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * VuloCart WPDBCheckoutSessionRepository.
  *
  * The only class in this codebase that runs SQL against
- * `vulocart_checkout_sessions` — implements
+ * `vulocart_checkout_sessions` - implements
  * Domain\Checkout\CheckoutSessionRepositoryInterface, bound in
  * VuloCart::init_classes(). Same `$wpdb->prepare()` discipline every
  * other repository here already follows.

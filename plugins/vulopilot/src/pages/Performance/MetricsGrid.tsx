@@ -10,7 +10,7 @@ import './Performance.scss';
 interface MetricTileData {
 	id: string;
 	/**
-	 * `"<adminfont name> <$color-palette key>"` — same
+	 * `"<adminfont name> <$color-palette key>"` - same
 	 * icon-name-plus-palette-key convention CATEGORY_CARDS (SeoTab.tsx) and
 	 * GeoScoreSection.tsx already use: the second word isn't part of the
 	 * icon name, it's a plain `.{color}` utility class (theme/src/common.scss's
@@ -27,7 +27,7 @@ const METRIC_TILES: MetricTileData[] = [
 		id: 'core-web-vitals',
 		icon: 'analytics violet',
 		title: __('Core Web Vitals', 'vulopilot'),
-		desc: __('LCP, INP, CLS, and FCP — see the Performance Score card above.', 'vulopilot'),
+		desc: __('LCP, INP, CLS, and FCP - see the Performance Score card above.', 'vulopilot'),
 	},
 	{
 		id: 'caching',
@@ -111,7 +111,7 @@ const METRIC_TILES: MetricTileData[] = [
 
 /**
  * Tile ids backed by `GET /efficiency-checks` (Controllers\EfficiencyChecks.php)
- * instead of a category-'performance' scanner — used below only to pick
+ * instead of a category-'performance' scanner - used below only to pick
  * `badgeFor()`'s data source and, for PHP acceleration, its own real
  * technical-details rows. Title/desc/icon above are copied verbatim
  * from that endpoint's own checks (real, not fabricated for this grid);
@@ -127,7 +127,7 @@ const EFFICIENCY_TILE_IDS = [
 const NOT_TRACKED_BADGE = { text: __('Not tracked yet', 'vulopilot'), color: 'indigo' };
 const OPEN_FALLBACK_BADGE = { text: __('No open findings', 'vulopilot'), color: 'green' };
 
-/** Same status→color mapping EfficiencySummaryCard.tsx's own `efficiency-check-icon--{status}` styling implies (good=green, attention=orange, not_applicable=neutral) — reused here for the badge instead of a CSS class since this grid's badges are plain `BadgeComponent` colors. */
+/** Same status→color mapping EfficiencySummaryCard.tsx's own `efficiency-check-icon--{status}` styling implies (good=green, attention=orange, not_applicable=neutral) - reused here for the badge instead of a CSS class since this grid's badges are plain `BadgeComponent` colors. */
 const EFFICIENCY_STATUS_COLOR: Record<string, string> = {
 	good: 'green',
 	attention: 'orange',
@@ -136,12 +136,12 @@ const EFFICIENCY_STATUS_COLOR: Record<string, string> = {
 
 /**
  * Each scanner-backed tile's own real section on the "Top Issues" table
- * below (PerformanceTab.tsx's own `SECTIONS`, kept in sync by hand) — a
+ * below (PerformanceTab.tsx's own `SECTIONS`, kept in sync by hand) - a
  * tile's "View" button jumps straight there and switches to that section's
  * tab, same "per-tile Review button drives a shared table's activeTab"
  * pattern AccessibilityChecksGrid.tsx already established. "Core Web
  * Vitals" isn't a scanner finding (it's a live metric, not an issue), so
- * it's handled separately — see `onViewCoreWebVitals` below.
+ * it's handled separately - see `onViewCoreWebVitals` below.
  */
 const SECTION_KEY_BY_TILE_ID: Record<string, string> = {
 	caching: 'caching-delivery',
@@ -252,7 +252,7 @@ const MetricsGrid = ({
 	 * `MetricTileComponent`'s own `desc` accepts any React node, so PHP
 	 * acceleration can show its real `check.technical_details` (OPcache:
 	 * Enabled, Status: Active, …) inline below the plain one-line
-	 * description — the same real key-value rows `PhpAccelerationCard.tsx`
+	 * description - the same real key-value rows `PhpAccelerationCard.tsx`
 	 * renders as its own `<ul className="efficiency-check-details">`, just
 	 * compact for a tile. Every other tile's `desc` stays its own plain
 	 * string (or falls through to the one on `METRIC_TILES`).

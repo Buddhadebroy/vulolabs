@@ -11,7 +11,7 @@ interface ChecklistProps {
 	shopUrl: string;
 	// eslint-disable-next-line no-unused-vars
 	onFixed: ( _actionId: string, _response: Awaited< ReturnType< typeof fixWithAi > > ) => void;
-	/** "All SEO Issues" table's "Fix with AI" deep link — an AnalysisResult['id'] to scroll to and pulse-highlight once it appears in `results`. Every Checklist instance on the General tab gets this same prop; only the one whose `results` actually contains a matching id does anything with it. */
+	/** "All SEO Issues" table's "Fix with AI" deep link - an AnalysisResult['id'] to scroll to and pulse-highlight once it appears in `results`. Every Checklist instance on the General tab gets this same prop; only the one whose `results` actually contains a matching id does anything with it. */
 	highlightId?: string;
 }
 
@@ -22,7 +22,7 @@ const STATUS_ICON: Record< AnalysisResult[ 'status' ], string > = {
 };
 
 /**
- * Worst-to-best across a group's own results — same 3-state severity order
+ * Worst-to-best across a group's own results - same 3-state severity order
  * every other status rollup in this codebase uses (fail beats warning
  * beats pass). Drives the group header's own summary pill, mirroring
  * RankMath's own "All Good"/otherwise pill next to each collapsible
@@ -48,14 +48,14 @@ const summarizeGroup = ( results: AnalysisResult[] ): keyof typeof GROUP_STATUS 
 
 /**
  * Renders one of Services\OnPageAnalyzer::analyze()'s check groups
- * ('basic'/'additional'/'title_readability' — mirrors RankMath's own
+ * ('basic'/'additional'/'title_readability' - mirrors RankMath's own
  * "Basic SEO"/"Additional"/"Title Readability" grouping) as a collapsible
- * section with a status-summary pill in its header — RankMath's own
+ * section with a status-summary pill in its header - RankMath's own
  * "Basic SEO ✓ All Good ⌄" shape, per direct screenshot comparison. Starts
  * expanded (matches that same screenshot's default state); collapsing is
  * purely a local UI convenience, every check is still computed either way.
  * Every row that's `fixable` gets a "Fix with AI" button wired to
- * vulopilot-pro's `POST /post-seo/{id}/fix` (Pro-only — free users see an
+ * vulopilot-pro's `POST /post-seo/{id}/fix` (Pro-only - free users see an
  * upgrade prompt instead, same posture the SEO tab's FindingsTable "Fix"
  * row action already takes for Free installs).
  */
@@ -69,8 +69,8 @@ export default function Checklist( { title, results, postId, isPro, shopUrl, onF
 	/**
 	 * Scrolls to and pulse-highlights the deep-linked row exactly once, the
 	 * first time it actually appears in `results` (the checklist starts
-	 * empty and fills in after the debounced live analysis call —
-	 * see GeneralTab.tsx — so this can't just run on mount). Also forces
+	 * empty and fills in after the debounced live analysis call -
+	 * see GeneralTab.tsx - so this can't just run on mount). Also forces
 	 * this group open, since a collapsed section would otherwise hide the
 	 * very row being linked to. Mirrors zyra's own ModuleGridComponent.tsx
 	 * "URL target → scrollIntoView → timed highlight class" idiom; not

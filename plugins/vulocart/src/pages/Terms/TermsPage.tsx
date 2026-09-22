@@ -19,7 +19,7 @@ interface Term {
 }
 
 interface TermsPageProps {
-	/** REST route segment — 'categories'|'brands'|'collections'. */
+	/** REST route segment - 'categories'|'brands'|'collections'. */
 	routeSegment: string;
 	headerTitle: string;
 	headerDescription: string;
@@ -31,12 +31,12 @@ interface TermsPageProps {
 const emptyForm = { id: null as number | null, name: '', description: '', parent_id: '' };
 
 /**
- * Shared list+inline-edit UI for Categories/Brands/Collections — one
+ * Shared list+inline-edit UI for Categories/Brands/Collections - one
  * component, parametrized by `routeSegment`, mirroring
  * `classes/RestAPI/Controllers/Terms.php`'s own "one controller, three
  * taxonomies" design (Domain\Term\Taxonomy's docblock: these are the
  * exact same shape, not three things that happen to look similar).
- * Deliberately no separate "Add New" page like Offerings/Orders have —
+ * Deliberately no separate "Add New" page like Offerings/Orders have -
  * a term is a lightweight name/slug/description record, not worth a
  * second full-page round trip.
  */
@@ -121,7 +121,7 @@ export function TermsPage( { routeSegment, headerTitle, headerDescription, heade
 		},
 		description: {
 			label: __( 'Description', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.description as string ) || '—',
+			render: ( row?: TableRow ) => ( row?.description as string ) || '-',
 		},
 		offering_count: {
 			label: __( 'Offerings', 'vulocart' ),

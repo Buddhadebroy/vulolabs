@@ -10,7 +10,7 @@ import './orders-page.scss';
 
 /**
  * The 6 statuses Order\Domain\FulfillmentStatus::all() declares
- * (modules/Order/Domain/FulfillmentStatus.php) — duplicated here the same
+ * (modules/Order/Domain/FulfillmentStatus.php) - duplicated here the same
  * way OfferingEdit.tsx duplicates VuloCart\Domain\Offering\OfferingType's list
  * rather than fetching it: small, stable, hand-maintained.
  */
@@ -36,7 +36,7 @@ const PAYMENT_STATUS_OPTIONS = [
 interface OrdersListProps {
 	/**
 	 * `draft`/`refunds`, from the "Draft Orders"/"Refunds" submenus
-	 * (classes/Admin/Menu.php's `add_orders_menu()`) — seeds the initial
+	 * (classes/Admin/Menu.php's `add_orders_menu()`) - seeds the initial
 	 * "saved view" tab rather than the user having to click it after the
 	 * page loads.
 	 */
@@ -44,11 +44,11 @@ interface OrdersListProps {
 }
 
 /**
- * Admin order list — `GET /orders` (modules/Order/Rest.php, manage_options-
+ * Admin order list - `GET /orders` (modules/Order/Rest.php, manage_options-
  * gated) rendered on the same `NavigatorHeaderComponent` + `TableCard`
  * pattern this plugin's other admin screens use. "View" is a real
  * navigation to `admin.php?page=vulocart-orders&action=edit&id={id}`
- * (plain `<a href>`, full page load) rather than a popup — matching the
+ * (plain `<a href>`, full page load) rather than a popup - matching the
  * real WooCommerce order edit screen, per this plugin's admin-UX brief.
  * Orders.tsx is what routes between this component and OrderEdit.tsx/
  * OrderAdd.tsx based on the URL's `action`/`id`/`filter`.
@@ -160,7 +160,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 		},
 		customer_email: {
 			label: __( 'Customer', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.customer_name as string ) || ( row?.customer_email as string ) || '—',
+			render: ( row?: TableRow ) => ( row?.customer_name as string ) || ( row?.customer_email as string ) || '-',
 		},
 		item_count: {
 			label: __( 'Items', 'vulocart' ),
@@ -181,11 +181,11 @@ export function OrdersList( { filter }: OrdersListProps ) {
 			label: __( 'Total', 'vulocart' ),
 			isNumeric: true,
 			render: ( row?: TableRow ) =>
-				row?.total !== null && row?.total !== undefined ? `${ row.total } ${ row.currency ?? '' }` : '—',
+				row?.total !== null && row?.total !== undefined ? `${ row.total } ${ row.currency ?? '' }` : '-',
 		},
 		created_at: {
 			label: __( 'Created', 'vulocart' ),
-			render: ( row?: TableRow ) => ( row?.created_at as string ) || '—',
+			render: ( row?: TableRow ) => ( row?.created_at as string ) || '-',
 		},
 		actions: {
 			label: __( 'Actions', 'vulocart' ),
@@ -230,7 +230,7 @@ export function OrdersList( { filter }: OrdersListProps ) {
 					headerIcon="cart"
 					headerTitle={ __( 'Orders', 'vulocart' ) }
 					headerDescription={ __(
-						'Every order placed through the storefront checkout — update status as you fulfil, cancel, or refund each one.',
+						'Every order placed through the storefront checkout - update status as you fulfil, cancel, or refund each one.',
 						'vulocart'
 					) }
 					buttons={ [

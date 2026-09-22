@@ -1,7 +1,7 @@
 @use '../../config' as *;
 
 // Same numbered-circle-step visual Issues/IssueDetailPanel.scss's own
-// "Recommended fix" steps already establish — scoped to this card's own
+// "Recommended fix" steps already establish - scoped to this card's own
 // class names since the two components aren't otherwise related.
 .sitemap-how-it-works-steps {
 	display: flex;

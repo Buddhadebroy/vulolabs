@@ -15,17 +15,17 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * "Content Reports" (CONTENT-INTELLIGENCE-MODULE.md). Extends
- * AbstractReportType directly rather than AbstractCategoryReportType —
+ * AbstractReportType directly rather than AbstractCategoryReportType -
  * that base only scopes to one category string, but this report spans a
  * fixed scanner_id list across two categories (`content`'s own readability
  * scanner plus 4 reused `seo`-category scanners), the same scope
  * FindingRepository::get_severity_breakdown_for_scanner_ids()'s own
  * docblock explains. Its generate() body is otherwise identical to
- * AbstractCategoryReportType's — not a second, diverging implementation of
+ * AbstractCategoryReportType's - not a second, diverging implementation of
  * the same idea, just parameterized differently (there's exactly one
  * report needing this scanner_id-list shape today, so a new shared
  * abstract for it would be the "interface with one implementer" this
- * codebase's own conventions already argue against — same reasoning
+ * codebase's own conventions already argue against - same reasoning
  * GeoAnalysis\GeoAnalyzer's own docblock gives for staying a plain class).
  *
  * @class       ContentIntelligenceReport class
@@ -38,7 +38,7 @@ class ContentIntelligenceReport extends AbstractReportType {
      * Same list ContentIntelligence\ContentAnalyzer::SCANNER_IDS and
      * Controllers\ContentIntelligence::SCANNER_IDS use, plus `orphan-pages`
      * (sitewide-shaped, excluded from the per-post analyzer but real here
-     * — a report period naturally includes sitewide findings too, the same
+     * - a report period naturally includes sitewide findings too, the same
      * way AbstractCategoryReportType's own category scope already would).
      *
      * @var string[]

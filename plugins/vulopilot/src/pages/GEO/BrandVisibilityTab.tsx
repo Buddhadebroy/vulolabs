@@ -21,17 +21,17 @@ import {
 	CompetitorComparisonDummy,
 } from './BrandVisibilityProDummies';
 
-/** Real backend module id (Settings → Modules) — same id `isBrandModuleActive()` below checks and `MODULE_CATALOG_BY_ID` (Popup.tsx) resolves to a real display name/icon for. */
-const BRAND_MODULE_ID = 'brand-intelligence';
+/** Real backend module id (Settings → Modules) - same id `isBrandModuleActive()` below checks and `MODULE_CATALOG_BY_ID` (Popup.tsx) resolves to a real display name/icon for. */
+const BRAND_MODULE_ID = 'brand-visibility';
 
 /**
  * Section → scanner_id grouping for Brand Intelligence's 7 scanners
- * (BRAND-INTELLIGENCE-MODULE.md) — this module's own 3 new `brand`-category
+ * (BRAND-INTELLIGENCE-MODULE.md) - this module's own 3 new `brand`-category
  * scanners, plus 4 existing `geo`-category scanners it reports on rather
  * than duplicates. Fed into SectionedFindingsTab (same shell GeoTab.tsx/
  * AeoTab.tsx/SeoTab.tsx use) per direct instruction, replacing what used to
  * be 3 separate FindingsTable cards. Same cross-category `scannerIds`-prop
- * mechanism Content.tsx's own CONTENT_SECTIONS already documents — no
+ * mechanism Content.tsx's own CONTENT_SECTIONS already documents - no
  * `category` prop passed, same as before.
  */
 const BRAND_SECTIONS: FindingsSection[] = [
@@ -43,7 +43,7 @@ const BRAND_SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No trust-signal findings yet — run a scan to check.',
+			'No trust-signal findings yet - run a scan to check.',
 			'vulopilot'
 		),
 		scannerIds: ['geo-trust-signals', 'about-page-analysis'],
@@ -52,11 +52,11 @@ const BRAND_SECTIONS: FindingsSection[] = [
 		key: 'authority',
 		title: __('Authority Signals', 'vulopilot'),
 		description: __(
-			'Author expertise and freshness signals — bio text, content updates, and machine-readable Person schema.',
+			'Author expertise and freshness signals - bio text, content updates, and machine-readable Person schema.',
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No authority findings yet — run a scan to check.',
+			'No authority findings yet - run a scan to check.',
 			'vulopilot'
 		),
 		scannerIds: ['geo-eeat-signals', 'geo-author-info', 'author-schema'],
@@ -69,7 +69,7 @@ const BRAND_SECTIONS: FindingsSection[] = [
 			'vulopilot'
 		),
 		emptyMessage: __(
-			'No entity findings yet — run a scan to check.',
+			'No entity findings yet - run a scan to check.',
 			'vulopilot'
 		),
 		scannerIds: ['geo-entity-naming-consistency', 'organization-schema'],
@@ -77,7 +77,7 @@ const BRAND_SECTIONS: FindingsSection[] = [
 ];
 
 /**
- * Whether the Brand Intelligence module (Settings → Modules) is active —
+ * Whether the Brand Intelligence module (Settings → Modules) is active -
  * same "genuinely gates scanning" posture Content.tsx's own
  * isContentModuleActive() already documents, for the identical reason:
  * this module's own 3 scanners only run while it's active.
@@ -86,10 +86,10 @@ const isBrandModuleActive = () =>
 	appLocalizer.active_modules?.includes(BRAND_MODULE_ID) ?? false;
 
 /**
- * "Brand Visibility" tab of "SEO & Visibility" — on-site Brand/Trust/
+ * "Brand Visibility" tab of "SEO & Visibility" - on-site Brand/Trust/
  * Authority/Entity scoring (BRAND-INTELLIGENCE-MODULE.md, real and always
  * available) alongside a real off-site mention card (OffSiteMentionsCard,
- * vulopilot-pro's own keyless Google News RSS feed — see
+ * vulopilot-pro's own keyless Google News RSS feed - see
  * OffSiteMentionTracker.php's own docblock for why that source rather than
  * a paid Ahrefs-style index; falls back to the original static "Not
  * connected yet" card when Pro/the module isn't active, since the feature
@@ -97,8 +97,8 @@ const isBrandModuleActive = () =>
  * slots) sits above one real, unified findings table (SectionedFindingsTab.tsx,
  * same shell GeoTab.tsx/AeoTab.tsx/SeoTab.tsx use) per direct instruction,
  * replacing what used to be 3 separate FindingsTable cards; the "Why this
- * matters more than backlinks"/off-site mentions card — previously its own
- * side-by-side sidebar column next to the section list — now sits below the
+ * matters more than backlinks"/off-site mentions card - previously its own
+ * side-by-side sidebar column next to the section list - now sits below the
  * table as `footer` content instead, since a single-column table no longer
  * has a natural second column to pair it with.
  *
@@ -106,7 +106,7 @@ const isBrandModuleActive = () =>
  * own BrandIntelligence module cards, see AuthorityTrendsCard.tsx/
  * KnowledgePanelCard.tsx there) get the same "still show the section,
  * PRO-tagged, with fabricated content behind a click-through popup" treatment
- * OffSiteMentionsCard/CompetitorComparisonCard already had here — all 4
+ * OffSiteMentionsCard/CompetitorComparisonCard already had here - all 4
  * dummy stand-ins (BrandVisibilityProDummies.tsx, same one-file-per-tab
  * consolidation AutomationsProDummies.tsx established for Automations.tsx's
  * own Pro dummy cards) render whenever their own filter slot hasn't
@@ -115,7 +115,7 @@ const isBrandModuleActive = () =>
  * nothing in that case.
  */
 interface BrandVisibilityTabProps {
-	/** Scanner to pre-select (its section's tab) and scroll to on mount — set by Overview's "Top Opportunities" View buttons. */
+	/** Scanner to pre-select (its section's tab) and scroll to on mount - set by Overview's "Top Opportunities" View buttons. */
 	initialScannerId?: string;
 }
 
@@ -145,14 +145,14 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// useFilterSlot(), not a plain top-level applyFilters() read — that
+	// useFilterSlot(), not a plain top-level applyFilters() read - that
 	// pattern is a real, measured-live race (useFilterSlot.ts's own
 	// docblock) that would otherwise leave every one of these 4 slots
 	// stuck at null forever regardless of whether Pro/the module is
 	// actually active, since Free's own bundle can finish importing and
 	// evaluating this module before Pro's addFilter() calls have run.
 	// Called unconditionally, before the early return below, per the
-	// rules of hooks — a Pro slot resolving is irrelevant on the "module
+	// rules of hooks - a Pro slot resolving is irrelevant on the "module
 	// off" branch anyway, so there's no behavior difference either way.
 	const AuthorityTrendsCard = useFilterSlot(
 		'vulopilot_brand_authority_trends_card'
@@ -187,7 +187,7 @@ const BrandVisibilityTab = ({ initialScannerId }: BrandVisibilityTabProps) => {
 							'vulopilot'
 						)}
 						desc={__(
-							'Turn the Brand Intelligence module back on from Settings → Modules to resume trust/authority/entity scanning and see its findings again here. Findings already found before it was turned off aren’t deleted — they still show up on the Health page.',
+							'Turn the Brand Intelligence module back on from Settings → Modules to resume trust/authority/entity scanning and see its findings again here. Findings already found before it was turned off aren’t deleted - they still show up on the Health page.',
 							'vulopilot'
 						)}
 					/>

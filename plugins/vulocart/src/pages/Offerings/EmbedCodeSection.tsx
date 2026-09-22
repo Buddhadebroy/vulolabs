@@ -19,18 +19,18 @@ const client = axios.create( {
 } );
 
 /**
- * "Generate embed code automatically" (Phase 4's own requirement) — a
+ * "Generate embed code automatically" (Phase 4's own requirement) - a
  * Free-tier section on the Offering edit page (rendered directly, not
- * through `vulocart_offering_edit_sections` — that filter is Free's own
+ * through `vulocart_offering_edit_sections` - that filter is Free's own
  * extension point FOR Pro, this is Free's own baseline UI, same posture
  * Shipping Estimation's own inline addition to Checkout.tsx already
  * takes). Buy Button is the only mode that's genuinely offering-specific
  * (needs this offering's own id); Embedded Cart/Embedded Checkout/Popup/
  * Drawer all trigger off the shopper's ambient cart, so their snippets
- * are the same regardless of which offering page you're looking at —
+ * are the same regardless of which offering page you're looking at -
  * shown here anyway, for convenience, since this is the natural place a
  * merchant is already looking when they want to start selling something.
- * Popup/Drawer only appear when their own Pro module is active — read
+ * Popup/Drawer only appear when their own Pro module is active - read
  * from `GET /sdk/config`'s own `features` flags (Sdk.php), the same
  * capability check the SDK itself uses, rather than a second, separate
  * "is this Pro module active" query this component would otherwise need.
@@ -72,13 +72,13 @@ export function EmbedCodeSection( { offeringId }: { offeringId: number } ) {
 		'popup-checkout-trigger': {
 			label: __( 'Popup Checkout (Pro)', 'vulocart' ),
 			html: `${ scriptTag }\n<button data-vulocart-popup-checkout-trigger>Checkout</button>`,
-			react: __( 'Not available as a React component yet — use the HTML snippet.', 'vulocart' ),
+			react: __( 'Not available as a React component yet - use the HTML snippet.', 'vulocart' ),
 			available: config.features.popupCheckout,
 		},
 		'drawer-checkout-trigger': {
 			label: __( 'Drawer Checkout (Pro)', 'vulocart' ),
 			html: `${ scriptTag }\n<button data-vulocart-drawer-checkout-trigger>Checkout</button>`,
-			react: __( 'Not available as a React component yet — use the HTML snippet.', 'vulocart' ),
+			react: __( 'Not available as a React component yet - use the HTML snippet.', 'vulocart' ),
 			available: config.features.drawerCheckout,
 		},
 	};
@@ -98,7 +98,7 @@ export function EmbedCodeSection( { offeringId }: { offeringId: number } ) {
 		<CardComponent title={ __( 'Embed code', 'vulocart' ) }>
 			<div className="vulocart-embed-code-section">
 				<p className="vulocart-field-hint">
-					{ __( 'Sell this offering anywhere — a landing page, a Next.js app, plain HTML — with the VuloCart SDK.', 'vulocart' ) }
+					{ __( 'Sell this offering anywhere - a landing page, a Next.js app, plain HTML - with the VuloCart SDK.', 'vulocart' ) }
 				</p>
 
 				<div className="vulocart-embed-code-modes">

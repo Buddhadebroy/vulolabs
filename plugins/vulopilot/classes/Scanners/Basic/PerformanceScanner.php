@@ -14,7 +14,7 @@ use VuloPilot\ValueObjects\Severity;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Flags an oversized autoloaded-options footprint — every option row with
+ * Flags an oversized autoloaded-options footprint - every option row with
  * `autoload = 'yes'` is loaded into memory on *every* WordPress request
  * (`wp_load_alloptions()`), so a bloated autoload set (a common side
  * effect of poorly-behaved plugins storing large blobs there) is one of

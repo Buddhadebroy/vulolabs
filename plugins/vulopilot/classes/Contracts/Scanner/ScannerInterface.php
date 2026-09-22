@@ -10,9 +10,9 @@ namespace VuloPilot\Contracts\Scanner;
 use VuloPilot\ValueObjects\Finding;
 
 /**
- * Every scanner — free-tier (Scanners\Basic\AbstractBasicScanner) or a
+ * Every scanner - free-tier (Scanners\Basic\AbstractBasicScanner) or a
  * premium Pro scanner registered via the `vulopilot_scanner_sources`
- * filter — implements this so ScannerRegistry/ScanRunner can run either
+ * filter - implements this so ScannerRegistry/ScanRunner can run either
  * kind without knowing which side authored it.
  *
  * @class       ScannerInterface interface

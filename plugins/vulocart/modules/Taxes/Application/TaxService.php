@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * The vision's lightweight-first tax engine: one flat marketplace-wide
  * rate (the Taxes tab's `default_tax_rate_percent`), not per-region tax
  * rules. When `prices_include_tax` is on, offering prices are treated as
- * already tax-inclusive — calculate() then adds nothing further on top,
+ * already tax-inclusive - calculate() then adds nothing further on top,
  * since re-adding tax on an already-tax-inclusive price would double-charge
  * the buyer; a future receipt/invoice feature is where the *included*
  * portion would be broken out for display, not this method.
@@ -67,7 +67,7 @@ class TaxService {
 
     /**
      * Computes the tax amount to add on top of a taxable amount (a cart's
-     * subtotal, e.g.) — 0.0 when tax calculation is disabled, or when
+     * subtotal, e.g.) - 0.0 when tax calculation is disabled, or when
      * prices already include tax (see class docblock).
      *
      * @param float $taxable_amount The amount tax is calculated against.

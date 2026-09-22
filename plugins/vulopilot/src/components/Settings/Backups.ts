@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
  * Settings → Backups. Originally moved into the old "Get Started"/
  * Business Visibility folder from Scanning, now a standalone top-level tab
  * again (that folder is gone now that every one of its sub-tabs moved
- * elsewhere) — same real `id: 'backups'` throughout, so the existing
+ * elsewhere) - same real `id: 'backups'` throughout, so the existing
  * `?...&subtab=backups` deep link still resolves (`getSettingById()`
  * recurses by id alone, with no concept of which folder a tab lives in).
  *
@@ -12,29 +12,29 @@ import { __ } from '@wordpress/i18n';
  * this isn't a Modules-page module). Read by
  * classes/Services/BackupManager.php/BackupScheduler.php.
  * Auto-discovered by templateService.ts's `require.context` over every
- * `.ts` file under `src/components/Settings/` — no manual registration
+ * `.ts` file under `src/components/Settings/` - no manual registration
  * needed, same as every sibling top-level `Settings/*.ts` tab.
  *
- * `backup_storage_destination` (real, plain — 'local'/'s3'/'google_drive',
+ * `backup_storage_destination` (real, plain - 'local'/'s3'/'google_drive',
  * read by Services\BackupStorageManager) is the one field here that's
  * about remote storage, but the actual Amazon S3/Google Drive credentials
- * it depends on are NOT in this `modal` array — a secret access key/OAuth
+ * it depends on are NOT in this `modal` array - a secret access key/OAuth
  * client secret must never round-trip through `GET /settings` the way this
  * tab's other fields safely do. Settings.tsx's own GetForm() appends
  * BackupStoragePanel.tsx (its own dedicated, encrypted
- * `/backup-storage/*` REST surface — Controllers\BackupStorage) right
+ * `/backup-storage/*` REST surface - Controllers\BackupStorage) right
  * after this tab's InputRenderer output, same "flat setting for the simple
  * bit, dedicated credential storage for the secret bit" split
  * VuloCloudAiConnectionPanel.tsx/Controllers\VuloCloudAiConnection already established.
  */
 /**
- * Settings → Backups' own "Cloud Storage" section — closed-state row
+ * Settings → Backups' own "Cloud Storage" section - closed-state row
  * config for the real `ExpandablePanelInput` vulopilot-pro's own
  * modules/BackupCloudStorage/src/BackupStoragePanel.tsx renders
  * (`isCustom: true`, no `formFields`, so there's never anything real to
  * expand into here). Lives here (this tab's own config file) rather than
  * hand-typed inside Settings.tsx's shared `GetForm()`, per direct
- * instruction — Settings.tsx just imports this and wires the click-gate
+ * instruction - Settings.tsx just imports this and wires the click-gate
  * (Pro tag + popup) around it, the same "tab's own file owns its own
  * content, Settings.tsx just renders it" split every other per-tab
  * escape-hatch component (BackupStoragePanel.tsx before it moved to Pro,
@@ -139,16 +139,16 @@ export default {
 			// mechanism for this (ToggleInput.tsx: an option with
 			// `proSetting` renders its own `.admin-tag.pro-tag` badge and,
 			// without an active license, blocks the click and fires
-			// `onBlocked('pro')` instead of selecting it — InputRenderer
+			// `onBlocked('pro')` instead of selecting it - InputRenderer
 			// already wires that straight to the same real Pro upsell
 			// popup every other Pro-gated field in this plugin uses), so
 			// no custom Settings.tsx code is needed the way Cloud
-			// Storage's own locked section below needed — this field
+			// Storage's own locked section below needed - this field
 			// stays entirely declarative.
 			type: 'choice-toggle',
 			label: __('Storage destination', 'vulopilot'),
 			settingDescription: __(
-				'Every backup always saves to this server first. Pick a remote destination below to also upload each completed backup there — configure its credentials in the Cloud Storage section below.',
+				'Every backup always saves to this server first. Pick a remote destination below to also upload each completed backup there - configure its credentials in the Cloud Storage section below.',
 				'vulopilot'
 			),
 			options: [

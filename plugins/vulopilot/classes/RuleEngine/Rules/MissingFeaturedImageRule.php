@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Turns Seo\Scanners\SeoImagesScanner's "no featured image" Finding
  * into a recommendation. Deliberately fixable() = true but
- * requires_ai() = false — unlike MissingAltTextRule/SeoTitleRewriteRule/
+ * requires_ai() = false - unlike MissingAltTextRule/SeoTitleRewriteRule/
  * MissingMetaDescriptionRule, there's nothing for AI to generate here:
  * "pick a featured image" is a mechanical editorial task (open the post,
  * choose or upload an image), the same shape DormantPluginRule's
@@ -98,7 +98,7 @@ class MissingFeaturedImageRule extends AbstractBasicRule {
      */
     public function applies_to( Finding $finding ): bool {
         // Matched on the `missing_featured_image` meta key SeoImagesScanner
-        // attaches — category alone ('seo') is shared by 14 different
+        // attaches - category alone ('seo') is shared by 14 different
         // scanners now (SEO-MODULE.md), so it can't distinguish this
         // finding from any other SEO finding on its own.
         return 'seo' === $finding->get_category() && array_key_exists( 'missing_featured_image', $finding->get_meta() );

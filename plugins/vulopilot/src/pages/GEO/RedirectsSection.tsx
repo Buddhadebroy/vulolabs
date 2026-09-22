@@ -46,21 +46,21 @@ interface RedirectHealthResponse {
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 const FETCH_PAGE_SIZE = 100;
-/** Safety ceiling for the fetch-everything loop below — a real site's user-managed redirect list is small by nature (each one is manually added or converted from a 404), unlike scanner findings. */
+/** Safety ceiling for the fetch-everything loop below - a real site's user-managed redirect list is small by nature (each one is manually added or converted from a 404), unlike scanner findings. */
 const MAX_REDIRECTS = 1000;
 const DEFAULT_PER_PAGE = 10;
 
-/** Real HEAD-check cadence — Controllers/Redirects.php's own `HEALTH_CACHE_SECONDS` (an hour); kept in sync so the "Recheck in ~Xm" line here reflects the same real cache window the backend actually enforces, not a guess. */
+/** Real HEAD-check cadence - Controllers/Redirects.php's own `HEALTH_CACHE_SECONDS` (an hour); kept in sync so the "Recheck in ~Xm" line here reflects the same real cache window the backend actually enforces, not a guess. */
 const HEALTH_CACHE_SECONDS = 60 * 60;
 
 /**
  * Real per-type badge color for the "From" column's own type badge (301
- * green/302 yellow/307 purple — 307 gets its own color rather than
+ * green/302 yellow/307 purple - 307 gets its own color rather than
  * reusing 302's, since it's a genuinely distinct HTTP status a visitor's
- * browser treats differently; redirect_type is real, never fabricated —
+ * browser treats differently; redirect_type is real, never fabricated -
  * Controllers/Redirects.php only ever persists 301/302/307), as one of
  * zyra's own real `BadgeComponent.scss` semantic classes instead of a raw
- * palette name — that stylesheet has no `badge-green`/`badge-yellow`/
+ * palette name - that stylesheet has no `badge-green`/`badge-yellow`/
  * `badge-purple` classes by color name, only status-word classes that
  * happen to resolve to those colors (`badge-active` → green,
  * `badge-pending` → yellow, `badge-locked` → purple), so this maps to the
@@ -72,7 +72,7 @@ const TYPE_BADGE_CLASS: Record<number, string> = {
 	307: 'badge-locked',
 };
 
-/** Same real 3-tier 0-100 band SeoTab.tsx's own `getRating()`/`ratingColor()` already establish — duplicated locally per this codebase's own "duplicate small per-file logic" convention. Used for the "Redirect Health" ring's own real `activeCount/totalCount` percentage below. */
+/** Same real 3-tier 0-100 band SeoTab.tsx's own `getRating()`/`ratingColor()` already establish - duplicated locally per this codebase's own "duplicate small per-file logic" convention. Used for the "Redirect Health" ring's own real `activeCount/totalCount` percentage below. */
 const getRating = (score: number): string => {
 	if (score >= 70) {
 		return __('Good', 'vulopilot');
@@ -94,11 +94,11 @@ const ratingColor = (score: number): string => {
 };
 
 /**
- * `$wpdb`'s own raw row shape — every numeric column comes back as a PHP
+ * `$wpdb`'s own raw row shape - every numeric column comes back as a PHP
  * string once JSON-encoded (confirmed live: `redirect_type: "307"`, not
  * `307`), so this normalizes the fields this file actually compares
  * (`===`) or does arithmetic on into real JS numbers right at the fetch
- * boundary — the one place that needs to happen, rather than every
+ * boundary - the one place that needs to happen, rather than every
  * comparison site remembering to `Number()` it.
  */
 const normalizeRedirectRow = (row: RedirectRow): RedirectRow => ({
@@ -140,8 +140,8 @@ const fetchAllRedirects = async (): Promise<RedirectRow[]> => {
 };
 
 /**
- * A redirect's `target_url` resolved down to a real, comparable path —
- * same-origin check as BrokenLinksSection.tsx's own `deriveSourcePath()` —
+ * A redirect's `target_url` resolved down to a real, comparable path -
+ * same-origin check as BrokenLinksSection.tsx's own `deriveSourcePath()` -
  * null for a target pointing at a different site entirely, which can
  * never chain into another row of THIS site's own redirect table.
  */
@@ -162,11 +162,11 @@ const resolveTargetPath = (targetUrl: string): string | null => {
 };
 
 /**
- * Real chain detection over the actual `vulopilot_redirects` rows — a
+ * Real chain detection over the actual `vulopilot_redirects` rows - a
  * redirect "chains" when its own `target_url` resolves to a path that is
  * itself another redirect's `source_path`: a visitor following it hits a
  * SECOND redirect before reaching a final destination. Nothing here is
- * simulated/estimated — it's a plain lookup across the same rows the
+ * simulated/estimated - it's a plain lookup across the same rows the
  * table already renders. Returns a `Map<redirectId, nextHopRow>` for
  * every redirect that chains into another one.
  */
@@ -198,25 +198,25 @@ type StatusFilter = 'all' | 'active' | 'inactive' | 'broken';
 
 /**
  * "Redirects" inner section of the "Crawl & URLs" tab. Real 301/302/307
- * redirect manager (`vulopilot_redirects`) — rebuilt to match the
+ * redirect manager (`vulopilot_redirects`) - rebuilt to match the
  * reference mockup wherever the data genuinely supports it:
  *   - 5 real stat tiles: Total/Active (existing `is_active_counts`-shaped
  *     data), Redirect Chains (detectChains() above, a real computation
- *     over the actual rows — no scanner needed), Broken Redirects (a new
+ *     over the actual rows - no scanner needed), Broken Redirects (a new
  *     real `GET /redirects/health` HEAD-check of each active redirect's
  *     own `target_url`, added alongside this pass since nothing
  *     previously checked that), and Last Checked (that same endpoint's
  *     real `checked_at`, plus the real cache-expiry time as an honest
- *     "next automatic check" — not a fabricated schedule).
+ *     "next automatic check" - not a fabricated schedule).
  *   - A real 301/302/307 legend and type filter. A 4th "Meta Refresh"
  *     legend entry from the mockup is deliberately NOT reproduced: that's
  *     an HTML-level `<meta http-equiv="refresh">` mechanism, unrelated to
  *     this HTTP-redirect table, and nothing in this codebase implements
- *     it — adding a legend entry with no real rows behind it would be a
+ *     it - adding a legend entry with no real rows behind it would be a
  *     decoration, not a filter.
  *   - No "All groups" filter: there is no group/category/label concept
  *     anywhere on a redirect row (confirmed against `Install.php`'s own
- *     schema and `RedirectRepository`) — the mockup's grouping has no
+ *     schema and `RedirectRepository`) - the mockup's grouping has no
  *     real data behind it here.
  *   - Flat table, one row per redirect, matching the mockup's own
  *     From/To/Type/Hits/Created/Last Accessed/Status/Actions columns.
@@ -331,7 +331,7 @@ const RedirectsSection = () => {
 					message: response
 						? __('Redirect saved.', 'vulopilot')
 						: __(
-							'Could not save this redirect — check the path and URL and try again.',
+							'Could not save this redirect - check the path and URL and try again.',
 							'vulopilot'
 						),
 				});
@@ -357,7 +357,7 @@ const RedirectsSection = () => {
 		});
 	};
 
-	/** Opens the `confirmMode` popup — the actual delete runs from `handleConfirmDeleteRedirect` once the user confirms there. */
+	/** Opens the `confirmMode` popup - the actual delete runs from `handleConfirmDeleteRedirect` once the user confirms there. */
 	const handleDeleteRedirect = (row: RedirectRow) => {
 		setDeleteTarget(row);
 	};
@@ -465,7 +465,7 @@ const RedirectsSection = () => {
 
 	const headers = {
 		// Same real `InformationItemComponent` "title + badges" shape
-		// BrokenLinksSection.tsx's own row cell already uses — folds the
+		// BrokenLinksSection.tsx's own row cell already uses - folds the
 		// old separate "Type"/"Status" columns into this one row's own
 		// real badges (redirect_type/is_active/isBroken(), all real
 		// values already read elsewhere on this row) instead of 2 extra
@@ -605,7 +605,7 @@ const RedirectsSection = () => {
 		)
 		: null;
 
-	// Real percentage of redirects that are active — the one real 0-100
+	// Real percentage of redirects that are active - the one real 0-100
 	// figure these 5 stats naturally produce (the other 4 are plain counts
 	// or a date), so it's the only honest candidate for this card's own
 	// ring; matching SeoTab.tsx's/GeoScoreSection.tsx's real ring shape
@@ -622,7 +622,7 @@ const RedirectsSection = () => {
 					title={__('Redirect Health', 'vulopilot')}
 					titleIcon="link"
 					desc={__('How many of your redirects are active and working.', 'vulopilot')}
-					// Grid-wide, not per-tile — same real "both real fetches start
+					// Grid-wide, not per-tile - same real "both real fetches start
 					// together" reasoning the old `MetricTileComponent`'s own
 					// combined `isLoading` docblock already gave; unchanged by
 					// this restructure.
@@ -633,10 +633,10 @@ const RedirectsSection = () => {
 								<ChartComponent
 									type="ring"
 									height={200}
-									// Top-level `color` — `type="ring"` only ever
+									// Top-level `color` - `type="ring"` only ever
 									// paints its stroke from this prop, never from
 									// `data[].color` below (see SeoTab.tsx's own
-									// identical fix) — without it the ring stayed
+									// identical fix) - without it the ring stayed
 									// `ChartComponent`'s default brand purple
 									// regardless of the real active-redirect
 									// percentage.
@@ -683,7 +683,7 @@ const RedirectsSection = () => {
 						{/*
 					 * Same real `ListComponent` "mini-card report" row
 					 * shape SeoTab.tsx's/BrokenLinksSection.tsx's own
-					 * stat rows already use — these 5 real values (a
+					 * stat rows already use - these 5 real values (a
 					 * count, a count, a count, a count, and a date)
 					 * don't each have their own 0-100 score the way
 					 * SEO's/GEO's category rows do, so each row's own
@@ -737,7 +737,7 @@ const RedirectsSection = () => {
 									// desc: chainCount
 									// 	? sprintf(
 									// 		/* translators: %d: number of chains detected. */
-									// 		_n('%d chain detected — needs review', '%d chains detected — needs review', chainCount, 'vulopilot'),
+									// 		_n('%d chain detected - needs review', '%d chains detected - needs review', chainCount, 'vulopilot'),
 									// 		chainCount
 									// 	)
 									// 	: __('No chains detected', 'vulopilot'),
@@ -881,7 +881,7 @@ const RedirectsSection = () => {
 							);
 						}}
 						emptyMessage={__(
-							'No redirects yet — add one, or convert an entry from the 404s tab.',
+							'No redirects yet - add one, or convert an entry from the 404s tab.',
 							'vulopilot'
 						)}
 					/>

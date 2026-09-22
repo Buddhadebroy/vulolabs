@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Flags published posts/pages with no featured image set. This is
  * distinct from ImagesScanner's separate, sitewide check (does an
- * *existing* attachment have alt text) — a post can pass that check
+ * *existing* attachment have alt text) - a post can pass that check
  * perfectly and still have no featured image at all, which is what
  * social platforms and search result rich snippets fall back to
  * (og:image, Twitter Card image) when a post is shared or displayed with

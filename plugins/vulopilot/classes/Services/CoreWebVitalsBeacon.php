@@ -13,11 +13,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Enqueues public/js/performance-vitals-beacon.js on real front-end pages
- * — this plugin's first ever `wp_enqueue_scripts` registration (confirmed
+ * - this plugin's first ever `wp_enqueue_scripts` registration (confirmed
  * no other front-end-visitor-facing script exists anywhere in this
  * codebase today; every other enqueue is `admin_enqueue_scripts`-gated).
  * Also runs the daily cleanup cron that keeps `vulopilot_performance_samples` (type `vital`)
- * to a rolling 28-day window — the same window CrUX's own real Core Web
+ * to a rolling 28-day window - the same window CrUX's own real Core Web
  * Vitals methodology uses.
  *
  * @class       CoreWebVitalsBeacon class
@@ -65,7 +65,7 @@ class CoreWebVitalsBeacon {
     }
 
     /**
-     * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern —
+     * Standard wp_next_scheduled()-guarded wp_schedule_event() pattern -
      * same shape Services\CrawlerTrafficLogger already uses.
      *
      * @return void

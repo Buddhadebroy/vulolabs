@@ -10,7 +10,7 @@ namespace VuloCart\Ai;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * VuloCart Ai module Install class — owns `vulocart_ai_provider_configs`
+ * VuloCart Ai module Install class - owns `vulocart_ai_provider_configs`
  * (one row per BYOK provider, `credentials` always encrypted,
  * classes/AI/Services/CredentialEncryption.php) and `vulocart_ai_usage_log`
  * (insert-only call log, classes/AI/AiUsageLogUtil.php). Same

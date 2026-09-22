@@ -15,20 +15,20 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Cart module Rest class.
  *
- * Module-level REST controller — self-hooks `rest_api_init` in its own
+ * Module-level REST controller - self-hooks `rest_api_init` in its own
  * constructor rather than going through the plugin-level `RestAPI\Rest`
  * dispatcher, per rest-api.md's "module-level controllers" tier (same
  * pattern `vulocart-pro`'s Passport\Rest already establishes). A plain
- * class rather than `extends \WP_REST_Controller` — Passport's Rest is
+ * class rather than `extends \WP_REST_Controller` - Passport's Rest is
  * the same, and this avoids a real bug hit earlier in this codebase's
  * history: a private helper named `prepare_item_for_response()` fatally
  * collided with `WP_REST_Controller`'s own public method of that name.
  *
- * `/cart`, `/cart/items`, `/cart/items/{id}`, `/cart/totals` — calls only
+ * `/cart`, `/cart/items`, `/cart/items/{id}`, `/cart/totals` - calls only
  * VuloCart()->cart_service, same "controller never touches a repository
  * directly" convention every other REST class in this codebase follows.
  *
- * Deliberately public (no `manage_options`/nonce requirement) — a cart has
+ * Deliberately public (no `manage_options`/nonce requirement) - a cart has
  * to be reachable by a client with no WordPress session at all (a
  * headless storefront, a mobile app, an MCP client per the vision's
  * headless requirement), so the cart *token* is the access control here,
@@ -133,7 +133,7 @@ class Rest {
 
     /**
      * Converts a domain CartItem into the REST response shape, including
-     * a display title from its Offering — bounded by cart size (a handful of
+     * a display title from its Offering - bounded by cart size (a handful of
      * items), and OfferingService's own in-request cache-by-id
      * (performance.md) means this never re-queries the same offering twice.
      *
@@ -175,7 +175,7 @@ class Rest {
 
     /**
      * Returns a cart, without creating a row for a token nothing has been
-     * added to yet — an anonymous page view shouldn't write a DB row just
+     * added to yet - an anonymous page view shouldn't write a DB row just
      * because a client sent a freshly-generated token along with its
      * first, empty GET /cart.
      *

@@ -17,14 +17,14 @@ defined( 'ABSPATH' ) || exit;
  * Backs Settings → Connections → Google Services' real "Connect Google
  * Services" flow (GoogleServicesPanel.tsx) and the Keywords tab's own
  * real connection-status read (KeywordsTab.tsx). Replaces the earlier,
- * narrower Controllers\SearchConsole — one connection now covers Search
+ * narrower Controllers\SearchConsole - one connection now covers Search
  * Console, Analytics (GA4), and AdSense, matching the reference flow's
  * own single-button/multi-service consent screen.
  *
  * Every route here delegates to GoogleServicesConnection (real OAuth) or
  * GoogleAnalyticsClient/GoogleAdSenseClient (real per-service API calls)
- * — see those classes' own docblocks. `get_status()` never returns a
- * client secret, access token, or refresh token — same
+ * - see those classes' own docblocks. `get_status()` never returns a
+ * client secret, access token, or refresh token - same
  * "repositories/REST controllers never see a raw secret" boundary
  * Controllers\VuloCloudAiConnection::prepare_config_for_response() already
  * documents for AI service credentials.
@@ -200,7 +200,7 @@ class GoogleServices extends \WP_REST_Controller {
     /**
      * `return_to` is validated again inside
      * GoogleServicesConnection::get_authorization_url() itself (an
-     * unrecognized value there silently falls back to 'settings') — this
+     * unrecognized value there silently falls back to 'settings') - this
      * `sanitize_text_field()` is just normal REST param hygiene, not the
      * real allow-list check.
      *
@@ -229,7 +229,7 @@ class GoogleServices extends \WP_REST_Controller {
     }
 
     /**
-     * Real per-service pings — a stored refresh token that's been revoked
+     * Real per-service pings - a stored refresh token that's been revoked
      * in Google's own account settings would still read `connected: true`
      * from `get_status()` (nothing has told VuloPilot otherwise yet), so
      * this is the "Test Connections" button's own real check, one real
@@ -267,7 +267,7 @@ class GoogleServices extends \WP_REST_Controller {
     }
 
     /**
-     * `sanitize_text_field()`, not `esc_url_raw()` — a real Search
+     * `sanitize_text_field()`, not `esc_url_raw()` - a real Search
      * Console property is either a URL-prefix property
      * (`https://example.com/`) or a domain property
      * (`sc-domain:example.com`, no recognized URL scheme), and
@@ -340,7 +340,7 @@ class GoogleServices extends \WP_REST_Controller {
     /**
      * Validated against a fresh real `list_account_summaries()`/
      * `list_data_streams()` pair rather than trusting the posted
-     * account/property names as-is — same "never let the client dictate
+     * account/property names as-is - same "never let the client dictate
      * what gets stored without a real server-side check" posture
      * `select_search_console_site()` above already takes.
      *

@@ -17,14 +17,14 @@ use VuloPilot\ValueObjects\Impact;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Closes RuleEngine\Rules\SeoTitleRewriteRule's fix loop — that rule is
+ * Closes RuleEngine\Rules\SeoTitleRewriteRule's fix loop - that rule is
  * already registered in RuleRegistry but had no matching action until
  * now (verified against AI-ACTIONS.md's by-convention id/concept
  * matching, the same way WriteMetaDescriptionAction closes
  * MissingMetaDescriptionRule's). Writes directly to the native
  * `post_title` field (the same field Seo\Scanners\SeoScanner checks
  * the length of) via wp_update_post(), rather than a dedicated postmeta
- * key — a deliberate choice: it's the only way this actually changes
+ * key - a deliberate choice: it's the only way this actually changes
  * what search engines/visitors see, at the cost of being a more visible
  * change (page <h1>, post lists, RSS) than WriteMetaDescriptionAction's
  * post_excerpt write. Same propose/approve/rollback safety net (a real
@@ -57,7 +57,7 @@ class WriteMetaTitleAction extends AbstractBasicAction {
     }
 
     /**
-     * Impact::LOW — Rewrites `post_title` only — one narrow, easily-reverted field.
+     * Impact::LOW - Rewrites `post_title` only - one narrow, easily-reverted field.
      *
      * @inheritDoc
      */
@@ -72,7 +72,7 @@ class WriteMetaTitleAction extends AbstractBasicAction {
         $post_id = absint( $input['post_id'] ?? 0 );
         $post    = $post_id ? get_post( $post_id ) : null;
 
-        // Matches Services\PostSeoMetaFields::POST_TYPES — the metabox's
+        // Matches Services\PostSeoMetaFields::POST_TYPES - the metabox's
         // own "Fix with AI" title button (Checklist.tsx) is the one real
         // caller that can hand this a product id.
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
@@ -96,7 +96,7 @@ class WriteMetaTitleAction extends AbstractBasicAction {
                 'content' => sprintf(
                     'You write SEO-optimized page titles for search engine results. '
                         . 'Write one title, between %1$d and %2$d characters. '
-                        . 'Respond with ONLY the title itself — no quotes, no preamble.',
+                        . 'Respond with ONLY the title itself - no quotes, no preamble.',
                     self::MIN_LENGTH,
                     self::MAX_LENGTH
                 ),

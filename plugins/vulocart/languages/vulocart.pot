@@ -25,7 +25,7 @@ msgstr ""
 
 #. Description of the plugin
 #: vulocart.php
-msgid "An AI-native, API-first commerce engine — Assets, Passports, and a headless-ready REST core for WordPress."
+msgid "An AI-native, API-first commerce engine - Assets, Passports, and a headless-ready REST core for WordPress."
 msgstr ""
 
 #. Author of the plugin
@@ -381,7 +381,7 @@ msgid "Shipping"
 msgstr ""
 
 #: assets/js/block/checkout/index.js:1
-msgid "VuloCart Checkout — renders the real cart/order flow on the published page."
+msgid "VuloCart Checkout - renders the real cart/order flow on the published page."
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
@@ -396,7 +396,7 @@ msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/storefront.js:1
-msgid "Checkout has no active steps — activate Customer, Address, Shipping, and Payment from the Modules admin page."
+msgid "Checkout has no active steps - activate Customer, Address, Shipping, and Payment from the Modules admin page."
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
@@ -640,7 +640,7 @@ msgstr ""
 
 #: assets/js/block/checkout/view.js:1
 #: assets/js/storefront.js:1
-msgid "Thank you — your order is in!"
+msgid "Thank you - your order is in!"
 msgstr ""
 
 #: assets/js/block/checkout/view.js:1
@@ -660,7 +660,7 @@ msgid "Save this access token to check your order status later:"
 msgstr ""
 
 #: assets/js/block/offerings/index.js:1
-msgid "VuloCart Offerings — renders the catalog listing (or a single offering's detail page, via ?offering=) on the published page."
+msgid "VuloCart Offerings - renders the catalog listing (or a single offering's detail page, via ?offering=) on the published page."
 msgstr ""
 
 #: assets/js/block/offerings/view.js:1
@@ -710,7 +710,7 @@ msgid "Description"
 msgstr ""
 
 #: assets/js/block/order-tracking/index.js:1
-msgid "VuloCart Order Tracking — lets a guest look up their order by number + access token."
+msgid "VuloCart Order Tracking - lets a guest look up their order by number + access token."
 msgstr ""
 
 #: assets/js/block/order-tracking/view.js:1
@@ -752,23 +752,23 @@ msgid "Cart"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "The Cart Engine — add/update/remove line items, headless-ready via a client-held cart token."
+msgid "The Cart Engine - add/update/remove line items, headless-ready via a client-held cart token."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Turns a Cart into a placed Order — requires the Cart module to be active."
+msgid "Turns a Cart into a placed Order - requires the Cart module to be active."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Customer step — prefills name/email/phone for a logged-in buyer."
+msgid "Checkout wizard Customer step - prefills name/email/phone for a logged-in buyer."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Address step — billing/shipping address capture and validation."
+msgid "Checkout wizard Address step - billing/shipping address capture and validation."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Shipping step — flat-rate shipping cost, configured on the Shipping settings tab."
+msgid "Checkout wizard Shipping step - flat-rate shipping cost, configured on the Shipping settings tab."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -780,15 +780,15 @@ msgid "Adds tax calculation to order totals, using a flat rate configured on the
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Payment step — manual/offline payment, configured on the Payments settings tab."
+msgid "Checkout wizard Payment step - manual/offline payment, configured on the Payments settings tab."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Checkout wizard Review step — a real preview of the final order total before it's placed."
+msgid "Checkout wizard Review step - a real preview of the final order total before it's placed."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "The checkout wizard's post-order confirmation step — requires the Order module to be active."
+msgid "The checkout wizard's post-order confirmation step - requires the Order module to be active."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -796,7 +796,7 @@ msgid "Passport"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Give every Offering a Digital Passport — serial number, manufacturer, warranty, and other provenance details."
+msgid "Give every Offering a Digital Passport - serial number, manufacturer, warranty, and other provenance details."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -804,7 +804,7 @@ msgid "Suppliers"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Track who each offering is sourced from — manage suppliers and assign one per offering."
+msgid "Track who each offering is sourced from - manage suppliers and assign one per offering."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -900,7 +900,7 @@ msgid "Hosted Checkout"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "A dedicated /checkout/hosted/{cart_token}/ URL a shopper can be redirected to — not a WordPress page, no theme involved."
+msgid "A dedicated /checkout/hosted/{cart_token}/ URL a shopper can be redirected to - not a WordPress page, no theme involved."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -908,7 +908,7 @@ msgid "MCP"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Model Context Protocol server — exposes VuloCart's catalog/orders to MCP-compatible AI clients."
+msgid "Model Context Protocol server - exposes VuloCart's catalog/orders to MCP-compatible AI clients."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1016,7 +1016,7 @@ msgid "View"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Every order placed through the storefront checkout — update status as you fulfil, cancel, or refund each one."
+msgid "Every order placed through the storefront checkout - update status as you fulfil, cancel, or refund each one."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1246,7 +1246,7 @@ msgid "Delete"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Manage every offering — physical, digital, or service-based — from one place."
+msgid "Manage every offering - physical, digital, or service-based - from one place."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1678,7 +1678,7 @@ msgid "Add variants Like size or color"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Offering variants are not supported yet — this is planned for a future update."
+msgid "Offering variants are not supported yet - this is planned for a future update."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1790,11 +1790,11 @@ msgid "Where this offering appears in your store, and how it's tagged."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No categories yet — add some from Offerings → Categories."
+msgid "No categories yet - add some from Offerings → Categories."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No tags yet — add some from Offerings → Tags."
+msgid "No tags yet - add some from Offerings → Tags."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1806,7 +1806,7 @@ msgid "None"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "No collections yet — add some from Offerings → Collections."
+msgid "No collections yet - add some from Offerings → Collections."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1846,7 +1846,7 @@ msgid "Add"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Named properties offerings can be described by — e.g. \"Color\" with values Red/Blue/Green."
+msgid "Named properties offerings can be described by - e.g. \"Color\" with values Red/Blue/Green."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1934,7 +1934,7 @@ msgid "Delete this review? This cannot be undone."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Customer ratings and comments on your offerings — approve or reject before they show on the storefront."
+msgid "Customer ratings and comments on your offerings - approve or reject before they show on the storefront."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -1966,7 +1966,7 @@ msgid "Allow guest carts"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Let a shopper add items to a cart before creating an account — matches Cart\\Rest.php's existing token-based cart access, which already has no account requirement."
+msgid "Let a shopper add items to a cart before creating an account - matches Cart\\Rest.php's existing token-based cart access, which already has no account requirement."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2014,7 +2014,7 @@ msgid "Checkout layout"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Domain\\Checkout\\CheckoutMode — which layout the storefront Checkout Engine renders its registered steps in."
+msgid "Domain\\Checkout\\CheckoutMode - which layout the storefront Checkout Engine renders its registered steps in."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2070,7 +2070,7 @@ msgid "Enable manual/offline payment"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Accept orders without an online payment gateway — the only payment mode this plugin supports until a gateway module exists."
+msgid "Accept orders without an online payment gateway - the only payment mode this plugin supports until a gateway module exists."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2158,7 +2158,7 @@ msgid "Enable cart & checkout"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Turn off to take the storefront checkout page offline temporarily — visitors see an \"unavailable\" notice instead of the cart/checkout flow."
+msgid "Turn off to take the storefront checkout page offline temporarily - visitors see an \"unavailable\" notice instead of the cart/checkout flow."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -2260,7 +2260,7 @@ msgstr ""
 
 #: assets/js/block/checkout/block.json
 msgctxt "block description"
-msgid "A real, working single-page checkout: browse offerings, adjust cart quantities, and place an order — no payment gateway yet, orders are created as 'pending'."
+msgid "A real, working single-page checkout: browse offerings, adjust cart quantities, and place an order - no payment gateway yet, orders are created as 'pending'."
 msgstr ""
 
 #: assets/js/block/offerings/block.json

@@ -18,16 +18,16 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Create Content's "AI Content Audit" quick action
- * (QuickActionsCard.tsx) — a real, standalone AI action rather than the
+ * (QuickActionsCard.tsx) - a real, standalone AI action rather than the
  * in-page scroll shortcut this row used to be (it used to jump to
  * RecentContentCard.tsx's own rule-based scanner findings; those findings
  * still exist and are unrelated to this). This one asks the AI to review
- * one existing post/page's real content wholesale — an overall score, a
- * short summary, and a handful of concrete suggestions — and saves that
+ * one existing post/page's real content wholesale - an overall score, a
+ * short summary, and a handful of concrete suggestions - and saves that
  * verdict as post meta rather than rewriting anything, since an audit is
  * meant to inform a human, not silently change the page.
  *
- * Stays free (`get_tier()` inherited as 'free') — QuickActionsCard.tsx
+ * Stays free (`get_tier()` inherited as 'free') - QuickActionsCard.tsx
  * gates this tile only on a connected VuloCloud AI account
  * (ConnectVuloCloudPopup/useAiCredits), the same treatment
  * ContentToolsGrid.tsx's own free tiles (AI Writer, Blog Generator,
@@ -56,7 +56,7 @@ class AuditContentAction extends AbstractBasicAction {
 	}
 
 	/**
-	 * Impact::LOW — writes only a narrow postmeta verdict; never touches
+	 * Impact::LOW - writes only a narrow postmeta verdict; never touches
 	 * `post_content`/`post_title` or any other real post field.
 	 *
 	 * @inheritDoc
@@ -95,7 +95,7 @@ class AuditContentAction extends AbstractBasicAction {
 		return array(
 			array(
 				'role'    => 'system',
-				'content' => 'You audit WordPress page content for overall quality — SEO, readability, structure, '
+				'content' => 'You audit WordPress page content for overall quality - SEO, readability, structure, '
 					. 'and reader engagement. Respond in exactly this format, nothing else:'
 					. "\nSCORE: <a whole number from 0 to 100>\nSUMMARY: <one short paragraph verdict>"
 					. "\nSUGGESTIONS:\n- <first concrete suggestion>\n- <second concrete suggestion>\n- <third concrete suggestion>",

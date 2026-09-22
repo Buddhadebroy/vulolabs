@@ -11,12 +11,12 @@ interface AutomationsDummyProps {
 /**
  * Dummy stand-ins for the two real vulopilot-pro sections Automations.tsx's
  * own `vulopilot_automations_panel` filter slot resolves when Pro is active
- * — `AutomationsManageDummy` (real "Your automations" list,
+ * - `AutomationsManageDummy` (real "Your automations" list,
  * ManageAutomationsSection.tsx) and `AutomationsActivityDummy` (real
  * "Recent automation activity" feed, AutomationsActivityCard.tsx). Same
  * blurred-content-behind-an-"Upgrade to Pro"-overlay treatment every other
  * Pro-gated dummy card in this plugin uses
- * (../../components/UpgradeToProOverlay.tsx — shared, not reimplemented
+ * (../../components/UpgradeToProOverlay.tsx - shared, not reimplemented
  * per file), rather than either section being entirely absent from the DOM
  * the way it used to be (Automations.tsx used to gate its whole
  * `<ColumnComponent>` on `{Wizard && (...)}`).
@@ -49,14 +49,14 @@ const MANAGE_DUMMY_ROWS: { title: string; desc: string }[] = [
 	},
 ];
 
-/** Rows are entirely fabricated examples (plausible-looking category/cadence text, but no real row behind any of them) — inert (`aria-hidden`, disabled toggles, no click handler of their own): the click-through lives on the wrapping overlay instead, so clicking anywhere in the dummy list opens the same popup. */
+/** Rows are entirely fabricated examples (plausible-looking category/cadence text, but no real row behind any of them) - inert (`aria-hidden`, disabled toggles, no click handler of their own): the click-through lives on the wrapping overlay instead, so clicking anywhere in the dummy list opens the same popup. */
 export const AutomationsManageDummy = ({ onClick }: AutomationsDummyProps) => (
 	<CardComponent
 		id="automation-manage"
 		title={__('Your automations', 'vulopilot')}
 		titleIcon="automation"
 		desc={__(
-			'React to scan findings automatically — enable, pause, or run an automation, and see when it last ran.',
+			'React to scan findings automatically - enable, pause, or run an automation, and see when it last ran.',
 			'vulopilot'
 		)}
 	>
@@ -99,7 +99,7 @@ const ACTIVITY_DUMMY_ROWS: { title: string; desc: string; time: string }[] = [
 	},
 ];
 
-/** Rows are entirely fabricated examples (real completed/status wording from vulopilot-pro's own AutomationsActivityCard.tsx, but no real run behind any of them) — inert (`aria-hidden`, no click handler of their own): the click-through lives on the wrapping overlay instead, so clicking anywhere in the dummy list opens the same popup. */
+/** Rows are entirely fabricated examples (real completed/status wording from vulopilot-pro's own AutomationsActivityCard.tsx, but no real run behind any of them) - inert (`aria-hidden`, no click handler of their own): the click-through lives on the wrapping overlay instead, so clicking anywhere in the dummy list opens the same popup. */
 export const AutomationsActivityDummy = ({ onClick }: AutomationsDummyProps) => (
 	<CardComponent
 		title={__('Recent automation activity', 'vulopilot')}

@@ -22,7 +22,7 @@ import { formatWpDate } from '../../services/formatWpDate';
 import RecommendedFixesCard from './RecommendedFixesCard';
 import './Performance.scss';
 
-/** `id: 'integrations'` (Settings/Integrations.ts) — where the real PageSpeed Insights API key field this notice's own "no PSI connected" message used to describe in text actually lives (merged in from the old standalone `pagespeed-insights` tab per direct instruction). */
+/** `id: 'integrations'` (Settings/Integrations.ts) - where the real PageSpeed Insights API key field this notice's own "no PSI connected" message used to describe in text actually lives (merged in from the old standalone `pagespeed-insights` tab per direct instruction). */
 const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=integrations';
 
 interface PageSpeedRow {
@@ -105,7 +105,7 @@ const PAGE_TYPE_LABELS: Record<string, string> = {
 	category: __('Category Page', 'vulopilot'),
 };
 
-/** Same real 80/50/25 score bands `PageSpeedRepository::get_summary()` itself uses (`SCORE_GOOD`/`SCORE_NEEDS_IMPROVEMENT`/`SCORE_VERY_SLOW`) — a real, score-tier summary line for the average-score ring, not a fixed "in good shape" sentence regardless of score (same convention OverallScoreWidget.tsx's own `getRatingSummary()` establishes). */
+/** Same real 80/50/25 score bands `PageSpeedRepository::get_summary()` itself uses (`SCORE_GOOD`/`SCORE_NEEDS_IMPROVEMENT`/`SCORE_VERY_SLOW`) - a real, score-tier summary line for the average-score ring, not a fixed "in good shape" sentence regardless of score (same convention OverallScoreWidget.tsx's own `getRatingSummary()` establishes). */
 const avgScoreSummary = (score: number | null): string => {
 	if (null === score) {
 		return __('Not enough scanned pages yet to compute an average score.', 'vulopilot');
@@ -138,7 +138,7 @@ const ratingFor = (score: number | null): { label: string; className: 'good' | '
 	return { label: __('At Risk', 'vulopilot'), className: 'poor' };
 };
 
-/** Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — same `ratingFor()`-keyed map PerformanceScoreCard.tsx's own `RATING_COLOR` already uses for its ring tiles, reused here so this table's per-row score ring and that card's own score rings agree on what "good"/"poor" look like. */
+/** Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - same `ratingFor()`-keyed map PerformanceScoreCard.tsx's own `RATING_COLOR` already uses for its ring tiles, reused here so this table's per-row score ring and that card's own score rings agree on what "good"/"poor" look like. */
 const RATING_RING_COLOR: Record<'good' | 'needs-improvement' | 'poor' | 'unknown', string> = {
 	good: COLOR_PALETTE.green,
 	'needs-improvement': COLOR_PALETTE.orange,
@@ -157,7 +157,7 @@ const ScorePill = ({ score }: { score: number | null }) => {
 			data={[{ value: score ?? 0 }]}
 			centerLabel={
 				<span className={`page-speed-score-ring-value ${rating.className}`}>
-					{null === score ? '—' : score}
+					{null === score ? '-' : score}
 				</span>
 			}
 		/>
@@ -167,7 +167,7 @@ const ScorePill = ({ score }: { score: number | null }) => {
 /** Real byte count → a human string, same MB/KB thresholds browser devtools use. */
 const formatBytes = (bytes: number | null): string => {
 	if (null === bytes) {
-		return '—';
+		return '-';
 	}
 
 	if (bytes >= 1024 * 1024) {
@@ -183,7 +183,7 @@ const formatBytes = (bytes: number | null): string => {
 
 /**
  * Google's own real CrUX field-data category ('FAST'/'AVERAGE'/'SLOW') for
- * one Core Web Vital, passed through verbatim from PageSpeedScanner — this
+ * one Core Web Vital, passed through verbatim from PageSpeedScanner - this
  * just maps that real verdict onto this file's own good/needs-improvement/
  * poor dot palette, `unknown` (gray) when CrUX had no real field data for
  * this URL+metric (a real "not enough traffic" case, not fabricated).
@@ -194,7 +194,7 @@ const CWV_DOT_CLASS: Record<string, string> = {
 	SLOW: 'poor',
 };
 
-/** `ratingFor()`'s own className → the closest `admin-badge` color name — same `BadgeComponent`'s own `color` contract (a real admin-badge modifier) the summary `ListComponent` row tags below use, not a raw hex, unlike the fixed `$vulopilot-rating-*` hex values the old summary tiles painted directly. No badge color exists for "very poor" specifically, so it shares 'red' with "poor". */
+/** `ratingFor()`'s own className → the closest `admin-badge` color name - same `BadgeComponent`'s own `color` contract (a real admin-badge modifier) the summary `ListComponent` row tags below use, not a raw hex, unlike the fixed `$vulopilot-rating-*` hex values the old summary tiles painted directly. No badge color exists for "very poor" specifically, so it shares 'red' with "poor". */
 const RATING_BADGE_COLOR: Record<string, string> = {
 	good: 'green',
 	'needs-improvement': 'orange',
@@ -210,7 +210,7 @@ const CWV_METRICS = [
 ];
 
 /**
- * Real Google CrUX field-data dots — one per metric, gray/"unknown" when
+ * Real Google CrUX field-data dots - one per metric, gray/"unknown" when
  * that metric has no real field data for this page (common for low-traffic
  * pages; CrUX only reports once enough real visits exist). Never a
  * fabricated color.
@@ -242,19 +242,19 @@ const CoreWebVitalsDots = ({ row }: { row: PageSpeedRow }) => (
 const csvEscape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
 /**
- * "Slow Pages" tab of "Performance" — real per-page speed data from
+ * "Slow Pages" tab of "Performance" - real per-page speed data from
  * `GET /page-speed` (Repositories\PageSpeedRepository, populated in the
  * background by Services\PageSpeedScanner). Fetched once per mount/scan
- * (this plugin's own page counts are bounded — see PageSpeedScanner's own
- * MAX_PER_TYPE — so client-side filter/search/sort is simpler than wiring
+ * (this plugin's own page counts are bounded - see PageSpeedScanner's own
+ * MAX_PER_TYPE - so client-side filter/search/sort is simpler than wiring
  * up TableCard, whose fixed header `type`s (text/currency/date/badge/
  * action/id/content/status) can't render this page's colored score pill +
  * Core Web Vitals dots per cell).
  *
  * Mobile/Desktop score columns, Page Size/Requests, and the Core Web
- * Vitals dots all only appear once at least one real row has that data —
+ * Vitals dots all only appear once at least one real row has that data -
  * i.e. once a `psi_api_key` is configured (Settings → Scanning →
- * Performance) and the background scan has reached that row — otherwise a
+ * Performance) and the background scan has reached that row - otherwise a
  * single real "Score" column is shown and the PSI-only columns are
  * dropped entirely, same PSI-key-gated fallback PerformanceScoreCard.tsx's
  * own Overall Speed Score card already uses; never a fabricated split or
@@ -263,7 +263,7 @@ const csvEscape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
  * The "Performance Trend" tile + sparkline reuses the real, already-dated
  * `GET /performance-score-snapshots` history (SpeedHistoryCard.tsx's own
  * data source, one row per real day) rather than inventing a per-page
- * load-time trend — this table itself has none (`replace_for_url()` keeps
+ * load-time trend - this table itself has none (`replace_for_url()` keeps
  * only each page's latest scan, never a history). That snapshot is a
  * sitewide 0-100 performance score, not a Slow-Pages-specific or literal
  * seconds figure, so the tile is honestly labeled "pts" and "Performance
@@ -279,7 +279,7 @@ const SlowPagesTab = () => {
 	const [detailRow, setDetailRow] = useState<PageSpeedRow | null>(null);
 	const [trendDays, setTrendDays] = useState('30');
 	// Real "which real PSI device's own scores to show" toggle for the
-	// "Slow Pages Score" summary card's header — mobile first, same real
+	// "Slow Pages Score" summary card's header - mobile first, same real
 	// "mobile is the default device" convention PageSpeedScanner.php's own
 	// docblock already documents for which PSI response feeds every other
 	// mobile-first field on this page. Only meaningful once a PSI key is
@@ -289,7 +289,7 @@ const SlowPagesTab = () => {
 	const [isTrendLoading, setIsTrendLoading] = useState(true);
 	// This table's own rows are all fetched once (per_page=200) and
 	// filtered/searched entirely client-side (see this file's own docblock)
-	// — TableCard itself never slices `rows` server-side, it just displays
+	// - TableCard itself never slices `rows` server-side, it just displays
 	// whatever page-worth it's handed and hands page changes back via
 	// `onQueryUpdate`, so this table now does that same slicing locally.
 	const [paged, setPaged] = useState(1);
@@ -352,23 +352,23 @@ const SlowPagesTab = () => {
 	}, [trendDays]);
 
 	// The "Scan Again" trigger for this real per-page speed scan
-	// (`POST /page-speed`) lives in Performance.tsx's own page header now —
+	// (`POST /page-speed`) lives in Performance.tsx's own page header now -
 	// a real, separate job from the site-wide `categories=['performance']`
 	// scan RunScanHeaderExtra's own "Run Speed Test" button already
 	// triggers there (PageSpeedScanner isn't registered in ScannerRegistry,
-	// so that category scan never runs it) — see Performance.tsx's own
+	// so that category scan never runs it) - see Performance.tsx's own
 	// `handleSlowPagesScan`.
 
 	const rows = response?.data ?? [];
 	const hasDeviceScores = rows.some((row) => null !== row.mobile_score);
 	const hasPsiDetail = rows.some((row) => null !== row.page_size_bytes);
-	// Real average — `avg_mobile_score` only when a PSI key is configured
+	// Real average - `avg_mobile_score` only when a PSI key is configured
 	// (per-device split available), `avg_score` otherwise (PageSpeedRepository::get_summary()
 	// always computes both from the same real rows; this tile just needs to
 	// read the one that matches what the rest of this page is showing).
 	// Was previously hardcoded to `avg_mobile_score` alone, so this tile
-	// showed "—" even with real, non-empty scanned scores whenever no PSI
-	// key was configured — the common case.
+	// showed "-" even with real, non-empty scanned scores whenever no PSI
+	// key was configured - the common case.
 	const avgScore = response?.summary
 		? (hasDeviceScores
 			? response.summary.avg_mobile_score
@@ -378,7 +378,7 @@ const SlowPagesTab = () => {
 
 	/**
 	 * Real average mobile/desktop PSI scores, computed client-side from this
-	 * same `rows` fetch — `PageSpeedRepository::get_summary()` only returns
+	 * same `rows` fetch - `PageSpeedRepository::get_summary()` only returns
 	 * an aggregate `avg_mobile_score` (no `avg_desktop_score` field exists
 	 * server-side), but every row here already carries its own real
 	 * `mobile_score`/`desktop_score` (`PageSpeedScanner`'s own real PSI
@@ -444,7 +444,7 @@ const SlowPagesTab = () => {
 	}, [statusFilter, pageTypeFilter, searchTerm]);
 
 	// Auto-open the first row's details whenever the filtered set changes
-	// and nothing valid is currently selected — "always open 1st table of
+	// and nothing valid is currently selected - "always open 1st table of
 	// details" on load, and keeps a real detail panel visible after
 	// filters/search narrow or reorder rows, rather than leaving a stale
 	// row's panel (or an empty one) on screen.
@@ -469,14 +469,14 @@ const SlowPagesTab = () => {
 
 	/**
 	 * The whole "Slow Pages Score" summary card's own real data for
-	 * whichever device the header toggle has selected — the ring's score
+	 * whichever device the header toggle has selected - the ring's score
 	 * itself (`avgMobileScore`/`avgDesktopScore` above) plus a real
 	 * Slow/Good page count recomputed from this same real per-row
 	 * `mobile_score`/`desktop_score` (same `ratingFor()` 80/50 bands the
 	 * rest of this page already uses), not the server's own device-agnostic
 	 * `summary.slow`/`summary.good` (those count by the real server-response
 	 * `score`/`status`, which has no device concept at all). Falls back to
-	 * that device-agnostic summary when no PSI key is configured — there's
+	 * that device-agnostic summary when no PSI key is configured - there's
 	 * no real per-device score to switch between yet.
 	 */
 	const deviceScoreKey = 'mobile' === scoreDevice ? 'mobile_score' : 'desktop_score';
@@ -500,17 +500,17 @@ const SlowPagesTab = () => {
 	const topIssues = response?.top_issues ?? [];
 
 
-	// Fed to TableCard's own `categoryCounts`/`activeCategory` — same
+	// Fed to TableCard's own `categoryCounts`/`activeCategory` - same
 	// status-filter pills, now rendered by the table itself (`admin-top-filter`)
 	// instead of hand-rolled `<button>`s, same convention IssuesList.tsx's own
 	// TableCard already uses.
 	const statusCategoryCounts = [
 		// Same "All" pill shape IssuesList.tsx's own `tableCategoryCounts`
 		// already establishes for this same `TableCard`/`categoryCounts`
-		// prop — `statusFilter`'s own initial state and filter check
+		// prop - `statusFilter`'s own initial state and filter check
 		// (`'all' !== statusFilter`) already treat `'all'` as the real
 		// no-filter sentinel; this was just the missing pill for it. Real
-		// `rows.length`, not a sum of the 3 named tiers below — a page
+		// `rows.length`, not a sum of the 3 named tiers below - a page
 		// whose `status` came back `null` (not yet scored) still counts
 		// toward the real total here, even though it can't match any of
 		// those 3 named filters.
@@ -625,7 +625,7 @@ const SlowPagesTab = () => {
 											variant={'h1'}
 											color={RATING_BADGE_COLOR[displayScoreRating.className] || 'gray'}
 										>
-											{null === displayScore ? '—' : displayScore}
+											{null === displayScore ? '-' : displayScore}
 										</TypographyComponent>
 										<TypographyComponent variant={'h4'}>
 											{displayScoreRating.label}
@@ -688,7 +688,7 @@ const SlowPagesTab = () => {
 											<TypographyComponent variant="h5">
 												{avgLoadTimeMs !== null
 													? sprintf(__('%s s', 'vulopilot'), (avgLoadTimeMs / 1000).toFixed(1))
-													: '—'}
+													: '-'}
 											</TypographyComponent>
 											<div className="page-speed-summary-row-sub">
 												{null !== displayScore
@@ -732,7 +732,7 @@ const SlowPagesTab = () => {
 											<TypographyComponent variant="h5">
 												{null !== trendDelta
 													? `${trendDelta >= 0 ? '+' : ''}${trendDelta} ${__('pts', 'vulopilot')}`
-													: '—'}
+													: '-'}
 											</TypographyComponent>
 											<div className="page-speed-summary-row-sub">
 												{null !== trendDelta ? (
@@ -765,7 +765,7 @@ const SlowPagesTab = () => {
 						desc={
 							0 === rows.length
 								? __(
-									'No pages scanned yet — click "Run Speed Test" to check your real pages\' load times.',
+									'No pages scanned yet - click "Run Speed Test" to check your real pages\' load times.',
 									'vulopilot'
 								)
 								: __(
@@ -831,7 +831,7 @@ const SlowPagesTab = () => {
 								render: (row: PageSpeedRow) =>
 									null !== row.load_time_ms
 										? sprintf(__('Load Time: %s s', 'vulopilot'), (row.load_time_ms / 1000).toFixed(1))
-										: '—',
+										: '-',
 							},
 							...(hasPsiDetail
 								? {
@@ -854,7 +854,7 @@ const SlowPagesTab = () => {
 											</TooltipComponent>
 										),
 										render: (row: PageSpeedRow) =>
-											null !== row.requests_count ? row.requests_count : '—',
+											null !== row.requests_count ? row.requests_count : '-',
 									},
 									core_web_vitals: {
 										label: (
@@ -871,7 +871,7 @@ const SlowPagesTab = () => {
 							action: {
 								label: __('Action', 'vulopilot'),
 								// `type: 'more-action'` no longer exists in
-								// @zyra/table — `type: 'action'` now covers
+								// @zyra/table - `type: 'action'` now covers
 								// that same single-toggle-button case via a
 								// `type: 'button'` action whose label/icon
 								// are functions of `row` (see that type's
@@ -918,7 +918,7 @@ const SlowPagesTab = () => {
 						totalRows={filteredRows.length}
 						activeRowId={detailRow?.id}
 						// Same toggle the action cell's own "More
-						// Details"/"Showing" button already does — a
+						// Details"/"Showing" button already does - a
 						// click anywhere on the row now opens/closes the
 						// details panel too, not just that one small
 						// button.
@@ -952,13 +952,13 @@ const SlowPagesTab = () => {
 
 			<ColumnComponent grid={4}>
 				{/* "Page details" card only renders when there are real rows
-				 * to select from — same `filteredRows.length` check the
+				 * to select from - same `filteredRows.length` check the
 				 * table's own empty-state (`ModuleGuardComponent`) already
 				 * uses on the left, so the two columns agree on when the
 				 * table actually has content. Without this, an empty scan
 				 * rendered a "Select a page" placeholder pointing at a
 				 * table that had nothing to click. The four cards below
-				 * stay unconditional — they're still meaningful with zero
+				 * stay unconditional - they're still meaningful with zero
 				 * rows. */}
 				{0 < filteredRows.length && (
 					<>
@@ -1006,7 +1006,7 @@ const SlowPagesTab = () => {
 									<FormGroupComponent row label={__('Load Time', 'vulopilot')}>
 										{null !== detailRow.load_time_ms
 											? sprintf(__('%s s', 'vulopilot'), (detailRow.load_time_ms / 1000).toFixed(2))
-											: '—'}
+											: '-'}
 									</FormGroupComponent>
 									{hasDeviceScores ? (
 										<>
@@ -1028,7 +1028,7 @@ const SlowPagesTab = () => {
 												{formatBytes(detailRow.page_size_bytes)}
 											</FormGroupComponent>
 											<FormGroupComponent row label={__('Requests', 'vulopilot')}>
-												{null !== detailRow.requests_count ? detailRow.requests_count : '—'}
+												{null !== detailRow.requests_count ? detailRow.requests_count : '-'}
 											</FormGroupComponent>
 											<FormGroupComponent row label={__('Core Web Vitals', 'vulopilot')}>
 												<CoreWebVitalsDots row={detailRow} />

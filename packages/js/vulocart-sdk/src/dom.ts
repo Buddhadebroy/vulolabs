@@ -1,5 +1,5 @@
 /**
- * A minimal DOM-builder helper — no virtual DOM, no diffing. Every widget
+ * A minimal DOM-builder helper - no virtual DOM, no diffing. Every widget
  * in this package is small and short-lived enough (a button, a cart
  * drawer, a handful of checkout fields) that re-rendering by clearing and
  * rebuilding a container's `innerHTML`-equivalent tree is simpler and far
@@ -22,7 +22,7 @@ export function h< K extends keyof HTMLElementTagNameMap >(
 		if ( 'class' === key ) {
 			el.className = value;
 		} else if ( key.startsWith( 'on' ) ) {
-			// Not used — event listeners are attached directly via
+			// Not used - event listeners are attached directly via
 			// `addEventListener` at each call site instead, so this
 			// helper's attrs stay plain, JSON-serializable-shaped data.
 			continue;

@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\Impact;
 
 /**
  * An AI action is a user-typed-input AI workflow with an approval-gated
- * propose()/approve()/reject()/rollback() lifecycle (AI-ACTIONS.md) —
+ * propose()/approve()/reject()/rollback() lifecycle (AI-ACTIONS.md) -
  * distinct from RuleInterface, which is Recommendation-only and doesn't
  * cover a workflow like "Generate Blog" that has no triggering Finding at
  * all. Implemented by AiCopilot\Actions\AbstractBasicAction (free) and any
@@ -47,12 +47,12 @@ interface AIActionInterface {
      * How much this action's own execute() can change on the site,
      * reusing ValueObjects\Impact's existing LOW/MEDIUM/HIGH scale
      * (previously "a rule's estimated impact if its recommendation is
-     * resolved" — generalized here to the same "rank the enum, compare
+     * resolved" - generalized here to the same "rank the enum, compare
      * ranks" idiom for an AI action's own approval risk, rather than
      * introducing a second near-identical enum). Settings → Automation →
      * Approval Settings' "Ask for medium & high risk changes" mode reads
      * this via ActionRunner::propose() to decide whether a given proposed
-     * change can skip human approval — Impact::LOW only.
+     * change can skip human approval - Impact::LOW only.
      *
      * @return string One of Impact::LOW/MEDIUM/HIGH.
      */

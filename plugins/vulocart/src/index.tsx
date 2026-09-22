@@ -16,7 +16,7 @@ import AnalyticsEngine from './pages/AnalyticsEngine/AnalyticsEngine';
 import Brand from './assets/images/vulocart-logo.svg';
 
 /**
- * VuloCart's free plugin owns its own React mount — unlike
+ * VuloCart's free plugin owns its own React mount - unlike
  * vulopilot's Pro plugin, which only registers
  * `@wordpress/hooks` filters into an already-mounted Free dashboard
  * (react-frontend.md), VuloCart has no existing dashboard to extend, so
@@ -24,44 +24,44 @@ import Brand from './assets/images/vulocart-logo.svg';
  *
  * Two further, separate top-level WP admin menus ("Orders", "Offerings")
  * mount the exact same bundle into different root element ids
- * (`#vulocart-orders-admin-root`, `#vulocart-offerings-admin-root`) — both
+ * (`#vulocart-orders-admin-root`, `#vulocart-offerings-admin-root`) - both
  * get their own dedicated space rather than being one more VuloCart tab
  * (Menu.php's `add_orders_menu()`/`add_offerings_menu()` docblocks).
  * Rather than a second/third webpack entry, this file renders a
- * different, self-contained tree per root — "never mix multiple modules
+ * different, self-contained tree per root - "never mix multiple modules
  * into one screen" holds either way, since neither screen ever renders
  * Modules/Settings.
  *
  * Both apps read `action`/`id` straight from `window.location.search` once,
- * at mount time — not via client-side routing. Every transition between
+ * at mount time - not via client-side routing. Every transition between
  * list/add/edit is a real full-page navigation to a distinct
  * `admin.php?page=...` URL (row/button links use plain `<a href>`/
  * `window.location.href`, see OrdersList.tsx/OfferingsList.tsx), matching
  * WooCommerce's own Orders/Products edit screens rather than a SPA route
- * or a popup — so a fresh mount re-reading the URL on every load is
+ * or a popup - so a fresh mount re-reading the URL on every load is
  * exactly the right model, not a shortcut.
  *
  * `configureZyra()` feeds zyra's internal config (apiUrl/restUrl/nonce/
  * khali_dabba/etc, see global.d.ts) to every zyra component this app
  * renders (Modules/Settings/Dashboard pages). `initializeModules()`
  * seeds zyra's own `useModules()` store with the real active-module list
- * — `force_vulocart_context_reload` mirrors vulopilot's
+ * - `force_vulocart_context_reload` mirrors vulopilot's
  * app.tsx pattern of setting this unconditionally on every load so the
  * store never goes stale.
  *
- * `BrowserRouter`, not `HashRouter` — App.tsx's tab system reads the raw
+ * `BrowserRouter`, not `HashRouter` - App.tsx's tab system reads the raw
  * `location.hash` (`#&tab=...`) itself; `HashRouter` would instead treat
  * everything after `#` as its own routed pathname, which isn't what
  * App.tsx's `Route` component expects (confirmed the hard way once
- * already this session — see App.tsx's docblock).
+ * already this session - see App.tsx's docblock).
  *
  * Every `render()` call below runs inside `mount()`, called on
  * `DOMContentLoaded` (or immediately if that's already fired) rather
- * than inline at script-eval time — load-order-sensitive, found the hard
+ * than inline at script-eval time - load-order-sensitive, found the hard
  * way: `vulocart-pro-admin` declares `vulocart-admin` as its own script
  * dependency (VuloCartPro.php's own `enqueue_admin_script()`), which
  * makes WordPress output THIS script's tag before Pro's in the page. A
- * plain `setTimeout(fn, 0)` deferral was tried first and wasn't enough —
+ * plain `setTimeout(fn, 0)` deferral was tried first and wasn't enough -
  * confirmed empirically (a real headless-browser check, not just "the
  * script tag is present") that a same-task macrotask can still fire
  * before a second, separately-fetched `<script src>` tag has finished
@@ -69,7 +69,7 @@ import Brand from './assets/images/vulocart-logo.svg';
  * itself asynchronous per the HTML spec even for a parser-blocking
  * script. `DOMContentLoaded` doesn't have that race: it only fires once
  * the parser has finished the ENTIRE document, including running every
- * parser-blocking script it encountered — so by the time `mount()` runs,
+ * parser-blocking script it encountered - so by the time `mount()` runs,
  * vulocart-pro's own bundle (and every active Pro module's own
  * top-level `addFilter()` calls) has unconditionally already executed.
  * Without this, `render()` (and therefore every `applyFilters(...)` call
@@ -78,7 +78,7 @@ import Brand from './assets/images/vulocart-logo.svg';
  * any Pro-registered filter existed, so every Pro-registered `view`
  * (Suppliers, Groups/Segments, the entire Inventory/Shipping Engine
  * screens, ...) silently fell through to `previousValue` and never
- * rendered — and nothing here subscribes to "a hook was registered," so
+ * rendered - and nothing here subscribes to "a hook was registered," so
  * a first render that missed a filter never got a second chance.
  */
 localStorage.setItem( 'force_vulocart_context_reload', 'true' );

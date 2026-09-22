@@ -44,7 +44,7 @@ interface AttributeRepositoryInterface {
     public function list(): array;
 
     /**
-     * Persists a new attribute (without values — see insert_value()).
+     * Persists a new attribute (without values - see insert_value()).
      *
      * @param ProductAttribute $attribute An attribute with $id === null.
      * @return ProductAttribute The same attribute, with $id (and timestamps) populated.

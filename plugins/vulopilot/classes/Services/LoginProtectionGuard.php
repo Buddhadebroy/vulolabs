@@ -13,24 +13,24 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Real, always-on brute-force login protection — Protect My Site's "Login
+ * Real, always-on brute-force login protection - Protect My Site's "Login
  * Protection" tile. Unconditionally constructed in VuloPilot::init_classes()
  * (not a Modules-page module), self-registers its own hooks:
  *
  * - `authenticate` (priority 30, after core's own username/email password
- *   checks at priority 20) — before letting this attempt proceed, counts
+ *   checks at priority 20) - before letting this attempt proceed, counts
  *   real recent failures for the requesting IP
  *   (LoginAttemptRepository::count_recent_failures()) within
  *   `login_lockout_minutes`; at/over `login_max_attempts`, returns a
- *   WP_Error — core's own documented short-circuit contract for this
+ *   WP_Error - core's own documented short-circuit contract for this
  *   filter, the same mechanism every login-limiter plugin relies on. The
  *   lockout check doesn't depend on whether the guessed password was
- *   correct — that's the point: it blocks the *attempt*, not just a
+ *   correct - that's the point: it blocks the *attempt*, not just a
  *   specific wrong password.
- * - `wp_login_failed` — records one real `success=0` row.
- * - `wp_login` — records one real `success=1` row.
+ * - `wp_login_failed` - records one real `success=0` row.
+ * - `wp_login` - records one real `success=1` row.
  *
- * IP is read from `$_SERVER['REMOTE_ADDR']` only — never a client-supplied
+ * IP is read from `$_SERVER['REMOTE_ADDR']` only - never a client-supplied
  * `X-Forwarded-For`-style header, which is trivially spoofable and would
  * let an attacker blame (or exempt) an arbitrary IP.
  *
@@ -50,7 +50,7 @@ class LoginProtectionGuard {
     }
 
     /**
-     * Real client IP, `$_SERVER['REMOTE_ADDR']` only — see class docblock
+     * Real client IP, `$_SERVER['REMOTE_ADDR']` only - see class docblock
      * for why a forwarded-for header is never trusted here.
      *
      * @return string Real IP, or '0.0.0.0' if genuinely unavailable (e.g. CLI context).
@@ -64,7 +64,7 @@ class LoginProtectionGuard {
     }
 
     /**
-     * Real settings, parsed with defaults — same `wp_parse_args()` shape
+     * Real settings, parsed with defaults - same `wp_parse_args()` shape
      * every scanner in this codebase already reads settings with.
      *
      * @return array<string, mixed>
@@ -74,7 +74,7 @@ class LoginProtectionGuard {
     }
 
     /**
-     * The `authenticate` filter callback — see class docblock.
+     * The `authenticate` filter callback - see class docblock.
      *
      * @param \WP_User|\WP_Error|null $user     Current authentication result.
      * @param string                  $username Real username/email being attempted.
@@ -82,7 +82,7 @@ class LoginProtectionGuard {
      * @return \WP_User|\WP_Error|null
      */
     public function block_if_locked_out( $user, string $username, string $password ) {
-        // No credentials submitted yet (e.g. the login form's first load) —
+        // No credentials submitted yet (e.g. the login form's first load) -
         // nothing to check.
         if ( '' === $username && '' === $password ) {
             return $user;
@@ -115,10 +115,10 @@ class LoginProtectionGuard {
     }
 
     /**
-     * `wp_login_failed` callback — records one real failed attempt.
+     * `wp_login_failed` callback - records one real failed attempt.
      *
      * @param string          $username Real username/email that was attempted.
-     * @param \WP_Error|mixed $error    Core's own real authentication error (unused — only the fact of failure matters here).
+     * @param \WP_Error|mixed $error    Core's own real authentication error (unused - only the fact of failure matters here).
      * @return void
      */
     public function record_failure( string $username, $error = null ): void {
@@ -139,9 +139,9 @@ class LoginProtectionGuard {
     }
 
     /**
-     * `wp_login` callback — records one real successful attempt. Failures
+     * `wp_login` callback - records one real successful attempt. Failures
      * still age out of the rolling lockout window naturally (no need to
-     * clear them here) — see LoginAttemptRepository::count_recent_failures().
+     * clear them here) - see LoginAttemptRepository::count_recent_failures().
      *
      * @param string           $user_login Real username that logged in.
      * @param \WP_User|mixed   $user       Core's own real WP_User (unused).

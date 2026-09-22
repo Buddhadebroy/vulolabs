@@ -7,34 +7,34 @@ import AccessibilityRestoreDefaultsHeader from './AccessibilityRestoreDefaultsHe
  *
  * New tab pulling together 3 fields that previously lived inside Scanning
  * → Security's own shared "Accessibility" section (`enable_wcag_scanner`,
- * `accessibility_audit_frequency`, `target_wcag_level` — moved, not
+ * `accessibility_audit_frequency`, `target_wcag_level` - moved, not
  * duplicated, same precedent GetStarted/GoogleServices.ts's own docblock
  * documents for its move out of Scanning), plus one real setting that had
  * no settings-UI exposure anywhere until now:
  *
- * - `enable_accessibility_scanning` — the real, already-wired whole-category
+ * - `enable_accessibility_scanning` - the real, already-wired whole-category
  *   kill switch (ScannerRegistry::get_disabled_categories() reads it) for
  *   all 5 accessibility scanners (AccessibilityScanner, KeyboardAccessibilityScanner,
- *   AriaAttributesScanner, FormLabelsScanner, WcagScanner) — this is the
+ *   AriaAttributesScanner, FormLabelsScanner, WcagScanner) - this is the
  *   mockup's "Accessibility checks" master row.
- * - `accessibility_audit_frequency` — real, read by vulopilot-pro's
+ * - `accessibility_audit_frequency` - real, read by vulopilot-pro's
  *   AccessibilityAuditScheduler, options narrowed to what that scheduler
- *   actually accepts (`disabled`/`hourly`/`daily`/`weekly` — no
+ *   actually accepts (`disabled`/`hourly`/`daily`/`weekly` - no
  *   `fortnightly`/`monthly`, which don't exist as real cron intervals
  *   anywhere in this codebase, unlike the mockup's own 4-option row).
- * - `target_wcag_level` — previously a fully orphaned UI-only field (no
+ * - `target_wcag_level` - previously a fully orphaned UI-only field (no
  *   entry in Utill::VULOPILOT_SETTINGS_DEFAULTS, no PHP consumer at all).
  *   Now has a real, if modest, consumer: Scanners\Basic\AccessibilityScanner
  *   skips itself at the 'A' target (it's this codebase's one check mapping
  *   to a Level AA criterion; the other 4 scanners map to Level A criteria
- *   and stay unconditional). 'AAA' currently behaves identically to 'AA' —
+ *   and stay unconditional). 'AAA' currently behaves identically to 'AA' -
  *   no check here maps to a genuine Level AAA criterion yet, so the option
  *   is offered honestly rather than hidden, with that limitation called
  *   out in its own settingDescription below.
  *
  * "Restore Defaults" is AccessibilityRestoreDefaultsHeader.tsx, wired via
  * this config's own `settingAction` (same migration AiVisibility.ts/
- * Security.ts already went through — rendered by
+ * Security.ts already went through - rendered by
  * NavigatorComponent.tsx's renderSettingHeaderInfo(), not Settings.tsx's
  * own currentTab special-case anymore).
  */
@@ -78,7 +78,7 @@ export default {
 				{ key: 'daily', value: 'daily', label: __('Daily', 'vulopilot'), width: '100%' },
 				{ key: 'weekly', value: 'weekly', label: __('Weekly', 'vulopilot'), width: '100%' },
 			],
-			moduleEnabled: 'accessibility-audits',
+			moduleEnabled: 'accessibility-checks',
 		},
 		{
 			key: 'target_wcag_level',

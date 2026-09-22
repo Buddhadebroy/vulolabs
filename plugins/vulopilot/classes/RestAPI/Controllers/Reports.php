@@ -16,24 +16,24 @@ defined( 'ABSPATH' ) || exit;
  * GET /reports backs src/pages/Reports/Reports.tsx's table; POST /reports
  * backs its "Generate report" action; GET /reports/types lists every
  * registered Reports\ReportTypeRegistry entry (what a "report builder" UI
- * would read to offer choices — see ReportTypeRegistry's own docblock for
+ * would read to offer choices - see ReportTypeRegistry's own docblock for
  * why 'custom' isn't in that list itself); GET /reports/{id}/download
  * streams the generated file through this permission-checked handler
  * rather than ever exposing `file_path` to the client (DATABASE.md).
  *
- * POST now runs Reports\ReportGenerator::generate() synchronously — every
+ * POST now runs Reports\ReportGenerator::generate() synchronously - every
  * report type reads bounded, already-aggregated SQL (Reports\ReportGenerator's
  * own docblock), so this is a real generation, not the earlier `generating`-
  * status stub with no engine behind it.
  *
  * `vulopilot_report_creation_extra` fires after generation with the
- * request and the just-generated report row — a generic, Pro-agnostic
+ * request and the just-generated report row - a generic, Pro-agnostic
  * extension point (empty array by default) rather than this controller
  * knowing anything about what a caller might want to happen next.
  * vulopilot-pro's AdvancedReports module is the one real consumer today
  * (Module::maybe_email_created_report()): the Reports → Overview "Create
  * Report" modal is itself gated behind that module (Free has no working
- * "Create Report" UI at all without it — ReportsOverviewHeader.tsx's own
+ * "Create Report" UI at all without it - ReportsOverviewHeader.tsx's own
  * docblock), so its "Email this report after generation" checkbox's
  * `email`/`recipients` params only ever reach a real listener when Pro's
  * module is active; every other free entry point that posts here (this
@@ -127,7 +127,7 @@ class Reports extends \WP_REST_Controller {
             )
         );
 
-        // file_path is deliberately never exposed to the client (DATABASE.md) —
+        // file_path is deliberately never exposed to the client (DATABASE.md) -
         // has_file tells the frontend whether the "Download" action is valid.
         $result['data'] = array_map(
             static function ( array $row ): array {
@@ -144,7 +144,7 @@ class Reports extends \WP_REST_Controller {
     }
 
     /**
-     * Lists every registered report type — what a report-builder UI reads
+     * Lists every registered report type - what a report-builder UI reads
      * to offer choices instead of the hardcoded 'scan_summary' the Reports
      * page used before this pass.
      *
@@ -177,7 +177,7 @@ class Reports extends \WP_REST_Controller {
         // Only the *settings default* falls back silently to 'csv' when its
         // exporter isn't registered (e.g. the default was set to 'pdf' while
         // vulopilot-pro's AdvancedReports module was active, then it was
-        // deactivated) — an explicitly requested format that isn't
+        // deactivated) - an explicitly requested format that isn't
         // registered still errors below, since silently substituting a
         // format the caller asked for by name would be surprising, not helpful.
         if ( ! $requested_format && ! VuloPilot()->report_exporter_registry->get_exporter( $format ) ) {
@@ -210,7 +210,7 @@ class Reports extends \WP_REST_Controller {
         $report     = $repository->find( $id );
 
         // Same "never expose file_path to the client" posture get_items()
-        // already applies — the modal's own success state only needs
+        // already applies - the modal's own success state only needs
         // has_file to know whether "View"/"Download PDF" are valid yet.
         if ( $report ) {
             $report['has_file'] = ! empty( $report['file_path'] );
@@ -220,7 +220,7 @@ class Reports extends \WP_REST_Controller {
         /**
          * Fires after a report is generated through this endpoint, filtered
          * through whatever extra response fields a listener wants to
-         * contribute — see this class's own docblock for why this exists
+         * contribute - see this class's own docblock for why this exists
          * (vulopilot-pro's AdvancedReports module is the one real consumer,
          * for its Pro-gated "Create Report" modal's optional email step).
          *
@@ -245,7 +245,7 @@ class Reports extends \WP_REST_Controller {
 
     /**
      * Streams a generated report file rather than ever returning its
-     * filesystem path to the client — same "don't trust the client with a
+     * filesystem path to the client - same "don't trust the client with a
      * raw path" posture security.md's escaping/sanitizing baseline uses
      * elsewhere.
      *

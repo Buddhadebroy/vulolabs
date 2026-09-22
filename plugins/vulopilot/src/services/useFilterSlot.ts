@@ -10,13 +10,13 @@ import type { ComponentType } from 'react';
  * requested and parsed first. But "requested first" isn't "finishes
  * executing before Free needs it": both are plain, non-deferred <script>
  * tags, and the browser can yield to the event loop in the gap while it
- * fetches Pro's script over the network — long enough for Free's own
+ * fetches Pro's script over the network - long enough for Free's own
  * first post-mount effect to already have fired and missed Pro's
  * `addFilter()` calls (measured live: Free's own effect ran with every
  * slot still unregistered). Free's routes.ts also eagerly imports every
  * page (no route-level code splitting), so a plain
  * `applyFilters(hookName, null)` read at module scope or on first render
- * is even more exposed to the same race — it runs during that same early
+ * is even more exposed to the same race - it runs during that same early
  * pass and permanently misses Pro's registration, regardless of which
  * modules are actually active: the slot renders nothing forever, not
  * just while locked.

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * AI Crawler Analytics' Free "Blocked Pages" (AI-CRAWLER-ANALYTICS-MODULE.md)
- * — flags real published pages that robots.txt disallows for a SPECIFIC
+ * - flags real published pages that robots.txt disallows for a SPECIFIC
  * known AI bot. Deliberately narrower than RobotsTxtScanner (which already
  * owns "robots.txt blocks every crawler sitewide" as its own HIGH-severity
  * finding): a page only shows up here when the disallow rule is scoped to
@@ -92,7 +92,7 @@ class AiCrawlerBlockedPagesScanner extends AbstractBasicScanner implements Track
             $disallowed_paths = $robots->get_disallowed_paths_for_bot( $bot_token );
 
             // A bare `/` disallow is already RobotsTxtScanner's own
-            // sitewide finding when it applies to the wildcard group — skip
+            // sitewide finding when it applies to the wildcard group - skip
             // it here so the same real problem isn't reported twice.
             $disallowed_paths = array_diff( $disallowed_paths, array( '/' ) );
 
@@ -132,7 +132,7 @@ class AiCrawlerBlockedPagesScanner extends AbstractBasicScanner implements Track
     }
 
     /**
-     * Whether $path starts with any of $disallowed_paths — plain prefix
+     * Whether $path starts with any of $disallowed_paths - plain prefix
      * matching, the same restraint RobotsTxtScanner's own docblock argues
      * for (no wildcard/regex robots.txt path syntax support).
      *

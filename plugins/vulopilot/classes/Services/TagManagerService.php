@@ -12,11 +12,11 @@ use VuloPilot\Utill;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Scanning → SEO & Content → Tag Manager card's real backing — outputs
+ * Scanning → SEO & Content → Tag Manager card's real backing - outputs
  * Google Tag Manager's own real two-part snippet: the `<script>` block on
  * `wp_head` and the `<noscript><iframe>` fallback immediately after the
  * opening `<body>` tag via `wp_body_open` (the real hook WordPress core
- * itself has shipped since 5.2 specifically for this purpose — no theme
+ * itself has shipped since 5.2 specifically for this purpose - no theme
  * template edit needed), same unconditional-construction/settings-gate-
  * output shape as WebmasterToolsManager/CanonicalUrlManager elsewhere in
  * this namespace.
@@ -75,7 +75,7 @@ class TagManagerService {
     }
 
     /**
-     * Real, trimmed GTM Container ID — empty when the toggle is off or no
+     * Real, trimmed GTM Container ID - empty when the toggle is off or no
      * id has been entered yet, the same "gate output, not construction"
      * posture WebmasterToolsManager's own per-provider codes already use.
      *

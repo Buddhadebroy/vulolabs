@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order module OrderItem entity.
  *
- * Plain domain object, same shape/rules as VuloCart\Cart\Domain\CartItem —
+ * Plain domain object, same shape/rules as VuloCart\Cart\Domain\CartItem -
  * but `title` is snapshotted here too (CartItem doesn't store one; its
  * Rest layer resolves it live from the Offering on every read), because an
  * Order is a permanent historical record: if the Offering's title changes or

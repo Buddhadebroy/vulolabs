@@ -17,7 +17,7 @@ import SpeedHistoryCard from './SpeedHistoryCard';
 import LiveSiteInsightsCard from '../Security/LiveSiteInsightsCard';
 import PhpAccelerationCard from './PhpAccelerationCard';
 
-/** `id: 'integrations'` (Settings/Integrations.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; originally moved from the old Settings → Scanning → Performance tab, then merged (along with this folder's other sub-tabs) into this one "Integrations" tab per direct instruction. */
+/** `id: 'integrations'` (Settings/Integrations.ts) - where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; originally moved from the old Settings → Scanning → Performance tab, then merged (along with this folder's other sub-tabs) into this one "Integrations" tab per direct instruction. */
 const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=integrations';
 
 interface DashboardSummary {
@@ -68,13 +68,13 @@ const getScoreRating = (score: number): Rating => {
 };
 
 /**
- * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — the same real
+ * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - the same real
  * colors Performance.scss's own `$vulopilot-rating-*` variables now read
  * too. `ChartComponent`'s own `type="ring"` needs a literal CSS color for
  * its stroke, not a class name, so this reads the shared source rather
  * than inventing a 2nd copy of it.
  *
- * Single source for every ring color in this file — the hero "Overall
+ * Single source for every ring color in this file - the hero "Overall
  * Speed Score" ring, the Mobile/Desktop `ScoreTile` rings, and each
  * `VitalRow` ring all read from this same map, so they can never drift.
  * Previously there were two maps (`RATING_COLOR` from `COLOR_PALETTE` and
@@ -87,19 +87,19 @@ const RATING_COLOR: Record<Rating['className'], string> = {
 	poor: COLOR_PALETTE.red,
 };
 
-/** Same real bands as `getScoreRating()` above, mapped to the real palette class name this file's own SCSS and the reference snippet both use — good/needs-improvement/poor. */
+/** Same real bands as `getScoreRating()` above, mapped to the real palette class name this file's own SCSS and the reference snippet both use - good/needs-improvement/poor. */
 const ratingClass = (score: number): Rating['className'] => {
 	return getScoreRating(score).className;
 };
 
-/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex — for the hero ring's center number below, which (unlike `ScoreTile`/`VitalRow`'s own `className`-driven `<span>`s) reads a class name through this prop, not a CSS color. */
+/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex - for the hero ring's center number below, which (unlike `ScoreTile`/`VitalRow`'s own `className`-driven `<span>`s) reads a class name through this prop, not a CSS color. */
 const TEXT_COLOR: Record<Rating['className'], string> = {
 	good: 'green',
 	'needs-improvement': 'orange',
 	poor: 'red',
 };
 
-/** Google's real, public Core Web Vitals thresholds — LCP/INP in ms, CLS unitless. */
+/** Google's real, public Core Web Vitals thresholds - LCP/INP in ms, CLS unitless. */
 const CWV_THRESHOLDS: Record<'lcp' | 'inp' | 'cls', { good: number; needsImprovement: number }> = {
 	lcp: { good: 2500, needsImprovement: 4000 },
 	inp: { good: 200, needsImprovement: 500 },
@@ -130,14 +130,14 @@ interface VitalRowProps {
 /**
  * Same small "status row" ring gauge zyra's own ChartComponent Storybook
  * `RingRow` story establishes (independent per-metric rings, custom
- * per-item color, no shared axis) — replacing this row's own linear
+ * per-item color, no shared axis) - replacing this row's own linear
  * fill bar, which plotted the exact same proportional read (`fillPercent`
  * below, unchanged) just as a bar instead of a ring.
  */
 const VitalRow = ({ label, displayValue, value, thresholds, goodCaption }: VitalRowProps) => {
 	const rating = getVitalRating(value, thresholds);
 	// How far this value sits toward 1.3x the "needs improvement" ceiling,
-	// capped at 100 — a real proportional read of where this value sits,
+	// capped at 100 - a real proportional read of where this value sits,
 	// not a literal percentile-of-all-sites (no such dataset exists here).
 	const fillPercent = Math.min(100, (value / (thresholds.needsImprovement * 1.3)) * 100);
 
@@ -175,12 +175,12 @@ const VitalRow = ({ label, displayValue, value, thresholds, goodCaption }: Vital
 interface ScoreTileProps {
 	label: string;
 	score: number;
-	/** `speed-score-tile-single` when there's no PSI key configured (one real unified score, not a device split) — see the "Overall Speed Score" fallback below. */
+	/** `speed-score-tile-single` when there's no PSI key configured (one real unified score, not a device split) - see the "Overall Speed Score" fallback below. */
 	single?: boolean;
 }
 
 /**
- * One score-ring tile — Mobile/Desktop (real PSI key configured) or Overall
+ * One score-ring tile - Mobile/Desktop (real PSI key configured) or Overall
  * (no PSI key, the single real unified `category_scores.performance`
  * number). Extracted from 3 near-identical copies of the same
  * ring+label+rating markup, one per case, that only ever differed in which
@@ -215,7 +215,7 @@ const ScoreTile = ({ label, score, single = false }: ScoreTileProps) => {
 };
 
 /**
- * "Performance Score" — now two real cards:
+ * "Performance Score" - now two real cards:
  *
  * "Overall Speed Score" reads `psi_speed_scores` from `GET /dashboard`
  * (`classes/RestAPI/Controllers/Dashboard.php`, populated by
@@ -230,7 +230,7 @@ const ScoreTile = ({ label, score, single = false }: ScoreTileProps) => {
  * "Core Web Vitals" reads `GET /core-web-vitals`
  * (`classes/RestAPI/Controllers/CoreWebVitals.php`), a real p75 of LCP/INP/
  * CLS collected from actual visitors by `public/js/performance-vitals-
- * beacon.js` (Services\CoreWebVitalsBeacon) — genuine client-side RUM, no
+ * beacon.js` (Services\CoreWebVitalsBeacon) - genuine client-side RUM, no
  * external API. FCP is deliberately dropped: INP replaced FID as Google's
  * third official Core Web Vital in March 2024, so LCP/INP/CLS is the
  * current real set. Below `MIN_SAMPLES` real samples, shows an honest
@@ -241,11 +241,11 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	const [vitals, setVitals] = useState<CoreWebVitalsSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
-	/** Drives SpeedHistoryCard's own real `days` param below — same `PERIOD_OPTIONS`/`ToggleInput` shape SecurityTrendCard.tsx's own card action already uses. RealTimeMonitoringCard isn't affected — its own metrics are real-time, not a day-range trend. */
+	/** Drives SpeedHistoryCard's own real `days` param below - same `PERIOD_OPTIONS`/`ToggleInput` shape SecurityTrendCard.tsx's own card action already uses. RealTimeMonitoringCard isn't affected - its own metrics are real-time, not a day-range trend. */
 	const [period, setPeriod] = useState<PeriodDays>('30');
 
 	/**
-	 * Real objects only — `getApiResponse` (zyra) hands back whatever axios
+	 * Real objects only - `getApiResponse` (zyra) hands back whatever axios
 	 * parsed `response.data` into, and axios silently falls back to a raw
 	 * string rather than throwing when the body isn't valid JSON (e.g. a
 	 * stray PHP notice/warning printed ahead of the real JSON on some
@@ -253,7 +253,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 	 * environment's already-populated options never triggered). A truthy
 	 * non-object response used to pass the old `dashboardResponse &&` check
 	 * unchanged, then crash further down reading `.category_scores.performance`
-	 * off a string — this validates the actual shape before it's ever
+	 * off a string - this validates the actual shape before it's ever
 	 * stored, so a malformed response becomes an honest error state instead
 	 * of a render-time crash with no error boundary.
 	 */
@@ -297,7 +297,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 		'number' === typeof psi.desktop;
 
 	/**
-	 * Real score the hero ring plots — same number the old `ScoreTile`
+	 * Real score the hero ring plots - same number the old `ScoreTile`
 	 * row showed, just picked once here so both the ring and its
 	 * Mobile/Desktop breakdown below can share it. With a real PSI key
 	 * configured this averages the real Mobile/Desktop scores (the mockup's
@@ -375,7 +375,7 @@ const PerformanceScoreCard = ({ onViewDetails }: PerformanceScoreCardProps) => {
 									<ChartComponent
 										type="ring"
 										height={200}
-										// Top-level `color` — same prop this file's own
+										// Top-level `color` - same prop this file's own
 										// `ScoreTile`/`VitalRow` rings already set
 										// correctly (`type="ring"` only ever paints its
 										// stroke from this prop, never from

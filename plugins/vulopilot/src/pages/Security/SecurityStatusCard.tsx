@@ -13,7 +13,6 @@ import {
 	ChartComponent,
 	TypographyComponent,
 } from '@zyra/components';
-import { ButtonInput } from '@zyra/inputs';
 import { useApiList } from '../../services/useApiList';
 import SecurityMetricsGrid from './SecurityMetricsGrid';
 import type { SectionedIssuesTab } from './SectionedIssuesTable';
@@ -33,14 +32,14 @@ interface AttentionSummary {
 
 /**
  * Same "register a source, don't modify the host" Pro filter slot Security
- * pages already establish elsewhere — Pro's SecurityMonitoring module
+ * pages already establish elsewhere - Pro's SecurityMonitoring module
  * redesigned the component behind this filter to match the mockup's hero
  * card (severity breakdown, real auto-scan toggle, honestly-disabled
  * Fix-All). It now also accepts `onNavigateToSecurityTab`, passed through
  * below.
  *
  * If a Pro module is registered behind this filter, its component fully
- * replaces this card's own Free-tier rendering — the same behavior
+ * replaces this card's own Free-tier rendering - the same behavior
  * `VulnerabilityHeroCard.tsx` had, kept here so Pro's custom hero still
  * wins when it's active.
  */
@@ -49,7 +48,7 @@ const SecurityDashboardCard = applyFilters(
 	null
 ) as ComponentType<SecurityStatusCardProps> | null;
 
-/** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses — kept structurally identical so both files' ring colors read from the same kind of map. */
+/** Same real 3-tier band shape `PerformanceScoreCard.tsx`'s own `Rating` interface uses - kept structurally identical so both files' ring colors read from the same kind of map. */
 interface Rating {
 	label: string;
 	className: 'good' | 'needs-improvement' | 'poor';
@@ -67,7 +66,7 @@ const getScoreRating = (score: number): Rating => {
 };
 
 /**
- * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) — same real
+ * Real zyra palette hex (`@zyra/core`'s `COLOR_PALETTE`) - same real
  * source `PerformanceScoreCard.tsx`'s own `RATING_COLOR` reads. The ring's
  * own `data[].color` needs a literal CSS color, not a palette class name,
  * so this reads the shared source rather than a second hardcoded copy.
@@ -78,7 +77,7 @@ const RATING_COLOR: Record<Rating['className'], string> = {
 	poor: COLOR_PALETTE.red,
 };
 
-/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex — for the ring's center number, which (unlike the ring itself) reads a class name through that prop, not a CSS color. */
+/** Same 3 tiers as `RATING_COLOR` above, mapped to `TypographyComponent`'s own palette color names instead of a literal hex - for the ring's center number, which (unlike the ring itself) reads a class name through that prop, not a CSS color. */
 const TEXT_COLOR: Record<Rating['className'], string> = {
 	good: 'green',
 	'needs-improvement': 'orange',
@@ -91,27 +90,27 @@ const ratingClass = (score: number): Rating['className'] => {
 };
 
 interface SecurityStatusCardProps {
-	/** Navigates to the Security tab — same handler `VulnerabilityHeroCard`'s own "Review Issues First" button already called. */
+	/** Navigates to the Security tab - same handler `VulnerabilityHeroCard`'s own "Review Issues First" button already called. */
 	onNavigateToSecurityTab?: () => void;
-	/** Forwarded to `SecurityMetricsGrid`'s own row clicks — switches the merged issues table below to that row's own section. */
+	/** Forwarded to `SecurityMetricsGrid`'s own row clicks - switches the merged issues table below to that row's own section. */
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }
 
 /**
- * "Security Status" card — the real `category_scores.security` ring
+ * "Security Status" card - the real `category_scores.security` ring
  * (same `type="ring"` / `RATING_COLOR[ratingClass(...)]` structure
  * `PerformanceScoreCard.tsx` and `AccessibilityHeroCard.tsx` already
  * share), plus everything the old `VulnerabilityHeroCard.tsx` used to
  * render: the "I found N security issues" headline, the real
  * High/Medium/Low/Total breakdown (`GET /findings/attention-summary`,
- * `Findings.php`'s Free-tier route — the same one AI Copilot's own "Needs
+ * `Findings.php`'s Free-tier route - the same one AI Copilot's own "Needs
  * your attention" card reads), and the two real actions ("Review Issues
- * First" + "View All N Issues"). Nothing was dropped in the merge — the
+ * First" + "View All N Issues"). Nothing was dropped in the merge - the
  * hero data and the ring just live in one card now instead of two.
  *
  * The severity breakdown is now a real `ListComponent` (one row per tier,
- * trailing count on the right, real icon + palette color per tier) —
+ * trailing count on the right, real icon + palette color per tier) -
  * replacing the older `AnalyticsComponent` tile grid, per direct
  * instruction, so this card matches the row shape every other list in
  * this plugin already uses.
@@ -188,7 +187,7 @@ const SecurityStatusCard = ({
 						total
 					)
 					: __(
-						"You're all caught up — no open security issues.",
+						"You're all caught up - no open security issues.",
 						'vulopilot'
 					))}
 			titleIcon="security"
@@ -211,13 +210,13 @@ const SecurityStatusCard = ({
 							<ChartComponent
 								type="ring"
 								height={200}
-								// Top-level `color` — same prop this ring's own
+								// Top-level `color` - same prop this ring's own
 								// sibling rings elsewhere in this plugin
 								// (OverallScoreWidget.tsx/PerformanceScoreCard.tsx's
 								// own ScoreTile/VitalRow) already set; `type="ring"`
 								// only ever paints its stroke from this prop, never
 								// from `data[].color` (that's `type="pie"`'s own
-								// read) — without it the ring always rendered in
+								// read) - without it the ring always rendered in
 								// `ChartComponent`'s default brand purple regardless
 								// of score, while the center number above stayed
 								// plain black instead of matching its own real

@@ -6,13 +6,13 @@ import { ButtonInput } from '@zyra/inputs';
 import ShowProPopup from './Popup/Popup';
 
 interface ProLockedCardProps {
-	/** Pro module slug (e.g. 'geo-insights') — passed through to ShowProPopup so an already-Pro user is pointed at Modules rather than pitched an upgrade they already have. */
+	/** Pro module slug (e.g. 'geo-insights') - passed through to ShowProPopup so an already-Pro user is pointed at Modules rather than pitched an upgrade they already have. */
 	moduleName: string;
 	buttonText?: string;
 }
 
 /**
- * "Unlock with Pro" placeholder — shown in place of a panel/section whose
+ * "Unlock with Pro" placeholder - shown in place of a panel/section whose
  * data only exists once a specific Pro module is active, rather than
  * rendering nothing or a misleadingly-empty "no data yet" state. Same
  * click-to-open pattern WooCommerceAiLockedCard (WooCommerce.tsx) /
@@ -41,7 +41,7 @@ const ProLockedCard = ({ moduleName, buttonText }: ProLockedCardProps) => {
 				position="lightbox"
 			>
 				{appLocalizer.khali_dabba ? (
-					// Pro is active — this specific module just isn't
+					// Pro is active - this specific module just isn't
 					// toggled on yet, so point at Modules rather than
 					// pitching an upgrade the user already has.
 					<ShowProPopup moduleName={moduleName} />

@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart AttributeService.
  *
- * Where ProductAttribute business logic lives — backs
+ * Where ProductAttribute business logic lives - backs
  * `classes/RestAPI/Controllers/Attributes.php`.
  *
  * @class       AttributeService class

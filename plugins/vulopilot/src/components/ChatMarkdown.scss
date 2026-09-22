@@ -1,6 +1,6 @@
 @use './config' as *;
 
-// ChatMarkdown.tsx — co-located so every chat surface that renders it
+// ChatMarkdown.tsx - co-located so every chat surface that renders it
 // (AI Copilot, Grow My Traffic's composer, Create Content's AI Content
 // Assistant) gets the same spacing regardless of which page's own SCSS
 // entry happens to load, without duplicating these few rules three times.

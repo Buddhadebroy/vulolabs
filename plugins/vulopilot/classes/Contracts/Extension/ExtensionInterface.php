@@ -8,10 +8,10 @@
 namespace VuloPilot\Contracts\Extension;
 
 /**
- * The top-level contract for a VuloPilot extension — vulopilot-pro, or any
+ * The top-level contract for a VuloPilot extension - vulopilot-pro, or any
  * third-party plugin, registered via the `vulopilot_extension_sources`
  * filter (Sdk\ExtensionManager). An extension is a coherent *bundle*: it
- * doesn't scan/rule/automate/report anything itself — register() is where
+ * doesn't scan/rule/automate/report anything itself - register() is where
  * it calls `add_filter('vulopilot_scanner_sources', ...)` and the other
  * existing per-concern filters (SCANNERS.md, RULE-ENGINE.md, ARCHITECTURE.md's
  * "Extension system = the discovery-by-filter mechanism itself") to add its
@@ -51,7 +51,7 @@ interface ExtensionInterface {
     /**
      * Called once, only after ExtensionManager has confirmed
      * get_minimum_vulopilot_version() is satisfied by the running core
-     * version — everything this extension does (registering scanners,
+     * version - everything this extension does (registering scanners,
      * rules, automation triggers/actions, report types/exporters,
      * REST controllers, CLI commands) happens here or in
      * classes this method wires up.

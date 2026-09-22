@@ -44,7 +44,7 @@ interface ContentQualityResponse {
 
 type ScoreTone = 'green' | 'orange' | 'red';
 
-/** Same 3-band green/orange/red split NeedsAttentionCard.tsx's own getScoreTone uses for a 0-100 score — kept as its own local copy rather than a shared import since that one isn't exported either (see that file's own docblock). Reused here for both the real readability score and the real completeness ratio, so a tile's number and its bar color never disagree about which band it's in. */
+/** Same 3-band green/orange/red split NeedsAttentionCard.tsx's own getScoreTone uses for a 0-100 score - kept as its own local copy rather than a shared import since that one isn't exported either (see that file's own docblock). Reused here for both the real readability score and the real completeness ratio, so a tile's number and its bar color never disagree about which band it's in. */
 const getScoreTone = (percent: number): ScoreTone => {
 	if (percent >= 75) {
 		return 'green';
@@ -55,14 +55,14 @@ const getScoreTone = (percent: number): ScoreTone => {
 	return 'red';
 };
 
-/** Real `OnPageCheck.status` → NoticeComponent's own `NoticeType` — `warning` maps to `'warning'` itself rather than the `'info'` workaround this used before NoticeComponent took over rendering the icon/color (NoticeComponent.scss already ships real `type-warning` coloring; only the bare, uncomposed `icon: 'warning'` this card built by hand was ever missing a real glyph — moot now that NoticeComponent owns the icon). */
+/** Real `OnPageCheck.status` → NoticeComponent's own `NoticeType` - `warning` maps to `'warning'` itself rather than the `'info'` workaround this used before NoticeComponent took over rendering the icon/color (NoticeComponent.scss already ships real `type-warning` coloring; only the bare, uncomposed `icon: 'warning'` this card built by hand was ever missing a real glyph - moot now that NoticeComponent owns the icon). */
 const STATUS_NOTICE_TYPE: Record<OnPageCheck['status'], NoticeType> = {
 	pass: 'success green',
 	warning: 'info yellow',
 	fail: 'error red',
 };
 
-/** Short status pill — Good/Medium/High — alongside the real message NoticeComponent renders. */
+/** Short status pill - Good/Medium/High - alongside the real message NoticeComponent renders. */
 const STATUS_BADGE: Record<OnPageCheck['status'], { color: string; label: string }> = {
 	pass: { color: 'green', label: __('Good', 'vulopilot') },
 	warning: { color: 'orange', label: __('Medium', 'vulopilot') },
@@ -73,7 +73,7 @@ const STATUS_BADGE: Record<OnPageCheck['status'], { color: string; label: string
  * OnPageAnalyzer's own check ids (`title_length`, `description_length`,
  * `content_length`, `has_subheadings`) already match the `target` values
  * `seoIssueEditorTarget.ts`'s `SEO_ISSUE_EDITOR_TARGETS` declares for the
- * post-editor sidebar's General tab — this maps each id back to the
+ * post-editor sidebar's General tab - this maps each id back to the
  * scanner id that map is actually keyed by, so a click on one of this
  * card's rows can reuse the exact same deep-link/highlight contract
  * `SeoIssuesByPageTable.tsx`'s "Fix with AI" links and
@@ -88,14 +88,14 @@ const CHECK_ID_TO_SCANNER_ID: Record<string, string> = {
 };
 
 /**
- * One real on-page check — zyra's own `ListComponent`, one item per check,
+ * One real on-page check - zyra's own `ListComponent`, one item per check,
  * status badge in `tags` (same "mini-card"-style `tags` usage
  * KnowledgePanelCard.tsx's own results list already establishes). Used
  * both for the Content Assessment list and (structure being the exact
  * same `OnPageCheck` shape) the Structure row below it, so the two never
  * drift into two different visual treatments for the same real data type.
  * `onClick` (when given) wires into `ListComponent`'s own real `action`/
- * `onItemClick` — the whole row becomes a genuine click target rather
+ * `onItemClick` - the whole row becomes a genuine click target rather
  * than needing its own wrapping button. Every row here is given one
  * (`goToCheckInEditor`, below): clicking a check jumps straight to this
  * post's real editor, deep-linked and highlighted, same as a row in
@@ -125,29 +125,29 @@ const CheckRow: React.FC<{ check: OnPageCheck; onClick?: () => void }> = ({
 );
 
 /**
- * Create Content's "Content Quality" card — real, per-piece-of-content
+ * Create Content's "Content Quality" card - real, per-piece-of-content
  * signals for whichever post the picker selects, per direct instruction:
  * replaces "Content Score" (ContentScoreCard.tsx, now deleted), a
  * site-wide number that recomputed the same weighted-severity formula
  * `GET /content-intelligence/score` (kept, still backs nothing on this
- * page now) already shares 5 of 6 scanner ids with — and therefore
- * numerically overlaps — SEO & Visibility's own SEO Score, inviting "why
+ * page now) already shares 5 of 6 scanner ids with - and therefore
+ * numerically overlaps - SEO & Visibility's own SEO Score, inviting "why
  * is my Content Score 87 but SEO Score 67?" confusion. This card asks a
  * different question ("how good is THIS piece of content"), so there's
- * nothing here that could be compared against SEO Score at all — SEO
+ * nothing here that could be compared against SEO Score at all - SEO
  * stays owned entirely by SEO & Visibility.
  *
- * Only 3 dimensions, deliberately — "clarity" and "tone" have no real
+ * Only 3 dimensions, deliberately - "clarity" and "tone" have no real
  * computed signal anywhere in this codebase (confirmed: no scanner, no
  * analyzer check for either), so rather than inventing one this card only
  * shows what `GET /content-intelligence/quality` actually returns:
  * readability (real Flesch Reading Ease score), completeness (the post
- * editor's own real "basic" on-page checklist — title/description/content
- * length — run against this post's saved fields), and structure (that
+ * editor's own real "basic" on-page checklist - title/description/content
+ * length - run against this post's saved fields), and structure (that
  * same checklist's real subheadings-present check).
  *
  * The top "Overall Content Quality" ring is deliberately NOT a new
- * fourth number — it plots the exact same real `readability.score`/
+ * fourth number - it plots the exact same real `readability.score`/
  * `.label` the Readability tile below shows, just given the headline
  * treatment, since it's the only real 0-100 signal this endpoint returns
  * (same anti-fabrication reasoning as the "only 3 dimensions" paragraph
@@ -155,24 +155,24 @@ const CheckRow: React.FC<{ check: OnPageCheck; onClick?: () => void }> = ({
  *
  * The picker (real `wp/v2/posts`/`pages`, newest first) defaults to the
  * most recently modified piece of content rather than requiring a click
- * before showing anything — same "useful default, still real user
+ * before showing anything - same "useful default, still real user
  * control" shape `SlowPagesTab.tsx`'s own filters already establish.
  *
  * `postId`/`onClose` (both optional): when given, this card is driven
- * externally instead of its own picker — `RecentContentCard.tsx`'s own
+ * externally instead of its own picker - `RecentContentCard.tsx`'s own
  * "Analyze" action opens this same real component as its side panel
  * (same real `GET /content-intelligence/quality?post_id=` this card
  * already fetches for its own picker's current selection, just for
  * whichever row's "Analyze" was clicked), matching the same real
- * ring/Content Assessment/Structure breakdown either way — not a second,
+ * ring/Content Assessment/Structure breakdown either way - not a second,
  * differently-shaped panel. The options fetch/picker/"Page being
  * analyzed" action are skipped entirely in this mode (there's nothing to
- * pick — the id is already given); a real close button takes the
+ * pick - the id is already given); a real close button takes the
  * picker's place instead.
  */
 interface ContentQualityCardProps {
 	postId?: number;
-	/** Real row title `RecentContentCard.tsx` already has on hand (no extra fetch needed) — `GET /content-intelligence/quality` itself doesn't return one. Only read in `postId` mode. */
+	/** Real row title `RecentContentCard.tsx` already has on hand (no extra fetch needed) - `GET /content-intelligence/quality` itself doesn't return one. Only read in `postId` mode. */
 	title?: string;
 	onClose?: () => void;
 }
@@ -220,12 +220,12 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 				}
 			})
 			.finally(() => setIsLoadingOptions(false));
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- `isExternal`/`externalPostId` are fixed for this component instance's whole lifetime (RecentContentCard.tsx always mounts a fresh instance per `analyzingId`, same as PageAnalysisPanel.tsx's own `postId` prop) — this effect only ever needs to run once, for the picker-driven case.
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `isExternal`/`externalPostId` are fixed for this component instance's whole lifetime (RecentContentCard.tsx always mounts a fresh instance per `analyzingId`, same as PageAnalysisPanel.tsx's own `postId` prop) - this effect only ever needs to run once, for the picker-driven case.
 	}, []);
 
 	// Externally driven: track a later `postId` prop change too (e.g. the
 	// host clicking "Analyze" on a *different* row while this panel is
-	// already open) — the picker-driven branch above never re-runs this,
+	// already open) - the picker-driven branch above never re-runs this,
 	// so this is the one real trigger `isExternal` mode needs.
 	useEffect(() => {
 		if (isExternal) {
@@ -256,7 +256,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 	const isLoading = isLoadingOptions || isLoadingQuality;
 
 	// Same real edit-screen link ContentRow.editLink/RecentContentCard.tsx
-	// already build for this exact post id — where "View in Detail"/the
+	// already build for this exact post id - where "View in Detail"/the
 	// Structure row's own chevron actually go: the AI Content Assistant
 	// sidebar in the block editor (PostEditorAssets) is the one place real
 	// per-check detail beyond this summary genuinely lives, not a page
@@ -278,7 +278,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 
 	/**
 	 * Same `post.php?post={id}&action=edit&vulopilot_seo_issue={scannerId}`
-	 * shape `SeoIssuesByPageTable.tsx`/`GEO/PageAnalysisPanel.tsx` build —
+	 * shape `SeoIssuesByPageTable.tsx`/`GEO/PageAnalysisPanel.tsx` build -
 	 * the block-editor's own `post-editor/index.tsx` reads that query param
 	 * to open the right sidebar tab and scroll-and-pulse-highlight the
 	 * matching field/checklist row. Falls back to a plain edit link (no
@@ -296,7 +296,7 @@ const ContentQualityCard = ({ postId: externalPostId, title: externalTitle, onCl
 	};
 
 	const selectedOption = options.find((option: ContentOption) => option.id === selectedId);
-	/** Real title either way — `RecentContentCard.tsx`'s own row title in `postId` mode, this card's own fetched picker option otherwise. */
+	/** Real title either way - `RecentContentCard.tsx`'s own row title in `postId` mode, this card's own fetched picker option otherwise. */
 	const analyzedTitle = externalTitle ?? selectedOption?.title;
 
 	return (

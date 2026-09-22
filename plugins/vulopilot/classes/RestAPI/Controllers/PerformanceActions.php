@@ -13,10 +13,10 @@ use VuloPilot\Scanners\Basic\ImageCleanupScanner;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * `POST /performance-actions/{action_id}` — backs "Performance"
+ * `POST /performance-actions/{action_id}` - backs "Performance"
  * Overview's Quick Actions card (QuickActionsCard.tsx). Each of the 8
  * actions is a real, deterministic WordPress-core-or-known-plugin
- * operation, never a fabricated "done" — `minify-css-js` explicitly
+ * operation, never a fabricated "done" - `minify-css-js` explicitly
  * returns `success: false` with an honest explanation when no
  * minification-capable plugin is active (same posture `browser-caching`
  * uses when `.htaccess` isn't writable), rather than pretending to have
@@ -38,7 +38,7 @@ class PerformanceActions extends \WP_REST_Controller {
     /**
      * Main plugin files → their own real cache-purge function, same known-
      * plugin list CacheDetectionScanner already checks is_plugin_active()
-     * against — this maps to what to *call*, not just detect.
+     * against - this maps to what to *call*, not just detect.
      *
      * @var array<string, string>
      */
@@ -50,14 +50,14 @@ class PerformanceActions extends \WP_REST_Controller {
     );
 
     /**
-     * Same size threshold LargeImagesScanner.php flags — duplicated rather
+     * Same size threshold LargeImagesScanner.php flags - duplicated rather
      * than made public there, matching this codebase's own established
      * "duplicate a small shared constant across scopes" precedent.
      */
     private const LARGE_IMAGE_THRESHOLD_BYTES = 512000; // 500KB.
 
     /**
-     * How many oversized images to regenerate per click — bounded so a
+     * How many oversized images to regenerate per click - bounded so a
      * single request can't run away on a media library with thousands of
      * oversized images.
      */
@@ -150,7 +150,7 @@ class PerformanceActions extends \WP_REST_Controller {
 
     /**
      * Regenerates minified assets via a known minification-capable
-     * plugin's own real function — returns an honest failure, not a
+     * plugin's own real function - returns an honest failure, not a
      * fabricated success, when none is active.
      *
      * @return array{success: bool, message: string}
@@ -171,7 +171,7 @@ class PerformanceActions extends \WP_REST_Controller {
         if ( empty( $regenerated ) ) {
             return array(
                 'success' => false,
-                'message' => __( 'No minification plugin detected — install Autoptimize, WP Rocket, or a similar plugin to enable this action.', 'vulopilot' ),
+                'message' => __( 'No minification plugin detected - install Autoptimize, WP Rocket, or a similar plugin to enable this action.', 'vulopilot' ),
             );
         }
 
@@ -188,7 +188,7 @@ class PerformanceActions extends \WP_REST_Controller {
     /**
      * Regenerates registered thumbnail sizes (never the original file) for
      * the largest oversized image attachments, at a lower JPEG/WebP
-     * quality — the same real mechanism "Regenerate Thumbnails" uses.
+     * quality - the same real mechanism "Regenerate Thumbnails" uses.
      *
      * @return array{success: bool, message: string}
      */
@@ -252,7 +252,7 @@ class PerformanceActions extends \WP_REST_Controller {
     }
 
     /**
-     * Deletes real expired transients and real excess post revisions —
+     * Deletes real expired transients and real excess post revisions -
      * the same rows DatabaseCleanupScanner counts.
      *
      * @return array{success: bool, message: string}
@@ -312,7 +312,7 @@ class PerformanceActions extends \WP_REST_Controller {
 
     /**
      * Deletes the real unattached, unused image attachments
-     * ImageCleanupScanner counts — same protected-id exclusions (featured
+     * ImageCleanupScanner counts - same protected-id exclusions (featured
      * images, site icon, custom logo) and same 30-day age gate, since this
      * re-uses that scanner's own `get_orphaned_image_ids()` rather than
      * re-implementing the query. Bounded by MAX_IMAGES_PER_RUN per click,
@@ -352,7 +352,7 @@ class PerformanceActions extends \WP_REST_Controller {
             'message' => $remaining > 0
                 ? sprintf(
                     /* translators: 1: number of images deleted, 2: formatted bytes freed, 3: number of remaining unused images not yet processed. */
-                    __( 'Deleted %1$d unused image(s), freed %2$s. %3$d more found — run again to continue.', 'vulopilot' ),
+                    __( 'Deleted %1$d unused image(s), freed %2$s. %3$d more found - run again to continue.', 'vulopilot' ),
                     $deleted,
                     size_format( $bytes_freed ),
                     $remaining
@@ -367,7 +367,7 @@ class PerformanceActions extends \WP_REST_Controller {
     }
 
     /**
-     * Real, reversible toggle — Services\PerformanceOptimizations reads
+     * Real, reversible toggle - Services\PerformanceOptimizations reads
      * this option on every request and force-enables WordPress's own
      * native lazy-loading filter when set.
      *
@@ -387,7 +387,7 @@ class PerformanceActions extends \WP_REST_Controller {
     }
 
     /**
-     * Real, reversible toggle — Services\PerformanceOptimizations reads
+     * Real, reversible toggle - Services\PerformanceOptimizations reads
      * this option on every `wp_head` and outputs real preload tags when set.
      *
      * @return array{success: bool, message: string}
@@ -401,24 +401,24 @@ class PerformanceActions extends \WP_REST_Controller {
             'success' => true,
             'message' => $was_enabled
                 ? __( 'Critical resource preloading was already enabled.', 'vulopilot' )
-                : __( 'Critical resource preloading is now enabled — the site logo and main stylesheet will be preloaded.', 'vulopilot' ),
+                : __( 'Critical resource preloading is now enabled - the site logo and main stylesheet will be preloaded.', 'vulopilot' ),
         );
     }
 
     /**
-     * Real, one-time `.htaccess` write — `insert_with_markers()` is the
+     * Real, one-time `.htaccess` write - `insert_with_markers()` is the
      * same core function WordPress itself uses to write its own rewrite
      * rules (`wp-admin/includes/misc.php`), inside a self-contained
      * "VuloPilot Browser Caching" marker block so re-running this action
      * never duplicates or clobbers the site's existing rules (including
      * WordPress's own `# BEGIN WordPress` block just above it). Emits
-     * `mod_expires` directives, not `mod_headers` — Apache's mod_expires
+     * `mod_expires` directives, not `mod_headers` - Apache's mod_expires
      * module generates both the `Expires` and `Cache-Control: max-age=…`
      * response headers on its own once `ExpiresActive On` is set, matching
      * exactly the two signals `check_browser_caching()`
      * (Controllers\EfficiencyChecks.php) probes for on a real static
      * asset request. Returns an honest failure, not a fabricated success,
-     * when `.htaccess` isn't writable — same posture `run_minify_css_js()`
+     * when `.htaccess` isn't writable - same posture `run_minify_css_js()`
      * already uses for its own "nothing to do" case.
      *
      * @return array{success: bool, message: string}
@@ -459,7 +459,7 @@ class PerformanceActions extends \WP_REST_Controller {
         if ( ! $written ) {
             return array(
                 'success' => false,
-                'message' => __( 'Could not write browser caching rules to .htaccess — check that the file is writable.', 'vulopilot' ),
+                'message' => __( 'Could not write browser caching rules to .htaccess - check that the file is writable.', 'vulopilot' ),
             );
         }
 

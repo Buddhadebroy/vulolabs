@@ -21,15 +21,15 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order module OrderService.
  *
- * Where Order business logic actually lives — Rest calls only this class.
+ * Where Order business logic actually lives - Rest calls only this class.
  * Depends on the Cart module's own CartService (to read + clear the
  * source cart) and the core plugin's OfferingService (to snapshot each line
- * item's title at order-creation time) — a real, deliberate cross-module
+ * item's title at order-creation time) - a real, deliberate cross-module
  * dependency: Order genuinely cannot function without Cart, which is why
  * Module::is_compatible() gates this module's own availability on Cart
  * being active, and Module's own constructor defers building this class
- * until `vulocart_loaded` (after every module in this pass — including
- * Cart — has already been constructed), rather than assuming any
+ * until `vulocart_loaded` (after every module in this pass - including
+ * Cart - has already been constructed), rather than assuming any
  * particular module discovery/activation order.
  *
  * @class       OrderService class
@@ -97,7 +97,7 @@ class OrderService {
     }
 
     /**
-     * The guest order-tracking lookup — an order number alone isn't
+     * The guest order-tracking lookup - an order number alone isn't
      * enough (it's sequential and guessable), the access_token is the
      * actual authorization check.
      *
@@ -110,7 +110,7 @@ class OrderService {
     }
 
     /**
-     * Finds the most recent order placed with a given customer email —
+     * Finds the most recent order placed with a given customer email -
      * see OrderRepositoryInterface::find_latest_by_customer_email()'s own
      * docblock for what this backs.
      *
@@ -132,7 +132,7 @@ class OrderService {
     }
 
     /**
-     * Counts orders in each FulfillmentStatus bucket — backs the admin
+     * Counts orders in each FulfillmentStatus bucket - backs the admin
      * grid's "saved view" tabs (Rest::get_items()).
      *
      * @return array<string, int>
@@ -144,7 +144,7 @@ class OrderService {
     /**
      * Resolves an optional sibling module's own service off the main
      * plugin container, without hard-failing when that module isn't
-     * active — `VuloCart()->$key`'s magic `__get()` throws for an unknown
+     * active - `VuloCart()->$key`'s magic `__get()` throws for an unknown
      * container key (VuloCart.php's own docblock), so this is how
      * OrderService reaches for Shipping/Taxes/Payment the same
      * "gracefully absent" way every other toggleable-module dependency in
@@ -164,7 +164,7 @@ class OrderService {
 
     /**
      * Builds `ShippingService::calculate_cost()`'s own optional
-     * `$context` — same cart-weight-summed-from-Offering-meta shape
+     * `$context` - same cart-weight-summed-from-Offering-meta shape
      * `Shipping\Rest::build_context()` computes for the pre-order
      * `GET /shipping/methods` call, just resolved from the cart/address
      * this method already has in hand rather than a fresh REST request.
@@ -199,7 +199,7 @@ class OrderService {
     /**
      * Converts a cart into a placed order: snapshots every line item
      * (title, price, currency), computes shipping/tax via the Shipping/
-     * Taxes modules when active (0.0 either way when they're not —
+     * Taxes modules when active (0.0 either way when they're not -
      * checkout still works with just Cart+Order, same graceful-absence
      * rule every other optional module in this plugin follows), persists
      * the order, clears the source cart, and broadcasts `order_created`.
@@ -252,7 +252,7 @@ class OrderService {
 
         // Same `vulocart_order_total` filter, same $context shape, as
         // Review\Application\OrderReviewService::build_summary()'s own
-        // preview computation — that method's own docblock explains why
+        // preview computation - that method's own docblock explains why
         // this is filter-resolved from the checkout session rather than a
         // new parameter here.
         $total = (float) apply_filters(
@@ -316,7 +316,7 @@ class OrderService {
         $order = $this->repository->find( $order->id );
 
         // Real gateway charge, now that the order (and its own id/total)
-        // actually exists — see Payment\Application\PaymentService's own
+        // actually exists - see Payment\Application\PaymentService's own
         // docblock for the inline-vs-intent-first split this branches on.
         // Left at $initial_payment_status (the Payments tab's own
         // fallback default) when the Payment module isn't active at all,
@@ -348,7 +348,7 @@ class OrderService {
      * (`payment_status`/`gateway_transaction_id`/`authorized_amount`/
      * `captured_amount`) a caller has already mutated directly (an
      * admin-triggered capture/cancel, `Payment\Rest`'s own
-     * `capture_order_payment()`/`cancel_order_payment()`) — and
+     * `capture_order_payment()`/`cancel_order_payment()`) - and
      * broadcasts `order_payment_status_changed`. Kept generic (accepts
      * an already-mutated Order rather than a status string) since a
      * gateway capture can change `authorized_amount`/`captured_amount`
@@ -369,7 +369,7 @@ class OrderService {
     /**
      * Issues a refund, going through the order's own linked payment
      * gateway first (when one exists) before recording the resulting
-     * amount — the gateway-aware entrypoint `Order\Rest::refund_item()`
+     * amount - the gateway-aware entrypoint `Order\Rest::refund_item()`
      * calls; refund_order() itself stays the plain "just record these
      * numbers" primitive for orders with no gateway to call (pre-Payment-
      * Framework orders, or a merchant recording an out-of-band
@@ -408,9 +408,9 @@ class OrderService {
 
     /**
      * Creates a draft order directly from a merchant-picked list of
-     * offerings — no cart involved. Backs the admin grid's "Add New" page
+     * offerings - no cart involved. Backs the admin grid's "Add New" page
      * (OrderAdd.tsx) and the "Draft Orders" submenu
-     * (`FulfillmentStatus::DRAFT`) — an admin building an order on a
+     * (`FulfillmentStatus::DRAFT`) - an admin building an order on a
      * customer's behalf (phone/email order) before it's actually placed.
      * Same item-snapshotting shape as create_from_cart(), just sourced
      * from a plain `{offering_id, quantity}[]` array instead of a Cart.
@@ -418,7 +418,7 @@ class OrderService {
      * @param array{offering_id: int, quantity: int}[] $items          Offerings and quantities to snapshot onto the order.
      * @param string|null                              $customer_email Buyer's email, if given.
      * @param string|null                              $customer_name  Buyer's display name, if given.
-     * @param string|null                              $payment_method Chosen payment method id, if this order is already paid (a recurring-billing engine's own renewal order, for instance) — left null for a genuine draft with nothing charged yet.
+     * @param string|null                              $payment_method Chosen payment method id, if this order is already paid (a recurring-billing engine's own renewal order, for instance) - left null for a genuine draft with nothing charged yet.
      * @return Order
      * @throws \InvalidArgumentException If $items is empty or references no valid offering.
      */
@@ -540,7 +540,7 @@ class OrderService {
      * `order_payment_status_changed` (plus `order_refunded`, matching the
      * vision's explicit "RefundIssued" event, when the new status is
      * 'refunded'). Prefer refund_order() when transitioning to 'refunded'
-     * with a specific amount — this method alone doesn't touch
+     * with a specific amount - this method alone doesn't touch
      * `refunded_amount`.
      *
      * @param int    $id     Order id.
@@ -573,7 +573,7 @@ class OrderService {
 
     /**
      * Issues a refund: sets payment_status to 'refunded' and records the
-     * refunded amount (partial or full — not validated against $total
+     * refunded amount (partial or full - not validated against $total
      * here, since a merchant may legitimately record a refund alongside a
      * restocking fee or other adjustment that changes the effective
      * amount).
@@ -601,7 +601,7 @@ class OrderService {
 
     /**
      * Transitions many orders to the same new fulfillment status in one
-     * call — backs the admin grid's bulk-action dropdown (OrdersList.tsx).
+     * call - backs the admin grid's bulk-action dropdown (OrdersList.tsx).
      * Reuses update_fulfillment_status() per id, same reasoning
      * update_status() used to document: every transition goes through the
      * exact same single-order code path regardless of how it was
@@ -629,7 +629,7 @@ class OrderService {
     }
 
     /**
-     * Transitions many orders to the same new payment status in one call —
+     * Transitions many orders to the same new payment status in one call -
      * same reasoning as bulk_update_fulfillment_status().
      *
      * @param int[]  $ids    Order ids to transition.

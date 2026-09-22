@@ -10,11 +10,11 @@ namespace VuloPilot\Repositories;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Persistence for vulopilot_ai_conversations (DATABASE.md) — full, reloadable
+ * Persistence for vulopilot_ai_conversations (DATABASE.md) - full, reloadable
  * "Chat with VuloPilot" (AI Copilot) threads. Briefly lived in vulopilot-pro
  * as `VuloPilotPro\CopilotChat\AiConversationRepository` while that feature
  * was Pro-only; moved back here alongside `Controllers\Copilot.php` now that
- * it's genuinely free again — see that controller's own docblock. The table
+ * it's genuinely free again - see that controller's own docblock. The table
  * itself was never moved (`Utill::TABLES`'s own `ai_conversation` key,
  * unchanged throughout). Kept separate from `AiHistoryRepository`, which
  * owns the permanent excerpt-only audit trail; this repository is the only
@@ -28,7 +28,7 @@ class AiConversationRepository extends AbstractRepository {
 
     /**
      * How many leading characters of the first user message become a
-     * conversation's `title` — long enough to be recognizable in the
+     * conversation's `title` - long enough to be recognizable in the
      * "Recent conversations" list, short enough to always fit the column.
      */
     private const TITLE_MAX_LENGTH = 80;
@@ -52,7 +52,7 @@ class AiConversationRepository extends AbstractRepository {
     }
 
     /**
-     * Lightweight rows for the "Recent conversations" list — `title`/
+     * Lightweight rows for the "Recent conversations" list - `title`/
      * `updated_at` only, never decoding every row's full `turns` blob just
      * to render a list.
      *
@@ -85,19 +85,19 @@ class AiConversationRepository extends AbstractRepository {
     }
 
     /**
-     * Same real rows get_recent() returns, plus a real `excerpt` — the
+     * Same real rows get_recent() returns, plus a real `excerpt` - the
      * conversation's own first user turn, read from its `turns` JSON blob.
      * Deliberately a SEPARATE method rather than a param on get_recent():
      * that method's own docblock says never to decode `turns` just to
      * render a list, and this method still doesn't for any caller passing
-     * a large $limit — it only exists because ChatTab.tsx's own inline
+     * a large $limit - it only exists because ChatTab.tsx's own inline
      * "Recent conversations" section shows a real one-line excerpt under
      * each thread's `title` (already just an 80-char truncation of that
-     * same first message — showing it twice as both headline and
+     * same first message - showing it twice as both headline and
      * description would be redundant), and only ever asks for 3 rows.
      *
      * @param int $user_id Only this user's own conversations.
-     * @param int $limit   Max rows to return — keep small; each row decodes its own `turns` blob.
+     * @param int $limit   Max rows to return - keep small; each row decodes its own `turns` blob.
      * @return array{data: array<int, array{id: int, title: string, excerpt: string, updated_at: string}>, total: int}
      */
     public function get_recent_with_excerpt( int $user_id, int $limit = 3 ): array {
@@ -168,7 +168,7 @@ class AiConversationRepository extends AbstractRepository {
     }
 
     /**
-     * One full conversation, `turns` already decoded — ownership-checked,
+     * One full conversation, `turns` already decoded - ownership-checked,
      * same as append_turns() below, so one admin can't read another's
      * thread just by guessing its id.
      *
@@ -203,7 +203,7 @@ class AiConversationRepository extends AbstractRepository {
     }
 
     /**
-     * Starts a new conversation — `title` derived here from the real first
+     * Starts a new conversation - `title` derived here from the real first
      * user message rather than trusted from any caller-supplied label.
      *
      * @param int               $user_id      Owning user.
@@ -226,7 +226,7 @@ class AiConversationRepository extends AbstractRepository {
     }
 
     /**
-     * Appends to an existing conversation — ownership-checked directly in
+     * Appends to an existing conversation - ownership-checked directly in
      * the UPDATE's own WHERE clause (not a separate find_full() call first)
      * so this stays a single query.
      *

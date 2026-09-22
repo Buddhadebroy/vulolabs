@@ -1,5 +1,5 @@
 /**
- * Shapes shared across the SDK — deliberately loose/partial (only the
+ * Shapes shared across the SDK - deliberately loose/partial (only the
  * fields this package actually reads), the same "don't restate the whole
  * server-side domain shape" posture the WordPress-side Checkout Engine's
  * own `CheckoutRunData` already takes (registry.ts, vulocart's own

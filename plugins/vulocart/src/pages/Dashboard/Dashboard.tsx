@@ -11,7 +11,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
  * VuloCart has no equivalent of yet. Same
  * `ContainerComponent`/`ColumnComponent` layout, `CardComponent` for
  * each stat, but showing genuinely available data instead of fabricated
- * widgets — total offering count (`GET /offerings`'s `X-WP-Total` header,
+ * widgets - total offering count (`GET /offerings`'s `X-WP-Total` header,
  * already returned by Controllers\Offerings::get_items()) and active module
  * count (the now-fixed `GET /modules`, a flat active-id array).
  */
@@ -39,14 +39,14 @@ const Dashboard = () => {
 			<ColumnComponent>
 				<CardComponent title={ __( 'Total Offerings', 'vulocart' ) }>
 					<p className="vulocart-stat">
-						{ offeringCount === null ? '—' : offeringCount }
+						{ offeringCount === null ? '-' : offeringCount }
 					</p>
 				</CardComponent>
 			</ColumnComponent>
 			<ColumnComponent>
 				<CardComponent title={ __( 'Active Modules', 'vulocart' ) }>
 					<p className="vulocart-stat">
-						{ activeModuleCount === null ? '—' : activeModuleCount }
+						{ activeModuleCount === null ? '-' : activeModuleCount }
 					</p>
 				</CardComponent>
 			</ColumnComponent>

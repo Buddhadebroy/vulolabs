@@ -26,14 +26,14 @@ const SEVERITY_LABEL: Record<string, string> = {
 
 /**
  * Plain-English "what does this actually check" copy, one per
- * `scanner_id` — added because a site-wide scanner (nothing per-post to
+ * `scanner_id` - added because a site-wide scanner (nothing per-post to
  * check, e.g. Cron/Database/Server) previously left this panel with
  * nothing beyond "Status"/"Findings: No issues found." once
  * `affected_pages` and `scanned_pages` were both empty (see the render
  * logic below): a page-scoped scanner's own "Pages & posts scanned"
  * section already explains itself, but a site-wide one had no equivalent
- * at all. Not exhaustive — every scanner in SCANNERS.md would be a lot to
- * hand-maintain here and keep in sync — just the scanners a user is
+ * at all. Not exhaustive - every scanner in SCANNERS.md would be a lot to
+ * hand-maintain here and keep in sync - just the scanners a user is
  * actually likely to click into from History with no other detail to
  * show (every site-wide, non-page-scoped check). Anything else falls
  * back to a generic, still-honest note below rather than showing nothing.
@@ -44,7 +44,7 @@ const SCAN_DESCRIPTIONS: Record<string, string> = {
 		'vulopilot'
 	),
 	database: __(
-		'Checks for database bloat — excess post revisions and other buildup that can slow queries down.',
+		'Checks for database bloat - excess post revisions and other buildup that can slow queries down.',
 		'vulopilot'
 	),
 	'database-cleanup': __(
@@ -56,7 +56,7 @@ const SCAN_DESCRIPTIONS: Record<string, string> = {
 		'vulopilot'
 	),
 	'wordpress-health': __(
-		'Checks WordPress core’s own Site Health status — the same checks under Tools → Site Health.',
+		'Checks WordPress core’s own Site Health status - the same checks under Tools → Site Health.',
 		'vulopilot'
 	),
 	updates: __(
@@ -118,13 +118,13 @@ const SCAN_DESCRIPTIONS: Record<string, string> = {
 	),
 };
 
-/** Fallback for any `scanner_id` not in SCAN_DESCRIPTIONS above — still honest (doesn't fabricate what the scan does), just generic. */
+/** Fallback for any `scanner_id` not in SCAN_DESCRIPTIONS above - still honest (doesn't fabricate what the scan does), just generic. */
 const GENERIC_SCAN_DESCRIPTION = __(
-	'A site-wide check — not tied to individual pages or posts.',
+	'A site-wide check - not tied to individual pages or posts.',
 	'vulopilot'
 );
 
-/** `duration_ms` is real (ScanResult::get_duration_ms(), persisted on every scan row) but was never shown anywhere in this panel — under a second reads as milliseconds, at or above reads as seconds to one decimal place. */
+/** `duration_ms` is real (ScanResult::get_duration_ms(), persisted on every scan row) but was never shown anywhere in this panel - under a second reads as milliseconds, at or above reads as seconds to one decimal place. */
 const formatScanDuration = (durationMs: number): string =>
 	durationMs < 1000
 		? sprintf(
@@ -151,14 +151,14 @@ interface HistoryDetailPanelProps {
 	onClose: () => void;
 	/* eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters, same as StatWidget.tsx's StatWidgetConfig. */
 	onDeleted: (row: HistoryRow) => void;
-	/** Called after a real, successful rollback so the caller can reload the timeline — a rollback also writes its own new 'ai_action.rolled_back' history row server-side (ActionRunner::rollback()'s own log() call), so a local-only status patch here would still miss that new row. */
+	/** Called after a real, successful rollback so the caller can reload the timeline - a rollback also writes its own new 'ai_action.rolled_back' history row server-side (ActionRunner::rollback()'s own log() call), so a local-only status patch here would still miss that new row. */
 	onRolledBack: () => void;
 	/* eslint-disable-next-line no-unused-vars -- named param on a type-only call signature, same as onDeleted above. */
 	onSelectRelatedAction: (id: number) => void;
 }
 
 /**
- * The History timeline's right-side detail panel — real per-type detail
+ * The History timeline's right-side detail panel - real per-type detail
  * only, no fabricated "related actions" copy: a scan row shows its real
  * per-severity finding breakdown from `vulopilot_scans.summary`; a change
  * row shows its real before/after text from `vulopilot_ai_action_runs.preview`;
@@ -169,10 +169,10 @@ interface HistoryDetailPanelProps {
  * "Undo this change" calls the already-real, already-working
  * `POST /ai-action-runs/{id}/rollback` (AIActions\ActionRunner::rollback(),
  * ActionRunRegistry's own snapshot/rollback() pair on every registered
- * action) — that backend has existed since AI-ACTIONS.md's own pass, but
+ * action) - that backend has existed since AI-ACTIONS.md's own pass, but
  * no UI anywhere called it, so every executed AI change was permanently
  * un-revertable from the UI even though the server could already do it.
- * Only ever shown for a `row.change.status === 'executed'` run — the one
+ * Only ever shown for a `row.change.status === 'executed'` run - the one
  * status ActionRunner::rollback() itself will actually accept (a
  * 'pending_approval'/'rejected'/'failed'/already-'rolled_back' run
  * correctly has no Undo control here, same "don't offer what can't
@@ -328,7 +328,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							items={row.scan.affected_pages.map((page) => ({
 								id: String(page.id),
 								icon: 'document',
-								// `ListComponent` renders a title as HTML, so escape it. Not `link:` — its link branch drops `tags`.
+								// `ListComponent` renders a title as HTML, so escape it. Not `link:` - its link branch drops `tags`.
 								title: escapeHtml(page.title),
 								action: page.edit_link
 									? () => window.open(page.edit_link, '_blank', 'noopener,noreferrer')
@@ -416,7 +416,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							{'auto_automation' === row.change.approval_method && (
 								<span className="history-auto-approved-note">
 									{__(
-										' — Auto-approved by automation',
+										' - Auto-approved by automation',
 										'vulopilot'
 									)}
 								</span>
@@ -424,7 +424,7 @@ const HistoryDetailPanel: React.FC<HistoryDetailPanelProps> = ({
 							{'auto_unattended' === row.change.approval_method && (
 								<span className="history-auto-approved-note">
 									{__(
-										' — Applied automatically (no approval required by Approval Settings)',
+										' - Applied automatically (no approval required by Approval Settings)',
 										'vulopilot'
 									)}
 								</span>

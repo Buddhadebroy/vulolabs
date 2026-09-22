@@ -18,7 +18,7 @@ const humanize = ( type: string ): string =>
 		.join( ' ' );
 
 /**
- * The Offerings menu's "Offering Types" page — read-only, deliberately
+ * The Offerings menu's "Offering Types" page - read-only, deliberately
  * (classes/RestAPI/Controllers/OfferingTypes.php's own docblock explains
  * why this isn't a type builder): the closed set of built-in types
  * (Domain\Offering\OfferingType), each with its real, live offering count.

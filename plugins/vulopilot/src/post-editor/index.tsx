@@ -24,25 +24,25 @@ interface DeepLinkTarget {
 /**
  * Two independent deep-link sources land here, both stripped from the URL
  * immediately so a page refresh doesn't keep re-triggering the highlight,
- * and both read once, on module load (before first render — matches
+ * and both read once, on module load (before first render - matches
  * TabPanel's own mount-time-only `initialTabName` prop):
  *
  * - "All SEO Issues" table's "Fix with AI" link
  *   (`src/pages/GEO/SeoIssuesByPageTable.tsx`) and
  *   `Content/ContentQualityCard.tsx`'s own check rows, as
- *   `?vulopilot_seo_issue={scannerId}` — resolved via
+ *   `?vulopilot_seo_issue={scannerId}` - resolved via
  *   `SEO_ISSUE_EDITOR_TARGETS`, the same shared map those callers used to
  *   build the link, so both sides agree on what "general/description_length"
  *   etc. means without either duplicating the other's logic.
  * - `GEO/PageAnalysisPanel.tsx`'s own checklist, as
- *   `?vulopilot_page_analysis_check={checkKey}` — always resolves straight
+ *   `?vulopilot_page_analysis_check={checkKey}` - always resolves straight
  *   to the "Page Analysis" tab, highlighting the row whose `key` matches
  *   (see `PAGE_ANALYSIS_CHECK_QUERY_PARAM`'s own docblock for why this one
  *   doesn't go through the scanner-id map at all).
  *
  * A 3rd source lands here too, same posture as the 2nd: GEO's/AEO's own
  * real open-findings tables (`GeoAeoPageAnalysisPanel.tsx`,
- * `SeoIssuesByPageTable.tsx`), as `?vulopilot_finding_id={findingId}` —
+ * `SeoIssuesByPageTable.tsx`), as `?vulopilot_finding_id={findingId}` -
  * used instead of `?vulopilot_seo_issue=` whenever that finding's own
  * `scanner_id` has no `SEO_ISSUE_EDITOR_TARGETS` entry (most real GEO/AEO
  * scanner ids), always resolving straight to "Page Analysis" too, where
@@ -50,7 +50,7 @@ interface DeepLinkTarget {
  * against their own real findings by id (see `FINDING_ID_QUERY_PARAM`'s
  * own docblock).
  *
- * `wasPresent` is tracked separately from the resolved tab/target — the
+ * `wasPresent` is tracked separately from the resolved tab/target - the
  * first source's query param can be present but resolve to nothing (a
  * scanner id with no editor-sidebar equivalent); the sidebar should still
  * open in that case so the user isn't left staring at a plain redirect with
@@ -88,21 +88,21 @@ const readDeepLinkTarget = (): DeepLinkTarget => {
 	return { wasPresent: true, tab: resolved?.tab, target: resolved?.target };
 };
 
-// Read once at module scope, before first render — deep-link state is
+// Read once at module scope, before first render - deep-link state is
 // static for the lifetime of this editor page load, so there's no need to
 // re-derive it on every render the way component state would.
 const { wasPresent: shouldOpenSidebar, tab: deepLinkTab, target: deepLinkHighlight } = readDeepLinkTarget();
 
 /**
- * "Meta Box Appearing in Single Posts & Pages" — VuloPilot's first Block
+ * "Meta Box Appearing in Single Posts & Pages" - VuloPilot's first Block
  * Editor integration (react-frontend.md's mounting rules cover the
  * dashboard app at `#admin-main-wrapper`/`#vulolabs-store-dashboard`,
  * a different surface entirely). Registered as a `PluginSidebar` rather
- * than a classic `add_meta_box()` panel — RankMath's own primary,
+ * than a classic `add_meta_box()` panel - RankMath's own primary,
  * most-recognized surface (the icon in the editor's top toolbar opening
  * this same sidebar), not its secondary below-content metabox. (This
  * briefly moved to that below-content metabox instead, on the theory that
- * it avoids the sidebar's own internal scroll on a long panel — reverted
+ * it avoids the sidebar's own internal scroll on a long panel - reverted
  * per direct instruction; see PostEditorAssets.php's own class docblock.)
  *
  * Only enqueued for post/page/product screens
@@ -115,7 +115,7 @@ const VuloPilotSeoPlugin = () => {
 			return;
 		}
 
-		// core/edit-post's own store — the same one PluginSidebar/
+		// core/edit-post's own store - the same one PluginSidebar/
 		// PluginSidebarMoreMenuItem below are already registered against,
 		// and the one `wp-edit-post` (a real script dependency of this
 		// bundle, see PostEditorAssets.php) backs.
@@ -126,7 +126,7 @@ const VuloPilotSeoPlugin = () => {
 
 		// The editor restores its own last-used general sidebar (from
 		// `core/preferences`) as part of its own boot sequence, which can
-		// still be settling when this effect first runs — confirmed live:
+		// still be settling when this effect first runs - confirmed live:
 		// dispatching once on mount alone was silently overridden back to
 		// 'edit-post/document'. Dispatching again shortly after beats that
 		// race without needing to hook into the editor's own internal

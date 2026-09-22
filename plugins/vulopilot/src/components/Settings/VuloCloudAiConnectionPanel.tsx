@@ -32,7 +32,7 @@ const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
  * individually configure with their own credentials are gone by direct
  * instruction: VuloCloud is now the only supported way to get an AI
  * provider key, so this panel is just the "Connect to VuloCloud"/
- * "Disconnect" section — no local provider-config UI at
+ * "Disconnect" section - no local provider-config UI at
  * all anymore. See Controllers\VuloCloudAiConnection' own docblock (GET-only now)
  * and AIAssistant.tsx's own "Online" badge (now checks `vulocloud_status`
  * too, not just a local provider row that can no longer exist for a new
@@ -69,7 +69,7 @@ const VuloCloudAiConnectionPanel = () => {
 
 	// ConnectBrokerCallbackHandler.php's own redirect lands back on this
 	// exact URL carrying `connect_status=connected|error` as a real signal
-	// — same `?_status=` redirect-flag handling
+	// - same `?_status=` redirect-flag handling
 	// useGoogleServicesConnection.ts's own hook already establishes for
 	// the Google Connect broker.
 	useEffect(() => {
@@ -119,7 +119,7 @@ const VuloCloudAiConnectionPanel = () => {
 			.catch(() => setIsConnectingToVulocloud(false));
 	};
 
-	/** Opens the confirm popup — the actual disconnect runs from `handleConfirmDisconnectVulocloud` once the user confirms there. */
+	/** Opens the confirm popup - the actual disconnect runs from `handleConfirmDisconnectVulocloud` once the user confirms there. */
 	const handleDisconnectFromVulocloud = () => {
 		setShowVulocloudDisconnectConfirm(true);
 	};
@@ -163,7 +163,7 @@ const VuloCloudAiConnectionPanel = () => {
 									)
 								: vulocloudStatus.configured
 									? __(
-											'Connected — an AI key is configured for this site by your Organization (or an allowed personal backup key).',
+											'Connected - an AI key is configured for this site by your Organization (or an allowed personal backup key).',
 											'vulopilot'
 										)
 									: __(

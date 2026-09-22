@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order module PaymentStatus.
  *
- * One of the two independent dimensions an Order now tracks — the other
+ * One of the two independent dimensions an Order now tracks - the other
  * being FulfillmentStatus. Previously a single flat `OrderStatus` enum
  * conflated "has this been paid?" and "has this been shipped/completed?"
  * into one value, which is why the admin-UX brief's Orders columns
@@ -50,7 +50,7 @@ class PaymentStatus {
     const FAILED = 'failed';
 
     /**
-     * Previously paid, now refunded (partially or fully — see
+     * Previously paid, now refunded (partially or fully - see
      * `Order::$refunded_amount`).
      *
      * @var string

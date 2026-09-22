@@ -12,16 +12,16 @@ use VuloPilot\Contracts\Automations\ActionInterface;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Free's own action registry — deliberately separate from
+ * Free's own action registry - deliberately separate from
  * vulopilot-pro's Automations\ActionRegistry (a different filter,
  * `vulopilot_manual_action_sources`, not `vulopilot_automations_action_sources`):
  * Pro's registry backs the full trigger→rule→action AutomationEngine
  * (cooldown, multi-recommendation fan-out, run history); this one backs
  * only ManualActionRunner's "run one action against one open finding, right
- * now" — no automation row, no trigger, no rule matching, no engine. Same
+ * now" - no automation row, no trigger, no rule matching, no engine. Same
  * filter-based discovery shape as every other registry in this codebase
  * (ScannerRegistry/RuleRegistry/vulopilot-pro's own TriggerRegistry/
- * ActionRegistry) — see any of their docblocks for why this doesn't use
+ * ActionRegistry) - see any of their docblocks for why this doesn't use
  * Modules.php's folder-scan mechanism for a single-class extension point.
  *
  * @class       ActionRegistry class

@@ -24,13 +24,13 @@ interface DraftLine {
 
 /**
  * The "Add New" order page (classes/Admin/Menu.php's `add_orders_menu()`
- * submenu) — an admin building an order on a customer's behalf (phone/
+ * submenu) - an admin building an order on a customer's behalf (phone/
  * email order) with no cart involved. Picks from existing Offerings
  * (`GET /offerings`) rather than a free-text line item, since an order's
  * item still needs to reference a real Offering (Rest::create_manual_item(),
  * modules/Order/Application/OrderService.php's `create_manual_order()`).
  * Saves as a draft order (`FulfillmentStatus::DRAFT`) and redirects to
- * its edit page — same "create then land on the detail page" flow
+ * its edit page - same "create then land on the detail page" flow
  * OfferingEdit.tsx's Add path already uses.
  */
 export function OrderAdd() {

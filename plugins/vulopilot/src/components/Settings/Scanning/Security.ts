@@ -8,15 +8,15 @@ import SecurityRestoreDefaultsHeader from './SecurityRestoreDefaultsHeader';
  *
  * Fully hand-rendered by SecurityPanel.tsx (the `PanelComponent` escape
  * hatch Settings.tsx's own generic `settingModal?.PanelComponent` branch
- * uses — same mechanism GetStarted/AiProviders.ts and
+ * uses - same mechanism GetStarted/AiProviders.ts and
  * GetStarted/GoogleServices.ts already carry) rather than InputRenderer,
  * so every field below stays listed here purely so SettingContext still
- * seeds their real current values — none of them render through this
+ * seeds their real current values - none of them render through this
  * `modal` array directly. See SecurityPanel.tsx's own docblock for the
- * actual layout (3 real card panels — Security scans / Protection /
- * Security Monitoring — plus one plain frequency select).
+ * actual layout (3 real card panels - Security scans / Protection /
+ * Security Monitoring - plus one plain frequency select).
  *
- * "Restore Defaults" is SecurityRestoreDefaultsHeader.tsx — extracted out
+ * "Restore Defaults" is SecurityRestoreDefaultsHeader.tsx - extracted out
  * of SecurityPanel.tsx's own body (per direct instruction, same extraction
  * AiVisibilityScansHeader.tsx already got) into this tab's own top-level
  * `settingAction` instead of being rendered
@@ -24,13 +24,13 @@ import SecurityRestoreDefaultsHeader from './SecurityRestoreDefaultsHeader';
  * NavigatorComponent.tsx's own per-tab header action slot
  * (`renderSettingHeaderInfo()`'s `<SectionComponent
  * rightContent={activeFile.settingAction} />`, rendered once above every
- * tab's own fields — real regardless of whether that tab uses `modal` or,
+ * tab's own fields - real regardless of whether that tab uses `modal` or,
  * like this one, `PanelComponent`), so this now sits right next to
  * "Security" itself instead of as a bare block above SecurityPanel's own
  * body.
  *
  * `mobile_core_web_vitals` (previously this tab's own stray "Performance"
- * section) moved out to Settings → General — it isn't a security setting,
+ * section) moved out to Settings → General - it isn't a security setting,
  * and this tab is now scoped to exactly what its own mockup shows plus the
  * security-relevant settings that were already real and already lived
  * here (login protection, firewall, Security Monitoring).

@@ -2,7 +2,7 @@
 /**
  * Server-side render for the `vulopilot/table-of-contents` block.
  *
- * Deliberately declaration-free — WP loads this file via `require`, not
+ * Deliberately declaration-free - WP loads this file via `require`, not
  * `require_once`, so a top-level function/class here would fatal the
  * moment this block appears twice on one page. All real logic lives in
  * VuloPilot\Services\Blocks\TableOfContentsRenderer.

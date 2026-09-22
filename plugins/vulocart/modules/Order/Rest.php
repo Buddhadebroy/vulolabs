@@ -16,16 +16,16 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Order module Rest class.
  *
- * Module-level REST controller — self-hooks `rest_api_init` in its own
+ * Module-level REST controller - self-hooks `rest_api_init` in its own
  * constructor, per rest-api.md's "module-level controllers" tier, same as
  * VuloCart\Cart\Rest. `POST /orders` (create from cart) and
  * `GET /orders/track` are public, same "cart token is the access control"
- * reasoning VuloCart\Cart\Rest's docblock explains — a guest placing an
+ * reasoning VuloCart\Cart\Rest's docblock explains - a guest placing an
  * order and a guest checking on the order they just placed both need to
  * work with no WordPress session. Every other route (listing, single-order
  * read/update, manual order creation, refunds, bulk actions) stays
  * `manage_options`-gated, matching every other admin-listing controller
- * (rest-api.md) — order management (as opposed to placing/tracking one's
+ * (rest-api.md) - order management (as opposed to placing/tracking one's
  * own order) is store-owner-only.
  *
  * @class       Rest class
@@ -162,9 +162,9 @@ class Rest {
     /**
      * Converts a domain Order into the REST response shape. `access_token`
      * is only ever included right after creation (create_item()/
-     * create_manual_item()) — never on admin list/detail reads, so it
+     * create_manual_item()) - never on admin list/detail reads, so it
      * can't leak to anyone browsing the admin order list. `item_count` is
-     * the sum of every line item's quantity — the admin grid's "Items"
+     * the sum of every line item's quantity - the admin grid's "Items"
      * column (OrdersList.tsx).
      *
      * @param OrderEntity $order          Order to convert to a REST response shape.
@@ -208,7 +208,7 @@ class Rest {
     }
 
     /**
-     * Lists orders, paginated — admin only. Also returns per-
+     * Lists orders, paginated - admin only. Also returns per-
      * fulfillment-status counts as response headers (`X-WP-Count-{status}`)
      * so the admin grid can render real "saved view" tab counts (TableCard's
      * `categoryCounts`, OrdersList.tsx) without a second request.
@@ -249,7 +249,7 @@ class Rest {
     }
 
     /**
-     * Fetches one order by id — admin only.
+     * Fetches one order by id - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -266,7 +266,7 @@ class Rest {
 
     /**
      * The guest order-tracking lookup: order number + access token, both
-     * required — neither alone is treated as sufficient authorization.
+     * required - neither alone is treated as sufficient authorization.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -293,11 +293,11 @@ class Rest {
     }
 
     /**
-     * Creates an order from a cart. Public — see class docblock.
+     * Creates an order from a cart. Public - see class docblock.
      *
      * Gated on the Checkout tab's `guest_checkout_enabled` setting: when
      * disabled, a request from a visitor with no active WordPress session
-     * is rejected rather than silently placing a guest order — the same
+     * is rejected rather than silently placing a guest order - the same
      * enforcement `src/blocks/checkout/Checkout.tsx` also applies
      * client-side (hiding the "Place Order" button), duplicated here since
      * a client-side-only check is not real enforcement (a direct API call
@@ -338,7 +338,7 @@ class Rest {
         $customer_phone = $request->get_param( 'customer_phone' ) ? sanitize_text_field( (string) $request->get_param( 'customer_phone' ) ) : null;
         $user_id        = get_current_user_id();
 
-        // Checkout tab's `require_phone_number` — same "client hint,
+        // Checkout tab's `require_phone_number` - same "client hint,
         // server re-check" pattern `guest_checkout_enabled` above already
         // uses, so a direct API call can't skip a field the wizard's own
         // Customer step marks required.
@@ -350,7 +350,7 @@ class Rest {
             );
         }
 
-        // Address module's own sanitizer, called defensively — same
+        // Address module's own sanitizer, called defensively - same
         // "checkout still works without an optional module active" rule
         // OrderService::resolve_optional_service() follows, just resolved
         // here since address *validation* (as opposed to shipping/tax/
@@ -410,7 +410,7 @@ class Rest {
             try {
                 VuloCart()->customer_service->remember_phone( $user_id, $customer_phone );
             } catch ( \Exception $e ) {
-                // Customer module not active — nothing to remember into.
+                // Customer module not active - nothing to remember into.
                 unset( $e );
             }
         }
@@ -422,7 +422,7 @@ class Rest {
     }
 
     /**
-     * Creates a draft order directly from a merchant-picked item list —
+     * Creates a draft order directly from a merchant-picked item list -
      * admin only. Backs OrderAdd.tsx's "Add New" order page.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -464,7 +464,7 @@ class Rest {
     }
 
     /**
-     * Updates an order's payment and/or fulfillment status — admin only.
+     * Updates an order's payment and/or fulfillment status - admin only.
      * Either field alone is accepted (OrderEdit.tsx saves whichever
      * changed), both together also works.
      *
@@ -506,7 +506,7 @@ class Rest {
     }
 
     /**
-     * Issues a refund on an order — admin only.
+     * Issues a refund on an order - admin only.
      *
      * @param \WP_REST_Request $request Full request object.
      * @return \WP_REST_Response|\WP_Error
@@ -529,7 +529,7 @@ class Rest {
 
     /**
      * Transitions many orders to the same fulfillment status in one
-     * request — backs the admin grid's bulk-action dropdown. Admin only,
+     * request - backs the admin grid's bulk-action dropdown. Admin only,
      * same gate as every other order-management route.
      *
      * @param \WP_REST_Request $request Full request object.
@@ -555,7 +555,7 @@ class Rest {
     }
 
     /**
-     * Transitions many orders to the same payment status in one request —
+     * Transitions many orders to the same payment status in one request -
      * same reasoning as bulk_update_fulfillment_status().
      *
      * @param \WP_REST_Request $request Full request object.

@@ -4,7 +4,7 @@ import { getApiLink, getApiResponse } from '@zyra/core';
 import { nonceHeaders } from './seoIssuesShared';
 
 /**
- * SeoTab.tsx's own 2 data-fetching hooks (`useSeoScore`/`useSeoProgress`) —
+ * SeoTab.tsx's own 2 data-fetching hooks (`useSeoScore`/`useSeoProgress`) -
  * both single-consumer, both a plain `GET .../then(setState)` effect, so
  * kept in one file rather than two.
  */
@@ -13,13 +13,13 @@ export interface SeoCategoryScore {
 	score: number;
 	open_count: number;
 	affected_pages: number;
-	/** Real per-category N-day score trend, oldest first (Seo.php's own `get_category_trend()`) — feeds this category's own `MetricTileComponent` sparkline. */
+	/** Real per-category N-day score trend, oldest first (Seo.php's own `get_category_trend()`) - feeds this category's own `MetricTileComponent` sparkline. */
 	trend: number[];
 }
 
 export interface SeoScoreResponse {
 	seo_score: number;
-	/** Real published post+page count — the same real scope SeoScanner itself scans. */
+	/** Real published post+page count - the same real scope SeoScanner itself scans. */
 	pages_checked: number;
 	category_scores: {
 		'titles-meta': SeoCategoryScore;
@@ -36,7 +36,7 @@ export interface SeoScoreResponse {
 		low: number;
 	};
 	total_open: number;
-	/** Real exact reconstruction (`FindingRepository::..._as_of()`, no stored snapshot needed) of the same totals `lookback_days` ago — positive means more open findings now than then. */
+	/** Real exact reconstruction (`FindingRepository::..._as_of()`, no stored snapshot needed) of the same totals `lookback_days` ago - positive means more open findings now than then. */
 	deltas: {
 		lookback_days: number;
 		total_open: number;
@@ -46,9 +46,9 @@ export interface SeoScoreResponse {
 }
 
 /**
- * `GET /seo/score` — Seo.php's own real, deterministic weighted-severity
+ * `GET /seo/score` - Seo.php's own real, deterministic weighted-severity
  * score (same formula BrandIntelligence's own Brand Score uses), scoped to
- * SeoTab.tsx's own 15 real SEO scanner ids (on-page SEO only — `sitemap`/
+ * SeoTab.tsx's own 15 real SEO scanner ids (on-page SEO only - `sitemap`/
  * `robots` moved to Crawler Traffic, see Seo.php's own docblock). No AI
  * call, no cost.
  */
@@ -87,7 +87,7 @@ export interface SeoProgressResponse {
 }
 
 /**
- * `GET /seo/progress` (Seo.php) — real week-over-week counters
+ * `GET /seo/progress` (Seo.php) - real week-over-week counters
  * (`count_resolved_between()`/`get_stats_for_period()`, both already
  * existing repository methods; "Pages Improved" reuses "Pages that need
  * attention"'s own `get_open_findings_for_scanner_ids_by_post()` helper to
@@ -96,10 +96,10 @@ export interface SeoProgressResponse {
  * `useSeoScore()`'s own single 7-day delta already uses).
  *
  * Extracted from what used to be `SeoProgressCard.tsx`'s own standalone
- * component — its 4 real stat tiles (Latest score/Issues Fixed/New Issues/
+ * component - its 4 real stat tiles (Latest score/Issues Fixed/New Issues/
  * Pages Improved) are folded directly into SeoTab.tsx's own "SEO Health
  * Score" tile row now (merged per direct instruction), so this hook is the
- * one thing SeoTab.tsx actually still needs from that fetch — same
+ * one thing SeoTab.tsx actually still needs from that fetch - same
  * `useSeoScore()`-shaped `{ data, isLoading }` return, no separate
  * `hasError` state (same convention that hook already keeps: a failed fetch
  * just leaves `data` `null`, and the caller's own `data &&` guard already

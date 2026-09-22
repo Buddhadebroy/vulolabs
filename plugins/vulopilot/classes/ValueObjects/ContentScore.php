@@ -9,10 +9,10 @@ namespace VuloPilot\ValueObjects;
 
 /**
  * A single post's Content Intelligence score, produced by
- * ContentIntelligence\ContentAnalyzer::analyze() — same shape as
+ * ContentIntelligence\ContentAnalyzer::analyze() - same shape as
  * GeoScore (combines deterministic Scanner findings with an AI-judged
  * dimension into one overall score), scoped to "Topic Authority" instead
- * of GEO's 8 answer-engine dimensions — the one AI dimension this module
+ * of GEO's 8 answer-engine dimensions - the one AI dimension this module
  * was actually asked for, not an invented larger set.
  *
  * @class       ContentScore class

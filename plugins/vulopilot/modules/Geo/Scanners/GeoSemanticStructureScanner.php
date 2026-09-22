@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * AI systems that parse a page's heading outline to understand its
  * document structure (the same outline a screen reader or a browser's
  * table-of-contents feature would build) get a broken hierarchy from a
- * skipped level — distinct from HeadingStructureScanner's separate SEO
+ * skipped level - distinct from HeadingStructureScanner's separate SEO
  * check (whether any subheading exists at all) and
  * AccessibilityScanner's (a second `<h1>` inside the content).
  *
@@ -65,12 +65,12 @@ class GeoSemanticStructureScanner extends AbstractBasicScanner implements Tracks
         $settings = wp_parse_args( get_option( \VuloPilot\Utill::VULOPILOT_SETTINGS_KEY, array() ), \VuloPilot\Utill::VULOPILOT_SETTINGS_DEFAULTS );
 
         // GEO has no whole-category kill switch (see GeoSummaryBlockScanner's
-        // own docblock) — this is this one scanner's own on/off switch,
+        // own docblock) - this is this one scanner's own on/off switch,
         // Settings → Scanning → AI Visibility's "AI-readable structure"
         // row (Connections/AiVisibility.ts's own `ai_visibility_scans`
         // expandable-panel, Utill::VULOPILOT_SETTINGS_DEFAULTS). Moved
         // from the old flat `flag_missing_semantic` boolean into this
-        // nested shape — same migration `visibility_alerts` already went
+        // nested shape - same migration `visibility_alerts` already went
         // through for its own 3 rows.
         if ( empty( $settings['ai_visibility_scans']['structure']['enable'] ) ) {
             return array();
@@ -113,7 +113,7 @@ class GeoSemanticStructureScanner extends AbstractBasicScanner implements Tracks
 
     /**
      * Compares each heading only to the one immediately before it in
-     * document order — the same "heading-order" definition of a skip
+     * document order - the same "heading-order" definition of a skip
      * that accessibility checkers like axe-core use. Going shallower
      * (h3 → h2) is always fine; going deeper by more than one level
      * (h2 → h4) is a skip.

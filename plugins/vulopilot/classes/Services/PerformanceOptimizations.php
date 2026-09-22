@@ -15,11 +15,11 @@ defined( 'ABSPATH' ) || exit;
  * flips the option; this class is what actually reads it on every real
  * request):
  *
- * - `vulopilot_force_lazy_loading` — when set, force-enables WordPress
+ * - `vulopilot_force_lazy_loading` - when set, force-enables WordPress
  *   core's own native `loading="lazy"` behavior via the
  *   `wp_lazy_loading_enabled` filter, overriding any theme/plugin that
  *   disabled it (the exact condition LazyLoadingScanner flags).
- * - `vulopilot_preload_critical_resources` — when set, outputs real
+ * - `vulopilot_preload_critical_resources` - when set, outputs real
  *   `<link rel="preload">` tags on `wp_head` for the site's custom logo
  *   and its first enqueued front-end stylesheet.
  *

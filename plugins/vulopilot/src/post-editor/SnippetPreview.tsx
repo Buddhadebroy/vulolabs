@@ -8,7 +8,7 @@ interface SnippetPreviewProps {
 }
 
 /**
- * A Google-results-style preview — RankMath's own snippet editor is the
+ * A Google-results-style preview - RankMath's own snippet editor is the
  * direct model (rankmath.com/kb/on-page-seo/). Title/description are
  * truncated with the same thresholds Services\OnPageAnalyzer/
  * AIActions\Actions\WriteMetaTitleAction/WriteMetaDescriptionAction already
@@ -17,7 +17,7 @@ interface SnippetPreviewProps {
  */
 export default function SnippetPreview( { title, description, url, siteName }: SnippetPreviewProps ) {
 	const displayTitle = title || __( '(No title yet)', 'vulopilot' );
-	const displayDescription = description || __( '(No meta description yet — search engines will pick an excerpt from the page automatically.)', 'vulopilot' );
+	const displayDescription = description || __( '(No meta description yet - search engines will pick an excerpt from the page automatically.)', 'vulopilot' );
 
 	return (
 		<div className="vulopilot-seo-snippet-preview">

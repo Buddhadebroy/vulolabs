@@ -18,24 +18,24 @@ interface StoredSettings {
 const nonceHeaders = { headers: { 'X-WP-Nonce': appLocalizer.nonce } };
 
 /**
- * Settings → Notifications' own "Send Test Email" button — real
+ * Settings → Notifications' own "Send Test Email" button - real
  * `POST /settings/test-email` (Controllers\Settings::send_test_email(),
  * which sends through the exact same recipient/From-header logic every
  * other notification email in this codebase already uses), plus the
- * persisted "Last test email sent on ..." line — same hand-built pattern
+ * persisted "Last test email sent on ..." line - same hand-built pattern
  * SendTestReportButton.tsx/CrawlerAlertTestPanel.tsx already establish for
  * the exact same "real API call + a value that must survive a page
  * refresh" reason, in place of the old declarative `type: 'button'` field
- * (per direct instruction — "the send test email button design like the
+ * (per direct instruction - "the send test email button design like the
  * send test report button").
  *
- * Unlike SendTestReportButton.tsx, this one has no Pro gate — email
+ * Unlike SendTestReportButton.tsx, this one has no Pro gate - email
  * notifications are a Free feature (Reports is the Pro one), so this
  * button always calls the real API rather than branching to a
  * `ShowProPopup` first.
  *
  * Reads its own `email_last_test_sent` value directly from `GET /settings`
- * on mount rather than through SettingContext — same reasoning
+ * on mount rather than through SettingContext - same reasoning
  * SendTestReportButton.tsx's own docblock gives: this key is system-set,
  * never user-edited, so it's never one of this tab's own `modal[].key`
  * fields SettingContext would otherwise seed.

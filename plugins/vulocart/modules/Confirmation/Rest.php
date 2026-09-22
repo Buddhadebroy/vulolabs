@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * VuloCart Confirmation module Rest class.
  *
- * Module-level REST controller, public — same reasoning as Cart\Rest's own
+ * Module-level REST controller, public - same reasoning as Cart\Rest's own
  * docblock: the buyer who just placed the order has whatever the
  * `POST /orders` response already gave them (order_number + access_token)
  * and no WordPress session.
@@ -48,7 +48,7 @@ class Rest {
     }
 
     /**
-     * Returns the confirmation-step view of a just-placed order — the
+     * Returns the confirmation-step view of a just-placed order - the
      * order number plus its access token, both required, are the
      * authorization check (Order\Rest::track_item()'s own docblock).
      *

@@ -1,7 +1,7 @@
 @use '../../components/config' as *;
 
 // "What should I fix first?" (WhatShouldIFixFirstCard.tsx) and "Pages that
-// need attention" (PagesNeedingAttentionTable.tsx) — two new, additive
+// need attention" (PagesNeedingAttentionTable.tsx) - two new, additive
 // sections above SEO's existing filter-tabs/severity cards/Site-wide
 // Issues/Pages & Posts, which stay completely untouched. Reuses the exact
 // same severity color language (#16a34a/#b45309/#dc2626) SeoVisibility.scss's
@@ -29,7 +29,7 @@
 .fix-first-severity-stat {
 	text-align: center;
 
-	// Real per-tier hex, matching each `.typography-h3` modifier below — a
+	// Real per-tier hex, matching each `.typography-h3` modifier below - a
 	// lighter tint of the same color behind the icon, same
 	// `color-mix(... transparent)` badge-tint convention
 	// `.fix-first-ranked-count`/`.fix-first-ranked-icon` already use here.

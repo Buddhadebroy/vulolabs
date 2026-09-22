@@ -9,7 +9,7 @@ namespace VuloPilot\ValueObjects;
 
 /**
  * The outcome of a single Contracts\Automations\ActionInterface::execute()
- * call — AutomationEngine\AutomationEngine aggregates one or more of these
+ * call - AutomationEngine\AutomationEngine aggregates one or more of these
  * (an automation can run several actions in sequence) into the
  * `vulopilot_automations_runs` row's `actions_executed`/`actions_failed`
  * counts and `result_log`.

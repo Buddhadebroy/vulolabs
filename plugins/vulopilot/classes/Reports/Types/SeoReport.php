@@ -10,7 +10,7 @@ namespace VuloPilot\Reports\Types;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Category `seo` findings for one period — same category scope as the
+ * Category `seo` findings for one period - same category scope as the
  * SEO dashboard page's FindingsTable filter (SCANNERS.md).
  *
  * @class       SeoReport class

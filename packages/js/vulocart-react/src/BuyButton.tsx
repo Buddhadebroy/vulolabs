@@ -14,8 +14,8 @@ export interface BuyButtonProps {
 /**
  * React equivalent of `@vulocart/sdk`'s vanilla `mountBuyButton()`
  * (`widgets/buy-button.ts`'s own docblock on the ephemeral-cart
- * reasoning — identical here). Renders its own modal overlay via a
- * plain `<div>` rather than a portal — no dependency on
+ * reasoning - identical here). Renders its own modal overlay via a
+ * plain `<div>` rather than a portal - no dependency on
  * `react-dom/client`'s portal API being available/desired in every
  * consumer's setup, and this component's own overlay is a single fixed
  * element, not something that needs true DOM-tree escape (z-index alone

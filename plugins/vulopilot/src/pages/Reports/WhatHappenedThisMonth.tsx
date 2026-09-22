@@ -18,7 +18,7 @@ const EVENT_ICONS: Record<string, string> = {
 };
 
 /**
- * "What happened this month?" — real, via the same `/activity-logs`
+ * "What happened this month?" - real, via the same `/activity-logs`
  * endpoint ActivityTab.tsx's full table already reads, scoped to the most
  * recent 8 entries rather than every field that table shows.
  */

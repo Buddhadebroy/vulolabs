@@ -16,7 +16,7 @@ use VuloPilot\ValueObjects\AIResponse;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GEO-MODULE.md's fix for GeoSemanticStructureScanner's finding — the
+ * GEO-MODULE.md's fix for GeoSemanticStructureScanner's finding - the
  * same existing-content-rewrite pattern as ImproveReadabilityAction,
  * scoped to renumbering only heading tag levels. `validate_output()` goes
  * one step further than a plain length-ratio check: it re-runs the exact
@@ -64,7 +64,7 @@ class FixHeadingHierarchyAction extends AbstractBasicAction {
         }
 
         if ( ! $this->has_heading_level_skip( $post->post_content ) ) {
-            throw new InvalidActionInputException( __( 'This post\'s heading levels do not skip — there is nothing to fix.', 'vulopilot' ) );
+            throw new InvalidActionInputException( __( 'This post\'s heading levels do not skip - there is nothing to fix.', 'vulopilot' ) );
         }
 
         return array(
@@ -83,9 +83,9 @@ class FixHeadingHierarchyAction extends AbstractBasicAction {
                 'content' => 'This content\'s heading tags (h1-h6) skip a level at least once (e.g. an <h2> followed '
                     . 'later by an <h4> with no <h3> anywhere between them), which breaks the document outline AI '
                     . 'systems and screen readers rely on. Renumber ONLY the heading tag levels so each heading is never '
-                    . 'more than one level deeper than the heading immediately before it — never change heading text, '
+                    . 'more than one level deeper than the heading immediately before it - never change heading text, '
                     . 'never change any other tag, never change the body content. Respond with ONLY the full rewritten '
-                    . 'HTML content — no commentary.',
+                    . 'HTML content - no commentary.',
             ),
             array(
                 'role'    => 'user',
@@ -116,12 +116,12 @@ class FixHeadingHierarchyAction extends AbstractBasicAction {
 
         if ( $original_length > 0 && ( $rewritten_length / $original_length ) < self::MIN_LENGTH_RATIO ) {
             throw new InvalidActionOutputException(
-                __( 'The AI returned content that looks truncated rather than a targeted rewrite — rejected for safety.', 'vulopilot' )
+                __( 'The AI returned content that looks truncated rather than a targeted rewrite - rejected for safety.', 'vulopilot' )
             );
         }
 
         if ( $this->has_heading_level_skip( $rewritten ) ) {
-            throw new InvalidActionOutputException( __( 'The AI did not resolve the heading level skip — rejected.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( __( 'The AI did not resolve the heading level skip - rejected.', 'vulopilot' ) );
         }
     }
 
@@ -178,7 +178,7 @@ class FixHeadingHierarchyAction extends AbstractBasicAction {
 
     /**
      * Same heading-order skip definition as
-     * GeoSemanticStructureScanner::has_heading_level_skip() — duplicated
+     * GeoSemanticStructureScanner::has_heading_level_skip() - duplicated
      * here (rather than a cross-namespace dependency) to re-verify the
      * AI's rewrite actually resolved the skip before accepting it.
      *

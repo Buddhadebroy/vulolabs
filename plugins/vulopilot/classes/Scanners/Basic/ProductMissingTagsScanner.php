@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Flags published products with no `product_tag` term. Lower severity
- * than ProductMissingCategoriesScanner — a missing category makes a
+ * than ProductMissingCategoriesScanner - a missing category makes a
  * product unreachable via browse navigation, a missing tag only weakens
  * cross-linking (related products, tag clouds), so this is Severity::LOW,
  * not MEDIUM.

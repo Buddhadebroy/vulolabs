@@ -10,23 +10,23 @@ namespace VuloPilot\Geo;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Serves a virtual `/llms.txt` file (the emerging llms.txt convention —
+ * Serves a virtual `/llms.txt` file (the emerging llms.txt convention -
  * a Markdown index of a site's key pages, meant for AI systems to read
- * instead of crawling the whole site) — readme.txt's "llms.txt Generation
+ * instead of crawling the whole site) - readme.txt's "llms.txt Generation
  * & Management", the one AI-Visibility bullet with no existing code to
  * build on anywhere in this codebase.
  *
  * No new DB table: content is assembled on every request straight from
  * live `WP_Query` data (published pages/posts), the same "generate at
  * request time, don't cache a stale copy" approach WordPress core's own
- * `/robots.txt` (`do_robots()`) takes — RobotsTxtScanner.php only ever
+ * `/robots.txt` (`do_robots()`) takes - RobotsTxtScanner.php only ever
  * *checks* that file over HTTP, it doesn't generate it, so there was no
  * existing virtual-file-serving pattern in this plugin to reuse; this
  * follows the standard WP `add_rewrite_rule()` + `template_redirect`
  * mechanism instead.
  *
  * Self-registers its own hooks in the constructor (php-wordpress.md) and
- * is constructed unconditionally in VuloPilot::init_classes() — the
+ * is constructed unconditionally in VuloPilot::init_classes() - the
  * `enable_llms_txt` setting only gates whether maybe_serve() actually
  * outputs anything, not whether the rewrite rule/query var exist, so
  * toggling the setting later never needs its own flush_rewrite_rules()
@@ -41,7 +41,7 @@ class LlmsTxtGenerator {
     private const QUERY_VAR = 'vulopilot_llms_txt';
 
     /**
-     * Max pages/posts listed in each section — a curated index, not an
+     * Max pages/posts listed in each section - a curated index, not an
      * exhaustive sitemap (the same "curated batch, not everything"
      * posture the Basic\* scanners already take with their 50-post
      * BATCH_SIZE, just smaller here since this is meant to be skimmed).
@@ -91,7 +91,7 @@ class LlmsTxtGenerator {
         header( 'Content-Type: text/plain; charset=utf-8' );
         // Prefer an admin's saved edits (Settings → GEO's llms_txt_content
         // textarea) over the auto-generated version, same precedence
-        // write_file()/maybe_bootstrap_physical_file() use — this virtual
+        // write_file()/maybe_bootstrap_physical_file() use - this virtual
         // route and the real on-disk file should never disagree.
         echo empty( $settings['llms_txt_content'] ) ? $this->generate() : $settings['llms_txt_content']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content-Type is text/plain (not HTML/JS), so raw Markdown content here can't execute in a browser regardless of escaping; generate()'s own output only interpolates get_bloginfo()/get_permalink()/get_the_title().
         exit;
@@ -99,12 +99,12 @@ class LlmsTxtGenerator {
 
     /**
      * Writes the effective content straight to a real `/llms.txt` at the
-     * site root — so "View live file" (and any AI crawler fetching it
+     * site root - so "View live file" (and any AI crawler fetching it
      * directly) doesn't depend on the rewrite rule above ever having been
      * flushed, which is the actual reason that link 404s on a site that
      * had this plugin active before this feature existed (a rewrite rule
      * added via add_rewrite_rule() only takes effect once WordPress's
-     * cached rewrite_rules option is flushed — see Install.php's own
+     * cached rewrite_rules option is flushed - see Install.php's own
      * migration note on this exact gotcha). Best-effort: a locked-down
      * host where ABSPATH isn't writable still has the setting saved and
      * the virtual route above still serves it correctly, it just doesn't
@@ -125,7 +125,7 @@ class LlmsTxtGenerator {
     }
 
     /**
-     * Bootstraps a real `/llms.txt` on disk the first time it's missing —
+     * Bootstraps a real `/llms.txt` on disk the first time it's missing -
      * covers a fresh install (so the live file works immediately, not
      * just once an admin visits Settings and saves) as well as an
      * existing site that only just enabled the feature. Never overwrites
@@ -149,7 +149,7 @@ class LlmsTxtGenerator {
     }
 
     /**
-     * Builds the auto-generated llms.txt content from live WP_Query data —
+     * Builds the auto-generated llms.txt content from live WP_Query data -
      * also called directly by Controllers\Settings::get_stored_settings()
      * to pre-fill the Settings → GEO textarea before an admin has ever
      * customized it, and by maybe_bootstrap_physical_file() to seed the
@@ -184,7 +184,7 @@ class LlmsTxtGenerator {
     }
 
     /**
-     * Appends one `## Heading` + list-of-links section for one post type —
+     * Appends one `## Heading` + list-of-links section for one post type -
      * the three sections in generate() only ever differ in post type,
      * heading, and sort order, so this is the one place that shape lives.
      *
