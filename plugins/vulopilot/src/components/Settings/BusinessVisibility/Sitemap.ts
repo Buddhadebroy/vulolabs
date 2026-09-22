@@ -64,7 +64,7 @@ export default {
 			key: 'sitemap-notice',
 			type: 'notice',
 			noticeType: 'info',
-			message: `${__('Active & up to date', 'vulopilot')} ${appLocalizer.site_url}/sitemap.xml`,
+			message: `${__('Active & up to date', 'vulopilot')} <a class="link-item" href="${appLocalizer.site_url}/sitemap.xml">${appLocalizer.site_url}/sitemap.xml<a>`,
 			dependent: { key: 'sitemap_enabled', value: 'sitemap_enabled', set: true },
 		},
 		{

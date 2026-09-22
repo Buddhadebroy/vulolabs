@@ -614,20 +614,20 @@ const TitleFormatsPanel = () => {
 							)}
 							titleIcon={editingRow.icon}
 							desc={editingRow.description}
-							action={
-								<i
-									className="adminfont-close"
-									role="button"
-									tabIndex={0}
-									onClick={() => setEditingKey(null)}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											e.preventDefault();
-											setEditingKey(null);
-										}
-									}}
-								/>
-							}
+							// action={
+							// 	<i
+							// 		className="adminfont-close"
+							// 		role="button"
+							// 		tabIndex={0}
+							// 		onClick={() => setEditingKey(null)}
+							// 		onKeyDown={(e) => {
+							// 			if (e.key === 'Enter' || e.key === ' ') {
+							// 				e.preventDefault();
+							// 				setEditingKey(null);
+							// 			}
+							// 		}}
+							// 	/>
+							// }
 						>
 							<FormGroupWrapperComponent>
 								{renderTemplateField(

@@ -308,7 +308,7 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 									? __('Manage Verification', 'vulopilot')
 									: sprintf(
 										/* translators: %s is the provider name (Bing, Pinterest). */
-										__('Verify with %s', 'vulopilot'),
+										__('Verify', 'vulopilot'),
 										title
 									),
 							color: isVerifying

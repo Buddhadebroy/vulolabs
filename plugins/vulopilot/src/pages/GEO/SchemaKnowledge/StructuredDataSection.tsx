@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
+import { scrollToId } from '@zyra/core';
 import {
 	CardComponent,
 	ColumnComponent,
@@ -283,8 +284,14 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 															: 'pagination-next-arrow',
 													// The panel is never closed — clicking the
 													// row already showing just keeps it open.
+													// Scrolls the panel into view on every click
+													// (`scrollToId`, same real helper
+													// IssuesList.tsx's own identical toggle
+													// uses) — harmless when it's already open,
+													// necessary when it isn't yet visible.
 													onClick: (row: SchemaCoverageRow) => {
 														setSelectedRow(row);
+														scrollToId('structured-data-detail-panel');
 													},
 												},
 											],
@@ -316,6 +323,7 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 			</ColumnComponent>
 
 			<ColumnComponent grid={4}>
+				<div id="structured-data-detail-panel">
 				{selectedRow && (
 					<CardComponent
 						title={selectedRow.type}
@@ -417,7 +425,8 @@ const StructuredDataSection = ({ coverage }: StructuredDataSectionProps) => {
 						)}
 					</CardComponent>
 				)}
-			</ColumnComponent>			
+				</div>
+			</ColumnComponent>
 		</ContainerComponent>
 	);
 };
