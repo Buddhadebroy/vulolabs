@@ -352,7 +352,7 @@ class ScanPersistenceListener {
             )
         );
 
-        $channels = (array) ( $settings['critical_alert_channels'] ?? array() );
+        $channels = (array) ( $settings['alert_channels'] ?? array() );
 
         if ( in_array( 'dashboard', $channels, true ) ) {
             $this->activity_logs->log(

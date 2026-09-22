@@ -1,5 +1,6 @@
 /* global appLocalizer */
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { __ } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { NoticeComponent, PopupComponent } from '@zyra/components';
@@ -106,15 +107,33 @@ const SendTestReportButton = () => {
 				/>
 			</div>
 
-			<PopupComponent
-				open={isProPopupOpen}
-				onClose={() => setIsProPopupOpen(false)}
-				width={31.25}
-				height="auto"
-				position="lightbox"
-			>
-				<ShowProPopup />
-			</PopupComponent>
+			{/*
+			 * Portaled straight to <body> — this button is rendered as
+			 * Reports.ts's `settingAction` (zyra's own `.right-content`
+			 * header slot, `translateY(-50%)`-centered). zyra's
+			 * PopupComponent doesn't portal itself (renders wherever it
+			 * sits in the tree), so left inline here it would mount as a
+			 * DESCENDANT of that `transform`-ed `.right-content` — which
+			 * CSS spec makes the containing block for any `position:
+			 * fixed` element inside it, so the popup's fixed backdrop/
+			 * content would size themselves to that small header row
+			 * instead of the viewport (confirmed live: a squashed sliver
+			 * instead of a real lightbox). Portaling out from under that
+			 * transformed ancestor is the fix; the button itself stays
+			 * right where it is.
+			 */}
+			{createPortal(
+				<PopupComponent
+					open={isProPopupOpen}
+					onClose={() => setIsProPopupOpen(false)}
+					width={31.25}
+					height="auto"
+					position="lightbox"
+				>
+					<ShowProPopup />
+				</PopupComponent>,
+				document.body
+			)}
 
 			{result && (
 				<NoticeComponent

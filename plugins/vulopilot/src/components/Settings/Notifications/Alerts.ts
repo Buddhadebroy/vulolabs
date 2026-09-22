@@ -207,9 +207,10 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * rightContent={activeFile.settingAction} />` above every tab's own
  * fields, using this exact settings object's `settingTitle ?? headerTitle`/
  * `settingSubTitle ?? headerDescription` as that header's own title/desc —
- * so this sits right next to "AI Crawler Alerts" itself, not down by
- * "Notification channels" or appended at the bottom of the tab the way
- * Backups' BackupStoragePanel.tsx is (via Settings.tsx's own GetForm()).
+ * so this sits right next to the tab's header, above the shared
+ * "Notification channels" field, not appended at the bottom of the tab
+ * the way Backups' BackupStoragePanel.tsx is (via Settings.tsx's own
+ * GetForm()).
  * See CrawlerAlertTestPanel.tsx's own docblock.
  */
 export default {
@@ -235,6 +236,33 @@ export default {
 	groupBySections: true,
 	settingAction: createElement(CrawlerAlertTestPanel),
 	modal: [
+		// One shared "Notification channels" control for all four sections
+		// below (AI Crawler/Security/Visibility/Critical issue alerts) —
+		// shown once, above them, rather than repeating an identical
+		// multi-checkbox per section (per direct instruction; replaces the
+		// four former per-section `*_alert_channels` fields, now one
+		// `alert_channels` setting read by every alert sender —
+		// CrawlerAlertMonitor/AlertDispatcher/VisibilityMonitor/
+		// BrandMonitor/KnowledgeGraphHealthMonitor/ScanPersistenceListener).
+		{
+			key: 'alert_channels',
+			type: 'checkbox',
+			label: __('Notification channels', 'vulopilot'),
+			options: [
+				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
+				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
+			],
+		},
+		{
+			key: 'alert-channels-notice',
+			type: 'notice',
+			noticeType: 'info',
+			label: '',
+			message: __(
+				'Applies to every alert type below. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
+				'vulopilot'
+			),
+		},
 		{
 			key: 'general_settings',
 			type: 'section',
@@ -251,33 +279,6 @@ export default {
 			key: 'crawler_alerts',
 			type: 'setting-row',
 			rows: CRAWLER_ALERT_ROWS,
-		},
-		{
-			// One multi-checkbox field, real values 'email'/'dashboard' —
-			// see CrawlerAlertMonitor::send_alert()'s own docblock for what
-			// each one actually does. No "Mobile" option here — there's no
-			// real push-delivery mechanism anywhere in this codebase, so it
-			// isn't offered as a control that could never do anything; the
-			// notice below says so instead.
-			key: 'crawler_alert_channels',
-			type: 'checkbox',
-			label: __('Notification channels', 'vulopilot'),
-			options: [
-				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
-				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
-			],
-		},
-		{
-			// Same real `type: 'notice'` field Scanning/SeoContent.ts's own
-			// sitemap tips already use.
-			key: 'ai-crawler-alerts-notice',
-			type: 'notice',
-			noticeType: 'info',
-			title: __('Why track AI crawlers?', 'vulopilot'),
-			message: __(
-				'AI crawlers help your content appear in AI search results. These alerts help you make sure they can still access and index your website. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
-				'vulopilot'
-			),
 		},
 
 		{
@@ -359,25 +360,6 @@ export default {
 			],
 		},
 		{
-			key: 'security_alert_channels',
-			type: 'checkbox',
-			label: __('Notification channels', 'vulopilot'),
-			options: [
-				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
-				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
-			],
-		},
-		{
-			key: 'security-alerts-notice',
-			type: 'notice',
-			noticeType: 'info',
-			label: '',
-			message: __(
-				'You\'ll receive an alert as soon as a qualifying issue is found. The minimum severity and where alert emails are sent are configured under <a href="?page=vulopilot#&tab=settings&subtab=security-scanning">Settings → Security</a>. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
-				'vulopilot'
-			),
-		},
-		{
 			key: 'general_settings',
 			type: 'section',
 			icon: 'bar-chart',
@@ -392,11 +374,16 @@ export default {
 			// zyra's real `type: 'setting-row'` field (per direct
 			// instruction) — one flat row per score type, each with its own
 			// threshold select and on/off toggle both visible at once, no
-			// expand/collapse step — same field type 'crawler_alerts' in
-			// AiCrawlerAlerts.ts already uses. See this file's own docblock
-			// for the value shape (unchanged from the old expandable-panel
+			// expand/collapse step — same field type/`row: false` shape
+			// `crawler_alerts` above uses (without `row: false` zyra adds a
+			// `.row` class to the field wrapper that overlaps this row's own
+			// title/desc with its select — confirmed live: two-line titles
+			// like "AI visibility score drop" rendered on top of "Notify if
+			// score drops by"/the select). See this file's own docblock for
+			// the value shape (unchanged from the old expandable-panel
 			// field).
 			label: __('Notify me when', 'vulopilot'),
+			row: false,
 			key: 'visibility_alerts',
 			type: 'setting-row',
 			rows: [
@@ -455,25 +442,6 @@ export default {
 					},
 				},
 			],
-		},
-		{
-			key: 'visibility_alert_channels',
-			type: 'checkbox',
-			label: __('Notification channels', 'vulopilot'),
-			options: [
-				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
-				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
-			],
-		},
-		{
-			key: 'visibility-alerts-notice',
-			type: 'notice',
-			noticeType: 'info',
-			title: __('Stay ahead of visibility drops', 'vulopilot'),
-			message: __(
-				'These alerts help you catch issues early before they impact your traffic, rankings, and AI visibility. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
-				'vulopilot'
-			),
 		},
 		{
 			key: 'general_settings',
@@ -551,25 +519,6 @@ export default {
 					control: { checkbox: true },
 				},
 			],
-		},
-		{
-			key: 'critical_alert_channels',
-			type: 'checkbox',
-			label: __('Notification channel', 'vulopilot'),
-			options: [
-				{ key: 'email', value: 'email', label: __('Email', 'vulopilot') },
-				{ key: 'dashboard', value: 'dashboard', label: __('In-dashboard', 'vulopilot') },
-			],
-		},
-		{
-			key: 'website-alerts-notice',
-			type: 'notice',
-			noticeType: 'info',
-			label: '',
-			message: __(
-				'You\'ll be notified instantly when any critical issue is detected. Mobile push notifications aren\'t available yet — Email and In-dashboard are the two real delivery channels today.',
-				'vulopilot'
-			),
 		},
 	],
 };

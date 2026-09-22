@@ -648,7 +648,7 @@ class EntityExtractor {
         $entities = array();
 
         foreach ( $lines as $line ) {
-            $post_id = is_numeric( $line ) ? absint( $line ) : url_to_postid( $line );
+            $post_id = $this->resolve_post_id_from_setting_line( $line );
 
             if ( ! $post_id || 'publish' !== get_post_status( $post_id ) ) {
                 continue;
@@ -666,6 +666,50 @@ class EntityExtractor {
         }
 
         return $entities;
+    }
+
+    /**
+     * `url_to_postid()` alone (this method's only resolution path until
+     * this fix) silently fails for a real, live, published page whenever
+     * some other rewrite rule shadows its slug before WordPress's own
+     * page-rewrite fallback gets a chance to match it — confirmed live: a
+     * genuinely published WooCommerce "Shop" page's own real permalink
+     * (`get_permalink()`'s own output for it) round-tripped through
+     * `url_to_postid()` came back `0`, because the `product` CPT's own
+     * archive rewrite rule matches that same path first. The site owner
+     * pasting that exact real URL into "Service pages" then saw a
+     * permanent, silent "Not found"/"Add Details" here with no way to
+     * tell why — same URL, same site, just resolved through a function
+     * that isn't the only way WordPress can turn a path back into a post.
+     *
+     * Falls back to `get_page_by_path()` (matched against every public
+     * post type, not just `page` — a "service" could just as easily be a
+     * `post` or a product) against the URL's own path once `url_to_postid()`
+     * comes back empty, before finally giving up on that line.
+     *
+     * @param string $line One raw line from the setting — either a numeric post ID or a URL.
+     * @return int 0 if nothing resolves.
+     */
+    private function resolve_post_id_from_setting_line( string $line ): int {
+        if ( is_numeric( $line ) ) {
+            return absint( $line );
+        }
+
+        $post_id = url_to_postid( $line );
+
+        if ( $post_id ) {
+            return $post_id;
+        }
+
+        $path = trim( (string) wp_parse_url( $line, PHP_URL_PATH ), '/' );
+
+        if ( '' === $path ) {
+            return 0;
+        }
+
+        $page = get_page_by_path( $path, OBJECT, get_post_types( array( 'public' => true ) ) );
+
+        return $page ? (int) $page->ID : 0;
     }
 
     /**

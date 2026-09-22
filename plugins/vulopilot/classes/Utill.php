@@ -143,14 +143,6 @@ class Utill {
         // the surprising state" posture every other Notifications
         // checklist in this file already uses.
         'critical_alert_types'                  => array( 'security', 'availability', 'performance', 'seo', 'other' ),
-        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'/
-        // 'security_alert_channels' above — 'dashboard' off by default here
-        // (unlike those two): a critical finding already gets a real,
-        // permanent `vulopilot_scan_findings` row of its own the moment the
-        // scan persists, so a duplicate activity-log entry is more
-        // optional than it is for a here-today-gone-tomorrow score-drop or
-        // crawler-alert event.
-        'critical_alert_channels'               => array( 'email' ),
         // Read by vulopilot-pro's AiCrawlerAnalytics\CrawlerAlertMonitor —
         // comma-separated category ids to email/log about; see that
         // class's own docblock.
@@ -164,9 +156,6 @@ class Utill {
         // the three panels below still defaults its own `enable` to off,
         // so this alone changes no existing install's actual email volume.
         'email_on_visibility_alerts'            => array( 'email_on_visibility_alerts' ),
-        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'/
-        // 'security_alert_channels' above.
-        'visibility_alert_channels'             => array( 'email', 'dashboard' ),
         // Settings → Notifications → Visibility Alerts' own `expandable-panel`
         // field — same nested-object-keyed-by-id shape 'crawler_alerts'
         // above already uses, not three separate flat settings. Read by
@@ -247,13 +236,6 @@ class Utill {
         // on by default, same "off is the surprising state" posture
         // 'crawler_alerts' above already uses for its own per-type toggles.
         'security_alert_types'                  => array( 'vulnerabilities', 'malware', 'failed_login', 'new_user', 'file_changes', 'ssl_certificate' ),
-        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'
-        // above — 'dashboard' writes a real ActivityLogRepository entry
-        // (visible under Settings → History), 'email' goes through
-        // wp_mail(). No 'mobile' value for the same reason documented on
-        // that setting: no real push-delivery mechanism exists anywhere in
-        // this codebase yet.
-        'security_alert_channels'               => array( 'email', 'dashboard' ),
         'enable_integrity_monitoring'           => array( 'enable_integrity_monitoring' ),
         'integrity_monitoring_max_files'        => 2000,
         // ACCESSIBILITY-MODULE.md's "WCAG Scanner" — same granular
@@ -831,6 +813,21 @@ class Utill {
         // — defaults to weekly digest, matching the mockup's own selected
         // value, since a brand-new crawler showing up isn't as
         // time-sensitive as a block or a traffic drop.
+        // Settings → Notifications → Alerts Settings' own single shared
+        // "Notification channels" control — shown once, above all four
+        // alert sections on that tab (AI Crawler/Security/Visibility/
+        // Critical issue alerts), rather than repeating an identical
+        // multi-checkbox per section (per direct instruction; replaces the
+        // former per-section 'crawler_alert_channels'/'security_alert_channels'/
+        // 'visibility_alert_channels'/'critical_alert_channels' keys — same
+        // real values, just one setting instead of four). 'email' always
+        // goes through wp_mail(); 'dashboard' additionally writes a real
+        // ActivityLogRepository entry, visible under Settings → History —
+        // not a decorative toggle. No 'mobile' value: no real push-delivery
+        // mechanism exists anywhere in this codebase yet, so the tab just
+        // says so rather than offering a control that can never do
+        // anything.
+        'alert_channels'                         => array( 'email', 'dashboard' ),
         'crawler_alerts'                         => array(
             'blocked'        => array(
                 'enable'    => true,
@@ -852,16 +849,6 @@ class Utill {
                 'frequency' => 'weekly_digest',
             ),
         ),
-        // "Notification channels" — one multi-checkbox field, real values
-        // 'email' (always goes through wp_mail(), same as every other
-        // VuloPilot notification) and 'dashboard' (writes a real
-        // ActivityLogRepository entry, visible under Settings → History —
-        // not just an unused toggle). Mobile push has no real delivery
-        // mechanism anywhere in this codebase (no app, no push
-        // infrastructure) — deliberately not one of the real option
-        // values here; the tab mentions it's not available yet rather than
-        // offering a checkbox that can never do anything, Pro or not.
-        'crawler_alert_channels'                 => array( 'email', 'dashboard' ),
         // "Last test alert sent successfully on ..." — set by
         // Controllers\Settings::send_test_crawler_alert(), read back by
         // CrawlerAlertTestPanel.tsx on load so that line survives a page
