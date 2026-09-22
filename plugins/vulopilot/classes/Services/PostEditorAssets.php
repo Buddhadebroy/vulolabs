@@ -12,23 +12,14 @@ use VuloPilot\AiCopilot\Actions\GenerateSchemaAction;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Enqueues the "Meta Box Appearing in Single Posts & Pages" (readme's
- * research into rankmath.com/kb/on-page-seo/) - src/post-editor/index.tsx,
- * a `@wordpress/plugins` PluginSidebar registered into the Block Editor,
- * not a mount into VuloPilot's own dashboard app (react-frontend.md's
- * `#admin-main-wrapper` render is a different mount point entirely; this
- * is the first VuloPilot surface that hooks the Block Editor itself).
+ * Enqueues the post-editor SEO metabox - src/post-editor/index.tsx, a
+ * `@wordpress/plugins` PluginSidebar registered into the Block Editor,
+ * not a mount into VuloPilot's own dashboard app (a separate
+ * `#admin-main-wrapper` mount point).
  *
- * This briefly moved to a classic `add_meta_box()` panel below the content
- * editor (RankMath's *other* real surface - it registers both), on the
- * theory that a below-content panel has no forced inner scrollbar the way
- * a sidebar column does. Reverted per direct instruction - RankMath's
- * *primary*, most-recognized surface is its sidebar icon/panel, not the
- * below-content box, and that's the one being matched here. Worth knowing
- * if this comes up again: the sidebar (`PluginSidebar`'s own
- * `.interface-complementary-area__body`) does still scroll internally on a
- * long panel - that's inherent to every PluginSidebar-based Block Editor
- * extension, RankMath's included, not something specific to this one.
+ * Deliberately a `PluginSidebar`, not a classic `add_meta_box()` panel:
+ * note the sidebar's `.interface-complementary-area__body` scrolls
+ * internally on a long panel - inherent to PluginSidebar, not a bug here.
  *
  * Only enqueued for every post type Services\PostSeoMetaFields::POST_TYPES
  * covers (post/page/product) - that constant is the metabox's single

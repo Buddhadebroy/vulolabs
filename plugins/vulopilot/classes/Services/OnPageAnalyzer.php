@@ -13,28 +13,17 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Stateless on-page SEO checklist for the post-editor metabox
- * (RestAPI\Controllers\PostSeo::analyze_item()) - modeled on RankMath's
- * "Basic SEO"/"Additional"/"Title Readability" grouping, per the readme
- * rewrite pass's research into rankmath.com/kb/on-page-seo/. Deliberately
- * NOT a Scanners\ScannerRegistry scanner: scanners run against already-
- * SAVED posts on a schedule (Scanners\ScanRunner), but this runs against
- * whatever the editor currently holds - unsaved title/content/excerpt
- * edits included - every time the metabox's fields change. Where a check
- * mirrors an existing scanner's threshold (title length matches
- * Seo\Scanners\SeoScanner/AiCopilot\Actions\WriteMetaTitleAction; content
- * length matches Seo\Scanners\ThinContentScanner's own setting), the
- * same constant/setting is reused rather than a second, possibly-drifting
- * copy of the number.
+ * (RestAPI\Controllers\PostSeo::analyze_item()), grouped into
+ * "Basic SEO"/"Additional"/"Title Readability". Deliberately NOT a
+ * Scanners\ScannerRegistry scanner: runs against whatever the editor
+ * currently holds (unsaved edits included) on every field change, not
+ * against saved posts on a schedule. Thresholds that mirror an existing
+ * scanner reuse that scanner's constant/setting rather than duplicating
+ * the number.
  *
- * Each result also says whether vulopilot-pro's "Fix with AI" can resolve
- * it (`fixable` + `action_id`) - only for checks with a real, already-
- * existing AIAction that takes nothing but a post_id (write-meta-title,
- * write-meta-description, improve-readability, add-subheadings). Checks
- * driven by the focus keyword or by simple content structure (links,
- * image alt text) have no matching action - no AIAction here takes a
- * focus keyword as input, and "fix" would mean guessing what the human
- * meant - so those are honestly reported as not fixable rather than
- * wired to an action that doesn't actually address the check.
+ * `fixable`/`action_id` is only set for checks with a real AIAction that
+ * takes nothing but a post_id - checks driven by focus keyword or content
+ * structure have no such action, so they're reported as not fixable.
  *
  * @class       OnPageAnalyzer class
  * @version     1.0.0
@@ -50,10 +39,8 @@ class OnPageAnalyzer {
     private const TITLE_MAX_LENGTH = 60;
 
     /**
-     * RankMath's own recommended meta description window; the codebase's
-     * only existing description-length ceiling is
-     * WriteMetaDescriptionAction::MAX_LENGTH (160), used as this range's
-     * upper bound too rather than inventing a second number.
+     * Reuses WriteMetaDescriptionAction::MAX_LENGTH (160) as the upper
+     * bound rather than inventing a second number.
      */
     private const DESCRIPTION_MIN_LENGTH = 120;
     private const DESCRIPTION_MAX_LENGTH = 160;
@@ -130,7 +117,7 @@ class OnPageAnalyzer {
     }
 
     /**
-     * Checks the meta description's length against the RankMath-style recommended window.
+     * Checks the meta description's length against the recommended window.
      *
      * @param string $excerpt Current post excerpt (this codebase's meta description field, see MetaDescriptionScanner).
      * @return array<string, mixed>
@@ -319,8 +306,8 @@ class OnPageAnalyzer {
     }
 
     /**
-     * RankMath's own "title contains a number" heuristic - titles with a
-     * number (a year, a count, "7 ways to…") measurably get more clicks.
+     * Titles with a number (a year, a count, "7 ways to…") measurably
+     * get more clicks.
      *
      * @param string $title Current post title.
      * @return array<string, mixed>
@@ -332,9 +319,8 @@ class OnPageAnalyzer {
     }
 
     /**
-     * Case-insensitive substring match - every keyword check in this class
-     * uses this, not a stricter word-boundary match, since a focus keyword
-     * is often a multi-word phrase (RankMath's own behavior).
+     * Case-insensitive substring match, not word-boundary, since a focus
+     * keyword is often a multi-word phrase.
      *
      * @param string $keyword  Focus keyword.
      * @param string $haystack Text to search within.

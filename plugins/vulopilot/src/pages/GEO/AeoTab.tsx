@@ -17,25 +17,13 @@ import {
 import { useAeoPageAnalysis } from './useAeoPageAnalysis';
 
 /**
- * Section → scanner_id grouping for AEO's 6 real topics - every scanner_id
- * here is a real, already-scanning-today scanner (Free unless noted); no
- * topic invents a signal that doesn't exist. Restructured from the
- * previous 5-topic version (direct instruction: match the reference
- * mockup's own 6-tile "AEO Checks at a Glance" grid) by splitting out a
- * 6th real topic - "Content Structure" - from GEO's own
- * `geo-chunking`/`geo-semantic-structure` scanners rather than inventing a
- * second "AI Summary" tile that would just re-show `geo-summary-block`'s
- * numbers under a second name (the mockup's own "Direct Answers" and "AI
- * Summary" tiles both describe that one real scanner - see "Direct
- * Answers"'s own description below for why they're kept as one real tile,
- * not duplicated data under two labels).
- *
- * Reusing `geo-chunking`/`geo-semantic-structure` here - scanners GEO's own
- * "AI-Readable Structure" topic also uses - is the same accepted overlap
- * this file already documents for `geo-summary-block` (also shown under
- * GEO's "AI Summary" topic): a finding can legitimately show up under both
- * GEO's and AEO's own groupings, since each tab is its own complete lens
- * over the same real finding data, not a disjoint partition of it.
+ * Section → scanner_id grouping for AEO's 6 topics - every scanner_id is
+ * a real, already-running scanner; no topic invents a signal. Some
+ * scanners (e.g. `geo-chunking`/`geo-semantic-structure`,
+ * `geo-summary-block`) are intentionally reused from GEO's own topic
+ * groupings - a finding can legitimately show up under both tabs, since
+ * each is its own complete lens over the same finding data, not a
+ * disjoint partition of it.
  */
 const AEO_SECTIONS: {
 	key: string;
@@ -98,13 +86,12 @@ const average = (values: number[]): number =>
 		: 0;
 
 /**
- * The same 3-dimension average the "AEO Score" ring below computes for
- * "today" (`answer_first_structure`/`question_coverage`/`citation_readiness`),
- * applied to one historical `history` row instead - passed as
- * `computeTrendChange()`'s (geoTrendChange.ts) own `getScore` param so
- * "AEO Score Over Time" trends this scoped average rather than its
- * default sitewide `overall_score`. Returns null for a day the sample batch found nothing
- * to average (same meaning `overall_score: null` already carries).
+ * The same 3-dimension average the "AEO Score" ring computes for "today"
+ * (`answer_first_structure`/`question_coverage`/`citation_readiness`),
+ * applied to one historical `history` row - passed as
+ * `computeTrendChange()`'s `getScore` param so "AEO Score Over Time"
+ * trends this scoped average, not sitewide `overall_score`. Null means
+ * no sample that day (same meaning `overall_score: null` carries).
  */
 const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 	row.ai_scores && row.sub_scores
@@ -116,138 +103,56 @@ const getAeoTrendScore = (row: GeoVisibilityHistoryRow): number | null =>
 		: null;
 
 /**
- * Whether GeoInsights' own Rest.php class is registered at all - either
+ * Whether GeoInsights' Rest.php class is registered - either
  * 'geo-insights' or 'aeo-insights' being active is enough, since both
- * register that same class (AeoInsights\Module.php's own docblock). The
- * real gate AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx check
- * before letting a click spend a real AI call, same "check the real
- * active_modules list directly" posture GeoTab.tsx's own
- * `isGeoInsightsActive()` already uses for its sibling Competitor
- * Visibility card.
+ * register that class. Gates the AI-call buttons in
+ * AeoCitationCoverageCard.tsx/AeoEngineTestingCard.tsx.
  *
- * Takes `modules` from zyra's own `useModules()` store rather than reading
- * `appLocalizer.active_modules` directly: that global is a static snapshot
- * localized once at initial page load, so a module toggled on in Settings →
- * Modules (which updates `useModules()`'s store live via `insertModule()`,
- * not `appLocalizer`) would otherwise still read as inactive here until a
- * full browser refresh - "Unlock with Pro" kept popping back up right after
- * enabling the module for this exact reason.
+ * Reads zyra's `useModules()` store, not `appLocalizer.active_modules`
+ * directly - that global is a static snapshot from initial page load, so
+ * toggling a module in Settings → Modules wouldn't be reflected here
+ * without a full refresh.
  */
 const isCitationCheckActive = (modules: string[]): boolean =>
 	modules.includes('geo-analysis') || modules.includes('answer-engine-optimization');
 
 /**
  * AEO = Answer Engine Optimization - whether AI systems can extract,
- * structure, and cite a direct answer from this site's pages (distinct from
- * GEO's broader "can an AI understand this page at all" scope, and from
- * classic search-engine SEO). Rebuilt a second time to close the remaining
- * gap against the reference mockup (direct instruction: "still missing some
- * sections"), reusing real data/components already built for this tab or
- * for GEO rather than duplicating them:
+ * structure, and cite a direct answer from this site's pages (distinct
+ * from GEO's broader "can an AI understand this page at all" scope, and
+ * from classic search-engine SEO). Reuses real data/components already
+ * built for GEO/this tab rather than duplicating them:
  *
- * 1. Two real info banners (static, honest explanatory copy).
- * 2. "AEO Score" (AeoScoreSummaryCard.tsx) - one real card built to match a
- *    second reference mockup exactly (direct instruction: "design this
- *    exact same card... with dynamic data"). Sits grid 6/6 beside "AEO
- *    Checks at a Glance" (item 4 below) - on the right, "AEO Checks at a
- *    Glance" on the left, per direct instruction ("i want this order in
- *    aeo tab"), swapped from this row's own original left/right placement.
- *    The card itself: the score gauge (Pro-gated
- *    bucket average) + a real "Goal: 70+" nudge (same cutoff `getRating()`/
- *    `ratingClass()` below already use for "Good") on the left, 4 real
- *    stat rows on the right - "Out of 100"/"Current AEO Score" restates
- *    the same gauge number as its own row (intentional, matching the
- *    mockup exactly, not an accidental duplicate the way earlier passes on
- *    this tab flagged and removed real ones), "Questions Answered" and
- *    "Pages Ready" (both real, see useAeoPageAnalysis.ts's own docblock
- *    for where their numbers come from - these used to be 2 separate
- *    standalone tiles beside the score card, now folded into this card's
- *    own row list), and "Content Change" - the real first-vs-latest score
- *    delta over the last 30 days, via geoTrendChange.ts's own
- *    `computeTrendChange()` (extracted from the old GeoTrendCompactCard.tsx
- *    component so this card could reuse the exact same real number
- *    without a sparkline chart, which this mockup doesn't show - "not
- *    enough history
- *    yet" renders an em dash there rather than a fabricated number).
- *    `VisibilitySnapshotBuilder` had been writing a real per-day
- *    `ai_scores`/`sub_scores` breakdown into `vulopilot_geo_visibility_history`
- *    since day one (GeoVisibilityHistoryRepository::upsert_today()'s own
- *    `longtext` columns); `Rest.php::get_visibility_history()` just never
- *    read those two columns back out, so every consumer only ever saw the
- *    one combined `overall_score`. Decoding and returning them there
- *    closed that gap for real, so "Content Change" trends the same
+ * 1. Two static info banners.
+ * 2. "AEO Score" (AeoScoreSummaryCard.tsx): score gauge (Pro-gated bucket
+ *    average) + a "Goal: 70+" nudge, plus stat rows for Questions
+ *    Answered/Pages Ready (useAeoPageAnalysis.ts) and Content Change (the
+ *    first-vs-latest score delta over 30 days, via geoTrendChange.ts's
+ *    `computeTrendChange()`, trending the same
  *    answer_first_structure/question_coverage/citation_readiness average
- *    the gauge already uses, per historical day. A 4th stat tile, "Open
- *    Issues", briefly sat in this row too, before this redesign - removed
- *    (direct instruction: "remove the duplicate content") since it was the
- *    exact same open-findings total already shown two other ways on this
- *    same tab: summed across "AEO Checks at a Glance"'s 6 topic tiles
- *    below, and again as the issues table's own "All Issues" summary card
- *    (IssuesSection.tsx, left untouched - direct instruction: "table
- *    intact no change").
- * 3. "Top Pages by Answer Readiness" (TopPagesCard.tsx, genericized so it
- *    could be scoped to AEO's own scanner ids instead of GEO's
- *    `category=geo` default) sat here, full width on its own - removed per
- *    direct instruction (same "Pages & Posts" score it duplicated is
- *    already sortable now, see IssuesSection.tsx's own `pageAnalysis`
- *    table below). "What Needs Your Attention" (GeoFixTheseFirstCard.tsx)
- *    used to sit alongside it here too - removed from this tab per direct
- *    instruction (GeoTab.tsx's own "Fix These First" usage of that same
- *    component was removed earlier this session too). Both components are
- *    still real, just not currently rendered by either GEO or AEO.
- * 4. "AEO Checks at a Glance" (GeoByTopicGrid.tsx, reused) - not currently
- *    rendered on this tab (same standing state item 3 documents for its
- *    own two cards); the component itself is unchanged and still real -
- *    6 real topics (AEO_SECTIONS) instead of the 5 GeoTab.tsx's own usage
- *    shows. Its unused import was removed from here rather than kept
- *    around for a component that isn't rendered.
- * 5. "Need Help Improving?" briefly existed here (3 shortcuts: Ask AI
- *    Copilot, Fix Automatically, Learn More) - removed per direct
- *    instruction. Its own `scrollToId('aeo-top-banner')` target
- *    (`<div id="aeo-top-banner">` wrapping the "In plain English" banner
- *    at the top of this tab) had no other caller once this section was
- *    gone, so that wrapper div/id was removed too rather than left as
- *    dead scroll-target infrastructure.
- * 6. "Answerability Signals" - briefly existed as its own real card (the
- *    same 3 scores the "AEO Score" ring averages together -
- *    `answer_first_structure`/`question_coverage`/`citation_readiness` -
- *    broken out individually), then removed (direct instruction: "remove
- *    the duplicate content") once it was live: it was the exact same 3
- *    numbers as the AEO Score ring above, just re-shown unaveraged one
- *    section down, and its own tile labels ("Direct Answer Structure",
- *    "Question Coverage", "Citation Readiness") collided confusingly with
- *    "AEO Checks at a Glance"'s differently-sourced topic tiles ("Direct
- *    Answers", "Questions & Answers", "Evidence & Sources" - real
- *    finding counts, not AI-judged scores). The AEO Score ring is the one
- *    place those 3 dimensions are shown now. "Answer Engine Coverage"
- *    (AeoCitationCoverageCard.tsx) and "Engine Testing"
- *    (AeoEngineTestingCard.tsx, NEW) are real and functional now - both
- *    real outbound calls to this site's own configured AI service
- *    (`GeoInsights\CitationCoverageChecker`, reusing Free's own
- *    `ai_request_sender` - the exact safety-validated call path
- *    GeoAnalysis\GeoAnalyzer already uses for GEO Score), asking it a real
- *    question drawn from the site's own content without ever naming the
- *    site, then checking whether the model's own real answer already
- *    recognizes it. Genuinely disclosed as "Simulated" (that badge
- *    predates this build and is still accurate): a plain chat completion
- *    has no live web search, so it can only ever recognize a site it
- *    already learned about during training - a "not recognized" result on
- *    a small or new site is an expected, true finding, not a broken
- *    check. Both gate on `isCitationCheckActive()` (same real
- *    `active_modules` check GeoTab.tsx's own `isGeoInsightsActive()`
- *    already uses for its sibling Competitor Visibility card) rather than
- *    the `hasSnapshot` a snapshot-cron run happens to have populated.
- * 7. "All AEO Issues" - `IssuesSection.tsx` (SeoTab.tsx's own real
- *    filter-pills + Site-wide Issues + Pages & Posts structure,
- *    generalized so this tab and GeoTab.tsx can reuse it too, per direct
- *    instruction), replacing the differently-shaped `SectionedFindingsTab.tsx`
- *    this used before. Its own `pageAnalysis` prop merges what used to be a
- *    separate standalone "Page-by-page answer readiness" table
- *    (GeoPageAnalysisTable.tsx, every page + a real deterministic
- *    answer-readiness % scoped to AEO's own scanner ids + Export CSV)
- *    directly into the "Pages & Posts" table here, per direct instruction
- *    ("merge the 2 sections... into the 2nd") - that component is now dead
- *    code on this tab (GeoTab.tsx merges the same way).
+ *    the gauge uses).
+ * 3. TopPagesCard.tsx/GeoFixTheseFirstCard.tsx are not rendered on this
+ *    tab (still used elsewhere) - the "Pages & Posts" table below already
+ *    covers the same ground with a sortable score.
+ * 4. "AEO Checks at a Glance" (GeoByTopicGrid.tsx) is not currently
+ *    rendered here, but its unused import stays out to avoid dead-import
+ *    lint noise; it uses AEO_SECTIONS (6 topics) vs GeoTab.tsx's 5.
+ * 5. "Answer Engine Coverage" (AeoCitationCoverageCard.tsx) and "Engine
+ *    Testing" (AeoEngineTestingCard.tsx) make real outbound calls to this
+ *    site's configured AI service (`GeoInsights\CitationCoverageChecker`,
+ *    reusing Free's `ai_request_sender`), asking a question drawn from
+ *    the site's content without naming the site, then checking whether
+ *    the model's answer already recognizes it. Labeled "Simulated"
+ *    because a plain chat completion has no live web search - a "not
+ *    recognized" result on a small/new site is an expected, true finding.
+ *    Both gate on `isCitationCheckActive()` (the same `active_modules`
+ *    check GeoTab.tsx's `isGeoInsightsActive()` uses), not on whether a
+ *    snapshot-cron run happens to have populated `hasSnapshot`.
+ * 6. "All AEO Issues" uses `IssuesSection.tsx` (filter-pills + Site-wide
+ *    Issues + Pages & Posts, shared with SeoTab.tsx/GeoTab.tsx). Its
+ *    `pageAnalysis` prop merges the page-by-page answer-readiness table
+ *    (deterministic % scoped to AEO's scanner ids + Export CSV) directly
+ *    into the "Pages & Posts" table.
  */
 const AeoTab = () => {
 	const [categoryFocus, setCategoryFocus] = useState<{
