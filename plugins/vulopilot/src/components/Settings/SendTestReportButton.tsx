@@ -98,6 +98,8 @@ const SendTestReportButton = () => {
 					wrapperClass="send-test-report-button-input"
 					position="left"
 					buttons={{
+						color: 'text-purple',
+						rightIcon: 'send',
 						text: isSending
 							? __('Sending…', 'vulopilot')
 							: __('Send Test Report', 'vulopilot'),
