@@ -115,7 +115,7 @@ class Utill {
         'anonymous_usage_data'                  => 'disabled',
         // A short, freeform phrase describing this site's writing voice,
         // sent as a `site_tone` hint on every AI request
-        // (AIProviders\Providers\VuloCloudProxyProvider). Lives in this
+        // (AI\AiRequestSender). Lives in this
         // flat option (not its own dedicated one) so General.ts's own
         // field autosaves through the same debounced InputRenderer path
         // every other General setting already uses — no separate "Save"
@@ -143,14 +143,6 @@ class Utill {
         // the surprising state" posture every other Notifications
         // checklist in this file already uses.
         'critical_alert_types'                  => array( 'security', 'availability', 'performance', 'seo', 'other' ),
-        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'/
-        // 'security_alert_channels' above — 'dashboard' off by default here
-        // (unlike those two): a critical finding already gets a real,
-        // permanent `vulopilot_scan_findings` row of its own the moment the
-        // scan persists, so a duplicate activity-log entry is more
-        // optional than it is for a here-today-gone-tomorrow score-drop or
-        // crawler-alert event.
-        'critical_alert_channels'               => array( 'email' ),
         // Read by vulopilot-pro's AiCrawlerAnalytics\CrawlerAlertMonitor —
         // comma-separated category ids to email/log about; see that
         // class's own docblock.
@@ -164,9 +156,6 @@ class Utill {
         // the three panels below still defaults its own `enable` to off,
         // so this alone changes no existing install's actual email volume.
         'email_on_visibility_alerts'            => array( 'email_on_visibility_alerts' ),
-        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'/
-        // 'security_alert_channels' above.
-        'visibility_alert_channels'             => array( 'email', 'dashboard' ),
         // Settings → Notifications → Visibility Alerts' own `expandable-panel`
         // field — same nested-object-keyed-by-id shape 'crawler_alerts'
         // above already uses, not three separate flat settings. Read by
@@ -216,7 +205,7 @@ class Utill {
         'automation_mode'                       => 'suggest',
         'auto_fix_max_impact'                   => 'low',
         // Settings → Automation → Approval Settings' "Ask before applying
-        // AI changes" — read by AIActions\ActionRunner::propose() itself
+        // AI changes" — read by AiCopilot\ActionRunner::propose() itself
         // (not vulopilot-pro-only), so unlike automation_mode above this
         // one is meaningfully acted on by the free plugin too: 'always'
         // (default — today's existing behavior, unchanged) always creates
@@ -247,13 +236,6 @@ class Utill {
         // on by default, same "off is the surprising state" posture
         // 'crawler_alerts' above already uses for its own per-type toggles.
         'security_alert_types'                  => array( 'vulnerabilities', 'malware', 'failed_login', 'new_user', 'file_changes', 'ssl_certificate' ),
-        // Same real 'email'/'dashboard' shape as 'crawler_alert_channels'
-        // above — 'dashboard' writes a real ActivityLogRepository entry
-        // (visible under Settings → History), 'email' goes through
-        // wp_mail(). No 'mobile' value for the same reason documented on
-        // that setting: no real push-delivery mechanism exists anywhere in
-        // this codebase yet.
-        'security_alert_channels'               => array( 'email', 'dashboard' ),
         'enable_integrity_monitoring'           => array( 'enable_integrity_monitoring' ),
         'integrity_monitoring_max_files'        => 2000,
         // ACCESSIBILITY-MODULE.md's "WCAG Scanner" — same granular
@@ -369,7 +351,7 @@ class Utill {
         // switch to fall back on above, same posture GEO's scanners
         // already use.
         'flag_orphan_pages'                     => array( 'flag_orphan_pages' ),
-        // Read by Scanners\Basic\ThinContentScanner as its minimum word
+        // Read by Seo\Scanners\ThinContentScanner as its minimum word
         // count instead of a hardcoded constant.
         'thin_content_word_threshold'           => 300,
         'flag_missing_featured_image'           => array( 'flag_missing_featured_image' ),
@@ -391,7 +373,7 @@ class Utill {
         'flag_duplicate_titles'                  => array( 'flag_duplicate_titles' ),
         // Same "moved back out to a flat key" story as the two directly
         // above, for the 'images' row's own two granular flags —
-        // Scanners\Basic\ImagesScanner/BrokenImagesScanner now read these
+        // Seo\Scanners\ImagesScanner/BrokenImagesScanner now read these
         // directly; Scanning → SEO & Content's own "Images" section
         // (SeoContent.ts) is where they live now, not Content & Search's
         // "Image checks" card (`content_search_scans.images.enable` there
@@ -463,14 +445,14 @@ class Utill {
         // scale's own published "Fairly Difficult" boundary, not an
         // arbitrary VuloPilot-specific number.
         'content_readability_min_score'         => 50,
-        // Read by Scanners\Basic\BrokenLinksScanner to self-rate-limit —
+        // Read by Seo\Scanners\BrokenLinksScanner to self-rate-limit —
         // 'daily'/'weekly', since this codebase's scan scheduling is one
         // global cadence (`scan_frequency` above), not a per-scanner cron;
         // this setting doesn't change *when* the shared scan runs, only
         // whether this specific scanner's own check actually re-runs that
         // time or skips (based on when it last genuinely ran).
         'broken_link_check_frequency'           => 'daily',
-        // Read by Scanners\Basic\BrokenImagesScanner — same real
+        // Read by Seo\Scanners\BrokenImagesScanner — same real
         // gate/frequency shape as broken_link_check_frequency directly
         // above, for `<img src>` instead of `<a href>`.
         'broken_image_check_frequency'          => 'daily',
@@ -623,7 +605,7 @@ class Utill {
         // filter; see that class's own docblock for why this isn't a
         // from-scratch robots.txt file generator.
         'robots_auto_generate'                  => array( 'robots_auto_generate' ),
-        // Read by Scanners\Basic\AiCrawlerBlockedPagesScanner
+        // Read by Seo\Scanners\AiCrawlerBlockedPagesScanner
         // (AI-CRAWLER-ANALYTICS-MODULE.md) — flags real published pages
         // robots.txt disallows for one specific known AI bot.
         'flag_ai_crawler_blocked_pages'         => array( 'flag_ai_crawler_blocked_pages' ),
@@ -632,13 +614,13 @@ class Utill {
         // so this defaults OFF; it exists as a safety net a site owner (or
         // vulopilot-pro's OneClickFix "Fix" action) can turn on when a
         // theme/caching plugin is found to be stripping it, per
-        // Scanners\Basic\CanonicalUrlScanner's own finding.
+        // Seo\Scanners\CanonicalUrlScanner's own finding.
         'canonical_url_enabled'                 => array(),
         // Read by Services\SocialMetaTagsManager — outputs Open Graph +
         // Twitter Card meta tags. Defaults OFF since many sites already
         // have another plugin/theme outputting these; exists so
         // vulopilot-pro's OneClickFix "Fix" action has something real to
-        // turn on for Scanners\Basic\OpenGraphScanner/TwitterCardScanner's
+        // turn on for Seo\Scanners\OpenGraphScanner/TwitterCardScanner's
         // findings.
         'social_meta_tags_enabled'              => array(),
         // Settings → Site Identity → Title Formats, read by
@@ -667,7 +649,7 @@ class Utill {
         // of the document title. For `post`/`page`, this is only ever a
         // FALLBACK — a real, non-empty `post_excerpt` (this codebase's
         // already-established "meta description" field, see
-        // Scanners\Basic\MetaDescriptionScanner's own docblock) always wins
+        // Seo\Scanners\MetaDescriptionScanner's own docblock) always wins
         // when one exists; these templates only render when there's no
         // excerpt to use instead.
         'description_format_home'               => '%site_description%',
@@ -715,7 +697,7 @@ class Utill {
         // new opt-in alerts, so "on" is the non-surprising default that
         // changes no existing install's findings.
         'ai_visibility_scans'                   => array(
-            // Read by Scanners\Basic\GeoSemanticStructureScanner. Its own
+            // Read by Geo\Scanners\GeoSemanticStructureScanner. Its own
             // "AI-readable structure" row on the AI Visibility settings
             // panel was removed per direct instruction — always `true` now
             // with no UI control left to turn it off, so the scanner just
@@ -745,7 +727,7 @@ class Utill {
                 'enable'       => true,
                 'stale_months' => 12,
             ),
-            // Read by Scanners\Basic\GeoSummaryBlockScanner — GEO scanning
+            // Read by Geo\Scanners\GeoSummaryBlockScanner — GEO scanning
             // has no whole-category kill switch (unlike SEO/Accessibility/
             // WooCommerce above), so `enable` is that scanner's only
             // on/off switch. `min_words` is how many words from the top of
@@ -754,7 +736,7 @@ class Utill {
                 'enable'    => true,
                 'min_words' => 200,
             ),
-            // `enable` gates Scanners\Basic\GeoCitationOpportunityScanner
+            // `enable` gates Geo\Scanners\GeoCitationOpportunityScanner
             // (its own findings-list check). `min_data_points` only ever
             // fed GeoAnalysis\GeoAnalyzer::calculate_evidence_density()'s
             // per-post "Data Point & Evidence Density" sub-score (stats/
@@ -775,7 +757,7 @@ class Utill {
         // already takes.
         'geo_competitor_urls'                   => '',
         // Scanning > Brand Intelligence. Read by
-        // Scanners\Basic\AboutPageAnalysisScanner — the minimum real word
+        // BrandIntelligence\Scanners\AboutPageAnalysisScanner — the minimum real word
         // count an existing About-shaped page needs before it counts as
         // substantive rather than a placeholder, not a claim about ideal
         // About-page length.
@@ -831,6 +813,21 @@ class Utill {
         // — defaults to weekly digest, matching the mockup's own selected
         // value, since a brand-new crawler showing up isn't as
         // time-sensitive as a block or a traffic drop.
+        // Settings → Notifications → Alerts Settings' own single shared
+        // "Notification channels" control — shown once, above all four
+        // alert sections on that tab (AI Crawler/Security/Visibility/
+        // Critical issue alerts), rather than repeating an identical
+        // multi-checkbox per section (per direct instruction; replaces the
+        // former per-section 'crawler_alert_channels'/'security_alert_channels'/
+        // 'visibility_alert_channels'/'critical_alert_channels' keys — same
+        // real values, just one setting instead of four). 'email' always
+        // goes through wp_mail(); 'dashboard' additionally writes a real
+        // ActivityLogRepository entry, visible under Settings → History —
+        // not a decorative toggle. No 'mobile' value: no real push-delivery
+        // mechanism exists anywhere in this codebase yet, so the tab just
+        // says so rather than offering a control that can never do
+        // anything.
+        'alert_channels'                         => array( 'email', 'dashboard' ),
         'crawler_alerts'                         => array(
             'blocked'        => array(
                 'enable'    => true,
@@ -852,16 +849,6 @@ class Utill {
                 'frequency' => 'weekly_digest',
             ),
         ),
-        // "Notification channels" — one multi-checkbox field, real values
-        // 'email' (always goes through wp_mail(), same as every other
-        // VuloPilot notification) and 'dashboard' (writes a real
-        // ActivityLogRepository entry, visible under Settings → History —
-        // not just an unused toggle). Mobile push has no real delivery
-        // mechanism anywhere in this codebase (no app, no push
-        // infrastructure) — deliberately not one of the real option
-        // values here; the tab mentions it's not available yet rather than
-        // offering a checkbox that can never do anything, Pro or not.
-        'crawler_alert_channels'                 => array( 'email', 'dashboard' ),
         // "Last test alert sent successfully on ..." — set by
         // Controllers\Settings::send_test_crawler_alert(), read back by
         // CrawlerAlertTestPanel.tsx on load so that line survives a page
