@@ -87,7 +87,7 @@ export default {
             noticeType: 'info',
             label: '',
             message: __(
-                'Knowledge Graph Health drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
+                'Knowledge Graph Health drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=notifications">Notifications → Visibility Alerts</a>.',
                 'vulopilot'
             ),
         },
@@ -150,7 +150,7 @@ export default {
             noticeType: 'info',
             label: '',
             message: __(
-                'Brand score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=visibility-alerts">Notifications → Visibility Alerts</a>.',
+                'Brand score drop alerts (and their threshold) are configured under <a href="?page=vulopilot#&tab=settings&subtab=notifications">Notifications → Visibility Alerts</a>.',
                 'vulopilot'
             ),
         },

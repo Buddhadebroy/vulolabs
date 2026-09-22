@@ -128,6 +128,12 @@ class Utill {
         'site_tone_source'                       => 'auto',
         // Notifications.
         'notification_email'                    => '',
+        // "Last test email sent successfully on ..." — set by
+        // Controllers\Settings::send_test_email(), read back by
+        // SendTestEmailButton.tsx on load so that line survives a page
+        // refresh instead of only showing right after a click. Same real
+        // shape 'report_last_test_sent' below already establishes.
+        'email_last_test_sent'                  => '',
         'notify_on_critical_findings'           => array(),
         // Settings → Notifications → Website Alerts' own "Notify me about"
         // checklist — which category of critical finding
