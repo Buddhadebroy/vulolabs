@@ -1,6 +1,6 @@
 export default {
-	// Current top-level order: Get Started 1, Site Identity 2, Scanning 3,
-	// Automation 4, Reports 5, Notifications 6, Developer Tools 7, Modules 8
-	// — shifted down by one to make room for the new Site Identity folder.
+	// Current top-level order: Business Information 1, SEO 2, Scanning 3,
+	// Automation 4, Reports 5, Notifications 6, Integrations 7, Backups 8,
+	// Developer Tools 9, Modules 10 — unchanged position, priority 3.
 	priority: 3,
 };

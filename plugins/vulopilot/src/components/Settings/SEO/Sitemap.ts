@@ -2,14 +2,17 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Get Started → Sitemap.
+ * Settings → SEO → Sitemap.
  *
- * Moved out of Scanning → SEO & Content (SeoContent.ts's own former
- * "XML Sitemap"/"Post types & taxonomies in sitemap"/"HTML Sitemap"
- * sections, all 3 removed there) per direct instruction, into its own new
- * sub-tab here — same real `sitemap_*`/`html_sitemap_*` keys, unchanged
- * backend (Controllers\RobotsSitemap/Services\SitemapGenerator/
- * Services\HtmlSitemapRenderer), only where the UI for it lives moved.
+ * Originally moved out of Scanning → SEO & Content (SeoContent.ts's own
+ * former "XML Sitemap"/"Post types & taxonomies in sitemap"/"HTML Sitemap"
+ * sections, all 3 removed there) into its own sub-tab, then moved again
+ * from the old "Get Started"/Business Visibility folder into the new
+ * top-level "SEO" group folder alongside SEO Titles and Instant Indexing
+ * — same real `sitemap_*`/`html_sitemap_*` keys and same `id: 'sitemap'`
+ * throughout, unchanged backend (Controllers\RobotsSitemap/
+ * Services\SitemapGenerator/Services\HtmlSitemapRenderer), only where the
+ * UI for it lives moved.
  *
  * A plain declarative `modal` (InputRenderer), same shape
  * `BusinessInformation.ts` uses now — no hand-built `PanelComponent`
@@ -29,7 +32,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'sitemap',
-	priority: 3,
+	priority: 2,
 	headerTitle: __('Sitemap', 'vulopilot'),
 	headerDescription: __(
 		'Configure your XML sitemap (for search engines) and HTML sitemap (for visitors).',

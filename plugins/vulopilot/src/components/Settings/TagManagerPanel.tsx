@@ -4,8 +4,8 @@ import { __ } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { FormGroupWrapperComponent, NoticeManager } from '@zyra/components';
 import { TextInput } from '@zyra/inputs';
-import { useSetting } from '../../../contexts/SettingContext';
-import CardHeader from '../../CardHeader';
+import { useSetting } from '../../contexts/SettingContext';
+import CardHeader from '../CardHeader';
 
 /** "Stop typing, then save" debounce — same shape SiteVerificationPanel.tsx's own `PlainCodeField`/`CustomTagsField` already use for a hand-built (non-InputRenderer) panel's plain text field. */
 const AUTOSAVE_DEBOUNCE_MS = 1000;

@@ -8,14 +8,14 @@ import {
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput, ToggleInput, SelectInput } from '@zyra/inputs';
-import CardHeader from '../../CardHeader';
-import ShowProPopup from '../../Popup/Popup';
-import { useSetting } from '../../../contexts/SettingContext';
-import { formatWpDate } from '../../../services/formatWpDate';
+import CardHeader from '../CardHeader';
+import ShowProPopup from '../Popup/Popup';
+import { useSetting } from '../../contexts/SettingContext';
+import { formatWpDate } from '../../services/formatWpDate';
 import {
 	useGoogleServicesConnection,
 	GoogleServicesStatus,
-} from '../../../services/useGoogleServicesConnection';
+} from '../../services/useGoogleServicesConnection';
 
 interface GscSite {
 	site_url: string;

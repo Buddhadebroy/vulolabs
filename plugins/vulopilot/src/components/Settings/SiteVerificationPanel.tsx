@@ -4,9 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, sendApiResponse } from '@zyra/core';
 import { ButtonInput, TextInput, TextAreaInput } from '@zyra/inputs';
 import { NoticeComponent, NoticeManager, FormGroupWrapperComponent, FormGroupComponent } from '@zyra/components';
-import CardHeader from '../../CardHeader';
-import { useSetting } from '../../../contexts/SettingContext';
-import { formatWpDate } from '../../../services/formatWpDate';
+import CardHeader from '../CardHeader';
+import { useSetting } from '../../contexts/SettingContext';
+import { formatWpDate } from '../../services/formatWpDate';
 
 interface VerifyResult {
 	success: boolean;

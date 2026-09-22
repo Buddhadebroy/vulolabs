@@ -159,10 +159,13 @@ const CRAWLER_ALERT_ROWS: CrawlerAlertRow[] = [
  * instead becomes a `type: 'file'` node with none, the same shape
  * `Automation.ts`/`Reports.ts`/`DeveloperTools.ts`/`Modules.ts` already use
  * for a single-page top-level tab). `Notifications/FolderPriority.ts`
- * (the folder's own top-level ordering — `priority: 6`, "Get Started 1,
- * Site Identity 2, Scanning 3, Automation 4, Reports 5, Notifications 6,
- * Developer Tools 7, Modules 8") is gone too; that same `priority: 6` is
- * set directly on this file below so the top-level tab order doesn't shift.
+ * (the folder's own top-level ordering — `priority: 6`, then "Get Started
+ * 1, Site Identity 2, Scanning 3, Automation 4, Reports 5, Notifications 6,
+ * Developer Tools 7, Modules 8", since restructured to "Business
+ * Information 1, SEO 2, Scanning 3, Automation 4, Reports 5, Notifications
+ * 6, Integrations 7, Backups 8, Developer Tools 9, Modules 10") is gone
+ * too; that same `priority: 6` is set directly on this file below so this
+ * tab's own position in the top-level order doesn't shift.
  *
  * Real backend, unchanged either way — only where the UI for it lives
  * changed:

@@ -98,7 +98,7 @@ const VisibilityBySourceCard = () => {
 						'vulopilot'
 					)}
 					buttonText={__('Go to Connections', 'vulopilot')}
-					buttonLink="?page=vulopilot#&tab=settings&subtab=connections"
+					buttonLink="?page=vulopilot#&tab=settings&subtab=integrations"
 				/>
 			)}
 			{!isLoading && data?.connected && 0 === data.sources.length && (

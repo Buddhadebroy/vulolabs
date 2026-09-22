@@ -1,17 +1,19 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Get Started → Instant Indexing (IndexNow). Moved here from
- * Scanning per direct instruction ("shift this two tabs in get started
- * section after sitemap") — same real `id: 'indexnow'`, so the existing
- * `?...&subtab=indexnow` deep link still resolves (`getSettingById()`
- * recurses by id alone, with no concept of which folder a tab lives in).
- * `IndexNowPanel.tsx` moved alongside this file into `GetStarted/` too.
+ * Settings → SEO → Instant Indexing (IndexNow). Originally moved here from
+ * Scanning, then moved again from the old "Get Started"/Business
+ * Visibility folder into the new top-level "SEO" group folder alongside
+ * Sitemap and SEO Titles — same real `id: 'indexnow'` throughout, so the
+ * existing `?...&subtab=indexnow` deep link still resolves
+ * (`getSettingById()` recurses by id alone, with no concept of which
+ * folder a tab lives in). `IndexNowPanel.tsx` moved alongside this file
+ * into `SEO/` too.
  *
  * Only `id`/`priority`/`headerTitle`/`headerIcon` are actually used for
  * navigation — Settings.tsx's GetForm() special-cases `currentTab ===
  * 'indexnow'` to render IndexNowPanel.tsx instead of InputRenderer (same
- * escape hatch 'connections'/'import-export' already use), since this
+ * escape hatch 'integrations'/'import-export' already use), since this
  * tab's "Submit URLs" and "History" cards are real actions/logs, not
  * persisted settings fields.
  *
@@ -25,7 +27,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'indexnow',
-	priority: 4,
+	priority: 3,
 	headerTitle: __('Instant Indexing', 'vulopilot'),
 	headerDescription: __(
 		'Submit new and updated URLs to search engines the moment they\'re published.',

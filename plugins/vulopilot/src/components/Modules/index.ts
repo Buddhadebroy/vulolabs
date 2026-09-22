@@ -482,9 +482,9 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              */
             id: 'ai-copilot',
             icon: 'ai',
-            // 'ai-providers' tab merged into 'connections' per direct
-            // instruction — see GetStarted/Connections.ts's own docblock.
-            settingsLink: '?page=vulopilot#&tab=settings&subtab=connections',
+            // 'ai-providers' tab merged into 'integrations' per direct
+            // instruction — see Settings/Integrations.ts's own docblock.
+            settingsLink: '?page=vulopilot#&tab=settings&subtab=integrations',
             name: __('AI Copilot', 'vulopilot'),
             desc: __('Explainable AI recommendations for any finding across every module.', 'vulopilot'),
             proModule: false,

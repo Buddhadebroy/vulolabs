@@ -66,7 +66,7 @@ const SectionRow = ({
  * wrapping it in a 2nd `SectionRow` would duplicate that title/description
  * a 2nd time.
  *
- * `Connections.ts`'s own `modal` array now also lists `psi_api_key`/
+ * `Integrations.ts`'s own `modal` array now also lists `psi_api_key`/
  * `psi_daily_limit` alongside every other real flat key every section
  * below reads/writes (Google Services' 4 tracking toggles, Site
  * Verification's 10 webmaster keys) — purely so Settings.tsx's own
@@ -75,7 +75,7 @@ const SectionRow = ({
  * mount and read them via `useSetting()` — same role every other
  * `PanelComponent` tab's own `modal` array already plays.
  */
-const ConnectionsPanel = () => {
+const IntegrationsPanel = () => {
 	return (
 		<>
 			<SectionRow
@@ -132,4 +132,4 @@ const ConnectionsPanel = () => {
 	);
 };
 
-export default ConnectionsPanel;
+export default IntegrationsPanel;
