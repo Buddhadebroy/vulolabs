@@ -82,7 +82,7 @@ const AREA_TILES: Record<
 	brand: { title: __('Brand Visibility Score', 'vulopilot'), icon: 'person' },
 	seo: { title: __('SEO Health Score', 'vulopilot'), icon: 'search' },
 	geo: { title: __('GEO Visibility Score', 'vulopilot'), icon: 'search-discovery' },
-	crawl: { title: __('Crawl & URLs Score', 'vulopilot'), icon: 'link' },
+	crawl: { title: __('Crawl & URLs Score', 'vulopilot'), icon: 'url' },
 };
 
 type PeriodDays = '7' | '30' | '90';
@@ -197,7 +197,7 @@ const QUICK_LINKS: { tab: string; icon: string; title: string; desc: string }[] 
 	},
 	{
 		tab: 'crawl-urls',
-		icon: 'link teal',
+		icon: 'url teal',
 		title: __('Crawl & URLs', 'vulopilot'),
 		desc: __('robots.txt, sitemaps, redirects & more.', 'vulopilot'),
 	},

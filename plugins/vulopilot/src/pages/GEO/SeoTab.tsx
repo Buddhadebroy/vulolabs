@@ -32,8 +32,8 @@ const CATEGORY_CARDS: {
 }[] = [
 		{ key: 'titles-meta', title: __('Titles & Meta', 'vulopilot'), icon: 'search blue', color: 'purple' },
 		{ key: 'content-structure', title: __('Content Structure', 'vulopilot'), icon: 'editor-list red', color: 'blue' },
-		{ key: 'images', title: __('Images', 'vulopilot'), icon: 'attachment pink', color: 'green' },
-		{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'search lime', color: 'indigo' },
+		{ key: 'images', title: __('Images', 'vulopilot'), icon: 'image pink', color: 'green' },
+		{ key: 'internal-linking', title: __('Internal Linking', 'vulopilot'), icon: 'link lime', color: 'indigo' },
 		{ key: 'indexability-canonicals', title: __('Indexability & Canonicals', 'vulopilot'), icon: 'search-discovery cyan', color: 'teal' },
 		{ key: 'structured-data', title: __('Structured Data', 'vulopilot'), icon: 'blocks teal', color: 'orange' },
 	];

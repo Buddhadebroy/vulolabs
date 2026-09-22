@@ -170,7 +170,7 @@ const CrawlOverviewSection = () => {
 					<div id="recent-crawl-requests">
 						<CardComponent
 							title={__('Recent Crawl Requests', 'vulopilot')}
-							titleIcon="search-discovery"
+							titleIcon="request-send"
 							desc={__('Every real crawler visit to your site, searchable and filterable.', 'vulopilot')}
 						>
 							<TableCard

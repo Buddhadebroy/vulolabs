@@ -63,7 +63,7 @@ const TAB_META: Record<
 	geo: { headerTitle: __('GEO', 'vulopilot'), headerIcon: 'search-discovery' },
 	aeo: { headerTitle: __('AEO', 'vulopilot'), headerIcon: 'ai' },
 	keywords: { headerTitle: __('Keywords', 'vulopilot'), headerIcon: 'vpn-key' },
-	'crawl-urls': { headerTitle: __('Crawl & URLs', 'vulopilot'), headerIcon: 'link' },
+	'crawl-urls': { headerTitle: __('Crawl & URLs', 'vulopilot'), headerIcon: 'url' },
 	'schema-knowledge': {
 		headerTitle: __('Business Identity & Schema', 'vulopilot'),
 		headerIcon: 'identity-verification',

@@ -307,7 +307,7 @@ export default {
 		{
 			key: 'seo-section-robots',
 			type: 'section',
-			icon: 'search-discovery',
+			icon: 'txt',
 			title: __('Robots.txt', 'vulopilot'),
 			desc: __(
 				'Manage sitemap discovery and identify crawler restrictions that may prevent search engines and AI bots from accessing your content.',

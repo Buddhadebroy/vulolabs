@@ -95,7 +95,7 @@ const MOCKUP_WIDGETS: WidgetDefinition[] = [
 		id: 'recent-activity',
 		title: __('Recent activity', 'vulopilot'),
 		desc: __('A real feed of meaningful site events - scans, fixes, and changes.', 'vulopilot'),
-		icon: 'clock',
+		icon: 'recent',
 		grid: 12,
 		component: RecentActivityWidget,
 	},

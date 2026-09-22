@@ -191,7 +191,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
         },
         {
             id: 'knowledge-graph',
-            icon: 'intelligence',
+            icon: 'knowledge-graph',
             // Points at Business Information, not AI Visibility - the
             // Business/Services/Locations fields that actually feed this
             // module's own entity extraction moved there per direct
@@ -392,7 +392,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * Performance services, not a module).
              */
             id: 'performance-monitoring',
-            icon: 'progress',
+            icon: 'speed',
             // No real Settings tab exists for this one (see this card's own
             // docblock above - core, always-on Performance services, not a
             // module) - points at the real standalone Performance menu
@@ -422,7 +422,7 @@ const MODULES_CATALOG: { category: boolean; tab: string; modules: ModuleCatalogI
              * ('accessibility-scanner') matches no real module.
              */
             id: 'accessibility-checks',
-            icon: 'eye',
+            icon: 'accessibility',
             settingsLink: '?page=vulopilot#&tab=settings&subtab=accessibility',
             name: __('Accessibility Checks', 'vulopilot'),
             desc: __('WCAG checks - alt text, headings, ARIA, and form labels.', 'vulopilot'),
