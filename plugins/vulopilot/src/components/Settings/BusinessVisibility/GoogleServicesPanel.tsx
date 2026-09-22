@@ -396,7 +396,7 @@ const GoogleServicesPanel = () => {
 								buttons={ {
 									text: __( 'Connect Google Services', 'vulopilot' ),
 									icon: 'link',
-									disabled: true,
+									color: 'text-purple',
 									onClick: () => {},
 								} }
 							/>

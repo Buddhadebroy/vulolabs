@@ -103,19 +103,26 @@ const PLAIN_CODE_FIELDS: PlainCodeFieldConfig[] = [
 	},
 ];
 
-/** One `ProviderRow`-shaped row for a plain (no-Verify) code field — its own local `value`/debounce timer, same "type, then save 1s later" autosave every field in this panel shares, plus a real immediate "Save" button for the same explicit-action affordance `ProviderRow`'s own "Verify" button gives. */
+/** One `ProviderRow`-shaped row for a plain (no-Verify) code field — its own local `value`/debounce timer, same "type, then save 1s later" autosave every field in this panel shares. No explicit "Save" button — the debounce below is the only save path, per direct instruction. */
 const PlainCodeField = ({ field }: { field: PlainCodeFieldConfig }) => {
 	const { setting, updateSetting } = useSetting();
 	const [value, setValue] = useState<string>(
 		(setting[field.key] as string | undefined) ?? ''
 	);
-	const [isSaving, setIsSaving] = useState(false);
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const persist = (nextValue: string) => {
 		updateSetting(field.key, nextValue);
-		return sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		return sendApiResponse<{ message: string }>(appLocalizer, getApiLink(appLocalizer, 'settings'), {
 			setting: { [field.key]: nextValue },
+		}).then((response) => {
+			NoticeManager.add({
+				message: response
+					? __('Saved.', 'vulopilot')
+					: __('Could not save. Please try again.', 'vulopilot'),
+				type: response ? 'success' : 'error',
+				position: 'float',
+			});
 		});
 	};
 
@@ -124,24 +131,6 @@ const PlainCodeField = ({ field }: { field: PlainCodeFieldConfig }) => {
 			clearTimeout(saveTimerRef.current);
 		}
 		saveTimerRef.current = setTimeout(() => persist(nextValue), AUTOSAVE_DEBOUNCE_MS);
-	};
-
-	const handleSaveClick = () => {
-		if (saveTimerRef.current) {
-			clearTimeout(saveTimerRef.current);
-		}
-		setIsSaving(true);
-		persist(value)
-			.then((response) => {
-				NoticeManager.add({
-					message: response
-						? __('Saved.', 'vulopilot')
-						: __('Could not save. Please try again.', 'vulopilot'),
-					type: response ? 'success' : 'error',
-					position: 'float',
-				});
-			})
-			.finally(() => setIsSaving(false));
 	};
 
 	const isAdded = '' !== value.trim();
@@ -156,17 +145,6 @@ const PlainCodeField = ({ field }: { field: PlainCodeFieldConfig }) => {
 				<span className={`admin-badge ${isAdded ? 'green' : 'red'}`}>
 					{isAdded ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
 				</span>
-			}
-			action={
-				<ButtonInput
-					buttons={{
-						text: isSaving ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
-						color: 'purple-bg',
-						icon: 'setting',
-						disabled: isSaving,
-						onClick: handleSaveClick,
-					}}
-				/>
 			}
 		>
 			<div className="ai-provider-card-body gsc-service-body">
@@ -200,13 +178,20 @@ const CustomTagsField = () => {
 	const [value, setValue] = useState<string>(
 		(setting.webmaster_custom_tags as string | undefined) ?? ''
 	);
-	const [isSaving, setIsSaving] = useState(false);
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const persist = (nextValue: string) => {
 		updateSetting('webmaster_custom_tags', nextValue);
-		return sendApiResponse(appLocalizer, getApiLink(appLocalizer, 'settings'), {
+		return sendApiResponse<{ message: string }>(appLocalizer, getApiLink(appLocalizer, 'settings'), {
 			setting: { webmaster_custom_tags: nextValue },
+		}).then((response) => {
+			NoticeManager.add({
+				message: response
+					? __('Saved.', 'vulopilot')
+					: __('Could not save. Please try again.', 'vulopilot'),
+				type: response ? 'success' : 'error',
+				position: 'float',
+			});
 		});
 	};
 
@@ -215,24 +200,6 @@ const CustomTagsField = () => {
 			clearTimeout(saveTimerRef.current);
 		}
 		saveTimerRef.current = setTimeout(() => persist(nextValue), AUTOSAVE_DEBOUNCE_MS);
-	};
-
-	const handleSaveClick = () => {
-		if (saveTimerRef.current) {
-			clearTimeout(saveTimerRef.current);
-		}
-		setIsSaving(true);
-		persist(value)
-			.then((response) => {
-				NoticeManager.add({
-					message: response
-						? __('Saved.', 'vulopilot')
-						: __('Could not save. Please try again.', 'vulopilot'),
-					type: response ? 'success' : 'error',
-					position: 'float',
-				});
-			})
-			.finally(() => setIsSaving(false));
 	};
 
 	const isAdded = '' !== value.trim();
@@ -250,17 +217,6 @@ const CustomTagsField = () => {
 				<span className={`admin-badge ${isAdded ? 'green' : 'red'}`}>
 					{isAdded ? __('Added', 'vulopilot') : __('Not Added', 'vulopilot')}
 				</span>
-			}
-			action={
-				<ButtonInput
-					buttons={{
-						text: isSaving ? __('Saving…', 'vulopilot') : __('Save', 'vulopilot'),
-						color: 'purple-bg',
-						icon: 'setting',
-						disabled: isSaving,
-						onClick: handleSaveClick,
-					}}
-				/>
 			}
 		>
 			<div className="ai-provider-card-body gsc-service-body">
@@ -356,11 +312,11 @@ const ProviderRow = ({ provider, icon, title, desc }: ProviderRowConfig) => {
 										title
 									),
 							color: isVerifying
-								? 'purple-bg'
+								? 'text-purple'
 								: isVerified
-									? 'border-purple'
-									: 'purple-bg',
-							icon: isVerifying
+									? 'text-purple'
+									: 'text-purple',
+							rightIcon: isVerifying
 								? 'setting'
 								: isVerified
 									? 'spmv'

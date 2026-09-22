@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
-import { CardComponent, FormGroupComponent, FormGroupWrapperComponent } from '@zyra/components';
+import { CardComponent, FormGroupComponent, FormGroupWrapperComponent, ColumnComponent } from '@zyra/components';
 import { ButtonInput, MultiCheckboxInput, SelectInput } from '@zyra/inputs';
 import { formatWpDate, formatWpTime, isWpToday } from '../../services/formatWpDate';
 import type { AutomationRow } from './automationsTypes';
@@ -114,6 +114,10 @@ interface BuiltinAutomationCardProps {
 	description: string;
 	frequencyOptions: { label: string; value: string }[];
 	onChanged: () => void;
+	/** Real DOM id `Automations.tsx`'s own deep-link scroll target looks up (`builtin-automation-${templateId}`) — set directly on this card's own `CardComponent` instead of a wrapping `<div>`. */
+	id: string;
+	/** Briefly true while this card is the deep-linked/highlighted one — added onto `CardComponent`'s own `className` instead of a wrapping `<div>`. */
+	isHighlighted: boolean;
 }
 
 const BuiltinAutomationCard = ({
@@ -123,6 +127,8 @@ const BuiltinAutomationCard = ({
 	description,
 	frequencyOptions,
 	onChanged,
+	id,
+	isHighlighted,
 }: BuiltinAutomationCardProps) => {
 	const [isRunning, setIsRunning] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
@@ -186,7 +192,8 @@ const BuiltinAutomationCard = ({
 
 	return (
 		<CardComponent
-			className="builtin-automation-card"
+			id={id}
+			className={`builtin-automation-card${isHighlighted ? ' builtin-automation-card-highlighted' : ''}`}
 			title={
 				<>
 					{title}
@@ -276,7 +283,7 @@ const BuiltinAutomationCard = ({
 			</FormGroupWrapperComponent>
 
 			<ButtonInput
-				possition= 'left'
+				possition='left'
 				buttons={[
 					{
 						text: primaryText,
@@ -392,17 +399,14 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 	};
 
 	return (
-		<div className="builtin-automation-cards">
-			{scanRow && (
-				<div
-					id={`builtin-automation-${TRIGGER_TYPE_TO_TEMPLATE_ID[FULL_SITE_SCAN_TRIGGER]}`}
-					className={
-						flashedTemplateId === TRIGGER_TYPE_TO_TEMPLATE_ID[FULL_SITE_SCAN_TRIGGER]
-							? 'builtin-automation-card-highlighted'
-							: undefined
-					}
-				>
+		<>
+			<ColumnComponent grid={6} fullHeight>
+				{scanRow && (
 					<BuiltinAutomationCard
+						id={`builtin-automation-${TRIGGER_TYPE_TO_TEMPLATE_ID[FULL_SITE_SCAN_TRIGGER]}`}
+						isHighlighted={
+							flashedTemplateId === TRIGGER_TYPE_TO_TEMPLATE_ID[FULL_SITE_SCAN_TRIGGER]
+						}
 						row={scanRow}
 						kind="scan"
 						title={__('Automatic website scan', 'vulopilot')}
@@ -418,18 +422,15 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 						]}
 						onChanged={handleChanged}
 					/>
-				</div>
-			)}
-			{reportRow && (
-				<div
-					id={`builtin-automation-${TRIGGER_TYPE_TO_TEMPLATE_ID[VISIBILITY_REPORT_TRIGGER]}`}
-					className={
-						flashedTemplateId === TRIGGER_TYPE_TO_TEMPLATE_ID[VISIBILITY_REPORT_TRIGGER]
-							? 'builtin-automation-card-highlighted'
-							: undefined
-					}
-				>
+				)}
+			</ColumnComponent>
+			<ColumnComponent grid={6} fullHeight>
+				{reportRow && (
 					<BuiltinAutomationCard
+						id={`builtin-automation-${TRIGGER_TYPE_TO_TEMPLATE_ID[VISIBILITY_REPORT_TRIGGER]}`}
+						isHighlighted={
+							flashedTemplateId === TRIGGER_TYPE_TO_TEMPLATE_ID[VISIBILITY_REPORT_TRIGGER]
+						}
 						row={reportRow}
 						kind="report"
 						title={__('Email visibility report', 'vulopilot')}
@@ -443,9 +444,9 @@ const BuiltinAutomationCards = ({ refetchSignal, onChanged, highlightTemplateId 
 						]}
 						onChanged={handleChanged}
 					/>
-				</div>
-			)}
-		</div>
+				)}
+			</ColumnComponent>
+		</>
 	);
 };
 

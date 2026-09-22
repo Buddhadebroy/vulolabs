@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-21T14:37:45+00:00\n"
+"POT-Creation-Date: 2026-09-22T06:49:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vulopilot\n"
@@ -56,16 +56,16 @@ msgstr ""
 
 #: classes/Admin.php:118
 #: classes/RestAPI/Controllers/ReportsOverview.php:292
-#: classes/RestAPI/Controllers/Seo.php:768
+#: modules/Seo/Rest/Seo.php:768
 #: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Content"
 msgstr ""
 
 #: classes/Admin.php:123
-#: classes/RestAPI/Controllers/Copilot.php:826
 #: classes/RestAPI/Controllers/ReportsOverview.php:269
 #: classes/Scanners/Basic/PerformanceScanner.php:46
+#: modules/AiCopilot/Rest/Copilot.php:719
 #: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Performance"
@@ -80,17 +80,17 @@ msgstr ""
 
 #: classes/Admin.php:137
 #: classes/Admin.php:299
-#: classes/RestAPI/Controllers/Copilot.php:828
 #: classes/RestAPI/Controllers/ReportsOverview.php:284
 #: classes/Scanners/Basic/AccessibilityScanner.php:56
+#: modules/AiCopilot/Rest/Copilot.php:721
 #: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Accessibility"
 msgstr ""
 
 #: classes/Admin.php:144
-#: classes/RestAPI/Controllers/Copilot.php:827
 #: classes/RestAPI/Controllers/ReportsOverview.php:276
+#: modules/AiCopilot/Rest/Copilot.php:720
 #: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Security"
@@ -142,9 +142,9 @@ msgid "Knowledge Graph"
 msgstr ""
 
 #: classes/Admin.php:276
-#: classes/RestAPI/Controllers/Copilot.php:825
 #: classes/RestAPI/Controllers/ReportsOverview.php:253
-#: classes/Scanners/Basic/SeoScanner.php:47
+#: modules/AiCopilot/Rest/Copilot.php:718
+#: modules/Seo/Scanners/SeoScanner.php:49
 #: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "SEO"
@@ -155,7 +155,7 @@ msgid "AI Content"
 msgstr ""
 
 #: classes/Admin.php:287
-#: classes/Scanners/Basic/SchemaScanner.php:40
+#: modules/Seo/Scanners/SchemaScanner.php:41
 #: assets/js/post-editor.js:1
 msgid "Schema"
 msgstr ""
@@ -199,596 +199,24 @@ msgstr ""
 msgid "Tools"
 msgstr ""
 
-#: classes/AIActions/ActionRunner.php:210
-msgid "No AI provider is configured. Add one in your VuloCloud account, or ask your agency to."
+#: classes/AI/AiRequestSender.php:108
+msgid "No AI connection is configured."
 msgstr ""
 
-#: classes/AIActions/ActionRunner.php:225
-msgid "You’ve used all your AI Credits."
-msgstr ""
-
-#: classes/AIActions/ActionRunner.php:413
-msgid "This action run cannot be rolled back."
-msgstr ""
-
-#: classes/AIActions/ActionRunner.php:457
-msgid "This action run is not awaiting approval."
-msgstr ""
-
-#: classes/AIActions/Actions/AddSubheadingsAction.php:63
-msgid "Add subheadings"
-msgstr ""
-
-#: classes/AIActions/Actions/AddSubheadingsAction.php:74
-#: classes/AIActions/Actions/AuditContentAction.php:76
-#: classes/AIActions/Actions/FixHeadingHierarchyAction.php:63
-#: classes/AIActions/Actions/GenerateAuthorBioAction.php:67
-#: classes/AIActions/Actions/GenerateExcerptAction.php:75
-#: classes/AIActions/Actions/GenerateFaqAction.php:62
-#: classes/AIActions/Actions/GenerateSummaryBlockAction.php:60
-#: classes/AIActions/Actions/ImproveReadabilityAction.php:64
-#: classes/AIActions/Actions/NormalizeEntityNamingAction.php:62
-#: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:68
-#: classes/AIActions/Actions/SplitLongParagraphsAction.php:63
-#: classes/AIActions/Actions/WritePostContentAction.php:72
-msgid "post_id must refer to an existing post or page."
-msgstr ""
-
-#: classes/AIActions/Actions/AddSubheadingsAction.php:78
-msgid "This post already has subheadings — there is nothing to fix."
-msgstr ""
-
-#: classes/AIActions/Actions/AddSubheadingsAction.php:122
-#: classes/AIActions/Actions/FixHeadingHierarchyAction.php:111
-#: classes/AIActions/Actions/ImproveReadabilityAction.php:109
-#: classes/AIActions/Actions/NormalizeEntityNamingAction.php:114
-#: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:117
-#: classes/AIActions/Actions/SplitLongParagraphsAction.php:111
-msgid "The AI returned empty content."
-msgstr ""
-
-#: classes/AIActions/Actions/AddSubheadingsAction.php:130
-msgid "The AI returned content that looks truncated rather than the original text with headings added — rejected for safety."
-msgstr ""
-
-#: classes/AIActions/Actions/AddSubheadingsAction.php:135
-msgid "The AI did not add any subheadings — rejected."
-msgstr ""
-
-#: classes/AIActions/Actions/AddSubheadingsAction.php:144
-msgid "Add subheadings to this content"
-msgstr ""
-
-#: classes/AIActions/Actions/AuditContentAction.php:55
-msgid "AI content audit"
-msgstr ""
-
-#: classes/AIActions/Actions/AuditContentAction.php:80
-msgid "This post needs at least some existing content to audit."
-msgstr ""
-
-#: classes/AIActions/Actions/AuditContentAction.php:149
-msgid "The AI response did not match the expected audit format."
-msgstr ""
-
-#. translators: %s is the post/page title being audited.
-#: classes/AIActions/Actions/AuditContentAction.php:167
+#. translators: %d: requests-per-minute limit.
+#: classes/AI/AiRequestSender.php:171
 #, php-format
-msgid "AI content audit for: %s"
-msgstr ""
-
-#: classes/AIActions/Actions/CreateTrustPageAction.php:66
-msgid "Create missing trust page(s)"
-msgstr ""
-
-#: classes/AIActions/Actions/CreateTrustPageAction.php:93
-msgid "This site already has both an About and a Contact page — there is nothing to fix."
-msgstr ""
-
-#: classes/AIActions/Actions/CreateTrustPageAction.php:145
-msgid "The AI did not return content for one of the requested pages."
-msgstr ""
-
-#. translators: %s is a comma-separated list of new page titles.
-#: classes/AIActions/Actions/CreateTrustPageAction.php:165
-#, php-format
-msgid "Create new page(s): %s"
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:67
-msgid "Differentiate duplicate title"
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:86
-msgid "post_ids must list at least 2 posts sharing a duplicate title."
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:94
-msgid "The targeted duplicate post no longer exists or is not published."
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:108
-msgid "None of the other posts sharing this title still exist."
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:159
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:129
-msgid "The AI returned an empty title."
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:163
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:133
-msgid "The AI returned a title that is too long."
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:167
-msgid "The AI returned the same title unchanged — rejected."
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:172
-msgid "The AI returned a title that duplicates another post's title — rejected."
-msgstr ""
-
-#: classes/AIActions/Actions/DifferentiateDuplicateTitleAction.php:182
-msgid "Rewrite this page's duplicated title"
-msgstr ""
-
-#: classes/AIActions/Actions/FixHeadingHierarchyAction.php:52
-msgid "Fix heading hierarchy"
-msgstr ""
-
-#: classes/AIActions/Actions/FixHeadingHierarchyAction.php:67
-msgid "This post's heading levels do not skip — there is nothing to fix."
-msgstr ""
-
-#: classes/AIActions/Actions/FixHeadingHierarchyAction.php:119
-#: classes/AIActions/Actions/NormalizeEntityNamingAction.php:122
-#: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:125
-#: classes/AIActions/Actions/SplitLongParagraphsAction.php:119
-msgid "The AI returned content that looks truncated rather than a targeted rewrite — rejected for safety."
-msgstr ""
-
-#: classes/AIActions/Actions/FixHeadingHierarchyAction.php:124
-msgid "The AI did not resolve the heading level skip — rejected."
-msgstr ""
-
-#: classes/AIActions/Actions/FixHeadingHierarchyAction.php:133
-msgid "Fix skipped heading levels in this content"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAltAction.php:47
-msgid "Generate ALT text"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAltAction.php:66
-msgid "attachment_id must refer to an existing media attachment."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAltAction.php:70
-msgid "This attachment is not an image."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAltAction.php:115
-msgid "The AI returned empty alt text."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAltAction.php:119
-msgid "The AI returned alt text that is too long."
-msgstr ""
-
-#. translators: %s is the image filename.
-#: classes/AIActions/Actions/GenerateAltAction.php:132
-#, php-format
-msgid "Set alt text for %s"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAltAction.php:151
-msgid "Could not update the attachment."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAuthorBioAction.php:47
-msgid "Generate author bio"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAuthorBioAction.php:74
-msgid "This post has no valid author to write a bio for."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAuthorBioAction.php:80
-msgid "This author already has a bio — there is nothing to fix."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAuthorBioAction.php:128
-msgid "The AI did not return any bio text."
-msgstr ""
-
-#. translators: %s is the author's display name.
-#: classes/AIActions/Actions/GenerateAuthorBioAction.php:139
-#, php-format
-msgid "Add an author bio for %s"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateAuthorBioAction.php:156
-msgid "Could not save the author bio."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateBlogAction.php:58
-msgid "Generate blog post"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateBlogAction.php:77
-msgid "Please provide a topic of at least 5 characters."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateBlogAction.php:144
-#: classes/AIActions/Actions/GenerateComparisonPageAction.php:146
-#: classes/AIActions/Actions/GenerateLandingPageAction.php:137
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:134
-msgid "The AI response did not match the expected TITLE/BODY format."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateBlogAction.php:149
-msgid "The AI returned a post body that is too short to be useful."
-msgstr ""
-
-#. translators: %s is the generated post title.
-#: classes/AIActions/Actions/GenerateBlogAction.php:160
-#, php-format
-msgid "Create a new draft post: %s"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateComparisonPageAction.php:56
-msgid "Generate comparison page"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateComparisonPageAction.php:76
-msgid "post_a_id and post_b_id must refer to two different items."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateComparisonPageAction.php:83
-msgid "post_a_id and post_b_id must both refer to existing posts, pages, or products."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateComparisonPageAction.php:87
-msgid "Both items need existing content to compare."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateComparisonPageAction.php:151
-msgid "The AI returned a comparison that is too short to be useful."
-msgstr ""
-
-#. translators: %s is the generated comparison page title.
-#: classes/AIActions/Actions/GenerateComparisonPageAction.php:162
-#, php-format
-msgid "Create a new draft comparison page: %s"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateExcerptAction.php:55
-msgid "Generate excerpt"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateExcerptAction.php:79
-#: classes/AIActions/Actions/GenerateSummaryBlockAction.php:64
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:81
-msgid "This post has no content to summarize."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateExcerptAction.php:130
-msgid "The AI returned an empty excerpt."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateExcerptAction.php:134
-msgid "The AI returned an excerpt that is too long."
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/AIActions/Actions/GenerateExcerptAction.php:145
-#, php-format
-msgid "Set excerpt for %s"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateFaqAction.php:51
-msgid "Generate FAQ section"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateFaqAction.php:66
-msgid "This post has no content to generate FAQs from."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateFaqAction.php:120
-msgid "The AI did not return any FAQ questions."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateFaqAction.php:125
-msgid "The AI returned an incomplete FAQ question/answer pair."
-msgstr ""
-
-#. translators: %d is the number of FAQ questions generated.
-#: classes/AIActions/Actions/GenerateFaqAction.php:139
-#, php-format
-msgid "Add %d FAQ questions to this page"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateFaqAction.php:193
-msgid "Frequently Asked Questions"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateLandingPageAction.php:60
-msgid "Generate landing page"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateLandingPageAction.php:79
-msgid "Please describe what the landing page is for (at least 5 characters)."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateLandingPageAction.php:142
-msgid "The AI returned a landing page body that is too short to be useful."
-msgstr ""
-
-#. translators: %s is the generated page title.
-#: classes/AIActions/Actions/GenerateLandingPageAction.php:153
-#, php-format
-msgid "Create a new draft landing page: %s"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:54
-msgid "Generate product description"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:75
-msgid "Please provide a product name of at least 3 characters."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:139
-msgid "The AI returned a description that is too short to be useful."
-msgstr ""
-
-#. translators: %s is the generated product title.
-#: classes/AIActions/Actions/GenerateProductDescriptionAction.php:150
-#, php-format
-msgid "Create a new draft product: %s"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSchemaAction.php:63
-msgid "Generate structured data (JSON-LD)"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSchemaAction.php:83
-#: classes/AIActions/Actions/GenerateSocialContentAction.php:69
-#: classes/AIActions/Actions/SuggestInternalLinksAction.php:66
-#: classes/ContentIntelligence/ContentAnalyzer.php:76
-#: classes/GeoAnalysis/GeoAnalyzer.php:91
-msgid "post_id must refer to a published post or page."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSchemaAction.php:133
-msgid "The AI did not return valid schema.org JSON-LD (missing @context/@type)."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSchemaAction.php:145
-msgid "Add structured data to this page"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSocialContentAction.php:49
-msgid "Generate social media content"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSocialContentAction.php:124
-msgid "The AI did not return any caption variants."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSocialContentAction.php:129
-msgid "The AI returned an empty caption variant."
-msgstr ""
-
-#. translators: %d is the number of caption variants generated.
-#: classes/AIActions/Actions/GenerateSocialContentAction.php:143
-#, php-format
-msgid "Save %d social caption variant(s) for this page"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSummaryBlockAction.php:49
-msgid "Generate summary block"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSummaryBlockAction.php:117
-msgid "The AI did not return any key takeaways."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSummaryBlockAction.php:122
-msgid "The AI returned an empty key takeaway."
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSummaryBlockAction.php:132
-msgid "Add a key-takeaways summary to the top of this page"
-msgstr ""
-
-#: classes/AIActions/Actions/GenerateSummaryBlockAction.php:184
-msgid "Key Takeaways"
-msgstr ""
-
-#: classes/AIActions/Actions/ImproveReadabilityAction.php:53
-msgid "Improve readability"
-msgstr ""
-
-#: classes/AIActions/Actions/ImproveReadabilityAction.php:68
-#: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:72
-#: classes/AIActions/Actions/SplitLongParagraphsAction.php:67
-msgid "This post has no content to rewrite."
-msgstr ""
-
-#: classes/AIActions/Actions/ImproveReadabilityAction.php:117
-msgid "The AI returned content that looks truncated rather than rewritten — rejected for safety."
-msgstr ""
-
-#: classes/AIActions/Actions/ImproveReadabilityAction.php:127
-msgid "Rewrite content for readability"
-msgstr ""
-
-#: classes/AIActions/Actions/NormalizeEntityNamingAction.php:51
-msgid "Normalize brand name spelling"
-msgstr ""
-
-#: classes/AIActions/Actions/NormalizeEntityNamingAction.php:68
-msgid "The site name is too short to normalize reliably."
-msgstr ""
-
-#: classes/AIActions/Actions/NormalizeEntityNamingAction.php:127
-msgid "The AI did not normalize every spelling variant — rejected."
-msgstr ""
-
-#: classes/AIActions/Actions/NormalizeEntityNamingAction.php:136
-msgid "Normalize brand name spelling throughout this content"
-msgstr ""
-
-#: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:57
-msgid "Soften unsourced claims"
-msgstr ""
-
-#: classes/AIActions/Actions/SoftenUnsourcedClaimsAction.php:135
-msgid "Soften unsourced statistic claims in this content"
-msgstr ""
-
-#: classes/AIActions/Actions/SplitLongParagraphsAction.php:52
-msgid "Split long paragraphs"
-msgstr ""
-
-#: classes/AIActions/Actions/SplitLongParagraphsAction.php:129
-msgid "Split long paragraphs in this content"
-msgstr ""
-
-#: classes/AIActions/Actions/SuggestInternalLinksAction.php:55
-msgid "Suggest internal links"
-msgstr ""
-
-#: classes/AIActions/Actions/SuggestInternalLinksAction.php:72
-msgid "No other published posts share a category or tag with this one to link to."
-msgstr ""
-
-#: classes/AIActions/Actions/SuggestInternalLinksAction.php:196
-msgid "The AI did not return any link suggestions."
-msgstr ""
-
-#: classes/AIActions/Actions/SuggestInternalLinksAction.php:203
-msgid "The AI returned an incomplete link suggestion."
-msgstr ""
-
-#: classes/AIActions/Actions/SuggestInternalLinksAction.php:207
-msgid "The AI suggested a URL that was not in the candidate list."
-msgstr ""
-
-#. translators: %d is the number of suggested internal links.
-#: classes/AIActions/Actions/SuggestInternalLinksAction.php:221
-#, php-format
-msgid "Add %d related-reading links to this page"
-msgstr ""
-
-#: classes/AIActions/Actions/SuggestInternalLinksAction.php:275
-msgid "Related reading"
-msgstr ""
-
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:54
-msgid "Write meta description"
-msgstr ""
-
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:77
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:79
-msgid "post_id must refer to an existing post, page, or product."
-msgstr ""
-
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:131
-msgid "The AI returned an empty description."
-msgstr ""
-
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:135
-msgid "The AI returned a description that is too long."
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/AIActions/Actions/WriteMetaDescriptionAction.php:146
-#, php-format
-msgid "Set meta description for %s"
-msgstr ""
-
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:56
-msgid "Write meta title"
-msgstr ""
-
-#: classes/AIActions/Actions/WriteMetaTitleAction.php:142
-msgid "Rewrite page title"
-msgstr ""
-
-#: classes/AIActions/Actions/WritePostContentAction.php:49
-msgid "Write content"
-msgstr ""
-
-#: classes/AIActions/Actions/WritePostContentAction.php:78
-msgid "Please describe what to write about (at least 5 characters)."
-msgstr ""
-
-#: classes/AIActions/Actions/WritePostContentAction.php:124
-msgid "The AI returned content that is too short to be useful."
-msgstr ""
-
-#. translators: %s is the post/page title being written for.
-#: classes/AIActions/Actions/WritePostContentAction.php:135
-#, php-format
-msgid "Write content for: %s"
-msgstr ""
-
-#: classes/AIActions/ContentCreationOrchestrator.php:84
-msgid "Sorry, I didn't quite catch that — could you rephrase?"
-msgstr ""
-
-#: classes/AIActions/ContentCreationOrchestrator.php:104
-msgid "I couldn't quite tell what to create — could you tell me a bit more about what you'd like?"
-msgstr ""
-
-#: classes/AIActions/ContentCreationOrchestrator.php:112
-msgid "Could you tell me a bit more about what you need?"
-msgstr ""
-
-#. translators: %s is the exception's own real message, e.g. "No AI provider is configured."
-#: classes/AIActions/ContentCreationOrchestrator.php:151
-#: classes/RestAPI/Controllers/ContentAssistant.php:159
-#: classes/RestAPI/Controllers/Copilot.php:271
-#, php-format
-msgid "%s Add one in Settings → AI Providers."
-msgstr ""
-
-#: classes/AIActions/ContentCreationOrchestrator.php:169
-msgid "The content was generated but could not be saved."
-msgstr ""
-
-#. translators: %s is a content type, e.g. "blog post".
-#: classes/AIActions/ContentCreationOrchestrator.php:180
-#, php-format
-msgid "Your %s has been created successfully:"
-msgstr ""
-
-#. translators: 1: provider id, 2: requests-per-minute limit.
-#: classes/AIProviders/Decorators/RateLimitedProvider.php:105
-#, php-format
-msgid "%1$s rate limit reached (%2$d requests/minute)."
-msgstr ""
-
-#: classes/AIProviders/Providers/VuloCloudProxyProvider.php:65
-#: assets/js/index.js:1
-msgid "VuloCloud AI"
+msgid "AI rate limit reached (%d requests/minute)."
 msgstr ""
 
 #. translators: %d is the maximum allowed prompt length in characters.
-#: classes/AIProviders/Safety/AISafetyValidator.php:59
+#: classes/AI/AISafetyValidator.php:56
 #, php-format
-msgid "This request is too long to send to an AI provider (limit: %d characters)."
+msgid "This request is too long to send to the AI service (limit: %d characters)."
 msgstr ""
 
-#: classes/AIProviders/Safety/AISafetyValidator.php:68
+#: classes/AI/AISafetyValidator.php:65
 msgid "This request appears to contain a credential and was blocked before sending."
-msgstr ""
-
-#: classes/AIProviders/Support/SafeRequestSender.php:65
-msgid "No AI provider is configured."
 msgstr ""
 
 #: classes/Automations/Actions/SnoozeFindingAction.php:63
@@ -821,60 +249,6 @@ msgstr ""
 #: classes/Automations/BuiltinAutomationSeeder.php:110
 #: assets/js/index.js:9
 msgid "Send Visibility Report"
-msgstr ""
-
-#: classes/ContentIntelligence/ContentAnalyzer.php:196
-msgid "The AI did not return a usable Content Intelligence analysis."
-msgstr ""
-
-#: classes/ContentIntelligence/ContentAnalyzer.php:202
-msgid "The AI response is missing a valid \"topic_authority\" score."
-msgstr ""
-
-#: classes/ContentIntelligence/ContentAnalyzer.php:213
-#: classes/GeoAnalysis/GeoAnalyzer.php:522
-msgid "The AI did not return any suggestions."
-msgstr ""
-
-#. translators: 1: previous score, 2: new score, 3: post title.
-#: classes/GeoAnalysis/GeoAnalyzer.php:172
-#, php-format
-msgid "The GEO score for \"%3$s\" fell from %1$d to %2$d."
-msgstr ""
-
-#. translators: 1: site name, 2: post title.
-#: classes/GeoAnalysis/GeoAnalyzer.php:200
-#, php-format
-msgid "[%1$s] GEO score dropped for \"%2$s\""
-msgstr ""
-
-#: classes/GeoAnalysis/GeoAnalyzer.php:493
-msgid "The AI did not return a usable GEO analysis."
-msgstr ""
-
-#. translators: %s is the missing/invalid score dimension.
-#: classes/GeoAnalysis/GeoAnalyzer.php:505
-#, php-format
-msgid "The AI response is missing a valid \"%s\" score."
-msgstr ""
-
-#: classes/GeoAnalysis/LlmsTxtGenerator.php:172
-#: classes/RestAPI/Controllers/RobotsSitemap.php:401
-#: assets/js/index.js:1
-msgid "Pages"
-msgstr ""
-
-#: classes/GeoAnalysis/LlmsTxtGenerator.php:176
-#: classes/RestAPI/Controllers/RobotsSitemap.php:398
-#: assets/js/index.js:1
-msgid "Posts"
-msgstr ""
-
-#: classes/GeoAnalysis/LlmsTxtGenerator.php:180
-#: classes/RestAPI/Controllers/RobotsSitemap.php:404
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Products"
 msgstr ""
 
 #: classes/Reports/Exporters/CsvExporter.php:48
@@ -939,14 +313,6 @@ msgstr ""
 msgid "Deleted automation"
 msgstr ""
 
-#: classes/RestAPI/Controllers/AiActionRuns.php:134
-msgid "Enable the AI Copilot module to use AI actions."
-msgstr ""
-
-#: classes/RestAPI/Controllers/AiActionRuns.php:164
-msgid "action_id is required."
-msgstr ""
-
 #: classes/RestAPI/Controllers/AiCredits.php:131
 #: classes/RestAPI/Controllers/VuloCloudAccount.php:106
 msgid "Enter a valid email address."
@@ -955,17 +321,6 @@ msgstr ""
 #: classes/RestAPI/Controllers/AiCredits.php:135
 #: classes/RestAPI/Controllers/VuloCloudAccount.php:110
 msgid "Enter your VuloCloud password."
-msgstr ""
-
-#: classes/RestAPI/Controllers/AiProviders.php:121
-#: classes/RestAPI/Controllers/VuloCloudConnect.php:113
-#: classes/Services/AiByokGatewayClient.php:55
-#: classes/Services/AiCreditGatewayClient.php:57
-#: classes/Services/AiCreditsConnection.php:185
-#: classes/Services/VuloCloudAccountConnection.php:124
-#: classes/Services/VuloCloudAccountConnection.php:188
-#: assets/js/index.js:1
-msgid "VuloCloud isn’t configured for this build yet."
 msgstr ""
 
 #: classes/RestAPI/Controllers/Automations.php:155
@@ -1032,17 +387,25 @@ msgstr ""
 msgid "Connected — Google Drive is reachable with this account."
 msgstr ""
 
-#: classes/RestAPI/Controllers/ContentAssistant.php:123
+#: classes/RestAPI/Controllers/ContentAssistant.php:122
 msgid "Enable the AI Copilot module to use the AI Content Assistant."
 msgstr ""
 
-#: classes/RestAPI/Controllers/ContentAssistant.php:143
-#: classes/RestAPI/Controllers/Copilot.php:222
+#: classes/RestAPI/Controllers/ContentAssistant.php:142
+#: modules/AiCopilot/Rest/Copilot.php:205
 msgid "Message cannot be empty."
 msgstr ""
 
+#. translators: %s is the exception's own real message, e.g. "No AI connection is configured."
+#: classes/RestAPI/Controllers/ContentAssistant.php:158
+#: modules/AiCopilot/ContentCreationOrchestrator.php:151
+#: modules/AiCopilot/Rest/Copilot.php:233
+#, php-format
+msgid "%s Connect this site to VuloCloud in Settings → Connections."
+msgstr ""
+
 #. translators: %s is the site's own real name (get_bloginfo('name')).
-#: classes/RestAPI/Controllers/ContentAssistant.php:213
+#: classes/RestAPI/Controllers/ContentAssistant.php:212
 #, php-format
 msgid ""
 "You are the intake assistant for the \"Content\" chat inside the WordPress plugin VuloPilot, on the site \"%s\". Your job this turn is to move the conversation toward either (a) creating one of 3 specific kinds of real WordPress content, or (b) simply answering the user when that's what they actually want.\n"
@@ -1072,105 +435,6 @@ msgid ""
 "{\"status\":\"question\",\"message\":\"<the single next question, phrased naturally>\"}\n"
 "{\"status\":\"ready_action\",\"action_id\":\"generate-blog\"|\"generate-landing-page\"|\"generate-product-description\",\"input\":{...only the fields listed above for that action_id...}}\n"
 "{\"status\":\"respond\",\"message\":\"<a direct answer, or fully-written content for a kind with no matching action above>\"}"
-msgstr ""
-
-#: classes/RestAPI/Controllers/ContentIntelligence.php:204
-msgid "Post not found."
-msgstr ""
-
-#: classes/RestAPI/Controllers/Copilot.php:199
-msgid "Enable the AI Copilot module to use Chat with VuloPilot."
-msgstr ""
-
-#: classes/RestAPI/Controllers/Copilot.php:467
-msgid "Conversation not found."
-msgstr ""
-
-#. translators: 1: e.g. "blog post", 2: the requested topic/title.
-#: classes/RestAPI/Controllers/Copilot.php:493
-#, php-format
-msgid "I can create a %1$s about \"%2$s\" for you — turn on \"Auto-applies (with approval)\" and ask again to have me create it."
-msgstr ""
-
-#. translators: %s is e.g. "blog post".
-#: classes/RestAPI/Controllers/Copilot.php:501
-#, php-format
-msgid "I can create a %s for you — turn on \"Auto-applies (with approval)\" and ask again to have me create it."
-msgstr ""
-
-#. translators: 1: site name, 2: real live site snapshot text.
-#: classes/RestAPI/Controllers/Copilot.php:529
-#, php-format
-msgid ""
-"You are VuloPilot, an AI website copilot embedded in the WordPress plugin VuloPilot, helping the owner of the site \"%1$s\". You help with SEO, performance, security, accessibility, GEO/AI-search visibility, WooCommerce store health, and automations.\n"
-"\n"
-"You can directly create 3 specific kinds of real WordPress content — everything else you help with is advice only, since no AI action-trigger engine exists for anything beyond these 3. For each, collect the fields in order — a field listed after the first one does NOT mean it's skippable; ask about each one, one at a time, unless the user already stated it somewhere in the conversation:\n"
-"1. \"generate-blog\" — a blog post or article. Collect, in order: topic (what it's about), word_count (target word count), tone (e.g. Professional/Friendly/Informative/Casual).\n"
-"2. \"generate-landing-page\" — a landing page. Collect, in order: topic (what the page is promoting/for), tone.\n"
-"3. \"generate-product-description\" — a product description. Collect, in order: product_name, key_features (a short list of what makes it worth buying), tone.\n"
-"\n"
-"Rules for content creation:\n"
-"- Ask for exactly ONE missing field at a time, as a short natural question, following the collection order above. Never ask about a field already given anywhere earlier in this conversation. Never ask more than 3 questions total for one request.\n"
-"- If the user changed their mind about something, use their latest answer, not an earlier one.\n"
-"- A field can be given implicitly inside natural phrasing, not just as an explicit \"field: value\" statement — e.g. \"a casual blog post about X\" already gives both topic and tone; \"500 words\" gives word_count. Recognize these the same as an explicit answer, and don't ask about them again.\n"
-"- If a message already gives multiple fields at once, or a fully-specified first message gives everything needed, only ask about whatever is still actually missing — or proceed straight to ready_action if nothing is missing.\n"
-"\n"
-"Worked example for \"generate-blog\" (the same collect-one-at-a-time pattern applies to the other 2 kinds):\n"
-"User: \"Write a blog\" → {\"status\":\"question\",\"message\":\"Sure! What should the blog be about?\"}\n"
-"User: \"AI in eCommerce\" → {\"status\":\"question\",\"message\":\"Great — how many words would you like?\"}\n"
-"User: \"1500 words\" → {\"status\":\"question\",\"message\":\"What tone would you prefer? For example: Professional, Friendly, Informative, or Casual.\"}\n"
-"User: \"Professional\" → {\"status\":\"ready_action\",\"action_id\":\"generate-blog\",\"input\":{\"topic\":\"AI in eCommerce\",\"word_count\":1500,\"tone\":\"Professional\"}}\n"
-"\n"
-"For anything that is NOT one of those 3 content kinds — a general question, SEO/performance/security/accessibility/GEO/WooCommerce/automation advice, editing something that already exists, or any other kind of written content — answer using the real site snapshot below when relevant, and point the user to the specific tab (Issues, Performance, Security, GEO, WooCommerce, Automations) where they can review or fix something themselves. You cannot execute any change on the site yourself beyond the 3 content-creation kinds above — say so plainly if asked to perform some other action, rather than claiming to have done it. Reply in plain text or Markdown, never HTML.\n"
-"\n"
-"Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of these shapes:\n"
-"{\"status\":\"question\",\"message\":\"<the single next question, phrased naturally>\"}\n"
-"{\"status\":\"ready_action\",\"action_id\":\"generate-blog\"|\"generate-landing-page\"|\"generate-product-description\",\"input\":{...only the fields listed above for that action_id...}}\n"
-"{\"status\":\"respond\",\"message\":\"<a direct answer, or other written content the user still has to copy/paste themselves>\"}%2$s"
-msgstr ""
-
-#. translators: 1: scanner label, 2: category, 3: open finding count, 4: severity
-#: classes/RestAPI/Controllers/Copilot.php:645
-#, php-format
-msgid "- Finding group \"%1$s\" (%2$s): %3$d open, severity %4$s."
-msgstr ""
-
-#. translators: 1: automation name, 2: status (enabled/disabled), 3: trigger type
-#: classes/RestAPI/Controllers/Copilot.php:661
-#, php-format
-msgid "- Automation \"%1$s\": %2$s, trigger %3$s."
-msgstr ""
-
-#. translators: 1: original filename, 2: mime type
-#: classes/RestAPI/Controllers/Copilot.php:717
-#, php-format
-msgid "- Attached file \"%1$s\" (%2$s) — its content can't be read, only the filename is available."
-msgstr ""
-
-#. translators: 1: original filename, 2: mime type
-#: classes/RestAPI/Controllers/Copilot.php:731
-#, php-format
-msgid "- Attached file \"%1$s\" (%2$s) — could not be read."
-msgstr ""
-
-#. translators: 1: original filename, 2: mime type, 3: the file's own text content, 4: truncation note or empty string
-#: classes/RestAPI/Controllers/Copilot.php:743
-#, php-format
-msgid ""
-"- Attached file \"%1$s\" (%2$s):\n"
-"%3$s%4$s"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Copilot.php:829
-msgid "GEO/AI-search"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Copilot.php:833
-#: classes/RestAPI/Controllers/ReportsOverview.php:301
-#: classes/Scanners/Basic/WooCommerceScanner.php:48
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "WooCommerce"
 msgstr ""
 
 #: classes/RestAPI/Controllers/CoreWebVitalsBeaconRest.php:93
@@ -1332,6 +596,7 @@ msgid "Active"
 msgstr ""
 
 #: classes/RestAPI/Controllers/EfficiencyChecks.php:284
+#: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Not active"
 msgstr ""
@@ -1409,14 +674,6 @@ msgstr ""
 #: classes/RestAPI/Controllers/Findings.php:535
 msgid "No findings selected."
 msgstr ""
-
-#. translators: 1: real number of pages not updated since the "stale after" window, 2: real total published pages checked.
-#: classes/RestAPI/Controllers/Geo.php:388
-#, php-format
-msgid "%1$d of %2$d pages haven’t been updated in a while"
-msgid_plural "%1$d of %2$d pages haven’t been updated in a while"
-msgstr[0] ""
-msgstr[1] ""
 
 #: classes/RestAPI/Controllers/GoogleServices.php:215
 msgid "Google Connect isn’t configured for this build yet."
@@ -1647,6 +904,14 @@ msgstr ""
 msgid "Store"
 msgstr ""
 
+#: classes/RestAPI/Controllers/ReportsOverview.php:301
+#: classes/Scanners/Basic/WooCommerceScanner.php:48
+#: modules/AiCopilot/Rest/Copilot.php:726
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "WooCommerce"
+msgstr ""
+
 #: classes/RestAPI/Controllers/ReportsOverview.php:323
 #: assets/js/index.js:9
 msgid "Not applicable"
@@ -1737,6 +1002,25 @@ msgstr ""
 msgid "Stable"
 msgstr ""
 
+#: classes/RestAPI/Controllers/RobotsSitemap.php:398
+#: modules/Geo/LlmsTxtGenerator.php:176
+#: assets/js/index.js:1
+msgid "Posts"
+msgstr ""
+
+#: classes/RestAPI/Controllers/RobotsSitemap.php:401
+#: modules/Geo/LlmsTxtGenerator.php:172
+#: assets/js/index.js:1
+msgid "Pages"
+msgstr ""
+
+#: classes/RestAPI/Controllers/RobotsSitemap.php:404
+#: modules/Geo/LlmsTxtGenerator.php:180
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Products"
+msgstr ""
+
 #: classes/RestAPI/Controllers/RobotsSitemap.php:407
 #: assets/js/index.js:1
 #: assets/js/index.js:9
@@ -1767,214 +1051,11 @@ msgstr ""
 
 #: classes/RestAPI/Controllers/Schema.php:223
 #: classes/RestAPI/Controllers/Schema.php:225
-#: classes/Services/EntityExtractor.php:207
 #: classes/Services/PageSpeedScanner.php:436
 #: classes/Services/SchemaCoverageAnalyzer.php:186
+#: modules/EntityExtraction/EntityExtractor.php:207
 #: assets/js/index.js:1
 msgid "Homepage"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:608
-msgid "That page could not be found."
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:665
-msgid "Title Tag"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:669
-msgid "Missing title tag"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:682
-msgid "Duplicate title — shared with another published page"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:685
-msgid "Title tag is unique and set"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:697
-#: assets/js/post-editor.js:1
-msgid "Meta Description"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:702
-#: classes/RuleEngine/Rules/MissingMetaDescriptionRule.php:44
-msgid "Missing meta description"
-msgstr ""
-
-#. translators: %d: real current character count.
-#: classes/RestAPI/Controllers/Seo.php:712
-#, php-format
-msgid "Too short (%d characters)"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:718
-msgid "Meta description is set"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:731
-msgid "H1 Heading"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:734
-msgid "H1 tag found"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:737
-msgid "H1 tag not found"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:751
-msgid "Subheadings"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:754
-msgid "H2, H3+ tags found"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:757
-msgid "No subheadings found"
-msgstr ""
-
-#. translators: 1: real word count, 2: real minimum recommended word count.
-#: classes/RestAPI/Controllers/Seo.php:781
-#, php-format
-msgid "Thin content (%1$d words, recommended %2$d+)"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:788
-msgid "Word count is good"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:801
-#: classes/Scanners/Basic/ImagesScanner.php:44
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Images"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:804
-msgid "No images in this content"
-msgstr ""
-
-#. translators: %d: real number of images missing alt text on this page.
-#: classes/RestAPI/Controllers/Seo.php:825
-#, php-format
-msgid "%d image missing alt text"
-msgid_plural "%d images missing alt text"
-msgstr[0] ""
-msgstr[1] ""
-
-#: classes/RestAPI/Controllers/Seo.php:831
-msgid "All images have alt text"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:853
-msgid "Featured Image"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:856
-msgid "Featured image is set"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:859
-msgid "No featured image set"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:878
-#: classes/Scanners/Basic/BrokenLinksScanner.php:88
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Broken Links"
-msgstr ""
-
-#. translators: %d: real number of broken links found on this page by the Broken Links scanner.
-#: classes/RestAPI/Controllers/Seo.php:899
-#, php-format
-msgid "%d broken internal link found"
-msgid_plural "%d broken internal links found"
-msgstr[0] ""
-msgstr[1] ""
-
-#: classes/RestAPI/Controllers/Seo.php:905
-msgid "No broken links found"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:931
-msgid "Orphan Page"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:948
-msgid "0 internal links point to this page — nothing else links to it"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:952
-msgid "At least one other page links to this page"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:966
-msgid "Canonical"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:969
-#: classes/RestAPI/Controllers/Seo.php:1016
-#: classes/RestAPI/Controllers/Seo.php:1038
-msgid "Could not fetch this page to check"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:973
-msgid "Canonical is set"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:976
-msgid "No canonical URL tag found"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:991
-msgid "Indexability"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:994
-msgid "Not published"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:998
-msgid "Site is set to discourage search engines (Settings → Reading)"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:1001
-msgid "Content is indexed"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:1013
-#: classes/Scanners/Basic/StructuredDataValidationScanner.php:44
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Structured Data"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:1020
-msgid "Structured data (JSON-LD) found"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:1023
-msgid "No schema detected"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:1035
-msgid "Social Metadata"
-msgstr ""
-
-#: classes/RestAPI/Controllers/Seo.php:1051
-msgid "Open Graph tags found"
-msgstr ""
-
-#. translators: %s: real comma-separated list of missing Open Graph properties.
-#: classes/RestAPI/Controllers/Seo.php:1060
-#, php-format
-msgid "Open Graph tags missing: %s"
 msgstr ""
 
 #: classes/RestAPI/Controllers/Settings.php:351
@@ -2075,6 +1156,17 @@ msgstr ""
 
 #: classes/RestAPI/Controllers/Settings.php:906
 msgid "No module id given."
+msgstr ""
+
+#: classes/RestAPI/Controllers/VuloCloudAiConnection.php:104
+#: classes/RestAPI/Controllers/VuloCloudConnect.php:113
+#: classes/Services/AiByokGatewayClient.php:55
+#: classes/Services/AiCreditGatewayClient.php:57
+#: classes/Services/AiCreditsConnection.php:185
+#: classes/Services/VuloCloudAccountConnection.php:124
+#: classes/Services/VuloCloudAccountConnection.php:188
+#: assets/js/index.js:1
+msgid "VuloCloud isn’t configured for this build yet."
 msgstr ""
 
 #: classes/RuleEngine/Rules/CoreUpdateAvailableRule.php:42
@@ -2187,6 +1279,11 @@ msgstr ""
 #: classes/RuleEngine/Rules/MissingFeaturedImageRule.php:116
 #, php-format
 msgid "A featured image improves how this page previews when shared or displayed in some search formats: %s"
+msgstr ""
+
+#: classes/RuleEngine/Rules/MissingMetaDescriptionRule.php:44
+#: modules/Seo/Rest/Seo.php:702
+msgid "Missing meta description"
 msgstr ""
 
 #: classes/RuleEngine/Rules/MissingMetaDescriptionRule.php:121
@@ -2337,28 +1434,6 @@ msgstr ""
 msgid "This was flagged as critical and should be addressed as soon as possible."
 msgstr ""
 
-#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:62
-msgid "About Page Analysis"
-msgstr ""
-
-#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:100
-msgid "enough real content"
-msgstr ""
-
-#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:103
-msgid "a visible contact signal"
-msgstr ""
-
-#. translators: %s is a comma-separated list of what the About page is missing.
-#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:110
-#, php-format
-msgid "About page is missing %s"
-msgstr ""
-
-#: classes/Scanners/Basic/AboutPageAnalysisScanner.php:115
-msgid "This site has an About page, but it doesn't yet give AI answer engines or readers enough real substance (word count, contact details) to establish it as a genuine trust signal."
-msgstr ""
-
 #. translators: %s is the post/page title.
 #: classes/Scanners/Basic/AccessibilityScanner.php:97
 #, php-format
@@ -2385,22 +1460,6 @@ msgstr ""
 msgid "This content is already shaped like %s content (matching headings/list structure) but has no matching schema.org markup, so AI answer engines can't confidently recognize it as one."
 msgstr ""
 
-#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:51
-msgid "AI Crawler Blocked Pages"
-msgstr ""
-
-#. translators: 1: bot display name, 2: post/page title.
-#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:111
-#, php-format
-msgid "%1$s is blocked from crawling: %2$s"
-msgstr ""
-
-#. translators: %s is the bot display name.
-#: classes/Scanners/Basic/AiCrawlerBlockedPagesScanner.php:119
-#, php-format
-msgid "robots.txt disallows this page for %s specifically, so it won't be read for AI answers even though the rest of the site may be reachable."
-msgstr ""
-
 #: classes/Scanners/Basic/AriaAttributesScanner.php:49
 msgid "ARIA Attributes"
 msgstr ""
@@ -2413,21 +1472,6 @@ msgstr ""
 
 #: classes/Scanners/Basic/AriaAttributesScanner.php:92
 msgid "A <div> or <span> with a click handler but no role attribute is invisible to screen readers as an interactive element."
-msgstr ""
-
-#: classes/Scanners/Basic/AuthorSchemaScanner.php:58
-#: assets/js/index.js:9
-msgid "Author Schema"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/AuthorSchemaScanner.php:93
-#, php-format
-msgid "No author schema found: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/AuthorSchemaScanner.php:98
-msgid "A Person reference in this content's structured data is what AI answer engines and Knowledge Panels read to resolve who wrote it — separate from a human-visible author bio, which alone isn't machine-readable."
 msgstr ""
 
 #: classes/Scanners/Basic/BackupHealthScanner.php:54
@@ -2494,30 +1538,6 @@ msgstr ""
 msgid "A non-default table prefix is a small extra hurdle against certain automated SQL-injection attempts. Changing it on an existing site requires a careful, backed-up migration — this is a hardening note, not something to change casually."
 msgstr ""
 
-#: classes/Scanners/Basic/BrokenImagesScanner.php:74
-#: assets/js/index.js:1
-msgid "Broken Images"
-msgstr ""
-
-#. translators: %s is the broken image URL.
-#: classes/Scanners/Basic/BrokenImagesScanner.php:124
-#, php-format
-msgid "Broken image: %s"
-msgstr ""
-
-#. translators: %s is an HTTP status or error description.
-#: classes/Scanners/Basic/BrokenImagesScanner.php:131
-#: classes/Scanners/Basic/BrokenLinksScanner.php:145
-#, php-format
-msgid "Request failed with: %s"
-msgstr ""
-
-#. translators: %s is the broken URL.
-#: classes/Scanners/Basic/BrokenLinksScanner.php:138
-#, php-format
-msgid "Broken link: %s"
-msgstr ""
-
 #: classes/Scanners/Basic/CacheDetectionScanner.php:54
 msgid "Cache Issues"
 msgstr ""
@@ -2544,20 +1564,6 @@ msgstr ""
 
 #: classes/Scanners/Basic/CacheDetectionScanner.php:85
 msgid "Set a reasonable cache expiry so returning visitors get fast repeat page loads."
-msgstr ""
-
-#: classes/Scanners/Basic/CanonicalUrlScanner.php:53
-msgid "Canonical URLs"
-msgstr ""
-
-#. translators: %s is the URL missing a canonical tag.
-#: classes/Scanners/Basic/CanonicalUrlScanner.php:79
-#, php-format
-msgid "No canonical URL tag found: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/CanonicalUrlScanner.php:84
-msgid "A missing canonical tag can lead search engines to treat identical content reachable at multiple URLs as duplicates."
 msgstr ""
 
 #: classes/Scanners/Basic/CdnScanner.php:55
@@ -2708,21 +1714,6 @@ msgstr ""
 msgid "A large number of stored revisions increases database size and can slow down post-list and search queries."
 msgstr ""
 
-#: classes/Scanners/Basic/DuplicateContentScanner.php:54
-#: assets/js/index.js:9
-msgid "Duplicate Content"
-msgstr ""
-
-#. translators: 1: the duplicated title, 2: number of posts sharing it.
-#: classes/Scanners/Basic/DuplicateContentScanner.php:119
-#, php-format
-msgid "Duplicate title used by %2$d posts: %1$s"
-msgstr ""
-
-#: classes/Scanners/Basic/DuplicateContentScanner.php:125
-msgid "Multiple published posts share this exact title, which can split search ranking signal between them or confuse which one search engines show."
-msgstr ""
-
 #: classes/Scanners/Basic/FirewallScanner.php:58
 #: assets/js/index.js:9
 msgid "Firewall"
@@ -2791,157 +1782,6 @@ msgstr ""
 msgid "Every <input>/<textarea>/<select> needs an associated <label>, aria-label, or aria-labelledby so screen reader users know what it is for."
 msgstr ""
 
-#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:46
-msgid "Author Information"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:83
-#, php-format
-msgid "No author bio available: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoAuthorInfoScanner.php:88
-msgid "AI answer engines weigh visible author expertise when deciding whether to cite a source. A missing author bio gives them nothing to evaluate."
-msgstr ""
-
-#: classes/Scanners/Basic/GeoChunkingScanner.php:50
-msgid "Chunking"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoChunkingScanner.php:87
-#, php-format
-msgid "Contains an overly long paragraph: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoChunkingScanner.php:92
-msgid "AI answer engines retrieve and quote content in small chunks. A very long paragraph is harder to cleanly extract than the same information split into shorter ones."
-msgstr ""
-
-#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:68
-msgid "Citation Opportunities"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:116
-#, php-format
-msgid "Statistic mentioned with no source link: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoCitationOpportunityScanner.php:121
-msgid "This content mentions a statistic or study but links to no external source. AI answer engines favor content that backs up factual claims with citations."
-msgstr ""
-
-#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:48
-msgid "EEAT Signals"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:86
-#, php-format
-msgid "No EEAT signals found: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoEeatSignalsScanner.php:91
-msgid "This content has no author bio and has never been updated since it was first published — two of the clearest signals AI engines use to judge expertise and trustworthiness are both missing."
-msgstr ""
-
-#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:53
-msgid "Entity Naming Consistency"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:96
-#, php-format
-msgid "Brand name written inconsistently: %s"
-msgstr ""
-
-#. translators: %s is a comma-separated list of the different spellings found.
-#: classes/Scanners/Basic/GeoEntityNamingConsistencyScanner.php:103
-#, php-format
-msgid "This content refers to the site as multiple different spellings/casings (%s). AI answer engines resolve entities more reliably when a brand name is written the exact same way throughout."
-msgstr ""
-
-#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:48
-msgid "FAQ Opportunities"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:89
-#, php-format
-msgid "No FAQ-style questions found: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoFaqOpportunityScanner.php:94
-msgid "AI answer engines frequently lift direct question/answer pairs into their responses. Content with no question-phrased headings is less likely to be cited this way."
-msgstr ""
-
-#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:49
-msgid "Semantic Structure"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:98
-#, php-format
-msgid "Heading levels skip a level: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoSemanticStructureScanner.php:103
-msgid "A heading jumps more than one level deeper than the previous one (e.g. an H2 followed directly by an H4). This breaks the document outline AI systems and screen readers rely on to understand structure."
-msgstr ""
-
-#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:61
-msgid "Summary Blocks"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:115
-#, php-format
-msgid "No upfront summary found: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoSummaryBlockScanner.php:120
-msgid "AI answer engines favor content with a short summary or key-takeaways list near the top, rather than requiring the full article to be read first."
-msgstr ""
-
-#: classes/Scanners/Basic/GeoTrustSignalsScanner.php:49
-#: assets/js/index.js:9
-msgid "Trust Signals"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoTrustSignalsScanner.php:73
-msgid "an About page"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoTrustSignalsScanner.php:76
-msgid "a Contact page"
-msgstr ""
-
-#. translators: %s is a comma-separated list of missing page types.
-#: classes/Scanners/Basic/GeoTrustSignalsScanner.php:82
-#, php-format
-msgid "Site is missing %s"
-msgstr ""
-
-#: classes/Scanners/Basic/GeoTrustSignalsScanner.php:87
-msgid "AI answer engines and readers both use \"who is behind this site\" pages as a baseline trust signal before treating content as citable."
-msgstr ""
-
-#: classes/Scanners/Basic/HeadingStructureScanner.php:47
-msgid "Heading Structure"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/HeadingStructureScanner.php:94
-#, php-format
-msgid "No subheadings found in long content: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/HeadingStructureScanner.php:99
-msgid "Breaking long content into sections with subheadings makes it easier for readers to scan and for search engines to understand its structure."
-msgstr ""
-
 #: classes/Scanners/Basic/HeavyPluginsScanner.php:45
 msgid "Heavy Plugins"
 msgstr ""
@@ -3001,32 +1841,6 @@ msgstr ""
 
 #: classes/Scanners/Basic/ImageCleanupScanner.php:98
 msgid "Re-run this scan after cleanup to confirm the orphaned count has dropped."
-msgstr ""
-
-#. translators: %s is the image filename.
-#: classes/Scanners/Basic/ImagesScanner.php:91
-#, php-format
-msgid "Image missing alt text: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/ImagesScanner.php:96
-msgid "Alt text helps search engines and screen reader users understand what an image shows."
-msgstr ""
-
-#: classes/Scanners/Basic/InternalLinkingScanner.php:46
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Internal Linking"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/InternalLinkingScanner.php:82
-#, php-format
-msgid "No internal links found in content: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/InternalLinkingScanner.php:87
-msgid "Linking to other pages on this site helps search engines discover and rank content, and helps readers find related pages."
 msgstr ""
 
 #: classes/Scanners/Basic/JavaScriptOptimizationScanner.php:40
@@ -3152,44 +1966,30 @@ msgstr ""
 msgid "Real login attempts logged by Login Protection in the last %d days. If this wasn't you, no action is needed — the attempts were already blocked."
 msgstr ""
 
-#: classes/Scanners/Basic/MalwareScanner.php:93
+#: classes/Scanners/Basic/MalwareScanner.php:106
 msgid "Malware & Infection Detection"
 msgstr ""
 
 #. translators: %s is the relative file path.
-#: classes/Scanners/Basic/MalwareScanner.php:127
+#: classes/Scanners/Basic/MalwareScanner.php:140
 #, php-format
 msgid "PHP file found inside the uploads directory: %s"
 msgstr ""
 
-#: classes/Scanners/Basic/MalwareScanner.php:132
+#: classes/Scanners/Basic/MalwareScanner.php:145
 msgid "The uploads directory should only ever contain media files. A PHP file here is one of the most reliable signs of a compromised site — review it immediately and remove it if you did not put it there yourself."
 msgstr ""
 
 #. translators: %s is the relative file path.
-#: classes/Scanners/Basic/MalwareScanner.php:147
+#: classes/Scanners/Basic/MalwareScanner.php:160
 #, php-format
 msgid "Suspicious code pattern found in theme file: %s"
 msgstr ""
 
 #. translators: %s is the matched backdoor/webshell signature.
-#: classes/Scanners/Basic/MalwareScanner.php:154
+#: classes/Scanners/Basic/MalwareScanner.php:167
 #, php-format
 msgid "This file contains a pattern commonly used by malware/webshells (\"%s\"). Review it immediately — if you did not add this code yourself, your site may be compromised."
-msgstr ""
-
-#: classes/Scanners/Basic/MetaDescriptionScanner.php:49
-msgid "Meta Descriptions"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/MetaDescriptionScanner.php:94
-#, php-format
-msgid "No meta description set: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/MetaDescriptionScanner.php:99
-msgid "This post has no excerpt set. Most themes and SEO plugins fall back to the excerpt for the search-result description when no dedicated description is configured."
 msgstr ""
 
 #: classes/Scanners/Basic/NotFoundScanner.php:45
@@ -3204,46 +2004,6 @@ msgstr ""
 
 #: classes/Scanners/Basic/NotFoundScanner.php:105
 msgid "This page is published but its own URL does not resolve — often caused by a permalink structure or rewrite rule change."
-msgstr ""
-
-#: classes/Scanners/Basic/OpenGraphScanner.php:45
-msgid "Open Graph"
-msgstr ""
-
-#. translators: %s is a comma-separated list of missing Open Graph properties.
-#: classes/Scanners/Basic/OpenGraphScanner.php:88
-#, php-format
-msgid "Missing Open Graph tags on the homepage: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/OpenGraphScanner.php:93
-msgid "Open Graph tags control how this site's links look when shared on Facebook, LinkedIn, and similar platforms. Without them, shared links show no preview image or description."
-msgstr ""
-
-#: classes/Scanners/Basic/OrganizationSchemaScanner.php:50
-msgid "Organization Schema"
-msgstr ""
-
-#: classes/Scanners/Basic/OrganizationSchemaScanner.php:88
-msgid "No Organization schema found on the homepage"
-msgstr ""
-
-#: classes/Scanners/Basic/OrganizationSchemaScanner.php:91
-msgid "Organization (or LocalBusiness) structured data is what AI answer engines and Google Knowledge Panels use to resolve \"who runs this site\" as a real-world entity. Its absence makes this site harder to confidently identify and cite."
-msgstr ""
-
-#: classes/Scanners/Basic/OrphanPageScanner.php:54
-msgid "Orphan Pages"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/OrphanPageScanner.php:101
-#, php-format
-msgid "No internal links point to this page: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/OrphanPageScanner.php:106
-msgid "Among the recently modified content sampled by this scan, nothing links to this page. Pages with no inbound internal links are harder for search engines to discover."
 msgstr ""
 
 #. translators: %s is a formatted byte size, e.g. "1.4 MB".
@@ -3486,7 +2246,7 @@ msgstr ""
 
 #. translators: 1: minimum recommended title length, 2: maximum recommended title length.
 #: classes/Scanners/Basic/ProductSeoScanner.php:103
-#: classes/Scanners/Basic/SeoScanner.php:103
+#: modules/Seo/Scanners/SeoScanner.php:105
 #, php-format
 msgid "Search engines display roughly %1$d–%2$d characters of a title before truncating."
 msgstr ""
@@ -3517,22 +2277,6 @@ msgstr ""
 msgid "This SKU is shared by %d products, which breaks inventory tracking and any integration that relies on SKU uniqueness."
 msgstr ""
 
-#: classes/Scanners/Basic/ReadabilityScanner.php:70
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Readability"
-msgstr ""
-
-#. translators: 1: post/page title, 2: Flesch Reading Ease score (0-100).
-#: classes/Scanners/Basic/ReadabilityScanner.php:124
-#, php-format
-msgid "Difficult to read (score %2$d/100): %1$s"
-msgstr ""
-
-#: classes/Scanners/Basic/ReadabilityScanner.php:130
-msgid "Shorter sentences and simpler words generally read easier for both visitors and AI systems summarizing this content."
-msgstr ""
-
 #: classes/Scanners/Basic/RedirectAnalysisScanner.php:56
 msgid "Redirect Analysis"
 msgstr ""
@@ -3549,62 +2293,6 @@ msgstr ""
 
 #: classes/Scanners/Basic/RedirectAnalysisScanner.php:123
 msgid "Long or looping redirect chains slow down every visit and hurt search engine crawling."
-msgstr ""
-
-#: classes/Scanners/Basic/RobotsTxtScanner.php:46
-#: assets/js/index.js:1
-msgid "Robots.txt"
-msgstr ""
-
-#: classes/Scanners/Basic/RobotsTxtScanner.php:71
-#: assets/js/index.js:9
-msgid "robots.txt is not reachable"
-msgstr ""
-
-#: classes/Scanners/Basic/RobotsTxtScanner.php:74
-msgid "No robots.txt file was found at the site root. Its absence isn't harmful by itself, but it means there's no explicit crawl guidance for search engines."
-msgstr ""
-
-#: classes/Scanners/Basic/RobotsTxtScanner.php:84
-msgid "robots.txt is blocking all search engines"
-msgstr ""
-
-#: classes/Scanners/Basic/RobotsTxtScanner.php:87
-msgid "robots.txt disallows every page for all crawlers (User-agent: * / Disallow: /). If unintentional, this removes the entire site from search results."
-msgstr ""
-
-#: classes/Scanners/Basic/SchemaScanner.php:80
-msgid "No structured data (JSON-LD) found on the homepage"
-msgstr ""
-
-#: classes/Scanners/Basic/SchemaScanner.php:83
-msgid "Structured data helps search engines understand and display rich results for this site. Neither the active theme nor any active plugin appears to be outputting any."
-msgstr ""
-
-#: classes/Scanners/Basic/SeoImagesScanner.php:47
-msgid "Featured Images"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/SeoImagesScanner.php:89
-#, php-format
-msgid "No featured image set: %s"
-msgstr ""
-
-#: classes/Scanners/Basic/SeoImagesScanner.php:94
-msgid "A featured image is used as the preview image when this page is shared on social media or shown in some search result formats."
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/SeoScanner.php:91
-#, php-format
-msgid "Title is too short for search results: %s"
-msgstr ""
-
-#. translators: %s is the post/page title.
-#: classes/Scanners/Basic/SeoScanner.php:96
-#, php-format
-msgid "Title may be truncated in search results: %s"
 msgstr ""
 
 #: classes/Scanners/Basic/ServerHealthScanner.php:44
@@ -3648,21 +2336,6 @@ msgstr ""
 
 #: classes/Scanners/Basic/SiteAvailabilityScanner.php:136
 msgid "The homepage did not return a normal success response — worth checking manually."
-msgstr ""
-
-#: classes/Scanners/Basic/SitemapScanner.php:45
-#: classes/Services/SitemapStylesheet.php:186
-#: assets/js/index.js:1
-msgid "Sitemap"
-msgstr ""
-
-#: classes/Scanners/Basic/SitemapScanner.php:66
-#: assets/js/index.js:1
-msgid "No XML sitemap found"
-msgstr ""
-
-#: classes/Scanners/Basic/SitemapScanner.php:69
-msgid "Neither /wp-sitemap.xml nor /sitemap.xml returned a successful response. A sitemap helps search engines discover and crawl every page on the site."
 msgstr ""
 
 #: classes/Scanners/Basic/SlowPageScanner.php:46
@@ -3730,16 +2403,6 @@ msgstr ""
 msgid "This certificate expires in %d day(s). Renew it before then to avoid a browser security warning."
 msgstr ""
 
-#. translators: %d is which structured-data block on the page (1-indexed) is invalid.
-#: classes/Scanners/Basic/StructuredDataValidationScanner.php:90
-#, php-format
-msgid "Invalid structured data (JSON-LD) block #%d on the homepage"
-msgstr ""
-
-#: classes/Scanners/Basic/StructuredDataValidationScanner.php:95
-msgid "This structured data block does not parse as valid JSON, so search engines will ignore it entirely for rich results."
-msgstr ""
-
 #: classes/Scanners/Basic/ThemesScanner.php:38
 msgid "Themes"
 msgstr ""
@@ -3752,34 +2415,6 @@ msgstr ""
 
 #: classes/Scanners/Basic/ThemesScanner.php:73
 msgid "Inactive themes still occupy disk space and can carry known vulnerabilities. Remove themes you no longer use."
-msgstr ""
-
-#: classes/Scanners/Basic/ThinContentScanner.php:53
-msgid "Thin Content"
-msgstr ""
-
-#. translators: 1: post/page title, 2: word count.
-#: classes/Scanners/Basic/ThinContentScanner.php:93
-#, php-format
-msgid "Thin content (%2$d words): %1$s"
-msgstr ""
-
-#. translators: %d is the recommended minimum word count.
-#: classes/Scanners/Basic/ThinContentScanner.php:101
-#, php-format
-msgid "Search engines generally rank substantive content higher. Consider expanding this to at least %d words."
-msgstr ""
-
-#: classes/Scanners/Basic/TwitterCardScanner.php:42
-msgid "Twitter Cards"
-msgstr ""
-
-#: classes/Scanners/Basic/TwitterCardScanner.php:76
-msgid "No Twitter Card tag found on the homepage"
-msgstr ""
-
-#: classes/Scanners/Basic/TwitterCardScanner.php:79
-msgid "Without a twitter:card meta tag, links to this site shared on X/Twitter show as a plain link with no preview image or summary."
 msgstr ""
 
 #: classes/Scanners/Basic/UpdatesScanner.php:40
@@ -4012,7 +2647,7 @@ msgid "VuloCloud returned an unexpected response."
 msgstr ""
 
 #: classes/Services/AiByokGatewayClient.php:120
-msgid "No AI provider is configured for this site."
+msgid "No AI connection is configured for this site."
 msgstr ""
 
 #: classes/Services/AiByokGatewayClient.php:125
@@ -4170,49 +2805,6 @@ msgstr ""
 msgid "Connect broker could not complete the connection."
 msgstr ""
 
-#: classes/Services/EntityExtractor.php:214
-msgid "Website title"
-msgstr ""
-
-#: classes/Services/EntityExtractor.php:221
-#: assets/js/index.js:9
-msgid "Organization schema"
-msgstr ""
-
-#: classes/Services/EntityExtractor.php:228
-msgid "About page"
-msgstr ""
-
-#. translators: 1: real business name, 2: real service page title.
-#. translators: 1: real business name, 2: real published product title.
-#: classes/Services/EntityExtractor.php:342
-#: classes/Services/EntityExtractor.php:351
-#, php-format
-msgid "%1$s offers %2$s"
-msgstr ""
-
-#. translators: 1: real business name, 2: real published category name.
-#: classes/Services/EntityExtractor.php:370
-#, php-format
-msgid "%1$s publishes content about %2$s"
-msgstr ""
-
-#: classes/Services/EntityExtractor.php:596
-msgid "Missing product image"
-msgstr ""
-
-#: classes/Services/EntityExtractor.php:600
-msgid "Missing SKU"
-msgstr ""
-
-#: classes/Services/EntityExtractor.php:607
-msgid "Missing product description"
-msgstr ""
-
-#: classes/Services/EntityExtractor.php:611
-msgid "Missing price"
-msgstr ""
-
 #: classes/Services/FirewallGuard.php:124
 msgid "Request blocked."
 msgstr ""
@@ -4269,42 +2861,42 @@ msgstr ""
 msgid "Could not fetch your Search Console properties."
 msgstr ""
 
-#: classes/Services/IndexNowClient.php:71
+#: classes/Services/IndexNowClient.php:70
 msgid "No valid URLs for this site were given."
 msgstr ""
 
-#: classes/Services/IndexNowClient.php:136
+#: classes/Services/IndexNowClient.php:135
 #: assets/js/index.js:1
 msgid "URL received."
 msgstr ""
 
-#: classes/Services/IndexNowClient.php:138
+#: classes/Services/IndexNowClient.php:137
 #: assets/js/index.js:1
 msgid "URL received; key not yet validated."
 msgstr ""
 
-#: classes/Services/IndexNowClient.php:140
+#: classes/Services/IndexNowClient.php:139
 #: assets/js/index.js:1
 msgid "Invalid format."
 msgstr ""
 
-#: classes/Services/IndexNowClient.php:142
+#: classes/Services/IndexNowClient.php:141
 #: assets/js/index.js:1
 msgid "Key not found or doesn't match."
 msgstr ""
 
-#: classes/Services/IndexNowClient.php:144
+#: classes/Services/IndexNowClient.php:143
 #: assets/js/index.js:1
 msgid "URL doesn't belong to this site."
 msgstr ""
 
-#: classes/Services/IndexNowClient.php:146
+#: classes/Services/IndexNowClient.php:145
 #: assets/js/index.js:1
 msgid "Rate limited, try again later."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: classes/Services/IndexNowClient.php:150
+#: classes/Services/IndexNowClient.php:149
 #, php-format
 msgid "Unexpected response (%d)."
 msgstr ""
@@ -4558,6 +3150,12 @@ msgstr ""
 msgid "This XML Sitemap Index file contains %s sitemaps."
 msgstr ""
 
+#: classes/Services/SitemapStylesheet.php:186
+#: modules/Seo/Scanners/SitemapScanner.php:46
+#: assets/js/index.js:1
+msgid "Sitemap"
+msgstr ""
+
 #: classes/Services/SitemapStylesheet.php:187
 msgid "Last Modified"
 msgstr ""
@@ -4608,6 +3206,1404 @@ msgstr ""
 
 #: classes/Services/VuloCloudAccountConnection.php:152
 msgid "Could not connect to VuloCloud."
+msgstr ""
+
+#: modules/AiCopilot/ActionRunner.php:214
+msgid "No AI connection is configured. Add a key in your VuloCloud account, or ask your agency to."
+msgstr ""
+
+#: modules/AiCopilot/ActionRunner.php:229
+msgid "You’ve used all your AI Credits."
+msgstr ""
+
+#: modules/AiCopilot/ActionRunner.php:435
+msgid "This action run cannot be rolled back."
+msgstr ""
+
+#: modules/AiCopilot/ActionRunner.php:479
+msgid "This action run is not awaiting approval."
+msgstr ""
+
+#: modules/AiCopilot/Actions/AddSubheadingsAction.php:63
+msgid "Add subheadings"
+msgstr ""
+
+#: modules/AiCopilot/Actions/AddSubheadingsAction.php:74
+#: modules/AiCopilot/Actions/AuditContentAction.php:76
+#: modules/AiCopilot/Actions/FixHeadingHierarchyAction.php:63
+#: modules/AiCopilot/Actions/GenerateAuthorBioAction.php:67
+#: modules/AiCopilot/Actions/GenerateExcerptAction.php:75
+#: modules/AiCopilot/Actions/GenerateFaqAction.php:62
+#: modules/AiCopilot/Actions/GenerateSummaryBlockAction.php:60
+#: modules/AiCopilot/Actions/ImproveReadabilityAction.php:64
+#: modules/AiCopilot/Actions/NormalizeEntityNamingAction.php:62
+#: modules/AiCopilot/Actions/SoftenUnsourcedClaimsAction.php:68
+#: modules/AiCopilot/Actions/SplitLongParagraphsAction.php:63
+#: modules/AiCopilot/Actions/WritePostContentAction.php:72
+msgid "post_id must refer to an existing post or page."
+msgstr ""
+
+#: modules/AiCopilot/Actions/AddSubheadingsAction.php:78
+msgid "This post already has subheadings — there is nothing to fix."
+msgstr ""
+
+#: modules/AiCopilot/Actions/AddSubheadingsAction.php:122
+#: modules/AiCopilot/Actions/FixHeadingHierarchyAction.php:111
+#: modules/AiCopilot/Actions/ImproveReadabilityAction.php:109
+#: modules/AiCopilot/Actions/NormalizeEntityNamingAction.php:114
+#: modules/AiCopilot/Actions/SoftenUnsourcedClaimsAction.php:117
+#: modules/AiCopilot/Actions/SplitLongParagraphsAction.php:111
+msgid "The AI returned empty content."
+msgstr ""
+
+#: modules/AiCopilot/Actions/AddSubheadingsAction.php:130
+msgid "The AI returned content that looks truncated rather than the original text with headings added — rejected for safety."
+msgstr ""
+
+#: modules/AiCopilot/Actions/AddSubheadingsAction.php:135
+msgid "The AI did not add any subheadings — rejected."
+msgstr ""
+
+#: modules/AiCopilot/Actions/AddSubheadingsAction.php:144
+msgid "Add subheadings to this content"
+msgstr ""
+
+#: modules/AiCopilot/Actions/AuditContentAction.php:55
+msgid "AI content audit"
+msgstr ""
+
+#: modules/AiCopilot/Actions/AuditContentAction.php:80
+msgid "This post needs at least some existing content to audit."
+msgstr ""
+
+#: modules/AiCopilot/Actions/AuditContentAction.php:149
+msgid "The AI response did not match the expected audit format."
+msgstr ""
+
+#. translators: %s is the post/page title being audited.
+#: modules/AiCopilot/Actions/AuditContentAction.php:167
+#, php-format
+msgid "AI content audit for: %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/CreateTrustPageAction.php:66
+msgid "Create missing trust page(s)"
+msgstr ""
+
+#: modules/AiCopilot/Actions/CreateTrustPageAction.php:93
+msgid "This site already has both an About and a Contact page — there is nothing to fix."
+msgstr ""
+
+#: modules/AiCopilot/Actions/CreateTrustPageAction.php:145
+msgid "The AI did not return content for one of the requested pages."
+msgstr ""
+
+#. translators: %s is a comma-separated list of new page titles.
+#: modules/AiCopilot/Actions/CreateTrustPageAction.php:165
+#, php-format
+msgid "Create new page(s): %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:67
+msgid "Differentiate duplicate title"
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:86
+msgid "post_ids must list at least 2 posts sharing a duplicate title."
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:94
+msgid "The targeted duplicate post no longer exists or is not published."
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:108
+msgid "None of the other posts sharing this title still exist."
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:159
+#: modules/AiCopilot/Actions/WriteMetaTitleAction.php:129
+msgid "The AI returned an empty title."
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:163
+#: modules/AiCopilot/Actions/WriteMetaTitleAction.php:133
+msgid "The AI returned a title that is too long."
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:167
+msgid "The AI returned the same title unchanged — rejected."
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:172
+msgid "The AI returned a title that duplicates another post's title — rejected."
+msgstr ""
+
+#: modules/AiCopilot/Actions/DifferentiateDuplicateTitleAction.php:182
+msgid "Rewrite this page's duplicated title"
+msgstr ""
+
+#: modules/AiCopilot/Actions/FixHeadingHierarchyAction.php:52
+msgid "Fix heading hierarchy"
+msgstr ""
+
+#: modules/AiCopilot/Actions/FixHeadingHierarchyAction.php:67
+msgid "This post's heading levels do not skip — there is nothing to fix."
+msgstr ""
+
+#: modules/AiCopilot/Actions/FixHeadingHierarchyAction.php:119
+#: modules/AiCopilot/Actions/NormalizeEntityNamingAction.php:122
+#: modules/AiCopilot/Actions/SoftenUnsourcedClaimsAction.php:125
+#: modules/AiCopilot/Actions/SplitLongParagraphsAction.php:119
+msgid "The AI returned content that looks truncated rather than a targeted rewrite — rejected for safety."
+msgstr ""
+
+#: modules/AiCopilot/Actions/FixHeadingHierarchyAction.php:124
+msgid "The AI did not resolve the heading level skip — rejected."
+msgstr ""
+
+#: modules/AiCopilot/Actions/FixHeadingHierarchyAction.php:133
+msgid "Fix skipped heading levels in this content"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAltAction.php:47
+msgid "Generate ALT text"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAltAction.php:66
+msgid "attachment_id must refer to an existing media attachment."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAltAction.php:70
+msgid "This attachment is not an image."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAltAction.php:115
+msgid "The AI returned empty alt text."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAltAction.php:119
+msgid "The AI returned alt text that is too long."
+msgstr ""
+
+#. translators: %s is the image filename.
+#: modules/AiCopilot/Actions/GenerateAltAction.php:132
+#, php-format
+msgid "Set alt text for %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAltAction.php:151
+msgid "Could not update the attachment."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAuthorBioAction.php:47
+msgid "Generate author bio"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAuthorBioAction.php:74
+msgid "This post has no valid author to write a bio for."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAuthorBioAction.php:80
+msgid "This author already has a bio — there is nothing to fix."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAuthorBioAction.php:128
+msgid "The AI did not return any bio text."
+msgstr ""
+
+#. translators: %s is the author's display name.
+#: modules/AiCopilot/Actions/GenerateAuthorBioAction.php:139
+#, php-format
+msgid "Add an author bio for %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateAuthorBioAction.php:156
+msgid "Could not save the author bio."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateBlogAction.php:58
+msgid "Generate blog post"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateBlogAction.php:77
+msgid "Please provide a topic of at least 5 characters."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateBlogAction.php:144
+#: modules/AiCopilot/Actions/GenerateComparisonPageAction.php:146
+#: modules/AiCopilot/Actions/GenerateLandingPageAction.php:137
+#: modules/AiCopilot/Actions/GenerateProductDescriptionAction.php:134
+msgid "The AI response did not match the expected TITLE/BODY format."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateBlogAction.php:149
+msgid "The AI returned a post body that is too short to be useful."
+msgstr ""
+
+#. translators: %s is the generated post title.
+#: modules/AiCopilot/Actions/GenerateBlogAction.php:160
+#, php-format
+msgid "Create a new draft post: %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateComparisonPageAction.php:56
+msgid "Generate comparison page"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateComparisonPageAction.php:76
+msgid "post_a_id and post_b_id must refer to two different items."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateComparisonPageAction.php:83
+msgid "post_a_id and post_b_id must both refer to existing posts, pages, or products."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateComparisonPageAction.php:87
+msgid "Both items need existing content to compare."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateComparisonPageAction.php:151
+msgid "The AI returned a comparison that is too short to be useful."
+msgstr ""
+
+#. translators: %s is the generated comparison page title.
+#: modules/AiCopilot/Actions/GenerateComparisonPageAction.php:162
+#, php-format
+msgid "Create a new draft comparison page: %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateExcerptAction.php:55
+msgid "Generate excerpt"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateExcerptAction.php:79
+#: modules/AiCopilot/Actions/GenerateSummaryBlockAction.php:64
+#: modules/AiCopilot/Actions/WriteMetaDescriptionAction.php:81
+msgid "This post has no content to summarize."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateExcerptAction.php:130
+msgid "The AI returned an empty excerpt."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateExcerptAction.php:134
+msgid "The AI returned an excerpt that is too long."
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/AiCopilot/Actions/GenerateExcerptAction.php:145
+#, php-format
+msgid "Set excerpt for %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateFaqAction.php:51
+msgid "Generate FAQ section"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateFaqAction.php:66
+msgid "This post has no content to generate FAQs from."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateFaqAction.php:120
+msgid "The AI did not return any FAQ questions."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateFaqAction.php:125
+msgid "The AI returned an incomplete FAQ question/answer pair."
+msgstr ""
+
+#. translators: %d is the number of FAQ questions generated.
+#: modules/AiCopilot/Actions/GenerateFaqAction.php:139
+#, php-format
+msgid "Add %d FAQ questions to this page"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateFaqAction.php:193
+msgid "Frequently Asked Questions"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateLandingPageAction.php:60
+msgid "Generate landing page"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateLandingPageAction.php:79
+msgid "Please describe what the landing page is for (at least 5 characters)."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateLandingPageAction.php:142
+msgid "The AI returned a landing page body that is too short to be useful."
+msgstr ""
+
+#. translators: %s is the generated page title.
+#: modules/AiCopilot/Actions/GenerateLandingPageAction.php:153
+#, php-format
+msgid "Create a new draft landing page: %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateProductDescriptionAction.php:54
+msgid "Generate product description"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateProductDescriptionAction.php:75
+msgid "Please provide a product name of at least 3 characters."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateProductDescriptionAction.php:139
+msgid "The AI returned a description that is too short to be useful."
+msgstr ""
+
+#. translators: %s is the generated product title.
+#: modules/AiCopilot/Actions/GenerateProductDescriptionAction.php:150
+#, php-format
+msgid "Create a new draft product: %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSchemaAction.php:63
+msgid "Generate structured data (JSON-LD)"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSchemaAction.php:83
+#: modules/AiCopilot/Actions/GenerateSocialContentAction.php:69
+#: modules/AiCopilot/Actions/SuggestInternalLinksAction.php:66
+#: modules/ContentIntelligence/ContentAnalyzer.php:76
+#: modules/Geo/GeoAnalyzer.php:85
+msgid "post_id must refer to a published post or page."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSchemaAction.php:133
+msgid "The AI did not return valid schema.org JSON-LD (missing @context/@type)."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSchemaAction.php:145
+msgid "Add structured data to this page"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSocialContentAction.php:49
+msgid "Generate social media content"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSocialContentAction.php:124
+msgid "The AI did not return any caption variants."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSocialContentAction.php:129
+msgid "The AI returned an empty caption variant."
+msgstr ""
+
+#. translators: %d is the number of caption variants generated.
+#: modules/AiCopilot/Actions/GenerateSocialContentAction.php:143
+#, php-format
+msgid "Save %d social caption variant(s) for this page"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSummaryBlockAction.php:49
+msgid "Generate summary block"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSummaryBlockAction.php:117
+msgid "The AI did not return any key takeaways."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSummaryBlockAction.php:122
+msgid "The AI returned an empty key takeaway."
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSummaryBlockAction.php:132
+msgid "Add a key-takeaways summary to the top of this page"
+msgstr ""
+
+#: modules/AiCopilot/Actions/GenerateSummaryBlockAction.php:184
+msgid "Key Takeaways"
+msgstr ""
+
+#: modules/AiCopilot/Actions/ImproveReadabilityAction.php:53
+msgid "Improve readability"
+msgstr ""
+
+#: modules/AiCopilot/Actions/ImproveReadabilityAction.php:68
+#: modules/AiCopilot/Actions/SoftenUnsourcedClaimsAction.php:72
+#: modules/AiCopilot/Actions/SplitLongParagraphsAction.php:67
+msgid "This post has no content to rewrite."
+msgstr ""
+
+#: modules/AiCopilot/Actions/ImproveReadabilityAction.php:117
+msgid "The AI returned content that looks truncated rather than rewritten — rejected for safety."
+msgstr ""
+
+#: modules/AiCopilot/Actions/ImproveReadabilityAction.php:127
+msgid "Rewrite content for readability"
+msgstr ""
+
+#: modules/AiCopilot/Actions/NormalizeEntityNamingAction.php:51
+msgid "Normalize brand name spelling"
+msgstr ""
+
+#: modules/AiCopilot/Actions/NormalizeEntityNamingAction.php:68
+msgid "The site name is too short to normalize reliably."
+msgstr ""
+
+#: modules/AiCopilot/Actions/NormalizeEntityNamingAction.php:127
+msgid "The AI did not normalize every spelling variant — rejected."
+msgstr ""
+
+#: modules/AiCopilot/Actions/NormalizeEntityNamingAction.php:136
+msgid "Normalize brand name spelling throughout this content"
+msgstr ""
+
+#: modules/AiCopilot/Actions/SoftenUnsourcedClaimsAction.php:57
+msgid "Soften unsourced claims"
+msgstr ""
+
+#: modules/AiCopilot/Actions/SoftenUnsourcedClaimsAction.php:135
+msgid "Soften unsourced statistic claims in this content"
+msgstr ""
+
+#: modules/AiCopilot/Actions/SplitLongParagraphsAction.php:52
+msgid "Split long paragraphs"
+msgstr ""
+
+#: modules/AiCopilot/Actions/SplitLongParagraphsAction.php:129
+msgid "Split long paragraphs in this content"
+msgstr ""
+
+#: modules/AiCopilot/Actions/SuggestInternalLinksAction.php:55
+msgid "Suggest internal links"
+msgstr ""
+
+#: modules/AiCopilot/Actions/SuggestInternalLinksAction.php:72
+msgid "No other published posts share a category or tag with this one to link to."
+msgstr ""
+
+#: modules/AiCopilot/Actions/SuggestInternalLinksAction.php:196
+msgid "The AI did not return any link suggestions."
+msgstr ""
+
+#: modules/AiCopilot/Actions/SuggestInternalLinksAction.php:203
+msgid "The AI returned an incomplete link suggestion."
+msgstr ""
+
+#: modules/AiCopilot/Actions/SuggestInternalLinksAction.php:207
+msgid "The AI suggested a URL that was not in the candidate list."
+msgstr ""
+
+#. translators: %d is the number of suggested internal links.
+#: modules/AiCopilot/Actions/SuggestInternalLinksAction.php:221
+#, php-format
+msgid "Add %d related-reading links to this page"
+msgstr ""
+
+#: modules/AiCopilot/Actions/SuggestInternalLinksAction.php:275
+msgid "Related reading"
+msgstr ""
+
+#: modules/AiCopilot/Actions/WriteMetaDescriptionAction.php:54
+msgid "Write meta description"
+msgstr ""
+
+#: modules/AiCopilot/Actions/WriteMetaDescriptionAction.php:77
+#: modules/AiCopilot/Actions/WriteMetaTitleAction.php:79
+msgid "post_id must refer to an existing post, page, or product."
+msgstr ""
+
+#: modules/AiCopilot/Actions/WriteMetaDescriptionAction.php:131
+msgid "The AI returned an empty description."
+msgstr ""
+
+#: modules/AiCopilot/Actions/WriteMetaDescriptionAction.php:135
+msgid "The AI returned a description that is too long."
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/AiCopilot/Actions/WriteMetaDescriptionAction.php:146
+#, php-format
+msgid "Set meta description for %s"
+msgstr ""
+
+#: modules/AiCopilot/Actions/WriteMetaTitleAction.php:56
+msgid "Write meta title"
+msgstr ""
+
+#: modules/AiCopilot/Actions/WriteMetaTitleAction.php:142
+msgid "Rewrite page title"
+msgstr ""
+
+#: modules/AiCopilot/Actions/WritePostContentAction.php:49
+msgid "Write content"
+msgstr ""
+
+#: modules/AiCopilot/Actions/WritePostContentAction.php:78
+msgid "Please describe what to write about (at least 5 characters)."
+msgstr ""
+
+#: modules/AiCopilot/Actions/WritePostContentAction.php:124
+msgid "The AI returned content that is too short to be useful."
+msgstr ""
+
+#. translators: %s is the post/page title being written for.
+#: modules/AiCopilot/Actions/WritePostContentAction.php:135
+#, php-format
+msgid "Write content for: %s"
+msgstr ""
+
+#: modules/AiCopilot/ContentCreationOrchestrator.php:84
+msgid "Sorry, I didn't quite catch that — could you rephrase?"
+msgstr ""
+
+#: modules/AiCopilot/ContentCreationOrchestrator.php:104
+msgid "I couldn't quite tell what to create — could you tell me a bit more about what you'd like?"
+msgstr ""
+
+#: modules/AiCopilot/ContentCreationOrchestrator.php:112
+msgid "Could you tell me a bit more about what you need?"
+msgstr ""
+
+#: modules/AiCopilot/ContentCreationOrchestrator.php:169
+msgid "The content was generated but could not be saved."
+msgstr ""
+
+#. translators: %s is a content type, e.g. "blog post".
+#: modules/AiCopilot/ContentCreationOrchestrator.php:180
+#, php-format
+msgid "Your %s has been created successfully:"
+msgstr ""
+
+#: modules/AiCopilot/Rest/AiActionRuns.php:134
+msgid "Enable the AI Copilot module to use AI actions."
+msgstr ""
+
+#: modules/AiCopilot/Rest/AiActionRuns.php:164
+msgid "action_id is required."
+msgstr ""
+
+#: modules/AiCopilot/Rest/Copilot.php:182
+msgid "Enable the AI Copilot module to use Chat with VuloPilot."
+msgstr ""
+
+#: modules/AiCopilot/Rest/Copilot.php:429
+msgid "Conversation not found."
+msgstr ""
+
+#. translators: 1: e.g. "blog post", 2: the requested topic/title.
+#: modules/AiCopilot/Rest/Copilot.php:455
+#, php-format
+msgid "I can create a %1$s about \"%2$s\" for you — turn on \"Auto-applies (with approval)\" and ask again to have me create it."
+msgstr ""
+
+#. translators: %s is e.g. "blog post".
+#: modules/AiCopilot/Rest/Copilot.php:463
+#, php-format
+msgid "I can create a %s for you — turn on \"Auto-applies (with approval)\" and ask again to have me create it."
+msgstr ""
+
+#. translators: 1: site name, 2: real live site snapshot text.
+#: modules/AiCopilot/Rest/Copilot.php:491
+#, php-format
+msgid ""
+"You are VuloPilot, an AI website copilot embedded in the WordPress plugin VuloPilot, helping the owner of the site \"%1$s\". You help with SEO, performance, security, accessibility, GEO/AI-search visibility, WooCommerce store health, and automations.\n"
+"\n"
+"You can directly create 3 specific kinds of real WordPress content — everything else you help with is advice only, since no AI action-trigger engine exists for anything beyond these 3. For each, collect the fields in order — a field listed after the first one does NOT mean it's skippable; ask about each one, one at a time, unless the user already stated it somewhere in the conversation:\n"
+"1. \"generate-blog\" — a blog post or article. Collect, in order: topic (what it's about), word_count (target word count), tone (e.g. Professional/Friendly/Informative/Casual).\n"
+"2. \"generate-landing-page\" — a landing page. Collect, in order: topic (what the page is promoting/for), tone.\n"
+"3. \"generate-product-description\" — a product description. Collect, in order: product_name, key_features (a short list of what makes it worth buying), tone.\n"
+"\n"
+"Rules for content creation:\n"
+"- Ask for exactly ONE missing field at a time, as a short natural question, following the collection order above. Never ask about a field already given anywhere earlier in this conversation. Never ask more than 3 questions total for one request.\n"
+"- If the user changed their mind about something, use their latest answer, not an earlier one.\n"
+"- A field can be given implicitly inside natural phrasing, not just as an explicit \"field: value\" statement — e.g. \"a casual blog post about X\" already gives both topic and tone; \"500 words\" gives word_count. Recognize these the same as an explicit answer, and don't ask about them again.\n"
+"- If a message already gives multiple fields at once, or a fully-specified first message gives everything needed, only ask about whatever is still actually missing — or proceed straight to ready_action if nothing is missing.\n"
+"\n"
+"Worked example for \"generate-blog\" (the same collect-one-at-a-time pattern applies to the other 2 kinds):\n"
+"User: \"Write a blog\" → {\"status\":\"question\",\"message\":\"Sure! What should the blog be about?\"}\n"
+"User: \"AI in eCommerce\" → {\"status\":\"question\",\"message\":\"Great — how many words would you like?\"}\n"
+"User: \"1500 words\" → {\"status\":\"question\",\"message\":\"What tone would you prefer? For example: Professional, Friendly, Informative, or Casual.\"}\n"
+"User: \"Professional\" → {\"status\":\"ready_action\",\"action_id\":\"generate-blog\",\"input\":{\"topic\":\"AI in eCommerce\",\"word_count\":1500,\"tone\":\"Professional\"}}\n"
+"\n"
+"For anything that is NOT one of those 3 content kinds — a general question, SEO/performance/security/accessibility/GEO/WooCommerce/automation advice, editing something that already exists, or any other kind of written content — answer using the real site snapshot below when relevant, and point the user to the specific tab (Issues, Performance, Security, GEO, WooCommerce, Automations) where they can review or fix something themselves. You cannot execute any change on the site yourself beyond the 3 content-creation kinds above — say so plainly if asked to perform some other action, rather than claiming to have done it. Reply in plain text or Markdown, never HTML.\n"
+"\n"
+"Respond with ONLY raw JSON, no markdown fences, no commentary, in exactly one of these shapes:\n"
+"{\"status\":\"question\",\"message\":\"<the single next question, phrased naturally>\"}\n"
+"{\"status\":\"ready_action\",\"action_id\":\"generate-blog\"|\"generate-landing-page\"|\"generate-product-description\",\"input\":{...only the fields listed above for that action_id...}}\n"
+"{\"status\":\"respond\",\"message\":\"<a direct answer, or other written content the user still has to copy/paste themselves>\"}%2$s"
+msgstr ""
+
+#. translators: 1: scanner label, 2: category, 3: open finding count, 4: severity
+#: modules/AiCopilot/Rest/Copilot.php:606
+#, php-format
+msgid "- Finding group \"%1$s\" (%2$s): %3$d open, severity %4$s."
+msgstr ""
+
+#. translators: 1: automation name, 2: status (enabled/disabled), 3: trigger type
+#: modules/AiCopilot/Rest/Copilot.php:622
+#, php-format
+msgid "- Automation \"%1$s\": %2$s, trigger %3$s."
+msgstr ""
+
+#. translators: 1: original filename, 2: mime type
+#: modules/AiCopilot/Rest/Copilot.php:666
+#, php-format
+msgid "- Attached file \"%1$s\" (%2$s) — its content can't be read, only the filename is available."
+msgstr ""
+
+#. translators: 1: original filename, 2: mime type
+#: modules/AiCopilot/Rest/Copilot.php:680
+#, php-format
+msgid "- Attached file \"%1$s\" (%2$s) — could not be read."
+msgstr ""
+
+#. translators: 1: original filename, 2: mime type, 3: the file's own text content, 4: truncation note or empty string
+#: modules/AiCopilot/Rest/Copilot.php:692
+#, php-format
+msgid ""
+"- Attached file \"%1$s\" (%2$s):\n"
+"%3$s%4$s"
+msgstr ""
+
+#: modules/AiCopilot/Rest/Copilot.php:722
+msgid "GEO/AI-search"
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/AboutPageAnalysisScanner.php:63
+msgid "About Page Analysis"
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/AboutPageAnalysisScanner.php:101
+msgid "enough real content"
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/AboutPageAnalysisScanner.php:104
+msgid "a visible contact signal"
+msgstr ""
+
+#. translators: %s is a comma-separated list of what the About page is missing.
+#: modules/BrandIntelligence/Scanners/AboutPageAnalysisScanner.php:111
+#, php-format
+msgid "About page is missing %s"
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/AboutPageAnalysisScanner.php:116
+msgid "This site has an About page, but it doesn't yet give AI answer engines or readers enough real substance (word count, contact details) to establish it as a genuine trust signal."
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/AuthorSchemaScanner.php:60
+#: assets/js/index.js:9
+msgid "Author Schema"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/BrandIntelligence/Scanners/AuthorSchemaScanner.php:95
+#, php-format
+msgid "No author schema found: %s"
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/AuthorSchemaScanner.php:100
+msgid "A Person reference in this content's structured data is what AI answer engines and Knowledge Panels read to resolve who wrote it — separate from a human-visible author bio, which alone isn't machine-readable."
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/OrganizationSchemaScanner.php:51
+msgid "Organization Schema"
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/OrganizationSchemaScanner.php:89
+msgid "No Organization schema found on the homepage"
+msgstr ""
+
+#: modules/BrandIntelligence/Scanners/OrganizationSchemaScanner.php:92
+msgid "Organization (or LocalBusiness) structured data is what AI answer engines and Google Knowledge Panels use to resolve \"who runs this site\" as a real-world entity. Its absence makes this site harder to confidently identify and cite."
+msgstr ""
+
+#: modules/ContentIntelligence/ContentAnalyzer.php:196
+msgid "The AI did not return a usable Content Intelligence analysis."
+msgstr ""
+
+#: modules/ContentIntelligence/ContentAnalyzer.php:202
+msgid "The AI response is missing a valid \"topic_authority\" score."
+msgstr ""
+
+#: modules/ContentIntelligence/ContentAnalyzer.php:213
+#: modules/Geo/GeoAnalyzer.php:516
+msgid "The AI did not return any suggestions."
+msgstr ""
+
+#: modules/ContentIntelligence/Rest/ContentIntelligence.php:204
+msgid "Post not found."
+msgstr ""
+
+#: modules/ContentIntelligence/Scanners/ReadabilityScanner.php:72
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Readability"
+msgstr ""
+
+#. translators: 1: post/page title, 2: Flesch Reading Ease score (0-100).
+#: modules/ContentIntelligence/Scanners/ReadabilityScanner.php:126
+#, php-format
+msgid "Difficult to read (score %2$d/100): %1$s"
+msgstr ""
+
+#: modules/ContentIntelligence/Scanners/ReadabilityScanner.php:132
+msgid "Shorter sentences and simpler words generally read easier for both visitors and AI systems summarizing this content."
+msgstr ""
+
+#: modules/EntityExtraction/EntityExtractor.php:214
+msgid "Website title"
+msgstr ""
+
+#: modules/EntityExtraction/EntityExtractor.php:221
+#: assets/js/index.js:9
+msgid "Organization schema"
+msgstr ""
+
+#: modules/EntityExtraction/EntityExtractor.php:228
+msgid "About page"
+msgstr ""
+
+#. translators: 1: real business name, 2: real service page title.
+#. translators: 1: real business name, 2: real published product title.
+#: modules/EntityExtraction/EntityExtractor.php:342
+#: modules/EntityExtraction/EntityExtractor.php:351
+#, php-format
+msgid "%1$s offers %2$s"
+msgstr ""
+
+#. translators: 1: real business name, 2: real published category name.
+#: modules/EntityExtraction/EntityExtractor.php:370
+#, php-format
+msgid "%1$s publishes content about %2$s"
+msgstr ""
+
+#: modules/EntityExtraction/EntityExtractor.php:596
+msgid "Missing product image"
+msgstr ""
+
+#: modules/EntityExtraction/EntityExtractor.php:600
+msgid "Missing SKU"
+msgstr ""
+
+#: modules/EntityExtraction/EntityExtractor.php:607
+msgid "Missing product description"
+msgstr ""
+
+#: modules/EntityExtraction/EntityExtractor.php:611
+msgid "Missing price"
+msgstr ""
+
+#. translators: 1: previous score, 2: new score, 3: post title.
+#: modules/Geo/GeoAnalyzer.php:166
+#, php-format
+msgid "The GEO score for \"%3$s\" fell from %1$d to %2$d."
+msgstr ""
+
+#. translators: 1: site name, 2: post title.
+#: modules/Geo/GeoAnalyzer.php:194
+#, php-format
+msgid "[%1$s] GEO score dropped for \"%2$s\""
+msgstr ""
+
+#: modules/Geo/GeoAnalyzer.php:487
+msgid "The AI did not return a usable GEO analysis."
+msgstr ""
+
+#. translators: %s is the missing/invalid score dimension.
+#: modules/Geo/GeoAnalyzer.php:499
+#, php-format
+msgid "The AI response is missing a valid \"%s\" score."
+msgstr ""
+
+#. translators: 1: real number of pages not updated since the "stale after" window, 2: real total published pages checked.
+#: modules/Geo/Rest/Geo.php:388
+#, php-format
+msgid "%1$d of %2$d pages haven’t been updated in a while"
+msgid_plural "%1$d of %2$d pages haven’t been updated in a while"
+msgstr[0] ""
+msgstr[1] ""
+
+#: modules/Geo/Scanners/GeoAuthorInfoScanner.php:48
+msgid "Author Information"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Geo/Scanners/GeoAuthorInfoScanner.php:85
+#, php-format
+msgid "No author bio available: %s"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoAuthorInfoScanner.php:90
+msgid "AI answer engines weigh visible author expertise when deciding whether to cite a source. A missing author bio gives them nothing to evaluate."
+msgstr ""
+
+#: modules/Geo/Scanners/GeoChunkingScanner.php:52
+msgid "Chunking"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Geo/Scanners/GeoChunkingScanner.php:89
+#, php-format
+msgid "Contains an overly long paragraph: %s"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoChunkingScanner.php:94
+msgid "AI answer engines retrieve and quote content in small chunks. A very long paragraph is harder to cleanly extract than the same information split into shorter ones."
+msgstr ""
+
+#: modules/Geo/Scanners/GeoCitationOpportunityScanner.php:70
+msgid "Citation Opportunities"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Geo/Scanners/GeoCitationOpportunityScanner.php:118
+#, php-format
+msgid "Statistic mentioned with no source link: %s"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoCitationOpportunityScanner.php:123
+msgid "This content mentions a statistic or study but links to no external source. AI answer engines favor content that backs up factual claims with citations."
+msgstr ""
+
+#: modules/Geo/Scanners/GeoEeatSignalsScanner.php:50
+msgid "EEAT Signals"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Geo/Scanners/GeoEeatSignalsScanner.php:88
+#, php-format
+msgid "No EEAT signals found: %s"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoEeatSignalsScanner.php:93
+msgid "This content has no author bio and has never been updated since it was first published — two of the clearest signals AI engines use to judge expertise and trustworthiness are both missing."
+msgstr ""
+
+#: modules/Geo/Scanners/GeoEntityNamingConsistencyScanner.php:55
+msgid "Entity Naming Consistency"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Geo/Scanners/GeoEntityNamingConsistencyScanner.php:98
+#, php-format
+msgid "Brand name written inconsistently: %s"
+msgstr ""
+
+#. translators: %s is a comma-separated list of the different spellings found.
+#: modules/Geo/Scanners/GeoEntityNamingConsistencyScanner.php:105
+#, php-format
+msgid "This content refers to the site as multiple different spellings/casings (%s). AI answer engines resolve entities more reliably when a brand name is written the exact same way throughout."
+msgstr ""
+
+#: modules/Geo/Scanners/GeoFaqOpportunityScanner.php:50
+msgid "FAQ Opportunities"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Geo/Scanners/GeoFaqOpportunityScanner.php:91
+#, php-format
+msgid "No FAQ-style questions found: %s"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoFaqOpportunityScanner.php:96
+msgid "AI answer engines frequently lift direct question/answer pairs into their responses. Content with no question-phrased headings is less likely to be cited this way."
+msgstr ""
+
+#: modules/Geo/Scanners/GeoSemanticStructureScanner.php:51
+msgid "Semantic Structure"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Geo/Scanners/GeoSemanticStructureScanner.php:100
+#, php-format
+msgid "Heading levels skip a level: %s"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoSemanticStructureScanner.php:105
+msgid "A heading jumps more than one level deeper than the previous one (e.g. an H2 followed directly by an H4). This breaks the document outline AI systems and screen readers rely on to understand structure."
+msgstr ""
+
+#: modules/Geo/Scanners/GeoSummaryBlockScanner.php:63
+msgid "Summary Blocks"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Geo/Scanners/GeoSummaryBlockScanner.php:117
+#, php-format
+msgid "No upfront summary found: %s"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoSummaryBlockScanner.php:122
+msgid "AI answer engines favor content with a short summary or key-takeaways list near the top, rather than requiring the full article to be read first."
+msgstr ""
+
+#: modules/Geo/Scanners/GeoTrustSignalsScanner.php:50
+#: assets/js/index.js:9
+msgid "Trust Signals"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoTrustSignalsScanner.php:74
+msgid "an About page"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoTrustSignalsScanner.php:77
+msgid "a Contact page"
+msgstr ""
+
+#. translators: %s is a comma-separated list of missing page types.
+#: modules/Geo/Scanners/GeoTrustSignalsScanner.php:83
+#, php-format
+msgid "Site is missing %s"
+msgstr ""
+
+#: modules/Geo/Scanners/GeoTrustSignalsScanner.php:88
+msgid "AI answer engines and readers both use \"who is behind this site\" pages as a baseline trust signal before treating content as citable."
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:608
+msgid "That page could not be found."
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:665
+msgid "Title Tag"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:669
+msgid "Missing title tag"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:682
+msgid "Duplicate title — shared with another published page"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:685
+msgid "Title tag is unique and set"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:697
+#: assets/js/post-editor.js:1
+msgid "Meta Description"
+msgstr ""
+
+#. translators: %d: real current character count.
+#: modules/Seo/Rest/Seo.php:712
+#, php-format
+msgid "Too short (%d characters)"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:718
+msgid "Meta description is set"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:731
+msgid "H1 Heading"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:734
+msgid "H1 tag found"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:737
+msgid "H1 tag not found"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:751
+msgid "Subheadings"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:754
+msgid "H2, H3+ tags found"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:757
+msgid "No subheadings found"
+msgstr ""
+
+#. translators: 1: real word count, 2: real minimum recommended word count.
+#: modules/Seo/Rest/Seo.php:781
+#, php-format
+msgid "Thin content (%1$d words, recommended %2$d+)"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:788
+msgid "Word count is good"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:801
+#: modules/Seo/Scanners/ImagesScanner.php:45
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Images"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:804
+msgid "No images in this content"
+msgstr ""
+
+#. translators: %d: real number of images missing alt text on this page.
+#: modules/Seo/Rest/Seo.php:825
+#, php-format
+msgid "%d image missing alt text"
+msgid_plural "%d images missing alt text"
+msgstr[0] ""
+msgstr[1] ""
+
+#: modules/Seo/Rest/Seo.php:831
+msgid "All images have alt text"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:853
+msgid "Featured Image"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:856
+msgid "Featured image is set"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:859
+msgid "No featured image set"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:878
+#: modules/Seo/Scanners/BrokenLinksScanner.php:90
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Broken Links"
+msgstr ""
+
+#. translators: %d: real number of broken links found on this page by the Broken Links scanner.
+#: modules/Seo/Rest/Seo.php:899
+#, php-format
+msgid "%d broken internal link found"
+msgid_plural "%d broken internal links found"
+msgstr[0] ""
+msgstr[1] ""
+
+#: modules/Seo/Rest/Seo.php:905
+msgid "No broken links found"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:931
+msgid "Orphan Page"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:948
+msgid "0 internal links point to this page — nothing else links to it"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:952
+msgid "At least one other page links to this page"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:966
+msgid "Canonical"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:969
+#: modules/Seo/Rest/Seo.php:1016
+#: modules/Seo/Rest/Seo.php:1038
+msgid "Could not fetch this page to check"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:973
+msgid "Canonical is set"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:976
+msgid "No canonical URL tag found"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:991
+msgid "Indexability"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:994
+msgid "Not published"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:998
+msgid "Site is set to discourage search engines (Settings → Reading)"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:1001
+msgid "Content is indexed"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:1013
+#: modules/Seo/Scanners/StructuredDataValidationScanner.php:45
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Structured Data"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:1020
+msgid "Structured data (JSON-LD) found"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:1023
+msgid "No schema detected"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:1035
+msgid "Social Metadata"
+msgstr ""
+
+#: modules/Seo/Rest/Seo.php:1051
+msgid "Open Graph tags found"
+msgstr ""
+
+#. translators: %s: real comma-separated list of missing Open Graph properties.
+#: modules/Seo/Rest/Seo.php:1060
+#, php-format
+msgid "Open Graph tags missing: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/AiCrawlerBlockedPagesScanner.php:53
+msgid "AI Crawler Blocked Pages"
+msgstr ""
+
+#. translators: 1: bot display name, 2: post/page title.
+#: modules/Seo/Scanners/AiCrawlerBlockedPagesScanner.php:113
+#, php-format
+msgid "%1$s is blocked from crawling: %2$s"
+msgstr ""
+
+#. translators: %s is the bot display name.
+#: modules/Seo/Scanners/AiCrawlerBlockedPagesScanner.php:121
+#, php-format
+msgid "robots.txt disallows this page for %s specifically, so it won't be read for AI answers even though the rest of the site may be reachable."
+msgstr ""
+
+#: modules/Seo/Scanners/BrokenImagesScanner.php:76
+#: assets/js/index.js:1
+msgid "Broken Images"
+msgstr ""
+
+#. translators: %s is the broken image URL.
+#: modules/Seo/Scanners/BrokenImagesScanner.php:126
+#, php-format
+msgid "Broken image: %s"
+msgstr ""
+
+#. translators: %s is an HTTP status or error description.
+#: modules/Seo/Scanners/BrokenImagesScanner.php:133
+#: modules/Seo/Scanners/BrokenLinksScanner.php:147
+#, php-format
+msgid "Request failed with: %s"
+msgstr ""
+
+#. translators: %s is the broken URL.
+#: modules/Seo/Scanners/BrokenLinksScanner.php:140
+#, php-format
+msgid "Broken link: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/CanonicalUrlScanner.php:55
+msgid "Canonical URLs"
+msgstr ""
+
+#. translators: %s is the URL missing a canonical tag.
+#: modules/Seo/Scanners/CanonicalUrlScanner.php:81
+#, php-format
+msgid "No canonical URL tag found: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/CanonicalUrlScanner.php:86
+msgid "A missing canonical tag can lead search engines to treat identical content reachable at multiple URLs as duplicates."
+msgstr ""
+
+#: modules/Seo/Scanners/DuplicateContentScanner.php:55
+#: assets/js/index.js:9
+msgid "Duplicate Content"
+msgstr ""
+
+#. translators: 1: the duplicated title, 2: number of posts sharing it.
+#: modules/Seo/Scanners/DuplicateContentScanner.php:120
+#, php-format
+msgid "Duplicate title used by %2$d posts: %1$s"
+msgstr ""
+
+#: modules/Seo/Scanners/DuplicateContentScanner.php:126
+msgid "Multiple published posts share this exact title, which can split search ranking signal between them or confuse which one search engines show."
+msgstr ""
+
+#: modules/Seo/Scanners/HeadingStructureScanner.php:49
+msgid "Heading Structure"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Seo/Scanners/HeadingStructureScanner.php:96
+#, php-format
+msgid "No subheadings found in long content: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/HeadingStructureScanner.php:101
+msgid "Breaking long content into sections with subheadings makes it easier for readers to scan and for search engines to understand its structure."
+msgstr ""
+
+#. translators: %s is the image filename.
+#: modules/Seo/Scanners/ImagesScanner.php:92
+#, php-format
+msgid "Image missing alt text: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/ImagesScanner.php:97
+msgid "Alt text helps search engines and screen reader users understand what an image shows."
+msgstr ""
+
+#: modules/Seo/Scanners/InternalLinkingScanner.php:48
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Internal Linking"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Seo/Scanners/InternalLinkingScanner.php:84
+#, php-format
+msgid "No internal links found in content: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/InternalLinkingScanner.php:89
+msgid "Linking to other pages on this site helps search engines discover and rank content, and helps readers find related pages."
+msgstr ""
+
+#: modules/Seo/Scanners/MetaDescriptionScanner.php:51
+msgid "Meta Descriptions"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Seo/Scanners/MetaDescriptionScanner.php:96
+#, php-format
+msgid "No meta description set: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/MetaDescriptionScanner.php:101
+msgid "This post has no excerpt set. Most themes and SEO plugins fall back to the excerpt for the search-result description when no dedicated description is configured."
+msgstr ""
+
+#: modules/Seo/Scanners/OpenGraphScanner.php:46
+msgid "Open Graph"
+msgstr ""
+
+#. translators: %s is a comma-separated list of missing Open Graph properties.
+#: modules/Seo/Scanners/OpenGraphScanner.php:89
+#, php-format
+msgid "Missing Open Graph tags on the homepage: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/OpenGraphScanner.php:94
+msgid "Open Graph tags control how this site's links look when shared on Facebook, LinkedIn, and similar platforms. Without them, shared links show no preview image or description."
+msgstr ""
+
+#: modules/Seo/Scanners/OrphanPageScanner.php:56
+msgid "Orphan Pages"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Seo/Scanners/OrphanPageScanner.php:103
+#, php-format
+msgid "No internal links point to this page: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/OrphanPageScanner.php:108
+msgid "Among the recently modified content sampled by this scan, nothing links to this page. Pages with no inbound internal links are harder for search engines to discover."
+msgstr ""
+
+#: modules/Seo/Scanners/RobotsTxtScanner.php:47
+#: assets/js/index.js:1
+msgid "Robots.txt"
+msgstr ""
+
+#: modules/Seo/Scanners/RobotsTxtScanner.php:72
+#: assets/js/index.js:9
+msgid "robots.txt is not reachable"
+msgstr ""
+
+#: modules/Seo/Scanners/RobotsTxtScanner.php:75
+msgid "No robots.txt file was found at the site root. Its absence isn't harmful by itself, but it means there's no explicit crawl guidance for search engines."
+msgstr ""
+
+#: modules/Seo/Scanners/RobotsTxtScanner.php:85
+msgid "robots.txt is blocking all search engines"
+msgstr ""
+
+#: modules/Seo/Scanners/RobotsTxtScanner.php:88
+msgid "robots.txt disallows every page for all crawlers (User-agent: * / Disallow: /). If unintentional, this removes the entire site from search results."
+msgstr ""
+
+#: modules/Seo/Scanners/SchemaScanner.php:81
+msgid "No structured data (JSON-LD) found on the homepage"
+msgstr ""
+
+#: modules/Seo/Scanners/SchemaScanner.php:84
+msgid "Structured data helps search engines understand and display rich results for this site. Neither the active theme nor any active plugin appears to be outputting any."
+msgstr ""
+
+#: modules/Seo/Scanners/SeoImagesScanner.php:49
+msgid "Featured Images"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Seo/Scanners/SeoImagesScanner.php:91
+#, php-format
+msgid "No featured image set: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/SeoImagesScanner.php:96
+msgid "A featured image is used as the preview image when this page is shared on social media or shown in some search result formats."
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Seo/Scanners/SeoScanner.php:93
+#, php-format
+msgid "Title is too short for search results: %s"
+msgstr ""
+
+#. translators: %s is the post/page title.
+#: modules/Seo/Scanners/SeoScanner.php:98
+#, php-format
+msgid "Title may be truncated in search results: %s"
+msgstr ""
+
+#: modules/Seo/Scanners/SitemapScanner.php:67
+#: assets/js/index.js:1
+msgid "No XML sitemap found"
+msgstr ""
+
+#: modules/Seo/Scanners/SitemapScanner.php:70
+msgid "Neither /wp-sitemap.xml nor /sitemap.xml returned a successful response. A sitemap helps search engines discover and crawl every page on the site."
+msgstr ""
+
+#. translators: %d is which structured-data block on the page (1-indexed) is invalid.
+#: modules/Seo/Scanners/StructuredDataValidationScanner.php:91
+#, php-format
+msgid "Invalid structured data (JSON-LD) block #%d on the homepage"
+msgstr ""
+
+#: modules/Seo/Scanners/StructuredDataValidationScanner.php:96
+msgid "This structured data block does not parse as valid JSON, so search engines will ignore it entirely for rich results."
+msgstr ""
+
+#: modules/Seo/Scanners/ThinContentScanner.php:55
+msgid "Thin Content"
+msgstr ""
+
+#. translators: 1: post/page title, 2: word count.
+#: modules/Seo/Scanners/ThinContentScanner.php:95
+#, php-format
+msgid "Thin content (%2$d words): %1$s"
+msgstr ""
+
+#. translators: %d is the recommended minimum word count.
+#: modules/Seo/Scanners/ThinContentScanner.php:103
+#, php-format
+msgid "Search engines generally rank substantive content higher. Consider expanding this to at least %d words."
+msgstr ""
+
+#: modules/Seo/Scanners/TwitterCardScanner.php:43
+msgid "Twitter Cards"
+msgstr ""
+
+#: modules/Seo/Scanners/TwitterCardScanner.php:77
+msgid "No Twitter Card tag found on the homepage"
+msgstr ""
+
+#: modules/Seo/Scanners/TwitterCardScanner.php:80
+msgid "Without a twitter:card meta tag, links to this site shared on X/Twitter show as a plain link with no preview image or summary."
 msgstr ""
 
 #: assets/js/block/faq/index.js:1
@@ -5223,76 +5219,6 @@ msgid "Could not enable the Automation module. Please try again."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Connected to VuloCloud."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not connect to VuloCloud. Please try again."
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-#: assets/js/post-editor.js:1
-msgid "Loading…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connected — an AI provider key is configured for this site by your Organization (or an allowed personal backup key)."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connected to VuloCloud, but no AI provider key is configured yet for this site. Add one from your VuloCloud account, or ask your agency to."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connect this site to VuloCloud to use an AI provider key managed by your Organization."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connected"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Key needed"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Not Connected"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Disconnecting…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Disconnect"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connecting…"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Connect to VuloCloud"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Disconnect VuloCloud"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Disconnect this site from VuloCloud? AI features that rely on your Organization’s key will stop working until you connect again."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Disconnected from VuloCloud."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Could not disconnect from VuloCloud."
-msgstr ""
-
-#: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Amazon S3"
 msgstr ""
@@ -5337,6 +5263,14 @@ msgid "Test connection"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Disconnecting…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnect"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Access Key ID"
 msgstr ""
 
@@ -5359,6 +5293,10 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Store backups in a Google Drive folder."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connected"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5589,15 +5527,15 @@ msgid "Connections"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Connect VuloPilot to AI providers, Google services, and verify your site ownership."
+msgid "Connect VuloPilot to AI services, Google services, and verify your site ownership."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI Providers"
+msgid "VuloCloud AI"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Configure and manage your AI provider connections. Add API keys to enable AI features across VuloPilot."
+msgid "Connect this site to VuloCloud to enable AI features across VuloPilot."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -5661,6 +5599,10 @@ msgid "AdSense"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Not Connected"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "More actions"
 msgstr ""
 
@@ -5682,6 +5624,12 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "This service isn’t responding — try reconnecting."
+msgstr ""
+
+#: assets/js/index.js:1
+#: assets/js/index.js:9
+#: assets/js/post-editor.js:1
+msgid "Loading…"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6487,6 +6435,54 @@ msgid "+ %s"
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Connected to VuloCloud."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not connect to VuloCloud. Please try again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connected — an AI key is configured for this site by your Organization (or an allowed personal backup key)."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connected to VuloCloud, but no AI service key is configured yet for this site. Add one from your VuloCloud account, or ask your agency to."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect this site to VuloCloud to use the AI key managed by your Organization."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Key needed"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connecting…"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Connect to VuloCloud"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnect VuloCloud"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnect this site from VuloCloud? AI features that rely on your Organization’s key will stop working until you connect again."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Disconnected from VuloCloud."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Could not disconnect from VuloCloud."
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Sending…"
 msgstr ""
 
@@ -6672,14 +6668,6 @@ msgid "Get notified when AI crawlers are blocked, limited, or stop visiting your
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI Crawler Alerts"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Notify me about"
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Notification channels"
 msgstr ""
 
@@ -6692,11 +6680,15 @@ msgid "In-dashboard"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Why track AI crawlers?"
+msgid "Applies to every alert type below. Mobile push notifications aren't available yet — Email and In-dashboard are the two real delivery channels today."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "AI crawlers help your content appear in AI search results. These alerts help you make sure they can still access and index your website. Mobile push notifications aren't available yet — Email and In-dashboard are the two real delivery channels today."
+msgid "AI Crawler Alerts"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Notify me about"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6756,10 +6748,6 @@ msgid "When your SSL certificate is about to expire or has issues."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "You'll receive an alert as soon as a qualifying issue is found. The minimum severity and where alert emails are sent are configured under <a href=\"?page=vulopilot#&tab=settings&subtab=security-scanning\">Settings → Security</a>. Mobile push notifications aren't available yet — Email and In-dashboard are the two real delivery channels today."
-msgstr ""
-
-#: assets/js/index.js:1
 msgid "Visibility Alerts"
 msgstr ""
 
@@ -6797,14 +6785,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "When your Knowledge Graph score drops by the selected percentage."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Stay ahead of visibility drops"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "These alerts help you catch issues early before they impact your traffic, rankings, and AI visibility. Mobile push notifications aren't available yet — Email and In-dashboard are the two real delivery channels today."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -6849,14 +6829,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Problems affecting important site data or core functionality."
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "Notification channel"
-msgstr ""
-
-#: assets/js/index.js:1
-msgid "You'll be notified instantly when any critical issue is detected. Mobile push notifications aren't available yet — Email and In-dashboard are the two real delivery channels today."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -7545,6 +7517,11 @@ msgid "Products without valid Product structured data."
 msgstr ""
 
 #: assets/js/index.js:1
+#: assets/js/index.js:9
+msgid "Pro"
+msgstr ""
+
+#: assets/js/index.js:1
 msgid "Send Test Report"
 msgstr ""
 
@@ -7565,7 +7542,7 @@ msgid "Reset All Settings"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Restores every VuloPilot setting on this site to its default value. Findings, history, and connected AI provider keys are not affected."
+msgid "Restores every VuloPilot setting on this site to its default value. Findings, history, and your VuloCloud AI connection are not affected."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8131,10 +8108,10 @@ msgid "Simulated Citation Checks"
 msgstr ""
 
 #. translators: %d is a placeholder example percent, not real data.
-#. translators: %d is the percent of tested questions the AI provider already recognized this site for.
+#. translators: %d is the percent of tested questions the AI service already recognized this site for.
 #: assets/js/index.js:1
 #, js-format
-msgid "questions your AI provider already recognized this site for (%d%%)."
+msgid "questions your AI service already recognized this site for (%d%%)."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8142,7 +8119,7 @@ msgid "Answer Engine Coverage"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Asks your own configured AI provider real questions from your content — without ever naming your site — and checks whether it already recognizes you as a source. A real, disclosed simulation of what that model already knows, not a live ChatGPT/Perplexity search."
+msgid "Asks your own configured AI service real questions from your content — without ever naming your site — and checks whether it already recognizes you as a source. A real, disclosed simulation of what that model already knows, not a live ChatGPT/Perplexity search."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8171,7 +8148,7 @@ msgid "Not run yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Click \"Run check\" to ask your configured AI provider a handful of real questions from your own published content."
+msgid "Click \"Run check\" to ask your configured AI service a handful of real questions from your own published content."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8211,7 +8188,7 @@ msgid "Re-verifies a previously-flagged finding against an AI answer engine once
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Could not test this page — make sure an AI provider is configured under AI Copilot → Settings."
+msgid "Could not test this page — make sure this site is connected to VuloCloud under Settings → Connections."
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8235,14 +8212,14 @@ msgid "Question built from this page’s title."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Your configured AI provider already recognizes this site for this question."
+msgid "Your configured AI service already recognizes this site for this question."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Your configured AI provider does not yet recognize this site for this question."
+msgid "Your configured AI service does not yet recognize this site for this question."
 msgstr ""
 
-#. translators: 1: AI provider id (e.g. "gemini"), 2: model id.
+#. translators: 1: AI service id (e.g. "gemini"), 2: model id.
 #: assets/js/index.js:1
 #, js-format
 msgid "What %1$s (%2$s) actually said, live:"
@@ -8487,7 +8464,6 @@ msgid "Last scanned %s"
 msgstr ""
 
 #: assets/js/index.js:1
-#: assets/js/index.js:9
 msgid "No open findings"
 msgstr ""
 
@@ -8656,12 +8632,30 @@ msgid "Your site needs attention in several areas."
 msgstr ""
 
 #: assets/js/index.js:1
+msgid "Receive a summary of your website's visibility, issues, and opportunities."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Automatically scan your website and refresh your VuloPilot insights."
+msgstr ""
+
+#: assets/js/index.js:1
 #: assets/js/index.js:9
 msgid "Automation status"
 msgstr ""
 
+#. translators: %d: number of enabled built-in automations.
+#: assets/js/index.js:1
+#, js-format
+msgid "%d Enabled"
+msgstr ""
+
 #: assets/js/index.js:1
 msgid "Which of your automations are enabled and running."
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Manage"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -8673,11 +8667,15 @@ msgid "No automations yet"
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Create one from the Automation page to react to scan findings automatically."
+msgid "Open the Automations page to set up your built-in automations."
 msgstr ""
 
 #: assets/js/index.js:1
-msgid "Want to add more automations?"
+msgid "Unlock more automations"
+msgstr ""
+
+#: assets/js/index.js:1
+msgid "Get Website Health daily scans, advanced reports, and more with Pro."
 msgstr ""
 
 #. translators: %d: real 0-100 signal score.
@@ -9561,11 +9559,6 @@ msgstr ""
 
 #: assets/js/index.js:1
 msgid "Choose a row from the table to see more detail here."
-msgstr ""
-
-#: assets/js/index.js:1
-#: assets/js/index.js:9
-msgid "Pro"
 msgstr ""
 
 #: assets/js/index.js:1
@@ -11725,13 +11718,6 @@ msgstr ""
 
 #: assets/js/index.js:9
 #, js-format
-msgid "%d person"
-msgid_plural "%d people"
-msgstr[0] ""
-msgstr[1] ""
-
-#: assets/js/index.js:9
-#, js-format
 msgid "%d service"
 msgid_plural "%d services"
 msgstr[0] ""
@@ -11739,15 +11725,22 @@ msgstr[1] ""
 
 #: assets/js/index.js:9
 #, js-format
-msgid "%d category"
-msgid_plural "%d categories"
+msgid "%d location"
+msgid_plural "%d locations"
 msgstr[0] ""
 msgstr[1] ""
 
 #: assets/js/index.js:9
 #, js-format
-msgid "%d location"
-msgid_plural "%d locations"
+msgid "%d person"
+msgid_plural "%d people"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/index.js:9
+#, js-format
+msgid "%d category"
+msgid_plural "%d categories"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -13168,34 +13161,6 @@ msgid "Make my site GEO ready"
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "Total findings"
-msgstr ""
-
-#. translators: %d is the number of open security findings.
-#: assets/js/index.js:9
-#, js-format
-msgid "I found %d security issues."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "You're all caught up — no open security issues."
-msgstr ""
-
-#. translators: %d is the number of high-priority findings.
-#: assets/js/index.js:9
-#, js-format
-msgid "%d should be reviewed first."
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Your site needs attention"
-msgstr ""
-
-#: assets/js/index.js:9
-msgid "Your site is protected"
-msgstr ""
-
-#: assets/js/index.js:9
 msgid "Security Scan"
 msgstr ""
 
@@ -13243,14 +13208,28 @@ msgstr ""
 msgid "Certificate validity and expiry."
 msgstr ""
 
-#. translators: 1: formatted date, 2: formatted time.
+#. translators: %d is the number of open security findings.
 #: assets/js/index.js:9
 #, js-format
-msgid "Last scan: %1$s at %2$s"
+msgid "I found %d security issues."
 msgstr ""
 
 #: assets/js/index.js:9
-msgid "Never scanned yet"
+msgid "You're all caught up — no open security issues."
+msgstr ""
+
+#. translators: %d is the number of high-priority findings.
+#: assets/js/index.js:9
+#, js-format
+msgid "%d should be reviewed first."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Your site needs attention"
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Your site is protected"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -13269,6 +13248,10 @@ msgstr ""
 
 #: assets/js/index.js:9
 msgid "Security trend builds up after your first scan — run a scan, or check back after today."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Total findings"
 msgstr ""
 
 #: assets/js/index.js:9
@@ -13333,6 +13316,10 @@ msgstr ""
 
 #: assets/js/index.js:9
 msgid "No vulnerability findings yet — run a scan to check."
+msgstr ""
+
+#: assets/js/index.js:9
+msgid "Unexpected changes files."
 msgstr ""
 
 #: assets/js/index.js:9

@@ -58,6 +58,25 @@ const SecurityTrendCard = () => {
 		{ days: Number(period) }
 	);
 
+	// Same real `GET /findings/attention-summary` `high`/`medium`/`low`/
+	// `total` counts SecurityStatusCard.tsx's own hero card reads — moved
+	// here (per direct instruction) as a real `AnalyticsComponent` tile row
+	// under the trend chart, replacing the `ListComponent` rows that used
+	// to sit under SecurityStatusCard's own metrics list.
+	const [summary, setSummary] = useState<AttentionSummary | null>(null);
+	useEffect(() => {
+		getApiResponse<AttentionSummary>(
+			getApiLink(appLocalizer, 'findings/attention-summary'),
+			{ headers: { 'X-WP-Nonce': appLocalizer.nonce } }
+		).then((response) => {
+			if (response) {
+				setSummary(response);
+			}
+		});
+	}, []);
+	const { high = 0, medium = 0, low = 0 } = summary?.priority_counts ?? {};
+	const total = summary?.total ?? 0;
+
 	return (
 		<CardComponent
 			id="security-trend-card"
@@ -101,6 +120,32 @@ const SecurityTrendCard = () => {
 					yDomain={[0, 100]}
 				/>
 			)}
+			<AnalyticsComponent
+				variant="background-color"
+				cols={4}
+				data={[
+					{
+						colorClass: 'admin-bg-color2',
+						number: high,
+						text: __('High', 'vulopilot'),
+					},
+					{
+						colorClass: 'admin-bg-color3',
+						number: medium,
+						text: __('Medium', 'vulopilot'),
+					},
+					{
+						colorClass: 'admin-bg-color4',
+						number: low,
+						text: __('Low', 'vulopilot'),
+					},
+					{
+						colorClass: 'admin-bg-color5',
+						number: total,
+						text: __('Total findings', 'vulopilot'),
+					},
+				]}
+			/>
 		</CardComponent>
 	);
 };

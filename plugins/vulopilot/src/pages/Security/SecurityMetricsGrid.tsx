@@ -74,7 +74,7 @@ const METRIC_TILES: MetricTileData[] = [
 		id: 'file-changes',
 		icon: 'document blue',
 		title: __('Suspicious File Changes', 'vulopilot'),
-		desc: __('Unexpected changes to core/theme/plugin files.', 'vulopilot'),
+		desc: __('Unexpected changes files.', 'vulopilot'),
 	},
 	{
 		id: 'ssl',
