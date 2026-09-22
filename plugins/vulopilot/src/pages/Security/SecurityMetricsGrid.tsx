@@ -1,21 +1,19 @@
-import { __, sprintf } from '@wordpress/i18n';
-import { MetricTileComponent } from '@zyra/components';
+import { __ } from '@wordpress/i18n';
+import { ListComponent, BadgeComponent , CardComponent} from '@zyra/components';
 import { useSectionStatus } from '../../services/useSectionStatus';
-import { useLastScanTime } from '../../services/useLastScanTime';
-import { formatWpDate, formatWpTime } from '../../services/formatWpDate';
 import { SECURITY_FINDINGS_SCANNER_IDS } from './securityScannerIds';
 import type { SectionedIssuesTab } from './SectionedIssuesTable';
 import './ProtectMySite.scss';
 
 /**
- * Where each of the 7 real (scanner-backed) tiles' "View" button goes —
- * every one of them now has a real matching section on THIS SAME tab's own
+ * Where each of the 7 real (scanner-backed) tiles' row click goes — every
+ * one of them now has a real matching section on THIS SAME tab's own
  * merged issues table (SectionedIssuesTable.tsx, via `onViewSection`,
  * passed down from SecurityTab.tsx). Used to also carry Accessibility/Site
  * Health/Backups/Recovery, each linking out to a different "Protect My
  * Site" sub-tab — removed per direct instruction: those already have their
  * own dedicated tabs, so showing them a second time here was pure IA
- * duplication, not a genuine security finding this grid should surface.
+ * duplication, not a genuine security finding this list should surface.
  * "Plugin Vulnerabilities"/"File Changes" used to link out to Files &
  * Plugins the same way — now real in-tab sections instead
  * ('vulnerabilities'/'suspicious-file-changes'), since those findings moved
@@ -33,30 +31,6 @@ const VIEW_TARGET_BY_TILE_ID: Record<
 	'plugin-vulnerabilities': { type: 'section', sectionKey: 'vulnerabilities' },
 	'file-changes': { type: 'section', sectionKey: 'suspicious-file-changes' },
 };
-
-/** Real scanner ids each of the 7 backed tiles' own "last scan" lookup is scoped to — same groupings `badgeFor()` below already uses for their open-findings counts. */
-const SCANNER_IDS_BY_TILE_ID: Record<string, string[]> = {
-	'security-scan': SECURITY_FINDINGS_SCANNER_IDS,
-	malware: ['malware'],
-	firewall: ['firewall'],
-	'login-protection': ['weak-passwords', 'login-protection'],
-	'plugin-vulnerabilities': [
-		'basic-vulnerabilities',
-		'advanced-vulnerabilities',
-		'theme-vulnerabilities',
-	],
-	'file-changes': ['core-file-integrity', 'integrity-monitoring'],
-	ssl: ['ssl-monitoring'],
-};
-
-/** Real "last scan: {date} at {time}" line — WP's own configured date/time format for both (`formatWpDate()`/`formatWpTime()`, same technique historyTypes.ts's own rowTime() uses), not a plain browser-locale clock time. */
-const formatLastScan = (isoDate: string): string =>
-	sprintf(
-		/* translators: 1: formatted date, 2: formatted time. */
-		__('Last scan: %1$s at %2$s', 'vulopilot'),
-		formatWpDate(isoDate),
-		formatWpTime(isoDate)
-	);
 
 interface MetricTileData {
 	id: string;
@@ -110,40 +84,42 @@ const METRIC_TILES: MetricTileData[] = [
 	},
 ];
 
-const NOT_TRACKED_BADGE = {
-	text: __('Not tracked yet', 'vulopilot'),
-	color: 'indigo',
-};
+const NOT_TRACKED_BADGES = [
+	{ text: __('Not tracked yet', 'vulopilot'), color: 'indigo' },
+];
 
 /**
- * The mockup's tile grid — down to 7 tiles (from 11) per direct
- * instruction: Accessibility/Site Health/Backups/Recovery removed
- * (dedicated tabs already cover them, so showing them here too was pure
- * duplication, not a security finding this grid should surface). Every
- * remaining tile is real and scanner-backed. Security Scan (whole
+ * The mockup's tile grid — converted from a `MetricTileComponent` grid to
+ * the same real per-section `ListComponent` row shape
+ * SiteHealthStatusCard.tsx's own list already uses (icon + title + desc on
+ * the left, 2 real separate badges — total open + top-severity breakdown,
+ * `useSectionStatus()`'s own `badges` array — on the right), per direct
+ * instruction to match that same structure. Down to 7 rows (from 11) per
+ * earlier direct instruction: Accessibility/Site Health/Backups/Recovery
+ * removed (dedicated tabs already cover them, so showing them here too was
+ * pure duplication, not a security finding this list should surface).
+ * Every remaining row is real and scanner-backed. Security Scan (whole
  * 'security' category), Vulnerabilities
  * (`basic-vulnerabilities`/`advanced-vulnerabilities`/`theme-vulnerabilities`
  * — the latter absorbed from the now-removed "Files & Plugins" tab's own
  * "Theme Vulnerabilities" section per direct instruction, one combined
- * tile/section rather than a separate one), Suspicious File
- * Changes (`core-file-integrity`/`integrity-monitoring`), SSL — note
- * category **'ssl'**, not 'security' (`SslMonitoringScanner` registers
- * under its own category; `useSectionStatus` ANDs category+scanner_id
- * server-side, same as FindingsTable, so passing 'security' here would
- * silently return zero results).
+ * row rather than a separate one), Suspicious File Changes
+ * (`core-file-integrity`/`integrity-monitoring`), SSL — note category
+ * **'ssl'**, not 'security' (`SslMonitoringScanner` registers under its own
+ * category; `useSectionStatus` ANDs category+scanner_id server-side, same
+ * as FindingsTable, so passing 'security' here would silently return zero
+ * results).
  *
  * Malware/Firewall/Login Protection are real, always-on core features
  * (Services\MalwareScanner et al., `classes/Services/`), each with its own
  * companion Scanner (`malware`/`firewall`/`login-protection`) so they slot
  * into this exact same real `useSectionStatus()` badge machinery.
  *
- * Every one of these 7 tiles still carries a real "Last scan" line
- * (`useLastScanTime()`, `GET /scans` scoped to that tile's own scanner
- * group — `SCANNER_IDS_BY_TILE_ID` above). No separate "View" footer button
- * per direct instruction — the badge itself (`MetricTile`'s own
- * `badge.onClick`) is the click target, jumping to that tile's own section
- * on this same tab's merged issues table (`VIEW_TARGET_BY_TILE_ID` above),
- * same destination the old button used.
+ * Clicking a row (`ListComponent`'s own `action`) jumps to that row's own
+ * section on this same tab's merged issues table (`VIEW_TARGET_BY_TILE_ID`
+ * above), same destination the old tile grid's badge-click used — rows
+ * with no matching section (none currently) render without an `action`, so
+ * they're not clickable.
  */
 const SecurityMetricsGrid = ({
 	onViewSection,
@@ -151,7 +127,7 @@ const SecurityMetricsGrid = ({
 	// eslint-disable-next-line no-unused-vars -- named param on a type-only call signature; base no-unused-vars doesn't recognize TS call-signature parameters.
 	onViewSection: (tab: SectionedIssuesTab) => void;
 }) => {
-	// No category filter: "All" in the issues table also includes SSL (category 'ssl'), so this tile must too or the two counts disagree.
+	// No category filter: "All" in the issues table also includes SSL (category 'ssl'), so this row must too or the two counts disagree.
 	const securityScan = useSectionStatus('', SECURITY_FINDINGS_SCANNER_IDS);
 	const pluginVulnerabilities = useSectionStatus('security', [
 		'basic-vulnerabilities',
@@ -171,85 +147,24 @@ const SecurityMetricsGrid = ({
 		'login-protection',
 	]);
 
-	const securityScanLastScan = useLastScanTime(
-		SCANNER_IDS_BY_TILE_ID['security-scan']
-	);
-	const pluginVulnerabilitiesLastScan = useLastScanTime(
-		SCANNER_IDS_BY_TILE_ID['plugin-vulnerabilities']
-	);
-	const fileChangesLastScan = useLastScanTime(
-		SCANNER_IDS_BY_TILE_ID['file-changes']
-	);
-	const sslLastScan = useLastScanTime(SCANNER_IDS_BY_TILE_ID.ssl);
-	const malwareLastScan = useLastScanTime(SCANNER_IDS_BY_TILE_ID.malware);
-	const firewallLastScan = useLastScanTime(SCANNER_IDS_BY_TILE_ID.firewall);
-	const loginProtectionLastScan = useLastScanTime(
-		SCANNER_IDS_BY_TILE_ID['login-protection']
-	);
-
-	const lastScanByTileId: Record<string, string | null> = {
-		'security-scan': securityScanLastScan.lastScanAt,
-		'plugin-vulnerabilities': pluginVulnerabilitiesLastScan.lastScanAt,
-		'file-changes': fileChangesLastScan.lastScanAt,
-		ssl: sslLastScan.lastScanAt,
-		malware: malwareLastScan.lastScanAt,
-		firewall: firewallLastScan.lastScanAt,
-		'login-protection': loginProtectionLastScan.lastScanAt,
-	};
-
-	const badgeFor = (id: string) => {
+	const badgesFor = (id: string) => {
 		switch (id) {
 			case 'security-scan':
-				return (
-					securityScan.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
+				return securityScan.badges;
 			case 'plugin-vulnerabilities':
-				return (
-					pluginVulnerabilities.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
+				return pluginVulnerabilities.badges;
 			case 'file-changes':
-				return (
-					fileChanges.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
+				return fileChanges.badges;
 			case 'ssl':
-				return (
-					ssl.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
+				return ssl.badges;
 			case 'malware':
-				return (
-					malware.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
+				return malware.badges;
 			case 'firewall':
-				return (
-					firewall.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
+				return firewall.badges;
 			case 'login-protection':
-				return (
-					loginProtection.badge ?? {
-						text: __('No open findings', 'vulopilot'),
-						color: 'green',
-					}
-				);
+				return loginProtection.badges;
 			default:
-				return NOT_TRACKED_BADGE;
+				return NOT_TRACKED_BADGES;
 		}
 	};
 
@@ -262,30 +177,43 @@ const SecurityMetricsGrid = ({
 	};
 
 	return (
-		<MetricTileComponent
-			cols={3}
-			data={METRIC_TILES.map((tile) => {
+		<>
+		<ListComponent
+			className="mini-card report list"
+			items={METRIC_TILES.map((tile) => {
 				const isTracked = Boolean(VIEW_TARGET_BY_TILE_ID[tile.id]);
-				const badge = badgeFor(tile.id);
-				const lastScanAt = lastScanByTileId[tile.id] ?? null;
+				const badges = badgesFor(tile.id);
+
+				// 2 real badges (total open + top-severity breakdown) split
+				// one after the title, one on the row's far right — same
+				// `titleTag`/`tags` split HistoryDetailPanel.tsx's own
+				// `ListComponent` rows already use for this. A single-badge
+				// row ("No open findings"/plain "N Open" — nothing to
+				// split) keeps its one badge on the right only.
+				const [rightBadge, titleBadge] = badges ?? [];
 
 				return {
 					id: tile.id,
 					icon: tile.icon,
 					title: tile.title,
-					badge: {
-						...badge,
-						...(isTracked && { onClick: () => handleView(tile.id) }),
-					},
+					titleTag: titleBadge ? (
+						<BadgeComponent
+							color={titleBadge.color}
+							text={titleBadge.text}
+						/>
+					) : null,
 					desc: tile.desc,
-					stat: isTracked
-						? lastScanAt
-							? formatLastScan(lastScanAt)
-							: __('Never scanned yet', 'vulopilot')
-						: undefined,
+					action: isTracked ? () => handleView(tile.id) : undefined,
+					tags: rightBadge ? (
+						<BadgeComponent
+							color={rightBadge.color}
+							text={rightBadge.text}
+						/>
+					) : null,
 				};
 			})}
 		/>
+		</>
 	);
 };
 

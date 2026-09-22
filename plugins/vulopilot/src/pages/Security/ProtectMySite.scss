@@ -292,6 +292,15 @@
 	}
 }
 
+// SecurityMetricsGrid.tsx's own `ListComponent` — its 7 rows' `desc` reads
+// smaller here (mockup-sized) than the default `.item-list .desc` size,
+// same scoped-override technique `.accessibility-manual-checks` above uses.
+#security-metrics-grid-card {
+	.desc {
+		font-size: 0.75rem;
+	}
+}
+
 .accessibility-manual-actions {
 	display: flex;
 	align-items: center;
