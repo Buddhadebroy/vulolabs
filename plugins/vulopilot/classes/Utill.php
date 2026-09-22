@@ -754,14 +754,17 @@ class Utill {
             ),
         ),
         // Read by vulopilot-pro's GeoInsights\CompetitorVisibilityAnalyzer —
-        // newline-separated competitor URLs to fetch and compare structural
+        // an array of `{ name, url }` rows (Settings → Business Information's
+        // `type: 'dynamic-row'` field) to fetch and compare structural
         // GEO-readiness signals against (schema/author/heading structure),
         // real HTTP requests with no AI cost. Persisted here (Free owns the
         // setting/interface) even though only Pro ever reads it — same
         // "setting round-trips through Settings regardless of which tier
         // reads it" posture every other Pro-gated setting in this file
-        // already takes.
-        'geo_competitor_urls'                   => '',
+        // already takes. Use `self::competitor_urls()` to read it — older
+        // installs may still have the pre-`dynamic-row` newline-separated
+        // string stored, which that helper also understands.
+        'geo_competitor_urls'                   => array(),
         // Scanning > Brand Intelligence. Read by
         // BrandIntelligence\Scanners\AboutPageAnalysisScanner — the minimum real word
         // count an existing About-shaped page needs before it counts as
@@ -997,5 +1000,42 @@ class Utill {
      */
     public function is_khali_dabba(): bool {
         return (bool) apply_filters( 'kothay_dabba_vulopilot', false );
+    }
+
+    /**
+     * Extracts the plain competitor URL list out of the `geo_competitor_urls`
+     * setting, for every Pro module that only ever needs the URLs
+     * (GeoInsights\CompetitorVisibilityAnalyzer, BrandIntelligence\Rest,
+     * ContentIntelligence\ContentGapAnalyzer) — none of them care about the
+     * per-row `name`, which exists purely so the Settings UI
+     * (BusinessInformation.ts's `type: 'dynamic-row'` field) can show a
+     * human-readable label next to each URL.
+     *
+     * Accepts both the current shape (`array<{name, url}>`) and the
+     * pre-`dynamic-row` shape (a single newline-separated string) so an
+     * older stored option value still works until it's next saved through
+     * the settings UI.
+     *
+     * @param array<int, array<string, mixed>>|string $stored The raw
+     *     `geo_competitor_urls` setting value.
+     * @return string[] Trimmed, non-empty URLs, in stored order.
+     */
+    public static function competitor_urls( $stored ): array {
+        if ( is_string( $stored ) ) {
+            return array_values( array_filter( array_map( 'trim', preg_split( '/[\r\n]+/', $stored ) ) ) );
+        }
+
+        if ( ! is_array( $stored ) ) {
+            return array();
+        }
+
+        $urls = array_map(
+            static function ( $row ) {
+                return is_array( $row ) ? trim( (string) ( $row['url'] ?? '' ) ) : '';
+            },
+            $stored
+        );
+
+        return array_values( array_filter( $urls ) );
     }
 }

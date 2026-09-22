@@ -44,6 +44,20 @@ defined( 'ABSPATH' ) || exit;
  * uploaded to S3/Google Drive doesn't leave an orphaned remote copy behind
  * once it's gone locally.
  *
+ * Per "No Pro logic in Free": Amazon S3/Google Drive are now Pro-gated
+ * (vulopilot-pro's own BackupCloudStorage module — see that module's own
+ * docblock). This class keeps doing its own real job — deciding WHETHER a
+ * completed backup should be uploaded, updating the row's real
+ * destination/status columns — but the actual HTTP upload/delete against
+ * S3/Google Drive is asked for via the `vulopilot_backup_upload_to_remote`/
+ * `vulopilot_backup_delete_remote_copy` actions rather than calling
+ * BackupS3Connection/BackupGoogleDriveConnection directly (both moved to
+ * Pro). When Pro isn't active/licensed, nothing is registered on either
+ * action and both calls below are silent no-ops: the row is marked
+ * `'uploading'` and then simply never resolves further, same as any other
+ * `'local'` site that never re-checks a stuck row — no fatal, no crash,
+ * Free's own local-disk backup feature keeps working exactly as before.
+ *
  * @class       BackupStorageManager class
  * @version     1.0.0
  * @author      VuloLabs
@@ -129,91 +143,33 @@ class BackupStorageManager {
             return;
         }
 
-        if ( 's3' === $destination ) {
-            $this->upload_to_s3( $repository, $backup_id, $local_path, $filename );
+        if ( 's3' !== $destination && 'google_drive' !== $destination ) {
             return;
         }
 
-        if ( 'google_drive' === $destination ) {
-            $this->upload_to_google_drive( $repository, $backup_id, $local_path, $filename );
-        }
-    }
+        // Amazon S3/Google Drive are Pro-gated (vulopilot-pro's own
+        // BackupCloudStorage module) — the real upload itself is asked
+        // for via this action rather than calling BackupS3Connection/
+        // BackupGoogleDriveConnection directly, so Free has zero
+        // remaining reference to either moved class. When Pro isn't
+        // active/licensed nothing is registered here and `$on_result`
+        // simply never runs — the row stays `'uploading'`, a silent
+        // no-op, same as this whole class's own top docblock documents.
+        $on_result = function ( string $status, array $data = array() ) use ( $repository, $backup_id ) {
+            $update = array( 'destination_status' => $status );
 
-    /**
-     * @param BackupRepository $repository
-     * @param int               $backup_id
-     * @param string            $local_path Real absolute path to the local archive.
-     * @param string            $filename   Real filename, used as the S3 object key.
-     * @return void
-     */
-    private function upload_to_s3( BackupRepository $repository, int $backup_id, string $local_path, string $filename ): void {
-        $connection = new BackupS3Connection();
+            if ( isset( $data['remote_path'] ) ) {
+                $update['remote_path'] = $data['remote_path'];
+            }
 
-        if ( ! $connection->is_configured() ) {
-            $repository->update( $backup_id, array( 'destination_status' => 'skipped_not_configured' ) );
-            return;
-        }
+            if ( isset( $data['error'] ) ) {
+                $update['destination_error'] = $data['error'];
+            }
 
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_get_contents -- reading VuloPilot's own controlled, just-finished backup archive, not arbitrary user input; same risk profile BackupManager::restore() already accepts for its own full-file reads.
-        $bytes = (string) file_get_contents( $local_path );
+            $repository->update( $backup_id, $update );
+        };
 
-        $result = $connection->build_client()->put_object( $filename, $bytes, 'application/zip' );
-
-        if ( is_wp_error( $result ) ) {
-            $repository->update(
-                $backup_id,
-                array(
-                    'destination_status' => 'failed',
-                    'destination_error'  => $result->get_error_message(),
-                )
-            );
-            return;
-        }
-
-        $repository->update(
-            $backup_id,
-            array(
-                'destination_status' => 'uploaded',
-                'remote_path'        => $filename,
-            )
-        );
-    }
-
-    /**
-     * @param BackupRepository $repository
-     * @param int               $backup_id
-     * @param string            $local_path Real absolute path to the local archive.
-     * @param string            $filename   Real filename to store on Drive.
-     * @return void
-     */
-    private function upload_to_google_drive( BackupRepository $repository, int $backup_id, string $local_path, string $filename ): void {
-        $connection = new BackupGoogleDriveConnection();
-
-        if ( ! $connection->is_connected() ) {
-            $repository->update( $backup_id, array( 'destination_status' => 'skipped_not_configured' ) );
-            return;
-        }
-
-        $result = $connection->upload_backup_file( $local_path, $filename );
-
-        if ( is_wp_error( $result ) ) {
-            $repository->update(
-                $backup_id,
-                array(
-                    'destination_status' => 'failed',
-                    'destination_error'  => $result->get_error_message(),
-                )
-            );
-            return;
-        }
-
-        $repository->update(
-            $backup_id,
-            array(
-                'destination_status' => 'uploaded',
-                'remote_path'        => $result,
-            )
-        );
+        do_action( 'vulopilot_backup_upload_to_remote', $destination, $local_path, $filename, $on_result );
     }
 
     /**
@@ -247,16 +203,17 @@ class BackupStorageManager {
             return;
         }
 
-        if ( 's3' === $destination ) {
-            $result = ( new BackupS3Connection() )->delete_object( $remote_path );
-        } elseif ( 'google_drive' === $destination ) {
-            $result = ( new BackupGoogleDriveConnection() )->delete_backup_file( $remote_path );
-        } else {
+        if ( 's3' !== $destination && 'google_drive' !== $destination ) {
             return;
         }
 
-        if ( is_wp_error( $result ) ) {
-            VuloPilot()->util->log( new \Exception( esc_html( $result->get_error_message() ) ) );
-        }
+        // Same Pro-gated indirection as schedule_upload()/
+        // upload_to_remote() above — Free never calls BackupS3Connection/
+        // BackupGoogleDriveConnection directly. A silent no-op when Pro
+        // isn't active/licensed: the remote copy (if any) is simply left
+        // in place, which is the same best-effort posture this method's
+        // own docblock already establishes for a briefly-unreachable
+        // provider.
+        do_action( 'vulopilot_backup_delete_remote_copy', $destination, $remote_path );
     }
 }

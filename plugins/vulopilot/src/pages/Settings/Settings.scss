@@ -312,3 +312,64 @@
 	align-items: center;
 	gap: 0.5rem;
 }
+
+// DeveloperToolsPanel.tsx — "Keep VuloPilot data after uninstall" split out
+// into its own visually-separated Danger Zone section below the regular
+// `FormGroupWrapperComponent`, since its "Delete everything" option is the
+// one genuinely destructive setting on this tab.
+.danger-zone {
+	border: 1px solid #dc2626;
+	border-radius: $border-radius-small;
+	margin-top: 1.25rem;
+
+	.danger-zone-title {
+		margin: 0;
+		padding: 0.75rem 0.75rem 0;
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: #dc2626;
+	}
+
+	.common-card {
+		border-bottom: 0;
+	}
+}
+
+// Settings → Backups' own "Cloud Storage" section, Pro-locked state — the
+// real row layout (ExpandablePanelInput), just non-functional; `cursor:
+// pointer` is the only visual hint needed since the click itself opens the
+// Pro popup (see Settings.tsx's own `onClickCapture` handler).
+.cloud-storage-locked {
+	cursor: pointer;
+}
+
+// `FormGroupWrapperComponent`/`FormGroupComponent`'s own 24px/16px padding
+// (zyra's FormGroupWrapperComponent.scss) is sized for a *stack* of input
+// rows (see the Backups section right above this one, 4 fields deep) — with
+// only one grouped item here (the locked panel), that same padding reads as
+// a large dead gap below the last row instead of the intended row rhythm.
+// Zeroed out here rather than in zyra itself, since every other real
+// consumer of that padding still wants it.
+//
+// `!important` is deliberate, not a lazy override: zyra injects its own
+// padding rules for `.form-group-wrapper`/`.form-group` at runtime
+// (Emotion CSS-in-JS, confirmed live via `document.styleSheets` — an
+// "inline" sheet, not this file's own compiled output), and those rules
+// keep pace with this selector's own specificity every time it's raised
+// (confirmed live: `.settings-section-group .form-group-wrapper` matched
+// a first (0,2,0) attempt here, then `.admin-settings .form-group-wrapper
+// .form-group` matched a (0,3,0) one) — climbing selector specificity
+// further just chases whatever zyra's own internal class-nesting happens
+// to be, which isn't a stable contract this file should depend on.
+// `!important` on a scoped, documented, single-purpose override like this
+// is the correct tool against a component library's own runtime-injected
+// styles, not a specificity arms race.
+.cloud-storage-section-group {
+	.form-group-wrapper {
+		padding: 0 !important;
+	}
+
+	.form-group {
+		padding: 0 !important;
+	}
+}

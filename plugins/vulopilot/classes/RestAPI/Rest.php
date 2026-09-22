@@ -100,7 +100,10 @@ class Rest {
             'core_web_vitals_beacon'      => new Controllers\CoreWebVitalsBeaconRest(),
             'page_speed'                  => new Controllers\PageSpeed(),
             'backups'                     => new Controllers\Backups(),
-            'backup_storage'              => new Controllers\BackupStorage(),
+            // 'backup_storage' (Amazon S3/Google Drive credentials) moved
+            // to vulopilot-pro's own BackupCloudStorage module — registered
+            // via the `vulopilot_rest_controllers` filter below instead,
+            // same as every other Pro-only REST controller.
             'content_assistant'           => new Controllers\ContentAssistant(),
             // "Chat with VuloPilot" (/copilot/chat + /copilot/conversations)
             // — briefly a Pro-only feature (vulopilot-pro's own CopilotChat
