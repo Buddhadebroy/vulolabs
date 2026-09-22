@@ -1,51 +1,41 @@
 import { __ } from '@wordpress/i18n';
-import ConnectionsPanel from './ConnectionsPanel';
+import IntegrationsPanel from './IntegrationsPanel';
 
 /**
- * Settings → Get Started → Get Started (this folder's own original
- * content, back to being a real sub-tab file again). Was briefly
- * flattened to a standalone top-level file (`Settings/GetStarted.ts`)
- * when it was the only real sub-tab under this folder and the resulting
- * single-item sub-tab bar was pure UI noise — now 2 more real sub-tabs
- * (Title Formats, Business Information) have moved in from the old Site
- * Identity folder per direct instruction ("move this 2 sub tab in Get
- * Started" / "Get Started have 3 tab 1 his own and two tab from Site
- * Identity"), so a real sub-tab bar is worth having again, and this file
- * moved back down into `GetStarted/` (`templateService.ts`'s own
- * file-vs-folder distinction — a `.ts` file directly under `Settings/` is
- * a flat top-level tab, one nested in a subfolder becomes a folder tab
- * with its own inner bar) to be one of its 3 real sub-tabs, `priority: 1`
- * (first).
+ * Settings → Integrations. Standalone top-level tab (moved out of the old
+ * "Get Started"/Business Visibility folder, which is gone now that every
+ * one of its sub-tabs moved elsewhere) — renamed from "Connections"
+ * (`id: 'connections'`) to "Integrations" (`id: 'integrations'`) as part
+ * of that same restructure.
  *
- * `ConnectionsPanel.tsx` and the real per-provider panel components it
+ * `IntegrationsPanel.tsx` and the real per-provider panel components it
  * composes (`VuloCloudAiConnectionPanel.tsx`/`GoogleServicesPanel.tsx`/
- * `PageSpeedStatusPanel.tsx`/`SiteVerificationPanel.tsx`) already lived in
- * this same `GetStarted/` folder — they're plain `.tsx` components, not
- * settings-tab configs (`templateService.ts`'s own `require.context` only
- * scans `.ts$` files), so this file moving back in alongside them changes
- * nothing about how those resolve; the relative import above is now
- * `./ConnectionsPanel` (same folder) rather than `./GetStarted/ConnectionsPanel`.
+ * `PageSpeedStatusPanel.tsx`/`SiteVerificationPanel.tsx`/
+ * `TagManagerPanel.tsx`) moved alongside this file into `Settings/`
+ * directly — they're plain `.tsx` components, not settings-tab configs
+ * (`templateService.ts`'s own `require.context` only scans `.ts$` files),
+ * so this file moving changes nothing about how those resolve; the
+ * relative import above is `./IntegrationsPanel` (same folder).
  *
- * `id: 'connections'` is kept exactly as-is — real navigation across this
- * plugin already links to `?page=vulopilot#&tab=settings&subtab=connections`
- * (VisibilityBySourceCard.tsx, CrawlRobotsSitemapSection.tsx,
- * PerformanceScoreCard.tsx, SlowPagesTab.tsx, Modules/index.ts's own
- * `settingsLink`), and `getSettingById()` (`@zyra/core`) resolves a
- * `subtab` by this real `id` alone, recursing through folders — it has no
- * concept of "which folder a tab lives in," so moving this file changes
- * nothing about those links.
+ * Every real deep link to this tab's old `subtab=connections` value
+ * (`VisibilityBySourceCard.tsx`, `CrawlRobotsSitemapSection.tsx`,
+ * `PerformanceScoreCard.tsx`, `SlowPagesTab.tsx`, `Modules/index.ts`'s own
+ * `settingsLink`) has been updated to `subtab=integrations` alongside this
+ * rename — `getSettingById()` (`@zyra/core`) resolves a `subtab` by real
+ * `id` alone, recursing through folders, so those links only work once
+ * they carry the new id.
  *
  * `modal` below is the same union of real flat setting keys the old
  * Connections.ts carried — still needed even though `PanelComponent`
  * bypasses InputRenderer entirely, purely so Settings.tsx's own per-tab
  * seeding logic (`fieldKeys` from `modal[].key`) populates SettingContext
- * with their current values before ConnectionsPanel.tsx's own components
+ * with their current values before IntegrationsPanel.tsx's own components
  * mount and read them via `useSetting()`.
  */
 export default {
-	id: 'connections',
-	priority: 6,
-	headerTitle: __('Connections', 'vulopilot'),
+	id: 'integrations',
+	priority: 7,
+	headerTitle: __('Integrations', 'vulopilot'),
 	headerDescription: __(
 		'Connect VuloPilot to AI services, Google services, and verify your site ownership.',
 		'vulopilot'
@@ -80,5 +70,5 @@ export default {
 		{ key: 'psi_api_key', type: 'text', label: '' },
 		{ key: 'psi_daily_limit', type: 'text', label: '' },
 	],
-	PanelComponent: ConnectionsPanel,
+	PanelComponent: IntegrationsPanel,
 };

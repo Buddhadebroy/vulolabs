@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
  * NavigatorComponent reads these to list the tab and route to it, but
  * Settings.tsx's GetForm() special-cases `currentTab === 'modules'` to
  * render ModulesPanel.tsx instead of InputRenderer (the same escape hatch
- * 'connections'/'indexnow' already use), so `modal`
+ * 'integrations'/'indexnow' already use), so `modal`
  * below is never read. Module enable/disable state isn't a field in this
  * plugin's flat settings option row either — it's its own dedicated
  * endpoint (Controllers\Settings::set_modules()/get_modules()), which is
@@ -23,16 +23,17 @@ import { __ } from '@wordpress/i18n';
  * itself was later removed from src/routes.ts too, per direct instruction,
  * once nothing real linked to it any more.
  *
- * Sorts last in the top-level bar (priority 8 — Get Started 1, Site
- * Identity 2, Scanning 3, Automation 4, Reports 5, Notifications 6,
- * Developer Tools 7). Originally placed right after "General" per the
- * direct instruction quoted above, but has since moved to the end;
- * "General" itself has since been removed entirely (every field it ever
- * had moved to other tabs), so this is now the last tab regardless.
+ * Sorts last in the top-level bar (priority 10 — Business Information 1,
+ * SEO 2, Scanning 3, Automation 4, Reports 5, Notifications 6,
+ * Integrations 7, Backups 8, Developer Tools 9). Originally placed right
+ * after "General" per the direct instruction quoted above, but has since
+ * moved to the end; "General" itself has since been removed entirely
+ * (every field it ever had moved to other tabs), so this is now the last
+ * tab regardless.
  */
 export default {
 	id: 'modules',
-	priority: 8,
+	priority: 10,
 	headerTitle: __('Modules', 'vulopilot'),
 	headerDescription: __(
 		'Enable or disable optional VuloPilot features.',

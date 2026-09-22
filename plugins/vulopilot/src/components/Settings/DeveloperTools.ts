@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
  * `id`/`priority`/`headerTitle`/`headerIcon` are read by NavigatorComponent
  * to list the tab and route to it. Settings.tsx's GetForm() special-cases
  * `currentTab === 'developer-tools'` to render DeveloperToolsPanel.tsx
- * instead of InputRenderer (the same escape hatch 'connections'/'indexnow'
+ * instead of InputRenderer (the same escape hatch 'integrations'/'indexnow'
  * already use), so `modal` below is never rendered as real fields — "Clear
  * cache"/"Reset VuloPilot" are real actions, and `keep_data_uninstall`/
  * `anonymous_usage_data` are hand-rendered too (DeveloperToolsPanel.tsx's
@@ -23,7 +23,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default {
 	id: 'developer-tools',
-	priority: 7,
+	priority: 9,
 	headerTitle: __('Developer Tools', 'vulopilot'),
 	headerDescription: __(
 		'Diagnostics and maintenance actions for troubleshooting VuloPilot.',

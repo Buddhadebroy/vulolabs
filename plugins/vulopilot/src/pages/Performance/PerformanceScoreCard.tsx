@@ -17,8 +17,8 @@ import SpeedHistoryCard from './SpeedHistoryCard';
 import LiveSiteInsightsCard from '../Security/LiveSiteInsightsCard';
 import PhpAccelerationCard from './PhpAccelerationCard';
 
-/** `id: 'connections'` (Settings/GetStarted/Connections.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; originally moved from the old Settings → Scanning → Performance tab, then merged (along with this folder's other sub-tabs) into this one "Connections" tab per direct instruction. */
-const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=connections';
+/** `id: 'integrations'` (Settings/Integrations.ts) — where the real PageSpeed Insights API key field this card's own "no PSI connected" message used to describe in text actually lives; originally moved from the old Settings → Scanning → Performance tab, then merged (along with this folder's other sub-tabs) into this one "Integrations" tab per direct instruction. */
+const PERFORMANCE_SETTINGS_URL = '?page=vulopilot#&tab=settings&subtab=integrations';
 
 interface DashboardSummary {
 	category_scores: { performance: number };

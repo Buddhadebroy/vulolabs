@@ -4,9 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getApiLink, getApiResponse, sendApiResponse } from '@zyra/core';
 import { ButtonInput, TextInput } from '@zyra/inputs';
 import { FormGroupComponent, FormGroupWrapperComponent, NoticeComponent, NoticeManager } from '@zyra/components';
-import CardHeader from '../../CardHeader';
-import { formatWpDate } from '../../../services/formatWpDate';
-import { useSetting } from '../../../contexts/SettingContext';
+import CardHeader from '../CardHeader';
+import { formatWpDate } from '../../services/formatWpDate';
+import { useSetting } from '../../contexts/SettingContext';
 
 interface PsiStatus {
 	connected: boolean;

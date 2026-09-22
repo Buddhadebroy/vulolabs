@@ -563,7 +563,7 @@ const CrawlRobotsSitemapSection = () => {
 
 	const searchConsoleUrl = gscStatus?.search_console_site
 		? `https://search.google.com/search-console?resource_id=${encodeURIComponent(gscStatus.search_console_site)}`
-		: `${appLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=connections`;
+		: `${appLocalizer.site_url}/wp-admin/admin.php?page=vulopilot#&tab=settings&subtab=integrations`;
 
 	const sitemapRows: SitemapRow[] = (sitemap?.sitemaps ?? []).map((child, index) => ({
 		id: `${index}-${child.loc}`,

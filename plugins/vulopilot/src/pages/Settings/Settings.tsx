@@ -21,11 +21,11 @@ import { SettingProvider, useSetting } from '../../contexts/SettingContext';
 import getTemplateData from '../../services/templateService';
 import ModulesPanel from '../../components/Settings/ModulesPanel';
 import DeveloperToolsPanel from '../../components/Settings/DeveloperToolsPanel';
-import IndexNowPanel from '../../components/Settings/BusinessVisibility/IndexNowPanel';
-import SitemapPingWatcher from '../../components/Settings/BusinessVisibility/SitemapPingWatcher';
-import SitemapHowItWorksCard from '../../components/Settings/BusinessVisibility/SitemapHowItWorksCard';
+import IndexNowPanel from '../../components/Settings/SEO/IndexNowPanel';
+import SitemapPingWatcher from '../../components/Settings/SEO/SitemapPingWatcher';
+import SitemapHowItWorksCard from '../../components/Settings/SEO/SitemapHowItWorksCard';
 import ShowProPopup from '../../components/Popup/Popup';
-import { CLOUD_STORAGE_LOCKED_METHODS } from '../../components/Settings/BusinessVisibility/Backups';
+import { CLOUD_STORAGE_LOCKED_METHODS } from '../../components/Settings/Backups';
 import { useFilterSlot } from '../../services/useFilterSlot';
 import type { ComponentType } from 'react';
 
@@ -185,8 +185,8 @@ const Settings = () => {
 			return <DeveloperToolsPanel />;
 		}
 
-		// Generic version of the three escape hatches above — GetStarted/
-		// Connections.ts (real OAuth/credential flows, same reasoning as
+		// Generic version of the three escape hatches above — Settings/
+		// Integrations.ts (real OAuth/credential flows, same reasoning as
 		// 'indexnow' above) carries its own `PanelComponent` this way
 		// instead of a hardcoded
 		// `currentTab === '...'` case, the same mechanism vulopilot-pro's

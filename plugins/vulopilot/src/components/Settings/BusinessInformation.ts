@@ -1,10 +1,12 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Settings → Get Started → Business Information — a plain declarative
+ * Settings → Business Information — a standalone top-level tab (moved out
+ * of the old "Get Started"/Business Visibility folder, which is gone now
+ * that every one of its sub-tabs moved elsewhere), a plain declarative
  * `modal` (InputRenderer), replacing the former hand-built `PanelComponent`
  * (BusinessInformation.ts/BusinessInformationPanel.tsx, deleted) now that
- * PageSpeed Insights has moved to ConnectionsPanel.tsx and no longer needs
+ * PageSpeed Insights has moved to IntegrationsPanel.tsx and no longer needs
  * a real component composed in above this tab's own "Business" fields.
  *
  * `id: 'business-information'` (this file used to carry a typo'd

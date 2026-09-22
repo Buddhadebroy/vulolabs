@@ -8,8 +8,8 @@ import {
 	PopupComponent,
 } from '@zyra/components';
 import { ButtonInput } from '@zyra/inputs';
-import ShowProPopup from '../../Popup/Popup';
-import CardHeader from '../../CardHeader';
+import ShowProPopup from '../Popup/Popup';
+import CardHeader from '../CardHeader';
 
 interface VuloCloudStatus {
 	/** Is this site connected to a VuloCloud account at all (a real site secret exists)? */

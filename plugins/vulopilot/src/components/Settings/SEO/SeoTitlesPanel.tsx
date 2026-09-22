@@ -12,10 +12,10 @@ import {
 	NoticeManager,
 	SectionComponent,
 } from '@zyra/components';
-import { ToggleInput, SelectInput, TextInput } from '@zyra/inputs';
+import { MultiCheckboxInput, SelectInput, TextInput } from '@zyra/inputs';
 import { TableCard } from '@zyra/table';
 import { useSetting } from '../../../contexts/SettingContext';
-import './TitleFormatsPanel.scss';
+import './SeoTitlesPanel.scss';
 
 type BadgeClass = 'green' | 'info' | 'red';
 
@@ -142,7 +142,7 @@ const toBreadcrumb = (urlExample: string): string =>
 		.join(' › ');
 
 /**
- * Settings → Get Started → Title Formats.
+ * Settings → SEO → SEO Titles.
  *
  * Real backend: Services\TitleFormatter filters `pre_get_document_title`
  * with whichever `title_format_*` template matches the current frontend
@@ -152,7 +152,7 @@ const toBreadcrumb = (urlExample: string): string =>
  * `site_identity_enabled` — see that class's own docblock, including why
  * `post`/`page` descriptions defer to a real `post_excerpt` first when one
  * exists. This panel is a hand-built `PanelComponent` escape hatch
- * (TitleFormats.ts, same mechanism GetStarted/SiteVerification.ts already
+ * (SeoTitles.ts, same mechanism GetStarted/SiteVerification.ts already
  * uses) rather than InputRenderer, since it needs a live, client-computed
  * preview across 14 interdependent template fields at once — something
  * InputRenderer's own per-field declarative shape doesn't support, even
@@ -199,7 +199,7 @@ const toBreadcrumb = (urlExample: string): string =>
  * would need real destination URLs (a demo video, a booking page) that
  * don't exist anywhere in this codebase; omitted rather than fabricated.
  */
-const TitleFormatsPanel = () => {
+const SeoTitlesPanel = () => {
 	const { setting, updateSetting } = useSetting();
 
 	const [separator, setSeparator] = useState<string>('|');
@@ -488,18 +488,22 @@ const TitleFormatsPanel = () => {
 				title={__('Enable Site Identity', 'vulopilot')}
 				desc={__('Use the configured title and description formats across your site.', 'vulopilot')}
 				rightContent={
-					<ToggleInput
-						value={enabled}
+					<MultiCheckboxInput
+						look="toggle"
 						modules={[]}
-						options={[
-							{ key: 'enabled', label: __('Enabled', 'vulopilot'), value: 'enabled' },
-							{ key: 'disabled', label: __('Disabled', 'vulopilot'), value: 'disabled' },
-						]}
-						onChange={(value) => handleSettingChange('site_identity_enabled', value as string)}
+						value={'enabled' === enabled ? ['site_identity_enabled'] : []}
+						options={[{ key: 'site_identity_enabled', value: 'site_identity_enabled' }]}
+						onChange={(values) =>
+							handleSettingChange(
+								'site_identity_enabled',
+								values.includes('site_identity_enabled') ? 'enabled' : 'disabled'
+							)
+						}
 					/>
 				}
 			/>
 
+			{'enabled' === enabled && (
 			<ContainerComponent>
 				<ColumnComponent grid={8}>
 					<CardComponent
@@ -645,4 +649,4 @@ const TitleFormatsPanel = () => {
 	);
 };
 
-export default TitleFormatsPanel;
+export default SeoTitlesPanel;

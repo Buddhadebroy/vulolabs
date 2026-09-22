@@ -1,21 +1,21 @@
 import { __ } from '@wordpress/i18n';
-import TitleFormatsPanel from './TitleFormatsPanel';
+import SeoTitlesPanel from './SeoTitlesPanel';
 
 /**
- * Settings → Get Started → Title Formats.
+ * Settings → SEO → SEO Titles.
  *
- * Moved here from the old Site Identity folder per direct instruction
- * ("move this 2 sub tab in Get Started" / "Get Started have 3 tab 1 his
- * own and two tab from Site Identity") — Site Identity had only these 2
- * sub-tabs (this one and Business Information), so that top-level folder
- * is gone now that both live here instead. Same real `id: 'title-formats'`
- * as before, so every existing `?...&subtab=title-formats` deep link
- * still resolves (`getSettingById()` recurses by id alone, with no
- * concept of which folder a tab lives in).
+ * Moved into the new top-level "SEO" group folder (alongside Sitemap and
+ * Instant Indexing) out of the old "Get Started"/Business Visibility
+ * folder, which is gone now that every one of its sub-tabs moved
+ * elsewhere. Renamed from "Title Formats" (`id: 'title-formats'`) to "SEO
+ * Titles" (`id: 'seo-titles'`) as part of that same restructure — no other
+ * `subtab=title-formats` deep link existed anywhere else in this codebase
+ * (re-verified via grep), so nothing else needed updating for the id
+ * change.
  *
  * `PanelComponent` escape hatch (Settings.tsx's own GetForm(), same
  * mechanism GetStarted/AiProviders.ts and GetStarted/GoogleServices.ts
- * already use) — TitleFormatsPanel.tsx manages its own explicit "Save
+ * already use) — SeoTitlesPanel.tsx manages its own explicit "Save
  * Changes" action (rather than InputRenderer's own per-field autosave) and
  * a live preview, which don't fit InputRenderer's static declarative
  * fields. `modal` still lists the real underlying keys purely so
@@ -31,9 +31,9 @@ import TitleFormatsPanel from './TitleFormatsPanel';
  * descriptions defer to a real `post_excerpt` first.
  */
 export default {
-	id: 'title-formats',
-	priority: 2,
-	headerTitle: __('Title Formats', 'vulopilot'),
+	id: 'seo-titles',
+	priority: 1,
+	headerTitle: __('SEO Titles', 'vulopilot'),
 	headerDescription: __(
 		'Configure how your page titles and descriptions are formatted across your website.',
 		'vulopilot'
@@ -59,5 +59,5 @@ export default {
 		{ key: 'description_format_search', type: 'text', label: '' },
 		{ key: 'description_format_archive', type: 'text', label: '' },
 	],
-	PanelComponent: TitleFormatsPanel,
+	PanelComponent: SeoTitlesPanel,
 };
