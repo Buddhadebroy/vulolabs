@@ -64,20 +64,20 @@ class GenerateAuthorBioAction extends AbstractBasicAction {
         $post    = $post_id ? get_post( $post_id ) : null;
 
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post or page.', 'vulopilot' ) );
         }
 
         $author_id = (int) $post->post_author;
         $author    = get_userdata( $author_id );
 
         if ( ! $author ) {
-            throw new InvalidActionInputException( __( 'This post has no valid author to write a bio for.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'This post has no valid author to write a bio for.', 'vulopilot' ) );
         }
 
         $existing_bio = (string) get_the_author_meta( 'description', $author_id );
 
         if ( '' !== trim( $existing_bio ) ) {
-            throw new InvalidActionInputException( __( 'This author already has a bio - there is nothing to fix.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'This author already has a bio - there is nothing to fix.', 'vulopilot' ) );
         }
 
         return array(
@@ -125,7 +125,7 @@ class GenerateAuthorBioAction extends AbstractBasicAction {
      */
     public function validate_output( array $output, array $input ): void {
         if ( '' === ( $output['bio'] ?? '' ) ) {
-            throw new InvalidActionOutputException( __( 'The AI did not return any bio text.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI did not return any bio text.', 'vulopilot' ) );
         }
     }
 

@@ -93,10 +93,9 @@ class SitemapStylesheet {
         $brand = self::BRAND_COLOR;
         $tint  = self::BRAND_TINT;
 
-        return $css . <<<EOF
-
+        return $css . "
 			body {
-				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+				font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen-Sans, Ubuntu, Cantarell, \"Helvetica Neue\", sans-serif;
 				background: #fff;
 				color: #444;
 				margin: 0;
@@ -153,7 +152,7 @@ class SitemapStylesheet {
 			}
 			#sitemap__table tr a{text-decoration: none;}
 
-		EOF;
+";
     }
 
     /**
@@ -187,18 +186,17 @@ class SitemapStylesheet {
         $lastmod = esc_xml( __( 'Last Modified', 'vulopilot' ) );
         $css     = $this->filter_stylesheet_css( '' );
 
-        return <<<XSL
-<?xml version="1.0" encoding="UTF-8"?>
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <xsl:stylesheet
-		version="1.0"
-		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9"
-		exclude-result-prefixes="sitemap"
+		version=\"1.0\"
+		xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"
+		xmlns:sitemap=\"http://www.sitemaps.org/schemas/sitemap/0.9\"
+		exclude-result-prefixes=\"sitemap\"
 		>
 
-	<xsl:output method="html" encoding="UTF-8" indent="yes" />
+	<xsl:output method=\"html\" encoding=\"UTF-8\" indent=\"yes\" />
 
-	<xsl:template match="/">
+	<xsl:template match=\"/\">
 		<html {$lang}>
 			<head>
 				<title>{$title}</title>
@@ -207,26 +205,26 @@ class SitemapStylesheet {
 				</style>
 			</head>
 			<body>
-				<div id="sitemap">
-					<div id="sitemap__header">
+				<div id=\"sitemap\">
+					<div id=\"sitemap__header\">
 						<h1>{$title}</h1>
 						<p>{$description}</p>
 						<p>{$learn_more}</p>
 					</div>
-					<div id="sitemap__content">
-						<p class="text">{$text}</p>
-						<table id="sitemap__table">
+					<div id=\"sitemap__content\">
+						<p class=\"text\">{$text}</p>
+						<table id=\"sitemap__table\">
 							<thead>
 								<tr>
-									<th class="loc">{$url}</th>
-									<th class="lastmod">{$lastmod}</th>
+									<th class=\"loc\">{$url}</th>
+									<th class=\"lastmod\">{$lastmod}</th>
 								</tr>
 							</thead>
 							<tbody>
-								<xsl:for-each select="sitemap:sitemapindex/sitemap:sitemap">
+								<xsl:for-each select=\"sitemap:sitemapindex/sitemap:sitemap\">
 									<tr>
-										<td class="loc"><a href="{sitemap:loc}"><xsl:value-of select="sitemap:loc" /></a></td>
-										<td class="lastmod"><xsl:value-of select="sitemap:lastmod" /></td>
+										<td class=\"loc\"><a href=\"{sitemap:loc}\"><xsl:value-of select=\"sitemap:loc\" /></a></td>
+										<td class=\"lastmod\"><xsl:value-of select=\"sitemap:lastmod\" /></td>
 									</tr>
 								</xsl:for-each>
 							</tbody>
@@ -238,6 +236,6 @@ class SitemapStylesheet {
 	</xsl:template>
 </xsl:stylesheet>
 
-XSL;
+";
     }
 }

@@ -34,9 +34,24 @@ defined( 'ABSPATH' ) || exit;
 class Automations extends \WP_REST_Controller {
 
     /**
+     * `workflow-automation` (this feature's own Settings → Modules id -
+     * `components/Modules/index.ts`, `ShowProPopup moduleName`) is NOT this
+     * route's own path segment - every real frontend consumer
+     * (BuiltinAutomationCards.tsx, AutomationsAttentionCard.tsx,
+     * AutomationStatusWidget.tsx) calls `getApiLink(appLocalizer,
+     * 'automations')`, and this controller is itself registered under the
+     * `'automations'` key in Rest.php's own controllers array - `$rest_base`
+     * being `workflow-automation` instead of `automations` was a real,
+     * silent typo/mix-up with that unrelated module id, resulting in every
+     * one of those real GET calls 404ing (`/vulopilot/v1/automations` had
+     * no route at all) rather than any of them actually reaching this
+     * class's own `get_items()`. Confirmed live: before this fix,
+     * `/vulopilot/v1/automations` 404s while `/vulopilot/v1/workflow-automation`
+     * (this route, unreachable from the real app) 401s.
+     *
      * @var string
      */
-    protected $rest_base = 'workflow-automation';
+    protected $rest_base = 'automations';
 
     /**
      * @inheritDoc

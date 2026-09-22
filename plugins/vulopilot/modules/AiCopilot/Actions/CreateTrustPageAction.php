@@ -90,7 +90,7 @@ class CreateTrustPageAction extends AbstractBasicAction {
         }
 
         if ( empty( $missing ) ) {
-            throw new InvalidActionInputException( __( 'This site already has both an About and a Contact page - there is nothing to fix.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'This site already has both an About and a Contact page - there is nothing to fix.', 'vulopilot' ) );
         }
 
         return array(
@@ -142,7 +142,7 @@ class CreateTrustPageAction extends AbstractBasicAction {
     public function validate_output( array $output, array $input ): void {
         foreach ( $input['missing_pages'] as $type ) {
             if ( empty( $output['pages'][ $type ]['title'] ) || empty( $output['pages'][ $type ]['content'] ) ) {
-                throw new InvalidActionOutputException( __( 'The AI did not return content for one of the requested pages.', 'vulopilot' ) );
+                throw new InvalidActionOutputException( esc_html__( 'The AI did not return content for one of the requested pages.', 'vulopilot' ) );
             }
         }
     }

@@ -74,7 +74,7 @@ class GenerateBlogAction extends AbstractBasicAction {
         $topic = sanitize_text_field( (string) ( $input['topic'] ?? '' ) );
 
         if ( mb_strlen( $topic ) < 5 ) {
-            throw new InvalidActionInputException( __( 'Please provide a topic of at least 5 characters.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'Please provide a topic of at least 5 characters.', 'vulopilot' ) );
         }
 
         // Both optional - a bare topic is still a complete, valid input,
@@ -141,12 +141,12 @@ class GenerateBlogAction extends AbstractBasicAction {
     public function validate_output( array $output, array $input ): void {
         if ( '' === ( $output['title'] ?? '' ) || '' === ( $output['body'] ?? '' ) ) {
             throw new InvalidActionOutputException(
-                __( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' )
+                esc_html__( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' )
             );
         }
 
         if ( mb_strlen( wp_strip_all_tags( $output['body'] ) ) < 100 ) {
-            throw new InvalidActionOutputException( __( 'The AI returned a post body that is too short to be useful.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned a post body that is too short to be useful.', 'vulopilot' ) );
         }
     }
 

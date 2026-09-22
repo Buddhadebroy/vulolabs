@@ -72,7 +72,7 @@ class GenerateProductDescriptionAction extends AbstractBasicAction {
         $tone         = mb_substr( sanitize_text_field( (string) ( $input['tone'] ?? '' ) ), 0, 60 );
 
         if ( mb_strlen( $product_name ) < 3 ) {
-            throw new InvalidActionInputException( __( 'Please provide a product name of at least 3 characters.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'Please provide a product name of at least 3 characters.', 'vulopilot' ) );
         }
 
         return array(
@@ -131,12 +131,12 @@ class GenerateProductDescriptionAction extends AbstractBasicAction {
     public function validate_output( array $output, array $input ): void {
         if ( '' === ( $output['title'] ?? '' ) || '' === ( $output['body'] ?? '' ) ) {
             throw new InvalidActionOutputException(
-                __( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' )
+                esc_html__( 'The AI response did not match the expected TITLE/BODY format.', 'vulopilot' )
             );
         }
 
         if ( mb_strlen( wp_strip_all_tags( $output['body'] ) ) < 40 ) {
-            throw new InvalidActionOutputException( __( 'The AI returned a description that is too short to be useful.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned a description that is too short to be useful.', 'vulopilot' ) );
         }
     }
 

@@ -76,7 +76,7 @@ class WriteMetaTitleAction extends AbstractBasicAction {
         // own "Fix with AI" title button (Checklist.tsx) is the one real
         // caller that can hand this a product id.
         if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
-            throw new InvalidActionInputException( __( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ) );
+            throw new InvalidActionInputException( esc_html__( 'post_id must refer to an existing post, page, or product.', 'vulopilot' ) );
         }
 
         return array(
@@ -126,11 +126,11 @@ class WriteMetaTitleAction extends AbstractBasicAction {
         $title = $output['title'] ?? '';
 
         if ( '' === $title ) {
-            throw new InvalidActionOutputException( __( 'The AI returned an empty title.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned an empty title.', 'vulopilot' ) );
         }
 
         if ( mb_strlen( $title ) > self::MAX_LENGTH * 2 ) {
-            throw new InvalidActionOutputException( __( 'The AI returned a title that is too long.', 'vulopilot' ) );
+            throw new InvalidActionOutputException( esc_html__( 'The AI returned a title that is too long.', 'vulopilot' ) );
         }
     }
 
